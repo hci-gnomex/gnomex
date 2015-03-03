@@ -1,0 +1,437 @@
+<?xml version="1.0" encoding="utf-8"?>
+<exp:TabSamplesBase
+		   xmlns:mx="http://www.adobe.com/2006/mxml" 
+		   xmlns:util="views.util.*"
+		   xmlns:fx="*.views.renderers"
+		   xmlns:exp="views.experiment.*"
+		   xmlns:grid="views.util.grid.*"
+		   show="{this.init();}"
+		   label="Samples" width="100%" height="100%"  enabled="false"  xmlns:renderers="views.renderers.*" >
+
+	<mx:Script>
+		<![CDATA[
+			import hci.flex.controls.DropdownLabel;
+			import hci.flex.controls.Label;
+			
+			import mx.collections.XMLListCollection;
+			import mx.controls.AdvancedDataGrid;
+			import mx.controls.Alert;
+			import mx.controls.TextInput;
+			import mx.events.CloseEvent;
+			import mx.managers.PopUpManager;
+			import mx.utils.ObjectUtil;
+			import mx.utils.StringUtil;
+			
+			import views.renderers.CheckBoxRenderer;
+			import views.renderers.ComboBox;
+			import views.renderers.ComboBoxWorkflowStatus;
+			import views.renderers.GridColumnFillButton;
+			import views.renderers.MultiselectRenderer;
+			import views.renderers.URLRenderer;
+			import views.util.AdvancedDataGridColumnWithType;
+			import views.util.AnnotationAdvancedDataGridColumn;
+			import views.util.CopySampleSheetColumnView;
+			import views.util.UploadSampleSheetInstructionsView;
+			import views.util.UploadSampleSheetView;
+			
+			private var saveInstructionToolTipText:String;
+						
+			[Bindable]
+			private var isExternal:Boolean = false;
+			
+			private var uploadFR:FileReference;
+			private var uploadSampleSheetURL:String;
+			private var docTypes:FileFilter;
+			private var hasColumnNames:Boolean; 
+			private var	sampleSheetXML:XML;
+
+			
+			
+			override public function getSamplesGrid():AdvancedDataGrid {
+				return this.samplesGrid;
+			}
+			
+			override protected function getAddAllAnnotations():Boolean {
+				return false;
+			}
+									
+			private function deleteTheSample():void {
+				var idx:int = samplesGrid.selectedIndex;
+				deleteSample();
+				checkSamplesCompleteness();
+				samplesGrid.selectedIndex = idx;
+			}
+			
+			override protected function onPromptToClearAllSamples(event:CloseEvent):void {
+				if (event.detail==Alert.YES) {
+					parentDocument.samples.removeAll();
+					if ( !parentDocument.isEditState() ){
+						this.initializeSamplesGrid();
+					} else {
+						this.samplesGrid.addRow();
+					}
+					
+					checkSamplesCompleteness();
+					this.initializeBarcoding();
+				}
+			}	
+			
+			override public function initializeSamplesGrid():void {
+				if (parentDocument.requestToClone != null) {
+					return;
+				}
+				
+				var numberOfSamples:Number = 0;
+				var numberOfSamplesToAdd:Number = 0;
+				
+				if (parentApplication.submitInternalExperiment()) {
+					
+					if (parentDocument.isEditState()) {
+						numberOfSamples = parentDocument.samples.length > 0 ? new Number(parentDocument.samples.length) : 1;
+					} else {
+						if (!parentDocument.sampleSetupView.checkSampleSetupCompleteness()) {
+							return;
+						}
+						
+						numberOfSamples = new Number(parentDocument.sampleSetupView.numberOfSamples.text);
+					}
+					
+				} else {
+					numberOfSamples = 1;
+				}
+				
+				if (parentDocument.samples.length <= numberOfSamples) {
+					numberOfSamplesToAdd = numberOfSamples - parentDocument.samples.length;
+					for(var x:int = 0; x < numberOfSamplesToAdd; x++) {
+						addSample();
+					}
+				} else {
+					while (parentDocument.samples.length > numberOfSamples) {
+						parentDocument.samples.removeItemAt(parentDocument.samples.length - 1);
+					}
+				}
+			}
+			
+			override public function addSample():Boolean {
+				var emptyNode:XML = null;
+				var isValid:Boolean = true;
+				
+				emptyNode = this.getEmptySampleNode(parentDocument.samples.length);
+				
+				if (emptyNode != null) {
+					parentDocument.samples.addItem(emptyNode);
+				}
+				
+				return isValid;
+			}
+			
+			
+			private function getEmptySampleNode(idx:int):XML {
+				var sampleId:String = "Sample" + idx;
+				var idOrganism:String	= parentApplication.submitInternalExperiment() && !parentDocument.isEditState()  ? 
+					parentDocument.sampleSetupView.sampleOrganismCombo.selectedItem.@value :
+					(parentDocument.request.@idOrganismSampleDefault != null ? parentDocument.request.@idOrganismSampleDefault : '');		
+				var idSampleType:String	= parentApplication.submitInternalExperiment() && parentDocument.sampleSetupView.sampleTypeRadioGroup.selectedValue != null ? 
+					parentDocument.sampleSetupView.sampleTypeRadioGroup.selectedValue : '';
+				
+				var emptyNode:XML = new XML("<Sample " +
+					" idSample='" + sampleId + "'" +
+					" name='' description='' " +
+					" concentration=''" +
+					" canChangeSampleName='Y'" +	
+					" canChangeSampleType='Y'" +
+					" canChangeSampleConcentration='Y'" +
+					" canChangeSampleSource='Y'" +
+					" idOrganism='"  + idOrganism + "'" +	
+					" idSampleType='"  + idSampleType + "'" +
+					"/>");
+				return emptyNode;
+			}
+			
+			override public function checkSamplesCompleteness():void {
+				parentDocument.userWarningsSamples = "";
+				
+				var completeCount:int = 0;
+				var nameCompleteCount:int = 0;
+				for each(var sample:Object in parentDocument.samples) {
+					if (isEntered(sample, "@name")) {
+						nameCompleteCount++;
+					}
+					completeCount++;
+				}
+				
+				var isComplete:Boolean = false;
+				if (parentDocument.samples.length > 0 && completeCount == parentDocument.samples.length) {
+					
+						if (nameCompleteCount >= new Number(parentDocument.sampleSetupView.numberOfSamples.text)) {
+							isComplete = true;
+						} else {
+							isComplete = false;
+						}
+					
+				} else if (parentDocument.isEditState()) {
+					isComplete = true;
+					
+				}
+				
+				if (parentDocument.theTab.contains(parentDocument.visibilityView)) {
+					parentDocument.visibilityView.enabled = isComplete;
+				} else if (parentDocument.theTab.contains(parentDocument.confirmView)) {
+					parentDocument.confirmView.enabled = isComplete;
+				}
+								
+				parentDocument.enableNextButtons();
+				callLater(postSamplesCompleteness, [isComplete]);
+			
+			}
+			
+			private function postSamplesCompleteness(isComplete:Boolean):void {
+				
+				if (!isComplete) {
+					
+					if (parentDocument.theTab.contains(parentDocument.visibilityView)) {
+						parentDocument.visibilityView.enabled = false;					
+					}
+					if (parentDocument.theTab.contains(parentDocument.confirmView)) {
+						parentDocument.confirmView.enabled = false;					
+					}
+				} 
+			
+			}
+			
+			
+			override public function initializeBarcoding():void {
+				setSamplesGridDataProvider();
+								
+				// handle the download sample sheet events
+				this.samplesGrid.validateNow();
+				callLater(this.checkSamplesCompleteness);
+			
+			}
+			
+			override public function setShowCCNumber(show:Boolean):void {
+				if (showCCNumberCheckbox != null) {
+					this.showCCNumberCheckbox.selected = show;
+				}
+			}
+			
+			override public function getShowCCNumber():Boolean {
+				if (showCCNumberCheckbox != null) {
+					return this.showCCNumberCheckbox.selected;
+				} else {
+					return false;
+				}
+			}
+			
+			private function setSamplesGridDataProvider():void {
+				this.samplesGrid.validateNow(); // Make sure columns on samples grid are created
+				
+				this.samplesGrid.dataProvider = parentDocument.samples;
+								
+			}
+			
+						
+			private function setButtonsVisibility(vis:Boolean):void {
+				buttonsContainer.visible = vis;
+				buttonsContainer.includeInLayout = vis;
+			}
+			
+			override public function showHideColumns():void {
+				isExternal = (parentDocument.isEditState() && parentDocument.request.@isExternal == 'Y') || (!parentDocument.isEditState() && !parentApplication.isInternalExperimentSubmission);
+				isEditState = parentDocument.isEditState();
+				
+				showCCNumberCheckbox.visible =  !isExternal;
+				showCCNumberCheckbox.includeInLayout =  !isExternal;
+				showCCNumberCheckbox.width = isExternal ? 0 : 250;
+				this.ccNumberCheckBoxHelp.visible = !isExternal;
+				this.ccNumberCheckBoxHelp.includeInLayout = !isExternal;
+				
+				setButtonsVisibility(true);
+				samplesGrid.rowOperationsAllowed = true;
+				samplesGrid.insertRowEnabled = false;
+				
+				// Don't allow sample editing on edit unless user is admin or experiment is external or experiment is non-submitted dna sq experiment.
+				if (isEditState && !parentApplication.isAdminState && !isExternal ) {
+					setButtonsVisibility(false);
+					samplesGrid.rowOperationsAllowed = false;
+				}
+				
+				// Edit columns shown
+				
+				sampleNumberCol.visible = parentDocument.isEditState();
+				
+				if (!parentDocument.isEditState()) {
+					if (parentDocument.theTab.contains(parentDocument.confirmView)) {
+						parentDocument.confirmView.showHideColumns();									
+					}
+				}
+				
+			}
+			
+			override protected function rebuildSamplesGrid():void {
+			}
+			
+			private function toggleShowCCNumber():void {
+				if (!this.showCCNumberCheckbox.selected) {
+					for each(var s:XML in parentDocument.samples) {
+						s.@ccNumber = '';
+					}
+				}
+			}
+			
+			override public function setCoreFacilityNoteVisibility(vis:Boolean):void {
+				coreFacilityNoteVBox.visible = vis;
+				coreFacilityNoteVBox.includeInLayout = vis;
+				if (vis) {
+					this.buttonAndNoteBox.height=88;
+				} else {
+					this.buttonAndNoteBox.height=20;
+				}
+			}
+			
+			public function textChange(item:String):void {
+				var txt:String = item;
+				if(txt.length == 30) {
+					Alert.show("Maximum allowed limit is 30 characters");					
+				}
+			}
+
+		]]>
+	</mx:Script>	
+	
+	<mx:VBox width="100%" height="100%" verticalGap="2" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
+		<mx:HBox width="100%" id="topBox">
+			<mx:VBox width="100%" height="88" verticalGap="0" paddingBottom="0" paddingTop="0" id="buttonAndNoteBox">
+				<mx:VBox height="100%" width="100%" id="coreFacilityNoteVBox" verticalGap="0" paddingBottom="0" paddingTop="0">
+					<util:ContextHelp context1="coreFacilityNoteHelp" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Core Facility Note Help"
+									  label="Enter a note for the Core Facility (optional)." labelPlacement="left" id="coreFacilityNoteLabel"/>
+					<util:TextAreaWorkaround id="coreFacilityNoteText" text="{parentDocument.request.@corePrepInstructions}" focusOut="parentDocument.request.@corePrepInstructions = coreFacilityNoteText.text" 
+											 width ="100%" height="100%"/>
+				</mx:VBox>
+			</mx:VBox>
+			<mx:VBox horizontalAlign="center" visible="{parentApplication.isInternalExperimentSubmission}" includeInLayout="{parentApplication.isInternalExperimentSubmission}" id="instructionVBox">
+				<util:ContextHelp context1="samplesTabHelp" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" 
+								  context3="{parentDocument.requestType}"
+								  title="Samples Help" label="Click for Instructions" id="instructions" hideLabelIfNoHelp="true"/>
+			</mx:VBox>
+			
+		</mx:HBox>
+		<mx:Spacer width="8"/>
+		<mx:HBox width="100%" horizontalGap="0" verticalAlign="middle">
+			<util:ContextHelp context1="addSampleHelp" context2="" context3="" 
+							  showEdit="{parentApplication.isSuperAdmin}" 
+							  title="Add Samples Help" label="How do I add a sample?" id="addSampleHelp" />
+			<util:ContextHelp context1="samplesGridHelp" context2="" context3=""
+							  showEdit="{parentApplication.isSuperAdmin}" 
+							  title="Sample Grid Help" label="Copy and paste sample grid" id="copyPasteHelp" />
+			<mx:HBox id="buttonsContainer" horizontalGap="0">
+				<mx:LinkButton horizontalGap="0" textDecoration="underline"  label="Upload sample sheet" click="uploadSampleSheet();" icon="@Embed(source='../../assets/upload.png')" id="uploadSampleSheetButton" toolTip="Upload sample sheet&#13;(tab delimited txt file)" />
+				<mx:LinkButton  horizontalGap="0" textDecoration="underline" id="downloadButton" label="Download sample sheet" click="{downloadSampleSheet()}"   color="#0000FF" icon="@Embed(source='../../assets/download.png')"/>
+				<mx:LinkButton  horizontalGap="0" textDecoration="underline" id="uploadHintLink" icon="@Embed(source='../../assets/information.png')" visible="{uploadSampleSheetButton.visible}" includeInLayout="{uploadSampleSheetButton.visible}"
+								label="Sample sheet help" 
+								click="PopUpManager.centerPopUp(PopUpManager.createPopUp(this, UploadSampleSheetInstructionsView, true));"
+								toolTip=" 1.  Download the sample sheet or create your own table&#13;       in a program like Excel.&#13; 2.  Fill in the table for all the samples.&#13; 3.  Save the file as a tab-delimited txt file.&#13; 4.  Click 'Upload sample sheet' and select the file you created."/>
+				<mx:Spacer width="1"/>
+				<mx:VRule height="20"/>
+			</mx:HBox>
+			
+			
+			<mx:Spacer width="4"/>
+			
+			<util:ContextHelp context1="ccNumberCheckBoxHelp" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="CC Number Help"
+							  label="" labelPlacement="left" id="ccNumberCheckBoxHelp"/>
+			<mx:Spacer width="2" />
+			<mx:CheckBox id="showCCNumberCheckbox"
+						 selected="false"
+						 click="toggleShowCCNumber()"  
+						 visible="{parentApplication.isInternalExperimentSubmission &amp;&amp; parentApplication.isBSTLinkageSupported &amp;&amp; currentState != 'CapSeqState'}"
+						 includeInLayout="{parentApplication.isInternalExperimentSubmission &amp;&amp; parentApplication.isBSTLinkageSupported  &amp;&amp; currentState != 'CapSeqState'}" 
+						 toolTip="Link samples to itBioPath using CC Number"
+						 label="Enter CC Numbers" />
+		</mx:HBox>
+		
+		<grid:CopyPasteSampleGrid width="100%" height="100%" id="samplesGrid"  
+								  editable="true"
+								  itemFocusOut="checkSamplesCompleteness()" 
+								  addRowFunction="{addSample}"
+								  deleteRowFunction="{deleteTheSample}"
+								  clearAllFunction="promptToClearAllSamples"
+								  showRowNumberCol="true">
+			<grid:columns>
+				<mx:AdvancedDataGridColumn id="sampleNumberCol" headerText="ID" width="80" visible="true"  dataField="@number"  editable="false">
+					<mx:headerRenderer > 
+						<mx:Component>
+							<mx:VBox verticalGap="0" horizontalScrollPolicy="off"  verticalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle"> 
+								<util:ContextHelp context1="sampleNumber" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="Sample ID Help" 
+												  showEdit="{parentApplication.isAdminState}" label="ID" noIconSpaceIfNoHelp="true"/>
+							</mx:VBox> 
+						</mx:Component>
+					</mx:headerRenderer>
+				</mx:AdvancedDataGridColumn>       
+				<mx:AdvancedDataGridColumn headerText="Sample Name" width="215" editorDataField="text" dataField="@name" rendererIsEditor="false"
+										   id="sampleNameCol"
+										   editable="true" showDataTips="true" dataTipField="Please enter maximum of 30 Characters"
+										   itemRenderer="{hci.flex.controls.Label.create('@name')}" >
+					<mx:itemEditor>
+						<mx:Component id ="sampleNameTextField">
+							<mx:TextInput  maxChars="30" change="outerDocument.textChange(this.text)"/>
+						</mx:Component>
+					</mx:itemEditor> 
+					<mx:headerRenderer > 
+						<mx:Component>
+							<mx:VBox verticalGap="0" horizontalScrollPolicy="off"  verticalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle"> 
+								<util:ContextHelp context1="sampleName" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="Sample Name Help" 
+												  showEdit="{parentApplication.isAdminState}" label="Sample&#13;Name" noIconSpaceIfNoHelp="true"/>
+							</mx:VBox> 
+						</mx:Component>
+					</mx:headerRenderer>
+				</mx:AdvancedDataGridColumn>  
+
+								
+				<mx:AdvancedDataGridColumn id="ccNumber" headerText="CC Number" dataField="@ccNumber" editable="true" 
+										   visible="{showCCNumberCheckbox.visible &amp;&amp; showCCNumberCheckbox.selected &amp;&amp; !parentDocument.isSequencingState() ? true : false}"
+										   width="76"
+										   itemRenderer="{hci.flex.controls.Label.createCustom('@ccNumber', parentApplication.annotationColor, parentApplication.annotationColorBorder, 0)}"                
+										   itemEditor="{views.renderers.GridColumnFillButton.create(hci.flex.controls.TextInput.create('@ccNumber').newInstance(), '')}" editorDataField="value">
+					<mx:headerRenderer > 
+						<mx:Component>
+							<mx:VBox verticalGap="0" horizontalGap="0" horizontalScrollPolicy="off"  verticalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle"> 
+								<util:ContextHelp context1="sampleCCNumber" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="CC Number Help" 
+												  showEdit="{parentApplication.isAdminState}" label="CC           &#13;Number" noIconSpaceIfNoHelp="true"/>
+							</mx:VBox> 
+						</mx:Component>
+					</mx:headerRenderer>
+				</mx:AdvancedDataGridColumn>
+							
+				<mx:AdvancedDataGridColumn headerText="Conc. (ng/ul)" id="concentrationCol" visible="{parentApplication.isInternalExperimentSubmission}"  width="72" dataField="@concentration" rendererIsEditor="false"
+										   itemRenderer="{hci.flex.controls.Label.create('@concentration')}"                 
+										   itemEditor="{views.renderers.GridColumnFillButton.create(new views.renderers.TextInputSampleConcentration(), '')}" editorDataField="value">
+					<mx:headerRenderer > 
+						<mx:Component>
+							<mx:VBox verticalGap="0" horizontalScrollPolicy="off"  verticalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle"> 
+								<util:ContextHelp context1="sampleConcentration" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="Concentration Help" 
+												  showEdit="{parentApplication.isAdminState}" label="Conc.   &#13;(ng/ul)" noIconSpaceIfNoHelp="true"/>
+							</mx:VBox> 
+						</mx:Component>
+					</mx:headerRenderer>
+				</mx:AdvancedDataGridColumn>
+				
+				<mx:AdvancedDataGridColumn id="otherSamplePrepMethodCol" headerText="Nucl. acid extraction meth." 
+										   width="140" dataField="@otherSamplePrepMethod" 
+										   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" editorDataField="value">
+					<mx:headerRenderer > 
+						<mx:Component>
+							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off" verticalScrollPolicy="off" horizontalAlign="center" verticalAlign="middle"> 
+								<util:ContextHelp context1="sampleNuclAcidExtraction" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="Nucl. Acid Extraction Help" showEdit="{parentApplication.isAdminState}"
+												  label="Nucl. acid                     &#13;extraction meth." noIconSpaceIfNoHelp="true"/>
+							</mx:VBox> 
+						</mx:Component>
+					</mx:headerRenderer>
+				</mx:AdvancedDataGridColumn> 
+			</grid:columns>
+		</grid:CopyPasteSampleGrid>
+
+	</mx:VBox>
+	
+
+</exp:TabSamplesBase>
