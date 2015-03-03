@@ -2,7 +2,7 @@
 <mx:VBox styleName="panelWelcomeBox" xmlns:mx="http://www.adobe.com/2006/mxml"   
 	xmlns:views="views.*"          
 	xmlns:util="views.util.*"
-	creationPolicy="all" width="980" height="100%" horizontalAlign="center" >
+	creationPolicy="all" width="980" height="100%" horizontalAlign="center">
 	
 	<mx:Script>
 		<![CDATA[			

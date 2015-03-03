@@ -328,7 +328,6 @@
 					sequencerBox.includeInLayout = false;
 					sequencerBox.visible = false;
 					moveDashboard.play();
-					callLater(coreFacilitiesInfoView.refresh);
 				} else {
 					coreFacilitiesInfoView.showOverview();
 				}
