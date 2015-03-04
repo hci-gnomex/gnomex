@@ -114,13 +114,16 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
         node.addContent(listNode);
         for(Iterator i1 = sampleTypes.iterator(); i1.hasNext();) {
           SampleType st = (SampleType)i1.next();
-          this.getSecAdvisor().flagPermissions(st);
-          Element sampleTypeNode = st.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
-          if (st.getCodeNucleotideType() == null) {
-            sampleTypeNode.setAttribute("codeNucleotideType", "DNA");
+          // st.getIdCoreFacility() should never be null -- but just in case.
+          if (st.getIdCoreFacility() != null && st.getIdCoreFacility().equals(rc.getIdCoreFacility())) {
+            this.getSecAdvisor().flagPermissions(st);
+            Element sampleTypeNode = st.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
+            if (st.getCodeNucleotideType() == null) {
+              sampleTypeNode.setAttribute("codeNucleotideType", "DNA");
+            }
+            listNode.addContent(sampleTypeNode);
+            sampleTypeNode.setAttribute("isSelected", isAssociated(rc, st) ? "Y" : "N");
           }
-          listNode.addContent(sampleTypeNode);
-          sampleTypeNode.setAttribute("isSelected", isAssociated(rc, st) ? "Y" : "N");
         }
         
         

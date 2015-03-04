@@ -1062,23 +1062,23 @@ INSERT INTO gnomex.PropertyType (codePropertyType, name) values ('MOPTION',     
  
 
 
-INSERT INTO `gnomex`.`Property`(`idProperty`, `name`, `mageOntologyCode`, `mageOntologyDefinition`, `isActive`, `idAppUser`, codePropertyType, isRequired)
-VALUES (1, 'Age / Developmental Stage', 'age', NULL, 'Y', NULL, 'TEXT', 'N'),
-  (2, 'Cell Line / Strain', 'cell_line', NULL, 'Y', NULL, 'TEXT', 'N'),
-  (3, 'Cell Type', 'cell_type', NULL, 'Y', NULL, 'TEXT', 'N'),
-  (4, 'Clinical Information', 'clinical_information', NULL, 'Y', NULL, 'TEXT', 'N'),
-  (5, 'Compound', NULL, NULL, 'Y', NULL, 'TEXT', 'N'),
-  (6, 'Disease State / Stage / Tumor Grade', 'distease_state', NULL, 'Y', NULL, 'TEXT', 'N'),
-  (7, 'Dose', 'dose', NULL, 'Y', NULL, 'TEXT', 'N'),
-  (8, 'Genetic Modification', NULL, NULL, 'Y', NULL, 'TEXT', 'N'),
-  (9, 'Genotype', 'genotype', NULL, 'Y', NULL, 'TEXT', 'N'),
-  (10, 'Growth Conditions', NULL, NULL, 'Y', NULL, 'TEXT', 'N'),
-  (11, 'Individual', 'individual', NULL, 'Y', NULL, 'TEXT', 'N'),
-  (12, 'Organ / Tissue', 'organism_part', NULL, 'Y', NULL, 'TEXT', 'N'),
-  (13, 'Other', NULL, NULL, 'Y', NULL, 'TEXT', 'N'),
-  (14, 'Sex', 'sex', NULL, 'Y', NULL, 'TEXT', 'N'),
-  (15, 'Temperature', NULL, NULL, 'Y', NULL, 'TEXT', 'N'),
-  (16, 'Time Course', 'sampling_time_point', NULL, 'Y', NULL, 'TEXT', 'N');
+INSERT INTO `gnomex`.`Property`(`idProperty`, `name`, `mageOntologyCode`, `mageOntologyDefinition`, `isActive`, `idAppUser`, codePropertyType, isRequired, idCoreFacility)
+VALUES (1, 'Age / Developmental Stage', 'age', NULL, 'Y', NULL, 'TEXT', 'N', 1),
+  (2, 'Cell Line / Strain', 'cell_line', NULL, 'Y', NULL, 'TEXT', 'N', 1),
+  (3, 'Cell Type', 'cell_type', NULL, 'Y', NULL, 'TEXT', 'N', 1),
+  (4, 'Clinical Information', 'clinical_information', NULL, 'Y', NULL, 'TEXT', 'N', 1),
+  (5, 'Compound', NULL, NULL, 'Y', NULL, 'TEXT', 'N', 1),
+  (6, 'Disease State / Stage / Tumor Grade', 'distease_state', NULL, 'Y', NULL, 'TEXT', 'N', 1),
+  (7, 'Dose', 'dose', NULL, 'Y', NULL, 'TEXT', 'N', 1),
+  (8, 'Genetic Modification', NULL, NULL, 'Y', NULL, 'TEXT', 'N', 1),
+  (9, 'Genotype', 'genotype', NULL, 'Y', NULL, 'TEXT', 'N', 1),
+  (10, 'Growth Conditions', NULL, NULL, 'Y', NULL, 'TEXT', 'N', 1),
+  (11, 'Individual', 'individual', NULL, 'Y', NULL, 'TEXT', 'N', 1),
+  (12, 'Organ / Tissue', 'organism_part', NULL, 'Y', NULL, 'TEXT', 'N', 1),
+  (13, 'Other', NULL, NULL, 'Y', NULL, 'TEXT', 'N', 1),
+  (14, 'Sex', 'sex', NULL, 'Y', NULL, 'TEXT', 'N', 1),
+  (15, 'Temperature', NULL, NULL, 'Y', NULL, 'TEXT', 'N', 1),
+  (16, 'Time Course', 'sampling_time_point', NULL, 'Y', NULL, 'TEXT', 'N', 1);
 
 INSERT INTO `gnomex`.`SamplePrepMethod`(`idSamplePrepMethod`, `samplePrepMethod`, `isActive`)
 VALUES (1, 'Qiagen RNeasy mini kit', 'Y'),
@@ -1110,19 +1110,19 @@ VALUES (1, 'Cell Line', 'Y'),
 
 INSERT INTO `gnomex`.`NucleotideType` values('RNA'), ('DNA');
 
-INSERT INTO `gnomex`.`SampleType`(`idSampleType`, `sampleType`, `sortOrder`, `isActive`, `codeNucleotideType`)
-VALUES (1, 'DNA', 3, 'Y', 'DNA'),
-  (2, 'aRNA', 6, 'N', 'RNA'),
-  (3, 'miRNA', 8, 'Y', 'RNA'),
-  (4, 'mRNA', 7, 'Y', 'RNA'),
-  (5, 'Total RNA (eukaryote)', 1, 'Y', 'RNA'),
-  (6, 'FFPE DNA', 5, 'Y', 'DNA'),
-  (7, 'chIP DNA', 4, 'Y', 'DNA'),
-  (8, 'polyA RNA', NULL, 'N', 'RNA'),
-  (9, 'Total RNA (prokaryote)', 2, 'Y', 'RNA'),
-  (10, 'cDNA', 5, 'Y', 'DNA'),
-  (11, 'cap RNA', 6, 'Y', 'RNA'),
-  (12, 'small RNA', 10, 'Y', 'RNA');
+INSERT INTO `gnomex`.`SampleType`(`idSampleType`, `sampleType`, `sortOrder`, `isActive`, `codeNucleotideType`, `idCoreFacility`)
+VALUES (1, 'DNA', 3, 'Y', 'DNA', 1),
+  (2, 'aRNA', 6, 'N', 'RNA', 1),
+  (3, 'miRNA', 8, 'Y', 'RNA', 1),
+  (4, 'mRNA', 7, 'Y', 'RNA', 1),
+  (5, 'Total RNA (eukaryote)', 1, 'Y', 'RNA', 1),
+  (6, 'FFPE DNA', 5, 'Y', 'DNA', 1),
+  (7, 'chIP DNA', 4, 'Y', 'DNA', 1),
+  (8, 'polyA RNA', NULL, 'N', 'RNA', 1),
+  (9, 'Total RNA (prokaryote)', 2, 'Y', 'RNA', 1),
+  (10, 'cDNA', 5, 'Y', 'DNA', 1),
+  (11, 'cap RNA', 6, 'Y', 'RNA', 1),
+  (12, 'small RNA', 10, 'Y', 'RNA', 1);
 
 INSERT INTO `gnomex`.`SampleTypeRequestCategory`(`idSampleTypeRequestCategory`, `idSampleType`, `codeRequestCategory`)
 VALUES (1, 1, 'AGIL'),

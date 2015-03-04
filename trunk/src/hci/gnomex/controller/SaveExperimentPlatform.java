@@ -348,6 +348,7 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
       st.setIsActive(node.getAttributeValue("isActive"));
       st.setCodeNucleotideType(node.getAttributeValue("codeNucleotideType"));
       st.setNotes(node.getAttributeValue("notes"));
+      st.setIdCoreFacility(rc.getIdCoreFacility());
       if (node.getAttributeValue("sortOrder") == null || node.getAttributeValue("sortOrder").length() == 0) {
         st.setSortOrder(null);
       } else {
@@ -386,7 +387,9 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
 
 
     // Remove sample types
-    for (Iterator i = sess.createQuery("SELECT st from SampleType st").list().iterator(); i.hasNext();) {
+    Query stRemoveQuery = sess.createQuery("SELECT st from SampleType st where idCoreFacility=:idCoreFacility");
+    stRemoveQuery.setParameter("idCoreFacility", rc.getIdCoreFacility());
+    for (Iterator i = stRemoveQuery.list().iterator(); i.hasNext();) {
       SampleType sampleType = (SampleType)i.next();
       if (!sampleTypeMap.containsKey(sampleType.getIdSampleType())) {
         boolean deleteSampleType = true;
