@@ -83,12 +83,13 @@
 					propertyText[index].text = property.@value;
 					if(this.editable) {
 						propertyText[index].isRequired = property.@isRequired== 'Y' ? true : false;
+						propertyText[index].height=propertyText[index].text != '' ? Math.max(propertyText[index].textHeight - 150, 30) : 30;
 					} else {
 						// If not in edit version then disable editing
 						propertyText[index].isRequired = false;
 						propertyText[index].editable = false;
+						propertyText[index].height=propertyText[index].text != '' ? propertyText[index].textHeight + 10 : 30;
 					} 
-					
 				} else if (property.@codePropertyType == 'URL') {
 					propertyValueViewStack[index].selectedIndex = 0;
 					if(this.editable) {
@@ -393,21 +394,27 @@
 				parentApplication.dictionaryManager.call("reload", "");
 				parentApplication.getPropertyList.send();
 			}
+			
+			private function resizeTextArea(e:Event):void {
+				e.target.height = e.target.text != '' ? e.target.textHeight + 10 : 30;
+				e.target.parent.height = e.target.height;
+				e.target.parent.parent.height = e.target.height;
+			}
 		]]>
 	</mx:Script>
 	<mx:VBox width="100%" height="100%" label="Properties" paddingLeft="4" paddingRight="4" paddingBottom="4" verticalGap="0" paddingTop="4">
 		<mx:VBox id="propertyMainBox" width="100%" height="100%" verticalGap="4" paddingTop="0" >
 			<mx:Repeater  id="propertyRepeater" 
 						  dataProvider="{properties}">
-				<mx:VBox verticalGap="0">
+				<mx:VBox verticalGap="0" width="800" minHeight="0">
 					
-					<mx:Text text="{propertyRepeater.currentItem.@description}" width="470" paddingLeft="0" paddingRight="0" paddingBottom="0" paddingTop="{propertyRepeater.currentIndex!=0?10:0}" styleName="labelSmall"/>
+					<mx:Text text="{propertyRepeater.currentItem.@description}" width="100%" paddingLeft="0" paddingRight="0" paddingBottom="0" paddingTop="{propertyRepeater.currentIndex!=0?10:0}" styleName="labelSmall"/>
 					
 					<mx:HBox verticalAlign="top" width="100%"  horizontalGap="0" >
 						
-						<mx:Text text="{propertyRepeater.currentItem.@name}" width="200" paddingLeft="0" paddingRight="0" styleName="labelSmall"
+						<mx:Text text="{propertyRepeater.currentItem.@name}" width="300" paddingLeft="0" paddingRight="0" styleName="formLabel"
 								 creationComplete="{onCreatePropertyLabel(event.currentTarget.getRepeaterItem(), event.target.instanceIndices[0])}"/>
-						<mx:ViewStack id="propertyValueViewStack" creationPolicy="all" height="100%" width="270" >
+						<mx:ViewStack id="propertyValueViewStack" creationPolicy="all" height="100%" width="100%" >
 							<mx:VBox id="urlOuterBox" width="100%" height="100%" verticalGap="0" horizontalScrollPolicy="off" >
 								<mx:Repeater id="urlRepeater" dataProvider="{propertyRepeater.currentItem.PropertyEntryValue}" >
 									<mx:ViewStack id="urlStack"  selectedIndex="{urlRepeater.currentItem.@url == 'Enter URL here...' ? 1 : 0}" width="100%" creationPolicy="all">
@@ -444,8 +451,11 @@
 							</mx:VBox>
 							
 							<mx:HBox >
-								<util:TextInputRequiredIndicator id="propertyText" change="{setDirty()}" editable="{editable}" styleName="labelSmall" text="{propertyRepeater.currentItem.@value}" width="100%">
-								</util:TextInputRequiredIndicator> 
+								<util:TextAreaRequiredIndicator id="propertyText" change="{setDirty();resizeTextArea(event)}" 
+																editable="{editable}" styleName="labelSmall" text="{propertyRepeater.currentItem.@value}" 
+																verticalScrollPolicy="off"
+																width="100%">
+								</util:TextAreaRequiredIndicator> 
 							</mx:HBox>
 							
 							<mx:HBox >
