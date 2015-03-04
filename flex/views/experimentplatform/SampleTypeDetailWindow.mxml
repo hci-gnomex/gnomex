@@ -49,7 +49,7 @@
 				selectedItem.@sortOrder = sortOrderText.text;
 				selectedItem.@codeNucleotideType = sampleCategoryCombo.selectedItem.@value;
 				selectedItem.@notes = notesEditor.htmlText;
-				
+				selectedItem.@idCoreFacility = state.requestCategory.@idCoreFacility;
 				if (dirty.isDirty()) {
 					state.dirty.setDirty();
 				}

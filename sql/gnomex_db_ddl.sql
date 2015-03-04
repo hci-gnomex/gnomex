@@ -2121,6 +2121,10 @@ CREATE TABLE `gnomex`.`Property` (
   CONSTRAINT FK_Property_PropertyType FOREIGN KEY FK_Property_PropertyType (codePropertyType)
     REFERENCES gnomex.PropertyType (codePropertyType)
     ON DELETE NO ACTION
+    ON UPDATE NO ACTION,        
+  CONSTRAINT FK_Property_CoreFacility FOREIGN KEY FK_Property_CoreFacility (idCoreFacility)
+    REFERENCES gnomex.CoreFacility (idCoreFacility)
+    ON DELETE NO ACTION
     ON UPDATE NO ACTION        
 )
 ENGINE = INNODB;
@@ -2313,9 +2317,14 @@ CREATE TABLE `gnomex`.`SampleType` (
   `isActive` CHAR(1) NULL,
   `codeNucleotideType` VARCHAR(50) NULL,
   `notes` VARCHAR(5000) NULL,
+  `idCoreFacility` INT(10) NULL,
   PRIMARY KEY (`idSampleType`),
   CONSTRAINT `FK_SampleType_NucleotideType` FOREIGN KEY `FK_SampleType_NucleotideType` (`codeNucleotideType`)
     REFERENCES `gnomex`.`NucleotideType` (`codeNucleotideType`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `FK_SampleType_CoreFacility` FOREIGN KEY `FK_SampleType_CoreFacility` (`idCoreFacility`)
+    REFERENCES `gnomex`.`CoreFacility` (`idCoreFacility`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
 )

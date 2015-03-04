@@ -2473,6 +2473,7 @@
 		<property name="codeNucleotideType" column="codeNucleotideType"
 			type="string" />
 		<property name="notes" column="notes" type="string" />
+		<property name="idCoreFacility" column="idCoreFacility" type="integer" />
 	</class>
 
 	<!-- hci.gnomex.model.NucleotideType -->

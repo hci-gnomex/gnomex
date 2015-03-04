@@ -44,6 +44,7 @@
 					" codeNucleotideType='DNA'" +
 					" sortOrder='99'" +
 					" notes=''" +
+					" idCoreFacility='" + state.requestCategory.@idCoreFacility.toString() + "'" +
 					" />");
 				sampleTypes.addItemAt(newNode, 0);
 				sampleTypeGrid.selectedItem = newNode;
