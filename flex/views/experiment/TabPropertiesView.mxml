@@ -83,12 +83,9 @@
 					propertyText[index].text = property.@value;
 					if(this.editable) {
 						propertyText[index].isRequired = property.@isRequired== 'Y' ? true : false;
-						propertyText[index].height=propertyText[index].text != '' ? Math.max(propertyText[index].textHeight - 150, 30) : 30;
 					} else {
 						// If not in edit version then disable editing
 						propertyText[index].isRequired = false;
-						propertyText[index].editable = false;
-						propertyText[index].height=propertyText[index].text != '' ? propertyText[index].textHeight + 10 : 30;
 					} 
 				} else if (property.@codePropertyType == 'URL') {
 					propertyValueViewStack[index].selectedIndex = 0;
@@ -451,7 +448,7 @@
 							</mx:VBox>
 							
 							<mx:HBox >
-								<util:TextAreaRequiredIndicator id="propertyText" change="{setDirty();resizeTextArea(event)}" 
+								<util:TextAreaRequiredIndicator id="propertyText" change="{setDirty();resizeTextArea(event)}"
 																editable="{editable}" styleName="labelSmall" text="{propertyRepeater.currentItem.@value}" 
 																verticalScrollPolicy="off"
 																width="100%">
