@@ -30,6 +30,11 @@ package views.util
 			change(null);
 		}		
 		
+		override public function set text(value:String):void {
+			super.text = value;
+			callLater(resizeToText);
+		}
+		
 		override protected function focusInHandler(event:FocusEvent):void {
 			super.focusInHandler(event);
 			this.addEventListener(Event.CHANGE, change);
@@ -57,6 +62,15 @@ package views.util
 				this.setStyle("backgroundColor", missingRequiredFieldBackground);
 			} else {
 				this.setStyle("backgroundColor", defaultColor);
+			}
+		}
+		
+		public function resizeToText():void {
+			if ( this.editable ) {
+				// For some reason textheight is way huge for editable text area. 
+				this.height = this.text != '' ? Math.max(this.textHeight - 150, 30) : 30;
+			} else {
+				this.height = this.text != '' ? this.textHeight + 10 : 30;
 			}
 		}
 	}
