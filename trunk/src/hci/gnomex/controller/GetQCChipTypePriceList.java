@@ -28,27 +28,27 @@ import org.jdom.output.XMLOutputter;
 public class GetQCChipTypePriceList extends GNomExCommand implements Serializable {
 
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetQCChipTypePriceList.class);
-  
+
   private Integer idLab;
   private String codeRequestCategory;
 
   private SecurityAdvisor          secAdvisor;
 
   public void loadCommand(HttpServletRequest request, HttpSession session) {
-    
+
     if (request.getParameter("idLab") != null && !request.getParameter("idLab").equals("")) {
       idLab =  new Integer(request.getParameter("idLab"));
     } else {
       this.addInvalidField("IdLab", "IdLab required");
     }
 
-    
+
     if (request.getParameter("codeRequestCategory") != null && !request.getParameter("codeRequestCategory").equals("")) {
       codeRequestCategory =  request.getParameter("codeRequestCategory");
     } else {
       this.addInvalidField("codeRequestCategory", "codeRequestCategory required");
     }
-    
+
   }
 
   public Command execute() throws RollBackCommandException {
@@ -58,21 +58,20 @@ public class GetQCChipTypePriceList extends GNomExCommand implements Serializabl
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
 
       Lab lab = (Lab)sess.load(Lab.class, this.idLab);
-      
+
       String queryString = 
-          "select p, crit " +
-          " from PriceSheet ps " +
-          " join ps.requestCategories rc " +
-          " join ps.priceCategories pc " +
-          " join pc.priceCategory.prices p " +
-          " join p.priceCriterias crit " +
-          " where rc.codeRequestCategory = :codeRequestCategory " +
-          "   and pc.priceCategory.pluginClassName='hci.gnomex.billing.SampleQualityPlugin'";
+        "select p, crit " +
+        " from PriceSheet ps " +
+        " join ps.requestCategories rc " +
+        " join ps.priceCategories pc " +
+        " join pc.priceCategory.prices p " +
+        " join p.priceCriterias crit " +
+        " where rc.codeRequestCategory = :codeRequestCategory ";
       Query query = sess.createQuery(queryString);
       query.setParameter("codeRequestCategory", this.codeRequestCategory);
-      
+
       List rows = query.list();
-      
+
       Document doc = new Document(new Element("QCChipTypePriceList"));
       for(Iterator i = rows.iterator(); i.hasNext();) {
         Object[] row = (Object[])i.next();
@@ -129,7 +128,7 @@ public class GetQCChipTypePriceList extends GNomExCommand implements Serializabl
       setResponsePage(this.ERROR_JSP);
     }
   }
-  
+
   private String toString(Object theValue) {
     if (theValue != null) {
       return theValue.toString();
