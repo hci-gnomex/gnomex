@@ -1061,6 +1061,10 @@ public class RequestParser implements Serializable {
       sequenceLaneInfo.setIdGenomeBuildAlignTo(new Integer(n.getAttributeValue("idGenomeBuildAlignTo")));
     }
 
+    if (n.getAttributeValue("flowCellChannelSampleConcentrationpM") != null && !n.getAttributeValue("flowCellChannelSampleConcentrationpM").equals("")) {
+      sequenceLaneInfo.setFlowCellChannelSampleConcentrationpM(new BigDecimal(n.getAttributeValue("flowCellChannelSampleConcentrationpM")));
+    }
+
     //
     // workflow fields
     //
@@ -1572,6 +1576,7 @@ public class RequestParser implements Serializable {
     private String   seqRunLastCycleFailed = "N";
     private String   seqRunPipelineCompleted = "N";
     private String   seqRunPipelineFailed = "N";
+    private BigDecimal flowCellChannelSampleConcentrationpM;
 
 
 
@@ -1583,6 +1588,14 @@ public class RequestParser implements Serializable {
 
     public void setIdSeqRunType(Integer idSeqRunType) {
       this.idSeqRunType = idSeqRunType;
+    }
+
+    public BigDecimal getFlowCellChannelSampleConcentrationpM() {
+      return flowCellChannelSampleConcentrationpM;
+    }
+
+    public void setFlowCellChannelSampleConcentrationpM(BigDecimal flowCellChannelSampleConcentrationpM) {
+      this.flowCellChannelSampleConcentrationpM = flowCellChannelSampleConcentrationpM;
     }
 
 

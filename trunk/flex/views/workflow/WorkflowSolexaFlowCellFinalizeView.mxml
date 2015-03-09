@@ -165,6 +165,17 @@
 					protocolMismatch = true;
 				}
 			}
+			
+			for each(var chan:XML in flowCellChannelsList){
+				if(validator.validate(sl.@flowCellChannelSampleConcentrationpM).results != null){ 
+					isValid = false;
+					errorMessage += '\n\t One of your sample concentrations contains invalid data\n';
+					break;
+				}
+				
+			}
+			
+			
 			if(!isValid) {
 				Alert.show(errorMessage,"Cannot save flow cell");
 			} else if(protocolMismatch) {				
@@ -184,6 +195,7 @@
 		}
 		
 		private function saveFC():void {
+			updateSampleConcpM();
 
 			var params:Object = new Object();
 			params.number = selectedFlowCell.@number;
@@ -208,6 +220,17 @@
 			
 			saveFlowCell.send(params);
 			
+		}
+		
+		private function updateSampleConcpM():void{
+			for each(var fc:XML in selectedFlowCell.flowCellChannels.FlowCellChannel){
+				for each(var sl:XML in flowCellChannelsList){
+					if(fc.@fileName == sl.@fileName){
+						fc.@sampleConcentrationpM = sl.@flowCellChannelSampleConcentrationpM;
+						break;
+					}
+				}
+			}
 		}
 		
 		private function onSaveFlowCell(event:ResultEvent): void {
@@ -471,6 +494,17 @@
 			
 		}
 		
+		public function updateSeqLanepMValue():void{
+			var seqLaneSet:Object = new Object();
+			for each(var seqLane:XML in flowCellChannelsList){
+				if(seqLaneSet[seqLane.@fileName] != null && seqLaneSet[seqLane.@fileName] != ""){
+					seqLane.@flowCellChannelSampleConcentrationpM = seqLaneSet[seqLane.@fileName];
+				} else{
+					seqLaneSet[seqLane.@fileName] = seqLane.@flowCellChannelSampleConcentrationpM;	
+				}	
+			}
+		}
+		
 //		private function flowCellLabeler(item:Object, col:Object):String {
 //			var result:String = "";
 //			if (item != null && item.hasOwnProperty("@number") ) {
@@ -488,7 +522,13 @@
 			Alert.show("Changing the protocol for the flow cell will change the protocol for all samples it contains.", "Warning");
 		}	
 	]]>
-</mx:Script>    	
+</mx:Script>
+	
+	<mx:NumberValidator id="validator"  
+		decimalPointCountError="The decimal separator can only occur once." 
+		decimalSeparator="."
+		invalidCharError="Min/Max range must be an integer."
+		domain="real" allowNegative="false"  />
 
 	<mx:HDividedBox width="100%" height="100%">
 		<mx:VBox id="LHS" width="50%" height="100%" horizontalScrollPolicy="off">
@@ -643,7 +683,7 @@
 			</mx:VBox>
 			<mx:VBox  width="100%" height="90%">
 				<util:AdvancedDataGridGroupedRowColorsFlowCellChannelNumber id="flowCellChannelsGrid" width="100%"
-													   height="100%" sortableColumns="true" draggableColumns="false"
+													   height="100%" sortableColumns="true" draggableColumns="false" editable="true"
 													   dataProvider="{flowCellChannelsList}" fontSize="10" resizableColumns="true"
 													   updateComplete="{}">
 					<util:columns>
@@ -659,7 +699,7 @@
 								</mx:Component>
 							</mx:headerRenderer>
 						</mx:AdvancedDataGridColumn>
-						<mx:AdvancedDataGridColumn width="50">
+						<mx:AdvancedDataGridColumn width="50" editable="false">
 							<mx:headerRenderer>
 								<mx:Component>
 									<mx:VBox verticalGap="0" horizontalScrollPolicy="off"
@@ -680,8 +720,8 @@
 								</mx:Component>
 							</mx:itemRenderer>
 						</mx:AdvancedDataGridColumn>
-						<mx:AdvancedDataGridColumn dataField="@flowCellChannelNumber" textAlign="center"
-												   width="50">
+						<mx:AdvancedDataGridColumn dataField="@flowCellChannelNumber" textAlign="center" editable="false"
+												   width="50" >
 							<mx:headerRenderer>
 								<mx:Component>
 									<mx:VBox verticalGap="0"
@@ -693,7 +733,7 @@
 							</mx:headerRenderer>
 						</mx:AdvancedDataGridColumn>
 						<mx:AdvancedDataGridColumn dataField="@sampleIdOligoBarcode"
-												   labelFunction="lookupOligoBarcode" width="120">
+												   labelFunction="lookupOligoBarcode" width="120" editable="false">
 							<mx:headerRenderer>
 								<mx:Component>
 									<mx:VBox verticalGap="0"
@@ -705,7 +745,7 @@
 							</mx:headerRenderer>
 						</mx:AdvancedDataGridColumn>
 						<mx:AdvancedDataGridColumn dataField="@sampleIdOligoBarcodeB"
-												   labelFunction="lookupOligoBarcodeB" width="120">
+												   labelFunction="lookupOligoBarcodeB" width="120" editable="false">
 							<mx:headerRenderer>
 								<mx:Component>
 									<mx:VBox verticalGap="0"
@@ -718,13 +758,30 @@
 						</mx:AdvancedDataGridColumn>
 						<mx:AdvancedDataGridColumn width="200"
 												   dataField="@idNumberSequencingCyclesAllowed"
-												   labelFunction="lookupNumberSequencingCyclesAllowed">
+												   labelFunction="lookupNumberSequencingCyclesAllowed" editable="false">
 							<mx:headerRenderer>
 								<mx:Component>
 									<mx:VBox verticalGap="0"
 											 horizontalScrollPolicy="off" horizontalAlign="center"
 											 verticalAlign="middle">
 										<mx:Label text="Sequencing Protocol" />
+									</mx:VBox>
+								</mx:Component>
+							</mx:headerRenderer>
+						</mx:AdvancedDataGridColumn>
+						<mx:AdvancedDataGridColumn width="200" editable="true" editorDataField="text"  visible="{parentApplication.getCoreFacilityProperty(selectedFlowCell.@idCoreFacility, parentApplication.PROPERTY_SHOW_SAMPLE_CONC_PM) == 'Y'}"
+												   dataField="@flowCellChannelSampleConcentrationpM">
+							<mx:itemEditor>
+								<mx:Component>
+									<mx:TextInput text="{data.@flowCellChannelSampleConcentrationpM}" focusOut="outerDocument.updateSeqLanepMValue()" />
+								</mx:Component>
+							</mx:itemEditor>
+							<mx:headerRenderer>
+								<mx:Component>
+									<mx:VBox verticalGap="0"
+											 horizontalScrollPolicy="off" horizontalAlign="center"
+											 verticalAlign="middle">
+										<mx:Label text="Sample Conc. pM" />
 									</mx:VBox>
 								</mx:Component>
 							</mx:headerRenderer>

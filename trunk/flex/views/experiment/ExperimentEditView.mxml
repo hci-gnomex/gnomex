@@ -3569,6 +3569,19 @@
 					params.propertiesXML = "<requestProperties>" + propertiesView.propertiesToSave.toXMLString() + "</requestProperties>";
 
 				}
+				if(this.theTab.contains(this.lanesView)){
+					for each(var lane:XML in request.sequenceLanes.SequenceLane){
+						if(lane.@flowCellChannelSampleConcentrationpM != "" && lane.@idFlowCellChannel == ""){
+							Alert.show("You specified a Sample Concentration pM for a sequence lane that is not currently associated with a Flow Cell Channel.  Please finalize flow cell in workflow first.");
+							return;
+						}
+						
+						if(validator.validate(lane.@flowCellChannelSampleConcentrationpM).results != null){
+							Alert.show("You have entered invalid data in the sample conc. pM field.  Please use numbers only");
+							return;
+						}
+					}
+				}
 				
 				
 				saveExistingRequest.send(params);
@@ -5292,6 +5305,11 @@
 			}
 		]]>
 	</mx:Script>
+	<mx:NumberValidator id="validator"  
+						decimalPointCountError="The decimal separator can only occur once." 
+						decimalSeparator="."
+						invalidCharError="Min/Max range must be an integer."
+						domain="real" allowNegative="false"  />
 	
 	<mx:DateFormatter id="dateFormatter" formatString="MM/DD/YYYY"/>
 		

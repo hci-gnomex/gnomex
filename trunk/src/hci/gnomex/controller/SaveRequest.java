@@ -117,7 +117,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
   private FileDescriptorUploadParser   filesToRemoveParser;
 
   private String           propertiesXML;
-  
+
   private BillingPeriod    billingPeriod;
 
   private String           launchAppURL;
@@ -200,7 +200,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     if (request.getParameter("propertiesXML") != null && !request.getParameter("propertiesXML").equals("")) {
       propertiesXML = request.getParameter("propertiesXML");    
     }
-    
+
     invoicePrice = "";
     if (request.getParameter("invoicePrice") != null && request.getParameter("invoicePrice").length() > 0) {
       // If total price present it means price exceeded $500.00 so we want to send an advisory email
@@ -771,7 +771,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         // transfer logs for this request
         reassignLabForTransferLog(sess);
         sess.flush();
-        
+
         //Create file server data directories for request based off of code request category
         if (!requestParser.isExternalExperiment() && RequestCategory.isIlluminaRequestCategory(requestParser.getRequest().getCodeRequestCategory())){
           this.createResultDirectories(requestParser.getRequest(), "Sample QC", PropertyDictionaryHelper.getInstance(sess).getExperimentDirectory(serverName, requestParser.getRequest().getIdCoreFacility()));
@@ -2265,18 +2265,23 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       }
     }
 
+    if(sequenceLane.getFlowCellChannel() != null) {
+      FlowCellChannel channel = sequenceLane.getFlowCellChannel();
+      channel.setSampleConcentrationpM(sequenceLaneInfo.getFlowCellChannelSampleConcentrationpM());
+    }
+
 
 
     sess.flush();
     sess.refresh(sequenceLane);
     return sequenceLane;
   }
-  
+
   public static void createBillingItems(Session sess, Request request, String amendState, BillingPeriod billingPeriod, DictionaryHelper dh, Set<Sample> samples,
       Set<LabeledSample> labeledSamples, Set<Hybridization> hybs, Set<SequenceLane> lanes, Map<String, ArrayList<String>> sampleToAssaysMap, String codeStepNext, String billingStatus) throws Exception {
     createBillingItems(sess, request, amendState, billingPeriod, dh, samples, labeledSamples, hybs, lanes, sampleToAssaysMap, codeStepNext, billingStatus, null);
   }
-  
+
   public static void createBillingItems(Session sess, Request request, String amendState, BillingPeriod billingPeriod, DictionaryHelper dh, Set<Sample> samples,
       Set<LabeledSample> labeledSamples, Set<Hybridization> hybs, Set<SequenceLane> lanes, Map<String, ArrayList<String>> sampleToAssaysMap) throws Exception {
     createBillingItems(sess, request, amendState, billingPeriod, dh, samples, labeledSamples, hybs, lanes, sampleToAssaysMap, null, BillingStatus.PENDING, null);
@@ -2719,7 +2724,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         } 
         sess.flush();
       }
-            
+
       // Add properties
       for(Iterator<?> i = propsDoc.getRootElement().getChildren().iterator(); i.hasNext();) {
         Element node = (Element)i.next();
@@ -2814,13 +2819,13 @@ public class SaveRequest extends GNomExCommand implements Serializable {
           pe.setValue(optionValue);
         }
         sess.flush();
-        
+
         propertyEntries.add( pe );
       }
     }
     return propertyEntries;
   }
-  
+
   // Sequenom experiments add a default annotation that doesn't show up in submit but then
   // shows up in view and edit.
   private static void addStandardSampleProperties(Session sess, RequestParser requestParser, String idSampleString, Sample sample) {

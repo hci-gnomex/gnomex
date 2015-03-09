@@ -375,6 +375,17 @@
 		
 		public function onEdit():void {
 		}
+		
+		private function updateSeqLanepMValue():void{
+			var seqLaneSet:Object = new Object();
+			for each(var seqLane:XML in parentDocument.lanes){
+				if(seqLaneSet[seqLane.@fileName] != null && seqLaneSet[seqLane.@fileName] != ""){
+					seqLane.@flowCellChannelSampleConcentrationpM = seqLaneSet[seqLane.@fileName];
+				} else{
+					seqLaneSet[seqLane.@fileName] = seqLane.@flowCellChannelSampleConcentrationpM;	
+				}	
+			}
+		}
 		 
 	]]>
 </mx:Script>
@@ -385,8 +396,8 @@
 				<mx:DataGrid width="100%" height="100%" id="lanesGrid"  editable="true" 
 					dataProvider="{parentDocument.lanes}" allowMultipleSelection="true" 
 					dropEnabled="true" dragDrop="onDragDropLane(event)" 
-					itemFocusOut="checkLanesCompleteness()" 
-					rollOverColor="#C0C0C0" selectionColor="#FFFFB9"
+					itemFocusOut="checkLanesCompleteness(); updateSeqLanepMValue();" 
+					rollOverColor="#C0C0C0" selectionColor="#FFFFB9" wordWrap="true"
 					sortableColumns="false"  resizableColumns="true" 
 					horizontalScrollPolicy="auto">
 					<mx:columns>
@@ -410,6 +421,7 @@
 						 <mx:DataGridColumn  editable="false" headerText="Status in Workflow" width="120" dataField="@workflowStatus"/>
 				         <mx:DataGridColumn  width="70" id="flowCellNumberCol" headerText="Flow Cell #"  editable="false" dataField="@flowCellNumber"/> 						             						             
 				         <mx:DataGridColumn   width="55" id="flowCellChannelNumber" headerText="Channel"  editable="false" dataField="@flowCellChannelNumber"/>
+						 <mx:DataGridColumn   width="75" id="channelSampleConcPM" editable="{true}" headerText="Channel sample conc. pM" headerWordWrap="{true}" dataField="@flowCellChannelSampleConcentrationpM"/>	
 				         <mx:DataGridColumn width="80"  editable="false" headerText="# Cycles (actual)" dataField="@numberSequencingCyclesActual"> 						             						             
 						   <mx:headerRenderer > 
 						    <mx:Component>
