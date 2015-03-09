@@ -24,7 +24,7 @@ import org.jdom.Element;
 
 
 public class SequenceLane extends HibernateDetailObject {
-  
+
   private Integer         idSequenceLane;
   private String          number;
   private Date            createDate;
@@ -41,123 +41,123 @@ public class SequenceLane extends HibernateDetailObject {
   private FlowCellChannel flowCellChannel;
   private NumberSequencingCycles numberSeqCycles;
   private SeqRunType    seqRunType;
-  
+
   public void setSeqRunType(SeqRunType srt){
     this.seqRunType = srt;
   }
-  
+
   public SeqRunType getSeqRunType(){
     return seqRunType;
   }
-  
+
   public Integer getIdSample() {
     return idSample;
   }
-  
+
   public void setIdSample(Integer idSample) {
     this.idSample = idSample;
   }
 
-  
+
   public Integer getIdRequest() {
     return idRequest;
   }
 
-  
+
   public void setIdRequest(Integer idRequest) {
     this.idRequest = idRequest;
   }
 
-  
+
   public Integer getIdSequenceLane() {
     return idSequenceLane;
   }
 
-  
+
   public void setIdSequenceLane(Integer idSequenceLane) {
     this.idSequenceLane = idSequenceLane;
   }
 
-  
+
   public Sample getSample() {
     return sample;
   }
 
-  
+
   public void setSample(Sample sample) {
     this.sample = sample;
   }
 
-  
+
   public Date getCreateDate() {
     return createDate;
   }
 
-  
+
   public void setCreateDate(Date createDate) {
     this.createDate = createDate;
   }
 
-  
+
   public String getNumber() {
     return number;
   }
 
-  
+
   public void setNumber(String number) {
     this.number = number;
   }
 
-  
+
   public Integer getIdNumberSequencingCycles() {
     return idNumberSequencingCycles;
   }
 
-  
+
   public void setIdNumberSequencingCycles(Integer idNumberSequencingCycles) {
     this.idNumberSequencingCycles = idNumberSequencingCycles;
   }
 
-  
+
   public Integer getIdNumberSequencingCyclesAllowed() {
     return idNumberSequencingCyclesAllowed;
   }
 
-  
+
   public void setIdNumberSequencingCyclesAllowed(Integer idNumberSequencingCyclesAllowed) {
     this.idNumberSequencingCyclesAllowed = idNumberSequencingCyclesAllowed;
   }
 
-  
+
   public Integer getIdSeqRunType() {
     return idSeqRunType;
   }
 
-  
+
   public void setIdSeqRunType(Integer idSeqRunType) {
     this.idSeqRunType = idSeqRunType;
   }
 
-  
+
   public Integer getIdGenomeBuildAlignTo() {
     return idGenomeBuildAlignTo;
   }
 
-  
+
   public void setIdGenomeBuildAlignTo(Integer idGenomeBuildAlignTo) {
     this.idGenomeBuildAlignTo = idGenomeBuildAlignTo;
   }
 
-  
+
   public String getAnalysisInstructions() {
     return analysisInstructions;
   }
 
-  
+
   public void setAnalysisInstructions(String analysisInstructions) {
     this.analysisInstructions = analysisInstructions;
   }
-  
+
   public String getFlowCellNumber() {
     if (flowCellChannel != null && flowCellChannel.getFlowCell() != null && flowCellChannel.getFlowCell().getNumber() != null) {
       return flowCellChannel.getFlowCell().getNumber().toString();
@@ -165,7 +165,15 @@ public class SequenceLane extends HibernateDetailObject {
       return "";
     }
   }
-  
+
+  public String getFlowCellChannelSampleConcentrationpM() {
+    if(flowCellChannel != null) {
+      return flowCellChannel.getSampleConcentrationpMDisplay(); 
+    } else {
+      return "";
+    }
+  }
+
 
   public String getFlowCellChannelNumber() {
     if (flowCellChannel != null) {
@@ -174,14 +182,14 @@ public class SequenceLane extends HibernateDetailObject {
       return "";
     }
   }
-  
+
   public Date getFlowCellChannelFirstCycleDate() {
     if (flowCellChannel != null) {
       return flowCellChannel.getFirstCycleDate();
     } else {
       return null;
     }
-    
+
   }
   public String getFlowCellChannelFirstCycleFailed() {
     if (flowCellChannel != null) {
@@ -189,7 +197,7 @@ public class SequenceLane extends HibernateDetailObject {
     } else {
       return null;
     }
-    
+
   }
   public Date getFlowCellChannelLastCycleDate() {
     if (flowCellChannel != null) {
@@ -197,7 +205,7 @@ public class SequenceLane extends HibernateDetailObject {
     } else {
       return null;
     }
-    
+
   }
   public String getFlowCellChannelLastCycleFailed() {
     if (flowCellChannel != null) {
@@ -205,16 +213,16 @@ public class SequenceLane extends HibernateDetailObject {
     } else {
       return null;
     }
-    
+
   }
-  
+
   public Date getFlowCellChannelPipelineDate() {
     if (flowCellChannel != null) {
       return flowCellChannel.getPipelineDate();
     } else {
       return null;
     }
-    
+
   }
   public String getFlowCellChannelPipelineFailed() {
     if (flowCellChannel != null) {
@@ -222,9 +230,9 @@ public class SequenceLane extends HibernateDetailObject {
     } else {
       return null;
     }
-    
+
   }
-  
+
 
   public String getFirstCycleStatus() {
     if (getFlowCellChannelFirstCycleDate() != null) {
@@ -235,7 +243,7 @@ public class SequenceLane extends HibernateDetailObject {
       return "";
     }
   }
-  
+
   public String getLastCycleStatus() {
     if (getFlowCellChannelLastCycleDate() != null) {
       return Constants.STATUS_COMPLETED;
@@ -245,7 +253,7 @@ public class SequenceLane extends HibernateDetailObject {
       return "";
     }
   }  
-  
+
   public String getPipelineStatus() {
     if (getFlowCellChannelPipelineDate() != null) {
       return Constants.STATUS_COMPLETED;
@@ -255,7 +263,7 @@ public class SequenceLane extends HibernateDetailObject {
       return "";
     }
   }  
-  
+
   public Date getFlowCellChannelStartDate() {
     if (flowCellChannel != null) {
       return flowCellChannel.getStartDate();
@@ -263,7 +271,7 @@ public class SequenceLane extends HibernateDetailObject {
       return null;
     }
   }
-  
+
   public Integer getNumberSequencingCyclesActual() {
     if (flowCellChannel != null) {
       return flowCellChannel.getNumberSequencingCyclesActual();
@@ -271,7 +279,7 @@ public class SequenceLane extends HibernateDetailObject {
       return null;
     }
   }
-  
+
   public Integer getClustersPerTile() {
     if (flowCellChannel != null) {
       return flowCellChannel.getClustersPerTile();
@@ -279,8 +287,8 @@ public class SequenceLane extends HibernateDetailObject {
       return null;
     }
   }
-  
-  
+
+
   public BigDecimal getPhiXErrorRate() {
     if (flowCellChannel != null) {
       return flowCellChannel.getPhiXErrorRate();
@@ -290,7 +298,7 @@ public class SequenceLane extends HibernateDetailObject {
   }
 
 
-  
+
   public String getFileName() {
     if (flowCellChannel != null) {
       return flowCellChannel.getFileName();
@@ -328,7 +336,7 @@ public class SequenceLane extends HibernateDetailObject {
       return "Ready for Sample QC";
     }
   }
-  
+
 
   public String getWorkflowStatusAbbreviated() {
     if (getPipelineStatus().equals(Constants.STATUS_COMPLETED)) {
@@ -365,8 +373,8 @@ public class SequenceLane extends HibernateDetailObject {
       return "";
     }
   }
-  
-  
+
+
   public String getSampleName() {
     if (sample != null) {
       return sample.getName();
@@ -388,7 +396,7 @@ public class SequenceLane extends HibernateDetailObject {
       return null;
     }
   }
-  
+
   public String getSampleBarcodeSequenceB() {
     if (sample != null) {
       return sample.getBarcodeSequenceB();
@@ -403,7 +411,7 @@ public class SequenceLane extends HibernateDetailObject {
       return null;
     }
   }
-  
+
   public Integer getIdOrganism() {
     if (sample != null) {
       return sample.getIdOrganism();
@@ -411,7 +419,7 @@ public class SequenceLane extends HibernateDetailObject {
       return null;
     }
   }
-  
+
   public Integer getFragmentSizeFrom() {
     if (sample != null && sample.getFragmentSizeFrom() != null) {
       return sample.getFragmentSizeFrom();
@@ -427,7 +435,7 @@ public class SequenceLane extends HibernateDetailObject {
       return null;
     }
   }
-  
+
   public BigDecimal getCalcConcentration() {
     if (sample != null && sample.getQualCalcConcentration() != null) {
       return sample.getQualCalcConcentration();
@@ -444,26 +452,26 @@ public class SequenceLane extends HibernateDetailObject {
     this.excludeMethodFromXML("getNumberSeqCycles");
   }
 
-  
+
   public Integer getIdFlowCellChannel() {
     return idFlowCellChannel;
   }
 
-  
+
   public void setIdFlowCellChannel(Integer idFlowCellChannel) {
     this.idFlowCellChannel = idFlowCellChannel;
   }
 
-  
+
   public FlowCellChannel getFlowCellChannel() {
     return flowCellChannel;
   }
 
-  
+
   public void setFlowCellChannel(FlowCellChannel flowCellChannel) {
     this.flowCellChannel = flowCellChannel;
   }
-  
+
   public String getFlowCellChannelSampleConcentrationPmDisplay() {
     if (this.getFlowCellChannel() != null) {
       return this.getFlowCellChannel().getSampleConcentrationpMDisplay();
@@ -504,16 +512,16 @@ public class SequenceLane extends HibernateDetailObject {
     return "Y";
   }
 
-  
+
   public Request getRequest() {
     return request;
   }
 
-  
+
   public void setRequest(Request request) {
     this.request = request;
   }
-  
+
   public String getExperimentName() {
     if (request != null) {
       return request.getName();
@@ -521,27 +529,27 @@ public class SequenceLane extends HibernateDetailObject {
       return "";
     }
   }
-  
+
   public static boolean hasBarcodeTags(Set seqLanes) {
     int tagCount = 0;
     for(Iterator i = seqLanes.iterator(); i.hasNext();) {
       SequenceLane theLane = (SequenceLane)i.next();
       String tag = theLane.getSample().getBarcodeSequence();
-      
+
       if (tag != null && !tag.equals("")) {
         tagCount++;
       }
     }
     return  seqLanes.size() > 0 && seqLanes.size() == tagCount;
   }
-  
+
   public static void addMultiplexLaneNodes(Element parentNode, Collection sequenceLanes, Date requestDate) throws XMLReflectException {
     SortedMap multiplexLaneMap = getMultiplexLaneMap(sequenceLanes, requestDate);
-    
+
     for(Iterator i1 = multiplexLaneMap.keySet().iterator(); i1.hasNext();) {
       String key = (String)i1.next();
       Collection theLanes = (Collection)multiplexLaneMap.get(key);
-      
+
       if (key.equals("")) {
         for(Iterator i2 = theLanes.iterator(); i2.hasNext();) {
           SequenceLane l = (SequenceLane)i2.next();
@@ -556,7 +564,7 @@ public class SequenceLane extends HibernateDetailObject {
         multiplexLaneNode.setAttribute("number", key);
 
         parentNode.addContent(multiplexLaneNode);
-        
+
         for(Iterator i2 = theLanes.iterator(); i2.hasNext();) {
           SequenceLane l = (SequenceLane)i2.next();
           multiplexLaneNode.addContent(l.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement());
@@ -564,7 +572,7 @@ public class SequenceLane extends HibernateDetailObject {
       }
     }
   }
-  
+
   public static int getMultiplexLaneCount(Collection sequenceLanes, Date requestCreateDate) {
     Map multiplexLaneMap = getMultiplexLaneMap(sequenceLanes, requestCreateDate);
     int laneCount = 0;
@@ -578,7 +586,7 @@ public class SequenceLane extends HibernateDetailObject {
       }
     }
     return laneCount;
-  
+
   }
   public static SortedMap getMultiplexLaneMap(Collection sequenceLanes, Date requestCreateDate) {
     TreeMap laneMap = new TreeMap();
@@ -616,7 +624,7 @@ public class SequenceLane extends HibernateDetailObject {
     for (Iterator i = laneMap.keySet().iterator(); i.hasNext();) {
       String key = (String)i.next();
       List theLanes = (List)laneMap.get(key);
-      
+
       List laneGroups = null;
       // If the lanes are loaded on a flow cell channel, don't partition based up barcode sequence.  We
       // just want to show all of the lanes that are on the flow cell channel, even if there are duplicate
@@ -626,7 +634,7 @@ public class SequenceLane extends HibernateDetailObject {
       } else {
         laneGroups = SequenceLane.getMultiplexLaneGroupsConsiderDupIndexTags(theLanes);
       }
-      
+
       for(Iterator i1 = laneGroups.iterator(); i1.hasNext();) {
         Set lanesInGroup = (Set)i1.next();
         if (key.equals("")) {
@@ -639,8 +647,8 @@ public class SequenceLane extends HibernateDetailObject {
             SequenceLane l = (SequenceLane)i2.next();
             laneList.add(l);
           }
-          
-          
+
+
         } else {
           String multiplexLaneID = "";
           // Call the grouping by the flow cell channel
@@ -651,28 +659,28 @@ public class SequenceLane extends HibernateDetailObject {
             multiplexLaneID = Integer.valueOf(idx++).toString();
           }
           multiplexLaneMap.put(multiplexLaneID, lanesInGroup);
-          
+
         }
       }
     }
     return multiplexLaneMap;
-    
+
   }
-  
+
   /*
    * This method will just return an array with one element
    * which is the list of lanes. 
    */
   private static List getMultiplexLaneGroupsOfOne(List seqLanes) {
-    
+
     Set theLanes = new TreeSet(new SequenceLaneNumberComparator());
     theLanes.addAll(seqLanes);
-    
+
     List laneGroups = new ArrayList();
     laneGroups.add(theLanes);
     return laneGroups;
   }
-  
+
   /*
    * When duplicate index tags exist in 
    * a multiplex group or a flow cell channel, this method will separate
@@ -686,7 +694,7 @@ public class SequenceLane extends HibernateDetailObject {
     for(Iterator i = seqLanes.iterator(); i.hasNext();) {
       SequenceLane theLane = (SequenceLane)i.next();
       String tag = null;
-      
+
       // Initialize tag to the barcodeSequence of Index A (if it is not null)
       if (theLane.getSample().getBarcodeSequence() != null) {
         tag = theLane.getSample().getBarcodeSequence();
@@ -700,7 +708,7 @@ public class SequenceLane extends HibernateDetailObject {
         tag += "-" + theLane.getSample().getBarcodeSequenceB();
       }
 
-      
+
       if (tag == null && theLane.getSample().getMultiplexGroupNumber() != null) {
         tag = theLane.getSample().getIdSample().toString();
       } else if (tag == null && theLane.getSample().getMultiplexGroupNumber() == null) {
@@ -713,7 +721,7 @@ public class SequenceLane extends HibernateDetailObject {
       }
       theLanes.add(theLane);
     }
-    
+
     int maxTagCount = 0;
     // To determine the number of lanes, we find the highest number
     // of sequence lanes with the same sequence tag (or no tag).  
@@ -725,30 +733,30 @@ public class SequenceLane extends HibernateDetailObject {
     for (Iterator i = seqTagMap.keySet().iterator(); i.hasNext();) {
       String tag = (String)i.next();
       List theLanes = (List)seqTagMap.get(tag);
-      
+
       if (theLanes.size() > maxTagCount) {
         maxTagCount = theLanes.size();
       }
     }
 
-    
+
     for (int x = 0; x < maxTagCount; x++) {
       Set laneGroup = new TreeSet(new SequenceLaneNumberComparator());
       for (Iterator i = seqTagMap.keySet().iterator(); i.hasNext();) {
         String tag = (String)i.next();
         List theLanes = (List)seqTagMap.get(tag);
-        
+
         if (x < theLanes.size()) {
           SequenceLane l = (SequenceLane)theLanes.get(x);
           laneGroup.add(l);
         }
       }
       laneGroups.add(laneGroup);
-      
+
     }
     return laneGroups;
   }
-  
+
   public NumberSequencingCycles getNumberSeqCycles() {
     return numberSeqCycles;
   }
@@ -756,5 +764,5 @@ public class SequenceLane extends HibernateDetailObject {
   public void setNumberSeqCycles(NumberSequencingCycles numberSeqCycles) {
     this.numberSeqCycles = numberSeqCycles;
   }
-    
+
 }  
