@@ -66,12 +66,15 @@ package views.util
 		}
 		
 		public function resizeToText():void {
-			if ( this.editable ) {
-				// For some reason textheight is way huge for editable text area. 
-				this.height = this.text != '' ? Math.max(this.textHeight - 150, 30) : 30;
-			} else {
-				this.height = this.text != '' ? this.textHeight + 10 : 30;
+			this.height = this.textField.height = 30;
+			var totalHeight:uint = 10;
+			var noOfLines:int = this.textField.numLines;
+			
+			for ( var i:int = 0; i < noOfLines; i++ ) {
+				var textLineHeight:int = this.textField.getLineMetrics(i).height;
+				totalHeight += textLineHeight;
 			}
+			this.height = this.textField.height = totalHeight;
 		}
 	}
 }
