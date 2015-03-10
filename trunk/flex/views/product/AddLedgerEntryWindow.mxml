@@ -15,8 +15,10 @@
 	
 	<mx:Script> 
 		<![CDATA[
-			import mx.managers.PopUpManager;
+			import ext.com.Consts;
+			
 			import mx.controls.Alert;
+			import mx.managers.PopUpManager;
 			import mx.rpc.events.ResultEvent;
 
 			
@@ -71,7 +73,7 @@
 		
 		<mx:HBox width="100%">
 			<mx:Label text="Comment"/>
-			<mx:TextArea width="100%" height="100%" id="commentText" />
+			<mx:TextArea width="100%" height="100%" id="commentText" maxChars="{ext.com.Consts.MAX_CHARS}" />
 		</mx:HBox>
 		
 		<mx:Label text="{'Quantity will bring product count below zero'}" id="negativeCount" visible="{int(parentWindow.productCount) + int(qtyInput.text) &lt; 0}"/>
