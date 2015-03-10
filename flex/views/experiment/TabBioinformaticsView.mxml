@@ -2,6 +2,7 @@
 <mx:Canvas label="Bioinformatics" xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" xmlns:util="views.util.*" show="{init();}" verticalScrollPolicy="off">
 	<mx:Script>
 		<![CDATA[
+			import ext.com.Consts;
 			[Bindable]
 			private var organismString:String;
 			[Bindable]
@@ -162,6 +163,6 @@
 		<util:ContextHelp context1="bioNote" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Analysis Note Help"
 						  label="Enter a note regarding analysis. (optional)" labelPlacement="left" id="bioNoteLabel"/>
 		<util:TextAreaWorkaround id="noteToBio" enabled="{bioAssistCheckBox.selected}" text="{parentDocument.request.@analysisInstructions}" 
-								 focusOut="setAnalysisInstructions()" change="{parentDocument.dirty.setDirty();}" width ="100%" height="25%"/> 
+								 focusOut="setAnalysisInstructions()" change="{parentDocument.dirty.setDirty();}" width ="100%" height="25%" maxChars="{ext.com.Consts.MAX_CHARS}"/> 
 	</mx:VBox>
 </mx:Canvas>

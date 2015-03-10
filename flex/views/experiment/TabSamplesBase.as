@@ -9,6 +9,7 @@ package views.experiment
 	import mx.containers.Canvas;
 	import mx.controls.AdvancedDataGrid;
 	import mx.controls.Alert;
+	import mx.controls.TextInput;
 	import mx.controls.advancedDataGridClasses.AdvancedDataGridColumn;
 	import mx.events.CloseEvent;
 	import mx.events.FlexEvent;

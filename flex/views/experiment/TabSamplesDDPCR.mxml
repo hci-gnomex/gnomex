@@ -10,6 +10,8 @@
 
 	<mx:Script>
 		<![CDATA[
+			import ext.com.Consts;
+			
 			import hci.flex.controls.DropdownLabel;
 			import hci.flex.controls.Label;
 			
@@ -306,7 +308,7 @@
 					<util:ContextHelp context1="coreFacilityNoteHelp" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Core Facility Note Help"
 									  label="Enter a note for the Core Facility (optional)." labelPlacement="left" id="coreFacilityNoteLabel"/>
 					<util:TextAreaWorkaround id="coreFacilityNoteText" text="{parentDocument.request.@corePrepInstructions}" focusOut="parentDocument.request.@corePrepInstructions = coreFacilityNoteText.text" 
-											 width ="100%" height="100%"/>
+											 width ="100%" height="100%" maxChars="{ext.com.Consts.MAX_CHARS}"/>
 				</mx:VBox>
 			</mx:VBox>
 			<mx:VBox horizontalAlign="center" visible="{parentApplication.isInternalExperimentSubmission}" includeInLayout="{parentApplication.isInternalExperimentSubmission}" id="instructionVBox">

@@ -9,6 +9,7 @@
 			import mx.controls.TextInput;
 			import mx.managers.PopUpManager;
 			import mx.utils.StringUtil;
+			import ext.com.Consts;
 			
 			import views.admin.PropertyWindow;
 			import views.util.CheckBoxRequiredIndicator;
@@ -450,7 +451,7 @@
 							<mx:HBox >
 								<util:TextAreaRequiredIndicator id="propertyText" change="{setDirty();resizeTextArea(event)}"
 																editable="{editable}" styleName="labelSmall" text="{propertyRepeater.currentItem.@value}" 
-																verticalScrollPolicy="off"
+																verticalScrollPolicy="off" maxChars="{Consts.MAX_CHARS}"
 																width="100%">
 								</util:TextAreaRequiredIndicator> 
 							</mx:HBox>
