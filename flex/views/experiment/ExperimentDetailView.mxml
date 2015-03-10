@@ -397,13 +397,6 @@
 					globalAdapterSize = parseInt(String(propAdapterSize));			
 				}
 				
-				if (defaultTab == null) {
-					theTab.selectedIndex = 0;
-				} else {
-					theTab.selectedChild = defaultTab;
-					defaultTab = null;
-				}
-				
 				this.requestProperties.refresh();
 				if (this.requestProperties.length < 1) {
 					this.theTab.getTabAt( theTab.getChildIndex( propertiesView ) ).visible = false;
@@ -412,6 +405,14 @@
 					this.theTab.getTabAt( theTab.getChildIndex( propertiesView ) ).visible = true;
 					this.theTab.getTabAt( theTab.getChildIndex( propertiesView ) ).includeInLayout = true;
 				} 
+				
+				
+				if (defaultTab == null) {
+					theTab.selectedIndex = 0;
+				} else {
+					theTab.selectedChild = defaultTab;
+					defaultTab = null;
+				}
 				
 				// Workflow progress
 				callLater(setWorkflowStatus);
