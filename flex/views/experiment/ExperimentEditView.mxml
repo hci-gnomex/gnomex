@@ -3569,7 +3569,7 @@
 					params.propertiesXML = "<requestProperties>" + propertiesView.propertiesToSave.toXMLString() + "</requestProperties>";
 
 				}
-				if(this.theTab.contains(this.lanesView)){
+				if(this.lanesView != null && this.theTab.contains(this.lanesView)){
 					for each(var lane:XML in request.sequenceLanes.SequenceLane){
 						if(lane.@flowCellChannelSampleConcentrationpM != "" && lane.@idFlowCellChannel == ""){
 							Alert.show("You specified a Sample Concentration pM for a sequence lane that is not currently associated with a Flow Cell Channel.  Please finalize flow cell in workflow first.");
