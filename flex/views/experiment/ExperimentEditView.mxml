@@ -3576,7 +3576,7 @@
 							return;
 						}
 						
-						if(validator.validate(lane.@flowCellChannelSampleConcentrationpM).results != null){
+						if(lane.@flowCellChannelSampleConcentrationpM != "" && validator.validate(lane.@flowCellChannelSampleConcentrationpM).results != null){
 							Alert.show("You have entered invalid data in the sample conc. pM field.  Please use numbers only");
 							return;
 						}
@@ -5307,7 +5307,7 @@
 	</mx:Script>
 	<mx:NumberValidator id="validator"  
 						decimalPointCountError="The decimal separator can only occur once." 
-						decimalSeparator="."
+						decimalSeparator="." required="false"
 						invalidCharError="Min/Max range must be an integer."
 						domain="real" allowNegative="false"  />
 	
