@@ -236,7 +236,7 @@ public class SaveProperty extends GNomExCommand implements Serializable {
           // Save options
           //
           HashMap optionMap = new HashMap();
-          if (optionsDoc != null) {
+          if (optionsDoc != null && sc.hasOptions()) {
             for(Iterator i = this.optionsDoc.getRootElement().getChildren().iterator(); i.hasNext();) {
               Element node = (Element)i.next();
               PropertyOption option =  null;
@@ -263,13 +263,13 @@ public class SaveProperty extends GNomExCommand implements Serializable {
             }
           }
   
-          // Remove options no longer in the list
+          // Remove options no longer in the list -- note if type does not allow options we remove all options.
           List optionsToRemove = new ArrayList();
           if (sc.getOptions() != null) {
             for(Iterator i = sc.getOptions().iterator(); i.hasNext();) {
               PropertyOption op = (PropertyOption)i.next();
               
-              if (!optionMap.containsKey(op.getIdPropertyOption())) {
+              if (!sc.hasOptions() || !optionMap.containsKey(op.getIdPropertyOption())) {
                 optionsToRemove.add(op);
               }
             }

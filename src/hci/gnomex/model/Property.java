@@ -296,4 +296,11 @@ public class Property extends DictionaryEntry implements Serializable, OntologyE
     return buf.toString();
   }
     
+  public Boolean hasOptions() {
+    if (getCodePropertyType().equals(PropertyType.MULTI_OPTION) || getCodePropertyType().equals(PropertyType.OPTION)) {
+      return true;
+    } else {
+      return false;
+    }
+  }
 }
