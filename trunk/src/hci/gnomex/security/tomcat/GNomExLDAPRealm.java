@@ -196,7 +196,7 @@ public class GNomExLDAPRealm extends RealmBase {
     this.ldap_user_attributes = ldap_user_attributes;
     
     // Populate user attributes and values into a may (key=attribute, value=attribute value)
-    if (ldap_user_attributes != null) {
+    if (ldap_user_attributes != null && ldap_user_attributes.length() > 0) {
       String attributeTokens[] = ldap_user_attributes.split(",");
       for (int x = 0; x < attributeTokens.length; x++) {
         String tokens[] = attributeTokens[x].split(":");
