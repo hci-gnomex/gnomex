@@ -3,6 +3,7 @@ package hci.gnomex.controller;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.AnalysisType;
+import hci.gnomex.model.AppUserLite;
 import hci.gnomex.model.Application;
 import hci.gnomex.model.Organism;
 import hci.gnomex.model.Property;
@@ -50,6 +51,9 @@ public class SaveProperty extends GNomExCommand implements Serializable {
   
   private String                         organismsXMLString;
   private Document                       organismsDoc;
+  
+  private String                         appUsersXMLString;
+  private Document                       appUsersDoc;
   
   private String                         platformsXMLString;
   private Document                       platformsDoc;
@@ -101,6 +105,18 @@ public class SaveProperty extends GNomExCommand implements Serializable {
       } catch (JDOMException je ) {
         log.error( "Cannot parse organismsXMLString", je );
         this.addInvalidField( "organismsXMLString", "Invalid organismsXMLString");
+      }
+    }
+    
+    if (request.getParameter("appUsersXMLString") != null && !request.getParameter("appUsersXMLString").equals("")) {
+      appUsersXMLString = request.getParameter("appUsersXMLString");
+      StringReader reader = new StringReader(appUsersXMLString);
+      try {
+        SAXBuilder sax = new SAXBuilder();
+        appUsersDoc = sax.build(reader);     
+      } catch (JDOMException je ) {
+        log.error( "Cannot parse appUsersXMLString", je );
+        this.addInvalidField( "appUsersXMLString", "Invalid appUsersXMLString");
       }
     }
     
@@ -210,6 +226,7 @@ public class SaveProperty extends GNomExCommand implements Serializable {
             // get in the list and get deleted.
             Hibernate.initialize(sc.getOptions());
             Hibernate.initialize(sc.getOrganisms());
+            Hibernate.initialize(sc.getAppUsers());
             
             initializeProperty(sc);
           }
@@ -291,6 +308,22 @@ public class SaveProperty extends GNomExCommand implements Serializable {
             }
           }
           sc.setOrganisms(organisms);
+          
+          //
+          // Save property users
+          //
+          TreeSet appUsers = new TreeSet(new AppUserComparator());
+          // Only have app users if property is for sample.
+          if (sc.getForSample() != null && sc.getForSample().equals("Y") && (sc.getIsRequired() == null || !sc.getIsRequired().equals("Y"))) {
+            if (appUsersDoc != null) {
+              for(Iterator i = this.appUsersDoc.getRootElement().getChildren().iterator(); i.hasNext();) {
+                Element appUserNode = (Element)i.next();
+                AppUserLite appUser = (AppUserLite)sess.load(AppUserLite.class, Integer.valueOf(appUserNode.getAttributeValue("idAppUser")));
+                appUsers.add(appUser);
+              }
+            }
+          }
+          sc.setAppUsers(appUsers);
           
   
           //
@@ -475,6 +508,17 @@ public class SaveProperty extends GNomExCommand implements Serializable {
       
     }
   }
+  
+  private class AppUserComparator implements Comparator, Serializable {
+    public int compare(Object o1, Object o2) {
+      AppUserLite org1 = (AppUserLite)o1;
+      AppUserLite org2 = (AppUserLite)o2;
+      
+      return org1.getIdAppUser().compareTo(org2.getIdAppUser());
+      
+    }
+  }
+
   private class PlatformApplicationsComparator implements Comparator, Serializable {
     public int compare(Object o1, Object o2) {
       PropertyPlatformApplication pa1 = (PropertyPlatformApplication)o1;

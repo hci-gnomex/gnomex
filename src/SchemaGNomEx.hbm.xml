@@ -2399,6 +2399,11 @@
 			<key column="idProperty" />
 			<many-to-many column="idAnalysisType" class="hci.gnomex.model.AnalysisType" />
 		</set>
+		<set name="appUsers" table="PropertyAppUser" lazy="false"
+			cascade="delete">
+			<key column="idProperty" />
+			<many-to-many column="idAppUser" class="hci.gnomex.model.AppUserLite" />
+		</set>
 	</class>
 
 

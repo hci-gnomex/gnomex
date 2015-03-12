@@ -624,6 +624,7 @@
 			<url-pattern>/SavePriceSheet.gx</url-pattern>
 			<url-pattern>/SaveProject.gx</url-pattern>
 			<url-pattern>/SaveProperty.gx</url-pattern>
+			<url-pattern>/AddPropertyAppUsers.gx</url-pattern>
 			<url-pattern>/SaveProtocol.gx</url-pattern>
 			<url-pattern>/SaveRequest.gx</url-pattern>
 			<url-pattern>/SaveRequestProject.gx</url-pattern>

@@ -221,6 +221,12 @@ public class DeleteProperty extends GNomExCommand implements Serializable {
         sess.flush();
         
         //
+        // Clear out property user list
+        //
+        property.setAppUsers(new TreeSet());
+        sess.flush();
+        
+        //
         // Clear out property platformApplication list
         //       
         if (property.getPlatformApplications() != null) {

@@ -1181,7 +1181,8 @@
 			public var PROPERTY_QC_ASSAY_HIDE_WELLS_PER_CHIP:String       = "qc_assay_hide_wells_per_chip";
 			public var PROPERTY_HIDE_260_230_QC_WORKFLOW:String           = "qc_hide_260_230_qc_workflow";
 			public var PROPERTY_SHOW_SAMPLE_CONC_PM:String           	  = "show_sample_conc_pm";
-			
+			public var PROPERTY_RESTRICT_ANNOTATION_ON_AUTO_ADD:String    = "restrict_annotation_on_auto_add";
+
 			
 			public var CAN_ADMINISTER_ALL_CORE_FACILITIES:String          = "canAdministerAllCoreFacilities";
 			

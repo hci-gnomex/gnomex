@@ -9,3 +9,19 @@ alter table SampleType add
     REFERENCES `gnomex`.`CoreFacility` (`idCoreFacility`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION;
+
+-- Add table PropertyAppUser
+DROP TABLE IF EXISTS `gnomex`.`PropertyAppUser`;
+CREATE TABLE gnomex.PropertyAppUser ( 
+     idProperty	int(10),
+     idAppUser  INT(10),
+    PRIMARY KEY (idProperty, idAppUser),
+    CONSTRAINT FK_PropertyAppUser_Property FOREIGN KEY FK_PropertyAppUser_Property (idProperty)
+    REFERENCES gnomex.Property (idProperty)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+    CONSTRAINT FK_PropertyAppUser_AppUser FOREIGN KEY FK_PropertyAppUser_AppUser (idAppUser)
+    REFERENCES gnomex.AppUser (idAppUser)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+) ENGINE = INNODB;
