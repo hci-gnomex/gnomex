@@ -148,6 +148,7 @@ public class PropertyDictionary extends DictionaryEntry implements Serializable 
   public static final String		    CHROMATOGRAM_VIEW_LIMIT				      = "chromatogram_view_limit";
   public static final String        DISK_USAGE_BILLING_CORE             = "disk_usage_billing_core";
   public static final String        CORE_BILLING_OFFICE                 = "core_billing_office";
+  public static final String        RESTRICT_ANNOTATION_ON_AUTO_ADD     = "restrict_annotation_on_auto_add";
 
 
   private Integer       idPropertyDictionary;

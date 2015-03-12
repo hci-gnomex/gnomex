@@ -71,6 +71,7 @@ public class GetPropertyList extends GNomExCommand implements Serializable {
           property.excludeMethodFromXML("getOrganisms");
           property.excludeMethodFromXML("getPlatformApplications");
           property.excludeMethodFromXML("getAnalysisTypes");
+          property.excludeMethodFromXML("getAppUsers");
         }
         
         Element node = property.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();

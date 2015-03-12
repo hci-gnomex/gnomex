@@ -81,10 +81,13 @@
 				params.mageOntologyDefinition = property.@mageOntologyDefinition; 
 				params.description = property.@description;
 				params.idAppUser = property.@idAppUser;
+				params.idCoreFacility = property.@idCoreFacility;
+				params.sortOrder = property.@sortOrder;
 				params.codePropertyType = property.@codePropertyType;
 				params.organismsXMLString = property.organisms;
 				params.platformsXMLString = property.platformApplications;
 				params.analysisTypesXMLString = property.analysisTypes;
+				params.appUsersXMLString = property.appUsers;
 
 				var options:XMLListCollection = new XMLListCollection(property.options.PropertyOption);
 				var sortOrder:int = options.length + 1;

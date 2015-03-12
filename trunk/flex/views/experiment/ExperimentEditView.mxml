@@ -1631,12 +1631,19 @@
 		}
 			
 		private function filterPropertyEntry(sce:Object):Boolean {
-			var keep:Boolean = false;
-			
+			// get property with children (organisms, platforms, appusers)
 			var property:XML = parentApplication.getSampleProperty(sce.@idProperty);
 			if(sce.@idProperty == "-1" || property == null) {
 				return true;	// Special case for "Description" field which is not a "real" property 
 			}
+			return filterPropertyEntryWithFullProperty(property, sce);
+		}
+			
+		/*
+	     * property is the property with all child elements.  sce is the property with the isSelected attribute.
+		 */
+		public function	filterPropertyEntryWithFullProperty(property:Object, sce:Object):Boolean {
+			var keep:Boolean = false;
 			var idOrganism:String = null;
 			if (this.getOrganism() != null) {
 				idOrganism = this.getOrganism().@idOrganism;
@@ -2770,45 +2777,6 @@
 		}
 		
 
-		
-		
-		
-		public function sortProperties(obj1:Object, obj2:Object, fields:Array=null):int {
-			if (obj1 == null && obj2 == null) {
-				return 0;
-			} else if (obj1 == null) {
-				return 1;
-			} else if (obj2 == null) {
-				return -1;
-			} else {
-				var so1:Number = (obj1.@sortOrder == '' || obj1.@sortOrder == null) ? Number(999999) : new Number(obj1.@sortOrder);
-				var so2:Number = (obj2.@sortOrder == '' || obj2.@sortOrder == null) ? Number(999999) : new Number(obj2.@sortOrder);
-				var sc1:String = obj1.@name;
-				var sc2:String = obj2.@name;
-				
-				if (so1 < so2) {
-					return -1;
-				} else if (so1 > so2) {
-					return 1;
-				} else {
-					if (sc1 == 'Other') {
-						return 1;
-					} else if (sc2 == 'Other') {
-						return  -1;
-					} else {
-						if (sc1.toLowerCase() < sc2.toLowerCase()) {
-							return -1;
-						} else if (sc1.toLowerCase() > sc2.toLowerCase()) {
-							return 1;
-						} else {
-							return 0;
-						}
-					}
-				}
-				
-			}
-		}	
-
 		private function validateRequest():void {
 			errorMessage = '';
 			warningMessage = '';
@@ -3341,7 +3309,22 @@
 			} 
 		}
 			
-		private function getIdAppUserOwner():Object {
+		public function getIdAppUserSubmitter():Object {
+			var idAppUserSubmitter:Object = null;
+			if (this.isEditState()) {
+				idAppUserSubmitter = submitterCombo.selectedItem.@idAppUser;
+			} else if (request.@idSubmitter == "" && parentApplication.hasPermission("canSubmitForOtherCores")) {
+				idAppUserSubmitter = parentApplication.getIdAppUser();
+			} else if (request.@idSubmitter == "") {
+				idAppUserSubmitter = getIdAppUserOwner();
+			} else {
+				idAppUserSubmitter = request.@idSubmitter;
+			}
+			
+			return idAppUserSubmitter;
+		}
+			
+		public function getIdAppUserOwner():Object {
 			var idAppUserOwner:Object = null;
 			if ((this.currentState == "MicroarrayAmendState" || currentState == "SolexaBaseAmendState") && (!parentApplication.isAdminState)) {
 				// If a non-admin user is converting a QC request
@@ -3350,8 +3333,10 @@
 				// the request, as he/she may be amending a request
 				// originally submitted by someone else.
 				idAppUserOwner = parentApplication.getIdAppUser();				
-			} else if (!this.isAmendState()) {
+			} else if (!this.isAmendState() && !this.isEditState()) {
 				idAppUserOwner = this.setupView.idAppUser;
+			} else if (this.isEditState()) {
+				idAppUserOwner = ownerCombo.selectedItem.@idAppUser;
 			} else {
 				idAppUserOwner = request.@idAppUser;
 			}
@@ -5320,7 +5305,7 @@
 	  	 				  sort="{propertySorter}" filterFunction="{filterPropertyEntry}"/>
 	<mx:XMLListCollection id="requestProperties" source="{request.RequestProperties.PropertyEntry}" 
 						  sort="{propertySorter}" filterFunction="{filterPropertyEntry}" />
-	<mx:Sort id="propertySorter" compareFunction="sortProperties" unique="true"/>
+	<mx:Sort id="propertySorter" compareFunction="AnnotationUtility.sortProperties" unique="true"/>
 
 	<mx:XMLListCollection id="samples" source="{request.samples.Sample}"/>
 

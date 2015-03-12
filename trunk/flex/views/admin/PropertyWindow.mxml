@@ -1,8 +1,8 @@
-<?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
-				width="1029" height="600"
+				width="1024" height="750"
 				creationComplete="{init()}"
 				xmlns:util="views.util.*" 
+				xmlns:renderers="views.renderers.*" 
 				showCloseButton="true" close="{PopUpManager.removePopUp(this);}"
 				title="Configure Annotations" paddingLeft="0" paddingBottom="0" paddingRight="0" paddingTop="0">
 	
@@ -411,6 +411,19 @@
 				}
 			}
 			
+			private function addAppUser():void {
+				if (appUserCombo.selectedItem != null && appUserCombo.selectedItem.@value != '') {
+					appUsers.addItem(appUserCombo.selectedItem);
+					setDirty();			
+				}
+			}
+			
+			private function removeAppUser():void {
+				if (this.appUsersGrid.selectedItem != null) {
+					appUsers.removeItemAt(appUsers.getItemIndex(appUsersGrid.selectedItem));
+					setDirty();
+				}
+			}
 			
 			private function addPlatform():void {
 				if (platformCombo.selectedItem != null && platformCombo.selectedIndex > -1) {
@@ -612,6 +625,7 @@
 				params.organismsXMLString = "<organisms>" + this.organisms.toXMLString() + "</organisms>";
 				params.platformsXMLString = "<platformApplications>" + this.platformApplications.toXMLString() + "</platformApplications>";
 				params.analysisTypesXMLString = "<analysisTypes>" + this.analysisTypes.toXMLString() + "</analysisTypes>";
+				params.appUsersXMLString = "<appUsers>" + this.appUsers.toXMLString() + "</appUsers>";
 				
 				saveProperty.send(params);
 				
@@ -766,7 +780,7 @@
 			}
 			
 			private function propertyListLabel(item:Object, column:AdvancedDataGridColumn):String {
-				if(item.@appliesToOrganism != "" || item.@appliesToAnalysisType != "" || item.@appliesToRequestCategory != ""){
+				if(hasAppliesTo(item)) {
 					return "*" + item.@name;
 				} else{
 					return item.@name;
@@ -789,6 +803,13 @@
 				filteredExperimentPlatforms.refresh();
 			}
 			
+			public function hasAppliesTo(item:Object):Boolean {
+				if(item.@appliesToOrganism != "" || item.@appliesToAnalysisType != "" || item.@appliesToRequestCategory != "" || item.@appliesToAppUser != ""){
+					return true;
+				} else {
+					return false;
+				}
+			}
 		]]>
 	</mx:Script>
 	
@@ -796,6 +817,7 @@
 	<mx:XMLListCollection id="options" source="{property.options.PropertyOption}"/>
 	<mx:XMLListCollection id="organisms" source="{property.organisms.Organism}"/>
 	<mx:XMLListCollection id="platformApplications" source="{property.platformApplications.PropertyPlatformApplication}" sort="{platformApplicationSorter}"/>
+	<mx:XMLListCollection id="appUsers" source="{property.appUsers.AppUserLite}"/>
 	<mx:Sort id="platformApplicationSorter" compareFunction="sortPlatformApplications" unique="true"/>	
 	<mx:XMLListCollection id="analysisTypes" source="{property.analysisTypes.AnalysisType}"/>
 	<mx:VBox width="100%" height="100%" verticalGap="0"  paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0">
@@ -834,7 +856,7 @@
 							<mx:itemRenderer >
 								<mx:Component>
 									<mx:HBox horizontalScrollPolicy="off" verticalGap="0" >
-										<mx:Label text="{data.name() != 'Option' &amp;&amp; (data.@appliesToOrganism != '' || data.@appliesToAnalysisType != '' || data.@appliesToPlatform != '') ? '*' + data.@name : data.@name}" 
+										<mx:Label text="{data.name() != 'Option' &amp;&amp; (outerDocument.hasAppliesTo(data)) ? '*' + data.@name : data.@name}" 
 												  fontWeight="{data.@isActive == 'Y' &amp;&amp; data.@isRequired == 'Y' ? 'bold' : 'normal'}"  
 												  fontStyle="{data.@isActive == 'N' || data.@isRequired == 'Y'  ? 'italic' : 'normal'}"
 												  color="{data.@isActive == 'N' ? 0x647478 : 0x000000}">			                           	
@@ -995,6 +1017,24 @@
 									</mx:columns>
 								</mx:DataGrid>			   	
 							</mx:VBox>				 
+							<mx:VBox   verticalGap="1" height="100%"  width="100%" enabled="{sample.selected &amp;&amp; !isRequired.selected}">
+								<mx:Text text="Only show for these users (only applies to non-required sample annotations)" width="100%" styleName="formLabel" />
+								<mx:HBox horizontalAlign="left" horizontalGap="2">
+									<renderers:FilterComboBox width="265" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.AppUserLite').DictionaryEntry}" id="appUserCombo" labelField="@display"  fontSize="10">			       	
+									</renderers:FilterComboBox>
+									<mx:Button click="addAppUser()" icon="@Embed(source='../../assets/add.png')" disabledIcon="@Embed(source='../../assets/add_disable.png')" width="25">
+										<mx:enabled>{propertyList.selectedItem.@canUpdate == 'Y' &amp;&amp; appUserCombo.selectedItem != null &amp;&amp; appUserCombo.selectedIndex > 0 ? true : false}</mx:enabled>
+									</mx:Button>
+									<mx:Button click="removeAppUser()" icon="@Embed(source='../../assets/delete.png')" 
+											   disabledIcon="@Embed(source='../../assets/delete_disable.png')" 
+											   enabled="{propertyList.selectedItem.@canUpdate == 'Y' &amp;&amp; appUsersGrid.selectedItem != null}" width="25"/>
+								</mx:HBox>
+								<mx:DataGrid id="appUsersGrid" showHeaders="false" dataProvider="{appUsers}" width="100%" height="100%">
+									<mx:columns>
+										<mx:DataGridColumn dataField="@display" headerText="Name"/>
+									</mx:columns>
+								</mx:DataGrid>			   	
+							</mx:VBox>				 
 							
 						</mx:VBox>
 						<mx:VBox width="100%" height="100%" label="Mage Ontology" paddingLeft="4" paddingRight="4" paddingBottom="4">
@@ -1030,7 +1070,7 @@
 			
 			
 		</mx:HDividedBox>
-		<mx:Label text="* Denotes annotations that apply to specific organisms, analysis types, and/or experiment platforms" fontStyle="normal" fontSize="10"/>
+		<mx:Label text="* Denotes annotations that apply to specific organisms, analysis types, experiment platforms, and/or users." fontStyle="normal" fontSize="10"/>
 	</mx:VBox>
 	
 </mx:TitleWindow>

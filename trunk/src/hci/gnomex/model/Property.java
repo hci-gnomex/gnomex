@@ -28,6 +28,7 @@ public class Property extends DictionaryEntry implements Serializable, OntologyE
   private Integer  idCoreFacility;
   private Set      options = new TreeSet();
   private Set      organisms = new TreeSet();
+  private Set      appUsers = new TreeSet();
   private Set      platformApplications = new TreeSet();
   private Set      analysisTypes = new TreeSet();
   
@@ -117,6 +118,12 @@ public class Property extends DictionaryEntry implements Serializable, OntologyE
   }
   public void setOrganisms(Set organisms) {
     this.organisms = organisms;
+  }
+  public Set getAppUsers() {
+    return appUsers;
+  }
+  public void setAppUsers(Set appUsers) {
+    this.appUsers = appUsers;
   }
   public Integer getIdProperty() {
     return idProperty;
@@ -274,6 +281,19 @@ public class Property extends DictionaryEntry implements Serializable, OntologyE
     }
     return buf.toString();
     
+  }
+  
+  public String getAppliesToAppUser() {
+    StringBuffer buf = new StringBuffer();
+    if (getAppUsers() != null) {
+      for (AppUserLite user : (Set<AppUserLite>)getAppUsers()) {
+        if (buf.length() > 0) {
+          buf.append(", ");
+        }
+        buf.append(user.getDisplay());
+      }
+    }
+    return buf.toString();
   }
     
 }
