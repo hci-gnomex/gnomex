@@ -1183,6 +1183,7 @@
 			public var PROPERTY_SHOW_SAMPLE_CONC_PM:String           	  = "show_sample_conc_pm";
 			public var PROPERTY_RESTRICT_ANNOTATION_ON_AUTO_ADD:String    = "restrict_annotation_on_auto_add";
 			public var PROPERTY_DESCRIPTION_NAME_MANDATORY_FOR_INTERNAL_EXPERIMENTS:String = "description_name_mandatory_for_internal_experiments";
+			public var PROPERTY_SORT_APPLICATION_ALPHABETICALLY_IN_EDIT:String = "sort_application_alphabetically_in_edit";
 
 			
 			public var CAN_ADMINISTER_ALL_CORE_FACILITIES:String          = "canAdministerAllCoreFacilities";
