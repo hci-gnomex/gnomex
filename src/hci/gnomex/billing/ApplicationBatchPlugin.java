@@ -25,7 +25,7 @@ import java.util.Set;
 import org.hibernate.Session;
 
 
-public class NanoStringPlugin implements BillingPlugin {
+public class ApplicationBatchPlugin implements BillingPlugin {
 
   public List constructBillingItems(Session sess, String amendState, BillingPeriod billingPeriod, PriceCategory priceCategory, Request request, 
       Set<Sample> samples, Set<LabeledSample> labeledSamples, Set<Hybridization> hybs, Set<SequenceLane> lanes, Map<String, ArrayList<String>> sampleToAssaysMap, 
@@ -47,9 +47,20 @@ public class NanoStringPlugin implements BillingPlugin {
     Price price = null;
     for(Iterator i1 = priceCategory.getPrices().iterator(); i1.hasNext();) {
       Price p = (Price)i1.next();
-      if (p.getIsActive() != null && p.getIsActive().equals("Y")) {       
-        price = p;
-        break;            
+      if (p.getIsActive() != null && p.getIsActive().equals("Y")) {
+        // If the price an application criteria, find the appropriate one.
+        if ( p.getPriceCriterias()!=null && p.getPriceCriterias().size()>0 ) {
+          for(Iterator i2 = p.getPriceCriterias().iterator(); i2.hasNext();) {
+            PriceCriteria criteria = (PriceCriteria)i2.next();
+            if (criteria.getFilter1().equals(request.getCodeApplication())) {          
+              price = p;
+              break;            
+            }
+          }
+        } else {
+          price = p;
+          break;
+        }
       }
     }
     
