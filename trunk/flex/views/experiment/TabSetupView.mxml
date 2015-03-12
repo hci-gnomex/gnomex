@@ -585,6 +585,8 @@
 				
 				selectDefaultUserProject();
 				
+				setNameDescriptionLabels();
+				
 				if (parentDocument != null && parentDocument.defaultCodeRequestCategory != null) {
 					requestTypeGroup.selectedValue = parentDocument.defaultCodeRequestCategory;
 					callLater(parentDocument.setRequestCategoryName);
@@ -596,6 +598,18 @@
 				}
 				
 				this.checkSetupCompleteness();
+			}
+			
+			private function setNameDescriptionLabels():void {
+				if (parentApplication.submitInternalExperiment()) {
+					if (parentApplication.requireExperimentDescriptionAndName(this.getRequestCategory().@idCoreFacility, this.getRequestCategory().@codeRequestCategory)) {
+						nameLabel.label = nameLabel.label.replace("optional","required");
+						descriptionLabel.label = descriptionLabel.label.replace("optional","required");
+					} else {
+						nameLabel.label = nameLabel.label.replace("required","optional");
+						descriptionLabel.label = descriptionLabel.label.replace("required","optional");
+					}
+				}
 			}
 			
 			private function refreshBillingAccounts():void {
@@ -721,11 +735,14 @@
 					this.labCombo.selectedItem != null && this.labCombo.selectedItem.@idLab != '' &&
 					this.projectCombo.selectedItem != null && this.projectCombo.selectedItem.@idProject != '' && isValidRange) {
 					
-					// For internal experiments, make sure billing account selected
+					// For internal experiments, make sure billing account selected.  Also description and name if property is set.
 					if (parentApplication.submitInternalExperiment()) {
-						if (this.billingAccountCombo.selectedItem != null) {
-							isComplete = true;
-						} 	    
+						if (!parentApplication.requireExperimentDescriptionAndName(parentDocument.coreFacility.@idCoreFacility, this.getRequestCategory().@codeRequestCategory)
+							|| (this.experimentName.text != "" && this.overallDescript.text != "")) { 
+							if (this.billingAccountCombo.selectedItem != null) {
+								isComplete = true;
+							}
+						}
 					} else {
 						// For external experiments, check the app radio button group and optionally the microarray slide
 						if (parentDocument.filteredAppList.length == 0 || (this.getApp() != '' && getApp() != null)){
@@ -1171,6 +1188,7 @@
 					parentDocument.request.@description = "";  // Description will be saved differently to avoid problems sending with XML encoding.
 				}
 				parentDocument.saveDescription = GNomExStringUtil.cleanRichTextHTML(overallDescript.htmlText);
+				checkSetupCompleteness();
 			}
 			
 			private function propagateName():void {
@@ -1361,8 +1379,8 @@
 			<mx:HBox id="nameHBox" verticalGap="2" horizontalGap="0" paddingTop="0" paddingBottom="0">
 				<util:ContextHelp context1="experimentName" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Description Help"
 								  labelPlacement="left" id="nameLabel" width="200" label="(5) Experment Name. (optional)"/>
-				<mx:TextInput id="experimentName" focusOut="propagateName()" text="{parentDocument.request == null ? '' : parentDocument.request.@name}"  
-							  width="380" maxChars="200" focusIn="scrollOnFocus(event);" paddingLeft="0"/>
+				<mx:TextInput id="experimentName" focusOut="{propagateName();checkSetupCompleteness()}" text="{parentDocument.request == null ? '' : parentDocument.request.@name}"  
+							  width="380" maxChars="200" focusIn="scrollOnFocus(event);" paddingLeft="0" keyUp="checkSetupCompleteness()"/>
 				<mx:Spacer width="10"/>
 			</mx:HBox>	
 			<mx:VBox id="descriptionVBox" width="100%" paddingRight="20" paddingTop="0">
@@ -1378,7 +1396,7 @@
 									roundedBottomCorners="false" paddingBottom="0" 
 									borderThicknessRight="0" borderThicknessLeft="0" 
 									borderThicknessBottom="0" borderThickness="0" 
-									borderThicknessTop="0" height="100%" minHeight="25">
+									borderThicknessTop="0" height="100%" minHeight="25" keyUp="checkSetupCompleteness()">
 				</mx:RichTextEditor>
 			</mx:VBox>
 		</mx:VBox>
