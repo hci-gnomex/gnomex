@@ -149,6 +149,7 @@ public class PropertyDictionary extends DictionaryEntry implements Serializable 
   public static final String        DISK_USAGE_BILLING_CORE             = "disk_usage_billing_core";
   public static final String        CORE_BILLING_OFFICE                 = "core_billing_office";
   public static final String        RESTRICT_ANNOTATION_ON_AUTO_ADD     = "restrict_annotation_on_auto_add";
+  public static final String        DESCRIPTION_NAME_MANDATORY_FOR_INTERNAL_EXPERIMENTS = "description_name_mandatory_for_internal_experiments";
 
 
   private Integer       idPropertyDictionary;
