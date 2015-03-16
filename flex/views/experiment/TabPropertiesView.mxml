@@ -10,6 +10,7 @@
 			import mx.managers.PopUpManager;
 			import mx.utils.StringUtil;
 			import ext.com.Consts;
+			import mx.core.UIComponent;
 			
 			import views.admin.PropertyWindow;
 			import views.util.CheckBoxRequiredIndicator;
@@ -398,6 +399,17 @@
 				e.target.parent.height = e.target.height;
 				e.target.parent.parent.height = e.target.height;
 			}
+			
+			private function checkCompleteness():void{
+				if(this.requiredAnnotationsEntered() == ''){
+					UIComponent(parentDocument.theTab.getChildAt(parentDocument.theTab.selectedIndex + 1)).enabled = true;
+					parentDocument.enableNextButtons();
+				} else{
+					UIComponent(parentDocument.theTab.getChildAt(parentDocument.theTab.selectedIndex + 1)).enabled = false;
+					parentDocument.enableNextButtons();
+				}
+			}
+			
 		]]>
 	</mx:Script>
 	<mx:VBox width="100%" height="100%" label="Properties" paddingLeft="4" paddingRight="4" paddingBottom="4" verticalGap="0" paddingTop="4">
@@ -410,7 +422,7 @@
 					
 					<mx:HBox verticalAlign="top" width="100%"  horizontalGap="0" >
 						
-						<mx:Text text="{propertyRepeater.currentItem.@name}" width="300" paddingLeft="0" paddingRight="0" styleName="formLabel"
+						<mx:Text text="{propertyRepeater.currentItem.@name}" width="300" paddingLeft="0" paddingRight="0" styleName="formLabel" 
 								 creationComplete="{onCreatePropertyLabel(event.currentTarget.getRepeaterItem(), event.target.instanceIndices[0])}"/>
 						<mx:ViewStack id="propertyValueViewStack" creationPolicy="all" height="100%" width="100%" >
 							<mx:VBox id="urlOuterBox" width="100%" height="100%" verticalGap="0" horizontalScrollPolicy="off" >
@@ -430,13 +442,13 @@
 										<mx:HBox width="100%" verticalAlign="middle"  horizontalGap="2" horizontalAlign="left" horizontalScrollPolicy="off">
 											<mx:TextInput id="aliasText"  enter="{tabToURLText(event.target.instanceIndices)}" 
 														  click="{selectAliasText(event.currentTarget.instanceIndices)}" 
-														  change="{setDirty()}"
+														  change="{setDirty()}" focusOut="checkCompleteness()"
 														  editable="{editable}"
 														  text="{urlRepeater.currentItem.@urlAlias}"  
 														  width="100" color="#8D7B7B"/>	
 											<util:TextInputRequiredIndicator id="urlText" text="{urlRepeater.currentItem.@url}" 
 																			 enter="{showURLLink(event.target.instanceIndices)}" 
-																			 editable="{editable}"
+																			 editable="{editable}" focusOut="checkCompleteness()"
 																			 change="{onChangeURLText(event.target.instanceIndices)}" 
 																			 click="{selectURLText(event.currentTarget.instanceIndices)}" 
 																			 width="100" color="#8D7B7B"/>						
@@ -452,29 +464,29 @@
 								<util:TextAreaRequiredIndicator id="propertyText" change="{setDirty();resizeTextArea(event)}"
 																editable="{editable}" styleName="labelSmall" text="{propertyRepeater.currentItem.@value}" 
 																verticalScrollPolicy="off" maxChars="{Consts.MAX_CHARS}"
-																width="100%">
+																width="100%" focusOut="checkCompleteness()">
 								</util:TextAreaRequiredIndicator> 
 							</mx:HBox>
 							
 							<mx:HBox >
-								<util:ComboBoxRequiredIndicator id="propertyCombo" change="{setDirty()}" enabled="{editable}" styleName="labelSmall" width="240" labelField="@name">
+								<util:ComboBoxRequiredIndicator id="propertyCombo" change="{setDirty()}" focusOut="checkCompleteness()" enabled="{editable}" styleName="labelSmall" width="240" labelField="@name">
 								</util:ComboBoxRequiredIndicator>						
 							</mx:HBox>
 							
 							<mx:HBox width="100%" >
-								<mx:CheckBox id="propertyCheck" click="{setDirty()}" enabled="{editable}" styleName="labelSmall">
+								<mx:CheckBox id="propertyCheck" click="{setDirty()}" focusOut="checkCompleteness()" enabled="{editable}" styleName="labelSmall">
 								</mx:CheckBox>
 							</mx:HBox>
 							
 							<mx:VBox id="multiselectOuterBox" width="100%" height="100%" verticalGap="0" >
-								<mx:Repeater id="multiselectRepeater" dataProvider="{propertyRepeater.currentItem.PropertyOption}" >
+								<mx:Repeater id="multiselectRepeater" dataProvider="{propertyRepeater.currentItem.PropertyOption}" focusOut="checkCompleteness()" >
 									<util:CheckBoxRequiredIndicator id="multiselectCheck"  styleName="labelSmall" 
 																	label="{multiselectRepeater.currentItem.@name}"  
 																	paddingLeft="0"  
 																	paddingTop="0" 
 																	click="{setDirty()}"
 																	enabled="{editable}"
-																	paddingBottom="0"
+																	paddingBottom="0" focusOut="checkCompleteness()"
 																	selected="{multiselectRepeater.currentItem.@selected == 'Y' ? true : false}"
 																	width="100%" textAlign="left">
 									</util:CheckBoxRequiredIndicator> 
