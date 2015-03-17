@@ -211,7 +211,8 @@
 			import views.util.AnnotationUtility;
 			import views.util.GNomExStringUtil;
 			import views.util.PromptXMLListCollection;
-        
+			import views.util.SampleConcentrationValidator;
+
 		[Embed(source='../../assets/page.png')]
 		[Bindable]
 		public var viewIcon:Class;
@@ -337,8 +338,6 @@
 		
 		[Bindable]
 		private var tabIndexToRestore:int = -1;
-		
-		public var concentrationValidator:NumberValidator = new NumberValidator();
 		
 		private var isInitialized:Boolean = false;
 			
@@ -551,18 +550,6 @@
 			}
 			
 			this.filteredLabList.refresh();
-			
-	    	concentrationValidator.domain = "real";
-			concentrationValidator.minValue = "0";
-			concentrationValidator.maxValue = "99999";
-			concentrationValidator.precision = 3;
-	    	concentrationValidator.allowNegative = false;
-	    	concentrationValidator.required = false;
-			concentrationValidator.exceedsMaxError = "exceeds max.";
-			concentrationValidator.invalidCharError = "contains invalid characters. Please enter a numeric value.";
-			concentrationValidator.negativeError = "cannot be negative.";
-			concentrationValidator.precisionError = "has too many digits beyond the decimal point.";
-			
 		}
 			
 		public function refreshFilteredProjects():void{
@@ -2889,6 +2876,11 @@
 				}
 			}
 			
+			var cw:String = SampleConcentrationValidator.instance.validateSampleConcentration(samples);
+			if (cw != "") {
+				errorMessage += cw + "\n\n";
+			}
+
 			// Check for duplicate sampleNames / wells
 			var sampleNames:Dictionary = new Dictionary();
 			var sourceWells:Dictionary = new Dictionary();

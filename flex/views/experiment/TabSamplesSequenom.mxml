@@ -39,6 +39,7 @@
 			import views.util.AdvancedDataGridColumnWithType;
 			import views.util.AnnotationAdvancedDataGridColumn;
 			import views.util.CopySampleSheetColumnView;
+			import views.util.SampleConcentrationValidator;
 			import views.util.UploadSampleSheetInstructionsView;
 			import views.util.UploadSampleSheetView;
 			
@@ -316,7 +317,14 @@
 				} else if (parentDocument.isEditState()) {
 					isComplete = true;
 				}
-								
+
+				// Make sure that sample concentration is valid
+				var cw:String = SampleConcentrationValidator.instance.validateSampleConcentration(parentDocument.samples);
+				if (cw != "") {
+					parentDocument.userWarningsSamples += cw;
+					isComplete = false;
+				}
+
 				parentDocument.confirmView.enabled = isComplete;
 				parentDocument.enableNextButtons();
 								
