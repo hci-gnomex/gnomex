@@ -636,7 +636,10 @@
 					if (parentDocument.isSolexaState()) {
 						parentDocument.seqSetupView.checkSeqAppSetupCompleteness();				
 					} else {
-						parentDocument.samplesView.enabled = true;
+						// In edit state samples view enabling/disabling is handled elsewhere.
+						if (!parentDocument.isEditState()) {
+							parentDocument.samplesView.enabled = true;
+						}
 						parentDocument.samplesView.checkSamplesCompleteness();
 					}
 				}
