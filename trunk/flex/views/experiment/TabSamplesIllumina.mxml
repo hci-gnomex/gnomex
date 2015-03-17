@@ -29,14 +29,11 @@
 			import mx.events.DragEvent;
 			import mx.events.FlexEvent;
 			import mx.events.PropertyChangeEvent;
-			import mx.events.ValidationResultEvent;
 			import mx.managers.DragManager;
 			import mx.managers.PopUpManager;
 			import mx.rpc.events.ResultEvent;
 			import mx.utils.ObjectUtil;
 			import mx.utils.StringUtil;
-			import mx.validators.NumberValidator;
-			import mx.validators.ValidationResult;
 			
 			import views.renderers.CheckBoxRenderer;
 			import views.renderers.ComboBox;
@@ -49,6 +46,7 @@
 			import views.util.AnnotationAdvancedDataGridColumn;
 			import views.util.CopySampleSheetColumnView;
 			import views.util.DictionaryHelper;
+			import views.util.SampleConcentrationValidator;
 			import views.util.UploadSampleSheetInstructionsView;
 			import views.util.UploadSampleSheetView;
 			
@@ -446,14 +444,12 @@
 				}
 				
 				// Make sure that sample concentration is valid
-				for each (var s1:Object in parentDocument.samples) {
-					var vr:ValidationResultEvent = parentDocument.concentrationValidator.validate(s1.@concentration);
-					if (vr.type == ValidationResultEvent.INVALID) {
-						parentDocument.userWarningsSamples += "Invalid sample concentration '" + s1.@concentration + "'.  "; 
-						isComplete = false;
-					}
+				var cw:String = SampleConcentrationValidator.instance.validateSampleConcentration(parentDocument.samples);
+				if (cw != "") {
+					parentDocument.userWarningsSamples += cw;
+					isComplete = false;
 				}
-				
+
 				// Make sure lane #'s are grouped
 				if (isComplete && !areLaneNumbersSequential()) {
 					parentDocument.userWarningsSamples += "All samples in the same lane must be grouped together.";
