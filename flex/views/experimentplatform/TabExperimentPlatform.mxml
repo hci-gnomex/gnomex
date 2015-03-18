@@ -260,6 +260,10 @@
 		<mx:Label text="Sample Batch Size" width="100" styleName="formLabel"/>
 		<mx:TextInput id="sampleBatchSize" width="40" text="{state.requestCategory.@sampleBatchSize}" change="state.requestCategory.@sampleBatchSize = sampleBatchSize.text; state.dirty.setDirty()" restrict="0-9" />
 	</mx:HBox>
+	<mx:HBox width="100%" horizontalGap="0" verticalAlign="middle">
+		<mx:Text text="Sample batch warning message:" width="100" styleName="formLabel"/>
+		<mx:TextInput id="customWarningMessage" width="100%" change="state.requestCategory.@customWarningMessage = customWarningMessage.text; state.dirty.setDirty()" text="{parentApplication.getRequestCategoryProperty(state.requestCategory.@idCoreFacility,state.requestCategory.@codeRequestCategory, parentApplication.PROPERTY_SAMPLE_BATCH_WARNING)}"/>
+	</mx:HBox>
 	
 	<mx:HBox width="100%" verticalAlign="middle" horizontalGap="0" id="organismHBox">
 		<mx:Text text="Default Organism" 

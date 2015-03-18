@@ -1087,3 +1087,9 @@ HRule
 	fontSize: 11; 
 	fontStyle: bold;
 }
+.sampleBatchWarning {
+	color: Green;
+	fontStyle: italic;
+	fontWeight: normal;
+	fontSize: 11;
+}

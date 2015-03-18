@@ -47,12 +47,14 @@
 			[Bindable]
 			private var filteredChipTypeList:XMLListCollection = null;
 			private var priceMap:Dictionary = null;
+			public var application:Object = null;
 			
 			[Bindable]
 			private var sampleType:Object = null;
 			
 			private function init():void {
 				var results:Array = mx.validators.Validator.validateAll(new Array(samplePrepValidator));
+				this.application = null;
 				if(sampleTypeRadioGroup.selectedValue == null ) {
 					sampleType = null;
 					sampleTypeDNARNAHBox.styleName = 'requiredBox';
@@ -520,7 +522,6 @@
 					iScanNumSourcePlatesValidator.validate();
 					
 				} else if (parentDocument.isSequenomState()) {
-					sampleCountWarning.text = "";
 					if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' ) {
 						if (this.radioGroupSeqApp.selectedValue != null && this.radioGroupSeqApp.selectedValue == "OTHER") {
 							if ( this.sequenomApplicationDesc.text != null && this.sequenomApplicationDesc.text != ''){
@@ -530,13 +531,6 @@
 							isComplete = true;
 						}
 							isComplete = isComplete && this.sampleTypeRadioGroup.selectedValue;
-						if ( this.radioGroupSeqApp.selectedValue != null ){  
-							var application:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Application', radioGroupSeqApp.selectedValue);
-							var samplesPerBatch:int = application.@samplesPerBatch;
-							if ( parseInt(this.numberOfSamples.text) % samplesPerBatch != 0 && this.radioGroupSeqApp.selectedValue != "OTHER") {
-								sampleCountWarning.text = " You have selected a panel which runs in batches of " + samplesPerBatch + " samples. Please note you will be responsible to pay for unused wells.";
-							}
-						}
 					}
 					
 				} else if (parentDocument.isClinicalSequenomState()) {
@@ -571,16 +565,31 @@
 					parentDocument.annotationView.enabled = isComplete;
 				}
 				
-				//Check if we have a sample batch size restriction.  If so warn user.
+				//Check if we have a sample batch size restriction.  If so warn user.  Check on application level first and then requestCategory level
 				sampleBatchSizeWarning.text = "";
 				var hasBatchSampleSize:String = parentApplication.getRequestCategoryProperty(parentDocument.getRequestCategory().@idCoreFacility,parentDocument.getRequestCategory().@codeRequestCategory, parentApplication.PROPERTY_SAMPLE_BATCH_WARNING);
 				
-				if(hasBatchSampleSize != null && hasBatchSampleSize == 'Y'){
-					var sampleSize:int = int(parentDocument.getRequestCategory().@sampleBatchSize);
-					if(numberOfSamples.text != "" && int(numberOfSamples.text) % sampleSize != 0){
-						sampleBatchSizeWarning.text = "This experiment type runs in batches of " + sampleSize + ".  You will be charged for unused wells.";
+				if(application != null && application.@samplesPerBatch != null && application.@samplesPerBatch != ''){
+					var appSampleSize:int = int(application.@samplesPerBatch);
+					if(numberOfSamples.text != "" && int(numberOfSamples.text) % appSampleSize != 0){
+						if(hasBatchSampleSize != ""){
+							sampleBatchSizeWarning.text = hasBatchSampleSize;
+						} else{
+							sampleBatchSizeWarning.text = " You have selected a panel which runs in batches of " + appSampleSize + " samples. Please note you will be responsible to pay for unused wells.";
+						}
+					}
+				} else if(parentDocument.getRequestCategory().@sampleBatchSize != null && parentDocument.getRequestCategory().@sampleBatchSize != ''){
+					var reqCatSampleSize:int = int(parentDocument.getRequestCategory().@sampleBatchSize);
+					if(numberOfSamples.text != "" && int(numberOfSamples.text) % reqCatSampleSize != 0){
+						if(hasBatchSampleSize != ""){
+							sampleBatchSizeWarning.text = hasBatchSampleSize;
+						} else{
+							sampleBatchSizeWarning.text = " You have selected a request category which runs in batches of " + reqCatSampleSize + " samples. Please note you will be responsible to pay for unused wells.";
+						}
 					}
 				}
+				
+
 				
 				
 				callLater(postSampleSetupCompleteness, [isComplete]);
@@ -700,7 +709,7 @@
 				}
 				if (this.radioGroupSeqApp.selectedValue != null) {
 					this.seqAppBox.styleName = 'normalBox';
-					var application:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Application', radioGroupSeqApp.selectedValue);
+					this.application = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Application', radioGroupSeqApp.selectedValue);
 					this.parentDocument.applicationName = application.@display;
 				} else {
 					this.seqAppBox.styleName = 'requiredBox';
@@ -724,7 +733,7 @@
 				}
 				if (this.radioGroupApp.selectedValue != null) {
 					this.appBox.styleName = 'normalBox';
-					var application:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Application', radioGroupApp.selectedValue);
+					this.application = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Application', radioGroupApp.selectedValue);
 					this.parentDocument.applicationName = application.@display;
 				} else {
 					this.appBox.styleName = 'requiredBox';
@@ -1725,8 +1734,8 @@
 			<mx:SetProperty target="{sampleTypeHBox}" name="includeInLayout" value="false"/>
 			<mx:SetProperty target="{hbox7}" name="visible" value="false"/>
 			<mx:SetProperty target="{hbox7}" name="includeInLayout" value="false"/>
-			<mx:SetProperty target="{hbox9}" name="visible" value="false"/>
-			<mx:SetProperty target="{hbox9}" name="includeInLayout" value="false"/>
+<!--			<mx:SetProperty target="{hbox9}" name="visible" value="false"/>
+			<mx:SetProperty target="{hbox9}" name="includeInLayout" value="false"/>-->
 			<mx:AddChild relativeTo="{sequenomNumSourcePlatesBox}" position="before">
 				<mx:HBox horizontalGap="0" id="hbox1" verticalAlign="top" width="100%">
 					<util:ContextHelp context1="sampleDetailsIsolationMethod" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Sample Isolation Method Help"
@@ -2220,11 +2229,11 @@
 			<mx:RemoveChild target="{sampleTypeHBox}"/>
 		    <mx:AddChild relativeTo="{bisulfideConversionBox}" position="before" target="{sampleTypeHBox}"/>
 			<mx:SetProperty target="{label8}" name="label" value="      Which category best describes your samples?"/>
-			<mx:AddChild relativeTo="{hbox3}" position="lastChild">
+<!--			<mx:AddChild relativeTo="{hbox3}" position="lastChild">
 				<mx:HBox width="100%" id="hbox9">
 					<mx:Text id="sampleCountWarning" fontStyle="italic" fontSize="10"  textAlign="left" width="100%" color="green"/>
 				</mx:HBox>
-			</mx:AddChild>
+			</mx:AddChild>-->
 			<mx:SetStyle target="{sampleSetupContainer}" name="verticalGap" value="5"/>
 		</mx:State>
 		<mx:State name="ClinicalSequenomState" basedOn="SequenomState">
