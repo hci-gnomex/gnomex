@@ -164,6 +164,7 @@
 						" otherOrganism='" + otherOrganism + "'" 	+
 						" idSeqLibProtocol='" + idSeqLibProtocol + "'" +	
 						" multiplexGroupNumber='1'" +
+						" numberSequencingLanes='1'" +
 						"/>"
 					emptyNode = new XML(xmlString);
 				
