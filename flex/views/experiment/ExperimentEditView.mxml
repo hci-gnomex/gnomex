@@ -3370,6 +3370,8 @@
 				request.@idProject = setupView.projectCombo.selectedItem.@idProject;
 				if (currentState == 'QCState' && this.sampleSetupView.applicationHasChipTypes()) {
 					request.@codeBioanalyzerChipType = sampleSetupView.getSelectedCodeBioanalyzerChipType();
+				} else {
+					request.@codeBioanalyzerChipType = '';
 				}
 			}
 			
