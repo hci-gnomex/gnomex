@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
-				width="815" height="450" 
+				width="815" height="350" 
 				 creationComplete="{init()}"
 				 xmlns:util="views.util.*" 
 				 showCloseButton="true" close="{closeWindow()}"
