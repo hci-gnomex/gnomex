@@ -2695,7 +2695,7 @@
 				this.samplesView.initializeSamplesGrid(); 
 			}
 			
-			if (this.isIsolationState() ) {
+			if (this.isIsolationState() && !this.isEditState()) {
 				
 				this.theTab.getTabAt( theTab.getChildIndex( annotationView ) ).visible = false;
 				this.theTab.getTabAt( theTab.getChildIndex( annotationView ) ).includeInLayout = false;
