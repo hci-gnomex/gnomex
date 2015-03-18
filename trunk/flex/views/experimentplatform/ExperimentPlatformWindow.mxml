@@ -133,11 +133,14 @@
 				params.isOwnerOnly = state.requestCategory.@isOwnerOnly;
 				params.sampleBatchSize = state.requestCategory.@sampleBatchSize;
 				
+				
 				//params.icon = this.theIcon.text;
 				params.icon = state.requestCategory.@icon;
 				
 				params.idOrganism = state.requestCategory.@idOrganism;
 				params.numberOfChannels = state.requestCategory.@numberOfChannels;
+				
+				params.customWarningMessage = state.requestCategory.@customWarningMessage;
 				
 				var sampleTypes:XMLListCollection = new XMLListCollection(state.requestCategory.sampleTypes.SampleType);
 				params.sampleTypesXMLString = "<sampleTypes>" + sampleTypes.toXMLString() + "</sampleTypes>";
@@ -269,6 +272,7 @@
 						property.init(state);
 					}
 
+					state.requestCategory.@customWarningMessage = parentApplication.getRequestCategoryProperty(state.requestCategory.@idCoreFacility,state.requestCategory.@codeRequestCategory, parentApplication.PROPERTY_SAMPLE_BATCH_WARNING);
 					// if event is not null it means this was called because they changed the experiment type.
 					// don't reset dirty if they changed the experiment type.
 					if (event == null) {

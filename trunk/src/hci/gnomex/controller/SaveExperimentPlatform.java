@@ -68,11 +68,9 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
   private boolean                        isNewRequestCategory = false;
 
   private String                         newCodeRequestCategory;
+  private String                         customWarningMessage;
 
   private Map<String, String>            newCodeApplicationMap;
-
-  private Integer                        idBarcodeSchemeA;
-  private Integer                        idBarcodeSchemeB;
 
   private static final String PRICE_INTERNAL              = "internal";
   private static final String PRICE_EXTERNAL_ACADEMIC     = "academic";
@@ -96,27 +94,10 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
       this.addInvalidField("Null Platform Type", "The Experiment Platform type cannot be null");
     }
 
-    if (request.getParameter("idBarcodeSchemeA") != null && request.getParameter("idBarcodeSchemeA").length() > 0) {
-      try {
-        idBarcodeSchemeA = Integer.parseInt(request.getParameter("idBarcodeSchemeA"));
-      } catch(NumberFormatException e) {
-        log.error("idBarcodeSchemeA could not be parsed, value is " + request.getParameter("idBarcodeSchemeA"), e);
-        idBarcodeSchemeA = null;
-      }
-    } else {
-      idBarcodeSchemeA = null;
+    if(request.getParameter("customWarningMessage") != null && !request.getParameter("customWarningMessage").equals("")){
+      this.customWarningMessage = request.getParameter("customWarningMessage");
     }
 
-    if (request.getParameter("idBarcodeSchemeB") != null && request.getParameter("idBarcodeSchemeB").length() > 0) {
-      try {
-        idBarcodeSchemeB = Integer.parseInt(request.getParameter("idBarcodeSchemeB"));
-      } catch(NumberFormatException e) {
-        log.error("idBarcodeSchemeB could not be parsed, value is " + request.getParameter("idBarcodeSchemeB"), e);
-        idBarcodeSchemeB = null;
-      }
-    } else {
-      idBarcodeSchemeB = null;
-    }
 
     if (request.getParameter("sampleTypesXMLString") != null && !request.getParameter("sampleTypesXMLString").equals("")) {
       sampleTypesXMLString = request.getParameter("sampleTypesXMLString");
@@ -241,7 +222,7 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
         //now check and see if we need to create a sample warning property for sample batch size
         Integer idCoreFacility = rc.getIdCoreFacility();
         String codeRequestCategory = rc.getCodeRequestCategory();
-        if(rc.getSampleBatchSize() != null && !rc.getSampleBatchSize().equals("")) {
+        if(customWarningMessage != null && !customWarningMessage.equals("")) {
           List props = generatePropertyQuery(sess, idCoreFacility, codeRequestCategory).list();
           //If we don't have a property we need to create one
           if(props.size() == 0) {
@@ -250,8 +231,12 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
             pd.setIdCoreFacility(idCoreFacility);
             pd.setCodeRequestCategory(codeRequestCategory);
             pd.setForServerOnly("N");
-            pd.setPropertyValue("Y");
+            pd.setPropertyValue(customWarningMessage);
             pd.setPropertyDescription("Warning to notify users if they don't use a multiple of the sample batch size specified on the Request Category then they will be charged for unused wells.");
+            sess.save(pd);
+          } else if(props.size() == 1) { //Maybe they are just updating the warning message
+            PropertyDictionary pd = (PropertyDictionary)props.get(0);
+            pd.setPropertyValue(customWarningMessage);
             sess.save(pd);
           }
         } else { //This will remove the property for the given request category if they decide they don't run in batches anymore

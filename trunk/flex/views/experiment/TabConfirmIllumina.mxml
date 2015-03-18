@@ -118,6 +118,16 @@
 			override public function getBillingGrid():Object {
 				return this.billingConfirmGrid;
 			}
+			override public function updateBatchWarning():void{
+				var warning:String = this.getSampleBatchWarning();
+				
+				if(warning == ""){
+					sampleBatchWarningBox.includeInLayout = false;
+				} else{
+					sampleBatchWarningBox.includeInLayout = true;
+					this.batchWarning.text = this.getSampleBatchWarning();	
+				}
+			}
 			
 		]]>
 		
@@ -145,6 +155,10 @@
 			<mx:VBox width="100%" verticalGap="0" id="billingContainer">
 				<mx:HBox width="100%" id="chargesHeaderBox">
 					<mx:Label text="{'Estimated Charges ' + parentDocument.createBillingItems.lastResult.Request.@invoicePrice}" id="label2" styleName="confirmHeaderLabel" paddingTop="4"/>								    	
+				</mx:HBox>
+				<mx:HBox width="100%" id="sampleBatchWarningBox">
+					<mx:Label id="batchWarning" 
+							  styleName="sampleBatchWarning" paddingTop="6"/>								    	
 				</mx:HBox>
 				<mx:VBox width="100%" id="vbox1">
 					<mx:DataGrid id="billingConfirmGrid"   showHeaders="false"  horizontalScrollPolicy="off"

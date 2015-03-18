@@ -80,6 +80,7 @@ package views.experiment
 				setupView();
 				showHideColumns();
 				rebuildSamplesGrid();
+				updateBatchWarning();
 			}
 		} 
 		
@@ -342,6 +343,31 @@ package views.experiment
 			} else {
 				return item[column.dataField].toString();
 			}
+		}
+		
+		public function updateBatchWarning():void{
+			
+		}
+		
+		public function getSampleBatchWarning():String{
+			var hasBatchSampleSize:String = parentApplication.getRequestCategoryProperty(parentDocument.getRequestCategory().@idCoreFacility,parentDocument.getRequestCategory().@codeRequestCategory, parentApplication.PROPERTY_SAMPLE_BATCH_WARNING);
+			
+			var application:Object = parentDocument.sampleSetupView.application;
+			var numberOfSamples:String = parentDocument.sampleSetupView.numberOfSamples.text;
+			
+			if(application != null && application.@samplesPerBatch != null && application.@samplesPerBatch != ''){
+				var appSampleSize:int = int(application.@samplesPerBatch);
+				if(numberOfSamples != null && numberOfSamples != "" && int(numberOfSamples) % appSampleSize != 0){
+					return hasBatchSampleSize;
+				}
+			} else if(parentDocument.getRequestCategory().@sampleBatchSize != null && parentDocument.getRequestCategory().@sampleBatchSize != ''){
+				var reqCatSampleSize:int = int(parentDocument.getRequestCategory().@sampleBatchSize);
+				if(numberOfSamples != null && numberOfSamples != "" && int(numberOfSamples) % reqCatSampleSize != 0){
+					return hasBatchSampleSize;
+				}
+			}
+			
+			return "";
 		}
 		
 	}
