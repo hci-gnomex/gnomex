@@ -16,7 +16,7 @@
 		method="POST" 
 		useProxy="false">
 		<mx:request xmlns="">
-			<showOptions>Y</showOptions>
+			<propertyOnly>Y</propertyOnly>
 		</mx:request>
 	</mx:HTTPService>
 	
@@ -673,10 +673,7 @@
 			<mx:AdvancedDataGrid id="propertyList" width="100%" height="100%" labelFunction="propertyListLabel" 
 								 itemClick="{onSelectProperty()}" wordWrap="true" variableRowHeight="true"  
 								 groupItemRenderer="views.renderers.PropertyGroupedItem" itemOpening="{propertyList.collapseAll(); propertyList.invalidateDisplayList();}" itemOpen="{autoScroll(event)}"
-								 iconFunction="getTreeIcon" fontSize="11">
-				<mx:dataProvider> 
-					<mx:HierarchicalData source="{properties}"/>
-				</mx:dataProvider>						  
+								 iconFunction="getTreeIcon" fontSize="11" dataProvider="{properties}">
 				<mx:columns>
 					<mx:AdvancedDataGridColumn id="annotation" dataField="@name" width="180" headerText="Annotation"  wordWrap="true" >
 						<mx:itemRenderer >
