@@ -24,8 +24,7 @@ package views.util
 				if (( property.@forRequest != null && property.@forRequest == 'Y' ) ||
 						property.descendants("PropertyPlatformApplication").length() > 0 || 
 						reqCategory.@type == 'ISCAN' ||
-						reqCategory.@type == 'SEQUENOM' ||
-						reqCategory.@type == 'ISOLATION') {
+						reqCategory.@type == 'SEQUENOM') {
 					filterByPlatformApplication = true;	
 				}
 			}			

@@ -360,7 +360,6 @@ public class GetRequest extends GNomExCommand implements Serializable {
             boolean include = true;
             if (requestCategory != null && 
                   (requestCategory.getType().equals(RequestCategoryType.TYPE_ISCAN) ||
-                   requestCategory.getType().equals(RequestCategoryType.TYPE_ISOLATION) ||
                    requestCategory.getType().equals(RequestCategoryType.TYPE_SEQUENOM) ||
                    requestCategory.getType().equals(RequestCategoryType.TYPE_CLINICAL_SEQUENOM))) {
               include = false;
