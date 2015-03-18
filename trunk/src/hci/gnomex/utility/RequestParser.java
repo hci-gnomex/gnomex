@@ -228,7 +228,7 @@ public class RequestParser implements Serializable {
       }
     }
 
-    initializeRequest(n, request, sess);
+    initializeRequest(n, request, sess, requestCategory);
   }
 
   private java.sql.Date convertDate(String dateString) throws Exception {
@@ -241,7 +241,7 @@ public class RequestParser implements Serializable {
     return date;
   }
 
-  private void initializeRequest(Element n, Request request, Session sess) throws Exception {
+  private void initializeRequest(Element n, Request request, Session sess, RequestCategory requestCategory) throws Exception {
 
     if (n.getAttributeValue("isExternal") != null && !n.getAttributeValue("isExternal").equals("")) {
       request.setIsExternal(n.getAttributeValue("isExternal"));      
@@ -399,7 +399,7 @@ public class RequestParser implements Serializable {
         }
       }
     } else {
-      if (RequestCategory.isDNASeqCoreRequestCategory(request.getCodeRequestCategory())) {
+      if (RequestCategory.isDNASeqCoreRequestCategory(request.getCodeRequestCategory()) && !requestCategory.getType().equals(RequestCategoryType.TYPE_GENERIC)) {
         request.setCodeRequestStatus(RequestStatus.NEW);
       } else {
         request.setCodeRequestStatus(RequestStatus.SUBMITTED);
