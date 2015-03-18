@@ -163,7 +163,10 @@
 				return selectedCode;
 			}
 			public function propagateChipType():void {
-				var codeChipType:String = this.getSelectedCodeBioanalyzerChipType();
+				var codeChipType:String = "";
+				if (this.applicationHasChipTypes()) {
+					codeChipType = this.getSelectedCodeBioanalyzerChipType();
+				}
 				for each (var sample:Object in parentDocument.samples) {
 					sample.@codeBioanalyzerChipType = codeChipType;
 				}
@@ -256,7 +259,7 @@
 				// initialize the samples grid
 				parentDocument.samplesView.initializeSamplesGrid();
 				// propagate selected chip type to samples
-				propagateChipType();       	
+				propagateChipType();
 				
 				checkRequiredChipType();
 			}
@@ -666,6 +669,9 @@
 					this.chipTypeVBox.visible = false;
 					this.chipTypeVBox.includeInLayout = false;
 					this.parentDocument.confirmView.chipTypeConfirmColumn.visible = false;
+					parentDocument.request.@codeBioanalyzerChipType = '';
+					parentDocument.samplesView.initializeSamplesGrid();
+					this.propagateChipType();
 				}
 				
 				if (this.radioGroupQCApp.selectedValue != null) {
@@ -1512,7 +1518,7 @@
 				<mx:VBox id="bioanalyzerContainer" visible="true" width="100%" height="100%">
 					<mx:VBox width="100%" horizontalGap="0" id="chipTypeVBox">
 						<util:ContextHelp context1="sampleDetailsSamplePooling" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Bioanalyzer Chip Type Help"
-										  label="(5) Select a Bioanalyzer Chip Type." labelPlacement="left" id="bioanalyzerChipTypeLabel" width="340"/>
+										  label="(5) Select a QC Assay." labelPlacement="left" id="bioanalyzerChipTypeLabel" width="340"/>
 						<mx:HBox id="chipTypeBox"  width="100%" height="100%" styleName="requiredBoxThick" >							
 							<mx:DataGrid width="100%" height="100%" fontSize="10" visible="true" id="bioanalyzerChipTypeGrid"  backgroundAlpha="0"   itemClick="toggleChipTypeCheck(event)">
 								<mx:dataProvider>{filteredChipTypeList}</mx:dataProvider>
