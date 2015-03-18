@@ -124,7 +124,7 @@ public class ChangeProductOrderStatus extends GNomExCommand implements Serializa
 
     int orderQty = 1; 
     if ( pli.getProduct().getOrderQty() != null && pli.getProduct().getOrderQty() > 0 ) {
-      orderQty = pli.getQty();
+      orderQty = pli.getProduct().getOrderQty();
     }
 
     // Check for an old status of something other than completed and new status is completed.  
@@ -138,7 +138,7 @@ public class ChangeProductOrderStatus extends GNomExCommand implements Serializa
       ledger.setIdProductOrder( po.getIdProductOrder() );
       ledger.setComment( po.getDisplay() + " changed to completed status." );
       sess.save( ledger );
-      resultMessage += "Status changed for " + po.getDisplay() + ", " + pli.getDisplay() + ".\nLedger entry created.\r\n";
+      resultMessage += "Status changed for " + po.getDisplay() + ",\n " + pli.getDisplay() + ".\nLedger entry created.\r\n";
     }
     // Check for old status is completed and new status is not.  
     // If so, remove items in ledger
@@ -146,26 +146,26 @@ public class ChangeProductOrderStatus extends GNomExCommand implements Serializa
       if ( pli.getIdProductOrder() != null ) {
 
         Integer labTotal = (Integer) sess.createQuery( "select SUM(qty) from ProductLedger where idLab = " + po.getIdLab() + " and idProduct = " + pli.getIdProduct() ).uniqueResult();
-        Integer poTotal = (Integer) sess.createQuery( "select SUM(qty) from ProductLedger where idProductOrder = " + pli.getIdProductOrder() ).uniqueResult();
+        Integer poTotal = (Integer) sess.createQuery( "select SUM(qty) from ProductLedger where idProductOrder = " + pli.getIdProductOrder() + " and idProduct = " + pli.getIdProduct() ).uniqueResult();
 
         if ( labTotal - poTotal >= 0 ) {
-          String query = "SELECT pl from ProductLedger pl where pl.idProductOrder = " + pli.getIdProductOrder();
+          String query = "SELECT pl from ProductLedger pl where pl.idProductOrder = " + pli.getIdProductOrder() + " and idProduct = " + pli.getIdProduct() ;
           List ledgerEntries = sess.createQuery(query).list();
 
           for(Iterator i = ledgerEntries.iterator(); i.hasNext();) {
             ProductLedger ledger = (ProductLedger)i.next();
             sess.delete( ledger );
-            resultMessage += "Status changed for " + po.getDisplay() + ", " + pli.getDisplay() + ".\nLedger entries deleted.\r\n";
+            resultMessage += "Status updated for " + po.getDisplay() + ",\n " + pli.getDisplay() + ".\nLedger entries deleted.\r\n";
           }
           sess.flush();
         } else {
-          resultMessage += "Cannot revert status for " + po.getDisplay() + ", " + pli.getDisplay() + "; removing ledger entries will result in a negative balance.\r\n";
+          resultMessage += "Cannot revert status for " + po.getDisplay() + ",\n " + pli.getDisplay() + "; removing ledger entries will result in a negative balance.\r\n";
           return false;
         }
       }
     }
     else {
-      resultMessage += "Status changed for " + po.getDisplay() + ", " + pli.getDisplay() + ".\r\n";
+      resultMessage += "Status changed for " + po.getDisplay() + ",\n " + pli.getDisplay() + ".\r\n";
     }
     return true;
   }
