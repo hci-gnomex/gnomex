@@ -190,7 +190,11 @@ public class ReportIssueFeedbackServlet extends HttpServlet {
 			}
 
 			boolean send = false;
-			String theSubject = subject + " " + currentDate.toString() + " PHI ";
+			String theSubject = subject + " " + currentDate.toString();
+			String addPHI = DictionaryHelper.getInstance(sess).getPropertyDictionary(PropertyDictionary.ADD_PHI_TO_SUPPORT_EMAIL);
+			if (addPHI != null && addPHI.equals("Y")) {
+			  theSubject += " PHI ";
+			}
 			String emailInfo = "";
 			String emailRecipients = DictionaryHelper.getInstance(sess).getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_BUGS);
 			if (dh.isProductionServer(req.getServerName())) {
