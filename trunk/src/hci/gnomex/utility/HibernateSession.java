@@ -103,14 +103,17 @@ public class HibernateSession {
       setAppName(s, null);
     }
     finally {
-      if (tx != null && !tx.wasCommitted() && !tx.wasRolledBack()) {
+      if (tx != null && !tx.wasCommitted() && !tx.wasRolledBack() && tx.isActive()) {
         try {
           tx.commit();
         }catch(Exception e) {
           log.error("Failed to commit Transaction, going to try and rollback");
         }
         try {
-          tx.rollback();
+          //Maybe the commit above worked and so the transaction is no longer active therefore don't try the rollback or else we will get an inactive tx exception.
+          if(tx.isActive()) {
+            tx.rollback();
+          }
         } catch(Exception e) {
           log.error("Failed to rollback transaction");
         }
