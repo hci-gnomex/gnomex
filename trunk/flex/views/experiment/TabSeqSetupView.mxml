@@ -110,7 +110,7 @@
 				} else {
 					item.@price = "";
 				}
-				preparedAppList.addItem(item);
+				preparedAppList.addItem(item.copy());
 			}
 			
 			if(parentDocument.sampleSetupView.samplesAlreadyPreppedCheckbox.selected){

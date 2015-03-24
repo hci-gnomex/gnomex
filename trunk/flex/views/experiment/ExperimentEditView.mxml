@@ -515,12 +515,16 @@
         	filteredGenomeBuildList = new XMLListCollection(parentApplication.dictionaryManager.getEntries('hci.gnomex.model.GenomeBuildLite'));
         	      
         	filteredMicroarrayAppList = new XMLListCollection(parentApplication.dictionaryManager.getEntries('hci.gnomex.model.Application'));
+			
+			filteredAppList = new XMLListCollection(parentApplication.dictionaryManager.getEntries('hci.gnomex.model.Application'));
+			/*
         	// We use this technique xml.copy() to prevent duplication of applications 
         	// that somehow happens when we add services, then submit request or vice versa
         	filteredAppList           = new XMLListCollection();
         	for each(var i:Object in parentApplication.dictionaryManager.getEntries('hci.gnomex.model.Application')) {
         		filteredAppList.addItem(i.copy());
         	}
+			*/
         	filteredAppListSorter = new Sort();
 			if (parentApplication.getRequestCategoryProperty(getRequestCategory().@idCoreFacility, getRequestCategory().@codeRequestCategory, parentApplication.PROPERTY_SORT_APPLICATION_ALPHABETICALLY_IN_EDIT) == "Y"
 				&& isEditState()) {
