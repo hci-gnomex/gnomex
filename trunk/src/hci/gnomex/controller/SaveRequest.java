@@ -1,5 +1,7 @@
 package hci.gnomex.controller;
 
+import freemarker.template.Template;
+import freemarker.template.TemplateException;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.billing.BillingPlugin;
@@ -49,6 +51,7 @@ import hci.gnomex.model.WorkItem;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.FileDescriptorUploadParser;
+import hci.gnomex.utility.FreeMarkerConfiguration;
 import hci.gnomex.utility.HibernateGuestSession;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.HybNumberComparator;
@@ -66,8 +69,11 @@ import hci.gnomex.utility.SequenceLaneNumberComparator;
 import hci.gnomex.utility.WorkItemHybParser;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.Serializable;
 import java.io.StringReader;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -2483,41 +2489,23 @@ public class SaveRequest extends GNomExCommand implements Serializable {
   private void sendInvoicePriceEmail(Session sess, String contactEmail, String ccEmail, String billedAccountName) throws NamingException, MessagingException {
 
     DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess);
-    String requestType = dictionaryHelper.getRequestCategory(requestParser.getRequest().getCodeRequestCategory());
-    String requestNumber = requestParser.getRequest().getNumber();
+    PropertyDictionaryHelper pdh = PropertyDictionaryHelper.getInstance(sess);
     CoreFacility cf = (CoreFacility)sess.load(CoreFacility.class, requestParser.getRequest().getIdCoreFacility());
 
-    String submitterName = requestParser.getRequest().getSubmitterName();
-    String billedAccountNumber = requestParser.getRequest().getBillingAccountNumber();
 
     //If it isn't microarray or illumina, don't send email
     if (!RequestCategory.isMicroarrayRequestCategory(requestParser.getRequest().getCodeRequestCategory()) && !RequestCategory.isIlluminaRequestCategory(requestParser.getRequest().getCodeRequestCategory())) {
       return;
     }
 
-    StringBuffer emailBody = new StringBuffer();
-    String trackRequestURL = launchAppURL + "?requestNumber=" + requestNumber + "&launchWindow=" + Constants.WINDOW_TRACK_REQUESTS;
-
-    if (requestParser.isNewRequest()) {
-      emailBody.append("An experiment request has been submitted to the " + cf.getFacilityName() +
-      " core.");
-    } else {
-      emailBody.append("A request to add services to existing experiment (" + originalRequestNumber + ") has been submitted to the " + cf.getFacilityName() +
-      " core.");
+    String template = pdh.getCoreFacilityRequestCategoryProperty(requestParser.getRequest().getIdCoreFacility(), requestParser.getRequest().getCodeRequestCategory(), 
+                            PropertyDictionary.EXPERIMENT_INVOICE_EMAIL_TEMPLATE);
+    String emailBody = getTemplatedInvoiceEmailBody(cf, template, dictionaryHelper);
+    if (emailBody == null || emailBody.length() == 0) {
+      emailBody = getDefaultInvoiceEmailBody(billedAccountName, dictionaryHelper, cf);
     }
-    // emailBody.append(" You are receiving this email notification because estimated charges are over $500.00 and the account to be billed belongs to your lab or group.");
 
-
-    emailBody.append("<br><br><table border='0' width = '400'><tr><td>Request Type:</td><td>" + requestType);
-    emailBody.append("</td></tr><tr><td>Request #:</td><td>" + requestNumber);
-    emailBody.append("</td></tr><tr><td>Total Estimated Charges:</td><td>" + this.invoicePrice);
-    emailBody.append("</td></tr><tr><td>Submitter:</td><td>" + submitterName);
-    emailBody.append("</td></tr><tr><td>Billing Account Name:</td><td>" + billedAccountName);
-    emailBody.append("</td></tr><tr><td>Billing Account Number:</td><td>" + billedAccountNumber);
-
-    emailBody.append("</td></tr></table><br><br>To track progress on the experiment request, click <a href=\"" + trackRequestURL + "\">" + Constants.APP_NAME + " - " + Constants.WINDOW_NAME_TRACK_REQUESTS + "</a>.");
-
-    String subject = "Estimated " + cf.getFacilityName() + " charges for request " + requestNumber;
+    String subject = "Estimated " + cf.getFacilityName() + " charges for request " + requestParser.getRequest().getNumber();
 
     String contactEmailCoreFacility = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(requestParser.getRequest().getIdCoreFacility(), PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
     String contactEmailSoftwareBugs = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(requestParser.getRequest().getIdCoreFacility(), PropertyDictionary.CONTACT_EMAIL_SOFTWARE_BUGS);
@@ -2567,12 +2555,71 @@ public class SaveRequest extends GNomExCommand implements Serializable {
           ccEmail,
           senderEmail,
           subject,
-          emailInfo + emailBody.toString(),
+          emailInfo + emailBody,
           true);
     }
 
   }
 
+  private String getDefaultInvoiceEmailBody(String billedAccountName, DictionaryHelper dictionaryHelper, CoreFacility cf) {
+    String requestType = dictionaryHelper.getRequestCategory(requestParser.getRequest().getCodeRequestCategory());
+    String requestNumber = requestParser.getRequest().getNumber();
+    String submitterName = requestParser.getRequest().getSubmitterName();
+    String billedAccountNumber = requestParser.getRequest().getBillingAccountNumber();
+    StringBuffer emailBody = new StringBuffer();
+    String trackRequestURL = launchAppURL + "?requestNumber=" + requestNumber + "&launchWindow=" + Constants.WINDOW_TRACK_REQUESTS;
+    
+    if (requestParser.isNewRequest()) {
+      emailBody.append("An experiment request has been submitted to the " + cf.getFacilityName() +
+      " core.");
+    } else {
+      emailBody.append("A request to add services to existing experiment (" + originalRequestNumber + ") has been submitted to the " + cf.getFacilityName() +
+      " core.");
+    }
+    // emailBody.append(" You are receiving this email notification because estimated charges are over $500.00 and the account to be billed belongs to your lab or group.");
+
+
+    emailBody.append("<br><br><table border='0' width = '400'><tr><td>Request Type:</td><td>" + requestType);
+    emailBody.append("</td></tr><tr><td>Request #:</td><td>" + requestNumber);
+    emailBody.append("</td></tr><tr><td>Total Estimated Charges:</td><td>" + this.invoicePrice);
+    emailBody.append("</td></tr><tr><td>Submitter:</td><td>" + submitterName);
+    emailBody.append("</td></tr><tr><td>Billing Account Name:</td><td>" + billedAccountName);
+    emailBody.append("</td></tr><tr><td>Billing Account Number:</td><td>" + billedAccountNumber);
+
+    emailBody.append("</td></tr></table><br><br>To track progress on the experiment request, click <a href=\"" + trackRequestURL + "\">" + Constants.APP_NAME + " - " + Constants.WINDOW_NAME_TRACK_REQUESTS + "</a>.");
+
+    return emailBody.toString();
+  }
+  
+  private String getTemplatedInvoiceEmailBody(CoreFacility cf, String templateString, DictionaryHelper dictionaryHelper) {
+    String emailBody = "";
+    RequestCategory requestCategory = dictionaryHelper.getRequestCategoryObject(requestParser.getRequest().getCodeRequestCategory());
+
+    if (templateString != null && templateString.length() > 0) {
+      Map root = new HashMap();
+      root.put("request", requestParser.getRequest());
+      root.put("facility",cf);
+      root.put("invoicePrice", invoicePrice);
+      root.put("requestCategory", requestCategory);
+      root.put("gnomexURL", launchAppURL);
+      root.put("assetURL", appURL + "/assets/");
+      
+      try {
+        Template template = new Template("root", new StringReader(templateString), FreeMarkerConfiguration.instance().getConfiguration());
+        
+        Writer out = new StringWriter(); 
+        template.process(root, out); 
+        emailBody = out.toString();
+      } catch(IOException ex) {
+        log.error("Unable to read template for invoice email for " + requestParser.getRequest().getNumber(), ex);
+      } catch(TemplateException ex) {
+        log.error("Error processing template for invoice email for " + requestParser.getRequest().getNumber(), ex);
+      }
+    }
+
+    return emailBody;
+  }
+  
   private void reassignLabForTransferLog(Session sess) {
     if (!requestParser.isNewRequest() && !requestParser.getOriginalIdLab().equals(requestParser.getRequest().getIdLab())) {
       // If an existing request has been assigned to a different lab, change
