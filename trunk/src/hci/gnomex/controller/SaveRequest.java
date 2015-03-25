@@ -2394,32 +2394,10 @@ public class SaveRequest extends GNomExCommand implements Serializable {
   private void sendConfirmationEmail(Session sess, String otherRecipients) throws NamingException, MessagingException {
 
     DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess);
+    PropertyDictionaryHelper pdh = PropertyDictionaryHelper.getInstance(sess);
     CoreFacility cf = (CoreFacility)sess.load(CoreFacility.class, this.requestParser.getRequest().getIdCoreFacility());
 
-    StringBuffer introNote = new StringBuffer();
-    String trackRequestURL = launchAppURL + "?requestNumber=" + requestParser.getRequest().getNumber() + "&launchWindow=" + Constants.WINDOW_TRACK_REQUESTS;
-    if (requestParser.isExternalExperiment()) {
-      if (requestParser.isNewRequest()) {
-        introNote.append("Experiment " + requestParser.getRequest().getNumber() + " has been registered in the GNomEx repository.");
-      } else {
-        introNote.append("Additional services have been added to experiment " + originalRequestNumber + ".");
-
-      }
-      introNote.append("<br><br>To view the experiment details, click <a href=\"" + trackRequestURL + "\">" + Constants.APP_NAME + " - " + Constants.WINDOW_NAME_TRACK_REQUESTS + "</a>.");
-
-    } else {
-      if (requestParser.isNewRequest()) {
-        introNote.append("Experiment request " + requestParser.getRequest().getNumber() + " has been submitted to the " + cf.getFacilityName() +
-        " core.  You will receive email notification when the experiment is complete.");
-      } else {
-        introNote.append("Request " + requestParser.getRequest().getNumber() + " to add services to existing experiment " + originalRequestNumber + " has been submitted to the " + cf.getFacilityName() +
-        " core.  You will receive email notification when the experiment is complete.");
-
-      }
-      introNote.append("<br><br>To track progress on the experiment request, click <a href=\"" + trackRequestURL + "\">" + Constants.APP_NAME + " - " + requestParser.getRequest().getNumber() + "</a>.");
-
-    }
-
+    // Refresh request and samples to make sure everything is populated.
     sess.refresh(requestParser.getRequest());
     for (Iterator i = requestParser.getRequest().getSamples().iterator(); i.hasNext();) {
       Sample s = (Sample)i.next();
@@ -2430,13 +2408,18 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         }
       }
     }
-    RequestEmailBodyFormatter emailFormatter = new RequestEmailBodyFormatter(sess, this.getSecAdvisor(), appURL, dictionaryHelper, requestParser.getRequest(), requestParser.getAmendState(), requestParser.getRequest().getSamples(), hybs, sequenceLanes, introNote.toString());
+
+    String body = getTemplatedConfirmationEmailBody(cf, dictionaryHelper, pdh);
+    if (body == null || body.length() == 0) {
+        body = getDefaultConfirmationEmailBody(cf, sess, dictionaryHelper);
+    }
+    
     String subject = dictionaryHelper.getRequestCategory(requestParser.getRequest().getCodeRequestCategory()) +
     (requestParser.isExternalExperiment() ? " Experiment " : " Experiment Request ") +
     requestParser.getRequest().getNumber() + (requestParser.isExternalExperiment() ? " registered" : " submitted");
 
-    String contactEmailCoreFacility = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(requestParser.getRequest().getIdCoreFacility(), PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
-    String contactEmailSoftwareBugs = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(requestParser.getRequest().getIdCoreFacility(), PropertyDictionary.CONTACT_EMAIL_SOFTWARE_BUGS);
+    String contactEmailCoreFacility = pdh.getCoreFacilityProperty(requestParser.getRequest().getIdCoreFacility(), PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
+    String contactEmailSoftwareBugs = pdh.getCoreFacilityProperty(requestParser.getRequest().getIdCoreFacility(), PropertyDictionary.CONTACT_EMAIL_SOFTWARE_BUGS);
     String emailRecipients = "";
     if (requestParser.getRequest().getAppUser() != null && requestParser.getRequest().getAppUser().getEmail() != null) {
       emailRecipients = requestParser.getRequest().getAppUser().getEmail();
@@ -2480,10 +2463,83 @@ public class SaveRequest extends GNomExCommand implements Serializable {
           null,
           fromAddress,
           subject,
-          emailInfo + emailFormatter.format(),
+          emailInfo + body,
           true);
     }
 
+  }
+  
+  private String getDefaultConfirmationEmailBody(CoreFacility cf, Session sess, DictionaryHelper dictionaryHelper) {
+    StringBuffer introNote = new StringBuffer();
+    String trackRequestURL = launchAppURL + "?requestNumber=" + requestParser.getRequest().getNumber() + "&launchWindow=" + Constants.WINDOW_TRACK_REQUESTS;
+    if (requestParser.isExternalExperiment()) {
+      if (requestParser.isNewRequest()) {
+        introNote.append("Experiment " + requestParser.getRequest().getNumber() + " has been registered in the GNomEx repository.");
+      } else {
+        introNote.append("Additional services have been added to experiment " + originalRequestNumber + ".");
+
+      }
+      introNote.append("<br><br>To view the experiment details, click <a href=\"" + trackRequestURL + "\">" + Constants.APP_NAME + " - " + Constants.WINDOW_NAME_TRACK_REQUESTS + "</a>.");
+
+    } else {
+      if (requestParser.isNewRequest()) {
+        introNote.append("Experiment request " + requestParser.getRequest().getNumber() + " has been submitted to the " + cf.getFacilityName() +
+        " core.  You will receive email notification when the experiment is complete.");
+      } else {
+        introNote.append("Request " + requestParser.getRequest().getNumber() + " to add services to existing experiment " + originalRequestNumber + " has been submitted to the " + cf.getFacilityName() +
+        " core.  You will receive email notification when the experiment is complete.");
+
+      }
+      introNote.append("<br><br>To track progress on the experiment request, click <a href=\"" + trackRequestURL + "\">" + Constants.APP_NAME + " - " + requestParser.getRequest().getNumber() + "</a>.");
+
+    }
+
+    RequestEmailBodyFormatter emailFormatter = new RequestEmailBodyFormatter(sess, this.getSecAdvisor(), appURL, dictionaryHelper, requestParser.getRequest(), requestParser.getAmendState(), requestParser.getRequest().getSamples(), hybs, sequenceLanes, introNote.toString());
+    
+    return emailFormatter.format();
+  }
+  
+  private String getTemplatedConfirmationEmailBody(CoreFacility cf, DictionaryHelper dictionaryHelper, PropertyDictionaryHelper pdh) {
+    String emailBody = "";
+    RequestCategory requestCategory = dictionaryHelper.getRequestCategoryObject(requestParser.getRequest().getCodeRequestCategory());
+    String numberSequencingCyclesAllowed = "";
+    String genomeBuildToAlignTo = "";
+    if (requestParser.getRequest().getSequenceLanes().iterator().hasNext()) {
+      SequenceLane lane = (SequenceLane) requestParser.getRequest().getSequenceLanes().iterator().next();
+      numberSequencingCyclesAllowed = lane.getIdNumberSequencingCyclesAllowed()!= null  ? dictionaryHelper.getNumberSequencingCyclesAllowed(lane.getIdNumberSequencingCyclesAllowed()) : "";
+      genomeBuildToAlignTo = lane.getIdGenomeBuildAlignTo() != null  ? dictionaryHelper.getGenomeBuild(lane.getIdGenomeBuildAlignTo()) : "";
+  }
+
+    String templateString = pdh.getCoreFacilityRequestCategoryProperty(requestParser.getRequest().getIdCoreFacility(), requestParser.getRequest().getCodeRequestCategory(), 
+        PropertyDictionary.EXPERIMENT_CONFIRMATION_EMAIL_TEMPLATE);
+
+    if (templateString != null && templateString.length() > 0) {
+      Map root = new HashMap();
+      root.put("request", requestParser.getRequest());
+      root.put("facility",cf);
+      root.put("originalRequestNumber", originalRequestNumber != null ? originalRequestNumber : "");
+      root.put("requestCategory", requestCategory);
+      root.put("isNewRequest", requestParser.isNewRequest());
+      root.put("addedSequenceLanes", sequenceLanes);
+      root.put("dictionaryHelper", dictionaryHelper);
+      root.put("gnomexURL", launchAppURL);
+      root.put("assetURL", appURL + "/assets/");
+      root.put("imageURL", appURL + "/images/");
+      
+      try {
+        Template template = new Template("root", new StringReader(templateString), FreeMarkerConfiguration.instance().getConfiguration());
+        
+        Writer out = new StringWriter(); 
+        template.process(root, out); 
+        emailBody = out.toString();
+      } catch(IOException ex) {
+        log.error("Unable to read template for invoice email for " + requestParser.getRequest().getNumber(), ex);
+      } catch(TemplateException ex) {
+        log.error("Error processing template for invoice email for " + requestParser.getRequest().getNumber(), ex);
+      }
+    }
+
+    return emailBody;
   }
 
   private void sendInvoicePriceEmail(Session sess, String contactEmail, String ccEmail, String billedAccountName) throws NamingException, MessagingException {
@@ -2498,9 +2554,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       return;
     }
 
-    String template = pdh.getCoreFacilityRequestCategoryProperty(requestParser.getRequest().getIdCoreFacility(), requestParser.getRequest().getCodeRequestCategory(), 
-                            PropertyDictionary.EXPERIMENT_INVOICE_EMAIL_TEMPLATE);
-    String emailBody = getTemplatedInvoiceEmailBody(cf, template, dictionaryHelper);
+    String emailBody = getTemplatedInvoiceEmailBody(cf, dictionaryHelper, pdh);
     if (emailBody == null || emailBody.length() == 0) {
       emailBody = getDefaultInvoiceEmailBody(billedAccountName, dictionaryHelper, cf);
     }
@@ -2591,9 +2645,11 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     return emailBody.toString();
   }
   
-  private String getTemplatedInvoiceEmailBody(CoreFacility cf, String templateString, DictionaryHelper dictionaryHelper) {
+  private String getTemplatedInvoiceEmailBody(CoreFacility cf, DictionaryHelper dictionaryHelper, PropertyDictionaryHelper pdh) {
     String emailBody = "";
     RequestCategory requestCategory = dictionaryHelper.getRequestCategoryObject(requestParser.getRequest().getCodeRequestCategory());
+    String templateString = pdh.getCoreFacilityRequestCategoryProperty(requestParser.getRequest().getIdCoreFacility(), requestParser.getRequest().getCodeRequestCategory(), 
+        PropertyDictionary.EXPERIMENT_INVOICE_EMAIL_TEMPLATE);
 
     if (templateString != null && templateString.length() > 0) {
       Map root = new HashMap();

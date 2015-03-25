@@ -153,6 +153,7 @@ public class PropertyDictionary extends DictionaryEntry implements Serializable 
   public static final String        SORT_APPLICATION_ALPHABETICALLY_IN_EDIT = "sort_application_alphabetically_in_edit";
   public static final String        ADD_PHI_TO_SUPPORT_EMAIL            = "add_phi_to_support_email";
   public static final String        EXPERIMENT_INVOICE_EMAIL_TEMPLATE   = "experiment_invoice_email_template";
+  public static final String        EXPERIMENT_CONFIRMATION_EMAIL_TEMPLATE = "experiment_confirmation_email_template";
 
 
   private Integer       idPropertyDictionary;

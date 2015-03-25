@@ -25,3 +25,7 @@ CREATE TABLE gnomex.PropertyAppUser (
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
 ) ENGINE = INNODB;
+
+-- Increase size of PropertyDictionary value
+alter table PropertyDictionary MODIFY propertyValue varchar(20000) null;
+call ExecuteIfTableExists('gnomex','PropertyDictionary_Audit','alter table PropertyDictionary_Audit MODIFY propertyValue varchar(20000) null');

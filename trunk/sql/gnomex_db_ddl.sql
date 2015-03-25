@@ -1712,7 +1712,7 @@ DROP TABLE IF EXISTS `gnomex`.`PropertyDictionary`;
 CREATE TABLE `gnomex`.`PropertyDictionary` (
   `idPropertyDictionary` INT(10) NOT NULL AUTO_INCREMENT,
   `propertyName` VARCHAR(200) NULL,
-  `propertyValue` VARCHAR(2000) NULL,
+  `propertyValue` VARCHAR(20000) NULL,
   `propertyDescription` VARCHAR(2000) NULL,
   `forServerOnly` CHAR(1) NOT NULL DEFAULT 'N',
   `idCoreFacility` INT(10) NULL,
