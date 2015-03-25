@@ -47,6 +47,7 @@ alter table Application add
     REFERENCES `gnomex`.`CoreFacility` (`idCoreFacility`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION;
+update Application set idCoreFacility=1;
 
 Alter Table Lab add billingContactPhone varchar(50) null;
 call ExecuteIfTableExists('gnomex','Lab_Audit','Alter Table Lab_Audit add billingContactPhone varchar(50) null');
