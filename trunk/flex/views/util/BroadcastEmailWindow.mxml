@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
 	layout="vertical" title="Send Email to all GNomEx Users" 
-	width="652" height="430"
+	width="806" height="430"
 	xmlns:util="views.util.*" 
 	initialize="init()"
 	defaultButton="{saveButton}" showCloseButton="true" 
@@ -26,7 +26,7 @@
     resultFormat="e4x"
     showBusyCursor="true"
     result="onSendBroadcastEmail(event)"
-    fault="this.faultHanlderSendBroadcastEmail('', event)"
+    fault="this.faultHandlerSendBroadcastEmail('', event)"
     method="POST"
     useProxy="false">
     </mx:HTTPService >  
@@ -151,7 +151,7 @@
         	}
         }   
         
-        public function faultHanlderSendBroadcastEmail(title:String, event:FaultEvent):void {
+        public function faultHandlerSendBroadcastEmail(title:String, event:FaultEvent):void {
         	if (event.message.body is String) {
 	        	var startPos:int = event.message.body.indexOf("H3");
 	        	var endPos:int   = event.message.body.indexOf("</H3>");
