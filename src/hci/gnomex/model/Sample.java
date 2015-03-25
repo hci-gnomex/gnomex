@@ -2,6 +2,7 @@ package hci.gnomex.model;
 
 
 
+import hci.dictionary.utility.DictionaryManager;
 import hci.framework.utilities.XMLReflectException;
 import hci.gnomex.constants.Constants;
 import hci.hibernate3utils.HibernateDetailObject;
@@ -948,5 +949,16 @@ public class Sample extends HibernateDetailObject {
   }
   public void setQcCodeApplication(String qcCodeApplication) {
     this.qcCodeApplication = qcCodeApplication;
+  }
+  
+  public String getBarcodeA() {
+    return getIdOligoBarcode() != null ? 
+        DictionaryManager.getDisplay("hci.gnomex.model.OligoBarcode", getIdOligoBarcode().toString()) 
+        : (getBarcodeSequence() != null && !getBarcodeSequence().equals("") ? getBarcodeSequence() : "");
+  }
+  public String getBarcodeB() {
+    return getIdOligoBarcodeB() != null ? 
+        DictionaryManager.getDisplay("hci.gnomex.model.OligoBarcode", getIdOligoBarcodeB().toString()) 
+        : (getBarcodeSequenceB() != null && !getBarcodeSequenceB().equals("") ? getBarcodeSequenceB() : "");
   }
 }
