@@ -2,15 +2,19 @@
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:views="views.*"  xmlns:util="views.util.*" label="Properties" enabled="true" width="100%" height="100%">
 	<mx:Script>
 		<![CDATA[
+			import ext.com.Consts;
+			
 			import mx.collections.XMLListCollection;
+			
+			import views.util.PromptXMLListCollection;
+			
 			import mx.controls.Alert;
 			import mx.controls.Image;
 			import mx.controls.LinkButton;
 			import mx.controls.TextInput;
+			import mx.core.UIComponent;
 			import mx.managers.PopUpManager;
 			import mx.utils.StringUtil;
-			import ext.com.Consts;
-			import mx.core.UIComponent;
 			
 			import views.admin.PropertyWindow;
 			import views.util.CheckBoxRequiredIndicator;
@@ -133,7 +137,10 @@
 					
 				} else  if (property.@codePropertyType == 'OPTION') {
 					propertyValueViewStack[index].selectedIndex = 2;
-					propertyCombo[index].dataProvider =  property..PropertyOption;
+					var emptyPONode:XML = <PropertyOption idPropertyOption='' display=''/>;
+					var possiblePropertyOptions:XMLListCollection = new PromptXMLListCollection(emptyPONode, new XMLListCollection(property..PropertyOption));
+					propertyCombo[index].dataProvider = possiblePropertyOptions;
+					
 					if(this.editable) {
 						propertyCombo[index].isRequired = property.@isRequired== 'Y' ? true : false;
 					} else {
