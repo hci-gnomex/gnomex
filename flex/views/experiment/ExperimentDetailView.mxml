@@ -1705,7 +1705,7 @@
 			</mx:VBox>
 		</mx:VBox>
 		
-		<experiment:TabPropertiesView id="propertiesView" properties="{requestProperties}" editable="false" visible="{requestProperties.length>0}" includeInLayout="{requestProperties.length>0}" />
+		<experiment:TabPropertiesView id="propertiesView" properties="{requestProperties}" editable="false" />
 		
 		<mx:VBox verticalGap="0" width="100%" height="100%" id="samplesTab" label="Samples" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4">
 			
