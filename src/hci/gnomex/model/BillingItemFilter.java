@@ -195,6 +195,8 @@ public class BillingItemFilter extends DetailObject {
     addProductOrderCriteria();
     addBillingItemCriteria();
 
+    addSecurityCriteria("po");
+    
     return queryBuf;
 
 
