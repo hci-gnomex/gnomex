@@ -463,6 +463,7 @@ public class GetRequest extends GNomExCommand implements Serializable {
             peNode.setAttribute("codePropertyType", prop.getCodePropertyType());
             peNode.setAttribute("otherLabel", entry != null && entry.getOtherLabel() != null ? entry.getOtherLabel() : "");
             peNode.setAttribute("isRequired", prop.getIsRequired() != null ? prop.getIsRequired() : "N");
+            peNode.setAttribute("isSelected", "true");
             peNode.setAttribute("sortOrder", prop.getSortOrder() != null ? prop.getSortOrder().toString() : "999999");
             peNode.setAttribute("isActive", prop.getIsActive() != null ? prop.getIsActive() : "Y");
             peNode.setAttribute("idCoreFacility", prop.getIdCoreFacility() != null ? prop.getIdCoreFacility().toString() : "");
