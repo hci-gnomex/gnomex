@@ -519,12 +519,13 @@ public class BillingItemFilter extends DetailObject {
       queryBuf.append(" po.idBillingAccount = ");
       queryBuf.append(idBillingAccount);
     } 
-    // Search by request number Note that search by request number excludes all disk usage rows.
-    //    if (requestNumber != null && 
-    //        !requestNumber.equals("")){
-    //      this.addWhereOrAnd();
-    //      queryBuf.append("1 = 2");
-    //    }     
+    
+    // Search by request number Note that search by request number excludes all product order rows.
+    if (requestNumber != null && 
+        !requestNumber.equals("")){
+      this.addWhereOrAnd();
+      queryBuf.append("1 = 2");
+    }     
 
     // Search by invoice number 
     if (invoiceLookupNumber != null && 
