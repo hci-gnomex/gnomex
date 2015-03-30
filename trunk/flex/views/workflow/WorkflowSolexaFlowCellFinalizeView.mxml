@@ -166,13 +166,16 @@
 				}
 			}
 			
-			for each(var chan:XML in flowCellChannelsList){
-				if(validator.validate(sl.@flowCellChannelSampleConcentrationpM).results != null){ 
-					isValid = false;
-					errorMessage += '\n\t One of your sample concentrations contains invalid data\n';
-					break;
+			
+			if(parentApplication.getCoreFacilityProperty(selectedFlowCell.@idCoreFacility, parentApplication.PROPERTY_SHOW_SAMPLE_CONC_PM) == 'Y'){
+				for each(var chan:XML in flowCellChannelsList){
+					if(validator.validate(chan.@flowCellChannelSampleConcentrationpM).results != null){ 
+						isValid = false;
+						errorMessage += '\n\t One of your sample concentrations contains invalid data\n';
+						break;
+					}
+					
 				}
-				
 			}
 			
 			
