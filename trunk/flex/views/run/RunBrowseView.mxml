@@ -274,6 +274,9 @@
 				var url:URLRequest = new URLRequest('DownloadABIRunFileServlet.gx' +
 					'?idInstrumentRun=' + idRun);
 				navigateToURL(url, '_blank');
+				
+				parentView.runningCheckbox.dispatchEvent(new MouseEvent(MouseEvent.CLICK));
+				Alert.show("The .plt file has been created and the status has been updated to running. Please refresh list.");
 			}
 			
 			private function showEmailWindow():void{
