@@ -26,6 +26,7 @@ import java.util.TreeMap;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -331,8 +332,12 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
               File f = new File(fileName);
 
               // Remove references of file in TransferLog
-              String queryBuf = "SELECT tl from TransferLog tl where tl.idRequest = " + idRequest + " AND tl.fileName like '%" + new File(fileName).getName() + "'";
-              List transferLogs = sess.createQuery(queryBuf).list();
+              String queryBuf = "SELECT tl from TransferLog tl where tl.idRequest = :idRequest AND tl.fileName like :fileName";
+              Query query = sess.createQuery(queryBuf);
+              query.setParameter("idRequest", idRequest);
+              query.setParameter("fileName", "%" + new File(fileName).getName());
+              List transferLogs = query.list();
+              
               // Go ahead and delete the transfer log if there is just one row.
               // If there are multiple transfer log rows for this filename, just
               // bypass deleting the transfer log since it is not possible
@@ -354,8 +359,11 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
                   throw new Exception("Unable to delete file " + fileName);
                 } else {
                   //Delete ExperimentFile if one is registered in the db and unlink sample file if need be
+                  String queryString = "Select exp from ExperimentFile exp where fileName = :fileName";
+                  Query query2 = sess.createQuery(queryString);
                   String currentFileName = fileName.substring(fileName.indexOf(baseRequestNumber)).replace("\\", "/"); //REMOVE REPLACE AFTER DEBUGGING
-                  List expFiles = sess.createQuery("Select exp from ExperimentFile exp where fileName = " + "'" + currentFileName + "'").list();
+                  query2.setParameter("fileName", currentFileName);
+                  List expFiles = query2.list();
                   if(expFiles.size() == 1) {
                     ExperimentFile ef = (ExperimentFile)expFiles.get(0);
                     List l = (sess.createQuery("SELECT DISTINCT sef from SampleExperimentFile sef where sef.idExpFileRead1 = " + ef.getIdExperimentFile() + " OR sef.idExpFileRead2 = " + ef.getIdExperimentFile()).list());

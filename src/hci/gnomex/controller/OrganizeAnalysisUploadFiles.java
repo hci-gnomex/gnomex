@@ -22,6 +22,7 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.JDOMException;
@@ -334,8 +335,11 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
                 String fileName = (String)i1.next();
 
                 // Remove references of file in TransferLog
-                String queryBuf = "SELECT tl from TransferLog tl where tl.idAnalysis = " + idAnalysis + " AND tl.fileName like '%" + new File(fileName).getName() + "'";
-                List transferLogs = sess.createQuery(queryBuf).list();
+                String queryBuf = "SELECT tl from TransferLog tl where tl.idAnalysis = :idAnalysis AND tl.fileName like :fileName";
+                Query query = sess.createQuery(queryBuf);
+                query.setParameter("idAnalysis", idAnalysis);
+                query.setParameter("fileName", "%" + new File(fileName).getName());
+                List transferLogs = query.list();
 
                 // Go ahead and delete the transfer log if there is just one row.
                 // If there are multiple transfer log rows for this filename, just;
