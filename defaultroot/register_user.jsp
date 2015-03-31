@@ -249,7 +249,7 @@ try {
         <div class="col2"><input type="text" class="textWide"  name="department" value="<%=department%>"/></div>
         
         <div class="col1"><div class="right">*PI Email</div></div>
-        <div class="col2"><input type="text" class="textWide" name="contactEmail" value="<%=contactEmail%>"/></div>
+        <div class="col2"><input type="text" class="textWide" name="contactEmail" id="contactEmail" value="<%=contactEmail%>"/></div>
         
         <div class="col1"><div class="right">*PI Phone</div></div>
         <div class="col2"><input type="text" class="textWide" name="contactPhone" value="<%=contactPhone%>"/></div>

@@ -166,6 +166,20 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
         this.addInvalidField("email", "Invalid Email Address -- " + ex.toString());
       }
     }
+    // Validate PI email if given
+    if (contactEmail != null && !contactEmail.equals("")) {
+        try {
+          InternetAddress addresses[] = InternetAddress.parse(contactEmail, true);
+          if (addresses.length > 1) {
+            this.addInvalidField("contactEmail", "PI Email address cannot contain spaces");
+          }
+          if (!EmailValidator.getInstance().isValid(contactEmail)) {
+            this.addInvalidField("contactEmail", "PI Email address is not valid.  Please check the email address and try again.");
+          }
+        } catch(AddressException ex) {
+          this.addInvalidField("contactEmail", "Invalid PI Email Address -- " + ex.toString());
+        }
+    }
     this.validate();
   }
 
