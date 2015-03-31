@@ -1317,9 +1317,9 @@
 				filteredAppList.refresh();
 				
 				if ( requestCategory.@codeRequestCategory != null && requestCategory.@codeRequestCategory == 'DNAISOL') {
-					isolationTypeList = new XMLListCollection(parentApplication.dictionaryManager.getEntriesExcludeBlank('hci.gnomex.model.DNAPrepType'));
+					isolationTypeList = new XMLListCollection(parentApplication.dictionaryManager.getEntriesExcludeBlank('hci.gnomex.model.DNAPrepType').(@isActive != 'N'));
 				} else if ( requestCategory.@codeRequestCategory != null && requestCategory.@codeRequestCategory == 'RNAISOL') {
-					isolationTypeList = new XMLListCollection(parentApplication.dictionaryManager.getEntriesExcludeBlank('hci.gnomex.model.RNAPrepType'));
+					isolationTypeList = new XMLListCollection(parentApplication.dictionaryManager.getEntriesExcludeBlank('hci.gnomex.model.RNAPrepType').(@isActive != 'N'));
 				}
 				isolationTypeList.sort = dictionarySorter;
 				isolationTypeList.refresh();
