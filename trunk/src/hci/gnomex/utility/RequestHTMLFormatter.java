@@ -95,7 +95,7 @@ public class RequestHTMLFormatter {
    RequestCategory requestCategory = dictionaryHelper.getRequestCategoryObject(request.getCodeRequestCategory());
    String imageName = requestCategory.getIcon();
    if (imageName == null || imageName.equals("")) {
-     imageName = "flash.png";
+     imageName = "flask.png";
    } else if (imageName.startsWith("assets/")) {
      // Get rid of the leading assets directory.  We serve images for the html report
      // from the webapp root /images directory.
