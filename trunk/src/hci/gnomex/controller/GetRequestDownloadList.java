@@ -36,6 +36,7 @@ import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -628,7 +629,10 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
   }
 
   private static String getLinkedSampleNumber(Session sess, String fileName) {
-    List expFile = sess.createQuery("Select ef from ExperimentFile ef WHERE ef.fileName = '" + fileName.replace("\\", "/") + "'" ).list();
+	String queryString = "Select ef from ExperimentFile ef WHERE ef.fileName = :fileName";
+	Query query = sess.createQuery(queryString);
+	query.setParameter("fileName", fileName.replace("\\", "/"));
+	List expFile = query.list();
     if(expFile.size() > 0) {
       ExperimentFile ef = (ExperimentFile) expFile.get(0);
       List sampleNumber = sess.createQuery("Select samp.number from SampleExperimentFile sef JOIN sef.sample as samp where sef.idExpFileRead1 = " + ef.getIdExperimentFile() + " or sef.idExpFileRead2 = " + ef.getIdExperimentFile()).list();
