@@ -29,3 +29,7 @@ CREATE TABLE gnomex.PropertyAppUser (
 -- Increase size of PropertyDictionary value
 alter table PropertyDictionary MODIFY propertyValue varchar(20000) null;
 call ExecuteIfTableExists('gnomex','PropertyDictionary_Audit','alter table PropertyDictionary_Audit MODIFY propertyValue varchar(20000) null');
+
+-- confirmEmailGuid for new verify user email feature
+ALTER TABLE AppUser ADD COLUMN confirmEmailGuid varchar(100) null;
+call ExecuteIfTableExists('gnomex', 'AppUser_Audit', ' ALTER TABLE AppUser ADD COLUMN confirmEmailGuid varchar(100) null');

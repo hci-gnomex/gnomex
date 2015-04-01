@@ -255,6 +255,7 @@ CREATE TABLE `gnomex`.`AppUser` (
    `guid` VARCHAR(100) null,
    `guidExpiration` DATETIME null,
    `passwordExpired` CHAR(1) null,
+   `confirmEmailGuid` VARCHAR(100) null,
   PRIMARY KEY (`idAppUser`)
 )
 ENGINE = INNODB;

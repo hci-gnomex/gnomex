@@ -318,6 +318,20 @@
     </servlet-class>
   </servlet>
   
+  <servlet>
+    <servlet-name>ApproveUser</servlet-name>
+    <servlet-class>
+      hci.gnomex.controller.ApproveUser
+    </servlet-class>
+  </servlet>
+  
+  <servlet>
+    <servlet-name>ConfirmEmail</servlet-name>
+    <servlet-class>
+      hci.gnomex.controller.ConfirmEmail
+    </servlet-class>
+  </servlet>
+  
 	<servlet-mapping>
 		<servlet-name>GNomExFrontController</servlet-name>
 		<url-pattern>*.gx</url-pattern>
@@ -525,6 +539,16 @@
   <servlet-mapping>
     <servlet-name>FastDataTransferUploadStartServlet</servlet-name>
     <url-pattern>FastDataTransferUploadStartServlet.gx</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>ApproveUser</servlet-name>
+    <url-pattern>ApproveUser.gx</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>ConfirmEmail</servlet-name>
+    <url-pattern>ConfirmEmail.gx</url-pattern>
   </servlet-mapping>
   
 	<!-- Session timeout set to 4 hours -->

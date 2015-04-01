@@ -299,6 +299,13 @@
   </servlet>
   
   <servlet>
+    <servlet-name>ConfirmEmail</servlet-name>
+    <servlet-class>
+      hci.gnomex.controller.ConfirmEmail
+    </servlet-class>
+  </servlet>
+  
+  <servlet>
     <servlet-name>ApproveBillingAccount</servlet-name>
     <servlet-class>
       hci.gnomex.controller.ApproveBillingAccount
@@ -525,6 +532,11 @@
   <servlet-mapping>
     <servlet-name>ApproveUser</servlet-name>
     <url-pattern>/ApproveUser.gx</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>ConfirmEmail</servlet-name>
+    <url-pattern>/ConfirmEmail.gx</url-pattern>
   </servlet-mapping>
   
   <servlet-mapping>

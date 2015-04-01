@@ -3237,6 +3237,9 @@
 						this.homeView.init();
 					}
 					launchStartWindow();
+					if(!isGuestMode() && (getUserEmail() == "" || getUserEmail() == null)){
+						Alert.show("We noticed that you don't have an email on file.  Please take a moment to update your account information to insure that you receive important GNomEx notifications.  Thanks!", "Update Email");
+					}
 					callLater(this.resizeMenuItems);
 				}
 			}
