@@ -43,6 +43,8 @@ public class PropertyDictionary extends DictionaryEntry implements Serializable 
   public static final String        BILLING_GL_JOURNAL_LINE_REF_CORE_FACILITY = "billing_gl_journal_line_ref_core_facility";
   public static final String        BILLING_GL_HEADER_FACILITY          = "billing_gl_header_facility";
   public static final String        BILLING_GL_HEADER_DESCRIPTION       = "billing_gl_header_description";
+  public static final String		INVOICE_HEADER_NOTE					= "invoice_header_note";
+  public static final String		INVOICE_FOOTER_NOTE					= "invoice_footer_note";
   public static final String        DATASET_PRIVACY_EXPIRATION          = "dataset_privacy_expiration";
   public static final String        DATASET_PRIVACY_EXPIRATION_WARNING  = "dataset_privacy_expiration_warning";
   public static final String        DATASET_PRIVACY_EXPIRATION_REPLY_EMAIL  = "dataset_privacy_expiration_reply_email";

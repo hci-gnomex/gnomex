@@ -767,7 +767,7 @@
 			}
 			
 			public function showPrintableRequestForm():void {
-				var url:URLRequest = new URLRequest('ShowRequestForm.gx?idRequest=' + this.selectedExperiment.@idRequest);
+				var url:URLRequest = new URLRequest('ShowRequestFormNew.gx?idRequest=' + this.selectedExperiment.@idRequest);
 				navigateToURL(url, '_blank');			
 			}
 			
