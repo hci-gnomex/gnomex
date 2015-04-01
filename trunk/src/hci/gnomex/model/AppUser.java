@@ -28,6 +28,7 @@ public class AppUser extends HibernateDetailObject implements Serializable, Comp
   private String  ucscUrl;
   private String  salt;
   private String  guid;
+  private String  confirmEmailGuid;
   private Timestamp  guidExpiration;
   private String  passwordExpired;
   private Set     labs;
@@ -311,22 +312,22 @@ public class AppUser extends HibernateDetailObject implements Serializable, Comp
     }
     return name;
   }
-  
+
   public String getDisplayNameXMLSafe() {
-	    String name = "";
-	    if (lastName != null && !lastName.equals("")) {
-	      name = XMLTools.escapeXMLChars(lastName);
-	    }
-	    if (firstName != null && !firstName.equals("")) {
-	      if (!name.equals("")) {
-	        name += ", " ;
-	      }
-	      name += XMLTools.escapeXMLChars(firstName);
-	    }
-	    if (this.getIsActive() != null && this.getIsActive().equalsIgnoreCase("N")) {
-	      name += " (inactive)";
-	    }
-	    return name;
+    String name = "";
+    if (lastName != null && !lastName.equals("")) {
+      name = XMLTools.escapeXMLChars(lastName);
+    }
+    if (firstName != null && !firstName.equals("")) {
+      if (!name.equals("")) {
+        name += ", " ;
+      }
+      name += XMLTools.escapeXMLChars(firstName);
+    }
+    if (this.getIsActive() != null && this.getIsActive().equalsIgnoreCase("N")) {
+      name += " (inactive)";
+    }
+    return name;
   }
 
   public String getFirstLastDisplayName() {
@@ -364,6 +365,14 @@ public class AppUser extends HibernateDetailObject implements Serializable, Comp
 
   public void registerMethodsToExcludeFromXML() {
     this.excludeMethodFromXML("getPasswordExternal");
+  }
+
+  public String getConfirmEmailGuid() {
+    return confirmEmailGuid;
+  }
+
+  public void setConfirmEmailGuid(String confirmEmailGuid) {
+    this.confirmEmailGuid = confirmEmailGuid;
   }
 
 

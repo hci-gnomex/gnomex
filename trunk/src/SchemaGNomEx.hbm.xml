@@ -190,6 +190,7 @@
 		<property name="guidExpiration" column="guidExpiration" type="timestamp" />
 		<property name="passwordExpired" column="passwordExpired"
 			type="string" />
+			<property name="confirmEmailGuid" column="confirmEmailGuid" type="string" />
 		<set name="labs" table="LabUser" lazy="true" cascade="none">
 			<key column="idAppUser" />
 			<many-to-many column="idLab" class="hci.gnomex.model.Lab" />
