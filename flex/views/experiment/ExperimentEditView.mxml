@@ -3945,7 +3945,7 @@
 		}
 			
 		private function showPrintableRequestForm():void {
-			var url:URLRequest = new URLRequest('ShowRequestForm.gx?idRequest=' + submittedIdRequest + '&amendState=' + this.currentState);
+			var url:URLRequest = new URLRequest('ShowRequestFormNew.gx?idRequest=' + submittedIdRequest + '&amendState=' + this.currentState);
 			navigateToURL(url, '_blank');	
 		}
 
@@ -5681,7 +5681,7 @@
 					<mx:LinkButton label="View" fontSize="10" click="showViewWindow()" icon="@Embed(source='../../assets/page.png')" textDecoration="underline" id="linkbutton2" paddingLeft="0">    	        
 					</mx:LinkButton>
 					<mx:LinkButton label="Download Files" fontSize="10" click="{this.theTab.selectedChild = this.downloadView}" icon="@Embed(source='../../assets/download.png')" id="downloadsLink" textDecoration="underline" textAlign="left"/>
-					<mx:LinkButton label="Printable form" fontSize="10" click="parentApplication.navExperimentView.experimentDetailView.detail.showPrintableRequestForm()" icon="@Embed(source='../../assets/page.png')" id="requestFormButton" textDecoration="underline" textAlign="left"/>
+					<mx:LinkButton label="Printable PDF form" fontSize="10" click="parentApplication.navExperimentView.experimentDetailView.detail.showPrintableRequestForm()" icon="@Embed(source='../../assets/page_white_acrobat.png')" id="requestFormButton" textDecoration="underline" textAlign="left"/>
 					<mx:LinkButton label="Analysis" fontSize="10" icon="@Embed(source='../../assets/map.png')" textDecoration="underline" 
 								   enabled="false" disabledIcon="@Embed(source='../../assets/map_disable.png')" height="21" id="analysisButton" click="parentApplication.navExperimentView.experimentDetailView.detail.showRelatedAnalysis()" textAlign="left">
 					</mx:LinkButton>
