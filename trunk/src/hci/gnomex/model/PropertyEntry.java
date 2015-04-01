@@ -125,13 +125,15 @@ public class PropertyEntry extends HibernateDetailObject {
     String v = this.getValue();
     if (this.getProperty() != null && 
         (this.getProperty().getCodePropertyType().equals(PropertyType.OPTION) || this.getProperty().getCodePropertyType().equals(PropertyType.MULTI_OPTION))) {
-      v = "";
-      for(PropertyOption option : (Set<PropertyOption>)this.getOptions()) {
-        if (v.length() > 0) {
-          v += ",";
-        }
-        v += option.getDisplay();
-      }
+    	v = "";
+    	if (this.getOptions() != null) {
+    		for (PropertyOption option : (Set<PropertyOption>) this.getOptions()) {
+    			if (v.length() > 0) {
+    				v += ",";
+    			}
+    			v += option.getDisplay();
+    		}
+    	}
     }
     
     return v;

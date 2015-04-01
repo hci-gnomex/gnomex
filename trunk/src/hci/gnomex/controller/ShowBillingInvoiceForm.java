@@ -23,6 +23,7 @@ import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.MailUtil;
 import hci.gnomex.utility.PropertyDictionaryHelper;
 
+import java.io.File;
 import java.io.Serializable;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -772,17 +773,29 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
       note = "Unable to email billing invoice. Billing contact email is blank for " + lab.getName(false, true);
     }
 
+    Map[] billingItemMaps = {billingItemMap};
+    Map[] relatedBillingItemMaps = {relatedBillingItemMap};
+    Map[] requestMaps = {requestMap};
+    
     if (send) {
       if(!MailUtil.isValidEmail(fromAddress)){
         fromAddress = DictionaryHelper.getInstance(sess).getPropertyDictionary(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
       }
       try {
-        MailUtil.send(emailRecipients, 
+    	File billingInvoice = ShowBillingInvoiceFormNew.makePDFBillingInvoice(sess, serverName, billingPeriod, coreFacility, false, lab, 
+    																			new Lab[0], billingAccount, new BillingAccount[0], 
+    																			PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(coreFacility.getIdCoreFacility(), PropertyDictionary.CONTACT_ADDRESS_CORE_FACILITY), 
+    																			PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(coreFacility.getIdCoreFacility(), PropertyDictionary.CONTACT_REMIT_ADDRESS_CORE_FACILITY), 
+    																			billingItemMaps, relatedBillingItemMaps, requestMaps);
+        MailUtil.send_attach(emailRecipients, 
             ccList,
             fromAddress,
             subject, 
             emailInfo + body,
-            true);
+            true,
+            billingInvoice);
+        
+        billingInvoice.delete();
 
         note = "Billing invoice emailed to " + contactEmail + ".";
 
