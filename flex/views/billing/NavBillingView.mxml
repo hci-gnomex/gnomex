@@ -259,6 +259,10 @@
 		public var iconPrintInvoice:Class;
 		
 		[Bindable]
+		[Embed(source="../../assets/page_white_acrobat.png")]
+		public var iconPDFInvoice:Class;		
+		
+		[Bindable]
 		[Embed(source="../../assets/email_open.png")]
 		public var iconEmailInvoice:Class;
 		
@@ -1508,7 +1512,7 @@
 						if (email) {
 							showBillingInvoiceEmailWindow(labNode);
 						} else {
-							var showUrl:URLRequest = new URLRequest('ShowBillingInvoiceForm.gx' +
+							var showUrl:URLRequest = new URLRequest('ShowBillingInvoiceFormNew.gx' +
 								'?idBillingPeriod=' + lastSelectedBillingPeriod.@idBillingPeriod + 
 								'&idLab=' + labNode.@idLab +
 								'&idBillingAccount=' + labNode.@idBillingAccount +
@@ -1534,7 +1538,7 @@
 						idBillingAccounts += lab.@idBillingAccount + ',';
 						
 					}
-					var showAllRequests:URLRequest = new URLRequest('ShowBillingInvoiceForm.gx' + 
+					var showAllRequests:URLRequest = new URLRequest('ShowBillingInvoiceFormNew.gx' + 
 						'?idLabs=' + idLabs + 
 						'&idBillingPeriod=' + lastSelectedBillingPeriod.@idBillingPeriod + 
 						'&idBillingAccounts=' + idBillingAccounts + 
@@ -2327,7 +2331,7 @@
 					showBillingSummaryWindow();
 				} else if (label == 'Usage Report') {
 					this.showBillingUsageWindow();
-				} else if (label == 'Print Invoice') {
+				} else if (label == 'Printable PDF Invoice') {
 					this.showBillingInvoice(false);
 				} else if (label == 'Email Invoice') {
 					this.showBillingInvoice(true);
@@ -2406,7 +2410,7 @@
 								buttonMode="true"
 								useHandCursor="true" fontSize="11" height="30">
 						<mx:XMLList>
-							<menuitem label="Print Invoice" icon="iconPrintInvoice" />
+							<menuitem label="Printable PDF Invoice" icon="iconPDFInvoice" />
 							<menuitem label="Email Invoice" icon="iconEmailInvoice" />
 							<menuitem label="General Ledger Interface"  icon="iconGLInterface" />
 							<menuitem label="Reports..."  icon="iconReports" >
@@ -2425,7 +2429,7 @@
 								itemClick="{onMenuSelect(event)}"   
 								labelField="@label" iconField="@icon"  styleName="linkMenuBar"  height="30" width="100%">
 						<mx:XMLList>
-							<menuitem label="Print Invoice" icon="iconPrintInvoice" />
+							<menuitem label="Printable PDF Invoice" icon="iconPDFInvoice" />
 							<menuiutem label="Email Invoice" icon="iconEmailInvoice" />
 							<menuitem label="Reports..."  icon="iconReports" >
 								<menuitem label="Invoice Report" />
