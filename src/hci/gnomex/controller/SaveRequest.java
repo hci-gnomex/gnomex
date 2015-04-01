@@ -1302,11 +1302,21 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         for (int x = 0; x < valueTokens.length; x++) {
           String v = valueTokens[x];
           v = v.trim();
+          Boolean found = false;
           for (Iterator i1 = property.getOptions().iterator(); i1.hasNext();) {
             PropertyOption option = (PropertyOption)i1.next();
             if (v.equals(option.getIdPropertyOption().toString())) {
               options.add(option);
+              found = true;
+              break;
             }
+          }
+
+          if(found == false) {
+            PropertyOption newOption = new PropertyOption();
+            newOption.setIdPropertyOption(Integer.parseInt(v));
+            newOption.setIdProperty(property.getIdProperty());
+            options.add(newOption);
           }
         }
         entry.setOptions(options);
@@ -2411,9 +2421,9 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 
     String body = getTemplatedConfirmationEmailBody(cf, dictionaryHelper, pdh);
     if (body == null || body.length() == 0) {
-        body = getDefaultConfirmationEmailBody(cf, sess, dictionaryHelper);
+      body = getDefaultConfirmationEmailBody(cf, sess, dictionaryHelper);
     }
-    
+
     String subject = dictionaryHelper.getRequestCategory(requestParser.getRequest().getCodeRequestCategory()) +
     (requestParser.isExternalExperiment() ? " Experiment " : " Experiment Request ") +
     requestParser.getRequest().getNumber() + (requestParser.isExternalExperiment() ? " registered" : " submitted");
@@ -2468,7 +2478,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     }
 
   }
-  
+
   private String getDefaultConfirmationEmailBody(CoreFacility cf, Session sess, DictionaryHelper dictionaryHelper) {
     StringBuffer introNote = new StringBuffer();
     String trackRequestURL = launchAppURL + "?requestNumber=" + requestParser.getRequest().getNumber() + "&launchWindow=" + Constants.WINDOW_TRACK_REQUESTS;
@@ -2495,10 +2505,10 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     }
 
     RequestEmailBodyFormatter emailFormatter = new RequestEmailBodyFormatter(sess, this.getSecAdvisor(), appURL, dictionaryHelper, requestParser.getRequest(), requestParser.getAmendState(), requestParser.getRequest().getSamples(), hybs, sequenceLanes, introNote.toString());
-    
+
     return emailFormatter.format();
   }
-  
+
   private String getTemplatedConfirmationEmailBody(CoreFacility cf, DictionaryHelper dictionaryHelper, PropertyDictionaryHelper pdh) {
     String emailBody = "";
     RequestCategory requestCategory = dictionaryHelper.getRequestCategoryObject(requestParser.getRequest().getCodeRequestCategory());
@@ -2508,7 +2518,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       SequenceLane lane = (SequenceLane) requestParser.getRequest().getSequenceLanes().iterator().next();
       numberSequencingCyclesAllowed = lane.getIdNumberSequencingCyclesAllowed()!= null  ? dictionaryHelper.getNumberSequencingCyclesAllowed(lane.getIdNumberSequencingCyclesAllowed()) : "";
       genomeBuildToAlignTo = lane.getIdGenomeBuildAlignTo() != null  ? dictionaryHelper.getGenomeBuild(lane.getIdGenomeBuildAlignTo()) : "";
-  }
+    }
 
     String templateString = pdh.getCoreFacilityRequestCategoryProperty(requestParser.getRequest().getIdCoreFacility(), requestParser.getRequest().getCodeRequestCategory(), 
         PropertyDictionary.EXPERIMENT_CONFIRMATION_EMAIL_TEMPLATE);
@@ -2525,10 +2535,10 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       root.put("gnomexURL", launchAppURL);
       root.put("assetURL", appURL + "/assets/");
       root.put("imageURL", appURL + "/images/");
-      
+
       try {
         Template template = new Template("root", new StringReader(templateString), FreeMarkerConfiguration.instance().getConfiguration());
-        
+
         Writer out = new StringWriter(); 
         template.process(root, out); 
         emailBody = out.toString();
@@ -2622,7 +2632,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     String billedAccountNumber = requestParser.getRequest().getBillingAccountNumber();
     StringBuffer emailBody = new StringBuffer();
     String trackRequestURL = launchAppURL + "?requestNumber=" + requestNumber + "&launchWindow=" + Constants.WINDOW_TRACK_REQUESTS;
-    
+
     if (requestParser.isNewRequest()) {
       emailBody.append("An experiment request has been submitted to the " + cf.getFacilityName() +
       " core.");
@@ -2644,7 +2654,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 
     return emailBody.toString();
   }
-  
+
   private String getTemplatedInvoiceEmailBody(CoreFacility cf, DictionaryHelper dictionaryHelper, PropertyDictionaryHelper pdh) {
     String emailBody = "";
     RequestCategory requestCategory = dictionaryHelper.getRequestCategoryObject(requestParser.getRequest().getCodeRequestCategory());
@@ -2659,10 +2669,10 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       root.put("requestCategory", requestCategory);
       root.put("gnomexURL", launchAppURL);
       root.put("assetURL", appURL + "/assets/");
-      
+
       try {
         Template template = new Template("root", new StringReader(templateString), FreeMarkerConfiguration.instance().getConfiguration());
-        
+
         Writer out = new StringWriter(); 
         template.process(root, out); 
         emailBody = out.toString();
@@ -2675,7 +2685,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 
     return emailBody;
   }
-  
+
   private void reassignLabForTransferLog(Session sess) {
     if (!requestParser.isNewRequest() && !requestParser.getOriginalIdLab().equals(requestParser.getRequest().getIdLab())) {
       // If an existing request has been assigned to a different lab, change
