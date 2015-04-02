@@ -155,7 +155,7 @@ public class BillingPDFFormatter extends DetailObject {
 		headerElements.addAll(makePersonalAddressHeader(lab, billingAccount));
 		headerElements.add(Chunk.NEWLINE);
 		
-		Paragraph headerNote = makeInvoiceHeaderNote();
+		Paragraph headerNote = makeInvoiceHeaderNote(billingAccount);
 		if (headerNote.getContent() != null && !headerNote.getContent().trim().equals("")) {
 			headerElements.add(Chunk.NEWLINE);
 			headerElements.add(headerNote);
@@ -531,12 +531,17 @@ public class BillingPDFFormatter extends DetailObject {
 		return elements;		
 	}
 	
-	private Paragraph makeInvoiceHeaderNote() {
+	private Paragraph makeInvoiceHeaderNote(BillingAccount billingAccount) {
 		Paragraph note = new Paragraph();
 		note.setAlignment(Element.ALIGN_LEFT);
 		note.setFont(FONT_HEADER);
 		
-		String text = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityRequestCategoryProperty(coreFacility.getIdCoreFacility(), null, PropertyDictionary.INVOICE_HEADER_NOTE);
+		String text;
+		if (billingAccount.getIsPO().equals("Y") && billingAccount.getIsCreditCard().equals("N")) {
+			text = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityRequestCategoryProperty(coreFacility.getIdCoreFacility(), null, PropertyDictionary.INVOICE_HEADER_NOTE_PO);
+		} else {
+			text = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityRequestCategoryProperty(coreFacility.getIdCoreFacility(), null, PropertyDictionary.INVOICE_HEADER_NOTE);
+		}
 		
 		if (text != null) {
 			note.add(text);
