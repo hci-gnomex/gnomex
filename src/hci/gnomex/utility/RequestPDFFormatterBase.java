@@ -303,16 +303,20 @@ public abstract class RequestPDFFormatterBase {
 		PDFFormatterUtil.addToTable(titleTable, property.getDisplay() + ":", RequestPDFFormatter.FONT_PROPERTY_URL_FIELD, Element.ALIGN_LEFT, Element.ALIGN_TOP, false, false, false, false, BaseColor.BLACK, 1, 1);
 		
 		PdfPTable urlTable = new PdfPTable(1);
-		PropertyEntryValue value = (PropertyEntryValue) entry.getValues().iterator().next();
-		Chunk aliasUrl = new Chunk(value.getUrlDisplay() + " (", RequestPDFFormatter.FONT_PROPERTY_URL_VALUE_ALIAS_URL);
-		Anchor realUrlAnchor = new Anchor(value.getUrl(), RequestPDFFormatter.FONT_PROPERTY_URL_VALUE_REAL_URL);
-		realUrlAnchor.setReference(value.getUrl());
-		Chunk closing = new Chunk(")", RequestPDFFormatter.FONT_PROPERTY_URL_VALUE_ALIAS_URL);
-		Phrase combinedPhrase = new Phrase();
-		combinedPhrase.add(aliasUrl);
-		combinedPhrase.add(realUrlAnchor);
-		combinedPhrase.add(closing);
-		PDFFormatterUtil.addToTable(urlTable, new PdfPCell(combinedPhrase), Element.ALIGN_LEFT, Element.ALIGN_TOP, false, false, false, false, BaseColor.BLACK, 1, 1);
+		for (Iterator valueIter = entry.getValues().iterator(); valueIter.hasNext();) {
+			PropertyEntryValue value = (PropertyEntryValue) valueIter.next();
+			if (!value.getUrl().trim().equals("")) {
+				Chunk aliasUrl = new Chunk(value.getUrlDisplay() + " (", RequestPDFFormatter.FONT_PROPERTY_URL_VALUE_ALIAS_URL);
+				Anchor realUrlAnchor = new Anchor(value.getUrl(), RequestPDFFormatter.FONT_PROPERTY_URL_VALUE_REAL_URL);
+				realUrlAnchor.setReference(value.getUrl());
+				Chunk closing = new Chunk(")", RequestPDFFormatter.FONT_PROPERTY_URL_VALUE_ALIAS_URL);
+				Phrase combinedPhrase = new Phrase();
+				combinedPhrase.add(aliasUrl);
+				combinedPhrase.add(realUrlAnchor);
+				combinedPhrase.add(closing);
+				PDFFormatterUtil.addToTable(urlTable, new PdfPCell(combinedPhrase), Element.ALIGN_LEFT, Element.ALIGN_TOP, false, false, false, false, BaseColor.BLACK, 1, 1);
+			}
+		}
 		
 		elements.add(PDFFormatterUtil.combineTables(titleTable, urlTable)); 
 		
@@ -482,7 +486,7 @@ public abstract class RequestPDFFormatterBase {
                 if (prop.getCodePropertyType().equals(PropertyType.URL)) {
                 	PropertyEntryValue value = new PropertyEntryValue();
                 	value.setValue("");
-                	TreeSet<PropertyEntryValue> values = new TreeSet<PropertyEntryValue>();
+                	HashSet<PropertyEntryValue> values = new HashSet<PropertyEntryValue>(1);
                 	values.add(value);
                 	entry.setValues(values);
                 }
