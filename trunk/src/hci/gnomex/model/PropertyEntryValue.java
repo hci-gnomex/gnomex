@@ -48,7 +48,7 @@ public class PropertyEntryValue extends HibernateDetailObject {
   
   public String getUrlAlias() {
     String alias = "";
-    if (getPropertyEntry().getProperty().getCodePropertyType().equals(PropertyType.URL)) {
+    if (getPropertyEntry() != null && getPropertyEntry().getProperty().getCodePropertyType().equals(PropertyType.URL)) {
       if (getValue() != null) {
         String tokens[] = getValue().split(",");
         if (tokens.length > 1) {
@@ -61,7 +61,7 @@ public class PropertyEntryValue extends HibernateDetailObject {
   
   public String getUrl() {
     String url = "";
-    if (getPropertyEntry().getProperty().getCodePropertyType().equals(PropertyType.URL)) {
+    if (getPropertyEntry() != null && getPropertyEntry().getProperty().getCodePropertyType().equals(PropertyType.URL)) {
       if (getValue() != null) {
         String tokens[] = getValue().split(",");
         if (tokens.length > 1) {
@@ -76,7 +76,7 @@ public class PropertyEntryValue extends HibernateDetailObject {
 
   public String getUrlDisplay() {
     String urlDisplay = "";
-    if (getPropertyEntry().getProperty().getCodePropertyType().equals(PropertyType.URL)) {
+    if (getPropertyEntry() != null && getPropertyEntry().getProperty().getCodePropertyType().equals(PropertyType.URL)) {
       if (getValue() != null) {
         String tokens[] = getValue().split(",");
         if (tokens.length > 1) {
