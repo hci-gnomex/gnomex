@@ -450,13 +450,13 @@
 											<mx:TextInput id="aliasText"  enter="{tabToURLText(event.target.instanceIndices)}" 
 														  click="{selectAliasText(event.currentTarget.instanceIndices)}" 
 														  change="{setDirty()}" focusOut="checkCompleteness()"
-														  editable="{editable}"
+														  editable="{editable}" maxChars="{Consts.MAX_CHARS_SHORT}"
 														  text="{urlRepeater.currentItem.@urlAlias}"  
 														  width="100" color="#8D7B7B"/>	
 											<util:TextInputRequiredIndicator id="urlText" text="{urlRepeater.currentItem.@url}" 
 																			 enter="{showURLLink(event.target.instanceIndices)}" 
 																			 editable="{editable}" focusOut="checkCompleteness()"
-																			 change="{onChangeURLText(event.target.instanceIndices)}" 
+																			 change="{onChangeURLText(event.target.instanceIndices)}" maxChars="{Consts.MAX_CHARS_SHORT}" 
 																			 click="{selectURLText(event.currentTarget.instanceIndices)}" 
 																			 width="100" color="#8D7B7B"/>						
 											<mx:LinkButton textAlign="left" label="Show link" click="{showURLLink(event.target.instanceIndices)}" styleName="linkMenuButtonSmall"/>
@@ -470,7 +470,7 @@
 							<mx:HBox >
 								<util:TextAreaRequiredIndicator id="propertyText" change="{setDirty();resizeTextArea(event)}"
 																editable="{editable}" styleName="labelSmall" text="{propertyRepeater.currentItem.@value}" 
-																verticalScrollPolicy="off" maxChars="{Consts.MAX_CHARS}"
+																verticalScrollPolicy="off" maxChars="{Consts.MAX_CHARS_SHORT}"
 																width="100%" focusOut="checkCompleteness()">
 								</util:TextAreaRequiredIndicator> 
 							</mx:HBox>
