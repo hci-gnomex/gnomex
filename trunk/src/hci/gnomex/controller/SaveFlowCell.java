@@ -38,21 +38,21 @@ import org.jdom.input.SAXBuilder;
 public class SaveFlowCell extends GNomExCommand implements Serializable {
 
 
-	// the static field for logging in Log4J
-	private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(SaveFlowCell.class);
+  // the static field for logging in Log4J
+  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(SaveFlowCell.class);
 
-	private String						channelsXMLString;
-	private Document					channelsDoc;
-	private FlowCellChannelParser		channelParser;
-	private FlowCell					fc;
-	private boolean						isNewFlowCell = false;
-	private String						serverName;
-	private String						launchAppURL;
-	private String            lastCycleDateStr;
-	private String            numberSequencingCyclesActualStr;
-	private String						runFolder = null;
-	
-	public void validate() {}
+  private String						channelsXMLString;
+  private Document					channelsDoc;
+  private FlowCellChannelParser		channelParser;
+  private FlowCell					fc;
+  private boolean						isNewFlowCell = false;
+  private String						serverName;
+  private String						launchAppURL;
+  private String            lastCycleDateStr;
+  private String            numberSequencingCyclesActualStr;
+  private String						runFolder = null;
+
+  public void validate() {}
 
   public void loadCommand(HttpServletRequest request, HttpSession session)
   {
@@ -63,13 +63,13 @@ public class SaveFlowCell extends GNomExCommand implements Serializable {
       numberSequencingCyclesActualStr = request.getParameter("numberSequencingCyclesActual");
     }
     if (request.getParameter("runFolder") != null && !request.getParameter("runFolder").equals("")) {
-    	runFolder = request.getParameter("runFolder");
+      runFolder = request.getParameter("runFolder");
     }
     // flow cell as it exists in the request
     fc = new FlowCell();
     HashMap errors = this.loadDetailObject(request, fc);
     this.addInvalidFields(errors);
-    
+
     if (fc.getIdFlowCell() == null || fc.getIdFlowCell().intValue() == 0) {
       isNewFlowCell = true;
     }
@@ -109,19 +109,20 @@ public class SaveFlowCell extends GNomExCommand implements Serializable {
         }
         // Update Sequencing Protocol for Sequence Lanes if they were forced into a Flow Cell with a different protocol 
         for(Object key : channelParser.getChannelMap().keySet()) {
-        	FlowCellChannel fcc = (FlowCellChannel) channelParser.getChannelMap().get(key);
-        	Set seqLanes = fcc.getSequenceLanes();
-        	for(Object temp : seqLanes) {
-        		SequenceLane sl = (SequenceLane)temp; 
-        		if(!sl.getIdNumberSequencingCyclesAllowed().equals(flowCell.getIdNumberSequencingCyclesAllowed())) {
-        			sl.setIdNumberSequencingCyclesAllowed(flowCell.getIdNumberSequencingCyclesAllowed());
-        			sl.setIdSeqRunType(flowCell.getIdSeqRunType());
-        			sl.setIdNumberSequencingCycles(flowCell.getIdNumberSequencingCycles());
-        			sess.save(sl);
-        	}
-        		
-        		
-        	}
+          FlowCellChannel fcc = (FlowCellChannel) channelParser.getChannelMap().get(key);
+          Set seqLanes = fcc.getSequenceLanes();
+          for(Object temp : seqLanes) {
+            SequenceLane sl = (SequenceLane)temp; 
+            if(sl.getIdNumberSequencingCyclesAllowed() != null && flowCell.getIdNumberSequencingCyclesAllowed() != null && 
+                !sl.getIdNumberSequencingCyclesAllowed().equals(flowCell.getIdNumberSequencingCyclesAllowed())) {
+              sl.setIdNumberSequencingCyclesAllowed(flowCell.getIdNumberSequencingCyclesAllowed());
+              sl.setIdSeqRunType(flowCell.getIdSeqRunType());
+              sl.setIdNumberSequencingCycles(flowCell.getIdNumberSequencingCycles());
+              sess.save(sl);
+            }
+
+
+          }
         }
 
         //
@@ -129,35 +130,35 @@ public class SaveFlowCell extends GNomExCommand implements Serializable {
         //
         TreeSet channelsToDelete = new TreeSet(new ChannelComparator());
         List requestNumbersToDelete = new ArrayList();
-        
+
         for(Iterator i = flowCell.getFlowCellChannels().iterator(); i.hasNext();) {
           FlowCellChannel existingChannel = (FlowCellChannel)i.next();
           if (!channelParser.getChannelMap().containsKey(existingChannel.getIdFlowCellChannel().toString())) {
             channelsToDelete.add(existingChannel);
-            
+
             // Delete Work Items
             List workItems = sess.createQuery("SELECT x from WorkItem x where idFlowCellChannel = " + 
                 existingChannel.getIdFlowCellChannel()).list();
             for (Iterator i1 = workItems.iterator(); i1.hasNext();) {
               WorkItem x = (WorkItem)i1.next();
               if(x.getCodeStepNext().equals("HSEQFINFC") || x.getCodeStepNext().equals("HSEQPIPE") || x.getCodeStepNext().equals("MISEQFINFC") || x.getCodeStepNext().equals("MISEQPIPE")) {
-            	  for(Iterator ii = existingChannel.getSequenceLanes().iterator(); ii.hasNext();) {
-            		  SequenceLane sl = (SequenceLane)ii.next();
-            		  WorkItem wi = new WorkItem();
-            		  wi.setIdRequest(sl.getIdRequest());
-            		  wi.setSequenceLane(sl);
-            		  if(x.getCodeStepNext().equals("HSEQFINFC") || x.getCodeStepNext().equals("HSEQPIPE")) {
-            			  wi.setCodeStepNext("HSEQASSEM");  
-            		  } else if (x.getCodeStepNext().equals("MISEQFINFC") || x.getCodeStepNext().equals("MISEQPIPE")) {
-            			  wi.setCodeStepNext("MISEQASSEM");            		  
-            			  }
-            		  sess.save(wi);
-            	  }
-            	  
+                for(Iterator ii = existingChannel.getSequenceLanes().iterator(); ii.hasNext();) {
+                  SequenceLane sl = (SequenceLane)ii.next();
+                  WorkItem wi = new WorkItem();
+                  wi.setIdRequest(sl.getIdRequest());
+                  wi.setSequenceLane(sl);
+                  if(x.getCodeStepNext().equals("HSEQFINFC") || x.getCodeStepNext().equals("HSEQPIPE")) {
+                    wi.setCodeStepNext("HSEQASSEM");  
+                  } else if (x.getCodeStepNext().equals("MISEQFINFC") || x.getCodeStepNext().equals("MISEQPIPE")) {
+                    wi.setCodeStepNext("MISEQASSEM");            		  
+                  }
+                  sess.save(wi);
+                }
+
               }
               sess.delete(x);
             }
-            
+
             // Dissociate Sequence Lanes from channel and grab the request numbers so that we can update the flowcell notes
             for (Iterator i2 = existingChannel.getSequenceLanes().iterator(); i2.hasNext();) {
               SequenceLane lane = (SequenceLane) i2.next();
@@ -170,20 +171,20 @@ public class SaveFlowCell extends GNomExCommand implements Serializable {
           FlowCellChannel channelToDelete = (FlowCellChannel)i.next();
           flowCell.getFlowCellChannels().remove(channelToDelete);
         }        
-        
-//        //Now compare the request numbers of the updated flowcell to the request numbers that we may need to delete FROM THE FlowCell NOTES
-//        //If there are no instances of the request number we need to delete in the existing request numbers list then
-//        //remove that request number from the flow cell notes.
-//        for(Iterator i = requestNumbersToDelete.iterator(); i.hasNext();){
-//          String requestNumDeleted = (String)i.next();
-//          int index = flowCell.getNotes().indexOf(requestNumDeleted);
-//          if(!existingRequestNums.contains(requestNumDeleted) && index != -1){
-//            requestNumDeleted += ",";
-//            flowCell.setNotes(flowCell.getNotes().replace(requestNumDeleted, ""));
-//            flowCell.setNotes(flowCell.getNotes().replace(requestNumDeleted.replace(",", ""), ""));
-//            flowCell.setNotes(flowCell.getNotes().trim());
-//          }
-//        }
+
+        //        //Now compare the request numbers of the updated flowcell to the request numbers that we may need to delete FROM THE FlowCell NOTES
+        //        //If there are no instances of the request number we need to delete in the existing request numbers list then
+        //        //remove that request number from the flow cell notes.
+        //        for(Iterator i = requestNumbersToDelete.iterator(); i.hasNext();){
+        //          String requestNumDeleted = (String)i.next();
+        //          int index = flowCell.getNotes().indexOf(requestNumDeleted);
+        //          if(!existingRequestNums.contains(requestNumDeleted) && index != -1){
+        //            requestNumDeleted += ",";
+        //            flowCell.setNotes(flowCell.getNotes().replace(requestNumDeleted, ""));
+        //            flowCell.setNotes(flowCell.getNotes().replace(requestNumDeleted.replace(",", ""), ""));
+        //            flowCell.setNotes(flowCell.getNotes().trim());
+        //          }
+        //        }
 
         //
         // Build the run folder name for the channels.
@@ -194,7 +195,7 @@ public class SaveFlowCell extends GNomExCommand implements Serializable {
         // runFolder is provided if SaveFlowCell called from FinalizeFlowCell screen
         // if called from EditFlowCell then it will need to be recreated here.
         if(runFolder == null || runFolder.equals("")) {
-        runFolder = flowCell.getRunFolderName(dh);} 
+          runFolder = flowCell.getRunFolderName(dh);} 
         java.sql.Date lastCycleDate = null;
         if (lastCycleDateStr != null) {
           lastCycleDate = this.parseDate(lastCycleDateStr);
@@ -203,7 +204,7 @@ public class SaveFlowCell extends GNomExCommand implements Serializable {
         if (numberSequencingCyclesActualStr != null && numberSequencingCyclesActualStr.length() > 0) {
           numberSequencingCyclesActual = new Integer(numberSequencingCyclesActualStr);
         }
-        
+
         //
         // Save channels
         // channelParser contains flow cell channels from the request, flowCell has channels from the database
@@ -217,7 +218,7 @@ public class SaveFlowCell extends GNomExCommand implements Serializable {
           }
           fcc.setLastCycleDate(lastCycleDate);
           fcc.setNumberSequencingCyclesActual(numberSequencingCyclesActual);
-          
+
           boolean exists = false;
           for(Iterator i1 = flowCell.getFlowCellChannels().iterator(); i1.hasNext();) {
             FlowCellChannel existingChannel = (FlowCellChannel)i1.next();
@@ -225,17 +226,17 @@ public class SaveFlowCell extends GNomExCommand implements Serializable {
               exists = true;
             }
           }
-          
+
           // New flow cell channel -- add it to the list
           if (!exists) {
             flowCell.getFlowCellChannels().add(fcc);
             for(Iterator i2 = fcc.getSequenceLanes().iterator(); i2.hasNext();) {
-            	SequenceLane sl = (SequenceLane)i2.next();
-            	newChannelRequestNums.add(sl.getSample().getRequest().getNumber());
+              SequenceLane sl = (SequenceLane)i2.next();
+              newChannelRequestNums.add(sl.getSample().getRequest().getNumber());
             }
           }          
         }
-        
+
         // Rebuild the Flow Cell's notes: request numbers followed by organism names
         //Grab all of the request numbers and oganism ids associated with the flowCell's channels
         TreeMap<String, Object> requestNums = new TreeMap<String,Object>();
@@ -246,74 +247,74 @@ public class SaveFlowCell extends GNomExCommand implements Serializable {
             SequenceLane lane = (SequenceLane)i2.next();
             requestNums.put(lane.getSample().getRequest().getNumber(),null);
             if(lane.getSample().getIdOrganism() != null) {
-            	idOrganisms.put(lane.getSample().getIdOrganism(),null);
+              idOrganisms.put(lane.getSample().getIdOrganism(),null);
             }
           }
         }        
         String notes = "";
         for(Iterator<String> i1 = requestNums.keySet().iterator(); i1.hasNext();) {
-        	String r = i1.next();
-        	notes += r;
-        	if(i1.hasNext()) {
-        		notes += ", ";
-        	} else {
-        		notes += " ";
-        	}
+          String r = i1.next();
+          notes += r;
+          if(i1.hasNext()) {
+            notes += ", ";
+          } else {
+            notes += " ";
+          }
         }
         Boolean isFirst = true;
         for(Iterator<Integer> i2 = idOrganisms.keySet().iterator(); i2.hasNext();) {
-        	if(isFirst) {
-        		notes += "(";
-        		isFirst = false;
-        	}
-        	Integer idOrganism = i2.next();
-        	String organism = dh.getOrganism(idOrganism);
-        	notes += organism;
-        	if(i2.hasNext()) {
-        		notes += "/";
-        	}        	
+          if(isFirst) {
+            notes += "(";
+            isFirst = false;
+          }
+          Integer idOrganism = i2.next();
+          String organism = dh.getOrganism(idOrganism);
+          notes += organism;
+          if(i2.hasNext()) {
+            notes += "/";
+          }        	
         }
         if(!isFirst) {
-        	notes += ")";
+          notes += ")";
         }
         flowCell.setNotes(notes);
-        
-        
+
+
         //
         // Update work items
         // 
-//        ArrayList<String> slIDs = new ArrayList<String>();
-//        for (Iterator i1 = channelParser.getChannelMap().keySet().iterator(); i1.hasNext();) {
-//        	String idFlowCellChannelString = (String) i1.next();
-//            FlowCellChannel fcc = 
-//              (FlowCellChannel) channelParser.getChannelMap().get(idFlowCellChannelString);
-//            for(Iterator i2 = fcc.getSequenceLanes().iterator(); i2.hasNext();) {
-//            	SequenceLane sl = (SequenceLane)i2.next();
-//            	slIDs.add(sl.getIdSequenceLane().toString());
-//            }
-//        }
+        //        ArrayList<String> slIDs = new ArrayList<String>();
+        //        for (Iterator i1 = channelParser.getChannelMap().keySet().iterator(); i1.hasNext();) {
+        //        	String idFlowCellChannelString = (String) i1.next();
+        //            FlowCellChannel fcc = 
+        //              (FlowCellChannel) channelParser.getChannelMap().get(idFlowCellChannelString);
+        //            for(Iterator i2 = fcc.getSequenceLanes().iterator(); i2.hasNext();) {
+        //            	SequenceLane sl = (SequenceLane)i2.next();
+        //            	slIDs.add(sl.getIdSequenceLane().toString());
+        //            }
+        //        }
 
         // When a flow cell is finalized the work items attached to the flow cell's channels
         // need to have their codeStepNext updated from finalize to the next step.
         if(!channelParser.getChannelMap().isEmpty()){
-	        StringBuilder sb = new StringBuilder();
-	        sb.append("SELECT x from WorkItem x where idFlowCellChannel IN ");
-	        String slids = channelParser.getChannelMap().keySet().toString();
-	        slids = slids.replace('[', '(');
-	        slids = slids.replace(']',')');
-	        slids = slids.trim();
-	        sb.append(slids);
-	        List workItems = sess.createQuery(sb.toString()).list();
-	        for(Iterator i = workItems.iterator(); i.hasNext();) {
-	        	WorkItem wi = (WorkItem)i.next();
-	        	if(wi.getCodeStepNext().equals("HSEQFINFC")) {
-	        		wi.setCodeStepNext("HSEQPIPE");
-	        		sess.save(wi);
-	        	} else if (wi.getCodeStepNext().equals("MISEQFINFC")) {
-	        		wi.setCodeStepNext("MISEQPIPE");
-	        		sess.save(wi);
-	        	}
-	        }
+          StringBuilder sb = new StringBuilder();
+          sb.append("SELECT x from WorkItem x where idFlowCellChannel IN ");
+          String slids = channelParser.getChannelMap().keySet().toString();
+          slids = slids.replace('[', '(');
+          slids = slids.replace(']',')');
+          slids = slids.trim();
+          sb.append(slids);
+          List workItems = sess.createQuery(sb.toString()).list();
+          for(Iterator i = workItems.iterator(); i.hasNext();) {
+            WorkItem wi = (WorkItem)i.next();
+            if(wi.getCodeStepNext().equals("HSEQFINFC")) {
+              wi.setCodeStepNext("HSEQPIPE");
+              sess.save(wi);
+            } else if (wi.getCodeStepNext().equals("MISEQFINFC")) {
+              wi.setCodeStepNext("MISEQPIPE");
+              sess.save(wi);
+            }
+          }
         }
 
         if(isNewFlowCell){
@@ -326,12 +327,12 @@ public class SaveFlowCell extends GNomExCommand implements Serializable {
         sess.flush();
 
         this.xmlResult = "<SUCCESS idFlowCell=\"" + flowCell.getIdFlowCell()
-            + "\"/>";
+        + "\"/>";
 
         setResponsePage(this.SUCCESS_JSP);
       } else {
         this.addInvalidField("Insufficient permissions",
-            "Insufficient permission to save flowCell.");
+        "Insufficient permission to save flowCell.");
         setResponsePage(this.ERROR_JSP);
       }
 
@@ -346,13 +347,13 @@ public class SaveFlowCell extends GNomExCommand implements Serializable {
         HibernateSession.closeSession();
       } 
       catch (Exception e) {
-    	  log.error("An exception has occurred in SaveFlowCell ", e);
-    	  e.printStackTrace();
+        log.error("An exception has occurred in SaveFlowCell ", e);
+        e.printStackTrace();
       }
     }
     return this;
   }
-// flowCell is loaded from database. fc is from the HttpRequest. Here we update flowCell with any new values from fc.
+  // flowCell is loaded from database. fc is from the HttpRequest. Here we update flowCell with any new values from fc.
   private void initializeFlowCell(FlowCell flowCell) {
     flowCell.setNumber(fc.getNumber());
     flowCell.setCreateDate(fc.getCreateDate());
@@ -366,18 +367,18 @@ public class SaveFlowCell extends GNomExCommand implements Serializable {
     flowCell.setSide(fc.getSide());
     flowCell.setIdCoreFacility(fc.getIdCoreFacility());
     flowCell.setIdNumberSequencingCyclesAllowed(fc.getIdNumberSequencingCyclesAllowed());
-    
+
     for(Iterator i = DictionaryManager.getDictionaryEntries("hci.gnomex.model.NumberSequencingCyclesAllowed").iterator(); i.hasNext();) {
-        DictionaryEntry de = (DictionaryEntry)i.next();
-        if (de instanceof NullDictionaryEntry) {
-            continue;
-          }
-    	NumberSequencingCyclesAllowed nsca = (NumberSequencingCyclesAllowed)de;
-        if (nsca.getIdNumberSequencingCyclesAllowed().equals(fc.getIdNumberSequencingCyclesAllowed())) {
-          flowCell.setIdSeqRunType(nsca.getIdSeqRunType());
-          flowCell.setIdNumberSequencingCycles(nsca.getIdNumberSequencingCycles());
-          break;
-        }
+      DictionaryEntry de = (DictionaryEntry)i.next();
+      if (de instanceof NullDictionaryEntry) {
+        continue;
+      }
+      NumberSequencingCyclesAllowed nsca = (NumberSequencingCyclesAllowed)de;
+      if (nsca.getIdNumberSequencingCyclesAllowed().equals(fc.getIdNumberSequencingCyclesAllowed())) {
+        flowCell.setIdSeqRunType(nsca.getIdSeqRunType());
+        flowCell.setIdNumberSequencingCycles(nsca.getIdNumberSequencingCycles());
+        break;
+      }
     }
   }
 
@@ -385,7 +386,7 @@ public class SaveFlowCell extends GNomExCommand implements Serializable {
     public int compare(Object o1, Object o2) {
       FlowCellChannel u1 = (FlowCellChannel) o1;
       FlowCellChannel u2 = (FlowCellChannel) o2;
-      
+
       return u1.getIdFlowCellChannel().compareTo(u2.getIdFlowCellChannel());
     }
   }
