@@ -4167,8 +4167,8 @@
 			} else if (obj2 == null) {
 				return -1;
 			} else {
-				var disp1:String = obj1.@display;
-				var disp2:String = obj2.@display;
+				var disp1:String = (obj1.@display).toLowerCase();
+				var disp2:String = (obj2.@display).toLowerCase();
 				
 				if (disp1 < disp2) {
 					return -1;
