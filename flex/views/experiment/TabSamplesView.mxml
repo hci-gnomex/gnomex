@@ -155,7 +155,7 @@
 				var isValid:Boolean = true;
 				
 				if (currentState != null && (currentState.indexOf('QCSamples') >= 0)) {
-					if(parentDocument.isEditState()){
+					if(parentDocument.isEditState() && parentDocument.request.samples.children().length() != 0){
 						var otherSamplePrepMethod:String = parentDocument.request.samples.Sample[0].@otherSamplePrepMethod;
 						emptyNode = new XML("<Sample " +
 							" idSample='" + "Sample" + getNextSampleId() + "'" +
@@ -193,9 +193,9 @@
 							" idOligoBarcodeB = ''" +
 							" barcodeSequenceB = ''" +
 							" codeConcentrationUnit='ng/ul'" + 
-							" codeBioanalyzerChipType='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.getSelectedCodeBioanalyzerChipType() : '') + "'" +
-							" idSampleType='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.sampleTypeRadioGroup.selectedValue : '')  + "'" +
-							" otherSamplePrepMethod=\"" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.otherSamplePrepMethod.text.replace(/\"/g, "&quot;") : '')  + "\"" +				
+							" codeBioanalyzerChipType='" + (parentApplication.submitInternalExperiment() && parentDocument.sampleSetupView.getSelectedCodeBioanalyzerChipType() != null ? parentDocument.sampleSetupView.getSelectedCodeBioanalyzerChipType() : '') + "'" +
+							" idSampleType='" + (parentApplication.submitInternalExperiment() && parentDocument.sampleSetupView.sampleTypeRadioGroup.selectedValue != null ? parentDocument.sampleSetupView.sampleTypeRadioGroup.selectedValue : '')  + "'" +
+							" otherSamplePrepMethod=\"" + (parentApplication.submitInternalExperiment() && parentDocument.sampleSetupView.otherSamplePrepMethod.text.replace(/\"/g, "&quot;") != null ? parentDocument.sampleSetupView.otherSamplePrepMethod.text.replace(/\"/g, "&quot;") : '')  + "\"" +				
 							" treatment=''"  +				
 							"/>");
 						
@@ -278,7 +278,7 @@
 					
 				} else {
 					var xmlString:String = "";
-					if(parentDocument.isEditState()){
+					if(parentDocument.isEditState() && parentDocument.request.samples.children().length() != 0){
 						var otherSamplePrepMethodAffy:String = parentDocument.request.samples.Sample[0].@otherSamplePrepMethod;
 						var otherOrganismAffy:String = parentDocument.request.samples.Sample[0].@otherOrganism;
 						xmlString = "<Sample " +
@@ -321,10 +321,10 @@
 							" idOligoBarcodeB = ''" +
 							" barcodeSequenceB = ''" +
 							" codeConcentrationUnit='ng/ul'" + 
-							" idSampleType='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.sampleTypeRadioGroup.selectedValue : '') + "'" +
-							" otherSamplePrepMethod=\"" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.otherSamplePrepMethod.text.replace(/\"/g, "&quot;") : '') + "\"" +				
-							" idOrganism='"  + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.sampleOrganismCombo.selectedItem.@value : idOrganism) + "'" +				
-							" otherOrganism='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.otherOrganism.text.replace(/\"/g, "&quot;") : '') + "'" 	+	
+							" idSampleType='" + (parentApplication.submitInternalExperiment() && parentDocument.sampleSetupView.sampleTypeRadioGroup.selectedValue != null ? parentDocument.sampleSetupView.sampleTypeRadioGroup.selectedValue : '') + "'" +
+							" otherSamplePrepMethod=\"" + (parentApplication.submitInternalExperiment() && parentDocument.sampleSetupView.otherSamplePrepMethod.text.replace(/\"/g, "&quot;") != null ? parentDocument.sampleSetupView.otherSamplePrepMethod.text.replace(/\"/g, "&quot;") : '') + "\"" +				
+							" idOrganism='"  + (parentApplication.submitInternalExperiment() && parentDocument.sampleSetupView.sampleOrganismCombo.selectedItem != null ? parentDocument.sampleSetupView.sampleOrganismCombo.selectedItem.@value : idOrganism) + "'" +				
+							" otherOrganism='" + (parentApplication.submitInternalExperiment() && parentDocument.sampleSetupView.otherOrganism.text.replace(/\"/g, "&quot;") != null ? parentDocument.sampleSetupView.otherOrganism.text.replace(/\"/g, "&quot;") : '') + "'" 	+	
 							"/>"
 						
 					}
@@ -334,6 +334,8 @@
 				if (emptyNode != null) {
 					parentDocument.samples.addItem(emptyNode);
 				}
+				
+				this.checkSamplesCompleteness();
 				
 				return isValid;
 			}
