@@ -155,17 +155,17 @@ public class BillingPDFFormatter extends DetailObject {
 		headerElements.addAll(makePersonalAddressHeader(lab, billingAccount));
 		headerElements.add(Chunk.NEWLINE);
 		
-		Paragraph headerNote = makeInvoiceHeaderNote(billingAccount);
-		if (headerNote.getContent() != null && !headerNote.getContent().trim().equals("")) {
-			headerElements.add(Chunk.NEWLINE);
-			headerElements.add(headerNote);
-		}
-		
 		if (isDNASeqCore && billingAccount.getIsPO().equals("N") && billingAccount.getIsCreditCard().equals("N")) {
 			PDFFormatterUtil.addPhrase(headerElements, coreFacility.getFacilityName(), FONT_HEADER);
 			headerElements.add(Chunk.NEWLINE);
 			headerElements.addAll(makeAddressHeader(contactAddressCoreFacility));
 			headerElements.add(Chunk.NEWLINE);			
+		}
+		
+		Paragraph headerNote = makeInvoiceHeaderNote(billingAccount);
+		if (headerNote.getContent() != null && !headerNote.getContent().trim().equals("")) {
+			headerElements.add(Chunk.NEWLINE);
+			headerElements.add(headerNote);
 		}
 		
 		if (isDNASeqCore) {
