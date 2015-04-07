@@ -36,6 +36,7 @@ public abstract class RequestPDFFormatterBase {
 	
 	private static final float REQUEST_CATEGORY_IMAGE_WIDTH = 10;
 	private static final float REQUEST_CATEGORY_IMAGE_HEIGHT = 10;
+	private static final float PROPERTY_DESCRIPTION_INDENT = 30; 
 	
 	protected RequestPDFFormatterBase(SecurityAdvisor secAdvisor, Request request, AppUser appUser, BillingAccount billingAccount, DictionaryHelper dictionaryHelper, Session sess) {
 		this.secAdvisor = secAdvisor;
@@ -216,6 +217,16 @@ public abstract class RequestPDFFormatterBase {
 			
 			if (!firstProperty) propertiesDisplay.add(Chunk.NEWLINE);
 			String type = entry.getProperty().getCodePropertyType();
+			
+			// Property description
+			Property property = entry.getProperty();
+			if (property.getDescription() != null && !property.getDescription().trim().equals("")) {
+				Paragraph description = new Paragraph();
+				description.setIndentationLeft(PROPERTY_DESCRIPTION_INDENT);
+				description.add(new Phrase(property.getDescription(), RequestPDFFormatter.FONT_PROPERTY_TEXT_VALUE));
+				propertiesDisplay.add(description);
+			}
+			
 			if (type.equals(PropertyType.URL)) {
 				for (Element e : makeSamplePropertyURL(entry)) {
 					propertiesDisplay.add(e);
@@ -293,12 +304,6 @@ public abstract class RequestPDFFormatterBase {
 		ArrayList<Element> elements = new ArrayList<Element>();
 		Property property = entry.getProperty();
 		
-		if (property.getDescription() != null && !property.getDescription().trim().equals("")) {
-			Paragraph description = new Paragraph();
-			description.add(new Phrase(property.getDescription(), RequestPDFFormatter.FONT_PROPERTY_TEXT_VALUE));
-			elements.add(description);
-		}
-		
 		PdfPTable titleTable = new PdfPTable(1);
 		PDFFormatterUtil.addToTable(titleTable, property.getDisplay() + ":", RequestPDFFormatter.FONT_PROPERTY_URL_FIELD, Element.ALIGN_LEFT, Element.ALIGN_TOP, false, false, false, false, BaseColor.BLACK, 1, 1);
 		
@@ -327,12 +332,6 @@ public abstract class RequestPDFFormatterBase {
 		ArrayList<Element> elements = new ArrayList<Element>();
 		Property property = entry.getProperty();
 		
-		if (property.getDescription() != null && !property.getDescription().trim().equals("")) {
-			Paragraph description = new Paragraph();
-			description.add(new Phrase(property.getDescription(), RequestPDFFormatter.FONT_PROPERTY_TEXT_VALUE));
-			elements.add(description);
-		}
-		
 		PdfPTable nameTable = new PdfPTable(1);
 		PDFFormatterUtil.addToTable(nameTable, property.getDisplay() + ":", RequestPDFFormatter.FONT_PROPERTY_TEXT_FIELD, Element.ALIGN_LEFT, Element.ALIGN_TOP, false, false, false, false, BaseColor.BLACK, 1, 1);
 		
@@ -347,12 +346,6 @@ public abstract class RequestPDFFormatterBase {
 	protected ArrayList<Element> makeSamplePropertyCHECKBOX(PropertyEntry entry) {
 		ArrayList<Element> elements = new ArrayList<Element>();
 		Property property = entry.getProperty();
-		
-		if (property.getDescription() != null && !property.getDescription().trim().equals("")) {
-			Paragraph description = new Paragraph();
-			description.add(new Phrase(property.getDescription(), RequestPDFFormatter.FONT_PROPERTY_TEXT_VALUE));
-			elements.add(description);
-		}
 		
 		PdfPTable nameTable = new PdfPTable(1);
 		PDFFormatterUtil.addToTable(nameTable, property.getDisplay(), RequestPDFFormatter.FONT_PROPERTY_CHECKBOX_FIELD, Element.ALIGN_LEFT, Element.ALIGN_TOP, false, false, false, false, BaseColor.BLACK, 1, 1);
@@ -370,18 +363,11 @@ public abstract class RequestPDFFormatterBase {
 		ArrayList<Element> elements = new ArrayList<Element>();
 		Property property = entry.getProperty();
 		
-		if (property.getDescription() != null && !property.getDescription().trim().equals("")) {
-			Paragraph description = new Paragraph();
-			description.add(new Phrase(property.getDescription(), RequestPDFFormatter.FONT_PROPERTY_TEXT_VALUE));
-			elements.add(description);
-		}
-		
 		PdfPTable nameTable = new PdfPTable(1);
 		PDFFormatterUtil.addToTable(nameTable, property.getDisplay(), RequestPDFFormatter.FONT_PROPERTY_OPTION_FIELD, Element.ALIGN_LEFT, Element.ALIGN_TOP, false, false, false, false, BaseColor.BLACK, 1, 1);
 		
 		PdfPTable optionTable = new PdfPTable(5);
-		PDFFormatterUtil.addToTable(optionTable, entry.getValueForDisplay(), RequestPDFFormatter.FONT_PROPERTY_OPTION_VALUE, Element.ALIGN_LEFT, Element.ALIGN_TOP, true, true, true, true, BaseColor.BLACK, 4, 1);
-		PDFFormatterUtil.addToTablePaddingCell(optionTable, 1, 1);
+		PDFFormatterUtil.addToTable(optionTable, entry.getValueForDisplay(), RequestPDFFormatter.FONT_PROPERTY_OPTION_VALUE, Element.ALIGN_LEFT, Element.ALIGN_TOP, true, true, true, true, BaseColor.BLACK, 5, 1);
 			
 		elements.add(PDFFormatterUtil.combineTables(nameTable, optionTable));
 		
@@ -391,12 +377,6 @@ public abstract class RequestPDFFormatterBase {
 	protected ArrayList<Element> makeSamplePropertyMULTIOPTION(PropertyEntry entry) {
 		ArrayList<Element> elements = new ArrayList<Element>();
 		Property property = entry.getProperty();
-		
-		if (property.getDescription() != null && !property.getDescription().trim().equals("")) {
-			Paragraph description = new Paragraph();
-			description.add(new Phrase(property.getDescription(), RequestPDFFormatter.FONT_PROPERTY_TEXT_VALUE));
-			elements.add(description);
-		}
 		
 		PdfPTable nameTable = new PdfPTable(1);
 		PDFFormatterUtil.addToTable(nameTable, property.getDisplay(), RequestPDFFormatter.FONT_PROPERTY_OPTION_FIELD, Element.ALIGN_LEFT, Element.ALIGN_TOP, false, false, false, false, BaseColor.BLACK, 1, 1);
