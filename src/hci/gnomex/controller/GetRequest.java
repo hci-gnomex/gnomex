@@ -665,7 +665,7 @@ public class GetRequest extends GNomExCommand implements Serializable {
             TreeMap billingItemMap = new TreeMap();
             for(Iterator i = request.getBillingItems().iterator(); i.hasNext();) {
               BillingItem bi = (BillingItem)i.next();
-              String key = bi.getLabName() + "_%%%_" + bi.getAccountName();
+              String key = bi.getLabName() + "_%%%_" + bi.getAccountNameAndNumber();
               List billingItems = (List)billingItemMap.get(key);
               if (billingItems == null) {
                 billingItems = new ArrayList();
