@@ -9,6 +9,6 @@ package ext.com
 		
 		public static const BUTTON_WIDTH:uint = 90;
 		public static const MAX_CHARS:int = 5000;
-		public static const MAX_CHARS_SHORT:int = 200;
+		public static const MAX_CHARS_SHORT:int = 2000;
 	}
 }
