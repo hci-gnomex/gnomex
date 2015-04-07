@@ -5618,16 +5618,10 @@
     					</mx:dataProvider> 
         				<mx:columns> 
 	        				<mx:AdvancedDataGridColumn headerText="Group" dataField="@labName" editable="false" width="70" wordWrap="false"/>
-	        				<mx:AdvancedDataGridColumn headerText="Acct" dataField="@accountName" editable="false" width="100" wordWrap="false" />
+	        				<mx:AdvancedDataGridColumn headerText="Acct" dataField="@accountName" editable="false" width="220" wordWrap="false" />
 	        				<mx:AdvancedDataGridColumn headerText="Period" dataField="@idBillingPeriod" editable="false" width="70"  wordWrap="false"
 							  itemRenderer="{views.renderers.DropdownLabelBillingItem.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BillingPeriod').DictionaryEntry,'@display', '@value', '@idBillingPeriod')}"/>
-	        				<mx:AdvancedDataGridColumn  headerText="Price Category" wordWrap="true" dataField="@category" editable="false" width="200">
-				              <mx:itemRenderer>
-				                  <mx:Component>
-				                  <mx:Text text="{data.@category}" styleName="{data.@other == 'Y' ?'other':'normal'}" />
-				                  </mx:Component>
-				              </mx:itemRenderer>
-	        				</mx:AdvancedDataGridColumn>
+
 	        				<mx:AdvancedDataGridColumn headerText="Description" wordWrap="true" dataField="@description" editable="false" width="200">
 				              <mx:itemRenderer>
 				                  <mx:Component>
@@ -5635,7 +5629,7 @@
 				                  </mx:Component>
 				              </mx:itemRenderer>
 	        				</mx:AdvancedDataGridColumn>
-	        				<mx:AdvancedDataGridColumn headerText="Notes"  dataField="@notes" editable="false" width="100" wordWrap="true">
+	        				<mx:AdvancedDataGridColumn headerText="Notes"  dataField="@notes" editable="false" width="185" wordWrap="true">
 	        				  <mx:itemRenderer>
 				                  <mx:Component>
 				                  <mx:Text text="{data.@notes}" styleName="{data.@other == 'Y' ?'other':'normal'}" />
