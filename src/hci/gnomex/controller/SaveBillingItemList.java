@@ -23,6 +23,7 @@ import hci.gnomex.utility.LogLongExecutionTimes.LogItem;
 import hci.gnomex.utility.MailUtil;
 import hci.gnomex.utility.PropertyDictionaryHelper;
 
+import java.io.File;
 import java.io.Serializable;
 import java.io.StringReader;
 import java.util.ArrayList;
@@ -350,12 +351,28 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
     if(notifyCoreFacilityOfEmptyBillingEmail) {
       MailUtil.send(emailRecipients, "", DictionaryHelper.getInstance(sess).getPropertyDictionary(PropertyDictionary.GENERIC_NO_REPLY_EMAIL), "Unable to send billing invoice", emailInfo + missingBillingEmailNote, true);
     }
-    MailUtil.send(emailRecipients, 
-        ccList,
-        fromAddress,
-        subject, 
-        emailInfo + emailFormatter.format(),
-        true); 
+    
+    Map[] billingItemMaps = {billingItemMap};
+    Map[] relatedBillingItemMaps = {relatedBillingItemMap};
+    Map[] requestMaps = {requestMap};
+    try {
+    	File billingInvoice = ShowBillingInvoiceFormNew.makePDFBillingInvoice(sess, serverName, billingPeriod, coreFacility, false, lab, 
+																				new Lab[0], billingAccount, new BillingAccount[0], 
+																				PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(coreFacility.getIdCoreFacility(), PropertyDictionary.CONTACT_ADDRESS_CORE_FACILITY), 
+																				PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(coreFacility.getIdCoreFacility(), PropertyDictionary.CONTACT_REMIT_ADDRESS_CORE_FACILITY), 
+																				billingItemMaps, relatedBillingItemMaps, requestMaps);
+    	MailUtil.send_attach(emailRecipients, 
+    	        		ccList,
+    	        		fromAddress,
+    	        		subject, 
+    	        		emailInfo + emailFormatter.format(),
+    	        		true,
+    	        		billingInvoice);
+    	
+    	billingInvoice.delete();
+    } catch (Exception e) {
+    	log.error("Unable to send invoice email to " + emailRecipients, e);
+    }
 
     // Set last email date
     if (invoice != null) {
