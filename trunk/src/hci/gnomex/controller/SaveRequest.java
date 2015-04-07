@@ -2813,9 +2813,9 @@ public class SaveRequest extends GNomExCommand implements Serializable {
           boolean found = false;
           for(Iterator<?> i1 = propsDoc.getRootElement().getChildren().iterator(); i1.hasNext();) {
             Element propNode = (Element)i1.next();
-            String idPropertyEntry = propNode.getAttributeValue("idPropertyEntry");
-            if (idPropertyEntry != null && !idPropertyEntry.equals("")) {
-              if (pe.getIdPropertyEntry().equals(new Integer(idPropertyEntry))) {
+            String idProperty = propNode.getAttributeValue("idProperty");
+            if (idProperty != null && !idProperty.equals("")) {
+              if (pe.getIdProperty().equals(new Integer(idProperty))) {
                 found = true;
                 break;
               }
