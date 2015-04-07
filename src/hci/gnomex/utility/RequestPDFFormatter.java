@@ -50,15 +50,17 @@ public class RequestPDFFormatter extends RequestPDFFormatterBase {
 	protected static final String HEADER_QUALITY_FRAGMENT_ANALYSIS = "Frag size";
 	protected static final String HEADER_QUALITY_RIN_NUMBER = "RIN #";
 	
+	protected static final BaseColor LABEL_BLUE = new BaseColor( 52, 102, 153 );
+	
 	// Font library
 	protected static final Font FONT_TITLE = new Font(FontFamily.HELVETICA, 14, Font.BOLD, BaseColor.BLACK);
 	protected static final Font FONT_APPLICATION = new Font(FontFamily.HELVETICA, 12, Font.NORMAL, BaseColor.BLACK);
 	protected static final Font FONT_APPLICATION_SUB = new Font(FontFamily.HELVETICA, 12, Font.NORMAL, BaseColor.BLACK);
-	protected static final Font FONT_REQUEST_TABLE_FIELD = new Font(FontFamily.HELVETICA, 8, Font.NORMAL, BaseColor.DARK_GRAY);
+	protected static final Font FONT_REQUEST_TABLE_FIELD = new Font(FontFamily.HELVETICA, 8, Font.NORMAL, LABEL_BLUE);
 	protected static final Font FONT_REQUEST_TABLE_VALUE = new Font(FontFamily.HELVETICA, 8, Font.NORMAL, BaseColor.BLACK);
-	protected static final Font FONT_NOTES_TITLE = new Font(FontFamily.HELVETICA, 12, Font.BOLD, BaseColor.DARK_GRAY);
+	protected static final Font FONT_NOTES_TITLE = new Font(FontFamily.HELVETICA, 12, Font.BOLD, LABEL_BLUE);
 	protected static final Font FONT_NOTES = new Font(FontFamily.HELVETICA, 9, Font.NORMAL, BaseColor.BLACK);
-	protected static final Font FONT_TABLE_TITLE = new Font(FontFamily.HELVETICA, 12, Font.BOLD, BaseColor.DARK_GRAY);
+	protected static final Font FONT_TABLE_TITLE = new Font(FontFamily.HELVETICA, 12, Font.BOLD, LABEL_BLUE);
 	protected static final Font FONT_TABLE_HEADERS_NORMAL = new Font(FontFamily.HELVETICA, 10, Font.BOLD, BaseColor.BLACK);
 	protected static final Font FONT_TABLE_HEADERS_SMALL = new Font(FontFamily.HELVETICA, 8, Font.BOLD, BaseColor.BLACK);
 	protected static final Font FONT_TABLE_HEADERS_VERY_SMALL = new Font(FontFamily.HELVETICA, 7, Font.BOLD, BaseColor.BLACK);
@@ -68,14 +70,14 @@ public class RequestPDFFormatter extends RequestPDFFormatterBase {
 	protected static final Font FONT_CC_NUMBER_EMBED_NORMAL = new Font(FontFamily.HELVETICA, 10, Font.UNDERLINE, BaseColor.BLUE);
 	protected static final Font FONT_CC_NUMBER_EMBED_SMALL = new Font(FontFamily.HELVETICA, 8, Font.UNDERLINE, BaseColor.BLUE);
 	protected static final Font FONT_CC_NUMBER_EMBED_VERY_SMALL = new Font(FontFamily.HELVETICA, 7, Font.UNDERLINE, BaseColor.BLUE);
-	protected static final Font FONT_PROPERTY_URL_FIELD = new Font(FontFamily.HELVETICA, 9, Font.NORMAL, BaseColor.DARK_GRAY);
+	protected static final Font FONT_PROPERTY_URL_FIELD = new Font(FontFamily.HELVETICA, 9, Font.NORMAL, LABEL_BLUE);
 	protected static final Font FONT_PROPERTY_URL_VALUE_ALIAS_URL = new Font(FontFamily.HELVETICA, 9, Font.NORMAL, BaseColor.BLACK);
 	protected static final Font FONT_PROPERTY_URL_VALUE_REAL_URL = new Font(FontFamily.HELVETICA, 9, Font.UNDERLINE, BaseColor.BLUE);
-	protected static final Font FONT_PROPERTY_TEXT_FIELD = new Font(FontFamily.HELVETICA, 9, Font.NORMAL, BaseColor.DARK_GRAY);
+	protected static final Font FONT_PROPERTY_TEXT_FIELD = new Font(FontFamily.HELVETICA, 9, Font.NORMAL, LABEL_BLUE);
 	protected static final Font FONT_PROPERTY_TEXT_VALUE = new Font(FontFamily.HELVETICA, 9, Font.NORMAL, BaseColor.BLACK);
-	protected static final Font FONT_PROPERTY_CHECKBOX_FIELD = new Font(FontFamily.HELVETICA, 9, Font.NORMAL, BaseColor.DARK_GRAY);
+	protected static final Font FONT_PROPERTY_CHECKBOX_FIELD = new Font(FontFamily.HELVETICA, 9, Font.NORMAL, LABEL_BLUE);
 	protected static final Font FONT_PROPERTY_CHECKBOX_VALUE = new Font(FontFamily.HELVETICA, 10, Font.NORMAL, BaseColor.BLACK);
-	protected static final Font FONT_PROPERTY_OPTION_FIELD = new Font(FontFamily.HELVETICA, 9, Font.NORMAL, BaseColor.DARK_GRAY);
+	protected static final Font FONT_PROPERTY_OPTION_FIELD = new Font(FontFamily.HELVETICA, 9, Font.NORMAL, LABEL_BLUE);
 	protected static final Font FONT_PROPERTY_OPTION_VALUE = new Font(FontFamily.HELVETICA, 9, Font.NORMAL, BaseColor.BLACK);
 
 	public RequestPDFFormatter(SecurityAdvisor secAdvisor, Request request, AppUser appUser, BillingAccount billingAccount, DictionaryHelper dictionaryHelper, Session sess, String amendState) {
