@@ -282,6 +282,7 @@
 			
 			if(warning == ""){
 				sampleBatchWarningBox.includeInLayout = false;
+				this.batchWarning.text = "";
 			} else{
 				sampleBatchWarningBox.includeInLayout = true;
 				this.batchWarning.text = this.getSampleBatchWarning();	
