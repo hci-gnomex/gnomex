@@ -454,7 +454,7 @@ public class MakeDataTrackIGVLink extends HttpServlet {
 			script.createNewFile();
 			BufferedWriter bw = new BufferedWriter(new FileWriter(script));
 			for (String[] links: linksToMake) {
-				bw.write(String.format("ln -s %s %s\n", links[0], links[1]));
+				bw.write("ln -s \"" + links[0] + "\" \"" + links[1] + "\"\n");
 			}
 			bw.close();
 			
