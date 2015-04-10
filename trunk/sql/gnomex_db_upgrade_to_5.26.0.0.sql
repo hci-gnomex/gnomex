@@ -26,13 +26,9 @@ CREATE TABLE gnomex.PropertyAppUser (
     ON UPDATE NO ACTION
 ) ENGINE = INNODB;
 
--- Increase size of PropertyDictionary value
-alter table PropertyDictionary MODIFY propertyValue varchar(2000) null;
-call ExecuteIfTableExists('gnomex','PropertyDictionary_Audit','alter table PropertyDictionary_Audit MODIFY propertyValue varchar(2000) null');
-
 -- confirmEmailGuid for new verify user email feature
 ALTER TABLE AppUser ADD COLUMN confirmEmailGuid varchar(100) null;
-call ExecuteIfTableExists('gnomex', 'AppUser_Audit', ' ALTER TABLE AppUser ADD COLUMN confirmEmailGuid varchar(100) null');
+call ExecuteIfTableExists('gnomex', 'AppUser_Audit', ' ALTER TABLE AppUser_Audit ADD COLUMN confirmEmailGuid varchar(100) null');
 
 -- Increase size of PropertyEntry value
 alter table PropertyEntry MODIFY valueString varchar(2000) null;
