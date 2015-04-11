@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:LinkButton xmlns:mx="http://www.adobe.com/2006/mxml" initialize="init()"
+	label="{this.fromDate == null || this.toDate == null ? 'Filter by date' : dateFormatter.format(this.fromDate) + ' - ' + dateFormatter.format(this.toDate)}" 
+	click="clickLink(event)" textDecoration="underline" textAlign="center" > 
+    <mx:Script> 
+    <![CDATA[   
+		import mx.collections.*;
+		import mx.controls.Menu;
+		import mx.events.CloseEvent;
+		import mx.events.MenuEvent;
+		import mx.managers.PopUpManager;
+		
+		import views.util.PickDateRangeView;
+              
+		[Bindable]
+		private var pickDateRangeWindow:PickDateRangeView = new PickDateRangeView();
+        
+		private var _fromDate:Date;
+		private var _toDate:Date;
+		
+		public var today:Date = new Date();
+				
+		[Bindable]
+		public var menubarXML:XML = <menubar>
+										<menuitem label="last week" data="7"/>
+										<menuitem label="last 30 days" data="30"/>
+										<menuitem label="last 90 days" data="90"/>
+										<menuitem label="last year" data="365"/>
+										<menuitem label="from year..."/>
+										<menuitem label="" type="separator"/>  
+										<menuitem label="custom dates"/>
+										<menuitem label="clear filter"/>	
+									</menubar>;
+		
+		private function init():void{
+			//Add past years to menu	
+			var year:Number = today.fullYear;
+			while ( year > 2008 ) {
+				var yearXML:XML = menubarXML.menuitem.(@label == "from year...")[0];
+				yearXML.appendChild( new XML("<menuitem label='"+ year +"' data='year' />") );
+				year--;
+			}  
+			pickDateRangeWindow.dateRangeMenu = this;
+		}
+		
+		// Create the date range menu
+		private function clickLink(event:MouseEvent):void{ 
+			
+			var dateRangeMenu:Menu = Menu.createMenu(this,menubarXML,false);
+			dateRangeMenu.addEventListener(MenuEvent.ITEM_CLICK, onMenuClick);
+			dateRangeMenu.labelField = "@label";
+			
+			var globalPoint:Point = this.contentToGlobal(new Point(this.x, this.y));
+			dateRangeMenu.show(globalPoint.x+15, globalPoint.y+25);
+			
+		} 
+		
+		// Menu actions
+		private function onMenuClick(event:MenuEvent):void {
+			
+			var item:XML = event.item as XML;
+			if (item.@label == 'custom dates') {
+				pickCustomRange();
+			} else if (item.@label == 'clear filter') {
+				resetRange();
+			} else if ( item.@data != null ) {
+				if ( item.@data == 'year' ) {
+					this.setYearRange( Number(item.@label) );
+				} else {
+					this.setRange( Number(item.@data) );
+				}
+			} 
+		}
+		
+		private function setYearRange(year:int):void
+		{
+			toDate = new Date(year, 11, 31);
+			fromDate = new Date(year, 0, 1);
+		}
+		
+		private function setRange(interval:int):void
+		{
+			toDate = today;
+			fromDate = new Date(today.fullYear, today.month, today.date - interval);
+		}
+		
+		public function resetRange():void {
+			fromDate=null; 
+			toDate=null; 
+		}
+		
+		// Pick a custom date range
+		private function pickCustomRange():void 
+		{
+			PopUpManager.addPopUp(pickDateRangeWindow, this, false);
+			PopUpManager.centerPopUp(pickDateRangeWindow);
+			
+		}
+		
+		// Getters and Setters for from and to dates
+		[Bindable]
+		public function get fromDate():Date
+		{
+			return _fromDate;
+		}
+		public function set fromDate(value:Date):void
+		{
+			_fromDate = value;
+		}
+		
+		[Bindable]
+		public function get toDate():Date
+		{
+			return _toDate;
+		}
+		public function set toDate(value:Date):void
+		{
+			_toDate = value;
+		}
+		
+	]]> 
+	</mx:Script> 
+	
+	<mx:DateFormatter id="dateFormatter" formatString="MM/DD/YYYY"/>
+	
+	
+</mx:LinkButton> 
