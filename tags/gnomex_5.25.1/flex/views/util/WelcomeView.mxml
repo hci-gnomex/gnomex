@@ -295,7 +295,7 @@
 					this.notificationHub.adminTab.notificationInterface.send();
 					this.notificationHub.billingTab.notificationInterface.send();
 				}
-								
+				
 				for each (var facility:XML in parentApplication.coreFacilitiesICanManage) {
 					if(parentApplication.getCoreFacilityProperty(facility.@idCoreFacility, parentApplication.PROPERTY_SHOW_METRIX_DASHBOARD) == 'Y'){
 						this.runStatusHub.metrixInterface.send();
@@ -328,6 +328,7 @@
 					sequencerBox.includeInLayout = false;
 					sequencerBox.visible = false;
 					moveDashboard.play();
+					callLater(coreFacilitiesInfoView.refresh);
 				} else {
 					coreFacilitiesInfoView.showOverview();
 				}
@@ -428,7 +429,7 @@
 			<mx:VBox id="sequencerBox" paddingTop="30" width="100%" verticalAlign="middle" horizontalAlign="center" visible="false" includeInLayout="false">
 				<db:RunStatusHub id="runStatusHub"/>
 			</mx:VBox>
-	
+			
 		</mx:HBox>
 		<mx:Spacer id="spacer2" height="100%"/>
 		<mx:VBox width="400" horizontalAlign="center" paddingBottom="2" paddingTop="2" id="vbox15" height="100%" paddingLeft="2" paddingRight="2">
@@ -443,5 +444,5 @@
 			<mx:Text id="text5"/>
 		</mx:HBox>
 	</mx:VBox>
-		
+	
 </mx:Canvas>
