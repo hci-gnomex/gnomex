@@ -1,3 +1,0 @@
-This is a test to see if revision are getting trashed when tim commits stuff.
-
-Here are my awesome edits to the original dummy file
