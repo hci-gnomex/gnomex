@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
+				showCloseButton="true" close="{PopUpManager.removePopUp(this)}"
+				layout="vertical" horizontalAlign="right" verticalGap="10"  creationPolicy="all" 
+				title="Add News Item" creationComplete="init()" 
+				borderThickness="4" height="400" width="400" verticalScrollPolicy="off" horizontalScrollPolicy="off">	
+	
+	<mx:HTTPService 
+		id="saveNewsItem"	 
+		destination="saveNewsItem"
+		url="SaveNewsItem.gx"
+		resultFormat="e4x"
+		result="onSaveNewsItem(event)"
+		fault="parentApplication.onFailHttpRequest('Save Newsitem Failed', event)"
+		showBusyCursor="true"
+		useProxy="false">
+	</mx:HTTPService> 	
+	
+	<mx:Script>            
+		<![CDATA[
+			import mx.collections.Sort;
+			import mx.collections.XMLListCollection;
+			import mx.controls.Alert;
+			import mx.core.Application;
+			import mx.events.CloseEvent;
+			import mx.events.ListEvent;
+			import mx.events.ValidationResultEvent;
+			import mx.managers.CursorManager;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			import mx.utils.ArrayUtil;
+			
+			import views.util.WelcomeView;
+			
+			[Bindable]
+			public var itemTitle:String; // Title
+			
+			[Bindable]
+			public var message:String; // Message
+			
+			[Bindable]
+			public var date:Date; // Date
+			
+			[Bindable]
+			public var idNewsItem:int;
+			
+			[Bindable]
+			public var idAppUser:int; // User ID 
+			
+			[Bindable]
+			private var coreFacilities:XMLListCollection = new XMLListCollection();
+			
+			public var newsParent:News;
+			
+			public function init():void {
+				coreFacilities = new XMLListCollection(new XMLList(parentApplication.coreFacilitiesICanManage));
+				if(parentApplication.isSuperAdmin){
+					var allFacilities:XML = <CoreFacility idCoreFacility = '-1' display='All Facilities'/>;
+					coreFacilities.addItemAt(allFacilities, 0);
+					coreFacilities.refresh();
+				}
+				cfSelector.selectedIndex = 0;
+				
+			}
+			
+			private function save():void {
+				if(messageInput.length >= 2000 && titleInput.length >= 200){
+					Alert.show("Length of the news item title and message cannot exceed 2000 characters.");
+					return;
+				}else{
+					var params:Object = new Object();
+					params.idNewsItem = idNewsItem;
+					params.title = titleInput.text;
+					params.message = messageInput.text;
+					params.idAppUser = parentApplication.getIdAppUser();
+					params.idCoreFacility = cfSelector.selectedItem.@idCoreFacility;
+					saveNewsItem.send(params);
+					PopUpManager.removePopUp(this);
+				}
+			}
+			
+			private function onSaveNewsItem(event:ResultEvent):void {
+				if (saveNewsItem.lastResult.name() == "SUCCESS") {
+					newsParent.getNewsItem.send();
+				}else{
+					Alert.show("Error in saving newsitem.");
+				}
+			}
+			
+			private function cancelNewsItem():void{
+				PopUpManager.removePopUp(this);
+			}
+		]]>
+	</mx:Script>   
+	
+	<mx:VBox styleName="form" width="100%" height="100%" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4">
+		<mx:HBox>
+			<mx:Label fontWeight="bold" text="Title: " paddingRight="45"/>
+			<mx:TextInput id="titleInput" text="{itemTitle}" width="{cfSelector.width}"/>
+		</mx:HBox>
+		<mx:HBox includeInLayout="true" visible="true">
+			<mx:Label fontWeight="bold" text="Intended For: "/>
+			<mx:ComboBox id="cfSelector" dataProvider="{coreFacilities}" labelField="@display" selectedIndex="0" /> 
+		</mx:HBox>
+		
+		<mx:Label fontWeight="bold" text="Message: "/>
+		<mx:TextArea id="messageInput" text="{message}" width="100%" height="100%"/>
+		
+		<mx:HBox horizontalAlign="right" width="100%">
+			<mx:Button label="Save" id="saveButton" click="save()" icon="@Embed(source='../../assets/save.png')" enabled="{titleInput.text != '' &amp;&amp; messageInput.text != ''}" disabledIcon="@Embed(source='../../assets/save_disable.png')"/>
+			<mx:Button id="cancelButton" label="Cancel" click="cancelNewsItem()" />
+		</mx:HBox>
+	</mx:VBox>
+</mx:TitleWindow>

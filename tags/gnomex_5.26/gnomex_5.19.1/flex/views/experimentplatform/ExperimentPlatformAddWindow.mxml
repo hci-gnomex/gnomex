@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical" creationComplete="init()" title="Add Experiment Platform" width="470" height="210" defaultButton="{saveButton}" paddingTop="4" verticalScrollPolicy="off" paddingRight="4" paddingLeft="4" paddingBottom="4">
+
+    <mx:HTTPService 
+    id="saveExperimentPlatform" 
+    url="SaveExperimentPlatform.gx"
+    showBusyCursor="true"
+    resultFormat="e4x"
+    result="onSaveExperimentPlatform(event)"
+    fault="parentApplication.onFailHttpRequest('Unable to save experiment platform', event)"
+    useProxy="false">
+    </mx:HTTPService >
+	
+    
+
+<mx:Script>
+	<![CDATA[
+		import mx.collections.XMLListCollection;
+		import mx.controls.Alert;
+		import mx.events.CloseEvent;
+		import mx.events.ListEvent;
+		import mx.managers.PopUpManager;
+		import mx.rpc.events.FaultEvent;
+		import mx.rpc.events.ResultEvent;
+		
+		private var platformTypeCode:String = null;
+		private var defaultIcon:String = null;
+		
+		public var parentWindow:views.experimentplatform.ExperimentPlatformWindow = null;
+		
+		private function init():void{
+			if (parentApplication.coreFacilitiesICanManage.length() == 1) {
+				coreFacilityCombo.selectedIndex = 0;
+				coreFacilityCombo.editable = false;
+				coreFacilityCombo.enabled = false;
+			}
+		}
+		
+		private function save():void {
+			var params:Object = new Object();
+			
+			params.idCoreFacility = coreFacilityCombo.selectedItem != null ? coreFacilityCombo.selectedItem.@value : "";
+			params.isActive = "Y";
+			params.isInternal = 'Y';
+			params.isExternal = 'Y';
+			params.isClinicalResearch = 'N';
+			params.isOwnerOnly = 'N';
+
+			params.requestCategory = this.platformName.text;
+			params.newCodeRequestCategory = this.codeRequestCategoryField.text.toUpperCase();
+			params.idAppUser = (parentApplication.hasPermission("canWriteDictionaries") ? '' : parentApplication.getIdAppUser());
+			params.type = platformTypeCode;
+			params.sampleTypesXMLString = "<sampleTypes/>";
+			params.applicationsXMLString = "<applications/>";
+			params.sequencingOptionsXMLString = "<sequencingOptions/>";
+			if (defaultIcon != null) {
+				params.icon = defaultIcon;
+			}
+			saveExperimentPlatform.send(params);
+
+		}
+		
+		private function promptToSave():void{
+			var error:String = "";
+			if (platformName.text.length == 0) {
+				error = "Please specify a name for your platform";
+			}
+			if (platformTypeCode == null || platformTypeCode.length == 0) {
+				if (error.length > 0) {
+					error += "\n";
+				}
+				error += "Please specify a type."
+			}
+			if (coreFacilityCombo.selectedItem == null || coreFacilityCombo.selectedItem.@value == '') {
+				if (error.length > 0) {
+					error += "\n";
+				}
+				error += "Please specify a core facility."
+			}
+			if (error.length > 0) {
+				Alert.show(error, "Error");
+				return;
+			}
+			
+			if(codeRequestCategoryField.text == ''){
+				Alert.show("If you do not provide a code request category, the system will provide one for you.  Is this okay?", 
+					null, 
+					(Alert.YES | Alert.NO), this, 
+					onPromptToSave);
+			}
+			else{
+				save();
+			}
+		}
+		
+		private function onPromptToSave(event:CloseEvent):void{
+			if (event.detail==Alert.YES) {
+				save();
+			}
+		}
+		
+		private function onSaveExperimentPlatform(event:ResultEvent):void {
+			if (saveExperimentPlatform.lastResult.name() == "SUCCESS") {
+				parentWindow.afterSuccessfulSave(saveExperimentPlatform.lastResult.@codeRequestCategory);
+				PopUpManager.removePopUp(this);
+			} else {
+				Alert.show(saveExperimentPlatform.lastResult..ACTMESSAGE.@TEXT);
+			}			
+		}
+		
+		public function updatePlatform():void{
+			if (typeCombo.selectedItem.@value == '') {
+				platformTypeCode = parentApplication.TYPE_GENERIC;
+				defaultIcon = "";
+			} else {
+				platformTypeCode = typeCombo.selectedItem.@value;
+				defaultIcon = typeCombo.selectedItem.@defaultIcon;
+			}
+		}
+		
+	]]>
+</mx:Script>
+	<mx:VBox width="100%" height="100%" styleName="form" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4">
+		<mx:HBox width="100%" horizontalGap="2" verticalAlign="middle" paddingTop="4">
+			<mx:Text text="Name" width="130" styleName="formLabel"/>
+			<mx:TextInput id="platformName" width="100%" backgroundColor="#FFFFFF" borderColor="#797E81" borderStyle="inset" borderThickness="1"/>
+		</mx:HBox>
+		
+		<mx:HBox width="100%" horizontalGap="2" verticalAlign="middle" paddingTop="4">
+			<mx:Text text="Code" width="130" styleName="formLabel"/>
+			<mx:TextInput id="codeRequestCategoryField" width="85" backgroundColor="#FFFFFF" borderColor="#898F93" maxChars="8"/>
+		</mx:HBox>
+		
+		<mx:HBox width="100%" horizontalGap="2" verticalAlign="middle" paddingTop="4">
+			<mx:Text text="Type" width="130" styleName="formLabel"/>
+			<mx:ComboBox id="typeCombo" dataProvider="{parentApplication.dictionaryManager.getEntries('hci.gnomex.model.RequestCategoryType')}" labelField="@display" width="100%" change="{updatePlatform()}"/>
+		</mx:HBox>
+		
+		<mx:HBox width="100%" horizontalGap="2" verticalAlign="middle" paddingTop="4">
+			<mx:Text text="Core Facility" width="130" styleName="formLabel"/>
+			<mx:ComboBox id="coreFacilityCombo" dataProvider="{parentApplication.coreFacilitiesICanManage}" labelField="@display" width="100%"/>
+		</mx:HBox>
+		
+	</mx:VBox>
+	<mx:ControlBar horizontalAlign="right">
+		<mx:Button label="Save" id="saveButton" click="promptToSave()" icon="@Embed(source='../../assets/save.png')" enabled="{platformName.text != '' &amp;&amp; typeCombo.selectedIndex != 0}" disabledIcon="@Embed(source='../../assets/save_disable.png')"/>
+		<mx:Button label="Cancel" click="{mx.managers.PopUpManager.removePopUp(this)}"/>
+	</mx:ControlBar>
+	
+</mx:TitleWindow>

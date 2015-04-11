@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
+				xmlns:renderers="views.renderers.*"
+				layout="vertical" 
+				title="Copy Campus Billing Account" 
+				width="1000" 
+				creationComplete="init()"
+				titleIcon="@Embed(source='../../assets/work_auth_form.png')">
+	<mx:Script>
+		<![CDATA[
+			[Bindable]
+			public var selectedIdCoreFacility:String;
+			[Bindable]
+			public var lab:Object;
+			
+			private function init():void {
+			}
+		]]>
+	</mx:Script>
+
+</mx:TitleWindow>

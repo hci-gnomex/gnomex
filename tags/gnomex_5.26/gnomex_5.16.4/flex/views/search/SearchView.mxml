@@ -1,0 +1,344 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox label="Advanced Search"  
+	xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:views="views.*"
+	paddingBottom="6" paddingTop="8" paddingLeft="8" paddingRight="8"
+	width="100%" height="100%" >
+
+ 
+  <mx:HTTPService  
+    id="searchGNomEx" 
+    url="SearchIndex.gx"
+    destination="searchGNomEx"
+    resultFormat="e4x"
+    result="onSearchIndex(event)"
+	fault="parentApplication.onFailHttpRequest('Failed to search index', event)"
+    method="POST"
+    useProxy="false">
+    </mx:HTTPService >
+	
+	<mx:HTTPService  
+		id="getSearchMetaInformation" 
+		url="GetSearchMetaInformation.gx"
+		destination="getSearchMetaInformation"
+		resultFormat="e4x"
+		result="onGetSearchMetaInformation(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to get search meta information', event)"
+		method="POST"
+		useProxy="false">
+	</mx:HTTPService >
+    
+    <mx:Script> 
+        <![CDATA[
+			import hci.flex.controls.CheckBox;
+			
+			import mx.collections.XMLListCollection;
+			import mx.controls.Alert;
+			import mx.events.CollectionEvent;
+			import mx.events.ListEvent;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			import views.renderers.MultiselectRendererVariableDictionary;
+        
+        [Bindable]
+        private var myXMLString:String = "";
+        
+		[Bindable]
+		private var dictionaryMap:Array = new Array();
+			
+		[Bindable]
+		public var searchCriteriaDisplay:String = "";
+
+		private var firstTime:Boolean = true;
+		
+       public function checkSecurity():void {
+       	if (parentApplication.hasPermission("canAccessAnyObject") ||
+       	    parentApplication.currentState == "GuestState") {
+       		this.includePublicProjectsCheckBox.visible = false;    	
+       	} else {
+       		this.includePublicProjectsCheckBox.visible = true;
+       	}
+       }
+
+
+       public function initializeData():void {
+       	//parentDocument.filteredSlideProductList.filterFunction = filterSlideProduct;
+       	parentDocument.filteredSlideProductList.refresh();
+
+		this.getSearchMetaInformation.send();
+       }
+			
+		private function onGetSearchMetaInformation(event:ResultEvent):void {
+			var dm:XMLListCollection = new XMLListCollection(event.result.DictionaryMap.Dictionary);
+			this.dictionaryMap = new Array();
+			for (var x:Number = 0; x < dm.length; x++) {
+				dictionaryMap[dm[x].@fieldName] = new XMLList(dm[x].DictionaryEntry);
+			}
+			parentDocument.isInitialized = true;
+			searchTypeChange();
+		}
+
+		public function callSearchIndex():void {
+			var params:Object = new Object();
+			params.listKind = "SearchList";
+			params.matchAnyTerm = matchAnyTermRadio.selected == true ? "Y" : "N";
+			params.matchAllTerms = matchAllTermsRadio.selected == true ? "Y" : "N";
+			params.searchPublicProjects = includePublicProjectsCheckBox.selected == true ? "Y" : "N";
+			params.text1 = text1.text;
+			params.showCategory = "N";
+			params.isExperimentOnlySearch = this.ExperimentsRadioButton.selected ? "Y" : "N"
+			params.isAnalysisOnlySearch = this.AnalysesRadioButton.selected ? "Y" : "N";
+			params.isProtocolOnlySearch = this.ProtocolsRadioButton.selected ? "Y" : "N";
+			params.isDataTrackOnlySearch = this.DataTracksRadioButton.selected ? "Y" : "N";
+			params.isTopicOnlySearch = this.TopicsRadioButton.selected ? "Y" : "N";
+
+			if (this.ExperimentsRadioButton.selected) {
+				params.searchList = this.experimentSearchList;
+			} else if (this.AnalysesRadioButton.selected) {
+				params.searchList = this.analysisSearchList;
+			} else if (this.ProtocolsRadioButton.selected) {
+				params.searchList = this.protocolSearchList;
+			} else if (this.DataTracksRadioButton.selected) {
+				params.searchList = this.dataTrackSearchList;
+			} else if (this.TopicsRadioButton.selected) {
+				// Kludge because apparently a single entry xmllist is not sent to the back end???
+				var x:XML = new XML("<Field displayName='Dummy' searchName='dummy'/>");
+				var y:XMLList = this.topicSearchList.copy();
+				y.appendChild(x);
+				params.searchList = y;
+			} else {
+				params.searchList = this.allObjectsSearchList;
+			}
+
+			buildSearchCriteriaDisplay();
+            
+        	searchGNomEx.send(params); 
+        }
+			
+        private function onSearchIndex(event:ResultEvent): void {        	
+        	parentDocument.searchViews.selectedChild = parentDocument.searchResultsView;
+			parentDocument.setResultsLinkBars(searchGNomEx.lastResult.@SearchScope);
+			
+        	parentDocument.onViewSwitch();
+        	parentDocument.setResultsCount();
+        	
+        	this.parentDocument.simpleSearchText = null;
+			
+        	
+        	// Expansion takes forever... comment out for now.
+        	//callLater(parentDocument.expandAllNodes);
+        }
+        
+			
+		public function buildSearchCriteriaDisplay():void {
+			this.searchCriteriaDisplay = "";
+			firstTime = true;
+			if (text1.text != "") {
+				addLogicalOperator();
+				this.searchCriteriaDisplay += "any text field = " + text1.text;
+			}
+			
+			if (ExperimentsRadioButton.selected) {
+				buildSearchListDisplay(this.experimentSearchList);
+			} else if (AnalysesRadioButton.selected) {
+				buildSearchListDisplay(this.analysisSearchList);
+			} else if (this.ProtocolsRadioButton.selected) {
+				buildSearchListDisplay(this.protocolSearchList);
+			} else if (this.DataTracksRadioButton.selected) {
+				buildSearchListDisplay(this.dataTrackSearchList);
+			} else if (this.TopicsRadioButton.selected) {
+				buildSearchListDisplay(this.topicSearchList);
+			} else {
+				buildSearchListDisplay(this.allObjectsSearchList);
+			}
+		}
+			
+		private function buildSearchListDisplay(searchList:XMLListCollection):void {
+			for each (var searchRow:XML in searchList) {
+				if (searchRow.@value != "") {
+					addLogicalOperator();
+					this.searchCriteriaDisplay += searchRow.@displayName;
+					if (searchRow.@isOptionChoice == 'N') {
+						this.searchCriteriaDisplay += " = " + searchRow.@value;
+					} else {
+						this.searchCriteriaDisplay += " contains at least one of ("
+						var allOptions:XMLList = dictionaryMap[searchRow.@displayName];
+						var values:Array = new Array();
+						var v:String = searchRow.@value;
+						values = v.split(",");
+						var idx:Object = null;
+						
+						
+						var option:XML = null;
+						var firstOption:Boolean = true;
+						for each(option in allOptions) {
+							var theOption:XML = option.copy();
+							var isSelected:Boolean = false;
+							if (values != null) {
+								for (idx in values) {
+									if (values[idx] != null && theOption.@value == values[idx]) {
+										isSelected = true;
+										break;
+									}
+								}
+							}
+							if (isSelected) {
+								if (!firstOption) {
+									this.searchCriteriaDisplay += ",";
+								}
+								firstOption = false;
+								this.searchCriteriaDisplay += option.@display;
+							}
+						}
+						this.searchCriteriaDisplay += ")";
+					}
+				}
+			}
+		}
+
+		private function addLogicalOperator():void {
+			if (firstTime) {
+				firstTime = false;
+			} else {
+				if (this.matchAllTermsRadio.selected) {
+					this.searchCriteriaDisplay += " AND ";
+				} else {
+					this.searchCriteriaDisplay += " OR ";
+				}
+			}
+		}
+			
+		public function clearForm():void {
+			this.text1.text = "";
+			
+			for each (var i1:Object in this.experimentSearchList) {
+				i1.@value = "";
+			}
+			for each (var i2:Object in this.analysisSearchList) {
+				i2.@value = "";
+			}
+			for each (var i3:Object in this.protocolSearchList) {
+				i3.@value = "";
+			}
+			for each (var i4:Object in this.dataTrackSearchList) {
+				i4.@value = "";
+			}
+			for each (var i5:Object in this.allObjectsSearchList) {
+				i5.@value = "";
+			}
+			
+			this.ExperimentsRadioButton.selected = false;
+			this.AnalysesRadioButton.selected = false;
+			this.ProtocolsRadioButton.selected = false;
+			this.DataTracksRadioButton.selected = false;
+			this.TopicsRadioButton.selected = false;
+			this.AllObjectsRadioButton.selected = true;
+			searchTypeChange();
+		}
+                
+        public function scopeSearch():void {
+        
+			// disable everything till initialized.
+			if (!parentDocument.isInitialized) {
+				this.currentState = "PreInitialization";
+			} else {
+				currentState = "";
+			}
+        }
+			
+		private function searchTypeChange():void {
+			if (this.ExperimentsRadioButton.selected) {
+				this.searchGrid.dataProvider = experimentSearchList;
+			} else if (this.AnalysesRadioButton.selected) {
+				this.searchGrid.dataProvider = analysisSearchList;
+			} else if (this.ProtocolsRadioButton.selected) {
+				this.searchGrid.dataProvider = protocolSearchList;
+			} else if (this.DataTracksRadioButton.selected) {
+				this.searchGrid.dataProvider = dataTrackSearchList;
+			} else if (this.TopicsRadioButton.selected) {
+				this.searchGrid.dataProvider = topicSearchList;
+			} else {
+				this.searchGrid.dataProvider = allObjectsSearchList;
+			}
+			scopeSearch();
+		}
+        ]]>
+    </mx:Script>
+    
+	<mx:XMLListCollection id="allObjectsSearchList" source="{this.getSearchMetaInformation.lastResult.AllObjectsSearchList.Field}"/>
+	<mx:XMLListCollection id="experimentSearchList" source="{this.getSearchMetaInformation.lastResult.ExperimentSearchList.Field}"/>
+	<mx:XMLListCollection id="analysisSearchList" source="{this.getSearchMetaInformation.lastResult.AnalysisSearchList.Field}"/>
+	<mx:XMLListCollection id="dataTrackSearchList" source="{this.getSearchMetaInformation.lastResult.DataTrackSearchList.Field}"/>
+	<mx:XMLListCollection id="protocolSearchList" source="{this.getSearchMetaInformation.lastResult.ProtocolSearchList.Field}"/>
+	<mx:XMLListCollection id="topicSearchList" source="{this.getSearchMetaInformation.lastResult.TopicSearchList.Field}"/>
+
+<mx:HBox width="100%">
+	<mx:Label text="Keywords:" textAlign="left"/>
+	<mx:TextInput id="text1" width="80">
+	</mx:TextInput>
+</mx:HBox>
+<mx:HRule width="100%"/>
+<mx:VBox height="100%" width="100%" verticalGap="6" paddingRight="4">
+	<mx:VBox width="100%" height="280">
+		<mx:HBox verticalGap="0" width="100%" verticalAlign="top" horizontalGap="0">
+			<mx:Label text="Search " />
+			<mx:RadioButton label="All Objects" selected="true" id="AllObjectsRadioButton" paddingBottom="0" paddingLeft="4" paddingRight="0" paddingTop="0" textAlign="left" horizontalGap="0">
+				<mx:click>{searchTypeChange()}</mx:click>
+			</mx:RadioButton>
+			<mx:RadioButton label="Experiments" selected="false" id="ExperimentsRadioButton" paddingBottom="0" paddingLeft="4" paddingRight="0" paddingTop="0" textAlign="left" horizontalGap="0">
+				<mx:click>{searchTypeChange()}</mx:click>
+			</mx:RadioButton>
+			<mx:RadioButton label="Analyses" selected="false" id="AnalysesRadioButton" paddingBottom="0" paddingLeft="4" paddingRight="0" paddingTop="0" textAlign="left" horizontalGap="0" visible="{parentApplication.showBioinformaticsLinks}" includeInLayout="{parentApplication.showBioinformaticsLinks}">
+				<mx:click>{searchTypeChange()}</mx:click>
+			</mx:RadioButton>
+			<mx:RadioButton label="Protocols" selected="false" id="ProtocolsRadioButton" paddingBottom="0" paddingLeft="4" paddingRight="0" paddingTop="0" textAlign="left" horizontalGap="0">
+				<mx:click>{searchTypeChange()}</mx:click>
+			</mx:RadioButton>
+			<mx:RadioButton label="Data Tracks" selected="false" id="DataTracksRadioButton" paddingBottom="0" paddingLeft="4" paddingRight="0" paddingTop="0" textAlign="left" horizontalGap="0" visible="{parentApplication.showBioinformaticsLinks}" includeInLayout="{parentApplication.showBioinformaticsLinks}">
+				<mx:click>{searchTypeChange()}</mx:click>
+			</mx:RadioButton>
+			<mx:RadioButton label="Topics" selected="false" id="TopicsRadioButton" paddingBottom="0" paddingLeft="4" paddingRight="0" paddingTop="0" textAlign="left" horizontalGap="0" visible="{parentApplication.isTopicsSupported &amp;&amp; parentApplication.showBioinformaticsLinks}">
+				<mx:click>{searchTypeChange()}</mx:click>
+			</mx:RadioButton>
+		</mx:HBox>
+		<mx:DataGrid id="searchGrid"  horizontalScrollPolicy="auto"
+					 dataProvider="{new XMLListCollection()}" editable="true"
+					 width="100%" height="100%" fontSize="11">
+			<mx:columns>
+				<mx:DataGridColumn headerText="Field" id="fieldName" dataField="@displayName" editable="false" width="200" >
+				</mx:DataGridColumn>
+				<mx:DataGridColumn headerText="Values"   id="values"
+								   itemRenderer="{views.renderers.MultiselectRendererVariableDictionary.create('Values', dictionaryMap, '@displayName', '@allowMultipleChoice')}" 
+								   dataField="@value" />  
+			</mx:columns>
+		</mx:DataGrid>
+	</mx:VBox>
+	<mx:VBox width="100%" height="100%" verticalAlign="bottom">
+	    <mx:HBox width="100%" id="hbox1">
+	         <mx:HBox horizontalGap="0">
+	        	<mx:RadioButtonGroup id="radiogroup1"/>
+	        	<mx:RadioButton id="matchAllTermsRadio" label="Match ALL terms" groupName="radiogroup1" selected="true"/>
+	        	<mx:RadioButton id="matchAnyTermRadio" label="Match ANY term" groupName="radiogroup1" selected="false"/>
+	         </mx:HBox>
+        	<mx:HBox width="100%"  height="100%" verticalAlign="bottom" horizontalAlign="left">
+        		<mx:CheckBox label="Include public data" id="includePublicProjectsCheckBox" selected="true" width="100%" textAlign="right" >
+        		</mx:CheckBox>
+        	</mx:HBox>
+	    </mx:HBox>
+     </mx:VBox>
+    
+</mx:VBox>
+
+<mx:states>
+	<mx:State name="PreInitialization">	
+		<mx:SetProperty target="{this.ExperimentsRadioButton}" name="enabled" value="false"/>
+		<mx:SetProperty target="{this.AnalysesRadioButton}" name="enabled" value="false"/>
+		<mx:SetProperty target="{this.ProtocolsRadioButton}" name="enabled" value="false"/>
+		<mx:SetProperty target="{this.DataTracksRadioButton}" name="enabled" value="false"/>
+		<mx:SetProperty target="{this.AllObjectsRadioButton}" name="enabled" value="false"/>
+	</mx:State>
+</mx:states> 
+       
+
+</mx:VBox>

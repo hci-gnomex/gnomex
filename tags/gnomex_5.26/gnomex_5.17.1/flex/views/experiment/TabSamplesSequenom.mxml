@@ -1,0 +1,663 @@
+<?xml version="1.0" encoding="utf-8"?>
+<exp:TabSamplesBase
+		   xmlns:mx="http://www.adobe.com/2006/mxml" 
+		   xmlns:util="views.util.*"
+		   xmlns:fx="*.views.renderers"
+		   xmlns:exp="views.experiment.*"
+		   show="{this.init();}"
+		   label="Samples" width="100%" height="100%"  enabled="false"  xmlns:renderers="views.renderers.*" >
+
+	<mx:Script>
+		<![CDATA[
+			import hci.flex.controls.DropdownLabel;
+			import hci.flex.controls.Label;
+			
+			import mx.collections.Grouping;
+			import mx.collections.GroupingCollection;
+			import mx.collections.GroupingField;
+			import mx.collections.IHierarchicalCollectionView;
+			import mx.collections.SortField;
+			import mx.collections.XMLListCollection;
+			import mx.controls.Alert;
+			import mx.controls.TextInput;
+			import mx.events.CloseEvent;
+			import mx.events.FlexEvent;
+			import mx.events.ListEvent;
+			import mx.events.ValidationResultEvent;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.ResultEvent;
+			import mx.utils.ObjectUtil;
+			import mx.utils.StringUtil;
+			import mx.validators.NumberValidator;
+			import mx.validators.ValidationResult;
+			
+			import views.renderers.CheckBoxRenderer;
+			import views.renderers.ComboBox;
+			import views.renderers.ComboBoxWorkflowStatus;
+			import views.renderers.GridColumnFillButton;
+			import views.renderers.MultiselectRenderer;
+			import views.renderers.TextInputSeqPrepByCore;
+			import views.renderers.URLRenderer;
+			import views.util.AdvancedDataGridColumnWithType;
+			import views.util.AnnotationAdvancedDataGridColumn;
+			import views.util.CopySampleSheetColumnView;
+			import views.util.UploadSampleSheetInstructionsView;
+			import views.util.UploadSampleSheetView;
+			
+			
+			public var sampleGroupingCollection:GroupingCollection = null;
+			
+			[Bindable]
+			private var isExternal:Boolean = false;
+			
+			private var uploadFR:FileReference;
+			private var uploadSampleSheetURL:String;
+			private var docTypes:FileFilter;
+			private var hasColumnNames:Boolean; 
+			private var	sampleSheetXML:XML;
+
+			override protected function initButtons():void {
+				if (parentDocument.isEditState()) {
+					if (parentApplication.hasPermission("canWriteAnyObject")) {
+						this.clearSamplesButton.visible = true;
+					} else {
+						this.clearSamplesButton.visible = false;
+					}
+				}
+				
+				this.addSampleButton.visible = false;
+				this.addSampleButton.includeInLayout = false;
+				this.addSampleButton.enabled = false;
+				this.deleteSampleButton.visible = true;
+				this.deleteSampleButton.enabled = true;
+				this.copySampleButton.visible = false;
+				this.copySampleButton.includeInLayout = false;
+				this.copySampleButton.enabled = false;				
+			}
+			
+			override public function getSamplesGrid():AdvancedDataGrid {
+				return this.samplesGrid;
+			}
+			
+			
+			override protected function getNumPlates():int {
+				var numPlates:int = 0;
+				if (hasPlates()) {
+					numPlates = parentDocument.numIScanPlates;
+				}
+				return numPlates;
+			}
+			
+			override protected function getNextPlate():int {
+				var nextPlate:int = 0;
+				if (hasPlates()) {
+					for each (var sample:Object in parentDocument.samples) {
+						var thisPlate:int = 0;
+						if (sample.@name != '') {
+							if (sample.@plateName == "Plate 1") thisPlate = 1;
+							if (sample.@plateName == "Plate 2") thisPlate = 2;
+							if (sample.@plateName == "Plate 3") thisPlate = 3;
+							if (sample.@plateName == "Plate 4") thisPlate = 4;
+						}
+						if (thisPlate > nextPlate) {
+							nextPlate = thisPlate;
+						}
+					}
+					if (nextPlate < 4) {
+						nextPlate = nextPlate + 1;
+					} else {
+						nextPlate = 0;
+					}
+				}
+				return nextPlate;
+			}
+			
+			override protected function getAddAllAnnotations():Boolean {
+				return false;
+			}
+
+			
+			override public function addSample():Boolean {
+				var emptyNode:XML = null;
+				var idOrganism:String = parentDocument.setupView.getIdOrganism();
+				var isValid:Boolean = true;
+				
+				emptyNode = this.getEmptySequenomNode(parentDocument.samples.length);
+				
+				if (emptyNode != null) {
+					parentDocument.samples.addItem(emptyNode);
+				}
+				
+				return isValid;
+			}
+			
+			
+			private function getEmptySequenomNode(idx:int):XML {
+				var plateName:String = getSequenomPlateName(idx);
+				var wellName:String = getWellName(idx);
+				var sampleId:String = "Sample" + idx;
+				var emptyNode:XML = new XML("<Sample " +
+					" idSample='" + sampleId + "'" +
+					" name='' description='' " +
+					" concentration=''" +
+					" containerType='" + (parentDocument.request.@containerType == 'PLATE' ? 'Plate' : 'Tube') + "'" +
+					" canChangeSampleName='Y'" +	
+					" plateName='" + (parentDocument.request.@containerType == 'PLATE' ? plateName : '') + "'" +
+					" wellName='" + (parentDocument.request.@containerType == 'PLATE' ? wellName : '') + "'" +
+					" idSampleType='" + (parentApplication.submitInternalExperiment() && !this.isEditState ? parentDocument.sampleSetupView.sampleTypeRadioGroup.selectedValue : '')  + "'" +
+					"/>");
+				return emptyNode;
+			}
+			
+			private function getWellName(idx:int):String {
+				var wellName:String = "";
+				if (parentDocument.isFragAnalState()) {
+					wellName = "ABCDEFGH".substr(idx / 12, 1);
+					var fragColNumber:int = idx % 12 + 1;
+					wellName += fragColNumber.toString();
+				} else {
+					var y:int = idx % 96;
+					wellName = parentApplication.wellNamesByColumn[y];
+				}
+				return wellName;
+			}
+			
+			private function getSequenomPlateName(idx:int):String {
+				
+				var plateName:String = "";
+				
+				var y:int = idx / 96;
+				y = y + 1;
+				plateName = parentDocument.sampleSetupView.getSequenomPlateName(y);
+				
+				return plateName;
+			}
+			
+			
+			override protected function deleteSingleSample(sample:Object):Boolean {
+				var ind:int = parentDocument.samples.getItemIndex(sample);
+				
+				parentDocument.samples.setItemAt(getEmptySequenomNode(ind),ind);
+				
+				return true;
+			}
+			
+			
+			override protected function addSpecialCopyColumns(emptyNodeString:String):void {
+				
+				emptyNodeString = emptyNodeString +
+					" plateName='" + getSequenomPlateName(parentDocument.samples.length) + "'" +
+					" wellName=''";
+				
+			}
+			
+			private function deleteTheSample():void {
+				var idx:int = samplesGrid.selectedIndex;
+				deleteSample();
+				checkSamplesCompleteness();
+				samplesGrid.selectedIndex = idx;
+			}
+			
+			private function promptToDeleteSample():void{
+				if(samplesGrid.selectedItem != null){
+					Alert.show("Are you sure you wish to delete the selected sample?", "", (Alert.YES | Alert.NO), null, onPromptToDeleteSample, null, Alert.NO);
+				}
+			}
+			
+			private function onPromptToDeleteSample(event:CloseEvent):void{
+				if(event.detail == Alert.YES){
+					deleteTheSample();
+				}
+			}
+			
+			override public function initializeSamplesGrid():void {
+				if (parentDocument.requestToClone != null) {
+					return;
+				}
+				
+				var numberOfSamples:Number = 0;
+				var numberOfSamplesToAdd:Number = 0;
+				
+				if (parentApplication.submitInternalExperiment()) {
+					if (!parentDocument.sampleSetupView.checkSampleSetupCompleteness()) {
+						return;
+					}
+					
+					numberOfSamples = new Number(parentDocument.sampleSetupView.numberOfSamples.text);
+					
+					if ( hasPlates() ) {
+						numberOfSamples = parentDocument.numIScanPlates*96;
+						populateSampleList();
+						return;
+					}
+					
+				} else {
+					numberOfSamples = 1;
+				}
+				
+				if (parentDocument.samples.length <= numberOfSamples) {
+					numberOfSamplesToAdd = numberOfSamples - parentDocument.samples.length;
+					for(var x:int = 0; x < numberOfSamplesToAdd; x++) {
+						addSample();
+					}
+				} else {
+					while (parentDocument.samples.length > numberOfSamples) {
+						parentDocument.samples.removeItemAt(parentDocument.samples.length - 1);
+					}
+				}
+			}
+			
+									
+			override public function hasPlates():Boolean {
+				return parentDocument.request.@containerType == 'PLATE' ;
+			}
+			
+			
+			public function createEmptySampleList():void {
+				parentDocument.samples.removeAll();
+				for (var sampleIdx:int = 0; sampleIdx < parentDocument.numIScanPlates*96; sampleIdx++) {
+					var emptySample:Object = this.getEmptySequenomNode(sampleIdx);
+					parentDocument.samples.addItem(emptySample);
+				}   
+			}
+			
+			public function populateSampleList():void {
+				var numberOfSamples:int = parentDocument.numIScanPlates*96;
+				
+				for (var sampleIdx:int = 0; sampleIdx < numberOfSamples; sampleIdx++) {
+					
+					var emptySample:Object = this.getEmptySequenomNode(sampleIdx);
+					var existingSamples:XMLList = parentDocument.samples.source.(@plateName==emptySample.@plateName && @wellName==emptySample.@wellName);
+					
+					if ( existingSamples== null || existingSamples.length() == 0 ) {
+						// If no sample in that plate and well, add empty one
+						parentDocument.samples.addItemAt(emptySample, sampleIdx);
+					} else if ( existingSamples.length > 1 ) {
+						// If somehow we have more than one sample in the same well, we remove the extras
+						for ( var ind:int = 1; ind < existingSamples.length; ind ++ ) {
+							parentDocument.samples.removeItemAt(parentDocument.samples.getItemIndex(existingSamples[ind]));
+						}
+					}
+				} 
+				
+				// Remove extra samples
+				while (parentDocument.samples.length > numberOfSamples) {
+					parentDocument.samples.removeItemAt(parentDocument.samples.length - 1);
+				}
+			}
+			
+			override protected function onPromptToClearAllSamples(event:CloseEvent):void {
+				if (event.detail==Alert.YES) {
+					parentDocument.samples.removeAll();
+					this.initializeSamplesGrid();
+						
+					checkSamplesCompleteness();
+					this.initializeBarcoding();
+				}
+			}		
+			
+			override public function checkSamplesCompleteness():void {
+				parentDocument.userWarningsSamples = "";
+				
+				var completeCount:int = 0;
+				var nameCompleteCount:int = 0;
+				for each(var sample:Object in parentDocument.samples) {
+					if (isEntered(sample, "@name")) {
+						nameCompleteCount++;
+					}
+					completeCount++;
+				}
+				
+				var isComplete:Boolean = false;
+				if (parentDocument.samples.length > 0 && completeCount == parentDocument.samples.length) {
+					
+						if (nameCompleteCount >= new Number(parentDocument.sampleSetupView.numberOfSamples.text)) {
+							isComplete = true;
+						} else {
+							isComplete = false;
+						}
+					
+				} else if (parentDocument.isEditState()) {
+					isComplete = true;
+				}
+								
+				parentDocument.confirmView.enabled = isComplete;
+					
+				parentDocument.enableNextButtons();
+								
+				callLater(postSamplesCompleteness, [isComplete]);
+			
+			}
+			
+			private function postSamplesCompleteness(isComplete:Boolean):void {
+				
+				if (!isComplete) {
+					
+					if (parentDocument.theTab.contains(parentDocument.visibilityView)) {
+						parentDocument.visibilityView.enabled = false;					
+					}
+					if (parentDocument.theTab.contains(parentDocument.confirmView)) {
+						parentDocument.confirmView.enabled = false;					
+					}
+				} 
+			
+			}
+			
+			override public function propagateContainerType(containerType:String):void {
+				samplesGrid.dataProvider = null;
+				var idx:int = 0;
+				parentDocument.samples.disableAutoUpdate();
+				for each (var sample:Object in parentDocument.samples) {
+					sample.@containerType = containerType;
+					if (containerType == 'Plate') {
+						this.getSequenomPlateName(idx) ;
+					} else {
+						sample.@plateName = '';
+					}
+					idx++;
+				}
+				parentDocument.samples.enableAutoUpdate();
+			}
+	
+			
+			override public function initializeBarcoding():void {
+				setSamplesGridDataProvider();
+								
+				// handle the download sample sheet events
+				this.samplesGrid.validateNow();
+				callLater(this.checkSamplesCompleteness);
+			
+			}
+			
+			override public function setShowCCNumber(show:Boolean):void {
+				if (showCCNumberCheckbox != null) {
+					this.showCCNumberCheckbox.selected = show;
+				}
+			}
+			
+			override public function getShowCCNumber():Boolean {
+				if (showCCNumberCheckbox != null) {
+					return this.showCCNumberCheckbox.selected;
+				} else {
+					return false;
+				}
+			}
+			
+			private function setSamplesGridDataProvider():void {
+				this.samplesGrid.validateNow(); // Make sure columns on samples grid are created
+				if (hasPlates()) {
+					this.samplesGrid.dataProvider = null;
+					sampleGroupingCollection = new GroupingCollection();
+					sampleGroupingCollection.source = parentDocument.samples;
+					var groupCapSeq:Grouping = new Grouping();
+					var gfCapSeq:GroupingField = new GroupingField();
+					gfCapSeq.name = "@plateName";
+					groupCapSeq.fields = [gfCapSeq];
+					gfCapSeq.compareFunction = plateSampleCompareFunction;
+					sampleGroupingCollection.grouping  = groupCapSeq;
+					sampleGroupingCollection.refresh(); 
+					this.samplesGrid.dataProvider = sampleGroupingCollection;
+					
+					this.samplesGrid.dragMoveEnabled = false;
+					this.samplesGrid.dropEnabled = false;
+					this.samplesGrid.dragEnabled = false;
+					
+					this.sampleRowNumberCol.visible = false;
+					this.plateNameCol.visible = true;
+				} else {
+					this.samplesGrid.sortableColumns = false;
+					sampleGroupingCollection = null;
+					this.samplesGrid.dataProvider = parentDocument.samples;
+					
+					this.samplesGrid.dragMoveEnabled = false;
+					this.samplesGrid.dropEnabled = false;
+					this.samplesGrid.dragEnabled = false;
+					
+					this.sampleRowNumberCol.visible = true;
+					this.plateNameCol.visible = false;
+					
+				}
+			}
+			
+			
+			
+			private function plateSampleCompareFunction(a:XML, b:XML):int
+			{
+				if (a.hasOwnProperty("@plateName") && a.hasOwnProperty("@wellName") && b.hasOwnProperty("@plateName") && b.hasOwnProperty("@wellName")) {
+					var compVal:int = 0;
+					if (a.@plateName == b.@plateName) {
+						compVal = compVal = ObjectUtil.numericCompare(a.@wellName.toString().substr(1), b.@wellName.toString().substr(1));
+						if (compVal == 0) {
+							compVal = ObjectUtil.stringCompare(a.@wellName.toString(), b.@wellName.toString());
+						}
+					} else {
+						compVal = ObjectUtil.stringCompare(a.@plateName.toString(), b.@plateName.toString());
+					}
+					return compVal;
+				} else {
+					var aPersistFlag:Number = 0;
+					var aPosition:Number = 0;
+					if (a.@idSample.toString().indexOf("Sample") > -1) {
+						aPosition = a.@idSample.toString().substr(6);
+						aPersistFlag = 1;
+					} else {
+						aPosition = a.@idSample;
+					}
+					
+					var bPersistFlag:Number = 0;
+					var bPosition:Number = 0;
+					if (b.@idSample.toString().indexOf("Sample") > -1) {
+						bPosition = b.@idSample.toString().substr(6);
+						bPersistFlag = 1; // non-persistent samples sort after the persistent ones
+					} else {
+						bPosition = b.@idSample;
+					}
+					
+					if (aPersistFlag == bPersistFlag) {
+						return ObjectUtil.numericCompare(aPosition, bPosition);				
+					} else {
+						return ObjectUtil.numericCompare(aPersistFlag, bPersistFlag);
+					}
+				}
+			}
+			
+			private function setButtonsVisibility(vis:Boolean):void {
+				buttonsContainer1.visible = vis;
+				buttonsContainer1.includeInLayout = vis;
+				buttonsContainer2.visible = vis;
+				buttonsContainer2.includeInLayout = vis;
+			}
+			
+			override public function showHideColumns():void {
+				isExternal = (parentDocument.isEditState() && parentDocument.request.@isExternal == 'Y') || (!parentDocument.isEditState() && !parentApplication.isInternalExperimentSubmission);
+				isEditState = parentDocument.isEditState();
+				
+				showCCNumberCheckbox.visible =  !isExternal;
+				showCCNumberCheckbox.includeInLayout =  !isExternal;
+				showCCNumberCheckbox.width = isExternal ? 0 : 250;
+				
+				setButtonsVisibility(true);
+				
+				// Don't allow sample editing on edit unless user is admin or experiment is external or experiment is non-submitted dna sq experiment.
+				if (isEditState && !parentApplication.isAdminState && !isExternal && !parentDocument.isSequencingState()) {
+					setButtonsVisibility(false);
+				}
+				
+				// Edit columns shown
+								
+				wellNameCol.visible = hasPlates() ? true : false;
+				plateNameCol.editable = false;
+				wellNameCol.editable = false;
+												
+				sampleNumberCol.visible = parentDocument.isEditState();
+				
+				this.sampleTypeCol.visible = parentDocument.isEditState() || (parentDocument.isSequenomState()&&parentDocument.sampleSetupView.coreToExtractDNACheckBox!=null&&!parentDocument.sampleSetupView.coreToExtractDNACheckBox.selected) ? true : false;
+						
+				this.concentrationCol.visible = parentDocument.isEditState() || (parentDocument.isSequenomState()&&parentDocument.sampleSetupView.coreToExtractDNACheckBox!=null&&!parentDocument.sampleSetupView.coreToExtractDNACheckBox.selected) ? true : false;
+				this.qc_260_280Column.visible = parentDocument.isEditState() || (parentDocument.isSequenomState()&&parentDocument.sampleSetupView.coreToExtractDNACheckBox!=null&&!parentDocument.sampleSetupView.coreToExtractDNACheckBox.selected) ? true : false;
+				
+				if ( parentDocument.isClinicalSequenomState() ) {
+					this.sampleNameCol.visible = false;
+				}
+				
+				if (!parentDocument.isEditState()) {
+					if (parentDocument.theTab.contains(parentDocument.confirmView)) {
+						parentDocument.confirmView.showHideColumns();									
+					}
+				}
+				
+			}
+			
+			override protected function rebuildSamplesGrid():void {
+				var grid:AdvancedDataGrid = getSamplesGrid();
+				var columns:Array = grid.columns;
+				var newColumns:Array = new Array();
+				if (grid != null) {
+					var found:Boolean = false;
+					for (var x:Number = 0; x < columns.length; x++) {
+						var dc:AdvancedDataGridColumn = grid.columns[x];
+						
+						if (dc.dataField == null || dc.dataField.substr(0, 6) != "@ANNOT") {
+							newColumns.push(dc);
+						}
+					}
+					addAnnotationProperties(columns, newColumns);
+				}
+				grid.columns = newColumns;
+				grid.validateNow();
+			}
+			
+			private function toggleShowCCNumber():void {
+				if (!this.showCCNumberCheckbox.selected) {
+					for each(var s:XML in parentDocument.samples) {
+						s.@ccNumber = '';
+					}
+				}
+			}
+						
+			public function plateNameLabelFunction(item:Object, column:AdvancedDataGridColumn):String
+			{
+				if (item is XML) {
+					return "";
+				} else {
+					return item.groupLabel;
+				}
+			}
+			
+			public function textChange(item:String):void {
+				var txt:String = item;
+				if(txt.length == 30) {
+					Alert.show("Maximum allowed limit is 30 characters");					
+				}
+			}
+			
+
+		]]>
+	</mx:Script>	
+	
+	<mx:VBox width="100%" height="100%" verticalGap="2" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
+		<mx:HBox width="100%" id="topBox">
+			<mx:LinkButton textDecoration="underline" id="downloadButton" label="Download sample sheet" click="{downloadSampleSheet()}"   color="#0000FF" icon="@Embed(source='../../assets/download.png')"/>
+			<mx:HBox id="buttonsContainer2" horizontalGap="2">
+				<mx:LinkButton textDecoration="underline"  label="Upload sample sheet" click="uploadSampleSheet();" icon="@Embed(source='../../assets/upload.png')" id="uploadSampleSheetButton" toolTip="Upload sample sheet&#13;(tab delimited txt file)" />
+				<mx:LinkButton textDecoration="underline" id="uploadHintLink" icon="@Embed(source='../../assets/information.png')" visible="{uploadSampleSheetButton.visible}" includeInLayout="{uploadSampleSheetButton.visible}"
+							   label="Upload help" 
+							   click="PopUpManager.centerPopUp(PopUpManager.createPopUp(this, UploadSampleSheetInstructionsView, true));"
+							   toolTip=" 1.  Download the sample sheet or create your own table&#13;       in a program like Excel.&#13; 2.  Fill in the table for all the samples.&#13; 3.  Save the file as a tab-delimited txt file.&#13; 4.  Click 'Upload sample sheet' and select the file you created."/>
+			</mx:HBox>
+			<mx:TextArea styleName="instructionBox" 
+						 width="500" 
+						 wordWrap="true" 
+						 height="54" 
+						 visible="{parentDocument.request.@idRequest == 0}" 
+						 includeInLayout="{parentDocument.request.@idRequest == 0}"
+						 id="textarea1" 
+						 verticalScrollPolicy="off" 
+						 horizontalScrollPolicy="off">
+				<mx:htmlText>Instructions&lt;br&gt;  1.  Fill in the highlighted sample name.&lt;br&gt;  2.  After completing all line items, click the 'Next' button at the bottom of the page to proceed.</mx:htmlText>
+			</mx:TextArea>
+
+		</mx:HBox>
+		<mx:Spacer width="8"/>
+		<mx:HBox width="100%">
+			<mx:HBox id="buttonsContainer1" horizontalGap="2">
+				<mx:LinkButton textDecoration="underline" label="Add sample" click="addSample();this.initializeBarcoding();checkSamplesCompleteness()" icon="@Embed(source='../../assets/add.png')" id="addSampleButton" toolTip="Add sample" />
+				<mx:LinkButton textDecoration="underline" label="Copy sample" click="copyTheSample();" icon="@Embed('../../assets/table_multiple.png')" id="copySampleButton" toolTip="Copy sample(s)" />
+				<mx:LinkButton textDecoration="underline" label="Delete sample" click="promptToDeleteSample()" icon="@Embed(source='../../assets/delete.png')" id="deleteSampleButton" toolTip="Delete sample(s)" />
+				<mx:LinkButton textDecoration="underline" label="Clear all" click="promptToClearAllSamples();deleteSample();" icon="@Embed('../../assets/folder_delete.png')" id="clearSamplesButton" toolTip="Clear all samples" />
+			</mx:HBox>
+			<mx:CheckBox id="showCCNumberCheckbox" 
+						 width="350"
+						 selected="false"
+						 click="toggleShowCCNumber()" 
+						 visible="{parentApplication.isInternalExperimentSubmission &amp;&amp; parentApplication.isBSTLinkageSupported}"
+						 includeInLayout="{parentApplication.isInternalExperimentSubmission &amp;&amp; parentApplication.isBSTLinkageSupported}" 
+						 label="Link to itBioPath samples using CC #" />		  	
+		</mx:HBox>
+
+		<mx:AdvancedDataGrid width="100%" height="100%" id="samplesGrid"  
+							 editable="true"
+							 allowMultipleSelection="false" 
+							 itemFocusOut="checkSamplesCompleteness()" 
+							 horizontalScrollPolicy="auto" 
+							 variableRowHeight="true"
+							 sortableColumns="false"
+							 sortExpertMode="true"  
+							 defaultLeafIcon="{null}" 
+							 iconFunction="getSampleTreeIcon"
+							 displayItemsExpanded="true"  
+							 selectionColor="#DDF3FB">
+			<mx:columns>
+				<mx:AdvancedDataGridColumn id="plateNameCol" headerText="Plate" dataField="@plateName" editable="false" visible="true" width="60" labelFunction="plateNameLabelFunction" />
+				<mx:AdvancedDataGridColumn id="sampleRowNumberCol" visible="true" editable="false" headerText=""  width="25" resizable="false" labelFunction="parentDocument.getSamplesGridRowNumber"/>
+				<mx:AdvancedDataGridColumn id="wellNameCol" visible="false" editable="false" headerText="Well"  width="40" resizable="false" dataField="@wellName"/>
+				<mx:AdvancedDataGridColumn id="sampleNumberCol" headerText="ID" width="80" visible="true"  dataField="@number"  editable="false"/>        
+				<mx:AdvancedDataGridColumn headerText="Sample Name" width="100" editorDataField="text" dataField="@name" rendererIsEditor="false"
+										   id="sampleNameCol"
+										   editable="true" showDataTips="true" dataTipField="Please enter maximum of 30 Characters"
+										   itemRenderer="{hci.flex.controls.Label.create('@name')}" >
+					<mx:itemEditor>
+						<mx:Component id ="sampleNameTextField">
+							<mx:TextInput  maxChars="30" change="outerDocument.textChange(this.text)">
+							</mx:TextInput>
+						</mx:Component>
+					</mx:itemEditor> 
+					
+				</mx:AdvancedDataGridColumn>  
+
+				<mx:AdvancedDataGridColumn headerText="Conc." id="concentrationCol" 
+										   visible="{parentApplication.isInternalExperimentSubmission}"  width="72" dataField="@concentration" rendererIsEditor="false"
+										   itemRenderer="{hci.flex.controls.Label.create('@concentration')}"                 
+										   itemEditor="{views.renderers.GridColumnFillButton.create(new views.renderers.TextInputSampleConcentration(), '')}" editorDataField="value" />
+				<mx:AdvancedDataGridColumn id="qc_260_280Column"
+										   editable="{parentApplication.hasPermission('canWriteAnyObject')}" 
+										   headerText="QC 260/280" width="80" 
+										   dataField="@qual260nmTo280nmRatio" 
+										   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" 
+										   editorDataField="value"/>
+				<mx:AdvancedDataGridColumn id="ccNumber" headerText="CC Number" dataField="@ccNumber" editable="true" 
+										   visible="{showCCNumberCheckbox.visible &amp;&amp; showCCNumberCheckbox.selected &amp;&amp; !parentDocument.isSequencingState() ? true : false}"
+										   width="76"
+										   itemRenderer="{hci.flex.controls.Label.createCustom('@ccNumber', parentApplication.annotationColor, parentApplication.annotationColorBorder, 0)}"                
+										   itemEditor="{views.renderers.GridColumnFillButton.create(hci.flex.controls.TextInput.create('@ccNumber').newInstance(), '')}" editorDataField="value"/>
+				
+				<util:AdvancedDataGridColumnWithType propertyType="OPTION" id="sampleTypeCol"  headerText="Sample Type" visible="true" width="180"   dataField="@idSampleType" 
+													 editorDataField="value" sortable="false" editable="true" rendererIsEditor="false" 
+													 itemRenderer="{views.renderers.DropdownLabel.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SampleType').DictionaryEntry, '@display', '@value', '@idSampleType', false, true)}"                 
+													 itemEditor="{views.renderers.GridColumnFillButton.create(ComboBox.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SampleType').DictionaryEntry, '@display', '@value', '@idSampleType', '@canChangeSampleType', true).newInstance(), '')}"/>
+				
+				
+				
+			</mx:columns>
+		</mx:AdvancedDataGrid>
+
+	</mx:VBox>
+	
+	<exp:states>
+		<mx:State name="ClinicalSequenomState" >
+			<mx:SetProperty target="{showCCNumberCheckbox}" name="selected" value="true"/>
+			<mx:SetProperty target="{showCCNumberCheckbox}" name="enabled" value="false"/>
+		</mx:State>
+	</exp:states>
+
+</exp:TabSamplesBase>

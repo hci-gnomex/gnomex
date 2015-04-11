@@ -1,0 +1,4 @@
+Sample Name	Concentration	Description
+sample abc	13	description for sample abc
+sample def	8	description for sample def
+sample xyz	7	description for sample xyz

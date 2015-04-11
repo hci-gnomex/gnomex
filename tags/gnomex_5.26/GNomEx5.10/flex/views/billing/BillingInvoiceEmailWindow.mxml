@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical" 
+				title="Email Invoice" width="500" height="110" defaultButton="{sendButton}"
+				xmlns:util="views.util.*">
+	<mx:HTTPService                
+		id="showBillingInvoiceForm" 
+		url="ShowBillingInvoiceForm.gx"
+		destination="showBillingInvoiceForm" 
+		resultFormat="e4x"
+		result="onShowBillingInvoiceForm(event)" 
+		fault="parentApplication.onFailHttpRequest('Failed to send email', event)"
+		method="POST"
+		useProxy="false"> 
+	</mx:HTTPService>
+	<mx:Script>
+		<![CDATA[
+			import mx.events.CloseEvent;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+
+			public var idBillingPeriod:String;
+			public var labNode:Object;
+			public var idCoreFacility:String;
+			
+			private function sendEmail():void {
+				var params:Object = new Object();
+				params.idBillingPeriod = idBillingPeriod;
+				params.idLab= labNode.@idLab;
+				params.idBillingAccount= labNode.@idBillingAccount;
+				params.idCoreFacility= idCoreFacility;
+				params.action="email";
+				params.emailAddress = this.emailText.text;
+				
+				showBillingInvoiceForm.send(params);
+			}
+			
+			private function onShowBillingInvoiceForm(event:ResultEvent):void {
+				// Tell navBillingView to refresh.
+				this.currentState = "emailSentState";
+				var e:CloseEvent = new CloseEvent(CloseEvent.CLOSE, true);
+				var dis:Boolean = dispatchEvent(e);
+			}
+		]]>
+	</mx:Script>
+	<mx:HBox width="100%">
+		<mx:VBox height="100%" verticalGap="0" width="100%" id="emailVBox">
+			<mx:Label text="Email Address(es)"/>
+			<mx:TextInput id="emailText" width="100%"/>
+		</mx:VBox>
+	</mx:HBox>
+	<mx:ControlBar horizontalAlign="right">
+		<mx:Button label="Send" id="sendButton" click="sendEmail()" icon="@Embed(source='../../assets/email_go.png')" enabled="{emailText.text != ''}" disabledIcon="@Embed(source='../../assets/email_go_disable.png')"/>
+		<mx:Button label="Close" click="{PopUpManager.removePopUp(this)}"/>
+	</mx:ControlBar>
+	
+	<mx:states>
+		<mx:State name="getEmailState">
+		</mx:State>
+		<mx:State name="emailSentState">
+			<mx:SetProperty target="{sendButton}" name="enabled" value="false"/>
+			<mx:SetProperty target="{emailText}" name="enabled" value="false"/>
+			<mx:SetProperty target="{this}" name="height" value="200"/>
+			<mx:AddChild relativeTo="{emailVBox}" position="lastChild">
+				<mx:VBox paddingTop="10" borderStyle="solid">
+					<mx:Label text="Email Sent" textDecoration="underline" />
+					<mx:Label text="{showBillingInvoiceForm.lastResult.@title}"/>
+					<mx:Label text="{'(' + showBillingInvoiceForm.lastResult.@note + ')'}" visible="{showBillingInvoiceForm.lastResult.hasOwnProperty('@note') &amp;&amp; showBillingInvoiceForm.lastResult.@note != ''}"/>
+				</mx:VBox>
+			</mx:AddChild>
+		</mx:State>
+	</mx:states>
+</mx:TitleWindow>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:ComboBox xmlns:mx="http://www.adobe.com/2006/mxml">
+	<mx:Script>
+		<![CDATA[
+		
+			import mx.events.ListEvent;
+			
+			private var _data:Object;
+	    
+	        override public function set data(o:Object):void {
+	            _data = o;
+	            
+	            this.selectedIndex = -1;
+	            if (o != null && o != "") {
+	                for(var i:int = 0; i < this.dataProvider.length; i++) {
+						if(dataProvider[i].@idLab == o) {
+						  this.selectedIndex = i;
+						  break;
+						} 
+	                }
+	            } else {
+	            	this.prompt = "";
+	            }
+	        }
+	        
+	         [Bindable]           
+	        override public function get data():Object {
+	        	return _data;
+	        }
+			
+	        private function change(event:ListEvent):void {
+	        	_data.@idLab = this.selectedItem.@idLab;
+	        }
+		]]>
+	</mx:Script>
+</mx:ComboBox>

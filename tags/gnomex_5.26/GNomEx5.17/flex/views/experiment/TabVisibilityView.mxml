@@ -1,0 +1,310 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas label="Visibility" 
+	xmlns:mx="http://www.adobe.com/2006/mxml"
+	xmlns:util="views.util.*"  enabled="true"
+	 width="100%" height="100%" show="init()" xmlns:renderers="views.renderers.*" >
+	<mx:states>
+		<mx:State name="EditState">
+			<mx:SetProperty name="enabled" value="true"/>
+		</mx:State>
+	</mx:states>
+	
+  <mx:HTTPService  
+    id="getLab" 
+    url="GetLab.gx"
+    destination="getLab"
+    resultFormat="e4x"
+    showBusyCursor="true"
+    result="onGetLab(event)"
+    fault="parentApplication.onFailHttpRequest('Failed to get group', event)"
+    method="POST"
+    useProxy="false">
+    <mx:request>
+    	<idLab>{idLab}</idLab>
+    </mx:request>
+    	
+   </mx:HTTPService>
+	
+<mx:Script>
+	<![CDATA[
+		import hci.flex.controls.CheckBox;
+		
+		import mx.collections.XMLListCollection;
+		import mx.controls.RadioButton;
+		import mx.controls.Spacer;
+		import mx.events.ListEvent;
+		import mx.rpc.events.ResultEvent;
+		
+		import views.renderers.CheckBoxIsSelectedChipType;
+		import views.util.DateUtils;
+		import views.util.PromptXMLListCollection;
+	
+		private var validNumberOfSamples:Boolean = true;
+		private var validConcentration:Boolean = true;
+		
+		[Bindable]
+		private var idLab:Object;
+		
+		private var idInstitution:Object;
+		
+		[Bindable]
+		private var possibleCollaborators:XMLListCollection;
+
+		[Bindable]
+		private var collaborators:XMLListCollection;
+		
+		[Bindable]
+		private var possibleInstitutions:PromptXMLListCollection;
+
+		public function init():void {
+			checkSecurity();
+			if (this.currentState == "EditState") {
+				this.visibilityRadioGroup.selectedValue = parentDocument.request.@codeVisibility;
+				this.privacyExpirationPicker.text = parentDocument.request.@privacyExpirationDate;
+			} else {
+				if(parentDocument.request.@codeVisibility != null && parentDocument.request.@codeVisibility != '') {
+					this.visibilityRadioGroup.selectedValue = parentDocument.request.@codeVisibility;
+				} else {
+					this.visibilityRadioGroup.selectedValue = 'MEM';
+				}
+				
+				if(parentApplication.isPrivacyExpirationSupported) {
+					var expireDate:Date = DateUtils.dateAdd(DateUtils.MONTH, parseInt(parentApplication.getProperty(parentApplication.DATASET_PRIVACY_EXPIRATION)), new Date());
+					privacyExpirationPicker.text = parentApplication.formatDate(expireDate);
+				}
+			}
+			this.institutionCombo.selectedItem = null;
+			checkVisibilitySetupCompleteness();
+			
+			if (this.currentState == "EditState" || parentDocument.isAmendState()) {
+				idLab = parentDocument.request.@idLab;
+				idInstitution = parentDocument.request.@idInstitution;
+			} else {
+				idLab = parentDocument.setupView.labCombo.selectedItem.@idLab;
+				idInstitution = parentDocument.visibilityView.institutionCombo.selectedItem != null ? parentDocument.visibilityView.institutionCombo.selectedItem.@idInstitution : '';
+			}
+			getLab.send();
+		}
+		
+		public function checkSecurity():void {
+
+		}
+
+		private function onGetLab(event:ResultEvent):void {
+			var inst:Object;
+			if (getLab.lastResult.name() == "OpenLabList") {
+				var emptyNode:XML = new XML("<AppUser " +
+				    " idAppUser=''" +
+				    " displayName=''"  +
+					"/>");
+				var lab:Object = getLab.lastResult..Lab.(@idLab == idLab);
+				collaboratorGrid.dataProvider = null;
+				possibleCollaborators = new XMLListCollection(lab.possibleCollaborators.AppUser.(@isActive == 'Y'));
+				possibleInstitutions = new PromptXMLListCollection(emptyNode, new XMLListCollection(getLab.lastResult..Lab.(@idLab == idLab).institutions.Institution.(@isActive == 'Y')));
+
+				if (this.idInstitution != null && this.idInstitution != '') {
+					for each(inst in possibleInstitutions) {
+						if (inst.@idInstitution == this.idInstitution) {
+							this.institutionCombo.selectedItem =  inst;
+							break;
+						}
+					}
+				} else {
+					var hasDefault:Boolean = false;
+					if(radioInstitutionVisibility.selected && radioInstitutionVisibility.enabled) {
+						for each(inst in possibleInstitutions) {
+							if (inst.@idInstitution == lab.@defaultIdInstitutionForLab) {
+								this.institutionCombo.selectedItem =  inst;
+								hasDefault = true;
+								break;
+							}
+						}	
+					} else if(radioInstitutionVisibility.selected && !radioInstitutionVisibility.enabled){
+						// Default to Member if institution selected but not enabled
+						this.visibilityRadioGroup.selectedValue = 'MEM';					
+					}					
+					if(!hasDefault) {
+						this.institutionCombo.selectedIndex = 0;
+					}	
+				}
+				
+				collaborators = new XMLListCollection();
+				for each (var old:XML in possibleCollaborators) {
+					var o:XML = old.copy();
+					o.@canView = "N";
+					o.@canUpdate = "N";
+					o.@canUploadData = "N";
+					for each (var o1:XML in parentDocument.request.collaborators.ExperimentCollaborator) {
+						if (o1.@idAppUser == o.@idAppUser) {
+							o.@canView = "Y";
+							o.@canUpdate = o1.@canUpdate;
+							o.@canUploadData = o1.@canUploadData;
+							break;
+						}
+					}
+					collaborators.addItem(o);
+				}
+				
+				collaboratorGrid.dataProvider = collaborators;
+				collaboratorGrid.validateNow();
+				checkVisibilitySetupCompleteness();
+			}
+		}
+
+        public function checkVisibilitySetupCompleteness():Boolean {
+        	var isComplete:Boolean = false;
+        	if (parentDocument.isEditState()) {
+        		isComplete = true;
+        	} else if (this.visibilityRadioGroup.selectedValue != null && this.visibilityRadioGroup.selectedValue != '') {
+
+				if (this.visibilityRadioGroup.selectedValue == 'INST') {
+					if (institutionCombo.selectedItem != null && institutionCombo.selectedItem.hasOwnProperty("@idInstitution") && institutionCombo.selectedItem.@idInstitution != '') {
+						isComplete = true;						
+					}					
+				} else {
+					isComplete = true;
+					
+				}
+        	} 
+
+			if (this.currentState != "EditState") {
+	        	parentDocument.confirmView.enabled = isComplete; 
+        	}
+        	
+    		parentDocument.enableNextButtons();
+
+        	
+    		return isComplete;
+    	    	
+        }
+		
+		public function getCollaborators():XMLListCollection {
+			var list:XMLListCollection = new XMLListCollection();
+			for each (var c:XML in collaborators) {
+				if (c.@canView == "Y") {
+					var c1:XML = XML("<ExperimentCollaborator></ExperimentCollaborator>");
+					c1.@idAppUser = c.@idAppUser;
+					c1.@displayName = c.@displayName;
+					c1.@canUpdate = c.hasOwnProperty("@canUpdate") ? c.@canUpdate : "N";
+					c1.@canUploadData = c.hasOwnProperty("@canUploadData") ? c.@canUploadData : "N";
+					list.addItem(c1);
+				}
+			}
+			return list;
+		}
+		
+		private function toggleCheck(event:ListEvent):void {
+			if (event.columnIndex == 1 ) {
+				
+				if (collaboratorGrid.selectedItem.@canView == "Y") {
+					collaboratorGrid.selectedItem.@canView = "N";
+				} else {
+					collaboratorGrid.selectedItem.@canView = "Y";
+				}
+				
+			}
+			if (collaboratorGrid.selectedItem.@canView == "N") {
+				collaboratorGrid.selectedItem.@canUploadData = "N";
+				collaboratorGrid.selectedItem.@canUpdate = "N";
+			}
+			
+		}
+	]]>
+</mx:Script>
+
+  <mx:Canvas width="100%" height="100%" horizontalScrollPolicy="off">
+        	
+	<mx:VBox width="100%" height="100%" verticalGap="20" horizontalScrollPolicy="off" verticalScrollPolicy="off">
+   		<mx:VBox width="100%" paddingTop="4"  verticalGap="0" paddingRight="4" paddingLeft="4" paddingBottom="4">
+		   <mx:HBox width="100%" horizontalGap="0" id="hbox1">
+		       <mx:Text text="(1) Select the level of visibility." id="labelApplication"/>
+		       <mx:RadioButtonGroup id = "radioGroupSeqApp">       	
+		       </mx:RadioButtonGroup>
+		   </mx:HBox>
+		   <mx:HBox horizontalGap="0" width="100%">
+		   	<mx:VBox verticalGap="2" width="100%">
+		   		<mx:RadioButtonGroup id="visibilityRadioGroup"/>
+				<mx:HBox horizontalGap="0">
+					<mx:VBox verticalGap="2" width="140" paddingBottom="1">
+						<mx:RadioButton value="OWNER" label="Owner" groupName="visibilityRadioGroup"  click="checkVisibilitySetupCompleteness();parentDocument.dirty.setDirty()" toolTip="Visible to the submitter and the lab PI" paddingTop="0" paddingBottom="0"/>
+						<mx:RadioButton value="MEM" selected="true" label="All Lab Members" groupName="visibilityRadioGroup"  click="checkVisibilitySetupCompleteness();parentDocument.dirty.setDirty()" toolTip="Visibile to all members of the lab group" paddingBottom="0" paddingTop="0"/>
+					</mx:VBox>
+					<mx:VBox verticalGap="0" height="100%" width="209" verticalAlign="bottom">
+					</mx:VBox>
+				</mx:HBox>				
+				<mx:HBox horizontalGap="0" verticalAlign="middle" visible="{this.possibleInstitutions.length > 1}" includeInLayout="{this.possibleInstitutions.length > 1}">
+					<mx:RadioButton value="INST" selected="true" label="Institution" groupName="visibilityRadioGroup"  click="checkVisibilitySetupCompleteness();parentDocument.dirty.setDirty()" id="radioInstitutionVisibility" enabled="{this.possibleInstitutions.length > 1}" toolTip="Visible to all lab groups that are part of institution" paddingTop="0"/>
+					<mx:ComboBox width="210" dataProvider="{this.possibleInstitutions}" id="institutionCombo" labelField="@display" selectedIndex="{visibilityRadioGroup.selectedValue != 'INST' ? 0 : institutionCombo.selectedIndex}" enabled="{this.possibleInstitutions.length > 1 &amp;&amp; radioInstitutionVisibility.enabled &amp;&amp; visibilityRadioGroup.selectedValue == 'INST'}"  editable="false" change="checkVisibilitySetupCompleteness()" fontSize="11">			       	
+					</mx:ComboBox>	
+					<mx:Text id="institutionNote" styleName="submitNote" paddingLeft="4" visible="{this.radioInstitutionVisibility.enabled ? false : true}" paddingBottom="0" fontSize="10" width="300" paddingTop="0">									
+						<mx:text>Institution visibility can only be set when lab belongs to an institution. Please contact GNomEx administrator.</mx:text>
+					</mx:Text>
+				</mx:HBox>
+				<mx:HBox horizontalGap="0" verticalAlign="middle">
+					<mx:RadioButton value="PUBLIC" label="Public Access" groupName="visibilityRadioGroup"  click="checkVisibilitySetupCompleteness();parentDocument.dirty.setDirty()" toolTip="Visible to everyone" paddingTop="0" paddingBottom="0"/>
+					<mx:HBox horizontalGap="0" verticalAlign="middle">
+						<mx:DateField id="privacyExpirationPicker" change="parentDocument.dirty.setDirty();" editable="true" formatString="YYYY-MM-DD" fontSize="11"></mx:DateField>
+						<mx:Text text="Public visibility date (visibility automatically changes to public on this date) " fontSize="12"/>
+					</mx:HBox>
+				</mx:HBox>
+		   	</mx:VBox>
+		   </mx:HBox>
+		   	 
+
+
+		</mx:VBox>
+		<mx:VBox width="100%" height="100%" verticalGap="0" horizontalScrollPolicy="off" verticalScrollPolicy="off">
+			<mx:Text text="(2) Select other individual collaborators allowed access to this experiment&#xa;"   width="500"/>
+			<mx:DataGrid id="collaboratorGrid" dataProvider="{collaborators}" height="100%"	itemClick="toggleCheck(event)">
+				<mx:columns>
+					<mx:DataGridColumn headerText=""  
+									   width="25" 
+									   editable="true"                        	
+									   dataField="@canView" 
+									   editorDataField="selected" sortable="false"
+									   itemRenderer="{views.renderers.CheckBoxRenderer.create(null, true)}">
+						<mx:headerRenderer>
+							<mx:Component>
+								<mx:Text text="" toolTip="If checked then collaborator can view experiment" />
+							</mx:Component>
+						</mx:headerRenderer>
+					</mx:DataGridColumn>
+					<mx:DataGridColumn headerText="Name"  
+									   width="250" 
+									   editable="false"
+									   dataField="@displayName" />                        	
+					<mx:DataGridColumn headerText="Upload"  
+									   width="60" 
+									   editable="true"                        	
+									   dataField="@canUploadData" 
+									   editorDataField="selected" sortable="false"
+									   itemRenderer="{CheckBox.getFactory('Y', 'N', '@canUploadData', true)}">			 
+						<mx:headerRenderer>
+							<mx:Component>
+								<mx:Text text="Upload" toolTip="If checked then collaborator can upload files to the experiment" />
+							</mx:Component>
+						</mx:headerRenderer>
+					</mx:DataGridColumn>
+					<mx:DataGridColumn headerText="Update"  
+									   width="60" 
+									   editable="true"                        	
+									   dataField="@canUpdate" 
+									   editorDataField="selected" sortable="false"
+									   itemRenderer="{CheckBox.getFactory('Y', 'N', '@canUpdate', true)}">			 
+						<mx:headerRenderer>
+							<mx:Component>
+								<mx:Text text="Update" toolTip="If checked then collaborator can update data on the experiment" />
+							</mx:Component>
+						</mx:headerRenderer>
+					</mx:DataGridColumn>
+				</mx:columns>
+			</mx:DataGrid>
+		</mx:VBox>
+		
+	</mx:VBox>
+	
+  </mx:Canvas>
+
+
+	
+</mx:Canvas>

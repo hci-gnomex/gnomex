@@ -1,0 +1,424 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow 
+	xmlns:mx="http://www.adobe.com/2006/mxml"
+	title="{'Add new data track to ' + parentName}"	
+	showCloseButton="true" 
+	width="518" 
+	height="446" 
+	close="closeWindow()"
+	titleIcon="{parentApplication.iconDataTrackNew}"
+	layout="vertical" backgroundAlpha="100" defaultButton="{saveButton}" currentState="NormalState">
+	<mx:states>
+		<mx:State name="NormalState">
+			<mx:SetStyle target="{label2}" name="paddingTop" value="4"/>
+			<mx:SetStyle target="{label2}" name="textAlign" value="left"/>
+			<mx:SetStyle target="{mainBody}" name="paddingBottom" value="4"/>
+			<mx:SetStyle target="{mainBody}" name="paddingLeft" value="4"/>
+			<mx:SetStyle target="{mainBody}" name="paddingRight" value="4"/>
+			<mx:SetStyle target="{mainBody}" name="paddingTop" value="4"/>
+		</mx:State>
+		<mx:State name="FDTState"/>
+	</mx:states>
+
+    <mx:HTTPService             
+      id="saveDataTrack" 
+      url="SaveDataTrack.gx"
+      resultFormat="e4x"
+      result="onSaveDataTrack(event)"
+      fault="parentApplication.onFailHttpRequest('Failed to add data track', event)"
+      method="POST"
+      useProxy="false">
+      <mx:request>
+         <name>{dataTrackName.text}</name>
+         <idGenomeBuild>{genomeBuild.@idGenomeBuild}</idGenomeBuild>
+         <idDataTrackFolder>{idParentDataTrackFolder}</idDataTrackFolder>
+         <codeVisibility>{visibilityCombo.selectedItem != null ? visibilityCombo.selectedItem.@value : ''}</codeVisibility>
+         <idLab>{this.labCombo.selectedItem != null ? labCombo.selectedItem.@idLab : ''}</idLab>
+      </mx:request>
+    </mx:HTTPService> 
+    
+    <mx:HTTPService  
+      id="getUploadURL" 
+      url="UploadDataTrackURLServlet.gx"
+      resultFormat="e4x"
+      showBusyCursor="true" 
+      result="onGetUploadURL(event)" 
+	  fault="parentApplication.onFailHttpRequest('Failed to get upload URL', event)"
+      method="POST"
+      useProxy="false">
+    </mx:HTTPService>
+	
+
+
+
+<mx:Script>
+	<![CDATA[
+	
+	import mx.collections.XMLListCollection;
+	import mx.controls.Alert;
+	import mx.managers.PopUpManager;
+	import mx.rpc.events.ResultEvent;
+	
+	import views.util.FileUploadEvent;
+	import views.util.MultiFileUploadDataTrack;
+	
+	[Bindable]
+	private var trimmedName:String = "";
+
+	[Bindable]
+	public var idParentDataTrackFolder:Object = null;
+	[Bindable]
+	public var parentName:Object = null;
+	[Bindable]
+	private var genomeBuild:Object = null;
+	
+	
+	[Bindable]
+	public var idDataTrack:Object = null;
+	private var multiFileUpload:MultiFileUploadDataTrack;
+
+	private var parentView:DisplayObject = null;
+
+	private var itemToSelect:XML;
+
+	public function init(genomeBuild:Object, parent:Object, parentView:DisplayObject, idLab:Object):void {
+		this.parentView = parentView;
+		this.genomeBuild = genomeBuild;
+		if (parent != null) {
+			this.idParentDataTrackFolder = parent.@idDataTrackFolder;
+			parentName = parent.@label;			
+		} else {
+			parentName = genomeBuild.@name;
+		}
+		
+		var idLab:Object = idLab;
+		if (idLab == null) {
+			if (!parentApplication.hasPermission('canWriteAnyObject') || 
+				(parent != null && parent.@idLab != null && parent.@idLab != "")) {
+				idLab = parent.@idLab;		
+			}
+		}
+		// If the parent folder belongs to a user group or this is a non-admin
+		// user, set the dataTrack
+		// visibility to 'Members' and the user group combo
+		// to the same user group.
+		// Otherwise; set the visibility to 'PUBLIC'.
+		if (idLab != null) {
+			for each(var item:Object in parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Visibility').DictionaryEntry) {
+				if (item.@value == 'MEM') {
+					this.visibilityCombo.selectedItem = item;
+					break;
+				}
+			}
+			for each (var g:Object in labCombo.dataProvider) {
+				if (g.@idLab == idLab) {
+					labCombo.selectedItem = g;
+					break;
+				}					
+			}			
+		} else {
+			for each(var v:Object in parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Visibility').DictionaryEntry) {
+				if (v.@value == 'PUBLIC') {
+					this.visibilityCombo.selectedItem = v;
+					break;
+				}
+			}
+			
+		}
+
+
+		this.defaultButton = uploadBrowseButton;
+		getUploadURL.send();
+	}
+		
+	private function setDefaultVisibility():void {
+		if (this.labCombo.selectedItem != null && this.labCombo.selectedItem.@idLab != "") {
+			for each(var item:Object in parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Visibility').DictionaryEntry) {
+				if (item.@value == 'MEM') {
+					this.visibilityCombo.selectedItem = item;
+					break;
+				}
+			}
+		}
+	}
+				
+	
+	private function trimName():void {
+		this.trimmedName = dataTrackName.text;
+		var pos:int = trimmedName.lastIndexOf("/");
+		if (pos < 0) {
+			pos = trimmedName.lastIndexOf("\\");
+		}
+		
+		if (pos >= 0) {
+			var endPos:int = trimmedName.indexOf(".graphs.seqs", pos);
+			if (endPos < 0) {
+				endPos = trimmedName.indexOf(".", pos);
+			}
+			if (endPos < 0) {
+				endPos = trimmedName.length;
+			}
+			trimmedName  = trimmedName.substring(pos + 1, endPos);
+			
+			uploadBrowseButton.setFocus();
+			this.defaultButton = uploadBrowseButton;
+			
+			
+		}
+		dataTrackName.text = trimmedName;
+	}
+
+	
+
+	
+
+   	private function onSaveDataTrack(event:ResultEvent):void {
+		if (saveDataTrack.lastResult.name() == "SUCCESS") {			
+			// If this is an FDT Upload, make the request to download the 
+			// FDT webstart application
+			if (this.currentState == "FDTState") {
+				navigateToURL(new URLRequest('DataTrackFDTUploadFiles.gx?idDataTrack=' + saveDataTrack.lastResult.@idDataTrack), '_self');	
+			}
+
+			closeWindow();
+			itemToSelect = new XML(
+			   "<DataTrack " +
+			     "idDataTrack='" + saveDataTrack.lastResult.@idDataTrack + "'" +
+			     "idDataTrackFolder='" + saveDataTrack.lastResult.@idDataTrackFolder  + "'" +
+			     "idGenomeBuild='" + genomeBuild.@idGenomeBuild  + "'" +
+			    "/>");
+			if (parentView is NavDataTrackView) {
+				NavDataTrackView(parentView).refreshDataTracksAndSelect(itemToSelect);
+			} else if (parentView is DistributeDataTrackWindow) {
+				DistributeDataTrackWindow(parentView).refreshDataTracksAndSelect(itemToSelect);
+			}
+			
+			
+		}else {
+			Alert.show(saveDataTrack.lastResult..ACTMESSAGE.@TEXT);
+		}		
+	}
+
+    private function openFileUploadWindow(idDataTrack:Object, dataTrackName:String):void {
+    	var uploadWindow:DataTrackUploadWindow = DataTrackUploadWindow(PopUpManager.createPopUp(parentApplication.theBody, DataTrackUploadWindow, true));
+    	PopUpManager.centerPopUp(uploadWindow);
+    	uploadWindow.idDataTrack = idDataTrack;
+    	uploadWindow.dataTrackName = dataTrackName;
+    	uploadWindow.init();
+
+    }
+   
+    private function closeWindow():void {
+		PopUpManager.removePopUp(this);		
+	}
+	
+	private function save():void {
+		if (this.saveButton.label == 'Save') {
+			saveDataTrack.send()
+		}
+		
+
+	}
+
+	private function onGetUploadURL(event:ResultEvent):void {
+		if (getUploadURL.lastResult.name() == "UploadURL") {
+			var url:String = getUploadURL.lastResult.@url;
+			var fileExtensions:String = getUploadURL.lastResult.@fileExtensions;
+			initializeFileUploadControl(url, fileExtensions);
+		} else {
+			Alert.show(getUploadURL.lastResult..ACTMESSAGE.@TEXT);
+			
+		}
+	}
+		
+	public function initializeFileUploadParameters():void{
+		if (multiFileUpload != null) {
+			var postVariables:URLVariables = new URLVariables;
+			
+			postVariables.name =  dataTrackName.text;
+			postVariables.idGenomeBuild = genomeBuild.@idGenomeBuild;
+			postVariables.idDataTrackFolder = idParentDataTrackFolder != null ? idParentDataTrackFolder : '-99';
+			postVariables.codeVisibility = visibilityCombo.selectedItem != null && visibilityCombo.selectedItem.@value != '' ? visibilityCombo.selectedItem.@value : 'PUBLIC';
+			postVariables.idLab = labCombo.selectedItem != null && labCombo.selectedItem.@idLab != '' ? labCombo.selectedItem.@idLab : '-99';
+			
+			multiFileUpload.setUploadURLParameters(postVariables);  
+			
+		}
+	}
+			
+					
+	private function initializeFileUploadControl(uploadServletURL:String, fileExtensions:String):void{
+        
+        if (multiFileUpload == null) {
+	       	var fileFilters:Array = new Array();
+	        var ff:FileFilter = new FileFilter("Genomic datasets (" + fileExtensions + ")", fileExtensions);
+			fileFilters.push(ff);
+			
+	        multiFileUpload = new MultiFileUploadDataTrack(
+	            this.uploadFilesGrid,
+	            this.uploadBrowseButton,
+	            this.uploadDeleteButton,
+	            this.uploadClearButton,
+	            this.saveButton,
+	            this.uploadProgressBar,
+	            uploadServletURL,
+	            postVariables,
+	            0,
+	            fileFilters
+	            );
+	        
+	       multiFileUpload.addEventListener(Event.COMPLETE, onUploadFinished);
+	       multiFileUpload.addEventListener(Event.OPEN, onChooseFileToUpload);
+	       multiFileUpload.addEventListener(DataEvent.UPLOAD_COMPLETE_DATA, onIndividualFileUploaded);
+        	
+        } else {
+        	var postVariables:URLVariables = new URLVariables;
+	        postVariables.idDataTrack = idDataTrack;
+	        multiFileUpload.setUploadURLParameters(postVariables);  
+        }
+      
+   }
+   
+   //
+   // Called after all file upload have completed
+   //
+   public function onUploadFinished(event:Event):void{
+   		if (multiFileUpload.getSkipCount() > 0) {
+   			Alert.show(multiFileUpload.getSkipCount() + " file(s) were skipped.\n(0 length files are not uploaded.)", "Upload Warning");
+   		}
+   	
+   		// Select the added dataTrack
+   		parentApplication.navDataTrackView.refreshDataTracksAndSelect(itemToSelect);
+   		
+   		// Just close window when uploads complete.
+   		this.closeWindow();
+   }	
+   
+   //
+   // Called after user has selected files to upload
+   //
+   public function onChooseFileToUpload(event:Event):void {
+   	    initializeFileUploadParameters();
+   	    this.saveButton.setFocus();
+   	    this.saveButton.label = "Upload and Save";
+   	    this.defaultButton = this.saveButton;
+
+   }
+   
+   //
+   // Called after each individual file has been updated
+   //
+   public function onIndividualFileUploaded(event:DataEvent):void {
+   		// When the first file is upload, the dataTrack is
+   		// added.  Grab the id and use in subsequent
+   		// upload requests so that the uploaded files are
+   		// associated with the dataTrack just added.
+   		var response:XML = XML( event.data );
+   		var idDataTrack:Object = response.@idDataTrack;		
+       	var postVariables:URLVariables = new URLVariables;
+       	postVariables.idDataTrack =  idDataTrack.toString();
+	   	multiFileUpload.setUploadURLParameters(postVariables);  
+	   	
+	   	// Capture the dataTrack that will be selected from
+	   	// the tree when the upload is finished.
+	 	itemToSelect = new XML(
+			   "<DataTrack " +
+			     "idDataTrack='" + response.@idDataTrack + "'" +
+			     "idDataTrackFolder='" +  (idParentDataTrackFolder != null ? idParentDataTrackFolder : '')+ "'" +
+			     "idGenomeBuild='" + genomeBuild.@idGenomeBuild  + "'" +
+			    "/>");
+
+   }
+		
+   private function pickState():void {
+	   if (this.uploadMethod.selectedValue == 'normal') {
+		   this.currentState = 'NormalState';
+	   } else {
+		   this.currentState = 'FDTState';
+	   }
+   }
+
+	
+	]]>
+</mx:Script>
+    
+    <mx:VBox id="mainBody" styleName="form" width="100%" height="100%">
+        <mx:VBox width="100%" height="100%" id="vbox1" verticalGap="12">
+
+			<mx:VBox  width="100%" verticalGap="0">
+                <mx:Label text="Name:" width="100%" fontWeight="bold" id="label2"/>
+			    <mx:HBox width="100%">
+			    	<mx:TextArea id="dataTrackName"  width="100%" change="{initializeFileUploadParameters()}" maxChars="2000"/>
+			    </mx:HBox>
+			    <mx:HBox width="100%" horizontalAlign="left">
+				    <mx:LinkButton id="trimButton" label="Trim name" click="trimName()" styleName="linkMenuButton" textDecoration="underline" paddingTop="0" paddingLeft="0"/>			    	
+			    </mx:HBox>
+				
+			</mx:VBox>
+			<mx:VBox label="Files" width="100%" id="vbox2" verticalGap="0" paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0" height="100%">
+				<mx:HBox width="100%" verticalAlign="middle" visible="{parentApplication.isFDTSupported}">
+					<mx:RadioButtonGroup id="uploadMethod" selectedValue="normal" />
+					<mx:RadioButton  groupName="uploadMethod" label="Normal upload" value="normal" selected="true" click="pickState()"/>
+					<mx:RadioButton groupName="uploadMethod" label="FDT upload (files > 1GB)" value="fdt" click="pickState()"/>
+				</mx:HBox>
+				<mx:HBox width="100%" verticalAlign="middle" 
+						 visible="{currentState == 'NormalState'}" 
+						 includeInLayout="{currentState == 'NormalState'}">
+					<mx:LinkButton id="uploadBrowseButton" 
+						label="Choose files"
+						icon="{parentApplication.iconChooseFiles}"  
+					    disabledIcon="{parentApplication.iconChooseFilesDisabled}"  
+					   	 toolTip="Choose file(s) to upload"  textDecoration="underline" paddingTop="0" paddingLeft="0" fontWeight="bold"/>
+					
+				</mx:HBox>
+				<mx:VBox width="100%" verticalGap="2" height="100%" >
+					<mx:DataGrid id="uploadFilesGrid" width="100%" height="100%" 
+								 visible="{currentState == 'NormalState'}" 
+								 includeInLayout="{currentState == 'NormalState'}" >				
+					</mx:DataGrid>				
+					<mx:ProgressBar id="uploadProgressBar" 
+									visible="{currentState == 'NormalState'}" 
+									includeInLayout="{currentState == 'NormalState'}" 
+								    width="100%" labelPlacement="center" trackHeight="15" height="20" fontWeight="normal" themeColor="#EAED9A"/>
+					<mx:Text visible="{currentState == 'FDTState'}" 
+							 includeInLayout="{currentState == 'FDTState'}" 
+							 width="100%" 
+							 text="After pressing 'Save' button, a webstart FDT application will launch. Pick the files to upload from the file chooser and press 'Start Upload'." paddingTop="4" height="40"/> 
+				</mx:VBox>
+			</mx:VBox>
+			
+				<mx:VBox width="100%" verticalGap="0">
+					<mx:Label text="Lab:" fontWeight="bold">
+					</mx:Label>
+					<mx:ComboBox id="labCombo" dataProvider="{parentApplication.promptedLabList}" width="100%" labelField="@name" change="{initializeFileUploadParameters();setDefaultVisibility()}">
+					</mx:ComboBox>
+				</mx:VBox>
+					<mx:VBox width="100%" verticalGap="0">
+					<mx:Label text="Visibility:" width="100%" fontWeight="bold" id="label3"/>
+					<mx:HBox width="100%" id="visibilityBox">
+						<mx:ComboBox id="visibilityCombo" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Visibility').DictionaryEntry}" labelField="@display" width="100%"  change="{initializeFileUploadParameters()}"></mx:ComboBox>							        					
+					</mx:HBox>
+					</mx:VBox>
+			            	
+        </mx:VBox>
+	
+
+    	
+    </mx:VBox>
+	
+	<mx:ControlBar horizontalAlign="right">
+	    <mx:Button id="uploadDeleteButton" width="0"  visible="false"/>
+	    <mx:Button id="uploadClearButton" 
+            width="0" visible="false" />
+		<mx:Button id="saveButton"  
+			enabled="{dataTrackName.text != null &amp;&amp; dataTrackName.text != '' &amp;&amp; visibilityCombo.selectedItem != null &amp;&amp; visibilityCombo.selectedItem.@value != '' &amp;&amp; (visibilityCombo.selectedItem.@value == 'PUBLIC' || (labCombo.selectedItem != null &amp;&amp; labCombo.selectedItem.@idLab != '')) ? true : false}" 
+			icon="{parentApplication.iconSave}" 
+			disabledIcon="{parentApplication.iconSaveDisabled}" 
+			label="Save"
+			click="{save()}"/>
+		<mx:Button id="cancelButton" label="Cancel" click="closeWindow()"/>
+	</mx:ControlBar>
+	
+
+
+</mx:TitleWindow>

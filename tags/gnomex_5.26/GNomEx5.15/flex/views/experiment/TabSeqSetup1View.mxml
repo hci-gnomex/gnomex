@@ -1,0 +1,488 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas  label="Seq Setup" xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%"  enabled="false" show="{init();}">
+	<mx:HTTPService  
+		id="getHiSeqRunTypePriceList" 
+		url="GetHiSeqRunTypePriceList.gx"
+		destination="getHiSeqRunTypePriceList" 
+		resultFormat="e4x"
+		showBusyCursor="true"
+		result="onGetHiSeqRunTypePriceList(event)"
+		fault="parentApplication.onFailHttpRequest('Unable to get HiSeq run type price list', event)"
+		method="POST"
+		useProxy="false">
+	</mx:HTTPService>
+
+	<mx:states>
+		<mx:State name="BarcodeState">
+			<mx:SetProperty target="{label10}" name="text">
+				<mx:value>(2) Select a HiSeq Run Type.</mx:value>
+			</mx:SetProperty>
+			<mx:SetProperty target="{label10}" name="width" value="340"/>
+			<mx:AddChild relativeTo="{hbox1}" position="firstChild">
+				<mx:HBox width="100%" horizontalGap="0" verticalAlign="middle" paddingTop="10">
+					<mx:Text styleName="requiredBox" text="(1) Select the number of samples you would like to have combined into a single sequence lane." width="340"/>
+					<mx:TextInput id="numberSamplesPerChannel" width="50" change="{changeNumberSamplesPerChannel()}"/>
+					<mx:Label id="maxSamplesWarning" visible="false" text="The number of samples selected for combining into a single sequence lane exceeds the total number of samples" color="0x0000FF"/>
+				</mx:HBox>
+			</mx:AddChild>
+		</mx:State>
+	</mx:states>
+	
+	<mx:NumberValidator id="samplesPerChannelValidator" allowNegative="false" minValue="0" required="true" domain="int" maxValue="{this.maxSamplesPerChannelValidator}" source="{numberSamplesPerChannel}" property="text"/>
+<mx:Script>
+	<![CDATA[
+		import mx.collections.Sort;
+		import mx.collections.XMLListCollection;
+		import mx.events.ValidationResultEvent;
+		import mx.formatters.CurrencyFormatter;
+		import mx.rpc.events.ResultEvent;
+		
+		private var currencyFormatter:CurrencyFormatter = new CurrencyFormatter();
+
+		private var barcodes:XMLListCollection = null;
+		
+		[Bindable]
+		private var filteredNumberSequencingCyclesAllowedList:XMLListCollection;
+		
+		private var configuredCodeRequestCategory:String = "";
+		private var configuredEditState:String = "";
+		
+		[Bindable]
+		private var maxSamplesPerChannel:int = 2;
+		
+		[Bindable]
+		private var maxSamplesPerChannelValidator:int;
+		
+		private var barcodesSort:Sort = null;
+		
+		public var selectedIdLab:String = null;
+		public var selectedCodeRequestCategory:String = null;
+		private var loadedIdLab:String = null;
+		private var loadedCodeRequestCategory:String = null;
+		private var priceMap:Dictionary = new Dictionary();
+		
+		private function init():void {
+			currencyFormatter.currencySymbol = "$";
+			currencyFormatter.precision = 2;
+			currencyFormatter.useThousandsSeparator;
+			
+			maxSamplesPerChannelValidator = parentDocument.samples.length;
+			//When creating a second experiment in the same session the numberSequencingCyclesBox wasn't being displayed
+			//So re-validate it so it is redrawn
+			numberSequencingCyclesBox.validateNow();
+			
+			if(currentState == 'BarCodeState' && numberSamplesPerChannel.text != null && numberSamplesPerChannel.text != ""){
+				changeNumberSamplesPerChannel();
+			}
+			
+			//Since old values are not cleared out when creating second experiment in same session
+			//Check to make sure that the old values are valid enough to enable the next button right away.
+			parentDocument.enableNextButtons();
+			
+
+			// Make sure barcodes are defaulted
+			if (barcodes == null) {
+				pickBarcodeScheme();
+			}
+			initFilteredLists();
+		}
+		
+		private function makePriceKey(obj:Object):String {
+			var key:String = obj.@idSeqRunType.toString() + ":" + obj.@idNumberSequencingCycles.toString();
+			return key;
+		}
+		
+		private function initFilteredLists():void {
+			var localIsEdit:String = parentDocument.isEditState() ? "Y" : "N";
+			if (configuredCodeRequestCategory != parentDocument.getRequestCategory().@codeRequestCategory || configuredEditState != localIsEdit) {
+				var numberSequencingCyclesAllowedSorter:Sort = new Sort();
+				numberSequencingCyclesAllowedSorter.compareFunction = this.sortNumberSequencingCyclesAllowed;
+				
+				filteredNumberSequencingCyclesAllowedList = new XMLListCollection(parentApplication.dictionaryManager.getEntries('hci.gnomex.model.NumberSequencingCyclesAllowed'));
+				filteredNumberSequencingCyclesAllowedList.sort = numberSequencingCyclesAllowedSorter; 
+				filteredNumberSequencingCyclesAllowedList.filterFunction = filterNumberSequencingCyclesAllowed;
+				filteredNumberSequencingCyclesAllowedList.refresh();
+				
+				var prevCustom:String = '';
+				for each(var obj:Object in filteredNumberSequencingCyclesAllowedList) {
+					if (prevCustom != obj.@isCustom) {
+						if (obj.@isCustom == 'N') {
+							obj.@first='S';
+						} else {
+							obj.@first='C';
+						}
+					} else {
+						obj.@first = '';
+					}
+					prevCustom = obj.@isCustom;
+					
+					var key:String = this.makePriceKey(obj);
+					var price:String = this.priceMap[key];
+					if (price == null) {
+						price = "";
+					}
+					obj.@price = price;
+				}
+				
+				filteredNumberSequencingCyclesAllowedList.refresh();
+
+				configuredCodeRequestCategory = parentDocument.getRequestCategory().@codeRequestCategory;
+				configuredEditState = localIsEdit;
+			}
+		}
+		
+		public function loadPriceList(idLab:String, codeRequestCategory:String):void {
+			selectedIdLab = idLab;
+			selectedCodeRequestCategory = codeRequestCategory;
+			if (selectedIdLab != null && selectedCodeRequestCategory != null && (loadedIdLab != selectedIdLab || loadedCodeRequestCategory != selectedCodeRequestCategory)) {
+				priceMap = new Dictionary();
+				var parms:Object = new Object();
+				parms.idLab = selectedIdLab;
+				parms.codeRequestCategory = selectedCodeRequestCategory;
+				getHiSeqRunTypePriceList.send(parms);
+			}
+		}
+		
+		private function onGetHiSeqRunTypePriceList(event:ResultEvent):void {
+			priceMap = new Dictionary();
+			for each (var price:Object in getHiSeqRunTypePriceList.lastResult.Price) {
+				var key:String = this.makePriceKey(price);
+				priceMap[key] = currencyFormatter.format(price.@price.toString());
+			}
+
+			loadedIdLab = selectedIdLab;
+			loadedCodeRequestCategory = selectedCodeRequestCategory;
+		}
+		
+       	public function propagateSeqRunType():void {
+
+			var idSeqRunType:Object = ''; 
+			if (parentDocument.isSolexaState()) {
+				idSeqRunType = this.getIdSeqRunTypeSelected();				
+				
+				for each (var sample:Object in parentDocument.samples) {
+					sample.@idSeqRunType = idSeqRunType;
+				}
+				for each (var lane:Object in parentDocument.lanes) {
+					lane.@idSeqRunType = idSeqRunType;
+				}
+				callLater(parentDocument.samplesView.checkSamplesCompleteness);
+				
+			}
+		}  
+
+       	public function propagateNumberSequencingCycles():void {
+			for each (var sample:Object in parentDocument.samples) {
+				sample.@idNumberSequencingCycles = getIdNumberSequencingCyclesSelected();				
+			}
+			for each (var lane:Object in parentDocument.lanes) {
+				lane.@idNumberSequencingCycles = getIdNumberSequencingCyclesSelected();
+			}
+			callLater(parentDocument.samplesView.checkSamplesCompleteness);
+		}
+		
+		public function getNumberSequencingCyclesSelected():Object {
+			var numberSequencingCycles:Object = null;
+			if (this.numberSequencingCyclesRadioGroup.selectedValue != null && this.numberSequencingCyclesRadioGroup.selectedValue != '') {
+				for each(var item:Object in filteredNumberSequencingCyclesAllowedList) {
+					if (item.@value == this.numberSequencingCyclesRadioGroup.selectedValue) {
+						numberSequencingCycles = item;
+						break;
+					}
+				}
+			}
+			return numberSequencingCycles;
+		}
+		
+		public function getIdNumberSequencingCyclesSelected():String {
+			var idNumberSequencingCycles:String = '';
+			var o:Object = getNumberSequencingCyclesSelected();
+			if (o != null) {
+				idNumberSequencingCycles = o.@idNumberSequencingCycles;
+			}
+			return idNumberSequencingCycles;
+		}
+		
+		public function getIdSeqRunTypeSelected():String {
+			var idSeqRunType:String = '';
+			var o:Object = getNumberSequencingCyclesSelected();
+			if (o != null) {
+				idSeqRunType = o.@idSeqRunType;
+			}
+			return idSeqRunType;
+		}
+		
+	    public function checkSeqSetup1Completeness():Boolean {
+        	var isComplete:Boolean = false;
+        	if (parentDocument.isEditState()) {
+        		isComplete = true;
+        	}else if (parentDocument.isSolexaState()) {
+	        	if (this.getNumberSequencingCyclesSelected() != null) {
+	        	
+					isComplete = true;
+	        		 if (this.currentState == 'BarcodeState') {
+						if (this.samplesPerChannelValidator.validate().type == ValidationResultEvent.VALID){ // && this.barcodes.length > 0) {
+							isComplete = true;							
+						}        			
+	        		} else {
+		        		isComplete = true;
+	        			
+	        		} 
+	        	    
+	        	 }
+        	} 
+			
+			// If we are adding lanes, just make sure that the number of cycles has been selected
+			if (parentDocument.currentState == 'SolexaLaneAmendState') {
+				if(this.numberSequencingCyclesRadioGroup.selectedValue == null || this.numberSequencingCyclesRadioGroup.selectedValue == ''){
+					isComplete = false;
+				}				
+			} else {
+				// If we are a new experiment, make sure we have a valid number of samples per lane and that the number of cycles has been specified
+				if(this.samplesPerChannelValidator.validate().type != ValidationResultEvent.VALID || this.numberSequencingCyclesRadioGroup.selectedValue == null || this.numberSequencingCyclesRadioGroup.selectedValue == ''){
+					isComplete = false;
+				}
+				
+			}
+        	
+    		parentDocument.samplesView.enabled = isComplete; 
+    			
+			if (parentDocument.theTab.contains(parentDocument.annotationView)) {
+				parentDocument.annotationView.enabled = isComplete;        			
+	    	}
+			
+    		parentDocument.enableNextButtons();
+
+        	callLater(postSeqSetup1Completeness, [isComplete]);
+        	
+    		return isComplete;
+    	    	
+        }
+        
+        private function postSeqSetup1Completeness(isComplete:Boolean):void {
+	    		
+	    	if (!isComplete) {
+	        	parentDocument.confirmView.enabled = false;
+    		} else {
+    			parentDocument.samplesView.checkSamplesCompleteness();
+    		}
+        	
+        }
+        
+         private function initializeBarcodes():void {
+        	barcodes = new XMLListCollection();
+
+        	var bestFitBarcodeCount:int = 99;
+        	if (this.currentState == 'BarcodeState') {
+	        	for each(var barcodeScheme:Object in parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OligoBarcodeScheme').DictionaryEntry) {
+    	    		// Only use scheme if it is allowed for this request category
+    	    		var keepScheme:Boolean = false;
+    	    		for each (var x:XML in parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OligoBarcodeSchemeAllowed').DictionaryEntry.(@value != '' && @idOligoBarcodeScheme == barcodeScheme.@idOligoBarcodeScheme)) {
+						for each ( var seqLibProt:XML in parentDocument.seqLibProtocolList){
+							if ( x.@idSeqLibProtocol == seqLibProt.@idSeqLibProtocol) {
+								keepScheme = true;
+								break;
+							}
+						}
+						if (keepScheme) {
+							break;
+						}
+    	    		}
+    	    		if (!keepScheme) {
+    	    			continue;
+    	    		}
+    	    		
+    	    		var theBarcodes:XMLListCollection = new XMLListCollection(parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OligoBarcode').DictionaryEntry.(@value != '' && @isActive != 'N' && @idOligoBarcodeScheme == barcodeScheme.@value));
+    	    		if ((this.samplesPerChannelValidator.validate().type == ValidationResultEvent.VALID || this.numberSamplesPerChannel.text == "") && Number(this.numberSamplesPerChannel.text) <= theBarcodes.length) {
+						// Inactive barcode schemes will have a barcode length of 0 based on E4x.  Temporarily
+						// working around problem by making sure that barocodes length > 0
+						// to consider for best fit
+    	    		   	if (theBarcodes.length > 0 && theBarcodes.length < bestFitBarcodeCount) {
+    	    		   		// Sort barcodes by sortOrder
+    	    		   		barcodesSort = new Sort();
+	        				barcodesSort.compareFunction = this.sortBarcodes;
+	        				theBarcodes.sort = barcodesSort;
+	        				theBarcodes.refresh();
+    	    		   		
+    	    		   		barcodes = theBarcodes;
+    	    		   		bestFitBarcodeCount = theBarcodes.length;
+    	    		   	}
+    	    		}
+        		}
+        		if (barcodes.length == 0) {
+        			// mx.controls.Alert.show("Unable to initialize barcodes.", "Error");
+        		}
+        	} else {
+        		barcodes = new XMLListCollection();
+        	}
+        	
+        } 
+        
+         private function sortBarcodes(obj1:Object, obj2:Object, fields:Array=null):int {
+			if (obj1 == null && obj2 == null) {
+				return 0;
+			} else if (obj1 == null) {
+				return 1;
+			} else if (obj2 == null) {
+				return -1;
+			} else {
+				var order1:int = obj1.@sortOrder;
+				var order2:int = obj2.@sortOrder;
+				
+				if (obj1.@value == '') {
+					return -1;
+				} else if (obj2.@value == '') {
+					return 1;
+				} else {
+					if (order1 < order2) {
+						return -1;
+					} else if (order1 > order2) {
+						return 1;
+					} else {
+						return 0;
+					}
+				}
+			}			
+		} 			
+
+        
+         public function pickBarcodeScheme():void {
+			if (parentApplication.submitInternalExperiment()) {
+				if (parentDocument.sampleSetupView.radioYesBarcoding != null && (parentDocument.sampleSetupView.radioYesBarcoding.selected || 
+					((parentDocument.sampleSetupView.currentState == "SolexaSetupPreppedState" ||  parentDocument.sampleSetupView.currentState == "SolexaAmendPreppedState")&& parentDocument.sampleSetupView.radioYesCustomBarcoding.selected))) {
+					currentState = 'BarcodeState';
+					for each(var barcodeScheme:Object in parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OligoBarcodeScheme').DictionaryEntry) {
+						var theBarcodes:XMLListCollection = new XMLListCollection(parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OligoBarcode').DictionaryEntry.(@value != '' && @isActive != 'N' && @idOligoBarcodeScheme == barcodeScheme.@value));
+						if (this.samplesPerChannelValidator.validate().type == ValidationResultEvent.VALID && Number(this.numberSamplesPerChannel.text) <= theBarcodes.length) {
+							if (theBarcodes.length > this.maxSamplesPerChannel) {
+								this.maxSamplesPerChannel = theBarcodes.length;
+							}
+						}
+					}
+				} else {
+					currentState = '';
+				}
+        	} else {
+        		currentState = '';
+        	}
+        	this.initializeBarcodes();
+        } 
+
+        private function pickNumberSequencingCycles():void {
+        	if (this.getNumberSequencingCyclesSelected() != null) {
+        		this.numberSequencingCyclesBox.styleName = "normalBox";
+        	} else {
+        		this.numberSequencingCyclesBox.styleName = "requiredBox";
+        	}
+			if (!parentDocument.isAmendState()) {
+				parentDocument.samplesView.initializeSamplesGrid();
+			}
+   		    this.propagateNumberSequencingCycles();				
+			this.propagateSeqRunType();			
+			this.checkSeqSetup1Completeness();
+        }
+		
+		private function changeNumberSamplesPerChannel():void {
+			if(this.samplesPerChannelValidator.validate().type == ValidationResultEvent.VALID){
+				maxSamplesWarning.visible = false;
+				parentDocument.request.@numberSamplesPerChannel = this.numberSamplesPerChannel.text;
+				parentDocument.request.@hasBarCodes = "N";
+				if (this.currentState == "BarcodeState" && this.barcodes.length > 0) {
+					parentDocument.request.@hasBarCodes = "Y";
+				}
+				pickBarcodeScheme();
+				parentDocument.samplesView.initializeSamplesGrid();
+			} else{
+				maxSamplesWarning.visible = true;
+			}
+			this.checkSeqSetup1Completeness();
+		}
+		
+		private function sortNumberSequencingCyclesAllowed(obj1:Object, obj2:Object, fields:Array=null):int {
+			if (obj1 == null && obj2 == null) {
+				return 0;
+			} else if (obj1 == null) {
+				return 1;
+			} else if (obj2 == null) {
+				return -1;
+			} else {
+				
+				if (obj1.@value == '') {
+					return -1;
+				} else if (obj2.@value == '') {
+					return 1;
+				} else {
+					var isCustom1:String = obj1.@isCustom;
+					var isCustom2:String = obj2.@isCustom
+					var numberCycles1:Number = obj1.@numberSequencingCyclesDisplay;
+					var numberCycles2:Number = obj2.@numberSequencingCyclesDisplay;
+					var sortOrder1:Number = obj1.@seqRunTypeSortOrder == '' ? -1 : obj1.@seqRunTypeSortOrder;
+					var sortOrder2:Number = obj2.@seqRunTypeSortOrder == '' ? -1 : obj2.@seqRunTypeSortOrder;
+					
+					if (isCustom1 < isCustom2) {
+						return -1;
+					} else if (isCustom1 > isCustom2) {
+						return 1;
+					} else if (numberCycles1 < numberCycles2) {
+						return -1;
+					} else if (numberCycles1 > numberCycles2) {
+						return 1;
+					} else {
+						if (sortOrder1 < sortOrder2) {
+							return -1;
+						} else if (sortOrder1 > sortOrder2) {
+							return 1;
+						} else {
+							return 0;
+						} 
+					} 
+				}
+			}			
+		}			
+		
+		private function filterNumberSequencingCyclesAllowed(item:Object):Boolean {
+			if (parentDocument.isEditState()) {
+				return true;
+			}
+			
+			if (item.@value == "") {
+				return false;
+			} 
+			
+			var codeRequestCategory:String = parentDocument.getRequestCategory().@codeRequestCategory;
+			var doesMatch:Boolean = false;
+			if (item.@codeRequestCategory.toString() == codeRequestCategory) {
+				doesMatch = true;
+			}
+			
+			return doesMatch;
+		}
+	]]>
+</mx:Script>   
+ 
+
+			
+	<mx:VBox width="100%" id="hbox1" height="100%" verticalGap="12">
+			<mx:HBox id="numberOfCyclesContainer" width="100%" horizontalGap="0">
+				<mx:Label text="(1)  Select a HiSeq Run Type." width="314"  id="label10"/>
+				<mx:VBox verticalGap="0" styleName="requiredBox" id="numberSequencingCyclesBox" width="100%">
+			    	<mx:RadioButtonGroup id="numberSequencingCyclesRadioGroup"/>
+					<mx:Repeater id="numberSequencingCyclesRepeater" dataProvider="{filteredNumberSequencingCyclesAllowedList}">
+						<mx:Label text="{parentApplication.getProperty(parentApplication.PROPERTY_HISEQ_RUN_TYPE_LABEL_STANDARD)}" textDecoration="underline" visible="{numberSequencingCyclesRepeater.currentItem.@first == 'S'}" includeInLayout="{numberSequencingCyclesRepeater.currentItem.@first == 'S'}"/>
+						<mx:HBox paddingTop="8" visible="{numberSequencingCyclesRepeater.currentItem.@first == 'C'}" includeInLayout="{numberSequencingCyclesRepeater.currentItem.@first == 'C'}">
+							<mx:Label text="{parentApplication.getProperty(parentApplication.PROPERTY_HISEQ_RUN_TYPE_LABEL_CUSTOM)}" textDecoration="underline"/>
+							<mx:Label text="{parentApplication.getProperty(parentApplication.PROPERTY_HISEQ_RUN_TYPE_CUSTOM_WARNING)}" styleName="warningLabel" />
+						</mx:HBox>
+					    <mx:HBox verticalAlign="middle" width="100%">
+					    	<mx:RadioButton  label="{numberSequencingCyclesRepeater.currentItem.@display}" 
+					    		paddingLeft="0" paddingRight="1"
+					    		value="{numberSequencingCyclesRepeater.currentItem.@value}"
+					    	    groupName="numberSequencingCyclesRadioGroup"
+				    			click="{pickNumberSequencingCycles()}" width="300"/>
+							<mx:Label text="{numberSequencingCyclesRepeater.currentItem.@price}" toolTip="Price per lane"/>
+			    		</mx:HBox>
+  					</mx:Repeater>
+				</mx:VBox>
+			</mx:HBox>
+	</mx:VBox>
+</mx:Canvas>

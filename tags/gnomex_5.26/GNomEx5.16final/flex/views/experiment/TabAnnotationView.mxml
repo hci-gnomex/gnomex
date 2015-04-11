@@ -1,0 +1,294 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas label="Annotations"  xmlns:mx="http://www.adobe.com/2006/mxml" 
+		   width="100%" height="100%" enabled="false">
+	<mx:states>
+		<mx:State name="EditState">
+		</mx:State>
+		<mx:State name="ExternalState">
+			<mx:SetProperty target="{text1}" name="text" value="Check the sample annotations that apply"/>
+		</mx:State>
+	</mx:states>
+	<mx:Script>
+		<![CDATA[
+			import hci.flex.controls.DropdownLabel;
+			import hci.flex.controls.TextInput;
+			import hci.flex.dictionary.DictionaryEditor;
+			import hci.flex.dictionary.DictionaryEvent;
+			
+			import mx.collections.XMLListCollection;
+			import mx.controls.advancedDataGridClasses.AdvancedDataGridColumn;
+			import mx.controls.dataGridClasses.DataGridColumn;
+			import mx.controls.dataGridClasses.DataGridItemRenderer;
+			import mx.events.ListEvent;
+			import mx.managers.PopUpManager;
+			
+			import views.admin.PropertyEvent;
+			import views.admin.PropertyWindow;
+			import views.renderers.CheckBoxRenderer;
+			import views.renderers.ComboBox;
+			import views.renderers.MultiselectRenderer;
+			import views.renderers.URLRenderer;
+			import views.util.AnnotationAdvancedDataGridColumn;
+			import views.util.AnnotationDataGridColumn;
+			
+			private var dictionaryEditor:DictionaryEditor; 
+			
+			public var ignoreToggle:Boolean = false;
+			
+			public function checkSecurity():void {
+				if (parentDocument == null) {
+					return;
+				}
+				if (parentDocument.isEditState() && parentDocument.request.@isExternal == 'Y') {
+					currentState = "ExternalState";
+				} else if (parentDocument.isEditState()  && parentDocument.request.@isExternal != 'Y') {
+					currentState = "EditState";
+				} else if (parentApplication.submitInternalExperiment()) {
+					currentState = "";
+				} else {
+					currentState = "ExternalState";
+				}
+				
+			}
+				
+			public function selectAnnotation(dataField:String):void {
+				if (dataField.substr(0, 6) == '@ANNOT') {
+					var idProperty:String = dataField.substr(6);
+					if (parentDocument != null) {
+						for each(var node:XML in parentDocument.propertyEntries) {
+							if (node.@idProperty == idProperty) {
+								node.@isSelected = true;
+							}
+						}
+					}
+				}
+			}
+			
+			
+			private function toggleSampleAnnotationCheck(event:ListEvent):void {
+				if (event.columnIndex == 0) {
+					parentDocument.dirty.setDirty();
+					return;
+				}
+				parentDocument.dirty.setDirty();
+				
+				
+				// We don't want the typing in the the text field for "Other" to be treated
+				// as a toggle off
+				var sc:Object = parentApplication.getSampleProperty(sampleAnnotationGrid.selectedItem.@idProperty);
+				if (sc == null || sc.@name.toString() == "Other") {
+					if (ignoreToggle) {
+						return;					
+					}
+				}
+				
+				if (sampleAnnotationGrid.selectedItem.@isRequired == "true") {
+					// Don't toggle a required field.
+					return;		
+				}
+
+				if (sampleAnnotationGrid.selectedItem.@isSelected == "true") {
+					sampleAnnotationGrid.selectedItem.@isSelected = "false";
+				} else {
+					sampleAnnotationGrid.selectedItem.@isSelected = "true";
+				}
+			}
+			
+			//
+			// Configure properties
+			//
+			private function editPropertyDictionary():void {
+				var configWindow:PropertyWindow = PropertyWindow(PopUpManager.createPopUp(parentApplication.theBody, PropertyWindow, true));
+				PopUpManager.centerPopUp(configWindow);
+				configWindow.showSampleAnnotations.selected = true;
+				configWindow.showAnalysisAnnotations.selected = false;
+				configWindow.showDataTrackAnnotations.selected = false;
+				configWindow.onPropertyRefreshed(null);
+
+				
+				parentApplication.removeEventListener(PropertyEvent.DATA_REFRESHED,
+					onPropertyRefreshed);		                                  
+				parentApplication.addEventListener(PropertyEvent.DATA_REFRESHED,   
+					onPropertyRefreshed);
+				
+				
+			}
+			
+			
+			public function onPropertyRefreshed(event:Event):void{
+				parentDocument.propertyEntries.refresh();
+				
+				this.checkForRemovedAnnotations();   
+				this.checkForNewAnnotations();
+				  		
+			}	
+			
+			
+			private function checkForNewAnnotations():void {
+				var sc:XML;
+				var annotation:Object;
+				var exists:Boolean = false;
+				for each(sc in parentApplication.propertyList) {
+					exists = false; 
+					
+					for each(annotation in parentDocument.request.PropertyEntries.PropertyEntry) {
+						if (sc.@value == annotation.@idProperty) {
+							exists = true;
+							break;
+						}      				
+					}
+					if (!exists && sc.@forSample == 'Y') {
+						
+						var node:XML = new XML("<PropertyEntry/>");
+						node.@idProperty = sc.@value;
+						node.@name = sc.@display; 
+						node.@otherLabel = "";
+						node.@isSelected = "false";
+						
+						parentDocument.propertyEntries.addItem(node);
+						
+					}
+				}
+				parentDocument.propertyEntries.refresh();
+			}
+			
+			
+			private function checkForRemovedAnnotations():void {
+				var annotation:Object;
+				var exists:Boolean = false;
+				for each(annotation in parentDocument.propertyEntries) {
+					exists = false;
+					for each(var sc:XML in parentApplication.propertyList) {
+						if (sc.@value == annotation.@idProperty || annotation.@idProperty == "-1") {
+							exists = true;
+							break;
+						}      				 
+					}
+					if (!exists) {
+						// Remove the sample characteristic entry
+						parentDocument.propertyEntries.removeItemAt(parentDocument.propertyEntries.getItemIndex(annotation));
+					}
+				}
+				
+				// Hide the existing annotation columns that don't have a corresponding sample characteristic entry
+				for each(var property:Object in parentApplication.propertyList) {
+					exists = false;
+					for each(var sce:XML in parentDocument.propertyEntries) {
+						if (sce.@value == property.@idProperty) {
+							exists = true;
+							break;
+						}      				 
+					}
+					
+				}
+				
+			}
+			
+			public function changeOtherHeaderLabelAndToggle(data:Object):void {
+				if (data.@otherLabel == '' ) {
+					data.@isSelected = false;	
+				} else {
+					data.@isSelected = true;
+				}		
+				changeOtherHeaderLabel(data);
+				
+			}
+			
+			public function changeOtherHeaderLabel(data:Object):void {
+				
+				parentDocument.request.@otherLabel = data.@otherLabel;
+				
+			}
+			
+			public function createToolTip(event:ListEvent):void{
+				createAnnotationList();
+				var description:String = "";
+				for each (var temp:XML in properties){
+					if(temp.@name == sampleAnnotationGrid.dataProvider[event.rowIndex].@name){
+						description = temp.@description;
+						break;
+					}
+				}
+				sampleAnnotationGrid.toolTip = description;
+	
+			}
+			private function createAnnotationList():void {
+				properties = new XMLListCollection();
+				for each(var sc:XML in parentApplication.propertyList) {
+					properties.addItem(sc.copy());
+				}
+			}
+			
+			public function deleteToolTip(obj:Object):void{
+				sampleAnnotationGrid.toolTip = null;
+			}
+			
+		]]>
+	</mx:Script>
+	
+	<mx:XMLListCollection id="properties"/>
+	
+	<mx:VBox width="100%" height="100%">
+		<mx:HBox width="100%" height="100%" horizontalGap="0">
+			<mx:VBox height="100%" verticalGap="1">
+				<mx:HBox>
+					<mx:Text width="300" height="100%" id="text1">
+						<mx:text>(1) Check sample characteristics</mx:text>
+					</mx:Text>
+					
+				</mx:HBox>
+				<mx:HBox width="100%" height="100%">
+					<mx:VBox width="100%" height="100%" verticalGap="0">
+						<mx:DataGrid id="sampleAnnotationGrid" height="100%"
+									 dataProvider="{parentDocument.propertyEntries}" 
+									 showHeaders="false" headerHeight="20" variableRowHeight="true" width="100%" itemClick="toggleSampleAnnotationCheck(event)" rowHeight="20" itemRollOver="createToolTip(event)" itemRollOut="deleteToolTip(event)" >
+							<mx:columns>
+								<mx:DataGridColumn headerText=" " 
+												   width="20" 
+												   editable="true"                        	
+												   dataField="@isSelected" 
+												   editorDataField="selected"
+												   itemRenderer="views.renderers.CheckBoxIsSelectedProperty">
+								</mx:DataGridColumn>
+								<mx:DataGridColumn  
+									headerText="Sample annotations"
+									editable="false" editorDataField="selected" 
+									dataField="@name" >
+									<mx:itemRenderer>
+										<mx:Component >
+											<mx:HBox horizontalScrollPolicy="off">
+												<mx:Label text="{data.@name}">			                           	
+												</mx:Label>
+												<mx:TextInput id="scOtherLabel" fontSize="9"
+															  text="{data.@otherLabel}"
+															  focusIn="{parentDocument.ignoreToggle = true}"
+															  focusOut="{parentDocument.ignoreToggle = false}"
+															  change="{parentDocument.ignoreToggle = true;data.@otherLabel = scOtherLabel.text;parentDocument.changeOtherHeaderLabelAndToggle(data)}" 
+															  width="{data.@name == 'Other' ? 130 : 0}"  
+															  height="{data.@name == 'Other' ? 20 : 0}"  
+															  visible="{data.@name == 'Other' ? true : false}" 
+															  editable="{data.@name == 'Other' ? true : false}">			                           
+												</mx:TextInput>
+												
+											</mx:HBox>
+										</mx:Component>
+									</mx:itemRenderer>
+								</mx:DataGridColumn>
+							</mx:columns>
+						</mx:DataGrid>
+						
+						<mx:LinkButton label="Configure annotations ..." textDecoration="underline" styleName="blueLinkButton" click="editPropertyDictionary()" id="editSampleAnnotationButton">		  	
+						</mx:LinkButton>						
+					</mx:VBox>
+				</mx:HBox>
+			</mx:VBox>
+			<mx:Spacer width="100%"/>	
+			<mx:TextArea styleName="instructionBox" width="300" wordWrap="true" height="120" visible="true" id="textarea1">
+				<mx:htmlText><![CDATA[Instructions<br>1.  Optional: Characteristics that are listed on this page can be used to provide additional annotation of your samples on a subsequent screen. Please select any characteristics that you would like to annotate by clicking on the appropriate box(es).<br>2.  After completing all line items, click the 'Next' button at the bottom of the page to proceed.]]></mx:htmlText>
+			</mx:TextArea>
+			
+		</mx:HBox>
+		
+	</mx:VBox>
+	
+</mx:Canvas>

@@ -1,0 +1,543 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
+	layout="vertical" 
+	title="Add Analysis" height="410"
+	xmlns:util="views.util.*" 
+	xmlns:renderers="views.renderers.*" 
+	defaultButton="{saveButton}" width="466" horizontalScrollPolicy="off" verticalScrollPolicy="off">
+	 
+    <mx:HTTPService 
+    id="saveAnalysis" 
+    url="SaveAnalysis.gx"
+    resultFormat="e4x"
+    result="onSaveAnalysis(event)"
+    fault="parentApplication.onFailHttpRequest('Unable to save analysis', event)"
+    method="POST"
+    useProxy="false">
+    </mx:HTTPService >
+    
+    <mx:HTTPService 
+    id="getAnalysis" 
+    url="GetAnalysis.gx"
+    destination="getAnalysis"
+    showBusyCursor="true"
+    resultFormat="e4x"
+    result="onGetAnalysis(event)"
+    fault="parentApplication.onFailHttpRequest('Unable to get analysis', event)"
+    useProxy="false">   
+     
+    </mx:HTTPService >    
+      <mx:HTTPService  
+    id="getAnalysisGroupList" 
+    url="GetAnalysisGroupList.gx"
+    destination="getAnalysisGroupList"
+    resultFormat="e4x"
+    showBusyCursor="true"
+    result="onGetAnalysisGroupList(event)"
+ 	fault="parentApplication.onFailHttpRequest('Failed to get analysis group list', event)"
+    method="POST"   
+    useProxy="false">
+    <mx:request>
+            <labKeys>{labCombo.selectedItem.@idLab}</labKeys> 
+    </mx:request> 
+   </mx:HTTPService>
+	
+	<mx:HTTPService             
+		id="getLab" 
+		url="GetLab.gx" 
+		destination="getLab" 
+		resultFormat="e4x"
+		result="onGetLab(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to get lab', event)"
+		method="POST" 
+		useProxy="false">
+	</mx:HTTPService> 
+
+
+<mx:Script>
+	<![CDATA[
+		import mx.collections.XMLListCollection;
+		import mx.controls.Alert;
+		import mx.events.CloseEvent;
+		import mx.managers.PopUpManager;
+		import mx.rpc.events.FaultEvent;
+		import mx.rpc.events.ResultEvent;
+		import mx.collections.Sort;
+		
+		import views.util.AboutView;
+		import views.util.DateUtils;
+		import views.util.OrganismsWindow;
+		import views.util.OrganismEvent; 
+		import views.util.GNomExStringUtil;
+		
+		private var savedIdAnalysis:Object;
+		private var savedIdAnalysisGroup:Object;
+
+		private var selectedIdAnalysisGroup:Object;
+		private var selectedIdLab:Object;
+		
+		[Bindable]
+		private var appUsersForLab:XMLListCollection;
+		private var appUserSort:Sort;
+		
+		private var idLab:String;
+		
+		
+		public function initializeData(idLab:Object, idAnalysisGroup:Object):void {
+			initializeDataProviders();
+			selectedIdLab = idLab;
+			selectedIdAnalysisGroup = idAnalysisGroup;
+			// Select the lab in the dropdown.  If no lab was
+			// selected in the nav analysis tree, just select
+			// the first lab;
+			var foundLab:Boolean = false;
+			if (selectedIdLab != null && selectedIdLab != '') {
+				for each(var l:Object in labCombo.dataProvider) {
+					if (l.@idLab == selectedIdLab) {
+						labCombo.selectedItem = l;
+						var params:Object = new Object();
+						params.labKeys = l.@idLab;
+						getAnalysisGroupList.send(params);
+						foundLab = true;
+						break;
+					}
+				}				
+			} 
+			
+			if (!foundLab) {
+				labCombo.selectedIndex = -1;
+				getAnalysisGroupList.send();
+			}
+			callGetLab();
+			
+			var defaultVisibility:String = parentApplication.getProperty(parentApplication.PROPERTY_DEFAULT_VISIBILITY_ANALYSIS);
+			if (defaultVisibility != null && defaultVisibility.length > 0) {
+				for each(var item:Object in parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Visibility').DictionaryEntry) {
+					if (item.@value == defaultVisibility) {
+						this.visibilityCombo.selectedItem = item;
+						break;
+					}
+				}			
+			}
+			
+			parentApplication.removeEventListener(OrganismEvent.DATA_REFRESHED,
+				onOrganismRefreshed);		                                  
+			parentApplication.addEventListener(OrganismEvent.DATA_REFRESHED,   
+				onOrganismRefreshed);		
+			
+		}
+		
+		private function onOrganismRefreshed(event:Event):void{
+			filteredGenomeBuildList.refresh();
+		}
+		
+		private function initializeDataProviders():void {
+			filteredGenomeBuildList.refresh();	
+			
+		}
+		
+		
+		public function refreshAnalysisGroupForDropdown():void {
+			if (this.labCombo.selectedItem != null && this.labCombo.selectedItem.@idLab != '') {
+				if (selectedIdAnalysisGroup != null) {
+					for each(var ag:Object in analysisGroupList) {
+						if (ag.@idAnalysisGroup == selectedIdAnalysisGroup) {
+							this.analysisGroupCombo.selectedItem = ag;
+							selectedIdAnalysisGroup = null;
+							break;
+						}
+					}
+					
+				}
+			} else {
+				analysisGroupList = new XMLListCollection();
+			}
+		}
+		
+		public function selectAnalysisGroupDropdown(idAnalysisGroup:Object):void {
+			for each(var ag:Object in analysisGroupList) {
+				if (ag.@idAnalysisGroup == idAnalysisGroup) {
+					this.analysisGroupCombo.selectedItem = ag;
+					break;
+				}
+			}
+		}
+	 	
+		private function validateAndSave():void {
+			if (parentApplication.navAnalysisView.currentState == "AdminState" && (ownerCombo.selectedItem == null || ownerCombo.selectedIndex == 0)) {
+				ownerCombo.setFocus();
+				Alert.show("Please select the analysis owner.");
+				return;        		
+			} 
+			if(genomeBuilds.length == 0) {
+				var outMsg:String = "You have selected a genome build without adding it to the genome build list.  Create new analysis anyway?";
+				if (genomeBuildCombo.selectedItem == null || genomeBuildCombo.selectedItem.@value == "") {
+					outMsg = "A genome build has not been specified.  Create new analysis anyway?";
+				}				
+				Alert.show( outMsg,
+					"Warning",
+					(Alert.YES | Alert.NO), this, 
+					onPromptToContinueSave,						
+					parentApplication.iconWarning);	
+				return;
+			}
+			save();					
+		}
+		
+		private function onPromptToContinueSave(event:CloseEvent):void {
+            if (event.detail==Alert.YES) {
+            	save();
+            }
+        }	
+		
+		private function save():void {
+			var params:Object = new Object();
+			
+			params.idAnalysis = 0;
+			params.idLab = labCombo.selectedItem.@idLab;
+			params.visibility = visibilityCombo.selectedItem.@value;
+			if(parentApplication.navAnalysisView.currentState == 'AdminState') {
+				params.idAppUser = ownerCombo.selectedItem.@idAppUser;
+			}
+			params.name = analysisName.text;
+			params.idOrganism = organismCombo.selectedItem.@idOrganism;
+			//params.idGenomeBuild = genomeBuildCombo.selectedItem != null ? genomeBuildCombo.selectedItem.@idGenomeBuild : "";
+			params.idGenomeBuild         = "";
+			params.genomeBuildsXMLString = "<genomeBuilds>" + genomeBuilds.toXMLString() + "</genomeBuilds>";
+			
+			
+			
+			
+			if (currentState == "NewAnalysisGroupState") {
+				params.analysisGroupsXMLString = "<analysisGroups/>";
+				params.newAnalysisGroupName = newAnalysisGroupName.text;
+			
+			} else {
+				if (analysisGroupCombo.selectedItem != null) {
+					params.analysisGroupsXMLString = "<analysisGroups>" + analysisGroupCombo.selectedItem.toXMLString() + "</analysisGroups>";				
+				} else {
+					params.analysisGroupsXMLString = "<analysisGroups/>";
+				}
+			}
+			if(parentApplication.isPrivacyExpirationSupported) {
+				var expireDate:Date = DateUtils.dateAdd(DateUtils.MONTH, parseInt(parentApplication.getProperty(parentApplication.DATASET_PRIVACY_EXPIRATION)), new Date());
+				params.privacyExpirationDate = parentApplication.formatDate(expireDate);
+			}			
+			params.hybsXMLString = "<hybs/>";
+			params.lanesXMLString = "<lanes/>";
+			params.analysisFilesXMLString = "<analysisFiles/>";
+			params.analysisFilesToDeleteXMLString = "<analysisFilesToDelete/>";
+			params.collaboratorsXMLString = "<collaborators/>";
+			
+			saveAnalysis.send(params);
+		}
+		
+		private function onSaveAnalysis(event:ResultEvent):void {
+			if (saveAnalysis.lastResult.name() == "SUCCESS") {
+				savedIdAnalysis = saveAnalysis.lastResult.@idAnalysis;
+				savedIdAnalysisGroup = saveAnalysis.lastResult.@idAnalysisGroup;
+				
+				var params:Object = new Object();
+				params.idAnalysis = savedIdAnalysis;
+	 			getAnalysis.send(params);
+				PopUpManager.removePopUp(this);
+				
+			} else {
+				Alert.show("An error occurred while saving the analysis.");
+			}			
+		}
+		
+		private function checkCompleteness():Boolean {
+			var isComplete:Boolean = false; 
+			if (currentState == "NewAnalysisGroupState") {
+				isComplete = labCombo.selectedItem != null && 
+				newAnalysisGroupName.text != '' && 
+				analysisName.text != '' && 
+				organismCombo.selectedItem != null && 
+				organismCombo.selectedItem.@value != "" &&
+				institutionNote.visible == false &&
+				visibilityCombo.selectedItem != null &&
+				visibilityCombo.selectedItem.@value != ""; 
+				
+			} else {
+				isComplete = labCombo.selectedItem != null && 
+				analysisName.text != '' && 
+				organismCombo.selectedItem != null  && 
+				organismCombo.selectedItem.@value != "" &&
+				institutionNote.visible == false &&
+				visibilityCombo.selectedItem != null &&
+				visibilityCombo.selectedItem.@value != ""; 
+			}
+			this.saveButton.enabled = isComplete;
+			return isComplete;
+		}
+		
+		
+	     private function onGetAnalysis(event:ResultEvent):void {
+          parentApplication.navAnalysisView.selectedIdAnalysis = savedIdAnalysis;
+          parentApplication.navAnalysisView.selectedAnalysis = getAnalysis.lastResult.Analysis.(@idAnalysis = savedIdAnalysis);
+          if (savedIdAnalysisGroup != "-1" ) {
+          	parentApplication.navAnalysisView.selectedIdAnalysisGroup = savedIdAnalysisGroup;          	
+          } else {
+	        parentApplication.navAnalysisView.selectedIdAnalysisGroup = analysisGroupCombo.selectedItem.@idAnalysisGroup;
+          }
+          parentApplication.navAnalysisView.showEditView = true;
+          parentApplication.navAnalysisView.refreshAnalysis();
+          
+        }
+
+		private function refreshAnalysisGroups():void {
+			if (parentApplication.navAnalysisView.currentState == "AdminState") {
+				for each(var l:Object in parentApplication.navAnalysisView.labList) {
+					if (labCombo.selectedItem != null && l.@idLab == labCombo.selectedItem.@idLab) {
+						l.@isSelected = 'true';
+						parentApplication.navAnalysisView.labKeys = labCombo.selectedItem.@idLab;
+						parentApplication.navAnalysisView.selectedLabsLabel = labCombo.selectedItem.@name;
+					} else {
+						l.@isSelected = 'false';
+					}
+				}
+				callGetLab();
+			}
+			if ( labCombo.selectedItem != null ){
+				parentApplication.navAnalysisView.selectedIdLab = labCombo.selectedItem.@idLab;
+			}	
+			callLater(parentApplication.navAnalysisView.refreshAnalysis);
+			getAnalysisGroupList.send();
+		}
+		
+		private function callGetLab():void {
+			if (parentApplication.navAnalysisView.currentState == "AdminState") {
+				var params:Object = new Object();
+				idLab = labCombo.selectedItem != null ? labCombo.selectedItem.@idLab : "";
+				if(idLab.length > 0) {
+					params.idLab = idLab;
+					getLab.send(params);
+				}				
+			}		
+		}
+		
+		private function onGetLab(event:ResultEvent):void {			
+			if (getLab.lastResult.name() == "OpenLabList") {		
+				var lab:Object = getLab.lastResult..Lab.(@idLab == idLab);
+				var emptyNode:XML = <AppUser idAppUser='' displayName=''/>;
+				appUsersForLab = new XMLListCollection(lab.members.AppUser.(@isActive=='Y'));
+				for each (var mgr:Object in lab.managers.AppUser) {
+					if (!appUsersForLab.contains(mgr)) {
+						if(mgr.@isActive=='Y') {
+							appUsersForLab.addItem(mgr);
+						}
+						
+					}
+				}
+				appUsersForLab.addItemAt(emptyNode, 0);
+				
+				appUserSort = new Sort();
+				appUserSort.compareFunction = GNomExStringUtil.sortAppUsers;
+				appUsersForLab.sort = appUserSort;
+				appUsersForLab.refresh();
+				ownerCombo.dataProvider = appUsersForLab;
+				ownerCombo.selectedItem = emptyNode;
+				
+				var a:Object;
+				// Set default owner to current user
+				for each(a in appUsersForLab) {
+					if (a.@idAppUser == parentApplication.idAppUser) {
+						ownerCombo.selectedItem = a;
+						break;
+					}
+				}					
+			}
+		}		
+			
+		private function onGetAnalysisGroupList(event:ResultEvent): void {
+        	this.refreshAnalysisGroupForDropdown();		
+  		}
+		
+        private function filterGenomeBuild(item:Object):Boolean {
+        	if (item.@value == "") {
+        		return true;
+        	}
+        	if (item.@isActive == 'N') {
+        		return false;
+        	}
+        	var doesMatch:Boolean = false;
+        	if (this.organismCombo.selectedItem != null && 
+        	    this.organismCombo.selectedItem.@value != null  &&
+        	    this.organismCombo.selectedItem.@value != "") {
+        	    if (item.@idOrganism.toString() == this.organismCombo.selectedItem.@value.toString()) {
+        	    	doesMatch = true;
+        	    }
+        	}
+    	   	return doesMatch;
+    	}	
+		
+		//
+		// Edit organism dictionary
+		//
+		private function editOrganism():void {			
+			var configWindow:OrganismsWindow = OrganismsWindow(PopUpManager.createPopUp(parentApplication.theBody, OrganismsWindow, true));
+			PopUpManager.centerPopUp(configWindow);
+			if(organismCombo.selectedItem != null) {
+				configWindow.selectOrganism(organismCombo.selectedItem.@idOrganism);
+			}			
+		}
+		
+		private function addGenomeBuild():void {
+			var node:XML = new XML("<GenomeBuild " +
+				" idGenomeBuild='" + genomeBuildCombo.selectedItem.@idGenomeBuild + "'" +
+				" display='" + genomeBuildCombo.selectedItem.@display + "'" +
+				"/>");
+			this.genomeBuilds.addItem(node);
+		}
+		
+		private function removeGenomeBuild():void {
+			if (genomeBuildGrid.selectedIndex != -1) {
+				genomeBuilds.removeItemAt(genomeBuildGrid.selectedIndex);
+			}
+		}
+				
+		
+	]]>
+</mx:Script>
+<mx:XMLListCollection id="analysisGroupList" source="{getAnalysisGroupList.lastResult..AnalysisGroup}"/>
+<mx:XMLListCollection  id="filteredGenomeBuildList" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.GenomeBuildLite').DictionaryEntry}"  filterFunction="filterGenomeBuild"/>
+<mx:XMLListCollection  id="organisms" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OrganismLite').DictionaryEntry}" />
+<mx:XMLListCollection id="genomeBuilds"/>
+		<mx:VBox height="100%" verticalGap="0" width="100%">
+			<mx:HBox verticalGap="0" horizontalGap="0">
+				<mx:VBox verticalGap="0">
+					<mx:Label width="115" text="Group"/>
+				</mx:VBox>								
+				<mx:VBox verticalGap="0">
+					<renderers:FilterComboBox dataProvider="{parentApplication.submitRequestLabList.source}" 
+											  labelField="@name" 
+											  prompt="Select a lab..."
+											  width="336"
+											  close="refreshAnalysisGroups();checkCompleteness()"
+											  id="labCombo">
+					</renderers:FilterComboBox>
+				</mx:VBox>
+			</mx:HBox>				
+		</mx:VBox>		
+		<mx:VBox height="100%" verticalGap="0" width="100%" id="analysisOwnerBox" 
+				 visible="{parentApplication.navAnalysisView.currentState == 'AdminState'}" 
+				 includeInLayout="{parentApplication.navAnalysisView.currentState == 'AdminState'}">
+			<mx:HBox verticalGap="0" horizontalGap="0">
+				<mx:Label width="115" text="Analysis owner"/>						
+				<util:ComboBoxDatProvChangeFix  width="308" id="ownerCombo" labelField="@displayName" dataProvider="{appUsersForLab}"></util:ComboBoxDatProvChangeFix>						         			
+			</mx:HBox>				
+		</mx:VBox>
+		<mx:VBox height="100%" verticalGap="0" width="100%" id="analysisGroupBox">
+			<mx:HBox verticalGap="0" horizontalGap="0">
+				<mx:VBox verticalGap="-5">
+					<mx:Label width="115" text="Analysis group" id="label1"/>
+					<mx:HBox width="100%" id="hbox1">
+						<mx:LinkButton label="New..." textDecoration="underline" color="#161FDA" id="newAnalysisGroupButton" click="currentState = &quot;NewAnalysisGroupState&quot;"  paddingTop="0" paddingBottom="0" paddingLeft="0" paddingRight="0"/>
+					</mx:HBox>
+				</mx:VBox>								
+				<mx:VBox verticalGap="0">
+					<mx:ComboBox width="336" id="analysisGroupCombo" 
+								 dataProvider="{analysisGroupList}" 
+								 labelField="@name" selectedIndex="-1" prompt="..." change="checkCompleteness()">						
+					</mx:ComboBox>
+				</mx:VBox>
+			</mx:HBox>				
+		</mx:VBox>		
+		<mx:VBox height="100%" verticalGap="0" width="100%">
+			<mx:HBox verticalGap="0" horizontalGap="0">
+				<mx:VBox verticalGap="0">
+					<mx:Label width="115" text="Analysis name"/>
+				</mx:VBox>								
+				<mx:VBox verticalGap="0">
+					<mx:TextInput id="analysisName" width="336" change="checkCompleteness()"/>
+				</mx:VBox>
+			</mx:HBox>				
+		</mx:VBox>		
+		<mx:VBox height="100%" verticalGap="0" width="100%">
+			<mx:HBox verticalGap="0" horizontalGap="0">
+				<mx:VBox verticalGap="-5">
+					<mx:Label text="Organism" width="115" fontWeight="normal">
+					</mx:Label>
+					<mx:LinkButton label="New/Edit..." textDecoration="underline" color="#0F19DF" click="editOrganism()" paddingTop="0" paddingBottom="0" paddingLeft="0" paddingRight="0"/>
+				</mx:VBox>								
+				<mx:VBox verticalGap="0">
+					<renderers:FilterComboBox labelField="@display"
+											  prompt="Organism..."
+											  close="filteredGenomeBuildList.refresh();checkCompleteness();"
+											  id="organismCombo"
+											  dataProvider="{organisms.source}"
+											  width="336">
+					</renderers:FilterComboBox>
+				</mx:VBox>
+			</mx:HBox>				
+		</mx:VBox>
+		<mx:VBox height="100%" verticalGap="0" width="100%">
+			<mx:HBox width="100%" verticalGap="0" horizontalGap="0">
+				<mx:VBox verticalGap="-5">
+					<mx:Label text="Genome Build(s)" width="115" fontWeight="normal">
+					</mx:Label>
+					<mx:LinkButton label="New/Edit..." textDecoration="underline" color="#0F19DF" click="editOrganism()" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0"/>
+				</mx:VBox>
+				<mx:VBox verticalGap="0">
+					<mx:Label styleName="hintText" text="(Select from dropdown, use '+' to add to list below)" width="296" fontWeight="normal">
+					</mx:Label>																			
+					<mx:HBox verticalGap="0" horizontalGap="2" width="350">
+						<mx:ComboBox width="281" id="genomeBuildCombo" labelField="@display"  change="checkCompleteness()">
+							<mx:dataProvider>{filteredGenomeBuildList}</mx:dataProvider>
+						</mx:ComboBox>
+						<mx:Button 
+							enabled="{genomeBuildCombo.selectedItem != null &amp;&amp; genomeBuildCombo.selectedIndex > 0 ? true : false}" 
+							icon="@Embed(source='../../assets/add.png')" 
+							disabledIcon="@Embed(source='../../assets/add_disable.png')"
+							click="addGenomeBuild()" 
+							width="25">
+						</mx:Button>
+						<mx:Button  
+							icon="@Embed(source='../../assets/delete.png')" 
+							disabledIcon="@Embed(source='../../assets/delete_disable.png')" 
+							enabled="{genomeBuildGrid.selectedItem != null}" 
+							click="removeGenomeBuild()" 
+							width="25"/>
+					</mx:HBox>
+				</mx:VBox>
+			</mx:HBox>
+			<mx:HBox width="451" verticalGap="0" horizontalGap="0" horizontalAlign="right">
+				<mx:DataGrid id="genomeBuildGrid" width="335" height="43" dataProvider="{genomeBuilds}" showHeaders="false">
+					<mx:columns>
+						<mx:DataGridColumn dataField="@display"/>
+					</mx:columns>
+				</mx:DataGrid>	
+			</mx:HBox>
+		</mx:VBox>
+		<mx:VBox height="100%" verticalGap="0" width="100%">
+			<mx:HBox width="100%" verticalGap="0" horizontalGap="0">
+				<mx:Label text="Visibility" width="118"/>
+				<mx:ComboBox id="visibilityCombo" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Visibility').DictionaryEntry}" labelField="@display" width="281"></mx:ComboBox>							        					
+			</mx:HBox>
+			<mx:Text id="institutionNote" paddingLeft="30" styleName="submitNote" visible="{this.visibilityCombo.selectedItem.@display == 'Institution' &amp;&amp; this.labCombo.selectedItem..institutions.children().length() == 0 }" paddingBottom="0">									
+				<mx:text>Institution visibility can only be set when lab belongs to an institution.</mx:text>
+			</mx:Text>
+		</mx:VBox>
+		<mx:ControlBar width="451" horizontalAlign="right">
+			<mx:Button label="Save" id="saveButton" click="validateAndSave()" icon="@Embed(source='../../assets/save.png')" enabled="{analysisName.text != '' &amp;&amp; analysisGroupCombo.selectedItem != null &amp;&amp; labCombo.selectedItem != null &amp;&amp; !institutionNote.visible &amp;&amp; visibilityCombo.selectedItem != null &amp;&amp; visibilityCombo.selectedItem.@value != ''}" disabledIcon="@Embed(source='../../assets/save_disable.png')"/>
+			<mx:Button label="Cancel" click="{mx.managers.PopUpManager.removePopUp(this)}"/>
+		</mx:ControlBar>				
+
+
+	
+	
+	<mx:states>
+		<mx:State name="NewAnalysisGroupState">
+			<mx:RemoveChild target="{analysisGroupCombo}"/>
+			<mx:RemoveChild target="{newAnalysisGroupButton}"/>
+			<mx:SetProperty target="{label1}" name="text" value="New analysis group name"/>
+			<mx:SetProperty target="{label1}" name="width" value="200"/>
+			<mx:AddChild relativeTo="{analysisGroupBox}" position="lastChild">
+				<mx:TextInput width="100%" id="newAnalysisGroupName" change="checkCompleteness()"/>
+			</mx:AddChild>
+			<mx:RemoveChild target="{hbox1}"/>
+		
+		</mx:State>
+	</mx:states>
+</mx:TitleWindow>
