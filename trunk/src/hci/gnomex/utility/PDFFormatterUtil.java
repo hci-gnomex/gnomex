@@ -28,6 +28,8 @@ import com.itextpdf.text.pdf.PdfPTable;
 
 public class PDFFormatterUtil {
 	
+  protected static final float     TABLE_PERCENT_WIDTH = 100;
+  
 	public static Image makeRequestCategoryImage(DictionaryHelper dictionaryHelper, Request request, float width, float height) {
 		RequestCategory requestCategory = dictionaryHelper.getRequestCategoryObject(request.getCodeRequestCategory());
 		String imageName = requestCategory.getIcon();
@@ -59,6 +61,12 @@ public class PDFFormatterUtil {
 		
 		return image;
 	}
+	
+	public static void formatTable(PdfPTable table, float percentWidth) {
+	  table.setHorizontalAlignment(Element.ALIGN_CENTER);
+    table.setWidthPercentage( percentWidth );
+    table.setSpacingBefore( 5 );
+  }
 	
 	public static void addToTable(PdfPTable table, String text, Font font, int hAlignment, int vAlignment, boolean borderTop, boolean borderRight, boolean borderBottom, boolean borderLeft, BaseColor borderColor, int colSpan, int rowSpan) {
 		addToTable(table, new PdfPCell(new Phrase(text, font)), hAlignment, vAlignment, borderTop, borderRight, borderBottom, borderLeft, borderColor, colSpan, rowSpan);

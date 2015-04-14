@@ -51,9 +51,11 @@ public class RequestPDFFormatter extends RequestPDFFormatterBase {
 	protected static final String HEADER_QUALITY_RIN_NUMBER = "RIN #";
 	
 	protected static final BaseColor LABEL_BLUE = new BaseColor( 52, 102, 153 );
-	
+	protected static final float     TABLE_PERCENT_WIDTH_100 = 100;
+	protected static final float     TABLE_PERCENT_WIDTH_80 = 80;
+  
 	// Font library
-	protected static final Font FONT_TITLE = new Font(FontFamily.HELVETICA, 14, Font.BOLD, BaseColor.BLACK);
+	protected static final Font FONT_TITLE = new Font(FontFamily.HELVETICA, 14, Font.BOLD, LABEL_BLUE);
 	protected static final Font FONT_APPLICATION = new Font(FontFamily.HELVETICA, 12, Font.NORMAL, BaseColor.BLACK);
 	protected static final Font FONT_APPLICATION_SUB = new Font(FontFamily.HELVETICA, 12, Font.NORMAL, BaseColor.BLACK);
 	protected static final Font FONT_REQUEST_TABLE_FIELD = new Font(FontFamily.HELVETICA, 8, Font.NORMAL, LABEL_BLUE);
@@ -274,11 +276,10 @@ public class RequestPDFFormatter extends RequestPDFFormatterBase {
 				tables.add(PDFFormatterUtil.makeTableTitle("Samples (" + request.getSamples().size() + ")", FONT_TITLE));
 				tables.add(makeTableIllumina());
 				tables.add(Chunk.NEWLINE);
-				tables.add(PDFFormatterUtil.makeTableTitle("Covaris", FONT_TITLE));
-				tables.add(makeTableCovaris());
-				tables.add(Chunk.NEWLINE);
+//				tables.add(PDFFormatterUtil.makeTableTitle("Covaris", FONT_TITLE));
+//				tables.add(makeTableCovaris());
+//				tables.add(Chunk.NEWLINE);
 				tables.add(PDFFormatterUtil.makeTableTitle("Sequence Lanes", FONT_TITLE));
-				tables.add(Chunk.NEWLINE);
 				makeSequenceLaneSection(tables);
 				
 			}
@@ -293,7 +294,6 @@ public class RequestPDFFormatter extends RequestPDFFormatterBase {
 				tables.add(makeTableMICROARRAY());
 				tables.add(Chunk.NEWLINE);
 				tables.add(PDFFormatterUtil.makeTableTitle("Labeled Samples", FONT_TITLE));
-				tables.add(Chunk.NEWLINE);
 				tables.add(makeTableLabeledSamples());
 				tables.add(Chunk.NEWLINE);
 				tables.add(PDFFormatterUtil.makeTableTitle("Hybridizations", FONT_TITLE));
@@ -335,14 +335,14 @@ public class RequestPDFFormatter extends RequestPDFFormatterBase {
 		boolean isCapSeqPlate = request.isCapSeqPlate();
 		
 		PdfPTable table;
-		Font tableHeaderFont = FONT_TABLE_HEADERS_SMALL;
-		Font tableValueFont = FONT_TABLE_VALUES_SMALL;
+		Font tableHeaderFont = FONT_TABLE_HEADERS_NORMAL;
+		Font tableValueFont = FONT_TABLE_VALUES_NORMAL;
 		if (isCapSeqPlate) {
 			table = new PdfPTable(10);
 		} else {
 			table = new PdfPTable(8);
 		}
-		table.setHorizontalAlignment(Element.ALIGN_CENTER);
+		PDFFormatterUtil.formatTable( table, TABLE_PERCENT_WIDTH_100 );
 		
 		// Headers
 		table.setHeaderRows(1);
@@ -441,10 +441,10 @@ public class RequestPDFFormatter extends RequestPDFFormatterBase {
 		Set samples = request.getSamples();
 		
 		PdfPTable table = new PdfPTable(8);
-		Font tableHeaderFont = FONT_TABLE_HEADERS_SMALL;
-		Font tableValueFont = FONT_TABLE_VALUES_SMALL;
-		table.setHorizontalAlignment(Element.ALIGN_CENTER);
-		
+		Font tableHeaderFont = FONT_TABLE_HEADERS_NORMAL;
+		Font tableValueFont = FONT_TABLE_VALUES_NORMAL;
+		PDFFormatterUtil.formatTable( table, TABLE_PERCENT_WIDTH_100 );
+    
 		// Headers
 		table.setHeaderRows(1);
 		PDFFormatterUtil.addToTableHeader(table, HEADER_SAMPLE_ID, tableHeaderFont);
@@ -530,10 +530,10 @@ public class RequestPDFFormatter extends RequestPDFFormatterBase {
 		Set samples = request.getSamples();
 		
 		PdfPTable table = new PdfPTable(8);
-		Font tableHeaderFont = FONT_TABLE_HEADERS_SMALL;
-		Font tableValueFont = FONT_TABLE_VALUES_SMALL;
-		table.setHorizontalAlignment(Element.ALIGN_CENTER);
-		
+		Font tableHeaderFont = FONT_TABLE_HEADERS_NORMAL;
+		Font tableValueFont = FONT_TABLE_VALUES_NORMAL;
+		PDFFormatterUtil.formatTable( table, TABLE_PERCENT_WIDTH_100 );
+    
 		// Headers
 		table.setHeaderRows(1);
 		PDFFormatterUtil.addToTableHeader(table, HEADER_SAMPLE_ID, tableHeaderFont);
@@ -618,8 +618,8 @@ public class RequestPDFFormatter extends RequestPDFFormatterBase {
 		PdfPTable table = new PdfPTable(2);
 		Font tableHeaderFont = FONT_TABLE_HEADERS_NORMAL;
 		Font tableValueFont = FONT_TABLE_VALUES_NORMAL;
-		table.setHorizontalAlignment(Element.ALIGN_CENTER);
-		
+		PDFFormatterUtil.formatTable( table, TABLE_PERCENT_WIDTH_100 );
+    
 		// Headers
 		table.setHeaderRows(1);
 		PDFFormatterUtil.addToTableHeader(table, HEADER_SAMPLE_ID, tableHeaderFont);
@@ -651,10 +651,10 @@ public class RequestPDFFormatter extends RequestPDFFormatterBase {
 		Set samples = request.getSamples();
 		
 		PdfPTable table = new PdfPTable(9);
-		Font tableHeaderFont = FONT_TABLE_HEADERS_SMALL;
-		Font tableValueFont = FONT_TABLE_VALUES_SMALL;
-		table.setHorizontalAlignment(Element.ALIGN_CENTER);
-		
+		Font tableHeaderFont = FONT_TABLE_HEADERS_NORMAL;
+		Font tableValueFont = FONT_TABLE_VALUES_NORMAL;
+		PDFFormatterUtil.formatTable( table, TABLE_PERCENT_WIDTH_100 );
+    
 		// Headers
 		table.setHeaderRows(1);
 		PDFFormatterUtil.addToTableHeader(table, HEADER_SAMPLE_ID, tableHeaderFont);
@@ -746,10 +746,10 @@ public class RequestPDFFormatter extends RequestPDFFormatterBase {
 		Set samples = request.getSamples();
 		
 		PdfPTable table = new PdfPTable(9);
-		Font tableHeaderFont = FONT_TABLE_HEADERS_SMALL;
-		Font tableValueFont = FONT_TABLE_VALUES_SMALL;
-		table.setHorizontalAlignment(Element.ALIGN_CENTER);
-		
+		Font tableHeaderFont = FONT_TABLE_HEADERS_NORMAL;
+		Font tableValueFont = FONT_TABLE_VALUES_NORMAL;
+		PDFFormatterUtil.formatTable( table, TABLE_PERCENT_WIDTH_100 );
+    
 		// Headers
 		table.setHeaderRows(1);
 		PDFFormatterUtil.addToTableHeader(table, HEADER_SAMPLE_ID, tableHeaderFont);
@@ -843,8 +843,8 @@ public class RequestPDFFormatter extends RequestPDFFormatterBase {
 		PdfPTable table = new PdfPTable(10);
 		Font tableHeaderFont = FONT_TABLE_HEADERS_VERY_SMALL;
 		Font tableValueFont = FONT_TABLE_VALUES_VERY_SMALL;
-		table.setHorizontalAlignment(Element.ALIGN_CENTER);
-		
+		PDFFormatterUtil.formatTable( table, TABLE_PERCENT_WIDTH_100 );
+    
 		// Headers
 		table.setHeaderRows(1);
 		PDFFormatterUtil.addToTableHeader(table, HEADER_SAMPLE_ID, tableHeaderFont);
@@ -951,8 +951,8 @@ public class RequestPDFFormatter extends RequestPDFFormatterBase {
 		}
 		
 		PdfPTable table;
-		Font tableHeaderFont = FONT_TABLE_HEADERS_SMALL;
-		Font tableValueFont = FONT_TABLE_VALUES_SMALL;
+		Font tableHeaderFont = FONT_TABLE_HEADERS_NORMAL;
+		Font tableValueFont = FONT_TABLE_VALUES_NORMAL;
 		if (isSequenomPlate && showCcNumber) {
 			table = new PdfPTable(7);
 		} else if (isSequenomPlate) {
@@ -962,8 +962,8 @@ public class RequestPDFFormatter extends RequestPDFFormatterBase {
 		} else {
 			table = new PdfPTable(4);
 		}
-		table.setHorizontalAlignment(Element.ALIGN_CENTER);
-		
+		PDFFormatterUtil.formatTable( table, TABLE_PERCENT_WIDTH_100 );
+    
 		// Headers
 		table.setHeaderRows(1);
 		PDFFormatterUtil.addToTableHeader(table, HEADER_SAMPLE_ID, tableHeaderFont);
@@ -1036,10 +1036,10 @@ public class RequestPDFFormatter extends RequestPDFFormatterBase {
 		Set samples = request.getSamples();
 		
 		PdfPTable table = new PdfPTable(9);
-		Font tableHeaderFont = FONT_TABLE_HEADERS_SMALL;
-		Font tableValueFont = FONT_TABLE_VALUES_SMALL;
-		table.setHorizontalAlignment(Element.ALIGN_CENTER);
-		
+		Font tableHeaderFont = FONT_TABLE_HEADERS_NORMAL;
+		Font tableValueFont = FONT_TABLE_VALUES_NORMAL;
+		PDFFormatterUtil.formatTable( table, TABLE_PERCENT_WIDTH_100 );
+    
 		// Headers
 		table.setHeaderRows(1);
 		PDFFormatterUtil.addToTableHeader(table, HEADER_SAMPLE_ID, tableHeaderFont);
@@ -1131,15 +1131,15 @@ public class RequestPDFFormatter extends RequestPDFFormatterBase {
 		Set samples = request.getSamples();
 		
 		PdfPTable table;
-		Font tableHeaderFont = FONT_TABLE_HEADERS_VERY_SMALL;
-		Font tableValueFont = FONT_TABLE_VALUES_VERY_SMALL;
+		Font tableHeaderFont = FONT_TABLE_HEADERS_NORMAL;
+		Font tableValueFont = FONT_TABLE_VALUES_NORMAL;
 		if (dnaSamples) {
 			table = new PdfPTable(10);
 		} else {
 			table = new PdfPTable(11);
 		}
-		table.setHorizontalAlignment(Element.ALIGN_CENTER);
-		
+		PDFFormatterUtil.formatTable( table, TABLE_PERCENT_WIDTH_100 );
+    
 		// Headers
 		table.setHeaderRows(1);
 		PDFFormatterUtil.addToTableHeader(table, HEADER_SAMPLE_ID, tableHeaderFont);
@@ -1154,7 +1154,7 @@ public class RequestPDFFormatter extends RequestPDFFormatterBase {
 		PDFFormatterUtil.addToTableHeader(table, "Lib Conc.", tableHeaderFont);
 		PDFFormatterUtil.addToTableHeader(table, "Lib Size", tableHeaderFont);
 		PDFFormatterUtil.addToTableHeader(table, "# Lanes", tableHeaderFont);
-		PDFFormatterUtil.addToTableHeader(table, "Sequence Date", tableHeaderFont);
+		PDFFormatterUtil.addToTableHeader(table, "Seq. Date", tableHeaderFont);
 		
 		// Populate table
 		for (Iterator i = samples.iterator(); i.hasNext();) {
@@ -1231,8 +1231,8 @@ public class RequestPDFFormatter extends RequestPDFFormatterBase {
 		PdfPTable table = new PdfPTable(4);
 		Font tableHeaderFont = FONT_TABLE_HEADERS_NORMAL;
 		Font tableValueFont = FONT_TABLE_VALUES_NORMAL;
-		table.setHorizontalAlignment(Element.ALIGN_CENTER);
-		
+		PDFFormatterUtil.formatTable( table, TABLE_PERCENT_WIDTH_100 );
+    
 		// Headers
 		table.setHeaderRows(1);
 		PDFFormatterUtil.addToTableHeader(table, HEADER_SAMPLE_ID, tableHeaderFont);
@@ -1302,11 +1302,11 @@ public class RequestPDFFormatter extends RequestPDFFormatterBase {
 	private Element makeTableSequenceLanes(List lanes, String caption) {
 		SortedMap multiplexLaneMap = SequenceLane.getMultiplexLaneMap(lanes, null);
 		
-		PdfPTable table = new PdfPTable(7);
-		Font tableHeaderFont = FONT_TABLE_HEADERS_SMALL;
-		Font tableValueFont = FONT_TABLE_VALUES_SMALL;
-		table.setHorizontalAlignment(Element.ALIGN_CENTER);
-		
+		PdfPTable table = new PdfPTable(4);
+		Font tableHeaderFont = FONT_TABLE_HEADERS_NORMAL;
+		Font tableValueFont = FONT_TABLE_VALUES_NORMAL;
+		PDFFormatterUtil.formatTable( table, TABLE_PERCENT_WIDTH_80 );
+    
 		// Headers
 		table.setHeaderRows(2);
 		PDFFormatterUtil.addToTable(table, caption, tableHeaderFont, Element.ALIGN_LEFT, Element.ALIGN_MIDDLE, false, false, false, false, BaseColor.BLACK, table.getNumberOfColumns(), 1);
@@ -1314,9 +1314,6 @@ public class RequestPDFFormatter extends RequestPDFFormatterBase {
 		PDFFormatterUtil.addToTableHeader(table, "#", tableHeaderFont);
 		PDFFormatterUtil.addToTableHeader(table, HEADER_SAMPLE_NAME, tableHeaderFont);
 		PDFFormatterUtil.addToTableHeader(table, "Status", tableHeaderFont);
-		PDFFormatterUtil.addToTableHeader(table, "Seq Protocol", tableHeaderFont);
-		PDFFormatterUtil.addToTableHeader(table, "Genome Build (align to)", tableHeaderFont);
-		PDFFormatterUtil.addToTableHeader(table, "Analysis Instructions", tableHeaderFont);
 		
 		// Populate table
 		int nonMultiplexedLaneCount = 1;
@@ -1356,27 +1353,12 @@ public class RequestPDFFormatter extends RequestPDFFormatterBase {
 				if (lane.getWorkflowStatusAbbreviated() != null) {
 					status = lane.getWorkflowStatusAbbreviated();
 				}
-				String seqProtocol = "";
-				if (lane.getIdNumberSequencingCyclesAllowed() != null) {
-					seqProtocol = dictionaryHelper.getNumberSequencingCyclesAllowed(lane.getIdNumberSequencingCyclesAllowed());
-				}
-				String genomeBuild = "";
-				if (lane.getIdGenomeBuildAlignTo() != null) {
-					genomeBuild = dictionaryHelper.getGenomeBuild(lane.getIdGenomeBuildAlignTo());
-				}
-				String analysisInstructions = "";
-				if (lane.getAnalysisInstructions() != null) {
-					analysisInstructions = lane.getAnalysisInstructions();
-				}
 				
 				// Add data to table
 				PDFFormatterUtil.addToTableValue(table, laneLabel, tableValueFont);
 				PDFFormatterUtil.addToTableValue(table, num, tableValueFont);
 				PDFFormatterUtil.addToTableValue(table, sampleName, tableValueFont);
 				PDFFormatterUtil.addToTableValue(table, status, tableValueFont);
-				PDFFormatterUtil.addToTableValue(table, seqProtocol, tableValueFont);
-				PDFFormatterUtil.addToTableValue(table, genomeBuild, tableValueFont);
-				PDFFormatterUtil.addToTableValue(table, analysisInstructions, tableValueFont);
 				
 				newLane = false;
 			}
@@ -1403,8 +1385,8 @@ public class RequestPDFFormatter extends RequestPDFFormatterBase {
 		} else {
 			table = new PdfPTable(1);
 		}
-		table.setHorizontalAlignment(Element.ALIGN_CENTER);
-		
+		PDFFormatterUtil.formatTable( table, TABLE_PERCENT_WIDTH_80 );
+    
 		// Populate nested tables, only creating Cy5 table if appropriate
 		PdfPTable cy3Table = makeTableLabeledSample(labeledSamples, "Cy3");
 		PdfPTable cy5Table = null;
@@ -1426,8 +1408,8 @@ public class RequestPDFFormatter extends RequestPDFFormatterBase {
 	
 	private PdfPTable makeTableLabeledSample(Set labeledSamples, String label) {
 		PdfPTable table = new PdfPTable(3);
-		Font tableHeaderFont = FONT_TABLE_HEADERS_SMALL;
-		Font tableValueFont = FONT_TABLE_VALUES_SMALL;
+		Font tableHeaderFont = FONT_TABLE_HEADERS_NORMAL;
+		Font tableValueFont = FONT_TABLE_VALUES_NORMAL;
 		
 		// Headers
 		table.setHeaderRows(2);
@@ -1471,15 +1453,15 @@ public class RequestPDFFormatter extends RequestPDFFormatterBase {
 		}
 		
 		PdfPTable table;
-		Font tableHeaderFont = FONT_TABLE_HEADERS_SMALL;
-		Font tableValueFont = FONT_TABLE_VALUES_SMALL;
+		Font tableHeaderFont = FONT_TABLE_HEADERS_NORMAL;
+		Font tableValueFont = FONT_TABLE_VALUES_NORMAL;
 		if (includeCy5) {
 			table = new PdfPTable(8);
 		} else {
 			table = new PdfPTable(7);
 		}
-		table.setHorizontalAlignment(Element.ALIGN_CENTER);
-		
+		PDFFormatterUtil.formatTable( table, TABLE_PERCENT_WIDTH_100 );
+    
 		// Headers
 		table.setHeaderRows(1);
 		PDFFormatterUtil.addToTableHeader(table, "Hyb #", tableHeaderFont);
