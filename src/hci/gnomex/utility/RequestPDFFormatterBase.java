@@ -38,6 +38,8 @@ public abstract class RequestPDFFormatterBase {
 	private static final float REQUEST_CATEGORY_IMAGE_HEIGHT = 10;
 	private static final float PROPERTY_DESCRIPTION_INDENT = 30; 
 	
+	private static final float TABLE_PERCENT_WIDTH_100 = 100;
+	
 	protected RequestPDFFormatterBase(SecurityAdvisor secAdvisor, Request request, AppUser appUser, BillingAccount billingAccount, DictionaryHelper dictionaryHelper, Session sess) {
 		this.secAdvisor = secAdvisor;
 		this.request = request;
@@ -61,7 +63,7 @@ public abstract class RequestPDFFormatterBase {
 			title.add(new Chunk("  "));
 		}		
 		
-		title.add(request.getNumber() + "   ");
+		title.add(request.getNumber() + "  ");
 		title.add(dictionaryHelper.getRequestCategory(request.getCodeRequestCategory()) + (request.getIsExternal() != null && request.getIsExternal().equals("Y") ? "" :  " Request"));
 		
 		return title;
@@ -173,9 +175,9 @@ public abstract class RequestPDFFormatterBase {
 		Set samples = request.getSamples();
 		
 		PdfPTable table = new PdfPTable(2);
-		Font tableHeaderFont = RequestPDFFormatter.FONT_TABLE_HEADERS_SMALL;
-		Font tableValueFont = RequestPDFFormatter.FONT_TABLE_VALUES_SMALL;
-		table.setHorizontalAlignment(Element.ALIGN_CENTER);
+		Font tableHeaderFont = RequestPDFFormatter.FONT_TABLE_HEADERS_NORMAL;
+		Font tableValueFont = RequestPDFFormatter.FONT_TABLE_VALUES_NORMAL;
+		PDFFormatterUtil.formatTable( table, TABLE_PERCENT_WIDTH_100 );
 		
 		// Headers
 		table.setHeaderRows(1);
