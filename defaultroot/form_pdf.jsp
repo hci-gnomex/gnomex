@@ -8,6 +8,7 @@ import="java.io.*,
 		hci.report.model.ReportRow,
 		hci.report.model.Column"
 %>
+<%@ page trimDirectiveWhitespaces="true" %>
 <jsp:useBean id="tray" class="hci.report.model.ReportTray" scope="request"/>
 <%
 response.setContentType("application/pdf");
@@ -35,4 +36,6 @@ byte[] bytes = buffer.toByteArray();
 response.setContentLength(bytes.length);
 response.setBufferSize(bytes.length+1000);
 for( int i = 0; i < bytes.length; i++ ) { output.writeByte( bytes[i] ); }
+((DataOutputStream) output).flush();
+((DataOutputStream) output).close();
 %>
