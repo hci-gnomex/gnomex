@@ -396,7 +396,10 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
           }
 
           //clean up ghost files
-          List ghostFiles = sess.createQuery( "SELECT af from AnalysisFile af where af.idAnalysis = " + idAnalysis).list();
+          String queryBuf = "SELECT af from AnalysisFile af where af.idAnalysis = :idAnalysis";
+          Query query = sess.createQuery(queryBuf);
+          query.setParameter("idAnalysis", idAnalysis);
+          List ghostFiles = query.list();
 
           for(Iterator i = ghostFiles.iterator(); i.hasNext();) {
             AnalysisFile af  = (AnalysisFile) i.next();

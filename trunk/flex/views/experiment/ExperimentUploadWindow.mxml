@@ -98,6 +98,7 @@
 			import mx.rpc.events.ResultEvent;
 			
 			import views.util.MultiFileUpload;
+			import views.util.GNomExStringUtil;
 			
 			[Bindable]
 			public var idRequest:Object;
@@ -887,17 +888,17 @@
 							var fileNode:XML;
 							if (dragItem.name() == this.FILE_DESCRIPTOR_NAME ){
 								fileNode = new XML("<FileDescriptor " +
-									" displayName='" +  dragItem.@displayName + "'" + 
-									" fileName='" +  dragItem.@fileName + "'" + 
+									" displayName='" +  GNomExStringUtil.makeXMLSafe(dragItem.@displayName) + "'" + 
+									" fileName='" +  GNomExStringUtil.makeXMLSafe(dragItem.@fileName) + "'" + 
 									" type='" + dragItem.@type + "'" +
-									" directoryName='" + dragItem.@directoryName + "'/>");
+									" directoryName='" + GNomExStringUtil.makeXMLSafe(dragItem.@directoryName) + "'/>");
 							}
 							if (dragItem.name() == "RequestDownload" ){
 								fileNode = new XML("<FileDescriptor " +
-									" displayName='" +  dragItem.@itemNumber + "'" + 
-									" fileName='" +  dragItem.@fileName + "'" + 
+									" displayName='" +  GNomExStringUtil.makeXMLSafe(dragItem.@itemNumber) + "'" + 
+									" fileName='" +  GNomExStringUtil.makeXMLSafe(dragItem.@fileName) + "'" + 
 									" type='dir'" +
-									" directoryName='" + dragItem.@directoryName + "'/>");
+									" directoryName='" + GNomExStringUtil.makeXMLSafe(dragItem.@directoryName) + "'/>");
 							}
 							
 							

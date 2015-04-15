@@ -283,7 +283,10 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
               //so that we don't do an unnecessary delete in the register files servlet.
               if(success) {
                 String currentExpFileName = fileName.substring(fileName.indexOf(baseRequestNumber)).replace("\\", "/"); //REMOVE REPLACE AFTER DEBUGGING
-                List expFiles = sess.createQuery("Select exp from ExperimentFile exp where fileName = " + "'" + currentExpFileName + "'").list();
+                String queryBuf = "Select exp from ExperimentFile exp where fileName = :currentExpFileName";
+                Query query = sess.createQuery(queryBuf);
+                query.setParameter("currentExpFileName", currentExpFileName);
+                List expFiles = query.list();
                 if(expFiles.size() == 1) {
                   String newExpFileName = targetDirName.substring(targetDirName.indexOf(baseRequestNumber)).replace("\\", "/"); //Remove replace after debugging
                   newExpFileName += "/" + destFile.getName();
@@ -478,7 +481,10 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
               Element fd = (Element)i.next();
               String fileName = fd.getAttributeValue("zipEntryName");
               fileName = fileName.replace("\\", "/");
-              List expFile = sess.createQuery("Select expFile from ExperimentFile expFile where fileName = '" + fileName + "'").list();
+              String queryBuf = "Select expFile from ExperimentFile expFile where fileName = :fileName";
+              Query query = sess.createQuery(queryBuf);
+              query.setParameter("fileName", fileName);
+              List expFile = query.list();
               if(expFile.size() > 0) {
                 ExperimentFile ef = (ExperimentFile)expFile.get(0);
                 expFileDictionary.put(fileName, ef);
