@@ -737,6 +737,7 @@
 					
 					// For internal experiments, make sure billing account selected.  Also description and name if property is set.
 					if (parentApplication.submitInternalExperiment()) {
+						setNameDescriptionLabels();
 						if (!parentApplication.requireExperimentDescriptionAndName(parentDocument.coreFacility.@idCoreFacility, this.getRequestCategory().@codeRequestCategory)
 							|| (this.experimentName.text != "" && this.overallDescript.text != "")) { 
 							if (this.billingAccountCombo.selectedItem != null) {
@@ -1253,6 +1254,7 @@
 				if (this.sampleOrganismCombo1 != null) this.sampleOrganismCombo1.selectedIndex = -1;
 				getMembersOfLab();
 			}
+			
 		]]>
 	</mx:Script>
 	<mx:XMLListCollection id="billingAccounts"  source="{lab.approvedBillingAccounts.BillingAccount}"  filterFunction="filterBillingAccount"/>
