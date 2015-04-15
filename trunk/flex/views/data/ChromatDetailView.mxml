@@ -514,7 +514,7 @@
 			// Print the chromatogram information
 			private function doPrintPDF():void {
 				
-				var pdfPrintJob:PDF = new PDF( Orientation.PORTRAIT, Unit.MM, Size.A4 ); 
+				var pdfPrintJob:PDF = new PDF( Orientation.PORTRAIT, Unit.INCHES, Size.LETTER ); 
 				pdfPrintJob.setDisplayMode( Display.FULL_PAGE, Layout.SINGLE_PAGE );
 					
 				// Create Page 1 of chromat print view
