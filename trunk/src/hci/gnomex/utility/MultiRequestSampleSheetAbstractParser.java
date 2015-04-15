@@ -554,7 +554,7 @@ public abstract class MultiRequestSampleSheetAbstractParser implements Serializa
       requestNode.setAttribute("codeRequestCategory", request == null ? "" : request.getCodeRequestCategory());
       requestNode.setAttribute("name", request == null ? "" : request.getName());
       requestNode.setAttribute("description", request == null ? "" :  request.getDescription());
-      requestNode.setAttribute("codeApplication", request == null ? "" : request.getCodeApplication());
+      requestNode.setAttribute("codeApplication", request == null || request.getCodeApplication() == null ? "" : request.getCodeApplication());
       requestNode.setAttribute("numUnmodifiedSamples", this.numberSamplesUnchanged(request).toString());
       requestNode.setAttribute("numUpdatedSamples", this.numberSamplesUpdated(request).toString());
       requestNode.setAttribute("numCreatedSamples", this.numberSamplesCreated(request).toString());
