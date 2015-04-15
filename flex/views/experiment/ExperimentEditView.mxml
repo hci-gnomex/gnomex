@@ -203,6 +203,7 @@
 			import mx.rpc.events.FaultEvent;
 			import mx.rpc.events.ResultEvent;
 			import mx.utils.ObjectUtil;
+			import mx.utils.StringUtil;
 			import mx.validators.NumberValidator;
 			import mx.validators.ValidationResult;
 			
@@ -3031,8 +3032,32 @@
 				for each(var samp:Object in this.samples) {
 					if(samp[barcodeField] != "" && samp[barcodeFieldB] != ""){
 						if(samp[barcodeField] == samp[barcodeFieldB]){
-							warningMessage += "Some samples are using the same index tag for both index tag A and index tag B.";
+							warningMessage += "Some samples are using the same index tag for both index tag A and index tag B.\n";
 							break;
+						}
+					}
+				}
+			}
+			
+			// Ensure experiment has description if appropriate
+			if (isEditState() && parentApplication.submitInternalExperiment()) {
+				if (coreFacility != null && requestCategory != null && parentApplication.requireExperimentDescriptionAndName(coreFacility.@idCoreFacility, requestCategory.@codeRequestCategory)) {
+					var experimentName:String = notesView.experimentName.text;
+					if (experimentName != null) {
+						experimentName = StringUtil.trim(experimentName);
+					}
+					var experimentDescription:String = notesView.overallDescript.htmlText;
+					if (experimentDescription != null) {
+						experimentDescription = GNomExStringUtil.cleanRichTextHTML(experimentDescription);
+						experimentDescription = StringUtil.trim(experimentDescription);
+					}
+					if ((experimentName != null && experimentName.length == 0) || (experimentDescription != null && experimentDescription.length == 0)) {
+						if (parentApplication.isAdminState) {
+							// Warn admin users
+							warningMessage += "Experiments of this category are required to have a name and description.\n";
+						} else {
+							// Show error to non-admin users
+							errorMessage += "Experiments of this category are required to have a name and description.\n";
 						}
 					}
 				}
