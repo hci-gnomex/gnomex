@@ -532,8 +532,8 @@
 				} 
 				
 				var folder:XML = new XML("<RequestDownload isNew='Y' " +
-					"key='X\tX\tX\t" + folderName + "' " +
-					"itemNumber='" + folderName + "' " +
+					"key='X\tX\tX\t" + GNomExStringUtil.makeXMLSafe(folderName) + "' " +
+					"itemNumber='" + GNomExStringUtil.makeXMLSafe(folderName) + "' " +
 					"type='dir'" +
 					"isEmpty='Y'" +
 					"info='' />");

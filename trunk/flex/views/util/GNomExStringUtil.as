@@ -150,15 +150,15 @@ package views.util
 		public static function makeXMLSafe( s:String ):String {
 			var pattern:RegExp;
 			var str:String = s;
-			pattern = /&/;
+			pattern = /&/g;
 			str = str.replace(pattern, "&amp;");
-			pattern = /</;
+			pattern = /</g;
 			str = str.replace(pattern, "&lt;");
-			pattern = />/;
+			pattern = />/g;
 			str = str.replace(pattern, "&gt;");
-			pattern = /\'/;
+			pattern = /\'/g;
 			str = str.replace(pattern, "&apos;");
-			pattern = /\"/;
+			pattern = /\"/g;
 			str = str.replace(pattern, "&quot;");
 			
 			return str;

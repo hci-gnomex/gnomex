@@ -351,8 +351,8 @@
 				
 				folder = new XML("<AnalysisFileDescriptor isNew='Y' " +
 					"dirty='Y' " + 
-					"key='X-X-" + folderName + "' " +
-					"displayName='" + folderName + "' " +
+					"key='X-X-" + GNomExStringUtil.makeXMLSafe(folderName) + "' " +
+					"displayName='" + GNomExStringUtil.makeXMLSafe(folderName) + "' " +
 					"type='dir'" +
 					"qualifiedFilePath='' " +
 					"isEmpty='Y'" +
