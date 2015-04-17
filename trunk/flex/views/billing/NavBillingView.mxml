@@ -327,6 +327,9 @@
 		
 		private var usageWindow:BillingUsageView = null;
 		
+		[Bindable]
+		private var hideEmptyRequests:Boolean = false;
+		
 		
 		
         private function init():void {
@@ -351,6 +354,8 @@
 				menuBarNoGLInterface.visible = false;
 				menuBarNoGLInterface.includeInLayout = false;
 			}
+			
+			setHideEmptyRequests(); // Automatically check checkbox for hiding requests with no billing items
 				
 				coreFacilities.refresh();
 				
@@ -433,6 +438,8 @@
 					getBillingItemList.send(params);
 				}
 				
+				billingItemsDisplayed.filterFunction = filterBillingItemsDisplayed;
+				billingItemsDisplayed.refresh();
 				
 				currencyFormatter.currencySymbol = "$";
 				currencyFormatter.precision = 2;
@@ -560,6 +567,10 @@
 			private function refreshBillingItemsImpl():void {
 				billingItemsDisplayed = new XMLListCollection();
 				this.billingItemGrid.dataProvider = new HierarchicalData(billingItemsDisplayed);
+				
+				setHideEmptyRequests(); // Automatically check checkbox for hiding requests with no billing items
+				billingItemsDisplayed.filterFunction = filterBillingItemsDisplayed;
+				billingItemsDisplayed.refresh();
 				
 				if (invoiceNumberLookupText.text != "") {
 					this.refreshBillingItemsByInvoiceNumber();
@@ -1056,6 +1067,9 @@
 			private function gatherDisplayInfo(selectedItem:Object):void {
 				
 				billingItemsDisplayed = new XMLListCollection();
+				
+				billingItemsDisplayed.filterFunction = filterBillingItemsDisplayed;
+				billingItemsDisplayed.refresh();
 				
 				var request:XML = null;
 				var lab:XML = null;
@@ -2377,8 +2391,40 @@
 					}
 				}
 			}
-			
-			
+		
+			private function setHideEmptyRequests():void {
+				// Automatically check checkbox for hiding requests with no billing items
+				if (parentApplication.getCoreFacilityProperty(this.getSelectedCoreFacilityId(), parentApplication.PROPERTY_HIDE_REQUESTS_WITH_NO_BILLING_ITEMS) == "Y") {
+					hideEmptyRequests = true;
+				} else {
+					hideEmptyRequests = false;
+				}
+			}
+		
+			private function toggleHideEmptyRequestsCheckbox():void {
+				if (hideEmptyRequestsCheckbox.selected) {
+					hideEmptyRequests = true;
+				} else {
+					hideEmptyRequests = false;
+				}
+			}
+		
+			private function refreshHideEmptyRequests():void {
+				toggleHideEmptyRequestsCheckbox();
+				onRequestNodeSelected();
+			}
+		
+			private function filterBillingItemsDisplayed(item:Object):Boolean {
+				if (hideEmptyRequests) {
+					// Ensure request has at least one billing item
+					for each (var billingItem:Object in item.BillingItem) {
+						return true;
+					}
+					return false;
+				}
+				
+				return true;
+			}
 			
 		]]>
 	</mx:Script>	
@@ -2544,6 +2590,7 @@
 						<mx:ViewStack id="treeExpansionStack" width="100%" selectedIndex="0">
 							<mx:HBox width="100%" horizontalAlign="left">
 								<mx:LinkButton   label="Expand labs" click="{treeExpansionStack.selectedIndex = 1;this.expandAllNodes();}" textDecoration="underline" />
+								<mx:CheckBox id="hideEmptyRequestsCheckbox" label="Hide requests with no billing items?" fontSize="8" selected="{hideEmptyRequests}" click="{refreshHideEmptyRequests()}" />
 							</mx:HBox>
 							<mx:HBox width="100%" horizontalAlign="left">
 								<mx:LinkButton  label="Collapse labs" click="{treeExpansionStack.selectedIndex = 0;this.collapseLabNodes()}" textDecoration="underline" />					    	
