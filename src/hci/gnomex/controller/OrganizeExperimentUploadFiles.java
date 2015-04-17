@@ -202,7 +202,10 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
               //Update experiment file name if registered in the db
               String oldExpFileName = file.substring(file.indexOf(baseRequestNumber)).replace("\\", "/"); 
               String newExpFileName = newFileName.substring(newFileName.indexOf(baseRequestNumber)).replace("\\", "/");
-              List expFiles = sess.createQuery("Select exp from ExperimentFile exp where fileName = " + "'" + oldExpFileName + "'").list();
+              String queryBuf = "Select exp from ExperimentFile exp where fileName = :oldExpFileName";
+              Query query = sess.createQuery(queryBuf);
+              query.setParameter("oldExpFileName", oldExpFileName);
+              List expFiles = query.list();
               if(expFiles.size() == 1) {
                 ExperimentFile ef = (ExperimentFile)expFiles.get(0);
                 ef.setFileName(newExpFileName);
@@ -369,7 +372,11 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
                   List expFiles = query2.list();
                   if(expFiles.size() == 1) {
                     ExperimentFile ef = (ExperimentFile)expFiles.get(0);
-                    List l = (sess.createQuery("SELECT DISTINCT sef from SampleExperimentFile sef where sef.idExpFileRead1 = " + ef.getIdExperimentFile() + " OR sef.idExpFileRead2 = " + ef.getIdExperimentFile()).list());
+                    String queryBuf3 = "SELECT DISTINCT sef from SampleExperimentFile sef where sef.idExpFileRead1 = :idExperimentFile1 OR sef.idExpFileRead2 = :idExperimentFile2";
+                    Query query3 = sess.createQuery(queryBuf3);
+                    query3.setParameter("idExperimentFile1", ef.getIdExperimentFile());
+                    query3.setParameter("idExperimentFile2", ef.getIdExperimentFile());
+                    List l = query3.list();
 
                     if(l.size() == 1) {
                       SampleExperimentFile sef = (SampleExperimentFile)l.get(0);
@@ -415,10 +422,17 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
             for(Iterator i = directoryFilesToUnlink.iterator(); i.hasNext();) {
               String fileName = (String)i.next();
               String currentFileName = fileName.substring(fileName.indexOf(baseRequestNumber)).replace("\\", "/");
-              List expFiles = sess.createQuery("Select exp from ExperimentFile exp where fileName = " + "'" + currentFileName + "'").list();
+              String queryBuf = "Select exp from ExperimentFile exp where fileName = :currentFileName";
+              Query query = sess.createQuery(queryBuf);
+              query.setParameter("currentFileName", currentFileName);
+              List expFiles = query.list();
               if(expFiles.size() == 1) {
                 ExperimentFile ef = (ExperimentFile)expFiles.get(0);
-                List l = (sess.createQuery("SELECT DISTINCT sef from SampleExperimentFile sef where sef.idExpFileRead1 = " + ef.getIdExperimentFile() + " OR sef.idExpFileRead2 = " + ef.getIdExperimentFile()).list());
+                String queryBuf2 = "SELECT DISTINCT sef from SampleExperimentFile sef where sef.idExpFileRead1 = :idExperimentFile1 OR sef.idExpFileRead2 = :idExperimentFile2";
+                Query query2 = sess.createQuery(queryBuf2);
+                query2.setParameter("idExperimentFile1", ef.getIdExperimentFile());
+                query2.setParameter("idExperimentFile2", ef.getIdExperimentFile());
+                List l = query2.list();
 
                 if(l.size() == 1) {
                   SampleExperimentFile sef = (SampleExperimentFile)l.get(0);
@@ -451,7 +465,11 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
 
               if(fileDescriptor.getAttributeValue("idExperimentFile") != null && !fileDescriptor.getAttributeValue("idExperimentFile").equals("")) {
                 Integer idExperimentFile = Integer.parseInt(fileDescriptor.getAttributeValue("idExperimentFile"));
-                List l = (sess.createQuery("SELECT DISTINCT sef from SampleExperimentFile sef where sef.idExpFileRead1 = " + idExperimentFile + " OR sef.idExpFileRead2 = " + idExperimentFile).list());
+                String queryBuf = "SELECT DISTINCT sef from SampleExperimentFile sef where sef.idExpFileRead1 = :idExperimentFile1 OR sef.idExpFileRead2 = :idExperimentFile2";
+                Query query = sess.createQuery(queryBuf);
+                query.setParameter("idExperimentFile1", idExperimentFile);
+                query.setParameter("idExperimentFile2", idExperimentFile);
+                List l = query.list();
 
                 if(l.size() == 1) {
                   SampleExperimentFile sef = (SampleExperimentFile)l.get(0);
