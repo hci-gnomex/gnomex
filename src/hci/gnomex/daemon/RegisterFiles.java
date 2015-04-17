@@ -61,41 +61,41 @@ public class RegisterFiles extends TimerTask {
   private static int                   fONE_DAY = 1;
   private static int                   wakeupHour = 2;    // Default wakupHour is 2 am
   private static int                   fZERO_MINUTES = 0;
-  
+
   private BatchDataSource              dataSource;
   private Session                      sess;
 
-  
+
   private static boolean               all = false;
   private static Integer               daysSince = null;
   private static String                serverName = "";
   private static RegisterFiles         app = null;
-  
+
   private Properties                  mailProps;
-  
-  
+
+
   private boolean                      runAsDaemon = false;
-  
+
   private String                       baseExperimentDir;
   private String                       baseFlowCellDir;
   private String                       baseAnalysisDir;
   private String                       flowCellDirFlag;
   private Calendar                     asOfDate;
   private Calendar                     runDate;  // Date program is being run.
-  
+
   private Transaction                  tx;
 
   private String                       orionPath = "";
-  
+
   private Boolean                      sendMail = true;
   private Boolean                      testingSendMail = false;
   private Boolean                      debug = false;
 
   private String                       errorMessageString = "Error in RegisterFiles";
-  
+
   private String                          gnomexSupportEmail;
   private String                          fromEmailAddress;
-  
+
   private String                       currentEntityString;
 
   Map<String, Map<String, String>> emailAnalysisMap = new HashMap<String, Map<String, String>>();
@@ -123,7 +123,7 @@ public class RegisterFiles extends TimerTask {
         sendMail = false;
       }
     }
-    
+
     try {
       if (sendMail || testingSendMail) {
         mailProps = new BatchMailer(orionPath).getMailProperties();
@@ -133,31 +133,31 @@ public class RegisterFiles extends TimerTask {
       }
     } catch (Exception e){
       String msg = "Register files cannot initialize mail properties.   " + e.toString()  + "\n\t";
-      
+
       StackTraceElement[] stack = e.getStackTrace();
       for (StackTraceElement s : stack) {
         msg = msg + s.toString() + "\n\t\t";
       };
-      
+
       if ( !errorMessageString.equals( "" )) {
         errorMessageString += "\n";
       }
       errorMessageString += msg;
-      
+
       this.sendErrorReport( this.gnomexSupportEmail, this.fromEmailAddress); 
-      
+
       System.err.println(errorMessageString);
-      
+
       System.exit(0);
     }
   }
-  
+
   /**
    * @param args
    */
   public static void main(String[] args) {
     app  = new RegisterFiles(args);
-    
+
     // Can either be run as daemon or run once (for scheduled execution - e.g. crontab)
     if(app.runAsDaemon) {
       // Perform the task once a day at <wakeupHour>., starting tomorrow morning
@@ -172,27 +172,27 @@ public class RegisterFiles extends TimerTask {
   public void run(){
     runDate = Calendar.getInstance();
     errorMessageString += " on " + new SimpleDateFormat("MM-dd-yyyy_HH:mm:ss").format(runDate.getTime()) + "\n";
-    
+
     try {
       org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger("org.hibernate");
       log.setLevel(Level.ERROR);
 
       dataSource = new BatchDataSource();
       app.connect();
-      
+
       app.initialize();
       app.registerExperimentFiles();
       app.registerAnalysisFiles();
 
     } catch (Exception e) {
-      
+
       String msg = "Could not register experiment or analysis files (error at " + this.currentEntityString + "). Transaction rolled back:   " + e.toString() + "\n\t";
-      
+
       StackTraceElement[] stack = e.getStackTrace();
       for (StackTraceElement s : stack) {
         msg = msg + s.toString() + "\n\t\t";
       }
-      
+
       try {
         if (tx != null) {
           tx.rollback();
@@ -205,42 +205,42 @@ public class RegisterFiles extends TimerTask {
           msg = msg + s.toString() + "\n\t\t";
         }
       } finally {}
-      
+
       if ( !errorMessageString.equals( "" )) {
         errorMessageString += "\n";
       }
       errorMessageString += msg;
-      
+
       this.sendErrorReport( this.gnomexSupportEmail, this.fromEmailAddress); 
-      
+
       System.err.println(errorMessageString);
-      
-      
+
+
     } finally {
     }
 
-      
+
   }
-  
+
   private void initialize() throws Exception {
     PropertyDictionaryHelper ph = PropertyDictionaryHelper.getInstance(sess);
     baseFlowCellDir     = ph.getFlowCellDirectory(serverName);
     baseAnalysisDir     = ph.getAnalysisDirectory(serverName);
     flowCellDirFlag     = ph.getProperty(PropertyDictionary.FLOWCELL_DIRECTORY_FLAG);
-    
+
     gnomexSupportEmail = ph.getQualifiedProperty(PropertyDictionary.GNOMEX_SUPPORT_EMAIL, serverName);
     if (gnomexSupportEmail == null) {
       gnomexSupportEmail = ph.getQualifiedProperty(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER, serverName);
     }
     this.fromEmailAddress = ph.getProperty(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
-    
+
     // Figure out how far back we should look at experiments
-    
+
     if (all) {
       // Don't filter on date criteria of all experiments and analysis to be registered
     } else {
       asOfDate = GregorianCalendar.getInstance();
-      
+
       // Back up today's date to correct interval
       if (daysSince != null) {
         // Argument was provided that tells use how far to look back
@@ -251,17 +251,17 @@ public class RegisterFiles extends TimerTask {
       }    
     }
   }
-  
+
   private String getCurrentDateString() {
     runDate = Calendar.getInstance();
     return new SimpleDateFormat("MM-dd-yyyy_HH:mm:ss").format(runDate.getTime());
 
   }
-  
+
   private void registerExperimentFiles() throws Exception {
     // Hash experiment files
     StringBuffer buf = new StringBuffer();
-    
+
     // Get all of the experiments created on or after the as-of-date
     buf = new StringBuffer("SELECT r ");
     buf.append(" FROM Request r");
@@ -270,19 +270,19 @@ public class RegisterFiles extends TimerTask {
     }
     System.out.println(getCurrentDateString() + ":" + buf.toString());
     List results = sess.createQuery(buf.toString()).list();
-    
+
     // For each experiment
     for (Iterator i = results.iterator(); i.hasNext();) {
       tx = sess.beginTransaction();
 
       Request request = (Request)i.next();
-      
+
       this.currentEntityString = request.getNumber();
-      
+
       String baseRequestNumber = Request.getBaseRequestNumber(request.getNumber());
 
       System.out.println("\n" + getCurrentDateString() + ":" + baseRequestNumber);
-      
+
       // Get all of the files from the file system
       Map fileMap = hashFiles(sess, baseRequestNumber, request.getCreateDate(), request.getCodeRequestCategory(), request.getIdCoreFacility());
       for (Iterator i1 = fileMap.keySet().iterator(); i1.hasNext();) {
@@ -290,7 +290,7 @@ public class RegisterFiles extends TimerTask {
         FileDescriptor fd = (FileDescriptor)fileMap.get(fileName);
         System.out.println(getCurrentDateString() + ":" + fileName + " " + fd.getFileSizeText());
       }
-      
+
       // Now compare to the experiment files already registered in the db
       TreeSet newExperimentFiles = new TreeSet(new ExperimentFileComparator());
       if (request.getFiles() != null) {
@@ -302,13 +302,13 @@ public class RegisterFiles extends TimerTask {
           LinkedList<String> dirs = new LinkedList<String>();
           ExperimentFile ef = (ExperimentFile)i2.next();
           FileDescriptor fd = (FileDescriptor)fileMap.get(ef.getFileName().replace("\\", "/"));
-          
+
           String efFileName = ef.getFileName().substring(ef.getFileName().lastIndexOf("/") + 1);
           printDebugStatement("EXPERIMENT FILE NAME::::::::::::: " + efFileName);
           printDebugStatement("EXPERIMENT FILE SIZE::::::::::::: " + ef.getFileSize());
           dirs.add(directoryName);
           String newFilePath = null;
-          
+
           //If fd is initially null then the file may have just been moved so look for it in other directories
           if(fd == null) {
             printDebugStatement("name: " + efFileName + "     size: " + ef.getFileSize() + "        sizeOfLinkedList: " + dirs.size());
@@ -320,7 +320,7 @@ public class RegisterFiles extends TimerTask {
             printDebugStatement("NEW FILE PATH, WE FOUND OLD FILE::::::::::::: " + newFilePath);
             fd = new FileDescriptor(request.getNumber(), newFilePath.substring(newFilePath.lastIndexOf("/")), new File(newFilePath), newFilePath.substring(newFilePath.indexOf(baseRequestNumber)));
           }
-          
+
           // If we don't find the file on the file system, delete it from the db.
           if (fd == null && newFilePath == null) {
             System.out.println(getCurrentDateString() + ":" + "WARNING - experiment file " + ef.getFileName() + " not found for " + ef.getRequest().getNumber());
@@ -355,7 +355,7 @@ public class RegisterFiles extends TimerTask {
           }
         }        
       }
-      
+
       // Now add ExperimentFiles to the db for any files on the file system
       // not found in the db.
       for (Iterator i3 = fileMap.keySet().iterator(); i3.hasNext();) {
@@ -373,34 +373,34 @@ public class RegisterFiles extends TimerTask {
           newExperimentFiles.add(ef);
         }
       }
-      
+
       request.getFiles().clear();
-      
+
       if(debug) {
         for(Iterator debug = newExperimentFiles.iterator(); debug.hasNext();) {
           System.out.println(debug.next());
         }
       }
-      
+
       if (newExperimentFiles != null && newExperimentFiles.size() > 0) {
         request.getFiles().addAll(newExperimentFiles);
       }
-      
+
       sess.flush();
       tx.commit();
       this.currentEntityString = "";
     }
   }
-  
+
   private java.sql.Date getEffectiveRequestFileCreateDate(FileDescriptor fd, java.util.Date requestCreateDate) {
-    
+
     java.sql.Date createDate = new java.sql.Date(runDate.getTime().getTime());
-    
+
     return createDate;
   }
-  
+
   private void registerAnalysisFiles() throws Exception {
-    
+
     // Get all of the analysis files created on or after the as-of-date
     StringBuffer buf = new StringBuffer("SELECT a ");
     buf.append(" FROM Analysis a");
@@ -408,15 +408,15 @@ public class RegisterFiles extends TimerTask {
       buf.append(" WHERE a.createDate >= '" + new SimpleDateFormat("yyyy-MM-dd").format(asOfDate.getTime()) + "'");
     }
     List results = sess.createQuery(buf.toString()).list();
-    
+
     // For each analysis
     for (Iterator i = results.iterator(); i.hasNext();) {
       tx = sess.beginTransaction();
       Analysis analysis = (Analysis)i.next();
       this.currentEntityString = analysis.getNumber();
-      
+
       System.out.println("\n" + getCurrentDateString() + ":" + analysis.getNumber());
-      
+
       // Get all of the files from the file system
       Map fileMap = hashFiles(analysis);
       for (Iterator i1 = fileMap.keySet().iterator(); i1.hasNext();) {
@@ -424,12 +424,12 @@ public class RegisterFiles extends TimerTask {
         AnalysisFileDescriptor fd = (AnalysisFileDescriptor)fileMap.get(fileName);
         System.out.println(getCurrentDateString() + ":" + fileName + " " + fd.getFileSizeText());
       }
-      
-      
+
+
       // Now compare to the experiment files already registered in the db
       TreeSet newAnalysisFiles = new TreeSet(new AnalysisFileComparator());
       for (Iterator i2 = analysis.getFiles().iterator(); i2.hasNext();) {
-        
+
         AnalysisFile af= (AnalysisFile)i2.next();
         String directoryName = analysis.getNumber() + "/";
         if (af.getQualifiedFilePath() != null && !af.getQualifiedFilePath().trim().equals("")) {
@@ -437,33 +437,33 @@ public class RegisterFiles extends TimerTask {
         }
         String qualifiedFileName = directoryName + af.getFileName();
         AnalysisFileDescriptor fd = (AnalysisFileDescriptor)fileMap.get(qualifiedFileName);
-        
+
         // If we don't find the file on the file system, delete it from the db.
         if (fd == null) {
-          
+
           System.out.println("\n" + getCurrentDateString() + ":" + "WARNING - analysis file " + qualifiedFileName + " not found for " + af.getAnalysis().getNumber());
-          
+
           // DataTrack and DataTrackFile query 
           StringBuffer queryBuf = new StringBuffer();
           queryBuf.append("SELECT dtf, dt FROM DataTrack dt ");
           queryBuf.append("JOIN dt.dataTrackFiles dtf ");
           queryBuf.append("WHERE dtf.idAnalysisFile = ");
           queryBuf.append( af.getIdAnalysisFile() );
-          
+
           // Run the Query
           List dataTrackFiles = sess.createQuery(queryBuf.toString()).list();
-          
-          
+
+
           // Data tracks were found, so delete them and warn the owners
           if ( dataTrackFiles.size() > 0 ) {
-            
+
             // Delete the DataTrackFiles and DataTracks 
             for (Iterator i4 = dataTrackFiles.iterator(); i4.hasNext();) {
               Object[] row = (Object[]) i4.next();
               DataTrackFile dtf = (DataTrackFile) row[0];
               DataTrack dt = (DataTrack) row[1];
-              
-              
+
+
               // Get an email address for the file
               String emailAddress = "";
               if ( dt.getAppUser() != null && dt.getAppUser().getEmail() != null ) {
@@ -477,21 +477,21 @@ public class RegisterFiles extends TimerTask {
               if (emailAddress == null ||  emailAddress.equals( "" ) ) {
                 emailAddress = this.gnomexSupportEmail;
               }
-              
-              
-              hashForNotification(emailAddress, af, dt);
-              
 
-              
+
+              hashForNotification(emailAddress, af, dt);
+
+
+
               sess.delete( dtf );
               sess.flush();
             }
           }
-          
-          
+
+
           // If the analysis has any comments, warn the app user that it was deleted.
           if (af.getComments() != null && !af.getComments().trim().equals("")) {
-                        
+
             // Get an email address for the file
             String emailAddress = "";
             if ( af.getAnalysis().getAppUser() != null && af.getAnalysis().getAppUser().getEmail() != null ) {
@@ -505,15 +505,15 @@ public class RegisterFiles extends TimerTask {
             if (emailAddress == null ||  emailAddress.equals( "" ) ) {
               emailAddress = this.gnomexSupportEmail;
             }
-            
+
 
             hashForNotification(emailAddress, af, null);
-            
+
 
           }
           i2.remove();
           sess.delete(af);
-          
+
         } else {
           // Mark that the file system file has been found
           fd.isFound(true);
@@ -528,8 +528,8 @@ public class RegisterFiles extends TimerTask {
           }
         }
       }
-      
-      
+
+
       // Now add AnalysisFiles to the db for any files on the file system
       // not found in the db.
       for (Iterator i3 = fileMap.keySet().iterator(); i3.hasNext();) {
@@ -554,43 +554,43 @@ public class RegisterFiles extends TimerTask {
 
       } else {
 
-//        analysis.setFiles(newAnalysisFiles);
+        //        analysis.setFiles(newAnalysisFiles);
         analysis.getFiles().clear();
         analysis.getFiles().addAll(newAnalysisFiles);
 
       }
-      
+
       sess.flush();
       tx.commit();
       this.currentEntityString = "";
     }
-  
+
     try {
       sendNotifyEmails(this.gnomexSupportEmail );
     } catch (Exception e) {
-      
+
       // Notify software people that the emails didn't go through?
       String msg = "Unable to send warning email notifying user that analysis files have been deleted:  " + e.toString() + "\n\t";
-      
+
       StackTraceElement[] stack = e.getStackTrace();
       for (StackTraceElement s : stack) {
         msg = msg + s.toString() + "\n\t\t";
       };
-            
+
       if ( !errorMessageString.equals( "" )) {
         errorMessageString += "\n";
       }
       errorMessageString += msg;
-      
+
       this.sendErrorReport( this.gnomexSupportEmail, this.fromEmailAddress); 
-      
+
       System.err.println(errorMessageString);
     } 
   }
-  
+
   private java.sql.Date getEffectiveAnalysisFileCreateDate(AnalysisFileDescriptor fd, java.util.Date analysisCreateDate) {
     java.sql.Date createDate = new java.sql.Date(runDate.getTime().getTime());
-    
+
     return createDate;
   }
 
@@ -602,7 +602,7 @@ public class RegisterFiles extends TimerTask {
     }
     analysisNumbers.put(af.getAnalysis().getNumber(), null);
     emailAnalysisMap.put(emailAddress, analysisNumbers);
-    
+
     List fileInfos = analysisFileMap.get(af.getAnalysis().getNumber());
     if (fileInfos == null) {
       fileInfos = new ArrayList<AnalysisFileInfo>();
@@ -610,15 +610,14 @@ public class RegisterFiles extends TimerTask {
     }
     fileInfos.add(new AnalysisFileInfo(af.getAnalysis().getNumber(), 
         af.getQualifiedFileName() + "/" + af.getFileName(), 
-        dt, af.getComments()));
-    
-    
+        dt, af.getComments())); 
   }
 
+
   private void sendNotifyEmails(String fromAddress) throws NamingException, MessagingException {
-    StringBuffer body = new StringBuffer();
-    body.append("The following analysis files no longer exist on the file system and have been removed from the database.  Please remove the associated data tracks.");
     for ( Iterator i = this.emailAnalysisMap.keySet().iterator(); i.hasNext();) {
+      StringBuffer body = new StringBuffer();
+      body.append("The following analysis files no longer exist on the file system and have been removed from the database.  Please remove the associated data tracks.");
       String emailAddress = (String) i.next();
       Map<String, String> analysisNumbers = emailAnalysisMap.get(emailAddress);
       for (String analysisNumber : analysisNumbers.keySet()) {
@@ -628,26 +627,26 @@ public class RegisterFiles extends TimerTask {
           body.append("\n\t" + info.analysisFileName + "\t" + info.comment + "\t" + info.dataTrackNumber);
         }
       }
-      
+
       if (sendMail) {
         MailUtil.send( mailProps,
             emailAddress,
-            null,
+            fromAddress,
             fromAddress,
             "GNomEx Analysis file(s) missing from file system",
             body.toString(),
             false
-          );
+        );
       }
-   }
+    }
   }
 
   private void sendNotifyEmailsOld(Map emailMap, String fromAddress) throws NamingException, MessagingException {
-    
+
     for ( Iterator i = emailMap.keySet().iterator(); i.hasNext();) {
       String emailAddress = (String) i.next();
       String emailMessage = (String)emailMap.get(emailAddress);
-      
+
       if (sendMail) {
         MailUtil.send( mailProps,
             emailAddress,
@@ -656,11 +655,11 @@ public class RegisterFiles extends TimerTask {
             "GNomEx Analysis file(s) missing from file system",
             emailMessage,
             false
-          );
+        );
       }
     }
   }
-  
+
   private void sendErrorReport(String softwareTestEmail, String fromAddress)  {
     try {
       java.net.InetAddress localMachine = java.net.InetAddress.getLocalHost();
@@ -669,27 +668,27 @@ public class RegisterFiles extends TimerTask {
       }
       if (sendMail) {
         MailUtil.send( mailProps,
-          softwareTestEmail,
-          null,
-          fromAddress,
-          "Register Files Error [Server: " + localMachine.getHostName() + "]" ,
-          errorMessageString,
-          false
+            softwareTestEmail,
+            null,
+            fromAddress,
+            "Register Files Error [Server: " + localMachine.getHostName() + "]" ,
+            errorMessageString,
+            false
         );
       }
     } catch (Exception e) {
       System.err.println( "Register files unable to send error report.   " + e.toString() );
     } 
   }
-  
+
   private Map hashFiles(Session sess, String requestNumber, java.util.Date createDate, String codeRequestCategory, Integer idCoreFacility)  throws Exception {
     HashMap fileMap = new HashMap();
     String baseRequestNumber = Request.getBaseRequestNumber(requestNumber);
-    
+
     String baseExperimentDir   = PropertyDictionaryHelper.getInstance(sess).getExperimentDirectory(serverName, idCoreFacility);
     String directoryName = baseExperimentDir + Request.getCreateYear(createDate) + "/" + baseRequestNumber;
     directoryName.replace("\\", "/");
-    
+
     String [] fileList = new File(directoryName).list();
     //Get all files directly underneath the experiment number directory
     if(fileList != null) {
@@ -703,7 +702,7 @@ public class RegisterFiles extends TimerTask {
 
       }
     }
-    
+
     // Get all of the folders in the experiment directory
     Set folders = GetRequestDownloadList.getRequestDownloadFolders(baseExperimentDir, baseRequestNumber, Request.getCreateYear(createDate), codeRequestCategory);
     for (Iterator i1 = folders.iterator(); i1.hasNext();) {
@@ -731,20 +730,20 @@ public class RegisterFiles extends TimerTask {
     }
     return fileMap;
   }
-  
+
   private static void recurseHashFiles(FileDescriptor fd, Map fileMap) throws XMLReflectException {
     if (new File(fd.getFileName()).isDirectory()) {
       for(Iterator i = fd.getChildren().iterator(); i.hasNext();) {
         FileDescriptor childFd = (FileDescriptor)i.next();
         recurseHashFiles(childFd, fileMap);
       }
-      
+
     } else {
       fileMap.put(fd.getZipEntryName().replace("\\", "/"), fd);
     }
-    
+
   }
-  
+
   public static void recurseHashFiles(AnalysisFileDescriptor fd, Map fileMap) throws XMLReflectException {
     if (new File(fd.getFileName()).isDirectory()) {
       for(Iterator i = fd.getChildren().iterator(); i.hasNext();) {
@@ -756,7 +755,7 @@ public class RegisterFiles extends TimerTask {
     }
   }
 
-  
+
   private HashMap hashFiles(Analysis analysis) throws Exception {
     HashMap fileMap = new HashMap();
 
@@ -764,7 +763,7 @@ public class RegisterFiles extends TimerTask {
     Map directoryMap = new TreeMap();
     List analysisNumbers = new ArrayList<String>();
     GetExpandedAnalysisFileList.getFileNamesToDownload(baseAnalysisDir, analysis.getKey(), analysisNumbers, analysisMap, directoryMap, false);
-    
+
     for(Iterator i = analysisNumbers.iterator(); i.hasNext();) {
       String analysisNumber = (String)i.next();
       List directoryKeys   = (List)analysisMap.get(analysisNumber);
@@ -773,7 +772,7 @@ public class RegisterFiles extends TimerTask {
       boolean firstDirForAnalysis = true;
       int unregisteredFileCount = 0;
       for(Iterator i1 = directoryKeys.iterator(); i1.hasNext();) {
-        
+
         String directoryKey = (String)i1.next();
         List   theFiles     = (List)directoryMap.get(directoryKey);
 
@@ -786,7 +785,7 @@ public class RegisterFiles extends TimerTask {
     }
     return fileMap;
   }
-  
+
   private String recurseDirectoriesForFile(String fileToLookFor, BigDecimal sizeOfFile, Request r, LinkedList<String> dirs) {
     if(dirs.isEmpty()) {
       return null;
@@ -794,7 +793,7 @@ public class RegisterFiles extends TimerTask {
     String dir = dirs.removeFirst();
     printDebugStatement("DIRECTORY WE ARE CURRENTLY LOOKING THROUGH:   " + dir);
     File f = new File(dir);
-    
+
     if(f.exists()) {
       String [] contents = f.list();
       for(int i = 0; i < contents.length; i++) {
@@ -808,11 +807,11 @@ public class RegisterFiles extends TimerTask {
         }
       }
     }
-    
+
     return recurseDirectoriesForFile(fileToLookFor, sizeOfFile, r, dirs);
-    
+
   }
-  
+
   private void deleteExpFileAndNotify(Session sess, ExperimentFile ef) {
     List sampleExperimentFiles = sess.createQuery("Select sef from SampleExperimentFile sef where idExpFileRead1 = " + ef.getIdExperimentFile() + " OR idExpFileRead2 = " + ef.getIdExperimentFile()).list();
     ArrayList<Integer> listOfSampleIds = new ArrayList<Integer>();
@@ -820,9 +819,9 @@ public class RegisterFiles extends TimerTask {
     String listOfSampleIdsString = "";
     PropertyDictionaryHelper pdh = PropertyDictionaryHelper.getInstance(sess);
     String subject = "Experiment File " + ef.getFileName() + " has been deleted";
-    
+
     printDebugStatement("SIZE OF SAMPLE_EXPERIMENT_FILES_LIST::::::::: " + sampleExperimentFiles.size());
-    
+
     for(Iterator i = sampleExperimentFiles.iterator(); i.hasNext();) {
       SampleExperimentFile sef = (SampleExperimentFile) i.next();
       if(sef.getIdExpFileRead1() != null && ef.getIdExperimentFile().equals(sef.getIdExpFileRead1())) {
@@ -830,14 +829,14 @@ public class RegisterFiles extends TimerTask {
       } else if(sef.getIdExpFileRead2() != null && ef.getIdExperimentFile().equals(sef.getIdExpFileRead2())) {
         sef.setIdExpFileRead2(null);
       }
-      
+
       if(sef.getIdExpFileRead1() == null && sef.getIdExpFileRead2() == null) {
         listOfSampleIds.add(sef.getIdSample());
         sess.delete(sef);
         printDebugStatement("Deleted SEF::::: " + sef.getIdSample());
       }
     }
-    
+
     if(listOfSampleIds.size() > 0) {
       StringBuffer buf = new StringBuffer();
       buf.append("Select s.name from Sample s where idSample = ");
@@ -862,7 +861,7 @@ public class RegisterFiles extends TimerTask {
         }
       }
     }
-    
+
     sess.delete(ef);
     sess.flush();
 
@@ -877,7 +876,7 @@ public class RegisterFiles extends TimerTask {
       String body = "The following Sample Names were unlinked: " + listOfSampleNames + "\n\n";
       body += "(Corresponding Sample Id's: " + listOfSampleIdsString + ")\n\n";
       body += "Please review your sample linkage.";
-      
+
       printDebugStatement("TO ADDRESS: " + toAddress + "       FROM ADDRESS: " + fromAddress);
       try {
         MailUtil.send(mailProps, toAddress, null, fromAddress, subject, body, false);
@@ -886,59 +885,59 @@ public class RegisterFiles extends TimerTask {
       }
     }
   }
-  
+
   private void printDebugStatement(String message) {
     if(debug) {
       System.out.println(message);
     }
   }
-  
- 
+
+
   private static Date getWakeupTime(){
     Calendar tomorrow = new GregorianCalendar();
     tomorrow.add(Calendar.DATE, fONE_DAY);
     Calendar result = new GregorianCalendar(
-      tomorrow.get(Calendar.YEAR),
-      tomorrow.get(Calendar.MONTH),
-      tomorrow.get(Calendar.DATE),
-      wakeupHour,
-      fZERO_MINUTES
+        tomorrow.get(Calendar.YEAR),
+        tomorrow.get(Calendar.MONTH),
+        tomorrow.get(Calendar.DATE),
+        wakeupHour,
+        fZERO_MINUTES
     );
     return result.getTime();
   } 
-  
-  
+
+
   private void connect()
   throws Exception
   {
     sess = dataSource.connect();
   }
-  
+
   private void disconnect() 
   throws Exception {
     sess.close();
   }   
-  
+
 
 
   // Bypassed dtd validation when reading data sources.
   public class DummyEntityRes implements EntityResolver
   {
-      public InputSource resolveEntity(String publicId, String systemId)
-              throws SAXException, IOException
-      {
-          return new InputSource(new StringReader(" "));
-      }
+    public InputSource resolveEntity(String publicId, String systemId)
+    throws SAXException, IOException
+    {
+      return new InputSource(new StringReader(" "));
+    }
 
   } 
-  
 
-  
+
+
   public static class ExperimentFileComparator implements Comparator, Serializable {
     public int compare(Object o1, Object o2)  {
       ExperimentFile ef1 = (ExperimentFile)o1;
       ExperimentFile ef2 = (ExperimentFile)o2;
-      
+
       if (ef1.getIdExperimentFile() == null || ef2.getIdExperimentFile() == null) {
         return ef1.getFileName().compareTo(ef2.getFileName());
       } else {
@@ -946,12 +945,12 @@ public class RegisterFiles extends TimerTask {
       }
     }
   }
-  
+
   public static class AnalysisFileComparator implements Comparator, Serializable {
     public int compare(Object o1, Object o2)  {
       AnalysisFile ef1 = (AnalysisFile)o1;
       AnalysisFile ef2 = (AnalysisFile)o2;
-      
+
       if (ef1.getIdAnalysisFile() == null || ef2.getIdAnalysisFile() == null) {
         return ef1.getQualifiedFileName().compareTo(ef2.getQualifiedFileName());
       } else {
@@ -959,13 +958,13 @@ public class RegisterFiles extends TimerTask {
       }
     }
   }
-  
+
   public static class AnalysisFileInfo {
     public String analysisNumber;
     public String analysisFileName;
     public String dataTrackNumber;
     public String comment;
-    
+
     public AnalysisFileInfo(String analysisNumber, String analysisFileName,
         DataTrack dataTrack, String comment) {
       super();
@@ -974,7 +973,7 @@ public class RegisterFiles extends TimerTask {
       this.dataTrackNumber = dataTrack != null ? dataTrack.getNumber() : "";
       this.comment = comment;
     }
-    
+
   }
-  
+
 }
