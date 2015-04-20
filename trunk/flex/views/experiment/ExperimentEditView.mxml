@@ -6103,7 +6103,8 @@
 			<mx:AddChild relativeTo="{experimentCategoryHBox}" position="before">
 				<mx:HBox verticalGap="0" horizontalGap="0" width="700" verticalAlign="middle">
 					<mx:Text text="Experiment Type" width="100" id="labelApplication" styleName="formLabel"/>
-					<mx:ComboBox labelField="@display"  id="requestApplicationComboBox" change="pickApplication()" width="570" enabled="{parentApplication.isAdminState ? true : false}">							
+					<mx:ComboBox labelField="@display"  id="requestApplicationComboBox" change="pickApplication()" width="570" 
+								 enabled="{parentApplication.isAdminState || (parentDocument.selectedExperiment.@canUpdate == 'Y' &amp;&amp; parentDocument.selectedExperiment.@isExternal == 'Y') ? true : false}">							
 						<mx:dataProvider>{filteredAppList}</mx:dataProvider>
 					</mx:ComboBox>
 				</mx:HBox>
