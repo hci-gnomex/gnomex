@@ -672,7 +672,7 @@
 			
 			private function getExperimentCategoryName():void {
 				experimentCategoryName = "";
-				if (this.selectedExperiment.protocols.Protocol.length() <= 0) {
+				if (this.selectedExperiment.protocols.Protocol.length() <= 0 || !this.headerBox.visible) {
 					var experimentCategory:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Application', this.selectedExperiment.@codeApplication);
 					if (experimentCategory is XMLList) {
 						experimentCategoryName  = experimentCategory[0].@display.toString();
