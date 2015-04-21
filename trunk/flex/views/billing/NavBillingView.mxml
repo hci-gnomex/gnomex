@@ -118,7 +118,7 @@
 			<idLab>{labCombo.selectedItem.@idLab}</idLab>       	
 			<idBillingAccount>{billingAccountCombo.selectedItem != null ? billingAccountCombo.selectedItem.@idBillingAccount : ""}</idBillingAccount>
 			<idCoreFacility>{coreFacilityCombo.selectedItem != null ? coreFacilityCombo.selectedItem.@value : ""}</idCoreFacility>  
-			<excludeNewRequests>{coreFacilityCombo.selectedItem != null &amp;&amp; coreFacilityCombo.selectedItem.@value == "2" ? "Y" : "N"}</excludeNewRequests>  
+			<excludeNewRequests>{coreFacilityCombo.selectedItem != null &amp;&amp; coreFacilityCombo.selectedItem.@value == "2" ? "Y" : "N"}</excludeNewRequests>
 		</mx:request>
 	</mx:HTTPService >  
 	
@@ -568,7 +568,7 @@
 				billingItemsDisplayed = new XMLListCollection();
 				this.billingItemGrid.dataProvider = new HierarchicalData(billingItemsDisplayed);
 				
-				setHideEmptyRequests(); // Automatically check checkbox for hiding requests with no billing items
+				selectFilter();
 				billingItemsDisplayed.filterFunction = filterBillingItemsDisplayed;
 				billingItemsDisplayed.refresh();
 				
@@ -739,6 +739,7 @@
 				if (getBillingRequestList.lastResult.name() == "BillingRequestList") {
 					this.requests = new XMLListCollection(getBillingRequestList.lastResult.Status.copy());
 					this.requestsCopy = getBillingRequestList.lastResult.Status.copy();
+					selectFilter();
 					this.requestTree.dataProvider = new HierarchicalData(requests);
 					this.requestTree.dataProvider.refresh();
 					
@@ -832,6 +833,13 @@
 		
 			private function selectFilter():void{
 				requests = new XMLListCollection(requestsCopy.copy());
+				
+				if (hideEmptyRequests) {
+					for each(var rootNode:XML in requests) {
+						filterEmptyRequests(rootNode);
+					}
+				}
+				
 				if(billingItemFilter.selectedValue != 'all'){
 					var i:int = 0;
 					for each(var req:XML in requests){
@@ -863,6 +871,21 @@
 							if (req.name() == 'Lab' && req.children().length() == 0) {
 								deleteChild(parent.children(), i--);
 							}
+						}
+					}
+				}
+			}
+		
+			private function filterEmptyRequests(parent:XML):void {
+				if (parent.children().length() > 0) {
+					for (var index:int = 0; index < parent.children().length(); index++) {
+						var node:XML = parent.children()[index];
+						if (node.name() == 'Request') {
+							if (node.@hasBillingItems != null && node.@hasBillingItems == 'N') {
+								deleteChild(parent.children(), index--);
+							}
+						} else {
+							filterEmptyRequests(node);
 						}
 					}
 				}
@@ -2411,6 +2434,8 @@
 		
 			private function refreshHideEmptyRequests():void {
 				toggleHideEmptyRequestsCheckbox();
+				requestTree.selectedItem = null;
+				selectFilter();
 				onRequestNodeSelected();
 			}
 		
@@ -2506,7 +2531,7 @@
 					<mx:VBox verticalGap="0" includeInLayout="{parentApplication.coreFacilitiesICanManage.length() > 1}" visible="{parentApplication.coreFacilitiesICanManage.length() > 1}" verticalAlign="middle" fontSize="9">
 						<mx:Label text="Core Facility"/>
 						<mx:ComboBox id="coreFacilityCombo" width="200" dataProvider="{coreFacilities}"
-									 labelField="@display" change="requestNumberText.text = &quot;&quot;;invoiceNumberLookupText.text = &quot;&quot;;refreshRequestTab()"/>
+									 labelField="@display" change="requestNumberText.text = &quot;&quot;;invoiceNumberLookupText.text = &quot;&quot;;refreshRequestTab();setHideEmptyRequests()"/>
 					</mx:VBox>
 					<mx:VBox verticalAlign="middle" verticalGap="0" horizontalAlign="left" paddingRight="0"   paddingLeft="0">
 						<mx:HBox horizontalGap="8" verticalAlign="middle" verticalGap="0">

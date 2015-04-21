@@ -147,6 +147,7 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
           node.setAttribute("completedDate", completedDate != null ? this.formatDate(completedDate, this.DATE_OUTPUT_DASH) : "");
           node.setAttribute("isExternalPricing", labIsExternalPricing != null ? labIsExternalPricing : "N");
           node.setAttribute("isExternalPricingCommercial", labIsExternalPricingCommercial != null ? labIsExternalPricingCommercial : "N");
+          node.setAttribute("hasBillingItems", "N");
 
           String labBillingName = labName + " (" + billingAcct.getAccountNameAndNumber() + ")";
           String requestNumberBilled = requestNumber + DELIM + labBillingName;
@@ -278,6 +279,7 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
         node.setAttribute("billingAccountName", billingAcct.getAccountNameAndNumber());
         node.setAttribute("isExternalPricing", labIsExternalPricing != null ? labIsExternalPricing : "N");
         node.setAttribute("isExternalPricingCommercial", labIsExternalPricingCommercial != null ? labIsExternalPricingCommercial : "N");
+        node.setAttribute("hasBillingItems", "Y");
         if (idInvoice != null) {
           node.setAttribute("idInvoice", idInvoice.toString());
         }
@@ -391,6 +393,7 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
         node.setAttribute("billingAccountName", billingAcct.getAccountNameAndNumber());
         node.setAttribute("isExternalPricing", labIsExternalPricing != null ? labIsExternalPricing : "N");
         node.setAttribute("isExternalPricingCommercial", labIsExternalPricingCommercial != null ? labIsExternalPricingCommercial : "N");
+        node.setAttribute("hasBillingItems", "Y");
         if (idInvoice != null) {
           node.setAttribute("idInvoice", idInvoice.toString());
         }
@@ -503,6 +506,7 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
         node.setAttribute("billingAccountName", billingAcct.getAccountNameAndNumber());
         node.setAttribute("isExternalPricing", labIsExternalPricing != null ? labIsExternalPricing : "N");
         node.setAttribute("isExternalPricingCommercial", labIsExternalPricingCommercial != null ? labIsExternalPricingCommercial : "N");
+        node.setAttribute("hasBillingItems", "Y");
         if (idInvoice != null) {
           node.setAttribute("idInvoice", idInvoice.toString());
         }
