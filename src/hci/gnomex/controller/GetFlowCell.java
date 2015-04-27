@@ -30,7 +30,7 @@ public class GetFlowCell extends GNomExCommand implements Serializable {
   private Integer idFlowCell;
 
   public void loadCommand(HttpServletRequest request, HttpSession session) {
-    if (request.getParameter("id") != null) {
+    if (request.getParameter("id") != null && !request.getParameter("id").equals("")) {
       idFlowCell = new Integer(request.getParameter("id"));
     } else {
       this.addInvalidField("idFlowCell", "idFlowCell is required");
