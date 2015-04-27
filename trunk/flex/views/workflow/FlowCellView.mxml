@@ -121,6 +121,10 @@
 		}
 		public function prepareToEdit():void {
 			
+			if(this.flowCellsGrid.selectedItem == null){
+				return;
+			}
+			
 			this.addWindow = EditFlowCellWindow(mx.managers.PopUpManager.createPopUp(parentApplication.theBody, EditFlowCellWindow, true));
 			this.addWindow.selectedFC = this.flowCellsGrid.selectedItem;
 			this.addWindow.parentView = this;
