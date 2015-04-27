@@ -316,7 +316,7 @@
 					return;
 				}
 				var isNew:Boolean = false;
-				if ( urlLink[indices[0]][indices[1]].label == 'Enter URL here...' || urlLink[indices[0]][indices[1]].label == '') {
+				if (urlLink[indices[0]][indices[1]].label == null || urlLink[indices[0]][indices[1]].label == 'Enter URL here...' || urlLink[indices[0]][indices[1]].label == '') {
 					isNew = true;
 				}
 				

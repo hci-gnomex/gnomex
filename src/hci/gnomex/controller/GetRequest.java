@@ -66,19 +66,19 @@ import org.jdom.output.XMLOutputter;
 
 
 public class GetRequest extends GNomExCommand implements Serializable {
-  
+
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetRequest.class);
-  
+
   private Integer idRequest;
   private String  requestNumber;
   private String  showUploads = "N";
   private String  serverName;
   private String  baseDir;
 
-  
+
   public void validate() {
   }
-  
+
   public void loadCommand(HttpServletRequest request, HttpSession session) {
 
     if (request.getParameter("idRequest") != null && !request.getParameter("idRequest").equals("")) {
@@ -90,26 +90,26 @@ public class GetRequest extends GNomExCommand implements Serializable {
     if (request.getParameter("showUploads") != null && !request.getParameter("showUploads").equals("")) {
       showUploads = request.getParameter("showUploads");
     } 
-    
+
     serverName = request.getServerName();
-    
-    
+
+
     if (idRequest == null && requestNumber == null) {
       this.addInvalidField("idRequest or requestNumber", "Either idRequest or requestNumber must be provided");
     }
   }
 
   public Command execute() throws RollBackCommandException {
-    
+
     try {
-         
+
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
       DictionaryHelper dh = DictionaryHelper.getInstance(sess);
       PropertyDictionaryHelper propertyHelper = PropertyDictionaryHelper.getInstance(sess);
-      
+
       // Find request
       boolean newRequest = false;
-      
+
       Request request = null;
       if (idRequest != null && idRequest.intValue() == 0) {
         newRequest = true;
@@ -120,13 +120,13 @@ public class GetRequest extends GNomExCommand implements Serializable {
         request.canUpdate(true);
         request.setCanDeleteSample(true);
         request.setCanUpdateSamples(true);
-        
+
         // Set the default visibility if there is a property
         String defaultVisibility = propertyHelper.getProperty(PropertyDictionary.DEFAULT_VISIBILITY_EXPERIMENT);
         if (defaultVisibility != null && defaultVisibility.length() > 0) {
           request.setCodeVisibility(defaultVisibility);
         }
-        
+
         // We can't set to institution level visibility if the default institution was not provided.
         if (request.getCodeVisibility() != null && request.getCodeVisibility().equals(Visibility.VISIBLE_TO_INSTITUTION_MEMBERS)) {
           String idInstitutionString = propertyHelper.getProperty(PropertyDictionary.ID_DEFAULT_INSTITUTION);
@@ -136,7 +136,7 @@ public class GetRequest extends GNomExCommand implements Serializable {
             request.setIdInstitution(Integer.valueOf(idInstitutionString));
           }
         }
-        
+
         // Set the default privacy expiration date
         String expirationInMonths = propertyHelper.getProperty(PropertyDictionary.DATASET_PRIVACY_EXPIRATION);
         if (expirationInMonths != null && !expirationInMonths.equals("") && !expirationInMonths.equals("0")) {
@@ -158,17 +158,17 @@ public class GetRequest extends GNomExCommand implements Serializable {
             this.addInvalidField("perm", "Insufficient permission to access this request");
           }          
         }
-        
+
         if (this.isValid()) {
-          
+
           baseDir = PropertyDictionaryHelper.getInstance(sess).getExperimentDirectory(serverName, request.getIdCoreFacility());
-          
+
           Hibernate.initialize(request.getSamples());
           Hibernate.initialize(request.getHybridizations());
           Hibernate.initialize(request.getAnalysisExperimentItems());
           Hibernate.initialize(request.getSeqLibTreatments());
           Hibernate.initialize(request.getTopics());
-          
+
           if(request.getTopics() != null) {
             Iterator<?> it = request.getTopics().iterator();
             while(it.hasNext()) {
@@ -180,23 +180,23 @@ public class GetRequest extends GNomExCommand implements Serializable {
               t.excludeMethodFromXML("getAppUser");
               t.excludeMethodFromXML("getLab");
             }
-            
+
           }
-          
+
           request.excludeMethodFromXML("getBillingItems");
           request.excludeMethodFromXML("getTopics");
-          
+
           // If user can write the request, show collaborators. 
           if (this.getSecAdvisor().canUpdate(request)) {
             Hibernate.initialize(request.getCollaborators());
           } else {
             request.excludeMethodFromXML("getCollaborators");
           }
-          
+
           if (!newRequest) {
             this.getSecAdvisor().flagPermissions(request);      
           }
-          
+
 
           // Set number of seq lanes per sample
           for(Iterator i5 = request.getSamples().iterator(); i5.hasNext();) {
@@ -210,24 +210,24 @@ public class GetRequest extends GNomExCommand implements Serializable {
             }
             s.setSequenceLaneCount(seqLaneCount);
           }
-         
+
           // Generate xml
           Document doc = new Document(new Element("OpenRequestList"));
-          
+
           Element requestNode = request.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
-          
+
           if ( request.isDNASeqExperiment().equals( "Y" ) || request.isSequenomPlate() ) {
             flagPlateInfo(newRequest, request, requestNode);
           }
-          
+
           AppUser user = null;
           if(request.getIdAppUser() != null  && request.getIdAppUser() != 0){
             user = (AppUser) sess.load(AppUser.class, request.getIdAppUser());
           }
-          
+
           String requestStatus = request.getCodeRequestStatus() != null ? DictionaryManager.getDisplay("hci.gnomex.model.RequestStatus", request.getCodeRequestStatus()) : "";
           requestNode.setAttribute("requestStatus", requestStatus);
-          
+
           IScanChip iScanChip = null;
           if(request.getIdIScanChip() != null  && request.getIdIScanChip() != 0){
             iScanChip = (IScanChip) sess.load(IScanChip.class, request.getIdIScanChip());
@@ -236,24 +236,24 @@ public class GetRequest extends GNomExCommand implements Serializable {
             }
           }
           if(request.getProject() != null  && request.getProject().getDescription() != null && !request.getProject().getDescription().equals("")){
-              requestNode.setAttribute("projectDescription", request.getProject().getDescription());
+            requestNode.setAttribute("projectDescription", request.getProject().getDescription());
           } else {
             requestNode.setAttribute("projectDescription", "");
           }
-          
+
           String accountNumberDisplay = "";
-          
+
           if(request.getBillingAccount() != null) {
             accountNumberDisplay = request.getBillingAccount().getAccountNumberDisplay();
           }
           requestNode.setAttribute("accountNumberDisplay", accountNumberDisplay);
-          
+
 
           if(user != null){
             requestNode.setAttribute("email", user.getEmail() != null ? user.getEmail() : "");
             requestNode.setAttribute("phone", user.getPhone() != null ? user.getPhone() : "");
           }
-          
+
 
           // Initialize attributes from request category
           RequestCategory requestCategory = null;
@@ -263,7 +263,7 @@ public class GetRequest extends GNomExCommand implements Serializable {
             requestNode.setAttribute("type", requestCategory.getType() != null ? requestCategory.getType() : "");            
             requestNode.setAttribute("requestCategory", requestCategory.getRequestCategory());
           }
-          
+
 
           // Show sequence lanes, organized by multiplex group or flow cell channel
           if (request.getSequenceLanes().size() > 0) {
@@ -278,7 +278,7 @@ public class GetRequest extends GNomExCommand implements Serializable {
             requestNode.addContent(multiplexLanesNode);
             SequenceLane.addMultiplexLaneNodes(multiplexLanesNode, request.getSequenceLanes(), request.getCreateDate());
           }
-          
+
           // add organism at experiment level
           requestNode.setAttribute("idOrganism","");
           requestNode.setAttribute("organismName", "");
@@ -315,8 +315,8 @@ public class GetRequest extends GNomExCommand implements Serializable {
             requestNode.setAttribute("organismName", organismNames);
             requestNode.setAttribute("otherOrganism", otherOrganism);
           }
-        
-          
+
+
           // Show list of property entries
           Element scParentNode = new Element("PropertyEntries");
           requestNode.addContent(scParentNode);
@@ -324,18 +324,18 @@ public class GetRequest extends GNomExCommand implements Serializable {
           boolean hasSampleDescription = false;
           for(Iterator i = dh.getPropertyList().iterator(); i.hasNext();) {
             Property prop = (Property)i.next();
-            
+
             if (prop.getForSample() == null || !prop.getForSample().equals("Y")) {
               continue;
             }
 
             Element peNode = new Element("PropertyEntry");
             PropertyEntry entry = null;
-            
+
             for(Iterator i1 = request.getSamples().iterator(); i1.hasNext();) {
               Sample sample = (Sample)i1.next();
               if(sample.getCcNumber()!=null && sample.getCcNumber().length() > 0) {
-            	  hasCCNumber = true;
+                hasCCNumber = true;
               }
               if(sample.getDescription()!=null && sample.getDescription().length() > 0) {
                 hasSampleDescription = true;
@@ -348,20 +348,20 @@ public class GetRequest extends GNomExCommand implements Serializable {
                 }
               }
             }
-            
+
             // Skip if property has no values for samples and is not active.
             if (entry == null && prop.getIsActive().equals("N")) {
               continue;
             }
-            
+
             // Note that requestCategory is null for new experiments as this is called before they select the request category.
             // for sequenom and iscan types we only include properties that explicitly apply to the request category.
             boolean autoSelect = false;
             boolean include = true;
             if (requestCategory != null && 
-                  (requestCategory.getType().equals(RequestCategoryType.TYPE_ISCAN) ||
-                   requestCategory.getType().equals(RequestCategoryType.TYPE_SEQUENOM) ||
-                   requestCategory.getType().equals(RequestCategoryType.TYPE_CLINICAL_SEQUENOM))) {
+                (requestCategory.getType().equals(RequestCategoryType.TYPE_ISCAN) ||
+                    requestCategory.getType().equals(RequestCategoryType.TYPE_SEQUENOM) ||
+                    requestCategory.getType().equals(RequestCategoryType.TYPE_CLINICAL_SEQUENOM))) {
               include = false;
             }
             if (prop.getPlatformApplications() != null && prop.getPlatformApplications().size() > 0 && requestCategory != null) {
@@ -369,13 +369,13 @@ public class GetRequest extends GNomExCommand implements Serializable {
               for(Iterator i1 = prop.getPlatformApplications().iterator(); i1.hasNext();) {
                 PropertyPlatformApplication pa = (PropertyPlatformApplication) i1.next();
                 if ( pa.getCodeRequestCategory().equals(request.getCodeRequestCategory()) &&
-                        (pa.getApplication() == null || pa.getApplication().getCodeApplication().equals(request.getCodeApplication()))) {
+                    (pa.getApplication() == null || pa.getApplication().getCodeApplication().equals(request.getCodeApplication()))) {
                   include = true;
                   if (requestCategory.getType().equals(RequestCategoryType.TYPE_ISCAN) ) {
                     autoSelect = true;
                   } else if ( requestCategory.getType().equals(RequestCategoryType.TYPE_ISOLATION) ||
-                              requestCategory.getType().equals(RequestCategoryType.TYPE_SEQUENOM) ||
-                              requestCategory.getType().equals(RequestCategoryType.TYPE_CLINICAL_SEQUENOM)) {
+                      requestCategory.getType().equals(RequestCategoryType.TYPE_SEQUENOM) ||
+                      requestCategory.getType().equals(RequestCategoryType.TYPE_CLINICAL_SEQUENOM)) {
                     autoSelect = !newRequest;
                   }
                   break;
@@ -389,30 +389,30 @@ public class GetRequest extends GNomExCommand implements Serializable {
             if ( !include ) {
               continue;
             }
-            
+
             peNode.setAttribute("idProperty", prop.getIdProperty().toString());
             peNode.setAttribute("name", prop.getName());
             peNode.setAttribute("otherLabel", entry != null && entry.getOtherLabel() != null ? entry.getOtherLabel() : "");
             peNode.setAttribute("isSelected", (prop.getIsRequired() != null && prop.getIsRequired().equals("Y")) || entry != null || 
-                                              autoSelect ? "true" : "false");
+                autoSelect ? "true" : "false");
             peNode.setAttribute("isRequired", (prop.getIsRequired() != null && prop.getIsRequired().equals("Y")) ? "true" : "false");
             peNode.setAttribute("sortOrder", prop.getSortOrder() != null ? prop.getSortOrder().toString() : "999999");
             peNode.setAttribute("isActive", prop.getIsActive() != null ? prop.getIsActive() : "Y");
             peNode.setAttribute("idCoreFacility", prop.getIdCoreFacility() != null ? prop.getIdCoreFacility().toString() : "");
             peNode.setAttribute("description", prop.getDescription() != null ? prop.getDescription() : "");
-                
+
             scParentNode.addContent(peNode);
-            
+
           }
           requestNode.setAttribute("hasCCNumber", hasCCNumber ? "Y":"N");
           requestNode.setAttribute("hasSampleDescription", hasSampleDescription ? "Y":"N");
-          
+
           // Show list of request properties
           Element rpParentNode = new Element("RequestProperties");
           requestNode.addContent(rpParentNode);
           for(Iterator i = dh.getPropertyList().iterator(); i.hasNext();) {
             Property prop = (Property)i.next();
-            
+
             if (prop.getForRequest() == null || !prop.getForRequest().equals("Y")) {
               continue;
             }
@@ -429,12 +429,12 @@ public class GetRequest extends GNomExCommand implements Serializable {
                 }
               }
             }
-            
+
             // Skip if property has no values for samples and is not active.
             if (entry == null && prop.getIsActive().equals("N")) {
               continue;
             }
-            
+
             // Note that requestCategory is null for new experiments as this is called before they select the request category.
             boolean include = true;
             if (requestCategory != null && prop.getIdCoreFacility() != null && !requestCategory.getIdCoreFacility().equals(prop.getIdCoreFacility())) {
@@ -445,7 +445,7 @@ public class GetRequest extends GNomExCommand implements Serializable {
               for(Iterator i1 = prop.getPlatformApplications().iterator(); i1.hasNext();) {
                 PropertyPlatformApplication pa = (PropertyPlatformApplication) i1.next();
                 if ( pa.getCodeRequestCategory().equals(request.getCodeRequestCategory()) &&
-                        (pa.getApplication() == null || pa.getApplication().getCodeApplication().equals(request.getCodeApplication()))) {
+                    (pa.getApplication() == null || pa.getApplication().getCodeApplication().equals(request.getCodeApplication()))) {
                   include = true;
                   break;
                 }   
@@ -455,8 +455,9 @@ public class GetRequest extends GNomExCommand implements Serializable {
             if ( !include ) {
               continue;
             }
-            
+
             peNode.setAttribute("idProperty", prop.getIdProperty().toString());
+            peNode.setAttribute("idPropertyEntry", entry != null ? entry.getIdPropertyEntry().toString() : "");
             peNode.setAttribute("name", prop.getName());
             peNode.setAttribute("description", prop.getDescription() != null ? prop.getDescription() : "");
             peNode.setAttribute("value", entry != null && entry.getValue() != null ? entry.getValue() : "");
@@ -467,7 +468,7 @@ public class GetRequest extends GNomExCommand implements Serializable {
             peNode.setAttribute("sortOrder", prop.getSortOrder() != null ? prop.getSortOrder().toString() : "999999");
             peNode.setAttribute("isActive", prop.getIsActive() != null ? prop.getIsActive() : "Y");
             peNode.setAttribute("idCoreFacility", prop.getIdCoreFacility() != null ? prop.getIdCoreFacility().toString() : "");
-            
+
             if (entry != null && entry.getValues() != null && entry.getValues().size() > 0) {
               for (Iterator i1 = entry.getValues().iterator(); i1.hasNext();) {
                 PropertyEntryValue av = (PropertyEntryValue)i1.next();
@@ -511,12 +512,12 @@ public class GetRequest extends GNomExCommand implements Serializable {
                 optionNode.setAttribute("selected", isSelected ? "Y" : "N");
               }
             }
-            
-            
+
+
             rpParentNode.addContent(peNode);
-            
+
           }
-          
+
           // Show list of seq lib treatments
           Element stParentNode = new Element("SeqLibTreatmentEntries");
           requestNode.addContent(stParentNode);
@@ -526,14 +527,14 @@ public class GetRequest extends GNomExCommand implements Serializable {
               continue;
             }
             SeqLibTreatment st = (SeqLibTreatment)de;
-            
+
             if (st.getIsActive() != null && st.getIsActive().equalsIgnoreCase("N")) {
               continue;
             }
 
             Element stNode = (Element)st.toXMLDocument(null).getRootElement().clone();
             stParentNode.addContent(stNode);
-            
+
             boolean isSelected = false;
             for(Iterator i2 = request.getSeqLibTreatments().iterator(); i2.hasNext();) {
               SeqLibTreatment theSeqLibTreatment = (SeqLibTreatment)i2.next();
@@ -544,7 +545,7 @@ public class GetRequest extends GNomExCommand implements Serializable {
             }
             stNode.setAttribute("isSelected", isSelected ? "true" : "false");
           }          
-          
+
           // Show list of protocols used on this experiment
           Element protocolsNode = new Element("protocols");
           requestNode.addContent(protocolsNode);
@@ -631,16 +632,16 @@ public class GetRequest extends GNomExCommand implements Serializable {
               protocolNode.setAttribute("protocolClassName", "hci.gnomex.model.SeqLibProtocol");
               protocolNode.setAttribute("name", dh.getSeqLibProtocol(s.getIdSeqLibProtocol()));
               protocolNode.setAttribute("label", isFirst ? "Lib. Prep. Protocols" : "");
-              
+
               String fivePrime = dh.getSeqLibProtocolObject(s.getIdSeqLibProtocol()).getAdapterSequenceFivePrime();
               protocolNode.setAttribute("Adapter5Prime", fivePrime != null ? fivePrime : "");
-                            
+
               String threePrime = dh.getSeqLibProtocolObject(s.getIdSeqLibProtocol()).getAdapterSequenceThreePrime();
               protocolNode.setAttribute("Adapter3Prime", threePrime != null ? threePrime : "");
               isFirst = false;
             }
           }
-          
+
           TreeMap<Integer, Integer> map1 = new TreeMap<Integer, Integer>();
           isFirst = true;
           for(Iterator i5 = request.getSequenceLanes().iterator(); i5.hasNext();) {
@@ -656,7 +657,7 @@ public class GetRequest extends GNomExCommand implements Serializable {
               isFirst = false;
             }
           }
-          
+
           // If user has write permission, show billing items for this request
           // Organize split accounts by lab
           if (this.getSecAdvisor().canUpdate(request)) {
@@ -681,8 +682,8 @@ public class GetRequest extends GNomExCommand implements Serializable {
               billingItemsNode.addContent(billingLabNode);
               billingLabNode.setAttribute("labName", keyTokens[0]);
               billingLabNode.setAttribute("accountName", keyTokens[1]);
-              
-              
+
+
               BigDecimal labInvoicePrice = new BigDecimal(0);
               for(Iterator i2 = billingItems.iterator(); i2.hasNext();) {
                 BillingItem theBillingItem = (BillingItem)i2.next();
@@ -693,9 +694,9 @@ public class GetRequest extends GNomExCommand implements Serializable {
               }
               billingLabNode.setAttribute("invoicePrice", NumberFormat.getCurrencyInstance().format(labInvoicePrice.doubleValue()));
             }
-            
+
           }
-          
+
           // Show files uploads that are in the staging area.
           // Only show these files if user has write permissions.
           if (showUploads.equals("Y") && this.getSecAdvisor().canUploadData(request)) {
@@ -718,7 +719,7 @@ public class GetRequest extends GNomExCommand implements Serializable {
             Sample sample = (Sample)i1.next();
             sampleIds.add(sample.getIdSample());
           }
-          
+
           if (request.getCodeRequestCategory() != null && 
               (request.getCodeRequestCategory().equals(RequestCategory.CAPILLARY_SEQUENCING_REQUEST_CATEGORY) || requestCategory.getType().equals(RequestCategoryType.TYPE_SEQUENOM))
               && request.getSamples().size() > 0) {
@@ -729,7 +730,7 @@ public class GetRequest extends GNomExCommand implements Serializable {
             if (wells.size() > 0) {
               // has plates, so it's not tubes.
               requestNode.setAttribute("containerType", "PLATE");
-            
+
               // augment samples for plates.
               List samples = requestNode.getChild("samples").getChildren("Sample");
               for (Iterator i1 = samples.iterator(); i1.hasNext();) {
@@ -781,7 +782,7 @@ public class GetRequest extends GNomExCommand implements Serializable {
             if (plateName.length() == 0) {
               plateName = "Plate 1";
             }
-            
+
             String primerListString = "";
             for(Integer pNumber:primerNumberMap.keySet()) {
               String pName = primerNumberMap.get(pNumber);
@@ -791,7 +792,7 @@ public class GetRequest extends GNomExCommand implements Serializable {
               primerListString += pName;
             }
             requestNode.setAttribute("primerList", primerListString);
-            
+
             // Add primers to request
             Element primersNode = new Element("primers");
             for (Integer pNumber:primerNumberMap.keySet()) {
@@ -813,7 +814,7 @@ public class GetRequest extends GNomExCommand implements Serializable {
               sampleNode.setAttribute("plateName", plateName);
             }
           }
-          
+
           if (request.getCodeRequestCategory() != null && request.getCodeRequestCategory().equals(RequestCategory.FRAGMENT_ANALYSIS_REQUEST_CATEGORY)) {
             // biuld the assay list and well names for the samples
             TreeMap<String, Assay> assayList = new TreeMap<String, Assay>();
@@ -842,12 +843,12 @@ public class GetRequest extends GNomExCommand implements Serializable {
                 plateName = pw.getPlate().getLabel();
               }
             }
-            
+
             // Shouldn't happen -- but just in case.
             if (plateName.length() == 0) {
               plateName = "Plate 1";
             }
-            
+
             String assayListString = "";
             for(String aName:assayList.keySet()) {
               if (assayListString.length() > 0) {
@@ -856,7 +857,7 @@ public class GetRequest extends GNomExCommand implements Serializable {
               assayListString += aName;
             }
             requestNode.setAttribute("assayList", assayListString);
-            
+
             // Add selected assays to request
             Element selectedAssaysNode = new Element("assays");
             for (String assayName:assayList.keySet()) {
@@ -867,7 +868,7 @@ public class GetRequest extends GNomExCommand implements Serializable {
               selectedAssaysNode.addContent(assayNode);
             }
             requestNode.addContent(selectedAssaysNode);
-            
+
             // add well names and assays to samples
             List samples = requestNode.getChild("samples").getChildren("Sample");
             for (Iterator i1 = samples.iterator(); i1.hasNext();) {
@@ -889,13 +890,13 @@ public class GetRequest extends GNomExCommand implements Serializable {
               }
             }
           }
-          
+
           if (request.getCodeRequestCategory() != null && request.getCodeRequestCategory().equals(RequestCategory.CHERRY_PICKING_REQUEST_CATEGORY)) {
             // build source well and plate names for the samples
             HashMap<Integer, String> sampleSourceWellMap = new HashMap<Integer, String>();
             HashMap<Integer, String> sampleSourcePlateMap = new HashMap<Integer, String>();
             TreeMap<String, String> destinationPlates = new TreeMap<String, String>();
-            
+
             String sourceQueryString = "SELECT pw from PlateWell pw join pw.plate pl where pw.idSample in (:ids) and pl.codePlateType='SOURCE'";
             Query sourceQuery = sess.createQuery(sourceQueryString);
             sourceQuery.setParameterList("ids", sampleIds);
@@ -906,7 +907,7 @@ public class GetRequest extends GNomExCommand implements Serializable {
               sampleSourcePlateMap.put(pw.getIdSample(), pw.getPlate().getLabel());
               destinationPlates.put(pw.getPlate().getLabel(), pw.getPlate().getLabel());
             }
-            
+
             // build destination well names for the samples
             HashMap<Integer, String> sampleDestinationWellMap = new HashMap<Integer, String>();
             String destinationQueryString = "SELECT pw from PlateWell pw join pw.plate pl where pw.idSample in (:ids) and pl.codePlateType='REACTION' and pw.redoFlag='N'";
@@ -922,7 +923,7 @@ public class GetRequest extends GNomExCommand implements Serializable {
               }
             }
             requestNode.setAttribute("numDestinationWells", numDestinationWells.toString());
-            
+
             // add well plate names to samples
             List samples = requestNode.getChild("samples").getChildren("Sample");
             for (Iterator i1 = samples.iterator(); i1.hasNext();) {
@@ -931,7 +932,7 @@ public class GetRequest extends GNomExCommand implements Serializable {
               sampleNode.setAttribute("sourcePlate", sampleSourcePlateMap.get(Integer.parseInt(sampleNode.getAttributeValue("idSample"))));
               sampleNode.setAttribute("destinationWell", sampleDestinationWellMap.get(Integer.parseInt(sampleNode.getAttributeValue("idSample"))));
             }
-            
+
             // Add plate list
             Element platesNode = new Element("cherryPlateList");
             for (String plateName:destinationPlates.keySet()) {
@@ -945,18 +946,18 @@ public class GetRequest extends GNomExCommand implements Serializable {
 
           if (request.getCodeRequestCategory() != null && request.getCodeRequestCategory().equals(RequestCategory.ISCAN_REQUEST_CATEGORY)
               && request.getSamples().size() > 0) {
-            
+
             TreeMap<String, String> sourcePlates = new TreeMap<String, String>();
-            
+
             String plateQueryString = "SELECT pw from PlateWell pw left join pw.plate p where p.codePlateType='SOURCE' and pw.idSample in (:ids) Order By pw.idSample";
             Query plateQuery = sess.createQuery(plateQueryString);
             plateQuery.setParameterList("ids", sampleIds);
-            
+
             List wells = plateQuery.list();
             if (wells.size() > 0) {
               // has plates, so it's not tubes.
               requestNode.setAttribute("containerType", "PLATE");
-            
+
               // augment samples for plates.
               List samples = requestNode.getChild("samples").getChildren("Sample");
               for (Iterator i1 = samples.iterator(); i1.hasNext();) {
@@ -977,7 +978,7 @@ public class GetRequest extends GNomExCommand implements Serializable {
               requestNode.getChild("samples").setContent(null);
               Collections.sort(sampleArray, new PlateAndWellComparator());
               requestNode.getChild("samples").setContent(sampleArray);
-              
+
               Element platesNode = new Element("iScanPlateList");
               for (String plateName:sourcePlates.keySet()) {
                 Element plateNode = new Element("Plate");
@@ -985,7 +986,7 @@ public class GetRequest extends GNomExCommand implements Serializable {
                 platesNode.addContent(plateNode);
               }
               requestNode.addContent(platesNode);
-              
+
             } else {
               requestNode.setAttribute("containerType", "TUBE");
             }
@@ -1014,12 +1015,12 @@ public class GetRequest extends GNomExCommand implements Serializable {
             }
             sampleNode.setAttribute("codeApplication", request.getCodeApplication() == null ? "" : request.getCodeApplication());
           }
-          
+
           // Augment sequence lane node with organism and genome build names.
           if (requestNode.getChild("sequenceLanes") != null) {
             for (Iterator i1 = requestNode.getChild("sequenceLanes").getChildren("SequenceLane").iterator(); i1.hasNext();) {
               Element sequenceLaneNode = (Element)i1.next();
-              
+
               String idOrganismString = sequenceLaneNode.getAttributeValue("idOrganism");
               if (idOrganismString != null && !idOrganismString.equals("")) {
                 Integer idOrganism = Integer.parseInt(idOrganismString);
@@ -1034,37 +1035,37 @@ public class GetRequest extends GNomExCommand implements Serializable {
               }
             }
           }
-          
+
           // Append related analysis and data tracks and topics
           if (!newRequest) {
             appendRelatedNodes(this.getSecAdvisor(), sess, request, requestNode);
           }
-          
+
           // Append workflow progress info
           if (!newRequest) {
             appendWorkflowStatusNodes(request, requestNode);
           }
-          
+
           // Append valid submitters from other cores.
           if (!newRequest) {
             appendSubmittersFromOtherCores(sess, request, requestNode);
           }
 
-        
+
           doc.getRootElement().addContent(requestNode);
-        
+
           XMLOutputter out = new org.jdom.output.XMLOutputter();
           this.xmlResult = out.outputString(doc);
         } 
-        
+
       }
-    
+
       if (isValid()) {
         setResponsePage(this.SUCCESS_JSP);
       } else {
         setResponsePage(this.ERROR_JSP);
       }
-    
+
     }catch (UnknownPermissionException e){
       log.error("An exception has occurred in GetRequest ", e);
       throw new RollBackCommandException(e.getMessage());        
@@ -1088,13 +1089,13 @@ public class GetRequest extends GNomExCommand implements Serializable {
       try {
         this.getSecAdvisor().closeReadOnlyHibernateSession();        
       } catch(Exception e) {
-        
+
       }
     }
-    
+
     return this;
   }
-  
+
   public static Request getRequestFromRequestNumber(Session sess, String  requestNumber) {
     // Make sure dictionary is loaded.
     PropertyDictionaryHelper.getInstance(sess);
@@ -1107,16 +1108,16 @@ public class GetRequest extends GNomExCommand implements Serializable {
     if (requests.size() == 0 && requestNumberBase.indexOf("R") == -1) {
       // If nothing returned then try with "R" appended
       requestNumberBase = requestNumberBase + "R";
-        buf = new StringBuffer("SELECT req from Request as req where req.number like '" + requestNumberBase + "%' OR req.number = '" + requestNumberBase + "'");
-        requests = sess.createQuery(buf.toString()).list();
+      buf = new StringBuffer("SELECT req from Request as req where req.number like '" + requestNumberBase + "%' OR req.number = '" + requestNumberBase + "'");
+      requests = sess.createQuery(buf.toString()).list();
     }
     if (requests.size() > 0) {
       request = (Request)requests.get(0);
     }
     return request;
   }
-  
-  
+
+
   @SuppressWarnings("unchecked")
   private static void appendWorkflowStatusNodes(Request request, Element requestNode) throws Exception {
     if (request.getIsExternal() != null && request.getIsExternal().equals("Y")) {
@@ -1153,7 +1154,7 @@ public class GetRequest extends GNomExCommand implements Serializable {
     } else {
       return;
     }
-    
+
 
     TreeMap<String, Integer> workflowStepHash = new TreeMap<String, Integer>();
     for (Sample sample : (Set<Sample>)request.getSamples()) {
@@ -1166,7 +1167,7 @@ public class GetRequest extends GNomExCommand implements Serializable {
       }
       workflowStepHash.put(stepNumber, count);
     } 
-    
+
     for (String workflowStep : workflowStepHash.keySet()) {
       Element stepNode = new Element("Progress");
       Integer count = workflowStepHash.get(workflowStep);
@@ -1182,11 +1183,11 @@ public class GetRequest extends GNomExCommand implements Serializable {
       stepNode.setAttribute("partial", partial ? "Y" : "N");
       statusNode.addContent(stepNode);
     }
-    
+
   }
-  
- 
-  
+
+
+
   private static void appendStepNode(Element statusNode, String name) {
     Element node1 = new Element("Step");
     node1.setAttribute("name", name);
@@ -1196,7 +1197,7 @@ public class GetRequest extends GNomExCommand implements Serializable {
   /*
    * Append related experiments, data tracks, and topics.
    */
-   @SuppressWarnings("unchecked")
+  @SuppressWarnings("unchecked")
   private static void appendRelatedNodes(SecurityAdvisor secAdvisor, Session sess, Request request, Element node) throws Exception {
     Element relatedNode = new Element("relatedObjects");
     relatedNode.setAttribute("label", "Related Items");
@@ -1205,7 +1206,7 @@ public class GetRequest extends GNomExCommand implements Serializable {
     for (AnalysisExperimentItem x : (Set<AnalysisExperimentItem>)request.getAnalysisExperimentItems()) {
       if (!analysisHash.containsKey(x.getAnalysis().getIdAnalysis())) {
         Element analysisNode = x.getAnalysis().appendBasicXML(secAdvisor, relatedNode);
-        
+
         if (x.getAnalysis().getFiles().size() > 0) {
           GetAnalysis.appendDataTrackNodes(secAdvisor, sess, x.getAnalysis(), analysisNode);          
         }
@@ -1213,7 +1214,7 @@ public class GetRequest extends GNomExCommand implements Serializable {
         analysisHash.put(x.getAnalysis().getIdAnalysis(), null);
       }
     }
-    
+
     // Append the parent topics (and the contents of the topic) XML 
     Element relatedTopicNode = new Element("relatedTopics");
     relatedTopicNode.setAttribute("label", "Related Topics");
@@ -1225,7 +1226,7 @@ public class GetRequest extends GNomExCommand implements Serializable {
   private void appendSubmittersFromOtherCores(Session sess, Request request, Element node) throws Exception {
     Element subNode = new Element("submitterFromOtherCores");
     node.addContent(subNode);
-    
+
     String str = "SELECT DISTINCT au FROM AppUser au JOIN au.coreFacilitiesICanSubmitTo core where core.idCoreFacility=:idCoreFacility";
     Query query = sess.createQuery(str);
     query.setParameter("idCoreFacility", request.getIdCoreFacility());
@@ -1241,22 +1242,22 @@ public class GetRequest extends GNomExCommand implements Serializable {
       subNode.addContent(auNode);
     }
   }
-  
+
   private void flagPlateInfo(boolean isNewRequest, Request request, Element requestNode) {
-    
+
     boolean onReactionPlate = false;
     boolean hasPendingRedo = false;
-    
+
     if (!isNewRequest) {
       // Find out if the samples are on a reaction plate.  If they
       // are, flag the request so that appropriate warnings
       // can be displayed if the data is changed.
-      
+
       Element sNode = new Element("Sample");
       StringBuffer redoSamples = new StringBuffer();
-            
+
       for (Sample s : (Set<Sample>)request.getSamples()) {
-        
+
         // Find the sample node
         List samples = requestNode.getChild("samples").getChildren("Sample");
         for (Iterator i1 = samples.iterator(); i1.hasNext();) {
@@ -1266,16 +1267,16 @@ public class GetRequest extends GNomExCommand implements Serializable {
             break;
           }
         }
-        
+
         boolean sRedoFlag = false;
         TreeMap<Integer, Plate> rxnPlates = new TreeMap<Integer, Plate>();
-        
+
         for (PlateWell well : (Set<PlateWell>)s.getWells()) {
-          
+
           if (well.getRedoFlag() != null && well.getRedoFlag().equals("Y")) {
             sRedoFlag = true;
           }
-          
+
           // Only check source wells for redo.  The reaction well will be set to redo and not toggle back.
           if (well.getPlate() == null || well.getPlate().getCodePlateType().equals(PlateType.SOURCE_PLATE_TYPE)) {
             if (well.getRedoFlag() != null && well.getRedoFlag().equals("Y")) {
@@ -1285,14 +1286,14 @@ public class GetRequest extends GNomExCommand implements Serializable {
               }
               redoSamples.append(s.getName());
             }
-            
+
           } else if (well.getPlate() != null && well.getPlate().getCodePlateType().equals(PlateType.REACTION_PLATE_TYPE)) {
-              onReactionPlate = true;
-              rxnPlates.put(well.getIdPlate(), well.getPlate());
+            onReactionPlate = true;
+            rxnPlates.put(well.getIdPlate(), well.getPlate());
           }
-          
+
         }
-        
+
         String rxnPlateNames = "";
         for (Integer idPlate : rxnPlates.keySet()) {
           Plate plate = rxnPlates.get(idPlate);
@@ -1301,44 +1302,44 @@ public class GetRequest extends GNomExCommand implements Serializable {
           }
           rxnPlateNames += plate.getLabel();
         }
-        
+
         sNode.setAttribute( "reactionPlateNames", rxnPlateNames );
         sNode.setAttribute( "redoFlag", sRedoFlag? "Y" : "N" );
       }
-      
+
 
       requestNode.setAttribute("redoSampleNames", hasPendingRedo ? redoSamples.toString() : "");
     }
 
-    
+
     requestNode.setAttribute("hasPendingRedo", hasPendingRedo ? "Y" : "N");
     requestNode.setAttribute("onReactionPlate", onReactionPlate ? "Y" : "N");
-    
+
   }
-  
+
 
 
   private static class PlateAndWellComparator implements Comparator {
     public int compare(Object o1, Object o2) {
-        String p1 = ((Element)o1).getAttributeValue("plateName");
-        String p2 = ((Element)o2).getAttributeValue("plateName");
-        String w1 = ((Element)o1).getAttributeValue("wellName");
-        String w2 = ((Element)o2).getAttributeValue("wellName");
+      String p1 = ((Element)o1).getAttributeValue("plateName");
+      String p2 = ((Element)o2).getAttributeValue("plateName");
+      String w1 = ((Element)o1).getAttributeValue("wellName");
+      String w2 = ((Element)o2).getAttributeValue("wellName");
 
-        if (p1.equals(p2)) {
-          // Sort column first numerically, then row
-          Integer w1Int = new Integer(w1.substring(1));
-          Integer w2Int = new Integer(w2.substring(1));
-          if (w1Int.equals(w2Int)) {
-            return w1.compareTo(w2);
-          }
-          return w1Int.compareTo(w2Int);
-        } 
-        return p1.compareTo(p2);
+      if (p1.equals(p2)) {
+        // Sort column first numerically, then row
+        Integer w1Int = new Integer(w1.substring(1));
+        Integer w2Int = new Integer(w2.substring(1));
+        if (w1Int.equals(w2Int)) {
+          return w1.compareTo(w2);
+        }
+        return w1Int.compareTo(w2Int);
+      } 
+      return p1.compareTo(p2);
 
     }
   }
-  
+
 
 
 }
