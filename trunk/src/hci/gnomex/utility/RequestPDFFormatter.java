@@ -210,7 +210,7 @@ public class RequestPDFFormatter extends RequestPDFFormatterBase {
 			if (description != null) notes.add(description);
 		}
 		// Show core facility notes for internal experiments
-		else if (!RequestCategory.isMolecularDiagnoticsRequestCategory(request.getCodeRequestCategory())) {
+		else {
 			Element coreFacilityNotes = makeCoreFacilityNotes();
 			if (coreFacilityNotes != null) notes.add(coreFacilityNotes);
 		}
@@ -416,7 +416,7 @@ public class RequestPDFFormatter extends RequestPDFFormatterBase {
 			}
 			
 			// Add data to table
-			PDFFormatterUtil.addToTableValue(table, sampleID, tableValueFont);
+			PDFFormatterUtil.addToTableValue(table, sampleID, FONT_TABLE_VALUES_SMALL);
 			PDFFormatterUtil.addToTableValue(table, container, tableValueFont);
 			if (isCapSeqPlate) {
 				PDFFormatterUtil.addToTableValue(table, plate, tableValueFont);
@@ -509,7 +509,7 @@ public class RequestPDFFormatter extends RequestPDFFormatterBase {
 			}
 			
 			// Add data to table
-			PDFFormatterUtil.addToTableValue(table, sampleID, tableValueFont);
+			PDFFormatterUtil.addToTableValue(table, sampleID, FONT_TABLE_VALUES_SMALL);
 			PDFFormatterUtil.addToTableValue(table, sampleType, tableValueFont);
 			PDFFormatterUtil.addToTableValue(table, conc, tableValueFont);
 			PDFFormatterUtil.addToTableValue(table, extractMeth, tableValueFont);
@@ -595,7 +595,7 @@ public class RequestPDFFormatter extends RequestPDFFormatterBase {
 			}
 			
 			// Add data to table
-			PDFFormatterUtil.addToTableValue(table, sampleID, tableValueFont);
+			PDFFormatterUtil.addToTableValue(table, sampleID, FONT_TABLE_VALUES_SMALL);
 			PDFFormatterUtil.addToTableValue(table, plate, tableValueFont);
 			PDFFormatterUtil.addToTableValue(table, well, tableValueFont);
 			PDFFormatterUtil.addToTableValue(table, sampleName, tableValueFont);
@@ -640,7 +640,7 @@ public class RequestPDFFormatter extends RequestPDFFormatterBase {
 			}
 			
 			// Add data to table
-			PDFFormatterUtil.addToTableValue(table, sampleID, tableValueFont);
+			PDFFormatterUtil.addToTableValue(table, sampleID, FONT_TABLE_VALUES_SMALL);
 			PDFFormatterUtil.addToTableValue(table, sampleName, tableValueFont);
 		}
 		
@@ -724,7 +724,7 @@ public class RequestPDFFormatter extends RequestPDFFormatterBase {
 			}
 			
 			// Add data to table
-			PDFFormatterUtil.addToTableValue(table, sampleID, tableValueFont);
+			PDFFormatterUtil.addToTableValue(table, sampleID, FONT_TABLE_VALUES_SMALL);
 			PDFFormatterUtil.addToTableValue(table, sampleName, tableValueFont);
 			PDFFormatterUtil.addToTableValue(table, sampleType, tableValueFont);
 			PDFFormatterUtil.addToTableValue(table, conc, tableValueFont);
@@ -819,7 +819,7 @@ public class RequestPDFFormatter extends RequestPDFFormatterBase {
 			}
 			
 			// Add data to table
-			PDFFormatterUtil.addToTableValue(table, sampleID, tableValueFont);
+			PDFFormatterUtil.addToTableValue(table, sampleID, FONT_TABLE_VALUES_SMALL);
 			PDFFormatterUtil.addToTableValue(table, sampleName, tableValueFont);
 			PDFFormatterUtil.addToTableValue(table, sampleType, tableValueFont);
 			PDFFormatterUtil.addToTableValue(table, conc, tableValueFont);
@@ -919,7 +919,7 @@ public class RequestPDFFormatter extends RequestPDFFormatterBase {
 			}
 			
 			// Add data to table
-			PDFFormatterUtil.addToTableValue(table, sampleID, tableValueFont);
+			PDFFormatterUtil.addToTableValue(table, sampleID, FONT_TABLE_VALUES_SMALL);
 			PDFFormatterUtil.addToTableValue(table, sampleName, tableValueFont);
 			PDFFormatterUtil.addToTableValue(table, sampleType, tableValueFont);
 			PDFFormatterUtil.addToTableValue(table, conc, tableValueFont);
@@ -1014,7 +1014,7 @@ public class RequestPDFFormatter extends RequestPDFFormatterBase {
 			}
 			
 			// Add data to table
-			PDFFormatterUtil.addToTableValue(table, sampleID, tableValueFont);
+			PDFFormatterUtil.addToTableValue(table, sampleID, FONT_TABLE_VALUES_SMALL);
 			PDFFormatterUtil.addToTableValue(table, container, tableValueFont);
 			if (isSequenomPlate) {
 				PDFFormatterUtil.addToTableValue(table, plate, tableValueFont);
@@ -1109,7 +1109,7 @@ public class RequestPDFFormatter extends RequestPDFFormatterBase {
 			}
 			
 			// Add data to table
-			PDFFormatterUtil.addToTableValue(table, sampleID, tableValueFont);
+			PDFFormatterUtil.addToTableValue(table, sampleID, FONT_TABLE_VALUES_SMALL);
 			PDFFormatterUtil.addToTableValue(table, sampleName, tableValueFont);
 			PDFFormatterUtil.addToTableValue(table, sampleType, tableValueFont);
 			PDFFormatterUtil.addToTableValue(table, conc, tableValueFont);
@@ -1207,7 +1207,7 @@ public class RequestPDFFormatter extends RequestPDFFormatterBase {
 			String seqDate = "";
 			
 			// Add data to table
-			PDFFormatterUtil.addToTableValue(table, sampleID, tableValueFont);
+			PDFFormatterUtil.addToTableValue(table, sampleID, FONT_TABLE_VALUES_SMALL);
 			PDFFormatterUtil.addToTableValue(table, sampleName, tableValueFont);
 			PDFFormatterUtil.addToTableValue(table, sampleConc, tableValueFont);
 			if (!dnaSamples) {
@@ -1257,7 +1257,7 @@ public class RequestPDFFormatter extends RequestPDFFormatterBase {
 			String covarisQty = "";
 			
 			// Add data to table
-			PDFFormatterUtil.addToTableValue(table, sampleID, tableValueFont);
+			PDFFormatterUtil.addToTableValue(table, sampleID, FONT_TABLE_VALUES_SMALL);
 			PDFFormatterUtil.addToTableValue(table, sampleName, tableValueFont);
 			PDFFormatterUtil.addToTableValue(table, covarisVol, tableValueFont);
 			PDFFormatterUtil.addToTableValue(table, covarisQty, tableValueFont);
@@ -1434,7 +1434,7 @@ public class RequestPDFFormatter extends RequestPDFFormatterBase {
 				String volume = "";
 				
 				// Add data to table
-				PDFFormatterUtil.addToTableValue(table, sampleID, tableValueFont);
+				PDFFormatterUtil.addToTableValue(table, sampleID, FONT_TABLE_VALUES_SMALL);
 				PDFFormatterUtil.addToTableValue(table, conc, tableValueFont);
 				PDFFormatterUtil.addToTableValue(table, volume, tableValueFont);
 			}
@@ -1509,9 +1509,9 @@ public class RequestPDFFormatter extends RequestPDFFormatterBase {
 			
 			// Add data to table
 			PDFFormatterUtil.addToTableValue(table, hybNum, tableValueFont);
-			PDFFormatterUtil.addToTableValue(table, cy3SampleID, tableValueFont);
+			PDFFormatterUtil.addToTableValue(table, cy3SampleID, FONT_TABLE_VALUES_SMALL);
 			if (includeCy5) {
-				PDFFormatterUtil.addToTableValue(table, cy5SampleID, tableValueFont);
+				PDFFormatterUtil.addToTableValue(table, cy5SampleID, FONT_TABLE_VALUES_SMALL);
 			}
 			PDFFormatterUtil.addToTableValue(table, slide, tableValueFont);
 			PDFFormatterUtil.addToTableValue(table, arrayID, tableValueFont);
