@@ -97,8 +97,8 @@
 			import mx.managers.PopUpManager;
 			import mx.rpc.events.ResultEvent;
 			
-			import views.util.MultiFileUpload;
 			import views.util.GNomExStringUtil;
+			import views.util.MultiFileUpload;
 			
 			[Bindable]
 			public var idRequest:Object;
@@ -374,6 +374,8 @@
 				if(treeItemToSelect != null){
 					callLater(selectTreeItem);
 				}
+				
+				checkForUnlinkedFiles();
 			}
 			
 			private function sortFileList(theList:XMLListCollection):void{
@@ -692,8 +694,10 @@
 			
 			
 			private function onDragDropExpFile(event:DragEvent, dropNode:XML, draggedItems:Array):void{
-				event.preventDefault();
-
+				if ( event != null ) {
+					event.preventDefault();
+				}
+				
 				
 				if(dropNode.name() == this.SAMPLE_NAME){
 					var seqRunNumberNode:XML = <SeqRunNumber />;
@@ -705,13 +709,15 @@
 							}
 							seqRunNumberNode.appendChild(fd.copy());
 							this.linkedSampleFiles.addItem(fd.copy());
-							if (event.dragInitiator.name == "samplesTree") {
-								filesToUnlink.addItem(fd.copy());
-								deleteNode(fd);
-								samplesTree.selectedItem = null;
-							} else{
-								experimentFilesTree.selectedItem = null;
-								recurseFindFileToDelete(experimentFileList.children(), fd);
+							if ( event != null ) {
+								if (event.dragInitiator.name == "samplesTree") {
+									filesToUnlink.addItem(fd.copy());
+									deleteNode(fd);
+									samplesTree.selectedItem = null;
+								} else{
+									experimentFilesTree.selectedItem = null;
+									recurseFindFileToDelete(experimentFileList.children(), fd);
+								}
 							}
 						}
 						dropNode.appendChild(seqRunNumberNode);
@@ -756,19 +762,23 @@
 								seqRunNumberNode_two = <SeqRunNumber />;
 							}
 							
-							if (event.dragInitiator.name == "samplesTree") {
-								if(fileDescript.@idExperimentFile != null && fileDescript.@idExperimentFile != ""){
-									filesToUnlink.addItem(fileDescript.copy());
+							if ( event != null ) {
+								if (event.dragInitiator.name == "samplesTree") {
+									if(fileDescript.@idExperimentFile != null && fileDescript.@idExperimentFile != ""){
+										filesToUnlink.addItem(fileDescript.copy());
+									}
+									deleteNode(fileDescript);
+									samplesTree.selectedItem = null;
+								} else{
+									recurseFindFileToDelete(experimentFileList.children(), fileDescript);
+									experimentFilesTree.selectedItem = null;
 								}
-								deleteNode(fileDescript);
-								samplesTree.selectedItem = null;
-							} else{
-								recurseFindFileToDelete(experimentFileList.children(), fileDescript);
-								experimentFilesTree.selectedItem = null;
 							}
 						}
 					}
-					event.target.hideDropFeedback(event);
+					if ( event != null ) {
+						event.target.hideDropFeedback(event);
+					}
 					samplesTree.selectedItem = null;
 					
 				}
@@ -787,7 +797,9 @@
 						this.linkedSampleFiles.addItem(fileTwo.copy());
 						
 					} else if(dropNode.children().length() == 2){//Each seq run folder can have a max of 2 exp files
-						event.target.hideDropFeedback(event);
+						if ( event != null ) {
+							event.target.hideDropFeedback(event);
+						}
 						Alert.show("A Seq Run Folder can only contain two Experiment Files.  Please remove one Experiment File from this folder and try again.");
 						return;
 					} else{
@@ -795,15 +807,17 @@
 							var dragItem:XML = XML(draggedItems[j]);
 							dropNode.appendChild(dragItem.copy());
 							this.linkedSampleFiles.addItem(dragItem.copy());
-							if (event.dragInitiator.name == "samplesTree") {
-								if(dragItem.@idExperimentFile != null && dragItem.@idExperimentFile != ""){
-									filesToUnlink.addItem(dragItem.copy());
+							if ( event != null ) {
+								if (event.dragInitiator.name == "samplesTree") {
+									if(dragItem.@idExperimentFile != null && dragItem.@idExperimentFile != ""){
+										filesToUnlink.addItem(dragItem.copy());
+									}
+									deleteNode(dragItem);
+									samplesTree.selectedItem = null;
+								} else{
+									recurseFindFileToDelete(experimentFileList.children(), dragItem);
+									experimentFilesTree.selectedItem = null;
 								}
-								deleteNode(dragItem);
-								samplesTree.selectedItem = null;
-							} else{
-								recurseFindFileToDelete(experimentFileList.children(), dragItem);
-								experimentFilesTree.selectedItem = null;
 							}
 						}
 					}
@@ -819,7 +833,9 @@
 				samplesTree.expandItem(dropNode, true);
 				callLater(samplesTree.invalidateDisplayList);
 				this.dirty.setDirty();
-				event.target.hideDropFeedback(event);
+				if ( event != null ) {
+					event.target.hideDropFeedback(event);
+				}
 			}
 			
 			private function onDragDropFile(event:DragEvent) : void
@@ -963,7 +979,7 @@
 				// Show the default "drop line" in the Tree control
 				//downloadTree.showDropFeedback(event);
 				// Cancel default behaviors
-
+				
 				var r:int = downloadTree.calculateDropIndex(event);
 				if (r > 0) { 
 					r--;
@@ -1058,6 +1074,7 @@
 			
 			private function doDragCompleteSamples(event:DragEvent):void{
 				event.preventDefault();
+				checkForUnlinkedFiles();
 			}
 			
 			public function showHTMLUploadForm():void {
@@ -1157,6 +1174,25 @@
 				}
 			}
 			
+			private function autoLinkFiles():void{
+				
+				for each(var expFile:XML in experimentFileList.children()..FileDescriptor){
+					for each ( var sampleNode:XML in sampleList.source ){
+						
+						var fileName:String = expFile.@displayName;
+						var sampleName:String = sampleNode.@name;
+						
+						if ( fileName.indexOf(sampleName) >= 0 ) {
+							onDragDropExpFile(null, sampleNode, [expFile]);
+							deleteNode(expFile);
+							break;
+						}
+					}
+				} 
+				
+				checkForUnlinkedFiles();
+			}
+			
 			private function createSeqRunFolder():void{
 				var seqRunNumberNode:XML = <SeqRunNumber />;
 				for each(var child:XML in samplesTree.selectedItem.children()){
@@ -1187,7 +1223,7 @@
 					} 
 				}
 				sampleList.addItem(sampleGroupNode);
-
+				
 			}
 			
 			private function deleteSampleGroupFolder():void{
@@ -1374,6 +1410,12 @@
 			
 			private function doDragCompleteReturn(event:DragEvent):void{
 				event.preventDefault();
+				checkForUnlinkedFiles();
+			}
+			
+			private function checkForUnlinkedFiles():Boolean {
+				autoLinkFilesButton.enabled = experimentFileList.children()..FileDescriptor.length() > 0;
+				return experimentFileList.children()..FileDescriptor.length() > 0;
 			}
 			
 		]]>
@@ -1466,9 +1508,16 @@
 			</mx:VBox>
 			<mx:VBox width="100%" id="linkSamplesTab" toolTip="{linkSamplesTab.enabled == false ? 'Please save current changes to enable this tab' : ''}" height="100%" label="Link Samples"  paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4" verticalGap="2" >
 				<mx:HBox width="100%" horizontalGap="2" paddingLeft="0" horizontalAlign="right"> 
-					<mx:LinkButton id="newSeqRunFolder" label="New Seq Folder"  enabled="{samplesTree.selectedIndex > -1 &amp;&amp; samplesTree.selectedItem.name() == this.SAMPLE_NAME}" disabledIcon="@Embed(source='../../assets/folder_add_disable.png')" icon="@Embed(source='../../assets/folder_add.png')" toolTip="Create a new folder for organizing experiment files"  textDecoration="underline" click="createSeqRunFolder()" paddingLeft="0"/>
+					<mx:LinkButton id="autoLinkFilesButton" label="Auto Link Files" icon="@Embed(source='../../assets/table_link.png')" disabledIcon="@Embed(source='../../assets/table_link_disable.png')" 
+								   toolTip="Let GNomEx try to automatically link samples for you"  
+								   textDecoration="underline" enabled="{checkForUnlinkedFiles()}" click="autoLinkFiles()"/>
+					<util:ContextHelp context1="sampleLinkageHelp" context2="" context3="" 
+									  showEdit="{parentApplication.isSuperAdmin}" 
+									  title="Auto Link Files to Samples Information" label="" id="sampleLinkageHelp"/>
+					<mx:Spacer width="100%" />
+					<mx:LinkButton id="newSeqRunFolder" label="New Seq Folder"  enabled="{samplesTree.selectedIndex &gt; -1 &amp;&amp; samplesTree.selectedItem.name() == this.SAMPLE_NAME}" disabledIcon="@Embed(source='../../assets/folder_add_disable.png')" icon="@Embed(source='../../assets/folder_add.png')" toolTip="Create a new folder for organizing experiment files"  textDecoration="underline" click="createSeqRunFolder()" paddingLeft="0"/>
 					<mx:LinkButton id="newSampleGroupFolder" label="New Sample Folder" disabledIcon="@Embed(source='../../assets/folder_add_disable.png')" icon="@Embed(source='../../assets/folder_add.png')" toolTip="Create a new folder for organizing samples"  textDecoration="underline" click="showSampleGroupAddFolderWindow()" paddingLeft="0"/>
-					<mx:LinkButton id="deleteSampleFolder" label="Delete Sample Folder"  enabled="{samplesTree.selectedIndex > -1 &amp;&amp; samplesTree.selectedItem.name() == this.SAMPLE_GROUP_FOLDER_NAME}" disabledIcon="@Embed(source='../../assets/folder_delete_disable.png')" icon="@Embed(source='../../assets/folder_delete.png')" toolTip="Delete folder for samples.  Will not delete samples or their files."  textDecoration="underline" click="deleteSampleGroupFolder()" paddingLeft="0"/>
+					<mx:LinkButton id="deleteSampleFolder" label="Delete Sample Folder"  enabled="{samplesTree.selectedIndex &gt; -1 &amp;&amp; samplesTree.selectedItem.name() == this.SAMPLE_GROUP_FOLDER_NAME}" disabledIcon="@Embed(source='../../assets/folder_delete_disable.png')" icon="@Embed(source='../../assets/folder_delete.png')" toolTip="Delete folder for samples.  Will not delete samples or their files."  textDecoration="underline" click="deleteSampleGroupFolder()" paddingLeft="0"/>
 					<mx:LinkButton id="refreshLinkage" label="Refresh" icon="@Embed(source='../../assets/refresh.png')" toolTip="Refresh files list"  textDecoration="underline" click="refreshFiles(); getLinkedSampleFiles.send();"/>
 				</mx:HBox>
 				<mx:HDividedBox width="100%" height="100%">
