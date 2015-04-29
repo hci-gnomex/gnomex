@@ -413,7 +413,7 @@
 										   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.NumberSequencingCyclesAllowed').DictionaryEntry, '@display', '@value','@idNumberSequencingCyclesAllowed', true)}"                 
 										   itemEditor="{ComboBoxNumberSequencingCyclesAllowed.create(this.filteredNumberSequencingCyclesAllowedList)}">
 						</mx:DataGridColumn>							 
-			             <mx:DataGridColumn  editable="false" headerText="Status in Workflow" width="160" dataField="@workflowStatus"/>
+			             <mx:DataGridColumn  editable="false" headerText="Status in Workflow" width="235" dataField="@workflowStatus"/>
 				         <mx:DataGridColumn  width="70" id="flowCellNumberCol" headerText="Flow Cell #"  editable="false" dataField="@flowCellNumber"/> 						             						             
 				         <mx:DataGridColumn   width="55" id="flowCellChannelNumber" headerText="Channel"  editable="false" dataField="@flowCellChannelNumber"/>
 						  <mx:DataGridColumn width="80"  editable="false" headerText="# Cycles (actual)" dataField="@numberSequencingCyclesActual"> 						             						             

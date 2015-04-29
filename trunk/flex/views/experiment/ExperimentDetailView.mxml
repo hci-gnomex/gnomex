@@ -2199,7 +2199,7 @@
 							</mx:AdvancedDataGridColumn>
 							<mx:AdvancedDataGridColumn width="235" id="numberOfSequencingCyclesCol" headerText="Sequencing Protocol"   editable="false" dataField="@idNumberSequencingCyclesAllowed" 						             						             
 													   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.NumberSequencingCyclesAllowed').DictionaryEntry, '@display', '@value', '@idNumberSequencingCyclesAllowed')}"/>                 											
-							<mx:AdvancedDataGridColumn  headerText="Status in Workflow" width="160" dataField="@workflowStatus"/>
+							<mx:AdvancedDataGridColumn  headerText="Status in Workflow" width="235" dataField="@workflowStatus"/>
 							<mx:AdvancedDataGridColumn  width="85" id="flowCellNumberCol" headerText="Flow Cell #"  editable="false" dataField="@flowCellNumber"/> 	 					             						             
 							<mx:AdvancedDataGridColumn  width="55" id="flowCellLaneNumber" headerText="Channel"  editable="false" dataField="@flowCellChannelNumber"/> 						             						             
 							<mx:AdvancedDataGridColumn  headerText="Last Cycle Status" width="90" dataField="@lastCycleStatus"> 
