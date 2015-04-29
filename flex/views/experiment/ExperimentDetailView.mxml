@@ -2137,9 +2137,10 @@
 				</mx:VBox>
 			</mx:AddChild>
 			<mx:AddChild relativeTo="{this.samplesTab}" position="after">
-				<mx:VBox  id="lanesConfirmContainer" label="Sequence Lanes"  verticalGap="0" width="100%" height="100%">
+				<mx:VBox  id="lanesConfirmContainer" label="Sequence Lanes"  verticalGap="0" width="100%" height="100%" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4">
 					<mx:AdvancedDataGrid width="100%" 
 										 height="100%" id="lanesConfirmGrid"
+										 borderStyle="solid"
 										 displayItemsExpanded="true"
 										 sortExpertMode="true"
 										 sortableColumns="false"   resizableColumns="true"
@@ -2151,8 +2152,8 @@
 							<mx:HierarchicalData source="{multiplexLanes}"/> 
 						</mx:dataProvider> 							
 						<mx:columns>
-							<mx:AdvancedDataGridColumn headerText="ID" width="90" dataField="@number"/>
-							<mx:AdvancedDataGridColumn  headerText="Sample Name"  width="100" dataField="@sampleName" editable="false"/>
+							<mx:AdvancedDataGridColumn headerText="ID" width="110" dataField="@number"/>
+							<mx:AdvancedDataGridColumn  headerText="Sample Name"  width="150" dataField="@sampleName" editable="false"/>
 							<mx:AdvancedDataGridColumn  headerText="Sample ID"  width="90" dataField="@sampleNumber" editable="false"/>
 							<mx:AdvancedDataGridColumn id="laneBarcodeCol" headerText="Barcode"  width="75" visible="{true}"  
 													   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.OligoBarcode').DictionaryEntry, '@display', '@value', '@sampleIdOligoBarcode')}">
@@ -2196,21 +2197,11 @@
 									</mx:Component>
 								</mx:headerRenderer>
 							</mx:AdvancedDataGridColumn>
-							<mx:AdvancedDataGridColumn width="215" id="numberOfSequencingCyclesCol" headerText="Sequencing Protocol"   editable="false" dataField="@idNumberSequencingCyclesAllowed" 						             						             
+							<mx:AdvancedDataGridColumn width="235" id="numberOfSequencingCyclesCol" headerText="Sequencing Protocol"   editable="false" dataField="@idNumberSequencingCyclesAllowed" 						             						             
 													   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.NumberSequencingCyclesAllowed').DictionaryEntry, '@display', '@value', '@idNumberSequencingCyclesAllowed')}"/>                 											
-							<mx:AdvancedDataGridColumn  headerText="Status in Workflow" width="120" dataField="@workflowStatus"/>
-							<mx:AdvancedDataGridColumn  width="65" id="flowCellNumberCol" headerText="Flow Cell #"  editable="false" dataField="@flowCellNumber"/> 	 					             						             
+							<mx:AdvancedDataGridColumn  headerText="Status in Workflow" width="160" dataField="@workflowStatus"/>
+							<mx:AdvancedDataGridColumn  width="85" id="flowCellNumberCol" headerText="Flow Cell #"  editable="false" dataField="@flowCellNumber"/> 	 					             						             
 							<mx:AdvancedDataGridColumn  width="55" id="flowCellLaneNumber" headerText="Channel"  editable="false" dataField="@flowCellChannelNumber"/> 						             						             
-							<mx:AdvancedDataGridColumn  width="90" headerText="Channel sample conc. pM"  editable="false" dataField="@flowCellChannelSampleConcentrationPmDisplay"> 						             						             
-								<mx:headerRenderer > 
-									<mx:Component>
-										<mx:VBox verticalGap="0"   horizontalAlign="center"  horizontalScrollPolicy="off" verticalAlign="middle">
-											<mx:Label text="Channel Sample"/>
-											<mx:Label text="conc. pM"/>
-										</mx:VBox>
-									</mx:Component>
-								</mx:headerRenderer>
-							</mx:AdvancedDataGridColumn>
 							<mx:AdvancedDataGridColumn  headerText="Last Cycle Status" width="90" dataField="@lastCycleStatus"> 
 								<mx:headerRenderer > 
 									<mx:Component>
@@ -2221,9 +2212,6 @@
 									</mx:Component>
 								</mx:headerRenderer>
 							</mx:AdvancedDataGridColumn>
-							<mx:AdvancedDataGridColumn width="150" id="genomeBuildAlignTo" headerText="Genome Build (align to)"  editable="false" dataField="@idGenomeBuildAlignTo" 						             						             
-													   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.GenomeBuildLite').DictionaryEntry, '@display', '@value', '@idGenomeBuildAlignTo')}"/>                 											
-							<mx:AdvancedDataGridColumn width="150" headerText="Analysis Instructions"   dataField="@analysisInstructions"/>
 						</mx:columns> 
 					</mx:AdvancedDataGrid>
 					

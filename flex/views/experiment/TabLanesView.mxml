@@ -402,7 +402,7 @@
 					horizontalScrollPolicy="auto">
 					<mx:columns>
 					    <mx:DataGridColumn editable="false" headerText="ID"   resizable="true" width="90" dataField="@number"/>
-					    <mx:DataGridColumn  headerText="Sample"  width="120" 
+					    <mx:DataGridColumn  headerText="Sample"  width="150" 
 					    	labelFunction="parentDocument.getLaneSampleName" 
 					    	 sortable="false"
                             editorDataField="text" editable="true" rendererIsEditor="false" itemEditor="views.renderers.TextInputLaneSample" 
@@ -413,16 +413,10 @@
 										   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.NumberSequencingCyclesAllowed').DictionaryEntry, '@display', '@value','@idNumberSequencingCyclesAllowed', true)}"                 
 										   itemEditor="{ComboBoxNumberSequencingCyclesAllowed.create(this.filteredNumberSequencingCyclesAllowedList)}">
 						</mx:DataGridColumn>							 
-			             <mx:DataGridColumn width="150"  headerText="Genome Build (align to)"  editable="true" dataField="@idGenomeBuildAlignTo" 						             						             
-			             	  editorDataField="value"  rendererIsEditor="false" 				             						             
-           	                  itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.GenomeBuildLite').DictionaryEntry, '@display', '@value', '@idGenomeBuildAlignTo', false)}"                 
-       	                      itemEditor="{ComboBox.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.GenomeBuildLite').DictionaryEntry, '@display', '@value', '@idGenomeBuildAlignTo', '@canChangeGenomeBuildAlignTo', true)}"/>
-						<mx:DataGridColumn  editable="false" width="150" headerText="Analysis instructions"   dataField="@analysisInstructions"/>
-						 <mx:DataGridColumn  editable="false" headerText="Status in Workflow" width="120" dataField="@workflowStatus"/>
+			             <mx:DataGridColumn  editable="false" headerText="Status in Workflow" width="160" dataField="@workflowStatus"/>
 				         <mx:DataGridColumn  width="70" id="flowCellNumberCol" headerText="Flow Cell #"  editable="false" dataField="@flowCellNumber"/> 						             						             
 				         <mx:DataGridColumn   width="55" id="flowCellChannelNumber" headerText="Channel"  editable="false" dataField="@flowCellChannelNumber"/>
-						 <mx:DataGridColumn   width="75" id="channelSampleConcPM" editable="{true}" headerText="Channel sample conc. pM" headerWordWrap="{true}" dataField="@flowCellChannelSampleConcentrationpM"/>	
-				         <mx:DataGridColumn width="80"  editable="false" headerText="# Cycles (actual)" dataField="@numberSequencingCyclesActual"> 						             						             
+						  <mx:DataGridColumn width="80"  editable="false" headerText="# Cycles (actual)" dataField="@numberSequencingCyclesActual"> 						             						             
 						   <mx:headerRenderer > 
 						    <mx:Component>
 						    	<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle">
