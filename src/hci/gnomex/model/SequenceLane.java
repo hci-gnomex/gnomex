@@ -329,14 +329,13 @@ public class SequenceLane extends HibernateDetailObject {
     } else if (getSample().getSeqPrepByCore() != null && !getSample().getSeqPrepByCore().equals("Y")) {
       return "Ready to place on flow cell";
     } else if (getSample().getSeqPrepDate() != null) {
-      return "Sample prepped by core, ready to place on flow cell";
+      return "Prepped, ready to place on flow cell"; //"Sample prepped by core, ready to place on flow cell";
     } else if (getSample().getQualDate() != null) {
-      return "Sample QC'd by core, ready for sample lib prep by core";
+      return "QC'd, ready for lib prep by core"; //"Sample QC'd by core, ready for sample lib prep by core";
     } else {
-      return "Ready for Sample QC";
+      return "Ready for QC"; //"Ready for Sample QC";
     }
   }
-
 
   public String getWorkflowStatusAbbreviated() {
     if (getPipelineStatus().equals(Constants.STATUS_COMPLETED)) {
