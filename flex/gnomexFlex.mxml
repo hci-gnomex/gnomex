@@ -365,6 +365,7 @@
 			import views.util.ScreenshotWindow;
 			import views.util.SessionTimeoutData;
 			import views.util.UploadMultiRequestSampleSheetView;
+			import views.util.VerifyEmailWindow;
 			import views.workflow.FlowCellView;
 			
 			
@@ -2150,6 +2151,14 @@
 				}
 			}
 			
+			public function getConfirmEmailGuid():String{
+				if (isGuestMode()) {
+					return "";
+				} else {
+					return createSecurityAdvisor.lastResult.@confirmEmailGuid;
+				}
+			}
+			
 			public function hasPermission(permission:String):Boolean {
 				var hasPermission:Boolean = false;
 				var thePermission:Object = null;
@@ -3238,8 +3247,12 @@
 						this.homeView.init();
 					}
 					launchStartWindow();
-					if(!isGuestMode() && (getUserEmail() == "" || getUserEmail() == null)){
-						Alert.show("We noticed that you don't have an email on file.  Please take a moment to update your account information to insure that you receive important GNomEx notifications.  Thanks!", "Update Email");
+					if(!isGuestMode() && (getUserEmail() == "" || getUserEmail() == null) || (this.getConfirmEmailGuid() != "" && this.getConfirmEmailGuid() != null)){
+						var verifyWindow:VerifyEmailWindow = VerifyEmailWindow(PopUpManager.createPopUp(this, VerifyEmailWindow, true));
+						verifyWindow.email = getUserEmail();
+						verifyWindow.idAppUser = this.getIdAppUser();
+						mx.managers.PopUpManager.centerPopUp(verifyWindow);
+						this.setFocus();
 					}
 					callLater(this.resizeMenuItems);
 				}
