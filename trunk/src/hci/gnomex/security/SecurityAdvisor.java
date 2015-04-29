@@ -128,7 +128,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
 
   // ids of core facilities that allow users to have global submission privileges.
   private Map<Integer, Integer>        coreFacilitiesAllowingGlobalSubmission = new HashMap<Integer, Integer>();
-  
+
   private String                       loginDateTime;
 
   private BSTXSecurityAdvisor          bstxSecurityAdvisor;
@@ -323,18 +323,18 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     HashMap<Integer, Integer>submitMap = new HashMap<Integer,Integer>();
     for (Iterator i = CoreFacility.getActiveCoreFacilities(sess).iterator(); i.hasNext();) {
       DictionaryEntry de = (DictionaryEntry)i.next();
-      
+
       if (de == null) {
         continue;
       }
-      
+
       CoreFacility cf = (CoreFacility)de;
       String canHaveGlobalSubmission = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(cf.getIdCoreFacility(), PropertyDictionary.ALLOW_CORE_GLOBAL_SUBMISSION);
       if (canHaveGlobalSubmission != null && canHaveGlobalSubmission.equals("Y")) {
         submitMap.put(cf.getIdCoreFacility(), cf.getIdCoreFacility());
       }
     }
-    
+
     // Instantiate SecurityAdvisor
     securityAdvisor = new SecurityAdvisor(appUser, isGNomExUniversityUser, isGNomExExternalUser, isUniversityOnlyUser, isLabManager, canAccessBSTX, ntUserName, idCoreFacility, submitMap);
     // Make sure we have a valid state.
@@ -414,7 +414,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
             break;
           }
         }
-        
+
         //Is this a request that was submitted by user who can submit on behalf of other cores
         if(hasPermission(SecurityAdvisor.CAN_SUBMIT_FOR_OTHER_CORES) && this.isLabICanSubmitTo(req.getLab()) && this.appUser.getIdAppUser().equals(req.getIdSubmitter())) {
           canRead = true;
@@ -456,8 +456,8 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
         }
       } 
       else if(hasPermission(SecurityAdvisor.CAN_SUBMIT_FOR_OTHER_CORES) && this.isLabICanSubmitTo(req.getLab()) && this.appUser.getIdAppUser().equals(req.getIdSubmitter())) {
-          canRead = true;
-        }
+        canRead = true;
+      }
       // Guest users
       else {
         // Request has public visibility
@@ -1354,11 +1354,11 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
           if (isGroupIManage(lab.getIdLab())) {
             canUpdate = true;
           } //else if(hasPermission(SecurityAdvisor.CAN_SUBMIT_FOR_OTHER_CORES) && this.isLabICanSubmitTo((Lab)object)) {
-            //canUpdate = true;
+          //canUpdate = true;
           //} 
 
         } //else if(hasPermission(SecurityAdvisor.CAN_SUBMIT_FOR_OTHER_CORES) && this.isLabICanSubmitTo((Lab)object)) {
-          //canUpdate = true;
+        //canUpdate = true;
         //} 
       } else {
         throw new UnknownPermissionException("Unknown object for data profile PROFILE_GROUP_MEMBERSHIP");
@@ -1975,6 +1975,14 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     }
   }
 
+  public String getConfirmEmailGuid() {
+    if (isGuest) {
+      return "";
+    } else {
+      return appUser.getConfirmEmailGuid();
+    }
+  }
+
   public String getUID() {
     if (isGuest) {
       return "";
@@ -1985,7 +1993,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     }
 
   }
-  
+
   public String getPasswordExpired() {
     if(isGuest || this.isGNomExUniversityUser || this.isUniversityOnlyUser) {
       return "";
@@ -2126,7 +2134,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     }
     return isMyCoreFacility;
   }
-  
+
   public boolean isCoreFacilityICanSubmitTo(Integer idCoreFacility) {
     boolean isCoreICanSubmitTo = false;
     if (this.coreAllowsGlobalSubmission(idCoreFacility)) {
@@ -2140,16 +2148,16 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     }
     return isCoreICanSubmitTo;
   }
-  
+
   public boolean isLabICanSubmitTo(Lab l) {
     if(l == null) {
       return true;
     }
-    
+
     if(isGuest && appUser == null) {
       return false;
     }
-    
+
     boolean isLabICanSubmitTo = false;
     for (Iterator i = l.getCoreFacilities().iterator(); i.hasNext();) {
       CoreFacility coreFacility = (CoreFacility)i.next();
@@ -2160,7 +2168,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     }
     return isLabICanSubmitTo;
   }
-  
+
   public boolean isCoreFacilityForMyLab(Integer idCoreFacility) {
     boolean isMyCoreFacility = false;
     for (Iterator i = this.getCoreFacilitiesForMyLab().iterator(); i.hasNext();) {
@@ -2382,7 +2390,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
       // Add criteria with owner visibility
       queryBuf.append( !criteriaAdded ? "WHERE " : " OR ");
       criteriaAdded = appendOwnerCriteria(queryBuf, classShortName);
-      
+
       if(hasPermission(this.CAN_SUBMIT_FOR_OTHER_CORES)) {
         queryBuf.append( !criteriaAdded ? "WHERE " : " OR ");
         criteriaAdded = appendSubmitterCriteria(queryBuf, classShortName);
@@ -2457,7 +2465,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
   public boolean buildSecurityCriteria(StringBuffer queryBuf, String classShortName, String collabClassShortName, boolean isFirstCriteria, boolean scopeToGroup, boolean hasCoreFacility) {
     return buildSecurityCriteria(queryBuf, classShortName, collabClassShortName, isFirstCriteria, scopeToGroup, hasCoreFacility, true);
   }
-  
+
   public boolean buildSecurityCriteria(StringBuffer queryBuf, String classShortName, String collabClassShortName, boolean isFirstCriteria, boolean scopeToGroup, boolean hasCoreFacility, boolean checkSubmitter) {
     if (hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
 
@@ -2490,7 +2498,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
 
       // Add criteria with owner visibility
       criteriaAdded = appendOwnerCriteria(queryBuf, classShortName);
-      
+
       // Add criteria for submitters
       if(hasPermission(this.CAN_SUBMIT_FOR_OTHER_CORES) && checkSubmitter) {
         queryBuf.append( !criteriaAdded ? "WHERE " : " OR ");
@@ -2603,14 +2611,14 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     }
     return addWhereOrAnd;
   }
-  
+
   private boolean appendSubmitterCriteria(StringBuffer queryBuf, String classShortName) {
     queryBuf.append(" ( ");
 
     queryBuf.append(classShortName);
     queryBuf.append(".idSubmitter = ");
     queryBuf.append(this.getIdAppUser());
-    
+
     queryBuf.append(" ) ");
     return true;
   }
@@ -2929,14 +2937,14 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
         appendLuceneCoreFacilitiesIManage(searchText);
         searchText.append(")");
         searchText.append(" ) ");
-        
+
         //need submitter field
         if(submitterField != null) {
           searchText.append(" OR (  ");
           searchText.append(submitterField + ":( " + this.getIdAppUser() );
           searchText.append(") )");
         }
-        
+
         searchText.append(" OR ( ( ").append(leftJoinExclusionCriteria).append(" ) AND ( ").append(projectCoreFacilityField).append(":(");
         appendLuceneCoreFacilitiesIManage(searchText);
         searchText.append(") ) )");
@@ -3001,7 +3009,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
         searchText.append(" OR ");        
       }
       boolean added5 = buildLucenePublicFilter(searchText, labField, visibilityField, scopeToGroup);
-      
+
       boolean added6 = false;
       if(submitterField != null) {
         searchText.append(" OR (  ");
@@ -3009,7 +3017,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
         searchText.append(" ) ) ");
         added6 = true;
       }
-      
+
       addedFilter = added || added1 || added2 || added3 || added4 || added5 || added6;        
 
       searchText.append(" ) ");
@@ -3381,7 +3389,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     return filterCoreFacilities(coreFacilities);
 
   }
-  
+
   public Set getCoreFacilitiesICanSubmitTo() {
     if(appUser != null && appUser.getCoreFacilitiesICanSubmitTo() != null) {
       TreeSet cores = new TreeSet();
@@ -3393,7 +3401,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
       }
       return cores;
     }
-    
+
     return new TreeSet();
   }
 
@@ -3445,7 +3453,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     }
     return Url;
   }
-  
+
   public Boolean coreAllowsGlobalSubmission(Integer idCoreFacility) {
     return this.coreFacilitiesAllowingGlobalSubmission.containsKey(idCoreFacility);
   }

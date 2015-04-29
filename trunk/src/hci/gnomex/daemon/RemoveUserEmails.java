@@ -30,7 +30,6 @@ public class RemoveUserEmails {
   private String                          fromEmailAddress;
   private String                          testEmailAddress = "";
   private Boolean                         testEmail;
-  private String                          serverName = null;
   private String                          gnomexSupportEmail = "";
 
 
@@ -40,8 +39,6 @@ public class RemoveUserEmails {
         sendMail = false;
       } else if (args[i].equals ("-testEmailAddress")) {
         testEmailAddress = args[++i];
-      } else if (args[i].equals ("-server")) {
-        serverName = args[++i];
       } else if (args[i].equals ("-orionPath")) {
         orionPath = args[++i];
       } else if(args[i].equals("-help")) {
@@ -50,26 +47,11 @@ public class RemoveUserEmails {
       }
     }
 
-    if (!checkParameters()) {
-      showHelp();
-      System.exit(0);
-    }
-
-  }
-
-  private Boolean checkParameters() {
-    if(serverName == null) {
-      System.err.println("You must provide a server name.");
-      return false;
-    }
-
-    return true;
   }
 
   private void showHelp() {
     System.out.println("Set user emails to NULL who have not verified.");
     System.out.println("Switches:");
-    System.out.println("   -server - server for Hibernate connection.");
     System.out.println("   -orionPath - path to Orion directory to get mail properties.");
     System.out.println("   -doNotSendEmail - used for debugging if no email server available.  Emails are created but not sent.");
     System.out.println("   -testEmailAddress - Overrides all lab emails with this email address.  Used for testing.");
@@ -96,7 +78,7 @@ public class RemoveUserEmails {
       PropertyDictionaryHelper ph = PropertyDictionaryHelper.getInstance(sess);
       this.gnomexSupportEmail = ph.getProperty(PropertyDictionary.GNOMEX_SUPPORT_EMAIL);
       this.fromEmailAddress = ph.getProperty(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
-      testEmail = !ph.isProductionServer(serverName);
+      testEmail = testEmailAddress.length() > 0;
 
       List appUsers = sess.createQuery("Select au from AppUser au").list();
 

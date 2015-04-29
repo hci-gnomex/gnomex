@@ -35,11 +35,10 @@ public class VerifyUserEmails {
   private int                             successfulSendCount = 0;
   private String                          doNotReplyEmail;
   private String                          testEmailAddress = "";
-  private Boolean                         testEmail;
+  private Boolean                         testEmail = false;
   private String                          serverName = null;
   private String                          gnomexSupportEmail = "";
   private String                          imageLoc = "";
-  private String                          portNumber = "";
   private String                          protocol = "http://";
 
   public VerifyUserEmails(String args[]) {
@@ -108,17 +107,14 @@ public class VerifyUserEmails {
       PropertyDictionaryHelper ph = PropertyDictionaryHelper.getInstance(sess);
       this.gnomexSupportEmail = ph.getProperty(PropertyDictionary.GNOMEX_SUPPORT_EMAIL);
       this.doNotReplyEmail = ph.getProperty(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
-      testEmail = !ph.isProductionServer(serverName);
-      portNumber = PropertyDictionaryHelper.getInstance(sess).getQualifiedProperty(PropertyDictionary.HTTP_PORT, serverName);
-      if(portNumber == null) {
-        portNumber = "";
-      }else {
-        portNumber = ":" + portNumber;
+      testEmail = testEmailAddress.length() > 0;
+
+      if(ph.getProperty(PropertyDictionary.SITE_LOGO) == null || !ph.getProperty(PropertyDictionary.SITE_LOGO).equals("")) {
+        imageLoc = protocol + serverName + "/gnomex/images/gnomex_logo.png";
+      } else {
+        imageLoc = protocol + serverName + "/gnomex/" + ph.getProperty(PropertyDictionary.SITE_LOGO);
+        imageLoc = imageLoc.replace("assets/", "images/");
       }
-      imageLoc = "http://" + serverName + portNumber + "/gnomex/" + ph.getProperty(PropertyDictionary.SITE_LOGO);
-      System.out.println(imageLoc); //DEBUG
-      imageLoc = imageLoc.replace("assets/", "images/");
-      System.out.println(imageLoc); //DEBUG
 
       List appUsers = sess.createQuery("Select au from AppUser au").list();
 
@@ -138,14 +134,24 @@ public class VerifyUserEmails {
         }
       }
 
+      //TESTING CODE:
+      //      AppUser au = (AppUser)sess.load(AppUser.class, 1887);
+      //      String uuidStr = UUID.randomUUID().toString(); 
+      //      au.setConfirmEmailGuid(uuidStr);
+      //      sendEmail(au);
+      //      sess.save(au);
+      //
+      //      AppUser au1 = (AppUser)sess.load(AppUser.class, 1888);
+      //      uuidStr = UUID.randomUUID().toString(); 
+      //      au1.setConfirmEmailGuid(uuidStr);
+      //      sendEmail(au1);
+      //      sess.save(au1);
+      //END TESTING CODE
+
       sess.flush();
       tx.commit();
 
       sendCompleteEmail();
-
-
-
-
 
     } catch(Exception e) {
       sendErrorReport(e);
@@ -172,7 +178,7 @@ public class VerifyUserEmails {
 
       StringBuffer body = new StringBuffer();
       body.append("The Verify User Email cron job completed successfully.  There were " + noEmailCount + " users without an email on file.\n\n");
-      body.append("Gnomex sent verifification emails to " + successfulSendCount + " users.");
+      body.append("Gnomex sent verification emails to " + successfulSendCount + " users.");
 
 
       try {
@@ -196,21 +202,26 @@ public class VerifyUserEmails {
   private void sendEmail(AppUser au) {
 
     if (sendMail) {
-      String approveURL = protocol + serverName + portNumber + "/gnomex" + Constants.VERIFY_EMAIL_SERVLET + "?guid=" + au.getConfirmEmailGuid() + "&idAppUser=" + au.getIdAppUser().intValue();
+      String toAddress = au.getEmail();
+      if (testEmailAddress.length() > 0) {
+        toAddress = testEmailAddress;
+      }
+      String loginURL = protocol + serverName + "/gnomex";
 
       StringBuffer body = new StringBuffer();
       body.append("<img src=" + imageLoc + ">");
-      body.append("<p>This email is being sent out to verify that the email address we have on file for you is correct.  Please click the link below to verify your email address." +
-          "  If this is no longer the best email to contact you at, please take a moment to update your gnomex acccount.  If the link below has not been visited within 7 (seven) days," +
-      " we will automatically remove this email address from your user account.  Thanks!</p><br><br>");
+      body.append("<p>This email is being sent out to verify that the email address we have on file for you is correct.  Please take a moment to login to GNomEx to verify your email." +
+          " Please note that if you don't login within 7 (seven) days," +
+      " we will automatically remove this email address from your user account and the next time you login to GNomEx you will be asked to provide a new address.  Thanks!</p><br>");
 
-      body.append("<a href=" + approveURL + ">Verify Email </a> <br><br>-GNomEx Support Team" );
+      body.append("<a href=" + loginURL + ">Click here to launch GNomEx </a>");
+      body.append("<br>Or copy and paste this into your browser:  " + loginURL);
+      body.append("<br><br>-GNomEx Support Team");
 
       body.append("<br><br>  Questions?  Email us at: " + gnomexSupportEmail);
-
       try {
         MailUtil.sendCheckTest( mailProps,
-            au.getEmail(),
+            toAddress,
             null,
             doNotReplyEmail,
             "Please verify your GNomEx contact email address",
@@ -219,11 +230,11 @@ public class VerifyUserEmails {
             testEmail,
             testEmailAddress
         );
-      } catch(Exception ex) {
+      } 
+      catch(Exception ex) {
         System.err.println("Unable to send email to app user " + au.getDisplayName() + " with email " + au.getEmail() + " because of exception: " + ex.getMessage());
       }
     }
-
   }
 
   private void connect() throws Exception{
@@ -270,6 +281,7 @@ public class VerifyUserEmails {
       if (testEmailAddress.length() > 0) {
         toAddress = testEmailAddress;
       }
+      System.out.println(toAddress);
       try {
         if (sendMail) {
           MailUtil.sendCheckTest( mailProps,
