@@ -1009,7 +1009,13 @@ MenuBar.topMenuBar {
 	fontWeight: normal;
 	fontSize: 11;
 }
-
+.formLabelLarge
+{
+	color: #324B7A;
+	fontStyle: italic;
+	fontWeight: bold;
+	fontSize: 12;
+}
 RichTextEditor.readOnly {
 	textAreaStyleName: rteTextAreaStyles;
 }
