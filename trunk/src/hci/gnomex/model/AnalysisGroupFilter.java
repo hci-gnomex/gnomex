@@ -5,7 +5,7 @@ import hci.framework.model.DetailObject;
 import hci.gnomex.security.SecurityAdvisor;
 
 import java.util.ArrayList;
-import java.util.Calendar;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -21,12 +21,11 @@ public class AnalysisGroupFilter extends DetailObject {
   private List                  idAnalyses;
   private String                labKeys;
   private String                searchText;
-  private String                lastWeek = "N";
-  private String                lastMonth = "N";
-  private String                lastThreeMonths = "N";
-  private String                lastYear = "N";
   private String                allAnalysis = "N";
   private String                publicAnalysisOtherGroups = "N";
+  
+  private Date					createDateFrom;
+  private Date					createDateTo;
 
   private String				idGenomeBuild;
   private String				idOrganism;
@@ -193,11 +192,9 @@ public class AnalysisGroupFilter extends DetailObject {
         (idAnalyses != null && idAnalyses.size() > 0) ||
         (labKeys != null && !labKeys.equals("")) ||
         (searchText != null && !searchText.equals("")) ||
-        (lastWeek != null && lastWeek.equals("Y")) ||
-        (lastMonth != null && lastMonth.equals("Y")) ||
-        (lastThreeMonths != null && lastThreeMonths.equals("Y")) ||
-        (lastYear != null && lastYear.equals("Y")) ||
-        (allAnalysis != null && allAnalysis.equals("Y"))) {
+        (allAnalysis != null && allAnalysis.equals("Y")) ||
+        createDateFrom != null ||
+        createDateTo != null) {
       hasLimitingCriteria = true;
     } else {
       hasLimitingCriteria = false;
@@ -350,67 +347,30 @@ public class AnalysisGroupFilter extends DetailObject {
       queryBuf.append(" aglab.lastName like '%" + searchText + "%'");
       queryBuf.append(")");
     }
-
-    // Search for analysis create in last week
-    if (lastWeek.equals("Y")) {
-
-      Calendar cal = Calendar.getInstance();
-      cal.add(Calendar.DAY_OF_YEAR, -7);
-      java.sql.Date lastWeek = new java.sql.Date(cal.getTimeInMillis());
-
-      this.addWhereOrAnd();
-      if(secAdvisor.isGuest()){ // show guests on CvDC analyses that have been released to the public within the last week
-        queryBuf.append(" CASE WHEN a.privacyExpirationDate IS NULL THEN Coalesce(a.createDate,CURRENT_TIMESTAMP) ELSE Coalesce(a.privacyExpirationDate,CURRENT_TIMESTAMP) END  >= '");}
-      else {
-        queryBuf.append(" Coalesce(a.createDate,CURRENT_TIMESTAMP) >= '");}
-      queryBuf.append(this.formatDate(lastWeek, this.DATE_OUTPUT_SQL));
-      queryBuf.append("'");
+    
+    // Search by create date from
+    if (createDateFrom != null) {
+    	this.addWhereOrAnd();
+    	if (secAdvisor.isGuest()) { // Show guests on CvDC analyses that have been released to the public since create date
+    		queryBuf.append(" CASE WHEN a.privacyExpirationDate IS NULL THEN Coalesce(a.createDate,CURRENT_TIMESTAMP) ELSE Coalesce(a.privacyExpirationDate,CURRENT_TIMESTAMP) END  >= '");
+    	} else {
+    		queryBuf.append(" Coalesce(a.createDate,CURRENT_TIMESTAMP) >= '");
+    	}
+    	queryBuf.append(this.formatDate(createDateFrom, this.DATE_OUTPUT_SQL));
+    	queryBuf.append("'");
     }
-    // Search for analysis created in last month
-    if (lastMonth.equals("Y")) {
-
-      Calendar cal = Calendar.getInstance();
-      cal.add(Calendar.MONTH, -1);
-      java.sql.Date lastMonth = new java.sql.Date(cal.getTimeInMillis());
-
-      this.addWhereOrAnd();
-      if(secAdvisor.isGuest()){ // show guests on CvDC analyses that have been released to the public within the last month
-        queryBuf.append(" CASE WHEN a.privacyExpirationDate IS NULL THEN Coalesce(a.createDate,CURRENT_TIMESTAMP) ELSE Coalesce(a.privacyExpirationDate,CURRENT_TIMESTAMP) END  >= '");}
-      else {
-        queryBuf.append(" Coalesce(a.createDate,CURRENT_TIMESTAMP) >= '");
-      }
-      queryBuf.append(this.formatDate(lastMonth, this.DATE_OUTPUT_SQL));
-      queryBuf.append("'");
-    }
-    // Search for analysis created in last 3 months
-    if (lastThreeMonths.equals("Y")) {
-
-      Calendar cal = Calendar.getInstance();
-      cal.add(Calendar.MONTH, -3);
-      java.sql.Date last3Month = new java.sql.Date(cal.getTimeInMillis());
-
-      this.addWhereOrAnd();
-      if(secAdvisor.isGuest()){ // show guests on CvDC analyses that have been released to the public within the last three months
-        queryBuf.append(" CASE WHEN a.privacyExpirationDate IS NULL THEN Coalesce(a.createDate,CURRENT_TIMESTAMP) ELSE Coalesce(a.privacyExpirationDate,CURRENT_TIMESTAMP) END >= '");}
-      else {
-        queryBuf.append(" Coalesce(a.createDate,CURRENT_TIMESTAMP) >= '");}
-      queryBuf.append(this.formatDate(last3Month, this.DATE_OUTPUT_SQL));
-      queryBuf.append("'");
-    }
-    // Search for analysis created in last year
-    if (lastYear.equals("Y")) {
-
-      Calendar cal = Calendar.getInstance();
-      cal.add(Calendar.YEAR, -1);
-      java.sql.Date lastYear = new java.sql.Date(cal.getTimeInMillis());
-
-      this.addWhereOrAnd();
-      if(secAdvisor.isGuest()){ // show guests on CvDC analyses that have been released to the public within the last year
-        queryBuf.append(" CASE WHEN a.privacyExpirationDate IS NULL THEN Coalesce(a.createDate,CURRENT_TIMESTAMP) ELSE Coalesce(a.privacyExpirationDate,CURRENT_TIMESTAMP) END >= '");}
-      else {
-        queryBuf.append(" Coalesce(a.createDate,CURRENT_TIMESTAMP) >= '");}
-      queryBuf.append(this.formatDate(lastYear, this.DATE_OUTPUT_SQL));
-      queryBuf.append("'");
+    
+    // Search by create date to
+    if (createDateTo != null) {
+    	createDateTo.setTime(createDateTo.getTime() + 24*60*60*1000);
+    	this.addWhereOrAnd();
+    	if (secAdvisor.isGuest()) { // Show guests on CvDC analyses that have been released to the public within create date to
+    		queryBuf.append(" CASE WHEN a.privacyExpirationDate IS NULL THEN Coalesce(a.createDate,CURRENT_TIMESTAMP) ELSE Coalesce(a.privacyExpirationDate,CURRENT_TIMESTAMP) END  < '");
+    	} else {
+    		queryBuf.append(" Coalesce(a.createDate,CURRENT_TIMESTAMP) < '");
+    	}
+    	queryBuf.append(this.formatDate(createDateTo, this.DATE_OUTPUT_SQL));
+    	queryBuf.append("'");    	
     }
 
     // Search for public projects
@@ -550,46 +510,6 @@ public class AnalysisGroupFilter extends DetailObject {
     this.searchText = searchText;
   }
 
-
-  public String getLastWeek() {
-    return lastWeek;
-  }
-
-
-  public void setLastWeek(String lastWeek) {
-    this.lastWeek = lastWeek;
-  }
-
-
-  public String getLastMonth() {
-    return lastMonth;
-  }
-
-
-  public void setLastMonth(String lastMonth) {
-    this.lastMonth = lastMonth;
-  }
-
-
-  public String getLastThreeMonths() {
-    return lastThreeMonths;
-  }
-
-
-  public void setLastThreeMonths(String lastThreeMonths) {
-    this.lastThreeMonths = lastThreeMonths;
-  }
-
-
-  public String getLastYear() {
-    return lastYear;
-  }
-
-
-  public void setLastYear(String lastYear) {
-    this.lastYear = lastYear;
-  }
-
   public String getAllAnalysis() {
     return allAnalysis;
   }
@@ -635,5 +555,21 @@ public class AnalysisGroupFilter extends DetailObject {
   public String getIdGenomeBuild(String idGenomeBuild) {
     return this.idGenomeBuild;
   }
+  
+  public Date getCreateDateFrom() {
+	return createDateFrom;
+  }
+
+  public void setCreateDateFrom(Date createDateFrom) {
+    this.createDateFrom = createDateFrom;
+  }
+  
+  public Date getCreateDateTo() {
+	return createDateTo;
+  }
+
+  public void setCreateDateTo(Date createDateTo) {
+	this.createDateTo = createDateTo;
+  }  
 
 }
