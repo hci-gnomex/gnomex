@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:VBox styleName="panelBox"  xmlns:mx="http://www.adobe.com/2006/mxml" 
 	width="100%" height="100%" 
-	xmlns:util="views.util.*"  show="init()" defaultButton="{findButton}">
+	xmlns:util="views.util.*" xmlns:renderers="views.renderers.*" show="init()" defaultButton="{findButton}">
 <mx:HBox verticalAlign="middle">
 	<mx:Image source="{parentApplication.iconFlowCell}"/>
 	<mx:Label id="titleLabel" styleName="titleLabel" text="Flow Cells" />
@@ -16,15 +16,6 @@
 	fault="parentApplication.onFailHttpRequest('Failed to get flow cell list', event)"
     method="POST"
     useProxy="false">
-    <mx:request xmlns="">
-    	<codeSequencingPlatform>{codeSequencingPlatform}</codeSequencingPlatform>
-    	<flowCellNumber>{lookupField.text.toUpperCase().indexOf('FC') >= 0 ? lookupField.text : ''}</flowCellNumber>
-    	<requestNumber>{lookupField.text.toUpperCase().indexOf('R') >= 0 ? lookupField.text : ''}</requestNumber>
-        <lastWeek>{lastWeekCheckbox.selected ? 'Y' : 'N'}</lastWeek>
-        <lastMonth>{lastMonthCheckbox.selected ? 'Y' : 'N'}</lastMonth>
-        <lastThreeMonths>{lastThreeMonthsCheckbox.selected ? 'Y' : 'N'}</lastThreeMonths>
-        <lastYear>{lastYearCheckbox.selected ? 'Y' : 'N'}</lastYear>
-    </mx:request>
   </mx:HTTPService> 
 
 	<mx:HTTPService  
@@ -36,15 +27,6 @@
 		fault="parentApplication.onFailHttpRequest('Failed to get flow cell list', event)"
 		method="POST"
 		useProxy="false">
-		<mx:request xmlns="">
-			<codeSequencingPlatform>{codeSequencingPlatform}</codeSequencingPlatform>
-			<flowCellNumber>{lookupField2.text.indexOf('FC') == 0 ? lookupField2.text : ''}</flowCellNumber>
-			<requestNumber>{lookupField2.text.indexOf('R') > 0 ? lookupField2.text : ''}</requestNumber>
-			<lastWeek>{lastWeekCheckbox.selected ? 'Y' : 'N'}</lastWeek>
-			<lastMonth>{lastMonthCheckbox.selected ? 'Y' : 'N'}</lastMonth>
-			<lastThreeMonths>{lastThreeMonthsCheckbox.selected ? 'Y' : 'N'}</lastThreeMonths>
-			<lastYear>{lastYearCheckbox.selected ? 'Y' : 'N'}</lastYear>
-		</mx:request>
 	</mx:HTTPService> 
 
 	
@@ -63,6 +45,8 @@
 		import mx.rpc.events.ResultEvent;
 		
 		import views.workflow.EditFlowCellWindow;
+		import views.renderers.LinkButtonDateRangeMenu;
+		import views.util.DateSetEvent;
 		
 		[Bindable]
 		public var codeSequencingPlatform:String = "HISEQ";
@@ -82,16 +66,17 @@
 				flowCells.removeAll();
 			}
 
-			getFlowCell.send();
+			getFlowCell.send(getSingleSearchParameters());
 		}
 		
 		private function init():void {
 			//this.getFlowCellList.send();
 			this.addEventListener("changed",refresh);
+			pickDateRangeButton.addEventListener(DateSetEvent.DATE_SET, handleDateSet);
 		}
 
 		private function refresh(e:Event):void{
-			this.getFlowCellList.send();
+			this.getFlowCellList.send(getSearchParameters());
 		}    	
 
         private function onGetFlowCellList(event:ResultEvent):void {
@@ -165,44 +150,53 @@
 		}
 		private function getSequencingProtocol(item:Object, col:DataGridColumn):String {
 			return parentApplication.dictionaryManager.getEntryDisplay('hci.gnomex.model.NumberSequencingCyclesAllowed', item.@idNumberSequencingCyclesAllowed);
-		}
-		
-		public function toggleDateCheckboxes(checkBoxNumber:int):void {
-			this.lookupField.text = "";
-			if (checkBoxNumber == 1) {
-				this.lastMonthCheckbox.selected = false;
-				this.lastThreeMonthsCheckbox.selected = false;
-				this.lastYearCheckbox.selected  = false;
-			} else if (checkBoxNumber == 2) {
-				this.lastWeekCheckbox.selected = false;
-				this.lastThreeMonthsCheckbox.selected = false;
-				this.lastYearCheckbox.selected  = false;
-			} else if (checkBoxNumber == 3) {
-				this.lastWeekCheckbox.selected  = false;
-				this.lastMonthCheckbox.selected = false; 
-				this.lastYearCheckbox.selected  = false;
-			}  else if (checkBoxNumber == 4) {
-				this.lastWeekCheckbox.selected  = false;
-				this.lastMonthCheckbox.selected = false; 
-				this.lastThreeMonthsCheckbox.selected = false;
-			}   
-		} 			
+		}			
 		
 		private function setDefaultButton():void {
 			if (this.lookupField.text != '') {
-				this.lastWeekCheckbox.selected = false;
-				this.lastMonthCheckbox.selected = false;
-				this.lastThreeMonthsCheckbox.selected = false;
-				this.lastYearCheckbox.selected = false;
+				this.pickDateRangeButton.resetRange();
 			} 		
 		}
 	
 		private function flowCellOrExperimentLookup():void {
 			if ( lookupField.text.length == 0 || (lookupField.text.length > 0 && (lookupField.text.toUpperCase().indexOf('R') >= 0 || lookupField.text.toUpperCase().indexOf('FC') >= 0)) ) { 
-				this.getFlowCellList.send();
+				this.getFlowCellList.send(getSearchParameters());
 			} else {
 				Alert.show("Invalid flow cell or experiment number.  Please use numbers like 111R or FC111.");
 			}
+		}
+		
+		public function getSearchParameters():Object {
+			var params:Object = new Object();
+			
+			params.codeSequencingPlatform = codeSequencingPlatform;
+			params.flowCellNumber = lookupField.text.toUpperCase().indexOf('FC') >= 0 ? lookupField.text : '';
+			params.requestNumber = lookupField.text.toUpperCase().indexOf('R') >= 0 ? lookupField.text : '';
+			if (pickDateRangeButton.fromDate != null && pickDateRangeButton.toDate != null) {
+				params.createDateFrom = pickDateRangeButton.dateFormatter.format(pickDateRangeButton.fromDate);
+				params.createDateTo = pickDateRangeButton.dateFormatter.format(pickDateRangeButton.toDate);
+			}
+			
+			return params;
+		}
+		
+		public function getSingleSearchParameters():Object {
+			var params:Object = new Object();
+			
+			params.codeSequencingPlatform = codeSequencingPlatform;
+			params.flowCellNumber = lookupField2.text.indexOf('FC') == 0 ? lookupField2.text : '';
+			params.requestNumber = lookupField2.text.indexOf('R') > 0 ? lookupField2.text : '';
+			if (pickDateRangeButton.fromDate != null && pickDateRangeButton.toDate != null) {
+				params.createDateFrom = pickDateRangeButton.dateFormatter.format(pickDateRangeButton.fromDate);
+				params.createDateTo = pickDateRangeButton.dateFormatter.format(pickDateRangeButton.toDate);
+			}
+			
+			return params;
+		}
+		
+		private function handleDateSet(event:DateSetEvent):void {
+			// Do nothing, search is updated when find button is clicked
+			this.lookupField.text = "";
 		}
 	]]>
 </mx:Script>    	
@@ -217,18 +211,7 @@
       	  </mx:HBox>
 
 	      <mx:HBox horizontalGap="0" verticalAlign="middle" verticalGap="0" horizontalAlign="right" paddingRight="0"  id="hbox3">
-	      	<mx:CheckBox id="lastWeekCheckbox" label="In last week" paddingRight="0" paddingLeft="0" horizontalGap="0" selected="true"  >
-	    		<mx:click>toggleDateCheckboxes(1);</mx:click>
-	    	</mx:CheckBox>
-	    	<mx:CheckBox  id="lastMonthCheckbox" label="month"  paddingRight="0" paddingLeft="2" horizontalGap="0" selected="false">
-	    		<mx:click>toggleDateCheckboxes(2);</mx:click>
-	    	</mx:CheckBox>
-	    	<mx:CheckBox  id="lastThreeMonthsCheckbox" label="3 months"  paddingRight="0" paddingLeft="2" horizontalGap="0" selected="false">
-	    		<mx:click>toggleDateCheckboxes(3);</mx:click>
-	    	</mx:CheckBox>
-	    	<mx:CheckBox  id="lastYearCheckbox" label="year"  paddingRight="0" paddingLeft="2" horizontalGap="0" selected="false">
-	    		<mx:click>toggleDateCheckboxes(4);</mx:click>
-	    	</mx:CheckBox>
+			  <renderers:LinkButtonDateRangeMenu id="pickDateRangeButton" />
 		  </mx:HBox>
 			  
 		  <mx:VBox height="100%" verticalAlign="middle">
