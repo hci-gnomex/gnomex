@@ -7,11 +7,17 @@
 	borderStyle="solid"  
 	fontStyle="normal" fontWeight="normal">
 	
+	<mx:Metadata>
+		[Event(type="views.util.DirtyEvent", name="dirtyEvent")]
+	</mx:Metadata>
+	
 	<mx:Script>
 		<![CDATA[
 			import mx.containers.Panel;
 			import mx.managers.PopUpManager;
 			import mx.core.IFlexDisplayObject;
+			
+			import views.util.DirtyEvent;
 			
 			[Bindable]
             private var isDirtyFlag:Boolean = false;
@@ -37,10 +43,12 @@
 			public function setDirty():void {
 				isDirtyFlag = true;
 				setDirtyVisual();
+				dispatchEvent(new DirtyEvent(DirtyEvent.NOW_DIRTY));
 			}
 			public function resetDirty():void {
 				isDirtyFlag = false;
 				setDirtyVisual();
+				dispatchEvent(new DirtyEvent(DirtyEvent.NOW_CLEAN));
 			}               
 		]]>
 	</mx:Script>
