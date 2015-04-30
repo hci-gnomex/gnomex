@@ -210,6 +210,7 @@
 			import views.order.NavOrderView;
 			import views.topics.NavTopicsView;
 			import views.util.AnnotationUtility;
+			import views.util.DirtyEvent;
 			import views.util.GNomExStringUtil;
 			import views.util.PromptXMLListCollection;
 			import views.util.SampleConcentrationValidator;
@@ -360,6 +361,9 @@
 			
 		[Bindable]
 		private var labList:XMLListCollection = null;
+			
+		[Bindable]
+		private var isDirty:Boolean = false;
 
 		// Variables to hold parameters for showExperiment after experiment is submitted.
 		private var theRequestNumber:String;
@@ -432,7 +436,6 @@
 				this.theTab.selectedChild = defaultTab;
 				defaultTab = null;
 			}
-			
 		}
 
 		private function enableTabs(enable:Boolean):void {
@@ -2398,14 +2401,6 @@
 
 			this.initializeData();
 			
-			if ( this.analysisButton!=null ) {
-				if (this.request.analysisExperimentItems.hasOwnProperty("AnalysisExperimentItem")) {
-					this.analysisButton.enabled = true;
-				} else {
-					this.analysisButton.enabled = false;
-				}
-			}
-			
 			if (theTab.contains(visibilityView)) {
 				if( requestCategory.@isOwnerOnly=='Y' ) {
 					theTab.removeChild(visibilityView);
@@ -2480,7 +2475,7 @@
 
 			this.restoreTabIndex();
 			
-			this.dirty.resetDirty();
+			updateDirtyNote(false);
 		}
 		
 		public function removeDataListeners():void {
@@ -2494,7 +2489,8 @@
 			hybs.addEventListener(CollectionEvent.COLLECTION_CHANGE, underlyingHybDataChange);
 			samples.addEventListener( CollectionEvent.COLLECTION_CHANGE, underlyingSampleDataChange);			
 			lanes.addEventListener( CollectionEvent.COLLECTION_CHANGE, underlyingLaneDataChange);			
-			
+			dirty.addEventListener(DirtyEvent.NOW_DIRTY, handleDirtyEvent);
+			dirty.addEventListener(DirtyEvent.NOW_CLEAN, handleDirtyEvent);
 		}
 		
 		private function addDescriptionFieldToAnnotations(sc:XMLList):void {
@@ -3879,7 +3875,7 @@
 		
 		private function onSaveExistingRequest(event:ResultEvent):void {
 			if (saveExistingRequest.lastResult.name() == "SUCCESS") {
-				dirty.resetDirty();
+				updateDirtyNote(false);
 				
 				// For cap seq, warn if editing a submitted request so that billing is adjusted accordingly.
 				if (this.isCapSeqState() ){ 
@@ -3980,7 +3976,7 @@
 				// ignore refresh and resets 
 				return;
 			}
-			dirty.setDirty();
+			updateDirtyNote(true);
 		}
 		private function underlyingSampleDataChange(event:CollectionEvent):void {
 			var ignore:int = 0;
@@ -4009,7 +4005,7 @@
 			if (ignore == event.items.length) {
 				
 			} else {
-				dirty.setDirty();
+				updateDirtyNote(true);
 				
 			}
 		}
@@ -4018,7 +4014,7 @@
 				// ignore refresh and resets 
 				return;
 			}
-			dirty.setDirty();
+			updateDirtyNote(true);
 		}
 		
        	private function sortDictionaryEntries(obj1:Object, obj2:Object, fields:Array=null):int {
@@ -4865,7 +4861,7 @@
 			}
 			
 			
-			this.dirty.resetDirty();
+			updateDirtyNote(false);
 		}
 		
 				
@@ -5341,6 +5337,24 @@
 				}
 				return title;
 			}
+			
+			private function updateDirtyNote(isDirty:Boolean):void {
+				if (isDirty && !this.isDirty) {
+					this.isDirty = true;
+					this.dirty.setDirty();
+				} else if (!isDirty && this.isDirty) {
+					this.isDirty = false;
+					this.dirty.resetDirty();
+				}
+			}
+			
+			private function handleDirtyEvent(event:DirtyEvent):void {
+				if (event.type == DirtyEvent.NOW_DIRTY) {
+					updateDirtyNote(true);
+				} else if (event.type == DirtyEvent.NOW_CLEAN) {
+					updateDirtyNote(false);
+				}
+			}
 		]]>
 	</mx:Script>
 	<mx:NumberValidator id="validator"  
@@ -5622,7 +5636,7 @@
 					    <mx:ComboBox id="requestEditBillingAccountCombo"
 					       	  labelField="@accountName" 
 					       	  dataProvider="{filteredBillingAccounts}"							  
-					       	  change="{this.dirty.setDirty();}"
+					       	  change="{updateDirtyNote(true);}"
 					       	  visible="{this.request.@isExternal != 'Y'}"
 							  width="400"
 					       	  enabled="{(parentApplication.hasPermission('canWriteAnyObject') || parentDocument.selectedExperiment.@canUpdate == 'Y') ? true : false}"/>
@@ -5701,9 +5715,10 @@
 					</mx:LinkButton>
 					<mx:LinkButton label="Download Files" fontSize="10" click="{this.theTab.selectedChild = this.downloadView}" icon="@Embed(source='../../assets/download.png')" id="downloadsLink" textDecoration="underline" textAlign="left"/>
 					<mx:LinkButton label="Printable PDF form" fontSize="10" click="parentApplication.navExperimentView.experimentDetailView.detail.showPrintableRequestForm()" icon="@Embed(source='../../assets/page_white_acrobat.png')" id="requestFormButton" textDecoration="underline" textAlign="left"/>
-					<mx:LinkButton label="Analysis" fontSize="10" icon="@Embed(source='../../assets/map.png')" textDecoration="underline" 
-								   enabled="false" disabledIcon="@Embed(source='../../assets/map_disable.png')" height="21" id="analysisButton" click="parentApplication.navExperimentView.experimentDetailView.detail.showRelatedAnalysis()" textAlign="left">
-					</mx:LinkButton>
+					<mx:LinkButton label="Create New Analysis" id="createAnalysisButton" click="parentDocument.showNewAnalysisWindow()" icon="@Embed(source='../../assets/map_add.png')" fontSize="10" textDecoration="underline" textAlign="left"
+								   enabled="{!isDirty}" toolTip="{!isDirty ? 'Create an analysis linked to this experiment' : 'Please save the request before creating a linked analysis'}"
+								   visible="{parentDocument.showCreateAnalysisButton(parentDocument.selectedExperiment)}"
+								   includeInLayout="{parentDocument.showCreateAnalysisButton(parentDocument.selectedExperiment)}"/>
 					<mx:Spacer width="10"/>
 					<mx:Text visible="{this.request.@lastModifyDate != ''}" paddingLeft="8" text="{'Last modified  ' + this.request.@lastModifyDate}"  fontSize="9"/>
 				</mx:HBox>
@@ -5725,7 +5740,7 @@
 							 visible="{request.@captureLibDesignId != '' || (requestApplication.@hasCaptureLibDesign == 'Y' &amp;&amp; parentDocument.selectedExperiment.@isExternal == 'N')}"
 							 includeInLayout="{request.@captureLibDesignId != '' || (requestApplication.@hasCaptureLibDesign == 'Y' &amp;&amp; parentDocument.selectedExperiment.@isExternal == 'N')}">
 						<mx:Text width="100" fontWeight="normal" id="designLabel" text="Custom Design Id" styleName="formLabel"/>
-						<mx:TextInput focusOut="propagateDesign()" change="{this.dirty.setDirty()}" id="designText" width="300" text="{this.request.@captureLibDesignId}"/>
+						<mx:TextInput focusOut="propagateDesign()" change="{updateDirtyNote(true)}" id="designText" width="300" text="{this.request.@captureLibDesignId}"/>
 					</mx:HBox>
 										
 					<mx:HBox verticalGap="0" horizontalGap="0" width="700" verticalAlign="middle" visible="{parentDocument.selectedExperiment.@isExternal == 'Y'}" includeInLayout="{parentDocument.selectedExperiment.@isExternal == 'Y'}">
@@ -5746,7 +5761,7 @@
 						<mx:Label text="Lab Group"  width="100" fontWeight="normal" styleName="formLabel"/>
 						<renderers:FilterComboBox id="requestEditLabCombo"
 												  labelField="@name" 
-												  close="this.dirty.setDirty();refreshLab()" 
+												  close="updateDirtyNote(true);refreshLab()" 
 												  enabled="{(parentApplication.hasPermission('canWriteAnyObject') || parentDocument.selectedExperiment.@canUpdate == 'Y') ? true : false}"
 												  width="500" 
 												  dataProvider="{labList}" >
@@ -5756,7 +5771,7 @@
 						<mx:Label text="Project"  width="100" fontWeight="normal" styleName="formLabel"/>
 						<mx:ComboBox id="requestEditProjectCombo"
 									 labelField="@name" 
-									 change="this.dirty.setDirty()"
+									 change="updateDirtyNote(true)"
 									 dataProvider="{projects}" 
 									 enabled="true"
 									 width="500"/>
@@ -5766,7 +5781,7 @@
 						<mx:Text text="Submitted by"  fontWeight="normal" width="100" styleName="formLabel"/>
 						<util:ComboBoxDatProvChangeFix id="submitterCombo"
 													   labelField="@displayName" 
-													   change="this.dirty.setDirty();" 
+													   change="updateDirtyNote(true);" 
 													   dataProvider="{submittersForLab}" 
 													   enabled="{parentApplication.isAdminState}"
 													   width="500"/>
@@ -5781,7 +5796,7 @@
 						<mx:Label text="Owner"  width="100" fontWeight="normal" styleName="formLabel"/>
 						<util:ComboBoxDatProvChangeFix id="ownerCombo"
 									 labelField="@displayName" 
-									 change="this.dirty.setDirty();" 
+									 change="updateDirtyNote(true);" 
 									 dataProvider="{appUsersForLab}" 
 									 enabled="{(parentApplication.hasPermission('canWriteAnyObject') || parentDocument.selectedExperiment.@canUpdate == 'Y') ? true : false}"
 									 width="500"/>
