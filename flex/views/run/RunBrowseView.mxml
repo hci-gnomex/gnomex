@@ -171,15 +171,15 @@
 				}
 				
 				params.runName = parentDocument.lookupRunNameField.text != '' ? parentDocument.lookupRunNameField.text : '';
-				params.createdLastWeek = parentDocument.lastWeekCheckboxCreated.selected ? 'Y' : 'N' ;
-				params.createdLastMonth = parentDocument.lastMonthCheckboxCreated.selected ? 'Y' : 'N' ;
-				params.createdLastThreeMonths = parentDocument.lastThreeMonthsCheckboxCreated.selected ? 'Y' : 'N' ;
-				params.createdLastYear = parentDocument.lastYearCheckboxCreated.selected ? 'Y' : 'N' ;
+				if (parentView.pickCreateDateRangeButton.fromDate != null && parentView.pickCreateDateRangeButton.toDate != null) {
+					params.createDateFrom = parentView.pickCreateDateRangeButton.dateFormatter.format(parentView.pickCreateDateRangeButton.fromDate);
+					params.createDateTo = parentView.pickCreateDateRangeButton.dateFormatter.format(parentView.pickCreateDateRangeButton.toDate);
+				}
 				
-				params.runLastWeek = parentDocument.lastWeekCheckbox.selected ? 'Y' : 'N' ;
-				params.runLastMonth = parentDocument.lastMonthCheckbox.selected ? 'Y' : 'N' ;
-				params.runLastThreeMonths = parentDocument.lastThreeMonthsCheckbox.selected ? 'Y' : 'N' ;
-				params.runLastYear = parentDocument.lastYearCheckbox.selected ? 'Y' : 'N' ;
+				if (parentView.pickRunDateRangeButton.fromDate != null && parentView.pickRunDateRangeButton.toDate != null) {
+					params.runDateFrom = parentView.pickRunDateRangeButton.dateFormatter.format(parentView.pickRunDateRangeButton.fromDate);
+					params.runDateTo = parentView.pickRunDateRangeButton.dateFormatter.format(parentView.pickRunDateRangeButton.toDate);
+				}
 				
 				if ( parentDocument.pendingCheckbox.selected ) {
 					params.status = 'PENDING' ;
@@ -212,29 +212,11 @@
 			
 			private function checkEmptyFilter():Boolean {
 				
-				if ( parentDocument.lastWeekCheckbox.selected ) {
-					return false ;
+				if (parentView.pickCreateDateRangeButton.fromDate != null && parentView.pickCreateDateRangeButton.toDate != null) {
+					return false;
 				}
-				if ( parentDocument.lastMonthCheckbox.selected ) {
-					return false ;
-				}
-				if ( parentDocument.lastThreeMonthsCheckbox.selected ) {
-					return false ;
-				}
-				if ( parentDocument.lastYearCheckbox.selected ) {
-					return false ;
-				}
-				if ( parentDocument.lastWeekCheckboxCreated.selected ) {
-					return false ;
-				}
-				if ( parentDocument.lastMonthCheckboxCreated.selected ) {
-					return false ;
-				}
-				if ( parentDocument.lastThreeMonthsCheckboxCreated.selected ) {
-					return false ;
-				}
-				if ( parentDocument.lastYearCheckboxCreated.selected ) {
-					return false ;
+				if (parentView.pickRunDateRangeButton.fromDate != null && parentView.pickRunDateRangeButton.toDate != null) {
+					return false;
 				}
 				if ( parentDocument.pendingCheckbox.selected ) {
 					return false ;
@@ -293,6 +275,7 @@
 	<mx:XMLListCollection id = "runList" source = "{getInstrumentRunList.lastResult.InstrumentRun}" />
 	<mx:XMLListCollection id = "selectedRuns" source="{getInstrumentRunList.lastResult.InstrumentRun}" 
 						  filterFunction="selectedFilterFunc"/>
+	<mx:DateFormatter id="dateFormatter" formatString="MM/DD/YYYY"/>
 	<mx:VDividedBox width = "100%"
 					height = "100%"
 					paddingBottom = "4"

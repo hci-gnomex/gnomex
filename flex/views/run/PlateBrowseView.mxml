@@ -126,10 +126,10 @@
 				}
 				
 				params.plateName = parentDocument.lookupPlateNameField.text != null ? parentDocument.lookupPlateNameField.text : '' ;
-				params.createdLastWeek = parentDocument.lastWeekCheckboxCreated.selected ? 'Y' : 'N' ;
-				params.createdLastMonth = parentDocument.lastMonthCheckboxCreated.selected ? 'Y' : 'N' ;
-				params.createdLastThreeMonths = parentDocument.lastThreeMonthsCheckboxCreated.selected ? 'Y' : 'N' ;
-				params.createdLastYear = parentDocument.lastYearCheckboxCreated.selected ? 'Y' : 'N' ;
+				if (parentView.pickCreateDateRangeButton.fromDate != null && parentView.pickCreateDateRangeButton.toDate != null) {
+					params.createDateFrom = parentView.pickCreateDateRangeButton.dateFormatter.format(parentView.pickCreateDateRangeButton.fromDate);
+					params.createDateTo = parentView.pickCreateDateRangeButton.dateFormatter.format(parentView.pickCreateDateRangeButton.toDate);
+				}
 				
 				if (parentDocument.reactionCheckbox.selected){
 					params.plateType = "REACTION"; 
@@ -156,29 +156,11 @@
 			
 			private function checkEmptyFilter():Boolean {
 				
-				if ( parentDocument.lastWeekCheckbox.selected ) {
-					return false ;
+				if (parentView.pickCreateDateRangeButton.fromDate != null && parentView.pickCreateDateRangeButton.toDate != null) {
+					return false;
 				}
-				if ( parentDocument.lastMonthCheckbox.selected ) {
-					return false ;
-				}
-				if ( parentDocument.lastThreeMonthsCheckbox.selected ) {
-					return false ;
-				}
-				if ( parentDocument.lastYearCheckbox.selected ) {
-					return false ;
-				}
-				if ( parentDocument.lastWeekCheckboxCreated.selected ) {
-					return false ;
-				}
-				if ( parentDocument.lastMonthCheckboxCreated.selected ) {
-					return false ;
-				}
-				if ( parentDocument.lastThreeMonthsCheckboxCreated.selected ) {
-					return false ;
-				}
-				if ( parentDocument.lastYearCheckboxCreated.selected ) {
-					return false ;
+				if (parentView.pickRunDateRangeButton.fromDate != null && parentView.pickRunDateRangeButton.toDate != null) {
+					return false;
 				}
 				if ( parentDocument.pendingCheckbox.selected ) {
 					return false ;

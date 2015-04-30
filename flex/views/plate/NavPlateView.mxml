@@ -2,6 +2,7 @@
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"
 		   xmlns:plate="views.plate.*"
 		   xmlns:util="views.util.*"
+		   xmlns:renderers="views.renderers.*"
 		   show="init()"
 		   initialize="init()"
 		   creationPolicy="all"
@@ -118,8 +119,10 @@
 			import mx.rpc.events.ResultEvent;
 			
 			import views.renderers.WellContainer;
+			import views.renderers.LinkButtonDateRangeMenu;
 			import views.util.DirtyNote;
 			import views.util.IconUtility;
+			import views.util.DateSetEvent;
 
 			
 			// Reaction type
@@ -188,6 +191,10 @@
 				if ( currentState.substr(0,3) == "new" && reactionState == SEQ ){ 
 					activePlate.getWell(95).setControl(true);
 				}
+				
+				pickCreateDateRangeButton.addEventListener(DateSetEvent.DATE_SET, handleDateSet);
+				pickRunDateRangeButton.addEventListener(DateSetEvent.DATE_SET, handleDateSet);
+				
 				isInitialized = true;
 			}
 			
@@ -234,13 +241,15 @@
 				
 				if ( allCheckbox.selected ) { return params; }
 				
-				params.createdLastWeek = lastWeekCheckboxCreated.selected ? 'Y' : 'N';
-				params.createdLastMonth = lastMonthCheckboxCreated.selected ? 'Y' : 'N';
-				params.createdLastThreeMonths = lastThreeMonthsCheckboxCreated.selected ? 'Y' : 'N';
+				if (pickCreateDateRangeButton.fromDate != null && pickCreateDateRangeButton.toDate != null) {
+					params.createDateFrom = pickCreateDateRangeButton.dateFormatter.format(pickCreateDateRangeButton.fromDate);
+					params.createDateTo = pickCreateDateRangeButton.dateFormatter.format(pickCreateDateRangeButton.toDate);
+				}
 				
-				params.runLastWeek = lastWeekCheckbox.selected ? 'Y' : 'N';
-				params.runLastMonth = lastMonthCheckbox.selected ? 'Y' : 'N';
-				params.runLastThreeMonths = lastThreeMonthsCheckbox.selected ? 'Y' : 'N';
+				if (pickRunDateRangeButton.fromDate != null && pickRunDateRangeButton.toDate != null) {
+					params.runDateFrom = pickRunDateRangeButton.dateFormatter.format(pickRunDateRangeButton.fromDate);
+					params.runDateTo = pickRunDateRangeButton.dateFormatter.format(pickRunDateRangeButton.toDate);
+				}
 				
 				if ( pendingCheckbox.selected )  { params.status = 'PENDING'; }
 				if ( runningCheckbox.selected )  { params.status = 'RUNNING'; }
@@ -282,51 +291,13 @@
 			
 			private function toggleDateCheckboxes( checkBoxNumber:int ):void {
 				if ( checkBoxNumber == 0 ) {
-					this.lastWeekCheckbox.selected = false;
-					this.lastMonthCheckbox.selected = false;
-					this.lastThreeMonthsCheckbox.selected = false;
-					
-					this.lastWeekCheckboxCreated.selected = false;
-					this.lastMonthCheckboxCreated.selected = false;
-					this.lastThreeMonthsCheckboxCreated.selected = false;
+					pickCreateDateRangeButton.resetRange();
+					pickRunDateRangeButton.resetRange();
 					
 					this.pendingCheckbox.selected = false;
 					this.runningCheckbox.selected = false;
 					this.completeCheckbox.selected = false;
 					this.failedCheckbox.selected = false;
-					
-				} else if ( checkBoxNumber == 1 ) {
-					this.allCheckbox.selected = false;
-					this.lastMonthCheckbox.selected = false;
-					this.lastThreeMonthsCheckbox.selected = false;
-					
-				} else if ( checkBoxNumber == 2 ) {
-					this.allCheckbox.selected = false;
-					this.lastWeekCheckbox.selected = false;
-					this.lastThreeMonthsCheckbox.selected = false;
-					
-				} else if ( checkBoxNumber == 3 ) {
-					this.allCheckbox.selected = false;
-					this.lastWeekCheckbox.selected = false;
-					this.lastMonthCheckbox.selected = false;
-					
-				}
-			}
-			private function toggleCreateDateCheckboxes( checkBoxNumber:int ):void {
-				if ( checkBoxNumber == 1 ) {
-					this.allCheckbox.selected = false;
-					this.lastMonthCheckboxCreated.selected = false;
-					this.lastThreeMonthsCheckboxCreated.selected = false;
-					
-				} else if ( checkBoxNumber == 2 ) {
-					this.allCheckbox.selected = false;
-					this.lastWeekCheckboxCreated.selected = false;
-					this.lastThreeMonthsCheckboxCreated.selected = false;
-					
-				} else if ( checkBoxNumber == 3 ) {
-					this.allCheckbox.selected = false;
-					this.lastWeekCheckboxCreated.selected = false;
-					this.lastMonthCheckboxCreated.selected = false;
 					
 				}
 			}
@@ -2401,6 +2372,10 @@
 					statusComboBox.selectedIndex=-1;
 				} 
 			}
+			private function handleDateSet(event:DateSetEvent):void {
+				allCheckbox.selected = false;
+				refreshRunList();
+			}
 			
 			//---------
 			// Icons
@@ -2649,51 +2624,8 @@
 						 visible="{tabNav.selectedChild == runTab}"
 						 includeInLayout="{tabNav.selectedChild == runTab}">
 					
-					<mx:CheckBox id="lastWeekCheckboxCreated"
-								 label="Created in last week"
-								 paddingRight="0"
-								 horizontalGap="0"
-								 paddingLeft="0"
-								 styleName="labelSmall"
-								 paddingTop="0"
-								 selected="false">
-						
-						<mx:click>
-							toggleCreateDateCheckboxes( 1 );
-							refreshRunLists();
-						</mx:click>
-						
-					</mx:CheckBox>
-					
-					<mx:CheckBox id="lastMonthCheckboxCreated"
-								 label="month"
-								 paddingRight="0"
-								 paddingLeft="2"
-								 horizontalGap="0"
-								 styleName="labelSmall"
-								 paddingTop="0">
-						
-						<mx:click>
-							toggleCreateDateCheckboxes( 2 );
-							refreshRunLists();
-						</mx:click>
-						
-					</mx:CheckBox>
-					
-					<mx:CheckBox id="lastThreeMonthsCheckboxCreated"
-								 label="3 months"
-								 paddingRight="0"
-								 paddingLeft="2"
-								 horizontalGap="0"
-								 styleName="labelSmall"
-								 paddingTop="0">
-						
-						<mx:click>
-							toggleCreateDateCheckboxes( 3 );
-							refreshRunLists();
-						</mx:click>
-						
-					</mx:CheckBox>
+					<mx:Label text="Create Date" />
+					<renderers:LinkButtonDateRangeMenu id="pickCreateDateRangeButton" />
 					
 				</mx:HBox>
 				
@@ -2705,47 +2637,8 @@
 						 visible="{tabNav.selectedChild == runTab}"
 						 includeInLayout="{tabNav.selectedChild == runTab}">
 					
-					<mx:CheckBox id="lastWeekCheckbox"
-								 label="Run in last week"
-								 paddingRight="0"
-								 horizontalGap="0"
-								 paddingLeft="0"
-								 styleName="labelSmall">
-						
-						<mx:click>
-							toggleCreateDateCheckboxes( 1 );
-							refreshRunList();
-						</mx:click>
-						
-					</mx:CheckBox>
-					
-					<mx:CheckBox id="lastMonthCheckbox"
-								 label="month"
-								 paddingRight="0"
-								 paddingLeft="2"
-								 horizontalGap="0"
-								 styleName="labelSmall">
-						
-						<mx:click>
-							toggleCreateDateCheckboxes( 2 );
-							refreshRunList();
-						</mx:click>
-						
-					</mx:CheckBox>
-					
-					<mx:CheckBox id="lastThreeMonthsCheckbox"
-								 label="3 months"
-								 paddingRight="0"
-								 paddingLeft="2"
-								 horizontalGap="0"
-								 styleName="labelSmall">
-						
-						<mx:click>
-							toggleCreateDateCheckboxes( 3 );
-							refreshRunList();
-						</mx:click>
-						
-					</mx:CheckBox>
+					<mx:Label text="Run Date" />
+					<renderers:LinkButtonDateRangeMenu id="pickRunDateRangeButton" />
 					
 				</mx:HBox>
 				<mx:Spacer width="100%" height="100%" />
