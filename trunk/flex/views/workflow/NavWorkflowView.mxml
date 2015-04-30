@@ -368,8 +368,7 @@
 	        		this.flowCellView.codeSequencingPlatform = "GAIIX";
 					this.flowCellView.titleLabel.text = 'Illumina GAIIx Flow Cells';
 	        		this.flowCellView.lookupField.text = '';
-	        		this.flowCellView.lastThreeMonthsCheckbox.selected = true;
-	        		this.flowCellView.toggleDateCheckboxes(3);
+					this.flowCellView.pickDateRangeButton.selectRangeNonMenu(90, false);
 	        		microarrayViews.selectedChild=blankMicroarray;
 					hiSeqViews.selectedChild=this.blankHiSeq;
 					miSeqViews.selectedChild=this.blankMiSeq;
@@ -378,8 +377,7 @@
 					this.flowCellView.codeSequencingPlatform = "HISEQ";
 					this.flowCellView.titleLabel.text = 'Illumina HiSeq 2000 Flow Cells';
 					this.flowCellView.lookupField.text = '';
-					this.flowCellView.lastThreeMonthsCheckbox.selected = true;
-					this.flowCellView.toggleDateCheckboxes(3);
+					this.flowCellView.pickDateRangeButton.selectRangeNonMenu(90, false);
 					solexaViews.selectedChild=blankSolexa;
 					microarrayViews.selectedChild=blankMicroarray;
 					miSeqViews.selectedChild=this.blankMiSeq;
@@ -388,8 +386,7 @@
 					this.flowCellView.codeSequencingPlatform = "MISEQ";
 					this.flowCellView.titleLabel.text = 'Illumina MiSeq Flow Cells';
 					this.flowCellView.lookupField.text = '';
-					this.flowCellView.lastThreeMonthsCheckbox.selected = true;
-					this.flowCellView.toggleDateCheckboxes(3);
+					this.flowCellView.pickDateRangeButton.selectRangeNonMenu(90, false);
 					solexaViews.selectedChild=blankSolexa;
 					microarrayViews.selectedChild=blankMicroarray;
 					hiSeqViews.selectedChild=this.blankHiSeq;
