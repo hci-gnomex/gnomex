@@ -81,6 +81,7 @@
 			
 			import views.experiment.DownloadProgressView;
 			import views.util.FileUtil;
+			import views.util.DateSetEvent;
 			
 			// Warning Icon
 			[Embed( source = '../../assets/error.png' )]
@@ -130,6 +131,8 @@
 					actionDictionary.source = dictXML.action;
 					this.getList();
 				}
+				
+				pickCreateDateRangeButton.addEventListener(DateSetEvent.DATE_SET, handleDateSet);
 			}
 			
 			public function getList():void {
@@ -145,9 +148,10 @@
 					params.plateName = plateNameLookupField.text != null ? plateNameLookupField.text : '';
 					params.capSeq = this.capSeqCheckbox.selected ? 'Y' : 'N' ;
 					params.mitSeq = this.mitSeqCheckbox.selected ? 'Y' : 'N' ;
-					params.lastWeek = this.lastWeekCheckbox.selected ? 'Y' : 'N' ;
-					params.lastMonth = this.lastMonthCheckbox.selected ? 'Y' : 'N' ;
-					params.lastThreeMonths = this.lastThreeMonthsCheckbox.selected ? 'Y' : 'N' ;
+					if (pickCreateDateRangeButton.fromDate != null && pickCreateDateRangeButton.toDate != null) {
+						params.createDateFrom = pickCreateDateRangeButton.dateFormatter.format(pickCreateDateRangeButton.fromDate);
+						params.createDateTo = pickCreateDateRangeButton.dateFormatter.format(pickCreateDateRangeButton.toDate);
+					}
 					if ( this.releasedCheckbox.selected ) {
 						params.released = 'Y';
 					} else if ( this.notReleasedCheckbox.selected ) {
@@ -312,24 +316,6 @@
 				return item.@isSelected == true;
 			}
 			
-			
-			public function toggleDateCheckboxes( checkBoxNumber:int ):void {
-				this.clearAllLookupFields();
-				if ( currentState != userState.name ) {
-					if ( checkBoxNumber == 1 ) {
-						this.lastMonthCheckbox.selected = false;
-						this.lastThreeMonthsCheckbox.selected = false;
-					} else if ( checkBoxNumber == 2 ) {
-						this.lastWeekCheckbox.selected = false;
-						this.lastThreeMonthsCheckbox.selected = false;
-					} else if ( checkBoxNumber == 3 ) {
-						this.lastWeekCheckbox.selected = false;
-						this.lastMonthCheckbox.selected = false;
-					} 
-				}
-			}
-			
-			
 			public function toggleReactionCheckboxes( checkBoxNumber:int ):void {
 				this.clearAllLookupFields();
 				if ( checkBoxNumber == 0 ) {
@@ -379,9 +365,7 @@
 			}
 			
 			private function clearAllCheckBoxes():void {
-				this.lastMonthCheckbox.selected = false;
-				this.lastThreeMonthsCheckbox.selected = false;
-				this.lastWeekCheckbox.selected = false;
+				this.pickCreateDateRangeButton.resetRange();
 				
 				this.mitSeqCheckbox.selected = false;
 				this.capSeqCheckbox.selected = false;
@@ -580,6 +564,11 @@
 				return "View chromatogram details";
 			}
 			
+			private function handleDateSet(event:DateSetEvent):void {
+				this.clearAllLookupFields();
+				this.getList();
+			}
+			
 		]]>
 	</mx:Script>
 	
@@ -693,41 +682,8 @@
 								 horizontalAlign="right"
 								 paddingRight="5"
 								 paddingLeft="5">
-							<mx:CheckBox id="lastWeekCheckbox"
-										 label="Created in last week"
-										 paddingRight="0"
-										 paddingLeft="0"
-										 horizontalGap="0">
-								<mx:click>
-									toggleDateCheckboxes( 1 );
-									this.getList();
-								</mx:click>
-								
-							</mx:CheckBox>
 							
-							<mx:CheckBox id="lastMonthCheckbox"
-										 label="month"
-										 paddingRight="0"
-										 paddingLeft="2"
-										 horizontalGap="0">
-								<mx:click>
-									toggleDateCheckboxes( 2 );
-									this.getList();
-								</mx:click>
-								
-							</mx:CheckBox>
-							
-							<mx:CheckBox id="lastThreeMonthsCheckbox"
-										 label="3 months"
-										 paddingRight="0"
-										 paddingLeft="2"
-										 horizontalGap="0">
-								<mx:click>
-									toggleDateCheckboxes( 3 );
-									this.getList();
-								</mx:click>
-								
-							</mx:CheckBox>
+							<renderers:LinkButtonDateRangeMenu id="pickCreateDateRangeButton" />
 							
 						</mx:HBox>
 						<mx:VRule height="20" />
