@@ -4,7 +4,7 @@ package hci.gnomex.model;
 import hci.framework.model.DetailObject;
 import hci.gnomex.security.SecurityAdvisor;
 
-import java.util.Calendar;
+import java.util.Date;
 
 public class PlateFilter extends DetailObject {
 
@@ -26,10 +26,8 @@ public class PlateFilter extends DetailObject {
   private boolean               addWhere = true;
   private SecurityAdvisor       secAdvisor;
   
-  private String                createdLastWeek = "N";
-  private String                createdLastMonth = "N";
-  private String                createdLastThreeMonths = "N";
-  private String                createdLastYear = "N";
+  private Date					createDateFrom;
+  private Date					createDateTo;
 
 
   public StringBuffer getQuery(SecurityAdvisor secAdvisor) {
@@ -64,10 +62,8 @@ public class PlateFilter extends DetailObject {
         (plateType != null && !plateType.equals("")) ||
         (codeReactionType != null && !codeReactionType.equals("")) ||
         (getAll != null && getAll.equals("Y")) ||
-        (createdLastWeek != null && createdLastWeek.equals("Y")) ||
-        (createdLastMonth != null && createdLastMonth.equals("Y")) ||
-        (createdLastThreeMonths != null && createdLastThreeMonths.equals("Y")) ||
-        (createdLastYear != null && createdLastYear.equals("Y"))  ||
+        createDateFrom != null ||
+        createDateTo != null ||
         (notAddedToARun != null && notAddedToARun.equals("Y"))) {
       hasLimitingCriteria = true;
     } else {
@@ -138,53 +134,19 @@ public class PlateFilter extends DetailObject {
       queryBuf.append(")");
     }
     
-    if (createdLastWeek.equals("Y")) {
-
-      Calendar cal = Calendar.getInstance();
-      cal.add(Calendar.DAY_OF_YEAR, -7);
-      java.sql.Date lastWeek = new java.sql.Date(cal.getTimeInMillis());
-
-      this.addWhereOrAnd();
-      queryBuf.append(" p.createDate >= '");
-      queryBuf.append(this.formatDate(lastWeek, this.DATE_OUTPUT_SQL));
-      queryBuf.append("'");
+    // Search by create date
+    if (createDateFrom != null) {
+        this.addWhereOrAnd();
+        queryBuf.append(" p.createDate >= '");
+        queryBuf.append(this.formatDate(createDateFrom, this.DATE_OUTPUT_SQL));
+        queryBuf.append("'");    	
     }
-    // Search for instrument run created in last month
-    if (createdLastMonth.equals("Y")) {
-
-      Calendar cal = Calendar.getInstance();
-      cal.add(Calendar.MONTH, -1);
-      java.sql.Date lastMonth = new java.sql.Date(cal.getTimeInMillis());
-
-      this.addWhereOrAnd();
-      queryBuf.append(" p.createDate >= '");
-      queryBuf.append(this.formatDate(lastMonth, this.DATE_OUTPUT_SQL));
-      queryBuf.append("'");
-    }
-    // Search for instrument run created in last 3 months
-    if (createdLastThreeMonths.equals("Y")) {
-
-      Calendar cal = Calendar.getInstance();
-      cal.add(Calendar.MONTH, -3);
-      java.sql.Date last3Month = new java.sql.Date(cal.getTimeInMillis());
-
-      this.addWhereOrAnd();
-      queryBuf.append(" p.createDate >= '");
-      queryBuf.append(this.formatDate(last3Month, this.DATE_OUTPUT_SQL));
-      queryBuf.append("'");
-    }
-    // Search for instrument run created in last year
-    if (createdLastYear.equals("Y")) {
-
-      Calendar cal = Calendar.getInstance();
-      cal.add(Calendar.YEAR, -1);
-      java.sql.Date lastYear = new java.sql.Date(cal.getTimeInMillis());
-
-      this.addWhereOrAnd();
-      queryBuf.append(" p.createDate >= '");
-      queryBuf.append(this.formatDate(lastYear, this.DATE_OUTPUT_SQL));
-      queryBuf.append("'");
-    }    
+    if (createDateTo != null) {
+        this.addWhereOrAnd();
+        queryBuf.append(" p.createDate < '");
+        queryBuf.append(this.formatDate(createDateTo, this.DATE_OUTPUT_SQL));
+        queryBuf.append("'");    	
+    }  
 
   }
 
@@ -278,38 +240,6 @@ public class PlateFilter extends DetailObject {
     this.notAddedToARun = notAddedToARun;
   }
   
-  public String getCreatedLastWeek() {
-    return createdLastWeek;
-  }
-
-  public void setCreatedLastWeek(String createdLastWeek) {
-    this.createdLastWeek = createdLastWeek;
-  }
-
-  public String getCreatedLastMonth() {
-    return createdLastMonth;
-  }
-
-  public void setCreatedLastMonth(String createdLastMonth) {
-    this.createdLastMonth = createdLastMonth;
-  }
-
-  public String getCreatedLastThreeMonths() {
-    return createdLastThreeMonths;
-  }
-
-  public void setCreatedLastThreeMonths(String createdLastThreeMonths) {
-    this.createdLastThreeMonths = createdLastThreeMonths;
-  }
-
-  public String getCreatedLastYear() {
-    return createdLastYear;
-  }
-
-  public void setCreatedLastYear(String createdLastYear) {
-    this.createdLastYear = createdLastYear;
-  }
-  
   public String getCodePlateType() {
     return plateType;
   }
@@ -325,5 +255,21 @@ public class PlateFilter extends DetailObject {
   public void setPlateName(String plateName) {
     this.plateName = plateName;
   }
+  
+  public Date getCreateDateFrom() {
+	return createDateFrom;
+  }
+
+  public void setCreateDateFrom(Date createDateFrom) {
+    this.createDateFrom = createDateFrom;
+  }
+  
+  public Date getCreateDateTo() {
+	return createDateTo;
+  }
+
+  public void setCreateDateTo(Date createDateTo) {
+    this.createDateTo = createDateTo;
+  }  
 
 }
