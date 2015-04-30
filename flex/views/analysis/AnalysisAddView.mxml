@@ -2,6 +2,7 @@
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
 	layout="vertical" 
 	title="Add Analysis"
+	initialize="init()"
 	xmlns:util="views.util.*" 
 	xmlns:renderers="views.renderers.*" 
 	defaultButton="{saveButton}" width="466" horizontalScrollPolicy="off" verticalScrollPolicy="off">
@@ -56,20 +57,23 @@
 
 <mx:Script>
 	<![CDATA[
+		import mx.collections.Sort;
 		import mx.collections.XMLListCollection;
 		import mx.controls.Alert;
 		import mx.events.CloseEvent;
 		import mx.managers.PopUpManager;
 		import mx.rpc.events.FaultEvent;
 		import mx.rpc.events.ResultEvent;
-		import mx.collections.Sort;
 		
+		import views.experiment.NavExperimentView;
 		import views.util.AboutView;
 		import views.util.DateUtils;
 		import views.util.GNomExStringUtil;
+		import views.util.OrganismEvent;
 		import views.util.OrganismsWindow;
-		import views.util.OrganismEvent; 
 		import views.util.PromptXMLListCollection;
+		
+		public var parentView:Object;
 		
 		private var savedIdAnalysis:Object;
 		private var savedIdAnalysisGroup:Object;
@@ -84,16 +88,23 @@
 		private var idLab:String;
 		
 		[Bindable]
+		private var isAdmin:Boolean = false;
+		
+		[Bindable]
 		private var possibleInstitutions:PromptXMLListCollection;
 		
+		private function init():void {
+			if (parentApplication.hasPermission("canWriteAnyObject")) {
+				isAdmin = true;
+			}
+		}
 		
-		public function initializeData(idLab:Object, idAnalysisGroup:Object):void {
+		public function initializeData(idLab:Object, idAnalysisGroup:Object, idOrganism:Object):void {
 			initializeDataProviders();
 			selectedIdLab = idLab;
 			selectedIdAnalysisGroup = idAnalysisGroup;
 			// Select the lab in the dropdown.  If no lab was
-			// selected in the nav analysis tree, just select
-			// the first lab;
+			// provided, just select the first lab
 			var foundLab:Boolean = false;
 			if (selectedIdLab != null && selectedIdLab != '') {
 				for each(var l:Object in labCombo.dataProvider) {
@@ -136,6 +147,15 @@
 				this.institutionCombo.dataProvider = possibleInstitutions;
 				visibilityChosen();
 			}
+			
+			if (idOrganism != null && idOrganism != '') {
+				for each (var org:Object in organismCombo.dataProvider) {
+					if (org.@idOrganism == idOrganism) {
+						organismCombo.selectedItem = org;
+						break;
+					}
+				} 
+			}
 		}
 		
 		private function onOrganismRefreshed(event:Event):void{
@@ -146,7 +166,6 @@
 			filteredGenomeBuildList.refresh();	
 			
 		}
-		
 		
 		public function refreshAnalysisGroupForDropdown():void {
 			if (this.labCombo.selectedItem != null && this.labCombo.selectedItem.@idLab != '') {
@@ -175,7 +194,7 @@
 		}
 	 	
 		private function validateAndSave():void {
-			if (parentApplication.navAnalysisView.currentState == "AdminState" && (ownerCombo.selectedItem == null || ownerCombo.selectedIndex == 0)) {
+			if (isAdmin && (ownerCombo.selectedItem == null || ownerCombo.selectedIndex == 0)) {
 				ownerCombo.setFocus();
 				Alert.show("Please select the analysis owner.");
 				return;        		
@@ -208,7 +227,7 @@
 			params.idLab = labCombo.selectedItem.@idLab;
 			params.codeVisibility = visibilityCombo.selectedItem.@value;
 			params.idInstitution = institutionCombo.selectedItem == null ? '' : institutionCombo.selectedItem.@idInstitution;
-			if(parentApplication.navAnalysisView.currentState == 'AdminState') {
+			if(isAdmin) {
 				params.idAppUser = ownerCombo.selectedItem.@idAppUser;
 			}
 			params.name = analysisName.text;
@@ -216,9 +235,6 @@
 			//params.idGenomeBuild = genomeBuildCombo.selectedItem != null ? genomeBuildCombo.selectedItem.@idGenomeBuild : "";
 			params.idGenomeBuild         = "";
 			params.genomeBuildsXMLString = "<genomeBuilds>" + genomeBuilds.toXMLString() + "</genomeBuilds>";
-			
-			
-			
 			
 			if (currentState == "NewAnalysisGroupState") {
 				params.analysisGroupsXMLString = "<analysisGroups/>";
@@ -235,11 +251,28 @@
 				var expireDate:Date = DateUtils.dateAdd(DateUtils.MONTH, parseInt(parentApplication.getProperty(parentApplication.PROPERTY_DATASET_PRIVACY_EXPIRATION)), new Date());
 				params.privacyExpirationDate = parentApplication.formatDate(expireDate);
 			}			
-			params.hybsXMLString = "<hybs/>";
-			params.lanesXMLString = "<lanes/>";
 			params.analysisFilesXMLString = "<analysisFiles/>";
 			params.analysisFilesToDeleteXMLString = "<analysisFilesToDelete/>";
 			params.collaboratorsXMLString = "<collaborators/>";
+			
+			// If this window was called from experiment browse, automatically link selected experiment to analysis
+			if (isNavExperimentViewOpen() && parentView.selectedExperiment != null) {
+				var hybs:XMLListCollection = new XMLListCollection();
+				var lanes:XMLListCollection = new XMLListCollection();
+				
+				for each (var seqLane:Object in parentView.selectedExperiment.sequenceLanes.children()) {
+					addExperimentItem(seqLane, hybs, lanes);
+				}
+				for each (var hyb:Object in parentView.selectedExperiment.hybridizations.children()) {
+					addExperimentItem(hyb, hybs, lanes);
+				}
+				
+				params.hybsXMLString = "<hybs>" + hybs.toXMLString() + "</hybs>";
+				params.lanesXMLString = "<lanes>" + lanes.toXMLString() + "</lanes>";
+			} else {
+				params.hybsXMLString = "<hybs/>";
+				params.lanesXMLString = "<lanes/>";
+			}
 			
 			saveAnalysis.send(params);
 		}
@@ -253,6 +286,10 @@
 				params.idAnalysis = savedIdAnalysis;
 	 			getAnalysis.send(params);
 				PopUpManager.removePopUp(this);
+				
+				if (isNavExperimentViewOpen()) {
+					parentApplication.showAnalysisForNumber('A' + savedIdAnalysis);
+				}
 				
 			} else {
 				Alert.show(saveAnalysis.lastResult..ACTMESSAGE.@TEXT);
@@ -286,33 +323,40 @@
 		
 		
 	     private function onGetAnalysis(event:ResultEvent):void {
-          parentApplication.navAnalysisView.selectedIdAnalysis = savedIdAnalysis;
-          parentApplication.navAnalysisView.selectedAnalysis = getAnalysis.lastResult.Analysis.(@idAnalysis = savedIdAnalysis);
-          if (savedIdAnalysisGroup != "-1" ) {
-          	parentApplication.navAnalysisView.selectedIdAnalysisGroup = savedIdAnalysisGroup;          	
-          } else {
-	        parentApplication.navAnalysisView.selectedIdAnalysisGroup = analysisGroupCombo.selectedItem.@idAnalysisGroup;
-          }
-          parentApplication.navAnalysisView.showEditView = true;
-          parentApplication.navAnalysisView.refreshAnalysis();
-          
+			 if (isNavAnalysisViewOpen()) {
+				 parentApplication.navAnalysisView.selectedIdAnalysis = savedIdAnalysis;
+				 parentApplication.navAnalysisView.selectedAnalysis = getAnalysis.lastResult.Analysis.(@idAnalysis = savedIdAnalysis);
+				 if (savedIdAnalysisGroup != "-1" ) {
+					 parentApplication.navAnalysisView.selectedIdAnalysisGroup = savedIdAnalysisGroup;          	
+				 } else {
+					 parentApplication.navAnalysisView.selectedIdAnalysisGroup = analysisGroupCombo.selectedItem.@idAnalysisGroup;
+				 }
+				 parentApplication.navAnalysisView.showEditView = true;
+				 parentApplication.navAnalysisView.refreshAnalysis();
+			 }
         }
 
 		private function refreshAnalysisGroups():void {
-			if (parentApplication.navAnalysisView.currentState == "AdminState" && labCombo.selectedItem != null) {
-				parentApplication.navAnalysisView.labKeys = labCombo.selectedItem.@idLab;
-				parentApplication.navAnalysisView.selectedLabsLabel = labCombo.selectedItem.@name;
-				callGetLab();
+			if (isNavAnalysisViewOpen()) {
+				if (parentApplication.navAnalysisView.currentState == "AdminState" && labCombo.selectedItem != null) {
+					parentApplication.navAnalysisView.labKeys = labCombo.selectedItem.@idLab;
+					parentApplication.navAnalysisView.selectedLabsLabel = labCombo.selectedItem.@name;
+					callGetLab();
+				}
+				if (labCombo.selectedItem != null){
+					parentApplication.navAnalysisView.selectedIdLab = labCombo.selectedItem.@idLab;
+				}	
+				callLater(parentApplication.navAnalysisView.refreshAnalysis);
+			} else {
+				if (isAdmin && labCombo.selectedItem != null) {
+					callGetLab();
+				}
 			}
-			if ( labCombo.selectedItem != null ){
-				parentApplication.navAnalysisView.selectedIdLab = labCombo.selectedItem.@idLab;
-			}	
-			callLater(parentApplication.navAnalysisView.refreshAnalysis);
 			getAnalysisGroupList.send();
 		}
 		
 		private function callGetLab():void {
-			if (parentApplication.navAnalysisView.currentState == "AdminState") {
+			if (isAdmin) {
 				var params:Object = new Object();
 				idLab = labCombo.selectedItem != null ? labCombo.selectedItem.@idLab : "";
 				if(idLab.length > 0) {
@@ -428,6 +472,46 @@
 			}
 		}
 		
+		private function addExperimentItem(item:Object, hybs:XMLListCollection, lanes:XMLListCollection):void {
+			if (item.name() == "SequenceLane") {
+				var found:Boolean = false;
+				for each(var lane:Object in lanes) {
+					if (lane.@number == item.@number) {
+						found = true;
+						break;
+					}
+				} 
+				if (!found) {
+					lanes.addItem(item);
+				}	
+			} else if (item.name() == "Hybridization") {
+				for each(var hyb:Object in hybs) {
+					if (hyb.@number == item.@number) {
+						found = true;
+						break;
+					}
+				}
+				if (!found) {
+					item.@idRequest = parentView.selectedExperiment.@idRequest;
+					hybs.addItem(item);
+				}	
+			}
+		}
+		
+		private function isNavAnalysisViewOpen():Boolean {
+			if (parentView != null && parentView is NavAnalysisView) {
+				return true;
+			}
+			return false;
+		}
+		
+		private function isNavExperimentViewOpen():Boolean {
+			if (parentView != null && parentView is NavExperimentView) {
+				return true;
+			}
+			return false;
+		}
+		
 	]]>
 </mx:Script>
 <mx:XMLListCollection id="analysisGroupList" source="{getAnalysisGroupList.lastResult..AnalysisGroup}"/>
@@ -451,11 +535,11 @@
 			</mx:HBox>				
 		</mx:VBox>		
 		<mx:VBox height="100%" verticalGap="0" width="100%" id="analysisOwnerBox" 
-				 visible="{parentApplication.navAnalysisView.currentState == 'AdminState'}" 
-				 includeInLayout="{parentApplication.navAnalysisView.currentState == 'AdminState'}">
+				 visible="{isAdmin}" 
+				 includeInLayout="{isAdmin}">
 			<mx:HBox verticalGap="0" horizontalGap="0">
 				<mx:Label width="115" text="Analysis owner"/>						
-				<util:ComboBoxDatProvChangeFix  width="308" id="ownerCombo" labelField="@displayName" dataProvider="{appUsersForLab}"></util:ComboBoxDatProvChangeFix>						         			
+				<util:ComboBoxDatProvChangeFix  width="336" id="ownerCombo" labelField="@displayName" dataProvider="{appUsersForLab}"></util:ComboBoxDatProvChangeFix>						         			
 			</mx:HBox>				
 		</mx:VBox>
 		<mx:VBox height="100%" verticalGap="0" width="100%" id="analysisGroupBox">

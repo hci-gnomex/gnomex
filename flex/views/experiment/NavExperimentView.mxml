@@ -1452,7 +1452,18 @@
 		
 	}
 			
-	
+	public function showNewAnalysisWindow():void {
+		parentApplication.showNewAnalysisWindow(this, browseLabCombo.selectedItem != null ? browseLabCombo.selectedItem.@idLab : '', null, selectedExperiment != null ? selectedExperiment.@idOrganismSampleDefault : '');
+	}
+			
+	public function showCreateAnalysisButton(selectedExperiment:Object):Boolean {
+		if (selectedExperiment != null) {
+			if (selectedExperiment.sequenceLanes.children().length() > 0 || selectedExperiment.hybridizations.children().length() > 0) {
+				return true;
+			}
+		}
+		return false;
+	}
 			
        ]]>
     </mx:Script> 

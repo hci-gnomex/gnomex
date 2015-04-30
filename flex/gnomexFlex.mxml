@@ -332,6 +332,7 @@
 			import views.admin.GenomeIndexEvent;
 			import views.admin.PropertyEvent;
 			import views.admin.PropertyWindow;
+			import views.analysis.AnalysisAddView;
 			import views.dashboard.ManageQuickLinks;
 			import views.data.ChromatBrowseView;
 			import views.datatrack.DistributeDataTrackWindow;
@@ -1009,6 +1010,8 @@
 
 			[Bindable]
 			public var isPublicVisibility:Boolean = true;
+			
+			private var analysisAddWindow:AnalysisAddView;
 			
 			public var nonReqAnnotationColor:uint = hci.flex.renderers.RendererFactory.DEFAULT_MISSING_FIELD_BACKGROUND;
 			public var annotationColor:uint       = 0xE9FFD9;
@@ -4041,6 +4044,14 @@
 					}
 				}
 				return code;	
+			}
+			
+			public function showNewAnalysisWindow(callingView:Object = null, idLab:Object = null, idAnalysisGroup:Object = null, idOrganism:Object = null):void {
+				this.analysisAddWindow = AnalysisAddView(PopUpManager.createPopUp(this, AnalysisAddView, false));
+				PopUpManager.centerPopUp(this.analysisAddWindow);
+				
+				this.analysisAddWindow.parentView = callingView;
+				this.analysisAddWindow.initializeData(idLab, idAnalysisGroup, idOrganism);
 			}
 		]]>
 	</mx:Script>
