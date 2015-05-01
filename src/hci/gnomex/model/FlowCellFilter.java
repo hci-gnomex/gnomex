@@ -128,7 +128,7 @@ public class FlowCellFilter extends DetailObject {
     }
     if (createDateTo != null) {
     	this.addWhereOrAnd();
-        queryBuf.append(" fc.createDate < '");
+        queryBuf.append(" fc.createDate <= '");
         queryBuf.append(this.formatDate(createDateTo, this.DATE_OUTPUT_SQL));
         queryBuf.append("'");
     }

@@ -138,7 +138,7 @@ public class ChromatogramFilter extends DetailObject {
 	}
 	if (createDateTo != null) {
 		this.addWhereOrAnd();
-	    queryBuf.append(" pw.createDate < '");
+	    queryBuf.append(" pw.createDate <= '");
 	    queryBuf.append(this.formatDate(createDateTo, this.DATE_OUTPUT_SQL));
 	    queryBuf.append("'");		
 	}    

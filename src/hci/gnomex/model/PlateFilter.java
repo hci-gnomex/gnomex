@@ -143,7 +143,7 @@ public class PlateFilter extends DetailObject {
     }
     if (createDateTo != null) {
         this.addWhereOrAnd();
-        queryBuf.append(" p.createDate < '");
+        queryBuf.append(" p.createDate <= '");
         queryBuf.append(this.formatDate(createDateTo, this.DATE_OUTPUT_SQL));
         queryBuf.append("'");    	
     }  

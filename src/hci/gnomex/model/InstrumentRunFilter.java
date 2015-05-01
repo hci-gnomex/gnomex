@@ -146,7 +146,7 @@ public class InstrumentRunFilter extends DetailObject {
     }
     if (createDateTo != null) {
         this.addWhereOrAnd();
-        queryBuf.append(" ir.createDate < '");
+        queryBuf.append(" ir.createDate <= '");
         queryBuf.append(this.formatDate(createDateTo, this.DATE_OUTPUT_SQL));
         queryBuf.append("'");    	
     }
