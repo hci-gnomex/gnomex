@@ -4316,7 +4316,7 @@
 			var list:XMLListCollection = new XMLListCollection(lab.members.AppUser);
 			for each (var mgr:Object in lab.managers.AppUser) {
 				var mgrInLabList:Boolean = false;
-				for each(var a:Object in appUsersForLab) {
+				for each(var a:Object in lab.members.AppUser) {
 					if (a.@idAppUser == mgr.@idAppUser) {
 						mgrInLabList = true;
 						break;
