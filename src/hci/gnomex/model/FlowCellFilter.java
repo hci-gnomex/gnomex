@@ -28,7 +28,8 @@ public class FlowCellFilter extends DetailObject {
 	    
 	    if ((flowCellNumber != null && !flowCellNumber.equals("")) ||
 	    	(requestNumber != null && !requestNumber.equals("")) ||
-	    	(createDateFrom != null && createDateTo != null)) {
+	    	(createDateFrom != null && createDateTo != null) ||
+	    	(codeStepNext != null)) {
 	    	hasLimitingCriteria = true;
 	    } else {
 	    	hasLimitingCriteria = false;
