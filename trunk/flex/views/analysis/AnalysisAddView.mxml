@@ -103,8 +103,7 @@
 			initializeDataProviders();
 			selectedIdLab = idLab;
 			selectedIdAnalysisGroup = idAnalysisGroup;
-			// Select the lab in the dropdown.  If no lab was
-			// provided, just select the first lab
+			// Select the lab in the dropdown
 			var foundLab:Boolean = false;
 			if (selectedIdLab != null && selectedIdLab != '') {
 				for each(var l:Object in labCombo.dataProvider) {
@@ -117,7 +116,13 @@
 						break;
 					}
 				}				
-			} 
+			} else if (labCombo.dataProvider.length == 1) {
+				labCombo.selectedItem = labCombo.dataProvider[0];
+				var params2:Object = new Object();
+				params2.labKeys = labCombo.dataProvider[0].@idLab;
+				getAnalysisGroupList.send(params2);
+				foundLab = true;
+			}
 			
 			if (!foundLab) {
 				labCombo.selectedIndex = -1;

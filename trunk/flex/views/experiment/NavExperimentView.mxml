@@ -1453,7 +1453,7 @@
 	}
 			
 	public function showNewAnalysisWindow():void {
-		parentApplication.showNewAnalysisWindow(this, browseLabCombo.selectedItem != null ? browseLabCombo.selectedItem.@idLab : '', null, selectedExperiment != null ? selectedExperiment.@idOrganismSampleDefault : '');
+		parentApplication.showNewAnalysisWindow(this, (browseLabCombo != null && browseLabCombo.selectedItem != null) ? browseLabCombo.selectedItem.@idLab : '', null, selectedExperiment != null ? selectedExperiment.@idOrganismSampleDefault : '');
 	}
 			
 	public function showCreateAnalysisButton(selectedExperiment:Object):Boolean {
