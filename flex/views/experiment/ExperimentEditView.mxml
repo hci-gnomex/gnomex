@@ -303,9 +303,9 @@
 		[Bindable]
 		public var slideDesignList:XMLListCollection;
 		[Bindable]
-		private var appUsersForLab:XMLListCollection;
+		private var possibleRequestOwners:XMLListCollection;
 		[Bindable]
-		private var submittersForLab:XMLListCollection;
+		private var possibleRequestSubmitters:XMLListCollection;
 		private var appUserSort:Sort;
 
         
@@ -4281,13 +4281,14 @@
 				}
 
 				// set up Owner Combo
-				appUsersForLab = createAppUsersForLab(lab);
+				possibleRequestOwners = createAppUsersForLab(lab);
+				addCurrentRequestOwnerToList();
 				appUserSort = new Sort();
 				appUserSort.compareFunction = this.sortAppUsers;
-				appUsersForLab.sort = appUserSort;
-				appUsersForLab.refresh();
-				ownerCombo.selectedItem = appUsersForLab.getItemAt(0);
-				for each(var a1:Object in appUsersForLab) {
+				possibleRequestOwners.sort = appUserSort;
+				possibleRequestOwners.refresh();
+				ownerCombo.selectedItem = possibleRequestOwners.getItemAt(0);
+				for each(var a1:Object in possibleRequestOwners) {
 					if (a1.@idAppUser == request.@idAppUser) {
 						ownerCombo.selectedItem = a1;
 						break;
@@ -4296,11 +4297,12 @@
 				ownerCombo.enabled = true;
 				
 				// set up Submitter Combo
-				this.submittersForLab = createSubmittersForLab(lab);
-				this.submittersForLab.sort = appUserSort;
-				this.submittersForLab.refresh();
-				submitterCombo.selectedItem = submittersForLab.getItemAt(0);
-				for each(var a2:Object in submittersForLab) {
+				possibleRequestSubmitters = createSubmittersForLab(lab);
+				addCurrentRequestSubmitterToList();
+				possibleRequestSubmitters.sort = appUserSort;
+				possibleRequestSubmitters.refresh();
+				submitterCombo.selectedItem = possibleRequestSubmitters.getItemAt(0);
+				for each(var a2:Object in possibleRequestSubmitters) {
 					if (a2.@idAppUser == request.@idSubmitter) {
 						submitterCombo.selectedItem = a2;
 						break;
@@ -4346,6 +4348,40 @@
 			}
 			return list;
 		}
+			
+		private function addCurrentRequestOwnerToList():void {
+			var isNecessary:Boolean = true;
+			for each(var owner:Object in possibleRequestOwners) {
+				if (owner.@idAppUser == request.@idAppUser) {
+					isNecessary = false;
+					break;
+				}
+			}
+			if (isNecessary) {
+				var currentRequestOwner:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.AppUserLite', request.@idAppUser);
+				var node:XML = new XML("<AppUser " +
+											"idAppUser='" + GNomExStringUtil.makeXMLSafe(currentRequestOwner.@idAppUser) + "' " +
+											"displayName='" + GNomExStringUtil.makeXMLSafe(currentRequestOwner.@display) + "' />");
+				possibleRequestOwners.addItem(node);
+			}
+		}
+			
+		private function addCurrentRequestSubmitterToList():void {
+			var isNecessary:Boolean = true;
+			for each(var submitter:Object in possibleRequestSubmitters) {
+				if (submitter.@idAppUser == request.@idSubmitter) {
+					isNecessary = false;
+					break;
+				}
+			}
+			if (isNecessary) {
+				var currentRequestSubmitter:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.AppUserLite', request.@idSubmitter);
+				var node:XML = new XML("<AppUser " +
+											"idAppUser='" + GNomExStringUtil.makeXMLSafe(currentRequestSubmitter.@idAppUser) + "' " +
+											"displayName='" + GNomExStringUtil.makeXMLSafe(currentRequestSubmitter.@display) + "' />");
+				possibleRequestSubmitters.addItem(node);
+			}	
+		}	
 			
         private function onGetSlideDesignList(event:ResultEvent):void {
         	var emptyNode:XML = <SlideDesign idSlideDesign='' name=''/>;
@@ -5782,7 +5818,7 @@
 						<util:ComboBoxDatProvChangeFix id="submitterCombo"
 													   labelField="@displayName" 
 													   change="updateDirtyNote(true);" 
-													   dataProvider="{submittersForLab}" 
+													   dataProvider="{possibleRequestSubmitters}" 
 													   enabled="{parentApplication.isAdminState}"
 													   width="500"/>
 					</mx:HBox>
@@ -5797,7 +5833,7 @@
 						<util:ComboBoxDatProvChangeFix id="ownerCombo"
 									 labelField="@displayName" 
 									 change="updateDirtyNote(true);" 
-									 dataProvider="{appUsersForLab}" 
+									 dataProvider="{possibleRequestOwners}" 
 									 enabled="{(parentApplication.hasPermission('canWriteAnyObject') || parentDocument.selectedExperiment.@canUpdate == 'Y') ? true : false}"
 									 width="500"/>
 					</mx:HBox>
