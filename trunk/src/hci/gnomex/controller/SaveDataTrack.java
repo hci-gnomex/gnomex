@@ -41,12 +41,12 @@ import org.hibernate.Session;
 
 
 public class SaveDataTrack extends GNomExCommand implements Serializable {
-  
- 
-  
+
+
+
   // the static field for logging in Log4J
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(SaveDataTrack.class);
-  
+
   private DataTrack    load;
   private DataTrack    dataTrack;
   private boolean      isNewDataTrack = false;
@@ -56,12 +56,12 @@ public class SaveDataTrack extends GNomExCommand implements Serializable {
   private String       propertiesXML;
   private String       serverName;
   private String       baseDir;
-  
+
   public void validate() {
   }
-  
+
   public void loadCommand(HttpServletRequest request, HttpSession session) {
-    
+
     load = new DataTrack();
     HashMap errors = this.loadDetailObject(request, load);
     this.addInvalidFields(errors);
@@ -74,30 +74,30 @@ public class SaveDataTrack extends GNomExCommand implements Serializable {
     if (load.getName().contains("/") || load.getName().contains("&")) {
       this.addInvalidField("namechar", "The name cannnot contain any characters / or &.");
     }
-    
+
     if (request.getParameter("collaboratorsXML") != null && !request.getParameter("collaboratorsXML").equals("")) {
       collaboratorsXML = request.getParameter("collaboratorsXML");    
     } 
-    
+
     if (request.getParameter("filesToRemoveXML") != null && !request.getParameter("filesToRemoveXML").equals("")) {
       filesToRemoveXML = request.getParameter("filesToRemoveXML");    
     } 
-    
+
     if (request.getParameter("propertiesXML") != null && !request.getParameter("propertiesXML").equals("")) {
       propertiesXML = request.getParameter("propertiesXML");    
     }
-    
+
     serverName = request.getServerName();
   }
 
   public Command execute() throws RollBackCommandException {
-    
+
     try {
       Session sess = HibernateSession.currentSession(this.getUsername());
       baseDir = PropertyDictionaryHelper.getInstance(sess).getDataTrackDirectory(serverName);
-      
+
       this.initializeDataTrack(sess);      
-      
+
       if (!this.getSecAdvisor().canUpdate(dataTrack)) {
         this.addInvalidField("Insufficient permissions", "Insufficient permission to save data track.");
         setResponsePage(this.ERROR_JSP);
@@ -115,7 +115,7 @@ public class SaveDataTrack extends GNomExCommand implements Serializable {
         this.addInvalidField("Lab", "You must select a lab.");
         setResponsePage(this.ERROR_JSP);
       }
-      
+
       if (this.isValid()) {
         // Set collaborators
         if (collaboratorsXML != null && !collaboratorsXML.equals("")) {
@@ -153,7 +153,7 @@ public class SaveDataTrack extends GNomExCommand implements Serializable {
             }
           }       
         }
-        
+
         // Delete dataTrackFile objects, unlinking from analysis file
         if (!isNewDataTrack) {
           TreeSet dataTrackFiles = new TreeSet<DataTrackFile>(new DataTrackFileComparator());
@@ -171,7 +171,7 @@ public class SaveDataTrack extends GNomExCommand implements Serializable {
           }
           sess.flush();
         }
-        
+
 
         // Delete dataTrack properties  
         if (propertiesXML != null && !propertiesXML.equals("")) {
@@ -197,9 +197,9 @@ public class SaveDataTrack extends GNomExCommand implements Serializable {
                 PropertyEntryValue av = PropertyEntryValue.class.cast(i1.next());
                 sess.delete(av);
               }  
-              sess.flush();
               // delete dataTrack property
               sess.delete(pe);
+              sess.flush();
             }
           } 
           sess.flush();
@@ -302,32 +302,32 @@ public class SaveDataTrack extends GNomExCommand implements Serializable {
         this.xmlResult = "<SUCCESS idDataTrack=\"" + dataTrack.getIdDataTrack() + "\"" +  " idDataTrackFolder=\"" + 
         (idDataTrackFolder != null ? idDataTrackFolder.toString() : "")
         + "\"/>";
-        
+
         setResponsePage(this.SUCCESS_JSP);
-        
 
 
-      
+
+
       }
-      
+
     }catch (Exception e){
       log.error("An exception has occurred in SaveDataTrackFolder ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
-        
+
     }finally {
       try {
         HibernateSession.closeSession();        
       } catch(Exception e) {
-        
+
       }
     }
-    
+
     return this;
   }
-  
+
   private void initializeDataTrack(Session sess) throws Exception {
-    
+
     if (load.getIdDataTrack() == null || load.getIdDataTrack().intValue() == 0) {
       createNewDataTrack(sess, load, idDataTrackFolder);
       sendNotification(dataTrack, sess, Notification.NEW_STATE, Notification.SOURCE_TYPE_USER, Notification.TYPE_DATATRACK);
@@ -395,15 +395,15 @@ public class SaveDataTrack extends GNomExCommand implements Serializable {
 
     // Assign a file directory name
     dataTrack.setFileName("DT" + dataTrack.getIdDataTrack());
-    
+
     sess.flush();
 
     return dataTrack;
 
   }
 
- 
-  
-  
+
+
+
 
 }
