@@ -36,7 +36,7 @@ public class GNomExLDAPRealm extends RealmBase {
 
   private String username;
   private String password;
-  
+
   private String ldap_init_context_factory;
   private String ldap_sec_principal;
   private String ldap_provider_url;
@@ -53,9 +53,9 @@ public class GNomExLDAPRealm extends RealmBase {
   private String alt_ldap_base_dn;
   private String alt_ldap_user_name;
   private String alt_ldap_password;
-  
+
   private String datasource_lookup_name;
-  
+
   private Hashtable env1 = new Hashtable();
   private DirContext ctx;
   private Attributes attr;
@@ -194,7 +194,7 @@ public class GNomExLDAPRealm extends RealmBase {
 
   public void setLdap_user_attributes(String ldap_user_attributes) {
     this.ldap_user_attributes = ldap_user_attributes;
-    
+
     // Populate user attributes and values into a may (key=attribute, value=attribute value)
     if (ldap_user_attributes != null && ldap_user_attributes.length() > 0) {
       String attributeTokens[] = ldap_user_attributes.split(",");
@@ -230,7 +230,7 @@ public class GNomExLDAPRealm extends RealmBase {
 
   private boolean isAuthenticated() {
     boolean isAuthenticated = false;
-    
+
     if (this.isGNomExUniversityUser()) {
       // If this is a GNomEx user with a uNID, check the credentials 
       // against the Univ of Utah LDAP.  If not found there,
@@ -257,13 +257,13 @@ public class GNomExLDAPRealm extends RealmBase {
 
 
   private boolean checkLDAPCredentials() {
-    
+
     if (username == null || password == null || ldap_provider_url == null || ldap_provider_url.length() == 0) {
       return false;
     }
 
     boolean isAuthenticated = false;
-    
+
     // Change local copy since GNomExLDAPRealm is apparently static in tomcat
     String localPrincipal = ldap_sec_principal;
     if (localPrincipal != null && localPrincipal.contains("<")) {
@@ -272,7 +272,7 @@ public class GNomExLDAPRealm extends RealmBase {
       // Need brackets if provided in a property because <> messes up parsing of context (xml) file
       localPrincipal = localPrincipal.replace("[uid]", username);            
     }
-    
+
     try {
       ActiveDirectory ad = new ActiveDirectory(username, 
           password, 
@@ -281,31 +281,31 @@ public class GNomExLDAPRealm extends RealmBase {
           ldap_protocol, 
           ldap_auth_meth, 
           localPrincipal);
-      
+
       // If user attributes are property is present, then check the user attributes
       // to see if they match the expected value.  
       if (ldap_domain != null && ldap_user_attribute_map != null && !ldap_user_attribute_map.isEmpty()) {
         NamingEnumeration<SearchResult> answer = ad.searchUser(username, ldap_domain, Util.keysToArray(ldap_user_attribute_map));
         isAuthenticated = ad.doesMatchUserAttribute(answer, ldap_user_attribute_map);     
-  
+
       } else {
         // If no user attributes property present, we have passed authentication at this point.
         isAuthenticated = true;
       }
-      
-      
+
+
     } catch (Exception e) {
       isAuthenticated = false;
     } 
     return isAuthenticated;
 
   }
-  
+
   private boolean checkAlternateLDAPCredentials() {
     env1 = new Hashtable();
     env1.put(Context.INITIAL_CONTEXT_FACTORY, alt_ldap_init_context_factory);
     env1.put(Context.SECURITY_AUTHENTICATION, alt_ldap_auth_meth);
-    
+
     String ldapDNString = "cn=" + alt_ldap_user_name + "," + alt_ldap_base_dn;
     env1.put(Context.PROVIDER_URL, alt_ldap_provider_url);
     env1.put(Context.SECURITY_PRINCIPAL, ldapDNString);
@@ -352,7 +352,7 @@ public class GNomExLDAPRealm extends RealmBase {
     try {
       // Bind to the LDAP directory
       ctx = new InitialDirContext(env1);
-       
+
       // if we are here, it worked !
       return true;
     } catch (AuthenticationException ae) {
@@ -364,9 +364,9 @@ public class GNomExLDAPRealm extends RealmBase {
     }
   }
 
-  
+
   private boolean isGNomExUniversityUser() {
-    
+
     boolean isGNomExUser = false;
 
     Connection con = null;
@@ -403,7 +403,7 @@ public class GNomExLDAPRealm extends RealmBase {
 
 
   private boolean isAuthenticatedGNomExExternalUser() {
-    
+
     boolean isAuthenticated = false;
 
     Connection con = null;
@@ -423,18 +423,19 @@ public class GNomExLDAPRealm extends RealmBase {
         String gnomexPasswordEncrypted = rs.getString("passwordExternal");
         String salt = rs.getString("salt");
         String thePasswordEncryptedNew = "";
-        
-        if (isActive != null && isActive.equalsIgnoreCase("Y")) {
-          if(salt != null) {
-            thePasswordEncryptedNew = passwordEncrypter.createPassword(password, salt);
-          }
-          String thePasswordEncryptedOld = EncrypterService.getInstance().encrypt(password);
-          if (thePasswordEncryptedNew.equals(gnomexPasswordEncrypted)) {
-            isAuthenticated = true;
-          } else if(thePasswordEncryptedOld.equals(gnomexPasswordEncrypted)) {
-            isAuthenticated = true;
-          }
+
+        //Uncomment this conditional if you want to prevent inactive users from logging in
+        //if (isActive != null && isActive.equalsIgnoreCase("Y")) {
+        if(salt != null) {
+          thePasswordEncryptedNew = passwordEncrypter.createPassword(password, salt);
         }
+        String thePasswordEncryptedOld = EncrypterService.getInstance().encrypt(password);
+        if (thePasswordEncryptedNew.equals(gnomexPasswordEncrypted)) {
+          isAuthenticated = true;
+        } else if(thePasswordEncryptedOld.equals(gnomexPasswordEncrypted)) {
+          isAuthenticated = true;
+        }
+        //}
       }
 
     } catch (NamingException ne) {
@@ -453,7 +454,7 @@ public class GNomExLDAPRealm extends RealmBase {
 
     return isAuthenticated;
   }
-  
+
 
 
   protected Connection getConnection() throws SQLException, ClassNotFoundException, NamingException {
@@ -465,7 +466,7 @@ public class GNomExLDAPRealm extends RealmBase {
   protected void closeConnection(Connection con) {
     try {
       if (con != null && !con.isClosed()) {
-         con.close();
+        con.close();
       }
     } catch (SQLException ex) {
       System.out.println("FATAL: Unable to close db connection in hci.gnomex.security.tomcat.GNomExLDAPRealm");

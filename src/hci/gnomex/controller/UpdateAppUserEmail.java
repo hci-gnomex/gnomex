@@ -41,6 +41,7 @@ public class UpdateAppUserEmail extends GNomExCommand implements Serializable {
         AppUser au = (AppUser)sess.load(AppUser.class, idAppUser);
         au.setEmail(email);
         au.setConfirmEmailGuid(null);
+        au.setIsActive("Y");
         sess.save(au);
         sess.flush();
 

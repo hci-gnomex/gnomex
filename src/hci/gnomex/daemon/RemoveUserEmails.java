@@ -89,6 +89,7 @@ public class RemoveUserEmails {
         if(au.getConfirmEmailGuid() !=  null) {
           au.setEmail(null);
           au.setConfirmEmailGuid(null);
+          au.setIsActive("N");
           changeCount++;
           sess.save(au);
         }
