@@ -1457,7 +1457,7 @@
 	}
 			
 	public function showCreateAnalysisButton(selectedExperiment:Object):Boolean {
-		if (selectedExperiment != null) {
+		if (!parentApplication.isGuestMode() && selectedExperiment != null) {
 			if (selectedExperiment.sequenceLanes.children().length() > 0 || selectedExperiment.hybridizations.children().length() > 0) {
 				return true;
 			}
