@@ -37,7 +37,7 @@
 	<mx:XMLListCollection id="coreFacilities" source="{parentApplication.myCoreFacilities}"  sort="{sortOrderSort}" filterFunction='filterCores'/>
 	<mx:Sort id="sortOrderSort" fields="{[new SortField('@sortOrder')]}" />
 	
-	<mx:Label text="{coreFacilities.length > 1 ? 'GNomEx Core Facilities' : 'GNomEx Core Facility'}" fontSize="18"/>
+	<mx:Label text="{coreFacilities.length > 1 ? 'GNomEx Core Facilities' : 'GNomEx Core Facility'}" fontSize="18" visible="{coreFacilities.length > 0}" includeInLayout="{coreFacilities.length > 0}"/>
 	
 	<mx:ViewStack id="viewStack" width="100%" height="100%">
 		

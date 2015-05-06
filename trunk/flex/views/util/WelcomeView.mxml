@@ -17,7 +17,7 @@
 		</mx:State>
 		<mx:State name="UserNonSubmitterState">
 			<mx:AddChild relativeTo="{spacer2}" position="before"> 
-				<mx:Text text="Restricted access - Please contact support to be added to a lab group"
+				<mx:Text text="Restricted access - Please contact GNomEx support or a core facility director."
 						 styleName="welcomeUserLabel" id="text3" color="#132A9F" />
 			</mx:AddChild>
 			<mx:SetProperty target="{text5}" name="text" value="Restricted account access&#xa;"/>
@@ -86,7 +86,7 @@
 						}
 					}
 				}
-				if(parentApplication.getProperty(parentApplication.PROPERTY_SHOW_CORE_INFO_BOX) == 'Y' && parentApplication.isGuestMode() == false ){
+				if(parentApplication.getProperty(parentApplication.PROPERTY_SHOW_CORE_INFO_BOX) == 'Y' && parentApplication.isGuestMode() == false){
 					callLater(showCoreInfoBox);
 				}
 				

@@ -915,6 +915,7 @@
 			
 			public var isUniversityOnlyUser:Boolean = false;
 			public var isExternalUser:Boolean = false;
+			public var isUserActive:Boolean = false;
 			
 			[Bindable]
 			public var bulletin:String = '';
@@ -2546,6 +2547,7 @@
 				userName  = createSecurityAdvisor.lastResult.@userFirstName + " " + createSecurityAdvisor.lastResult.@userLastName;
 				loginDateTime  = createSecurityAdvisor.lastResult.@loginDateTime;
 				isUniversityOnlyUser = createSecurityAdvisor.lastResult.@isUniversityOnlyUser == "Y" ? true : false;
+				isUserActive = createSecurityAdvisor.lastResult.@isUserActive == "Y" ? true : false;
 				isExternalUser = createSecurityAdvisor.lastResult.@isExternalUser == "Y" ? true : false;
 				version = createSecurityAdvisor.lastResult.@version;
 				
@@ -3250,7 +3252,7 @@
 						this.homeView.init();
 					}
 					launchStartWindow();
-					if(!isGuestMode() && (getUserEmail() == "" || getUserEmail() == null) || (this.getConfirmEmailGuid() != "" && this.getConfirmEmailGuid() != null)){
+					if(!isGuestMode() && !isUniversityOnlyUser && (getUserEmail() == "" || getUserEmail() == null) || (this.getConfirmEmailGuid() != "" && this.getConfirmEmailGuid() != null)){
 						var verifyWindow:VerifyEmailWindow = VerifyEmailWindow(PopUpManager.createPopUp(this, VerifyEmailWindow, true));
 						verifyWindow.email = getUserEmail();
 						verifyWindow.idAppUser = this.getIdAppUser();

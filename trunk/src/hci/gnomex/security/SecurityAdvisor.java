@@ -192,6 +192,14 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     return "N";
   }
 
+  public String getIsUserActive() {
+    if(appUser != null && appUser.getIsActive() != null) {
+      return appUser.getIsActive();
+    } else {
+      return "N";
+    }
+  }
+
   public String getIsUniversityOnlyUser() {
     if (this.isUniversityOnlyUser) {
       return "Y";
