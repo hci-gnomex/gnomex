@@ -537,6 +537,7 @@
 					if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' ) {
 						isComplete = this.sampleTypeRadioGroup.selectedValue;
 					}
+					parentDocument.confirmView.enabled = isComplete;
 				} else if (parentDocument.isIsolationState()) {
 					if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' &&
 						this.isolationTypeRadioGroup.selectedValue) {
@@ -652,7 +653,9 @@
 						if (!parentDocument.isEditState()) {
 							parentDocument.samplesView.enabled = true;
 						}
-						parentDocument.samplesView.checkSamplesCompleteness();
+						if(parentDocument.samplesView.visible == true){
+							parentDocument.samplesView.checkSamplesCompleteness();
+						}
 					}
 				}
 				parentDocument.enableNextButtons();
