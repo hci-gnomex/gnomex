@@ -294,6 +294,10 @@
 			}		
 			
 			override public function checkSamplesCompleteness():void {
+				//For some reason this code is still being called even when the samples view is not visible
+				if(this.visible == false){
+					return;
+				}
 				parentDocument.userWarningsSamples = "";
 				
 				var completeCount:int = 0;

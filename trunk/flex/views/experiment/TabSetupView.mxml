@@ -68,7 +68,7 @@
 			<mx:AddChild relativeTo="{label1}" position="before">
 				<mx:HBox width="100%" horizontalGap="0" id="hboxOrg" verticalAlign="top">
 					<util:ContextHelp context1="experimentOrganism" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Organism Help"
-								      label="Organism" labelPlacement="left" id="labelOrg" width="200"/>
+									  label="Organism" labelPlacement="left" id="labelOrg" width="200"/>
 					<mx:ComboBox labelField="@display" selectedIndex="-1"  id="sampleOrganismCombo" close="pickOrganism()" change="pickOrganism()">							
 						<mx:dataProvider>{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OrganismLite').DictionaryEntry.(@isActive != 'N' || @value == '')}</mx:dataProvider>
 						<mx:width>{sampleOrganismCombo.selectedItem != null &amp;&amp; sampleOrganismCombo.selectedItem.@display == 'Other' ? 75 : 250}</mx:width>
@@ -340,13 +340,13 @@
 					parentDocument.getSubmitterName();				
 				}		
 				this.workAuthInstructions.htmlText = parentApplication.getProperty(parentApplication.PROPERTY_WORKAUTH_INSTRUCTIONS);		
-
+				
 				refreshRequestCategories();
 				if (parentDocument != null) {
 					this.checkSetupCompleteness();
 				}
 				setOrganismValidatorSource();
-
+				
 				parentDocument.filteredLabList.refresh();
 			}
 			
@@ -447,7 +447,7 @@
 				if (item.@isApproved == 'N') {
 					return false;
 				}
-
+				
 				var cat:Object = getRequestCategory();
 				if (cat == null || cat.@idCoreFacility.toString() == '') {
 					return false;
@@ -668,7 +668,7 @@
 				} else {
 					var idCore1:Number = obj1.@idCoreFacility == "" ? 999 : obj1.@idCoreFacility
 					var idCore2:Number = obj2.@idCoreFacility == "" ? 999 : obj2.@idCoreFacility
-
+					
 					var sortOrder1:Number = obj1.@sortOrder == "" ? 999 : obj1.@sortOrder;
 					var sortOrder2:Number = obj2.@sortOrder == "" ? 999 : obj2.@sortOrder;
 					
@@ -738,12 +738,13 @@
 					// For internal experiments, make sure billing account selected.  Also description and name if property is set.
 					if (parentApplication.submitInternalExperiment()) {
 						setNameDescriptionLabels();
-						if (!parentApplication.requireExperimentDescriptionAndName(parentDocument.coreFacility.@idCoreFacility, this.getRequestCategory().@codeRequestCategory)
-							|| (this.experimentName.text != "" && this.overallDescript.text != "")) { 
-							if (this.billingAccountCombo.selectedItem != null) {
-								isComplete = true;
+						//Clinical Sequenome won't have the coreFacility set in experimentEdit view.
+							if (!parentApplication.requireExperimentDescriptionAndName(this.requestCategory.@idCoreFacility, this.getRequestCategory().@codeRequestCategory)
+								|| (this.experimentName.text != "" && this.overallDescript.text != "")) { 
+								if (this.billingAccountCombo.selectedItem != null) {
+									isComplete = true;
+								}
 							}
-						}
 					} else {
 						// For external experiments, check the app radio button group and optionally the microarray slide
 						if (parentDocument.filteredAppList.length == 0 || (this.getApp() != '' && getApp() != null)){
@@ -905,7 +906,7 @@
 				if (parentDocument == null) {
 					return;
 				}
-
+				
 				if(requestTypeGroup.numRadioButtons > 0){
 					noServicesText.includeInLayout = false;
 					noServicesText.visible = false;
@@ -939,7 +940,7 @@
 					}
 				} else {
 					setClinicalSequenomSamples();
-
+					
 					if (parentDocument.isSolexaState() && parentApplication.submitInternalExperiment()) {
 						if (parentDocument.theTab.contains(parentDocument.sampleSetupView)) {
 							parentDocument.sampleSetupView.enabled = true;
@@ -963,7 +964,7 @@
 				}
 				
 			}
-
+			
 			private function setClinicalSequenomSamples():void {
 				if (parentDocument.requestCategory.@type == parentApplication.TYPE_CLINICAL_SEQUENOM && parentDocument.ccNumberList != null) {
 					// add samples for cc numbers passed in by BST
@@ -997,7 +998,7 @@
 				newAuth.init(lab, parentDocument.coreFacility);
 				PopUpManager.centerPopUp(newAuth);
 			}
-
+			
 			public function getAppUserName():String {
 				var submitterName:String = "";
 				for each(var u:Object in appUsers) {
@@ -1031,7 +1032,7 @@
 				else if(currentState != null && currentState.indexOf("Microarray") > 0) {
 					updateFilteredSlideProduct();
 				}
-			
+				
 			}
 			
 			private function pickSlideProduct(slideProductCombo:ComboBox):void {
@@ -1062,7 +1063,7 @@
 					parentDocument.filteredSlideProductList.refresh();
 					updateFilteredSlideProduct();
 				}
-			
+				
 				checkSetupCompleteness();
 			}
 			
@@ -1088,7 +1089,7 @@
 				if (this.getDisplayOrganism() != 'Other') {
 					parentDocument.samplesView.propagateOtherOrganism("");
 				}			
-
+				
 				parentDocument.request.@idOrganismSampleDefault = getIdOrganism();
 				
 				parentDocument.samplesView.initializeSamplesGrid();
@@ -1221,7 +1222,7 @@
 				var topCurrentPosition:Number = vbox1.verticalScrollPosition;
 				var bottomCurrentPosition:Number = vbox1.verticalScrollPosition + vbox1.height;
 				var currentChild:DisplayObject = DisplayObject(evt.target);
-
+				
 				// Determine position of top of object we are looking at.
 				var objTopPosition:Number = 0;
 				for each (var obj:DisplayObject in vbox1.getChildren()) {
@@ -1341,8 +1342,8 @@
 		</mx:HBox>	
 		<mx:VBox id="accountBox" width="100%" verticalGap="0" paddingTop="0" paddingBottom="0"> 
 			<mx:HBox width="100%" horizontalGap="0"  verticalAlign="top" id="hbox5" paddingBottom="0" paddingTop="0">
-					<util:ContextHelp context1="experimentBillingAccount" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Billing Account Help"
-									  labelPlacement="left" id="text1" width="200" label="(3) Select a billing account."/>
+				<util:ContextHelp context1="experimentBillingAccount" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Billing Account Help"
+								  labelPlacement="left" id="text1" width="200" label="(3) Select a billing account."/>
 				<mx:HBox verticalAlign="middle" id="hbox3" horizontalGap="1" paddingBottom="0" paddingTop="0">
 					<mx:ComboBox labelField="@accountNameAndNumber" width="380" id="billingAccountCombo" prompt=" " change="checkSetupCompleteness(); setVisibility();" selectedIndex="-1" close="checkSetupCompleteness(); setVisibility();">
 						<mx:dataProvider>{billingAccounts}</mx:dataProvider>
@@ -1360,7 +1361,7 @@
 				</mx:HBox>
 				
 			</mx:HBox>
-
+			
 		</mx:VBox>
 		<mx:HBox width="100%" horizontalGap="0" verticalAlign="top" id="projectHBox" paddingTop="0" paddingBottom="0">
 			<util:ContextHelp context1="projectFolder" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Project Folder Help"
