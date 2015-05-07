@@ -2845,10 +2845,6 @@
 			if (isEditState()) {
 				if (requestEditLabCombo.selectedItem == null || requestEditLabCombo.selectedItem.@idLab == '') {
 					errorMessage += "Lab must be specified.\n\n";
-				} 
-				// Make sure the billing account is filled in on requests that already had an assigned billing account.
-				if (request.hasOwnProperty('@idBillingAccount') && request.@idBillingAccount != '' && (requestEditBillingAccountCombo.selectedItem == null || requestEditBillingAccountCombo.selectedItem.@idBillingAccount == '')) {
-					errorMessage += "Billing account must be specified.\n\n";
 				}
 				if (requestEditProjectCombo.selectedItem == null || requestEditProjectCombo.selectedItem.@idProject == '') {
 					errorMessage += "Project must be specified.\n\n";
@@ -3602,7 +3598,7 @@
 		}
 			
 		private function updateBillingAccount():void{
-			if (requestEditBillingAccountCombo.selectedItem != null && requestEditBillingAccountCombo.selectedItem.@idBillingAccount != '') {
+			if (requestEditBillingAccountCombo.selectedItem != null) {
 				var found:Boolean = false;
 				for each(var ba:XML in billingAccounts){
 					if(ba.@idBillingAccount == request.@idBillingAccount){
@@ -3612,9 +3608,9 @@
 				}
 				//if we can't find the billing account that means it is part of another lab.
 				//Check to see if this new lab can keep the other labs billing account
-				if(!found){
+				if(!found || requestEditBillingAccountCombo.selectedItem.@idBillingAccount == ''){
 					Alert.show("Would you like to keep the billing account " + request.billingItems.BillingLab.@accountName + " from the " + request.billingItems.BillingLab.@labName, "Notice", Alert.YES | Alert.NO, this, changeIdBillingAccount);
-				} else{
+				} else {
 					request.@idBillingAccount = requestEditBillingAccountCombo.selectedItem.@idBillingAccount;
 					billingAccountAlreadyUpdated = true;
 					saveRequest();
@@ -3721,13 +3717,18 @@
 			}
 		}
 			
-		private function changeIdBillingAccount(event:CloseEvent):void{
-			if(event.detail == Alert.NO){
+		private function changeIdBillingAccount(event:CloseEvent):void {
+			var proceed:Boolean = false;
+			if (event.detail == Alert.NO && requestEditBillingAccountCombo.selectedItem.@idBillingAccount != '') {
 				request.@idBillingAccount = requestEditBillingAccountCombo.selectedItem.@idBillingAccount;
+				proceed = true;
+			} else if (event.detail == Alert.YES) {
+				proceed = true;
 			}
-			
-			billingAccountAlreadyUpdated = true;
-			saveRequest();
+			if (proceed) {
+				billingAccountAlreadyUpdated = true;
+				saveRequest();
+			}
 		}
 	
 		public function getAnnotationView():TabAnnotationView {
@@ -4234,15 +4235,22 @@
 				var lab:Object = getLab.lastResult..Lab.(@idLab == requestEditLabCombo.selectedItem.@idLab);
 				
 				billingAccounts = new XMLListCollection(lab.billingAccounts.BillingAccount);
-				if (requestEditBillingAccountCombo.dropdown != null) {
-					//requestEditBillingAccountCombo.dropdown.dataProvider = billingAccounts;  // already has dynamic binding
-				}
+				filteredBillingAccounts = new XMLListCollection(billingAccounts.copy());
+				var emptyBillingAccount:XML = <BillingAccount idBillingAccount='' accountName='' />
+				filteredBillingAccounts.addItemAt(emptyBillingAccount, 0);
+				filteredBillingAccounts.filterFunction = filterBillingAccounts;
+				filteredBillingAccounts.refresh();
+				var found:Boolean = false;
 		        for each(var ba:Object in filteredBillingAccounts) {
 		        	if (ba.@idBillingAccount == request.@idBillingAccount) {
+						found = true;
 		        		requestEditBillingAccountCombo.selectedItem = ba;
 		        		break;
 		        	}
 		        }
+				if (!found) {
+					requestEditBillingAccountCombo.selectedItem = filteredBillingAccounts[0];
+				}
 		        
 		        requestEditProjectCombo.selectedItem = null;
 				projects = new XMLListCollection(getLab.lastResult..Lab.projects.Project);
@@ -5264,6 +5272,10 @@
 			}
 			
 			private function filterBillingAccounts(item:Object):Boolean {
+				if (item.@idBillingAccount == '' && item.@accountName == '') {
+					return true;
+				}
+				
 				if (request.@idBillingAccount == item.@idBillingAccount) {
 					return true;
 				}
@@ -5422,7 +5434,7 @@
 	<mx:XMLListCollection id="multiplexLanes" source="{getMultiplexLaneList.lastResult..MultiplexLane}"/>
  
   	<mx:XMLListCollection id="billingAccounts" />
-	<mx:XMLListCollection id="filteredBillingAccounts" source="{billingAccounts.source}" filterFunction="filterBillingAccounts" />
+	<mx:XMLListCollection id="filteredBillingAccounts" />
 
   	<mx:XMLListCollection id="projects" />
 
