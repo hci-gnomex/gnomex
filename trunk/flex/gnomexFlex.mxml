@@ -4337,6 +4337,14 @@
 			<menuitem label="New Billing Account" icon="iconBilling"   />
 		</menuitem>
 		
+		<menuitem label="Products..."  icon="iconCategory" >
+			<menuitem label="Order Products" icon="iconOrders" context="newProductOrder"  />
+			<menuitem label="Product Orders" icon="iconOrders"   />
+			<menuitem label="Product Ledger" icon="iconOrders"   />
+			<menuitem label="Configure iScan Chips" icon="iconConfig" /> 
+			<menuitem label="Configure Products" icon="iconConfig" />
+		</menuitem>
+		 
 		<menuitem label="Workflow..." icon="iconWorkflow"  >
 			<menuitem label="QC" icon="iconQC" codeStepNext="QC" context="QC"   />
 			<menuitem type="separator" context="HISEQ" label="hiseqSeparator"/>
@@ -4404,6 +4412,13 @@
 			<menuitem label="New Project" icon="iconFolderAdd"/>
 			<menuitem label="Upload Experiment data generated at third party facility" icon="iconAddExternalExperiment" context="newExternalExperiment"/>
 			<menuitem label="New Billing Account" icon="iconBilling"   />
+		</menuitem>
+		
+		
+		<menuitem label="Products..."  icon="iconCategory" >
+			<menuitem label="Order Products" icon="iconOrders" context="newProductOrder"  />
+			<menuitem label="Product Orders" icon="iconOrders"   />
+			<menuitem label="Product Ledger" icon="iconOrders"   />
 		</menuitem>
 		
 		
