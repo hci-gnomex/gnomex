@@ -364,6 +364,8 @@
 			
 		[Bindable]
 		private var isDirty:Boolean = false;
+			
+		private var warnToSelectNewBillingAccount:Boolean;
 
 		// Variables to hold parameters for showExperiment after experiment is submitted.
 		private var theRequestNumber:String;
@@ -3606,10 +3608,18 @@
 						break;
 					}
 				}
-				//if we can't find the billing account that means it is part of another lab.
-				//Check to see if this new lab can keep the other labs billing account
-				if(!found || requestEditBillingAccountCombo.selectedItem.@idBillingAccount == ''){
-					Alert.show("Would you like to keep the billing account " + request.billingItems.BillingLab.@accountName + " from the " + request.billingItems.BillingLab.@labName, "Notice", Alert.YES | Alert.NO, this, changeIdBillingAccount);
+		
+				if (found && requestEditBillingAccountCombo.selectedItem.@idBillingAccount == '') {
+					warnToSelectNewBillingAccount = true;
+					Alert.show("Would you like to keep the billing account " + request.billingItems.BillingLab.@accountName + "?", "Notice", Alert.YES | Alert.NO, this, changeIdBillingAccount);
+				} else if (!found && filteredBillingAccounts.length <= 1 && requestEditBillingAccountCombo.selectedItem.@idBillingAccount == '') {
+					warnToSelectNewBillingAccount = true;
+					Alert.show("The current lab has no billing accounts. Would you like to keep the billing account " + request.billingItems.BillingLab.@accountName + " from the " + request.billingItems.BillingLab.@labName + "?", "Notice", Alert.YES | Alert.NO, this, changeIdBillingAccount);
+				} else if (!found && requestEditBillingAccountCombo.selectedItem.@idBillingAccount != '') {
+					Alert.show("Would you like to keep the billing account " + request.billingItems.BillingLab.@accountName + " from the " + request.billingItems.BillingLab.@labName + "?", "Notice", Alert.YES | Alert.NO, this, changeIdBillingAccount);
+				} else if(!found && requestEditBillingAccountCombo.selectedItem.@idBillingAccount == '') {
+					warnToSelectNewBillingAccount = true;
+					Alert.show("Would you like to keep the billing account " + request.billingItems.BillingLab.@accountName + " from the " + request.billingItems.BillingLab.@labName + "?", "Notice", Alert.YES | Alert.NO, this, changeIdBillingAccount);
 				} else {
 					request.@idBillingAccount = requestEditBillingAccountCombo.selectedItem.@idBillingAccount;
 					billingAccountAlreadyUpdated = true;
@@ -3719,9 +3729,12 @@
 			
 		private function changeIdBillingAccount(event:CloseEvent):void {
 			var proceed:Boolean = false;
-			if (event.detail == Alert.NO && requestEditBillingAccountCombo.selectedItem.@idBillingAccount != '') {
+			if (event.detail == Alert.NO && !warnToSelectNewBillingAccount) {
 				request.@idBillingAccount = requestEditBillingAccountCombo.selectedItem.@idBillingAccount;
 				proceed = true;
+			} else if (event.detail == Alert.NO && warnToSelectNewBillingAccount) {
+				warnToSelectNewBillingAccount = false;
+				Alert.show("Please select a new billing account.", "Notice", Alert.OK, this);
 			} else if (event.detail == Alert.YES) {
 				proceed = true;
 			}
