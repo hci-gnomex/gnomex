@@ -1175,6 +1175,7 @@
 			}
 			
 			private function autoLinkFiles():void{
+				var filesLinked:int = 0;
 				
 				for each(var expFile:XML in experimentFileList.children()..FileDescriptor){
 					for each ( var sampleNode:XML in sampleList.source ){
@@ -1185,11 +1186,14 @@
 						if ( fileName.indexOf(sampleName) >= 0 ) {
 							onDragDropExpFile(null, sampleNode, [expFile]);
 							deleteNode(expFile);
+							filesLinked++;
 							break;
 						}
 					}
 				} 
-				
+				var sampleLinkageMesage:String = filesLinked + " files linked to samples.";
+				sampleLinkageMesage += filesLinked > 0 ? "\rReview the linkages and click \'Save\'." : "";
+				Alert.show(sampleLinkageMesage, "Autolink complete");
 				checkForUnlinkedFiles();
 			}
 			
