@@ -487,6 +487,10 @@ public class BillingPDFFormatter extends DetailObject {
 		if (lab.getContactName() != null && !lab.getContactName().equals("")) {
 			PDFFormatterUtil.addPhrase(elements, "ATTN: " + lab.getContactName(), FONT_HEADER);
 		}
+		String contactEmail = lab.getBillingNotificationEmail();
+	    if (contactEmail != null && !contactEmail.trim().equals("")) {
+	    	PDFFormatterUtil.addPhrase(elements, contactEmail, FONT_HEADER);
+	    }
 		if (lab.getContactAddress2() != null && !lab.getContactAddress2().equals("")) {
 			PDFFormatterUtil.addPhrase(elements, lab.getContactAddress2(), FONT_HEADER);
 		}
