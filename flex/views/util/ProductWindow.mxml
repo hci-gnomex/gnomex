@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
-				width="815" height="350" 
+				width="840" height="370" 
 				 creationComplete="{init()}"
 				 xmlns:util="views.util.*" 
 				 showCloseButton="true" close="{closeWindow()}"
@@ -39,11 +39,11 @@
 		import mx.managers.PopUpManager;
 		import mx.rpc.events.ResultEvent;
 		
+		import views.product.ProductTypeEditWindow;
 		import views.util.DirtyNote;
 		
 	private var idProduct:Object = null;
-	private	var tempArray:Array;
-		
+	private	var tempArray:Array;	
 	
 	private function setDirty():void {
 		if (saveButton.enabled) {
@@ -62,6 +62,8 @@
 		for each(var c:XML in parentApplication.productList) {
 			products.addItem(c.copy());
 		}
+		products.filterFunction = filterProducts;
+		products.refresh();
 		parentApplication.removeEventListener(ProductEvent.DATA_REFRESHED,
 			onProductRefreshed);		                                  
 		parentApplication.addEventListener(ProductEvent.DATA_REFRESHED,   
@@ -83,6 +85,8 @@
 		for each(var c:XML in parentApplication.productList) {
 			products.addItem(c.copy());
 		}
+		products.filterFunction = filterProducts;
+		products.refresh();
 		reselectProduct();
 		dirty.resetDirty();
 	}
@@ -243,10 +247,42 @@
 				save();
 		}
 		
+		private function showEditWindow():void {
+			var productTypeEditWindow:ProductTypeEditWindow = ProductTypeEditWindow(PopUpManager.createPopUp(this, ProductTypeEditWindow, true));
+			PopUpManager.centerPopUp(productTypeEditWindow);
+		}
+		
+		private function filterProducts(item:Object):Boolean {
+			if (item.@codeProductType != null && item.@codeProductType != '') {
+				for each (var productType:Object in filteredProductTypes) {
+					if (productType.@value == item.@codeProductType) {
+						return true;
+					}
+				}
+			}
+			
+			return false;
+		}
+		
+		private function filterProductTypes(item:Object):Boolean {
+			if (item.@value != null && item.@value != '') {
+				if (parentApplication.coreFacilitiesICanManage != null) {
+					for each (var coreFacility:Object in parentApplication.coreFacilitiesICanManage) {
+						if (coreFacility.@idCoreFacility == item.@idCoreFacility) {
+							return true;
+						}
+					}
+				}
+			}
+			
+			return false;
+		}
+		
 	]]>
 </mx:Script>
 	
 <mx:XMLListCollection id="products"/>
+<mx:XMLListCollection id="filteredProductTypes" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.ProductType').DictionaryEntry}" filterFunction="filterProductTypes" />
 	
 	<mx:StringValidator required="true" source="{productName}" property="text" maxLength="100" requiredFieldError="Product must have a name."/>
 	<mx:CurrencyFormatter id="dollarFormatter" currencySymbol="$" precision="2" decimalSeparatorTo="." thousandsSeparatorTo="," useThousandsSeparator="true"/> 
@@ -280,8 +316,10 @@
 			 </mx:HBox>		 
 			 <mx:HBox width="100%" verticalGap="0" verticalAlign="middle">
 				 <mx:Text text="Product Type"  width="100" styleName="formLabel"/>
-				 <mx:ComboBox dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ProductType').DictionaryEntry}" id="productTypeCombo"
-							  width="100%" labelField="@description"  change="setDirty()" />		
+				 <mx:ComboBox dataProvider="{filteredProductTypes}" id="productTypeCombo"
+							  width="100%" labelField="@description"  change="setDirty()" />
+				 <mx:LinkButton id="productTypeEditButton" label="Edit..." click="showEditWindow()" textDecoration="underline" color="#0000FF"  
+								visible="{parentApplication.isAdminState || parentApplication.isSuperAdmin}" includeInLayout="{parentApplication.isAdminState || parentApplication.isSuperAdmin}" />
 			 </mx:HBox>
 			 <mx:HBox width="100%" verticalGap="0" verticalAlign="middle">
 			  <mx:Text text="Catalog Number" width="100" styleName="formLabel"/>
