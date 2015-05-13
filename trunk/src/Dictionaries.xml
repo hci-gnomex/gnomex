@@ -144,7 +144,7 @@
   <Dictionary displayName="Price Category" className="hci.gnomex.model.PriceCategoryLite" editable="N" />
   <Dictionary displayName="Product Order Status" className="hci.gnomex.model.ProductOrderStatus" editable="Y" />
     
-  <Dictionary displayName="Product Type" className="hci.gnomex.model.ProductType" editable="Y" >
+  <Dictionary displayName="Product Type" className="hci.gnomex.model.ProductType" editable="N" >
     <Filter className="hci.gnomex.model.CoreFacility" filterField="idCoreFacility"/>
     <Filter className="hci.gnomex.model.Vendor" filterField="idVendor"/>
     <Filter className="hci.gnomex.model.PriceCategoryLite" filterField="idPriceCategory"/>
