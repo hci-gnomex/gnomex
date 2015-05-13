@@ -3932,7 +3932,7 @@
 					var configWindow:CoreFacilityWindow = CoreFacilityWindow(PopUpManager.createPopUp(this.theBody, CoreFacilityWindow, true));
 					PopUpManager.centerPopUp(configWindow);
 				} else {
-					Alert.show("This feature is not enabled.");
+					Alert.show("You must be an admin to access this feature.");
 				}
 				
 			}
@@ -3948,11 +3948,11 @@
 			}
 			
 			private function showProductWindow():void {
-				if (hasPermission(this.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
+				if (coreFacilitiesICanManage.length() >= 1) {
 					var configWindow:ProductWindow = ProductWindow(PopUpManager.createPopUp(this.theBody, ProductWindow, true));
 					PopUpManager.centerPopUp(configWindow);
 				} else {
-					Alert.show("This feature is not enabled.");
+					Alert.show("You must be an admin to access this feature.");
 				}
 				
 			}
