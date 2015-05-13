@@ -232,7 +232,8 @@
 		import views.renderers.ComboBoxBillingStatus;
 		import views.renderers.LabelPercentage;
 		import views.util.BillingPeriodSelectEvent;
-		import views.util.PickBillingPeriodView; 
+		import views.util.PickBillingPeriodView;
+		import views.util.GNomExStringUtil;
 
 		private const TIMEOUT_DELAY:uint = 100;
 		private const NUM_DISPLAYED_BILLING_ITEMS:uint = 25;
@@ -1998,10 +1999,10 @@
 							var newBillingAccount:XML = new XML(
 								"<BillingAccount " + 
 								" idBillingAccount='" + billingItem.@idBillingAccount + "'" +
-								" accountName='" + billingItem.@accountNameAndNumber + "'" +
-								" accountNumberDisplay='" + billingItem.@accountNumberDisplay + "'" +
+								" accountName='" + GNomExStringUtil.makeXMLSafe(billingItem.@accountNameAndNumber) + "'" +
+								" accountNumberDisplay='" + GNomExStringUtil.makeXMLSafe(billingItem.@accountNumberDisplay) + "'" +
 								" idLab='" + billingItem.@idLab + "'" +
-								" labName='" + billingItem.@labName + "'" +
+								" labName='" + GNomExStringUtil.makeXMLSafe(billingItem.@labName) + "'" +
 								" percentage='" + billingItem.@percentageDisplay + "'" +
 								" invoicePrice='" + r.@invoicePrice + "'" +
 								"/>"); 
