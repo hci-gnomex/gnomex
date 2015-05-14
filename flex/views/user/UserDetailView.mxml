@@ -72,26 +72,45 @@
       
 			  
             private function save():void {
-				for (var i:int = 0; i < parentDocument.managingCoreFacilities.length; i++) {
-					var facility:XML = XML(parentDocument.managingCoreFacilities.getItemAt(i));
-					if (chkCoreFacility[i].selected) {
-						facility.@selected = "Y";
-					} else {
-						facility.@selected = "N";
+				var validated:Boolean = false;
+				
+				if (isAdminPermissionLevel.selected || isBillingPermissionLevel.selected) {
+					var atLeastOneCoreManaged:Boolean = false;
+					for (var index:int = 0; i < parentDocument.managingCoreFacilities.length; i++) {
+						if (chkCoreFacility[i].selected) {
+							atLeastOneCoreManaged = true;
+							break;
+						}
 					}
+					validated = atLeastOneCoreManaged;
+				} else {
+					validated = true;
 				}
 				
-				for (var j:int = 0; j < parentDocument.coreFacilitiesICanSubmitTo.length; j++) {
-					var submitfacility:XML = XML(parentDocument.coreFacilitiesICanSubmitTo.getItemAt(j));
-					if (chkSubmitCoreFacility[j].selected) {
-						submitfacility.@selected = "Y";
-					} else {
-						submitfacility.@selected = "N";
+				if (validated) {
+					for (var i:int = 0; i < parentDocument.managingCoreFacilities.length; i++) {
+						var facility:XML = XML(parentDocument.managingCoreFacilities.getItemAt(i));
+						if (chkCoreFacility[i].selected) {
+							facility.@selected = "Y";
+						} else {
+							facility.@selected = "N";
+						}
 					}
+					
+					for (var j:int = 0; j < parentDocument.coreFacilitiesICanSubmitTo.length; j++) {
+						var submitfacility:XML = XML(parentDocument.coreFacilitiesICanSubmitTo.getItemAt(j));
+						if (chkSubmitCoreFacility[j].selected) {
+							submitfacility.@selected = "Y";
+						} else {
+							submitfacility.@selected = "N";
+						}
+					}
+					managingCoreFacilitiesString = parentDocument.managingCoreFacilities.toXMLString();
+					coreFacilitiesICanSubmitToString = parentDocument.coreFacilitiesICanSubmitTo.toXMLString();
+					saveAppUser.send();
+				} else {
+					Alert.show("The user is marked as an admin; please specify the core facility(ies) the user can manage.", "Notice", Alert.OK, this);
 				}
-				managingCoreFacilitiesString = parentDocument.managingCoreFacilities.toXMLString();
-				coreFacilitiesICanSubmitToString = parentDocument.coreFacilitiesICanSubmitTo.toXMLString();
-				saveAppUser.send();
             }
             
             private function onSaveAppUser(event:ResultEvent):void {
