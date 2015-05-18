@@ -401,7 +401,19 @@
 							</mx:VBox> 
 						</mx:Component>
 					</mx:headerRenderer>
-				</mx:AdvancedDataGridColumn>  
+				</mx:AdvancedDataGridColumn>
+				<mx:AdvancedDataGridColumn headerText="Conc. (ng/ul)" id="concentrationCol" visible="{parentApplication.isInternalExperimentSubmission}"  width="77" dataField="@concentration" rendererIsEditor="false"
+										   itemRenderer="{hci.flex.controls.Label.create('@concentration')}"                
+										   itemEditor="{views.renderers.GridColumnFillButton.create(new views.renderers.TextInputSampleConcentration(), '')}" editorDataField="value">
+					<mx:headerRenderer > 
+						<mx:Component>
+							<mx:VBox verticalGap="0" horizontalScrollPolicy="off"  verticalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle"> 
+								<util:ContextHelp context1="sampleConcentration" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="Concentration Help" 
+												  showEdit="{parentApplication.isAdminState}" label="Conc.   &#13;(ng/ul)" noIconSpaceIfNoHelp="true"/>
+							</mx:VBox> 
+						</mx:Component>
+					</mx:headerRenderer>
+				</mx:AdvancedDataGridColumn>
 				<util:AdvancedDataGridColumnWithType propertyType="OPTION" id="sampleTypeCol"  headerText="Sample Type" visible="true" width="180"   dataField="@idSampleType" 
 													 editorDataField="value" sortable="false" editable="true" rendererIsEditor="false" 
 													 itemRenderer="{views.renderers.DropdownLabel.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SampleType').DictionaryEntry, '@display', '@value', '@idSampleType', true, true)}"                 
@@ -415,18 +427,6 @@
 						</mx:Component>
 					</util:headerRenderer>
 				</util:AdvancedDataGridColumnWithType>	
-				<mx:AdvancedDataGridColumn headerText="Conc. (ng/ul)" id="concentrationCol" visible="{parentApplication.isInternalExperimentSubmission}"  width="77" dataField="@concentration" rendererIsEditor="false"
-										   itemRenderer="{hci.flex.controls.Label.create('@concentration')}"                
-										   itemEditor="{views.renderers.GridColumnFillButton.create(new views.renderers.TextInputSampleConcentration(), '')}" editorDataField="value">
-					<mx:headerRenderer > 
-						<mx:Component>
-							<mx:VBox verticalGap="0" horizontalScrollPolicy="off"  verticalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle"> 
-								<util:ContextHelp context1="sampleConcentration" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="Concentration Help" 
-												  showEdit="{parentApplication.isAdminState}" label="Conc.   &#13;(ng/ul)" noIconSpaceIfNoHelp="true"/>
-							</mx:VBox> 
-						</mx:Component>
-					</mx:headerRenderer>
-				</mx:AdvancedDataGridColumn>
 				<mx:AdvancedDataGridColumn id="otherSamplePrepMethodCol" headerText="Nucl. acid extraction meth." 
 										   width="140" dataField="@otherSamplePrepMethod" 
 										   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" editorDataField="value">
@@ -435,6 +435,25 @@
 							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off" verticalScrollPolicy="off" horizontalAlign="center" verticalAlign="middle"> 
 								<util:ContextHelp context1="sampleNuclAcidExtraction" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="Nucl. Acid Extraction Help" showEdit="{parentApplication.isAdminState}"
 												  label="Nucl. acid                     &#13;extraction meth." noIconSpaceIfNoHelp="true"/>
+							</mx:VBox> 
+						</mx:Component>
+					</mx:headerRenderer>
+				</mx:AdvancedDataGridColumn>
+				
+				
+				<mx:AdvancedDataGridColumn visible="{!isExternal &amp;&amp; isEditState}" 
+										   editable="{parentApplication.isAdminState}" 
+										   headerText="QC Conc. ng/uL" 
+										   width="80" 
+										   dataField="@qualCalcConcentration" 
+										   id="qualCalcConcCol" 
+										   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" 
+										   editorDataField="value">
+					<mx:headerRenderer > 
+						<mx:Component>
+							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off" verticalScrollPolicy="off" horizontalAlign="center" verticalAlign="middle"> 
+								<util:ContextHelp context1="sampleQCConc" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="QC Conc. Help" showEdit="{parentApplication.isAdminState}"
+												  label="QC Conc.&#13;(ng/uL)" noIconSpaceIfNoHelp="true"/>
 							</mx:VBox> 
 						</mx:Component>
 					</mx:headerRenderer>
@@ -453,24 +472,6 @@
 							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off" verticalScrollPolicy="off" horizontalAlign="center" verticalAlign="middle"> 
 								<util:ContextHelp context1="sampleQual260nmTo230nmRation" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="QC 260/230 Help" showEdit="{parentApplication.isAdminState}"
 												  label="QC 260/230" noIconSpaceIfNoHelp="true"/>
-							</mx:VBox> 
-						</mx:Component>
-					</mx:headerRenderer>
-				</mx:AdvancedDataGridColumn>
-				
-				<mx:AdvancedDataGridColumn visible="{!isExternal &amp;&amp; isEditState}" 
-										   editable="{parentApplication.isAdminState}" 
-										   headerText="QC Conc. ng/uL" 
-										   width="80" 
-										   dataField="@qualCalcConcentration" 
-										   id="qualCalcConcCol" 
-										   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" 
-										   editorDataField="value">
-					<mx:headerRenderer > 
-						<mx:Component>
-							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off" verticalScrollPolicy="off" horizontalAlign="center" verticalAlign="middle"> 
-								<util:ContextHelp context1="sampleQCConc" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="QC Conc. Help" showEdit="{parentApplication.isAdminState}"
-												  label="QC Conc.&#13;(ng/uL)" noIconSpaceIfNoHelp="true"/>
 							</mx:VBox> 
 						</mx:Component>
 					</mx:headerRenderer>
