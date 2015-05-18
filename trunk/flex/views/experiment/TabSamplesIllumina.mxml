@@ -1085,7 +1085,7 @@
 						   click="uploadSampleSheet();" icon="@Embed(source='../../assets/upload.png')" 
 						   id="uploadSampleSheetButton" toolTip="Upload sample sheet&#13;(tab delimited txt file)" />
 			<mx:LinkButton textDecoration="underline"  horizontalGap="0"  paddingRight="0"
-						   id="downloadButton" label="Download sheet" 
+						   id="downloadButton" label="Download sample sheet" 
 						   click="{downloadSampleSheet()}"   icon="@Embed(source='../../assets/download.png')"/>
 			<mx:LinkButton textDecoration="underline" horizontalGap="0" id="uploadHintLink"  paddingRight="0"
 						   icon="@Embed(source='../../assets/information.png')" 

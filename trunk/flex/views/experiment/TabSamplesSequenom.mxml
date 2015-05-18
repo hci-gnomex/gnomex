@@ -674,21 +674,6 @@
 						</mx:Component>
 					</mx:headerRenderer>
 				</mx:AdvancedDataGridColumn>
-				<mx:AdvancedDataGridColumn id="qc_260_280Column"
-										   editable="{parentApplication.hasPermission('canWriteAnyObject')}" 
-										   headerText="QC 260/280" width="90" 
-										   dataField="@qual260nmTo280nmRatio" 
-										   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" 
-										   editorDataField="value">
-					<mx:headerRenderer > 
-						<mx:Component>
-							<mx:VBox verticalGap="0" horizontalScrollPolicy="off"  verticalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle"> 
-								<util:ContextHelp context1="sampleQc260280" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="QC 260/280 Help" 
-												  showEdit="{parentApplication.isAdminState}" label="QC 260/280" noIconSpaceIfNoHelp="true"/>
-							</mx:VBox> 
-						</mx:Component>
-					</mx:headerRenderer>
-				</mx:AdvancedDataGridColumn>
 				<mx:AdvancedDataGridColumn id="ccNumber" headerText="CC Number" dataField="@ccNumber" editable="true" 
 										   visible="{showCCNumberCheckbox.visible &amp;&amp; showCCNumberCheckbox.selected &amp;&amp; !parentDocument.isSequencingState() ? true : false}"
 										   width="76"
@@ -717,6 +702,22 @@
 						</mx:Component>
 					</util:headerRenderer>
 				</util:AdvancedDataGridColumnWithType>
+				
+				<mx:AdvancedDataGridColumn id="qc_260_280Column"
+										   editable="{parentApplication.hasPermission('canWriteAnyObject')}" 
+										   headerText="QC 260/280" width="90" 
+										   dataField="@qual260nmTo280nmRatio" 
+										   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" 
+										   editorDataField="value">
+					<mx:headerRenderer > 
+						<mx:Component>
+							<mx:VBox verticalGap="0" horizontalScrollPolicy="off"  verticalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle"> 
+								<util:ContextHelp context1="sampleQc260280" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="QC 260/280 Help" 
+												  showEdit="{parentApplication.isAdminState}" label="QC 260/280" noIconSpaceIfNoHelp="true"/>
+							</mx:VBox> 
+						</mx:Component>
+					</mx:headerRenderer>
+				</mx:AdvancedDataGridColumn>
 				
 				
 				
