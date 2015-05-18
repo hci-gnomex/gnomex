@@ -58,7 +58,7 @@
 	<mx:HRule width="100%"/>
 	<mx:HBox horizontalGap="0" verticalAlign="middle" paddingTop="0" paddingBottom="0">
 		<mx:Text text="Submit an" fontSize="10" />
-		<mx:LinkButton id="requestLink" label="experiment request" enabled="{parentApplication.isUserActive}" 
+		<mx:LinkButton id="requestLink" label="experiment order" enabled="{parentApplication.isUserActive}" 
 					   click="{parentApplication.homeView.submitRequest(coreFacility.@idCoreFacility);event.stopImmediatePropagation()}" 
 					   textDecoration="underline" color="#0000ff" paddingLeft="0" paddingRight="0" fontSize="10"/>
 		<mx:Text text="or" fontSize="10"/>
