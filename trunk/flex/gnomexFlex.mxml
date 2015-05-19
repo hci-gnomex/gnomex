@@ -1816,7 +1816,8 @@
 			
 			
 			public function showUserPublicView():void {
-				if (isGuest) {
+				if (isGuest || isUniversityOnlyUser) {
+					Alert.show("You currently only have guest privileges.  You can request an official GNomEx account from the login page.");
 					return;
 				}
 				userPublicView = UserPublicView(PopUpManager.createPopUp(this,  UserPublicView, false));
