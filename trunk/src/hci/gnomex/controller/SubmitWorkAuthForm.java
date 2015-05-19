@@ -269,20 +269,8 @@ public class SubmitWorkAuthForm extends GNomExCommand implements Serializable {
         body.append("\n\n** NOTE:  GNomEx was unable to send email to submitter " + submitterEmail + " **");
       }
 
-      // Email core facility, PI, and billing admin for lab with approve links
-      String contactEmail = "";
-      if (lab.getWorkAuthSubmitEmail() != null && !lab.getWorkAuthSubmitEmail().equals("")) {
-        contactEmail = lab.getWorkAuthSubmitEmail();
-        if(!MailUtil.isValidEmail(contactEmail)){
-          log.error("Invalid email " + contactEmail);
-        }
-      }
-
-      if(!contactEmail.equals("")) {
-        contactEmail += ", " + facilityEmail;
-      } else {
-        contactEmail = facilityEmail;
-      }
+      // Email core facility for lab with approve links
+      String contactEmail = facilityEmail;
 
       if (!contactEmail.equals("")) {
         if(!MailUtil.isValidEmail(contactEmail)){
