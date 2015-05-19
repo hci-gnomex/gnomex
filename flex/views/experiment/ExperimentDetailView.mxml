@@ -437,6 +437,7 @@
 				var showSampleBarcode:Boolean = false;
 				var showSampleBarcodeB:Boolean = false;
 				var showSampleCustomBarcode:Boolean = false;
+				var showSampleCustomBarcodeB:Boolean = false;
 				var showPlates:Boolean = false;
 				for each (var s:Object in samples) {
 					if (s.@multiplexGroupNumber != '' && !isNanoStringState()) {
@@ -447,11 +448,15 @@
 					}
 					if (s.@idOligoBarcode != '' ) {
 						showSampleBarcode = true;
-					}else if (s.@barcodeSequence != '' ) {
+					}
+					if (s.@barcodeSequence != '') {
 						showSampleCustomBarcode = true;
 					}
 					if(s.@idOligoBarcodeB != ''){
 						showSampleBarcodeB = true;
+					}
+					if(s.@barcodeSequenceB != ''){
+						showSampleCustomBarcodeB = true;
 					}
 				}
 				
@@ -507,7 +512,7 @@
 				
 				this.barcodeCol.visible = showSampleBarcode;
 				this.customBarcodeCol.visible = showSampleCustomBarcode;
-				this.customBarcodeColB.visible = showSampleCustomBarcode;
+				this.customBarcodeColB.visible = showSampleCustomBarcodeB;
 				this.barcodeColB.visible = showSampleBarcodeB;
 				
 				if (currentState == "SolexaState") {
@@ -1817,6 +1822,49 @@
 					<util:AdvancedDataGridColumnWithType propertyType="OPTION"  visible="{currentState == 'SolexaState'}" headerText="Seq Lib Protocol"  width="120" dataField="@idSeqLibProtocol"
 														 itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqLibProtocol').DictionaryEntry, '@display', '@value', '@idSeqLibProtocol')}"/>
 					
+					<util:AdvancedDataGridColumnWithType propertyType="OPTION" id="barcodeCol" headerText="Index Tag A"  width="75" visible="{true}" dataField="@idOligoBarcode"
+														 itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.OligoBarcode').DictionaryEntry, '@display', '@value', '@idOligoBarcode')}">
+						<util:headerRenderer>
+							<mx:Component>
+								<mx:VBox verticalGap="0" horizontalScrollPolicy="off">
+									<mx:Label text="Index"/>
+									<mx:Label text="Tag A"/>
+								</mx:VBox>
+							</mx:Component>
+						</util:headerRenderer>
+					</util:AdvancedDataGridColumnWithType>
+					<util:AdvancedDataGridColumnWithType propertyType="OPTION" id="barcodeColB" headerText="Index Tag B"  width="75" visible="{true}" dataField="@idOligoBarcodeB"
+														 itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.OligoBarcode').DictionaryEntry, '@display', '@value', '@idOligoBarcodeB')}">
+						<util:headerRenderer>
+							<mx:Component>
+								<mx:VBox verticalGap="0" horizontalScrollPolicy="off">
+									<mx:Label text="Index"/>
+									<mx:Label text="Tag B"/>
+								</mx:VBox>
+							</mx:Component>
+						</util:headerRenderer>
+					</util:AdvancedDataGridColumnWithType>
+					<mx:AdvancedDataGridColumn id="customBarcodeCol" headerText="Index Tag" width="65" visible="true"  dataField="@barcodeSequence">
+						<mx:headerRenderer>
+							<mx:Component>
+								<mx:VBox verticalGap="0" horizontalScrollPolicy="off">
+									<mx:Label text="Custom"/>
+									<mx:Label text="Index Tag"/>
+								</mx:VBox>
+							</mx:Component>
+						</mx:headerRenderer> 
+					</mx:AdvancedDataGridColumn>
+					<mx:AdvancedDataGridColumn id="customBarcodeColB" headerText="Index Tag B" width="65" visible="true"  dataField="@barcodeSequenceB">
+						<mx:headerRenderer>
+							<mx:Component>
+								<mx:VBox verticalGap="0" horizontalScrollPolicy="off">
+									<mx:Label text="Custom"/>
+									<mx:Label text="Index Tag B"/>
+								</mx:VBox>
+							</mx:Component>
+						</mx:headerRenderer> 
+					</mx:AdvancedDataGridColumn>
+					
 					<mx:AdvancedDataGridColumn id="otherSamplePrepMethodCol" headerText="Nucl. acid extraction meth." width="105" dataField="@otherSamplePrepMethod"/>
 					
 					<util:AdvancedDataGridColumnWithType propertyType="OPTION" id="chipTypeCol" visible="{true}" headerText="Assay"  width="120" dataField="@codeBioanalyzerChipType"
@@ -1852,49 +1900,6 @@
 								
 							</mx:Component>
 						</mx:itemRenderer>
-					</mx:AdvancedDataGridColumn>
-					
-					<util:AdvancedDataGridColumnWithType propertyType="OPTION" id="barcodeCol" headerText="Index Tag A"  width="75" visible="{true}" dataField="@idOligoBarcode"
-											   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.OligoBarcode').DictionaryEntry, '@display', '@value', '@idOligoBarcode')}">
-						<util:headerRenderer>
-							<mx:Component>
-								<mx:VBox verticalGap="0" horizontalScrollPolicy="off">
-									<mx:Label text="Index"/>
-									<mx:Label text="Tag A"/>
-								</mx:VBox>
-							</mx:Component>
-						</util:headerRenderer>
-					</util:AdvancedDataGridColumnWithType>
-					<util:AdvancedDataGridColumnWithType propertyType="OPTION" id="barcodeColB" headerText="Index Tag B"  width="75" visible="{true}" dataField="@idOligoBarcodeB"
-											   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.OligoBarcode').DictionaryEntry, '@display', '@value', '@idOligoBarcodeB')}">
-						<util:headerRenderer>
-							<mx:Component>
-								<mx:VBox verticalGap="0" horizontalScrollPolicy="off">
-									<mx:Label text="Index"/>
-									<mx:Label text="Tag B"/>
-								</mx:VBox>
-							</mx:Component>
-						</util:headerRenderer>
-					</util:AdvancedDataGridColumnWithType>
-					<mx:AdvancedDataGridColumn id="customBarcodeCol" headerText="Index Tag" width="65" visible="true"  dataField="@barcodeSequence">
-						<mx:headerRenderer>
-							<mx:Component>
-								<mx:VBox verticalGap="0" horizontalScrollPolicy="off">
-									<mx:Label text="Custom"/>
-									<mx:Label text="Index Tag"/>
-								</mx:VBox>
-							</mx:Component>
-						</mx:headerRenderer> 
-					</mx:AdvancedDataGridColumn>
-					<mx:AdvancedDataGridColumn id="customBarcodeColB" headerText="Index Tag B" width="65" visible="true"  dataField="@barcodeSequenceB">
-						<mx:headerRenderer>
-							<mx:Component>
-								<mx:VBox verticalGap="0" horizontalScrollPolicy="off">
-									<mx:Label text="Custom"/>
-									<mx:Label text="Index Tag B"/>
-								</mx:VBox>
-							</mx:Component>
-						</mx:headerRenderer> 
 					</mx:AdvancedDataGridColumn>
 					<mx:AdvancedDataGridColumn id="otherOrganismCol" headerText="Organism (other)" width="105" dataField="@otherOrganism" visible="false"/>
 					<mx:AdvancedDataGridColumn id="preppedByLabCol" headerText="Core to prep lib?"   visible="{true}" width="104"  dataField="@seqPrepByCore"/>
