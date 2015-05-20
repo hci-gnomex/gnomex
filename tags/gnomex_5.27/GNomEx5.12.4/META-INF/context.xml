@@ -1,0 +1,36 @@
+<Context path="/gnomex" docBase="webapps/gnomex" debug="0" reloadable="true" allowLinking="true">
+
+
+  <Valve
+	    className="org.apache.catalina.valves.FastCommonAccessLogValve"
+	    directory="${catalina.home}/logs/"
+	    prefix="gnomex-"
+	    suffix=".log"
+	    pattern="combined" />
+
+	    
+  <Resource auth="Container" 
+    mail.smtp.host="hci-mail.hci.utah.edu" 
+    name="mail/MailSession" 
+    type="javax.mail.Session"/>
+
+    
+  <!-- GNomEx Realm for authenticating user  -->
+   <Realm className="hci.gnomex.security.tomcat.GNomExLDAPRealm"
+         ldap_provider_url="ldap://servername.somewhere.edu:port_number/dc=blahblah,dc=blahblah"
+         ldap_protocol="ssl"
+         ldap_auth_meth="simple"
+         ldap_init_context_factory="com.sun.jndi.ldap.LdapCtxFactory"
+         alt_ldap_provider_url="ldap://servername.somewhere.edu:port_number/ou=Domain%20Users,dc=blahblah,dc=blahblah,dc=blahblah"
+         alt_ldap_auth_meth="simple"
+         alt_ldap_init_context_factory="com.sun.jndi.ldap.LdapCtxFactory"
+         alt_ldap_base_dn="ou=Domain Users,dc=blahblah,dc=blahblah,dc=blahblah"
+         alt_ldap_user_name="ldap_user_name_goes_here"
+         alt_ldap_password="ldap_password_goes_here"
+    /> 
+
+
+
+    
+</Context>
+

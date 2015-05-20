@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
+				layout="vertical" width="950" height="219"  
+				xmlns:views="views.*" 
+				initialize="init()"
+				showCloseButton="true" 
+				close="{PopUpManager.removePopUp(this)}" 
+				title="Contact Us" 
+				backgroundColor="#ffffff"  alpha="1.0" >
+	
+	<mx:VBox width="100%" height="100%" backgroundSize="100%" borderStyle="none" fontSize="10"
+			 paddingBottom="2" paddingLeft="2" paddingRight="2" paddingTop="2" styleName="form"
+			 verticalAlign="middle" verticalGap="8">
+		<mx:VBox id="contactBox" width="100%" verticalGap="12" fontSize="12" paddingLeft="0">		
+			<mx:HBox id="bugContact" horizontalGap="0" width="100%" verticalAlign="middle">
+				<mx:Image source="{parentApplication.iconBullet}"/>
+				<mx:Text width="320" paddingRight="12"
+						 text="To report software bugs and/or provide feedback:"/>
+				<mx:LinkButton label="{parentApplication.getProperty(parentApplication.PROPERTY_CONTACT_EMAIL_SOFTWARE_BUGS)}" click="navigateToURL(new URLRequest('mailto:' + parentApplication.getProperty(parentApplication.PROPERTY_CONTACT_EMAIL_SOFTWARE_BUGS)), '_blank');" textDecoration="underline" color="#0000ff" paddingTop="1"/>
+			</mx:HBox>
+			<mx:HBox id="bionformaticsContact" horizontalGap="0" width="100%" verticalAlign="middle" >
+					<mx:Image source="{parentApplication.iconBullet}"/>
+				<mx:Text width="320" paddingRight="12" text="For bionformatics questions:"/>
+				<mx:LinkButton label="{parentApplication.getProperty(parentApplication.PROPERTY_CONTACT_EMAIL_BIOINFORMATICS)}" click="navigateToURL(new URLRequest('mailto:' + parentApplication.getProperty(parentApplication.PROPERTY_CONTACT_EMAIL_BIOINFORMATICS)), '_blank');" textDecoration="underline" color="#0000ff" paddingTop="1"/>
+			</mx:HBox>
+			<mx:Repeater id="coreRepeater" dataProvider="{parentApplication.coreFacilityList}"> 
+				<mx:HBox horizontalGap="0" width="100%" verticalAlign="middle">
+					<mx:Image source="{parentApplication.iconBullet}"/>
+					<mx:Text width="320" paddingLeft="2"
+							 text="{coreRepeater.currentItem.@coreName + ' Core:'}"/>
+					<mx:Text htmlText="{'&lt;b&gt;' + coreRepeater.currentItem.@contactName + '&lt;/b&gt;'}" />
+					<mx:Text paddingLeft="4" htmlText="{'&lt;i&gt; Phone: &lt;/i&gt;'}" />
+					<mx:Text htmlText="{'&lt;/i&gt;' + coreRepeater.currentItem.@contactNumber}" />
+					<mx:Text paddingLeft="4" paddingRight="0" htmlText="{'&lt;i&gt; Email: &lt;/i&gt;'}" />
+					<mx:LinkButton id="emailLink" label="{coreRepeater.currentItem.@contactEmail}" click="emailLinkClick(event)" textDecoration="underline" color="#0000ff" paddingTop="1"/>
+				</mx:HBox>
+			</mx:Repeater>
+		</mx:VBox>
+	</mx:VBox>
+	
+	<mx:Script>
+		<![CDATA[			
+			import mx.managers.PopUpManager;
+			import mx.events.FlexMouseEvent;
+			
+			private function emailLinkClick(e:Event):void {
+				navigateToURL(new URLRequest('mailto:' + e.target.label));
+			}
+						
+			public function init():void {
+				addEventListener(FlexMouseEvent.MOUSE_DOWN_OUTSIDE, mouseDownOutsideHandler);
+			}
+			
+			protected function mouseDownOutsideHandler(event:Object):void {
+				PopUpManager.removePopUp(this);
+			}
+			
+		]]>
+	</mx:Script>
+</mx:TitleWindow>

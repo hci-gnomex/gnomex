@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical"
+				width="266"  showCloseButton="true" close="save()" creationComplete="centerMe()"
+				paddingLeft="2" paddingRight="2" paddingTop="2" paddingBottom="2" height="294" verticalGap="0" titleIcon="@Embed(source='../../assets/group.png')" headerHeight="19">
+	
+	
+	
+	<mx:Script>
+		
+		<![CDATA[
+			
+			import mx.collections.XMLListCollection;
+			import mx.events.ListEvent;
+			import mx.managers.FocusManager;
+			import mx.managers.PopUpManager;
+			
+			import views.renderers.CheckBoxRenderer;
+			
+			
+			[Bindable]
+			public var users:XMLListCollection;
+			
+			private var collaborators:XMLListCollection;
+			
+			public var opener:Object;
+			
+			public function init(title:String, collaborators:XMLListCollection, possibleCollaborators:XMLListCollection):void {
+				this.title = title;
+				this.collaborators = collaborators;
+				
+				
+				users = new XMLListCollection();
+				var user:XML = null;
+				for each(var u:XML in possibleCollaborators) {
+					var theUser:XML = u.copy();
+					var isSelected:Boolean = false;
+					if (this.collaborators != null) {
+						for each(var collaborator:XML  in this.collaborators) {
+							if (theUser.@idAppUser == collaborator.@idAppUser) {
+								isSelected = true;
+								break;
+							}
+						}
+					}
+					theUser.@isSelected = isSelected ? "Y" : "N";
+					users.addItem(theUser);
+				}
+			}
+			
+			
+			private function save():void{
+				// Get rid of de-selected users
+				if (this.collaborators != null) {
+					collaborators.removeAll();
+				}
+				
+		
+				// Add selected users
+				for each(var theUser:XML in users) {
+					if (theUser.@isSelected == 'Y') {
+						collaborators.addItem(theUser.copy());
+					}
+				}
+				cancel();
+			}
+			
+			private function cancel():void{
+				PopUpManager.removePopUp(this);
+			}
+			
+
+			
+			private function centerMe():void{
+				PopUpManager.centerPopUp(this);
+				checkboxGrid.setFocus();
+			}
+			
+			private function toggleCheck(event:ListEvent):void {
+				if (event.columnIndex == 0) {
+					return;
+				}
+				
+				if (checkboxGrid.selectedItem.@isSelected == "Y") {
+					checkboxGrid.selectedItem.@isSelected = "N";
+				} else {
+					checkboxGrid.selectedItem.@isSelected = "Y";
+				}
+			}
+			
+			private function selectAll():void {
+				for each(var u:Object in users) {
+					u.@isSelected = 'Y';
+				}
+				selectAllStack.selectedIndex = 1;
+			}
+			private function unselectAll():void {
+				for each(var u:Object in users) {
+					u.@isSelected = 'N';
+				}
+				selectAllStack.selectedIndex = 0;
+			}
+			
+		]]>
+		
+	</mx:Script>
+	
+	
+	<mx:ViewStack id="selectAllStack" width="80" paddingBottom="0" paddingTop="0">
+		<mx:HBox width="100%"  paddingBottom="0" paddingTop="0" paddingLeft="0" paddingRight="0" verticalAlign="middle">
+			<mx:LinkButton label="Select all" styleName="formLinkButton" paddingLeft="0" click="selectAll()"  paddingTop="0" paddingRight="0" paddingBottom="0"/>
+		</mx:HBox>
+		<mx:HBox width="100%" paddingBottom="0" paddingTop="0">
+			<mx:LinkButton label="Unselect all" styleName="formLinkButton" paddingLeft="0" click="unselectAll()"  paddingTop="0" paddingBottom="0"/>
+		</mx:HBox>			    	
+	</mx:ViewStack>
+	
+	<mx:DataGrid id="checkboxGrid" dataProvider="{users}" 
+				 width="100%"  showHeaders="false"
+				 itemClick="toggleCheck(event)" height="100%">
+		<mx:columns>
+			<mx:DataGridColumn headerText=" "  
+							   width="25" 
+							   editable="true"                        	
+							   dataField="@isSelected" 
+							   editorDataField="selected"
+							   itemRenderer="views.renderers.CheckBoxRenderer">			 
+			</mx:DataGridColumn>
+			<mx:DataGridColumn headerText="Collaborators"  dataField="@name" >
+			</mx:DataGridColumn>
+		</mx:columns>
+	</mx:DataGrid>
+	
+	
+</mx:TitleWindow>

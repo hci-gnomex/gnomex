@@ -1,0 +1,1077 @@
+<?xml version="1.0" encoding="utf-8"?> 
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
+				layout="vertical" width="1100" height="548"  creationPolicy="all"
+				xmlns:util="views.util.*"  creationComplete="init()"
+				showCloseButton="true" close="{closeWindow()}"
+				title="Configure Experiment Platform" titleIcon="@Embed(source='../../assets/page_white_wrench.png')">
+	<mx:HTTPService   
+		id="getExperimentPlatformList" 
+		url="GetExperimentPlatformList.gx"
+		resultFormat="e4x"
+		showBusyCursor="true"
+		result="onGetExperimentPlatformList(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to get experiment platform list', event)"
+		method="POST" 
+		useProxy="false">
+	</mx:HTTPService>
+	
+	<mx:HTTPService  
+		id="deleteExperimentPlatform" 
+		url="DeleteExperimentPlatform.gx"
+		resultFormat="e4x"
+		showBusyCursor="false"
+		result="onDeleteExperimentPlatform(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to delete experiment platform', event)"
+		method="POST" 
+		useProxy="false">
+	</mx:HTTPService>	
+	
+	<mx:HTTPService  
+		id="saveExperimentPlatform" 
+		url="SaveExperimentPlatform.gx"
+		resultFormat="e4x"
+		showBusyCursor="true"
+		result="onSaveExperimentPlatform(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to save experiment platform', event)"
+		method="POST" 
+		useProxy="false">
+	</mx:HTTPService>
+	
+	<mx:Script>
+		<![CDATA[
+			import hci.flex.controls.DropdownLabel;
+			import hci.flex.dictionary.DictionaryEvent;
+			import hci.flex.util.DictionaryManager;
+			
+			import mx.collections.Grouping;
+			import mx.collections.GroupingCollection;
+			import mx.collections.GroupingField;
+			import mx.collections.ICollectionView;
+			import mx.controls.Alert;
+			import mx.controls.dataGridClasses.DataGridListData;
+			import mx.controls.listClasses.BaseListData;
+			import mx.events.CloseEvent;
+			import mx.events.CollectionEvent;
+			import mx.events.CollectionEventKind;
+			import mx.events.DataGridEvent;
+			import mx.events.PropertyChangeEvent;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.ResultEvent;
+			
+			
+			[Bindable]
+			public var requestCategory:Object = null;
+			
+			public var codeRequestCategorySelected:Object = null;
+			
+			[Bindable]
+			public var dictionaryManager:DictionaryManager;
+
+			private var nextNewAppNum:int = 0;
+			
+			private function init():void {
+				getExperimentPlatformList.send();
+				
+				dictionaryManager = new DictionaryManager("ManageDictionaries.gx");
+				dictionaryManager.addEventListener(DictionaryEvent.DICTIONARY_LOADED, onDictionariesLoaded);
+				dictionaryManager.call("load", "");
+				
+				this.sequencingOptions.removeEventListener(CollectionEvent.COLLECTION_CHANGE, this.underlyingSeqOptionChange);
+				this.sequencingOptions.addEventListener(CollectionEvent.COLLECTION_CHANGE, this.underlyingSeqOptionChange);
+							
+			}
+			
+			public function onDictionariesLoaded(event:Event):void {	
+				
+			}		
+			
+			
+			private function closeWindow():void {
+				PopUpManager.removePopUp(this);
+				callLater(parentApplication.dictionaryManager.reload);
+			}
+			
+			private function onGetExperimentPlatformList(event:ResultEvent): void {
+				if (getExperimentPlatformList.lastResult.name() == "ExperimentPlatformList") {
+					this.nextNewAppNum = 0;
+					platforms.filterFunction = isPlatformVisible;
+					platforms.refresh();
+					callLater(reselectExperimentPlatform);
+				} else {
+					mx.controls.Alert.show(getExperimentPlatformList.lastResult..ACTMESSAGE.@TEXT);
+				}
+			}	
+			
+			private function reselectExperimentPlatform():void {
+				if (codeRequestCategorySelected != null) {
+					var found:Boolean = false;
+					for each(var ep:Object in getExperimentPlatformList.lastResult.RequestCategory) {
+						if (ep.@codeRequestCategory == codeRequestCategorySelected) {
+							this.platformList.selectedItem = ep;
+							this.platformList.scrollToIndex(this.platformList.selectedIndex);
+							this.onSelectPlatform();
+							found = true;
+							break;
+						}
+					}
+					if (!found) {
+						this.platformList.selectedItem = null;
+						onSelectPlatform();
+					}
+				} else {
+					this.platformList.selectedItem = null;
+					onSelectPlatform();
+				}
+			}
+			
+			private function save():void {
+				if(coreFacilities.length >= 2 && coreFacilityCombo.selectedLabel == ""){
+					Alert.show("You must select a core facility");
+					return;
+				}
+				
+				// refresh applications -- necessary as appTree update requestCategory.applications.
+				applications = new XMLListCollection(requestCategory.applications..Application);
+
+				var params:Object = new Object();
+				
+				params.codeRequestCategory = this.requestCategory.@codeRequestCategory;
+				params.requestCategory = this.platformName.text;
+				params.notes = this.notes.text;
+				params.type = this.typeCombo.selectedItem != null ? this.typeCombo.selectedItem.@value : '';
+				params.idCoreFacility = coreFacilities.getItemAt(coreFacilityCombo.selectedIndex).@idCoreFacility;
+				params.sortOrder = this.sortOrder.text;
+				params.isActive = this.isActiveCheckbox.selected ? 'Y' : 'N';
+				params.idVendor = this.vendorCombo.selectedItem != null ? this.vendorCombo.selectedItem.@value : '';
+				params.isInternal = this.isInternalCheckbox.selected ? 'Y' : 'N';
+				params.isExternal = this.isExternalCheckbox.selected ? 'Y' : 'N';
+				params.isClinicalResearch = this.isCRCheckbox.selected ? 'Y' : 'N';
+				
+				//params.icon = this.theIcon.text;
+				if(iconCombo.selectedIndex > 0) {
+					params.icon = iconCombo.selectedItem.@icon;
+				} else {
+					params.icon = "";
+				}
+				
+				params.idOrganism = this.organismCombo.selectedItem != null ? this.organismCombo.selectedItem.@value : '';
+				params.numberOfChannels = this.numberOfChannelsStepper.value;
+				params.isSampleBarcodingOptional = this.barcodingRadioGroup.selectedValue;
+				
+				params.sampleTypesXMLString = "<sampleTypes>" + this.sampleTypes.toXMLString() + "</sampleTypes>";
+				params.applicationsXMLString = "<applications>" + this.applications.toXMLString() + "</applications>";
+				params.sequencingOptionsXMLString = "<sequencingOptions>" + this.sequencingOptions.toXMLString() + "</sequencingOptions>";
+				
+				saveExperimentPlatform.send(params);
+			}			
+			
+			private function pickType():void {
+				var iconToCheck:String = "";
+				dirty.setDirty();
+				if (this.typeCombo.selectedItem != null && typeCombo.selectedItem.@value != '') {
+					iconToCheck = typeCombo.selectedItem.@defaultIcon;
+				} else {
+					iconToCheck = "assets/cherrypick.png";				
+				}
+				
+				if(iconToCheck.length > 0) {
+					var expIconLst:XMLList = parentApplication.expIcons.item; 
+					iconCombo.selectedIndex = 0;
+					for(var i:Number = 0; i < expIconLst.length(); i++) {
+						if(expIconLst[i].@icon == iconToCheck) {
+							iconCombo.selectedIndex = i;
+							break;
+						}
+					}					
+				}
+
+			}
+			
+			private function onSaveExperimentPlatform(event:ResultEvent): void {
+				if (saveExperimentPlatform.lastResult.name() == "SUCCESS") {
+					codeRequestCategorySelected = saveExperimentPlatform.lastResult.@codeRequestCategory;
+					getExperimentPlatformList.send();
+					parentApplication.dictionaryManager.reload();
+				} else {
+					mx.controls.Alert.show(saveExperimentPlatform.lastResult..ACTMESSAGE.@TEXT);
+				}
+			}	
+			private function addPlatform():void {
+				
+				var addWindow:ExperimentPlatformAddWindow = ExperimentPlatformAddWindow(PopUpManager.createPopUp(mainBody, ExperimentPlatformAddWindow, true));
+				PopUpManager.centerPopUp(addWindow);
+				addWindow.parentWindow = this;
+				addWindow.platformName.setFocus();
+				this.theViews.selectedIndex = 1;
+				this.theTabs.selectedIndex = 0;
+				
+				
+			}
+			
+			private function removePlatform():void {
+				if (platformList.selectedItem == null) {
+					return;
+				}
+				Alert.show("Are you sure you want to remove experiment platform " + platformList.selectedItem.@display + "?",
+					"Confirm",
+					(Alert.YES | Alert.NO), this, 
+					onPromptToRemovePlatform,						
+					parentApplication.iconWarning);
+				
+			}
+			
+			private function onPromptToRemovePlatform(event:CloseEvent):void {
+				if (event.detail == Alert.YES) {
+					removePlatformImpl();
+				}
+			}
+			
+			private function removePlatformImpl():void {
+				codeRequestCategorySelected = null;
+				
+				var params:Object = new Object();
+				params.codeRequestCategory = platformList.selectedItem.@codeRequestCategory;
+				deleteExperimentPlatform.send(params);
+			}
+			
+			private function onDeleteExperimentPlatform(event:ResultEvent): void {
+				if (deleteExperimentPlatform.lastResult.name() == "SUCCESS") {
+					this.getExperimentPlatformList.send();
+				} else {
+					mx.controls.Alert.show(deleteExperimentPlatform.lastResult..ACTMESSAGE.@TEXT);
+				}
+				this.dirty.resetDirty();
+			}		
+			
+			private function onSelectPlatform():void {
+				if (platformList.selectedItem != null) {
+					theViews.selectedIndex = 1;
+					
+					requestCategory = platformList.selectedItem;
+					codeRequestCategorySelected = platformList.selectedItem.@codeRequestCategory;
+					
+					vendorCombo.selectedItem = dictionaryManager.getEntry('hci.gnomex.model.Vendor',requestCategory.@idVendor);
+					organismCombo.selectedItem = dictionaryManager.getEntry('hci.gnomex.model.OrganismLite',requestCategory.@idOrganism);
+					coreFacilityCombo.selectedItem = dictionaryManager.getEntry('hci.gnomex.model.CoreFacility',requestCategory.@idCoreFacility);
+					typeCombo.selectedItem = dictionaryManager.getEntry("hci.gnomex.model.RequestCategoryType", requestCategory.@type);
+					var expIconLst:XMLList = parentApplication.expIcons.item; 
+					iconCombo.selectedIndex = 0;
+					for(var i:Number = 0; i < expIconLst.length(); i++) {
+						if(expIconLst[i].@icon == requestCategory.@icon) {
+							iconCombo.selectedIndex = i;
+							break;
+						}
+					}
+
+					dirty.resetDirty();
+
+					if(this.typeCombo.selectedItem != null && this.typeCombo.selectedItem.@isIllumina=='Y') {
+						appGridStack.selectedIndex = 1;
+						channelLabel.width = 160;
+						channelLabel.text = "Number of flowcell channels";
+						numberOfChannelsStepper.maximum = 8;
+						applications.filterFunction = null;
+						
+						applicationTreeSource = requestCategory.applications;
+						appTree.validateNow();
+						appTree.invalidateList();
+						this.appTree.expandChildrenOf(applicationTreeSource[0], true);
+					} else {
+						applications.filterFunction = applicationIsVisible;
+						applications.refresh();
+						applicationTreeSource = new XMLList();
+						appTree.validateNow();
+						appGridStack.selectedIndex = 0;
+						channelLabel.width = 120;
+						channelLabel.text = "Number of channels";	
+						numberOfChannelsStepper.maximum = 2;
+						showHideAppColumns();
+					}
+					
+				} else {
+					theViews.selectedIndex = 0;
+					codeRequestCategorySelected = null;
+				}
+			}
+
+			private function showHideAppColumns():void {
+				labelingProtocolCol.visible = typeCombo.selectedItem != null && typeCombo.selectedItem.@value == 'MICROARRAY' ? true : false; 
+				hybProtocolCol.visible = typeCombo.selectedItem != null && typeCombo.selectedItem.@value == 'MICROARRAY' ? true : false; 
+				scanProtocolCol.visible = typeCombo.selectedItem != null && typeCombo.selectedItem.@value == 'MICROARRAY' ? true : false; 
+				feProtocolCol.visible = typeCombo.selectedItem != null && typeCombo.selectedItem.@value == 'MICROARRAY' ? true : false; 
+				
+				appGrid.invalidateList();
+				appGrid.invalidateDisplayList();
+				
+				applicationThemeCol.visible = typeCombo.selectedItem != null && typeCombo.selectedItem.@isIllumina == 'Y' ? true : false;
+				seqLibProtocolCol.visible = typeCombo.selectedItem != null && typeCombo.selectedItem.@isIllumina == 'Y' ? true : false; 
+				
+				appGrid.invalidateList();
+				appGrid.invalidateDisplayList();
+				
+			}
+			
+			private function editExperimentType():void {
+				showEditExperimentTypeWindow(appTree.selectedItem);
+			}
+
+			private function showEditExperimentTypeWindow(app:Object):void {
+				var editWindow:IlluminaExperimentTypeDetailWindow = IlluminaExperimentTypeDetailWindow(PopUpManager.createPopUp(mainBody, IlluminaExperimentTypeDetailWindow, true));
+				PopUpManager.centerPopUp(editWindow);
+				editWindow.init(this, app);
+			}
+			
+			private function addExperimentType():void {
+				this.nextNewAppNum++;
+				var appCode:String = 'Application' + this.nextNewAppNum.toString();
+				var newNode:XML = new XML("<Application " +
+					" isSelected='Y'" +
+					" codeApplication='" + appCode + "'" +
+					" display='" + 'enter experiment type here...' + "'" +
+					" idSeqLibProtocols=''" +
+					" idLabelingProtocolDefault=''" +
+					" idHybProtocolDefault=''" +
+					" idScanProtocolDefault=''" +
+					" idFeatureExtractionProtocolDefault=''" +
+					" isActive='Y'" +
+					" />");
+				if (typeCombo.selectedItem.@isIllumina == 'Y') {
+					showEditExperimentTypeWindow(newNode);
+				} else {
+					this.applications.addItemAt(newNode, 0);
+					this.appGrid.selectedItem = newNode;
+					this.appGrid.scrollToIndex(0);
+					this.dirty.setDirty();
+				}				
+			}
+			
+			public function updateIlluminaExperimentTypeNode(newNode:XML, oldThemeId:String):void {
+				appTree.dataProvider = null;
+				var themeList:XMLList = this.applicationTreeSource..ApplicationTheme;
+				var newSort:int = getSort(newNode);
+				for each(var theme:XML in themeList) {
+					if (oldThemeId != newNode.@idApplicationTheme && theme.@idApplicationTheme == oldThemeId) {
+						removeChildFromTheme(theme, newNode);
+					}
+					if (theme.@idApplicationTheme == newNode.@idApplicationTheme) {
+						// replace or add the new node in it's new theme.
+						var appended:Boolean = false;
+						var newList:XMLList = new XMLList();
+						for each (var child:XML in theme.children()) {
+							if (child.@codeApplication != newNode.@codeApplication) {
+								if (illuminaAppGreaterThan(child, newNode) && !appended) {
+									newList += newNode;
+									appended = true;
+								}
+								newList += child;
+							}
+						} 
+						if (!appended) {
+							newList += newNode;
+						}
+						theme.setChildren(newList);
+					}
+				}
+				
+				appTree.dataProvider = applicationTreeSource;
+				appTree.validateNow();
+				appTree.expandChildrenOf(applicationTreeSource[0], true);
+				
+
+				setAppTreeSelectedItem(newNode, applicationTreeSource, -1);
+				
+				dirty.setDirty();
+			}
+
+			private function setAppTreeSelectedItem(selectedNode:XML, list:XMLList, idx:int):int {
+				for each (var node:XML in list) {
+					idx++;
+					if (node.name() == 'Application' && node.@codeApplication == selectedNode.@codeApplication) {
+						appTree.selectedItem = node;
+						if (idx > 15) {
+							appTree.scrollToIndex(idx - 15);
+						} else {
+							appTree.scrollToIndex(0);
+						}
+					}
+					idx = setAppTreeSelectedItem(selectedNode, node.children(), idx);
+				}
+				
+				return idx;
+			}
+			
+			private function removeChildFromTheme(root:XML, nodeToRemove:XML):void {
+				// Remove node from the old root by making a new list of everything but the node to remove.
+				var newList:XMLList = new XMLList();
+				for each(var child:XML in root.children()) {
+					if (child.@codeApplication != nodeToRemove.@codeApplication) {
+						newList += child;
+					}
+				}
+				root.setChildren(newList);
+			}
+			
+			private function illuminaAppGreaterThan(app1:XML, app2:XML):Boolean {
+				var greater:Boolean = false;
+				if (app1.@isActive == app2.@isActive) {
+					if (app1.@isSelected == app2.@isSelected) {
+						if (getSort(app1) == getSort(app2)) {
+							if (app1.@application > app2.@application) {
+								greater = true;
+							}
+						} else if (getSort(app1) > getSort(app2)) {
+							greater = true;
+						}
+					} else if (app1.@isSelected != 'Y' && app2.@isSelected == 'Y') {
+						greater = true;
+					}
+				} else if (app1.@isActive != 'Y' && app2.@isActive == 'Y') {
+					greater = true;
+				}
+				return greater;
+			}
+			
+			private function getSort(node:XML):int {
+				var sort:int = 0;
+				if (node.hasOwnProperty("@sortOrder") && node.@sortOrder != '') {
+					sort = int(node.@sortOrder);
+				}
+				return sort;
+			}
+			
+			private function removeExperimentType():void {
+				var item:Object = null;
+				if (appGrid.selectedItem != null) {
+					item = appGrid.selectedItem;
+				} else if (appTree.selectedItem != null) {
+					item = appTree.selectedItem;
+				} else {
+					return;
+				}
+				Alert.show("Are you sure you want to remove experiment type " + item.@display + "?",
+					"Confirm",
+					(Alert.YES | Alert.NO), this, 
+					onPromptToRemoveExperimentType,						
+					parentApplication.iconWarning);
+				
+			}
+			
+			private function onPromptToRemoveExperimentType(event:CloseEvent):void {
+				if (event.detail == Alert.YES) {
+					removeExperimentTypeImpl();
+				}
+			}
+			
+			private function removeExperimentTypeImpl():void {
+				if (this.appGrid.selectedItem != null) {
+					this.applications.removeItemAt(applications.getItemIndex(appGrid.selectedItem));
+					this.dirty.setDirty();
+				} else if (this.appTree.selectedItem != null) {
+					var themeList:XMLList = this.applicationTreeSource..ApplicationTheme;
+					for each (var theme:XML in themeList) {
+						if (this.appTree.selectedItem.@idApplicationTheme == theme.@idApplicationTheme) {
+							removeChildFromTheme(theme, XML(this.appTree.selectedItem));
+							dirty.setDirty();
+							break;
+						}
+					}
+				}
+			}
+			
+			private function addSampleType():void {
+				var newNode:XML = new XML("<SampleType " +
+					" isSelected='N'" +
+					" idSampleType='" + 'SampleType' + "'" +
+					" display='" + 'enter sample type here...' + "'" +
+					" codeApplications=''" +
+					" isActive='Y'" +
+					" />");
+				this.sampleTypes.addItemAt(newNode, 0);
+				this.sampleTypeGrid.selectedItem = newNode;
+				this.sampleTypeGrid.scrollToIndex(0);
+				this.dirty.setDirty();
+				
+			}
+			
+			
+			private function removeSampleType():void {
+				if (sampleTypeGrid.selectedItem == null) {
+					return;
+				}
+				Alert.show("Are you sure you want to remove sample type " + sampleTypeGrid.selectedItem.@display + "?",
+					"Confirm",
+					(Alert.YES | Alert.NO), this, 
+					onPromptToRemoveSampleType,						
+					parentApplication.iconWarning);
+				
+			}
+			
+			private function onPromptToRemoveSampleType(event:CloseEvent):void {
+				if (event.detail == Alert.YES) {
+					removeSampleTypeImpl();
+				}
+			}
+			
+			private function removeSampleTypeImpl():void {
+				if (this.sampleTypeGrid.selectedItem != null) {
+					this.sampleTypes.removeItemAt(sampleTypes.getItemIndex(sampleTypeGrid.selectedItem));
+					this.dirty.setDirty();
+				}
+			}
+			
+			private function addNumberSequencingCyclesAllowed():void {
+				var newNode:XML = new XML("<NumberSequencingCyclesAllowed " +
+					" idNumberSequencingCyclesAllowed='" + 'NumberSequencingCyclesAllowed' + "'" +
+					" codeRequestCategory='" + codeRequestCategorySelected.toString() + "'" +
+					" idNumberSequencingCycles=''" +
+					" idSeqRunType=''" +
+					" isCustom='N'" +
+					" name=''" +
+					" />");
+				this.sequencingOptions.addItemAt(newNode, 0);
+				this.sequencingOptionGrid.selectedItem = newNode;
+				this.sequencingOptionGrid.scrollToIndex(0);
+				this.dirty.setDirty();
+			}
+			
+			private function removeNumberSequencingCyclesAllowed():void {
+				if (sequencingOptionGrid.selectedItem == null) {
+					return;
+				}
+				Alert.show("Are you sure you want to remove the sequencing option named '" + sequencingOptionGrid.selectedItem.@name.toString() + "'?",
+					"Confirm",
+					(Alert.YES | Alert.NO), this, 
+					onPromptToRemoveNumberSequencingCyclesAllowed,						
+					parentApplication.iconWarning);
+				
+			}
+			
+			private function onPromptToRemoveNumberSequencingCyclesAllowed(event:CloseEvent):void {
+				if (event.detail == Alert.YES) {
+					removeNumberSequencingCyclesAllowedImpl();
+				}
+			}
+			
+			
+			private function removeNumberSequencingCyclesAllowedImpl():void {
+				if (this.sequencingOptionGrid.selectedItem != null) {
+					this.sequencingOptions.removeItemAt(sequencingOptions.getItemIndex(sequencingOptionGrid.selectedItem));
+					this.dirty.setDirty();
+				}
+			}
+			
+			private function calcRowColor(item:Object, rowIndex:int,
+										  dataIndex:int, color:uint):uint
+			{
+				if(item.@isActive != "Y")
+					return 0x49FFAD;
+				else
+					return color;
+			}
+			
+			private function selectAll(objects:XMLListCollection, viewStack:ViewStack):void {
+				for each(var o:Object in objects) {
+					if (o.@isActive == 'Y') {
+						o.@isSelected = 'Y';
+					}
+				}
+				viewStack.selectedIndex = 1;
+				this.dirty.setDirty();
+			}
+			
+			private function unselectAll(objects:XMLListCollection, viewStack:ViewStack):void {
+				for each(var o:Object in objects) {
+					o.@isSelected = 'N';
+				}
+				viewStack.selectedIndex = 0;
+				this.dirty.setDirty();
+			}
+			
+			private function disablePlatformSelection(data:Object):Boolean
+			{
+				return this.dirty.isDirty();
+			}
+			
+			private function promptToDiscardChanges():void {
+				if (this.dirty.isDirty()) {
+					Alert.show("Your changes have not been saved.  Discard changes?",
+						"Warning",
+						(Alert.YES | Alert.NO), this, 
+						onPromptToDiscardChanges,						
+						parentApplication.iconWarning);
+				}
+			}
+			
+			private function onPromptToDiscardChanges(event:CloseEvent):void {
+				if (event.detail == Alert.YES) {
+					this.dirty.resetDirty();
+					this.getExperimentPlatformList.send();
+				}
+			}
+			
+			private function underlyingSeqOptionChange(event:CollectionEvent):void {
+				var ignore:int = 0;
+				if (event.kind == CollectionEventKind.RESET || event.kind == CollectionEventKind.REFRESH) {
+					// ignore refresh and resets 
+					return;
+				}
+				
+				for each(var e:Object in event.items) {
+					if (e is PropertyChangeEvent) {
+						var pe:PropertyChangeEvent = PropertyChangeEvent(e);
+						
+						if (pe.property == "@paired") {
+							if (pe.newValue == "Y") {
+								this.sequencingOptionGrid.selectedItem.@pairedName = this.sequencingOptionGrid.selectedItem.@numberSequencingCycles + " cycle paired-end reads";
+							} else {
+								this.sequencingOptionGrid.selectedItem.@pairedName = "";
+							}
+						}else if (pe.property == "@single") {
+							if (pe.newValue == "Y") {
+								this.sequencingOptionGrid.selectedItem.@singleName = this.sequencingOptionGrid.selectedItem.@numberSequencingCycles + " cycle single-end reads";
+							} else {
+								this.sequencingOptionGrid.selectedItem.@singleName = "";
+							}
+						}         	
+					}
+				}
+			}
+			
+			private function getIcon(item:Object):Class {
+				if(item is XML) {
+					// If icon path defined then use it
+					var itemIcon:String = item.@icon;
+					if(itemIcon != null && itemIcon.length > 0) {
+						return IconUtility.getClass(item, itemIcon, 16, 16);
+					}
+				}				
+				//if (this[item.@icon]){
+				//	return this[item.@icon];
+				//}				
+				return null;				
+			}	
+
+			public function configureStepsClick():void {
+				
+				var configureStepsWindow:LibPrepStepsWindow = LibPrepStepsWindow(mx.managers.PopUpManager.createPopUp(this, LibPrepStepsWindow, true));
+				PopUpManager.centerPopUp(configureStepsWindow);
+				configureStepsWindow.init(this.dirty, this.appGrid.selectedItem);
+				
+			}
+			
+			
+			private function getAppTreeLabel(item:Object):String {
+				var retValue:String = "";
+				if (item.name() == "ApplicationTheme") { 
+					retValue = item.@applicationTheme;
+				} else if (item.name() == "Application") {
+					retValue = item.@application;
+				}
+				
+				return retValue;
+			}
+			
+			private function applicationListFilter(node:Object):ICollectionView {
+				var xNode:XML = XML(node);
+				var newList:XMLList = new XMLList();
+				for each (var child:XML in xNode.children()) {
+					if (child.name() == 'ApplicationTheme') {
+						newList += child;
+					} else if (child.name() == 'Application' && applicationIsVisible(child)) { 
+						newList += child;
+					} // note ignore ApplicationRequestCategory children
+				}
+				
+				return new XMLListCollection(newList);
+			}
+			
+			private function applicationIsVisible(obj:Object):Boolean {
+				var node:XML = XML(obj);
+				var v:Boolean = false;
+				if (appGrid.selectedIndex == 0) {
+					v = true;
+				} else if (node.name() == 'Application') {
+					if (node.@isSelected == 'Y') {
+						v = true;
+					} else if (node.@isActive != 'Y' && this.showInActiveCheckbox.selected) {
+						// Note that if it is inactive it is never selected.
+						v = true;
+					} else if (node.@isActive == 'Y' && node.@isSelected != 'Y' && this.showOtherCheckbox.selected) {
+						v = true;
+					} // otherwise leave false
+				} else {
+					// should never happen
+					v = true;
+				}
+				
+				return v;
+			}
+			
+			private function filterApplications():void {
+				if (appGridStack.selectedIndex == 0) {
+					applications.refresh();
+				} else {
+					appTree.invalidateList();
+					this.appTree.expandChildrenOf(applicationTreeSource[0], true);
+				}
+			}
+			
+			private function isPlatformVisible(obj:Object):Boolean {
+				var v:Boolean = true;
+				if (!parentApplication.isCoreFacilityIManage(obj.@idCoreFacility)) {
+					v = false;
+				} else if (!inactivePlatformsCheckbox.selected && obj.@isActive != 'Y') {
+					v = false;
+				}
+				return v;
+			}
+
+			private function appIsActiveEnabled(obj:Object):Boolean {
+				var enabled:Boolean = false;
+				if (obj.@isSelected == 'Y' || obj.@selectedInOtherCategory == 'Y') {
+					enabled = false;
+				} else {
+					enabled = true;
+				}
+				return enabled;
+			}
+			
+			private function onAppGridItemEditEnd(event:DataGridEvent):void {
+				dirty.setDirty();
+				if (event.dataField == '@isSelected') {
+					var it:Object = event.currentTarget.selectedItem;
+				}
+			}
+		]]>
+	</mx:Script>
+	
+	
+	
+	<mx:XMLListCollection id="platforms"  source="{getExperimentPlatformList.lastResult.RequestCategory}"/>
+	<mx:XMLListCollection id="sampleTypes" source="{requestCategory.sampleTypes.SampleType}"/>
+	<mx:XMLListCollection id="applications" source="{requestCategory.applications..Application}"/>
+	<mx:XMLList id="applicationTreeSource" />
+	<mx:XMLListCollection id="sequencingOptions" source="{requestCategory.sequencingOptions.NumberSequencingCyclesAllowed}"/>
+	<mx:XMLListCollection id="coreFacilities" source="{dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.CoreFacility').DictionaryEntry}"/>
+	<mx:XMLListCollection id="types" source="{dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.RequestCategoryType').DictionaryEntry}"/>
+	
+	<mx:VBox height="100%" width="100%" id="mainBody" verticalGap="2">
+		<mx:HBox width="100%" verticalAlign="middle">
+			<mx:LinkButton label="Add Platform" enabled="{parentApplication.isAdminState}" click="addPlatform()"  disabledIcon="@Embed(source='../../assets/add_disable.png')" icon="@Embed(source='../../assets/add.png')" textDecoration="none" fontSize="11"/>
+			<mx:LinkButton label="Remove Platform" click="removePlatform()" enabled="{platformList.selectedItem != null &amp;&amp; platformList.selectedItem.@canDelete == 'Y'}"   disabledIcon="@Embed(source='../../assets/delete_disable.png')" icon="@Embed(source='../../assets/delete.png')" textDecoration="none" fontSize="11"/>
+			<mx:Spacer width="100%"/>
+			<mx:LinkButton label="Refresh" click="requestCategory=null;this.platformList.selectedItem=null;this.theViews.selectedIndex=0;getExperimentPlatformList.send()" icon="@Embed(source='../../assets/refresh.png')" textDecoration="none" fontSize="11"/>
+		</mx:HBox>
+		<mx:HDividedBox  horizontalGap="6" width="100%" height="100%" paddingLeft="4" paddingRight="4" backgroundAlpha="0">
+			<mx:VBox height="100%" width="200" id="platformListBox" verticalGap="2" styleName="panelBox" paddingLeft="0" paddingRight="0">
+				<mx:CheckBox id="inactivePlatformsCheckbox" label="Show Inactive Platforms" paddingLeft="4" change="{platforms.refresh()}" />
+				<util:DisabledItemsList id="platformList" width="100%" height="100%" labelField="@requestCategory" dataProvider="{platforms}"  iconFunction="parentApplication.getTreeIcon"
+										itemClick="{onSelectPlatform()}" disabledFunction="disablePlatformSelection" click="promptToDiscardChanges()"
+										itemRenderer="views.renderers.ExperimentPlatformListNodeRenderer">
+				</util:DisabledItemsList>
+			</mx:VBox>
+			<mx:ViewStack id="theViews" width="100%" height="100%">
+				<mx:VBox label="blankView" width="100%" height="100%" 
+						 styleName="panelBox" paddingLeft="4" paddingTop="4" 
+						 paddingRight="4" paddingBottom="0"/>
+				<mx:VBox width="100%" height="100%" 
+						 paddingLeft="4" paddingTop="4" paddingRight="4" paddingBottom="0" verticalGap="2" backgroundAlpha="0">
+					<mx:TabNavigator  id="theTabs" width="100%" height="100%" styleName="form" paddingTop="0" paddingLeft="0" paddingRight="0" paddingBottom="0" fontSize="11">
+						<mx:VBox width="100%" height="100%" label="Experiment Platform" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4" verticalGap="5">
+							<mx:HBox width="100%" horizontalGap="1" verticalAlign="middle">
+								<mx:Label text="Name" width="80" styleName="formLabel"/>
+								<mx:TextInput  id="platformName"  width="400" text="{requestCategory.@requestCategory}"  change="dirty.setDirty()"/>
+								<mx:Label  text="Code" paddingLeft="20" styleName="formLabel"/>
+								<mx:TextInput id="codeRequestCategoryField"  width="85" backgroundColor="0xffffff" text="{requestCategory.@codeRequestCategory}" editable="false"/>
+								<mx:Spacer width="10"/>
+								<mx:CheckBox id="isActiveCheckbox" label="Active"  click="{dirty.setDirty()}" selected="{requestCategory.@isActive == 'N' ? false : true}"/>
+							</mx:HBox>
+							
+							<mx:HBox width="100%" horizontalGap="1" verticalAlign="middle">
+								<mx:Label text="Notes" width="80" styleName="formLabel"/>
+								<mx:TextInput id="notes"  width="100%" text="{requestCategory.@notes}"  change="dirty.setDirty()"/>
+							</mx:HBox>
+							
+							<mx:HBox width="100%" horizontalGap="0" verticalAlign="middle">
+								<mx:Label  text="Sort Order" width="80" styleName="formLabel"/>
+								<mx:TextInput id="sortOrder"  width="40" text="{requestCategory.@sortOrder}" change="dirty.setDirty()"/>
+							</mx:HBox>
+							
+							<mx:HBox width="100%" horizontalGap="1" verticalAlign="middle">
+								<mx:Label text="Vendor" width="80" styleName="formLabel"/>
+								<mx:ComboBox  width="300" 
+											  dataProvider="{dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Vendor').DictionaryEntry}" 
+											  labelField="@display"
+											  close="{this.dirty.setDirty();}"
+											  id="vendorCombo"/>
+							</mx:HBox>
+							<mx:HBox width="100%" horizontalGap="1" verticalAlign="middle">
+								<mx:Label text="Core Facility" width="80" styleName="formLabel"/>
+								<mx:ComboBox width="300"
+											 dataProvider="{coreFacilities}"
+											 labelField="@display" 
+											 close="{this.dirty.setDirty();}"
+											 id="coreFacilityCombo"/>
+							</mx:HBox>
+							<mx:HBox width="100%" horizontalGap="8" verticalGap="0" verticalAlign="top" horizontalAlign="left" paddingLeft="0" fontSize="11">
+								<mx:Label text="Type" width="73" fontSize="12" styleName="formLabel"/>
+								<mx:ComboBox id="typeCombo" dataProvider="{types}" labelField="@display" width="100%" change="{pickType()}"/>
+							</mx:HBox>
+							<mx:HBox width="100%" verticalAlign="middle" horizontalGap="0">
+								<mx:Text text="Security" 
+										 width="80"  styleName="formLabel"/>
+								<mx:CheckBox id="isCRCheckbox" label="For Clinical Research" click="{dirty.setDirty()}" selected="{requestCategory.@isClinicalResearch == 'Y' ? true : false}" />
+							</mx:HBox>
+							<mx:HBox visible="{typeCombo.selectedItem != null &amp;&amp; typeCombo.selectedItem.@hasChannels=='Y'}" includeInLayout="{typeCombo.selectedItem != null &amp;&amp; typeCombo.selectedItem.@hasChannels=='Y'}" width="100%" horizontalGap="8" verticalAlign="middle" id="hbox1" >
+								<mx:Label id="channelLabel" text="Number of channels" styleName="formLabel"/>
+								<mx:NumericStepper id="numberOfChannelsStepper" minimum="1" maximum="2" value="{requestCategory.@numberOfChannels}"/>
+							</mx:HBox>
+							<mx:HBox width="100%" verticalAlign="middle" horizontalGap="1">
+								<mx:Label text="Show for" width="80" styleName="formLabel"/>
+								<mx:CheckBox id="isInternalCheckbox" label="Internal Experiment Requests" click="{dirty.setDirty()}" selected="{requestCategory.@isInternal == 'Y' ? true : false}" />
+								<mx:CheckBox id="isExternalCheckbox" label="External Experiments" click="{dirty.setDirty()}" selected="{requestCategory.@isExternal == 'Y' ? true : false}"/>
+								<mx:Spacer width="100%"/>
+							</mx:HBox>
+							<!--mx:HBox width="100%" horizontalGap="1" verticalAlign="middle">
+								<mx:Label text="Icon" width="80"/>
+								<mx:TextInput id="theIcon" width="100%" change="{dirty.setDirty()}" text="{requestCategory.@icon}"/>
+								<mx:Spacer width="10"/>
+							</mx:HBox-->
+							<mx:HBox width="100%" horizontalGap="1" verticalAlign="middle">
+								<mx:Label text="Icon" width="80" styleName="formLabel"/>
+								<util:IconComboBox id="iconCombo" dataProvider="{parentApplication.expIcons..item}" labelField="@label" change="{dirty.setDirty()}"  iconFunction="getIcon"  x="10" y="10" rowCount="12"/>
+								<mx:Spacer width="10"/>
+							</mx:HBox>
+							<mx:HBox width="100%" verticalAlign="middle" horizontalGap="0">
+								<mx:Text text="Default Organism" 
+										 width="80" visible="{isInternalCheckbox.selected}"  styleName="formLabel"/>
+								<mx:ComboBox width="300" id="organismCombo"
+											 dataProvider="{dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OrganismLite').DictionaryEntry}" 
+											 labelField="@display" visible="{isInternalCheckbox.selected}" close="{this.dirty.setDirty();}"/>
+							</mx:HBox>
+							
+							
+						</mx:VBox>
+						<mx:VBox  width="100%" height="100%" label="Experiment Types"  show="{showHideAppColumns()}" 
+								  verticalGap="1" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4" id="ExpTypes">
+							<mx:HBox verticalAlign="middle">
+								<mx:LinkButton label="Add" styleName="linkMenuButton" 
+											   enabled="{platformList.selectedItem.@canUpdate == 'Y' ? true : false}" 
+											   icon="@Embed(source='../../assets/add.png')" 
+											   disabledIcon="@Embed(source='../../assets/add_disable.png')" click="addExperimentType()" fontSize="10"/>
+								<mx:LinkButton label="Remove" styleName="linkMenuButton" enabled="{platformList.selectedItem.@canUpdate == 'Y' &amp;&amp; (appGrid.selectedItem != null || appTree.selectedItem != null)}"   icon="@Embed(source='../../assets/delete.png')" disabledIcon="@Embed(source='../../assets/delete_disable.png')" click="removeExperimentType()" fontSize="10"/>
+								<mx:Text text="Double click experiment type to edit." styleName="linkMenuButton" fontStyle="normal" fontSize="10" color="#2863C6" fontWeight="normal"
+										 visible="{appGridStack.selectedIndex == 1}" includeInLayout="{appGridStack.selectedIndex == 1}"/>
+								<mx:HBox width="100%" icon="@Embed(source='../../assets/printer.png')" 
+										 visible="{appGridStack.selectedIndex == 1}" includeInLayout="{appGridStack.selectedIndex == 1}">
+									<mx:CheckBox label="Show Other" id="showOtherCheckbox" change="{filterApplications()}" />
+									<mx:CheckBox label="Show Inactive" id="showInActiveCheckbox" change="{filterApplications()}" />
+								</mx:HBox>
+							</mx:HBox>
+							<mx:ViewStack id="appGridStack" width="100%" height="100%" paddingBottom="0" paddingTop="0">
+								<mx:VBox width="100%" height="100%">
+									<mx:DataGrid id="appGrid"  horizontalScrollPolicy="auto"
+												 dataProvider="{applications}" editable="true" itemEditBegin="onAppGridItemEditEnd(event);"
+												 width="100%" height="100%" wordWrap="true" variableRowHeight="true" fontSize="11">
+										<mx:columns>
+											<mx:DataGridColumn headerText=" "  
+															   width="20"  editable="false"                      	
+															   dataField="@isSelected" 
+															   editorDataField="selected"
+															   wordWrap="true"
+															   itemRenderer="{views.renderers.ExperimentPlatformIsSelectedCheckboxRenderer.create(dirty, true, null, null)}">			 
+											</mx:DataGridColumn>
+											<mx:DataGridColumn headerText="Experiment Type"  
+															   itemRenderer="views.renderers.LabelActive"
+															   rendererIsEditor="false"
+															   width="200"
+															   editable="true" wordWrap="true" dataField="@display" >
+											</mx:DataGridColumn>
+											<mx:DataGridColumn headerText="Theme" id="applicationThemeCol" dataField="@idApplicationTheme"  
+															   editorDataField="value" editable="true" rendererIsEditor="false" wordWrap="true" sortable="false" 
+															   itemRenderer="{DropdownLabel.getFactory(dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ApplicationTheme').DictionaryEntry, '@display', '@value', '@idApplicationTheme')}"                
+															   itemEditor="{views.renderers.ComboBox.create(dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ApplicationTheme').DictionaryEntry, '@display', '@value', '@idApplicationTheme', null, true)}"/>										
+											<mx:DataGridColumn headerText="Seq Lib Protocols"   id="seqLibProtocolCol"  width="110"
+															   wordWrap="true"
+															   itemRenderer="{views.renderers.MultiselectRendererCommon.create('Seq Lib Protocols', dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.SeqLibProtocol').DictionaryEntry.(@value != '' &amp;&amp; @isActive != 'N'))}" 
+															   dataField="@idSeqLibProtocols"/>
+											<mx:DataGridColumn headerWordWrap="true" headerText="Capture Lib Design" id="includeCapLibDesign" dataField="@hasCaptureLibDesign" itemRenderer="{views.renderers.CheckBoxRenderer.create(dirty)}"
+															   wordWrap="true" width="60"
+															   visible="{typeCombo.selectedItem != null &amp;&amp; typeCombo.selectedItem.@isIllumina == 'Y'}" editorDataField="selected" editable="false"/>
+											<mx:DataGridColumn headerWordWrap="true" headerText="Labeling Protocol"  id="labelingProtocolCol"  visible="{typeCombo.selectedItem != null &amp;&amp; typeCombo.selectedItem.@value == 'MICROARRAY'}" dataField="@idLabelingProtocol"  
+															   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false"  
+															   wordWrap="true"
+															   itemRenderer="{DropdownLabel.getFactory(dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.LabelingProtocol').DictionaryEntry, '@display', '@value', '@idLabelingProtocolDefault')}"                
+															   itemEditor="{views.renderers.ComboBox.create(dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.LabelingProtocol').DictionaryEntry, '@display', '@value', '@idLabelingProtocolDefault', null, true)}"/>										
+											<mx:DataGridColumn headerText="Hyb Protocol"  id="hybProtocolCol" dataField="@idHybProtocol" 
+															   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false"   
+															   wordWrap="true"
+															   itemRenderer="{DropdownLabel.getFactory(dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.HybProtocol').DictionaryEntry, '@display', '@value', '@idHybProtocolDefault')}"                
+															   itemEditor="{views.renderers.ComboBox.create(dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.HybProtocol').DictionaryEntry, '@display', '@value', '@idHybProtocolDefault', null, true)}"/>										
+											<mx:DataGridColumn headerText="Scan Protocol"  id="scanProtocolCol"  dataField="@idScanProtocol"  
+															   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false"   
+															   wordWrap="true"
+															   itemRenderer="{DropdownLabel.getFactory(dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ScanProtocol').DictionaryEntry, '@display', '@value', '@idScanProtocolDefault')}"                
+															   itemEditor="{views.renderers.ComboBox.create(dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ScanProtocol').DictionaryEntry, '@display', '@value', '@idScanProtocolDefault', null, true)}"/>										
+											<mx:DataGridColumn headerText="FE Protocol"  id="feProtocolCol"  dataField="@idFeatureExtractionProtocol"  
+															   editorDataField="value"  
+															   wordWrap="true"
+															   sortable="false" editable="true" rendererIsEditor="false"  
+															   itemRenderer="{DropdownLabel.getFactory(dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.FeatureExtractionProtocol').DictionaryEntry, '@display', '@value', '@idFeatureExtractionProtocolDefault')}"                
+															   itemEditor="{views.renderers.ComboBox.create(dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.FeatureExtractionProtocol').DictionaryEntry, '@display', '@value', '@idFeatureExtractionProtocolDefault', null, true)}"/>
+											<mx:DataGridColumn headerWordWrap="true" headerText="Lib Prep Steps" id="libPrepSteps" 
+															   wordWrap="true" width="110" 
+															   visible="{typeCombo.selectedItem != null &amp;&amp; typeCombo.selectedItem.@isIllumina == 'Y'}" editorDataField="selected" editable="false">
+												<mx:itemRenderer>
+													<mx:Component>
+														<mx:LinkButton textAlign="left" label="Configure Steps"
+																	   color="0x0000FF"   
+																	   textDecoration="underline" 
+																	   click="outerDocument.configureStepsClick()"/>
+													</mx:Component>
+												</mx:itemRenderer>
+											</mx:DataGridColumn>
+											<mx:DataGridColumn headerText="Active"  
+															   width="25"  
+															   editable="false"                      	
+															   dataField="@isActive" 
+															   editorDataField="selected"
+															   itemRenderer="{views.renderers.CheckBoxRenderer.create(dirty, true, null, appIsActiveEnabled)}">			 
+											</mx:DataGridColumn>
+										</mx:columns>
+									</mx:DataGrid>
+								</mx:VBox>
+								<mx:VBox width="100%" height="100%">
+									<mx:Tree width="100%" height="100%"
+											 dataProvider="{applicationTreeSource}" 
+											 showRoot="false" 
+											 id="appTree" 
+											 borderStyle="none"
+											 labelFunction="getAppTreeLabel" 
+											 doubleClickEnabled="true" doubleClick="{editExperimentType()}"
+											 itemRenderer="views.renderers.ExperimentPlatformApplicationTreeNodeRenderer"
+											 dataDescriptor="{new hci.flex.util.FilteredTreeDataDescriptor(applicationListFilter)}"
+											 backgroundAlpha="1" />
+								</mx:VBox>
+							</mx:ViewStack>
+						</mx:VBox>
+						<mx:VBox width="100%"  height="100%" paddingLeft="4" paddingBottom="4" paddingRight="4" paddingTop="4" label="Sample Types" verticalGap="12">
+							
+							<mx:VBox width="100%" height="100%" verticalGap="0">
+								<mx:HBox verticalAlign="middle">
+									<mx:ViewStack id="selectAllStack1" width="80" paddingBottom="0" paddingTop="0">
+										<mx:HBox width="100%"  paddingBottom="0" paddingTop="0" paddingLeft="0" paddingRight="0" verticalAlign="middle">
+											<mx:LinkButton label="Select all" styleName="formLinkButton" paddingLeft="0" click="selectAll(sampleTypes, selectAllStack1)"  paddingTop="0" paddingRight="0" paddingBottom="0"/>
+										</mx:HBox>
+										<mx:HBox width="100%" paddingBottom="0" paddingTop="0">
+											<mx:LinkButton label="Unselect all" styleName="formLinkButton" paddingLeft="0" click="unselectAll(sampleTypes, selectAllStack1)"  paddingTop="0" paddingBottom="0"/>
+										</mx:HBox>			    	
+									</mx:ViewStack>
+									<mx:LinkButton label="Add" styleName="linkMenuButton" 
+												   click="addSampleType()"
+												   enabled="{platformList.selectedItem.@canUpdate == 'Y' ? true : false}" 
+												   icon="@Embed(source='../../assets/add.png')" 
+												   disabledIcon="@Embed(source='../../assets/add_disable.png')" fontSize="10"/>
+									
+									<mx:LinkButton label="Remove" styleName="linkMenuButton"
+												   click="removeSampleType()"
+												   enabled="{platformList.selectedItem.@canUpdate == 'Y' &amp;&amp; sampleTypeGrid.selectedItem != null}"   
+												   icon="@Embed(source='../../assets/delete.png')" 
+												   disabledIcon="@Embed(source='../../assets/delete_disable.png')" fontSize="10"/>
+									<mx:Text text="Click on experiment types cell to select which experiment types use the sample type." styleName="linkMenuButton" fontStyle="normal" fontSize="10" color="#2863C6"/>
+									
+								</mx:HBox>
+								<mx:DataGrid id="sampleTypeGrid" 
+											 dataProvider="{sampleTypes}" 
+											 editable="true"
+											 width="100%" height="100%" itemEditBegin="dirty.setDirty()" variableRowHeight="true" wordWrap="true" fontSize="11">
+									<mx:columns>
+										<mx:DataGridColumn headerText=" "  
+														   width="20" 
+														   editable="false"                        	
+														   dataField="@isSelected" 
+														   editorDataField="selected"
+														   itemRenderer="{views.renderers.CheckBoxRenderer.create(dirty)}">			 
+										</mx:DataGridColumn>
+										<mx:DataGridColumn headerText="Sample Type" 
+														   itemRenderer="views.renderers.LabelActive"
+														   rendererIsEditor="false"
+														   dataField="@display" editable="true" >
+										</mx:DataGridColumn>
+										<mx:DataGridColumn headerText="Experiment Types"  
+														   itemRenderer="{views.renderers.MultiselectRendererCommon.create('Experiment Types', dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Application').DictionaryEntry.(@value != ''))}" 
+														   dataField="@codeApplications" >
+										</mx:DataGridColumn>
+										<mx:DataGridColumn headerText="Active"  
+														   width="45"  editable="false"                      	
+														   dataField="@isActive" 
+														   editorDataField="selected"
+														   itemRenderer="{views.renderers.CheckBoxRenderer.create(dirty)}">			 
+										</mx:DataGridColumn>
+									</mx:columns>
+								</mx:DataGrid>
+							</mx:VBox>
+						</mx:VBox>
+						
+						<mx:VBox width="100%" enabled="{typeCombo.selectedItem != null &amp;&amp; typeCombo.selectedItem.@isIllumina == 'Y'}" height="100%" label="Illumina Seq" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4">
+							<mx:VBox width="100%" height="100%" label="Microarray" verticalGap="10">
+								<mx:HBox width="100%" verticalAlign="middle" horizontalGap="0">
+									<mx:Label text="Sample Index Tags" width="150" styleName="formLabel"/>
+									<mx:HBox>
+										<mx:RadioButtonGroup id="barcodingRadioGroup"/>
+										<mx:RadioButton label="Optional"  value="Y" groupName="barcodingRadioGroup" selected="{requestCategory.@isSampleBarcodingOptional == 'Y' ? true : false}"/>
+										<mx:RadioButton label="Required" value="N" groupName="barcodingRadioGroup" selected="{requestCategory.@isSampleBarcodingOptional == 'Y' ? false : true}"/>
+									</mx:HBox>
+								</mx:HBox>
+								<mx:VBox width="100%" verticalGap="0" height="100%">
+									<mx:HBox verticalAlign="middle" horizontalGap="0">
+										<mx:Label text="Sequencing options" width="150"/>
+										
+										<mx:LinkButton label="Add" styleName="linkMenuButton" enabled="{platformList.selectedItem.@canUpdate == 'Y' ? true : false}" icon="@Embed(source='../../assets/add.png')" disabledIcon="@Embed(source='../../assets/add_disable.png')" paddingLeft="0" click="addNumberSequencingCyclesAllowed()" fontSize="10"/>
+										<mx:LinkButton label="Remove" styleName="linkMenuButton" enabled="{platformList.selectedItem.@canUpdate == 'Y' &amp;&amp; sequencingOptionGrid.selectedItem != null}"   icon="@Embed(source='../../assets/delete.png')" disabledIcon="@Embed(source='../../assets/delete_disable.png')" click="removeNumberSequencingCyclesAllowed()" fontSize="10"/>
+										
+									</mx:HBox> 
+									<mx:DataGrid id="sequencingOptionGrid" editable="true"
+												 dataProvider="{sequencingOptions}" wordWrap="true"
+												 width="100%" height="100%"  itemEditBegin="dirty.setDirty()" fontSize="10">
+										<mx:columns>
+											<mx:DataGridColumn headerText="Cycles" id="numberSequencingCyclesColumn" dataField="@idNumberSequencingCycles"  width="75"
+															   editorDataField="value" editable="true" rendererIsEditor="false" wordWrap="true" sortable="false"
+															   itemRenderer="{DropdownLabel.getFactory(dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.NumberSequencingCycles').DictionaryEntry, '@display', '@value', '@idNumberSequencingCycles')}"                
+															   itemEditor="{views.renderers.ComboBox.create(dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.NumberSequencingCycles').DictionaryEntry, '@display', '@value', '@idNumberSequencingCycles', null, true)}"/>										
+											<mx:DataGridColumn headerText="Type" id="seqRunTypeColumn" dataField="@idSeqRunType"  
+															   editorDataField="value" editable="true" rendererIsEditor="false" wordWrap="true" sortable="false"
+															   itemRenderer="{DropdownLabel.getFactory(dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqRunType').DictionaryEntry, '@display', '@value', '@idSeqRunType')}"                
+															   itemEditor="{views.renderers.ComboBox.create(dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqRunType').DictionaryEntry, '@display', '@value', '@idSeqRunType', null, true)}"/>										
+											<mx:DataGridColumn headerText="Custom?"   headerWordWrap="true"
+															   width="75" 
+															   editable="false"                        	
+															   dataField="@isCustom" 
+															   editorDataField="selected"
+															   itemRenderer="{views.renderers.CheckBoxRenderer.create(dirty)}">		
+											</mx:DataGridColumn>
+											<mx:DataGridColumn headerText="Name" wordWrap="true" width="200" dataField="@name"  >
+											</mx:DataGridColumn>
+										</mx:columns>
+									</mx:DataGrid>
+								</mx:VBox>
+								
+							</mx:VBox>
+							
+						</mx:VBox>
+					</mx:TabNavigator>
+					<mx:ControlBar width="100%" horizontalAlign="right" paddingTop="0" paddingBottom="0" paddingLeft="0" paddingRight="0">
+						<util:DirtyNote id="dirty" />
+						<mx:Button id="saveButton" label="Save"
+								   click="{save()}"
+								   enabled="{platformList.selectedItem.@canUpdate == 'Y' ? true : false}"
+								   icon="@Embed('../../assets/action_save.gif')"  disabledIcon="@Embed(source='../../assets/save_disable.png')">
+						</mx:Button>
+						<mx:Button label="Close"  click="{closeWindow()}"/>
+					</mx:ControlBar>
+				</mx:VBox>
+			</mx:ViewStack>
+		</mx:HDividedBox>
+	</mx:VBox>
+	
+</mx:TitleWindow>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC
+        "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+        "http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+    <session-factory>
+        <property name="connection.datasource">java:comp/env/jdbc/BST</property>
+     	  <property name="show_sql">false</property>
+        <property name="use_outer_join">true</property>
+        <property name="query.imports">hci.bstx.model</property>
+        <property name="jdbc.use_streams_for_binary">true</property>
+        <property name="dialect">org.hibernate.dialect.SQLServerDialect</property>
+        <!-- ENTER ALL MAPPING FILES HERE -->
+        <mapping resource="SchemaBSTX.hbm.xml"/>
+        <mapping resource="SchemaAdhoc.hbm.xml"/>
+        <mapping resource="SchemaMetaAttribute.hbm.xml"/>
+        <mapping resource="SchemaMetaAttributePath.hbm.xml"/>
+        <mapping resource="SchemaPath.hbm.xml"/>
+		    <mapping resource="SchemaPathReportAttr.hbm.xml"/>
+        <mapping resource="SchemaAssoc.hbm.xml"/>
+        <mapping resource="SchemaResourceReference.hbm.xml"/>
+        <mapping resource="SchemaPersonResearch.hbm.xml"/>
+        <mapping resource="SchemaTumorReg.hbm.xml"/>
+    </session-factory>
+</hibernate-configuration>

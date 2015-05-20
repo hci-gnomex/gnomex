@@ -1,0 +1,349 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
+		 width="1000" height="100%" 
+		 show="init()" 
+		 alpha="1.0"
+		 showCloseButton="true"  
+		 close="{PopUpManager.removePopUp(this)}"
+		 title="{'Chromatogram ' + selectedIdChromatogram + ' - Raw Data'}"
+		 xmlns:util="views.util.*" >
+	
+	
+	<mx:HTTPService  
+		id="getChromatogram" 
+		url="GetChromatogram.gx"
+		resultFormat="e4x"
+		showBusyCursor="true"
+		result="onGetChromatogram(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to get chromatogram', event)"
+		method="POST"
+		useProxy="false">
+		<mx:request xmlns="">
+			<idChromatogram>{selectedIdChromatogram}</idChromatogram>
+			<includeRaw>{'Y'}</includeRaw>
+		</mx:request>
+	</mx:HTTPService> 
+	
+	<mx:Script> 
+		<![CDATA[
+			import flash.events.MouseEvent;
+			
+			import hci.flex.controls.DropdownLabel;
+			
+			import mx.charts.ChartItem;
+			import mx.charts.HitData;
+			import mx.charts.chartClasses.IAxis;
+			import mx.charts.chartClasses.Series;
+			import mx.charts.series.items.ColumnSeriesItem;
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.controls.Button;
+			import mx.controls.sliderClasses.Slider;
+			import mx.core.Container;
+			import mx.core.IDataRenderer;
+			import mx.events.CloseEvent;
+			import mx.events.CollectionEvent;
+			import mx.events.CollectionEventKind;
+			import mx.events.FlexEvent;
+			import mx.events.FlexMouseEvent;
+			import mx.events.ItemClickEvent;
+			import mx.events.PropertyChangeEvent;
+			import mx.events.ScrollEvent;
+			import mx.events.SliderEvent;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.ResultEvent;
+			import mx.utils.StringUtil;
+			
+			
+			[Bindable]
+			public var selectedIdChromatogram:String;
+			
+			[Bindable]
+			private var aRawDataArray:ArrayCollection = new ArrayCollection();
+			[Bindable]
+			private var cRawDataArray:ArrayCollection = new ArrayCollection();
+			[Bindable]
+			private var gRawDataArray:ArrayCollection = new ArrayCollection();
+			[Bindable]
+			private var tRawDataArray:ArrayCollection = new ArrayCollection();
+			
+			[Bindable]
+			private var vMin:int;
+			[Bindable]
+			private var vMax:int;
+			[Bindable]
+			private var xMin:int;
+			[Bindable]
+			private var xMax:int;
+			[Bindable]
+			private var vZoomValue:Number = 1;
+			[Bindable]
+			private var sliderSpacing:int;
+			
+			
+			public function init():void {
+				addEventListener(FlexMouseEvent.MOUSE_DOWN_OUTSIDE, mouseDownOutsideHandler);
+				
+				if (selectedIdChromatogram != null){
+					this.getChromatogram.send();
+				}
+				
+				// Reset the slider
+				hSlider.scrollPosition = 0;
+				xMin = 0;
+				sliderSpacing = -hZoomSlider.value;
+				xMax = sliderSpacing;
+			}
+						
+			private function onGetChromatogram(event:ResultEvent):void {
+				if (event.result.name() == "ChromatogramList") {
+					getRawData();
+				} else {
+					Alert.show(event.result..ERROR.@message.toString(), "Error getting chromatogram");
+				} 
+			}
+			
+			// Parse the data
+			private function getRawData():void{
+				vMax = 0;
+				vMin = 0;
+				
+				// A
+				var aRawDataString:String = getChromatogram.lastResult..RawData.@aRawData;
+				var aDataArray:Array = aRawDataString.split(",");
+				aRawDataArray = new ArrayCollection(aDataArray);
+				vMax = Math.max.apply(null, aDataArray);
+				vMin = Math.min.apply(null, aDataArray);
+				
+				// C
+				var cRawDataString:String = getChromatogram.lastResult..RawData.@cRawData;
+				var cDataArray:Array = cRawDataString.split(",");
+				cRawDataArray = new ArrayCollection(cDataArray);
+				vMax = Math.max.apply(null, cDataArray) > vMax ? Math.max.apply(null, cDataArray) : vMax;
+				vMin = Math.min.apply(null, cDataArray) < vMin ? Math.min.apply(null, cDataArray) : vMin;
+				
+				// G
+				var gRawDataString:String = getChromatogram.lastResult..RawData.@gRawData;
+				var gDataArray:Array = gRawDataString.split(",");
+				gRawDataArray = new ArrayCollection(gDataArray);
+				vMax = Math.max.apply(null, gDataArray) > vMax ? Math.max.apply(null, gDataArray) : vMax;
+				vMin = Math.min.apply(null, gDataArray) < vMin ? Math.min.apply(null, gDataArray) : vMin;
+				
+				// T
+				var tRawDataString:String = getChromatogram.lastResult..RawData.@tRawData;
+				var tDataArray:Array = tRawDataString.split(",");
+				tRawDataArray = new ArrayCollection(tDataArray);
+				vMax = Math.max.apply(null, tDataArray) > vMax ? Math.max.apply(null, tDataArray) : vMax;
+				vMin = Math.min.apply(null, tDataArray) < vMin ? Math.min.apply(null, tDataArray) : vMin;
+				
+				// Initialize horizontal zoom
+				hZoomSlider.value = -aRawDataArray.length;
+				sliderSpacing = aRawDataArray.length;
+				xMax = hSlider.scrollPosition + sliderSpacing;
+			}
+			
+			// Scroll through the raw data plot
+			private function moveTrace(event:MouseEvent):void {
+				event.stopImmediatePropagation();
+				event.preventDefault();
+				xMin = event.currentTarget.scrollPosition;
+				xMax = event.currentTarget.scrollPosition + sliderSpacing;
+			}
+			
+			// Horizontal zoom
+			private function dragHZoom(event:SliderEvent):void {
+				sliderSpacing = -hZoomSlider.value;
+				xMax = hSlider.scrollPosition + sliderSpacing;
+				if ( xMax > aRawDataArray.length ) {
+					xMax = aRawDataArray.length;
+					xMin = hSlider.scrollPosition = xMax - sliderSpacing;
+				} 
+			}
+			
+			// Display "Zoom in" or "Zoom out" for horizontal zoom slider
+			private function hZoomSliderDataTipFunc(val:String):String {
+				return "Zoom " + (-parseInt(val) < sliderSpacing ? 'in' : 'out');
+			}
+			
+			// Vertical zoom
+			private function dragVZoom(event:SliderEvent):void {
+				vZoomValue = vZoomSlider.value;
+				ry.maximum = vMax/vZoomValue;
+			}
+			
+			// Display "Zoom in" or "Zoom out" for vertical zoom slider
+			private function vZoomSliderDataTipFunc(val:String):String {
+				return "Zoom " + (parseFloat(val) > vZoomValue ? 'in' : 'out');
+			}
+			
+			// Horizontal labels - double the value since we took out half of the points
+			private function horizontalLabelFunction(labelValue:Number, previousLaelValue:Object, axis:IAxis):Number{
+				return labelValue*2;
+			}
+			
+			protected function mouseDownOutsideHandler(event:Object):void
+			{
+				PopUpManager.removePopUp(this);
+			}
+			
+		]]>
+	</mx:Script>    	
+	
+	
+	<mx:VBox width="100%" 
+			 height="100%" 
+			 paddingTop="4" 
+			 paddingLeft="4" 
+			 styleName="form" 
+			 paddingRight="4" 
+			 paddingBottom="4"   
+			 minHeight="0" 
+			 verticalScrollPolicy="auto">
+		
+				<mx:HBox  width="100%" horizontalGap="2">
+					
+					<!-- Vertical zoom slider -->
+					<mx:VBox height="100%" paddingRight="0" paddingLeft="5">
+						<mx:Spacer height="10" width="100%" />
+						<mx:VSlider height="100%" 
+									id="vZoomSlider" 
+									invertThumbDirection="true"
+									tickLength="5"
+									tickOffset="10"
+									snapInterval=".25"
+									minimum=".5" 
+									maximum="5" 
+									value="1" 
+									tickValues="[1]"
+									change="dragVZoom(event);" 
+									liveDragging="false" 
+									dataTipFormatFunction="vZoomSliderDataTipFunc"
+									toolTip="Vertical Scale"/>
+						<mx:Spacer height="85" width="100%" />
+					</mx:VBox>
+					
+					<mx:VBox width="100%">
+									
+						<!-- Raw Data traces -->
+						<mx:LineChart id="rawDataGraph" 
+									  gutterBottom="20" 
+									  gutterTop="20" 
+									  gutterLeft="40" 
+									  gutterRight="20" 
+									  width="100%"  
+									  height="250" >
+							
+							<!-- Series filters -->
+							<mx:seriesFilters>
+								<mx:Array/>
+							</mx:seriesFilters>
+							
+							<!-- Vertical axis -->
+							<mx:verticalAxis>
+								<mx:LinearAxis  
+									id="ry"
+									minimum="{vMin}" 
+									maximum="{vMax}" 
+									baseAtZero="false"/>
+							</mx:verticalAxis>
+							
+							<mx:verticalAxisRenderers>
+								<mx:AxisRenderer 
+									axis="{ry}"  
+									fontSize="10"
+									tickPlacement="none"
+									visible="true"
+									showLabels="true"
+									labelRotation="180"/>
+							</mx:verticalAxisRenderers>
+							
+							<!-- Horizontal axis -->
+							<mx:horizontalAxis>
+								<mx:LinearAxis 
+									id="rx" 
+									labelFunction="horizontalLabelFunction"
+									minimum="{xMin}" 
+									maximum="{xMax}"  />
+							</mx:horizontalAxis>
+							
+							<mx:horizontalAxisRenderers>
+								<mx:AxisRenderer 
+									axis="{rx}" 
+									visible="true" 
+									showLabels="true"
+									tickPlacement="none"/>
+							</mx:horizontalAxisRenderers>
+							
+							
+							<!-- Data series -->
+							<mx:series>
+								
+								<mx:LineSeries dataProvider="{aRawDataArray}" displayName="A"  >
+									<mx:lineStroke>
+										<mx:Stroke color="#00CC00" weight=".25" />
+									</mx:lineStroke>
+								</mx:LineSeries>
+								
+								<mx:LineSeries dataProvider="{cRawDataArray}" displayName="C"  >
+									<mx:lineStroke>
+										<mx:Stroke color="#0000CC" weight=".25" />
+									</mx:lineStroke>
+								</mx:LineSeries>
+								
+								<mx:LineSeries dataProvider="{gRawDataArray}" displayName="G" >
+									<mx:lineStroke>
+										<mx:Stroke 	color="#303030" weight=".25" />
+									</mx:lineStroke>
+								</mx:LineSeries>
+								
+								<mx:LineSeries dataProvider="{tRawDataArray}" displayName="T" >
+									<mx:lineStroke>
+										<mx:Stroke color="#CC0000" weight=".25" />
+									</mx:lineStroke>
+								</mx:LineSeries>
+								
+							</mx:series>
+							
+						</mx:LineChart>
+						
+						
+						<mx:VBox id="hSlidersBox" horizontalAlign="center" width="100%">
+							
+							<!-- Scroll bar -->
+							<mx:HBox width="100%">
+								<mx:Spacer height="100%" width="35"/>
+								<mx:HScrollBar 	id="hSlider" width="100%"
+												mouseUp="moveTrace(event)" 
+												mouseOut="moveTrace(event)"
+												lineScrollSize="{sliderSpacing/20}" 
+												pageScrollSize="{sliderSpacing/5}" 
+												maxScrollPosition="{aRawDataArray.length-sliderSpacing - 1}"
+												minScrollPosition="0" /> 
+								<mx:Spacer height="100%" width="25"/>
+							</mx:HBox>
+							
+							<!-- Horizontal zoom slider -->
+							<mx:HSlider id="hZoomSlider" width="250" 
+										change="dragHZoom(event);" 
+										liveDragging="false" 
+										minimum="{-aRawDataArray.length}" 
+										maximum="-100" 
+										snapInterval="100"
+										toolTip="Horizontal Scale"
+										dataTipFormatFunction="hZoomSliderDataTipFunc" 
+										height="100%"/> 
+							
+						</mx:VBox>
+						
+						<!-- Legend -->
+						<mx:HBox horizontalAlign="center" width="100%">
+							<mx:Legend dataProvider="{rawDataGraph}" />
+						</mx:HBox>
+												
+					</mx:VBox>
+				</mx:HBox>
+			
+		
+	</mx:VBox>
+	
+</mx:TitleWindow>

@@ -1,0 +1,52 @@
+package hci.gnomex.utility;
+
+/**
+ * <p>Title: </p>
+ * <p>Description: </p>
+ * <p>Copyright: Copyright (c) 2003</p>
+ * <p>Company: </p>
+ * @author Kirt Henrie
+ * @version 2.0
+ *
+ * Modification:
+ * 6/10/03    K. Henrie        Change for hibernate 2.0
+ */
+
+import java.io.File;
+import java.util.HashMap;
+
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+
+import org.hibernate.HibernateException;
+import org.hibernate.SessionFactory;
+import org.hibernate.cfg.Configuration;
+
+public class CachedSessionFactory {
+
+  private HashMap factories;
+  private static CachedSessionFactory factory;
+
+  private CachedSessionFactory() {
+    this.factories = new HashMap();
+  }
+
+  public static CachedSessionFactory getCachedSessionFactory() {
+    if (factory == null) {
+      factory = new CachedSessionFactory();
+    }
+    return factory;
+  }
+
+  public SessionFactory getFactory (String jndiName) throws HibernateException, NamingException {
+	  if (this.factories.containsKey(jndiName)) {
+	    return (SessionFactory) factories.get(jndiName);
+	  } else {
+	    Configuration config = new Configuration();
+	    config.configure( new File("applications/gnomex/lib/hibernate.cfg.xml") ).buildSessionFactory();
+	    SessionFactory factory = (SessionFactory) new InitialContext().lookup(jndiName);
+	    factories.put(jndiName, factory);
+	    return factory;
+	  }
+  }
+}

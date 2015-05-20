@@ -1,0 +1,642 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" 
+		 width="100%" height="100%" creationPolicy="all"  backgroundAlpha="0"
+		 paddingTop="1" verticalGap="0" show="init()"  xmlns:util="views.util.*" xmlns:run="views.run.*">
+	
+	<mx:TabBar dataProvider="{theViews}"
+			   childIndexChange="{toggleDateCheckboxes(0);(allCheckbox.selected = false);}"
+			   useHandCursor="true"  styleName="formTabBar"/>
+	
+	
+	
+	<mx:Script> 
+		<![CDATA[
+			
+			private var isInitialized:Boolean = false;
+			
+			public function init():void {
+				if ( !isInitialized ) {
+					pendingCheckbox.selected = true;
+					if(theViews.selectedChild == plateBrowseView){
+						lastWeekCheckboxCreated.selected = true;
+					}
+				}
+				getList();
+				isInitialized = true;
+			}
+			
+			public function getList():void{
+				if(theViews.selectedChild == null){
+					return;
+				}
+				else if(theViews.selectedChild == runBrowseView){
+					runBrowseView.getList();
+				}
+				else if(theViews.selectedChild == plateBrowseView){
+					plateBrowseView.getList();
+				}
+			}
+			
+			private function clearFilters():void {
+				this.lastWeekCheckbox.selected = false;
+				this.lastMonthCheckbox.selected = false;
+				this.lastThreeMonthsCheckbox.selected = false;
+				this.lastYearCheckbox.selected  = false;
+
+				this.lastWeekCheckboxCreated.selected = false;
+				this.lastMonthCheckboxCreated.selected = false;
+				this.lastThreeMonthsCheckboxCreated.selected = false;
+				this.lastYearCheckboxCreated.selected  = false;
+
+				this.pendingCheckbox.selected = false;
+				this.runningCheckbox.selected  = false;
+				this.completeCheckbox.selected = false;
+				this.failedCheckbox.selected  = false;
+				
+				this.capSeqCheckbox.selected = false;
+				this.fragCheckbox.selected = false;
+				this.mitoCheckbox.selected  = false;
+				this.cherryCheckbox.selected = false;
+				
+				this.reactionCheckbox.selected = false;
+				this.sourceCheckbox.selected = false;
+
+				this.allCheckbox.selected = false;
+			}
+			
+			private function toggleDateCheckboxes(checkBoxNumber:int):void {
+				this.lookupPlateNameField.text = '';
+				this.lookupRunNameField.text = '';
+				
+				if (checkBoxNumber == 0) {
+					this.lastWeekCheckbox.selected = false;
+					this.lastMonthCheckbox.selected = false;
+					this.lastThreeMonthsCheckbox.selected = false;
+					this.lastYearCheckbox.selected  = false;
+					
+					this.lastWeekCheckboxCreated.selected  = false;
+					this.lastMonthCheckboxCreated.selected = false;
+					this.lastThreeMonthsCheckboxCreated.selected = false;
+					this.lastYearCheckboxCreated.selected  = false;
+					
+					this.pendingCheckbox.selected = false;
+					this.runningCheckbox.selected  = false;
+					this.completeCheckbox.selected = false;
+					this.failedCheckbox.selected  = false;
+					
+					this.capSeqCheckbox.selected = false;
+					this.fragCheckbox.selected = false;
+					this.mitoCheckbox.selected  = false;
+					this.cherryCheckbox.selected = false;
+					
+					this.reactionCheckbox.selected = false;
+					this.sourceCheckbox.selected = false;
+					
+				} else if (checkBoxNumber == 1) {
+					this.allCheckbox.selected = false;
+					this.lastMonthCheckbox.selected = false;
+					this.lastThreeMonthsCheckbox.selected = false;
+					this.lastYearCheckbox.selected  = false;
+					
+				} else if (checkBoxNumber == 2) {
+					this.allCheckbox.selected = false;
+					this.lastWeekCheckbox.selected = false;
+					this.lastThreeMonthsCheckbox.selected = false;
+					this.lastYearCheckbox.selected  = false;
+					
+				} else if (checkBoxNumber == 3) {
+					this.allCheckbox.selected = false;
+					this.lastWeekCheckbox.selected  = false;
+					this.lastMonthCheckbox.selected = false; 
+					this.lastYearCheckbox.selected  = false;
+					
+				}  else if (checkBoxNumber == 4) {
+					this.allCheckbox.selected = false;
+					this.lastWeekCheckbox.selected  = false;
+					this.lastMonthCheckbox.selected = false; 
+					this.lastThreeMonthsCheckbox.selected = false;
+					
+				}   
+			} 		 
+			
+			private function toggleCreateDateCheckboxes(checkBoxNumber:int):void {
+				this.lookupPlateNameField.text = '';
+				this.lookupRunNameField.text = '';
+				
+				if (checkBoxNumber == 1) {
+					this.allCheckbox.selected = false;
+					this.lastMonthCheckboxCreated.selected = false;
+					this.lastThreeMonthsCheckboxCreated.selected = false;
+					this.lastYearCheckboxCreated.selected  = false;
+					
+				} else if (checkBoxNumber == 2) {
+					this.allCheckbox.selected = false;
+					this.lastWeekCheckboxCreated.selected = false;
+					this.lastThreeMonthsCheckboxCreated.selected = false;
+					this.lastYearCheckboxCreated.selected  = false;
+					
+				} else if (checkBoxNumber == 3) {
+					this.allCheckbox.selected = false;
+					this.lastWeekCheckboxCreated.selected  = false;
+					this.lastMonthCheckboxCreated.selected = false; 
+					this.lastYearCheckboxCreated.selected  = false;
+					
+				}  else if (checkBoxNumber == 4) {
+					this.allCheckbox.selected = false;
+					this.lastWeekCheckboxCreated.selected  = false;
+					this.lastMonthCheckboxCreated.selected = false; 
+					this.lastThreeMonthsCheckboxCreated.selected = false;
+					
+				}   
+			} 		 
+			
+			private function toggleStatusCheckboxes(checkBoxNumber:int):void {
+				this.lookupPlateNameField.text = '';
+				this.lookupRunNameField.text = '';
+				
+				if (checkBoxNumber == 1) {
+					this.allCheckbox.selected = false;
+					this.runningCheckbox.selected  = false;
+					this.completeCheckbox.selected = false;
+					this.failedCheckbox.selected  = false;
+					
+				} else if (checkBoxNumber == 2) {
+					this.allCheckbox.selected = false;
+					this.pendingCheckbox.selected = false;
+					this.completeCheckbox.selected = false;
+					this.failedCheckbox.selected  = false;
+					
+				} else if (checkBoxNumber == 3) {
+					this.allCheckbox.selected = false;
+					this.pendingCheckbox.selected = false;
+					this.runningCheckbox.selected = false;
+					this.failedCheckbox.selected  = false;
+					
+				}  else if (checkBoxNumber == 4) {
+					this.allCheckbox.selected = false;
+					this.pendingCheckbox.selected = false;
+					this.runningCheckbox.selected  = false;
+					this.completeCheckbox.selected  = false;
+					
+				} 
+			}
+			
+			private function toggleTypeCheckboxes(checkBoxNumber:int):void {
+				this.lookupPlateNameField.text = '';
+				this.lookupRunNameField.text = '';
+				
+				if (checkBoxNumber == 1) {
+					this.allCheckbox.selected = false;
+					this.fragCheckbox.selected = false;
+					this.mitoCheckbox.selected  = false;
+					this.cherryCheckbox.selected = false;
+					
+				} else if (checkBoxNumber == 2) {
+					this.allCheckbox.selected = false;
+					this.capSeqCheckbox.selected = false;
+					this.mitoCheckbox.selected  = false;
+					this.cherryCheckbox.selected = false;
+					
+				} else if (checkBoxNumber == 3) {
+					this.allCheckbox.selected = false;
+					this.capSeqCheckbox.selected = false;
+					this.fragCheckbox.selected = false;
+					this.cherryCheckbox.selected = false;
+					
+				}  else if (checkBoxNumber == 4) {
+					this.allCheckbox.selected = false;
+					this.capSeqCheckbox.selected = false;
+					this.fragCheckbox.selected = false;
+					this.mitoCheckbox.selected  = false;
+				}     
+			}
+			
+			private function toggleCodePlateType(checkBoxNumber:int):void{
+				this.lookupPlateNameField.text = '';
+				this.lookupRunNameField.text = '';
+				if(checkBoxNumber == 0){
+					this.allCheckbox.selected = false;
+					this.sourceCheckbox.selected = false;
+				}
+				else if(checkBoxNumber == 1){
+					this.allCheckbox.selected = false;
+					this.reactionCheckbox.selected = false;
+					this.mitoCheckbox.selected = false;
+					this.capSeqCheckbox.selected = false;
+				}
+			}
+			
+			private function setDefaultButton():void {
+				if ( this.lookupPlateNameField.text != '' || this.lookupRunNameField.text != '' ) {
+					this.lastWeekCheckboxCreated.selected  = false;
+					this.lastMonthCheckboxCreated.selected = false;
+					this.lastThreeMonthsCheckboxCreated.selected = false;
+					this.lastYearCheckboxCreated.selected  = false;
+					
+					this.lastWeekCheckbox.selected = false;
+					this.lastMonthCheckbox.selected = false;
+					this.lastYearCheckbox.selected = false;
+					
+					this.pendingCheckbox.selected = false;
+					this.runningCheckbox.selected = false;
+					this.completeCheckbox.selected = false;
+					
+					this.capSeqCheckbox.selected = false;
+					this.fragCheckbox.selected = false;
+					this.mitoCheckbox.selected  = false;
+					this.cherryCheckbox.selected = false;
+					this.allCheckbox.selected = false;
+					
+					this.reactionCheckbox.selected = false;
+					this.sourceCheckbox.selected = false;
+						
+				}
+			}
+			
+			private function lookupPlateNameFieldEntered():void {
+				if (lookupPlateNameField.text != '') {
+					clearFilters();
+					this.getList();
+				}
+			}
+			
+			private function lookupRunNameFieldEntered():void {
+				if (lookupRunNameField.text != '') {
+					clearFilters();
+					this.getList();	
+				}
+			}
+			
+		]]>
+	</mx:Script> 
+	
+	<mx:VBox  width="100%" height="100%" verticalGap="0" styleName="panelBox"  >
+		<mx:VBox  width="100%" verticalGap="0"  >
+			<mx:HBox id = "filterBar"
+					 width="100%"
+					 horizontalGap = "4"
+					 paddingTop = "0"
+					 paddingBottom = "0"
+					 paddingLeft = "2"
+					 horizontalAlign = "left"
+					 verticalAlign = "middle" paddingRight="2">
+				
+				<mx:HBox horizontalGap="0" height="100%"
+						 verticalAlign="middle"
+						 verticalGap="0"
+						 horizontalAlign="right"
+						 paddingLeft="5"
+						 paddingRight="5">
+					<mx:CheckBox id="allCheckbox"
+								 label="Show all"
+								 paddingRight="0"
+								 paddingLeft="0"
+								 horizontalGap="0" styleName="labelSmall" selected="false" >
+						<mx:click>
+							toggleDateCheckboxes( 0 );
+							this.getList();
+						</mx:click>
+						
+					</mx:CheckBox>
+					
+				</mx:HBox>
+				
+				<mx:VRule height="20" includeInLayout="{theViews.selectedChild == runBrowseView}" visible="{theViews.selectedChild == runBrowseView}" />
+				
+				<mx:HBox id = "statusCheckboxBar" includeInLayout="{theViews.selectedChild == runBrowseView}"
+						 visible="{theViews.selectedChild == runBrowseView}"
+						 horizontalGap = "0"
+						 verticalAlign = "middle"
+						 verticalGap = "0"
+						 horizontalAlign = "right">
+					<mx:CheckBox label = "Pending"
+								 id = "pendingCheckbox"
+								 horizontalGap = "0"
+								 styleName = "labelSmall"
+								 paddingLeft = "2" >
+						<mx:click>
+							toggleStatusCheckboxes( 1 );
+							getList();
+						</mx:click>
+						
+					</mx:CheckBox>
+					
+					<mx:CheckBox label = "Running"
+								 id = "runningCheckbox"
+								 paddingLeft = "2"
+								 horizontalGap = "0"
+								 styleName = "labelSmall">
+						<mx:click>
+							toggleStatusCheckboxes( 2 );
+							getList();
+						</mx:click>
+						
+					</mx:CheckBox>
+					
+					<mx:CheckBox label = "Complete"
+								 id = "completeCheckbox"
+								 paddingLeft = "2"
+								 horizontalGap = "0"
+								 styleName = "labelSmall">
+						<mx:click>
+							toggleStatusCheckboxes( 3 );
+							getList();
+						</mx:click>
+						
+					</mx:CheckBox>
+					
+					<mx:CheckBox label = "Failed"
+								 id = "failedCheckbox"
+								 paddingLeft = "2"
+								 horizontalGap = "0"
+								 styleName = "labelSmall">
+						<mx:click>
+							toggleStatusCheckboxes( 4 );
+							getList();
+						</mx:click>
+						
+					</mx:CheckBox>
+				</mx:HBox>
+				
+				<mx:VRule height = "20" />
+				
+				<mx:HBox id = "typeCheckboxBar"
+						 horizontalGap = "0"
+						 height = "100%"
+						 verticalAlign = "middle"
+						 verticalGap = "0"
+						 horizontalAlign = "right"
+						 paddingLeft = "5"
+						 paddingRight = "5">
+					<mx:VBox verticalGap="0">
+						<mx:CheckBox label = "Sanger Seq"
+									 id = "capSeqCheckbox" selected="true"
+									 horizontalGap = "0"
+									 styleName = "labelSmall"
+									 paddingLeft = "2" paddingRight="0" paddingTop="0" paddingBottom="0">
+							<mx:click>
+								toggleTypeCheckboxes( 1 );
+								getList();
+							</mx:click>
+							
+						</mx:CheckBox>
+						
+						<mx:CheckBox label = "Frag Analysis"
+									 id = "fragCheckbox"
+									 paddingLeft = "2"
+									 horizontalGap = "0"
+									 styleName = "labelSmall" paddingBottom="0" paddingRight="0" paddingTop="0">
+							<mx:click>
+								toggleTypeCheckboxes( 2 );
+								getList();
+							</mx:click>
+							
+						</mx:CheckBox>
+						
+					</mx:VBox>
+					<mx:VBox verticalGap="0">
+						<mx:CheckBox label = "Mit Seq"
+									 id = "mitoCheckbox"
+									 paddingLeft = "0"
+									 horizontalGap = "0"
+									 styleName = "labelSmall" paddingBottom="0" paddingTop="0" paddingRight="0">
+							<mx:click>
+								toggleTypeCheckboxes( 3 );
+								getList();
+							</mx:click>
+							
+						</mx:CheckBox>
+						
+						<mx:CheckBox label = "Cherry Pick"
+									 id = "cherryCheckbox"
+									 paddingLeft = "0"
+									 horizontalGap = "0"
+									 styleName = "labelSmall" paddingBottom="0"  paddingRight="0">
+							<mx:click>
+								toggleTypeCheckboxes( 4 );
+								getList();
+							</mx:click>
+							
+						</mx:CheckBox>
+					</mx:VBox>	
+				</mx:HBox>
+				
+				<mx:VRule height = "20" />
+				
+				<mx:HBox id = "createDateCheckboxBar"
+						 horizontalGap = "0" height="100%"
+						 verticalAlign = "middle"
+						 verticalGap = "0"
+						 horizontalAlign = "right"
+						 paddingLeft = "5"
+						 paddingRight = "5">
+					<mx:VBox verticalGap="0">
+						<mx:HBox horizontalGap="0">
+							<mx:CheckBox id = "lastWeekCheckboxCreated"
+										 label = "Created in last week"
+										 paddingRight = "0" 
+										 horizontalGap = "0"
+										 paddingLeft = "0"
+										 styleName = "labelSmall" paddingTop="0">
+								<mx:click>
+									toggleCreateDateCheckboxes( 1 );
+									getList();
+								</mx:click>
+								
+							</mx:CheckBox>
+							
+							<mx:CheckBox id = "lastMonthCheckboxCreated"
+										 label = "month"
+										 paddingRight = "0"
+										 paddingLeft = "2"
+										 horizontalGap = "0"
+										 styleName = "labelSmall" paddingTop="0">
+								<mx:click>
+									toggleCreateDateCheckboxes( 2 );
+									getList();
+								</mx:click>
+								
+							</mx:CheckBox>
+							
+							<mx:CheckBox id = "lastThreeMonthsCheckboxCreated"
+										 label = "3 months"
+										 paddingRight = "0"
+										 paddingLeft = "2"
+										 horizontalGap = "0"
+										 styleName = "labelSmall" paddingTop="0">
+								<mx:click>
+									toggleCreateDateCheckboxes( 3 );
+									getList();
+								</mx:click>
+								
+							</mx:CheckBox>
+							
+							<mx:CheckBox id = "lastYearCheckboxCreated"
+										 label = "year"
+										 paddingLeft = "2"
+										 paddingRight = "0"
+										 horizontalGap = "0"
+										 styleName = "labelSmall" paddingTop="0">
+								<mx:click>
+									toggleCreateDateCheckboxes( 4 );
+									getList();
+								</mx:click>
+								
+							</mx:CheckBox>
+							
+						</mx:HBox>
+						<mx:HBox horizontalGap="0" includeInLayout="{theViews.selectedChild == runBrowseView}"
+								 visible="{theViews.selectedChild == runBrowseView}">
+							<mx:CheckBox id = "lastWeekCheckbox"
+										 label = "Run in last week"
+										 paddingRight = "0"
+										 horizontalGap = "0"
+										 paddingLeft = "0"
+										 styleName = "labelSmall" width="122">
+								<mx:click>
+									toggleCreateDateCheckboxes( 1 );
+									getList();
+								</mx:click>
+								
+							</mx:CheckBox>
+							
+							<mx:CheckBox id = "lastMonthCheckbox"
+										 label = "month"
+										 paddingRight = "0"
+										 paddingLeft = "2"
+										 horizontalGap = "0"
+										 styleName = "labelSmall" paddingTop="0">
+								<mx:click>
+									toggleCreateDateCheckboxes( 2 );
+									getList();
+								</mx:click>
+								
+							</mx:CheckBox>
+							
+							<mx:CheckBox id = "lastThreeMonthsCheckbox"
+										 label = "3 months"
+										 paddingRight = "0"
+										 paddingLeft = "2"
+										 horizontalGap = "0"
+										 styleName = "labelSmall" paddingTop="0">
+								<mx:click>
+									toggleCreateDateCheckboxes( 3 );
+									getList();
+								</mx:click>
+								
+							</mx:CheckBox>
+							
+							<mx:CheckBox id = "lastYearCheckbox"
+										 label = "year"
+										 paddingLeft = "2"
+										 paddingRight = "0"
+										 horizontalGap = "0"
+										 styleName = "labelSmall" paddingTop="0">
+								<mx:click>
+									toggleCreateDateCheckboxes( 4 );
+									getList();
+								</mx:click>
+								
+							</mx:CheckBox>
+							
+						</mx:HBox>
+						
+					</mx:VBox>
+					
+					<mx:VRule height="20" includeInLayout="{theViews.selectedChild == plateBrowseView}" visible="{theViews.selectedChild == plateBrowseView}"/>
+					
+					<mx:VBox horizontalGap="0" includeInLayout="{theViews.selectedChild == plateBrowseView}"
+							 verticalGap="0" 
+							 visible="{theViews.selectedChild == plateBrowseView}" paddingLeft="5" paddingRight="5"
+							 horizontalAlign = "left" verticalAlign="middle">
+						<mx:CheckBox id="reactionCheckbox"
+									 label="Reaction"
+									 paddingLeft = "2"
+									 paddingRight = "0"
+									 horizontalGap = "0"
+									 styleName = "labelSmall" paddingTop="0">
+							<mx:click>
+								toggleCodePlateType(0);
+								getList();
+							</mx:click>
+						</mx:CheckBox>
+						
+						<mx:CheckBox id="sourceCheckbox"
+									 label="Source"
+									 paddingLeft = "2"
+									 paddingRight = "0"
+									 horizontalGap = "0"
+									 styleName = "labelSmall" paddingTop="0">
+							<mx:click>
+								toggleCodePlateType(1);
+								getList();
+							</mx:click>
+						</mx:CheckBox>
+						
+					</mx:VBox>
+					
+					<mx:VRule height="20"/>
+					<mx:HBox horizontalGap="0" paddingLeft="2" paddingRight="0"
+							 horizontalAlign = "right" verticalAlign="middle" includeInLayout="{theViews.selectedChild == plateBrowseView}"
+							 visible="{theViews.selectedChild == plateBrowseView}">
+						<mx:Label text="Plate Name:" />
+						
+						<mx:TextInput id="lookupPlateNameField"
+									  fontSize="9"
+									  height="20"
+									  width="100"
+									  enter="{lookupPlateNameFieldEntered()}" />
+						
+						
+					</mx:HBox>
+					
+					<mx:VBox visible="{theViews.selectedChild == runBrowseView}" 
+							 includeInLayout="{theViews.selectedChild == runBrowseView}" horizontalAlign="right" 
+							 verticalAlign="middle" paddingLeft="5">
+						<mx:HBox>
+							<mx:Label text="Run Name" />
+							
+							<mx:TextInput id="lookupRunNameField"
+										  fontSize="9"
+										  height="20"
+										  width="100"
+										  enter="{lookupRunNameFieldEntered()}"  />
+							
+
+							
+						</mx:HBox>
+						<mx:HBox>
+							
+							<mx:LinkButton textDecoration = "underline"
+										   label = "Refresh"
+										   click = "{getList();}"
+										   icon = "@Embed('../../assets/action_refresh.gif')"
+										   toolTip = "Refresh run list"  paddingBottom="0" paddingTop="0"
+										   paddingRight="2" width="115"/>
+						</mx:HBox>
+					</mx:VBox>
+					
+				</mx:HBox>
+				<mx:Spacer width="100%" visible="{theViews.selectedChild == plateBrowseView}" includeInLayout="{theViews.selectedChild == plateBrowseView}" />
+				<mx:LinkButton textDecoration = "underline"
+							   label = "Refresh"
+							   click = "{getList();}"
+							   icon = "@Embed('../../assets/action_refresh.gif')"
+							   toolTip = "Refresh plate list"  paddingBottom="0" paddingTop="0"
+							   visible="{theViews.selectedChild == plateBrowseView}" includeInLayout="{theViews.selectedChild == plateBrowseView}"/>
+			</mx:HBox>
+			
+		</mx:VBox>
+		<mx:ViewStack id="theViews" selectedIndex="0" creationPolicy="all" visible="true" width="100%" height="100%">
+			
+			<run:PlateBrowseView label="Plates" icon="@Embed(source='../../assets/plate.png')"
+								 id="plateBrowseView" width="100%" height="100%" parentView="{this}">
+			</run:PlateBrowseView>
+			
+			<run:RunBrowseView label="Instrument runs" icon="@Embed(source='../../assets/run.png')"
+							   id="runBrowseView"  width="100%" height="100%" parentView="{this}">
+			</run:RunBrowseView>
+			
+		</mx:ViewStack>
+	</mx:VBox>
+</mx:VBox>

@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
+				showCloseButton="true" close="{PopUpManager.removePopUp(this)}"
+				layout="vertical" horizontalAlign="right" verticalGap="10"  creationPolicy="all" 
+				title="FAQ Manager - New Item" styleName="loginWindow"
+				borderThickness="4"  titleStyleName="loginTitleStyle" height="200" width="725">	
+
+    <mx:HTTPService 
+	    id="saveFAQ"	 
+		destination="saveFAQ"
+	    url="SaveFAQ.gx"
+	    resultFormat="e4x"
+	    result="onSaveFAQ(event)"
+	    fault="parentApplication.onFailHttpRequest('Save FAQ Failed', event)"
+	    showBusyCursor="true"
+	    useProxy="false">
+		
+			<mx:request>
+				<title>{itemTitle}</title>
+				<url>{url}</url>
+			</mx:request>
+    </mx:HTTPService> 	
+
+    <mx:Script>            
+        <![CDATA[
+			import mx.collections.Sort;
+			import mx.collections.XMLListCollection;
+			import mx.controls.Alert;
+			import mx.core.Application;
+			import mx.events.CloseEvent;
+			import mx.events.ListEvent;
+			import mx.events.ValidationResultEvent;
+			import mx.managers.CursorManager;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			import mx.utils.ArrayUtil;
+						
+			[Bindable]
+			public var itemTitle:String;
+			
+			[Bindable]
+			public var url:String;
+			
+			public function init():void {
+
+			}
+			
+			private function save():void {
+				if(urlInput.length == 0 && titleInput.length > 200){
+					Alert.show("Length of the FAQ title cannot exceed 200 characters and url cannot be empty.");
+					return;
+				}else if (urlInput.text.indexOf("http://") == -1 && urlInput.text.indexOf("https://") == -1){
+					Alert.show("URL must contain either http:// or https://");
+					return;
+				}else{
+					itemTitle = titleInput.text;
+					url = urlInput.text;
+					saveFAQ.send(); 
+					PopUpManager.removePopUp(this);
+				}
+			}
+			
+			private function onSaveFAQ(event:ResultEvent):void {
+				if (saveFAQ.lastResult.name() == "SUCCESS") {
+					// Success.
+					saveButton.dispatchEvent(new Event("testEvent",true, false));
+				}else{
+					Alert.show("Error in saving FAQ.");
+				}
+			}
+			
+			private function cancelFAQ():void{
+				PopUpManager.removePopUp(this);
+			}
+		]]>
+    </mx:Script>   
+		
+	<mx:VBox styleName="form" width="90%" height="100%" paddingBottom="20" paddingLeft="20" paddingRight="20" paddingTop="20">
+		<mx:HBox>
+	  		<mx:Label fontWeight="bold" text="Title: "/>
+	  		<mx:TextInput id="titleInput" text="{itemTitle}" width="633" />
+		</mx:HBox>
+		
+		<mx:HBox>
+			<mx:Label fontWeight="bold" text="URL: "/>
+			<mx:TextInput id="urlInput" text="http://" width="633" />
+		</mx:HBox>
+		<mx:Spacer height="100%" />
+			
+		<mx:HBox width="100%">
+			<mx:Button id="cancelButton" label="Cancel" click="cancelFAQ()" />
+			<mx:Spacer width="100%"/>
+			<mx:Button label="Save" id="saveButton" click="save()" icon="@Embed(source='../../assets/save.png')" enabled="{titleInput.text != '' &amp;&amp; urlInput.text != ''}" disabledIcon="@Embed(source='../../assets/save_disable.png')"/>
+		</mx:HBox>
+	</mx:VBox>
+</mx:TitleWindow>

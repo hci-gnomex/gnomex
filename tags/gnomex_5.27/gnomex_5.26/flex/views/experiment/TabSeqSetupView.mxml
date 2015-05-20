@@ -1,0 +1,413 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas label="Library Prep" 
+	xmlns:mx="http://www.adobe.com/2006/mxml"
+	xmlns:util="views.util.*" 
+	 width="100%" height="100%" show="init()" >
+	<mx:states>
+		<mx:State name="EditState">
+			<mx:RemoveChild target="{hbox1}"/>
+			<mx:SetProperty name="enabled" value="true"/>
+		</mx:State>
+	</mx:states>
+	
+	<mx:HTTPService  
+		id="getLibPrepApplicationPriceList" 
+		url="GetLibPrepApplicationPriceList.gx"
+		destination="getLibPrepApplicationPriceList" 
+		resultFormat="e4x"
+		showBusyCursor="true"
+		result="onGetLibPrepApplicationPriceList(event)"
+		fault="parentApplication.onFailHttpRequest('Unable to get Illumina experiment type price list', event)"
+		method="POST"
+		useProxy="false">
+	</mx:HTTPService>
+
+<mx:Script>
+	<![CDATA[
+		
+		import hci.flex.controls.CheckBox;
+		
+		import mx.collections.ArrayCollection;
+		import mx.collections.Sort;
+		import mx.collections.XMLListCollection;
+		import mx.controls.RadioButton;
+		import mx.controls.Spacer;
+		import mx.events.ListEvent;
+		import mx.formatters.CurrencyFormatter;
+		import mx.rpc.events.ResultEvent;
+		
+		import views.renderers.CheckBoxIsSelectedChipType;
+	
+		private var validNumberOfSamples:Boolean = true;
+		private var validConcentration:Boolean = true;
+		private var application:Object = null;
+		
+		[Bindable]
+		private var meanInsertSizes:ArrayCollection = null;
+
+		private var codeRequestCategoryInitted:String = "";
+		private var seqPrepByCoreInitted:String = "NotInitted";
+		private var idLabInitted:String = "NotInitted";
+		
+		[Bindable]
+		private var themeList:XMLListCollection = null;
+		
+		[Bindable]
+		private var preparedAppList:XMLListCollection = null;
+		
+		private var priceMap:Dictionary = new Dictionary();
+		private var selectedPriceIdLab:String = "";
+		private var selectedPriceCodeRequestCategory:String = "";
+		private var loadedPriceIdLab:String = "";
+		private var loadedPriceCodeRequestCategory:String = "";
+		
+		[Bindable]
+		private var colors:ArrayCollection = new ArrayCollection([0xFFFFFF, 0xEDEDE9]);
+
+		private var currencyFormatter:CurrencyFormatter = new CurrencyFormatter();
+
+		private function init():void {
+			checkSecurity();
+			
+			// We don't show seq apps on edit window
+			if (this.currentState == "EditState") {
+				return;
+			}
+			
+			var localPrepByCore:String = "";
+			if (parentDocument.samples.length > 0) {
+				localPrepByCore = parentDocument.samples.getItemAt(0).@seqPrepByCore;
+			}
+			
+			if (parentDocument.getIdLab() == null) {
+				return;
+			}
+			
+			// Only initialize once.
+			if (themeList != null && codeRequestCategoryInitted == parentDocument.getRequestCategory().@codeRequestCategory
+				&& seqPrepByCoreInitted == localPrepByCore && idLabInitted == parentDocument.getIdLab()) {
+				return;
+			}
+			
+			this.codeRequestCategoryInitted = parentDocument.getRequestCategory().@codeRequestCategory;
+			this.seqPrepByCoreInitted = localPrepByCore;
+			this.idLabInitted = parentDocument.getIdLab();
+			
+			parentDocument.filteredAppList.refresh();
+			
+			// Map the apps by theme
+			this.applicationThemeRepeater.dataProvider = null;
+			this.applicationRepeater.dataProvider = null;
+			var themeMap:Array = new Array();
+			preparedAppList = new XMLListCollection();
+			for each(var item:Object in parentDocument.filteredAppList) {
+				var de:XMLList = parentApplication.dictionaryManager.getEntry("hci.gnomex.model.ApplicationTheme", item.@idApplicationTheme);
+				if (de.length() >= 1) {
+					themeMap[item.@idApplicationTheme.toString()] = de[0];
+				}
+				if (priceMap != null && priceMap[item.@codeApplication.toString()] != null && localPrepByCore == 'Y') {
+					item.@price = priceMap[item.@codeApplication.toString()];
+				} else {
+					item.@price = "";
+				}
+				preparedAppList.addItem(item.copy());
+			}
+			
+			if(parentDocument.sampleSetupView.samplesAlreadyPreppedCheckbox.selected){
+				preparedAppList.sort = this.applicationSorterAlphabet;
+				preparedAppList.refresh();
+			}
+			
+			themeList = new XMLListCollection();
+			for each(var theme:Object in themeMap) {
+				themeList.addItem(theme);
+			}
+			
+			themeList.sort = this.applicationSorter;	
+			themeList.refresh();
+			this.applicationThemeRepeater.dataProvider = themeList;
+			themeList.refresh();
+			this.applicationRepeater.dataProvider = preparedAppList;
+			preparedAppList.refresh();
+			this.chosenThemeLabel.text = "";
+			libraryDesign.visible = false;
+			libraryDesign.includeInLayout = false;
+
+			seqAppBox.styleName="normalBox";
+			
+			checkSeqAppSetupCompleteness();
+		}
+		
+		private function sortApplicationsOnOrder(obj1:Object, obj2:Object, fields:Array = null):int{
+			if (obj1 == null && obj2 == null) {
+				return 0;
+			} else if (obj1 == null) {
+				return 1;
+			} else if (obj2 == null) {
+				return -1;
+			} else {
+				var sortOrder1:Number = obj1.@sortOrder == "" ? 999 : obj1.@sortOrder;
+				var sortOrder2:Number = obj2.@sortOrder == "" ? 999 : obj2.@sortOrder;
+				if (sortOrder1 < sortOrder2) {
+					return -1;
+				} else if (sortOrder1 > sortOrder2) {
+					return 1;
+				} else {
+					return 0;
+				}
+			}
+		}
+		
+		private function sortApplicationsAlphabetically(obj1:Object, obj2:Object, fields:Array = null):int{
+			if (obj1 == null && obj2 == null) {
+				return 0;
+			}else if (obj1 == null) {
+				return 1;
+			} else if (obj2 == null) {
+				return -1;
+			} else{
+				if(String(obj1.@display).toLowerCase() < String(obj2.@display).toLowerCase()){
+					return -1;
+				} else if(String(obj1.@display).toLowerCase() > String(obj2.@display).toLowerCase()){
+					return 1;
+				} else{
+					return 0;
+				}
+			}
+		}
+		
+		public function checkSecurity():void {
+		}
+		
+		private function onSeqAppRadioClick():void {
+			if (this.radioGroupSeqApp.selectedValue != null) {
+				this.seqAppBox.styleName = 'normalBox';
+				application = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Application', radioGroupSeqApp.selectedValue);
+				if (application != null && application is XMLList) {
+					this.parentDocument.applicationName = application[0].@display;
+					this.parentDocument.codeApplication = application[0].@codeApplication;
+					if(application[0].@hasCaptureLibDesign == 'Y'){ //If it is sure select we need to show the library capture id input box
+						libraryDesign.visible = true;
+						libraryDesign.includeInLayout = true;
+					} else {
+						libraryDesign.visible = false;
+						libraryDesign.includeInLayout = false;
+						designID.text = "";
+						libraryDesign.styleName = "requiredBox";
+						parentDocument.request.@captureLibDesignId = "";
+					}
+				} else if (application != null && application is XML) {
+					this.parentDocument.applicationName = application.@display;
+					this.parentDocument.codeApplication = application.@codeApplication;
+				}
+			} else {
+				this.seqAppBox.styleName = 'requiredBox';
+				this.parentDocument.applicationName = '';
+				this.parentDocument.codeApplication = '';	
+			}
+			
+			propagateSeqLibProtocol();
+			
+			this.checkSeqAppSetupCompleteness();
+		}
+	
+		private function propagateSeqLibProtocol():void {
+			var protocol:XML = parentApplication.dictionaryHelper.getProtocolFromApplication(parentDocument.codeApplication);
+			var id:String = protocol == null ? "" : protocol.@idSeqLibProtocol.toString();
+			for each (var sample:Object in parentDocument.samples) {
+				sample.@idSeqLibProtocol = id;
+			}
+		}		
+
+		public function checkSeqAppSetupCompleteness():Boolean {
+			var isComplete:Boolean = false;
+			if (parentDocument.isEditState() && parentDocument.request.@captureLibDesignId != "") {
+				isComplete = true;
+			} else if (parentDocument.isSolexaState() || parentDocument.isSolexaAmendState() || parentDocument.isAmendState() || parentDocument.isNanoStringState()) {
+				if (this.radioGroupSeqApp.selectedValue != null && this.radioGroupSeqApp.selectedValue != '') {
+					
+					if (libraryDesign.visible) {
+						
+						// If the capture design lib id is visible, it is required, so
+						// make sure it has been filled in.
+						if (parentDocument.request.@captureLibDesignId != "") {
+							isComplete = true;
+						}
+					} else {
+						
+						// If neither insert ranges or design lib id is visible, we have
+						// passed all of the required field checks already.
+						isComplete = true;
+						
+					}
+				}
+			} 
+			
+			if (this.currentState != "EditState") {
+				parentDocument.samplesView.enabled = isComplete; 
+			}
+			
+			
+			if (this.currentState != "EditState" && parentDocument.theTab.contains(parentDocument.annotationView)) {
+				parentDocument.annotationView.enabled = isComplete;        			
+			}
+			
+			parentDocument.enableNextButtons();
+			
+			callLater(postSeqAppSetupCompleteness, [isComplete]);
+			
+			return isComplete;
+			
+		}
+		
+        private function postSeqAppSetupCompleteness(isComplete:Boolean):void {
+	    		
+	    	if (!isComplete) {
+				if (parentDocument.theTab.contains(parentDocument.seqSetup1View)) {
+					parentDocument.seqSetup1View.enabled = false;
+				}
+	        	if (parentDocument.theTab.contains(parentDocument.samplesView)) {
+		        	parentDocument.samplesView.enabled = false;
+	        	}
+				if (parentDocument.theTab.contains(parentDocument.annotationView)) {
+					parentDocument.annotationView.enabled = false;
+				}
+				if (parentDocument.theTab.contains(parentDocument.bioinformaticsView)) {
+					parentDocument.bioinformaticsView.enabled = false;
+				}
+				if (parentDocument.theTab.contains(parentDocument.visibilityView)) {
+					parentDocument.visibilityView.enabled = false;
+				}
+	        	parentDocument.confirmView.enabled = false;
+    		} else {
+    			if (parentDocument.theTab.contains(parentDocument.seqSetup1View)) {
+					parentDocument.seqSetup1View.enabled = true;
+		    		parentDocument.seqSetup1View.checkSeqSetup1Completeness();
+		    	} else if (parentDocument.theTab.contains(parentDocument.annotationView)) {
+					parentDocument.annotationView.enabled = true;
+				}
+    		}
+        	
+        }
+		
+		private function propagateDesign():void{
+			libraryDesign.styleName = "requiredBox";
+	
+			if(designID.text != "" || designID.text != null){
+				parentDocument.request.@captureLibDesignId = designID.text;
+				libraryDesign.styleName = "undefined";
+			}
+			
+			checkSeqAppSetupCompleteness();
+		}
+		
+		private function chooseTheme(applicationTheme:Object):void {
+			chosenThemeLabel.text = applicationTheme.@display.toString();
+			var capLibBoxSet:Boolean = false;
+			var visIndex:int = 0;
+			for(var i:int = 0; i < this.applicationRepeaterHBox.length; i++) {
+				var box:HBox = HBox(applicationRepeaterHBox[i]);
+				var app:Object = preparedAppList.getItemAt(i);
+				if (app.@idApplicationTheme == applicationTheme.@value) {
+					box.setStyle("backgroundColor",colors.getItemAt(visIndex%2) as uint);
+					visIndex++;
+					box.visible = true;
+					box.includeInLayout = true;
+					seqAppBox.validateNow();
+					if(app.@hasCaptureLibDesign == 'Y' && !capLibBoxSet){
+						designSpacer.height = box.y;
+						designSpacer.validateNow();
+						capLibBoxSet = true;
+						if (app.@value == radioGroupSeqApp.selectedValue) {
+							libraryDesign.visible = true;
+						}
+					}
+				} else {
+					box.visible = false;
+					box.includeInLayout = false;
+					if (app.@value == radioGroupSeqApp.selectedValue && app.@hasCaptureLibDesign == 'Y') {
+						libraryDesign.visible = false;
+					}
+					if (app.@value == radioGroupSeqApp.selectedValue) {
+						radioGroupSeqApp.selection = null;
+					}
+				}
+			}
+			
+			checkSeqAppSetupCompleteness();
+		}
+		
+		public function loadPriceList(idLab:String, codeRequestCategory:String):void {
+			if (idLab != null && codeRequestCategory != null && (loadedPriceIdLab != idLab || loadedPriceCodeRequestCategory != codeRequestCategory)) {
+				priceMap = new Dictionary();
+				var parms:Object = new Object();
+				parms.idLab = idLab;
+				parms.codeRequestCategory = codeRequestCategory;
+				getLibPrepApplicationPriceList.send(parms);
+				selectedPriceIdLab = idLab;
+				selectedPriceCodeRequestCategory = codeRequestCategory;
+			}
+		}
+		
+		private function onGetLibPrepApplicationPriceList(event:ResultEvent):void {
+			priceMap = new Dictionary();
+			for each (var price:Object in getLibPrepApplicationPriceList.lastResult.Price) {
+				var key:String = price.@codeApplication;
+				priceMap[key] = currencyFormatter.format(price.@price.toString());
+			}
+			
+			loadedPriceIdLab = selectedPriceIdLab;
+			loadedPriceCodeRequestCategory = selectedPriceCodeRequestCategory;
+		}
+	]]>
+</mx:Script>
+	
+  <mx:Sort id="applicationSorter" compareFunction="sortApplicationsOnOrder"/>
+  <mx:Sort id="applicationSorterAlphabet" compareFunction="sortApplicationsAlphabetically"/>
+
+  <mx:XMLListCollection id="seqLibTreatments" source="{parentDocument.request.SeqLibTreatmentEntries.SeqLibTreatment}"/>
+  <mx:Canvas width="100%" height="100%">
+    <mx:VBox id="topBox" width="100%" height="100%" verticalGap="0" horizontalScrollPolicy="off">
+		<util:ContextHelp context1="seqSetupApplication" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Experiment Type Help"
+						  label="Select a sequencing experiment type." labelPlacement="left" id="labelApplication" width="400" paddingTop="10" paddingBottom="10"/>
+		<mx:HBox width="100%" paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0" horizontalScrollPolicy="off">
+			<mx:RadioButtonGroup id="radioGroupApplicationTheme"/>
+			<mx:Repeater id="applicationThemeRepeater" dataProvider="{themeList}">
+				<mx:RadioButton label="{applicationThemeRepeater.currentItem.@display}" groupName="radioGroupApplicationTheme" fontWeight="bold" click="chooseTheme(event.currentTarget.getRepeaterItem())" enabled="true" visible="true" />
+			</mx:Repeater>
+		</mx:HBox>
+		<mx:HBox id="mainBox" width="100%" height="100%" verticalGap="2" paddingTop="0" horizontalScrollPolicy="off">
+	   		<mx:VBox height="100%" paddingTop="2"  verticalGap="2" id="sampleSetupContainer" enabled="true" horizontalScrollPolicy="off">
+			   	<mx:HBox horizontalGap="0" id="hbox1" paddingLeft="12" horizontalScrollPolicy="off">
+			       <mx:RadioButtonGroup id = "radioGroupSeqApp">       	
+			       </mx:RadioButtonGroup> 
+			       <mx:VBox height="100%" verticalGap="0" paddingLeft="2" paddingRight="2" paddingBottom="0" paddingTop="0" styleName="requiredBox" id="seqAppBox" horizontalScrollPolicy="off">
+					   <mx:Label text="" id="chosenThemeLabel" width="400" fontWeight="bold" visible="{radioGroupApplicationTheme.selectedValue != null}" includeInLayout="{radioGroupApplicationTheme.selectedValue != null}" />
+					   <mx:Repeater id="applicationRepeater" dataProvider="{preparedAppList}">
+						   	<mx:HBox verticalAlign="middle" width="100%" id="applicationRepeaterHBox" visible="{radioGroupApplicationTheme.selectedValue != null}" includeInLayout="{radioGroupApplicationTheme.selectedValue != null}">
+							   <mx:RadioButton id="applicationButton" groupName="radioGroupSeqApp" 
+											   label="{applicationRepeater.currentItem.@display}" 
+											   value="{applicationRepeater.currentItem.@value}" 
+											   click="{onSeqAppRadioClick()}" fontSize="11" paddingTop="0" paddingBottom="0"
+											   visible = "true" includeInLayout="true" width="550"/>
+								<mx:Label text="{applicationRepeater.currentItem.@price}" 
+										  toolTip="Price per sample" visible="true" includeInLayout="true"/>
+							</mx:HBox>
+					   </mx:Repeater>
+			       </mx:VBox>
+			   	</mx:HBox>
+			</mx:VBox>	
+			<mx:VBox  visible="{libraryDesign.visible}" includeInLayout="{libraryDesign.visible}"  height="100%"  paddingTop="2">
+				<mx:Spacer id="designSpacer" includeInLayout="{libraryDesign.visible}"/>
+				<mx:VBox verticalGap="0" id="libraryDesign" visible="false" includeInLayout="false" paddingTop="10" paddingLeft="10" styleName="requiredBox">
+					<mx:HBox paddingBottom="5" paddingRight="5">
+						<mx:Label text="Capture Library Design ID: " id="designIDLabel" />
+						<mx:TextInput id="designID" change="propagateDesign()"/>
+					</mx:HBox>
+				</mx:VBox>
+			</mx:VBox>
+		</mx:HBox>
+	</mx:VBox>
+	
+ </mx:Canvas>
+</mx:Canvas>

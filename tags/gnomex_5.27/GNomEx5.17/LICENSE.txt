@@ -1,0 +1,16 @@
+GNomEx License:
+
+GNomEx: a Genomic LIMS and Analysis Project Center, copyright 2010 University of Utah Research
+Foundation and the Huntsman Cancer Institute.  All rights reserved.
+
+Redistribution and use of GNomEx (https://sourceforge.net/projects/gnomex) in source and binary
+forms, with or without modification, is permitted under the following dual license.
+
+Academic and non-profit groups are bound by the terms of GNU General Public License version 3
+(http://www.gnu.org/licenses/). As such, this program is distributed in the hope that it will be
+useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE.
+
+All other groups must obtain a commercial license from the University of Utah Research Foundation
+(http://www.research.utah.edu/) prior to installing GNomEx or making use of its
+source or binary code in whole or in part.

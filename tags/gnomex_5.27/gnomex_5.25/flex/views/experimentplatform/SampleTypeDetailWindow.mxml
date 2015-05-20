@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:util="views.util.*"
+				layout="vertical" 
+				title="Edit Sample Type" width="650" height="600" paddingTop="4" verticalScrollPolicy="off" paddingRight="4" paddingLeft="4" paddingBottom="4"
+				horizontalScrollPolicy="off">
+	
+	<mx:Script>
+		<![CDATA[
+			import mx.controls.Alert;
+			import mx.controls.RichTextEditor;
+			import mx.managers.PopUpManager;
+			
+			import views.util.GNomExStringUtil;
+
+			[Bindable]
+			private var state:ExperimentPlatformState = null;
+			
+			[Bindable]
+			private var selectedItem:Object;
+			
+			public function init(state:ExperimentPlatformState, selectedItem:Object):void {
+				this.state = state;
+				this.selectedItem = selectedItem;
+				this.sampleTypeOptionName.setFocus();
+				
+				initValues();
+			}
+			
+			private function initValues():void {
+				sampleTypeOptionName.text = selectedItem.@display;
+				sortOrderText.text = selectedItem.@sortOrder;
+				for each (var sc:Object in state.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.NucleotideType').DictionaryEntry) {
+					if (sc.@value == selectedItem.@codeNucleotideType) {
+						sampleCategoryCombo.selectedItem = sc;
+					}
+				}
+				notesEditor.htmlText = selectedItem.@notes;
+			}
+			
+			private function save():void {
+				if (sampleTypeOptionName.text == null || sampleTypeOptionName.text == "" 
+					|| ((sampleCategoryCombo.selectedItem == null || sampleCategoryCombo.selectedItem.@value == "") && state.isHiSeq)) {
+					Alert.show("Please enter name and sample category before saving.");
+					return;
+				}
+				
+				selectedItem.@display = sampleTypeOptionName.text;
+				selectedItem.@isSelected = activeCheckbox.selected ? 'Y' : 'N';
+				selectedItem.@sortOrder = sortOrderText.text;
+				selectedItem.@codeNucleotideType = sampleCategoryCombo.selectedItem.@value;
+				selectedItem.@notes = notesEditor.htmlText;
+				
+				if (dirty.isDirty()) {
+					state.dirty.setDirty();
+				}
+				dirty.resetDirty();
+				PopUpManager.removePopUp(this);
+			}
+		]]>
+	</mx:Script>
+	
+	<mx:VBox width="100%" height="100%" styleName="form" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4">
+		<mx:HBox width="100%" horizontalGap="2" verticalAlign="middle" paddingTop="4">
+			<mx:Text text="Name" styleName="formLabel" width="100"/>
+			<mx:TextInput id="sampleTypeOptionName" width="400" backgroundColor="#FFFFFF" borderColor="#898F93" change="dirty.setDirty()" />
+			<mx:Spacer width="20" />
+			<mx:CheckBox id="activeCheckbox" selected="{selectedItem.@isSelected=='Y'}" label="Active" change="dirty.setDirty()" />
+		</mx:HBox>
+		<mx:HBox width="100%" horizontalGap="2" verticalAlign="middle" paddingTop="4"
+				 visible="{state.isHiSeq}" includeInLayout="{state.isHiSeq}">
+			<mx:Text text="Sample Category" styleName="formLabel" width="100"/>
+			<mx:ComboBox id="sampleCategoryCombo"
+						 dataProvider="{state.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.NucleotideType').DictionaryEntry}" labelField="@display"
+						 width="200" change="dirty.setDirty()"/>				    		
+		</mx:HBox>
+		<mx:HBox width="100%" horizontalGap="2" verticalAlign="middle" paddingTop="4">
+			<mx:Text text="Sort Order" styleName="formLabel" width="100" />
+			<mx:TextInput id='sortOrderText' restrict="0-9" maxChars="2" editable="true" change="dirty.setDirty()"/>
+		</mx:HBox>
+		<mx:HBox width="100%" horizontalGap="2" verticalAlign="middle" paddingTop="4">
+			<mx:VBox width="100%" height="100%" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4" verticalGap="10">
+				<mx:Text text="Notes" styleName="formLabel" />
+				<mx:RichTextEditor id="notesEditor" change="dirty.setDirty()"
+								   height="100%" width="100%"
+								   borderStyle="none"  headerHeight="0" 
+								   showControlBar="true"
+								   paddingLeft="0" paddingRight="0" paddingTop="0" 
+								   roundedBottomCorners="false" paddingBottom="0" 
+								   borderThicknessRight="0" borderThicknessLeft="0" 
+								   borderThicknessBottom="0" borderThickness="0" 
+								   borderThicknessTop="0" minHeight="50"/>		
+			</mx:VBox>
+		</mx:HBox>
+	</mx:VBox>
+	<mx:ControlBar horizontalAlign="right">
+		<mx:Spacer width="100%" />
+		<util:DirtyNote id="dirty" />
+		<mx:Button label="Apply" id="saveButton" click="save()" icon="@Embed(source='../../assets/save.png')" 
+				   disabledIcon="@Embed(source='../../assets/save_disable.png')"/>
+		<mx:Button label="Cancel" click="{mx.managers.PopUpManager.removePopUp(this)}"/>
+	</mx:ControlBar>
+	
+</mx:TitleWindow>

@@ -1,0 +1,890 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"     
+	xmlns:UsersView="UsersView.*" label="Users And Groups" 
+	width="100%" height="100%"   backgroundAlpha="0"
+	xmlns:views="views.*" 
+	xmlns:user="views.user.*" 
+	xmlns:util="views.util.*" 
+	creationPolicy="all" show="init()"
+	showEffect="{parentApplication.fadeIn}" hideEffect="{parentApplication.fadeOut}" 
+	paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" shadowDirection="left" >
+ 
+    <mx:HTTPService 
+    id="getAppUserList" 
+    url="GetAppUserList.gx"
+    showBusyCursor="true"
+    resultFormat="e4x"
+    result="resultHandler(event)"
+ 	fault="parentApplication.onFailHttpRequest('Failed to get user list', event)"
+    destination="getAppUserList"  
+    useProxy="false">
+    <mx:request>
+    </mx:request>
+    </mx:HTTPService >
+    
+    <mx:HTTPService 
+    id="getAppUser" 
+    url="GetAppUser.gx"
+    destination="getAppUser"
+    showBusyCursor="true"
+    resultFormat="e4x"
+    result="resultHandler(event)"
+ 	fault="parentApplication.onFailHttpRequest('Failed to get user', event)"
+    useProxy="false">
+    <mx:request>
+            <idAppUser>{selectedUser.@idAppUser}</idAppUser>
+    </mx:request>
+    </mx:HTTPService >
+    
+    <mx:HTTPService 
+    id="deleteAppUser" 
+    url="DeleteAppUser.gx"
+    destination="deleteAppUser"
+    showBusyCursor="true"
+    resultFormat="e4x"
+    result="onDeleteAppUser(event)"
+ 	fault="parentApplication.onFailHttpRequest('Failed to delete user', event)"
+    useProxy="false">
+    <mx:request>
+            <idAppUser>{selectedUser.@idAppUser}</idAppUser>
+    </mx:request>
+    </mx:HTTPService >
+    
+     <mx:HTTPService 
+    id="getLabList" 
+    url="GetLabList.gx"
+    showBusyCursor="true"
+    resultFormat="e4x"
+    result="resultHandler(event)"
+ 	fault="parentApplication.onFailHttpRequest('Failed to get group list', event)"
+    destination="getLabList"
+    useProxy="false">
+    <mx:request>
+           <listKind>UnboundedLabList</listKind>
+		   <idInstitution>{this.institutionCombo.selectedItem != null ? this.institutionCombo.selectedItem.@value : ''}</idInstitution>
+		   <idCoreFacility>{this.coreCombo.selectedItem != null ? this.coreCombo.selectedItem.@value : ''}</idCoreFacility>
+		   <isExternal>{this.isExternalCheckbox.selected ? "Y" : ""}</isExternal>
+    </mx:request>
+    </mx:HTTPService >
+    
+    <mx:HTTPService 
+    id="getLab" 
+    url="GetLab.gx"
+    destination="getLab"
+    showBusyCursor="true"
+    resultFormat="e4x"
+    result="resultHandler(event)"
+ 	fault="parentApplication.onFailHttpRequest('Failed to get group', event)"
+    useProxy="false">
+    <mx:request>
+            <idLab>{selectedLab.@idLab}</idLab>
+    </mx:request>
+    </mx:HTTPService >
+  
+    
+    <mx:HTTPService 
+    id="deleteLab" 
+    url="DeleteLab.gx"
+    destination="deleteLab"
+    showBusyCursor="true"
+    resultFormat="e4x"
+    result="onDeleteLab(event)"
+ 	fault="parentApplication.onFailHttpRequest('Failed to delete group', event)"
+    useProxy="false">
+    <mx:request>
+            <idLab>{selectedLab.@idLab}</idLab>
+    </mx:request>
+    </mx:HTTPService >
+    
+   <mx:HTTPService 
+    id="generateUserAccountEmail" 
+    url="GenerateUserAccountEmail.gx"
+    showBusyCursor="true"
+    resultFormat="e4x"
+    result="onGenerateUserAccountEmail(event)"
+ 	fault="parentApplication.onFailHttpRequest('Failed to generate user account email', event)"
+    destination="generateUserAccountEmail"
+    useProxy="false">
+    <mx:request>
+    </mx:request>
+    </mx:HTTPService >
+    
+
+    <mx:XMLListCollection id="appUsers" source="{getAppUserList.lastResult..AppUser}" filterFunction="filterUser"/>
+    <mx:XMLListCollection id="labs" source="{getLabList.lastResult..Lab}" filterFunction="filterLab"/>
+    
+    <mx:XMLListCollection id="membershipLabs" source="{getAppUser.lastResult.AppUser.(@idAppUser = selectedUser.@idAppUser).labs.Lab}"/>
+    <mx:XMLListCollection id="collaboratingLabs" source="{getAppUser.lastResult.AppUser.(@idAppUser = selectedUser.@idAppUser).collaboratingLabs.Lab}"/>
+    <mx:XMLListCollection id="managingLabs" source="{getAppUser.lastResult.AppUser.(@idAppUser = selectedUser.@idAppUser).managingLabs.Lab}"/>
+	<mx:XMLListCollection id="managingCoreFacilities" source="{getAppUser.lastResult.managingCoreFacilities.coreFacility}"/>
+	<mx:XMLListCollection id="coreFacilitiesICanSubmitTo" source="{getAppUser.lastResult.coreFacilitiesICanSubmitTo.coreFacility}" filterFunction="filterCoreFacilitiesICanSubmitTo"/>
+	
+
+
+    <mx:Script>
+        <![CDATA[
+          import mx.controls.Alert;
+          import mx.events.CloseEvent;
+          import mx.events.CollectionEvent;
+          import mx.events.CollectionEventKind;
+          import mx.events.ItemClickEvent;
+          import mx.events.PropertyChangeEvent;
+          import mx.managers.PopUpManager;
+          import mx.rpc.events.ResultEvent;
+          
+          import views.user.GroupAddView;
+          import views.user.UserAddView;
+          import views.util.PromptXMLListCollection;
+
+        
+          [Bindable]
+          public var selectedUser:Object;
+          [Bindable]
+          public var selectedLab:Object;
+          [Bindable]
+          public var fullUser:Object;
+          [Bindable]
+          public var fullLab:Object;
+          
+          // List for the nav area.  It is filtered when the user
+          // types in part of the user name.
+          [Bindable]
+          public var filteredAppGroupXML:XMLList;
+          
+		  
+		  [Bindable]
+		  private var groupsToManage:XMLListCollection;
+		
+		  public var itemToSelect:Object = null;
+		  
+		  public var isInitialized:Boolean = false;
+		  
+		  
+		  private function init():void {
+			  checkSecurity();
+			  
+			  if (itemToSelect != null) {
+				if (itemToSelect.name() == "AppUser") {
+					this.navBar.selectedChild = this.usersView;				
+				} else {
+					this.navBar.selectedChild = this.groupsView;
+					this.groupDetailView.theTab.selectedChild = this.groupDetailView.billingAccountsTab;					
+				}
+			  }
+			  
+			  if (!isInitialized) {
+			  	var emptyXML:XML = new XML("<coreFacility value='' display='All cores' />");
+			  	coreCombo.dataProvider.addItemAt(emptyXML,0);
+				
+				if ( parentApplication.coreFacilitiesICanManage.length() == 1 ) {
+					coreCombo.selectedIndex = 1;
+				}  else {
+					coreCombo.selectedIndex = 0;
+				}
+			  }
+			  			  
+			  if (!isInitialized) {
+				  initializeData();		  	
+			  }
+			  
+			  isInitialized = true;
+		  }		
+            		
+		  public function isDirty():Boolean {
+		  	return userDetailView.dirty.isDirty() ||
+		  	 	   groupDetailView.dirty.isDirty() ||
+		  	 	   groupManageView.dirty.isDirty(); 
+		  }
+			
+		  public function checkDirty():void {
+		  	//userDetailView.promptToSaveDirty();
+		  	//groupDetailView.promptToSaveDirty();
+		  	//groupManageView.promptToSaveDirty();
+		  }
+
+          
+          public function initializeData():void
+          {
+          	
+          	// Get the list of users to be filtered
+          	callGetAppUserList();
+          	
+          	// Get the list of all labs
+          	callGetLabList();
+          	
+          	this.groupDetailView.initializeData();
+          }
+
+		 public function checkSecurity():void {
+ 			if (parentApplication.hasPermission("canAdministerUsers")) {
+ 				navStack.selectedIndex = 0;
+ 				detailViews.selectedChild = this.userEmptyView;
+			} else {
+				groupsToManage = parentApplication.getGroupsToManage();
+				navStack.selectedIndex = 1;
+				detailViews.selectedChild = this.groupEmptyView;
+			}
+			
+			if (parentApplication.getProperty(parentApplication.PROPERTY_UNIVERSITY_USER_AUTHENTICATION) == 'N') {
+				userDetailView.radioUnivOrExternalBox.visible = false;
+				this.groupDetailView.memberCombo.labelField = "@displayName";
+				this.groupDetailView.managerCombo.labelField = "@displayName";
+				this.groupDetailView.collaboratorCombo.labelField = "@displayName";
+			} else {
+				userDetailView.radioUnivOrExternalBox.visible = true;
+				this.groupDetailView.memberCombo.labelField = "@qualifiedDisplayName";
+				this.groupDetailView.managerCombo.labelField = "@qualifiedDisplayName";
+				this.groupDetailView.collaboratorCombo.labelField = "@qualifiedDisplayName";
+			}
+		 }
+        
+          private function userRowSelected(event:Event):void 
+           {
+           	//if (isDirty()) {
+           	//	this.usersGrid.selectedItem = this.selectedUser;
+           	//	checkDirty();
+           	//	return;
+           	//}
+	        detailViews.selectedChild = userDetailView;
+           	selectUserRow();
+          }
+          
+          public function selectUserRow():void {
+          	
+           	this.selectedUser = usersGrid.selectedItem;
+            callGetAppUser();
+          }
+          
+		private function userEmailRowSelected(event:Event):void 
+		{
+			detailViews.selectedChild = userDetailView;
+			this.selectedUser = usersEmailGrid.selectedItem;
+			callGetAppUser();
+		}
+		
+       
+          
+          private function labRowSelected():void 
+           {
+           	//if (isDirty()) {
+           	//	this.labsGrid.selectedItem = this.selectedLab;
+			//	checkDirty();
+			//	return;           		
+           	//} 
+            if (parentApplication.hasPermission("canAdministerUsers")) {
+            	detailViews.selectedChild = this.groupDetailView;
+        	} else {
+        		detailViews.selectedChild = this.groupManageView;	
+        	}
+       		selectLabRow();
+          }
+          
+          public function selectLabRow():void {
+          	this.selectedLab = labsGrid.selectedItem;
+           	callGetLab();
+            detailViews.selectedChild = this.groupDetailView;
+          }
+
+		private function labEmailRowSelected():void 
+		{
+			//if (isDirty()) {
+			//	this.labsGrid.selectedItem = this.selectedLab;
+			//	checkDirty();
+			//	return;           		
+			//} 
+			if (parentApplication.hasPermission("canAdministerUsers")) {
+				detailViews.selectedChild = this.groupDetailView;
+			} else {
+				detailViews.selectedChild = this.groupManageView;	
+			}
+			this.selectedLab = groupEmailGrid.selectedItem;
+			callGetLab();
+			detailViews.selectedChild = this.groupDetailView;
+		}
+		
+			
+          private function manageLabRowSelected():void 
+           {
+           	//if (isDirty()) {
+           	//	this.manageLabsGrid.selectedItem = this.selectedLab;
+           	//	checkDirty();
+           	//	return;
+           	//}
+           	
+           	this.selectedLab = manageLabsGrid.selectedItem;
+           	callGetLab();
+            detailViews.selectedChild = this.groupManageView;
+          }
+          
+          public function prepareToAddUser():void 
+          {
+          	//if (isDirty()) {
+           	//	this.usersGrid.selectedItem = this.selectedUser;
+           	//	checkDirty();
+           	//	return;
+            //}
+           	this.selectedUser = null;
+           	this.fullUser = null;
+            detailViews.selectedChild = this.userDetailView;
+            
+            var addWindow:UserAddView = UserAddView(mx.managers.PopUpManager.createPopUp(this, UserAddView, true));
+            mx.managers.PopUpManager.centerPopUp(addWindow);
+            addWindow.setFocus();
+            addWindow.firstName.setFocus();
+          }
+          public function prepareToAddGroup():void 
+           {
+          	//if (isDirty()) {
+           	//	this.labsGrid.selectedItem = this.selectedLab;
+           	//	checkDirty();
+           	//	return;
+            //}           	
+           	//this.selectedLab = null;
+           	//this.fullLab = null;
+            //detailViews.selectedChild = this.groupDetailView;
+
+            
+            var addWindow:GroupAddView = GroupAddView(mx.managers.PopUpManager.createPopUp(this, GroupAddView, true));
+            mx.managers.PopUpManager.centerPopUp(addWindow);
+            addWindow.setFocus();
+            addWindow.groupFirstName.setFocus();
+
+          }  
+          
+          public function refreshAppUserList():void 
+           {
+          	//if (isDirty()) {
+           	//	this.usersGrid.selectedItem = this.selectedUser;
+           	//	checkDirty();
+           	//	return;
+            //}           	
+          	callGetAppUserList();
+          	appUsers.refresh()
+          }
+          
+          public function refreshGroupList():void 
+           {
+          	//if (isDirty()) {
+           	//	this.labsGrid.selectedItem = this.selectedLab;
+           	//	checkDirty();
+           	//	return;
+            //}             	
+          	callGetLabList();
+          	labs.refresh();
+          }
+          
+          public function callGetAppUser():void 
+           {
+          	var call:Object = getAppUser.send();
+          	call.marker = "doneGetAppUser";
+          }
+          
+          private function callGetAppUserList():void
+          {
+          	var call:Object = getAppUserList.send();
+          	call.marker = "doneGetAppUserList";
+          }
+          
+          public function callGetLabList():void
+          {
+          	var call:Object = getLabList.send();
+          	call.marker = "doneGetLabList";
+          }
+          
+          public function callGetLab():void
+          {
+          	var call:Object = getLab.send();
+          	call.marker = "doneGetLab";
+          }
+          
+		  public function promptToDeleteAppUser():void {
+				Alert.show("Delete user " + selectedUser.@displayName + "?", 
+							null, 
+							(Alert.YES | Alert.NO), this, 
+							onPromptToDeleteAppUser);
+				
+		  }
+			
+		  private function onPromptToDeleteAppUser(event:CloseEvent):void {
+	            if (event.detail==Alert.YES) {
+	            	callDeleteAppUser();
+	            }
+	      }
+
+          
+		  public function promptToDeleteGroup():void {
+				Alert.show("Delete group " + selectedLab.@name + "?", 
+							null, 
+							(Alert.YES | Alert.NO), this, 
+							onPromptToDeleteGroup);
+				
+		  }
+			
+		  private function onPromptToDeleteGroup(event:CloseEvent):void {
+	            if (event.detail==Alert.YES) {
+	            	callDeleteGroup();
+	            }
+	      }
+          public function callDeleteAppUser():void
+          {
+          	var call:Object = deleteAppUser.send();
+          }
+          public function callDeleteGroup():void
+          {
+          	var call:Object = deleteLab.send();
+          }
+ 
+
+          private function filterUser(item:Object):Boolean {
+			  if (radioSearchUserType.selectedValue == "UserName") {
+                return item.@displayName.toString().match(new RegExp(userSearchText.text + ".*", "i"));
+			  } else if (radioSearchUserType.selectedValue == "UserEmail") {
+				  return item.@email.toString().match(new RegExp(userEmailSearchText.text + ".*", "i"));
+			  }
+			  return true;
+          } 
+			
+  		  private function filterCoreFacilitiesICanSubmitTo(item:Object):Boolean {
+			  if (item.@allowed.toString() == "Y") {
+				  return true;
+			  } else {
+				  return false;
+			  }
+		  } 
+			
+			
+          private function filterLab(item:Object):Boolean {
+			  var deptString:String = parentApplication.escapeRegexChars(deptSearchText.text);
+			  var labString:String;
+			  if (radioSearchGroupType.selectedValue == "LabName") {
+				  labString = parentApplication.escapeRegexChars(labSearchText.text);
+			  } else if (radioSearchGroupType.selectedValue == "Email"){
+				  labString = parentApplication.escapeRegexChars(groupEmailSearchText.text);
+			  }
+
+			  if(labString != "" && deptString != ""){
+				  if (radioSearchGroupType.selectedValue == "LabName") {
+					  return (item.@name.toString().match(new RegExp(labString + ".*", "i")) && item.@department.toString().match(new RegExp("^" + deptString, "i")));  
+				  } else if (radioSearchGroupType.selectedValue == "Email"){
+					  return (item.@billingContactEmail.toString().match(new RegExp(labString + ".*", "i")) && item.@department.toString().match(new RegExp("^" + deptString, "i")));  
+				  }
+			  }
+			  else if(labString != ""){
+				  if (radioSearchGroupType.selectedValue == "LabName") {
+					  return item.@name.toString().match(new RegExp(labString + ".*", "i"));
+				  } else if (radioSearchGroupType.selectedValue == "Email"){
+					  return item.@billingContactEmail.toString().match(new RegExp(labString + ".*", "i"));  
+				  }
+			  }
+			  else if(deptString != ""){
+				  return item.@department.toString().match(new RegExp("^" + deptString, "i"));
+			  }
+			  else{
+				  return true;
+			  }
+			  return true;
+		  }    
+
+          private function resultHandler(event:ResultEvent):void {
+            var call:Object = event.token;
+            if (call.marker == "doneGetAppUser") {
+              fullUser = getAppUser.lastResult.AppUser.(@idAppUser = selectedUser.@idAppUser);
+			  if (parentApplication.hasPermission("canAssignSuperAdminRole")) {
+				  userDetailView.enabled = true;
+				  userDetailView.isSuperPermissionLevel.enabled = true;
+			  } else {
+				  if (fullUser.@codeUserPermissionKind == 'SUPER') {
+					  userDetailView.enabled = false;
+				  } else {
+					userDetailView.enabled = true;
+					userDetailView.isSuperPermissionLevel.enabled = false;
+				  }
+			  }
+
+              userDetailView.isActive.selected =  fullUser.@isActive == 'Y' ? true : false;
+              if (fullUser.@isExternalUser == 'Y' || parentApplication.getProperty(parentApplication.PROPERTY_UNIVERSITY_USER_AUTHENTICATION) == 'N') {
+              	userDetailView.loginStack.selectedIndex = 1;
+              	userDetailView.radioExternalUser.selected = true;
+              } else {
+				  userDetailView.loginStack.selectedIndex = 0;
+              	userDetailView.radioUniversityUser.selected = true;
+              }
+			  if (fullUser.@codeUserPermissionKind != 'LAB' && fullUser.@codeUserPermissionKind != 'BILLING'
+				  && fullUser.@codeUserPermissionKind != 'ADMIN' && fullUser.@codeUserPermissionKind != 'SUPER') {
+				  userDetailView.permissionGroup.selection = null;
+			  }
+              userDetailView.dirty.resetDirty();
+              
+            } else if (call.marker == "doneGetAppUserList") {
+              filteredAppGroupXML = new XMLList(getAppUserList.lastResult);
+              
+              
+              if (itemToSelect != null  && itemToSelect.name() == "AppUser") {
+	              var item:Object = getAppUserList.lastResult.AppUser.(@idAppUser == itemToSelect.@id);
+    	          if (item !== null && item is XMLList) {
+					this.usersGrid.selectedItem = item[0]; 
+					this.usersGrid.scrollToIndex(this.usersGrid.selectedIndex);    
+					userRowSelected(null);       
+            	  } else if (item != null) {
+            	  	this.usersGrid.selectedItem = item;
+					this.usersGrid.scrollToIndex(this.usersGrid.selectedIndex);    
+					userRowSelected(null);          	
+            	  }
+            	  itemToSelect = null;
+              }
+             } else if (call.marker == "doneGetLabList") {
+             	if (itemToSelect != null && itemToSelect.name() == "Lab") {
+	              var labItem:Object = getLabList.lastResult.Lab.(@idLab == itemToSelect.@id);
+    	          if (labItem !== null && labItem is XMLList) {
+					this.labsGrid.selectedItem = labItem[0];  
+					callLater(scrollToLab);
+					this.labRowSelected();          	
+            	  } else if (item != null) {
+            	  	this.labsGrid.selectedItem = labItem;
+					labRowSelected();          	
+            	  }
+            	  itemToSelect = null;
+              	}
+
+            } if (call.marker == "doneGetLab") {
+            	fullLab = getLab.lastResult.Lab.(@idLab = selectedLab.@idLab);
+				this.groupDetailView.initializeLab();
+            	groupDetailView.dirty.resetDirty(); 
+            	
+
+            } 
+            
+
+          }
+          
+		  private function toggleFilterBox():void {
+			  if (filterStack.selectedIndex == 0) {
+				  filterStack.selectedIndex = 1;
+				  filterBox.visible = true;
+				  filterBox.includeInLayout = true;
+			  } else {
+				  filterStack.selectedIndex = 0;
+				  filterBox.visible = false;
+				  filterBox.includeInLayout = false;
+				  this.institutionCombo.selectedItem = null;
+				  this.isExternalCheckbox.selected = false;
+				  this.deptSearchText.text = "";
+				  this.coreCombo.selectedItem = null;
+			  }
+		  }
+          
+          private function scrollToLab():void {
+			this.labsGrid.scrollToIndex(this.labsGrid.selectedIndex);
+          }
+          
+          
+          private function onDeleteLab(event:ResultEvent):void {          	
+          	if (deleteLab.lastResult.name() == "SUCCESS") {          		
+			  parentApplication.getLabList.send();
+              refreshGroupList();
+              detailViews.selectedChild = this.groupEmptyView;              
+            } else {
+            	Alert.show("Delete group failed. " + deleteLab.lastResult..ACTMESSAGE.@TEXT);
+            }
+          }
+          private function onDeleteAppUser(event:ResultEvent):void {          	
+          	if (deleteAppUser.lastResult.name() == "SUCCESS") {          		
+			  getAppUserList.send();
+              refreshAppUserList();
+              detailViews.selectedChild = this.userEmptyView;              
+            } else {
+            	Alert.show("Delete user failed. " + deleteAppUser.lastResult..ACTMESSAGE.@TEXT);
+            }
+          }
+          
+          private function onTabChange():void {
+			if (navBar.selectedChild == usersView) {
+				detailViews.selectedChild = userEmptyView;
+			} else {
+				detailViews.selectedChild = groupEmptyView;          					
+			}
+          	//checkDirty();
+          }
+
+          public function promptToVerifyUserAccounts():void {
+          
+          	Alert.show("GNomEx will send an email to all groups to verify the active user accounts." +
+				            "\n\nDo you wish to continue?", 
+							null, 
+							(Alert.YES | Alert.NO), this, 
+							onPromptToVerifyUserAccounts);
+				
+		  }
+			
+		  private function onPromptToVerifyUserAccounts(event:CloseEvent):void {
+	            if (event.detail==Alert.YES) {
+	            	generateUserAccountEmail.send();
+	            }
+	      }
+         
+         private function onGenerateUserAccountEmail(event:ResultEvent):void {
+			if (generateUserAccountEmail.lastResult.name() == "SUCCESS") {          		
+			  Alert.show("Emails to " + generateUserAccountEmail.lastResult.@emailCount + " group(s) have been sent.");         
+            } else {
+            	Alert.show("Generate user account email failed. " + generateUserAccountEmail.lastResult..ACTMESSAGE.@TEXT);
+            }         
+         }
+         
+		 private function buildEmailToolTip(item:Object):String{
+			var emailString:String = "";
+			if(item != null) 			{
+				emailString = item.@email;
+			} else {
+				emailString = "No Email Listed";
+			}
+			return emailString;
+		 }	
+
+		 private function buildEmailsToolTip(item:Object):String{
+			var emailsString:String = "";
+			if(item != null) 			{
+				emailsString = item.@workAuthSubmitEmail;
+			} else {
+				emailsString = "No Email Listed";
+			}
+			return emailsString;
+
+		 }	
+			
+		private function handleSearchUsersByName(ev:Event):void{
+			userSearchText.visible = true;
+			userEmailSearchText.visible = false;
+			usersGrid.visible = true;
+			usersEmailGrid.visible = false;
+			usersGrid.percentHeight = 100;
+			usersEmailGrid.height = 0;
+
+		}
+		
+		private function handleSearchUsersByEmail(ev:Event):void{
+			userSearchText.visible = false;
+			userEmailSearchText.visible = true;
+			usersGrid.visible = false;
+			usersEmailGrid.visible = true;
+			usersGrid.height = 0;
+			usersEmailGrid.percentHeight = 100;
+
+		}
+	
+		private function handleSearchGrpByName(ev:Event):void{
+			labSearchText.visible = true;
+			groupEmailSearchText.visible = false;
+			labsGrid.visible = true;
+			groupEmailGrid.visible = false;
+			labsGrid.percentHeight = 100;
+			groupEmailGrid.height = 0;
+		}
+		
+		private function handleSearchGrpByEmail(ev:Event):void{
+			labSearchText.visible = false;
+			groupEmailSearchText.visible = true;
+			labsGrid.visible = false;
+			groupEmailGrid.visible = true;
+			labsGrid.height = 0;
+			groupEmailGrid.percentHeight = 100;
+		}
+
+			
+        ]]>
+    </mx:Script>
+
+    
+    
+
+ <mx:HDividedBox height="100%" width="100%" paddingTop="0" paddingRight="0" paddingLeft="0" paddingBottom="0">    
+	
+    <mx:ViewStack id="navStack" width="260" height="100%">
+
+ 		    <mx:TabNavigator id="navBar" height="100%"  width="100%" styleName="navTabNavigator"   dropShadowEnabled="true" dropShadowColor="#210D0D" paddingLeft="2" paddingRight="4" paddingTop="2" paddingBottom="2" tabWidth="95" fontSize="11">
+		      <mx:change>onTabChange()</mx:change>
+		      <mx:Canvas id="usersView" label="Users" height="100%" width="100%" icon="@Embed(source='../../assets/user.png')">
+		        
+	
+		        <mx:VBox styleName="panelTabBody" height="100%" width="100%" paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0" color="#000000" verticalGap="0">
+			        <mx:VBox height="100%" paddingLeft="4" paddingRight="4" paddingTop="0" paddingBottom="0" width="100%" color="#000000">
+						<mx:HBox width="100%" paddingTop="4" horizontalGap="0" verticalAlign="top">
+							<mx:Label text="Search by " styleName="labelSmall" fontSize="11"/>
+							<mx:RadioButtonGroup id="radioSearchUserType" selectedValue="UserName"/>  
+							<mx:RadioButton id="radioSearchUserByName" groupName="radioSearchUserType" 
+											label="User Name"  width="100%"  
+											value="UserName" paddingTop="0" 
+											click="handleSearchUsersByName(event);"/>
+							<mx:RadioButton id="radioSearchUserByEmail" groupName="radioSearchUserType" 
+											label="Email"  width="100%" 
+											value="UserEmail" paddingTop="0"
+											click="handleSearchUsersByEmail(event);"/>
+						</mx:HBox>
+						<mx:HBox width="100%" paddingTop="4" horizontalGap="0" verticalAlign="top">
+							<mx:TextInput id="userSearchText" visible="true" editable="true" change="appUsers.refresh()" width="100%" toolTip="Type user name here to find in list" backgroundColor="#FFFFFF"/>			          	
+							<mx:TextInput id="userEmailSearchText" visible="false" editable="true" change="appUsers.refresh()" width="100%" toolTip="Type Email Address here to find in list." backgroundColor="#FFFFFF"/>
+						</mx:HBox>	  
+		    	      	<mx:DataGrid id="usersGrid" 
+			    	      	visible="true" width="100%" editable="false" enabled="true" height="100%"
+			    	      	dataProvider="{appUsers}" 
+							dataTipFunction="buildEmailToolTip"
+			    	      	itemClick="userRowSelected(event)" showHeaders="false"  dropShadowEnabled="false" borderStyle="solid" fontSize="11">
+							<mx:columns>
+										<mx:DataGridColumn headerText="Users" width="100" dataField="@displayName" showDataTips="true"/>			
+						    </mx:columns>
+			      	     </mx:DataGrid>
+	
+			    	      <mx:DataGrid id="usersEmailGrid" 
+			    	      	visible="false" width="100%" editable="false" enabled="true" height="0"
+			    	      	dataProvider="{appUsers}" 
+			    	      	itemClick="userEmailRowSelected(event)" showHeaders="false"  dropShadowEnabled="false" borderStyle="solid" fontSize="11">
+							<mx:columns>
+										<mx:DataGridColumn headerText="Users" width="100" dataField="@displayName"/>
+										<mx:DataGridColumn headerText="Users" width="100" dataField="@email" wordWrap="true" fontSize="10"/>
+						    </mx:columns>
+			      	     </mx:DataGrid>
+						<mx:Label text="{appUsers.length + ' users'}" visible="{appUsers.length > 0}" fontStyle="italic" width="100%" textAlign="right" paddingBottom="0" paddingTop="0"/>		      	   
+					</mx:VBox>
+	                	
+				<mx:ControlBar width="100%" verticalAlign="top">
+				<mx:VBox verticalGap="0" width="100%">
+		    	      <mx:LinkButton id="addUserButton" click="prepareToAddUser()" icon="@Embed('../../assets/user_add.png')" toolTip="Add user" label="New user" disabledSkin="@Embed(source='../../assets/user_add_disable.png')" textDecoration="underline" paddingBottom="0"/>
+		    	      <mx:LinkButton id="deleteUserButton" click="promptToDeleteAppUser()" icon="@Embed(source='../../assets/delete.png')" toolTip="Delete user" label="Delete user" disabledIcon="@Embed(source='../../assets/delete_disable.png')" enabled="{usersGrid.selectedItem != null}" textDecoration="underline" paddingTop="0" paddingBottom="0"/>
+				</mx:VBox>
+				<mx:VBox verticalGap="0" width="100%">
+		    	      <mx:LinkButton id="refreshButton0" click="refreshAppUserList()" icon="@Embed('../../assets/action_refresh.gif')" toolTip="Refresh list" width="100%" textDecoration="underline" label="Refresh" paddingTop="0" paddingBottom="0"/>
+				</mx:VBox>
+				</mx:ControlBar>
+	
+	
+	    	    </mx:VBox>
+	    	    
+		      </mx:Canvas>
+		      
+		      
+		      <mx:Canvas id="groupsView"   label="Groups" width="100%" height="100%"  color="#000405" icon="@Embed(source='../../assets/group.png')">
+		      
+		        <mx:VBox styleName="panelTabBody" height="100%" width="100%" paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0" verticalGap="0">
+			        <mx:VBox height="100%" paddingLeft="4" paddingRight="4" paddingTop="0" paddingBottom="0" width="100%" verticalGap="0">
+			    	  <mx:HBox width="100%" paddingTop="4" horizontalGap="0" verticalAlign="top">
+			       	      <mx:Text styleName="labelSmall" fontSize="11" text="Search by "/>
+						  <mx:RadioButtonGroup id="radioSearchGroupType" selectedValue="LabName"/>  
+						  <mx:RadioButton id="radioSearchGrpByLabName" groupName="radioSearchGroupType" 
+										  label="Lab Name"  width="100%"  
+										  value="LabName" paddingTop="0"
+										  click="handleSearchGrpByName(event);"/>
+						  <mx:RadioButton id="radioSearchGrpByEmail" groupName="radioSearchGroupType" 
+										  label="Email"  width="100%" 
+										  value="Email" paddingTop="0"
+										  click="handleSearchGrpByEmail(event);"/>
+					  </mx:HBox>
+					  <mx:HBox width="100%" paddingTop="4" horizontalGap="0" verticalAlign="top">
+						  <mx:TextInput id="labSearchText" visible="true" editable="true" change="labs.refresh()" width="100%" toolTip="Type lab name here to locate in list." backgroundColor="#FFFFFF"/>
+						  <mx:TextInput id="groupEmailSearchText" visible="false" editable="true" change="labs.refresh()" width="100%" toolTip="Type Email Address here to locate in list." backgroundColor="#FFFFFF"/>
+					  </mx:HBox>	  
+					<mx:ViewStack id="filterStack" width="100%">
+						<mx:HBox width="100%">
+							<mx:LinkButton icon="@Embed('../../assets/arrow_down.gif')" label="More..." color="#0A4894" click="toggleFilterBox()" horizontalGap="0" textAlign="left" paddingLeft="0" paddingTop="0" paddingBottom="0"/>
+						</mx:HBox>
+						<mx:HBox width="100%">
+							<mx:LinkButton icon="@Embed('../../assets/arrow_up.gif')" label="Less..." color="#0A4894" click="toggleFilterBox()" horizontalGap="0" textAlign="left" paddingLeft="0" paddingTop="0" paddingBottom="0"/>
+						</mx:HBox>
+						
+					</mx:ViewStack>
+
+					  <mx:VBox verticalGap="2" id="filterBox" includeInLayout="false" paddingBottom="4" visible="false">
+						  <mx:HBox  horizontalGap="0">
+							  <mx:ComboBox width="220" dataProvider="{parentApplication.coreFacilitiesICanManage.copy()}"
+										   id="coreCombo" labelField="@display"  styleName="labelSmall" click="refreshGroupList()" change="refreshGroupList()" prompt="Core Facility...">			       	
+							  </mx:ComboBox>
+						  </mx:HBox>
+						  <mx:HBox width="100%" paddingTop="4" horizontalGap="0">
+							  <mx:Text text="Department" width="70"  styleName="labelSmall"/>
+							  <mx:TextInput id="deptSearchText" editable="true" styleName="labelSmall" change="labs.refresh()" width="100%" toolTip="Type department name here to filter labs by department." backgroundColor="#FFFFFF"/>
+						  </mx:HBox>
+						  <mx:CheckBox id="isExternalCheckbox"  styleName="labelSmall" click="refreshGroupList()" label="External" selected="false"/>
+						  <mx:HBox  horizontalGap="0">
+							  <mx:ComboBox width="220" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Institution').DictionaryEntry}" id="institutionCombo" labelField="@display"  click="refreshGroupList()" change="refreshGroupList()" prompt="Institution...">			       	
+							  </mx:ComboBox>
+						  </mx:HBox>
+					  </mx:VBox>
+						
+						
+					  <mx:DataGrid id="labsGrid" visible="true" width="100%" editable="false" enabled="true" dataProvider="{labs}" height="100%"  top="40" left="20"  right="20" itemClick="labRowSelected()" showHeaders="false" dropShadowEnabled="false" borderStyle="solid" fontSize="11" dataTipFunction="buildEmailsToolTip">
+						<mx:columns>
+							<mx:DataGridColumn headerText="Groups" width="100" dataField="@name" showDataTips="true"/>
+							<mx:DataGridColumn width="10" dataField="@name">
+								<mx:itemRenderer>
+									<mx:Component>
+										<mx:HBox  horizontalGap="0"   horizontalScrollPolicy="off">
+											<mx:Image id="groupImage"  
+													  source="{data.@isExternalPricing == 'Y' ? parentApplication.iconExternalAcademic : (data.@isExternalPricingCommercial == 'Y' ? parentApplication.iconExternalCommercial : '')}"> 
+											</mx:Image> 
+										</mx:HBox>
+										
+									</mx:Component>
+								</mx:itemRenderer>
+							</mx:DataGridColumn>
+					    </mx:columns>
+		      	      </mx:DataGrid>
+						
+					  <mx:DataGrid id="groupEmailGrid" visible="true" width="100%" editable="false" enabled="true" dataProvider="{labs}" height="0"  top="40" left="20"  right="20" itemClick="labEmailRowSelected()" showHeaders="false" dropShadowEnabled="false" borderStyle="solid" fontSize="11" dataTipFunction="buildEmailsToolTip">
+						<mx:columns>
+							<mx:DataGridColumn headerText="Groups" width="100" dataField="@name"/>
+							<mx:DataGridColumn headerText="Groups" width="100" dataField="@workAuthSubmitEmail" wordWrap="true" fontSize="10" showDataTips="true"/>
+						</mx:columns>
+					  </mx:DataGrid>
+
+					  <mx:Label text="{labs.length + ' lab groups'}" visible="{labs.length > 0}" fontStyle="italic" width="100%" textAlign="right"/>
+		    	    </mx:VBox>
+
+					<mx:ControlBar width="100%" verticalAlign="top" paddingBottom="2">
+						<mx:VBox verticalGap="0">
+			    	      	<mx:LinkButton id="addGroupButton" icon="@Embed('../../assets/group_add.png')" toolTip="Add group" label="New group" click="prepareToAddGroup()" disabledIcon="@Embed(source='../../assets/group_add_disable.png')" textDecoration="underline" paddingBottom="0"/>
+			    	      	<mx:LinkButton id="deleteGroupButton"  icon="@Embed(source='../../assets/delete.png')" toolTip="Delete group" label="Delete group" click="promptToDeleteGroup()" enabled="{labsGrid.selectedItem != null}" disabledIcon="@Embed(source='../../assets/delete_disable.png')" textDecoration="underline" paddingTop="0" paddingBottom="0"/>
+		    		    </mx:VBox>
+						<mx:VBox verticalGap="0">
+		    		      	<mx:LinkButton id="refreshButton1"  click="refreshGroupList()" icon="@Embed('../../assets/action_refresh.gif')" toolTip="Refresh list" textDecoration="underline" label="Refresh" paddingBottom="0"/>
+		    		      	<mx:LinkButton id="emailUserAccounts"  click="promptToVerifyUserAccounts()" icon="@Embed('../../assets/email_go.png')" toolTip="Send email to verify group's user accounts" textDecoration="underline" label="Verify all users" paddingTop="0" paddingBottom="0"/>
+		    		    </mx:VBox>
+					</mx:ControlBar>
+	
+	    	    </mx:VBox>
+
+		      </mx:Canvas>
+		      
+		    </mx:TabNavigator>
+
+		<mx:Panel title="Manage Groups">
+			<mx:DataGrid id="manageLabsGrid" visible="true" width="100%" editable="false" enabled="true" dataProvider="{groupsToManage}" height="100%" showHeaders="false" itemClick="manageLabRowSelected()">
+			<mx:columns>
+						<mx:DataGridColumn headerText="Groups" width="100" dataField="@name"/>
+					
+			   </mx:columns>
+			 </mx:DataGrid>
+		</mx:Panel>
+		
+			
+ 	</mx:ViewStack>
+	
+			
+	
+	    
+    <mx:ViewStack id="detailViews" width="100%" height="100%" creationPolicy="all">
+            <mx:VBox styleName="panelBox"  id="userEmptyView" />
+            
+		    <user:UserDetailView id="userDetailView" height="100%">	
+	        </user:UserDetailView>
+	        
+	        <mx:VBox styleName="panelBox"  id="groupEmptyView" />
+            
+		    <user:GroupDetailView id="groupDetailView" height="100%">	
+	        </user:GroupDetailView>
+
+		    <user:GroupManageView id="groupManageView" height="100%">	
+	        </user:GroupManageView>
+   </mx:ViewStack>
+	
+    
+</mx:HDividedBox>
+
+</mx:Canvas>

@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow 
+	xmlns:mx="http://www.adobe.com/2006/mxml" 
+	title="Downloading File" paddingTop="10" paddingBottom="10" paddingLeft="10" paddingRight="10"
+	 creationComplete="centerPopup()" modalTransparency=".3" backgroundAlpha=".7" borderAlpha=".7" backgroundColor="#FFFFFF" borderColor="#FFFFFF">
+    <mx:HBox width="100%" horizontalAlign="center">
+        <mx:ProgressBar id="downloadProgress" label="" mode="manual"/>
+    </mx:HBox>
+    <mx:ControlBar horizontalAlign="right">
+        <mx:Button id="cancelDownloadButton" label="Cancel" click="cancelDownload();" enabled="true"/>
+        <mx:Button label="Close" click="PopUpManager.removePopUp(this);downloadWindowCount--;"/>
+    </mx:ControlBar>
+
+	<mx:DateFormatter id="dateFormatter" formatString="YYYYMMDD"/>
+	
+
+
+    
+    <mx:Script> 
+    	<![CDATA[
+    		import mx.collections.ArrayCollection;
+    		import mx.core.IFlexDisplayObject;
+
+		import mx.managers.PopUpManager;
+		import mx.controls.Button;
+		import mx.controls.ProgressBar;
+		import flash.net.URLRequest;
+    	import flash.net.URLRequestMethod;
+    	import flash.net.URLVariables;
+    	import flash.events.Event;
+    	import flash.events.ProgressEvent;
+    	import mx.managers.PopUpManager;
+    	import flash.net.FileReference;
+        import flash.display.DisplayObject;
+		
+		
+		private var fr:FileReference;
+	    private var btn:Button;
+	    private var url:String = "";
+	    private var params:Object;
+	    private var theParent:DisplayObject;
+	    public var estimatedDownloadSize:Number;
+	    private var suggestedFileName:String = "gnomex-data";
+	    private var finalizeProgressCount:int = 0;
+	    
+	    private var bytesTransferredLastRound:Number = 0;
+	    private var bytesLoadedLastRound:Number = 0;
+	    private var bytesLoaded:Number = 0;
+	    private var bytesTotal:Number = 0;
+	    private var bytesTransferredList:ArrayCollection = null;
+	    private var averageBytesTransferred:Number = -1;
+	    
+	    private static var downloadWindowCount:int = 0;
+	    
+	    
+
+		public function init(parent:DisplayObject, url:String, params:Object, startDownloadButton:Button, estimatedDownloadSize:Number, suggestedFileName:String):void {
+			this.url = url;
+	    	this.params = params;
+			this.btn = startDownloadButton;
+			this.theParent = parent;
+			this.estimatedDownloadSize = estimatedDownloadSize;
+			this.suggestedFileName = suggestedFileName;
+			this.finalizeProgressCount = 0;
+			this.bytesLoadedLastRound = 0;
+			this.bytesTransferredLastRound = 0;
+			this.bytesLoaded = 0;
+			this.bytesTotal = 0;
+			this.bytesTransferredList = new ArrayCollection();
+			this.averageBytesTransferred = -1;
+			
+			fr = new FileReference();
+	        fr.addEventListener(Event.OPEN, openHandler);
+	        fr.addEventListener(ProgressEvent.PROGRESS, progressHandler);
+	        fr.addEventListener(Event.COMPLETE, completeHandler);
+
+	        this.startDownload(); 
+		}
+		
+		private function centerPopup():void {
+			PopUpManager.centerPopUp(this);
+			if (downloadWindowCount > 1) {
+				this.y = this.y + (10 * downloadWindowCount);	
+				this.x = this.x + (10 * downloadWindowCount);	
+			}
+		}
+
+	    
+	     /**
+	     * Begin downloading the file specified in the DOWNLOAD_URL constant.
+	     */
+	    public function startDownload():void
+	    {
+	        var request:URLRequest = new URLRequest();
+	        request.url = this.url;
+	        if (this.params != null) {
+		        request.data = this.params;
+	        }
+	        try {
+	        	var today:Date = new Date();
+	        	var extension:String = ".zip";
+	        	if (params != null && params.mode != null) {
+	        		extension = "." + params.mode;
+	        	}
+	        	
+	        	var fileName:String = suggestedFileName + "-" + dateFormatter.format(today) + extension;
+		        fr.download(request, fileName);	        	
+	        } catch (error:Error) {
+	        	mx.controls.Alert.show("Unable to download file. " + error.message);
+	        }
+	
+	    }
+	    
+	    public  function formatDate(date:Date):String {
+		    return date.getFullYear().toString() + 
+	            '-' + (date.getMonth()+1).toString() + '-' + date.getDate();
+	    }
+	    
+	 
+	
+	   /**
+	     * When the OPEN event has dispatched, change the progress bar's label 
+	     * and enable the "Cancel" button, which allows the user to abort the 
+	     * download operation.
+	     */
+	    private function openHandler(event:Event):void
+	    {
+	    	downloadWindowCount++;
+	    	this.title = "Downloading " + fr.name;
+	    	PopUpManager.addPopUp(this, theParent, false);
+	    	centerPopup();
+	        downloadProgress.label = "Downloading %3%%"; 
+	        if (btn != null) {
+	        	// We won't force single-threaded downloads, so next
+	        	// line commented out.
+		        //btn.enabled = false;
+	        }
+	    } 
+	    /**
+	     * While the file is downloading, update the progress bar's status.
+	     */
+	    private function progressHandler(event:ProgressEvent):void
+	    {   
+	    	// If bytesLoaded has hit max int, use last bytes loaded to figure
+	    	// out bytes transferred last round
+	    	if (event.bytesLoaded == int.MAX_VALUE) {	    		
+	    		bytesLoaded += getAverageBytesTransferred();
+	    	} else {	    		
+	    		bytesLoaded = event.bytesLoaded;
+	    		// Calculate how much we transferred this round
+	    		bytesTransferredLastRound = event.bytesLoaded - bytesLoadedLastRound;
+	    		this.bytesTransferredList.addItem(bytesTransferredLastRound);
+	    		// Keep track of last real bytes loaded.  We used this
+	    		// next round if to calculate bytes transferred
+	    		bytesLoadedLastRound = bytesLoaded;
+	    	}
+	    	
+	    	// Use the estimated download size because we can't depend on 
+	    	// event.bytesTotal.  With IE, 
+	    	// event.bytesTotal = 0; with FireFox, event.bytesTotal is
+	    	// significantly lower than estimated download size.
+	    	bytesTotal = estimatedDownloadSize;
+	    	
+	    	
+	    	// If we have loaded all of the bytes, show the finalizing download
+	    	// message.
+	    	if (bytesLoaded >= bytesTotal) {
+	    		showFinalizeProgress();
+	    	}
+	    	
+	    	// We have more bytes to load, so show progress.
+	    	downloadProgress.setProgress(bytesLoaded, bytesTotal);    		
+	    }
+	    
+	    private function getAverageBytesTransferred():Number {
+	    	if (averageBytesTransferred == -1 ) {
+		    	var sum:Number = 0;
+		    	var mean:Number = 0;
+		    	for each(var bytesTransferred:Number in this.bytesTransferredList) {
+	                sum = sum + bytesTransferred;
+	      		}
+	            mean = sum / this.bytesTransferredList.length;
+	            //this is an optional rounding method
+	            mean = Math.round (mean);
+	      		
+	      		averageBytesTransferred = mean;
+	    	}
+      		return averageBytesTransferred;
+	    }
+	    
+	    private function showFinalizeProgress():void {
+			if (finalizeProgressCount == 0) {
+		    	downloadProgress.label = "Finalizing download.";    					    				
+	    	} else {
+	    		if (finalizeProgressCount % 10 == 0 && finalizeProgressCount < 200) {
+	    			downloadProgress.label += ".";
+	    		} else if (finalizeProgressCount >= 200) {
+	    			downloadProgress.label = "Finalizing download.";
+	    			finalizeProgressCount = 0;
+	    		}
+	    	}
+	    	finalizeProgressCount++;	    	
+	    }
+	    
+	      /**
+	     * Once the download has completed, change the progress bar's label one 
+	     * last time and disable the "Cancel" button since the download is 
+	     * already completed.
+	     */
+	    private function completeHandler(event:Event):void
+	    {
+	        downloadProgress.label = "Download complete";
+	        downloadProgress.setProgress(1, 1);
+	        if (btn != null) {
+		        btn.enabled = true;
+	        }
+	        cancelDownloadButton.visible = false;
+	    }
+	    
+	    /**
+	     * Cancel the current file download.
+	     */
+	    public function cancelDownload():void
+	    {
+	        fr.cancel();
+	        downloadProgress.label = "Download cancelled";
+	        if (btn != null) {
+		        btn.enabled = true;        	
+	        }
+	    }
+    
+    	]]>
+    </mx:Script>
+</mx:TitleWindow>

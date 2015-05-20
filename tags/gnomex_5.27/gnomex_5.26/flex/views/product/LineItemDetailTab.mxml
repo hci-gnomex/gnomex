@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" label="Line Items">
+	
+	<mx:HTTPService 
+		id="getProductOrderLineItemList" 
+		url="GetProductOrderLineItemList.gx"
+		resultFormat="e4x"
+		result="onGetProductOrderLineItemList(event)"
+		showBusyCursor="true"
+		fault="parentApplication.onFailHttpRequest('Unable to get order list', event)"
+		method="POST"
+		useProxy="false">
+	</mx:HTTPService >
+		
+	
+	
+	<mx:Script> 
+		<![CDATA[
+			import mx.collections.XMLListCollection;
+			import mx.controls.Alert;
+			import mx.rpc.events.ResultEvent;
+			
+			[Bindable]
+			public var productOrder:Object;
+			[Bindable]
+			public var idProductOrder:String = "";
+			
+			public function init():void{
+				if ( idProductOrder != null && idProductOrder != "" ) {
+					var params:Object = new Object();
+					params.idProductOrder = idProductOrder;
+					getProductOrderLineItemList.send(params);
+				} else {
+					lineItemGrid.dataProvider = null;
+					titleLabel.text = "";
+				}
+			}
+			
+			private function onGetProductOrderLineItemList(event:ResultEvent):void{
+				if(getProductOrderLineItemList.lastResult.name() != 'LineItems'){
+					Alert.show(getProductOrderLineItemList.lastResult..ACTMESSAGE.@TEXT);
+				} else {
+					lineItemGrid.dataProvider = lineItems;
+					titleLabel.text = 'Line Items for Product Order ' + productOrder.@productOrderNumber;
+				}
+			}
+			
+			
+		]]>
+	</mx:Script>
+	
+	<mx:XMLListCollection id="lineItems" source="{getProductOrderLineItemList.lastResult..LineItem}"/>
+	
+	
+	
+	<mx:VBox width="100%" height="100%">
+		<mx:VBox width="100%" height="100%" styleName="panelBox"   backgroundSize="100%" >
+			<mx:HBox width="100%" >
+				<mx:HBox horizontalGap="0" verticalAlign="middle">
+					<mx:Image source="assets/review.png"/>
+					<mx:Label id="titleLabel" styleName="titleLabel" text="{'Line Items for Product Order ' + productOrder.@productOrderNumber}" />			
+				</mx:HBox>
+			</mx:HBox>
+			
+			<mx:AdvancedDataGrid id="lineItemGrid" width="100%" height="100%"
+								 fontSize="9"
+								 sortableColumns="false"
+								 sortExpertMode="true"
+								 wordWrap="true" 
+								 showDataTips="true"
+								 headerWordWrap="true" 
+								 selectionMode="singleRow" dataProvider="{lineItems}">
+				<mx:columns>
+					
+					<mx:AdvancedDataGridColumn headerText="Product"
+											   dataField="@name"/>
+					<mx:AdvancedDataGridColumn headerText="Quantity Ordered" 
+											   dataField="@qty" 
+											   wordWrap="false" />
+					<mx:AdvancedDataGridColumn headerText="Unit Price"
+											   dataField="@unitPrice"/>
+					<mx:AdvancedDataGridColumn headerText="Total Price"
+											   dataField="@totalPrice"/>
+					<mx:AdvancedDataGridColumn headerText="Status" 
+											   dataField="@status"/>  
+				</mx:columns>
+			</mx:AdvancedDataGrid>
+			
+		</mx:VBox>
+	</mx:VBox>
+	
+</mx:Canvas>

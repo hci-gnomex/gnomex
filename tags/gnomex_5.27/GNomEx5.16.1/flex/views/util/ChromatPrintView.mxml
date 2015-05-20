@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" backgroundColor="#ffffff" width="1000" paddingTop="50" paddingLeft="50" paddingRight="50">
+	
+	
+	<mx:HBox id="headerBox" horizontalGap="10" width="100%" verticalAlign="middle">
+		<mx:Label id="titleLabel" styleName="titleLabel" width="100%" fontWeight="bold"/>
+	</mx:HBox>
+	
+	
+	
+	<mx:VBox width="100%" id="infoBox" minHeight="0">
+		<mx:Accordion styleName="blueAccordion" width="100%" resizeToContent="true" id="accordion1"/>
+		<mx:Accordion styleName="blueAccordion" width="100%" resizeToContent="true" id="accordion2"/>
+		<mx:Accordion styleName="blueAccordion" width="100%" resizeToContent="true" id="accordion3"/>
+	</mx:VBox>
+	
+</mx:VBox>

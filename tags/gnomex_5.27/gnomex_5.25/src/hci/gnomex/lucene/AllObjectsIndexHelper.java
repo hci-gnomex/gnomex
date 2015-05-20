@@ -1,0 +1,60 @@
+package hci.gnomex.lucene;
+
+import java.util.Iterator;
+import java.util.Map;
+
+import org.apache.lucene.document.Document;
+import org.apache.lucene.document.Field;
+
+public class AllObjectsIndexHelper extends IndexHelper {
+  // Helper to search indexes that are available in multiple objects
+  public static final String       ID_LAB = "allObjectsIdLab";
+  public static final String       ID_ORGANISM = "allObjectsIdOrganism";
+  
+  public static void build(Document doc, Map nonIndexedFieldMap, Map indexedFieldMap) {
+
+    //
+    // Add non-indexed fields
+    //
+    for(Iterator i = nonIndexedFieldMap.keySet().iterator(); i.hasNext();) {
+      String fieldName = (String)i.next();
+      String value = (String)nonIndexedFieldMap.get(fieldName);
+      
+      if (value != null) {
+        addNonIndexedField(doc, fieldName, value);        
+      }
+    }
+    
+    //
+    // Add indexed fields
+    //
+    for(Iterator i = indexedFieldMap.keySet().iterator(); i.hasNext();) {
+      String fieldName = (String)i.next();
+      String value = (String)indexedFieldMap.get(fieldName);
+      
+      if (value != null) {
+        addIndexedField(doc, fieldName, value);        
+      }
+    }
+
+  }
+  
+  private static void addIndexedField(Document doc, String name, String value) {
+    if (value != null && !value.trim().equals("")) {
+      doc.add( new Field(name, value, Field.Store.YES, Field.Index.TOKENIZED));          
+    }
+  }
+
+  private static void addIndexedField(Document doc, String name, Integer value) {
+    if (value != null) {
+      doc.add( new Field(name, value.toString(), Field.Store.YES, Field.Index.UN_TOKENIZED));          
+    }
+  }
+
+  private static void addNonIndexedField(Document doc, String name, String value) {
+    if (value != null && !value.trim().equals("")) {
+      doc.add( new Field(name, value, Field.Store.YES, Field.Index.NO));          
+    }
+  }
+
+}
