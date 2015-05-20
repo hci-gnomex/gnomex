@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" width="400" height="166" xmlns:util="views.util.*"
+				showCloseButton="true" title="{'Add Ledger Entry for ' + parentWindow.productName}" close="{closeWindow()}">
+	
+	<mx:HTTPService 
+		id="saveProductLedgerEntry" 
+		url="SaveProductLedgerEntry.gx"
+		resultFormat="e4x"
+		result="onSaveProductLedgerEntry(event)"
+		showBusyCursor="true"
+		fault="parentApplication.onFailHttpRequest('Unable to save ledger entry', event)"
+		method="POST"
+		useProxy="false">
+	</mx:HTTPService >
+	
+	<mx:Script> 
+		<![CDATA[
+			import ext.com.Consts;
+			
+			import mx.controls.Alert;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.ResultEvent;
+
+			
+//			[Bindable]
+//			public var productName:String = "";
+//			public var idProduct:String;
+//			public var idLab:String;
+			[Bindable]
+			public var parentWindow:Object;
+			
+			[Bindable]
+			public var productCount:String;
+			
+			
+			
+			private function onSaveProductLedgerEntry(event:ResultEvent):void{
+				if(saveProductLedgerEntry.lastResult.name() != 'SUCCESS'){
+					Alert.show(saveProductLedgerEntry.lastResult..ACTMESSAGE.@TEXT);
+				} else{
+					parentWindow.parentDocument.init();
+					closeWindow();
+				}
+			}
+			
+			private function closeWindow():void{
+				PopUpManager.removePopUp(this);
+			}
+			
+			private function save():void{
+				var params:Object = new Object();
+				params.idProduct = parentWindow.idProduct;
+				params.idLab = parentWindow.idLab;
+				params.qty = qtyInput.text;
+				params.comment = commentText.text;
+				
+				saveProductLedgerEntry.send(params);
+				
+			}
+			
+			
+			
+		]]>
+	</mx:Script>
+	
+	<mx:NumberValidator allowNegative="true" integerError="Must be an integer" source="{qtyInput}" property="text" />
+	
+	<mx:VBox height="100%" width="100%">
+		<mx:HBox width="100%">
+			<mx:Label text="Quantity"  width="62"/>
+			<mx:TextInput width="100%" id="qtyInput" change="{qtyInput.text != '' &amp;&amp; commentText.text != '' ? dirty.setDirty() : dirty.resetDirty()}" restrict="0-9\-" />
+		</mx:HBox>
+		
+		<mx:HBox width="100%">
+			<mx:Label text="Comment"/>
+			<mx:TextArea width="100%" height="100%" id="commentText" maxChars="{ext.com.Consts.MAX_CHARS}" />
+		</mx:HBox>
+		
+		<mx:Label text="{'Quantity will bring product count below zero'}" id="negativeCount" visible="{int(parentWindow.productCount) + int(qtyInput.text) &lt; 0}"/>
+		<mx:ControlBar width="100%" horizontalAlign="right"   paddingTop="0" paddingRight="0" paddingLeft="0" paddingBottom="0" verticalAlign="middle">
+			<util:DirtyNote id="dirty"/>
+			<mx:Button id="saveButton" label="Save"
+					   icon="@Embed('../../assets/action_save.gif')" click="save()" enabled="{qtyInput.text != '' &amp;&amp; commentText.text != '' &amp;&amp; negativeCount.visible == false}" disabledIcon="@Embed(source='../../assets/save_disable.png')">
+			</mx:Button>
+			<mx:Button label="Close"  click="closeWindow()"/>
+		</mx:ControlBar>
+	</mx:VBox>
+	
+	
+	
+	
+	
+	
+</mx:TitleWindow>
