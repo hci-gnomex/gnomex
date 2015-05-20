@@ -5775,7 +5775,7 @@
 					<mx:LinkButton label="View" fontSize="10" click="showViewWindow()" icon="@Embed(source='../../assets/page.png')" textDecoration="underline" id="linkbutton2" paddingLeft="0">    	        
 					</mx:LinkButton>
 					<mx:LinkButton label="Download Files" fontSize="10" click="{this.theTab.selectedChild = this.downloadView}" icon="@Embed(source='../../assets/download.png')" id="downloadsLink" textDecoration="underline" textAlign="left"/>
-					<mx:LinkButton label="Printable PDF form" fontSize="10" click="parentApplication.navExperimentView.experimentDetailView.detail.showPrintableRequestForm()" icon="@Embed(source='../../assets/page_white_acrobat.png')" id="requestFormButton" textDecoration="underline" textAlign="left"/>
+					<mx:LinkButton label="Print Experiment Order" fontSize="10" click="parentApplication.navExperimentView.experimentDetailView.detail.showPrintableRequestForm()" icon="@Embed(source='../../assets/page_white_acrobat.png')" id="requestFormButton" textDecoration="underline" textAlign="left"/>
 					<mx:LinkButton label="Create New Analysis" id="createAnalysisButton" click="parentDocument.showNewAnalysisWindow()" icon="@Embed(source='../../assets/map_add.png')" fontSize="10" textDecoration="underline" textAlign="left"
 								   enabled="{!isDirty}" toolTip="{!isDirty ? 'Create an analysis linked to this experiment' : 'Please save the request before creating a linked analysis'}"
 								   visible="{parentDocument.showCreateAnalysisButton(parentDocument.selectedExperiment)}"
