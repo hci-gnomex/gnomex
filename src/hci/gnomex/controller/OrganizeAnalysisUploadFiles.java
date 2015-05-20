@@ -22,7 +22,6 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import org.hibernate.Query;
 import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.JDOMException;
@@ -230,7 +229,7 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
                   AnalysisFile af = new AnalysisFile();
                   if (!idFileString.startsWith("AnalysisFile") && !idFileString.equals("")) {
                     af = (AnalysisFile)sess.load(AnalysisFile.class, new Integer(idFileString));
-                  } else if(idFileString.startsWith("AnalysisFile")){ //new File(baseDir + "\\" + analysis.getNumber() + baseFileName).exists()  WHY DO WE NEED THIS?  MAYBE WE DON"T
+                  } else if(idFileString.startsWith("AnalysisFile") && new File(baseDir + "\\" + analysis.getNumber() + baseFileName).exists()){
                     af = new AnalysisFile();
                     af.setUploadDate(new java.sql.Date(System.currentTimeMillis()));
                     af.setCreateDate(new java.sql.Date(System.currentTimeMillis()));
@@ -238,7 +237,7 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
                     af.setFileName(new File(fileName).getName());
                     af.setBaseFilePath(baseDir + File.separator + analysis.getNumber());
                   }
-
+                    
                   if(duplicateUpload){
                     af.setFileSize(new BigDecimal(new File(mostRecentFile).length()));
                     Boolean firstUpload = true;
@@ -335,14 +334,11 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
                 String fileName = (String)i1.next();
 
                 // Remove references of file in TransferLog
-                String queryBuf = "SELECT tl from TransferLog tl where tl.idAnalysis = :idAnalysis AND tl.fileName like :fileName";
-                Query query = sess.createQuery(queryBuf);
-                query.setParameter("idAnalysis", idAnalysis);
-                query.setParameter("fileName", "%" + new File(fileName).getName());
-                List transferLogs = query.list();
+                String queryBuf = "SELECT tl from TransferLog tl where tl.idAnalysis = " + idAnalysis + " AND tl.fileName like '%" + new File(fileName).getName() + "'";
+                List transferLogs = sess.createQuery(queryBuf).list();
 
                 // Go ahead and delete the transfer log if there is just one row.
-                // If there are multiple transfer log rows for this filename, just;
+                // If there are multiple transfer log rows for this filename, just
                 // bypass deleting the transfer log since it is not possible
                 // to tell which entry should be deleted.
                 if (transferLogs.size() == 1) {
@@ -394,23 +390,6 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
               }
             }
           }
-
-          //clean up ghost files
-          String queryBuf = "SELECT af from AnalysisFile af where af.idAnalysis = :idAnalysis";
-          Query query = sess.createQuery(queryBuf);
-          query.setParameter("idAnalysis", idAnalysis);
-          List ghostFiles = query.list();
-
-          for(Iterator i = ghostFiles.iterator(); i.hasNext();) {
-            AnalysisFile af  = (AnalysisFile) i.next();
-            String filePath = af.getBaseFilePath() + File.separator + af.getQualifiedFilePath() + File.separator + af.getFileName();
-
-            if(!new File(filePath).exists()) {
-              analysis.getFiles().remove(af);
-            }
-          }
-
-          sess.flush();
 
           XMLOutputter out = new org.jdom.output.XMLOutputter();
           this.xmlResult = "<SUCCESS/>";

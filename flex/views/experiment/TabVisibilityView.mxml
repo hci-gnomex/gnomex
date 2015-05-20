@@ -182,7 +182,7 @@
 				if (c.@canView == "Y") {
 					var c1:XML = XML("<ExperimentCollaborator></ExperimentCollaborator>");
 					c1.@idAppUser = c.@idAppUser;
-					c1.@displayName = c.@displayNameXMLSafe;
+					c1.@displayName = c.@displayName;
 					c1.@canUpdate = c.hasOwnProperty("@canUpdate") ? c.@canUpdate : "N";
 					c1.@canUploadData = c.hasOwnProperty("@canUploadData") ? c.@canUploadData : "N";
 					list.addItem(c1);
@@ -237,7 +237,7 @@
 
   <mx:Canvas width="100%" height="100%" horizontalScrollPolicy="off">
         	
-	<mx:VBox width="100%" height="100%" verticalGap="10" horizontalScrollPolicy="off" verticalScrollPolicy="off">
+	<mx:VBox width="100%" height="100%" verticalGap="20" horizontalScrollPolicy="off" verticalScrollPolicy="off">
    		<mx:VBox width="100%" paddingTop="4"  verticalGap="0" paddingRight="4" paddingLeft="4" paddingBottom="4">
 		   <mx:HBox width="100%" horizontalGap="0" id="hbox1">
 			   <util:ContextHelp context1="visibilityLevel" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Visibility Level Help"
@@ -270,29 +270,26 @@
 						<mx:text>Institution visibility can only be set when lab belongs to an institution. Please contact GNomEx administrator.</mx:text>
 					</mx:Text>
 				</mx:HBox>
-				<mx:HBox horizontalGap="0" verticalAlign="middle" visible="{parentApplication.isPublicVisibility}" includeInLayout="{parentApplication.isPublicVisibility}">
+				<mx:HBox horizontalGap="0" verticalAlign="middle">
 					<mx:RadioButton value="PUBLIC" label="Public Access" groupName="visibilityRadioGroup"  
 									click="checkVisibilitySetupCompleteness();parentDocument.dirty.setDirty();setDefaultPrivacyExpirationDate();setPrivacyExpirationPickerEditable();" 
 									toolTip="Visible to everyone" paddingTop="0" paddingBottom="0"/>					
 				</mx:HBox>
-		   	</mx:VBox>		   
+		   	</mx:VBox>
+			   <mx:VBox verticalGap="2" width="100%" visible="{parentApplication.isPrivacyExpirationSupported}">
+				   <mx:HBox horizontalGap="0" verticalAlign="middle" >
+					   <mx:DateField id="privacyExpirationPicker" width="100" change="parentDocument.dirty.setDirty();" editable="true" formatString="YYYY-MM-DD" fontSize="11"></mx:DateField>
+					   <mx:Text text="Public visibility date (visibility automatically changes to public on this date) " fontSize="12"/>
+				   </mx:HBox>
+			   </mx:VBox>			   
 		   </mx:HBox>
-		</mx:VBox>
-		<mx:VBox id="privacyExpirationBox"  includeInLayout="{parentApplication.isPrivacyExpirationSupported}" visible="{parentApplication.isPrivacyExpirationSupported}"
-				 							width="600" paddingTop="4"  verticalGap="0" paddingRight="4" paddingLeft="4" paddingBottom="4">
-			<mx:VBox verticalGap="0"  >
-				<util:ContextHelp context1="visibilityPrivacyExpiration" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Visibility Privacy Expiration Help"
-								  label="(2) Select the privacy expiration date." labelPlacement="left" id="visibilityPrivacyExpirationLabel" width="500" />
-				<mx:HBox width="550" verticalAlign="middle" >
-					<mx:DateField id="privacyExpirationPicker" width="100" change="parentDocument.dirty.setDirty();" editable="true" formatString="YYYY-MM-DD"></mx:DateField>
-					<mx:Text text="Public visibility date&#13;(visibility automatically changes to public on this date)"  />
-				</mx:HBox>
-			</mx:VBox>
+		   	 
+
+
 		</mx:VBox>
 		<mx:VBox width="100%" height="100%" verticalGap="0" horizontalScrollPolicy="off" verticalScrollPolicy="off">
 			<util:ContextHelp context1="visibilityCollaborators" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Visibility Collaborator Help"
-							  label="{(parentApplication.isPrivacyExpirationSupported ? '(3)' : '(2)') + ' Specify other individual collaborators allowed access to this experiment'}" labelPlacement="left" id="visibilityCollaboratorsLabel" width="500"/>
-			
+							  label="(2) Select other individual collaborators allowed access to this experiment&#xa;" labelPlacement="left" id="visibilityCollaboratorsLabel" width="500"/>
 			<mx:DataGrid id="collaboratorGrid" dataProvider="{collaborators}" height="100%"	itemClick="toggleCheck(event)">
 				<mx:columns>
 					<mx:DataGridColumn headerText=""  

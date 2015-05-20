@@ -28,7 +28,6 @@ public class Lab extends HibernateDetailObject implements java.lang.Comparable {
   private String  isCcsgMember;
   private String  isActive;
   private String  excludeUsage;
-  private String  billingContactPhone;
   private String  billingContactEmail;  private Long    version;
   private Set     billingAccounts;
   private Set     members;
@@ -42,209 +41,181 @@ public class Lab extends HibernateDetailObject implements java.lang.Comparable {
   private boolean canSubmitRequests = false;
   private boolean canManage = false;
   private boolean isMyLab = false;
-  private boolean canGuestSubmit = false;
-
-
+  
+  
   public String getContactAddress() {
     return contactAddress;
   }
-
+  
   public void setContactAddress(String contactAddress) {
     this.contactAddress = contactAddress;
   }
-
+  
   public String getContactCity() {
     return contactCity;
   }
-
+  
   public void setContactCity(String contactCity) {
     this.contactCity = contactCity;
   }
-
+  
   public String getContactCodeState() {
     return contactCodeState;
   }
-
+  
   public void setContactCodeState(String contactCodeState) {
     this.contactCodeState = contactCodeState;
   }
-
+  
   public String getContactEmail() {
     return contactEmail;
   }
-
+  
   public void setContactEmail(String contactEmail) {
     this.contactEmail = contactEmail;
   }
-
+  
   public String getContactName() {
     return contactName;
   }
-
+  
   public void setContactName(String contactName) {
     this.contactName = contactName;
   }
-
+  
   public String getContactAddress2() {
     return contactAddress2;
   }
-
+  
   public void setContactAddress2(String contactAddress2) {
     this.contactAddress2 = contactAddress2;
   }
-
+  
   public String getContactPhone() {
     return contactPhone;
   }
-
+  
   public void setContactPhone(String contactPhone) {
     this.contactPhone = contactPhone;
   }
-
+  
   public String getContactZip() {
     return contactZip;
   }
-
+  
   public void setContactZip(String contactZip) {
     this.contactZip = contactZip;
   }
-
+  
   public String getContactCountry() {
-    return contactCountry;
-  }
-
-  public void setContactCountry(String contactCountry) {
-    this.contactCountry = contactCountry;
-  }
-
+	    return contactCountry;
+	  }
+	  
+	  public void setContactCountry(String contactCountry) {
+	    this.contactCountry = contactCountry;
+	  }
+  
   public String getDepartment() {
     return department;
   }
-
+  
   public void setDepartment(String department) {
     this.department = department;
   }
-
+  
   public Integer getIdLab() {
     return idLab;
   }
-
+  
   public void setIdLab(Integer idLab) {
     this.idLab = idLab;
   }
-
-
+  
+  
   public String getBillingContactEmail() {
     return billingContactEmail;
   }
-
+  
   public void setBillingContactEmail(String billingContactEmail) {
     this.billingContactEmail = billingContactEmail;
   }
-
+  
 
   public Long getVersion() {
     return version;
   }
-
+  
   public void setVersion(Long version) {
     this.version = version;
   }
-
-  public String getName() {
-    return getName(true,true,true);
-  }
   
-  public String getNameFirstLast() {
-	  return getName(false, true, true);
-  }
-
-  public String getName( Boolean lastNameFirst, Boolean includeLab ) {
-    return getName(lastNameFirst, includeLab, false);
-  }
-
-
-  public String getName( Boolean lastNameFirst, Boolean includeLab, Boolean includeActiveFlag) {
-
+  public String getName() {
     String name = "";
-
-    if ( lastNameFirst ) {
-      if (lastName != null && !lastName.equals("")) {
-        name = lastName;
-      }
-      if (firstName != null && !firstName.equals("")) {
-        if (name.length() > 0) {
-          name += ", ";
-        }
-        name += firstName;
-      }
-    } else {
-      if (firstName != null && !firstName.equals("")) {
-        name = firstName;
-      }
-      if (lastName != null && !lastName.equals("")) {
-        name += " " + lastName;
-      }
+    if (lastName != null && !lastName.equals("")) {
+      name = lastName;
     }
-    if ( includeLab ) {
+    if (firstName != null && !firstName.equals("")) {
       if (name.length() > 0) {
-        name += " Lab";      
+        name += ", ";
       }
+      name += firstName;
     }
-    if ( includeActiveFlag ) {
-      if (this.getIsActive() != null && this.getIsActive().equalsIgnoreCase("N")) {
-        name += " (inactive)";
-      }
+    if (name.length() > 0) {
+      name += " Lab";      
     }
-
+    if (this.getIsActive() != null && this.getIsActive().equalsIgnoreCase("N")) {
+      name += " (inactive)";
+    }
     return name;
   }
 
 
+ 
+  
   public void registerMethodsToExcludeFromXML() {
     this.excludeMethodFromXML("getAppUsers");
   }
 
-
+  
   public Set getBillingAccounts() {
     return billingAccounts;
   }
 
-
+  
   public void setBillingAccounts(Set billingAccounts) {
     this.billingAccounts = billingAccounts;
   }
 
-
+  
   public Set getMembers() {
     return members;
   }
 
-
+  
   public void setMembers(Set members) {
     this.members = members;
   }
 
-
+  
   public Set getCollaborators() {
     return collaborators;
   }
 
-
+  
   public void setCollaborators(Set collaborators) {
     this.collaborators = collaborators;
   }
 
-
+  
   public Set getManagers() {
     return managers;
   }
 
-
+  
   public void setManagers(Set managers) {
     this.managers = managers;
   }
-
+  
   public String getCanSubmitRequests() {
     if (this.canSubmitRequests) {
       return "Y";
@@ -252,23 +223,10 @@ public class Lab extends HibernateDetailObject implements java.lang.Comparable {
       return "N";
     }
   }
-
-  public String getCanGuestSubmit() {
-    if (this.canGuestSubmit) {
-      return "Y";
-    } else {
-      return "N";
-    }
-  }
-
   public void canSubmitRequests(boolean canDo) {
     canSubmitRequests = canDo;
   }
-
-  public void canGuestSubmit(boolean canDo) {
-    canGuestSubmit = canDo;
-  }
-
+  
   public String getCanManage() {
     if (this.canManage) {
       return "Y";
@@ -280,7 +238,7 @@ public class Lab extends HibernateDetailObject implements java.lang.Comparable {
     canManage = canDo;
   }
 
-
+  
   public String getIsMyLab() {
     if (isMyLab) {
       return "Y";
@@ -289,53 +247,48 @@ public class Lab extends HibernateDetailObject implements java.lang.Comparable {
     }
   }
 
-
+  
   public void isMyLab(boolean isMyLab) {
     this.isMyLab = isMyLab;
   }
 
-
-
+ 
+  
   public String getIsCcsgMember() {
     return isCcsgMember;
   }
 
-
+  
   public void setIsCcsgMember(String isCcsgMember) {
     this.isCcsgMember = isCcsgMember;
   }
 
-
+  
   public String getFirstName() {
     return firstName;
   }
 
-
+  
   public void setFirstName(String firstName) {
     this.firstName = firstName;
   }
 
-
+  
   public String getLastName() {
     return lastName;
   }
 
-
+  
   public void setLastName(String lastName) {
     this.lastName = lastName;
   }
 
-  public String getFormattedLabName(boolean firstLast) {
-    if(firstLast) {
-      return formatLabNameFirstLast(getFirstName(), getLastName());
-    } else {
-      return formatLabName(getLastName(), getFirstName());
-
-    }
+  public String getFormattedLabName() {
+    return formatLabName(getLastName(), getFirstName());
   }
 
   public static String formatLabName(String lastName, String firstName) {
-
+    
     String labName = "";
     if (lastName != null && !lastName.equals("")) {
       labName = lastName;
@@ -352,63 +305,46 @@ public class Lab extends HibernateDetailObject implements java.lang.Comparable {
     return labName;
   }
 
-  public static String formatLabNameFirstLast(String firstName, String lastName) {
-
-    String labName = "";
-    if (firstName != null && !firstName.equals("")) {
-      labName = firstName;
-    }
-
-    if (lastName != null && !lastName.equals("")) {
-      labName += " " + lastName;
-    }
-
-    if (labName.length() > 0) {
-      labName += " Lab";
-    }
-    return labName;
-  }
-
-
+  
   public Set getProjects() {
     return projects;
   }
 
-
+  
   public void setProjects(Set projects) {
     this.projects = projects;
   }
 
-
+  
   public String getIsActive() {
     return isActive;
   }
 
-
+  
   public void setIsActive(String isActive) {
     this.isActive = isActive;
   }
 
-
+  
   public String getIsExternalPricing() {
     return isExternalPricing;
   }
 
-
+  
   public void setIsExternalPricing(String isExternalPricing) {
     this.isExternalPricing = isExternalPricing;
   }
-
-
+  
+  
   public String getIsExternalPricingCommercial() {
     return isExternalPricingCommercial;
   }
 
-
+  
   public void setIsExternalPricingCommercial(String isExternalPricingCommercial) {
     this.isExternalPricingCommercial = isExternalPricingCommercial;
   }
-
+  
   public Set getInstitutions() {
     return institutions;
   }
@@ -416,7 +352,7 @@ public class Lab extends HibernateDetailObject implements java.lang.Comparable {
   public void setInstitutions(Set institutions) {
     this.institutions = institutions;
   }  
-
+  
   public Set getCoreFacilities() {
     return coreFacilities;
   }
@@ -424,12 +360,12 @@ public class Lab extends HibernateDetailObject implements java.lang.Comparable {
   public void setCoreFacilities(Set coreFacilities) {
     this.coreFacilities = coreFacilities;
   }  
-
+  
   public Boolean isExternalLab() {
     return (getIsExternalPricing() != null && getIsExternalPricing().equals("Y"))
     || (getIsExternalPricingCommercial() != null && getIsExternalPricingCommercial().equals("Y"));
   }
-
+  
   public List getApprovedBillingAccounts() {
     ArrayList approvedBillingAccounts = new ArrayList();
     for(Iterator i = getBillingAccounts().iterator(); i.hasNext();) {
@@ -451,7 +387,7 @@ public class Lab extends HibernateDetailObject implements java.lang.Comparable {
     }
     return internalBillingAccounts;
   }
-
+  
   public List getPOBillingAccounts() {
     ArrayList poBillingAccounts = new ArrayList();
     for(Iterator i = getBillingAccounts().iterator(); i.hasNext();) {
@@ -486,20 +422,12 @@ public class Lab extends HibernateDetailObject implements java.lang.Comparable {
   public String getBillingNotificationEmail() {
     return formatBillingNotificationEmail(getContactEmail(), getBillingContactEmail());
   }
-
-  public String getBillingContactPhone() {
-    return billingContactPhone;
-  }
-
-  public void setBillingContactPhone(String billingContactPhone) {
-    this.billingContactPhone = billingContactPhone;
-  }
-
+  
   // Always inclused PI
   public String getWorkAuthSubmitEmail() {
     return formatBillingNotificationEmail(getContactEmail(), getBillingContactEmail());
   }
-
+  
   public static String formatBillingNotificationEmail(String contactEmail, String billingContactEmail) {
     String email = "";
     if (billingContactEmail != null) {
@@ -515,10 +443,10 @@ public class Lab extends HibernateDetailObject implements java.lang.Comparable {
       }
       email += piEmail;
     }
-
+    
     return email;
   }
-
+  
   public Boolean validateVisibilityInLab(VisibilityInterface object) {
     Boolean valid = true;
     if (object != null && object.getCodeVisibility().equals(Visibility.VISIBLE_TO_INSTITUTION_MEMBERS)) {
@@ -534,11 +462,11 @@ public class Lab extends HibernateDetailObject implements java.lang.Comparable {
 
     return valid;
   }
-
+  
   public Integer getDefaultIdInstitutionForLab() {
     return getDefaultIdInstitutionForLab((Set<Institution>)getInstitutions());
   }
-
+  
   public Integer getDefaultIdInstitutionForLab(Collection<Institution> institutions) {
     Integer defaultInst = null;
     Integer onlyInst = null;
@@ -557,11 +485,11 @@ public class Lab extends HibernateDetailObject implements java.lang.Comparable {
         }
       }
     }
-
+    
     if (defaultInst == null && onlyInst != null) {
       defaultInst = onlyInst;
     }
-
+    
     return defaultInst;
   }
 

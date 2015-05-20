@@ -143,12 +143,11 @@ public class SecurityManager extends SimpleUserManager  {
     Connection con = null;
     PreparedStatement stmt = null;
     ResultSet rs = null;
-    EncryptionUtility passwordEncrypter = new EncryptionUtility();
 
     try {
       con = this.getConnection();
 
-      stmt = con.prepareStatement("SELECT isActive, userNameExternal, passwordExternal, salt FROM AppUser WHERE userNameExternal = ?");
+      stmt = con.prepareStatement("SELECT isActive, userNameExternal, passwordExternal FROM AppUser WHERE userNameExternal = ?");
 
       stmt.setString(1, uid);
 
@@ -157,10 +156,9 @@ public class SecurityManager extends SimpleUserManager  {
       while (rs.next()) {
         String isActive = rs.getString("isActive");
         String gnomexPasswordEncrypted = rs.getString("passwordExternal");
-        String salt = rs.getString("salt");
         
         if (isActive != null && isActive.equalsIgnoreCase("Y")) {
-          String thePasswordEncrypted = passwordEncrypter.createPassword(password, salt);
+          String thePasswordEncrypted = EncrypterService.getInstance().encrypt(password);
           if (thePasswordEncrypted.equals(gnomexPasswordEncrypted)) {
             result = true;
           }
@@ -283,7 +281,7 @@ public class SecurityManager extends SimpleUserManager  {
         ldap_user_attributes = p.getProperty("ldap_user_attributes");
       }
       // Populate user attributes and values into a may (key=attribute, value=attribute value)
-      if (ldap_user_attributes != null && ldap_user_attributes.length() > 0) {
+      if (ldap_user_attributes != null) {
         String attributeTokens[] = ldap_user_attributes.split(",");
         for (int x = 0; x < attributeTokens.length; x++) {
           String tokens[] = attributeTokens[x].split(":");

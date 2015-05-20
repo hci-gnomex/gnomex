@@ -19,7 +19,6 @@ while (cIter.hasNext()) {
 	 Iterator vIter = row.getValues().iterator();
 	 while (vIter.hasNext()) {
 	      String val = (String) vIter.next();
-	      val = val.replaceAll("\t", "    ");
 	    	out.print(val);
 	    	if (vIter.hasNext()) {
 	    	  out.print(",");

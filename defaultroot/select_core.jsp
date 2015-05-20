@@ -85,7 +85,8 @@ try {
         <img src="<%=siteLogo%>"/>
     </div>
     <div class="rightMenu" >
-        <a href="gnomexFlex.jsp<%=idCoreParm%>">Sign in</a> |         
+        <a href="gnomexFlex.jsp<%=idCoreParm%>">Sign in</a> |    
+        <a href="change_password.jsp<%=idCoreParm%>">Change password</a> |       
         <a href="reset_password.jsp<%=idCoreParm%>">Reset password</a>
     </div>
   </div>
@@ -95,7 +96,7 @@ try {
     <h3>Select Core Facility</h3>
     
     <div id="coreFacilityDiv"><div class="col1"><div class="left">
-      <table border="0" width="800" class="facilities" rules="rows">
+      <table border="0" width="800" class="facilities">
         
         <%
           Iterator facilityIter = facilities.iterator();
@@ -103,27 +104,30 @@ try {
             CoreFacility f = (CoreFacility) facilityIter.next();
         %>
         <tr height="35">
-          <td width="250" style="padding-bottom:5; padding-top:5">
+          <td width="250">
             <a class="button" href="register_user.jsp?idFacility=<%=f.getIdCoreFacility()%><%=idCoreParm.replace("?","&")%>"><%=f.getDisplay()%></a>
           </td>
           
-          <td style="padding-bottom:5; padding-top:5">
+          <td >
             <%
               if (f.getDescription() != null) {%>
                   <%=f.getDescription()%>
             <%}%>
           </td>
-        </tr>
+        </tr> 
             <%}%>
       </table>
       
     </div></div></div>       
   
     <div class="empty"></div>
-
+    
+      
   </div>
 
+
 </div>
+
 
 </body>
 </html>

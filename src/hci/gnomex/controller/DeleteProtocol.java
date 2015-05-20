@@ -9,6 +9,7 @@ import hci.gnomex.model.HybProtocol;
 import hci.gnomex.model.LabelingProtocol;
 import hci.gnomex.model.OligoBarcodeSchemeAllowed;
 import hci.gnomex.model.RequestCategoryApplication;
+import hci.gnomex.model.SampleTypeApplication;
 import hci.gnomex.model.ScanProtocol;
 import hci.gnomex.model.SeqLibProtocol;
 import hci.gnomex.model.SeqLibProtocolApplication;
@@ -212,6 +213,13 @@ public class DeleteProtocol extends GNomExCommand implements Serializable {
     for(Iterator i = l.iterator(); i.hasNext();){
       RequestCategoryApplication rca = (RequestCategoryApplication) i.next();
       sess.delete(rca);
+    }
+
+    l = sess.createQuery("Select sta from SampleTypeApplication sta where " + colName + " = " + idProtocol ).list();
+
+    for(Iterator i = l.iterator(); i.hasNext();){
+      SampleTypeApplication sta = (SampleTypeApplication) i.next();
+      sess.delete(sta);
     }
     
   }

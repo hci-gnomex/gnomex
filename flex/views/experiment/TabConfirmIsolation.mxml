@@ -87,17 +87,6 @@
 					return "";
 				}
 			}
-			override public function updateBatchWarning():void{
-				var warning:String = this.getSampleBatchWarning();
-				
-				if(warning == ""){
-					sampleBatchWarningBox.includeInLayout = false;
-					this.batchWarning.text = "";
-				} else{
-					sampleBatchWarningBox.includeInLayout = true;
-					this.batchWarning.text = this.getSampleBatchWarning();	
-				}
-			}
 		]]>
 		
 	</mx:Script>
@@ -108,17 +97,11 @@
 	<mx:VBox id="confirmHeaderContainer"  width="100%" backgroundAlpha="0.0" verticalGap="0" paddingRight="25"  >
 		<mx:VBox   width="100%"  backgroundAlpha="0.0" verticalGap="0" paddingBottom="5" paddingLeft="5" paddingTop="0" id="confirmContainer" >
 			<mx:HBox width="100%" horizontalGap="4">
-				<mx:VBox height="100%" verticalGap="0" width="160" horizontalScrollPolicy="off">
+				<mx:VBox height="100%" verticalGap="0" width="140" horizontalScrollPolicy="off">
 					<mx:Label text="Experiment" textDecoration="none" height="16" styleName="formLabel" />
 					<mx:Text text="{parentDocument.requestCategoryName}" id="requestKindLabel" width="140"/>
-					<mx:Text text="{parentDocument.sampleSetupView.isolationTypeRadioGroup.selectedValue ? parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.DNAPrepType').DictionaryEntry.(@value == parentDocument.sampleSetupView.isolationTypeRadioGroup.selectedValue).@display : ''}" 
-							 visible="{parentDocument.requestCategoryName.indexOf('DNA')!=-1}"
-							 includeInLayout="{parentDocument.requestCategoryName.indexOf('DNA')!=-1}"
-							 width="100%" />
-					<mx:Text text="{parentDocument.sampleSetupView.isolationTypeRadioGroup.selectedValue ? parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.RNAPrepType').DictionaryEntry.(@value == parentDocument.sampleSetupView.isolationTypeRadioGroup.selectedValue).@display : ''}" 
-							 visible="{parentDocument.requestCategoryName.indexOf('RNA')!=-1}"
-							 includeInLayout="{parentDocument.requestCategoryName.indexOf('RNA')!=-1}"
-							 width="100%" />
+					<mx:Text text="{parentDocument.sampleSetupView.isolationTypeRadioGroup.selectedValue ? parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.DNAPrepType').DictionaryEntry.(@value == parentDocument.sampleSetupView.isolationTypeRadioGroup.selectedValue).@display : ''}" width="100%" />
+					<mx:Text text="{parentDocument.sampleSetupView.isolationTypeRadioGroup.selectedValue ? parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.RNAPrepType').DictionaryEntry.(@value == parentDocument.sampleSetupView.isolationTypeRadioGroup.selectedValue).@display : ''}" width="100%" />
 				</mx:VBox>
 				<mx:VBox height="100%" verticalGap="0" width="140" horizontalScrollPolicy="off">
 					<mx:Label text="Lab" styleName="formLabel" height="16"/>
@@ -144,10 +127,6 @@
 				<mx:HBox width="100%" id="chargesHeaderBox">
 					<mx:Label text="{'Estimated Charges ' + parentDocument.createBillingItems.lastResult.Request.@invoicePrice}" 
 							  styleName="formLabel" paddingTop="6"/>								    	
-				</mx:HBox>
-				<mx:HBox width="100%" id="sampleBatchWarningBox">
-					<mx:Label id="batchWarning" 
-							  styleName="sampleBatchWarning" paddingTop="6"/>								    	
 				</mx:HBox>
 				<mx:VBox width="100%">
 					<mx:DataGrid id="billingConfirmGrid" showHeaders="false" horizontalScrollPolicy="off"  

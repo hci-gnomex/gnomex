@@ -120,7 +120,7 @@ package views.util.grid
 			return wellName;
 		}
 		
-		public function updateWellNames():void {
+		protected function updateWellNames():void {
 			if ( !this._hasPlates ) {
 				return;
 			}
@@ -128,7 +128,6 @@ package views.util.grid
 				sample.@plateName = parentDocument != null ? parentDocument.getPlateName(this.getUnderlyingDataProvider().getItemIndex(sample)) : "";
 				sample.@wellName = getWellName(this.getUnderlyingDataProvider().getItemIndex(sample));
 			}
-			this.addRowColorFields();
 		}
 		
 		[Bindable]

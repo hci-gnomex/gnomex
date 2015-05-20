@@ -26,7 +26,7 @@ import hci.gnomex.utility.HibernateSession;
 public class UpdateContextSensitiveHelp  extends GNomExCommand implements Serializable {
 
   // the static field for logging in Log4J
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(UpdateContextSensitiveHelp.class);
+  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(SaveExperimentPlatform.class);
   
   private String idContextSensitiveHelpString;
   private String context1;
@@ -99,7 +99,7 @@ public class UpdateContextSensitiveHelp  extends GNomExCommand implements Serial
       }
       
     }catch (Exception e){
-      log.error("An exception has occurred in UpdateContextSensitiveHelp ", e);
+      log.error("An exception has occurred in SaveExperimentPlatform ", e);
       throw new RollBackCommandException(e.getMessage());
         
     }finally {

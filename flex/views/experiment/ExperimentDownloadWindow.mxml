@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<util:ResizableTitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
 				layout="vertical" width="824" 
 				xmlns:util="views.util.*"
 				height="408" creationPolicy="all"
@@ -441,7 +441,7 @@
 				var urlRequest:URLRequest = new URLRequest(helpURL);				
 				navigateToURL(urlRequest);
 			}
-
+			
 		]]>
 	</mx:Script>	
 	
@@ -468,11 +468,8 @@
 							 editable="false" wordWrap="true"  
 							 text="Drag files or folders that you want to download. Hold CTRL or SHIFT key to select multiple files." 
 							 toolTip="Drag the files you wish to download to the right panel.  Drag files you do not want to download back to the left."/>
-				<mx:Spacer width="100%"/> 
-				<util:ContextHelp context1="downloadhelp" 
-								  showEdit="{parentApplication.isAdminState}" title="Download Help"
-								  label="Download Help" labelPlacement="right" id="labelApplication0"/>
-								
+				
+				
 			</mx:HBox>
 			
 			<mx:HDividedBox width="100%" height="100%">
@@ -531,6 +528,11 @@
 	</mx:Canvas>
 	<mx:ControlBar width="100%">
 		<mx:Spacer width="100%"/>
+		<mx:LinkButton label="Troubleshooting Guide, Important info about Chrome Browser!"
+					   click="{showDownloadHelp()}"
+					   color="#1453E2" fontStyle="italic" fontWeight="bold"
+					   textDecoration="underline"/>
+		
 		<mx:HBox height="100%" width="100%" verticalAlign="middle" horizontalAlign="right">
 			<mx:Spacer width="100%"/>
 			<mx:Button id="downloadExpandedFilesButton" 
@@ -540,14 +542,6 @@
 					   disabledIcon="@Embed('../../assets/download_disable.png')"
 					   toolTip="Download selected files"
 					   label="Download"/>
-			<mx:Button visible="{parentApplication.isFDTSupported &amp;&amp; !downloadView.isClinicalResearchRequest() ? true : false}" id="fdtDownloadCommand" 
-					   includeInLayout="{parentApplication.isFDTSupported &amp;&amp; !downloadView.isClinicalResearchRequest() ? true : false}" 
-					   enabled="{filesToDownload.length>0}"
-					   click="downloadView.showCommandLineInstructions = true; downloadView.downloadFilesUsingFDT(filesToDownload.source..FileDescriptor.(@type != 'dir'))" 
-					   label="FDT Command Line"  
-					   toolTip="Download large files using FDT"
-					   disabledIcon="@Embed('../../assets/download_disable.png')"
-					   icon="@Embed(source='../../assets/download_large.png')"/>
 			<mx:Button visible="{parentApplication.isFDTSupported &amp;&amp; !downloadView.isClinicalResearchRequest() ? true : false}" id="fdtDownload" 
 					   includeInLayout="{parentApplication.isFDTSupported &amp;&amp; !downloadView.isClinicalResearchRequest() ? true : false}" 
 					   enabled="{filesToDownload.length>0}"
@@ -568,4 +562,4 @@
 		</mx:HBox>  
 	</mx:ControlBar>
 	
-</util:ResizableTitleWindow>
+</mx:TitleWindow>

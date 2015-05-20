@@ -14,8 +14,6 @@
 		</mx:HBox>
 		<mx:HBox width="100%" paddingTop="12" paddingBottom="12">
 			<mx:Text fontSize="12" fontWeight="bold" text="{'GNomEx ' + parentApplication.version }"/>
-			<mx:Spacer width="100%"/>
-			<mx:Text fontSize="12" fontWeight="bold" text="{'Flex Compile ' + flexAppVersion.getFlexVersionString() }"/>
 		</mx:HBox>
 		
 		<mx:VBox width="100%" verticalGap="2" fontSize="12" paddingTop="0" paddingLeft="10">
@@ -47,7 +45,7 @@
 			</mx:HBox>
 			<mx:HBox horizontalGap="0"  verticalAlign="middle" width="100%">
 				<mx:Image source="{parentApplication.iconBullet}"/>
-				<mx:Text text="Experiment Type icons by"/>
+				<mx:Text text="Application icons by"/>
 				<mx:LinkButton label="FamFamFam Silk Icons" click="navigateToURL(new URLRequest('http://www.famfamfam.com/lab/icons/silk/'), '_blank');" textDecoration="underline" color="#0000ff"/>
 				<mx:LinkButton label="Momentum Icons" click="navigateToURL(new URLRequest('http://momentumdesignlab.com/about/downloads/'), '_blank');" textDecoration="underline" color="#0000ff"/>
 			</mx:HBox>
@@ -68,10 +66,6 @@
 		<![CDATA[
 			import mx.managers.PopUpManager;
 			import mx.events.FlexMouseEvent;
-			import views.util.FlexAppVersion;
-			
-			[Bindable]
-			private var flexAppVersion:FlexAppVersion = new FlexAppVersion();
 			
 			public function init():void {
 				addEventListener(FlexMouseEvent.MOUSE_DOWN_OUTSIDE, mouseDownOutsideHandler);

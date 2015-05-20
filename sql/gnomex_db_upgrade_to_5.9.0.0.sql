@@ -53,7 +53,7 @@ alter table Request add
     ON UPDATE NO ACTION;
 
 -- Add isCreditCard to BillingAccount table
-alter table gnomex.BillingAccount add column isCreditCard char(1);
+alter table gnomex.BillingAccount add column isCreditCard varchar(1);
 
 -- Add idCreditCardCompany to BillingAccount table
 alter table gnomex.BillingAccount add column idCreditCardCompany INT(10);

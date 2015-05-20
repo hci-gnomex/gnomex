@@ -38,8 +38,6 @@ public class Application extends DictionaryEntry implements Serializable {
   private String codeApplicationType;
   private String onlyForLabPrepped;
   private Integer samplesPerBatch;
-  private Integer idCoreFacility;
-  private String hasChipTypes;
 
   public String getHasCaptureLibDesign() {
     return hasCaptureLibDesign;
@@ -147,14 +145,12 @@ public class Application extends DictionaryEntry implements Serializable {
 	  this.onlyForLabPrepped = onlyForLabPrepped;
 	}
 	
-	public Boolean isApplicableApplication(RequestCategoryType rct, Integer idCoreFacility) {
+	public Boolean isApplicableApplication(RequestCategoryType rct) {
 	  Boolean isApplicable = true;
     String appType = ApplicationType.getCodeApplicationType(rct);
     if (getCodeApplicationType() == null && !appType.equals(ApplicationType.TYPE_OTHER)) {
       isApplicable = false;
     } else if (!getCodeApplicationType().equals(appType)) {
-      isApplicable = false;
-    } else if (!getIdCoreFacility().equals(idCoreFacility)) {
       isApplicable = false;
     }
 
@@ -169,22 +165,5 @@ public class Application extends DictionaryEntry implements Serializable {
   
   public void setSamplesPerBatch( Integer samplesPerBatch ) {
     this.samplesPerBatch = samplesPerBatch;
-  }
-  
-  public Integer getIdCoreFacility() {
-    return idCoreFacility;
-  }
-  
-  public void setIdCoreFacility(Integer id) {
-    idCoreFacility = id;
-  }
-  
-  public String getHasChipTypes() {
-    return hasChipTypes;
-  }
-
-  
-  public void setHasChipTypes(String hasChipTypes) {
-    this.hasChipTypes = hasChipTypes;
   }
 }

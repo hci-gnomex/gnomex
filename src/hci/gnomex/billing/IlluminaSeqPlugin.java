@@ -13,7 +13,6 @@ import hci.gnomex.model.NumberSequencingCyclesAllowed;
 import hci.gnomex.model.Price;
 import hci.gnomex.model.PriceCategory;
 import hci.gnomex.model.PriceCriteria;
-import hci.gnomex.model.PropertyEntry;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.Sample;
@@ -34,8 +33,7 @@ import org.hibernate.Session;
 public class IlluminaSeqPlugin implements BillingPlugin {
 
   public List constructBillingItems(Session sess, String amendState, BillingPeriod billingPeriod, PriceCategory priceCategory, Request request, 
-      Set<Sample> samples, Set<LabeledSample> labeledSamples, Set<Hybridization> hybs, Set<SequenceLane> lanes, Map<String, ArrayList<String>> sampleToAssaysMap, 
-      String billingStatus, Set<PropertyEntry> propertyEntries) {
+      Set<Sample> samples, Set<LabeledSample> labeledSamples, Set<Hybridization> hybs, Set<SequenceLane> lanes, Map<String, ArrayList<String>> sampleToAssaysMap) {
 
     List billingItems = new ArrayList<BillingItem>();
     Map seqLaneMap = new HashMap();
@@ -56,7 +54,7 @@ public class IlluminaSeqPlugin implements BillingPlugin {
       NumberSequencingCyclesAllowed nsca = (NumberSequencingCyclesAllowed)de;
       
       if (nsca.getCodeRequestCategory().equals(request.getCodeRequestCategory()) && nsca.getIsCustom() != null && nsca.getIsCustom().equals("Y")) {
-        String key = nsca.getIdNumberSequencingCyclesAllowed().toString();
+        String key = nsca.getIdNumberSequencingCycles().toString() + "-" + nsca.getIdSeqRunType().toString();
         customNumberSequencingCyclesAllowed.put(key, nsca);
       }
     }
@@ -66,7 +64,7 @@ public class IlluminaSeqPlugin implements BillingPlugin {
       SequenceLane seqLane = (SequenceLane)i.next();
       
       
-      String key = seqLane.getIdNumberSequencingCyclesAllowed().toString();
+      String key = seqLane.getIdNumberSequencingCycles() + "-" + seqLane.getIdSeqRunType();
       
       // Keep track of the lanes for # cycles/seq run type
       List theLanes = (List)seqLaneMap.get(key);
@@ -90,9 +88,12 @@ public class IlluminaSeqPlugin implements BillingPlugin {
     
     // Now generate a billing item for each seq lane number sequencing cycles  / seq run type
     for(Iterator i = seqLaneMap.keySet().iterator(); i.hasNext();) {
-      String idNumberSequencingCyclesAllowed = (String)i.next();
+      String  key = (String)i.next();
+      String[] tokens = key.split("-");
+      String idNumberSequencingCycles = tokens[0];
+      String idSeqRunType             = tokens[1];
       
-      List theLanes = (List)seqLaneMap.get(idNumberSequencingCyclesAllowed);
+      List theLanes = (List)seqLaneMap.get(key);
       
       Integer maxLanesForSample = 0;
       Map<Integer, Integer>numSeqLanesPerSample = new HashMap<Integer, Integer>();
@@ -111,7 +112,7 @@ public class IlluminaSeqPlugin implements BillingPlugin {
       }
       
       int qty = SequenceLane.getMultiplexLaneCount(theLanes, request.getCreateDate());
-      String notes = (String)seqLaneNoteMap.get(idNumberSequencingCyclesAllowed);
+      String notes = (String)seqLaneNoteMap.get(key);
       
       // Find the billing price 
       Price price = null;
@@ -120,15 +121,17 @@ public class IlluminaSeqPlugin implements BillingPlugin {
         if (p.getIsActive() != null && p.getIsActive().equals("Y")) {
           for(Iterator i2 = p.getPriceCriterias().iterator(); i2.hasNext();) {
             PriceCriteria criteria = (PriceCriteria)i2.next();
-            if (criteria.getFilter1().equals(idNumberSequencingCyclesAllowed)) {
-              price = p;
-              break;            
+            if (criteria.getFilter1().equals(idSeqRunType)) {
+              if (criteria.getFilter2().equals(idNumberSequencingCycles)) {
+                price = p;
+                break;            
+              }
             }
           }
         }
       }
       
-      if (customNumberSequencingCyclesAllowed.containsKey(idNumberSequencingCyclesAllowed)) {
+      if (customNumberSequencingCyclesAllowed.containsKey(key)) {
         // Custom NumberSequencingCyclesAllowed bill for the whole cell in a single charge.
         RequestCategory category = dh.getRequestCategoryObject(request.getCodeRequestCategory());
         qty = maxLanesForSample;
@@ -149,10 +152,7 @@ public class IlluminaSeqPlugin implements BillingPlugin {
         if (qty > 0 && theUnitPrice != null) {
           billingItem.setInvoicePrice(theUnitPrice.multiply(new BigDecimal(qty)));          
         }
-        billingItem.setCodeBillingStatus(billingStatus);
-        if (!billingStatus.equals(BillingStatus.NEW) && !billingStatus.equals(BillingStatus.PENDING)) {
-          billingItem.setCompleteDate(new java.sql.Date(System.currentTimeMillis()));
-        }
+        billingItem.setCodeBillingStatus(BillingStatus.PENDING);
         billingItem.setIdRequest(request.getIdRequest());
         billingItem.setIdBillingAccount(request.getIdBillingAccount());
         billingItem.setIdLab(request.getIdLab());

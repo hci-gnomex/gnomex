@@ -35,7 +35,6 @@ GNomExFrontController.setWebContextPath(webContextPath);
 boolean showCampusInfoLink = false;
 boolean itemNotPublic = false;
 boolean showUserSignup = true;
-boolean allowGuest = false;
 String itemType="";
 String siteLogo = "";
 Session sess = null;
@@ -55,12 +54,6 @@ try {
     showUserSignup = false;
   } 
  
-   // Determine if guest access is allowed
-  PropertyDictionary noGuestAccess = (PropertyDictionary)sess.createQuery("from PropertyDictionary p where p.propertyName='" + PropertyDictionary.NO_GUEST_ACCESS + "'").uniqueResult();
-  if (noGuestAccess == null) {
-    allowGuest = true;
-  } 
-
   // If launching experiment, analysis, data track, or topic then check for public
   // If public then launch directly as guest user without requiring login
   String requestNumber = (String) ((request.getParameter("requestNumber") != null)?request.getParameter("requestNumber"):"");
@@ -175,8 +168,9 @@ try {
        <div class="leftMenu">
             <img src="<%=siteLogo%>"/>
        </div>
-       <div class="rightMenu" >          
-          <a href="reset_password.jsp<%=idCoreParm%>">Reset password</a>
+       <div class="rightMenu" >    
+        <a href="change_password.jsp<%=idCoreParm%>">Change password</a>       
+        |   <a href="reset_password.jsp<%=idCoreParm%>">Reset password</a>
         <%if(showUserSignup) {%>
             |   <a href="select_core.jsp<%=idCoreParm%>">Sign up for an account</a>
         <%}%> 
@@ -216,17 +210,13 @@ The <%= itemType %> you are linking to does not have public visibility. Please s
       
       <div class="buttonPanelShort"><input type="submit" class="submit" value="Sign in" /></div>
       
-      <%
-       if ( allowGuest ) {
-       %>
+      
       <div class="bottomPanel">
         <div class="col1Wide"><note class="inline"><i>For guest access to public data</i></note></div>
         <!-- Note that guest ignores idCore parameter -- guest just sees all public objects. -->
         <div class="buttonPanelShort"><a href="gnomexGuestFlex.jsp" class="buttonLarge">Sign in as guest</a></div>
       </div>
-      <%
-      }
-      %>
+      
 
     </div>
        

@@ -30,7 +30,6 @@
             <codeUserPermissionKind>{permissionGroup.selectedValue}</codeUserPermissionKind>
             <isActive>{isActive.selected == true ? 'Y' : 'N'}</isActive>
 			<userManagingCoreFacilities>{managingCoreFacilitiesString}</userManagingCoreFacilities>
-			<coreFacilitiesUserCanSubmitTo>{coreFacilitiesICanSubmitToString}</coreFacilitiesUserCanSubmitTo>
     </mx:request>
     </mx:HTTPService >
     
@@ -45,9 +44,6 @@
            
             [Bindable]
 			public var managingCoreFacilitiesString:String = '';
-			
-			[Bindable]
-			public var coreFacilitiesICanSubmitToString:String = '';
 			
             private var savedIdAppUser:Object = '';
             
@@ -72,45 +68,16 @@
       
 			  
             private function save():void {
-				var validated:Boolean = false;
-				
-				if (isAdminPermissionLevel.selected || isBillingPermissionLevel.selected) {
-					var atLeastOneCoreManaged:Boolean = false;
-					for (var index:int = 0; i < parentDocument.managingCoreFacilities.length; i++) {
-						if (chkCoreFacility[i].selected) {
-							atLeastOneCoreManaged = true;
-							break;
-						}
+				for (var i:int = 0; i < parentDocument.managingCoreFacilities.length; i++) {
+					var facility:XML = XML(parentDocument.managingCoreFacilities.getItemAt(i));
+					if (chkCoreFacility[i].selected) {
+						facility.@selected = "Y";
+					} else {
+						facility.@selected = "N";
 					}
-					validated = atLeastOneCoreManaged;
-				} else {
-					validated = true;
 				}
-				
-				if (validated) {
-					for (var i:int = 0; i < parentDocument.managingCoreFacilities.length; i++) {
-						var facility:XML = XML(parentDocument.managingCoreFacilities.getItemAt(i));
-						if (chkCoreFacility[i].selected) {
-							facility.@selected = "Y";
-						} else {
-							facility.@selected = "N";
-						}
-					}
-					
-					for (var j:int = 0; j < parentDocument.coreFacilitiesICanSubmitTo.length; j++) {
-						var submitfacility:XML = XML(parentDocument.coreFacilitiesICanSubmitTo.getItemAt(j));
-						if (chkSubmitCoreFacility[j].selected) {
-							submitfacility.@selected = "Y";
-						} else {
-							submitfacility.@selected = "N";
-						}
-					}
-					managingCoreFacilitiesString = parentDocument.managingCoreFacilities.toXMLString();
-					coreFacilitiesICanSubmitToString = parentDocument.coreFacilitiesICanSubmitTo.toXMLString();
-					saveAppUser.send();
-				} else {
-					Alert.show("The user is marked as an admin; please specify the core facility(ies) the user can manage.", "Notice", Alert.OK, this);
-				}
+				managingCoreFacilitiesString = parentDocument.managingCoreFacilities.toXMLString();
+				saveAppUser.send();
             }
             
             private function onSaveAppUser(event:ResultEvent):void {
@@ -122,6 +89,7 @@
 		 			
 		 			var itemToSelect:XML = new XML("<AppUser id='" + savedIdAppUser + "'/>");
 	          		parentApplication.navUsersView.itemToSelect = itemToSelect;
+    	      		parentApplication.navUsersView.refreshAppUserList();
 					var anyChecked:Boolean = false;
 					for (var i:int = 0; i < parentDocument.managingCoreFacilities.length; i++) {
 						var facility:XML = XML(parentDocument.managingCoreFacilities.getItemAt(i));
@@ -130,8 +98,6 @@
 							break;
 						}
 					}
-					parentDocument.callGetAppUserList();
-					parentDocument.callGetAppUser();
 				} else { 
 					if (saveAppUser.lastResult.name() == "ERROR") {
 						Alert.show(saveAppUser.lastResult.@message);
@@ -273,7 +239,7 @@
 					</mx:RadioButton>		  	         	
 		  	    </mx:VBox>
 		  	  </mx:HBox>
-			  <mx:VBox visible="{this.isAdminPermissionLevel.selected || this.isBillingPermissionLevel.selected}" includeInLayout="{this.isAdminPermissionLevel.selected || this.isBillingPermissionLevel.selected}" borderStyle="solid"  borderColor="#C9D7E1" paddingBottom="4" paddingRight="4" paddingLeft="4" verticalGap="0" cornerRadius="6">
+			  <mx:VBox visible="{this.isAdminPermissionLevel.selected || this.isBillingPermissionLevel.selected}" borderStyle="solid"  borderColor="#C9D7E1" paddingBottom="4" paddingRight="4" paddingLeft="4" verticalGap="0" cornerRadius="6">
 				  <mx:Text text="Core Facilities this user manages" styleName="formLabel"/>
 				  <mx:Repeater id="coreFacilityRepeater" dataProvider="{parentDocument.managingCoreFacilities}">
 					  <mx:HBox verticalGap="0" paddingRight="2" paddingBottom="0" paddingTop="0" width="100%" verticalAlign="middle">
@@ -286,24 +252,6 @@
 					  </mx:HBox>
 				  </mx:Repeater>
 			  </mx:VBox>
-				<mx:VBox visible="{parentDocument.coreFacilitiesICanSubmitTo.length > 0 &amp;&amp; (this.isBillingPermissionLevel.selected || this.isGroupPermissionLevel.selected)}" 
-						 includeInLayout="{parentDocument.coreFacilitiesICanSubmitTo.length > 0 &amp;&amp; (this.isBillingPermissionLevel.selected || this.isGroupPermissionLevel.selected)}" 
-						 borderStyle="solid"  borderColor="#C9D7E1" paddingBottom="4" paddingRight="4" paddingLeft="4" verticalGap="0" cornerRadius="6">
-					<mx:HBox verticalAlign="middle" width="100%">
-						<mx:Label text="Submit experiments in all labs in core" id="text1" styleName="formLabel"/>
-						<util:ContextHelp context1="SubmitterPermissionHelp" showEdit="{parentApplication.isSuperAdmin}" title="Submitter Help" />
-					</mx:HBox>
-					<mx:Repeater id="coreFacilitySubmitRepeater" dataProvider="{parentDocument.coreFacilitiesICanSubmitTo}">
-						<mx:HBox verticalGap="0" paddingRight="2" paddingBottom="0" paddingTop="0" width="100%" verticalAlign="middle">
-							<mx:CheckBox id="chkSubmitCoreFacility" paddingBottom="0" paddingTop="0" verticalGap="0"
-										 label="{coreFacilitySubmitRepeater.currentItem.@display}" width="206"
-										 data="{coreFacilitySubmitRepeater.currentItem.@value}"
-										 selected="{coreFacilitySubmitRepeater.currentItem.@selected == 'Y' ? true : false}"
-										 enabled="{parentApplication.isCoreFacilityIManage(coreFacilitySubmitRepeater.currentItem.@value)?true:false}"
-										 click="dirty.setDirty()" />							
-						</mx:HBox>
-					</mx:Repeater>
-				</mx:VBox>
 		    </mx:HBox>
 	
 	  </mx:VBox>

@@ -6,9 +6,7 @@ import hci.framework.utilities.XMLReflectException;
 import hci.gnomex.constants.Constants;
 import hci.gnomex.model.AppUser;
 import hci.gnomex.model.ChromatogramFilter;
-import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.SampleType;
-import hci.gnomex.utility.PropertyDictionaryHelper;
 
 import java.io.File;
 import java.io.Serializable;
@@ -38,8 +36,6 @@ public class GetChromatogramList extends GNomExCommand implements Serializable {
   private String                      abiFileName;
   private Element                     rootNode = null;
   private String                      message = "";
-  
-  private static final int			  DEFAULT_MAX_CHROM_COUNT = 1000;
 
   public void validate() {
   }
@@ -75,10 +71,6 @@ public class GetChromatogramList extends GNomExCommand implements Serializable {
       String runNumberPrev = "";
       Integer idPlatePrev = new Integer(-1);
       AppUser releaser = null;
-      
-      Integer maxChromatograms = getMaxChromatograms(sess);
-      int             chromCount = 0;
-      
       for(Iterator i = chromats.iterator(); i.hasNext();) {
 
         Object[] row = (Object[])i.next();
@@ -199,16 +191,8 @@ public class GetChromatogramList extends GNomExCommand implements Serializable {
 
         runNumberPrev = runNumber;
         idPlatePrev = idPlate;
-        
-        chromCount++;
-        if (chromCount >= maxChromatograms) {
-            break;
-          }
       }
 
-      doc.getRootElement().setAttribute("chromatogramCount", Integer.valueOf(chromCount).toString());
-      message = chromCount == maxChromatograms ? "First " + maxChromatograms + " displayed of " + chromats.size() : "";
-      doc.getRootElement().setAttribute("message", message);
 
       XMLOutputter out = new org.jdom.output.XMLOutputter();
       this.xmlResult = out.outputString(doc);
@@ -240,19 +224,6 @@ public class GetChromatogramList extends GNomExCommand implements Serializable {
     }
 
     return this;
-  }
-  
-  private Integer getMaxChromatograms(Session sess) {
-	  Integer maxChromatograms = DEFAULT_MAX_CHROM_COUNT;
-	  String prop = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.CHROMATOGRAM_VIEW_LIMIT);
-	  if (prop != null && prop.length() > 0) {
-		  try {
-			  maxChromatograms = Integer.parseInt(prop);
-	      }
-	      catch(NumberFormatException e) {
-	      }    
-	    }
-	    return maxChromatograms;
   }
   
   public String getViewURL(Integer idChromatogram) {

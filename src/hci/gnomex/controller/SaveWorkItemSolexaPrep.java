@@ -3,11 +3,7 @@ package hci.gnomex.controller;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.constants.Constants;
-import hci.gnomex.model.BillingPeriod;
-import hci.gnomex.model.BillingStatus;
-import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.Request;
-import hci.gnomex.model.RequestStatus;
 import hci.gnomex.model.Sample;
 import hci.gnomex.model.SequenceLane;
 import hci.gnomex.model.Step;
@@ -16,20 +12,15 @@ import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.BillingItemAutoComplete;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
-import hci.gnomex.utility.PropertyDictionaryHelper;
-import hci.gnomex.utility.SampleComparator;
 import hci.gnomex.utility.WorkItemSolexaPrepParser;
 
 import java.io.Serializable;
 import java.io.StringReader;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -99,7 +90,6 @@ public class SaveWorkItemSolexaPrep extends GNomExCommand implements Serializabl
         Session sess = HibernateSession.currentSession(this.getUsername());
         DictionaryHelper dh = DictionaryHelper.getInstance(sess);
         Map<Integer, BillingItemAutoComplete> autoCompleteMap = new HashMap<Integer, BillingItemAutoComplete>();
-        Map<Integer, Set<Sample>> samplesCompletedMap = new HashMap<Integer, Set<Sample>>();
 
         if (this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_MANAGE_WORKFLOW)) {
           parser.parse(sess);
@@ -130,9 +120,21 @@ public class SaveWorkItemSolexaPrep extends GNomExCommand implements Serializabl
             
             // If Solexa sample prep is done or bypassed for this sample, create work items for Solexa stock prep
             // for the sample
-            Request request = (Request)sess.load(Request.class, workItem.getIdRequest());
             if (sample.getSeqPrepDate() != null || 
                 (sample.getSeqPrepBypassed() != null && sample.getSeqPrepBypassed().equalsIgnoreCase("Y"))) {
+                
+                Request request = (Request)sess.load(Request.class, workItem.getIdRequest());
+                if (autoCompleteMap.containsKey(request.getIdRequest())) {
+                  BillingItemAutoComplete auto = autoCompleteMap.get(request.getIdRequest());
+                  // If same request has workitems of different steps then they have to manually complete billing items.
+                  if (!auto.getCodeStep().equals(workItem.getCodeStepNext())) {
+                    auto.setSkip();
+                  }
+                } else {
+                  BillingItemAutoComplete auto = new BillingItemAutoComplete(sess, workItem.getCodeStepNext(), request);
+                  autoCompleteMap.put(request.getIdRequest(), auto);
+                }
+
                 // Create a cluster gen work item for every unprocessed seq lane of the sample.
                 for(Iterator i1 = request.getSequenceLanes().iterator(); i1.hasNext();) {
                   SequenceLane lane = (SequenceLane)i1.next();
@@ -166,17 +168,7 @@ public class SaveWorkItemSolexaPrep extends GNomExCommand implements Serializabl
                 
             }
             
-            if (autoCompleteMap.containsKey(request.getIdRequest())) {
-              BillingItemAutoComplete auto = autoCompleteMap.get(request.getIdRequest());
-              // If same request has workitems of different steps then they have to manually complete billing items.
-              if (!auto.getCodeStep().equals(workItem.getCodeStepNext())) {
-                auto.setSkip();
-              }
-            } else {
-              BillingItemAutoComplete auto = new BillingItemAutoComplete(sess, workItem.getCodeStepNext(), request);
-              autoCompleteMap.put(request.getIdRequest(), auto);
-            }
-
+            
             // If Solexa sample prep is done or failed for this sample, delete the work item
             if (sample.getSeqPrepDate() != null || 
               (sample.getSeqPrepFailed() != null && sample.getSeqPrepFailed().equalsIgnoreCase("Y")) ||
@@ -184,24 +176,28 @@ public class SaveWorkItemSolexaPrep extends GNomExCommand implements Serializabl
             
               // Delete  work item
               sess.delete(workItem);
-              
-              if (sample.getSeqPrepBypassed() == null || !sample.getSeqPrepBypassed().equalsIgnoreCase("Y")) {
-                // Save sample for later creation of billing items
-                Set<Sample> sampleSet = samplesCompletedMap.get(sample.getIdRequest());
-                if (sampleSet == null) {
-                  sampleSet = new TreeSet<Sample>(new SampleComparator());
-                }
-                sampleSet.add(sample);
-                samplesCompletedMap.put(sample.getIdRequest(), sampleSet);
+            }
+            
+                        
+          }
+
+          // auto complete the billing items.
+          for(Integer key : autoCompleteMap.keySet()) {
+            BillingItemAutoComplete auto = autoCompleteMap.get(key);
+            if (auto.getSkip()) {
+              continue;
+            }
+
+            Integer completedQty = 0;
+            for(Iterator i = auto.getRequest().getSamples().iterator(); i.hasNext(); ) {
+              Sample sample = (Sample)i.next();
+              if (sample.getSeqPrepDate() != null) {
+                completedQty++;
               }
             }
             
-            // Set the completed date on the request if all lib prep failed.
-            request.completeRequestIfFinished(sess);
-
+            auto.completeItems(auto.getRequest().getSamples().size(), completedQty);
           }
-
-          processBilling(sess, autoCompleteMap, samplesCompletedMap);
 
           sess.flush();
           
@@ -237,49 +233,7 @@ public class SaveWorkItemSolexaPrep extends GNomExCommand implements Serializabl
     
     return this;
   }
-
-  private void processBilling(Session sess, Map<Integer, BillingItemAutoComplete> autoCompleteMap, Map<Integer, Set<Sample>> samplesCompletedMap) throws Exception {
-    PropertyDictionaryHelper propertyHelper = PropertyDictionaryHelper.getInstance(sess);
-    DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess);
-    // Get the current billing period
-    BillingPeriod billingPeriod = dictionaryHelper.getCurrentBillingPeriod();
-    if (billingPeriod == null) {
-      throw new Exception("Cannot find current billing period to create billing items");
-    }
-
-    // process billing items
-    for(Integer key : autoCompleteMap.keySet()) {
-      BillingItemAutoComplete auto = autoCompleteMap.get(key);
-      String prop = propertyHelper.getCoreFacilityRequestCategoryProperty(auto.getRequest().getIdCoreFacility(), auto.getRequest().getCodeRequestCategory(), PropertyDictionary.BILLING_DURING_WORKFLOW);
-      if (prop == null || !prop.equals("Y")) {
-        // Billing items created at submit.  Just complete items that can be completed.
-        if (!auto.getSkip()) {
-          Integer completedQty = 0;
-          for(Iterator i = auto.getRequest().getSamples().iterator(); i.hasNext(); ) {
-            Sample sample = (Sample)i.next();
-            if (sample.getSeqPrepDate() != null || 
-                (sample.getSeqPrepFailed() != null && sample.getSeqPrepFailed().equalsIgnoreCase("Y")) ||
-                (sample.getSeqPrepBypassed() != null && sample.getSeqPrepBypassed().equalsIgnoreCase("Y"))) {
-              completedQty++;
-            }
-          }
-    
-          auto.completeItems(auto.getRequest().getSamples().size(), completedQty);
-        }
-      } else {
-        // Need to create billing items at this point.
-        Set<Sample> sampleSet = samplesCompletedMap.get(auto.getRequest().getIdRequest());
-        if (sampleSet != null) {
-          if (auto.getRequest().getCodeRequestStatus().equals(RequestStatus.COMPLETED)) {
-            SaveRequest.createBillingItems(sess, auto.getRequest(), null, billingPeriod, dictionaryHelper, sampleSet, null, null, null, null, auto.getCodeStep(), BillingStatus.COMPLETED);
-          } else {
-            SaveRequest.createBillingItems(sess, auto.getRequest(), null, billingPeriod, dictionaryHelper, sampleSet, null, null, null, null, auto.getCodeStep(), BillingStatus.PENDING);
-          }
-        }
-      }
-    }
-  }
-
+  
   private void mapRequest(Request request, WorkItem workItem, Map<Integer, Request> requestMap, Map<Integer, List<String>> requestStepMap) {
     if (!requestMap.containsKey(request.getIdRequest())) {
       requestMap.put(request.getIdRequest(), request);
@@ -302,4 +256,6 @@ public class SaveWorkItemSolexaPrep extends GNomExCommand implements Serializabl
       steps.add(workItem.getCodeStepNext());
     }
   }
+
+
 }

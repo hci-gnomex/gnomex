@@ -107,7 +107,6 @@ public class GetProtocolList extends GNomExCommand implements Serializable {
       }
 
       // get the SeqLib Protocols
-      /*  We now edit seq lib protocol in the Experiment Platform screen -- not here.  Need to remove all of the related code to this...
       if (protocolClassName == null || protocolClassName.equals("hci.gnomex.model.SeqLibProtocol")) {
         Element seqLibProtocols = new Element("Protocols");
         seqLibProtocols.setAttribute("label", "Sequence Lib Protocol");
@@ -122,7 +121,7 @@ public class GetProtocolList extends GNomExCommand implements Serializable {
           }
         }
       }
-      */
+      
       // get the Analysis Protocols
       if (protocolClassName == null || protocolClassName.equals("hci.gnomex.model.AnalysisProtocol")) {
         Element analysisProtocols = new Element("Protocols");

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical" 
-	title="Lab Usage Report For {parentView.coreFacilityCombo.selectedItem.@display}" 
+	title="Lab Usage Report" 
 	width="630" height="120" defaultButton="{runButton}">
  
 
@@ -13,18 +13,15 @@
 		import mx.collections.XMLListCollection;
 
 		[Bindable]
-		public var parentView:NavBillingView;
-		[Bindable]
 		public var billingPeriods:XMLListCollection;
 		
 		private function run():void {
 			var url:URLRequest = new URLRequest('ShowBillingUsageReport.gx' +
 						'?startDate=' + billingPeriodStartCombo.selectedItem.@startDate + 
 						'&endDate=' + billingPeriodEndCombo.selectedItem.@endDate +
-					 	'&isExternal=' + (isExternal.selected ? 'Y' : 'N') +
-						'&idCoreFacility=' + parentView.coreFacilityCombo.selectedItem.@idCoreFacility ); 
+					 	'&isExternal=' + (isExternal.selected ? 'Y' : 'N') ); 
 			navigateToURL(url, '_blank');	
-			parentView.closeBillingUsageWindow();		
+			mx.managers.PopUpManager.removePopUp(this);		
 		}				
 		 
 	]]>
@@ -62,7 +59,7 @@
 	
 	<mx:ControlBar horizontalAlign="right">
 		<mx:Button label="OK" id="runButton" click="run()" enabled="{billingPeriodEndCombo.selectedItem != null &amp;&amp; billingPeriodEndCombo.selectedItem.@value != '' &amp;&amp; billingPeriodStartCombo.selectedItem != null &amp;&amp; billingPeriodStartCombo.selectedItem.@value != ''}"/>
-		<mx:Button label="Cancel" click="{parentView.closeBillingUsageWindow()}"/>
+		<mx:Button label="Cancel" click="{mx.managers.PopUpManager.removePopUp(this)}"/>
 	</mx:ControlBar>
 	
 </mx:TitleWindow>

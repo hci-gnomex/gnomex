@@ -80,7 +80,8 @@ public class GetHiSeqRunTypePriceList extends GNomExCommand implements Serializa
         PriceCriteria criteria = (PriceCriteria)row[1];
         Element node = new Element("Price");
 
-        node.setAttribute("idNumberSequencingCyclesAllowed", toString(criteria.getFilter1()));
+        node.setAttribute("idSeqRunType", toString(criteria.getFilter1()));
+        node.setAttribute("idNumberSequencingCycles", toString(criteria.getFilter2()));
         node.setAttribute("price", toString(price.getEffectiveUnitPrice(lab)));
 
         doc.getRootElement().addContent(node);

@@ -46,7 +46,7 @@ package views.util
 
 
 		protected function change(event:Event):void {
-			if (this.selectedLabel == '' && this._isRequired) {
+			if (this.selectedIndex == 0 && this._isRequired) {
 				var currentFillColors:Array = getStyle("fillColors");
 				if(currentFillColors[0] != missingRequiredFieldBackground) {
 					defaultFillColors = getStyle("fillColors");

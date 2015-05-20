@@ -108,6 +108,10 @@
         		return "";
         	}
         }
+		private function getBioanalyzerChipType(item:Object,col:DataGridColumn):String
+        {
+        	return parentApplication.dictionaryManager.getEntryDisplay("hci.gnomex.model.BioanalyzerChipType", item.@qualCodeBioanalyzerChipType);
+        }
                 
         public function onEdit():void {
         	workList.filterFunction = null;

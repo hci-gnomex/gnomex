@@ -8,7 +8,7 @@ import org.apache.lucene.document.Field;
 
 
 public class ExperimentIndexHelper extends IndexHelper {
-
+  
   // Non-indexed fields
   public static final String       ID_PROJECT = "idProject";
   public static final String       ID_REQUEST = "idRequest";
@@ -20,7 +20,7 @@ public class ExperimentIndexHelper extends IndexHelper {
   public static final String       APPLICATION = "application";
   public static final String       PROJECT_PUBLIC_NOTE = "projectPublicNote";
   public static final String       PUBLIC_NOTE = "requestPublicNote";  
-
+  
   // Indexed fields
   public static final String       EXPERIMENT_NAME = "experimentName";
   public static final String       ID_CORE_FACILITY = "idCoreFacility";
@@ -46,9 +46,6 @@ public class ExperimentIndexHelper extends IndexHelper {
   public static final String       ID_LAB = "requestIdLab";
   public static final String       ID_INSTITUTION = "requestIdInstitution";
   public static final String       ID_APPUSER = "requestIdAppUser";
-  public static final String       ID_SUBMITTER = "requestIdSubmitter";
-  public static final String       SUBMITTER_FIRST_NAME = "requestSubmitterFirstName";
-  public static final String       SUBMITTER_LAST_NAME = "requestSubmitterLastName";
   public static final String       COLLABORATORS = "requestCollaborators";
   public static final String       LAB_NAME = "requestLab";
   public static final String       CODE_VISIBILITY = "requestCodeVisibility";
@@ -59,7 +56,7 @@ public class ExperimentIndexHelper extends IndexHelper {
   public static final String       ID_PROJECT_CORE_FACILITY = "idProjectCoreFacility";
   public static final String       TEXT = "text";
 
-
+  
   public static void build(Document doc, Map nonIndexedFieldMap, Map indexedFieldMap) {
 
     //
@@ -68,26 +65,26 @@ public class ExperimentIndexHelper extends IndexHelper {
     for(Iterator i = nonIndexedFieldMap.keySet().iterator(); i.hasNext();) {
       String fieldName = (String)i.next();
       String value = (String)nonIndexedFieldMap.get(fieldName);
-
+      
       if (value != null) {
         addNonIndexedField(doc, fieldName, value);        
       }
     }
-
+    
     //
     // Add indexed fields
     //
     for(Iterator i = indexedFieldMap.keySet().iterator(); i.hasNext();) {
       String fieldName = (String)i.next();
       String value = (String)indexedFieldMap.get(fieldName);
-
+      
       if (value != null) {
         addIndexedField(doc, fieldName, value);        
       }
     }
 
   }
-
+  
   private static void addIndexedField(Document doc, String name, String value) {
     if (value != null && !value.trim().equals("")) {
       doc.add( new Field(name, value, Field.Store.YES, Field.Index.TOKENIZED));          

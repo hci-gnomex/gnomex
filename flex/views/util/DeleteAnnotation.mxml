@@ -10,10 +10,8 @@
 		import mx.managers.PopUpManager;
 		
 		import views.admin.PropertyWindow;
-		import views.experimentplatform.TabProperty;
 		
 		private var propertyWindow:PropertyWindow;
-		private var propertyWindowTab:TabProperty;
 		
 		[Bindable]
 		private var deleteAllowed:Boolean = false;
@@ -24,19 +22,6 @@
 			idAnalysis.text = propWindow.deleteProperty.lastResult.@analysisCount;
 			idDataTracks.text = propWindow.deleteProperty.lastResult.@dataTrackCount;
 			propertyWindow = propWindow;
-			if(parentApplication.isSuperAdmin 
-				|| (idSamples.text == "0" && idAnalysis.text == "0" && idDataTracks.text == "0")) {
-				deleteAllowed = true;
-			} else {
-				deleteAllowed = false;
-			}
-		}
-		
-		public function initWithExpPlatformTab(propWindow:TabProperty):void { 
-			idSamples.text = propWindow.deleteProperty.lastResult.@sampleCount;
-			idAnalysis.text = propWindow.deleteProperty.lastResult.@analysisCount;
-			idDataTracks.text = propWindow.deleteProperty.lastResult.@dataTrackCount;
-			propertyWindowTab = propWindow;
 			if(parentApplication.isSuperAdmin 
 				|| (idSamples.text == "0" && idAnalysis.text == "0" && idDataTracks.text == "0")) {
 				deleteAllowed = true;

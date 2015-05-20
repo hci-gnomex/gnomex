@@ -89,10 +89,6 @@ package views.util
 				return;
 			}
 			
-			if (listItems[0].length == 0) {
-				return;
-			}
-			
 			var firstItem:XML = this.firstVisibleItem as XML;
 			if ( firstItem.name() == 'BillingItem' && firstItem.parent() != null ) {
 				firstItem = firstItem.parent();

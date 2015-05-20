@@ -116,7 +116,6 @@
 	import views.datatrack.FolderInfoWindow;
 	import views.util.GNomExStringUtil;
 	import mx.events.CloseEvent;
-	import mx.utils.StringUtil;
 	
 	import views.util.CheckBoxRequiredIndicator;
 	import views.util.TextInputRequiredIndicator;
@@ -141,8 +140,6 @@
 	[Bindable]
 	private var appUsersForLab:XMLListCollection;
 	private var appUserSort:Sort;
-	
-	public var propertiesToSave:XMLListCollection;
 	
 	private var idLab:String;
 	private var currentOwnerId:String;
@@ -172,7 +169,7 @@
 			}
 			
 			this.visibilityRadioGroup.selectedValue = getDataTrack.lastResult.@codeVisibility;
-			this.instituteCombo.enabled = this.possibleInstitutions.length > 1 && !parentApplication.isGuestMode();
+			this.instituteCombo.enabled = this.possibleInstitutions.length > 1;
 			if (getDataTrack.lastResult.@idInstitution != null && getDataTrack.lastResult.@idInstitution != '') {
 				for each(var institute:Object in possibleInstitutions) {
 					if (institute.@idInstitution == getDataTrack.lastResult.@idInstitution.toString()) {
@@ -315,7 +312,7 @@
 		params.filesToRemoveXML  = "<filesToRemove>" + dataTrackFilesToRemove.toXMLString() + "</filesToRemove>";
 		
 		this.initializePropertiesFromComponents();
-		params.propertiesXML = "<dataTrackProperties>" + propertiesToSave.toXMLString() + "</dataTrackProperties>";
+		params.propertiesXML = "<dataTrackProperties>" + dataTrackProperties.toXMLString() + "</dataTrackProperties>";
 		
 		saveDataTrack.send(params);
 	}
@@ -444,79 +441,49 @@
 		}
 	}
 	
-	public function initializePropertiesFromComponents():void {
-		propertiesToSave = new XMLListCollection();
+	private function initializePropertiesFromComponents():void {
 		for (var i:int = 0; i < dataTrackProperties.length; i++) {
 			var property:XML = XML(dataTrackProperties.getItemAt(i));
 			if (propertyValueViewStack[i].selectedIndex == 0) {
 				// url
 				var urlIdx:int = 0;
-				var urlItemDefined:Boolean = false;
 				for each (var propertyValue:XML in  property..PropertyEntryValue) {
-					var url:String = '';
-					if(i < urlText.length && urlText[i] != null && urlIdx < this.urlText[i].length) {
-						url = this.urlText[i][urlIdx].text;
-					}
-					var alias:String = '';
-					if(i < aliasText.length && aliasText[i] != null && urlIdx < this.aliasText[i].length) {
-						alias = this.aliasText[i][urlIdx].text;
-					}							
-					
-					if (url == 'Enter URL here...' || url == '') {
+					if(propertyValue.@url == 'Enter URL here...' || url == ''){
 						continue;
 					}
+					var url:String = this.urlText[i][urlIdx].text;
+					var alias:String = this.aliasText[i][urlIdx].text;
 					
 					var pv:String = url;
-					if (alias != null && alias != 'Enter alias here...' && StringUtil.trim(alias) != "") {
+					if (alias != null && alias != 'Enter alias here...') {
 						pv += ',' + alias;
 					}
 					propertyValue.@value = pv;
 					property.@value = pv;
-					
-					if(pv.length > 0) {
-						urlItemDefined = true;
-					}
 					urlIdx++;
 				}
-				if(urlItemDefined) {
-					propertiesToSave.addItem(property);
-				}
-				
+
 			} else if (propertyValueViewStack[i].selectedIndex == 1) {
 				// text
-				var textVal:String = propertyText[i].text;
-				property.@value = textVal;
-				if(textVal.length > 0) {
-					propertiesToSave.addItem(property);
-				}
+				property.@value = propertyText[i].text;
 			} else if (propertyValueViewStack[i].selectedIndex == 2) {
 				// combo
 				property.@value = "";
-				var comboItemSelected:Boolean = false;
 				for each (var option:XML in  property..PropertyOption) {
 					if (propertyCombo[i].selectedItem != null &&
 						option.@idPropertyOption == propertyCombo[i].selectedItem.@idPropertyOption) {
 						option.@selected = 'Y';
-						var optName:String = option.@name;
-						if(optName != null && optName.length > 0 && optName != " ") {
-							comboItemSelected = true;
-						}
 					} else {
 						option.@selected = 'N';
 					}
 				}
-				if(comboItemSelected) {
-					propertiesToSave.addItem(property);
-				}
 			} else if (propertyValueViewStack[i].selectedIndex == 3) {
 				// check
 				property.@value = propertyCheck[i].selected ? 'Y' : 'N';
-				propertiesToSave.addItem(property);
 			} else if (propertyValueViewStack[i].selectedIndex == 4) {
 				// multi-select
 				property.@value = "";		
 				var idx:int = 0;
-				var multiItemSelected:Boolean = false;
 				for each (var opt:XML in  property..PropertyOption) {
 					if (multiselectCheck[i][idx].selected) {
 						opt.@selected = 'Y';
@@ -524,14 +491,10 @@
 							property.@value += ",";
 						}
 						property.@value += opt.@name;
-						multiItemSelected = true;
 					} else {
 						opt.@selected = 'N';
 					}
 					idx++;
-				}
-				if(multiItemSelected) {
-					propertiesToSave.addItem(property);
 				}
 			}
 		}
@@ -574,7 +537,7 @@
 			return;
 		}
 		var isNew:Boolean = false;
-		if (urlLink[indices[0]][indices[1]].label == null || urlLink[indices[0]][indices[1]].label == 'Enter URL here...' || urlLink[indices[0]][indices[1]].label == '') {
+		if ( urlLink[indices[0]][indices[1]].label == 'Enter URL here...' || urlLink[indices[0]][indices[1]].label == '') {
 			isNew = true;
 		}
 		
@@ -787,7 +750,7 @@
 			// If this is an FDT download, make the request to download the 
 			// FDT webstart application
 			var url:URLRequest = new URLRequest('FastDataTransferDownloadDataTrackServlet.gx');	
-			url.contentType = "text/plain";
+			url.contentType = "text/xml";
 			url.method = URLRequestMethod.GET;
 			navigateToURL(url, '_self');	
 		} 
@@ -813,14 +776,14 @@
 			sizeTxt = size + " MB";
 		} else if (theFileSize > KB ) {
 			// Round kb to the nearest 100th place
-			size = Math.round((theFileSize / KB));
+			size = Math.round((theFileSize / KB) / 100) * 100;
 			if (size == 0) {
 				size = 1;
 			}
 			sizeTxt = size + " KB";
 		} else {
 			// Round bytes to nearest 100th place
-			size = Math.round(theFileSize);
+			size = Math.round(theFileSize / 100) * 100;
 			if (size == 0) {
 				size = 1;
 			}
@@ -909,11 +872,11 @@
 		<mx:VBox width="100%" height="100%" label="Summary" paddingLeft="4" paddingRight="4" paddingBottom="4" verticalGap="0" paddingTop="0">
 				<mx:HBox width="100%" verticalAlign="middle" horizontalGap="2">
 					<mx:Label text="Name" styleName="formLabel"/>
-					<mx:TextInput width="100%" maxChars="2000" text="{getDataTrack.lastResult.@name}" id="dataTrackName" change="{dirtyDataTrack.setDirty()}" enabled="{!parentApplication.isGuestMode()}"/>					    	
+					<mx:TextInput width="100%" maxChars="2000" text="{getDataTrack.lastResult.@name}" id="dataTrackName" change="{dirtyDataTrack.setDirty()}"/>					    	
 				</mx:HBox>
 				<mx:VBox width="100%" verticalGap="0">
 					<mx:Label text="Summary" width="70" styleName="formLabel"/>
-					<mx:TextInput width="100%" text="{getDataTrack.lastResult.@summary}" id="dataTrackSummary" change="{dirtyDataTrack.setDirty()}" maxChars="5000"  height="40" enabled="{!parentApplication.isGuestMode()}"/>
+					<mx:TextInput width="100%" text="{getDataTrack.lastResult.@summary}" id="dataTrackSummary" change="{dirtyDataTrack.setDirty()}" maxChars="5000"  height="40"/>
 				</mx:VBox>
 				<mx:VBox width="100%" id="hbox3" verticalGap="0" height="100%">
 					<mx:Label text="Description" width="126" styleName="formLabel"/>
@@ -927,7 +890,7 @@
 										roundedBottomCorners="false" paddingBottom="0" 
 										borderThicknessRight="0" borderThicknessLeft="0" 
 										borderThicknessBottom="0" borderThickness="0" 
-										borderThicknessTop="0" height="100%" minHeight="80" enabled="{!parentApplication.isGuestMode()}" />
+										borderThicknessTop="0" height="100%" minHeight="80" />
 				</mx:VBox>
 			<mx:HBox horizontalGap="0">
 				<mx:Label text="Created " 
@@ -962,21 +925,21 @@
 														   click="{navigateToURLLink(event.target.instanceIndices)}" 
 														   paddingLeft="0" textDecoration="underline" color="#121CE8" 
 														   width="190" textAlign="left"/>
-											<mx:LinkButton label="Edit" enabled="{!parentApplication.isGuestMode()}" 
+											<mx:LinkButton label="Edit" 
 														   click="{showURLEdit(event.target.instanceIndices)}" 
 														   styleName="linkMenuButtonSmall"/>
-											<mx:Image source="{parentApplication.iconSmallDelete}" enabled="{!parentApplication.isGuestMode()}"  
+											<mx:Image source="{parentApplication.iconSmallDelete}"  
 													  click="{removeURL(event.currentTarget.instanceIndices)}" />						
 										</mx:HBox>
 										<mx:HBox width="100%" verticalAlign="middle"  horizontalGap="2" horizontalAlign="left">
-											<mx:TextInput id="aliasText"  enter="{tabToURLText(event.target.instanceIndices)}" enabled="{!parentApplication.isGuestMode()}" 
+											<mx:TextInput id="aliasText"  enter="{tabToURLText(event.target.instanceIndices)}" 
 														  click="{selectAliasText(event.currentTarget.instanceIndices)}" 
-														  change="{dirtyDataTrack.setDirty();}"
+														  change="{dirtyDataTrack.setDirty()}"
 														  editable="{getDataTrack.lastResult.@canWrite == 'Y'}"
 														  text="{urlRepeater.currentItem.@urlAlias}"  
 														  width="100" color="#8D7B7B"/>	
 											<util:TextInputRequiredIndicator id="urlText" text="{urlRepeater.currentItem.@url}" 
-														  enter="{showURLLink(event.target.instanceIndices)}" enabled="{!parentApplication.isGuestMode()}" 
+														  enter="{showURLLink(event.target.instanceIndices)}" 
 														  editable="{getDataTrack.lastResult.@canWrite == 'Y'}"
 														  change="{onChangeURLText(event.target.instanceIndices)}" 
 														  click="{selectURLText(event.currentTarget.instanceIndices)}" 
@@ -990,17 +953,17 @@
 							</mx:VBox>
 							
 							<mx:HBox >
-								<util:TextInputRequiredIndicator id="propertyText" change="{dirtyDataTrack.setDirty()}" enabled="{!parentApplication.isGuestMode()}" styleName="labelSmall" text="{propertyRepeater.currentItem.@value}" width="100%">
+								<util:TextInputRequiredIndicator id="propertyText" change="{dirtyDataTrack.setDirty()}" styleName="labelSmall" text="{propertyRepeater.currentItem.@value}" width="100%">
 								</util:TextInputRequiredIndicator> 
 							</mx:HBox>
 							
 							<mx:HBox >
-								<util:ComboBoxRequiredIndicator id="propertyCombo" enabled="{!parentApplication.isGuestMode()}" change="{dirtyDataTrack.setDirty()}" styleName="labelSmall" width="240" labelField="@name">
+								<util:ComboBoxRequiredIndicator id="propertyCombo" change="{dirtyDataTrack.setDirty()}" styleName="labelSmall" width="240" labelField="@name">
 								</util:ComboBoxRequiredIndicator>						
 							</mx:HBox>
 							
 							<mx:HBox width="100%" >
-								<mx:CheckBox id="propertyCheck"  click="{dirtyDataTrack.setDirty()}" enabled="{!parentApplication.isGuestMode()}" styleName="labelSmall">
+								<mx:CheckBox id="propertyCheck"  click="{dirtyDataTrack.setDirty()}" styleName="labelSmall">
 								</mx:CheckBox>
 							</mx:HBox>
 							
@@ -1008,7 +971,7 @@
 								<mx:Repeater id="multiselectRepeater" dataProvider="{propertyRepeater.currentItem.PropertyOption}" >
 									<util:CheckBoxRequiredIndicator id="multiselectCheck"  styleName="labelSmall" 
 												 label="{multiselectRepeater.currentItem.@name}"  
-												 paddingLeft="0" enabled="{!parentApplication.isGuestMode()}"  
+												 paddingLeft="0"  
 												 paddingTop="0" 
 												 click="{dirtyDataTrack.setDirty()}"
 												 paddingBottom="0"
@@ -1061,7 +1024,7 @@
 		
 		
 		<mx:VBox width="100%" height="100%" label="Visibility" paddingLeft="4" paddingRight="4" paddingBottom="4" verticalGap="0" paddingTop="0">
-			<mx:HBox width="100%" horizontalGap="0" id="hbox1" enabled="{!parentApplication.isGuestMode()}">
+			<mx:HBox width="100%" horizontalGap="0" id="hbox1">
 				<mx:Text id="labelApplication" text="Select the level of visibility:&#xd;" styleName="formLabel"/>
 				<mx:RadioButtonGroup id = "radioGroupSeqApp">       	
 				</mx:RadioButtonGroup>
@@ -1071,21 +1034,21 @@
 					<mx:RadioButtonGroup id="visibilityRadioGroup"/>
 					<mx:HBox horizontalGap="4" verticalAlign="middle">
 						<mx:Image  scaleContent="false" width="16" height="16" source="{parentApplication.iconDataTrackOwner}"/>
-						<mx:RadioButton value="OWNER" groupName="visibilityRadioGroup" enabled="{!parentApplication.isGuestMode()}"  click="{dirtyDataTrack.setDirty();}" label="Owner       (the owner and the group manager)"/>								  
+						<mx:RadioButton value="OWNER" groupName="visibilityRadioGroup"  click="{dirtyDataTrack.setDirty();}" label="Owner       (the owner and the group manager)"/>								  
 					</mx:HBox>
 					<mx:HBox horizontalGap="4"  verticalAlign="middle">
 						<mx:Image  scaleContent="false" width="16" height="16" source="{parentApplication.iconDataTrackMember}"/>
-						<mx:RadioButton value="MEM" selected="true" groupName="visibilityRadioGroup" enabled="{!parentApplication.isGuestMode()}"  click="{dirtyDataTrack.setDirty();}" label="All Lab Members "/>
+						<mx:RadioButton value="MEM" selected="true" groupName="visibilityRadioGroup"  click="{dirtyDataTrack.setDirty();}" label="All Lab Members "/>
 					</mx:HBox>
 					<mx:HBox horizontalGap="4"  verticalAlign="middle" visible="{this.possibleInstitutions.length > 1}" includeInLayout="{this.possibleInstitutions.length > 1}">
 						<mx:Image scaleContent="false" width="16" height="16" source="{parentApplication.iconDataTrackInstitution}"/>
-						<mx:RadioButton value="INST"  groupName="visibilityRadioGroup"  click="{dirtyDataTrack.setDirty();}" id="radioInstitutionVisibility" enabled="{possibleInstitutions.length > 1 &amp;&amp; !parentApplication.isGuestMode()}" label="Institution  (all groups that are part of institution)"/>
-						<mx:ComboBox width="210" dataProvider="{this.possibleInstitutions}" id="instituteCombo" selectedIndex="{visibilityRadioGroup.selectedValue != 'INST' ? 0 : instituteCombo.selectedIndex}" labelField="@name"  enabled="{visibilityRadioGroup.selectedValue == 'INST' &amp;&amp; !parentApplication.isGuestMode()}">			       	
+						<mx:RadioButton value="INST"  groupName="visibilityRadioGroup"  click="{dirtyDataTrack.setDirty();}" id="radioInstitutionVisibility" enabled="{possibleInstitutions.length > 1}" label="Institution  (all groups that are part of institution)"/>
+						<mx:ComboBox width="210" dataProvider="{this.possibleInstitutions}" id="instituteCombo" selectedIndex="{visibilityRadioGroup.selectedValue != 'INST' ? 0 : instituteCombo.selectedIndex}" labelField="@name"  enabled="{visibilityRadioGroup.selectedValue == 'INST'}">			       	
 						</mx:ComboBox>					
 					</mx:HBox>
-					<mx:HBox horizontalGap="4"  verticalAlign="middle" visible="{parentApplication.isPublicVisibility}" includeInLayout="{parentApplication.isPublicVisibility}">
+					<mx:HBox horizontalGap="4"  verticalAlign="middle">
 						<mx:Image  scaleContent="false" width="16" height="16" source="{parentApplication.iconDataTrackPublic}"/>
-						<mx:RadioButton value="PUBLIC" label="Public Access" groupName="visibilityRadioGroup" enabled="{!parentApplication.isGuestMode()}"  click="{dirtyDataTrack.setDirty();}"/>
+						<mx:RadioButton value="PUBLIC" label="Public Access" groupName="visibilityRadioGroup"  click="{dirtyDataTrack.setDirty();}"/>
 					</mx:HBox>
 					
 				</mx:VBox>
@@ -1110,7 +1073,7 @@
 					<mx:LinkButton label="Edit collaborator list" 
 						click="showCollaboratorWindow()"  
 						styleName="formLinkButton" 
-						enabled="{possibleCollaborators.length > 0 &amp;&amp; !parentApplication.isGuestMode()}"
+						enabled="{possibleCollaborators.length > 0}"
 						visible="{getDataTrack.lastResult.@canWrite == 'Y'}"
 						includeInLayout="{getDataTrack.lastResult.@canWrite == 'Y'}"
 						leading="0" horizontalGap="0" paddingLeft="1" paddingTop="0"/>
@@ -1124,7 +1087,7 @@
 					<mx:Label text="Lab"  styleName="formLabel"/>
 					<mx:ViewStack id="dataTrackLabStack"  width="200">
 						<mx:HBox horizontalGap="0" paddingLeft="0" paddingRight="0" paddingBottom="0" paddingTop="0" width="100%">
-							<mx:ComboBox id="labCombo" enabled="{!parentApplication.isGuestMode()}" dataProvider="{parentApplication.submitRequestLabList}" width="200" labelField="@name" change="{labSelected()}"></mx:ComboBox>
+							<mx:ComboBox id="labCombo" dataProvider="{parentApplication.submitRequestLabList}" width="200" labelField="@name" change="{labSelected()}"></mx:ComboBox>
 						</mx:HBox>
 						<mx:HBox horizontalGap="0" paddingLeft="0" paddingRight="0" paddingBottom="0" paddingTop="0" verticalAlign="middle">
 							<mx:Label width="200" text="{getDataTrack.lastResult.@securityGroup}"/>							         			
@@ -1133,7 +1096,7 @@
 					<mx:Label text="Owner"  id="label2" paddingLeft="5" styleName="formLabel"/>
 					<mx:ViewStack id="dataTrackOwnerStack"  width="200">
 						<mx:HBox horizontalGap="0" paddingLeft="0" paddingRight="0" paddingBottom="0" paddingTop="0" width="100%">
-							<util:ComboBoxDatProvChangeFix width="200" enabled="{!parentApplication.isGuestMode()}" id="ownerCombo" labelField="@displayName" dataProvider="{appUsersForLab}" change="dirtyDataTrack.setDirty()"></util:ComboBoxDatProvChangeFix>							         			
+							<util:ComboBoxDatProvChangeFix width="200" id="ownerCombo" labelField="@displayName" dataProvider="{appUsersForLab}" change="dirtyDataTrack.setDirty()"></util:ComboBoxDatProvChangeFix>							         			
 						</mx:HBox>
 						<mx:HBox horizontalGap="0" paddingLeft="0" paddingRight="0" paddingBottom="0" paddingTop="0" verticalAlign="middle">
 							<mx:Label width="200" text="{getDataTrack.lastResult.@owner}"/>							         			
@@ -1182,7 +1145,7 @@
 		<mx:HBox width="100%" visible="{getDataTrack.lastResult.@canWrite == 'Y'}" includeInLayout="{getDataTrack.lastResult.@canWrite == 'Y'}" >
 			<mx:LinkButton  label="Show folder(s)" styleName="linkMenuButton"
 							visible="{parentDocument.currentState == 'AdminState'}"
-							includeInLayout="{parentDocument.currentState == 'AdminState'}"
+							includeInLayout="{parentDocument.lcurrentState == 'AdminState'}"
 							icon="@Embed(source='../../assets/folder.png')" 
 							click="{showFolderInfoWindow()}"/>
 			<mx:Spacer width="100%"/>

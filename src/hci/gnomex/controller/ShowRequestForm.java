@@ -226,7 +226,8 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
             if (request.getSequenceLanes().iterator().hasNext() && (request.getIsExternal() != null && !request.getIsExternal().equals("Y"))) {
 	            Element seqType = new Element("H4");
 	            SequenceLane lane = (SequenceLane) request.getSequenceLanes().iterator().next();
-	            seqType.addContent(lane.getIdNumberSequencingCyclesAllowed()!= null  ? dictionaryHelper.getNumberSequencingCyclesAllowed(lane.getIdNumberSequencingCyclesAllowed()) : "&nbsp;");
+	            seqType.addContent(lane.getIdNumberSequencingCycles()!= null  ? dictionaryHelper.getNumberSequencingCycles(lane.getIdNumberSequencingCycles()) : "&nbsp;" + "&nbsp;&nbsp;&nbsp;");
+	            seqType.addContent(lane.getIdSeqRunType() != null ? "&nbsp;" + dictionaryHelper.getSeqRunType(lane.getIdSeqRunType()) : "&nbsp;");
 	            maindiv.addContent(seqType);
             }
             // Sample Type
@@ -275,7 +276,7 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
             
             if (request.getCaptureLibDesignId() != null && !request.getCaptureLibDesignId().equals("")){
               Element capLibDesign = new Element("H5");
-              capLibDesign.addContent("Custom Design Id: " + request.getCaptureLibDesignId());
+              capLibDesign.addContent("Capture Lib Design: " + request.getCaptureLibDesignId());
               capLibDesign.setAttribute("style", "text-align:center; color:black");
               maindiv.addContent(capLibDesign);
             }
@@ -398,7 +399,7 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
 	              formatter.makePageBreak(maindiv);
 	              
 	              maindiv.addContent(new Element("BR"));
-	              maindiv.addContent(formatter.makeRequestTable());
+	              maindiv.addContent(formatter.makeRequestInfoTable());
 	              maindiv.addContent(new Element ("BR"));
 	  
 	              Element reqNum = new Element("H2");
@@ -413,7 +414,8 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
 	              if (request.getSequenceLanes().iterator().hasNext()) {
 	                Element seqType = new Element("H4");
 	                SequenceLane lane = (SequenceLane) request.getSequenceLanes().iterator().next();
-	                seqType.addContent(lane.getIdNumberSequencingCyclesAllowed()!= null  ? dictionaryHelper.getNumberSequencingCyclesAllowed(lane.getIdNumberSequencingCyclesAllowed()) : "&nbsp;");
+	                seqType.addContent(lane.getIdNumberSequencingCycles()!= null  ? dictionaryHelper.getNumberSequencingCycles(lane.getIdNumberSequencingCycles()) : "&nbsp;" + "&nbsp;&nbsp;&nbsp;");
+	                seqType.addContent(lane.getIdSeqRunType() != null ? "&nbsp;" + dictionaryHelper.getSeqRunType(lane.getIdSeqRunType()) : "&nbsp;");
 	                maindiv.addContent(seqType);
 	                
 	              }

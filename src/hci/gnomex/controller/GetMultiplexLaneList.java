@@ -99,8 +99,7 @@ public class GetMultiplexLaneList extends GNomExCommand implements Serializable 
       // Admins and users authorized to submit requests can view estimated
       // charges            
       if (!this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_ACCESS_ANY_OBJECT) &&
-          !this.getSecAdvisor().isGroupIAmMemberOrManagerOf(request.getIdLab()) && 
-          !this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_SUBMIT_FOR_OTHER_CORES)) {
+          !this.getSecAdvisor().isGroupIAmMemberOrManagerOf(request.getIdLab())) {
         throw new RollBackCommandException("Insufficient permission to view estimated charges");
       }
 
@@ -140,7 +139,6 @@ public class GetMultiplexLaneList extends GNomExCommand implements Serializable 
           if (lane.getIdSequenceLane() == null) {
             lane.setIdSequenceLane(new Integer(x++));
             lane.setIdNumberSequencingCycles(laneInfo.getIdNumberSequencingCycles());
-            lane.setIdNumberSequencingCyclesAllowed(laneInfo.getIdNumberSequencingCyclesAllowed());
             lane.setIdGenomeBuildAlignTo(laneInfo.getIdGenomeBuildAlignTo());
           }
           lane.setIdSeqRunType(laneInfo.getIdSeqRunType());

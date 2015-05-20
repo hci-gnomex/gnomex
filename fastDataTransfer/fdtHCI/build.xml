@@ -121,10 +121,7 @@
 			<manifest>
 		      <attribute name="Built-By" value="${user.name}" /> 
 		      <attribute name="Main-Class" value="gui.FdtMain" /> 
-			    <attribute name="Application-Name" value="FdtServer" />
-  	      <attribute name="Implementation-Version" value="${fdt.version}"/>
-				  <attribute name="Permissions" value="all-permissions" />
-				  <attribute name="Codebase" value="*" />
+  	          <attribute name="Implementation-Version" value="${fdt.version}"/>
 		   </manifest>
 			
 		</jar>
@@ -143,14 +140,10 @@
 		  <manifest>
 		     <attribute name="Built-By" value="${user.name}" /> 
 		     <attribute name="Main-Class" value="gui.FdtMain" /> 
-         <attribute name="Application-Name" value="FdtClient" />
-         <attribute name="Implementation-Version" value="${fdt.version}"/>
-         <attribute name="Permissions" value="all-permissions" />
-         <attribute name="Codebase" value="*" />
+  	          <attribute name="Implementation-Version" value="${fdt.version}"/>
 		  </manifest>
 		</jar>
-
-		<!--
+		
 		<echo>+                                                                                                                          +</echo>
 		<echo>+   Note: If error due to no keystore present, use the following to generate one:                                          +</echo>
 		<echo>+      Run C:\PathToJDK\bin>keytool -genkey -validity 18250 -storepass s@fewithme -keypass s@fewithme -alias selfsigned    +</echo>
@@ -162,27 +155,11 @@
 		<echo>+         What is the two-letter country code for this unit? US                                                            +</echo>
 		<echo>+                                                                                                                          +</echo>
 
-		
 	  	<signjar jar="${dist.dir}/${client.jar.name}" alias="${jar.sign.alias}" storepass="${jar.sign.keystore.pass}" keystore="${jar.sign.keystore}" keypass="${jar.sign.alias.pass}">
         </signjar>
 		
-    <echo>+                                                                                                                          +</echo>
-    <echo>+   If deploying to production you must re-sign this jar using comodo pfx file.                                            +</echo>
-    <echo>+      instructons and PFX file at x:\Informatics\dev\Shared\ssl\certificates\codesigning                                  +</echo>
-    <echo>+                                                                                                                          +</echo>
-    -->
-		<echo>+  Please answer password prompt                                                                                           +</echo>
-    <input message="enter PFX password(in Password_Pal):" addproperty="jar.sign.password" />
-    <signjar jar="${dist.dir}/${client.jar.name}" 
-    	alias="hcicodesigning" 
-    	storepass="${jar.sign.password}" 
-    	keystore="x:\Informatics\dev\Shared\ssl\certificates\codesigning\hciCodeSigningCert.pfx" 
-    	keypass="${jar.sign.password}"
-    	tsaurl="http://timestamp.comodoca.com/rfc3161"
-    	storetype="pkcs12">
-    </signjar>
-
-		<jar jarfile="${dist.dir}/${filedaemon.jar.name}" basedir="${build.class.dir}" excludes="**">
+		
+    	<jar jarfile="${dist.dir}/${filedaemon.jar.name}" basedir="${build.class.dir}" excludes="**">
     		  
         	<fileset dir="${basedir}">
                	<include name="fdtfiledaemon.sh" />

@@ -95,7 +95,7 @@ public class RequestHTMLFormatter {
    RequestCategory requestCategory = dictionaryHelper.getRequestCategoryObject(request.getCodeRequestCategory());
    String imageName = requestCategory.getIcon();
    if (imageName == null || imageName.equals("")) {
-     imageName = "flask.png";
+     imageName = "flash.png";
    } else if (imageName.startsWith("assets/")) {
      // Get rid of the leading assets directory.  We serve images for the html report
      // from the webapp root /images directory.
@@ -132,42 +132,33 @@ public class RequestHTMLFormatter {
     }
     String labName = "";
     if (request.getLab() != null) {
-      labName = request.getLab().getName(false, false);
+      labName = request.getLab().getName();
     }
     
     Element table = new Element("TABLE");    
     table.setAttribute("CELLPADDING", "5");
-    //		"Requester" userName	| "Lab" labName
     table.addContent(makeRow("Requester",   userName,
                              "Lab",         labName));
-    //		"Phone" phone	|	"Date" createDate
-    table.addContent(makeRow("Phone",        phone,
-    						"Date", request.formatDate(request.getCreateDate())
-                             ));
+    
+    table.addContent(makeRow("Date", request.formatDate(request.getCreateDate()),
+                             "Phone",        phone));
 
     if (request.getIsExternal() == null || request.getIsExternal().equals("N")) {
-    //	"Email" email	|	"Account"	accountName
-      table.addContent(makeRow("Email",        email,
-    		  					"Account",     accountName));      
-      // "Modified" modifiedDate	|	"" accountNumber
-      table.addContent(makeRow(
-           (request.getLastModifyDate() != null ? "Modified" : "&nbsp;"),  (request.getLastModifyDate() != null ? request.formatDate(request.getLastModifyDate()): "&nbsp;"),
-           "", accountNumber
-           ));
+      table.addContent(makeRow("Account",     accountName, 
+          "Email",        email));      
+
+      table.addContent(makeRow("", accountNumber,
+           (request.getLastModifyDate() != null ? "Modified" : "&nbsp;"),  (request.getLastModifyDate() != null ? request.formatDate(request.getLastModifyDate()): "&nbsp;")));
       
     } else {
-    	// "Email"	email	| ""	"" (external so no account name)
-      table.addContent(makeRow("Email",        email,
-    		  					"&nbsp;",     "&nbsp;"
-          ));      
-      	// "Modified"	modifiedDate		|	"" "" (external so no account number)
-      table.addContent(makeRow(
-           (request.getLastModifyDate() != null ? "Modified" : "&nbsp;"),  (request.getLastModifyDate() != null ? request.formatDate(request.getLastModifyDate()): "&nbsp;"),
-           			"", "&nbsp;"));
+      table.addContent(makeRow("&nbsp;",     "&nbsp;", 
+          "Email",        email));      
+
+      table.addContent(makeRow("", "&nbsp;",
+           (request.getLastModifyDate() != null ? "Modified" : "&nbsp;"),  (request.getLastModifyDate() != null ? request.formatDate(request.getLastModifyDate()): "&nbsp;")));
       
     }
     if (request.getCodeRequestCategory().equals(RequestCategory.ISCAN_REQUEST_CATEGORY) && iScanChip != null) {
-    	// "iScan Chip"	chipName	|	"# of chips"	numberIScanChips
       table.addContent(makeRow("iScan Chip", iScanChip.getName(),
           "# of Chips",        request.getNumberIScanChips().toString()));
     }
@@ -175,7 +166,69 @@ public class RequestHTMLFormatter {
     
     
     return table;
+  }
+
+ public Element makeRequestInfoTable() {
+	    
+	    
+	    String userName = "";
+	    String phone = "";
+	    String email = "";
+	    if (appUser != null) {
+	      userName = (appUser.getFirstName() != null ? appUser.getFirstName() : "") + " " + (appUser.getLastName() != null ? appUser.getLastName() : "");
+	      phone    = appUser.getPhone();
+	      email    = appUser.getEmail();
+	    }
+	    String accountName = "";
+	    if (billingAccount != null) {
+	      accountName = billingAccount.getAccountName();
+	    }
+	    String accountNumber = "";
+	    if (billingAccount != null) {
+	      if (!this.secAdvisor.isGuest()) {
+	        // Don't show the account number if the user logged in as guest
+	        accountNumber = billingAccount.getAccountNumber();
+	          accountNumber = billingAccount.getAccountNumber();
+	      }
+	    }
+	    String labName = "";
+	    if (request.getLab() != null) {
+	      labName = request.getLab().getName();
+	    }
+	    
+	    Element table = new Element("TABLE");    
+	    table.setAttribute("CELLPADDING", "5");
+	    table.addContent(makeRow("Requester",   userName,
+	    		"Date", request.formatDate(request.getCreateDate())));
+	    
+	    table.addContent(makeRow("Phone",        phone,
+	    						 "Lab",         labName));
+
+	    if (request.getIsExternal() == null || request.getIsExternal().equals("N")) {
+	      table.addContent(makeRow("Email",        email, 
+	    		  "Account",     accountName));      
+
+	      table.addContent(makeRow(
+	           (request.getLastModifyDate() != null ? "Modified" : "&nbsp;"),  (request.getLastModifyDate() != null ? request.formatDate(request.getLastModifyDate()): "&nbsp;"),"", accountNumber));
+	      
+	    } else {
+	      table.addContent(makeRow("Email",        email, 
+	    		  "&nbsp;",     "&nbsp;"));      
+
+	      table.addContent(makeRow(
+	           (request.getLastModifyDate() != null ? "Modified" : "&nbsp;"),  (request.getLastModifyDate() != null ? request.formatDate(request.getLastModifyDate()): "&nbsp;"), "", "&nbsp;"));
+	      
+	    }
+	    if (request.getCodeRequestCategory().equals(RequestCategory.ISCAN_REQUEST_CATEGORY) && iScanChip != null) {
+	      table.addContent(makeRow("iScan Chip", iScanChip.getName(),
+	          "# of chips",        request.getNumberIScanChips().toString()));
+	    }
+	    
+	    
+	    
+    return table;
   } 
+ 
  
   public void addSampleTable(Element parentNode, Set samples) {
      addSampleTable(parentNode, samples, null);
@@ -1169,7 +1222,8 @@ public class RequestHTMLFormatter {
     this.addHeaderCell(rowh, "#" );
     this.addHeaderCell(rowh, "Sample name"    );
     this.addHeaderCell(rowh, "Status"    );
-    this.addHeaderCell(rowh, "Seq Protocol");
+    this.addHeaderCell(rowh, "Seq Run Type");
+    this.addHeaderCell(rowh, "# Seq Cycles");
     this.addHeaderCell(rowh, "Genome Build (align to)");
     if (showColInstructions) {
       this.addHeaderCell(rowh, "Analysis instructions");            
@@ -1219,7 +1273,8 @@ public class RequestHTMLFormatter {
 
         this.addCell(row, lane.getSample() != null ? lane.getSample().getName() : "&nbsp;");
         this.addCell(row, lane.getWorkflowStatusAbbreviated().equals("") ? "&nbsp;" : lane.getWorkflowStatusAbbreviated());
-        this.addCell(row, lane.getIdNumberSequencingCyclesAllowed() != null ? dictionaryHelper.getNumberSequencingCyclesAllowed(lane.getIdNumberSequencingCyclesAllowed()) : "&nbsp;");
+        this.addSmallCell(row, lane.getIdSeqRunType() != null ? dictionaryHelper.getSeqRunType(lane.getIdSeqRunType()) : "&nbsp;");
+        this.addSmallCell(row, lane.getIdNumberSequencingCycles() != null  ? dictionaryHelper.getNumberSequencingCycles(lane.getIdNumberSequencingCycles()) : "&nbsp;");
         this.addSmallCell(row, lane.getIdGenomeBuildAlignTo() != null  ? dictionaryHelper.getGenomeBuild(lane.getIdGenomeBuildAlignTo()) : "&nbsp;");
         if (showColInstructions) {
           this.addInstructionsCell(row, lane.getAnalysisInstructions() != null && !lane.getAnalysisInstructions().equals("") ? lane.getAnalysisInstructions() : "&nbsp;");
@@ -1255,7 +1310,8 @@ public class RequestHTMLFormatter {
     table.addContent(rowh);
     this.addHeaderCell(rowh, "#", "left");
     this.addHeaderCell(rowh, "Sample name"    );
-    this.addHeaderCell(rowh, "Seq Protocol");
+    this.addHeaderCell(rowh, "Seq Run Type");
+    this.addHeaderCell(rowh, "# Seq Cycles");
     this.addHeaderCell(rowh, "Genome Build (align to)");
     this.addHeaderCell(rowh, "Analysis instructions");      
 
@@ -1276,7 +1332,8 @@ public class RequestHTMLFormatter {
           SequenceLane lane = (SequenceLane)i1.next();
 
           this.addCell(row, lane.getSample() != null ? lane.getSample().getName() : "&nbsp;");
-          this.addCell(row, lane.getIdNumberSequencingCyclesAllowed() != null  ? dictionaryHelper.getNumberSequencingCyclesAllowed(lane.getIdNumberSequencingCyclesAllowed()) : "&nbsp;");
+          this.addSmallCell(row, lane.getIdSeqRunType() != null ? dictionaryHelper.getSeqRunType(lane.getIdSeqRunType()) : "&nbsp;");
+          this.addSmallCell(row, lane.getIdNumberSequencingCycles() != null  ? dictionaryHelper.getNumberSequencingCycles(lane.getIdNumberSequencingCycles()) : "&nbsp;");
           this.addCell(row, lane.getIdGenomeBuildAlignTo() != null  ? dictionaryHelper.getGenomeBuild(lane.getIdGenomeBuildAlignTo()) : "&nbsp;");
           this.addCell(row, lane.getAnalysisInstructions() != null && !lane.getAnalysisInstructions().equals("") ? lane.getAnalysisInstructions() : "&nbsp;");
           

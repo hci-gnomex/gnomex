@@ -12,8 +12,6 @@ public class SampleType extends DictionaryEntry implements Serializable {
   private Integer  sortOrder;
   private String   isActive;
   private String   codeNucleotideType;
-  private String   notes;
-  private Integer  idCoreFacility;
   
   public String getDisplay() {
     String display = this.getNonNullString(getSampleType());
@@ -57,6 +55,7 @@ public class SampleType extends DictionaryEntry implements Serializable {
   public Integer getSortOrder() {
     return sortOrder;
   }
+
   
   public void setSortOrder(Integer sortOrder) {
     this.sortOrder = sortOrder;
@@ -68,21 +67,5 @@ public class SampleType extends DictionaryEntry implements Serializable {
   
   public void setCodeNucleotideType(String codeNucleotideType) {
     this.codeNucleotideType = codeNucleotideType;
-  }
-  
-  public String getNotes() {
-	  return notes;
-  }
-  
-  public void setNotes(String notes) {
-	  this.notes = notes;
-  }
-  
-  public Integer getIdCoreFacility() {
-    return idCoreFacility;
-  }
-  
-  public void setIdCoreFacility(Integer idCoreFacility) {
-    this.idCoreFacility = idCoreFacility;
   }
 }

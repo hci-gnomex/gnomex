@@ -137,22 +137,13 @@ public class SaveChromatogramFromFile extends GNomExCommand implements Serializa
       
       // Parse chromatogram data from the file:
       // Signal Strengths:
-      if ( chromatReader.getSignalStrengths().length < 4 ) {
-        throw new Exception("Signal strengths cannot be parsed from file " + fileName );  
-      } 
       int aSignalStrength = chromatReader.getSignalStrengths()[1];
       int cSignalStrength = chromatReader.getSignalStrengths()[3];
       int gSignalStrength = chromatReader.getSignalStrengths()[0];
       int tSignalStrength = chromatReader.getSignalStrengths()[2];
       // Lane
-      if ( chromatReader.getLane().equals( "" ) ) {
-        throw new Exception("Lane cannot be parsed from file " + fileName );  
-      } 
       int lane = Integer.parseInt(chromatReader.getLane());
       // Quality scores
-      if ( chromatReader.getQualVals().length < 1 ) {
-        throw new Exception("Quality values cannot be parsed from file " + fileName );  
-      } 
       int q20 = chromatReader.getQ(20);
       int q40 = chromatReader.getQ(40);
       // Trim length

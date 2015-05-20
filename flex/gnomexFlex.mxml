@@ -20,10 +20,9 @@
 				xmlns:util="views.util.*"
 				xmlns:login="views.login.*"
 				xmlns:report="views.report.*"
-				xmlns:dashboard="views.dashboard.*"
-				xmlns:product="views.product.*"
 				paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" 
-				creationComplete="init()" applicationComplete="applicationCompleteHandler(event)" backgroundColor="#FFFFFF" visible="true" >
+				creationComplete="init()" applicationComplete="applicationCompleteHandler(event)" backgroundColor="#FFFFFF" xmlns:experiment1="experiment.*" visible="true">
+	
 	
 	
 	<mx:Fade id="fadeOut" duration="100"/>
@@ -120,6 +119,19 @@
 	</mx:HTTPService >
 	
 	<mx:HTTPService 
+		id="getAlignmentProfileList" 
+		url="GetAlignmentProfileList.gx"
+		resultFormat="e4x"
+		showBusyCursor="false"
+		destination="getAlignmentProfileList"
+		result="onGetAlignmentProfileList(event)"
+		fault="onFailHttpRequest('Failed to get genome index list', event)"
+		useProxy="false">
+		<mx:request>
+		</mx:request>
+	</mx:HTTPService >
+	
+	<mx:HTTPService 
 		id="getOrganismList" 
 		url="GetOrganismList.gx"
 		resultFormat="e4x"
@@ -140,19 +152,6 @@
 		destination="getIScanChipList"
 		result="onGetIScanChipList(event)"
 		fault="onFailHttpRequest('Failed to get iScan chip list', event)"
-		useProxy="false">
-		<mx:request>
-		</mx:request>
-	</mx:HTTPService >
-	
-	<mx:HTTPService 
-		id="getProductList" 
-		url="GetProductList.gx"
-		resultFormat="e4x"
-		showBusyCursor="false"
-		destination="getProductList"
-		result="onGetProductList(event)"
-		fault="onFailHttpRequest('Failed to get product list', event)"
 		useProxy="false">
 		<mx:request>
 		</mx:request>
@@ -285,17 +284,6 @@
 		</mx:request>
 	</mx:HTTPService >
 	
-	<mx:HTTPService 
-		id="getFAQ" 
-		url="GetFAQ.gx"
-		resultFormat="e4x"
-		destination="getFAQ"
-		showBusyCursor="true"
-		result="onGetFAQInterface(event)"
-		fault="parentApplication.onFailHttpRequest('Unable to get items', event)"
-		useProxy="false">
-	</mx:HTTPService>
-	
 	<mx:Style source="css/gnomex_flex.css" />
 	
 	
@@ -309,7 +297,6 @@
 			import hci.flex.renderers.RendererFactory;
 			import hci.flex.util.DictionaryManager;
 			
-			import mx.collections.ArrayCollection;
 			import mx.collections.Sort;
 			import mx.collections.XMLListCollection;
 			import mx.controls.Alert;
@@ -328,17 +315,15 @@
 			import mx.rpc.events.FaultEvent;
 			import mx.rpc.events.ResultEvent;
 			
+			import views.admin.AlignmentProfileEvent;
+			import views.admin.AlignmentProfileWindow;
 			import views.admin.BillingAccountFieldsConfigurationWindow;
 			import views.admin.GenomeIndexEvent;
 			import views.admin.PropertyEvent;
 			import views.admin.PropertyWindow;
-			import views.analysis.AnalysisAddView;
-			import views.dashboard.ManageQuickLinks;
 			import views.data.ChromatBrowseView;
 			import views.datatrack.DistributeDataTrackWindow;
 			import views.experiment.ProjectDetailWindow;
-			import views.experimentplatform.ExperimentPlatformWindow;
-			import views.login.ChangePassword;
 			import views.login.ManagePasswords;
 			import views.search.NavSearchView;
 			import views.user.EditBillingAcctWindow;
@@ -351,22 +336,19 @@
 			import views.util.ContactView;
 			import views.util.ContextHelp;
 			import views.util.ContextHelpEditEnableDisableEvent;
-			import views.util.CoreFacilityEvent;
-			import views.util.CoreFacilityWindow;
 			import views.util.DictionaryHelper;
 			import views.util.DownloadHints;
+			import views.util.ExperimentPlatformWindow;
 			import views.util.GNomExStringUtil;
+			import views.util.IScanChipEvent;
 			import views.util.IScanChipWindow;
 			import views.util.IconUtility;
 			import views.util.OrganismEvent;
 			import views.util.OrganismsWindow;
-			import views.util.ProductEvent;
-			import views.util.ProductWindow;
 			import views.util.PromptXMLListCollection;
 			import views.util.ScreenshotWindow;
 			import views.util.SessionTimeoutData;
 			import views.util.UploadMultiRequestSampleSheetView;
-			import views.util.VerifyEmailWindow;
 			import views.workflow.FlowCellView;
 			
 			
@@ -561,10 +543,6 @@
 			[Bindable]
 			[Embed(source="assets/flask.png")]
 			public var iconExperimentOther:Class; 
-			
-			[Bindable]
-			[Embed(source="assets/basket.png")]
-			public var iconBasket:Class;
 			
 			[Bindable]
 			[Embed(source="assets/basket.png")]
@@ -849,10 +827,6 @@
 			[Bindable]
 			[Embed(source="assets/note.png")]
 			public var iconNote:Class;
-			
-			[Bindable]
-			[Embed(source="assets/blue_folder.png")]
-			public var iconBlueFolder:Class;
 
 			
 			
@@ -881,8 +855,6 @@
 					<item label="" icon="assets/sequenom_plate.png" />
 					<item label="" icon="assets/DNA_test_tube.png" />
 					<item label="" icon="assets/data-accept.png" />
-					<item label="" icon="assets/nano.png" />
-					<item label="" icon="assets/flask.png" />
 				</items>    
 			);
 			
@@ -915,7 +887,6 @@
 			
 			public var isUniversityOnlyUser:Boolean = false;
 			public var isExternalUser:Boolean = false;
-			public var isUserActive:Boolean = false;
 			
 			[Bindable]
 			public var bulletin:String = '';
@@ -953,9 +924,6 @@
 			public var coreFacilitiesICanManage:XMLList = null;
 			
 			[Bindable]
-			public var coreFacilitiesICanSubmitTo:XMLList = null;
-			
-			[Bindable]
 			public var isSuperAdmin:Boolean = false;
 			
 			[Bindable]
@@ -972,6 +940,9 @@
 			
 			[Bindable]
 			public var isBSTLinkageSupported:Boolean = false;
+			
+			[Bindable]
+			public var isSequenceAlignmentSupported:Boolean = false;
 			
 			[Bindable]
 			public var isFDTSupported:Boolean = false;
@@ -992,6 +963,9 @@
 			public var showUsage:Boolean = false;
 			
 			[Bindable]
+			public var showPurchaseSupplies:Boolean = false;
+			
+			[Bindable]
 			public var isExternalDataSharingSite:Boolean = false;
 			
 			[Bindable]
@@ -1008,15 +982,10 @@
 			
 			[Bindable]
 			public var useConfigurableBillingAccounts:Boolean = false;
-
-			[Bindable]
-			public var isPublicVisibility:Boolean = true;
-			
-			private var analysisAddWindow:AnalysisAddView;
 			
 			public var nonReqAnnotationColor:uint = hci.flex.renderers.RendererFactory.DEFAULT_MISSING_FIELD_BACKGROUND;
-			public var annotationColor:uint       = 0xE9FFD9;
-			public var annotationColorBorder:uint = 0xCBFCA7;
+			public var annotationColor:uint = hci.flex.renderers.RendererFactory.DEFAULT_MISSING_REQUIRED_FIELD_BACKGROUND;
+			public var annotationColorBorder:uint = hci.flex.renderers.RendererFactory.DEFAULT_MISSING_REQUIRED_FIELD_BORDER;
 			
 			public var cy3Color:uint = 0xccffaa;
 			public var cy3ColorBold:uint = 0x77dd55;
@@ -1055,6 +1024,8 @@
 			[Bindable]
 			public var genomeIndexList:XMLListCollection;
 			[Bindable]
+			public var alignmentProfileList:XMLListCollection;			
+			[Bindable]
 			public var organismList:XMLListCollection;
 			[Bindable]
 			public var activeOrganismList:XMLListCollection;
@@ -1066,27 +1037,17 @@
 			public var protocolList:XMLListCollection;
 			[Bindable]
 			public var iScanChipList:XMLListCollection;
-			[Bindable]
-			public var productList:XMLListCollection;
 			
 			[Bindable]
 			public var internalAccountFieldsConfigurationList:XMLListCollection;
 			[Bindable]
 			public var otherAccountFieldsConfigurationList:XMLListCollection;
 			
-			[Bindable]
-			public var seqLibProtocolsWithAppFilters:XMLListCollection;
-			
 			private var properties:Object;
 			
 			public var requestCategoryTypeMap:Object;
 			
 			public  static var ALERT_DEFAULT_BUTTON_WIDTH:Number = Alert.buttonWidth;
-			
-			[Bindable]
-			private var faqList:XMLListCollection;
-			
-			private var faqLoaded:Boolean = false;
 			
 			public  var TYPE_MICROARRAY:String    = 'MICROARRAY';
 			public  var TYPE_HISEQ:String         = 'HISEQ';
@@ -1100,11 +1061,8 @@
 			public  var TYPE_ISOLATION:String     = "ISOLATION";
 			public  var TYPE_CLINICAL_SEQUENOM:String  = "CLINSEQ";
 			public  var TYPE_SEQUENOM:String  	  = "SEQUENOM";
-			public  var TYPE_NANOSTRING:String    = "NANOSTRING";
 			public  var TYPE_GENERIC:String   	  = "GENERIC";
 			public  const TYPE_DISK_USAGE:String  = "DISKUSAGE"; // For disk usage in billing items.  Not used by requests.
-			public  const TYPE_PRODUCT_ORDER:String  = "PRODUCTORDER"; // For product orders in billing items.  Not used by requests.
-			public 	const CODE_PRODUCT_ORDER_STATUS_NEW:String = "NEW";
 			
 			public var CORE_FACILITY_DNA_SEQ:String = "DNA Sequencing";
 			public var CORE_FACILITY_GENOMICS:String = "Microarray and Genomic Analysis";
@@ -1115,10 +1073,14 @@
 			public var PROPERTY_WORKAUTH2_URL:String                      = "workauth2_url";
 			public var PROPERTY_WORKAUTH2_NAME:String                     = "workauth2_name";
 			public var PROPERTY_QC_INSTRUCTIONS:String                    = "qc_instructions";
+			public var PROPERTY_CORE_FACILITY_NAME:String                 = "core_facility_name";
+			public var PROPERTY_CONTACT_NAME_CORE_FACILITY:String         = "contact_name_core_facility";
+			public var PROPERTY_CONTACT_EMAIL_CORE_FACILITY:String        = "contact_email_core_facility";
 			public var PROPERTY_CONTACT_EMAIL_BIOINFORMATICS:String       = "contact_email_bioinformatics";
 			public var PROPERTY_CONTACT_NAME_SOFTWARE_BUGS:String         = "contact_name_software_bugs";
 			public var PROPERTY_CONTACT_EMAIL_SOFTWARE_BUGS:String        = "contact_email_software_bugs";
 			public var PROPERTY_HELP_URL:String                           = "help_url";
+			public var PROPERTY_PRICING_URL:String                        = "pricing_url";
 			public var PROPERTY_UNIVERSITY_USER_AUTHENTICATION:String     = "university_user_authentication";  
 			public var PROPERTY_GENERATE_GL_INTERFACE:String              = "generate_general_ledger_interface";
 			public var PROPERTY_ILLUMINA_BARCODING_NOTE:String            = "illumina_barcoding_note";
@@ -1132,8 +1094,10 @@
 			public var PROPERTY_SITE_TITLE:String                         = "site_title";
 			public var PROPERTY_SITE_WELCOME_MESSAGE:String               = "site_welcome_message";
 			public var PROPERTY_SHOW_USAGE_ON_STARTUP:String              = "show_usage_on_startup";
-			public var PROPERTY_DATASET_PRIVACY_EXPIRATION:String         = "dataset_privacy_expiration";
+			public var DATASET_PRIVACY_EXPIRATION:String                  = "dataset_privacy_expiration";
 			public var PROPERTY_FDT_HELP_URL:String                       = "fdt_help_url";
+			public var PROPERTY_SEQUENCE_ALIGNMENT_SUPPORTED:String       = "sequence_alignment_supported";
+			public var PROPERTY_SEQUENCE_ALIGNMENT_SERVER_URL:String      = "sequence_alignment_server_url";
 			public var PROPERTY_DATATRACK_SUPPORTED:String                = "datatrack_supported";
 			public var PROPERTY_DAS2_URL:String                           = "das2_url";
 			public var PROPERTY_TOPICS_SUPPORTED:String                   = "topics_supported";
@@ -1141,6 +1105,7 @@
 			public var PROPERTY_DEFAULT_VISIBILITY_ANALYSIS :String       =	"default_visibility_analysis";
 			public var PROPERTY_DEFAULT_VISIBILITY_TOPIC :String          = "default_visibility_topic";
 			public var PROPERTY_EXPERIMENT_DEFAULT_VIEW :String           = "experiment_default_view";
+			public var PROPERTY_PURCHASE_SUPPLIES_URL	:String			  = "purchase_supplies_url";
 			public var PROPERTY_CONFIGURABLE_BILLING_ACCOUNTS:String      = "configurable_billing_accounts";
 			public var PROPERTY_ID_DEFAULT_INSTITUTION	:String			  = "id_default_institution";
 			public var PROPERTY_FISCAL_YEAR_BREAK_MONTH :String           = "fiscal_year_break_month";
@@ -1160,37 +1125,6 @@
 			public var PROPERTY_ANALYSIS_ASSISTANCE_GROUP:String		  = "analysis_assistance_group";
 			public var PROPERTY_ANALYSIS_ASSISTANCE_HEADER:String		  = "analysis_assistance_header";
 			public var PROPERTY_CUSTOM_BILLING_MESSAGE:String		  	  = "custom_billing_message";
-			public var PROPERTY_EXPERIMENT_PLATFORM_HIDE_VENDOR:String	  = "experiment_platform_hide_vendor";
-			public var PROPERTY_EXPERIMENT_PLATFORM_HIDE_NOTES:String	  = "experiment_platform_hide_notes";
-			public var PROPERTY_EXPERIMENT_PLATFORM_HIDE_ORGANISM:String  = "experiment_platform_hide_organism";
-			public var PROPERTY_SHOW_NEWS_DASHBOARD:String                = "show_news_dashboard";
-			public var PROPERTY_SHOW_METRIX_DASHBOARD:String              = "show_metrix_dashboard";
-			public var PROPERTY_SHOW_ACTIVITY_DASHBOARD:String            = "show_activity_dashboard";
-			public var PROPERTY_SHOW_CORE_INFO_BOX:String                 = "show_core_info_box";
-			public var PROPERTY_INTERNAL_PRICE_LABEL:String               = "internal_price_label";
-			public var PROPERTY_EXTERNAL_ACADEMIC_PRICE_LABEL:String      = "external_academic_price_label";
-			public var PROPERTY_EXTERNAL_COMMERCIAL_PRICE_LABEL:String    = "external_commercial_price_label";
-			public var PROPERTY_ALLOW_ADD_SEQUENCING_SERVICES:String      = "allow_add_sequencing_services";
-			public var PROPERTY_HIDE_SAMPLETYPE_ON_EXTERNAL_EXPERIMENT:String  = "hide_sampletype_on_external_experiment";
-			public var PROPERTY_NO_PUBLIC_VISIBILITY:String               = "no_public_visibility";
-			public var PROPERTY_ALLOW_CORE_GLOBAL_SUBMISSION:String       = "allow_core_global_submission";
-			public var PROPERTY_ANNOTATION_OPTION_EQUIVALENTS:String      = "annotation_option_equivalents";
-			public var PROPERTY_HIDE_INSTITUTIONS:String     			  = "hide_institutions";
-			public var PROPERTY_HIDE_EXCLUDE_USAGE_FLAG:String     		  = "hide_exclude_usage_flag";
-			public var PROPERTY_SHOW_FUNDING_AGENCY:String				  = "show_funding_agency";
-			public var PROPERTY_SHOW_ADMIN_NOTES_ON_REQUEST:String		  = "show_admin_notes_on_request";
-			public var PROPERTY_IS_PLATE_BASED_CORE:String		  		  = "is_plate_based_core";
-			public var PROPERTY_SAMPLE_BATCH_WARNING:String		  		  = "sample_batch_warning";
-			public var PROPERTY_NANO_CODE_SET_COST_WARNING:String		  = "nano_code_set_cost_warning";
-			public var PROPERTY_QC_ASSAY_HIDE_BUFFER_STRENGTH:String      = "qc_assay_hide_buffer_strength";
-			public var PROPERTY_QC_ASSAY_HIDE_WELLS_PER_CHIP:String       = "qc_assay_hide_wells_per_chip";
-			public var PROPERTY_HIDE_260_230_QC_WORKFLOW:String           = "qc_hide_260_230_qc_workflow";
-			public var PROPERTY_SHOW_SAMPLE_CONC_PM:String           	  = "show_sample_conc_pm";
-			public var PROPERTY_RESTRICT_ANNOTATION_ON_AUTO_ADD:String    = "restrict_annotation_on_auto_add";
-			public var PROPERTY_DESCRIPTION_NAME_MANDATORY_FOR_INTERNAL_EXPERIMENTS:String = "description_name_mandatory_for_internal_experiments";
-			public var PROPERTY_SORT_APPLICATION_ALPHABETICALLY_IN_EDIT:String = "sort_application_alphabetically_in_edit";
-			public var PROPERTY_HIDE_REQUESTS_WITH_NO_BILLING_ITEMS:String	   = "hide_requests_with_no_billing_items";
-
 			
 			public var CAN_ADMINISTER_ALL_CORE_FACILITIES:String          = "canAdministerAllCoreFacilities";
 			
@@ -1365,6 +1299,7 @@
 					this.showFlowCellForNumber(number);				
 				} else {
 					showExperiment(number, false);
+					
 				} 
 			}
 			
@@ -1659,17 +1594,6 @@
 				checkTopicPermission.send(parms);									
 			}
 			
-			public function showProductOrder(productOrder:Object):void {
-						
-				this.stateStack.selectedChild = theViews;
-				theViews.visible = true;
-				theViews.selectedChild = navProductOrderView;
-				
-				callLater( function():void {
-					navProductOrderView.lookupProductOrder(productOrder);
-				});
-								
-			}
 			
 			private function onCheckTopicPermission(event:ResultEvent):void {
 				if (checkTopicPermission.lastResult.name() != "SUCCESS") {
@@ -1745,10 +1669,6 @@
 				
 			}
 			
-			public function showWorkAuthWindowForLaunch():void {
-				showWorkAuthWindow(getLaunchIdLab(), getLaunchIdCore());
-			}
-			
 			public function showWorkAuthWindow(idLab:String = null, idCoreFacility:String = null):void {
 				var wa:EditBillingAcctWindow = EditBillingAcctWindow(PopUpManager.createPopUp(this, EditBillingAcctWindow, true));
 				wa.isEdit = false;
@@ -1756,7 +1676,7 @@
 				if (this.workAuthLabList.length == 1) {
 					labLine = " idLab='" + this.workAuthLabList[0].@idLab.toString() + "'";
 				}
-				if (labLine.length == 0 && idLab != null && idLab != '') {
+				if (labLine.length == 0 && idLab != null) {
 					labLine = " idLab='" + idLab.toString() + "'";
 				}
 				wa.ba = new XML("<BillingAccount " +
@@ -1809,15 +1729,14 @@
 			}
 			
 			public function showSearch():void {
-				navSearchView = NavSearchView(PopUpManager.createPopUp(this, NavSearchView, false));
-				navSearchView.centerWindow();
+				navSearchView = NavSearchView(PopUpManager.createPopUp(this,  NavSearchView, false));
+				PopUpManager.centerPopUp(navSearchView);
 				navSearchView.init();
 			}
 			
 			
 			public function showUserPublicView():void {
-				if (isGuest || isUniversityOnlyUser) {
-					Alert.show("You currently only have guest privileges.  You can request an official GNomEx account from the login page.");
+				if (isGuest) {
 					return;
 				}
 				userPublicView = UserPublicView(PopUpManager.createPopUp(this,  UserPublicView, false));
@@ -1878,11 +1797,7 @@
 					// SecurityAdvisor isGuest attribute.
 					return isGuest;
 				}
-			}
-			
-			public function reloadFAQ():void{
-				getFAQ.send();
-			}
+			} 
 			
 			public function submitInternalExperiment():Boolean {
 				return isInternalExperimentSubmission;
@@ -1902,35 +1817,6 @@
 					isInternalExperimentSubmission =  false;
 				} else {
 					isInternalExperimentSubmission = true;
-				}
-			}
-			
-			private function addQuickLinks():void{
-				for each(var mi:XML in topMenu){
-					if(mi.@label == "Links..."){
-						mi.setChildren(new XMLList);
-						for each(var item:XML in faqList){
-							var menuItem:XML = <menuItem label={item.@title} url={item.@url} />;
-							mi.appendChild(menuItem);
-						}
-						if(isAdminState){
-							var manageLink:XML = <menuItem label='Manage...' />;
-							mi.appendChild(manageLink);
-						}
-						break;
-					}
-					if(mi.children().length() == 0){
-						hideMenusByContext(topMenu, 'quickLinks')
-					}
-				}
-			}
-				
-			private function onGetFAQInterface(event:ResultEvent):void {
-				if(event.result.name() == "FaqCollection"){
-					faqList = new XMLListCollection(getFAQ.lastResult.FAQ);
-					addQuickLinks();
-				} else{
-					Alert.show(event.result..ERROR.@message.toString(), "Error setting up Links.");
 				}
 			}
 			
@@ -2051,14 +1937,6 @@
 				}
 			}
 			
-			public function getLaunchIdCore():String {
-				if (Application.application.parameters.idCore != null) {
-					return Application.application.parameters.idCore;
-				} else {
-					return "";
-				}
-			}
-			
 			public function getLaunchIdAppUser():String {
 				if (Application.application.parameters.idLab != null) {
 					return Application.application.parameters.idAppUser;
@@ -2140,11 +2018,11 @@
 				}
 			}
 			
-			public function getUID():Object {
+			public function getUNID():Object {
 				if (isGuestMode()) {
 					return "";
 				} else {
-					return createSecurityAdvisor.lastResult.@uID;
+					return createSecurityAdvisor.lastResult.@uNID;
 				}
 			}
 			
@@ -2153,14 +2031,6 @@
 					return "";
 				} else {
 					return createSecurityAdvisor.lastResult.@userEmail;
-				}
-			}
-			
-			public function getConfirmEmailGuid():String{
-				if (isGuestMode()) {
-					return "";
-				} else {
-					return createSecurityAdvisor.lastResult.@confirmEmailGuid;
 				}
 			}
 			
@@ -2261,13 +2131,16 @@
 				if (!showUsage) {
 					hideMenusByContext(navMenu, "usage");
 				}
-				if (!usesExperimentType("MISEQ")) {
+				if (!showPurchaseSupplies) {
+					hideMenusByContext(navMenu, "purchaseSuppliesLink");
+				}
+				if (!usesKindOfRequestCategory("MISEQ")) {
 					hideMenusByContext(navMenu, "MISEQ");
 				}
 				if (!usesExperimentType("HISEQ")) {
 					hideMenusByContext(navMenu, "HISEQ");
 				}
-				if (!usesExperimentType("QC")&&!usesExperimentType("MISEQ")&&!usesExperimentType("HISEQ")) {
+				if (!usesExperimentType("QC")) {
 					hideMenusByContext(navMenu, "QC");
 				}
 				if (!usesExperimentType("MICROARRAY")) {
@@ -2279,10 +2152,72 @@
 				
 				hideMenusByProperties(navMenu);
 				
+				addPricingMenus(navMenu);
+				
 				addNewExperimentMenus(navMenu);
-				addProductOrderMenus(navMenu);
 			}
-						
+			
+			private function addPricingMenus(navMenu:XMLList):void {
+				for each(var property:Object in dictionaryManager.getEntries("hci.gnomex.model.PropertyDictionary")) {
+					if (property.@value == '') {
+						continue; 
+					}
+					var propertyMenu:XML = null;
+					if (property.@propertyName.toString().indexOf("pricing_url") == 0) {
+						if (property.@propertyValue != null && property.@propertyValue != '') {
+							if (property.@idCoreFacility != "") {
+								if (coreFacilitiesICanManage.length() > 0) {
+									for each (var cf:Object in coreFacilitiesICanManage) {
+										if (property.@idCoreFacility == cf.@idCoreFacility) {
+											propertyMenu = new XML("<menuitem/>");
+											propertyMenu.@label = "Pricing for " + cf.@facilityName;
+											propertyMenu.@url = property.@propertyValue;
+											break;
+										}
+									}
+								} else {
+									for each (var cf1:Object in  myCoreFacilities) {
+										if (property.@idCoreFacility == cf1.@idCoreFacility) {
+											propertyMenu = new XML("<menuitem/>");
+											propertyMenu.@label = "Pricing for " + cf1.@facilityName;
+											propertyMenu.@url = property.@propertyValue;
+											break;
+										}
+									}
+								}
+							} else if (property.@idCoreFacility == "") {
+								propertyMenu = new XML("<menuitem/>");
+								propertyMenu.@label = "Pricing";
+								propertyMenu.@url = property.@propertyValue;
+							}							
+						}
+					}
+					if (propertyMenu != null) {
+						// Find 'Links' or 'Useful Links' menu
+						var parentMenu:Object = null;
+						for (var i:int = 0; i < navMenu.length(); i++) {
+							if (navMenu[i].@context == "otherLinks") {
+								parentMenu = navMenu[i];
+								break;
+							} 
+						}
+						if (parentMenu == null) {
+							var linkMenu:Object = new XML("<menuitem/>");
+							linkMenu.@label = "Useful Links...";
+							
+							// Need to do this strange code to insert into the XMLList
+							var xmlList:XMLList = XMLList(navMenu);
+							xmlList[xmlList.length() - 1] += linkMenu; 
+							
+							parentMenu = linkMenu;
+						}
+						// Add pricing menu item to the menu
+						parentMenu.appendChild(propertyMenu);
+					}
+				}
+				
+			}
+			
 			private function addNewExperimentMenus(navMenu:XMLList):void {
 				if (this.myCoreFacilities != null && this.myCoreFacilities.length() > 1) {
 					for(var i:int; i < navMenu.length(); i++) {
@@ -2310,53 +2245,14 @@
 			
 			private function addCoreNewExperiments(template:XML, children:XMLList):XMLList {
 				for each(var core:Object in myCoreFacilities) {
-					if (core.@hasRequestCategories == 'Y') {
-						var label:String = template.@label + " for " + core.@facilityName;
-						var xml:XML = new XML("<menuitem/>");
-						xml.@label = label;
-						xml.@icon = template.@icon;
-						xml.@idCoreFacility = core.@idCoreFacility;
-						children += xml;
-					}
+					var label:String = template.@label + " for " + core.@facilityName;
+					var xml:XML = new XML("<menuitem/>");
+					xml.@label = label;
+					xml.@icon = template.@icon;
+					xml.@idCoreFacility = core.@idCoreFacility;
+					children += xml;
 				}
 				
-				return children;
-			}
-			
-			private function addProductOrderMenus(navMenu:XMLList):void {
-				if (this.myCoreFacilities != null && this.myCoreFacilities.length() > 1) {
-					for(var i:int; i < navMenu.length(); i++) {
-						var children:XMLList = new XMLList();
-						var changed:Boolean = false;
-						for each (var child:XML in navMenu[i].children()) {
-							if (child.@context == "newProductOrder") {
-								children = addCoreProductOrders(child, children);
-								changed = true;
-							} else {
-								children += child;
-							}
-						}
-						if (changed) {
-							navMenu[i].setChildren(children);
-						}
-					}
-				}
-			}
-			
-			private function addCoreProductOrders(template:XML, children:XMLList):XMLList {
-				for each(var core:Object in myCoreFacilities) {
-					for each(var pt:Object in dictionaryManager.getEntriesExcludeBlank("hci.gnomex.model.ProductType")){
-						if(pt.@idCoreFacility == core.@idCoreFacility){
-							var label:String = template.@label + " for " + core.@facilityName;
-							var xml:XML = new XML("<menuitem/>");
-							xml.@label = label;
-							xml.@icon = template.@icon;
-							xml.@idCoreFacility = core.@idCoreFacility;
-							children += xml;
-							break;
-						}
-					}
-				}
 				return children;
 			}
 			
@@ -2387,36 +2283,37 @@
 			}
 
 			private function hideMenusByProperties(navMenu:XMLList):void {
-				var showMenus:Dictionary = new Dictionary();
-				var hideMenus:Dictionary = new Dictionary();
 				for each(var property:Object in dictionaryManager.getEntries("hci.gnomex.model.PropertyDictionary")) {
 					if (property.@value == '') {
 						continue; 
 					}
 					if (property.@propertyName.toString().indexOf("menu_") == 0) {
-						var menuToHideShow:String = null;
-						if (property.@propertyValue == "hide" || property.@propertyValue == "show") {
+						var menuToHide:String = null;
+						if (property.@propertyValue == "hide") {
 							if (property.@idCoreFacility != "" && !isSuperAdmin) {
 								if (coreFacilitiesICanManage.length() > 0) {
 									// Only hide a menu for a core facility admin when
 									// the menu_ property matches the core facility
-									// the admin manages.
+									// the admin manages and there is only ONE core
+									// facility the admin manages.
+									if (coreFacilitiesICanManage.length() < 2) {
 										for each (var cf:Object in coreFacilitiesICanManage) {
 											if (property.@idCoreFacility == cf.@idCoreFacility) {
-												menuToHideShow = property.@propertyName.toString().substr(5);
+												menuToHide = property.@propertyName.toString().substr(5);
 												break;
 											}
 										}
+									}
 								} else {
 									
-									if (menuToHideShow == null) {
+									if (menuToHide == null) {
 										// Only hide a menu when the menu_ property matches the
 										// core facility and the user is only associated with ONE
 										// core facility
 										if (myCoreFacilities.length() < 2) {
 											for each (var cf1:Object in  myCoreFacilities) {
 												if (property.@idCoreFacility == cf1.@idCoreFacility) {
-													menuToHideShow = property.@propertyName.toString().substr(5);
+													menuToHide = property.@propertyName.toString().substr(5);
 													break;
 												}
 											}
@@ -2425,32 +2322,23 @@
 									}
 								}
 							} else if (property.@idCoreFacility == "") {
-								menuToHideShow = property.@propertyName.toString().substr(5);
+								menuToHide = property.@propertyName.toString().substr(5);
 							}							
 						} else if (property.@propertyValue == "hide super" && isSuperAdmin) {
-							menuToHideShow = property.@propertyName.toString().substr(5);
+							menuToHide = property.@propertyName.toString().substr(5);
 						} 
-					}
-					if (menuToHideShow != null) {
-						if (property.@propertyValue == "hide" || property.@propertyValue == "hide super") {
-							hideMenus[menuToHideShow] = menuToHideShow;
-						} else if (property.@propertyValue == "show") {
-							showMenus[menuToHideShow] = menuToHideShow;
-						}
-					}
-				}
-				for(var key:Object in hideMenus) {
-					if (!showMenus.hasOwnProperty(key)) {
-						for (var i:int = 0; i < navMenu.length(); i++) {
-							if (navMenu[i].@label == key) {
-								delete navMenu[i];
-								break;
-							} else {
-								var cn:XMLList = XMLList(navMenu[i].children());
-								for ( var j:Number = 0 ; j < cn.length() ; j++ ) {										
-									if (cn[j].@label == key) {
-										delete cn[j];
-										break;
+						if (menuToHide != null) {
+							for (var i:int = 0; i < navMenu.length(); i++) {
+								if (navMenu[i].@label == menuToHide) {
+									delete navMenu[i];
+									break;
+								} else {
+									var cn:XMLList = XMLList(navMenu[i].children());
+									for ( var j:Number = 0 ; j < cn.length() ; j++ ) {										
+										if (cn[j].@label == menuToHide) {
+											delete cn[j];
+											break;
+										}
 									}
 								}
 							}
@@ -2471,7 +2359,6 @@
 				customizeMenus(this.managerESMenu);
 				customizeMenus(this.adminESMenu);
 				customizeMenus(billingAdminMenu);
-				customizeMenus(this.billingAdminSubmitterMenu);
 				
 				if (this.isGuestMode() || this.isUniversityOnlyUser) {
 					currentState = "GuestState";
@@ -2491,15 +2378,13 @@
 							currentState = "AdminESState";
 						} else if (this.managesPlateBasedWorkflow &&  !isSuperAdmin) {
 							currentState = "BillingAdminDNASeqState";
-						} else if(this.hasPermission("canSubmitForOtherCores")){
-							currentState = "BillingAdminSubmitterState";
 						} else {
 							currentState = "BillingAdminState";
 						}
 					}
 				} else if (hasGroupsToManage()) {
 					currentState = this.isExternalDataSharingSite ? "ManagerESState" :"ManagerState";
-				} else if ((hasPermission("canSubmitRequests") && this.canSubmitRequestForALab()) || hasPermission("canSubmitForOtherCores")) {
+				} else if (hasPermission("canSubmitRequests") && this.canSubmitRequestForALab()) {
 					currentState = this.isExternalDataSharingSite ? "UserESState" : "UserState";
 				} else {
 					currentState = "UserNonSubmitterState";
@@ -2508,15 +2393,6 @@
 				// Hide help edit unless admin
 				if (!isAdminState) {
 					hideMenusByContext(topMenu, 'helpEdit');
-				}
-				
-				if(isGuestMode()){
-					hideMenusByContext(topMenu, 'quickLinks');
-				}
-				
-				if(!faqLoaded){
-					getFAQ.send();
-					faqLoaded = true;
 				}
 
 				// Let's remove Orders from admin menu for Microarray core
@@ -2548,13 +2424,16 @@
 				userName  = createSecurityAdvisor.lastResult.@userFirstName + " " + createSecurityAdvisor.lastResult.@userLastName;
 				loginDateTime  = createSecurityAdvisor.lastResult.@loginDateTime;
 				isUniversityOnlyUser = createSecurityAdvisor.lastResult.@isUniversityOnlyUser == "Y" ? true : false;
-				isUserActive = createSecurityAdvisor.lastResult.@isUserActive == "Y" ? true : false;
 				isExternalUser = createSecurityAdvisor.lastResult.@isExternalUser == "Y" ? true : false;
 				version = createSecurityAdvisor.lastResult.@version;
 				
 				dictionaryManager = new DictionaryManager("ManageDictionaries.gx");
 				dictionaryManager.addEventListener(DictionaryEvent.DICTIONARY_LOADED, onDictionariesLoaded);
 				dictionaryManager.call("load", "");
+				
+				
+				
+				
 				
 			}
 			
@@ -2603,6 +2482,7 @@
 					}
 					properties[qualName] = prop.@propertyValue;
 				}
+				pricingURL = getProperty(PROPERTY_PRICING_URL);
 				bulletin = getProperty(PROPERTY_BULLETIN) != null ? getProperty(PROPERTY_BULLETIN) : '';
 				
 				if (this.getProperty(this.PROPERTY_BST_LINKAGE_SUPPORTED) != null && 
@@ -2610,6 +2490,13 @@
 					this.isBSTLinkageSupported = true;
 				} else {
 					this.isBSTLinkageSupported = false;
+				}
+				
+				if (this.getProperty(this.PROPERTY_SEQUENCE_ALIGNMENT_SUPPORTED) != null && 
+					this.getProperty(this.PROPERTY_SEQUENCE_ALIGNMENT_SUPPORTED) == 'Y') {
+					this.isSequenceAlignmentSupported = true;
+				} else {
+					this.isSequenceAlignmentSupported = false;
 				}
 				
 				if (this.getProperty(this.PROPERTY_FDT_SUPPORTED) != null && 
@@ -2625,13 +2512,6 @@
 				} else {
 					this.allowPaste = true;
 				}
-
-				if (this.getProperty(this.PROPERTY_NO_PUBLIC_VISIBILITY) != null && 
-					this.getProperty(this.PROPERTY_NO_PUBLIC_VISIBILITY) == 'Y') {
-					this.isPublicVisibility = false;
-				} else {
-					this.isFDTSupported = true;
-				}
 				
 				if (this.getProperty(this.PROPERTY_TOPICS_SUPPORTED) != null && 
 					this.getProperty(this.PROPERTY_TOPICS_SUPPORTED) == 'Y') {
@@ -2640,8 +2520,8 @@
 					this.isTopicsSupported = false;
 				}
 				
-				if (this.getProperty(this.PROPERTY_DATASET_PRIVACY_EXPIRATION) != null && 
-					parseInt(this.getProperty(this.PROPERTY_DATASET_PRIVACY_EXPIRATION)) > 0) {
+				if (this.getProperty(this.DATASET_PRIVACY_EXPIRATION) != null && 
+					parseInt(this.getProperty(this.DATASET_PRIVACY_EXPIRATION)) > 0) {
 					this.isPrivacyExpirationSupported = true;
 				} else {
 					this.isPrivacyExpirationSupported = false;
@@ -2681,21 +2561,16 @@
 					this.showUsage = this.hasPermission("canAccessAnyObject");
 				}
 				
+				if (this.getProperty(this.PROPERTY_PURCHASE_SUPPLIES_URL) == '') {
+					showPurchaseSupplies = false;
+				} else {
+					showPurchaseSupplies = true;
+				}
+				
 				if (this.getProperty(this.PROPERTY_DATATRACK_SUPPORTED) == 'Y') {
 					dataTrackSupported = true;
 				} else {
 					dataTrackSupported = false;
-				}
-				
-				// Mark core facilities that do not have any request categories.
-				for each (var coreCheckReqCat:Object in dictionaryManager.getEntriesExcludeBlank("hci.gnomex.model.CoreFacility")) {
-					coreCheckReqCat.@hasRequestCategories='N';
-					for each (var reqCheckReqCat:Object in dictionaryManager.getEntriesExcludeBlank("hci.gnomex.model.RequestCategory")) {
-						if (coreCheckReqCat.@idCoreFacility == reqCheckReqCat.@idCoreFacility) {
-							coreCheckReqCat.@hasRequestCategories='Y';
-							break;
-						}
-					}
 				}
 				
 				// Determine if there are any core facilities configured for this site
@@ -2715,7 +2590,7 @@
 				}
 				
 				// Keep a list of core facilities associated with this user.  We will use
-				// this to filter the request categories on the Submit Request window -- among other things.
+				// this to filter the request categories on the Submit Request window.
 				if (isGuest) {
 					myCoreFacilities = null;
 					coreFacilitiesICanManage = null;
@@ -2725,24 +2600,19 @@
 				} else {
 					myCoreFacilities = new XMLList();
 					for each (var core:Object in createSecurityAdvisor.lastResult..CoreFacility) {
-						
-						for each (var dcf:Object in coreFacilities) {
-							if (dcf.@idCoreFacility == core.@idCoreFacility) {
-								var found:Boolean = false;
-								for(var i:int = 0; i < myCoreFacilities.length(); i++) {
-									var core2:Object = myCoreFacilities[i];
-									if (core.@idCoreFacility == '') {
-										found = true;
-										break;
-									} else if (core.@idCoreFacility == core2.@idCoreFacility) {
-										found = true;
-										break;
-									}
-								}
-								if (!found) {
-									myCoreFacilities[myCoreFacilities.length()] = dcf;
-								}
+						var found:Boolean = false;
+						for(var i:int = 0; i < myCoreFacilities.length(); i++) {
+							var core2:Object = myCoreFacilities[i];
+							if (core.@idCoreFacility == '') {
+								found = true;
+								break;
+							} else if (core.@idCoreFacility == core2.@idCoreFacility) {
+								found = true;
+								break;
 							}
+						}
+						if (!found) {
+							myCoreFacilities[myCoreFacilities.length()] = core;
 						}
 					}
 					//myCoreFacilities = new XMLList(temp.toXMLString());
@@ -2756,41 +2626,7 @@
 							}
 						}
 					}
-					
-					coreFacilitiesICanSubmitTo = new XMLList();
-					for each(var entry2:Object in dictionaryManager.getEntriesExcludeBlank("hci.gnomex.model.CoreFacility")) {
-						for each (var entry3:Object in createSecurityAdvisor.lastResult.coreFacilitiesICanSubmitTo.CoreFacility) {
-							if (entry2.@value == entry3.@value) {
-								coreFacilitiesICanSubmitTo[coreFacilitiesICanSubmitTo.length()] = entry2;
-								break;
-							}
-						}
-					}
 				}
-				
-				// Sort core facilities by sort order
-				if (myCoreFacilities != null) {
-					var swap:Boolean = true;
-					while(swap) {
-						swap = false;
-						for(var j:int = 1; j < myCoreFacilities.length(); j++) {
-							var c1:Object = myCoreFacilities[j-1];
-							var c2:Object = myCoreFacilities[j];
-							var c1Sort:int = c1.@sortOrder != '' ? Number(c1.@sortOrder) : 0;
-							var c2Sort:int = c2.@sortOrder != '' ? Number(c2.@sortOrder) : 0;
-							if (c1Sort > c2Sort) {
-								myCoreFacilities[j-1] = c2;
-								myCoreFacilities[j] = c1;
-								swap = true;
-							}
-						}
-					}
-				}
-				if ( this.homeView != null ) { 
-					this.homeView.coreFacilitiesInfoView.refresh();
-				}
-				this.dispatchEvent(new CoreFacilityEvent(CoreFacilityEvent.DATA_REFRESHED));
-				
 				
 				requestCategoryTypeMap = new Object();
 				for each (var rct:Object in dictionaryManager.getEntriesExcludeBlank("hci.gnomex.model.RequestCategoryType")) {
@@ -2843,8 +2679,6 @@
 				
 				setDefaultSubmissionState();
 				
-				// Build seq lib protocol list with app filters.
-				buildSeqLibProtocolListWithAppFilters();
 				
 				if (currentState == null || currentState == "") {
 					getExperimentDesignList.send();
@@ -2859,22 +2693,8 @@
 				} else {
 					this.useConfigurableBillingAccounts = false;
 				}
-				
+
 				getSessionTimeout.send();
-			}
-			
-			private function buildSeqLibProtocolListWithAppFilters():void {
-				this.seqLibProtocolsWithAppFilters = new XMLListCollection();
-				var dh:DictionaryHelper = new DictionaryHelper(this.dictionaryManager);
-				for each (var s:XML in dictionaryManager.getEntries('hci.gnomex.model.SeqLibProtocol')) {
-					var seq:XML = s.copy();
-					var app:Object = dh.getApplicationForProtocol(seq.@idSeqLibProtocol);
-					if (app != null) {
-						seq.@idCoreFacility = app.@idCoreFacility;
-						seq.@codeApplicationType = app.@codeApplicationType;
-					}
-					this.seqLibProtocolsWithAppFilters.addItem(seq);
-				}
 			}
 			
 			private function doesManagePlateBasedWorkflow():Boolean {
@@ -3013,7 +2833,7 @@
 						result = properties[name];
 					}
 					if (result == null) {
-						result = "";	
+						result = "";
 					}
 				}
 				return result;
@@ -3029,15 +2849,6 @@
 					}
 				}
 				return result;
-			}
-			
-			public function requireExperimentDescriptionAndName(idCoreFacility:String, codeRequestCategory:String):Boolean {
-				var result:String = getRequestCategoryProperty(idCoreFacility, codeRequestCategory, this.PROPERTY_DESCRIPTION_NAME_MANDATORY_FOR_INTERNAL_EXPERIMENTS);
-				if (result == null || result != "Y") {
-					return false;
-				} else {
-					return true;
-				}
 			}
 			
 			private function showProgress(interval:uint):void {
@@ -3074,7 +2885,7 @@
 				var emptyNode:XML = <Lab idLab='' name='' label=''/>;
 				labList = new XMLListCollection(getLabList.lastResult.Lab);
 				promptedLabList = new PromptXMLListCollection(emptyNode, new XMLListCollection(getLabList.lastResult.Lab));
-				submitRequestLabList = new XMLListCollection(getLabList.lastResult.Lab.(@canGuestSubmit == 'Y' || @canSubmitRequests == 'Y'));
+				submitRequestLabList = new XMLListCollection(getLabList.lastResult.Lab.(@canSubmitRequests == 'Y'));
 				promptedSubmitRequestLabList = new PromptXMLListCollection(emptyNode, submitRequestLabList);
 				promptedSubmitRequestLabList.refresh();
 				manageLabList = new XMLListCollection(getLabList.lastResult.Lab.(@canManage == 'Y'));
@@ -3104,10 +2915,10 @@
 			
 			private function onGetProjectList(event:ResultEvent):void {
 				getGenomeIndexList.send();
+				getAlignmentProfileList.send();
 				getOrganismList.send();
 				getPropertyList.send();
 				getIScanChipList.send();
-				getProductList.send();
 				
 				getAccountFieldsConfiguration.send();
 				
@@ -3130,13 +2941,18 @@
 				this.dispatchEvent(new GenomeIndexEvent(GenomeIndexEvent.DATA_REFRESHED));
 			}
 			
+			private function onGetAlignmentProfileList(event:ResultEvent):void {
+				alignmentProfileList = new XMLListCollection(getAlignmentProfileList.lastResult.AlignmentProfile);
+				this.dispatchEvent(new Event(AlignmentProfileEvent.DATA_REFRESHED));
+			}
+			
 			private function onGetOrganismList(event:ResultEvent):void {
 				organismList = new XMLListCollection(getOrganismList.lastResult.Organism);
 				das2OrganismList = new XMLListCollection();
 				activeOrganismList = new XMLListCollection();
-//				var emptyNode:XML = <Organism idOrganism='' bionomialName=''  das2Name = '' label='' value=''/>;
-//				das2OrganismList.addItem(emptyNode);
-//				activeOrganismList.addItem(emptyNode.copy());
+				var emptyNode:XML = <Organism idOrganism='' bionomialName=''  das2Name = '' label='' value=''/>;
+				das2OrganismList.addItem(emptyNode);
+				activeOrganismList.addItem(emptyNode.copy());
 				for each(var organism:XML in getOrganismList.lastResult.Organism) {
 					if (organism.@das2Name != '' && organism.@bionomialName != '' && organism.@isActive == 'Y') {
 						das2OrganismList.addItem(organism.copy());
@@ -3145,10 +2961,6 @@
 						activeOrganismList.addItem(organism.copy());
 					}
 				}
-				activeOrganismList.sort = new Sort();
-				activeOrganismList.sort.compareFunction = sortActiveOrganismList;
-				activeOrganismList.refresh();
-				
 				this.dispatchEvent(new OrganismEvent(OrganismEvent.DATA_REFRESHED));
 				
 				if(submitRequestView != null && submitRequestView.sampleSetupView != null) {
@@ -3169,36 +2981,11 @@
 				}
 			}
 			
-			public function sortActiveOrganismList(a:Object, b:Object, fields:Array = null ):int {
-				var so1:Number = (a.@sortOrder == '' || a.@sortOrder == null) ? Number(999999) : new Number(a.@sortOrder);
-				var so2:Number = (b.@sortOrder == '' || b.@sortOrder == null) ? Number(999999) : new Number(b.@sortOrder);
-				
-				if (so1 < so2) {
-					return -1;
-				} else if (so1 > so2) {
-					return 1;
-				} else {
-					if(a.@combinedName < b.@combinedName) return -1;
-					if(a.@combinedName > b.@combinedName) return 1;
-					return 0;
-				}
-			}
-			
 			private function onGetIScanChipList(event:ResultEvent):void {
 				iScanChipList = new XMLListCollection(getIScanChipList.lastResult..IScanChip);
 				var emptyNode:XML = <IScanChip idIScanChip='' name='' />;
 				
-				if (currentState == null || currentState == "") {
-					showProgress(10);
-					enableApp();
-				}
-			}
-			
-			private function onGetProductList(event:ResultEvent):void {
-				productList = new XMLListCollection(getProductList.lastResult..Product);
-				var emptyNode:XML = <Product idProduct='' name='' />;
-				
-				this.dispatchEvent(new ProductEvent(ProductEvent.DATA_REFRESHED));
+				this.dispatchEvent(new IScanChipEvent(IScanChipEvent.DATA_REFRESHED));
 				
 				if (currentState == null || currentState == "") {
 					showProgress(10);
@@ -3237,13 +3024,9 @@
 					PopUpManager.removePopUp(appProgressBar);
 					currentState = "enabledState";
 					stateStack.selectedChild = theViews;
-					
-					if(createSecurityAdvisor.lastResult != null && createSecurityAdvisor.lastResult.@passwordExpired == 'Y'){
-						var changePasswordWindow:ChangePassword = ChangePassword(PopUpManager.createPopUp(this.mainArea, ChangePassword, true));
-						PopUpManager.centerPopUp(changePasswordWindow);	
-					}
 
 				}
+				
 			}
 			
 			private function checkSecurityAndLaunchStartWindow():void {
@@ -3252,15 +3035,7 @@
 					if (this.homeView != null) {
 						this.homeView.init();
 					}
-					launchStartWindow();
-					if(!isGuestMode() && !isUniversityOnlyUser && (getUserEmail() == "" || getUserEmail() == null) || (this.getConfirmEmailGuid() != "" && this.getConfirmEmailGuid() != null)){
-						var verifyWindow:VerifyEmailWindow = VerifyEmailWindow(PopUpManager.createPopUp(this, VerifyEmailWindow, true));
-						verifyWindow.email = getUserEmail();
-						verifyWindow.idAppUser = this.getIdAppUser();
-						mx.managers.PopUpManager.centerPopUp(verifyWindow);
-						this.setFocus();
-					}
-					callLater(this.resizeMenuItems);
+					launchStartWindow();	        		
 				}
 			}
 			
@@ -3282,7 +3057,7 @@
 					this.showBillingAccountDetail(this.getLaunchIdLab());
 				} else if (launchWorkAuthForm() && !isGuestMode()) {
 					this.theViews.selectedChild = this.homeView;
-					callLater(showWorkAuthWindowForLaunch);
+					callLater(showWorkAuthWindow);
 				} else if (launchAppUser() && hasPermission("canAccessAnyObject")) {
 					this.showUserWindow(this.getLaunchIdAppUser());
 				} else if (launchCreateExperiment()) {
@@ -3492,10 +3267,6 @@
 					return iconGreenBullet;
 				} else if (item.name() == "Hybridization") {
 					return iconRedBullet;
-				} else if (item.name() == "ProductOrder") {
-					return iconCategory;
-				} else if (item.name() == "Product") {
-					return iconGreenBullet;
 				} else {
 					return null;
 				}
@@ -3663,7 +3434,7 @@
 			}
 			
 			
-			public function showView(menuitem:Object):void {
+			private function showView(menuitem:Object):void {
 				if (menuitem.children().length() > 0) {
 					return;
 				}
@@ -3692,7 +3463,7 @@
 				} else if (label == 'New Analysis') {
 					theViews.selectedChild = navAnalysisView;
 					navAnalysisView.showNewAnalysisWindow();
-				} else if (label == "Add Illumina HiSeq/MiSeq Services") {
+				} else if (label == "Add Services to Experiment Order") {
 					this.isInternalExperimentSubmission = true;
 					theViews.selectedChild = amendRequestView;
 				} else if (GNomExStringUtil.startsWith(label,"Upload Experiment data generated at third party facility") || GNomExStringUtil.startsWith(label,"Create New Experiment and Upload Files")) {
@@ -3731,12 +3502,6 @@
 					if (navReportView.isInitialized) {
 						navReportView.init();
 					}
-				} else if (label == "Annotation Progress Report") {
-					navReportView.reportName = "Annotation Progress Report";
-					theViews.selectedChild = navReportView;
-					if (navReportView.isInitialized) {
-						navReportView.init();
-					}
 				} else if (GNomExStringUtil.startsWith(label,"New Experiment Order")) {
 					// When beginning a new order always load a new request.
 					this.submitRequestView.request = null;
@@ -3770,7 +3535,7 @@
 					theViews.selectedChild = navRunView;				
 				} else if (label == "Results") {
 					theViews.selectedChild = navDataView;
-				} else if (label == "New Billing Account") {
+				} else if (label == "Submit Work Auth") {
 					this.homeView.showWorkAuthForm();				
 				} else if (label == "New Project") {
 					var projectDetailWindow:ProjectDetailWindow = ProjectDetailWindow(PopUpManager.createPopUp(this.theBody, ProjectDetailWindow, true));
@@ -3789,11 +3554,11 @@
 					showProtocols();
 				} else if (label == "Upload and Download Help") {
 					this.showUploadDownloadHints();
+				} else if (label == "Purchase Supplies (DNA Seq Core)") {
+					this.showPurchaseSuppliesLink();
 				} else if (label == "Configure iScan Chips") {
 					showIScanChipWindow();				
-				} else if (label == "Configure Products") {
-					showProductWindow();				
-				}  else if (label == "Bulk Sample Sheet Import") {
+				} else if (label == "Bulk Sample Sheet Import") {
 					var multiUploadWindow:UploadMultiRequestSampleSheetView = UploadMultiRequestSampleSheetView(PopUpManager.createPopUp(this.theBody, UploadMultiRequestSampleSheetView, false));
 					multiUploadWindow.init();
 					PopUpManager.centerPopUp(multiUploadWindow);
@@ -3810,25 +3575,7 @@
 					}
 				} else if (url != "") {
 					navigateToURL(new URLRequest(url), '_blank');
-				} else if (label == "Experiment Overview"){
-					theViews.selectedChild = experimentOverview;					
-				} else if (label == "Sequencer Overview"){
-					theViews.selectedChild = sequencerOverview;					
-				} else if (label == "Overview"){
-					theViews.selectedChild = expOverview;
-				} else if (GNomExStringUtil.startsWith(label, "Order Products")){
-					productOrderView.coreFacilityName = dictionaryManager.getEntryDisplay('hci.gnomex.model.CoreFacility', idCoreFacility);
-					productOrderView.idCoreFacility = idCoreFacility;
-					productOrderView.init();
-					theViews.selectedChild = productOrderView;
-				} else if (label == "Product Orders") {
-					theViews.selectedChild = navProductOrderView;
-				} else if (label == "Configure Core Facilities") {
-					showCoreFacilityWindow();				
-				} else if(label == "Product Ledger"){
-					navProductLedgerView.init();
-					theViews.selectedChild = navProductLedgerView;
-				} 
+				}
 			}
 			
 			
@@ -3871,11 +3618,9 @@
 					}
 				} else if (label== "Sign out") {
 					this.logout();
-				} else if (label == "Manage..."){
-					PopUpManager.centerPopUp(PopUpManager.createPopUp(this, ManageQuickLinks, true));
-				} else if(menuItem.@url != null && menuItem.@url != ''){
-					navigateToURL(new URLRequest(menuItem.@url), '_blank');	
-				} 
+				} else if (label== "Report Issue") {
+					takeScreenshotForReportIssue(this.theBody);
+				}
 
 			}
 
@@ -3928,15 +3673,16 @@
 				this.theViews.selectedChild = this.protocolsView;
 			}	
 			
-			private function showCoreFacilityWindow():void {
-				if (coreFacilitiesICanManage.length() >= 1) {
-					var configWindow:CoreFacilityWindow = CoreFacilityWindow(PopUpManager.createPopUp(this.theBody, CoreFacilityWindow, true));
-					PopUpManager.centerPopUp(configWindow);
+			private function showPurchaseSuppliesLink():void{
+				if (showPurchaseSupplies) {
+					var url:URLRequest = new URLRequest(getProperty(this.PROPERTY_PURCHASE_SUPPLIES_URL));
+					url.method = URLRequestMethod.POST;
+					navigateToURL(url, '_blank');
 				} else {
-					Alert.show("You must be an admin to access this feature.");
+					Alert.show("You do not have permissions to open this window.");
 				}
-				
 			}
+			
 			
 			private function showIScanChipWindow():void {
 				if (managesPlateBasedWorkflow || hasPermission(this.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
@@ -3948,15 +3694,11 @@
 				
 			}
 			
-			private function showProductWindow():void {
-				if (coreFacilitiesICanManage.length() >= 1) {
-					var configWindow:ProductWindow = ProductWindow(PopUpManager.createPopUp(this.theBody, ProductWindow, true));
-					PopUpManager.centerPopUp(configWindow);
-				} else {
-					Alert.show("You must be an admin to access this feature.");
-				}
-				
+			private function showAlignmentProfileWindow():void {
+				var apWindow:AlignmentProfileWindow = AlignmentProfileWindow(PopUpManager.createPopUp(this.theBody, AlignmentProfileWindow, true));
+				PopUpManager.centerPopUp(apWindow);				
 			}
+			
 			
 			private function showBroadcastEmailWindow():void {
 				var broadcastEmailWindow:BroadcastEmailWindow = BroadcastEmailWindow(PopUpManager.createPopUp(this.theBody, BroadcastEmailWindow, true));
@@ -3992,70 +3734,7 @@
 				if (getSampleSheetUploadURL.lastResult.name() == "UploadSampleSheetURL") {
 					uploadSampleSheetURL = getSampleSheetUploadURL.lastResult.@url;
 				}
-			}
-			
-			private function refreshNotificationHub():void{
-				homeView.refreshDashboard();
-			}
-			
-			public function getCoreFacilityName(idCoreFacility:String):String {
-				var coreFacility:Object = dictionaryManager.getEntry('hci.gnomex.model.CoreFacility', idCoreFacility);
-				return coreFacility.@facilityName.toString();
-			}
-			
-			public function getQCRequestCategoryForCore(idCoreFacility:String):Object {
-				var retObj:Object = null;
-				for each (var rc:Object in dictionaryManager.getEntriesExcludeBlank("hci.gnomex.model.RequestCategory")) {
-					if (rc.@idCoreFacility == idCoreFacility && rc.@type == 'QC') {
-						retObj = rc;
-						break;
-					}
-				}
-				return retObj;
-			}
-			
-			public function getQCAppCodesForCore(idCoreFacility:String):ArrayCollection {
-				var rc:Object = getQCRequestCategoryForCore(idCoreFacility);
-				var appCodes:ArrayCollection = new ArrayCollection();
-				for each (var apprc:Object in dictionaryManager.getEntriesExcludeBlank("hci.gnomex.model.RequestCategoryApplication")) {
-					if (apprc.@codeRequestCategory == rc.@codeRequestCategory) {
-						appCodes.addItem(apprc.@codeApplication);
-					}
-				}
-				return appCodes;
-			}
-			
-			public function applicationHasChipTypes(codeApplication:String):Boolean {
-				for each (var app:Object in dictionaryManager.getEntriesExcludeBlank("hci.gnomex.model.Application")) {
-					if (app.@codeApplication.toString() == codeApplication) {
-						if (app.@hasChipTypes.toString() == 'Y') {
-							return true;
-						} else {
-							return false;
-						}
-					}
-				}
-				return false;	
-			}
-			
-			public function getCodeApplicationForBioanalyzerChipType(codeBioanalyzerChipType:String):String {
-				var code:String = "";
-				for each (var ct:Object in dictionaryManager.getEntriesExcludeBlank("hci.gnomex.model.BioanalyzerChipType")) {
-					if (ct.@codeBioanalyzerChipType.toString() == codeBioanalyzerChipType) {
-						code = ct.@codeApplication;
-						break;
-					}
-				}
-				return code;	
-			}
-			
-			public function showNewAnalysisWindow(callingView:Object = null, idLab:Object = null, idAnalysisGroup:Object = null, idOrganism:Object = null):void {
-				this.analysisAddWindow = AnalysisAddView(PopUpManager.createPopUp(this, AnalysisAddView, false));
-				PopUpManager.centerPopUp(this.analysisAddWindow);
-				
-				this.analysisAddWindow.parentView = callingView;
-				this.analysisAddWindow.initializeData(idLab, idAnalysisGroup, idOrganism);
-			}
+			}				
 		]]>
 	</mx:Script>
 	
@@ -4079,20 +3758,12 @@
 		<menuitem label="Experiments..."  icon="iconFlask" >
 			<menuitem  label="Browse Experiments"  icon="iconFlask" />
 			<menuitem  label="New Experiment Order"  icon="iconSubmitExperiment" context="newInternalExperiment" />
-			<menuitem  label="Add Illumina HiSeq/MiSeq Services"  icon="iconEditExperiment" />
+			<menuitem  label="Add Services to Experiment Order"  icon="iconEditExperiment" />
 			<menuitem label="New Project" icon="iconFolderAdd"/>
 			<menuitem label="Upload Experiment data generated at third party facility" icon="iconAddExternalExperiment" context="newExternalExperiment"/>
-			<menuitem label="New Billing Account" icon="iconBilling"   />
+			<menuitem label="Submit Work Auth" icon="iconBilling"   />
 			<menuitem label="Orders" icon="iconOrders"   />
 			<menuitem label="Bulk Sample Sheet Import" icon="iconOrders"   />
-		</menuitem>
-		
-		<menuitem label="Products..."  icon="iconCategory" >
-			<menuitem label="Order Products" icon="iconOrders" context="newProductOrder"  />
-			<menuitem label="Product Orders" icon="iconOrders"   />
-			<menuitem label="Product Ledger" icon="iconOrders"   />
-			<menuitem label="Configure iScan Chips" icon="iconConfig" /> 
-			<menuitem label="Configure Products" icon="iconConfig" />
 		</menuitem>
 		
 		<menuitem label="Analysis" icon="iconAnalysis"  context="bioinformatics" />
@@ -4105,15 +3776,13 @@
 			<menuitem label="QC" icon="iconQC" codeStepNext="QC" context="QC"  />
 			<menuitem type="separator" context="HISEQ" label="hiseqSeparator"/>
 			<menuitem label="HiSeq - Lib Prep" icon="iconLibPrep"   codeStepNext="HSEQPREP" context="HISEQ" />
-			<menuitem label="HiSeq - Flow Cell Assembly" icon="iconHiSeq"  codeStepNext="HSEQASSEM" context="HISEQ"  />
-			<menuitem label="HiSeq - Finalize Flow Cell" icon="iconHiSeq" codeStepNext="HSEQFINFC" context="HISEQ" />
+			<menuitem label="HiSeq - Seq Run Setup" icon="iconHiSeq"  codeStepNext="HSEQASSEM" context="HISEQ"  />
 			<menuitem label="HiSeq - Data Pipeline" icon="iconPipeline"  codeStepNext="HSEQPIPE" context="HISEQ"  />
 			<menuitem label="HiSeq - Flow Cells" icon="iconFlowCell" codeStepNext="FLOWCELL" codeSequencingPlatform="HISEQ" context="HISEQ" />
 			<menuitem type="separator" context="MISEQ" label="miseqSeparator"/>
 			<menuitem label="Illumina MiSeq..." icon="iconMiSeq" context="MISEQ"  >
 				<menuitem label="Lib Prep" icon="iconLibPrep"  codeStepNext="MISEQPREP"  />
-				<menuitem label="Flow Cell Assembly" icon="iconMiSeq"  codeStepNext="MISEQASSEM"  />
-				<menuitem label="Finalize Flow Cell" icon="iconMiSeq" codeStepNext="MISEQFINFC" />
+				<menuitem label="Seq Run Setup" icon="iconMiSeq"  codeStepNext="MISEQASSEM"  />
 				<menuitem label="Pipeline" icon="iconPipeline"  codeStepNext="MISEQPIPE" />
 				<menuitem label="Flow Cells" icon="iconFlowCell" codeStepNext="FLOWCELL" codeSequencingPlatform="MISEQ" />
 			</menuitem>
@@ -4135,15 +3804,13 @@
 			<menuitem label="QC" icon="iconQC" codeStepNext="QC" context="QC"  />
 			<menuitem type="separator" context="HISEQ" label="hiseqSeparator"/>
 			<menuitem label="HiSeq - Lib Prep" icon="iconLibPrep"   codeStepNext="HSEQPREP" context="HISEQ" />
-			<menuitem label="HiSeq - Flow Cell Assembly" icon="iconHiSeq"  codeStepNext="HSEQASSEM" context="HISEQ"  />
-			<menuitem label="HiSeq - Finalize Flow Cell" icon="iconHiSeq" codeStepNext="HSEQFINFC" context="HISEQ" />
+			<menuitem label="HiSeq - Seq Run Setup" icon="iconHiSeq"  codeStepNext="HSEQASSEM" context="HISEQ"  />
 			<menuitem label="HiSeq - Data Pipeline" icon="iconPipeline"  codeStepNext="HSEQPIPE"  context="HISEQ" />
 			<menuitem label="HiSeq - Flow Cells" icon="iconFlowCell" codeStepNext="FLOWCELL" codeSequencingPlatform="HISEQ" context="HISEQ" />
 			<menuitem type="separator" context="MISEQ" label="miseqSeparator"/>
 			<menuitem label="Illumina MiSeq..." icon="iconMiSeq" context="MISEQ"  >
 				<menuitem label="Lib Prep" icon="iconLibPrep"  codeStepNext="MISEQPREP"  />
-				<menuitem label="Flow Cell Assembly" icon="iconMiSeq"  codeStepNext="MISEQASSEM"  />
-				<menuitem label="Finalize Flow Cell" icon="iconMiSeq" codeStepNext="MISEQFINFC" />
+				<menuitem label="Seq Run Setup" icon="iconMiSeq"  codeStepNext="MISEQASSEM"  />
 				<menuitem label="Pipeline" icon="iconPipeline"  codeStepNext="MISEQPIPE" />
 				<menuitem label="Flow Cells" icon="iconFlowCell" codeStepNext="FLOWCELL" codeSequencingPlatform="MISEQ" />
 			</menuitem>
@@ -4165,23 +3832,27 @@
 		
 		<menuitem label="Configure..." icon="iconConfig"   >
 			<menuitem  label="Add/Edit Dictionaries"  icon="iconBook" />
-			<menuitem label="Configure Core Facilities" icon="iconConfig" /> 
 			<menuitem label="Configure Annotations" icon="iconConfig" />
 			<menuitem label="Configure Experiment Platform" icon="iconConfig" />
 			<menuitem label="Configure Organisms and Genome Builds" icon="iconConfig" />
 			<menuitem label="Manage Microarray Catalog" icon="iconSlide" />
 			<menuitem label="Manage Protocols" icon="iconProtocol" />
 			<menuitem label="Configure Billing Account Fields" icon="iconConfigureBillingAccounts"  />
+			<menuitem label="Configure iScan Chips" icon="iconConfig" />
 		</menuitem>
 		
 		<menuitem label="Reports..."  icon="iconPage" >
 			<menuitem label="Track Usage"  icon="iconUsage"/>
 			<menuitem label="Annotation Report" icon="iconPage" />
-			<menuitem label="Annotation Progress Report" icon="iconPage" />
 			<menuitem label="Project/Experiment Report" icon="iconFlask" />
 			<menuitem label="Send email to all GNomEx users" icon="iconEmail"/>
 			
 		</menuitem>
+		
+		<menuitem label="Links..." icon="iconLinks" context="otherLinks" >
+			<menuitem label="Purchase Supplies (DNA Seq Core)"  context="purchaseSuppliesLink" />
+		</menuitem>
+
 		
 	</mx:XMLList>
 	
@@ -4193,33 +3864,11 @@
 		
 		<menuitem label="Users &amp; Groups" icon="iconUsers"   />
 		
-		<menuitem label="New Billing Account" icon="iconBilling"   />
+		<menuitem label="Submit Work Auth" icon="iconBilling"   />
 		
 		<menuitem label="Reports..."  icon="iconPage" >
 			<menuitem label="Track Usage"  icon="iconUsage"/>
 			<menuitem label="Annotation Report" icon="iconPage" />
-			<menuitem label="Annotation Progress Report" icon="iconPage" />
-			<menuitem label="Project/Experiment Report" icon="iconFlask" />
-		</menuitem>
-		
-	</mx:XMLList>
-	
-	<mx:XMLList id="billingAdminSubmitterMenu">
-		<menuitem label="Experiments..."  icon="iconFlask" >
-			<menuitem  label="Browse Experiments"  icon="iconFlask" />
-			<menuitem  label="New Experiment Order"  icon="iconSubmitExperiment" context="newInternalExperiment"/>
-		</menuitem>
-		
-		<menuitem label="Billing" icon="iconBilling"   />
-		
-		<menuitem label="Users &amp; Groups" icon="iconUsers"   />
-		
-		<menuitem label="New Billing Account" icon="iconBilling"   />
-		
-		<menuitem label="Reports..."  icon="iconPage" >
-			<menuitem label="Track Usage"  icon="iconUsage"/>
-			<menuitem label="Annotation Report" icon="iconPage" />
-			<menuitem label="Annotation Progress Report" icon="iconPage" />
 			<menuitem label="Project/Experiment Report" icon="iconFlask" />
 		</menuitem>
 		
@@ -4244,7 +3893,6 @@
 		
 		<menuitem label="Configure..." icon="iconConfig"   >
 			<menuitem  label="Add/Edit Dictionaries"  icon="iconBook" />
-			<menuitem label="Configure Core Facilities" icon="iconConfig" /> 
 			<menuitem label="Configure Annotations" icon="iconConfig" />
 			<menuitem label="Configure Experiment Platform" icon="iconConfig" />
 			<menuitem label="Configure Organisms and Genome Builds" icon="iconConfig" />
@@ -4255,7 +3903,6 @@
 		<menuitem label="Reports..."  icon="iconPage" >
 			<menuitem label="Track Usage"  icon="iconUsage"/>
 			<menuitem label="Annotation Report" icon="iconPage" />
-			<menuitem label="Annotation Progress Report" icon="iconPage" />
 			<menuitem label="Project/Experiment Report" icon="iconFlask" />
 			<menuitem label="Send email to all GNomEx users" icon="iconEmail"/>
 		</menuitem>
@@ -4288,7 +3935,6 @@
 		<menuitem label="Reports..."  icon="iconPage" >
 			<menuitem label="Track Usage"  icon="iconUsage"/>
 			<menuitem label="Annotation Report" icon="iconPage" />
-			<menuitem label="Annotation Progress Report" icon="iconPage" />
 			<menuitem label="Project/Experiment Report" icon="iconFlask" />
 		</menuitem>
 		
@@ -4316,7 +3962,6 @@
 		<menuitem label="Reports..."  icon="iconPage" >
 			<menuitem label="Track Usage"  icon="iconUsage"/>
 			<menuitem label="Annotation Report" icon="iconPage" />
-			<menuitem label="Annotation Progress Report" icon="iconPage" />
 			<menuitem label="Project/Experiment Report" icon="iconFlask" />
 		</menuitem>
 		
@@ -4335,30 +3980,20 @@
 			<menuitem  label="New Experiment Order"  icon="iconSubmitExperiment" context="newInternalExperiment"/>
 			<menuitem label="New Project" icon="iconFolderAdd"/>
 			<menuitem label="Upload Experiment data generated at third party facility" icon="iconAddExternalExperiment" context="newExternalExperiment"/>
-			<menuitem label="New Billing Account" icon="iconBilling"   />
+			<menuitem label="Submit Work Auth" icon="iconBilling"   />
 		</menuitem>
 		
-		<menuitem label="Products..."  icon="iconCategory" >
-			<menuitem label="Order Products" icon="iconOrders" context="newProductOrder"  />
-			<menuitem label="Product Orders" icon="iconOrders"   />
-			<menuitem label="Product Ledger" icon="iconOrders"   />
-			<menuitem label="Configure iScan Chips" icon="iconConfig" /> 
-			<menuitem label="Configure Products" icon="iconConfig" />
-		</menuitem>
-		 
 		<menuitem label="Workflow..." icon="iconWorkflow"  >
 			<menuitem label="QC" icon="iconQC" codeStepNext="QC" context="QC"   />
 			<menuitem type="separator" context="HISEQ" label="hiseqSeparator"/>
 			<menuitem label="HiSeq - Lib Prep" icon="iconLibPrep"   codeStepNext="HSEQPREP" context="HISEQ" />
-			<menuitem label="HiSeq - Flow Cell Assembly" icon="iconHiSeq"  codeStepNext="HSEQASSEM" context="HISEQ"  />
-			<menuitem label="HiSeq - Finalize Flow Cell" icon="iconHiSeq" codeStepNext="HSEQFINFC" context="HISEQ" />
+			<menuitem label="HiSeq - Seq Run Setup" icon="iconHiSeq"  codeStepNext="HSEQASSEM" context="HISEQ"  />
 			<menuitem label="HiSeq - Data Pipeline" icon="iconPipeline"  codeStepNext="HSEQPIPE" context="HISEQ"  />
 			<menuitem label="HiSeq - Flow Cells" icon="iconFlowCell" codeStepNext="FLOWCELL" codeSequencingPlatform="HISEQ" context="HISEQ" />
 			<menuitem type="separator" context="MISEQ" label="miseqSeparator"/>
 			<menuitem label="Illumina MiSeq..." icon="iconMiSeq" context="MISEQ"  >
 				<menuitem label="Lib Prep" icon="iconLibPrep"  codeStepNext="MISEQPREP"  />
-				<menuitem label="Flow Cell Assembly" icon="iconMiSeq"  codeStepNext="MISEQASSEM"  />
-				<menuitem label="Finalize Flow Cell" icon="iconMiSeq" codeStepNext="MISEQFINFC" />
+				<menuitem label="Seq Run Setup" icon="iconMiSeq"  codeStepNext="MISEQASSEM"  />
 				<menuitem label="Pipeline" icon="iconPipeline"  codeStepNext="MISEQPIPE" />
 				<menuitem label="Flow Cells" icon="iconFlowCell" codeStepNext="FLOWCELL" codeSequencingPlatform="MISEQ" />
 			</menuitem>
@@ -4386,19 +4021,20 @@
 		
 		<menuitem label="Configure..." icon="iconConfig"   >
 			<menuitem  label="Add/Edit Dictionaries"  icon="iconBook" />
-			<menuitem label="Configure Core Facilities" icon="iconConfig" /> 
 			<menuitem label="Configure Experiment Platform" icon="iconConfig" />
 			<menuitem label="Configure Billing Account Fields" icon="iconConfigureBillingAccounts"  />
 			<menuitem label="Protocols" icon="iconProtocol" />
 			<menuitem label="Configure iScan Chips" icon="iconConfig" />
-			<menuitem label="Configure Products" icon="iconConfig" />
 		</menuitem>
 		
 		<menuitem label="Reports..."  icon="iconPage" >
 			<menuitem label="Track Usage"  icon="iconUsage"/>
 			<menuitem label="Annotation Report" icon="iconPage" />
-			<menuitem label="Annotation Progress Report" icon="iconPage" />
 			<menuitem label="Project/Experiment Report" icon="iconFlask" />
+		</menuitem>
+		
+		<menuitem label="Links..." icon="iconLinks" context="otherLinks">
+			<menuitem label="Purchase Supplies (DNA Seq Core)"  context="purchaseSuppliesLink" />
 		</menuitem>
 		
 	</mx:XMLList>
@@ -4409,17 +4045,10 @@
 		<menuitem label="Experiments..."  icon="iconFlask" >
 			<menuitem  label="Browse Experiments"  icon="iconFlask" />
 			<menuitem  label="New Experiment Order"  icon="iconSubmitExperiment" context="newInternalExperiment"/>
-			<menuitem  label="Add Illumina HiSeq/MiSeq Services"  icon="iconEditExperiment" />
+			<menuitem  label="Add Services to Experiment Order"  icon="iconEditExperiment" />
 			<menuitem label="New Project" icon="iconFolderAdd"/>
 			<menuitem label="Upload Experiment data generated at third party facility" icon="iconAddExternalExperiment" context="newExternalExperiment"/>
-			<menuitem label="New Billing Account" icon="iconBilling"   />
-		</menuitem>
-		
-		
-		<menuitem label="Products..."  icon="iconCategory" >
-			<menuitem label="Order Products" icon="iconOrders" context="newProductOrder"  />
-			<menuitem label="Product Orders" icon="iconOrders"   />
-			<menuitem label="Product Ledger" icon="iconOrders"   />
+			<menuitem label="Submit Work Auth" icon="iconBilling"   />
 		</menuitem>
 		
 		
@@ -4439,10 +4068,14 @@
 		<menuitem label="Reports..."  icon="iconPage" >
 			<menuitem label="Track Usage"  icon="iconUsage" context="usage"/>
 			<menuitem label="Annotation Report" icon="iconPage" />
-			<menuitem label="Annotation Progress Report" icon="iconPage" />
 			<menuitem label="Project/Experiment Report" icon="iconFlask" />			
 		</menuitem>
+		
+		<menuitem label="Useful Links..." icon="iconLinks" context="otherLinks">
+			<menuitem label="Purchase Supplies (DNA Seq Core)" context="purchaseSuppliesLink" />
+		</menuitem>
 
+		
 	</mx:XMLList>
 	
 	
@@ -4450,10 +4083,10 @@
 		<menuitem label="Experiments..."  icon="iconFlask" >
 			<menuitem  label="Browse Experiments"  icon="iconFlask" />
 			<menuitem  label="New Experiment Order"  icon="iconSubmitExperiment" context="newInternalExperiment"/>
-			<menuitem  label="Add Illumina HiSeq/MiSeq Services"  icon="iconEditExperiment" />
+			<menuitem  label="Add Services to Experiment Order"  icon="iconEditExperiment" />
 			<menuitem label="New Project" icon="iconFolderAdd"/>
 			<menuitem label="Upload Experiment data generated at third party facility" icon="iconAddExternalExperiment" context="newExternalExperiment"/>
-			<menuitem label="New Billing Account" icon="iconBilling"   />
+			<menuitem label="Submit Work Auth" icon="iconBilling"   />
 		</menuitem>
 		
 		
@@ -4474,9 +4107,13 @@
 		<menuitem label="Reports..."  icon="iconPage" >
 			<menuitem label="Track Usage"  icon="iconUsage"/>
 			<menuitem label="Annotation Report" icon="iconPage" />
-			<menuitem label="Annotation Progress Report" icon="iconPage" />
 			<menuitem label="Project/Experiment Report" icon="iconFlask" />
 		</menuitem>
+		
+		<menuitem label="Useful Links..." icon="iconLinks" context="otherLinks">
+			<menuitem label="Purchase Supplies (DNA Seq Core)"  context="purchaseSuppliesLink" />
+		</menuitem>
+		
 		
 	</mx:XMLList>
 	
@@ -4497,7 +4134,7 @@
 		<menuitem label="Experiments"  icon="iconFlask" >
 		</menuitem>
 		
-		<menuitem label="New Billing Account" icon="iconBilling" context="guest"  />
+		<menuitem label="Submit Work Auth" icon="iconBilling" context="guest"  />
 		
 		<menuitem label="Analysis" icon="iconAnalysis"   />
 		
@@ -4512,18 +4149,15 @@
 	
 	
 	<mx:XMLList id="topMenu">
-		<menuitem label="Links..." context="quickLinks" />
+		<menuitem label="Home"/>
+		<menuitem label="My Account"  />
 		<menuitem label="Help..."  >
 			<menuitem label="Enable Help Edit" icon="iconEmptyInformation" context="helpEdit"/>
 			<menuitem label="User Guide"  />
 			<menuitem label="About" />
-			<menuitem label="Contact Us"   />
 		</menuitem>
-		<menuitem label="Account..."  >
-			<menuitem label="My Account"  />
-			<menuitem label="Sign out"  />
-		</menuitem>
-		
+		<menuitem label="Contact Us"   />
+		<menuitem label="Sign out"  />
 	</mx:XMLList>
 	
 	<mx:VBox id="theBody"
@@ -4549,7 +4183,7 @@
 							 paddingTop="0" 
 							 paddingLeft="8" paddingRight="0" borderStyle="none">
 						<mx:HBox  paddingTop="12">
-							<mx:Image source="{siteLogo}"  useHandCursor="true" buttonMode="true" click="{theViews.selectedChild = homeView; refreshNotificationHub();}"/> 
+							<mx:Image source="{siteLogo}" useHandCursor="true" buttonMode="true" click="{theViews.selectedChild = homeView}"/> 
 						</mx:HBox>
 						<mx:Spacer width="100%"/>
 						<mx:HBox  horizontalGap="2" paddingTop="8" verticalAlign="middle" defaultButton="{lookupButton}" id="hbox4" height="36" paddingLeft="10">
@@ -4573,7 +4207,7 @@
 						
 						<mx:Spacer width="100%"/>
 						<mx:HBox  horizontalGap="4" paddingTop="0" verticalAlign="top">
-							<mx:LinkButton label="Get Help"   click="{takeScreenshotForReportIssue(this.theBody)}" textDecoration="underline" color="0xFF0000"/>
+							<mx:LinkButton label="Report Problem"   click="{takeScreenshotForReportIssue(this.theBody)}" textDecoration="underline" color="0xFF0000"/>
 							<mx:MenuBar  id="topMenuBar"  styleName="topMenuBar"   dataProvider="{topMenu}" 
 									  itemClick="{onTopMenuSelect(event)}"  
 									  click="{onTopMenuClick(event)}"
@@ -4603,14 +4237,7 @@
 				<mx:ViewStack id="theViews" visible="true" width="100%" height="100%"  show="this.checkSecurityAndLaunchStartWindow()"  creationPolicy="auto" paddingTop="0" paddingBottom="0" creationComplete="this.checkSecurityAndLaunchStartWindow()" >
 					
 					<util:WelcomeView id="homeView" label="Home" icon="@Embed('assets/house.png')" >
-					</util:WelcomeView>
-					
-					<dashboard:ExperimentOverview id="experimentOverview" label="Experiment Overview" />
-					
-					<dashboard:ExpOverview id="expOverview" label="Overview" />
-					
-					<dashboard:SequencerOverview id="sequencerOverview" label="Sequencer Overview" />
-
+					</util:WelcomeView>  
 					
 					<experiment:ExperimentEditView id="submitRequestView" label="{!isInternalExperimentSubmission ? 'Register Experiment' : 'New Experiment Order'}" 
 												   icon="{isInternalExperimentSubmission ? iconSubmitExperiment : iconAddExternalExperiment}"  width="100%" height="100%">
@@ -4667,15 +4294,6 @@
 					<report:NavReportView id="navReportView" width="100%" height="100%" backgroundAlpha="1.0">
 					</report:NavReportView>
 					
-					<product:NewProductOrderView id="productOrderView" width="100%" height="100%" backgroundAlpha="1.0">
-					</product:NewProductOrderView>
-					
-					<product:NavLedgerView id="navProductLedgerView" width="100%" height="100%" backgroundAlpha="1.0">
-					</product:NavLedgerView>
-					
-					<product:NavProductOrderView id="navProductOrderView" width="100%" height="100%" backgroundAlpha="1.0">
-					</product:NavProductOrderView>
-					
 				</mx:ViewStack>
 				
 			</mx:ViewStack>
@@ -4710,10 +4328,6 @@
 		
 		<mx:State name="BillingAdminState" basedOn="enabledState">
 			<mx:SetProperty target="{mainMenu}" name="dataProvider" value="{billingAdminMenu}"/>
-		</mx:State>
-		
-		<mx:State name="BillingAdminSubmitterState" basedOn="enabledState">
-			<mx:SetProperty target="{mainMenu}" name="dataProvider" value="{billingAdminSubmitterMenu}"/>
 		</mx:State>
 		
 		<mx:State name="UserState" basedOn="enabledState">

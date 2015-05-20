@@ -200,7 +200,7 @@
 					</mx:VBox>
 				</mx:HBox>
 			</mx:ViewStack>
-				<mx:Label text="Select experiment type(s) to add..." left="10" top="142" height="18" width="432" id="label5"/>
+				<mx:Label text="Select application(s) to add..." left="10" top="142" height="18" width="432" id="label5"/>
 
 			<mx:VBox left="213" top="79" width="507" id="vbox1" verticalAlign="top" height="179" backgroundColor="#FFFFFF" verticalGap="0">
 				<mx:Repeater dataProvider="{finalAppList}"

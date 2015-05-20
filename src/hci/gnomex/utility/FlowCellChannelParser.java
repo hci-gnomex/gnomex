@@ -4,15 +4,12 @@ package hci.gnomex.utility;
 import hci.framework.model.DetailObject;
 import hci.gnomex.model.FlowCellChannel;
 import hci.gnomex.model.SequenceLane;
-import hci.gnomex.model.WorkItem;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.sql.Date;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
 
@@ -33,10 +30,7 @@ public class FlowCellChannelParser extends DetailObject implements Serializable
   public void init() {
     channelMap = new HashMap();
   }
-  // this method depends on all of the Flow Cell's channel being sent in the doc, if an entire channel was deleted, this will not work! 
-  //  It depends on hibernate's cacade=all to delete the channel and all sequence lanes in SaveFlowCell
-  // now that we no longer use cascade=all, and in order to allow sequence lanes to move backward in the workflow
-  // we need to manage their work items individually and not just delete the sequence lanes when they are removed from a channel
+
   public void parse(Session sess) throws Exception {
     FlowCellChannel channel = new FlowCellChannel();
     Element root = this.doc.getRootElement();
@@ -47,25 +41,14 @@ public class FlowCellChannelParser extends DetailObject implements Serializable
       Element node = (Element) i.next();
 
       String idFlowCellChannelString = node.getAttributeValue("idFlowCellChannel");
-      // Is this HISEQ or MISEQ?
-      String codeStepNext = "";
-      // What is the core?
-      Integer idCoreFacility = -1;
-      List workItems = sess.createQuery("SELECT wi from WorkItem wi where idFlowCellChannel = " + idFlowCellChannelString).list();
-      for (Iterator i1 = workItems.iterator(); i1.hasNext();) {
-        WorkItem wi = (WorkItem)i1.next();
-        codeStepNext = wi.getCodeStepNext();
-        idCoreFacility = wi.getIdCoreFacility();
-        break;
-      }
 
       if (idFlowCellChannelString.startsWith("FlowCellChannel")
           || idFlowCellChannelString.equals("")) {
-
+        
         isNewChannel = true;
         channel = new FlowCellChannel();
         channel.setSequenceLanes(new TreeSet(new LaneComparator()));
-
+        
       } else {
         isNewChannel = false;
         channel = (FlowCellChannel) sess.get(FlowCellChannel.class,
@@ -76,9 +59,9 @@ public class FlowCellChannelParser extends DetailObject implements Serializable
 
       if (node.getChild("sequenceLanes") != null
           && !node.getChild("sequenceLanes").getChildren("SequenceLane").isEmpty()) {
-
+        
         for (Iterator i1 = node.getChild("sequenceLanes").getChildren(
-        "SequenceLane").iterator(); i1.hasNext();) {
+            "SequenceLane").iterator(); i1.hasNext();) {
           Boolean isNewLane = false;
           SequenceLane sl = new SequenceLane();
 
@@ -87,7 +70,7 @@ public class FlowCellChannelParser extends DetailObject implements Serializable
 
           if (idSequenceLaneString.startsWith("SequenceLane")
               || idSequenceLaneString.equals("")) {
-
+            
             isNewLane = true;
             sl = new SequenceLane();
           } else {
@@ -107,7 +90,7 @@ public class FlowCellChannelParser extends DetailObject implements Serializable
       }
 
       //
-      // Remove lanes which have been deleted by the user
+      // Remove lanes
       //
       if (channel.getSequenceLanes() != null
           || !channel.getSequenceLanes().isEmpty()) {
@@ -116,32 +99,18 @@ public class FlowCellChannelParser extends DetailObject implements Serializable
         for (Iterator i2 = channel.getSequenceLanes().iterator(); i2.hasNext();) {
           SequenceLane existingLane = (SequenceLane) i2.next();
           if (!sequenceLaneMap.containsKey(existingLane.getIdSequenceLane().toString())) {
-            lanesToDelete.add(existingLane); // delete lane if it was stored in this channel but was not sent in the request (meaning the user deleted it from the channel)
+            lanesToDelete.add(existingLane);
           }
         }
         for (Iterator i2 = lanesToDelete.iterator(); i2.hasNext();) {
           SequenceLane laneToDelete = (SequenceLane) i2.next();
           channel.getSequenceLanes().remove(laneToDelete);
           laneToDelete.setIdFlowCellChannel(null);
-          // create a work item to move the sequence lane back to the assembly stage
-          WorkItem wi = new WorkItem();
-          wi.setIdRequest(laneToDelete.getIdRequest());
-          wi.setSequenceLane(laneToDelete);
-          wi.setCreateDate(new Date(System.currentTimeMillis()));
-          if(idCoreFacility > 0) {
-            wi.setIdCoreFacility(idCoreFacility);
-          }
-          if(codeStepNext.equals("HSEQFINFC") || codeStepNext.equals("HSEQPIPE")) {
-            wi.setCodeStepNext("HSEQASSEM");  
-          } else if (codeStepNext.equals("MISEQFINFC") || codeStepNext.equals("MISEQPIPE")) {
-            wi.setCodeStepNext("MISEQASSEM");
-          }
-          sess.save(wi);         
         }
       }
 
       //
-      // Save newly added lanes to channel
+      // Save lanes
       //
       for (Iterator i2 = sequenceLaneMap.keySet().iterator(); i2.hasNext();) {
         String idLaneString = (String) i2.next();
@@ -151,13 +120,13 @@ public class FlowCellChannelParser extends DetailObject implements Serializable
         if (!isNewChannel) {
           if (channel.getSequenceLanes() != null
               || !channel.getSequenceLanes().isEmpty()) {
-
+            
             for (Iterator i3 = channel.getSequenceLanes().iterator(); i3.hasNext();) {
               SequenceLane existingLane = (SequenceLane) i3.next();
-
+              
               if (existingLane.getIdSequenceLane().equals(
                   sl.getIdSequenceLane())) {
-
+                
                 exists = true;
               }
             }
@@ -166,14 +135,6 @@ public class FlowCellChannelParser extends DetailObject implements Serializable
         // New sequence lane -- add it to the list
         if (!exists) {
           channel.getSequenceLanes().add(sl);
-          // delete the work item for the sequence lane
-          workItems = sess.createQuery("SELECT wi from WorkItem wi where idSequenceLane = " + sl.getIdSequenceLane()).list();
-          for (Iterator i1 = workItems.iterator(); i1.hasNext();) {
-            WorkItem wi = (WorkItem)i1.next();
-            sess.delete(wi);
-            break;
-          }
-
         }
       }
 
@@ -189,22 +150,22 @@ public class FlowCellChannelParser extends DetailObject implements Serializable
 
   protected void initializeFlowCellChannel(Session sess, Element n,
       FlowCellChannel channel) throws Exception {
-
+    
     if (n.getAttributeValue("number") != null
         && !n.getAttributeValue("number").equals("")) {
-
+      
       channel.setNumber(new Integer(n.getAttributeValue("number")));
     } else {
       channel.setNumber(null);
     }
     if (n.getAttributeValue("idFlowCell") != null
         && !n.getAttributeValue("idFlowCell").equals("")) {
-
+      
       channel.setIdFlowCell(new Integer(n.getAttributeValue("idFlowCell")));
     }
     if (n.getAttributeValue("idSequencingControl") != null
         && !n.getAttributeValue("idSequencingControl").equals("")) {
-
+      
       channel.setIdSequencingControl(new Integer(
           n.getAttributeValue("idSequencingControl")));
     } else{
@@ -212,45 +173,45 @@ public class FlowCellChannelParser extends DetailObject implements Serializable
     }
     if (n.getAttributeValue("startDate") != null
         && !n.getAttributeValue("startDate").equals("")){
-
+      
       channel.setStartDate(this.parseDate(n.getAttributeValue("startDate")));
     } else {
       channel.setStartDate(null);
     }
     if (n.getAttributeValue("firstCycleDate") != null
         && !n.getAttributeValue("firstCycleDate").equals("")){
-
+      
       channel.setFirstCycleDate(this.parseDate(n.getAttributeValue("firstCycleDate")));
     } else {
       channel.setFirstCycleDate(null);
     }
     if (n.getAttributeValue("firstCycleDate") != null
         && !n.getAttributeValue("firstCycleDate").equals("")){
-
+      
       channel.setFirstCycleDate(this.parseDate(n.getAttributeValue("firstCycleDate")));
     } else {
       channel.setFirstCycleDate(null);
     }
     if (n.getAttributeValue("firstCycleFailed") != null
         && !n.getAttributeValue("firstCycleFailed").equals("")){
-
+      
       channel.setFirstCycleFailed(n.getAttributeValue("firstCycleFailed"));
     }
     if (n.getAttributeValue("lastCycleDate") != null
         && !n.getAttributeValue("lastCycleDate").equals("")){
-
+      
       channel.setLastCycleDate(this.parseDate(n.getAttributeValue("lastCycleDate")));
     } else {
       channel.setLastCycleDate(null);
     }
     if (n.getAttributeValue("lastCycleFailed") != null
         && !n.getAttributeValue("lastCycleFailed").equals("")){
-
+      
       channel.setLastCycleFailed(n.getAttributeValue("lastCycleFailed"));
     }
     if (n.getAttributeValue("clustersPerTile") != null
         && !n.getAttributeValue("clustersPerTile").equals("")){
-
+      
       channel.setClustersPerTile(new Integer(
           n.getAttributeValue("clustersPerTile")));
     } else {
@@ -258,12 +219,12 @@ public class FlowCellChannelParser extends DetailObject implements Serializable
     }
     if (n.getAttributeValue("fileName") != null
         && !n.getAttributeValue("fileName").equals("")){
-
+      
       channel.setFileName(n.getAttributeValue("fileName"));
     }
     if (n.getAttributeValue("sampleConcentrationpM") != null
         && !n.getAttributeValue("sampleConcentrationpM").equals("")){
-
+      
       channel.setSampleConcentrationpM(new BigDecimal(
           n.getAttributeValue("sampleConcentrationpM")));
     } else {
@@ -271,7 +232,7 @@ public class FlowCellChannelParser extends DetailObject implements Serializable
     }
     if (n.getAttributeValue("numberSequencingCyclesActual") != null
         && !n.getAttributeValue("numberSequencingCyclesActual").equals("")){
-
+      
       channel.setNumberSequencingCyclesActual(new Integer(
           n.getAttributeValue("numberSequencingCyclesActual")));
     } else {
@@ -279,24 +240,24 @@ public class FlowCellChannelParser extends DetailObject implements Serializable
     }
     if (n.getAttributeValue("pipelineDate") != null
         && !n.getAttributeValue("pipelineDate").equals("")){
-
+      
       channel.setPipelineDate(this.parseDate(n.getAttributeValue("pipelineDate")));
     } else {
       channel.setPipelineDate(null);
     }
     if (n.getAttributeValue("pipelineFailed") != null
         && !n.getAttributeValue("pipelineFailed").equals("")){
-
+      
       channel.setPipelineFailed(n.getAttributeValue("pipelineFailed"));
     }
     if (n.getAttributeValue("isControl") != null
         && !n.getAttributeValue("isControl").equals("")){
-
+      
       channel.setIsControl(n.getAttributeValue("isControl"));
     }
     if (n.getAttributeValue("phiXErrorRate") != null
         && !n.getAttributeValue("phiXErrorRate").equals("")){
-
+      
       channel.setPhiXErrorRate(new BigDecimal(
           n.getAttributeValue("phiXErrorRate")));
     } else {
@@ -304,25 +265,17 @@ public class FlowCellChannelParser extends DetailObject implements Serializable
     }
     if (n.getAttributeValue("read1ClustersPassedFilterM") != null
         && !n.getAttributeValue("read1ClustersPassedFilterM").equals("")){
-
+      
       channel.setRead1ClustersPassedFilterM(new BigDecimal(n.getAttributeValue("read1ClustersPassedFilterM")));
     } else {
       channel.setRead1ClustersPassedFilterM(null);
     }
     if (n.getAttributeValue("q30PercentForDisplay") != null
         && !n.getAttributeValue("q30PercentForDisplay").equals("")){
-
+      
       channel.setQ30Percent(new BigDecimal(n.getAttributeValue("q30PercentForDisplay")).movePointLeft(2));
     } else {
       channel.setQ30Percent(null);
-    }
-
-    if (n.getAttributeValue("sampleConcentrationpM") != null
-        && !n.getAttributeValue("sampleConcentrationpM").equals("")){
-
-      channel.setSampleConcentrationpM(new BigDecimal(n.getAttributeValue("sampleConcentrationpM")));
-    } else {
-      channel.setSampleConcentrationpM(null);
     }
   }
 

@@ -9,7 +9,6 @@ import java.util.TreeSet;
 
 
 public class PriceCategory extends DictionaryEntry implements Comparable, Serializable {
-  
   private Integer  idPriceCategory;
   private String   name;
   private String   description;
@@ -23,6 +22,8 @@ public class PriceCategory extends DictionaryEntry implements Comparable, Serial
   
   public String getDisplay() {
     String display = this.getNonNullString(getName());
+    
+
     return display;
   }
 
@@ -31,6 +32,7 @@ public class PriceCategory extends DictionaryEntry implements Comparable, Serial
   }
 
 
+  
   public Integer getIdPriceCategory() {
     return idPriceCategory;
   }

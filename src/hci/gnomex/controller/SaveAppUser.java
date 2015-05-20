@@ -7,7 +7,7 @@ import hci.gnomex.model.CoreFacility;
 import hci.gnomex.model.Lab;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.UserPermissionKind;
-import hci.gnomex.security.EncryptionUtility;
+import hci.gnomex.security.EncrypterService;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.MailUtil;
@@ -46,10 +46,8 @@ public class SaveAppUser extends GNomExCommand implements Serializable {
   private AppUser                         appUserScreen;
   private boolean                         isNewAppUser = false;
   private ArrayList<CoreFacilityCheck>    managingCoreFacilityIds;
-  private ArrayList<CoreFacilityCheck>    coreFacilityIdsICanSubmitTo;
   private String                          url;
   private String                          isWebForm = "Y";
-  private EncryptionUtility               passwordEncrypter;
   
   
   public void validate() {
@@ -99,30 +97,6 @@ public class SaveAppUser extends GNomExCommand implements Serializable {
         this.addInvalidField( "managingCoreFacilitiesString", "Invalid search xml");
       }
     }
-    coreFacilityIdsICanSubmitTo = new ArrayList<CoreFacilityCheck>();
-    String coreFacilitiesICanSubmitToString = request.getParameter("coreFacilitiesUserCanSubmitTo");
-    if (coreFacilitiesICanSubmitToString != null && coreFacilitiesICanSubmitToString.length() > 0) {
-      coreFacilitiesICanSubmitToString = coreFacilitiesICanSubmitToString.replaceAll("&", "&amp;");
-      coreFacilitiesICanSubmitToString = "<coreFacilitiesICanSubmitTo>" + coreFacilitiesICanSubmitToString + "</coreFacilitiesICanSubmitTo>";
-      StringReader reader = new StringReader(coreFacilitiesICanSubmitToString);
-      try {
-        SAXBuilder sax = new SAXBuilder();
-        org.jdom.Document searchDoc = sax.build(reader);
-        Element rootNode = searchDoc.getRootElement();
-        for(Iterator i = rootNode.getChildren("coreFacility").iterator(); i.hasNext();) {
-          Element facilityNode = (Element)i.next();
-          String selected = facilityNode.getAttributeValue("selected");
-          String idString = facilityNode.getAttributeValue("value");
-          CoreFacilityCheck chk = new CoreFacilityCheck();
-          chk.idCoreFacility = Integer.parseInt(idString);
-          chk.selected = selected;
-          coreFacilityIdsICanSubmitTo.add(chk);
-        }
-      } catch (Exception je ) {
-        log.error( "Cannot parse coreFacilitiesICanSubmitToString", je );
-        this.addInvalidField( "coreFacilitiesICanSubmitToString", "Invalid search xml");
-      }
-    }
   }
 
   public Command execute() throws RollBackCommandException {
@@ -136,15 +110,12 @@ public class SaveAppUser extends GNomExCommand implements Serializable {
       if (this.getSecurityAdvisor().hasPermission(SecurityAdvisor.CAN_ADMINISTER_USERS)) {
         AppUser appUser = null;
         
-        passwordEncrypter = new EncryptionUtility();
-        
         boolean checkUsername = true;
         boolean isUsedUsername = false;
         boolean isUseduNID = false;
         boolean isManageFacilityError = false;
         boolean isNullEmail = false;
         boolean isBadEmail = false;
-        Boolean isNoLogon = false;
         Object [] user = null;
         
         if (appUserScreen.getuNID() != null && 
@@ -186,17 +157,13 @@ public class SaveAppUser extends GNomExCommand implements Serializable {
                 appUser.setuNID(null);
               }
               if (appUser.getPasswordExternal() != null && !appUser.getPasswordExternal().equals("") && !appUser.getPasswordExternal().equals(AppUser.MASKED_PASSWORD)) {
-                String salt = passwordEncrypter.createSalt();
-                String encryptedPassword = passwordEncrypter.createPassword(appUser.getPasswordExternal(), salt);
-                appUser.setSalt(salt);
-                appUser.setPasswordExpired("N");
+                String encryptedPassword = EncrypterService.getInstance().encrypt(appUser.getPasswordExternal());
                 appUser.setPasswordExternal(encryptedPassword);      
               }
               
             }
            
             appUser.setManagingCoreFacilities(new HashSet());
-            appUser.setCoreFacilitiesICanSubmitTo(new HashSet());
             sess.save(appUser);
             
           }
@@ -221,12 +188,6 @@ public class SaveAppUser extends GNomExCommand implements Serializable {
             isBadEmail = true; 
           }
           
-          if (appUserScreen.getIsActive().equals("Y")) {
-            if ((appUserScreen.getUserNameExternal() == null || appUserScreen.getPasswordExternal() == null) && appUserScreen.getuNID() == null) {
-              this.addInvalidField("No Logon", "Please enter a user name and a password for an external user or a UNID for a university user.");
-              isNoLogon = true;
-            }
-          }
 
           
           if (this.isValid()) {
@@ -295,28 +256,13 @@ public class SaveAppUser extends GNomExCommand implements Serializable {
 
         }
         
-        if (!this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
-
-          for(Iterator chkIter = coreFacilityIdsICanSubmitTo.iterator();chkIter.hasNext();) {
-            CoreFacilityCheck chk = (CoreFacilityCheck)chkIter.next();
-            // Check to see if that core has been edited and if you have permission to edit it.
-            if ( checkCoreHasBeenEdited(chk,appUser)  ) {                 
-              if ( !checkCanEditCore(chk)) { 
-                this.addInvalidField("Manage Core Facility", "You may only change core facility permissions for the core facilities you manage.");
-                isManageFacilityError = true;
-              }
-            }
-          }
-
-        }
         if (this.isValid()) {
-          setManagingCoreFacilities(sess, appUser);
-          setSubmittingCoreFacilities(sess, appUser);
+          setCoreFacilities(sess, appUser);
           sess.flush();
           this.xmlResult = "<SUCCESS idAppUser=\"" + appUser.getIdAppUser() + "\"/>";
           setResponsePage(this.SUCCESS_JSP);
         } else {
-          if(isUsedUsername || isUseduNID || isManageFacilityError || isNullEmail || isBadEmail || isNoLogon) {
+          if(isUsedUsername || isUseduNID || isManageFacilityError || isNullEmail || isBadEmail) {
             if (isWebForm.equals("Y")) {
               String outMsg = "";
               if(isUsedUsername) {
@@ -325,8 +271,6 @@ public class SaveAppUser extends GNomExCommand implements Serializable {
                 outMsg = "The uNID " + appUserScreen.getuNID() + " is already in use by " + user[1]  + " " + user[2] + ".  Please use another.";                            
               } else if (isManageFacilityError) {
                 outMsg = "You may only change core facility permissions for the core facilities you manage.";
-              } else if (isNoLogon) {
-                outMsg = "Please enter a user name and a password for an external user or a UNID for a university user.";
               } else if (isNullEmail){
                 outMsg = "The account has been activated. However, the user will not be notified by email since there is no email listed for this user.";
                 sess.flush();
@@ -412,11 +356,8 @@ public class SaveAppUser extends GNomExCommand implements Serializable {
         if (appUserScreen.getPasswordExternal() != null && 
             !appUserScreen.getPasswordExternal().trim().equals("") && 
             !appUserScreen.getPasswordExternal().equals(AppUser.MASKED_PASSWORD)) {
-          String salt = passwordEncrypter.createSalt();
-          String encryptedPassword = passwordEncrypter.createPassword(appUserScreen.getPasswordExternal(), salt);
-          appUser.setPasswordExternal(encryptedPassword);
-          appUser.setPasswordExpired("N");
-          appUser.setSalt(salt);
+          String encryptedPassword = EncrypterService.getInstance().encrypt(appUserScreen.getPasswordExternal());
+          appUser.setPasswordExternal(encryptedPassword);      
         }
       }
     
@@ -446,19 +387,17 @@ public class SaveAppUser extends GNomExCommand implements Serializable {
     boolean existingManagingCore = false;
     
     // Look through the app user's current list of managing core facilities
-    if (appUser != null && appUser.getManagingCoreFacilities() != null) {
-      for(Iterator i = appUser.getManagingCoreFacilities().iterator();i.hasNext();) {
-        CoreFacility facility = (CoreFacility)i.next();
-        
-        if (chk.idCoreFacility.equals(facility.getIdCoreFacility())) {
-          // If the core facility is already being managed by the user, 
-          // check to see if it has been changed to NOT being managed by the user any more.
-          existingManagingCore = true;
-          if (chk.selected.equals("N")) {
-            hasBeenEdited = true;
-          }
-          break;
+    for(Iterator i = appUser.getManagingCoreFacilities().iterator();i.hasNext();) {
+      CoreFacility facility = (CoreFacility)i.next();
+      
+      if (chk.idCoreFacility.equals(facility.getIdCoreFacility())) {
+        // If the core facility is already being managed by the user, 
+        // check to see if it has been changed to NOT being managed by the user any more.
+        existingManagingCore = true;
+        if (chk.selected.equals("N")) {
+          hasBeenEdited = true;
         }
+        break;
       }
     }
     // If the core facility was not one that the user already manages, check to see if 
@@ -472,7 +411,7 @@ public class SaveAppUser extends GNomExCommand implements Serializable {
     return hasBeenEdited;
   }
   
-  private void setManagingCoreFacilities(Session sess, AppUser appUser) {
+  private void setCoreFacilities(Session sess, AppUser appUser) {
     // Note that since only core facilities the logged in user can see will be in the
     // list from the front end, we ignore (i.e. neither add or remove) any ids not in
     // list from the front end.
@@ -498,36 +437,6 @@ public class SaveAppUser extends GNomExCommand implements Serializable {
       if (chk.selected.equals("Y")) {
         CoreFacility facility = (CoreFacility)sess.load(CoreFacility.class, chk.idCoreFacility);
         appUser.getManagingCoreFacilities().add(facility);
-      }
-    }
-  }
-  
-  private void setSubmittingCoreFacilities(Session sess, AppUser appUser) {
-    // Note that since only core facilities the logged in user can see will be in the
-    // list from the front end, we ignore (i.e. neither add or remove) any ids not in
-    // list from the front end.
-    ArrayList<CoreFacility> facilitiesToRemove = new ArrayList<CoreFacility>();
-    ArrayList<CoreFacility> idsToAdd = (ArrayList<CoreFacility>)coreFacilityIdsICanSubmitTo.clone();
-    for(Iterator i = appUser.getCoreFacilitiesICanSubmitTo().iterator();i.hasNext();) {
-      CoreFacility facility = (CoreFacility)i.next();
-      for(Iterator j = coreFacilityIdsICanSubmitTo.iterator();j.hasNext();) {
-        CoreFacilityCheck chk = (CoreFacilityCheck)j.next();
-        if (chk.idCoreFacility.equals(facility.getIdCoreFacility())) {
-          idsToAdd.remove(chk);
-          if (chk.selected.equals("N")) {
-            facilitiesToRemove.add(facility);
-          }
-          break;
-        }
-      }
-    }
-    
-    appUser.getCoreFacilitiesICanSubmitTo().removeAll(facilitiesToRemove);
-    for (Iterator k = idsToAdd.iterator();k.hasNext();) {
-      CoreFacilityCheck chk = (CoreFacilityCheck)k.next();
-      if (chk.selected.equals("Y")) {
-        CoreFacility facility = (CoreFacility)sess.load(CoreFacility.class, chk.idCoreFacility);
-        appUser.getCoreFacilitiesICanSubmitTo().add(facility);
       }
     }
   }

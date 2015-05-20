@@ -27,18 +27,5 @@ package views.util
 
 			return returnProtocol;
 		}
-		
-		public function getApplicationForProtocol(idSeqLibProtocol:String):XML {
-			var returnApplication:XML = null;
-			var appCodes:XMLList = dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.SeqLibProtocolApplication').DictionaryEntry.(@value != '' && @idSeqLibProtocol == idSeqLibProtocol);
-			if (idSeqLibProtocol != '') {
-				for each (var a:XML in appCodes) {
-					var app:XMLList = dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Application').DictionaryEntry.(@value != '' && @codeApplication == a.@codeApplication.toString());
-					returnApplication = app[0];
-				}
-			}
-			
-			return returnApplication;
-		}
 	}
 }

@@ -26,6 +26,13 @@
 		<servlet-name>CheckSessionStatus</servlet-name>
 	    <servlet-class>hci.gnomex.controller.CheckSessionStatus</servlet-class>
 	</servlet>
+	
+	<servlet>
+		<servlet-name>ExperimentQueue</servlet-name>
+	    <display-name>ExperimentQueue</display-name>
+	    <description>The ExperimentQueue to check experiment status</description>
+	    <servlet-class>hci.gnomex.controller.ExperimentQueue</servlet-class>
+	</servlet>
 
 	<servlet>
 		<servlet-name>CustomCaptchaURLServlet</servlet-name>
@@ -290,27 +297,6 @@
       hci.gnomex.controller.UploadQuoteInfoServlet
     </servlet-class>
   </servlet>
-  
-  <servlet>
-    <servlet-name>ApproveUser</servlet-name>
-    <servlet-class>
-      hci.gnomex.controller.ApproveUser
-    </servlet-class>
-  </servlet>
-  
-  <servlet>
-    <servlet-name>ConfirmEmail</servlet-name>
-    <servlet-class>
-      hci.gnomex.controller.ConfirmEmail
-    </servlet-class>
-  </servlet>
-  
-  <servlet>
-    <servlet-name>ApproveBillingAccount</servlet-name>
-    <servlet-class>
-      hci.gnomex.controller.ApproveBillingAccount
-    </servlet-class>
-  </servlet>
 
   <servlet>
     <servlet-name>CreateAnalysisServlet</servlet-name>
@@ -348,6 +334,11 @@
 	<servlet-mapping>
 		<servlet-name>CheckSessionStatus</servlet-name>
 		<url-pattern>/CheckSessionStatus.gx</url-pattern>
+	</servlet-mapping>	
+	
+	<servlet-mapping>
+		<servlet-name>ExperimentQueue</servlet-name>
+		<url-pattern>/ExperimentQueue.gx</url-pattern>
 	</servlet-mapping>	
 
 	<servlet-mapping>
@@ -530,21 +521,6 @@
   </servlet-mapping>
   
   <servlet-mapping>
-    <servlet-name>ApproveUser</servlet-name>
-    <url-pattern>/ApproveUser.gx</url-pattern>
-  </servlet-mapping>
-  
-  <servlet-mapping>
-    <servlet-name>ConfirmEmail</servlet-name>
-    <url-pattern>/ConfirmEmail.gx</url-pattern>
-  </servlet-mapping>
-  
-  <servlet-mapping>
-    <servlet-name>ApproveBillingAccount</servlet-name>
-    <url-pattern>/ApproveBillingAccount.gx</url-pattern>
-  </servlet-mapping>
-  
-  <servlet-mapping>
     <servlet-name>CreateAnalysisServlet</servlet-name>
     <url-pattern>/CreateAnalysisServlet.gx</url-pattern>
   </servlet-mapping>
@@ -625,7 +601,6 @@
 			<url-pattern>/SaveDataTrackList.gx</url-pattern>
 			<url-pattern>/SaveExperimentPlatform.gx</url-pattern>
 			<url-pattern>/SaveFlowCell.gx</url-pattern>
-			<url-pattern>/DeleteFlowCell.gx</url-pattern>
 			<url-pattern>/SaveGenomeBuild.gx</url-pattern>
 			<url-pattern>/SaveGroupMembership.gx</url-pattern>
 			<url-pattern>/SaveInstitution.gx</url-pattern>
@@ -636,7 +611,6 @@
 			<url-pattern>/SavePriceSheet.gx</url-pattern>
 			<url-pattern>/SaveProject.gx</url-pattern>
 			<url-pattern>/SaveProperty.gx</url-pattern>
-			<url-pattern>/AddPropertyAppUsers.gx</url-pattern>
 			<url-pattern>/SaveProtocol.gx</url-pattern>
 			<url-pattern>/SaveRequest.gx</url-pattern>
 			<url-pattern>/SaveRequestProject.gx</url-pattern>

@@ -20,9 +20,6 @@ import hci.gnomex.model.PlateWell;
 import hci.gnomex.model.PriceCategory;
 import hci.gnomex.model.PriceSheet;
 import hci.gnomex.model.PriceSheetPriceCategory;
-import hci.gnomex.model.PropertyEntry;
-import hci.gnomex.model.PropertyEntryValue;
-import hci.gnomex.model.PropertyOption;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.Sample;
@@ -31,8 +28,6 @@ import hci.gnomex.model.SlideProduct;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.PlateWellComparator;
-import hci.gnomex.utility.PropertyEntryComparator;
-import hci.gnomex.utility.PropertyOptionComparator;
 import hci.gnomex.utility.RequestParser;
 
 import java.io.Serializable;
@@ -74,9 +69,7 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
   private Document         requestDoc;
   private RequestParser    requestParser;
   
-  private String                propertiesXML;
-  
-  
+
   public void validate() {
   }
   
@@ -100,9 +93,6 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
       }
     }
     
-    if (request.getParameter("propertiesXML") != null && !request.getParameter("propertiesXML").equals("")) {
-      propertiesXML = request.getParameter("propertiesXML");    
-    }
     
     if (request.getParameter("idBillingPeriod") != null && !request.getParameter("idBillingPeriod").equals("")) {
       idBillingPeriod = new Integer(request.getParameter("idBillingPeriod"));
@@ -183,10 +173,9 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
         sess.clear();
         
         // Admins and users authorized to submit requests can view estimated
-        // charges
-        Lab l = (Lab)sess.load(Lab.class, request.getIdLab());
+        // charges            
         if (!this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_MANAGE_BILLING) &&
-            !this.getSecAdvisor().isGroupIAmMemberOrManagerOf(request.getIdLab()) && !this.getSecAdvisor().isLabICanSubmitTo(l)) {
+            !this.getSecAdvisor().isGroupIAmMemberOrManagerOf(request.getIdLab())) {
           throw new RollBackCommandException("Insufficient permission to view estimated charges");
         }
 
@@ -299,7 +288,6 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
             if (lane.getIdSequenceLane() == null) {
               lane.setIdSequenceLane(new Integer(x++));
               lane.setIdNumberSequencingCycles(laneInfo.getIdNumberSequencingCycles());            
-              lane.setIdNumberSequencingCyclesAllowed(laneInfo.getIdNumberSequencingCyclesAllowed());
             }
             lane.setIdSeqRunType(laneInfo.getIdSeqRunType());
             Sample sample = (Sample)requestParser.getSampleMap().get(laneInfo.getIdSampleString());
@@ -313,8 +301,6 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
 
       }
 
-      Set propertyEntries = this.saveRequestProperties(sess, requestParser);
-      
       List discountBillingItems = new ArrayList<BillingItem>();
       
       // Find the appropriate price sheet
@@ -362,7 +348,7 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
 
           // Get the billing items
           if (plugin != null) {
-            List billingItemsForCategory = plugin.constructBillingItems(sess, idRequest != null ? "" : requestParser.getAmendState(), billingPeriod, priceCategory, request, samples, labeledSamples, hybs, lanes, requestParser != null ? requestParser.getSampleAssays() : null, BillingStatus.PENDING, propertyEntries);
+            List billingItemsForCategory = plugin.constructBillingItems(sess, idRequest != null ? "" : requestParser.getAmendState(), billingPeriod, priceCategory, request, samples, labeledSamples, hybs, lanes, requestParser != null ? requestParser.getSampleAssays() : null);
             if (isDiscount) {
               discountBillingItems.addAll(billingItemsForCategory);
             } else {
@@ -478,36 +464,6 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
     }
     
     return this;
-  }
-  
-  private Set saveRequestProperties(Session sess, RequestParser requestParser) throws org.jdom.JDOMException {
-    Set<PropertyEntry> propertyEntries = new TreeSet<PropertyEntry>(new PropertyEntryComparator());
-    // Delete properties  
-    if (propertiesXML != null && !propertiesXML.equals("")) {
-      StringReader reader = new StringReader(propertiesXML);
-      SAXBuilder sax = new SAXBuilder();
-      Document propsDoc = sax.build(reader);
-                  
-      // Add properties
-      for(Iterator<?> i = propsDoc.getRootElement().getChildren().iterator(); i.hasNext();) {
-        Element node = (Element)i.next();
-        //Adding dataTracks
-        String idPropertyEntry = node.getAttributeValue("idPropertyEntry");
-
-        PropertyEntry pe = null;
-        if (idPropertyEntry == null || idPropertyEntry.equals("")) {
-          pe = new PropertyEntry();
-        } else {
-          pe  = PropertyEntry.class.cast(sess.get(PropertyEntry.class, Integer.valueOf(idPropertyEntry))); 
-        }
-        pe.setIdProperty(Integer.valueOf(node.getAttributeValue("idProperty")));
-        pe.setValue(node.getAttributeValue("value"));
-        pe.setIdRequest( requestParser.getRequest().getIdRequest() );
-
-        propertyEntries.add( pe );
-      }
-    }
-    return propertyEntries;
   }
   
   public class SampleComparator implements Comparator, Serializable {

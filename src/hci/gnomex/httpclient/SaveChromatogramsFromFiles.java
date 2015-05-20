@@ -228,17 +228,8 @@ public class SaveChromatogramsFromFiles extends HttpClientBase {
       File childFile = childFiles[x];
       if (childFile.isDirectory()) {
         if (childFile.listFiles().length == 0) {
-          System.out.println("encountered empty directory " + childFile.getName());
-          // If the folder is empty and older than 12 hours, delete it.
-          long diff = new Date().getTime() - childFile.lastModified();
-          if (diff > 12 * 60 * 60 * 1000) {
-            String folderName = childFile.getName(); 
-            if ( childFile.delete() ) {
-              System.out.println("deleting empty directory " + folderName);
-            } else {
-              System.out.println("unable to delete empty directory " + folderName);
-            }
-          }
+          System.out.println("encounted empty directory " + childFile.getName());
+          //childFile.delete();
         } else {
           hashFiles(childFile, theFiles);
         }

@@ -2,7 +2,7 @@
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml"
 	title="Reassignment"
 	showCloseButton="true" 
-	width="490" 
+	width="480" 
 	height="188"
 	close="closeWindow('No')"
 	xmlns:util="views.util.*" verticalScrollPolicy="off" horizontalScrollPolicy="off"
@@ -33,7 +33,6 @@
 	private var idLab:String;
 	private var idBillingAccount:String;
 	private var currentOwnerId:String;	
-	private var idCoreFacility:String;
 		
 	[Bindable]
 	private var changeBilling:Boolean;
@@ -45,13 +44,12 @@
 	private var navExperimentView:NavExperimentView;
 		
 		
-	public	function init(navExperimentView:NavExperimentView, message:String, oldIdLab:String, idLab:String, currentOwnerId:String, idBillingAccount:String, isExternal:String, idCoreFacility:String):void {
+	public	function init(navExperimentView:NavExperimentView, message:String, oldIdLab:String, idLab:String, currentOwnerId:String, idBillingAccount:String, isExternal:String):void {
 		this.navExperimentView = navExperimentView;
 		this.message.text = message;
 		this.idLab = idLab;
 		this.currentOwnerId = currentOwnerId;
 		this.idBillingAccount = idBillingAccount;
-		this.idCoreFacility = idCoreFacility;
 		if (isExternal != null && isExternal == "Y") {
 			// External requests don't have billing accounts
 			changeBilling = false;
@@ -74,7 +72,7 @@
 			var lab:Object = getLab.lastResult..Lab.(@idLab == idLab);
 			
 			var emptyNode:XML = <BillingAccount idBillingAccount='' accountName=''/>;
-			billingAccounts = new XMLListCollection(lab.billingAccounts.BillingAccount.(@isApproved == 'Y' && @isActive == 'Y' && @idCoreFacility == idCoreFacility));
+			billingAccounts = new XMLListCollection(lab.billingAccounts.BillingAccount);
 			billingAccounts.addItemAt(emptyNode, 0);
 			requestEditBillingAccountCombo.selectedItem = null;
 			for each(var ba:Object in billingAccounts) {
@@ -146,11 +144,11 @@
 			<mx:TextArea id="message" editable="false" wordWrap="true" fontSize="11" width="100%" backgroundColor="#DDDDDD"/>
 		</mx:HBox>				
 		<mx:HBox width="100%">
-			<mx:Label text="Owner" width="60"/>
+			<mx:Label text="Owner" width="50"/>
 			<util:ComboBoxDatProvChangeFix  width="409" id="ownerCombo" labelField="@displayName" dataProvider="{appUsersForLab}"></util:ComboBoxDatProvChangeFix>						         			
 		</mx:HBox>	
 		<mx:HBox width="100%" visible="{changeBilling}" includeInLayout="{changeBilling}">
-			<mx:Label text="Account" width="60"/>
+			<mx:Label text="Account" width="50"/>
 			<mx:ComboBox id="requestEditBillingAccountCombo"
 						 labelField="@accountName" width="409"
 						 dataProvider="{billingAccounts}" />

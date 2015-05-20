@@ -8,16 +8,12 @@ import hci.framework.model.DetailObject;
 import hci.framework.utilities.XMLReflectException;
 import hci.gnomex.model.AppUser;
 import hci.gnomex.model.CoreFacility;
-import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.security.SecurityAdvisor;
-import hci.gnomex.utility.PropertyDictionaryHelper;
 
 import java.io.Serializable;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Set;
-import java.util.TreeSet;
 
 import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
@@ -81,8 +77,6 @@ public class GetAppUser extends GNomExCommand implements Serializable {
       doc.getRootElement().addContent(theAppUser.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement());
       
       getCoreFacilities(sess, doc, theAppUser);
-      getCoreFacilitiesICanSubmitTo(sess, doc, theAppUser);
-      
       
       XMLOutputter out = new org.jdom.output.XMLOutputter();
       this.xmlResult = out.outputString(doc);
@@ -156,54 +150,6 @@ public class GetAppUser extends GNomExCommand implements Serializable {
       facilityNode.setAttribute("value", facility.getIdCoreFacility().toString());
       facilityNode.setAttribute("display", name);
       facilityNode.setAttribute("selected",selected);
-    }
-  }
-  
-  private void getCoreFacilitiesICanSubmitTo(Session sess, Document doc, AppUser theAppUser) {
-    Element facilitiesNode = new Element("coreFacilitiesICanSubmitTo");
-    doc.getRootElement().addContent(facilitiesNode);
-    PropertyDictionaryHelper pdh = PropertyDictionaryHelper.getInstance(sess);
-
-    Set coresToCheck = new TreeSet();
-    if (this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
-      coresToCheck = DictionaryManager.getDictionaryEntries("hci.gnomex.model.CoreFacility");
-    } else {
-      coresToCheck = this.getSecAdvisor().getCoreFacilitiesIManage();
-    }
-
-    for(Iterator coreIter = coresToCheck.iterator();coreIter.hasNext();) {
-      Object de = coreIter.next();
-      if (de instanceof NullDictionaryEntry) {
-        continue;
-      }
-      CoreFacility facility = (CoreFacility)de;
-      String selected = "N";
-      String allowed = "N";
-      if (this.getSecAdvisor().coreAllowsGlobalSubmission(facility.getIdCoreFacility())) {
-        allowed = "Y";
-        for(Iterator userIter = theAppUser.getCoreFacilitiesICanSubmitTo().iterator();userIter.hasNext();) {
-          CoreFacility userFacility = (CoreFacility)userIter.next();
-          if (userFacility.getIdCoreFacility().equals(facility.getIdCoreFacility())) {
-            selected = "Y";
-            break;
-          }
-        }
-      }
-      
-      if (selected.equals("N") && (facility.getIsActive() == null || facility.getIsActive().equals("N"))) {
-        continue;
-      }
-      
-      String name = facility.getFacilityName();
-      if (facility.getIsActive() == null || facility.getIsActive().equals("N")) {
-        name += " (inactive)";
-      }
-      Element facilityNode = new Element("coreFacility");
-      facilitiesNode.addContent(facilityNode);
-      facilityNode.setAttribute("value", facility.getIdCoreFacility().toString());
-      facilityNode.setAttribute("display", name);
-      facilityNode.setAttribute("selected",selected);
-      facilityNode.setAttribute("allowed", allowed);
     }
   }
 }

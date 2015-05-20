@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
-				layout="vertical" width="950" height="245"  
+				layout="vertical" width="950" height="219"  
 				xmlns:views="views.*" 
 				initialize="init()"
 				showCloseButton="true" 
@@ -20,17 +20,17 @@
 			</mx:HBox>
 			<mx:HBox id="bionformaticsContact" horizontalGap="0" width="100%" verticalAlign="middle" >
 					<mx:Image source="{parentApplication.iconBullet}"/>
-				<mx:Text width="320" paddingRight="12" text="For bioinformatics questions:"/>
+				<mx:Text width="320" paddingRight="12" text="For bionformatics questions:"/>
 				<mx:LinkButton label="{parentApplication.getProperty(parentApplication.PROPERTY_CONTACT_EMAIL_BIOINFORMATICS)}" click="navigateToURL(new URLRequest('mailto:' + parentApplication.getProperty(parentApplication.PROPERTY_CONTACT_EMAIL_BIOINFORMATICS)), '_blank');" textDecoration="underline" color="#0000ff" paddingTop="1"/>
 			</mx:HBox>
 			<mx:Repeater id="coreRepeater" dataProvider="{parentApplication.coreFacilityList}"> 
 				<mx:HBox horizontalGap="0" width="100%" verticalAlign="middle">
 					<mx:Image source="{parentApplication.iconBullet}"/>
 					<mx:Text width="320" paddingLeft="2"
-							 text="{coreRepeater.currentItem.@facilityName + ' Core:'}"/>
+							 text="{coreRepeater.currentItem.@coreName + ' Core:'}"/>
 					<mx:Text htmlText="{'&lt;b&gt;' + coreRepeater.currentItem.@contactName + '&lt;/b&gt;'}" />
 					<mx:Text paddingLeft="4" htmlText="{'&lt;i&gt; Phone: &lt;/i&gt;'}" />
-					<mx:Text htmlText="{'&lt;/i&gt;' + coreRepeater.currentItem.@contactPhone}" />
+					<mx:Text htmlText="{'&lt;/i&gt;' + coreRepeater.currentItem.@contactNumber}" />
 					<mx:Text paddingLeft="4" paddingRight="0" htmlText="{'&lt;i&gt; Email: &lt;/i&gt;'}" />
 					<mx:LinkButton id="emailLink" label="{coreRepeater.currentItem.@contactEmail}" click="emailLinkClick(event)" textDecoration="underline" color="#0000ff" paddingTop="1"/>
 				</mx:HBox>

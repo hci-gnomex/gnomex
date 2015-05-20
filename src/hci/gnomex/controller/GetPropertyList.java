@@ -27,8 +27,7 @@ public class GetPropertyList extends GNomExCommand implements Serializable {
   // the static field for logging in Log4J
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetPropertyList.class);
   
-  // If Y indicates only the property without optinos, organisms, etc. is to be returned.
-  private String propertyOnly = "N";
+  private String showOptions = "N";
 
   
   public void validate() {
@@ -36,8 +35,8 @@ public class GetPropertyList extends GNomExCommand implements Serializable {
   
   public void loadCommand(HttpServletRequest request, HttpSession session) {
 
-    if (request.getParameter("propertyOnly")!= null && !request.getParameter("propertyOnly").equals("")) {
-      propertyOnly = request.getParameter("propertyOnly");
+    if (request.getParameter("showOptions")!= null && !request.getParameter("showOptions").equals("")) {
+      showOptions = request.getParameter("showOptions");
     }
     
     if (isValid()) {
@@ -67,16 +66,29 @@ public class GetPropertyList extends GNomExCommand implements Serializable {
         Property property = (Property)i.next();
         this.getSecAdvisor().flagPermissions(property);
         
-        if (propertyOnly.equals("Y")) {
+        if (showOptions.equals("Y")) {
           property.excludeMethodFromXML("getOptions");
           property.excludeMethodFromXML("getOrganisms");
           property.excludeMethodFromXML("getPlatformApplications");
           property.excludeMethodFromXML("getAnalysisTypes");
-          property.excludeMethodFromXML("getAppUsers");
         }
         
         Element node = property.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
         doc.getRootElement().addContent(node);
+        
+        // Add the option nodes to display in tree of 'Configure Annotations' window.
+        if (showOptions.equals("Y")) {
+          for (Iterator i1 = property.getOptions().iterator(); i1.hasNext();) {
+            PropertyOption option = (PropertyOption)i1.next();
+            if (option.getOption().trim().equals("")) {
+              continue;
+            } 
+            Element optionNode = new Element("Option");
+            optionNode.setAttribute("name", "    " + option.getOption());
+            optionNode.setAttribute("option", option.getOption());
+            node.addContent(optionNode);
+          }
+        }
       }
 
       org.jdom.output.XMLOutputter out = new org.jdom.output.XMLOutputter();

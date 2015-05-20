@@ -1,7 +1,6 @@
 package hci.gnomex.utility;
 
 import hci.gnomex.constants.Constants;
-import hci.gnomex.model.CoreFacility;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.Request;
 import hci.gnomex.security.SecurityAdvisor;
@@ -16,19 +15,14 @@ public class EmailHelper {
   public static void sendConfirmationEmail(Session sess, Request request, SecurityAdvisor secAdvisor, String launchAppURL, String appURL, String serverName) throws NamingException, MessagingException {
     
     DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess);
-    CoreFacility cf = (CoreFacility)sess.load(CoreFacility.class, request.getIdCoreFacility());
     
-    String coreFacilityName = cf.getFacilityName();
+    String coreFacilityName = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(request.getIdCoreFacility(), PropertyDictionary.CORE_FACILITY_NAME);
 
     
     StringBuffer introNote = new StringBuffer();
     String downloadRequestURL = Util.addURLParameter(launchAppURL, "requestNumber=" + request.getNumber() + "&launchWindow=" + Constants.WINDOW_TRACK_REQUESTS);
-    String requestNote = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityRequestCategoryProperty(request.getIdCoreFacility(), request.getCodeRequestCategory(), PropertyDictionary.REQUEST_COMPLETE_CONFIRMATION_EMAIL_MESSAGE);
-    introNote.append("Order " + request.getNumber() + " has been completed by the " + coreFacilityName + " core.");
-    if (requestNote != null) {
-      introNote.append("<br>" + requestNote);
-    }
-    introNote.append("<br>To see experiment details in GNomEx, click <a href=\"" + downloadRequestURL + "\">" + Constants.APP_NAME + " - " + Constants.WINDOW_NAME_TRACK_REQUESTS + "</a>.");
+    introNote.append("Order " + request.getNumber() + " has been completed by the " + coreFacilityName + ".");
+    introNote.append("<br>To fetch the results, click <a href=\"" + downloadRequestURL + "\">" + Constants.APP_NAME + " - " + Constants.WINDOW_NAME_TRACK_REQUESTS + "</a>.");
     
     RequestEmailBodyFormatter emailFormatter = new RequestEmailBodyFormatter(sess, secAdvisor, appURL, dictionaryHelper, request, null, request.getSamples(), request.getHybridizations(), request.getSequenceLanes(), introNote.toString());
     emailFormatter.setIncludeMicroarrayCoreNotes(false);
@@ -71,13 +65,12 @@ public class EmailHelper {
   public static void sendRedoEmail(Session sess, Request request, SecurityAdvisor secAdvisor, String launchAppURL, String appURL, String serverName) throws NamingException, MessagingException {
     
     DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess);
-    CoreFacility cf = (CoreFacility)sess.load(CoreFacility.class, request.getIdCoreFacility());
     
-    String coreFacilityName = cf.getFacilityName();
+    String coreFacilityName = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(request.getIdCoreFacility(), PropertyDictionary.CORE_FACILITY_NAME);
     
     StringBuffer introNote = new StringBuffer();
     String downloadRequestURL = Util.addURLParameter(launchAppURL, "?requestNumber=" + request.getNumber() + "&launchWindow=" + Constants.WINDOW_TRACK_REQUESTS);
-    introNote.append("The following samples on Order " + request.getNumber() + " have been marked for redo by the " + coreFacilityName + " core: ");
+    introNote.append("The following samples on Order " + request.getNumber() + " have been marked for redo by " + coreFacilityName + ": ");
     introNote.append("<br>");
     introNote.append(request.getRedoSampleNames());
     introNote.append("<br><br>");

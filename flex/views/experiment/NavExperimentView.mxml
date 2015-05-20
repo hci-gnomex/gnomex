@@ -4,7 +4,7 @@
 	xmlns:views="views.*"
 	xmlns:experiment="views.experiment.*"
 	xmlns:util="views.util.*"
-	backgroundAlpha="0"  cornerRadius="10"  
+	backgroundAlpha="0"
 	xmlns:renderers="views.renderers.*"
 	creationPolicy="all"  show="init()"
 >
@@ -283,7 +283,7 @@
 			if (this.browseView != null) {
 				this.browseView.checkSecurity();
 			}
-			if (parentApplication.hasPermission("canAccessAnyObject") || parentApplication.hasPermission("canSubmitForOtherCores")) {
+			if (parentApplication.hasPermission("canAccessAnyObject")) {
 				currentState = "AdminState";
 			} else if (parentApplication.currentState == "GuestState") {
 				currentState = "GuestState"; 
@@ -361,8 +361,7 @@
         	}
 
         	
-        	browseTree.dataProvider.source = new XMLList(getProjectRequestList.lastResult);
-			browseTree.dataProvider.refresh();
+        	
         	callLater(expandAndReselectTree);    	
         	
 	    }
@@ -604,6 +603,11 @@
 				experimentDetailView.titleLabel.text = viewTitle;
 				experimentDetailView.navBackButton.visible = false;
 				experimentDetailView.navBackButton.includeInLayout = false;
+
+				var editTitle:String = (browseTree.selectedItem.@isExternal == 'Y' ? 'Edit External Experiment ' :  'Edit Experiment ')+ browseTree.selectedItem.@requestNumber;
+				if (experimentEditView != null && experimentEditView.titleLabel != null) {
+					experimentEditView.titleLabel.text = editTitle;
+				}
 
 				selectedIdRequest = browseTree.selectedItem.@idRequest;
 				var parms:Object = new Object();
@@ -1092,7 +1096,7 @@
 					this.publicExperimentsOtherGroupsCheckbox.selected = false;
 				}
 			} else if (this.currentState == "AdminState") {
-				this.browseUserCombo.selectedItem = null;
+				this.browseUserCombo.selectedItem = null;				
 			}
 		}
 		
@@ -1112,7 +1116,7 @@
 
 		}
 		public function initializeExperiments():void {
-			if (parentApplication.hasPermission('canAccessAnyObject') || parentApplication.hasPermission('canSubmitForOtherCores')) {
+			if (parentApplication.hasPermission('canAccessAnyObject')) {
 			} else {
 				if (getProjectRequestList.lastResult == null ||
 				    selectedRequestNumber != null) {
@@ -1212,8 +1216,7 @@
 			PopUpManager.centerPopUp(changePrompt);
 			var message:String = "Reassign experiment " + dragRequest.@requestNumber +
 				" to project " + dropProject.@projectName + "?";
-			var requestCategory:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory',dragRequest.@codeRequestCategory);
-			changePrompt.init(this, message, dragRequest.@idLab, dropProject.@idLab, dragRequest.@idAppUser, dragRequest.@idBillingAccount, dragRequest.@isExternal, requestCategory.@idCoreFacility);			
+			changePrompt.init(this, message, dragRequest.@idLab, dropProject.@idLab, dragRequest.@idAppUser, dragRequest.@idBillingAccount, dragRequest.@isExternal);			
 		}
 		
 		public function onPromptToReassignProject(result:String, idOwner:String, idBillingAccount:String):void {
@@ -1307,9 +1310,9 @@
 	        appUsers.sort = appUserSort;
 	        appUsers.refresh();
 			
-			this.browseUserCombo.dropdown.dataProvider = appUsers;  
+			this.browseUserCombo.dropdown.dataProvider = appUsers;
+	        
 	        this.browseUserCombo.selectedIndex = 0;
-			
 		}	    
 
         private function sortAppUsers(obj1:Object, obj2:Object, fields:Array=null):int {
@@ -1348,10 +1351,12 @@
 		if (currentState == "AdminState") {
 			if (this.allExperimentsCheckbox.selected) {
 				this.browseLabCombo.enabled = false;
-				this.browseUserCombo.enabled = false;		
+				this.browseUserCombo.enabled = false;
+				
 			} else {
 				this.browseLabCombo.enabled = true;
 				this.browseUserCombo.enabled = true;
+				
 			}
 		} 
 	}
@@ -1437,7 +1442,7 @@
 	private function filterRequestCategory(item:Object):Boolean {
 		var keep:Boolean = false;
 		if (item.@idCoreFacility != null ) {
-			if ( parentApplication.coreFacilitiesICanManage.length() > 1 && (coreFacilityCombo == null || coreFacilityCombo.selectedItem == null || coreFacilityCombo.selectedItem.@value == '') ) {
+			if ( parentApplication.coreFacilitiesICanManage.length() > 1 && (coreFacilityCombo.selectedItem == null || coreFacilityCombo.selectedItem.@value == '') ) {
 				keep = false;
 			} else if ( coreFacilityCombo.selectedItem != null && coreFacilityCombo.selectedItem.@value != null && coreFacilityCombo.selectedItem.@value != '' ) {
 				if (item.@idCoreFacility == coreFacilityCombo.selectedItem.@value){
@@ -1452,18 +1457,7 @@
 		
 	}
 			
-	public function showNewAnalysisWindow():void {
-		parentApplication.showNewAnalysisWindow(this, (browseLabCombo != null && browseLabCombo.selectedItem != null) ? browseLabCombo.selectedItem.@idLab : '', null, selectedExperiment != null ? selectedExperiment.@idOrganismSampleDefault : '');
-	}
-			
-	public function showCreateAnalysisButton(selectedExperiment:Object):Boolean {
-		if (!parentApplication.isGuestMode() && selectedExperiment != null) {
-			if (selectedExperiment.sequenceLanes.children().length() > 0 || selectedExperiment.hybridizations.children().length() > 0) {
-				return true;
-			}
-		}
-		return false;
-	}
+	
 			
        ]]>
     </mx:Script> 
@@ -1477,14 +1471,18 @@
      
 	<mx:DateFormatter id="dateFormatter" formatString="MM/DD/YYYY"/>
  
-	<mx:VBox width="100%" height="100%" horizontalAlign="left" verticalGap="2">
-		<mx:HBox width="100%" styleName="titleBox">
-			<renderers:TitleLabel id="titleLabel" iconSource="{parentApplication.iconFlask}" titleText="Experiments" />
+	<mx:VBox width="100%" height="100%" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" verticalGap="1" borderStyle="none" borderColor="#D2D2D2" backgroundAlpha="0">
+		<mx:HBox width="100%" paddingRight="6" paddingTop="8" styleName="panelBox" paddingBottom="4" paddingLeft="6" borderThickness="1" horizontalGap="15">
 			
 			<mx:VBox  verticalGap="6" height="100%">
 				<mx:HBox horizontalGap="0" paddingTop="0" paddingLeft="0" horizontalAlign="left" verticalAlign="middle" width="100%">
 					<mx:HBox paddingLeft="0" verticalAlign="middle" width="100%">
+						<mx:HBox horizontalGap="0" width="100" verticalAlign="middle" >
+							<mx:Image source="assets/flask.png"/>
+							<mx:Label text="Experiments" styleName="titleLabel"/>	
+						</mx:HBox>
 						
+						<mx:Spacer width="17"/>
 						
 						<mx:HBox horizontalGap="0" height="100%" verticalAlign="middle" verticalGap="0" horizontalAlign="right" paddingRight="0" id="hbox2">
 							<mx:RadioButtonGroup id="experimentRadioGroup"/>
@@ -1554,7 +1552,8 @@
 				
 				<mx:VBox id="filterBox" verticalGap="4" visible="false" includeInLayout="false">
 					<mx:HBox horizontalGap="0" paddingTop="0" paddingBottom="0" paddingLeft="0" horizontalAlign="left" verticalAlign="middle" width="100%" id="hbox7">
-						<mx:HBox verticalAlign="middle" width="100%" paddingLeft="0" >
+						<mx:Spacer width="125"/>
+						<mx:HBox verticalAlign="middle" width="100%" paddingLeft="8" >
 							<mx:CheckBox  id="externalExperimentsOnlyCheckbox" label="External Experiments" paddingRight="0" horizontalGap="0" 
 										  styleName="labelSmall" toolTip="External experiments (only)" 
 										  includeInLayout="{!parentApplication.isExternalDataSharingSite}" visible="{!parentApplication.isExternalDataSharingSite}">
@@ -1572,7 +1571,7 @@
 								</mx:VBox>
 								<mx:Spacer width="10" includeInLayout="{parentApplication.myCoreFacilities.length() > 1}" 
 										   visible="{parentApplication.myCoreFacilities.length() > 1}"/>
-								<renderers:FilterComboBox id="requestCategoryComboBox" fontSize="10" 
+								<renderers:FilterComboBox id="requestCategoryComboBox" fontSize="10" removeFilterOnSelection="true"
 											 dataProvider="{requestCategories}" 
 											 labelField="@display" prompt="Experiment Type.."
 											 includeInLayout="{requestCategories.length > 1}" 
@@ -1732,7 +1731,8 @@
 				<mx:CheckBox label="All" styleName="labelSmall" horizontalGap="0" id="allExperimentsCheckbox" click="toggleAllExperiments();" />
 				<mx:Spacer width="14"/>
 				<mx:Label id="groupLabel" visible="true" text="Group" paddingBottom="0" styleName="labelSmall"/>
-				<renderers:FilterComboBox dataProvider="{parentApplication.hasPermission('canSubmitForOtherCores') &amp;&amp; !parentApplication.isBillingAdminState ? parentApplication.submitRequestLabList.source : parentApplication.labList.source}" 
+				<renderers:FilterComboBox dataProvider="{parentApplication.labList.source}" 
+										  removeFilterOnSelection="true"
 										  labelField="@name" 
 										  prompt="Select a lab..."
 										  width="160" 
@@ -1744,8 +1744,8 @@
 			<mx:RemoveChild target="{userAllExperimentsCheckbox}"/>
 			<mx:SetProperty target="{coreFacilityCombo}" name="width" value="180"/>
 			<mx:AddChild relativeTo="{spacer1}" position="before">
-				<mx:HBox  horizontalGap="0"  verticalAlign="middle" id="hbox6" visible="{!parentApplication.hasPermission('canSubmitForOtherCores')}" includeInLayout="{!parentApplication.hasPermission('canSubmitForOtherCores')}">
-					<mx:Label id="userLabel" visible="true" text="Owner/Submitter" paddingBottom="0" paddingLeft="2"  styleName="labelSmall"/>
+				<mx:HBox  horizontalGap="0"  verticalAlign="middle" id="hbox6">
+					<mx:Label id="userLabel" visible="true" text="Submitter" paddingBottom="0" paddingLeft="2"  styleName="labelSmall"/>
 					<mx:ComboBox id="browseUserCombo" 
 						labelField="@displayName"
 						dataProvider="{appUsers}"

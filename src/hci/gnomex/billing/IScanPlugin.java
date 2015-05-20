@@ -9,7 +9,6 @@ import hci.gnomex.model.LabeledSample;
 import hci.gnomex.model.Price;
 import hci.gnomex.model.PriceCategory;
 import hci.gnomex.model.PriceCriteria;
-import hci.gnomex.model.PropertyEntry;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.Sample;
 import hci.gnomex.model.SequenceLane;
@@ -27,8 +26,8 @@ import org.hibernate.Session;
 public class IScanPlugin implements BillingPlugin {
 
   public List constructBillingItems(Session sess, String amendState, BillingPeriod billingPeriod, PriceCategory priceCategory, Request request, 
-      Set<Sample> samples, Set<LabeledSample> labeledSamples, Set<Hybridization> hybs, Set<SequenceLane> lanes, Map<String, ArrayList<String>> sampleToAssaysMap, 
-      String billingStatus, Set<PropertyEntry> propertyEntries) {
+      Set<Sample> samples, Set<LabeledSample> labeledSamples, Set<Hybridization> hybs, Set<SequenceLane> lanes, Map<String, ArrayList<String>> sampleToAssaysMap) {
+    
     
     List billingItems = new ArrayList<BillingItem>();
     
@@ -84,10 +83,7 @@ public class IScanPlugin implements BillingPlugin {
       if (qty > 0 && theUnitPrice != null) {      
         billingItem.setInvoicePrice(theUnitPrice.multiply(new BigDecimal(qty)));
       }
-      billingItem.setCodeBillingStatus(billingStatus);
-      if (!billingStatus.equals(BillingStatus.NEW) && !billingStatus.equals(BillingStatus.PENDING)) {
-        billingItem.setCompleteDate(new java.sql.Date(System.currentTimeMillis()));
-      }
+      billingItem.setCodeBillingStatus(BillingStatus.PENDING);
       billingItem.setIdRequest(request.getIdRequest());
       billingItem.setIdLab(request.getIdLab());
       billingItem.setIdBillingAccount(request.getIdBillingAccount());        

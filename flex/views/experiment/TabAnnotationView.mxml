@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Canvas label="Annotations"  xmlns:mx="http://www.adobe.com/2006/mxml" 
-		   xmlns:util="views.util.*" show="{this.init()}"
+		   xmlns:util="views.util.*" 
 		   width="100%" height="100%" enabled="false">
 	
 	<mx:HTTPService  
@@ -10,17 +10,6 @@
 		showBusyCursor="true"
 		result="onSaveProperty(event)"
 		fault="parentApplication.onFailHttpRequest('Failed to save annotation', event)"
-		method="POST" 
-		useProxy="false">
-	</mx:HTTPService>
-	
-	<mx:HTTPService  
-		id="addPropertyAppUsers" 
-		url="AddPropertyAppUsers.gx"
-		resultFormat="e4x"
-		showBusyCursor="true"
-		result="onAddPropertyAppUsers(event)"
-		fault="parentApplication.onFailHttpRequest('Failed to add AppUsers to Property', event)"
 		method="POST" 
 		useProxy="false">
 	</mx:HTTPService>
@@ -47,7 +36,6 @@
 			import mx.events.ListEvent;
 			import mx.managers.PopUpManager;
 			import mx.rpc.events.ResultEvent;
-			import mx.utils.StringUtil;
 			
 			import views.admin.PropertyEvent;
 			import views.admin.PropertyWindow;
@@ -57,20 +45,12 @@
 			import views.renderers.URLRenderer;
 			import views.util.AnnotationAdvancedDataGridColumn;
 			import views.util.AnnotationDataGridColumn;
-			import views.util.AnnotationUtility;
 			
 			private var dictionaryEditor:DictionaryEditor; 
 			
 			public var ignoreToggle:Boolean = false;
 			
-			private var idPropertyAdded:String = null;
-			
-			private function init():void {
-				if (parentDocument != null) {
-					parentDocument.propertyEntries.refresh();
-					filteredProperties.refresh();
-				}
-			}
+			private var addingAnnotation:Boolean = false;
 			
 			public function checkSecurity():void {
 				if (parentDocument == null) {
@@ -136,12 +116,11 @@
 			//
 			private function editPropertyDictionary():void {
 				var configWindow:PropertyWindow = PropertyWindow(PopUpManager.createPopUp(parentApplication.theBody, PropertyWindow, true));
+				PopUpManager.centerPopUp(configWindow);
 				configWindow.showSampleAnnotations.selected = true;
 				configWindow.showAnalysisAnnotations.selected = false;
 				configWindow.showDataTrackAnnotations.selected = false;
 				configWindow.onPropertyRefreshed(null);
-				configWindow.idCoreFacilitySelected = parentDocument.coreFacility.@idCoreFacility;
-				PopUpManager.centerPopUp(configWindow);
 
 				
 				parentApplication.removeEventListener(PropertyEvent.DATA_REFRESHED,
@@ -154,34 +133,23 @@
 			
 			
 			public function onPropertyRefreshed(event:Event):void{
-
-				if (parentDocument == null || parentDocument.request == null) {
-					parentApplication.removeEventListener(PropertyEvent.DATA_REFRESHED,
-						onPropertyRefreshed);
-					return;
-				}
 				parentDocument.propertyEntries.refresh();
 				
 				this.checkForRemovedAnnotations();   
-				this.checkForNewAnnotations();
+				this.checkForNewAnnotations(addingAnnotation);
 				
-				filteredProperties.source = null;
-				filteredProperties.source = parentDocument.propertyEntries.source;
-				filteredProperties.refresh();
-
-				if (idPropertyAdded != null) {
-					var addedProperty:Object = parentApplication.getSampleProperty(idPropertyAdded);
-					selectAndScrollToName(addedProperty.@name);
-					idPropertyAdded = null;
+				if (addingAnnotation) {
+					addingAnnotation = false;
 					this.enabled = true;
 				}				  		
 			}	
 			
 			
-			private function checkForNewAnnotations():void {
+			private function checkForNewAnnotations(doSelect:Boolean):void {
 				var sc:XML;
 				var annotation:Object;
 				var exists:Boolean = false;
+				var selectedName:String = "";
 				for each(sc in parentApplication.propertyList) {
 					exists = false; 
 					
@@ -200,13 +168,21 @@
 						node.@idProperty = sc.@value;
 						node.@name = sc.@display; 
 						node.@otherLabel = "";
-						node.@isSelected = "false";
+						if (doSelect) {
+							node.@isSelected = "true";
+							selectedName = sc.@display;
+						} else {
+							node.@isSelected = "false";
+						}
 						
 						parentDocument.propertyEntries.addItem(node);
 						
 					}
 				}
 				parentDocument.propertyEntries.refresh();
+				if (selectedName.length > 0) {
+					selectAndScrollToName(selectedName);
+				}
 			}
 			
 			
@@ -269,35 +245,6 @@
 				sampleAnnotationGrid.toolTip = description;
 	
 			}
-			/*
-			 * Returns list of users whose annotations should appear on the annotation list
-			 *
-			*/
-			private function getAnnotationAllowedUserList():Array {
-				var userList:Array = new Array();
-				// Owner of the experiment
-				pushUnique(userList, parentDocument.getIdAppUserOwner());
-				
-				// Submitter -- if different and not null
-				pushUnique(userList, parentDocument.getIdAppUserSubmitter());
-				
-				// current user -- if different
-				pushUnique(userList, parentApplication.getIdAppUser());
-				
-				return userList;
-			}
-			
-			private function pushUnique(a:Array, v:String):void {
-				if (v != null && v != '') {
-					for each(var v1:String in a) {
-						if (v1 == v) {
-							return;
-						}
-					}
-					a.push(v);
-				}
-			}
-			
 			private function createAnnotationList():void {
 				properties = new XMLListCollection();
 				for each(var sc:XML in parentApplication.propertyList) {
@@ -314,109 +261,40 @@
 					Alert.show('Please enter name of new annotation in the text box before pressing Add Annotation');
 					return;
 				}
-
+				
 				var found:Boolean = selectAndScrollToName(newAnnotationName.text);
-				var addUser:Boolean = false;
-				var existingAnnotation:Object = null;
 				
-				// Note if the annotation is visible in the screen they have to choose a different name.
 				if (!found) {
-					existingAnnotation = findAnnotation(newAnnotationName.text);
-					if (existingAnnotation != null) {
-						var orgs:XMLList = existingAnnotation.descendants("Organism");
-						var platforms:XMLList = existingAnnotation.descendants("PropertyPlatformApplication");
-						if (orgs.length() == 0 && platforms.length() == 0 && existingAnnotation.@forSample == 'Y') {
-							// if not filtered by organism or platform or forSample then it must be filtered by user.  So we want to add in the user.
-							addUser = true;
-						} else {
-							// If filtered by organism or platform or forSample they have to choose a different name.
-							found = true;
-						}
+					this.enabled = false;
+					addingAnnotation = true;
+					var params:Object = new Object();
+					params.idProperty = '';
+					params.name = newAnnotationName.text;
+					params.isActive = 'Y';
+					params.isRequired = 'N';
+					params.forSample =  "Y";
+					params.forAnalysis = "N";
+					params.forDataTrack = "N";
+					params.forSample = "Y";
+					if (parentApplication.hasPermission("canWriteDictionaries")) {
+						params.idAppUser = '';			
+					} else {
+						params.idAppUser = parentApplication.getIdAppUser();
 					}
-				}
-				
-				if (found) {
-					Alert.show('"' + newAnnotationName.text + '" has been used as the name for a previously defined annotation. Please choose another name.');
-					return;
-				}
-				
-				if (addUser) {
-					addUserToProperty(existingAnnotation);
-				} else {
-					addNewProperty(newAnnotationName.text);
+					params.codePropertyType = 'TEXT';
+					params.optionsXMLString = "<options>"  + "</options>";
+					params.organismsXMLString = "<organisms>"  + "</organisms>";
+					params.platformsXMLString = "<platformApplications>"  + "</platformApplications>";
+					params.analysisTypesXMLString = "<analysisTypes>" + "</analysisTypes>";
+					
+					saveProperty.send(params);
 				}
 				
 				newAnnotationName.text = PropertyWindow.NAME_FIELD_DEFAULT;
 			}
 			
-			private function addNewProperty(name:String):void {
-				this.enabled = false;
-				
-				var params:Object = new Object();
-				params.idProperty = '';
-				params.name = name;
-				params.isActive = 'Y';
-				params.isRequired = 'N';
-				params.forAnalysis = "N";
-				params.forDataTrack = "N";
-				params.forRequest = "N";
-				params.forSample = "Y";
-				params.idCoreFacility = parentDocument.coreFacility.@idCoreFacility;
-				if (parentApplication.hasPermission("canWriteDictionaries")) {
-					params.idAppUser = '';			
-				} else {
-					params.idAppUser = parentApplication.getIdAppUser();
-				}
-				params.codePropertyType = 'TEXT';
-				params.optionsXMLString = "<options>"  + "</options>";
-				params.organismsXMLString = "<organisms>"  + "</organisms>";
-				params.platformsXMLString = "<platformApplications>"  + "</platformApplications>";
-				params.analysisTypesXMLString = "<analysisTypes>" + "</analysisTypes>";
-
-				if (parentApplication.getCoreFacilityProperty(parentDocument.coreFacility.@idCoreFacility, parentApplication.PROPERTY_RESTRICT_ANNOTATION_ON_AUTO_ADD) == "Y") {
-					params.appUsersXMLString = getNewAppUsersParam();
-				} else {
-					params.appUsersXMLString = "<appUsers></appUsers>";
-				}
-				
-				saveProperty.send(params);
-			}
-			
-			private function addUserToProperty(property:Object):void {
-				this.enabled = false;
-				
-				var params:Object = new Object();
-				params.idProperty = property.@idProperty;
-				
-				params.appUsersXMLString = getNewAppUsersParam();
-				
-				addPropertyAppUsers.send(params);
-			}
-			
-			private function getNewAppUsersParam():String {
-				var appUsers:XMLList = new XMLList();
-				for each (var idAppUser:Object in getAnnotationAllowedUserList()) {
-					appUsers += XML("<AppUserLite idAppUser='" + idAppUser + "'/>");
-				}
-				return "<appUsers>" + appUsers.toXMLString() + "</appUsers>";
-			}
-			
-			private function findAnnotation(name:String):Object {
-				for each(var sc:Object in parentApplication.propertyList) {
-					if (sc.@idCoreFacility == parentDocument.coreFacility.@idCoreFacility) {
-						var thisPropName:String = StringUtil.trim(sc.@name);
-						thisPropName = thisPropName.toLowerCase();
-						if(name.toLowerCase() == thisPropName) {
-							return sc;
-						}
-					}
-				}
-				return null;
-			}
-			
 			private function onSaveProperty(event:ResultEvent): void {
 				if (saveProperty.lastResult.name() == "SUCCESS") {
-					this.idPropertyAdded = saveProperty.lastResult.@idProperty;
 					parentApplication.removeEventListener(PropertyEvent.DATA_REFRESHED,
 						onPropertyRefreshed);		                                  
 					parentApplication.addEventListener(PropertyEvent.DATA_REFRESHED,   
@@ -425,29 +303,15 @@
 					parentApplication.getPropertyList.send();
 				} else {
 					this.enabled = true;
+					addingAnnotation = false;
 					Alert.show(saveProperty.lastResult..ACTMESSAGE.@TEXT);
-				}
-			}	
-			
-			private function onAddPropertyAppUsers(event:ResultEvent): void {
-				if (addPropertyAppUsers.lastResult.name() == "SUCCESS") {
-					this.idPropertyAdded = addPropertyAppUsers.lastResult.@idProperty;
-					parentApplication.removeEventListener(PropertyEvent.DATA_REFRESHED,
-						onPropertyRefreshed);		                                  
-					parentApplication.addEventListener(PropertyEvent.DATA_REFRESHED,   
-						onPropertyRefreshed);
-					parentApplication.dictionaryManager.call("reload", "");
-					parentApplication.getPropertyList.send();
-				} else {
-					this.enabled = true;
-					Alert.show(addPropertyAppUsers.lastResult..ACTMESSAGE.@TEXT);
 				}
 			}	
 			
 			private function selectAndScrollToName(name:String):Boolean {
 				var found:Boolean = false;
 				var idx:int = 0;
-				for each (var a:Object in filteredProperties) {
+				for each (var a:Object in parentDocument.propertyEntries) {
 					if (a.@name.toString().toLowerCase() == name.toLocaleLowerCase()) {
 						found = true;
 						a.@isSelected = 'true';
@@ -459,44 +323,9 @@
 				
 				return found;
 			}
-			
-			private function filterPropertiesByUser(item:Object):Boolean {
-				// Get property with children (organisms, platforms, appusers).
-				var property:XML = parentApplication.getSampleProperty(item.@idProperty);
-				if(item.@idProperty == "-1" || property == null) {
-					return true;
-				}
-
-				// Should figure some way to remove this dependency on parentDocument.
-				var keep:Boolean = parentDocument.filterPropertyEntryWithFullProperty(property, item);
-				if (keep) {
-					keep = false;
-					var users:XMLList = property.appUsers.AppUserLite;
-					if (users.length() <= 0) {
-						keep = true;
-					} else {
-						var allowedUsers:Array = getAnnotationAllowedUserList();
-						for each (var u:Object in users) {
-							for each (var u1:Object in allowedUsers) {
-								if (u1.toString() == u.@idAppUser.toString()) {
-									keep = true;
-									break;
-								}
-							}
-							if (keep) {
-								break;
-							}
-						}
-					}
-				}
-				return keep;
-			}
 		]]>
 	</mx:Script>
 	
-	<mx:XMLListCollection id="filteredProperties" source="{parentDocument.propertyEntries.source}" filterFunction="filterPropertiesByUser" sort="{sortFilteredProperties}"/>
-	<mx:Sort id="sortFilteredProperties" compareFunction="AnnotationUtility.sortProperties" unique="true"/>
-
 	<mx:XMLListCollection id="properties"/>
 	
 	<mx:VBox width="100%" height="100%">
@@ -509,7 +338,7 @@
 				<mx:HBox width="100%" height="100%">
 					<mx:VBox width="100%" height="100%" verticalGap="0">
 						<mx:DataGrid id="sampleAnnotationGrid" height="100%"
-									 dataProvider="{filteredProperties}" 
+									 dataProvider="{parentDocument.propertyEntries}" 
 									 showHeaders="false" headerHeight="20" variableRowHeight="true" width="100%" itemClick="toggleSampleAnnotationCheck(event)" rowHeight="20" itemRollOver="createToolTip(event)" itemRollOut="deleteToolTip(event)" >
 							<mx:columns>
 								<mx:DataGridColumn headerText=" " 
@@ -526,7 +355,7 @@
 									<mx:itemRenderer>
 										<mx:Component >
 											<mx:HBox horizontalScrollPolicy="off">
-												<mx:Label text="{data.@name}" fontWeight="{data.hasOwnProperty('@isRequired') &amp;&amp; data.@isRequired == 'true' ? 'bold' : 'normal'}">			                           	
+												<mx:Label text="{data.@name}">			                           	
 												</mx:Label>
 												<mx:TextInput id="scOtherLabel" fontSize="9"
 															  text="{data.@otherLabel}"

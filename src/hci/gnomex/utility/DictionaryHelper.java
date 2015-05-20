@@ -5,15 +5,12 @@ import hci.dictionary.model.NullDictionaryEntry;
 import hci.dictionary.utility.DictionaryManager;
 import hci.gnomex.controller.ManageDictionaries;
 import hci.gnomex.model.AppUser;
-import hci.gnomex.model.Application;
 import hci.gnomex.model.BillingPeriod;
-import hci.gnomex.model.BioanalyzerChipType;
 import hci.gnomex.model.CoreFacility;
 import hci.gnomex.model.GenomeBuild;
 import hci.gnomex.model.Lab;
 import hci.gnomex.model.OligoBarcode;
 import hci.gnomex.model.Organism;
-import hci.gnomex.model.ProductType;
 import hci.gnomex.model.Property;
 import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.RequestCategoryType;
@@ -44,7 +41,6 @@ public class DictionaryHelper implements Serializable {
   private PropertyDictionaryHelper propertyDictionaryHelper;
   private List                                  requestCategoryList      = new ArrayList();
   private Map                                   requestCategoryMap       = new HashMap();
-  private Map                                   productTypeMap           = new HashMap();
   private Map                                   oligoBarcodeMap          = new HashMap();
   private Map                                   submissionInstructionMap = new HashMap();
   private Map                                   billingPeriodMap         = new HashMap();
@@ -123,7 +119,7 @@ public class DictionaryHelper implements Serializable {
     
     
     StringBuffer queryBuf = new StringBuffer();
-    queryBuf.append("SELECT p from Property as p order by case when sortOrder is null then 999999 else sortOrder end, p.name");
+    queryBuf.append("SELECT p from Property as p order by p.name");
     List properties = sess.createQuery(queryBuf.toString()).list();
     for (Iterator i = properties.iterator(); i.hasNext();) {
       Property prop = (Property)i.next();
@@ -190,14 +186,6 @@ public class DictionaryHelper implements Serializable {
       RequestCategory rc = (RequestCategory)de;
       requestCategoryList.add(rc);
       requestCategoryMap.put(rc.getCodeRequestCategory(), rc);
-    }
-    for (Iterator i = DictionaryManager.getDictionaryEntries("hci.gnomex.model.ProductType").iterator(); i.hasNext();) {
-      Object de = i.next();
-      if (de instanceof NullDictionaryEntry) {
-        continue;
-      }
-      ProductType pt = (ProductType)de;
-      productTypeMap.put(pt.getCodeProductType(), pt);
     }
     seqRunTypeList = new ArrayList();
     for (Iterator i = DictionaryManager.getDictionaryEntries("hci.gnomex.model.SeqRunType").iterator(); i.hasNext();) {
@@ -273,15 +261,6 @@ public class DictionaryHelper implements Serializable {
   
   public Property getPropertyDictionary(Integer idProperty) {
     return (Property)propertyDictionaryMap.get(idProperty);
-  }
-  
-  public String getCodeStepName(String abbr) {
-    lazyLoadManagedDictionaries();
-    String codeStep = "";
-      if (codeStep != null) {
-        codeStep = DictionaryManager.getDisplay("hci.gnomex.model.Step", abbr);
-      }
-    return codeStep;
   }
   
   public Map getPropertyDictionaryMap() {
@@ -368,14 +347,6 @@ public class DictionaryHelper implements Serializable {
     }
     return name;
   }
-  public String getVisibility(String codeVisibility) {
-    lazyLoadManagedDictionaries();
-    String name = "";
-    if (codeVisibility != null) {
-      name = DictionaryManager.getDisplay("hci.gnomex.model.Visibility", codeVisibility);
-    }
-    return name;
-  }
   public String getSampleSource(Integer idSampleSource) {
     lazyLoadManagedDictionaries();
     String name = "";
@@ -439,24 +410,6 @@ public class DictionaryHelper implements Serializable {
     }
     return name;
   }
-  
-  public String getBioanalyzerCodeApplication(String codeBioanalyzerChipType) {
-    String codeApplication = null;
-    // Find the core facility for DNA Sequencing.  If we can't find it, throw an error.
-    for (Iterator i = DictionaryManager.getDictionaryEntries("hci.gnomex.model.BioanalyzerChipType").iterator(); i.hasNext();) {
-      DictionaryEntry de = (DictionaryEntry)i.next();
-      if (de instanceof NullDictionaryEntry) {
-        continue;
-      }
-      BioanalyzerChipType chip = (BioanalyzerChipType)de;
-      if (chip.getCodeBioanalyzerChipType().equals(codeBioanalyzerChipType)) {
-        codeApplication = chip.getCodeApplication();
-        break;
-      }
-    }
-    return codeApplication;
-  }
-  
   public String getApplication(String code) {
     lazyLoadManagedDictionaries();
     String name = "";
@@ -497,15 +450,8 @@ public class DictionaryHelper implements Serializable {
   }
   
   public RequestCategory getRequestCategoryObject(String code) {
-    if (!ManageDictionaries.isLoaded) {
-      return null;
-    }
     lazyLoadManagedDictionaries();
     return (RequestCategory)requestCategoryMap.get(code);
-  }
-  public ProductType getProductTypeObject(String code) {
-    lazyLoadManagedDictionaries();
-    return (ProductType)productTypeMap.get(code);
   }
   public String getSeqRunType(Integer id) {
     lazyLoadManagedDictionaries();
@@ -520,14 +466,6 @@ public class DictionaryHelper implements Serializable {
     String name = "";
     if (id != null) {
       name = DictionaryManager.getDisplay("hci.gnomex.model.NumberSequencingCycles", id.toString());
-    }
-    return name;
-  }
-  public String getNumberSequencingCyclesAllowed(Integer id) {
-    lazyLoadManagedDictionaries();
-    String name = "";
-    if (id != null) {
-      name = DictionaryManager.getDisplay("hci.gnomex.model.NumberSequencingCyclesAllowed", id.toString());
     }
     return name;
   }
@@ -601,22 +539,6 @@ public class DictionaryHelper implements Serializable {
     String name = "";
     if (id != null) {
       name = DictionaryManager.getDisplay("hci.gnomex.model.SeqLibProtocol", id.toString());
-    }
-    return name;
-  }   
-  public String getBioanalyzerChipType(String code) {
-    lazyLoadManagedDictionaries();
-    String name = "";
-    if (code != null) {
-      name = DictionaryManager.getDisplay("hci.gnomex.model.BioanalyzerChipType", code);
-    }
-    return name;
-  }   
-  public String getIlluminaSequencingProtocol(Integer id) {
-    lazyLoadManagedDictionaries();
-    String name = "";
-    if (id != null) {
-      name = DictionaryManager.getDisplay("hci.gnomex.model.NumberSequencingCyclesAllowed", id.toString());
     }
     return name;
   }   
@@ -775,9 +697,9 @@ public class DictionaryHelper implements Serializable {
     return propertyList;
   }
   
-  public Property getPropertyByNameAndCore(String name, Integer idCoreFacility) {
+  public Property getPropertyByName(String name) {
     for(Property p : propertyList) {
-      if (p.getName().equals(name) && p.getIdCoreFacility().equals(idCoreFacility)) {
+      if (p.getName().equals(name)) {
         return p;
       }
     }
@@ -823,22 +745,5 @@ public class DictionaryHelper implements Serializable {
   public RequestCategoryType getRequestCategoryType(String type) {
     lazyLoadManagedDictionaries();
     return this.requestCategoryTypeMap.get(type); 
-  }
-  
-  public Application getApplicationObject(String code) {
-    Application app = null;
-    // Find the core facility for DNA Sequencing.  If we can't find it, throw an error.
-    for (Iterator i = DictionaryManager.getDictionaryEntries("hci.gnomex.model.Application").iterator(); i.hasNext();) {
-      DictionaryEntry de = (DictionaryEntry)i.next();
-      if (de instanceof NullDictionaryEntry) {
-        continue;
-      }
-      Application a = (Application)de;
-      if (a.getCodeApplication().equals(code)) {
-        app = a;
-        break;
-      }
-    }
-    return app;
   }
 }

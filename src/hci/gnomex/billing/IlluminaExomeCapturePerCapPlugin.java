@@ -9,7 +9,6 @@ import hci.gnomex.model.LabeledSample;
 import hci.gnomex.model.Price;
 import hci.gnomex.model.PriceCategory;
 import hci.gnomex.model.PriceCriteria;
-import hci.gnomex.model.PropertyEntry;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.Sample;
 import hci.gnomex.model.SequenceLane;
@@ -30,9 +29,8 @@ public class IlluminaExomeCapturePerCapPlugin implements BillingPlugin {
   static final int SAMPLES_PER_CAPTURE = 6;
 
   public List constructBillingItems(Session sess, String amendState, BillingPeriod billingPeriod, PriceCategory priceCategory, Request request, 
-      Set<Sample> samples, Set<LabeledSample> labeledSamples, Set<Hybridization> hybs, Set<SequenceLane> lanes, Map<String, ArrayList<String>> sampleToAssaysMap, 
-      String billingStatus, Set<PropertyEntry> propertyEntries) {
-    
+      Set<Sample> samples, Set<LabeledSample> labeledSamples, Set<Hybridization> hybs, Set<SequenceLane> lanes, Map<String, ArrayList<String>> sampleToAssaysMap) {
+
     List billingItems = new ArrayList<BillingItem>();
     
     if (samples == null || samples.size() == 0) {
@@ -104,10 +102,7 @@ public class IlluminaExomeCapturePerCapPlugin implements BillingPlugin {
       if (qty > 0 && theUnitPrice != null) {
         billingItem.setInvoicePrice(theUnitPrice.multiply(new BigDecimal(qty)));          
       }
-      billingItem.setCodeBillingStatus(billingStatus);
-      if (!billingStatus.equals(BillingStatus.NEW) && !billingStatus.equals(BillingStatus.PENDING)) {
-        billingItem.setCompleteDate(new java.sql.Date(System.currentTimeMillis()));
-      }
+      billingItem.setCodeBillingStatus(BillingStatus.PENDING);
       billingItem.setIdRequest(request.getIdRequest());
       billingItem.setIdBillingAccount(request.getIdBillingAccount());
       billingItem.setIdLab(request.getIdLab());

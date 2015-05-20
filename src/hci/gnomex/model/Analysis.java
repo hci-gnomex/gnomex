@@ -264,7 +264,7 @@ public class Analysis extends HibernateDetailObject implements VisibilityInterfa
   public void setAppUser(AppUser appUser) {
     this.appUser = appUser;
   }
-
+  
   public Integer getIdSubmitter() {
     return idSubmitter;
   }
@@ -284,16 +284,16 @@ public class Analysis extends HibernateDetailObject implements VisibilityInterfa
   public String getOwnerName() {
     if (appUser != null) {
       return (appUser.getFirstName() != null ? appUser.getFirstName() : "")
-      + " " + (appUser.getLastName() != null ? appUser.getLastName() : "");
+          + " " + (appUser.getLastName() != null ? appUser.getLastName() : "");
     } else {
       return "";
     }
   }
-
+  
   public String getSubmitterName() {
     if (submitter != null) {
       return (submitter.getFirstName() != null ? submitter.getFirstName() : "")
-      + " " + (submitter.getLastName() != null ? submitter.getLastName() : "");
+          + " " + (submitter.getLastName() != null ? submitter.getLastName() : "");
     } else {
       return "";
     }
@@ -336,14 +336,14 @@ public class Analysis extends HibernateDetailObject implements VisibilityInterfa
       return "";
     } else {
       String createDate = new SimpleDateFormat("MM/dd/yyyy")
-      .format(theCreateDate);
+          .format(theCreateDate);
       String tokens[] = createDate.split("/");
       String createMonth = tokens[0];
       String createDay = tokens[1];
       String createYear = tokens[2];
       String sortDate = createYear + createMonth + createDay;
       String key = createYear + "-" + sortDate + "-" + analysisNumber + "-"
-      + resultsDir;
+          + resultsDir;
       return key;
     }
   }
@@ -377,7 +377,7 @@ public class Analysis extends HibernateDetailObject implements VisibilityInterfa
       return "";
     } else {
       String createDate = new SimpleDateFormat("MM/dd/yyyy")
-      .format(theCreateDate);
+          .format(theCreateDate);
       String tokens[] = createDate.split("/");
       String createYear = tokens[2];
       return createYear;
@@ -394,7 +394,7 @@ public class Analysis extends HibernateDetailObject implements VisibilityInterfa
 
   @SuppressWarnings("unchecked")
   public Document getXML(SecurityAdvisor secAdvisor, DictionaryHelper dh)
-  throws Exception {
+      throws Exception {
     Document doc = new Document(new Element("Analysis"));
     Element root = doc.getRootElement();
 
@@ -455,7 +455,7 @@ public class Analysis extends HibernateDetailObject implements VisibilityInterfa
 
     return doc;
   }
-
+  
   /*
    * This is a convenience method used by GetRequest, GetAnalysis, GetDataTrack to fill in the XML for a "related" analysis.
    * This experiment may be related in terms of the Experiment->Analysis->DataTrack links or the links to Topics.

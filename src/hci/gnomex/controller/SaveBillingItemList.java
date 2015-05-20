@@ -10,7 +10,6 @@ import hci.gnomex.model.CoreFacility;
 import hci.gnomex.model.DiskUsageByMonth;
 import hci.gnomex.model.Invoice;
 import hci.gnomex.model.Lab;
-import hci.gnomex.model.Notification;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.Request;
 import hci.gnomex.security.SecurityAdvisor;
@@ -23,7 +22,6 @@ import hci.gnomex.utility.LogLongExecutionTimes.LogItem;
 import hci.gnomex.utility.MailUtil;
 import hci.gnomex.utility.PropertyDictionaryHelper;
 
-import java.io.File;
 import java.io.Serializable;
 import java.io.StringReader;
 import java.util.ArrayList;
@@ -48,7 +46,7 @@ import org.jdom.input.SAXBuilder;
 
 
 public class SaveBillingItemList extends GNomExCommand implements Serializable {
-
+  
   private class LabAccountBillingPeriod implements Serializable {
     public Lab getLab() {
       return lab;
@@ -70,12 +68,12 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
       this.billingAccount = billingAccount;
       this.idCoreFacility = idCoreFacility;
     }
-
+    
     private Lab lab;
     private Integer idBillingPeriod;
     private BillingAccount billingAccount;
     private Integer idCoreFacility;
-
+    
     public int hashCode() {
       return new HashCodeBuilder()
       .append(getLab().getIdLab())
@@ -84,44 +82,44 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
       .append(getIdCoreFacility())
       .toHashCode();
     }
-
+    
     public boolean equals(Object other) {
       if ( !(other instanceof LabAccountBillingPeriod) ) return false;
       LabAccountBillingPeriod castOther = (LabAccountBillingPeriod) other;
       return new EqualsBuilder()
-      .append(this.getLab().getIdLab(), castOther.getLab().getIdLab())
-      .append(this.getIdBillingPeriod(), castOther.getIdBillingPeriod())
-      .append(this.getBillingAccount().getIdBillingAccount(), castOther.getBillingAccount().getIdBillingAccount())
-      .append(this.getIdCoreFacility(), castOther.getIdCoreFacility())
-      .isEquals();
-    }    
+          .append(this.getLab().getIdLab(), castOther.getLab().getIdLab())
+          .append(this.getIdBillingPeriod(), castOther.getIdBillingPeriod())
+          .append(this.getBillingAccount().getIdBillingAccount(), castOther.getBillingAccount().getIdBillingAccount())
+          .append(this.getIdCoreFacility(), castOther.getIdCoreFacility())
+          .isEquals();
+  }    
 
-  } 
-
+} 
+  
   // the static field for logging in Log4J
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(SaveBillingItemList.class);
-
+  
   private String                       billingItemXMLString;
   private Document                     billingItemDoc;
   private BillingItemParser            parser;
-
+    
   private String                       serverName;
-
+  
   private Map<LabAccountBillingPeriod, Object[]>  labAccountBillingPeriodMap = new HashMap<LabAccountBillingPeriod, Object[]>();
-
+  
   private DictionaryHelper             dictionaryHelper = null;
-
+  
   private transient LogLongExecutionTimes executionLogger = null;
-
+  
   public void validate() {
   }
-
+  
   public void loadCommand(HttpServletRequest request, HttpSession session) {
-
-
+    
+    
     if (request.getParameter("billingItemXMLString") != null && !request.getParameter("billingItemXMLString").equals("")) {
       billingItemXMLString = "<BillingItemList>" + request.getParameter("billingItemXMLString") + "</BillingItemList>";
-
+      
       StringReader reader = new StringReader(billingItemXMLString);
       try {
         SAXBuilder sax = new SAXBuilder();
@@ -132,20 +130,20 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
         this.addInvalidField( "BillingItemXMLString", "Invalid work item xml");
       }
     }
-
+    
     serverName = request.getServerName();
-
+    
   }
 
   public Command execute() throws RollBackCommandException {
-
+    
     if (billingItemXMLString != null) {
       try {
         Session sess = HibernateSession.currentSession(this.getUsername());
-
+        
         executionLogger = new LogLongExecutionTimes(log, PropertyDictionaryHelper.getInstance(sess), "SaveBillingItemList");
         LogItem li = null;
-
+        
         if (this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_MANAGE_BILLING)) {
           li = executionLogger.startLogItem("Parse");
           parser.parse(sess);
@@ -170,16 +168,16 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
             billingItems.add(billingItem);
 
           }
-
+          
           sess.flush();
           executionLogger.endLogItem(li);
-
+          
           li = executionLogger.startLogItem("Set PO Status");
           for(Iterator i = billingItems.iterator(); i.hasNext();) {
             BillingItem billingItem = (BillingItem)i.next();
-
+            
             sess.refresh(billingItem);
-
+            
             // For PO Billing account, approved status is changed to 
             // 'Approved External' so that it shows under a different
             // folder in the billing tree.
@@ -191,8 +189,8 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
                 billingItem.setCodeBillingStatus(BillingStatus.APPROVED_CC);
               }
             }
-          }
-
+                      }
+          
           sess.flush();
           executionLogger.endLogItem(li);
 
@@ -208,7 +206,7 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
 
           }
           executionLogger.endLogItem(li);
-
+          
           li = executionLogger.startLogItem("Delete Items");
           for(Iterator i = parser.getBillingItemsToRemove().iterator(); i.hasNext();) {
             BillingItem bi = (BillingItem)i.next();
@@ -216,21 +214,21 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
           }
           sess.flush();
           executionLogger.endLogItem(li);
-
+          
           li = executionLogger.startLogItem("Save Invoices");
           for(Invoice invoice : parser.getInvoices()) {
             sess.save(invoice);
           }
           sess.flush();
           executionLogger.endLogItem(li);
-
+          
           for(Iterator<LabAccountBillingPeriod> i = labAccountBillingPeriodMap.keySet().iterator(); i.hasNext();) {
             LabAccountBillingPeriod labp = i.next();
             this.checkToSendInvoiceEmail(sess, labp.getLab(), labp.getIdBillingPeriod(), labp.getBillingAccount(), labp.getIdCoreFacility());
           }       
-
+          
           this.xmlResult = "<SUCCESS/>";
-
+          
           setResponsePage(this.SUCCESS_JSP);          
         } else {
           this.addInvalidField("Insufficient permissions", "Insufficient permission to manage workflow");
@@ -242,47 +240,48 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
         log.error("An exception has occurred in SaveBillingItem ", e);
         e.printStackTrace();
         throw new RollBackCommandException(e.getMessage());
-
+          
       }finally {
         try {
           HibernateSession.closeSession();        
         } catch(Exception e) {
-
+          
         }
       }
-
+      
     } else {
       this.xmlResult = "<SUCCESS/>";
       setResponsePage(this.SUCCESS_JSP);
     }
-
+    
     return this;
   }
-
+  
   private void checkToSendInvoiceEmail(Session sess, Lab lab, Integer idBillingPeriod, BillingAccount billingAccount, Integer idCoreFacility) {
     if ((lab != null && lab.getContactEmail() != null && !lab.getContactEmail().equals("")) ||(lab != null && lab.getBillingContactEmail() != null && !lab.getBillingContactEmail().equals("")) ) {
       if (this.readyToInvoice(sess, idBillingPeriod, lab, billingAccount.getIdBillingAccount(), idCoreFacility)) {
         try {
           sendInvoiceEmail(sess, idBillingPeriod, lab, billingAccount, idCoreFacility, true);        
         } catch (Exception e) {
-          log.error("Unable to send invoice email to billing contact " + lab.getContactEmail() + " for lab " + lab.getName(false, true) + ".", e);
+          log.error("Unable to send invoice email to billing contact " + lab.getContactEmail() + " for lab " + lab.getName() + ".", e);
         }
-
+        
       }
-    } else if(this.readyToInvoice(sess, idBillingPeriod, lab, billingAccount.getIdBillingAccount(), idCoreFacility)) {
+    } else {
       try {
         sendInvoiceEmail(sess, idBillingPeriod, lab, billingAccount, idCoreFacility, false);        
       } catch (Exception e) {
-        log.error("Unable to send invoice email to billing contact " + lab.getContactEmail() + " for lab " + lab.getName(false, true) + ".", e);
+        log.error("Unable to send invoice email to billing contact " + lab.getContactEmail() + " for lab " + lab.getName() + ".", e);
       }
-      //log.error("Unable to send invoice email to billing contact for lab " + lab.getName());      
+      log.error("Unable to send invoice email to billing contact for lab " + lab.getName()
+          + ". Billing contact and P.I. email are blank.  Notified Core Facility Manager of this.");      
     }
   }
-
+  
   private void sendInvoiceEmail(Session sess, Integer idBillingPeriod, Lab lab, BillingAccount billingAccount, Integer idCoreFacility, Boolean labEmailPresent) throws Exception {
     LogItem li = this.executionLogger.startLogItem("Format Email");
     dictionaryHelper = DictionaryHelper.getInstance(sess);
-
+    
     BillingPeriod billingPeriod = dictionaryHelper.getBillingPeriod(idBillingPeriod);
     CoreFacility coreFacility = (CoreFacility)sess.get(CoreFacility.class, idCoreFacility);
 
@@ -296,32 +295,33 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
     query.setParameter("idBillingAccount", billingAccount.getIdBillingAccount());
     Invoice invoice = (Invoice)query.uniqueResult();
     ShowBillingInvoiceForm.cacheBillingItemMap(sess, this.getSecAdvisor(), idBillingPeriod, lab.getIdLab(), billingAccount.getIdBillingAccount(), idCoreFacility, billingItemMap, relatedBillingItemMap, requestMap);
-
+    
     BillingInvoiceEmailFormatter emailFormatter = new BillingInvoiceEmailFormatter(sess, coreFacility, billingPeriod, lab, billingAccount, invoice, billingItemMap, relatedBillingItemMap, requestMap);
     String subject = emailFormatter.getSubject();
-
+    
+    boolean send = false;
     boolean notifyCoreFacilityOfEmptyBillingEmail = false;
     String emailInfo = "";
     String missingBillingEmailNote = "";
     String emailRecipients = "";
-
+    
     if(labEmailPresent) {
       if(lab.getBillingContactEmail() != null && !lab.getBillingContactEmail().equals("")) {
         emailRecipients = lab.getBillingContactEmail();
       } else if(lab.getContactEmail() != null && !lab.getContactEmail().equals("")) {
         emailRecipients = lab.getContactEmail();
+        notifyCoreFacilityOfEmptyBillingEmail = true;
+        missingBillingEmailNote = "Please note that the invoice for the account " + billingAccount.getAccountNameDisplay() + 
+        ", assigned to the " + lab.getName() + ", under the billing period " + 
+        billingPeriod.getDisplay() + 
+        " has been sent to the P.I. because no billing contact email was on file for the lab.  Please update the lab's billing contact information for the future.<br><br>";
       }
     } else {
       emailRecipients = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
-      notifyCoreFacilityOfEmptyBillingEmail = true;
-      //emailInfo += "Please note that we could not send the following invoice to the lab specified because the lab has no email address on file.  Please update the lab's information.<br><br>";
-      missingBillingEmailNote = "Please note that the invoice for the account " + billingAccount.getAccountNameDisplay() + 
-      ", assigned to the " + lab.getName(false, true) + ", under the billing period " + 
-      billingPeriod.getDisplay() + 
-      " has not been delivered because no billing contact email or P.I. email was on file for the lab.  Please update the lab's billing contact information for the future.<br><br>";
+      emailInfo += "Please note that we could not send the following invoice to the lab specified because the lab has no email address on file.  Please update the lab's information.<br><br>";
 
     }
-
+    
     String ccList = emailFormatter.getCCList(sess);
     String fromAddress = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
     if(emailRecipients.contains(",")){
@@ -333,65 +333,51 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
     } else if(!MailUtil.isValidEmail(emailRecipients)){
       log.error("Invalid email address " + emailRecipients);
     }
-    //send emails to software tester if not production environment
-    if (dictionaryHelper.isProductionServer(serverName) == false) {
+    if (dictionaryHelper.isProductionServer(serverName)) {
+      send = true;
+    } else {
+      send = true;
       subject = subject + "  (TEST)";
       emailInfo += "<br><br>[If this were a production environment then this email would have been sent to: " + emailRecipients + ccList + "]<br><br>";
       emailRecipients = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
       ccList = null;
     }
     this.executionLogger.endLogItem(li);
-
-    li = this.executionLogger.startLogItem("Send email");
-
-    if(!MailUtil.isValidEmail(fromAddress)){
-      fromAddress = DictionaryHelper.getInstance(sess).getPropertyDictionary(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
-    }
-
-    if(notifyCoreFacilityOfEmptyBillingEmail) {
-      MailUtil.send(emailRecipients, "", DictionaryHelper.getInstance(sess).getPropertyDictionary(PropertyDictionary.GENERIC_NO_REPLY_EMAIL), "Unable to send billing invoice", emailInfo + missingBillingEmailNote, true);
-    }
     
-    Map[] billingItemMaps = {billingItemMap};
-    Map[] relatedBillingItemMaps = {relatedBillingItemMap};
-    Map[] requestMaps = {requestMap};
-    try {
-    	File billingInvoice = ShowBillingInvoiceFormNew.makePDFBillingInvoice(sess, serverName, billingPeriod, coreFacility, false, lab, 
-																				new Lab[0], billingAccount, new BillingAccount[0], 
-																				PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(coreFacility.getIdCoreFacility(), PropertyDictionary.CONTACT_ADDRESS_CORE_FACILITY), 
-																				PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(coreFacility.getIdCoreFacility(), PropertyDictionary.CONTACT_REMIT_ADDRESS_CORE_FACILITY), 
-																				billingItemMaps, relatedBillingItemMaps, requestMaps);
-    	MailUtil.send_attach(emailRecipients, 
-    	        		ccList,
-    	        		fromAddress,
-    	        		subject, 
-    	        		emailInfo + emailFormatter.format(),
-    	        		true,
-    	        		billingInvoice);
-    	
-    	billingInvoice.delete();
-    } catch (Exception e) {
-    	log.error("Unable to send invoice email to " + emailRecipients, e);
+    li = this.executionLogger.startLogItem("Send email");
+    if (send) {
+      if(!MailUtil.isValidEmail(fromAddress)){
+        fromAddress = DictionaryHelper.getInstance(sess).getPropertyDictionary(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
+      }
+      
+      if(notifyCoreFacilityOfEmptyBillingEmail && dictionaryHelper.isProductionServer(serverName)) {
+        MailUtil.send(PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY), "", DictionaryHelper.getInstance(sess).getPropertyDictionary(PropertyDictionary.GENERIC_NO_REPLY_EMAIL), "Billing Invoice sent to P.I.", missingBillingEmailNote + emailInfo, true);
+      } else if(notifyCoreFacilityOfEmptyBillingEmail && !dictionaryHelper.isProductionServer(serverName)) {
+        String testingNote = "<br><br>[If this were a production environment then this email would have been sent to: " + PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY) + "]<br><br>";
+        MailUtil.send(PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER), "", DictionaryHelper.getInstance(sess).getPropertyDictionary(PropertyDictionary.GENERIC_NO_REPLY_EMAIL), "Billing Invoice sent to P.I.", missingBillingEmailNote + testingNote, true);
+      }
+      MailUtil.send(emailRecipients, 
+          ccList,
+          fromAddress,
+          subject, 
+          emailInfo + emailFormatter.format(),
+          true); 
+      
+      // Set last email date
+      if (invoice != null) {
+        invoice.setLastEmailDate(new java.sql.Date(System.currentTimeMillis()));
+        sess.save(invoice);
+        sess.flush();
+      }
     }
-
-    // Set last email date
-    if (invoice != null) {
-      invoice.setLastEmailDate(new java.sql.Date(System.currentTimeMillis()));
-      sess.save(invoice);
-
-      sendNotification(invoice, sess, Notification.NEW_STATE, Notification.SOURCE_TYPE_BILLING, Notification.TYPE_INVOICE);
-
-      sess.flush();
-    }
-
     this.executionLogger.endLogItem(li);
   }  
 
-
+  
   private boolean readyToInvoice(Session sess, Integer idBillingPeriod, Lab lab, Integer idBillingAccount, Integer idCoreFacility) {
     LogItem li = this.executionLogger.startLogItem("readyToInvoice");
     boolean readyToInvoice = false;
-
+    
     if (lab != null && idBillingAccount != null) {
       // Find out if this if all billing items for this lab and billing period
       // are approved.  If so, send out a billing invoice to the 
@@ -405,7 +391,7 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
       buf.append("AND    bi.idBillingAccount = " + idBillingAccount);
       buf.append("AND    bi.idCoreFacility = " + idCoreFacility);
       buf.append("GROUP BY bi.codeBillingStatus ");
-
+      
       List countList = sess.createQuery(buf.toString()).list();
       int approvedCount = 0;
       int otherCount = 0;
@@ -413,24 +399,24 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
         Object[] countRow = (Object[])i.next();
         String codeBillingStatus = (String)countRow[0];
         Integer count = (Integer)countRow[1];
-
+        
         if (codeBillingStatus.equals(BillingStatus.APPROVED) || codeBillingStatus.equals(BillingStatus.APPROVED_PO) || codeBillingStatus.equals(BillingStatus.APPROVED_CC)) {
           approvedCount = count.intValue();
         } else {
           otherCount += count.intValue();
         }
-
+        
       }
       if (approvedCount > 0 && otherCount == 0) {
         readyToInvoice = true;
       }
-
+      
     }
     this.executionLogger.endLogItem(li);
     return readyToInvoice;
-
+    
   }
-
-
+  
+  
 
 }

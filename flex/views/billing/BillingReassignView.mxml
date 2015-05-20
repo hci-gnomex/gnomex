@@ -26,17 +26,15 @@
 
 <mx:Script>
 	<![CDATA[
-		import mx.collections.XMLListCollection;
-		import mx.events.CloseEvent;
-		import mx.controls.Alert;
 		import mx.events.CollectionEvent;
 		import mx.events.CollectionEventKind;
-		import mx.managers.PopUpManager;
+		import mx.collections.XMLListCollection;
 		import mx.rpc.events.FaultEvent;
 		import mx.rpc.events.ResultEvent;
-		
-		import views.renderers.ComboBoxBillingAccount;
+		import mx.managers.PopUpManager;
+		import mx.controls.Alert;
 		import views.renderers.ComboBoxGroup;
+		import views.renderers.ComboBoxBillingAccount;
 		
 		
 		[Bindable]
@@ -52,8 +50,6 @@
 		public var labs:XMLListCollection;
 		
 		private var isInitialized:Boolean = false;
-		
-		public var approvedCount:int = 0;
 
 		public function initializeData():void {
 			var params:Object = new Object();
@@ -71,11 +67,10 @@
 		
 		private function onGetLab(event:ResultEvent):void {			
 			var lab:Object = getLab.lastResult..Lab;
-			var requestCategory:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory',request.@codeRequestCategory);
 			if (this.showInactiveAccountsCheckBox.selected) {
-				billingAccounts = new XMLListCollection(lab.billingAccounts.BillingAccount.(@isApproved == 'Y' && @idCoreFacility == requestCategory.@idCoreFacility));
+				billingAccounts = new XMLListCollection(lab.billingAccounts.BillingAccount.(@isApproved == 'Y'));
 			} else {
-				billingAccounts = new XMLListCollection(lab.billingAccounts.BillingAccount.(@isApproved == 'Y' && @isActive == 'Y' && @idCoreFacility == requestCategory.@idCoreFacility));
+				billingAccounts = new XMLListCollection(lab.billingAccounts.BillingAccount.(@isApproved == 'Y' && @isActive == 'Y'));
 			}
 			var blankNode:XML = new XML("<BillingAccount idCoreFacility='' idLab='' labName='' idBillingAccount='' accountName=''/>");
 			billingAccounts.addItemAt(blankNode, 0);
@@ -112,22 +107,6 @@
 					break;
 				}
 			}			
-		}
-		
-		private function hasApprovedItems():void{
-			if(approvedCount > 0){
-				Alert.show("This experiment has items that have already been approved. Are you sure you want to reassign the billing account?", "Confirm", Alert.YES | Alert.NO, this, isBillingReassign);
-			} else {
-				save();
-			}
-		}
-		
-		private function isBillingReassign(event:CloseEvent):void{
-			if(event.detail == Alert.YES){
-				save();
-			} else{
-				mx.managers.PopUpManager.removePopUp(this);
-			}
 		}
          
         		  
@@ -181,7 +160,7 @@
 		</mx:HBox>
 	</mx:VBox>
 	<mx:ControlBar horizontalAlign="right">
-		<mx:Button label="Save" id="saveButton" click="hasApprovedItems();" enabled="{labCombo.selectedItem != null &amp;&amp; labCombo.selectedItem.@idLab != '' &amp;&amp; billingAccountCombo.selectedItem != null &amp;&amp; billingAccountCombo.selectedItem.@idBillingAccount != ''? true : false}" icon="@Embed(source='../../assets/save.png')" disabledIcon="@Embed(source='../../assets/save_disable.png')"/>
+		<mx:Button label="Save" id="saveButton" click="save()" enabled="{labCombo.selectedItem != null &amp;&amp; labCombo.selectedItem.@idLab != '' &amp;&amp; billingAccountCombo.selectedItem != null &amp;&amp; billingAccountCombo.selectedItem.@idBillingAccount != ''? true : false}" icon="@Embed(source='../../assets/save.png')" disabledIcon="@Embed(source='../../assets/save_disable.png')"/>
 		<mx:Button label="Cancel" click="{mx.managers.PopUpManager.removePopUp(this)}"/>
 	</mx:ControlBar>
 	

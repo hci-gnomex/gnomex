@@ -303,6 +303,7 @@
 											  prompt="Lab..."
 											  width="200"
 											  close="labSelected();" 
+											  removeFilterOnSelection="true"
 											  id="labCombo">
 					</renderers:FilterComboBox>
 					<mx:Label text="Owner" paddingLeft="8" styleName="formLabel"/>
@@ -357,7 +358,7 @@
 					<mx:ComboBox width="210" dataProvider="{this.possibleInstitutions}" id="institutionCombo" labelField="@display"  editable="false" enabled="{visibilityRadioGroup.selectedValue == 'INST'}">			       	
 					</mx:ComboBox>					
 				</mx:HBox>
-				<mx:HBox horizontalGap="4"  verticalAlign="middle" visible="{parentApplication.isPublicVisibility}" includeInLayout="{parentApplication.isPublicVisibility}">
+				<mx:HBox horizontalGap="4"  verticalAlign="middle">
 					<mx:Image  scaleContent="false" width="16" height="16" source="{parentApplication.iconTopicPublic}"/>
 					<mx:RadioButton id="radioPublicVisibility" value="PUBLIC" label="Public Access" groupName="visibilityRadioGroup"  click="{dirtyTopic.setDirty();}"/>
 				</mx:HBox>

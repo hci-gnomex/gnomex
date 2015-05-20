@@ -38,7 +38,7 @@ import org.jdom.output.XMLOutputter;
 
 
 public class GetUsageDetail extends GNomExCommand implements Serializable {
-
+  
   // the static field for logging in Log4J
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetUsageDetail.class);
 
@@ -48,17 +48,17 @@ public class GetUsageDetail extends GNomExCommand implements Serializable {
   private String fieldName = "";
   private String usageUserVisibility = "";
   private Integer idCoreFacility = null;
-
+  
   DateFormat dfShort    = new SimpleDateFormat("MMM yyyy");
   DateFormat dfDataTip  = new SimpleDateFormat("MMM dd yyyy");
   DateFormat dfNormal   = new SimpleDateFormat("MM-dd-yyyy");
 
   Calendar today = Calendar.getInstance();
-
-
+  
+  
   public void validate() {
   }
-
+  
   public void loadCommand(HttpServletRequest request, HttpSession session) {
 
     if (request.getParameter("startDate") != null && !request.getParameter("startDate").equals("")) {
@@ -97,9 +97,9 @@ public class GetUsageDetail extends GNomExCommand implements Serializable {
   }
 
   public Command execute() throws RollBackCommandException {
-
+    
     try {
-
+           
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
       usageUserVisibility = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.USAGE_USER_VISIBILITY);
 
@@ -108,7 +108,7 @@ public class GetUsageDetail extends GNomExCommand implements Serializable {
         this.addInvalidField("Insufficient permissions", "Insufficient permission to get usage data.  Guests cannot access usage data.");
         setResponsePage(this.ERROR_JSP);
       } 
-
+    
       // Admins can run this command.  Normal gnomex users can if usage_user_visibility
       // property is set to an appropriate level ('masked' or 'full').
       if (this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_ACCESS_ANY_OBJECT)) {
@@ -117,7 +117,7 @@ public class GetUsageDetail extends GNomExCommand implements Serializable {
         setResponsePage(this.ERROR_JSP);
       }
 
-
+      
       if (this.isValid()) {
         Document doc = new Document(new Element("UsageDetail"));
         if (chartName.equals(GetUsageData.SUMMARY_ACTIVITY_BY_WEEK)) {
@@ -137,12 +137,12 @@ public class GetUsageDetail extends GNomExCommand implements Serializable {
 
         setResponsePage(this.SUCCESS_JSP);
       }
-
+      
     }catch (NamingException e){
       log.error("An exception has occurred in GetUsageDetail ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
-
+        
     }catch (SQLException e) {
       log.error("An exception has occurred in GetUsageDetail ", e);
       e.printStackTrace();
@@ -159,13 +159,13 @@ public class GetUsageDetail extends GNomExCommand implements Serializable {
       try {
         this.getSecAdvisor().closeReadOnlyHibernateSession();        
       } catch(Exception e) {
-
+        
       }
     }
-
+    
     return this;
   }
-
+  
   private void getActivityExperimentDetail(Session sess, Element parentElement) {
 
     StringBuffer queryBuf = new StringBuffer();
@@ -177,7 +177,7 @@ public class GetUsageDetail extends GNomExCommand implements Serializable {
       queryBuf.append("AND r.idCoreFacility = " + idCoreFacility + " ");
     }
     queryBuf.append("order by lab.idLab, lab.lastName, lab.firstName, r.createDate, r.number");
-
+    
     List rows = sess.createQuery(queryBuf.toString()).list();
     for(Iterator i = rows.iterator(); i.hasNext();) {
       Object[] row = (Object[])i.next();
@@ -186,18 +186,18 @@ public class GetUsageDetail extends GNomExCommand implements Serializable {
       String labFirstName = (String)row[2];
       Date createDate = (Date)row[3];
       String requestNumber = (String)row[4];
-
-
+      
+      
       Element node = new Element("Entry");
       node.setAttribute("labName", getLabName(idLab, labLastName, labFirstName));
       node.setAttribute("labNameDisplay", getLabName(idLab, labLastName, labFirstName));
       node.setAttribute("number", requestNumber);
       node.setAttribute("createDate", this.formatDate(createDate));
-
+      
       parentElement.addContent(node);
     }
   }
-
+  
   private void getActivityAnalysisDetail(Session sess, Element parentElement) {
 
     StringBuffer queryBuf = new StringBuffer();
@@ -206,7 +206,7 @@ public class GetUsageDetail extends GNomExCommand implements Serializable {
     queryBuf.append("where a.createDate >= '" + this.formatDate(startDate, this.DATE_OUTPUT_SQL) + "' ");
     queryBuf.append("and a.createDate < '" + this.formatDate(endDate.getTime(), this.DATE_OUTPUT_SQL) + "' ");
     queryBuf.append("order by lab.idLab, lab.lastName, lab.firstName, a.createDate, a.number");
-
+    
     List rows = sess.createQuery(queryBuf.toString()).list();
     for(Iterator i = rows.iterator(); i.hasNext();) {
       Object[] row = (Object[])i.next();
@@ -215,13 +215,13 @@ public class GetUsageDetail extends GNomExCommand implements Serializable {
       String labFirstName = (String)row[2];
       Date createDate = (Date)row[3];
       String analysisNumber = (String)row[4];
-
-
+      
+      
       Element node = new Element("Entry");
       node.setAttribute("labName", getLabName(idLab, labLastName, labFirstName));
       node.setAttribute("number", analysisNumber);
       node.setAttribute("createDate", this.formatDate(createDate));
-
+      
       parentElement.addContent(node);
     }
   }
@@ -230,7 +230,7 @@ public class GetUsageDetail extends GNomExCommand implements Serializable {
     List<Object> rows;
     TreeMap<UsageRowDescriptor, Element> nodeMap = new TreeMap<UsageRowDescriptor, Element>(new UsageRowDescriptorComparator());
     StringBuffer queryBuf = new StringBuffer();
-
+    
     queryBuf.append("SELECT lab.idLab, lab.lastName, lab.firstName, tl.startDateTime, r.number, tl.fileName ");
     queryBuf.append("from TransferLog tl, Request r, Lab lab ");
     queryBuf.append("where tl.idRequest = r.idRequest ");
@@ -244,24 +244,24 @@ public class GetUsageDetail extends GNomExCommand implements Serializable {
     queryBuf.append("group by lab.idLab, lab.lastName, lab.firstName, tl.startDateTime, r.number, tl.fileName ");
     queryBuf.append("order by lab.idLab, lab.lastName, lab.firstName, tl.startDateTime, r.number, tl.fileName"); 
     rows = sess.createQuery(queryBuf.toString()).list();
-
+    
     Set<UsageRowDescriptor> uniqueEntries = new TreeSet<UsageRowDescriptor> (new UsageRowDescriptorComparator()); 
     TreeMap<UsageRowDescriptor, Integer> rowCounterMap = new TreeMap<UsageRowDescriptor, Integer> ();
     for(Iterator<Object> i = rows.iterator(); i.hasNext();) {
       Object[] row = (Object[])i.next();
       UsageRowDescriptor thisDescriptor = new UsageRowDescriptor();
-
+      
       thisDescriptor.setIdLab((Integer)row[0]);
       thisDescriptor.setLabLastName((String)row[1]);
       thisDescriptor.setLabFirstName((String)row[2]);
       thisDescriptor.setCreateDate(UsageRowDescriptor.stripTime((Date)row[3]));
       thisDescriptor.setNumber((String)row[4]);
       thisDescriptor.setFileName((String)row[5]); 
-
+      
       // Use UsageRowDescriptor as key for count TreeMap by setting fileName to ""
       UsageRowDescriptor thisCounter = new UsageRowDescriptor();
       thisCounter.setUsageRowDescriptorAsCounter(thisDescriptor);
-
+      
       if (uniqueEntries.add(thisDescriptor)) {
         // If current row descriptor not already on the list, then increment counter
         Integer thisCount = rowCounterMap.get(thisCounter);
@@ -273,7 +273,7 @@ public class GetUsageDetail extends GNomExCommand implements Serializable {
           thisCount = new Integer(1);
         }
         rowCounterMap.put(thisCounter, thisCount);
-
+        
       }
     } 
     // Now traverse the rowCounter list and retrieve the counts
@@ -290,10 +290,10 @@ public class GetUsageDetail extends GNomExCommand implements Serializable {
       //nodeMap.put(Lab.formatLabName(thisRow.getLabLastName(), thisRow.getLabFirstName()) + thisRow.getNumber(), node);
       nodeMap.put(thisRow, node);
     }
-
+    
 
     queryBuf = new StringBuffer();
-
+    
     queryBuf.append("SELECT lab.idLab, lab.lastName, lab.firstName, tl.startDateTime, a.number, tl.fileName ");
     queryBuf.append("from TransferLog tl, Analysis a, Lab lab ");
     queryBuf.append("where tl.idAnalysis = a.idAnalysis ");
@@ -304,24 +304,24 @@ public class GetUsageDetail extends GNomExCommand implements Serializable {
     queryBuf.append("group by lab.idLab, lab.lastName, lab.firstName, tl.startDateTime, a.number, tl.fileName ");
     queryBuf.append("order by lab.idLab, lab.lastName, lab.firstName, tl.startDateTime, a.number, tl.fileName"); 
     rows = sess.createQuery(queryBuf.toString()).list();
-
+    
     uniqueEntries = new TreeSet<UsageRowDescriptor> (new UsageRowDescriptorComparator()); 
     rowCounterMap = new TreeMap<UsageRowDescriptor, Integer> (new UsageRowDescriptorComparator());
     for(Iterator<Object> i = rows.iterator(); i.hasNext();) {
       Object[] row = (Object[])i.next();
       UsageRowDescriptor thisDescriptor = new UsageRowDescriptor();
-
+      
       thisDescriptor.setIdLab((Integer)row[0]);
       thisDescriptor.setLabLastName((String)row[1]);
       thisDescriptor.setLabFirstName((String)row[2]);
       thisDescriptor.setCreateDate(UsageRowDescriptor.stripTime((Date)row[3]));
       thisDescriptor.setNumber((String)row[4]);
       thisDescriptor.setFileName((String)row[5]); 
-
+      
       // Use UsageRowDescriptor as key for count TreeMap by setting fileName to ""
       UsageRowDescriptor thisCounter = new UsageRowDescriptor();
       thisCounter.setUsageRowDescriptorAsCounter(thisDescriptor);
-
+      
       if (uniqueEntries.add(thisDescriptor)) {
         // If current row descriptor not already on the list, then increment counter
         Integer thisCount = rowCounterMap.get(thisCounter);
@@ -333,7 +333,7 @@ public class GetUsageDetail extends GNomExCommand implements Serializable {
           thisCount = new Integer(1);
         }
         rowCounterMap.put(thisCounter, thisCount);
-
+        
       }
     } 
     // Now traverse the rowCounter list and retrieve the counts
@@ -357,14 +357,14 @@ public class GetUsageDetail extends GNomExCommand implements Serializable {
       parentElement.addContent(node);
     }
 
-
+    
   }
-
+  
   private void getActivityTransferDetailDownload(Session sess, Element parentElement) {
     List<Object> rows;
     TreeMap<UsageRowDescriptor, Element> nodeMap = new TreeMap<UsageRowDescriptor, Element>(new UsageRowDescriptorComparator());
     StringBuffer queryBuf = new StringBuffer();
-
+    
     queryBuf.append("SELECT lab.idLab, lab.lastName, lab.firstName, tl.startDateTime, r.number, tl.fileName ");
     queryBuf.append("from TransferLog tl, Request r, Lab lab ");
     queryBuf.append("where tl.idRequest = r.idRequest ");
@@ -377,7 +377,7 @@ public class GetUsageDetail extends GNomExCommand implements Serializable {
     }    queryBuf.append("group by lab.idLab, lab.lastName, lab.firstName, tl.startDateTime, r.number, tl.fileName ");
     queryBuf.append("order by lab.idLab, lab.lastName, lab.firstName, tl.startDateTime, r.number, tl.fileName"); 
     rows = sess.createQuery(queryBuf.toString()).list();
-
+    
     TreeMap<UsageRowDescriptor, Integer> rowCounterMap = new TreeMap<UsageRowDescriptor, Integer> (new UsageRowDescriptorComparator());
     for(Iterator<Object> i = rows.iterator(); i.hasNext();) {
       Object[] row = (Object[])i.next();
@@ -390,7 +390,7 @@ public class GetUsageDetail extends GNomExCommand implements Serializable {
       thisCounter.setCreateDate(UsageRowDescriptor.stripTime((Date)row[3]));
       thisCounter.setNumber((String)row[4]);
       thisCounter.setFileName(""); 
-
+      
       Integer thisCount = rowCounterMap.get(thisCounter);
       if(thisCount != null) {
         // If counter already present then increment
@@ -415,10 +415,10 @@ public class GetUsageDetail extends GNomExCommand implements Serializable {
       //nodeMap.put(Lab.formatLabName(thisRow.getLabLastName(), thisRow.getLabFirstName()) + thisRow.getNumber(), node);
       nodeMap.put(thisRow, node);
     }
-
+    
 
     queryBuf = new StringBuffer();
-
+    
     queryBuf.append("SELECT lab.idLab, lab.lastName, lab.firstName, tl.startDateTime, a.number, tl.fileName ");
     queryBuf.append("from TransferLog tl, Analysis a, Lab lab ");
     queryBuf.append("where tl.idAnalysis = a.idAnalysis ");
@@ -429,11 +429,11 @@ public class GetUsageDetail extends GNomExCommand implements Serializable {
     queryBuf.append("group by lab.idLab, lab.lastName, lab.firstName, tl.startDateTime, a.number, tl.fileName ");
     queryBuf.append("order by lab.idLab, lab.lastName, lab.firstName, tl.startDateTime, a.number, tl.fileName"); 
     rows = sess.createQuery(queryBuf.toString()).list();
-
+    
     rowCounterMap = new TreeMap<UsageRowDescriptor, Integer> (new UsageRowDescriptorComparator());
     for(Iterator<Object> i = rows.iterator(); i.hasNext();) {
       Object[] row = (Object[])i.next();
-
+      
       // Use UsageRowDescriptor as key for count TreeMap by setting fileName to ""
       UsageRowDescriptor thisCounter = new UsageRowDescriptor();
       thisCounter.setIdLab((Integer)row[0]);
@@ -442,7 +442,7 @@ public class GetUsageDetail extends GNomExCommand implements Serializable {
       thisCounter.setCreateDate(UsageRowDescriptor.stripTime((Date)row[3]));
       thisCounter.setNumber((String)row[4]);
       thisCounter.setFileName(""); 
-
+      
       // If current row descriptor not already on the list, then increment counter
       Integer thisCount = rowCounterMap.get(thisCounter);
       if(thisCount != null) {
@@ -474,16 +474,16 @@ public class GetUsageDetail extends GNomExCommand implements Serializable {
       Element node = (Element)nodeMap.get(key);
       parentElement.addContent(node);
     }
-
+    
   }
-
-
-
+  
+  
+  
   private void getActivityTransferDetailDownloadOld(Session sess, Element parentElement) {
     List<Object> rows;
     TreeMap<String, Element> nodeMap = new TreeMap<String, Element>();
     StringBuffer queryBuf = new StringBuffer();
-
+    
     queryBuf.append("SELECT lab.idLab, lab.lastName, lab.firstName, tl.startDateTime, r.number, count(*) ");
     queryBuf.append("from TransferLog tl, Request r, Lab lab ");
     queryBuf.append("where tl.idRequest = r.idRequest ");
@@ -513,12 +513,12 @@ public class GetUsageDetail extends GNomExCommand implements Serializable {
       node.setAttribute("transferDate", this.formatDate(createDate));
       node.setAttribute("downloadCount", count.toString());
 
-      nodeMap.put(Lab.formatLabNameFirstLast(labFirstName, labLastName) + requestNumber, node);
+      nodeMap.put(Lab.formatLabName(labLastName, labFirstName) + requestNumber, node);
     }
 
     queryBuf = new StringBuffer();
-
-
+    
+    
     queryBuf.append("SELECT lab.idLab, lab.lastName, lab.firstName, tl.startDateTime, a.number, count(*) ");
     queryBuf.append("from TransferLog tl, Analysis a, Lab lab ");
     queryBuf.append("where tl.idAnalysis = a.idAnalysis ");
@@ -530,7 +530,7 @@ public class GetUsageDetail extends GNomExCommand implements Serializable {
     queryBuf.append("order by lab.idLab, lab.lastName, lab.firstName, tl.startDateTime, a.number");
     rows = sess.createQuery(queryBuf.toString()).list();
 
-
+    
     for(Iterator<Object> i = rows.iterator(); i.hasNext();) {
       Object[] row = (Object[])i.next();
       Integer idLab = (Integer)row[0];
@@ -546,7 +546,7 @@ public class GetUsageDetail extends GNomExCommand implements Serializable {
       node.setAttribute("transferDate", this.formatDate(createDate));
       node.setAttribute("downloadCount", count.toString());
 
-      nodeMap.put(Lab.formatLabNameFirstLast(labFirstName, labLastName) + analysisNumber, node);
+      nodeMap.put(Lab.formatLabName(labLastName, labFirstName) + analysisNumber, node);
     }
 
     for (Iterator<String> i = nodeMap.keySet().iterator(); i.hasNext();) {
@@ -555,9 +555,9 @@ public class GetUsageDetail extends GNomExCommand implements Serializable {
       parentElement.addContent(node);
     }
 
-
+    
   }
-
+  
   /**
    * Show lab label if logged in user is admin or usage_user_visibility set to 'full'.
    * If usage_user_visibility set to 'masked', mask lab names for labs that user
@@ -566,15 +566,15 @@ public class GetUsageDetail extends GNomExCommand implements Serializable {
   private String getLabName(Integer idLab, String labLastName, String labFirstName) {
     String labName = "";
     if (this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_ACCESS_ANY_OBJECT)) {
-      labName = Lab.formatLabNameFirstLast(labFirstName, labLastName);
+      labName = Lab.formatLabName(labLastName, labFirstName);
     } else if (usageUserVisibility.equals(PropertyDictionary.OPTION_USER_USER_VISIBILITY_MASKED)) {
       if (this.getSecAdvisor().isGroupIAmMemberOf(idLab) || this.getSecAdvisor().isGroupICollaborateWith(idLab)) {
-        labName = Lab.formatLabNameFirstLast(labFirstName, labLastName);
+        labName = Lab.formatLabName(labLastName, labFirstName);
       } else {
         labName = "-";
       }
     } else {
-      labName = Lab.formatLabNameFirstLast(labFirstName, labLastName);
+      labName = Lab.formatLabName(labLastName, labFirstName);
     }
     return labName;
   }

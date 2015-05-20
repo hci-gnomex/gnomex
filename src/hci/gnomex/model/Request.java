@@ -19,13 +19,12 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.hibernate.Hibernate;
-import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
 
 
 public class Request extends HibernateDetailObject implements VisibilityInterface {
-
+  
   private Integer         idRequest;
   private String          number;
   private java.util.Date  createDate;
@@ -74,7 +73,6 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
   private Set             seqLibTreatments = new TreeSet();
   private Set             collaborators = new TreeSet();
   private Set             files = new TreeSet();
-  private Set             propertyEntries;
   private Integer         idSampleDropOffLocation;
   private String          codeRequestStatus;
   private RequestStatus   requestStatus;
@@ -88,6 +86,9 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
   private String          applicationNotes;
   private String          coreToExtractDNA;
   private Date            processingDate;   // Date request was set to Processing status
+  private String          materialQuoteNumber;
+  private Date            quoteReceivedDate;
+  private String          uuid;
   private String          codeDNAPrepType;
   private DNAPrepType     dnaPrepType;
   private String          codeRNAPrepType;
@@ -95,68 +96,66 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
   private String          bioinformaticsAssist;
   private String          hasPrePooledLibraries;
   private Integer         numPrePooledTubes;
+  private String          trimAdapter;
   private String          includeBisulfideConversion;
-  private String          includeQubitConcentration;
-  private String          alignToGenomeBuild;
-  private String          adminNotes;
-
+  
   // permission field
   private boolean     canUpdateVisibility;
   private boolean     canUploadData;
   private boolean     canDeleteSample;
   private boolean     canUpdateSamples;
-
+ 
   public Set getTopics() {
     return topics;
   }
   public void setTopics(Set topics) {
     this.topics = topics;
   }  
-
+  
   public String getCodeApplication() {
     return codeApplication;
   }
-
+  
   public void setCodeApplication(String codeApplication) {
     this.codeApplication = codeApplication;
   }
-
+   
   public String getCodeProtocolType() {
     return codeProtocolType;
   }
-
+  
   public String getDescription() {
     return description;
   }
-
+  
   public String getCorePrepInstructions() {
     return corePrepInstructions;
   }
-
+  
   public String getAnalysisInstructions() {
     return analysisInstructions;
   }
-
+  
   public void setCodeProtocolType(String codeProtocolType) {
     this.codeProtocolType = codeProtocolType;
   }
-
+  
   public String getCodeRequestCategory() {
     return codeRequestCategory;
   }
-
+  
   public void setCodeRequestCategory(String codeRequestCategory) {
     this.codeRequestCategory = codeRequestCategory;
   }
-
+  
   public java.util.Date getCreateDate() {
     return createDate;
   }
-
+  
   public void setCreateDate(java.util.Date createDate) {
     this.createDate = createDate;
   }
-
+  
   public Integer getIdCoreFacility()
   {
     return idCoreFacility;
@@ -170,11 +169,11 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
   public Integer getIdAppUser() {
     return idAppUser;
   }
-
+  
   public void setIdAppUser(Integer idAppUser) {
     this.idAppUser = idAppUser;
   }
-
+  
   public Integer getIdSubmitter() {
     return idSubmitter;
   }
@@ -190,7 +189,7 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
   public void setSubmitter(AppUser submitter) {
     this.submitter = submitter;
   }
-
+  
   public Application getApplication() {
     return application;
   }
@@ -199,11 +198,11 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
     this.application = app;
   }
 
-
+  
   public Integer getIdLab() {
     return idLab;
   }
-
+  
   public String getCaptureLibDesignId() {
     return captureLibDesignId;
   }
@@ -211,23 +210,23 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
   public void setCaptureLibDesignId(String captureLibDesignId) {
     this.captureLibDesignId = captureLibDesignId;
   }
-
+  
   public void setAvgInsertSizeFrom(Integer size){
     this.avgInsertSizeFrom = size;
   }
-
+  
   public void setAvgInsertSizeTo(Integer size){
     this.avgInsertSizeTo = size;
   }
-
+  
   public Integer getAvgInsertSizeFrom(){
     return this.avgInsertSizeFrom;
   }
-
+  
   public Integer getAvgInsertSizeTo(){
     return this.avgInsertSizeTo;
   }
-
+  
   public void setDescription(String description){
     this.description = description;
   }
@@ -240,58 +239,58 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
   public void setIdLab(Integer idLab) {
     this.idLab = idLab;
   }
-
+  
   public Integer getIdProject() {
     return idProject;
   }
-
+  
   public void setIdProject(Integer idProject) {
     this.idProject = idProject;
   }
-
+  
   public Integer getIdRequest() {
     return idRequest;
   }
-
+  
   public void setIdRequest(Integer idRequest) {
     this.idRequest = idRequest;
   }
-
+  
   public Integer getIdSlideProduct() {
     return idSlideProduct;
   }
-
+  
   public void setIdSlideProduct(Integer idSlideProduct) {
     this.idSlideProduct = idSlideProduct;
   }
-
+  
   public String getNumber() {
     return number;
   }
-
+  
   public void setNumber(String number) {
     this.number = number;
   }
-
+  
   public String getProtocolNumber() {
     return protocolNumber;
   }
-
+  
   public void setProtocolNumber(String protocolNumber) {
     this.protocolNumber = protocolNumber;
   }
 
-
+  
   public Integer getIdBillingAccount() {
     return idBillingAccount;
   }
 
-
+  
   public void setIdBillingAccount(Integer idBillingAccount) {
     this.idBillingAccount = idBillingAccount;
   }
 
-
+  
   public Set getSamples() {
     return samples;
   }
@@ -299,57 +298,57 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
   public int getNumberOfSamples() {
     return samples.size();
   }
-
+  
   public void setSamples(Set samples) {
     this.samples = samples;
   }
 
-
+  
   public Integer getIdSampleTypeDefault() {
     return idSampleTypeDefault;
   }
 
-
+  
   public void setIdSampleTypeDefault(Integer idSampleTypeDefault) {
     this.idSampleTypeDefault = idSampleTypeDefault;
   }
 
-
+  
   public Set getHybridizations() {
     return hybridizations;
   }
 
-
+  
   public void setHybridizations(Set hybridizations) {
     this.hybridizations = hybridizations;
   }
 
-
+  
   public String getNotes() {
     return notes;
   }
-
+  
   public void setNotes(String notes) {
     this.notes = notes;
   }
 
-
+  
   public String getBioinformaticsAssist() {
     return bioinformaticsAssist;
   }
-
+  
   public void setBioinformaticsAssist(String bioinformaticsAssist) {
     this.bioinformaticsAssist = bioinformaticsAssist;
   }
-
+  
   public Document toXMLDocument(List useBaseClass) throws XMLReflectException {
     return toXMLDocument(useBaseClass, DATE_OUTPUT_SQL);
   }
 
   public Document toXMLDocument(List list, int dateOutputStyle ) throws XMLReflectException {
-
+    
     Document doc = super.toXMLDocument(list, dateOutputStyle);
-
+    
     // Sample properties
     String otherLabel = null;
     Map idProperties = new HashMap();
@@ -362,7 +361,7 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
           otherLabel = entry.getOtherLabel();
         }
       }
-
+      
     }
     for(Iterator i = idProperties.keySet().iterator(); i.hasNext();) {
       Integer idProperty = (Integer)i.next();
@@ -375,109 +374,110 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
     if ( samples != null ) {
       doc.getRootElement().setAttribute( "numberOfSamples", String.valueOf(getNumberOfSamples()) );
     }
-
+    
     return doc;
   }
 
+  
   public String getCodeBioanalyzerChipType() {
     return codeBioanalyzerChipType;
   }
 
-
+  
   public void setCodeBioanalyzerChipType(String codeBioanalyzerChipType) {
     this.codeBioanalyzerChipType = codeBioanalyzerChipType;
   }
 
-
+  
   public Set getWorkItems() {
     return workItems;
   }
 
-
+  
   public void setWorkItems(Set workItems) {
     this.workItems = workItems;
   }
 
-
+  
   public Set getLabeledSamples() {
     return labeledSamples;
   }
 
-
+  
   public void setLabeledSamples(Set labeledSamples) {
     this.labeledSamples = labeledSamples;
   }
 
-
+  
   public Date getCompletedDate() {
     return completedDate;
   }
 
-
+  
   public void setCompletedDate(Date completedDate) {
     this.completedDate = completedDate;
   }
 
-
+  
   public SlideProduct getSlideProduct() {
     return slideProduct;
   }
 
-
+  
   public void setSlideProduct(SlideProduct slideProduct) {
     this.slideProduct = slideProduct;
   }
 
-
+  
   public Integer getIdOrganismSampleDefault() {
     return idOrganismSampleDefault;
   }
 
-
+  
   public void setIdOrganismSampleDefault(Integer idOrganismSampleDefault) {
     this.idOrganismSampleDefault = idOrganismSampleDefault;
   }
 
-
+  
   public Lab getLab() {
     return lab;
   }
 
-
+  
   public void setLab(Lab lab) {
     this.lab = lab;
   }
 
-
+  
   public String getIsArrayINFORequest() {
     return isArrayINFORequest;
   }
 
-
+  
   public void setIsArrayINFORequest(String isArrayINFORequest) {
     this.isArrayINFORequest = isArrayINFORequest;
   }
 
-
+  
   public Project getProject() {
     return project;
   }
 
-
+  
   public void setProject(Project project) {
     this.project = project;
   }
 
-
+  
   public String getProjectName() {
     if (project != null) {
       return project.getName();
     } else {
       return "";
     }
-
+    
   }
-
+  
   public String getCanRead() {
     if (this.canRead()) {
       return "Y";
@@ -511,7 +511,7 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
   public void canUpdateVisibility(boolean canDo) {
     canUpdateVisibility = canDo;
   }
-
+  
   public String getCanUploadData() {
     if (this.canUploadData) {
       return "Y";
@@ -522,11 +522,11 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
   public void canUploadData(boolean canDo) {
     canUploadData = canDo;
   }
-
+  
   public void setCanDeleteSample(Boolean canDo) {
     this.canDeleteSample = canDo;
   }
-
+  
   public String getCanDeleteSample() {
     if (canDeleteSample) {
       return "Y";
@@ -534,11 +534,11 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
       return "N";
     }
   }
-
+  
   public void setCanUpdateSamples(Boolean canDo) {
     this.canUpdateSamples = canDo;
   }
-
+  
   public String getCanUpdateSamples() {
     if (canUpdateSamples) {
       return "Y";
@@ -546,61 +546,38 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
       return "N";
     }
   }
-
+  
   public AppUser getAppUser() {
     return appUser;
   }
 
-
+  
   public void setAppUser(AppUser appUser) {
     this.appUser = appUser;
   }
 
-  public void completeRequestIfFinished(Session sess) {
-    if (this.isConsideredFinished()) {
-      if (this.getCompletedDate() == null) {
-        this.setCompletedDate(new java.sql.Date(System.currentTimeMillis()));
-        this.setCodeRequestStatus(RequestStatus.COMPLETED);
-        sess.save(this);
-      }
-      for (Object o : this.getBillingItems()) {
-        BillingItem bi = (BillingItem)o;
-        if (bi.getCodeBillingStatus().equals(BillingStatus.PENDING)) {
-          bi.setCodeBillingStatus(BillingStatus.COMPLETED);
-          bi.setCompleteDate(new java.sql.Date(System.currentTimeMillis()));
-          sess.save(bi);
-        }
-      }
-    }
-  }
-
   public boolean isConsideredFinished() {
     boolean isFinished = false;
-
-    if (RequestCategory.isQCRequestCategory(this.getCodeRequestCategory())) {
+    
+    if (this.getCodeRequestCategory().equals(RequestCategory.QUALITY_CONTROL_REQUEST_CATEGORY)) {
       isFinished = isFinishedWithQC();
     } else if (RequestCategory.isIlluminaRequestCategory(this.getCodeRequestCategory())) {
       int doneLaneCount = 0;
       for(Iterator i1 = this.getSequenceLanes().iterator(); i1.hasNext();) {
         SequenceLane l = (SequenceLane)i1.next();
-        if ((l.getSample().getQualFailed() != null && l.getSample().getQualFailed().equalsIgnoreCase( "Y"))
-            || (l.getSample().getSeqPrepFailed() != null && l.getSample().getSeqPrepFailed().equalsIgnoreCase("Y"))) {
-          doneLaneCount++;
-        } else {
-          if (l.getFlowCellChannel() != null) {
-            if (l.getFlowCellChannel().getFirstCycleFailed() != null && l.getFlowCellChannel().getFirstCycleFailed().equals("Y")) {
-              doneLaneCount++;
-            } else if (l.getFlowCellChannel().getLastCycleFailed() != null && l.getFlowCellChannel().getLastCycleFailed().equals("Y")) {
-              doneLaneCount++;
-            } else if (l.getFlowCellChannel().getPipelineFailed() != null && l.getFlowCellChannel().getPipelineFailed().equals("Y")) {
-              doneLaneCount++;
-            } else if (l.getFlowCellChannel().getPipelineDate() != null) {
-              doneLaneCount++;
-            } 
-          }
+        if (l.getFlowCellChannel() != null) {
+          if (l.getFlowCellChannel().getFirstCycleFailed() != null && l.getFlowCellChannel().getFirstCycleFailed().equals("Y")) {
+            doneLaneCount++;
+          } else if (l.getFlowCellChannel().getLastCycleFailed() != null && l.getFlowCellChannel().getLastCycleFailed().equals("Y")) {
+            doneLaneCount++;
+          } else if (l.getFlowCellChannel().getPipelineFailed() != null && l.getFlowCellChannel().getPipelineFailed().equals("Y")) {
+            doneLaneCount++;
+          } else if (l.getFlowCellChannel().getPipelineDate() != null) {
+            doneLaneCount++;
+          } 
         }
       }
-
+      
       if (doneLaneCount == this.getSequenceLanes().size()) {
         isFinished = true;
       }            
@@ -636,18 +613,18 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
           doneHybCount++;
         } 
       }
-
+      
       if (doneHybCount == this.getHybridizations().size()) {
         isFinished = true;
       }      
     }
-
+        
     return isFinished;
   }
-
+  
   public boolean isFinishedWithQC() {
     boolean isFinished = false;
-
+    
     int completedSampleCount = 0;
     for (Iterator i1 = this.getSamples().iterator(); i1.hasNext();) {
       Sample s = (Sample) i1.next();
@@ -662,15 +639,15 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
     }
 
     return isFinished;
-
+    
   }
-
+  
   /**
    * Have all samples passed (or bypassed QC)?
    */
   public boolean isCompleteWithQC() {
     boolean isCompleteWithQC = false;
-
+    
     int completedSampleCount = 0;
     for (Iterator i1 = this.getSamples().iterator(); i1.hasNext();) {
       Sample s = (Sample) i1.next();
@@ -688,21 +665,21 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
     }
 
     return isCompleteWithQC;
-
+    
   }
 
 
-
+  
   public String getCodeVisibility() {
     return codeVisibility;
   }
 
-
+  
   public void setCodeVisibility(String codeVisibility) {
     this.codeVisibility = codeVisibility;
   }
-
-
+  
+  
   public String getIsVisibleToMembers() {
     if (this.codeVisibility != null && this.codeVisibility.equals(Visibility.VISIBLE_TO_GROUP_MEMBERS)) {
       return "Y";
@@ -740,9 +717,8 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
     this.excludeMethodFromXML("getAssays");
     this.excludeMethodFromXML("getFlowCellChannels");
     this.excludeMethodFromXML("getRedoSampleNames");
-    this.excludeMethodFromXML("getPropertyEntries");
   }
-
+  
   public String getOwnerName() {
     if (appUser != null) {
       return appUser.getFirstName() + " " + appUser.getLastName();
@@ -750,7 +726,7 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
       return "";
     }
   }
-
+  
   public String getSubmitterName() {
     if (submitter != null) {
       return submitter.getFirstName() + " " + submitter.getLastName();
@@ -758,7 +734,7 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
       return "";
     }
   }
-
+  
   public String getLabName() {
     if (lab != null) {
       return lab.getName();
@@ -767,46 +743,46 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
     }
   }
 
-
+  
   public Set getSequenceLanes() {
     return sequenceLanes;
   }
 
-
+  
   public void setSequenceLanes(Set sequenceLanes) {
     this.sequenceLanes = sequenceLanes;
   }
 
-
+  
   public Set getAnalysisExperimentItems() {
     return analysisExperimentItems;
   }
 
-
+  
   public void setAnalysisExperimentItems(Set analysisExperimentItems) {
     this.analysisExperimentItems = analysisExperimentItems;
   }
 
-
+  
   public Set getBillingItems() {
     return billingItems;
   }
 
-
+  
   public void setBillingItems(Set billingItems) {
     this.billingItems = billingItems;
   }
 
-
+    
   public BillingAccount getBillingAccount() {
     return billingAccount;
   }
 
-
+  
   public void setBillingAccount(BillingAccount billingAccount) {
     this.billingAccount = billingAccount;
   }
-
+  
   public String getBillingAccountName() {
     if (this.billingAccount != null) {
       return this.billingAccount.getAccountName();
@@ -823,34 +799,34 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
     }
   }
 
-
+  
   public Set getSeqLibTreatments() {
     return seqLibTreatments;
   }
 
 
-
+  
   public void setSeqLibTreatments(Set seqLibTreatments) {
     this.seqLibTreatments = seqLibTreatments;
   }
 
 
-
+  
   public Date getLastModifyDate() {
     return lastModifyDate;
   }
 
 
-
+  
   public void setLastModifyDate(Date lastModifyDate) {
     this.lastModifyDate = lastModifyDate;
   }
 
-
+ 
   public static String getBaseRequestNumber(String requestNumber) {
     // Get rid of extraneous #
     requestNumber = requestNumber.replaceAll("#", "");
-
+    
     // Strip off revision number after "R"
     requestNumber = requestNumber.toUpperCase();
     String[] tokens = requestNumber.split("R");
@@ -864,7 +840,7 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
   public static String getRequestNumberNoR(String requestNumber) {
     // Get rid of extraneous #
     requestNumber = requestNumber.replaceAll("#", "");
-
+    
     String[] tokens = requestNumber.split("R");
     if(tokens.length > 0) {
       return tokens[0];
@@ -872,21 +848,21 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
       return requestNumber;
     }
   }
-
+  
   public Set getCollaborators() {
     return collaborators;
   }
 
 
-
+  
   public void setCollaborators(Set collaborators) {
     this.collaborators = collaborators;
   }
-
+  
   public String getKey(String resultsDir) {
     return Request.getKey(this.getNumber(), this.getCreateDate(), resultsDir, this.getIdCoreFacility());
   }
-
+  
   public static String getKey(String requestNumber, java.util.Date theCreateDate, String resultsDir, Integer idCoreFacility) {
     if (theCreateDate == null) {
       return "";
@@ -902,11 +878,11 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
     }
   }
 
-
+  
   public String getCreateYear() {
     return Request.getCreateYear(this.getCreateDate());
   }
-
+  
   public static String getCreateYear(java.util.Date theCreateDate) {
     if (theCreateDate == null) {
       return "";
@@ -919,17 +895,17 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
   }
 
 
-
+  
   public String getIsExternal() {
     return isExternal;
   }
 
 
-
+  
   public void setIsExternal(String isExternal) {
     this.isExternal = isExternal;
   }
-
+  
 
   public RequestCategory getRequestCategory() {
     return requestCategory;
@@ -970,14 +946,6 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
     this.files = files;
   }
 
-  public Set getPropertyEntries() {
-    return propertyEntries;
-  }
-
-  public void setPropertyEntries(Set propertyEntries) {
-    this.propertyEntries = propertyEntries;
-  }
-  
   public Date getPrivacyExpirationDate() {
     return privacyExpirationDate;
   }
@@ -996,7 +964,7 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
     return codeRequestStatus;
   }
 
-
+  
   public RequestStatus getRequestStatus() {
     return requestStatus;
   }
@@ -1004,15 +972,15 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
   public Integer getIdSampleDropOffLocation() {
     return idSampleDropOffLocation;
   }
-
+  
   public void setIdSampleDropOffLocation(Integer id) {
     idSampleDropOffLocation = id;
   }
-
+  
   public void setRequestStatus( RequestStatus requestStatus ) {
     this.requestStatus = requestStatus;
   }
-
+  
   public String getSubmitterEmail() {
     if (getAppUser() != null) {
       return getAppUser().getEmail();
@@ -1020,7 +988,7 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
       return null;
     }
   }
-
+  
   public String getSubmitterPhone() {
     if (getAppUser() != null) {
       return getAppUser().getPhone();
@@ -1028,8 +996,8 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
       return null;
     }
   }
-
-
+  
+  
   public String getSubmitterInstitution() {
     if (getAppUser() != null) {
       return getAppUser().getInstitute();
@@ -1044,11 +1012,11 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
   public void setChromatograms(Set chromatograms) {
     this.chromatograms = chromatograms;
   }
-
+  
   public Set getPlateWells() {
     return plateWells;
   }
-
+  
   public void setPlateWells( Set plateWells ) {
     this.plateWells = plateWells;
   }
@@ -1056,12 +1024,12 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
   public Document getXML(SecurityAdvisor secAdvisor, DictionaryHelper dh) throws Exception {
     Document doc = new Document(new Element("Request"));
     Element root = doc.getRootElement();
-
+    
     String labName = "";
     if(this.getLab() != null) {
       labName = Lab.formatLabName(this.getLab().getLastName(), this.getLab().getFirstName());
     }
-
+    
     String projectName = "";
     String projectLabName = "";
     String ownerLastName = "";
@@ -1078,10 +1046,10 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
     }
 
 
-
+    
     String codeRequestCategory =  this.getNonNullString(this.getCodeRequestCategory());
     RequestCategory requestCategory = dh.getRequestCategoryObject(codeRequestCategory);
-
+    
     root.setAttribute("idRequest",              this.getNonNullString(this.getIdRequest()));
     root.setAttribute("requestNumber",          this.getNonNullString(this.getNumber()));
     root.setAttribute("number",          		this.getNonNullString(this.getNumber())); // analysis and datatrack have this "requestNumber" named "number". Now all three are congruent.
@@ -1110,19 +1078,17 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
     root.setAttribute("isSelected",             "N");
     root.setAttribute("analysisNames",          "");
     root.setAttribute("idSubmitter",              this.getNonNullString(this.getIdSubmitter()));
-
-    root.setAttribute("application",			this.getNonNullString(this.getApplication()));
-
+    
     if (root.getAttributeValue("codeVisibility").equals(Visibility.VISIBLE_TO_PUBLIC)) {
       root.setAttribute("requestPublicNote",          "(Public) ");
     } else {
       root.setAttribute("requestPublicNote", "");
     }
-
+    
     Integer idLab = this.getIdLab();
     Integer idAppUser = this.getIdAppUser();
     root.setAttribute("canUpdateVisibility", secAdvisor.canUpdateVisibility(idLab, idAppUser) ? "Y" : "N");
-
+   
     if (RequestCategory.isMicroarrayRequestCategory(root.getAttributeValue("codeRequestCategory"))) {
       StringBuffer displayName = new StringBuffer();
       displayName.append(root.getAttributeValue("requestNumber"));
@@ -1136,10 +1102,10 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
       displayName.append(root.getAttributeValue("labName"));
       displayName.append(" ");
       displayName.append(root.getAttributeValue("requestCreateDateDisplayMedium"));      
-
+      
       root.setAttribute("displayName", displayName.toString());
       root.setAttribute("label",       displayName.toString());
-
+      
     } else {
       StringBuffer displayName = new StringBuffer();
       displayName.append(root.getAttributeValue("requestNumber"));
@@ -1158,18 +1124,18 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
 
       root.setAttribute("displayName", displayName.toString());
       root.setAttribute("label",       displayName.toString());
-
+      
     }
     return doc;
   }
-
+  
   public Document getRestrictedVisibilityXML(SecurityAdvisor secAdvisor, DictionaryHelper dh) throws Exception {
     Document doc = new Document(new Element("Request"));
     Element root = doc.getRootElement();
-
+    
     String codeRequestCategory =  this.getNonNullString(this.getCodeRequestCategory());
     RequestCategory requestCategory = dh.getRequestCategoryObject(codeRequestCategory);
-
+    
     root.setAttribute("idRequest", this.getNonNullString(this.getIdRequest()));
     root.setAttribute("icon", requestCategory != null && requestCategory.getIcon() != null ? requestCategory.getIcon() : "");
     root.setAttribute("label", this.getNumber() + " (Restricted Visibility)");
@@ -1177,12 +1143,12 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
     root.setAttribute("number",          this.getNonNullString(this.getNumber())); // analysis and datatrack have "number". Now all three are congruent.
     return doc;
   }  
-
-
+ 
+  
   public String isDNASeqExperiment() {
     return RequestCategory.isDNASeqCoreRequestCategory(this.getCodeRequestCategory()) == true ? "Y" : "N";
   }
-
+  
   public String getIsDNASeqExperiment() {
     return isDNASeqExperiment();
   }
@@ -1194,7 +1160,7 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
     }
     return retVal;
   }
-
+  
 
   public Boolean isSequenomPlate() {
     Boolean retVal = false;
@@ -1203,7 +1169,7 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
     }
     return retVal;
   }
-
+  
   private Boolean isPlateRequest() {
     Boolean retVal = false;
     if (this.getSamples().size() > 0) {
@@ -1223,7 +1189,7 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
     }
     return retVal;
   }
-
+  
   public Map<String, Assay> getAssays() {
     TreeMap<String, Assay> assays = new TreeMap<String, Assay>();
     if (this.getCodeRequestCategory().equals(RequestCategory.FRAGMENT_ANALYSIS_REQUEST_CATEGORY)) {
@@ -1234,31 +1200,31 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
     }
     return assays;
   }
-
+  
   public Boolean onReactionPlate() {
-
+    
     boolean onReactionPlate = false;
-
-
-    // Find out if the samples are on a reaction plate.  If they
-    // are, flag the request so that appropriate warnings
-    // can be displayed if the data is changed.
-    for (Sample s : (Set<Sample>)this.getSamples()) {
-      for (PlateWell well : (Set<PlateWell>)s.getWells()) {
-        if (well.getPlate() != null && well.getPlate().getCodePlateType().equals(PlateType.REACTION_PLATE_TYPE)) {
-          onReactionPlate = true;
-          break;
+    
+    
+      // Find out if the samples are on a reaction plate.  If they
+      // are, flag the request so that appropriate warnings
+      // can be displayed if the data is changed.
+      for (Sample s : (Set<Sample>)this.getSamples()) {
+        for (PlateWell well : (Set<PlateWell>)s.getWells()) {
+          if (well.getPlate() != null && well.getPlate().getCodePlateType().equals(PlateType.REACTION_PLATE_TYPE)) {
+              onReactionPlate = true;
+              break;
+          }
         }
       }
-    }
 
     return onReactionPlate;
-
+    
   }
-
+  
   public String getRedoSampleNames() {
     StringBuffer redoSamples = new StringBuffer();
-
+    
     for (Sample s : (Set<Sample>)this.getSamples()) {
       for (PlateWell well : (Set<PlateWell>)s.getWells()) {
         if (well.getPlate() == null || well.getPlate().getCodePlateType().equals(PlateType.SOURCE_PLATE_TYPE)) {
@@ -1273,39 +1239,39 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
     }
     return redoSamples.toString();
   }
-
+  
   public Integer getIdIScanChip() {
     return idIScanChip;
   }
-
+  
   public void setIdIScanChip( Integer idIScanChip ) {
     this.idIScanChip = idIScanChip;
   }
   public Integer getNumberIScanChips() {
     return numberIScanChips;
   }
-
+  
   public void setNumberIScanChips( Integer numberIScanChips ) {
     this.numberIScanChips = numberIScanChips;
   }
-
-
+  
+  
   public String getApplicationNotes() {
     return applicationNotes;
   }
-
+  
   public void setApplicationNotes( String applicationNotes ) {
     this.applicationNotes = applicationNotes;
   }
-
+  
   public String getCoreToExtractDNA() {
     return coreToExtractDNA;
   }
-
+  
   public void setCoreToExtractDNA( String coreToExtractDNA ) {
     this.coreToExtractDNA = coreToExtractDNA;
   }
-
+  
   public Date getProcessingDate() {
     return processingDate;
   }
@@ -1321,7 +1287,7 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
       return true;
     }
   }
-
+  
 
 
   public Map<Integer, FlowCellChannel> getFlowCellChannels() {
@@ -1331,11 +1297,11 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
         channels.put(lane.getIdFlowCellChannel(), lane.getFlowCellChannel());
       }
     }
-
+    
     return channels;
   }
 
-
+  
   /*
    * This is a convenience method used by GetRequest, GetAnalysis, GetDataTrack to fill in the XML for a "related" experiment.
    * This experiment may be related in terms of the Experiment->Analysis->DataTrack links or the links to Topics.
@@ -1356,19 +1322,43 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
     parentNode.addContent(requestNode);
     return requestNode;
   }
-
+  
+  public String getMaterialQuoteNumber() {
+    return materialQuoteNumber;
+  }
+  
+  public void setMaterialQuoteNumber( String materialQuoteNumber ) {
+    this.materialQuoteNumber = materialQuoteNumber;
+  }
+  
+  public Date getQuoteReceivedDate() {
+    return quoteReceivedDate;
+  }
+  
+  public void setQuoteReceivedDate( Date quoteReceivedDate ) {
+    this.quoteReceivedDate = quoteReceivedDate;
+  }
+  
+  public String getUuid() {
+    return uuid;
+  }
+  
+  public void setUuid( String uuid ) {
+    this.uuid = uuid;
+  }
+  
   public String getCodeDNAPrepType() {
     return codeDNAPrepType;
   }
-
+  
   public void setCodeDNAPrepType( String codeDNAPrepType ) {
     this.codeDNAPrepType = codeDNAPrepType;
   }
-
+  
   public DNAPrepType getDnaPrepType() {
     return dnaPrepType;
   }
-
+  
   public void setDnaPrepType( DNAPrepType dnaPrepType ) {
     this.dnaPrepType = dnaPrepType;
   }
@@ -1376,35 +1366,35 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
   public String getCodeRNAPrepType() {
     return codeRNAPrepType;
   }
-
+  
   public void setCodeRNAPrepType( String codeRNAPrepType ) {
     this.codeRNAPrepType = codeRNAPrepType;
   }
-
+  
   public RNAPrepType getRnaPrepType() {
     return rnaPrepType;
   }
-
+  
   public void setRnaPrepType( RNAPrepType rnaPrepType ) {
     this.rnaPrepType = rnaPrepType;
   }
-
+  
   public String getHasPrePooledLibraries() {
     return this.hasPrePooledLibraries;
   }
-
+  
   public void setHasPrePooledLibraries(String hasPrePooledLibraries) {
     this.hasPrePooledLibraries = hasPrePooledLibraries;
   }
-
+  
   public Integer getNumPrePooledTubes() {
     return this.numPrePooledTubes;
   }
-
+  
   public void setNumPrePooledTubes(Integer numPrePooledTubes) {
     this.numPrePooledTubes = numPrePooledTubes;
   }
-
+  
   public String getSeqPrepByCore() {
     // Since all samples have to have the same value for this, expose it at this level.
     if (Hibernate.isInitialized(samples) && samples.size() > 0) {
@@ -1418,43 +1408,18 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
       return "";
     }
   }
-
+  public String getTrimAdapter() {
+    return trimAdapter;
+  }
+  public void setTrimAdapter(String trimAdapter) {
+    this.trimAdapter = trimAdapter;
+  }
+  
   public String getIncludeBisulfideConversion() {
     return includeBisulfideConversion;
   }
-
+  
   public void setIncludeBisulfideConversion( String includeBisulfideConversion ) {
     this.includeBisulfideConversion = includeBisulfideConversion;
-  }
-
-  public String getIncludeQubitConcentration() {
-    return includeQubitConcentration;
-  }
-
-  public void setIncludeQubitConcentration( String includeQubitConcentration ) {
-    this.includeQubitConcentration = includeQubitConcentration;
-  }
-
-  public String getAlignToGenomeBuild() {
-    return alignToGenomeBuild;
-  }
-
-  public void setAlignToGenomeBuild(String alignToGenomeBuild) {
-    this.alignToGenomeBuild = alignToGenomeBuild;
-  }
-
-  public String getTurnAroundTime() {
-    if(this.createDate != null && this.completedDate != null) {
-      long difference = ((this.completedDate.getTime() - this.createDate.getTime()) / (1000 * 60 * 60 * 24));
-      return Long.toString(difference);
-    }
-
-    return "";
-  }
-  public String getAdminNotes() {
-    return adminNotes;
-  }
-  public void setAdminNotes(String adminNotes) {
-    this.adminNotes = adminNotes;
   }
 }

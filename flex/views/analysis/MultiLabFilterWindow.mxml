@@ -12,32 +12,14 @@
 		[Bindable]
 		private var labList:XMLListCollection;
 		private var zeroFilterOn:Boolean;
-		public  var labKeys:String;
 		
 		private function init():void {
 			labList = new XMLListCollection(parentApplication.navAnalysisView.labList.copy());
 			labList.filterFunction=filterLabList;
 			labList.refresh();		
-			setLabSelection();
 		}
 		
-		private function setLabSelection():void {
-			var keys:Array = new Array();
-			if (labKeys != null && labKeys != "") {
-				keys = labKeys.split(":");
-			}
-			for each (var lab:Object in labList) {
-				if (lab.@isSelected == 'true') {
-					lab.@isSelected = 'false';
-				}
-				for each (var key:String in keys) {
-					if (key == lab.@idLab) {
-						lab.@isSelected = 'true';
-						break;
-					}
-				}
-			}
-		}
+
 		
 		private function filterLabList(item:Object):Boolean {
 				var keep:Boolean = true;
@@ -53,7 +35,7 @@
 
 		
 		private function saveLabKeys():void {
-			labKeys = "";
+			var labKeys:String = "";
 			var label:String = "";
 			for each(var lab:Object in labList) {
 				if (lab.@isSelected == 'true') {
@@ -73,10 +55,8 @@
 		
 		
 		private function unselectAllLabs():void {
-			for each(var lab:Object in labList) {
-				if (lab.hasOwnProperty("@isSelected") && lab.@isSelected == 'true') {
-					lab.@isSelected = 'false';
-				}
+			for each(var lab:Object in parentApplication.navAnalysisView.labList) {
+				lab.@isSelected = 'false';
 			}
 		}
 		

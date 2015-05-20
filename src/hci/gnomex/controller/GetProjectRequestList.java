@@ -34,9 +34,9 @@ import org.jdom.output.XMLOutputter;
 
 
 public class GetProjectRequestList extends GNomExCommand implements Serializable {
-
+  
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetProjectRequestList.class);
-
+  
   private ProjectRequestFilter filter;
   private Element              rootNode = null;
   private Element              labNode = null;
@@ -46,29 +46,29 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
   private String               listKind = "ProjectRequestList";
   private String               showMyLabsAlways = "N";
   private Boolean              hasQcWorkItems = false;
-
-
+  
+  
   private int                  experimentCount = 0;
   private String               message = "";
-
-
+  
+  
   public void validate() {
   }
-
+  
   public void loadCommand(HttpServletRequest request, HttpSession session) {
 
     filter = new ProjectRequestFilter();
     HashMap errors = this.loadDetailObject(request, filter);
     this.addInvalidFields(errors);
-
+    
     if (request.getParameter("showMyLabsAlways") != null && !request.getParameter("showMyLabsAlways").equals("")) {
       showMyLabsAlways = request.getParameter("showMyLabsAlways");
     }
-
+    
     if (request.getParameter("listKind") != null && !request.getParameter("listKind").equals("")) {
       listKind = request.getParameter("listKind");
     }
-
+    
     List experimentDesignCodes = new ArrayList<String>();
     if (request.getParameter("experimentDesignConcatCodes") != null && !request.getParameter("experimentDesignConcatCodes").equals("")) {
       String[] codes = request.getParameter("experimentDesignConcatCodes").split(":");
@@ -78,7 +78,7 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
       }
       filter.setExperimentDesignCodes(experimentDesignCodes);
     }
-
+    
     List experimentFactorCodes = new ArrayList<String>();
     if (request.getParameter("experimentFactorConcatCodes") != null && !request.getParameter("experimentFactorConcatCodes").equals("")) {
       String[] codes = request.getParameter("experimentFactorConcatCodes").split(":");
@@ -88,26 +88,26 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
       }
       filter.setExperimentFactorCodes(experimentFactorCodes);
     }
-
-
-
+    
+    
+    
   }
 
   public Command execute() throws RollBackCommandException {
     Document doc = new Document(new Element(listKind));
     rootNode = doc.getRootElement();
     List results = null;
-
+    
     try {
       if (!filter.hasSufficientCriteria(this.getSecAdvisor())) {
         message = "Please select a filter";
         rootNode.setAttribute("message", message);
-
+        
       } else {
         Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
-
+        
         DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess);
-
+        
         HashMap myLabMap = new HashMap();
         if (showMyLabsAlways.equals("Y")) {
           for(Iterator i = this.getSecAdvisor().getAllMyGroups().iterator(); i.hasNext();) {
@@ -117,19 +117,19 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
             }
           }
         }
-
-        //        if(PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.EXTERNAL_DATA_SHARING_SITE).equals("Y")) {
-        //        	filter.setIsForExternalDataSharingSite(true);
-        //        }   
-
-
+        
+//        if(PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.EXTERNAL_DATA_SHARING_SITE).equals("Y")) {
+//        	filter.setIsForExternalDataSharingSite(true);
+//        }   
+        
+      
         String message = "";
         StringBuffer buf = filter.getQuery(this.getSecAdvisor(), dictionaryHelper);
         log.info("Query for GetProjectRequestList: " + buf.toString());
         Query query = sess.createQuery(buf.toString());
         results = (List)query.list();
 
-
+        
         buf = filter.getAnalysisExperimentQuery(this.getSecAdvisor());
         log.info("Query for GetProjectRequestList: " + buf.toString());
         List analysisResults = (List)sess.createQuery(buf.toString()).list();
@@ -139,7 +139,7 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
           Integer idRequest      = (Integer)row[0];
           String  analysisNumber = (String)row[1];
           String  analysisName   = (String)row[2];
-
+          
           StringBuffer names = (StringBuffer)analysisMap.get(idRequest);
           if (names == null) {
             names = new StringBuffer();
@@ -156,16 +156,16 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
         Integer prevIdRequest  = new Integer(-1);
         String prevCodeRequestCategory    = "999";
         String prevCodeApplication = "999";
-
-
+        
+        
         Integer maxExperiments = getMaxExperiments(sess);
 
         Map<Integer, Integer> requestsToSkip = this.getSecAdvisor().getBSTXSecurityIdsToExclude(sess, dictionaryHelper, results, 4, 15);
 
         for(Iterator i = results.iterator(); i.hasNext();) {
           Object[] row = (Object[])i.next();
-
-
+          
+          
           Integer idProject = row[0] == null ? new Integer(-2) : (Integer)row[0];
           Integer idRequest = row[4] == null ? new Integer(-2) : (Integer)row[4];
           if (requestsToSkip.get(idRequest) != null) {
@@ -176,23 +176,19 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
           String  codeRequestCategory        = row[15]== null ? "" : (String)row[15];     
           String  codeApplication     = row[16]== null ? "" : (String)row[16];
           StringBuffer analysisNames = (StringBuffer)analysisMap.get(idRequest);
-
+          
           if(idRequest != -2){
             Request req = (Request)sess.load(Request.class, idRequest);
-            if (!this.getSecAdvisor().canRead(req)) {
-              continue;
-            } else {
-              hasQcWorkItems = false;
-              for(Iterator j = req.getWorkItems().iterator(); j.hasNext();){
-                WorkItem wi = (WorkItem)j.next();
-                if(wi.getCodeStepNext().equals(Step.QUALITY_CONTROL_STEP)){
-                  hasQcWorkItems = true;
-                  break;
-                }
+            hasQcWorkItems = false;
+            for(Iterator j = req.getWorkItems().iterator(); j.hasNext();){
+              WorkItem wi = (WorkItem)j.next();
+              if(wi.getCodeStepNext().equals(Step.QUALITY_CONTROL_STEP)){
+                hasQcWorkItems = true;
+                break;
               }
             }
           }
-
+          
           if (idLab.intValue() != prevIdLab.intValue()) {
             // Keep track of which of users labs are in results set
             if (showMyLabsAlways.equals("Y")) {
@@ -213,8 +209,8 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
               addSampleNode(row);
             }
           } else if (filter.getShowCategory().equals("Y") &&
-              !codeRequestCategory.equals(prevCodeRequestCategory) ||
-              !codeApplication.equals(prevCodeApplication)) {
+                      !codeRequestCategory.equals(prevCodeRequestCategory) ||
+                      !codeApplication.equals(prevCodeApplication)) {
             if (idRequest.intValue() != -2) {
               addRequestCategoryNode(row);
               addRequestNode(row, analysisNames, dictionaryHelper);          
@@ -236,13 +232,13 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
           prevIdLab     = idLab;
           prevCodeRequestCategory = codeRequestCategory;
           prevCodeApplication = codeApplication;
-
+          
           if (experimentCount >= maxExperiments) {
             break;
           }
         }
-
-
+        
+        
         // For those labs that user is member of that do not have any projects,
         // create a lab node in the XML document.
         if (showMyLabsAlways.equals("Y")) {
@@ -251,13 +247,13 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
             addLabNode(lab);
           }
         }
-
+     
         rootNode.setAttribute("experimentCount", Integer.valueOf(experimentCount).toString());
         message = experimentCount == maxExperiments ? "First " + maxExperiments + " displayed" : ""; 
         rootNode.setAttribute("message", message);
-
+        
       }
-
+      
       XMLOutputter out = new org.jdom.output.XMLOutputter();
       this.xmlResult = out.outputString(doc);
 
@@ -267,14 +263,14 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
       rootNode = null;
       results = null;
       System.gc();
-
-
+      
+      
       setResponsePage(this.SUCCESS_JSP);
     }catch (NamingException e){
       log.error("An exception has occurred in GetRequestList ", e);
       e.printStackTrace(System.out);
       throw new RollBackCommandException(e.getMessage());
-
+        
     }catch (SQLException e) {
       log.error("An exception has occurred in GetRequestList ", e);
       e.printStackTrace(System.out);
@@ -287,10 +283,10 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
       try {
         this.getSecAdvisor().closeReadOnlyHibernateSession();        
       } catch(Exception e) {
-
+        
       }
     }
-
+    
     return this;
   }
 
@@ -301,16 +297,16 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
       try {
         maxExperiments = Integer.parseInt(prop);
       }
-      catch(NumberFormatException e) {
+        catch(NumberFormatException e) {
       }    
     }
     return maxExperiments;
   }
-
+  
   private void addLabNode(Object[] row) {
-    String labName = Lab.formatLabNameFirstLast((String)row[18], (String)row[17]);
-    String projectLabName = Lab.formatLabNameFirstLast((String)row[21], (String)row[20]);
-
+    String labName = Lab.formatLabName((String)row[17], (String)row[18]);
+    String projectLabName = Lab.formatLabName((String)row[20], (String)row[21]);
+    
     labNode = new Element("Lab");
     labNode.setAttribute("idLab",            ((Integer)row[11]).toString());
     labNode.setAttribute("labName",          labName);
@@ -322,12 +318,12 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
   private void addLabNode(Lab lab) {
     labNode = new Element("Lab");
     labNode.setAttribute("idLab",            lab.getIdLab().toString());
-    labNode.setAttribute("labName",          lab.getName(false, true));
-    labNode.setAttribute("projectLabName",   lab.getName(false, true));
-    labNode.setAttribute("label",            lab.getName(false, true));
+    labNode.setAttribute("labName",          lab.getName());
+    labNode.setAttribute("projectLabName",   lab.getName());
+    labNode.setAttribute("label",            lab.getName());
     rootNode.addContent(labNode);
   }
-
+  
   private void addProjectNode(Object[] row) {
     projectNode = new Element("Project");
     projectNode.setAttribute("idProject",              row[0] == null ? ""  : ((Integer)row[0]).toString());
@@ -336,14 +332,14 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
     projectNode.setAttribute("projectDescription",     row[2] == null ? ""  : (String)row[2]);
     projectNode.setAttribute("ownerFirstName",         row[26] == null ? "" : (String)row[26]);
     projectNode.setAttribute("ownerLastName",          row[27] == null ? "" : (String)row[27]);
-
-
-
+    
+    
+    
     projectNode.setAttribute("idLab",                  row[11] == null ? "" : ((Integer)row[11]).toString());
     projectNode.setAttribute("idAppUser",              row[13] == null ? "" : ((Integer)row[13]).toString());
     labNode.addContent(projectNode);
   }
-
+  
   private void addRequestCategoryNode(Object[] row) {
     if (filter.getShowCategory().equals("Y")) {
       requestCatNode = new Element("RequestCategory");
@@ -352,19 +348,19 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
       requestCatNode.setAttribute("codeApplication",        row[16] == null ? ""    : (String)row[16]);
       requestCatNode.setAttribute("label",                  row[16] == null ? ""    : (String)row[16]);
       projectNode.addContent(requestCatNode);
-
+      
     }
   }
-
+  
   private void addRequestNode(Object[] row, StringBuffer analysisNames, DictionaryHelper dictionaryHelper) {
     experimentCount++;
-    String labName = Lab.formatLabNameFirstLast((String)row[18], (String)row[17]);
-    String projectLabName = Lab.formatLabNameFirstLast((String)row[21], (String)row[20]);
+    String labName = Lab.formatLabName((String)row[17], (String)row[18]);
+    String projectLabName = Lab.formatLabName((String)row[20], (String)row[21]);
 
-
+    
     String codeRequestCategory =  row[15] == null ? "" : ((String)row[15]).toString();
     RequestCategory requestCategory = dictionaryHelper.getRequestCategoryObject(codeRequestCategory);
-
+    
     requestNode = new Element("Request");
     requestNode.setAttribute("idRequest",              row[4] == null ? ""  : ((Integer)row[4]).toString());
     requestNode.setAttribute("requestNumber",          row[5] == null ? ""  : (String)row[5]);
@@ -393,18 +389,17 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
     requestNode.setAttribute("analysisNames",          analysisNames != null ? analysisNames.toString() : "");
     requestNode.setAttribute("idInstitution",          row[31] == null ? "" : ((Integer)row[31]).toString());
     requestNode.setAttribute("hasQcWorkItems",         hasQcWorkItems == true ? "Y" : "N");
-    requestNode.setAttribute("idSubmitter",            row[32] == null ? "" : ((Integer)row[32]).toString());
-
+    
     if (requestNode.getAttributeValue("codeVisibility").equals(Visibility.VISIBLE_TO_PUBLIC)) {
       requestNode.setAttribute("requestPublicNote",          "(Public) ");
     } else {
       requestNode.setAttribute("requestPublicNote", "");
     }
-
+    
     Integer idLab = (Integer)row[12];
     Integer idAppUser = (Integer)row[14];
     requestNode.setAttribute("canUpdateVisibility", this.getSecAdvisor().canUpdateVisibility(idLab, idAppUser) ? "Y" : "N");
-
+   
     if (RequestCategory.isMicroarrayRequestCategory(requestNode.getAttributeValue("codeRequestCategory"))) {
       StringBuffer displayName = new StringBuffer();
       displayName.append(requestNode.getAttributeValue("requestNumber"));
@@ -420,10 +415,10 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
       displayName.append(requestNode.getAttributeValue("ownerLastName"));
       displayName.append(" ");
       displayName.append(requestNode.getAttributeValue("requestCreateDateDisplayMedium"));      
-
+      
       requestNode.setAttribute("displayName", displayName.toString());
       requestNode.setAttribute("label",       displayName.toString());
-
+      
     } else {
       StringBuffer displayName = new StringBuffer();
       displayName.append(requestNode.getAttributeValue("requestNumber"));
@@ -444,16 +439,16 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
 
       requestNode.setAttribute("displayName", displayName.toString());
       requestNode.setAttribute("label",       displayName.toString());
-
+      
     }
-
+    
     if (filter.getShowCategory().equals("Y")) {
       requestCatNode.addContent(requestNode);         
     } else {
       projectNode.addContent(requestNode);
     }
   }
-
+  
   private void addSampleNode(Object[] row) {
     if (filter.getShowSamples().equals("Y")) {
       Element n = new Element("Sample");

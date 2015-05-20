@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"     
-		   label="Analysis"  height="100%" width="100%"		   
+		   label="Analysis" width="100%" height="100%" 
 		   xmlns:views="views.*"
 		   xmlns:analysis="views.analysis.*" 
 		   xmlns:util="views.util.*"
@@ -122,9 +122,7 @@
 			import mx.events.DragEvent;
 			import mx.managers.DragManager;
 			import mx.managers.PopUpManager;
-			import mx.rpc.events.ResultEvent;
-			
-			import views.util.DateSetEvent;
+			import mx.rpc.events.ResultEvent; 
 			
 			public var selectedIdAnalysis:Object;
 			public var selectedAnalysisNumber:Object;
@@ -143,15 +141,13 @@
 			
 			public var selectedIdLab:String;
 			
-			public var isDragDrop:Boolean = false;
-			
 			public var selectedNode:Object;
 			
 			public var parentIdLab:Object = null;
 			
 			private var dropProject:Object;
 			private var dragRequest:Object;
-			
+
 			[Bindable]
 			public var selectedIdAnalysisGroup:String;
 			
@@ -167,6 +163,7 @@
 			private var showDownloads:Boolean = false;
 			
 			private var analysisGroupWindow:AnalysisGroupWindow;
+			private var analysisAddWindow:AnalysisAddView;
 			
 			public static const millisecondsPerDay:int = 1000 * 60 * 60 * 24;
 			public static const millisecondsPerWeek:Number = 1000 * 60 * 60 * 24 * 7;
@@ -220,8 +217,6 @@
 					this.analysisViews.selectedChild = this.browseView;
 					this.browseView.theViews.selectedChild = this.browseView.experimentListView;
 				}
-				
-				pickDateRangeButton.addEventListener(DateSetEvent.DATE_SET, handleDateSet);
 				
 				isInitialized = true;
 			}
@@ -555,7 +550,7 @@
 				
 			}
 			
-			
+
 			
 			public function refreshAnalysisNumbers(analysisList:XMLListCollection):void {
 				analysisNumbers.removeAll();
@@ -680,7 +675,6 @@
 					getAnalysisGroupList.send(params);
 					
 					analysisDetailView.titleLabel.text = "Analysis " + selectedAnalysisNumber;
-					analysisEditView.titleLabel.text = "Edit Analysis " + selectedAnalysisNumber;
 					
 					
 				}
@@ -777,6 +771,10 @@
 			
 			public function showNewAnalysisWindow():void {
 				parentIdLab = null
+				this.analysisAddWindow = AnalysisAddView(PopUpManager.createPopUp(this, AnalysisAddView, false));
+				
+				PopUpManager.centerPopUp(this.analysisAddWindow);		
+				
 				
 				var selectedLabNode:Object = null;
 				if (this.selectedIdLab != null) {
@@ -791,10 +789,11 @@
 						}
 					} else {
 						selectedLabNode = parentApplication.getLabList.lastResult.Lab.(@canSubmitRequests == "Y")[0];
+						
 					}
 				}
 				
-				parentApplication.showNewAnalysisWindow(this, selectedLabNode != null ? selectedLabNode.@idLab : "", selectedIdAnalysisGroup, null);
+				analysisAddWindow.initializeData(selectedLabNode != null ? selectedLabNode.@idLab : "", selectedIdAnalysisGroup);		 
 			}
 			
 			
@@ -835,13 +834,11 @@
 					
 					
 					params.labKeys = labKeys;
-					if(searchTextField.text != 'Search...') {
-						params.searchText = searchTextField.text;
-					}
-					if (this.pickDateRangeButton.fromDate != null && this.pickDateRangeButton.toDate != null) {
-						params.createDateFrom = pickDateRangeButton.dateFormatter.format(this.pickDateRangeButton.fromDate);
-						params.createDateTo = pickDateRangeButton.dateFormatter.format(this.pickDateRangeButton.toDate);
-					}
+					params.searchText = searchTextField.text;
+					params.lastWeek = lastWeekCheckbox.selected ? 'Y' : 'N';
+					params.lastMonth = lastMonthCheckbox.selected ? 'Y' : 'N';
+					params.lastThreeMonths = lastThreeMonthsCheckbox.selected ? 'Y' : 'N';
+					params.lastYear = lastYearCheckbox.selected ? 'Y' : 'N';
 					params.idGenomeBuild = genomeBuildCombo.selectedItem == null ? "" : genomeBuildCombo.selectedItem.@idGenomeBuild;
 					params.idOrganism = organismCombo.selectedItem == null ? "" : organismCombo.selectedItem.@idOrganism;
 					
@@ -865,11 +862,12 @@
 			}
 			
 			public function selectLab():void {
-				// Unselect all labs first
+				// Unselect all labs firt
 				for each(var lab:Object in labList) {
-					if (lab.hasOwnProperty("@isSelected") && lab.@isSelected == 'true') {
-						lab.@isSelected = 'false';
-					}
+					lab.@isSelected = 'false';
+				}
+				if(browseLabCombo.selectedItem == null){
+					return;
 				}
 				
 				if (browseLabCombo.selectedItem != null) {
@@ -879,7 +877,7 @@
 					this.selectedLabsLabel = labName;
 				} else {
 					this.labKeys = "";
-					this.selectedLabsLabel = "";
+					this.selectedLabsLabel = browseLabCombo.selectedItem.@name;
 				}
 				
 			}
@@ -913,7 +911,7 @@
 					else{
 						message += item.@name + ", ";
 					}
-					
+
 					
 				}
 				message = message.substring(0, message.lastIndexOf(","));
@@ -928,7 +926,7 @@
 				message += "\nContinue?"
 				Alert.show(message, "Warning", (Alert.YES | Alert.NO), this, onPromptToDelete);
 				
-				
+
 			}
 			
 			
@@ -995,11 +993,10 @@
 				}
 			}
 			
-			
+
 			
 			private function browseTreeDrop(e:DragEvent):void {
 				e.preventDefault();
-				isDragDrop = true;
 				
 				if(browseTree.selectedItems.length > 1){
 					Alert.show("Sorry, you may only move one analysis item at a time");
@@ -1088,17 +1085,37 @@
 			
 			private function showMultiLabFilterWindow():void {  
 				var window:MultiLabFilterWindow  = MultiLabFilterWindow(PopUpManager.createPopUp(this, MultiLabFilterWindow, false));
-				window.labKeys = this.labKeys;
 				PopUpManager.centerPopUp(window);
-			}		
+			}
+			
+			private function toggleDateCheckboxes(checkBoxNumber:int):void {
+				if (checkBoxNumber == 1) {
+					this.lastMonthCheckbox.selected = false;
+					this.lastThreeMonthsCheckbox.selected = false;
+					this.lastYearCheckbox.selected  = false;
+				} else if (checkBoxNumber == 2) {
+					this.lastWeekCheckbox.selected = false;
+					this.lastThreeMonthsCheckbox.selected = false;
+					this.lastYearCheckbox.selected  = false;
+				} else if (checkBoxNumber == 3) {
+					this.lastWeekCheckbox.selected  = false;
+					this.lastMonthCheckbox.selected = false; 
+					this.lastYearCheckbox.selected  = false;
+				}  else if (checkBoxNumber == 4) {
+					this.lastWeekCheckbox.selected  = false;
+					this.lastMonthCheckbox.selected = false; 
+					this.lastThreeMonthsCheckbox.selected = false;
+				}   
+			} 			
 			
 			private function toggleAllAnalysis():void {
-				//this.searchLabel.enabled = !this.showAllAnalysisCheckbox.selected;
+				this.searchLabel.enabled = !this.showAllAnalysisCheckbox.selected;
 				this.searchTextField.enabled = !this.showAllAnalysisCheckbox.selected;
 				this.lookupButton.enabled = !this.showAllAnalysisCheckbox.selected;
-				if (this.showAllAnalysisCheckbox.selected) {
-					this.pickDateRangeButton.resetRange();
-				}
+				this.lastWeekCheckbox.enabled = !this.showAllAnalysisCheckbox.selected;
+				this.lastMonthCheckbox.enabled = !this.showAllAnalysisCheckbox.selected;
+				this.lastThreeMonthsCheckbox.enabled = !this.showAllAnalysisCheckbox.selected;
+				this.lastYearCheckbox.enabled = !this.showAllAnalysisCheckbox.selected;
 				this.publicProjectsCheckbox.enabled = !this.showAllAnalysisCheckbox.selected;
 				if (currentState == "AdminState") {
 					this.selectGroupsLinkButton.enabled = !this.showAllAnalysisCheckbox.selected;
@@ -1107,85 +1124,91 @@
 				}
 			}
 			
-			private function handleDateSet(event:DateSetEvent):void {
-				this.refreshAnalysis();
-			}			
-			
 		]]>
 	</mx:Script>
 	
 	<mx:ArrayCollection id="analysisNumbers"  sort="{requestNumberSorter}"/>
 	<mx:Sort id="requestNumberSorter" compareFunction="sortAnalysisNumbers" unique="true"/>    
-	<mx:DateFormatter id="dateFormatter" formatString="MM/DD/YYYY"/>
+	<mx:DateFormatter id="dateFormatter" formatString="YYYYMMDD"/>
 	
 	<mx:XMLListCollection  id="filteredGenomeBuildList" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.GenomeBuildLite').DictionaryEntry}"  filterFunction="filterGenomeBuild"/>
 	<mx:XMLListCollection  id="organisms" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OrganismLite').DictionaryEntry}" />
 	
-	<mx:VBox width="100%" height="100%" horizontalAlign="left" verticalGap="2">
-		<mx:HBox width="100%" styleName="titleBox" >
-			<renderers:TitleLabel id="titleLabel" iconSource="{parentApplication.iconAnalysis}" titleText="Analysis" />					
-			
-			<mx:VBox width="100%" id="vbox1" paddingRight="0" >
-				<mx:VBox id="analysisNavFilterBox"  verticalGap="0" width="100%">
-					<mx:HBox id="firstRowBox" width="100%" horizontalScrollPolicy="off">	
-						<mx:HBox id="timeFilterBox" paddingLeft="0" paddingRight="0">
-							<renderers:LinkButtonDateRangeMenu id="pickDateRangeButton" />
-						</mx:HBox>
-						<mx:HBox verticalAlign="middle" paddingBottom="5" paddingLeft="0" paddingRight="0" id="OrganismAndGenomeFiltersBox" >
-							<!--<mx:Label text="Organism:" styleName="labelSmall" width="55" />-->
-							<renderers:FilterComboBox labelField="@display"
-													  prompt="Organism..."
-													  close="filteredGenomeBuildList.refresh();refreshAnalysis();"
-													  id="organismCombo"
-													  dataProvider="{organisms.source}"
-													  fontSize="10"
-													  width="180">
-							</renderers:FilterComboBox>
-							<!--<mx:Label text="Genome: " styleName="labelSmall" width="55" />-->
-							<renderers:FilterComboBox labelField="@display"
-													  prompt="Genome Build..."
-													  close="refreshAnalysis();"
-													  id="genomeBuildCombo"
-													  dataProvider="{filteredGenomeBuildList}"
-													  fontSize="10"
-													  width="180">
-							</renderers:FilterComboBox>
-						</mx:HBox>
-						<mx:HBox horizontalGap="0" id="searchBox" verticalAlign="middle" fontSize="10">
-							<!--<mx:Label text="Search" id="searchLabel" paddingLeft="6" width="50"/>-->
-							<mx:TextInput id="searchTextField" borderColor="#D1C5C5" backgroundColor="#FFFFFF" text="Search..." click="{if(searchTextField.text == 'Search...') searchTextField.text = ''}"/>     
-							<mx:Button id="lookupButton"  
-									   fontFamily="Arial"  height="18" width="30"
-									   color="#400040" click="{if (searchTextField.text != '' &amp;&amp; searchTextField.text != 'Search...') refreshAnalysis();}" 
-									   visible="true" icon="@Embed('../../assets/arrow_right.png')" disabledIcon="@Embed(source='../../assets/arrow_right_disabled.png')"/>
-						</mx:HBox>
-						<mx:LinkButton label="Refresh" icon="@Embed(source='../../assets/action_refresh.gif')" click="this.refreshAnalysis()" textDecoration="underline" id="refreshButtonID"/>
+	<mx:VBox   width="100%" height="100%" verticalGap="2">
+		<mx:VBox styleName="panelBox" width="100%" id="vbox1"  paddingTop="4" paddingRight="2" paddingLeft="2" paddingBottom="4">
+			<mx:VBox id="filterBox"  verticalGap="0" width="100%">
+				<mx:HBox horizontalGap="14" verticalAlign="middle" width="100%" id="hbox4">
+					<mx:Label id="titleLabel" styleName="titleLabel" text="Analysis"  paddingRight="10"  width="95"/>
+					<mx:HBox horizontalGap="0" height="100%" verticalAlign="middle" verticalGap="0" paddingLeft="2" horizontalAlign="right" paddingRight="0" id="hbox2">
+						<mx:RadioButtonGroup id="analysisRadioGroup"/>
+						<mx:RadioButton label="My analysis" id="myAnalysisRadio"  groupName="analysisRadioGroup"  letterSpacing=".4" horizontalGap="0" styleName="labelSmall" toolTip="Analysis that I submitted">
+							<mx:click>this.refreshAnalysis()</mx:click>
+						</mx:RadioButton>
+						<mx:RadioButton label="My lab" id="myLabsAnalysisRadio"  selected="true" groupName="analysisRadioGroup" paddingLeft="2" horizontalGap="0" styleName="labelSmall">
+							<mx:toolTip><![CDATA[Analysis of my lab,  those I collaborate on, and those visible to to my institution]]></mx:toolTip>
+							<mx:click>this.refreshAnalysis()</mx:click>
+						</mx:RadioButton>
+						<mx:RadioButton label="Other labs" id="publicAnalysisOtherGroupsRadio"   groupName="analysisRadioGroup" paddingLeft="2" letterSpacing=".4" horizontalGap="0" styleName="labelSmall">
+							<mx:toolTip>Other labs' analyses that are visible to public</mx:toolTip>
+							<mx:click>this.refreshAnalysis()</mx:click>
+						</mx:RadioButton>
+						<mx:RadioButton label="All" id="userAllAnalysisRadio"   groupName="analysisRadioGroup" paddingLeft="2" letterSpacing=".4" horizontalGap="0" styleName="labelSmall">
+							<mx:toolTip>All analysis I have access to</mx:toolTip>
+							<mx:click>this.refreshAnalysis()</mx:click>
+						</mx:RadioButton>
 					</mx:HBox>
-					<mx:HBox id="secondRowBox">
-						<mx:HBox id="userFilters">
-							<mx:HBox id="analysisRadioGroupBox">
-								<mx:RadioButtonGroup id="analysisRadioGroup"/>
-								<mx:RadioButton label="My analysis" id="myAnalysisRadio"  groupName="analysisRadioGroup"  letterSpacing=".4" horizontalGap="0" styleName="labelSmall" toolTip="Analysis that I submitted">
-									<mx:click>this.refreshAnalysis()</mx:click>
-								</mx:RadioButton>
-								<mx:RadioButton label="My lab" id="myLabsAnalysisRadio"  selected="true" groupName="analysisRadioGroup" paddingLeft="2" horizontalGap="0" styleName="labelSmall">
-									<mx:toolTip><![CDATA[Analysis of my lab,  those I collaborate on, and those visible to to my institution]]></mx:toolTip>
-									<mx:click>this.refreshAnalysis()</mx:click>
-								</mx:RadioButton>
-								<mx:RadioButton label="Other labs" id="publicAnalysisOtherGroupsRadio"   groupName="analysisRadioGroup" paddingLeft="2" letterSpacing=".4" horizontalGap="0" styleName="labelSmall">
-									<mx:toolTip>Other labs' analyses that are visible to public</mx:toolTip>
-									<mx:click>this.refreshAnalysis()</mx:click>
-								</mx:RadioButton>
-								<mx:RadioButton label="All" id="userAllAnalysisRadio"   groupName="analysisRadioGroup" paddingLeft="2" letterSpacing=".4" horizontalGap="0" styleName="labelSmall">
-									<mx:toolTip>All analysis I have access to</mx:toolTip>
-									<mx:click>this.refreshAnalysis()</mx:click>
-								</mx:RadioButton>
-							</mx:HBox>						
-						</mx:HBox>							 
+					<mx:HBox horizontalGap="0" width="100%" verticalAlign="middle" verticalGap="0" horizontalAlign="left" paddingRight="0"  id="hbox3" paddingLeft="6" fontSize="10">
+						<mx:CheckBox id="lastWeekCheckbox" label="In last week" paddingRight="0" paddingLeft="0" horizontalGap="0"  >
+							<mx:click>toggleDateCheckboxes(1);refreshAnalysis();</mx:click>
+						</mx:CheckBox>
+						<mx:CheckBox  id="lastMonthCheckbox" label="month"  paddingRight="0" paddingLeft="2" horizontalGap="0"  >
+							<mx:click>toggleDateCheckboxes(2);refreshAnalysis();</mx:click>
+						</mx:CheckBox>
+						<mx:CheckBox  id="lastThreeMonthsCheckbox" label="3 months"  paddingRight="0" paddingLeft="2" horizontalGap="0"  >
+							<mx:click>toggleDateCheckboxes(3);refreshAnalysis();</mx:click>
+						</mx:CheckBox>
+						<mx:CheckBox  id="lastYearCheckbox" label="year"  paddingRight="0" paddingLeft="2" horizontalGap="0"  >
+							<mx:click>toggleDateCheckboxes(4);refreshAnalysis();</mx:click>
+						</mx:CheckBox>
 					</mx:HBox>
-				</mx:VBox>
+					<mx:HBox verticalAlign="middle">
+						<mx:VBox verticalAlign="middle">
+							<mx:Label text="Organism:" styleName="labelSmall" />
+							<mx:Label text="Genome Build:" styleName="labelSmall" />
+						</mx:VBox>
+						<mx:VBox verticalAlign="middle" paddingBottom="5">						
+						<renderers:FilterComboBox labelField="@display"
+												  prompt="Organism..."
+												  close="filteredGenomeBuildList.refresh();refreshAnalysis();"
+												  id="organismCombo"
+												  dataProvider="{organisms.source}"
+												  width="281">
+						</renderers:FilterComboBox>
+						<mx:ComboBox width="281" 
+									 id="genomeBuildCombo" 
+									 labelField="@display"
+									 change="refreshAnalysis();"
+									 dataProvider="{filteredGenomeBuildList}">							
+						</mx:ComboBox>
+						</mx:VBox>
+					</mx:HBox>
+					<mx:HBox horizontalGap="0" id="searchBox" verticalAlign="middle" fontSize="10">
+						<mx:Label text="Search" id="searchLabel" paddingLeft="6"/>
+						<mx:TextInput id="searchTextField" borderColor="#D1C5C5" backgroundColor="#FFFFFF"/>     
+						<mx:Button id="lookupButton"  
+								   fontFamily="Arial"  height="18" width="30"
+								   color="#400040" click="{if (searchTextField.text != '') refreshAnalysis();}" visible="true" icon="@Embed('../../assets/arrow_right.png')" disabledIcon="@Embed(source='../../assets/arrow_right_disabled.png')"/>
+					</mx:HBox>
+					<mx:Spacer width="100%" id="spacer2"/>
+					<mx:LinkButton label="Refresh" icon="@Embed(source='../../assets/action_refresh.gif')" click="this.refreshAnalysis()" textDecoration="underline" id="linkbutton1"/>
+					
+					
+					
+					
+				</mx:HBox>
+				
 			</mx:VBox>
-		</mx:HBox>
+		</mx:VBox>
 		<mx:HDividedBox height="100%" width="100%"> 
 			<mx:VBox styleName="panelBox"  label="Analysis" width="278" height="100%" id="navPanel"  dropShadowEnabled="true">
 				<mx:HBox width="100%">
@@ -1263,87 +1286,53 @@
 	
 	<mx:states>
 		<mx:State name="GuestState">
-			<mx:RemoveChild target="{userFilters}"/>
 			
-			<!--
 			<mx:SetProperty target="{newAnalysisButton}" name="enabled" value="false"/>
 			<mx:SetProperty target="{newAnalysisGroupButton}" name="enabled" value="false"/>
 			<mx:SetProperty target="{messageLabel}" name="width" value="100%"/>
 			<mx:SetStyle target="{messageLabel}" name="textAlign" value="right"/>
 			<mx:RemoveChild target="{spacer2}"/>
-			<mx:RemoveChild target="{analysisRadioGroupBox}"/>
+			<mx:RemoveChild target="{hbox2}"/>
 			<mx:SetStyle target="{hbox4}" name="horizontalGap" value="20"/>
-			<mx:SetProperty name="width" target="{timeFilterBox}" value="223"/>
-			-->
 		</mx:State>
 		
 		<mx:State name="AdminState">
-			<mx:RemoveChild target="{userFilters}"/>
-			<mx:AddChild relativeTo="{secondRowBox}" position="lastChild">
-				<mx:HBox id="AdminFilters" >
-					<mx:HBox >
-						<mx:CheckBox  label="Show all" id="showAllAnalysisCheckbox" click="{this.toggleAllAnalysis();this.refreshAnalysis()}" horizontalGap="0" fontSize="10"/>
-						<mx:CheckBox  label="Show public" id="publicProjectsCheckbox" click="refreshAnalysis()" horizontalGap="0" paddingLeft="5" fontSize="10"/>
+			<mx:AddChild relativeTo="{filterBox}" position="lastChild">
+				<mx:HBox width="100%" verticalAlign="middle" paddingLeft="90">
+					<mx:HBox verticalGap="0" id="hbox0" verticalAlign="middle" horizontalGap="0">
+						<mx:Label id="groupLabel" visible="true" text="Group:" paddingBottom="0" styleName="labelSmall" paddingLeft="5"/>
+						<mx:Spacer width="45"/>
+						<renderers:FilterComboBox dataProvider="{labList}" 
+												  labelField="@name" 
+												  prompt="Select a lab..."
+												  width="281" 
+												  close="{selectLab();refreshAnalysis()}"  
+												  id="browseLabCombo">
+						</renderers:FilterComboBox>
 					</mx:HBox>
-					<mx:HBox  verticalAlign="middle">
-						<mx:HBox verticalGap="0" id="hbox0" verticalAlign="middle" horizontalGap="0">
-							<mx:Label id="groupLabel" width="50" visible="true" text="Group:" paddingBottom="0" styleName="labelSmall" paddingLeft="5"/>
-							<renderers:FilterComboBox dataProvider="{labList}" 
-													  labelField="@name" 
-													  prompt="Select a lab..."
-													  width="250" 
-													  fontSize="10"
-													  close="{selectLab();refreshAnalysis()}"  
-													  id="browseLabCombo">
-							</renderers:FilterComboBox>
-						</mx:HBox>					
-						<mx:HBox horizontalGap="1"  horizontalScrollPolicy="off" verticalScrollPolicy="off" id="vbox2">
-							<mx:LinkButton label="Select Multiple Groups" textDecoration="underline" click="showMultiLabFilterWindow()" id="selectGroupsLinkButton" paddingLeft="0" fontWeight="normal" paddingRight="0" fontSize="10"/>
-							<mx:Label text="{selectedLabsLabel}" fontSize="9" fontStyle="italic" width="500"/>
-						</mx:HBox>					
+					
+					<mx:HBox horizontalGap="1" width="100%" horizontalScrollPolicy="off" verticalScrollPolicy="off" verticalAlign="middle" id="vbox2">
+						<mx:LinkButton label="Select Multiple Groups" textDecoration="underline" click="showMultiLabFilterWindow()" id="selectGroupsLinkButton" paddingLeft="0" fontWeight="normal" paddingRight="0" fontSize="10"/>
+						<mx:Label text="{selectedLabsLabel}" fontSize="9" fontStyle="italic" width="550"/>
 					</mx:HBox>
 					
 				</mx:HBox>
-			</mx:AddChild>	
-			
-			<!--
-			<mx:RemoveChild target="{analysisRadioGroup}"/>
-			<mx:AddChild relativeTo="{timeFilterBox}" position="before">
-			<mx:VBox width="100%" verticalAlign="middle" paddingLeft="90">
-			<mx:HBox verticalGap="0" id="hbox0" verticalAlign="middle" horizontalGap="0">
-			<mx:Label id="groupLabel" visible="true" text="Group:" paddingBottom="0" styleName="labelSmall" paddingLeft="5"/>
-			<mx:Spacer width="45"/>
-			<renderers:FilterComboBox dataProvider="{labList}" 
-			labelField="@name" 
-			prompt="Select a lab..."
-			width="281" 
-			close="{selectLab();refreshAnalysis()}"  
-			id="browseLabCombo">
-			</renderers:FilterComboBox>
-			</mx:HBox>
-			
-			<mx:HBox horizontalGap="1" width="100%" horizontalScrollPolicy="off" verticalScrollPolicy="off" verticalAlign="middle" id="vbox2">
-			<mx:LinkButton label="Select Multiple Groups" textDecoration="underline" click="showMultiLabFilterWindow()" id="selectGroupsLinkButton" paddingLeft="0" fontWeight="normal" paddingRight="0" fontSize="10"/>
-			<mx:Label text="{selectedLabsLabel}" fontSize="9" fontStyle="italic" width="550"/>
-			</mx:HBox>
-			
-			</mx:VBox>
 			</mx:AddChild>
 			<mx:AddChild relativeTo="{searchBox}" position="before">
-			<mx:HBox  horizontalGap="0">
-			<mx:CheckBox label="Show all" id="showAllAnalysisCheckbox" click="{this.toggleAllAnalysis();this.refreshAnalysis()}" horizontalGap="0" fontSize="10"/>
-			</mx:HBox>
+				<mx:HBox  horizontalGap="0">
+					<mx:CheckBox label="Show all" id="showAllAnalysisCheckbox" click="{this.toggleAllAnalysis();this.refreshAnalysis()}" horizontalGap="0" fontSize="10"/>
+				</mx:HBox>
 			</mx:AddChild>
-			<mx:RemoveChild target="{analysisRadioGroupBox}"/>
-			<mx:RemoveChild target="{timeFilterBox}"/>
-			<mx:AddChild relativeTo="{searchBox}" position="before" target="{timeFilterBox}"/>
+			<mx:RemoveChild target="{hbox2}"/>
+			<mx:RemoveChild target="{hbox3}"/>
+			<mx:AddChild relativeTo="{searchBox}" position="before" target="{hbox3}"/>
 			<mx:SetProperty target="{titleLabel}" name="width" value="80"/>
-			<mx:SetStyle target="{timeFilterBox}" name="paddingLeft" value="14"/>
-			<mx:AddChild relativeTo="{timeFilterBox}" position="before">
-			<mx:CheckBox label="Show public" id="publicProjectsCheckbox" click="refreshAnalysis()" horizontalGap="0" paddingLeft="5" fontSize="10"/>
+			<mx:SetStyle target="{hbox3}" name="paddingLeft" value="14"/>
+			<mx:AddChild relativeTo="{hbox3}" position="before">
+				<mx:CheckBox label="Show public" id="publicProjectsCheckbox" click="refreshAnalysis()" horizontalGap="0" paddingLeft="5" fontSize="10"/>
 			</mx:AddChild>
 			<mx:SetStyle target="{vbox1}" name="borderStyle" value="solid"/>
-			<mx:SetStyle target="{vbox1}" name="paddingTop" value="4"/> -->
+			<mx:SetStyle target="{vbox1}" name="paddingTop" value="4"/>
 		</mx:State>
 		
 		

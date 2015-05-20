@@ -1,21 +1,20 @@
 <%@ page import="hci.gnomex.utility.HibernateGuestSession"%>
 <%@ page import="org.hibernate.Session"%>
 <%@ page import="hci.gnomex.controller.GNomExFrontController"%>
-<%@ page import="hci.gnomex.model.CoreFacility"%>
+<%@ page import="hci.gnomex.model.Request"%>
 <%@ page import="hci.gnomex.model.PropertyDictionary" %>
 <%@ page import="hci.gnomex.utility.PropertyDictionaryHelper" %>
-<%@ page import="hci.gnomex.model.ProductOrder" %>
 <HTML>
 <HEAD>
 <link rel="stylesheet" type="text/css" href="css/message.css" />
 <TITLE>Enter Quote Info</TITLE>
 
 <%
-      String uuid = ( String ) ( ( request.getParameter( "orderUuid" ) != null ) ? request.getParameter( "orderUuid" ) : "" );
+      String uuid = ( String ) ( ( request.getParameter( "requestUuid" ) != null ) ? request.getParameter( "requestUuid" ) : "" );
 
       String message = ( String ) ( ( request.getAttribute( "message" ) != null ) ? request.getAttribute( "message" )  : "" );
-      
-      ProductOrder po = null;
+
+      Request req = null;
 
       String coreFacilityName = "";
       
@@ -27,14 +26,13 @@
 
       try {
         sess = HibernateGuestSession.currentGuestSession( "guest" );
-        
-        po = ( ProductOrder ) sess.createQuery( "from ProductOrder po where po.uuid = '" + uuid + "'" ).uniqueResult();
 
-        if( po == null ) {
+        req = ( Request ) sess.createQuery( "from Request req where req.uuid = '" + uuid + "'" ).uniqueResult();
+
+        if( req == null ) {
           message = "Quote information has already been submitted for the experiement.";
         } else {
-          CoreFacility cf = ( CoreFacility ) sess.createQuery( "from CoreFacility where idCoreFacility = " + po.getIdCoreFacility().toString() ).uniqueResult();
-          coreFacilityName = cf.getFacilityName();
+          coreFacilityName = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(req.getIdCoreFacility(), PropertyDictionary.CORE_FACILITY_NAME);
         }
 
       } catch( Exception e ) {
@@ -51,12 +49,12 @@
   <img src="images/navbar.png" />
   <br>
   <%
-    if( po != null ) {
+    if( req != null ) {
   %>
-    <h3>Enter quote information for <%=coreFacilityName%> Product Order <%=po.getIdProductOrder() != null ? po.getIdProductOrder() : ""%></h3>
+    <h3>Enter quote information for <%=coreFacilityName%> experiment <%=req.getNumber() != null ? req.getNumber() : ""%></h3>
     <form enctype="multipart/form-data" method="post" action="UploadQuoteInfoServlet.gx">
       <p>
-        <input type="hidden" name="orderUuid" value="<%=uuid%>">
+        <input type="hidden" name="requestUuid" value="<%=uuid%>">
         <br> Quote #:&nbsp;<input type="text" name="quoteNumber" size="35">
       <p>
         File:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="file" name="file" size="35">

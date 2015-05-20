@@ -39,9 +39,7 @@ public abstract class HttpClientServletBase extends HttpServlet {
       // Get security advisor
       SecurityAdvisor secAdvisor = (SecurityAdvisor) req.getSession().getAttribute(SecurityAdvisor.SECURITY_ADVISOR_SESSION_KEY);
       if (secAdvisor == null) {
-        if(!getNameOfServlet().equals("SaveChromatogramFromFileServlet")) {
-          System.out.println(getNameOfServlet() + ":  Warning - unable to find existing session. Creating security advisor.");
-        }
+        System.out.println(getNameOfServlet() + ":  Warning - unable to find existing session. Creating security advisor.");
         secAdvisor = SecurityAdvisor.create(sess, username);
       }
 

@@ -307,7 +307,7 @@
 
 	<mx:VBox width="100%" height="100%" verticalGap="10" paddingTop="2">
 		<mx:HBox width="100%" horizontalGap="0">
-			<util:ContextHelp context1="hybSetupApplication" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Hyb Experiment Type Help"
+			<util:ContextHelp context1="hybSetupApplication" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Hyb Application Help"
 							  label="(1) Select an organism." labelPlacement="left" id="hybSetupApplicationLabel" width="250"/>
 			<mx:ComboBox id="organismCombo" labelField="@display" width="250" close="parentDocument.filteredSlideProductList.refresh();slideProductCombo.selectedIndex = -1;clearHybSlideDesigns();checkHybSetupCompleteness();checkForSlideProductWarning()">							
 				<mx:change>parentDocument.filteredSlideProductList.refresh();slideProductCombo.selectedIndex = -1;clearHybSlideDesigns();checkHybSetupCompleteness();checkForSlideProductWarning()</mx:change>
@@ -315,8 +315,8 @@
 			</mx:ComboBox>
 		</mx:HBox>
 		<mx:HBox width="100%" horizontalGap="0">
-			<util:ContextHelp context1="hybSetupMicroApplication" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Hyb Microarray Experiment Type Help"
-							  label="(2) Select the microarray experiment type." labelPlacement="left" id="hybSetupMicroApplicationLabel" width="250"/>
+			<util:ContextHelp context1="hybSetupMicroApplication" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Hyb Microarray Application Help"
+							  label="(2) Select the microarray application." labelPlacement="left" id="hybSetupMicroApplicationLabel" width="250"/>
 			<mx:VBox  verticalGap="0" id="microarrayAppBox" styleName="{currentState == 'EditState' ? 'normalBox' : 'requiredBox'}">
 	            <mx:RadioButtonGroup id="microarrayAppRadioGroup"/>
 				<mx:Repeater id="microarrayAppRepeater" dataProvider="{parentDocument.filteredMicroarrayAppList}"> 

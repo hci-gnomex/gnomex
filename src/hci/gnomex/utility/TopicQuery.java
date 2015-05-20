@@ -158,7 +158,7 @@ public class TopicQuery implements Serializable {
 		addCriteria(TOPIC_LEVEL);
 		
     if (secAdvisor != null) {
-      addWhere = secAdvisor.buildSecurityCriteria(queryBuf, "topic", null, addWhere, false, false, false);
+      addWhere = secAdvisor.buildSecurityCriteria(queryBuf, "topic", null, addWhere, false, false);
     }		
     
 		queryBuf.append(" ORDER BY topic.name asc ");
@@ -186,7 +186,7 @@ public class TopicQuery implements Serializable {
     addCriteria(REQUEST_LEVEL);
     
     if (isRestricted) {
-      addWhere = secAdvisor.buildSecurityCriteria(queryBuf, "request", "collab", addWhere, false, true, false);
+      addWhere = secAdvisor.buildSecurityCriteria(queryBuf, "request", "collab", addWhere, false, true);
     }
     
     addWhere = secAdvisor.appendExcludeClinicResearchCriteria(queryBuf, addWhere, dictionaryHelper, "request");
@@ -216,7 +216,7 @@ public class TopicQuery implements Serializable {
     addCriteria(ANALYSIS_LEVEL);
     
     if (secAdvisor != null) {
-      addWhere = secAdvisor.buildSecurityCriteria(queryBuf, "analysis", "collab", addWhere, false, false, false);
+      addWhere = secAdvisor.buildSecurityCriteria(queryBuf, "analysis", "collab", addWhere, false, false);
     }
 
     queryBuf.append(" ORDER BY tp.name asc, analysis.name asc ");
@@ -244,7 +244,7 @@ public class TopicQuery implements Serializable {
     addCriteria(DATATRACK_LEVEL);
     
     if (secAdvisor != null) {
-      addWhere = secAdvisor.buildSecurityCriteria(queryBuf, "dataTrack", "collab", addWhere, false, false, false);
+      addWhere = secAdvisor.buildSecurityCriteria(queryBuf, "dataTrack", "collab", addWhere, false, false);
     }
     
     

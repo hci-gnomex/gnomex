@@ -46,12 +46,9 @@
     <mx:Sort id="barcodeSort"  compareFunction="sortBarcodes"/>
     <mx:XMLListCollection id="barcodes" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.OligoBarcode').DictionaryEntry}" sort="{barcodeSort}"/>
 
-	<mx:XMLListCollection id="seqLibProtocols" source="{parentApplication.seqLibProtocolsWithAppFilters.copy()}" filterFunction="filterSeqLibProtocols" />
 
     <mx:Script>
         <![CDATA[
-			import hci.flex.util.DictionaryManager;
-			
 			import mx.collections.ArrayCollection;
 			import mx.collections.XMLListCollection;
 			import mx.controls.Alert;
@@ -64,7 +61,6 @@
 			import mx.validators.NumberValidator;
 			
 			import views.renderers.ComboBox;
-			import views.util.DictionaryHelper;
 
 		[Bindable]
         public var codeStepNext:String;
@@ -80,11 +76,11 @@
         
         [Bindable]
         private var requestNumbers:ArrayCollection;
-			
+           
         private function init():void {
         	barcodes.refresh();
         }
-
+			
 		public function titleInit():void {
 			if(codeStepNext == 'SEQPREP') {
 				titleLabel.text = 'Illumina GAIIx Library Prep';
@@ -165,96 +161,26 @@
         }
 			
 		private function areAandBTagsUnique():void{
+			var barcodeField:String = "";
+			var barcodeFieldB:String = "";
+			var areUnique:Boolean = true;
+
 			var dirtyItems:XMLList = getWorkList.lastResult.WorkItem.(@isDirty == 'Y');        	
 			dirtyWorkItems = new XMLListCollection(dirtyItems);
-			var sort:Sort = new Sort();
-			sort.compareFunction = this.sortSampleNumber;
-			dirtyWorkItems.sort = sort;
-			dirtyWorkItems.refresh();
-			var requestsToCheck:Object = new Object();
-			for each(var item:Object in dirtyWorkItems){
-				requestsToCheck[item.@idRequest] = item;
-			}
-			var areUnique:Boolean = true;
-			var idRequest:String = "";
-			var requestNumber:String = "";
-			var multiplexGroupNumber:String = "";
-			var barcodes:ArrayCollection = new ArrayCollection();
-			
-			for(var idRequestToCheck:String in requestsToCheck){
-				if(!areUnique){
-					break;
-				}
-				idRequest = idRequestToCheck;
-				requestNumber = requestsToCheck[idRequestToCheck].@requestNumber;
-				multiplexGroupNumber = requestsToCheck[idRequestToCheck].@multiplexGroupNumber;
-				barcodes = new ArrayCollection();
-				for each(var workItem:Object in workList){
-					if((idRequest == workItem.@idRequest && multiplexGroupNumber == workItem.@multiplexGroupNumber)){
-						addBarcodes(workItem, barcodes);
-					} else{
-						if(!checkBasePairs(barcodes)){
-							areUnique = false;
-							break;
-						}
-						if(idRequest == workItem.@idRequest && multiplexGroupNumber != workItem.@multiplexGroupNumber){
-							barcodes = new ArrayCollection();
-							multiplexGroupNumber = workItem.@multiplexGroupNumber;
-							addBarcodes(workItem, barcodes);
-						}
+			for each(var workItem:Object in dirtyWorkItems){
+				if(workItem.@idOligoBarcode != "" && workItem.@idOligoBarcodeB != ""){
+					if(workItem.@idOligoBarcode == workItem.@idOligoBarcodeB){
+						areUnique = false;
+						break;
 					}
+					
 				}
-			}
-			// do check for last request...
-			if(!checkBasePairs(barcodes)){
-				areUnique = false;
 			}
 			
 			if(areUnique == false){
-				Alert.show("Request " + requestNumber + 
-							" has samples in the same multiplex group whose barcodes do not differ by at least 3 base pairs. Continue?", 
-							"Warning", Alert.OK | Alert.CANCEL, null, areAandBTagsUniqueCloseEvent, null, Alert.CANCEL);
+				Alert.show("Some work items have the same tag specified for both Index Tag A and B. Continue?", "Warning", Alert.OK | Alert.CANCEL, null, areAandBTagsUniqueCloseEvent, null, Alert.CANCEL);
 			} else{
 				save();
-			}
-		}
-			
-		//Helper function for areAandBTagsUnique()	
-		private function addBarcodes(workItem:Object, barcodes:ArrayCollection):void{
-			var barcodeA:String = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.OligoBarcode', workItem.@idOligoBarcode).@barcodeSequence;
-			var barcodeB:String = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.OligoBarcode', workItem.@idOligoBarcodeB).@barcodeSequence;
-			var barcodeSequence:String = barcodeA + barcodeB;
-			if(barcodeSequence != null && barcodeSequence != ""){
-				barcodes.addItem(barcodeSequence);
-			}
-			
-		}
-			
-		private function checkBasePairs(barcodes:ArrayCollection):Boolean{
-			for(var i:int = 0; i < barcodes.length; i++){
-				var sequenceOne:Array = String(barcodes.getItemAt(i)).split("");
-				for(var j:int = i+1; j < barcodes.length; j++){
-					var sequenceTwo:Array = String(barcodes.getItemAt(j)).split("");
-					if(!atLeastThreeUnique(sequenceOne, sequenceTwo)){
-						return false;
-					}
-				}
-			}
-			return true;
-		}
-			
-		private function atLeastThreeUnique(sequenceOne:Array, sequenceTwo:Array):Boolean{
-			var uniqueBaseCount:int = 0;
-			for(var i:int = 0; i < sequenceOne.length; i++){
-				if(sequenceOne[i] != sequenceTwo[i]){
-					uniqueBaseCount++;
-				}
-			}
-			
-			if(uniqueBaseCount >= 3){
-				return true;
-			} else{
-				return false;
 			}
 		}
 		
@@ -331,6 +257,10 @@
         } 
 
            
+		private function getBioanalyzerChipType(item:Object,col:DataGridColumn):String
+        {
+        	return parentApplication.dictionaryManager.getEntryDisplay("hci.gnomex.model.BioanalyzerChipType", item.@seqPrepQualCodeBioanalyzerChipType);
+        }
 		private function getSeqLibProtocol(item:Object,col:DataGridColumn):String
         {
         	return parentApplication.dictionaryManager.getEntryDisplay("hci.gnomex.model.SeqLibProtocol", item.@idSeqLibProtocol);
@@ -469,18 +399,7 @@
 				}
 			}
 
-			private function filterSeqLibProtocols(item:Object):Boolean {
-				if (item.@value == "") {
-					return true;
-				}
-				if (item.@codeApplicationType != 'Illumina') {
-					return false;
-				}
-				if (!parentApplication.isCoreFacilityIManage(item.@idCoreFacility)) {
-					return false;
-				}
-				return true;
-			}
+
         ]]>
     </mx:Script> 
     
@@ -535,7 +454,7 @@
 									   itemRenderer="mx.controls.Label"		
 									   labelFunction="getSeqLibProtocol" 
 									   sortable="false"
-									   itemEditor="{views.renderers.GridColumnFillButton.create(views.renderers.ComboBox.create(seqLibProtocols,'@display', '@value', '@idSeqLibProtocol', null, true).newInstance(), 'idRequest')}"/>		                
+									   itemEditor="{views.renderers.GridColumnFillButton.create(views.renderers.ComboBox.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqLibProtocol').DictionaryEntry,'@display', '@value', '@idSeqLibProtocol', null, true).newInstance(), 'idRequest')}"/>		                
 
 					<mx:DataGridColumn headerText="Index A"  width="20" id="indexTagACol"
 										dataField="@idOligoBarcode" 
@@ -551,7 +470,9 @@
 																	  indexTagLetter="A" keyUp="{outerDocument.isDeleteKeyA(event, data)}"
 																	  prompt="{null}"
 																	  text="{outerDocument.getOligoBarcodeName(data,outerDocument.indexTagACol)}"
-																	  focusOut="{outerDocument.indexTagACol.labelFunction=outerDocument.getOligoBarcodeName}">
+																	  focusOut="{outerDocument.indexTagACol.labelFunction=outerDocument.getOligoBarcodeName}"
+																	  removeFilterOnSelection="true"
+																	  removeInputOnFocusOut="true" >
 								</renderers:FilterComboBoxOligoBarcode>
 							</mx:Component>
 						</mx:itemEditor>
@@ -570,7 +491,9 @@
 																	  indexTagLetter="B" keyUp="{outerDocument.isDeleteKeyB(event, data)}"
 																	  prompt="{null}"
 																	  text="{outerDocument.getOligoBarcodeNameB(data,outerDocument.indexTagBCol)}"
-																	  focusOut="{outerDocument.indexTagBCol.labelFunction=outerDocument.getOligoBarcodeNameB}">
+																	  focusOut="{outerDocument.indexTagBCol.labelFunction=outerDocument.getOligoBarcodeNameB}"
+																	  removeFilterOnSelection="true"
+																	  removeInputOnFocusOut="true" >
 								</renderers:FilterComboBoxOligoBarcode>
 							</mx:Component>
 						</mx:itemEditor>

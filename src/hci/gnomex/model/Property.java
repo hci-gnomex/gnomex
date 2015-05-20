@@ -23,12 +23,8 @@ public class Property extends DictionaryEntry implements Serializable, OntologyE
   private String   forSample;
   private String   forAnalysis;
   private String   forDataTrack;
-  private String   forRequest;
-  private Integer  sortOrder;
-  private Integer  idCoreFacility;
   private Set      options = new TreeSet();
   private Set      organisms = new TreeSet();
-  private Set      appUsers = new TreeSet();
   private Set      platformApplications = new TreeSet();
   private Set      analysisTypes = new TreeSet();
   
@@ -119,12 +115,6 @@ public class Property extends DictionaryEntry implements Serializable, OntologyE
   public void setOrganisms(Set organisms) {
     this.organisms = organisms;
   }
-  public Set getAppUsers() {
-    return appUsers;
-  }
-  public void setAppUsers(Set appUsers) {
-    this.appUsers = appUsers;
-  }
   public Integer getIdProperty() {
     return idProperty;
   }
@@ -205,29 +195,6 @@ public class Property extends DictionaryEntry implements Serializable, OntologyE
   }
   
   
-  public String getForRequest() {
-    return forRequest;
-  }
-
-  
-  public void setForRequest( String forRequest ) {
-    this.forRequest = forRequest;
-  }
-
-  public Integer getSortOrder() {
-    return sortOrder;
-  }
-  public void setSortOrder(Integer sortOrder) {
-    this.sortOrder = sortOrder;
-  }
-  
-  public Integer getIdCoreFacility() {
-    return idCoreFacility;
-  }
-  public void setIdCoreFacility(Integer idCoreFacility) {
-    this.idCoreFacility = idCoreFacility;
-  }
-  
   public String getAppliesToOrganism() {
     StringBuffer buf = new StringBuffer();
     if (getOrganisms() != null) {
@@ -282,25 +249,5 @@ public class Property extends DictionaryEntry implements Serializable, OntologyE
     return buf.toString();
     
   }
-  
-  public String getAppliesToAppUser() {
-    StringBuffer buf = new StringBuffer();
-    if (getAppUsers() != null) {
-      for (AppUserLite user : (Set<AppUserLite>)getAppUsers()) {
-        if (buf.length() > 0) {
-          buf.append(", ");
-        }
-        buf.append(user.getDisplay());
-      }
-    }
-    return buf.toString();
-  }
     
-  public Boolean hasOptions() {
-    if (getCodePropertyType().equals(PropertyType.MULTI_OPTION) || getCodePropertyType().equals(PropertyType.OPTION)) {
-      return true;
-    } else {
-      return false;
-    }
-  }
 }

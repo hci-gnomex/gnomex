@@ -19,10 +19,9 @@ public class BioanalyzerChipType extends DictionaryEntry implements Serializable
   private String      concentrationRange;
   private String      codeConcentrationUnit;
   private String      maxSampleBufferStrength;
+  private BigDecimal  costPerSample;
   private Integer     sampleWellsPerChip;
   private String      isActive;
-  private String      codeApplication;
-  private String      protocolDescription;
   
   public String getDisplay() {
     String display = this.getNonNullString(getBioanalyzerChipType());
@@ -63,6 +62,17 @@ public class BioanalyzerChipType extends DictionaryEntry implements Serializable
     this.concentrationRange = concentrationRange;
   }
 
+  
+  public BigDecimal getCostPerSample() {
+    return costPerSample;
+  }
+
+  
+  public void setCostPerSample(BigDecimal costPerSample) {
+    this.costPerSample = costPerSample;
+  }
+
+  
   public String getIsActive() {
     return isActive;
   }
@@ -107,17 +117,5 @@ public class BioanalyzerChipType extends DictionaryEntry implements Serializable
   }
 
   
-  public String getCodeApplication() {
-    return codeApplication;
-  }
-  public void setCodeApplication(String codeApplication) {
-    this.codeApplication = codeApplication;
-  }
 
-  public String getProtocolDescription() {
-    return protocolDescription;
-  }
-  public void setProtocolDescription(String protocolDescription) {
-    this.protocolDescription = protocolDescription;
-  }
 }

@@ -24,13 +24,11 @@
 			
 			public var isEditable:Boolean = true;
 			public var isRequired:Boolean = false;
-			public var addOptionOnFly:Boolean = false;
 			
 			private var pop:MultiselectPopup;
-			private var idProperty:String;
 			
-			public static function create(isEditable:Boolean=true,isRequired:Boolean=false,addOptionOnFly:Boolean=false):IFactory {
-				return RendererFactory.create(MultiselectRenderer, {isEditable:isEditable, isRequired:isRequired, addOptionOnFly:addOptionOnFly});
+			public static function create(isEditable:Boolean=true,isRequired:Boolean=false):IFactory {
+				return RendererFactory.create(MultiselectRenderer, {isEditable:isEditable, isRequired:isRequired});
 			}		
 			override public function set data(value:Object):void {
 				super.data = value;
@@ -43,12 +41,10 @@
 					return;
 				}
 	
-				idProperty = _listData.dataField.substr(6);
-				
 				var values:Array = new Array();
 				values = data[_listData.dataField].split(",");
 				var idx:Object = null;
-				var allOptions:XMLList = getOptions();
+				var allOptions:XMLList = parentApplication.getPropertyOptions(_listData.dataField.substr(6));
 					
 				var option:XML = null;
 				for each(option in allOptions) {
@@ -92,16 +88,12 @@
 				if (_listData == null || _listData.dataField == null || !(data is XML)) {
 					return;
 				}
-				idProperty = _listData.dataField.substr(6);
 				pop= MultiselectPopup(PopUpManager.createPopUp(this, MultiselectPopup,true));
-				pop.opener=this;
-				var propertyName:String = parentApplication.getSampleProperty(idProperty).@name;
-				pop.initializeData(propertyName, this.txt, addOptionOnFly, idProperty);
-			}
-			
-			public function getOptions():XMLList {
+				var propertyName:String = parentApplication.getSampleProperty(_listData.dataField.substr(6)).@name;
 				// Use parent document to get options because then we will know if inactive options are included
-				return parentDocument.getPropertyOptions(idProperty);
+				var options:XMLList = parentDocument.getPropertyOptions(_listData.dataField.substr(6));
+				pop.initializeData(propertyName, this.txt, options);
+				pop.opener=this;
 			}
 			
 			public function updateDP(str:String):void{

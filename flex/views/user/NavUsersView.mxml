@@ -117,7 +117,6 @@
     <mx:XMLListCollection id="collaboratingLabs" source="{getAppUser.lastResult.AppUser.(@idAppUser = selectedUser.@idAppUser).collaboratingLabs.Lab}"/>
     <mx:XMLListCollection id="managingLabs" source="{getAppUser.lastResult.AppUser.(@idAppUser = selectedUser.@idAppUser).managingLabs.Lab}"/>
 	<mx:XMLListCollection id="managingCoreFacilities" source="{getAppUser.lastResult.managingCoreFacilities.coreFacility}"/>
-	<mx:XMLListCollection id="coreFacilitiesICanSubmitTo" source="{getAppUser.lastResult.coreFacilitiesICanSubmitTo.coreFacility}" filterFunction="filterCoreFacilitiesICanSubmitTo"/>
 	
 
 
@@ -347,7 +346,7 @@
             var addWindow:GroupAddView = GroupAddView(mx.managers.PopUpManager.createPopUp(this, GroupAddView, true));
             mx.managers.PopUpManager.centerPopUp(addWindow);
             addWindow.setFocus();
-            addWindow.groupFirstName.setFocus();
+            addWindow.firstName.setFocus();
 
           }  
           
@@ -379,7 +378,7 @@
           	call.marker = "doneGetAppUser";
           }
           
-          public function callGetAppUserList():void
+          private function callGetAppUserList():void
           {
           	var call:Object = getAppUserList.send();
           	call.marker = "doneGetAppUserList";
@@ -437,21 +436,12 @@
 
           private function filterUser(item:Object):Boolean {
 			  if (radioSearchUserType.selectedValue == "UserName") {
-                return item.@displayName.toString().match(new RegExp(userSearchText.text + ".*", "i")) || item.@firstLastDisplayName.toString().match(new RegExp(userSearchText.text + ".*", "i"));
+                return item.@displayName.toString().match(new RegExp(userSearchText.text + ".*", "i"));
 			  } else if (radioSearchUserType.selectedValue == "UserEmail") {
 				  return item.@email.toString().match(new RegExp(userEmailSearchText.text + ".*", "i"));
 			  }
 			  return true;
           } 
-			
-  		  private function filterCoreFacilitiesICanSubmitTo(item:Object):Boolean {
-			  if (item.@allowed.toString() == "Y") {
-				  return true;
-			  } else {
-				  return false;
-			  }
-		  } 
-			
 			
           private function filterLab(item:Object):Boolean {
 			  var deptString:String = parentApplication.escapeRegexChars(deptSearchText.text);
@@ -464,14 +454,14 @@
 
 			  if(labString != "" && deptString != ""){
 				  if (radioSearchGroupType.selectedValue == "LabName") {
-					  return ((item.@name.toString().match(new RegExp(labString + ".*", "i")) || item.@nameFirstLast.toString().match(new RegExp(labString + ".*", "i"))) && item.@department.toString().match(new RegExp("^" + deptString, "i")));  
+					  return (item.@name.toString().match(new RegExp(labString + ".*", "i")) && item.@department.toString().match(new RegExp("^" + deptString, "i")));  
 				  } else if (radioSearchGroupType.selectedValue == "Email"){
 					  return (item.@billingContactEmail.toString().match(new RegExp(labString + ".*", "i")) && item.@department.toString().match(new RegExp("^" + deptString, "i")));  
 				  }
 			  }
 			  else if(labString != ""){
 				  if (radioSearchGroupType.selectedValue == "LabName") {
-					  return item.@name.toString().match(new RegExp(labString + ".*", "i")) || item.@nameFirstLast.toString().match(new RegExp(labString + ".*", "i"));
+					  return item.@name.toString().match(new RegExp(labString + ".*", "i"));
 				  } else if (radioSearchGroupType.selectedValue == "Email"){
 					  return item.@billingContactEmail.toString().match(new RegExp(labString + ".*", "i"));  
 				  }

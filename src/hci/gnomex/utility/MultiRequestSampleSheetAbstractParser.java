@@ -26,7 +26,7 @@ import org.jdom.Document;
 import org.jdom.Element;
 
 public abstract class MultiRequestSampleSheetAbstractParser implements Serializable {
-
+  
   // the static field for logging in Log4J
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(MultiRequestSampleSheetAbstractParser.class);
 
@@ -52,7 +52,7 @@ public abstract class MultiRequestSampleSheetAbstractParser implements Serializa
   private Map<String, Map> annotationsToDeleteMap;
   private SecurityAdvisor secAdvisor;
   private Map<String, List<Sample>> requestSampleMap;
-
+  
   public MultiRequestSampleSheetAbstractParser(SecurityAdvisor secAdvisor) {
     this.secAdvisor = secAdvisor;
   }
@@ -67,7 +67,7 @@ public abstract class MultiRequestSampleSheetAbstractParser implements Serializa
         errors.add(new Error(Error.FATAL, "Both request # and sample # columns must be included in the spread sheet."));
       }
     }
-
+    
     if (!fatalError()) {
       requestMap = new HashMap<String, Request>();
       annotationMap = new HashMap<String, Map>();
@@ -80,23 +80,23 @@ public abstract class MultiRequestSampleSheetAbstractParser implements Serializa
   public Map<String, Request> getRequestMap() {
     return requestMap;
   }
-
+  
   public Map<String, Map> getAnnotationMap() {
     return annotationMap;
   }
-
+  
   public Map<String, Map> getAnnotationsToDeleteMap() {
     return annotationsToDeleteMap;
   }
-
+  
   public List<Sample> getModifiedSamplesForRequest(String requestNumber) {
     return requestSampleMap.get(requestNumber);
   }
-
+  
   protected abstract void readFile();
-
+  
   protected abstract void parseRows(Session sess, DictionaryHelper dh);
-
+  
   public Boolean fatalError() {
     Boolean fatal = false;
     for(Error error : errors) {
@@ -105,10 +105,10 @@ public abstract class MultiRequestSampleSheetAbstractParser implements Serializa
         break;
       }
     }
-
+    
     return fatal;
   }
-
+  
   private void createColumnMap(DictionaryHelper dh) {
     columnMap = new HashMap<Integer, ColumnInfo>();
     String[] headers = getHeaderStrings();
@@ -125,14 +125,14 @@ public abstract class MultiRequestSampleSheetAbstractParser implements Serializa
         errors.add(new Error(Error.COLUMN_ERROR, "Column with header '" + header + "' does not map to a column or annotation.", null, ordinal));
         info = getErrorColumnInfo(ordinal, header);
       }
-
+      
       columnMap.put(info.getOrdinal(), info);
       ordinal++;
     }
   }
-
+  
   protected abstract String[] getHeaderStrings();
-
+  
   private ColumnInfo getColumnColumnInfo(Integer ordinal, String header) {
     ColumnInfo info = null;
     if (header.toLowerCase().equals(HEADER_REQUEST_NUMBER.toLowerCase()) || header.toLowerCase().equals(HEADER_REQUEST_NUMBER2.toLowerCase())) {
@@ -157,23 +157,21 @@ public abstract class MultiRequestSampleSheetAbstractParser implements Serializa
     }
     return info;
   }
-
+  
   private ColumnInfo getAnnotationColumnInfo(DictionaryHelper dh, Integer ordinal, String header) {
     ColumnInfo info = null;
-    // Hardwire to core 1 for now as that is the only one using external experiments.
-    // Likely will have to be addressed later for more flexibility.
-    Property p = dh.getPropertyByNameAndCore(header, 1);
+    Property p = dh.getPropertyByName(header);
     if (p != null && p.getIsActive().equals("Y") && p.getForSample().equals("Y")) {
       info = new ColumnInfo(ordinal, p);
     }
     return info;
   }
-
+  
   private ColumnInfo getErrorColumnInfo(Integer ordinal, String header) {
     ColumnInfo info = new ColumnInfo(ordinal, header, null, PropertyType.TEXT, null);
     return info;
   }
-
+  
   protected void parseRow(Session sess, DictionaryHelper dh, String[] values, Integer rowOrdinal) {
     String requestNumber = "";
     if (values.length > requestNumberOrdinal) {
@@ -187,7 +185,7 @@ public abstract class MultiRequestSampleSheetAbstractParser implements Serializa
     if (sampleNameOrdinal != null && values.length > sampleNameOrdinal) {
       sampleName = values[sampleNameOrdinal];
     }
-
+    
     Boolean rowError = false;
     Request request = null;
     Sample sample = null;
@@ -216,7 +214,7 @@ public abstract class MultiRequestSampleSheetAbstractParser implements Serializa
         rowError = true;
       }
     }
-
+    
     for(Integer colOrdinal : columnMap.keySet()) {
       ColumnInfo info = columnMap.get(colOrdinal);
       String value = values.length > colOrdinal ? values[colOrdinal] : null;
@@ -226,7 +224,7 @@ public abstract class MultiRequestSampleSheetAbstractParser implements Serializa
         }
       }
       info.addValue(rowOrdinal, value);
-
+      
       if (!rowError && isValid(info, value, errors, rowOrdinal, colOrdinal, requestNumber, sampleNumber)) {
         Boolean doSet = true;
         if (colOrdinal.equals(this.requestNumberOrdinal) || colOrdinal.equals(this.sampleNumberOrdinal)) {
@@ -241,17 +239,17 @@ public abstract class MultiRequestSampleSheetAbstractParser implements Serializa
       }
     }
   }
-
+  
   private Boolean hasRequestError(String requestNumber) {
     for(Error error : this.errors) {
       if (error.getRequestNumber() != null && error.getRequestNumber().equals(requestNumber) && error.getStatus().equals(error.REQUEST_ERROR)) {
         return true;
       }
     }
-
+    
     return false;
   }
-
+  
   private Request getRequest(Session sess, String requestNumber) {
     Request request = null;
     if (requestMap.containsKey(requestNumber)) {
@@ -266,10 +264,10 @@ public abstract class MultiRequestSampleSheetAbstractParser implements Serializa
       }
       requestMap.put(requestNumber, request);
     }
-
+    
     return request;
   }
-
+  
   private Sample getSample(Session sess, Request request, String sampleNumber, Integer rowOrdinal) {
     Sample sample = null;
     if (sampleNumber.length() > 0) {
@@ -298,10 +296,10 @@ public abstract class MultiRequestSampleSheetAbstractParser implements Serializa
     }
     sampleList.add(sample);
     requestSampleMap.put(request.getNumber(), sampleList);
-
+    
     return sample;
   }
-
+  
   private Boolean isValid(ColumnInfo info, String value, List<Error> errors, Integer rowOrdinal, Integer columnOrdinal, String requestNumber, String sampleNumber) {
     Boolean valid = true;
     String message = "";
@@ -347,13 +345,13 @@ public abstract class MultiRequestSampleSheetAbstractParser implements Serializa
         }
       }
     }
-
+    
     if (message.length() > 0) {
       errors.add(new Error(Error.CELL_ERROR, message, rowOrdinal, columnOrdinal, requestNumber, sampleNumber));
     }
     return valid;
   }
-
+  
   private Boolean isValidOption(ColumnInfo info, String value) {
     Boolean valid = false;
     value = value.trim();
@@ -381,10 +379,10 @@ public abstract class MultiRequestSampleSheetAbstractParser implements Serializa
         }
       }
     }
-
+    
     return valid;
   }
-
+  
   private void setValue(ColumnInfo info, Sample sample, String value) {
     try {
       if (info.getOrdinal().equals(this.sampleNameOrdinal) && value.length() > 30) {
@@ -439,7 +437,7 @@ public abstract class MultiRequestSampleSheetAbstractParser implements Serializa
     }
 
   }
-
+  
   private void setAnnotationValue(ColumnInfo info, Sample sample, String value) {
     HashMap annotations = (HashMap)annotationMap.get(sample.getIdSampleString());
     if (annotations == null) {
@@ -467,43 +465,32 @@ public abstract class MultiRequestSampleSheetAbstractParser implements Serializa
         }
         value = newValue;
       }
-    } else if(info.getType().equals(PropertyType.OPTION)) {
-      Property p = info.getProperty();
-      String newValue = "";
-      for(Iterator i = p.getOptions().iterator(); i.hasNext(); ) {
-        PropertyOption o = (PropertyOption)i.next();
-        if (value.equals(o.getDisplay())) {
-          newValue += o.getIdPropertyOption().toString();
-          break;
-        }
-      }
-      value = newValue;
     }
     // only store annotation if non blank value.
     if (value != null && !value.equals("")) {
       annotations.put(info.getProperty().getIdProperty(), value);
     }
     annotationMap.put(sample.getIdSampleString(), annotations);
-
+    
     // delete old value of annotation even if new value is blank.
     annotationsToDelete.put(info.getProperty().getIdProperty(), value);
     annotationsToDeleteMap.put(sample.getIdSampleString(), annotationsToDelete);
   }
-
+  
   public Document toXMLDocument() {
     Element sampleSheetNode = new Element("SampleSheet");
-
+    
     if (!this.fatalError()) {
       sampleSheetNode.addContent(getHeadersNode());
       sampleSheetNode.addContent(getRowsNode());
       sampleSheetNode.addContent(getRequestsNode());
     }
-
+    
     sampleSheetNode.addContent(getErrorsNode());
-
+    
     return new Document(sampleSheetNode);
   }
-
+  
   private Element getHeadersNode() {
     Element headersNode = new Element ("Headers");
     for(Integer columnOrdinal : columnMap.keySet()) {
@@ -535,12 +522,12 @@ public abstract class MultiRequestSampleSheetAbstractParser implements Serializa
         }
       }
     }
-
+    
     return rowsNode;
   }
 
   protected abstract Integer getNumRows();
-
+  
   private Element getRequestsNode() {
     Element requestsNode = new Element("Requests");
     for(String requestNumber : requestMap.keySet()) {
@@ -554,14 +541,14 @@ public abstract class MultiRequestSampleSheetAbstractParser implements Serializa
       requestNode.setAttribute("codeRequestCategory", request == null ? "" : request.getCodeRequestCategory());
       requestNode.setAttribute("name", request == null ? "" : request.getName());
       requestNode.setAttribute("description", request == null ? "" :  request.getDescription());
-      requestNode.setAttribute("codeApplication", request == null || request.getCodeApplication() == null ? "" : request.getCodeApplication());
+      requestNode.setAttribute("codeApplication", request == null ? "" : request.getCodeApplication());
       requestNode.setAttribute("numUnmodifiedSamples", this.numberSamplesUnchanged(request).toString());
       requestNode.setAttribute("numUpdatedSamples", this.numberSamplesUpdated(request).toString());
       requestNode.setAttribute("numCreatedSamples", this.numberSamplesCreated(request).toString());
       requestNode.setAttribute("numErrors", this.numberErrors(requestNumber).toString());
       requestNode.setAttribute("enableCheckBox", reqValid);
     }
-
+    
     return requestsNode;
   }
 
@@ -585,10 +572,10 @@ public abstract class MultiRequestSampleSheetAbstractParser implements Serializa
       errorNode.setAttribute("sampleNumber", error.getSampleNumber() == null ? "" : error.getSampleNumber());
       errorNode.setAttribute("header", colName);
     }
-
+    
     return errorsNode;
   }
-
+  
   private Integer numberSamplesUnchanged(Request request) {
     Integer num = 0;
     if (request != null) {
@@ -599,10 +586,10 @@ public abstract class MultiRequestSampleSheetAbstractParser implements Serializa
         }
       }
     }
-
+    
     return num;
   }
-
+  
   private Integer numberSamplesUpdated(Request request) {
     Integer num = 0;
     if (request != null) {
@@ -613,11 +600,11 @@ public abstract class MultiRequestSampleSheetAbstractParser implements Serializa
         }
       }
     }
-
+    
     return num;
   }
-
-
+  
+  
   private Integer numberSamplesCreated(Request request) {
     Integer num = 0;
     if (request != null) {
@@ -627,10 +614,10 @@ public abstract class MultiRequestSampleSheetAbstractParser implements Serializa
         }
       }
     }
-
+    
     return num;
   }
-
+  
   public Integer numberErrors(String requestNumber) {
     Integer num = 0;
     for(Error error : this.errors) {
@@ -638,10 +625,10 @@ public abstract class MultiRequestSampleSheetAbstractParser implements Serializa
         num++;
       }
     }
-
+    
     return num;
   }
-
+  
   public void setErrorSampleNumbersAfterCreate() {
     for(String requestNumber : this.requestSampleMap.keySet()) {
       List<Sample> samples = requestSampleMap.get(requestNumber);
@@ -659,21 +646,21 @@ public abstract class MultiRequestSampleSheetAbstractParser implements Serializa
       }
     }
   }
-
+  
   protected class Error implements Serializable {
     public static final String FATAL = "Fatal";
     public static final String REQUEST_ERROR = "Request Error";
     public static final String ROW_ERROR = "Row Error";
     public static final String COLUMN_ERROR = "Column Warning";
     public static final String CELL_ERROR = "Cell Warning";
-
+    
     private String status;
     private String message;
     private Integer rowOrdinal;
     private Integer columnOrdinal;
     private String requestNumber;
     private String sampleNumber;
-
+    
     public Error(String status, String message) {
       this.status = status;
       this.message = message;
@@ -682,7 +669,7 @@ public abstract class MultiRequestSampleSheetAbstractParser implements Serializa
       this.requestNumber = null;
       this.sampleNumber = null;
     }
-
+    
     public Error(String status, String message, Integer rowOrdinal, Integer columnOrdinal) {
       this.status = status;
       this.message = message;
@@ -691,7 +678,7 @@ public abstract class MultiRequestSampleSheetAbstractParser implements Serializa
       this.requestNumber = null;
       this.sampleNumber = null;
     }
-
+    
     public Error(String status, String message, Integer rowOrdinal, Integer columnOrdinal, String requestNumber, String sampleNumber) {
       this.status = status;
       this.message = message;
@@ -700,36 +687,36 @@ public abstract class MultiRequestSampleSheetAbstractParser implements Serializa
       this.requestNumber = requestNumber;
       this.sampleNumber = sampleNumber;
     }
-
+    
     public String getStatus() {
       return status;
     }
-
+    
     public String getMessage() {
       return message;
     }
-
+    
     public Integer getRowOrdinal() {
       return rowOrdinal;
     }
-
+    
     public Integer getColumnOrdinal() {
       return columnOrdinal;
     }
-
+    
     public String getRequestNumber() {
       return requestNumber;
     }
-
+    
     public String getSampleNumber() {
       return sampleNumber;
     }
-
+    
     public void setSampleNumber(String sampleNumber) {
       this.sampleNumber = sampleNumber;
     }
   }
-
+  
   protected class ColumnInfo implements Serializable {
     public static final String NUMERIC = "Numeric";
 
@@ -740,15 +727,15 @@ public abstract class MultiRequestSampleSheetAbstractParser implements Serializa
     private String type;
     private String dictionaryName;
     private Map<Integer, String> valueMap;
-
+    
     public ColumnInfo(Integer ordinal, String headerName, String name, String type, String dictionaryName) {
       init(ordinal, headerName, name, type, null, dictionaryName);
     }
-
+    
     public ColumnInfo(Integer ordinal, Property property) {
       init(ordinal, property.getName(), null, property.getCodePropertyType(), property, null);
     }
-
+    
     private void init(Integer ordinal, String headerName, String name, String type, Property property, String dictionaryName) {
       this.ordinal = ordinal;
       this.headerName = headerName;
@@ -758,19 +745,19 @@ public abstract class MultiRequestSampleSheetAbstractParser implements Serializa
       this.dictionaryName = dictionaryName;
       this.valueMap = new HashMap<Integer, String>();
     }
-
+    
     public Integer getOrdinal() {
       return ordinal;
     }
-
+    
     public String getHeaderName() {
       return headerName;
     }
-
+    
     public String getName() {
       return name;
     }
-
+    
     public String getSetterName() {
       String setter = "";
       if (name != null && name.length() > 0) {
@@ -778,23 +765,23 @@ public abstract class MultiRequestSampleSheetAbstractParser implements Serializa
       }
       return setter;
     }
-
+    
     public String getType() {
       return type;
     }
-
+    
     public Property getProperty() {
       return property;
     }
-
+    
     public String getDictionaryName() {
       return dictionaryName;
     }
-
+    
     public void addValue(Integer rowOrdinal, String value) {
       valueMap.put(rowOrdinal, value);
     }
-
+    
     public String getValue(Integer rowOrdinal) {
       return valueMap.get(rowOrdinal);
     }
