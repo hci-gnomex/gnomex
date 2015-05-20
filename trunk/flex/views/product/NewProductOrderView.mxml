@@ -102,8 +102,10 @@
 			}
 			
 			private function hideFields():void{
-				labCombo.selectedIndex = -1;			
-				appUserCombo.selectedIndex = -1;
+				labCombo.selectedIndex = -1;
+				if(this.currentState == 'AdminState'){
+					appUserCombo.selectedIndex = -1;
+				}
 				billingContainer.visible = false;
 				billingAccountCombo.selectedIndex = -1;
 				headerBox.visible = false;
