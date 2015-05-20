@@ -395,6 +395,7 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
     }
 
     String toAddress = "";
+    String ccAddress = "";
     String subject = "GNomEx user account pending approval for " + appUser.getFirstName() + " " + appUser.getLastName();
     String testEmailInfo = "";
     //we will send activation email to lab pi if user requests membership to existing lab.  If new lab or no pi email the activation email will go to core facility director.
@@ -402,37 +403,64 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
       toAddress += requestedLab.getContactEmail();
     }
 
-    if(toAddress.length() > 0) {
-      toAddress += ", ";
-    }
+    
     //We will send same email to core Facility Director.
     if (facility != null) {
-      toAddress += propertyHelper.getQualifiedCoreFacilityProperty(PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY_WORKAUTH_REMINDER, serverName, facility.getIdCoreFacility());
+      String coreEmail =  propertyHelper.getQualifiedCoreFacilityProperty(PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY_WORKAUTH_REMINDER, serverName, facility.getIdCoreFacility());
+      if (coreEmail == null) {
+        coreEmail = facility.getContactEmail();
+      }
+      if ( toAddress.length() > 0 ) {
+        ccAddress += coreEmail;
+      } else {
+        toAddress += coreEmail;
+      }
     } else if (requestedLab != null) {
-      for(Iterator facilityIter = requestedLab.getCoreFacilities().iterator();facilityIter.hasNext();) {
-        CoreFacility f = (CoreFacility)facilityIter.next();
-        String add = propertyHelper.getQualifiedCoreFacilityProperty(PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY_WORKAUTH_REMINDER, serverName, f.getIdCoreFacility()); 
-        if (add != null && add.length() > 0) {
-          if (toAddress != null && !toAddress.equals("")) {
-            toAddress += ",";
+      if ( toAddress.length() > 0 ) {
+        for(Iterator facilityIter = requestedLab.getCoreFacilities().iterator();facilityIter.hasNext();) {
+          CoreFacility f = (CoreFacility)facilityIter.next();
+          String add =  propertyHelper.getQualifiedCoreFacilityProperty(PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY_WORKAUTH_REMINDER, serverName, facility.getIdCoreFacility());
+          if (add == null) {
+            add = facility.getContactEmail();
           }
-          toAddress += add;
+          if (add != null && add.length() > 0) {
+            if (ccAddress != null && !ccAddress.equals("")) {
+              ccAddress += ",";
+            }
+            ccAddress += add;
+          }
+        }
+      } else {
+        for(Iterator facilityIter = requestedLab.getCoreFacilities().iterator();facilityIter.hasNext();) {
+          CoreFacility f = (CoreFacility)facilityIter.next();
+          String add =  propertyHelper.getQualifiedCoreFacilityProperty(PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY_WORKAUTH_REMINDER, serverName, facility.getIdCoreFacility());
+          if (add == null) {
+            add = facility.getContactEmail();
+          }
+          if (add != null && add.length() > 0) {
+            if (toAddress != null && !toAddress.equals("")) {
+              toAddress += ",";
+            }
+            toAddress += add;
+          }
         }
       }
+      
     }
 
     if(propertyHelper.getProperty(PropertyDictionary.NOTIFY_SUPPORT_OF_NEW_USER).equals("Y")) {
-      if(toAddress.length() > 0) {
-        toAddress += ", ";
+      if(ccAddress.length() > 0) {
+        ccAddress += ", ";
       }
-      toAddress += propertyHelper.getProperty(PropertyDictionary.GNOMEX_SUPPORT_EMAIL);
+      ccAddress += propertyHelper.getProperty(PropertyDictionary.GNOMEX_SUPPORT_EMAIL);
     }
 
 
     if (!dictionaryHelper.isProductionServer(serverName)) {
       subject = subject + "  (TEST)";
-      testEmailInfo = "[If this were a production environment then this email would have been sent to: " + toAddress + "]<br><br>";
+      testEmailInfo = "[If this were a production environment then this email would have been sent to: " + toAddress + ", cc: " + ccAddress + "]<br><br>";
       toAddress = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
+      ccAddress = "";
     }
 
     if(toAddress.equals("")){
@@ -444,12 +472,28 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
     String deleteURL = url + "/" + Constants.APPROVE_USER_SERVLET + "?guid=" + uuidStr + "&idAppUser=" + appUser.getIdAppUser().intValue() + "&deleteUser=Y";
     //url = url + Constants.LAUNCH_APP_JSP + "?idAppUser=" + appUser.getIdAppUser().intValue() + "&launchWindow=UserDetail&idCore=" + facility.getIdCoreFacility().toString();
     StringBuffer introForAdmin = new StringBuffer();
+    
+    String greeting = "";
+    if ( requestedLab != null ) {
+      greeting = "Dear " + requestedLab.getName( false, false, false ) + ",<br><br>";
+    } 
+    
+    introForAdmin.append(greeting);
     introForAdmin.append("The following person has signed up for a GNomEx user account.  The user account has been created but not activated.<br><br>");
     introForAdmin.append("<a href='" + approveURL + "'>Click here</a> to activate the account.  GNomEx will automatically send an email to notify the user that his/her user account has been activated.<br><br>");
     introForAdmin.append("<a href='" + deleteURL + "'>Click here</a> to deny and delete the pending user.  GNomEx will automatically send an email to notify the user that they have been denied an account with GNomEx.<br><br>");
+    
+    String closing = "If you have any questions concerning this application for a new account within your lab group, pleast contact ";
+    if (facility != null ) {
+      closing += facility.getContactName() + " (" + facility.getContactEmail() + ").<br><br>";
+    } else {
+      closing += "GNomEx Support " + " (" + propertyHelper.getProperty( PropertyDictionary.GNOMEX_SUPPORT_EMAIL ) + ").<br><br>";
+    }
+    introForAdmin.append( closing );
+    
     MailUtil.send(
         toAddress,
-        "",
+        ccAddress,
         coreFacilityEmail,
         subject,
         testEmailInfo + introForAdmin.toString() + getEmailBody(appUser, true),
