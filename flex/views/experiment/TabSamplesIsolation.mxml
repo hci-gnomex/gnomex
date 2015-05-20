@@ -132,7 +132,6 @@
 					" idSample='" + sampleId + "'" +
 					" name='' description='' " +
 					" concentration=''" +
-					" qubitConcentration=''" +
 					" canChangeSampleName='Y'" +	
 					" idSampleSource='" + (parentApplication.submitInternalExperiment() && !this.isEditState ? parentDocument.sampleSetupView.sampleSourceCombo.selectedItem.@idSampleSource  : '')  + "'" +
 					"/>");
@@ -233,7 +232,6 @@
 				
 				setButtonsVisibility(true);
 				samplesGrid.rowOperationsAllowed = true;
-				samplesGrid.insertRowEnabled = false;
 				
 				// Don't allow sample editing on edit unless user is admin or experiment is external or experiment is non-submitted dna sq experiment.
 				if (isEditState && !parentApplication.isAdminState && !isExternal ) {
@@ -242,9 +240,6 @@
 				}
 				
 				// Edit columns shown
-				concentrationCol.visible = parentDocument.isEditState();
-				qc_260_280Column.visible = parentDocument.isEditState();
-				qubitConcentrationCol.visible = parentDocument.isEditState() && parentDocument.request.@includeQubitConcentration == 'Y';
 				
 				sampleNumberCol.visible = parentDocument.isEditState();
 				
@@ -404,7 +399,6 @@
 						</mx:Component>
 					</mx:headerRenderer>
 				</mx:AdvancedDataGridColumn>
-				
 				<mx:AdvancedDataGridColumn id="qc_260_280Column"
 										   editable="{parentApplication.hasPermission('canWriteAnyObject')}" 
 										   headerText="QC 260/280" width="90" 
@@ -416,19 +410,6 @@
 							<mx:VBox verticalGap="0" horizontalScrollPolicy="off"  verticalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle"> 
 								<util:ContextHelp context1="sampleQc260280" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="QC 260/280 Help" 
 												  showEdit="{parentApplication.isAdminState}" label="QC 260/280" noIconSpaceIfNoHelp="true"/>
-							</mx:VBox> 
-						</mx:Component>
-					</mx:headerRenderer>
-				</mx:AdvancedDataGridColumn>
-				<mx:AdvancedDataGridColumn headerText="Qubit Conc." id="qubitConcentrationCol" 
-										   visible="{parentApplication.isInternalExperimentSubmission}"  width="100" dataField="@qubitConcentration" rendererIsEditor="false"
-										   itemRenderer="{hci.flex.controls.Label.create('@qubitConcentration')}"                 
-										   itemEditor="{views.renderers.GridColumnFillButton.create(new views.renderers.TextInputSampleConcentration(), '')}" editorDataField="value">
-					<mx:headerRenderer > 
-						<mx:Component>
-							<mx:VBox verticalGap="0" horizontalScrollPolicy="off"  verticalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle"> 
-								<util:ContextHelp context1="sampleQubtiConcentration" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="Qubit Concentration Help" 
-												  showEdit="{parentApplication.isAdminState}" label="Qubit Pico Green       &#13;Conc (ng/ul)" noIconSpaceIfNoHelp="true"/>
 							</mx:VBox> 
 						</mx:Component>
 					</mx:headerRenderer>

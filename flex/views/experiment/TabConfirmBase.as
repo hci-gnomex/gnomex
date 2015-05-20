@@ -25,13 +25,7 @@ package views.experiment
 	{
 		
 		public static function getConfirmTab(existingTab:TabConfirmBase, requestCategoryType:Object):TabConfirmBase {
-			if (requestCategoryType.@codeRequestCategoryType == 'GENERIC') {
-				if (existingTab is TabConfirmGeneric) {
-					return existingTab;
-				} else {
-					return new TabConfirmGeneric();
-				}
-			} else if (requestCategoryType.@codeRequestCategoryType == 'ISCAN') {
+			if (requestCategoryType.@codeRequestCategoryType == 'ISCAN') {
 				if (existingTab is TabConfirmIScan) {
 					return existingTab;
 				} else {
@@ -55,12 +49,6 @@ package views.experiment
 				} else {
 					return new TabConfirmSequenom();
 				}
-			} else if (requestCategoryType.@codeRequestCategoryType == 'NANOSTRING') {
-				if (existingTab is TabConfirmNanoString) {
-					return existingTab;
-				} else {
-					return new TabConfirmNanoString();
-				}
 			} else {
 				if (existingTab is TabConfirmView) {
 					return existingTab;
@@ -80,7 +68,6 @@ package views.experiment
 				setupView();
 				showHideColumns();
 				rebuildSamplesGrid();
-				updateBatchWarning();
 			}
 		} 
 		
@@ -143,14 +130,6 @@ package views.experiment
 			} else {
 				return null;
 			}
-		}
-		
-		public function getPropertyOptions(idProperty:String):XMLList {
-			var includeInactive:Boolean = true;
-			if (parentDocument != null) {
-				includeInactive = parentDocument.isEditState();
-			}
-			return parentApplication.getPropertyOptions(idProperty, includeInactive);
 		}
 		
 		private function setSampleVisibility(dc:Object, vis:Boolean):void {
@@ -343,31 +322,6 @@ package views.experiment
 			} else {
 				return item[column.dataField].toString();
 			}
-		}
-		
-		public function updateBatchWarning():void{
-			
-		}
-		
-		public function getSampleBatchWarning():String{
-			var hasBatchSampleSize:String = parentApplication.getRequestCategoryProperty(parentDocument.getRequestCategory().@idCoreFacility,parentDocument.getRequestCategory().@codeRequestCategory, parentApplication.PROPERTY_SAMPLE_BATCH_WARNING);
-			
-			var application:Object = parentDocument.sampleSetupView.application;
-			var numberOfSamples:String = parentDocument.sampleSetupView.numberOfSamples.text;
-			
-			if(application != null && application.@samplesPerBatch != null && application.@samplesPerBatch != ''){
-				var appSampleSize:int = int(application.@samplesPerBatch);
-				if(numberOfSamples != null && numberOfSamples != "" && int(numberOfSamples) % appSampleSize != 0){
-					return hasBatchSampleSize;
-				}
-			} else if(parentDocument.getRequestCategory().@sampleBatchSize != null && parentDocument.getRequestCategory().@sampleBatchSize != ''){
-				var reqCatSampleSize:int = int(parentDocument.getRequestCategory().@sampleBatchSize);
-				if(numberOfSamples != null && numberOfSamples != "" && int(numberOfSamples) % reqCatSampleSize != 0){
-					return hasBatchSampleSize;
-				}
-			}
-			
-			return "";
 		}
 		
 	}

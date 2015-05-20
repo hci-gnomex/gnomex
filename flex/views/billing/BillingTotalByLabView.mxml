@@ -1,29 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical" 
-	title="Total Billing by Lab Report for {parentView.coreFacilityCombo.selectedItem.@display}"
+	title="Total Billing by Lab Report" 
 	width="546" height="114" defaultButton="{runButton}">
  
 
 <mx:Script>
 	<![CDATA[
-		import mx.collections.XMLListCollection;
 		import mx.rpc.events.FaultEvent;
-		import mx.controls.Alert;
-		import mx.managers.PopUpManager;
 		import mx.rpc.events.ResultEvent;
-		
-		[Bindable]
-		public var parentView:NavBillingView;
+		import mx.managers.PopUpManager;
+		import mx.controls.Alert;
+		import mx.collections.XMLListCollection;
+
 		[Bindable]
 		public var billingPeriods:XMLListCollection;
 		
 		private function run():void {
 			var url:URLRequest = new URLRequest('ShowBillingTotalByLabReport.gx' +
 						'?startDate=' + billingPeriodStartCombo.selectedItem.@startDate + 
-						'&endDate=' + billingPeriodEndCombo.selectedItem.@endDate +
-						'&idCoreFacility=' + parentView.coreFacilityCombo.selectedItem.@idCoreFacility);
+						'&endDate=' + billingPeriodEndCombo.selectedItem.@endDate );
 			navigateToURL(url, '_blank');	
-			parentView.closeBillingSummaryWindow();		
+			mx.managers.PopUpManager.removePopUp(this);		
 		}				
 		 
 	]]>
@@ -49,7 +46,7 @@
 	</mx:HBox>
 	<mx:ControlBar horizontalAlign="right">
 		<mx:Button label="OK" id="runButton" click="run()" enabled="{billingPeriodEndCombo.selectedItem != null &amp;&amp; billingPeriodEndCombo.selectedItem.@value != '' &amp;&amp; billingPeriodStartCombo.selectedItem != null &amp;&amp; billingPeriodStartCombo.selectedItem.@value != ''}"/>
-		<mx:Button label="Cancel" click="{parentView.closeBillingSummaryWindow()}"/>
+		<mx:Button label="Cancel" click="{mx.managers.PopUpManager.removePopUp(this)}"/>
 	</mx:ControlBar>
 	
 </mx:TitleWindow>

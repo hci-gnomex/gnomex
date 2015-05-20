@@ -56,6 +56,10 @@ CREATE TABLE `gnomex`.`VisitLog` (
 )
 ENGINE = INNODB;
 
+-- New trimAdapter column for Request table
+alter table gnomex.Request add trimAdapter char(1) NULL;
+call ExecuteIfTableExists('gnomex','Request_Audit','alter table gnomex.Request_Audit add trimAdapter char(1) NULL');
+
 -- New property experiment_file_sample_linking_enabled
 INSERT INTO PropertyDictionary (propertyName, propertyValue, propertyDescription, forServerOnly, idCoreFacility, codeRequestCategory)
 	VALUES('experiment_file_sample_linking_enabled', 'Y', 'Enable this property in order to see the Sample Linking button on the Files tab of the experiment edit view', 'N', null, null);

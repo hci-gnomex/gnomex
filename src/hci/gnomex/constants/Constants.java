@@ -6,24 +6,21 @@ import java.util.regex.Pattern;
 
 public class Constants {
   public static final String              DATA_SOURCES                     = "config/data-sources.xml";  
-
+  
   public static final String              APP_NAME                        = "GNomEx";
-
+  
   public static final String              LAUNCH_APP_JSP                  = "/gnomexFlex.jsp";
-  public static final String              SHOW_REQUEST_FORM               = "/ShowRequestFormNew.gx";
+  public static final String              SHOW_REQUEST_FORM               = "/ShowRequestForm.gx";
   public static final String              UPLOAD_QUOTE_JSP                = "/uploadQuoteInfo.jsp";
-  public static final String              APPROVE_USER_SERVLET            = "/ApproveUser.gx";
-  public static final String              APPROVE_BILLING_ACCOUNT_SERVLET = "/ApproveBillingAccount.gx";
-  public static final String              VERIFY_EMAIL_SERVLET            = "/ConfirmEmail.gx";
-
+  
   public static final String              DOWNLOAD_SINGLE_FILE_SERVLET           = "DownloadSingleFileServlet.gx";
   public static final String              DOWNLOAD_ANALYSIS_SINGLE_FILE_SERVLET  = "DownloadAnalysisSingleFileServlet.gx";
   public static final String              DOWNLOAD_CHROMATOGRAM_FILE_SERVLET     = "DownloadChromatogramFileServlet.gx";
-
+  
   public static final boolean             REQUIRE_SECURE_REMOTE           = true;
-
+  
   public static final String              SQL_SERVER                      = "SQL SERVER";
-
+  
   public static final String              MAIL_SESSION                    = "mail/MailSession";
 
   public static final String              INVOICE_FORM_CSS                = "css/invoiceForm.css";
@@ -35,7 +32,7 @@ public class Constants {
   public static final String              PLATE_REPORT_CSS                = "css/plateReport.css";
 
   public static final String              LOGGING_PROPERTIES              = "gnomex_logging.properties";
-
+  
   public static final String              WINDOW_TRACK_REQUESTS           = "ExperimentDetail";
   public static final String              WINDOW_TRACK_ANALYSES           = "AnalysisDetail";
   public static final String              WINDOW_FETCH_RESULTS            = "ExperimentDownload";
@@ -49,32 +46,32 @@ public class Constants {
   public static final  String             STATUS_TERMINATED               = "Terminated";
   public static final  String             STATUS_BYPASSED                 = "Bypassed";
   public static final  String             STATUS_ON_HOLD                  = "On Hold";
-
+  
   public static final String              AMEND_QC_TO_MICROARRAY          = "MicroarrayAmendState";
   public static final String              AMEND_QC_TO_SEQ                 = "SolexaBaseAmendState";
   public static final String              AMEND_ADD_SEQ_LANES             = "SolexaLaneAmendState";
-
+  
   public static final String              UPLOAD_STAGING_DIR              = "upload_staging";
   public static final String              MATERIAL_QUOTE_DIR              = "material_quote";
   public static final String              REQUISITION_DIR                 = "requisition";
   public static final String              DOWNLOAD_KEY_SEPARATOR          = "\t";
-
+  
   public static DecimalFormat              concentrationFormatter = new DecimalFormat("######.##");
-
+  
   public static final String              BILLING_SPLIT_TYPE_PERCENT_CODE = "%";
   public static final String              BILLING_SPLIT_TYPE_AMOUNT_CODE  = "$";
-
+  
   // DataTrack Constants
   public static final String SEQUENCE_DIR_PREFIX    = "SEQ";
 
   public static final int MAXIMUM_NUMBER_TEXT_FILE_LINES = 10000;
-
+  
   public static final String UCSC_URL = "http://genome.ucsc.edu";
   //public static final int DAYS_TO_KEEP_URL_LINKS= 7; //We used to delete links based on time, we are now allowing customers to delete whenever they want
   public static final String URL_LINK_DIR_NAME = "URLLinks";
   public static final String IGV_LINK_DIR_NAME = "IGVLinks";
   public static final String UCSC_EXECUTABLE_DIR_NAME = "UCSCExecutables";
-
+  
   public static final String UCSC_WIG_TO_BIG_WIG_NAME = "wigToBigWig";
   public static final String UCSC_BED_TO_BIG_BED_NAME = "bedToBigBed";
   public static final String SAMTOOLS_BGZIP_NAME = "bgzip";
@@ -83,7 +80,7 @@ public class Constants {
   public static final Pattern HTML_BRACKETS = Pattern.compile("<[^>]+>");
 
   public static final String FDT_DOWNLOAD_INFO_FILE_NAME = "fdtDownloadInfoFile.txt";
-
+  
   /*Keep lower case.*/
   public static final String[] DATATRACK_FILE_EXTENSIONS = new String[] {
     ".bam.bai",    //this must precede ".bam"  and ".bai"                                                   
@@ -119,32 +116,15 @@ public class Constants {
     ".vcf.gz.tbi",
     ".useq",
   };
-
-  public static final String[] FILE_EXTENSIONS_FOR_VIEW = new String[] {
-    ".pdf",
-    ".jpg",
-    ".png",
-    ".gif",
-    ".rtf",
-    ".txt",
-    ".html",
-    ".htm",
-    ".csv",
-    ".ppt",
-    ".pptx",
-    ".xls",
-    ".xlsx",
-    ".xml",
-  };
-
+  
 
   public static final String[] SEQUENCE_FILE_EXTENSIONS = new String[] 
-                                                                     {
+                                                              {
     ".bnib", 
     ".fasta",
-                                                                     };
-
-
+                                                              };
+  
+  
   public static final int ERROR_CODE_OTHER                     = 901;
   public static final int ERROR_CODE_UNSUPPORTED_FILE_TYPE     = 902;
   public static final int ERROR_CODE_INCORRECT_FILENAME        = 903;
@@ -308,7 +288,7 @@ public class Constants {
     "  text-align: left;",
     "}"
   };
-
-
-
+ 
+    
+      
 }

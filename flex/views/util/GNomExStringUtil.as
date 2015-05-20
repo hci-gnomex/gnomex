@@ -41,10 +41,6 @@ package views.util
 			str = str.replace(pattern, "");
 			pattern = /<\/TEXTFORMAT.*?>/g;
 			str = str.replace(pattern, "");
-			pattern = /<P.*?>/g;
-			str = str.replace(pattern, "");
-			pattern = /<\/P.*?>/g;
-			str = str.replace(pattern, "");
 			
 			return str;		    
 		}
@@ -144,25 +140,7 @@ package views.util
 			}
 			
 			return a.join( "" );
-		}
-		
-		// Escapes any XML special characters
-		public static function makeXMLSafe( s:String ):String {
-			var pattern:RegExp;
-			var str:String = s;
-			pattern = /&/g;
-			str = str.replace(pattern, "&amp;");
-			pattern = /</g;
-			str = str.replace(pattern, "&lt;");
-			pattern = />/g;
-			str = str.replace(pattern, "&gt;");
-			pattern = /\'/g;
-			str = str.replace(pattern, "&apos;");
-			pattern = /\"/g;
-			str = str.replace(pattern, "&quot;");
-			
-			return str;
-		}
+		} 
 		
 		// Maps a unicode string to an ascii string.  It also replaces all non-printable ascii characters (including cr/lf) with ?.
 		public static function unicodeToAscii( str:String ):String {

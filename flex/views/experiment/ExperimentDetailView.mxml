@@ -28,7 +28,6 @@
 			import mx.collections.GroupingField;
 			import mx.collections.XMLListCollection;
 			import mx.controls.Alert;
-			import mx.core.Container;
 			import mx.events.CloseEvent;
 			import mx.events.IndexChangedEvent;
 			import mx.managers.PopUpManager;
@@ -40,9 +39,8 @@
 			import views.renderers.MultiselectRenderer;
 			import views.renderers.Text;
 			import views.renderers.URLRenderer;
-			import views.util.AdvancedDataGridToolTipColumn;
-			import views.util.AnnotationUtility;
 			import views.util.CollaboratorWindow;
+			import views.util.RunAlignmentWindow;
 			import views.util.GNomExStringUtil;
 			
 			public var sampleGroupingCollection:GroupingCollection = null;		
@@ -70,11 +68,6 @@
 			
 			[Bindable]
 			private var genomeBuild:String = "";
-			
-			[Bindable]
-			private var alignToGenomeBuild:String = "N";
-			
-			public var defaultTab:Container = null;
 			
 			public function isCapSeqState():Boolean {
 				if (currentState == 'CapSeqState') {
@@ -140,30 +133,6 @@
 				}
 			}
 			
-			public function isIonTorrentState():Boolean {
-				if (currentState == 'IonTorrentState') {
-					return true;
-				} else {
-					return false;
-				}
-			}
-			
-			public function isGenericState():Boolean {
-				if (currentState == 'GenericState') {
-					return true;
-				} else {
-					return false;
-				}
-			}
-			
-			public function isNanoStringState():Boolean {
-				if (currentState == 'NanoStringState') {
-					return true;
-				} else {
-					return false;
-				}
-			}
-			
 			public function checkSecurity():void {
 				
 				if (parentApplication.isGuestMode()) {
@@ -185,24 +154,16 @@
 				
 				parentDocument.parentDocument.experimentEditView.instantiateTabs(this.selectedExperiment.@codeRequestCategory, true, false);
 				
-				if(selectedExperiment.sequenceLanes.SequenceLane[0] != null && selectedExperiment.sequenceLanes.SequenceLane[0].@idGenomeBuildAlignTo != null){
-					genomeBuild = parentApplication.dictionaryManager.getEntryDisplay('hci.gnomex.model.GenomeBuildLite', selectedExperiment.sequenceLanes.SequenceLane[0].@idGenomeBuildAlignTo);
-				}
-				
-				if (selectedExperiment.@alignToGenomeBuild != null && selectedExperiment.@alignToGenomeBuild != '') {
-					this.alignToGenomeBuild = selectedExperiment.@alignToGenomeBuild.toString();
-				} else {
-					this.alignToGenomeBuild = 'N';
-				}
+				genomeBuild = parentApplication.dictionaryManager.getEntryDisplay('hci.gnomex.model.GenomeBuildLite', selectedExperiment.sequenceLanes.SequenceLane.@idGenomeBuildAlignTo);
 				
 				var requestApplication:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Application', selectedExperiment.@codeApplication);
 				if(selectedExperiment.@captureLibDesignId != "" || selectedExperiment.@captureLibDesignId != ""){
 					libDesignAndInsertBox.visible = true;
 					libDesignAndInsertBox.includeInLayout = true;
-					designAndInsertLabel.text = "Custom Design Id";
+					designAndInsertLabel.text = "Cap Lib Design";
 					designAndInsertText.text = selectedExperiment.@captureLibDesignId;
 				}
-				else if ( libDesignAndInsertBox != null ) {
+				else{
 					libDesignAndInsertBox.visible = false;
 					libDesignAndInsertBox.includeInLayout = false;
 				}
@@ -320,21 +281,6 @@
 					if ( parentDocument.parentDocument.experimentEditView.sampleSetupView != null ) {
 						parentDocument.parentDocument.experimentEditView.sampleSetupView.currentState = 'IsolationState';	
 					}	
-				}  else if (this.selectedExperiment.@codeRequestCategory.substr( 0, 6 ) == 'IONTOR') {
-					this.currentState = "IonTorrentState";
-					if ( parentDocument.parentDocument.experimentEditView.sampleSetupView != null ) {
-						parentDocument.parentDocument.experimentEditView.sampleSetupView.currentState = 'GenericState';	
-					}	
-				} else if (requestCategory.@type == 'NANOSTRING') {
-					this.currentState = "NanoStringState";
-					if ( parentDocument.parentDocument.experimentEditView.sampleSetupView != null ) {
-						parentDocument.parentDocument.experimentEditView.sampleSetupView.currentState = 'NanoStringState';	
-					}	
-				} else if (requestCategory.@type == 'GENERIC') {
-					this.currentState = "GenericState";
-					if ( parentDocument.parentDocument.experimentEditView.sampleSetupView != null ) {
-						parentDocument.parentDocument.experimentEditView.sampleSetupView.currentState = 'GenericState';	
-					}	
 				}
 				
 				if (parentDocument != null && parentDocument is ExperimentDetailPanel) {
@@ -397,23 +343,6 @@
 					globalAdapterSize = parseInt(String(propAdapterSize));			
 				}
 				
-				this.requestProperties.refresh();
-				if (this.requestProperties.length < 1) {
-					this.theTab.getTabAt( theTab.getChildIndex( propertiesView ) ).visible = false;
-					this.theTab.getTabAt( theTab.getChildIndex( propertiesView ) ).includeInLayout = false;
-				} else {
-					this.theTab.getTabAt( theTab.getChildIndex( propertiesView ) ).visible = true;
-					this.theTab.getTabAt( theTab.getChildIndex( propertiesView ) ).includeInLayout = true;
-				} 
-				
-				
-				if (defaultTab == null) {
-					theTab.selectedIndex = 0;
-				} else {
-					theTab.selectedChild = defaultTab;
-					defaultTab = null;
-				}
-				
 				// Workflow progress
 				callLater(setWorkflowStatus);
 				
@@ -422,7 +351,7 @@
 			private function setWorkflowStatus():void {
 				var x:int = 0;
 				for each(var progressInfo:Object in selectedExperiment.workflowStatus.Progress) {
-					this.workflowProgressBar[x].setProgress(progressInfo.@stepNumber, selectedExperiment.workflowStatus.@numberOfSteps );	
+					this.workflowProgressBar[x].setProgress(progressInfo.@stepNumber, selectedExperiment.workflowStatus.@numberOfSteps);	
 					x++;
 				} 
 				
@@ -437,10 +366,9 @@
 				var showSampleBarcode:Boolean = false;
 				var showSampleBarcodeB:Boolean = false;
 				var showSampleCustomBarcode:Boolean = false;
-				var showSampleCustomBarcodeB:Boolean = false;
 				var showPlates:Boolean = false;
 				for each (var s:Object in samples) {
-					if (s.@multiplexGroupNumber != '' && !isNanoStringState()) {
+					if (s.@multiplexGroupNumber != '') {
 						showSampleMultiplexGroup = true;
 					}
 					if (((isCapSeqState() || isSequenomState()) && s.hasOwnProperty("@plateName") && s.@plateName != '') || isIScanState()) {
@@ -448,15 +376,11 @@
 					}
 					if (s.@idOligoBarcode != '' ) {
 						showSampleBarcode = true;
-					}
-					if (s.@barcodeSequence != '') {
+					}else if (s.@barcodeSequence != '' ) {
 						showSampleCustomBarcode = true;
 					}
 					if(s.@idOligoBarcodeB != ''){
 						showSampleBarcodeB = true;
-					}
-					if(s.@barcodeSequenceB != ''){
-						showSampleCustomBarcodeB = true;
 					}
 				}
 				
@@ -512,7 +436,7 @@
 				
 				this.barcodeCol.visible = showSampleBarcode;
 				this.customBarcodeCol.visible = showSampleCustomBarcode;
-				this.customBarcodeColB.visible = showSampleCustomBarcodeB;
+				this.customBarcodeColB.visible = showSampleCustomBarcode;
 				this.barcodeColB.visible = showSampleBarcodeB;
 				
 				if (currentState == "SolexaState") {
@@ -676,17 +600,14 @@
 			}
 			
 			private function getExperimentCategoryName():void {
-				experimentCategoryName = "";
-				if (this.selectedExperiment.protocols.Protocol.length() <= 0 || !this.headerBox.visible) {
-					var experimentCategory:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Application', this.selectedExperiment.@codeApplication);
-					if (experimentCategory is XMLList) {
-						experimentCategoryName  = experimentCategory[0].@display.toString();
-					} else {
-						experimentCategoryName = experimentCategory.@display.toString();
-					}
-					if ( this.selectedExperiment.@codeApplication == 'OTHER' && this.selectedExperiment.@applicationNotes != '' ) {
-						experimentCategoryName += ' - ' + this.selectedExperiment.@applicationNotes;
-					}
+				var experimentCategory:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Application', this.selectedExperiment.@codeApplication);
+				if (experimentCategory is XMLList) {
+					experimentCategoryName  = experimentCategory[0].@display.toString();
+				} else {
+					experimentCategoryName = experimentCategory.@display.toString();
+				}
+				if ( this.selectedExperiment.@codeApplication == 'OTHER' && this.selectedExperiment.@applicationNotes != '' ) {
+					experimentCategoryName += ' - ' + this.selectedExperiment.@applicationNotes;
 				}
 			}
 			
@@ -772,7 +693,7 @@
 			}
 			
 			public function showPrintableRequestForm():void {
-				var url:URLRequest = new URLRequest('ShowRequestFormNew.gx?idRequest=' + this.selectedExperiment.@idRequest);
+				var url:URLRequest = new URLRequest('ShowRequestForm.gx?idRequest=' + this.selectedExperiment.@idRequest);
 				navigateToURL(url, '_blank');			
 			}
 			
@@ -805,11 +726,11 @@
 					parentDocument.parentDocument.experimentEditView.samplesView.prepareCherryPickingSamplesForEdit(numDestinationWells);
 				}
 				
-				if (this.isIScanState() || (this.isSequenomState() && this.selectedExperiment.@containerType == "PLATE") ) {
+				if (this.isIScanState() || (this.isSequenomState()&& this.selectedExperiment.@containerType == "PLATE")  ) {
 					parentDocument.parentDocument.experimentEditView.numIScanPlates = countPlates();
 				}
 				
-				var editTitle:String = (this.selectedExperiment.@isExternal == 'Y' ? 'Edit External Experiment ' :  'Edit Experiment ') + this.selectedExperiment.@number;
+				var editTitle:String = (this.selectedExperiment.@isExternal == 'Y' ? 'Edit External Experiment ' :  'Edit Experiment ')+ this.selectedExperiment.@number;
 				
 				parentDocument.parentDocument.experimentEditView.removeDataListeners();
 				parentDocument.parentDocument.experimentEditView.initializeData();
@@ -821,24 +742,8 @@
 					parentDocument.parentDocument.experimentEditView.numCapSeqPlates = countPlates();
 				}
 				
-				chooseEditTabs();
 				callLater(parentDocument.parentDocument.experimentEditView.setupDataListeners);
 				
-			}
-			
-			private function chooseEditTabs():void {
-				chooseEditTab(infoTab, parentDocument.parentDocument.experimentEditView.infoTab);
-				chooseEditTab(notesTab, parentDocument.parentDocument.experimentEditView.notesView);
-				chooseEditTab(samplesTab, parentDocument.parentDocument.experimentEditView.samplesView);
-				chooseEditTab(lanesConfirmContainer, parentDocument.parentDocument.experimentEditView.lanesView);
-				chooseEditTab(bioinformaticsTab, parentDocument.parentDocument.experimentEditView.bioinformaticsView);
-				chooseEditTab(filesView, parentDocument.parentDocument.experimentEditView.downloadView);
-			}
-			
-			private function chooseEditTab(selectedTab:Object, parentTab:Container):void {
-				if (theTab.selectedChild == selectedTab && parentDocument.parentDocument.experimentEditView.theTab.contains(parentTab)) {
-					parentDocument.parentDocument.experimentEditView.defaultTab = parentTab;
-				}
 			}
 			
 			private function countPlates():int {
@@ -874,13 +779,10 @@
 				this.cherrySourcePlateCol.visible = false;
 				this.cherrySourceWellCol.visible = false;
 				this.sampleSourceCol.visible = false;
-				applicationCol.visible = false;
 				reactionPlateCol.visible = false;
 				redoFlagCol.visible = false;
 				this.sampleNameColumn.visible = true;
-				qubitConcentrationCol.visible = (this.selectedExperiment.@includeQubitConcentration=="Y");
 				
-				this.concentrationCol.headerText = 'Conc.';
 				// can't do this in state stuff because of external stuff below.
 				this.noteToCoreFacilityBox.visible = true;
 				this.noteToCoreFacilityBox.includeInLayout = true;
@@ -972,8 +874,7 @@
 						organismCol.visible = false;
 						preppedByLabCol.visible = false;
 						otherSamplePrepMethodCol.visible = true;
-						var application:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Application', this.selectedExperiment.@codeApplication);
-						chipTypeCol.visible = (application != null && application.@hasChipTypes == 'Y' ? true : false);
+						chipTypeCol.visible = (this.selectedExperiment.@codeApplication == 'BIOAN' ? true : false);
 						concentrationUnitCol.visible = true;
 						plateNameCol.visible = false;
 						wellNameCol.visible = false;
@@ -1092,7 +993,6 @@
 						concentrationUnitCol.visible = false;
 						plateNameCol.visible = (this.selectedExperiment.@containerType == "PLATE" ? true : false);
 						wellNameCol.visible = (this.selectedExperiment.@containerType == "PLATE" ? true : false);
-						isControlCol.visible = false;
 						this.qc260Col.visible = false;
 						this.qc260280Col.visible = true;
 						this.qcConcCol.visible = false;
@@ -1110,7 +1010,6 @@
 						concentrationUnitCol.visible = false;
 						plateNameCol.visible = (this.selectedExperiment.@containerType == "PLATE" ? true : false);
 						wellNameCol.visible = (this.selectedExperiment.@containerType == "PLATE" ? true : false);
-						isControlCol.visible = false;
 						this.qc260Col.visible = false;
 						this.qc260280Col.visible = true;
 						this.qcConcCol.visible = false;
@@ -1129,7 +1028,6 @@
 						concentrationUnitCol.visible = false;
 						plateNameCol.visible = false;
 						wellNameCol.visible = false;
-						isControlCol.visible = false;
 						this.qc260Col.visible = false;
 						this.qc260280Col.visible = true;
 						this.qcConcCol.visible = false;
@@ -1138,53 +1036,6 @@
 						this.descriptionCol.visible = false;
 						this.sampleSourceCol.visible = true;
 						
-						this.concentrationCol.headerText = 'NanoDrop Conc.';
-					} else if (isIonTorrentState()) {
-						concentrationCol.visible = true; 
-						sampleTypeCol.visible = true;
-						organismCol.visible = true;
-						preppedByLabCol.visible = false;
-						otherSamplePrepMethodCol.visible = true;
-						chipTypeCol.visible = false
-						concentrationUnitCol.visible = false;
-						plateNameCol.visible = false;
-						wellNameCol.visible = false;
-						isControlCol.visible = false;
-						this.qc260Col.visible = true;
-						this.qc260280Col.visible = false;
-						this.qcConcCol.visible = true;
-						this.qcRINCol.visible = true;
-						this.qcStatusCol.visible = false;
-						this.descriptionCol.visible = false;
-						this.sampleSourceCol.visible = false;
-						applicationCol.visible = true;
-						
-						this.concentrationCol.headerText = 'Conc. (ng/ul)';
-						
-					}  else if (isGenericState()) {
-						concentrationCol.visible = false; 
-						sampleTypeCol.visible = true;
-						organismCol.visible = true;
-						preppedByLabCol.visible = false;
-						otherSamplePrepMethodCol.visible = false;
-						chipTypeCol.visible = false
-						concentrationUnitCol.visible = false;
-						plateNameCol.visible = false;
-						wellNameCol.visible = false;
-						isControlCol.visible = false;
-						this.qc260Col.visible = false;
-						this.qc260280Col.visible = false;
-						this.qcConcCol.visible = false;
-						this.qcRINCol.visible = false;
-						this.qcStatusCol.visible = false;
-						this.descriptionCol.visible = false;
-						this.sampleSourceCol.visible = false;
-						applicationCol.visible = true;
-						if ( this.selectedExperiment.@codeRequestCategory == 'DDPCR' ){
-							concentrationCol.visible = true; 
-							otherSamplePrepMethodCol.visible = true;
-							applicationCol.visible = false;
-						}
 					}  else {
 						concentrationCol.visible = true; 
 						sampleTypeCol.visible = true;
@@ -1309,75 +1160,54 @@
 							headerName = annotation.@name;
 						}
 						
-						// Note we don't specify application because that is taken care of in the back end (GetRequest).
-						var isApplicable:Boolean = AnnotationUtility.isApplicableProperty(parentApplication.getSampleProperty(annotation.@idProperty),
-							parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory',this.selectedExperiment.@codeRequestCategory),
-							this.selectedExperiment.@idOrganism, this.selectedExperiment.@codeApplication);
-						
 						exists = false;
 						
 						for each(col in samplesGridConfirm.columns) {
 							if (col.dataField == ("@ANNOT" + annotation.@idProperty)) {
 								exists = true;
-								col.visible    = annotation.@isSelected == "true" && isApplicable ? true : false;       				
+								col.visible    = annotation.@isSelected == "true" ? true : false;       				
 								col.headerText = headerName;
 								break;
 							}    				
 						}
 						
 						// We already have this column.  Just set the header and visible and move on.
-						var newCol:AdvancedDataGridToolTipColumn = new AdvancedDataGridToolTipColumn();
 						if (exists) {
-							newCol = AdvancedDataGridToolTipColumn(col);
-						} else {
-							newCol.dataField  = "@ANNOT" + annotation.@idProperty;
-							newCol.headerText = headerName;
-							newCol.visible    = (annotation.@isSelected == "true" && isApplicable ? true : false);
-							newCol.headerWordWrap = true;
-							if (property.@description != null && property.@description.toString() != "") {
-								newCol.headerToolTip = property.@description
-							} else {
-								newCol.headerToolTip = property.@name;
-							}
-
-							if (property.@codePropertyType == 'MOPTION') {
-								newCol.itemRenderer =  MultiselectRenderer.create(false);
-							} else if (property.@codePropertyType == 'URL') {
-								newCol.itemRenderer = URLRenderer.create(false);
-							} else if (property.@codePropertyType == 'CHECK') {
-								// checkbox is just normal label renderer
-							} else if (property.@codePropertyType == 'OPTION') {             
-								newCol.itemRenderer = views.renderers.DropdownLabel.create(
-									parentApplication.getPropertyOptions(annotation.@idProperty), 
-									'@option', 
-									'@idPropertyOption', 
-									"@ANNOT" + annotation.@idProperty,
-									false);                
-							} else{
-								newCol.wordWrap = true;
-							}
-						}						
+							continue;
+						}
+						var newCol:AdvancedDataGridColumnWithType = new AdvancedDataGridColumnWithType();
+						newCol.dataField  = "@ANNOT" + annotation.@idProperty;
+						newCol.headerText = headerName;
+						newCol.visible    = (annotation.@isSelected == "true" ? true : false);
+						newCol.propertyType = property.@codePropertyType;
+						
+						if (property.@codePropertyType == 'MOPTION') {
+							newCol.itemRenderer =  MultiselectRenderer.create(false);
+						} else if (property.@codePropertyType == 'URL') {
+							newCol.itemRenderer = URLRenderer.create(false);
+						} else if (property.@codePropertyType == 'CHECK') {
+							// checkbox is just normal label renderer
+						} else if (property.@codePropertyType == 'OPTION') {             
+							newCol.itemRenderer = views.renderers.DropdownLabel.create(
+								parentApplication.getPropertyOptions(annotation.@idProperty), 
+								'@option', 
+								'@idPropertyOption', 
+								"@ANNOT" + annotation.@idProperty,
+								false);                
+						} else{
+							newCol.wordWrap = true;
+						}
+						
 						
 						// Place the new column right after the description column
 						var columns:Array = samplesGridConfirm.columns;
 						var newColumns:Array = new Array();
 						for each(var column:AdvancedDataGridColumn in columns) {
-							if(currentState == 'SolexaState' || currentState == 'MicroarrayState' || currentState == 'QCState' 
-								|| currentState == null || isNanoStringState() || this.isIonTorrentState()){
-								if (column.dataField == "@idSampleType") {
-									newColumns.push(newCol);
-								}
+							if (column.dataField == "@description") {
+								newColumns.push(newCol);
 							}
-							
-							if (column != newCol) {
-								newColumns.push(column);
-							}
+							newColumns.push(column);
 						}
-						
-						if(this.isIsolationState() || this.isIScanState()){
-							newColumns.push(newCol);
-						}
-						
 						samplesGridConfirm.columns = newColumns;
 						
 						samplesGridConfirm.validateNow();
@@ -1406,7 +1236,10 @@
 				}
 				var protocolWindow:ProtocolWindow = ProtocolWindow(PopUpManager.createPopUp(DisplayObject(this.parentDocument), ProtocolWindow, false));
 				PopUpManager.centerPopUp(protocolWindow);
-				protocolWindow.init(getProtocol.lastResult);
+				protocolWindow.title = getProtocol.lastResult.name;
+				protocolWindow.protocolDescription.text = getProtocol.lastResult.description;
+				protocolWindow.ThreePrimeAdapter.text = getProtocol.lastResult.adapterSequenceThreePrime;
+				protocolWindow.FivePrimeAdapter.text = getProtocol.lastResult.adapterSequenceFivePrime;
 			}
 			
 			public function getLaneTreeIcon(item:Object):Class {
@@ -1432,6 +1265,55 @@
 			
 			[Bindable]
 			private var selectedFileList:XMLListCollection;
+			
+			public function alignSelectedFiles():void {
+				var selectedFiles:XMLList = new XMLList();
+				for(var i:int = 0; i < filesView.downloadTree.selectedItems.length; i++) {
+					var item:XML = XML(filesView.downloadTree.selectedItems[i]);
+					selectedFiles += item;
+				}
+				selectedFileList = new XMLListCollection(selectedFiles);
+				
+				var folderPath:String = "";
+				var filesStr:String = "";
+				
+				for each(var file:XML in selectedFileList) {
+					var fileName:String = file.@fileName;
+					var number:String = file.@number;
+					
+					if(number == null || number.length == 0) {
+						Alert.show("Error: Number parameter undefined in selectedFileList entry.");					
+						return;						
+					}
+					
+					var splitIndx:int = fileName.indexOf(number) + number.length;					
+					if(splitIndx < 0) {
+						Alert.show("Cannot proceed because file '" + file.@displayName + "' is not physically present.");					
+						return;
+					}
+					var currentFolderPath:String = fileName.substr(0, splitIndx);
+					fileName = fileName.substr(splitIndx, 0x7fffffff);
+					if(folderPath.length == 0) {
+						folderPath = currentFolderPath;
+						filesStr = fileName;
+					} else {
+						filesStr = filesStr + "," + fileName;
+					}			
+				}
+				
+				
+				if (selectedFileList.length == 0) {
+					mx.controls.Alert.show("Please select the file(s).");
+				} else {
+					var alignFilesWindow:RunAlignmentWindow = RunAlignmentWindow(PopUpManager.createPopUp(this, RunAlignmentWindow, true));
+					if(selectedExperiment != null && selectedExperiment.samples != null) {
+						alignFilesWindow.setOrganismDropdown(selectedExperiment.samples.Sample[0].@idOrganism);
+					}
+					alignFilesWindow.setFolderPathAndFilesStr(folderPath, filesStr);
+					PopUpManager.centerPopUp(alignFilesWindow);
+				}
+			}
+			
 			
 			public function isControlLabelFunction(item:Object, column:AdvancedDataGridColumn):String
 			{
@@ -1475,68 +1357,6 @@
 				
 			}
 			
-			private function filterPropertyEntry(sce:Object):Boolean {
-				var keep:Boolean = false;
-				
-				var property:XML = parentApplication.getSampleProperty(sce.@idProperty);
-				if(sce.@idProperty == "-1" || property == null) {
-					return true;	// Special case for "Description" field which is not a "real" property 
-				}
-				var requestCategory:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory',this.selectedExperiment.@codeRequestCategory);
-				if (AnnotationUtility.isApplicableProperty(property, requestCategory, this.selectedExperiment.@idOrganism, selectedExperiment.@codeApplication)) {
-					if (sce.@isSelected == 'true' || property.@isActive != 'N') {
-						keep = true;
-					}
-				}
-				
-				return keep;
-			}
-			
-			private function downloadSampleSheet():void{
-				var fieldList:XMLListCollection = this.getFieldList();
-				var showUrl:URLRequest = new URLRequest('DownloadSampleSheet.gx');
-				var uv:URLVariables = new URLVariables();
-				showUrl.contentType = "application/x-www-form-urlencoded";
-				var names:String = "<NameList>"
-				for each (var node : XML in fieldList){
-					names += node.toXMLString();
-				}
-								
-				names += "</NameList>";
-				uv.names = names;
-				uv.requestXMLString = this.selectedExperiment.toXMLString();
-				showUrl.data = uv;
-				showUrl.method = URLRequestMethod.POST;
-				navigateToURL(showUrl, '_blank');
-			}
-			
-			private function getFieldList():XMLListCollection {
-				
-				var fieldList:XMLListCollection = new XMLListCollection();
-				// Build the contents of the columns selection list
-				var grid:CopyPasteSampleGrid = samplesGridConfirm;
-				for each(var col:AdvancedDataGridColumn in grid.columns) {
-					if(col.visible == false || col.headerText == ""){
-						continue;
-					}
-					if (col.dataField != null && col.dataField == '@codeConcentrationUnit') {
-						continue;
-					}
-
-					var fieldType:String = "TEXT";
-					if(col is AdvancedDataGridColumnWithType) {
-						fieldType = AdvancedDataGridColumnWithType(col).propertyType;
-					}
-					
-						var emptyNode:XML = new XML("<FieldItem " +
-							" dataField='" + col.dataField + "' fieldText='" + col.headerText +
-							"' fieldType='" + fieldType + "' selectedSSColumn='0'/>");
-						fieldList.addItem(emptyNode);
-				}					
-				
-				return fieldList;
-			}
-			
 		]]>
 	</mx:Script>
 	
@@ -1549,6 +1369,7 @@
 	<mx:XMLListCollection id="multiplexLanes" source="{this.selectedExperiment.multiplexSequenceLanes.MultiplexLane}"/>
 	<mx:XMLListCollection id="sortedTopics"
 						  source="{this.selectedExperiment.topics.Topic}">
+		
 		<mx:sort>
 			<mx:Sort>
 				<mx:fields>
@@ -1560,13 +1381,9 @@
 		</mx:sort>
 	</mx:XMLListCollection>
 	<mx:XMLListCollection id="collaborators" source="{selectedExperiment.collaborators.ExperimentCollaborator}"/>
-	<mx:XMLListCollection id="requestProperties" source="{this.selectedExperiment.RequestProperties.PropertyEntry}" 
-						  sort="{propertySorter}" filterFunction="{filterPropertyEntry}" />
-	<mx:Sort id="propertySorter" compareFunction="AnnotationUtility.sortProperties" unique="true"/>
-
 	
 	<mx:TabNavigator width="100%" height="100%" verticalGap="5" id="theTab" paddingBottom="4" paddingRight="4" paddingLeft="4" paddingTop="2" change="tabChangeHandler(event)">
-		<mx:VBox label="Info" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4"  verticalGap="4" width="100%" id="infoTab"> 
+		<mx:VBox label="Info" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4"  verticalGap="4" width="100%"> 
 			<mx:HBox horizontalGap="0" width="100%" >
 				<mx:VBox verticalGap="4" label="Info" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4" >
 					
@@ -1582,16 +1399,9 @@
 						<mx:Label text="Experiment"  width="105" styleName="formLabel" textAlign="left" id="label4"/>
 						<mx:Text  text="{requestCategoryName}" width="280"/>
 					</mx:HBox>
-					<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle" id="hbox6"
-							 visible = "{experimentCategoryName != ''}" includeInLayout="{experimentCategoryName != ''}">
+					<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle" id="hbox6">
 						<mx:Label width="105"  id="label5"/>
 						<mx:Text   text="{experimentCategoryName}" width="280"/>
-					</mx:HBox>
-					<mx:HBox width="100%" id="libDesignAndInsertBox" visible="false" includeInLayout="false">					
-						<mx:HBox verticalGap="0" width="100%" horizontalGap="0">
-							<mx:Text id="designAndInsertLabel" width="105" styleName="formLabel" />
-							<mx:Text  id="designAndInsertText" width="280" />
-						</mx:HBox>
 					</mx:HBox>
 					<mx:HBox id="prePoolBox"
 							 visible="{this.selectedExperiment.@seqPrepByCore == 'N'}"
@@ -1601,15 +1411,6 @@
 						<mx:Label width="105"/>
 						<mx:Text width="280"
 								 text="{'Library Prep. By Client' + (this.selectedExperiment.@hasPrePooledLibraries == 'Y' ? ', ' + this.selectedExperiment.@numPrePooledTubes.toString() + ' Pre-Pooled Tubes' : '')}" />
-					</mx:HBox>
-					<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle" id="hbox5" visible="{this.selectedExperiment.@coreToExtractDNA!=null&amp;&amp;this.selectedExperiment.@coreToExtractDNA=='Y'}" includeInLayout="{this.selectedExperiment.@coreToExtractDNA!=null&amp;&amp;this.selectedExperiment.@coreToExtractDNA=='Y'}">
-						<mx:Label text="Core to extract DNA"  width="105" styleName="formLabel" textAlign="left" id="label0"/>
-						<mx:Text  text="{this.selectedExperiment.@coreToExtractDNA=='Y' ? 'Yes' : 'No'}" width="280"/>
-					</mx:HBox>
-					<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle" includeInLayout="{this.selectedExperiment.@coreToExtractDNA!=null&amp;&amp;this.selectedExperiment.@coreToExtractDNA=='Y'}" visible="{this.selectedExperiment.@coreToExtractDNA!=null&amp;&amp;this.selectedExperiment.@coreToExtractDNA=='Y'}" id="hbox8">
-						<mx:Label text="DNA prep type"  width="105" styleName="formLabel" textAlign="left"  id="label10"/>
-						<mx:Text text="{this.selectedExperiment.@codeDNAPrepType != null ? parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.DNAPrepType').DictionaryEntry.(@value == this.selectedExperiment.@codeDNAPrepType).@display : ''}" 
-								 width="280"/>
 					</mx:HBox>
 					<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle" visible="{this.selectedExperiment.@isExternal == 'Y' || this.selectedExperiment.@organismName != ''}" includeInLayout="{this.selectedExperiment.@isExternal == 'Y' || this.selectedExperiment.@organismName  != ''}" id="hbox3">
 						<mx:Label text="Organism"  width="105"  styleName="formLabel" textAlign="left" id="label6"/>
@@ -1629,6 +1430,12 @@
 							 includeInLayout="{selectedExperiment.@isExternal == 'Y' ? false : true}">
 						<mx:Label width="105" text="Completed"  styleName="formLabel" textAlign="left" id="label9"/>
 						<mx:Text    text="{this.selectedExperiment.@completedDate}" width="280"/>
+					</mx:HBox>
+					<mx:HBox width="100%" id="libDesignAndInsertBox" visible="false" includeInLayout="false">					
+						<mx:HBox verticalGap="0" width="100%" horizontalGap="0">
+							<mx:Text id="designAndInsertLabel" width="105" styleName="formLabel" />
+							<mx:Text  id="designAndInsertText" width="280" />
+						</mx:HBox>
 					</mx:HBox>
 					
 				</mx:VBox>
@@ -1674,36 +1481,62 @@
 					
 				</mx:VBox>
 			</mx:HBox>
-			<mx:VBox id="headerBox" width="100%" paddingLeft="4" visible="{this.selectedExperiment.protocols.Protocol.length() &gt; 0}">
-					<mx:Repeater id="protocolRepeater" width="100%" height="100%"
-								 dataProvider="{this.selectedExperiment.protocols.Protocol}"> 
-						<mx:HBox width="100%" horizontalAlign="left" horizontalGap="0" verticalAlign="top">
-							<mx:Label text="{protocolRepeater.currentItem.@label}" styleName="formLabel" width="105" textAlign="left"/>
-							<mx:VBox width="100%" horizontalAlign="left" horizontalGap="0">
-								<mx:LinkButton id="labelProtocol"
-											   label="{protocolRepeater.currentItem.@name}"
-											   click="{showProtocol(event.currentTarget.getRepeaterItem().@idProtocol, event.currentTarget.getRepeaterItem().@protocolClassName)}"
-											   paddingBottom="0" paddingLeft="1"
-											   paddingRight="1" paddingTop="0"
-											   styleName="formLinkProtocolButton"
-											   textAlign="left"/>
-								<mx:HBox width="100%" horizontalAlign="left" horizontalGap="0" verticalAlign="top"
-										 visible="{protocolRepeater.currentItem.@Adapter3Prime.toXMLString() != ''}"
-										 includeInLayout="{protocolRepeater.currentItem.@Adapter3Prime.toXMLString() != ''}" >
-									<mx:Label width="80" styleName="formLabel" text="Adapter Read 1"/>
-									<mx:Text width="100%" text="{protocolRepeater.currentItem.@Adapter3Prime}"/>
-								</mx:HBox>
-								<mx:HBox width="100%" horizontalAlign="left" horizontalGap="0" verticalAlign="top"
-										 visible="{protocolRepeater.currentItem.@Adapter5Prime.toXMLString() != ''}"
-										 includeInLayout="{protocolRepeater.currentItem.@Adapter5Prime.toXMLString() != ''}" >
-									<mx:Label width="80" styleName="formLabel" text="Adapter Read 2"/>
-									<mx:Text width="100%" text="{protocolRepeater.currentItem.@Adapter5Prime}"/>
-								</mx:HBox>
-							</mx:VBox>
-						</mx:HBox>
-					</mx:Repeater>					
+			<mx:VBox id="headerBox" width="100%" paddingLeft="4">
+				<mx:HBox id="protocolsBox"
+						 visible="{this.selectedExperiment.protocols.Protocol.length() &gt; 0}"
+						 width="100%" horizontalAlign="left" horizontalGap="0"
+						 verticalAlign="top">
+					<mx:Label text="Protocols"  id="label1" styleName="formLabel" width="105" textAlign="left"/>
+					<mx:Tile id="tile1" width="100%" height="100%" direction="horizontal"
+							 fontSize="9" horizontalGap="0" paddingBottom="0"
+							 paddingLeft="0" paddingRight="0" paddingTop="0" verticalGap="0">
+						
+						<mx:Repeater id="protocolRepeater" width="100%" height="100%"
+									 dataProvider="{this.selectedExperiment.protocols.Protocol}"> 
+							<mx:LinkButton id="labelProtocol" width="100%" height="100%"
+										   label="{protocolRepeater.currentItem.@label}"
+										   click="{showProtocol(event.currentTarget.getRepeaterItem().@idProtocol, event.currentTarget.getRepeaterItem().@protocolClassName)}"
+										   paddingBottom="0" paddingLeft="1"
+										   paddingRight="1" paddingTop="0"
+										   styleName="formLinkProtocolButton"
+										   textAlign="left"/>
+						</mx:Repeater>									
+						
+					</mx:Tile>							
+				</mx:HBox>
 			</mx:VBox>										
-			<mx:HBox width="100%" horizontalAlign="left" paddingLeft="0" id="hbox9">
+			<mx:HBox id="adaptersBox"
+					 visible="{this.selectedExperiment.protocols.Protocol.length() &gt; 0 &amp;&amp; (this.selectedExperiment.protocols.Protocol.@Adapter5Prime.toXMLString()!='' || this.selectedExperiment.protocols.Protocol.@Adapter3Prime.toXMLString()!='')}"
+					 width="100%" horizontalAlign="left" horizontalGap="0"
+					 verticalAlign="top">		
+				<mx:Label id="labelAdapter" width="104" paddingLeft="4" styleName="formLabel"
+						  text="Adapter Trimming" textAlign="left"/>
+				<mx:Tile id="tileAdapter" direction="vertical" fontSize="9"
+						 horizontalGap="0" paddingBottom="0" paddingLeft="0"
+						 paddingRight="0" paddingTop="0" verticalGap="0" width="100%">
+					<mx:HBox visible="{this.selectedExperiment.protocols.Protocol.@Adapter3Prime.toXMLString()!=''}"
+							 width="100%">
+						<mx:Label width="40" styleName="formLabel" text="Read 1"/>
+						<mx:LinkButton width="100%"
+									   label="{this.selectedExperiment.protocols.Protocol.length() ?  this.selectedExperiment.protocols.Protocol.@Adapter3Prime : ''}"
+									   click="{showAdapters(this.selectedExperiment.protocols.Protocol[0].@label, this.selectedExperiment.protocols.Protocol[0].@Adapter5Prime, this.selectedExperiment.protocols.Protocol[0].@Adapter3Prime)}"
+									   paddingLeft="1" paddingRight="1"
+									   styleName="formLinkProtocolButton"
+									   textAlign="left"/>
+					</mx:HBox>		
+					<mx:HBox visible="{this.selectedExperiment.protocols.Protocol.@Adapter5Prime.toXMLString()!=''}"
+							 width="100%">
+						<mx:Label width="40"  styleName="formLabel" text="Read 2"/>
+						<mx:LinkButton width="100%"
+									   label="{this.selectedExperiment.protocols.Protocol.length() &gt; 0 ?  this.selectedExperiment.protocols.Protocol.@Adapter5Prime : ''}"
+									   click="{showAdapters(this.selectedExperiment.protocols.Protocol[0].@label, this.selectedExperiment.protocols.Protocol[0].@Adapter5Prime, this.selectedExperiment.protocols.Protocol[0].@Adapter3Prime)}"
+									   paddingLeft="1" paddingRight="1"
+									   styleName="formLinkProtocolButton"
+									   textAlign="left"/>
+					</mx:HBox>							
+				</mx:Tile>							
+			</mx:HBox>				          
+			<mx:HBox width="100%" horizontalAlign="left" paddingLeft="0">
 				<mx:VBox id="workflowProgressBox"  verticalGap="0"  cornerRadius="6" borderStyle="solid" paddingLeft="4" paddingRight="4" paddingTop="4" shadowDirection="4">
 					<mx:HBox width="100%" >
 						<mx:Text width="90" text="Order Status" styleName="formLabel"  textAlign="right"/>
@@ -1711,7 +1544,7 @@
 					</mx:HBox>
 					<mx:HBox  verticalGap="0">
 						<mx:Repeater id="stepLabelRepeater" dataProvider="{selectedExperiment.workflowStatus.Step}">
-							<mx:Text text="{stepLabelRepeater.currentItem.@name}" width="89" fontSize="9" id="text1"/>
+							<mx:Text text="{stepLabelRepeater.currentItem.@name}" width="105" fontSize="9" id="text1"/>
 						</mx:Repeater>
 					</mx:HBox>
 					<mx:VBox >
@@ -1754,23 +1587,8 @@
 					<util:TextAreaWorkaround id="noteToSeq" backgroundColor="0xffffff" editable="false" text="{this.selectedExperiment.@corePrepInstructions}" width ="100%" height="100%"  />
 				</mx:VBox>
 			</mx:VBox>
-			<mx:VBox width="100%" height="100%" id="adminNoteBox" includeInLayout="{parentApplication.isAdminState &amp;&amp; parentApplication.getCoreFacilityProperty(this.selectedExperiment.@idCoreFacility, parentApplication.PROPERTY_SHOW_ADMIN_NOTES_ON_REQUEST) == 'Y'}"
-					 visible="{parentApplication.isAdminState &amp;&amp; parentApplication.getCoreFacilityProperty(this.selectedExperiment.@idCoreFacility, parentApplication.PROPERTY_SHOW_ADMIN_NOTES_ON_REQUEST) == 'Y'}">
-				<mx:Spacer height="4" />
-				<mx:VBox verticalGap="0" width="100%" height="100%" id="adminNotes" visible="true" includeInLayout="true">
-					<mx:Label text="Administration Notes"  styleName="formLabel"/>
-					<util:TextAreaWorkaround id="noteToAdmin" backgroundColor="0xffffff" editable="false" text="{this.selectedExperiment.@adminNotes}" width ="100%" height="100%"  />
-				</mx:VBox>
-			</mx:VBox>
 		</mx:VBox>
-		
-		<experiment:TabPropertiesView id="propertiesView" properties="{requestProperties}" editable="false" />
-		
 		<mx:VBox verticalGap="0" width="100%" height="100%" id="samplesTab" label="Samples" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4">
-			
-			<mx:LinkButton textDecoration="underline"  horizontalGap="0"  paddingRight="0"
-						   id="downloadButton" label="Download sample sheet" 
-						   click="{downloadSampleSheet()}"   icon="@Embed(source='../../assets/download.png')"/>
 			
 			<grid:CopyPasteSampleGrid width="100%" height="100%" id="samplesGridConfirm"  
 									  editable="false" backgroundAlpha="0" borderStyle="solid" fontSize="11">
@@ -1814,16 +1632,29 @@
 					<util:AdvancedDataGridColumnWithType propertyType="OPTION" id="concentrationUnitCol" visible="{true}"  headerText="Unit"  width="60" 
 											   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ConcentrationUnit').DictionaryEntry, '@display', '@value', '@codeConcentrationUnit')}"/>
 					
-					<util:AdvancedDataGridColumnWithType propertyType="OPTION" id="sampleTypeCol" headerText="Sample Type"  width="105" visible="{true}" dataField="@idSampleType"
-														 itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SampleType').DictionaryEntry, '@display', '@value', '@idSampleType')}"/>
-					<util:AdvancedDataGridColumnWithType propertyType="OPTION" id="organismCol" headerText="Organism" visible="{true}"  width="80" dataField="@idOrganism"
-														 itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.OrganismLite').DictionaryEntry, '@display', '@value', '@idOrganism')}"/>
 					
-					<util:AdvancedDataGridColumnWithType propertyType="OPTION"  visible="{currentState == 'SolexaState'}" headerText="Seq Lib Protocol"  width="120" dataField="@idSeqLibProtocol"
-														 itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqLibProtocol').DictionaryEntry, '@display', '@value', '@idSeqLibProtocol')}"/>
+					<mx:AdvancedDataGridColumn id="meanLibSizeActualCol" headerWordWrap="true" wordWrap="true" visible="{currentState == 'SolexaState' &amp;&amp; meanLibSizeActualCol.dataField != ''}" headerText="Ave Insert Size" width="90" dataField="@meanLibSizeActual" editable="false" rendererIsEditor="false">
+						<mx:itemRenderer>
+							<mx:Component>
+								<mx:Label text="{data.hasOwnProperty('@meanLibSizeActual') &amp;&amp; data.@meanLibSizeActual != '' ? (parseInt(data.@meanLibSizeActual) - outerDocument.globalAdapterSize).toString() : ''}"/>
+							</mx:Component>
+						</mx:itemRenderer>
+					</mx:AdvancedDataGridColumn>
+					
+					<mx:AdvancedDataGridColumn id="ccNumberCol" visible="{this.selectedExperiment.@hasCCNumber == 'Y' ? true : false}" headerText="CC Number" width="105" dataField="@ccNumber">
+						<mx:itemRenderer>
+							<mx:Component>
+								<mx:LinkButton includeInLayout="{data.hasOwnProperty('@ccNumber')}" 
+											   click="outerDocument.navigateToURLLink(data.@ccNumber)" 
+											   label="{data.hasOwnProperty('@ccNumber') ? data.@ccNumber : ''}"  
+											   paddingLeft="0" textDecoration="underline" color="#121CE8" width="100%" textAlign="left"/>
+								
+							</mx:Component>
+						</mx:itemRenderer>
+					</mx:AdvancedDataGridColumn>
 					
 					<util:AdvancedDataGridColumnWithType propertyType="OPTION" id="barcodeCol" headerText="Index Tag A"  width="75" visible="{true}" dataField="@idOligoBarcode"
-														 itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.OligoBarcode').DictionaryEntry, '@display', '@value', '@idOligoBarcode')}">
+											   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.OligoBarcode').DictionaryEntry, '@display', '@value', '@idOligoBarcode')}">
 						<util:headerRenderer>
 							<mx:Component>
 								<mx:VBox verticalGap="0" horizontalScrollPolicy="off">
@@ -1834,7 +1665,7 @@
 						</util:headerRenderer>
 					</util:AdvancedDataGridColumnWithType>
 					<util:AdvancedDataGridColumnWithType propertyType="OPTION" id="barcodeColB" headerText="Index Tag B"  width="75" visible="{true}" dataField="@idOligoBarcodeB"
-														 itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.OligoBarcode').DictionaryEntry, '@display', '@value', '@idOligoBarcodeB')}">
+											   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.OligoBarcode').DictionaryEntry, '@display', '@value', '@idOligoBarcodeB')}">
 						<util:headerRenderer>
 							<mx:Component>
 								<mx:VBox verticalGap="0" horizontalScrollPolicy="off">
@@ -1864,51 +1695,28 @@
 							</mx:Component>
 						</mx:headerRenderer> 
 					</mx:AdvancedDataGridColumn>
-					
+					<util:AdvancedDataGridColumnWithType propertyType="OPTION" id="organismCol" headerText="Organism" visible="{true}"  width="80" dataField="@@idOrganism'"
+											   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.OrganismLite').DictionaryEntry, '@display', '@value', '@idOrganism')}"/>
+					<mx:AdvancedDataGridColumn id="otherOrganismCol" headerText="Organism (other)" width="105" dataField="@otherOrganism" visible="false"/>
+					<mx:AdvancedDataGridColumn id="preppedByLabCol" headerText="Core to prep lib?"   visible="{true}" width="104"  dataField="@seqPrepByCore"/>
 					<mx:AdvancedDataGridColumn id="otherSamplePrepMethodCol" headerText="Nucl. acid extraction meth." width="105" dataField="@otherSamplePrepMethod"/>
+					<util:AdvancedDataGridColumnWithType propertyType="OPTION" id="chipTypeCol" visible="{true}" headerText="Chip Type"  width="120" dataField="@codeBioanalyzerChipType"
+											   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BioanalyzerChipType').DictionaryEntry, '@display', '@value', '@codeBioanalyzerChipType')}"/>
 					
-					<util:AdvancedDataGridColumnWithType propertyType="OPTION" id="chipTypeCol" visible="{true}" headerText="Assay"  width="120" dataField="@codeBioanalyzerChipType"
-														 itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BioanalyzerChipType').DictionaryEntry, '@display', '@value', '@codeBioanalyzerChipType')}"/>
-					
-					<mx:AdvancedDataGridColumn id="qcConcCol" visible="false" headerText="QC Conc. (ng/uL)" width="80" dataField="@qualCalcConcentration"/>
-					
-					<mx:AdvancedDataGridColumn id="meanLibSizeActualCol" headerWordWrap="true" wordWrap="true" visible="{currentState == 'SolexaState'}" headerText="Ave Insert Size" width="90" dataField="@meanLibSizeActual" editable="false" rendererIsEditor="false">
-						<mx:itemRenderer>
-							<mx:Component>
-								<mx:Label text="{data.hasOwnProperty('@meanLibSizeActual') &amp;&amp; data.@meanLibSizeActual != '' ? (parseInt(data.@meanLibSizeActual) - outerDocument.globalAdapterSize).toString() : ''}"/>
-							</mx:Component>
-						</mx:itemRenderer>
-					</mx:AdvancedDataGridColumn>
-					
+					<mx:AdvancedDataGridColumn id="qcConcCol" visible="false" headerText="QC Conc. ng/uL" width="80" dataField="@qualCalcConcentration"/>
 					<mx:AdvancedDataGridColumn id="qc260Col" visible="false" headerText="QC 260/230" width="80" dataField="@qual260nmTo230nmRatio"/>
-					
+					<mx:AdvancedDataGridColumn id="qc260280Col" visible="false" headerText="QC 260/280" width="80" dataField="@qual260nmTo280nmRatio"/>
 					<mx:AdvancedDataGridColumn id="qcRINCol" visible="false" headerText="QC RIN" width="70" dataField="@qualRINNumber"/>
-					
 					<mx:AdvancedDataGridColumn visible="{currentState == 'SolexaState'}" headerText="QC Frag Size (from)" width="90" dataField="@qualFragmentSizeFrom"/>
 					<mx:AdvancedDataGridColumn visible="{currentState == 'SolexaState'}" headerText="QC Frag Size (to)" width="90" dataField="@qualFragmentSizeTo"/>
 					<mx:AdvancedDataGridColumn id='qcStatusCol' visible="true" headerText="QC Status" width="90" dataField="@qualStatus"/>
+					<util:AdvancedDataGridColumnWithType propertyType="OPTION" id="sampleTypeCol" headerText="Sample Type"  width="105" visible="{true}" dataField="@idSampleType"
+														 itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SampleType').DictionaryEntry, '@display', '@value', '@idSampleType')}"/>
 					
-					<mx:AdvancedDataGridColumn visible="{currentState == 'SolexaState'}" headerText="Seq Lib Prep Status" width="90" dataField="@seqPrepStatus"/>
-					
-					<mx:AdvancedDataGridColumn id="ccNumberCol" visible="{this.selectedExperiment.@hasCCNumber == 'Y' ? true : false}" headerText="CC Number" width="105" dataField="@ccNumber">
-						<mx:itemRenderer>
-							<mx:Component>
-								<mx:LinkButton includeInLayout="{data.hasOwnProperty('@ccNumber')}" 
-											   click="outerDocument.navigateToURLLink(data.@ccNumber)" 
-											   label="{data.hasOwnProperty('@ccNumber') ? data.@ccNumber : ''}"  
-											   paddingLeft="0" textDecoration="underline" color="#121CE8" width="100%" textAlign="left"/>
-								
-							</mx:Component>
-						</mx:itemRenderer>
-					</mx:AdvancedDataGridColumn>
-					<mx:AdvancedDataGridColumn id="otherOrganismCol" headerText="Organism (other)" width="105" dataField="@otherOrganism" visible="false"/>
-					<mx:AdvancedDataGridColumn id="preppedByLabCol" headerText="Core to prep lib?"   visible="{true}" width="104"  dataField="@seqPrepByCore"/>
-					
-					<mx:AdvancedDataGridColumn id="qc260280Col" visible="false" headerText="QC 260/280" width="80" dataField="@qual260nmTo280nmRatio"/>
-					<mx:AdvancedDataGridColumn id="qubitConcentrationCol" headerText="Qubit Conc." width="65" visible="true"  dataField="@qubitConcentration"/>
-					<util:AdvancedDataGridColumnWithType id="applicationCol" propertyType="OPTION"  visible="false" headerText="Application"  width="120" dataField="@codeApplication"
-														 itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.Application').DictionaryEntry, '@display', '@value', '@codeApplication')}"/>
+					<util:AdvancedDataGridColumnWithType propertyType="OPTION"  visible="{currentState == 'SolexaState'}" headerText="Seq Lib Protocol"  width="120" dataField="@idSeqLibProtocol"
+												itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqLibProtocol').DictionaryEntry, '@display', '@value', '@idSeqLibProtocol')}"/>
 					<mx:AdvancedDataGridColumn visible="{currentState == 'SolexaState'}" headerText="Seq Lib Conc. ng/uL" width="90" dataField="@seqPrepLibConcentration"/>
+					<mx:AdvancedDataGridColumn visible="{currentState == 'SolexaState'}" headerText="Seq Lib Prep Status" width="90" dataField="@seqPrepStatus"/>
 					<util:AdvancedDataGridColumnWithType propertyType="OPTION" id="sampleSourceCol" headerText="Sample Source"  width="105" visible="{false}" dataField="@idSampleSource"
 											   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SampleSource').DictionaryEntry, '@display', '@value', '@idSampleSource')}"/>
 					<mx:AdvancedDataGridColumn id="descriptionCol" headerText="Description" wordWrap="true" width="105" dataField="@description"/>
@@ -1930,10 +1738,16 @@
 					</mx:dataProvider> 
 					<mx:columns> 
 						<mx:AdvancedDataGridColumn headerText="Group" dataField="@labName" editable="false" width="70" wordWrap="false"/>
-						<mx:AdvancedDataGridColumn headerText="Acct" dataField="@accountName" editable="false" width="220" wordWrap="false" />
+						<mx:AdvancedDataGridColumn headerText="Acct" dataField="@accountName" editable="false" width="105" wordWrap="false" />
 						<mx:AdvancedDataGridColumn headerText="Period" dataField="@idBillingPeriod" editable="false" width="70"  wordWrap="false"
 												   itemRenderer="{views.renderers.DropdownLabelBillingItem.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BillingPeriod').DictionaryEntry,'@display', '@value', '@idBillingPeriod')}"/>
-
+						<mx:AdvancedDataGridColumn  headerText="Price Category" wordWrap="true" dataField="@category" editable="false" width="200">
+							<mx:itemRenderer>
+								<mx:Component>
+									<mx:Text text="{data.@category}" styleName="{data.@other == 'Y' ?'other':'normal'}" />
+								</mx:Component>
+							</mx:itemRenderer>
+						</mx:AdvancedDataGridColumn>
 						<mx:AdvancedDataGridColumn headerText="Description" wordWrap="true" dataField="@description" editable="false" width="200">
 							<mx:itemRenderer>
 								<mx:Component>
@@ -1941,7 +1755,7 @@
 								</mx:Component>
 							</mx:itemRenderer>
 						</mx:AdvancedDataGridColumn>
-						<mx:AdvancedDataGridColumn headerText="Notes"  dataField="@notes" editable="false" width="185" wordWrap="true">
+						<mx:AdvancedDataGridColumn headerText="Notes"  dataField="@notes" editable="false" width="105" wordWrap="true">
 							<mx:itemRenderer>
 								<mx:Component>
 									<mx:Text text="{data.@notes}" styleName="{data.@other == 'Y' ?'other':'normal'}" />
@@ -2030,6 +1844,16 @@
 				  includeInLayout="{theTab.selectedChild==filesView}" 
 				  width="100%" horizontalAlign="left" 
 				  id="downloadExpandedFilesButtonView"  >
+			<mx:HBox  verticalAlign="middle" 
+					  width="100%" horizontalAlign="left" 
+					  id="hideButtonsBox">
+				<mx:Button id="alignSelectedFilesButton" 
+						   click="this.alignSelectedFiles()" 
+						   icon="@Embed('../../assets/align.png')" 
+						   toolTip="Run automated alignment on selected files." 
+						   visible="{parentApplication.isSequenceAlignmentSupported &amp;&amp; theTab.selectedChild==filesView  &amp;&amp; parentApplication.isAdminState}"
+						   label="Run Alignment"/>
+			</mx:HBox>
 		</mx:HBox>		
 	</mx:ControlBar>
 	
@@ -2191,11 +2015,12 @@
 					<mx:VBox verticalGap="0" width="100%" height="100%"  id='noteToBioBox'
 							 visible="true"  
 							 includeInLayout="true">
+						<mx:Label text="{this.selectedExperiment.@trimAdapter == 'Y' ? 'Adapter Trimming on Illumina Sequence Reads Requested' : 'No Adapter Trimming on Illumina Sequence Reads Desired'}" 
+								  styleName="formLabel"/>
+						<mx:Spacer height="10"/>
 						<mx:Label text="{'Organism: ' + this.selectedExperiment.@organismName}" 
 								  styleName="formLabel"/>
 						<mx:Spacer height="10"/>
-						<mx:Label text="{'Align to GenomeBuild: ' + alignToGenomeBuild}"
-								  styleName="formLabel"/>
 						<mx:Label text="{'Genome Build: ' + genomeBuild}" 
 								  styleName="formLabel"/>
 						<mx:Spacer height="10"/>
@@ -2208,10 +2033,9 @@
 				</mx:VBox>
 			</mx:AddChild>
 			<mx:AddChild relativeTo="{this.samplesTab}" position="after">
-				<mx:VBox  id="lanesConfirmContainer" label="Sequence Lanes"  verticalGap="0" width="100%" height="100%" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4">
+				<mx:VBox  id="lanesConfirmContainer" label="Sequence Lanes"  verticalGap="0" width="100%" height="100%">
 					<mx:AdvancedDataGrid width="100%" 
 										 height="100%" id="lanesConfirmGrid"
-										 borderStyle="solid"
 										 displayItemsExpanded="true"
 										 sortExpertMode="true"
 										 sortableColumns="false"   resizableColumns="true"
@@ -2223,8 +2047,8 @@
 							<mx:HierarchicalData source="{multiplexLanes}"/> 
 						</mx:dataProvider> 							
 						<mx:columns>
-							<mx:AdvancedDataGridColumn headerText="ID" width="110" dataField="@number"/>
-							<mx:AdvancedDataGridColumn  headerText="Sample Name"  width="150" dataField="@sampleName" editable="false"/>
+							<mx:AdvancedDataGridColumn headerText="ID" width="90" dataField="@number"/>
+							<mx:AdvancedDataGridColumn  headerText="Sample Name"  width="100" dataField="@sampleName" editable="false"/>
 							<mx:AdvancedDataGridColumn  headerText="Sample ID"  width="90" dataField="@sampleNumber" editable="false"/>
 							<mx:AdvancedDataGridColumn id="laneBarcodeCol" headerText="Barcode"  width="75" visible="{true}"  
 													   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.OligoBarcode').DictionaryEntry, '@display', '@value', '@sampleIdOligoBarcode')}">
@@ -2268,11 +2092,33 @@
 									</mx:Component>
 								</mx:headerRenderer>
 							</mx:AdvancedDataGridColumn>
-							<mx:AdvancedDataGridColumn width="235" id="numberOfSequencingCyclesCol" headerText="Sequencing Protocol"   editable="false" dataField="@idNumberSequencingCyclesAllowed" 						             						             
-													   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.NumberSequencingCyclesAllowed').DictionaryEntry, '@display', '@value', '@idNumberSequencingCyclesAllowed')}"/>                 											
-							<mx:AdvancedDataGridColumn  headerText="Status in Workflow" width="235" dataField="@workflowStatus"/>
-							<mx:AdvancedDataGridColumn  width="85" id="flowCellNumberCol" headerText="Flow Cell #"  editable="false" dataField="@flowCellNumber"/> 	 					             						             
+							<mx:AdvancedDataGridColumn  width="150" id="seqRunTypeCol" headerText="Flow Cell Type"  editable="false" dataField="@idSeqRunType" 						             						             
+														itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqRunType').DictionaryEntry, '@display', '@value', '@idSeqRunType')}"/>                 											
+							<mx:AdvancedDataGridColumn width="65" id="numberOfSequencingCyclesCol" headerText="# Cycles"   editable="false" dataField="@idNumberSequencingCycles" 						             						             
+													   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.NumberSequencingCycles').DictionaryEntry, '@display', '@value', '@idNumberSequencingCycles')}"/>                 											
+							<mx:AdvancedDataGridColumn  headerText="Status in Workflow" width="120" dataField="@workflowStatus"/>
+							<mx:AdvancedDataGridColumn  width="65" id="flowCellNumberCol" headerText="Flow Cell #"  editable="false" dataField="@flowCellNumber"/> 	 					             						             
 							<mx:AdvancedDataGridColumn  width="55" id="flowCellLaneNumber" headerText="Channel"  editable="false" dataField="@flowCellChannelNumber"/> 						             						             
+							<mx:AdvancedDataGridColumn  width="90" headerText="Channel sample conc. pM"  editable="false" dataField="@flowCellChannelSampleConcentrationPmDisplay"> 						             						             
+								<mx:headerRenderer > 
+									<mx:Component>
+										<mx:VBox verticalGap="0"   horizontalAlign="center"  horizontalScrollPolicy="off" verticalAlign="middle">
+											<mx:Label text="Channel Sample"/>
+											<mx:Label text="conc. pM"/>
+										</mx:VBox>
+									</mx:Component>
+								</mx:headerRenderer>
+							</mx:AdvancedDataGridColumn>
+							<mx:AdvancedDataGridColumn  width="90" headerText="# Cycles (actual)"  editable="false" dataField="@numberSequencingCyclesActual"> 						             						             
+								<mx:headerRenderer > 
+									<mx:Component>
+										<mx:VBox verticalGap="0"   horizontalAlign="center"  horizontalScrollPolicy="off" verticalAlign="middle">
+											<mx:Label text="# Seq Cycles"/>
+											<mx:Label text="(actual)"/>
+										</mx:VBox>
+									</mx:Component>
+								</mx:headerRenderer>
+							</mx:AdvancedDataGridColumn>
 							<mx:AdvancedDataGridColumn  headerText="Last Cycle Status" width="90" dataField="@lastCycleStatus"> 
 								<mx:headerRenderer > 
 									<mx:Component>
@@ -2283,27 +2129,32 @@
 									</mx:Component>
 								</mx:headerRenderer>
 							</mx:AdvancedDataGridColumn>
+							<mx:AdvancedDataGridColumn width="150" id="genomeBuildAlignTo" headerText="Genome Build (align to)"  editable="false" dataField="@idGenomeBuildAlignTo" 						             						             
+													   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.GenomeBuildLite').DictionaryEntry, '@display', '@value', '@idGenomeBuildAlignTo')}"/>                 											
+							<mx:AdvancedDataGridColumn width="150" headerText="Analysis Instructions"   dataField="@analysisInstructions"/>
 						</mx:columns> 
 					</mx:AdvancedDataGrid>
 					
 				</mx:VBox>					        			
 				
 			</mx:AddChild>
+			<mx:SetProperty target="{tile1}" name="tileHeight"/>
+			<mx:SetProperty target="{tile1}" name="width"/>
+			<mx:SetProperty target="{tile1}" name="tileWidth"/>
 		</mx:State>
 		<mx:State name="ExternalMicroarrayState" basedOn="MicroarrayState">
-			<mx:SetProperty target="{headerBox}" name="includeInLayout" value="false"/>
-			<mx:SetProperty target="{headerBox}" name="visible" value="false"/>
+			<mx:RemoveChild target="{tile1}"/>
+			<mx:RemoveChild target="{label1}"/>
+			<mx:RemoveChild target="{headerBox}"/>
 		</mx:State>
 		<mx:State name="ExternalSeqState">
 			<mx:SetProperty target="{samplesTab}" name="label" value="Samples"/>
 		</mx:State>
 		<mx:State name="BaseSeqState">
-			<mx:SetProperty target="{prePoolBox}" name="includeInLayout" value="false"/>
-			<mx:SetProperty target="{prePoolBox}" name="visible" value="false"/>
-			<mx:SetProperty target="{headerBox}" name="includeInLayout" value="false"/>
-			<mx:SetProperty target="{headerBox}" name="visible" value="false"/>
-			<mx:SetProperty target="{controlbar1}" name="includeInLayout" value="false"/>
-			<mx:SetProperty target="{controlbar1}" name="visible" value="false"/>
+			<mx:RemoveChild target="{prePoolBox}"/>
+			<mx:RemoveChild target="{headerBox}"/>
+			<mx:RemoveChild target="{adaptersBox}"/>
+			<mx:RemoveChild target="{controlbar1}"/>
 			<mx:AddChild relativeTo="{hbox7}" position="before">
 				<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle" id="hbox0">
 					<mx:Label text="Container Type"  width="105"  styleName="formLabel" textAlign="left" id="label11"/>
@@ -2324,8 +2175,7 @@
 					<mx:Text  text="{this.selectedExperiment.@requestStatus}" width="280" />
 				</mx:HBox>
 			</mx:AddChild>
-			<mx:SetProperty target="{hbox6}" name="includeInLayout" value="false"/>
-			<mx:SetProperty target="{hbox6}" name="visible" value="false"/>
+			<mx:RemoveChild target="{hbox6}"/>
 		</mx:State>
 		<mx:State name="BaseSeqChromoState" basedOn="BaseSeqState">
 			<mx:AddChild relativeTo="{theTab}" position="lastChild">
@@ -2378,42 +2228,60 @@
 					<mx:Text text="{this.selectedExperiment.@numberIScanChips}" width="280" />
 				</mx:HBox>
 			</mx:AddChild>
-			<mx:SetProperty target="{prePoolBox}" name="includeInLayout" value="false"/>
-			<mx:SetProperty target="{prePoolBox}" name="visible" value="false"/>
-			<mx:SetProperty target="{headerBox}" name="includeInLayout" value="false"/>
-			<mx:SetProperty target="{headerBox}" name="visible" value="false"/>
-			<mx:SetProperty target="{controlbar1}" name="includeInLayout" value="false"/>
-			<mx:SetProperty target="{controlbar1}" name="visible" value="false"/>
+			<mx:AddChild relativeTo="{hbox3}" position="before">
+				<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle">
+					<mx:Label text="Quote Number" width="105" styleName="formLabel"/>
+					<mx:Text text="{this.selectedExperiment.@materialQuoteNumber}" width="280" />
+				</mx:HBox>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{hbox3}" position="before">
+				<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle">
+					<mx:Label text="Quote Received" width="105" styleName="formLabel"/>
+					<mx:Text text="{this.selectedExperiment.@quoteReceivedDate}" width="280" />
+				</mx:HBox>
+			</mx:AddChild>
+			<mx:RemoveChild target="{adaptersBox}"/>
+			<mx:RemoveChild target="{headerBox}"/>
+			<mx:RemoveChild target="{controlbar1}"/>
+			<mx:RemoveChild target="{prePoolBox}"/>
 		</mx:State>
 		<mx:State name="SequenomState">
+			<mx:AddChild relativeTo="{hbox3}" position="before">
+				<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle" id="hbox5">
+					<mx:Label text="Core to extract DNA"  width="105" styleName="formLabel" textAlign="left" id="label0"/>
+					<mx:Text  text="{this.selectedExperiment.@coreToExtractDNA=='Y' ? 'Yes' : 'No'}" width="280"/>
+				</mx:HBox>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{hbox3}" position="before">
+				<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle" includeInLayout="{this.selectedExperiment.@coreToExtractDNA=='Y'}" visible="{this.selectedExperiment.@coreToExtractDNA=='Y'}">
+					<mx:Label text="DNA prep type"  width="105" styleName="formLabel" textAlign="left"  id="label10"/>
+					<mx:Text text="{this.selectedExperiment.@codeDNAPrepType != null ? parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.DNAPrepType').DictionaryEntry.(@value == this.selectedExperiment.@codeDNAPrepType).@display : ''}" 
+							 width="280"/>
+				</mx:HBox>
+			</mx:AddChild>
 			<mx:AddChild relativeTo="{hbox3}" position="before">
 				<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle" id="bisulfideConversionBox">
 					<mx:Label text="Bisulfide conversion"  width="105" styleName="formLabel" textAlign="left" />
 					<mx:Text  text="{this.selectedExperiment.@includeBisulfideConversion=='Y' ? 'Yes' : 'No'}" width="280"/>
 				</mx:HBox>
 			</mx:AddChild>
+			<mx:RemoveChild target="{adaptersBox}"/>
+			<mx:RemoveChild target="{headerBox}"/>
+			<mx:RemoveChild target="{controlbar1}"/>
+			<mx:RemoveChild target="{prePoolBox}"/>
 			<mx:AddChild relativeTo="{hbox7}" position="before">
 				<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle" id="hbox1">
 					<mx:Label text="Container Type"  width="105"  styleName="formLabel" textAlign="left" id="label12"/>
 					<mx:Text  text="{this.selectedExperiment.@containerType}" width="280"/>
 				</mx:HBox>
 			</mx:AddChild>
-			<mx:SetProperty target="{controlbar1}" name="includeInLayout" value="false"/>
-			<mx:SetProperty target="{controlbar1}" name="visible" value="false"/>
-			<mx:SetProperty target="{headerBox}" name="includeInLayout" value="false"/>
-			<mx:SetProperty target="{headerBox}" name="visible" value="false"/>
-			<mx:SetProperty target="{prePoolBox}" name="includeInLayout" value="false"/>
-			<mx:SetProperty target="{prePoolBox}" name="visible" value="false"/>
 		</mx:State>
 		<mx:State name="ClinicalSeqState" basedOn="SequenomState">
-			<mx:SetProperty target="{hbox1}" name="includeInLayout" value="false"/>
-			<mx:SetProperty target="{hbox1}" name="visible" value="false"/>
+			<mx:RemoveChild target="{hbox1}"/>
 		</mx:State>
 		<mx:State name="IsolationState" basedOn="SequenomState">
-			<mx:SetProperty target="{hbox5}" name="includeInLayout" value="false"/>
-			<mx:SetProperty target="{hbox5}" name="visible" value="false"/>
-			<mx:SetProperty target="{hbox6}" name="includeInLayout" value="false"/>
-			<mx:SetProperty target="{hbox6}" name="visible" value="false"/>
+			<mx:RemoveChild target="{hbox5}"/>
+			<mx:RemoveChild target="{hbox6}"/>
 			<mx:AddChild relativeTo="{hbox3}" position="before">
 				<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle" 
 						 includeInLayout="{this.selectedExperiment.@codeRNAPrepType!=null &amp;&amp; this.selectedExperiment.@codeRNAPrepType!=''}" 
@@ -2423,33 +2291,7 @@
 							 width="280"/>
 				</mx:HBox>
 			</mx:AddChild>
-			<mx:SetProperty target="{hbox1}" name="includeInLayout" value="false"/>
-			<mx:SetProperty target="{hbox1}" name="visible" value="false"/>
-			<mx:SetProperty target="{bisulfideConversionBox}" name="includeInLayout" value="false"/>
-			<mx:SetProperty target="{bisulfideConversionBox}" name="visible" value="false"/>
-			<mx:AddChild relativeTo="{hbox3}" position="before">
-				<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle" id="qubitConcentrationBox">
-					<mx:Label text="Qubit Concentration"  width="105" styleName="formLabel" textAlign="left" />
-					<mx:Text  text="{this.selectedExperiment.@includeQubitConcentration=='Y' ? 'Yes' : 'No'}" width="280"/>
-				</mx:HBox>
-			</mx:AddChild>
-		</mx:State>
-		<mx:State name="GenericState">
-			<mx:SetProperty target="{hbox5}" name="includeInLayout" value="false"/>
-			<mx:SetProperty target="{hbox5}" name="visible" value="false"/>
-			<mx:SetProperty target="{hbox8}" name="includeInLayout" value="false"/>
-			<mx:SetProperty target="{hbox8}" name="visible" value="false"/>
-			<mx:SetProperty target="{prePoolBox}" name="includeInLayout" value="false"/>
-			<mx:SetProperty target="{prePoolBox}" name="visible" value="false"/>
-			<mx:SetProperty target="{headerBox}" name="includeInLayout" value="false"/>
-			<mx:SetProperty target="{headerBox}" name="visible" value="false"/>
-		</mx:State>
-		<mx:State name="IonTorrentState" basedOn="GenericState"/>
-		<mx:State name="NanoStringState" basedOn="SequenomState">
-			<mx:SetProperty target="{bisulfideConversionBox}" name="includeInLayout" value="false"/>
-			<mx:SetProperty target="{bisulfideConversionBox}" name="visible" value="false"/>
-			<mx:SetProperty target="{hbox1}" name="includeInLayout" value="false"/>
-			<mx:SetProperty target="{hbox1}" name="visible" value="false"/>
+			<mx:RemoveChild target="{hbox1}"/>
 		</mx:State>
 	</mx:states>
 	

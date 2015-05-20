@@ -28,6 +28,8 @@ public class DeleteOldExperimentAndAnalysisFilesEmailFormatter  extends DetailOb
   private Map<Integer, Request>  requestMap;
   private List<ExperimentFile>   experimentFiles;
   private BillingPeriod          billingPeriod;
+  private String                 contactNameCoreFacility;
+  private String                 contactPhoneCoreFacility;
   private String                 baseURL;
   private boolean                forWarning;
 
@@ -36,7 +38,7 @@ public class DeleteOldExperimentAndAnalysisFilesEmailFormatter  extends DetailOb
   public DeleteOldExperimentAndAnalysisFilesEmailFormatter(CoreFacility facility, Lab lab, 
       Map<Integer, Analysis> analysisMap, List<AnalysisFile> analysisFiles, 
       Map<Integer, Request> requestMap, List<ExperimentFile> experimentFiles, 
-      BillingPeriod billingPeriod, String baseURL,
+      BillingPeriod billingPeriod, String contactNameCoreFacility, String contactPhoneCoreFacility, String baseURL,
       boolean forWarning) {
     this.facility                   = facility;
     this.lab                        = lab;
@@ -45,6 +47,8 @@ public class DeleteOldExperimentAndAnalysisFilesEmailFormatter  extends DetailOb
     this.requestMap                 = requestMap;
     this.experimentFiles            = experimentFiles;
     this.billingPeriod              = billingPeriod;
+    this.contactNameCoreFacility    = contactNameCoreFacility;
+    this.contactPhoneCoreFacility   = contactPhoneCoreFacility;
     this.baseURL                    = baseURL;  
     this.forWarning                 = forWarning;
   }
@@ -98,7 +102,7 @@ public class DeleteOldExperimentAndAnalysisFilesEmailFormatter  extends DetailOb
   }
 
   public String getSubject() {
-    return lab.getFormattedLabName(true) + " GNomEx File Deletion Warning";
+    return lab.getFormattedLabName() + " GNomEx File Deletion Warning";
   }
   
   private String getCascadingStyleSheet() {
@@ -118,7 +122,7 @@ public class DeleteOldExperimentAndAnalysisFilesEmailFormatter  extends DetailOb
     if (lab.isExternalLab()) {
       line2 += "Please make sure you have downloaded your data prior to this date.";
     } else {
-      line2 += "To avoid deletion a billing account must be submitted and approved prior to this date.  (" + getWorkAuthLink() + ")";
+      line2 += "To avoid deletion a work authorization must be submitted and approved prior to this date.  (" + getWorkAuthLink() + ")";
       line3 = "&nbsp;&nbsp;&nbsp; - Estimated charges for disk space, if any, will be sent in a separate email.";
     }
     if (!forWarning) {
@@ -128,20 +132,7 @@ public class DeleteOldExperimentAndAnalysisFilesEmailFormatter  extends DetailOb
       line3 = "";
     }
     String line4 = "&nbsp;";
-    String contactString = "";
-    if (facility.getContactPhone() != null && facility.getContactPhone().length() > 0) {
-      contactString += "Phone: " + facility.getContactPhone();
-    }
-    if (facility.getContactEmail() != null && facility.getContactEmail().length() > 0) {
-      if (contactString.length() > 0) {
-        contactString += "  ";
-      }
-      contactString += "Email: " + facility.getContactEmail();
-    }
-    if (contactString.length() > 0) {
-      contactString = " (" + contactString + ")";
-    }
-    String line5 = "If you have any questions, please contact " + facility.getContactName() + contactString + ".";
+    String line5 = "If you have any questions, please contact " + contactNameCoreFacility + " (" + contactPhoneCoreFacility + ").";
      
     Element table = new Element("TABLE");   
     table.setAttribute("CELLPADDING", "0");
@@ -160,7 +151,7 @@ public class DeleteOldExperimentAndAnalysisFilesEmailFormatter  extends DetailOb
 
   private String getWorkAuthLink() {
     StringBuffer buf = new StringBuffer();
-    buf.append("<a href=\"").append(baseURL).append(Constants.LAUNCH_APP_JSP).append("?launchWindow=WorkAuthForm&idCore=").append(facility.getIdCoreFacility()).append("\">New Billing Account</a>");
+    buf.append("<a href=\"").append(baseURL).append(Constants.LAUNCH_APP_JSP).append("?launchWindow=WorkAuthForm&idCore=").append(facility.getIdCoreFacility()).append("\">Work Authorization</a>");
     return buf.toString();
   }
   
@@ -186,7 +177,6 @@ public class DeleteOldExperimentAndAnalysisFilesEmailFormatter  extends DetailOb
     table.addContent(rowh);
     this.addHeaderCell(rowh, "Analysis ID");
     this.addHeaderCell(rowh, "File");
-    this.addHeaderCell(rowh, "Size");
     
     Integer prevIdAnalysis = -1;
     for(AnalysisFile file : analysisFiles) {
@@ -214,7 +204,6 @@ public class DeleteOldExperimentAndAnalysisFilesEmailFormatter  extends DetailOb
     Element row = new Element("TR");
     addEmptyCell(row);
     addCell(row, file.getFileName());
-    addCell(row, file.getFileSize().toString());
     
     return row;
   }
@@ -229,7 +218,6 @@ public class DeleteOldExperimentAndAnalysisFilesEmailFormatter  extends DetailOb
     table.addContent(rowh);
     this.addHeaderCell(rowh, "Request ID");
     this.addHeaderCell(rowh, "File");
-    this.addHeaderCell(rowh, "Size");
     
     Integer prevIdReq = -1;
     for(ExperimentFile file : experimentFiles) {
@@ -257,7 +245,6 @@ public class DeleteOldExperimentAndAnalysisFilesEmailFormatter  extends DetailOb
     Element row = new Element("TR");
     addEmptyCell(row);
     addCell(row, file.getFileName());
-    addCell(row, file.getFileSize().toString());
     
     return row;
   }

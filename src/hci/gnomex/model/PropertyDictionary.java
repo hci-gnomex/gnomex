@@ -8,7 +8,8 @@ import java.io.Serializable;
 
 
 public class PropertyDictionary extends DictionaryEntry implements Serializable {
-
+  
+  public static final String        CORE_FACILITY_NAME                  = "core_facility_name";
   public static final String        CONTACT_EMAIL_CORE_FACILITY         = "contact_email_core_facility";
   public static final String        CONTACT_EMAIL_BIOINFORMATICS        = "contact_email_bioinformatics";
   public static final String        CONTACT_NAME_CORE_FACILITY          = "contact_name_core_facility";
@@ -43,9 +44,6 @@ public class PropertyDictionary extends DictionaryEntry implements Serializable 
   public static final String        BILLING_GL_JOURNAL_LINE_REF_CORE_FACILITY = "billing_gl_journal_line_ref_core_facility";
   public static final String        BILLING_GL_HEADER_FACILITY          = "billing_gl_header_facility";
   public static final String        BILLING_GL_HEADER_DESCRIPTION       = "billing_gl_header_description";
-  public static final String		INVOICE_HEADER_NOTE					= "invoice_header_note";
-  public static final String		INVOICE_HEADER_NOTE_PO				= "invoice_header_note_po";
-  public static final String		INVOICE_FOOTER_NOTE					= "invoice_footer_note";
   public static final String        DATASET_PRIVACY_EXPIRATION          = "dataset_privacy_expiration";
   public static final String        DATASET_PRIVACY_EXPIRATION_WARNING  = "dataset_privacy_expiration_warning";
   public static final String        DATASET_PRIVACY_EXPIRATION_REPLY_EMAIL  = "dataset_privacy_expiration_reply_email";
@@ -64,6 +62,8 @@ public class PropertyDictionary extends DictionaryEntry implements Serializable 
   public static final String        SITE_TITLE                          = "site_title";
   public static final String        SITE_WELCOME_MESSAGE                = "site_welcome_message";
   public static final String        SHOW_USAGE_ON_STARTUP               = "show_usage_on_startup";
+  public static final String        SEQUENCE_ALIGNMENT_SUPPORTED        = "sequence_alignment_supported";      
+  public static final String        SEQUENCE_ALIGNMENT_SERVER_URL       = "sequence_alignment_server_url";      
   public static final String        TOPICS_SUPPORTED                    = "topics_supported";
   public static final String        DATATRACK_FILESERVER_URL            = "datatrack_fileserver_url";
   public static final String        DATATRACK_FILESERVER_WEB_CONTEXT    = "datatrack_fileserver_web_context";
@@ -77,7 +77,6 @@ public class PropertyDictionary extends DictionaryEntry implements Serializable 
   public static final String        EXPERIMENT_DEFAULT_VIEW             = "experiment_default_view";
   public static final String        EXPERIMENT_VIEW_LIMIT               = "experiment_view_limit";
   public static final String        GET_REQUEST_NUMBER_PROCEDURE        = "get_request_number_procedure";
-  public static final String        GET_PO_NUMBER_PROCEDURE             = "get_po_number_procedure";
   public static final String        ID_DEFAULT_INSTITUTION              = "id_default_institution";
   public static final String        SITE_LOGO                           = "site_logo";
   public static final String        SITE_SPLASH                         = "site_splash";
@@ -108,55 +107,13 @@ public class PropertyDictionary extends DictionaryEntry implements Serializable 
   public static final String        CONTACT_EMAIL_MANAGE_SAMPLE_FILE_LINK = "contact_email_manage_sample_file_link";
   public static final String        CONTACT_EMAIL_BIOINFORMATICS_ANALYSIS_REQUESTS = "contact_email_bioinformatics_analysis_requests";
   public static final String        CUSTOM_BILLING_MESSAGE              = "custom_billing_message";
-  public static final String        DISABLE_USER_SIGNUP                 = "disable_user_signup";
-  public static final String        EXPERIMENT_PLATFORM_HIDE_VENDOR     = "experiment_platform_hide_vendor";
-  public static final String        EXPERIMENT_PLATFORM_HIDE_NOTES      = "experiment_platform_hide_notes";
-  public static final String        EXPERIMENT_PLATFORM_HIDE_ORGANISM   = "experiment_platform_hide_organism";
-  public static final String        INTERNAL_PRICE_LABEL                = "internal_price_label";
-  public static final String        EXTERNAL_ACADEMIC_PRICE_LABEL       = "external_academic_price_label";
-  public static final String        EXTERNAL_COMMERCIAL_PRICE_LABEL     = "external_commercial_price_label";
-  public static final String        ILLUMINA_LIBPREP_DEFAULT_PRICE_CATEGORY = "illumina_libprep_default_price_category";
-  public static final String        ILLUMINA_SEQOPTION_DEFAULT_PRICE_CATEGORY = "illumina_seqoption_default_price_category";
-  public static final String        FILE_MAX_VIEWABLE_SIZE              = "file_max_viewable_size";
-  public static final String        QC_ASSAY_HIDE_BUFFER_STRENGTH       = "qc_assay_hide_buffer_strength";
-  public static final String        QC_ASSAY_HIDE_WELLS_PER_CHIP        = "qc_assay_hide_wells_per_chip";
-
+  
   public static final String        OPTION_USER_USER_VISIBILITY_NONE    = "none";
   public static final String        OPTION_USER_USER_VISIBILITY_MASKED  = "masked";
   public static final String        OPTION_USER_USER_VISIBILITY_FULL    = "full";
-  public static final String 		    USAGE_GUEST_STATS 					        = "usage_guest_stats";
-  public static final String 		    USAGE_REPORT_EMAILS 				        = "usage_report_emails";
-  public static final String        METRIX_SERVER_HOST                  = "metrix_server_host";
-  public static final String        METRIX_SERVER_PORT                  = "metrix_server_port";
-  public static final String        SEQ_LANE_NUMBER_SEPARATOR           = "seq_lane_number_separator";
-  public static final String        SEQ_LANE_LETTER                     = "seq_lane_letter";
-  public static final String        STATUS_TO_START_WORKFLOW            = "status_to_start_workflow";
-  public static final String		    NO_GUEST_ACCESS						          = "no_guest_access";
-  public static final String		    NO_PUBLIC_VISIBILITY				        = "no_public_visibility";
-  public static final String        ALLOW_CORE_GLOBAL_SUBMISSION        = "allow_core_global_submission";
-  public static final String        REQUEST_COMPLETE_CONFIRMATION_EMAIL_MESSAGE = "request_complete_confirmation_email_message";
-  public static final String        ANNOTATION_OPTION_EQUIVALENTS       = "annotation_option_equivalents";
-  public static final String        ANNOTATION_OPTION_INVALID           = "annotation_option_invalid";
-  public static final String        EXPERIMENT_MATRIX_PROPERTIES        = "experiment_matrix_properties";
-  public static final String        BILLING_GL_HEADER_CURRENCY          = "billing_gl_header_currency";
-  public static final String        BILLING_GL_BLANK_YEAR               = "billing_gl_blank_year";
-  public static final String        FISCAL_YEAR_BREAK_MONTH             = "fiscal_year_break_month";
-  public static final String        FISCAL_YEAR_BREAK_DAY               = "fiscal_year_break_day";
-  public static final String        NOTIFY_SUPPORT_OF_NEW_USER          = "notify_support_of_new_user";
-  public static final String        ILLUMINA_QC_IN_LIB_PREP             = "illumina_qc_in_lib_prep";
-  public static final String        BILLING_DURING_WORKFLOW             = "billing_during_workflow";
-  public static final String        PROPERTY_HIDE_260_230_QC_WORKFLOW   = "qc_hide_260_230_qc_workflow";
-  public static final String        PROPERTY_SAMPLE_BATCH_WARNING       = "sample_batch_warning";
-  public static final String		    PLATE_AND_RUN_VIEW_LIMIT			      = "plate_and_run_view_limit";
-  public static final String		    CHROMATOGRAM_VIEW_LIMIT				      = "chromatogram_view_limit";
-  public static final String        DISK_USAGE_BILLING_CORE             = "disk_usage_billing_core";
-  public static final String        CORE_BILLING_OFFICE                 = "core_billing_office";
-  public static final String        RESTRICT_ANNOTATION_ON_AUTO_ADD     = "restrict_annotation_on_auto_add";
-  public static final String        DESCRIPTION_NAME_MANDATORY_FOR_INTERNAL_EXPERIMENTS = "description_name_mandatory_for_internal_experiments";
-  public static final String        SORT_APPLICATION_ALPHABETICALLY_IN_EDIT = "sort_application_alphabetically_in_edit";
-  public static final String        ADD_PHI_TO_SUPPORT_EMAIL            = "add_phi_to_support_email";
-  public static final String        EXPERIMENT_INVOICE_EMAIL_TEMPLATE   = "experiment_invoice_email_template";
-  public static final String        EXPERIMENT_CONFIRMATION_EMAIL_TEMPLATE = "experiment_confirmation_email_template";
+  public static final String 		USAGE_GUEST_STATS 					= "usage_guest_stats";
+  public static final String 		USAGE_REPORT_EMAILS 				= "usage_report_emails";
+
 
 
   private Integer       idPropertyDictionary;
@@ -170,15 +127,15 @@ public class PropertyDictionary extends DictionaryEntry implements Serializable 
   public Integer getIdPropertyDictionary() {
     return idPropertyDictionary;
   }
-
+  
   public void setIdPropertyDictionary(Integer idPropertyDictionary) {
     this.idPropertyDictionary = idPropertyDictionary;
   }
-
+  
   public String getValue() {
     return idPropertyDictionary.toString();
   }
-
+ 
   public String getDisplay() {
     String postfix = "";
     if (getIdCoreFacility() != null) {
@@ -192,42 +149,42 @@ public class PropertyDictionary extends DictionaryEntry implements Serializable 
     return getPropertyName() + postfix;
   }
 
-
+  
   public String getPropertyName() {
     return propertyName;
   }
 
-
+  
   public void setPropertyName(String propertyName) {
     this.propertyName = propertyName;
   }
 
-
+  
   public String getPropertyValue() {
     return propertyValue;
   }
 
-
+  
   public void setPropertyValue(String propertyValue) {
     this.propertyValue = propertyValue;
   }
 
-
+  
   public String getPropertyDescription() {
     return propertyDescription;
   }
 
-
+  
   public void setPropertyDescription(String propertyDescription) {
     this.propertyDescription = propertyDescription;
   }
 
-
+  
   public String getForServerOnly() {
     return forServerOnly;
   }
 
-
+  
   public void setForServerOnly(String forServerOnly) {
     this.forServerOnly = forServerOnly;
   }
@@ -235,17 +192,17 @@ public class PropertyDictionary extends DictionaryEntry implements Serializable 
   public Integer getIdCoreFacility() {
     return idCoreFacility;
   }
-
+  
   public void setIdCoreFacility(Integer id) {
     idCoreFacility = id;
   }
 
-
+  
   public String getCodeRequestCategory() {
     return codeRequestCategory;
   }
 
-
+  
   public void setCodeRequestCategory(String codeRequestCategory) {
     this.codeRequestCategory = codeRequestCategory;
   }

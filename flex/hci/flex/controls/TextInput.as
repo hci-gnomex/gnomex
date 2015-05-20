@@ -2,8 +2,6 @@ package hci.flex.controls
 {
 	import hci.flex.renderers.RendererFactory;
 	
-	import ext.com.Consts;
-	
 	import mx.controls.TextInput;
 	import mx.core.IFactory;
 
@@ -13,7 +11,6 @@ package hci.flex.controls
 		public var isRequired:Boolean = false;
 		public var missingRequiredFieldBackground:uint = RendererFactory.DEFAULT_MISSING_REQUIRED_FIELD_BACKGROUND;
 		public var missingFieldBackground:uint = RendererFactory.DEFAULT_MISSING_FIELD_BACKGROUND;
-		public var maxChars1:int = Consts.MAX_CHARS ;
 		
 		
 		public static function create(
@@ -27,10 +24,9 @@ package hci.flex.controls
 				isRequired: isRequired, 
 				missingRequiredFieldBackground: missingRequiredFieldBackground,
 				missingFieldBackground: missingFieldBackground});							  
-		}
+		}			
 		
 		override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void {
-			this.maxChars = maxChars1;
 			super.updateDisplayList(unscaledWidth,unscaledHeight);
 			
 			if (data == null || dataField == null || !(data is XML)) {

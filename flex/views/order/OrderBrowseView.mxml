@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:VBox styleName="panelBox"  xmlns:mx="http://www.adobe.com/2006/mxml" 
 		 width="100%" height="100%" 
-		 backgroundAlpha="0" cornerRadius="10" 
+		 backgroundAlpha="0"
 		 xmlns:renderers="views.renderers.*"
-		 xmlns:util="views.util.*"  >
-	
+		 xmlns:util="views.util.*"  
+		 verticalGap="3">
+		
 	
 	<mx:HTTPService 
 		id="getRequestList" 
@@ -56,6 +57,11 @@
 			import views.util.PromptXMLListCollection;
 			
 			
+			// Warning Icon
+			[Embed( source = '../../assets/error.png' )]
+			[Bindable]
+			public var iconWarning:Class;
+			
 			[Bindable]
 			public var parentView:NavOrderView;
 			
@@ -65,9 +71,7 @@
 			public function init():void {
 				var emptyNode:XML = <CoreFacility displayName = '' idCoreFacility='' value='' label=''/>;
 				promptedMyCoreFacilities = new PromptXMLListCollection(emptyNode, new XMLListCollection(parentApplication.coreFacilitiesICanManage));
-				if (promptedMyCoreFacilities.length == 2) {
-					coreFacilityCombo.selectedItem = promptedMyCoreFacilities[1];
-				}
+
 				getList();
 			}
 			
@@ -111,7 +115,7 @@
 					changeRequestStatus.send( params );
 				}
 			}
-			
+
 			private function onChangeRequestStatus( event:ResultEvent ):void {
 				if ( event.result.name() == "SUCCESS" ) {
 					this.getList();
@@ -120,7 +124,7 @@
 				Alert.show( event.result..ERROR.@message.toString(), "Error saving order(s)" );
 				
 			}
-			
+
 			public function getList():void {
 				getRequestList.send(getOrderParameters());
 			}
@@ -152,7 +156,7 @@
 				}
 				
 				params.number = requestNoLookupField.text != null ? requestNoLookupField.text : '' ;
-				
+								
 				if ( this.newCheckbox.selected ) {
 					params.status = 'NEW' ;
 				}
@@ -172,14 +176,14 @@
 					params.hasRedo = 'Y';
 				}
 				
-				if ( requestCategoryComboBox != null && requestCategoryComboBox.selectedItem != null && requestCategoryComboBox.selectedLabel != ''){
-					params.codeRequestCategory = requestCategoryComboBox.selectedItem.@codeRequestCategory;
+				if ( requestCategoryRadioGroup != null && requestCategoryRadioGroup.selectedValue != null && requestCategoryRadioGroup.selectedValue != ''){
+					params.codeRequestCategory = requestCategoryRadioGroup.selectedValue;
 				}
 				
 				if ( coreFacilityCombo != null && coreFacilityCombo.selectedItem != null ) {
 					params.idCoreFacility = coreFacilityCombo.selectedItem.@value;
 				} 
-				
+
 				return params;
 			}
 			
@@ -196,11 +200,11 @@
 				
 				if ( hasRun ) {
 					Alert.show("One or more of the selected orders has already been added to an instrument run."
-						+ " The order(s) cannot be deleted.");
+							+ " The order(s) cannot be deleted.");
 					
 				} else {
 					Alert.show( "Are you sure you want to delete these orders?", 
-						"Confirm Delete", ( Alert.YES | Alert.NO ), this, onPromptToDelete, parentApplication.iconError );
+						"Confirm Delete", ( Alert.YES | Alert.NO ), this, onPromptToDelete, iconWarning );
 				}
 				
 				
@@ -212,7 +216,7 @@
 					deleteOrders();
 				}
 			}
-			
+						
 			private function deleteOrders():void {
 				var params:Object = new Object;
 				params.requestsToDeleteXMLString = "<requests>" +  selectedOrders.toXMLString() + "</requests>";
@@ -253,7 +257,7 @@
 				if ( this.redoCheckbox.selected) {
 					return false ;
 				}
-				if ( requestCategoryComboBox != null && requestCategoryComboBox.selectedItem != null && requestCategoryComboBox.selectedLabel != ''){
+				if ( requestCategoryRadioGroup != null && requestCategoryRadioGroup.selectedValue != null && requestCategoryRadioGroup.selectedValue != ''){
 					return false;
 				}
 				if ( this.coreFacilityCombo != null && this.coreFacilityCombo.selectedItem != null) {
@@ -265,7 +269,7 @@
 			private function selectedFilterFunc(item:XML):Boolean {
 				return item.@isSelected == true;
 			}
-			
+				
 			private function clearCheckBoxes():void {
 				this.newCheckbox.selected = false;
 				this.processingCheckbox.selected = false;
@@ -361,7 +365,7 @@
 					return 0;
 				}
 			}
-			
+
 			private function requestNoLookupFieldEntered():void {
 				if (requestNoLookupField.text != '') {
 					this.clearCheckBoxes();
@@ -435,15 +439,18 @@
 				
 			}
 			
-			private function coreSelected():void{
-				if ( requestCategoryComboBox!=null){
-					requestCategoryComboBox.selectedItem = null;
-				}
-				this.requestNoLookupField.text = "";
-				getList();
-				requestCategories.refresh();
-			}
+			private var currentSelectedValue:String = null;
 			
+			private function radioClick(event:MouseEvent):void {
+				if ( event.currentTarget.value == currentSelectedValue ) {
+					requestCategoryRadioGroup.selectedValue = null;
+					currentSelectedValue = null;
+					event.stopImmediatePropagation();
+				} else { 
+					currentSelectedValue = event.currentTarget.value;
+				}
+				getList();
+			}
 			
 		]]>
 	</mx:Script>    	
@@ -457,143 +464,143 @@
 	
 	<mx:DateFormatter id="dateFormatter" formatString="MM/DD/YYYY"/>
 	
-	
-	<mx:VBox width="100%" height="100%" horizontalAlign="left" verticalGap="2">
-		<mx:HBox width="100%" styleName="titleBox">
-			<renderers:TitleLabel id="titleLabel" iconSource="{parentApplication.iconOrders}" titleText="Orders" />
-			
-			<mx:VBox width="100%">
-				<mx:HBox width="100%" verticalAlign="middle" paddingLeft="2" paddingRight="2" horizontalGap="5">
-					
-					<mx:HBox id = "statusCheckboxBar"
-							 horizontalGap = "0"
-							 height = "100%"
-							 verticalAlign = "middle"
-							 verticalGap = "0"
-							 horizontalAlign = "right">
-						<mx:CheckBox label = "New"
-									 id = "newCheckbox"
-									 horizontalGap = "0"
-									 styleName = "labelSmall"
-									 selected="false">
-							<mx:click>
-								toggleStatusCheckboxes( 1 );
-								this.getList();
-							</mx:click>
-							
-						</mx:CheckBox>
-						
-						<mx:CheckBox label = "Submitted"
-									 id = "submittedCheckbox"
-									 paddingLeft = "2"
-									 horizontalGap = "0"
-									 styleName = "labelSmall" selected="true">
-							<mx:click>
-								toggleStatusCheckboxes( 3 );
-								this.getList();
-							</mx:click>
-							
-						</mx:CheckBox>
-						
-						<mx:CheckBox label = "Processing"
-									 id = "processingCheckbox"
-									 paddingLeft = "2"
-									 horizontalGap = "0"
-									 styleName = "labelSmall">
-							<mx:click>
-								toggleStatusCheckboxes( 2 );
-								this.getList();
-							</mx:click>
-						</mx:CheckBox>
-						
-						
-						<mx:CheckBox label = "Complete"
-									 id = "completeCheckbox"
-									 paddingLeft = "2"
-									 horizontalGap = "0"
-									 styleName = "labelSmall">
-							<mx:click>
-								toggleStatusCheckboxes( 4 );
-								this.getList();
-							</mx:click>
-							
-						</mx:CheckBox>
-						
-						<mx:CheckBox label = "Failed"
-									 id = "failedCheckbox"
-									 paddingLeft = "2"
-									 paddingRight="5"
-									 horizontalGap = "0"
-									 styleName = "labelSmall">
-							<mx:click>
-								toggleStatusCheckboxes( 5 );
-								this.getList();
-							</mx:click>
-							
-						</mx:CheckBox>
-						
-						<mx:VRule height = "20" />
-						
-						<mx:CheckBox label = "Redos"
-									 id = "redoCheckbox"
-									 paddingLeft="5"
-									 horizontalGap = "0"						
-									 styleName = "labelSmall">
-							<mx:click>
-								this.requestNoLookupField.text = "";this.getList();
-							</mx:click>
-						</mx:CheckBox>
-						
-					</mx:HBox>
-					
-					
-					<mx:VRule height = "20" />
-					
-					<mx:HBox height = "100%"
-							 verticalAlign = "middle">
-						<renderers:LinkButtonDateRangeMenu id="pickDateRangeButton" toolTip="Click 'Refresh' after selecting a date range to update the results." />
-						
-					</mx:HBox>
-					
-					<mx:VRule height = "20" />
-					<mx:HBox horizontalGap="0"
-							 height="100%"
-							 verticalAlign="middle"
-							 verticalGap="0">
-						
-						<mx:Label text="Order #" id="orderNumberLabel" />
-						
-						<mx:TextInput id="requestNoLookupField"
-									  fontSize="9"
-									  height="19"
-									  width="60"
-									  enter="{requestNoLookupFieldEntered()}" />
-						
-						
-					</mx:HBox>
-					<mx:Spacer width="100%" id="spacer1"/>
-					
-					<mx:LinkButton textDecoration = "underline"
-								   label = "Refresh"
-								   click = "{this.getList();}"
-								   icon = "@Embed('../../assets/action_refresh.gif')"
-								   toolTip = "Refresh order list"  styleName="labelSmall" id="linkbutton1"/>
+	<mx:VBox width="100%" styleName="panelBox"   backgroundSize="100%" id="vbox2">
+		<mx:VBox width="100%">
+			<mx:HBox width="100%" verticalAlign="middle" paddingLeft="2" paddingRight="2" horizontalGap="5">
+				<mx:HBox horizontalGap="0" width="90" verticalAlign="middle">
+					<mx:Image source="assets/review.png"/>
+					<mx:Label id="titleLabel" styleName="titleLabel" text="Orders" />			
 				</mx:HBox>
 				
-			</mx:VBox>
-			
-			
-			
-			<mx:VBox  width="100%" id="vbox1">
-				
-				<mx:HBox id = "filterBar"
-						 horizontalGap = "5"
-						 paddingTop = "0"
-						 paddingBottom = "4"
-						 paddingLeft = "95"
-						 horizontalAlign = "left"
-						 verticalAlign = "middle">
+				<mx:HBox id = "statusCheckboxBar"
+						 horizontalGap = "0"
+						 height = "100%"
+						 verticalAlign = "middle"
+						 verticalGap = "0"
+						 horizontalAlign = "right">
+					<mx:CheckBox label = "New"
+								 id = "newCheckbox"
+								 horizontalGap = "0"
+								 styleName = "labelSmall"
+								 selected="false">
+						<mx:click>
+							toggleStatusCheckboxes( 1 );
+							this.getList();
+						</mx:click>
+						
+					</mx:CheckBox>
 					
+					<mx:CheckBox label = "Submitted"
+								 id = "submittedCheckbox"
+								 paddingLeft = "2"
+								 horizontalGap = "0"
+								 styleName = "labelSmall" selected="true">
+						<mx:click>
+							toggleStatusCheckboxes( 3 );
+							this.getList();
+						</mx:click>
+						
+					</mx:CheckBox>
+					
+					<mx:CheckBox label = "Processing"
+								 id = "processingCheckbox"
+								 paddingLeft = "2"
+								 horizontalGap = "0"
+								 styleName = "labelSmall">
+						<mx:click>
+							toggleStatusCheckboxes( 2 );
+							this.getList();
+						</mx:click>
+					</mx:CheckBox>
+					
+					
+					<mx:CheckBox label = "Complete"
+								 id = "completeCheckbox"
+								 paddingLeft = "2"
+								 horizontalGap = "0"
+								 styleName = "labelSmall">
+						<mx:click>
+							toggleStatusCheckboxes( 4 );
+							this.getList();
+						</mx:click>
+						
+					</mx:CheckBox>
+					
+					<mx:CheckBox label = "Failed"
+								 id = "failedCheckbox"
+								 paddingLeft = "2"
+								 paddingRight="5"
+								 horizontalGap = "0"
+								 styleName = "labelSmall">
+						<mx:click>
+							toggleStatusCheckboxes( 5 );
+							this.getList();
+						</mx:click>
+						
+					</mx:CheckBox>
+					
+					<mx:VRule height = "20" />
+					
+					<mx:CheckBox label = "Redos"
+								 id = "redoCheckbox"
+								 paddingLeft="5"
+								 horizontalGap = "0"						
+								 styleName = "labelSmall">
+						<mx:click>
+							this.requestNoLookupField.text = "";this.getList();
+						</mx:click>
+					</mx:CheckBox>
+					
+				</mx:HBox>
+				
+				
+				<mx:VRule height = "20" />
+				
+				<mx:HBox height = "100%"
+						 verticalAlign = "middle">
+					<renderers:LinkButtonDateRangeMenu id="pickDateRangeButton" toolTip="Click 'Refresh' after selecting a date range to update the results." />
+					
+				</mx:HBox>
+				
+				<mx:VRule height = "20" />
+				<mx:HBox horizontalGap="0"
+						 height="100%"
+						 verticalAlign="middle"
+						 verticalGap="0">
+					
+					<mx:Label text="Order #" id="orderNumberLabel" />
+					
+					<mx:TextInput id="requestNoLookupField"
+								  fontSize="9"
+								  height="19"
+								  width="60"
+								  enter="{requestNoLookupFieldEntered()}" />
+					
+					
+				</mx:HBox>
+				<mx:Spacer width="100%" id="spacer1"/>
+				
+				<mx:LinkButton textDecoration = "underline"
+							   label = "Refresh"
+							   click = "{this.getList();}"
+							   icon = "@Embed('../../assets/action_refresh.gif')"
+							   toolTip = "Refresh order list"  styleName="labelSmall" id="linkbutton1"/>
+			</mx:HBox>
+			
+		</mx:VBox>
+		
+		
+		
+		<mx:VBox  width="100%" id="vbox1">
+			
+			<mx:HBox id = "filterBar"
+					 horizontalGap = "5"
+					 paddingTop = "0"
+					 paddingBottom = "4"
+					 paddingLeft = "95"
+					 horizontalAlign = "left"
+					 verticalAlign = "middle">
+				
 					
 					<mx:HBox horizontalGap="8" paddingRight="5"
 							 includeInLayout="{parentApplication.coreFacilitiesICanManage.length() > 1}" 
@@ -603,26 +610,30 @@
 									 labelField="@display" prompt="Core facility..." 
 									 fontSize="10" paddingRight="3"
 									 visible="{!parentApplication.isExternalDataSharingSite}" 
-									 includeInLayout="{!parentApplication.isExternalDataSharingSite}"
-									 change="{coreSelected()}">
+									 includeInLayout="{!parentApplication.isExternalDataSharingSite}">
+							<mx:change>requestCategoryRadioGroup.selectedValue = null;this.requestNoLookupField.text = "";getList();requestCategories.refresh();</mx:change>
 						</mx:ComboBox>
 						
 						<mx:VRule height = "20"  />
-						
 					</mx:HBox>
 					
-					<renderers:FilterComboBox id="requestCategoryComboBox" fontSize="10" 
-											  dataProvider="{requestCategories}" 
-											  labelField="@display" prompt="Experiment Type.."
-											  includeInLayout="{requestCategories.length > 1}" 
-											  visible="{requestCategories.length > 1}" 
-											  change="{getList()}"/>
+					<mx:RadioButtonGroup id = "requestCategoryRadioGroup" />     
+					<mx:Repeater id="requestCategoryRepeater" dataProvider="{requestCategories}">
+						
+							<mx:RadioButton id="radioRequestCategory" groupName="requestCategoryRadioGroup"
+											label="{requestCategoryRepeater.currentItem.@display}" 
+											value="{requestCategoryRepeater.currentItem.@value}" 
+											fontSize="11" paddingRight="5" horizontalGap="1" 
+											click="radioClick(event)" />
+						
+					</mx:Repeater>
 					
-				</mx:HBox>
-				
-			</mx:VBox>
+				<mx:RadioButton id="nullSelection" groupName="requestCategoryRadioGroup" visible="false" width="0" /> 
+			</mx:HBox>
 			
-		</mx:HBox>
+		</mx:VBox>
+		
+	</mx:VBox>
 	
 	
 	<mx:VBox width = "100%" height = "100%" verticalGap = "1" styleName="panelBox">
@@ -689,7 +700,8 @@
 					<mx:DataGridColumn dataField = "@numberOfSamples" headerText = "Samples" width = "55" />
 					
 					<mx:DataGridColumn dataField = "@idSampleDropOffLocation" headerText="Drop Off" width="65"
-									   visible="{(coreFacilityCombo.selectedItem != null &amp;&amp; coreFacilityCombo.selectedItem.@value != null &amp;&amp; parentApplication.getCoreFacilityProperty(coreFacilityCombo.selectedItem.@value, parentApplication.PROPERTY_IS_PLATE_BASED_CORE) == 'Y')}"
+									   visible="{(coreFacilityCombo.selectedItem != null &amp;&amp; coreFacilityCombo.selectedItem.@value != null &amp;&amp; coreFacilityCombo.selectedItem.@value == '2') ||
+									   (parentApplication.coreFacilitiesICanManage.length() == 1 &amp;&amp; parentApplication.isCoreFacilityIManage(2))}"
 									   itemRenderer="{hci.flex.controls.DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SampleDropOffLocation').DictionaryEntry, '@display', '@value', '@idSampleDropOffLocation')}" id="datagridcolumn1"/>
 					
 					<mx:DataGridColumn dataField = "@codeRequestStatus" 
@@ -703,23 +715,24 @@
 					<mx:DataGridColumn dataField = "@createDate" headerText = "Submitted on" width = "105" />
 					<mx:DataGridColumn dataField = "@container" headerText = "Container" width = "60" />
 					<mx:DataGridColumn dataField="@plateLabel" wordWrap="true" headerText = "Plate" width="110" 
-									   visible="{(coreFacilityCombo.selectedItem != null &amp;&amp; coreFacilityCombo.selectedItem.@value != null &amp;&amp;
-									   parentApplication.getCoreFacilityProperty(coreFacilityCombo.selectedItem.@value, parentApplication.PROPERTY_IS_PLATE_BASED_CORE) == 'Y')}"/>
+									   visible="{(coreFacilityCombo.selectedItem != null &amp;&amp; coreFacilityCombo.selectedItem.@value != null &amp;&amp; coreFacilityCombo.selectedItem.@value == '2') ||
+									   (parentApplication.coreFacilitiesICanManage.length() == 1 &amp;&amp; parentApplication.isCoreFacilityIManage(2))}"/>
 					<mx:DataGridColumn dataField="@runLabel" headerText = "Run" width="110" 
-									   visible="{(coreFacilityCombo.selectedItem != null &amp;&amp; coreFacilityCombo.selectedItem.@value != null &amp;&amp;
-									   parentApplication.getCoreFacilityProperty(coreFacilityCombo.selectedItem.@value, parentApplication.PROPERTY_IS_PLATE_BASED_CORE) == 'Y')}"/>
+									   visible="{(coreFacilityCombo.selectedItem != null &amp;&amp; coreFacilityCombo.selectedItem.@value != null &amp;&amp; coreFacilityCombo.selectedItem.@value == '2') ||
+									   (parentApplication.coreFacilitiesICanManage.length() == 1 &amp;&amp; parentApplication.isCoreFacilityIManage(2))}"/>
 					<mx:DataGridColumn dataField="@idInstrumentRun" headerText = "Run ID" width="50" 
-									   visible="{(coreFacilityCombo.selectedItem != null &amp;&amp; coreFacilityCombo.selectedItem.@value != null &amp;&amp;
-									   parentApplication.getCoreFacilityProperty(coreFacilityCombo.selectedItem.@value, parentApplication.PROPERTY_IS_PLATE_BASED_CORE) == 'Y')}"/>
+									   visible="{(coreFacilityCombo.selectedItem != null &amp;&amp; coreFacilityCombo.selectedItem.@value != null &amp;&amp; coreFacilityCombo.selectedItem.@value == '2') ||
+									   (parentApplication.coreFacilitiesICanManage.length() == 1 &amp;&amp; parentApplication.isCoreFacilityIManage(2))}"/>
 					<mx:DataGridColumn dataField="@ownerName" headerText="Submitter" width="100"/>
 					<mx:DataGridColumn dataField = "@labName" headerText = "Lab" width = "130" />
 					<mx:DataGridColumn dataField = "@corePrepInstructions" headerText = "Notes for core"   
-									   visible="{(coreFacilityCombo.selectedItem != null &amp;&amp; coreFacilityCombo.selectedItem.@value != null)}"/>
-					<mx:DataGridColumn dataField = "@adminNotes" headerText = "Admin notes"  
-									   visible="{coreFacilityCombo.selectedItem != null &amp;&amp; coreFacilityCombo.selectedItem.@value != null &amp;&amp; 
-									   parentApplication.getCoreFacilityProperty(coreFacilityCombo.selectedItem.@value, parentApplication.PROPERTY_SHOW_ADMIN_NOTES_ON_REQUEST) == 'Y'}" />
+									   visible="{(coreFacilityCombo.selectedItem != null &amp;&amp; coreFacilityCombo.selectedItem.@value != null &amp;&amp; coreFacilityCombo.selectedItem.@value == '2') ||
+									   (parentApplication.coreFacilitiesICanManage.length() == 1 &amp;&amp; parentApplication.isCoreFacilityIManage(2))}"/>
+					
 				</mx:columns>
+				
 			</mx:DataGrid>
+			
 		</mx:VBox>
 		
 		
@@ -756,12 +769,11 @@
 						   enabled="{selectedOrders.length>0}"/>
 			<mx:Spacer width="100%"/>
 			
-			<mx:Text id="messageLabel" text="{'(' + getRequestList.lastResult.@message + ')'}" visible="{getRequestList.lastResult.@message != ''}" width="100%" fontStyle="normal" fontWeight="normal" fontSize="10" textAlign="right"/>
 			<mx:Label text = "{'(' + orderList.length + ' orders)'}" fontWeight = "normal" textAlign = "right"  fontStyle="italic"/>
 			
 			
 			
 		</mx:ControlBar>
-	</mx:VBox>
+		
 	</mx:VBox>
 </mx:VBox>

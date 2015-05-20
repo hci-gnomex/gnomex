@@ -2,10 +2,11 @@ package hci.gnomex.utility;
 
 import hci.framework.model.DetailObject;
 import hci.gnomex.constants.Constants;
-import hci.gnomex.model.PropertyDictionary;
 
 import java.io.File;
 import java.io.Serializable;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
@@ -15,6 +16,7 @@ import org.hibernate.Session;
 
 
 public class FileDescriptor extends DetailObject implements Serializable {
+  private final static DateFormat FORMATTER = new SimpleDateFormat("dd/MM/yyyy  hh:mm");
 
   private static final double    KB = Math.pow(2, 10);
   private static final double    MB = Math.pow(2, 20);
@@ -102,7 +104,7 @@ public class FileDescriptor extends DetailObject implements Serializable {
   
   public long getChildFileSize() {
     
-    if (isDirectory()) {
+    if (this.type != null && this.type.equals("dir")) {
       long total = 0;
       for(Iterator i = children.iterator(); i.hasNext();) {
         FileDescriptor fd = (FileDescriptor)i.next();
@@ -118,7 +120,7 @@ public class FileDescriptor extends DetailObject implements Serializable {
   
   public long getFileSize() {
     
-    if (isDirectory()) {
+    if (type != null && type.equals("dir")) {
       long theFileSize = 0;
       theFileSize = this.getChildFileSize();
       return theFileSize;
@@ -235,33 +237,33 @@ public class FileDescriptor extends DetailObject implements Serializable {
     this.flowCellIndicator = flowCellIndicator;
   }
   
-  private Boolean isDirectory() {
-    return (this.type != null && this.type.equals("dir"));
-  }
-  
   public String getViewURL() {
     String viewURL = "";
-    String dirParm = this.getDirectoryName() != null && !this.getDirectoryName().equals("") ? "&dir=" + this.getDirectoryName() : "";
-    dirParm.replace("/", "&#47;");
-    if (!isDirectory()) {
-      Boolean found = false;
-      for(String ext : Constants.FILE_EXTENSIONS_FOR_VIEW) {
-        if (this.fileName.toLowerCase().endsWith(ext)) {
-          found = true;
-          break;
-        }
+    // Only allow viewing on supported browser mime types
+    // TODO:  Use standard way of supported mime types instead of hardcoded list
+    if (fileName.toLowerCase().endsWith(".pdf") ||
+        fileName.toLowerCase().endsWith(".jpg") ||
+        fileName.toLowerCase().endsWith(".png") ||
+        fileName.toLowerCase().endsWith(".gif") ||
+        fileName.toLowerCase().endsWith(".rtf") ||
+        fileName.toLowerCase().endsWith(".txt") ||
+        fileName.toLowerCase().endsWith(".html") ||
+        fileName.toLowerCase().endsWith(".htm")) {
+      // Only allow viewing for files under 50 MB
+      if (this.fileSize < Math.pow(2, 20) * 50) {
+        String dirParm = this.getDirectoryName() != null && !this.getDirectoryName().equals("") ? "&dir=" + this.getDirectoryName() : "";
+        dirParm.replace("/", "&#47;");
+        viewURL = Constants.DOWNLOAD_SINGLE_FILE_SERVLET + "?requestNumber=" + requestNumber + "&fileName=" + this.getDisplayName() + "&view=Y" + dirParm;    
       }
-      if (found) {
-        Double maxSize =  Math.pow(2, 20) * 50;
-        try {
-          maxSize = Math.pow(2, 20) * Double.parseDouble(PropertyDictionaryHelper.getInstance(null).getProperty(PropertyDictionary.FILE_MAX_VIEWABLE_SIZE));
-        } catch(Exception ex) {
-        }
-          
-        if (this.fileSize < maxSize) {   // Only allow viewing for files under specified max MB     
-            viewURL = Constants.DOWNLOAD_SINGLE_FILE_SERVLET + "?requestNumber=" + requestNumber + "&fileName=" + this.getDisplayName() + "&view=Y" + dirParm;    
-        }
-      }
+      //Browsers don't know how to open the following file types so download them instead of showing in browser
+    } else if(fileName.toLowerCase().endsWith(".csv") ||
+        fileName.toLowerCase().endsWith(".ppt") ||
+        fileName.toLowerCase().endsWith(".pptx") ||
+        fileName.toLowerCase().endsWith(".xls")) {
+      String dirParm = this.getDirectoryName() != null && !this.getDirectoryName().equals("") ? "&dir=" + this.getDirectoryName() : "";
+      dirParm.replace("/", "&#47;");
+      viewURL = Constants.DOWNLOAD_SINGLE_FILE_SERVLET + "?requestNumber=" + requestNumber + "&fileName=" + this.getDisplayName() + "&view=N" + dirParm;
+
     }
     return viewURL;
   }

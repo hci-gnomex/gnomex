@@ -250,12 +250,7 @@ CREATE TABLE `gnomex`.`AppUser` (
   `codeUserPermissionKind` VARCHAR(10) NULL,
   `userNameExternal` VARCHAR(100) NULL,
   `passwordExternal` VARCHAR(100) NULL,
-   `ucscUrl` VARCHAR(250) null,
-   `salt` VARCHAR(300) null,
-   `guid` VARCHAR(100) null,
-   `guidExpiration` DATETIME null,
-   `passwordExpired` CHAR(1) null,
-   `confirmEmailGuid` VARCHAR(100) null,
+   `ucscUrl` VARCHAR(200) null,
   PRIMARY KEY (`idAppUser`)
 )
 ENGINE = INNODB;
@@ -321,7 +316,7 @@ CREATE TABLE `gnomex`.`BillingAccount` (
   `idCreditCardCompany` INT(10) NULL,
   `isPO` CHAR(1) NULL,
   `isCreditCard` CHAR(1) NULL,
-  `zipCode` VARCHAR(20) NULL,
+  `zipCode` CHAR(20) NULL,
   `isApproved` CHAR(1) NULL,
   `approvedDate` DATETIME NULL,
   `createDate` DATETIME NULL,
@@ -337,8 +332,6 @@ CREATE TABLE `gnomex`.`BillingAccount` (
   `custom1` VARCHAR(50) NULL,
   `custom2` VARCHAR(50) NULL,
   `custom3` VARCHAR(50) NULL,
-  `approverEmail` VARCHAR(200) NULL,
-  `idApprover` INT(10) NULL,
     PRIMARY KEY (`idBillingAccount`),
   CONSTRAINT `FK_BillingAccount_Lab` FOREIGN KEY `FK_BillingAccount_Lab` (`idLab`)
     REFERENCES `gnomex`.`Lab` (`idLab`)
@@ -354,10 +347,6 @@ CREATE TABLE `gnomex`.`BillingAccount` (
     ON UPDATE NO ACTION,    
   CONSTRAINT `FK_BillingAccount_CoreFacility` FOREIGN KEY `FK_BillingAccount_CoreFacility` (`idCoreFacility`)
     REFERENCES `gnomex`.`CoreFacility` (`idCoreFacility`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `FK_BillingAccount_Approver` FOREIGN KEY `FK_BillingAccount_Approver`(`idApprover`)
-    REFERENCES `gnomex`.`AppUser` (`idAppUser`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
 )
@@ -450,8 +439,8 @@ CREATE TABLE `gnomex`.`BillingItem` (
   `category` VARCHAR(200) NULL,
   `description` VARCHAR(500) NULL,
   `qty` INT(10) NULL,
-  `unitPrice` DECIMAL(7, 2) NULL,
-  `invoicePrice` DECIMAL(9, 2) NULL,
+  `unitPrice` DECIMAL(6, 2) NULL,
+  `invoicePrice` DECIMAL(8, 2) NULL,
   `idBillingPeriod` INT(10) NULL,
   `codeBillingStatus` VARCHAR(10) NULL,
   `idPriceCategory` INT(10) NULL,
@@ -466,7 +455,6 @@ CREATE TABLE `gnomex`.`BillingItem` (
   `idCoreFacility` INT(10) NULL,
   `idInvoice` INT(10) NULL,
   `idDiskUsageByMonth` INT(10) NULL,
-  `idProductLineItem` INT(10) NULL,
   PRIMARY KEY (`idBillingItem`),
   CONSTRAINT `FK_BillingItem_PriceCategory` FOREIGN KEY  (`idPriceCategory`)
     REFERENCES `gnomex`.`PriceCategory` (`idPriceCategory`)
@@ -507,16 +495,7 @@ CREATE TABLE `gnomex`.`BillingItem` (
   CONSTRAINT `FK_BillingItem_Invoice` FOREIGN KEY  (`idInvoice`)
     REFERENCES `gnomex`.`Invoice` (`idInvoice`)
     ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `FK_BillingItem_DiskUsageByMonth` FOREIGN KEY `FK_BillingItem_DiskUsageByMonth` (`idDiskUsageByMonth`)
-    REFERENCES `gnomex`.`DiskUsageByMonth` (`idDiskUsageByMonth`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `FK_BillingItem_ProductLineItem` FOREIGN KEY `FK_BillingItem_ProductLineItem` (`idProductLineItem`)
-    REFERENCES `gnomex`.`ProductLineItem` (`idProductLineItem`)
-    ON DELETE NO ACTION
     ON UPDATE NO ACTION
-    
 )
 ENGINE = INNODB;
 
@@ -624,7 +603,7 @@ DROP TABLE IF EXISTS `gnomex`.`PriceCategory`;
 CREATE TABLE `gnomex`.`PriceCategory` (
   `idPriceCategory` INT(10) NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(200) NOT NULL,
-  `description` VARCHAR(5000) NULL,
+  `description` VARCHAR(500) NULL,
   `codeBillingChargeKind` VARCHAR(10) NULL,
   `pluginClassName` VARCHAR(500) NULL,
   `dictionaryClassNameFilter1` VARCHAR(500) NULL,
@@ -644,9 +623,9 @@ CREATE TABLE `gnomex`.`Price` (
   `idPrice` INT(10) NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(200) NULL,
   `description` VARCHAR(500) NULL,
-  `unitPrice` DECIMAL(7, 2) NOT NULL DEFAULT 0,
-  `unitPriceExternalAcademic` DECIMAL(7, 2) NOT NULL DEFAULT 0,
-  `unitPriceExternalCommercial` DECIMAL(7, 2) NOT NULL DEFAULT 0,
+  `unitPrice` DECIMAL(6, 2) NOT NULL DEFAULT 0,
+  `unitPriceExternalAcademic` DECIMAL(6, 2) NOT NULL DEFAULT 0,
+  `unitPriceExternalCommercial` DECIMAL(6, 2) NOT NULL DEFAULT 0,
   `idPriceCategory` INT(10) NULL,
   `isActive` CHAR(1) NULL,
   PRIMARY KEY (`idPrice`),
@@ -673,166 +652,6 @@ CREATE TABLE `gnomex`.`PriceCriteria` (
 ENGINE = INNODB;
 
 
-    
-DROP TABLE IF EXISTS `gnomex`.`ProductType`;
-CREATE TABLE `gnomex`.`ProductType` (
-  `codeProductType` VARCHAR(10) NOT NULL,
-  `description` VARCHAR(5000) NULL,
-  `idCoreFacility` INT(10) NULL,
-  `idVendor` INT(10) NULL,
-  `idPriceCategory` INT(10) NULL,
-  PRIMARY KEY (`codeProductType`),
-  CONSTRAINT `FK_ProductType_CoreFacility` FOREIGN KEY `FK_ProductType_CoreFacility` (`idCoreFacility`)
-    REFERENCES `gnomex`.`CoreFacility` (`idCoreFacility`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `FK_ProductType_Vendor` FOREIGN KEY `FK_ProductType_Vendor` (`idVendor`)
-    REFERENCES `gnomex`.`Vendor` (`idVendor`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `FK_ProductType_PriceCategory` FOREIGN KEY `FK_ProductType_PriceCategory` (`idPriceCategory`)
-    REFERENCES `gnomex`.`PriceCategory` (`idPriceCategory`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION
-)
-ENGINE = INNODB;
-
-
-DROP TABLE IF EXISTS `gnomex`.`ProductOrderStatus`;
-CREATE TABLE `gnomex`.`ProductOrderStatus` (
-  `codeProductOrderStatus` VARCHAR(10) NOT NULL,
-  `productOrderStatus` VARCHAR(50) NOT NULL,
-  `isActive` CHAR(1) NULL,
-  PRIMARY KEY (`codeProductOrderStatus`)
-)
-ENGINE = INNODB;
-
-    
-DROP TABLE IF EXISTS `gnomex`.`Product`;
-CREATE TABLE `gnomex`.`Product` (
-  `idProduct` INT(10) NOT NULL AUTO_INCREMENT,
-  `name` VARCHAR(200) NULL,
-  `codeProductType` VARCHAR(10) NULL,
-  `idPrice` INT(10) NULL,
-  `orderQty` INT(10) NULL,
-  `useQty` INT(10) NULL,
-  `catalogNumber` VARCHAR(100) NULL,
-  `isActive` CHAR(1) NULL,
-  PRIMARY KEY (`idProduct`),
-  CONSTRAINT `FK_Product_Price` FOREIGN KEY `FK_Product_Price` (`idPrice`)
-    REFERENCES `gnomex`.`Price` (`idPrice`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `FK_Product_ProductType` FOREIGN KEY `FK_Product_ProductType` (`codeProductType`)
-    REFERENCES `gnomex`.`ProductType` (`codeProductType`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION
-)
-ENGINE = INNODB;
-
-
-DROP TABLE IF EXISTS `gnomex`.`ProductOrder`;
-CREATE TABLE `gnomex`.`ProductOrder` (
-  `idProductOrder` INT(10) NOT NULL AUTO_INCREMENT,
-  `idAppUser` INT(10) NULL,
-  `idLab` INT(10) NULL,
-  `idCoreFacility` INT(10) NULL,
-  `submitDate` DATETIME NULL,
-  `codeProductType` VARCHAR(10) NULL,
-  `quoteNumber` VARCHAR(50) NULL,
-  `quoteReceivedDate` DATETIME NULL,
-  `uuid` VARCHAR(36) NULL,
-  `idBillingAccount` INT(10) NULL,
-  `productOrderNumber` VARCHAR(10) NULL,  
-  PRIMARY KEY (`idProductOrder`),
-  CONSTRAINT `FK_ProductOrder_AppUser` FOREIGN KEY `FK_ProductOrder_AppUser` (`idAppUser`)
-    REFERENCES `gnomex`.`AppUser` (`idAppUser`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `FK_ProductOrder_CoreFacility` FOREIGN KEY `FK_ProductOrder_CoreFacility` (`idCoreFacility`)
-    REFERENCES `gnomex`.`CoreFacility` (`idCoreFacility`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `FK_ProductOrder_Lab` FOREIGN KEY `FK_ProductOrder_Lab` (`idLab`)
-    REFERENCES `gnomex`.`Lab` (`idLab`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `FK_ProductOrder_ProductType` FOREIGN KEY `FK_ProductOrder_ProductType` (`codeProductType`)
-    REFERENCES `gnomex`.`ProductType` (`codeProductType`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION
-)
-ENGINE = INNODB;
-
-
-DROP TABLE IF EXISTS `gnomex`.`ProductLedger`;
-CREATE TABLE `gnomex`.`ProductLedger` (
-  `idProductLedger` INT(10) NOT NULL AUTO_INCREMENT,
-  `idLab` INT(10) NULL,
-  `idProduct` INT(10) NULL,
-  `qty` INT(10) NULL,
-  `comment` VARCHAR(5000) NULL,
-  `timeStame` DATETIME NULL,
-  `idProductOrder` INT(10) NULL,
-  `idRequest` INT(10) NULL,
-  PRIMARY KEY (`idProductLedger`),
-  CONSTRAINT `FK_ProductLedger_Lab` FOREIGN KEY `FK_ProductLedger_Lab` (`idLab`)
-    REFERENCES `gnomex`.`Lab` (`idLab`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `FK_ProductLedger_Product` FOREIGN KEY `FK_ProductLedger_Product` (`idProduct`)
-    REFERENCES `gnomex`.`Product` (`idProduct`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `FK_ProductLedger_ProductOrder` FOREIGN KEY `FK_ProductLedger_ProductOrder` (`idProductOrder`)
-    REFERENCES `gnomex`.`ProductOrder` (`idProductOrder`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION
-)
-ENGINE = INNODB;
-
-
-DROP TABLE IF EXISTS `gnomex`.`ProductLineItem`;
-CREATE TABLE `gnomex`.`ProductLineItem` (
-  `idProductLineItem` INT(10) NOT NULL AUTO_INCREMENT,
-  `idProductOrder` INT(10) NULL,
-  `idProduct` INT(10) NULL,
-  `qty` INT(10) NULL,
-  `unitPrice` DECIMAL(7, 2) NULL,
-  `codeProductOrderStatus` VARCHAR(10) NULL,
-  PRIMARY KEY (`idProductLineItem`),
-  CONSTRAINT `FK_ProductLineItem_Product` FOREIGN KEY `FK_ProductLineItem_Product` (`idProduct`)
-    REFERENCES `gnomex`.`Product` (`idProduct`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `FK_ProductLineItem_ProductOrder` FOREIGN KEY `FK_ProductLineItem_ProductOrder` (`idProductOrder`)
-    REFERENCES `gnomex`.`ProductOrder` (`idProductOrder`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `FK_ProductOrder_ProductOrderStatus` FOREIGN KEY `FK_ProductOrder_ProductOrderStatus` (`codeProductOrderStatus`)
-    REFERENCES `gnomex`.`ProductOrderStatus` (`codeProductOrderStatus`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION
-)
-ENGINE = INNODB;
-
-
-DROP TABLE IF EXISTS `gnomex`.`ProductOrderFile`;
-CREATE TABLE `gnomex`.`ProductOrderFile` (
-  `idProductOrderFile` INT(10) NOT NULL AUTO_INCREMENT,
-  `idProductOrder` INT(10) NULL,
-  `fileName` VARCHAR(2000) NULL,
-  `fileSize` DECIMAL(14, 0) NULL,
-  `createDate` DATE NULL,
-  PRIMARY KEY (`idProductOrderFile`),
-  CONSTRAINT `FK_ProductOrderFile_ProductOrder` FOREIGN KEY `FK_ProductOrderFile_ProductOrder` (`idProductOrder`)
-    REFERENCES `gnomex`.`ProductOrder` (`idProductOrder`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION
-)
-ENGINE = INNODB;
-
-
 DROP TABLE IF EXISTS `gnomex`.`BioanalyzerChipType`;
 CREATE TABLE `gnomex`.`BioanalyzerChipType` (
   `codeBioanalyzerChipType` VARCHAR(10) NOT NULL,
@@ -843,8 +662,6 @@ CREATE TABLE `gnomex`.`BioanalyzerChipType` (
   `sampleWellsPerChip` INT(10) NULL,
   `isActive` CHAR(1) NULL,
   `codeConcentrationUnit` VARCHAR(10) NULL,
-  `codeApplication` VARCHAR(10) null,
-  `protocolDescription` LONGTEXT null,
   PRIMARY KEY (`codeBioanalyzerChipType`)
 )
 ENGINE = INNODB;
@@ -901,15 +718,6 @@ CREATE TABLE `gnomex`.`CoreFacility` (
   `showProjectAnnotations` CHAR(1) NOT NULL DEFAULT 'Y',
   `description` VARCHAR(10000) NULL,
   `acceptOnlineWorkAuth` CHAR(1) NOT NULL DEFAULT 'Y',
-  `shortDescription` VARCHAR(1000) NULL,
-  `contactName` varchar(200) NULL,
-  `contactEmail` varchar(200) NULL,
-  `contactPhone` varchar(200) NULL,
-  `sortOrder` INT(10),
-  `contactImage` varchar(200) NULL,
-  `labPhone` varchar(200) NULL,
-  `contactRoom` varchar(200) NULL,
-  `labRoom` varchar(200) NULL,
   PRIMARY KEY (`idCoreFacility`)
 )
 ENGINE = INNODB;
@@ -1039,7 +847,6 @@ CREATE TABLE `gnomex`.`FlowCell` (
   `barcode` VARCHAR(100) NULL,
   `codeSequencingPlatform` VARCHAR(10) NULL,
  `idCoreFacility` INT(10) null,
- `idNumberSequencingCyclesAllowed` INT(10) null,
   PRIMARY KEY (`idFlowCell`),
   CONSTRAINT `FK_FlowCell_NumberSequencingCycles` FOREIGN KEY `FK_FlowCell_NumberSequencingCycles` (`idNumberSequencingCycles`)
     REFERENCES `gnomex`.`NumberSequencingCycles` (`idNumberSequencingCycles`)
@@ -1055,10 +862,6 @@ CREATE TABLE `gnomex`.`FlowCell` (
     ON UPDATE NO ACTION,
   CONSTRAINT `FK_FlowCell_CoreFacility` FOREIGN KEY `FK_FlowCell_CoreFacility` (`idCoreFacility`)
     REFERENCES `gnomex`.`CoreFacility` (`idCoreFacility`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `FK_FlowCell_NumberSequencingCyclesAllowed` FOREIGN KEY `FK_FlowCell_NumberSequencingCyclesAllowed` (`idNumberSequencingCyclesAllowed`)
-    REFERENCES `gnomex`.`NumberSequencingCyclesAllowed` (`idNumberSequencingCyclesAllowed`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
 )
@@ -1283,12 +1086,11 @@ CREATE TABLE `gnomex`.`Lab` (
   `isExternalPricing` VARCHAR(1) NULL,
   `isExternalPricingCommercial` CHAR(1) NULL,
   `isActive` VARCHAR(1) NULL,
-  `excludeUsage` CHAR(1) NULL,
+  `excludeUsage` VARCHAR(1) NULL,
   `billingContactEmail` VARCHAR(200) NULL,
   `version` BIGINT(20) NOT NULL DEFAULT 0,
   `contactAddress2` varchar(200) NULL,
   `contactCountry` varchar(200) NULL,
-  `billingContactPhone` varchar(50) NULL,
   PRIMARY KEY (`idLab`),
   CONSTRAINT `FK_Lab_State` FOREIGN KEY `FK_Lab_State` (`contactCodeState`)
     REFERENCES `gnomex`.`State` (`codeState`)
@@ -1464,8 +1266,6 @@ CREATE TABLE `gnomex`.`Application` (
   `codeApplicationType` varchar(10) NULL,
   `onlyForLabPrepped` char(1) not null default 'N',
   `samplesPerBatch` INT(10) NULL,
-  `idCoreFacility` INT(10) NULL,
-  `hasChipTypes` CHAR(1) null,
   PRIMARY KEY (`codeApplication`),
   CONSTRAINT `FK_Application_ApplicationTheme` FOREIGN KEY `FK_Application_ApplicationTheme` (`idApplicationTheme`)
     REFERENCES `gnomex`.`ApplicationTheme` (`idApplicationTheme`)
@@ -1474,11 +1274,6 @@ CREATE TABLE `gnomex`.`Application` (
   CONSTRAINT FK_Application_ApplicationType 
     FOREIGN KEY FK_Application_ApplicationType (codeApplicationType)
     REFERENCES gnomex.ApplicationType (codeApplicationType)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT FK_Application_CoreFacility 
-    FOREIGN KEY FK_Application_CoreFacility (idCoreFacility)
-    REFERENCES gnomex.CoreFacility (idCoreFacility)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
 )
@@ -1510,9 +1305,6 @@ CREATE TABLE `gnomex`.`NumberSequencingCyclesAllowed` (
    idSeqRunType INT(10) NULL,
    name varchar(100)  NOT NULL,
   `isCustom` CHAR(1) NOT NULL DEFAULT 'N',
-   sortOrder INT(10) null,
-   isActive char(1) not null default 'Y',
-   protocolDescription LONGTEXT NULL,
   PRIMARY KEY (`idNumberSequencingCyclesAllowed`),
   CONSTRAINT `FK_NumberSequencingCyclesAllowed_RequestCategory` FOREIGN KEY `FK_NumberSequencingCyclesAllowed_RequestCategory` (`codeRequestCategory`)
     REFERENCES `gnomex`.`RequestCategory` (`codeRequestCategory`)
@@ -1713,7 +1505,7 @@ DROP TABLE IF EXISTS `gnomex`.`PropertyDictionary`;
 CREATE TABLE `gnomex`.`PropertyDictionary` (
   `idPropertyDictionary` INT(10) NOT NULL AUTO_INCREMENT,
   `propertyName` VARCHAR(200) NULL,
-  `propertyValue` VARCHAR(20000) NULL,
+  `propertyValue` VARCHAR(2000) NULL,
   `propertyDescription` VARCHAR(2000) NULL,
   `forServerOnly` CHAR(1) NOT NULL DEFAULT 'N',
   `idCoreFacility` INT(10) NULL,
@@ -1793,17 +1585,18 @@ CREATE TABLE `gnomex`.`Request` (
   `numberIScanChips` INT(10) NULL,
   `idIScanChip` INT(10) NULL,
   `coreToExtractDNA` CHAR(1) NULL,
-  `applicationNotes` varchar(5000) null,
+  `applicationNotes` varchar(2000) null,
   `processingDate` DATETIME NULL,
+  `materialQuoteNumber` VARCHAR(50) NULL,
+  `quoteReceivedDate` DATETIME NULL,
+  `uuid` VARCHAR(36) NULL,
   `codeDNAPrepType` VARCHAR(10) NULL,
   `bioinformaticsAssist` CHAR(1) NULL,
   `hasPrePooledLibraries` CHAR(1) NULL,
   `numPrePooledTubes` INT(10) null,
+  `trimAdapter` CHAR(1) null,
   `codeRNAPrepType` varchar(10) NULL,
   `includeBisulfideConversion` CHAR(1) NULL,
-  `includeQubitConcentration` CHAR(1) NULL,
-  `alignToGenomeBuild` CHAR(1) NULL,
-  `adminNotes` VARCHAR(5000) NULL,
   PRIMARY KEY (`idRequest`),
   CONSTRAINT `FK_Request_Project` FOREIGN KEY `FK_Request_Project` (`idProject`)
     REFERENCES `gnomex`.`Project` (`idProject`)
@@ -1885,12 +1678,12 @@ CREATE TABLE `gnomex`.`RequestCategory` (
   `sortOrder` INT(10) NULL,
   `idOrganism` INT(10) NULL,
   `idCoreFacility` INT(10) NULL,
+  `isSampleBarcodingOptional` CHAR(1) NULL,
   `isInternal` CHAR(1) NULL,
   `isExternal` CHAR(1) NULL,
   `refrainFromAutoDelete` CHAR(1) NULL,
   `isClinicalResearch` CHAR(1) NULL,
   `isOwnerOnly` CHAR(1) NULL,
-  `sampleBatchSize` INT(10) NULL,
   PRIMARY KEY (`codeRequestCategory`),
   CONSTRAINT `FK_RequestCategory_Vendor` FOREIGN KEY `FK_RequestCategory_Vendor` (`idVendor`)
     REFERENCES `gnomex`.`Vendor` (`idVendor`)
@@ -2047,9 +1840,6 @@ CREATE TABLE `gnomex`.`Sample` (
   `meanLibSizeActual` INT(10) NULL,
   `idOligoBarcodeB` INT(10) NULL,
   `barcodeSequenceB` VARCHAR(20) NULL, 
-  `qubitConcentration` DECIMAL(8, 3) NULL,
-  `groupName` VARCHAR(200) NULL,
-  `qcCodeApplication` VARCHAR(10) NULL,
   PRIMARY KEY (`idSample`),
   CONSTRAINT `FK_Sample_Organism` FOREIGN KEY `FK_Sample_Organism` (`idOrganism`)
     REFERENCES `gnomex`.`Organism` (`idOrganism`)
@@ -2111,9 +1901,6 @@ CREATE TABLE `gnomex`.`Property` (
   `forAnalysis` CHAR(1) NULL default 'N',
   `forDataTrack` CHAR(1) NULL default 'N',
   codePropertyType VARCHAR(10) not null,
-  `sortOrder` INT(10) NULL,
-  `idCoreFacility` INT(10) NULL,
-  `forRequest` CHAR(1) NULL default 'N',
   PRIMARY KEY (`idProperty`),
   CONSTRAINT `FK_Property_AppUser` FOREIGN KEY `FK_Property_AppUser` (`idAppUser`)
     REFERENCES `gnomex`.`AppUser` (`idAppUser`)
@@ -2121,10 +1908,6 @@ CREATE TABLE `gnomex`.`Property` (
     ON UPDATE NO ACTION,
   CONSTRAINT FK_Property_PropertyType FOREIGN KEY FK_Property_PropertyType (codePropertyType)
     REFERENCES gnomex.PropertyType (codePropertyType)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,        
-  CONSTRAINT FK_Property_CoreFacility FOREIGN KEY FK_Property_CoreFacility (idCoreFacility)
-    REFERENCES gnomex.CoreFacility (idCoreFacility)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION        
 )
@@ -2164,18 +1947,17 @@ CREATE TABLE gnomex.PropertyOrganism (
     ON UPDATE NO ACTION
 ) ENGINE = INNODB;
 
--- Add table PropertyAppUser
-DROP TABLE IF EXISTS `gnomex`.`PropertyAppUser`;
-CREATE TABLE gnomex.PropertyAppUser ( 
-     idProperty	int(10),
-     idAppUser  INT(10),
-    PRIMARY KEY (idProperty, idAppUser),
-    CONSTRAINT FK_PropertyAppUser_Property FOREIGN KEY FK_PropertyAppUser_Property (idProperty)
+DROP TABLE IF EXISTS `gnomex`.`PropertyPlatform`;
+CREATE TABLE gnomex.PropertyPlatform ( 
+     idProperty	INT(10),
+     codeRequestCategory    VARCHAR(10),
+     PRIMARY KEY (idProperty, codeRequestCategory),
+    CONSTRAINT FK_PropertyPlatform_Property FOREIGN KEY FK_PropertyPlatform_Property (idProperty)
     REFERENCES gnomex.Property (idProperty)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-    CONSTRAINT FK_PropertyAppUser_AppUser FOREIGN KEY FK_PropertyAppUser_AppUser (idAppUser)
-    REFERENCES gnomex.AppUser (idAppUser)
+    CONSTRAINT FK_PropertyPlatform_RequestCategory FOREIGN KEY FK_PropertyPlatform_RequestCategory (codeRequestCategory)
+    REFERENCES gnomex.RequestCategory (codeRequestCategory)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
 ) ENGINE = INNODB;
@@ -2225,7 +2007,6 @@ CREATE TABLE `gnomex`.`PropertyEntry` (
   `otherLabel` VARCHAR(100) NULL,
   idDataTrack INT(10) NULL,
   idAnalysis INT(10) NULL,
-  idRequest INT(10) NULL,
   PRIMARY KEY (`idPropertyEntry`),
   CONSTRAINT `FK_PropertyEntry_Sample` FOREIGN KEY `FK_PropertyEntry_Sample` (`idSample`)
     REFERENCES `gnomex`.`Sample` (`idSample`)
@@ -2241,10 +2022,6 @@ CREATE TABLE `gnomex`.`PropertyEntry` (
     ON UPDATE NO ACTION,
   CONSTRAINT `FK_PropertyEntry_Property` FOREIGN KEY `FK_PropertyEntry_Property` (`idProperty`)
     REFERENCES `gnomex`.`Property` (`idProperty`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `FK_PropertyEntry_Request` FOREIGN KEY `FK_PropertyEntry_Request`(`idRequest`)
-    REFERENCES `gnomex`.`Request` (`idRequest`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
 )
@@ -2333,15 +2110,9 @@ CREATE TABLE `gnomex`.`SampleType` (
   `sortOrder` INT(10) NULL,
   `isActive` CHAR(1) NULL,
   `codeNucleotideType` VARCHAR(50) NULL,
-  `notes` VARCHAR(5000) NULL,
-  `idCoreFacility` INT(10) NULL,
   PRIMARY KEY (`idSampleType`),
   CONSTRAINT `FK_SampleType_NucleotideType` FOREIGN KEY `FK_SampleType_NucleotideType` (`codeNucleotideType`)
     REFERENCES `gnomex`.`NucleotideType` (`codeNucleotideType`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `FK_SampleType_CoreFacility` FOREIGN KEY `FK_SampleType_CoreFacility` (`idCoreFacility`)
-    REFERENCES `gnomex`.`CoreFacility` (`idCoreFacility`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
 )
@@ -2350,7 +2121,24 @@ ENGINE = INNODB;
 DROP TABLE IF EXISTS `gnomex`.`NucleotideType`;
 create table gnomex.NucleotideType (
   codeNucleotideType varchar(50), 
-  PRIMARY KEY(codeNucleotideType)
+  PRIMARY KEY(codeNucleotideType)) ;
+
+DROP TABLE IF EXISTS `gnomex`.`SampleTypeApplication`;
+CREATE TABLE `gnomex`.`SampleTypeApplication` (
+  `idSampleTypeApplication` INT(10) NOT NULL AUTO_INCREMENT,
+  `idSampleType` INT(10) NULL,
+  `codeApplication` VARCHAR(10) NULL,
+  `isActive` CHAR(1) NULL,
+  PRIMARY KEY (`idSampleTypeApplication`),
+  UNIQUE INDEX `IX_ApplicationSampleType` (`idSampleType`, `codeApplication`),
+  CONSTRAINT `FK_ApplicationSampleType_SampleType` FOREIGN KEY `FK_ApplicationSampleType_SampleType` (`idSampleType`)
+    REFERENCES `gnomex`.`SampleType` (`idSampleType`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `FK_ApplicationSampleType_Application` FOREIGN KEY `FK_ApplicationSampleType_Application` (`codeApplication`)
+    REFERENCES `gnomex`.`Application` (`codeApplication`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
 )
 ENGINE = INNODB;
 
@@ -2442,7 +2230,6 @@ CREATE TABLE `gnomex`.`SequenceLane` (
   `idFlowCellChannel` INT(10) NULL,
   `readCount` INT(10) NULL,
   `pipelineVersion` VARCHAR(10) NULL,
-  `idNumberSequencingCyclesAllowed` INT(10) NULL,
   PRIMARY KEY (`idSequenceLane`),
   CONSTRAINT `FK_SequenceLane_GenomeBuild` FOREIGN KEY `FK_SequenceLane_GenomeBuild` (`idGenomeBuildAlignTo`)
     REFERENCES `gnomex`.`GenomeBuild` (`idGenomeBuild`)
@@ -2466,10 +2253,6 @@ CREATE TABLE `gnomex`.`SequenceLane` (
     ON UPDATE NO ACTION,
   CONSTRAINT `FK_SequenceLane_SeqRunType` FOREIGN KEY `FK_SequenceLane_SeqRunType` (`idSeqRunType`)
     REFERENCES `gnomex`.`SeqRunType` (`idSeqRunType`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `FK_SequenceLane_NumberSequencingCyclesAllowed` FOREIGN KEY `FK_SequenceLane_NumberSequencingCyclesAllowed` (`idNumberSequencingCyclesAllowed`)
-    REFERENCES `gnomex`.`NumberSequencingCyclesAllowed` (`idNumberSequencingCyclesAllowed`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
 )
@@ -2615,6 +2398,45 @@ CREATE TABLE `gnomex`.`Step` (
   `isActive` CHAR(1) NULL,
   `sortOrder` INT(10) NULL,
   PRIMARY KEY (`codeStep`)
+)
+ENGINE = INNODB;
+
+DROP TABLE IF EXISTS `gnomex`.`SampleTypeApplication`;
+CREATE TABLE `gnomex`.`SampleTypeApplication` (
+  `idSampleTypeApplication` INT(10) NOT NULL AUTO_INCREMENT,
+  `idSampleType` INT(10) NULL,
+  `codeApplication` VARCHAR(10) NULL,
+  `idLabelingProtocolDefault` INT(10) NULL,
+  `idHybProtocolDefault` INT(10) NULL,
+  `idScanProtocolDefault` INT(10) NULL,
+  `idFeatureExtractionProtocolDefault` INT(10) NULL,
+  `isActive` CHAR(1) NULL,
+  PRIMARY KEY (`idSampleTypeApplication`),
+  UNIQUE INDEX `IX_ApplicationSampleType` (`idSampleType`, `codeApplication`),
+  CONSTRAINT `FK_ApplicationSampleType_SampleType` FOREIGN KEY `FK_ApplicationSampleType_SampleType` (`idSampleType`)
+    REFERENCES `gnomex`.`SampleType` (`idSampleType`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `FK_ApplicationSampleType_Application` FOREIGN KEY `FK_ApplicationSampleType_Application` (`codeApplication`)
+    REFERENCES `gnomex`.`Application` (`codeApplication`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `FK_SampleTypeApplication_HybProtocol` FOREIGN KEY `FK_SampleTypeApplication_HybProtocol` (`idHybProtocolDefault`)
+    REFERENCES `gnomex`.`HybProtocol` (`idHybProtocol`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `FK_SampleTypeApplication_LabelingProtocol` FOREIGN KEY `FK_SampleTypeApplication_LabelingProtocol` (`idLabelingProtocolDefault`)
+    REFERENCES `gnomex`.`LabelingProtocol` (`idLabelingProtocol`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `FK_SampleTypeApplication_ScanProtocol` FOREIGN KEY `FK_SampleTypeApplication_ScanProtocol` (`idScanProtocolDefault`)
+    REFERENCES `gnomex`.`ScanProtocol` (`idScanProtocol`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `FK_SampleTypeApplication_FeatureExtractionProtocol` FOREIGN KEY `FK_SampleTypeApplication_FeatureExtractionProtocol` (`idFeatureExtractionProtocolDefault`)
+    REFERENCES `gnomex`.`FeatureExtractionProtocol` (`idFeatureExtractionProtocol`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
 )
 ENGINE = INNODB;
 
@@ -3171,59 +2993,6 @@ CREATE TABLE `gnomex`.`InternalAccountFieldsConfiguration` (
 )
 ENGINE = INNODB;
 
-DROP TABLE IF EXISTS `gnomex`.`NewsItem`;
-CREATE TABLE `gnomex`.`NewsItem` (
-	`idNewsItem` INT(10) NOT NULL AUTO_INCREMENT,
-	`idSubmitter` INT(10) NOT NULL,
-	`idCoreFacility` INT(10) NULL,
-	`title` VARCHAR(200) NOT NULL,
-	`message` VARCHAR(4000) NOT NULL,
-	`date` DATETIME NULL,
-	CONSTRAINT `FK_NewsItem_Submitter` FOREIGN KEY `FK_NewsItem_Submitter` (`idSubmitter`)
-       REFERENCES `gnomex`.`AppUser` (`idAppUser`)
-       ON DELETE NO ACTION
-       ON UPDATE NO ACTION,
-    PRIMARY KEY (`idNewsItem`)
-)
-ENGINE = INNODB;
-
-DROP TABLE IF EXISTS `gnomex`.`FAQ`;
-CREATE TABLE `gnomex`.`FAQ` (
-  `idFAQ` INT(10) NOT NULL AUTO_INCREMENT,
-  `title` VARCHAR(300) NOT NULL,
-  `url` VARCHAR(500) NOT NULL,
-  `idCoreFacility` INT(10) NULL,
-  PRIMARY KEY (`idFAQ`)
-)
-ENGINE = INNODB;
-
-DROP TABLE IF EXISTS `gnomex`.`Notification`;
-CREATE TABLE `gnomex`.`Notification` (
-	`idNotification` INT(10) NOT NULL AUTO_INCREMENT,
-	`idUserTarget` INT(10) NOT NULL,
-	`idLabTarget` INT(10) NULL,
-	`sourceType` VARCHAR(20) NOT NULL,
-	`message` VARCHAR(250) NULL,
-	`date` DATETIME NULL,
-	`expID` VARCHAR(25) NULL,
-	`type`	VARCHAR(25) NULL,
-	`fullNameUser`	VARCHAR(100) NULL,
-	`imageSource` VARCHAR(50),
-	`idCoreFacility` INT(10) NULL,	
-	PRIMARY KEY (`idNotification`)
-)
-ENGINE = INNODB;
-
-DROP TABLE IF EXISTS `gnomex`.`MetrixObject`;
-CREATE TABLE `gnomex`.`MetrixObject` (
-  `id` INT(10) NOT NULL AUTO_INCREMENT,
-  `run_id` VARCHAR(512) NULL,
-  `object_value` VARBINARY(8000),
-  `state` INT(10) NULL,
-  PRIMARY KEY (`id`)
-)
-ENGINE = INNODB;
-
 DROP TABLE IF EXISTS `gnomex`.`OtherAccountFieldsConfiguration`;
 CREATE TABLE `gnomex`.`OtherAccountFieldsConfiguration` (
   idOtherAccountFieldsConfiguration INT(10) NOT NULL AUTO_INCREMENT,
@@ -3234,15 +3003,6 @@ CREATE TABLE `gnomex`.`OtherAccountFieldsConfiguration` (
   UNIQUE KEY `UN_OtherAccountFieldsConfiguration` (fieldName)
 )
 ENGINE = INNODB;
-
-DROP TABLE IF EXISTS `gnomex`.`CoreFacilitySubmitter`;
-CREATE TABLE `gnomex`.`CoreFacilitySubmitter` (
-  `idCoreFacility` INT(10) NOT NULL,
-  `idAppUser` INT(10) NOT NULL
-)
-ENGINE = INNODB;
-
-
 
 DROP TABLE IF EXISTS `gnomex`.`PriceCategoryStep`;
 CREATE TABLE `gnomex`.`PriceCategoryStep` (
@@ -3327,19 +3087,6 @@ CREATE TABLE `gnomex`.`ContextSensitiveHelp` (
 )
 ENGINE = INNODB;
 
-DROP TABLE IF EXISTS `gnomex`.`AnnotationReportField`;
-CREATE TABLE `gnomex`.`AnnotationReportField` (
-  `idAnnotationReportField` INT(10) NOT NULL AUTO_INCREMENT, 
-  `source` VARCHAR(50) NULL,
-  `fieldName` VARCHAR(50) NULL,
-  `display` VARCHAR(50) NULL,
-  `isCustom` CHAR(1) NULL,
-  `sortOrder` INT(10) NULL,
-  `dictionaryLookUpTable` VARCHAR(100) NULL,
-  PRIMARY KEY (`idAnnotationReportField`)
-)
-ENGINE = INNODB;
-
 
 
 -- Procedure to modify columns in audit tables if they exist.
@@ -3360,22 +3107,6 @@ begin
 end;
 //
 
--- Procedure to drop column only if it exists
-drop procedure if exists DropColumnIfExists//
-create procedure DropColumnIfExists(
-  IN dbName tinytext,
-  IN tableName tinytext,
-  IN columnName tinyText)
-begin
-  IF EXISTS (SELECT * FROM information_schema.COLUMNS WHERE table_name=tableName and table_schema=dbName and column_name=columnName)
-  THEN
-    set @ddl=concat('alter table ', tableName, ' drop column ', columnName);
-    prepare stmt from @ddl;
-    execute stmt;
-  END IF;
-end;
-//
-
 -- Procuedure to save current application user for connection
 drop procedure if exists SetAppUser//
 CREATE PROCEDURE setAppUser( IN userName text)
@@ -3384,24 +3115,6 @@ BEGIN
 END;
 //
 
--- Procedure to update sequence lane letter and sequence lane number separator
-drop procedure if exists update_sequencelane//
-CREATE PROCEDURE update_sequencelane(
-  IN oldSLletter tinytext, 
-  IN oldSLnumbersep tinytext, 
-  IN newSLletter tinytext, 
-  IN newSLnumbersep tinytext)
-BEGIN
-  IF oldSLletter = '' OR oldSLnumbersep = '' OR newSLletter = '' OR newSLnumbersep = '' 
-  THEN
-    SELECT "update_sequencelane (old seq lane letter, old seq number separator, new seq lane letter, new seq number separator" as 'parameters'; 
-    SELECT "call update_sequencelane ('F','-','X','_');" as 'example usage';
-  ELSE
-    update sequencelane set number=REPLACE(number,oldSLletter,newSLletter);
-    update sequencelane set number=REPLACE(number,oldSLnumbersep,newSLnumbersep); 
-  END IF;
-END;
-//
 delimiter ';'
 
 -- ----------------------------------------------------------------------

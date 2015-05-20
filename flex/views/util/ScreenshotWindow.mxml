@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml"  
-				layout="vertical" title="Send Email to GNomEx Team"
-				width="800" 
+				layout="vertical" title="Send Issue to GNomEx Team"
+				width="800" height="600"
 				xmlns:util="views.util.*"
 				initialize="init()"				
 				defaultButton="{sendEmailButton}"
 				showCloseButton="true"  
 				close="{mx.managers.PopUpManager.removePopUp(this)}"
-				titleIcon="@Embed(source='../../assets/email_go.png')" height="650">
+				titleIcon="@Embed(source='../../assets/email_go.png')">
 	<mx:HTTPService
 		id="ReportIssueGetURLService"
 		url="ReportIssueServletGetURL.gx"
@@ -30,16 +30,17 @@
 	
 	<mx:Script>
 		<![CDATA[
-			import flash.net.FileReference;
-			
 			import views.util.UploadPostHelper;
+			
+			import flash.net.FileReference;
 			
 			import mx.controls.Alert;
 			import mx.events.ValidationResultEvent;
+			import mx.validators.*;
 			import mx.managers.PopUpManager;
 			import mx.rpc.events.FaultEvent;
 			import mx.rpc.events.ResultEvent;
-			import mx.validators.*;
+			import mx.controls.Alert;
 			
 			private var fileRef:FileReference = null;
 
@@ -78,7 +79,7 @@
 					parameters.body = feedbackTextArea.text;
 					parameters.IdAppUser = parentApplication.getIdAppUser();
 					parameters.AppUserName = parentApplication.getAppUserName();
-					parameters.UNID = parentApplication.getUID();			
+					parameters.UNID = parentApplication.getUNID();			
 		
 					
 					var urlRequest:URLRequest = new URLRequest();
@@ -120,43 +121,29 @@
 					Alert.show(event.fault.faultCode + "\n\n" + event.fault.faultString + "\n\n" + event.fault.faultDetail, title);
 				}
 			}
-			
-			private var thumbIsExpanded:Boolean = true;
-			private function swfLoaderClick():void {
-				if ( thumbIsExpanded ) {
-					hbox.height = 105;
-				} else {
-					hbox.height = 440;
-				}
-				this.validateSize(true);
-				thumbIsExpanded = !thumbIsExpanded;
-			}
 		]]>
 	</mx:Script>
 	<mx:EmailValidator id="fromAddressValidator" source="{fromAddress}" property="text" required="true" trigger="{sendEmailButton}" triggerEvent="click"/>
 	
-	<mx:VBox id="vbox" styleName="form" width="100%" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4" verticalGap="8" height="100%">								
-		<mx:HBox width="100%" verticalAlign="middle">
-			<mx:VBox verticalGap="0">
-				<mx:Label text="Please enter your feedback in the text box below." styleName="formLabel" />
-				<mx:Label text="A member of the GNomEx help team will respond right away." styleName="formLabel" />
-			</mx:VBox>
-			<mx:Spacer width="100%" />
-			<mx:Label id="userEmailAddressTextAreaLabel" text="Your email address:" styleName="formLabel" />
-			<mx:TextInput id="fromAddress" width="232" />
+	<mx:VBox id="vbox" styleName="form" width="100%" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4" verticalGap="8">								
+		<mx:HBox width="100%">
+			<mx:Label id="textAreaLabel" text="Please enter your feedback in the text box below" width="382" styleName="formLabel" />
+			<mx:Label id="userEmailAddressTextAreaLabel" text="Your email address:" width="130" styleName="formLabel" />
+			<mx:TextInput id="fromAddress" visible="true" width="232" includeInLayout="true" />
 		</mx:HBox>		
-		<util:TextAreaWorkaround id="feedbackTextArea" width="100%" height="100%"
+		<util:TextAreaWorkaround id="feedbackTextArea" width="100%" height="60"
 								 text='Enter feedback here'
 								 click="feedbackTextArea.text=='Enter feedback here'?feedbackTextArea.text='':''"
-								 focusOut="feedbackTextArea.text==''?feedbackTextArea.text='Enter feedback here':''" />							 
+								 focusOut="feedbackTextArea.text==''?feedbackTextArea.text='Enter feedback here':''"								 
+								 />							 
 	</mx:VBox >		
-	<mx:HBox id="hbox" height="440" width="100%" verticalAlign="bottom" >
-		<mx:SWFLoader id="swfLoader" height="100%" width="100%" horizontalAlign="center" verticalAlign="bottom"  smoothBitmapContent="true"
-					  click="swfLoaderClick()" toolTip="Screenshot to be sent to GNomEx help team. Click to expand or collapse." >
+	<mx:HBox id="vbox2" height="420" width="770" verticalAlign="middle" horizontalAlign="center">
+		<mx:SWFLoader id="swfLoader" height="99%" width="100%" horizontalAlign="middle" verticalAlign="middle">
 			<mx:filters>
 				<mx:DropShadowFilter />
 			</mx:filters>
 		</mx:SWFLoader>
+		
 	</mx:HBox>		
 	<mx:ControlBar   width="100%" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4" verticalAlign="middle" horizontalAlign="left">
 		<mx:Label text="All information will be encrypted to protect health information and proprietary research data."/>

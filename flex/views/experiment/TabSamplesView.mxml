@@ -13,6 +13,9 @@
 			import hci.flex.controls.DropdownLabel;
 			import hci.flex.controls.Label;
 			
+			import mx.collections.Grouping;
+			import mx.collections.GroupingCollection;
+			import mx.collections.GroupingField;
 			import mx.collections.IHierarchicalCollectionView;
 			import mx.collections.SortField;
 			import mx.collections.XMLListCollection;
@@ -22,10 +25,13 @@
 			import mx.events.CloseEvent;
 			import mx.events.FlexEvent;
 			import mx.events.ListEvent;
+			import mx.events.ValidationResultEvent;
 			import mx.managers.PopUpManager;
 			import mx.rpc.events.ResultEvent;
 			import mx.utils.ObjectUtil;
 			import mx.utils.StringUtil;
+			import mx.validators.NumberValidator;
+			import mx.validators.ValidationResult;
 			
 			import views.renderers.CheckBoxRenderer;
 			import views.renderers.ComboBox;
@@ -37,13 +43,13 @@
 			import views.util.AdvancedDataGridColumnWithType;
 			import views.util.AnnotationAdvancedDataGridColumn;
 			import views.util.CopySampleSheetColumnView;
-			import views.util.SampleConcentrationValidator;
 			import views.util.UploadSampleSheetInstructionsView;
 			import views.util.UploadSampleSheetView;
 			
 			
 			public  var DEFAULT_CONTROL_NAME:String	  = "Control";
 			
+			public var sampleGroupingCollection:GroupingCollection = null;
 			
 			[Bindable]
 			private var isExternal:Boolean = false;
@@ -129,25 +135,7 @@
 				return addAllAnnotations;
 			}
 			
-			override public function insertSample():Boolean {
-				var emptyNode:XML = null;
-				var isValid:Boolean = true;
-				var index:int = samplesGrid.selectedIndex;
-				
-				emptyNode = this.getEmptyCapSeqNode(index);
-				
-				if (emptyNode != null) {
-					parentDocument.samples.addItemAt(emptyNode, index);
-				}
-				
-				if ( parentDocument.samples.length > 96 && parentDocument.samples.length % 96 != 0 ) {
-					parentDocument.samples.removeItemAt(parentDocument.samples.length-1);
-				}
-				
-				samplesGrid.updateWellNames();
-				
-				return isValid;
-			}
+			
 			
 			override public function addSample():Boolean {
 				var emptyNode:XML = null;
@@ -155,7 +143,7 @@
 				var isValid:Boolean = true;
 				
 				if (currentState != null && (currentState.indexOf('QCSamples') >= 0)) {
-					if(parentDocument.isEditState() && parentDocument.request.samples.children().length() != 0){
+					if(parentDocument.isEditState()){
 						var otherSamplePrepMethod:String = parentDocument.request.samples.Sample[0].@otherSamplePrepMethod;
 						emptyNode = new XML("<Sample " +
 							" idSample='" + "Sample" + getNextSampleId() + "'" +
@@ -193,9 +181,9 @@
 							" idOligoBarcodeB = ''" +
 							" barcodeSequenceB = ''" +
 							" codeConcentrationUnit='ng/ul'" + 
-							" codeBioanalyzerChipType='" + (parentApplication.submitInternalExperiment() && parentDocument.sampleSetupView.getSelectedCodeBioanalyzerChipType() != null ? parentDocument.sampleSetupView.getSelectedCodeBioanalyzerChipType() : '') + "'" +
-							" idSampleType='" + (parentApplication.submitInternalExperiment() && parentDocument.sampleSetupView.sampleTypeRadioGroup.selectedValue != null ? parentDocument.sampleSetupView.sampleTypeRadioGroup.selectedValue : '')  + "'" +
-							" otherSamplePrepMethod=\"" + (parentApplication.submitInternalExperiment() && parentDocument.sampleSetupView.otherSamplePrepMethod.text.replace(/\"/g, "&quot;") != null ? parentDocument.sampleSetupView.otherSamplePrepMethod.text.replace(/\"/g, "&quot;") : '')  + "\"" +				
+							" codeBioanalyzerChipType='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.getSelectedCodeBioanalyzerChipType() : '') + "'" +
+							" idSampleType='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.sampleTypeRadioGroup.selectedValue : '')  + "'" +
+							" otherSamplePrepMethod=\"" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.otherSamplePrepMethod.text.replace(/\"/g, "&quot;") : '')  + "\"" +				
 							" treatment=''"  +				
 							"/>");
 						
@@ -278,7 +266,7 @@
 					
 				} else {
 					var xmlString:String = "";
-					if(parentDocument.isEditState() && parentDocument.request.samples.children().length() != 0){
+					if(parentDocument.isEditState()){
 						var otherSamplePrepMethodAffy:String = parentDocument.request.samples.Sample[0].@otherSamplePrepMethod;
 						var otherOrganismAffy:String = parentDocument.request.samples.Sample[0].@otherOrganism;
 						xmlString = "<Sample " +
@@ -321,10 +309,10 @@
 							" idOligoBarcodeB = ''" +
 							" barcodeSequenceB = ''" +
 							" codeConcentrationUnit='ng/ul'" + 
-							" idSampleType='" + (parentApplication.submitInternalExperiment() && parentDocument.sampleSetupView.sampleTypeRadioGroup.selectedValue != null ? parentDocument.sampleSetupView.sampleTypeRadioGroup.selectedValue : '') + "'" +
-							" otherSamplePrepMethod=\"" + (parentApplication.submitInternalExperiment() && parentDocument.sampleSetupView.otherSamplePrepMethod.text.replace(/\"/g, "&quot;") != null ? parentDocument.sampleSetupView.otherSamplePrepMethod.text.replace(/\"/g, "&quot;") : '') + "\"" +				
-							" idOrganism='"  + (parentApplication.submitInternalExperiment() && parentDocument.sampleSetupView.sampleOrganismCombo.selectedItem != null ? parentDocument.sampleSetupView.sampleOrganismCombo.selectedItem.@value : idOrganism) + "'" +				
-							" otherOrganism='" + (parentApplication.submitInternalExperiment() && parentDocument.sampleSetupView.otherOrganism.text.replace(/\"/g, "&quot;") != null ? parentDocument.sampleSetupView.otherOrganism.text.replace(/\"/g, "&quot;") : '') + "'" 	+	
+							" idSampleType='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.sampleTypeRadioGroup.selectedValue : '') + "'" +
+							" otherSamplePrepMethod=\"" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.otherSamplePrepMethod.text.replace(/\"/g, "&quot;") : '') + "\"" +				
+							" idOrganism='"  + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.sampleOrganismCombo.selectedItem.@value : idOrganism) + "'" +				
+							" otherOrganism='" + (parentApplication.submitInternalExperiment() ? parentDocument.sampleSetupView.otherOrganism.text.replace(/\"/g, "&quot;") : '') + "'" 	+	
 							"/>"
 						
 					}
@@ -335,14 +323,11 @@
 					parentDocument.samples.addItem(emptyNode);
 				}
 				
-				this.checkSamplesCompleteness();
-				
 				return isValid;
 			}
 			
 			private function getEmptyCapSeqNode(idx:int):XML {
 				var plateName:String = getPlateName(idx);
-				var idPlate:String = getIdPlate(idx);
 				var wellName:String = getWellName(idx);
 				var sampleId:String = "Sample" + idx;
 				var emptyNode:XML = new XML("<Sample " +
@@ -367,7 +352,6 @@
 					" otherSamplePrepMethod=''" + 				
 					" treatment=''" +	
 					" plateName='" + plateName + "'" +
-					" idPlate='" + idPlate + "'" +
 					" wellName='" + wellName + "'" +
 					" isControl=''" +
 					"/>");
@@ -377,7 +361,6 @@
 			private function getEmptyIScanNode(idx:int):XML {
 				var plateName:String = getIScanPlateName(idx);
 				var wellName:String = getWellName(idx);
-				var idPlate:String = getIdPlate(idx);
 				var sampleId:String = "Sample" + idx;
 				var emptyNode:XML = new XML("<Sample " +
 					" idSample='" + sampleId + "'" +
@@ -385,7 +368,6 @@
 					" containerType='Plate'" +
 					" canChangeSampleName='Y'" +	
 					" plateName='" + plateName + "'" +
-					" idPlate='" + idPlate + "'" +
 					" wellName='" + wellName + "'" +
 					"/>");
 				return emptyNode;
@@ -430,28 +412,12 @@
 				return plateName;
 			}
 			
-			override public function getIdPlate(idx:int):String {
-				var idPlate:String = "";
-				
-				var y:int = idx / 96;
-				if ( this.isEditState && parentDocument.samples.getItemAt( y*96 ) != null ) {
-					idPlate = parentDocument.samples.getItemAt( y*96 ).@idPlate;
-				} 
-				
-				return idPlate;
-			}
-			
 			private function getIScanPlateName(idx:int):String {
 				var plateName:String = "";
 				
 				var y:int = idx / 96;
-				if ( this.isEditState && parentDocument.samples.getItemAt( y*96 ) != null ) {
-					plateName = parentDocument.samples.getItemAt( y*96 ).@plateName;
-				} else {
-					y = y + 1;
-					plateName = parentDocument.sampleSetupView.getIScanPlateName(y);
-				}
-				
+				y = y + 1;
+				plateName = parentDocument.sampleSetupView.getIScanPlateName(y);
 				
 				return plateName;
 			}
@@ -506,21 +472,15 @@
 				
 				return isValid;
 			}
-					
+			
 			override protected function deleteSingleSample(sample:Object):Boolean {
-				
-				 parentDocument.samples.removeItemAt(parentDocument.samples.getItemIndex(sample));
-						
-				 if ( this.hasPlates() ){
-					 
-					 if ( parentDocument.samples.length < 96 || parentDocument.samples.length % 96 != 0 ) {
-						 
-						 parentDocument.samples.addItem(getEmptyCapSeqNode(95));
-					 }
-					 
-					 samplesGrid.updateWellNames();
-					 
-				 }
+				var ind:int = parentDocument.samples.getItemIndex(sample);
+				if ( parentDocument.isIScanState() ){
+					parentDocument.samples.setItemAt(getEmptyIScanNode(ind),ind);
+					
+				}else {
+					parentDocument.samples.removeItemAt(parentDocument.samples.getItemIndex(sample));
+				}
 				return true;
 			}
 			
@@ -556,7 +516,19 @@
 				parentDocument.hybsView.checkHybsCompleteness();
 				samplesGrid.selectedIndex = idx;
 			}
-						
+			
+			private function promptToDeleteSample():void{
+				if(samplesGrid.selectedItem != null){
+					Alert.show("Are you sure you wish to delete the selected sample?", "", (Alert.YES | Alert.NO), null, onPromptToDeleteSample, null, Alert.NO);
+				}
+			}
+			
+			private function onPromptToDeleteSample(event:CloseEvent):void{
+				if(event.detail == Alert.YES){
+					deleteTheSample();
+				}
+			}
+			
 			override public function initializeSamplesGrid():void {
 				if (parentDocument.requestToClone != null) {
 					return;
@@ -717,7 +689,7 @@
 								reqdAnnotationsEntered(sample) ) {
 								
 								if (!parentDocument.isEditState() &&
-									parentDocument.sampleSetupView.applicationHasChipTypes()) {
+									parentDocument.sampleSetupView.currentState == 'QCSetupBioanalyzerState') {
 									if (isEntered(sample, "@codeBioanalyzerChipType")) {
 										completeCount++;       				
 									} 
@@ -809,10 +781,13 @@
 				}
 				
 				// Make sure that sample concentration is valid
-				var cw:String = SampleConcentrationValidator.instance.validateSampleConcentration(parentDocument.samples);
-				if (cw != "") {
-					parentDocument.userWarningsSamples += cw;
-					isComplete = false;
+				for each (var s1:Object in parentDocument.samples) {
+					var vr:ValidationResultEvent = parentDocument.concentrationValidator.validate(s1.@concentration);
+					if (vr.type == ValidationResultEvent.INVALID) {
+						parentDocument.userWarningsSamples += "Invalid sample concentration '" + s1.@concentration + "'.  "; 
+						isComplete = false;
+						break;
+					}
 				}
 				
 				// Make sure sample names are ok
@@ -916,7 +891,6 @@
 				if (parentApplication.submitInternalExperiment() && currentState != null && currentState.indexOf('SolexaSamples') >= 0) {
 					for each(var lane:Object in parentDocument.getLanes(theSample, -1)) {
 						lane.@idNumberSequencingCycles = theSample.@idNumberSequencingCycles;
-						lane.@idNumberSequencingCyclesAllowed = theSample.@idNumberSequencingCyclesAllowed;
 					}
 				}
 			}		
@@ -949,16 +923,36 @@
 			
 			private function setSamplesGridDataProvider():void {
 				this.samplesGrid.validateNow(); // Make sure columns on samples grid are created
-				
-				this.samplesGrid.dataProvider = parentDocument.samples;
-				
-				this.samplesGrid.sortableColumns = false;
-				this.samplesGrid.dragMoveEnabled = false;
-				this.samplesGrid.dropEnabled = false;
-				this.samplesGrid.dragEnabled = false;
-				
-				this.plateNameCol.visible = hasPlates();
-				
+				if (hasPlates()) {
+					this.samplesGrid.dataProvider = null;
+					sampleGroupingCollection = new GroupingCollection();
+					sampleGroupingCollection.source = parentDocument.samples;
+					var groupCapSeq:Grouping = new Grouping();
+					var gfCapSeq:GroupingField = new GroupingField();
+					gfCapSeq.name = "@plateName";
+					groupCapSeq.fields = [gfCapSeq];
+					gfCapSeq.compareFunction = plateSampleCompareFunction;
+					sampleGroupingCollection.grouping  = groupCapSeq;
+					sampleGroupingCollection.refresh(); 
+					this.samplesGrid.dataProvider = sampleGroupingCollection;
+					
+					this.samplesGrid.dragMoveEnabled = false;
+					this.samplesGrid.dropEnabled = false;
+					this.samplesGrid.dragEnabled = false;
+					
+					this.plateNameCol.visible = true;
+				} else {
+					this.samplesGrid.sortableColumns = false;
+					sampleGroupingCollection = null;
+					this.samplesGrid.dataProvider = parentDocument.samples;
+					
+					this.samplesGrid.dragMoveEnabled = false;
+					this.samplesGrid.dropEnabled = false;
+					this.samplesGrid.dragEnabled = false;
+					
+					this.plateNameCol.visible = false;
+					
+				}
 			}
 			
 			private function manageFragAnalAssayColumns():void {
@@ -1073,10 +1067,6 @@
 			override public function showHideColumns():void {
 				isExternal = (parentDocument.isEditState() && parentDocument.request.@isExternal == 'Y') || (!parentDocument.isEditState() && !parentApplication.isInternalExperimentSubmission);
 				isEditState = parentDocument.isEditState();
-				var hideSampleTypeOnExternalExperiment:Boolean = false;
-				if (isExternal && parentApplication.getProperty(parentApplication.PROPERTY_HIDE_SAMPLETYPE_ON_EXTERNAL_EXPERIMENT) == "Y") {
-					hideSampleTypeOnExternalExperiment = true;
-				}
 				
 				showCCNumberCheckbox.visible =  !isExternal;
 				showCCNumberCheckbox.includeInLayout =  !isExternal;
@@ -1095,19 +1085,14 @@
 					samplesGrid.rowOperationsAllowed = false;
 				}
 				
-				samplesGrid.addRowEnabled = !this.hasPlates() && !parentDocument.isAmendState();
-				samplesGrid.insertRowEnabled = this.hasPlates();
+				samplesGrid.addRowEnabled = !this.hasPlates();
 				samplesGrid.showRowNumberCol = !this.hasPlates();
 				samplesGrid.hasPlates = this.hasPlates();
-				samplesGrid.colorRowsByField = this.hasPlates() ? 'plateName' : null;
-								
+				
 				// Edit columns shown
 				existingNumberSequencingLanesCol.visible = false;
 				additionalNumberSequencingLanesCol.visible = false;
-				
-				// Show the sample type column on if it isn't explicitly excluded based on a property for external experiment
-				// or is an iScan, Cherry Picking, Mit Seq, or Frag analysis.
-				this.sampleTypeCol.visible = !hideSampleTypeOnExternalExperiment && !parentDocument.isFragAnalState() && !parentDocument.isMitSeqState() 
+				this.sampleTypeCol.visible = !parentDocument.isFragAnalState() && !parentDocument.isMitSeqState() 
 					&& !parentDocument.isCherryPickState() && !parentDocument.isIScanState();
 				
 				seqPrepStatus.visible = false;
@@ -1162,16 +1147,12 @@
 					this.otherOrganismCol.visible = false;
 					
 					if (parentDocument.isEditState()) {
-						var application:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Application', parentDocument.request.@codeApplication);
-						chipTypeColumn.visible = application.@hasChipTypes == 'Y' ? true : false;		
+						chipTypeColumn.visible = parentDocument.request.@codeApplication == 'BIOAN' ? true : false;		
 					} else {
-						chipTypeColumn.visible = parentDocument.sampleSetupView.applicationHasChipTypes();
+						chipTypeColumn.visible = parentDocument.sampleSetupView.currentState == 'QCSetupBioanalyzerState' ? true : false;
 					}
 					labelColumn.visible = false;
 					
-					// refresh filteredChipTypeList
-					filteredChipTypeList.refresh();
-					chipTypeColumn.itemEditor = views.renderers.GridColumnFillButton.create(hci.flex.controls.ComboBox.getFactory(filteredChipTypeList, '@display', '@value', '@codeBioanalyzerChipType', true).newInstance(), '');
 				} else {
 					numberSequencingLanesCol.visible = false;
 					sampleOrganismColumn.editable = !isExternal;
@@ -1308,24 +1289,11 @@
 				}
 				
 			}
-			
-			private function filterChipTypeList(item:Object):Boolean {
-				if (parentDocument == null || parentDocument.request.@codeApplication == null || parentDocument.request.@codeApplication == '') {
-					return false;
-				}
-				var codeApplication:String = parentDocument.request.@codeApplication;
-				if (item.@value == "" || item.@isActive != 'Y' || item.@codeApplication != codeApplication) {
-					return false;
-				}
-				
-				return true;
-			}  
 		]]>
 	</mx:Script>	
 	<mx:Sort id="barcodeSort"  compareFunction="sortBarcodes"/>
 	<mx:XMLListCollection id="barcodes" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.OligoBarcode').DictionaryEntry}" sort="{barcodeSort}"/>
 	<mx:XMLList id="barcodeList"/>
-	<mx:XMLListCollection id="filteredChipTypeList" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BioanalyzerChipType').DictionaryEntry}" filterFunction="filterChipTypeList" />
 	
 	<mx:VBox width="100%" height="100%" verticalGap="2" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
 		<mx:HBox width="100%" id="topBox">
@@ -1385,14 +1353,12 @@
 								  editable="true"
 								  itemFocusOut="checkSamplesCompleteness()"
 								  addRowEnabled="{!this.hasPlates()}"
-								  addRowFunction="addSample"
-								  insertRowFunction="insertSample"
-								  deleteRowFunction="deleteTheSample"
+								  addRowFunction="{addSample}"
 								  clearAllFunction="promptToClearAllSamples"
 								  showRowNumberCol="{!this.hasPlates()}"
 								  hasPlates="{this.hasPlates()}">
 			<grid:columns>
-				<mx:AdvancedDataGridColumn id="plateNameCol" headerText="Plate" dataField="@plateName" editable="false" visible="true" width="60" >
+				<mx:AdvancedDataGridColumn id="plateNameCol" headerText="Plate" dataField="@plateName" editable="false" visible="true" width="60" labelFunction="groupNameLabelFunction">
 					<mx:headerRenderer > 
 						<mx:Component>
 							<mx:VBox verticalGap="0" horizontalScrollPolicy="off"  verticalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle"> 
@@ -1630,7 +1596,7 @@
 				<util:AdvancedDataGridColumnWithType propertyType="OPTION" id="sampleTypeCol"  headerText="Sample Type" visible="true" width="180"   dataField="@idSampleType" 
 													 editorDataField="value" sortable="false" editable="true" rendererIsEditor="false" 
 													 itemRenderer="{views.renderers.DropdownLabel.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SampleType').DictionaryEntry, '@display', '@value', '@idSampleType', false, true)}"                 
-													 itemEditor="{views.renderers.GridColumnFillButton.create(hci.flex.controls.ComboBox.getFactory(this.filteredSampleTypeList.source, '@display', '@value', '@idSampleType', true).newInstance(), '')}">
+													 itemEditor="{views.renderers.GridColumnFillButton.create(ComboBox.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SampleType').DictionaryEntry, '@display', '@value', '@idSampleType', '@canChangeSampleType', true).newInstance(), '')}">
 					<util:headerRenderer > 
 						<mx:Component>
 							<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle"> 
@@ -1672,15 +1638,15 @@
 				</mx:AdvancedDataGridColumn> 
 				
 				
-				<util:AdvancedDataGridColumnWithType propertyType="OPTION" id="chipTypeColumn" visible="{parentDocument.request.@codeRequestCategory != 'QC' &amp;&amp; !isExternal ? false : true}" headerText="Assay" width="150" dataField="@codeBioanalyzerChipType" 
+				<util:AdvancedDataGridColumnWithType propertyType="OPTION" id="chipTypeColumn" visible="{parentDocument.request.@codeRequestCategory != 'QC' &amp;&amp; !isExternal ? false : true}" headerText="Chip Type" width="150" dataField="@codeBioanalyzerChipType" 
 													 editorDataField="value" sortable="false" editable="true" rendererIsEditor="false" 
 													 itemRenderer="{views.renderers.DropdownLabel.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BioanalyzerChipType').DictionaryEntry, '@display', '@value', '@codeBioanalyzerChipType')}"                
-													 itemEditor="{views.renderers.GridColumnFillButton.create(hci.flex.controls.ComboBox.getFactory(filteredChipTypeList, '@display', '@value', '@codeBioanalyzerChipType', true).newInstance(), '')}">
+													 itemEditor="{views.renderers.GridColumnFillButton.create(hci.flex.controls.ComboBox.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BioanalyzerChipType').DictionaryEntry, '@display', '@value', '@codeBioanalyzerChipType', true).newInstance(), '')}">
 					<util:headerRenderer > 
 						<mx:Component>
 							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off" verticalScrollPolicy="off" horizontalAlign="center" verticalAlign="middle"> 
-								<util:ContextHelp context1="sampleChipType" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="QC Assay Help" showEdit="{parentApplication.isAdminState}"
-												  label="Assay" noIconSpaceIfNoHelp="true"/>
+								<util:ContextHelp context1="sampleChipType" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="Chip Type Help" showEdit="{parentApplication.isAdminState}"
+												  label="Chip Type" noIconSpaceIfNoHelp="true"/>
 							</mx:VBox> 
 						</mx:Component>
 					</util:headerRenderer>

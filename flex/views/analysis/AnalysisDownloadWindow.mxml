@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<util:ResizableTitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
-				layout="vertical" width="994" 
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
+				layout="vertical" width="824" 
 				xmlns:util="views.util.*"
 				height="408" creationPolicy="all"
 				showCloseButton="true"
@@ -67,7 +67,6 @@
 				numFiles.text = getAnalysisDownloadList.lastResult..AnalysisFileDescriptor.(@type!='dir').length() != 1 ? 
 					getAnalysisDownloadList.lastResult..AnalysisFileDescriptor.(@type!='dir').length() + ' file(s)' : '1 file' ;
 			}
-			
 			
 			private function underlyingDownloadsChange(event:CollectionEvent):void {
 				if (event.kind == CollectionEventKind.RESET || event.kind == CollectionEventKind.REFRESH) {
@@ -518,14 +517,6 @@
 					   disabledIcon="@Embed('../../assets/download_disable.png')"
 					   toolTip="Download selected files"
 					   label="Download"/>
-			<mx:Button visible="{parentApplication.isFDTSupported ? true : false}" id="fdtCommandLine" 
-					   includeInLayout="{parentApplication.isFDTSupported ? true : false}" 
-					   enabled="{filesToDownload.length>0}"
-					   click="downloadView.showCommandLineInstructions = true; downloadView.downloadFilesUsingFDT(filesToDownload.source..AnalysisFileDescriptor.(@type != 'dir'))" 
-					   label="FDT Command Line"  
-					   toolTip="Download large files using FDT"
-					   disabledIcon="@Embed('../../assets/download_disable.png')"
-					   icon="@Embed(source='../../assets/download_large.png')"/>
 			<mx:Button visible="{parentApplication.isFDTSupported ? true : false}" id="fdtDownload" 
 					   includeInLayout="{parentApplication.isFDTSupported ? true : false}" 
 					   enabled="{filesToDownload.length>0}"
@@ -546,4 +537,4 @@
 		</mx:HBox>  
 	</mx:ControlBar>
 	
-</util:ResizableTitleWindow>
+</mx:TitleWindow>

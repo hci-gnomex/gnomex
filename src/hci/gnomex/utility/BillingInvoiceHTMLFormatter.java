@@ -9,7 +9,6 @@ import hci.gnomex.model.CoreFacility;
 import hci.gnomex.model.DiskUsageByMonth;
 import hci.gnomex.model.Invoice;
 import hci.gnomex.model.Lab;
-import hci.gnomex.model.ProductOrder;
 import hci.gnomex.model.Request;
 
 import java.math.BigDecimal;
@@ -22,7 +21,7 @@ import org.jdom.Element;
 
 
 public class BillingInvoiceHTMLFormatter  extends DetailObject {
-
+  
   private BillingPeriod  billingPeriod;
   private Lab            lab;
   private BillingAccount billingAccount;
@@ -38,94 +37,85 @@ public class BillingInvoiceHTMLFormatter  extends DetailObject {
   private String         invoiceNote2;
   private String         contactAddressCoreFacility;
   private String         contactRemitAddressCoreFacility;
-  private String         coreBillingOffice;
   BigDecimal             grandTotal = new BigDecimal(0);
+  
+ public BillingInvoiceHTMLFormatter(String coreFacilityName, String contactNameCoreFacility, String contactPhoneCoreFacility, String invoiceNote1, String invoiceNote2, BillingPeriod billingPeriod, Lab lab, BillingAccount billingAccount, Invoice invoice, Map billingItemMap, Map relatedBillingItemMap, Map requestMap, String contactAddressCoreFacility, String contactRemitAddressCoreFacility) {
+   this.billingPeriod  = billingPeriod;
+   this.lab            = lab;
+   this.billingAccount = billingAccount;
+   this.invoice        = invoice;
+   this.billingItemMap = billingItemMap;
+   this.relatedBillingItemMap = relatedBillingItemMap;
+   this.requestMap     = requestMap;
+   this.coreFacilityName = coreFacilityName;
+   this.contactNameCoreFacility = contactNameCoreFacility;
+   this.contactPhoneCoreFacility = contactPhoneCoreFacility;
+   this.invoiceNote1 = invoiceNote1;
+   this.invoiceNote2 = invoiceNote2;
+   this.contactAddressCoreFacility = contactAddressCoreFacility;
+   this.contactRemitAddressCoreFacility = contactRemitAddressCoreFacility;
+   
+ }
+ 
+ public Element makeIntroNote() {
+   
+   
+   String line1 = "This report provides itemized documentation of services that were completed for your lab by the " + coreFacilityName + " during the month of " + billingPeriod.getBillingPeriod() + ".";
+   String line2 = "&nbsp;&nbsp;&nbsp; - University of Utah accounts listed on this document will be electronically billed."; 
+   String line3 = "&nbsp;&nbsp;&nbsp; - External accounts listed on this document will receive an invoice from the " + coreFacilityName + "."; 
+   if ((this.invoiceNote1 != null && this.invoiceNote1.length() > 0) || this.invoiceNote2 != null && this.invoiceNote2.length() > 0) {
+     line2 = "";
+     if (this.invoiceNote1 != null) {
+       line2 = this.invoiceNote1;
+     }
+     line3 = "";
+     if (this.invoiceNote2 != null) {
+       line3 = this.invoiceNote2;
+     }
+   }
+   String line4 = "&nbsp;";
+   String line5 = "If you have any questions, please contact " + contactNameCoreFacility + " (" + contactPhoneCoreFacility + ").";
+        
+   Element table = new Element("TABLE");   
+   table.setAttribute("CELLPADDING", "0");
+   table.addContent(makeNoteRow(line1));
+   if (line2.length() > 0) {
+     table.addContent(makeNoteRow(line2));
+   }
+   if (line3.length() > 0) {
+     table.addContent(makeNoteRow(line3));
+   }
+   table.addContent(makeNoteRow(line4));
+   table.addContent(makeNoteRow(line5));
+   
+   return table;
+ }
+ 
 
-  public BillingInvoiceHTMLFormatter(String coreFacilityName, String contactNameCoreFacility, String contactPhoneCoreFacility, String invoiceNote1, String invoiceNote2, BillingPeriod billingPeriod, Lab lab, BillingAccount billingAccount, Invoice invoice, Map billingItemMap, Map relatedBillingItemMap, Map requestMap, String contactAddressCoreFacility, String contactRemitAddressCoreFacility, String coreBillingOffice) {
-    this.billingPeriod  = billingPeriod;
-    this.lab            = lab;
-    this.billingAccount = billingAccount;
-    this.invoice        = invoice;
-    this.billingItemMap = billingItemMap;
-    this.relatedBillingItemMap = relatedBillingItemMap;
-    this.requestMap     = requestMap;
-    this.coreFacilityName = coreFacilityName;
-    this.contactNameCoreFacility = contactNameCoreFacility;
-    this.contactPhoneCoreFacility = contactPhoneCoreFacility;
-    this.invoiceNote1 = invoiceNote1;
-    this.invoiceNote2 = invoiceNote2;
-    this.contactAddressCoreFacility = contactAddressCoreFacility;
-    this.contactRemitAddressCoreFacility = contactRemitAddressCoreFacility;
-    this.coreBillingOffice = coreBillingOffice;
-
-  }
-
-  public Element makeIntroNote() {
-
-    String introLine = "";
-    if(coreBillingOffice != null && !coreBillingOffice.equals("")) {
-      introLine = "<b>The following invoice will be prepared for electronic billing by the " + coreBillingOffice + "</b>";
-    }
-
-    String line1 = "This report provides itemized documentation of services that were completed for your lab by the " + coreFacilityName + " during the month of " + billingPeriod.getBillingPeriod() + ".";
-    String line2 = "&nbsp;&nbsp;&nbsp; - University of Utah accounts listed on this document will be electronically billed."; 
-    String line3 = "&nbsp;&nbsp;&nbsp; - External accounts listed on this document will receive an invoice from the " + coreFacilityName + "."; 
-    if ((this.invoiceNote1 != null && this.invoiceNote1.length() > 0) || this.invoiceNote2 != null && this.invoiceNote2.length() > 0) {
-      line2 = "";
-      if (this.invoiceNote1 != null) {
-        line2 = this.invoiceNote1;
-      }
-      line3 = "";
-      if (this.invoiceNote2 != null) {
-        line3 = this.invoiceNote2;
-      }
-    }
-    String line4 = "&nbsp;";
-    String line5 = "If you have any questions, please contact " + contactNameCoreFacility + " (" + contactPhoneCoreFacility + ").";
-
-    Element table = new Element("TABLE");   
-    table.setAttribute("CELLPADDING", "0");
-    if(introLine.length() > 0) {
-      table.addContent(makeNoteRow(introLine));
-    }
-    table.addContent(makeNoteRow(line1));
-    if (line2.length() > 0) {
-      table.addContent(makeNoteRow(line2));
-    }
-    if (line3.length() > 0) {
-      table.addContent(makeNoteRow(line3));
-    }
-    table.addContent(makeNoteRow(line4));
-    table.addContent(makeNoteRow(line5));
-
-    return table;
-  }
-
-
-  public Element makeHeader() {
+ public Element makeHeader() {
     Element table = new Element("TABLE");    
     table.setAttribute("CELLPADDING", "0");    
     if(billingAccount.getIdCoreFacility().intValue() == CoreFacility.CORE_FACILITY_DNA_SEQ_ID.intValue() && billingAccount.getIsPO().equals("N") && billingAccount.getIsCreditCard().equals("N")){    
-      table.addContent(new Element("TR"));
-      if(lab.getContactName() != null && !lab.getContactName().equals(""))
-        table.addContent(makeRow("ATTN: " + lab.getContactName()));
-      if(lab.getContactAddress2() != null && !lab.getContactAddress2().equals(""))
-        table.addContent(makeRow(lab.getContactAddress2()));		
-      if(lab.getContactAddress() != null && !lab.getContactAddress().equals(""))
-        table.addContent(makeRow(lab.getContactAddress()));
-      if(lab.getContactCity() != null && lab.getContactZip() != null && lab.getContactCountry() != null)
-      {
-        // no state => non-U.S. address
-        if(lab.getContactCodeState() == null){
-          table.addContent(makeRow(lab.getContactCity() + " " + lab.getContactZip() 
-              + " " + lab.getContactCountry()));      
-        }
-        else {
-          table.addContent(makeRow(lab.getContactCity() + ", " + lab.getContactCodeState() + " " 
-              + lab.getContactZip() + ", " + lab.getContactCountry()));       
-        }
+    	table.addContent(new Element("TR"));
+    	if(lab.getContactName() != null && !lab.getContactName().equals(""))
+    	  table.addContent(makeRow("ATTN: " + lab.getContactName()));
+    	if(lab.getContactAddress2() != null && !lab.getContactAddress2().equals(""))
+    	  table.addContent(makeRow(lab.getContactAddress2()));		
+    	if(lab.getContactAddress() != null && !lab.getContactAddress().equals(""))
+          table.addContent(makeRow(lab.getContactAddress()));
+    	if(lab.getContactCity() != null && lab.getContactZip() != null && lab.getContactCountry() != null)
+    	{
+    		// no state => non-U.S. address
+    		if(lab.getContactCodeState() == null){
+    			table.addContent(makeRow(lab.getContactCity() + " " + lab.getContactZip() 
+    					+ " " + lab.getContactCountry()));      
+    	}
+      else {
+    	  table.addContent(makeRow(lab.getContactCity() + ", " + lab.getContactCodeState() + " " 
+    			 + lab.getContactZip() + ", " + lab.getContactCountry()));       
+    	}
       }
-
+    	
       table.addContent(new Element("TR"));
       table.addContent(new Element("TR"));
       table.addContent(makeRow("The following billing summary (or statement) is presented for your review from the " + coreFacilityName + ". This bill will be electronically processed using the specified chartfield number without further action on your behalf. If you have any questions in regards to the billing statement, please contact Derek Warner at derek.warner@hci.utah.edu."));
@@ -147,26 +137,26 @@ public class BillingInvoiceHTMLFormatter  extends DetailObject {
       table.addContent(new Element("TR"));// add line break before billing address
       table.addContent(new Element("TR"));
       table.addContent(new Element("TR"));
-      table.addContent(makeRow(lab.getName(false, true)));
+      table.addContent(makeRow(lab.getName()));
       if(lab.getContactName() != null && !lab.getContactName().equals(""))
-        table.addContent(makeRow("ATTN: " + lab.getContactName()));
+    	  table.addContent(makeRow("ATTN: " + lab.getContactName()));
       if(lab.getContactAddress2() != null && !lab.getContactAddress2().equals(""))
-        table.addContent(makeRow(lab.getContactAddress2()));
+    	  table.addContent(makeRow(lab.getContactAddress2()));
       if(lab.getContactAddress() != null && !lab.getContactAddress().equals("")){
         table.addContent(makeRow(lab.getContactAddress()));
       }
-
+      
       if(lab.getContactCity() != null && lab.getContactZip() != null && lab.getContactCountry() != null)
       {
-        // no state => non-U.S. address
-        if(lab.getContactCodeState() == null){
-          table.addContent(makeRow(lab.getContactCity() + " " + lab.getContactZip() 
-              + " " + lab.getContactCountry()));      
-        }
-        else {
-          table.addContent(makeRow(lab.getContactCity() + ", " + lab.getContactCodeState() + " " 
-              + lab.getContactZip() + ", " + lab.getContactCountry()));       
-        }
+    	  // no state => non-U.S. address
+      if(lab.getContactCodeState() == null){
+    	  table.addContent(makeRow(lab.getContactCity() + " " + lab.getContactZip() 
+    			  + " " + lab.getContactCountry()));      
+    	}
+      else {
+    	  table.addContent(makeRow(lab.getContactCity() + ", " + lab.getContactCodeState() + " " 
+    			 + lab.getContactZip() + ", " + lab.getContactCountry()));       
+    	}
       }
       table.addContent(new Element("TR"));// add line break after billing address
       table.addContent(new Element("TR"));
@@ -175,77 +165,77 @@ public class BillingInvoiceHTMLFormatter  extends DetailObject {
       table.addContent(makeRow(billingAccount.getAccountName()));
     } 
     else{
-      table.addContent(makeRow(lab.getName(false, true)));
+      table.addContent(makeRow(lab.getName()));
       table.addContent(makeRow(formatAccountNumber(billingAccount.getAccountNumber(), billingAccount.getAccountName())));
       table.addContent(new Element("TR"));// add line break before billing address
       table.addContent(new Element("TR"));
       table.addContent(new Element("TR"));
       if(lab.getContactName() != null && !lab.getContactName().equals(""))
-        table.addContent(makeRow("ATTN: " + lab.getContactName()));
+    	  table.addContent(makeRow("ATTN: " + lab.getContactName()));
       if(lab.getContactAddress2() != null && !lab.getContactAddress2().equals(""))
-        table.addContent(makeRow(lab.getContactAddress2()));		
+    	  table.addContent(makeRow(lab.getContactAddress2()));		
       if(lab.getContactAddress() != null && !lab.getContactAddress().equals(""))
-        table.addContent(makeRow(lab.getContactAddress()));
+          table.addContent(makeRow(lab.getContactAddress()));
       if(lab.getContactCity() != null && lab.getContactZip() != null && lab.getContactCountry() != null)
       {
-        // no state => non-U.S. address
-        if(lab.getContactCodeState() == null){
-          table.addContent(makeRow(lab.getContactCity() + " " + lab.getContactZip() 
-              + " " + lab.getContactCountry()));      
-        }
-        else {
-          table.addContent(makeRow(lab.getContactCity() + ", " + lab.getContactCodeState() + " " 
-              + lab.getContactZip() + ", " + lab.getContactCountry()));       
-        }
+    	// no state => non-U.S. address
+      if(lab.getContactCodeState() == null){
+    	  table.addContent(makeRow(lab.getContactCity() + " " + lab.getContactZip() 
+    			  + " " + lab.getContactCountry()));      
+    	}
+      else {
+    	  table.addContent(makeRow(lab.getContactCity() + ", " + lab.getContactCodeState() + " " 
+    			 + lab.getContactZip() + ", " + lab.getContactCountry()));       
+    	}
       }
       table.addContent(new Element("TR"));// add line break after billing address
       table.addContent(new Element("TR"));
       table.addContent(new Element("TR"));
-      table.addContent(makeRow(billingPeriod.getBillingPeriod() + " " + coreFacilityName + " Billing"));
+      table.addContent(makeRow(billingPeriod.getBillingPeriod() + " " + coreFacilityName + " Chargeback"));
       if(invoice != null){
         table.addContent(makeRow("Invoice # " + invoice.getInvoiceNumber()));
       }
     }
-
+    
     return table;
-  }
+ }
+ 
+ public Element makeRemittanceAddress(){
+   String addressArray[] = contactRemitAddressCoreFacility.split("\r");
+   Element p = new Element("P");
+   p.addContent("REMIT TO ADDRESS:");
+   p.addContent(new Element("BR"));
+   for(int i = 0; i < addressArray.length; i++){
+     p.addContent(addressArray[i]);
+     if(i + 1 < addressArray.length){
+       p.addContent(new Element("BR"));
+     }
+   }
+   return p;
+ }
+ 
+ public Element makeLabAddress(){
+   String addressArray[] = contactAddressCoreFacility.split("\r");
+   Element p = new Element("P");
+   p.addContent("LAB ADDRESS:");
+   p.addContent(new Element("BR"));
+   for(int i = 0; i < addressArray.length; i++){
+     p.addContent(addressArray[i]);
+     if(i + 1 < addressArray.length){
+       p.addContent(new Element("BR"));
+     }
+   }
+   return p;
+   
+ }
 
-  public Element makeRemittanceAddress(){
-    String addressArray[] = contactRemitAddressCoreFacility.split("\r");
-    Element p = new Element("P");
-    p.addContent("REMIT TO ADDRESS:");
-    p.addContent(new Element("BR"));
-    for(int i = 0; i < addressArray.length; i++){
-      p.addContent(addressArray[i]);
-      if(i + 1 < addressArray.length){
-        p.addContent(new Element("BR"));
-      }
-    }
-    return p;
-  }
-
-  public Element makeLabAddress(){
-    String addressArray[] = contactAddressCoreFacility.split("\r");
-    Element p = new Element("P");
-    p.addContent("LAB ADDRESS:");
-    p.addContent(new Element("BR"));
-    for(int i = 0; i < addressArray.length; i++){
-      p.addContent(addressArray[i]);
-      if(i + 1 < addressArray.length){
-        p.addContent(new Element("BR"));
-      }
-    }
-    return p;
-
-  }
-
-  private String formatAccountNumber(String accountNumber, String accountName) {
-    return "Account " + (accountNumber != null && !accountNumber.equals("" ) ? accountNumber + " " : "") + 
-    (accountName != null && !accountName.equals("") ? "(" + accountName + ")": "");
-  }
+ private String formatAccountNumber(String accountNumber, String accountName) {
+   return "Account " + (accountNumber != null && !accountNumber.equals("" ) ? accountNumber + " " : "") + 
+     (accountName != null && !accountName.equals("") ? "(" + accountName + ")": "");
+ }
 
   public Element makeDetail() throws Exception {
-
+    
     int columnCount = 11;
     // Find out if any billing items have % other than 100%.  If
     // so, show % column.
@@ -265,9 +255,9 @@ public class BillingInvoiceHTMLFormatter  extends DetailObject {
     if (showPercentCol) {
       columnCount++;
     }
-
+    
     grandTotal = new BigDecimal(0);
-
+    
     Element table = new Element("TABLE");
     table.setAttribute("CLASS",       "grid");
     table.setAttribute("CELLPADDING", "0");
@@ -290,16 +280,13 @@ public class BillingInvoiceHTMLFormatter  extends DetailObject {
     this.addHeaderCell(rowh, "Total Price", "right");
     this.addHeaderCell(rowh, "Invoice Price", "right");
 
-
+    
     for(Iterator i = requestMap.keySet().iterator(); i.hasNext();) {
       String number = (String)i.next();
       Request request = null;
       DiskUsageByMonth dsk = null;
-      ProductOrder po = null;
       if (number.startsWith(ShowBillingInvoiceForm.DISK_USAGE_NUMBER_PREFIX)) {
         dsk = (DiskUsageByMonth)requestMap.get(number);
-      } else if(number.startsWith(ShowBillingInvoiceForm.PRODUCT_ORDER_NUMBER_PREFIX)) {
-        po = (ProductOrder)requestMap.get(number);
       } else {
         request = (Request)requestMap.get(number);
       }
@@ -307,32 +294,26 @@ public class BillingInvoiceHTMLFormatter  extends DetailObject {
       String client = "";
       if (request != null) {
         client = request.getAppUser() != null ? request.getAppUser().getDisplayName() : "&nbsp;";
-      } else if(dsk != null) { 
+      } else { 
         client = "Disk Usage";
-      } else {
-        client = "Product Order";
       }
-
-
+      
+      
       Element rowR = new Element("TR");
       table.addContent(rowR);
       if (request != null) {
         this.addCell(rowR, this.formatDate(request.getCreateDate(), this.DATE_OUTPUT_SLASH));
         this.addCell(rowR, request.getNumber());
         this.addCell(rowR, client);
-      } else if (dsk != null) {
-        this.addCell(rowR, this.formatDate(dsk.getAsOfDate()));
-        this.addCell(rowR, client, 2);
       } else {
-        this.addCell(rowR, this.formatDate(po.getSubmitDate()));
-        this.addCell(rowR, po.getProductOrderNumber());
+        this.addCell(rowR, this.formatDate(dsk.getAsOfDate()));
         this.addCell(rowR, client, 2);
       }
       BigDecimal totalPriceForRequest = new BigDecimal(0);
       for(Iterator i1 = billingItems.iterator(); i1.hasNext();) {
         BillingItem bi = (BillingItem)i1.next();
-
-
+        
+        
         Element row = new Element("TR");
         table.addContent(row);
         this.addEmptyCell(row, new Integer(3));
@@ -347,19 +328,19 @@ public class BillingInvoiceHTMLFormatter  extends DetailObject {
         this.addRightAlignCell(row, bi.getUnitPrice() != null ? currencyFormat.format(bi.getUnitPrice()) : "&nbsp;");
         this.addRightAlignCell(row, bi.getTotalPrice() != null ? currencyFormat.format(bi.getTotalPrice()) : "&nbsp;");
         this.addRightAlignCell(row, bi.getInvoicePrice() != null ? currencyFormat.format(bi.getInvoicePrice()) : "&nbsp;");
-
+        
         if (bi.getInvoicePrice() != null) {
           totalPriceForRequest = totalPriceForRequest.add(bi.getInvoicePrice());          
           grandTotal = grandTotal.add(bi.getInvoicePrice());          
         }
-
+        
       }
 
       Element rowt2 = new Element("TR");
       table.addContent(rowt2);
       this.addEmptyCell(rowt2, new Integer(columnCount - 1));
       this.addTotalCell(rowt2, totalPriceForRequest != null ? currencyFormat.format(totalPriceForRequest) : "&nbsp;");
-
+      
       billingItems = (List)relatedBillingItemMap.get(number);
       if (billingItems != null) {
         Integer idBillingAccount = -1;
@@ -377,7 +358,7 @@ public class BillingInvoiceHTMLFormatter  extends DetailObject {
             this.addEmptyCell(rowRH2, 2);
             this.addCell(rowRH2, formatAccountNumber(bi.getAccountNumberDisplay(), bi.getAccountName()), "gridrelated", 10);
           }
-
+          
           Element row = new Element("TR");
           table.addContent(row);
           this.addEmptyCell(row, new Integer(3));
@@ -392,19 +373,19 @@ public class BillingInvoiceHTMLFormatter  extends DetailObject {
           this.addCell(row, bi.getUnitPrice() != null ? currencyFormat.format(bi.getUnitPrice()) : "&nbsp;", "gridrightrelated", null, "RIGHT");
           this.addCell(row, bi.getTotalPrice() != null ? currencyFormat.format(bi.getTotalPrice()) : "&nbsp;", "gridrightrelated", null, "RIGHT");
           this.addCell(row, bi.getInvoicePrice() != null ? currencyFormat.format(bi.getInvoicePrice()) : "&nbsp;", "gridrightrelated", null, "RIGHT");
-
+          
           if (bi.getInvoicePrice() != null) {
             totalPriceForRequest = totalPriceForRequest.add(bi.getInvoicePrice());          
           }
-
+          
         }
-
+        
         Element rowrt2 = new Element("TR");
         table.addContent(rowrt2);
         this.addEmptyCell(rowrt2, new Integer(columnCount - 1));
         this.addCell(rowrt2, totalPriceForRequest != null ? currencyFormat.format(totalPriceForRequest) : "&nbsp;", "gridrightrelated", null, "RIGHT");
       }
-
+      
       Element rowt1 = new Element("TR");
       table.addContent(rowt1);
       this.addEmptyCell(rowt1, new Integer(columnCount));
@@ -420,10 +401,10 @@ public class BillingInvoiceHTMLFormatter  extends DetailObject {
     this.addRightAlignCell(rowgt, "Total");
     this.addTotalCell(rowgt, grandTotal != null ? currencyFormat.format(grandTotal) : "&nbsp;");
 
-
+    
     return table;
   }
-
+  
   public String getGrandTotal(){
     return grandTotal != null ? currencyFormat.format(grandTotal) : "";
   }
@@ -442,7 +423,7 @@ public class BillingInvoiceHTMLFormatter  extends DetailObject {
       return value.toString();
     }
   }
-
+ 
   private Element makeRow(String header1) {
     Element row = new Element("TR");
     Element cell = new Element("TD");
@@ -450,11 +431,11 @@ public class BillingInvoiceHTMLFormatter  extends DetailObject {
     cell.setAttribute("ALIGN", "LEFT");
     cell.addContent(header1);
     row.addContent(cell);
-
+    
 
     return row;
   }
-
+  
   private Element makeAddressRow(String header1){
     Element row = new Element("TR");
     Element cell = new Element("TD");
@@ -470,8 +451,8 @@ public class BillingInvoiceHTMLFormatter  extends DetailObject {
     row.addContent(cell);
     return row;
   }
-
-
+  
+  
   private Element makeNoteRow(String header1) {
     Element row = new Element("TR");
     Element cell = new Element("TD");
@@ -479,7 +460,7 @@ public class BillingInvoiceHTMLFormatter  extends DetailObject {
     cell.setAttribute("ALIGN", "LEFT");
     cell.addContent(header1);
     row.addContent(cell);
-
+    
 
     return row;
   }
@@ -487,21 +468,21 @@ public class BillingInvoiceHTMLFormatter  extends DetailObject {
 
   private void addRightAlignCell(Element row, String value) {
     Element cell = new Element("TD");
-
+    
     // for consistent rendering in different email apps
     cell.setAttribute("ALIGN", "RIGHT");
-
+    
     cell.setAttribute("CLASS", "gridright");      
     cell.addContent(value);
     row.addContent(cell);
   }
-
+  
   private void addTotalCell(Element row, String value) {
     Element cell = new Element("TD");
-
+    
     // for consistent rendering in different email apps
     cell.setAttribute("ALIGN", "RIGHT");
-
+    
     cell.setAttribute("CLASS", "gridtotal");      
     cell.addContent(value);
     row.addContent(cell);
@@ -513,32 +494,32 @@ public class BillingInvoiceHTMLFormatter  extends DetailObject {
     cell.addContent(value);
     row.addContent(cell);
   }
-
+  
   private void addCell(Element row, String value) {
-    addCell(row, value, "grid", null);
+      addCell(row, value, "grid", null);
   }
-
+  
   private void addCell(Element row, String value, String cssClass, Integer colSpan) {
     addCell(row, value, cssClass, colSpan, null);
   }
-
+  
   private void addCell(Element row, String value, Integer colSpan) {
     addCell(row, value, "grid", colSpan, null);
   }
-
+  
   private void addCell(Element row, String value, String cssClass, Integer colSpan, String align) {
-    Element cell = new Element("TD");
-    cell.setAttribute("CLASS", cssClass);      
-    cell.addContent(value);
-    row.addContent(cell);
-    if (colSpan != null) {
-      cell.setAttribute("COLSPAN", colSpan.toString());
-    }
-    if (align != null) {
-      cell.setAttribute("ALIGN", align);
-    }
+      Element cell = new Element("TD");
+      cell.setAttribute("CLASS", cssClass);      
+      cell.addContent(value);
+      row.addContent(cell);
+      if (colSpan != null) {
+        cell.setAttribute("COLSPAN", colSpan.toString());
+      }
+      if (align != null) {
+        cell.setAttribute("ALIGN", align);
+      }
   }
-
+  
   private void addEmptyCell(Element row, Integer colSpan) {
     Element cell = new Element("TD");
     cell.setAttribute("class", "gridempty");
@@ -547,38 +528,38 @@ public class BillingInvoiceHTMLFormatter  extends DetailObject {
     if (colSpan != null) {
       cell.setAttribute("COLSPAN", colSpan.toString());      
     }
-
+    
   }
-
-
-
+  
+ 
+  
   private void addEmptyCell(Element row) {
     Element cell = new Element("TD");
     cell.setAttribute("class", "gridempty");
     cell.addContent("&nbsp;");
     row.addContent(cell);
   }
-
+  
   private void addHeaderCell(Element row, String header) {
     addHeaderCell(row, header, "normal");
   }
-
+  
   private void addHeaderCell(Element row, String header, String clazzName) {
 
     addHeaderCell(row, header, clazzName, null);
   }
-
-
+  
+  
   private void addHeaderCell(Element row, String header, String clazzName, Integer width) {
     Element cell = new Element("TH");  
-
+    
     // for consistent rendering in different email apps
     if (clazzName.equals("right")) {
       cell.setAttribute("ALIGN", "RIGHT");      
     } else {
       cell.setAttribute("ALIGN", "LEFT");
     }
-
+    
     if (clazzName != null) {
       cell.setAttribute("CLASS", clazzName);
     }
@@ -598,7 +579,7 @@ public class BillingInvoiceHTMLFormatter  extends DetailObject {
   private void addHeaderCell(Element row, String header, Integer rowSpan, Integer colSpan, String clazzName) {
     addHeaderCell(row, header, rowSpan, colSpan, clazzName, null);
   }
-
+  
   private void addHeaderCell(Element row, String header, Integer rowSpan, Integer colSpan, String clazzName, Integer width) {
     Element cell = new Element("TH");    
     if (clazzName != null) {
@@ -618,7 +599,7 @@ public class BillingInvoiceHTMLFormatter  extends DetailObject {
   }
 
 
-
+  
   private Element makeRow(String header1, String value1, String header2, String value2) {
     Element row = new Element("TR");
     Element cell = new Element("TD");
@@ -626,13 +607,13 @@ public class BillingInvoiceHTMLFormatter  extends DetailObject {
     cell.setAttribute("ALIGN", "RIGHT");
     cell.addContent(header1);
     row.addContent(cell);
-
+    
     cell = new Element("TD");
     cell.setAttribute("CLASS", "value");
     cell.setAttribute("ALIGN", "LEFT");
     cell.addContent(value1);
     row.addContent(cell);
-
+    
     cell = new Element("TD");
     //cell.setAttribute("WIDTH", "80");
     row.addContent(cell);
@@ -642,7 +623,7 @@ public class BillingInvoiceHTMLFormatter  extends DetailObject {
     cell.setAttribute("ALIGN", "RIGHT");
     cell.addContent(header2);
     row.addContent(cell);
-
+    
     cell = new Element("TD");
     cell.setAttribute("CLASS", "value");
     cell.setAttribute("ALIGN", "LEFT");
@@ -659,14 +640,14 @@ public class BillingInvoiceHTMLFormatter  extends DetailObject {
     cell.setAttribute("ALIGN", "LEFT");
     cell.addContent(header1);
     row.addContent(cell);
-
+    
     cell = new Element("TD");
     cell.setAttribute("CLASS", "value");
     cell.setAttribute("ALIGN", "LEFT");
     cell.setAttribute("WIDTH", "80%");
     cell.addContent(value1);
     row.addContent(cell);
-
+    
 
     return row;
   } 

@@ -51,31 +51,71 @@
 					longDescriptionRowCount += Math.round(count);
 				}
 			}
-			if (this.parentDocument.isMicroarrayState()) {
-				if (!this.confirmContainer.contains(this.hybsConfirmContainer)) {
-					this.confirmContainer.addChild(this.hybsConfirmContainer);
-				}					
-			} else {
+			
+			if (this.parentDocument.isSolexaState()) {
+				this.vbox3.visible = !parentDocument.isSequenomState() && !parentDocument.isClinicalSequenomState() && parentDocument.request!=null && !(parentDocument.request.@isExternal == "Y");
+				this.vbox3.includeInLayout = !parentDocument.isSequenomState() && !parentDocument.isClinicalSequenomState() && parentDocument.request!=null && !(parentDocument.request.@isExternal == "Y");
 				if (this.confirmContainer.contains(this.hybsConfirmContainer)) {
 					this.confirmContainer.removeChild(this.hybsConfirmContainer);
-				}					
-			}
-			if (parentDocument.isCapSeqState()) {
-				this.sampleDropOffLocationVbox.visible = true;
+				}
+				if (parentApplication.submitInternalExperiment()) {
+					if (parentDocument.showSampleMultiplexGroup()) {
+						if (!this.confirmContainer.contains(this.lanesConfirmContainer)) {
+							this.confirmContainer.addChild(this.lanesConfirmContainer);
+						}
+						if (this.confirmContainer.contains(this.lanesConfirmFlatContainer)) {
+							this.confirmContainer.removeChild(this.lanesConfirmFlatContainer);
+						}
+					} else {
+						if (!this.confirmContainer.contains(this.lanesConfirmFlatContainer)) {
+							this.confirmContainer.addChild(this.lanesConfirmFlatContainer);
+						}
+						if (this.confirmContainer.contains(this.lanesConfirmContainer)) {
+							this.confirmContainer.removeChild(this.lanesConfirmContainer);
+						}
+					}					
+				} else {
+					if (this.confirmContainer.contains(this.lanesConfirmContainer)) {
+						this.confirmContainer.removeChild(this.lanesConfirmContainer);
+					}
+					if (this.confirmContainer.contains(this.lanesConfirmFlatContainer)) {
+						this.confirmContainer.removeChild(this.lanesConfirmFlatContainer);
+					}
+				}
+	
 			} else {
-				this.sampleDropOffLocationVbox.visible = false;	
-			}
-			this.vbox4.visible = !parentDocument.isSequencingState() && !parentDocument.isSequenomState() && !parentDocument.isClinicalSequenomState();
-			this.vbox3.visible = !parentDocument.isSequenomState() && !parentDocument.isClinicalSequenomState() && parentDocument.request!=null && !(parentDocument.request.@isExternal == "Y");
-			this.vbox4.includeInLayout = !parentDocument.isSequencingState() && !parentDocument.isSequenomState() && !parentDocument.isClinicalSequenomState();
-			this.vbox3.includeInLayout = !parentDocument.isSequenomState() && !parentDocument.isClinicalSequenomState() && parentDocument.request!=null && !(parentDocument.request.@isExternal == "Y");
-			this.expDescriptBox.includeInLayout = !parentDocument.isClinicalSequenomState();
-			this.expDescriptBox.visible = !parentDocument.isClinicalSequenomState();
-			if (parentDocument.isMitSeqState()) {
-				this.primerVbox.visible = true;
-				this.primer.text = parentDocument.sampleSetupView.getSamplePrimerList();
-			} else {
-				this.primerVbox.visible = false;	
+				if (this.parentDocument.isMicroarrayState()) {
+					if (!this.confirmContainer.contains(this.hybsConfirmContainer)) {
+						this.confirmContainer.addChild(this.hybsConfirmContainer);
+					}					
+				} else {
+					if (this.confirmContainer.contains(this.hybsConfirmContainer)) {
+						this.confirmContainer.removeChild(this.hybsConfirmContainer);
+					}					
+				}
+				if (this.confirmContainer.contains(this.lanesConfirmContainer)) {
+					this.confirmContainer.removeChild(this.lanesConfirmContainer);
+				}
+				if (this.confirmContainer.contains(this.lanesConfirmFlatContainer)) {
+					this.confirmContainer.removeChild(this.lanesConfirmFlatContainer);
+				}				
+				if (parentDocument.isCapSeqState()) {
+					this.sampleDropOffLocationVbox.visible = true;
+				} else {
+					this.sampleDropOffLocationVbox.visible = false;	
+				}
+				this.vbox4.visible = !parentDocument.isSequencingState() && !parentDocument.isSequenomState() && !parentDocument.isClinicalSequenomState();
+				this.vbox3.visible = !parentDocument.isSequenomState() && !parentDocument.isClinicalSequenomState() && parentDocument.request!=null && !(parentDocument.request.@isExternal == "Y");
+				this.vbox4.includeInLayout = !parentDocument.isSequencingState() && !parentDocument.isSequenomState() && !parentDocument.isClinicalSequenomState();
+				this.vbox3.includeInLayout = !parentDocument.isSequenomState() && !parentDocument.isClinicalSequenomState() && parentDocument.request!=null && !(parentDocument.request.@isExternal == "Y");
+				this.expDescriptBox.includeInLayout = !parentDocument.isClinicalSequenomState();
+				this.expDescriptBox.visible = !parentDocument.isClinicalSequenomState();
+				if (parentDocument.isMitSeqState()) {
+					this.primerVbox.visible = true;
+					this.primer.text = parentDocument.sampleSetupView.getSamplePrimerList();
+				} else {
+					this.primerVbox.visible = false;	
+				}
 			}
 			this.confirmContainer.validateNow();
 			
@@ -195,6 +235,8 @@
 				otherSamplePrepMethodConfirmCol.visible = false;
 				preppedByCoreCol.visible = false;
 				seqLibProtocolConfirmCol.visible = false;
+				this.numberOfSequencingCyclesCol.visible = false;
+				this.seqRunTypeCol.visible = false;
 				this.sampleRowNumberCol.visible = true;
 				this.sampleTypeColumn.visible = true;
 				this.descriptionColumn.visible = false;
@@ -204,8 +246,36 @@
 					this.sampleNameColumn.visible = false;
 				} else if ( parentDocument.isIScanState() ) {
 					this.sampleTypeColumn.visible = false;
-				} 
+				} else if ( parentDocument.isSequenomState() ) {
+					this.sampleTypeColumn.visible =  (parentDocument.sampleSetupView.coreToExtractDNACheckBox!=null&&!parentDocument.sampleSetupView.coreToExtractDNACheckBox.selected) ? true : false;
+					this.concentrationCol.visible = (parentDocument.sampleSetupView.coreToExtractDNACheckBox!=null&&!parentDocument.sampleSetupView.coreToExtractDNACheckBox.selected) ? true : false;
+					
+				}
 				
+			} else if (parentDocument.isSolexaState()) {
+				sampleOrganismConfirmColumn.visible = true;
+				chipTypeConfirmColumn.visible = false; 
+				
+				preppedByCoreCol.visible = parentApplication.submitInternalExperiment();
+				otherSamplePrepMethodConfirmCol.visible = parentApplication.submitInternalExperiment();
+				
+				this.numberOfSequencingCyclesCol.visible = parentApplication.submitInternalExperiment();
+				this.seqRunTypeCol.visible = parentApplication.submitInternalExperiment();
+				
+				this.barcodeColumn.visible = parentDocument.showSampleBarcodes();
+				this.barcodeColumnB.visible = parentDocument.showSampleBarcodesB();
+				this.customBarcodeColumn.visible = parentDocument.showSampleCustomBarcodes();
+				
+				this.sampleRowNumberCol.visible = false;
+				
+				if (!parentApplication.submitInternalExperiment()) {
+					seqLibProtocolConfirmCol.visible = false;
+				} else if (!parentDocument.isEditState() &&
+				    parentDocument.sampleSetupView.currentState == "SolexaSetupState") {
+					seqLibProtocolConfirmCol.visible = false;
+				} else {
+					seqLibProtocolConfirmCol.visible = true;
+				}
 			} else if (parentDocument.currentState == 'QCState') {
 				sampleOrganismConfirmColumn.visible = false;
 				otherOrganismCol.visible = false;
@@ -213,6 +283,8 @@
 				otherSamplePrepMethodConfirmCol.visible = true;
 				preppedByCoreCol.visible = false;
 				seqLibProtocolConfirmCol.visible = false;
+				this.numberOfSequencingCyclesCol.visible = false;
+				this.seqRunTypeCol.visible = false;
 				this.sampleRowNumberCol.visible = false;
 
 			} else {
@@ -222,6 +294,8 @@
 				otherSamplePrepMethodConfirmCol.visible = true;
 				preppedByCoreCol.visible = false;
 				seqLibProtocolConfirmCol.visible = false;
+				this.numberOfSequencingCyclesCol.visible = false;
+				this.seqRunTypeCol.visible = false;
 				this.sampleRowNumberCol.visible = false;
 
 			}
@@ -277,18 +351,6 @@
 			this.billingConfirmGrid.validateNow();
 		}
 		
-		override public function updateBatchWarning():void{
-			var warning:String = this.getSampleBatchWarning();
-			
-			if(warning == ""){
-				sampleBatchWarningBox.includeInLayout = false;
-				this.batchWarning.text = "";
-			} else{
-				sampleBatchWarningBox.includeInLayout = true;
-				this.batchWarning.text = this.getSampleBatchWarning();	
-			}
-		}
-		
 	]]>
 	
 </mx:Script>
@@ -304,6 +366,18 @@
 					<mx:Text text="{parentDocument.applicationName}" id="appLabel" width="140" visible="{!parentDocument.isSequencingState()}"/>
 					<mx:Text text="{parentDocument.sampleSetupView.sequenomApplicationDesc!=null ? parentDocument.sampleSetupView.sequenomApplicationDesc.text:''}" 
 							 id="appLabel0" width="140" />
+					<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle" id="hbox5" >
+						<mx:Label text="Core to extract DNA:" textAlign="left" id="label0" 
+								  visible="{(parentDocument.isSequenomState()||parentDocument.isClinicalSequenomState())&amp;&amp;parentDocument.sampleSetupView.coreToExtractDNACheckBox!=null}"/>
+						<mx:Text  text="{parentDocument.sampleSetupView.coreToExtractDNACheckBox.selected ? 'Yes' : 'No'}" 
+								  visible="{(parentDocument.isSequenomState()||parentDocument.isClinicalSequenomState())&amp;&amp;parentDocument.sampleSetupView.coreToExtractDNACheckBox!=null}" />
+					</mx:HBox>
+					<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle" 
+							 includeInLayout="{parentDocument.isSequenomState()&amp;&amp;parentDocument.sampleSetupView.coreToExtractDNACheckBox!=null&amp;&amp;parentDocument.sampleSetupView.coreToExtractDNACheckBox.selected}" 
+							 visible="{parentDocument.isSequenomState()&amp;&amp;parentDocument.sampleSetupView.coreToExtractDNACheckBox!=null&amp;&amp;parentDocument.sampleSetupView.coreToExtractDNACheckBox.selected}">
+						<mx:Label text="Prep type:" textAlign="left" />
+						<mx:Text text="{parentDocument.sampleSetupView.dnaPrepTypeCombo!=null&amp;&amp;parentDocument.sampleSetupView.dnaPrepTypeCombo.selectedIndex > 0 ? parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.DNAPrepType').DictionaryEntry.(@value == parentDocument.sampleSetupView.dnaPrepTypeCombo.selectedItem.@codeDNAPrepType).@display : ''}" />
+					</mx:HBox>
 				</mx:VBox>
 				<mx:VBox height="100%" verticalGap="0" width="140" horizontalScrollPolicy="off">
 					<mx:Label text="Lab" styleName="formLabel" height="16"/>
@@ -328,10 +402,6 @@
 				    <mx:HBox width="100%" id="chargesHeaderBox">
 				    <mx:Label text="{'Estimated Charges ' + parentDocument.createBillingItems.lastResult.Request.@invoicePrice}" id="label2" styleName="formLabel" paddingTop="4"/>								    	
 				    </mx:HBox>
-					<mx:HBox width="100%" id="sampleBatchWarningBox">
-						<mx:Label id="batchWarning" 
-								  styleName="sampleBatchWarning" paddingTop="6"/>								    	
-					</mx:HBox>
 					<mx:VBox width="100%" id="vbox1">
 						<mx:DataGrid id="billingConfirmGrid"   showHeaders="false"  horizontalScrollPolicy="off"
 							editable="false" dataProvider="{parentDocument.createBillingItems.lastResult..BillingItem}"  
@@ -530,6 +600,61 @@
 				</mx:DataGrid>
 				 
 			</mx:VBox>
+            <mx:VBox  id="lanesConfirmContainer"  verticalGap="0" width="100%"  paddingTop="4" >
+			  <mx:Label id="laneGridLabel" text="{'Sequencing setup ' + ' (' + parentDocument.multiplexLanes.length + ' lanes)'}" styleName="formLabel"/>
+					<mx:AdvancedDataGrid width="100%"  id="lanesConfirmGrid" 
+						rollOverColor="#C0C0C0" 
+						editable="false"
+						allowMultipleSelection="false" 
+						horizontalScrollPolicy="off" 
+						sortableColumns="false"
+						sortExpertMode="true"  
+						iconFunction="getEmptyTreeIcon"
+						defaultLeafIcon="{null}" 
+						rowCount="{parentDocument.lanes.length + parentDocument.multiplexLanes.length + 2}"
+						displayItemsExpanded="true"  
+						selectionColor="#FFFFB9" 
+						alpha="0.8" fontSize="11">
+						<mx:dataProvider>   
+      						<mx:HierarchicalData source="{parentDocument.multiplexLanes}"/> 
+    					</mx:dataProvider> 						
+					<mx:columns>
+					    <mx:AdvancedDataGridColumn  headerText=""  width="20" id="multiplexGroupNumberCol" dataField="@number" editable="false" />
+					    <mx:AdvancedDataGridColumn  headerText="Sample"  width="100" dataField="@sampleName" editable="false"/>
+			            <mx:AdvancedDataGridColumn  width="200" id="seqRunTypeCol" headerText="Seq Run Type"  dataField="@idSeqRunType" 						             						             
+                  		  itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqRunType').DictionaryEntry, '@display', '@value','@idSeqRunType', true)}"/>
+			            <mx:AdvancedDataGridColumn width="65" id="numberOfSequencingCyclesCol" headerText="# Cycles"    editable="false" dataField="@idNumberSequencingCycles" 						             						             
+                  		  itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.NumberSequencingCycles').DictionaryEntry, '@display', '@value', '@idNumberSequencingCycles', true)}"/>
+			            <mx:AdvancedDataGridColumn headerText="Genome Build (align to)" dataField="@idGenomeBuildAlignTo" width="150" 
+                  		  itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.GenomeBuildLite').DictionaryEntry, '@display', '@value', '@idGenomeBuildAlignTo')}"/>
+					</mx:columns>
+					</mx:AdvancedDataGrid>
+              	
+				
+			</mx:VBox>	
+            <mx:VBox  id="lanesConfirmFlatContainer"  verticalGap="0" width="100%"  paddingTop="4" >
+				  <mx:Label  text="{'Sequencing setup (' + parentDocument.lanes.length + ' lanes)'}" styleName="formLabel" paddingTop="10" id="label4"/>
+					<mx:DataGrid width="100%"  
+						rollOverColor="#C0C0C0" 
+						editable="false"
+						allowMultipleSelection="false" 
+						horizontalScrollPolicy="off" 
+						sortableColumns="false"
+						rowCount="{parentDocument.lanes.length}"
+						selectionColor="#FFFFB9" 
+						alpha="0.8" fontSize="11"
+						dataProvider="{parentDocument.lanes}">
+					<mx:columns>
+					    <mx:DataGridColumn  headerText="Sample"  width="222" labelFunction="parentDocument.getLaneSampleName" editable="false"/>
+			            <mx:DataGridColumn  width="200"  headerText="Seq Run Type"  editable="false" dataField="@idSeqRunType" 						             						             
+                  		  itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqRunType').DictionaryEntry, '@display', '@value','@idSeqRunType', true)}"/>
+			            <mx:DataGridColumn width="65" headerText="# Cycles"    editable="false" dataField="@idNumberSequencingCycles" 						             						             
+                  		  itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.NumberSequencingCycles').DictionaryEntry, '@display', '@value', '@idNumberSequencingCycles', true)}"/>
+			            <mx:DataGridColumn headerText="Genome Build (align to)" dataField="@idGenomeBuildAlignTo" width="150" 
+                  		  itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.GenomeBuildLite').DictionaryEntry, '@display', '@value', '@idGenomeBuildAlignTo')}"/>
+					</mx:columns>
+					</mx:DataGrid>
+			</mx:VBox>
  </mx:VBox>
  </mx:VBox>
 	
@@ -553,6 +678,8 @@
 			</mx:SetProperty>
 			<mx:RemoveChild target="{billingContainer}"/>
 			<mx:SetProperty target="{label1}" name="text" value="{'Samples (' + parentDocument.samples.length + ' )'}"/>
+			<mx:SetProperty target="{laneGridLabel}" name="text" value="{'Sequencing Lanes' + ' (' + parentDocument.multiplexLanes.length + ' )'}"/>
+			<mx:SetProperty target="{label4}" name="text" value="{'Sequencing lanes (' + parentDocument.lanes.length + ' )'}"/>
 			<mx:SetStyle target="{hybsGridConfirm}" />
 			
 		</mx:State>

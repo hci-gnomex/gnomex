@@ -9,7 +9,6 @@ package views.experiment
 	import mx.containers.Canvas;
 	import mx.controls.AdvancedDataGrid;
 	import mx.controls.Alert;
-	import mx.controls.TextInput;
 	import mx.controls.advancedDataGridClasses.AdvancedDataGridColumn;
 	import mx.events.CloseEvent;
 	import mx.events.FlexEvent;
@@ -17,7 +16,6 @@ package views.experiment
 	import mx.utils.ObjectUtil;
 	
 	import views.renderers.CheckBoxRenderer;
-	import views.renderers.DropdownLabelAnnotation;
 	import views.renderers.MultiselectRenderer;
 	import views.renderers.URLRenderer;
 	import views.util.AnnotationAdvancedDataGridColumn;
@@ -32,22 +30,8 @@ package views.experiment
 		protected var downloadRequest:URLRequest; 
 		protected var downloadFileRef:FileReference; 
 
-		public var filteredSampleTypeList:XMLListCollection;
-
-		public static function getSamplesTab(existingTab:TabSamplesBase, requestCategory:Object, requestCategoryType:Object, isEditState:Boolean, isAmendState:Boolean):TabSamplesBase {
-			if (requestCategory.@codeRequestCategory == 'MDMISEQ') {
-				if (existingTab is TabSamplesMDMiSeq) {
-					return existingTab;
-				} else {
-					return new TabSamplesMDMiSeq();
-				}requestCategory.@codeRequestCategory == "DDPCR"
-			} else if (requestCategory.@codeRequestCategory == "DDPCR") {
-				if (existingTab is TabSamplesDDPCR) {
-					return existingTab;
-				} else {
-					return new TabSamplesDDPCR();
-				}
-			} else if (requestCategoryType.@isIllumina == 'Y') {
+		public static function getSamplesTab(existingTab:TabSamplesBase, requestCategoryType:Object, isEditState:Boolean, isAmendState:Boolean):TabSamplesBase {
+			if (requestCategoryType.@isIllumina == 'Y') {
 				if (existingTab is TabSamplesIllumina) {
 					return existingTab;
 				} else {
@@ -59,29 +43,11 @@ package views.experiment
 				} else {
 					return new TabSamplesSequenom();
 				}
-			} else if (requestCategoryType.@codeRequestCategoryType == 'NANOSTRING') {
-				if (existingTab is TabSamplesNanoString) {
-					return existingTab;
-				} else {
-					return new TabSamplesNanoString();
-				}
-			}else if (requestCategoryType.@codeRequestCategoryType == 'ISOLATION') {
+			} else if (requestCategoryType.@codeRequestCategoryType == 'ISOLATION') {
 				if (existingTab is TabSamplesIsolation) {
 					return existingTab;
 				} else {
 					return new TabSamplesIsolation();
-				}
-			} else if (requestCategory.@codeRequestCategory.substr( 0, 6 ) == 'IONTOR') {
-				if (existingTab is TabSamplesIonTorrent) {
-					return existingTab;
-				} else {
-					return new TabSamplesIonTorrent();
-				}
-			} else if (requestCategoryType.@codeRequestCategoryType == 'GENERIC') {
-				if (existingTab is TabSamplesGeneric) {
-					return existingTab;
-				} else {
-					return new TabSamplesGeneric();
 				}
 			} else {
 				if (existingTab is TabSamplesView) {
@@ -95,14 +61,6 @@ package views.experiment
 		public function TabSamplesBase()
 		{
 			super();
-		}
-		
-		public function initializeSampleTypes():void {
-			var sampleTypeList:XMLList = new XMLList();
-			for each (var sampleType:Object in parentDocument.filteredSampleTypeList) {
-				sampleTypeList += sampleType;
-			}		
-			this.filteredSampleTypeList = new XMLListCollection(sampleTypeList);
 		}
 		
 		public function initializeSamplesGrid():void {
@@ -155,10 +113,6 @@ package views.experiment
 			
 		}
 		
-		public function insertSample():Boolean {
-			return true;
-		}
-		
 		public function addSample():Boolean {
 			return true;
 		}
@@ -173,10 +127,6 @@ package views.experiment
 		
 		public function propagateBarcode():void {
 			
-		}
-		
-		public function areIndexTagsUnique():Boolean {
-			return true;
 		}
 		
 		protected function rebuildSamplesGrid():void {
@@ -270,18 +220,16 @@ package views.experiment
 				propertyNode.@isSelected = 'true';
 			}
 			
+			/*if ( parentDocument.isSequenomState() && propertyNode.@isRequired == "true") {
+				propertyNode.@isSelected = parentDocument.sampleSetupView.coreToExtractDNACheckBox!=null && parentDocument.sampleSetupView.coreToExtractDNACheckBox.selected ? 'true' : 'false';
+			}*/
+			
 			// We only show inactive options when it is edit state.
 			var includeInactiveOptions:Boolean = parentDocument.isEditState() && !parentDocument.isIScanState();
 			
 			var fieldName:String = "@ANNOT" + propertyNode.@idProperty;
 			dc.dataField  = fieldName;
 			dc.headerText = propertyNode.@name;
-			dc.headerWordWrap = true;
-			if (propertyNode.@description != null && propertyNode.@description.toString() != "") {
-				dc.headerToolTip = propertyNode.@description
-			} else {
-				dc.headerToolTip = propertyNode.@name;
-			}
 			if (propertyNode.@name == "Other" && parentDocument.request.@otherLabel != null && parentDocument.request.@otherLabel != '') {
 				dc.headerText = parentDocument.request.@otherLabel;
 			}
@@ -289,7 +237,7 @@ package views.experiment
 			dc.editable = false;
 			dc.propertyType = property.@codePropertyType;
 			if (property.@codePropertyType == 'MOPTION') {
-				dc.itemRenderer =  MultiselectRenderer.create(true,propertyNode.@isRequired == 'true',true);
+				dc.itemRenderer =  MultiselectRenderer.create(true,propertyNode.@isRequired == 'true');
 			} else if (property.@codePropertyType == 'URL') {
 				dc.itemRenderer = URLRenderer.create(true,propertyNode.@isRequired == 'true');
 			} else if (property.@codePropertyType == 'CHECK') {
@@ -297,26 +245,14 @@ package views.experiment
 			} else if (property.@codePropertyType == 'OPTION') {
 				dc.editable = true;
 				dc.editorDataField = "value"
-					/*
 				dc.itemRenderer = views.renderers.DropdownLabel.create(
 					parentApplication.getPropertyOptions(propertyNode.@idProperty, includeInactiveOptions), 
 					'@option', 
 					'@idPropertyOption', 
 					fieldName,
 					propertyNode.@isRequired == 'true',
-					true,
-				    parentApplication.annotationColor);
-					*/
-				dc.itemRenderer = views.renderers.DropdownLabelAnnotation.create(
-					"@option",
-					"@idPropertyOption",
-					fieldName,
-					propertyNode.@idProperty.toString(),
-					parentApplication,
-					propertyNode.@isRequired == 'true',
-					true,
-					parentApplication.annotationColor);
-				/*dc.itemEditor   = views.renderers.GridColumnFillButton.create(views.renderers.ComboBox.create(
+					true);                
+				dc.itemEditor   = views.renderers.GridColumnFillButton.create(views.renderers.ComboBox.create(
 					parentApplication.getPropertyOptions(propertyNode.@idProperty, includeInactiveOptions),
 					"@option",
 					"@idPropertyOption",
@@ -325,13 +261,6 @@ package views.experiment
 					true,
 					true,
 					false,
-					true).newInstance(), '');		*/				
-				dc.itemEditor   = views.renderers.GridColumnFillButton.create(views.renderers.FilterComboBoxAnnotation.create(
-					"@option",
-					"@idPropertyOption",
-					fieldName,
-					propertyNode.@idProperty.toString(),
-					includeInactiveOptions,
 					true).newInstance(), '');						
 			} else  {
 				// Assume text
@@ -354,12 +283,10 @@ package views.experiment
 		
 		protected function init():void {
 			if (parentDocument != null) {
-				parentDocument.propertyEntries.refresh();
 				showHideColumns();
 				initButtons();
 				rebuildSamplesGrid();
 				initializeBarcoding();
-				initializeSampleTypes();
 			}
 		}
 		
@@ -468,7 +395,6 @@ package views.experiment
 		}
 		
 		protected function reqdAnnotationsEntered(sample:Object):Boolean {
-		/*
 			for each(var col:AdvancedDataGridColumn in getSamplesGrid().columns) {
 				if (col is views.util.AnnotationAdvancedDataGridColumn && col.visible) {
 					if (!sample.hasOwnProperty(col.dataField) || sample[col.dataField] == '') {
@@ -480,10 +406,18 @@ package views.experiment
 					}					
 				}
 			}
-			*/
 			return true;
 		}
-				
+		
+		public function groupNameLabelFunction(item:Object, column:AdvancedDataGridColumn):String
+		{
+			if (item is XML) {
+				return "";
+			} else {
+				return item.groupLabel;
+			}
+		}
+		
 		public function deleteSample():void {
 			var isExternal:Boolean = (parentDocument.isEditState() && parentDocument.request.@isExternal == 'Y') || (!parentDocument.isEditState() && !parentApplication.isInternalExperimentSubmission);
 			parentDocument.dirty.setDirty();
@@ -592,11 +526,7 @@ package views.experiment
 		
 		// Used for multi-select renderer. Get all options (include inactive if edit state)
 		public function getPropertyOptions(idProperty:String):XMLList {
-			var includeInactive:Boolean = true;
-			if (parentDocument != null) {
-				includeInactive = parentDocument.isEditState();
-			}
-			return parentApplication.getPropertyOptions(idProperty, includeInactive);
+			return parentApplication.getPropertyOptions(idProperty, parentDocument.isEditState());
 		}
 		
 		protected function addOrganism():void {
@@ -633,14 +563,6 @@ package views.experiment
 		
 		public function getPlateName(idx:int):String {
 			return "";
-		}
-		
-		public function getIdPlate(idx:int):String {
-			return "";
-		}
-		
-		public function getIsExternal():Boolean {
-			return (parentDocument.isEditState() && parentDocument.request.@isExternal == 'Y') || (!parentDocument.isEditState() && !parentApplication.isInternalExperimentSubmission);
 		}
 		
 		protected function getWellName(idx:int):String {

@@ -1,8 +1,8 @@
 package views.util
 {
-	import views.util.AdvancedDataGridToolTipColumn;
+	import mx.controls.advancedDataGridClasses.AdvancedDataGridColumn;
 	 
-	public class AnnotationAdvancedDataGridColumn extends AdvancedDataGridToolTipColumn
+	public class AnnotationAdvancedDataGridColumn extends AdvancedDataGridColumn
 	{
 		/**
 		 *  Field Type: TEXT (default), CHECK, MOPTION, OPTION, or URL

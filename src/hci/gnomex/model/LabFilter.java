@@ -5,7 +5,6 @@ import hci.framework.model.DetailObject;
 import hci.gnomex.security.SecurityAdvisor;
 
 import java.util.Iterator;
-import java.util.Set;
 
 public class LabFilter extends DetailObject {
   
@@ -168,9 +167,10 @@ public class LabFilter extends DetailObject {
   private void addUnboundedSecurityCriteria() {
     if (secAdvisor.hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
       // No criteria needed if this is a super user
-    } else if (secAdvisor.hasPermission(SecurityAdvisor.CAN_ACCESS_ANY_OBJECT) && !secAdvisor.hasPermission(SecurityAdvisor.CAN_SUBMIT_FOR_OTHER_CORES)) { 
+    } else if (secAdvisor.hasPermission(SecurityAdvisor.CAN_ACCESS_ANY_OBJECT)) { 
       // No criteria.  Admins can see labs from all core facilities.
-    } else {      
+    } else {
+      
       if (secAdvisor.getCoreFacilitiesForMyLab().isEmpty()) {
         // User is not a member of any lab, let's just show all labs.
         // The only place this lab list is used is for searching and
@@ -180,16 +180,14 @@ public class LabFilter extends DetailObject {
         // Filter to show only labs associated with core facilities this user is 
         // associated with
         this.addWhereOrAnd();
-        Set coreFacilities = secAdvisor.getCoreFacilitiesForMyLab();
-        coreFacilities.addAll(secAdvisor.getCoreFacilitiesICanSubmitTo());
         queryBuf.append(" coreFacility.idCoreFacility in ( ");
-        for(Iterator i = coreFacilities.iterator(); i.hasNext();) {
+        for(Iterator i = secAdvisor.getCoreFacilitiesForMyLab().iterator(); i.hasNext();) {
           CoreFacility cf = (CoreFacility)i.next();
           queryBuf.append(cf.getIdCoreFacility());
           if (i.hasNext()) {
             queryBuf.append(", ");
           }
-        }
+        }      
         queryBuf.append(" )");        
         
       }

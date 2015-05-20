@@ -2,7 +2,6 @@ package hci.gnomex.utility;
 
 import hci.framework.model.DetailObject;
 import hci.gnomex.constants.Constants;
-import hci.gnomex.model.PropertyDictionary;
 
 import java.io.File;
 import java.io.Serializable;
@@ -59,7 +58,7 @@ public class AnalysisFileDescriptor extends DetailObject implements Serializable
     //first scan DataTrack types, some are xxx.vcf.gz or xxx.vcf.gz.tbi
     //Nix
     for (String t: Constants.DATATRACK_FILE_EXTENSIONS){
-    	if (fileName.toLowerCase().endsWith(t)){
+    	if (fileName.endsWith(t)){
     		ext = t.substring(1);
     		//watch out for .bam.bai
     		if (ext.equals("bam.bai")) ext = "bai";
@@ -111,7 +110,7 @@ public class AnalysisFileDescriptor extends DetailObject implements Serializable
   
   public long getChildFileSize() {
     
-    if (isDirectory()) {
+    if (this.type != null && this.type.equals("dir")) {
       long total = 0;
       for(Iterator i = children.iterator(); i.hasNext();) {
         AnalysisFileDescriptor fd = (AnalysisFileDescriptor)i.next();
@@ -125,13 +124,9 @@ public class AnalysisFileDescriptor extends DetailObject implements Serializable
     
   }
   
-  private Boolean isDirectory() {
-    return (this.type != null && this.type.equals("dir"));
-  }
-  
   public long getFileSize() {
     
-    if (isDirectory()) {
+    if (type != null && type.equals("dir")) {
       long theFileSize = 0;
       theFileSize = this.getChildFileSize();
       return theFileSize;
@@ -358,26 +353,28 @@ public class AnalysisFileDescriptor extends DetailObject implements Serializable
 
   public String getViewURL() {
     String viewURL = "";
-    String dirParm = this.getQualifiedFilePath() != null  ? "&dir=" + this.getQualifiedFilePath() : "";
-    if (!isDirectory()) {
-      Boolean found = false;
-      for(String ext : Constants.FILE_EXTENSIONS_FOR_VIEW) {
-        if (this.fileName.toLowerCase().endsWith(ext)) {
-          found = true;
-          break;
-        }
+    // Only allow viewing on supported browser mime types
+    // TODO:  Use standard way of supported mime types instead of hardcoded list
+    if (fileName.toLowerCase().endsWith(".pdf") ||
+        fileName.toLowerCase().endsWith(".jpg") ||
+        fileName.toLowerCase().endsWith(".png") ||
+        fileName.toLowerCase().endsWith(".gif") ||
+        fileName.toLowerCase().endsWith(".rtf") ||
+        fileName.toLowerCase().endsWith(".txt") ||
+        fileName.toLowerCase().endsWith(".html") ||
+        fileName.toLowerCase().endsWith(".htm")) {
+      // Only allow viewing for files under 50 MB
+      if (this.fileSize < Math.pow(2, 20) * 50) {
+        String dirParm = this.getQualifiedFilePath() != null  ? "&dir=" + this.getQualifiedFilePath() : "";
+        viewURL = Constants.DOWNLOAD_ANALYSIS_SINGLE_FILE_SERVLET + "?idAnalysis=" + idAnalysis + "&fileName=" + this.getDisplayName() + "&view=Y" + dirParm;    
       }
-      if (found) {
-        Double maxSize =  Math.pow(2, 20) * 50;
-        try {
-          maxSize = Math.pow(2, 20) * Double.parseDouble(PropertyDictionaryHelper.getInstance(null).getProperty(PropertyDictionary.FILE_MAX_VIEWABLE_SIZE));
-        } catch(Exception ex) {
-        }
-          
-        if (this.fileSize < maxSize) {   // Only allow viewing for files under specified max MB     
-            viewURL = Constants.DOWNLOAD_ANALYSIS_SINGLE_FILE_SERVLET + "?idAnalysis=" + idAnalysis + "&fileName=" + this.getDisplayName() + "&view=Y" + dirParm;    
-        }
-      }
+    } else if(fileName.toLowerCase().endsWith(".csv") ||
+        fileName.toLowerCase().endsWith(".ppt") ||
+        fileName.toLowerCase().endsWith(".pptx") ||
+        fileName.toLowerCase().endsWith(".xls")) {
+      String dirParm = this.getQualifiedFilePath() != null  ? "&dir=" + this.getQualifiedFilePath() : "";
+      viewURL = Constants.DOWNLOAD_ANALYSIS_SINGLE_FILE_SERVLET + "?idAnalysis=" + idAnalysis + "&fileName=" + this.getDisplayName() + "&view=N" + dirParm;
+
     }
     return viewURL;
   }

@@ -6,7 +6,7 @@
 				xmlns:util="views.util.*"
 				showCloseButton="true" 
 				close="closeWindow()" 
-				title="New Billing Account" 
+				title="New Work Authorization" 
 				
 				>
 	<mx:Script>

@@ -2,7 +2,7 @@
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
 				layout="vertical" 
 				showCloseButton="true" 
-				close="{closeWindow()}" 
+				close="{PopUpManager.removePopUp(this)}" 
 				title="Select Date Range:" 	 
 				xmlns:util="views.util.*" 
 				borderThickness="4" horizontalScrollPolicy="off" verticalScrollPolicy="off">
@@ -49,8 +49,8 @@
 				validator.dispatchEvent(new ValidationResultEvent(ValidationResultEvent.VALID));
 				
 				if ( dateRangeMenu != null ) {
-					dateRangeMenu.updateFromDate(fromDate);
-					dateRangeMenu.updateToDate(toDate);
+					dateRangeMenu.fromDate = fromDate;
+					dateRangeMenu.toDate = toDate;
 				}
 			}
 			
@@ -69,18 +69,13 @@
 						validator.validate();
 					}
 					if ( dateRangeMenu != null ) {
-						dateRangeMenu.updateFromDate(null);
-						dateRangeMenu.updateToDate(null);
+						dateRangeMenu.fromDate = null;
+						dateRangeMenu.toDate = null;
 					}
 				} else if ( dateRangeMenu != null ) {
-					dateRangeMenu.updateFromDate(fromDate);
-					dateRangeMenu.updateToDate(toDate);
+					dateRangeMenu.fromDate = fromDate;
+					dateRangeMenu.toDate = toDate;
 				}
-			}
-			
-			private function closeWindow():void {
-				PopUpManager.removePopUp(this);
-				dateRangeMenu.determineIfDateChanged();
 			}
 			
 			[Bindable]

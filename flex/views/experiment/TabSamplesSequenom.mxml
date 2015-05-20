@@ -12,6 +12,9 @@
 			import hci.flex.controls.DropdownLabel;
 			import hci.flex.controls.Label;
 			
+			import mx.collections.Grouping;
+			import mx.collections.GroupingCollection;
+			import mx.collections.GroupingField;
 			import mx.collections.IHierarchicalCollectionView;
 			import mx.collections.SortField;
 			import mx.collections.XMLListCollection;
@@ -39,12 +42,13 @@
 			import views.util.AdvancedDataGridColumnWithType;
 			import views.util.AnnotationAdvancedDataGridColumn;
 			import views.util.CopySampleSheetColumnView;
-			import views.util.SampleConcentrationValidator;
 			import views.util.UploadSampleSheetInstructionsView;
 			import views.util.UploadSampleSheetView;
 			
 			private var saveInstructionToolTipText:String;
-						
+			
+			public var sampleGroupingCollection:GroupingCollection = null;
+			
 			[Bindable]
 			private var isExternal:Boolean = false;
 			
@@ -96,25 +100,6 @@
 				return false;
 			}
 
-			override public function insertSample():Boolean {
-				var emptyNode:XML = null;
-				var isValid:Boolean = true;
-				var index:int = samplesGrid.selectedIndex;
-				
-				emptyNode = this.getEmptySequenomNode(index);
-				
-				if (emptyNode != null) {
-					parentDocument.samples.addItemAt(emptyNode, index);
-				}
-				
-				if ( parentDocument.samples.length > 96 && parentDocument.samples.length % 96 != 0 ) {
-					parentDocument.samples.removeItemAt(parentDocument.samples.length-1);
-				}
-				
-				samplesGrid.updateWellNames();
-				
-				return isValid;
-			}
 			
 			override public function addSample():Boolean {
 				var emptyNode:XML = null;
@@ -133,7 +118,6 @@
 			private function getEmptySequenomNode(idx:int):XML {
 				var plateName:String = getPlateName(idx);
 				var wellName:String = getWellName(idx);
-				var idPlate:String = getIdPlate(idx);
 				var sampleId:String = "Sample" + idx;
 				var emptyNode:XML = new XML("<Sample " +
 					" idSample='" + sampleId + "'" +
@@ -141,9 +125,7 @@
 					" concentration=''" +
 					" containerType='" + (parentDocument.request.@containerType == 'PLATE' ? 'Plate' : 'Tube') + "'" +
 					" canChangeSampleName='Y'" +	
-					" canChangeSampleConcentration='Y'" +
 					" plateName='" + (parentDocument.request.@containerType == 'PLATE' ? plateName : '') + "'" +
-					" idPlate='" + (parentDocument.request.@containerType == 'PLATE' ? idPlate : '') + "'" +
 					" wellName='" + (parentDocument.request.@containerType == 'PLATE' ? wellName : '') + "'" +
 					" idSampleType='" + (parentApplication.submitInternalExperiment() && !this.isEditState ? parentDocument.sampleSetupView.sampleTypeRadioGroup.selectedValue : '')  + "'" +
 					"/>");
@@ -163,29 +145,13 @@
 				return plateName;
 			}
 			
-			override public function getIdPlate(idx:int):String {
-				var idPlate:String = "";
-				
-				var y:int = idx / 96;
-				if ( this.isEditState && parentDocument.samples.getItemAt( y*96 ) != null ) {
-					idPlate = parentDocument.samples.getItemAt( y*96 ).@idPlate;
-				} 
-				
-				return idPlate;
-			}
 			
 			override protected function deleteSingleSample(sample:Object):Boolean {
-				parentDocument.samples.removeItemAt(parentDocument.samples.getItemIndex(sample));
-				
-				if ( this.hasPlates() ){
-					
-					if ( parentDocument.samples.length < 96 || parentDocument.samples.length % 96 != 0 ) {
-						
-						parentDocument.samples.addItem(getEmptySequenomNode(95));
-					}
-					
-					samplesGrid.updateWellNames();
-					
+				var ind:int = parentDocument.samples.getItemIndex(sample);
+				if ( this.hasPlates() && ind >= 0) {
+					parentDocument.samples.setItemAt(getEmptySequenomNode(ind),ind);
+				} else {
+					parentDocument.samples.removeItemAt(parentDocument.samples.getItemIndex(sample));
 				}
 				return true;
 			}
@@ -269,24 +235,8 @@
 			
 			override protected function onPromptToClearAllSamples(event:CloseEvent):void {
 				if (event.detail==Alert.YES) {
-					if ( parentDocument.isEditState() ) {
-						while (parentDocument.samples.length > 1) {
-							parentDocument.samples.removeItemAt(parentDocument.samples.length - 1);
-						}
-						for each (var sample:Object in parentDocument.samples) {
-							
-							for each (var attribute:Object in sample.attributes()) {
-								var aName:String = attribute.name();
-								if ( aName != 'plateName' && aName != 'wellName' && aName != 'containerType') {
-									sample["@" + attribute.name()] = '';
-								}
-							}
-							sample.@canChangeSampleName = 'Y';
-						}						
-					} else {
-						parentDocument.samples.removeAll();
-						this.initializeSamplesGrid();
-					}
+					parentDocument.samples.removeAll();
+					this.initializeSamplesGrid();
 						
 					checkSamplesCompleteness();
 					this.initializeBarcoding();
@@ -294,16 +244,12 @@
 			}		
 			
 			override public function checkSamplesCompleteness():void {
-				//For some reason this code is still being called even when the samples view is not visible
-				if(this.visible == false){
-					return;
-				}
 				parentDocument.userWarningsSamples = "";
 				
 				var completeCount:int = 0;
 				var nameCompleteCount:int = 0;
 				for each(var sample:Object in parentDocument.samples) {
-					if (isEntered(sample, "@name") && isEntered(sample, "@concentration")) {
+					if (isEntered(sample, "@name")) {
 						nameCompleteCount++;
 					}
 					completeCount++;
@@ -321,14 +267,7 @@
 				} else if (parentDocument.isEditState()) {
 					isComplete = true;
 				}
-
-				// Make sure that sample concentration is valid
-				var cw:String = SampleConcentrationValidator.instance.validateSampleConcentration(parentDocument.samples);
-				if (cw != "") {
-					parentDocument.userWarningsSamples += cw;
-					isComplete = false;
-				}
-
+								
 				parentDocument.confirmView.enabled = isComplete;
 				parentDocument.enableNextButtons();
 								
@@ -404,16 +343,28 @@
 			
 			private function setSamplesGridDataProvider():void {
 				this.samplesGrid.validateNow(); // Make sure columns on samples grid are created
-				
-				this.samplesGrid.dataProvider = parentDocument.samples;
-				
-				this.samplesGrid.sortableColumns = false;
-				this.samplesGrid.dragMoveEnabled = false;
-				this.samplesGrid.dropEnabled = false;
-				this.samplesGrid.dragEnabled = false;
-				
-				this.plateNameCol.visible = hasPlates();
-				
+				if (hasPlates()) {
+					this.samplesGrid.dataProvider = null;
+					sampleGroupingCollection = new GroupingCollection();
+					sampleGroupingCollection.source = parentDocument.samples;
+					var groupCapSeq:Grouping = new Grouping();
+					var gfCapSeq:GroupingField = new GroupingField();
+					gfCapSeq.name = "@plateName";
+					groupCapSeq.fields = [gfCapSeq];
+					gfCapSeq.compareFunction = plateSampleCompareFunction;
+					sampleGroupingCollection.grouping  = groupCapSeq;
+					sampleGroupingCollection.refresh(); 
+					this.samplesGrid.dataProvider = sampleGroupingCollection;
+										
+					this.plateNameCol.visible = true;
+				} else {
+					this.samplesGrid.sortableColumns = false;
+					sampleGroupingCollection = null;
+					this.samplesGrid.dataProvider = parentDocument.samples;
+										
+					this.plateNameCol.visible = false;
+					
+				}
 			}
 			
 			
@@ -483,26 +434,20 @@
 				}
 				
 				samplesGrid.addRowEnabled = !this.hasPlates() || parentDocument.isEditState();
-				samplesGrid.insertRowEnabled = this.hasPlates();
 				samplesGrid.showRowNumberCol = !this.hasPlates();
 				samplesGrid.hasPlates = this.hasPlates();
-				samplesGrid.colorRowsByField = this.hasPlates() ? 'plateName' : null;
 				
 				// Edit columns shown
 				wellNameCol.visible = hasPlates() ? true : false;
 												
 				sampleNumberCol.visible = parentDocument.isEditState();
 				
-				this.sampleTypeCol.visible = true;		
-				this.concentrationCol.visible = true;
-				this.qc_260_280Column.visible = true;
+				this.sampleTypeCol.visible = parentDocument.isEditState() || (parentDocument.isSequenomState()&&parentDocument.sampleSetupView.coreToExtractDNACheckBox!=null&&!parentDocument.sampleSetupView.coreToExtractDNACheckBox.selected) ? true : false;		
+				this.concentrationCol.visible = parentDocument.isEditState() || (parentDocument.isSequenomState()&&parentDocument.sampleSetupView.coreToExtractDNACheckBox!=null&&!parentDocument.sampleSetupView.coreToExtractDNACheckBox.selected) ? true : false;
+				this.qc_260_280Column.visible = parentDocument.isEditState() || (parentDocument.isSequenomState()&&parentDocument.sampleSetupView.coreToExtractDNACheckBox!=null&&!parentDocument.sampleSetupView.coreToExtractDNACheckBox.selected) ? true : false;
 				
 				if ( parentDocument.isClinicalSequenomState() ) {
 					this.sampleNameCol.visible = false;
-				} else {
-					this.sampleNameCol.visible = true;
-					showCCNumberCheckbox.selected = false;
-					showCCNumberCheckbox.enabled = true;
 				}
 				
 				if (!parentDocument.isEditState()) {
@@ -606,13 +551,12 @@
 								  itemFocusOut="checkSamplesCompleteness()" 
 								  deleteRowFunction="deleteTheSample"
 								  addRowEnabled="{!this.hasPlates()||parentDocument.isEditState()}"
-								  insertRowFunction="insertSample"
 								  addRowFunction="addSample"
 								  clearAllFunction="promptToClearAllSamples"
 								  showRowNumberCol="{!this.hasPlates()}"
 								  hasPlates="{this.hasPlates()}">
 			<grid:columns>
-				<mx:AdvancedDataGridColumn id="plateNameCol" headerText="Plate" dataField="@plateName" editable="false" visible="true" width="60" >
+				<mx:AdvancedDataGridColumn id="plateNameCol" headerText="Plate" dataField="@plateName" editable="false" visible="true" width="60" labelFunction="groupNameLabelFunction">
 					<mx:headerRenderer > 
 						<mx:Component>
 							<mx:VBox verticalGap="0" horizontalScrollPolicy="off"  verticalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle"> 
@@ -674,6 +618,21 @@
 						</mx:Component>
 					</mx:headerRenderer>
 				</mx:AdvancedDataGridColumn>
+				<mx:AdvancedDataGridColumn id="qc_260_280Column"
+										   editable="{parentApplication.hasPermission('canWriteAnyObject')}" 
+										   headerText="QC 260/280" width="90" 
+										   dataField="@qual260nmTo280nmRatio" 
+										   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" 
+										   editorDataField="value">
+					<mx:headerRenderer > 
+						<mx:Component>
+							<mx:VBox verticalGap="0" horizontalScrollPolicy="off"  verticalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle"> 
+								<util:ContextHelp context1="sampleQc260280" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="QC 260/280 Help" 
+												  showEdit="{parentApplication.isAdminState}" label="QC 260/280" noIconSpaceIfNoHelp="true"/>
+							</mx:VBox> 
+						</mx:Component>
+					</mx:headerRenderer>
+				</mx:AdvancedDataGridColumn>
 				<mx:AdvancedDataGridColumn id="ccNumber" headerText="CC Number" dataField="@ccNumber" editable="true" 
 										   visible="{showCCNumberCheckbox.visible &amp;&amp; showCCNumberCheckbox.selected &amp;&amp; !parentDocument.isSequencingState() ? true : false}"
 										   width="76"
@@ -692,7 +651,7 @@
 				<util:AdvancedDataGridColumnWithType propertyType="OPTION" id="sampleTypeCol"  headerText="Sample Type" visible="true" width="180"   dataField="@idSampleType" 
 													 editorDataField="value" sortable="false" editable="true" rendererIsEditor="false" 
 													 itemRenderer="{views.renderers.DropdownLabel.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SampleType').DictionaryEntry, '@display', '@value', '@idSampleType', false, true)}"                 
-													 itemEditor="{views.renderers.GridColumnFillButton.create(hci.flex.controls.ComboBox.getFactory(this.filteredSampleTypeList.source, '@display', '@value', '@idSampleType', true).newInstance(), '')}">
+													 itemEditor="{views.renderers.GridColumnFillButton.create(ComboBox.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SampleType').DictionaryEntry, '@display', '@value', '@idSampleType', '@canChangeSampleType', true).newInstance(), '')}">
 					<util:headerRenderer > 
 						<mx:Component>
 							<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle"> 
@@ -702,22 +661,6 @@
 						</mx:Component>
 					</util:headerRenderer>
 				</util:AdvancedDataGridColumnWithType>
-				
-				<mx:AdvancedDataGridColumn id="qc_260_280Column"
-										   editable="{parentApplication.hasPermission('canWriteAnyObject')}" 
-										   headerText="QC 260/280" width="90" 
-										   dataField="@qual260nmTo280nmRatio" 
-										   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" 
-										   editorDataField="value">
-					<mx:headerRenderer > 
-						<mx:Component>
-							<mx:VBox verticalGap="0" horizontalScrollPolicy="off"  verticalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle"> 
-								<util:ContextHelp context1="sampleQc260280" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="QC 260/280 Help" 
-												  showEdit="{parentApplication.isAdminState}" label="QC 260/280" noIconSpaceIfNoHelp="true"/>
-							</mx:VBox> 
-						</mx:Component>
-					</mx:headerRenderer>
-				</mx:AdvancedDataGridColumn>
 				
 				
 				

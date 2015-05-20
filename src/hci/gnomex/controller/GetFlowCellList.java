@@ -38,10 +38,7 @@ public class GetFlowCellList extends GNomExCommand implements Serializable {
     filter = new FlowCellFilter();
     HashMap errors = this.loadDetailObject(request, filter);
     this.addInvalidFields(errors);
-    
-    if (!filter.hasSufficientCriteria(this.getSecAdvisor())) {
-        this.addInvalidField("missingFilter", "Please provide an additional filter to limit the results returned.");
-    }
+
   }
 
   public Command execute() throws RollBackCommandException {

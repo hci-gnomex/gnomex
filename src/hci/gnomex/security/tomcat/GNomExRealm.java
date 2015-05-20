@@ -1,7 +1,6 @@
 package hci.gnomex.security.tomcat;
 
 import hci.gnomex.security.EncrypterService;
-import hci.gnomex.security.EncryptionUtility;
 
 import java.security.Principal;
 import java.sql.Connection;
@@ -24,7 +23,7 @@ public class GNomExRealm extends RealmBase {
 
   private String username;
   private String password;
-
+  
   private String datasource_lookup_name;
 
   public GNomExRealm() {
@@ -36,7 +35,7 @@ public class GNomExRealm extends RealmBase {
   public Principal authenticate(String username, String credentials) {
     this.username = username;
     this.password = credentials;
-    System.out.println("In authenticate -- usrname=" + username);
+System.out.println("In authenticate -- usrname=" + username);
     if (isAuthenticated()) {
       return getPrincipal(username);
     } else {
@@ -64,7 +63,7 @@ public class GNomExRealm extends RealmBase {
 
   private boolean isAuthenticated() {
     boolean isAuthenticated = false;
-
+    
     if (this.isAuthenticatedGNomExUser()) {
       // If this is a GNomEx external user, check credentials 
       // against the GNomEx encrypted password
@@ -76,17 +75,16 @@ public class GNomExRealm extends RealmBase {
 
 
   private boolean isAuthenticatedGNomExUser() {
-
+    
     boolean isAuthenticated = false;
 
     Connection con = null;
     PreparedStatement stmt = null;
     ResultSet rs = null;
-    EncryptionUtility passwordEncrypter = new EncryptionUtility();
 
     try {
       con = this.getConnection();
-      stmt = con.prepareStatement("SELECT isActive, userNameExternal, passwordExternal, salt FROM AppUser WHERE userNameExternal = ?");
+      stmt = con.prepareStatement("SELECT isActive, userNameExternal, passwordExternal FROM AppUser WHERE userNameExternal = ?");
       stmt.setString(1, username);
 
       rs = stmt.executeQuery();
@@ -94,21 +92,13 @@ public class GNomExRealm extends RealmBase {
       while (rs.next()) {
         String isActive = rs.getString("isActive");
         String gnomexPasswordEncrypted = rs.getString("passwordExternal");
-        String salt = rs.getString("salt");
-        String thePasswordEncryptedNew = "";
-
-        //Uncomment this conditional if you want to prevent inactive users from logging in
-        //        if (isActive != null && isActive.equalsIgnoreCase("Y")) {
-        if(salt != null) {
-          thePasswordEncryptedNew = passwordEncrypter.createPassword(password, salt);
+        
+        if (isActive != null && isActive.equalsIgnoreCase("Y")) {
+          String thePasswordEncrypted = EncrypterService.getInstance().encrypt(password);
+          if (thePasswordEncrypted.equals(gnomexPasswordEncrypted)) {
+            isAuthenticated = true;
+          }
         }
-        String thePasswordEncryptedOld = EncrypterService.getInstance().encrypt(password);
-        if (thePasswordEncryptedNew.equals(gnomexPasswordEncrypted)) {
-          isAuthenticated = true;
-        } else if(thePasswordEncryptedOld.equals(gnomexPasswordEncrypted)) {
-          isAuthenticated = true;
-        }
-        // }
       }
 
     } catch (NamingException ne) {
@@ -127,7 +117,7 @@ public class GNomExRealm extends RealmBase {
 
     return isAuthenticated;
   }
-
+  
 
 
   public String getDatasource_lookup_name() {
@@ -141,14 +131,14 @@ public class GNomExRealm extends RealmBase {
   protected Connection getConnection() throws SQLException, ClassNotFoundException, NamingException {
     Context initCtx = new InitialContext();
     DataSource ds = (DataSource)initCtx.lookup(datasource_lookup_name);
-
+    
     return ds.getConnection();
   }
 
   protected void closeConnection(Connection con) {
     try {
       if (con != null && !con.isClosed()) {
-        con.close();
+         con.close();
       }
     } catch (SQLException ex) {
       System.err.println("FATAL: Unable to close db connection in hci.gnomex.security.tomcat.GNomExRealm");

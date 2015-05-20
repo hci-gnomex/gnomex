@@ -14,11 +14,7 @@
 			<mx:Canvas id="chooseColumns" width="100%" height="100%">
 				<mx:VBox fontSize="10" verticalGap="10" paddingLeft="8" verticalAlign="top" styleName="form" horizontalAlign="left" paddingRight="8" width="100%" id="vbox0" height="100%" paddingTop="8" paddingBottom="8">
 					<mx:VBox verticalAlign="0" verticalGap="0" paddingTop="0" paddingBottom="0" width="100%">
-						<mx:HBox width="100%">
-							<mx:CheckBox id="hasColNames" label="First row contains column headings" selected="true" click="{uploadSampleSheetSelectHandler(null)}" scaleX=".75" scaleY=".75" width="100%"/>
-							<mx:Spacer width="100%" height="100%" />
-							<mx:CheckBox id="append" label="Append these samples to the samples in the grid   " selected="false" scaleX=".75" scaleY=".75" width="100%"/>
-						</mx:HBox>
+						<mx:CheckBox id="hasColNames" label="First row contains column headings" selected="true" click="{uploadSampleSheetSelectHandler(null)}" scaleX=".75" scaleY=".75"/>
 						<mx:Text text="Please indicate which sample sheet column corresponds to each field. It is not necessary to select a field for a column you do not wish to populate.&#xa;" width="100%" fontSize="11"/>
 					</mx:VBox>
 					<mx:DataGrid id="columnSelectionGrid" height="100%" width="100%" dataProvider="{fieldList}" rowHeight="30">
@@ -73,9 +69,9 @@
 
 	<mx:Script>
 		<![CDATA[
+			
 			import hci.flex.controls.DropdownLabel;
 			
-			import mx.collections.ICollectionView;
 			import mx.collections.GroupingCollection;
 			import mx.collections.HierarchicalCollectionView;
 			import mx.collections.XMLListCollection;
@@ -87,7 +83,6 @@
 			import mx.managers.PopUpManager;
 			import mx.rpc.events.FaultEvent;
 			import mx.rpc.events.ResultEvent;
-			import mx.utils.StringUtil;
 			
 			import views.experiment.TabAnnotationView;
 			import views.experiment.TabSamplesBase;
@@ -98,6 +93,7 @@
 			import views.util.AdvancedDataGridColumnWithType;
 			import views.util.AnnotationAdvancedDataGridColumn;
 			import views.util.SampleSheetColumnFormats;
+			import mx.utils.StringUtil;
 
 			
 			private var uploadFR:FileReference;
@@ -184,9 +180,6 @@
 				
 				// We need to know what example sample sheet link to show
 				this.samplesViewState = this.tabSamplesView.currentState;
-				
-				// If this is a new or external experiment, show option to append samples
-				append.visible = !tabSamplesView.isEditState || tabSamplesView.getIsExternal();
 			}
 			
 			private function changeHeightWidth(height:int, width:int):void {
@@ -268,8 +261,8 @@
 					ssRowLen--;
 				}
 
-				if (tabSamplesView.isEditState && ssRowLen != sampleGridDataRows.length && !tabSamplesView.getIsExternal()) {
-					// In edit state we don't add samples (unless for external experiment).  Warn them if length is different.
+				if (tabSamplesView.isEditState && ssRowLen != sampleGridDataRows.length) {
+					// In edit state we don't add samples.  Warn them if length is different.
 					var message:String = "";
 					if (ssRowLen < sampleGridDataRows.length) {
 						message = "The specified sample sheet has fewer rows than there are samples.  If you continue only the rows available will be imported.  Please verify you have chosen the correct sample sheet.  Do you wish to continue?";
@@ -318,11 +311,6 @@
 					}
 				} else {
 					sampleGridDataRows = XMLListCollection(grid.dataProvider);
-				}
-				// If user elected to append samples, create and start at later row
-				if (append.selected) {
-					sampleGridDataRowsCount = startRow + (grid.dataProvider as ICollectionView).length;
-					tabSamplesView.addSample();
 				}
 				while(sampleGridDataRows.length <= this.startRow) {
 					// Make sure there is an initial row
@@ -384,9 +372,6 @@
 											var thisItemRenderer:mx.core.ClassFactory = mx.core.ClassFactory(col.itemRenderer);
 											if(thisItemRenderer != null) {
 												var thisDataProvider:XMLList = thisItemRenderer.properties.dataProvider;
-												if (thisDataProvider == null && thisItemRenderer.properties.hasOwnProperty("idProperty")) {
-													thisDataProvider = parentApplication.getSampleProperty(thisItemRenderer.properties.idProperty)..PropertyOption;
-												}
 												var thisLabelField:String = thisItemRenderer.properties.labelField;	
 												if(thisLabelField.length > 0 && thisLabelField.charAt(0) == '@') {
 													// Strip off @ if it's there -- not needed for this action
@@ -489,8 +474,8 @@
 					ssRowCount++;  
 					if(sampleGridDataRowsCount >= sampleGridDataRows.length) {
 						if(ssRowCount <= ssRowList.length()) {
-							// Only add sample if we are creating a new experiment (not on edit, unless it is an external experiment)
-							if (!tabSamplesView.isEditState || tabSamplesView.getIsExternal()) {
+							// Only add sample if we are creating a new experiment (not on edit)
+							if (!tabSamplesView.isEditState) {
 								if (!tabSamplesView.addSample()) {
 									// add sample failed.
 									break;

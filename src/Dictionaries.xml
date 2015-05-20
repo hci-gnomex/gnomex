@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Dictionaries>
 
-  <Dictionary displayName="General - Core Facility" className="hci.gnomex.model.CoreFacility" editable="N" >
+  <Dictionary displayName="General - Core Facility" className="hci.gnomex.model.CoreFacility" editable="Y" >
     <Filter className="YN" filterField="showProjectAnnotations"/>
     <Filter className="YN" filterField="acceptOnlineWorkAuth"/>
   </Dictionary>
@@ -32,7 +32,7 @@
       <Filter className="YN" filterField="isLatestBuild"/>
 	</Dictionary>
 
-	<Dictionary displayName="Sequencing Application Theme" className="hci.gnomex.model.ApplicationTheme" >
+	<Dictionary displayName="Application Theme" className="hci.gnomex.model.ApplicationTheme" >
 	</Dictionary>
 	<Dictionary displayName="Application Type" className="hci.gnomex.model.ApplicationType" editable="N" />
 	<Dictionary displayName="Application" className="hci.gnomex.model.Application"  editable="N" >
@@ -53,6 +53,7 @@
 	<Dictionary displayName="Request Category" className="hci.gnomex.model.RequestCategory"  editable="N" >	
          <Filter className="hci.gnomex.model.Vendor" filterField="idVendor"/>
          <Filter className="hci.gnomex.model.Organism" filterField="idOrganism"/>
+  	     <Filter className="YN" filterField="isSampleBarcodingOptional"/>
   	     <Filter className="hci.gnomex.model.RequestCategoryType" filterField="type" />
          <Filter className="YN" filterField="isIlluminaType"/>
 	</Dictionary>
@@ -64,7 +65,7 @@
   	  <Filter className="hci.gnomex.model.RequestCategory"         filterField="codeRequestCategory"/>
 	</Dictionary>
   <Dictionary displayName="Sample Concentration Unit" className="hci.gnomex.model.ConcentrationUnit" />
-  <Dictionary displayName="Sample QC Assay/Chip Type" className="hci.gnomex.model.BioanalyzerChipType" >
+  <Dictionary displayName="Sample Bioanalyzer Chip Type" className="hci.gnomex.model.BioanalyzerChipType" >
   	  <Filter className="hci.gnomex.model.ConcentrationUnit" filterField="codeConcentrationUnit"/>
   </Dictionary>
   <Dictionary displayName="Submission Instructions" className="hci.gnomex.model.SubmissionInstruction" >
@@ -141,14 +142,7 @@
 	</Dictionary>
 	<Dictionary displayName="Microarray Slide Source" className="hci.gnomex.model.SlideSource"  editable="Y"/>
 
-  <Dictionary displayName="Price Category" className="hci.gnomex.model.PriceCategoryLite" editable="N" />
-  <Dictionary displayName="Product Order Status" className="hci.gnomex.model.ProductOrderStatus" editable="Y" />
-    
-  <Dictionary displayName="Product Type" className="hci.gnomex.model.ProductType" editable="N" >
-    <Filter className="hci.gnomex.model.CoreFacility" filterField="idCoreFacility"/>
-    <Filter className="hci.gnomex.model.Vendor" filterField="idVendor"/>
-    <Filter className="hci.gnomex.model.PriceCategoryLite" filterField="idPriceCategory"/>
-  </Dictionary>
+
 
   <Dictionary displayName="DNA Seq Core - Primer" className="hci.gnomex.model.Primer"  />
   <Dictionary displayName="DNA Seq Core - Assay" className="hci.gnomex.model.Assay" />
@@ -181,7 +175,6 @@
 	<Dictionary displayName="Platform Definitions for Automated Alignment Runs" className="hci.gnomex.model.AlignmentPlatform" />
   <Dictionary displayName="Instrument" className="hci.gnomex.model.Instrument" />
   <Dictionary displayName="Context Sensitive Help" className="hci.gnomex.model.ContextSensitiveHelp" editable="N" />
-  <Dictionary displayName="Annotation Report Fields" className="hci.gnomex.model.AnnotationReportField" editable="N" />
 
 </Dictionaries>
 	

@@ -13,7 +13,7 @@ import org.jdom.Element;
 
 
 public class Project extends HibernateDetailObject {
-
+  
   private Integer   idProject;
   private String    name;
   private String    description;
@@ -25,88 +25,88 @@ public class Project extends HibernateDetailObject {
   private Set       experimentDesignEntries = new TreeSet();
   private Set       experimentFactorEntries = new TreeSet();
   private Set       qualityControlStepEntries = new TreeSet();
-
-
+  
+  
   public String getDescription() {
     return description;
   }
-
+  
   public void setDescription(String description) {
     this.description = description;
   }
-
+  
   public Integer getIdProject() {
     return idProject;
   }
-
+  
   public void setIdProject(Integer idProject) {
     this.idProject = idProject;
   }
-
+  
   public String getName() {
     return name;
   }
-
+  
   public void setName(String name) {
     this.name = name;
   }
 
-
+  
   public Integer getIdAppUser() {
     return idAppUser;
   }
 
-
+  
   public void setIdAppUser(Integer idAppUser) {
     this.idAppUser = idAppUser;
   }
 
-
+  
   public Integer getIdLab() {
     return idLab;
   }
 
-
+  
   public void setIdLab(Integer idLab) {
     this.idLab = idLab;
   }
 
-
+  
   public Set getRequests() {
     return requests;
   }
 
-
+  
   public void setRequests(Set requests) {
     this.requests = requests;
   }
 
-
+  
   public Set getExperimentFactorEntries() {
     return experimentFactorEntries;
   }
 
-
+  
   public void setExperimentFactorEntries(Set experimentFactorEntries) {
     this.experimentFactorEntries = experimentFactorEntries;
   }
 
-
+  
   public Set getExperimentDesignEntries() {
     return experimentDesignEntries;
   }
 
-
+  
   public void setExperimentDesignEntries(Set experimentDesignEntries) {
     this.experimentDesignEntries = experimentDesignEntries;
   }
 
-
+  
   public Set getQualityControlStepEntries() {
     return qualityControlStepEntries;
   }
 
-
+  
   public void setQualityControlStepEntries(Set qualityControlStepEntries) {
     this.qualityControlStepEntries = qualityControlStepEntries;
   }
@@ -119,7 +119,7 @@ public class Project extends HibernateDetailObject {
     this.excludeMethodFromXML("getAppUser");
     this.excludeMethodFromXML("getLab");
   }
-
+  
   public Document toXMLDocument(List useBaseClass) throws XMLReflectException {
     return toXMLDocument(useBaseClass, DATE_OUTPUT_SQL);
   }
@@ -127,7 +127,7 @@ public class Project extends HibernateDetailObject {
   public Document toXMLDocument(List list, int dateOutputStyle ) throws XMLReflectException {
 
     Document doc = super.toXMLDocument(list, dateOutputStyle);
-
+   
     Element factorNode = new Element("ExperimentFactor");
     doc.getRootElement().addContent(factorNode);
     // Experimental factors
@@ -138,7 +138,7 @@ public class Project extends HibernateDetailObject {
         factorNode.setAttribute(ExperimentFactorEntry.OTHER_LABEL, entry.getOtherLabel() == null ? "" : entry.getOtherLabel());
       }
     }
-
+    
     Element designNode = new Element("ExperimentDesign");
     doc.getRootElement().addContent(designNode);
     // Experimental designs
@@ -149,7 +149,7 @@ public class Project extends HibernateDetailObject {
         designNode.setAttribute(ExperimentDesignEntry.OTHER_LABEL, entry.getOtherLabel() == null ? "" : entry.getOtherLabel());
       }
     }
-
+    
     Element qualityNode = new Element("ExperimentQuality");
     doc.getRootElement().addContent(qualityNode);
     // Experimental factors
@@ -167,18 +167,18 @@ public class Project extends HibernateDetailObject {
     return doc;
   }
 
-
+  
   public Lab getLab() {
     return lab;
   }
 
-
+  
   public void setLab(Lab lab) {
     this.lab = lab;
   }
-
-
-
+ 
+  
+  
   public String getCanRead() {
     if (this.canRead()) {
       return "Y";
@@ -203,6 +203,8 @@ public class Project extends HibernateDetailObject {
     }
   }
 
+ 
+  
   public String getLabName() {
     if (lab != null) {
       return lab.getName();      
@@ -211,15 +213,17 @@ public class Project extends HibernateDetailObject {
     }
   }
 
+
+  
   public AppUser getAppUser() {
     return appUser;
   }
 
-
+  
   public void setAppUser(AppUser appUser) {
     this.appUser = appUser;
   }
-
+  
   public String getOwnerName() {
     if (appUser != null) {
       return appUser.getFirstName() + " " + appUser.getLastName();
@@ -227,7 +231,7 @@ public class Project extends HibernateDetailObject {
       return "";
     }
   }
-
+  
   public boolean hasPublicRequest() {
     boolean hasPublicRequest = false;
     // Otherwise, project can be read if any of its requests are visible to public

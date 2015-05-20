@@ -12,8 +12,6 @@ import hci.gnomex.model.CoreFacility;
 import hci.gnomex.model.DiskUsageByMonth;
 import hci.gnomex.model.Invoice;
 import hci.gnomex.model.Lab;
-import hci.gnomex.model.ProductLineItem;
-import hci.gnomex.model.ProductOrder;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.Request;
 import hci.gnomex.security.SecurityAdvisor;
@@ -23,7 +21,6 @@ import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.MailUtil;
 import hci.gnomex.utility.PropertyDictionaryHelper;
 
-import java.io.File;
 import java.io.Serializable;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -49,7 +46,6 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
   private static final String     ACTION_SHOW  = "show";
   private static final String     ACTION_EMAIL = "email";
   public static final String      DISK_USAGE_NUMBER_PREFIX = "ZZZZDiskUsage"; // Leading Z's to make it sort last.
-  public static final String      PRODUCT_ORDER_NUMBER_PREFIX = "ZZZZProductOrder"; // Leading Z's to make it sort last.
 
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(ShowBillingInvoiceForm.class);  
 
@@ -81,13 +77,13 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
       } else {
         this.addInvalidField("idBillingPeriod", "idBillingPeriod is required");
       }
-
+      
       if(request.getParameter("idCoreFacility") != null && !request.getParameter("idCoreFacility").equals("")){
         idCoreFacility = new Integer(request.getParameter("idCoreFacility"));
       } else {
         this.addInvalidField("idCoreFacility", "idCoreFacility is required");
       }
-
+      
       if(request.getParameter("idBillingAccounts") != null && !request.getParameter("idBillingAccounts").equals("")){
         idBillingAccounts = request.getParameter("idBillingAccounts");
       }
@@ -103,7 +99,7 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
       } else {
         this.addInvalidField("idLab", "idLab is required");
       }
-      if (request.getParameter("idBillingAccount") != null && request.getParameter("idBillingAccount").length() > 0) {
+      if (request.getParameter("idBillingAccount") != null) {
         idBillingAccount = new Integer(request.getParameter("idBillingAccount"));
       } else {
         this.addInvalidField("idBillingAccount", "idBillingAccount is required");
@@ -149,10 +145,10 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
           if(idLabs != null){
             String[] labs = idLabs.split(",");
             String[] billingAccounts = idBillingAccounts.split(",");
-            if (action.equals(ACTION_SHOW)) {
-              this.makeInvoiceReports(sess, labs, billingAccounts);
+              if (action.equals(ACTION_SHOW)) {
+                this.makeInvoiceReports(sess, labs, billingAccounts);
+              }
             }
-          }
 
           else{
             BillingPeriod billingPeriod = dh.getBillingPeriod(idBillingPeriod);
@@ -231,7 +227,6 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
   throws Exception {
     cacheRequestBillingItemMap(sess, secAdvisor, idBillingPeriod, idLab, idBillingAccount, idCoreFacility, billingItemMap, relatedBillingItemMap, requestMap);
     cacheDiskUsageBillingItemMap(sess, secAdvisor, idBillingPeriod, idLab, idBillingAccount, idCoreFacility, billingItemMap, relatedBillingItemMap, requestMap);
-    cacheProductOrderBillingItemMap(sess, secAdvisor, idBillingPeriod, idLab, idBillingAccount, idCoreFacility, billingItemMap, relatedBillingItemMap, requestMap);
   }
 
   public static void cacheRequestBillingItemMap(Session sess, SecurityAdvisor secAdvisor, Integer idBillingPeriod, Integer idLab, Integer idBillingAccount, Integer idCoreFacility, Map billingItemMap, Map relatedBillingItemMap, Map requestMap)
@@ -395,75 +390,13 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
     }    
   }
 
-  public static void cacheProductOrderBillingItemMap(Session sess, SecurityAdvisor secAdvisor, Integer idBillingPeriod, Integer idLab, Integer idBillingAccount, Integer idCoreFacility, Map billingItemMap, Map relatedBillingItemMap, Map requestMap)
-  throws Exception {
-    StringBuffer buf = new StringBuffer();
-    buf.append("SELECT pli, po, bi ");
-    buf.append("FROM   ProductLineItem pli ");
-    buf.append("JOIN   pli.productOrder po ");
-    buf.append("JOIN   pli.billingItems bi ");
-    buf.append("WHERE  bi.idLab = " + idLab + " ");
-    buf.append("AND    bi.idBillingAccount = " + idBillingAccount + " ");
-    buf.append("AND    bi.idBillingPeriod = " + idBillingPeriod + " ");
-    buf.append("AND    bi.idCoreFacility = " + idCoreFacility + " ");
-    buf.append("AND    bi.codeBillingStatus in ('" + BillingStatus.COMPLETED + "', '" + BillingStatus.APPROVED + "', '" + BillingStatus.APPROVED_CC + "', '" + BillingStatus.APPROVED_PO + "')");
-
-    if (!secAdvisor.hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
-      buf.append(" AND ");
-      secAdvisor.appendCoreFacilityCriteria(buf, "po");
-      buf.append(" ");
-    }
-
-    buf.append("ORDER BY po.productOrderNumber, bi.idBillingItem ");
-
-    List results = sess.createQuery(buf.toString()).list();
-
-
-    for(Iterator i = results.iterator(); i.hasNext();) {
-      Object[] row = (Object[])i.next();
-      ProductLineItem pli     = (ProductLineItem)row[0];
-      ProductOrder po         = (ProductOrder)row[1];
-      BillingItem bi          =  (BillingItem)row[2];
-
-      // Exclude any disk usage that have
-      // pending billing items.  (shouldn't be any)
-      boolean hasPendingItems = false;
-      for(Iterator i1 = pli.getBillingItems().iterator(); i1.hasNext();) {
-        BillingItem item = (BillingItem)i1.next();
-
-        if (item.getIdBillingPeriod().equals(idBillingPeriod) &&
-            item.getIdBillingAccount().equals(idBillingAccount)) {
-          if (item.getCodeBillingStatus().equals(BillingStatus.PENDING)) {
-            hasPendingItems = true;
-            break;
-          }          
-        }
-      }
-      if (hasPendingItems) {
-        continue;
-      }
-
-      String productOrderNumber = PRODUCT_ORDER_NUMBER_PREFIX + po.getProductOrderNumber().toString();
-      requestMap.put(productOrderNumber, po);
-
-      List billingItems = (List)billingItemMap.get(productOrderNumber);
-      if (billingItems == null) {
-        billingItems = new ArrayList();
-        billingItemMap.put(productOrderNumber, billingItems);
-      }
-      billingItems.add(bi);
-    } 
-
-  }
-
   private void makeInvoiceReport(Session sess, BillingPeriod billingPeriod, 
       Lab lab, BillingAccount billingAccount, Invoice invoice,
       Map billingItemMap, Map relatedBillingItemMap, Map requestMap) throws Exception {
 
     DictionaryHelper dh = DictionaryHelper.getInstance(sess);
-    CoreFacility cf = (CoreFacility)sess.load(CoreFacility.class, idCoreFacility);
     BillingInvoiceHTMLFormatter formatter = new BillingInvoiceHTMLFormatter(
-        cf.getFacilityName(),
+        PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.CORE_FACILITY_NAME),
         PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.CONTACT_NAME_CORE_FACILITY),
         PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.CONTACT_PHONE_CORE_FACILITY),
         PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.INVOICE_NOTE_1),
@@ -471,8 +404,7 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
         billingPeriod, 
         lab, billingAccount, invoice, billingItemMap, relatedBillingItemMap, requestMap,
         PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.CONTACT_ADDRESS_CORE_FACILITY),
-        PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.CONTACT_REMIT_ADDRESS_CORE_FACILITY),
-        PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.CORE_BILLING_OFFICE));
+        PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.CONTACT_REMIT_ADDRESS_CORE_FACILITY));
 
     Element root = new Element("HTML");
     Document doc = new Document(root);
@@ -487,18 +419,18 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
     head.addContent(link);
 
     Element title = new Element("TITLE");
-    title.addContent("Billing Invoice - " + lab.getName(false, true) + 
+    title.addContent("Billing Invoice - " + lab.getName() + 
         " " + billingAccount.getAccountName());
     head.addContent(title);
 
     Element body = new Element("BODY");
     root.addContent(body);
-
-
+    
+    
     Element center = new Element("CENTER");
     body.addContent(center);
-
-
+      
+      
     // Show print and email link
     Element emailLink = new Element("A");
     emailLink.setAttribute("HREF",
@@ -507,7 +439,7 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
         "&idBillingPeriod=" + idBillingPeriod +
         "&idCoreFacility=" + idCoreFacility +
         "&action=" + ACTION_EMAIL +
-    "&respondInHTML=Y");
+        "&respondInHTML=Y");
     String contactEmail = lab.getBillingNotificationEmail();
     if (contactEmail == null || contactEmail.equals("")) {
       contactEmail = "billing contact";
@@ -524,8 +456,8 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
     cell.addContent(emailLink);    
 
     center.addContent(linkTable);
-
-
+    
+    
 
     Element center1 = new Element("CENTER");
     body.addContent(center1);
@@ -603,8 +535,6 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
     Element root = new Element("HTML");
     Document doc = new Document(root);
 
-    CoreFacility cf = (CoreFacility)sess.load(CoreFacility.class, idCoreFacility);
-
     Element head = new Element("HEAD");
     root.addContent(head);
 
@@ -641,89 +571,88 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
       TreeMap relatedBillingItemMap = new TreeMap();
       cacheBillingItemMap(sess, this.getSecAdvisor(), idBillingPeriod, idLab, idBillingAccount, idCoreFacility, billingItemMap, relatedBillingItemMap, requestMap);
 
-      BillingInvoiceHTMLFormatter formatter = new BillingInvoiceHTMLFormatter(
-          cf.getFacilityName(),
-          PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.CONTACT_NAME_CORE_FACILITY),
-          PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.CONTACT_PHONE_CORE_FACILITY),
-          PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.INVOICE_NOTE_1),
-          PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.INVOICE_NOTE_2),
-          billingPeriod, 
-          lab, billingAccount, invoice, billingItemMap, relatedBillingItemMap, requestMap,
-          PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.CONTACT_ADDRESS_CORE_FACILITY),
-          PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.CONTACT_REMIT_ADDRESS_CORE_FACILITY),
-          PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.CORE_BILLING_OFFICE));
+    BillingInvoiceHTMLFormatter formatter = new BillingInvoiceHTMLFormatter(
+        PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.CORE_FACILITY_NAME),
+        PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.CONTACT_NAME_CORE_FACILITY),
+        PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.CONTACT_PHONE_CORE_FACILITY),
+        PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.INVOICE_NOTE_1),
+        PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.INVOICE_NOTE_2),
+        billingPeriod, 
+        lab, billingAccount, invoice, billingItemMap, relatedBillingItemMap, requestMap,
+        PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.CONTACT_ADDRESS_CORE_FACILITY),
+        PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.CONTACT_REMIT_ADDRESS_CORE_FACILITY));
 
 
-      Element center1 = new Element("CENTER");
-      body.addContent(center1);
+    Element center1 = new Element("CENTER");
+    body.addContent(center1);
 
-      center1.addContent(formatter.makeHeader());
+    center1.addContent(formatter.makeHeader());
 
-      body.addContent(new Element("BR"));
+    body.addContent(new Element("BR"));
 
-      Element center2 = new Element("CENTER");
-      body.addContent(center2);
+    Element center2 = new Element("CENTER");
+    body.addContent(center2);
 
-      if (!billingItemMap.isEmpty()) {
-        center2.addContent(formatter.makeDetail());          
-      }
-
-      if(billingAccount.getIdCoreFacility().intValue() == CoreFacility.CORE_FACILITY_DNA_SEQ_ID.intValue() && billingAccount.getIsPO().equals("Y") && billingAccount.getIsCreditCard().equals("N")){
-        body.addContent(new Element("BR"));
-        Element hr = new Element("HR");
-        hr.setAttribute("style", "border-style:dashed");
-        hr.setAttribute("align", "center");
-        hr.setAttribute("width", "50%");
-        body.addContent(hr);
-        Element p = new Element("P");
-        p.setAttribute("align", "center");
-        p.addContent("To ensure proper credit, please return this portion with your payment to University of Utah");
-        body.addContent(p);
-        body.addContent(new Element("BR"));
-
-        Element wrapDiv = new Element("DIV");
-        wrapDiv.setAttribute("class", "wrap");
-
-        Element remitAddressDiv = new Element("DIV");
-        remitAddressDiv.setAttribute("class", "remitAddress");
-        Element h3 = new Element("H3");
-        Element u = new Element("U");
-        u.addContent("REMITTANCE ADVICE");
-        h3.addContent(u);
-        remitAddressDiv.addContent(h3);
-        Element h5 = new Element("H5");
-        h5.addContent("Your payment is due upon receipt");
-        remitAddressDiv.addContent(h5);
-        remitAddressDiv.addContent(formatter.makeRemittanceAddress());
-
-        wrapDiv.addContent(remitAddressDiv);
-
-        Element labAddressDiv = new Element("DIV");
-        labAddressDiv.setAttribute("class", "labAddress");
-        Element p1 = new Element("P");
-        Element b = new Element("B");
-        b.addContent("Invoice Number: " + invoice.getInvoiceNumber());
-        p1.addContent(b);
-        labAddressDiv.addContent(p1);
-        Element p2 = new Element("P");
-        Element b1 = new Element("B");
-        b1.addContent("Amount Due: " + formatter.getGrandTotal());
-        p2.addContent(b1);
-        labAddressDiv.addContent(p2);
-        labAddressDiv.addContent(formatter.makeLabAddress());
-
-        wrapDiv.addContent(labAddressDiv);
-        body.addContent(wrapDiv);
-      }
-
-      if(i != labs.length - 1){
-        Element p3 = new Element("P");
-        p3.setAttribute("style", "page-break-after:always");
-        body.addContent(p3);
-      }
-
+    if (!billingItemMap.isEmpty()) {
+      center2.addContent(formatter.makeDetail());          
     }
 
+    if(billingAccount.getIdCoreFacility().intValue() == CoreFacility.CORE_FACILITY_DNA_SEQ_ID.intValue() && billingAccount.getIsPO().equals("Y") && billingAccount.getIsCreditCard().equals("N")){
+      body.addContent(new Element("BR"));
+      Element hr = new Element("HR");
+      hr.setAttribute("style", "border-style:dashed");
+      hr.setAttribute("align", "center");
+      hr.setAttribute("width", "50%");
+      body.addContent(hr);
+      Element p = new Element("P");
+      p.setAttribute("align", "center");
+      p.addContent("To ensure proper credit, please return this portion with your payment to University of Utah");
+      body.addContent(p);
+      body.addContent(new Element("BR"));
+
+      Element wrapDiv = new Element("DIV");
+      wrapDiv.setAttribute("class", "wrap");
+
+      Element remitAddressDiv = new Element("DIV");
+      remitAddressDiv.setAttribute("class", "remitAddress");
+      Element h3 = new Element("H3");
+      Element u = new Element("U");
+      u.addContent("REMITTANCE ADVICE");
+      h3.addContent(u);
+      remitAddressDiv.addContent(h3);
+      Element h5 = new Element("H5");
+      h5.addContent("Your payment is due upon receipt");
+      remitAddressDiv.addContent(h5);
+      remitAddressDiv.addContent(formatter.makeRemittanceAddress());
+
+      wrapDiv.addContent(remitAddressDiv);
+
+      Element labAddressDiv = new Element("DIV");
+      labAddressDiv.setAttribute("class", "labAddress");
+      Element p1 = new Element("P");
+      Element b = new Element("B");
+      b.addContent("Invoice Number: " + invoice.getInvoiceNumber());
+      p1.addContent(b);
+      labAddressDiv.addContent(p1);
+      Element p2 = new Element("P");
+      Element b1 = new Element("B");
+      b1.addContent("Amount Due: " + formatter.getGrandTotal());
+      p2.addContent(b1);
+      labAddressDiv.addContent(p2);
+      labAddressDiv.addContent(formatter.makeLabAddress());
+
+      wrapDiv.addContent(labAddressDiv);
+      body.addContent(wrapDiv);
+    }
+    
+    if(i != labs.length - 1){
+      Element p3 = new Element("P");
+      p3.setAttribute("style", "page-break-after:always");
+      body.addContent(p3);
+    }
+
+    }
+    
     XMLOutputter out = new org.jdom.output.XMLOutputter();
     out.setOmitEncoding(true);
     this.xmlResult = out.outputString(doc);
@@ -770,32 +699,20 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
         ccList = null;
       }     
     } else {
-      note = "Unable to email billing invoice. Billing contact email is blank for " + lab.getName(false, true);
+      note = "Unable to email billing invoice. Billing contact email is blank for " + lab.getName();
     }
 
-    Map[] billingItemMaps = {billingItemMap};
-    Map[] relatedBillingItemMaps = {relatedBillingItemMap};
-    Map[] requestMaps = {requestMap};
-    
     if (send) {
       if(!MailUtil.isValidEmail(fromAddress)){
         fromAddress = DictionaryHelper.getInstance(sess).getPropertyDictionary(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
       }
       try {
-    	File billingInvoice = ShowBillingInvoiceFormNew.makePDFBillingInvoice(sess, serverName, billingPeriod, coreFacility, false, lab, 
-    																			new Lab[0], billingAccount, new BillingAccount[0], 
-    																			PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(coreFacility.getIdCoreFacility(), PropertyDictionary.CONTACT_ADDRESS_CORE_FACILITY), 
-    																			PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(coreFacility.getIdCoreFacility(), PropertyDictionary.CONTACT_REMIT_ADDRESS_CORE_FACILITY), 
-    																			billingItemMaps, relatedBillingItemMaps, requestMaps);
-        MailUtil.send_attach(emailRecipients, 
+        MailUtil.send(emailRecipients, 
             ccList,
             fromAddress,
             subject, 
             emailInfo + body,
-            true,
-            billingInvoice);
-        
-        billingInvoice.delete();
+            true);
 
         note = "Billing invoice emailed to " + contactEmail + ".";
 
@@ -828,7 +745,7 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
       head.addContent(link);
 
       Element title = new Element("TITLE");
-      title.addContent("Email Billing Invoice - " + lab.getName(false, true) + 
+      title.addContent("Email Billing Invoice - " + lab.getName() + 
           " " + billingAccount.getAccountName());
       head.addContent(title);
 
@@ -842,7 +759,7 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
       Element root = new Element("BillingInvoiceEmail");
       doc = new Document(root);
       root.setAttribute("note", note);
-      root.setAttribute("title", "Email Billing Invoice - " + lab.getName(false, true) + " " + billingAccount.getAccountName());
+      root.setAttribute("title", "Email Billing Invoice - " + lab.getName() + " " + billingAccount.getAccountName());
     }
 
     XMLOutputter out = new org.jdom.output.XMLOutputter();

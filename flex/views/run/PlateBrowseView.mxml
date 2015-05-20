@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:VBox styleName="panelBox"  xmlns:mx="http://www.adobe.com/2006/mxml" 
-		 width="100%" height="100%" backgroundAlpha="0"
-		 xmlns:util="views.util.*" xmlns:run="views.run.*"  show="init()"  verticalGap="0">
+		 width="100%" height="100%" 
+		 xmlns:util="views.util.*" xmlns:run="views.run.*"  show="init()"  paddingTop="1" verticalGap="0">
 	
 	<mx:HTTPService 
 		id="getPlateList" 
@@ -34,10 +34,8 @@
 			import mx.events.CloseEvent;
 			import mx.events.ListEvent;
 			import mx.events.PropertyChangeEvent;
-			import mx.managers.PopUpManager;
 			import mx.rpc.events.ResultEvent;
 			
-			import views.util.EmailWindowForPlates;
 			
 			// Warning Icon
 			[Embed( source = '../../assets/error.png' )]
@@ -126,10 +124,10 @@
 				}
 				
 				params.plateName = parentDocument.lookupPlateNameField.text != null ? parentDocument.lookupPlateNameField.text : '' ;
-				if (parentView.pickCreateDateRangeButton.fromDate != null && parentView.pickCreateDateRangeButton.toDate != null) {
-					params.createDateFrom = parentView.pickCreateDateRangeButton.dateFormatter.format(parentView.pickCreateDateRangeButton.fromDate);
-					params.createDateTo = parentView.pickCreateDateRangeButton.dateFormatter.format(parentView.pickCreateDateRangeButton.toDate);
-				}
+				params.createdLastWeek = parentDocument.lastWeekCheckboxCreated.selected ? 'Y' : 'N' ;
+				params.createdLastMonth = parentDocument.lastMonthCheckboxCreated.selected ? 'Y' : 'N' ;
+				params.createdLastThreeMonths = parentDocument.lastThreeMonthsCheckboxCreated.selected ? 'Y' : 'N' ;
+				params.createdLastYear = parentDocument.lastYearCheckboxCreated.selected ? 'Y' : 'N' ;
 				
 				if (parentDocument.reactionCheckbox.selected){
 					params.plateType = "REACTION"; 
@@ -156,11 +154,29 @@
 			
 			private function checkEmptyFilter():Boolean {
 				
-				if (parentView.pickCreateDateRangeButton.fromDate != null && parentView.pickCreateDateRangeButton.toDate != null) {
-					return false;
+				if ( parentDocument.lastWeekCheckbox.selected ) {
+					return false ;
 				}
-				if (parentView.pickRunDateRangeButton.fromDate != null && parentView.pickRunDateRangeButton.toDate != null) {
-					return false;
+				if ( parentDocument.lastMonthCheckbox.selected ) {
+					return false ;
+				}
+				if ( parentDocument.lastThreeMonthsCheckbox.selected ) {
+					return false ;
+				}
+				if ( parentDocument.lastYearCheckbox.selected ) {
+					return false ;
+				}
+				if ( parentDocument.lastWeekCheckboxCreated.selected ) {
+					return false ;
+				}
+				if ( parentDocument.lastMonthCheckboxCreated.selected ) {
+					return false ;
+				}
+				if ( parentDocument.lastThreeMonthsCheckboxCreated.selected ) {
+					return false ;
+				}
+				if ( parentDocument.lastYearCheckboxCreated.selected ) {
+					return false ;
 				}
 				if ( parentDocument.pendingCheckbox.selected ) {
 					return false ;
@@ -200,14 +216,6 @@
 				var url:URLRequest = new URLRequest('DownloadPlateSampleSheetFileServlet.gx' +
 					'?idPlate=' + idPlate);
 				navigateToURL( url, '_blank' );
-				
-			}
-			
-			private function showEmailWindow():void{
-				var emailWindow:EmailWindowForPlates = EmailWindowForPlates(PopUpManager.createPopUp(this, EmailWindowForPlates, true));
-				emailWindow.selectedPlates = this.selectedPlates;
-				PopUpManager.centerPopUp(emailWindow);
-				this.setFocus();
 				
 			}
 			
@@ -329,18 +337,8 @@
 					   click="{promptToDelete()}" 
 					   disabledIcon="@Embed('../../assets/delete_disable.png')"
 					   enabled="{selectedPlates.length>0}"/>
-		
-		<mx:LinkButton textDecoration="underline"
-					   label="Email"
-					   icon="@Embed('../../assets/email_go.png')"
-					   toolTip="Email GNomEx users associated with selected plates"
-					   click="{showEmailWindow()}" 
-					   disabledIcon="@Embed('../../assets/email_go_disable.png')"
-					   enabled="{selectedPlates.length>0}"/>
-		
 		<mx:Spacer width="100%" height="100%" />
-		<mx:Text id="messageLabel" text="{'(' + getPlateList.lastResult.@message + ')'}" visible="{getPlateList.lastResult.@message != '' &amp;&amp; plateList.length > 0}" width="100%" fontStyle="normal" fontWeight="normal" fontSize="10" textAlign="right"/>
-		<mx:Label text = "{'(' + plateList.length + ' plates)'}" fontWeight = "normal" textAlign = "right"  fontStyle="italic"/>
+		<mx:Label text = "{'(' + plateList.length + ' runs)'}" fontWeight = "normal" textAlign = "right"  fontStyle="italic"/>
 		
 		
 	</mx:ControlBar>

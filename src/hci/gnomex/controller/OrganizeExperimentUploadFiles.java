@@ -4,7 +4,6 @@ import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.ExperimentFile;
 import hci.gnomex.model.Request;
-import hci.gnomex.model.Sample;
 import hci.gnomex.model.SampleExperimentFile;
 import hci.gnomex.model.TransferLog;
 import hci.gnomex.utility.DictionaryHelper;
@@ -20,13 +19,10 @@ import java.sql.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import org.hibernate.Query;
 import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -58,7 +54,6 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
   private Document                     filesToUnlinkDoc;
   private String                       filesToUnlinkXMLString;
   private List                         directoryFilesToUnlink = new ArrayList();
-  private List                         deletedSefEntries = new ArrayList();
 
   private String                       serverName;
 
@@ -202,10 +197,7 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
               //Update experiment file name if registered in the db
               String oldExpFileName = file.substring(file.indexOf(baseRequestNumber)).replace("\\", "/"); 
               String newExpFileName = newFileName.substring(newFileName.indexOf(baseRequestNumber)).replace("\\", "/");
-              String queryBuf = "Select exp from ExperimentFile exp where fileName = :oldExpFileName";
-              Query query = sess.createQuery(queryBuf);
-              query.setParameter("oldExpFileName", oldExpFileName);
-              List expFiles = query.list();
+              List expFiles = sess.createQuery("Select exp from ExperimentFile exp where fileName = " + "'" + oldExpFileName + "'").list();
               if(expFiles.size() == 1) {
                 ExperimentFile ef = (ExperimentFile)expFiles.get(0);
                 ef.setFileName(newExpFileName);
@@ -286,10 +278,7 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
               //so that we don't do an unnecessary delete in the register files servlet.
               if(success) {
                 String currentExpFileName = fileName.substring(fileName.indexOf(baseRequestNumber)).replace("\\", "/"); //REMOVE REPLACE AFTER DEBUGGING
-                String queryBuf = "Select exp from ExperimentFile exp where fileName = :currentExpFileName";
-                Query query = sess.createQuery(queryBuf);
-                query.setParameter("currentExpFileName", currentExpFileName);
-                List expFiles = query.list();
+                List expFiles = sess.createQuery("Select exp from ExperimentFile exp where fileName = " + "'" + currentExpFileName + "'").list();
                 if(expFiles.size() == 1) {
                   String newExpFileName = targetDirName.substring(targetDirName.indexOf(baseRequestNumber)).replace("\\", "/"); //Remove replace after debugging
                   newExpFileName += "/" + destFile.getName();
@@ -338,12 +327,8 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
               File f = new File(fileName);
 
               // Remove references of file in TransferLog
-              String queryBuf = "SELECT tl from TransferLog tl where tl.idRequest = :idRequest AND tl.fileName like :fileName";
-              Query query = sess.createQuery(queryBuf);
-              query.setParameter("idRequest", idRequest);
-              query.setParameter("fileName", "%" + new File(fileName).getName());
-              List transferLogs = query.list();
-              
+              String queryBuf = "SELECT tl from TransferLog tl where tl.idRequest = " + idRequest + " AND tl.fileName like '%" + new File(fileName).getName() + "'";
+              List transferLogs = sess.createQuery(queryBuf).list();
               // Go ahead and delete the transfer log if there is just one row.
               // If there are multiple transfer log rows for this filename, just
               // bypass deleting the transfer log since it is not possible
@@ -365,18 +350,11 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
                   throw new Exception("Unable to delete file " + fileName);
                 } else {
                   //Delete ExperimentFile if one is registered in the db and unlink sample file if need be
-                  String queryString = "Select exp from ExperimentFile exp where fileName = :fileName";
-                  Query query2 = sess.createQuery(queryString);
                   String currentFileName = fileName.substring(fileName.indexOf(baseRequestNumber)).replace("\\", "/"); //REMOVE REPLACE AFTER DEBUGGING
-                  query2.setParameter("fileName", currentFileName);
-                  List expFiles = query2.list();
+                  List expFiles = sess.createQuery("Select exp from ExperimentFile exp where fileName = " + "'" + currentFileName + "'").list();
                   if(expFiles.size() == 1) {
                     ExperimentFile ef = (ExperimentFile)expFiles.get(0);
-                    String queryBuf3 = "SELECT DISTINCT sef from SampleExperimentFile sef where sef.idExpFileRead1 = :idExperimentFile1 OR sef.idExpFileRead2 = :idExperimentFile2";
-                    Query query3 = sess.createQuery(queryBuf3);
-                    query3.setParameter("idExperimentFile1", ef.getIdExperimentFile());
-                    query3.setParameter("idExperimentFile2", ef.getIdExperimentFile());
-                    List l = query3.list();
+                    List l = (sess.createQuery("SELECT DISTINCT sef from SampleExperimentFile sef where sef.idExpFileRead1 = " + ef.getIdExperimentFile() + " OR sef.idExpFileRead2 = " + ef.getIdExperimentFile()).list());
 
                     if(l.size() == 1) {
                       SampleExperimentFile sef = (SampleExperimentFile)l.get(0);
@@ -387,7 +365,6 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
                       }
 
                       if(sef.getIdExpFileRead1() == null && sef.getIdExpFileRead2() == null) {
-                        deletedSefEntries.add(sef.getIdSampleExperimentFile());
                         sess.delete(sef);
                       } else {
                         sess.save(sef);
@@ -421,18 +398,11 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
           if(directoryFilesToUnlink.size() > 0) {
             for(Iterator i = directoryFilesToUnlink.iterator(); i.hasNext();) {
               String fileName = (String)i.next();
-              String currentFileName = fileName.substring(fileName.indexOf(baseRequestNumber)).replace("\\", "/");
-              String queryBuf = "Select exp from ExperimentFile exp where fileName = :currentFileName";
-              Query query = sess.createQuery(queryBuf);
-              query.setParameter("currentFileName", currentFileName);
-              List expFiles = query.list();
+              String currentFileName = fileName.substring(fileName.indexOf(baseRequestNumber)).replace("\\", "/"); //REMOVE REPLACE AFTER DEBUGGING
+              List expFiles = sess.createQuery("Select exp from ExperimentFile exp where fileName = " + "'" + currentFileName + "'").list();
               if(expFiles.size() == 1) {
                 ExperimentFile ef = (ExperimentFile)expFiles.get(0);
-                String queryBuf2 = "SELECT DISTINCT sef from SampleExperimentFile sef where sef.idExpFileRead1 = :idExperimentFile1 OR sef.idExpFileRead2 = :idExperimentFile2";
-                Query query2 = sess.createQuery(queryBuf2);
-                query2.setParameter("idExperimentFile1", ef.getIdExperimentFile());
-                query2.setParameter("idExperimentFile2", ef.getIdExperimentFile());
-                List l = query2.list();
+                List l = (sess.createQuery("SELECT DISTINCT sef from SampleExperimentFile sef where sef.idExpFileRead1 = " + ef.getIdExperimentFile() + " OR sef.idExpFileRead2 = " + ef.getIdExperimentFile()).list());
 
                 if(l.size() == 1) {
                   SampleExperimentFile sef = (SampleExperimentFile)l.get(0);
@@ -443,7 +413,6 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
                   }
 
                   if(sef.getIdExpFileRead1() == null && sef.getIdExpFileRead2() == null) {
-                    deletedSefEntries.add(sef.getIdSampleExperimentFile());
                     sess.delete(sef);
                   } else {
                     sess.save(sef);
@@ -465,11 +434,7 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
 
               if(fileDescriptor.getAttributeValue("idExperimentFile") != null && !fileDescriptor.getAttributeValue("idExperimentFile").equals("")) {
                 Integer idExperimentFile = Integer.parseInt(fileDescriptor.getAttributeValue("idExperimentFile"));
-                String queryBuf = "SELECT DISTINCT sef from SampleExperimentFile sef where sef.idExpFileRead1 = :idExperimentFile1 OR sef.idExpFileRead2 = :idExperimentFile2";
-                Query query = sess.createQuery(queryBuf);
-                query.setParameter("idExperimentFile1", idExperimentFile);
-                query.setParameter("idExperimentFile2", idExperimentFile);
-                List l = query.list();
+                List l = (sess.createQuery("SELECT DISTINCT sef from SampleExperimentFile sef where sef.idExpFileRead1 = " + idExperimentFile + " OR sef.idExpFileRead2 = " + idExperimentFile).list());
 
                 if(l.size() == 1) {
                   SampleExperimentFile sef = (SampleExperimentFile)l.get(0);
@@ -480,7 +445,6 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
                   }
 
                   if(sef.getIdExpFileRead1() == null && sef.getIdExpFileRead2() == null) {
-                    deletedSefEntries.add(sef.getIdSampleExperimentFile());
                     sess.delete(sef);
                   } else {
                     sess.update(sef);
@@ -499,10 +463,7 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
               Element fd = (Element)i.next();
               String fileName = fd.getAttributeValue("zipEntryName");
               fileName = fileName.replace("\\", "/");
-              String queryBuf = "Select expFile from ExperimentFile expFile where fileName = :fileName";
-              Query query = sess.createQuery(queryBuf);
-              query.setParameter("fileName", fileName);
-              List expFile = query.list();
+              List expFile = sess.createQuery("Select expFile from ExperimentFile expFile where fileName = '" + fileName + "'").list();
               if(expFile.size() > 0) {
                 ExperimentFile ef = (ExperimentFile)expFile.get(0);
                 expFileDictionary.put(fileName, ef);
@@ -511,71 +472,38 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
 
           }
 
-
-          Map <String, List<Element>> sampleGroup = new TreeMap<String, List<Element>>();
+          //Link experiment files to samples
           if(linkedSampleFileDoc != null) {
             Element root = this.linkedSampleFileDoc.getRootElement();
-
-            for(Iterator i = root.getChildren().iterator(); i.hasNext();) {
-              Element child = (Element)i.next();
-              if(child.getName().equals("Sample")) {
-                if(sampleGroup.containsKey("*||*")) {
-                  List<Element> samples = sampleGroup.get("*||*");
-                  samples.add(child);
-                  sampleGroup.put("*||*", samples);
-                } else {
-                  List<Element> samples = new ArrayList<Element>();
-                  samples.add(child);
-                  sampleGroup.put("*||*", samples);
-                }
-              } else if(child.getName().equals("SampleGroup")) {
-                recurseAddSamples(child, sampleGroup, child.getAttributeValue("displayName"));
-              }
-            }
-          }
-
-          for(Iterator i = sampleGroup.keySet().iterator(); i.hasNext();) {
-            String displayName = (String)i.next();
             int fileCount = 1;
-            List<Element> sampleNodes = sampleGroup.get(displayName);
-            for(Iterator j = sampleNodes.iterator(); j.hasNext();) {
-              Element sampleNode = (Element)j.next();      
+
+            for(Iterator i = root.getChildren("Sample").iterator(); i.hasNext();) {
+              Element sampleNode = (Element)i.next();      
               Integer idSample = Integer.parseInt(sampleNode.getAttributeValue("idSample"));
-              Sample s = (Sample)sess.load(Sample.class, idSample);
-              s.setGroupName(displayName);
-              sess.save(s);
               int seqRunNumber = 0;
-              for(Iterator k = sampleNode.getChildren().iterator(); k.hasNext();) {
-                Element seqRunNode = (Element)k.next();
+              for(Iterator j = sampleNode.getChildren().iterator(); j.hasNext();) {
+                Element seqRunNode = (Element)j.next();
                 SampleExperimentFile sef = new SampleExperimentFile();
                 Integer idSampleExperimentFile = null;
                 if(seqRunNode.getAttributeValue("idSampleExperimentFile") != null) {
                   idSampleExperimentFile = Integer.parseInt(seqRunNode.getAttributeValue("idSampleExperimentFile"));
                 }
-
-                //If we have already deleted the sef in above code.  Don't bother doing anything else.
-                if(deletedSefEntries.contains(idSampleExperimentFile)) {
-                  continue;
-                }
-
                 seqRunNumber = seqRunNumber + 1;
                 if(idSampleExperimentFile != null && !idSampleExperimentFile.equals("")) {
                   sef = (SampleExperimentFile)sess.load(SampleExperimentFile.class, idSampleExperimentFile);
                 }
-
+                Integer idExperimentFile = null;
                 fileCount = 1;
-                for(Iterator l = seqRunNode.getChildren().iterator(); l.hasNext();) {
-                  Element expFile = (Element)l.next();
+                for(Iterator k = seqRunNode.getChildren().iterator(); k.hasNext();) {
+                  Element expFile = (Element)k.next();
                   ExperimentFile ef = new ExperimentFile();
 
                   if(expFileDictionary.containsKey(expFile.getAttributeValue("zipEntryName").replace("\\", "/"))){ //Is it in the dictionary?  Use it
                     ef = (ExperimentFile)expFileDictionary.get(expFile.getAttributeValue("zipEntryName").replace("\\", "/"));
+                    idExperimentFile = ef.getIdExperimentFile();
                   } else if(expFile.getAttributeValue("idExperimentFile") != null && !expFile.getAttributeValue("idExperimentFile").equals("")) {
                     ef = (ExperimentFile)sess.get(ExperimentFile.class, Integer.parseInt(expFile.getAttributeValue("idExperimentFile")));
-                    //The experiment file may have been deleted from above code
-                    if(ef == null) {
-                      continue;
-                    }
+                    idExperimentFile = ef.getIdExperimentFile();
                   } else {
                     java.util.Date d = new java.util.Date();
                     ef.setIdRequest(this.idRequest);
@@ -610,10 +538,9 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
                   fileCount++;
                 }
               }
-
             }
+            sess.flush();
           }
-          sess.flush();
 
           XMLOutputter out = new org.jdom.output.XMLOutputter();
           this.xmlResult = "<SUCCESS/>";
@@ -646,25 +573,6 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
     }
 
     return this;
-  }
-
-  private void recurseAddSamples(Element child, Map<String, List<Element>> sampleGroup, String displayName) {
-    for(Iterator i = child.getChildren().iterator(); i.hasNext();) {
-      Element subChild = (Element)i.next();
-      if(subChild.getName().equals("Sample")) {
-        if(sampleGroup.containsKey(displayName)) {
-          List<Element> samples = sampleGroup.get(displayName);
-          samples.add(subChild);
-          sampleGroup.put(displayName, samples);
-        } else {
-          List<Element> samples = new ArrayList<Element>();
-          samples.add(subChild);
-          sampleGroup.put(displayName, samples);
-        }
-      } else if(subChild.getName().equals("SampleGroup")) {
-        recurseAddSamples(subChild, sampleGroup, displayName + "/" + subChild.getAttributeValue("displayName"));
-      }
-    }
   }
 
 

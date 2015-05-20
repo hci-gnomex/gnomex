@@ -80,7 +80,6 @@
       
       import views.util.MultiFileUpload;
       import views.util.ResizableTitleWindow;
-	  import views.util.GNomExStringUtil;
 			
 			[Bindable]
 			private var analysis:Object;
@@ -351,8 +350,8 @@
 				
 				folder = new XML("<AnalysisFileDescriptor isNew='Y' " +
 					"dirty='Y' " + 
-					"key='X-X-" + GNomExStringUtil.makeXMLSafe(folderName) + "' " +
-					"displayName='" + GNomExStringUtil.makeXMLSafe(folderName) + "' " +
+					"key='X-X-" + folderName + "' " +
+					"displayName='" + folderName + "' " +
 					"type='dir'" +
 					"qualifiedFilePath='' " +
 					"isEmpty='Y'" +
@@ -542,14 +541,14 @@
 						
 						var fileNode:XML = new XML("<AnalysisFileDescriptor " +
 							" dirty='Y' " +
-							" displayName='" +  GNomExStringUtil.makeXMLSafe(dragItem.@displayName) + "'" + 
-							" fileName='" +  GNomExStringUtil.makeXMLSafe(dragItem.@fileName) + "'" + 
+							" displayName='" +  dragItem.@displayName + "'" + 
+							" fileName='" +  dragItem.@fileName + "'" + 
 							" type='" + dragItem.@type + "'" +
 							" number='" + dragItem.@number + "'" +
-							" qualifiedFilePath='" + GNomExStringUtil.makeXMLSafe(dragItem.@qualifiedFilePath) + "'" +
-							" baseFilePath='" + GNomExStringUtil.makeXMLSafe(dragItem.@baseFilePath) + "'" +
-							" idAnalysisFileString='" + GNomExStringUtil.makeXMLSafe(dragItem.@idAnalysisFileString) + "'" +
-							" idAnalysis='" + GNomExStringUtil.makeXMLSafe(idAnalysis.toString()) + "'/>");
+							" qualifiedFilePath='" + dragItem.@qualifiedFilePath + "'" +
+							" baseFilePath='" + dragItem.@baseFilePath + "'" +
+							" idAnalysisFileString='" + dragItem.@idAnalysisFileString + "'" +
+							" idAnalysis='" + idAnalysis.toString() + "'/>");
 						
 						for each ( var child:Object in dragItem.children() ) {
 							fileNode.appendChild(child);	

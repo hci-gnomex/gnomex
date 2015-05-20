@@ -140,7 +140,10 @@ public class SaveWorkItemSolexaRun extends GNomExCommand implements Serializable
                 Request request = (Request)sess.load(Request.class, lane.getIdRequest());
 
                 // Set the completed date on the request
-                request.completeRequestIfFinished(sess);
+                if (request.isConsideredFinished() && request.getCompletedDate() == null) {
+                  request.setCompletedDate(new java.sql.Date(System.currentTimeMillis()));
+                  request.setCodeRequestStatus(RequestStatus.COMPLETED);
+                }
                 
               }
             }

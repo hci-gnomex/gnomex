@@ -28,7 +28,7 @@ import org.jdom.output.XMLOutputter;
 
 
 public class BillingInvoiceEmailFormatter extends DetailObject{
-
+  
   private BillingPeriod  billingPeriod;
   private Lab            lab;
   private BillingAccount billingAccount;
@@ -46,7 +46,7 @@ public class BillingInvoiceEmailFormatter extends DetailObject{
 
 
   private DictionaryHelper dictionaryHelper;
-
+  
   protected boolean       includeMicroarrayCoreNotes = true;
 
   public BillingInvoiceEmailFormatter(Session sess, CoreFacility coreFacility, BillingPeriod billingPeriod, Lab lab, BillingAccount billingAccount, Invoice invoice, Map billingItemMap, Map relatedBillingItemMap, Map requestMap) {
@@ -59,26 +59,26 @@ public class BillingInvoiceEmailFormatter extends DetailObject{
     this.billingItemMap = billingItemMap;
     this.requestMap     = requestMap;
     this.relatedBillingItemMap = relatedBillingItemMap;
-    this.coreFacilityName = coreFacility.getFacilityName();
+    this.coreFacilityName = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(coreFacility.getIdCoreFacility(), PropertyDictionary.CORE_FACILITY_NAME);
     this.coreFacilityContactName = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(coreFacility.getIdCoreFacility(), PropertyDictionary.CONTACT_NAME_CORE_FACILITY);
     this.coreFacilityContactPhone = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(coreFacility.getIdCoreFacility(), PropertyDictionary.CONTACT_PHONE_CORE_FACILITY);
     this.invoiceNote1 = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(coreFacility.getIdCoreFacility(), PropertyDictionary.INVOICE_NOTE_1);
     this.invoiceNote2 = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(coreFacility.getIdCoreFacility(), PropertyDictionary.INVOICE_NOTE_2);
-
+ 
     this.dictionaryHelper = DictionaryHelper.getInstance(sess);
   }
-
+  
   public String getSubject() {
     String acctNum = billingAccount.getAccountNumber();
     if (acctNum == null || !acctNum.equals("")) {
       acctNum = billingAccount.getAccountName();
     }
-
+   
     String subject = coreFacility.getFacilityName() + " Billing Summary for " + billingPeriod.getBillingPeriod() + " - " + acctNum;
 
     return subject;
   }
-
+  
   public String getCCList(Session sess) {
     String ccList = "";
     if (billingAccount.getIsPO() != null && billingAccount.getIsPO().equals("Y")) {
@@ -113,14 +113,13 @@ public class BillingInvoiceEmailFormatter extends DetailObject{
     BillingInvoiceHTMLFormatter formatter = new BillingInvoiceHTMLFormatter(coreFacilityName, coreFacilityContactName, coreFacilityContactPhone,
         invoiceNote1, invoiceNote2, billingPeriod, lab, billingAccount, invoice, billingItemMap, relatedBillingItemMap, requestMap,
         PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(billingAccount.getIdCoreFacility(), PropertyDictionary.CONTACT_ADDRESS_CORE_FACILITY),
-        PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(billingAccount.getIdCoreFacility(), PropertyDictionary.CONTACT_REMIT_ADDRESS_CORE_FACILITY),
-        PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(billingAccount.getIdCoreFacility(), PropertyDictionary.CORE_BILLING_OFFICE));
-
+        PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(billingAccount.getIdCoreFacility(), PropertyDictionary.CONTACT_REMIT_ADDRESS_CORE_FACILITY));
+    
     Element root = new Element("HTML");
     Document doc = new Document(root);
-
+    
     Element center1 = formatHeader(formatter, root);
-
+    
     center1.addContent(formatter.makeDetail());
 
     XMLOutputter out = new org.jdom.output.XMLOutputter();
@@ -129,16 +128,16 @@ public class BillingInvoiceEmailFormatter extends DetailObject{
     buf = buf.replaceAll("�",        "&micro");
     buf = buf.replaceAll("&gt;",     ">");
     buf = buf.replaceAll("&lt;",     "<");
-
+    
     return buf;
   }
-
-
-
+  
+ 
+  
 
   protected Element formatHeader(BillingInvoiceHTMLFormatter formatter, Element root) {
 
-
+    
     Element head = new Element("HEAD");
     root.addContent(head);
 
@@ -150,7 +149,7 @@ public class BillingInvoiceEmailFormatter extends DetailObject{
     style.setAttribute("type", "text/css");
     style.addContent(this.getCascadingStyleSheet());
     head.addContent(style);
-
+    
     Element body = new Element("BODY");
     root.addContent(body);
 
@@ -158,11 +157,11 @@ public class BillingInvoiceEmailFormatter extends DetailObject{
     body.addContent(formatter.makeIntroNote());
     body.addContent(new Element("HR"));    
     body.addContent(formatter.makeHeader());
-
-
+    
+    
     return body;
   }
-
+  
   private String getCascadingStyleSheet() {
     StringBuffer buf = new StringBuffer();
     BufferedReader input =  null;
@@ -188,7 +187,7 @@ public class BillingInvoiceEmailFormatter extends DetailObject{
         } catch (IOException e) {
         }
       }
-
+      
     }
     return buf.toString();
   }

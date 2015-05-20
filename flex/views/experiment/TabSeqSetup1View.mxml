@@ -61,7 +61,7 @@
 		}
 		
 		private function makePriceKey(obj:Object):String {
-			var key:String = obj.@idNumberSequencingCyclesAllowed.toString();
+			var key:String = obj.@idSeqRunType.toString() + ":" + obj.@idNumberSequencingCycles.toString();
 			return key;
 		}
 		
@@ -150,11 +150,9 @@
        	public function propagateNumberSequencingCycles():void {
 			for each (var sample:Object in parentDocument.samples) {
 				sample.@idNumberSequencingCycles = getIdNumberSequencingCyclesSelected();				
-				sample.@idNumberSequencingCyclesAllowed = getIdNumberSequencingCyclesAllowedSelected();				
 			}
 			for each (var lane:Object in parentDocument.lanes) {
 				lane.@idNumberSequencingCycles = getIdNumberSequencingCyclesSelected();
-				lane.@idNumberSequencingCyclesAllowed = getIdNumberSequencingCyclesAllowedSelected();
 			}
 			callLater(parentDocument.samplesView.checkSamplesCompleteness);
 		}
@@ -188,15 +186,6 @@
 				idSeqRunType = o.@idSeqRunType;
 			}
 			return idSeqRunType;
-		}
-		
-		public function getIdNumberSequencingCyclesAllowedSelected():String {
-			var idNumberSequencingCyclesAllowed:String = '';
-			var o:Object = getNumberSequencingCyclesSelected();
-			if (o != null) {
-				idNumberSequencingCyclesAllowed = o.@idNumberSequencingCyclesAllowed;
-			}
-			return idNumberSequencingCyclesAllowed;
 		}
 		
 	    public function checkSeqSetup1Completeness():Boolean {
@@ -278,12 +267,16 @@
 					var isCustom2:String = obj2.@isCustom
 					var numberCycles1:Number = obj1.@numberSequencingCyclesDisplay;
 					var numberCycles2:Number = obj2.@numberSequencingCyclesDisplay;
-					var sortOrder1:Number = obj1.@sortOrder == '' ? -1 : obj1.@sortOrder;
-					var sortOrder2:Number = obj2.@sortOrder == '' ? -1 : obj2.@sortOrder;
+					var sortOrder1:Number = obj1.@seqRunTypeSortOrder == '' ? -1 : obj1.@seqRunTypeSortOrder;
+					var sortOrder2:Number = obj2.@seqRunTypeSortOrder == '' ? -1 : obj2.@seqRunTypeSortOrder;
 					
 					if (isCustom1 < isCustom2) {
 						return -1;
 					} else if (isCustom1 > isCustom2) {
+						return 1;
+					} else if (numberCycles1 < numberCycles2) {
+						return -1;
+					} else if (numberCycles1 > numberCycles2) {
 						return 1;
 					} else {
 						if (sortOrder1 < sortOrder2) {
@@ -291,13 +284,7 @@
 						} else if (sortOrder1 > sortOrder2) {
 							return 1;
 						} else {
-							if (numberCycles1 < numberCycles2) {
-								return -1;
-							} else if (numberCycles1 > numberCycles2) {
-								return 1;
-							} else {
-								return 0;
-							}
+							return 0;
 						} 
 					} 
 				}
@@ -315,7 +302,7 @@
 			
 			var codeRequestCategory:String = parentDocument.getRequestCategory().@codeRequestCategory;
 			var doesMatch:Boolean = false;
-			if (item.@codeRequestCategory.toString() == codeRequestCategory && item.@isActive.toString() == 'Y') {
+			if (item.@codeRequestCategory.toString() == codeRequestCategory) {
 				doesMatch = true;
 			}
 			
@@ -328,8 +315,8 @@
 			
 	<mx:VBox width="100%" id="hbox1" height="100%" verticalGap="12">
 			<mx:HBox id="numberOfCyclesContainer" width="100%" horizontalGap="0">
-				<util:ContextHelp context1="seqOptionsSequencingOption" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Sequencing Protocol Help"
-								  label="(1)  Select a Sequencing Protocol." labelPlacement="left" id="label10" width="314"/>
+				<util:ContextHelp context1="seqOptionsSequencingOption" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Sequencing Option Help"
+								  label="(1)  Select a Sequencing Option." labelPlacement="left" id="label10" width="314"/>
 				<mx:VBox verticalGap="0" styleName="requiredBox" id="numberSequencingCyclesBox" width="100%">
 			    	<mx:RadioButtonGroup id="numberSequencingCyclesRadioGroup"/>
 					<mx:Repeater id="numberSequencingCyclesRepeater" dataProvider="{filteredNumberSequencingCyclesAllowedList}">

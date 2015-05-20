@@ -1,8 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
-				width="1024" height="750"
+				width="969" height="570"
 				creationComplete="{init()}"
 				xmlns:util="views.util.*" 
-				xmlns:renderers="views.renderers.*" 
 				showCloseButton="true" close="{PopUpManager.removePopUp(this);}"
 				title="Configure Annotations" paddingLeft="0" paddingBottom="0" paddingRight="0" paddingTop="0">
 	
@@ -16,7 +16,7 @@
 		method="POST" 
 		useProxy="false">
 		<mx:request xmlns="">
-			<propertyOnly>Y</propertyOnly>
+			<showOptions>Y</showOptions>
 		</mx:request>
 	</mx:HTTPService>
 	
@@ -120,24 +120,11 @@
 			[Bindable]
 			public var filteredAppList:XMLListCollection;
 			
-			[Bindable]
-			private var filteredCoreFacilityList:XMLListCollection;
-			
-			[Bindable]
-			private var filteredExperimentPlatforms:XMLListCollection;
-			
-			[Bindable]
-			private var appUserList:XMLListCollection;
-			
 			private var filteredAppListSorter:Sort;
 			
 			private var removePropertyClick:Point;
 			
-			private var deletePropertyParams:Object;
-			
-			// Note this is set when opening window from annotation view to limit 
-			// properties to those for the core for the request.
-			public var idCoreFacilitySelected:String;
+			private var deletePropertyParams:Object
 			
 			private function setDirty():void {
 				if (saveButton.enabled) {
@@ -160,39 +147,6 @@
 				filteredAppList.sort = filteredAppListSorter;	
 				filteredAppList.filterFunction = filterApplication;
 				filteredAppList.refresh();
-
-				// note myCoreFacilities is already sorted appropriately.
-				filteredCoreFacilityList = new XMLListCollection();
-				for each(var c:Object in parentApplication.myCoreFacilities) {
-					if (idCoreFacilitySelected == null || c.@value == idCoreFacilitySelected) {
-						filteredCoreFacilityList.addItem(c.copy());
-					}
-				}
-				if (filteredCoreFacilityList.length < 2) {
-					this.coreFacilityHBox.visible = false;
-					this.coreFacilityHBox.includeInLayout = false;
-				} else {
-					this.coreFacilityHBox.visible = true;
-					this.coreFacilityHBox.includeInLayout = true;
-				}
-				
-				filteredExperimentPlatforms = new XMLListCollection();
-				for each(var r:Object in parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry) {
-					filteredExperimentPlatforms.addItem(r.copy());
-				}
-				filteredExperimentPlatforms.filterFunction = filterExperimentPlatforms;
-				filteredExperimentPlatforms.refresh();
-				
-				appUserList = new XMLListCollection();
-				var emptyAppUser:XML = new XML();
-				emptyAppUser.@display="";
-				emptyAppUser.@value="";
-				appUserList.addItem(emptyAppUser);
-				for each (var a:Object in parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.AppUserLite').DictionaryEntry) {
-					if (a.@value != "") {
-						appUserList.addItem(a.copy());
-					}
-				}
 			}	
 			
 			private function onGetPropertyList(event:ResultEvent):void {
@@ -211,21 +165,6 @@
 			}
 			
 			private function filterByAnnotations(item:Object):Boolean{
-				
-				var coreMatch:Boolean = false;
-				if (idCoreFacilitySelected != null) {
-					if (idCoreFacilitySelected == item.@idCoreFacility) {
-						coreMatch = true;
-					}
-				} else {
-					for each (var c:Object in filteredCoreFacilityList) {
-						if (c.@value == item.@idCoreFacility) {
-							coreMatch = true;
-							break;
-						}
-					}
-				}
-				
 				var criteria:Object = radioButtonGroupTarget.selectedValue;
 				var selectedOrganism:String = organismFilter.selectedLabel;
 				var selectedExpPlatform:String = experimentPlatformFilter.selectedLabel;
@@ -246,9 +185,6 @@
 					criteriaMatch = true;
 				}
 				else if(criteria == "dataTracks" && item.@forDataTrack == "Y"){
-					criteriaMatch = true;
-				}
-				else if(criteria == "experiments" && item.@forRequest == "Y"){
 					criteriaMatch = true;
 				}
 				else{
@@ -285,7 +221,7 @@
 					}
 				}
 				
-				if(criteriaMatch && organismMatch && analysisMatch && expPlatformMatch && coreMatch){
+				if(criteriaMatch && organismMatch && analysisMatch && expPlatformMatch){
 					return true;
 				}
 				else{
@@ -357,7 +293,7 @@
 			private function setOwnerCombo():void {
 				this.ownerCombo.selectedItem = null;
 				this.ownerCombo.enabled = true;
-				for each(var user:XML in this.ownerCombo.dataProvider) {
+				for each(var user:XML in parentApplication.promptedAppUserList) {
 					if (user.@idAppUser == property.@idAppUser) {
 						this.ownerCombo.selectedItem = user;
 						break;
@@ -411,22 +347,9 @@
 				}
 			}
 			
-			private function addAppUser():void {
-				if (appUserCombo.selectedItem != null && appUserCombo.selectedItem.@value != '') {
-					appUsers.addItem(appUserCombo.selectedItem);
-					setDirty();			
-				}
-			}
-			
-			private function removeAppUser():void {
-				if (this.appUsersGrid.selectedItem != null) {
-					appUsers.removeItemAt(appUsers.getItemIndex(appUsersGrid.selectedItem));
-					setDirty();
-				}
-			}
 			
 			private function addPlatform():void {
-				if (platformCombo.selectedItem != null && platformCombo.selectedIndex > -1) {
+				if (platformCombo.selectedItem != null && platformCombo.selectedIndex > 0) {
 					var codeRequestCategory:String = platformCombo.selectedItem.@codeRequestCategory;
 					var codeApplication:String = "";
 					var applicationDisplay:String = "";
@@ -475,44 +398,51 @@
 			}
 			
 			private function addProperty():void {
-				theViews.selectedIndex = 1;
-				var p:Object = new XML("<Property><options/><organism/><platformApplications/><analysisTypes/></Property>");
-				p.@idProperty = '';
-				p.@idCoreFacility = filteredCoreFacilityList.getItemAt(0).@value;
-				p.@canUpdate='Y';
-				p.@canDelete='Y';
-				p.@name='';
-				p.@isActive='Y';
-				p.@isRequired='N';
-				p.@sortOrder = '';
-				p.@forSample = 'N';
-				p.@forDataTrack = 'N';
-				p.@forAnalysis = 'N';
-				p.@forRequest = 'N';
+				for each(var sc:Object in getPropertyList.lastResult..Property) {
+					var thisPropName:String = StringUtil.trim(sc.@name);
+					thisPropName = thisPropName.toLowerCase();
+					
+					if(NAME_FIELD_DEFAULT.toLocaleLowerCase() == thisPropName) {
+						Alert.show('There is already an annotation with the default name ("' 
+							+ NAME_FIELD_DEFAULT.toLocaleLowerCase() 
+							+ '"). You must either rename or delete it before creating a new one.');
+						refresh(null);
+						return;
+					}
+				}			
+				theViews.selectedIndex = 0;
+				
+				var params:Object = new Object();
+				params.idProperty = '';
+				params.name = NAME_FIELD_DEFAULT;
+				params.isActive = 'Y';
+				params.isRequired = 'N';
+				params.forSample =  "Y";
+				params.forAnalysis = "N";
+				params.forDataTrack = "N";
+				
 				if(radioButtonGroupTarget.selectedValue == "analysis"){
-					p.@forAnalysis = "Y";
+					params.forAnalysis = "Y";
+				}
+				else if(radioButtonGroupTarget.selectedValue == "samples"){
+					params.forSample = "Y";
 				}
 				else if(radioButtonGroupTarget.selectedValue == "dataTracks"){
-					p.@forDataTrack = "Y";
-				} else if(radioButtonGroupTarget.selectedValue == "experiments"){
-					p.@forRequest = "Y";
-				} else {
-					p.@forSample = "Y";
+					params.forDataTrack = "Y";
 				}
-				p.@mageOntologyCode = '';
-				p.@mageOntologyDefinition = ''; 
-				p.@description = ''; 
+				
 				if (parentApplication.hasPermission("canWriteDictionaries")) {
-					p.@idAppUser = '';			
+					params.idAppUser = '';			
 				} else {
-					p.@idAppUser = parentApplication.getIdAppUser();
+					params.idAppUser = parentApplication.getIdAppUser();
 				}
-				p.@codePropertyType = 'TEXT';
-
-				property = p;
-				setComponentsFromProperty();
-				propertyList.selectedItem = null;
-				dirty.setDirty();
+				params.codePropertyType = 'TEXT';
+				params.optionsXMLString = "<options>"  + "</options>";
+				params.organismsXMLString = "<organisms>"  + "</organisms>";
+				params.platformsXMLString = "<platformApplications>"  + "</platformApplications>";
+				params.analysisTypesXMLString = "<analysisTypes>" + "</analysisTypes>";
+				
+				saveProperty.send(params);
 			}
 			
 			public function removeProperty(event:MouseEvent, deleteAll:String):void {
@@ -568,21 +498,14 @@
 			
 			
 			private function save():void {
-				if (property == null) {
-					return
-				}
-				
-				if (coreFacilityCombo.selectedItem == null) {
+				if (propertyList.selectedItem == null) {
 					return;
 				}
 				
 				scName.text = StringUtil.trim(scName.text);
 				var propertyName:String = scName.text.toLowerCase();
 				
-				if (scName.text.length == 0) {
-					Alert.show("Please enter a name before saving.");
-					return
-				}
+				
 				for(var i:int=0; i<reservedSampSheetColNames.length; i++)
 				{
 					var thisSSColName:String = reservedSampSheetColNames[i];
@@ -592,17 +515,19 @@
 					}
 				}
 				
-				if (!this.sample.selected && !this.dataTrack.selected && !this.analysis.selected && !this.experiment.selected) {
+				if (!this.sample.selected && !this.dataTrack.selected && !this.analysis.selected) {
 					Alert.show("Please choose object the annotation applies to.");
 					this.sample.setFocus();
 					return;
 				}
 				
-				if (this.experiment.selected && this.platformApplications.length<1) {
-					Alert.show("Annotations for experiment requests require at least 1 experiment platform.");
-					theTab.selectedChild = appliesToTab;
-					this.platformCombo.setFocus();
-					return;
+				for each(var sc:Object in getPropertyList.lastResult..Property) {
+					var thisPropName:String = StringUtil.trim(sc.@name);
+					thisPropName = thisPropName.toLowerCase();
+					if(propertyList.selectedItem != sc && propertyName == thisPropName) {
+						Alert.show('"' + scName.text + '" has been used as the name for a previously defined annotation. Please choose another name.');
+						return;
+					}
 				}
 				
 				var params:Object = new Object();
@@ -610,22 +535,22 @@
 				params.name = scName.text;
 				params.isActive = this.isActive.selected ? "Y" : "N";
 				params.isRequired = this.isRequired.selected ? "Y" : "N";
-				params.sortOrder = this.scSortOrder.text;
 				params.forSample = this.sample.selected ? "Y" : "N";
 				params.forDataTrack = this.dataTrack.selected ? "Y" : "N";
 				params.forAnalysis = this.analysis.selected ? "Y" : "N";
-				params.forRequest = this.experiment.selected ? "Y" : "N";
 				params.mageOntologyCode = mageOntologyCode.text;
 				params.mageOntologyDefinition = mageOntologyDefinition.text; 
 				params.description = description.text; 
-				params.idCoreFacility = coreFacilityCombo.selectedItem.@value;
-				params.idAppUser = this.ownerCombo.selectedItem != null ? this.ownerCombo.selectedItem.@value : "";			
+				if (parentApplication.hasPermission("canWriteDictionaries")) {
+					params.idAppUser = this.ownerCombo.selectedItem != null ? this.ownerCombo.selectedItem.@idAppUser : "";			
+				} else {
+					params.idAppUser = parentApplication.getIdAppUser();
+				}
 				params.codePropertyType = this.characteristicTypeRadioGroup.selectedValue;
 				params.optionsXMLString = "<options>" + this.options.toXMLString() + "</options>";
 				params.organismsXMLString = "<organisms>" + this.organisms.toXMLString() + "</organisms>";
 				params.platformsXMLString = "<platformApplications>" + this.platformApplications.toXMLString() + "</platformApplications>";
 				params.analysisTypesXMLString = "<analysisTypes>" + this.analysisTypes.toXMLString() + "</analysisTypes>";
-				params.appUsersXMLString = "<appUsers>" + this.appUsers.toXMLString() + "</appUsers>";
 				
 				saveProperty.send(params);
 				
@@ -634,41 +559,19 @@
 			private function onGetProperty(event:ResultEvent): void {
 				if (getProperty.lastResult.name() == "PropertyList") {
 					property = getProperty.lastResult..Property;
-					setComponentsFromProperty();
+					organismCombo.selectedItem = null;
+					platformCombo.selectedItem = null;
+					analysisTypeCombo.selectedItem = null;
+					
+					setOwnerCombo();
+					
+					dirty.resetDirty();
 					
 				} else {
-					Alert.show(getProperty.lastResult..ACTMESSAGE.@TEXT);
+					Alert.show(saveProperty.lastResult..ACTMESSAGE.@TEXT);
 				}
 			}	
-
-			private function setComponentsFromProperty(): void {
-				organismCombo.selectedItem = null;
-				platformCombo.selectedItem = null;
-				analysisTypeCombo.selectedItem = null;
-				
-				setOwnerCombo();
-				setCoreFacilityCombo();
-				
-				dirty.resetDirty();
-			}
 			
-			private function setCoreFacilityCombo():void {
-				coreFacilityCombo.selectedItem = null;
-				for each (var c:Object in filteredCoreFacilityList) {
-					if (c.@value == property.@idCoreFacility) {
-						coreFacilityCombo.selectedItem = c;
-						break;
-					}
-				}
-				if (coreFacilityCombo.selectedItem == null) {
-					Alert.show("Invalid core facility on selected Annotation.  Please contact GNomEx suppport");
-					saveButton.enabled = false;
-				} else {
-					saveButton.enabled = true;
-				}
-				
-				filteredExperimentPlatforms.refresh();
-			}
 			
 			private function onSaveProperty(event:ResultEvent): void {
 				if (saveProperty.lastResult.name() == "SUCCESS") {
@@ -677,6 +580,7 @@
 					parentApplication.getPropertyList.send();
 					dispatchEvent(new Event("updateProperties"));
 					getPropertyList.send();
+					this.reselectProperty();
 				} else {
 					Alert.show(saveProperty.lastResult..ACTMESSAGE.@TEXT);
 				}
@@ -780,36 +684,14 @@
 			}
 			
 			private function propertyListLabel(item:Object, column:AdvancedDataGridColumn):String {
-				if(hasAppliesTo(item)) {
+				if(item.@appliesToOrganism != "" || item.@appliesToAnalysisType != "" || item.@appliesToRequestCategory != ""){
 					return "*" + item.@name;
 				} else{
 					return item.@name;
 				}
 			}
 			
-			private function filterExperimentPlatforms(item:Object):Boolean {
-				if (item != null) {
-					if (item.@idCoreFacility != null || item.@idCoreFacility != "") {
-						if (item.@idCoreFacility.toString() == coreFacilityCombo.selectedItem.@value) {
-							return true;
-						}
-					}
-				}
-				return false;
-			}
 			
-			private function onCoreFacilityChange():void {
-				setDirty();
-				filteredExperimentPlatforms.refresh();
-			}
-			
-			public function hasAppliesTo(item:Object):Boolean {
-				if(item.@appliesToOrganism != "" || item.@appliesToAnalysisType != "" || item.@appliesToRequestCategory != "" || item.@appliesToAppUser != ""){
-					return true;
-				} else {
-					return false;
-				}
-			}
 		]]>
 	</mx:Script>
 	
@@ -817,7 +699,6 @@
 	<mx:XMLListCollection id="options" source="{property.options.PropertyOption}"/>
 	<mx:XMLListCollection id="organisms" source="{property.organisms.Organism}"/>
 	<mx:XMLListCollection id="platformApplications" source="{property.platformApplications.PropertyPlatformApplication}" sort="{platformApplicationSorter}"/>
-	<mx:XMLListCollection id="appUsers" source="{property.appUsers.AppUserLite}"/>
 	<mx:Sort id="platformApplicationSorter" compareFunction="sortPlatformApplications" unique="true"/>	
 	<mx:XMLListCollection id="analysisTypes" source="{property.analysisTypes.AnalysisType}"/>
 	<mx:VBox width="100%" height="100%" verticalGap="0"  paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0">
@@ -834,7 +715,6 @@
 			<mx:RadioButton label="Samples" value="samples" group="{radioButtonGroupTarget}" id="showSampleAnnotations" fontSize="10"/>
 			<mx:RadioButton label="Analysis" value="analysis" group="{radioButtonGroupTarget}" id="showAnalysisAnnotations" fontSize="10"/>
 			<mx:RadioButton label="Data Tracks" value="dataTracks" group="{radioButtonGroupTarget}" id="showDataTrackAnnotations"  fontSize="10"/>
-			<mx:RadioButton label="Experiments" value="experiments" group="{radioButtonGroupTarget}" id="showExperimentAnnotations"  fontSize="10"/>
 			<mx:Label text="Applies to Specific" fontSize="10" paddingLeft="20" styleName="formLabel"/>
 			<mx:ComboBox id="organismFilter" itemRenderer="mx.controls.Label"  width="140"  dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OrganismLite').DictionaryEntry}" change="onPropertyRefreshed(null)" labelField="@display" fontSize="10" prompt="Organism..."/>
 			<mx:ComboBox id="experimentPlatformFilter" itemRenderer="mx.controls.Label" width="165" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry}" change="onPropertyRefreshed(null)" labelField="@display" prompt="Experiment Platform..." fontSize="10"/>
@@ -846,14 +726,17 @@
 			<mx:VBox height="100%" width="410">
 				<mx:AdvancedDataGrid id="propertyList" width="100%" height="100%" labelFunction="propertyListLabel" 
 									 itemClick="{onSelectProperty()}" wordWrap="true" variableRowHeight="true"  
-									 groupItemRenderer="views.renderers.PropertyGroupedItem" itemOpening="{propertyList.invalidateDisplayList();}" itemOpen="{autoScroll(event)}"
-									 iconFunction="getTreeIcon" fontSize="11" dataProvider="{properties}">
+									 groupItemRenderer="views.renderers.PropertyGroupedItem" itemOpening="{propertyList.collapseAll(); propertyList.invalidateDisplayList();}" itemOpen="{autoScroll(event)}"
+									 iconFunction="getTreeIcon" fontSize="11">
+					<mx:dataProvider> 
+						<mx:HierarchicalData source="{properties}"/>
+					</mx:dataProvider>						  
 					<mx:columns>
 						<mx:AdvancedDataGridColumn id="annotation" dataField="@name" width="180" headerText="Annotation"  wordWrap="true" >
 							<mx:itemRenderer >
 								<mx:Component>
 									<mx:HBox horizontalScrollPolicy="off" verticalGap="0" >
-										<mx:Label text="{data.name() != 'Option' &amp;&amp; (outerDocument.hasAppliesTo(data)) ? '*' + data.@name : data.@name}" 
+										<mx:Label text="{data.name() != 'Option' &amp;&amp; (data.@appliesToOrganism != '' || data.@appliesToAnalysisType != '' || data.@appliesToPlatform != '') ? '*' + data.@name : data.@name}" 
 												  fontWeight="{data.@isActive == 'Y' &amp;&amp; data.@isRequired == 'Y' ? 'bold' : 'normal'}"  
 												  fontStyle="{data.@isActive == 'N' || data.@isRequired == 'Y'  ? 'italic' : 'normal'}"
 												  color="{data.@isActive == 'N' ? 0x647478 : 0x000000}">			                           	
@@ -869,7 +752,7 @@
 			<mx:ViewStack id="theViews"  width="100%" height="100%" creationPolicy="all">
 				<mx:VBox width="100%" height="100%" verticalGap="0" paddingLeft="4" paddingTop="4" paddingRight="4" paddingBottom="0" backgroundColor="#FFFFFF" styleName="panelBox"/>		
 				<mx:VBox width="100%" height="100%" verticalGap="1" paddingLeft="4" paddingTop="4" paddingRight="4" paddingBottom="0" backgroundAlpha="0">		
-					<mx:TabNavigator id="theTab" tabWidth="140" width="100%" height="100%" styleName="form">
+					<mx:TabNavigator tabWidth="140" width="100%" height="100%" styleName="form">
 						<mx:VBox  label="Annotation" width="100%" height="100%" styleName="form" paddingTop="4" paddingBottom="4" paddingRight="4" paddingLeft="4" verticalGap="10" borderStyle="none">			 
 							<mx:HBox width="100%" verticalGap="0">
 								<mx:Label text="Name" width="90" styleName="formLabel"/>
@@ -881,10 +764,6 @@
 									</mx:CheckBox>
 									<mx:Spacer width="80"/>
 								</mx:HBox>
-							</mx:HBox>
-							<mx:HBox width="100%"  verticalAlign="middle" id="coreFacilityHBox">
-								<mx:Label text="Core Facility" width="90" styleName="formLabel"/>
-								<mx:ComboBox width="300" id="coreFacilityCombo" change="{onCoreFacilityChange()}" labelField="@display" dataProvider="{filteredCoreFacilityList}" ></mx:ComboBox>
 							</mx:HBox>
 							<mx:HBox height="20" width="100%"  verticalAlign="middle">
 								<mx:HBox verticalAlign="middle">
@@ -899,10 +778,6 @@
 										<mx:CheckBox label="Analysis" id="analysis" click="setDirty()">
 											<mx:selected>{property.@forAnalysis == 'Y' ? true : false}</mx:selected>
 										</mx:CheckBox>
-										<mx:CheckBox label="Experiment" id="experiment" click="setDirty()" 
-													 enabled="{parentApplication.isAdminState}">
-											<mx:selected>{property.@forRequest == 'Y' ? true : false}</mx:selected>
-										</mx:CheckBox>
 									</mx:HBox>
 								</mx:HBox>
 							</mx:HBox>
@@ -912,19 +787,13 @@
 									<mx:selected>{property.@isRequired == 'Y' ? true : false}</mx:selected>
 								</mx:CheckBox>
 							</mx:HBox>
-							<mx:HBox width="100%"  verticalAlign="middle">
-								<mx:Label text="Sort Order" width="90" styleName="formLabel"/>
-								<mx:TextInput text="{property.@sortOrder}" change="{setDirty()}" width="75" id="scSortOrder"  maxChars="4" restrict="0-9" />
-							</mx:HBox>
-							<mx:HBox width="100%" verticalGap="0" height="45">
+							<mx:HBox width="100%" verticalGap="0" height="65">
 								<mx:Text text="Description" width="90" styleName="formLabel"/>
-								<mx:TextArea text="{property.@description}" change="{setDirty()}" width="100%" height="100%" id="description"  maxChars="2000" fontSize="10"/>
+								<mx:TextArea text="{property.@description}" change="{setDirty()}" width="100%" height="55" id="description"  maxChars="2000" fontSize="10"/>
 							</mx:HBox>
 							<mx:HBox width="100%">
 								<mx:Label text="Owner" width="90" styleName="formLabel"/>
-								<mx:ComboBox width="200" id="ownerCombo" change="{setDirty()}"  labelField="@display" 
-											 dataProvider="{appUserList}"
-								/>
+								<mx:ComboBox width="200" id="ownerCombo" change="{setDirty()}"  labelField="@displayName" dataProvider="{parentApplication.promptedAppUserList}" ></mx:ComboBox>
 							</mx:HBox>
 							<mx:HBox width="100%" verticalGap="0" height="100%" verticalAlign="top">
 								<mx:Label text="Type" width="90" styleName="formLabel"/>
@@ -954,16 +823,16 @@
 								</mx:HBox>
 							</mx:HBox> 
 						</mx:VBox>
-						<mx:VBox id="appliesToTab" label="Applies To" width="100%" height="100%" verticalGap="15" paddingLeft="4" paddingRight="4" paddingBottom="4">
+						<mx:VBox label="Applies To" width="100%" height="100%" verticalGap="15" paddingLeft="4" paddingRight="4" paddingBottom="4">
 							<mx:VBox   verticalGap="1" height="100%"  width="100%">
-								<mx:Text text="Only show for these platforms/experiment types" width="100%" styleName="formLabel"/>
+								<mx:Text text="Only show for these platforms/applications" width="100%" styleName="formLabel"/>
 								<mx:HBox horizontalAlign="left" horizontalGap="2">
-									<mx:ComboBox width="225" dataProvider="{filteredExperimentPlatforms}" id="platformCombo" labelField="@display" prompt="Select platform" change="refreshApplicationFilter();"  fontSize="10">			       	
+									<mx:ComboBox width="225" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry}" id="platformCombo" labelField="@display" prompt="Select platform" change="refreshApplicationFilter();"  fontSize="10">			       	
 									</mx:ComboBox>
-									<mx:ComboBox width="170" dataProvider="{filteredAppList}" id="applicationCombo" labelField="@application" prompt="Experiment Type (optional)"  fontSize="10">			       	
+									<mx:ComboBox width="170" dataProvider="{filteredAppList}" id="applicationCombo" labelField="@application" prompt="Application (optional)"  fontSize="10">			       	
 									</mx:ComboBox>
 									<mx:Button click="addPlatform()" icon="@Embed(source='../../assets/add.png')" disabledIcon="@Embed(source='../../assets/add_disable.png')" width="25">
-										<mx:enabled>{(propertyList.selectedItem != null ? propertyList.selectedItem.@canUpdate == 'Y' : true) &amp;&amp; platformCombo.selectedItem != null &amp;&amp; platformCombo.selectedIndex > -1 ? true : false}</mx:enabled>
+										<mx:enabled>{propertyList.selectedItem.@canUpdate == 'Y' &amp;&amp; platformCombo.selectedItem != null &amp;&amp; platformCombo.selectedIndex > 0 ? true : false}</mx:enabled>
 									</mx:Button>
 									<mx:Button click="removePlatform()" icon="@Embed(source='../../assets/delete.png')" 
 											   disabledIcon="@Embed(source='../../assets/delete_disable.png')" 
@@ -997,7 +866,7 @@
 								</mx:VBox>
 							</mx:VBox>
 							<mx:VBox   verticalGap="1" height="100%"  width="100%">
-								<mx:Text text="Only show for these analysis types" width="100%" styleName="formLabel"/>
+								<mx:Label text="Only show for these analysis types" width="100%" styleName="formLael"/>
 								<mx:HBox horizontalAlign="left" horizontalGap="2">
 									<mx:ComboBox width="265" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.AnalysisType').DictionaryEntry}" id="analysisTypeCombo" labelField="@display"  fontSize="10">			       	
 									</mx:ComboBox>
@@ -1009,24 +878,6 @@
 											   enabled="{propertyList.selectedItem.@canUpdate == 'Y' &amp;&amp; analysisTypesGrid.selectedItem != null}" width="25"/>
 								</mx:HBox>
 								<mx:DataGrid id="analysisTypesGrid" showHeaders="false" dataProvider="{analysisTypes}" width="100%" height="100%">
-									<mx:columns>
-										<mx:DataGridColumn dataField="@display" headerText="Name"/>
-									</mx:columns>
-								</mx:DataGrid>			   	
-							</mx:VBox>				 
-							<mx:VBox   verticalGap="1" height="100%"  width="100%" enabled="{sample.selected &amp;&amp; !isRequired.selected}">
-								<mx:Text text="Only show for these users (only applies to non-required sample annotations)" width="100%" styleName="formLabel" />
-								<mx:HBox horizontalAlign="left" horizontalGap="2">
-									<renderers:FilterComboBox width="265" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.AppUserLite').DictionaryEntry}" id="appUserCombo" labelField="@display"  fontSize="10">			       	
-									</renderers:FilterComboBox>
-									<mx:Button click="addAppUser()" icon="@Embed(source='../../assets/add.png')" disabledIcon="@Embed(source='../../assets/add_disable.png')" width="25">
-										<mx:enabled>{propertyList.selectedItem.@canUpdate == 'Y' &amp;&amp; appUserCombo.selectedItem != null &amp;&amp; appUserCombo.selectedIndex > 0 ? true : false}</mx:enabled>
-									</mx:Button>
-									<mx:Button click="removeAppUser()" icon="@Embed(source='../../assets/delete.png')" 
-											   disabledIcon="@Embed(source='../../assets/delete_disable.png')" 
-											   enabled="{propertyList.selectedItem.@canUpdate == 'Y' &amp;&amp; appUsersGrid.selectedItem != null}" width="25"/>
-								</mx:HBox>
-								<mx:DataGrid id="appUsersGrid" showHeaders="false" dataProvider="{appUsers}" width="100%" height="100%">
 									<mx:columns>
 										<mx:DataGridColumn dataField="@display" headerText="Name"/>
 									</mx:columns>
@@ -1067,7 +918,7 @@
 			
 			
 		</mx:HDividedBox>
-		<mx:Label text="* Denotes annotations that apply to specific organisms, analysis types, experiment platforms, and/or users." fontStyle="normal" fontSize="10"/>
+		<mx:Label text="* Denotes annotations that apply to specific organisms, analysis types, and/or experiment platforms" fontStyle="normal" fontSize="10"/>
 	</mx:VBox>
 	
 </mx:TitleWindow>

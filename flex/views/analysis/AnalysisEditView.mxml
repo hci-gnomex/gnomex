@@ -126,12 +126,12 @@
 			import views.protocol.ProtocolsView;
 			import views.topics.NavTopicsView;
 			import views.util.AnalysisProtocolsEvent;
-			import views.util.DateUtils;
 			import views.util.FileUtil;
 			import views.util.GNomExStringUtil;
 			import views.util.OrganismEvent;
 			import views.util.OrganismsWindow;
 			import views.util.PromptXMLListCollection;
+			import views.util.DateUtils;
 			
 			[Bindable]
 			private var selectedFileList:XMLListCollection;
@@ -290,7 +290,6 @@
 						" idSequenceLane ='" + item.@idSequenceLane + "'" +
 						" idNumberSequencingCycles ='" + item.@idNumberSequencingCycles + "'" +
 						" idSeqRunType ='" + item.@idSeqRunType + "'" +
-						" idNumberSequencingCyclesAllowed = '" + item.@idNumberSequencingCyclesAllowed + "'" +
 						" sampleNumber ='" + item.@sampleNumber1 + "'" +
 						" flowCellNumber ='" + item.@flowCellNumber + "'" +
 						" flowCellChannelNumber ='" + item.@flowCellChannelNumber  + "'" +
@@ -429,12 +428,9 @@
 				} 
 				
 				
-				if(parentDocument is NavAnalysisView){
-					if(parentDocument.isDragDrop == false && !analysisProperties.requiredAnnotationsEntered()) {
-						return;		
-					} else{
-						parentDocument.isDragDrop = false;
-					}	
+				
+				if(!analysisProperties.requiredAnnotationsEntered()) {
+					return;		
 				}
 				
 				
@@ -778,7 +774,7 @@
 				dirty.setDirty();
 				var node:XML = new XML("<AnalysisCollaborator" +
 					" idAppUser='" + collaboratorCombo.selectedItem.@idAppUser + "'" +
-					" displayName='" + collaboratorCombo.selectedItem.@displayNameXMLSafe + "'" +
+					" displayName='" + collaboratorCombo.selectedItem.@displayName + "'" +
 					" canUploadData='N' " +
 					" canUpdate='N' " +
 					"/>");
@@ -1200,7 +1196,6 @@
 						dataProvider="{parentApplication.promptedLabList}"></mx:ComboBox>
 					<mx:Tree width="100%" height="100%" dataProvider="{getExperimentPickList.lastResult}" id="experimentTree" 
 							 showRoot="false" 
-							 showDataTips="true"
 							 dataTipFunction="getExperimentTreeLabel"
 							 dragEnabled="true"
 							 dropEnabled="false"
@@ -1269,8 +1264,10 @@
 										<mx:DataGridColumn headerText="Experiment name" width="90" dataField="@experimentName"/>
 										<mx:DataGridColumn  headerText="Sample Name"  width="100" dataField="@sampleName" editable="false"/>
 										<mx:DataGridColumn  headerText="Sample ID"  width="68" dataField="@sampleNumber" editable="false"/>
-										<mx:DataGridColumn  width="215" id="numberSequencingCyclesAllowedCol" headerText="Seq. Protocol"  editable="false" dataField="@NumberSequencingCyclesAllowed" 						             						             
-															itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.NumberSequencingCyclesAllowed').DictionaryEntry,'@display', '@value', '@idNumberSequencingCyclesAllowed')}"/>                 											
+										<mx:DataGridColumn  width="150" id="seqRunTypeCol" headerText="Flow Cell Type"  editable="false" dataField="@idSeqRunType" 						             						             
+															itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqRunType').DictionaryEntry,'@display', '@value', '@idSeqRunType')}"/>                 											
+										<mx:DataGridColumn width="65" id="numberOfSequencingCyclesCol" headerText="# Cycles"   editable="false" dataField="@idNumberSequencingCycles" 						             						             
+														   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.NumberSequencingCycles').DictionaryEntry,'@display', '@value', '@idNumberSequencingCycles')}"/>                 											
 										<mx:DataGridColumn  width="55" id="flowCellNumberCol" headerText="Flow Cell #"  editable="false" dataField="@flowCellNumber"/> 						             						             
 										<mx:DataGridColumn  width="45" id="flowCellLaneNumber" headerText="Channel"  editable="false" dataField="@flowCellChannelNumber"/> 						             						             
 										<mx:DataGridColumn width="150" id="genomeBuildAlignTo" headerText="Genome Build (align to)"  editable="false" dataField="@idGenomeBuildAlignTo" 						             						             
@@ -1288,8 +1285,8 @@
 		<analysis:AnalysisDownloadView id="filesView" uploadButtonsVisible="{parentDocument.selectedAnalysis.@canUpdate == 'Y'}" removeFileButtonsVisible="true" />
 		
       <mx:VBox id="visibilityTab" label="Visibility" width="100%" height="100%" verticalGap="20" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
-		  <mx:VBox width="1092">
-		<mx:VBox  width="600" paddingTop="4"  verticalGap="0" paddingRight="4" paddingLeft="4" paddingBottom="4">
+		  <mx:HBox width="1092">
+		<mx:VBox  width="509" paddingTop="4"  verticalGap="0" paddingRight="4" paddingLeft="4" paddingBottom="4">
 						
 			<mx:HBox horizontalGap="0" id="hbox1">
 				<mx:Text text="(1) Select the level of visibility." id="labelApplication"/>
@@ -1303,7 +1300,7 @@
 						<mx:VBox verticalGap="0" width="140">
 							<mx:RadioButton value="OWNER" label="Owner" groupName="visibilityRadioGroup"  
 											click="dirty.setDirty();setDefaultPrivacyExpirationDate();setDefaultPrivacyExpirationDate();setPrivacyExpirationPickerEditable();" 
-											toolTip="Visible to the submitter and the lab PI"/>
+											toolTip="Visbile to the submitter and the lab PI"/>
 							<mx:RadioButton value="MEM" selected="true" label="All Lab Members" groupName="visibilityRadioGroup"  
 											click="dirty.setDirty();setDefaultPrivacyExpirationDate();setDefaultPrivacyExpirationDate();setPrivacyExpirationPickerEditable();" 
 											toolTip="Visible to all members of the lab group"/>
@@ -1315,35 +1312,29 @@
 						<mx:ComboBox width="210" dataProvider="{this.possibleInstitutions}" id="institutionCombo" selectedIndex="{visibilityRadioGroup.selectedValue != 'INST' ? 0 : institutionCombo.selectedIndex}" labelField="@display" enabled="{this.possibleInstitutions.length > 1 &amp;&amp; radioInstitutionVisibility.enabled &amp;&amp; visibilityRadioGroup.selectedValue == 'INST'}"  editable="false" >			       	
 						</mx:ComboBox>
 					</mx:HBox>
-					<mx:HBox horizontalGap="0" verticalAlign="middle" visible="{parentApplication.isPublicVisibility}" includeInLayout="{parentApplication.isPublicVisibility}">
-					    <mx:RadioButton value="PUBLIC" label="Public Access" groupName="visibilityRadioGroup"  
+					<mx:RadioButton value="PUBLIC" label="Public Access" groupName="visibilityRadioGroup"  
 									click="dirty.setDirty();setDefaultPrivacyExpirationDate();setPrivacyExpirationPickerEditable();" toolTip="Visible to everyone"/>					   		
-					</mx:HBox>
 				</mx:VBox>				
 			</mx:HBox>
 		</mx:VBox>
-		<mx:VBox id="privacyExpirationBox" includeInLayout="{parentApplication.isPrivacyExpirationSupported}" visible="{parentApplication.isPrivacyExpirationSupported}" 
-				 							width="600" paddingTop="4"  verticalGap="0" paddingRight="4" paddingLeft="4" paddingBottom="4">
-			<mx:VBox verticalGap="0"  >
-				<mx:Text text="(2) Select the privacy expiration date." id="privacyExpirationLabel"/>
-				<mx:HBox width="550" verticalAlign="middle" >
+			<mx:VBox verticalGap="0" visible="{parentApplication.isPrivacyExpirationSupported}" >
+				<mx:HBox width="100%" verticalAlign="middle" >
 					<mx:DateField id="privacyExpirationPicker" width="100" change="dirty.setDirty();" editable="true" formatString="YYYY-MM-DD"></mx:DateField>
-					<mx:Text text="Public visibility date&#13;(visibility automatically changes to public on this date)"  />
+					<mx:Text text="Public visibility date (visibility automatically changes to public on this date) "  width="427" height="30"/>
 				</mx:HBox>
 			</mx:VBox>
-		</mx:VBox>
-
-			</mx:VBox>		
+			</mx:HBox>		
 			
 		
 		<mx:VBox height="100%" verticalGap="0" width="100%">
 			
-			<mx:Text text="{(parentApplication.isPrivacyExpirationSupported ? '(3)' : '(2)') + ' Specify other individual collaborators allowed access to this analysis'}" width="300" height="30" id="selectCollaboratorsLabel" />
+			<mx:Text text="(2) Specify other individual collaborators allowed access to this analysis" width="300" height="30"/>
 			<mx:HBox horizontalAlign="left" horizontalGap="6" paddingBottom="4">
 				<renderers:FilterComboBox dataProvider="{possibleCollaborators.source}" 
 										  labelField="@displayName" 
 										  prompt="Collaborator to add..."
 										  width="270"  
+										  removeFilterOnSelection="true"
 										  id="collaboratorCombo">
 				</renderers:FilterComboBox>
 				<mx:Button 

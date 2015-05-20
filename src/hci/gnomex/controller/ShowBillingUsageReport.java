@@ -4,7 +4,6 @@ import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.security.UnknownPermissionException;
 import hci.gnomex.model.BillingStatus;
-import hci.gnomex.model.CoreFacility;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.report.constants.ReportFormats;
@@ -39,7 +38,6 @@ public class ShowBillingUsageReport extends ReportCommand implements Serializabl
   
   private java.sql.Date    startDate;
   private java.sql.Date    endDate;
-  private Integer		   idCoreFacility;
   private String           isExternal = "N";
   private SecurityAdvisor  secAdvisor;
   
@@ -65,10 +63,6 @@ public class ShowBillingUsageReport extends ReportCommand implements Serializabl
       endDate = this.parseDate(request.getParameter("endDate"));
     } else {
       this.addInvalidField("endDate", "endDate is required");
-    }
-    
-    if (request.getParameter("idCoreFacility") != null && !request.getParameter("idCoreFacility").equals("")) {
-        idCoreFacility = Integer.valueOf(request.getParameter("idCoreFacility"));
     }
     
     if (request.getParameter("isExternal") != null) {
@@ -107,12 +101,7 @@ public class ShowBillingUsageReport extends ReportCommand implements Serializabl
             tray.setReportDate(new java.util.Date(System.currentTimeMillis()));
             tray.setReportTitle("Usage Report");
             tray.setReportDescription("Usage Report" + " " + this.formatDate(startDate) + " - " + this.formatDate(endDate) + (isExternal.equals("Y") ? " (External)" : " (Internal)"));
-            String coreQualifier = "";
-            if (idCoreFacility != null) {
-                CoreFacility core = (CoreFacility)sess.get(CoreFacility.class, idCoreFacility);
-                coreQualifier += "_" + core.getDisplay();
-            }
-            tray.setFileName("GNomEx Usage Report" + coreQualifier);
+            tray.setFileName("GNomEx Usage Report");
             tray.setFormat(ReportFormats.XLS);
 
             Set columns = new TreeSet();
@@ -208,10 +197,6 @@ public class ShowBillingUsageReport extends ReportCommand implements Serializabl
     buf.append(" join bi.priceCategory as cat");
     buf.append(" join bi.lab as lab");
     buf.append(" where bp.startDate >= '" + this.formatDate(startDate, this.DATE_OUTPUT_SQL) + "' and bp.endDate <= '" + this.formatDate(endDate, this.DATE_OUTPUT_SQL) + "'");
-    if (idCoreFacility != null) {
-    	buf.append(" AND bi.idCoreFacility = ");
-    	buf.append(idCoreFacility + " ");
-    }
     buf.append(" and cat.name like 'Sample Quality%' and cat.name != 'Miscellaneous'");
     buf.append(" and qty is not null");
     buf.append(" and bi.codeBillingStatus != '" + BillingStatus.PENDING + "'");
@@ -245,10 +230,6 @@ public class ShowBillingUsageReport extends ReportCommand implements Serializabl
     buf.append(" join bi.priceCategory as cat");
     buf.append(" join bi.lab as lab");
     buf.append(" where bp.startDate >= '" + this.formatDate(startDate, this.DATE_OUTPUT_SQL) + "' and bp.endDate <= '" + this.formatDate(endDate, this.DATE_OUTPUT_SQL) + "'");
-    if (idCoreFacility != null) {
-    	buf.append(" AND bi.idCoreFacility = ");
-    	buf.append(idCoreFacility + " ");
-    }
     buf.append(" and bi.qty is not NULL");
     buf.append(" and bi.codeBillingStatus != '"+ BillingStatus.PENDING + "'");
     buf.append(" and cat.name not like 'Sample Quality%' and cat.name != 'Miscellaneous'");
@@ -281,10 +262,6 @@ public class ShowBillingUsageReport extends ReportCommand implements Serializabl
     buf.append(" join bi.priceCategory as cat");
     buf.append(" join bi.lab as lab");
     buf.append(" where bp.startDate >= '" + this.formatDate(startDate, this.DATE_OUTPUT_SQL) + "' and bp.endDate <= '" + this.formatDate(endDate, this.DATE_OUTPUT_SQL) + "'");
-    if (idCoreFacility != null) {
-    	buf.append(" AND bi.idCoreFacility = ");
-    	buf.append(idCoreFacility + " ");
-    }
     buf.append(" and cat.name = 'Miscellaneous'");   
     buf.append(" and qty is not null");
     buf.append(" and bi.codeBillingStatus != '"+ BillingStatus.PENDING + "'");

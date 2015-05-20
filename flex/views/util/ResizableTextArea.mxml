@@ -92,7 +92,7 @@
 					}
 				}
 				// setting the new calculated height
-				this.height = totalHeight + 20;
+				this.height = totalHeight;
 				
 				this.width = maxWidth + 10;
 				

@@ -47,7 +47,6 @@
 		
 		import views.renderers.ComboBoxBillingAccount;
 		import views.renderers.ComboBoxGroup;
-		import views.util.GNomExStringUtil;
 		
 		
 		[Bindable]
@@ -103,39 +102,25 @@
 		
 		private function onGetLab(event:ResultEvent):void {			
 			var lab:Object = getLab.lastResult..Lab;
-			var requestCategory:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory',request.@codeRequestCategory);
 			if (this.showInactiveAccountsCheckBox.selected) {
-				billingAccounts = new XMLListCollection(lab.billingAccounts.BillingAccount.(@isApproved == 'Y' && @idCoreFacility == requestCategory.@idCoreFacility));
+				billingAccounts = new XMLListCollection(lab.billingAccounts.BillingAccount.(@isApproved == 'Y'));
 			} else {
-				billingAccounts = new XMLListCollection(lab.billingAccounts.BillingAccount.(@isApproved == 'Y' && @isActive == 'Y' && @idCoreFacility == requestCategory.@idCoreFacility));
+				billingAccounts = new XMLListCollection(lab.billingAccounts.BillingAccount.(@isApproved == 'Y' && @isActive == 'Y'));
 			}
 			var blankNode:XML = new XML("<BillingAccount idCoreFacility='' idLab='' labName='' idBillingAccount='' accountName=''/>");
 			billingAccounts.addItemAt(blankNode, 0);	
-			billingAccounts.filterFunction = filterBillingAccounts;
+			billingAccounts.filterFunction = filterCore;
 			billingAccounts.refresh();
 			
 			billingAccountCombo.dataProvider=billingAccounts;
 			billingAccountCombo.dropdown.dataProvider = billingAccounts;
 			billingAccountCombo.selectedIndex = 0;
 		}
-		private function filterBillingAccounts(item:Object):Boolean {
-			var passCoreCheck:Boolean = false;
+		private function filterCore(item:Object):Boolean {
 			if ( item.@idCoreFacility == "" ) {
-				passCoreCheck = true;
-			} else {
-				passCoreCheck = parentApplication.isCoreFacilityIManage(item.@idCoreFacility);
-			}
-			
-			if (passCoreCheck) {
-				for each (var alreadyAddedBillingAccount:Object in billingAccountEntries) {
-					if (alreadyAddedBillingAccount.@idBillingAccount == item.@idBillingAccount) {
-						return false;
-					}
-				}
 				return true;
-			} else {
-				return false;
 			}
+			return parentApplication.isCoreFacilityIManage(item.@idCoreFacility);
 		}
 		private function getLabName(item:Object,col:int):String
         {
@@ -150,11 +135,11 @@
         	var newNode:XML = new XML(   
     	   				 "<BillingAccount " + 
        			 	 	 " idBillingAccount='" + billingAccountCombo.selectedItem.@idBillingAccount + "'" +
-       			 	 	 " accountName='" + GNomExStringUtil.makeXMLSafe(billingAccountCombo.selectedItem.@accountName) + "'" +
-       			 	 	 " accountNumber='" + GNomExStringUtil.makeXMLSafe(billingAccountCombo.selectedItem.@accountNumber) + "'" +
-       			 	 	 " accountNumberDisplay='" + GNomExStringUtil.makeXMLSafe(billingAccountCombo.selectedItem.@accountNumberDisplay) + "'" +
+       			 	 	 " accountName='" + billingAccountCombo.selectedItem.@accountName + "'" +
+       			 	 	 " accountNumber='" + billingAccountCombo.selectedItem.@accountNumber + "'" +
+       			 	 	 " accountNumberDisplay='" + billingAccountCombo.selectedItem.@accountNumberDisplay + "'" +
        			 	 	 " idLab='"  + labCombo.selectedItem.@idLab + "'" +
-       			 	 	 " labName='" + GNomExStringUtil.makeXMLSafe(labCombo.selectedItem.@name) + "'" +
+       			 	 	 " labName='" + labCombo.selectedItem.@name + "'" +
        			 	 	 " percentage='" + "'" +
 						 " invoicePrice='$0.00'" +
 						 " totalPrice='" + totalPrice + "'" +
@@ -168,9 +153,6 @@
         private function removeAccountEntry():void {
         	if (accountsGrid.selectedItem != null) {
         		billingAccountEntries.removeItemAt(billingAccountEntries.getItemIndex(accountsGrid.selectedItem));
-				labCombo.selectedItem = null;
-				billingAccounts = new XMLListCollection();
-				billingAccountCombo.selectedItem = null;
         	}
         } 
         

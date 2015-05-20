@@ -3,7 +3,6 @@ package hci.gnomex.controller;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.constants.Constants;
-import hci.gnomex.model.CoreFacility;
 import hci.gnomex.model.LabeledSample;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.Request;
@@ -152,7 +151,12 @@ public class SaveWorkItemQualityControl extends GNomExCommand implements Seriali
             Request request = (Request)sess.load(Request.class, workItem.getIdRequest());
             
             // Set complete date on QC requests
-            request.completeRequestIfFinished(sess);
+            if (request.isConsideredFinished() && 
+                request.getCompletedDate() == null &&
+                request.getCodeRequestCategory().equals(RequestCategory.QUALITY_CONTROL_REQUEST_CATEGORY)) {
+              request.setCompletedDate(new java.sql.Date(System.currentTimeMillis()));
+              request.setCodeRequestStatus(RequestStatus.COMPLETED);
+            }
             
             // Send confirmation email on QC requests; send progress email
             // on Hyb requests. (Send only once for entire request and don't
@@ -216,20 +220,18 @@ public class SaveWorkItemQualityControl extends GNomExCommand implements Seriali
   private void sendConfirmationEmail(Session sess, Request request) throws NamingException, MessagingException {
     
     dictionaryHelper = DictionaryHelper.getInstance(sess);
-    
-    CoreFacility cf = (CoreFacility)sess.load(CoreFacility.class, request.getIdCoreFacility());
 
     String emailSubject = null;
     StringBuffer introNote = new StringBuffer();
     String downloadRequestURL = Util.addURLParameter(launchAppURL, "requestNumber=" + request.getNumber() + "&launchWindow=" + Constants.WINDOW_FETCH_RESULTS);
-    if (RequestCategory.isQCRequestCategory(request.getCodeRequestCategory())) {
+    if (request.getCodeRequestCategory().equals(RequestCategory.QUALITY_CONTROL_REQUEST_CATEGORY)) {
       emailSubject = dictionaryHelper.getRequestCategory(request.getCodeRequestCategory())+ " Request " + request.getNumber() + " completed";
-      introNote.append("Request " + request.getNumber() + " has been completed by the " + cf.getFacilityName() + " core.");
+      introNote.append("Request " + request.getNumber() + " has been completed by the " + dictionaryHelper.getPropertyDictionary(PropertyDictionary.CORE_FACILITY_NAME) + ".");
       introNote.append("<br>To fetch the quality control reports, click <a href=\"" + downloadRequestURL + "\">" + Constants.APP_NAME + " - " + Constants.WINDOW_NAME_FETCH_RESULTS + "</a>.");      
     } else {
       emailSubject = dictionaryHelper.getRequestCategory(request.getCodeRequestCategory())+ " Request " + request.getNumber() + " in progress";
       introNote.append("Request " + request.getNumber() + " is in progress.  ");
-      introNote.append("The " + cf.getFacilityName() + " core has finished Quality Control on all of the samples for Request " + request.getNumber() + ".  The report below summarizes the spectophotometer and bioanalyzer readings.");
+      introNote.append("The " + dictionaryHelper.getPropertyDictionary(PropertyDictionary.CORE_FACILITY_NAME) + " has finished Quality Control on all of the samples for Request " + request.getNumber() + ".  The report below summarizes the spectophotometer and bioanalyzer readings.");
       introNote.append("<br>To fetch the quality control reports, click <a href=\"" + downloadRequestURL + "\">" + Constants.APP_NAME + " - " + Constants.WINDOW_NAME_FETCH_RESULTS + "</a>.");      
     } 
     

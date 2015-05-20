@@ -40,11 +40,6 @@
 					this.detailViews.selectedChild = this.hiSeqViews;
 					this.hiSeqViews.selectedChild = this.workflowHiSeqAssembleView;
 					callLater(onHiSeqWorklistChange);
-				} else if (codeStep == 'HSEQFINFC') {
-					this.navBar.selectedChild = this.hiSeqTab;
-					this.detailViews.selectedChild = this.hiSeqViews;
-					this.hiSeqViews.selectedChild = this.workflowHiSeqFlowCellFinalizeView;
-					callLater(onHiSeqWorklistChange);
 				} else if (codeStep == 'HSEQPIPE') {
 					this.navBar.selectedChild = this.hiSeqTab;
 					this.detailViews.selectedChild = this.hiSeqViews;
@@ -59,11 +54,6 @@
 					this.navBar.selectedChild = this.miSeqTab;
 					this.detailViews.selectedChild = this.miSeqViews;
 					this.miSeqViews.selectedChild = this.workflowMiSeqAssembleView;
-					callLater(onMiSeqWorklistChange);
-				} else if (codeStep == 'MISEQFINFC') {
-					this.navBar.selectedChild = this.miSeqTab;
-					this.detailViews.selectedChild = this.miSeqViews;
-					this.miSeqViews.selectedChild = this.workflowMiSeqFlowCellFinalizeView;
 					callLater(onMiSeqWorklistChange);
 				} else if (codeStep == 'MISEQPIPE') {
 					this.navBar.selectedChild = this.miSeqTab;
@@ -87,7 +77,7 @@
 					}
 				}
 				
-				if (!parentApplication.usesExperimentType("MISEQ")) {
+				if (!parentApplication.usesKindOfRequestCategory("MISEQ") || !parentApplication.usesExperimentType("HISEQ")) {
 					if (navBar.contains(miSeqTab)) {
 						navBar.removeChild(miSeqTab);
 						removeFromQCTabItems("miseq");
@@ -110,10 +100,6 @@
 				
 				if (!parentApplication.usesExperimentType("QC")) {
 					removeFromQCTabItems("qc");
-				}
-				
-				if (!parentApplication.usesExperimentType("NANOSTRING")) {
-					removeFromQCTabItems("nano");
 				}
 				
 				requestCategory = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', 'MISEQ');
@@ -248,9 +234,9 @@
 	        		workflowSolexaPrepView.getWorkList.send();
 	        	} else if (solexaViews.selectedChild == workflowSolexaAssembleView) {
 	        		workflowSolexaAssembleView.codeStepNext = "SEQASSEM";
-	        		workflowSolexaAssembleView.init(solexaFlowCellChannels);
+	        		workflowSolexaAssembleView.initializeData(solexaFlowCellChannels);
 	        		workflowSolexaAssembleView.getWorkList.send();
-	        		//workflowSolexaAssembleView.getNextWorkList.send();
+	        		workflowSolexaAssembleView.getNextWorkList.send();
 	        	} else if (solexaViews.selectedChild == workflowSolexaPipelineView) {
 	        		workflowSolexaPipelineView.codeStepNext = "SEQPIPE";
 					workflowSolexaPipelineView.initTitle();
@@ -301,10 +287,6 @@
 						filterType = "SEQQC";
 						windowTitle = "GAIIX ";
 						break;
-					case "nano":
-						filterType = "NANO";
-						windowTitle = "Nano String ";
-						break;
 				}
 				combinedWorkflowQCView.setWorklistFilter(filterType, windowTitle + "Sample Quality");
 				detailViews.selectedChild = combinedQCViews;  
@@ -318,15 +300,10 @@
 	        		workflowHiSeqPrepView.getWorkList.send();
 	        	} else if (hiSeqViews.selectedChild == workflowHiSeqAssembleView) {
 	        		workflowHiSeqAssembleView.codeStepNext = "HSEQASSEM";
-	        		workflowHiSeqAssembleView.init(hiSeqFlowCellChannels);
-
-	        		//workflowHiSeqAssembleView.getWorkList.send();
-	        	} else if (hiSeqViews.selectedChild == workflowHiSeqFlowCellFinalizeView) {
-					workflowHiSeqFlowCellFinalizeView.codeStepNext = "HSEQFINFC";
-					workflowHiSeqFlowCellFinalizeView.init();
-					workflowHiSeqFlowCellFinalizeView.codeSequencingPlatform = "HISEQ";
-					workflowHiSeqFlowCellFinalizeView.getFlowCellList.send();
-				} else if (hiSeqViews.selectedChild == workflowHiSeqPipelineView) {
+	        		workflowHiSeqAssembleView.initializeData(hiSeqFlowCellChannels);
+	        		workflowHiSeqAssembleView.getWorkList.send();
+	        		workflowHiSeqAssembleView.getNextWorkList.send();
+	        	} else if (hiSeqViews.selectedChild == workflowHiSeqPipelineView) {
 	        		workflowHiSeqPipelineView.codeStepNext = "HSEQPIPE";
 					workflowHiSeqPipelineView.initTitle();
 	        		workflowHiSeqPipelineView.getWorkList.send();
@@ -343,15 +320,10 @@
 					workflowMiSeqPrepView.titleInit();
 					workflowMiSeqPrepView.getWorkList.send();
 				} else if (miSeqViews.selectedChild == workflowMiSeqAssembleView) {
-					workflowMiSeqAssembleView.codeStepNext = "MISEQASSEM";
-					
-					workflowMiSeqAssembleView.init(miSeqFlowCellChannels);
-					//workflowMiSeqAssembleView.getWorkList.send();
-				} else if (miSeqViews.selectedChild == workflowMiSeqFlowCellFinalizeView) {
-					workflowMiSeqFlowCellFinalizeView.codeStepNext = "MISEQFINFC";
-					workflowMiSeqFlowCellFinalizeView.init();
-					workflowMiSeqFlowCellFinalizeView.codeSequencingPlatform = "MISEQ";
-					workflowMiSeqFlowCellFinalizeView.getFlowCellList.send();
+					workflowMiSeqAssembleView.codeStepNext = "MISEQASSEM";		
+					workflowMiSeqAssembleView.initializeData(miSeqFlowCellChannels);
+					workflowMiSeqAssembleView.getWorkList.send();
+					workflowMiSeqAssembleView.getNextWorkList.send();
 				} else if (miSeqViews.selectedChild == workflowMiSeqPipelineView) {
 					workflowMiSeqPipelineView.codeStepNext = "MISEQPIPE";
 					workflowMiSeqPipelineView.initTitle();
@@ -368,7 +340,8 @@
 	        		this.flowCellView.codeSequencingPlatform = "GAIIX";
 					this.flowCellView.titleLabel.text = 'Illumina GAIIx Flow Cells';
 	        		this.flowCellView.lookupField.text = '';
-					this.flowCellView.pickDateRangeButton.selectRangeNonMenu(90, false);
+	        		this.flowCellView.lastThreeMonthsCheckbox.selected = true;
+	        		this.flowCellView.toggleDateCheckboxes(3);
 	        		microarrayViews.selectedChild=blankMicroarray;
 					hiSeqViews.selectedChild=this.blankHiSeq;
 					miSeqViews.selectedChild=this.blankMiSeq;
@@ -377,7 +350,8 @@
 					this.flowCellView.codeSequencingPlatform = "HISEQ";
 					this.flowCellView.titleLabel.text = 'Illumina HiSeq 2000 Flow Cells';
 					this.flowCellView.lookupField.text = '';
-					this.flowCellView.pickDateRangeButton.selectRangeNonMenu(90, false);
+					this.flowCellView.lastThreeMonthsCheckbox.selected = true;
+					this.flowCellView.toggleDateCheckboxes(3);
 					solexaViews.selectedChild=blankSolexa;
 					microarrayViews.selectedChild=blankMicroarray;
 					miSeqViews.selectedChild=this.blankMiSeq;
@@ -386,7 +360,8 @@
 					this.flowCellView.codeSequencingPlatform = "MISEQ";
 					this.flowCellView.titleLabel.text = 'Illumina MiSeq Flow Cells';
 					this.flowCellView.lookupField.text = '';
-					this.flowCellView.pickDateRangeButton.selectRangeNonMenu(90, false);
+					this.flowCellView.lastThreeMonthsCheckbox.selected = true;
+					this.flowCellView.toggleDateCheckboxes(3);
 					solexaViews.selectedChild=blankSolexa;
 					microarrayViews.selectedChild=blankMicroarray;
 					hiSeqViews.selectedChild=this.blankHiSeq;
@@ -414,8 +389,6 @@
 				   />
 		<mx:Object label="Sample Quality" code="qc"
 				    />
-		<mx:Object label="Nano String" code="nano"
-				   />
 	</mx:Array>
 	
 <mx:VBox width="100%" height="100%" verticalGap="0">
@@ -519,7 +492,7 @@
 			
 			   <workflow:WorkflowSolexaPrepView label="Lib Prep" id="workflowSolexaPrepView" icon="{parentApplication.iconLibPrep}"/>
 
-			   <workflow:WorkflowSolexaAssembleView label="Flow Cell Assembly" id="workflowSolexaAssembleView" icon="{parentApplication.iconSolexa}"/> 	           
+			   <workflow:WorkflowSolexaAssembleView label="Seq Run Setup" id="workflowSolexaAssembleView" icon="{parentApplication.iconSolexa}"/> 	           
 
 			   <workflow:WorkflowSolexaPipelineView label="Data Pipeline" id="workflowSolexaPipelineView" icon="{parentApplication.iconPipeline}"/> 	           
 			    
@@ -530,9 +503,7 @@
 			
 			   <workflow:WorkflowSolexaPrepView label="Lib Prep" id="workflowHiSeqPrepView"  icon="{parentApplication.iconLibPrep}"/>
 
-			   <workflow:WorkflowSolexaAssembleView label="Flow Cell Assembly" id="workflowHiSeqAssembleView" icon="{parentApplication.iconSolexa}"/>
-			   
-			   <workflow:WorkflowSolexaFlowCellFinalizeView label="Finalize Flow Cell" id="workflowHiSeqFlowCellFinalizeView" icon="{parentApplication.iconSolexa}"/>
+			   <workflow:WorkflowSolexaAssembleView label="Seq Run Setup" id="workflowHiSeqAssembleView" icon="{parentApplication.iconSolexa}"/> 	           
 
 			   <workflow:WorkflowSolexaPipelineView label="Data Pipeline" id="workflowHiSeqPipelineView" icon="{parentApplication.iconPipeline}"/> 	           
 			    
@@ -543,9 +514,7 @@
 				
 				<workflow:WorkflowSolexaPrepView label="Lib Prep" id="workflowMiSeqPrepView" icon="{parentApplication.iconLibPrep}"/>
 				
-				<workflow:WorkflowSolexaAssembleView label="Flow Cell Assembly" id="workflowMiSeqAssembleView" icon="{parentApplication.iconSolexa}"/>
-				
-				<workflow:WorkflowSolexaFlowCellFinalizeView label="Finalize Flow Cell" id="workflowMiSeqFlowCellFinalizeView" icon="{parentApplication.iconSolexa}"/>
+				<workflow:WorkflowSolexaAssembleView label="Seq Run Setup" id="workflowMiSeqAssembleView" icon="{parentApplication.iconSolexa}"/> 	           
 				
 				<workflow:WorkflowSolexaPipelineView label="Data Pipeline" id="workflowMiSeqPipelineView" icon="{parentApplication.iconPipeline}"/> 	           
 				

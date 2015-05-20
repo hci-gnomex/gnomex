@@ -29,14 +29,14 @@ package views.util
 				sizeTxt = size + " MB";
 			} else if (theFileSize > KB ) {
 				// Round kb to the nearest 100th place
-				size = Math.round((theFileSize / KB));
+				size = Math.round((theFileSize / KB) / 100) * 100;
 				if (size == 0) {
 					size = 1;
 				}
 				sizeTxt = size + " KB";
 			} else {
 				// Round bytes to nearest 100th place
-				size = Math.round(theFileSize) ;
+				size = Math.round(theFileSize / 100) * 100;
 				if (size == 0) {
 					size = 1;
 				}

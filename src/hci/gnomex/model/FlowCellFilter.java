@@ -4,7 +4,7 @@ package hci.gnomex.model;
 import hci.framework.model.DetailObject;
 import hci.gnomex.security.SecurityAdvisor;
 
-import java.util.Date;
+import java.util.Calendar;
 
 public class FlowCellFilter extends DetailObject {
   
@@ -13,34 +13,16 @@ public class FlowCellFilter extends DetailObject {
   private String                codeSequencingPlatform;
   private String                flowCellNumber;
   private String                requestNumber;
-  private Date					createDateFrom;
-  private Date					createDateTo;
-  private String				codeStepNext;
-  private SecurityAdvisor       secAdvisor;
+  private String                lastWeek = "N";
+  private String                lastMonth = "N";
+  private String                lastThreeMonths = "N";
+  private String                lastYear = "N";
+  
   
   private StringBuffer          queryBuf;
-  private boolean              	addWhere = true;
+  private boolean              addWhere = true;
   
   
-  public boolean hasSufficientCriteria(SecurityAdvisor secAdvisor) {
-	    this.secAdvisor = secAdvisor;
-	    boolean hasLimitingCriteria = false;
-	    
-	    if ((flowCellNumber != null && !flowCellNumber.equals("")) ||
-	    	(requestNumber != null && !requestNumber.equals("")) ||
-	    	(createDateFrom != null && createDateTo != null) ||
-	    	(codeStepNext != null)) {
-	    	hasLimitingCriteria = true;
-	    } else {
-	    	hasLimitingCriteria = false;
-	    }
-
-	    if (this.secAdvisor.hasPermission(SecurityAdvisor.CAN_ACCESS_ANY_OBJECT)) {
-	    	return hasLimitingCriteria;      
-	    } else {
-	    	return true;
-	    }
-  }
   
   public StringBuffer getQuery(SecurityAdvisor secAdvisor) {
     
@@ -53,43 +35,25 @@ public class FlowCellFilter extends DetailObject {
     return queryBuf;
     
   }
-
+  
   public void getQueryBody(StringBuffer queryBuf, SecurityAdvisor secAdvisor) {
-    if(codeStepNext != null && codeStepNext != "") {
-      queryBuf.append(" FROM WorkItem as wi ");
-      queryBuf.append(" JOIN wi.flowCellChannel as ch ");
-      queryBuf.append(" JOIN ch.flowCell as fc ");
-      if (this.hasRequestCriteria()) {
-        queryBuf.append(" JOIN   ch.sequenceLanes as lane ");
-        queryBuf.append(" JOIN   lane.request as req ");      
-      }	    
-      String[] codeStepNextArr = codeStepNext.split(",");
-      codeStepNext = "";
-      for(String s : codeStepNextArr) {
-        codeStepNext += "'" + s + "',";
-      }
-      codeStepNext = codeStepNext.substring(0, codeStepNext.length()-1);
-      queryBuf.append(" WHERE wi.codeStepNext IN (" + codeStepNext + ") " );
-      
-      addWhere = false;		
-    } else {
-      queryBuf.append(" FROM        FlowCell as fc ");
-      if (this.hasRequestCriteria()) {
-        queryBuf.append(" JOIN   fc.flowCellChannels as ch ");
-        queryBuf.append(" JOIN   ch.sequenceLanes as lane ");
-        queryBuf.append(" JOIN   lane.request as req ");      
-      }	    
-      addWhere = true;
-      addFlowCellCriteria();
-      addRequestCriteria();
+    
+    queryBuf.append(" FROM        FlowCell as fc ");
+    if (this.hasRequestCriteria()) {
+      queryBuf.append(" JOIN   fc.flowCellChannels as ch ");
+      queryBuf.append(" JOIN   ch.sequenceLanes as lane ");
+      queryBuf.append(" JOIN   lane.request as req ");      
     }
-
+    
+    addWhere = true;
+    addFlowCellCriteria();
+    addRequestCriteria();
     if (!secAdvisor.hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
       queryBuf.append(" AND ");
       secAdvisor.appendCoreFacilityCriteria(queryBuf, "fc");
       queryBuf.append(" ");
     }
-    
+
     queryBuf.append(" order by fc.createDate desc, fc.number");
   }
   
@@ -117,21 +81,57 @@ public class FlowCellFilter extends DetailObject {
       queryBuf.append(" fc.number = '");
       queryBuf.append(flowCellNumber);
       queryBuf.append("'");
-    }
+    }    
     
-    // Search by create date
-    if (createDateFrom != null) {
-    	this.addWhereOrAnd();
-        queryBuf.append(" fc.createDate >= '");
-        queryBuf.append(this.formatDate(createDateFrom, this.DATE_OUTPUT_SQL));
-        queryBuf.append("'");
+    // Search for analysis created in last week
+    if (lastWeek.equals("Y")) {
+
+      Calendar cal = Calendar.getInstance();
+      cal.add(Calendar.DAY_OF_YEAR, -7);
+      java.sql.Date lastWeek = new java.sql.Date(cal.getTimeInMillis());
+      
+      this.addWhereOrAnd();
+      queryBuf.append(" fc.createDate >= '");
+      queryBuf.append(this.formatDate(lastWeek, this.DATE_OUTPUT_SQL));
+      queryBuf.append("'");
     }
-    if (createDateTo != null) {
-    	this.addWhereOrAnd();
-        queryBuf.append(" fc.createDate <= '");
-        queryBuf.append(this.formatDate(createDateTo, this.DATE_OUTPUT_SQL));
-        queryBuf.append("'");
+    // Search for analysis created in last month
+    if (lastMonth.equals("Y")) {
+
+      Calendar cal = Calendar.getInstance();
+      cal.add(Calendar.MONTH, -1);
+      java.sql.Date lastMonth = new java.sql.Date(cal.getTimeInMillis());
+      
+      this.addWhereOrAnd();
+      queryBuf.append(" fc.createDate >= '");
+      queryBuf.append(this.formatDate(lastMonth, this.DATE_OUTPUT_SQL));
+      queryBuf.append("'");
     }
+    // Search for analysis created in last 3 months
+    if (lastThreeMonths.equals("Y")) {
+
+      Calendar cal = Calendar.getInstance();
+      cal.add(Calendar.MONTH, -3);
+      java.sql.Date last3Month = new java.sql.Date(cal.getTimeInMillis());
+      
+      this.addWhereOrAnd();
+      queryBuf.append(" fc.createDate >= '");
+      queryBuf.append(this.formatDate(last3Month, this.DATE_OUTPUT_SQL));
+      queryBuf.append("'");
+    }
+    // Search for analysis created in last year
+    if (lastYear.equals("Y")) {
+
+      Calendar cal = Calendar.getInstance();
+      cal.add(Calendar.YEAR, -1);
+      java.sql.Date lastYear = new java.sql.Date(cal.getTimeInMillis());
+      
+      this.addWhereOrAnd();
+      queryBuf.append(" fc.createDate >= '");
+      queryBuf.append(this.formatDate(lastYear, this.DATE_OUTPUT_SQL));
+      queryBuf.append("'");
+    }    
+
 
   }
   
@@ -153,6 +153,47 @@ public class FlowCellFilter extends DetailObject {
       queryBuf.append(" AND ");
     }
     return addWhere;
+  }
+
+
+  
+  public String getLastWeek() {
+    return lastWeek;
+  }
+
+  
+  public void setLastWeek(String lastWeek) {
+    this.lastWeek = lastWeek;
+  }
+
+  
+  public String getLastMonth() {
+    return lastMonth;
+  }
+
+  
+  public void setLastMonth(String lastMonth) {
+    this.lastMonth = lastMonth;
+  }
+
+  
+  public String getLastThreeMonths() {
+    return lastThreeMonths;
+  }
+
+  
+  public void setLastThreeMonths(String lastThreeMonths) {
+    this.lastThreeMonths = lastThreeMonths;
+  }
+
+  
+  public String getLastYear() {
+    return lastYear;
+  }
+
+  
+  public void setLastYear(String lastYear) {
+    this.lastYear = lastYear;
   }
 
   
@@ -185,28 +226,11 @@ public class FlowCellFilter extends DetailObject {
     this.codeSequencingPlatform = codeSequencingPlatform;
   }
 
-  public String getCodeStepNext() {
-	  return codeStepNext;
-  }
   
-  public void setCodeStepNext(String codeStepNext) {
-	  this.codeStepNext = codeStepNext;
-  }
 
-  public Date getCreateDateFrom() {
-	return createDateFrom;
-  }
 
-  public void setCreateDateFrom(Date createDateFrom) {
-    this.createDateFrom = createDateFrom;
-  }
   
-  public Date getCreateDateTo() {
-	return createDateTo;
-  }
+ 
 
-  public void setCreateDateTo(Date createDateTo) {
-	this.createDateTo = createDateTo;
-  }
   
 }

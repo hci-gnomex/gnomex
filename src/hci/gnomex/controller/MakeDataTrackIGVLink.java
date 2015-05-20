@@ -292,7 +292,7 @@ public class MakeDataTrackIGVLink extends HttpServlet {
 			
 			//If the user has permission for any data track, give the the repository link
 			if (permissionForAny) {
-				boolean success = this.makeSoftLinkViaUNIXCommandLine(dir.toString());  // deal with embedded spaces
+				boolean success = this.makeSoftLinkViaUNIXCommandLine(dir.toString());
 				
 				
 				if (success) {
@@ -454,7 +454,7 @@ public class MakeDataTrackIGVLink extends HttpServlet {
 			script.createNewFile();
 			BufferedWriter bw = new BufferedWriter(new FileWriter(script));
 			for (String[] links: linksToMake) {
-				bw.write("ln -s \"" + links[0] + "\" \"" + links[1] + "\"\n");
+				bw.write(String.format("ln -s %s %s\n", links[0], links[1]));
 			}
 			bw.close();
 			

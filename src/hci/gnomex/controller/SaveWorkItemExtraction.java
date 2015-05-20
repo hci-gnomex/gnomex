@@ -117,7 +117,10 @@ public class SaveWorkItemExtraction extends GNomExCommand implements Serializabl
             Request request = (Request)sess.load(Request.class, workItem.getIdRequest());
 
             // Set the completed date on the request
-            request.completeRequestIfFinished(sess);
+            if (request.isConsideredFinished() && request.getCompletedDate() == null) {
+              request.setCompletedDate(new java.sql.Date(System.currentTimeMillis()));
+              request.setCodeRequestStatus(RequestStatus.COMPLETED);
+            }
             
             
             // Send a confirmation email

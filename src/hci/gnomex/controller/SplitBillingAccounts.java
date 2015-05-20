@@ -40,12 +40,12 @@ import org.jdom.input.SAXBuilder;
 
 
 public class SplitBillingAccounts extends GNomExCommand implements Serializable {
-
-
-
+  
+ 
+  
   // the static field for logging in Log4J
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(SplitBillingAccounts.class);
-
+  
   private Integer                      idBillingPeriod; 
   private String                       accountXMLString;
   private Document                     accountDoc;
@@ -53,13 +53,13 @@ public class SplitBillingAccounts extends GNomExCommand implements Serializable 
   private String                       totalPriceString;
   private String                       splitType;
   private String                       serverName;
-
-
+  
+  
   public void validate() {
   }
-
+  
   public void loadCommand(HttpServletRequest request, HttpSession session) {
-
+    
     if (request.getParameter("idBillingPeriod") != null && !request.getParameter("idBillingPeriod").equals("")) {
       idBillingPeriod = new Integer(request.getParameter("idBillingPeriod"));
     } else {
@@ -76,10 +76,10 @@ public class SplitBillingAccounts extends GNomExCommand implements Serializable 
     } else {
       this.addInvalidField("splitType", "splitType is required");
     }
-
+    
     if (request.getParameter("accountXMLString") != null && !request.getParameter("accountXMLString").equals("")) {
       accountXMLString = request.getParameter("accountXMLString");
-
+      
       StringReader reader = new StringReader(accountXMLString);
       try {
         SAXBuilder sax = new SAXBuilder();
@@ -90,20 +90,20 @@ public class SplitBillingAccounts extends GNomExCommand implements Serializable 
         this.addInvalidField( "accountXMLString", "Invalid xml");
       }
     }
-
+    
     serverName = request.getServerName();
   }
 
   public Command execute() throws RollBackCommandException {
-
+    
     if (accountXMLString != null) {
       try {
         BigDecimal totalPrice = new BigDecimal(totalPriceString);
         Session sess = HibernateSession.currentSession(this.getUsername());
-
+        
         if (this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_MANAGE_BILLING)) {
           parser.parse(sess);
-
+          
           // Set up hashmap to keep track of which billing items are still around.
           HashMap<Integer, Boolean> allBi = new HashMap<Integer, Boolean>();
           for(Iterator i1 = parser.getRequest().getBillingItems().iterator(); i1.hasNext();) {
@@ -112,20 +112,17 @@ public class SplitBillingAccounts extends GNomExCommand implements Serializable 
             if (!bi.getIdBillingPeriod().equals(idBillingPeriod)) {
               continue;
             }
-
+            
             allBi.put(bi.getIdBillingItem(), false);
           }
-
+          
           for(Iterator i = parser.getBillingAccounts().iterator(); i.hasNext();) {
             BillingAccount ba = (BillingAccount)i.next();
-            if (!ba.getIdCoreFacility().equals(parser.getRequest().getIdCoreFacility())) {
-              throw new Exception("Cannot split billing item -- Billing Account " + ba.getIdBillingAccount().toString() + " has different core facility than request " + parser.getRequest().getIdRequest().toString());
-            }
             BigDecimal percentage = parser.getPercentage(ba.getIdBillingAccount());
             BigDecimal invoicePrice = parser.getInvoicePrice(ba.getIdBillingAccount());
             BigDecimal summedInvoicePrice = new BigDecimal(0);
             BillingItem itemToAdjust = null;
-
+           
             boolean found = false;
             // For billing account, find all matching billing items for the request and
             // change the percentage.
@@ -135,7 +132,7 @@ public class SplitBillingAccounts extends GNomExCommand implements Serializable 
               if (!bi.getIdBillingPeriod().equals(idBillingPeriod)) {
                 continue;
               }
-
+              
               if (bi.getIdBillingAccount().equals(ba.getIdBillingAccount())) {
                 allBi.put(bi.getIdBillingItem(), true);
                 bi.setPercentagePrice(percentage);
@@ -153,19 +150,19 @@ public class SplitBillingAccounts extends GNomExCommand implements Serializable 
                 itemToAdjust = bi;
                 found = true;
               }
-
+              
             }
             // If we didn't find any billing items for this account, clone the billing
             // items and assign to the billing account.
             if (!found) {
               for(Iterator i1 = parser.getRequest().getBillingItems().iterator(); i1.hasNext();) {
                 BillingItem bi = (BillingItem)i1.next();
-
+                
                 // Only clone billing items for the given billing period.
                 if (!bi.getIdBillingPeriod().equals(idBillingPeriod)) {
                   continue;
                 }
-
+                
                 BillingItem billingItem = new BillingItem();
                 billingItem.setIdBillingAccount(ba.getIdBillingAccount());
                 billingItem.setIdLab(ba.getIdLab());
@@ -192,13 +189,13 @@ public class SplitBillingAccounts extends GNomExCommand implements Serializable 
                 billingItem.setCategory(bi.getCategory());
                 billingItem.setTotalPrice(bi.getUnitPrice().multiply(new BigDecimal(bi.getQty().intValue())));
                 billingItem.setSplitType(splitType);
-
+                
                 sess.save(billingItem);
                 itemToAdjust = billingItem;
                 allBi.put(billingItem.getIdBillingItem(), true);
               }
             }
-
+            
             if (itemToAdjust != null && !summedInvoicePrice.equals(invoicePrice) && itemToAdjust.getInvoicePrice() != null) {
               BigDecimal ip = itemToAdjust.getInvoicePrice();
               ip = ip.add(invoicePrice.subtract(summedInvoicePrice));
@@ -214,7 +211,7 @@ public class SplitBillingAccounts extends GNomExCommand implements Serializable 
               sess.delete(toDelete);
             }
           }
-
+          
           //send invoice email to labs
           for(Iterator i = parser.getBillingAccounts().iterator(); i.hasNext();) {
             BillingAccount ba = (BillingAccount)i.next();
@@ -230,21 +227,21 @@ public class SplitBillingAccounts extends GNomExCommand implements Serializable 
               BillingItem bi = (BillingItem)j.next();
               if(!bi.getCodeBillingStatus().equals(BillingStatus.APPROVED) && !bi.getCodeBillingStatus().equals(BillingStatus.APPROVED_PO) && !bi.getCodeBillingStatus().equals(BillingStatus.APPROVED_CC))
                 allItemsApproved = false;
-              break;
+                break;
             }
-
+            
             if(allItemsApproved){
               this.sendInvoiceEmail(sess, lab.getBillingNotificationEmail(), cf, bp, lab, ba, billingItemMap, relatedBillingItemMap, requestMap);
             }
           }
-
-
-
+          
+          
+          
           sess.flush();
-
-
+          
+          
           this.xmlResult = "<SUCCESS/>";
-
+          
           setResponsePage(this.SUCCESS_JSP);          
         } else {
           this.addInvalidField("Insufficient permissions", "Insufficient permission to manage billing");
@@ -256,23 +253,23 @@ public class SplitBillingAccounts extends GNomExCommand implements Serializable 
         log.error("An exception has occurred in SplitBillingAccounts ", e);
         e.printStackTrace();
         throw new RollBackCommandException(e.getMessage());
-
+          
       }finally {
         try {
           HibernateSession.closeSession();        
         } catch(Exception e) {
-
+          
         }
       }
-
+      
     } else {
       this.xmlResult = "<SUCCESS/>";
       setResponsePage(this.SUCCESS_JSP);
     }
-
+    
     return this;
   }
-
+  
   private void sendInvoiceEmail(Session sess, String contactEmail, CoreFacility coreFacility,
       BillingPeriod billingPeriod, Lab lab,
       BillingAccount billingAccount, Map billingItemMap, Map relatedBillingItemMap,
@@ -311,7 +308,7 @@ public class SplitBillingAccounts extends GNomExCommand implements Serializable 
         ccList = null;
       }     
     } else {
-      note = "Unable to email billing invoice. Billing contact email is blank for " + lab.getName(false, true);
+      note = "Unable to email billing invoice. Billing contact email is blank for " + lab.getName();
     }
 
     if (send) {
@@ -340,7 +337,7 @@ public class SplitBillingAccounts extends GNomExCommand implements Serializable 
     }
   }  
 
-
+  
   private BigDecimal getComputedInvoicePrice(BillingItem bi, BigDecimal percentage, BigDecimal invoicePrice, BigDecimal totalPrice) {
     BigDecimal newInvoicePrice = bi.getInvoicePrice();
     Integer intPercent = percentage.intValue();

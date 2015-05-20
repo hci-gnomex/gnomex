@@ -13,35 +13,24 @@
 			import mx.events.ListEvent;
 			import mx.managers.FocusManager;
 			import mx.managers.PopUpManager;
-			
 			import views.renderers.CheckBoxRenderer;
-			import views.util.AnnotationOptionAddEvent;
 			
 			
 			[Bindable]
 			public var options:XMLListCollection;
 
-			public var opener:MultiselectRenderer;
-			public var idProperty:String;
+			public var opener:Object;
 			
-			private var addOptionOnFly:Boolean;
-			
-			public function initializeData(title:String, value:String, addOptionOnFly:Boolean, idProperty:String):void {
+			public function initializeData(title:String, value:String, allOptions:XMLList):void {
 				this.title = title;
-				this.addOptionOnFly = addOptionOnFly;
-				this.idProperty = idProperty;
 				
-				createOptions(value);
-			}
-			
-			private function createOptions(value:String):void {
 				var values:Array = new Array();
 				values = value.split(",");
 				var idx:Object = null;
-				
+
 				options = new XMLListCollection();
 				var option:XML = null;
-				for each(option in opener.getOptions()) {
+				for each(option in allOptions) {
 					var theOption:XML = option.copy();
 					var isSelected:Boolean = false;
 					if (values != null) {
@@ -53,23 +42,12 @@
 						}
 					}
 					theOption.@isSelected = isSelected ? "Y" : "N";
-					theOption.@isCheckboxVisible = "Y";
 					options.addItem(theOption);
 				}
-				
-				if (addOptionOnFly) {
-					var addOption:XML = new XML("<PropertyOption display='add new option...' value='-1' isSelected='N' isCheckboxVisible='N'/>");
-					options.addItem(addOption);
-				}
-			}	
-			
-			private function save():void{
-				var optionsString:String = getOptionsString();
-				opener.updateDP(optionsString);
-				cancel();
 			}
 			
-			private function getOptionsString(getNames:Boolean = false):String {
+			
+			private function save():void{
 				var option:XML = null;
 				var optionsString:String = "";
 				for each(option in options) {
@@ -77,15 +55,11 @@
 						if (optionsString.length > 0) {
 							optionsString += ",";
 						}
-						if (getNames) {
-							optionsString += option.@option;
-						} else {
-							optionsString += option.@idPropertyOption;
-						}
+						optionsString += option.@idPropertyOption;
 					}
 				}
-				
-				return optionsString;
+				(opener as MultiselectRenderer).updateDP(optionsString);
+				cancel();
 			}
 			
 			private function cancel():void{
@@ -107,11 +81,6 @@
 				if (event.columnIndex == 0) {
 					return;
 				}
-				
-				if (checkboxGrid.selectedItem.@value == '-1') {
-					addOption();
-					return;
-				}
 
 				if (checkboxGrid.selectedItem.@isSelected == "Y") {
 					checkboxGrid.selectedItem.@isSelected = "N";
@@ -120,27 +89,6 @@
 				}
 			}
 			
-			private function addOption():void {
-				var w:AddAnnotationOptionWindow = AddAnnotationOptionWindow(PopUpManager.createPopUp(parentApplication.theBody, AddAnnotationOptionWindow, true));
-				w.idProperty = this.idProperty;
-				PopUpManager.centerPopUp(w);
-				
-				this.systemManager.removeEventListener(AnnotationOptionAddEvent.ANNOTATION_OPTION_ADD_EVENT, onOptionRefreshed);		                                  
-				this.systemManager.addEventListener(AnnotationOptionAddEvent.ANNOTATION_OPTION_ADD_EVENT, onOptionRefreshed);		                                  
-			}
-			
-			private function onOptionRefreshed(event:AnnotationOptionAddEvent):void {
-				this.systemManager.removeEventListener(AnnotationOptionAddEvent.ANNOTATION_OPTION_ADD_EVENT, onOptionRefreshed);		                                  
-				var value:String = this.getOptionsString(true);
-				if (event.nameAdded != null && event.nameAdded != '') {
-					if (value.length > 0) {
-						value += ",";
-					}
-					value += event.nameAdded;
-				}
-				this.createOptions(value);
-			}
-
 			private function selectAll(objects:XMLListCollection):void {
 				for each(var o:Object in objects) {
 					if (o.@isActive == 'Y') {
@@ -178,13 +126,9 @@
 							   editable="true"                        	
 							   dataField="@isSelected" 
 							   editorDataField="selected"
-							   itemRenderer="{views.renderers.CheckBoxRenderer.create(null, true, null, null, '@isCheckboxVisible')}" />
-			<mx:DataGridColumn headerText="Option">
-				<mx:itemRenderer >
-					<mx:Component>
-						<mx:Label text="{data.@display}" styleName="{data.@value == -1 ? 'formLinkButton' : 'TextInput'}" />
-					</mx:Component>
-				</mx:itemRenderer>
+							   itemRenderer="{views.renderers.CheckBoxRenderer.create(null, true)}">			 
+			</mx:DataGridColumn>
+			<mx:DataGridColumn headerText="Option"  dataField="@display" >
 			</mx:DataGridColumn>
 		</mx:columns>
 	</mx:DataGrid>

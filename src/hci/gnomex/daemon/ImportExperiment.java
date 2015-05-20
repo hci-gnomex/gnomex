@@ -10,7 +10,6 @@ import hci.gnomex.model.Lab;
 import hci.gnomex.model.Organism;
 import hci.gnomex.model.Project;
 import hci.gnomex.model.Property;
-import hci.gnomex.model.PropertyEntry;
 import hci.gnomex.model.PropertyOption;
 import hci.gnomex.model.PropertyType;
 import hci.gnomex.model.Request;
@@ -19,7 +18,6 @@ import hci.gnomex.model.Sample;
 import hci.gnomex.model.SampleType;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.BatchDataSource;
-import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.RequestParser;
 import hci.gnomex.utility.SampleNumberComparator;
 import hci.gnomex.utility.SequenceLaneNumberComparator;
@@ -28,7 +26,6 @@ import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -78,7 +75,6 @@ public class ImportExperiment {
   private TreeSet                         samplesAdded = new TreeSet(new SampleNumberComparator());
   private TreeSet                         sequenceLanesAdded = new TreeSet(new SequenceLaneNumberComparator());
   
-  private AppUser						  appuser;
   private Lab                             lab;
   private String                          labLastName;
   private String                          labFirstName;
@@ -97,9 +93,6 @@ public class ImportExperiment {
   private HashMap<String, SampleType>     sampleTypeMap = new HashMap<String, SampleType>();
   private HashMap<String, GenomeBuild>    genomeBuildMap = new HashMap<String, GenomeBuild>();
   
-  private HashMap<Integer, Integer>       idPropertyMap = new HashMap<Integer,Integer>();
-  
-  private Set<AppUser> 					  members;
   
   public ImportExperiment(String[] args) {
     for (int i = 0; i < args.length; i++) {
@@ -168,18 +161,17 @@ public class ImportExperiment {
       // Use RequestParser to parse the XML to create a request instance
       RequestCategory requestCategory = requestCategoryMap.get(requestNode.getAttributeValue("codeRequestCategory"));
       requestParser = new RequestParser(requestNode, secAdvisor);
-      requestParser.parseForImport(sess, requestCategory);
+      requestParser.parse(sess, requestCategory);
       request = requestParser.getRequest();
       
-      
       // Save the experiment
-      SaveRequest.saveRequest(sess, requestParser, requestNode.getAttributeValue("description"), true);
+      SaveRequest.saveRequest(sess, requestParser, requestNode.getAttributeValue("description"));
      
       // Save the samples
       saveSamples();
       
       // Save the sequence lanes
-      SaveRequest.saveSequenceLanes(secAdvisor, requestParser, sess, requestCategory, idSampleMap, sequenceLanes, sequenceLanesAdded, true);
+      SaveRequest.saveSequenceLanes(secAdvisor, requestParser, sess, requestCategory, idSampleMap, sequenceLanes, sequenceLanesAdded);
       
       // Commit the transaction     
       tx.commit();
@@ -221,7 +213,6 @@ public class ImportExperiment {
         Element optionNode = (Element)i1.next();
         String key = propertyNode.getAttributeValue("idProperty") + "-" + optionNode.getAttributeValue("idPropertyOption");
         sourcePropertyOptionMap.put(key, optionNode.getAttributeValue("option"));
-                
       }
     }
     
@@ -240,7 +231,7 @@ public class ImportExperiment {
       } catch (HibernateException e) {
         System.out.println("warning - unable to initialize options on property " + prop.getIdProperty() + " " + e.toString());
       } 
-      targetPropertyMap.put(prop.getName().toUpperCase(), prop);
+      targetPropertyMap.put(prop.getName(), prop);
       targetIdToPropertyMap.put(prop.getIdProperty(), prop);
     }    
     
@@ -287,9 +278,7 @@ public class ImportExperiment {
     requestNode.setAttribute("idRequest", "0");
     requestNode.setAttribute("isExternal", isExternal);
     
-//    requestNode.setAttribute("name", requestNode.getAttributeValue("name") + " (" + requestNode.getAttributeValue("number") + ")");
-    //  remove the code that is appending the source experiment ID (request number) to the experiment name
-    requestNode.setAttribute("name", requestNode.getAttributeValue("name"));
+    requestNode.setAttribute("name", requestNode.getAttributeValue("name") + " (" + requestNode.getAttributeValue("number") + ")");
     
     // We only handle Illumina request types for importing at this time
     String codeRequestCategory = requestNode.getAttributeValue("codeRequestCategory");
@@ -303,35 +292,6 @@ public class ImportExperiment {
     Query labQuery = sess.createQuery("select l from Lab l where lastName = '" + labLastName + "'" + " and firstName = '" + labFirstName + "'");
     lab = (Lab)labQuery.uniqueResult();   
     if (lab == null) {
-	     	  
-    	// make a skeleton AppUser
-//    	appuser = new AppUser();
-    	
-//    	appuser.setFirstName(labFirstName);
-//    	appuser.setLastName(labLastName);
-//    	appuser.setIsActive("Y");
-//    	appuser.setCodeUserPermissionKind("LAB");
-    	
-    	// save it and flush to assign the id
-//    	sess.save(appuser);
-//    	sess.flush();
-    	
-    	// appuser will be a member of the lab we are about to create
-//    	members = new HashSet<AppUser>();
-//    	members.add(appuser);
-    	
-    	// we don't have this lab, make a skeleton of it
-//    	lab = new Lab();
-      	  
-//      	lab.setFirstName(labFirstName);
-//      	lab.setLastName(labLastName);     	
-//      	lab.setIsActive("Y");
-//      	lab.setMembers(members);
-    
-      	//save it and flush it to assign the DB id
- //       sess.save(lab);
- //       sess.flush();
-    	  	    	
       throw new Exception("Cannot find lab " + labLastName + ", " + labFirstName);
     }
     requestNode.setAttribute("idLab", lab.getIdLab().toString());
@@ -339,10 +299,6 @@ public class ImportExperiment {
     // Fill in the  idOwner, idAppUser based on and submitter name
     parseSubmitterName();
     idAppUser = getIdAppUser(lab);
-    if (idAppUser == null) {
-        throw new Exception("Cannot find idAppUser " + idAppUser);
-      }
-
     requestNode.setAttribute("idAppUser", idAppUser.toString());
     requestNode.setAttribute("idSubmitter", idAppUser.toString());
     
@@ -413,7 +369,7 @@ public class ImportExperiment {
       String sampleTypeName = sampleNode.getAttributeValue("sampleType");
       if (sampleTypeName != null && !sampleTypeName.equals("")) {
         SampleType sampleType = sampleTypeMap.get(sampleTypeName);
-        if (sampleType == null) {
+        if (sampleTypeName == null) {
           throw new Exception("Cannot find sample type " + sampleTypeName + ".");
         }
         sampleNode.setAttribute("idSampleType", sampleType.getIdSampleType().toString());
@@ -424,7 +380,7 @@ public class ImportExperiment {
       // Blank out idOligoBarcode, barcodeSequence
       sampleNode.setAttribute("idOligoBarocde", "");
       sampleNode.setAttribute("barcodeSequence", "");
-
+;
     }
   }
   
@@ -455,7 +411,7 @@ public class ImportExperiment {
       String genomeBuildName = laneNode.getAttributeValue("genomeBuild");
       if (genomeBuildName != null && !genomeBuildName.equals("")) {
         GenomeBuild genomeBuild = genomeBuildMap.get(genomeBuildName);
-        if (genomeBuild == null) {
+        if (genomeBuildName == null) {
           throw new Exception("Cannot find genomeBuild " + genomeBuildName + ".");
         }
         laneNode.setAttribute("idGenomeBuildAlignTo", genomeBuild.getIdGenomeBuild().toString());
@@ -476,7 +432,7 @@ public class ImportExperiment {
     // XML for PropertyEntry.
     for (Iterator i = requestNode.getChild("PropertyEntries").getChildren("PropertyEntry").iterator(); i.hasNext();) {
       Element propertyNode = (Element)i.next();
-          
+      
       // Only map the attributes that are selected. In other words, only deal with the annotations that are actually
       // present on the sample.
       if (!propertyNode.getAttributeValue("isSelected").equals("true")) {
@@ -484,59 +440,26 @@ public class ImportExperiment {
       }
       
       String propertyName  = propertyNode.getAttributeValue("name");
-      
       Integer idPropertySource    = Integer.parseInt(propertyNode.getAttributeValue("idProperty"));
       
-      Property prop = targetPropertyMap.get(propertyName.toUpperCase());
+      Property prop = targetPropertyMap.get(propertyName);
       if (prop == null) {
-    	     	  
-    	  // we don't have this annotation, make it
-    	  prop = new Property();
-    	  
-          // and copy over values from source
-    	  prop.setName(propertyName);
-    	  prop.setIsActive("Y");
-    	  prop.setIsRequired("N");
-    	  prop.setForSample("Y");
-    	  prop.setForAnalysis("N");
-    	  prop.setForDataTrack("N");
-    	  prop.setForRequest("N");
-    	  prop.setCodePropertyType("TEXT");
-    	  // Note this assumes a single core for the target system and assumes that core has 1 as id.  If we use this outside of UGP this may need to be generalized.
-    	  prop.setIdCoreFacility(1);  
-
-          //save it and flush it to assign the DB id
-          sess.save(prop);
-          sess.flush();
-
-          // remember it
-          targetPropertyMap.put(prop.getName().toUpperCase(),prop);
-          targetIdToPropertyMap.put(prop.getIdProperty(), prop);
-                    
+        throw new Exception("Sample annotation " + propertyName + " needs to be added to GNomEx before this experiment can be imported.");
       }
-      
-      // keep track of incoming / current idProperty's
-      idPropertyMap.put(idPropertySource, prop.getIdProperty());
-
       propertyNode.setAttribute("idProperty", prop.getIdProperty().toString());
       
       // Map to source idProperty to the target property so that we can change the 'ANNOT' attributes
       // according to the ids in the target gnomex db.
-      sourceToTargetPropertyMap.put(prop.getIdProperty(), prop);      
+      sourceToTargetPropertyMap.put(idPropertySource, prop);      
     }
     
     // For each sample, change the ANNOT### attributes to use the target db's idProperty.  Also, for
     // single and multi-option annotations, use the target db's idPropertyOption as the value.
     for (Iterator i1 = requestNode.getChild("samples").getChildren("Sample").iterator(); i1.hasNext();) {
       Element sampleNode = (Element)i1.next();
-      
-      Element mysampleNode = (Element)sampleNode.clone();
-      
-      List<Attribute> theattributes = mysampleNode.getAttributes();
-      for (Iterator<Attribute> i2 = theattributes.iterator(); i2.hasNext();) {
+      for (Iterator i2 = sampleNode.getAttributes().iterator(); i2.hasNext();) {
         Attribute a = (Attribute)i2.next();
         String attributeName = a.getName();
-        
         String value = a.getValue();
         
         //Strip off "ANNOT" from attribute name
@@ -547,10 +470,7 @@ public class ImportExperiment {
           continue;
         }
         
-        
-        Integer mappedIdProperty = idPropertyMap.get(idPropertySource);
-        
-        Property prop = sourceToTargetPropertyMap.get(mappedIdProperty);
+        Property prop = sourceToTargetPropertyMap.get(idPropertySource);
         if (prop == null) {
           throw new Exception("Cannot find target db property for " + attributeName);
         }
@@ -568,10 +488,7 @@ public class ImportExperiment {
             
             String sourceOptionName = sourcePropertyOptionMap.get(idPropertySource + "-" + valueToken);
             if (sourceOptionName == null) {
-            	sourceOptionName = sourcePropertyOptionMap.get(mappedIdProperty + "-" + valueToken);
-            	if (sourceOptionName == null) {
-            		throw new Exception("Cannot find source option with the idPropertyOption = " + valueToken + " for property " + attributeName);
-            	}
+              throw new Exception("Cannot find source option with the idPropertyOption = " + valueToken + " for property " + attributeName);
             }
             Integer targetIdPropertyOption = null;
             for (PropertyOption option : (Set<PropertyOption>)prop.getOptions()) {
@@ -676,6 +593,7 @@ public class ImportExperiment {
     sess.save(request);
     
     if (requestParser.isNewRequest()) {
+      request.setNumber(SaveRequest.getNextRequestNumber(requestParser, sess));
       sess.save(request);
       
       if (request.getName() == null || request.getName().trim().equals("")) {
@@ -712,8 +630,7 @@ public class ImportExperiment {
     
     boolean isNewSample = requestParser.isNewRequest() || idSampleString == null || idSampleString.equals("") || idSampleString.startsWith("Sample");
 
-    sample.setIdRequest(request.getIdRequest());
-    sess.save(sample);
+    nextSampleNumber = initSample(sess, requestParser.getRequest(), sample, isNewSample, nextSampleNumber);
     
     SaveRequest.setSampleProperties(sess, requestParser.getRequest(), sample, isNewSample, (Map)requestParser.getSampleAnnotationMap().get(idSampleString), requestParser.getOtherCharacteristicLabel(), targetIdToPropertyMap);
     
@@ -731,7 +648,20 @@ public class ImportExperiment {
   }
   
   
-
+  
+  
+  public static Integer initSample(Session sess, Request request, Sample sample, Boolean isNewSample, Integer nextSampleNumber) {
+    sample.setIdRequest(request.getIdRequest());
+    sess.save(sample);
+    
+    if (isNewSample) {
+      sample.setNumber(Request.getRequestNumberNoR(request.getNumber()) + "X" + nextSampleNumber);
+      nextSampleNumber++;
+      sess.save(sample);
+    }  
+    
+    return nextSampleNumber;
+  }
   
   
   private void getStartingNextSampleNumber() {
@@ -772,9 +702,8 @@ public class ImportExperiment {
     
     System.err.println(errorMessageString);
     
-    if (tx != null) {
     tx.rollback();    
-    }
+    
 
   }
 

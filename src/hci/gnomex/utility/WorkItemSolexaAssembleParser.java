@@ -44,7 +44,7 @@ public class WorkItemSolexaAssembleParser implements Serializable {
       
       for(Iterator<?> i = workItemListNode.getChildren().iterator(); i.hasNext();) {
         Element node = (Element)i.next();
-        String flowCellChannelNumber = node.getAttributeValue("flowCellChannelNumber");
+        String channelNumber        = node.getAttributeValue("channelNumber");
         ChannelContent cc = new ChannelContent();
         String sampleConcentration  = node.getAttributeValue("sampleConcentrationpM");
         String isControl  = node.getAttributeValue("isControl");
@@ -60,7 +60,7 @@ public class WorkItemSolexaAssembleParser implements Serializable {
           
           cc.setSequenceLane(lane);
           cc.setWorkItem(workItem);
-        } else { // if it is not a <WorkItem> then it must be a <DictionaryEntry> for a SequencingControl
+        } else {
           String idSequencingControlString = node.getAttributeValue("idSequencingControl");
           SequencingControl control = (SequencingControl)sess.load(SequencingControl.class, new Integer(idSequencingControlString));
           cc.setSequenceControl(control);
@@ -77,19 +77,19 @@ public class WorkItemSolexaAssembleParser implements Serializable {
           }
         }
         
-        List<ChannelContent> channelContents = (List<ChannelContent>)channelContentMap.get(flowCellChannelNumber);
+        List<ChannelContent> channelContents = (List<ChannelContent>)channelContentMap.get(channelNumber);
         if (channelContents == null) {
           channelContents = new ArrayList<ChannelContent>();
         }
         channelContents.add(cc);
-        channelContentMap.put(flowCellChannelNumber, channelContents);
+        channelContentMap.put(channelNumber, channelContents);
         
         if (isEditable != null && isEditable.equals("true")) {
           if (sampleConcentration != null && !sampleConcentration.equals("")) {
-            channelConcentrationMap.put(flowCellChannelNumber, sampleConcentration);        
+            channelConcentrationMap.put(channelNumber, sampleConcentration);        
           }
 
-          controlMap.put(flowCellChannelNumber, isControl != null && isControl.equals("true") ? "Y" : "N");
+          controlMap.put(channelNumber, isControl != null && isControl.equals("true") ? "Y" : "N");
           
         }
         
@@ -151,12 +151,12 @@ public class WorkItemSolexaAssembleParser implements Serializable {
     return channelContentMap.keySet();
   }
   
-  public List<ChannelContent> getChannelContents(String flowCellChannelNumber) {
-    return channelContentMap.get(flowCellChannelNumber);
+  public List<ChannelContent> getChannelContents(String channelNumber) {
+    return channelContentMap.get(channelNumber);
   }
 
-  public List<WorkItem> getWorkItems(String flowCellChannelNumber) {
-    List<ChannelContent> channelContents =  channelContentMap.get(flowCellChannelNumber);
+  public List<WorkItem> getWorkItems(String channelNumber) {
+    List<ChannelContent> channelContents =  channelContentMap.get(channelNumber);
     List<WorkItem> workItems = new ArrayList<WorkItem>();
     for(Iterator<?> i = channelContents.iterator(); i.hasNext();) {
       ChannelContent cc = (ChannelContent)i.next();
@@ -167,8 +167,8 @@ public class WorkItemSolexaAssembleParser implements Serializable {
     return workItems;
   }
   
-  public BigDecimal getSampleConcentrationpm(String flowCellChannelNumber) {
-    String sc = (String)channelConcentrationMap.get(flowCellChannelNumber);
+  public BigDecimal getSampleConcentrationpm(String channelNumber) {
+    String sc = (String)channelConcentrationMap.get(channelNumber);
     if (sc != null && !sc.equals("")) {
       return new BigDecimal(sc);
     } else {
@@ -176,8 +176,8 @@ public class WorkItemSolexaAssembleParser implements Serializable {
     }
   }
   
-  public String getIsControl(String flowCellChannelNumber) {
-    String isControl = this.controlMap.get(flowCellChannelNumber);
+  public String getIsControl(String channelNumber) {
+    String isControl = this.controlMap.get(channelNumber);
     return isControl;
   }
   

@@ -58,11 +58,6 @@ public class FastDataTransferDownloadAnalysisServlet extends HttpServlet {
     if (req.getParameter("emailAddress") != null && !req.getParameter("emailAddress").equals("")) {
       emailAddress = req.getParameter("emailAddress");
     }
-    
-    String showCommandLineInstructions = "N";
-    if (req.getParameter("showCommandLineInstructions") != null && !req.getParameter("showCommandLineInstructions").equals("")) {
-      showCommandLineInstructions = req.getParameter("showCommandLineInstructions");
-    }
 
     // restrict commands to local host if request is not secure
     if (Constants.REQUIRE_SECURE_REMOTE && !req.isSecure()) {
@@ -237,25 +232,6 @@ public class FastDataTransferDownloadAnalysisServlet extends HttpServlet {
         // clear out session variable
         req.getSession().setAttribute(CacheAnalysisFileDownloadList.SESSION_KEY_FILE_DESCRIPTOR_PARSER, null);
         
-        String fdtJarLoc = PropertyDictionaryHelper.getInstance(sess).getFDTJarLocation(req.getServerName());
-        String fdtServerName = PropertyDictionaryHelper.getInstance(sess).getFDTServerName(req.getServerName());
-        String softLinksPath = PropertyDictionaryHelper.getInstance(sess).GetFDTDirectory(req.getServerName())+uuid.toString()+File.separator+analysisNumberBase;           
-        if (fdtJarLoc == null || fdtJarLoc.equals("")) {
-          fdtJarLoc = "http://monalisa.cern.ch/FDT/";
-        }
-        
-        if(showCommandLineInstructions != null && showCommandLineInstructions.equals("Y")) {
-          response.setContentType("text/html");
-          response.getOutputStream().println("Complete the following steps to run FDT from the command line:");
-          response.getOutputStream().println("1) Download the fdt.jar app from " + fdtJarLoc);
-          response.getOutputStream().println("2) Open port 54321 in all firewalls surrounding your computer (this may occur automatically upon transfer).");
-          response.getOutputStream().println("3) Execute the following on the command line(Make sure paths reflect your environment):");
-          response.getOutputStream().println("4) There is a 24 hour timeout on this command.  After that time please generate a new command line using the FDT Upload Command Line link.");
-          response.getOutputStream().println("java -jar ./fdt.jar -pull -r -c " + fdtServerName + " -d ./ " + softLinksPath);
-          response.getOutputStream().flush();
-          return;
-        }
-        
 
         response.setHeader("Content-Disposition","attachment;filename=\"gnomex.jnlp\"");
         response.setContentType("application/jnlp");
@@ -270,14 +246,16 @@ public class FastDataTransferDownloadAnalysisServlet extends HttpServlet {
           out.println("<!--");
           out.println("");
           out.println("Command line download instructions:");
-          out.println("");        
+          out.println("");
+          String fdtJarLoc = PropertyDictionaryHelper.getInstance(sess).getFDTJarLocation(req.getServerName());
+          String fdtServerName = PropertyDictionaryHelper.getInstance(sess).getFDTServerName(req.getServerName());
+          String softLinksPath = PropertyDictionaryHelper.getInstance(sess).GetFDTDirectory(req.getServerName())+uuid.toString()+File.separator+analysisNumberBase;          
           if (fdtJarLoc == null || fdtJarLoc.equals("")) {
             fdtJarLoc = "http://monalisa.cern.ch/FDT/";
           }
           out.println("1) Download the fdt.jar app from " + fdtJarLoc);
           out.println("2) Open port 54321 in all firewalls surrounding your computer (this may occur automatically upon transfer).");
           out.println("3) Execute the following on the command line after changing the path2xxx variables:");
-          out.println("4) There is a 24 hour timeout on this command.  After that time please generate a new command line using the FDT Upload Command Line link.");
           out.println("");
           out.println("java -jar path2YourLocalCopyOfFDT/fdt.jar -pull -r -c " + fdtServerName + " -d path2SaveDataOnYourLocalComputer " + softLinksPath);
           out.println("");

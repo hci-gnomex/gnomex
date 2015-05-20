@@ -1280,18 +1280,6 @@ public class ResizableTitleWindow extends TitleWindow
                                 width, height,
                                 NaN, NaN);
     }
-	
-	/**
-	 * Manually centers the window.
-	 */
-	public function centerWindow():void
-	{
-		var newX:Number = 0;
-		var newY:Number = 0;
-		newY = (parent.height - this.height) / 2;
-		newX = (parent.width - this.width) / 2;
-		this.move(newX,newY);
-	}
 
 }
 }

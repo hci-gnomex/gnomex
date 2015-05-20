@@ -1,13 +1,9 @@
 package hci.gnomex.controller;
 
-import hci.dictionary.model.DictionaryEntry;
-import hci.dictionary.model.NullDictionaryEntry;
-import hci.dictionary.utility.DictionaryManager;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.FlowCell;
 import hci.gnomex.model.FlowCellChannel;
-import hci.gnomex.model.NumberSequencingCyclesAllowed;
 import hci.gnomex.model.SequenceLane;
 import hci.gnomex.model.SequencingPlatform;
 import hci.gnomex.model.Step;
@@ -18,7 +14,6 @@ import hci.gnomex.utility.FlowCellChannelComparator;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.PropertyDictionaryHelper;
 import hci.gnomex.utility.WorkItemSolexaAssembleParser;
-import hci.gnomex.utility.WorkItemSolexaAssembleParser.ChannelContent;
 
 import java.io.File;
 import java.io.Serializable;
@@ -57,7 +52,6 @@ public class SaveWorkItemSolexaAssemble extends GNomExCommand implements Seriali
   private String                       flowCellIdInstrumentStr;
   private String                       lastCycleDateStr;
   private String                       workItemXMLString = null;
-  private String					   numberSequencingCyclesAllowedStr;
   private Document                     workItemDoc;
   private String                       dirtyWorkItemXMLString = null;
   private Document                     dirtyWorkItemDoc;
@@ -107,10 +101,6 @@ public class SaveWorkItemSolexaAssemble extends GNomExCommand implements Seriali
       flowCellIdInstrumentStr = request.getParameter("idInstrument");
     }
     
-    if(request.getParameter("idNumberSequencingCyclesAllowed") != null && !request.getParameter("idNumberSequencingCyclesAllowed").equals("")) {
-    	numberSequencingCyclesAllowedStr = request.getParameter("idNumberSequencingCyclesAllowed");
-    }
-    
     if (request.getParameter("workItemXMLString") != null && !request.getParameter("workItemXMLString").equals("")) {
       workItemXMLString = "<WorkItemList>" + request.getParameter("workItemXMLString") + "</WorkItemList>";
       
@@ -155,11 +145,6 @@ public class SaveWorkItemSolexaAssemble extends GNomExCommand implements Seriali
     
   }
 
-  /**
-   *  Creates <FlowCell>s, <FlowCellChannel>s, and updates <WorkItem>s
-   *  given a list of <WorkItem>s organized by which <FlowCellChannel> they
-   *  should be assigned to.
-   */
   public Command execute() throws RollBackCommandException {
     Session sess = null;
     DictionaryHelper dh;
@@ -176,25 +161,24 @@ public class SaveWorkItemSolexaAssemble extends GNomExCommand implements Seriali
           // Create flow cell
           if (this.workItemXMLString != null) {
             
-            // Create a flow cell, set flowCellBarcode, idCoreFacility
+            // Create a flow cell
             flowCell = new FlowCell();
             flowCell.setBarcode(flowCellBarcode);
             flowCell.setIdCoreFacility(parser.getIdCoreFacility());
             sess.save(flowCell);
             sess.flush();
             
-            // sess.save assigns an idFlowCell for the new flowcell, set the "number" attribute for display
             flowCell.setNumber("FC" + flowCell.getIdFlowCell());
             
             String sequencingPlatform = "";
             if(codeStepNext.equals(Step.SEQ_DATA_PIPELINE)) {
               sequencingPlatform = SequencingPlatform.ILLUMINA_GAIIX_SEQUENCING_PLATFORM;
-            } else if (codeStepNext.equals(Step.HISEQ_FINALIZE_FC)) { // HSEQPIPE, needs to be changed to HSEQFINFC
+            } else if (codeStepNext.equals(Step.HISEQ_DATA_PIPELINE)) {
               sequencingPlatform = SequencingPlatform.ILLUMINA_HISEQ_2000_SEQUENCING_PLATFORM;
-            } else if (codeStepNext.equals(Step.MISEQ_FINALIZE_FC)) {
+            } else if (codeStepNext.equals(Step.MISEQ_DATA_PIPELINE)) {
               sequencingPlatform = SequencingPlatform.ILLUMINA_MISEQ_SEQUENCING_PLATFORM;
             }
-            flowCell.setCodeSequencingPlatform(sequencingPlatform);    //HISEQ      
+            flowCell.setCodeSequencingPlatform(sequencingPlatform);          
             
             java.sql.Date flowCellDate = null;
             if (flowCellDateStr != null) {
@@ -221,38 +205,19 @@ public class SaveWorkItemSolexaAssemble extends GNomExCommand implements Seriali
             if (flowCellNumCyclesStr != null && !flowCellNumCyclesStr.equals("")) {
               flowCellNumCycles = new Integer(flowCellNumCyclesStr);
             }
-            if (numberSequencingCyclesAllowedStr != null && !numberSequencingCyclesAllowedStr.equals("")) {
-            	flowCell.setIdNumberSequencingCyclesAllowed(new Integer(numberSequencingCyclesAllowedStr));            
-	            for (Iterator i = DictionaryManager.getDictionaryEntries("hci.gnomex.model.NumberSequencingCyclesAllowed").iterator(); i.hasNext();) {
-	              DictionaryEntry de = (DictionaryEntry)i.next();
-	              if (de instanceof NullDictionaryEntry) {
-	                continue;
-	              }
-	              NumberSequencingCyclesAllowed nsca = (NumberSequencingCyclesAllowed)de;
-	              if(nsca.getIdNumberSequencingCyclesAllowed().toString().equals(numberSequencingCyclesAllowedStr)) {
-	            	  flowCell.setIdNumberSequencingCycles(nsca.getIdNumberSequencingCycles());
-	            	  flowCell.setIdSeqRunType(nsca.getIdSeqRunType());	            	  
-	              }
-	            }
-            }
-            
-            
-            String runFolder = flowCell.getRunFolderName(dh); // one folder for all channels in this flow cell?
-            TreeSet<FlowCellChannel> channels = new TreeSet<FlowCellChannel>(new FlowCellChannelComparator());
+            String runFolder = flowCell.getRunFolderName(dh);
+            TreeSet channels = new TreeSet(new FlowCellChannelComparator());
             int laneNumber = 1;
-            HashMap<String,Object> requestNumbers = new HashMap<String,Object>();
-            HashMap<Integer,Object> idOrganisms = new HashMap<Integer,Object>();
+            HashMap requestNumbers = new HashMap();
+            HashMap idOrganisms = new HashMap();
             int maxCycles = 0;
             Integer idNumberSequencingCycles = null;
-            
-            // Use the key set of channel numbers from the parser to access the data for one channel
-            // at a time. Create the <FlowCellChannel> and update the <SequenceLane>s to have an attribute pointing to this <FlowCellChannel>
-            for(Iterator<String> i = parser.getChannelNumbers().iterator(); i.hasNext();) {
+            for(Iterator i = parser.getChannelNumbers().iterator(); i.hasNext();) {
               String channelNumber = (String)i.next();
               
               
               FlowCellChannel channel = new FlowCellChannel();
-              channel.setNumber(new Integer(laneNumber)); // laneNumber instead of channelNumber?!
+              channel.setNumber(new Integer(laneNumber));
               channel.setIdFlowCell(flowCell.getIdFlowCell());
               sess.save(channel);
               sess.flush();
@@ -265,25 +230,22 @@ public class SaveWorkItemSolexaAssemble extends GNomExCommand implements Seriali
               channel.setIsControl(parser.getIsControl(channelNumber));
               channel.setNumberSequencingCyclesActual(flowCellNumCycles);
               
-              // Use the channel number from the key set to get the contents that will go into this channel
-              // The items will either be a sequence lane or a sequence control.
-              List<WorkItemSolexaAssembleParser.ChannelContent> channelContents = parser.getChannelContents(channelNumber);
-              for (Iterator<ChannelContent> i1 = channelContents.iterator(); i1.hasNext();) {
+              List channelContents = parser.getChannelContents(channelNumber);
+              for (Iterator i1 = channelContents.iterator(); i1.hasNext();) {
                 WorkItemSolexaAssembleParser.ChannelContent content = (WorkItemSolexaAssembleParser.ChannelContent)i1.next();
                 
-                // Is this item of channel content a sequence lane?
                 if (content.getSequenceLane() != null) {
                   SequenceLane lane = content.getSequenceLane();
 
-                  lane.setIdFlowCellChannel(channel.getIdFlowCellChannel()); // update <SequenceLane> so it knows to which <FlowCellChannel> it belongs
-                  if (flowCell.getIdSeqRunType() == null) { // set based on first sequence lane in first channel if it was not passed in in the request
+                  lane.setIdFlowCellChannel(channel.getIdFlowCellChannel());
+                  if (flowCell.getIdSeqRunType() == null) {
                     flowCell.setIdSeqRunType(lane.getIdSeqRunType());
                   }
-                  // if this lane has a higher number of cycles than the current max, update the max
+                  
                   Integer seqCycles = new Integer(dh.getNumberSequencingCycles(lane.getIdNumberSequencingCycles()));
                   if (idNumberSequencingCycles == null ||
                       seqCycles.intValue() > maxCycles ) {
-                    idNumberSequencingCycles = lane.getIdNumberSequencingCycles(); // set based on highest number of cycles among all <SequenceLane>s in <FlowCell>
+                    idNumberSequencingCycles = lane.getIdNumberSequencingCycles();
                     maxCycles = seqCycles.intValue();
                   }
 
@@ -291,19 +253,18 @@ public class SaveWorkItemSolexaAssemble extends GNomExCommand implements Seriali
 
                   // Keep track of request numbers, organisms on flow cells
                   requestNumbers.put(workItem.getRequest().getNumber(), null);
-                  idOrganisms.put(lane.getSample().getIdOrganism(), null);                  
+                  idOrganisms.put(lane.getSample().getIdOrganism(), null);
                   
-                  // Delete  work item which was a wrapper for this <SequenceLane>
+                  
+                  // Delete  work item
                   sess.delete(workItem);
-                } // Or is this item of channel content a sequence control?
-                else if (content.getSequenceControl() != null) {
+                } else if (content.getSequenceControl() != null) {
                   channel.setIdSequencingControl(content.getSequenceControl().getIdSequencingControl());              
                 }
               }
               
               
-              // At this stage a <WorkItem> no longer encapsulates a <SequenceLane>, now it encapsulates a <FlowCellChannel>
-              // <SequenceLane>s now have an attribute to their <FlowCellChannel>
+              // Create a work item for each channel
               WorkItem wi = new WorkItem();
               wi.setIdCoreFacility(parser.getIdCoreFacility());
               wi.setFlowCellChannel(channel);
@@ -320,7 +281,6 @@ public class SaveWorkItemSolexaAssemble extends GNomExCommand implements Seriali
               laneNumber++;
                           
             }
-            // Now that all <FlowCellChannel>s have been created, finish creating the <FlowCell>
             flowCell.setIdNumberSequencingCycles(idNumberSequencingCycles);
             flowCell.setFlowCellChannels(channels);
             

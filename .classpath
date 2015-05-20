@@ -33,10 +33,9 @@
 	<classpathentry kind="lib" path="libEnv/commons-lang-1.0.1.jar"/>
 	<classpathentry kind="lib" path="libEnv/hci_utils.jar"/>
 	<classpathentry kind="lib" path="C:/orion/orion.jar"/>
-	<classpathentry kind="lib" path="C:/Program Files/Apache Software Foundation/Tomcat 7.0/lib/catalina.jar" sourcepath="C:/Users/u0351456/.m2/repository/org/apache/tomcat/tomcat-catalina/7.0.54/tomcat-catalina-7.0.54-sources.jar"/>
+	<classpathentry kind="lib" path="C:/Program Files/Apache Software Foundation/Tomcat 7.0/lib/catalina.jar"/>
 	<classpathentry kind="lib" path="lib/commons-io-2.4.jar"/>
 	<classpathentry kind="lib" path="lib/itextpdf-5.4.2.jar"/>
 	<classpathentry kind="lib" path="C:/Program Files/Apache Software Foundation/Tomcat 7.0/lib/tomcat-jdbc.jar"/>
-	<classpathentry kind="lib" path="libEnv/freemarker.jar"/>
 	<classpathentry kind="output" path="build-eclipse"/>
 </classpath>

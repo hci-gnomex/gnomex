@@ -4,7 +4,7 @@ package hci.gnomex.model;
 import hci.framework.model.DetailObject;
 import hci.gnomex.security.SecurityAdvisor;
 
-import java.util.Date;
+import java.util.Calendar;
 
 public class ChromatogramFilter extends DetailObject {
 
@@ -12,22 +12,24 @@ public class ChromatogramFilter extends DetailObject {
   // Criteria
   private Integer               idChromatogram;
   private Integer               idRequest;
-
+  
   private String                requestNumber;
   private Integer               idInstrumentRun;
   private String                runName;
   private String                plateName;
-
-  private String                getAll = "N";
   
-  private Date					createDateFrom;
-  private Date					createDateTo;
+  private String                getAll = "N";
 
+  private String                lastWeek = "N";
+  private String                lastMonth = "N";
+  private String                lastThreeMonths = "N";
+  private String                lastYear = "N";
+  
   private String                released = "";
-
+  
   private String                capSeq = "";
   private String                mitSeq = "";
-
+  
   private StringBuffer          queryBuf;
   private boolean               addWhere = true;
   private SecurityAdvisor       secAdvisor;
@@ -68,7 +70,7 @@ public class ChromatogramFilter extends DetailObject {
     queryBuf.append("        pw.position, ");
     queryBuf.append("        plate.quadrant, ");
     queryBuf.append("        sample.idSampleType ");
-
+        
     getQueryBody(queryBuf);
 
     return queryBuf;
@@ -78,13 +80,13 @@ public class ChromatogramFilter extends DetailObject {
   public boolean hasSufficientCriteria(SecurityAdvisor secAdvisor) {
     this.secAdvisor = secAdvisor;
     boolean hasLimitingCriteria = false;
-    if ((released.equals("Y") || released.equals("")) &&
-    	(createDateFrom == null && createDateTo == null) &&
+    if (released.equals("Y") &&
+        (lastWeek.equals("N") && lastMonth.equals("N") && lastThreeMonths.equals("N")) &&
         (plateName == null || plateName.equals("")) &&
         (runName == null || runName.equals("")) &&
         (requestNumber == null || requestNumber.equals("")) &&
         (idRequest == null)) {
-      // If we are showing both released and unreleased, make sure that we have another
+      // If we are showing both released as unreleased, make sure that we have another
       // filter to limit the results
       hasLimitingCriteria = false;
     } else if (idChromatogram != null ||
@@ -93,10 +95,12 @@ public class ChromatogramFilter extends DetailObject {
         idInstrumentRun != null ||
         (runName != null && !runName.equals("")) ||
         (plateName != null && !plateName.equals("")) ||
-        //        (capSeq != null && capSeq.equals("Y")) ||
-        //        (mitSeq != null && mitSeq.equals("Y")) ||
-        createDateFrom != null ||
-        createDateTo != null ||
+//        (capSeq != null && capSeq.equals("Y")) ||
+//        (mitSeq != null && mitSeq.equals("Y")) ||
+        (lastWeek != null && lastWeek.equals("Y")) ||
+        (lastMonth != null && lastMonth.equals("Y")) ||
+        (lastThreeMonths != null && lastThreeMonths.equals("Y")) ||
+        (lastYear != null && lastYear.equals("Y")) ||
         (released != null && !released.equals(""))  ||
         (getAll != null && getAll.equals("Y"))) {
       hasLimitingCriteria = true;
@@ -114,7 +118,7 @@ public class ChromatogramFilter extends DetailObject {
   public void getQueryBody(StringBuffer queryBuf) {
 
     queryBuf.append(" FROM                Chromatogram as c ");
-
+    
     queryBuf.append("LEFT JOIN    c.plateWell as pw ");
     queryBuf.append("LEFT JOIN    pw.plate as plate ");
     queryBuf.append("LEFT JOIN    plate.instrumentRun as run ");
@@ -123,60 +127,95 @@ public class ChromatogramFilter extends DetailObject {
     queryBuf.append("LEFT JOIN    req.appUser as submitter ");
 
     addCriteria();
-
+    
     queryBuf.append(" order by run.idInstrumentRun, plate.quadrant, pw.position, c.idRequest");
   }
 
   private void addCriteria() {
-	  
-	// Search by create date
-	if (createDateFrom != null) {
-		this.addWhereOrAnd();
-	    queryBuf.append(" pw.createDate >= '");
-	    queryBuf.append(this.formatDate(createDateFrom, this.DATE_OUTPUT_SQL));
-	    queryBuf.append("'");
-	}
-	if (createDateTo != null) {
-		this.addWhereOrAnd();
-	    queryBuf.append(" pw.createDate <= '");
-	    queryBuf.append(this.formatDate(createDateTo, this.DATE_OUTPUT_SQL));
-	    queryBuf.append("'");		
-	}    
 
+    // Search for chromat created in last week
+    if (lastWeek.equals("Y")) {
+
+      Calendar cal = Calendar.getInstance();
+      cal.add(Calendar.DAY_OF_YEAR, -7);
+      java.sql.Date lastWeek = new java.sql.Date(cal.getTimeInMillis());
+
+      this.addWhereOrAnd();
+      queryBuf.append(" pw.createDate >= '");
+      queryBuf.append(this.formatDate(lastWeek, this.DATE_OUTPUT_SQL));
+      queryBuf.append("'");
+    }
+    // Search last month
+    if (lastMonth.equals("Y")) {
+
+      Calendar cal = Calendar.getInstance();
+      cal.add(Calendar.MONTH, -1);
+      java.sql.Date lastMonth = new java.sql.Date(cal.getTimeInMillis());
+
+      this.addWhereOrAnd();
+      queryBuf.append(" pw.createDate >= '");
+      queryBuf.append(this.formatDate(lastMonth, this.DATE_OUTPUT_SQL));
+      queryBuf.append("'");
+    }
+    // Search last 3 months
+    if (lastThreeMonths.equals("Y")) {
+
+      Calendar cal = Calendar.getInstance();
+      cal.add(Calendar.MONTH, -3);
+      java.sql.Date last3Month = new java.sql.Date(cal.getTimeInMillis());
+
+      this.addWhereOrAnd();
+      queryBuf.append(" pw.createDate >= '");
+      queryBuf.append(this.formatDate(last3Month, this.DATE_OUTPUT_SQL));
+      queryBuf.append("'");
+    }
+    // Search last year
+    if (lastYear.equals("Y")) {
+
+      Calendar cal = Calendar.getInstance();
+      cal.add(Calendar.YEAR, -1);
+      java.sql.Date lastYear = new java.sql.Date(cal.getTimeInMillis());
+
+      this.addWhereOrAnd();
+      queryBuf.append(" pw.createDate >= '");
+      queryBuf.append(this.formatDate(lastYear, this.DATE_OUTPUT_SQL));
+      queryBuf.append("'");
+    }    
+    
     if (requestNumber != null) {
       this.addWhereOrAnd();
-
+      
       String requestNumberBase = Request.getBaseRequestNumber(requestNumber);
       queryBuf.append(" (req.number like '" + requestNumberBase + "[0-9]' OR req.number = '" + requestNumberBase + "' OR req.number like '" + requestNumberBase + "R[0-9]' OR req.number = '" + requestNumberBase + "R') ");
     }
-
+    
     if (idChromatogram != null){
       this.addWhereOrAnd();
       queryBuf.append(" c.idChromatogram = ");
       queryBuf.append(idChromatogram);
     } 
-
+    
     if (idInstrumentRun != null){
       this.addWhereOrAnd();
       queryBuf.append(" run.idInstrumentRun = ");
       queryBuf.append(idInstrumentRun);
     }
-
-
+    
+    
     if (runName != null){
       this.addWhereOrAnd();
       queryBuf.append(" run.label like '");
       queryBuf.append(runName);
       queryBuf.append("%' ");
     }
-
+    
     if (plateName != null){
       this.addWhereOrAnd();
       queryBuf.append(" plate.label like '");
       queryBuf.append(plateName);
       queryBuf.append("%' ");
     }
-
+    
     // Cap seq
     if (capSeq.equals("Y")) {
       this.addWhereOrAnd();
@@ -191,7 +230,7 @@ public class ChromatogramFilter extends DetailObject {
       queryBuf.append(ReactionType.MITO_DLOOP_REACTION_TYPE);
       queryBuf.append("' ");
     }
-
+    
     if (idRequest != null){
       this.addWhereOrAnd();
       queryBuf.append(" c.idRequest = ");
@@ -207,7 +246,7 @@ public class ChromatogramFilter extends DetailObject {
       this.addWhereOrAnd();
       queryBuf.append(" c.releaseDate is null ");
     } 
-
+    
   }
 
 
@@ -271,12 +310,52 @@ public class ChromatogramFilter extends DetailObject {
     this.getAll = getAll;
   }
 
+
+  public String getLastWeek() {
+    return lastWeek;
+  }
+
+
+  public void setLastWeek(String lastWeek) {
+    this.lastWeek = lastWeek;
+  }
+
+
+  public String getLastMonth() {
+    return lastMonth;
+  }
+
+
+  public void setLastMonth(String lastMonth) {
+    this.lastMonth = lastMonth;
+  }
+
+
+  public String getLastThreeMonths() {
+    return lastThreeMonths;
+  }
+
+
+  public void setLastThreeMonths(String lastThreeMonths) {
+    this.lastThreeMonths = lastThreeMonths;
+  }
+
+
   public Integer getIdInstrumentRun() {
     return idInstrumentRun;
   }
 
   public void setIdInstrumentRun(Integer idInstrumentRun) {
     this.idInstrumentRun = idInstrumentRun;
+  }
+
+  public String getLastYear() {
+    return lastYear;
+  }
+
+
+  public void setLastYear(String lastYear) {
+    this.lastYear = lastYear;
   }
 
   public String getReleased()
@@ -320,21 +399,7 @@ public class ChromatogramFilter extends DetailObject {
   public void setPlateName(String plateName) {
     this.plateName = plateName;
   }
-
-  public Date getCreateDateFrom() {
-	return createDateFrom;
-  }
-
-  public void setCreateDateFrom(Date createDateFrom) {
-    this.createDateFrom = createDateFrom;
-  }
   
-  public Date getCreateDateTo() {
-	return createDateTo;
-  }
 
-  public void setCreateDateTo(Date createDateTo) {
-    this.createDateTo = createDateTo;
-  }
 
 }

@@ -5,7 +5,6 @@ import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.security.UnknownPermissionException;
 import hci.gnomex.model.AppUser;
-import hci.gnomex.model.CoreFacility;
 import hci.gnomex.model.Lab;
 import hci.gnomex.model.ProjectExperimentReportFilter;
 import hci.gnomex.security.SecurityAdvisor;
@@ -17,13 +16,10 @@ import hci.report.model.ReportTray;
 import hci.report.utility.ReportCommand;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
 import java.sql.SQLException;
-import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -40,34 +36,29 @@ import org.hibernate.Session;
 
 
 public class ShowProjectExperimentReport extends ReportCommand implements Serializable {
-
+  
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(ShowProjectExperimentReport.class);
-
-
+  
+  
   private SecurityAdvisor               secAdvisor;
   private Integer                       idLab;
-  private Integer						idCoreFacility;
   private ProjectExperimentReportFilter filter;
-
+  
   private String                        today;
-
+ 
   public void validate() {
   }
-
+  
   public void loadCommand(HttpServletRequest request, HttpSession session) {
     if (request.getParameter("idLab") != null && !request.getParameter("idLab").equals("")) {
       idLab = Integer.valueOf(request.getParameter("idLab"));
-    }
+    } 
     
-    if (request.getParameter("idCoreFacility") != null && !request.getParameter("idCoreFacility").equals("")) {
-        idCoreFacility = Integer.valueOf(request.getParameter("idCoreFacility"));
-    }
-
     secAdvisor = (SecurityAdvisor)session.getAttribute(SecurityAdvisor.SECURITY_ADVISOR_SESSION_KEY);
     if (secAdvisor == null) {
       this.addInvalidField("secAdvisor", "A security advisor must be created before this command can be executed.");
     }
-
+    
     today = new SimpleDateFormat("yyyy-MM-dd").format(System.currentTimeMillis());
 
     filter = new ProjectExperimentReportFilter();
@@ -76,34 +67,32 @@ public class ShowProjectExperimentReport extends ReportCommand implements Serial
 
   @SuppressWarnings("unchecked")
   public Command execute() throws RollBackCommandException {
-
+    
     this.SUCCESS_JSP_HTML = "/report.jsp";
     this.SUCCESS_JSP_CSV = "/report_csv.jsp";
     this.SUCCESS_JSP_PDF = "/report_pdf.jsp";
     this.SUCCESS_JSP_XLS = "/report_xls.jsp";
     this.ERROR_JSP = "/message.jsp";
-
-
+    
+    
     try {
-
+         
       Session sess = secAdvisor.getReadOnlyHibernateSession(this.getUsername());
       DictionaryHelper dh = DictionaryHelper.getInstance(sess);
-
+      
       // Create the report and define the columns
       createReportTray(sess, dh);
-
+    
       // Get the results
       StringBuffer queryBuf = filter.getQuery(secAdvisor);
 
       if (this.isValid()) {
-
+        
         SimpleDateFormat dateFormat = new SimpleDateFormat();
         List results = (List)sess.createQuery(queryBuf.toString()).list();
-
-        Map<Integer, BigDecimal> costMap = buildCostMap(sess);
         
         Map<Integer, Integer> idsToExclude = secAdvisor.getBSTXSecurityIdsToExclude(sess, dh, results, ProjectExperimentReportFilter.COL_IDREQUEST, ProjectExperimentReportFilter.COL_CODE_REQUEST_CATEGORY);
-
+        
         for(Iterator i = results.iterator(); i.hasNext();) {
           Object[] row = (Object[])i.next();
 
@@ -111,32 +100,32 @@ public class ShowProjectExperimentReport extends ReportCommand implements Serial
             // skip due to BSTX security
             continue;
           }
-          ReportRow reportRow = makeReportRow(row, dateFormat, dh, costMap);
+          ReportRow reportRow = makeReportRow(row, dateFormat, dh);
           tray.addRow(reportRow);
         }
       }
-
+      
       if (isValid()) {
         this.setSuccessJsp(this, tray.getFormat());
       } else {
         setResponsePage(this.ERROR_JSP);
       }
-
+    
     }catch (UnknownPermissionException e){
       log.error("An exception has occurred in ShowAnnotationReport ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
-
+        
     }catch (NamingException e){
       log.error("An exception has occurred in ShowAnnotationReport ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
-
+        
     }catch (SQLException e) {
       log.error("An exception has occurred in ShowAnnotationReport ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
-
+      
     } catch (Exception e) {
       log.error("An exception has occurred in ShowAnnotationReport ", e);
       e.printStackTrace();
@@ -145,44 +134,24 @@ public class ShowProjectExperimentReport extends ReportCommand implements Serial
       try {
         secAdvisor.closeReadOnlyHibernateSession();    
       } catch(Exception e) {
-
+        
       }
     }
-
+    
     return this;
   }
   
-  private Map<Integer, BigDecimal> buildCostMap(Session sess) {
-    StringBuffer queryBuf = filter.getCostQuery(secAdvisor);
-    List results = (List)sess.createQuery(queryBuf.toString()).list();
-    Map<Integer, BigDecimal> map = new HashMap<Integer, BigDecimal>();
-    for(Iterator i = results.iterator(); i.hasNext();) {
-      Object[] row = (Object[])i.next();
-      
-      Integer idRequest = (Integer)row[ProjectExperimentReportFilter.COL_COST_IDREQUEST];
-      BigDecimal cost = (BigDecimal)row[ProjectExperimentReportFilter.COL_COST_COST];
-      map.put(idRequest, cost);
-    }
-    
-    return map;
-  }
-
   private void createReportTray(Session sess, DictionaryHelper dh) {
-    // Get the core and lab
-    String coreQualifier = "";
-    if (idCoreFacility != null) {
-        CoreFacility core = (CoreFacility)sess.get(CoreFacility.class, idCoreFacility);
-        coreQualifier += "_" + core.getDisplay();
-    }
+    // Get the lab
     String labQualifier = "";
     if (idLab != null) {
       Lab lab = (Lab)sess.get(Lab.class, idLab);
       labQualifier += "_" + lab.getLastName();
     }
-
+    
     String title = "GNomEx Requests";
-    String fileName = "gnomex_request" + coreQualifier + labQualifier + "_" + today;
-
+    String fileName = "gnomex_request" + labQualifier + "_" + today;
+    
     // set up the ReportTray
     tray = new ReportTray();
     tray.setReportDate(new java.util.Date(System.currentTimeMillis()));
@@ -190,7 +159,7 @@ public class ShowProjectExperimentReport extends ReportCommand implements Serial
     tray.setReportDescription(title);
     tray.setFileName(fileName);
     tray.setFormat(ReportFormats.CSV);
-
+    
     Set columns = new TreeSet();
     columns.add(makeReportColumn("Project Name", 1));
     columns.add(makeReportColumn("Project Description", 2));
@@ -207,13 +176,11 @@ public class ShowProjectExperimentReport extends ReportCommand implements Serial
     columns.add(makeReportColumn("Description", 13));
     columns.add(makeReportColumn("Organism", 14));
     columns.add(makeReportColumn("# Samples", 15));
-    columns.add(makeReportColumn("Public Date", 16));
-    columns.add(makeReportColumn("Cost", 17));
-
-
+    
+    
     tray.setColumns(columns);
   }
-
+  
   private Column makeReportColumn(String name, int colNumber) {
     Column reportCol = new Column();
     reportCol.setName(name);
@@ -222,12 +189,11 @@ public class ShowProjectExperimentReport extends ReportCommand implements Serial
     return reportCol;
   }
 
-  @SuppressWarnings("unchecked")
-  private ReportRow makeReportRow(Object[] row, SimpleDateFormat dateFormat, DictionaryHelper dh, Map<Integer, BigDecimal> costMap) {
+  private ReportRow makeReportRow(Object[] row, SimpleDateFormat dateFormat, DictionaryHelper dh) {
     ReportRow reportRow = new ReportRow();
     List values  = new ArrayList();
-
-
+    
+    
     String description = (String)row[ProjectExperimentReportFilter.COL_DESCRIPTION];
     description = this.cleanRichText(description);
 
@@ -238,7 +204,7 @@ public class ShowProjectExperimentReport extends ReportCommand implements Serial
       projectDescription = projectDescription.replaceAll("\r", "\n");
     }
 
-
+    
     String labLastName = (String)row[ProjectExperimentReportFilter.COL_LAB_LASTNAME];
     String labFirstName = (String)row[ProjectExperimentReportFilter.COL_LAB_FIRSTNAME];
     String ownerLastName = (String)row[ProjectExperimentReportFilter.COL_OWNER_LASTNAME];
@@ -249,17 +215,15 @@ public class ShowProjectExperimentReport extends ReportCommand implements Serial
     Date createDate = (Date)row[ProjectExperimentReportFilter.COL_CREATE_DATE];
     Date modifyDate = (Date)row[ProjectExperimentReportFilter.COL_MODIFY_DATE];
     String codeVisibility = (String)row[ProjectExperimentReportFilter.COL_CODE_VISIBILITY];
+    Date completeDate = (Date)row[ProjectExperimentReportFilter.COL_COMPLETED_DATE];
     Integer idOrganism = (Integer)row[ProjectExperimentReportFilter.COL_ORGANISM];
     Integer numSamples = (Integer)row[ProjectExperimentReportFilter.COL_NUMBER_SAMPLES];
     String submitterLastName = (String)row[ProjectExperimentReportFilter.COL_SUBMITTER_LASTNAME];
     String submitterFirstName = (String)row[ProjectExperimentReportFilter.COL_SUBMITTER_FIRSTNAME];
     String requestName = (String)row[ProjectExperimentReportFilter.COL_REQUEST_NAME];
     String projectName = (String)row[ProjectExperimentReportFilter.COL_PROJECT_NAME];
-    Date privacyExpirationDate = (Date)row[ProjectExperimentReportFilter.COL_PRIVACY_EXPIRATION_DATE];
-    Integer idRequest = (Integer)row[ProjectExperimentReportFilter.COL_IDREQUEST];
-    BigDecimal cost = costMap.get(idRequest);
 
-    String labName = Lab.formatLabNameFirstLast(labFirstName, labLastName);
+    String labName = Lab.formatLabName(labLastName, labFirstName);
     String ownerName = AppUser.formatName(ownerLastName, ownerFirstName);
     String submitterName = AppUser.formatName(submitterLastName, submitterFirstName);
     String requestCategory = dh.getRequestCategory(codeRequestCategory);
@@ -267,10 +231,9 @@ public class ShowProjectExperimentReport extends ReportCommand implements Serial
     String createDateString = createDate != null ? dateFormat.format(createDate) : "";
     String modifyDateString = modifyDate != null ? dateFormat.format(modifyDate) : "";
     String visibility = DictionaryManager.getDisplay("hci.gnomex.model.Visibility", codeVisibility);
+    String completeDateString = completeDate != null ? dateFormat.format(completeDate) : "";
     String organism = dh.getOrganism(idOrganism);
-    String privacyExpirationDateString = privacyExpirationDate != null ? dateFormat.format(privacyExpirationDate) : "N/A";
-    String costString = cost != null ? NumberFormat.getCurrencyInstance().format(cost) : "$0.00";
-
+    
     values.add(surroundWithQuotes(projectName) );
     values.add(surroundWithQuotes(projectDescription) );
     values.add(surroundWithQuotes(labName));
@@ -286,22 +249,19 @@ public class ShowProjectExperimentReport extends ReportCommand implements Serial
     values.add(surroundWithQuotes(description) );
     values.add(surroundWithQuotes(organism) );
     values.add(surroundWithQuotes(numSamples.toString()) );
-    values.add(surroundWithQuotes(privacyExpirationDateString) );
-    values.add(surroundWithQuotes(costString) );
-
-
+   
     reportRow.setValues(values);
-
+    
     return reportRow;
   }
-
+  
   private Object surroundWithQuotes(Object value) {
     if (value == null) {
       value = "";
     }
     return "\"" + value.toString() + "\"";
   }
-
+  
   private String cleanText(String description) {
     Pattern pattern = Pattern.compile("\\x0d");
     description = pattern.matcher(description).replaceAll("_NEWLINE_GOES_HERE_");
@@ -317,7 +277,7 @@ public class ShowProjectExperimentReport extends ReportCommand implements Serial
     } 
     return description.toString();
   }
-
+  
   private String cleanRichText(String description) {
 
     if (description == null) {
@@ -325,10 +285,10 @@ public class ShowProjectExperimentReport extends ReportCommand implements Serial
     } else if (description.trim().equals("")) {
       return "";
     }
-
+   
     Pattern paragraph = Pattern.compile("<P.*?>");
     description = paragraph.matcher(description).replaceAll("");
-
+    
     Pattern pattern = Pattern.compile("<\\/P.*?>");
     description = pattern.matcher(description).replaceAll("_NEWLINE_GOES_HERE_");
 
@@ -341,8 +301,8 @@ public class ShowProjectExperimentReport extends ReportCommand implements Serial
       }
       description = buf.toString();
     } 
-
-
+    
+    
     pattern = Pattern.compile("<B.*?>");
     description = pattern.matcher(description).replaceAll("");
     pattern = Pattern.compile("<\\/B.*?>");
@@ -359,10 +319,10 @@ public class ShowProjectExperimentReport extends ReportCommand implements Serial
     description = pattern.matcher(description).replaceAll("");
     pattern = Pattern.compile("<\\/I.*?>");
     description = pattern.matcher(description).replaceAll("");
-
+    
     return description;
   }
-
+  
   /* (non-Javadoc)
    * @see hci.framework.control.Command#setRequestState(javax.servlet.http.HttpServletRequest)
    */
@@ -391,10 +351,10 @@ public class ShowProjectExperimentReport extends ReportCommand implements Serial
    * @see hci.report.utility.ReportCommand#loadContextPermissions()
    */
   public void loadContextPermissions(){
-
+    
   }
   public void loadContextPermissions(String userName) throws SQLException {
-
+    
   }
-
+  
 }

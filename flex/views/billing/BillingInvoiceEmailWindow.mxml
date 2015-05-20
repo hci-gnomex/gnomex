@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical" 
-				title="Email Invoice" width="500" defaultButton="{sendButton}"
+				title="Email Invoice" width="500" height="164" defaultButton="{sendButton}"
 				xmlns:util="views.util.*">
 	<mx:HTTPService                
 		id="showBillingInvoiceForm" 
@@ -77,7 +77,7 @@
 	<mx:HBox width="100%">
 		<mx:VBox height="100%" verticalGap="0" width="100%" id="emailVBox">
 			<mx:Label text="Email Address(es)"/>
-			<mx:TextArea id="emailText" width="100%" height="60" fontSize="11" keyUp="checkEmailValidity(event)"/>
+			<mx:TextArea id="emailText" width="482" height="60" fontSize="11" keyUp="checkEmailValidity(event)"/>
 			<mx:Label text="*Please separate multiple email addresses with a comma" fontSize="9"/>
 		</mx:VBox>
 	</mx:HBox>
@@ -94,13 +94,13 @@
 			<mx:SetProperty target="{emailText}" name="enabled" value="false"/>
 			<mx:SetProperty target="{this}" name="height" value="200"/>
 			<mx:AddChild relativeTo="{emailVBox}" position="lastChild">
-				<mx:VBox paddingTop="5" borderStyle="solid" width="100%">
+				<mx:VBox paddingTop="10" borderStyle="solid" width="482">
 					<mx:Label text="Email Sent" textDecoration="underline" visible="{showBillingInvoiceForm.lastResult.hasOwnProperty('@note')}" />
 					<mx:Label text="{showBillingInvoiceForm.lastResult.@title}"/>
-					<mx:Text width="100%" text="{'(' + showBillingInvoiceForm.lastResult.@note + ')'}" visible="{showBillingInvoiceForm.lastResult.hasOwnProperty('@note') &amp;&amp; showBillingInvoiceForm.lastResult.@note != ''}"/>
+					<mx:Label text="{'(' + showBillingInvoiceForm.lastResult.@note + ')'}" visible="{showBillingInvoiceForm.lastResult.hasOwnProperty('@note') &amp;&amp; showBillingInvoiceForm.lastResult.@note != ''}"/>
 				</mx:VBox>
 			</mx:AddChild>
-			<mx:SetProperty name="height" value="270"/>
+			<mx:SetProperty name="height" value="244"/>
 		</mx:State>
 	</mx:states>
 </mx:TitleWindow>

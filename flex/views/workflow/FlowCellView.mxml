@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:VBox styleName="panelBox"  xmlns:mx="http://www.adobe.com/2006/mxml" 
 	width="100%" height="100%" 
-	xmlns:util="views.util.*" xmlns:renderers="views.renderers.*" show="init()" defaultButton="{findButton}">
+	xmlns:util="views.util.*"  show="init()" defaultButton="{lookupButton}">
 <mx:HBox verticalAlign="middle">
 	<mx:Image source="{parentApplication.iconFlowCell}"/>
 	<mx:Label id="titleLabel" styleName="titleLabel" text="Flow Cells" />
@@ -16,6 +16,15 @@
 	fault="parentApplication.onFailHttpRequest('Failed to get flow cell list', event)"
     method="POST"
     useProxy="false">
+    <mx:request xmlns="">
+    	<codeSequencingPlatform>{codeSequencingPlatform}</codeSequencingPlatform>
+    	<flowCellNumber>{lookupField.text.toUpperCase().indexOf('FC') > 0 ? lookupField.text : ''}</flowCellNumber>
+    	<requestNumber>{lookupField.text.toUpperCase().indexOf('R') > 0 ? lookupField.text : ''}</requestNumber>
+        <lastWeek>{lastWeekCheckbox.selected ? 'Y' : 'N'}</lastWeek>
+        <lastMonth>{lastMonthCheckbox.selected ? 'Y' : 'N'}</lastMonth>
+        <lastThreeMonths>{lastThreeMonthsCheckbox.selected ? 'Y' : 'N'}</lastThreeMonths>
+        <lastYear>{lastYearCheckbox.selected ? 'Y' : 'N'}</lastYear>
+    </mx:request>
   </mx:HTTPService> 
 
 	<mx:HTTPService  
@@ -27,6 +36,15 @@
 		fault="parentApplication.onFailHttpRequest('Failed to get flow cell list', event)"
 		method="POST"
 		useProxy="false">
+		<mx:request xmlns="">
+			<codeSequencingPlatform>{codeSequencingPlatform}</codeSequencingPlatform>
+			<flowCellNumber>{lookupField2.text.indexOf('FC') == 0 ? lookupField2.text : ''}</flowCellNumber>
+			<requestNumber>{lookupField2.text.indexOf('R') > 0 ? lookupField2.text : ''}</requestNumber>
+			<lastWeek>{lastWeekCheckbox.selected ? 'Y' : 'N'}</lastWeek>
+			<lastMonth>{lastMonthCheckbox.selected ? 'Y' : 'N'}</lastMonth>
+			<lastThreeMonths>{lastThreeMonthsCheckbox.selected ? 'Y' : 'N'}</lastThreeMonths>
+			<lastYear>{lastYearCheckbox.selected ? 'Y' : 'N'}</lastYear>
+		</mx:request>
 	</mx:HTTPService> 
 
 	
@@ -45,8 +63,6 @@
 		import mx.rpc.events.ResultEvent;
 		
 		import views.workflow.EditFlowCellWindow;
-		import views.renderers.LinkButtonDateRangeMenu;
-		import views.util.DateSetEvent;
 		
 		[Bindable]
 		public var codeSequencingPlatform:String = "HISEQ";
@@ -66,17 +82,16 @@
 				flowCells.removeAll();
 			}
 
-			getFlowCell.send(getSingleSearchParameters());
+			getFlowCell.send();
 		}
 		
 		private function init():void {
 			//this.getFlowCellList.send();
 			this.addEventListener("changed",refresh);
-			pickDateRangeButton.addEventListener(DateSetEvent.DATE_SET, handleDateSet);
 		}
 
 		private function refresh(e:Event):void{
-			this.getFlowCellList.send(getSearchParameters());
+			this.getFlowCellList.send();
 		}    	
 
         private function onGetFlowCellList(event:ResultEvent):void {
@@ -105,10 +120,6 @@
 			navigateToURL(url, '_blank');			
 		}
 		public function prepareToEdit():void {
-			
-			if(this.flowCellsGrid.selectedItem == null){
-				return;
-			}
 			
 			this.addWindow = EditFlowCellWindow(mx.managers.PopUpManager.createPopUp(parentApplication.theBody, EditFlowCellWindow, true));
 			this.addWindow.selectedFC = this.flowCellsGrid.selectedItem;
@@ -148,56 +159,43 @@
 		private function getOrganism(item:Object, col:DataGridColumn):String {
 			return parentApplication.dictionaryManager.getEntryDisplay('hci.gnomex.model.OrganismLite', item.@idOrganism);
 		}
-		private function getSequencingProtocol(item:Object, col:DataGridColumn):String {
-			return parentApplication.dictionaryManager.getEntryDisplay('hci.gnomex.model.NumberSequencingCyclesAllowed', item.@idNumberSequencingCyclesAllowed);
-		}			
+		private function getNumberSequencingCycles(item:Object, col:DataGridColumn):String {
+			return parentApplication.dictionaryManager.getEntryDisplay('hci.gnomex.model.NumberSequencingCycles', item.@idNumberSequencingCycles);
+		}
+		private function getSeqRunType(item:Object, col:DataGridColumn):String {
+			return parentApplication.dictionaryManager.getEntryDisplay('hci.gnomex.model.SeqRunType', item.@idSeqRunType);
+		}
+		
+		public function toggleDateCheckboxes(checkBoxNumber:int):void {
+			this.lookupField.text = "";
+			if (checkBoxNumber == 1) {
+				this.lastMonthCheckbox.selected = false;
+				this.lastThreeMonthsCheckbox.selected = false;
+				this.lastYearCheckbox.selected  = false;
+			} else if (checkBoxNumber == 2) {
+				this.lastWeekCheckbox.selected = false;
+				this.lastThreeMonthsCheckbox.selected = false;
+				this.lastYearCheckbox.selected  = false;
+			} else if (checkBoxNumber == 3) {
+				this.lastWeekCheckbox.selected  = false;
+				this.lastMonthCheckbox.selected = false; 
+				this.lastYearCheckbox.selected  = false;
+			}  else if (checkBoxNumber == 4) {
+				this.lastWeekCheckbox.selected  = false;
+				this.lastMonthCheckbox.selected = false; 
+				this.lastThreeMonthsCheckbox.selected = false;
+			}   
+		} 			
 		
 		private function setDefaultButton():void {
 			if (this.lookupField.text != '') {
-				this.pickDateRangeButton.resetRange();
+				this.lastWeekCheckbox.selected = false;
+				this.lastMonthCheckbox.selected = false;
+				this.lastThreeMonthsCheckbox.selected = false;
+				this.lastYearCheckbox.selected = false;
 			} 		
 		}
 	
-		private function flowCellOrExperimentLookup():void {
-			if ( lookupField.text.length == 0 || (lookupField.text.length > 0 && (lookupField.text.toUpperCase().indexOf('R') >= 0 || lookupField.text.toUpperCase().indexOf('FC') >= 0)) ) { 
-				this.getFlowCellList.send(getSearchParameters());
-			} else {
-				Alert.show("Invalid flow cell or experiment number.  Please use numbers like 111R or FC111.");
-			}
-		}
-		
-		public function getSearchParameters():Object {
-			var params:Object = new Object();
-			
-			params.codeSequencingPlatform = codeSequencingPlatform;
-			params.flowCellNumber = lookupField.text.toUpperCase().indexOf('FC') >= 0 ? lookupField.text : '';
-			params.requestNumber = lookupField.text.toUpperCase().indexOf('R') >= 0 ? lookupField.text : '';
-			if (pickDateRangeButton.fromDate != null && pickDateRangeButton.toDate != null) {
-				params.createDateFrom = pickDateRangeButton.dateFormatter.format(pickDateRangeButton.fromDate);
-				params.createDateTo = pickDateRangeButton.dateFormatter.format(pickDateRangeButton.toDate);
-			}
-			
-			return params;
-		}
-		
-		public function getSingleSearchParameters():Object {
-			var params:Object = new Object();
-			
-			params.codeSequencingPlatform = codeSequencingPlatform;
-			params.flowCellNumber = lookupField2.text.indexOf('FC') == 0 ? lookupField2.text : '';
-			params.requestNumber = lookupField2.text.indexOf('R') > 0 ? lookupField2.text : '';
-			if (pickDateRangeButton.fromDate != null && pickDateRangeButton.toDate != null) {
-				params.createDateFrom = pickDateRangeButton.dateFormatter.format(pickDateRangeButton.fromDate);
-				params.createDateTo = pickDateRangeButton.dateFormatter.format(pickDateRangeButton.toDate);
-			}
-			
-			return params;
-		}
-		
-		private function handleDateSet(event:DateSetEvent):void {
-			// Do nothing, search is updated when find button is clicked
-			this.lookupField.text = "";
-		}
 	]]>
 </mx:Script>    	
 <mx:XMLListCollection id="flowCells" source="{getFlowCellList.lastResult.FlowCell}"/>
@@ -207,19 +205,32 @@
       	  <mx:HBox horizontalGap="0" verticalAlign="middle">
       	      <mx:Label text="Flow Cell # or Experiment #" id="label1"/>
           	  <mx:TextInput id="lookupField" width="60" change="{setDefaultButton()}"/>     
+		      <mx:Button id="lookupButton"  
+		              	fontFamily="Arial"  height="18" width="30"
+		               	color="#400040" click="{if (lookupField.text.toUpperCase().indexOf('R') > 0 || lookupField.text.toUpperCase().indexOf('FC') > 0 ) this.getFlowCellList.send();}" visible="true" icon="@Embed('../../assets/arrow_right.png')"/>
 			  <mx:TextInput id="lookupField2" width="10" visible="false" />
       	  </mx:HBox>
 
 	      <mx:HBox horizontalGap="0" verticalAlign="middle" verticalGap="0" horizontalAlign="right" paddingRight="0"  id="hbox3">
-			  <renderers:LinkButtonDateRangeMenu id="pickDateRangeButton" />
-		  </mx:HBox>
-			  
+	      	<mx:CheckBox id="lastWeekCheckbox" label="In last week" paddingRight="0" paddingLeft="0" horizontalGap="0" selected="false"  >
+	    		<mx:click>toggleDateCheckboxes(1);</mx:click>
+	    	</mx:CheckBox>
+	    	<mx:CheckBox  id="lastMonthCheckbox" label="month"  paddingRight="0" paddingLeft="2" horizontalGap="0" selected="false">
+	    		<mx:click>toggleDateCheckboxes(2);</mx:click>
+	    	</mx:CheckBox>
+	    	<mx:CheckBox  id="lastThreeMonthsCheckbox" label="3 months"  paddingRight="0" paddingLeft="2" horizontalGap="0" selected="false">
+	    		<mx:click>toggleDateCheckboxes(3);</mx:click>
+	    	</mx:CheckBox>
+	    	<mx:CheckBox  id="lastYearCheckbox" label="year"  paddingRight="0" paddingLeft="2" horizontalGap="0" selected="false">
+	    		<mx:click>toggleDateCheckboxes(4);</mx:click>
+	    	</mx:CheckBox>
+		  </mx:HBox>          	  
 		  <mx:VBox height="100%" verticalAlign="middle">
 			  <mx:LinkButton id="findButton" 
 							 height="25"
 							 label="Find"
 							 toolTip="Run Search"
-							 click="{flowCellOrExperimentLookup()}" 
+							 click="{this.getFlowCellList.send();}" 
 							 icon="@Embed('../../assets/magnifier.png')"/>
 		  </mx:VBox>
 
@@ -244,8 +255,8 @@
 							<mx:DataGridColumn  dataField="@number" headerText="#" width="65"/>
 							<mx:DataGridColumn  dataField="@barcode" headerText="Barcode" width="90"/>
 				 			<mx:DataGridColumn  dataField="@createDate" headerText="Cluster Gen Date" width="110"/>
-							<mx:DataGridColumn  dataField="@idNumberSequencingCyclesAllowed" headerText="Sequencing Protocol" width="100"
-								labelFunction="getSequencingProtocol"/>
+							<mx:DataGridColumn  dataField="@idSeqRunType" headerText="Single vs Paired end" width="100"
+								labelFunction="getSeqRunType"/>
 							<mx:DataGridColumn  dataField="@notes" headerText="Content" width="300"  />
 						</mx:columns>				
 					</mx:DataGrid>		
@@ -253,4 +264,12 @@
 			</mx:VBox>
 		</mx:VBox>
 	</mx:VDividedBox>
+		
+	 
+	<mx:ControlBar horizontalAlign="right" width="100%">
+	    <mx:HBox width="100%" horizontalAlign="left">
+			<mx:LinkButton textDecoration="underline" label="Refresh"  icon="@Embed('../../assets/action_refresh.gif')" 
+				 toolTip="Refresh worklist"/>
+	    </mx:HBox>
+	</mx:ControlBar>	
 </mx:VBox>

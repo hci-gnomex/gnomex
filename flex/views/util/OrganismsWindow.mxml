@@ -371,7 +371,7 @@
 						 <mx:TextInput text="{oList.selectedItem.@ncbiTaxID}" change="{setDirty()}" width="74" id="taxID"  maxChars="100"/>
 						 <mx:HBox width="100%" verticalGap="0">
 							 <mx:Text text="Sort Order:" width="68"/>
-							 <mx:TextInput text="{oList.selectedItem.@sortOrder}" change="{setDirty()}" width="66" id="sortOrder" restrict="0-9"  maxChars="5" height="20.984848"/>
+							 <mx:TextInput text="{oList.selectedItem.@sortOrder}" change="{setDirty()}" width="66" id="sortOrder"  maxChars="100" height="20.984848"/>
 						 </mx:HBox>	
 					 </mx:HBox>	
 				 </mx:HBox>

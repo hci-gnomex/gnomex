@@ -226,9 +226,8 @@ public class UploadAnalysisFileServlet extends HttpServlet {
                 
                 // Save analysis file (name) in db.  Create new af if filename does not already exist in analysis files.  Otherwise just update upload time and size.
                 Boolean isExistingFile = false;
-                String fullFileName = directoryName + "/" + fileName;
                 for(AnalysisFile existingFile : analysisFiles){
-                  if(existingFile.getFullPathName().equals(fullFileName)){
+                  if(existingFile.getFileName().equals(fileName)){
                     existingFile.setUploadDate(new java.sql.Date(System.currentTimeMillis()));
                     existingFile.setCreateDate(new java.sql.Date(System.currentTimeMillis()));
                     existingFile.setFileSize(new BigDecimal(new File(fileName).length()));

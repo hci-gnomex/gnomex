@@ -21,6 +21,13 @@
 	    <description>The CheckSessionStatus to check session status</description>
 	    <servlet-class>hci.gnomex.controller.CheckSessionStatus</servlet-class>
 	</servlet>
+	
+	<servlet>
+		<servlet-name>ExperimentQueue</servlet-name>
+	    <display-name>ExperimentQueue</display-name>
+	    <description>The ExperimentQueue to check experiment status</description>
+	    <servlet-class>hci.gnomex.controller.ExperimentQueue</servlet-class>
+	</servlet>
 
 	<servlet>
 		<servlet-name>CustomCaptchaURLServlet</servlet-name>
@@ -318,20 +325,6 @@
     </servlet-class>
   </servlet>
   
-  <servlet>
-    <servlet-name>ApproveUser</servlet-name>
-    <servlet-class>
-      hci.gnomex.controller.ApproveUser
-    </servlet-class>
-  </servlet>
-  
-  <servlet>
-    <servlet-name>ConfirmEmail</servlet-name>
-    <servlet-class>
-      hci.gnomex.controller.ConfirmEmail
-    </servlet-class>
-  </servlet>
-  
 	<servlet-mapping>
 		<servlet-name>GNomExFrontController</servlet-name>
 		<url-pattern>*.gx</url-pattern>
@@ -340,6 +333,11 @@
 	<servlet-mapping>
 		<servlet-name>CheckSessionStatus</servlet-name>
 		<url-pattern>CheckSessionStatus.gx</url-pattern>
+	</servlet-mapping>	
+	
+	<servlet-mapping>
+		<servlet-name>ExperimentQueue</servlet-name>
+		<url-pattern>ExperimentQueue.gx</url-pattern>
 	</servlet-mapping>	
 	
 	<servlet-mapping>
@@ -541,16 +539,6 @@
     <url-pattern>FastDataTransferUploadStartServlet.gx</url-pattern>
   </servlet-mapping>
   
-  <servlet-mapping>
-    <servlet-name>ApproveUser</servlet-name>
-    <url-pattern>ApproveUser.gx</url-pattern>
-  </servlet-mapping>
-  
-  <servlet-mapping>
-    <servlet-name>ConfirmEmail</servlet-name>
-    <url-pattern>ConfirmEmail.gx</url-pattern>
-  </servlet-mapping>
-  
 	<!-- Session timeout set to 4 hours -->
 	<session-config>
 		<session-timeout>240</session-timeout>
@@ -608,6 +596,7 @@
 			<url-pattern>UploadExperimentFileServlet.gx</url-pattern>
 			<url-pattern>UploadAndBroadcastEmailServlet.gx</url-pattern>	
 			<url-pattern>FastDataTransferUploadGetJnlpServlet.gx</url-pattern>	
+			<url-pattern>ExperimentQueue.gx</url-pattern>
 			<url-pattern>VerifyDas2Refresh</url-pattern>	
       <url-pattern>MakeDataTrackIGVLink.gx</url-pattern>  
 		</web-resource-collection>

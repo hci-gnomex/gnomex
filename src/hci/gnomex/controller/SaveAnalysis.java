@@ -14,7 +14,6 @@ import hci.gnomex.model.DataTrackFile;
 import hci.gnomex.model.DataTrackFolder;
 import hci.gnomex.model.GenomeBuild;
 import hci.gnomex.model.Lab;
-import hci.gnomex.model.Notification;
 import hci.gnomex.model.Organism;
 import hci.gnomex.model.PropertyEntry;
 import hci.gnomex.model.PropertyEntryValue;
@@ -593,13 +592,6 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
         //
         this.saveAnalysisProperties(sess, analysis);
         
-        String state = Notification.EXISTING_STATE;
-        if(isNewAnalysis){
-          state = Notification.NEW_STATE;
-        }
-        sendNotification(analysis, sess, state, Notification.SOURCE_TYPE_ADMIN, Notification.TYPE_ANALYSIS);
-        sendNotification(analysis, sess, state, Notification.SOURCE_TYPE_USER, Notification.TYPE_ANALYSIS);
-        
         // Create the analysis directory
         String baseDir = PropertyDictionaryHelper.getInstance(sess).getAnalysisDirectory(serverName);
         String analysisDir = getAnalysisDirectory(baseDir, analysis);
@@ -777,7 +769,7 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
         firstName = tokens[0];
         lastName = tokens[1];
       } else if (tokens != null && tokens.length == 1) {
-        lastName = tokens[0];
+        lastName = tokens[1];
       } else {
         lastName = labName;
       }
@@ -902,7 +894,7 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
   
   public static void removeAnalysisFileFromFileSystem(String baseDir, Analysis analysis, AnalysisFile analysisFile) {
     String fileName;
-    if (analysisFile.getQualifiedFilePath() != null && !analysisFile.getQualifiedFilePath().equals("")) {
+    if (!analysisFile.getQualifiedFilePath().equals("") && analysisFile.getQualifiedFilePath() != null) {
       fileName = analysisFile.getBaseFilePath() + "/" + analysisFile.getQualifiedFilePath() + "/" + analysisFile.getFileName();    
     } else {
       fileName = analysisFile.getBaseFilePath() + "/" + analysisFile.getFileName();    

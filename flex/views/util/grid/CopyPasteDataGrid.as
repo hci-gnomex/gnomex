@@ -1,6 +1,5 @@
 package views.util.grid
 {
-	import flash.display.Sprite;
 	import flash.events.ContextMenuEvent;
 	import flash.events.KeyboardEvent;
 	import flash.events.MouseEvent;
@@ -36,7 +35,6 @@ package views.util.grid
 		protected var _copyMenuItem:ContextMenuItem;
 		protected var _dupMenuItem:ContextMenuItem;
 		protected var _expTSVMenuItem:ContextMenuItem;
-		protected var _insertLineMenuItem:ContextMenuItem;
 		protected var _addLineMenuItem:ContextMenuItem;
 		protected var _delMenuItem:ContextMenuItem;
 		protected var _clearAllMenuItem:ContextMenuItem;
@@ -44,7 +42,6 @@ package views.util.grid
 		
 		// Customizable functions (Paste, add row, delete selected rows, and clear all)
 		protected var _pasteFunction:Function;
-		protected var _insertRowFunction:Function;
 		protected var _addRowFunction:Function;
 		protected var _deleteRowFunction:Function;
 		protected var _clearAllFunction:Function;
@@ -53,16 +50,15 @@ package views.util.grid
 		protected var _pasteEnabled:Boolean;
 		protected var _addRowEnabled:Boolean = true;
 		protected var _rowOperationsAllowed:Boolean = true;
-		protected var _insertRowEnabled:Boolean = true;
 		protected var _dataType:String;
 		protected var _ignoredColumns:Array;
 		protected var _importantFields:Array;
-		protected var _colorRowsByField:String;
 		
 		
 		public function CopyPasteDataGrid()
 		{
 			super();
+			
 		}
 		
 		
@@ -74,10 +70,9 @@ package views.util.grid
 			_expTSVMenuItem = new ContextMenuItem( "Copy grid to clipboard" );
 			_expTSVMenuItem.addEventListener( ContextMenuEvent.MENU_ITEM_SELECT, handleExpGridSelect );
 			
-			_insertLineMenuItem = new ContextMenuItem( "Insert row (shift rows down)", true, _insertRowEnabled, _insertRowEnabled );
-			_insertLineMenuItem.addEventListener( ContextMenuEvent.MENU_ITEM_SELECT, handleInsertRowSelect );
-			_addLineMenuItem = new ContextMenuItem( "Add row", !_insertRowEnabled, _addRowEnabled, _addRowEnabled );
+			_addLineMenuItem = new ContextMenuItem( "Add row", true );
 			_addLineMenuItem.addEventListener( ContextMenuEvent.MENU_ITEM_SELECT, handleAddRowSelect );
+			_addLineMenuItem.visible = _addLineMenuItem.enabled = _addRowEnabled;
 			_dupMenuItem = new ContextMenuItem( "Duplicate row" );
 			_dupMenuItem.addEventListener( ContextMenuEvent.MENU_ITEM_SELECT, handleDupSelect );
 			
@@ -101,7 +96,7 @@ package views.util.grid
 				_pasteEnabled = false;
 				_ignoredColumns = [];
 			} else {
-				_contextMenu.customItems = [ _copyMenuItem, _expTSVMenuItem, _insertLineMenuItem, _addLineMenuItem, _dupMenuItem, _delMenuItem, _clearAllMenuItem, _undoMenuItem ];
+				_contextMenu.customItems = [ _copyMenuItem, _expTSVMenuItem, _addLineMenuItem, _dupMenuItem, _delMenuItem, _clearAllMenuItem, _undoMenuItem ];
 				if (dataProvider is HierarchicalCollectionView ) {
 					this._undoMenuItem.visible =  this._undoMenuItem.enabled = false;
 				} else {
@@ -116,8 +111,6 @@ package views.util.grid
 		// Adjust text of context menus depending on if 1 or more items are selected in grid
 		protected function handleChange( event:Event ):void
 		{
-			_insertLineMenuItem.enabled = _insertRowEnabled && selectedIndex >= 0;
-			
 			_copyMenuItem.caption = selectedItems.length > 1 ? "Copy rows to clipboard" : "Copy row to clipboard";
 			_dupMenuItem.caption = selectedItems.length > 1 ? "Duplicate rows" : "Duplicate row";
 			_delMenuItem.caption = selectedItems.length > 1 ? "Delete rows" : "Delete row";
@@ -131,7 +124,6 @@ package views.util.grid
 		
 		protected function handleDupSelect( event:Event ):void
 		{
-			saveDataProvider();
 			duplicateSelectedRows();
 		}
 		
@@ -140,27 +132,18 @@ package views.util.grid
 			System.setClipboard( getTextFromGrid() );
 		}
 		
-		protected function handleInsertRowSelect( event:Event ):void
-		{
-			saveDataProvider();
-			this.insertRow();
-		}
-		
 		protected function handleAddRowSelect( event:Event ):void
 		{
-			saveDataProvider();
 			this.addRow();
 		}
 		
 		protected function handleDelSelect( event:Event ):void
 		{
-			saveDataProvider();
 			this.deleteRows();
 		}
 		
 		protected function handleClearSelect( event:Event ):void
 		{
-			saveDataProvider();
 			this.clearAll();
 		}
 		
@@ -292,22 +275,10 @@ package views.util.grid
 		// Duplicates selected rows and adds them to the dataprovider
 		public function duplicateSelectedRows():void
 		{
+			saveDataProvider();
 			var selectedItems:XMLListCollection = DataGridUtil.getSelectedRows( this,  _dataType, _ignoredColumns );
 			for each ( var item:XML in selectedItems ) {
 				addItemToDataProvider(item);
-			}
-		}
-		
-		// Adds an empty row to the dataprovider
-		public function insertRow():void {
-			if (_insertRowFunction != null)
-			{
-				_insertRowFunction();
-			}
-			else
-			{
-				var item:XML = DataGridUtil.getEmptyRow(this, _dataType);
-				this.getUnderlyingDataProvider().addItemAt( item, selectedIndex );
 			}
 		}
 		
@@ -448,12 +419,6 @@ package views.util.grid
 			_pasteFunction = value;
 		}
 		[Bindable]
-		public function get insertRowFunction():Function { return _insertRowFunction; }
-		public function set insertRowFunction( value:Function ):void
-		{
-			_insertRowFunction = value;
-		}
-		[Bindable]
 		public function get addRowFunction():Function { return _addRowFunction; }
 		public function set addRowFunction( value:Function ):void
 		{
@@ -492,12 +457,6 @@ package views.util.grid
 			_rowOperationsAllowed = value;
 		}
 		[Bindable]
-		public function get insertRowEnabled():Boolean { return _insertRowEnabled; }
-		public function set insertRowEnabled( value:Boolean ):void
-		{
-			_insertRowEnabled = value;
-		}
-		[Bindable]
 		public function get dataType():String { return _dataType; }
 		public function set dataType( value:String ):void
 		{
@@ -517,13 +476,6 @@ package views.util.grid
 		{
 			_importantFields = value;
 		}
-		// This field allows you to group rows by a particular field.  
-		[Bindable]
-		public function get colorRowsByField():String { return _colorRowsByField; }
-		public function set colorRowsByField( value:String ):void
-		{
-			_colorRowsByField = value;
-		}
 		
 		override protected function initializationComplete():void
 		{
@@ -535,58 +487,14 @@ package views.util.grid
 			systemManager.addEventListener( KeyboardEvent.KEY_UP, handleKeyReleased );
 			
 			createContextMenu();
-			addRowColorFields();
 		}
 		
 		override protected function commitProperties():void
 		{
 			super.commitProperties();
 			createContextMenu();
-			addRowColorFields();
 		}
 		
-		// Special function for coloring rows in groups 
-		override protected function drawRowBackground(s:Sprite, rowIndex:int, 
-													  y:Number, height:Number, color:uint, dataIndex:int):void {
-			if ( this.colorRowsByField != null && this.colorRowsByField != '' ) {
-				if (dataProvider != null && dataProvider.length > 0 && !(dataProvider is HierarchicalCollectionView)) {
-					
-					var item:Object;
-					
-					if( dataIndex < dataProvider.length ) {
-						item = dataProvider[dataIndex];
-						if( item != null && item.@altColor != null && item.@altColor == "true" ) {
-							color = 0xEEEEE0;
-						} 
-					}
-				}
-			}
-			super.drawRowBackground(s,rowIndex,y,height,color,dataIndex);
-		}
-		// Special function for coloring rows in groups 	
-		protected function addRowColorFields():void {
-			if ( this.colorRowsByField == null || this.colorRowsByField == '' ) {
-				return;
-			}
-			if (dataProvider != null && dataProvider.length > 0 && !(dataProvider is HierarchicalCollectionView)) {
-				
-				var ind:int;
-				var alt:Boolean = true; 
-				var prevVal:String = '';
-				var currVal:String = '';
-				
-				for ( ind = 0; ind < dataProvider.length; ind++ ) {
-					
-					currVal = dataProvider[ind].@[this.colorRowsByField];
-					
-					if (currVal != prevVal) {
-						alt = !alt;
-					}
-					dataProvider[ind].@altColor = new Boolean(alt).toString();
-					prevVal = currVal;
-				}
-			}
-		}
 		
 		/**
 		 * Row number column
@@ -617,8 +525,8 @@ package views.util.grid
 				_rowNumberColumn = new AdvancedDataGridColumn("");
 				_rowNumberColumn.editable = false;
 				_rowNumberColumn.labelFunction = getGridRowNumber;
-				_rowNumberColumn.width = 35;
-				_rowNumberColumn.resizable = true;
+				_rowNumberColumn.width = 25;
+				_rowNumberColumn.resizable = false;
 				_rowNumberColumn.sortable = false
 			}
 			
@@ -664,7 +572,7 @@ package views.util.grid
 			_rowNumberColExists = false;
 			showHideRowNumberColumn();
 			createContextMenu();
-			addRowColorFields();
+			
 		}
 		
 		override public function set columns( value:Array ):void

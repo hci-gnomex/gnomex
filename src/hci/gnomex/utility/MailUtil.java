@@ -1,7 +1,6 @@
 package hci.gnomex.utility;
 
 import hci.gnomex.controller.GNomExFrontController;
-import hci.gnomex.model.PropertyDictionary;
 
 import java.io.File;
 import java.io.IOException;
@@ -47,104 +46,7 @@ public class MailUtil
       send(session, to, cc, "", from, subject, body, formatHtml);        
 
     }
-
-    public static void sendCheckTest( String to,
-                            String cc,
-                            String from,
-                            String subject,
-                            String body,
-                            boolean formatHtml, 
-                            String server,
-                            PropertyDictionaryHelper pdh )
-        throws NamingException, AddressException, MessagingException {
-
-      sendCheckTest(to, cc, from, "", subject, body, formatHtml, server, pdh);
-    }
-
-    public static void sendCheckTest( String to,
-                            String cc,
-                            String from,
-                            String bcc,
-                            String subject,
-                            String body,
-                            boolean formatHtml, 
-                            String server,
-                            PropertyDictionaryHelper pdh )
-        throws NamingException, AddressException, MessagingException {
-
-      Session session = GNomExFrontController.getMailSession();
-      sendCheckTest(session, to, cc, from, "", subject, body, formatHtml, pdh.isProductionServer(server), pdh.getProperty(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER));
-    }
     
-    public static void sendCheckTest(Properties props,
-                             String to,
-                             String cc,
-                             String from,
-                             String subject,
-                             String body,
-                             boolean formatHtml, 
-                             String server,
-                             PropertyDictionaryHelper pdh)
-         throws NamingException, AddressException, MessagingException {
-      
-      sendCheckTest(props, to, cc, from, subject, body, formatHtml, pdh.isProductionServer(server), pdh.getProperty(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER));
-    }
-    
-    public static void sendCheckTest(Properties props,
-                             String to,
-                             String cc,
-                             String from,
-                             String subject,
-                             String body,
-                             boolean formatHtml, 
-                             boolean testEmail,
-                             String testEmailTo)
-         throws NamingException, AddressException, MessagingException {
-      Session session = javax.mail.Session.getDefaultInstance(props, null);
-      sendCheckTest(session, to, cc, "", from, subject, body, formatHtml, testEmail, testEmailTo);
-    }
-    
-    public static void sendCheckTest(Session session,
-                              String to,
-                              String cc,
-                              String from,
-                              String subject,
-                              String body,
-                              boolean formatHtml,
-                              boolean testEmail,
-                              String testEmailTo)
-          throws NamingException, AddressException, MessagingException {
-      sendCheckTest(session, to, cc, "", from, subject, body, formatHtml, testEmail, testEmailTo);
-    }
-    
-    public static void sendCheckTest(Session session,
-                              String to,
-                              String cc,
-                              String bcc,
-                              String from,
-                              String subject,
-                              String body,
-                              boolean formatHtml,
-                              boolean testEmail,
-                              String testEmailTo)
-          throws NamingException, AddressException, MessagingException {
-
-      if (testEmail) {
-        subject = "Test - " + subject;
-        String newBody = "[If this were a production environment then this email would have been sent to: " + to + "]";
-        if (formatHtml) {
-          newBody += "<br><br>";
-        } else {
-          newBody += "\n\n";
-        }
-        newBody += body;
-        body = newBody;
-        to = testEmailTo;
-        bcc = "";
-      }
-      send(session, to, cc, bcc, from, subject, body, formatHtml);
-    }
-                          
     public static Boolean isValidEmail(String emailAddress){
       if (emailAddress == null || emailAddress.equals("")) {
         return false;

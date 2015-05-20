@@ -1,7 +1,6 @@
 package hci.gnomex.model;
 
 import hci.dictionary.model.DictionaryEntry;
-import hci.gnomex.utility.PropertyDictionaryHelper;
 
 import java.io.Serializable;
 import java.sql.Date;
@@ -102,27 +101,4 @@ public class BillingPeriod extends DictionaryEntry implements Serializable {
     
   }
 
-  public String getFiscalYear(PropertyDictionaryHelper pdh, Integer idCoreFacility) {
-    if (endDate == null) {
-      return "";
-    }
-    Calendar calendar = Calendar.getInstance();
-    calendar.setTime(endDate);
-    Integer periodMonth = calendar.get(Calendar.MONTH) + 1; // apparently returns 0 relative month
-    Integer periodDay = calendar.get(Calendar.DAY_OF_MONTH); // not zero relative -- nice consistency
-    Integer fiscalMonth = pdh.convertPropertyToInteger(pdh.getCoreFacilityProperty(idCoreFacility, PropertyDictionary.FISCAL_YEAR_BREAK_MONTH), 1);
-    Integer fiscalDay = pdh.convertPropertyToInteger(pdh.getCoreFacilityProperty(idCoreFacility, PropertyDictionary.FISCAL_YEAR_BREAK_DAY), 1);
-    if (periodMonth > fiscalMonth || (periodMonth == fiscalMonth && periodDay >= fiscalDay)) {
-      Integer retYear = calendar.get(Calendar.YEAR) + 1;
-      return retYear.toString();
-    } else {
-      return new Integer(calendar.get(Calendar.YEAR)).toString();
-    }
-  }
-  
-  public Integer getCalendarYear() {
-    Calendar cal = Calendar.getInstance();
-    cal.setTime(endDate);
-    return cal.get(Calendar.YEAR);
-  }
 }

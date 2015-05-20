@@ -3,14 +3,13 @@ package hci.gnomex.controller;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.ExperimentPickListFilter;
-import hci.gnomex.model.NumberSequencingCyclesAllowed;
-import hci.gnomex.model.PropertyDictionary;
+import hci.gnomex.model.NumberSequencingCycles;
 import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.SampleType;
+import hci.gnomex.model.SeqRunType;
 import hci.gnomex.model.SequenceLane;
 import hci.gnomex.model.SlideDesign;
 import hci.gnomex.utility.DictionaryHelper;
-import hci.gnomex.utility.PropertyDictionaryHelper;
 
 import java.io.Serializable;
 import java.sql.SQLException;
@@ -36,11 +35,12 @@ public class GetExperimentPickList extends GNomExCommand implements Serializable
   
   private ExperimentPickListFilter       filter;
   private HashMap                        slideDesignMap = new HashMap();
-  private HashMap<Integer, String>       numberSequencingCyclesAllowedMap = new HashMap<Integer, String>();
+  private HashMap                        seqRunTypeMap = new HashMap();
   private HashMap                        sampleTypeMap = new HashMap();
+  private HashMap                        numberSeqCyclesMap = new HashMap();
   
+  private HashMap                        requestSeqRunTypeMap = new HashMap();
   private HashMap                        requestSampleTypeMap = new HashMap();
-  private HashMap<String, Object>        requestNumberSequencingCyclesAllowedMap = new HashMap<String, Object>();
 
   private Element                        rootNode = null;
   private Element                        projectNode = null;
@@ -76,17 +76,22 @@ public class GetExperimentPickList extends GNomExCommand implements Serializable
         SlideDesign sd = (SlideDesign)i.next();
         slideDesignMap.put(sd.getIdSlideDesign(), sd.getName());
       }
-
-      List numberSequencingCyclesAlloweds = sess.createQuery("SELECT ncsa from NumberSequencingCyclesAllowed ncsa ").list();
-      for(Iterator i = numberSequencingCyclesAlloweds.iterator(); i.hasNext();) {
-        NumberSequencingCyclesAllowed ncsa = (NumberSequencingCyclesAllowed)i.next();
-        numberSequencingCyclesAllowedMap.put(ncsa.getIdNumberSequencingCyclesAllowed(), ncsa.getName());
+      
+      List seqRunTypes = sess.createQuery("SELECT fct from SeqRunType fct ").list();
+      for(Iterator i = seqRunTypes.iterator(); i.hasNext();) {
+        SeqRunType fct = (SeqRunType)i.next();
+        seqRunTypeMap.put(fct.getIdSeqRunType(), fct.getSeqRunType());
       }
       List sampleTypes = sess.createQuery("SELECT st from SampleType st ").list();
       for(Iterator i = sampleTypes.iterator(); i.hasNext();) {
         SampleType st = (SampleType)i.next();
         sampleTypeMap.put(st.getIdSampleType(), st.getSampleType());
       }
+      List numberSeqCycles = sess.createQuery("SELECT sc from NumberSequencingCycles sc ").list();
+      for(Iterator i = numberSeqCycles.iterator(); i.hasNext();) {
+        NumberSequencingCycles sc = (NumberSequencingCycles)i.next();
+        numberSeqCyclesMap.put(sc.getIdNumberSequencingCycles(), sc.getNumberSequencingCycles());
+      }      
       
       TreeMap projectMap = new TreeMap();
       
@@ -246,7 +251,7 @@ public class GetExperimentPickList extends GNomExCommand implements Serializable
     
     projectNode.addContent(requestNode);
     
-    this.requestNumberSequencingCyclesAllowedMap = new HashMap<String, Object>();
+    this.requestSeqRunTypeMap = new HashMap();
     this.requestSampleTypeMap = new HashMap();
   }
 
@@ -256,7 +261,7 @@ public class GetExperimentPickList extends GNomExCommand implements Serializable
     itemNode.setAttribute("itemNumber",               row[10] == null ? ""  : (String)row[10]);
     itemNode.setAttribute("idSlideDesign",            row[11] == null ? ""  : ((Integer)row[11]).toString());
     itemNode.setAttribute("idNumberSequencingCycles", row[12] == null ? ""  : ((Integer)row[12]).toString());
-    itemNode.setAttribute("idSeqRunType",             row[13] == null ? ""  : ((Integer)row[13]).toString());
+    itemNode.setAttribute("idSeqRunType",           row[13] == null ? ""  : ((Integer)row[13]).toString());
     itemNode.setAttribute("sampleNumber1",            row[14] == null ? ""  : (String)row[14]);
     itemNode.setAttribute("sampleName1",              row[15] == null ? ""  : (String)row[15]);
     itemNode.setAttribute("sampleNumber2",            row[16] == null ? ""  : (String)row[16]);
@@ -268,20 +273,23 @@ public class GetExperimentPickList extends GNomExCommand implements Serializable
     if(row.length > 26){
       itemNode.setAttribute("sampleBarcodeSequence",    row[26] == null ? ""  : (String)row[26]);
     }
-    if (row.length > 27) {
-      itemNode.setAttribute("idNumberSequencingCyclesAllowed", row[27] == null ? "" : ((Integer)row[27]).toString());
-    }
     
-    Integer idNumberSequencingCyclesAllowed = -1;
-    if (row.length > 27) {
-      idNumberSequencingCyclesAllowed = (Integer)row[27];
-    }
-    if (idNumberSequencingCyclesAllowed != null && idNumberSequencingCyclesAllowed.intValue() != -1) {
-      String numberSequencingCyclesAllowed = (String)this.numberSequencingCyclesAllowedMap.get(idNumberSequencingCyclesAllowed);
-      itemNode.setAttribute("numberSequencingCyclesAllowed", numberSequencingCyclesAllowed);      
-      this.requestNumberSequencingCyclesAllowedMap.put(numberSequencingCyclesAllowed, null);
+    
+    Integer idNumberSequencingCycles = (Integer)row[12];
+    if (idNumberSequencingCycles != null && idNumberSequencingCycles.intValue() != -1) {
+      Integer numberSeqCycles = (Integer)this.numberSeqCyclesMap.get(idNumberSequencingCycles);
+      itemNode.setAttribute("numberSequencingCycles", numberSeqCycles.toString());      
     } else {
-      itemNode.setAttribute("numberSequencingCyclesAllowed", "?");      
+      itemNode.setAttribute("numberSequencingCycles", "?");      
+    }
+
+    Integer idSeqRunType = (Integer)row[13];
+    if (idSeqRunType != null && idSeqRunType.intValue() != -1) {
+      String seqRunType = (String)this.seqRunTypeMap.get(idSeqRunType);
+      itemNode.setAttribute("seqRunType", seqRunType);      
+      this.requestSeqRunTypeMap.put(seqRunType, null);
+    } else {
+      itemNode.setAttribute("seqRunType", "?");      
     }
 
     Integer idSampleType = (Integer)row[18];
@@ -297,7 +305,7 @@ public class GetExperimentPickList extends GNomExCommand implements Serializable
     if (RequestCategory.isIlluminaRequestCategory(requestNode.getAttributeValue("codeRequestCategory"))) {
       label.append(" -  ");
       label.append(itemNode.getAttributeValue("sampleName1"));
-      requestNode.setAttribute("numberSequencingCyclesAllowed", itemNode.getAttributeValue("numberSequencingCyclesAllowed"));
+       requestNode.setAttribute("seqRunType", itemNode.getAttributeValue("seqRunType"));
     } else {
       label.append(" - ");
       label.append(itemNode.getAttributeValue("sampleName1"));
@@ -317,7 +325,7 @@ public class GetExperimentPickList extends GNomExCommand implements Serializable
     RequestCategory requestCategory = dh.getRequestCategoryObject(requestNode.getAttributeValue("codeRequestCategory"));
     if (requestCategory.isNextGenSeqRequestCategory()) {
       StringBuffer buf = new StringBuffer();
-      for (Iterator i = requestNumberSequencingCyclesAllowedMap.keySet().iterator(); i.hasNext();) {
+      for (Iterator i = requestSeqRunTypeMap.keySet().iterator(); i.hasNext();) {
         buf.append(i.next());
         if (i.hasNext()) {
           buf.append(", ");
@@ -391,14 +399,14 @@ public class GetExperimentPickList extends GNomExCommand implements Serializable
         splitLetter = "E";
       } else if (hybNumber1.indexOf("L") >= 0) {
         splitLetter = "L";
-      } else if (hybNumber1.indexOf(PropertyDictionaryHelper.getInstance(null).getProperty(PropertyDictionary.SEQ_LANE_LETTER)) >= 0) {
-        splitLetter = PropertyDictionaryHelper.getInstance(null).getProperty(PropertyDictionary.SEQ_LANE_LETTER);
+      } else if (hybNumber1.indexOf("F") >= 0) {
+        splitLetter = "F";
       } 
       String[] hybNumberTokens1 = hybNumber1.split(splitLetter);
       itemNumber1 = hybNumberTokens1[hybNumberTokens1.length - 1];     
       
-      if (splitLetter.equals(PropertyDictionaryHelper.getInstance(null).getProperty(PropertyDictionary.SEQ_LANE_LETTER))) {
-        String[] numberTokens  = itemNumber1.split(PropertyDictionaryHelper.getInstance(null).getProperty(PropertyDictionary.SEQ_LANE_NUMBER_SEPARATOR));
+      if (splitLetter.equals("F")) {
+        String[] numberTokens  = itemNumber1.split("_");
         itemNumber1            = numberTokens[0];
         seq1                   = numberTokens[1];                
       } else {
@@ -413,14 +421,14 @@ public class GetExperimentPickList extends GNomExCommand implements Serializable
         splitLetter = "E";
       } else if (hybNumber2.indexOf("L") >= 0) {
         splitLetter = "L";
-      } else if (hybNumber2.indexOf(PropertyDictionaryHelper.getInstance(null).getProperty(PropertyDictionary.SEQ_LANE_LETTER)) >= 0) {
-        splitLetter = PropertyDictionaryHelper.getInstance(null).getProperty(PropertyDictionary.SEQ_LANE_LETTER);
+      } else if (hybNumber2.indexOf("F") >= 0) {
+        splitLetter = "F";
       } 
 
       String[] hybNumberTokens2 = hybNumber2.split(splitLetter);
       itemNumber2 = hybNumberTokens2[hybNumberTokens2.length - 1];     
-      if (splitLetter.equals(PropertyDictionaryHelper.getInstance(null).getProperty(PropertyDictionary.SEQ_LANE_LETTER))) {
-        String[] numberTokens  = itemNumber2.split(PropertyDictionaryHelper.getInstance(null).getProperty(PropertyDictionary.SEQ_LANE_NUMBER_SEPARATOR));
+      if (splitLetter.equals("F")) {
+        String[] numberTokens  = itemNumber2.split("_");
         itemNumber2            = numberTokens[0];
         seq2                   = numberTokens[1];                
       } else {

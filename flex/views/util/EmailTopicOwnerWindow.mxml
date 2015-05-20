@@ -14,7 +14,7 @@
 		resultFormat="e4x"
 		showBusyCursor="true"
 		result="onEmailTopicOwner(event)"
-		fault="this.faultHandlerSendBroadcastEmail('', event)"
+		fault="this.faultHanlderSendBroadcastEmail('', event)"
 		method="POST"
 		useProxy="false">
 	</mx:HTTPService >  
@@ -62,7 +62,7 @@
 				}
 			}   
 			
-			public function faultHandlerSendBroadcastEmail(title:String, event:FaultEvent):void {
+			public function faultHanlderSendBroadcastEmail(title:String, event:FaultEvent):void {
 				if (event.message.body is String) {
 					var startPos:int = event.message.body.indexOf("H3");
 					var endPos:int   = event.message.body.indexOf("</H3>");

@@ -57,23 +57,23 @@
 		<mx:VBox styleName="form" width="100%" height="100%" verticalGap="4" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
 			<mx:HBox width="100%" >
 				<mx:Label text="Common name"  width="120" styleName="formLabel" textAlign="right"/>
-				<mx:TextInput id="organismCommonName" width="300" text="{parentDocument.browseTree.selectedItem.@commonName}" change="dirtyOrganism.setDirty()" maxChars="100" enabled="{!parentApplication.isGuestMode()}"/>
+				<mx:TextInput id="organismCommonName" width="300" text="{parentDocument.browseTree.selectedItem.@commonName}" change="dirtyOrganism.setDirty()" maxChars="100"/>
 			</mx:HBox>
 			<mx:HBox width="100%">
 				<mx:Label text="Binomial name" width="120" styleName="formLabel" textAlign="right"/>
-				<mx:TextInput id="organismBinomialName"  width="300" text="{parentDocument.browseTree.selectedItem.@binomialName}" change="dirtyOrganism.setDirty()" maxChars="200" enabled="{!parentApplication.isGuestMode()}"/>
+				<mx:TextInput id="organismBinomialName"  width="300" text="{parentDocument.browseTree.selectedItem.@binomialName}" change="dirtyOrganism.setDirty()" maxChars="200"/>
 			</mx:HBox>
 			<mx:HBox width="100%" >
 				<mx:Label text="DAS2 name" width="120" styleName="formLabel" textAlign="right"/>
-				<mx:TextInput id="organismName"  width="300" text="{parentDocument.browseTree.selectedItem.@name}" change="dirtyOrganism.setDirty()" maxChars="200" enabled="{!parentApplication.isGuestMode()}"/>
+				<mx:TextInput id="organismName"  width="300" text="{parentDocument.browseTree.selectedItem.@name}" change="dirtyOrganism.setDirty()" maxChars="200"/>
 			</mx:HBox>
 			<mx:HBox width="100%" >
 				<mx:Label text="NCBI taxonomy ID" width="120" textAlign="right" styleName="formLabel"/>
-				<mx:TextInput id="organismNCBITaxID"  width="300" text="{parentDocument.browseTree.selectedItem.@NCBITaxID}" change="dirtyOrganism.setDirty()" maxChars="45" enabled="{!parentApplication.isGuestMode()}"/>
+				<mx:TextInput id="organismNCBITaxID"  width="300" text="{parentDocument.browseTree.selectedItem.@NCBITaxID}" change="dirtyOrganism.setDirty()" maxChars="45"/>
 			</mx:HBox>
 			<mx:HBox width="100%" >
 				<mx:Label text="Active" width="120" textAlign="right" styleName="formLabel"/>
-				<mx:CheckBox id="isActive"  width="300" change="dirtyOrganism.setDirty()" selected="{parentDocument.browseTree.selectedItem.@isActive == 'Y'}" enabled="{!parentApplication.isGuestMode()}"/>
+				<mx:CheckBox id="isActive"  width="300" change="dirtyOrganism.setDirty()" selected="{parentDocument.browseTree.selectedItem.@isActive == 'Y'}"/>
 			</mx:HBox>
 		</mx:VBox>
 		

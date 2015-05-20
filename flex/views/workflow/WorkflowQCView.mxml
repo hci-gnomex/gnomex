@@ -3,7 +3,6 @@
 	xmlns:mx="http://www.adobe.com/2006/mxml"  
 	xmlns:views="views.*" 
 	xmlns:util="views.util.*"
-	xmlns:renderers="views.renderers.*"
 	width="100%" height="100%" >
 <mx:HBox verticalAlign="middle">
 	<mx:Image source="{parentApplication.iconQC}"/>
@@ -41,19 +40,14 @@
     
     <mx:XMLListCollection id="workList" source="{getWorkListQC.lastResult.WorkItem}"/>
     
-	<mx:XMLListCollection id="filteredAppList" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.Application').DictionaryEntry}" filterFunction="filterAppList" />
 
 
     <mx:Script>
         <![CDATA[
-			import hci.flex.controls.DropdownLabel;
-			import hci.flex.controls.Label;
-			
 			import mx.collections.ArrayCollection;
 			import mx.collections.Sort;
 			import mx.collections.XMLListCollection;
 			import mx.controls.Alert;
-			import mx.events.CloseEvent;
 			import mx.events.CollectionEvent;
 			import mx.events.CollectionEventKind;
 			import mx.events.ValidationResultEvent;
@@ -75,20 +69,8 @@
         [Bindable]
         private var requestNumbers:ArrayCollection;
 			
-		[Bindable]
-		private var cores:ArrayCollection;
-			
 		private var worklistFilterType:String = "";
         
-		private var coreFacilityAppMap:Dictionary;
-			
-		[Bindable]
-		private var selectedIdCoreFacility:String = null;
-
-		public var VALIDATION_WARNING:String              = "Warning";
-		public var VALIDATION_ERROR:String                = "Error";
-		public var VALIDATION_SUCCESS:String              = "NoWarningsOrErrors";
-			
         private function refreshWorkList():void {
         	dirty.resetDirty();
         	getWorkListQC.send();
@@ -130,9 +112,8 @@
 	    	workListGrid.selectedItem.@isDirty = "Y";
         }
         
-        private function validate():String {
-        	var errorMessage:String = "";
-			var warningMessage:String = "";
+        private function validate():Boolean {
+        	var message:String = "";
         	var dirtyItems:XMLList = getWorkListQC.lastResult.WorkItem.(@isDirty == 'Y');        	
     		
     		var nv:NumberValidator = new NumberValidator();
@@ -152,7 +133,7 @@
         	for each (item in dirtyItems) {
 		    	vr = nv.validate(item.@qualCalcConcentration);
 		    	if (vr.type == ValidationResultEvent.INVALID) {
-					errorMessage += "\nConcentration " + item.@qualCalcConcentration + " " + vr.message;
+		    		message += "\nConcentration " + item.@qualCalcConcentration + " " + vr.message;
 		    		break;
 		    	}
 	    	} 
@@ -162,14 +143,14 @@
 	    	for each (item in dirtyItems) {
 		    	vr = nv.validate(item.@qual260nmTo230nmRatio);
 		    	if (vr.type == ValidationResultEvent.INVALID) {
-					errorMessage += "\n260/230 " + item.@qual260nmTo230nmRatio + " " + vr.message;
+		    		message += "\n260/230 " + item.@qual260nmTo230nmRatio + " " + vr.message;
 		    		break;
 		    	}
 	    	} 
 	    	for each (item in dirtyItems) {
 		    	vr = nv.validate(item.@qual260nmTo280nmRatio);
 		    	if (vr.type == ValidationResultEvent.INVALID) {
-					errorMessage += "\n260/280 " + item.@qual260nmTo280nmRatio + " " + vr.message;
+		    		message += "\n260/280 " + item.@qual260nmTo280nmRatio + " " + vr.message;
 		    		break;
 		    	}
 	    	} 
@@ -179,58 +160,24 @@
 	    	for each (item in dirtyItems) {
 		    	vr = nv.validate(item.@qual28sTo18sRibosomalRatio);
 		    	if (vr.type == ValidationResultEvent.INVALID) {
-					errorMessage += "\n28s/18s " + item.@qual28sTo18sRibosomalRatio + " " + vr.message;
+		    		message += "\n28s/18s " + item.@qual28sTo18sRibosomalRatio + " " + vr.message;
 		    		break;
 		    	}
 	    	} 	  
 	    	
-			for each (item in dirtyItems) {
-				if (item.@qualStatus == 'Completed' || item.@qualStatus == 'Terminated') {
-					if (item.@qualCodeApplication == null || item.@qualCodeApplication == '') {
-						warningMessage += "\n" + item.@sampleNumber + " is completed or terminated and does not have a QC Type specified.";
-					} else {
-						if (parentApplication.applicationHasChipTypes(item.@qualCodeApplication)) {
-							if (item.@qualCodeBioanalyzerChipType == null || item.@qualCodeBioanalyzerChipType == '') {
-								warningMessage += "\n" + item.@sampleNumber + " is completed or terminated and does not have a QC Assay specified.";
-							} else {
-								var code:String = parentApplication.getCodeApplicationForBioanalyzerChipType(item.@qualCodeBioanalyzerChipType);
-								if (code != item.@qualCodeApplication.toString()) {
-									errorMessage += "\nQC Assay " 
-										+ parentApplication.dictionaryManager.getEntryDisplay("hci.gnomex.model.BioanalyzerChipType", item.@qualCodeBioanalyzerChipType) 
-										+ " is not valid for QC Type " 
-										+ parentApplication.dictionaryManager.getEntryDisplay("hci.gnomex.model.Application", item.@qualCodeApplication)
-										+ " on sample " + item.@sampleNumber + ".";
-								}
-							}
-						}
-					}
-				}
-			}
 	    	  	
-	    	if (errorMessage != "") {
-	    		Alert.show(errorMessage);
-	    		return VALIDATION_ERROR;
-			} else if (warningMessage != "") {
-				warningMessage += "\nDo you wish to continue?";
-				Alert.show(warningMessage, "Warning", (Alert.YES | Alert.NO), null, onPromptForWarning);
-				return VALIDATION_WARNING;
+	    	if (message != "") {
+	    		Alert.show(message);
+	    		return false;
 	    	} else {
-	    		return VALIDATION_SUCCESS;
+	    		return true;
 	    	}
         }
         
-		private function onPromptForWarning(event:CloseEvent):void {
-			if (event.detail == Alert.YES) {
-				saveForReal();
-			}
-		}
-		private function save():void {
-			if (validate() == "NoWarningsOrErrors") {
-				saveForReal();
-			}
-		}
-			
-        private function saveForReal():void {
+        private function save():void {
+        	if (validate() == false) {
+        		return;
+        	}
         	var dirtyItems:XMLList = getWorkListQC.lastResult.WorkItem.(@isDirty == 'Y');        	
         	dirtyWorkItems = new XMLListCollection(dirtyItems);
         	saveWorkItemQC.send();
@@ -257,107 +204,34 @@
 
         private function refreshRequestNumbers():void {
         	requestNumbers = new ArrayCollection();
-			cores = new ArrayCollection;
+
 			var blankItem:Object = new Object();
 			blankItem.data = "";
 			blankItem.label = "";
         	requestNumbers.addItem(blankItem);
-			coreFacilityAppMap = new Dictionary();
-			workList.filterFunction = null;
-			workList.refresh();
-        	var foundSelectedIdCoreFacility:Boolean = false;
+        	
         	for(var x:Number = 0; x < workList.length; x++) {
         		var item:Object = workList.getItemAt(x, 0);
         		
         		var found:Boolean = false;
-				for(var j:Number = 0; j < cores.length; j++) {
-					if (cores.getItemAt(j).data == item.@idCoreFacility) {
-						found = true;
-						break;
-					}
-				}
-				if (found == false) {
-					addCoreFacilityObject(item.@idCoreFacility);
-					if (selectedIdCoreFacility == null) {
-						selectedIdCoreFacility= item.@idCoreFacility;
-						foundSelectedIdCoreFacility = true;
-					}
-					if (!foundSelectedIdCoreFacility && selectedIdCoreFacility == item.@idCoreFacility) {
-						foundSelectedIdCoreFacility = true;
-					}
-				}
-
-				if (filterWorkListByExpType(item)) {
-					found = false;
-					for(var i:Number = 0; i < requestNumbers.length; i++) {
-						if (requestNumbers.getItemAt(i).label == item.@requestNumber) {
-							found = true;
-							break;
-						}
-					}
-					if (found == false) {
-						var newItem:Object = new Object();
-						newItem.data = item.@requestNumber;
-						newItem.label = item.@requestNumber;
-						requestNumbers.addItem(newItem);
-					}
-				}
+        		for(var i:Number = 0; i < requestNumbers.length; i++) {
+        			if (requestNumbers.getItemAt(i).label == item.@requestNumber) {
+        				found = true;
+        				break;
+        			}
+        		}
+        		if (found == false) {
+	    			var newItem:Object = new Object();
+	    			newItem.data = item.@requestNumber;
+	    			newItem.label = item.@requestNumber;
+        			requestNumbers.addItem(newItem);
+        		}
         	}
         	requestNumberCount = (requestNumbers.length - 1) + " requests in work list.";
 			requestNumberCombo.dataProvider = requestNumbers;
 			requestNumberCombo.dropdown.dataProvider = requestNumbers;
-			
-			if (!foundSelectedIdCoreFacility && selectedIdCoreFacility != null) {
-				addCoreFacilityObject(selectedIdCoreFacility);
-			}
-			coreCombo.dataProvider = cores;
-			coreCombo.dropdown.dataProvider = cores;
-			
-			if (cores.length > 1) {
-				coreCombo.visible = true;
-				coreCombo.includeInLayout = true;
-				for each(var c:Object in cores) {
-					if (c.data == selectedIdCoreFacility) {
-						coreCombo.selectedItem = c;
-						break;
-					}
-				}
-			} else {
-				coreCombo.visible = false;
-				coreCombo.includeInLayout = false;
-				if (cores.length == 1) {
-					coreCombo.selectedItem = cores[0];
-				}
-			}
-			
-			var hide260230:String = parentApplication.getCoreFacilityProperty(selectedIdCoreFacility, parentApplication.PROPERTY_HIDE_260_230_QC_WORKFLOW);
-			if (hide260230 != null && hide260230 == "Y") {
-				this.qual260230col.visible = false;
-			} else {
-				this.qual260230col.visible = true;
-			}
-
-			workList.filterFunction = filterWorkListByExpType;
-			workList.refresh()
-			refreshAppList();
         }
         
-		private function addCoreFacilityObject(idCoreFacility:String):Object {
-			var newItem:Object = new Object();
-			newItem.data = idCoreFacility;
-			newItem.label = parentApplication.getCoreFacilityName(idCoreFacility);
-			cores.addItem(newItem);
-			var appCodes:ArrayCollection = parentApplication.getQCAppCodesForCore(idCoreFacility);
-			coreFacilityAppMap[idCoreFacility] = appCodes;
-			return newItem
-		}
-			
-		private function refreshAppList():void {
-			filteredAppList.filterFunction = filterAppList;
-			filteredAppList.refresh();
-			qcTypeCol.itemEditor = views.renderers.GridColumnFillButton.create(hci.flex.controls.ComboBox.getFactory(filteredAppList, '@display', '@value', '@qualCodeApplication', true).newInstance(), 'idRequest');
-		}
-			
         private function filterWorkList(item:Object):Boolean {
         	var keep:Boolean = true;
         	if (requestNumberCombo.selectedItem != null && requestNumberCombo.selectedItem.label != "") {
@@ -365,41 +239,26 @@
         		if (item.@requestNumber == requestNumberCombo.selectedItem.label) {
         			keep = true;
         		}
-        	} else {
-				if (selectedIdCoreFacility != null && selectedIdCoreFacility != "") {
-					keep = false;
-					if (item.@idCoreFacility == selectedIdCoreFacility) {
-						keep = true;
-					}
-				}				
-			}        	
+        	}        	
         	return keep;
         }
 
 		private function filterWorkListByExpType(item:Object):Boolean {
 			var keep:Boolean = true;
-			if (!filterWorkList(item)) {
+			if(worklistFilterType.length > 0) {
 				keep = false;
-			} else {
-				if(worklistFilterType.length > 0) {
-					keep = false;
-					if (worklistFilterType == 'MICROARRAY') {
-						if (item.@codeStepNext == 'QC' && item.@requestCategoryType != 'QC') {
-							keep = true;
-						}
-					} else if (worklistFilterType == 'QC') {
-						if (item.@codeStepNext == 'QC' && item.@requestCategoryType == 'QC') {
-							keep = true;
-						}
-					} else if (worklistFilterType == 'NANO') {
-						if (item.@codeStepNext == 'QC' && item.@requestCategoryType == 'NANOSTRING') {
-							keep = true;
-						}
-					} else if (item.@codeStepNext == worklistFilterType) {
+				if (worklistFilterType == 'MICROARRAY') {
+					if (item.@codeStepNext == 'QC' && item.@requestCategoryType != 'QC') {
 						keep = true;
-					}				
-				}
-			}
+					}
+				} else if (worklistFilterType == 'QC') {
+					if (item.@codeStepNext == 'QC' && item.@requestCategoryType == 'QC') {
+						keep = true;
+					}
+				} else if (item.@codeStepNext == worklistFilterType) {
+					keep = true;
+				}				
+			}        	
 			return keep;
 		}
 			
@@ -461,31 +320,6 @@
 				return 0;
 			}
 		}
-			
-		public function getQCAssay(item:Object):String
-		{
-			return parentApplication.dictionaryManager.getEntryDisplay("hci.gnomex.model.BioanalyzerChipType", item.@codeBioanalyzerChipType);
-		}
-		
-		private function filterAppList(item:Object):Boolean {
-			var retVal:Boolean = false;
-			if (item.@value == "") {
-				retVal = true;
-			} else {
-				if (item.@isActive == 'Y' && selectedIdCoreFacility != null) {
-					var appCodes:ArrayCollection = ArrayCollection(coreFacilityAppMap[selectedIdCoreFacility]);
-					if (appCodes != null) {
-						for each(var c:String in appCodes) {
-							if (item.@codeApplication.toString() == c) {
-								retVal = true;
-								break;
-							}
-						}
-					}
-				}
-			}			
-			return retVal;
-		}
         ]]>
     </mx:Script> 
     
@@ -496,14 +330,9 @@
 	            	<mx:Label text="Request #"/>
 	            	<mx:ComboBox id="requestNumberCombo" 
 	            		dataProvider="{requestNumbers}" 
-	            		change="workList.filterFunction = filterWorkListByExpType;workList.refresh()"  
+	            		change="workList.filterFunction = filterWorkList;workList.refresh()"  
 	            		width="90">
 	            	</mx:ComboBox>
-					<mx:ComboBox id="coreCombo" visible="{cores.length&gt;1}" includeInLayout="{cores.length&gt;1}"
-								 dataProvider="{cores}"
-								 change="selectedIdCoreFacility=coreCombo.selectedItem.data;refreshRequestNumbers();"
-								 width="200">
-					</mx:ComboBox>
             		
             	</mx:HBox>
             	<mx:Spacer width="100%"/>
@@ -516,25 +345,9 @@
 				<util:columns>
 					<mx:DataGridColumn editable="false" headerText=""   width="5" labelFunction="getGridRowNumber"/>
 	                <mx:DataGridColumn editable="false" headerText="Sample #" width="12" dataField="@sampleNumber" sortCompareFunction="sortSampleNumber"/>
+					<mx:DataGridColumn editable="false" headerText="Experiment Type" width="20" dataField="@experimentType"/>
 					<mx:DataGridColumn editable="false" headerText="Sample Type" width="20" dataField="@sampleType"/>
 					<mx:DataGridColumn editable="false" headerText="Client"  width="20" dataField="@appUserName" />
-					<mx:DataGridColumn headerText="QC Type"  width="20" dataField="@qualCodeApplication" id="qcTypeCol"
-									   editorDataField="value"
-									   rendererIsEditor="false"
-									   itemRenderer="{views.renderers.DropdownLabel.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.Application').DictionaryEntry, '@display', '@value', '@qualCodeApplication')}" 
-									   sortable="false"
-									   itemEditor="{views.renderers.GridColumnFillButton.create(hci.flex.controls.ComboBox.getFactory(filteredAppList, '@display', '@value', '@qualCodeApplication', true).newInstance(), 'idRequest')}"/>			                
-					<mx:DataGridColumn id="qcAssayCol" 
-									   visible="true" 
-									   headerText="QC Assay" 
-									   width="40" 
-									   dataField="@qualCodeBioanalyzerChipType"
-									   editorDataField="value"
-									   sortable="false" 
-									   rendererIsEditor="false" 
-									   itemRenderer="{views.renderers.DropdownLabel.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BioanalyzerChipType').DictionaryEntry, '@display', '@value', '@qualCodeBioanalyzerChipType')}"
-									   itemEditor="{views.renderers.GridColumnFillButton.create(views.renderers.ComboBoxBioanalyzerChipType.getFactory(parentApplication).newInstance(), 'idRequest')}">
-					</mx:DataGridColumn>
 					<mx:DataGridColumn headerText="Conc. ng/uL" width="10" dataField="@qualCalcConcentration"
 									   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), 'idRequest')}" editorDataField="value">
 						<mx:headerRenderer > 
@@ -546,7 +359,7 @@
 						</mx:Component>
 						</mx:headerRenderer>
 					</mx:DataGridColumn>
-					<mx:DataGridColumn headerText="260/230" width="15" dataField="@qual260nmTo230nmRatio" id="qual260230col"
+					<mx:DataGridColumn headerText="260/230" width="15" dataField="@qual260nmTo230nmRatio"
 									   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), 'idRequest')}" editorDataField="value"/>
 					<mx:DataGridColumn headerText="RIN#" width="15" dataField="@qualRINNumber"
 									   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), 'idRequest')}" editorDataField="value"/>
