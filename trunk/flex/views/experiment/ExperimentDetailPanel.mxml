@@ -71,7 +71,7 @@
 							<mx:visible>{detail.selectedExperiment.@canUpdate == &quot;Y&quot; ? true : false}</mx:visible>
 						</mx:LinkButton>
 					    <mx:LinkButton label="Download Files"  click="detail.checkForFileView();" icon="@Embed(source='../../assets/download.png')" id="downloadsLink" textDecoration="underline" textAlign="left"/>
-						<mx:LinkButton label="Printable PDF form"  click="detail.showPrintableRequestForm()" icon="@Embed(source='../../assets/page_white_acrobat.png')" id="requestFormButton" textDecoration="underline" textAlign="left"/>
+						<mx:LinkButton label="Print Experiment Order"  click="detail.showPrintableRequestForm()" icon="@Embed(source='../../assets/page_white_acrobat.png')" id="requestFormButton" textDecoration="underline" textAlign="left"/>
 						<mx:LinkButton label="Create New Analysis" id="createAnalysisButton" click="parentDocument.showNewAnalysisWindow()" icon="@Embed(source='../../assets/map_add.png')" fontSize="10" textDecoration="underline" textAlign="left"
 									   toolTip="Create an analysis linked to this experiment"
 									   visible="{parentDocument.showCreateAnalysisButton(parentDocument.selectedExperiment)}"
