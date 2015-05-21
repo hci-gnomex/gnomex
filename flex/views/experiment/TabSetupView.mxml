@@ -422,8 +422,10 @@
 			public function getRequestCategory():Object {
 				var code:Object = requestTypeGroup.selectedValue;
 				// Special code for CLINSEQ request from BST.
-				if (code == null && parentDocument.defaultCodeRequestCategory != null) {
-					code = parentDocument.defaultCodeRequestCategory;
+				if(parentDocument != null){
+					if (code == null && parentDocument.defaultCodeRequestCategory != null) {
+						code = parentDocument.defaultCodeRequestCategory;
+					}
 				}
 				requestCategory= parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', code);
 				codeRequestCategory = requestCategory.@codeRequestCategory;
