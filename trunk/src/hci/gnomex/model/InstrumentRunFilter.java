@@ -129,6 +129,7 @@ public class InstrumentRunFilter extends DetailObject {
         queryBuf.append("'");    	
     }
     if (runDateTo != null) {
+    	runDateTo.setTime(runDateTo.getTime() + 24*60*60*1000);
         this.addWhereOrAnd();
         queryBuf.append(" ir.runDate < '");
         queryBuf.append(this.formatDate(runDateTo, this.DATE_OUTPUT_SQL));
@@ -145,6 +146,7 @@ public class InstrumentRunFilter extends DetailObject {
         queryBuf.append("'");
     }
     if (createDateTo != null) {
+    	createDateTo.setTime(createDateTo.getTime() + 24*60*60*1000);
         this.addWhereOrAnd();
         queryBuf.append(" ir.createDate <= '");
         queryBuf.append(this.formatDate(createDateTo, this.DATE_OUTPUT_SQL));

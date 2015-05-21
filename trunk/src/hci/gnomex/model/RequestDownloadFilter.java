@@ -330,6 +330,7 @@ public class RequestDownloadFilter extends DetailObject {
     } 
     //  Search by create date from 
     if (createDateTo != null){
+      createDateTo.setTime(createDateTo.getTime() + 24*60*60*1000);
       this.addWhereOrAnd();
       queryBuf.append(" req.createDate <= '");
       queryBuf.append(this.formatDate(createDateTo, this.DATE_OUTPUT_SQL));
