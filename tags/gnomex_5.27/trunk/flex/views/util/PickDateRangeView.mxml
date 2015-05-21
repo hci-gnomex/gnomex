@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
+				layout="vertical" 
+				showCloseButton="true" 
+				close="{closeWindow()}" 
+				title="Select Date Range:" 	 
+				xmlns:util="views.util.*" 
+				borderThickness="4" horizontalScrollPolicy="off" verticalScrollPolicy="off">
+	
+	<mx:Script>
+		<![CDATA[
+			import mx.events.ValidationResultEvent;
+			import mx.managers.PopUpManager;
+			import mx.validators.ValidationResult;
+			
+			import views.renderers.LinkButtonDateRangeMenu;
+
+			
+			public var _dateRangeMenu:LinkButtonDateRangeMenu = null;
+			
+			private var _fromDate:Date;
+			private var _toDate:Date;
+			
+			public var today:Date = new Date();
+			
+			
+			private function setRange(interval:int):void
+			{
+				toDate = new Date();
+				fromDate = new Date(today.fullYear, today.month, today.date - interval);
+				toDateChooser.selectedDate = toDate;
+				fromDateChooser.selectedDate = fromDate;
+				runValidation();
+			}
+			
+			private function resetRange():void {
+				fromDate=null; 
+				toDate=null; 
+				
+				fromDateChooser.selectedDate=null; 
+				toDateChooser.selectedDate=null;
+				
+				fromDateChooser.displayedMonth = today.month;
+				fromDateChooser.displayedYear = today.fullYear;
+				
+				toDateChooser.displayedMonth = today.month;
+				toDateChooser.displayedYear = today.fullYear;
+				
+				validator.dispatchEvent(new ValidationResultEvent(ValidationResultEvent.VALID));
+				
+				if ( dateRangeMenu != null ) {
+					dateRangeMenu.updateFromDate(fromDate);
+					dateRangeMenu.updateToDate(toDate);
+				}
+			}
+			
+			private function runValidation():void {
+				validator.dispatchEvent(new ValidationResultEvent(ValidationResultEvent.VALID));
+				validator.listener = null;
+				var resultEvent:ValidationResultEvent = validator.validate();
+				if ( resultEvent.type == ValidationResultEvent.INVALID ) {
+					if ( resultEvent.results[0] != null ){
+						var result:ValidationResult = resultEvent.results[0];
+						if ( result.errorCode == 'noStartDate' ){
+							validator.listener = fromDateChooser;
+						} else if ( result.errorCode == 'invalidEndDate' ){
+							validator.listener = toDateChooser;
+						}
+						validator.validate();
+					}
+					if ( dateRangeMenu != null ) {
+						dateRangeMenu.updateFromDate(null);
+						dateRangeMenu.updateToDate(null);
+					}
+				} else if ( dateRangeMenu != null ) {
+					dateRangeMenu.updateFromDate(fromDate);
+					dateRangeMenu.updateToDate(toDate);
+				}
+			}
+			
+			private function closeWindow():void {
+				PopUpManager.removePopUp(this);
+				dateRangeMenu.determineIfDateChanged();
+			}
+			
+			[Bindable]
+			public function get fromDate():Date
+			{
+				return _fromDate;
+			}
+			public function set fromDate(value:Date):void
+			{
+				_fromDate = value;
+			}
+			
+			[Bindable]
+			public function get toDate():Date
+			{
+				return _toDate;
+			}
+			public function set toDate(value:Date):void
+			{
+				_toDate = value;
+			}
+
+			public function get dateRangeMenu():LinkButtonDateRangeMenu
+			{
+				return _dateRangeMenu;
+			}
+
+			public function set dateRangeMenu(value:LinkButtonDateRangeMenu):void
+			{
+				_dateRangeMenu = value;
+			}
+
+			
+		]]>
+	</mx:Script>	
+	
+	<mx:DateFormatter id="dateFormatter" formatString="MMM D, YYYY"/>
+	
+	<util:DateRangeValidator fromDate="{this.fromDate}" toDate="{this.toDate}" id="validator" />
+	
+	<mx:VBox width="100%" backgroundColor="#FFFFFF" horizontalAlign="center" 
+			 verticalGap="0"
+			 paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0">
+		<mx:Label text="Within the last..." width="100%"/>
+		<mx:HBox horizontalGap="0" >
+			<mx:LinkButton label="week" paddingLeft="1" paddingRight="1" click="{setRange(7);}"/>
+			<mx:LinkButton label="30 days"  paddingLeft="1" paddingRight="1" click="{setRange(30);}"/>
+			<mx:LinkButton label="90 days"  paddingLeft="1" paddingRight="1" click="{setRange(90);}"/>
+			<mx:LinkButton label="year"  paddingLeft="1" paddingRight="1" click="{setRange(365);}"/>
+		</mx:HBox>
+	</mx:VBox>
+	
+	<mx:VBox id="dateRangeChooserVBox" width="100%" height="100%" backgroundColor="#FFFFFF" horizontalAlign="center" paddingLeft="10" paddingRight="10" >
+		
+		<mx:HBox width="100%" horizontalGap="6" >
+			<mx:Label text="From" />
+			<mx:Label id="fromDateLabel" text="{dateFormatter.format(fromDate)}" width="100%"/>
+		</mx:HBox>
+		
+		<mx:DateChooser id="fromDateChooser" 
+						yearNavigationEnabled="true" 
+						change="{fromDate = (fromDateChooser.selectedDate ? fromDateChooser.selectedDate : fromDate); runValidation()}"/>
+		
+		<mx:HBox width="100%" horizontalGap="6" >
+			<mx:Label text="To" />
+			<mx:Label id="toDateLabel" text="{dateFormatter.format(toDate)}" width="100%"/>
+		</mx:HBox>
+		
+		<mx:DateChooser id="toDateChooser" 
+						yearNavigationEnabled="true" 
+						change="{toDate = (toDateChooser.selectedDate ? toDateChooser.selectedDate : toDate); runValidation()}"/>
+		
+	</mx:VBox>
+	
+	<mx:VBox width="100%" backgroundColor="#FFFFFF" horizontalAlign="center" >
+		<mx:LinkButton label="Reset" width="100%" 
+					   click="{resetRange()}" />
+	</mx:VBox>
+	
+</mx:TitleWindow>

@@ -1,0 +1,1101 @@
+/* CSS file */
+
+/*
+HCI Blue = 00529F
+HCI Teal = 00A9B9
+HCI Cream = F2EFD9
+*/
+global {
+	fontSize:12;
+	fontFamily: "Open Sans";
+	color: #2E2D2C;
+	advancedAntiAliasing: true;
+	fontAntiAliasType: advanced;
+	fontSharpness: 200;
+	fontThickness: 20;
+	fontStyle: normal; 
+
+	
+}
+
+.titleLabel {
+	fontSize: 13;
+	fontWeight: normal;
+	color: #2E2D2C;
+}
+
+.errorTip { 
+			borderColor: #FFEA00;
+			paddingTop: 0;
+			paddingBottom: 0;
+			paddingLeft: 4;
+			paddingRight: 4;
+			fontWeight: normal;
+			fontSize: 9px;
+			backgroundColor: #ffffcc;
+			cornerRadius: 8;
+	        color: #000000;
+	borderThickness: 3;
+
+		}
+ToolTip{
+     borderSkin: ClassReference("views.util.SmallToolTip");
+}
+
+.requiredBox {
+	borderColor: #FCF495;
+	borderStyle: solid;
+	borderThickness: 2;
+}
+
+.normalBox {
+	borderColor: #FFFFFF;
+	borderStyle: solid;
+	borderThickness: 2;
+}
+
+.requiredBoxThick {
+	borderColor: #F4F588;
+	borderStyle: solid;
+	borderThickness: 2;
+}
+
+.normalBoxThick {
+	borderColor: #FFFFFF;
+	borderStyle: solid;
+	borderThickness: 2;
+}
+
+.requiredCell {
+	backgroundColor: #FFFFB9;
+}
+
+ComboBox {
+	errorColor: #ffff00;
+}
+TextInput {
+	errorColor: #ffff00;
+}
+
+List {
+	selectionColor: #8FBCF4;
+	rollOverColor: #CCE3FA;
+
+  paddingBottom: 0;   
+  paddingLeft: 0;   
+  paddingTop: 0;   
+  paddingRight: 0;   
+
+}
+
+DataGrid {
+	headerStyleName: dataGridHeader;	
+	selectionColor: #8FBCF4;
+	rollOverColor: #CCE3FA;
+	alternatingItemColors: #ffffff, #edede9;
+	
+
+}
+
+DataGridAlternatingGroup {
+	headerStyleName: dataGridHeader;	
+	selectionColor: #8FBCF4;
+	rollOverColor: #CCE3FA;
+	alternatingItemColors: #ffffff, #ffffff;
+	
+	
+}
+
+Tree {
+	selectionColor: #8FBCF4;
+	rollOverColor: #CCE3FA;
+	dropIndicatorSkin: ClassReference("views.renderers.ListDropIndicator");
+}
+
+AdvancedDataGrid {
+	selectionColor: #8FBCF4;
+	rollOverColor: #CCE3FA;
+	headerStyleName: dataGridHeader;
+} 
+
+
+Panel {
+   borderThicknessLeft: 4;
+   borderThicknessTop: 1;
+   borderThicknessBottom: 4;
+   borderThicknessRight: 4;
+   roundedBottomCorners: true;
+   headerHeight: 22;
+   titleStyleName: panelTitle;
+   controlBarStyleName: panelControlBar;
+   statusStyleName: panelStatus;
+   borderAlpha: 1;
+   dropShadowEnabled: true;
+	borderColor: #FDFDFD;
+}
+
+.panelControlBar {
+	roundedBottomCorners: false;
+}
+.panelTitle {
+	fontWeight: normal;
+	fontStyle: normal;
+}
+
+.loginWindow {	
+	headerColors: #a1a99b, #B3BBAD;
+	borderColor: #B3BBAD;
+	backgroundColor: #B3BBAD;
+}
+
+.loginTitleStyle {
+	color: #FFFFFF;
+	fontSize: 11;
+	fontWeight: bold;
+} 
+
+.navBox {
+	
+	borderStyle: solid;
+	cornerRadius: 5;
+	horizontalGap: 12;
+	paddingBottom: 2;
+	paddingTop: 2;
+}
+
+HDividedBox {
+	dividerAlpha: 0.0;
+	dividerThickness: 4;
+}
+
+TitleWindow {
+	borderColor: #EEEEEB;
+	backgroundColor: #EEEEEB;
+	cornerRadius: 4;
+	borderThicknessTop: 4;
+	borderThicknessBottom: 2;
+	borderThicknessLeft: 2;
+	borderThicknessRight: 2;
+	titleStyleName: titleWindowTitle;
+	headerHeight: 20;
+	controlBarStyleName: titleWindowControlBar;
+	dropShadowEnabled: true;
+	borderAlpha: 1.0;
+	backgroundAlpha: 1;	
+	statusStyleName: titleWindowStatus;
+	paddingTop: 4;
+	paddingBottom: 2;
+	barColor: #6FA561;
+	headerColors: #6fa561,#96bd8c;
+}
+.titleWindowTitle
+{ 
+	fontSize: 14;
+	color: #FFFFFF;
+
+}
+
+.titleWindow {
+	headerColors: #0000ff, #ffffff;
+} 
+
+Alert {
+	borderAlpha: .2;
+	backgroundColor: #FFFFFF;
+	borderColor: #FFFFFF;
+	cornerRadius: 4;
+	borderStyle: solid;
+	backgroundAlpha: 1;
+	fontSize: 12;
+	titleStyleName: alertTitle;
+	controlBarStyleName: alertControlBar;
+	color: #000000;
+}
+.alertTitle
+{
+	fontWeight: bold;
+	fontSize: 12;
+	color: #000000;
+}
+.alertControlBar
+{
+	fontSize: 12;
+	color: #000000;
+	backgroundAlpha: .2;
+}
+
+
+ 
+
+
+
+.accordion {
+
+	headerStyleName: accordionHeader;
+	headerHeight: 18;
+	dropShadowEnabled: true;
+	cornerRadius: 6;
+	focusAlpha: .5; 
+	backgroundColor: #CBCAC1;
+	
+
+}
+
+
+
+
+LinkBar {
+	disabledColor: #FFFFFF; 
+	rollOverColor: #FFFFFF; 
+	selectionColor: #FFFFFF;
+	useHandCursor: true;
+	fontWeight: normal;
+	fontStyle: normal;
+	textRollOverColor: #000000;
+	textSelectedColor: #000000;
+	color: #000000;
+	backgroundAlpha: 1;
+	horizontalGap: 0;
+	separatorColor: #C3C2B7;
+	linkButtonStyleName: "normalLinkButton";
+	fontSize: 11;
+	     
+}
+
+
+
+LinkButton
+{
+
+   fontWeight: normal;	
+   fontSize: 11;
+}
+
+LinkButton.navLinkButton
+{
+	fontWeight: normal;	
+	fontSize: 12;
+	color: #FFFFFF;
+}
+
+LinkButton.reportLinkButton
+{
+	fontWeight: normal;	
+	fontSize: 12;
+	color: #000000;
+	fontStyle: underline;
+	textDecoration: underline;
+}
+.normalLinkButton
+{
+   fontWeight: normal;
+	textIndent: 0;	
+}
+.boldLinkButton
+{
+   fontWeight: bold;	
+}
+
+
+.customLinkBar {
+	linkButtonStyleName: "customLinkButton";
+}
+.customLinkButton {
+	maxLinkBtnWidth: 50;
+}
+
+Button {
+        fillAlphas: 1, 1;
+        fontWeight: normal;
+}
+
+.dataGridHeader {
+	    fontWeight: normal;
+}
+
+ComboBox {
+	fontWeight: normal;
+}
+
+ControlBar {
+	paddingLeft: 8;
+	paddingTop: 0;
+	paddingBottom: 3;
+	paddingRight: 8;
+}
+        
+RadioButton {
+	disabledColor: #ABA1A1;
+}
+TextInput {
+	disabledColor: #5f5f5f;
+	backgroundColor: #E4E0E0;
+}
+.missingInfo {
+	backgroundColor: #FFFFB9;
+}
+.normalBackground {
+	backgroundColor: #E4E0E0;
+}
+.whiteBackground {
+	backgroundColor: #FFFFFF;
+}
+TextArea {
+	disabledColor: #5f5f5f;
+		backgroundColor: #E4E0E0;
+}
+
+.panelBox {
+	paddingTop: 4;
+	paddingBottom: 2; 
+	paddingLeft: 4;
+	paddingRight: 4;
+	verticalGap: 4;
+	backgroundColor: #FFFFFF;
+	dropShadowEnabled: false;
+	borderStyle: solid;
+	borderColor: #D2D2D2;
+}
+
+.titleBox {
+	paddingTop: 8;
+	paddingBottom: 4; 
+	paddingLeft: 6;
+	paddingRight: 6;
+	verticalGap: 4;
+	horizontalGap: 15;
+	backgroundColor: #FFFFFF;
+	dropShadowEnabled: false;
+	borderStyle: solid;
+	borderColor: #D2D2D2;
+	borderThickness: 1;
+}
+
+
+.panelWelcomeBox {
+	paddingTop: 4;
+	paddingBottom: 2;
+	paddingLeft: 4;
+	paddingRight: 4;
+	verticalGap: 4;
+	dropShadowColor: #020000;
+	dropShadowEnabled: true;
+}
+	
+
+
+.form {
+	backgroundColor: #FFFFFF;
+	cornerRadius: 0;
+	borderStyle: solid;
+	borderColor: #D2D2D2;
+	dropShadowColor: #E2E1E0;
+	dropShadowEnabled: true;
+}
+
+.formrule
+{
+	strokeColor: #a1a1a2;
+}
+
+
+.formTabBody {
+	backgroundColor: #FFFFFF;
+	
+	borderStyle: solid;
+	cornerRadius: 4;
+}
+.formTabBar {
+	backgroundColor: #FFFFFF;
+	borderStyle: none;
+}
+
+.formLinkBar {
+	disabledColor: #0F24E6; 
+	rollOverColor: #FFFFFF; 
+	selectionColor: #FFFFFF;
+	useHandCursor: true;
+	color: #656C6E;
+	fontWeight: normal;
+	textDecoration: underline;
+}
+
+.navLinkBar {
+	disabledColor: #FFFFFF; 
+	rollOverColor: #FFFFFF; 
+	selectionColor: #FFFFFF;
+	useHandCursor: true;
+	color: #000000;
+	fontWeight: normal;
+	textDecoration: underline;
+	fontSize: 10;
+	linkButtonStyleName: "normalLinkButton";
+}
+
+.formLinkButton {
+	textDecoration: underline;
+	color: #0000ff;
+	
+}
+
+.formLinkProtocolButton {
+	textDecoration: underline;
+	color: #0000ff;
+	fontSize: 12;	
+}
+
+.formLinkSmallButton {
+	textDecoration: underline;
+	fontSize: 9;
+	
+}
+.labelSmall {
+	fontWeight: normal;	
+	fontSize: 10;
+}
+.selectedLabel
+{
+	backgroundColor: #ace788;
+	backgroundAlpha: 0.80;
+	fontWeight: bold;
+	fontSize: 11;
+	
+}
+.navTabNavigator {
+	
+	backgroundAlpha:            1.0;
+	backgroundColor:  #FDFDFB;
+
+	tabStyleName: navTabHeader;
+	firstTabStyleName: navTabHeader;
+	middleTabStyleName: navTabHeader;
+	lastTabStyleName: navTabHeader;
+
+	borderColor: #E1E2E6;
+	borderStyle: solid;
+	cornerRadius: 6;
+    paddingTop: 0; 
+    paddingBottom: 4;
+	backgroundSize: auto;
+    fontFamily: "Open Sans";
+	fontSize: 12;
+	selectedTabTextStyleName: tabNavigatorSelectedTabText;
+}
+
+.panelTabBody {
+	backgroundColor:    #FDFDFB;
+}
+
+
+.navTabHeader {
+	color: #000000;
+	fillAlphas:  .5, .5;
+ 	fontWeight: 		normal;
+ 	borderColor: #A8AEB2;
+	borderStyle: solid;
+	cornerRadius: 6;	
+	fontSize: 14;
+
+}
+
+.navTabHeaderTextSelected {
+	color: #FFFFFF;
+	errorColor: #FFFFFF;
+	fontWeight: bold;
+}
+
+
+
+
+.navLinkBar {
+	disabledColor: #1728CF; 
+	rollOverColor: #FFFFFF; 
+	selectionColor: #FFFFFF;
+	useHandCursor: true;
+	color: #000000;
+	fontWeight: normal;
+	textDecoration: underline;
+}
+
+.popupWindow {
+	headerColors: #CBCAC1, #CBCAC1;
+	backgroundColor: #FDFDFB;
+	borderColor: #FDFDFB;
+	cornerRadius: 4;
+	borderStyle: none;
+
+}
+
+.appProgressWindow {
+   borderAlpha: 1;
+   dropShadowEnabled: true;
+   cornerRadius: 4;
+   headerColors: #548db8, #a3bbcd; 
+   borderThicknessLeft: 0;
+   borderThicknessTop: 0;
+   borderThicknessBottom: 0;
+   borderThicknessRight: 0;
+   roundedBottomCorners: true;
+   headerHeight: 0;
+   titleStyleName: appProgressTitle;
+   backgroundColor: #A3BBCD;
+   borderColor: #A3BBCD;
+}
+ 
+
+.appProgressBar {
+    barColor: #45C014;
+    trackColors: #ffffff, #ffffff;
+    paddingTop: 14;
+	trackHeight: 12;
+	verticalGap: 0;
+	paddingLeft: 5;
+	paddingRight: 5;
+	verticalGap: 10;
+	fontSize: 16;
+	fontWeight: bold;
+	color: #595350;
+}
+
+
+.appProgressTitle {
+	fontWeight: normal;
+	fontColor: black;
+	
+}
+
+.dirtyPanel {
+   headerColors:   #66aa55, #99dd99; 
+   titleStyleName: dirtyPanelTitle;
+   
+}
+
+.dirtyPanelTitle {
+	 color: #ffffff;
+	/*fontStyle: italic;*/
+
+	 
+}
+
+.blueLinkButton {
+	color: #0F19DF;
+}
+.tabBarSelectedTabText
+{
+}
+.instructionBox
+{
+	backgroundColor: #FFFEC3;
+	fontSize: 9;
+	backgroundAlpha: 0.8;
+	borderStyle: solid;
+	cornerRadius: 4;
+}
+
+Text.welcome
+{
+	color: #2E2D2C;
+	fontSize: 11;
+}
+Text.welcomeTitle
+{
+	color: #2E2D2C;
+	fontSize: 15;
+	fontWeight: bold;
+}
+Text.welcomeHeader
+{
+	color: #2E2D2C;
+	fontSize: 13;
+	fontWeight: normal;
+	leading: 0;
+}
+Text.submitNote
+{
+	color: #0000ff;
+	fontWeight: normal;
+}
+
+
+.menuBar {
+	borderStyle: solid;
+	borderThickness: 1;
+	backgroundColor: #CAC9BE;
+	cornerRadius: 6;
+	horizontalGap: 0;
+	paddingBottom: 2;
+	paddingLeft: 0;
+	paddingRight: 0;
+	paddingTop: 2;
+	verticalAlign: middle;
+	dropShadowEnabled: true;
+	dropShadowColor: #77725C;
+}
+Label.titleLabel
+{
+	color: #000000;
+}
+.tabNavigatorFirstTab
+{
+	fillAlphas: 1.0, 1.0;
+	fillColors: #7F6060, #581212, #6699A4, #2B1010;
+}
+.dashboardButton
+{
+	fillAlphas: 1.0, 1.0;
+	fillColors: #Ffffff, #dadfc9;
+	fontSize: 12;
+	width: 300;
+	height: 120;
+	labelPlacement: "bottom";
+	paddingLeft: 2;
+	paddingRight: 2;
+	horizontalGap: 1;
+	paddingTop: 2;
+	paddingBottom: 2;
+	rollOverColor: #AFF9FA;
+	selectionColor: #AFF9FA;
+}
+.warningLabel
+{
+	color: #17871C;
+	fontWeight: bold;
+}
+.warningLabelMinor
+{
+	color: #17871C;
+	fontWeight: normal;
+}
+.warningLabelSevere
+{
+	color: #EE2525;
+	fontWeight: bold;
+	fontSize: 10;
+}
+.navLinkButtonSmall
+{
+	color: #9E8D8D;
+	textAlign: right;
+	textDecoration: underline;
+	paddingLeft: 1;
+	paddingRight: 1;
+	fontSize: 11;
+	
+}
+.hintBox
+{
+	backgroundColor: #FFFFFF;
+	fontStyle: italic;
+	fontWeight: normal;
+	textDecoration: underline;
+	backgroundAlpha: 0.26;
+	borderStyle: solid;
+	backgroundSize: "100%";
+	cornerRadius: 4;
+}
+.hintText
+{
+	backgroundColor: #FFFFFF;
+	fontStyle: italic;
+	fontWeight: normal;
+	backgroundAlpha: 0.26;
+	borderStyle: solid;
+	backgroundSize: "100%";
+	cornerRadius: 4;
+}
+.hintLink
+{
+	fontSize: 9;
+	paddingLeft: 1;
+	paddingRight: 1;
+	paddingBottom: 1;
+	paddingTop: 1;
+}
+Label.welcomeLabel
+{
+	color: 	 #4D4848;
+	fontSize: 14;
+	fontWeight: normal;
+}
+Label.appTitle
+{
+	fontSize: 18;
+	color: #FFFFFF;
+	fontWeight: normal;
+	fontStyle: normal;
+}
+
+Text.welcomeUserLabel
+{
+	color: #686464;
+	fontSize: 12;
+	fontWeight: normal;
+}
+Text.welcomeSessionLabel
+{
+	color: #2F2D29;
+	fontSize: 11;
+	leading: 0;
+	fontWeight: normal;
+}
+Text.navLabel
+{
+	color: #2F2D29;
+	fontSize: 11;
+	leading: 0;
+	fontWeight: normal;
+	fontFamily: "Open Sans";
+}
+Text.navLabelSmall
+{
+	color: #ffffff;
+	fontSize: 12;
+	leading: 0;
+}
+Text.progressLabel
+{
+	color: #2F2D29;
+	fontSize: 16;
+	fontWeight: normal;
+	textAlign: center;
+}
+
+.monthChooserStyles {
+	/*headerColors: #fbfbfb, #dddddd;*/
+	headerColors: #e9e9e9, #e9e9e9;
+	borderColor: #ccdbf0;
+	
+	/* Previous Month */
+	prevMonthUpSkin: Embed("../assets/resultset_previous.png");
+	prevMonthOverSkin: Embed("../assets/resultset_previous.png");
+	prevMonthDownSkin: Embed("../assets/resultset_previous.png");
+	prevMonthDisabledSkin: Embed("../assets/resultset_previous.png");
+
+
+	
+	/* Next Month */
+	nextMonthUpSkin: Embed("../assets/resultset_next.png");
+	nextMonthOverSkin: Embed("../assets/resultset_next.png");
+	nextMonthDownSkin: Embed("../assets/resultset_next.png");
+	nextMonthDisabledSkin: Embed("../assets/resultset_next.png");
+}
+
+.monthHeaderStyle {
+	fontWeight: normal;	
+}
+
+.headerBar {
+	borderColor: #CACFD2; 
+	borderStyle: solid;
+	cornerRadius: 6;
+	paddingLeft: 4;
+	paddingRight: 4;
+	paddingTop: 2;
+	paddingBottom: 4;
+	verticalGap: 2;
+}
+
+.menuLabel
+{
+	color: #463B40;
+}
+.menuLabelSmall
+{
+	fontSize: 9;
+	color: #463B40;
+}
+.linkMenuButton
+{
+	color: #463B40;
+	fontSize: 9;
+	textDecoration: normal;
+	horizontalGap: 0;
+	fontWeight: normal;
+	textRollOverColor: #463B40;
+	textSelectedColor: #463B40;
+}
+.linkMenuButtonSmall
+{
+	color: #463B40;
+	textDecoration: underline;
+	fontSize: 9;
+	horizontalGap: 0;
+	fontWeight: normal;
+	textRollOverColor: #463B40;
+	textSelectedColor: #463B40;
+}
+.panelBody
+{
+	borderStyle: solid;
+	borderThickness: 1;
+	paddingBottom: 4;
+	paddingLeft: 4;
+	paddingRight: 4;
+	paddingTop: 4;
+	verticalGap: 2; 
+	
+}
+Accordion.blueAccordion {
+	headerStyleName: blueAccordionHeader;
+	paddingTop: 0;
+	paddingBottom: 0;
+	fontWeight: normal;
+	headerHeight: 18;
+	dropShadowEnabled: true;
+	focusAlpha: .5; 
+	backgroundColor: #FFFFFF;
+	
+}
+.blueAccordionHeader
+{
+	fillColors: #87999D, #E3E8EB;
+	fillAlphas: 1.0, 1.0, 1.0, 1.0;
+	selectedFillColors: #548db8, #97b8d2;
+	fontWeight: normal;
+	cornerRadius: 6;
+	borderColor: #B7BABC;
+	color: #FFFFFF;
+	textRollOverColor: #FFFFFF;
+	disabledColor: #FFFFFF;
+}
+
+Accordion.lightBlueAccordion {
+	headerStyleName: greyAccordionHeader;
+	paddingTop: 0;
+	paddingBottom: 0;
+	fontWeight: normal;
+	headerHeight: 18;
+	dropShadowEnabled: true;
+	focusAlpha: .5; 
+	backgroundColor: #FFFFFF;
+	
+}
+.greyAccordionHeader
+{
+	fillColors: #87999D, #E3E8EB;
+	fillAlphas: 1.0, 1.0, 1.0, 1.0;
+	selectedFillColors: #f9f9f9, #A0dbfe;
+	fontWeight: normal;
+	fontSize: 11;
+	cornerRadius: 6;
+	borderColor: #B7BABC;
+	color: #3e3e3e;
+	textRollOverColor: #FFFFFF;
+	disabledColor: #FFFFFF;
+}
+
+
+.gradientBackground 
+{  
+	borderStyle: applicationControlBar; 
+	fillColors: #463B40, #463B40;
+	fillAlphas: .1, 1; 
+	borderColor: #B7BABC;
+	color: #FFFFFF;
+	textRollOverColor: #FFFFFF;
+	highlightAlphas: 0, 0;
+}
+ 
+
+MenuBar { 
+	backgroundAlpha: 0;
+	borderStyle: none;
+	fillAlphas: 0,0;
+	color: #2E2D2C;
+	fontFamily: "Open Sans";
+	menuStyleName: menuItem;
+	fontSize: 13;
+	fontWeight: normal;
+	borderColor: #FFFFFF;
+	highlightAlphas: .25, .9;
+	disabledColor: #071002;
+	errorColor: #ACE788;
+	rollOverColor: #ACE2F2;
+	selectionColor: #ACE2F2;
+	fontStyle: normal;
+
+}
+
+
+
+.menuItem {
+	backgroundAlpha: 0;
+	borderColor: #FDFDFD;
+	fillAlphas: 1, 1;
+	fillColors: #FDFDFD,#FDFDFD,#FDFDFD, #FDFDFD;
+	color: #2E2D2C;
+	fontSize: 13;
+	disabledColor: #ACE2F2;
+	errorColor: #ACE2F2;
+	rollOverColor: #ACE788;
+	selectionColor: #ACE788;
+	highlightAlphas: 0,0;
+	
+}
+
+MenuBar.linkMenuBar {
+	backgroundAlpha: 0;
+	borderStyle: none;
+	fillAlphas: 0,0;
+	color: #000000;
+	menuStyleName: menuItem;
+	fontSize: 12;
+	fontWeight: normal;
+	highlightAlphas: 0.1, .1;
+	disabledColor: #000000;
+	errorColor: #000000;
+	selectionColor: #000000;
+	borderColor: #EAECED;
+}
+
+MenuBar.linkMenuBar1
+{
+	borderStyle: none;
+	fillAlphas: 0,0;
+	backgroundAlpha: 0;
+	textDecoration: underline;
+	menuStyleName: linkMenuItem;
+}
+.linkMenuItem
+{
+	backgroundAlpha: 0;
+	fillAlphas: 1, 1;
+	color: #6A5858;
+	textDecoration: underline;
+}
+
+MenuBar.topMenuBar {	
+	backgroundAlpha: 0;
+	borderStyle: none;
+	fillAlphas: 0,0;
+	color: #000000;
+	menuStyleName: topMenuItem;
+	fontSize: 13;
+	fontWeight: normal;
+	highlightAlphas: .25, .9;
+	disabledColor: #000000;
+	errorColor: #000000;
+	selectionColor: #000000;
+	borderColor: #FFFFFF;
+	menuStyleName: topMenuItem;
+}
+
+
+.topMenuItem {
+	backgroundAlpha: 0;
+	borderColor: #FDFDFD;
+	fillAlphas: 1, 1;
+	fillColors: #FDFDFD,#FDFDFD,#FDFDFD, #FDFDFD;
+	color: #2E2D2C;
+	fontSize: 13;
+	disabledColor: #ACE2F2;
+	errorColor: #ACE2F2;
+	rollOverColor: #ACE788;
+	selectionColor: #ACE788;
+	highlightAlphas: 0,0;
+}	
+
+.titleWindowStatus
+{
+}
+.tabNavigatorSelectedTabText
+{
+	fontSize: 14;
+}
+.formLabel
+{
+	color: #324B7A;
+	fontStyle: italic;
+	fontWeight: normal;
+	fontSize: 11;
+}
+.formLabelLarge
+{
+	color: #324B7A;
+	fontStyle: italic;
+	fontWeight: bold;
+	fontSize: 12;
+}
+RichTextEditor.readOnly {
+	textAreaStyleName: rteTextAreaStyles;
+}
+
+.rteTextAreaStyles {
+	backgroundColor: #FFFFFF;
+}
+@font-face
+{
+	fontFamily: "Open Sans";
+	fontWeight: normal; 
+	fontStyle: normal;
+	advancedAntiAliasing: true;
+	src: url("../assets/Varela-Regular.ttf");
+}
+@font-face
+{
+	fontFamily: "Open Sans";
+	fontWeight: bold;
+	fontStyle: normal;
+	advancedAntiAliasing: true;
+	src: url("../assets/OpenSans-Bold.ttf");
+}
+@font-face
+{
+	fontFamily: "Open Sans";
+	fontWeight: normal;
+	fontStyle: italic;
+	advancedAntiAliasing: true;
+	src: url("../assets/OpenSans-Italic.ttf");
+}
+@font-face
+{
+	fontFamily: "Open Sans";
+	fontWeight: bold;
+	fontStyle: italic;
+	advancedAntiAliasing: true;
+	src: url("../assets/OpenSans-BoldItalic.ttf");
+}
+HRule
+{
+	strokeColor: #D7D5D1;
+	strokeWidth: 1;
+}
+.confirmHeaderLabel {
+	fontStyle: underline;
+	fontWeight: bold;
+}
+.contextHelpEditNoContentIcon {
+	icon: Embed(source='../assets/white_information.png');
+}
+.contextHelpNoContentIcon {
+	icon: Embed(source='../assets/empty.png');
+	disabledColor: #2E2D2C; 
+	selectionColor: #2E2D2C;
+	textRollOverColor: #2E2D2C;
+	textSelectedColor: #2E2D2C;
+	color: #2E2D2C;
+}
+.contextHelpNoIcon {
+	disabledColor: #2E2D2C; 
+	selectionColor: #2E2D2C;
+	textRollOverColor: #2E2D2C;
+	textSelectedColor: #2E2D2C;
+	color: #2E2D2C;
+}
+.contextHelpIcon {
+	icon: Embed(source='../assets/information.png');
+}
+.contextHelpView {
+	backgroundColor: #FFFEC3;
+}
+.blueHeaderFlowCellAssembly {
+	color: Blue; 
+	fontSize: 11; 
+	fontStyle: bold;
+}
+.sampleBatchWarning {
+	color: Green;
+	fontStyle: italic;
+	fontWeight: normal;
+	fontSize: 11;
+}
