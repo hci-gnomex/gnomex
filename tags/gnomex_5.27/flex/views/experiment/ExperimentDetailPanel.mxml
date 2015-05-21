@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox styleName="panelBox"   xmlns:mx="http://www.adobe.com/2006/mxml" 
+	width="100%" height="100%" 
+	xmlns:util="views.util.*" paddingTop="4"
+	xmlns:experiment="views.experiment.*" >
+	<mx:Script>
+		<![CDATA[
+			import views.order.NavOrderView;
+			import mx.managers.PopUpManager;
+			import views.util.WebLinksView;
+
+			private function backToNavOrder():void {
+				if (parentDocument is NavOrderView) {
+					parentDocument.experimentViews.selectedChild = parentDocument.browseView;
+				}
+			}
+			
+			public function showLinks():void {
+				var webLinksView:WebLinksView = new WebLinksView();
+				var topicNumber:String = "?requestNumber=" + detail.selectedExperiment.@number;
+				
+				PopUpManager.addPopUp(webLinksView, this, true);
+				PopUpManager.centerPopUp(webLinksView);
+				webLinksView.setTitleMessage("Experiment " + detail.selectedExperiment.@number);
+				webLinksView.setUserLink(topicNumber);
+			}
+			
+			private function downloadOncoCartaFDF():void {
+				var parms:URLVariables = new URLVariables();
+				parms.mode =  "fdf";
+				parms.idRequest = detail.selectedExperiment.@idRequest;
+				var progressWindow:DownloadProgressView = new DownloadProgressView();
+				progressWindow.init(parentApplication.theBody, 'DownloadOncoCartaFDFServlet.gx', parms, null, 1000, "oncaCarta.fdf");		
+			}
+
+		]]>
+	</mx:Script>
+	<mx:VBox width="100%" verticalGap="1">
+		<mx:LinkButton label="Back" paddingRight="50" 
+			click="backToNavOrder()" 
+			icon="@Embed(source='../../assets/arrow_left.png')" 
+			textDecoration="underline" 
+			id="navBackButton" 
+			visible="true"
+			includeInLayout="true" 
+			paddingLeft="0" textAlign="left" paddingTop="0">    	        
+		</mx:LinkButton>				
+
+		<mx:HBox width="100%" horizontalGap="1"  paddingTop="0" verticalAlign="middle">
+			<mx:Image source="{detail.selectedExperiment.@icon}"/>
+			<mx:Label id="titleLabel" styleName="titleLabel"  fontWeight="normal" paddingRight="20"/>
+			<mx:HBox verticalGap="0" horizontalGap="0" paddingLeft="8" width="100%">
+				<mx:HBox width="100%"  horizontalGap="2" horizontalAlign="left" verticalAlign="middle">
+					   <mx:Text id="submitWarning" text="Order not yet submitted" 
+							visible="{submitExperimentButton.enabled &amp;&amp; submitExperimentButton.visible}"
+							 includeInLayout="{submitExperimentButton.enabled  &amp;&amp; submitExperimentButton.visible }" styleName="warningLabelSevere"/>
+						<mx:LinkButton  label="Submit" id="submitExperimentButton"  icon="@Embed(source='../../assets/tick.png')"
+									click="detail.promptToSubmitExperiment()"
+									visible="{detail.selectedExperiment != null &amp;&amp; detail.selectedExperiment.@isDNASeqExperiment == 'Y' &amp;&amp; detail.selectedExperiment.@codeRequestStatus == 'NEW' &amp;&amp; detail.selectedExperiment.@canUpdate=='Y' ? true : false}"
+									includeInLayout="{detail.selectedExperiment != null &amp;&amp; detail.selectedExperiment.@isDNASeqExperiment == 'Y' &amp;&amp; detail.selectedExperiment.@codeRequestStatus == 'NEW' &amp;&amp; detail.selectedExperiment.@canUpdate=='Y' ? true : false}"
+									toolTip="Submit experiment" 
+									enabled="{detail.selectedExperiment != null &amp;&amp; detail.selectedExperiment.@isDNASeqExperiment == 'Y' &amp;&amp; detail.selectedExperiment.@codeRequestStatus == 'NEW' &amp;&amp; detail.selectedExperiment.@canUpdate=='Y' ? true : false}" 
+									textDecoration="underline">
+							<mx:disabledIcon>@Embed(source='../../assets/tick_disable.png')</mx:disabledIcon>
+						</mx:LinkButton>
+					    <mx:Spacer width="5" visible="{submitExperimentButton.enabled}"
+								   includeInLayout="{submitExperimentButton.enabled}" />	
+					
+						<mx:LinkButton label="Edit"  click="detail.showEditExperimentWindow()" icon="@Embed(source='../../assets/tag_blue_edit.png')" textDecoration="underline" id="editButton" textAlign="left" paddingLeft="0">
+							<mx:height>{detail.selectedExperiment.@canUpdate == &quot;Y&quot; ? 22 : 0}</mx:height>
+							<mx:visible>{detail.selectedExperiment.@canUpdate == &quot;Y&quot; ? true : false}</mx:visible>
+						</mx:LinkButton>
+					    <mx:LinkButton label="Download Files"  click="detail.checkForFileView();" icon="@Embed(source='../../assets/download.png')" id="downloadsLink" textDecoration="underline" textAlign="left"/>
+						<mx:LinkButton label="Print Experiment Order" toolTip="Create PDF form for this experiment order" click="detail.showPrintableRequestForm()" icon="@Embed(source='../../assets/page_white_acrobat.png')" id="requestFormButton" textDecoration="underline" textAlign="left"/>
+						<mx:LinkButton label="Create New Analysis" id="createAnalysisButton" click="parentDocument.showNewAnalysisWindow()" icon="@Embed(source='../../assets/map_add.png')" fontSize="10" textDecoration="underline" textAlign="left"
+									   toolTip="Create an analysis linked to this experiment"
+									   visible="{parentDocument.showCreateAnalysisButton(parentDocument.selectedExperiment)}"
+									   includeInLayout="{parentDocument.showCreateAnalysisButton(parentDocument.selectedExperiment)}"/>
+					    <mx:Spacer width="5"/>
+						<mx:LinkButton label="Share Link"  click="{showLinks();}" icon="@Embed(source='../../assets/globe_link.png')" id="shareWebLink" textDecoration="underline" textAlign="left"/>
+						<mx:LinkButton label="Generate OncoCarta Import"  click="{downloadOncoCartaFDF();}" icon="@Embed(source='../../assets/download.png')" 
+									   id="downloadOncoCartaFDFLink" textDecoration="underline" textAlign="left" 
+									   visible="{detail.isClinicalResearch == 'Y'  &amp;&amp; parentApplication.isAdminState}" includeInLayout="{detail.isClinicalResearch == 'Y'  &amp;&amp; parentApplication.isAdminState}"/>
+				</mx:HBox>
+			</mx:HBox>
+			
+		</mx:HBox>
+	
+	</mx:VBox>
+	
+	<mx:VBox width="100%" height="100%">
+		 <experiment:ExperimentDetailView id="detail" width="100%" height="100%">
+	  	</experiment:ExperimentDetailView>
+	 	
+	</mx:VBox> 
+
+</mx:VBox>
