@@ -1362,11 +1362,10 @@
 						var columns:Array = samplesGridConfirm.columns;
 						var newColumns:Array = new Array();
 						for each(var column:AdvancedDataGridColumn in columns) {
-							if(currentState == 'SolexaState' || currentState == 'MicroarrayState' || currentState == 'QCState' 
-								|| currentState == null || isNanoStringState() || this.isIonTorrentState()){
-								if (column.dataField == "@idSampleType") {
+							if((currentState == 'SolexaState' || currentState == 'MicroarrayState' || currentState == 'QCState' 
+								|| currentState == null || isNanoStringState() || this.isIonTorrentState() || currentState == 'ExternalMicroarrayState'
+								|| currentState == 'ExternalSeqState') && column.dataField == "@idSampleType"){
 									newColumns.push(newCol);
-								}
 							}
 							
 							if (column != newCol) {
