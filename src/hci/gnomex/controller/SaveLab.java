@@ -17,6 +17,7 @@ import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.BillingAccountComparator;
 import hci.gnomex.utility.BillingAccountParser;
+import hci.gnomex.utility.BillingAccountUtil;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.LabCoreFacilityParser;
@@ -353,7 +354,8 @@ public class SaveLab extends GNomExCommand implements Serializable {
           // email to submitter of work auth form as well as lab managers
           if (ba.isJustApproved()) {
             ba.setIdApprover(this.getSecAdvisor().getIdAppUser());
-            this.sendApprovedBillingAccountEmail(sess, ba, lab);
+            AppUser au = (AppUser)sess.load(AppUser.class, this.getSecAdvisor().getIdAppUser());
+            BillingAccountUtil.sendApprovedBillingAccountEmail(sess, serverName, launchAppURL, ba, lab, au);
           }
 
           //If this is a new PO billing account notify the PI of the lab of its creation
@@ -750,112 +752,6 @@ public class SaveLab extends GNomExCommand implements Serializable {
           submitterSubject, 
           emailInfo + submitterNote.toString() + body.toString(),
           false);
-    }
-
-  }
-
-  private void sendApprovedBillingAccountEmail(Session sess, BillingAccount billingAccount, Lab lab) throws NamingException, MessagingException {
-
-    PropertyDictionaryHelper dictionaryHelper = PropertyDictionaryHelper.getInstance(sess);
-
-    AppUser au = (AppUser)sess.load(AppUser.class, this.getSecAdvisor().getIdAppUser());
-    StringBuffer submitterNote = new StringBuffer();
-    StringBuffer body = new StringBuffer();
-    String submitterSubject = "GNomEx Billing Account '" + billingAccount.getAccountName() + "' for " + lab.getName(false, true) + " approved";    
-
-    boolean send = false;
-    String submitterEmail = billingAccount.getSubmitterEmail();
-
-    CoreFacility facility = (CoreFacility)sess.load(CoreFacility.class, billingAccount.getIdCoreFacility());
-
-    String facilityEmail = dictionaryHelper.getCoreFacilityProperty(facility.getIdCoreFacility(), PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
-
-
-    boolean isTestEmail = false;
-    String emailInfo = "";
-    String emailRecipients = submitterEmail;
-    if(!MailUtil.isValidEmail(submitterEmail)){
-      log.error("Invalid Email: " + submitterEmail);
-    }
-    if (dictionaryHelper.isProductionServer(serverName)) {
-      send = true;
-    } else {
-      isTestEmail = true;
-      send = true;
-      submitterSubject = submitterSubject + "  (TEST)";
-      emailInfo = "[If this were a production environment then this email would have been sent to: " + emailRecipients + "]\n\n";
-      emailRecipients = dictionaryHelper.getProperty(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
-    }
-
-    submitterNote.append("The following billing account " +
-        "has been approved by the " + facility.getDisplay() + " Core" +  
-        ".  Lab members can now submit experiment " +
-        "requests against this account in GNomEx " + launchAppURL + ".");
-
-
-    body.append("\n");
-    body.append("\n");
-    body.append("Lab:\t\t\t" + lab.getName(false, false) + "\n");
-    body.append("Core Facility:\t\t" + facility.getDisplay() + "\n");
-    body.append("Account:\t\t" + billingAccount.getAccountName() + "\n");
-    body.append("Chartfield:\t\t" + billingAccount.getAccountNumber() + "\n");
-    if (billingAccount.getIdFundingAgency() != null) {
-      body.append("Funding Agency:\t\t" + DictionaryManager.getDisplay("hci.gnomex.model.FundingAgency", billingAccount.getIdFundingAgency().toString()) + "\n");
-    }
-    if (billingAccount.getExpirationDateOther() != null && billingAccount.getExpirationDateOther().length() > 0) {
-      body.append("Effective until:\t\t" + billingAccount.getExpirationDateOther() + "\n");
-    }
-    body.append("Submitter UID:\t\t" + billingAccount.getSubmitterUID() + "\n");
-    body.append("Submitter Email:\t" + billingAccount.getSubmitterEmail() + "\n");
-    body.append("Submit Date:\t\t" + billingAccount.getCreateDate() + "\n");
-
-    body.append("Approved By:\t\t" + au.getDisplayName());
-    if(au.getEmail() != null && !au.getEmail().equals("")) {
-      body.append(" (" + au.getEmail() + ")" );
-    }
-    body.append("\n");
-    body.append("Approved Date:\t\t" + billingAccount.getApprovedDate() + "\n");
-
-    String from = dictionaryHelper.getCoreFacilityProperty(facility.getIdCoreFacility(), PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
-
-
-    if (send) {
-      // Email submitter
-      if(!MailUtil.isValidEmail(from)){
-        from = DictionaryHelper.getInstance(sess).getPropertyDictionary(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
-      }
-      MailUtil.send(emailRecipients, 
-          null,
-          from, 
-          submitterSubject, 
-          emailInfo + submitterNote.toString() + body.toString(),
-          false); 
-
-
-      // Email lab contact email address(es)
-      if (lab.getBillingNotificationEmail() != null && !lab.getBillingNotificationEmail().equals("")) {
-        String contactEmail = lab.getBillingNotificationEmail();
-        if(lab.getWorkAuthSubmitEmail() != null && !lab.getWorkAuthSubmitEmail().equals("")) {
-          contactEmail += ", " + lab.getWorkAuthSubmitEmail();
-        }
-        facilityEmail = dictionaryHelper.getCoreFacilityProperty(facility.getIdCoreFacility(), PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY_WORKAUTH);
-        if (facilityEmail == null || facilityEmail.equals("")) {
-          facilityEmail = dictionaryHelper.getCoreFacilityProperty(facility.getIdCoreFacility(), PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
-        }
-        contactEmail += ", " + facilityEmail;
-        if (isTestEmail) {
-          emailInfo = "[If this were a production environment then this email would have been sent to: " + contactEmail + "] \n\n "; 
-          contactEmail = dictionaryHelper.getProperty(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
-        }
-        MailUtil.send(contactEmail, 
-            null,
-            from, 
-            isTestEmail ? submitterSubject + " (for lab contact " + lab.getContactEmail() + ")" : submitterSubject, 
-                emailInfo + submitterNote.toString() + body.toString(),
-                false); 
-
-      }
-
     }
 
   }
