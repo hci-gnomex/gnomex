@@ -5,8 +5,10 @@
 	xmlns:experiment="views.experiment.*" >
 	<mx:Script>
 		<![CDATA[
-			import views.order.NavOrderView;
 			import mx.managers.PopUpManager;
+			
+			import views.order.NavOrderView;
+			import views.util.EmailWindow;
 			import views.util.WebLinksView;
 
 			private function backToNavOrder():void {
@@ -31,6 +33,22 @@
 				parms.idRequest = detail.selectedExperiment.@idRequest;
 				var progressWindow:DownloadProgressView = new DownloadProgressView();
 				progressWindow.init(parentApplication.theBody, 'DownloadOncoCartaFDFServlet.gx', parms, null, 1000, "oncaCarta.fdf");		
+			}
+			
+			private function showContactCoreWindow():void {
+				var emailCoreWindow:EmailWindow = EmailWindow(PopUpManager.createPopUp(this, EmailWindow, true));
+				PopUpManager.centerPopUp(emailCoreWindow);
+				this.setFocus();
+				
+				emailCoreWindow.title = "Email Core Regarding this Experiment";
+				emailCoreWindow.subject.editable = false;
+				emailCoreWindow.subject.text = "Inquiry about Experiment " + detail.selectedExperiment.@number;
+				for each (var coreFacility:Object in parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.CoreFacility').DictionaryEntry) {
+					if (coreFacility.@idCoreFacility == detail.selectedExperiment.@idCoreFacility) {
+						emailCoreWindow.address = coreFacility.@contactEmail;
+						break;
+					}
+				}
 			}
 
 		]]>
@@ -81,6 +99,9 @@
 						<mx:LinkButton label="Generate OncoCarta Import"  click="{downloadOncoCartaFDF();}" icon="@Embed(source='../../assets/download.png')" 
 									   id="downloadOncoCartaFDFLink" textDecoration="underline" textAlign="left" 
 									   visible="{detail.isClinicalResearch == 'Y'  &amp;&amp; parentApplication.isAdminState}" includeInLayout="{detail.isClinicalResearch == 'Y'  &amp;&amp; parentApplication.isAdminState}"/>
+						<mx:LinkButton id="contactCoreButton" click="{showContactCoreWindow()}"
+									   label="Contact Core" textDecoration="underline" textAlign="left" toolTip="Email Core Regarding this Experiment"
+									   icon="@Embed('../../assets/email_go.png')"/>
 				</mx:HBox>
 			</mx:HBox>
 			
