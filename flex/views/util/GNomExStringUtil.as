@@ -41,10 +41,6 @@ package views.util
 			str = str.replace(pattern, "");
 			pattern = /<\/TEXTFORMAT.*?>/g;
 			str = str.replace(pattern, "");
-			pattern = /<P.*?>/g;
-			str = str.replace(pattern, "");
-			pattern = /<\/P.*?>/g;
-			str = str.replace(pattern, "");
 			
 			return str;		    
 		}
