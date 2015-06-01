@@ -81,6 +81,9 @@
 			private var pageNumberCount:int = 1;
 			
 			public function init():void {
+				if(parentApplication.getProperty(parentApplication.PROPERTY_SHOW_ACTIVITY_DASHBOARD) == 'N'){
+					return;
+				}
 				var params:Object = new Object();
 				if(parentApplication.isAdminState && !parentApplication.isSuperAdmin){
 					params.idCoreFacility = parentApplication.coreFacilitiesICanManage[0];
