@@ -1,3 +1,4 @@
+
 package hci.gnomex.controller;
 
 import hci.framework.control.Command;
@@ -7,10 +8,12 @@ import hci.gnomex.model.DataTrack;
 import hci.gnomex.model.FlowCell;
 import hci.gnomex.model.Invoice;
 import hci.gnomex.model.Notification;
+import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.Topic;
 import hci.gnomex.security.SecurityAdvisor;
+import hci.gnomex.utility.PropertyDictionaryHelper;
 
 import java.io.Serializable;
 import java.util.List;
@@ -46,12 +49,12 @@ public abstract class GNomExCommand extends Command implements Serializable {
   }
 
   protected void setRowCommands(HttpServletRequest request) {
-  	String URI = request.getRequestURI();
-  	if (URI.lastIndexOf("/") > 0) {
-  		URI = URI.substring(0, URI.lastIndexOf("/"));
-  	}
-  	this.rowDeleteCMD = URI + "/DeleteCODGridRow.aw";
-  	this.rowSaveCMD = URI + "/SaveCODGridRow.aw";
+    String URI = request.getRequestURI();
+    if (URI.lastIndexOf("/") > 0) {
+      URI = URI.substring(0, URI.lastIndexOf("/"));
+    }
+    this.rowDeleteCMD = URI + "/DeleteCODGridRow.aw";
+    this.rowSaveCMD = URI + "/SaveCODGridRow.aw";
   }
 
   /**
@@ -66,11 +69,11 @@ public abstract class GNomExCommand extends Command implements Serializable {
   public HttpServletRequest setRequestState(HttpServletRequest request) {
     // load any result objects into request attributes, keyed by the useBean id in the jsp
     request.setAttribute("xmlResult",this.xmlResult);
-    
+
     // Garbage collect
     this.xmlResult = null;
     System.gc();
-    
+
     return request;
   }
 
@@ -99,27 +102,27 @@ public abstract class GNomExCommand extends Command implements Serializable {
   public HttpSession setSessionState(HttpSession session) {
     return session;
   }
-  
+
   public SecurityAdvisor getSecAdvisor() {
     return (SecurityAdvisor)this.getSecurityAdvisor();
   }
-  
+
   public static String getRemoteIP(HttpServletRequest request) {
     String xff = request.getHeader("X-Forwarded-For");
     if (xff != null) {
-        return xff.split("[\\s,]+")[0];
+      return xff.split("[\\s,]+")[0];
     }
     return request.getRemoteAddr();
   }
-  
+
   public String getAppURL(HttpServletRequest request) throws Exception {
     String requestURL = request.getRequestURL().toString();
     String appURL = requestURL.substring(0, requestURL.indexOf("/gnomex"));
     appURL += ":" + request.getServerPort() + "/gnomex";
-    
+
     return appURL;    
   }
-  
+
   public String getLaunchAppURL(HttpServletRequest request) throws Exception {
     String url = getAppURL(request) + Constants.LAUNCH_APP_JSP;
     if (this.getSecAdvisor() != null) {
@@ -131,14 +134,19 @@ public abstract class GNomExCommand extends Command implements Serializable {
   public String getShowRequestFormURL(HttpServletRequest request) throws Exception {
     return getAppURL(request) + Constants.SHOW_REQUEST_FORM;
   }
-  
-  public void sendNotification(Object obj, Session sess, String state, String targetGroup, String source){
+
+  public void sendNotification(Object obj, Session sess, String state, String targetGroup, String type){
+    //Don't bother making notifications for activity feed if we aren't showing it on the dashboard
+    if(PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.SHOW_ACTIVITY_DASHBOARD).equals("") || 
+        PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.SHOW_ACTIVITY_DASHBOARD).equals("N")) {
+      return;
+    }
     Integer idLab = null;
     Integer idAppUser = getSecAdvisor().getIdAppUser();
     String objectNumber = null;
     String imageSource = null;
     Integer idCoreFacility = null;
-    
+
     if(obj instanceof Request){
       Request r = (Request) obj;
       idLab = r.getIdLab();
@@ -165,10 +173,10 @@ public abstract class GNomExCommand extends Command implements Serializable {
       objectNumber = ((FlowCell) obj).getNumber();
       imageSource = "assets/rectangle.png";
     }
-    
+
     Notification note = new Notification();
     note.setSourceType(targetGroup);
-    note.setType(source);
+    note.setType(type);
     note.setExpID(objectNumber);
     note.setDate(new java.sql.Date(System.currentTimeMillis()));
     note.setIdLabTarget(idLab);
@@ -176,24 +184,24 @@ public abstract class GNomExCommand extends Command implements Serializable {
     note.setMessage(state);
     note.setImageSource(imageSource);
     note.setIdCoreFacility(idCoreFacility);
-    
+
     StringBuffer buf = new StringBuffer();
     if(idAppUser != null){
       buf.append("SELECT firstName, lastName FROM AppUser WHERE idAppUser='" + idAppUser +"'");
-    
+
       List rows = (List) sess.createQuery(buf.toString()).list();
       String fullName = "";
-        if (rows.size() > 0) {
-          for(Iterator i = rows.iterator(); i.hasNext();) {
-            Object[] row = (Object[])i.next();
-            fullName = row[0] == null ? "" : (String)row[0].toString();
-            fullName += " ";
-            fullName += row[1] == null ? "" : (String)row[1].toString();
-          }
+      if (rows.size() > 0) {
+        for(Iterator i = rows.iterator(); i.hasNext();) {
+          Object[] row = (Object[])i.next();
+          fullName = row[0] == null ? "" : (String)row[0].toString();
+          fullName += " ";
+          fullName += row[1] == null ? "" : (String)row[1].toString();
         }
+      }
       note.setFullNameUser(fullName);
     }
-    
+
     sess.save(note);
     sess.flush();
   }
