@@ -19,12 +19,14 @@ import hci.gnomex.model.PropertyEntryValue;
 import hci.gnomex.model.PropertyOption;
 import hci.gnomex.model.PropertyType;
 import hci.gnomex.model.Request;
+import hci.gnomex.model.Sample;
 import hci.gnomex.model.SequenceLane;
 import hci.gnomex.model.Topic;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HybNumberComparator;
 import hci.gnomex.utility.PropertyDictionaryHelper;
+import hci.gnomex.utility.SampleComparator;
 import hci.gnomex.utility.SequenceLaneNumberComparator;
 
 import java.io.Serializable;
@@ -472,6 +474,7 @@ public class GetAnalysis extends GNomExCommand implements Serializable {
     TreeMap<Integer, Element> requestNodeMap = new TreeMap<Integer, Element>();  
     TreeMap<Integer, TreeSet<SequenceLane>> laneMap = new TreeMap<Integer, TreeSet<SequenceLane>>();
     TreeMap<Integer, TreeSet<Hybridization>> hybMap = new TreeMap<Integer, TreeSet<Hybridization>>();
+    TreeMap<Integer, TreeSet<Sample>> sampleMap = new TreeMap<Integer, TreeSet<Sample>>();
     for (AnalysisExperimentItem x : (Set<AnalysisExperimentItem>)analysis.getExperimentItems()) {
       Request request = null;
       if (x.getSequenceLane() != null) {
@@ -490,6 +493,14 @@ public class GetAnalysis extends GNomExCommand implements Serializable {
           hybMap.put(request.getIdRequest(), hybs);
         }
         hybs.add(x.getHybridization());
+      } else if (x.getSample() != null) {
+    	  request = x.getSample().getRequest();
+    	  TreeSet<Sample> samples = sampleMap.get(request.getIdRequest());
+    	  if (samples == null) {
+    		  samples = new TreeSet<Sample>(new SampleComparator());
+    		  sampleMap.put(request.getIdRequest(), samples);
+    	  }
+    	  samples.add(x.getSample());
       }
       Element requestNode = requestNodeMap.get(request.getIdRequest());
       if (requestNode == null) {
@@ -518,6 +529,14 @@ public class GetAnalysis extends GNomExCommand implements Serializable {
           hybNode.setAttribute("number", hyb.getNumber());
           requestNode.addContent(hybNode);      
         }
+      } else if (sampleMap.containsKey(idRequest)) {
+    	  for (Sample sample : sampleMap.get(idRequest)) {
+    		  Element sampleNode = new Element("Sample");
+    		  sampleNode.setAttribute("idSample", sample.getIdSample().toString());
+    		  sampleNode.setAttribute("label", "Sample " + sample.getNumber());
+    		  sampleNode.setAttribute("number", sample.getNumber());
+    		  requestNode.addContent(sampleNode);
+    	  }
       }
     }
     

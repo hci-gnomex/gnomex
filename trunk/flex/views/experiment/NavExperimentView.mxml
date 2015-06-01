@@ -1457,12 +1457,20 @@
 	}
 			
 	public function showCreateAnalysisButton(selectedExperiment:Object):Boolean {
+		var showButton:Boolean = false;
 		if (!parentApplication.isGuestMode() && selectedExperiment != null) {
+			for each (var requestCategory:Object in unfilteredRequestCategories) {
+				if (requestCategory.@codeRequestCategory == selectedExperiment.@codeRequestCategory && requestCategory.@associatedWithAnalysis == 'Y') {
+					showButton = true;
+					break;
+				}
+			}
+			
 			if (selectedExperiment.sequenceLanes.children().length() > 0 || selectedExperiment.hybridizations.children().length() > 0) {
-				return true;
+				showButton = true;
 			}
 		}
-		return false;
+		return showButton;
 	}
 			
        ]]>
@@ -1470,6 +1478,8 @@
    	
 	<mx:XMLListCollection id="requestCategories"   sort="{requestCategorySorter}" filterFunction="filterRequestCategory"
 						  source="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry.(@isActive == 'Y' &amp;&amp; @value != '' &amp;&amp; @isInternal == 'Y')}"/>
+	<mx:XMLListCollection id="unfilteredRequestCategories" 
+						  source="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry.(@isActive == 'Y' &amp;&amp; @value != '')}"/>
 	<mx:Sort id="requestCategorySorter" compareFunction="sortRequestCategory"/>	 
 	
    	<mx:ArrayCollection id="requestNumbers"  sort="{requestNumberSorter}"/>

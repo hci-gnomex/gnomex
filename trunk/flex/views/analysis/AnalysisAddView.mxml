@@ -204,7 +204,7 @@
 				Alert.show("Please select the analysis owner.");
 				return;        		
 			} 
-			if(genomeBuilds.length == 0) {
+			if (genomeBuilds.length == 0) {
 				var outMsg:String = "You have selected a genome build without adding it to the genome build list.  Create new analysis anyway?";
 				if (genomeBuildCombo.selectedItem == null || genomeBuildCombo.selectedItem.@value == "") {
 					outMsg = "A genome build has not been specified.  Create new analysis anyway?";
@@ -264,19 +264,25 @@
 			if (isNavExperimentViewOpen() && parentView.selectedExperiment != null) {
 				var hybs:XMLListCollection = new XMLListCollection();
 				var lanes:XMLListCollection = new XMLListCollection();
+				var samples:XMLListCollection = new XMLListCollection();
 				
 				for each (var seqLane:Object in parentView.selectedExperiment.sequenceLanes.children()) {
-					addExperimentItem(seqLane, hybs, lanes);
+					addExperimentItem(seqLane, hybs, lanes, samples);
 				}
 				for each (var hyb:Object in parentView.selectedExperiment.hybridizations.children()) {
-					addExperimentItem(hyb, hybs, lanes);
+					addExperimentItem(hyb, hybs, lanes, samples);
+				}
+				for each (var sample:Object in parentView.selectedExperiment.samples.children()) {
+					addExperimentItem(sample, hybs, lanes, samples);
 				}
 				
 				params.hybsXMLString = "<hybs>" + hybs.toXMLString() + "</hybs>";
 				params.lanesXMLString = "<lanes>" + lanes.toXMLString() + "</lanes>";
+				params.samplesXMLString = "<samples>" + samples.toXMLString() + "</samples>";
 			} else {
 				params.hybsXMLString = "<hybs/>";
 				params.lanesXMLString = "<lanes/>";
+				params.samplesXMLString = "<samples/>";
 			}
 			
 			saveAnalysis.send(params);
@@ -477,10 +483,10 @@
 			}
 		}
 		
-		private function addExperimentItem(item:Object, hybs:XMLListCollection, lanes:XMLListCollection):void {
+		private function addExperimentItem(item:Object, hybs:XMLListCollection, lanes:XMLListCollection, samples:XMLListCollection):void {
 			if (item.name() == "SequenceLane") {
 				var found:Boolean = false;
-				for each(var lane:Object in lanes) {
+				for each (var lane:Object in lanes) {
 					if (lane.@number == item.@number) {
 						found = true;
 						break;
@@ -490,7 +496,7 @@
 					lanes.addItem(item);
 				}	
 			} else if (item.name() == "Hybridization") {
-				for each(var hyb:Object in hybs) {
+				for each (var hyb:Object in hybs) {
 					if (hyb.@number == item.@number) {
 						found = true;
 						break;
@@ -500,6 +506,16 @@
 					item.@idRequest = parentView.selectedExperiment.@idRequest;
 					hybs.addItem(item);
 				}	
+			} else if (item.name() == "Sample") {
+				for each (var sample:Object in samples) {
+					if (sample.@number == item.@number) {
+						found = true;
+						break;
+					}
+				}
+				if (!found) {
+					samples.addItem(item);
+				}
 			}
 		}
 		
