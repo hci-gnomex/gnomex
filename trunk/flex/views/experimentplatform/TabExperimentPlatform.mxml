@@ -19,18 +19,21 @@
 			private var types:XMLList = null;
 			[Bindable]
 			private var coreFacilities:XMLListCollection = null;
+			[Bindable]
+			private var filteredProductTypes:XMLListCollection = null;
 			
 			public function init(state:ExperimentPlatformState):void {
 				this.state = state;
 				
 				types = state.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.RequestCategoryType').DictionaryEntry;
 				coreFacilities = new XMLListCollection(parentApplication.coreFacilitiesICanManage.copy());
+				filteredProductTypes = new XMLListCollection(state.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.ProductType').DictionaryEntry);
 				
 				var sortDisplay:Sort = new Sort();
 				sortDisplay.fields=[new SortField("@sortOrder")];
 				
 				coreFacilities.sort = sortDisplay;
-				coreFacilities.refresh(); 
+				coreFacilities.refresh();
 				
 				vendorCombo.selectedItem = state.dictionaryManager.getEntry('hci.gnomex.model.Vendor', state.requestCategory.@idVendor);
 				organismCombo.selectedItem = state.dictionaryManager.getEntry('hci.gnomex.model.OrganismLite',state.requestCategory.@idOrganism);
@@ -41,6 +44,16 @@
 				for each (var facility:Object in coreFacilities) {
 					if (facility.@idCoreFacility == state.requestCategory.@idCoreFacility) {
 						coreFacilityCombo.selectedItem = facility;
+						break;
+					}
+				}
+				
+				filteredProductTypes.filterFunction = filterProductTypes;
+				filteredProductTypes.refresh();
+				
+				for each (var productType:Object in productTypeCombo.dataProvider) {
+					if (productType.@codeProductType == state.requestCategory.@codeProductType) {
+						productTypeCombo.selectedItem = productType;
 						break;
 					}
 				}
@@ -106,6 +119,9 @@
 				}
 				state.dirty.setDirty();
 				hideCoreFacilityComponents();
+				productTypeCombo.selectedItem = null;
+				filteredProductTypes.refresh();
+				updateProductType();
 			}
 			
 			private function pickType(setDirty:Boolean = true):void {
@@ -191,6 +207,22 @@
 					sortWindow.init(state.requestCategory.@idCoreFacility);
 				}
 			}
+			
+			private function filterProductTypes(item:Object):Boolean {
+				if (coreFacilityCombo.selectedItem != null && item.@idCoreFacility == coreFacilityCombo.selectedItem.@idCoreFacility) {
+					return true;
+				}
+				
+				return false;
+			}
+			
+			private function updateProductType():void {
+				if (useProductsCheckBox.selected && productTypeCombo.selectedItem != null) {
+					state.requestCategory.@codeProductType = productTypeCombo.selectedItem.@value;
+				} else {
+					state.requestCategory.@codeProductType = '';
+				}
+			}
 		]]>
 	</mx:Script>
 	<mx:HBox width="100%" horizontalGap="1" verticalAlign="middle">
@@ -203,6 +235,10 @@
 	<mx:HBox width="100%" horizontalGap="0" verticalGap="0" verticalAlign="top" horizontalAlign="left" paddingLeft="0" fontSize="11">
 		<mx:Label text="Type" width="100" fontSize="12" styleName="formLabel"/>
 		<mx:ComboBox id="typeCombo" dataProvider="{types}" labelField="@display" width="400" change="{pickType()}"/>
+		<mx:Spacer width="10"/>
+		<mx:CheckBox id="associatedWithAnalysisCheckbox" label="Associated With Analysis?" 
+					 click="{state.requestCategory.@associatedWithAnalysis = associatedWithAnalysisCheckbox.selected ? 'Y' : 'N'; state.dirty.setDirty()}"
+					 selected="{state.requestCategory.@associatedWithAnalysis == 'Y' ? true : false}" />
 	</mx:HBox>
 
 	<mx:HBox width="100%" horizontalGap="1" verticalAlign="middle">
@@ -259,10 +295,11 @@
 	<mx:HBox width="100%" horizontalGap="0" verticalAlign="middle">
 		<mx:Label text="Sample Batch Size" width="100" styleName="formLabel"/>
 		<mx:TextInput id="sampleBatchSize" width="40" text="{state.requestCategory.@sampleBatchSize}" change="state.requestCategory.@sampleBatchSize = sampleBatchSize.text; state.dirty.setDirty()" restrict="0-9" />
-	</mx:HBox>
-	<mx:HBox width="100%" horizontalGap="0" verticalAlign="middle">
-		<mx:Text text="Sample batch warning message:" width="100" styleName="formLabel"/>
-		<mx:TextInput id="customWarningMessage" width="100%" change="state.requestCategory.@customWarningMessage = customWarningMessage.text; state.dirty.setDirty()" text="{parentApplication.getRequestCategoryProperty(state.requestCategory.@idCoreFacility,state.requestCategory.@codeRequestCategory, parentApplication.PROPERTY_SAMPLE_BATCH_WARNING)}"/>
+		<mx:Spacer width="10"/>
+		<mx:Text text="Sample batch warning message:" width="100" styleName="formLabel" visible="{sampleBatchSize.text != ''}" includeInLayout="{sampleBatchSize.text != ''}"/>
+		<mx:TextInput id="customWarningMessage" width="100%" change="state.requestCategory.@customWarningMessage = customWarningMessage.text; state.dirty.setDirty()" 
+					  text="{parentApplication.getRequestCategoryProperty(state.requestCategory.@idCoreFacility,state.requestCategory.@codeRequestCategory, parentApplication.PROPERTY_SAMPLE_BATCH_WARNING)}"
+					  visible="{sampleBatchSize.text != ''}" includeInLayout="{sampleBatchSize.text != ''}"/>
 	</mx:HBox>
 	
 	<mx:HBox width="100%" verticalAlign="middle" horizontalGap="0" id="organismHBox">
@@ -271,6 +308,14 @@
 		<mx:ComboBox width="300" id="organismCombo"
 					 dataProvider="{state.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OrganismLite').DictionaryEntry}" 
 					 labelField="@display" visible="{isInternalCheckbox.selected}" close="{state.requestCategory.@idOrganism = organismCombo.selectedItem != null ? organismCombo.selectedItem.@value : '';state.dirty.setDirty();}"/>
+	</mx:HBox>
+	
+	<mx:HBox width="100%" verticalAlign="middle" horizontalGap="0">
+		<mx:Text text="Uses Products?" width="100" styleName="formLabel"/>
+		<mx:CheckBox id="useProductsCheckBox" click="{updateProductType(); state.dirty.setDirty()}" selected="{state.requestCategory.@codeProductType != '' ? true : false}"/>
+		<mx:Spacer width="10"/>
+		<mx:ComboBox id="productTypeCombo" dataProvider="{filteredProductTypes}" labelField="@display" visible="{useProductsCheckBox.selected}" 
+					 close="{updateProductType(); state.dirty.setDirty()}" width="300"/>
 	</mx:HBox>
 
 	<mx:Label text="" styleName="warningLabelMinor" width="100%" id="securityLabel"/>

@@ -54,6 +54,8 @@ public class RequestCategory extends DictionaryEntry implements Comparable, Seri
   private String                isOwnerOnly;
   private RequestCategoryType   categoryType;
   private Integer               sampleBatchSize;
+  private String				codeProductType;
+  private String				associatedWithAnalysis;
 
   public static boolean isMicroarrayRequestCategory(String codeRequestCategory) {
     DictionaryHelper dh = DictionaryHelper.getInstance(null);
@@ -351,5 +353,21 @@ public class RequestCategory extends DictionaryEntry implements Comparable, Seri
 
   public void setSampleBatchSize(Integer sampleBatchSize) {
     this.sampleBatchSize = sampleBatchSize;
+  }
+  
+  public String getCodeProductType() {
+	return codeProductType;
+  }
+  
+  public void setCodeProductType(String codeProductType) {
+	this.codeProductType = codeProductType;
+  }
+  
+  public String getAssociatedWithAnalysis() {
+	return associatedWithAnalysis;
+  }
+  
+  public void setAssociatedWithAnalysis(String associatedWithAnalysis) {
+	this.associatedWithAnalysis = associatedWithAnalysis;
   }
 }
