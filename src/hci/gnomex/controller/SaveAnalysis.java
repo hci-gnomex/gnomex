@@ -29,6 +29,7 @@ import hci.gnomex.utility.AnalysisGenomeBuildParser;
 import hci.gnomex.utility.AnalysisGroupParser;
 import hci.gnomex.utility.AnalysisHybParser;
 import hci.gnomex.utility.AnalysisLaneParser;
+import hci.gnomex.utility.AnalysisSampleParser;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.PropertyDictionaryHelper;
 import hci.gnomex.utility.PropertyOptionComparator;
@@ -87,8 +88,10 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
   private AnalysisLaneParser    laneParser;
   
   private String                samplesXMLString;
+  private Document				samplesDoc;
+  private AnalysisSampleParser	sampleParser;
+  
   private String                experimentsXMLString;
-
 
   private String                     collaboratorsXMLString;
   private Document                   collaboratorsDoc;
@@ -181,9 +184,6 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
     if (request.getParameter("lanesXMLString") != null && !request.getParameter("lanesXMLString").equals("")) {
       lanesXMLString = request.getParameter("lanesXMLString");
     }
-    else if (request.getParameter("samplesXMLString") != null && !request.getParameter("samplesXMLString").equals("")) {
-      lanesXMLString = request.getParameter("samplesXMLString") ;
-    }
     else if (request.getParameter("experimentsXMLString") != null && !request.getParameter("experimentsXMLString").equals("")) {
       lanesXMLString = request.getParameter("experimentsXMLString") ;
     }
@@ -200,6 +200,18 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
       }
     }
     
+    if (request.getParameter("samplesXMLString") != null && !request.getParameter("samplesXMLString").equals("")) {
+        samplesXMLString = request.getParameter("samplesXMLString");
+        reader = new StringReader(samplesXMLString);
+        try {
+        	SAXBuilder sax = new SAXBuilder();
+        	samplesDoc = sax.build(reader);
+        	sampleParser = new AnalysisSampleParser(samplesDoc);
+        } catch (JDOMException je) {
+        	log.error("Cannot parse samplesXMLString", je);
+        	this.addInvalidField("samplesXMLString", "Invalid samplesXMLString");
+        }
+    }
     
     if (request.getParameter("collaboratorsXMLString") != null && !request.getParameter("collaboratorsXMLString").equals("")) {
       collaboratorsXMLString = request.getParameter("collaboratorsXMLString");
@@ -321,6 +333,9 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
         if (laneParser != null) {
           laneParser.parse(sess, isBatchMode);          
         }
+        if (sampleParser != null) {
+        	sampleParser.parse(sess);
+        }
         if (collaboratorParser != null) {
           collaboratorParser.parse(sess);          
         }
@@ -418,6 +433,17 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
               
             }
             if (!found) {
+            	if (sampleParser != null) {
+            		for (Iterator<Integer> i1 = sampleParser.getIdSamples().iterator(); i1.hasNext();) {
+            			Integer idSample = i1.next();
+            			if (idSample.equals(ex.getIdSample())) {
+            				found = true;
+            				break;
+            			}
+            		}
+            	}
+            }
+            if (!found) {
               experimentItemsToRemove.add(ex);
             }
           }
@@ -474,7 +500,28 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
             experimentItems.add(experimentItem);
           }          
         }
-        if (hybParser != null || laneParser != null) {
+        if (sampleParser != null) {
+        	for (Iterator<Integer> i = sampleParser.getIdSamples().iterator(); i.hasNext();) {
+        		Integer idSample = i.next();
+        		AnalysisExperimentItem experimentItem = null;
+        		// The experiment item may already exist; if so, just save it.
+        		for (Iterator i1 = analysis.getExperimentItems().iterator(); i1.hasNext();) {
+        			AnalysisExperimentItem x = (AnalysisExperimentItem) i1.next();
+        			if (x.getIdSample().equals(idSample)) {
+        				experimentItem = x;
+        				break;
+        			}
+        		}
+        		if (experimentItem == null) {
+        			experimentItem = new AnalysisExperimentItem();
+        			experimentItem.setIdAnalysis(analysis.getIdAnalysis());
+        			experimentItem.setIdSample(idSample);
+        			experimentItem.setIdRequest(sampleParser.getIdRequest(idSample));
+        		}
+        		experimentItems.add(experimentItem);
+        	}
+        }
+        if (hybParser != null || laneParser != null || sampleParser != null) {
           analysis.setExperimentItems(experimentItems);          
         }
         
@@ -1083,11 +1130,22 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
       AnalysisExperimentItem e1 = (AnalysisExperimentItem)o1;
       AnalysisExperimentItem e2 = (AnalysisExperimentItem)o2;
       
-      String key1 = e1.getIdHybridization() != null ? "hyb" + e1.getIdHybridization() : "lane" + e1.getIdSequenceLane();
-      String key2 = e2.getIdHybridization() != null ? "hyb" + e2.getIdHybridization() : "lane" + e2.getIdSequenceLane();
+      String key1 = determineKey(e1);
+      String key2 = determineKey(e2);
       
       return key1.compareTo(key2);
-      
+    }
+    
+    private String determineKey(AnalysisExperimentItem item) {
+    	if (item.getIdHybridization() != null) {
+    		return "hyb" + item.getIdHybridization();
+    	} else if (item.getIdSequenceLane() != null) {
+    		return "lane" + item.getIdSequenceLane();
+    	} else if (item.getIdSample() != null) {
+    		return "sample" + item.getIdSample();
+    	} else {
+    		return "";
+    	}
     }
   }
 

@@ -205,6 +205,9 @@
 				lanes = new XMLListCollection();
 				lanes.source = analysis..AnalysisExperimentItem..SequenceLane;
 				
+				samples = new XMLListCollection();
+				samples.source = analysis..AnalysisExperimentItem..Sample;
+				
 				var item:Object;
 				for each(item in analysis..AnalysisExperimentItem) {
 					for each (var hyb:Object in item..Hybridization) {
@@ -312,7 +315,7 @@
 						lanes.addItem(node);
 					}
 					this.experimentItemStack.selectedChild = lanesView;	
-				} else {
+				} else if (item.@type == "Hybridization") {
 					node = new XML("<Hybridization " +
 						" number ='" + item.@itemNumber + "'" +
 						" idRequest ='" + item.@idRequest + "'" +
@@ -338,6 +341,25 @@
 						hybs.addItem(node);
 					}
 					this.experimentItemStack.selectedChild = hybsView;	
+				} else if (item.@type == "Sample") {
+					node = new XML("<Sample " +
+						" number ='" + item.@itemNumber + "'" +
+						" idRequest ='" + item.@idRequest + "'" +
+						" idSample ='" + item.@idSample + "'" +
+						" />");
+					// May have special characters
+					node.@name = item.@name;
+					node.@experimentName = item.@experimentName;
+					for each (var sample:Object in samples) {
+						if (sample.@number == item.@itemNumber) {
+							found = true;
+							break;
+						}
+					}
+					if (!found) {
+						samples.addItem(node);
+					}
+					this.experimentItemStack.selectedChild = samplesView;
 				}
 			}
 			
@@ -357,6 +379,7 @@
 				this.dirty.setDirty();
 				hybs.removeAll();
 				lanes.removeAll();
+				samples.removeAll();
 			}
 			private function removeExperimentItem():void {
 				dirty.setDirty();
@@ -364,6 +387,8 @@
 					hybs.removeItemAt(hybsGrid.selectedIndex);				
 				} else if (lanesGrid.selectedItem != null) {
 					lanes.removeItemAt(lanesGrid.selectedIndex);								
+				} else if (samplesGrid.selectedItem != null) {
+					samples.removeItemAt(samplesGrid.selectedIndex);
 				}
 			}
 			private function onGetExperimentPickList(event:ResultEvent): void {
@@ -392,7 +417,18 @@
 			{
 				var x:int = hybsGrid.dataProvider.getItemIndex(item) + 1;
 				return String(x);
-			} 
+			}
+			private function getSamplesGridRowNumber(item:Object, col:int):String {
+				var x:int = samplesGrid.dataProvider.getItemIndex(item) + 1;
+				return String(x);
+			}
+			private function getExperimentNameForSample(item:Object, col:int):String {
+				if (item.hasOwnProperty('@experimentName')) {
+					return item.@experimentName;
+				} else {
+					return analysis.relatedObjects..Request.(@idRequest == item.@idRequest).@name;
+				}
+			}
 			public function getFilesGridRowNumber(item:Object,col:int):String
 			{
 				var x:int = filesView.downloadTree.dataProvider.getItemIndex(item) + 1;
@@ -472,6 +508,7 @@
 				params.privacyExpirationDate = this.privacyExpirationPicker.text;
 				params.hybsXMLString  = "<hybs>" + hybs.toXMLString() + "</hybs>";
 				params.lanesXMLString = "<lanes>" + lanes.toXMLString() + "</lanes>";
+				params.samplesXMLString = "<samples>" + samples.toXMLString() + "</samples>";
 				params.analysisGroupsXMLString = "<analysisGroups>" + analysisGroups.toXMLString() + "</analysisGroups>";
 				params.analysisFilesXMLString = filesView.getDirtyAnalysisFiles().toXMLString();
 				
@@ -959,6 +996,10 @@
 			private function showExperimentForSelectedLane():void {
 				parentApplication.showExperimentById(lanesGrid.selectedItem.@idRequest);
 			}
+			
+			private function showExperimentForSelectedSample():void {
+				parentApplication.showExperimentById(samplesGrid.selectedItem.@idRequest);
+			}
 
 			private function removeRichTextButtons():void {
 				this.description.toolbar.removeChild(description.colorPicker);
@@ -1000,6 +1041,7 @@
 	<mx:XMLListCollection  id="experimentItems" />
 	<mx:XMLListCollection  id="hybs"           /> 
 	<mx:XMLListCollection  id="lanes"         />
+	<mx:XMLListCollection  id="samples" />
 	<mx:XMLListCollection  id="files"          source="{analysis..AnalysisFileDescriptor}"/>
 	<mx:XMLListCollection id="collaborators" source="{analysis.collaborators.AnalysisCollaborator}"/>
 	<mx:XMLListCollection id="genomeBuilds" source="{analysis.genomeBuilds.GenomeBuild}"/>
@@ -1189,8 +1231,8 @@
 		
 		<mx:Canvas label="Experiments" width="100%" height="100%">
 			<mx:HDividedBox width="100%" height="100%" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
-				<mx:VBox width="230" height="100%">
-					<mx:Text  width="230" height="35" text="To select experiments, drag hybs or sample sequence lanes onto grid">						
+				<mx:VBox width="400" height="100%">
+					<mx:Text  width="100%" height="35" text="To select experiments, drag items onto grid">						
 					</mx:Text>
 					<mx:ComboBox 
 						id="expLabCombo" 
@@ -1276,6 +1318,24 @@
 										<mx:DataGridColumn width="150" id="genomeBuildAlignTo" headerText="Genome Build (align to)"  editable="false" dataField="@idGenomeBuildAlignTo" 						             						             
 														   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.GenomeBuildLite').DictionaryEntry,'@display', '@value', '@idGenomeBuildAlignTo')}"/>                 											
 										<mx:DataGridColumn width="150" headerText="Analysis Instructions"   dataField="@analysisInstructions"/>
+									</mx:columns>
+								</mx:DataGrid>
+							</mx:Canvas>
+							<mx:Canvas label="Other" width="100%" height="100%" id="samplesView">
+								<mx:DataGrid id="samplesGrid" dataProvider="{samples}"
+											 width="100%" height="100%"
+											 doubleClickEnabled="true" editable="false"
+											 doubleClick="{showExperimentForSelectedSample()}"
+											 dragEnabled="true"  
+											 dragEnter="onDragEnter(event)"
+											 dragOver="onDragOver(event)"
+											 dragDrop="onDragDropExperimentItem(event)"
+											 dragExit="onDragExit(event)">
+									<mx:columns>
+										<mx:DataGridColumn headerText="" width="10" labelFunction="getSamplesGridRowNumber"/>
+										<mx:DataGridColumn headerText="ID" width="60" dataField="@number"/>
+										<mx:DataGridColumn headerText="Experiment Name" width="90" labelFunction="getExperimentNameForSample"/>
+										<mx:DataGridColumn headerText="Sample Name" width="100" dataField="@name"/>
 									</mx:columns>
 								</mx:DataGrid>
 							</mx:Canvas>

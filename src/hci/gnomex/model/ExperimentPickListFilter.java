@@ -142,7 +142,65 @@ public class ExperimentPickListFilter extends DetailObject {
     addSecurityCriteria();
   }
   
+  public StringBuffer getSampleQuery(SecurityAdvisor secAdvisor, DictionaryHelper dictionaryHelper) {
+	  this.secAdvisor = secAdvisor;
+	  this.dictionaryHelper = dictionaryHelper;
+	  queryBuf = new StringBuffer();
+	  addWhere = true;
+	  
+	  queryBuf.append(" SELECT 			project.name, ");
+	  queryBuf.append("        			req.idRequest, ");
+	  queryBuf.append("       	 		req.createDate, ");
+	  queryBuf.append("        			req.number, ");
+	  queryBuf.append("        			req.codeRequestCategory, "); 
+	  queryBuf.append("        			req.codeApplication, ");
+	  queryBuf.append("        			'', ");
+	  queryBuf.append("        			'', ");
+	  queryBuf.append("        			reqOwner.firstName, reqOwner.lastName, ");
+	  queryBuf.append("        			'', ");
+	  queryBuf.append("        			'', ");
+	  queryBuf.append("        			'',  ");
+	  queryBuf.append("       			'',  ");
+	  queryBuf.append("        			s.number, s.name, ");
+	  queryBuf.append("        			'', '',  ");
+	  queryBuf.append("        			s.idSampleType, ");
+	  queryBuf.append("        			'', ");
+	  queryBuf.append("        			'', ");
+	  queryBuf.append("        			'', ");
+	  queryBuf.append("        			'', ");
+	  queryBuf.append("        			'', ");
+	  queryBuf.append("        			'', ");
+	  queryBuf.append("        			req.name, ");
+	  queryBuf.append("        			'', ");
+	  queryBuf.append("        			'', ");
+	  queryBuf.append("       	 		s.idSample ");
+	  
+	  getSampleQueryBody(queryBuf);
+	  
+	  queryBuf.append(" ORDER BY project.name, req.number, s.number ");
+	  
+	  return queryBuf;
+  }
   
+  public void getSampleQueryBody(StringBuffer queryBuf) {
+	  queryBuf.append(" FROM 			Project as project ");
+	  queryBuf.append(" JOIN 			project.requests as req ");
+	  queryBuf.append(" JOIN 			req.requestCategory as reqCat ");
+	  queryBuf.append(" JOIN 			req.samples as s ");
+	  queryBuf.append(" LEFT JOIN      	req.collaborators as collab ");
+	  queryBuf.append(" LEFT JOIN      	req.appUser as reqOwner ");
+	  
+	  addRequestCriteria();
+	  
+	  addSampleCriteria();
+	  
+	  addSecurityCriteria();
+  }
+  
+  private void addSampleCriteria() {
+	  this.addWhereOrAnd();
+	  queryBuf.append(" reqCat.associatedWithAnalysis = 'Y' ");
+  }
   
   public boolean hasCriteria() {
     if (idLab != null) {

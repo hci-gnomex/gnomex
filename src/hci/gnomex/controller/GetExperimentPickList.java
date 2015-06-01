@@ -136,7 +136,27 @@ public class GetExperimentPickList extends GNomExCommand implements Serializable
         rowMap.put(key, row);
       }
       
-
+      buf = filter.getSampleQuery(this.getSecAdvisor(), dh);
+      log.debug("Query for GetExperimentPickList (3): " + buf.toString());
+      List rows3 = (List) sess.createQuery(buf.toString()).list();
+      for (Iterator i = rows3.iterator(); i.hasNext();) {
+    	  Object[] row = (Object[]) i.next();
+          
+          String projectName   = (String) row[0];
+          String requestNumber = (String) row[3];
+          String sampleNumber  = (row[14] == null || row[14].equals("")) ? "" : (String) row[14];
+          
+          String createDate    = this.formatDate((java.util.Date) row[2]);
+          String tokens[]      = createDate.split("/");
+          String createMonth   = tokens[0];
+          String createDay     = tokens[1];
+          String createYear    = tokens[2];
+          String sortDate      = createYear + createMonth + createDay;
+          
+          String key = projectName + KEY_DELIM + createYear + KEY_DELIM + sortDate + KEY_DELIM + requestNumber + KEY_DELIM + sampleNumber;
+          
+          rowMap.put(key, row);
+      }
  
       
     
@@ -251,111 +271,132 @@ public class GetExperimentPickList extends GNomExCommand implements Serializable
   }
 
   private void addItemNode(Object[] row, Session sess, DictionaryHelper dh) {
-    itemNode = new Element("Item");
-    itemNode.setAttribute("idRequest",                row[1] == null ? ""  : ((Integer)row[1]).toString());
-    itemNode.setAttribute("itemNumber",               row[10] == null ? ""  : (String)row[10]);
-    itemNode.setAttribute("idSlideDesign",            row[11] == null ? ""  : ((Integer)row[11]).toString());
-    itemNode.setAttribute("idNumberSequencingCycles", row[12] == null ? ""  : ((Integer)row[12]).toString());
-    itemNode.setAttribute("idSeqRunType",             row[13] == null ? ""  : ((Integer)row[13]).toString());
-    itemNode.setAttribute("sampleNumber1",            row[14] == null ? ""  : (String)row[14]);
-    itemNode.setAttribute("sampleName1",              row[15] == null ? ""  : (String)row[15]);
-    itemNode.setAttribute("sampleNumber2",            row[16] == null ? ""  : (String)row[16]);
-    itemNode.setAttribute("sampleName2",              row[17] == null ? ""  : (String)row[17]);
-    itemNode.setAttribute("idGenomeBuildAlignTo",     row[19] == null ? ""  : ((Integer)row[19]).toString());
-    itemNode.setAttribute("analysisInstructions",     row[20] == null ? ""  : (String)row[20]);
-    itemNode.setAttribute("flowCellChannelNumber",    row[21] == null ? ""  : ((Integer)row[21]).toString());
-    itemNode.setAttribute("flowCellNumber",           row[22] == null ? ""  : (String)row[22]);
-    if(row.length > 26){
-      itemNode.setAttribute("sampleBarcodeSequence",    row[26] == null ? ""  : (String)row[26]);
-    }
-    if (row.length > 27) {
-      itemNode.setAttribute("idNumberSequencingCyclesAllowed", row[27] == null ? "" : ((Integer)row[27]).toString());
-    }
-    
-    Integer idNumberSequencingCyclesAllowed = -1;
-    if (row.length > 27) {
-      idNumberSequencingCyclesAllowed = (Integer)row[27];
-    }
-    if (idNumberSequencingCyclesAllowed != null && idNumberSequencingCyclesAllowed.intValue() != -1) {
-      String numberSequencingCyclesAllowed = (String)this.numberSequencingCyclesAllowedMap.get(idNumberSequencingCyclesAllowed);
-      itemNode.setAttribute("numberSequencingCyclesAllowed", numberSequencingCyclesAllowed);      
-      this.requestNumberSequencingCyclesAllowedMap.put(numberSequencingCyclesAllowed, null);
-    } else {
-      itemNode.setAttribute("numberSequencingCyclesAllowed", "?");      
-    }
+	  if (row.length < 29) {
+		  	itemNode = new Element("Item");
+		    itemNode.setAttribute("idRequest",                row[1] == null ? ""  : ((Integer)row[1]).toString());
+		    itemNode.setAttribute("itemNumber",               row[10] == null ? ""  : (String)row[10]);
+		    itemNode.setAttribute("idSlideDesign",            row[11] == null ? ""  : ((Integer)row[11]).toString());
+		    itemNode.setAttribute("idNumberSequencingCycles", row[12] == null ? ""  : ((Integer)row[12]).toString());
+		    itemNode.setAttribute("idSeqRunType",             row[13] == null ? ""  : ((Integer)row[13]).toString());
+		    itemNode.setAttribute("sampleNumber1",            row[14] == null ? ""  : (String)row[14]);
+		    itemNode.setAttribute("sampleName1",              row[15] == null ? ""  : (String)row[15]);
+		    itemNode.setAttribute("sampleNumber2",            row[16] == null ? ""  : (String)row[16]);
+		    itemNode.setAttribute("sampleName2",              row[17] == null ? ""  : (String)row[17]);
+		    itemNode.setAttribute("idGenomeBuildAlignTo",     row[19] == null ? ""  : ((Integer)row[19]).toString());
+		    itemNode.setAttribute("analysisInstructions",     row[20] == null ? ""  : (String)row[20]);
+		    itemNode.setAttribute("flowCellChannelNumber",    row[21] == null ? ""  : ((Integer)row[21]).toString());
+		    itemNode.setAttribute("flowCellNumber",           row[22] == null ? ""  : (String)row[22]);
+		    if(row.length > 26){
+		      itemNode.setAttribute("sampleBarcodeSequence",    row[26] == null ? ""  : (String)row[26]);
+		    }
+		    if (row.length > 27) {
+		      itemNode.setAttribute("idNumberSequencingCyclesAllowed", row[27] == null ? "" : ((Integer)row[27]).toString());
+		    }
+		    
+		    Integer idNumberSequencingCyclesAllowed = -1;
+		    if (row.length > 27) {
+		      idNumberSequencingCyclesAllowed = (Integer)row[27];
+		    }
+		    if (idNumberSequencingCyclesAllowed != null && idNumberSequencingCyclesAllowed.intValue() != -1) {
+		      String numberSequencingCyclesAllowed = (String)this.numberSequencingCyclesAllowedMap.get(idNumberSequencingCyclesAllowed);
+		      itemNode.setAttribute("numberSequencingCyclesAllowed", numberSequencingCyclesAllowed);      
+		      this.requestNumberSequencingCyclesAllowedMap.put(numberSequencingCyclesAllowed, null);
+		    } else {
+		      itemNode.setAttribute("numberSequencingCyclesAllowed", "?");      
+		    }
 
-    Integer idSampleType = (Integer)row[18];
-    if (idSampleType != null && idSampleType.intValue() != -1) {
-      String sampleType = (String)this.sampleTypeMap.get(idSampleType);
-      itemNode.setAttribute("sampleType", sampleType);      
-      this.requestSampleTypeMap.put(sampleType, null);
-    }  
-    
+		    Integer idSampleType = (Integer)row[18];
+		    if (idSampleType != null && idSampleType.intValue() != -1) {
+		      String sampleType = (String)this.sampleTypeMap.get(idSampleType);
+		      itemNode.setAttribute("sampleType", sampleType);      
+		      this.requestSampleTypeMap.put(sampleType, null);
+		    }  
+		    
 
-    StringBuffer label = new StringBuffer(itemNode.getAttributeValue("itemNumber"));
-   
-    if (RequestCategory.isIlluminaRequestCategory(requestNode.getAttributeValue("codeRequestCategory"))) {
-      label.append(" -  ");
-      label.append(itemNode.getAttributeValue("sampleName1"));
-      requestNode.setAttribute("numberSequencingCyclesAllowed", itemNode.getAttributeValue("numberSequencingCyclesAllowed"));
-    } else {
-      label.append(" - ");
-      label.append(itemNode.getAttributeValue("sampleName1"));
-      if (!itemNode.getAttributeValue("sampleName2").equals("")) {
-        label.append(", ");
-        label.append(itemNode.getAttributeValue("sampleName2"));
-        if (requestNode.getAttributeValue("isSlideSet") != null &&
-            requestNode.getAttributeValue("isSlideSet").equals("Y")) {
-          label.append(" - ");
-          label.append(itemNode.getAttributeValue("slideDesign"));
-        }
-      }
-    }
-    itemNode.setAttribute("label", label.toString());
+		    StringBuffer label = new StringBuffer(itemNode.getAttributeValue("itemNumber"));
+		   
+		    if (RequestCategory.isIlluminaRequestCategory(requestNode.getAttributeValue("codeRequestCategory"))) {
+		      label.append(" -  ");
+		      label.append(itemNode.getAttributeValue("sampleName1"));
+		      requestNode.setAttribute("numberSequencingCyclesAllowed", itemNode.getAttributeValue("numberSequencingCyclesAllowed"));
+		    } else {
+		      label.append(" - ");
+		      label.append(itemNode.getAttributeValue("sampleName1"));
+		      if (!itemNode.getAttributeValue("sampleName2").equals("")) {
+		        label.append(", ");
+		        label.append(itemNode.getAttributeValue("sampleName2"));
+		        if (requestNode.getAttributeValue("isSlideSet") != null &&
+		            requestNode.getAttributeValue("isSlideSet").equals("Y")) {
+		          label.append(" - ");
+		          label.append(itemNode.getAttributeValue("slideDesign"));
+		        }
+		      }
+		    }
+		    itemNode.setAttribute("label", label.toString());
 
-    // Set the next gen request label to the concatenation of sample types and flow cell types
-    RequestCategory requestCategory = dh.getRequestCategoryObject(requestNode.getAttributeValue("codeRequestCategory"));
-    if (requestCategory.isNextGenSeqRequestCategory()) {
-      StringBuffer buf = new StringBuffer();
-      for (Iterator i = requestNumberSequencingCyclesAllowedMap.keySet().iterator(); i.hasNext();) {
-        buf.append(i.next());
-        if (i.hasNext()) {
-          buf.append(", ");
-        } else {
-          buf.append(" - ");
-        }
-      }
-      for (Iterator i = requestSampleTypeMap.keySet().iterator(); i.hasNext();) {
-        buf.append(i.next());
-        if (i.hasNext()) {
-          buf.append(", ");
-        }
-      }
-      
-      String experimentNameLabel = requestNode.getAttributeValue("name");
-      if (!experimentNameLabel.equals("")) {
-        experimentNameLabel = " - " + experimentNameLabel;
-      }
-      String requestLabel = requestNode.getAttributeValue("number") + experimentNameLabel + " - " + requestNode.getAttributeValue("createDateDisplay");
-      requestNode.setAttribute("label", requestLabel + " - " + buf.toString());
-      itemNode.setAttribute("type", "SequenceLane");
-      itemNode.setAttribute("idSequenceLane", ((Integer)row[23]).toString());
+		    // Set the next gen request label to the concatenation of sample types and flow cell types
+		    RequestCategory requestCategory = dh.getRequestCategoryObject(requestNode.getAttributeValue("codeRequestCategory"));
+		    if (requestCategory.isNextGenSeqRequestCategory()) {
+		      StringBuffer buf = new StringBuffer();
+		      for (Iterator i = requestNumberSequencingCyclesAllowedMap.keySet().iterator(); i.hasNext();) {
+		        buf.append(i.next());
+		        if (i.hasNext()) {
+		          buf.append(", ");
+		        } else {
+		          buf.append(" - ");
+		        }
+		      }
+		      for (Iterator i = requestSampleTypeMap.keySet().iterator(); i.hasNext();) {
+		        buf.append(i.next());
+		        if (i.hasNext()) {
+		          buf.append(", ");
+		        }
+		      }
+		      
+		      String experimentNameLabel = requestNode.getAttributeValue("name");
+		      if (!experimentNameLabel.equals("")) {
+		        experimentNameLabel = " - " + experimentNameLabel;
+		      }
+		      String requestLabel = requestNode.getAttributeValue("number") + experimentNameLabel + " - " + requestNode.getAttributeValue("createDateDisplay");
+		      requestNode.setAttribute("label", requestLabel + " - " + buf.toString());
+		      itemNode.setAttribute("type", "SequenceLane");
+		      itemNode.setAttribute("idSequenceLane", ((Integer)row[23]).toString());
 
-      SequenceLane sl = (SequenceLane) sess.get(SequenceLane.class, (Integer)row[23]);
-      Integer id = null;
-      if(sl.getIdFlowCellChannel() != null) {
-        id = sl.getIdFlowCellChannel();
-      }
-      itemNode.setAttribute("idFlowCellChannel", id == null ? "" : id.toString());
-      
-    } else {
-      itemNode.setAttribute("type", "Hybridization");
-      itemNode.setAttribute("idHybridization", ((Integer)row[23]).toString());
-      itemNode.setAttribute("slideDesignName", row[24] == null ? ""  : (String)row[24]);
-    }
-    
-    
-    requestNode.addContent(itemNode);
+		      SequenceLane sl = (SequenceLane) sess.get(SequenceLane.class, (Integer)row[23]);
+		      Integer id = null;
+		      if(sl.getIdFlowCellChannel() != null) {
+		        id = sl.getIdFlowCellChannel();
+		      }
+		      itemNode.setAttribute("idFlowCellChannel", id == null ? "" : id.toString());
+		      
+		    } else {
+		      itemNode.setAttribute("type", "Hybridization");
+		      itemNode.setAttribute("idHybridization", ((Integer)row[23]).toString());
+		      itemNode.setAttribute("slideDesignName", row[24] == null ? ""  : (String)row[24]);
+		    }
+		    
+		    requestNode.addContent(itemNode);
+		    
+	  } else if (row.length == 29) {
+		  // Adding a sample
+		  itemNode = new Element("Item");
+		  itemNode.setAttribute("itemNumber",               row[14] == null ? ""  : (String) row[14]);
+		  itemNode.setAttribute("idRequest",				row[1] == null ? "" : ((Integer) row[1]).toString());
+		  itemNode.setAttribute("experimentName",			row[25] == null ? "" : (String) row[25]);
+		  itemNode.setAttribute("idSample", 				row[28] == null ? "" : ((Integer) row[28]).toString());
+		  itemNode.setAttribute("name", 					row[15] == null ? "" : (String) row[15]);
+		  itemNode.setAttribute("sampleNumber",				row[14] == null ? "" : (String) row[14]);
+		  
+		  StringBuffer label = new StringBuffer(itemNode.getAttributeValue("itemNumber"));
+		  label.append(" - ");
+		  label.append(itemNode.getAttributeValue("name"));
+		  itemNode.setAttribute("label", label.toString());
+		  
+		  itemNode.setAttribute("type", "Sample");
+		   
+		  requestNode.addContent(itemNode);
+		  
+	  }
 
   }
   
@@ -393,7 +434,9 @@ public class GetExperimentPickList extends GNomExCommand implements Serializable
         splitLetter = "L";
       } else if (hybNumber1.indexOf(PropertyDictionaryHelper.getInstance(null).getProperty(PropertyDictionary.SEQ_LANE_LETTER)) >= 0) {
         splitLetter = PropertyDictionaryHelper.getInstance(null).getProperty(PropertyDictionary.SEQ_LANE_LETTER);
-      } 
+      } else if (hybNumber1.indexOf("X") >= 0) {
+    	  splitLetter = "X";
+      }
       String[] hybNumberTokens1 = hybNumber1.split(splitLetter);
       itemNumber1 = hybNumberTokens1[hybNumberTokens1.length - 1];     
       
@@ -415,7 +458,9 @@ public class GetExperimentPickList extends GNomExCommand implements Serializable
         splitLetter = "L";
       } else if (hybNumber2.indexOf(PropertyDictionaryHelper.getInstance(null).getProperty(PropertyDictionary.SEQ_LANE_LETTER)) >= 0) {
         splitLetter = PropertyDictionaryHelper.getInstance(null).getProperty(PropertyDictionary.SEQ_LANE_LETTER);
-      } 
+      } else if (hybNumber2.indexOf("X") >= 0) {
+    	  splitLetter = "X";
+      }
 
       String[] hybNumberTokens2 = hybNumber2.split(splitLetter);
       itemNumber2 = hybNumberTokens2[hybNumberTokens2.length - 1];     
