@@ -102,6 +102,17 @@
 		</mx:request>
 	</mx:HTTPService>
 	
+	<mx:HTTPService  
+		id="moveAnalysis" 
+		url="MoveAnalysis.gx"
+		resultFormat="e4x"
+		showBusyCursor="false"
+		result="onMoveAnalysis(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to save analysis', event)"
+		method="POST" 
+		useProxy="false">
+	</mx:HTTPService>
+	
 	
 	
 	
@@ -151,6 +162,9 @@
 			
 			private var dropProject:Object;
 			private var dragRequest:Object;
+			private var dragItems:Object;
+			
+			private var dropNode:*;
 			
 			[Bindable]
 			public var selectedIdAnalysisGroup:String;
@@ -165,6 +179,8 @@
 			
 			
 			private var showDownloads:Boolean = false;
+			
+			private var theItems:Object;
 			
 			private var analysisGroupWindow:AnalysisGroupWindow;
 			
@@ -441,7 +457,7 @@
 					return;
 				}
 				
-				onBrowseTree();
+				onBrowseTree(null);
 			}
 			
 			
@@ -489,10 +505,11 @@
 			}
 			
 			
-			public function onBrowseTree():void {
-				if(browseTree.selectedItems.length != 1){
+			public function onBrowseTree(event:MouseEvent):void {
+				if(browseTree.selectedItems.length != 1 && (event != null && (event.ctrlKey || event.shiftKey))){
 					return;
 				}
+				
 				setResultsCount();
 				
 				browseView.dirtyAnalysisGroup.resetDirty();
@@ -685,45 +702,45 @@
 					
 				}
 				
-				if (showEditView) {	
-					analysisEditView.setupEditForm(this.selectedAnalysis, addAnalysisGroup != null);
-					analysisViews.selectedChild = analysisEditView;
-					showEditView = false;
-					if(addAnalysisGroup != null) {
-						if(removeIdAnalysisGroup != null) {
-							var item:Object;
-							var i:int = 0;	
-							for each(item in analysisEditView.analysisGroups) {
-								if(removeIdAnalysisGroup == item.@idAnalysisGroup) {
-									analysisEditView.analysisGroups.removeItemAt(i);
-									break;						
-								}
-								i++;
-							}					
-							
+					if (showEditView) {	
+						analysisEditView.setupEditForm(this.selectedAnalysis, addAnalysisGroup != null);
+						analysisViews.selectedChild = analysisEditView;
+						showEditView = false;
+						if(addAnalysisGroup != null) {
+							if(removeIdAnalysisGroup != null) {
+								var item:Object;
+								var i:int = 0;	
+								for each(item in analysisEditView.analysisGroups) {
+									if(removeIdAnalysisGroup == item.@idAnalysisGroup) {
+										analysisEditView.analysisGroups.removeItemAt(i);
+										break;						
+									}
+									i++;
+								}					
+								
+							}
+							analysisEditView.analysisGroups.addItem(addAnalysisGroup);
+							analysisEditView.parentIdLab = parentIdLab;
+							analysisEditView.setExecValidateAndSaveAnalysis();
+							addAnalysisGroup = null;
 						}
-						analysisEditView.analysisGroups.addItem(addAnalysisGroup);
-						analysisEditView.parentIdLab = parentIdLab;
-						analysisEditView.setExecValidateAndSaveAnalysis();
-						addAnalysisGroup = null;
+					} else{
+						analysisViews.selectedChild = analysisDetailView;				
+						analysisDetailView.setupForm(this.selectedAnalysis);
+						analysisDetailView.updateUploadFormAnalysisObj();
 					}
-				} else{
-					analysisViews.selectedChild = analysisDetailView;				
-					analysisDetailView.setupForm(this.selectedAnalysis);
-					analysisDetailView.updateUploadFormAnalysisObj();
+					
+					parentApplication.closeDistributeDataTrackWindow(this.selectedAnalysis);
+					
+					if (selectedAnalysis.@canDelete == "Y") {
+						this.deleteButton.enabled = true;
+					} else {
+						this.deleteButton.enabled = false;
+					}
+					browseView.refreshButtonStack();
+					
+					analysisViews.visible = true;
 				}
-				
-				parentApplication.closeDistributeDataTrackWindow(this.selectedAnalysis);
-				
-				if (selectedAnalysis.@canDelete == "Y") {
-					this.deleteButton.enabled = true;
-				} else {
-					this.deleteButton.enabled = false;
-				}
-				browseView.refreshButtonStack();
-				
-				analysisViews.visible = true;
-			}
 			
 			private function onGetAnalysisGroup(event:ResultEvent):void {
 				selectedAnalysisGroup = getAnalysisGroup.lastResult.AnalysisGroup.(@idAnalysisGroup == selectedIdAnalysisGroup);
@@ -996,25 +1013,27 @@
 			}
 			
 			
-			
 			private function browseTreeDrop(e:DragEvent):void {
 				e.preventDefault();
 				isDragDrop = true;
 				
-				if(browseTree.selectedItems.length > 1){
-					Alert.show("Sorry, you may only move one analysis item at a time");
-					return;
+				browseTree.hideDropFeedback(e);
+				theItems = e.dragSource.dataForFormat("treeItems");
+				//var items:Object = e.dragSource.dataForFormat("treeItems");
+				var dragParent:XML = XML(theItems.parent);
+				//var data:XML = obj[0];
+				//var nodeName:String = String(data.name());
+				
+				
+				for(var i:int = 0; i < theItems.length; i++){
+					var x:XML = theItems[i];
+					if(x.name() != "Analysis") {
+						Alert.show("Sorry, you may only copy/move analysis items.", "", 4, browseTree);
+						return;
+					}
+					
 				}
 				
-				browseTree.hideDropFeedback(e);
-				var obj:Object = e.dragSource.dataForFormat("treeItems");
-				var dragParent:XML = XML(obj.parent);
-				var data:XML = obj[0];
-				var nodeName:String = String(data.name());
-				if(nodeName != "Analysis") {
-					Alert.show("Sorry, you may only copy/move analysis items.", "", 4, browseTree);
-					return;
-				}
 				var illegalDrop:Boolean = true;
 				var dropData : Object = browseTree.mx_internal::_dropData as Object;
 				
@@ -1042,36 +1061,92 @@
 						illegalDrop = false;
 						break;
 					}		
-				}	
+				}
+				
+				dropNode = p;
+				var nonMovers:XMLList = new XMLList();
 				if(!illegalDrop) {
 					for each(var analysis:Object in p.Analysis) {
-						if(data.@idAnalysis == analysis.@idAnalysis) {
-							Alert.show("Error: the analysis already exists within this folder.", "", 4, browseTree);	 
-							return;   						
+						for(i = 0; i < theItems.length; i++){
+							x = theItems[i];
+							if(x.@idAnalysis != analysis.@idAnalysis) {
+								p.appendChild(x);
+							} else{
+								//We don't move analyses that are already in the folder we are moving to.
+								nonMovers.appendChild(x);
+							}
+							
 						}
 					}
 					illegalDrop = false;
-					p.appendChild(data);
-					browseTree.selectedItem = data;
+					//p.appendChild(data);
+					browseTree.selectedItem = theItems[0];
 					showEditView = true;
 					
 					// Set the idLab of the Analysis to the lab it was dropped
 					// to (the lab of the analysis group
 					parentIdLab = p.@idLab;
 					
-					if(e.ctrlKey) {
-						// Don't remove dragged item if we're copying
-						removeIdAnalysisGroup = null;
-					}
+//					if(e.ctrlKey) {
+//						// Don't remove dragged item if we're copying
+//						removeIdAnalysisGroup = null;
+//					}
 					addAnalysisGroup = new XML("<AnalysisGroup " +
 						" idAnalysisGroup=\"" + p.@idAnalysisGroup + "\"" +
 						" name=\""            + p.@name + "\"" + "/>");
-					onBrowseTree();					
+					//onBrowseTree(null);					
 				}
 				
 				if(illegalDrop) {
 					Alert.show("Please drop the analysis item within an analysis folder.", "", 4, browseTree);
+				} else{
+					saveMultipleAnalysis();
 				}
+			}
+			
+//			private function moveOrCopyHandler(event:CloseEvent):void{
+//				Alert.yesLabel = "Yes";
+//				Alert.noLabel = "No";
+//				
+//				if(event.detail == Alert.CANCEL){
+//					return;
+//				} else if(event.detail == Alert.NO){ //Copy analysis to new location
+//					removeIdAnalysisGroup = null;
+//					saveMultipleAnalysis();
+//				} else{ //Move analysis
+//					saveMultipleAnalysis();
+//				}
+//			}
+			
+			private function saveMultipleAnalysis():void{
+				var params:Object = new Object();
+				var idAnalysisString:String = "";
+				
+				for(var i:int = 0; i < theItems.length; i++){
+					var analysis:Object = theItems[i];
+					idAnalysisString += analysis.@idAnalysis + ",";
+				}
+				
+				if (parentIdLab != null) {
+					params.idLab  = parentIdLab;
+				}
+				
+				params.idAnalysisString = idAnalysisString;
+				params.analysisGroupsXMLString = "<analysisGroups>" + addAnalysisGroup.toXMLString() + "</analysisGroups>";
+				
+				moveAnalysis.send(params);
+			}
+			
+			private function onMoveAnalysis(event:ResultEvent):void{
+				if(moveAnalysis.lastResult.name() != "SUCCESS"){
+					Alert.show(moveAnalysis.lastResult..ACTMESSAGE.@TEXT);
+				} else{
+					this.refreshAnalysis();
+					browseTree.selectedItem = dropNode;
+					onBrowseTree(null);
+				}
+				
+				
 			}
 			
 			private function browseTreeMouseDown(e:MouseEvent):void {
@@ -1201,7 +1276,7 @@
 								 dataProvider="{getAnalysisGroupList.lastResult}" 
 								 showRoot="false" 
 								 id="browseTree" 
-								 click="onBrowseTree();" 
+								 click="onBrowseTree(event);" 
 								 doubleClickEnabled="false" 
 								 borderStyle="solid"
 								 labelField="@label"
@@ -1232,7 +1307,7 @@
 							<mx:disabledIcon>@Embed(source='../../assets/delete_disable.png')</mx:disabledIcon>
 						</mx:LinkButton>
 						<mx:LinkButton label="Drag-and-drop hint" 
-									   click="{Alert.show('Drag-and-drop to move analysis to another group; CTRL + Drag-and-drop to copy analysis to another group.')}" id="linkbutton2" styleName="hintLink" icon="@Embed(source='../../assets/information.png')">
+									   click="{Alert.show('Drag-and-drop to move analysis to another group; Select multiple analyses by using SHIFT or CTRL')}" id="linkbutton2" styleName="hintLink" icon="@Embed(source='../../assets/information.png')">
 						</mx:LinkButton>
 					</mx:VBox>
 					
