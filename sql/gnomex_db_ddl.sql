@@ -81,6 +81,7 @@ CREATE TABLE `gnomex`.`AnalysisExperimentItem` (
   `comments` VARCHAR(2000) NULL,
   `idAnalysis` INT(10) NULL,
   `idRequest` INT(10) NULL,
+  `idSample` INT(10) NULL,
   PRIMARY KEY (`idAnalysisExperimentItem`),
   CONSTRAINT `FK_AnalysisExperimentItem_SequenceLane` FOREIGN KEY `FK_AnalysisExperimentItem_SequenceLane` (`idSequenceLane`)
     REFERENCES `gnomex`.`SequenceLane` (`idSequenceLane`)
@@ -96,6 +97,10 @@ CREATE TABLE `gnomex`.`AnalysisExperimentItem` (
     ON UPDATE NO ACTION,
   CONSTRAINT `FK_AnalysisExperimentItem_Request` FOREIGN KEY `FK_AnalysisExperimentItem_Request` (`idRequest`)
     REFERENCES `gnomex`.`Request` (`idRequest`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `FK_AnalysisExperimentItem_Sample` FOREIGN KEY `FK_AnalysisExperimentItem_Sample` (`idSample`)
+    REFERENCES `gnomex`.`Sample` (`idSample`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
 )
@@ -1891,6 +1896,8 @@ CREATE TABLE `gnomex`.`RequestCategory` (
   `isClinicalResearch` CHAR(1) NULL,
   `isOwnerOnly` CHAR(1) NULL,
   `sampleBatchSize` INT(10) NULL,
+  `codeProductType` VARCHAR(10) NULL,
+  `associatedWithAnalysis` CHAR(1) NULL,
   PRIMARY KEY (`codeRequestCategory`),
   CONSTRAINT `FK_RequestCategory_Vendor` FOREIGN KEY `FK_RequestCategory_Vendor` (`idVendor`)
     REFERENCES `gnomex`.`Vendor` (`idVendor`)
@@ -1906,6 +1913,10 @@ CREATE TABLE `gnomex`.`RequestCategory` (
     ON UPDATE NO ACTION,
   CONSTRAINT `FK_RequestCategory_RequestCategoryType` FOREIGN KEY `FK_RequestCategory_RequestCategoryType` (`type`)
     REFERENCES `gnomex`.`RequestCategoryType` (`codeRequestCategoryType`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `FK_RequestCategory_ProductType` FOREIGN KEY `FK_RequestCategory_ProductType` (`codeProductType`)
+    REFERENCES `gnomex`.`ProductType` (`codeProductType`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
 )
