@@ -130,6 +130,10 @@
 			type="integer" />
 		<property name="idSequenceLane" column="idSequenceLane" type="integer" />
 		<property name="idRequest" column="idRequest" type="integer" />
+		<property name="idSample" column="idSample" type="integer" />
+		<many-to-one name="sample" column="idSample"
+			class="hci.gnomex.model.Sample" cascade="none" update="false"
+			insert="false" />
 	</class>
 
 	<!-- hci.gnomex.model.AnalysisFile -->
@@ -2330,6 +2334,8 @@
 			class="hci.gnomex.model.RequestCategoryType" cascade="none" insert="false"
 			update="false" lazy="false" />
 			<property name="sampleBatchSize" column="sampleBatchSize" type="integer" />
+		<property name="codeProductType" column="codeProductType" type="string" />
+		<property name="associatedWithAnalysis" column="associatedWithAnalysis" type="string" />
 	</class>
 
 	<!-- hci.gnomex.model.RequestCategoryApplication -->
