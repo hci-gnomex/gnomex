@@ -56,7 +56,7 @@ public class RequestFilter extends DetailObject {
     queryBuf.append(" req.idLab, ");
     queryBuf.append(" req.idCoreFacility, ");
     queryBuf.append(" req.corePrepInstructions, ");
-    queryBuf.append(" count(sample.idSample), ");
+    queryBuf.append(" count(distinct sample.idSample), ");
     queryBuf.append(" req.adminNotes ");
 
     getQueryBody(queryBuf);
