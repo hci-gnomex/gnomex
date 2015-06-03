@@ -1019,12 +1019,8 @@
 				
 				browseTree.hideDropFeedback(e);
 				theItems = e.dragSource.dataForFormat("treeItems");
-				//var items:Object = e.dragSource.dataForFormat("treeItems");
 				var dragParent:XML = XML(theItems.parent);
-				//var data:XML = obj[0];
-				//var nodeName:String = String(data.name());
-				
-				
+						
 				for(var i:int = 0; i < theItems.length; i++){
 					var x:XML = theItems[i];
 					if(x.name() != "Analysis") {
@@ -1143,10 +1139,9 @@
 				} else{
 					this.refreshAnalysis();
 					browseTree.selectedItem = dropNode;
+					addAnalysisGroup = null;
 					onBrowseTree(null);
 				}
-				
-				
 			}
 			
 			private function browseTreeMouseDown(e:MouseEvent):void {
