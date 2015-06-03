@@ -2734,7 +2734,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
 
   private boolean appendSubmitterCoreFacilityCriteria(StringBuffer queryBuf, String classShortName ) {
     if (this.getCoreFacilitiesICanSubmitTo().isEmpty()) {
-      throw new RuntimeException("Unable to filter submitter by core facilties -- no core facilities have been assiged to this user");
+      throw new RuntimeException("Unable to filter submitter by core facilties -- no core facilities have been assigned to this user");
     }
 
     queryBuf.append(" ( ");
