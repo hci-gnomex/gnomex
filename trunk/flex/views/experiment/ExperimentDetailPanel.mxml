@@ -43,9 +43,10 @@
 				emailCoreWindow.title = "Email Core Regarding this Experiment";
 				emailCoreWindow.subject.editable = false;
 				emailCoreWindow.subject.text = "Inquiry about Experiment " + detail.selectedExperiment.@number;
+				emailCoreWindow.fromAddress.text = parentApplication.getUserEmail();
 				for each (var coreFacility:Object in parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.CoreFacility').DictionaryEntry) {
 					if (coreFacility.@idCoreFacility == detail.selectedExperiment.@idCoreFacility) {
-						emailCoreWindow.address = coreFacility.@contactEmail;
+						emailCoreWindow.toAddress = coreFacility.@contactEmail;
 						break;
 					}
 				}
@@ -101,7 +102,7 @@
 									   visible="{detail.isClinicalResearch == 'Y'  &amp;&amp; parentApplication.isAdminState}" includeInLayout="{detail.isClinicalResearch == 'Y'  &amp;&amp; parentApplication.isAdminState}"/>
 						<mx:LinkButton id="contactCoreButton" click="{showContactCoreWindow()}"
 									   label="Contact Core" textDecoration="underline" textAlign="left" toolTip="Email Core Regarding this Experiment"
-									   icon="@Embed('../../assets/email_go.png')"/>
+									   icon="@Embed('../../assets/email_go.png')" visible="{!parentApplication.isGuest}"/>
 				</mx:HBox>
 			</mx:HBox>
 			
