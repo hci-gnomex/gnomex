@@ -42,7 +42,7 @@ public class BillingAccountUtil {
 	    	isTestEmail = true;
 	    	send = true;
 	    	submitterSubject = submitterSubject + "  (TEST)";
-	    	emailInfo = "[If this were a production environment then this email would have been sent to: " + emailRecipients + "]\n\n";
+	    	emailInfo = "[If this were a production environment then this email would have been sent to: " + emailRecipients + "]<br><br>";
 	    	emailRecipients = dictionaryHelper.getProperty(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
 	    }
 
@@ -55,23 +55,25 @@ public class BillingAccountUtil {
 	    }
 	    submitterNote.append(".");
 
-	    body.append("\n");
-	    body.append("\n");
-	    body.append("Lab:\t\t\t" + lab.getName(false, false) + "\n");
-	    body.append("Core Facility:\t\t" + facility.getDisplay() + "\n");
-	    body.append("Account:\t\t" + billingAccount.getAccountName() + "\n");
-	    body.append("Chartfield:\t\t" + billingAccount.getAccountNumber() + "\n");
+	    body.append("<br />");
+	    body.append("<br />");
+	    body.append("<table border=0>");
+	    body.append("<tr><td>Lab:</td><td>" + lab.getName(false, false) + "</td></tr>");
+	    body.append("<tr><td>Core Facility:</td><td>" + facility.getDisplay() + "</td></tr>");
+	    body.append("<tr><td>Account:</td><td>" + billingAccount.getAccountName() + "</td></tr>");
+	    body.append("<tr><td>Chartfield:</td><td>" + billingAccount.getAccountNumber() + "</td></tr>");
 	    if (billingAccount.getIdFundingAgency() != null) {
-	    	body.append("Funding Agency:\t" + DictionaryManager.getDisplay("hci.gnomex.model.FundingAgency", billingAccount.getIdFundingAgency().toString()) + "\n");
+	    	body.append("<tr><td>Funding Agency:</td><td>" + DictionaryManager.getDisplay("hci.gnomex.model.FundingAgency", billingAccount.getIdFundingAgency().toString()) + "</td></tr>");
 	    }
+	    body.append("<tr />");
 	    if (billingAccount.getExpirationDateOther() != null && billingAccount.getExpirationDateOther().length() > 0) {
-	    	body.append("Effective until:\t\t" + billingAccount.getExpirationDateOther() + "\n");
+	    	body.append("<tr><td>Effective until:</td><td>" + billingAccount.getExpirationDateOther() + "</td></tr>");
 	    }
-	    body.append("Submitter UID:\t\t" + billingAccount.getSubmitterUID() + "\n");
-	    body.append("Submitter Email:\t" + billingAccount.getSubmitterEmail() + "\n");
-	    body.append("Submit Date:\t\t" + billingAccount.getCreateDate() + "\n");
+	    body.append("<tr><td>Submitter UID:</td><td>" + billingAccount.getSubmitterUID() + "</td></tr>");
+	    body.append("<tr><td>Submitter Email:</td><td>" + billingAccount.getSubmitterEmail() + "</td></tr>");
+	    body.append("<tr><td>Submit Date:</td><td>" + billingAccount.getCreateDate() + "</td></tr>");
 	    
-	    body.append("Approved By:\t\t");
+	    body.append("<tr><td>Approved By:</td><td>");
 	    if (approver != null) {
 	    	body.append(approver.getDisplayName());
 	        if (approver.getEmail() != null && !approver.getEmail().equals("")) {
@@ -80,8 +82,9 @@ public class BillingAccountUtil {
 	    } else if (approverEmail != null) {
 	    	body.append(approverEmail);
 	    }
-	    body.append("\n");
-	    body.append("Approved Date:\t" + billingAccount.getApprovedDate() + "\n");
+	    body.append("</td></tr>");
+	    body.append("<tr><td>Approved Date:</td><td>" + billingAccount.getApprovedDate() + "</td></tr>");
+	    body.append("</table>");
 
 	    String from = dictionaryHelper.getCoreFacilityProperty(facility.getIdCoreFacility(), PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
 
@@ -95,7 +98,7 @@ public class BillingAccountUtil {
 	    		   		from, 
 	    		   		submitterSubject, 
 	    		   		emailInfo + submitterNote.toString() + body.toString(),
-	    		   		false);
+	    		   		true);
 
 	      // Email people with approve power notifying them that the account has been approved and they don't have to do anything else.
 	      if (lab.getBillingNotificationEmail() != null && !lab.getBillingNotificationEmail().equals("")) {
@@ -109,7 +112,7 @@ public class BillingAccountUtil {
 	    	  }
 	    	  contactEmail += ", " + facilityEmail;
 	    	  if (isTestEmail) {
-	    		  emailInfo = "[If this were a production environment then this email would have been sent to: " + contactEmail + "]\n\n";
+	    		  emailInfo = "[If this were a production environment then this email would have been sent to: " + contactEmail + "]<br><br>";
 	    		  contactEmail = dictionaryHelper.getProperty(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
 	    	  }
 	    	  MailUtil.send(contactEmail, 
@@ -117,7 +120,7 @@ public class BillingAccountUtil {
 	    			  		from, 
 	    			  		isTestEmail ? submitterSubject + " (for lab contact " + lab.getContactEmail() + ")" : submitterSubject, 
 	    			  		emailInfo + submitterNote.toString() + body.toString(),
-	    			  		false);
+	    			  		true);
 	      }
 	    }
 	}
