@@ -3718,7 +3718,7 @@
 			request.@name = notesView.experimentName.text;
 			
 			//Add new annotations to Sample that have not had data added to them in samples grid.
-			if(request.samples.Sample.length > 0){
+			if(request.samples.Sample.length() > 0){
 				for each(var prop:XML in this.propertyEntries){
 					if(prop.@isSelected == "true" && !(request.samples.Sample[0].hasOwnProperty("@ANNOT" + prop.@idProperty))){
 						request.samples.Sample[0]["@ANNOT" + prop.@idProperty] = "";
