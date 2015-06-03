@@ -38,10 +38,17 @@ public class EmailServlet extends GNomExCommand implements Serializable {
   private Document selectedRequestsDoc;
   private String requestsXMLString = null;
   private String recipientAddress = null;
+  private String senderAddress = null;
+  
+  private String sendingMode = "";
   
   private String           serverName;
+  
+  private static final String ORDER_EMAIL = "order";
+  private static final String GENERIC_EMAIL = "contact_core";
 
   public void loadCommand(HttpServletRequest req, HttpSession res) {
+	sendingMode = "";
     if (req.getParameter("body") != null && !req.getParameter("body").equals("")) { 
       body = new StringBuffer(req.getParameter("body"));
     }
@@ -52,10 +59,16 @@ public class EmailServlet extends GNomExCommand implements Serializable {
       format = req.getParameter("format");
     }
     if (req.getParameter("recipientAddress") != null && !req.getParameter("recipientAddress").trim().equals("")) {
+    	sendingMode = GENERIC_EMAIL;
     	recipientAddress = req.getParameter("recipientAddress");
+    }
+    if (req.getParameter("senderAddress") != null && !req.getParameter("senderAddress").trim().equals("")) {
+    	sendingMode = GENERIC_EMAIL;
+    	senderAddress = req.getParameter("senderAddress");
     }
 
     if (req.getParameter("runsSelectedXMLString") != null && !req.getParameter("runsSelectedXMLString").equals("")) {
+      sendingMode = ORDER_EMAIL;
       runsSelectedXMLString = req.getParameter("runsSelectedXMLString");
       StringReader reader = new StringReader(runsSelectedXMLString);
       try {
@@ -68,6 +81,7 @@ public class EmailServlet extends GNomExCommand implements Serializable {
     }
     
     if (req.getParameter("platesSelectedXMLString") != null && !req.getParameter("platesSelectedXMLString").equals("")) {
+    	sendingMode = ORDER_EMAIL;
         platesSelectedXMLString = req.getParameter("platesSelectedXMLString");
         StringReader reader = new StringReader(platesSelectedXMLString);
         try {
@@ -80,6 +94,7 @@ public class EmailServlet extends GNomExCommand implements Serializable {
       } 
 
     if (req.getParameter("requestsXMLString") != null && !req.getParameter("requestsXMLString").equals("")) {
+      sendingMode = ORDER_EMAIL;
       requestsXMLString = req.getParameter("requestsXMLString");
       StringReader reader = new StringReader(requestsXMLString);
       try {
@@ -91,8 +106,14 @@ public class EmailServlet extends GNomExCommand implements Serializable {
       }
     } 
 
-    if ( selectedRunsDoc == null && selectedPlatesDoc == null && selectedRequestsDoc == null && recipientAddress == null ) {
+    if ( sendingMode.equals(ORDER_EMAIL) && selectedRunsDoc == null && selectedPlatesDoc == null && selectedRequestsDoc == null ) {
       this.addInvalidField( "XMLString", "Run or Request XML required");
+    }
+    if ( sendingMode.equals(GENERIC_EMAIL) && (recipientAddress == null || senderAddress == null) ) {
+      this.addInvalidField( "Addresses", "Recipient and sender addresses required");
+    }
+    if ( sendingMode.equals(GENERIC_EMAIL) && senderAddress != null && !MailUtil.isValidEmail(senderAddress) ) {
+      this.addInvalidField( "Sender Address", "Sender addresses is not valid");
     }
     
     serverName = req.getServerName();
@@ -107,16 +128,8 @@ public class EmailServlet extends GNomExCommand implements Serializable {
       Session sess = HibernateSession.currentSession(this.getUsername());
 
       DictionaryHelper dh = DictionaryHelper.getInstance(sess);
-      String senderAddress = dh.getAppUserObject( this.getSecAdvisor().getIdAppUser() ).getEmail() ;
-
-      if(senderAddress == null){
-        this.addInvalidField("Invalid email address", "Please  check the email address you are sending from");
-        setResponsePage(this.ERROR_JSP);
-      }
-      else if (recipientAddress != null && selectedRunsDoc == null && selectedPlatesDoc == null && selectedRequestsDoc == null) {
-    	  if (!MailUtil.isValidEmail(senderAddress)) {
-              senderAddress = dh.getPropertyDictionary(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
-    	  }
+      
+      if (sendingMode.equals(GENERIC_EMAIL)) {
     	  
     	  if (MailUtil.isValidEmail(recipientAddress)) {
     		  String theSubject = subject;
@@ -139,8 +152,12 @@ public class EmailServlet extends GNomExCommand implements Serializable {
     	  } else {
     		  setResponsePage(this.ERROR_JSP);
     	  }
-      }
-      else if (this.getSecurityAdvisor().hasPermission(SecurityAdvisor.CAN_ACCESS_ANY_OBJECT)) {
+      } else {
+    	senderAddress = dh.getAppUserObject( this.getSecAdvisor().getIdAppUser() ).getEmail();  
+      	if (senderAddress == null) {
+      		this.addInvalidField("Invalid email address", "Please  check the email address you are sending from");
+      		setResponsePage(this.ERROR_JSP);
+      	} else if (sendingMode.equals(ORDER_EMAIL) && this.getSecurityAdvisor().hasPermission(SecurityAdvisor.CAN_ACCESS_ANY_OBJECT)) {
 
         List idRequests = new ArrayList();
         if ( selectedRunsDoc != null  ) {
@@ -219,6 +236,7 @@ public class EmailServlet extends GNomExCommand implements Serializable {
         this.addInvalidField("Insufficient permissions", "Insufficient permission to send email.");
         setResponsePage(this.ERROR_JSP);
       }
+     }
     }catch (Exception e) {
       System.out.println(e.toString());
       e.printStackTrace();

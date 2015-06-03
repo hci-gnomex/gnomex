@@ -21,9 +21,10 @@
 			import mx.controls.Alert;
 			import mx.managers.PopUpManager;
 			import mx.rpc.events.ResultEvent;
+			import mx.utils.StringUtil;
 			
 			[Bindable]
-			public var address:String = "";
+			public var toAddress:String = "";
 			
 			private function closeWindow():void {
 				PopUpManager.removePopUp(this);
@@ -31,8 +32,9 @@
 			
 			private function send():void {
 				var params:Object = new Object();
-				params.recipientAddress = address;
+				params.recipientAddress = toAddress;
 				params.subject = subject.text;
+				params.senderAddress = StringUtil.trim(fromAddress.text);
 				params.body = body.text;
 				
 				sendEmail.send(params);
@@ -52,20 +54,20 @@
 	
 	<mx:VBox styleName="form" width="100%" height="100%" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4">
 		<mx:HBox width="100%" horizontalGap="0" verticalAlign="middle">
-			<mx:Label text="Subject" width="80" styleName="formLabel"/>
+			<mx:Label text="Subject" width="80" styleName="formLabel" textAlign="center"/>
 			<mx:TextInput width="100%" id="subject"/>
 		</mx:HBox>
-		<mx:VBox width="100%" height="100%" verticalAlign="top" verticalGap="0">
-			<mx:HBox horizontalGap="4" verticalGap="0" verticalAlign="middle">
-				<mx:Label text="Body" width="80" styleName="formLabel"/>
-			</mx:HBox>
-			<mx:HBox paddingLeft="80" width="100%" height="100%">
-				<util:TextAreaWorkaround width="100%" height="100%" id="body"/>
-			</mx:HBox>
+		<mx:HBox width="100%" horizontalGap="0" verticalAlign="middle">
+			<mx:Label text="From" width="80" styleName="formLabel" textAlign="center"/>
+			<mx:TextInput width="100%" id="fromAddress"/>
+		</mx:HBox>
+		<mx:HBox width="100%" height="100%" horizontalGap="0">
+			<mx:Label text="Body" width="80" styleName="formLabel" textAlign="center"/>
+			<util:TextAreaWorkaround width="100%" height="100%" id="body"/>
+		</mx:HBox>
 		</mx:VBox>
-	</mx:VBox>
 	<mx:ControlBar horizontalAlign="right">
-		<mx:Button label="Send email" id="sendButton" click="send()" enabled="{this.address != '' &amp;&amp; this.body.text != '' &amp;&amp; this.subject.text != ''}" 
+		<mx:Button label="Send email" id="sendButton" click="send()" enabled="{this.toAddress != '' &amp;&amp; this.body.text != '' &amp;&amp; this.subject.text != '' &amp;&amp; this.fromAddress.text != ''}" 
 				   icon="@Embed(source='../../assets/email_go.png')" disabledIcon="@Embed(source='../../assets/email_go_disable.png')"/>
 		<mx:Button label="Cancel" click="{closeWindow()}"/>
 	</mx:ControlBar>
