@@ -10,9 +10,11 @@ import hci.gnomex.model.BillingStatus;
 import hci.gnomex.model.CoreFacility;
 import hci.gnomex.model.DiskUsageByMonth;
 import hci.gnomex.model.Invoice;
+import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.Request;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
+import hci.gnomex.utility.PropertyDictionaryHelper;
 import hci.report.constants.ReportFormats;
 import hci.report.model.Column;
 import hci.report.model.ReportRow;
@@ -207,7 +209,12 @@ public class ShowBillingMonthendReport extends ReportCommand implements Serializ
                 values.add(bi.getLabName());
                 values.add(acctNum);
                 values.add(acctName);
-                values.add(inv.getInvoiceNumber());
+                String useInvoiceNumbering = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(core.getIdCoreFacility(), PropertyDictionary.USE_INVOICE_NUMBERING);
+                if (inv != null && (useInvoiceNumbering == null || !useInvoiceNumbering.equals("N"))) {
+                	values.add(inv.getInvoiceNumber());
+                } else {
+                	values.add("");
+                }
                 values.add(this.formatDate(createDate, this.DATE_OUTPUT_SLASH));
                 values.add(this.formatDate(completeDate, this.DATE_OUTPUT_SLASH));
                 values.add(requestNumber);

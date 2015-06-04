@@ -58,6 +58,8 @@ public class BillingPDFFormatter extends DetailObject {
 	private NumberFormat   		currencyFormat;
 	private BigDecimal			grandTotal;
 	
+	private String				useInvoiceNumbering;
+	
 	// Font library
 	private static final Font FONT_HEADER = new Font(FontFamily.HELVETICA, 8, Font.BOLD, BaseColor.BLACK);
 	private static final Font FONT_TABLE_HEADER = new Font(FontFamily.HELVETICA, 7.2f, Font.BOLD, BaseColor.BLACK);
@@ -92,6 +94,8 @@ public class BillingPDFFormatter extends DetailObject {
 		}
 		currencyFormat = NumberFormat.getCurrencyInstance();
 		grandTotal = new BigDecimal(0);
+		
+		useInvoiceNumbering = PropertyDictionaryHelper.getInstance(this.sess).getCoreFacilityProperty(this.coreFacility.getIdCoreFacility(), PropertyDictionary.USE_INVOICE_NUMBERING);
 	}
 	
 	public ArrayList<Element> makeContent() {
@@ -178,7 +182,7 @@ public class BillingPDFFormatter extends DetailObject {
 		}
 		else {
 			PDFFormatterUtil.addPhrase(headerElements, billingPeriod.getBillingPeriod() + " " + coreFacility.getFacilityName() + " Billing", FONT_HEADER);
-			if (invoice != null) {
+			if (invoice != null && (useInvoiceNumbering == null || !useInvoiceNumbering.equals("N"))) {
 				PDFFormatterUtil.addPhrase(headerElements, "Invoice # " + invoice.getInvoiceNumber(), FONT_HEADER);
 			}
 		}
@@ -309,8 +313,10 @@ public class BillingPDFFormatter extends DetailObject {
 	
 	private PdfPTable makeRemitTable2(Invoice invoice) {
 		PdfPTable remitTable = new PdfPTable(1);
-		PDFFormatterUtil.addToTable(remitTable, "Invoice Number: " + invoice.getInvoiceNumber(), FONT_REMITTANCE_BOLD, Element.ALIGN_CENTER, Element.ALIGN_MIDDLE, false, false, false, false, BaseColor.GRAY, 1, 1);
-		PDFFormatterUtil.addToTableBlankRow(remitTable);
+		if (invoice != null && (useInvoiceNumbering == null || !useInvoiceNumbering.equals("N"))) {
+			PDFFormatterUtil.addToTable(remitTable, "Invoice Number: " + invoice.getInvoiceNumber(), FONT_REMITTANCE_BOLD, Element.ALIGN_CENTER, Element.ALIGN_MIDDLE, false, false, false, false, BaseColor.GRAY, 1, 1);
+			PDFFormatterUtil.addToTableBlankRow(remitTable);
+		}
 		PDFFormatterUtil.addToTable(remitTable, "Amount Due: " + currencyFormat.format(grandTotal), FONT_REMITTANCE_BOLD, Element.ALIGN_CENTER, Element.ALIGN_MIDDLE, false, false, false, false, BaseColor.GRAY, 1, 1);
 		PDFFormatterUtil.addToTableBlankRow(remitTable);
 		PDFFormatterUtil.addToTable(remitTable, "LAB ADDRESS:", FONT_REMITTANCE_NORMAL, Element.ALIGN_CENTER, Element.ALIGN_MIDDLE, false, false, false, false, BaseColor.GRAY, 1, 1);

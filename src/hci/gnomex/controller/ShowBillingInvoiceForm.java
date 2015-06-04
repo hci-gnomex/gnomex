@@ -530,7 +530,7 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
     Element center1 = new Element("CENTER");
     body.addContent(center1);
 
-    center1.addContent(formatter.makeHeader());
+    center1.addContent(formatter.makeHeader(sess));
 
     body.addContent(new Element("BR"));
 
@@ -573,11 +573,14 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
 
       Element labAddressDiv = new Element("DIV");
       labAddressDiv.setAttribute("class", "labAddress");
-      Element p1 = new Element("P");
-      Element b = new Element("B");
-      b.addContent("Invoice Number: " + invoice.getInvoiceNumber());
-      p1.addContent(b);
-      labAddressDiv.addContent(p1);
+      String useInvoiceNumbering = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(cf.getIdCoreFacility(), PropertyDictionary.USE_INVOICE_NUMBERING);
+      if (invoice != null && (useInvoiceNumbering == null || !useInvoiceNumbering.equals("N"))) {
+    	  Element p1 = new Element("P");
+          Element b = new Element("B");
+          b.addContent("Invoice Number: " + invoice.getInvoiceNumber());
+          p1.addContent(b);
+          labAddressDiv.addContent(p1);  
+      }
       Element p2 = new Element("P");
       Element b1 = new Element("B");
       b1.addContent("Amount Due: " + formatter.getGrandTotal());
@@ -657,7 +660,7 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
       Element center1 = new Element("CENTER");
       body.addContent(center1);
 
-      center1.addContent(formatter.makeHeader());
+      center1.addContent(formatter.makeHeader(sess));
 
       body.addContent(new Element("BR"));
 
@@ -700,11 +703,14 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
 
         Element labAddressDiv = new Element("DIV");
         labAddressDiv.setAttribute("class", "labAddress");
-        Element p1 = new Element("P");
-        Element b = new Element("B");
-        b.addContent("Invoice Number: " + invoice.getInvoiceNumber());
-        p1.addContent(b);
-        labAddressDiv.addContent(p1);
+        String useInvoiceNumbering = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(cf.getIdCoreFacility(), PropertyDictionary.USE_INVOICE_NUMBERING);
+        if (invoice != null && (useInvoiceNumbering == null || !useInvoiceNumbering.equals("N"))) {
+        	Element p1 = new Element("P");
+            Element b = new Element("B");
+            b.addContent("Invoice Number: " + invoice.getInvoiceNumber());
+            p1.addContent(b);
+            labAddressDiv.addContent(p1);
+        }
         Element p2 = new Element("P");
         Element b1 = new Element("B");
         b1.addContent("Amount Due: " + formatter.getGrandTotal());
