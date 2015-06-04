@@ -159,8 +159,11 @@ public abstract class GNomExCommand extends Command implements Serializable {
       imageSource = "assets/map.png";
       idCoreFacility = ((Analysis) obj).getIdCoreFacility();
     } else if(obj instanceof Invoice){
-      objectNumber = ((Invoice) obj).getInvoiceNumber();
       idCoreFacility = ((Invoice) obj).getIdCoreFacility();
+      String useInvoiceNumbering = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.USE_INVOICE_NUMBERING);
+      if (useInvoiceNumbering == null || !useInvoiceNumbering.equals("N")) {
+    	  objectNumber = ((Invoice) obj).getInvoiceNumber();  
+      }
     } else if(obj instanceof DataTrack){
       idLab = ((DataTrack) obj).getIdLab();
       objectNumber = ((DataTrack) obj).getNumber();

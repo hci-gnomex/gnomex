@@ -10,6 +10,7 @@ import hci.gnomex.model.DiskUsageByMonth;
 import hci.gnomex.model.Invoice;
 import hci.gnomex.model.Lab;
 import hci.gnomex.model.ProductOrder;
+import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.Request;
 
 import java.math.BigDecimal;
@@ -18,6 +19,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.hibernate.Session;
 import org.jdom.Element;
 
 
@@ -102,7 +104,7 @@ public class BillingInvoiceHTMLFormatter  extends DetailObject {
   }
 
 
-  public Element makeHeader() {
+  public Element makeHeader(Session sess) {
     Element table = new Element("TABLE");    
     table.setAttribute("CELLPADDING", "0");    
     if(billingAccount.getIdCoreFacility().intValue() == CoreFacility.CORE_FACILITY_DNA_SEQ_ID.intValue() && billingAccount.getIsPO().equals("N") && billingAccount.getIsCreditCard().equals("N")){    
@@ -202,8 +204,11 @@ public class BillingInvoiceHTMLFormatter  extends DetailObject {
       table.addContent(new Element("TR"));
       table.addContent(new Element("TR"));
       table.addContent(makeRow(billingPeriod.getBillingPeriod() + " " + coreFacilityName + " Billing"));
-      if(invoice != null){
-        table.addContent(makeRow("Invoice # " + invoice.getInvoiceNumber()));
+      if (invoice != null) {
+    	  String useInvoiceNumbering = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(invoice.getIdCoreFacility(), PropertyDictionary.USE_INVOICE_NUMBERING);
+          if (useInvoiceNumbering == null || !useInvoiceNumbering.equals("N")) {
+            table.addContent(makeRow("Invoice # " + invoice.getInvoiceNumber()));
+          }  
       }
     }
 

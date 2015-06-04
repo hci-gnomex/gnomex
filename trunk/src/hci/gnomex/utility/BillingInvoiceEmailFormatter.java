@@ -157,7 +157,7 @@ public class BillingInvoiceEmailFormatter extends DetailObject{
 
     body.addContent(formatter.makeIntroNote());
     body.addContent(new Element("HR"));    
-    body.addContent(formatter.makeHeader());
+    body.addContent(formatter.makeHeader(sess));
 
 
     return body;
