@@ -1525,7 +1525,7 @@
 				// through show event (init()).  The next time
 				// through, we will make the call directly.
 				if (navAnalysisView.isInitialized) {
-					navAnalysisView.refreshAnalysisForLookup()
+					navAnalysisView.refreshAnalysisForLookup();
 				}
 				
 				this.stateStack.selectedChild = theViews;
