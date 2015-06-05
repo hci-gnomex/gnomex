@@ -302,7 +302,7 @@
 			
 			private var refreshDAS2ProgressWindow:RefreshDAS2ProgressWindow;
 			
-			
+	
 			
 			
 			public function checkDirty():void {
@@ -505,7 +505,10 @@
 				
 			}
 			
-			private function onTreeClick():void {
+			private function onTreeClick(event:MouseEvent):void {
+				if(event.ctrlKey || event.shiftKey){
+					return;
+				}
 				this.treeItemToSelect = this.browseTree.selectedItem;
 				if (organismView.dirtyOrganism != null) {
 					organismView.dirtyOrganism.resetDirty();
@@ -1273,7 +1276,7 @@
 				if (deleteDataTrack.lastResult.name() == "SUCCESS") {
 					dataTrackView.dirtyDataTrack.resetDirty();
 					
-					if (itemsToRemove.length== 0) {
+					if (itemsToRemove.length == 0) {
 						refreshDataTracks();			
 					}
 				} else {
@@ -1529,22 +1532,23 @@
 			}        
 			
 			
+			
 			private function performMoveOrCopy():void {
-				if (dragParams.length == 0) {
+				if(dragParams.length == 0){
 					return;
 				}
 				var params:Object = dragParams[0];
 				params.isMove = reassignIsMove ? "Y" : "N";
 				if (params.name == "DataTrack") {
 					dragParams.removeItemAt(0);
-					moveDataTrack.send(params);
-					
+					moveDataTrack.send(params);	
 				} else if (params.name == "DataTrackFolder") {
 					dragParams.removeItemAt(0);
 					moveDataTrackFolder.send(params);
-				} 
-				
+				}
+			
 			}
+		
 			
 			public function setLastTreeItem(event:ListEvent):void
 			{
@@ -1945,14 +1949,14 @@
 								 showRoot="false" 
 								 id="browseTree" 
 								 itemRollOver="setLastTreeItem(event)"
-								 click="onTreeClick();"
+								 click="onTreeClick(event);"
 								 doubleClickEnabled="false" 
 								 borderStyle="solid"
 								 labelField="@label"
 								 labelFunction="getTreeLabel" 
 								 dragEnabled="true" 
 								 dropEnabled="true" 
-								 dragMoveEnabled="true"
+								 dragMoveEnabled="true" allowMultipleSelection="true"
 								 dragDrop="onDragDrop(event);" 
 								 itemRenderer="views.renderers.TreeNodeRenderer"
 								 iconFunction="parentApplication.getDataTrackTreeIcon" backgroundAlpha="0" dropShadowEnabled="false"></mx:Tree>

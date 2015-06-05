@@ -25,53 +25,61 @@ import org.jdom.output.XMLOutputter;
 
 
 public class UnlinkDataTrack extends GNomExCommand implements Serializable {
-  
- 
-  
+
+
+
   // the static field for logging in Log4J
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(UnlinkDataTrack.class);
-  
-  
+
+
   private Integer idDataTrack = null;
   private Integer idGenomeBuild = null;
   private Integer idDataTrackFolder = null;
- 
-  
-  
+
+
+
   public void validate() {
   }
-  
+
   public void loadCommand(HttpServletRequest request, HttpSession session) {
-    
-   if (request.getParameter("idDataTrack") != null && !request.getParameter("idDataTrack").equals("")) {
-     idDataTrack = new Integer(request.getParameter("idDataTrack"));
-   } else {
-     this.addInvalidField("idDataTrack", "idDataTrack is required.");
-   }
-   if (request.getParameter("idGenomeBuild") != null && !request.getParameter("idGenomeBuild").equals("")) {
-     idGenomeBuild = new Integer(request.getParameter("idGenomeBuild"));
-   } else {
-     this.addInvalidField("idGenomeBuild", "idGenomeBuild is required.");
-   }
-   if (request.getParameter("idDataTrackFolder") != null && !request.getParameter("idDataTrackFolder").equals("")) {
-     idDataTrackFolder = new Integer(request.getParameter("idDataTrackFolder"));
-   } else {
-     this.addInvalidField("idDataTrackFolder", "idDataTrackFolder is required.");
-   }
+
+    if (request.getParameter("idDataTrack") != null && !request.getParameter("idDataTrack").equals("")) {
+      idDataTrack = new Integer(request.getParameter("idDataTrack"));
+    } else {
+      this.addInvalidField("idDataTrack", "idDataTrack is required.");
+    }
+    if (request.getParameter("idGenomeBuild") != null && !request.getParameter("idGenomeBuild").equals("")) {
+      idGenomeBuild = new Integer(request.getParameter("idGenomeBuild"));
+    } else {
+      this.addInvalidField("idGenomeBuild", "idGenomeBuild is required.");
+    }
+
+    //It isn't a deal breaker if we don't have an idDataTrackFolder because the data track could be nested under the genome build
+    if (request.getParameter("idDataTrackFolder") != null && !request.getParameter("idDataTrackFolder").equals("")) {
+      idDataTrackFolder = new Integer(request.getParameter("idDataTrackFolder"));
+    }
   }
 
   public Command execute() throws RollBackCommandException {
     Session sess = null;
     DataTrack dataTrack = null;
-    
+
     try {
       sess = HibernateSession.currentSession(this.getUsername());
       dataTrack = (DataTrack)sess.load(DataTrack.class, idDataTrack);
-      
+
 
 
       dataTrack = DataTrack.class.cast(sess.load(DataTrack.class, idDataTrack));
       GenomeBuild genomeBuild = GenomeBuild.class.cast(sess.load(GenomeBuild.class, idGenomeBuild));
+
+      if(this.idDataTrackFolder == null) {
+        DataTrackFolder parentDataTrackFolder = genomeBuild.getRootDataTrackFolder();
+        if (parentDataTrackFolder == null) {
+          throw new Exception("Cannot find root data track folder for " + genomeBuild.getGenomeBuildName());
+        }
+        this.idDataTrackFolder = parentDataTrackFolder.getIdDataTrackFolder();
+      }
 
       // Make sure the user can write this dataTrack 
       if (this.getSecAdvisor().canUpdate(dataTrack)) {
@@ -149,15 +157,15 @@ public class UnlinkDataTrack extends GNomExCommand implements Serializable {
       log.error("An exception has occurred in UnlinkDataTrack ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
-        
+
     }finally {
       try {
         HibernateSession.closeSession();        
       } catch(Exception e) {
-        
+
       }
     }
-    
+
     return this;
   }
 }
