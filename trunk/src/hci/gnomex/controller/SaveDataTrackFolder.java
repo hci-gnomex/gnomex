@@ -21,23 +21,23 @@ import org.hibernate.Session;
 
 
 public class SaveDataTrackFolder extends GNomExCommand implements Serializable {
-  
- 
-  
+
+
+
   // the static field for logging in Log4J
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(SaveDataTrackFolder.class);
-  
+
   private DataTrackFolder    load;
   private Integer            idParentDataTrackFolder;
   private DataTrackFolder    dataTrackFolder;
   private boolean            isNewDataTrackFolder = false;
-  
-  
+
+
   public void validate() {
   }
-  
+
   public void loadCommand(HttpServletRequest request, HttpSession session) {
-    
+
     load = new DataTrackFolder();
     HashMap errors = this.loadDetailObject(request, load);
     this.addInvalidFields(errors);
@@ -51,63 +51,63 @@ public class SaveDataTrackFolder extends GNomExCommand implements Serializable {
       this.addInvalidField("namechar", "The folder name cannnot contain any characters / or &.");
     }
 
-    
+
   }
 
   public Command execute() throws RollBackCommandException {
-    
+
     try {
       Session sess = HibernateSession.currentSession(this.getUsername());
-      
+
       this.initializeDataTrackFolder(load, sess);
-      
-      
+
+
       if (this.getSecAdvisor().canUpdate(dataTrackFolder)) {
 
         this.dataTrackFolder.setName(RequestParser.unEscape(dataTrackFolder.getName()));
-        
+
         sess.save(dataTrackFolder);
         sess.flush();
 
         this.xmlResult = "<SUCCESS idDataTrackFolder=\"" + dataTrackFolder.getIdDataTrackFolder() + "\"/>";
-      
+
         setResponsePage(this.SUCCESS_JSP);
-      
+
       } else {
         this.addInvalidField("Insufficient permissions", "Insufficient permission to save data track folder.");
         setResponsePage(this.ERROR_JSP);
       }
-      
+
     }catch (Exception e){
       log.error("An exception has occurred in SaveDataTrackFolder ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
-        
+
     }finally {
       try {
-        HibernateSession.closeSession();        
+        HibernateSession.closeSession();
       } catch(Exception e) {
-        
+
       }
     }
-    
+
     return this;
   }
-  
+
   private void initializeDataTrackFolder(DataTrackFolder load, Session sess) throws Exception {
-    
+
     if (load.getIdDataTrackFolder() == null || load.getIdDataTrackFolder().intValue() == 0) {
       dataTrackFolder = load;
       dataTrackFolder.setCreatedBy(this.getSecAdvisor().getUID());
       dataTrackFolder.setCreateDate(new java.sql.Date(System.currentTimeMillis()));
       isNewDataTrackFolder = true;
-      
-      
+
+
     } else {
       dataTrackFolder = (DataTrackFolder)sess.load(DataTrackFolder.class, load.getIdDataTrackFolder());
-      
+
     }
-    
+
     dataTrackFolder.setName(RequestParser.unEscape(load.getName()));
     dataTrackFolder.setDescription(load.getDescription());
     dataTrackFolder.setIdLab(load.getIdLab());
@@ -136,8 +136,8 @@ public class SaveDataTrackFolder extends GNomExCommand implements Serializable {
         load.setIdParentDataTrackFolder(parentDataTrackFolder.getIdDataTrackFolder()); 
       }
     }
-    
-    
+
+
     // If parent annotation grouping is owned by a user group, this
     // child annotation grouping must be as well.
     if (!isNewDataTrackFolder) {
@@ -150,13 +150,13 @@ public class SaveDataTrackFolder extends GNomExCommand implements Serializable {
               DictionaryHelper.getInstance(sess).getLabObject(dataTrackFolder.getParentFolder().getIdLab()).getName() + "'");
         }
       } 
-      
+
     }
 
   }  
-  
- 
-  
-  
+
+
+
+
 
 }

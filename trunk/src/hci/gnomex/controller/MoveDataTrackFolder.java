@@ -26,61 +26,72 @@ import org.jdom.output.XMLOutputter;
 
 
 public class MoveDataTrackFolder extends GNomExCommand implements Serializable {
-  
- 
-  
+
+
+
   // the static field for logging in Log4J
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(MoveDataTrackFolder.class);
-  
-  
+
+
   private Integer idGenomeBuild = null;
   private Integer idDataTrackFolder = null;
   private Integer idParentDataTrackFolder = null;
   private String  isMove = null;
- 
-  
-  
+
+
+
   public void validate() {
   }
-  
+
   public void loadCommand(HttpServletRequest request, HttpSession session) {
-    
-   if (request.getParameter("idGenomeBuild") != null && !request.getParameter("idGenomeBuild").equals("")) {
-     idGenomeBuild = new Integer(request.getParameter("idGenomeBuild"));
-   } else {
-     this.addInvalidField("idGenomeBuild", "idGenomeBuild is required.");
-   }
-   if (request.getParameter("idDataTrackFolder") != null && !request.getParameter("idDataTrackFolder").equals("")) {
-     idDataTrackFolder = new Integer(request.getParameter("idDataTrackFolder"));
-   } else {
-     this.addInvalidField("idDataTrackFolder", "idDataTrackFolder is required.");
-   }
-   if (request.getParameter("idParentDataTrackFolder") != null && !request.getParameter("idParentDataTrackFolder").equals("")) {
-     idParentDataTrackFolder = new Integer(request.getParameter("idParentDataTrackFolder"));
-   } else {
-     this.addInvalidField("idParentDataTrackFolder", "idParentDataTrackFolder is required.");
-   }
-   if (request.getParameter("isMove") != null && !request.getParameter("isMove").equals("")) {
-     isMove = request.getParameter("isMove");
-   } else {
-     this.addInvalidField("isMove", "isMove is required.");
-   }
+
+    if (request.getParameter("idGenomeBuild") != null && !request.getParameter("idGenomeBuild").equals("")) {
+      idGenomeBuild = new Integer(request.getParameter("idGenomeBuild"));
+    } else {
+      this.addInvalidField("idGenomeBuild", "idGenomeBuild is required.");
+    }
+    if (request.getParameter("idDataTrackFolder") != null && !request.getParameter("idDataTrackFolder").equals("")) {
+      idDataTrackFolder = new Integer(request.getParameter("idDataTrackFolder"));
+    } else {
+      this.addInvalidField("idDataTrackFolder", "idDataTrackFolder is required.");
+    }
+
+    //We don't need the idParentDataTrackFolder if the are moving the folder to be a child of the genome build folder
+    //Therefore don't make the lack of an idParentDataTrackFolder a deal breaker
+    if (request.getParameter("idParentDataTrackFolder") != null && !request.getParameter("idParentDataTrackFolder").equals("")) {
+      idParentDataTrackFolder = new Integer(request.getParameter("idParentDataTrackFolder"));
+    }
+
+    if (request.getParameter("isMove") != null && !request.getParameter("isMove").equals("")) {
+      isMove = request.getParameter("isMove");
+    } else {
+      this.addInvalidField("isMove", "isMove is required.");
+    }
   }
 
   public Command execute() throws RollBackCommandException {
     Session sess = null;
     DataTrackFolder dataTrackFolder = null;
-    
+
     try {
       sess = HibernateSession.currentSession(this.getUsername());
       dataTrackFolder = (DataTrackFolder)sess.load(DataTrackFolder.class, idDataTrackFolder);
-      
+
+      if(this.idParentDataTrackFolder == null) {
+        GenomeBuild gb = GenomeBuild.class.cast(sess.load(GenomeBuild.class, this.idGenomeBuild));
+        DataTrackFolder parentDataTrackFolder = gb.getRootDataTrackFolder();
+        if (parentDataTrackFolder == null) {
+          throw new Exception("Cannot find root data track folder for " + gb.getGenomeBuildName());
+        }
+        this.idParentDataTrackFolder = parentDataTrackFolder.getIdDataTrackFolder();
+      }
+
       // Get all descendant data tracks of the data track folder to move
       ArrayList movedChildren = new ArrayList<DataTrack>();
       recurseAddChildren(dataTrackFolder, movedChildren);
       DataTrackFolder parentFolderOld = dataTrackFolder.getParentFolder();
-      
-      
+
+
       GenomeBuild genomeBuild = GenomeBuild.class.cast(sess.load(GenomeBuild.class, idGenomeBuild));
 
       // Make sure the user can write this dataTrack folder
@@ -98,9 +109,9 @@ public class MoveDataTrackFolder extends GNomExCommand implements Serializable {
         for (Iterator i = movedChildren.iterator(); i.hasNext();) {
           DataTrack dt = (DataTrack)i.next();
           dt.setIsLoaded("N");
-          
+
           if (isMove.equals("Y")) {
-            
+
 
             for (Iterator i1 = dt.getFolders().iterator(); i1.hasNext();) {
               DataTrackFolder parentFolder = (DataTrackFolder)i1.next(); 
@@ -118,11 +129,11 @@ public class MoveDataTrackFolder extends GNomExCommand implements Serializable {
               sess.save(unload);
             }
           }
-          
+
         }
         sess.flush();
-        
-      
+
+
         // Get the dataTrack grouping this dataTrack grouping should be moved to.
         DataTrackFolder parentDataTrackFolder = null;
         if (idParentDataTrackFolder == null) {
@@ -178,9 +189,9 @@ public class MoveDataTrackFolder extends GNomExCommand implements Serializable {
 
         // Set the parent dataTrack grouping
         dataTrackFolder.setIdParentDataTrackFolder(parentDataTrackFolder.getIdDataTrackFolder());
-    
+
         sess.flush();
-    
+
         Element root = new Element("SUCCESS");
         Document doc = new Document(root);
         root.setAttribute("idDataTrack", dataTrackFolder.getIdDataTrackFolder().toString());
@@ -196,18 +207,18 @@ public class MoveDataTrackFolder extends GNomExCommand implements Serializable {
       log.error("An exception has occurred in MoveDataTrackFolder ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
-        
+
     }finally {
       try {
         HibernateSession.closeSession();        
       } catch(Exception e) {
-        
+
       }
     }
-    
+
     return this;
   }
-  
+
   private void recurseAddChildren(DataTrackFolder folder, ArrayList children) {
     for (Iterator i = folder.getDataTracks().iterator(); i.hasNext();) {
       DataTrack dt = (DataTrack)i.next();
