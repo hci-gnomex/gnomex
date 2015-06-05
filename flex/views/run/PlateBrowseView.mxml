@@ -138,18 +138,7 @@
 					params.plateType = "SOURCE";
 				}
 				
-				if ( parentDocument.capSeqCheckbox.selected ) {
-					params.codeReactionType = 'SEQ' ;
-				}
-				else if ( parentDocument.fragCheckbox.selected ) {
-					params.codeReactionType = 'FRAG' ;
-				}
-				else if ( parentDocument.mitoCheckbox.selected ) {
-					params.codeReactionType = 'MIT' ;
-				}
-				else if ( parentDocument.cherryCheckbox.selected ) {
-					params.codeReactionType = 'CHERRY' ;
-				}
+				params.codeReactionType = 'SEQ';
 				
 				return params;
 			}
@@ -173,18 +162,6 @@
 				}
 				if ( parentDocument.failedCheckbox.selected ) {
 					return false ;
-				}
-				if ( parentDocument.capSeqCheckbox.selected ) {
-					return false;
-				}
-				if ( parentDocument.fragCheckbox.selected ) {
-					return false;
-				}
-				if ( parentDocument.mitoCheckbox.selected ) {
-					return false;
-				}
-				if ( parentDocument.cherryCheckbox.selected ) {
-					return false;
 				}
 				
 				return true;

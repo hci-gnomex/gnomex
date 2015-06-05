@@ -128,10 +128,7 @@
 			// Reaction type
 			[Bindable]
 			private var reactionState:String;
-			static public const MIT:String = "MIT";
 			static public const SEQ:String = "SEQ";
-			static public const FRAG:String = "FRAG";
-			static public const CHERRY:String = "CHERRY";
 			
 			
 			// Building a plate or a run?
@@ -266,12 +263,6 @@
 				
 				if ( reactionState == SEQ ) {
 					crc = "CAPSEQ";
-				} else if ( reactionState == FRAG ) {
-					crc = "FRAGANAL";
-				} else if ( reactionState == MIT ) {
-					crc = "MITSEQ";
-				} else if ( reactionState == CHERRY ) {
-					crc = "CHERRYPICK";
 				} else {
 					return;
 				}
@@ -407,11 +398,6 @@
 				} else {
 					var group:Object = event.currentTarget.selectedItem;
 					
-					if ( reactionState == MIT ) {
-						group.name = "Primer";
-					} else if ( reactionState == FRAG ) {
-						group.name = "Assay";
-					}
 					displayInfo( group );
 				}
 			}
@@ -629,9 +615,6 @@
 			
 			// Create the .plt run file
 			private function createPltFiles():void {
-				if ( reactionState == CHERRY ) {
-					return;
-				}
 				var url:URLRequest = new URLRequest('DownloadABIRunFileServlet.gx' +
 					'?idInstrumentRun=' + run.idRun + '&codeReactionType=' + reactionState);
 				navigateToURL( url, '_blank' );
@@ -1096,9 +1079,6 @@
 							if ( !activePlate.getWell( index ).hasSample && activePlate.getWell( index ).isControl != "Y" ) {
 								
 								item.@groupId = item.@requestNumber;
-								if ( reactionState == MIT || reactionState == FRAG ) {
-									item.@groupId = item.@label;
-								}
 								activePlate.addSourceWell( index, item );
 								// Tag the sample when it's added to a plate
 								item.@isOnPlate = true;
@@ -1416,9 +1396,6 @@
 					
 					pw.@groupId = pw.@requestNumber;
 					
-					if ( reactionState == MIT || reactionState == FRAG ) {
-						pw.@groupId = pw.@label;
-					}
 					activePlate.addSourceWell( ind, pw );
 					
 					var wc:WellContainer = activePlate.getWell( ind ) as WellContainer;
@@ -2148,40 +2125,17 @@
 					return;
 				}
 				
-				if ( reaction == MIT ) {
-					reactionState = MIT;
-					colorPickLabel.text = "Select a primer by color."
-					removeOrderButton.label = "Remove primer from plate"
-					reactionTypeRadioGroup.selection = radioMit;
-					fillColWise = true;
-					toggleFillOrientation();
-					reactTypeText.text = plateReactTypeText.text = "Mitochondrial Seq";
-				} else if ( reaction == FRAG ) {
-					reactionState = FRAG;
-					colorPickLabel.text = "Select an assay by color.";
-					removeOrderButton.label = "Remove assay from plate"
-					reactionTypeRadioGroup.selection = radioFrag;
-					fillColWise = false;
-					toggleFillOrientation();
-					reactTypeText.text = plateReactTypeText.text = "Fragment Analysis";
-				} else if ( reaction == SEQ ) {
+				if ( reaction == SEQ ) {
 					reactionState = SEQ;
 					colorPickLabel.text = "Select an order by color.";
 					removeOrderButton.label = "Remove order from plate"
-					reactionTypeRadioGroup.selection = radioSEQ;
 					fillColWise = true;
 					toggleFillOrientation();
 					reactTypeText.text = plateReactTypeText.text = "DNA (Sanger) Seq";
 					if ( currentState.substr(0,3) == "new" ){ 
 						activePlate.getWell(95).setControl(true);
 					}
-				} /* else if ( reaction == CHERRY ) {
-				reactionState = CHERRY;
-				fillColWise = false;
-				toggleFillOrientation();
-				pltButton.visible = pltButton.includeInLayout = false;
-				reactTypeText.text = plateReactTypeText.text = "Cherry Pick";
-				} */
+				}
 				removeRun();
 				
 				refreshLists();
@@ -2452,27 +2406,7 @@
 						  id="runTitleLabel"
 						  text="Run"
 						  paddingRight="15" styleName="titleLabel"/>
-				<mx:HBox verticalAlign="middle" horizontalGap="4" paddingLeft="5" fontSize="11">
-					
-					<mx:RadioButtonGroup id="reactionTypeRadioGroup" />
-					<mx:RadioButton id="radioSEQ"
-									label="DNA (Sanger) Seq"
-									groupName="reactionTypeRadioGroup"
-									click="{toggleReactionType(SEQ)}"
-									selected="{reactionState==SEQ}"  styleName="labelSmall" fontSize="11"/>
-					<mx:RadioButton id="radioMit"
-									label="Mitochondrial Seq"
-									groupName="reactionTypeRadioGroup"
-									click="{toggleReactionType(MIT)}"
-									selected="{reactionState==MIT}"  styleName="labelSmall" fontSize="11"/>
-					<mx:RadioButton id="radioFrag"
-									label="Fragment Analysis"
-									groupName="reactionTypeRadioGroup"
-									click="{toggleReactionType(FRAG)}"
-									selected="{reactionState==FRAG}"  styleName="labelSmall" fontSize="11"/>
-					<mx:Spacer width="100%" height="100%" />
-					
-				</mx:HBox>
+				
 				<mx:Spacer width="100%" height="100%" id="spacer1" />
 				<mx:LinkButton label="View"
 							   fontSize="11"

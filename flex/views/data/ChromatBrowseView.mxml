@@ -146,8 +146,8 @@
 					params.requestNumber = requestNoLookupField.text != null ? requestNoLookupField.text : '' ;
 					params.runName = runNameLookupField.text != null ? runNameLookupField.text : '';
 					params.plateName = plateNameLookupField.text != null ? plateNameLookupField.text : '';
-					params.capSeq = this.capSeqCheckbox.selected ? 'Y' : 'N' ;
-					params.mitSeq = this.mitSeqCheckbox.selected ? 'Y' : 'N' ;
+					params.capSeq = 'Y';
+					params.mitSeq = 'N';
 					if (pickCreateDateRangeButton.fromDate != null && pickCreateDateRangeButton.toDate != null) {
 						params.createDateFrom = pickCreateDateRangeButton.dateFormatter.format(pickCreateDateRangeButton.fromDate);
 						params.createDateTo = pickCreateDateRangeButton.dateFormatter.format(pickCreateDateRangeButton.toDate);
@@ -316,15 +316,6 @@
 				return item.@isSelected == true;
 			}
 			
-			public function toggleReactionCheckboxes( checkBoxNumber:int ):void {
-				this.clearAllLookupFields();
-				if ( checkBoxNumber == 0 ) {
-					this.mitSeqCheckbox.selected = false;
-				} else if ( checkBoxNumber == 1 ) {
-					this.capSeqCheckbox.selected = false;
-				}
-			}
-			
 			public function toggleReleaseCheckboxes( checkBoxNumber:int ):void {
 				if ( checkBoxNumber == 1 ) {
 					this.releasedCheckbox.selected = false;
@@ -366,9 +357,6 @@
 			
 			private function clearAllCheckBoxes():void {
 				this.pickCreateDateRangeButton.resetRange();
-				
-				this.mitSeqCheckbox.selected = false;
-				this.capSeqCheckbox.selected = false;
 			}
 			
 			private function plateNameFieldSearch():void {
@@ -641,40 +629,6 @@
 							 paddingLeft="0"
 							 horizontalAlign="left"
 							 verticalAlign="middle" fontSize="10">
-						
-						<mx:HBox horizontalGap="0"
-								 verticalAlign="middle"
-								 verticalGap="0"
-								 horizontalAlign="right"
-								 paddingLeft="0"
-								 paddingRight="5">
-							<mx:CheckBox id="capSeqCheckbox"
-										 label="Sanger seq"
-										 paddingRight="0"
-										 paddingLeft="2"
-										 horizontalGap="0"
-										 selected="true" >
-								<mx:click>
-									actionDictionary.source = dictXML.action;
-									toggleReactionCheckboxes( 0 );
-									this.getList();
-								</mx:click>
-								
-							</mx:CheckBox>
-							<mx:CheckBox id="mitSeqCheckbox"
-										 label="Mitochondrial seq"
-										 paddingRight="0"
-										 paddingLeft="2"
-										 horizontalGap="0">
-								<mx:click>
-									toggleReactionCheckboxes( 1 );
-									this.getList();
-								</mx:click>
-								
-							</mx:CheckBox>
-							
-						</mx:HBox>
-						<mx:VRule height="20" />
 						
 						<mx:HBox horizontalGap="0"
 								 verticalAlign="middle"
