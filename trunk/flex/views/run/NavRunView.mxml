@@ -52,11 +52,6 @@
 				this.completeCheckbox.selected = false;
 				this.failedCheckbox.selected  = false;
 				
-				this.capSeqCheckbox.selected = false;
-				this.fragCheckbox.selected = false;
-				this.mitoCheckbox.selected  = false;
-				this.cherryCheckbox.selected = false;
-				
 				this.reactionCheckbox.selected = false;
 				this.sourceCheckbox.selected = false;
 
@@ -75,11 +70,6 @@
 					this.runningCheckbox.selected  = false;
 					this.completeCheckbox.selected = false;
 					this.failedCheckbox.selected  = false;
-					
-					this.capSeqCheckbox.selected = false;
-					this.fragCheckbox.selected = false;
-					this.mitoCheckbox.selected  = false;
-					this.cherryCheckbox.selected = false;
 					
 					this.reactionCheckbox.selected = false;
 					this.sourceCheckbox.selected = false;
@@ -118,36 +108,6 @@
 				} 
 			}
 			
-			private function toggleTypeCheckboxes(checkBoxNumber:int):void {
-				this.lookupPlateNameField.text = '';
-				this.lookupRunNameField.text = '';
-				
-				if (checkBoxNumber == 1) {
-					this.allCheckbox.selected = false;
-					this.fragCheckbox.selected = false;
-					this.mitoCheckbox.selected  = false;
-					this.cherryCheckbox.selected = false;
-					
-				} else if (checkBoxNumber == 2) {
-					this.allCheckbox.selected = false;
-					this.capSeqCheckbox.selected = false;
-					this.mitoCheckbox.selected  = false;
-					this.cherryCheckbox.selected = false;
-					
-				} else if (checkBoxNumber == 3) {
-					this.allCheckbox.selected = false;
-					this.capSeqCheckbox.selected = false;
-					this.fragCheckbox.selected = false;
-					this.cherryCheckbox.selected = false;
-					
-				}  else if (checkBoxNumber == 4) {
-					this.allCheckbox.selected = false;
-					this.capSeqCheckbox.selected = false;
-					this.fragCheckbox.selected = false;
-					this.mitoCheckbox.selected  = false;
-				}     
-			}
-			
 			private function toggleCodePlateType(checkBoxNumber:int):void{
 				this.lookupPlateNameField.text = '';
 				this.lookupRunNameField.text = '';
@@ -158,8 +118,6 @@
 				else if(checkBoxNumber == 1){
 					this.allCheckbox.selected = false;
 					this.reactionCheckbox.selected = false;
-					this.mitoCheckbox.selected = false;
-					this.capSeqCheckbox.selected = false;
 				}
 			}
 			
@@ -172,10 +130,6 @@
 					this.runningCheckbox.selected = false;
 					this.completeCheckbox.selected = false;
 					
-					this.capSeqCheckbox.selected = false;
-					this.fragCheckbox.selected = false;
-					this.mitoCheckbox.selected  = false;
-					this.cherryCheckbox.selected = false;
 					this.allCheckbox.selected = false;
 					
 					this.reactionCheckbox.selected = false;
@@ -292,69 +246,6 @@
 						</mx:click>
 						
 					</mx:CheckBox>
-				</mx:HBox>
-				
-				<mx:VRule height = "20" />
-				
-				<mx:HBox id = "typeCheckboxBar"
-						 horizontalGap = "0"
-						 height = "100%"
-						 verticalAlign = "middle"
-						 verticalGap = "0"
-						 horizontalAlign = "right"
-						 paddingLeft = "5"
-						 paddingRight = "5">
-					<mx:VBox verticalGap="0">
-						<mx:CheckBox label = "Sanger Seq"
-									 id = "capSeqCheckbox" selected="true"
-									 horizontalGap = "0"
-									 styleName = "labelSmall"
-									 paddingLeft = "2" paddingRight="0" paddingTop="0" paddingBottom="0">
-							<mx:click>
-								toggleTypeCheckboxes( 1 );
-								getList();
-							</mx:click>
-							
-						</mx:CheckBox>
-						
-						<mx:CheckBox label = "Frag Analysis"
-									 id = "fragCheckbox"
-									 paddingLeft = "2"
-									 horizontalGap = "0"
-									 styleName = "labelSmall" paddingBottom="0" paddingRight="0" paddingTop="0">
-							<mx:click>
-								toggleTypeCheckboxes( 2 );
-								getList();
-							</mx:click>
-							
-						</mx:CheckBox>
-						
-					</mx:VBox>
-					<mx:VBox verticalGap="0">
-						<mx:CheckBox label = "Mit Seq"
-									 id = "mitoCheckbox"
-									 paddingLeft = "0"
-									 horizontalGap = "0"
-									 styleName = "labelSmall" paddingBottom="0" paddingTop="0" paddingRight="0">
-							<mx:click>
-								toggleTypeCheckboxes( 3 );
-								getList();
-							</mx:click>
-							
-						</mx:CheckBox>
-						
-						<mx:CheckBox label = "Cherry Pick"
-									 id = "cherryCheckbox"
-									 paddingLeft = "0"
-									 horizontalGap = "0"
-									 styleName = "labelSmall" paddingBottom="0"  paddingRight="0">
-							<mx:click>
-								toggleTypeCheckboxes( 4 );
-								getList();
-							</mx:click>
-							
-						</mx:CheckBox>
-					</mx:VBox>	
 				</mx:HBox>
 				
 				<mx:VRule height = "20" />

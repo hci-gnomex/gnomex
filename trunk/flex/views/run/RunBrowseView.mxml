@@ -194,18 +194,7 @@
 					params.status = 'FAILED' ;
 				}
 				
-				if ( parentDocument.capSeqCheckbox.selected ) {
-					params.codeReactionType = 'SEQ' ;
-				}
-				if ( parentDocument.fragCheckbox.selected ) {
-					params.codeReactionType = 'FRAG' ;
-				}
-				if ( parentDocument.mitoCheckbox.selected ) {
-					params.codeReactionType = 'MIT' ;
-				}
-				if ( parentDocument.cherryCheckbox.selected ) {
-					params.codeReactionType = 'CHERRY' ;
-				}
+				params.codeReactionType = 'SEQ';
 				
 				return params;
 			}
@@ -229,18 +218,6 @@
 				}
 				if ( parentDocument.failedCheckbox.selected ) {
 					return false ;
-				}
-				if ( parentDocument.capSeqCheckbox.selected ) {
-					return false;
-				}
-				if ( parentDocument.fragCheckbox.selected ) {
-					return false;
-				}
-				if ( parentDocument.mitoCheckbox.selected ) {
-					return false;
-				}
-				if ( parentDocument.cherryCheckbox.selected ) {
-					return false;
 				}
 				
 				return true;
