@@ -366,6 +366,9 @@
 				
 			}
 			private function showRelatedObject(selectedItem:Object):void {
+				this.relatedExperimentsTree.doubleClickEnabled = false;
+				this.relatedDataTracksTree.doubleClickEnabled = false;
+				this.relatedTopicsTree.doubleClickEnabled = false;
 				if (selectedItem.name() == "Experiments") {
 					parentApplication.showExperimentsForNumber(selectedItem.@number);
 				} else if (selectedItem.name() == "Analysis" && analysis.@idAnalysis != selectedItem.@idAnalysis) {
@@ -376,7 +379,16 @@
 					parentApplication.showTopicForNumber(selectedItem.@idTopic);
 				} else if (selectedItem.name() == "Request" ) {
 					parentApplication.showExperimentById(selectedItem.@idRequest);
-				}				
+				}
+				
+				//callLater(enableDoubleClick);
+				
+			}
+			
+			public function enableDoubleClick():void{
+				this.relatedExperimentsTree.doubleClickEnabled = true;
+				this.relatedDataTracksTree.doubleClickEnabled = true;
+				this.relatedTopicsTree.doubleClickEnabled = true;
 			}
 
 			private function showCollaboratorWindow():void {
