@@ -41,6 +41,7 @@ public abstract class MultiRequestSampleSheetAbstractParser implements Serializa
   private static final String HEADER_DESCRIPTION1 = "Sample Description";
   private static final String HEADER_SAMPLE_TYPE = "Sample Type";
   private static final String HEADER_ORGANISM = "Organism";
+  private static final String HEADER_CC_NUMBER = "CC Number";
 
   protected List<Error> errors = null;
   protected Map<Integer, ColumnInfo> columnMap;
@@ -64,7 +65,7 @@ public abstract class MultiRequestSampleSheetAbstractParser implements Serializa
     if (!fatalError()) {
       createColumnMap(dh);
       if (requestNumberOrdinal == null || sampleNumberOrdinal == null) {
-        errors.add(new Error(Error.FATAL, "Both request # and sample # columns must be included in the spread sheet."));
+        errors.add(new Error(Error.FATAL, "Both Request # and Sample # columns must be included in the spread sheet."));
       }
     }
 
@@ -154,13 +155,15 @@ public abstract class MultiRequestSampleSheetAbstractParser implements Serializa
       info = new ColumnInfo(ordinal, HEADER_SAMPLE_TYPE, "idSampleType", PropertyType.OPTION, "hci.gnomex.model.SampleType");
     } else if (header.toLowerCase().equals(HEADER_ORGANISM.toLowerCase())) {
       info = new ColumnInfo(ordinal, HEADER_ORGANISM, "idOrganism", PropertyType.OPTION, "hci.gnomex.model.OrganismLite");
+    } else if (header.toLowerCase().equals(HEADER_CC_NUMBER.toLowerCase())) {
+      info = new ColumnInfo(ordinal, HEADER_CC_NUMBER, "ccNumber", PropertyType.TEXT, null);
     }
     return info;
   }
 
   private ColumnInfo getAnnotationColumnInfo(DictionaryHelper dh, Integer ordinal, String header) {
     ColumnInfo info = null;
-    // Hardwire to core 1 for now as that is the only one using external experiments.
+    // Hardwire to core 1 for now.
     // Likely will have to be addressed later for more flexibility.
     Property p = dh.getPropertyByNameAndCore(header, 1);
     if (p != null && p.getIsActive().equals("Y") && p.getForSample().equals("Y")) {
@@ -193,7 +196,7 @@ public abstract class MultiRequestSampleSheetAbstractParser implements Serializa
     Sample sample = null;
     request = getRequest(sess, requestNumber);
     if (request == null) {
-      errors.add(new Error(Error.REQUEST_ERROR, "Request does not exist or is not an external request.", rowOrdinal, null, requestNumber, sampleNumber));
+      errors.add(new Error(Error.REQUEST_ERROR, "Request does not exist.", rowOrdinal, null, requestNumber, sampleNumber));
       rowError = true;
     } else {
       sample = getSample(sess, request, sampleNumber, rowOrdinal);
@@ -257,7 +260,7 @@ public abstract class MultiRequestSampleSheetAbstractParser implements Serializa
     if (requestMap.containsKey(requestNumber)) {
       request = requestMap.get(requestNumber);
     } else {
-      String queryString = "from Request where isExternal='Y' and number = :number";
+      String queryString = "from Request where number = :number";
       Query query = sess.createQuery(queryString);
       query.setParameter("number", requestNumber);
       List l = query.list();
