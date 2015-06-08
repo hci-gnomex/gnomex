@@ -264,8 +264,8 @@
 			
 			public function init():void {
 
-				fullWidth = 850;
-				fullHeight = 506;
+				fullWidth = 950;
+				fullHeight = 700;
 
 				this.errorsGrid.addEventListener(ListEvent.CHANGE, errorsGridRowSelected);
 				this.samplesGrid.addEventListener(ListEvent.CHANGE, samplesGridRowSelected);
