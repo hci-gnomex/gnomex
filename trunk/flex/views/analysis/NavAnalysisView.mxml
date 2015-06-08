@@ -157,6 +157,7 @@
 			public var isDragDrop:Boolean = false;
 			
 			public var selectedNode:Object;
+			private var selectedIndex:int;
 			
 			public var parentIdLab:Object = null;
 			
@@ -343,114 +344,128 @@
 				var lab:Object;
 				var analysisGroup:Object;
 				var analysis:Object;
+				if (selectedAnalysisNumber != null) {
+					for each(analysis in getAnalysisGroupList.lastResult..Analysis){
+						if (analysis.@number == selectedAnalysisNumber) {
+							browseTree.selectedItem = analysis;
+							browseTree.selectedIndex = browseTree.getItemIndex(analysis);
+							browseTree.scrollToIndex(browseTree.selectedIndex);
+							break;
+						}
+					}
+					
+				}
+				
 				// If actionscript sets selectedItem (rather than selectedIndex) on tree,
 				// there is a flex bug that causes an extra node to be inserted under
 				// selected item.  To work around this problem, I'm iterating through
 				// open items to determine the selected index.  This is clumsy code,
 				// but it woirks!
-				if (selectedAnalysisNumber != null) {
-					for each (lab in getAnalysisGroupList.lastResult..Lab) {
-						pos++;	    	
-						for each(analysisGroup in lab.AnalysisGroup) {
-							pos++;
-							for each( analysis in analysisGroup.Analysis) {
-								pos++;
-								if (analysis.@number == selectedAnalysisNumber) {
-									idx = --pos;
-									
-									// We came from the main gnomex app, so select the lab 
-									if (this.currentState == "AdminState") {
-										for each(var l:Object in  labList) {
-											if (l.@idLab == analysis.@idLab) {
-												l.@isSelected = 'true';
-												this.selectedLabsLabel = l.@name;
-												this.labKeys = l.@idLab;
-											} else {
-												l.@isSelected = 'false';
-											}
-										}
-									}		    					
-									break;
-								} 
-							}
-							if (idx != -1) {
-								break;
-							} 
-						}
-						if (idx != -1) {
-							break;
-						}
-					}    			
-				} else if (selectedAnalysis != null) {
-					for each (lab in getAnalysisGroupList.lastResult..Lab) {
-						pos++;	    	
-						for each(analysisGroup in lab.AnalysisGroup) {
-							pos++;
-							for each( analysis in analysisGroup.Analysis) {
-								pos++;
-								if (analysis.@idAnalysis == selectedAnalysis.@idAnalysis &&
-									analysisGroup.@idAnalysisGroup == selectedIdAnalysisGroup) {
-									idx = --pos;
-									break;
-								} else if (analysis.@idAnalysis == selectedAnalysis.@idAnalysis && selectedIdAnalysisGroup == null) {
-									idx = --pos;
-									break;
-								}
-							}
-							if (idx != -1) {
-								break;
-							} 
-						}
-						if (idx != -1) {
-							break;
-						}
-					}    			
-				}else if (selectedIdAnalysisGroup != null) {
-					for each (lab in getAnalysisGroupList.lastResult..Lab) {	   
-						pos++; 	
-						for each(analysisGroup in lab.AnalysisGroup) {
-							pos++;
-							if (analysisGroup.@idAnalysisGroup == selectedIdAnalysisGroup) {
-								idx = --pos;
-								break;
-							}
-							for each( analysis in analysisGroup.Analysis) {
-								pos++;
-							}
-							if (idx != -1) {
-								break;
-							}
-						}
-						if (idx != -1) {
-							break;
-						}
-					}    			
-				} else if (selectedIdLab != null) {
-					for each (lab in getAnalysisGroupList.lastResult..Lab) {	    	
-						pos++;
-						if (selectedIdLab == lab.@idLab) {
-							idx = --pos;
-							break;
-						}
-						for each(analysisGroup in lab.AnalysisGroup) {
-							pos++;
-							for each(analysis in analysisGroup.Analysis) {
-								pos++;
-							}
-							if (idx != -1) {
-								break;
-							}
-						}
-						if (idx != -1) {
-							break;
-						}
-					}    			
-				}
 				
-				if (idx != -1) {
-					browseTree.selectedIndex = idx;
-					browseTree.scrollToIndex(idx);
-				}
+				
+//				if (selectedAnalysisNumber != null) {
+//					for each (lab in getAnalysisGroupList.lastResult..Lab) {
+//						pos++;	    	
+//						for each(analysisGroup in lab.AnalysisGroup) {
+//							pos++;
+//							for each( analysis in analysisGroup.Analysis) {
+//								pos++;
+//								if (analysis.@number == selectedAnalysisNumber) {
+//									idx = --pos;
+//									
+//									// We came from the main gnomex app, so select the lab 
+//									if (this.currentState == "AdminState") {
+//										for each(var l:Object in  labList) {
+//											if (l.@idLab == analysis.@idLab) {
+//												l.@isSelected = 'true';
+//												this.selectedLabsLabel = l.@name;
+//												this.labKeys = l.@idLab;
+//											} else {
+//												l.@isSelected = 'false';
+//											}
+//										}
+//									}		    					
+//									break;
+//								} 
+//							}
+//							if (idx != -1) {
+//								break;
+//							} 
+//						}
+//						if (idx != -1) {
+//							break;
+//						}
+//					}    			
+//				} else if (selectedAnalysis != null) {
+//					for each (lab in getAnalysisGroupList.lastResult..Lab) {
+//						pos++;	    	
+//						for each(analysisGroup in lab.AnalysisGroup) {
+//							pos++;
+//							for each( analysis in analysisGroup.Analysis) {
+//								pos++;
+//								if (analysis.@idAnalysis == selectedAnalysis.@idAnalysis &&
+//									analysisGroup.@idAnalysisGroup == selectedIdAnalysisGroup) {
+//									idx = --pos;
+//									break;
+//								} else if (analysis.@idAnalysis == selectedAnalysis.@idAnalysis && selectedIdAnalysisGroup == null) {
+//									idx = --pos;
+//									break;
+//								}
+//							}
+//							if (idx != -1) {
+//								break;
+//							} 
+//						}
+//						if (idx != -1) {
+//							break;
+//						}
+//					}    			
+//				}else if (selectedIdAnalysisGroup != null) {
+//					for each (lab in getAnalysisGroupList.lastResult..Lab) {	   
+//						pos++; 	
+//						for each(analysisGroup in lab.AnalysisGroup) {
+//							pos++;
+//							if (analysisGroup.@idAnalysisGroup == selectedIdAnalysisGroup) {
+//								idx = --pos;
+//								break;
+//							}
+//							for each( analysis in analysisGroup.Analysis) {
+//								pos++;
+//							}
+//							if (idx != -1) {
+//								break;
+//							}
+//						}
+//						if (idx != -1) {
+//							break;
+//						}
+//					}    			
+//				} else if (selectedIdLab != null) {
+//					for each (lab in getAnalysisGroupList.lastResult..Lab) {	    	
+//						pos++;
+//						if (selectedIdLab == lab.@idLab) {
+//							idx = --pos;
+//							break;
+//						}
+//						for each(analysisGroup in lab.AnalysisGroup) {
+//							pos++;
+//							for each(analysis in analysisGroup.Analysis) {
+//								pos++;
+//							}
+//							if (idx != -1) {
+//								break;
+//							}
+//						}
+//						if (idx != -1) {
+//							break;
+//						}
+//					}    			
+//				}
+//				
+//				if (idx != -1) {
+//					browseTree.selectedIndex = idx;
+//					browseTree.scrollToIndex(idx);
+//				}
 				
 				if(noOnBrowseTreeCall) {
 					noOnBrowseTreeCall = false;
@@ -506,7 +521,7 @@
 			
 			
 			public function onBrowseTree(event:MouseEvent):void {
-				if(browseTree.selectedItems.length != 1 && (event != null && (event.ctrlKey || event.shiftKey))){
+				if(browseTree.selectedItems.length < 1 || browseTree.selectedItem.@idAnalysis == selectedIdAnalysis || (event != null && (event.ctrlKey || event.shiftKey))){
 					return;
 				}
 				
@@ -687,14 +702,26 @@
 					selectedAnalysis = getAnalysis.lastResult.Analysis.(@idAnalysis == selectedIdAnalysis);			
 				} else if (selectedAnalysisNumber != null && selectedAnalysisNumber != '') {
 					selectedAnalysis = getAnalysis.lastResult.Analysis.(@number == selectedAnalysisNumber);
+					var labLoaded:Boolean = false;
+					//we don't want to reload getAnalysisGroupList() if we already have it so check for that
+					for each(var lab:Object in getAnalysisGroupList.lastResult.Lab){
+						if(selectedAnalysis.@idLab == lab.@idLab ){
+							labLoaded = true;
+							break;
+						}
+					}
 					
-					var params:Object = new Object();
-					params.idAnalysisGroup = selectedAnalysis.@idAnalysisGroup;
-					params.idLab = selectedAnalysis.@idLab;
-					params.showSamples = "N";
-					params.showCategory = "N";
-					params.searchPublicProjects = this.publicProjectsCheckbox ? "Y" : "N"; 
-					getAnalysisGroupList.send(params);
+					if(!labLoaded){
+						var params:Object = new Object();
+						params.idAnalysisGroup = selectedAnalysis.@idAnalysisGroup;
+						params.idLab = selectedAnalysis.@idLab;
+						params.showSamples = "N";
+						params.showCategory = "N";
+						params.searchPublicProjects = this.publicProjectsCheckbox ? "Y" : "N"; 
+						getAnalysisGroupList.send(params);
+					} else{
+						callLater(reselectTreeItem);
+					}
 					
 					analysisDetailView.titleLabel.text = "Analysis " + selectedAnalysisNumber;
 					analysisEditView.titleLabel.text = "Edit Analysis " + selectedAnalysisNumber;
@@ -740,6 +767,8 @@
 					browseView.refreshButtonStack();
 					
 					analysisViews.visible = true;
+					
+					this.analysisDetailView.enableDoubleClick();
 				}
 			
 			private function onGetAnalysisGroup(event:ResultEvent):void {
