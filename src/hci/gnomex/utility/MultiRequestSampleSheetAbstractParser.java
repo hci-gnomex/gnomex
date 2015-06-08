@@ -426,14 +426,16 @@ public abstract class MultiRequestSampleSheetAbstractParser implements Serializa
         if (pType.length == 1) {
           if (pType[0].equals(Integer.class)) {
             if (v.toString().length() == 0) {
-              v = "0";
+              v = null;
+            } else {
+              v = Integer.parseInt(v.toString());
             }
-            v = Integer.parseInt(v.toString());
           } else if (pType[0].equals(BigDecimal.class)) {
             if (v.toString().length() == 0) {
-              v = "0";
+              v = null;
+            } else {
+              v = new BigDecimal(v.toString());
             }
-            v = new BigDecimal(v.toString());
           } // else assume string.
           method.invoke(sample,  v);
           break;
