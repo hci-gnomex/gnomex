@@ -336,35 +336,43 @@ public class SaveCombinedWorkItemQualityControl extends GNomExCommand implements
       introNote.append("<br>To fetch the quality control reports, click <a href=\"" + downloadRequestURL + "\">" + Constants.APP_NAME + " - " + Constants.WINDOW_NAME_FETCH_RESULTS + "</a>.");         
     }       
 
-    boolean send = false;
     String emailInfo = "";
     String emailRecipients = request.getAppUser().getEmail();
-    String fromAddress = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(request.getIdCoreFacility(), PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
+    String fromAddress = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
+
+    RequestEmailBodyFormatter emailFormatter = new RequestEmailBodyFormatter(sess, this.getSecAdvisor(), appURL, dictionaryHelper, request, null, request.getSamples(), request.getHybridizations(), request.getSequenceLanes(),  introNote.toString());
+    
     if(!MailUtil.isValidEmail(emailRecipients)){
-      log.error("Invalid email: " + emailRecipients);
+      log.error("Invalid email address: " + emailRecipients);
     }
-    if (dictionaryHelper.isProductionServer(serverName)) {
-      send = true;
-    } else {
-      send = true;
-      emailSubject = emailSubject + "  (TEST)";
-      emailInfo = "[If this were a production environment then this email would have been sent to: " + emailRecipients + "]<br><br>";
-      emailRecipients = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
+    if(!MailUtil.isValidEmail(fromAddress)){
+      fromAddress = DictionaryHelper.getInstance(sess).getPropertyDictionary(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
     }
+    
+    // Get test email information
+    boolean testEmail = false;
+    String testEmailTo = "";
 
-    if (send) {
-      RequestEmailBodyFormatter emailFormatter = new RequestEmailBodyFormatter(sess, this.getSecAdvisor(), appURL, dictionaryHelper, request, null, request.getSamples(), request.getHybridizations(), request.getSequenceLanes(),  introNote.toString());
-      if(!MailUtil.isValidEmail(fromAddress)){
-        fromAddress = DictionaryHelper.getInstance(sess).getPropertyDictionary(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
+    if (!dictionaryHelper.isProductionServer(serverName)) {
+      testEmail = true;
+      testEmailTo = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
+    }
+    // Make sure we have an email address to send to 
+    if( emailRecipients.equals("") ){
+      if ( !testEmail || testEmailTo.equals("") ) {
+        return;
       }
-
-      MailUtil.send(emailRecipients, 
-          null,
-          fromAddress, 
-          emailSubject, 
-          emailInfo + emailFormatter.formatQualityControl(),
-          true);      
     }
+
+    MailUtil.sendCheckTest( emailRecipients,
+        null, 
+        fromAddress,
+        emailSubject,
+        emailInfo + emailFormatter.formatQualityControl(),
+        true,
+        testEmail,
+        testEmailTo
+        );  
 
   }
 }
