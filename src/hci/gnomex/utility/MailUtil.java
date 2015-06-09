@@ -48,48 +48,6 @@ public class MailUtil
 
     }
 
-    public static void sendCheckTest( String to,
-                            String cc,
-                            String from,
-                            String subject,
-                            String body,
-                            boolean formatHtml, 
-                            String server,
-                            PropertyDictionaryHelper pdh )
-        throws NamingException, AddressException, MessagingException {
-
-      sendCheckTest(to, cc, from, "", subject, body, formatHtml, server, pdh);
-    }
-
-    public static void sendCheckTest( String to,
-                            String cc,
-                            String from,
-                            String bcc,
-                            String subject,
-                            String body,
-                            boolean formatHtml, 
-                            String server,
-                            PropertyDictionaryHelper pdh )
-        throws NamingException, AddressException, MessagingException {
-
-      Session session = GNomExFrontController.getMailSession();
-      sendCheckTest(session, to, cc, from, "", subject, body, formatHtml, pdh.isProductionServer(server), pdh.getProperty(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER));
-    }
-    
-    public static void sendCheckTest(Properties props,
-                             String to,
-                             String cc,
-                             String from,
-                             String subject,
-                             String body,
-                             boolean formatHtml, 
-                             String server,
-                             PropertyDictionaryHelper pdh)
-         throws NamingException, AddressException, MessagingException {
-      
-      sendCheckTest(props, to, cc, from, subject, body, formatHtml, pdh.isProductionServer(server), pdh.getProperty(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER));
-    }
-    
     public static void sendCheckTest(Properties props,
                              String to,
                              String cc,
@@ -104,18 +62,19 @@ public class MailUtil
       sendCheckTest(session, to, cc, "", from, subject, body, formatHtml, testEmail, testEmailTo);
     }
     
-    public static void sendCheckTest(Session session,
-                              String to,
-                              String cc,
-                              String from,
-                              String subject,
-                              String body,
-                              boolean formatHtml,
-                              boolean testEmail,
-                              String testEmailTo)
-          throws NamingException, AddressException, MessagingException {
+    public static void sendCheckTest(String to,
+        String cc,
+        String from,
+        String subject,
+        String body,
+        boolean formatHtml,
+        boolean testEmail,
+        String testEmailTo)
+            throws NamingException, AddressException, MessagingException {
+      Session session = GNomExFrontController.getMailSession();
       sendCheckTest(session, to, cc, "", from, subject, body, formatHtml, testEmail, testEmailTo);
     }
+    
     
     public static void sendCheckTest(Session session,
                               String to,
@@ -130,8 +89,18 @@ public class MailUtil
           throws NamingException, AddressException, MessagingException {
 
       if (testEmail) {
-        subject = "Test - " + subject;
-        String newBody = "[If this were a production environment then this email would have been sent to: " + to + "]";
+        subject = "GNomEx Test Email - " + subject;
+        
+        // Add details about who the email would have gone to
+        String newBody = "[If this were a production environment then this email would have been sent to: " + to;
+        if ( cc!=null && !cc.equals("") ) {
+          newBody += ", cc: " + cc;
+        }
+        if ( bcc!=null && !bcc.equals("") ) {
+          newBody += ", bcc: " + bcc;
+        }
+        newBody += "]";
+        
         if (formatHtml) {
           newBody += "<br><br>";
         } else {
@@ -141,6 +110,7 @@ public class MailUtil
         body = newBody;
         to = testEmailTo;
         bcc = "";
+        cc = "";
       }
       send(session, to, cc, bcc, from, subject, body, formatHtml);
     }
