@@ -1620,11 +1620,11 @@
 							<mx:RadioButton id="prePooledNot" value="N" groupName="prePooledSamplesRadioGroup" label="Each library will be submitted in a separate microfuge tube."
 											click="{parentDocument.request.@hasPrePooledLibraries='N';prePooledNumTubes.text='';parentDocument.request.@numPrePooledTubes='';this.checkSampleSetupCompleteness()}"/>
 							<mx:HBox paddingLeft="0">
-								<mx:RadioButton paddingTop="0" paddingBottom="0" id="prePooled" value="Y" groupName="prePooledSamplesRadioGroup" label="Libraries will be submitted in"
+								<mx:RadioButton paddingTop="0" paddingBottom="0" id="prePooled" value="Y" groupName="prePooledSamplesRadioGroup" label="Libraries will be pre-pooled prior to drop off at the core facility and will be submitted in "
 												click="{parentDocument.request.@hasPrePooledLibraries='Y';this.checkSampleSetupCompleteness()}"/>
 								<mx:TextInput id="prePooledNumTubes" width="25" restrict="0-9" maxChars="2" enabled="{prePooled.selected}" 
 											  change="{parentDocument.request.@numPrePooledTubes = prePooledNumTubes.text;this.checkSampleSetupCompleteness()}"/>
-								<mx:Label text="(number) microfuge tubes."/>
+								<mx:Label text="(number) separate microfuge tubes."/>
 							</mx:HBox>
 						</mx:VBox>
 					</mx:HBox>

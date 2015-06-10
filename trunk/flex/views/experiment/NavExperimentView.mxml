@@ -178,7 +178,7 @@
 		
 		public var showPromptToUpload:Boolean = false;
         
-        public var selectedNode:Object;
+        private var selectedNode:Object;
 			
 		private var refreshCount:int = 0;
         
@@ -595,8 +595,10 @@
 			newProjectButton.enabled = false;
 
 			
-			if (browseTree.selectedItem == null) {
+			if (browseTree.selectedItem == null || browseTree.selectedItem == selectedNode) {
 				return; 
+			} else{
+				selectedNode = browseTree.selectedItem;
 			} 
 			
 			if (browseTree.selectedItem.name() == 'Request') {
