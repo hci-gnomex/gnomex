@@ -344,6 +344,8 @@
 		private var isInitialized:Boolean = false;
 			
 		private var lastSelectedApplication:Object = null;
+			
+		private var prePooledChanged:Boolean = false;
 
 		public var numCapSeqPlates:int = 0;
 			
@@ -3591,10 +3593,22 @@
 					}
 				}
 				
+				//If the pre-pooled value was changed check if billing is already complete and warn admin that they will have to update billing on their own
+				if(prePooledChanged){
+					for each(var bi:XML in request.billingItems..BillingItem){
+						if(bi.@description == 'Library QC' && bi.@codeBillingStatus == 'COMPLETE'){
+							Alert.show("You have changed the pre-pooled values for an experiment that has already completed Library QC.  You will have to manually update the appropriate billing item.", "Warning");
+							break;
+						}
+					}
+				
+					
+				}
 				
 				saveExistingRequest.send(params);
 				
 				billingAccountAlreadyUpdated = false;
+				prePooledChanged = false;
 	
 			}			
 		}
@@ -5416,6 +5430,22 @@
 					updateDirtyNote(false);
 				}
 			}
+			
+			
+			private function hasPrePooledLibraries():void{
+				if(this.hasPrePooledLibrariesCheck.selected){
+					this.request.@hasPrePooledLibraries = "Y";
+				} else{
+					this.request.@hasPrePooledLibraries = "N";
+					this.request.@numPrePooledTubes = "";
+				}
+				prePooledChanged = true;
+			}
+			
+			private function propagateNumTubes():void{
+				request.@numPrePooledTubes = this.numPrePooledTubesText.text;
+				prePooledChanged = true;
+			}
 		]]>
 	</mx:Script>
 	<mx:NumberValidator id="validator"  
@@ -5818,7 +5848,7 @@
 						</mx:TextInput>				
 					</mx:HBox>
 
-					<mx:HBox verticalGap="0" horizontalGap="0">
+					<mx:HBox verticalGap="0" horizontalGap="0" id="labGroupBox">
 						<mx:Label text="Lab Group"  width="100" fontWeight="normal" styleName="formLabel"/>
 						<renderers:FilterComboBox id="requestEditLabCombo"
 												  labelField="@name" 
@@ -6183,6 +6213,20 @@
 								 enabled="{parentApplication.isAdminState || (parentDocument.selectedExperiment.@canUpdate == 'Y' &amp;&amp; parentDocument.selectedExperiment.@isExternal == 'Y') ? true : false}">							
 						<mx:dataProvider>{filteredAppList}</mx:dataProvider>
 					</mx:ComboBox>
+				</mx:HBox>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{labGroupBox}" position="before">
+				<mx:HBox verticalGap="0" horizontalGap="0" width="700" verticalAlign="middle" id="prePoolBox">
+					<mx:Text text="Pre-pooled library?" width="100" id="prePoolLabel" styleName="formLabel"/>
+					<mx:CheckBox id="hasPrePooledLibrariesCheck" change="hasPrePooledLibraries(); this.dirty.setDirty();" selected="{this.request.@hasPrePooledLibraries == 'Y'}" 
+								 enabled="{parentApplication.isAdminState}">							
+					</mx:CheckBox>
+				</mx:HBox>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{labGroupBox}" position="before">
+				<mx:HBox verticalGap="0" horizontalGap="0" width="700" verticalAlign="middle" includeInLayout="{this.hasPrePooledLibrariesCheck.selected}" visible="{this.hasPrePooledLibrariesCheck.selected}">
+					<mx:Text text="Pre-pooled tubes" id="numPrePoolLabel" width="100" styleName="formLabel"/>
+					<mx:TextInput id="numPrePooledTubesText" text="{request.@numPrePooledTubes}" restrict="0-9" width="40" change="propagateNumTubes(); this.dirty.setDirty();" enabled="{parentApplication.isAdminState}"/>
 				</mx:HBox>
 			</mx:AddChild>
 			<mx:RemoveChild target="{experimentCategoryHBox}" />
