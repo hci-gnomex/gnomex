@@ -172,7 +172,7 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
           applicationNode.setAttribute("selectedInOtherCategory", "N");
           applicationNode.setAttribute("idBarcodeSchemeA", getIdBarcodeScheme(seqLibProtocolToBarcodeSchemeMap, a, "A"));
           applicationNode.setAttribute("idBarcodeSchemeB", getIdBarcodeScheme(seqLibProtocolToBarcodeSchemeMap, a, "B"));
-          if (rct.getIsIllumina() != null && rct.getIsIllumina().equals("Y")) {
+          if ( illuminaApplicationToLibPrepPriceMap != null && illuminaApplicationToLibPrepPriceMap.size() > 0 ) { // rct.getIsIllumina() != null && rct.getIsIllumina().equals("Y")) {
             applicationNode.setAttribute("unitPriceInternal", getUnitPrice(illuminaApplicationToLibPrepPriceMap, a, rc, PRICE_INTERNAL));
             applicationNode.setAttribute("unitPriceExternalAcademic", getUnitPrice(illuminaApplicationToLibPrepPriceMap, a, rc, PRICE_EXTERNAL_ACADEMIC));
             applicationNode.setAttribute("unitPriceExternalCommercial", getUnitPrice(illuminaApplicationToLibPrepPriceMap, a, rc, PRICE_EXTERNAL_COMMERCIAL));
@@ -544,7 +544,8 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
         " join ps.priceCategories pc " +
         " join pc.priceCategory.prices p " +
         " join p.priceCriterias crit " +
-        " where pc.priceCategory.pluginClassName='hci.gnomex.billing.illuminaLibPrepPlugin'" +
+        " where ( pc.priceCategory.pluginClassName='hci.gnomex.billing.illuminaLibPrepPlugin' " +
+        " or      pc.priceCategory.pluginClassName='hci.gnomex.billing.ApplicationBatchPlugin' ) " +
         "     and crit.filter1 is not null";
     Query query = sess.createQuery(queryString);
     List l = query.list();
