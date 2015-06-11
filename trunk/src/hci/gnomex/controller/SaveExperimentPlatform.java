@@ -809,7 +809,8 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
       " join ps.priceCategories pc " +
       " join pc.priceCategory.prices p " +
       " join p.priceCriterias crit " +
-      " where pc.priceCategory.pluginClassName='hci.gnomex.billing.illuminaLibPrepPlugin'" +
+      " where ( pc.priceCategory.pluginClassName='hci.gnomex.billing.illuminaLibPrepPlugin'" +
+      " or      pc.priceCategory.pluginClassName='hci.gnomex.billing.ApplicationBatchPlugin' )" +
       "     and crit.filter1 is not null" +
       "     and rc.codeRequestCategory = :code";
     Query query = sess.createQuery(queryString);
@@ -883,7 +884,8 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
         " join ps.requestCategories rc " +
         " join ps.priceCategories pspc " +
         " join pspc.priceCategory pc " +
-        " where pc.pluginClassName='hci.gnomex.billing.illuminaLibPrepPlugin'" +
+        " where ( pc.pluginClassName='hci.gnomex.billing.illuminaLibPrepPlugin' " +
+        " or      pc.pluginClassName='hci.gnomex.billing.ApplicationBatchPlugin' )" +
         "     and rc.codeRequestCategory = :code and pc.name = :name";
       Query query = sess.createQuery(queryString);
       query.setParameter("name", catName);
@@ -907,7 +909,7 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
 
   private void saveIlluminaLibPrepPrices(Session sess, RequestCategory rc, Application app, Element node, Map<String, Price> map, Integer defaultCategoryId) {
     // Only save lib prep prices for illumina request categories that have price sheet defined.
-    if (!RequestCategory.isIlluminaRequestCategory(rc.getCodeRequestCategory()) || map == null || !priceModified(node)) {
+    if (map == null || !priceModified(node)) { //!RequestCategory.isIlluminaRequestCategory(rc.getCodeRequestCategory()) ||
       return;
     }
 
