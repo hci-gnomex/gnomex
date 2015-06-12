@@ -222,12 +222,10 @@ public class ProductOrderFilter extends DetailObject {
   }
 
   private void addSecurityCriteria(String classShortName) {
-    if (this.secAdvisor
-        .hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
+    if (this.secAdvisor.hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
       return;
     } else if (idCoreFacility == null) {
-      this.addWhereOrAnd();
-      this.secAdvisor.appendCoreFacilityCriteria(queryBuf, classShortName);
+      secAdvisor.buildSecurityCriteria(queryBuf, classShortName, null, false, false, true, true, false);
     }
     return;
 

@@ -24,6 +24,7 @@ import hci.gnomex.model.Lab;
 import hci.gnomex.model.NewsItem;
 import hci.gnomex.model.PlateType;
 import hci.gnomex.model.PlateWell;
+import hci.gnomex.model.ProductOrder;
 import hci.gnomex.model.Project;
 import hci.gnomex.model.Property;
 import hci.gnomex.model.PropertyDictionary;
@@ -854,8 +855,39 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
         }
       }*/     
     }       
-
-
+    
+    //
+    // Product Order
+    //
+    else if (object instanceof ProductOrder) {
+      ProductOrder prodOrder = (ProductOrder)object;
+      // Admins
+      if (hasPermission(this.CAN_ACCESS_ANY_OBJECT)) {
+        canRead = true;
+      }
+      // Admins - Can only update requests from core facility user manages
+      else if (hasPermission(SecurityAdvisor.CAN_WRITE_ANY_OBJECT)) {
+        canRead = isCoreFacilityIManage(prodOrder.getIdCoreFacility());
+      }
+      // GNomEx Users
+      else if (hasPermission(this.CAN_PARTICIPATE_IN_GROUPS)) {
+        // ProductOrders can be read if user is member or manager of order's lab
+//        if (isGroupIAmMemberOf(prodOrder.getIdLab()) || isGroupIManage(prodOrder.getIdLab()) ) {
+//          canRead = true;
+//        } 
+        // Can see your own product orders only
+        if ( isOwner(prodOrder.getIdAppUser()) ) {
+          canRead = true;
+        }
+        else if(hasPermission(SecurityAdvisor.CAN_SUBMIT_FOR_OTHER_CORES) && this.isLabICanSubmitTo(prodOrder.getLab()) ) {
+          canRead = true;
+        }
+      }  
+      // Guests
+      else if(hasPermission(SecurityAdvisor.CAN_SUBMIT_FOR_OTHER_CORES) && this.isLabICanSubmitTo(prodOrder.getLab()) ) {
+        canRead = true;
+      }
+    } 
 
     if (canRead) {
       // Property dictionaries are a special case of the a dictionary.
@@ -1248,7 +1280,41 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
 
       } 
     }
+    //
+    // Product Orders
+    //
+    if (object instanceof ProductOrder) {
+      ProductOrder prodOrder = (ProductOrder)object;
 
+      // Super Admins
+      if (hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
+        canUpdate = true;
+      }
+      // Admins - Can only update requests from core facility user manages
+      else if (hasPermission(SecurityAdvisor.CAN_WRITE_ANY_OBJECT)) {
+        canUpdate = isCoreFacilityIManage(prodOrder.getIdCoreFacility());
+      }
+      //TODO - need to make sure updates and deletes don't happen after a certain status
+      // University GNomEx users
+      else if (hasPermission(SecurityAdvisor.CAN_PARTICIPATE_IN_GROUPS)) {
+        // Lab manager
+        if (isGroupIManage(prodOrder.getIdLab())) {
+          canUpdate = true;
+        }
+        // Owner of request
+        else if (isGroupIAmMemberOf(prodOrder.getIdLab()) && isOwner(prodOrder.getIdAppUser())) {
+          canUpdate = true;
+          // Collaborator with update
+        } 
+        //Is this a request that was submitted by user who can submit on behalf of other cores
+        else if(hasPermission(SecurityAdvisor.CAN_SUBMIT_FOR_OTHER_CORES) && this.isLabICanSubmitTo(prodOrder.getLab())) {
+          canUpdate = true;
+        }
+      }
+      else if(hasPermission(SecurityAdvisor.CAN_SUBMIT_FOR_OTHER_CORES) && this.isLabICanSubmitTo(prodOrder.getLab())) {
+        canUpdate = true;
+      }
+    }
     //
     // News Item
     // 
@@ -1623,6 +1689,41 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
       }        
       // Analysis group owner
       else if (isGroupIAmMemberOf(t.getIdLab()) && isOwner(t.getIdAppUser())) {
+        canDelete = true;
+      }
+    }
+    //
+    // Product Orders
+    //
+    if (object instanceof ProductOrder) {
+      ProductOrder prodOrder = (ProductOrder)object;
+
+      // Super Admins
+      if (hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
+        canDelete = true;
+      }
+      // Admins - Can only update requests from core facility user manages
+      else if (hasPermission(SecurityAdvisor.CAN_WRITE_ANY_OBJECT)) {
+        canDelete = isCoreFacilityIManage(prodOrder.getIdCoreFacility());
+      }
+      // University GNomEx users
+      //TODO - need to make sure updates and deletes don't happen after a certain status
+      else if (hasPermission(SecurityAdvisor.CAN_PARTICIPATE_IN_GROUPS)) {
+        // Lab manager
+        if (isGroupIManage(prodOrder.getIdLab())) {
+          canDelete = true;
+        }
+        // Owner of request
+        else if (isGroupIAmMemberOf(prodOrder.getIdLab()) && isOwner(prodOrder.getIdAppUser())) {
+          canDelete = true;
+          // Collaborator with update
+        } 
+        //Is this a request that was submitted by user who can submit on behalf of other cores
+        else if(hasPermission(SecurityAdvisor.CAN_SUBMIT_FOR_OTHER_CORES) && this.isLabICanSubmitTo(prodOrder.getLab())) {
+          canDelete = true;
+        }
+      }
+      else if(hasPermission(SecurityAdvisor.CAN_SUBMIT_FOR_OTHER_CORES) && this.isLabICanSubmitTo(prodOrder.getLab())) {
         canDelete = true;
       }
     }
@@ -2475,6 +2576,9 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
   }
 
   public boolean buildSecurityCriteria(StringBuffer queryBuf, String classShortName, String collabClassShortName, boolean isFirstCriteria, boolean scopeToGroup, boolean hasCoreFacility, boolean checkSubmitter) {
+    return buildSecurityCriteria(queryBuf, classShortName, collabClassShortName, isFirstCriteria, scopeToGroup, hasCoreFacility, checkSubmitter, true);
+  }
+  public boolean buildSecurityCriteria(StringBuffer queryBuf, String classShortName, String collabClassShortName, boolean isFirstCriteria, boolean scopeToGroup, boolean hasCoreFacility, boolean checkSubmitter, boolean includeVisCrit) {
     if (hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
 
       // GNomex super admin is not restricted (much)
@@ -2502,39 +2606,39 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
         criteriaAdded = appendSecurityCollaboratorListCriteria(queryBuf, collabClassShortName);
         queryBuf.append( !criteriaAdded ? "WHERE " : " OR ");
       }
-
-
+     
       // Add criteria with owner visibility
-      criteriaAdded = appendOwnerCriteria(queryBuf, classShortName);
-
+      criteriaAdded =  appendOwnerCriteria( queryBuf, classShortName, includeVisCrit );
       // Add criteria for submitters
       if(hasPermission(this.CAN_SUBMIT_FOR_OTHER_CORES) && checkSubmitter) {
         queryBuf.append( !criteriaAdded ? "WHERE " : " OR ");
         criteriaAdded = appendSubmitterCriteria(queryBuf, classShortName);
       }
+      
+      if ( includeVisCrit ) {
+        
+        // Add criteria for objects with members visibility
+        if (getGroupsIAmMemberOrManagerOf().size() > 0) {
+          queryBuf.append( !criteriaAdded ? "WHERE " : " OR ");
+          criteriaAdded = appendMembershipCriteria(queryBuf, classShortName);
+        }
 
-      // Add criteria for objects with members visibility
-      if (getGroupsIAmMemberOrManagerOf().size() > 0) {
+        // Add criteria for objects with collaborator visibility
+        if (getAllMyGroups().size() > 0) {
+          queryBuf.append( !criteriaAdded ? "WHERE " : " OR ");
+          criteriaAdded = appendMembersAndCollaboratorsCriteria(queryBuf, classShortName);
+        }
+
+        // Add criteria for objects with institution visibility
+        if (getInstitutionsIAmMemberOf().size() > 0) {        
+          queryBuf.append( !criteriaAdded ? "WHERE " : " OR ");
+          criteriaAdded = appendInstitutionCriteria(queryBuf, classShortName);        
+        }
+
+        // Add criteria for public objects
         queryBuf.append( !criteriaAdded ? "WHERE " : " OR ");
-        criteriaAdded = appendMembershipCriteria(queryBuf, classShortName);
-      }
-
-      // Add criteria for objects with collaborator visibility
-      if (getAllMyGroups().size() > 0) {
-        queryBuf.append( !criteriaAdded ? "WHERE " : " OR ");
-        criteriaAdded = appendMembersAndCollaboratorsCriteria(queryBuf, classShortName);
-      }
-
-      // Add criteria for objects with institution visibility
-      if (getInstitutionsIAmMemberOf().size() > 0) {        
-        queryBuf.append( !criteriaAdded ? "WHERE " : " OR ");
-        criteriaAdded = appendInstitutionCriteria(queryBuf, classShortName);        
-      }
-
-      // Add criteria for public objects
-      queryBuf.append( !criteriaAdded ? "WHERE " : " OR ");
-      criteriaAdded = appendPublicCriteria(queryBuf, classShortName, scopeToGroup);
-
+        criteriaAdded = appendPublicCriteria(queryBuf, classShortName, scopeToGroup);
+      } 
 
       queryBuf.append(" ) ");
 
@@ -2632,6 +2736,9 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
   }
 
   private boolean appendOwnerCriteria(StringBuffer queryBuf, String classShortName ) {
+    return appendOwnerCriteria(queryBuf, classShortName, true);
+  }
+  private boolean appendOwnerCriteria(StringBuffer queryBuf, String classShortName, boolean includeVisCriteria ) {
     Set mgrLabs = getGroupsIManage();
 
 
@@ -2666,11 +2773,13 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
 
 
     // req.codeVisibility = 'visible to members'
-    queryBuf.append(" AND ");
-    queryBuf.append(classShortName);
-    queryBuf.append(".codeVisibility = '");
-    queryBuf.append(Visibility.VISIBLE_TO_OWNER);
-    queryBuf.append("'");
+    if ( includeVisCriteria ) {
+      queryBuf.append(" AND ");
+      queryBuf.append(classShortName);
+      queryBuf.append(".codeVisibility = '");
+      queryBuf.append(Visibility.VISIBLE_TO_OWNER);
+      queryBuf.append("'");
+    }
 
     queryBuf.append(" ) ");
     return true;

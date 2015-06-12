@@ -4,17 +4,16 @@ import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.Lab;
 import hci.gnomex.model.ProductOrderFilter;
-import hci.gnomex.security.SecurityAdvisor;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import java.util.Iterator;
 import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -32,12 +31,7 @@ public class GetProductOrderList extends GNomExCommand implements Serializable {
   public void loadCommand(HttpServletRequest request, HttpSession sess) {
     productOrderFilter = new ProductOrderFilter(this.getSecAdvisor());
     HashMap errors = this.loadDetailObject(request, productOrderFilter);
-    this.addInvalidFields(errors);
-
-    //TODO: Different permissions
-    if (!this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_MANAGE_BILLING)) {
-      this.addInvalidField("permission", "Insufficient permission to manage billing items");
-    }
+    this.addInvalidFields(errors);  
   }
 
   public Command execute() throws RollBackCommandException {

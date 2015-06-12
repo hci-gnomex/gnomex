@@ -2156,6 +2156,8 @@
     </id>
     <property name="name" column="name" type="string"/>
     <property name="codeProductType" column="codeProductType" type="string"/>
+    <many-to-one name="productType" column="codeProductType" class="hci.gnomex.model.ProductType"
+      cascade="none" insert="false" update="false" />
     <property name="idPrice" column="idPrice" type="integer"/>
     <property name="orderQty" column="orderQty" type="integer"/>
     <property name="useQty" column="useQty" type="integer"/>
