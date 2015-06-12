@@ -43,7 +43,7 @@ public class ApplicationBatchPlugin implements BillingPlugin {
     int numSamples = samples.size();
     int qty = 0;
 
-    // Find the price - there is only one
+    // Find the price 
     Price price = null;
     for(Iterator i1 = priceCategory.getPrices().iterator(); i1.hasNext();) {
       Price p = (Price)i1.next();
