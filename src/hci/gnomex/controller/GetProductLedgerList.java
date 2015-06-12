@@ -170,7 +170,10 @@ public class GetProductLedgerList extends GNomExCommand implements Serializable 
       buf.append(" FROM ProductLedger as pl ");
       buf.append(" JOIN pl.lab as lab ");
       buf.append(" JOIN pl.product as prod ");
+      buf.append(" JOIN prod.productType as prodType ");
       buf.append(" LEFT JOIN lab.coreFacilities as coreFacility ");
+      
+      // Lab core facility
       buf.append(" WHERE coreFacility.idCoreFacility in ( ");
 
       for(Iterator i = criteria.iterator(); i.hasNext();) {
@@ -183,6 +186,22 @@ public class GetProductLedgerList extends GNomExCommand implements Serializable 
       }
 
       buf.append(" ) ");
+      
+      // Product type core facility
+      buf.append(" AND prodType.idCoreFacility in ( ");
+
+      for(Iterator i = criteria.iterator(); i.hasNext();) {
+        CoreFacility cf = (CoreFacility)i.next();
+        buf.append(cf.getIdCoreFacility());
+
+        if(i.hasNext()) {
+          buf.append(" , ");
+        }
+      }
+
+      buf.append(" ) ");
+      
+      // Other Criteria
       if(idLab != null) {
         buf.append(" AND lab.idLab = " + idLab);
       }
