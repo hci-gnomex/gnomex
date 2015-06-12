@@ -251,12 +251,13 @@ public class UsageReportd extends TimerTask {
       body.append("</body></html>");
       
       if(isTestMode) {
-        MailUtil.send_bcc(mailProps, bccTo, "", "", replyEmail, subject, body.toString(), true);                
+    	  MailUtil.sendCheckTest(mailProps, bccTo, null, null, replyEmail, subject, body.toString(), true, isTestMode, propertyHelper.getProperty(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER));                
       } else {
     	  if(toList==null) {
-    		  System.out.print(body.toString()); }
-    	  	else {
-    	  		MailUtil.send_bcc(mailProps, toList, "", bccTo, replyEmail, subject, body.toString(), true); }               
+    		  System.out.print(body.toString()); 
+    	  } else {
+    		  MailUtil.sendCheckTest(mailProps, toList, null, bccTo, replyEmail, subject, body.toString(), true, isTestMode, propertyHelper.getProperty(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER)); 
+    	  }               
       }
       app.disconnect();      
          

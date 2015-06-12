@@ -170,42 +170,30 @@ public class GenerateUserAccountEmail extends GNomExCommand implements Serializa
 
   private void sendEmail(Session sess, PropertyDictionaryHelper dictionaryHelper, String sendTo, String ccTo, String emailBody, String subject, Lab lab) throws NamingException, MessagingException {
 
-
-    boolean send = false;
-    String theSubject = "";
-    String emailInfo = "";
-
     if(!MailUtil.isValidEmail(sendTo)){
       log.error("Invalid email " + sendTo);
     }
 
-    if (dictionaryHelper.isProductionServer(serverName)) {
-      send = true;
-      theSubject = subject;
-    } else {
-      send = true;
-      theSubject = subject + "  (TEST)";
-      emailInfo = "[If this were a production environment then this email would have been sent to: " + sendTo + ccTo + "]<br><br>";
-      sendTo = dictionaryHelper.getProperty(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
-      ccTo = null;
-    }
-
-    String from = dictionaryHelper.getProperty(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
+    String from = "";
     if (this.getSecAdvisor().getAppUser().getEmail()!=null) {
       from = this.getSecAdvisor().getAppUser().getEmail();
     }
-    if (send) {
-      if(!MailUtil.isValidEmail(from)){
+    if(from.equals("") || !MailUtil.isValidEmail(from)){
         from = DictionaryHelper.getInstance(sess).getPropertyDictionary(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
-      }
-      MailUtil.send(sendTo, 
-          ccTo,
-          from, 
-          theSubject, 
-          emailInfo + emailBody,
-          true);
-      emailCount++;
     }
+    
+    MailUtil.validateAndSendEmail(	
+    		sendTo,
+    		ccTo,
+    		null,
+    		from,
+    		subject,
+    		emailBody,
+    		true, 
+    		DictionaryHelper.getInstance(sess),
+  		    serverName 	);
+    
+    emailCount++;
 
   }
 

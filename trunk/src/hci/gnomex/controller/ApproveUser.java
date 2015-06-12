@@ -3,6 +3,7 @@ package hci.gnomex.controller;
 import hci.gnomex.constants.Constants;
 import hci.gnomex.model.AppUser;
 import hci.gnomex.model.PropertyDictionary;
+import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.MailUtil;
 import hci.gnomex.utility.PropertyDictionaryHelper;
@@ -26,8 +27,10 @@ public class ApproveUser extends HttpServlet {
   private AppUser au;
   private String message = "";
   private Boolean deleteUser = false;
+  private String serverName;
 
   protected void doGet( HttpServletRequest req, HttpServletResponse res ) throws ServletException, IOException {
+	serverName = req.getServerName();
     doPost(req, res);
   }
 
@@ -44,6 +47,7 @@ public class ApproveUser extends HttpServlet {
       }
 
       PropertyDictionaryHelper pdh = PropertyDictionaryHelper.getInstance(sess);
+      DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess);
       String doNotReplyEmail = pdh.getProperty(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
 
       au = ( AppUser ) sess.createQuery( "from AppUser au where au.idAppUser = '" + idAppUser + "'" ).uniqueResult();
@@ -56,14 +60,15 @@ public class ApproveUser extends HttpServlet {
         String email = au.getEmail();
         sess.delete(au);
         sess.flush();
-
-        MailUtil.send(
-            email,
-            "",
-            doNotReplyEmail,
-            "Your GNomEx account has NOT been approved.",
-            "You have not been given access to GNomEx. Please contact the P.I. of the lab you were requesting access to for the reason behind this.  If you requested the creation of a new lab, please contact the core facility director whose core you were trying to join.  Thank you.",
-            true);
+        
+        MailUtil.validateAndSendEmail(
+        		email,
+        		doNotReplyEmail,
+        		"Your GNomEx account has NOT been approved.",
+        		"You have not been given access to GNomEx. Please contact the P.I. of the lab you were requesting access to for the reason behind this.  If you requested the creation of a new lab, please contact the core facility director whose core you were trying to join.  Thank you.",
+				true, 
+				dictionaryHelper,
+				serverName);
 
         message = "The user has been successfully deleted.  The user has been notified of this action.";
 
@@ -79,14 +84,15 @@ public class ApproveUser extends HttpServlet {
         String gnomexURL =  "<a href='" + url + "'>Click here</a> to login.";
 
         String body = "Welcome to GNomEx.  Your user account has been activated.<br><br>" + gnomexURL + "<br><br> **Please note if you requested the creation of a new lab please wait until you receive notification that you have been added to that lab before trying to submit an experiment.**";
-
-        MailUtil.send(
-            au.getEmail(),
-            "",
-            doNotReplyEmail,
-            "Your GNomEx account is now active",
-            body,
-            true);
+        
+        MailUtil.validateAndSendEmail(
+        		au.getEmail(),
+        		doNotReplyEmail,
+        		"Your GNomEx account is now active",
+        		body,
+				true, 
+				dictionaryHelper,
+				serverName);
 
         message = "User successfully activated.  The user will be notified that their account is now active";
       } else {

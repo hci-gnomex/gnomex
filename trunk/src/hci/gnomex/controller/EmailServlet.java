@@ -132,21 +132,15 @@ public class EmailServlet extends GNomExCommand implements Serializable {
       if (sendingMode.equals(GENERIC_EMAIL)) {
     	  
     	  if (MailUtil.isValidEmail(recipientAddress)) {
-    		  String theSubject = subject;
-              
-              String emailInfo = "";
-              if (!dh.isProductionServer(serverName)) {
-            	  theSubject = subject + "  (TEST)";
-            	  emailInfo = "[If this were a production environment then this email would have been sent to: " + recipientAddress + "]<br><br>";
-            	  recipientAddress = DictionaryHelper.getInstance(sess).getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
-              }
-              
-              MailUtil.send(recipientAddress, 
-            		  		null,
-            		  		senderAddress,
-            		  		theSubject,
-            		  		emailInfo + body.toString(),
-            		  		format.equalsIgnoreCase("HTML") ? true : false);
+            
+              MailUtil.validateAndSendEmail(	
+            		  recipientAddress,
+            		  senderAddress,
+            		  subject,
+            		  body.toString(),
+            		  format.equalsIgnoreCase("HTML") ? true : false, 
+            		  dh,
+            		  serverName 										);
               
               setResponsePage(this.SUCCESS_JSP);
     	  } else {
@@ -212,22 +206,16 @@ public class EmailServlet extends GNomExCommand implements Serializable {
             }
 
             appUserEmail.add(recipientAddress);
-
-            String theSubject = subject;
             
-            String emailInfo = "";
-            if ( !dh.isProductionServer( serverName  )) {
-              theSubject = subject + "  (TEST)";
-              emailInfo = "[If this were a production environment then this email would have been sent to: " + recipientAddress + "]<br><br>";
-              recipientAddress = DictionaryHelper.getInstance(sess).getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
-             }
-            
-            MailUtil.send(recipientAddress, 
-                null,
-                senderAddress,
-                theSubject,
-                emailInfo + body.toString(),
-                format.equalsIgnoreCase("HTML") ? true : false); 
+            MailUtil.validateAndSendEmail(	
+            		recipientAddress,
+            		senderAddress,
+            		subject,
+            		body.toString(),
+            		format.equalsIgnoreCase("HTML") ? true : false, 
+            	    dh,
+          		    serverName 										);
+             
           }
         }
         setResponsePage(this.SUCCESS_JSP);

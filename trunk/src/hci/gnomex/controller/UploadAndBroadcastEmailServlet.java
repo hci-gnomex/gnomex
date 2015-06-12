@@ -39,6 +39,8 @@ public class UploadAndBroadcastEmailServlet extends HttpServlet {
   private StringBuffer body   = null;
   private String format       = "text";
   
+  private String serverName;
+  
   private static final int  STATUS_ERROR = 999;
   
   protected void doGet( HttpServletRequest req, HttpServletResponse res ) throws ServletException, IOException {
@@ -56,6 +58,7 @@ public class UploadAndBroadcastEmailServlet extends HttpServlet {
    */
   protected void doPost( HttpServletRequest req, HttpServletResponse res ) throws ServletException, IOException {
     try {
+      serverName = req.getServerName();
       Session sess = HibernateGuestSession.currentGuestSession(req.getUserPrincipal().getName());
       
       // Get the dictionary helper
@@ -178,38 +181,27 @@ public class UploadAndBroadcastEmailServlet extends HttpServlet {
         for (Iterator i = appUsers.iterator(); i.hasNext();) {
           AppUser appUser = (AppUser)i.next();
 
-          boolean send = false;
-          String theSubject = subject;
-          String emailInfo = "";
           String emailRecipients = appUser.getEmail();
           if(!MailUtil.isValidEmail(emailRecipients)){
             invalidEmails.add(emailRecipients);
             continue;
           }
 
-          if (dh.isProductionServer(req.getServerName())) {
-            send = true;
-          } else {
-            send = true;
-            theSubject = subject + "  (TEST)";
-            emailInfo = "[If this were a production environment then this email would have been sent to: " + emailRecipients + "]<br><br>";
-            emailRecipients = DictionaryHelper.getInstance(sess).getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
-          }
-
           // Email app user
-          if (send) {
-            if(!MailUtil.isValidEmail(fromAddress)){
+          if(!MailUtil.isValidEmail(fromAddress)){
               fromAddress = DictionaryHelper.getInstance(sess).getPropertyDictionary(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
-            }
-            MailUtil.send(emailRecipients, 
-                null,
-                fromAddress,
-                theSubject,
-                emailInfo + body.toString(),
-                format.equalsIgnoreCase("HTML") ? true : false); 
-            userCount++;
-
           }
+          
+          MailUtil.validateAndSendEmail(	
+        		  emailRecipients,
+        		  fromAddress,
+        		  subject,
+        		  body.toString(),
+        		  format.equalsIgnoreCase("HTML") ? true : false, 
+        		  dh,
+        		  serverName 										);
+          
+          userCount++;
 
         }
     

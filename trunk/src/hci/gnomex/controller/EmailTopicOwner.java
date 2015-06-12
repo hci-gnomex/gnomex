@@ -59,13 +59,16 @@ public class EmailTopicOwner extends GNomExCommand implements Serializable {
       
       if(this.isValid()){
         String toAddress = recipient.getEmail();
-        if (!dh.isProductionServer(serverName)) {
-          subject += " (TEST)";
-          body += "[If this were a production environment then this email would have been sent to: " + toAddress + "]";
-          toAddress = dh.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
-        }
         
-        MailUtil.send(toAddress, null, fromAddress, subject, body, false);
+        MailUtil.validateAndSendEmail(	
+        		toAddress,
+        		fromAddress,
+        		subject,
+        		body,
+        		false, 
+        	    dh,
+      		    serverName 	);
+        
         this.setResponsePage(SUCCESS_JSP);
       }
       else{

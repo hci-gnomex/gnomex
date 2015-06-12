@@ -233,7 +233,6 @@ public class SaveWorkItemQualityControl extends GNomExCommand implements Seriali
       introNote.append("<br>To fetch the quality control reports, click <a href=\"" + downloadRequestURL + "\">" + Constants.APP_NAME + " - " + Constants.WINDOW_NAME_FETCH_RESULTS + "</a>.");      
     } 
 
-    String emailInfo = "";
     String emailRecipients = request.getAppUser().getEmail();
     String fromAddress = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
 
@@ -246,30 +245,14 @@ public class SaveWorkItemQualityControl extends GNomExCommand implements Seriali
       fromAddress = DictionaryHelper.getInstance(sess).getPropertyDictionary(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
     }
     
-    // Get test email information
-    boolean testEmail = false;
-    String testEmailTo = "";
-
-    if (!dictionaryHelper.isProductionServer(serverName)) {
-      testEmail = true;
-      testEmailTo = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
-    }
-    // Make sure we have an email address to send to 
-    if( emailRecipients.equals("") ){
-      if ( !testEmail || testEmailTo.equals("") ) {
-        return;
-      }
-    }
-
-    MailUtil.sendCheckTest( emailRecipients,
-        null, 
-        fromAddress,
-        emailSubject,
-        emailInfo + emailFormatter.formatQualityControl(),
-        true,
-        testEmail,
-        testEmailTo
-        );  
+    MailUtil.validateAndSendEmail(	
+    		emailRecipients,
+    		fromAddress,
+    		emailSubject,
+    		emailFormatter.formatQualityControl(),
+			true, 
+			dictionaryHelper,
+			serverName 								);
 
   }
 

@@ -9,6 +9,7 @@ import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.UserPermissionKind;
 import hci.gnomex.security.EncryptionUtility;
 import hci.gnomex.security.SecurityAdvisor;
+import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.MailUtil;
 import hci.gnomex.utility.PropertyDictionaryHelper;
@@ -50,13 +51,14 @@ public class SaveAppUser extends GNomExCommand implements Serializable {
   private String                          url;
   private String                          isWebForm = "Y";
   private EncryptionUtility               passwordEncrypter;
+  private String 						  serverName;
   
   
   public void validate() {
   }
   
   public void loadCommand(HttpServletRequest request, HttpSession session) {
-    
+	serverName = request.getServerName();
     
     try {
       url = this.getLaunchAppURL(request);
@@ -259,7 +261,7 @@ public class SaveAppUser extends GNomExCommand implements Serializable {
                   coreFacilityContactEmail = pdh.getCoreFacilityProperty(idCoreFacility, PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
                 }
                 if(appUser.getEmail() != null){
-                  sendAccountActivatedEmail(appUser, coreFacilityContactEmail);
+                  sendAccountActivatedEmail(appUser, coreFacilityContactEmail, sess);
                 } else {
                   this.addInvalidField("No email address", "The account has been activated however the user will not be notified by email since one can't be found on file for this user.");
                   isNullEmail = true;
@@ -365,7 +367,7 @@ public class SaveAppUser extends GNomExCommand implements Serializable {
     return this;
   }
   
-  private void sendAccountActivatedEmail(AppUser appUser, String coreFacilityContactEmail)  throws NamingException, MessagingException {
+  private void sendAccountActivatedEmail(AppUser appUser, String coreFacilityContactEmail, Session sess)  throws NamingException, MessagingException {
     
     if (appUser.getEmail().equals("bademail@bad.com")) {
       throw new AddressException("'bademail@bad.com' not allowed");
@@ -373,14 +375,17 @@ public class SaveAppUser extends GNomExCommand implements Serializable {
     
     String gnomexURL =  "<a href='" + url + "'>Click here</a> to login.";
     
-    MailUtil.send(
-        appUser.getEmail(),
-        "",
-        coreFacilityContactEmail,
-        "Your GNomEx account is now active",
-        "Welcome to GNomEx.  Your user account has been activated. " + gnomexURL,
-        true
-      );
+    DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess);
+    
+    MailUtil.validateAndSendEmail(	
+    		appUser.getEmail(),
+    		coreFacilityContactEmail,
+    		"Your GNomEx account is now active",
+    		"Welcome to GNomEx.  Your user account has been activated. " + gnomexURL,
+			true, 
+			dictionaryHelper,
+			serverName 									);
+    
   }
   
   private void initializeAppUser(AppUser appUser) {

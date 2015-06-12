@@ -629,14 +629,18 @@ public class RegisterFiles extends TimerTask {
       }
 
       if (sendMail) {
-        MailUtil.send( mailProps,
-            emailAddress,
-            fromAddress,
-            fromAddress,
-            "GNomEx Analysis file(s) missing from file system",
-            body.toString(),
-            false
-        );
+    	  MailUtil.validateAndSendEmail(	
+    			  	mailProps,
+    			  	emailAddress,
+    			  	fromAddress,
+					null,
+					fromAddress,
+					"GNomEx Analysis file(s) missing from file system",
+					body.toString(),
+					false, 
+					DictionaryHelper.getInstance(sess),
+					serverName 											);
+    	 
       }
     }
   }
@@ -648,14 +652,18 @@ public class RegisterFiles extends TimerTask {
       String emailMessage = (String)emailMap.get(emailAddress);
 
       if (sendMail) {
-        MailUtil.send( mailProps,
-            emailAddress,
-            null,
-            fromAddress,
-            "GNomEx Analysis file(s) missing from file system",
-            emailMessage,
-            false
-        );
+    	  MailUtil.validateAndSendEmail(	
+    			  mailProps,
+    			  emailAddress,
+    			  null,
+    			  null,
+    			  fromAddress,
+    			  "GNomEx Analysis file(s) missing from file system",
+    			  emailMessage,
+    			  false, 
+				  DictionaryHelper.getInstance(sess),
+			      serverName 											);
+    	  
       }
     }
   }
@@ -667,14 +675,18 @@ public class RegisterFiles extends TimerTask {
         printDebugStatement(localMachine.getHostName());
       }
       if (sendMail) {
-        MailUtil.send( mailProps,
-            softwareTestEmail,
-            null,
-            fromAddress,
-            "Register Files Error [Server: " + localMachine.getHostName() + "]" ,
-            errorMessageString,
-            false
-        );
+    	MailUtil.validateAndSendEmail(	
+    			mailProps,
+    			softwareTestEmail,
+    			null,
+    			null,
+    			fromAddress,
+    			"Register Files Error [Server: " + localMachine.getHostName() + "]",
+    			errorMessageString,
+    			false, 
+				DictionaryHelper.getInstance(sess),
+			    serverName 															);
+    	
       }
     } catch (Exception e) {
       System.err.println( "Register files unable to send error report.   " + e.toString() );
@@ -879,7 +891,18 @@ public class RegisterFiles extends TimerTask {
 
       printDebugStatement("TO ADDRESS: " + toAddress + "       FROM ADDRESS: " + fromAddress);
       try {
-        MailUtil.send(mailProps, toAddress, null, fromAddress, subject, body, false);
+    	  MailUtil.validateAndSendEmail(	
+    			  mailProps,
+    			  toAddress,
+      			  null,
+      			  null,
+      			  fromAddress,
+      			  subject,
+      			  body,
+      			  false, 
+  				  DictionaryHelper.getInstance(sess),
+  			      serverName 							);
+    	  
       } catch (Exception e) {
         System.err.println("WARNING: Unable to send email notifying of deletion of Sample Experiment Files. Trying to send to: " + toAddress + e.toString());
       }

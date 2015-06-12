@@ -201,10 +201,6 @@ public class DatasetExpirationCheckd extends TimerTask {
     
     SimpleDateFormat dateFormatter = new SimpleDateFormat("MM/dd/yyyy");
     
-    //if (submitterEmail.equals(dictionaryHelper.getPropertyDictionary(Property.CONTACT_EMAIL_SOFTWARE_TESTER))) {
-    
-    String contactEmailSoftwareTester = propertyHelper.getQualifiedProperty(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER, serverName);
-    
     String replyEmail = propertyHelper.getQualifiedProperty(PropertyDictionary.DATASET_PRIVACY_EXPIRATION_REPLY_EMAIL, serverName);
     if(replyEmail == null || replyEmail.length() == 0) {
       replyEmail = "DoNotReply@hci.utah.edu";
@@ -219,12 +215,6 @@ public class DatasetExpirationCheckd extends TimerTask {
     body.append(" .fontClassLgeBold{font-size:12px;line-height:22px;font-weight:bold;color:#000000;font-family:verdana;text-decoration:none;}</style>");
 
     String subject = "Restricted visibility expiration for " + typeName + " " + number;
-    if (!dictionaryHelper.isProductionServer(serverName)) {
-      subject = subject + "  (TEST)";
-      body.append("[If this were a production environment then this email would have been sent to: " + emailTo + "]<br><br>");
-      emailTo = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
-      
-    }
     
     body.append("<table width='400' cellpadding='0' cellspacing='0' bgcolor='#FFFFFF'><tr><td width='10'>&nbsp;</td><td valign='top' align='left'>");
     body.append("This is to inform you that visiblity for " + typeName + " " + number + " is set to expire on " + dateFormatter.format(expireDate) + ".");
@@ -233,7 +223,17 @@ public class DatasetExpirationCheckd extends TimerTask {
     
     body.append("</td></tr></table></body></html>");
     if (sendMail) {
-      MailUtil.send(mailProps, emailTo, "", replyEmail, subject, body.toString(), true);
+      MailUtil.validateAndSendEmail(	
+    		  	mailProps,
+    		  	emailTo,
+				null,
+				null,
+				replyEmail,
+				subject,
+				body.toString(),
+				true, 
+				dictionaryHelper,
+				serverName 			);
     }
   }
 

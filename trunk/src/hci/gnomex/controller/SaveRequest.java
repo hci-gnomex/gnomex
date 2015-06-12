@@ -2452,30 +2452,20 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       }
     }
 
-    boolean send = false;
-    String emailInfo = "";
     String fromAddress = requestParser.isExternalExperiment() ? contactEmailSoftwareBugs : contactEmailCoreFacility;
-    if (dictionaryHelper.isProductionServer(serverName)) {
-      send = true;
-    } else {
-      send = true;
-      subject = subject + "  (TEST)";
-      emailInfo = "[If this were a production environment then this email would have been sent to: " + emailRecipients + "]<br><br>";
-      emailRecipients = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
-
-    }
-
-    if (send) {
-      if(!MailUtil.isValidEmail(fromAddress)){
+    
+    if(!MailUtil.isValidEmail(fromAddress)){
         fromAddress = DictionaryHelper.getInstance(sess).getPropertyDictionary(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
-      }
-      MailUtil.send(emailRecipients,
-          null,
-          fromAddress,
-          subject,
-          emailInfo + body,
-          true);
     }
+    
+    MailUtil.validateAndSendEmail(	
+    		emailRecipients,
+    		fromAddress,
+    		subject,
+    		body,
+			true, 
+			dictionaryHelper,
+			serverName 			);
 
   }
 
@@ -2587,9 +2577,6 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       ccEmail = null;
     }
 
-    String emailInfo = "";
-    boolean send = false;
-
     if(contactEmail.contains(",")){
       for(String e: contactEmail.split(",")){
         if(!MailUtil.isValidEmail(e.trim())){
@@ -2601,27 +2588,21 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         log.error("Invalid email address: " + contactEmail);
       }
     }
-    if (dictionaryHelper.isProductionServer(serverName)) {
-      send = true;
-    } else {
-      send = true;
-      subject = subject + " (TEST)";
-      emailInfo = "[If this were a production environment then this email would have been sent to: " + contactEmail + " cc: " + ccEmail + "]<br><br>";
-      contactEmail = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
-      ccEmail = null;
-    }
 
-    if (send) {
-      if(!MailUtil.isValidEmail(senderEmail)){
+    if(!MailUtil.isValidEmail(senderEmail)) {
         senderEmail = DictionaryHelper.getInstance(sess).getPropertyDictionary(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
-      }
-      MailUtil.send(contactEmail,
-          ccEmail,
-          senderEmail,
-          subject,
-          emailInfo + emailBody,
-          true);
     }
+    
+    MailUtil.validateAndSendEmail(	
+    		contactEmail,
+    		ccEmail,
+    		null,
+    		senderEmail,
+    		subject,
+    		emailBody,
+			true, 
+			dictionaryHelper,
+			serverName 			);
 
   }
 
