@@ -242,7 +242,7 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
         // Send user email before storing app user so if it fails we can give error without
         // throwing exception
         try {
-          sendUserEmail(appUserScreen);
+          sendUserEmail(appUserScreen, sess);
         } catch(Exception e) {
           log.error("An exception occurred sending the user email ", e);
           e.printStackTrace();
@@ -358,7 +358,9 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
     return body.toString();
   }
 
-  private void sendUserEmail(AppUser appUser)  throws NamingException, MessagingException {
+  private void sendUserEmail(AppUser appUser, Session sess)  throws NamingException, MessagingException {
+	DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess);
+	
     StringBuffer intro = new StringBuffer();
     intro.append("Thank you for signing up for a GNomEx account.  We will send you an email once your user account has been activated.<br><br>");
     if(!existingLab) {
@@ -374,15 +376,15 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
       log.error("Invalid Email Address " + appUser.getEmail());
     }
 
+    MailUtil.validateAndSendEmail(	
+    		appUser.getEmail(),
+    		coreFacilityEmail,
+    		"Your GNomEx user account has been created",
+    		intro.toString() + getEmailBody(appUser, false),
+			true, 
+			dictionaryHelper,
+			serverName 									);
 
-    MailUtil.send(
-        appUser.getEmail(),
-        "",
-        coreFacilityEmail,
-        "Your GNomEx user account has been created",
-        intro.toString() + getEmailBody(appUser, false),
-        true
-    );
   }
 
   private void sendAdminEmail(AppUser appUser, Session sess)  throws NamingException, MessagingException {
@@ -485,30 +487,16 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
     }
     introForAdmin.append( closing );
     
-    // Get test email information
-    boolean testEmail = false;
-    String testEmailTo = "";
-    
-    if (!dictionaryHelper.isProductionServer(serverName)) {
-      testEmail = true;
-      testEmailTo = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
-    }
-    // Make sure we have an email address to send to 
-    if( toAddress.equals("") ){
-      if ( !testEmail || testEmailTo.equals("") ) {
-        return;
-      }
-    }
-    
-    MailUtil.sendCheckTest( toAddress,
-        ccAddress, 
-        coreFacilityEmail,
-        subject,
-        introForAdmin.toString() + getEmailBody(appUser, true),
-        true,
-        testEmail,
-        testEmailTo
-    );
+    MailUtil.validateAndSendEmail(	
+    		toAddress,
+    		ccAddress,
+    		null,
+    		coreFacilityEmail,
+    		subject,
+    		introForAdmin.toString() + getEmailBody(appUser, true),
+    		true, 
+    		dictionaryHelper,
+    		serverName 												);
 
   }
 

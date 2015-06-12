@@ -292,7 +292,6 @@ public class SplitBillingAccounts extends GNomExCommand implements Serializable 
     String body = emailFormatter.format();
 
     String note = "";
-    String emailInfo = "";
     String emailRecipients = contactEmail;
     String ccList = emailFormatter.getCCList(sess);
     String fromAddress = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(coreFacility.getIdCoreFacility(), PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
@@ -301,15 +300,7 @@ public class SplitBillingAccounts extends GNomExCommand implements Serializable 
     }
     boolean send = false;
     if (contactEmail != null && !contactEmail.equals("")) {
-      if (dh.isProductionServer(serverName)) {
-        send = true;
-      } else {
-        send = true;
-        subject = subject + "  (TEST)";
-        emailInfo = "[If this were a production environment then this email would have been sent to: " + emailRecipients + ccList + "]<br><br>";
-        emailRecipients = DictionaryHelper.getInstance(sess).getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
-        ccList = null;
-      }     
+      send = true;    
     } else {
       note = "Unable to email billing invoice. Billing contact email is blank for " + lab.getName(false, true);
     }
@@ -319,11 +310,16 @@ public class SplitBillingAccounts extends GNomExCommand implements Serializable 
         fromAddress = DictionaryHelper.getInstance(sess).getPropertyDictionary(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
       }
       try {
-        MailUtil.send(emailRecipients, ccList,
-            fromAddress,
-            subject, 
-            emailInfo + body,
-            true);
+    	MailUtil.validateAndSendEmail(	
+    			emailRecipients,
+    			ccList,
+    			null,
+    			fromAddress,
+    			subject,
+    			body,
+				true, 
+				dh,
+				serverName 		);
 
         note = "Billing invoice emailed to " + contactEmail + ".";
 

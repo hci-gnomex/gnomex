@@ -360,8 +360,7 @@ public class UploadQuoteInfoServlet extends HttpServlet {
     String contactEmail = contactEmailPurchasing;
     String ccEmail = null;
 
-    String emailInfo = "";
-    boolean send = false;
+    boolean send = true;
 
     // Check that purchasing email is valid
     if(contactEmail.contains(",")){
@@ -374,15 +373,6 @@ public class UploadQuoteInfoServlet extends HttpServlet {
       if(!MailUtil.isValidEmail(contactEmail)){
         System.out.println("Invalid email address: " + contactEmail);
       }
-    }
-    if (dictionaryHelper.isProductionServer(serverName)) {
-      send = true;
-    } else {
-      send = true;
-      subject = subject + " (TEST)";
-      contactEmail = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
-      emailInfo = "[If this were a production environment then this email would have been sent to: " + contactEmailPurchasing + "]<br><br>";
-      ccEmail = null;
     }
 
     // Find requisition file
@@ -402,13 +392,7 @@ public class UploadQuoteInfoServlet extends HttpServlet {
       if(!MailUtil.isValidEmail(senderEmail)){
         senderEmail = DictionaryHelper.getInstance(sess).getPropertyDictionary(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
       }
-      MailUtil.send_attach(contactEmail,
-          ccEmail,
-          senderEmail,
-          subject,
-          emailInfo + emailBody.toString(),
-          true,
-          new File(baseDir));
+      MailUtil.validateAndSendEmail(contactEmail, ccEmail, senderEmail, subject, emailBody.toString(), new File(baseDir), true, dictionaryHelper, serverName);
     }
 
     // Now send the email to lab billing contact and PI
@@ -444,19 +428,8 @@ public class UploadQuoteInfoServlet extends HttpServlet {
       contactEmail = ccEmail;
       ccEmail = null;
     }
-    if (!dictionaryHelper.isProductionServer(serverName)) {
-      emailInfo = "[If this were a production environment then this email would have been sent to: " + contactEmail + ( ccEmail!=null ? ", " + ccEmail : "" ) + "]<br><br>";
-      contactEmail = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
-      ccEmail = null;
-    }
     if (send && !contactEmail.equals( "" )) {
-      MailUtil.send_attach(contactEmail,
-          ccEmail,
-          senderEmail,
-          subject,
-          emailInfo + emailBodyForLab.toString(),
-          true,
-          reqFolder);
+    	MailUtil.validateAndSendEmail(contactEmail, ccEmail, senderEmail, subject, emailBodyForLab.toString(), reqFolder, true, dictionaryHelper, serverName);
     }
 
     return send;

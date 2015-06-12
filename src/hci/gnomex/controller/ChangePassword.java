@@ -7,6 +7,7 @@ import hci.gnomex.model.CoreFacility;
 import hci.gnomex.model.Lab;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.security.EncryptionUtility;
+import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.MailUtil;
 import hci.gnomex.utility.PropertyDictionaryHelper;
@@ -47,6 +48,8 @@ public class ChangePassword extends GNomExCommand implements Serializable {
 
   private String launchAppURL = "";
   private String appURL = "";
+  private String serverName;
+  private DictionaryHelper dictionaryHelper;
 
   private boolean changingPassword = false;
 
@@ -100,6 +103,8 @@ public class ChangePassword extends GNomExCommand implements Serializable {
         String idCoreParm = request.getParameter("idCoreParm");
         launchAppURL = Util.addURLParameter(launchAppURL, idCoreParm);
       }
+      
+      serverName = request.getServerName();
 
       this.validate();
     } catch (Exception e) {
@@ -113,6 +118,7 @@ public class ChangePassword extends GNomExCommand implements Serializable {
     try {
       Session sess = HibernateSession.currentSession(this.getUsername());
       EncryptionUtility passwordEncrypter = new EncryptionUtility();
+      dictionaryHelper = DictionaryHelper.getInstance(sess);
 
       // First make sure this person is registered by looking them
       // up in the user table
@@ -255,15 +261,15 @@ public class ChangePassword extends GNomExCommand implements Serializable {
 
     //    content.append("Your GNomEx password has been reset. Your new temporary password is:<br><br>" + guid + "<br><br>");
     //    content.append("Please take a moment to change your temporary password to a new password the next time you log in.<br>");
-    //    content.append("<a href=\"" + appURL + "\">" + "Sign in to " + Constants.APP_NAME + "</a>");      
-
-    MailUtil.send(
-        email,
-        null,
-        this.labContactEmail,
-        "Reset GNomEx Password",
-        content.toString(),
-        true
-    );
+    //    content.append("<a href=\"" + appURL + "\">" + "Sign in to " + Constants.APP_NAME + "</a>");
+    
+    MailUtil.validateAndSendEmail(	
+    		email,
+    		this.labContactEmail,
+    		"Reset GNomEx Password",
+    		content.toString(),
+			true, 
+			dictionaryHelper,
+			serverName 				);
   }
 }

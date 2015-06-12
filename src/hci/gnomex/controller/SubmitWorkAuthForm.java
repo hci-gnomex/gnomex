@@ -196,10 +196,7 @@ public class SubmitWorkAuthForm extends GNomExCommand implements Serializable {
     String submitterSubject = "GNomEx Billing Account '" + billingAccount.getAccountName() + "' for " + lab.getName(false, true) + " submitted";    
     String coreSubject      = "GNomEx Billing Account '" + billingAccount.getAccountName() + "' for " + lab.getName(false, true) + " pending";    
 
-    boolean send = false;
-    boolean testEmail = false;
     String submitterEmail = billingAccount.getSubmitterEmail();
-    String emailInfo = "";
     String emailRecipients = submitterEmail;
     if(!MailUtil.isValidEmail(emailRecipients)){
       log.error(emailRecipients);
@@ -208,19 +205,6 @@ public class SubmitWorkAuthForm extends GNomExCommand implements Serializable {
     String facilityEmail = propertyDictionaryHelper.getCoreFacilityProperty(facility.getIdCoreFacility(), PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY_WORKAUTH);
     if (facilityEmail == null || facilityEmail.equals("")) {
       facilityEmail = propertyDictionaryHelper.getCoreFacilityProperty(facility.getIdCoreFacility(), PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
-    }
-
-
-
-    if (dictionaryHelper.isProductionServer(serverName)) {
-      send = true;
-    } else {
-      send = true;
-      testEmail = true;
-      submitterSubject = "TEST - " + submitterSubject;
-      coreSubject = "TEST - " + coreSubject;
-      emailInfo = "[If this were a production environment then this email would have been sent to: " + emailRecipients + "]<br><br>";
-      emailRecipients = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
     }
 
     submitterNote.append("The following billing account " +
@@ -251,66 +235,62 @@ public class SubmitWorkAuthForm extends GNomExCommand implements Serializable {
 
     String replyEmail = propertyDictionaryHelper.getCoreFacilityProperty(facility.getIdCoreFacility(), PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
 
-    if (send) {
-      if(!MailUtil.isValidEmail(replyEmail)){
+    if(!MailUtil.isValidEmail(replyEmail)){
         replyEmail = DictionaryHelper.getInstance(sess).getPropertyDictionary(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
-      }
-      // Email submitter
-      try {
-        MailUtil.send(emailRecipients, 
-            null,
-            replyEmail, 
-            submitterSubject, 
-            emailInfo + submitterNote.toString() + body.toString(),
-            true);             
-      } catch (Exception e) {
+    }
+    // Email submitter
+    try {
+    	MailUtil.validateAndSendEmail(	
+    			emailRecipients,
+    			replyEmail,
+    			submitterSubject,
+    			submitterNote.toString() + body.toString(),
+				true, 
+				dictionaryHelper,
+				serverName 									);          
+    } catch (Exception e) {
         // DEAD CODE: Even when mail isn't sent, we don't seem to get an exception 
         log.warn("Unable to send email notification to billing account submitter " + billingAccount.getSubmitterEmail() + " UID " + billingAccount.getSubmitterUID());
         body.append("\n\n** NOTE:  GNomEx was unable to send email to submitter " + submitterEmail + " **");
+    }
+
+    // Email core facility for lab with approve links
+    String contactEmail = facilityEmail;
+
+    if (!contactEmail.equals("")) {
+      if(!MailUtil.isValidEmail(contactEmail)){
+        log.error("Invalid email " + contactEmail);
       }
 
-      // Email core facility for lab with approve links
-      String contactEmail = facilityEmail;
+      String[] emails = contactEmail.split(",");
 
-      if (!contactEmail.equals("")) {
-        if(!MailUtil.isValidEmail(contactEmail)){
-          log.error("Invalid email " + contactEmail);
-        }
-        if(testEmail){
-          emailInfo = "[If this were a production environment then this email would have been sent to: " + contactEmail + "]<br><br>";
-          contactEmail = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
-        }
+      //Only one email in contactEmail check
+      if(emails.length == 0) {
+        emails[0] = contactEmail;
+      }
 
-        String[] emails = contactEmail.split(",");
+      for(int i = 0; i < emails.length; i++) {
+        StringBuffer coreNote= new StringBuffer();
+        String approveBillingAccountURL = requestURL.substring(0, requestURL.indexOf("SubmitWorkAuthForm.gx"));
+        approveBillingAccountURL += "/" + Constants.APPROVE_BILLING_ACCOUNT_SERVLET + "?idBillingAccount=" + billingAccount.getIdBillingAccount() + "&approverEmail=" + emails[i] ;
 
-        //Only one email in contactEmail check
-        if(emails.length == 0) {
-          emails[0] = contactEmail;
-        }
-
-        for(int i = 0; i < emails.length; i++) {
-          StringBuffer coreNote= new StringBuffer();
-          String approveBillingAccountURL = requestURL.substring(0, requestURL.indexOf("SubmitWorkAuthForm.gx"));
-          approveBillingAccountURL += "/" + Constants.APPROVE_BILLING_ACCOUNT_SERVLET + "?idBillingAccount=" + billingAccount.getIdBillingAccount() + "&approverEmail=" + emails[i] ;
-
-          coreNote.append("The following billing account " +
+        coreNote.append("The following billing account " +
               "has been submitted to the " + facility.getDisplay() + " Core" +  
               " and is pending approval.  You can quickly approve this account by clicking <a href=" + approveBillingAccountURL + ">here</a> or you can view the account in more detail in " +
               "<a href=" + launchBillingAccountDetail + ">GNomEx</a>.");
-
-
-          MailUtil.send(emails[i], 
-              null,
-              replyEmail,
-              coreSubject,
-              emailInfo + coreNote.toString() + body.toString(),
-              true);                    
-        }
+        
+        MailUtil.validateAndSendEmail(	
+        		emails[i],
+        		replyEmail,
+        		coreSubject,
+        		coreNote.toString() + body.toString(),
+				true, 
+				dictionaryHelper,
+				serverName 								);
+                    
       }
-
     }
+    
   }
-
-
 
 }

@@ -309,31 +309,20 @@ public class ChangeRequestStatus extends GNomExCommand implements Serializable {
         log.error("Invalid email address " + e);
       }
     }
-
-    boolean send = false;
-    String emailInfo = "";
-    if (dictionaryHelper.isProductionServer(serverName)) {
-      send = true;
-    } else {
-      send = true;
-      subject = subject + "  (TEST)";
-      emailInfo = "[If this were a production environment then this email would have been sent to: " + emailRecipients + "]<br><br>";
-      emailRecipients = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
+    
+    String fromAddress = req.getIsExternal().equals("Y") ? contactEmailSoftwareBugs : contactEmailCoreFacility;
+    if(!MailUtil.isValidEmail(fromAddress)){
+      fromAddress = DictionaryHelper.getInstance(sess).getPropertyDictionary(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
     }
-
-
-    if (send) {
-      String fromAddress = req.getIsExternal().equals("Y") ? contactEmailSoftwareBugs : contactEmailCoreFacility;
-      if(!MailUtil.isValidEmail(fromAddress)){
-        fromAddress = DictionaryHelper.getInstance(sess).getPropertyDictionary(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
-      }
-      MailUtil.send(emailRecipients,
-          null,
-          fromAddress,
-          subject,
-          emailInfo + emailFormatter.format(),
-          true);
-    }
+    
+    MailUtil.validateAndSendEmail(	
+    		emailRecipients,
+    		fromAddress,
+			subject,
+			emailFormatter.format(),
+			true, 
+			dictionaryHelper,
+			serverName 				);
 
   }
 }

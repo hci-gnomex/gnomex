@@ -350,10 +350,6 @@ public class SaveProductOrder extends GNomExCommand implements Serializable {
     String contactEmail = contactEmailIlluminaRep;
     String ccEmail = null;
 
-
-    String emailInfo = "";
-    boolean send = false;
-
     if(contactEmail.contains(",")){
       for(String e: contactEmail.split(",")){
         if(!MailUtil.isValidEmail(e.trim())){
@@ -365,32 +361,28 @@ public class SaveProductOrder extends GNomExCommand implements Serializable {
         log.error("Invalid email address: " + contactEmail);
       }
     }
-    if (dictionaryHelper.isProductionServer(serverName)) {
-      send = true;
-    } else {
-      send = true;
-      subject = subject + " (TEST)";
-      contactEmail = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
-      emailInfo = "[If this were a production environment then this email would have been sent to: " + contactEmailIlluminaRep + "]<br><br>";
-      ccEmail = null;
+    
+    if(!MailUtil.isValidEmail(senderEmail)) {
+        senderEmail = DictionaryHelper.getInstance(sess).getPropertyDictionary(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
+    }
+    
+    boolean sent = false;
+    try {
+    	sent = MailUtil.validateAndSendEmail(	
+    			contactEmail,
+    			ccEmail,
+    			null,
+    			senderEmail,
+    			subject,
+    			emailBody.toString(),
+				true, 
+				dictionaryHelper,
+				serverName 					);
+    } catch (Exception e) {
+        e.printStackTrace();
     }
 
-    if (send) {
-      if(!MailUtil.isValidEmail(senderEmail)){
-        senderEmail = DictionaryHelper.getInstance(sess).getPropertyDictionary(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
-      }
-      try {
-        MailUtil.send(contactEmail,
-            ccEmail,
-            senderEmail,
-            subject,
-            emailInfo + emailBody.toString(),
-            true);
-      } catch (Exception e) {
-        e.printStackTrace();
-      }
-    }
-    return send;
+    return sent;
   }
 
   public class ProductLineItemComparator implements Comparator, Serializable {

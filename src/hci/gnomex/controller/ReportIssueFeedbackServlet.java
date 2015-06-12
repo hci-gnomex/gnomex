@@ -56,6 +56,7 @@ public class ReportIssueFeedbackServlet extends HttpServlet {
   private String Filename = null; //not needed
   private SimpleDateFormat sdf = new SimpleDateFormat();
   private Date currentDate;
+  private String serverName;
 
   private static final int STATUS_ERROR = 999;
 
@@ -76,6 +77,7 @@ public class ReportIssueFeedbackServlet extends HttpServlet {
   protected void doPost(HttpServletRequest req, HttpServletResponse res)
   throws ServletException, IOException {
     try {
+      serverName = req.getServerName();
       currentDate = new Date(System.currentTimeMillis());
       Session sess = HibernateGuestSession.currentGuestSession(req.getUserPrincipal() != null ? req.getUserPrincipal().getName() : "guest");
 
@@ -184,26 +186,12 @@ public class ReportIssueFeedbackServlet extends HttpServlet {
         }
       }
 
-      boolean send = false;
       String theSubject = subject + " " + currentDate.toString();
       String addPHI = DictionaryHelper.getInstance(sess).getPropertyDictionary(PropertyDictionary.ADD_PHI_TO_SUPPORT_EMAIL);
       if (addPHI != null && addPHI.equals("Y")) {
         theSubject += " PHI ";
       }
-      String emailInfo = "";
       String emailRecipients = DictionaryHelper.getInstance(sess).getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_BUGS);
-      if (dh.isProductionServer(req.getServerName())) {
-        send = true;
-      } else {
-        send = true;
-        theSubject = theSubject + "  (TEST)";
-        emailInfo = "[If this were a production environment then this email would have been sent to: "
-          + emailRecipients + "]\r\r";
-        emailRecipients = DictionaryHelper
-        .getInstance(sess)
-        .getPropertyDictionary(
-            PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
-      }
 
 
 
@@ -215,19 +203,12 @@ public class ReportIssueFeedbackServlet extends HttpServlet {
       "-------------------------------------------User Feedback-----------------------------------------------------" + "\r" +
       body.toString();
       // Email app user
-      if (send) {
-        if (!MailUtil.isValidEmail(fromAddress)) {
-          fromAddress = DictionaryHelper.getInstance(sess)
-          .getPropertyDictionary(
-              PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
-        }
-        MailUtil.send_attach(emailRecipients,
-            "", fromAddress, theSubject,
-            emailInfo + emailBody,
-            format.equalsIgnoreCase("HTML") ? true : false,
-                outputfile);
-        outputfile.delete();
+      if (!MailUtil.isValidEmail(fromAddress)) {
+          fromAddress = DictionaryHelper.getInstance(sess).getPropertyDictionary(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
       }
+      MailUtil.validateAndSendEmail(emailRecipients, null, fromAddress, theSubject, emailBody, outputfile, format.equalsIgnoreCase("HTML") ? true : false, dh, serverName);
+      
+      outputfile.delete();
 
       PrintWriter out = res.getWriter();
       res.setHeader("Cache-Control", "max-age=0, must-revalidate");

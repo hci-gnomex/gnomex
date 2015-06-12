@@ -642,7 +642,14 @@ public class SaveLab extends GNomExCommand implements Serializable {
     }
 
     try {
-      MailUtil.send(email, null, fromAddress, "You've been added to a new GNomEx lab", body.toString(), true);
+    	MailUtil.validateAndSendEmail(	
+    			email,
+    			fromAddress,
+    			"You've been added to a new GNomEx lab",
+    			body.toString(),
+				true, 
+				DictionaryHelper.getInstance(sess),
+				serverName 								);
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -699,30 +706,17 @@ public class SaveLab extends GNomExCommand implements Serializable {
   private void sendNewPOAccountEmail(Session sess, BillingAccount billingAccount, Lab lab) throws NamingException, MessagingException {
     PropertyDictionaryHelper dictionaryHelper = PropertyDictionaryHelper.getInstance(sess);
 
-
     StringBuffer submitterNote = new StringBuffer();
     StringBuffer body = new StringBuffer();
     String submitterSubject = "GNomEx Billing Account '" + billingAccount.getAccountName() + "' for " + lab.getName(false, true) + " approved"; 
 
-    boolean send = false;
     String PIEmail = lab.getContactEmail();
 
     CoreFacility facility = (CoreFacility)sess.load(CoreFacility.class, billingAccount.getIdCoreFacility());
 
-    boolean isTestEmail = false;
-    String emailInfo = "";
     String emailRecipients = PIEmail;
     if(!MailUtil.isValidEmail(PIEmail)){
       log.error("Invalid Email: " + PIEmail);
-    }
-    if (dictionaryHelper.isProductionServer(serverName)) {
-      send = true;
-    } else {
-      isTestEmail = true;
-      send = true;
-      submitterSubject = submitterSubject + "  (TEST)";
-      emailInfo = "[If this were a production environment then this email would have been sent to: " + emailRecipients + "]\n\n";
-      emailRecipients = dictionaryHelper.getProperty(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
     }
 
     submitterNote.append("The following billing account " +
@@ -739,20 +733,18 @@ public class SaveLab extends GNomExCommand implements Serializable {
     }
 
     String from = dictionaryHelper.getCoreFacilityProperty(facility.getIdCoreFacility(), PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
-
-
-    if (send) {
-      // Email submitter
-      if(!MailUtil.isValidEmail(from)){
+    if(!MailUtil.isValidEmail(from)){
         from = DictionaryHelper.getInstance(sess).getPropertyDictionary(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
-      }
-      MailUtil.send(emailRecipients, 
-          null,
-          from, 
-          submitterSubject, 
-          emailInfo + submitterNote.toString() + body.toString(),
-          false);
     }
+    
+    MailUtil.validateAndSendEmail(	
+    		emailRecipients,
+    		from,
+    		submitterSubject,
+    		submitterNote.toString() + body.toString(),
+			false, 
+			DictionaryHelper.getInstance(sess),
+			serverName 									);
 
   }
 

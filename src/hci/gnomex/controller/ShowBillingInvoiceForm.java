@@ -758,7 +758,6 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
 
     String note = "";
     boolean send = false;
-    String emailInfo = "";
     String emailRecipients = contactEmail;
     String ccList = emailFormatter.getCCList(sess);
     String fromAddress = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
@@ -766,15 +765,7 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
       log.error("Invalid email address " + emailRecipients);
     }
     if (contactEmail != null && !contactEmail.equals("")) {
-      if (dh.isProductionServer(serverName)) {
-        send = true;
-      } else {
-        send = true;
-        subject = subject + "  (TEST)";
-        emailInfo = "[If this were a production environment then this email would have been sent to: " + emailRecipients + ccList + "]<br><br>";
-        emailRecipients = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
-        ccList = null;
-      }     
+      send = true;     
     } else {
       note = "Unable to email billing invoice. Billing contact email is blank for " + lab.getName(false, true);
     }
@@ -793,13 +784,8 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
     																			PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(coreFacility.getIdCoreFacility(), PropertyDictionary.CONTACT_ADDRESS_CORE_FACILITY), 
     																			PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(coreFacility.getIdCoreFacility(), PropertyDictionary.CONTACT_REMIT_ADDRESS_CORE_FACILITY), 
     																			billingItemMaps, relatedBillingItemMaps, requestMaps);
-        MailUtil.send_attach(emailRecipients, 
-            ccList,
-            fromAddress,
-            subject, 
-            emailInfo + body,
-            true,
-            billingInvoice);
+    	
+    	MailUtil.validateAndSendEmail(emailRecipients, ccList, fromAddress, subject, body, billingInvoice, true, dh, serverName);
         
         billingInvoice.delete();
 

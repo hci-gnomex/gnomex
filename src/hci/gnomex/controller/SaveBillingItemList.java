@@ -301,7 +301,6 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
     String subject = emailFormatter.getSubject();
 
     boolean notifyCoreFacilityOfEmptyBillingEmail = false;
-    String emailInfo = "";
     String missingBillingEmailNote = "";
     String emailRecipients = "";
 
@@ -333,13 +332,6 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
     } else if(!MailUtil.isValidEmail(emailRecipients)){
       log.error("Invalid email address " + emailRecipients);
     }
-    //send emails to software tester if not production environment
-    if (dictionaryHelper.isProductionServer(serverName) == false) {
-      subject = subject + "  (TEST)";
-      emailInfo += "<br><br>[If this were a production environment then this email would have been sent to: " + emailRecipients + ccList + "]<br><br>";
-      emailRecipients = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
-      ccList = null;
-    }
     this.executionLogger.endLogItem(li);
 
     li = this.executionLogger.startLogItem("Send email");
@@ -349,7 +341,14 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
     }
 
     if(notifyCoreFacilityOfEmptyBillingEmail) {
-      MailUtil.send(emailRecipients, "", DictionaryHelper.getInstance(sess).getPropertyDictionary(PropertyDictionary.GENERIC_NO_REPLY_EMAIL), "Unable to send billing invoice", emailInfo + missingBillingEmailNote, true);
+      MailUtil.validateAndSendEmail(	
+    		  	emailRecipients,
+    		  	DictionaryHelper.getInstance(sess).getPropertyDictionary(PropertyDictionary.GENERIC_NO_REPLY_EMAIL),
+    		  	"Unable to send billing invoice",
+    		  	missingBillingEmailNote,
+				true, 
+				dictionaryHelper,
+				serverName 							);
     }
     
     Map[] billingItemMaps = {billingItemMap};
@@ -361,13 +360,8 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
 																				PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(coreFacility.getIdCoreFacility(), PropertyDictionary.CONTACT_ADDRESS_CORE_FACILITY), 
 																				PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(coreFacility.getIdCoreFacility(), PropertyDictionary.CONTACT_REMIT_ADDRESS_CORE_FACILITY), 
 																				billingItemMaps, relatedBillingItemMaps, requestMaps);
-    	MailUtil.send_attach(emailRecipients, 
-    	        		ccList,
-    	        		fromAddress,
-    	        		subject, 
-    	        		emailInfo + emailFormatter.format(),
-    	        		true,
-    	        		billingInvoice);
+    	
+    	MailUtil.validateAndSendEmail(emailRecipients, ccList, fromAddress, subject, "" + emailFormatter.format(), billingInvoice, true, dictionaryHelper, serverName);
     	
     	billingInvoice.delete();
     } catch (Exception e) {

@@ -237,12 +237,12 @@ public class PendingWorkAuthd extends TimerTask {
     body.append(tableRows.toString());
     body.append("</table></td></tr></table></body></html>");     
 
-    if (contactList != null && contactList.length() > 0 && !testNoMailServer) {    
+    if (contactList != null && contactList.length() > 0 && !testNoMailServer) {
+      boolean testEmail = false;
       if(testEmailTo.length() > 0) {
-        MailUtil.send(mailProps, testEmailTo, "", replyEmail, subject, body.toString(), true);               
-      } else {
-        MailUtil.send(mailProps, contactList, "", replyEmail, subject, body.toString(), true);               
-      }      
+    	testEmail = true;               
+      }
+      MailUtil.sendCheckTest(mailProps, contactList, null, replyEmail, subject, body.toString(), true, testEmail, testEmailTo);
     }
   }
 

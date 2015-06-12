@@ -19,7 +19,6 @@ public class EmailHelper {
     CoreFacility cf = (CoreFacility)sess.load(CoreFacility.class, request.getIdCoreFacility());
     
     String coreFacilityName = cf.getFacilityName();
-
     
     StringBuffer introNote = new StringBuffer();
     String downloadRequestURL = Util.addURLParameter(launchAppURL, "requestNumber=" + request.getNumber() + "&launchWindow=" + Constants.WINDOW_TRACK_REQUESTS);
@@ -35,36 +34,25 @@ public class EmailHelper {
         
     String subject = dictionaryHelper.getRequestCategory(request.getCodeRequestCategory()) + " Order " + request.getNumber() + " completed";
     
-    boolean send = false;
-    String emailInfo = "";
     String emailRecipients = request.getAppUser().getEmail();
     if(!MailUtil.isValidEmail(emailRecipients)){
       throw new MessagingException("Invalid email address: " + emailRecipients);
     }
-    if (dictionaryHelper.isProductionServer(serverName)) {
-      send = true;
-    } else {
-      send = true;
-      subject = subject + "  (TEST)";
-      emailInfo = "[If this were a production environment then this email would have been sent to: " + emailRecipients + "]<br><br>";
-      emailRecipients = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
-    }
     
     String contactEmailCoreFacility = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(request.getIdCoreFacility(), PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
 
-    
-    if (send) {
-      if(!MailUtil.isValidEmail(contactEmailCoreFacility)){
+    if(!MailUtil.isValidEmail(contactEmailCoreFacility)){
         contactEmailCoreFacility = DictionaryHelper.getInstance(sess).getPropertyDictionary(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
-      }
-      MailUtil.send(emailRecipients, 
-          null,
-          contactEmailCoreFacility, 
-          subject, 
-          emailInfo + emailFormatter.format(),
-          true);
-      
     }
+    
+    MailUtil.validateAndSendEmail(	
+    		emailRecipients,
+    		contactEmailCoreFacility,
+    		subject,
+    		emailFormatter.format(),
+			true, 
+			dictionaryHelper,
+			serverName 					);
     
   }
 
@@ -89,36 +77,25 @@ public class EmailHelper {
         
     String subject = dictionaryHelper.getRequestCategory(request.getCodeRequestCategory()) + " Order " + request.getNumber() + " - Sample(s) marked for redo";
     
-    boolean send = false;
-    String emailInfo = "";
     String emailRecipients = request.getAppUser().getEmail();
     if(!MailUtil.isValidEmail(emailRecipients)){
       throw new MessagingException("Invalid email address: " + emailRecipients);
     }
-    if (dictionaryHelper.isProductionServer(serverName)) {
-      send = true;
-    } else {
-      send = true;
-      subject = subject + "  (TEST)";
-      emailInfo = "[If this were a production environment then this email would have been sent to: " + emailRecipients + "]<br><br>";
-      emailRecipients = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
-    }
     
     String contactEmailCoreFacility = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(request.getIdCoreFacility(), PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
-
     
-    if (send) {
-      if(!MailUtil.isValidEmail(contactEmailCoreFacility)){
+    if(!MailUtil.isValidEmail(contactEmailCoreFacility)){
         contactEmailCoreFacility = DictionaryHelper.getInstance(sess).getPropertyDictionary(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
-      }
-      MailUtil.send(emailRecipients, 
-          null,
-          contactEmailCoreFacility, 
-          subject, 
-          emailInfo + emailFormatter.format(),
-          true);
-      
     }
+    
+    MailUtil.validateAndSendEmail(	
+    		emailRecipients,
+    		contactEmailCoreFacility,
+    		subject,
+    		emailFormatter.format(),
+			true, 
+			dictionaryHelper,
+			serverName 					);
     
   }
 

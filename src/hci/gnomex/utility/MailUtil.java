@@ -32,7 +32,7 @@ public class MailUtil
 {
 
     //~ Methods ----------------------------------------------------------------
-    public static void send( String to,
+    private static void send( String to,
                              String cc,
                              String from,
                              String subject,
@@ -44,9 +44,198 @@ public class MailUtil
 
         
       Session session = GNomExFrontController.getMailSession();
-      send(session, to, cc, "", from, subject, body, formatHtml);        
-
+      send(session, to, cc, "", from, subject, body, formatHtml);
     }
+    
+    private static boolean validateAndSendEmail(	Session session,
+    												String to,
+    												String cc,
+    												String bcc,
+    												String from,
+    												String subject,
+    												String body,
+    												boolean formatHtml, 
+    												DictionaryHelper dictionaryHelper,
+    												String serverName 					) throws AddressException, NamingException, MessagingException {
+    	
+    	// Get test email information
+    	boolean testEmail = false;
+    	String testEmailTo = "";
+    	
+    	if (!dictionaryHelper.isProductionServer(serverName)) {
+    		testEmail = true;
+    		testEmailTo = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
+    	}
+    	
+    	// Make sure we have an email address to send to 
+        if (to == null || to.equals("")) {
+        	if (!testEmail) {
+        		sendNoRecipientEmailNotice(	session, 
+        									from, 
+        									subject, 
+        									body, 
+        									formatHtml,
+        									dictionaryHelper );
+        		return false;
+        	}
+        }
+        
+        sendCheckTest(	session,
+        		to,
+        		cc,
+        		bcc,
+        		from,
+        		subject,
+        		body,
+        		formatHtml,
+        		testEmail,
+        		testEmailTo	);
+        
+        return true;
+    }
+    
+    public static boolean validateAndSendEmail( 
+    								String to,
+    								String cc, 
+    								String from, 
+    								String subject, 
+    								String body,
+    								File file,
+    								boolean formatHtml, 
+    								DictionaryHelper dictionaryHelper,
+    								String serverName) 
+    										throws AddressException, NamingException, MessagingException, IOException {
+    	
+    	Session session = GNomExFrontController.getMailSession();
+    	return validateAndSendEmail(session, to, cc, null, from, subject, body, file, formatHtml, dictionaryHelper, serverName);
+    }
+    
+	private static boolean validateAndSendEmail(	Session session, 
+													String to,
+													String cc, 
+													String bcc, 
+													String from, 
+													String subject, 
+													String body,
+													File file,
+													boolean formatHtml, 
+													DictionaryHelper dictionaryHelper,
+													String serverName	) 
+															throws AddressException, NamingException, MessagingException, IOException {
+
+		// Get test email information
+		boolean testEmail = false;
+		String testEmailTo = "";
+
+		if (!dictionaryHelper.isProductionServer(serverName)) {
+			testEmail = true;
+			testEmailTo = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
+		}
+
+		// Make sure we have an email address to send to
+		if (to == null || to.equals("")) {
+			if (!testEmail) {
+				sendNoRecipientEmailNotice(	session, 
+											from, 
+											subject, 
+											body,
+											file,
+											formatHtml, 
+											dictionaryHelper);
+				return false;
+			}
+		}
+
+		sendCheckTest(	session, 
+						to, 
+						cc, 
+						bcc, 
+						from, 
+						subject, 
+						body,
+						file,
+						formatHtml,
+						testEmail, 
+						testEmailTo);
+
+		return true;
+	}
+    
+    public static boolean validateAndSendEmail(	Properties props,
+    											String to,
+    											String cc,
+            									String bcc,
+												String from,
+												String subject,
+												String body,
+												boolean formatHtml, 
+												DictionaryHelper dictionaryHelper,
+												String serverName 					) throws AddressException, NamingException, MessagingException {
+
+    	Session session = javax.mail.Session.getDefaultInstance(props, null);
+    	
+    	return validateAndSendEmail(session, to, cc, bcc, from, subject, body, formatHtml, dictionaryHelper, serverName);
+    }
+    
+    public static boolean validateAndSendEmail(	String to,
+												String from,
+												String subject,
+												String body,
+												boolean formatHtml, 
+												DictionaryHelper dictionaryHelper,
+												String serverName 					) throws AddressException, NamingException, MessagingException {
+    	
+    	Session session = GNomExFrontController.getMailSession();
+    	
+    	return validateAndSendEmail(session, to, null, null, from, subject, body, formatHtml, dictionaryHelper, serverName);
+    }
+    
+    public static boolean validateAndSendEmail(	String to,
+    											String cc,
+    											String bcc,
+												String from,
+												String subject,
+												String body,
+												boolean formatHtml, 
+												DictionaryHelper dictionaryHelper,
+												String serverName 					) throws AddressException, NamingException, MessagingException {
+
+    	Session session = GNomExFrontController.getMailSession();
+
+    	return validateAndSendEmail(session, to, cc, bcc, from, subject, body, formatHtml, dictionaryHelper, serverName);
+    }
+    
+    private static void sendNoRecipientEmailNotice(	Session session,
+            										String from,
+            										String subject,
+            										String body,
+            										boolean formatHtml,
+            										DictionaryHelper dictionaryHelper ) throws AddressException, NamingException, MessagingException {
+    	
+    	String toAddress = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
+    	subject = "The following email does not have a valid recipient - " + subject;
+    	
+    	send(	toAddress,
+                null,
+                from,
+                subject,
+                body,
+                formatHtml );
+    }
+    
+    private static void sendNoRecipientEmailNotice(	Session session,
+													String from,
+													String subject,
+													String body,
+													File file,
+													boolean formatHtml,
+													DictionaryHelper dictionaryHelper ) throws AddressException, NamingException, MessagingException, IOException {
+
+    	String toAddress = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
+    	subject = "The following email does not have a valid recipient - " + subject;
+
+    	send_attach(session, toAddress, null, null, from, subject, body, formatHtml, file);
+    }    
 
     public static void sendCheckTest(Properties props,
                              String to,
@@ -62,21 +251,22 @@ public class MailUtil
       sendCheckTest(session, to, cc, "", from, subject, body, formatHtml, testEmail, testEmailTo);
     }
     
-    public static void sendCheckTest(String to,
-        String cc,
-        String from,
-        String subject,
-        String body,
-        boolean formatHtml,
-        boolean testEmail,
-        String testEmailTo)
-            throws NamingException, AddressException, MessagingException {
-      Session session = GNomExFrontController.getMailSession();
-      sendCheckTest(session, to, cc, "", from, subject, body, formatHtml, testEmail, testEmailTo);
+    public static void sendCheckTest(Properties props,
+            				String to,
+            				String cc,
+            				String bcc,
+            				String from,
+            				String subject,
+            				String body,
+            				boolean formatHtml, 
+            				boolean testEmail,
+            				String testEmailTo)
+         throws NamingException, AddressException, MessagingException {
+    	Session session = javax.mail.Session.getDefaultInstance(props, null);
+    	sendCheckTest(session, to, cc, bcc, from, subject, body, formatHtml, testEmail, testEmailTo);
     }
     
-    
-    public static void sendCheckTest(Session session,
+    private static void sendCheckTest(Session session,
                               String to,
                               String cc,
                               String bcc,
@@ -114,6 +304,47 @@ public class MailUtil
       }
       send(session, to, cc, bcc, from, subject, body, formatHtml);
     }
+    
+	private static void sendCheckTest(	Session session, 
+										String to, 
+										String cc,
+										String bcc, 
+										String from, 
+										String subject, 
+										String body,
+										File file,
+										boolean formatHtml, 
+										boolean testEmail, 
+										String testEmailTo)
+												throws NamingException, AddressException, MessagingException, IOException {
+
+		if (testEmail) {
+			subject = "GNomEx Test Email - " + subject;
+
+			// Add details about who the email would have gone to
+			String newBody = "[If this were a production environment then this email would have been sent to: "
+					+ to;
+			if (cc != null && !cc.equals("")) {
+				newBody += ", cc: " + cc;
+			}
+			if (bcc != null && !bcc.equals("")) {
+				newBody += ", bcc: " + bcc;
+			}
+			newBody += "]";
+
+			if (formatHtml) {
+				newBody += "<br><br>";
+			} else {
+				newBody += "\n\n";
+			}
+			newBody += body;
+			body = newBody;
+			to = testEmailTo;
+			bcc = "";
+			cc = "";
+		}
+		send_attach(session, to, cc, bcc, from, subject, body, formatHtml, file);
+	}
                           
     public static Boolean isValidEmail(String emailAddress){
       if (emailAddress == null || emailAddress.equals("")) {
@@ -144,58 +375,8 @@ public class MailUtil
       }   
       return false;
     }
-
     
-    public static void send_bcc( String to,
-              String cc,
-              String from,
-              String subject,
-              String body,
-              boolean formatHtml )
-      throws NamingException,
-      AddressException,
-      MessagingException {
-      
-      
-      Session session = GNomExFrontController.getMailSession();
-      send(session, to, cc, "", from, subject, body, formatHtml);        
-
-    }
-    
-    
-    public static void send(Properties props,
-                            String to,
-                            String cc,
-                            String from,
-                            String subject,
-                            String body,
-                            boolean formatHtml )
-    throws NamingException,
-    AddressException,
-    MessagingException {
-
-      Session session = javax.mail.Session.getDefaultInstance(props, null);
-      send(session, to, cc, "", from, subject, body, formatHtml);
-
-    }
-    
-    public static void send_bcc(Properties props,
-              String to,
-              String cc,
-              String bcc,
-              String from,
-              String subject,
-              String body,
-              boolean formatHtml )
-      throws NamingException,
-      AddressException,
-      MessagingException {
-      
-      Session session = javax.mail.Session.getDefaultInstance(props, null);
-      send(session, to, cc, bcc, from, subject, body, formatHtml);
-    }
-    
-    public static void send(Session session,
+    private static void send(Session session,
         String to,
         String cc,
         String bcc,
@@ -260,29 +441,12 @@ public class MailUtil
         Transport.send( msg );
       }
     }
-    
+
     // Send an email with an attachment(s)
     // Parameter file can be a file or a directory.  
     // If it is a directory, every file under that directory will be attached
     // recursively.
-    public static void send_attach( String to,
-        String cc,
-        String from,
-        String subject,
-        String body,
-        boolean formatHtml,
-        File   file)
-    throws NamingException,
-    AddressException,
-    MessagingException,
-    IOException{
-
-      Session session = GNomExFrontController.getMailSession();
-      send_attach(session, to, cc, "", from, subject, body, formatHtml, file);        
-
-    }
-
-    public static void send_attach(Session session,
+    private static void send_attach(Session session,
         String to,
         String cc,
         String bcc,

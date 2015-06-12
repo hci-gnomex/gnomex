@@ -323,17 +323,6 @@ public class SaveWorkItemSolexaPipeline extends GNomExCommand implements Seriali
     
     StringBuffer body = new StringBuffer();
     
-    boolean send = false;
-    if (dictionaryHelper.isProductionServer(serverName)) {
-      send = true;
-    } else {
-      send = true;
-      subject = subject + "  (TEST)";
-      body.append("[If this were a production environment then this email would have been sent to: " + toAddress + ", cc: " + ccAddress +  "]<br><br>");
-      toAddress = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
-      ccAddress = "";
-    }
-    
     body.append(user.getFirstLastDisplayName() + " of the " + r.getLabName() + " has requested bioinformatic analysis assistance for sequencing request number " + r.getNumber() + ". <br>");
     body.append("The data is now available in GNomEx.<br><br>");
     body.append("<b>Contact Information:</b><br> " + user.getFirstLastDisplayName() + "<br>");
@@ -358,14 +347,16 @@ public class SaveWorkItemSolexaPipeline extends GNomExCommand implements Seriali
     body.append("<u>Run Type:</u> " + seqRunType + ". <br>");
     body.append("<u>Library Protocol:</u> " + seqLibProtocol);
     
-    if (send) {
-      MailUtil.send(toAddress, 
-          ccAddress,
-          fromAddress, 
-          subject, 
-          body.toString(),
-          true);      
-    }
+    MailUtil.validateAndSendEmail(	
+    		toAddress,
+    		ccAddress,
+    		null,
+    		fromAddress,
+    		subject,
+    		body.toString(),
+			true, 
+			dictionaryHelper,
+			serverName 			);     
     
   }
 
@@ -427,34 +418,25 @@ public class SaveWorkItemSolexaPipeline extends GNomExCommand implements Seriali
     
     String subject = dictionaryHelper.getRequestCategory(request.getCodeRequestCategory()) + " Request " + request.getNumber() + " completed";
     
-    boolean send = false;
-    String emailInfo = "";
     String emailRecipients = request.getAppUser().getEmail();
     String fromAddress = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(request.getIdCoreFacility(), PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
     
     if(!MailUtil.isValidEmail(emailRecipients)){
       log.error("Invalid email: " + emailRecipients + " for submitter " + request.getAppUser().getFirstLastDisplayName());
     }
-    if (dictionaryHelper.isProductionServer(serverName)) {
-      send = true;
-    } else {
-      send = true;
-      subject = subject + "  (TEST)";
-      emailInfo = "[If this were a production environment then this email would have been sent to: " + emailRecipients + "]<br><br>";
-      emailRecipients = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
+    
+    if(!MailUtil.isValidEmail(fromAddress)){
+        fromAddress = DictionaryHelper.getInstance(sess).getPropertyDictionary(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
     }
     
-    if (send) {
-      if(!MailUtil.isValidEmail(fromAddress)){
-        fromAddress = DictionaryHelper.getInstance(sess).getPropertyDictionary(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
-      }
-      MailUtil.send(emailRecipients, 
-          null,
-          fromAddress, 
-          subject, 
-          emailInfo + emailFormatter.format(),
-          true);
-    }
+    MailUtil.validateAndSendEmail(	
+    		emailRecipients,
+    		fromAddress,
+    		subject,
+    		emailFormatter.format(),
+			true, 
+			dictionaryHelper,
+			serverName 				);
     
     // Send email to bioinformatics core
     if (request.getBioinformaticsAssist() != null && request.getBioinformaticsAssist().equals("Y")) {

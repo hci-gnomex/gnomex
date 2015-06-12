@@ -16,14 +16,11 @@ import hci.gnomex.model.Request;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.BillingPDFFormatter;
 import hci.gnomex.utility.DictionaryHelper;
-import hci.gnomex.utility.MailUtil;
 import hci.gnomex.utility.PropertyDictionaryHelper;
 import hci.report.constants.ReportFormats;
 import hci.report.model.ReportTray;
 import hci.report.utility.ReportCommand;
 
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutput;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.Serializable;
@@ -34,7 +31,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
-import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
