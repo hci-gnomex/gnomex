@@ -30,7 +30,7 @@
 		<![CDATA[
 			import mx.controls.Alert;
 			import mx.rpc.events.ResultEvent;
-
+			
 			
 			
 			private var selectedIdLab:String;
@@ -121,7 +121,7 @@
 			
 			private function filterLedgerList():void{
 				var params:Object = new Object();
-			
+				
 				if(browseLabCombo.selectedIndex >= 0){
 					params.idLab = browseLabCombo.selectedItem.@idLab;
 				}
@@ -143,26 +143,32 @@
 	<mx:XMLListCollection id="products" source="{getProductList.lastResult..Product}"/>
 	
 	
-	<mx:VBox id="vbox1" width="100%" height="100%" horizontalAlign="center" verticalGap="2">
-		<mx:HBox width="100%" paddingRight="6" paddingTop="8" styleName="panelBox" paddingBottom="4" paddingLeft="6" borderThickness="1" horizontalGap="15">
-			<mx:Image source="assets/basket.png"/>
-			<mx:Label text="Product Ledgers" styleName="titleLabel" width="124"/>
-			
-			<mx:Spacer width="17"/>
-			<mx:Label text="Lab:"/>
-			<renderers:FilterComboBox dataProvider="{parentApplication.labList.source}" 
-									  labelField="@name" 
-									  prompt="Select a lab..." close="{this.filterLedgerList()}"
-									  width="160" 
-									  id="browseLabCombo" fontSize="10">
-			</renderers:FilterComboBox>
-			
-			
-			<mx:Spacer width="5"/>
-			<mx:Label text="Product:"/>
-			<mx:ComboBox id="productCombo" dataProvider="{this.products}" labelField="@name" close="{this.filterLedgerList()}" selectedIndex="-1" fontSize="10"/>
+	<mx:VBox id="vbox1" width="100%" height="100%" horizontalAlign="left" verticalGap="2">
+		<mx:HBox width="100%" styleName="titleBox">
+			<renderers:TitleLabel iconSource="{parentApplication.iconBasket}" titleText="Product Ledgers" />
+			<mx:HBox horizontalGap="10" paddingTop="0" paddingLeft="0" horizontalAlign="left" verticalAlign="middle" width="100%">
+				
+				<mx:HBox verticalAlign="middle"  
+						 visible="{parentApplication.submitRequestLabList.source.length() &gt; 1}"
+						 includeInLayout="{parentApplication.submitRequestLabList.source.length() &gt; 1}">
+					<mx:Label text="Lab:"/>
+					<renderers:FilterComboBox dataProvider="{parentApplication.submitRequestLabList.source}"
+											  editable="{parentApplication.submitRequestLabList.source.length() &gt; 1}"
+											  enabled="{parentApplication.submitRequestLabList.source.length() &gt; 1}"
+											  labelField="@name" 
+											  prompt="Select a lab..."
+											  width="160"  
+											  selectedIndex="{parentApplication.submitRequestLabList.source.length() == 1 ? 0 : -1}"
+											  id="browseLabCombo" fontSize="10"
+											  close="{this.filterLedgerList()}">
+					</renderers:FilterComboBox>
+				</mx:HBox>
+								
+				<mx:Spacer width="5"/>
+				<mx:Label text="Product:"/>
+				<mx:ComboBox id="productCombo" dataProvider="{this.products}" labelField="@name" close="{this.filterLedgerList()}" selectedIndex="-1" fontSize="10"/>
+			</mx:HBox>
 		</mx:HBox>
-		
 		
 		<mx:HDividedBox height="100%" width="100%" dividerAlpha="0" dividerThickness="3" dividerAffordance="0">	
 			

@@ -11,6 +11,7 @@ public class Product extends DictionaryEntry implements Serializable {
   private Integer     idProduct;
   private String      name;
   private String      codeProductType;
+  private ProductType productType;
   private Integer     idPrice;
   private Integer     orderQty;
   private Integer     useQty;
@@ -53,6 +54,16 @@ public class Product extends DictionaryEntry implements Serializable {
   
   public void setCodeProductType( String codeProductType ) {
     this.codeProductType = codeProductType;
+  }
+
+  
+  public ProductType getProductType() {
+    return productType;
+  }
+
+  
+  public void setProductType( ProductType productType ) {
+    this.productType = productType;
   }
 
   public Integer getIdPrice() {

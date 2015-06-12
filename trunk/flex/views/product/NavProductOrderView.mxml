@@ -326,12 +326,17 @@
 			
 			<mx:HBox horizontalGap="10" paddingTop="0" paddingLeft="0" horizontalAlign="left" verticalAlign="middle" width="100%">
 				
-				<mx:HBox verticalAlign="middle">
+				<mx:HBox verticalAlign="middle"  
+						 visible="{parentApplication.submitRequestLabList.source.length() &gt; 1}"
+						 includeInLayout="{parentApplication.submitRequestLabList.source.length() &gt; 1}">
 					<mx:Label text="Lab:"/>
-					<renderers:FilterComboBox dataProvider="{parentApplication.labList.source}" 
+					<renderers:FilterComboBox dataProvider="{parentApplication.submitRequestLabList.source}"
+											  editable="{parentApplication.submitRequestLabList.source.length() &gt; 1}"
+											  enabled="{parentApplication.submitRequestLabList.source.length() &gt; 1}"
 											  labelField="@name" 
 											  prompt="Select a lab..."
 											  width="160"  
+											  selectedIndex="{parentApplication.submitRequestLabList.source.length() == 1 ? 0 : -1}"
 											  id="browseLabCombo" fontSize="10">
 					</renderers:FilterComboBox>
 				</mx:HBox>
