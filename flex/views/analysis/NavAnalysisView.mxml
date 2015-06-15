@@ -201,6 +201,8 @@
 			[Bindable]
 			public var selectedLabsLabel:String = "";
 			
+			private var window:MultiLabFilterWindow;
+			
 			public function checkDirty():void {
 			}
 			
@@ -209,7 +211,7 @@
 				
 				if (!isInitialized) {
 					if (currentState == "AdminState") {
-						this.getAnalysisLabList.send();				
+						this.updateLabList();				
 					}
 				}
 				
@@ -287,7 +289,10 @@
 			
 			private function onGetAnalysisLabList(event:ResultEvent):void {
 				if (getAnalysisLabList.lastResult.name() == "LabList") {
-					labList = new XMLListCollection(getAnalysisLabList.lastResult.Lab);    		
+					labList = new XMLListCollection(getAnalysisLabList.lastResult.Lab);
+					if (this.window != null) {
+						this.window.updateLabList();
+					}
 				}
 			}
 			
@@ -1023,6 +1028,7 @@
 					browseView.buttonStack.selectedChild = browseView.browseButtonView;
 					deleteSelectedItems();
 					analysisViews.selectedChild = browseView;
+					this.updateLabList();
 				} else {
 					Alert.show(deleteAnalysis.lastResult..ACTMESSAGE.@TEXT);
 				}
@@ -1036,6 +1042,7 @@
 					browseView.buttonStack.selectedChild = browseView.browseButtonView;
 					deleteSelectedItems();
 					analysisViews.selectedChild = browseView;
+					this.updateLabList();
 				} else {
 					Alert.show(deleteAnalysisGroup.lastResult..ACTMESSAGE.@TEXT);
 				}
@@ -1167,6 +1174,7 @@
 					Alert.show(moveAnalysis.lastResult..ACTMESSAGE.@TEXT);
 				} else{
 					this.refreshAnalysis();
+					this.updateLabList();
 					browseTree.selectedItem = dropNode;
 					addAnalysisGroup = null;
 					onBrowseTree(null);
@@ -1186,7 +1194,7 @@
 			}
 			
 			private function showMultiLabFilterWindow():void {  
-				var window:MultiLabFilterWindow  = MultiLabFilterWindow(PopUpManager.createPopUp(this, MultiLabFilterWindow, false));
+				window = MultiLabFilterWindow(PopUpManager.createPopUp(this, MultiLabFilterWindow, false));
 				window.labKeys = this.labKeys;
 				PopUpManager.centerPopUp(window);
 			}		
@@ -1208,7 +1216,11 @@
 			
 			private function handleDateSet(event:DateSetEvent):void {
 				this.refreshAnalysis();
-			}			
+			}
+			
+			public function updateLabList():void {
+				this.getAnalysisLabList.send();
+			}
 			
 		]]>
 	</mx:Script>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml"
-	layout="vertical" width="400" height="300" title="Choose Groups" creationComplete="init()">
+	layout="vertical" width="450" height="300" title="Choose Groups" creationComplete="init()">
 <mx:Script>
 	<![CDATA[
 		import hci.flex.controls.CheckBox;
@@ -15,10 +15,18 @@
 		public  var labKeys:String;
 		
 		private function init():void {
+			this.updateLabList();		
+			setLabSelection();
+		}
+		
+		public function updateLabList():void {
 			labList = new XMLListCollection(parentApplication.navAnalysisView.labList.copy());
 			labList.filterFunction=filterLabList;
-			labList.refresh();		
-			setLabSelection();
+			labList.refresh();
+		}
+		
+		private function callToUpdateLabList():void {
+			parentApplication.navAnalysisView.updateLabList();
 		}
 		
 		private function setLabSelection():void {
@@ -120,6 +128,7 @@
 	<mx:ControlBar horizontalAlign="left">
 		<mx:LinkButton label="Unselect all" styleName="formLinkButton" paddingLeft="0" click="unselectAllLabs()" />
 		<mx:CheckBox id="showZeroAnalysesLabs" label="Show All Labs" click="labList.refresh()"/>
+		<mx:LinkButton label="Refresh" icon="@Embed(source='../../assets/action_refresh.gif')" click="this.callToUpdateLabList()" textDecoration="underline" id="refreshButton"/>
 		<mx:Spacer width="100%"/>
 		<mx:Button label="OK" id="saveButton" click="saveLabKeys()" disabledIcon="@Embed(source='../../assets/save_disable.png')"/>
 		<mx:Button label="Cancel" click="{PopUpManager.removePopUp(this)}"/>

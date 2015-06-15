@@ -344,6 +344,7 @@
 				 }
 				 parentApplication.navAnalysisView.showEditView = true;
 				 parentApplication.navAnalysisView.refreshAnalysis();
+				 parentApplication.navAnalysisView.updateLabList();
 			 }
         }
 
