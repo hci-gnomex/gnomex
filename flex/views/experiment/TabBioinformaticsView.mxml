@@ -3,37 +3,21 @@
 	<mx:Script>
 		<![CDATA[
 			import ext.com.Consts;
+			
+			import mx.collections.XMLListCollection;
+			import mx.controls.ComboBox;
+
 			[Bindable]
 			private var organismString:String;
 			[Bindable]
 			private var questionNumber:String;
 			
+			[Bindable]
+			private var sampleOrganisms:XMLListCollection = new XMLListCollection();
+			
 			private function init():void {
-				if (parentDocument != null && parentDocument.request != null
-					&& parentDocument.request.hasOwnProperty("@alignToGenomeBuild")
-					&& parentDocument.request.@alignToGenomeBuild == 'Y') {
-
-					alignCheckBox.selected = true;
-					genomeBuildCombo.selectedIndex = 0;
-					for each(var lane:XML in parentDocument.lanes) {
-						if (lane.hasOwnProperty("@idGenomeBuildAlignTo")
-							&& lane.@idGenomeBuildAlignTo != null
-							&& lane.@idGenomeBuildAlignTo != '') {
-							for each(var obj:Object in parentDocument.filteredGenomeBuildList) {
-								if (obj.@idGenomeBuild == lane.@idGenomeBuildAlignTo) {
-									genomeBuildCombo.selectedItem = obj;
-									genomeBuildCombo.enabled = true;
-									break;
-								}
-							}
-							break;
-						}
-					}
-				} else {
-					alignCheckBox.selected = false;
-					genomeBuildCombo.selectedIndex = 0;
-					genomeBuildCombo.enabled = false;
-				}
+				sampleOrganisms = new XMLListCollection();
+				sampleOrganisms = parentDocument.getSampleOrganisms();
 				
 				this.bioAssistCheckBox.selected = false;
 				if (parentDocument != null && parentDocument.request != null
@@ -57,6 +41,7 @@
 				}
 				
 				organismString = 'Organism: ' + parentDocument.getOrganism() != null ? parentDocument.getOrganism().@organism : "N/A";
+				genomeBuildRepeater.dataProvider = this.sampleOrganisms;
 				parentDocument.confirmView.enabled = true;
 				parentDocument.enableNextButtons();
 			}
@@ -65,57 +50,39 @@
 				parentDocument.request.@analysisInstructions = this.noteToBio.text;
 			}
 
-			public function propagateGenomeBuild():void {
-				parentDocument.request.@idGenomeBuildAlignTo = alignCheckBox.selected && genomeBuildCombo.selectedItem != null ? genomeBuildCombo.selectedItem.@value : "";
-				for each (var lane:Object in parentDocument.lanes) {
-					if (this.genomeBuildCombo.selectedItem != null) {
-						if(!alignCheckBox.selected) {
-							lane.@idGenomeBuildAlignTo = "";
-						} else {
-							lane.@idGenomeBuildAlignTo = this.genomeBuildCombo.selectedItem.@value;						
-						}					
-					}
-				}
-				callLater(parentDocument.samplesView.checkSamplesCompleteness);
-			}
 			
-			public function selectDefaultGenomeBuild():void {
-				if (alignCheckBox.selected) {
-					if (this.genomeBuildCombo.dataProvider.length > 1) {
-						for each(var genomeBuild:Object in this.genomeBuildCombo.dataProvider) {
-							if (genomeBuild.@isLatestBuild != null && genomeBuild.@isLatestBuild == 'Y') {
-								this.genomeBuildCombo.selectedItem = genomeBuild;
-								propagateGenomeBuild();
-								break;
-							}
-						}
-					}
-				} else {
-					genomeBuildCombo.selectedIndex = 0;
-				}
-			}
-			
-			private function onAlignCheckBoxClick():void {
-				if (!alignCheckBox.selected) {
-					genomeBuildCombo.selectedIndex = 0;
-					genomeBuildCombo.enabled = false;
-					parentDocument.request.@alignToGenomeBuild='N';
-					propagateGenomeBuild();
-				} else {
-					genomeBuildCombo.enabled = true;
-					parentDocument.request.@alignToGenomeBuild='Y';
-					if (genomeBuildCombo != null && genomeBuildCombo.selectedIndex <= 0) {
-						this.selectDefaultGenomeBuild();
-					}
-				}
-			}		
-			
-			private function onGenomeBuildComboChange():void {
-				if (!alignCheckBox.selected) {
-					genomeBuildCombo.selectedIndex = 0;
+			private function onAlignCheckBoxClick(event:Event):void {
+				
+				var checkBox:CheckBox = CheckBox(event.currentTarget);
+				var data:Object = event.currentTarget.getRepeaterItem();
+				if(checkBox.selected){
+					data.@alignToGenomeBuild = 'Y';
+				} else{
+					data.@alignToGenomeBuild = 'N';
+					data.@idGenomeBuildAlignTo = "";
 				}
 				
-				propagateGenomeBuild();
+				genomeBuildRepeater.dataProvider = sampleOrganisms;
+			}		
+			
+			private function onGenomeBuildComboChange(event:Event):void {
+				var comboBox:ComboBox = ComboBox(event.currentTarget);
+				var data:Object = event.currentTarget.getRepeaterItem();
+				data.@idGenomeBuildAlignTo = comboBox.selectedItem.@idGenomeBuild;
+				genomeBuildRepeater.dataProvider = sampleOrganisms;
+				
+				delete parentDocument.request.sequenceLanes;
+				var seqLanes:XML = <sequenceLanes></sequenceLanes>;
+				for each(var sl:XML in sampleOrganisms){
+					seqLanes.appendChild(sl);
+				}
+				parentDocument.request.appendChild(seqLanes);
+				
+				for each(var seqLane:XML in parentDocument.request.sequenceLanes.SequenceLane){
+					if(seqLane.@idOrganism == data.@idOrganism){
+						seqLane.@idGenomeBuildAlignTo = comboBox.selectedItem.@idGenomeBuild;
+					}
+				}
 			}
 			
 			private function onBioAssistCheckBoxClick():void {
@@ -124,6 +91,23 @@
 				} else {
 					parentDocument.request.@bioinformaticsAssist = "N";
 				}
+			}
+			
+			private function getIndexOfGenomeBuild(idGenomeBuildAlignTo:String, idOrganism:String):int{
+				if(idGenomeBuildAlignTo == ''){
+					return 0;
+				}
+				var list:XMLListCollection = parentDocument.getFilteredGenomeBuildList(idOrganism);
+				var index:int = 0;
+				for each(var genome:XML in list){
+					if(genome.@idGenomeBuild == idGenomeBuildAlignTo){
+						return index;
+					} else{
+						index++;
+					}
+				}
+				
+				return 0;
 			}
 		]]>
 	</mx:Script>
@@ -140,16 +124,15 @@
 			<util:ContextHelp context1="bioSequenceAligned" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Sequence Alignment Help"
 							  label="{'(1) Do you want the sequence data to be aligned? ' + parentApplication.getCoreFacilityProperty(parentDocument.getRequestCategory().@idCoreFacility, parentApplication.PROPERTY_REQUEST_BIO_ALIGNMENT_NOTE)}" 
 							  labelPlacement="left" id="bioSequenceAlignedLabel"/>
-			<mx:HBox width="100%" verticalGap="0" paddingBottom="0" paddingTop="0">
-				<mx:Spacer width="12"/>
-				<mx:Label text="{organismString}"/>
-			</mx:HBox>
-			<mx:HBox width="100%" horizontalGap="2" verticalGap="0" paddingBottom="0" paddingTop="0">
-				<mx:Spacer width="20"/>
-				<mx:CheckBox id="alignCheckBox" label="Yes, align to genome build" click="{onAlignCheckBoxClick(); parentDocument.dirty.setDirty();}" selected="false"/>
-				<mx:ComboBox labelField="@display" id="genomeBuildCombo" change="{onGenomeBuildComboChange(); parentDocument.dirty.setDirty();}" width="300" dataProvider="{parentDocument.filteredGenomeBuildList}" enabled="false">							
-				</mx:ComboBox>
-			</mx:HBox>
+			<mx:Repeater id="genomeBuildRepeater" dataProvider="{sampleOrganisms}" >
+				<mx:HBox width="100%" verticalGap="0" paddingBottom="0" paddingTop="0">
+					<mx:Label text="{genomeBuildRepeater.currentItem.@organism}" width="100" />
+					<mx:CheckBox id="alignCheckBox" label="Yes, align to genome build" click="{onAlignCheckBoxClick(event); parentDocument.dirty.setDirty();}" selected="{genomeBuildRepeater.currentItem.@idGenomeBuildAlignTo != '' || genomeBuildRepeater.currentItem.@alignToGenomeBuild == 'Y'}"/>
+					<mx:ComboBox labelField="@display" id="genomeBuildCombo" change="{onGenomeBuildComboChange(event); parentDocument.dirty.setDirty();}" 
+								 width="300" dataProvider="{parentDocument.getFilteredGenomeBuildList(genomeBuildRepeater.currentItem.@idOrganism)}" 
+								 enabled="{genomeBuildRepeater.currentItem.@idGenomeBuildAlignTo != '' || genomeBuildRepeater.currentItem.@alignToGenomeBuild == 'Y'}" selectedIndex="{getIndexOfGenomeBuild(genomeBuildRepeater.currentItem.@idGenomeBuildAlignTo, genomeBuildRepeater.currentItem.@idOrganism)}"/>
+				</mx:HBox>
+			</mx:Repeater>
 		</mx:VBox>
 		<mx:Spacer height="10" id="spacer"/>
 		<util:ContextHelp context1="bioAnalysisAssistance" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Analysis Assistance Help"

@@ -72,6 +72,10 @@
 			private var genomeBuild:String = "";
 			
 			[Bindable]
+			private var organismName:String = "";
+
+			
+			[Bindable]
 			private var alignToGenomeBuild:String = "N";
 			
 			public var defaultTab:Container = null;
@@ -185,16 +189,34 @@
 				
 				parentDocument.parentDocument.experimentEditView.instantiateTabs(this.selectedExperiment.@codeRequestCategory, true, false);
 				
-				if(selectedExperiment.sequenceLanes.SequenceLane[0] != null && selectedExperiment.sequenceLanes.SequenceLane[0].@idGenomeBuildAlignTo != null){
-					genomeBuild = parentApplication.dictionaryManager.getEntryDisplay('hci.gnomex.model.GenomeBuildLite', selectedExperiment.sequenceLanes.SequenceLane[0].@idGenomeBuildAlignTo);
+				genomeBuild = "";
+				organismName = "";
+				var organismDict:Dictionary = new Dictionary();
+				var genomeBuildDict:Dictionary = new Dictionary();
+				for each(var seqLane:XML in selectedExperiment.sequenceLanes.SequenceLane){
+					if(seqLane.@idGenomeBuildAlignTo != ''){
+						genomeBuildDict[seqLane.@idGenomeBuildAlignTo] = parentApplication.dictionaryManager.getEntryDisplay('hci.gnomex.model.GenomeBuildLite', seqLane.@idGenomeBuildAlignTo);
+					}
+					if(seqLane.@idOrganism != ''){
+						organismDict[seqLane.@idOrganism] = parentApplication.dictionaryManager.getEntryDisplay('hci.gnomex.model.OrganismLite', seqLane.@idOrganism);
+					}
 				}
 				
-				if (selectedExperiment.@alignToGenomeBuild != null && selectedExperiment.@alignToGenomeBuild != '') {
-					this.alignToGenomeBuild = selectedExperiment.@alignToGenomeBuild.toString();
-				} else {
-					this.alignToGenomeBuild = 'N';
+				for each(var value:String in organismDict){
+					organismName += value + ", ";
 				}
 				
+				for each(var v2:String in genomeBuildDict){
+					genomeBuild += v2 + " -- ";
+				}
+				
+				genomeBuild = genomeBuild.substring(0, genomeBuild.lastIndexOf(" -- "));
+				organismName = organismName.substring(0, organismName.lastIndexOf(","));
+				
+				if(genomeBuild.length > 0){
+					this.alignToGenomeBuild = 'Y';
+				}
+								
 				var requestApplication:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Application', selectedExperiment.@codeApplication);
 				if(selectedExperiment.@captureLibDesignId != "" || selectedExperiment.@captureLibDesignId != ""){
 					libDesignAndInsertBox.visible = true;
@@ -2190,12 +2212,12 @@
 					<mx:VBox verticalGap="0" width="100%" height="100%"  id='noteToBioBox'
 							 visible="true"  
 							 includeInLayout="true">
-						<mx:Label text="{'Organism: ' + this.selectedExperiment.@organismName}" 
+						<mx:Label text="{'Organism(s): ' + organismName}" 
 								  styleName="formLabel"/>
 						<mx:Spacer height="10"/>
-						<mx:Label text="{'Align to GenomeBuild: ' + alignToGenomeBuild}"
+						<mx:Label text="{'Align to Genome Build: ' + alignToGenomeBuild}"
 								  styleName="formLabel"/>
-						<mx:Label text="{'Genome Build: ' + genomeBuild}" 
+						<mx:Label text="{'Genome Build(s): ' + genomeBuild}" 
 								  styleName="formLabel"/>
 						<mx:Spacer height="10"/>
 						<mx:Label text="{this.selectedExperiment.@bioinformaticsAssist == 'Y' ? 'Bioinformatics Core Assistance Requested' : 'No Bioinformatics Core Assistance Desired'}" 

@@ -829,7 +829,7 @@
 					this.currentState == 'SolexaAmendPreppedState' ||
 					this.currentState == 'MDMiSeqState') { 
 					parentDocument.filteredGenomeBuildList.refresh();
-					selectDefaultGenomeBuild();			
+					//selectDefaultGenomeBuild();			
 				}
 				
 			}
