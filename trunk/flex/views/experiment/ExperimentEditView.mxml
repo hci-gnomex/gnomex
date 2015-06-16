@@ -360,6 +360,8 @@
 		public var defaultTab:Container = null;
 			
 		private var billingAccountAlreadyUpdated:Boolean = false;
+		
+		private var genomeBuildOrganism:String = "";
 			
 		[Bindable]
 		private var labList:XMLListCollection = null;
@@ -1880,7 +1882,57 @@
         	
         	
         	return doesMatchRequestCategory;
-        }  
+        }
+			
+		public function getFilteredGenomeBuildList(idOrganism:String):XMLListCollection{
+			var genomeList:XMLListCollection = new XMLListCollection(parentApplication.dictionaryManager.getEntries('hci.gnomex.model.GenomeBuildLite'));
+			genomeBuildOrganism = idOrganism;
+			genomeList.filterFunction = filterBySampleOrganism;
+			genomeList.refresh();
+			return genomeList;
+		}
+			
+		public function getSampleOrganisms():XMLListCollection {
+			var sampleOrgs:XMLListCollection = new XMLListCollection();
+			var organismDict:Dictionary = new Dictionary();
+			
+			//If we are in new experiment submit state we need to grab the organisms off of the samples
+			if(!this.isEditState()){
+				for each(var seq:XML in this.request.sequenceLanes..SequenceLane){
+					for each(var smp:XML in this.request.samples..Sample){
+						if(seq.@idSample == smp.@idSample){
+							seq.@idOrganism = smp.@idOrganism;
+							seq.@organism = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.OrganismLite', smp.@idOrganism).@display;
+						}
+					}
+				}
+				
+			}
+			for each(var samp:XML in this.request.sequenceLanes..SequenceLane){
+				organismDict[samp.@idOrganism] = samp;
+			}
+			
+			for each(var value:XML in organismDict){
+				sampleOrgs.addItem(value);
+			}
+			return sampleOrgs;
+			
+		}
+			
+		private function filterBySampleOrganism(item:Object):Boolean{
+			if (item.@value == "") {
+				return true;
+			}
+			if (item.@isActive == 'N') {
+				return false;
+			}
+			
+			if(item.@idOrganism == genomeBuildOrganism){
+				return true;
+			} else{
+				return false;
+			}
+		}
         
         private function filterGenomeBuild(item:Object):Boolean {
         	if (item.@value == "") {
@@ -3218,7 +3270,7 @@
 			
 		public function getMultiplexLanes():void {
 			if(this.isSolexaState() && parentApplication.isInternalExperimentSubmission) { 
-				this.bioinformaticsView.propagateGenomeBuild();
+				//this.bioinformaticsView.propagateGenomeBuild();
 				initializeRequestXML();
 				var params:Object = new Object();
 				params.requestXMLString = request.toXMLString();
@@ -3596,7 +3648,7 @@
 				//If the pre-pooled value was changed check if billing is already complete and warn admin that they will have to update billing on their own
 				if(prePooledChanged){
 					for each(var bi:XML in request.billingItems..BillingItem){
-						if(bi.@description == 'Library QC' && bi.@codeBillingStatus == 'COMPLETE'){
+						if(bi.@description == 'Library QC'){
 							Alert.show("You have changed the pre-pooled values for an experiment that has already completed Library QC.  You will have to manually update the appropriate billing item.", "Warning");
 							break;
 						}
@@ -4845,7 +4897,7 @@
 					this.seqSetup1View.propagateSeqRunType();
 					this.seqSetup1View.propagateNumberSequencingCycles();
 				}
-				this.bioinformaticsView.propagateGenomeBuild();
+				//this.bioinformaticsView.propagateGenomeBuild();
 
 				
 			}
