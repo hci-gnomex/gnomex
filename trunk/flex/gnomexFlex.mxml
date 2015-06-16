@@ -4189,6 +4189,11 @@
 		<menuitem label="Experiments"  icon="iconFlask" >
 		</menuitem>
 		
+		<menuitem label="Products..."  icon="iconCategory" >
+			<menuitem label="Product Orders" icon="iconOrders"   />
+			<menuitem label="Product Ledger" icon="iconOrders"   />
+		</menuitem>
+		
 		<menuitem label="Billing" icon="iconBilling"   />
 		
 		<menuitem label="Users &amp; Groups" icon="iconUsers"   />
@@ -4208,6 +4213,12 @@
 		<menuitem label="Experiments..."  icon="iconFlask" >
 			<menuitem  label="Browse Experiments"  icon="iconFlask" />
 			<menuitem  label="New Experiment Order"  icon="iconSubmitExperiment" context="newInternalExperiment"/>
+		</menuitem>
+		
+		<menuitem label="Products..."  icon="iconCategory" >
+			<menuitem label="Order Products" icon="iconOrders" context="newProductOrder"  />
+			<menuitem label="Product Orders" icon="iconOrders"   />
+			<menuitem label="Product Ledger" icon="iconOrders"   />
 		</menuitem>
 		
 		<menuitem label="Billing" icon="iconBilling"   />
@@ -4456,6 +4467,11 @@
 			<menuitem label="New Billing Account" icon="iconBilling"   />
 		</menuitem>
 		
+		<menuitem label="Products..."  icon="iconCategory" >
+			<menuitem label="Order Products" icon="iconOrders" context="newProductOrder"  />
+			<menuitem label="Product Orders" icon="iconOrders"   />
+			<menuitem label="Product Ledger" icon="iconOrders"   />
+		</menuitem>
 		
 		<menuitem label="Analysis" icon="iconAnalysis"  context="bioinformatics"  />
 		
