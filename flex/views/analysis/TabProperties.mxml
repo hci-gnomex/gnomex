@@ -435,7 +435,7 @@
 													   click="{showURLEdit(event.target.instanceIndices)}" 
 													   styleName="linkMenuButtonSmall" textAlign="left"/>
 										<mx:Image id="urlRemoveImage" source="{parentApplication.iconSmallDelete}"  
-												  click="{removeURL(event.currentTarget.instanceIndices)}" />						
+												  click="{removeURL(event.currentTarget.instanceIndices)}" useHandCursor="true"/>						
 									</mx:HBox>
 									<mx:HBox width="100%" verticalAlign="middle"  horizontalGap="2" horizontalAlign="left" horizontalScrollPolicy="off">
 										<mx:TextInput id="aliasText"  enter="{tabToURLText(event.target.instanceIndices)}" 
