@@ -178,7 +178,7 @@
 				<mx:HBox  id="urlBox" verticalAlign="middle" horizontalGap="0" width="100%">
 					<mx:LinkButton id="urlLink" click="{navigateToURLLink(event.target.instanceIndices)}" label="{urlRepeater.currentItem.@alias != 'Enter alias here...' &amp;&amp; urlRepeater.currentItem.@alias != '' ? urlRepeater.currentItem.@alias : urlRepeater.currentItem.@value}"  paddingLeft="0" textDecoration="underline" color="#121CE8" width="100%" textAlign="left"/>
 					<mx:LinkButton label="Edit" click="{showURLEdit(event.target.instanceIndices)}" includeInLayout="{isEditable}" visible="{isEditable}" fontSize="9" textDecoration="underline"/>
-					<mx:Image source="assets/bullet_delete.png" includeInLayout="{isEditable}" visible="{isEditable}" click="{removeURL(event.currentTarget.instanceIndices)}" />						
+					<mx:Image source="assets/bullet_delete.png" includeInLayout="{isEditable}" visible="{isEditable}" click="{removeURL(event.currentTarget.instanceIndices)}" useHandCursor="true"/>						
 				</mx:HBox>
 				<mx:HBox width="100%" visible="{isEditable}" includeInLayout="{isEditable}" verticalAlign="middle"  horizontalGap="0" horizontalAlign="left">
 					<mx:TextInput id="aliasText" visible="{isEditable}" includeInLayout="{isEditable}" enter="{tabToURLText(event.target.instanceIndices)}" click="{selectAliasText(event.currentTarget.instanceIndices)}" text="{urlRepeater.currentItem.@alias}"  width="110" color="#8D7B7B"/>	
