@@ -6,7 +6,7 @@
 			
 			import mx.collections.XMLListCollection;
 			import mx.controls.ComboBox;
-
+			
 			[Bindable]
 			private var organismString:String;
 			[Bindable]
@@ -49,7 +49,7 @@
 			private function setAnalysisInstructions():void {
 				parentDocument.request.@analysisInstructions = this.noteToBio.text;
 			}
-
+			
 			
 			private function onAlignCheckBoxClick(event:Event):void {
 				
@@ -71,14 +71,7 @@
 				data.@idGenomeBuildAlignTo = comboBox.selectedItem.@idGenomeBuild;
 				genomeBuildRepeater.dataProvider = sampleOrganisms;
 				
-				delete parentDocument.request.sequenceLanes;
-				var seqLanes:XML = <sequenceLanes></sequenceLanes>;
-				for each(var sl:XML in sampleOrganisms){
-					seqLanes.appendChild(sl);
-				}
-				parentDocument.request.appendChild(seqLanes);
-				
-				for each(var seqLane:XML in parentDocument.request.sequenceLanes.SequenceLane){
+				for each(var seqLane:XML in parentDocument.lanes){
 					if(seqLane.@idOrganism == data.@idOrganism){
 						seqLane.@idGenomeBuildAlignTo = comboBox.selectedItem.@idGenomeBuild;
 					}
