@@ -21,3 +21,9 @@ REFERENCES `gnomex`.`Sample` (`idSample`)
 ON DELETE NO ACTION
 ON UPDATE NO ACTION;
 call ExecuteIfTableExists('gnomex', 'AnalysisExperimentItem_Audit', 'alter table AnalysisExperimentItem_Audit add column idSample INT(10) NULL');
+
+
+
+call ExecuteIfTableExists('gnomex', 'AppUser_Audit', ' ALTER TABLE AppUser_Audit ADD COLUMN confirmEmailGuid varchar(100) null');
+
+call ExecuteIfTableExists('gnomex', 'SampleType_Audit', ' ALTER TABLE SampleType_Audit ADD COLUMN idCoreFacility int(10) null');
