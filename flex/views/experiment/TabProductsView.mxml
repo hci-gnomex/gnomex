@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas 	label="Products" 
+			xmlns:mx="http://www.adobe.com/2006/mxml"
+			xmlns:util="views.util.*"
+			width="100%" height="100%">
+	
+	<mx:HTTPService 
+		id="getProductLedgerList" 
+		url="GetProductLedgerList.gx"
+		resultFormat="e4x"
+		result="onGetProductLedgerList(event)"
+		showBusyCursor="true"
+		fault="parentApplication.onFailHttpRequest('Unable to get ledger entries', event)"
+		method="POST"
+		useProxy="false">
+	</mx:HTTPService>
+	
+	<mx:Script>
+		<![CDATA[
+			import mx.controls.Alert;
+			import mx.core.UIComponent;
+			import mx.rpc.events.ResultEvent;
+			
+			[Bindable]
+			private var availableLedgerAmount:String = NO_PRODUCTS;
+			[Bindable]
+			private var hasSufficientProduct:Boolean = false;
+			[Bindable]
+			private var selectedProduct:Object = null;
+			private var requiredCodeProductType:String;
+			private var lastIdLabUsedForLookup:String;
+			private var editable:Boolean = false;
+			
+			private static const NO_PRODUCTS:String = "0";
+			
+			public function refreshForRequestCategory():void {
+				if (editable && parentDocument.requestCategory != null) {
+					hasSufficientProduct = false;
+					productGroup.selection = null;
+					selectedProduct = null;
+					availableLedgerAmount = NO_PRODUCTS;
+					requiredCodeProductType = parentDocument.requestCategory.@codeProductType;
+					filteredProducts.refresh();
+				}
+			}
+			
+			public function refreshForLab():void {
+				if (editable && parentDocument.getIdLab() != null) {
+					hasSufficientProduct = false;
+					productGroup.selection = null;
+					selectedProduct = null;
+					availableLedgerAmount = NO_PRODUCTS;
+					lookupLedger(parentDocument.getIdLab());
+				}
+			}
+			
+			public function allowEdits(allowEdits:Boolean):void {
+				editable = allowEdits;
+			}
+			
+			public function reset():void {
+				availableLedgerAmount = NO_PRODUCTS;
+				hasSufficientProduct = false;
+				productGroup.selection = null;
+				selectedProduct = null;
+				requiredCodeProductType = null;
+				lastIdLabUsedForLookup = null;
+				editable = false;
+			}
+			
+			public function hasSufficientInfo():Boolean {
+				if (requiredCodeProductType != null && lastIdLabUsedForLookup != null) {
+					return true;
+				}
+				
+				return false;
+			}
+			
+			private function filterProducts(item:Object):Boolean {
+				if (item.@isActive == 'N' || item.@useQty == '') {
+					return false;
+				}
+				
+				if (item.@codeProductType == requiredCodeProductType) {
+					return true;
+				}
+				
+				return false;
+			}
+			
+			private function selectProduct():void {
+				if (editable && productGroup.selectedValue != null) {
+					selectedProduct = productGroup.selectedValue;
+					if (!lookupLedger(parentDocument.getIdLab())) {
+						updateFields();
+					}
+				}
+			}
+			
+			private function lookupLedger(idLab:String = null, idProduct:String = null):Boolean {
+				if ((getProductLedgerList.lastResult == null) || (lastIdLabUsedForLookup != null && idLab != lastIdLabUsedForLookup)) {
+					var params:Object = new Object();
+					params.idLab = idLab;
+					params.idProduct = idProduct;
+					getProductLedgerList.send(params);
+					
+					lastIdLabUsedForLookup = idLab;
+					return true;
+				}
+				
+				return false;
+			}
+			
+			private function validateLedgerAmount():void {
+				hasSufficientProduct = false;
+				var available:Number = parseInt(availableLedgerAmount);
+				var required:Number = Number.MAX_VALUE;
+				if (selectedProduct != null) {
+					for each (var product:Object in filteredProducts) {
+						if (product.@idProduct == selectedProduct.@idProduct) {
+							required = parseInt(product.@useQty);
+						}
+					}
+				}
+				hasSufficientProduct = (available >= required) && (available - required >= 0);
+			}
+			
+			private function updateFields():void {
+				if (getProductLedgerList.lastResult != null) {
+					var foundProductInLedger:Boolean = false;
+					if (selectedProduct != null) {
+						for each (var product:Object in getProductLedgerList.lastResult.Lab.product) {
+							if (product.@idProduct == selectedProduct.@idProduct) {
+								foundProductInLedger = true;
+								availableLedgerAmount = product.@qty;
+							}
+						}
+					}
+					if (!foundProductInLedger) {
+						availableLedgerAmount = NO_PRODUCTS;
+					}
+					
+					validateLedgerAmount();
+				}
+				
+				checkCompleteness();
+			}
+			
+			private function onGetProductLedgerList(event:ResultEvent):void {
+				if (getProductLedgerList.lastResult.name() != 'LedgerList') {
+					Alert.show(event.result..ERROR.@message.toString(), "Error getting product ledger list");	
+				} else {
+					updateFields();
+				}
+			}
+			
+			private function checkCompleteness():void {
+				var complete:Boolean = false;
+				
+				if (editable && hasSufficientProduct) {
+					complete = true;
+				}
+			}
+			
+			public function requiredProducts():String {
+				var message:String = '';
+				if (editable && !hasSufficientProduct) {
+					message += 'Please ensure your lab has sufficient products.';
+				}
+				return message;
+			}
+			
+			public function getUseQuantityOfSelectedProduct():Number {
+				var useQuantity:Number = -1;
+				if (selectedProduct != null && selectedProduct.hasOwnProperty("@useQty")) {
+					useQuantity = parseInt(selectedProduct.@useQty);
+				}
+				return useQuantity;
+			}
+			
+		]]>
+	</mx:Script>
+	
+	<mx:XMLListCollection id="filteredProducts" source="{parentApplication.productList.copy()}" filterFunction="filterProducts" />
+	
+	<mx:VBox width="100%" height="100%" verticalScrollPolicy="auto" verticalGap="10" paddingTop="0" paddingRight="0" paddingBottom="0" paddingLeft="0">
+			
+		<mx:HBox width="100%" horizontalGap="0" verticalAlign="top" paddingTop="2">
+			
+			<mx:Label text="This service uses products. Please specify which one you want to use." />
+			
+			<mx:VBox horizontalGap="8" verticalGap="0" styleName="{productGroup.selection != null ? 'normalBox' : 'requiredBox'}" paddingTop="1" paddingRight="4" paddingBottom="0" paddingLeft="2" verticalAlign="bottom">
+				<mx:RadioButtonGroup id="productGroup" change="{selectProduct()}" />
+				<mx:Repeater id="productRepeater" dataProvider="{filteredProducts}">
+					<mx:HBox width="100%" verticalAlign="middle" paddingTop="0" paddingRight="0" paddingBottom="0" paddingLeft="0">
+						<mx:RadioButton id="productRadio" groupName="productGroup"
+										label="{productRepeater.currentItem.@display}"
+										value="{productRepeater.currentItem}"
+										paddingTop="0" paddingBottom="0" fontSize="11" />
+						<mx:Label text="Use quantity: {productRepeater.currentItem.@useQty}" />
+					</mx:HBox>
+				</mx:Repeater>
+			</mx:VBox>
+			
+		</mx:HBox>
+		
+		<mx:HBox width="100%" horizontalGap="0" verticalAlign="top" paddingTop="2" visible="{selectedProduct != null}">
+			
+			<mx:Label text="Your lab has {availableLedgerAmount} of this product." />
+			
+			<mx:Label text="Proceed: {hasSufficientProduct}" />
+			
+		</mx:HBox>
+		
+	</mx:VBox>	
+	
+</mx:Canvas>
