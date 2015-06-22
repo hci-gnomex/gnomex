@@ -1348,7 +1348,7 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
     }
     Element requestNode = new Element("Request");
     requestNode.setAttribute("idRequest", this.getIdRequest().toString());
-    requestNode.setAttribute("name", this.getName());
+    requestNode.setAttribute("name", this.getNonNullString(this.getName()));
     requestNode.setAttribute("label", this.getNumber() + " " + (secAdvisor.canRead(this) ? (this.getName() != null ? this.getName() : "") : "(Not authorized)"));
     requestNode.setAttribute("codeVisibility", this.getCodeVisibility());
     requestNode.setAttribute("number", this.getNumber());
