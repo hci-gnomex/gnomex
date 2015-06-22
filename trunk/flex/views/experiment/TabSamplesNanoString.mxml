@@ -736,9 +736,9 @@
 					</mx:headerRenderer>
 				</mx:AdvancedDataGridColumn>   
 				
-				<mx:AdvancedDataGridColumn headerText="Conc. (ng/ul)" id="concentrationCol" visible="{parentApplication.isInternalExperimentSubmission}"  width="77" dataField="@concentration" rendererIsEditor="false"
+				<mx:AdvancedDataGridColumn headerText="Conc. (ng/ul)" id="concentrationCol" visible="{parentApplication.isInternalExperimentSubmission}"  width="77" labelFunction="getSampleConcentrationFormatted" rendererIsEditor="false"
 										   itemRenderer="{hci.flex.controls.Label.create('@concentration')}"                
-										   itemEditor="{views.renderers.GridColumnFillButton.create(new views.renderers.TextInputSampleConcentration(), '')}" editorDataField="value">
+										   itemEditor="{views.renderers.GridColumnFillButton.create(new views.renderers.TextInputSampleConcentration(), '')}" editorDataField="value" dataField="@concentration">
 					<mx:headerRenderer > 
 						<mx:Component>
 							<mx:VBox verticalGap="0" horizontalScrollPolicy="off"  verticalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle"> 
