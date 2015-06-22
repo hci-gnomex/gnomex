@@ -1,0 +1,307 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:ControlBar xmlns:mx="http://www.adobe.com/2006/mxml"
+			   xmlns:views="views.*"  
+			   xmlns:renderers="views.renderers.*">
+	
+	<mx:HTTPService  
+		id="getTopicList" 
+		url="GetTopicList.gx"
+		destination="getTopicList"
+		resultFormat="e4x"
+		showBusyCursor="true"
+		result="onGetTopicList(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to get topic list', event)"
+		method="POST" 
+		useProxy="false">
+	</mx:HTTPService>
+	
+	<mx:HTTPService  
+		id="addItemToTopic" 
+		url="AddItemToTopic.gx"
+		destination="addItemToTopic"
+		resultFormat="e4x"
+		showBusyCursor="true"
+		result="onAddItemToTopic(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to add item to topic', event)"
+		method="POST" 
+		useProxy="false">
+	</mx:HTTPService>
+	
+	<mx:HTTPService  
+		id="unlinkItemFromTopic" 
+		url="UnlinkItemFromTopic.gx"
+		destination="unlinkItemFromTopic"
+		resultFormat="e4x"
+		showBusyCursor="true"
+		result="onUnlinkItemFromTopic(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to unlink item from topic', event)"
+		method="POST" 
+		useProxy="false">
+	</mx:HTTPService>
+	
+	<mx:HTTPService  
+		id="delayedAddItemToTopic" 
+		url="AddItemToTopic.gx"
+		destination="addItemToTopic"
+		resultFormat="e4x"
+		showBusyCursor="false"
+		result="onDelayedAddItemToTopic(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to add item to topic', event)"
+		method="POST" 
+		useProxy="false">
+	</mx:HTTPService>
+	
+	<mx:Script>
+		<![CDATA[
+			import mx.controls.Alert;
+			import mx.controls.Button;
+			import mx.rpc.events.ResultEvent;
+			
+			[Bindable]
+			private var showInput:Boolean = false;
+			
+			[Bindable]
+			public var automaticLinking:Boolean = true;
+			
+			[Bindable]
+			private var selectedTopic:Object = null;
+			
+			private var topicSelectedForUnlinking:Object = null;
+			
+			public var idRequest:Object = null;
+			
+			private function toggleInput():void {
+				showInput = !showInput;
+				refreshTopics();
+			}
+			
+			private function refreshTopics():void {
+				if (showInput) {
+					var params:Object = new Object();
+					getTopicList.send(params);
+				}
+			}
+			
+			private function onGetTopicList(event:ResultEvent): void {
+				if (getTopicList.lastResult.name() == "TopicList") {
+					topicsAlreadyLinkedTo = new XMLListCollection();
+					topicsToLink = new XMLListCollection();
+					filteredTopics = new XMLListCollection(getTopicList.lastResult..Topic as XMLList);
+					cleanAndFilterTopics();
+				} else {
+					Alert.show(getTopicList.lastResult..ACTMESSAGE.@TEXT);
+				}  	
+			}
+			
+			private function cleanAndFilterTopics():void {
+				if (filteredTopics != null) {
+					
+					for each (var topic:XML in filteredTopics) {
+						
+						if (idRequest != null && topic.hasOwnProperty('@requestCount')) {
+							for each (var category:XML in topic..Category) {
+								if (category.attribute('label') == 'Experiments') {
+									for each (var request:XML in category.children()) {
+										if (request.@idRequest == idRequest) {
+											topicsAlreadyLinkedTo.addItem(topic);
+											break;
+										}
+									}
+								}
+							}
+						}
+						
+						topic.setChildren(new XMLList());
+					}
+					
+					updateFilteredTopics();
+					
+				}
+			}
+			
+			private function topicSelected():void {
+				selectedTopic = browseTopicsCombo.selectedItem;
+			}
+			
+			private function performLink():void {
+				if (automaticLinking) {
+					if (selectedTopic != null && idRequest != null && idRequest != '') {
+						var params:Object = new Object();
+						
+						params.name = "Request";
+						params.idRequest0 = idRequest;
+						params.idTopic = selectedTopic.@idTopic;
+						
+						addItemToTopic.send(params);
+					}
+				} else {
+					if (selectedTopic != null) {
+						topicsToLink.addItem(selectedTopic);
+						updateFilteredTopics();
+						selectedTopic = null;
+						browseTopicsCombo.selectedItem = null;
+					}
+				}
+			}
+			
+			private function onAddItemToTopic(event:ResultEvent):void {
+				if (addItemToTopic.lastResult.name() == "SUCCESS") {
+					topicsAlreadyLinkedTo.addItem(selectedTopic);
+					updateFilteredTopics();
+					selectedTopic = null;
+					browseTopicsCombo.selectedItem = null;
+				} else {
+					Alert.show(addItemToTopic.lastResult..ACTMESSAGE.@TEXT);
+				}
+			}
+
+			private function performUnlink(event:MouseEvent):void
+			{
+				var deleteButton:Button = Button(event.currentTarget);
+				topicSelectedForUnlinking = deleteButton.getRepeaterItem();
+				
+				if (automaticLinking) {
+					if (topicSelectedForUnlinking != null && idRequest != null && idRequest != '') {
+						var params:Object = new Object();
+						
+						params.idRequest = idRequest;
+						params.idTopic = topicSelectedForUnlinking.@idTopic;
+						
+						unlinkItemFromTopic.send(params);
+					}
+				} else {
+					if (topicSelectedForUnlinking != null) {
+						topicsToLink.removeItemAt(topicsToLink.getItemIndex(topicSelectedForUnlinking));
+						updateFilteredTopics();
+						topicSelectedForUnlinking = null;
+					}
+				}
+			}
+			
+			private function onUnlinkItemFromTopic(event:ResultEvent):void {	
+				if (unlinkItemFromTopic.lastResult.name() == "SUCCESS") {
+					topicsAlreadyLinkedTo.removeItemAt(topicsAlreadyLinkedTo.getItemIndex(topicSelectedForUnlinking));
+					updateFilteredTopics();
+					topicSelectedForUnlinking = null;
+				} else {
+					Alert.show(unlinkItemFromTopic.lastResult..ACTMESSAGE.@TEXT);
+				}	
+			}
+			
+			public function generateTopicsToLinkXML():XMLListCollection {
+				var topicsToLinkXML:XMLListCollection = new XMLListCollection();
+				
+				if (!automaticLinking) {
+					for each (var topic:XML in topicsToLink) {
+						var node:XML = new XML();
+						node.@idTopic = topic.@idTopic;
+						topicsToLinkXML.addItem(node);
+					}
+				}
+				
+				return topicsToLinkXML;
+			}
+			
+			private function filterTopics(item:Object):Boolean {
+				var keep:Boolean = true;
+				
+				var duplicateList:XMLListCollection;
+				if (automaticLinking) {
+					duplicateList = new XMLListCollection(topicsAlreadyLinkedTo.copy());
+				} else {
+					duplicateList = new XMLListCollection(topicsToLink.copy());
+				}
+				
+				for each (var topic:XML in duplicateList) {
+					if (topic.@idTopic == item.@idTopic) {
+						keep = false;
+						break;
+					}
+				}
+				
+				return keep;
+			}
+			
+			private function updateFilteredTopics():void {
+				if (filteredTopics != null) {
+					filteredTopics.filterFunction = filterTopics;
+					filteredTopics.refresh();
+				}
+			}
+			
+			public function collapse():void {
+				if (showInput) {
+					toggleInput();
+				}
+				reset();
+			}
+			
+			private function reset():void {
+				selectedTopic = null;
+				browseTopicsCombo.selectedItem = null;
+				
+				topicsAlreadyLinkedTo = new XMLListCollection();
+				topicsToLink = new XMLListCollection();
+				filteredTopics = new XMLListCollection();
+			}
+			
+			public function linkTopics(submittedIdRequest:Object):void {
+				if (!automaticLinking && submittedIdRequest != null && submittedIdRequest != '' && topicsToLink != null && topicsToLink.length > 0) {
+					for each (var topic:XML in topicsToLink) {
+						var params:Object = new Object();
+						
+						params.name = "Request";
+						params.idRequest0 = submittedIdRequest;
+						params.idTopic = topic.@idTopic;
+						
+						delayedAddItemToTopic.send(params);
+					}
+				}
+			}
+			
+			private function onDelayedAddItemToTopic(event:ResultEvent):void {
+				if (delayedAddItemToTopic.lastResult.name() == "SUCCESS") {
+					
+				} else {
+					Alert.show(delayedAddItemToTopic.lastResult..ACTMESSAGE.@TEXT);
+				}
+			}
+
+		]]>
+	</mx:Script>
+	
+	<mx:XMLListCollection id="filteredTopics"/>
+	<mx:XMLListCollection id="topicsAlreadyLinkedTo"/>
+	<mx:XMLListCollection id="topicsToLink"/>
+	
+	<mx:VBox height="100%" width="100%" paddingLeft="0">
+		<mx:LinkButton label="Link to Topic" id="linkToTopicButton" 
+					   click="{toggleInput()}" 
+					   icon="@Embed(source='../../assets/topic_tag.png')" fontSize="10" textDecoration="underline" textAlign="left" paddingLeft="0"/>
+	</mx:VBox>
+	<mx:VBox height="100%" width="100%">
+		<mx:Repeater id="topicsAlreadyLinkedToRepeater" dataProvider="{automaticLinking ? topicsAlreadyLinkedTo : topicsToLink}">
+			<mx:HBox height="100%" width="100%">
+				<mx:Text text="{topicsAlreadyLinkedToRepeater.currentItem.@label}" textAlign="left" width="250"
+						 visible="{showInput}" includeInLayout="{showInput}"/>
+				<mx:LinkButton 	click="performUnlink(event)" enabled="{showInput}"
+								height="20" width="20"
+						   		visible="{showInput}" includeInLayout="{showInput}"
+						   		icon="{parentApplication.iconSmallDelete}"/>
+			</mx:HBox>
+		</mx:Repeater>
+		<mx:HBox height="100%" width="100%">
+			<renderers:FilterComboBox id="browseTopicsCombo" prompt="Select a topic..." 
+									  dataProvider="{filteredTopics}" 
+									  labelField="@label" fontSize="10" 
+									  width="250" visible="{showInput}" includeInLayout="{showInput}"
+									  close="{topicSelected()}"/>
+			<mx:LinkButton   label="Link" id="performLinkButton"
+							 click="{performLink()}" enabled="{showInput &amp;&amp; selectedTopic != null}"
+							 visible="{showInput &amp;&amp; selectedTopic != null}" 
+							 includeInLayout="{showInput &amp;&amp; selectedTopic != null}"
+							 icon="@Embed(source='../../assets/link.png')" textAlign="left"/>
+		</mx:HBox>
+	</mx:VBox>
+	
+</mx:ControlBar>
