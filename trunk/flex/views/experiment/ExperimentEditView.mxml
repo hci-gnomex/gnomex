@@ -4,6 +4,7 @@
 		 xmlns:views="views.*" 
 		 xmlns:util="views.util.*"  
 		 xmlns:experiment="views.experiment.*"
+		 xmlns:topic="views.topics.*"
 		 showEffect="{parentApplication.fadeIn}" hideEffect="{parentApplication.fadeOut}" 
 		 width="100%" height="100%"  
 		 creationPolicy="all" show="init()" hide="leave()" xmlns:renderers="views.renderers.*" xmlns:mx1="library://ns.adobe.com/flex/mx" xmlns:experiment1="experiment.*">
@@ -997,7 +998,10 @@
 					
 				}	
 				
-				
+				if (theTab.contains(productsView)) {
+					productsView.reset();
+					productsView.enabled = false;
+				}
 				
 				if (theTab.contains(confirmView)) {
 					confirmView.enabled = false;
@@ -1039,27 +1043,41 @@
 			public function enableNextButtons():void {
 				if (theTab.selectedIndex < theTab.getChildren().length - 1) {
 					confirmButtonStack.selectedIndex = 0;
-					var nextChild:UIComponent = UIComponent(theTab.getChildAt(theTab.selectedIndex + 1));
-					if (nextChild.enabled) {
-						nextButton.enabled = true;
-					} else {
-						nextButton.enabled = false;
+					nextButton.enabled = false;
+					var nextChildIndex:int = theTab.selectedIndex + 1;
+					while (nextChildIndex <= theTab.getChildren().length - 1) {
+						if (theTab.getTabAt(nextChildIndex).visible) {
+							var nextVisibleChild:UIComponent = UIComponent(theTab.getChildAt(nextChildIndex));
+							if (nextVisibleChild.enabled) {
+								nextButton.enabled = true;
+							}
+							break;
+						} else {
+							nextChildIndex++;
+						}
 					}
-					
 				} else {
 					nextButton.enabled = false;
 					confirmButtonStack.selectedIndex = 1;
 				}
 				if (theTab.selectedIndex > 0) {
-					var prevChild:UIComponent = UIComponent(theTab.getChildAt(theTab.selectedIndex - 1));
-					if (prevChild != null && prevChild.enabled) {
-						backButton.enabled = true;
-					} else {
-						backButton.enabled = false;
+					backButton.enabled = false;
+					var previousChildIndex:int = theTab.selectedIndex - 1;
+					while (previousChildIndex >= 0) {
+						if (theTab.getTabAt(previousChildIndex).visible) {
+							var prevVisibleChild:UIComponent = UIComponent(theTab.getChildAt(previousChildIndex));
+							if (prevVisibleChild != null && prevVisibleChild.enabled) {
+								backButton.enabled = true;
+							}
+							break;
+						} else {
+							previousChildIndex--;
+						}
 					}
 				} else {
 					backButton.enabled = false;
 				}
+				
 				if (theTab.selectedChild == this.samplesView) {
 					if (!nextButton.enabled && userWarningsSamples == '') {
 						userWarningsSamples = 'When all required fields are entered, tap outside of grid cell to continue to next tab';
@@ -1132,7 +1150,6 @@
 				request.@coreToExtractDNA = 'N';
 				request.@includeBisulfideConversion = 'N';
 				request.@includeQubitConcentration = 'N';
-				
 				
 				if (theTab.contains(confirmView)) {
 					this.confirmView.setBarcodeColVisibility(false);        					
@@ -1434,6 +1451,22 @@
 					this.sampleSetupView.sampleTypeValidator.validate();
 				}
 				
+				if (theTab.contains(productsView)) {
+					if (determineIfProductsNeeded()) {
+						productsView.allowEdits(true);
+						productsView.refreshForRequestCategory();
+						productsView.refreshForLab();
+						this.theTab.getTabAt( theTab.getChildIndex( productsView ) ).visible = true;
+						this.theTab.getTabAt( theTab.getChildIndex( productsView ) ).includeInLayout = true;
+						if (productsView.hasSufficientInfo()) {
+							productsView.enabled = true;
+						} else {
+							productsView.enabled = false;
+						}
+					} else {
+						hideProductsTab();
+					}
+				}
 				
 				filteredSampleTypeList.refresh();
 				filteredSampleTypeListRna.refresh();
@@ -2098,7 +2131,20 @@
 				}
 				
 				return doesMatchRequestCategoryVendor && doesMatchOrganism && doesMatchExperimentCategory && doesMatchGroup;
-			}  
+			}
+			
+			public function setIdLab():void {
+				if (theTab.contains(productsView) && theTab.getTabAt(theTab.getChildIndex(productsView)).visible) {
+					this.productsView.refreshForLab();
+					if (productsView.hasSufficientInfo()) {
+						productsView.enabled = true;
+					} else {
+						productsView.enabled = false;
+					}
+				} else if (!theTab.getTabAt(theTab.getChildIndex(productsView)).visible) {
+					productsView.enabled = true;
+				}
+			}
 			
 			public function getIdLab():String {
 				var idLab:String = null;
@@ -2308,6 +2354,8 @@
 				samplesView.enabled = request.@canUpdateSamples == "Y";
 				notesView.enabled = true;
 				notesView.currentState = "EditState";
+				
+				hideProductsTab();
 				
 				parentApplication.isInternalExperimentSubmission = request.@isExternal == "N";
 				
@@ -3157,7 +3205,8 @@
 				
 				// Only submit request if it is valid
 				validateRequest();
-				errorMessage += propertiesView.requiredAnnotationsEntered(); 
+				errorMessage += propertiesView.requiredAnnotationsEntered();
+				errorMessage += productsView.requiredProducts();
 				if (errorMessage != '') {
 					this.submitButton.enabled = true;
 					Alert.show(errorMessage, "Error", Alert.OK, null, null, parentApplication.iconError);
@@ -3173,7 +3222,8 @@
 			private function validateAndSaveRequest():void {
 				this.submitButton.enabled = false;
 				validateRequest();
-				errorMessage += propertiesView.requiredAnnotationsEntered(); 
+				errorMessage += propertiesView.requiredAnnotationsEntered();
+				errorMessage += productsView.requiredProducts();
 				if (errorMessage != '') {
 					this.submitButton.enabled = true;
 					Alert.show(errorMessage);
@@ -3659,6 +3709,7 @@
 						
 					}
 					
+					
 					saveExistingRequest.send(params);
 					
 					billingAccountAlreadyUpdated = false;
@@ -3861,6 +3912,8 @@
 					submittedIdRequest = saveNewRequest.lastResult.@idRequest;
 					submittedRequestNumber = saveNewRequest.lastResult.@requestNumber;
 					coreFacilityName = parentApplication.getCoreFacilityName(submittedIdRequest);
+					
+					linkTopics();
 					
 					confirmButtonStack.selectedIndex = 2;
 					
@@ -4290,6 +4343,10 @@
 			}
 			
 			private function showViewWindow():void {
+				if (this.linkToTopicBar != null) {
+					this.linkToTopicBar.collapse();
+				}
+				
 				parentDocument.experimentViews.selectedChild = parentDocument.experimentDetailView;
 				chooseViewTabs();
 				parentDocument.experimentDetailView.detail.setupForm(this.request);
@@ -4830,7 +4887,9 @@
 				applicationName = application.@display.toString();
 				codeApplication = application.@codeApplication;
 				
-				var prevSelectedTab:Container = theTab.selectedChild;			
+				var prevSelectedTab:Container = theTab.selectedChild;
+				
+				hideProductsTab();
 				
 				if (!this.isCapSeqState() && !this.isFragAnalState() && !this.isMitSeqState() && !this.isCherryPickState()) {
 					this.annotationView.checkSecurity();		
@@ -5374,7 +5433,22 @@
 				if (item.@isApproved == 'N') {
 					return false;
 				}
-				var keep:Boolean = false;
+				
+				var idAppUser:Object = parentApplication.getIdAppUser();
+				if (idAppUser != null && idAppUser.toString() != '' && item.@acctUsers != '') {
+					var ids:Array = item.@acctUsers.toString().split(",");
+					var found:Boolean = false;
+					for each(var id:String in ids) {
+						if (id == idAppUser.toString()) {
+							found = true;
+							break;
+						}
+					}
+					if (!found) {
+						return false;
+					}
+				}
+				
 				var temp:String = flash.utils.getQualifiedClassName(parentDocument);
 				if(temp  == 'views.order::NavOrderView') {
 					if(item.@idCoreFacility == parentDocument.selectedRequest.@idCoreFacility)
@@ -5402,6 +5476,9 @@
 			private function filterQCAmendRequestCategory(item:Object):Boolean {
 				//parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry.(@isActive == 'Y' &amp;&amp; @value != '' &amp;&amp; @isInternal == 'Y' &amp;&amp; ( @type == parentApplication.TYPE_MICROARRAY ||  @isIlluminaType == 'Y')) 
 				var keep:Boolean = filterRequestCategoryByCore(item);
+				if (keep && (parentApplication.isAdminState || parentApplication.isSuperAdmin) && parentApplication.coreFacilitiesICanManage.length() >= 1) {
+					keep = filterRequestCategoryByCoreForAdmins(item);
+				} 
 				if (item.@type != parentApplication.TYPE_MICROARRAY && item.@isIlluminaType != 'Y') {
 					keep = false;
 				}
@@ -5411,6 +5488,9 @@
 			private function filterAddLanesAmendRequestCategory(item:Object):Boolean {
 				//parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry.(@isActive == 'Y' &amp;&amp; @value != '' &amp;&amp; @isInternal == 'Y' &amp;&amp; @isIlluminaType == 'Y')				var keep:Boolean = false;
 				var keep:Boolean = filterRequestCategoryByCore(item);
+				if (keep && (parentApplication.isAdminState || parentApplication.isSuperAdmin) && parentApplication.coreFacilitiesICanManage.length() >= 1) {
+					keep = filterRequestCategoryByCoreForAdmins(item);
+				}
 				if (item.@isIlluminaType != 'Y') {
 					keep = false;
 				}
@@ -5443,6 +5523,17 @@
 				
 			}
 			
+			private function filterRequestCategoryByCoreForAdmins(item:Object):Boolean {
+				var keep:Boolean = false;
+				for each (var cf:Object in parentApplication.coreFacilitiesICanManage) {
+					if (cf.@idCoreFacility == item.@idCoreFacility) {
+						keep = true;
+						break;
+					}
+				}
+				return keep;
+			}
+			
 			private function getTitle(currentState:String, requestCategoryName:String, coreFacility:Object):String {
 				var title:String  = "";
 				var catName:String = requestCategoryName != '' && requestCategoryName != null ? " " + requestCategoryName : '';
@@ -5467,6 +5558,16 @@
 				return title;
 			}
 			
+			private function determineIfProductsNeeded():Boolean {
+				if (parentApplication.submitInternalExperiment() && requestCategory != null) {
+					if (requestCategory.@codeProductType != null && requestCategory.@codeProductType != '') {
+						return true;
+					}
+				}
+				
+				return false;
+			}
+			
 			private function updateDirtyNote(isDirty:Boolean):void {
 				if (isDirty && !this.isDirty) {
 					this.isDirty = true;
@@ -5485,6 +5586,15 @@
 				}
 			}
 			
+			private function hideProductsTab():void {
+				if (theTab.contains(productsView)) {
+					productsView.reset();
+					productsView.allowEdits(false);
+					productsView.enabled = true;
+					theTab.getTabAt( theTab.getChildIndex( productsView ) ).visible = false;
+					theTab.getTabAt( theTab.getChildIndex( productsView ) ).includeInLayout = false;
+				}
+			}
 			
 			private function hasPrePooledLibraries():void{
 				if(this.hasPrePooledLibrariesCheck.selected){
@@ -5500,6 +5610,28 @@
 				request.@numPrePooledTubes = this.numPrePooledTubesText.text;
 				prePooledChanged = true;
 			}
+			
+			private function linkTopics():void {
+				if (isExternalExperimentSubmission()) {
+					
+					if ((this.setupView.currentState == "AdminExternalExperimentState"  ||
+						 this.setupView.currentState == "AdminExternalMicroarrayState") &&
+						 setupView.linkToTopicBarAdmin != null) {
+						
+						setupView.linkToTopicBarAdmin.linkTopics(submittedIdRequest);
+						
+						
+					} else if ((this.setupView.currentState == "ExternalExperimentState"  ||
+								this.setupView.currentState == "ExternalMicroarrayState") &&
+								setupView.linkToTopicBar != null) {
+						
+						setupView.linkToTopicBar.linkTopics(submittedIdRequest);
+						
+					}
+					
+				}
+			} 
+			
 		]]>
 	</mx:Script>
 	<mx:NumberValidator id="validator"  
@@ -5670,6 +5802,8 @@
 			</experiment:TabNotesView>
 			
 			<experiment:TabPropertiesView id="propertiesView" properties="{requestProperties}" editable="true" />
+			
+			<experiment:TabProductsView id="productsView" />
 			
 			<experiment:TabSampleSetupView id="sampleSetupView">		    	
 			</experiment:TabSampleSetupView>
@@ -5952,6 +6086,10 @@
 						<mx:TextInput editable="false" backgroundColor="#FFFFFF"   text="{this.request.@completedDate}"/>
 					</mx:HBox>
 					
+					<topic:TopicLinkBar id="linkToTopicBar" automaticLinking="true" idRequest="{parentDocument.selectedExperiment != null ? parentDocument.selectedExperiment.@idRequest : ''}"
+										enabled="{!isDirty}" toolTip="{!isDirty ? 'Link this experiment to a topic' : 'Please save the request before linking to a topic'}"
+										visible="{parentDocument.showLinkToTopicButton(parentDocument.selectedExperiment)}"
+										includeInLayout="{parentDocument.showLinkToTopicButton(parentDocument.selectedExperiment)}"/>
 					
 				</mx:VBox>
 			</mx:AddChild>

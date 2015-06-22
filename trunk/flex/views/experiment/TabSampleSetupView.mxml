@@ -566,38 +566,47 @@
 					parentDocument.annotationView.enabled = isComplete;
 				}
 				
-				//Check if we have a sample batch size restriction.  If so warn user.  Check on application level first and then requestCategory level
-				sampleBatchSizeWarning.text = "";
-				var hasBatchSampleSize:String = parentApplication.getRequestCategoryProperty(parentDocument.getRequestCategory().@idCoreFacility,parentDocument.getRequestCategory().@codeRequestCategory, parentApplication.PROPERTY_SAMPLE_BATCH_WARNING);
+				generateSampleSizeWarnings();
 				
+				callLater(postSampleSetupCompleteness, [isComplete]);
+				
+				return isComplete;
+			}
+			
+			private function generateSampleSizeWarnings():void {
+				sampleSizeWarning.text = "";
+				
+				//Check if we have a sample batch size restriction.  If so warn user.  Check on application level first and then requestCategory level
+				var sampleBatchWarning:String = "";
+				var hasBatchSampleSize:String = parentApplication.getRequestCategoryProperty(parentDocument.getRequestCategory().@idCoreFacility,parentDocument.getRequestCategory().@codeRequestCategory, parentApplication.PROPERTY_SAMPLE_BATCH_WARNING);
 				if(application != null && application.@samplesPerBatch != null && application.@samplesPerBatch != ''){
 					var appSampleSize:int = int(application.@samplesPerBatch);
 					if(numberOfSamples.text != "" && int(numberOfSamples.text) % appSampleSize != 0){
 						if(hasBatchSampleSize != ""){
-							sampleBatchSizeWarning.text = hasBatchSampleSize;
+							sampleBatchWarning = hasBatchSampleSize;
 						} else{
-							sampleBatchSizeWarning.text = " You have selected a panel which runs in batches of " + appSampleSize + " samples. Please note you will be responsible to pay for unused wells.";
+							sampleBatchWarning = " You have selected a panel which runs in batches of " + appSampleSize + " samples. Please note you will be responsible to pay for unused wells.";
 						}
 					}
 				} else if(parentDocument.getRequestCategory().@sampleBatchSize != null && parentDocument.getRequestCategory().@sampleBatchSize != ''){
 					var reqCatSampleSize:int = int(parentDocument.getRequestCategory().@sampleBatchSize);
 					if(numberOfSamples.text != "" && int(numberOfSamples.text) % reqCatSampleSize != 0){
 						if(hasBatchSampleSize != ""){
-							sampleBatchSizeWarning.text = hasBatchSampleSize;
+							sampleBatchWarning = hasBatchSampleSize;
 						} else{
-							sampleBatchSizeWarning.text = " You have selected a request category which runs in batches of " + reqCatSampleSize + " samples. Please note you will be responsible to pay for unused wells.";
+							sampleBatchWarning = " You have selected a request category which runs in batches of " + reqCatSampleSize + " samples. Please note you will be responsible to pay for unused wells.";
 						}
 					}
 				}
+				sampleSizeWarning.text += sampleBatchWarning;
 				
-
-				
-				
-				callLater(postSampleSetupCompleteness, [isComplete]);
-				
-				
-				return isComplete;
-				
+				// Check if product use quantity is matched with sample count
+				var productUseWarning:String = "";
+				var productUseQty:Number = parentDocument.productsView.getUseQuantityOfSelectedProduct();
+				if (productUseQty > 0 && numberOfSamples.text != '' && int(numberOfSamples.text) % productUseQty != 0) {
+					productUseWarning = " The selected product has a use quantity of " + productUseQty.toString() + ". Unused product will be lost.";
+				}
+				sampleSizeWarning.text += productUseWarning;
 			}
 			
 			private function checkPrePooledSamplesCompleteness():Boolean {
@@ -1442,7 +1451,7 @@
 						<mx:focusOut>onNumberOfSamplesChanged()</mx:focusOut>
 					</mx:TextInput>
 					<mx:HBox width="100%">
-						<mx:Text id="sampleBatchSizeWarning" fontStyle="italic" fontSize="10"  textAlign="left" width="100%" color="green"/>
+						<mx:Text id="sampleSizeWarning" fontStyle="italic" fontSize="10"  textAlign="left" width="100%" color="green"/>
 					</mx:HBox>
 				</mx:HBox>
 				<mx:HBox horizontalGap="0" verticalAlign="top" id="sampleTypeHBox" width="100%">
