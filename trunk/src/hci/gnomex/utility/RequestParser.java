@@ -1,6 +1,8 @@
 package hci.gnomex.utility;
 
 import hci.gnomex.constants.Constants;
+import hci.gnomex.model.AppUser;
+import hci.gnomex.model.BillingAccount;
 import hci.gnomex.model.BillingItem;
 import hci.gnomex.model.BillingStatus;
 import hci.gnomex.model.ConcentrationUnit;
@@ -322,13 +324,17 @@ public class RequestParser implements Serializable {
     }
 
     if (n.getAttributeValue("idBillingAccount") != null && !n.getAttributeValue("idBillingAccount").equals("")) {
+      Integer newIdBillingAccount = new Integer(n.getAttributeValue("idBillingAccount"));
       // If the billing account has been changed, we need to know so that any billing items can be revised as well.
       if (!isNewRequest && !this.isExternalExperiment()) {
-        if (request.getIdBillingAccount() == null || !request.getIdBillingAccount().equals(new Integer(n.getAttributeValue("idBillingAccount")))) {
-          reassignBillingAccount = true;        
+        if (request.getIdBillingAccount() == null || !request.getIdBillingAccount().equals(newIdBillingAccount)) {
+          reassignBillingAccount = true;
+          if (!this.secAdvisor.hasPermission(SecurityAdvisor.CAN_ACCESS_ANY_OBJECT) && !ensureNonAdminCanAccessBillingAccount(newIdBillingAccount, sess)) {
+        	  throw new Exception("User cannot access selected billing account.");
+          }
         }        
       }
-      request.setIdBillingAccount(new Integer(n.getAttributeValue("idBillingAccount")));      
+      request.setIdBillingAccount(newIdBillingAccount);      
     }
 
     if (n.getAttributeValue("description") != null && !n.getAttributeValue("description").equals("")) {
@@ -1128,8 +1134,25 @@ public class RequestParser implements Serializable {
 
     sequenceLaneInfos.add(sequenceLaneInfo);
   }
-
-
+  
+  private boolean ensureNonAdminCanAccessBillingAccount(Integer idBillingAccount, Session sess) {
+	  boolean canAccess = false;
+	  
+	  BillingAccount billingAccount = (BillingAccount) sess.load(BillingAccount.class, idBillingAccount);
+	  for (Iterator iter = billingAccount.getUsers().iterator(); iter.hasNext();) {
+		  AppUser user = (AppUser) iter.next();
+		  if (user.getIdAppUser().equals(secAdvisor.getIdAppUser())) {
+			  canAccess = true;
+			  break;
+		  }
+	  }
+	  
+	  if (secAdvisor.hasPermission(SecurityAdvisor.CAN_ACCESS_ANY_OBJECT)) {
+		  canAccess = true;
+	  }
+	  
+	  return canAccess;
+  }
 
   public Map getCharacteristicsToApplyMap() {
     return propertiesToApplyMap;
