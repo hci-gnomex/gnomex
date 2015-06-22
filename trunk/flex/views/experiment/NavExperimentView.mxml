@@ -148,6 +148,7 @@
 	   <mx:Script> 
         <![CDATA[
 			import mx.collections.ArrayCollection;
+			
 			import mx.collections.XMLListCollection;
 			import mx.controls.Alert;
 			import mx.controls.Menu;
@@ -811,6 +812,13 @@
 			showPromptToUpload = false;
 
 		    experimentViews.visible = true;
+			
+			if (experimentEditView != null && experimentEditView.linkToTopicBar != null) {
+				experimentEditView.linkToTopicBar.collapse();
+			}
+			if (experimentDetailView != null && experimentDetailView.detail != null && experimentDetailView.detail.linkToTopicBar != null) {
+				experimentDetailView.detail.linkToTopicBar.collapse();
+			}
 		}
 					
 		private function promptToUpload():void {
@@ -1456,6 +1464,18 @@
 			
 	public function showNewAnalysisWindow():void {
 		parentApplication.showNewAnalysisWindow(this, (browseLabCombo != null && browseLabCombo.selectedItem != null) ? browseLabCombo.selectedItem.@idLab : '', null, selectedExperiment != null ? selectedExperiment.@idOrganismSampleDefault : '');
+	}
+			
+	public function showLinkToTopicButton(selectedExperiment:Object):Boolean {
+		var showButton:Boolean = false;
+		
+		if (!parentApplication.isGuestMode() && selectedExperiment != null) {
+			if (selectedExperiment.hasOwnProperty("@isExternal") && selectedExperiment.@isExternal == 'Y') {
+				showButton = true;
+			}
+		}
+		
+		return showButton;
 	}
 			
 	public function showCreateAnalysisButton(selectedExperiment:Object):Boolean {
