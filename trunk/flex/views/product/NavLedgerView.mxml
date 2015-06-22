@@ -67,8 +67,6 @@
 					var emptyNode:XML = <Product name="" idProduct="" />
 					products.addItemAt(emptyNode, 0);
 					productCombo.selectedIndex = -1;
-					
-					
 				}
 			}
 			
@@ -133,6 +131,38 @@
 				getProductLedgerList.send(params);
 			}
 			
+			private function filterProducts(item:Object):Boolean {
+				if (item.@codeProductType != null && item.@codeProductType != '') {
+					for each (var productType:Object in filteredProductTypes) {
+						if (productType.@value == item.@codeProductType) {
+							return true;
+						}
+					}
+				}
+				
+				return false;
+			}
+			
+			private function filterProductTypes(item:Object):Boolean {
+				if (item.@value != null && item.@value != '') {
+					if (parentApplication.coreFacilitiesICanManage != null && parentApplication.coreFacilitiesICanManage.length() > 0) {
+						for each (var coreFacility1:Object in parentApplication.coreFacilitiesICanManage) {
+							if (coreFacility1.@idCoreFacility == item.@idCoreFacility) {
+								return true;
+							}
+						}
+					} else if (parentApplication.myCoreFacilities != null && parentApplication.myCoreFacilities.length() > 0) {
+						for each (var coreFacility2:Object in parentApplication.myCoreFacilities) {
+							if (coreFacility2.@idCoreFacility == item.@idCoreFacility) {
+								return true;
+							}
+						}
+					}
+				}
+				
+				return false;
+			}
+			
 			
 		]]>
 	</mx:Script> 
@@ -140,8 +170,8 @@
 	
 	
 	<mx:XMLListCollection id="labs" source="{getProductLedgerList.lastResult..Lab}"/>
-	<mx:XMLListCollection id="products" source="{getProductList.lastResult..Product}"/>
-	
+	<mx:XMLListCollection id="products" source="{getProductList.lastResult..Product}" filterFunction="filterProducts"/>
+	<mx:XMLListCollection id="filteredProductTypes" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.ProductType').DictionaryEntry}" filterFunction="filterProductTypes"/>
 	
 	<mx:VBox id="vbox1" width="100%" height="100%" horizontalAlign="left" verticalGap="2">
 		<mx:HBox width="100%" styleName="titleBox">
