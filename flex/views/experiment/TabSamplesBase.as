@@ -11,14 +11,18 @@ package views.experiment
 	import mx.controls.Alert;
 	import mx.controls.TextInput;
 	import mx.controls.advancedDataGridClasses.AdvancedDataGridColumn;
+	import mx.core.IFactory;
 	import mx.events.CloseEvent;
 	import mx.events.FlexEvent;
+	import mx.formatters.NumberFormatter;
+	import mx.formatters.NumberBaseRoundType;
 	import mx.managers.PopUpManager;
 	import mx.utils.ObjectUtil;
 	
 	import views.renderers.CheckBoxRenderer;
 	import views.renderers.DropdownLabelAnnotation;
 	import views.renderers.MultiselectRenderer;
+	import views.renderers.TextInputSampleConcentration;
 	import views.renderers.URLRenderer;
 	import views.util.AnnotationAdvancedDataGridColumn;
 	import views.util.CopySampleSheetColumnView;
@@ -30,7 +34,10 @@ package views.experiment
 		public var isEditState:Boolean = false;
 		
 		protected var downloadRequest:URLRequest; 
-		protected var downloadFileRef:FileReference; 
+		protected var downloadFileRef:FileReference;
+		
+		protected var numberFormatter:NumberFormatter;
+		protected static const SAMPLE_CONCENTRATION_PRECISION:Number = 1;
 
 		public var filteredSampleTypeList:XMLListCollection;
 
@@ -95,6 +102,9 @@ package views.experiment
 		public function TabSamplesBase()
 		{
 			super();
+			
+			numberFormatter = new NumberFormatter();
+			numberFormatter.rounding = NumberBaseRoundType.NEAREST;
 		}
 		
 		public function initializeSampleTypes():void {
@@ -660,6 +670,17 @@ package views.experiment
 			for each (var sample:Object in parentDocument.samples) {
 				sample.@wellName = getWellName(parentDocument.samples.getItemIndex(sample));
 			}
+		}
+		
+		protected function getSampleConcentrationFormatted(item:Object, column:AdvancedDataGridColumn):String {
+			var sampleConcentration:String = "";
+			numberFormatter.precision = SAMPLE_CONCENTRATION_PRECISION;
+			
+			if (item.hasOwnProperty("@concentration") && item.@concentration != '') {
+				sampleConcentration = numberFormatter.format(item.@concentration);
+			}
+			
+			return sampleConcentration;
 		}
 		
 	}
