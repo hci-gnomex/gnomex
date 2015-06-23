@@ -480,7 +480,7 @@
 						<mx:VBox verticalGap="0" width="100%">
 							<mx:Text text="Genome Builds"  width="110" styleName="formLabel" textAlign="left"/>
 							<mx:VBox paddingLeft="30" width="100%">
-								<mx:DataGrid id="genomeBuildGrid" width="298" dataProvider="{genomeBuilds}" showHeaders="false" verticalScrollPolicy="auto" borderStyle="none" alternatingItemColors="[#FFFFFF, #FFFFFF]"  height="70">
+								<mx:DataGrid id="genomeBuildGrid" width="298" dataProvider="{genomeBuilds}" showHeaders="false" verticalScrollPolicy="auto" borderStyle="none" styleName="noAlternatingColors"  height="70">
 									<mx:columns>
 										<mx:DataGridColumn dataField="@display"/>
 									</mx:columns>

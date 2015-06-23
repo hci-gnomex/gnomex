@@ -611,7 +611,7 @@
 			<mx:VBox width="100%" height="90%">
 				<mx:DataGrid id="flowCellsGrid" width="100%" height="100%" fontSize="10"
 							 dataProvider="{flowCellsList}" click="flowCellSelected();"
-							 alternatingItemColors="{[ 0xEEEEE0, 0xFFFFFF]}" sortableColumns="true" draggableColumns="false">
+							 sortableColumns="true" draggableColumns="false">
 					<mx:columns>
 						<mx:DataGridColumn dataField="@number" headerText="Flow Cell" width="55" />
 						<mx:DataGridColumn dataField="@barcode"

@@ -724,10 +724,11 @@
 							<mx:TextInput id="userEmailSearchText" visible="false" editable="true" change="appUsers.refresh()" width="100%" toolTip="Type Email Address here to find in list." backgroundColor="#FFFFFF"/>
 						</mx:HBox>	  
 		    	      	<mx:DataGrid id="usersGrid" 
-			    	      	visible="true" width="100%" editable="false" enabled="true" height="100%"
-			    	      	dataProvider="{appUsers}" 
-							dataTipFunction="buildEmailToolTip"
-			    	      	itemClick="userRowSelected(event)" showHeaders="false"  dropShadowEnabled="false" borderStyle="solid" fontSize="11">
+									 styleName="alternatingColorsLight"
+					    	      	visible="true" width="100%" editable="false" enabled="true" height="100%"
+					    	      	dataProvider="{appUsers}" 
+									dataTipFunction="buildEmailToolTip"
+					    	      	itemClick="userRowSelected(event)" showHeaders="false"  dropShadowEnabled="false" borderStyle="solid" fontSize="11">
 							<mx:columns>
 										<mx:DataGridColumn headerText="Users" width="100" dataField="@displayName" showDataTips="true"/>			
 						    </mx:columns>
@@ -735,7 +736,7 @@
 	
 			    	      <mx:DataGrid id="usersEmailGrid" 
 			    	      	visible="false" width="100%" editable="false" enabled="true" height="0"
-			    	      	dataProvider="{appUsers}" 
+			    	      	dataProvider="{appUsers}" styleName="alternatingColorsLight"
 			    	      	itemClick="userEmailRowSelected(event)" showHeaders="false"  dropShadowEnabled="false" borderStyle="solid" fontSize="11">
 							<mx:columns>
 										<mx:DataGridColumn headerText="Users" width="100" dataField="@displayName"/>
@@ -809,7 +810,7 @@
 					  </mx:VBox>
 						
 						
-					  <mx:DataGrid id="labsGrid" visible="true" width="100%" editable="false" enabled="true" dataProvider="{labs}" height="100%"  top="40" left="20"  right="20" itemClick="labRowSelected()" showHeaders="false" dropShadowEnabled="false" borderStyle="solid" fontSize="11" dataTipFunction="buildEmailsToolTip">
+					  <mx:DataGrid id="labsGrid" visible="true" width="100%" editable="false" enabled="true" dataProvider="{labs}" height="100%"  top="40" left="20"  right="20" itemClick="labRowSelected()" showHeaders="false" dropShadowEnabled="false" borderStyle="solid" fontSize="11" dataTipFunction="buildEmailsToolTip" styleName="alternatingColorsLight">
 						<mx:columns>
 							<mx:DataGridColumn headerText="Groups" width="100" dataField="@name" showDataTips="true"/>
 							<mx:DataGridColumn width="10" dataField="@name">

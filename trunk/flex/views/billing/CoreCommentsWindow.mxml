@@ -98,8 +98,7 @@
 							 fontSize="10"
 						     dataProvider="{requestsWithComments}"
 							 itemClick="scrollToRequest(event)"
-							 sortArrowSkin="mx.skins.ProgrammaticSkin"
-						     alternatingItemColors="[0xFFFFFF, 0xEEEEE0]">
+							 sortArrowSkin="mx.skins.ProgrammaticSkin">
 			<mx:columns> 
 				
 				<mx:DataGridColumn dataField="@number"
