@@ -92,7 +92,7 @@ DataGrid {
 	headerStyleName: dataGridHeader;	
 	selectionColor: #8FBCF4;
 	rollOverColor: #CCE3FA;
-	alternatingItemColors: #ffffff, #edede9;
+	alternatingItemColors: #ffffff, #e8e8e8;
 	
 
 }
@@ -116,8 +116,16 @@ AdvancedDataGrid {
 	selectionColor: #8FBCF4;
 	rollOverColor: #CCE3FA;
 	headerStyleName: dataGridHeader;
+	alternatingItemColors: #ffffff, #e8e8e8;
 } 
 
+.alternatingColorsLight {
+	alternatingItemColors: #ffffff, #f5f5f5;
+}
+
+.noAlternatingColors {
+	alternatingItemColors: #ffffff, #ffffff;
+}
 
 Panel {
    borderThicknessLeft: 4;

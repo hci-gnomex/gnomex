@@ -746,7 +746,6 @@
 											 fontSize="10" resizableColumns="false" sortableColumns="false"
 											 visible="{controlsCount == 0 ? false : true}"
 											 dataProvider="{controlsList}"
-											 alternatingItemColors="{[ 0xEEEEE0, 0xFFFFFF]}"
 											 >
 							<mx:columns>
 								<mx:AdvancedDataGridColumn  dataField="@number" width="75">

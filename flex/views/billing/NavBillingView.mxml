@@ -2596,6 +2596,7 @@
 						
 					</mx:HBox>
 					<mx:AdvancedDataGrid id="requestTree" width="100%" height="100%"
+										 styleName="alternatingColorsLight"
 										 showHeaders="false"  
 										 displayItemsExpanded="false" 
 										 dragEnabled="true" 
@@ -2739,7 +2740,6 @@
 												   headerWordWrap="true" 
 												   selectionMode="singleRow" 
 												   itemEditEnd="onEdit()" 
-												   alternatingItemColors="[0xFFFFFF, 0xEEEEE0]" 
 												   dropShadowEnabled="true" 
 												   borderStyle="solid" 
 												   fontSize="10" >
