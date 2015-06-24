@@ -160,7 +160,6 @@
 				}
 				
 				if ( currentState == userState.name ) {
-					params.released = 'Y';
 					params.idRequest = idRequest;
 				}
 				
