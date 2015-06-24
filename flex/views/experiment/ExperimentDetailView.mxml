@@ -389,6 +389,10 @@
 					}
 				}
 				
+				if (this.linkToTopicBar != null) {
+					this.linkToTopicBar.refreshForDisplay();
+				}
+				
 				getRequestCategoryVariables();
 				getExperimentCategoryName();
 				getSeqLibTreatments();
@@ -810,10 +814,6 @@
 			}	
 			
 			public function showEditExperimentWindow():void {
-				if (this.linkToTopicBar != null) {
-					this.linkToTopicBar.collapse();
-				}
-				
 				parentDocument.parentDocument.experimentEditView.instantiateTabs(this.selectedExperiment.@codeRequestCategory, true, false);
 				parentDocument.parentDocument.experimentEditView.coreFacility = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.CoreFacility', this.selectedExperiment.@idCoreFacility);
 				
@@ -1712,7 +1712,9 @@
 					<topic:TopicLinkBar id="linkToTopicBar" automaticLinking="true" idRequest="{parentDocument.parentDocument.selectedExperiment != null ? parentDocument.parentDocument.selectedExperiment.@idRequest : ''}"
 										toolTip="Link this experiment to a topic"
 										visible="{parentDocument.parentDocument.showLinkToTopicButton(parentDocument.parentDocument.selectedExperiment)}"
-										includeInLayout="{parentDocument.parentDocument.showLinkToTopicButton(parentDocument.parentDocument.selectedExperiment)}"/>
+										includeInLayout="{parentDocument.parentDocument.showLinkToTopicButton(parentDocument.parentDocument.selectedExperiment)}"
+										active="{parentDocument.parentDocument.showLinkToTopicButton(parentDocument.parentDocument.selectedExperiment)}"
+										mainButtonStyleName="formLabel" mainButtonWidth="105"/>
 				</mx:VBox>
 			</mx:HBox>
 			<mx:VBox id="headerBox" width="100%" paddingLeft="4" visible="{this.selectedExperiment.protocols.Protocol.length() &gt; 0}">

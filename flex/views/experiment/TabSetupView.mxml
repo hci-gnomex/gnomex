@@ -66,9 +66,10 @@
 			<mx:SetStyle target="{editProjectButton}" name="paddingRight" value="0"/>
 			<mx:SetProperty target="{requestCategoryRepeater}" name="dataProvider" value="{requestCategoriesExternal}"/>
 			<mx:AddChild relativeTo="{projectHBox}" position="after">
-				<mx:HBox width="100%" horizontalGap="0" id="hboxTopic" verticalAlign="top">
+				<mx:HBox width="100%" horizontalGap="0" id="hboxTopic" verticalAlign="top" paddingLeft="0">
 					<topic:TopicLinkBar id="linkToTopicBar" automaticLinking="false"
-										toolTip="Link this experiment to a topic"/>			
+										toolTip="Link this experiment to a topic"
+										mainButtonWidth="200" comboBoxWidth="380"/>			
 				</mx:HBox>
 			</mx:AddChild>
 			<mx:AddChild relativeTo="{label1}" position="before">
@@ -133,9 +134,10 @@
 			<mx:SetProperty target="{projectLabel}" name="width" value="160"/>
 			<mx:SetProperty target="{label11}" name="width" value="160"/>
 			<mx:AddChild relativeTo="{projectHBox}" position="after">
-				<mx:HBox width="100%" horizontalGap="0" id="hboxTopicAdmin" verticalAlign="top">
+				<mx:HBox width="100%" horizontalGap="0" id="hboxTopicAdmin" verticalAlign="top" paddingLeft="0">
 					<topic:TopicLinkBar id="linkToTopicBarAdmin" automaticLinking="false"
-										toolTip="Link this experiment to a topic"/>			
+										toolTip="Link this experiment to a topic"
+										mainButtonWidth="160" comboBoxWidth="380"/>			
 				</mx:HBox>
 			</mx:AddChild>
 			<mx:AddChild relativeTo="{label1}" position="before">
