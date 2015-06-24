@@ -2544,6 +2544,10 @@
 				notesView.setExternalNoteVisibility();
 				samplesView.setExternalNoteVisibility();
 				
+				if (this.linkToTopicBar != null) {
+					this.linkToTopicBar.refreshForDisplay();
+				}
+				
 				// Need to refresh download list here; otherwise last selected experiment's
 				// files shown rather than current selection.
 				this.refreshDownloadList();				
@@ -4343,10 +4347,6 @@
 			}
 			
 			private function showViewWindow():void {
-				if (this.linkToTopicBar != null) {
-					this.linkToTopicBar.collapse();
-				}
-				
 				parentDocument.experimentViews.selectedChild = parentDocument.experimentDetailView;
 				chooseViewTabs();
 				parentDocument.experimentDetailView.detail.setupForm(this.request);
@@ -6089,7 +6089,9 @@
 					<topic:TopicLinkBar id="linkToTopicBar" automaticLinking="true" idRequest="{parentDocument.selectedExperiment != null ? parentDocument.selectedExperiment.@idRequest : ''}"
 										enabled="{!isDirty}" toolTip="{!isDirty ? 'Link this experiment to a topic' : 'Please save the request before linking to a topic'}"
 										visible="{parentDocument.showLinkToTopicButton(parentDocument.selectedExperiment)}"
-										includeInLayout="{parentDocument.showLinkToTopicButton(parentDocument.selectedExperiment)}"/>
+										includeInLayout="{parentDocument.showLinkToTopicButton(parentDocument.selectedExperiment)}"
+										active="{parentDocument.showLinkToTopicButton(parentDocument.selectedExperiment)}"
+										mainButtonStyleName="formLabel" mainButtonWidth="100" comboBoxWidth="500"/>
 					
 				</mx:VBox>
 			</mx:AddChild>

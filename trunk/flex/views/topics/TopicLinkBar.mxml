@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:ControlBar xmlns:mx="http://www.adobe.com/2006/mxml"
 			   xmlns:views="views.*"  
-			   xmlns:renderers="views.renderers.*">
+			   xmlns:renderers="views.renderers.*"
+			   horizontalGap="0" paddingLeft="0">
 	
 	<mx:HTTPService  
 		id="getTopicList" 
@@ -60,6 +61,8 @@
 			[Bindable]
 			private var showInput:Boolean = false;
 			
+			public var active:Boolean = true;
+			
 			[Bindable]
 			public var automaticLinking:Boolean = true;
 			
@@ -69,6 +72,13 @@
 			private var topicSelectedForUnlinking:Object = null;
 			
 			public var idRequest:Object = null;
+			
+			[Bindable]
+			public var mainButtonWidth:Number = 100;
+			[Bindable]
+			public var comboBoxWidth:Number = 250;
+			[Bindable]
+			public var mainButtonStyleName:Object = "";
 			
 			private function toggleInput():void {
 				showInput = !showInput;
@@ -266,6 +276,14 @@
 					Alert.show(delayedAddItemToTopic.lastResult..ACTMESSAGE.@TEXT);
 				}
 			}
+			
+			public function refreshForDisplay():void {
+				if (active) {
+					reset();
+					showInput = true;
+					refreshTopics();
+				}
+			}
 
 		]]>
 	</mx:Script>
@@ -274,32 +292,36 @@
 	<mx:XMLListCollection id="topicsAlreadyLinkedTo"/>
 	<mx:XMLListCollection id="topicsToLink"/>
 	
-	<mx:VBox height="100%" width="100%" paddingLeft="0">
+	<mx:VBox height="100%" paddingLeft="0" paddingRight="0" width="{mainButtonWidth}">
 		<mx:LinkButton label="Link to Topic" id="linkToTopicButton" 
 					   click="{toggleInput()}" 
-					   icon="@Embed(source='../../assets/topic_tag.png')" fontSize="10" textDecoration="underline" textAlign="left" paddingLeft="0"/>
+					   icon="@Embed(source='../../assets/topic_tag.png')" 
+					   fontSize="10" textDecoration="underline" textAlign="left" paddingLeft="0" paddingRight="0" 
+					   styleName="{mainButtonStyleName}"/>
 	</mx:VBox>
-	<mx:VBox height="100%" width="100%">
+	<mx:VBox height="100%" width="100%" paddingLeft="0">
 		<mx:Repeater id="topicsAlreadyLinkedToRepeater" dataProvider="{automaticLinking ? topicsAlreadyLinkedTo : topicsToLink}">
-			<mx:HBox height="100%" width="100%">
-				<mx:Text text="{topicsAlreadyLinkedToRepeater.currentItem.@label}" textAlign="left" width="250"
-						 visible="{showInput}" includeInLayout="{showInput}"/>
+			<mx:HBox height="100%" width="100%" paddingLeft="0" paddingRight="0">
+				<mx:Text text="{topicsAlreadyLinkedToRepeater.currentItem.@label}" textAlign="left" width="{comboBoxWidth}"
+						 visible="{showInput}" includeInLayout="{showInput}"
+						 paddingLeft="0"/>
 				<mx:LinkButton 	click="performUnlink(event)" enabled="{showInput}"
 								height="20" width="20"
-						   		visible="{showInput}" includeInLayout="{showInput}"
+						   		visible="{showInput}" includeInLayout="{showInput}" paddingLeft="0"
 						   		icon="{parentApplication.iconSmallDelete}"/>
 			</mx:HBox>
 		</mx:Repeater>
-		<mx:HBox height="100%" width="100%">
+		<mx:HBox height="100%" width="100%" paddingLeft="0" paddingRight="0">
 			<renderers:FilterComboBox id="browseTopicsCombo" prompt="Select a topic..." 
 									  dataProvider="{filteredTopics}" 
 									  labelField="@label" fontSize="10" 
-									  width="250" visible="{showInput}" includeInLayout="{showInput}"
-									  close="{topicSelected()}"/>
+									  width="{comboBoxWidth}" visible="{showInput}" includeInLayout="{showInput}"
+									  close="{topicSelected()}"
+									  paddingLeft="0"/>
 			<mx:LinkButton   label="Link" id="performLinkButton"
 							 click="{performLink()}" enabled="{showInput &amp;&amp; selectedTopic != null}"
 							 visible="{showInput &amp;&amp; selectedTopic != null}" 
-							 includeInLayout="{showInput &amp;&amp; selectedTopic != null}"
+							 includeInLayout="{showInput &amp;&amp; selectedTopic != null}" paddingLeft="0"
 							 icon="@Embed(source='../../assets/link.png')" textAlign="left"/>
 		</mx:HBox>
 	</mx:VBox>
