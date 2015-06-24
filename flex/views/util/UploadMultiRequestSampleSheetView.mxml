@@ -39,7 +39,7 @@
 										 editable="false"  
 										 sortExpertMode="true" horizontalScrollPolicy="auto"
 										 sortableColumns="false"
-										 backgroundAlpha="0" borderStyle="solid" showHeaders="true" 
+										 borderStyle="solid" showHeaders="true" 
 										 fontSize="10" iconFunction="parentApplication.getTreeIcon"
 										 dataProvider="{requestList}">
 						<mx:columns>
@@ -84,7 +84,7 @@
 										 editable="false"  
 										 sortExpertMode="true" horizontalScrollPolicy="auto"
 										 sortableColumns="false"
-										 backgroundAlpha="0" borderStyle="solid" showHeaders="true" 
+										 borderStyle="solid" showHeaders="true" 
 										 fontSize="10"
 										 dataProvider="{allErrorsList}">
 						<mx:columns>
@@ -104,7 +104,7 @@
 											 editable="false"  
 											 sortExpertMode="true" horizontalScrollPolicy="auto"
 											 sortableColumns="false"
-											 backgroundAlpha="0" borderStyle="solid" showHeaders="true" 
+											 borderStyle="solid" showHeaders="true" 
 											 fontSize="10"
 											 dataProvider="{errorSamplesList}" selectionMode="singleRow" >
 							<mx:columns>
@@ -127,7 +127,7 @@
 										 editable="false"  
 										 sortExpertMode="true" horizontalScrollPolicy="auto"
 										 sortableColumns="false"
-										 backgroundAlpha="0" borderStyle="solid" showHeaders="true" 
+										 borderStyle="solid" showHeaders="true" 
 										 fontSize="10"
 										 dataProvider="{allSamplesList}">
 						<mx:columns>
@@ -142,7 +142,7 @@
 											 editable="false"  
 											 sortExpertMode="true" horizontalScrollPolicy="auto"
 											 sortableColumns="false"
-											 backgroundAlpha="0" borderStyle="solid" showHeaders="true" 
+											 borderStyle="solid" showHeaders="true" 
 											 fontSize="10"
 											 dataProvider="{sampleErrorsList}">
 							<mx:columns>
@@ -177,7 +177,7 @@
 												 editable="false"  
 												 sortExpertMode="true" horizontalScrollPolicy="auto"
 												 sortableColumns="false"
-												 backgroundAlpha="0" borderStyle="solid" showHeaders="true" 
+												 borderStyle="solid" showHeaders="true" 
 												 fontSize="10"
 												 dataProvider="{allErrorsList}">
 								<mx:columns>
