@@ -264,11 +264,7 @@ public class SaveWorkItemSolexaPipeline extends GNomExCommand implements Seriali
         // Need to create billing items at this point.
         Set<SequenceLane> laneSet = sequenceLanesCompletedMap.get(auto.getRequest().getIdRequest());
         if (laneSet != null) {
-          if (auto.getRequest().getCodeRequestStatus().equals(RequestStatus.COMPLETED)) {
             SaveRequest.createBillingItems(sess, auto.getRequest(), null, billingPeriod, dictionaryHelper, null, null, null, laneSet, null, auto.getCodeStep(), BillingStatus.COMPLETED);
-          } else {
-            SaveRequest.createBillingItems(sess, auto.getRequest(), null, billingPeriod, dictionaryHelper, null, null, null, laneSet, null, auto.getCodeStep(), BillingStatus.PENDING);
-          }
         }
       }
     }
