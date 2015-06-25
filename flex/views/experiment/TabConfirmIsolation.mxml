@@ -239,7 +239,7 @@
 					<mx:columns>
 						<mx:DataGridColumn id="sampleRowNumberCol" visible="true" editable="false" headerText=""  width="45" resizable="false" labelFunction="getSamplesConfirmGridRowNumber"/>
 						<mx:DataGridColumn headerText="Sample Name" id="sampleNameColumn" dataField="@name" width="150"/>				    
-						<mx:DataGridColumn id="concentrationCol" visible="true" headerText="Conc." width="65" dataField="@concentration"/>
+						<mx:DataGridColumn id="concentrationCol" visible="true" headerText="Conc." width="65" dataField="@concentration" labelFunction="getSampleConcentrationFormatted"/>
 						<mx:DataGridColumn id="qc_260_280Column" headerText="QC 260/280" width="80" dataField="@qual260nmTo280nmRatio" />
 						<mx:DataGridColumn id="ccNumber" headerText="CC Number" dataField="@ccNumber" visible="false" />
 						<mx:DataGridColumn id="sampleSourceColumn" headerText="Sample Source" width="80" dataField="@idSampleSource"

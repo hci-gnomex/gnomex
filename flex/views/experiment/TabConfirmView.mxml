@@ -464,7 +464,7 @@
 						<mx:DataGridColumn id="destinationWell" visible="false" editable="false" headerText="Destination Well" width="75" resizable="false" dataField="@destinationWell">
 						</mx:DataGridColumn>
 
-						<mx:DataGridColumn id="concentrationCol" visible="true" headerText="Conc." width="65" dataField="@concentration"/>
+						<mx:DataGridColumn id="concentrationCol" visible="true" headerText="Conc." width="65" dataField="@concentration" labelFunction="getSampleConcentrationFormatted"/>
 		                 <mx:DataGridColumn id="ccNumber" headerText="CC Number" dataField="@ccNumber" visible="false" width="80"/>
 
 		                <mx:DataGridColumn id="multiplexGroupNumberColumn" headerText="Multiplex #" dataField="@multipexGroupNumber" editable="false" visible="false"

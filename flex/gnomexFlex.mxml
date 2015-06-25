@@ -1190,6 +1190,7 @@
 			public var PROPERTY_DESCRIPTION_NAME_MANDATORY_FOR_INTERNAL_EXPERIMENTS:String = "description_name_mandatory_for_internal_experiments";
 			public var PROPERTY_SORT_APPLICATION_ALPHABETICALLY_IN_EDIT:String = "sort_application_alphabetically_in_edit";
 			public var PROPERTY_HIDE_REQUESTS_WITH_NO_BILLING_ITEMS:String	   = "hide_requests_with_no_billing_items";
+			public var PROPERTY_SAMPLE_CONCENTRATION_PRECISION:String	  = "sample_concentration_precision";
 
 			
 			public var CAN_ADMINISTER_ALL_CORE_FACILITIES:String          = "canAdministerAllCoreFacilities";

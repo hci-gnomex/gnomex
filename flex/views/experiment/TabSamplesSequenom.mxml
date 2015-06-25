@@ -53,7 +53,6 @@
 			private var docTypes:FileFilter;
 			private var hasColumnNames:Boolean; 
 			private var	sampleSheetXML:XML;
-
 			
 			override public function getSamplesGrid():AdvancedDataGrid {
 				return this.samplesGrid;
@@ -662,7 +661,7 @@
 				</mx:AdvancedDataGridColumn>  
 
 				<mx:AdvancedDataGridColumn headerText="Conc." id="concentrationCol" 
-										   visible="{parentApplication.isInternalExperimentSubmission}"  width="72" labelFunction="getSampleConcentrationFormatted" rendererIsEditor="false"
+										   visible="{parentApplication.isInternalExperimentSubmission}"  width="72" formatter="{sampleConcentrationFormatter}" rendererIsEditor="false"
 										   itemRenderer="{hci.flex.controls.Label.create('@concentration')}"                 
 										   itemEditor="{views.renderers.GridColumnFillButton.create(new views.renderers.TextInputSampleConcentration(), '')}" editorDataField="value" dataField="@concentration">
 					<mx:headerRenderer > 

@@ -46,8 +46,6 @@
 			private var docTypes:FileFilter;
 			private var hasColumnNames:Boolean; 
 			private var	sampleSheetXML:XML;
-
-			
 			
 			override public function getSamplesGrid():AdvancedDataGrid {
 				return this.samplesGrid;

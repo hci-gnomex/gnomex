@@ -825,7 +825,7 @@
 					</mx:headerRenderer>
 				</mx:AdvancedDataGridColumn>   
 				
-				<mx:AdvancedDataGridColumn headerText="Conc. (ng/ul)" id="concentrationCol" visible="{parentApplication.isInternalExperimentSubmission}"  width="77" labelFunction="getSampleConcentrationFormatted" rendererIsEditor="false"
+				<mx:AdvancedDataGridColumn headerText="Conc. (ng/ul)" id="concentrationCol" visible="{parentApplication.isInternalExperimentSubmission}"  width="77" formatter="{sampleConcentrationFormatter}" rendererIsEditor="false"
 										   itemRenderer="{hci.flex.controls.Label.create('@concentration')}"                
 										   itemEditor="{views.renderers.GridColumnFillButton.create(new views.renderers.TextInputSampleConcentration(), '')}" editorDataField="value" dataField="@concentration">
 					<mx:headerRenderer > 

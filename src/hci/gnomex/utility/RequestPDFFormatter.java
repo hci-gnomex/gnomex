@@ -1,5 +1,7 @@
 package hci.gnomex.utility;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -475,7 +477,7 @@ public class RequestPDFFormatter extends RequestPDFFormatterBase {
 			}
 			String conc = "";
 			if (s.getConcentration() != null) {
-				conc = new Integer(s.getConcentration().intValue()).toString();
+				conc = getFormattedSampleConcentration(s.getConcentration());
 		        if (s.getCodeConcentrationUnit() != null && !s.getCodeConcentrationUnit().equals("")) {
 		        	conc += " " + s.getCodeConcentrationUnit();
 		        }
@@ -690,7 +692,7 @@ public class RequestPDFFormatter extends RequestPDFFormatterBase {
 			}
 			String conc = "";
 			if (s.getConcentration() != null) {
-				conc = new Integer(s.getConcentration().intValue()).toString();
+				conc = getFormattedSampleConcentration(s.getConcentration());
 		        if (s.getCodeConcentrationUnit() != null && !s.getCodeConcentrationUnit().equals("")) {
 		        	conc += " " + s.getCodeConcentrationUnit();
 		        }
@@ -785,7 +787,7 @@ public class RequestPDFFormatter extends RequestPDFFormatterBase {
 			}
 			String conc = "";
 			if (s.getConcentration() != null) {
-				conc = new Integer(s.getConcentration().intValue()).toString();
+				conc = getFormattedSampleConcentration(s.getConcentration());
 		        if (s.getCodeConcentrationUnit() != null && !s.getCodeConcentrationUnit().equals("")) {
 		        	conc += " " + s.getCodeConcentrationUnit();
 		        }
@@ -881,7 +883,7 @@ public class RequestPDFFormatter extends RequestPDFFormatterBase {
 			}
 			String conc = "";
 			if (s.getConcentration() != null) {
-				conc = new Integer(s.getConcentration().intValue()).toString();
+				conc = getFormattedSampleConcentration(s.getConcentration());
 		        if (s.getCodeConcentrationUnit() != null && !s.getCodeConcentrationUnit().equals("")) {
 		        	conc += " " + s.getCodeConcentrationUnit();
 		        }
@@ -1075,7 +1077,7 @@ public class RequestPDFFormatter extends RequestPDFFormatterBase {
 			}
 			String conc = "";
 			if (s.getConcentration() != null) {
-				conc = new Integer(s.getConcentration().intValue()).toString();
+				conc = getFormattedSampleConcentration(s.getConcentration());
 		        if (s.getCodeConcentrationUnit() != null && !s.getCodeConcentrationUnit().equals("")) {
 		        	conc += " " + s.getCodeConcentrationUnit();
 		        }
@@ -1171,7 +1173,7 @@ public class RequestPDFFormatter extends RequestPDFFormatterBase {
 			}
 			String sampleConc = "";
 			if (s.getConcentration() != null) {
-				sampleConc = new Integer(s.getConcentration().intValue()).toString() + " /";
+				sampleConc = getFormattedSampleConcentration(s.getConcentration()) + " /";
 			}
 			String rinNum = "";
 			String multiplexNum = "";
@@ -1209,7 +1211,7 @@ public class RequestPDFFormatter extends RequestPDFFormatterBase {
 			// Add data to table
 			PDFFormatterUtil.addToTableValue(table, sampleID, FONT_TABLE_VALUES_SMALL);
 			PDFFormatterUtil.addToTableValue(table, sampleName, tableValueFont);
-			PDFFormatterUtil.addToTableValue(table, sampleConc, tableValueFont);
+			PDFFormatterUtil.addToTableValue(table, sampleConc, FONT_TABLE_VALUES_SMALL);
 			if (!dnaSamples) {
 				PDFFormatterUtil.addToTableValue(table, rinNum, tableValueFont);
 			}
@@ -1521,6 +1523,18 @@ public class RequestPDFFormatter extends RequestPDFFormatterBase {
 		}
 		
 		return table;	
+	}
+	
+	private String getFormattedSampleConcentration(BigDecimal unformattedConcentration) {
+		PropertyDictionaryHelper pdh = PropertyDictionaryHelper.getInstance(sess);
+		
+		int scale = 3;
+		try {
+			scale = Integer.parseInt(pdh.getCoreFacilityProperty(request.getIdCoreFacility(), PropertyDictionary.SAMPLE_CONCENTRATION_PRECISION));
+		} catch (NumberFormatException e) {
+		}
+		
+		return unformattedConcentration.setScale(scale, RoundingMode.HALF_UP).toString();
 	}
 	
 }
