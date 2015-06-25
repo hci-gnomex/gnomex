@@ -1139,12 +1139,16 @@ public class RequestParser implements Serializable {
 	  boolean canAccess = false;
 	  
 	  BillingAccount billingAccount = (BillingAccount) sess.load(BillingAccount.class, idBillingAccount);
-	  for (Iterator iter = billingAccount.getUsers().iterator(); iter.hasNext();) {
-		  AppUser user = (AppUser) iter.next();
-		  if (user.getIdAppUser().equals(secAdvisor.getIdAppUser())) {
-			  canAccess = true;
-			  break;
+	  if (billingAccount.getUsers() != null && billingAccount.getUsers().size() > 0) {
+		  for (Iterator iter = billingAccount.getUsers().iterator(); iter.hasNext();) {
+			  AppUser user = (AppUser) iter.next();
+			  if (user.getIdAppUser().equals(secAdvisor.getIdAppUser())) {
+				  canAccess = true;
+				  break;
+			  }
 		  }
+	  } else {
+		  canAccess = true;
 	  }
 	  
 	  if (secAdvisor.hasPermission(SecurityAdvisor.CAN_ACCESS_ANY_OBJECT)) {
