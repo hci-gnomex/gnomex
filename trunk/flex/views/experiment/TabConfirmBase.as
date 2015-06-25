@@ -13,6 +13,8 @@ package views.experiment
 	import mx.controls.DataGrid;
 	import mx.controls.advancedDataGridClasses.AdvancedDataGridColumn;
 	import mx.controls.dataGridClasses.DataGridColumn;
+	import mx.formatters.NumberBaseRoundType;
+	import mx.formatters.NumberFormatter;
 	
 	import views.renderers.CheckBoxRenderer;
 	import views.renderers.MultiselectRenderer;
@@ -23,6 +25,7 @@ package views.experiment
 	[Bindable]
 	public class TabConfirmBase extends Canvas
 	{
+		public var sampleConcentrationFormatter:NumberFormatter;
 		
 		public static function getConfirmTab(existingTab:TabConfirmBase, requestCategoryType:Object):TabConfirmBase {
 			if (requestCategoryType.@codeRequestCategoryType == 'GENERIC') {
@@ -73,6 +76,20 @@ package views.experiment
 		public function TabConfirmBase()
 		{
 			super();
+			
+			setupSampleConcentrationFormatter();
+		}
+		
+		public function setupSampleConcentrationFormatter(requestCategory:Object = null):void {
+			sampleConcentrationFormatter = new NumberFormatter();
+			
+			if (requestCategory != null && requestCategory.hasOwnProperty("@idCoreFacility")) {
+				var concentrationPrecision:Number = new Number(parentApplication.getCoreFacilityProperty(requestCategory.@idCoreFacility, parentApplication.PROPERTY_SAMPLE_CONCENTRATION_PRECISION));
+				if (!isNaN(concentrationPrecision)) {
+					sampleConcentrationFormatter.precision = concentrationPrecision;
+					sampleConcentrationFormatter.rounding = NumberBaseRoundType.NEAREST;
+				}
+			}
 		}
 		
 		protected function init():void {
@@ -368,6 +385,14 @@ package views.experiment
 			}
 			
 			return "";
+		}
+		
+		protected function getSampleConcentrationFormatted(item:Object, column:DataGridColumn):String {
+			if (item.hasOwnProperty("@concentration") && item.@concentration != '') {
+				return sampleConcentrationFormatter.format(item.@concentration);
+			} else {
+				return "";
+			}
 		}
 		
 	}

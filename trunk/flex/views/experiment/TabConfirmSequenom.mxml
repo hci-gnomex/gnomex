@@ -289,7 +289,7 @@
 						<mx:DataGridColumn id="ccNumber" headerText="CC Number" dataField="@ccNumber" visible="false" width="80"/>
 						
 						
-						<mx:DataGridColumn id="concentrationCol" visible="true" headerText="Conc." width="65" dataField="@concentration"/>
+						<mx:DataGridColumn id="concentrationCol" visible="true" headerText="Conc." width="65" dataField="@concentration" labelFunction="getSampleConcentrationFormatted"/>
 						<mx:DataGridColumn id="sampleTypeColumn" headerText="Sample Type"  width="130"
 										   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SampleType').DictionaryEntry, '@display', '@value', '@idSampleType')}"/>
 					</mx:columns>

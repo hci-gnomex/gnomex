@@ -14,8 +14,8 @@ package views.experiment
 	import mx.core.IFactory;
 	import mx.events.CloseEvent;
 	import mx.events.FlexEvent;
-	import mx.formatters.NumberFormatter;
 	import mx.formatters.NumberBaseRoundType;
+	import mx.formatters.NumberFormatter;
 	import mx.managers.PopUpManager;
 	import mx.utils.ObjectUtil;
 	
@@ -36,8 +36,7 @@ package views.experiment
 		protected var downloadRequest:URLRequest; 
 		protected var downloadFileRef:FileReference;
 		
-		protected var numberFormatter:NumberFormatter;
-		protected static const SAMPLE_CONCENTRATION_PRECISION:Number = 1;
+		public var sampleConcentrationFormatter:NumberFormatter;
 
 		public var filteredSampleTypeList:XMLListCollection;
 
@@ -47,7 +46,7 @@ package views.experiment
 					return existingTab;
 				} else {
 					return new TabSamplesMDMiSeq();
-				}requestCategory.@codeRequestCategory == "DDPCR"
+				}
 			} else if (requestCategory.@codeRequestCategory == "DDPCR") {
 				if (existingTab is TabSamplesDDPCR) {
 					return existingTab;
@@ -103,8 +102,19 @@ package views.experiment
 		{
 			super();
 			
-			numberFormatter = new NumberFormatter();
-			numberFormatter.rounding = NumberBaseRoundType.NEAREST;
+			setupSampleConcentrationFormatter();
+		}
+		
+		public function setupSampleConcentrationFormatter(requestCategory:Object = null):void {
+			sampleConcentrationFormatter = new NumberFormatter();
+			
+			if (requestCategory != null && requestCategory.hasOwnProperty("@idCoreFacility")) {
+				var concentrationPrecision:Number = new Number(parentApplication.getCoreFacilityProperty(requestCategory.@idCoreFacility, parentApplication.PROPERTY_SAMPLE_CONCENTRATION_PRECISION));
+				if (!isNaN(concentrationPrecision)) {
+					sampleConcentrationFormatter.precision = concentrationPrecision;
+					sampleConcentrationFormatter.rounding = NumberBaseRoundType.NEAREST;
+				}
+			}
 		}
 		
 		public function initializeSampleTypes():void {
@@ -670,17 +680,6 @@ package views.experiment
 			for each (var sample:Object in parentDocument.samples) {
 				sample.@wellName = getWellName(parentDocument.samples.getItemIndex(sample));
 			}
-		}
-		
-		protected function getSampleConcentrationFormatted(item:Object, column:AdvancedDataGridColumn):String {
-			var sampleConcentration:String = "";
-			numberFormatter.precision = SAMPLE_CONCENTRATION_PRECISION;
-			
-			if (item.hasOwnProperty("@concentration") && item.@concentration != '') {
-				sampleConcentration = numberFormatter.format(item.@concentration);
-			}
-			
-			return sampleConcentration;
 		}
 		
 	}

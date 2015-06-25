@@ -466,6 +466,7 @@
 							theTab.removeChildAt(tabIdx);
 							theTab.addChildAt(samplesView, tabIdx);
 						}
+						samplesView.setupSampleConcentrationFormatter(requestCategory);
 					}
 					if (theTab.getChildAt(tabIdx) == this.confirmView) {
 						var newConfirmView:TabConfirmBase = TabConfirmBase.getConfirmTab(confirmView, requestCategoryType);
@@ -474,6 +475,7 @@
 							theTab.removeChildAt(tabIdx);
 							theTab.addChildAt(confirmView, tabIdx);
 						}
+						confirmView.setupSampleConcentrationFormatter(requestCategory);
 					}
 				}
 				

@@ -262,7 +262,7 @@
 						<mx:AdvancedDataGridColumn headerText="Sample Name" id="sampleNameColumn" width="100" dataField="@name">				    
 						</mx:AdvancedDataGridColumn>
 						
-						<mx:AdvancedDataGridColumn id="concentrationCol" visible="true" headerText="Conc.(ng/ul)" width="65" dataField="@concentration"/>
+						<mx:AdvancedDataGridColumn id="concentrationCol" visible="true" headerText="Conc.(ng/ul)" width="65" dataField="@concentration" formatter="{sampleConcentrationFormatter}"/>
 						
 						<mx:AdvancedDataGridColumn id="barcodeColumn"  headerText="Index Tag A" width="130" dataField="@idOlogiBarcode" 
 										   editorDataField="value" sortable="false" editable="false" rendererIsEditor="true" 
