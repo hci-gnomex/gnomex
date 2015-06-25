@@ -270,11 +270,7 @@ public class SaveWorkItemSolexaPrep extends GNomExCommand implements Serializabl
         // Need to create billing items at this point.
         Set<Sample> sampleSet = samplesCompletedMap.get(auto.getRequest().getIdRequest());
         if (sampleSet != null) {
-          if (auto.getRequest().getCodeRequestStatus().equals(RequestStatus.COMPLETED)) {
             SaveRequest.createBillingItems(sess, auto.getRequest(), null, billingPeriod, dictionaryHelper, sampleSet, null, null, null, null, auto.getCodeStep(), BillingStatus.COMPLETED);
-          } else {
-            SaveRequest.createBillingItems(sess, auto.getRequest(), null, billingPeriod, dictionaryHelper, sampleSet, null, null, null, null, auto.getCodeStep(), BillingStatus.PENDING);
-          }
         }
       }
     }
