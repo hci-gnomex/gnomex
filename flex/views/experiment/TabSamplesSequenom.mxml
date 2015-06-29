@@ -601,7 +601,7 @@
 		</mx:HBox>
 
 		<grid:CopyPasteSampleGrid width="100%" height="100%" id="samplesGrid"  
-								  editable="true"
+								  editable="true" itemEditEnd="validateData(event)"
 								  itemFocusOut="checkSamplesCompleteness()" 
 								  deleteRowFunction="deleteTheSample"
 								  addRowEnabled="{!this.hasPlates()||parentDocument.isEditState()}"

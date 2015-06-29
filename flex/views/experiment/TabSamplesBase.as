@@ -12,6 +12,7 @@ package views.experiment
 	import mx.controls.TextInput;
 	import mx.controls.advancedDataGridClasses.AdvancedDataGridColumn;
 	import mx.core.IFactory;
+	import mx.events.AdvancedDataGridEvent;
 	import mx.events.CloseEvent;
 	import mx.events.FlexEvent;
 	import mx.formatters.NumberBaseRoundType;
@@ -679,6 +680,14 @@ package views.experiment
 		protected function updateWellNames():void {
 			for each (var sample:Object in parentDocument.samples) {
 				sample.@wellName = getWellName(parentDocument.samples.getItemIndex(sample));
+			}
+		}
+		
+		public function validateData(event:AdvancedDataGridEvent):void {
+			if (event.dataField == "@concentration") {
+				var newSampleConc:String = event.currentTarget.itemEditorInstance.edtComponent.text;
+				event.currentTarget.itemEditorInstance.edtComponent.text = sampleConcentrationFormatter.format(newSampleConc);
+				event.currentTarget.itemEditorInstance.edtComponent.dispatchEvent(new Event(Event.CHANGE));
 			}
 		}
 		

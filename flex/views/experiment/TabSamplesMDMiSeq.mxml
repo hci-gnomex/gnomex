@@ -786,7 +786,7 @@
 		</mx:HBox>
 		
 		<util:AdvancedDataGridWithCustomRowColors width="100%" height="100%" id="samplesGrid"  
-												  editable="true"
+												  editable="true" itemEditEnd="validateData(event)"
 												  itemFocusOut="checkSamplesCompleteness()"  
 												  dragDrop="onDragDropSample(event)"
 												  addRowEnabled="true"
