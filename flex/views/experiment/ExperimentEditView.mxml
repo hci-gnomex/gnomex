@@ -959,6 +959,9 @@
 					sampleSetupView.sampleOrganismCombo.selectedIndex = -1;
 					sampleSetupView.enabled = false;
 					sampleSetupView.otherSamplePrepMethod.text = "";
+					sampleSetupView.seqPrepRadioGroup.selectedValue = 'Y';
+					sampleSetupView.prePooledSamplesRadioGroup.selectedValue = 'N';
+					sampleSetupView.prePooledNumTubes.text = '';
 					
 					if ( sampleSetupView.iScanChipRadioGroup != null ){
 						sampleSetupView.iScanChipRadioGroup.selectedValue = null;
