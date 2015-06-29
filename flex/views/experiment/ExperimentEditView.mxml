@@ -4375,7 +4375,7 @@
 					var lab:Object = getLab.lastResult..Lab.(@idLab == requestEditLabCombo.selectedItem.@idLab);
 					
 					billingAccounts = new XMLListCollection(lab.billingAccounts.BillingAccount);
-					filteredBillingAccounts = new XMLListCollection(billingAccounts.copy());
+					filteredBillingAccounts = new XMLListCollection(lab.approvedBillingAccounts.BillingAccount);
 					var emptyBillingAccount:XML = <BillingAccount idBillingAccount='' accountName='' />
 					filteredBillingAccounts.addItemAt(emptyBillingAccount, 0);
 					filteredBillingAccounts.filterFunction = filterBillingAccounts;
