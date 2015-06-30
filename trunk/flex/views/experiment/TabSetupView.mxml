@@ -1398,7 +1398,7 @@
 		<mx:VBox id="nameDescriptionHBox" width="100%" paddingBottom="0" paddingLeft="0" paddingTop="0" paddingRight="0">
 			<mx:HBox id="nameHBox" verticalGap="2" horizontalGap="0" paddingTop="0" paddingBottom="0">
 				<util:ContextHelp context1="experimentName" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Description Help"
-								  labelPlacement="left" id="nameLabel" width="200" label="(5) Experment Name. (optional)"/>
+								  labelPlacement="left" id="nameLabel" width="200" label="(5) Experiment Name. (optional)"/>
 				<mx:TextInput id="experimentName" focusOut="{propagateName();checkSetupCompleteness()}" text="{parentDocument.request == null ? '' : parentDocument.request.@name}"  
 							  width="380" maxChars="200" focusIn="scrollOnFocus(event);" paddingLeft="0" keyUp="checkSetupCompleteness()"/>
 				<mx:Spacer width="10"/>
