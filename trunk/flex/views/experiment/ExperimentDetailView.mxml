@@ -207,10 +207,10 @@
 				var genomeBuildDict:Dictionary = new Dictionary();
 				for each(var seqLane:XML in selectedExperiment.sequenceLanes.SequenceLane){
 					if(seqLane.@idGenomeBuildAlignTo != ''){
-						genomeBuildDict[seqLane.@idGenomeBuildAlignTo] = parentApplication.dictionaryManager.getEntryDisplay('hci.gnomex.model.GenomeBuildLite', seqLane.@idGenomeBuildAlignTo);
+						genomeBuildDict[String(seqLane.@idGenomeBuildAlignTo)] = parentApplication.dictionaryManager.getEntryDisplay('hci.gnomex.model.GenomeBuildLite', seqLane.@idGenomeBuildAlignTo);
 					}
 					if(seqLane.@idOrganism != ''){
-						organismDict[seqLane.@idOrganism] = parentApplication.dictionaryManager.getEntryDisplay('hci.gnomex.model.OrganismLite', seqLane.@idOrganism);
+						organismDict[String(seqLane.@idOrganism)] = parentApplication.dictionaryManager.getEntryDisplay('hci.gnomex.model.OrganismLite', seqLane.@idOrganism);
 					}
 				}
 				
@@ -219,10 +219,10 @@
 				}
 				
 				for each(var v2:String in genomeBuildDict){
-					genomeBuild += v2 + " -- ";
+					genomeBuild += v2 + " --- ";
 				}
 				
-				genomeBuild = genomeBuild.substring(0, genomeBuild.lastIndexOf(" -- "));
+				genomeBuild = genomeBuild.substring(0, genomeBuild.lastIndexOf(" --- "));
 				organismName = organismName.substring(0, organismName.lastIndexOf(","));
 				
 				if(genomeBuild.length > 0){
