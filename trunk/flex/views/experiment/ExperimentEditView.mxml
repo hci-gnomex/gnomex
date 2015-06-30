@@ -6418,7 +6418,7 @@
 				</mx:HBox>
 			</mx:AddChild>
 			<mx:AddChild relativeTo="{labGroupBox}" position="before">
-				<mx:HBox verticalGap="0" horizontalGap="0" width="700" verticalAlign="middle" id="prePoolBox">
+				<mx:HBox verticalGap="0" horizontalGap="0" width="700" verticalAlign="middle" id="prePoolBox" visible="{this.request.samples.Sample.@seqPrepByCore == 'N'}" includeInLayout="{this.request.samples.Sample.@seqPrepByCore == 'N'}">
 					<mx:Text text="Pre-pooled library?" width="100" id="prePoolLabel" styleName="formLabel"/>
 					<mx:CheckBox id="hasPrePooledLibrariesCheck" change="hasPrePooledLibraries(); this.dirty.setDirty();" selected="{this.request.@hasPrePooledLibraries == 'Y'}" 
 								 enabled="{parentApplication.isAdminState}">							
