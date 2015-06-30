@@ -86,7 +86,7 @@
 				}
 			}
 			
-			private function getIndexOfGenomeBuild(idGenomeBuildAlignTo:String, idOrganism:String):int{
+			private function getIndexOfGenomeBuild(idGenomeBuildAlignTo:String, idOrganism:String, idSequenceLane:String):int{
 				if(idGenomeBuildAlignTo == ''){
 					return 0;
 				}
@@ -99,6 +99,16 @@
 						index++;
 					}
 				}
+				
+				//If we get past the for loop then the index is zero.  Clear out genome build since it might mean user changed organism
+				for each(var seqLane:XML in sampleOrganisms){
+					if(seqLane.@idSequenceLane == idSequenceLane){
+						seqLane.@idGenomeBuildAlignTo = "";
+						seqLane.@genomeBuild = "";
+					}
+				}
+				
+				
 				
 				return 0;
 			}
@@ -123,7 +133,7 @@
 					<mx:CheckBox id="alignCheckBox" label="Yes, align to genome build" click="{onAlignCheckBoxClick(event); parentDocument.dirty.setDirty();}" selected="{genomeBuildRepeater.currentItem.@idGenomeBuildAlignTo != '' || genomeBuildRepeater.currentItem.@alignToGenomeBuild == 'Y'}"/>
 					<mx:ComboBox labelField="@display" id="genomeBuildCombo" change="{onGenomeBuildComboChange(event); parentDocument.dirty.setDirty();}" 
 								 width="300" dataProvider="{parentDocument.getFilteredGenomeBuildList(genomeBuildRepeater.currentItem.@idOrganism)}" 
-								 enabled="{genomeBuildRepeater.currentItem.@idGenomeBuildAlignTo != '' || genomeBuildRepeater.currentItem.@alignToGenomeBuild == 'Y'}" selectedIndex="{getIndexOfGenomeBuild(genomeBuildRepeater.currentItem.@idGenomeBuildAlignTo, genomeBuildRepeater.currentItem.@idOrganism)}"/>
+								 enabled="{genomeBuildRepeater.currentItem.@idGenomeBuildAlignTo != '' || genomeBuildRepeater.currentItem.@alignToGenomeBuild == 'Y'}" selectedIndex="{getIndexOfGenomeBuild(genomeBuildRepeater.currentItem.@idGenomeBuildAlignTo, genomeBuildRepeater.currentItem.@idOrganism, genomeBuildRepeater.currentItem.@idSequenceLane)}"/>
 				</mx:HBox>
 			</mx:Repeater>
 		</mx:VBox>
