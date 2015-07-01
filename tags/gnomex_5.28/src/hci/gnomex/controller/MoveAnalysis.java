@@ -79,11 +79,23 @@ public class MoveAnalysis extends GNomExCommand implements Serializable {
           a.setIdLab(this.idLab);
 
           analysisGroupParser.parse(sess);
-
-          for(Iterator j = analysisGroupParser.getAnalysisGroupMap().keySet().iterator(); j.hasNext();) {
-            String idAnalysisGroupString = (String)j.next();
-            AnalysisGroup ag = (AnalysisGroup)analysisGroupParser.getAnalysisGroupMap().get(idAnalysisGroupString);
-            analysisGroups.add(ag);
+          if (analysisGroupParser != null && analysisGroupParser.getAnalysisGroupMap().isEmpty()) {
+              // If analysis group wasn't provided, create a default one
+              AnalysisGroup defaultAnalysisGroup = new AnalysisGroup();
+              defaultAnalysisGroup.setName(a.getName());
+              defaultAnalysisGroup.setIdLab(a.getIdLab());
+              defaultAnalysisGroup.setIdAppUser(this.getSecAdvisor().getIdAppUser());
+              sess.save(defaultAnalysisGroup);
+              
+              //newAnalysisGroupId = defaultAnalysisGroup.getIdAnalysisGroup();
+              
+              analysisGroups.add(defaultAnalysisGroup);
+          } else{
+              for(Iterator j = analysisGroupParser.getAnalysisGroupMap().keySet().iterator(); j.hasNext();) {
+                String idAnalysisGroupString = (String)j.next();
+                AnalysisGroup ag = (AnalysisGroup)analysisGroupParser.getAnalysisGroupMap().get(idAnalysisGroupString);
+                analysisGroups.add(ag);
+              }
           }
 
           a.setAnalysisGroups(analysisGroups);
