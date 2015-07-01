@@ -709,10 +709,12 @@
 					selectedAnalysis = getAnalysis.lastResult.Analysis.(@number == selectedAnalysisNumber);
 					var labLoaded:Boolean = false;
 					//we don't want to reload getAnalysisGroupList() if we already have it so check for that
-					for each(var lab:Object in getAnalysisGroupList.lastResult.Lab){
-						if(selectedAnalysis.@idLab == lab.@idLab ){
-							labLoaded = true;
-							break;
+					if (getAnalysisGroupList.lastResult != null) {
+						for each(var lab:Object in getAnalysisGroupList.lastResult.Lab){
+							if(selectedAnalysis.@idLab == lab.@idLab ){
+								labLoaded = true;
+								break;
+							}
 						}
 					}
 					
