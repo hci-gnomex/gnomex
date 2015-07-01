@@ -368,109 +368,109 @@
 				// but it woirks!
 				
 				
-//				if (selectedAnalysisNumber != null) {
-//					for each (lab in getAnalysisGroupList.lastResult..Lab) {
-//						pos++;	    	
-//						for each(analysisGroup in lab.AnalysisGroup) {
-//							pos++;
-//							for each( analysis in analysisGroup.Analysis) {
-//								pos++;
-//								if (analysis.@number == selectedAnalysisNumber) {
-//									idx = --pos;
-//									
-//									// We came from the main gnomex app, so select the lab 
-//									if (this.currentState == "AdminState") {
-//										for each(var l:Object in  labList) {
-//											if (l.@idLab == analysis.@idLab) {
-//												l.@isSelected = 'true';
-//												this.selectedLabsLabel = l.@name;
-//												this.labKeys = l.@idLab;
-//											} else {
-//												l.@isSelected = 'false';
-//											}
-//										}
-//									}		    					
-//									break;
-//								} 
-//							}
-//							if (idx != -1) {
-//								break;
-//							} 
-//						}
-//						if (idx != -1) {
-//							break;
-//						}
-//					}    			
-//				} else if (selectedAnalysis != null) {
-//					for each (lab in getAnalysisGroupList.lastResult..Lab) {
-//						pos++;	    	
-//						for each(analysisGroup in lab.AnalysisGroup) {
-//							pos++;
-//							for each( analysis in analysisGroup.Analysis) {
-//								pos++;
-//								if (analysis.@idAnalysis == selectedAnalysis.@idAnalysis &&
-//									analysisGroup.@idAnalysisGroup == selectedIdAnalysisGroup) {
-//									idx = --pos;
-//									break;
-//								} else if (analysis.@idAnalysis == selectedAnalysis.@idAnalysis && selectedIdAnalysisGroup == null) {
-//									idx = --pos;
-//									break;
-//								}
-//							}
-//							if (idx != -1) {
-//								break;
-//							} 
-//						}
-//						if (idx != -1) {
-//							break;
-//						}
-//					}    			
-//				}else if (selectedIdAnalysisGroup != null) {
-//					for each (lab in getAnalysisGroupList.lastResult..Lab) {	   
-//						pos++; 	
-//						for each(analysisGroup in lab.AnalysisGroup) {
-//							pos++;
-//							if (analysisGroup.@idAnalysisGroup == selectedIdAnalysisGroup) {
-//								idx = --pos;
-//								break;
-//							}
-//							for each( analysis in analysisGroup.Analysis) {
-//								pos++;
-//							}
-//							if (idx != -1) {
-//								break;
-//							}
-//						}
-//						if (idx != -1) {
-//							break;
-//						}
-//					}    			
-//				} else if (selectedIdLab != null) {
-//					for each (lab in getAnalysisGroupList.lastResult..Lab) {	    	
-//						pos++;
-//						if (selectedIdLab == lab.@idLab) {
-//							idx = --pos;
-//							break;
-//						}
-//						for each(analysisGroup in lab.AnalysisGroup) {
-//							pos++;
-//							for each(analysis in analysisGroup.Analysis) {
-//								pos++;
-//							}
-//							if (idx != -1) {
-//								break;
-//							}
-//						}
-//						if (idx != -1) {
-//							break;
-//						}
-//					}    			
-//				}
-//				
-//				if (idx != -1) {
-//					browseTree.selectedIndex = idx;
-//					browseTree.scrollToIndex(idx);
-//				}
+				//				if (selectedAnalysisNumber != null) {
+				//					for each (lab in getAnalysisGroupList.lastResult..Lab) {
+				//						pos++;	    	
+				//						for each(analysisGroup in lab.AnalysisGroup) {
+				//							pos++;
+				//							for each( analysis in analysisGroup.Analysis) {
+				//								pos++;
+				//								if (analysis.@number == selectedAnalysisNumber) {
+				//									idx = --pos;
+				//									
+				//									// We came from the main gnomex app, so select the lab 
+				//									if (this.currentState == "AdminState") {
+				//										for each(var l:Object in  labList) {
+				//											if (l.@idLab == analysis.@idLab) {
+				//												l.@isSelected = 'true';
+				//												this.selectedLabsLabel = l.@name;
+				//												this.labKeys = l.@idLab;
+				//											} else {
+				//												l.@isSelected = 'false';
+				//											}
+				//										}
+				//									}		    					
+				//									break;
+				//								} 
+				//							}
+				//							if (idx != -1) {
+				//								break;
+				//							} 
+				//						}
+				//						if (idx != -1) {
+				//							break;
+				//						}
+				//					}    			
+				//				} else if (selectedAnalysis != null) {
+				//					for each (lab in getAnalysisGroupList.lastResult..Lab) {
+				//						pos++;	    	
+				//						for each(analysisGroup in lab.AnalysisGroup) {
+				//							pos++;
+				//							for each( analysis in analysisGroup.Analysis) {
+				//								pos++;
+				//								if (analysis.@idAnalysis == selectedAnalysis.@idAnalysis &&
+				//									analysisGroup.@idAnalysisGroup == selectedIdAnalysisGroup) {
+				//									idx = --pos;
+				//									break;
+				//								} else if (analysis.@idAnalysis == selectedAnalysis.@idAnalysis && selectedIdAnalysisGroup == null) {
+				//									idx = --pos;
+				//									break;
+				//								}
+				//							}
+				//							if (idx != -1) {
+				//								break;
+				//							} 
+				//						}
+				//						if (idx != -1) {
+				//							break;
+				//						}
+				//					}    			
+				//				}else if (selectedIdAnalysisGroup != null) {
+				//					for each (lab in getAnalysisGroupList.lastResult..Lab) {	   
+				//						pos++; 	
+				//						for each(analysisGroup in lab.AnalysisGroup) {
+				//							pos++;
+				//							if (analysisGroup.@idAnalysisGroup == selectedIdAnalysisGroup) {
+				//								idx = --pos;
+				//								break;
+				//							}
+				//							for each( analysis in analysisGroup.Analysis) {
+				//								pos++;
+				//							}
+				//							if (idx != -1) {
+				//								break;
+				//							}
+				//						}
+				//						if (idx != -1) {
+				//							break;
+				//						}
+				//					}    			
+				//				} else if (selectedIdLab != null) {
+				//					for each (lab in getAnalysisGroupList.lastResult..Lab) {	    	
+				//						pos++;
+				//						if (selectedIdLab == lab.@idLab) {
+				//							idx = --pos;
+				//							break;
+				//						}
+				//						for each(analysisGroup in lab.AnalysisGroup) {
+				//							pos++;
+				//							for each(analysis in analysisGroup.Analysis) {
+				//								pos++;
+				//							}
+				//							if (idx != -1) {
+				//								break;
+				//							}
+				//						}
+				//						if (idx != -1) {
+				//							break;
+				//						}
+				//					}    			
+				//				}
+				//				
+				//				if (idx != -1) {
+				//					browseTree.selectedIndex = idx;
+				//					browseTree.scrollToIndex(idx);
+				//				}
 				
 				if(noOnBrowseTreeCall) {
 					noOnBrowseTreeCall = false;
@@ -709,10 +709,12 @@
 					selectedAnalysis = getAnalysis.lastResult.Analysis.(@number == selectedAnalysisNumber);
 					var labLoaded:Boolean = false;
 					//we don't want to reload getAnalysisGroupList() if we already have it so check for that
-					for each(var lab:Object in getAnalysisGroupList.lastResult.Lab){
-						if(selectedAnalysis.@idLab == lab.@idLab ){
-							labLoaded = true;
-							break;
+					if (getAnalysisGroupList.lastResult != null) {
+						for each(var lab:Object in getAnalysisGroupList.lastResult.Lab){
+							if(selectedAnalysis.@idLab == lab.@idLab ){
+								labLoaded = true;
+								break;
+							}
 						}
 					}
 					
@@ -734,47 +736,47 @@
 					
 				}
 				
-					if (showEditView) {	
-						analysisEditView.setupEditForm(this.selectedAnalysis, addAnalysisGroup != null);
-						analysisViews.selectedChild = analysisEditView;
-						showEditView = false;
-						if(addAnalysisGroup != null) {
-							if(removeIdAnalysisGroup != null) {
-								var item:Object;
-								var i:int = 0;	
-								for each(item in analysisEditView.analysisGroups) {
-									if(removeIdAnalysisGroup == item.@idAnalysisGroup) {
-										analysisEditView.analysisGroups.removeItemAt(i);
-										break;						
-									}
-									i++;
-								}					
-								
-							}
-							analysisEditView.analysisGroups.addItem(addAnalysisGroup);
-							analysisEditView.parentIdLab = parentIdLab;
-							analysisEditView.setExecValidateAndSaveAnalysis();
-							addAnalysisGroup = null;
+				if (showEditView) {	
+					analysisEditView.setupEditForm(this.selectedAnalysis, addAnalysisGroup != null);
+					analysisViews.selectedChild = analysisEditView;
+					showEditView = false;
+					if(addAnalysisGroup != null) {
+						if(removeIdAnalysisGroup != null) {
+							var item:Object;
+							var i:int = 0;	
+							for each(item in analysisEditView.analysisGroups) {
+								if(removeIdAnalysisGroup == item.@idAnalysisGroup) {
+									analysisEditView.analysisGroups.removeItemAt(i);
+									break;						
+								}
+								i++;
+							}					
+							
 						}
-					} else{
-						analysisViews.selectedChild = analysisDetailView;				
-						analysisDetailView.setupForm(this.selectedAnalysis);
-						analysisDetailView.updateUploadFormAnalysisObj();
+						analysisEditView.analysisGroups.addItem(addAnalysisGroup);
+						analysisEditView.parentIdLab = parentIdLab;
+						analysisEditView.setExecValidateAndSaveAnalysis();
+						addAnalysisGroup = null;
 					}
-					
-					parentApplication.closeDistributeDataTrackWindow(this.selectedAnalysis);
-					
-					if (selectedAnalysis.@canDelete == "Y") {
-						this.deleteButton.enabled = true;
-					} else {
-						this.deleteButton.enabled = false;
-					}
-					browseView.refreshButtonStack();
-					
-					analysisViews.visible = true;
-					
-					this.analysisDetailView.enableDoubleClick();
+				} else{
+					analysisViews.selectedChild = analysisDetailView;				
+					analysisDetailView.setupForm(this.selectedAnalysis);
+					analysisDetailView.updateUploadFormAnalysisObj();
 				}
+				
+				parentApplication.closeDistributeDataTrackWindow(this.selectedAnalysis);
+				
+				if (selectedAnalysis.@canDelete == "Y") {
+					this.deleteButton.enabled = true;
+				} else {
+					this.deleteButton.enabled = false;
+				}
+				browseView.refreshButtonStack();
+				
+				analysisViews.visible = true;
+				
+				this.analysisDetailView.enableDoubleClick();
+			}
 			
 			private function onGetAnalysisGroup(event:ResultEvent):void {
 				selectedAnalysisGroup = getAnalysisGroup.lastResult.AnalysisGroup.(@idAnalysisGroup == selectedIdAnalysisGroup);
@@ -1056,7 +1058,7 @@
 				browseTree.hideDropFeedback(e);
 				theItems = e.dragSource.dataForFormat("treeItems");
 				var dragParent:XML = XML(theItems.parent);
-						
+				
 				for(var i:int = 0; i < theItems.length; i++){
 					var x:XML = theItems[i];
 					if(x.name() != "Analysis") {
@@ -1119,10 +1121,10 @@
 					// to (the lab of the analysis group
 					parentIdLab = p.@idLab;
 					
-//					if(e.ctrlKey) {
-//						// Don't remove dragged item if we're copying
-//						removeIdAnalysisGroup = null;
-//					}
+					//					if(e.ctrlKey) {
+					//						// Don't remove dragged item if we're copying
+					//						removeIdAnalysisGroup = null;
+					//					}
 					addAnalysisGroup = new XML("<AnalysisGroup " +
 						" idAnalysisGroup=\"" + p.@idAnalysisGroup + "\"" +
 						" name=\""            + p.@name + "\"" + "/>");
@@ -1136,19 +1138,19 @@
 				}
 			}
 			
-//			private function moveOrCopyHandler(event:CloseEvent):void{
-//				Alert.yesLabel = "Yes";
-//				Alert.noLabel = "No";
-//				
-//				if(event.detail == Alert.CANCEL){
-//					return;
-//				} else if(event.detail == Alert.NO){ //Copy analysis to new location
-//					removeIdAnalysisGroup = null;
-//					saveMultipleAnalysis();
-//				} else{ //Move analysis
-//					saveMultipleAnalysis();
-//				}
-//			}
+			//			private function moveOrCopyHandler(event:CloseEvent):void{
+			//				Alert.yesLabel = "Yes";
+			//				Alert.noLabel = "No";
+			//				
+			//				if(event.detail == Alert.CANCEL){
+			//					return;
+			//				} else if(event.detail == Alert.NO){ //Copy analysis to new location
+			//					removeIdAnalysisGroup = null;
+			//					saveMultipleAnalysis();
+			//				} else{ //Move analysis
+			//					saveMultipleAnalysis();
+			//				}
+			//			}
 			
 			private function saveMultipleAnalysis():void{
 				var params:Object = new Object();

@@ -465,7 +465,7 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
             // The experiment item may already exist; if so, just save it.
             for(Iterator i1 = analysis.getExperimentItems().iterator(); i1.hasNext();) {
               AnalysisExperimentItem x = (AnalysisExperimentItem)i1.next();
-              if (x.getIdHybridization().equals(idHybridization)) {
+              if (x.getHybridization() != null && x.getIdHybridization().equals(idHybridization)) {
                 experimentItem = x;
                 break;
               }
@@ -486,7 +486,7 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
             // The experiment item may already exist; if so, just save it.
             for(Iterator i1 = analysis.getExperimentItems().iterator(); i1.hasNext();) {
               AnalysisExperimentItem x = (AnalysisExperimentItem)i1.next();
-              if (x.getIdSequenceLane().equals(idSequenceLane)) {
+              if (x.getIdSequenceLane() != null && x.getIdSequenceLane().equals(idSequenceLane)) {
                 experimentItem = x;
                 break;
               }
@@ -507,7 +507,7 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
         		// The experiment item may already exist; if so, just save it.
         		for (Iterator i1 = analysis.getExperimentItems().iterator(); i1.hasNext();) {
         			AnalysisExperimentItem x = (AnalysisExperimentItem) i1.next();
-        			if (x.getIdSample().equals(idSample)) {
+        			if (x.getSample() != null && x.getIdSample().equals(idSample)) {
         				experimentItem = x;
         				break;
         			}
