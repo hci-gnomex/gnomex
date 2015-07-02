@@ -25,136 +25,136 @@ import org.jdom.input.SAXBuilder;
 
 public class MoveAnalysis extends GNomExCommand implements Serializable {
 
-	private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(SaveLab.class);
+  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(SaveLab.class);
 
-	private Integer idLab;
-	//private Integer idAppUser;
-	private String  idAnalysisString;
-	private Document  analysesDoc;
-	private String                analysisGroupsXMLString;
-	private Document              analysisGroupsDoc;
-	private AnalysisGroupParser   analysisGroupParser;
+  private Integer idLab;
+  //private Integer idAppUser;
+  private String  idAnalysisString;
+  private Document  analysesDoc;
+  private String                analysisGroupsXMLString;
+  private Document              analysisGroupsDoc;
+  private AnalysisGroupParser   analysisGroupParser;
 
-	@Override
-	public void loadCommand(HttpServletRequest request, HttpSession sess) {
-		if(request.getParameter("idLab") != null && !request.getParameter("idLab").equals("")){
-			idLab = Integer.parseInt(request.getParameter("idLab"));
-		} else {
-			this.addInvalidField("missing idlab", "Please provide idLab");
-		}
+  @Override
+  public void loadCommand(HttpServletRequest request, HttpSession sess) {
+    if(request.getParameter("idLab") != null && !request.getParameter("idLab").equals("")){
+      idLab = Integer.parseInt(request.getParameter("idLab"));
+    } else {
+      this.addInvalidField("missing idlab", "Please provide idLab");
+    }
 
-		if (request.getParameter("idAnalysisString") != null && !request.getParameter("idAnalysisString").equals("")) {
-			idAnalysisString = request.getParameter("idAnalysisString");
-		}  else {
-			this.addInvalidField("missing idAnalysisString", "Please provide idAnalysisString");
-		}
+    if (request.getParameter("idAnalysisString") != null && !request.getParameter("idAnalysisString").equals("")) {
+      idAnalysisString = request.getParameter("idAnalysisString");
+    }  else {
+      this.addInvalidField("missing idAnalysisString", "Please provide idAnalysisString");
+    }
 
-		StringReader reader = null;
+    StringReader reader = null;
 
-		if (request.getParameter("analysisGroupsXMLString") != null && !request.getParameter("analysisGroupsXMLString").equals("")) {
-			analysisGroupsXMLString = request.getParameter("analysisGroupsXMLString");
-			reader = new StringReader(analysisGroupsXMLString);
-			try {
-				SAXBuilder sax = new SAXBuilder();
-				analysisGroupsDoc = sax.build(reader);
-				analysisGroupParser = new AnalysisGroupParser(analysisGroupsDoc);
-			} catch (JDOMException je ) {
-				log.error( "Cannot parse analysisGroupsXMLString", je );
-				this.addInvalidField( "analysisGroupsXMLString", "Invalid analysisGroupsXMLString");
-			}
-		}
+    if (request.getParameter("analysisGroupsXMLString") != null && !request.getParameter("analysisGroupsXMLString").equals("")) {
+      analysisGroupsXMLString = request.getParameter("analysisGroupsXMLString");
+      reader = new StringReader(analysisGroupsXMLString);
+      try {
+        SAXBuilder sax = new SAXBuilder();
+        analysisGroupsDoc = sax.build(reader);
+        analysisGroupParser = new AnalysisGroupParser(analysisGroupsDoc);
+      } catch (JDOMException je ) {
+        log.error( "Cannot parse analysisGroupsXMLString", je );
+        this.addInvalidField( "analysisGroupsXMLString", "Invalid analysisGroupsXMLString");
+      }
+    }
 
-	}
+  }
 
 
-	@Override
-	public Command execute() throws RollBackCommandException {
-		try {
-			if(this.isValid()) {
-				Session sess = HibernateSession.currentSession(this.getUsername());
-				String idAnalyses[] = idAnalysisString.split(",");
-				List<String> invalidPermissions = new ArrayList<String>();
+  @Override
+  public Command execute() throws RollBackCommandException {
+    try {
+      if(this.isValid()) {
+        Session sess = HibernateSession.currentSession(this.getUsername());
+        String idAnalyses[] = idAnalysisString.split(",");
+        List<String> invalidPermissions = new ArrayList<String>();
 
-				for(int i = 0; i < idAnalyses.length; i++) {
-					TreeSet analysisGroups = new TreeSet(new AnalysisGroupComparator());
-					Integer idAnalysis = Integer.parseInt(idAnalyses[i]);
-					Analysis a = (Analysis)sess.load(Analysis.class, idAnalysis);
+        for(int i = 0; i < idAnalyses.length; i++) {
+          TreeSet analysisGroups = new TreeSet(new AnalysisGroupComparator());
+          Integer idAnalysis = Integer.parseInt(idAnalyses[i]);
+          Analysis a = (Analysis)sess.load(Analysis.class, idAnalysis);
 
-					if (!this.getSecurityAdvisor().canUpdate(a)) {
-						invalidPermissions.add(a.getNumber());
-						continue;
-					}
+          if (!this.getSecurityAdvisor().canUpdate(a)) {
+            invalidPermissions.add(a.getNumber());
+            continue;
+          }
 
-					a.setIdLab(this.idLab);
+          a.setIdLab(this.idLab);
 
-					analysisGroupParser.parse(sess);
-					if (analysisGroupParser != null && analysisGroupParser.getAnalysisGroupMap().isEmpty()) {
-						// If analysis group wasn't provided, create a default one
-						AnalysisGroup defaultAnalysisGroup = new AnalysisGroup();
-						defaultAnalysisGroup.setName(a.getName());
-						defaultAnalysisGroup.setIdLab(a.getIdLab());
-						defaultAnalysisGroup.setIdAppUser(this.getSecAdvisor().getIdAppUser());
-						sess.save(defaultAnalysisGroup);
+          analysisGroupParser.parse(sess);
+          if (analysisGroupParser != null && analysisGroupParser.getAnalysisGroupMap().isEmpty()) {
+            // If analysis group wasn't provided, create a default one
+            AnalysisGroup defaultAnalysisGroup = new AnalysisGroup();
+            defaultAnalysisGroup.setName(a.getName());
+            defaultAnalysisGroup.setIdLab(a.getIdLab());
+            defaultAnalysisGroup.setIdAppUser(this.getSecAdvisor().getIdAppUser());
+            sess.save(defaultAnalysisGroup);
 
-						//newAnalysisGroupId = defaultAnalysisGroup.getIdAnalysisGroup();
+            //newAnalysisGroupId = defaultAnalysisGroup.getIdAnalysisGroup();
 
-						analysisGroups.add(defaultAnalysisGroup);
-					} else{
-						for(Iterator j = analysisGroupParser.getAnalysisGroupMap().keySet().iterator(); j.hasNext();) {
-							String idAnalysisGroupString = (String)j.next();
-							AnalysisGroup ag = (AnalysisGroup)analysisGroupParser.getAnalysisGroupMap().get(idAnalysisGroupString);
-							analysisGroups.add(ag);
-						}
-					}
+            analysisGroups.add(defaultAnalysisGroup);
+          } else{
+            for(Iterator j = analysisGroupParser.getAnalysisGroupMap().keySet().iterator(); j.hasNext();) {
+              String idAnalysisGroupString = (String)j.next();
+              AnalysisGroup ag = (AnalysisGroup)analysisGroupParser.getAnalysisGroupMap().get(idAnalysisGroupString);
+              analysisGroups.add(ag);
+            }
+          }
 
-					a.setAnalysisGroups(analysisGroups);
-					sess.save(a);
-				}
+          a.setAnalysisGroups(analysisGroups);
+          sess.save(a);
+        }
 
-				sess.flush();
-				if(invalidPermissions.size() != 0){
-					String badAnalysisString = "";
-					for(Iterator i = invalidPermissions.iterator(); i.hasNext();){
-						badAnalysisString += i.next();
-						if(i.hasNext()){
-							badAnalysisString += ", ";
-						}
-					}
-					
-					this.xmlResult = "<SUCCESS invalidPermission=\"The following analyses could not be moved due to invalid permissions " + badAnalysisString + "\"/>";
-				}
-				setResponsePage(this.SUCCESS_JSP);					
-			}
-		} catch(Exception e) {
-			log.error("An exception has occurred in MoveAnalysis ", e);
-			e.printStackTrace();
-			throw new RollBackCommandException(e.getMessage());
+        sess.flush();
+        if(invalidPermissions.size() != 0){
+          String badAnalysisString = "";
+          for(Iterator i = invalidPermissions.iterator(); i.hasNext();){
+            badAnalysisString += i.next();
+            if(i.hasNext()){
+              badAnalysisString += ", ";
+            }
+          }
 
-		} finally {
-			try {
-				HibernateSession.closeTomcatSession();
-				HibernateSession.closeSession();        
-			} catch(Exception e) {
+          this.xmlResult = "<SUCCESS invalidPermission=\"The following analyses could not be moved due to invalid permissions " + badAnalysisString + "\"/>";
+        }
+        setResponsePage(this.SUCCESS_JSP);					
+      }
+    } catch(Exception e) {
+      log.error("An exception has occurred in MoveAnalysis ", e);
+      e.printStackTrace();
+      throw new RollBackCommandException(e.getMessage());
 
-			}
-		}
-		return this;
-	}
+    } finally {
+      try {
+        HibernateSession.closeTomcatSession();
+        HibernateSession.closeSession();        
+      } catch(Exception e) {
 
-	private class AnalysisGroupComparator implements Comparator, Serializable {
-		public int compare(Object o1, Object o2) {
-			AnalysisGroup ag1 = (AnalysisGroup)o1;
-			AnalysisGroup ag2 = (AnalysisGroup)o2;
+      }
+    }
+    return this;
+  }
 
-			return ag1.getIdAnalysisGroup().compareTo(ag2.getIdAnalysisGroup());
+  private class AnalysisGroupComparator implements Comparator, Serializable {
+    public int compare(Object o1, Object o2) {
+      AnalysisGroup ag1 = (AnalysisGroup)o1;
+      AnalysisGroup ag2 = (AnalysisGroup)o2;
 
-		}
-	}
+      return ag1.getIdAnalysisGroup().compareTo(ag2.getIdAnalysisGroup());
 
-	@Override
-	public void validate() {
-		// TODO Auto-generated method stub
+    }
+  }
 
-	}
+  @Override
+  public void validate() {
+    // TODO Auto-generated method stub
+
+  }
 
 }
