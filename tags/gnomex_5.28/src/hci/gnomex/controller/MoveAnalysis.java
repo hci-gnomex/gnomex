@@ -9,8 +9,10 @@ import hci.gnomex.utility.HibernateSession;
 
 import java.io.Serializable;
 import java.io.StringReader;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Iterator;
+import java.util.List;
 import java.util.TreeSet;
 
 import javax.servlet.http.HttpServletRequest;
@@ -71,31 +73,38 @@ public class MoveAnalysis extends GNomExCommand implements Serializable {
       if(this.isValid()) {
         Session sess = HibernateSession.currentSession(this.getUsername());
         String idAnalyses[] = idAnalysisString.split(",");
+        List<String> invalidPermissions = new ArrayList<String>();
 
         for(int i = 0; i < idAnalyses.length; i++) {
           TreeSet analysisGroups = new TreeSet(new AnalysisGroupComparator());
           Integer idAnalysis = Integer.parseInt(idAnalyses[i]);
           Analysis a = (Analysis)sess.load(Analysis.class, idAnalysis);
+
+          if (!this.getSecurityAdvisor().canUpdate(a)) {
+            invalidPermissions.add(a.getNumber());
+            continue;
+          }
+
           a.setIdLab(this.idLab);
 
           analysisGroupParser.parse(sess);
           if (analysisGroupParser != null && analysisGroupParser.getAnalysisGroupMap().isEmpty()) {
-              // If analysis group wasn't provided, create a default one
-              AnalysisGroup defaultAnalysisGroup = new AnalysisGroup();
-              defaultAnalysisGroup.setName(a.getName());
-              defaultAnalysisGroup.setIdLab(a.getIdLab());
-              defaultAnalysisGroup.setIdAppUser(this.getSecAdvisor().getIdAppUser());
-              sess.save(defaultAnalysisGroup);
-              
-              //newAnalysisGroupId = defaultAnalysisGroup.getIdAnalysisGroup();
-              
-              analysisGroups.add(defaultAnalysisGroup);
+            // If analysis group wasn't provided, create a default one
+            AnalysisGroup defaultAnalysisGroup = new AnalysisGroup();
+            defaultAnalysisGroup.setName(a.getName());
+            defaultAnalysisGroup.setIdLab(a.getIdLab());
+            defaultAnalysisGroup.setIdAppUser(this.getSecAdvisor().getIdAppUser());
+            sess.save(defaultAnalysisGroup);
+
+            //newAnalysisGroupId = defaultAnalysisGroup.getIdAnalysisGroup();
+
+            analysisGroups.add(defaultAnalysisGroup);
           } else{
-              for(Iterator j = analysisGroupParser.getAnalysisGroupMap().keySet().iterator(); j.hasNext();) {
-                String idAnalysisGroupString = (String)j.next();
-                AnalysisGroup ag = (AnalysisGroup)analysisGroupParser.getAnalysisGroupMap().get(idAnalysisGroupString);
-                analysisGroups.add(ag);
-              }
+            for(Iterator j = analysisGroupParser.getAnalysisGroupMap().keySet().iterator(); j.hasNext();) {
+              String idAnalysisGroupString = (String)j.next();
+              AnalysisGroup ag = (AnalysisGroup)analysisGroupParser.getAnalysisGroupMap().get(idAnalysisGroupString);
+              analysisGroups.add(ag);
+            }
           }
 
           a.setAnalysisGroups(analysisGroups);
@@ -103,8 +112,18 @@ public class MoveAnalysis extends GNomExCommand implements Serializable {
         }
 
         sess.flush();
+        if(invalidPermissions.size() != 0){
+          String badAnalysisString = "";
+          for(Iterator i = invalidPermissions.iterator(); i.hasNext();){
+            badAnalysisString += i.next();
+            if(i.hasNext()){
+              badAnalysisString += ", ";
+            }
+          }
 
-        setResponsePage(this.SUCCESS_JSP);
+          this.xmlResult = "<SUCCESS invalidPermission=\"The following analyses could not be moved due to invalid permissions " + badAnalysisString + "\"/>";
+        }
+        setResponsePage(this.SUCCESS_JSP);					
       }
     } catch(Exception e) {
       log.error("An exception has occurred in MoveAnalysis ", e);
