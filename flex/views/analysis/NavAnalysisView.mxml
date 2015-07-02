@@ -1175,6 +1175,9 @@
 				if(moveAnalysis.lastResult.name() != "SUCCESS"){
 					Alert.show(moveAnalysis.lastResult..ACTMESSAGE.@TEXT);
 				} else{
+					if(moveAnalysis.lastResult.@invalidPermission != ""){
+						Alert.show(moveAnalysis.lastResult.@invalidPermission);
+					}
 					this.refreshAnalysis();
 					this.updateLabList();
 					browseTree.selectedItem = dropNode;
