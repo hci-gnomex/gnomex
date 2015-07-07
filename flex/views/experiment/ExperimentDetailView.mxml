@@ -1401,7 +1401,7 @@
 						var newColumns:Array = new Array();
 						for each(var column:AdvancedDataGridColumn in columns) {
 							if((currentState == 'SolexaState' || currentState == 'MicroarrayState' || currentState == 'QCState' 
-								|| currentState == null || isNanoStringState() || this.isIonTorrentState() || currentState == 'ExternalMicroarrayState'
+								|| currentState == null || isNanoStringState() || this.isSequenomState() || this.isIonTorrentState() || currentState == 'ExternalMicroarrayState'
 								|| currentState == 'ExternalSeqState' || currentState == 'ExternalQCState') && column.dataField == "@idSampleType"){
 									newColumns.push(newCol);
 							}

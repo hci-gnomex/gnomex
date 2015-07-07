@@ -1329,9 +1329,6 @@
 					this.samplesView.showHideColumns();						
 					this.samplesView.checkSamplesCompleteness();	
 					
-					this.theTab.getTabAt( theTab.getChildIndex( annotationView ) ).visible = false;
-					this.theTab.getTabAt( theTab.getChildIndex( annotationView ) ).includeInLayout = false;
-					
 					this.sampleSetupView.sequenomPanelContainer.visible = false;
 					this.sampleSetupView.sequenomPanelContainer.includeInLayout = false;
 					
@@ -1344,9 +1341,6 @@
 					this.sampleSetupView.currentState = 'IsolationState';		
 					this.samplesView.showHideColumns();						
 					this.samplesView.checkSamplesCompleteness();	
-					
-					this.theTab.getTabAt( theTab.getChildIndex( annotationView ) ).visible = false;
-					this.theTab.getTabAt( theTab.getChildIndex( annotationView ) ).includeInLayout = false;
 					
 					filteredAppList.filterFunction = filterApplication;
 					filteredAppList.refresh();
@@ -2592,7 +2586,6 @@
 				}
 				
 				this.restoreTabIndex();
-				
 				updateDirtyNote(false);
 			}
 			
@@ -2792,9 +2785,11 @@
 					if ( this.request.@containerType == "PLATE"){
 						this.sampleSetupView.updateIScanPlateList(this.request.iScanPlateList.Plate);
 					}
-					this.theTab.getTabAt( theTab.getChildIndex( annotationView ) ).visible = false;
-					this.theTab.getTabAt( theTab.getChildIndex( annotationView ) ).includeInLayout = false;
 					
+					if(!this.isEditState()){
+						this.theTab.getTabAt( theTab.getChildIndex( annotationView ) ).visible = false;
+						this.theTab.getTabAt( theTab.getChildIndex( annotationView ) ).includeInLayout = false;
+					}
 					
 					for each(var app:Object in sampleSetupView.seqAppRepeater.dataProvider) {
 						if (app.@value == request.@codeApplication) {
