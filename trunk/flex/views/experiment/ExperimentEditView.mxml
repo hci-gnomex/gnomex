@@ -4098,8 +4098,7 @@
 					parentApplication.navTopicsView.experimentDetailView.detail.refreshSavedExperiment(request.@idRequest);	
 					parentApplication.navTopicsView.experimentViews.selectedChild = parentApplication.navTopicsView.experimentDetailView;
 				}
-				else {
-					parentApplication.navExperimentView.showEditView = true;	
+				else {	
 					parentApplication.navExperimentView.refreshExperiments();
 					parentApplication.navExperimentView.experimentDetailView.detail.refreshSavedExperiment(request.@idRequest);
 				}
