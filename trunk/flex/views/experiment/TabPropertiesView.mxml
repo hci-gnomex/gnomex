@@ -406,6 +406,9 @@
 			}
 			
 			private function checkCompleteness():void {
+				if(parentDocument is ExperimentDetailView){
+					return;
+				}
 				var nextVisibleChild:UIComponent = null;
 				
 				var nextChildIndex:int = parentDocument.theTab.selectedIndex + 1;
