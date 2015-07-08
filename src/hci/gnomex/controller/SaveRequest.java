@@ -2428,7 +2428,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     (requestParser.isExternalExperiment() ? " Experiment " : " Experiment Request ") +
     requestParser.getRequest().getNumber() + (requestParser.isExternalExperiment() ? " registered" : " submitted");
 
-    String contactEmailCoreFacility = pdh.getCoreFacilityProperty(requestParser.getRequest().getIdCoreFacility(), PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
+    String contactEmailCoreFacility = cf.getContactEmail();
     String contactEmailSoftwareBugs = pdh.getCoreFacilityProperty(requestParser.getRequest().getIdCoreFacility(), PropertyDictionary.CONTACT_EMAIL_SOFTWARE_BUGS);
     String emailRecipients = "";
     if (requestParser.getRequest().getAppUser() != null && requestParser.getRequest().getAppUser().getEmail() != null) {
@@ -2561,7 +2561,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 
     String subject = "Estimated " + cf.getFacilityName() + " charges for request " + requestParser.getRequest().getNumber();
 
-    String contactEmailCoreFacility = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(requestParser.getRequest().getIdCoreFacility(), PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
+    String contactEmailCoreFacility = cf.getContactEmail();
     String contactEmailSoftwareBugs = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(requestParser.getRequest().getIdCoreFacility(), PropertyDictionary.CONTACT_EMAIL_SOFTWARE_BUGS);
 
     String senderEmail = requestParser.isExternalExperiment() ? contactEmailSoftwareBugs : contactEmailCoreFacility;

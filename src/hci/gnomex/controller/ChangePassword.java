@@ -190,7 +190,7 @@ public class ChangePassword extends GNomExCommand implements Serializable {
               if (idCoreFacility == null) {
                 labContactEmail = pdh.getProperty(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
               } else {
-                labContactEmail = pdh.getCoreFacilityProperty(idCoreFacility, PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
+                labContactEmail =  ((CoreFacility)sess.load(CoreFacility.class, idCoreFacility)).getContactEmail();
               }
 
               sendConfirmationEmail(appUser.getEmail(), uuid.toString());

@@ -3,6 +3,7 @@ package hci.gnomex.controller;
 import hci.gnomex.constants.Constants;
 import hci.gnomex.model.AppUser;
 import hci.gnomex.model.BillingAccount;
+import hci.gnomex.model.CoreFacility;
 import hci.gnomex.model.InternalAccountFieldsConfiguration;
 import hci.gnomex.model.Lab;
 import hci.gnomex.model.Product;
@@ -351,7 +352,7 @@ public class UploadQuoteInfoServlet extends HttpServlet {
 
     String subject = "Purchasing Request for iScan Chips";
 
-    String contactEmailCoreFacility = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(po.getIdCoreFacility(), PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
+    String contactEmailCoreFacility = ((CoreFacility)sess.load(CoreFacility.class, po.getIdCoreFacility())).getContactEmail();
     String contactEmailPurchasing  = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(po.getIdCoreFacility(), PropertyDictionary.CONTACT_EMAIL_PURCHASING);
     String contactEmailLabBilling = lab.getBillingContactEmail() != null ? lab.getBillingContactEmail() : "";
     String contactEmailLabPI = lab.getContactEmail() != null ? lab.getContactEmail() : "";

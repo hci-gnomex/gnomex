@@ -216,7 +216,7 @@ public class SaveWorkItemSolexaQualityControl extends GNomExCommand implements S
     introNote.append("<br>To fetch the quality control reports, click <a href=\"" + downloadRequestURL + "\">" + Constants.APP_NAME + " - " + Constants.WINDOW_NAME_FETCH_RESULTS + "</a>.");      
     
     String emailRecipients = request.getAppUser().getEmail();
-    String fromAddress = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
+    String fromAddress = cf.getContactEmail();
     if(!MailUtil.isValidEmail(emailRecipients)){
       log.error("Invalid email address: " + emailRecipients);
     }

@@ -9,10 +9,7 @@ import java.io.Serializable;
 
 public class PropertyDictionary extends DictionaryEntry implements Serializable {
 
-  public static final String        CONTACT_EMAIL_CORE_FACILITY         = "contact_email_core_facility";
   public static final String        CONTACT_EMAIL_BIOINFORMATICS        = "contact_email_bioinformatics";
-  public static final String        CONTACT_NAME_CORE_FACILITY          = "contact_name_core_facility";
-  public static final String        CONTACT_PHONE_CORE_FACILITY         = "contact_phone_core_facility";
   public static final String        CONTACT_EMAIL_SOFTWARE_TESTER       = "contact_email_software_tester";
   public static final String        CONTACT_EMAIL_SOFTWARE_BUGS         = "contact_email_software_bugs";
   public static final String        CONTACT_EMAIL_CORE_FACILITY_WORKAUTH = "contact_email_core_facility_workauth";

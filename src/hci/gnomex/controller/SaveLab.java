@@ -732,7 +732,7 @@ public class SaveLab extends GNomExCommand implements Serializable {
       body.append("Effective until:   " + billingAccount.getExpirationDateOther() + "\n");
     }
 
-    String from = dictionaryHelper.getCoreFacilityProperty(facility.getIdCoreFacility(), PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
+    String from = facility.getContactEmail();
     if(!MailUtil.isValidEmail(from)){
         from = DictionaryHelper.getInstance(sess).getPropertyDictionary(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
     }

@@ -204,7 +204,7 @@ public class SubmitWorkAuthForm extends GNomExCommand implements Serializable {
 
     String facilityEmail = propertyDictionaryHelper.getCoreFacilityProperty(facility.getIdCoreFacility(), PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY_WORKAUTH);
     if (facilityEmail == null || facilityEmail.equals("")) {
-      facilityEmail = propertyDictionaryHelper.getCoreFacilityProperty(facility.getIdCoreFacility(), PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
+      facilityEmail = facility.getContactEmail();
     }
 
     submitterNote.append("The following billing account " +
@@ -233,7 +233,7 @@ public class SubmitWorkAuthForm extends GNomExCommand implements Serializable {
     body.append("<tr><td>Submitter Email:</td><td>" + billingAccount.getSubmitterEmail() + "</td></tr>");
     body.append("</table>");
 
-    String replyEmail = propertyDictionaryHelper.getCoreFacilityProperty(facility.getIdCoreFacility(), PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
+    String replyEmail = facility.getContactEmail();
 
     if(!MailUtil.isValidEmail(replyEmail)){
         replyEmail = DictionaryHelper.getInstance(sess).getPropertyDictionary(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);

@@ -229,13 +229,13 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
         if (requestedLab == null || requestedLab.getCoreFacilities().size() != 1) {
           coreFacilityEmail = propertyHelper.getProperty(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
         } else {
-          coreFacilityEmail = propertyHelper.getCoreFacilityProperty(((CoreFacility)requestedLab.getCoreFacilities().toArray()[0]).getIdCoreFacility(), PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
+          coreFacilityEmail = ((CoreFacility)requestedLab.getCoreFacilities().toArray()[0]).getContactEmail();
         }
       } else {
         if( existingLab && !requestedLab.getCoreFacilities().contains( facility ) ) {
           requestedLab.getCoreFacilities().add( facility );
         }
-        coreFacilityEmail = propertyHelper.getCoreFacilityProperty(facility.getIdCoreFacility(),PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
+        coreFacilityEmail = facility.getContactEmail();
       }
 
       if (this.isValid()) {

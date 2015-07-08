@@ -60,8 +60,8 @@ public class BillingInvoiceEmailFormatter extends DetailObject{
     this.requestMap     = requestMap;
     this.relatedBillingItemMap = relatedBillingItemMap;
     this.coreFacilityName = coreFacility.getFacilityName();
-    this.coreFacilityContactName = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(coreFacility.getIdCoreFacility(), PropertyDictionary.CONTACT_NAME_CORE_FACILITY);
-    this.coreFacilityContactPhone = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(coreFacility.getIdCoreFacility(), PropertyDictionary.CONTACT_PHONE_CORE_FACILITY);
+    this.coreFacilityContactName = coreFacility.getContactName();
+    this.coreFacilityContactPhone = coreFacility.getContactPhone();
     this.invoiceNote1 = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(coreFacility.getIdCoreFacility(), PropertyDictionary.INVOICE_NOTE_1);
     this.invoiceNote2 = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(coreFacility.getIdCoreFacility(), PropertyDictionary.INVOICE_NOTE_2);
 

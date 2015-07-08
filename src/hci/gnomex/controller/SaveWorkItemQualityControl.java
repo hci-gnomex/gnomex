@@ -234,7 +234,7 @@ public class SaveWorkItemQualityControl extends GNomExCommand implements Seriali
     } 
 
     String emailRecipients = request.getAppUser().getEmail();
-    String fromAddress = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
+    String fromAddress = cf.getContactEmail();
 
     RequestEmailBodyFormatter emailFormatter = new RequestEmailBodyFormatter(sess, this.getSecAdvisor(), appURL, dictionaryHelper, request, null, request.getSamples(), request.getHybridizations(), request.getSequenceLanes(),  introNote.toString());
     
