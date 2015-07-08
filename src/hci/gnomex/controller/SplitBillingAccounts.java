@@ -23,6 +23,7 @@ import java.io.Serializable;
 import java.io.StringReader;
 import java.math.BigDecimal;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
@@ -158,6 +159,8 @@ public class SplitBillingAccounts extends GNomExCommand implements Serializable 
             // If we didn't find any billing items for this account, clone the billing
             // items and assign to the billing account.
             if (!found) {
+              HashSet<String> alreadyClonedTags = new HashSet<String>();
+              
               for(Iterator i1 = parser.getRequest().getBillingItems().iterator(); i1.hasNext();) {
                 BillingItem bi = (BillingItem)i1.next();
 
@@ -169,6 +172,23 @@ public class SplitBillingAccounts extends GNomExCommand implements Serializable 
                 BillingItem billingItem = new BillingItem();
                 billingItem.setIdBillingAccount(ba.getIdBillingAccount());
                 billingItem.setIdLab(ba.getIdLab());
+                
+                // Only clone non-duplicate billing items
+                if (bi.getTag() != null) {
+                	if (alreadyClonedTags.contains(bi.getTag())) {
+                		continue;
+                	}
+                	
+                	billingItem.setTag(bi.getTag());
+                	alreadyClonedTags.add(bi.getTag());
+                } else {
+                	String newTag = getUniqueBillingItemTag(alreadyClonedTags);
+                	bi.setTag(newTag);
+                	billingItem.setTag(newTag);
+                	alreadyClonedTags.add(newTag);
+                	
+                	sess.save(bi);
+                }
 
                 billingItem.setCodeBillingChargeKind(bi.getCodeBillingChargeKind());
                 billingItem.setIdBillingPeriod(bi.getIdBillingPeriod());
@@ -271,6 +291,30 @@ public class SplitBillingAccounts extends GNomExCommand implements Serializable 
     }
 
     return this;
+  }
+  
+  private String getUniqueBillingItemTag(HashSet<String> alreadyClonedTags) {
+	  String candidate = null;
+	  candidateLoop : for (int count = 1; count <= 999999999; count++) {
+		  candidate = "" + count;
+		  
+		  for (Iterator allBiIter = parser.getRequest().getBillingItems().iterator(); allBiIter.hasNext();) {
+			  BillingItem bi = (BillingItem) allBiIter.next();
+			  if (bi.getTag() != null) {
+				  if (candidate.equalsIgnoreCase(bi.getTag())) {
+					  continue candidateLoop;
+				  }
+			  }
+		  }
+		  
+		  if (alreadyClonedTags.contains(candidate)) {
+			  continue candidateLoop;
+		  }
+		  
+		  break;
+	  }
+	  
+	  return candidate;
   }
 
   private void sendInvoiceEmail(Session sess, String contactEmail, CoreFacility coreFacility,
