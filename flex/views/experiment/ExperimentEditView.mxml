@@ -443,6 +443,10 @@
 					this.theTab.selectedChild = defaultTab;
 					defaultTab = null;
 				}
+				
+				if (this.isAmendState()) {
+					refreshAmendSetup();
+				}
 			}
 			
 			private function enableTabs(enable:Boolean):void {
@@ -914,6 +918,7 @@
 				
 				if (this.isAmendState()) {
 					theTab.selectedChild = amendSetupView;
+					hideProductsTab();
 				} else {
 					setupView.enabled = true;
 					theTab.selectedChild = setupView;
@@ -4882,16 +4887,16 @@
 				var requestCategory:Object = getRequestCategory();
 				requestCategoryName = requestCategory.@display.toString();
 				
+				var prevSelectedTab:Container = theTab.selectedChild;
+				
 				this.instantiateTabs(requestCategory.@codeRequestCategory, false, true);
+				
+				theTab.selectedChild = prevSelectedTab;
 				
 				samplesView.currentState = '';
 				var application:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Application',request.@codeApplication);
 				applicationName = application.@display.toString();
 				codeApplication = application.@codeApplication;
-				
-				var prevSelectedTab:Container = theTab.selectedChild;
-				
-				hideProductsTab();
 				
 				if (!this.isCapSeqState() && !this.isFragAnalState() && !this.isMitSeqState() && !this.isCherryPickState()) {
 					this.annotationView.checkSecurity();		
@@ -5589,7 +5594,7 @@
 			}
 			
 			private function hideProductsTab():void {
-				if (theTab.contains(productsView)) {
+				if (theTab.contains(productsView) && productsView != null) {
 					productsView.reset();
 					productsView.allowEdits(false);
 					productsView.enabled = true;
@@ -5632,7 +5637,37 @@
 					}
 					
 				}
-			} 
+			}
+			
+			public function refreshAmendSetup():void {
+				theTab.selectedChild = amendSetupView;
+				
+				if (labCombo != null) {
+					labCombo.selectedIndex = -1;
+					labCombo.selectedItem = null;
+					lab = null;
+				}
+				
+				if (appUserCombo != null) {
+					appUserCombo.selectedIndex = -1;
+					appUserCombo.selectedItem = null;
+				}
+				
+				if (radioGroupAmendType != null && radioGroupAmendType.selection != null) {
+					radioGroupAmendType.selectedValue = null;
+					radioGroupAmendType.selection.selected = false;
+					radioGroupAmendType.selection = null;
+					highlightAmendRequestCategory();
+				}
+				
+				if (browseTree != null) {
+					browseTree.visible = false;
+					browseTree.selectedIndex = -1;
+					browseTree.selectedItem = null;
+				}
+				
+				checkAmendSetupCompleteness();
+			}
 			
 		]]>
 	</mx:Script>
@@ -6116,7 +6151,6 @@
 			<mx:RemoveChild target="{seqSetupView}"/>
 			<mx:RemoveChild target="{seqSetup1View}"/>
 			<mx:RemoveChild target="{bioinformaticsView}"/>
-			<mx:SetStyle target="{hbox3}" name="paddingLeft" value="60"/>
 		</mx:State>
 		<mx:State name="QCState">
 			<mx:RemoveChild target="{hybSetupView}"/>
