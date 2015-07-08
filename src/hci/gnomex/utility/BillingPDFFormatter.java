@@ -593,7 +593,7 @@ public class BillingPDFFormatter extends DetailObject {
 			BigDecimal totalPriceForRequest = new BigDecimal(0);
 			for (Iterator biIter = billingItems.iterator(); biIter.hasNext();) {
 				BillingItem bi = (BillingItem) biIter.next();
-				if (!bi.getPercentageDisplay().equals("100%")) {
+				if (!bi.getPercentageDisplay().equals("100.0%")) {
 					return true;
 				}
 			}

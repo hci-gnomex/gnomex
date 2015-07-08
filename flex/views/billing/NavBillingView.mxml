@@ -1273,7 +1273,7 @@
 							" idBillingAccount='" + dropRequestNode.@idBillingAccount + "'" +
 							" idLab='" + dropRequestNode.@idLab + "'" +
 							" percentagePrice='1'" +
-							" percentageDisplay='100%'" +
+							" percentageDisplay='100.0%'" +
 							" splitType='%'" +
 							" notes=''" +
 							" qty=''" + 
@@ -1982,7 +1982,7 @@
 						var biPercent:String = billingItem.@percentageDisplay;
 						var biInvoicePrice:String = billingItem.@invoicePrice;
 						var biTotalPrice:String = billingItem.@totalPrice;
-						var p:int = int(biPercent.replace("%",""));
+						var p:Number = Number(biPercent.replace("%",""));
 						var ip:Number = Number(biInvoicePrice.replace("$","").replace(",",""));
 						var tp:Number = Number(biTotalPrice.replace("$","").replace(",",""));
 						splitType = billingItem.@splitType;

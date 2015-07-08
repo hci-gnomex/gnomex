@@ -48,12 +48,12 @@ public class BillingAccountSplitParser extends DetailObject implements Serializa
         String invoicePriceString = baNode.getAttributeValue("invoicePrice");
         invoicePriceString = invoicePriceString.replaceAll("\\$", "").replaceAll(",", "");
         
-        Integer percentage = new Integer(percentageString);
+        Double percentage = new Double(percentageString);
         BillingAccount billingAccount = null;
         billingAccount = (BillingAccount)sess.load(BillingAccount.class, new Integer(idBillingAccountString));
         
         billingAccounts.add(billingAccount);
-        BigDecimal percentPrice = new BigDecimal(percentage.intValue()).movePointLeft(2);
+        BigDecimal percentPrice = new BigDecimal(percentage).movePointLeft(2);
         percentageMap.put(new Integer(idBillingAccountString), percentPrice);
         
         BigDecimal invoicePrice = new BigDecimal(invoicePriceString);
