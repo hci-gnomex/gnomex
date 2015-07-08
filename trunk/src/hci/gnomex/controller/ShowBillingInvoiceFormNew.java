@@ -223,8 +223,8 @@ public class ShowBillingInvoiceFormNew extends ReportCommand implements Serializ
 		    				billingAccounts, 
 		    				PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.CONTACT_ADDRESS_CORE_FACILITY),
 		    				PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.CONTACT_REMIT_ADDRESS_CORE_FACILITY),
-		    				PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.CONTACT_NAME_CORE_FACILITY),
-		    				PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.CONTACT_PHONE_CORE_FACILITY),
+		    				coreFacility.getContactName(),
+		    				coreFacility.getContactPhone(),
 		    				billingItemMap,
 		    				relatedBillingItemMap,
 		    				requestMap);
@@ -288,8 +288,8 @@ public class ShowBillingInvoiceFormNew extends ReportCommand implements Serializ
 				billingAccounts, 
 				PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(coreFacility.getIdCoreFacility(), PropertyDictionary.CONTACT_ADDRESS_CORE_FACILITY),
 				PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(coreFacility.getIdCoreFacility(), PropertyDictionary.CONTACT_REMIT_ADDRESS_CORE_FACILITY),
-				PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(coreFacility.getIdCoreFacility(), PropertyDictionary.CONTACT_NAME_CORE_FACILITY),
-				PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(coreFacility.getIdCoreFacility(), PropertyDictionary.CONTACT_PHONE_CORE_FACILITY),
+				coreFacility.getContactName(),
+				coreFacility.getContactPhone(),
 				billingItemMap,
 				relatedBillingItemMap,
 				requestMap);

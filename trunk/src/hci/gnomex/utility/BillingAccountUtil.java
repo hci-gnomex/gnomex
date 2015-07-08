@@ -74,7 +74,7 @@ public class BillingAccountUtil {
 	    body.append("<tr><td>Approved Date:</td><td>" + billingAccount.getApprovedDate() + "</td></tr>");
 	    body.append("</table>");
 
-	    String from = dictionaryHelper.getCoreFacilityProperty(facility.getIdCoreFacility(), PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
+	    String from = facility.getContactEmail();
 	    
 	    DictionaryHelper dh = DictionaryHelper.getInstance(sess);
 
@@ -99,7 +99,7 @@ public class BillingAccountUtil {
 	    	}
 	    	String facilityEmail = dictionaryHelper.getCoreFacilityProperty(facility.getIdCoreFacility(), PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY_WORKAUTH);
 	    	if (facilityEmail == null || facilityEmail.equals("")) {
-	    		  facilityEmail = dictionaryHelper.getCoreFacilityProperty(facility.getIdCoreFacility(), PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
+	    		  facilityEmail = facility.getContactEmail();
 	    	}
 	    	contactEmail += ", " + facilityEmail;
 	    	

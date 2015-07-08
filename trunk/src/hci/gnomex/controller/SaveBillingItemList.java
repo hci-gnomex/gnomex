@@ -311,7 +311,7 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
         emailRecipients = lab.getContactEmail();
       }
     } else {
-      emailRecipients = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
+      emailRecipients = coreFacility.getContactEmail();
       notifyCoreFacilityOfEmptyBillingEmail = true;
       //emailInfo += "Please note that we could not send the following invoice to the lab specified because the lab has no email address on file.  Please update the lab's information.<br><br>";
       missingBillingEmailNote = "Please note that the invoice for the account " + billingAccount.getAccountNameDisplay() + 
@@ -322,7 +322,7 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
     }
 
     String ccList = emailFormatter.getCCList(sess);
-    String fromAddress = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
+    String fromAddress = coreFacility.getContactEmail();
     if(emailRecipients.contains(",")){
       for(String e : emailRecipients.split(",")){
         if(!MailUtil.isValidEmail(e.trim())){

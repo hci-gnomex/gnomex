@@ -338,7 +338,7 @@ public class SplitBillingAccounts extends GNomExCommand implements Serializable 
     String note = "";
     String emailRecipients = contactEmail;
     String ccList = emailFormatter.getCCList(sess);
-    String fromAddress = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(coreFacility.getIdCoreFacility(), PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
+    String fromAddress = coreFacility.getContactEmail();
     if(!MailUtil.isValidEmail(emailRecipients)){
       log.error("Invalid email " + emailRecipients);
     }

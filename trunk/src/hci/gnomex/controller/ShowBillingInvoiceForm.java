@@ -464,8 +464,8 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
     CoreFacility cf = (CoreFacility)sess.load(CoreFacility.class, idCoreFacility);
     BillingInvoiceHTMLFormatter formatter = new BillingInvoiceHTMLFormatter(
         cf.getFacilityName(),
-        PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.CONTACT_NAME_CORE_FACILITY),
-        PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.CONTACT_PHONE_CORE_FACILITY),
+        cf.getContactName(),
+        cf.getContactPhone(),
         PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.INVOICE_NOTE_1),
         PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.INVOICE_NOTE_2),
         billingPeriod, 
@@ -646,8 +646,8 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
 
       BillingInvoiceHTMLFormatter formatter = new BillingInvoiceHTMLFormatter(
           cf.getFacilityName(),
-          PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.CONTACT_NAME_CORE_FACILITY),
-          PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.CONTACT_PHONE_CORE_FACILITY),
+          cf.getContactName(),
+          cf.getContactPhone(),
           PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.INVOICE_NOTE_1),
           PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.INVOICE_NOTE_2),
           billingPeriod, 
@@ -760,7 +760,7 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
     boolean send = false;
     String emailRecipients = contactEmail;
     String ccList = emailFormatter.getCCList(sess);
-    String fromAddress = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
+    String fromAddress = coreFacility.getContactEmail();
     if(!MailUtil.isValidEmail(emailRecipients)){
       log.error("Invalid email address " + emailRecipients);
     }

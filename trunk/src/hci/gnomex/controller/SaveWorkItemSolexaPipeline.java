@@ -415,7 +415,7 @@ public class SaveWorkItemSolexaPipeline extends GNomExCommand implements Seriali
     String subject = dictionaryHelper.getRequestCategory(request.getCodeRequestCategory()) + " Request " + request.getNumber() + " completed";
     
     String emailRecipients = request.getAppUser().getEmail();
-    String fromAddress = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(request.getIdCoreFacility(), PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
+    String fromAddress = cf.getContactEmail();
     
     if(!MailUtil.isValidEmail(emailRecipients)){
       log.error("Invalid email: " + emailRecipients + " for submitter " + request.getAppUser().getFirstLastDisplayName());

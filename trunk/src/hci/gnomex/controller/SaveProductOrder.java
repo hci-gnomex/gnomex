@@ -342,7 +342,7 @@ public class SaveProductOrder extends GNomExCommand implements Serializable {
 
     String subject = "Request for Quote Number for iScan Chips";
 
-    String contactEmailCoreFacility = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
+    String contactEmailCoreFacility = cf.getContactEmail();
     String contactEmailIlluminaRep  = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.CONTACT_EMAIL_ILLUMINA_REP);
 
     String senderEmail = contactEmailCoreFacility;

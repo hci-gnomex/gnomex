@@ -286,7 +286,7 @@ public class ChangeRequestStatus extends GNomExCommand implements Serializable {
     req.getNumber() + (req.getIsExternal().equals("Y") ? " registered" : " submitted");
 
 
-    String contactEmailCoreFacility = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(req.getIdCoreFacility(), PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
+    String contactEmailCoreFacility = cf.getContactEmail();
     String contactEmailSoftwareBugs = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(req.getIdCoreFacility(), PropertyDictionary.CONTACT_EMAIL_SOFTWARE_BUGS);
     String emailRecipients = "";
     if (req.getAppUser() != null && req.getAppUser().getEmail() != null) {

@@ -258,7 +258,7 @@ public class SaveAppUser extends GNomExCommand implements Serializable {
                 if (idCoreFacility == null) {
                   coreFacilityContactEmail = pdh.getProperty(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
                 } else {
-                  coreFacilityContactEmail = pdh.getCoreFacilityProperty(idCoreFacility, PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
+                  coreFacilityContactEmail = ((CoreFacility)sess.load(CoreFacility.class, idCoreFacility)).getContactEmail();
                 }
                 if(appUser.getEmail() != null){
                   sendAccountActivatedEmail(appUser, coreFacilityContactEmail, sess);

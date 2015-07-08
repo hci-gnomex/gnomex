@@ -39,7 +39,7 @@ public class EmailHelper {
       throw new MessagingException("Invalid email address: " + emailRecipients);
     }
     
-    String contactEmailCoreFacility = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(request.getIdCoreFacility(), PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
+    String contactEmailCoreFacility = cf.getContactEmail();
 
     if(!MailUtil.isValidEmail(contactEmailCoreFacility)){
         contactEmailCoreFacility = DictionaryHelper.getInstance(sess).getPropertyDictionary(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
@@ -82,7 +82,7 @@ public class EmailHelper {
       throw new MessagingException("Invalid email address: " + emailRecipients);
     }
     
-    String contactEmailCoreFacility = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(request.getIdCoreFacility(), PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY);
+    String contactEmailCoreFacility = cf.getContactEmail();
     
     if(!MailUtil.isValidEmail(contactEmailCoreFacility)){
         contactEmailCoreFacility = DictionaryHelper.getInstance(sess).getPropertyDictionary(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
