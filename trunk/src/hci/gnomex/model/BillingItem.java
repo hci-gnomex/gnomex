@@ -41,6 +41,7 @@ public class BillingItem extends HibernateDetailObject {
   private Invoice        invoice;
   private Integer        idDiskUsageByMonth;
   private Integer        idProductLineItem;
+  private String		 tag;
 
 
   public Integer getIdBillingItem() {
@@ -360,6 +361,14 @@ public class BillingItem extends HibernateDetailObject {
 
   public void setIdProductLineItem(Integer idProductLineItem) {
     this.idProductLineItem = idProductLineItem;
+  }
+  
+  public String getTag() {
+	return tag;
+  }
+  
+  public void setTag(String tag) {
+	this.tag = tag;
   }
 
   private Invoice getInvoiceForBillingItem(Session sess) {

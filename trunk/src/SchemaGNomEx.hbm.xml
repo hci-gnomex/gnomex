@@ -345,6 +345,7 @@
     	<many-to-one name="invoice" column="idInvoice" class="hci.gnomex.model.Invoice" cascade="none" insert="false" update="false" />
     	<property name="idDiskUsageByMonth" column="idDiskUsageByMonth" type="integer" />
     	<property name="idProductLineItem" column="idProductLineItem" type="integer" />
+    	<property name="tag" column="tag" type="string" />
   </class>	
   
 

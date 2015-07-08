@@ -472,6 +472,7 @@ CREATE TABLE `gnomex`.`BillingItem` (
   `idInvoice` INT(10) NULL,
   `idDiskUsageByMonth` INT(10) NULL,
   `idProductLineItem` INT(10) NULL,
+  `tag` VARCHAR(10) NULL,
   PRIMARY KEY (`idBillingItem`),
   CONSTRAINT `FK_BillingItem_PriceCategory` FOREIGN KEY  (`idPriceCategory`)
     REFERENCES `gnomex`.`PriceCategory` (`idPriceCategory`)
