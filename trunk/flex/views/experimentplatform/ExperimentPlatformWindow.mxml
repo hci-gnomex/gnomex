@@ -252,7 +252,7 @@
 					codeRequestCategorySelected = platformList.selectedItem.@codeRequestCategory;
 					
 					state = new ExperimentPlatformState(platformList.selectedItem, dirty, dictionaryManager);
-					if (state.isIllumina || state.isNanoString) {
+					if (state.isIllumina || state.isNanoString || state.isSequenom) {
 						tabStack.selectedIndex = 1;
 						experimentPlatformIllumina.init(state);
 						sampleTypeIllumina.init(state);
