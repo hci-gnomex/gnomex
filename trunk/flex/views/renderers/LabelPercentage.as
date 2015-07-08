@@ -14,7 +14,7 @@ package views.renderers
           
           if (data.@other == 'Y') {
           	styleName = "other";
-          } else if (data.@percentageDisplay != "" && data.@percentageDisplay != "100%") {
+          } else if (data.@percentageDisplay != "" && data.@percentageDisplay != "100.0%") {
           	styleName = "percentageEmphasis";
           } else {
           	styleName = "normal";

@@ -463,7 +463,7 @@ CREATE TABLE `gnomex`.`BillingItem` (
   `idPrice` INT(10) NULL,
   `idRequest` INT(10) NULL,
   `idBillingAccount` INT(10) NOT NULL,
-  `percentagePrice` DECIMAL(3, 2) NOT NULL,
+  `percentagePrice` DECIMAL(4, 3) NOT NULL,
   `notes` VARCHAR(500) NULL,
   `idLab` INT(10) NOT NULL,
   `completeDate` DATETIME NULL,

@@ -261,7 +261,7 @@ public class BillingInvoiceHTMLFormatter  extends DetailObject {
       BigDecimal totalPriceForRequest = new BigDecimal(0);
       for(Iterator i1 = billingItems.iterator(); i1.hasNext();) {
         BillingItem bi = (BillingItem)i1.next();
-        if (!bi.getPercentageDisplay().equals("100%")) {
+        if (!bi.getPercentageDisplay().equals("100.0%")) {
           showPercentCol = true;
           break;
         }

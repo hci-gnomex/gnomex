@@ -3,6 +3,8 @@ package hci.gnomex.model;
 import hci.hibernate3utils.HibernateDetailObject;
 
 import java.math.BigDecimal;
+import java.math.MathContext;
+import java.math.RoundingMode;
 import java.sql.Date;
 
 import org.hibernate.Query;
@@ -275,9 +277,9 @@ public class BillingItem extends HibernateDetailObject {
 
   public String getPercentageDisplay() {
     if (percentagePrice != null) {
-      return new Integer(percentagePrice.multiply(new BigDecimal(100)).intValue()).toString() + "%"; 
+      return percentagePrice.multiply(new BigDecimal(100)).setScale(1, RoundingMode.HALF_UP).toString() + "%";
     } else {
-      return "100%";
+      return "100.0%";
     }
   }
 

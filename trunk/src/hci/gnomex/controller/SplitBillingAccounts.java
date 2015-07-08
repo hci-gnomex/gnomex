@@ -339,7 +339,6 @@ public class SplitBillingAccounts extends GNomExCommand implements Serializable 
 
   private BigDecimal getComputedInvoicePrice(BillingItem bi, BigDecimal percentage, BigDecimal invoicePrice, BigDecimal totalPrice) {
     BigDecimal newInvoicePrice = bi.getInvoicePrice();
-    Integer intPercent = percentage.intValue();
     if (splitType.equals(Constants.BILLING_SPLIT_TYPE_PERCENT_CODE)) {
       newInvoicePrice = bi.getUnitPrice().multiply(percentage.multiply(new BigDecimal(bi.getQty().intValue())));
     } else if (!invoicePrice.equals(totalPrice)) {
