@@ -79,11 +79,9 @@ public class SaveWorkItemHyb extends GNomExCommand implements Serializable {
             Hybridization hyb = (Hybridization) parser.getHyb(workItem.getIdWorkItem());
             
             // No further processing required for On Hold or In Progress work items
-            if (workItem.getStatus() != null && workItem.getStatus().equals(Constants.STATUS_ON_HOLD)) {
+            if (workItem.getStatus() == null || workItem.getStatus().equals(Constants.STATUS_ON_HOLD) || workItem.getStatus().equals(Constants.STATUS_IN_PROGRESS)) {
               continue;
-            } else if (workItem.getStatus() != null && workItem.getStatus().equals(Constants.STATUS_IN_PROGRESS)) {
-              continue;
-            }
+            } 
 
             // If hyb is done (or bypassed), create work items for extraction.
             if (hyb.getHybDate() != null ||

@@ -122,11 +122,9 @@ public class SaveWorkItemSolexaPrep extends GNomExCommand implements Serializabl
             }
             
             // No further processing required for On Hold or In Progress work items
-            if (workItem.getStatus() != null && workItem.getStatus().equals(Constants.STATUS_ON_HOLD)) {
+            if (workItem.getStatus() == null || workItem.getStatus().equals(Constants.STATUS_ON_HOLD) || workItem.getStatus().equals(Constants.STATUS_IN_PROGRESS)) {
               continue;
-            } else if (workItem.getStatus() != null && workItem.getStatus().equals(Constants.STATUS_IN_PROGRESS)) {
-              continue;
-            }
+            } 
             
             // If Solexa sample prep is done or bypassed for this sample, create work items for Solexa stock prep
             // for the sample

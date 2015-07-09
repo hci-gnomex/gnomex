@@ -77,11 +77,9 @@ public class SaveWorkItemLabeling extends GNomExCommand implements Serializable 
             LabeledSample labeledSample = (LabeledSample)parser.getLabeledSample(workItem.getIdWorkItem());
             
             // No further processing required for On Hold or In Progress work items
-            if (workItem.getStatus() != null && workItem.getStatus().equals(Constants.STATUS_ON_HOLD)) {
+            if (workItem.getStatus() == null || workItem.getStatus().equals(Constants.STATUS_ON_HOLD) || workItem.getStatus().equals(Constants.STATUS_IN_PROGRESS)) {
               continue;
-            } else if (workItem.getStatus() != null && workItem.getStatus().equals(Constants.STATUS_IN_PROGRESS)) {
-              continue;
-            }
+            } 
             
             // If labeling is done (or bypassed) for this labeled sample, create work items for HYB.
             if (labeledSample.getLabelingDate() != null || 
