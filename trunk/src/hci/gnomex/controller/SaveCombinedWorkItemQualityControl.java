@@ -303,11 +303,7 @@ public class SaveCombinedWorkItemQualityControl extends GNomExCommand implements
               break;
             }
           }
-//          if (allTerminated || auto.getRequest().getCodeRequestStatus().equals(RequestStatus.COMPLETED)) {
-            SaveRequest.createBillingItems(sess, auto.getRequest(), null, billingPeriod, dictionaryHelper, sampleSet, null, null, null, null, auto.getCodeStep(), BillingStatus.COMPLETED);
-//          } else {
-//            SaveRequest.createBillingItems(sess, auto.getRequest(), null, billingPeriod, dictionaryHelper, sampleSet, null, null, null, null, auto.getCodeStep(), BillingStatus.PENDING);
-//          }
+          SaveRequest.createBillingItems(sess, auto.getRequest(), null, billingPeriod, dictionaryHelper, sampleSet, null, null, null, null, auto.getCodeStep(), BillingStatus.COMPLETED);
         }
       }
     }
