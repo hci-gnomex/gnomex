@@ -117,12 +117,9 @@ public class SaveCombinedWorkItemQualityControl extends GNomExCommand implements
             boolean isStepQualityControl = (workItem.getCodeStepNext().compareTo(Step.QUALITY_CONTROL_STEP)==0);
 
             // No further processing required for On Hold or In Progress work items
-            if (workItem.getStatus() != null && workItem.getStatus().equals(Constants.STATUS_ON_HOLD)) {
+            if (workItem.getStatus() == null || workItem.getStatus().equals(Constants.STATUS_ON_HOLD) || workItem.getStatus().equals(Constants.STATUS_IN_PROGRESS)) {
               continue;
-            } else if (workItem.getStatus() != null && workItem.getStatus().equals(Constants.STATUS_IN_PROGRESS)) {
-              continue;
-            }
-
+            } 
 
             // If QC is done or bypassed for this sample, create work items for LABELING.
             if ((sample.getQualDate() != null || 
@@ -306,11 +303,11 @@ public class SaveCombinedWorkItemQualityControl extends GNomExCommand implements
               break;
             }
           }
-          if (allTerminated || auto.getRequest().getCodeRequestStatus().equals(RequestStatus.COMPLETED)) {
+//          if (allTerminated || auto.getRequest().getCodeRequestStatus().equals(RequestStatus.COMPLETED)) {
             SaveRequest.createBillingItems(sess, auto.getRequest(), null, billingPeriod, dictionaryHelper, sampleSet, null, null, null, null, auto.getCodeStep(), BillingStatus.COMPLETED);
-          } else {
-            SaveRequest.createBillingItems(sess, auto.getRequest(), null, billingPeriod, dictionaryHelper, sampleSet, null, null, null, null, auto.getCodeStep(), BillingStatus.PENDING);
-          }
+//          } else {
+//            SaveRequest.createBillingItems(sess, auto.getRequest(), null, billingPeriod, dictionaryHelper, sampleSet, null, null, null, null, auto.getCodeStep(), BillingStatus.PENDING);
+//          }
         }
       }
     }

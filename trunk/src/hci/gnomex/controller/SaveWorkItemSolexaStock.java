@@ -94,11 +94,9 @@ public class SaveWorkItemSolexaStock extends GNomExCommand implements Serializab
             Sample sample = (Sample)parser.getSample(workItem.getIdWorkItem());
             
             // No further processing required for On Hold or In Progress work items
-            if (workItem.getStatus() != null && workItem.getStatus().equals(Constants.STATUS_ON_HOLD)) {
+            if (workItem.getStatus() == null || workItem.getStatus().equals(Constants.STATUS_ON_HOLD) || workItem.getStatus().equals(Constants.STATUS_IN_PROGRESS)) {
               continue;
-            } else if (workItem.getStatus() != null && workItem.getStatus().equals(Constants.STATUS_IN_PROGRESS)) {
-              continue;
-            }
+            } 
             
             // If Solexa sample stock prep is done or bypassed for this sample, create work items for each sequence lane of
             // sample for work item (Solexa assemble flow cell).
