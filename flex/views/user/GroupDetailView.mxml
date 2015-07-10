@@ -1792,7 +1792,7 @@
 									<mx:DataGridColumn headerText="Short acct"  dataField="@shortAcct" visible="false" width="0" id="shortAcctCol"/>
 	
 									<mx:DataGridColumn headerText="Users"   id="acctUsers"  width="150"
-													   itemRenderer="{views.renderers.MultiselectRendererCommon.create('Users', activeSubmitters.source)}" 
+													   itemRenderer="{views.billing.MultiselectRendererBillingUsers.create('Users', activeSubmitters.source, coreFacilityCombo.selectedItem, activeSubmitters)}" 
 													   dataField="@acctUsers"/>
 
 									<mx:DataGridColumn headerText="$ Billed"    textAlign="right" editable="false" 
@@ -1883,7 +1883,7 @@
 											</mx:itemRenderer>
 										</mx:DataGridColumn>
 										<mx:DataGridColumn headerText="Users"   id="poAcctUsers"  width="70"
-														   itemRenderer="{views.renderers.MultiselectRendererCommon.create('Users', activeSubmitters.source)}" 
+														   itemRenderer="{views.billing.MultiselectRendererBillingUsers.create('Users', activeSubmitters.source, coreFacilityCombo.selectedItem, activeSubmitters)}" 
 														   dataField="@acctUsers"/>
 										<mx:DataGridColumn headerText="$ Billed" textAlign="right" editable="false" dataField="@totalChargesToDateDisplay" width="70"/>
 										<mx:DataGridColumn headerText=""  width="70" editable="false"> 
@@ -1939,7 +1939,7 @@
 														   itemEditor="{hci.flex.controls.ComboBox.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.CreditCardCompany').DictionaryEntry, '@display', '@value', '@idCreditCardCompany', true)}"/>			                
 										<mx:DataGridColumn headerText="Zip" width="40" editable="true" dataField="@zipCode"/>
 										<mx:DataGridColumn headerText="Users"   id="ccAcctUsers"  width="80"
-														   itemRenderer="{views.renderers.MultiselectRendererCommon.create('Users', activeSubmitters.source)}" 
+														   itemRenderer="{views.billing.MultiselectRendererBillingUsers.create('Users', activeSubmitters.source, coreFacilityCombo.selectedItem, activeSubmitters)}" 
 														   dataField="@acctUsers"/>
 										<mx:DataGridColumn headerText="$ Billed"  textAlign="right" editable="false" dataField="@totalChargesToDateDisplay" width="70"/>
 										<mx:DataGridColumn headerText=""  width="70" editable="false"> 
