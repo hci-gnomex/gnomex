@@ -203,6 +203,8 @@
 			
 			private var window:MultiLabFilterWindow;
 			
+			private var forceReload:Boolean = false;
+			
 			public function checkDirty():void {
 			}
 			
@@ -359,6 +361,15 @@
 						}
 					}
 					
+				} else if (selectedIdAnalysis != null) {
+					for each (analysis in getAnalysisGroupList.lastResult..Analysis) {
+						if (analysis.@idAnalysis == selectedIdAnalysis) {
+							browseTree.selectedItem = analysis;
+							browseTree.selectedIndex = browseTree.getItemIndex(analysis);
+							browseTree.scrollToIndex(browseTree.selectedIndex);
+							break;
+						}
+					}
 				}
 				
 				// If actionscript sets selectedItem (rather than selectedIndex) on tree,
@@ -526,9 +537,11 @@
 			
 			
 			public function onBrowseTree(event:MouseEvent):void {
-				if(browseTree.selectedItems.length < 1 || browseTree.selectedItem.@idAnalysis == selectedIdAnalysis || (event != null && (event.ctrlKey || event.shiftKey))){
+				if(browseTree.selectedItems.length < 1 || (!forceReload && browseTree.selectedItem.@idAnalysis == selectedIdAnalysis) || (event != null && (event.ctrlKey || event.shiftKey))){
 					return;
 				}
+				
+				forceReload = false;
 				
 				setResultsCount();
 				
@@ -1275,7 +1288,7 @@
 									   color="#400040" click="{if (searchTextField.text != '' &amp;&amp; searchTextField.text != 'Search...') refreshAnalysis();}" 
 									   visible="true" icon="@Embed('../../assets/arrow_right.png')" disabledIcon="@Embed(source='../../assets/arrow_right_disabled.png')"/>
 						</mx:HBox>
-						<mx:LinkButton label="Refresh" icon="@Embed(source='../../assets/action_refresh.gif')" click="this.refreshAnalysis()" textDecoration="underline" id="refreshButtonID"/>
+						<mx:LinkButton label="Refresh" icon="@Embed(source='../../assets/action_refresh.gif')" click="forceReload = true; this.refreshAnalysis()" textDecoration="underline" id="refreshButtonID"/>
 					</mx:HBox>
 					<mx:HBox id="secondRowBox">
 						<mx:HBox id="userFilters">
