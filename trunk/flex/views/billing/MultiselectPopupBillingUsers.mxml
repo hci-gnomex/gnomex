@@ -332,14 +332,16 @@
 		<mx:VBox id="otherUsersView" width="100%" height="100%">
 			
 			<mx:HBox width="100%" horizontalAlign="left" verticalAlign="top">
-				<mx:Button label="Back" click="switchView(0)" icon="@Embed(source='../../assets/arrow_left.png')" />
+				<mx:LinkButton label="Back" click="switchView(0)" icon="@Embed(source='../../assets/arrow_left.png')" />
 			</mx:HBox>
 			
-			<mx:VBox width="100%" height="100%" horizontalAlign="center" verticalGap="20">
+			<mx:VBox width="100%" height="100%" horizontalAlign="center" verticalGap="10" backgroundColor="#FFFFFF" paddingTop="2" paddingBottom="2" >
+				<mx:Spacer height="5" />
 				<renderers:FilterComboBox id="labCombo" prompt="Select a Lab..." close="getMembersOfLab()" dataProvider="{filteredLabs}" labelField="@name" width="300" />
 				<renderers:FilterComboBox id="userCombo" prompt="Select a User..." dataProvider="{filteredUsers}" labelField="@displayName" width="300" />
 				<mx:Spacer height="100%" />
 				<mx:Button label="Add User" click="addUser()" enabled="{labCombo.selectedItem != null &amp;&amp; userCombo.selectedItem != null}" />
+				<mx:Spacer height="5" />
 			</mx:VBox>
 			
 		</mx:VBox>
