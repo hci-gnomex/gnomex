@@ -10,7 +10,7 @@
 		id="saveProduct" 
 		url="SaveProduct.gx"
 		resultFormat="e4x"
-		showBusyCursor="false"
+		showBusyCursor="true"
 		result="onSaveProduct(event)"
 		fault="parentApplication.onFailHttpRequest('Failed to save Product', event)"
 		method="POST" 
@@ -21,7 +21,7 @@
 		id="deleteProduct" 
 		url="DeleteProduct.gx"
 		resultFormat="e4x"
-		showBusyCursor="false"
+		showBusyCursor="true"
 		result="onDeleteProduct(event)"
 		fault="parentApplication.onFailHttpRequest('Failed to delete Product', event)"
 		method="POST" 
@@ -138,27 +138,38 @@
 		
 
 	private function addProduct():void {
-		var newProduct:XML = new XML("<Product " +
-			" idProduct=''" +
-			" name=''" +
-			" isActive='Y'" +
-			" codeProductType=''" + 
-			" idPrice=''" + 
-			" orderQty=''" + 
-			" useQty=''" + 
-			" catalogNumber=''" +
-			" />");
+		var newNodeNecessary:Boolean = true
+		if (products.length > 0) {
+			var potentiallyAlreadyEmptyNode:Object = products.getItemAt(0);
+			if (potentiallyAlreadyEmptyNode.@idProduct == '' && potentiallyAlreadyEmptyNode.@name == '') {
+				newNodeNecessary = false;
+			}
+		}
 		
-		products.addItemAt(newProduct, 0);
-				
-		productList.selectedItem = newProduct;
+		if (newNodeNecessary) {
+			var newProduct:XML = new XML("<Product " +
+				" idProduct=''" +
+				" name=''" +
+				" isActive='Y'" +
+				" codeProductType=''" + 
+				" idPrice=''" + 
+				" orderQty=''" + 
+				" useQty=''" + 
+				" catalogNumber=''" +
+				" />");
+			
+			products.addItemAt(newProduct, 0);
+			productList.selectedItem = newProduct;
+		} else {
+			productList.selectedIndex = 0;
+		}
+		
 		productList.scrollToIndex(productList.selectedIndex);
 		idProduct = "";
 		
 		setDirty();
 		
 		onSelectProduct();
-
 	}
 		
 	private function removeProduct():void {
@@ -253,6 +264,10 @@
 		}
 		
 		private function filterProducts(item:Object):Boolean {
+			if (item.@idProduct == '' && item.@name == '' && item.@isActive == 'Y') {
+				return true;
+			}
+			
 			if (item.@codeProductType != null && item.@codeProductType != '') {
 				for each (var productType:Object in filteredProductTypes) {
 					if (productType.@value == item.@codeProductType) {
