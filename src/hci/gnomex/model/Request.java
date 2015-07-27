@@ -99,6 +99,7 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
   private String          includeQubitConcentration;
   private String          alignToGenomeBuild;
   private String          adminNotes;
+  private Integer		  idProduct;
 
   // permission field
   private boolean     canUpdateVisibility;
@@ -111,7 +112,15 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
   }
   public void setTopics(Set topics) {
     this.topics = topics;
-  }  
+  }
+  
+  public Integer getIdProduct() {
+	return idProduct;
+  }
+  
+  public void setIdProduct(Integer idProduct) {
+	this.idProduct = idProduct;
+  }
 
   public String getCodeApplication() {
     return codeApplication;
