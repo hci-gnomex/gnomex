@@ -633,7 +633,7 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
 
   private void saveOligoBarcodeSchemesAllowed(Session sess, RequestCategory rc, Application app, Element node, HashMap<Integer, SeqLibProtocol> protocolMap) {
     // Only save barcode schemes for illumina request categories.
-    if (!RequestCategory.isIlluminaRequestCategory(rc.getCodeRequestCategory())) {
+    if (!RequestCategory.isIlluminaRequestCategory(rc.getCodeRequestCategory()) && !RequestCategory.isSequenom(rc.getCodeRequestCategory())) {
       return;
     }
 
