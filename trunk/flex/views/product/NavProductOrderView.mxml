@@ -148,17 +148,27 @@
 				toggleBar.selectedIndex = 0;
 				selectedOrder = productOrder;
 				
-				for each ( var obj1:Object in browseLabCombo.dataProvider ) {
-					if ( obj1.@idLab == productOrder.@idLab ) {
-						browseLabCombo.selectedItem = obj1;
-						break;
+				if (productOrder.hasOwnProperty("@idLab")) {
+					for each ( var obj1:Object in browseLabCombo.dataProvider ) {
+						if ( obj1.@idLab == productOrder.@idLab ) {
+							browseLabCombo.selectedItem = obj1;
+							break;
+						}
+						browseLabCombo.selectedIndex = -1;
 					}
-					browseLabCombo.selectedIndex = -1;
+				} else if (productOrder.hasOwnProperty("@labName")) {
+					for each ( var obj2:Object in browseLabCombo.dataProvider ) {
+						if ( obj2.@nameFirstLast == productOrder.@labName ) {
+							browseLabCombo.selectedItem = obj2;
+							break;
+						}
+						browseLabCombo.selectedIndex = -1;
+					}
 				}
 				
-				var today:Date = new Date();
-				this.pickDateRangeButton.toDate = today;
-				this.pickDateRangeButton.fromDate = new Date(today.fullYear, today.month, today.date - 7);
+				//var today:Date = new Date();
+				//this.pickDateRangeButton.toDate = today;
+				//this.pickDateRangeButton.fromDate = new Date(today.fullYear, today.month, today.date - 7);
 				
 				getProductOrders();
 			}
