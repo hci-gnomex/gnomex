@@ -20,13 +20,21 @@ public class GetProductOrder extends GNomExCommand implements Serializable {
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetProductOrder.class);
 
   private Integer idProductOrder;
+  private Integer productOrderNumber;
 
   @Override
   public void loadCommand(HttpServletRequest request, HttpSession sess) {
+	  
     if(request.getParameter("idProductOrder") != null && !request.getParameter("idProductOrder").equals("")) {
       idProductOrder = Integer.valueOf(request.getParameter("idProductOrder"));
-    } else {
-      this.addInvalidField("idProductOrder", "Please provide an idProductOrder");
+    }
+    
+    if(request.getParameter("productOrderNumber") != null && !request.getParameter("productOrderNumber").equals("")) {
+    	productOrderNumber = Integer.valueOf(request.getParameter("productOrderNumber"));
+    }
+    
+    if (idProductOrder == null && productOrderNumber == null) {
+    	this.addInvalidField("identification", "Please provide either an idProductOrder or a productOrderNumber");
     }
 
   }
@@ -36,7 +44,12 @@ public class GetProductOrder extends GNomExCommand implements Serializable {
       if(this.isValid()) {
         Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.username);
 
-        ProductOrder po = (ProductOrder)sess.load(ProductOrder.class, idProductOrder);
+        ProductOrder po;
+        if (idProductOrder != null) {
+        	po = (ProductOrder)sess.load(ProductOrder.class, idProductOrder);
+        } else {
+        	po = (ProductOrder)sess.load(ProductOrder.class, productOrderNumber);
+        }
 
         Element root = new Element("ProductOrder");
         if(po != null) {
