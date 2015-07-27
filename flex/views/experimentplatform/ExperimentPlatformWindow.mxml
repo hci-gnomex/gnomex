@@ -149,7 +149,7 @@
 				var sequencingOptions:XMLListCollection = new XMLListCollection(state.requestCategory.sequencingOptions.NumberSequencingCyclesAllowed);
 				params.sequencingOptionsXMLString = "<sequencingOptions>" + sequencingOptions.toXMLString() + "</sequencingOptions>";
 				
-				if (state.isIllumina) {
+				if (state.isIllumina || state.isSequenom) {
 					// Illumina allows setting of app/request cateogry relationship across multiple request categories.
 					var rcAppsList:XMLListCollection = new XMLListCollection();
 					for each (var app:XML in applications) {

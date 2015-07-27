@@ -234,7 +234,7 @@
 		</mx:HBox>
 		
 		<mx:VBox width="100%" verticalGap="2" verticalAlign="top" paddingTop="0">
-			<mx:Text text="Experiment Platform Compatability" styleName="formLabel" paddingBottom="0"/>
+			<mx:Text text="Experiment Platform Compatibility" styleName="formLabel" paddingBottom="0"/>
 			<mx:HBox width="100%" horizontalGap="2" verticalAlign="middle" paddingTop="0">
 				<mx:Spacer width="100"/>
 				<mx:VBox width="100%" paddingTop="0" verticalGap="0">
@@ -252,12 +252,12 @@
 		<mx:VBox width="100%" verticalGap="2">
 			<mx:HBox width="100%" horizontalGap="2" verticalAlign="middle">
 				<mx:Label text="Index A Family" width="100" styleName="formLabel" />
-				<mx:ComboBox id="indexAFamilyComboBox" labelField="@display"
+				<mx:ComboBox id="indexAFamilyComboBox" labelField="@display" change="{this.dirty.setDirty();}"
 							 dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OligoBarcodeScheme').DictionaryEntry.(@isActive=='Y')}" />
 			</mx:HBox>
 			<mx:HBox width="100%" horizontalGap="2" verticalAlign="middle">
 				<mx:Label text="Index B Family" width="100" styleName="formLabel" />
-				<mx:ComboBox id="indexBFamilyComboBox" labelField="@display"
+				<mx:ComboBox id="indexBFamilyComboBox" labelField="@display" change="{this.dirty.setDirty();}"
 							 dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OligoBarcodeScheme').DictionaryEntry.(@isActive=='Y')}" />
 			</mx:HBox>
 		</mx:VBox>
