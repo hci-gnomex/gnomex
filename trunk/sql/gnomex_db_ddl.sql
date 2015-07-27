@@ -1810,6 +1810,7 @@ CREATE TABLE `gnomex`.`Request` (
   `includeQubitConcentration` CHAR(1) NULL,
   `alignToGenomeBuild` CHAR(1) NULL,
   `adminNotes` VARCHAR(5000) NULL,
+  `idProduct` INT(10) NULL,
   PRIMARY KEY (`idRequest`),
   CONSTRAINT `FK_Request_Project` FOREIGN KEY `FK_Request_Project` (`idProject`)
     REFERENCES `gnomex`.`Project` (`idProject`)
@@ -1873,6 +1874,10 @@ CREATE TABLE `gnomex`.`Request` (
     ON UPDATE NO ACTION,
   CONSTRAINT `FK_Request_DNAPrepType` FOREIGN KEY `FK_Request_DNAPrepType` (`codeDNAPrepType`)
     REFERENCES `gnomex`.`DNAPrepType` (`codeDNAPrepType`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `FK_Request_Product` FOREIGN KEY `FK_Request_Product` (`idProduct`)
+    REFERENCES `gnomex`.`Product` (`idProduct`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
 )

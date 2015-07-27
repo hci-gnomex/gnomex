@@ -6,7 +6,7 @@ call ExecuteIfTableExists('gnomex','BillingItem_Audit','alter table BillingItem_
 
 -- Add tag to BillingItem for identification of split billing items
 ALTER TABLE BillingItem ADD COLUMN tag VARCHAR(10) NULL;
-call ExecuteIfTableExists('gnomex', 'BillingItem', 'ALTER TABLE BillingItem ADD COLUMN tag VARCHAR(10) NULL');
+call ExecuteIfTableExists('gnomex', 'BillingItem_Audit', 'ALTER TABLE BillingItem_Audit ADD COLUMN tag VARCHAR(10) NULL');
 
 
 -- Default folder location for sequenom prices
@@ -20,3 +20,11 @@ DELETE from PropertyDictionary where propertyName = 'contact_email_core_facility
 DELETE from PropertyDictionary where propertyName = 'contact_phone_core_facility';
 DELETE from PropertyDictionary where propertyName = 'core_facility_name';
 
+-- Add idProduct to Request
+ALTER TABLE Request 
+ADD COLUMN idProduct INT(10) NULL,
+ADD CONSTRAINT `FK_Request_Product` FOREIGN KEY `FK_Request_Product` (`idProduct`)
+REFERENCES `gnomex`.`Product` (`idProduct`)
+ON DELETE NO ACTION
+ON UPDATE NO ACTION;
+call ExecuteIfTableExists('gnomex', 'Request_Audit', 'ALTER TABLE Request_Audit ADD COLUMN idProduct INT(10) NULL');
