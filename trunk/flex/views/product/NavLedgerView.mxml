@@ -131,7 +131,18 @@
 				getProductLedgerList.send(params);
 			}
 			
+			private function resetProductCombo():void {
+				if (productCombo.selectedIndex == 0) {
+					productCombo.selectedIndex = -1;
+					productCombo.selectedItem = null;
+				}
+			}
+			
 			private function filterProducts(item:Object):Boolean {
+				if (item.@name == '' && item.@idProduct == '') {
+					return true;
+				}
+				
 				if (item.@codeProductType != null && item.@codeProductType != '') {
 					for each (var productType:Object in filteredProductTypes) {
 						if (productType.@value == item.@codeProductType) {
@@ -196,7 +207,7 @@
 								
 				<mx:Spacer width="5"/>
 				<mx:Label text="Product:"/>
-				<mx:ComboBox id="productCombo" dataProvider="{this.products}" labelField="@name" close="{this.filterLedgerList()}" selectedIndex="-1" fontSize="10"/>
+				<mx:ComboBox id="productCombo" dataProvider="{this.products}" labelField="@name" close="{this.resetProductCombo(); this.filterLedgerList()}" selectedIndex="-1" fontSize="10"/>
 			</mx:HBox>
 		</mx:HBox>
 		
@@ -208,7 +219,7 @@
 						 showRoot="false"
 						 id="browseTree" click="onBrowseTree();" 
 						 doubleClickEnabled="false" 
-						 labelField="@display" allowMultipleSelection="false" 
+						 labelField="@display" allowMultipleSelection="false" toolTip="Each lab's products available in inventory and pending in product order(s)"
 						 iconFunction="parentApplication.getTreeIcon" backgroundAlpha="1" dropShadowEnabled="true" borderStyle="none">
 				</mx:Tree>
 				
