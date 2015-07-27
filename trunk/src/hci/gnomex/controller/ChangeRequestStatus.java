@@ -7,7 +7,6 @@ import hci.gnomex.model.BillingItem;
 import hci.gnomex.model.BillingPeriod;
 import hci.gnomex.model.BillingStatus;
 import hci.gnomex.model.CoreFacility;
-import hci.gnomex.model.IScanChip;
 import hci.gnomex.model.Lab;
 import hci.gnomex.model.PlateType;
 import hci.gnomex.model.PlateWell;
@@ -20,20 +19,17 @@ import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.EmailHelper;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.MailUtil;
+import hci.gnomex.utility.ProductUtil;
 import hci.gnomex.utility.PropertyDictionaryHelper;
 import hci.gnomex.utility.RequestEmailBodyFormatter;
-import hci.gnomex.utility.RequisitionFormUtil;
 import hci.gnomex.utility.Util;
 
-import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
-
 import javax.mail.MessagingException;
 import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
@@ -133,6 +129,21 @@ public class ChangeRequestStatus extends GNomExCommand implements Serializable {
             createBillingItems(sess, req);
             sess.flush();
           }
+        }
+        
+        // If this request uses products, create ledger entries when appropriate
+        if (ProductUtil.determineIfRequestUsesProducts(req)) {
+        	String statusToUseProducts = ProductUtil.determineStatusToUseProducts(sess, req);
+            if (statusToUseProducts != null) {
+            	if (ProductUtil.updateLedgerOnRequestStatusChange(sess, req, oldRequestStatus, codeRequestStatus)) {
+            		sess.flush();
+            	} else {
+            		String errorMessage = "Unable to create ProductLedger for request. Please ensure the lab has sufficient products.";
+            		log.error(errorMessage);
+            		this.addInvalidField("Insufficient Products", errorMessage);
+            		throw new RollBackCommandException(errorMessage);
+            	}
+            }
         }
 
         // COMPLETE

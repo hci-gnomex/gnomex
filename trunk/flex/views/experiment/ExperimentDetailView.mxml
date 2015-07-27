@@ -45,6 +45,7 @@
 			import views.util.AnnotationUtility;
 			import views.util.CollaboratorWindow;
 			import views.util.GNomExStringUtil;
+			import views.util.RequestStatusComparator;
 			
 			public var sampleGroupingCollection:GroupingCollection = null;		
 			
@@ -442,8 +443,21 @@
 				} else {
 					this.theTab.getTabAt( theTab.getChildIndex( propertiesView ) ).visible = true;
 					this.theTab.getTabAt( theTab.getChildIndex( propertiesView ) ).includeInLayout = true;
-				} 
+				}
 				
+				if (determineToShowProductsTab(requestCategory) && selectedExperiment.hasOwnProperty("@idProduct") && selectedExperiment.@idProduct != "") {
+					productsView.allowEdits(false);
+					productsView.refreshForRequestCategory(requestCategory);
+					productsView.refreshForLab(selectedExperiment.@idLab);
+					productsView.loadSelection(selectedExperiment.@idProduct, selectedExperiment.@idLab);
+					this.theTab.getTabAt( theTab.getChildIndex( productsView ) ).visible = true;
+					this.theTab.getTabAt( theTab.getChildIndex( productsView ) ).includeInLayout = true;
+				} else {
+					productsView.reset();
+					productsView.allowEdits(false);
+					this.theTab.getTabAt( theTab.getChildIndex( productsView ) ).visible = false;
+					this.theTab.getTabAt( theTab.getChildIndex( productsView ) ).includeInLayout = false;
+				}
 				
 				if (defaultTab == null) {
 					theTab.selectedIndex = 0;
@@ -766,22 +780,25 @@
 			}
 			
 			public function promptToDeleteExperiment():void {
+				var warningMessage:String = "Delete experiment " + this.selectedExperiment.@number + "?";
+				
 				var billingItems:XMLList = this.selectedExperiment.billingItems.BillingItem;
 				if ( billingItems.length() > 0) {
-					Alert.show("Delete experiment " + this.selectedExperiment.@number + 
-						"?\n\nWARNING:  This will also delete "  +
-						billingItems.length() + " billing item(s) associated with this experiment.\n\n", 
-						"Confirm", 
-						(Alert.YES | Alert.NO), this, 
-						onPromptToDeleteExperiment);
-					
-				} else {
-					Alert.show("Delete experiment " + this.selectedExperiment.@number + "?", 
-						"Confirm", 
-						(Alert.YES | Alert.NO), this, 
-						onPromptToDeleteExperiment);
+					warningMessage += "\n\nWARNING: This will also delete " + billingItems.length() + " billing item(s) associated with this experiment.\n\n";
 				}
 				
+				var statusToUseProducts:String = parentApplication.getRequestCategoryProperty(selectedExperiment.@idCoreFacility, selectedExperiment.@codeRequestCategory, parentApplication.PROPERTY_STATUS_TO_USE_PRODUCTS);
+				if (statusToUseProducts != null && statusToUseProducts != "" && selectedExperiment.hasOwnProperty("@codeRequestStatus") && selectedExperiment.@codeRequestStatus != "") {
+					var comp:RequestStatusComparator = new RequestStatusComparator();
+					if (comp.compare(selectedExperiment.@codeRequestStatus, statusToUseProducts) >= 0) {
+						warningMessage += "\n\nWARNING: This experiment used products. If the products were not actually consumed, please revert the status of the experiment to an earlier status or manually return the products to the lab before deleting.\n\n";
+					}
+				} 
+				
+				Alert.show(warningMessage, 
+					"Confirm", 
+					(Alert.YES | Alert.NO), this, 
+					onPromptToDeleteExperiment);
 			}
 			
 			private function onPromptToDeleteExperiment(event:CloseEvent):void {
@@ -1583,6 +1600,16 @@
 				}
 			}
 			
+			private function determineToShowProductsTab(requestCategory:Object):Boolean {
+				if (selectedExperiment != null && selectedExperiment.@isExternal != 'Y' && requestCategory != null) {
+					if (requestCategory.@codeProductType != null && requestCategory.@codeProductType != '') {
+						return true;
+					}
+				}
+				
+				return false;
+			}
+			
 		]]>
 	</mx:Script>
 	
@@ -1816,6 +1843,8 @@
 		</mx:VBox>
 		
 		<experiment:TabPropertiesView id="propertiesView" properties="{requestProperties}" editable="false" />
+		
+		<experiment:TabProductsView id="productsView" />
 		
 		<mx:VBox verticalGap="0" width="100%" height="100%" id="samplesTab" label="Samples" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4">
 			

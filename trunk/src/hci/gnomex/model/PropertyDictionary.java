@@ -157,6 +157,7 @@ public class PropertyDictionary extends DictionaryEntry implements Serializable 
   public static final String        SHOW_ACTIVITY_DASHBOARD             = "show_activity_dashboard";
   public static final String		USE_INVOICE_NUMBERING				= "use_invoice_numbering";
   public static final String		SAMPLE_CONCENTRATION_PRECISION		= "sample_concentration_precision";
+  public static final String		STATUS_TO_USE_PRODUCTS				= "status_to_use_products";
 
 
   private Integer       idPropertyDictionary;

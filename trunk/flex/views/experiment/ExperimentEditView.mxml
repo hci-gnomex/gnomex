@@ -215,6 +215,7 @@
 			import views.util.GNomExStringUtil;
 			import views.util.PromptXMLListCollection;
 			import views.util.SampleConcentrationValidator;
+			import views.util.RequestStatusComparator;
 			
 			[Embed(source='../../assets/page.png')]
 			[Bindable]
@@ -1460,16 +1461,7 @@
 				
 				if (theTab.contains(productsView)) {
 					if (determineIfProductsNeeded()) {
-						productsView.allowEdits(true);
-						productsView.refreshForRequestCategory();
-						productsView.refreshForLab();
-						this.theTab.getTabAt( theTab.getChildIndex( productsView ) ).visible = true;
-						this.theTab.getTabAt( theTab.getChildIndex( productsView ) ).includeInLayout = true;
-						if (productsView.hasSufficientInfo()) {
-							productsView.enabled = true;
-						} else {
-							productsView.enabled = false;
-						}
+						showProductsTab(true);
 					} else {
 						hideProductsTab();
 					}
@@ -2362,8 +2354,6 @@
 				notesView.enabled = true;
 				notesView.currentState = "EditState";
 				
-				hideProductsTab();
-				
 				parentApplication.isInternalExperimentSubmission = request.@isExternal == "N";
 				
 				// Make sure we render the annotation tab because
@@ -2577,6 +2567,23 @@
 					if (!theTab.contains(this.billingTab)) {
 						theTab.addChild(billingTab);
 					}
+				}
+				
+				if (determineIfProductsNeeded()) {
+					var allowEditing:Boolean = false;
+					var statusToUseProducts:String = parentApplication.getRequestCategoryProperty(request.@idCoreFacility, request.@codeRequestCategory, parentApplication.PROPERTY_STATUS_TO_USE_PRODUCTS);
+					if (statusToUseProducts != null && statusToUseProducts != "" && request.hasOwnProperty("@codeRequestStatus") && request.@codeRequestStatus != "") {
+						var comp:RequestStatusComparator = new RequestStatusComparator();
+						if (comp.compare(request.@codeRequestStatus, statusToUseProducts) < 0) {
+							allowEditing = true;
+						}
+					}
+					showProductsTab(allowEditing);
+					if (this.request.hasOwnProperty("@idProduct") && this.request.@idProduct != "") {
+						productsView.loadSelection(this.request.@idProduct);
+					}
+				} else {
+					hideProductsTab();
 				}
 				
 				initializeControls();
@@ -3172,6 +3179,12 @@
 						}
 					}
 				}
+				
+				if (productsView != null && theTab.contains(productsView) && theTab.getTabAt(theTab.getChildIndex(productsView)).visible) {
+					productsView.refreshForSamples();
+					productsView.updateFields();
+					warningMessage += productsView.requiredProducts();
+				}
 			}
 			
 			private function getChannelCount(sample:Object):int {
@@ -3218,7 +3231,6 @@
 				// Only submit request if it is valid
 				validateRequest();
 				errorMessage += propertiesView.requiredAnnotationsEntered();
-				errorMessage += productsView.requiredProducts();
 				if (errorMessage != '') {
 					this.submitButton.enabled = true;
 					Alert.show(errorMessage, "Error", Alert.OK, null, null, parentApplication.iconError);
@@ -3235,7 +3247,6 @@
 				this.submitButton.enabled = false;
 				validateRequest();
 				errorMessage += propertiesView.requiredAnnotationsEntered();
-				errorMessage += productsView.requiredProducts();
 				if (errorMessage != '') {
 					this.submitButton.enabled = true;
 					Alert.show(errorMessage);
@@ -3669,6 +3680,7 @@
 					saveDescription = GNomExStringUtil.cleanRichTextHTML(request.@description);
 				}
 				
+				updateRequestProducts();
 			}
 			
 			
@@ -3676,7 +3688,9 @@
 				if(!billingAccountAlreadyUpdated && this.request.@isExternal == 'N'){
 					updateBillingAccount();	
 				} else{
-					updateRequestProperties()
+					updateRequestProperties();
+					
+					updateRequestProducts();
 					
 					var params:Object = new Object();
 					params.requestXMLString = request.toXMLString();
@@ -3856,6 +3870,14 @@
 						}
 					}
 				}
+			}
+			
+			private function updateRequestProducts():void {
+				var idProductString:String = "";
+				if (productsView != null && theTab.contains(productsView) && productsView.getSelectedProduct() != null) {
+					idProductString = productsView.getSelectedProduct().@idProduct;
+				}
+				request.@idProduct = idProductString;
 			}
 			
 			private function changeIdBillingAccount(event:CloseEvent):void {
@@ -5451,7 +5473,7 @@
 							break;
 						}
 					}
-					if (!found) {
+					if (!found && !(parentApplication.isSuperAdmin || parentApplication.isAdminState || parentApplication.isBillingAdmin)) {
 						return false;
 					}
 				}
@@ -5590,6 +5612,21 @@
 					updateDirtyNote(true);
 				} else if (event.type == DirtyEvent.NOW_CLEAN) {
 					updateDirtyNote(false);
+				}
+			}
+			
+			private function showProductsTab(allowEditing:Boolean):void {
+				if (theTab.contains(productsView) && productsView != null) {
+					productsView.allowEdits(allowEditing);
+					productsView.refreshForRequestCategory();
+					productsView.refreshForLab();
+					this.theTab.getTabAt( theTab.getChildIndex( productsView ) ).visible = true;
+					this.theTab.getTabAt( theTab.getChildIndex( productsView ) ).includeInLayout = true;
+					if (productsView.hasSufficientInfo()) {
+						productsView.enabled = true;
+					} else {
+						productsView.enabled = false;
+					}
 				}
 			}
 			

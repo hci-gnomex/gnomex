@@ -72,6 +72,7 @@ public class RequestParser implements Serializable {
   private Boolean hasPlates = false;
   private Boolean forDownload = false;
   private String seqPrepByCore = null;
+  private String previousCodeRequestStatus = null;
 
   public RequestParser(Document requestDoc, SecurityAdvisor secAdvisor) {
     this.requestNode = requestDoc.getRootElement();
@@ -305,6 +306,9 @@ public class RequestParser implements Serializable {
     if (n.getAttributeValue("numberIScanChips") != null && !n.getAttributeValue("numberIScanChips").equals("")) {
       request.setNumberIScanChips(new Integer(n.getAttributeValue("numberIScanChips")));      
     }
+    if (n.getAttributeValue("idProduct") != null && !n.getAttributeValue("idProduct").equals("")) {
+      request.setIdProduct(new Integer(n.getAttributeValue("idProduct")));
+    }
     if (n.getAttributeValue("coreToExtractDNA") != null && !n.getAttributeValue("coreToExtractDNA").equals(""))
       request.setCoreToExtractDNA(n.getAttributeValue("coreToExtractDNA"));
 
@@ -385,6 +389,7 @@ public class RequestParser implements Serializable {
       request.setNumPrePooledTubes(null);
     }
 
+    previousCodeRequestStatus = request.getCodeRequestStatus();
     if (n.getAttributeValue("codeRequestStatus") != null && !n.getAttributeValue("codeRequestStatus").equals("")) {
       // Don't change request status to submitted unless the request is in new status
       if ( n.getAttributeValue( "codeRequestStatus" ).equals( RequestStatus.SUBMITTED )&& 
@@ -461,6 +466,7 @@ public class RequestParser implements Serializable {
         request.setCodeVisibility(Visibility.VISIBLE_TO_OWNER);
       }
     }
+    
   }
 
   private void initializeSample(Element requestNode, Element n, Session sess, RequestCategory requestCategory) throws Exception {
@@ -1960,6 +1966,10 @@ public class RequestParser implements Serializable {
 
   public Boolean hasPlates() {
     return this.hasPlates;
+  }
+  
+  public String getPreviousCodeRequestStatus() {
+	  return previousCodeRequestStatus;
   }
 
 
