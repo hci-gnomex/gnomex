@@ -54,6 +54,7 @@
 			
 			import views.util.EmailWindowForRequests;
 			import views.util.PromptXMLListCollection;
+			import views.util.RequestStatusComparator;
 			
 			
 			[Bindable]
@@ -199,7 +200,24 @@
 						+ " The order(s) cannot be deleted.");
 					
 				} else {
-					Alert.show( "Are you sure you want to delete these orders?", 
+					var warningMessage:String = "Are you sure you want to delete these orders?";
+					
+					var usedProducts:Boolean = false;
+					var comp:RequestStatusComparator = new RequestStatusComparator();
+					for each (var req2:Object in selectedOrders) {
+						var statusToUseProducts:String = parentApplication.getRequestCategoryProperty(req2.@idCoreFacility, req2.@codeRequestCategory, parentApplication.PROPERTY_STATUS_TO_USE_PRODUCTS);
+						if (statusToUseProducts != null && statusToUseProducts != "" && req2.hasOwnProperty("@codeRequestStatus") && req2.@codeRequestStatus != "") {
+							if (comp.compare(req2.@codeRequestStatus, statusToUseProducts) >= 0) {
+								usedProducts = true;
+								break;
+							}
+						}
+					}
+					if (usedProducts) {
+						warningMessage += "\n\nWARNING: One or more of the selected orders used products. If the products were not actually consumed, please revert the status of the order to an earlier status or manually return the products to the lab before deleting.\n\n";
+					}
+					
+					Alert.show( warningMessage, 
 						"Confirm Delete", ( Alert.YES | Alert.NO ), this, onPromptToDelete, parentApplication.iconError );
 				}
 				

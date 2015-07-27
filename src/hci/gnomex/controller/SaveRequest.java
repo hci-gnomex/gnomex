@@ -56,6 +56,7 @@ import hci.gnomex.utility.HibernateGuestSession;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.HybNumberComparator;
 import hci.gnomex.utility.MailUtil;
+import hci.gnomex.utility.ProductUtil;
 import hci.gnomex.utility.PropertyDictionaryHelper;
 import hci.gnomex.utility.PropertyEntryComparator;
 import hci.gnomex.utility.PropertyOptionComparator;
@@ -682,7 +683,17 @@ public class SaveRequest extends GNomExCommand implements Serializable {
           sess.flush();
         }
 
-
+        // If this request uses products, create ledger entries when appropriate
+        if (ProductUtil.determineIfRequestUsesProducts(requestParser.getRequest())) {
+        	String statusToUseProducts = ProductUtil.determineStatusToUseProducts(sess, requestParser.getRequest());
+            if (statusToUseProducts != null) {
+            	if (ProductUtil.updateLedgerOnRequestStatusChange(sess, requestParser.getRequest(), requestParser.getPreviousCodeRequestStatus(), requestParser.getRequest().getCodeRequestStatus())) {
+            		sess.flush();
+            	} else {
+            		throw new Exception("Unable to create ProductLedger for request. Please ensure the lab has sufficient products.");
+            	}
+            }
+        }
 
         billingAccountMessage = "";
 

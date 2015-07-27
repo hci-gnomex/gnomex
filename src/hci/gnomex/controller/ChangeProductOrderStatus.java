@@ -2,16 +2,13 @@ package hci.gnomex.controller;
 
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
-import hci.gnomex.model.ProductLedger;
 import hci.gnomex.model.ProductLineItem;
 import hci.gnomex.model.ProductOrder;
-import hci.gnomex.model.ProductOrderStatus;
+import hci.gnomex.utility.ProductUtil;
 
 import java.io.Serializable;
 import java.io.StringReader;
-import java.sql.Timestamp;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
@@ -31,7 +28,7 @@ public class ChangeProductOrderStatus extends GNomExCommand implements Serializa
   private String codeProductOrderStatus;
   private Document orderDoc;
   private Document lineItemDoc;
-  private String resultMessage = "";
+  private StringBuffer resultMessage = new StringBuffer("");
 
   public void loadCommand(HttpServletRequest request, HttpSession sess) {
 
@@ -81,7 +78,7 @@ public class ChangeProductOrderStatus extends GNomExCommand implements Serializa
             ProductOrder po = (ProductOrder)sess.load(ProductOrder.class, idProductOrder);
             for (ProductLineItem li : (Set<ProductLineItem>)po.getProductLineItems()) {
               String oldStatus = li.getCodeProductOrderStatus();
-              if ( updateLedger(li, po, oldStatus, codeProductOrderStatus, sess) ) {
+              if ( ProductUtil.updateLedgerOnProductOrderStatusChange(li, po, oldStatus, codeProductOrderStatus, sess, resultMessage) ) {
                 li.setCodeProductOrderStatus(codeProductOrderStatus);
                 sess.update(li);
               } 
@@ -95,14 +92,14 @@ public class ChangeProductOrderStatus extends GNomExCommand implements Serializa
             ProductLineItem pli = (ProductLineItem)sess.load(ProductLineItem.class, idProductLineItem);
             ProductOrder po = (ProductOrder)sess.load(ProductOrder.class, pli.getIdProductOrder());
             String oldStatus = pli.getCodeProductOrderStatus();
-            if ( updateLedger(pli, po, oldStatus, codeProductOrderStatus, sess) ) {
+            if ( ProductUtil.updateLedgerOnProductOrderStatusChange(pli, po, oldStatus, codeProductOrderStatus, sess, resultMessage) ) {
               pli.setCodeProductOrderStatus(codeProductOrderStatus);
               sess.update(pli);
             } 
           }
         }
         sess.flush();
-        this.xmlResult = "<SUCCESS message=\"" + resultMessage + "\"/>";
+        this.xmlResult = "<SUCCESS message=\"" + resultMessage.toString() + "\"/>";
         this.setResponsePage(this.SUCCESS_JSP);
       } else {
         this.setResponsePage(this.ERROR_JSP);
@@ -118,56 +115,6 @@ public class ChangeProductOrderStatus extends GNomExCommand implements Serializa
       }
     }
     return this;
-  }
-
-  public boolean updateLedger(ProductLineItem pli, ProductOrder po, String oldCodePOStatus, String newPOStatus, Session sess) {
-
-    int orderQty = 1; 
-    if ( pli.getProduct().getOrderQty() != null && pli.getProduct().getOrderQty() > 0 ) {
-      orderQty = pli.getProduct().getOrderQty();
-    }
-
-    // Check for an old status of something other than completed and new status is completed.  
-    // If so, add items to ledger
-    if ( (oldCodePOStatus == null || !oldCodePOStatus.equals( ProductOrderStatus.COMPLETED )) && newPOStatus.equals( ProductOrderStatus.COMPLETED ) ) {
-      ProductLedger ledger = new ProductLedger();
-      ledger.setIdLab( po.getIdLab() );
-      ledger.setIdProduct( pli.getIdProduct() );
-      ledger.setQty( orderQty * pli.getQty() );
-      ledger.setTimeStamp( new Timestamp( System.currentTimeMillis() ) );
-      ledger.setIdProductOrder( po.getIdProductOrder() );
-      ledger.setComment( po.getDisplay() + " changed to completed status." );
-      sess.save( ledger );
-      resultMessage += "Status changed for " + po.getDisplay() + ",\n " + pli.getDisplay() + ".\nLedger entry created.\r\n";
-    }
-    // Check for old status is completed and new status is not.  
-    // If so, remove items in ledger
-    else if ( (oldCodePOStatus != null && oldCodePOStatus.equals( ProductOrderStatus.COMPLETED )) && !newPOStatus.equals( ProductOrderStatus.COMPLETED ) ) {
-      if ( pli.getIdProductOrder() != null ) {
-
-        Integer labTotal = (Integer) sess.createQuery( "select SUM(qty) from ProductLedger where idLab = " + po.getIdLab() + " and idProduct = " + pli.getIdProduct() ).uniqueResult();
-        Integer poTotal = (Integer) sess.createQuery( "select SUM(qty) from ProductLedger where idProductOrder = " + pli.getIdProductOrder() + " and idProduct = " + pli.getIdProduct() ).uniqueResult();
-
-        if ( labTotal - poTotal >= 0 ) {
-          String query = "SELECT pl from ProductLedger pl where pl.idProductOrder = " + pli.getIdProductOrder() + " and idProduct = " + pli.getIdProduct() ;
-          List ledgerEntries = sess.createQuery(query).list();
-
-          for(Iterator i = ledgerEntries.iterator(); i.hasNext();) {
-            ProductLedger ledger = (ProductLedger)i.next();
-            sess.delete( ledger );
-            resultMessage += "Status updated for " + po.getDisplay() + ",\n " + pli.getDisplay() + ".\nLedger entries deleted.\r\n";
-          }
-          sess.flush();
-        } else {
-          resultMessage += "Cannot revert status for " + po.getDisplay() + ",\n " + pli.getDisplay() + "; removing ledger entries will result in a negative balance.\r\n";
-          return false;
-        }
-      }
-    }
-    else {
-      resultMessage += "Status changed for " + po.getDisplay() + ",\n " + pli.getDisplay() + ".\r\n";
-    }
-    return true;
   }
 
   public void validate() {

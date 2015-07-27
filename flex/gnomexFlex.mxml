@@ -1191,6 +1191,8 @@
 			public var PROPERTY_SORT_APPLICATION_ALPHABETICALLY_IN_EDIT:String = "sort_application_alphabetically_in_edit";
 			public var PROPERTY_HIDE_REQUESTS_WITH_NO_BILLING_ITEMS:String	   = "hide_requests_with_no_billing_items";
 			public var PROPERTY_SAMPLE_CONCENTRATION_PRECISION:String	  = "sample_concentration_precision";
+			public var PROPERTY_SHOW_ONLY_LABS_PRODUCTS:String			  = "show_only_labs_products";
+			public var PROPERTY_STATUS_TO_USE_PRODUCTS:String			  = "status_to_use_products";
 
 			
 			public var CAN_ADMINISTER_ALL_CORE_FACILITIES:String          = "canAdministerAllCoreFacilities";

@@ -367,6 +367,8 @@ package views.experiment
 		}
 		
 		public function getSampleBatchWarning():String{
+			var sampleSizeWarning:String = "";
+			
 			var hasBatchSampleSize:String = parentApplication.getRequestCategoryProperty(parentDocument.getRequestCategory().@idCoreFacility,parentDocument.getRequestCategory().@codeRequestCategory, parentApplication.PROPERTY_SAMPLE_BATCH_WARNING);
 			
 			var application:Object = parentDocument.sampleSetupView.application;
@@ -375,16 +377,27 @@ package views.experiment
 			if(application != null && application.@samplesPerBatch != null && application.@samplesPerBatch != ''){
 				var appSampleSize:int = int(application.@samplesPerBatch);
 				if(numberOfSamples != null && numberOfSamples != "" && int(numberOfSamples) % appSampleSize != 0){
-					return hasBatchSampleSize;
+					sampleSizeWarning += " " + hasBatchSampleSize;
 				}
 			} else if(parentDocument.getRequestCategory().@sampleBatchSize != null && parentDocument.getRequestCategory().@sampleBatchSize != ''){
 				var reqCatSampleSize:int = int(parentDocument.getRequestCategory().@sampleBatchSize);
 				if(numberOfSamples != null && numberOfSamples != "" && int(numberOfSamples) % reqCatSampleSize != 0){
-					return hasBatchSampleSize;
+					sampleSizeWarning += " " + hasBatchSampleSize;
 				}
 			}
 			
-			return "";
+			// Check if product use quantity is matched with sample count
+			var productsView:TabProductsView = parentDocument.productsView;
+			if (productsView != null && parentDocument.theTab.contains(productsView) && parentDocument.theTab.getTabAt(parentDocument.theTab.getChildIndex(productsView)).visible) {
+				var productUseWarning:String = "";
+				var productUseQty:Number = productsView.getUseQuantityOfSelectedProduct();
+				if (productUseQty > 0 && numberOfSamples != '' && int(numberOfSamples) % productUseQty != 0) {
+					productUseWarning = "The selected product has a use quantity of " + productUseQty.toString() + ". Unused product will be lost.";
+				}
+				sampleSizeWarning += " " + productUseWarning;
+			}
+			
+			return sampleSizeWarning;
 		}
 		
 		protected function getSampleConcentrationFormatted(item:Object, column:DataGridColumn):String {
