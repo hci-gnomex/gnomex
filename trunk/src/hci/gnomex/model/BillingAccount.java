@@ -45,6 +45,7 @@ public class BillingAccount extends HibernateDetailObject {
   private String     custom3;
   private String     approverEmail;
   private Integer    idApprover;
+  private Lab		 lab;
 
   public byte [] getPurchaseOrderForm() {
     return purchaseOrderForm;
@@ -524,6 +525,7 @@ public class BillingAccount extends HibernateDetailObject {
   public void registerMethodsToExcludeFromXML() {
     this.excludeMethodFromXML("getExcludedMethodsMap");
     this.excludeMethodFromXML("getUsers");
+    this.excludeMethodFromXML("getLab");
   }
 
 
@@ -574,6 +576,14 @@ public class BillingAccount extends HibernateDetailObject {
 
   public void setIdApprover(Integer idApprover) {
     this.idApprover = idApprover;
+  }
+  
+  public Lab getLab() {
+	return lab;
+  }
+  
+  public void setLab(Lab lab) {
+	this.lab = lab;
   }
 
 

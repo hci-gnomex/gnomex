@@ -270,6 +270,18 @@
 		</mx:request>
 	</mx:HTTPService>
 	
+	<mx:HTTPService  
+		id="getAuthorizedBillingAccounts" 
+		url="GetAuthorizedBillingAccounts.gx"
+		destination="getAuthorizedBillingAccounts"
+		resultFormat="e4x"
+		showBusyCursor="false"
+		result="onGetAuthorizedBillingAccounts(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to get authorized billing accounts', event)"
+		method="POST"
+		useProxy="false">
+	</mx:HTTPService>
+	
 	<mx:Script>
 
 		<![CDATA[
@@ -290,6 +302,7 @@
 			import views.slide.SimpleSlideConfigWindow;
 			import views.util.GNomExStringUtil;
 			import views.util.PromptXMLListCollection;
+			import views.util.SelectAuthorizedBillingAccountWindow;
 			
 			[Bindable]
 			private var requestCategory:Object;
@@ -315,6 +328,15 @@
 			private var requestCloneWindow:RequestCloneWindow; 
 			
 			private var saveCodeRequestCategory:Object = null;
+			
+			[Bindable]
+			public var selectedBillingAccount:Object = null;
+			
+			[Bindable]
+			private var showAccessAuthorizedAccountsLink:Boolean = false;
+			
+			private var idAppUserLookup:Object = null;
+			private var idCoreFacilityLookup:String = null;
 			
 			public function init():void {
 				checkSecurity();
@@ -349,11 +371,15 @@
 						}
 					}
 					idAppUser = parentApplication.getIdAppUser();
-				}	
+				}
+				
+				this.checkForOtherAccounts();
+				
 				if (parentDocument != null) {
 					parentDocument.getSubmitterName();				
 				}		
-				this.workAuthInstructions.htmlText = parentApplication.getProperty(parentApplication.PROPERTY_WORKAUTH_INSTRUCTIONS);		
+				this.workAuthInstructions.htmlText = parentApplication.getProperty(parentApplication.PROPERTY_WORKAUTH_INSTRUCTIONS);
+				this.accessAuthorizedBillingAccountInstructions.text = parentApplication.getProperty(parentApplication.PROPERTY_AUTH_ACCOUNTS_DESCRIPTION);
 				
 				refreshRequestCategories();
 				if (parentDocument != null) {
@@ -404,7 +430,8 @@
 				this.accountBox.visible = visible;
 				this.accountBox.includeInLayout = visible;
 				this.workAuthLink1.label = parentApplication.getCoreFacilityProperty(getRequestCategory().@idCoreFacility, parentApplication.PROPERTY_REQUEST_WORK_AUTH_LINK_TEXT);
-				if (this.billingAccountCombo.selectedIndex < 0 || this.billingAccountCombo.selectedItem.@accountNameAndNumber == '') {
+				this.accessAuthorizedBillingAccountLink.label = parentApplication.getCoreFacilityProperty(getRequestCategory().@idCoreFacility, parentApplication.PROPERTY_ACCESS_AUTH_ACCOUNT_LINK_TEXT);
+				if (this.selectedBillingAccount == null || this.selectedBillingAccount.@accountNameAndNumber == '') {
 					visible = false || !parentApplication.submitInternalExperiment();
 				}
 				this.projectHBox.visible = visible;
@@ -428,6 +455,7 @@
 				} else {
 					labCombo.selectedIndex = -1;
 					billingAccountCombo.selectedIndex = -1;
+					updateBillingAccount();
 					this.billingAccountValidator.validate();
 					lab = null;
 				}
@@ -456,6 +484,10 @@
 				}		
 			}
 			private function filterBillingAccount(item:Object):Boolean {
+				if (item.hasOwnProperty("@overrideFilter") && item.@overrideFilter == "Y") {
+					return true;
+				}
+				
 				if (item.@isActive == 'N') {
 					return false;
 				}
@@ -478,7 +510,7 @@
 					} 
 				}
 				
-				if (item.@acctUsers != '') {
+				if (item.@acctUsers != '' && !(parentApplication.isAdminState || parentApplication.isBillingAdminState || parentApplication.isSuperAdmin)) {
 					var ids:Array = item.@acctUsers.toString().split(",");
 					var found:Boolean = false;
 					for each(var id:String in ids) {
@@ -631,7 +663,8 @@
 			private function refreshBillingAccounts():void {
 				billingAccounts.refresh();
 				if (billingAccounts.length == 1) {
-					this.billingAccountCombo.selectedIndex = 0;	        	
+					this.billingAccountCombo.selectedIndex = 0;
+					updateBillingAccount();
 				} 
 				setVisibility();
 			}
@@ -757,7 +790,7 @@
 						//Clinical Sequenome won't have the coreFacility set in experimentEdit view.
 							if (!parentApplication.requireExperimentDescriptionAndName(this.requestCategory.@idCoreFacility, this.getRequestCategory().@codeRequestCategory)
 								|| (this.experimentName.text != "" && this.overallDescript.text != "")) { 
-								if (this.billingAccountCombo.selectedItem != null) {
+								if (this.selectedBillingAccount != null) {
 									isComplete = true;
 								}
 							}
@@ -1181,6 +1214,9 @@
 			private function userSelected():void {
 				if (appUserCombo.selectedItem != null) {
 					idAppUser = appUserCombo.selectedItem.@idAppUser;
+					
+					this.checkForOtherAccounts();
+					
 					selectDefaultUserProject();
 					refreshBillingAccounts();
 					
@@ -1273,6 +1309,109 @@
 				getMembersOfLab();
 			}
 			
+			private function updateBillingAccount():void {
+				if (this.billingAccountCombo != null && this.billingAccountCombo.selectedItem != null) {
+					this.selectedBillingAccount = this.billingAccountCombo.selectedItem;
+				} else {
+					this.selectedBillingAccount = null;
+				}
+			}
+			
+			private function showAccessAuthorizedBillingAccounts():void {
+				if (!showAccessAuthorizedAccountsLink) {
+					return;
+				}
+				
+				if (idAppUser == null || idAppUser == '') {
+					Alert.show('Please select the user submitting the request');
+					return;
+				}
+				
+				var idCoreFacility:String = getIdCoreFacility();
+				
+				var pickOtherBillingAccountWindow:SelectAuthorizedBillingAccountWindow = SelectAuthorizedBillingAccountWindow(PopUpManager.createPopUp(this, SelectAuthorizedBillingAccountWindow, true));
+				pickOtherBillingAccountWindow.setup(this, idCoreFacility, idAppUser.toString(), getAuthorizedBillingAccounts.lastResult);
+				PopUpManager.centerPopUp(pickOtherBillingAccountWindow);
+			}
+			
+			public function makeBillingAccountSelection():void {
+				updateBillingAccount();
+				checkSetupCompleteness();
+				setVisibility();
+			}
+			
+			private function checkForOtherAccounts():void {
+				if (parentApplication.isAdminState || parentApplication.isBillingAdminState || parentApplication.isSuperAdmin) {
+					showAccessAuthorizedAccountsLink = true;
+				} else if (idAppUser != null && idAppUser != '') {
+					
+					var idCoreFacility:String = getIdCoreFacility();
+					if (getAuthorizedBillingAccounts.lastResult == null || authAccountParamsChange(idAppUser, idCoreFacility)) {
+						showAccessAuthorizedAccountsLink = false;
+						updateAuthAccountsParams(null, null);
+						
+						var params:Object = new Object();
+						params.idAppUser = idAppUser;
+						if (idCoreFacility != null) {
+							params.idCoreFacility = idCoreFacility;
+						}
+						
+						getAuthorizedBillingAccounts.send(params);
+						
+						updateAuthAccountsParams(idAppUser, idCoreFacility);
+					}
+				}
+			}
+			
+			private function authAccountParamsChange(idAppUserToLookup:Object, idCoreFacilityToLookup:String):Boolean {
+				if (idAppUserToLookup != this.idAppUserLookup) {
+					return true;
+				}
+				if (idCoreFacilityToLookup != this.idCoreFacilityLookup) {
+					return true;
+				}
+				return false;
+			}
+			
+			private function updateAuthAccountsParams(idAppUser:Object, idCoreFacility:String):void {
+				this.idAppUserLookup = idAppUser;
+				this.idCoreFacilityLookup = idCoreFacility;
+			}
+			
+			private function onGetAuthorizedBillingAccounts(event:ResultEvent):void {
+				if (getAuthorizedBillingAccounts.lastResult.name() == "AuthorizedBillingAccounts") {
+					if (getAuthorizedBillingAccounts.lastResult.@hasAuthorizedAccounts == "Y" && userHasAuthorizedAccountsOutsideLab(getAuthorizedBillingAccounts.lastResult)) {
+						showAccessAuthorizedAccountsLink = true;
+					}
+				} else {
+					Alert.show("Could not retrieve authorized billing accounts.", "Error", Alert.OK, this);
+				}
+			}
+			
+			private function userHasAuthorizedAccountsOutsideLab(authorizedAccounts:Object):Boolean {
+				var hasAccountOutsideLab:Boolean = false;
+				
+				if (labCombo != null && labCombo.selectedItem != null && labCombo.selectedItem.hasOwnProperty("@idLab") && labCombo.selectedItem.@idLab != "") {
+					for each (var lab:Object in authorizedAccounts..Lab) {
+						if (lab.hasOwnProperty("@idLab") && lab.@idLab != labCombo.selectedItem.@idLab) {
+							hasAccountOutsideLab = true;
+							break;
+						}
+					}
+				}
+				
+				return hasAccountOutsideLab;
+			}
+			
+			private function getIdCoreFacility():String {
+				var cat:Object = getRequestCategory();
+				var idCoreFacility:String = null;
+				if (cat != null && cat.hasOwnProperty("@idCoreFacility") && cat.@idCoreFacility.toString() != '') {
+					idCoreFacility = cat.@idCoreFacility.toString();
+				}
+				return idCoreFacility;
+			}
+			
 		]]>
 	</mx:Script>
 	<mx:XMLListCollection id="billingAccounts"  source="{lab.approvedBillingAccounts.BillingAccount}"  filterFunction="filterBillingAccount"/>
@@ -1361,8 +1500,8 @@
 			<mx:HBox width="100%" horizontalGap="0"  verticalAlign="top" id="hbox5" paddingBottom="0" paddingTop="0">
 				<util:ContextHelp context1="experimentBillingAccount" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Billing Account Help"
 								  labelPlacement="left" id="text1" width="200" label="(3) Select a billing account."/>
-				<mx:HBox verticalAlign="middle" id="hbox3" horizontalGap="1" paddingBottom="0" paddingTop="0">
-					<mx:ComboBox labelField="@accountNameAndNumber" width="380" id="billingAccountCombo" prompt=" " change="checkSetupCompleteness(); setVisibility();" selectedIndex="-1" close="checkSetupCompleteness(); setVisibility();">
+				<mx:HBox verticalAlign="top" id="hbox3" horizontalGap="1" paddingBottom="0" paddingTop="0">
+					<mx:ComboBox labelField="@accountNameAndNumber" width="380" id="billingAccountCombo" prompt=" " change="makeBillingAccountSelection()" selectedIndex="-1" close="makeBillingAccountSelection()">
 						<mx:dataProvider>{billingAccounts}</mx:dataProvider>
 					</mx:ComboBox>
 					<mx:VBox height="100%" verticalGap="0" paddingBottom="0" paddingTop="0" paddingLeft="0" paddingRight="4" id="vbox3" width="425">
@@ -1373,6 +1512,13 @@
 							<mx:LinkButton  label="New Billing Account"  styleName="formLinkButton" id="workAuthLink1" fontSize="10" paddingTop="0" textAlign="left" paddingLeft="0"> 
 								<mx:click>showNewWorkAuthForm()</mx:click>
 							</mx:LinkButton>
+						</mx:HBox>
+						
+						<mx:Text id="accessAuthorizedBillingAccountInstructions" text="Access authorized billing accounts." 
+								 fontStyle="italic" fontSize="10"  textAlign="left" width="100%" visible="{showAccessAuthorizedAccountsLink}" includeInLayout="{showAccessAuthorizedAccountsLink}" />
+						
+						<mx:HBox horizontalGap="2" width="100%" paddingTop="0" paddingBottom="0" id="accessAuthorizedBillingAccountHBox" visible="{showAccessAuthorizedAccountsLink}" includeInLayout="{showAccessAuthorizedAccountsLink}" >
+							<mx:LinkButton  label="Show Other Billing Accounts"  styleName="formLinkButton" id="accessAuthorizedBillingAccountLink" fontSize="10" paddingTop="0" textAlign="left" paddingLeft="0" click="showAccessAuthorizedBillingAccounts()" />
 						</mx:HBox>
 					</mx:VBox>
 				</mx:HBox>
