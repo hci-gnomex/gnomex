@@ -117,7 +117,7 @@
 					<mx:Label text="Experiment Details" styleName="confirmHeaderLabel" />
 					<mx:Text  id="submitterName" />
 					<mx:Text text="{parentDocument.isAmendState() ? parentDocument.labCombo.selectedItem.@name : parentDocument.setupView.labCombo.selectedItem.@name}" id="text2"/>
-					<mx:Text text="{parentDocument.isAmendState() ? parentDocument.request.@billingAccountName : parentDocument.setupView.billingAccountCombo.selectedItem.@accountName + '(' + parentDocument.isAmendState() ? parentDocument.request.@billingAccountNumber : parentDocument.setupView.billingAccountCombo.selectedItem.@accountNumber + ')'}"/>
+					<mx:Text text="{parentDocument.isAmendState() ? parentDocument.request.@billingAccountName : parentDocument.setupView.selectedBillingAccount.@accountName + '(' + parentDocument.isAmendState() ? parentDocument.request.@billingAccountNumber : parentDocument.setupView.selectedBillingAccount.@accountNumber + ')'}"/>
 					<mx:Text text="{parentDocument.requestCategoryName}" id="requestKindLabel"/>
 					<mx:Text text="{parentDocument.applicationName}" id="appLabel"/>
 					<mx:Text text="" id="seqLaneTypeLabel" />

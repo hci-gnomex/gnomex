@@ -3383,7 +3383,7 @@
 					}
 				} else {
 					
-					var accountName:String = isAmendState() ? request.@accountNumberDisplay : setupView.billingAccountCombo.selectedItem.@accountNumberDisplay;
+					var accountName:String = isAmendState() ? request.@accountNumberDisplay : setupView.selectedBillingAccount.@accountNumberDisplay;
 					
 					agreeCheckbox.label = "I authorize all charges to be billed to account: " + accountName;
 					
@@ -3517,7 +3517,7 @@
 					// from the setup tab
 					request.@idLab = setupView.labCombo.selectedItem.@idLab;
 					if (request.@isExternal == 'N') {
-						request.@idBillingAccount = setupView.billingAccountCombo.selectedItem.@idBillingAccount;
+						request.@idBillingAccount = setupView.selectedBillingAccount.@idBillingAccount;
 					}
 					request.@idProject = setupView.projectCombo.selectedItem.@idProject;
 					if (currentState == 'QCState' && this.sampleSetupView.applicationHasChipTypes()) {
