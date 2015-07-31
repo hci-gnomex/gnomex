@@ -631,6 +631,10 @@
 					parentDocument.filteredProjectList.refresh();       	
 				}
 				
+				if (getAuthorizedBillingAccounts.lastResult != null && getAuthorizedBillingAccounts.lastResult.@hasAuthorizedAccounts == "Y" && userHasAuthorizedAccountsOutsideLab(getAuthorizedBillingAccounts.lastResult)) {
+					showAccessAuthorizedAccountsLink = true;
+				}
+				
 				selectDefaultUserProject();
 				
 				setNameDescriptionLabels();
@@ -1391,7 +1395,7 @@
 			private function userHasAuthorizedAccountsOutsideLab(authorizedAccounts:Object):Boolean {
 				var hasAccountOutsideLab:Boolean = false;
 				
-				if (labCombo != null && labCombo.selectedItem != null && labCombo.selectedItem.hasOwnProperty("@idLab") && labCombo.selectedItem.@idLab != "") {
+				if (labCombo != null && labCombo.selectedItem != null && labCombo.selectedItem.hasOwnProperty("@idLab") && labCombo.selectedItem.@idLab != "" && authorizedAccounts != null) {
 					for each (var lab:Object in authorizedAccounts..Lab) {
 						if (lab.hasOwnProperty("@idLab") && lab.@idLab != labCombo.selectedItem.@idLab) {
 							hasAccountOutsideLab = true;
