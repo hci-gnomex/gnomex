@@ -224,7 +224,7 @@
 			<mx:TextInput id="experimentTypeName" width="400" backgroundColor="#FFFFFF" borderColor="#898F93" change="dirty.setDirty()" />
 			<mx:Spacer width="100%" />
 			<mx:Text text="Sort Order" styleName="formLabel"/>
-			<mx:TextInput id='sortOrderText' restrict="0-9" maxChars="2" editable="true"/>
+			<mx:TextInput id='sortOrderText' restrict="0-9" maxChars="2" editable="true" change="{this.dirty.setDirty()}"/>
 		</mx:HBox>
 
 		<mx:HBox width="100%" horizontalGap="2" verticalAlign="middle" paddingTop="4">
