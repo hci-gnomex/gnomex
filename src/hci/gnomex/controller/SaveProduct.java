@@ -174,7 +174,7 @@ public class SaveProduct extends GNomExCommand implements Serializable {
       price.setName(product.getName());
       price.setDescription("");
       price.setIdPriceCategory(pt.getIdPriceCategory());
-      price.setIsActive("Y");
+      price.setIsActive(product.getIsActive());
       price.setUnitPrice(BigDecimal.ZERO);
       price.setUnitPriceExternalAcademic(BigDecimal.ZERO);
       price.setUnitPriceExternalCommercial(BigDecimal.ZERO);
@@ -187,12 +187,12 @@ public class SaveProduct extends GNomExCommand implements Serializable {
       sess.save(crit);
       modified = true;
     }
-    
-    if ( price.getIdPrice() != product.getIdPrice() ) {
-      product.setIdPrice( price.getIdPrice() );
+
+    if ( updatePrice( price, product, pt ) ) {
       modified = true;
     }
 
+    // Update the prices
     if ( unitPriceInternal != null ) {
       if (setPrice(unitPriceInternal, price.getUnitPrice(), price, PRICE_INTERNAL)) {
         modified = true;
@@ -212,6 +212,34 @@ public class SaveProduct extends GNomExCommand implements Serializable {
     if (modified) {
       sess.flush();
     }
+  }
+  
+  private Boolean updatePrice (Price price, Product product, ProductType pt ) {
+    Boolean modified = false;
+    
+    // Update price to match product name, active flag, price category
+    if ( !price.getName().equals(product.getName()) ){  
+      price.setName(product.getName());
+      modified = true;
+    }
+    
+    if ( !price.getIsActive().equals(product.getIsActive()) ){  
+      price.setIsActive(product.getIsActive());
+      modified = true;
+    }
+    
+    if ( !price.getIdPriceCategory().equals(pt.getIdPriceCategory()) ){  
+      price.setIdPriceCategory(pt.getIdPriceCategory());
+      modified = true;
+    }
+    
+    // Make sure product has correct idprice
+    if ( product.getIdPrice() != price.getIdPrice() ) {
+      product.setIdPrice( price.getIdPrice() );
+      modified = true;
+    } 
+    
+    return modified;
   }
   
   private Boolean priceModified() {
