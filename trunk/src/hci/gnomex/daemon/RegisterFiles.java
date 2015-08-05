@@ -17,6 +17,7 @@ import hci.gnomex.utility.BatchMailer;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.FileDescriptor;
 import hci.gnomex.utility.MailUtil;
+import hci.gnomex.utility.MailUtilHelper;
 import hci.gnomex.utility.PropertyDictionaryHelper;
 import hci.gnomex.utility.UploadDownloadHelper;
 import hci.gnomex.utility.Util;
@@ -614,7 +615,7 @@ public class RegisterFiles extends TimerTask {
   }
 
 
-  private void sendNotifyEmails(String fromAddress) throws NamingException, MessagingException {
+  private void sendNotifyEmails(String fromAddress) throws NamingException, MessagingException, IOException {
     for ( Iterator i = this.emailAnalysisMap.keySet().iterator(); i.hasNext();) {
       StringBuffer body = new StringBuffer();
       body.append("The following analysis files no longer exist on the file system and have been removed from the database.  Please remove the associated data tracks.");
@@ -629,7 +630,7 @@ public class RegisterFiles extends TimerTask {
       }
 
       if (sendMail) {
-    	  MailUtil.validateAndSendEmail(	
+    	  MailUtilHelper helper = new MailUtilHelper(	
     			  	mailProps,
     			  	emailAddress,
     			  	fromAddress,
@@ -637,22 +638,24 @@ public class RegisterFiles extends TimerTask {
 					fromAddress,
 					"GNomEx Analysis file(s) missing from file system",
 					body.toString(),
+					null,
 					false, 
 					DictionaryHelper.getInstance(sess),
 					serverName 											);
+    	  MailUtil.validateAndSendEmail(helper);
     	 
       }
     }
   }
 
-  private void sendNotifyEmailsOld(Map emailMap, String fromAddress) throws NamingException, MessagingException {
+  private void sendNotifyEmailsOld(Map emailMap, String fromAddress) throws NamingException, MessagingException, IOException {
 
     for ( Iterator i = emailMap.keySet().iterator(); i.hasNext();) {
       String emailAddress = (String) i.next();
       String emailMessage = (String)emailMap.get(emailAddress);
 
       if (sendMail) {
-    	  MailUtil.validateAndSendEmail(	
+    	  MailUtilHelper helper = new MailUtilHelper(	
     			  mailProps,
     			  emailAddress,
     			  null,
@@ -660,9 +663,11 @@ public class RegisterFiles extends TimerTask {
     			  fromAddress,
     			  "GNomEx Analysis file(s) missing from file system",
     			  emailMessage,
+    			  null,
     			  false, 
 				  DictionaryHelper.getInstance(sess),
 			      serverName 											);
+    	  MailUtil.validateAndSendEmail(helper);
     	  
       }
     }
@@ -675,7 +680,7 @@ public class RegisterFiles extends TimerTask {
         printDebugStatement(localMachine.getHostName());
       }
       if (sendMail) {
-    	MailUtil.validateAndSendEmail(	
+    	MailUtilHelper helper = new MailUtilHelper(	
     			mailProps,
     			softwareTestEmail,
     			null,
@@ -683,9 +688,11 @@ public class RegisterFiles extends TimerTask {
     			fromAddress,
     			"Register Files Error [Server: " + localMachine.getHostName() + "]",
     			errorMessageString,
+    			null,
     			false, 
 				DictionaryHelper.getInstance(sess),
 			    serverName 															);
+    	MailUtil.validateAndSendEmail(helper);
     	
       }
     } catch (Exception e) {
@@ -891,7 +898,7 @@ public class RegisterFiles extends TimerTask {
 
       printDebugStatement("TO ADDRESS: " + toAddress + "       FROM ADDRESS: " + fromAddress);
       try {
-    	  MailUtil.validateAndSendEmail(	
+    	  MailUtilHelper helper = new MailUtilHelper(	
     			  mailProps,
     			  toAddress,
       			  null,
@@ -899,9 +906,11 @@ public class RegisterFiles extends TimerTask {
       			  fromAddress,
       			  subject,
       			  body,
+      			  null,
       			  false, 
   				  DictionaryHelper.getInstance(sess),
   			      serverName 							);
+    	  MailUtil.validateAndSendEmail(helper);
     	  
       } catch (Exception e) {
         System.err.println("WARNING: Unable to send email notifying of deletion of Sample Experiment Files. Trying to send to: " + toAddress + e.toString());

@@ -6,6 +6,7 @@ import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.utility.BatchDataSource;
 import hci.gnomex.utility.BatchMailer;
 import hci.gnomex.utility.MailUtil;
+import hci.gnomex.utility.MailUtilHelper;
 import hci.gnomex.utility.PropertyDictionaryHelper;
 
 import java.util.Iterator;
@@ -182,16 +183,20 @@ public class VerifyUserEmails {
 
 
       try {
-        MailUtil.sendCheckTest( mailProps,
+        MailUtilHelper helper = new MailUtilHelper(
+        	mailProps,
             toAddress,
+            null,
             null,
             doNotReplyEmail,
             "VerifyUserEmails Complete",
             body.toString(),
+            null,
             false,
             testEmail,
             testEmailAddress
         );
+        MailUtil.validateAndSendEmail(helper);
       } catch (Exception e) {
         System.err.println("Unable to send confirmation email to gnomex support staff");
       }
@@ -220,16 +225,20 @@ public class VerifyUserEmails {
 
       body.append("<br><br>  Questions?  Email us at: " + gnomexSupportEmail);
       try {
-        MailUtil.sendCheckTest( mailProps,
+        MailUtilHelper helper = new MailUtilHelper(
+        	mailProps,
             toAddress,
+            null,
             null,
             doNotReplyEmail,
             "Please verify your GNomEx contact email address",
             body.toString(),
+            null,
             true,
             testEmail,
             testEmailAddress
         );
+        MailUtil.validateAndSendEmail(helper);
       } 
       catch(Exception ex) {
         System.err.println("Unable to send email to app user " + au.getDisplayName() + " with email " + au.getEmail() + " because of exception: " + ex.getMessage());
@@ -284,16 +293,20 @@ public class VerifyUserEmails {
       System.out.println(toAddress);
       try {
         if (sendMail) {
-          MailUtil.sendCheckTest( mailProps,
+          MailUtilHelper helper = new MailUtilHelper(
+        	  mailProps,
               toAddress,
+              null,
               null,
               doNotReplyEmail,
               "VerifyUserEmails Error",
               errorMessageString,
+              null,
               true,
               testEmail,
               testEmailAddress
           );
+          MailUtil.validateAndSendEmail(helper);
         }
       } catch (Exception e1) {
         System.err.println( "VerifyUserEmails unable to send error report.   " + e1.toString() );

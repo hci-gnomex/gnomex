@@ -18,6 +18,7 @@ import hci.gnomex.utility.BatchDataSource;
 import hci.gnomex.utility.BatchMailer;
 import hci.gnomex.utility.DeleteOldExperimentAndAnalysisFilesEmailFormatter;
 import hci.gnomex.utility.MailUtil;
+import hci.gnomex.utility.MailUtilHelper;
 import hci.gnomex.utility.PropertyDictionaryHelper;
 
 import java.io.File;
@@ -609,16 +610,20 @@ public class DeleteOldExperimentAndAnalysisFiles {
 
     if (sendMail) {
       try {
-        MailUtil.sendCheckTest( mailProps,
+        MailUtilHelper helper = new MailUtilHelper(
+        	mailProps,
             emailAddress,
             gnomexSupportEmail,
+            null,
             fromEmailAddress,
             subject,
             body,
+            null,
             true,
             testEmail,
             testEmailAddress
         );
+        MailUtil.validateAndSendEmail(helper);
       } catch(Exception ex) {
         printError("Unable to send email to lab " + lab.getName() + " with email " + emailAddress + " because of exception: " + ex.getMessage());
       }
@@ -810,16 +815,20 @@ public class DeleteOldExperimentAndAnalysisFiles {
 
       if (sendMail) {
         try {
-          MailUtil.sendCheckTest( mailProps,
+          MailUtilHelper helper = new MailUtilHelper(
+        	  mailProps,
               emailAddress,
+              null,
               null,
               gnomexSupportEmail,
               "GNomEx Analysis file(s) removed from file system",
               body.toString(),
+              null,
               false,
               testEmail,
               testEmailAddress
           );
+          MailUtil.validateAndSendEmail(helper);
         } catch(Exception ex) {
           printError("Unable to send analysis notification email to email address " + emailAddress + " because of exception: " + ex.getMessage());
         }
@@ -1013,16 +1022,20 @@ public class DeleteOldExperimentAndAnalysisFiles {
     String toAddress = gnomexSupportEmail;
     try {
       if (sendMail) {
-        MailUtil.sendCheckTest( mailProps,
+        MailUtilHelper helper = new MailUtilHelper(
+        	mailProps,
             toAddress,
+            null,
             null,
             fromEmailAddress,
             "ComputeMonthlyDiskUsage Error",
             errorMessageString,
+            null,
             false,
             testEmail,
             testEmailAddress
         );
+        MailUtil.validateAndSendEmail(helper);
       }
     } catch (Exception e1) {
       printError( "DeleteOldExperimentAndAnalysisFiles unable to send error report.   " + e1.toString() );

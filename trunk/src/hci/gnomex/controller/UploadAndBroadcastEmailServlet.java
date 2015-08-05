@@ -6,6 +6,7 @@ import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateGuestSession;
 import hci.gnomex.utility.MailUtil;
+import hci.gnomex.utility.MailUtilHelper;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -192,14 +193,17 @@ public class UploadAndBroadcastEmailServlet extends HttpServlet {
               fromAddress = DictionaryHelper.getInstance(sess).getPropertyDictionary(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
           }
           
-          MailUtil.validateAndSendEmail(	
+          MailUtilHelper helper = new MailUtilHelper(	
         		  emailRecipients,
         		  fromAddress,
         		  subject,
         		  body.toString(),
+        		  null,
         		  format.equalsIgnoreCase("HTML") ? true : false, 
         		  dh,
         		  serverName 										);
+          helper.setRecipientAppUser(appUser);
+          MailUtil.validateAndSendEmail(helper);
           
           userCount++;
 

@@ -10,9 +10,11 @@ import hci.gnomex.security.EncryptionUtility;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.MailUtil;
+import hci.gnomex.utility.MailUtilHelper;
 import hci.gnomex.utility.PropertyDictionaryHelper;
 import hci.gnomex.utility.Util;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -193,7 +195,7 @@ public class ChangePassword extends GNomExCommand implements Serializable {
                 labContactEmail =  ((CoreFacility)sess.load(CoreFacility.class, idCoreFacility)).getContactEmail();
               }
 
-              sendConfirmationEmail(appUser.getEmail(), uuid.toString());
+              sendConfirmationEmail(appUser, uuid.toString());
             } else {
               regErrorMsg = "Reset password email already requested. Please wait for the instructions in your email.";
               this.addInvalidField("Reset password email already requested", regErrorMsg); 
@@ -251,7 +253,7 @@ public class ChangePassword extends GNomExCommand implements Serializable {
     }
   }
 
-  public void sendConfirmationEmail(String email, String guid)  throws NamingException, MessagingException {
+  public void sendConfirmationEmail(AppUser appUser, String guid)  throws NamingException, MessagingException, IOException {
     StringBuffer content = new StringBuffer();
     appURL += "/change_password.jsp?guid=" + guid;
 
@@ -263,13 +265,16 @@ public class ChangePassword extends GNomExCommand implements Serializable {
     //    content.append("Please take a moment to change your temporary password to a new password the next time you log in.<br>");
     //    content.append("<a href=\"" + appURL + "\">" + "Sign in to " + Constants.APP_NAME + "</a>");
     
-    MailUtil.validateAndSendEmail(	
-    		email,
+    MailUtilHelper helper = new MailUtilHelper(	
+    		appUser.getEmail(),
     		this.labContactEmail,
     		"Reset GNomEx Password",
     		content.toString(),
+    		null,
 			true, 
 			dictionaryHelper,
 			serverName 				);
+    helper.setRecipientAppUser(appUser);
+    MailUtil.validateAndSendEmail(helper);
   }
 }

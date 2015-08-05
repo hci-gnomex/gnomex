@@ -15,6 +15,7 @@ import hci.gnomex.model.TransferLog;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.MailUtil;
+import hci.gnomex.utility.MailUtilHelper;
 import hci.gnomex.utility.PropertyDictionaryHelper;
 
 import java.io.File;
@@ -393,7 +394,8 @@ public class UploadQuoteInfoServlet extends HttpServlet {
       if(!MailUtil.isValidEmail(senderEmail)){
         senderEmail = DictionaryHelper.getInstance(sess).getPropertyDictionary(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
       }
-      MailUtil.validateAndSendEmail(contactEmail, ccEmail, senderEmail, subject, emailBody.toString(), new File(baseDir), true, dictionaryHelper, serverName);
+      MailUtilHelper helper = new MailUtilHelper(contactEmail, ccEmail, null, senderEmail, subject, emailBody.toString(), new File(baseDir), true, dictionaryHelper, serverName);
+      MailUtil.validateAndSendEmail(helper);
     }
 
     // Now send the email to lab billing contact and PI
@@ -430,7 +432,8 @@ public class UploadQuoteInfoServlet extends HttpServlet {
       ccEmail = null;
     }
     if (send && !contactEmail.equals( "" )) {
-    	MailUtil.validateAndSendEmail(contactEmail, ccEmail, senderEmail, subject, emailBodyForLab.toString(), reqFolder, true, dictionaryHelper, serverName);
+    	MailUtilHelper helper = new MailUtilHelper(contactEmail, ccEmail, null, senderEmail, subject, emailBodyForLab.toString(), reqFolder, true, dictionaryHelper, serverName);
+    	MailUtil.validateAndSendEmail(helper);
     }
 
     return send;

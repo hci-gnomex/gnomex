@@ -24,8 +24,10 @@ import hci.gnomex.utility.LabCoreFacilityParser;
 import hci.gnomex.utility.LabInstitutionParser;
 import hci.gnomex.utility.LabMemberParser;
 import hci.gnomex.utility.MailUtil;
+import hci.gnomex.utility.MailUtilHelper;
 import hci.gnomex.utility.PropertyDictionaryHelper;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.io.StringReader;
 import java.util.ArrayList;
@@ -642,14 +644,16 @@ public class SaveLab extends GNomExCommand implements Serializable {
     }
 
     try {
-    	MailUtil.validateAndSendEmail(	
+    	MailUtilHelper helper = new MailUtilHelper(	
     			email,
     			fromAddress,
     			"You've been added to a new GNomEx lab",
     			body.toString(),
+    			null,
 				true, 
 				DictionaryHelper.getInstance(sess),
 				serverName 								);
+    	MailUtil.validateAndSendEmail(helper);
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -703,7 +707,7 @@ public class SaveLab extends GNomExCommand implements Serializable {
   }
 
 
-  private void sendNewPOAccountEmail(Session sess, BillingAccount billingAccount, Lab lab) throws NamingException, MessagingException {
+  private void sendNewPOAccountEmail(Session sess, BillingAccount billingAccount, Lab lab) throws NamingException, MessagingException, IOException {
     PropertyDictionaryHelper dictionaryHelper = PropertyDictionaryHelper.getInstance(sess);
 
     StringBuffer submitterNote = new StringBuffer();
@@ -737,14 +741,16 @@ public class SaveLab extends GNomExCommand implements Serializable {
         from = DictionaryHelper.getInstance(sess).getPropertyDictionary(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
     }
     
-    MailUtil.validateAndSendEmail(	
+    MailUtilHelper helper = new MailUtilHelper(	
     		emailRecipients,
     		from,
     		submitterSubject,
     		submitterNote.toString() + body.toString(),
+    		null,
 			false, 
 			DictionaryHelper.getInstance(sess),
 			serverName 									);
+    MailUtil.validateAndSendEmail(helper);
 
   }
 

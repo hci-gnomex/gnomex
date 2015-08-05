@@ -14,9 +14,11 @@ import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.LabCoreFacilityParser;
 import hci.gnomex.utility.MailUtil;
+import hci.gnomex.utility.MailUtilHelper;
 import hci.gnomex.utility.PropertyDictionaryHelper;
 import hci.gnomex.utility.Util;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.io.StringReader;
 import java.math.BigDecimal;
@@ -184,7 +186,7 @@ public class SubmitWorkAuthForm extends GNomExCommand implements Serializable {
   }
 
 
-  private void sendConfirmationEmail(Session sess, CoreFacility facility) throws NamingException, MessagingException {
+  private void sendConfirmationEmail(Session sess, CoreFacility facility) throws NamingException, MessagingException, IOException {
     StringBuffer invalidEmails = new StringBuffer();
 
     DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess);
@@ -240,14 +242,16 @@ public class SubmitWorkAuthForm extends GNomExCommand implements Serializable {
     }
     // Email submitter
     try {
-    	MailUtil.validateAndSendEmail(	
+    	MailUtilHelper helper = new MailUtilHelper(	
     			emailRecipients,
     			replyEmail,
     			submitterSubject,
     			submitterNote.toString() + body.toString(),
+    			null,
 				true, 
 				dictionaryHelper,
-				serverName 									);          
+				serverName 									);
+    	MailUtil.validateAndSendEmail(helper);
     } catch (Exception e) {
         // DEAD CODE: Even when mail isn't sent, we don't seem to get an exception 
         log.warn("Unable to send email notification to billing account submitter " + billingAccount.getSubmitterEmail() + " UID " + billingAccount.getSubmitterUID());
@@ -279,14 +283,16 @@ public class SubmitWorkAuthForm extends GNomExCommand implements Serializable {
               " and is pending approval.  You can quickly approve this account by clicking <a href=" + approveBillingAccountURL + ">here</a> or you can view the account in more detail in " +
               "<a href=" + launchBillingAccountDetail + ">GNomEx</a>.");
         
-        MailUtil.validateAndSendEmail(	
+        MailUtilHelper helper = new MailUtilHelper(	
         		emails[i],
         		replyEmail,
         		coreSubject,
         		coreNote.toString() + body.toString(),
+        		null,
 				true, 
 				dictionaryHelper,
 				serverName 								);
+        MailUtil.validateAndSendEmail(helper);
                     
       }
     }

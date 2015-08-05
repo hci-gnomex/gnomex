@@ -9,6 +9,7 @@ import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.MailUtil;
+import hci.gnomex.utility.MailUtilHelper;
 
 import java.io.Serializable;
 import java.io.StringReader;
@@ -133,14 +134,16 @@ public class EmailServlet extends GNomExCommand implements Serializable {
     	  
     	  if (MailUtil.isValidEmail(recipientAddress)) {
             
-              MailUtil.validateAndSendEmail(	
+              MailUtilHelper helper = new MailUtilHelper(	
             		  recipientAddress,
             		  senderAddress,
             		  subject,
             		  body.toString(),
+            		  null,
             		  format.equalsIgnoreCase("HTML") ? true : false, 
             		  dh,
             		  serverName 										);
+              MailUtil.validateAndSendEmail(helper);
               
               setResponsePage(this.SUCCESS_JSP);
     	  } else {
@@ -207,14 +210,17 @@ public class EmailServlet extends GNomExCommand implements Serializable {
 
             appUserEmail.add(recipientAddress);
             
-            MailUtil.validateAndSendEmail(	
+            MailUtilHelper helper = new MailUtilHelper(	
             		recipientAddress,
             		senderAddress,
             		subject,
             		body.toString(),
+            		null,
             		format.equalsIgnoreCase("HTML") ? true : false, 
             	    dh,
           		    serverName 										);
+            helper.setRecipientAppUser(appUser);
+            MailUtil.validateAndSendEmail(helper);
              
           }
         }

@@ -20,12 +20,14 @@ import hci.gnomex.utility.BillingItemAutoComplete;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.MailUtil;
+import hci.gnomex.utility.MailUtilHelper;
 import hci.gnomex.utility.PropertyDictionaryHelper;
 import hci.gnomex.utility.RequestEmailBodyFormatter;
 import hci.gnomex.utility.SequenceLaneNumberComparator;
 import hci.gnomex.utility.Util;
 import hci.gnomex.utility.WorkItemSolexaPipelineParser;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.io.StringReader;
 import java.util.ArrayList;
@@ -268,7 +270,7 @@ public class SaveWorkItemSolexaPipeline extends GNomExCommand implements Seriali
     }
   }
   
-  private void sendBioinformaticsAssistanceEmail(Session sess, Request r) throws NamingException, MessagingException {
+  private void sendBioinformaticsAssistanceEmail(Session sess, Request r) throws NamingException, MessagingException, IOException {
     DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess);
     AppUser user = r.getAppUser();
     String organismName = "";
@@ -341,20 +343,22 @@ public class SaveWorkItemSolexaPipeline extends GNomExCommand implements Seriali
     body.append("<u>Run Type:</u> " + seqRunType + ". <br>");
     body.append("<u>Library Protocol:</u> " + seqLibProtocol);
     
-    MailUtil.validateAndSendEmail(	
+    MailUtilHelper helper = new MailUtilHelper(	
     		toAddress,
     		ccAddress,
     		null,
     		fromAddress,
     		subject,
     		body.toString(),
+    		null,
 			true, 
 			dictionaryHelper,
-			serverName 			);     
+			serverName 			);
+    MailUtil.validateAndSendEmail(helper);
     
   }
 
-  private void sendConfirmationEmail(Session sess, Request request, Collection lanes) throws NamingException, MessagingException {
+  private void sendConfirmationEmail(Session sess, Request request, Collection lanes) throws NamingException, MessagingException, IOException {
     
     dictionaryHelper = DictionaryHelper.getInstance(sess);
     
@@ -423,14 +427,17 @@ public class SaveWorkItemSolexaPipeline extends GNomExCommand implements Seriali
         fromAddress = DictionaryHelper.getInstance(sess).getPropertyDictionary(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
     }
     
-    MailUtil.validateAndSendEmail(	
+    MailUtilHelper helper = new MailUtilHelper(	
     		emailRecipients,
     		fromAddress,
     		subject,
     		emailFormatter.format(),
+    		null,
 			true, 
 			dictionaryHelper,
 			serverName 				);
+    helper.setRecipientAppUser(request.getAppUser());
+    MailUtil.validateAndSendEmail(helper);
     
     // Send email to bioinformatics core
     if (request.getBioinformaticsAssist() != null && request.getBioinformaticsAssist().equals("Y")) {

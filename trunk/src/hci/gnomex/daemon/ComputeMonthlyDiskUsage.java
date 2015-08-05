@@ -18,6 +18,7 @@ import hci.gnomex.utility.BatchDataSource;
 import hci.gnomex.utility.BatchMailer;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.MailUtil;
+import hci.gnomex.utility.MailUtilHelper;
 import hci.gnomex.utility.PropertyDictionaryHelper;
 
 import java.math.BigDecimal;
@@ -703,16 +704,20 @@ public class ComputeMonthlyDiskUsage {
 
     if (sendMail) {
       try {
-        MailUtil.sendCheckTest( mailProps,
+        MailUtilHelper helper = new MailUtilHelper(
+        	mailProps,
             emailAddress,
+            null,
             null,
             fromEmailAddress,
             "GNomEx Disk Usage Charges",
             body.toString(),
+            null,
             true,
             testEmail,
             testEmailAddress
         );
+        MailUtil.validateAndSendEmail(helper);
       } catch(Exception ex) {
         System.err.println("Unable to send email to lab " + labName + " with email " + emailAddress + " because of exception: " + ex.getMessage());
       }
@@ -776,16 +781,20 @@ public class ComputeMonthlyDiskUsage {
       }
       try {
         if (sendMail) {
-          MailUtil.sendCheckTest( mailProps,
+          MailUtilHelper helper = new MailUtilHelper(
+        	  mailProps,
               toAddress,
+              null,
               null,
               fromEmailAddress,
               "ComputeMonthlyDiskUsage Error",
               errorMessageString,
+              null,
               false,
               testEmail,
               testEmailAddress
           );
+          MailUtil.validateAndSendEmail(helper);
         }
       } catch (Exception e1) {
         System.err.println( "ComputeMonthlyDiskUsage unable to send error report.   " + e1.toString() );

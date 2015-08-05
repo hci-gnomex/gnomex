@@ -9,6 +9,7 @@ import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.utility.BatchDataSource;
 import hci.gnomex.utility.BatchMailer;
 import hci.gnomex.utility.MailUtil;
+import hci.gnomex.utility.MailUtilHelper;
 import hci.gnomex.utility.PropertyDictionaryHelper;
 
 import java.io.IOException;
@@ -251,12 +252,14 @@ public class UsageReportd extends TimerTask {
       body.append("</body></html>");
       
       if(isTestMode) {
-    	  MailUtil.sendCheckTest(mailProps, bccTo, null, null, replyEmail, subject, body.toString(), true, isTestMode, propertyHelper.getProperty(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER));                
+    	  MailUtilHelper helper = new MailUtilHelper(mailProps, bccTo, null, null, replyEmail, subject, body.toString(), null, true, isTestMode, propertyHelper.getProperty(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER));
+    	  MailUtil.validateAndSendEmail(helper);
       } else {
     	  if(toList==null) {
     		  System.out.print(body.toString()); 
     	  } else {
-    		  MailUtil.sendCheckTest(mailProps, toList, null, bccTo, replyEmail, subject, body.toString(), true, isTestMode, propertyHelper.getProperty(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER)); 
+    		  MailUtilHelper helper = new MailUtilHelper(mailProps, toList, null, bccTo, replyEmail, subject, body.toString(), null, true, isTestMode, propertyHelper.getProperty(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER));
+    		  MailUtil.validateAndSendEmail(helper);
     	  }               
       }
       app.disconnect();      

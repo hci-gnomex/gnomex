@@ -1,5 +1,7 @@
 package hci.gnomex.utility;
 
+import java.io.IOException;
+
 import javax.mail.MessagingException;
 import javax.mail.internet.AddressException;
 import javax.naming.NamingException;
@@ -18,7 +20,7 @@ public class BillingAccountUtil {
 	// The static field for logging in Log4J
 	private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(BillingAccountUtil.class);
 	
-	private static void sendApprovedBillingAccountEmail(Session sess, String serverName, String launchAppURL, BillingAccount billingAccount, Lab lab, AppUser approver, String approverEmail) throws AddressException, NamingException, MessagingException {
+	private static void sendApprovedBillingAccountEmail(Session sess, String serverName, String launchAppURL, BillingAccount billingAccount, Lab lab, AppUser approver, String approverEmail) throws AddressException, NamingException, MessagingException, IOException {
 		PropertyDictionaryHelper dictionaryHelper = PropertyDictionaryHelper.getInstance(sess);
 
 	    StringBuffer submitterNote = new StringBuffer();
@@ -82,14 +84,16 @@ public class BillingAccountUtil {
 	    if (!MailUtil.isValidEmail(from)) {
 	    	  from = DictionaryHelper.getInstance(sess).getPropertyDictionary(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
 	    }
-	    MailUtil.validateAndSendEmail(	
+	    MailUtilHelper helper = new MailUtilHelper(	
 	    		emailRecipients,
 	    		from,
 	    		submitterSubject,
 	    		submitterNote.toString() + body.toString(),
+	    		null,
 				true, 
 				dh,
 				serverName 									);
+	    MailUtil.validateAndSendEmail(helper);
 
 	    // Email people with approve power notifying them that the account has been approved and they don't have to do anything else.
 	    if (lab.getBillingNotificationEmail() != null && !lab.getBillingNotificationEmail().equals("")) {
@@ -103,23 +107,25 @@ public class BillingAccountUtil {
 	    	}
 	    	contactEmail += ", " + facilityEmail;
 	    	
-	    	MailUtil.validateAndSendEmail(	
+	    	MailUtilHelper helper2 = new MailUtilHelper(	
 	    			contactEmail,
 	    			from,
 	    			submitterSubject,
 	    			submitterNote.toString() + body.toString(),
+	    			null,
 					true, 
 					dh,
 					serverName									);
+	    	MailUtil.validateAndSendEmail(helper2);
 	
 	    }
 	}
 	
-	public static void sendApprovedBillingAccountEmail(Session sess, String serverName, String launchAppURL, BillingAccount billingAccount, Lab lab, AppUser approver) throws AddressException, NamingException, MessagingException {
+	public static void sendApprovedBillingAccountEmail(Session sess, String serverName, String launchAppURL, BillingAccount billingAccount, Lab lab, AppUser approver) throws AddressException, NamingException, MessagingException, IOException {
 		sendApprovedBillingAccountEmail(sess, serverName, launchAppURL, billingAccount, lab, approver, null);
 	}
 	
-	public static void sendApprovedBillingAccountEmail(Session sess, String serverName, String launchAppURL, BillingAccount billingAccount, Lab lab, String approverEmail) throws AddressException, NamingException, MessagingException {
+	public static void sendApprovedBillingAccountEmail(Session sess, String serverName, String launchAppURL, BillingAccount billingAccount, Lab lab, String approverEmail) throws AddressException, NamingException, MessagingException, IOException {
 		sendApprovedBillingAccountEmail(sess, serverName, launchAppURL, billingAccount, lab, null, approverEmail);
 	}
 

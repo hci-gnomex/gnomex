@@ -6,6 +6,7 @@ import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.MailUtil;
+import hci.gnomex.utility.MailUtilHelper;
 import hci.gnomex.utility.PropertyDictionaryHelper;
 
 import java.io.IOException;
@@ -61,14 +62,17 @@ public class ApproveUser extends HttpServlet {
         sess.delete(au);
         sess.flush();
         
-        MailUtil.validateAndSendEmail(
+        MailUtilHelper helper = new MailUtilHelper(
         		email,
         		doNotReplyEmail,
         		"Your GNomEx account has NOT been approved.",
         		"You have not been given access to GNomEx. Please contact the P.I. of the lab you were requesting access to for the reason behind this.  If you requested the creation of a new lab, please contact the core facility director whose core you were trying to join.  Thank you.",
+        		null,
 				true, 
 				dictionaryHelper,
 				serverName);
+        helper.setRecipientAppUser(au);
+        MailUtil.validateAndSendEmail(helper);
 
         message = "The user has been successfully deleted.  The user has been notified of this action.";
 
@@ -85,14 +89,17 @@ public class ApproveUser extends HttpServlet {
 
         String body = "Welcome to GNomEx.  Your user account has been activated.<br><br>" + gnomexURL + "<br><br> **Please note if you requested the creation of a new lab please wait until you receive notification that you have been added to that lab before trying to submit an experiment.**";
         
-        MailUtil.validateAndSendEmail(
+        MailUtilHelper helper = new MailUtilHelper(
         		au.getEmail(),
         		doNotReplyEmail,
         		"Your GNomEx account is now active",
         		body,
+        		null,
 				true, 
 				dictionaryHelper,
 				serverName);
+        helper.setRecipientAppUser(au);
+        MailUtil.validateAndSendEmail(helper);
 
         message = "User successfully activated.  The user will be notified that their account is now active";
       } else {

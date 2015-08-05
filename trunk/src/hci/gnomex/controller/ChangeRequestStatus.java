@@ -19,11 +19,13 @@ import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.EmailHelper;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.MailUtil;
+import hci.gnomex.utility.MailUtilHelper;
 import hci.gnomex.utility.ProductUtil;
 import hci.gnomex.utility.PropertyDictionaryHelper;
 import hci.gnomex.utility.RequestEmailBodyFormatter;
 import hci.gnomex.utility.Util;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -264,7 +266,7 @@ public class ChangeRequestStatus extends GNomExCommand implements Serializable {
   }
 
 
-  private void sendConfirmationEmail(Session sess, Request req, String otherRecipients) throws NamingException, MessagingException {
+  private void sendConfirmationEmail(Session sess, Request req, String otherRecipients) throws NamingException, MessagingException, IOException {
 
     DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess);
 
@@ -326,14 +328,17 @@ public class ChangeRequestStatus extends GNomExCommand implements Serializable {
       fromAddress = DictionaryHelper.getInstance(sess).getPropertyDictionary(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
     }
     
-    MailUtil.validateAndSendEmail(	
+    MailUtilHelper helper = new MailUtilHelper(	
     		emailRecipients,
     		fromAddress,
 			subject,
 			emailFormatter.format(),
+			null,
 			true, 
 			dictionaryHelper,
 			serverName 				);
+    helper.setRecipientAppUser(req.getAppUser());
+    MailUtil.validateAndSendEmail(helper);
 
   }
 }

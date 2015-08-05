@@ -1,5 +1,7 @@
 package hci.gnomex.utility;
 
+import java.io.IOException;
+
 import hci.gnomex.constants.Constants;
 import hci.gnomex.model.CoreFacility;
 import hci.gnomex.model.PropertyDictionary;
@@ -13,7 +15,7 @@ import org.hibernate.Session;
 
 public class EmailHelper {
   
-  public static void sendConfirmationEmail(Session sess, Request request, SecurityAdvisor secAdvisor, String launchAppURL, String appURL, String serverName) throws NamingException, MessagingException {
+  public static void sendConfirmationEmail(Session sess, Request request, SecurityAdvisor secAdvisor, String launchAppURL, String appURL, String serverName) throws NamingException, MessagingException, IOException {
     
     DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess);
     CoreFacility cf = (CoreFacility)sess.load(CoreFacility.class, request.getIdCoreFacility());
@@ -45,18 +47,21 @@ public class EmailHelper {
         contactEmailCoreFacility = DictionaryHelper.getInstance(sess).getPropertyDictionary(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
     }
     
-    MailUtil.validateAndSendEmail(	
+    MailUtilHelper helper = new MailUtilHelper(	
     		emailRecipients,
     		contactEmailCoreFacility,
     		subject,
     		emailFormatter.format(),
+    		null,
 			true, 
 			dictionaryHelper,
 			serverName 					);
+    helper.setRecipientAppUser(request.getAppUser());
+    MailUtil.validateAndSendEmail(helper);
     
   }
 
-  public static void sendRedoEmail(Session sess, Request request, SecurityAdvisor secAdvisor, String launchAppURL, String appURL, String serverName) throws NamingException, MessagingException {
+  public static void sendRedoEmail(Session sess, Request request, SecurityAdvisor secAdvisor, String launchAppURL, String appURL, String serverName) throws NamingException, MessagingException, IOException {
     
     DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess);
     CoreFacility cf = (CoreFacility)sess.load(CoreFacility.class, request.getIdCoreFacility());
@@ -88,14 +93,17 @@ public class EmailHelper {
         contactEmailCoreFacility = DictionaryHelper.getInstance(sess).getPropertyDictionary(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
     }
     
-    MailUtil.validateAndSendEmail(	
+    MailUtilHelper helper = new MailUtilHelper(	
     		emailRecipients,
     		contactEmailCoreFacility,
     		subject,
     		emailFormatter.format(),
+    		null,
 			true, 
 			dictionaryHelper,
 			serverName 					);
+    helper.setRecipientAppUser(request.getAppUser());
+    MailUtil.validateAndSendEmail(helper);
     
   }
 
