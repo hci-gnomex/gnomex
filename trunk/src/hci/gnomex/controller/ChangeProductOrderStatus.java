@@ -4,6 +4,7 @@ import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.ProductLineItem;
 import hci.gnomex.model.ProductOrder;
+import hci.gnomex.model.ProductOrderStatus;
 import hci.gnomex.utility.ProductUtil;
 
 import java.io.Serializable;
@@ -80,6 +81,7 @@ public class ChangeProductOrderStatus extends GNomExCommand implements Serializa
               String oldStatus = li.getCodeProductOrderStatus();
               if ( ProductUtil.updateLedgerOnProductOrderStatusChange(li, po, oldStatus, codeProductOrderStatus, sess, resultMessage) ) {
                 li.setCodeProductOrderStatus(codeProductOrderStatus);
+                updateBillingStatus( li, po, oldStatus, codeProductOrderStatus, sess );
                 sess.update(li);
               } 
             }
@@ -94,6 +96,7 @@ public class ChangeProductOrderStatus extends GNomExCommand implements Serializa
             String oldStatus = pli.getCodeProductOrderStatus();
             if ( ProductUtil.updateLedgerOnProductOrderStatusChange(pli, po, oldStatus, codeProductOrderStatus, sess, resultMessage) ) {
               pli.setCodeProductOrderStatus(codeProductOrderStatus);
+              updateBillingStatus( pli, po, oldStatus, codeProductOrderStatus, sess );
               sess.update(pli);
             } 
           }
@@ -115,6 +118,22 @@ public class ChangeProductOrderStatus extends GNomExCommand implements Serializa
       }
     }
     return this;
+  }
+  
+  public boolean updateBillingStatus(ProductLineItem pli, ProductOrder po, String oldCodePOStatus, String newPOStatus, Session sess) {
+
+    if ( (oldCodePOStatus == null || !oldCodePOStatus.equals( ProductOrderStatus.COMPLETED )) && newPOStatus.equals( ProductOrderStatus.COMPLETED ) ) {
+      
+    }
+    // Check for old status is completed and new status is not.  
+    // If so, remove items in ledger
+    else if ( (oldCodePOStatus != null && oldCodePOStatus.equals( ProductOrderStatus.COMPLETED )) && !newPOStatus.equals( ProductOrderStatus.COMPLETED ) ) {
+      
+    }
+    else {
+     
+    }
+    return true;
   }
 
   public void validate() {

@@ -217,6 +217,7 @@
 		params.useQty = useQty.text; 
 		params.catalogNumber = catalogNumber.text;
 		params.codeProductType = productTypeCombo.selectedItem.@codeProductType;
+		params.idPrice = productList.selectedItem.@idPrice;
 		params.unitPriceInternal = priceInternalText.text;
 		params.unitPriceExternalAcademic = priceExternalAcademicText.text;
 		params.unitPriceExternalCommercial = priceExternalCommercialText.text;
