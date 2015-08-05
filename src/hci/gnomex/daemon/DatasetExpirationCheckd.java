@@ -12,6 +12,7 @@ import hci.gnomex.utility.BatchDataSource;
 import hci.gnomex.utility.BatchMailer;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.MailUtil;
+import hci.gnomex.utility.MailUtilHelper;
 import hci.gnomex.utility.PropertyDictionaryHelper;
 
 import java.io.IOException;
@@ -190,7 +191,7 @@ public class DatasetExpirationCheckd extends TimerTask {
 
   }
   
-  private void emailExpirationWarning(String emailTo, String number, java.sql.Date expireDate, String typeName) throws AddressException, NamingException, MessagingException {
+  private void emailExpirationWarning(String emailTo, String number, java.sql.Date expireDate, String typeName) throws AddressException, NamingException, MessagingException, IOException {
     
     if (extraEmailAddress != null) {
       emailTo += "," + extraEmailAddress;
@@ -223,7 +224,7 @@ public class DatasetExpirationCheckd extends TimerTask {
     
     body.append("</td></tr></table></body></html>");
     if (sendMail) {
-      MailUtil.validateAndSendEmail(	
+      MailUtilHelper helper = new MailUtilHelper(	
     		  	mailProps,
     		  	emailTo,
 				null,
@@ -231,9 +232,11 @@ public class DatasetExpirationCheckd extends TimerTask {
 				replyEmail,
 				subject,
 				body.toString(),
+				null,
 				true, 
 				dictionaryHelper,
 				serverName 			);
+      MailUtil.validateAndSendEmail(helper);
     }
   }
 

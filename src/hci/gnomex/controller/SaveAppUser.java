@@ -12,8 +12,10 @@ import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.MailUtil;
+import hci.gnomex.utility.MailUtilHelper;
 import hci.gnomex.utility.PropertyDictionaryHelper;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.io.StringReader;
 import java.util.ArrayList;
@@ -367,7 +369,7 @@ public class SaveAppUser extends GNomExCommand implements Serializable {
     return this;
   }
   
-  private void sendAccountActivatedEmail(AppUser appUser, String coreFacilityContactEmail, Session sess)  throws NamingException, MessagingException {
+  private void sendAccountActivatedEmail(AppUser appUser, String coreFacilityContactEmail, Session sess)  throws NamingException, MessagingException, IOException {
     
     if (appUser.getEmail().equals("bademail@bad.com")) {
       throw new AddressException("'bademail@bad.com' not allowed");
@@ -377,14 +379,17 @@ public class SaveAppUser extends GNomExCommand implements Serializable {
     
     DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess);
     
-    MailUtil.validateAndSendEmail(	
+    MailUtilHelper helper = new MailUtilHelper(	
     		appUser.getEmail(),
     		coreFacilityContactEmail,
     		"Your GNomEx account is now active",
     		"Welcome to GNomEx.  Your user account has been activated. " + gnomexURL,
+    		null,
 			true, 
 			dictionaryHelper,
 			serverName 									);
+    helper.setRecipientAppUser(appUser);
+    MailUtil.validateAndSendEmail(helper);
     
   }
   

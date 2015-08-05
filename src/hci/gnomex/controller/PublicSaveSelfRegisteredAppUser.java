@@ -13,8 +13,10 @@ import hci.gnomex.security.EncryptionUtility;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.MailUtil;
+import hci.gnomex.utility.MailUtilHelper;
 import hci.gnomex.utility.PropertyDictionaryHelper;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.Comparator;
@@ -358,7 +360,7 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
     return body.toString();
   }
 
-  private void sendUserEmail(AppUser appUser, Session sess)  throws NamingException, MessagingException {
+  private void sendUserEmail(AppUser appUser, Session sess)  throws NamingException, MessagingException, IOException {
 	DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess);
 	
     StringBuffer intro = new StringBuffer();
@@ -376,18 +378,21 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
       log.error("Invalid Email Address " + appUser.getEmail());
     }
 
-    MailUtil.validateAndSendEmail(	
+    MailUtilHelper helper = new MailUtilHelper(	
     		appUser.getEmail(),
     		coreFacilityEmail,
     		"Your GNomEx user account has been created",
     		intro.toString() + getEmailBody(appUser, false),
+    		null,
 			true, 
 			dictionaryHelper,
 			serverName 									);
+    helper.setRecipientAppUser(appUser);
+    MailUtil.validateAndSendEmail(helper);
 
   }
 
-  private void sendAdminEmail(AppUser appUser, Session sess)  throws NamingException, MessagingException {
+  private void sendAdminEmail(AppUser appUser, Session sess)  throws NamingException, MessagingException, IOException {
     //This is to send it to the right application server, without hard coding
     String url = requestURL.substring(0, requestURL.indexOf("PublicSaveSelfRegisteredAppUser.gx"));
     DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess);
@@ -487,16 +492,18 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
     }
     introForAdmin.append( closing );
     
-    MailUtil.validateAndSendEmail(	
+    MailUtilHelper helper = new MailUtilHelper(	
     		toAddress,
     		ccAddress,
     		null,
     		coreFacilityEmail,
     		subject,
     		introForAdmin.toString() + getEmailBody(appUser, true),
+    		null,
     		true, 
     		dictionaryHelper,
     		serverName 												);
+    MailUtil.validateAndSendEmail(helper);
 
   }
 

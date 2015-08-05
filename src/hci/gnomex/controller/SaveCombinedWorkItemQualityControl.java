@@ -19,12 +19,14 @@ import hci.gnomex.utility.BillingItemAutoComplete;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.MailUtil;
+import hci.gnomex.utility.MailUtilHelper;
 import hci.gnomex.utility.PropertyDictionaryHelper;
 import hci.gnomex.utility.RequestEmailBodyFormatter;
 import hci.gnomex.utility.SampleComparator;
 import hci.gnomex.utility.Util;
 import hci.gnomex.utility.WorkItemQualityControlParser;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.io.StringReader;
 import java.util.ArrayList;
@@ -309,7 +311,7 @@ public class SaveCombinedWorkItemQualityControl extends GNomExCommand implements
     }
   }
   
-  private void sendConfirmationEmail(Session sess, Request request, boolean isStepQualityControl) throws NamingException, MessagingException {
+  private void sendConfirmationEmail(Session sess, Request request, boolean isStepQualityControl) throws NamingException, MessagingException, IOException {
 
     dictionaryHelper = DictionaryHelper.getInstance(sess);
 
@@ -341,14 +343,17 @@ public class SaveCombinedWorkItemQualityControl extends GNomExCommand implements
       fromAddress = DictionaryHelper.getInstance(sess).getPropertyDictionary(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
     }
     
-    MailUtil.validateAndSendEmail(	
+    MailUtilHelper helper = new MailUtilHelper(	
     		emailRecipients,
     		fromAddress,
     		emailSubject,
     		emailFormatter.formatQualityControl(),
+    		null,
 			true, 
 			dictionaryHelper,
-			serverName 								);  
+			serverName 								);
+    helper.setRecipientAppUser(request.getAppUser());
+    MailUtil.validateAndSendEmail(helper);
 
   }
 }

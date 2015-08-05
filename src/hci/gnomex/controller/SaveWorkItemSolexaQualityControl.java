@@ -13,10 +13,12 @@ import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.MailUtil;
+import hci.gnomex.utility.MailUtilHelper;
 import hci.gnomex.utility.RequestEmailBodyFormatter;
 import hci.gnomex.utility.Util;
 import hci.gnomex.utility.WorkItemQualityControlParser;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.io.StringReader;
 import java.util.HashMap;
@@ -200,7 +202,7 @@ public class SaveWorkItemSolexaQualityControl extends GNomExCommand implements S
   
 
   
-  private void sendConfirmationEmail(Session sess, Request request) throws NamingException, MessagingException {
+  private void sendConfirmationEmail(Session sess, Request request) throws NamingException, MessagingException, IOException {
     
     dictionaryHelper = DictionaryHelper.getInstance(sess);
     CoreFacility cf = (CoreFacility)sess.load(CoreFacility.class, request.getIdCoreFacility());
@@ -225,14 +227,16 @@ public class SaveWorkItemSolexaQualityControl extends GNomExCommand implements S
       fromAddress = DictionaryHelper.getInstance(sess).getPropertyDictionary(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
     }
     
-    MailUtil.validateAndSendEmail(	
+    MailUtilHelper helper = new MailUtilHelper(	
     		emailRecipients,
     		fromAddress,
     		emailSubject,
     		emailFormatter.formatQualityControl(),
+    		null,
 			true, 
 			dictionaryHelper,
 			serverName 								);
+    MailUtil.validateAndSendEmail(helper);
     
   }
   

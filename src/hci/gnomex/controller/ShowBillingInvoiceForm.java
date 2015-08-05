@@ -21,6 +21,7 @@ import hci.gnomex.utility.BillingInvoiceEmailFormatter;
 import hci.gnomex.utility.BillingInvoiceHTMLFormatter;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.MailUtil;
+import hci.gnomex.utility.MailUtilHelper;
 import hci.gnomex.utility.PropertyDictionaryHelper;
 
 import java.io.File;
@@ -785,7 +786,8 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
     																			PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(coreFacility.getIdCoreFacility(), PropertyDictionary.CONTACT_REMIT_ADDRESS_CORE_FACILITY), 
     																			billingItemMaps, relatedBillingItemMaps, requestMaps);
     	
-    	MailUtil.validateAndSendEmail(emailRecipients, ccList, fromAddress, subject, body, billingInvoice, true, dh, serverName);
+    	MailUtilHelper helper = new MailUtilHelper(emailRecipients, ccList, null, fromAddress, subject, body, billingInvoice, true, dh, serverName);
+    	MailUtil.validateAndSendEmail(helper);
         
         billingInvoice.delete();
 

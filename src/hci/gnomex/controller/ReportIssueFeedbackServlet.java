@@ -6,6 +6,7 @@ import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateGuestSession;
 import hci.gnomex.utility.MailUtil;
+import hci.gnomex.utility.MailUtilHelper;
 import hci.gnomex.utility.PropertyDictionaryHelper;
 
 import java.awt.image.BufferedImage;
@@ -206,7 +207,8 @@ public class ReportIssueFeedbackServlet extends HttpServlet {
       if (!MailUtil.isValidEmail(fromAddress)) {
           fromAddress = DictionaryHelper.getInstance(sess).getPropertyDictionary(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
       }
-      MailUtil.validateAndSendEmail(emailRecipients, null, fromAddress, theSubject, emailBody, outputfile, format.equalsIgnoreCase("HTML") ? true : false, dh, serverName);
+      MailUtilHelper helper = new MailUtilHelper(emailRecipients, fromAddress, theSubject, emailBody, outputfile, format.equalsIgnoreCase("HTML") ? true : false, dh, serverName);
+      MailUtil.validateAndSendEmail(helper);
       
       outputfile.delete();
 

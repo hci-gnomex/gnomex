@@ -21,6 +21,7 @@ import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.LogLongExecutionTimes;
 import hci.gnomex.utility.LogLongExecutionTimes.LogItem;
 import hci.gnomex.utility.MailUtil;
+import hci.gnomex.utility.MailUtilHelper;
 import hci.gnomex.utility.PropertyDictionaryHelper;
 
 import java.io.File;
@@ -341,14 +342,16 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
     }
 
     if(notifyCoreFacilityOfEmptyBillingEmail) {
-      MailUtil.validateAndSendEmail(	
+      MailUtilHelper helper = new MailUtilHelper(	
     		  	emailRecipients,
     		  	DictionaryHelper.getInstance(sess).getPropertyDictionary(PropertyDictionary.GENERIC_NO_REPLY_EMAIL),
     		  	"Unable to send billing invoice",
     		  	missingBillingEmailNote,
+    		  	null,
 				true, 
 				dictionaryHelper,
 				serverName 							);
+      MailUtil.validateAndSendEmail(helper);
     }
     
     Map[] billingItemMaps = {billingItemMap};
@@ -361,7 +364,8 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
 																				PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(coreFacility.getIdCoreFacility(), PropertyDictionary.CONTACT_REMIT_ADDRESS_CORE_FACILITY), 
 																				billingItemMaps, relatedBillingItemMaps, requestMaps);
     	
-    	MailUtil.validateAndSendEmail(emailRecipients, ccList, fromAddress, subject, "" + emailFormatter.format(), billingInvoice, true, dictionaryHelper, serverName);
+    	MailUtilHelper helper = new MailUtilHelper(emailRecipients, ccList, null, fromAddress, subject, "" + emailFormatter.format(), billingInvoice, true, dictionaryHelper, serverName);
+    	MailUtil.validateAndSendEmail(helper);
     	
     	billingInvoice.delete();
     } catch (Exception e) {

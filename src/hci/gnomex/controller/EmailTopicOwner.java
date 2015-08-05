@@ -6,6 +6,7 @@ import hci.gnomex.model.AppUser;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.MailUtil;
+import hci.gnomex.utility.MailUtilHelper;
 
 import java.io.Serializable;
 
@@ -60,14 +61,17 @@ public class EmailTopicOwner extends GNomExCommand implements Serializable {
       if(this.isValid()){
         String toAddress = recipient.getEmail();
         
-        MailUtil.validateAndSendEmail(	
+        MailUtilHelper helper = new MailUtilHelper(	
         		toAddress,
         		fromAddress,
         		subject,
         		body,
+        		null,
         		false, 
         	    dh,
       		    serverName 	);
+        helper.setRecipientAppUser(recipient);
+        MailUtil.validateAndSendEmail(helper);
         
         this.setResponsePage(SUCCESS_JSP);
       }

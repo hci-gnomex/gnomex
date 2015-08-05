@@ -56,6 +56,7 @@ import hci.gnomex.utility.HibernateGuestSession;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.HybNumberComparator;
 import hci.gnomex.utility.MailUtil;
+import hci.gnomex.utility.MailUtilHelper;
 import hci.gnomex.utility.ProductUtil;
 import hci.gnomex.utility.PropertyDictionaryHelper;
 import hci.gnomex.utility.PropertyEntryComparator;
@@ -2412,7 +2413,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     }
   }
 
-  private void sendConfirmationEmail(Session sess, String otherRecipients) throws NamingException, MessagingException {
+  private void sendConfirmationEmail(Session sess, String otherRecipients) throws NamingException, MessagingException, IOException {
 
     DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess);
     PropertyDictionaryHelper pdh = PropertyDictionaryHelper.getInstance(sess);
@@ -2469,14 +2470,17 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         fromAddress = DictionaryHelper.getInstance(sess).getPropertyDictionary(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
     }
     
-    MailUtil.validateAndSendEmail(	
+    MailUtilHelper helper = new MailUtilHelper(	
     		emailRecipients,
     		fromAddress,
     		subject,
     		body,
+    		null,
 			true, 
 			dictionaryHelper,
 			serverName 			);
+    helper.setRecipientAppUser(requestParser.getRequest().getAppUser());
+    MailUtil.validateAndSendEmail(helper);
 
   }
 
@@ -2553,7 +2557,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     return emailBody;
   }
 
-  private void sendInvoicePriceEmail(Session sess, String contactEmail, String ccEmail, String billedAccountName) throws NamingException, MessagingException {
+  private void sendInvoicePriceEmail(Session sess, String contactEmail, String ccEmail, String billedAccountName) throws NamingException, MessagingException, IOException {
 
     DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess);
     PropertyDictionaryHelper pdh = PropertyDictionaryHelper.getInstance(sess);
@@ -2604,16 +2608,18 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         senderEmail = DictionaryHelper.getInstance(sess).getPropertyDictionary(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
     }
     
-    MailUtil.validateAndSendEmail(	
+    MailUtilHelper helper = new MailUtilHelper(	
     		contactEmail,
     		ccEmail,
     		null,
     		senderEmail,
     		subject,
     		emailBody,
+    		null,
 			true, 
 			dictionaryHelper,
 			serverName 			);
+    MailUtil.validateAndSendEmail(helper);
 
   }
 

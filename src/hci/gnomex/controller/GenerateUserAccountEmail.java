@@ -10,9 +10,11 @@ import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.MailUtil;
+import hci.gnomex.utility.MailUtilHelper;
 import hci.gnomex.utility.PropertyDictionaryHelper;
 import hci.gnomex.utility.VerifyLabUsersEmailFormatter;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -168,7 +170,7 @@ public class GenerateUserAccountEmail extends GNomExCommand implements Serializa
     return this;
   }
 
-  private void sendEmail(Session sess, PropertyDictionaryHelper dictionaryHelper, String sendTo, String ccTo, String emailBody, String subject, Lab lab) throws NamingException, MessagingException {
+  private void sendEmail(Session sess, PropertyDictionaryHelper dictionaryHelper, String sendTo, String ccTo, String emailBody, String subject, Lab lab) throws NamingException, MessagingException, IOException {
 
     if(!MailUtil.isValidEmail(sendTo)){
       log.error("Invalid email " + sendTo);
@@ -182,16 +184,18 @@ public class GenerateUserAccountEmail extends GNomExCommand implements Serializa
         from = DictionaryHelper.getInstance(sess).getPropertyDictionary(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
     }
     
-    MailUtil.validateAndSendEmail(	
+    MailUtilHelper helper = new MailUtilHelper(	
     		sendTo,
     		ccTo,
     		null,
     		from,
     		subject,
     		emailBody,
+    		null,
     		true, 
     		DictionaryHelper.getInstance(sess),
   		    serverName 	);
+    MailUtil.validateAndSendEmail(helper);
     
     emailCount++;
 

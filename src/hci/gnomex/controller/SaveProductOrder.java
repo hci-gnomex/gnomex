@@ -18,6 +18,7 @@ import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.MailUtil;
+import hci.gnomex.utility.MailUtilHelper;
 import hci.gnomex.utility.PropertyDictionaryHelper;
 import hci.gnomex.utility.RequisitionFormUtil;
 
@@ -368,16 +369,18 @@ public class SaveProductOrder extends GNomExCommand implements Serializable {
     
     boolean sent = false;
     try {
-    	sent = MailUtil.validateAndSendEmail(	
+    	MailUtilHelper helper = new MailUtilHelper(	
     			contactEmail,
     			ccEmail,
     			null,
     			senderEmail,
     			subject,
     			emailBody.toString(),
+    			null,
 				true, 
 				dictionaryHelper,
 				serverName 					);
+    	sent = MailUtil.validateAndSendEmail(helper);
     } catch (Exception e) {
         e.printStackTrace();
     }

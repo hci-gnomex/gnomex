@@ -17,6 +17,7 @@ import hci.gnomex.utility.BillingInvoiceEmailFormatter;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.MailUtil;
+import hci.gnomex.utility.MailUtilHelper;
 import hci.gnomex.utility.PropertyDictionaryHelper;
 
 import java.io.Serializable;
@@ -354,16 +355,18 @@ public class SplitBillingAccounts extends GNomExCommand implements Serializable 
         fromAddress = DictionaryHelper.getInstance(sess).getPropertyDictionary(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
       }
       try {
-    	MailUtil.validateAndSendEmail(	
+    	MailUtilHelper helper = new MailUtilHelper(	
     			emailRecipients,
     			ccList,
     			null,
     			fromAddress,
     			subject,
     			body,
+    			null,
 				true, 
 				dh,
 				serverName 		);
+    	MailUtil.validateAndSendEmail(helper);
 
         note = "Billing invoice emailed to " + contactEmail + ".";
 
