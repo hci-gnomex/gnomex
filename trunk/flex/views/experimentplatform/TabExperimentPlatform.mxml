@@ -219,8 +219,14 @@
 			private function updateProductType():void {
 				if (useProductsCheckBox.selected && productTypeCombo.selectedItem != null) {
 					state.requestCategory.@codeProductType = productTypeCombo.selectedItem.@value;
+					
+					noProductsMessage.text = parentApplication.getRequestCategoryProperty(state.requestCategory.@idCoreFacility, state.requestCategory.@codeRequestCategory, parentApplication.PROPERTY_NO_PRODUCTS_MESSAGE);
+					state.requestCategory.@noProductsMessage = noProductsMessage.text;
 				} else {
 					state.requestCategory.@codeProductType = '';
+					
+					noProductsMessage.text = "";
+					state.requestCategory.@noProductsMessage = "";
 				}
 			}
 		]]>
@@ -312,10 +318,15 @@
 	
 	<mx:HBox width="100%" verticalAlign="middle" horizontalGap="0">
 		<mx:Text text="Uses Products?" width="100" styleName="formLabel"/>
-		<mx:CheckBox id="useProductsCheckBox" click="{updateProductType(); state.dirty.setDirty()}" selected="{state.requestCategory.@codeProductType != '' ? true : false}"/>
+		<mx:CheckBox id="useProductsCheckBox" click="{updateProductType(); state.dirty.setDirty()}" selected="{state.requestCategory.@codeProductType != ''}"/>
 		<mx:Spacer width="10"/>
-		<mx:ComboBox id="productTypeCombo" dataProvider="{filteredProductTypes}" labelField="@display" visible="{useProductsCheckBox.selected}" 
-					 close="{updateProductType(); state.dirty.setDirty()}" width="300"/>
+		<mx:ComboBox id="productTypeCombo" dataProvider="{filteredProductTypes}" labelField="@display" visible="{useProductsCheckBox.selected}" includeInLayout="{useProductsCheckBox.selected}" 
+					 close="{updateProductType(); state.dirty.setDirty()}" width="277"/>
+		<mx:Spacer width="10"/>
+		<mx:Text text="No Products Message:" width="70" styleName="formLabel" visible="{useProductsCheckBox.selected}" includeInLayout="{useProductsCheckBox.selected}"/>
+		<mx:TextInput id="noProductsMessage" width="100%" change="state.requestCategory.@noProductsMessage = noProductsMessage.text; state.dirty.setDirty()" 
+					  text="{parentApplication.getRequestCategoryProperty(state.requestCategory.@idCoreFacility, state.requestCategory.@codeRequestCategory, parentApplication.PROPERTY_NO_PRODUCTS_MESSAGE)}"
+					  visible="{useProductsCheckBox.selected}" includeInLayout="{useProductsCheckBox.selected}"/>
 	</mx:HBox>
 
 	<mx:Label text="" styleName="warningLabelMinor" width="100%" id="securityLabel"/>

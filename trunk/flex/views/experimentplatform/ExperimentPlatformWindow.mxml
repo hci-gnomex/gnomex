@@ -142,6 +142,7 @@
 				params.numberOfChannels = state.requestCategory.@numberOfChannels;
 				
 				params.customWarningMessage = state.requestCategory.@customWarningMessage;
+				params.noProductsMessage = state.requestCategory.@noProductsMessage;
 				
 				var sampleTypes:XMLListCollection = new XMLListCollection(state.requestCategory.sampleTypes.SampleType);
 				params.sampleTypesXMLString = "<sampleTypes>" + sampleTypes.toXMLString() + "</sampleTypes>";
@@ -273,7 +274,12 @@
 						property.init(state);
 					}
 
-					state.requestCategory.@customWarningMessage = parentApplication.getRequestCategoryProperty(state.requestCategory.@idCoreFacility,state.requestCategory.@codeRequestCategory, parentApplication.PROPERTY_SAMPLE_BATCH_WARNING);
+					state.requestCategory.@customWarningMessage = parentApplication.getRequestCategoryProperty(state.requestCategory.@idCoreFacility, state.requestCategory.@codeRequestCategory, parentApplication.PROPERTY_SAMPLE_BATCH_WARNING);
+					if (state.requestCategory.@codeProductType != '') {
+						state.requestCategory.@noProductsMessage = parentApplication.getRequestCategoryProperty(state.requestCategory.@idCoreFacility, state.requestCategory.@codeRequestCategory, parentApplication.PROPERTY_NO_PRODUCTS_MESSAGE);
+					} else {
+						state.requestCategory.@noProductsMessage = "";
+					}
 					// if event is not null it means this was called because they changed the experiment type.
 					// don't reset dirty if they changed the experiment type.
 					if (event == null) {

@@ -69,6 +69,7 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
 
   private String                         newCodeRequestCategory;
   private String                         customWarningMessage;
+  private String						 noProductsMessage;
 
   private Map<String, String>            newCodeApplicationMap;
 
@@ -97,7 +98,10 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
     if(request.getParameter("customWarningMessage") != null && !request.getParameter("customWarningMessage").equals("")){
       this.customWarningMessage = request.getParameter("customWarningMessage");
     }
-
+    
+    if (request.getParameter("noProductsMessage") != null && !request.getParameter("noProductsMessage").equals("")) {
+        this.noProductsMessage = request.getParameter("noProductsMessage");
+    }
 
     if (request.getParameter("sampleTypesXMLString") != null && !request.getParameter("sampleTypesXMLString").equals("")) {
       sampleTypesXMLString = request.getParameter("sampleTypesXMLString");
@@ -218,14 +222,15 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
         saveSequencingOptions(sess, rc);
         saveApplications(sess, rc);
         saveRequestCategoryApplications(sess);
-
-        //now check and see if we need to create a sample warning property for sample batch size
+        
         Integer idCoreFacility = rc.getIdCoreFacility();
         String codeRequestCategory = rc.getCodeRequestCategory();
+
+        //now check and see if we need to create a sample warning property for sample batch size
+        List customWarningMessageProps = generatePropertyQuery(sess, PropertyDictionary.PROPERTY_SAMPLE_BATCH_WARNING, idCoreFacility, codeRequestCategory).list();
         if(customWarningMessage != null && !customWarningMessage.equals("")) {
-          List props = generatePropertyQuery(sess, idCoreFacility, codeRequestCategory).list();
           //If we don't have a property we need to create one
-          if(props.size() == 0) {
+          if(customWarningMessageProps.size() == 0) {
             PropertyDictionary pd = new PropertyDictionary();
             pd.setPropertyName(PropertyDictionary.PROPERTY_SAMPLE_BATCH_WARNING);
             pd.setIdCoreFacility(idCoreFacility);
@@ -234,25 +239,49 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
             pd.setPropertyValue(customWarningMessage);
             pd.setPropertyDescription("Warning to notify users if they don't use a multiple of the sample batch size specified on the Request Category then they will be charged for unused wells.");
             sess.save(pd);
-          } else if(props.size() == 1) { //Maybe they are just updating the warning message
-            PropertyDictionary pd = (PropertyDictionary)props.get(0);
+          } else if(customWarningMessageProps.size() == 1) { //Maybe they are just updating the warning message
+            PropertyDictionary pd = (PropertyDictionary)customWarningMessageProps.get(0);
             pd.setPropertyValue(customWarningMessage);
             sess.save(pd);
           }
         } else { //This will remove the property for the given request category if they decide they don't run in batches anymore
-          List props = generatePropertyQuery(sess, idCoreFacility, codeRequestCategory).list();
-          if(props.size() > 0) {
-            for(Iterator i = props.iterator(); i.hasNext();) {
+          if(customWarningMessageProps.size() > 0) {
+            for(Iterator i = customWarningMessageProps.iterator(); i.hasNext();) {
               PropertyDictionary pd = (PropertyDictionary)i.next();
               sess.delete(pd);
             }
           }
 
         }
-
+        
+        // Now check and see if we need to create a no products message property
+        List noProductsMessageProps = generatePropertyQuery(sess, PropertyDictionary.PROPERTY_NO_PRODUCTS_MESSAGE, idCoreFacility, codeRequestCategory).list();
+        if (noProductsMessage != null && !noProductsMessage.equals("")) {
+        	// If we don't have a property we need to create one
+        	if (noProductsMessageProps.size() == 0) {
+        		PropertyDictionary pd = new PropertyDictionary();
+        		pd.setPropertyName(PropertyDictionary.PROPERTY_NO_PRODUCTS_MESSAGE);
+        		pd.setIdCoreFacility(idCoreFacility);
+        		pd.setCodeRequestCategory(codeRequestCategory);
+        		pd.setForServerOnly("N");
+        		pd.setPropertyValue(noProductsMessage);
+        		pd.setPropertyDescription("The message displayed when submitting an experiment order requiring products if the lab does not have any applicable products in their inventory.");
+        		sess.save(pd);
+        	} else if (noProductsMessageProps.size() == 1) { // Maybe they are just updating the warning message
+        		PropertyDictionary pd = (PropertyDictionary)noProductsMessageProps.get(0);
+        		pd.setPropertyValue(noProductsMessage);
+        		sess.save(pd);
+        	}
+        } else { // This will remove the property for the given request category if they decide it no longer uses products
+        	if (noProductsMessageProps.size() > 0) {
+        		for (Iterator i = noProductsMessageProps.iterator(); i.hasNext();) {
+        			PropertyDictionary pd = (PropertyDictionary)i.next();
+        			sess.delete(pd);
+        		}
+        	}
+        }
 
         sess.flush();
-
 
         DictionaryHelper.reload(sess);
 
@@ -280,9 +309,9 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
     return this;
   }
 
-  private Query generatePropertyQuery(Session sess, Integer idCoreFacility, String codeRequestCategory) {
+  private Query generatePropertyQuery(Session sess, String property, Integer idCoreFacility, String codeRequestCategory) {
     Query propQuery = sess.createQuery("SELECT p from PropertyDictionary p where p.propertyName = ? and p.idCoreFacility = ? and p.codeRequestCategory = ?");
-    propQuery.setParameter(0, PropertyDictionary.PROPERTY_SAMPLE_BATCH_WARNING);
+    propQuery.setParameter(0, property);
     propQuery.setParameter(1, idCoreFacility);
     propQuery.setParameter(2, codeRequestCategory);
 
