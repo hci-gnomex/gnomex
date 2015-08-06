@@ -1195,6 +1195,7 @@
 			public var PROPERTY_STATUS_TO_USE_PRODUCTS:String			  = "status_to_use_products";
 			public var PROPERTY_ACCESS_AUTH_ACCOUNT_LINK_TEXT:String	  = "access_auth_account_link_text";
 			public var PROPERTY_AUTH_ACCOUNTS_DESCRIPTION:String 		  = "auth_accounts_description";
+			public var PROPERTY_NO_PRODUCTS_MESSAGE:String				  = "no_products_message";
 
 			
 			public var CAN_ADMINISTER_ALL_CORE_FACILITIES:String          = "canAdministerAllCoreFacilities";
