@@ -214,6 +214,7 @@
 		import mx.controls.advancedDataGridClasses.AdvancedDataGridColumn;
 		import mx.controls.menuClasses.MenuBarItem;
 		import mx.core.DragSource;
+		import mx.events.AdvancedDataGridEvent;
 		import mx.events.CloseEvent;
 		import mx.events.CollectionEvent;
 		import mx.events.CollectionEventKind;
@@ -232,8 +233,8 @@
 		import views.renderers.ComboBoxBillingStatus;
 		import views.renderers.LabelPercentage;
 		import views.util.BillingPeriodSelectEvent;
-		import views.util.PickBillingPeriodView;
 		import views.util.GNomExStringUtil;
+		import views.util.PickBillingPeriodView;
 
 		private const TIMEOUT_DELAY:uint = 100;
 		private const NUM_DISPLAYED_BILLING_ITEMS:uint = 25;
@@ -331,7 +332,7 @@
 		[Bindable]
 		private var hideEmptyRequests:Boolean = false;
 		
-		
+		private var statusFoldersMap:Object = new Object();
 		
         private function init():void {
 			refreshBillingTimer = new Timer(1000); /* 1000ms == 1second */
@@ -753,9 +754,7 @@
 					var approvedItems:XMLList = getBillingRequestList.lastResult.Status.(@label == 'Approved');
 					jumpApproved.visible =  approvedItems.length() ? true : false;
 					
-					for each(var status:Object in requests) {
-						requestTree.expandItem(status, true);
-					}
+					expandStatusNodes(true);
 					
 					getBillingItemList.send();
 				}  else {
@@ -849,9 +848,7 @@
 				}
 				
 				requestTree.dataProvider = new HierarchicalData(requests);
-				for each(var status:Object in requests) {
-					requestTree.expandItem(status, true);
-				}
+				expandStatusNodes(true);
 			}
 		
 			private function filterNavTree(parent:XML):void{
@@ -2398,10 +2395,33 @@
 				for each(var lab:Object in requests.source..Lab) {
 					requestTree.expandItem(lab, true);
 				}
-				for each(var status:Object in requests.source.Status) {
-					requestTree.expandItem(status, true);
-				}
+				expandStatusNodes(true);
 				requestTree.validateNow();
+			}
+		
+			private function expandStatusNodes(open:Boolean = true, overrideHistory:Boolean = false):void {
+				if (requestTree == null || requestTree.dataProvider == null) {
+					return;
+				}
+				
+				for each (var status:Object in requests) {
+					if (!overrideHistory && statusFoldersMap.hasOwnProperty(status.@status) && statusFoldersMap[status.@status] != open) {
+						continue;
+					} else {
+						requestTree.expandItem(status, open);
+						updateStatusFoldersMap(status, open);
+					}
+				}
+			}
+		
+			private function updateStatusFoldersMap(statusNode:Object, open:Boolean):void {
+				if (statusNode.hasOwnProperty("@status")) {
+					statusFoldersMap[statusNode.@status] = open;
+				}
+			}
+		
+			private function resetStatusFoldersMap():void {
+				statusFoldersMap = new Object();
 			}
 			
 			private function resizeMenuItems():void{
@@ -2452,6 +2472,22 @@
 				return true;
 			}
 			
+
+		protected function requestTree_itemOpenHandler(event:AdvancedDataGridEvent):void
+		{
+			if (event.item != null && event.item.name() == "Status") {
+				updateStatusFoldersMap(event.item, true);
+			}
+		}
+
+
+		protected function requestTree_itemCloseHandler(event:AdvancedDataGridEvent):void
+		{
+			if (event.item != null && event.item.name() == "Status") {
+				updateStatusFoldersMap(event.item, false);
+			}
+		}
+
 		]]>
 	</mx:Script>	
 	
@@ -2532,13 +2568,13 @@
 					<mx:VBox verticalGap="0" includeInLayout="{parentApplication.coreFacilitiesICanManage.length() > 1}" visible="{parentApplication.coreFacilitiesICanManage.length() > 1}" verticalAlign="middle" fontSize="9">
 						<mx:Label text="Core Facility"/>
 						<mx:ComboBox id="coreFacilityCombo" width="200" dataProvider="{coreFacilities}"
-									 labelField="@display" change="requestNumberText.text = &quot;&quot;;invoiceNumberLookupText.text = &quot;&quot;;refreshRequestTab();setHideEmptyRequests()"/>
+									 labelField="@display" change="requestNumberText.text = &quot;&quot;;invoiceNumberLookupText.text = &quot;&quot;;resetStatusFoldersMap();refreshRequestTab();setHideEmptyRequests()"/>
 					</mx:VBox>
 					<mx:VBox verticalAlign="middle" verticalGap="0" horizontalAlign="left" paddingRight="0"   paddingLeft="0">
 						<mx:HBox horizontalGap="8" verticalAlign="middle" verticalGap="0">
 							<mx:VBox verticalGap="0" paddingTop="0" paddingLeft="0" verticalAlign="middle">
 								<mx:Label id="billingPeriodLabel" visible="true" text="Billing Period" fontSize="9"/>
-								<mx:Button label="Unknown" id="pickBillingPeriodButton" click="pickBillingPeriod()" height="22" width="130"/>					
+								<mx:Button label="Unknown" id="pickBillingPeriodButton" click="resetStatusFoldersMap();pickBillingPeriod()" height="22" width="130"/>					
 							</mx:VBox>
 							<mx:VBox verticalGap="0">
 								<mx:Label id="groupLabel" visible="true" text="Lab Group" paddingBottom="0" fontSize="9"/>
@@ -2604,7 +2640,9 @@
 										 iconFunction="parentApplication.getTreeIcon"  
 										 labelFunction="getTreeLabel"
 										 showDataTips="true"
-										 dragMoveEnabled="false" dropEnabled="false" borderStyle="solid" dropShadowEnabled="false" fontSize="11">
+										 dragMoveEnabled="false" dropEnabled="false" borderStyle="solid" dropShadowEnabled="false" fontSize="11"
+										 itemOpen="requestTree_itemOpenHandler(event)"
+										 itemClose="requestTree_itemCloseHandler(event)">
 						<mx:dataProvider>
 							<mx:HierarchicalData id="rc" source="{requests}"/>
 						</mx:dataProvider>		 				  
