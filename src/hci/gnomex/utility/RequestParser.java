@@ -545,7 +545,8 @@ public class RequestParser implements Serializable {
       sample.setOtherOrganism(null);
     }
     if (n.getAttributeValue("concentration") != null && !n.getAttributeValue("concentration").equals("")) {
-      sample.setConcentration(new BigDecimal(n.getAttributeValue("concentration")));      
+      String conc = n.getAttributeValue("concentration").replaceAll(",", "");
+      sample.setConcentration(new BigDecimal(conc));      
     } else {
       sample.setConcentration(null);
     }
