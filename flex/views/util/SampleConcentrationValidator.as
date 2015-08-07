@@ -45,7 +45,7 @@ package views.util
 			for each (var s1:Object in samples) {
 				var vr:ValidationResultEvent = concentrationValidator.validate(s1.@concentration);
 				if (vr.type == ValidationResultEvent.INVALID) {
-					ret += "Invalid sample concentration '" + s1.@concentration + "'.  Please insure value is numeric with no more than 3 places to the right of the decimal."; 
+					ret += "Invalid sample concentration '" + s1.@concentration + "'.  Please insure value is numeric with no more than 5 places to the left and 3 places to the right of the decimal."; 
 					break;
 				}
 			}
