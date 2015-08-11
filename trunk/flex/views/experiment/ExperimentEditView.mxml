@@ -3183,6 +3183,7 @@
 				if (productsView != null && theTab.contains(productsView) && theTab.getTabAt(theTab.getChildIndex(productsView)).visible) {
 					productsView.refreshForSamples();
 					productsView.updateFields();
+					errorMessage += productsView.requiredProductSelection();
 					warningMessage += productsView.requiredProducts();
 				}
 			}

@@ -302,6 +302,14 @@
 				}
 			}
 			
+			public function requiredProductSelection():String {
+				var message:String = "";
+				if (editable && selectedProduct == null) {
+					message += "A product is required; please select one.";
+				}
+				return message;
+			}
+			
 			public function requiredProducts():String {
 				var message:String = '';
 				if (editable && !hasSufficientProduct) {

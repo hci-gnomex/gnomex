@@ -691,7 +691,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
             	if (ProductUtil.updateLedgerOnRequestStatusChange(sess, requestParser.getRequest(), requestParser.getPreviousCodeRequestStatus(), requestParser.getRequest().getCodeRequestStatus())) {
             		sess.flush();
             	} else {
-            		throw new Exception("Unable to create ProductLedger for request. Please ensure the lab has sufficient products.");
+            		throw new Exception("Unable to create ProductLedger for request. Please ensure a product is selected and the lab has sufficient products.");
             	}
             }
         }
