@@ -28,6 +28,10 @@ public class ProductUtil {
 	public static Integer determineProductsRequired(Session sess, Request req) {
 		Integer required = -1;
 		
+		if (req.getIdProduct() == null) {
+			return required;
+		}
+		
 		Product product = (Product) sess.load(Product.class, req.getIdProduct());
 		if (product != null) {
 			Integer useQuantity = product.getUseQty();
