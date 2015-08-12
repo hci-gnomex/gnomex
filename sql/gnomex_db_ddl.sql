@@ -564,25 +564,6 @@ CREATE TABLE `gnomex`.`BillingStatus` (
 )
 ENGINE = INNODB;
 
-
-DROP TABLE IF EXISTS `gnomex`.`DNAPrepType`;
-CREATE TABLE `gnomex`.`DNAPrepType` (
-  `codeDNAPrepType` VARCHAR(10) NOT NULL,
-  `dnaPrepType` VARCHAR(100) NULL,
-  `isActive` CHAR(1) NULL,
-  PRIMARY KEY (`codeDNAPrepType`)
-)
-ENGINE = INNODB;
-
-DROP TABLE IF EXISTS `gnomex`.`RNAPrepType`;
-CREATE TABLE `gnomex`.`RNAPrepType` (
-  `codeRNAPrepType` VARCHAR(10) NOT NULL,
-  `rnaPrepType` VARCHAR(100) NULL,
-  `isActive` CHAR(1) NULL,
-  PRIMARY KEY (`codeRNAPrepType`)
-)
-ENGINE = INNODB;
-
 DROP TABLE IF EXISTS `gnomex`.`PriceSheet`;
 CREATE TABLE `gnomex`.`PriceSheet` (
   `idPriceSheet` INT(10) NOT NULL AUTO_INCREMENT,
@@ -1801,7 +1782,7 @@ CREATE TABLE `gnomex`.`Request` (
   `coreToExtractDNA` CHAR(1) NULL,
   `applicationNotes` varchar(5000) null,
   `processingDate` DATETIME NULL,
-  `codeIsolationPrepType` VARCHAR(10) NULL,
+  `codeIsolationPrepType` VARCHAR(15) NULL,
   `bioinformaticsAssist` CHAR(1) NULL,
   `hasPrePooledLibraries` CHAR(1) NULL,
   `numPrePooledTubes` INT(10) null,
@@ -1884,12 +1865,12 @@ ENGINE = INNODB;
 
 DROP TABLE IF EXISTS `gnomex`.`IsolationPrepType`;
 CREATE TABLE `gnomex`.`IsolationPrepType` ( 
-     `codeIsolationPrepType`	varchar(10) NOT NULL,
+     `codeIsolationPrepType`	varchar(15) NOT NULL,
      `isolationPrepType`  		varchar(100) NULL,
 	 `type`			varchar(10) NULL,
 	 `isActive`		char(1) NULL,
 	 `codeRequestCategory` varchar(50) NULL,
-    PRIMARY KEY (`codePrepType`),
+    PRIMARY KEY (`codeIsolationPrepType`),
 	CONSTRAINT `FK_IsolationPrepType_RequestCategory` FOREIGN KEY (`codeRequestCategory`) 
 	REFERENCES `gnomex`.`RequestCategory`(`codeRequestCategory`)
 	ON DELETE NO ACTION
