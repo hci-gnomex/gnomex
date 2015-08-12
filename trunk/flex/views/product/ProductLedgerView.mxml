@@ -68,10 +68,16 @@
 			}
 			
 			private function onGetProductOrder(event:ResultEvent):void {
-				if(getProductOrder.lastResult.name() != "ProductOrder"){
+				if (getProductOrder.lastResult.name() != "ProductOrder") {
 					Alert.show(event.result..ERROR.@message.toString());
-				} else{
-					parentApplication.showProductOrder(getProductOrder.lastResult);
+				} else {
+					if (getProductOrder.lastResult.hasOwnProperty("@canRead") && getProductOrder.lastResult.@canRead == "Y") {
+						parentApplication.showProductOrder(getProductOrder.lastResult);
+					} else if (getProductOrder.lastResult.hasOwnProperty("@exists") && getProductOrder.lastResult.@exists == "N") {
+						Alert.show("This product order does not exist or has been deleted.", "WARNING", Alert.OK, this, null, null, Alert.OK);
+					} else {
+						Alert.show("You do not have permission to view this product order.", "WARNING", Alert.OK, this, null, null, Alert.OK);
+					}
 				}
 			}
 			

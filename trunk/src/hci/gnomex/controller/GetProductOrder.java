@@ -45,29 +45,46 @@ public class GetProductOrder extends GNomExCommand implements Serializable {
         Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.username);
 
         ProductOrder po;
-        if (idProductOrder != null) {
-        	po = (ProductOrder)sess.load(ProductOrder.class, idProductOrder);
-        } else {
-        	po = (ProductOrder)sess.load(ProductOrder.class, productOrderNumber);
+        try {
+        	if (idProductOrder != null) {
+            	po = (ProductOrder) sess.load(ProductOrder.class, idProductOrder);
+            } else {
+            	po = (ProductOrder) sess.createQuery("FROM ProductOrder po WHERE po.productOrderNumber = \'" + productOrderNumber + "\'").uniqueResult();
+            }
+        } catch (Exception e) {
+        	log.error(e.getMessage());
+        	po = null;
+        }
+        
+        boolean canRead = false;
+        if (po != null) {
+        	canRead = this.getSecAdvisor().canRead(po);
         }
 
         Element root = new Element("ProductOrder");
-        if(po != null) {
-          String billingAccountName = "";
+        if (po != null) {
+        	root.setAttribute("productOrderNumber", po.getProductOrderNumber() != null ? po.getProductOrderNumber() : po.getIdProductOrder().toString());
+        	if (canRead) {
+        	  String billingAccountName = "";
 
-          if(po.getIdBillingAccount() != null) {
-            BillingAccount ba = (BillingAccount)sess.load(BillingAccount.class, po.getIdBillingAccount());
-            billingAccountName = ba.getAccountNameDisplay();
-          }
-          root.setAttribute("idProductOrder", po.getIdProductOrder().toString());
-          root.setAttribute("submitter", po.getSubmitter().getFirstLastDisplayName());
-          root.setAttribute("labName", po.getLab().getFormattedLabName(true));
-          root.setAttribute("submitDate", po.getSubmitDate() != null ? po.getSubmitDate().toString() : "");
-          root.setAttribute("orderStatus", po.getStatus());
-          root.setAttribute("quoteNumber", po.getQuoteNumber() != null ? po.getQuoteNumber() : "");
-          root.setAttribute("quoteReceivedDate", po.getQuoteReceivedDate() != null ? po.getQuoteReceivedDate().toString() : "");
-          root.setAttribute("billingAccount", billingAccountName);
-          root.setAttribute("productOrderNumber", po.getProductOrderNumber() != null ? po.getProductOrderNumber() : po.getIdProductOrder().toString());
+              if (po.getIdBillingAccount() != null) {
+                BillingAccount ba = (BillingAccount)sess.load(BillingAccount.class, po.getIdBillingAccount());
+                billingAccountName = ba.getAccountNameDisplay();
+              }
+              root.setAttribute("idProductOrder", po.getIdProductOrder().toString());
+              root.setAttribute("submitter", po.getSubmitter().getFirstLastDisplayName());
+              root.setAttribute("labName", po.getLab().getFormattedLabName(true));
+              root.setAttribute("submitDate", po.getSubmitDate() != null ? po.getSubmitDate().toString() : "");
+              root.setAttribute("orderStatus", po.getStatus());
+              root.setAttribute("quoteNumber", po.getQuoteNumber() != null ? po.getQuoteNumber() : "");
+              root.setAttribute("quoteReceivedDate", po.getQuoteReceivedDate() != null ? po.getQuoteReceivedDate().toString() : "");
+              root.setAttribute("billingAccount", billingAccountName);
+              root.setAttribute("canRead", "Y");
+        	} else {
+        	  root.setAttribute("canRead", "N");
+        	}
+        } else {
+        	root.setAttribute("exists", "N");
         }
 
         Document doc = new Document(root);
