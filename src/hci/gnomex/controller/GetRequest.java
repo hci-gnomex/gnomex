@@ -359,9 +359,7 @@ public class GetRequest extends GNomExCommand implements Serializable {
             boolean autoSelect = false;
             boolean include = true;
             if (requestCategory != null && 
-                (requestCategory.getType().equals(RequestCategoryType.TYPE_ISCAN) ||
-                    requestCategory.getType().equals(RequestCategoryType.TYPE_SEQUENOM) ||
-                    requestCategory.getType().equals(RequestCategoryType.TYPE_CLINICAL_SEQUENOM))) {
+                (requestCategory.getType().equals(RequestCategoryType.TYPE_ISCAN))) {
               include = false;
             }
             if (prop.getPlatformApplications() != null && prop.getPlatformApplications().size() > 0 && requestCategory != null) {

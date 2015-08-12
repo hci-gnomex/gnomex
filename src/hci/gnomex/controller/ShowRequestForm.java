@@ -204,22 +204,15 @@ public class ShowRequestForm extends GNomExCommand implements Serializable {
                   hApp.addContent( " - " + request.getApplicationNotes() );
                 }
                 maindiv.addContent(hApp);
-            } else if ( request.getCodeDNAPrepType() != null && !request.getCodeDNAPrepType().equals("")) {
+            } else if ( request.getCodeIsolationPrepType() != null && !request.getCodeIsolationPrepType().equals("")) {
               RequestCategory rc = dictionaryHelper.getRequestCategoryObject(request.getCodeRequestCategory());
               RequestCategoryType rct = rc.getCategoryType();
               if ( rct.getCodeRequestCategoryType().equals( RequestCategoryType.TYPE_ISOLATION )) {
               Element hApp = new Element("H4");
-              hApp.addContent(dictionaryHelper.getDNAPrepType(request.getCodeDNAPrepType()));
+              hApp.addContent(dictionaryHelper.getIsolationPrepType(request.getCodeIsolationPrepType()));
               maindiv.addContent(hApp);
               }
-          } else if ( request.getCodeRNAPrepType() != null && !request.getCodeRNAPrepType().equals("")) {
-            RequestCategory rc = dictionaryHelper.getRequestCategoryObject(request.getCodeRequestCategory());
-            RequestCategoryType rct = rc.getCategoryType();
-            if ( rct.getCodeRequestCategoryType().equals( RequestCategoryType.TYPE_ISOLATION )) {
-            Element hApp = new Element("H4");
-            hApp.addContent(dictionaryHelper.getRNAPrepType(request.getCodeRNAPrepType()));
-            maindiv.addContent(hApp);
-            }
+          
         }
             
             // Number of seq cycles and seq run type

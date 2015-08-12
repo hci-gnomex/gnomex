@@ -122,13 +122,9 @@
 				<mx:VBox height="100%" verticalGap="0" width="160" horizontalScrollPolicy="off">
 					<mx:Label text="Experiment" textDecoration="none" height="16" styleName="formLabel" />
 					<mx:Text text="{parentDocument.requestCategoryName}" id="requestKindLabel" width="140"/>
-					<mx:Text text="{parentDocument.sampleSetupView.isolationTypeRadioGroup.selectedValue ? parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.DNAPrepType').DictionaryEntry.(@value == parentDocument.sampleSetupView.isolationTypeRadioGroup.selectedValue).@display : ''}" 
-							 visible="{parentDocument.requestCategoryName.indexOf('DNA')!=-1}"
-							 includeInLayout="{parentDocument.requestCategoryName.indexOf('DNA')!=-1}"
-							 width="100%" />
-					<mx:Text text="{parentDocument.sampleSetupView.isolationTypeRadioGroup.selectedValue ? parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.RNAPrepType').DictionaryEntry.(@value == parentDocument.sampleSetupView.isolationTypeRadioGroup.selectedValue).@display : ''}" 
-							 visible="{parentDocument.requestCategoryName.indexOf('RNA')!=-1}"
-							 includeInLayout="{parentDocument.requestCategoryName.indexOf('RNA')!=-1}"
+					<mx:Text id="isolationText" text="{parentDocument.sampleSetupView.isolationTypeRadioGroup.selectedValue ? parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.IsolationPrepType').DictionaryEntry.(@value == parentDocument.sampleSetupView.isolationTypeRadioGroup.selectedValue).@display : ''}" 
+							 visible="{isolationText.text != ''}"
+							 includeInLayout="{isolationText.text != ''}"
 							 width="100%" />
 				</mx:VBox>
 				<mx:VBox height="100%" verticalGap="0" width="140" horizontalScrollPolicy="off">

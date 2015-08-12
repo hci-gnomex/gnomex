@@ -150,6 +150,9 @@
 				var sequencingOptions:XMLListCollection = new XMLListCollection(state.requestCategory.sequencingOptions.NumberSequencingCyclesAllowed);
 				params.sequencingOptionsXMLString = "<sequencingOptions>" + sequencingOptions.toXMLString() + "</sequencingOptions>";
 				
+				var prepTypes:XMLListCollection = new XMLListCollection(state.requestCategory.prepTypes.IsolationPrepType);
+				params.prepTypesXMLString = "<prepTypes>" + prepTypes.toXMLString() + "</prepTypes>";
+				
 				if (state.isIllumina || state.isSequenom) {
 					// Illumina allows setting of app/request cateogry relationship across multiple request categories.
 					var rcAppsList:XMLListCollection = new XMLListCollection();
@@ -175,6 +178,9 @@
 			private function onSaveExperimentPlatform(event:ResultEvent): void {
 				if (saveExperimentPlatform.lastResult.name() == "SUCCESS") {
 					afterSuccessfulSave(saveExperimentPlatform.lastResult.@codeRequestCategory);
+					if(saveExperimentPlatform.lastResult.@unableToDelete != ''){
+						Alert.show(saveExperimentPlatform.lastResult.@unableToDelete);
+					}
 				} else {
 					mx.controls.Alert.show(saveExperimentPlatform.lastResult..ACTMESSAGE.@TEXT);
 				}
@@ -272,6 +278,7 @@
 						sampleType.init(state);
 						experimentType.init(state);
 						property.init(state);
+						this.prepType.init(state)
 					}
 
 					state.requestCategory.@customWarningMessage = parentApplication.getRequestCategoryProperty(state.requestCategory.@idCoreFacility, state.requestCategory.@codeRequestCategory, parentApplication.PROPERTY_SAMPLE_BATCH_WARNING);
@@ -375,6 +382,7 @@
 							<experimentplatform:TabSampleType id="sampleType"/>
 							<experimentplatform:TabExperimentType id="experimentType"/>
 							<experimentplatform:TabProperty id="property"/>
+							<experimentplatform:TabPrepType id="prepType"/>
 						</mx:TabNavigator>
 						<mx:TabNavigator  id="theTabsIllumina" width="100%" height="100%" styleName="form" paddingTop="0" paddingLeft="0" paddingRight="0" paddingBottom="0" fontSize="11">
 							<experimentplatform:TabExperimentPlatform id="experimentPlatformIllumina"/>

@@ -52,6 +52,10 @@
 			[Bindable]
 			private var sampleType:Object = null;
 			
+			private const DNA:String = 'DNA';
+			private const RNA:String = 'RNA';
+			private const BOTH:String = 'BOTH';
+			
 			private function init():void {
 				var results:Array = mx.validators.Validator.validateAll(new Array(samplePrepValidator));
 				this.application = null;
@@ -1296,14 +1300,14 @@
 			}
 			
 			private function pickIsolationType():void {
-				if (parentDocument.getRequestCategory() != null && parentDocument.getRequestCategory().@codeRequestCategory == 'DNAISOL'){
+				if(this.extractionTypeRadioGroup.selectedValue == this.DNA){
 					parentDocument.request.@coreToExtractDNA = 'Y';
-					parentDocument.request.@codeDNAPrepType = isolationTypeRadioGroup.selectedValue != null ? isolationTypeRadioGroup.selectedValue : '';
-					parentDocument.request.@codeRNAPrepType = "";
-				} else if (parentDocument.getRequestCategory() != null && parentDocument.getRequestCategory().@codeRequestCategory == 'RNAISOL') {
-					parentDocument.request.@codeRNAPrepType = isolationTypeRadioGroup.selectedValue != null ? isolationTypeRadioGroup.selectedValue : '';
-					parentDocument.request.@codeDNAPrepType = "";
+					parentDocument.request.@codeIsolationPrepType = isolationTypeRadioGroup.selectedValue != null ? isolationTypeRadioGroup.selectedValue : '';
+				} else if(this.extractionTypeRadioGroup.selectedValue == this.RNA){
+					parentDocument.request.@codeIsolationPrepType = isolationTypeRadioGroup.selectedValue != null ? isolationTypeRadioGroup.selectedValue : '';
+					parentDocument.request.@coreToExtractDNA = '';
 				}
+				
 				if ( this.checkSampleSetupCompleteness() ) {
 					parentDocument.samplesView.initializeSamplesGrid();
 					parentDocument.samplesView.showHideColumns();
@@ -1748,25 +1752,41 @@
 			<mx:SetProperty target="{sampleTypeHBox}" name="includeInLayout" value="false"/>
 			<mx:SetProperty target="{hbox7}" name="visible" value="false"/>
 			<mx:SetProperty target="{hbox7}" name="includeInLayout" value="false"/>
-<!--			<mx:SetProperty target="{hbox9}" name="visible" value="false"/>
-			<mx:SetProperty target="{hbox9}" name="includeInLayout" value="false"/>-->
+			
 			<mx:AddChild relativeTo="{sequenomNumSourcePlatesBox}" position="before">
+				<mx:HBox horizontalGap="0" verticalAlign="top" width="100%" id="extractionBox">
+					<util:ContextHelp context1="sampleExtractionMethod" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Sample Extraction Method Help"
+									  label="(2) Select the extraction method." labelPlacement="left" id="sampleExtractionLabel" width="455"/>
+					<mx:RadioButtonGroup id = "extractionTypeRadioGroup" />       	
+					<mx:VBox verticalGap="0" paddingTop="0" paddingBottom="0" id="extractionTypeBox"  width="100%">
+						<mx:RadioButton id="dnaButton" groupName="extractionTypeRadioGroup" label="{this.DNA}" value="{this.DNA}"  
+											click="{parentDocument.filterIsolationTypeList(this.DNA)}" fontSize="11" paddingTop="0" paddingBottom="0"/>
+						<mx:RadioButton id="rnaButton" groupName="extractionTypeRadioGroup" label="{this.RNA}" value="{this.RNA}"  
+										click="{parentDocument.filterIsolationTypeList(this.RNA)}" fontSize="11" paddingTop="0" paddingBottom="0"/>
+						<mx:RadioButton id="bothButton" groupName="extractionTypeRadioGroup" label="{this.BOTH}" value="{this.BOTH.toUpperCase()}"  
+										click="{parentDocument.filterIsolationTypeList(this.BOTH)}" fontSize="11" paddingTop="0" paddingBottom="0"/>
+					</mx:VBox>
+				</mx:HBox>
+			</mx:AddChild>
+			
+			<mx:AddChild relativeTo="{extractionBox}" position="after">
 				<mx:HBox horizontalGap="0" id="hbox1" verticalAlign="top" width="100%">
 					<util:ContextHelp context1="sampleDetailsIsolationMethod" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Sample Isolation Method Help"
-									  label="(3) Select the isolation method." labelPlacement="left" id="sampleIsolationLabel" width="455"/>
+									  label="(4) Select the isolation method." labelPlacement="left" id="sampleIsolationLabel" width="455"/>
 					<mx:RadioButtonGroup id = "isolationTypeRadioGroup" />       	
 					<mx:VBox verticalGap="0" paddingTop="0" paddingBottom="0" id="isolationTypeBox"  width="100%">
 						<mx:Repeater id="isolationTypeRepeater" dataProvider="{parentDocument.isolationTypeList}">
 							<mx:RadioButton id="isolationTypeBtn" groupName="isolationTypeRadioGroup" 
 											label="{isolationTypeRepeater.currentItem.@display}" 
 											value="{isolationTypeRepeater.currentItem.@value}" 
-											click="{pickIsolationType()}" fontSize="11" paddingTop="0" paddingBottom="0"/>							
+											click="{pickIsolationType()}" fontSize="11" paddingTop="0" paddingBottom="0"/>						
 						</mx:Repeater>
 						<mx:RadioButton id="isolationTypeNull" groupName="isolationTypeRadioGroup" 
 										label="" value="{null}" width="0" height="0" visible="false" includeInLayout="false" />	
 					</mx:VBox>
 				</mx:HBox>
 			</mx:AddChild>
+			
 			<mx:SetProperty target="{label5}" name="label" value="(1) How many samples will you be submitting?"/>
 			<mx:SetProperty target="{sequenomContainerTypePlate}" name="visible" value="false"/>
 			<mx:SetProperty target="{sequenomContainerTypePlate}" name="includeInLayout" value="false"/>
@@ -1779,7 +1799,7 @@
 			<mx:AddChild relativeTo="{sampleSetupContainer}" position="lastChild">
 				<mx:HBox horizontalGap="0" id="hbox6" verticalAlign="middle" width="100%">
 					<util:ContextHelp context1="sampleDetailsSampleSource" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Sample Source Help"
-									  label="(4) Select the sample source." labelPlacement="left" id="sampleSourceLabel" width="455"/>
+									  label="(5) Select the sample source." labelPlacement="left" id="sampleSourceLabel" width="455"/>
 					<mx:RadioButtonGroup id = "isolationTypeRadioGroup0" />       	
 					<mx:VBox verticalGap="0" paddingTop="0" paddingBottom="0" id="isolationTypeBox0">
 						<mx:Repeater id="isolationTypeRepeater0" dataProvider="{parentDocument.isolationTypeList}">
@@ -1795,7 +1815,7 @@
 			<mx:AddChild relativeTo="{hbox1}" position="before">
 				<mx:HBox horizontalGap="0"  verticalAlign="middle" id="qubitConcentrationBox">
 					<util:ContextHelp context1="SampleDetailsIsolationQubitConcentration" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Qubit Concentration Help"
-									  label="(2) Would you like the core to measure the concentration by Qubit Pico Green?" labelPlacement="left" id="sequenomQubitConcentrationLabel" width="456"/>
+									  label="(3) Would you like the core to measure the concentration by Qubit Pico Green?" labelPlacement="left" id="sequenomQubitConcentrationLabel" width="456"/>
 					<mx:CheckBox label="Yes" id="QubitConcentrationCheckBox" change="onIncludeQubitConcentrationCheckBoxChanged()" width="100%" paddingRight="9" selected="{parentDocument.request.@includeQubitConcentration == 'Y'}"/>	
 				</mx:HBox>
 			</mx:AddChild>

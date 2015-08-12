@@ -1159,8 +1159,7 @@
 				codeApplication = '';
 				request.@applicationNotes = '';
 				request.@codeApplication = '';
-				request.@codeDNAPrepType = '';
-				request.@codeRNAPrepType = '';
+				request.@codeIsolationPrepType = '';
 				request.@coreToExtractDNA = 'N';
 				request.@includeBisulfideConversion = 'N';
 				request.@includeQubitConcentration = 'N';
@@ -1351,14 +1350,6 @@
 					filteredAppList.filterFunction = filterApplication;
 					filteredAppList.refresh();
 					
-					if ( requestCategory.@codeRequestCategory != null && requestCategory.@codeRequestCategory == 'DNAISOL') {
-						isolationTypeList = new XMLListCollection(parentApplication.dictionaryManager.getEntriesExcludeBlank('hci.gnomex.model.DNAPrepType').(@isActive != 'N'));
-					} else if ( requestCategory.@codeRequestCategory != null && requestCategory.@codeRequestCategory == 'RNAISOL') {
-						isolationTypeList = new XMLListCollection(parentApplication.dictionaryManager.getEntriesExcludeBlank('hci.gnomex.model.RNAPrepType').(@isActive != 'N'));
-					}
-					isolationTypeList.sort = dictionarySorter;
-					isolationTypeList.refresh();
-					
 				} else if (requestCategory.@type == parentApplication.TYPE_NANOSTRING) {
 					
 					this.currentState = "NanoStringState";
@@ -1505,6 +1496,12 @@
 			
 			public function labSelected(lab:Object):void {
 				loadPriceLists(lab.@idLab.toString());
+			}
+			
+			public function filterIsolationTypeList(extractionType:String):void{
+				isolationTypeList = new XMLListCollection(parentApplication.dictionaryManager.getEntriesExcludeBlank('hci.gnomex.model.IsolationPrepType').(@isActive != 'N' && @type == extractionType));
+				isolationTypeList.sort = dictionarySorter;
+				isolationTypeList.refresh();
 			}
 			
 			private function loadPriceLists(idLab:String):void {
