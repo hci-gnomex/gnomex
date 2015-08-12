@@ -1801,11 +1801,10 @@ CREATE TABLE `gnomex`.`Request` (
   `coreToExtractDNA` CHAR(1) NULL,
   `applicationNotes` varchar(5000) null,
   `processingDate` DATETIME NULL,
-  `codeDNAPrepType` VARCHAR(10) NULL,
+  `codeIsolationPrepType` VARCHAR(10) NULL,
   `bioinformaticsAssist` CHAR(1) NULL,
   `hasPrePooledLibraries` CHAR(1) NULL,
   `numPrePooledTubes` INT(10) null,
-  `codeRNAPrepType` varchar(10) NULL,
   `includeBisulfideConversion` CHAR(1) NULL,
   `includeQubitConcentration` CHAR(1) NULL,
   `alignToGenomeBuild` CHAR(1) NULL,
@@ -1872,8 +1871,8 @@ CREATE TABLE `gnomex`.`Request` (
     REFERENCES `gnomex`.`IScanChip` (`idIScanChip`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  CONSTRAINT `FK_Request_DNAPrepType` FOREIGN KEY `FK_Request_DNAPrepType` (`codeDNAPrepType`)
-    REFERENCES `gnomex`.`DNAPrepType` (`codeDNAPrepType`)
+  CONSTRAINT `FK_Request_IsolationPrepType` FOREIGN KEY `FK_Request_IsolationPrepType` (`codeIsolationPrepType`)
+    REFERENCES `gnomex`.`IsolationPrepType` (`codeIsolationPrepType`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `FK_Request_Product` FOREIGN KEY `FK_Request_Product` (`idProduct`)
@@ -1882,6 +1881,21 @@ CREATE TABLE `gnomex`.`Request` (
     ON UPDATE NO ACTION
 )
 ENGINE = INNODB;
+
+DROP TABLE IF EXISTS `gnomex`.`IsolationPrepType`;
+CREATE TABLE `gnomex`.`IsolationPrepType` ( 
+     `codeIsolationPrepType`	varchar(10) NOT NULL,
+     `isolationPrepType`  		varchar(100) NULL,
+	 `type`			varchar(10) NULL,
+	 `isActive`		char(1) NULL,
+	 `codeRequestCategory` varchar(50) NULL,
+    PRIMARY KEY (`codePrepType`),
+	CONSTRAINT `FK_IsolationPrepType_RequestCategory` FOREIGN KEY (`codeRequestCategory`) 
+	REFERENCES `gnomex`.`RequestCategory`(`codeRequestCategory`)
+	ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+) ENGINE = INNODB;
+
 
 DROP TABLE IF EXISTS `gnomex`.`RequestCategory`;
 CREATE TABLE `gnomex`.`RequestCategory` (

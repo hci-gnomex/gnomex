@@ -11,6 +11,7 @@ import hci.gnomex.model.ApplicationTheme;
 import hci.gnomex.model.ApplicationType;
 import hci.gnomex.model.BioanalyzerChipType;
 import hci.gnomex.model.CoreFacility;
+import hci.gnomex.model.IsolationPrepType;
 import hci.gnomex.model.NumberSequencingCyclesAllowed;
 import hci.gnomex.model.Price;
 import hci.gnomex.model.PriceCriteria;
@@ -54,8 +55,10 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
 
   private List<SampleType> sampleTypes = new ArrayList<SampleType>();
   private List <Application> applications = new ArrayList<Application>();
+  private List <IsolationPrepType> prepTypes = new ArrayList<IsolationPrepType>();
   private HashMap<String, Map<Integer, ?>> sampleTypeMap = new HashMap<String, Map<Integer, ?>>();
   private HashMap<String, Map<String, RequestCategoryApplication>> applicationMap = new HashMap<String, Map<String, RequestCategoryApplication>>();
+  private HashMap<String, List<IsolationPrepType>> prepTypeMap = new HashMap<String, List<IsolationPrepType>>();
   private HashMap<Integer, Map<Integer, ?>> sampleTypeXMethodMap = new HashMap<Integer, Map<Integer, ?>>();
   private HashMap<String, Map<Integer, ?>> applicationXSeqLibProtocolMap = new HashMap<String, Map<Integer, ?>>();
   private HashMap<String, List<NumberSequencingCyclesAllowed>> numberSeqCyclesAllowedMap = new HashMap<String, List<NumberSequencingCyclesAllowed>>();
@@ -237,7 +240,21 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
             cycleNode.setAttribute("unitPriceExternalCommercial", getUnitPrice(seqOptionsToPriceMap, c, rc, this.PRICE_EXTERNAL_COMMERCIAL));
             listNode.addContent(cycleNode);
           }
-        }               
+        }
+        
+        listNode = new Element("prepTypes");
+        node.addContent(listNode);
+        List<IsolationPrepType> prepList = this.prepTypeMap.get(rc.getCodeRequestCategory());
+        if (prepList != null) {
+          for(IsolationPrepType c : prepList) {
+            this.getSecAdvisor().flagPermissions(c);
+            Element cycleNode = c.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
+            //cycleNode.setAttribute("unitPriceInternal", getUnitPrice(seqOptionsToPriceMap, c, rc, this.PRICE_INTERNAL));
+            //cycleNode.setAttribute("unitPriceExternalAcademic", getUnitPrice(seqOptionsToPriceMap, c, rc, this.PRICE_EXTERNAL_ACADEMIC));
+            //cycleNode.setAttribute("unitPriceExternalCommercial", getUnitPrice(seqOptionsToPriceMap, c, rc, this.PRICE_EXTERNAL_COMMERCIAL));
+            listNode.addContent(cycleNode);
+          }
+        }  
       }
 
       org.jdom.output.XMLOutputter out = new org.jdom.output.XMLOutputter();
@@ -391,6 +408,17 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
       }
       idMap.put(x.getCodeApplication(), x);
       applicationMap.put(x.getCodeRequestCategory(), idMap);
+    }
+    
+    prepTypes = sess.createQuery("SELECT i from IsolationPrepType i").list();
+    for(Iterator i = prepTypes.iterator(); i.hasNext();) {
+      IsolationPrepType x = (IsolationPrepType)i.next();
+      List prepList = (List)prepTypeMap.get(x.getCodeRequestCategory());
+      if (prepList == null) {
+        prepList = new ArrayList<NumberSequencingCyclesAllowed>();
+      }
+      prepList.add(x);
+      prepTypeMap.put(x.getCodeRequestCategory(), prepList);
     }
     
     List applicationXSeqLibProtocols = sess.createQuery("SELECT x from SeqLibProtocolApplication x").list();

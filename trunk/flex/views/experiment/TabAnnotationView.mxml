@@ -103,32 +103,9 @@
 			
 			
 			private function toggleSampleAnnotationCheck(event:ListEvent):void {
-				if (event.columnIndex == 0) {
-					parentDocument.dirty.setDirty();
-					return;
-				}
 				parentDocument.dirty.setDirty();
 				
-				
-				// We don't want the typing in the the text field for "Other" to be treated
-				// as a toggle off
-				var sc:Object = parentApplication.getSampleProperty(sampleAnnotationGrid.selectedItem.@idProperty);
-				if (sc == null || sc.@name.toString() == "Other") {
-					if (ignoreToggle) {
-						return;					
-					}
-				}
-				
-				if (sampleAnnotationGrid.selectedItem.@isRequired == "true") {
-					// Don't toggle a required field.
-					return;		
-				}
-
-				if (sampleAnnotationGrid.selectedItem.@isSelected == "true") {
-					sampleAnnotationGrid.selectedItem.@isSelected = "false";
-				} else {
-					sampleAnnotationGrid.selectedItem.@isSelected = "true";
-				}
+				sampleAnnotationGrid.dataProvider = filteredProperties;
 			}
 			
 			//

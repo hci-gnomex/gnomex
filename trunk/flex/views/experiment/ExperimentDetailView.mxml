@@ -1348,6 +1348,7 @@
 				
 				if (!isCapSeqState() && !isMitSeqState() && !isFragAnalState() && !isCherryPickState()) {
 					for each(annotation in this.selectedExperiment.PropertyEntries.PropertyEntry) {
+
 						if(annotation.@idProperty == "-1") {
 							continue;
 						}
@@ -1679,9 +1680,9 @@
 						<mx:Label text="Core to extract DNA"  width="105" styleName="formLabel" textAlign="left" id="label0"/>
 						<mx:Text  text="{this.selectedExperiment.@coreToExtractDNA=='Y' ? 'Yes' : 'No'}" width="280"/>
 					</mx:HBox>
-					<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle" includeInLayout="{this.selectedExperiment.@coreToExtractDNA!=null&amp;&amp;this.selectedExperiment.@coreToExtractDNA=='Y'}" visible="{this.selectedExperiment.@coreToExtractDNA!=null&amp;&amp;this.selectedExperiment.@coreToExtractDNA=='Y'}" id="hbox8">
-						<mx:Label text="DNA prep type"  width="105" styleName="formLabel" textAlign="left"  id="label10"/>
-						<mx:Text text="{this.selectedExperiment.@codeDNAPrepType != null ? parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.DNAPrepType').DictionaryEntry.(@value == this.selectedExperiment.@codeDNAPrepType).@display : ''}" 
+					<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle" includeInLayout="{this.selectedExperiment.@codeIsolationPrepType != null &amp;&amp; this.selectedExperiment.@codeIsolationPrepType!=''}" visible="{this.selectedExperiment.@codeIsolationPrepType != null &amp;&amp; this.selectedExperiment.@codeIsolationPrepType!=''}" id="hbox8">
+						<mx:Label text="Isolation prep type"  width="105" styleName="formLabel" textAlign="left"  id="label10"/>
+						<mx:Text text="{this.selectedExperiment.@codeIsolationPrepType != null ? parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.IsolationPrepType').DictionaryEntry.(@value == this.selectedExperiment.@codeIsolationPrepType).@display : ''}" 
 								 width="280"/>
 					</mx:HBox>
 					<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle" visible="{this.selectedExperiment.@isExternal == 'Y' || this.selectedExperiment.@organismName != ''}" includeInLayout="{this.selectedExperiment.@isExternal == 'Y' || this.selectedExperiment.@organismName  != ''}" id="hbox3">
@@ -2494,15 +2495,6 @@
 			<mx:SetProperty target="{hbox5}" name="visible" value="false"/>
 			<mx:SetProperty target="{hbox6}" name="includeInLayout" value="false"/>
 			<mx:SetProperty target="{hbox6}" name="visible" value="false"/>
-			<mx:AddChild relativeTo="{hbox3}" position="before">
-				<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle" 
-						 includeInLayout="{this.selectedExperiment.@codeRNAPrepType!=null &amp;&amp; this.selectedExperiment.@codeRNAPrepType!=''}" 
-						 visible="{this.selectedExperiment.@codeRNAPrepType!=null &amp;&amp; this.selectedExperiment.@codeRNAPrepType!=''}">
-					<mx:Label text="RNA prep type"  width="105" styleName="formLabel" textAlign="left"  id="rnaLabel"/>
-					<mx:Text text="{this.selectedExperiment.@codeRNAPrepType != null ? parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.RNAPrepType').DictionaryEntry.(@value == this.selectedExperiment.@codeRNAPrepType).@display : ''}" 
-							 width="280"/>
-				</mx:HBox>
-			</mx:AddChild>
 			<mx:SetProperty target="{hbox1}" name="includeInLayout" value="false"/>
 			<mx:SetProperty target="{hbox1}" name="visible" value="false"/>
 			<mx:SetProperty target="{bisulfideConversionBox}" name="includeInLayout" value="false"/>

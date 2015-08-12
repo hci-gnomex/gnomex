@@ -93,20 +93,13 @@ public class RequestPDFFormatter extends RequestPDFFormatterBase {
 	public Element makeApplicationHeader() {
 		Paragraph header = (Paragraph) super.makeApplicationHeader();
 		
-		if (request.getCodeDNAPrepType() != null && !request.getCodeDNAPrepType().equals("")) {
+		if (request.getCodeIsolationPrepType() != null && !request.getCodeIsolationPrepType().equals("")) {
 			RequestCategory rc = dictionaryHelper.getRequestCategoryObject(request.getCodeRequestCategory());
 			RequestCategoryType rct = rc.getCategoryType();
 	        if (rct.getCodeRequestCategoryType().equals(RequestCategoryType.TYPE_ISOLATION)) {
-	        	header.add(" " + dictionaryHelper.getDNAPrepType(request.getCodeDNAPrepType()));
-	        }
-		} else if (request.getCodeRNAPrepType() != null && !request.getCodeRNAPrepType().equals("")) {
-			RequestCategory rc = dictionaryHelper.getRequestCategoryObject(request.getCodeRequestCategory());
-	        RequestCategoryType rct = rc.getCategoryType();
-	        if (rct.getCodeRequestCategoryType().equals(RequestCategoryType.TYPE_ISOLATION)) {
-	        	header.add(" " + dictionaryHelper.getRNAPrepType(request.getCodeRNAPrepType()));
+	        	header.add(" " + dictionaryHelper.getIsolationPrepType(request.getCodeIsolationPrepType()));
 	        }
 		}
-		
 		return header;
 	}
 	

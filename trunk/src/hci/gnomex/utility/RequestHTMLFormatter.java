@@ -247,8 +247,7 @@ public class RequestHTMLFormatter {
     if (request.getCodeRequestCategory() != null && 
         RequestCategory.isMolecularDiagnoticsRequestCategory(request.getCodeRequestCategory()) && 
         !request.getCodeRequestCategory().equals(RequestCategory.CLINICAL_SEQUENOM_REQUEST_CATEGORY) &&
-        !request.getCodeRequestCategory().equals(RequestCategory.RNA_ISOLATION_REQUEST_CATEGORY) &&
-        !request.getCodeRequestCategory().equals(RequestCategory.DNA_ISOLATION_REQUEST_CATEGORY) ) {
+        !request.getCodeRequestCategory().equals(RequestCategory.ISOLATION_REQUEST_CATEGORY)) {
       this.addHeaderCell(rowh, "Container", rowSpan, 1);
       if (request.isSequenomPlate()) {
         this.addHeaderCell(rowh, "Plate", rowSpan, 1);
@@ -423,7 +422,7 @@ public class RequestHTMLFormatter {
       if ( !request.getCodeRequestCategory().equals(RequestCategory.CLINICAL_SEQUENOM_REQUEST_CATEGORY) ) {
         this.addCell(row, sample.getName());
       }
-      if ( !request.getCodeRequestCategory().equals(RequestCategory.RNA_ISOLATION_REQUEST_CATEGORY)&&!request.getCodeRequestCategory().equals(RequestCategory.DNA_ISOLATION_REQUEST_CATEGORY)) {
+      if ( !request.getCodeRequestCategory().equals(RequestCategory.ISOLATION_REQUEST_CATEGORY)) {
         if (!RequestCategory.isDNASeqCoreRequestCategory(request.getCodeRequestCategory())) {
           this.addCell(row, sample.getIdSampleType() == null ? "&nbsp;"       : dictionaryHelper.getSampleType(sample));
           if (!RequestCategory.isMolecularDiagnoticsRequestCategory( request.getCodeRequestCategory())) {

@@ -88,10 +88,7 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
   private String          applicationNotes;
   private String          coreToExtractDNA;
   private Date            processingDate;   // Date request was set to Processing status
-  private String          codeDNAPrepType;
-  private DNAPrepType     dnaPrepType;
-  private String          codeRNAPrepType;
-  private RNAPrepType     rnaPrepType;
+  private String          codeIsolationPrepType;
   private String          bioinformaticsAssist;
   private String          hasPrePooledLibraries;
   private Integer         numPrePooledTubes;
@@ -1366,37 +1363,12 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
     parentNode.addContent(requestNode);
     return requestNode;
   }
-
-  public String getCodeDNAPrepType() {
-    return codeDNAPrepType;
+  
+  public String getCodeIsolationPrepType(){
+    return this.codeIsolationPrepType;
   }
-
-  public void setCodeDNAPrepType( String codeDNAPrepType ) {
-    this.codeDNAPrepType = codeDNAPrepType;
-  }
-
-  public DNAPrepType getDnaPrepType() {
-    return dnaPrepType;
-  }
-
-  public void setDnaPrepType( DNAPrepType dnaPrepType ) {
-    this.dnaPrepType = dnaPrepType;
-  }
-
-  public String getCodeRNAPrepType() {
-    return codeRNAPrepType;
-  }
-
-  public void setCodeRNAPrepType( String codeRNAPrepType ) {
-    this.codeRNAPrepType = codeRNAPrepType;
-  }
-
-  public RNAPrepType getRnaPrepType() {
-    return rnaPrepType;
-  }
-
-  public void setRnaPrepType( RNAPrepType rnaPrepType ) {
-    this.rnaPrepType = rnaPrepType;
+  public void setCodeIsolationPrepType(String codeIsolationPrepType){
+    this.codeIsolationPrepType = codeIsolationPrepType;
   }
 
   public String getHasPrePooledLibraries() {

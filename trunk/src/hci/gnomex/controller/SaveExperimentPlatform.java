@@ -5,6 +5,7 @@ import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.Application;
 import hci.gnomex.model.ApplicationType;
 import hci.gnomex.model.BioanalyzerChipType;
+import hci.gnomex.model.IsolationPrepType;
 import hci.gnomex.model.NumberSequencingCyclesAllowed;
 import hci.gnomex.model.OligoBarcodeSchemeAllowed;
 import hci.gnomex.model.Price;
@@ -27,6 +28,7 @@ import hci.gnomex.utility.PropertyDictionaryHelper;
 import java.io.Serializable;
 import java.io.StringReader;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -38,6 +40,7 @@ import javax.servlet.http.HttpSession;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
+import org.hibernate.exception.ConstraintViolationException;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
@@ -60,7 +63,10 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
   private Document                       applicationsDoc;
 
   private String                         sequencingOptionsXMLString;
-  private Document                       sequencingOptionsDoc; 
+  private Document                       sequencingOptionsDoc;
+  
+  private String                         prepTypesXMLString;
+  private Document                       prepTypesDoc; 
 
   private Document                       requestCategoryApplicationsDoc;
 
@@ -113,7 +119,19 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
         log.error( "Cannot parse sampleTypesXMLString", je );
         this.addInvalidField( "sampleTypesXMLString", "Invalid sampleTypesXMLString");
       }
-    } 
+    }
+    
+    if (request.getParameter("prepTypesXMLString") != null && !request.getParameter("prepTypesXMLString").equals("")) {
+      prepTypesXMLString = request.getParameter("prepTypesXMLString");
+      StringReader reader = new StringReader(prepTypesXMLString);
+      try {
+        SAXBuilder sax = new SAXBuilder();
+        prepTypesDoc = sax.build(reader);     
+      } catch (JDOMException je ) {
+        log.error( "Cannot parse prepTypesXMLString", je );
+        this.addInvalidField( "prepTypesXMLString", "Invalid prepTypesXMLString");
+      }
+    }
 
     if (request.getParameter("applicationsXMLString") != null && !request.getParameter("applicationsXMLString").equals("")) {
       applicationsXMLString = request.getParameter("applicationsXMLString");
@@ -198,6 +216,7 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
             }
           }
         }
+        
 
 
         RequestCategory rc = null;
@@ -222,6 +241,9 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
         saveSequencingOptions(sess, rc);
         saveApplications(sess, rc);
         saveRequestCategoryApplications(sess);
+        Boolean unableToDelete = savePrepTypes(sess);
+
+        //now check and see if we need to create a sample warning property for sample batch size
         
         Integer idCoreFacility = rc.getIdCoreFacility();
         String codeRequestCategory = rc.getCodeRequestCategory();
@@ -285,7 +307,11 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
 
         DictionaryHelper.reload(sess);
 
-        this.xmlResult = "<SUCCESS codeRequestCategory=\"" + rc.getCodeRequestCategory() + "\"/>";
+        if(unableToDelete){
+          this.xmlResult = "<SUCCESS codeRequestCategory=\"" + rc.getCodeRequestCategory() + "\" unableToDelete=\"Certain prep types were marked as inactive instead of deleted because their are requests that are associated with the given prep type\"/>";
+        }else{
+          this.xmlResult = "<SUCCESS codeRequestCategory=\"" + rc.getCodeRequestCategory() + "\"/>";
+        }
 
         setResponsePage(this.SUCCESS_JSP);
       } else {
@@ -293,7 +319,7 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
         setResponsePage(this.ERROR_JSP);
       }
 
-    }catch (Exception e){
+    } catch (Exception e){
       log.error("An exception has occurred in SaveExperimentPlatform ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
@@ -336,6 +362,63 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
     rc.setSampleBatchSize(rcScreen.getSampleBatchSize());
     rc.setCodeProductType(rcScreen.getCodeProductType());
     rc.setAssociatedWithAnalysis(rcScreen.getAssociatedWithAnalysis());
+  }
+  
+  private Boolean savePrepTypes(Session sess){
+    if (prepTypesDoc == null || prepTypesDoc.getRootElement().getChildren().size() == 0) {
+      return false;
+    }
+    
+    Boolean unableToDelete = false;
+    
+    List prepTypes = new ArrayList();
+    int currentPrepTypeCount = sess.createQuery("Select x from IsolationPrepType x").list().size();
+    
+    for(Iterator i = this.prepTypesDoc.getRootElement().getChildren().iterator(); i.hasNext();){
+      Element node = (Element)i.next();
+      IsolationPrepType ipt =  null;
+
+      String isNew = node.getAttributeValue("isNew");
+      String codeIsolationPrepType = "";
+
+      // Save new prep type or load the existing one
+      if (isNew != null && isNew.equals("Y")) {
+        ipt = new IsolationPrepType();
+        codeIsolationPrepType = IsolationPrepType.CODE_PREP_PREFIX + ++currentPrepTypeCount;
+      } else {
+        ipt = (IsolationPrepType) sess.load(IsolationPrepType.class, node.getAttributeValue("codeIsolationPrepType"));
+        codeIsolationPrepType = node.getAttributeValue("codeIsolationPrepType");
+      }
+      
+      ipt.setIsActive(node.getAttributeValue("isActive"));
+      ipt.setCodeIsolationPrepType(codeIsolationPrepType.toUpperCase());
+      ipt.setType(node.getAttributeValue("type"));
+      ipt.setIsolationPrepType(node.getAttributeValue("isolationPrepType"));
+      ipt.setCodeRequestCategory(node.getAttributeValue("codeRequestCategory"));
+      prepTypes.add(ipt);
+      sess.save(ipt);
+    }
+    
+    sess.flush();
+    List existingPrepTypes = sess.createQuery("SELECT x from IsolationPrepType x").list();
+    for(Iterator j = existingPrepTypes.iterator(); j.hasNext();){
+      IsolationPrepType ep = (IsolationPrepType) j.next();
+      if(sess.createQuery("Select r from Request r where codeIsolationPrepType = " + ep.getCodeIsolationPrepType()).list().size() != 0){
+        ep.setIsActive("N");
+        sess.save(ep);
+        unableToDelete = true;
+        continue;
+      }
+      if(!prepTypes.contains(ep)){
+        sess.delete(ep);
+      }
+    }
+    
+    sess.flush();
+    
+    return unableToDelete;
+    
+    
   }
 
   private void saveSampleTypes(Session sess, RequestCategory rc) {

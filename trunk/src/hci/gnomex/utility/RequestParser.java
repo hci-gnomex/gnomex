@@ -363,11 +363,8 @@ public class RequestParser implements Serializable {
     if (n.getAttributeValue("codeBioanalyzerChipType") != null && !n.getAttributeValue("codeBioanalyzerChipType").equals("")) {
       request.setCodeBioanalyzerChipType(n.getAttributeValue("codeBioanalyzerChipType"));      
     }
-    if (n.getAttributeValue("codeDNAPrepType") != null && !n.getAttributeValue("codeDNAPrepType").equals("")) {
-      request.setCodeDNAPrepType(n.getAttributeValue("codeDNAPrepType"));      
-    }
-    if (n.getAttributeValue("codeRNAPrepType") != null && !n.getAttributeValue("codeRNAPrepType").equals("")) {
-      request.setCodeRNAPrepType(n.getAttributeValue("codeRNAPrepType"));      
+    if (n.getAttributeValue("codeIsolationPrepType") != null && !n.getAttributeValue("codeIsolationPrepType").equals("")) {
+      request.setCodeIsolationPrepType(n.getAttributeValue("codeIsolationPrepType"));      
     }
     if (n.getAttributeValue("bioinformaticsAssist") != null && !n.getAttributeValue("bioinformaticsAssist").equals("")) {
       request.setBioinformaticsAssist(n.getAttributeValue("bioinformaticsAssist"));
@@ -422,6 +419,10 @@ public class RequestParser implements Serializable {
     if (n.getChild("PropertyEntries") != null) {
       for (Iterator i1 = n.getChild("PropertyEntries").getChildren("PropertyEntry").iterator(); i1.hasNext();) {
         Element scNode = (Element)i1.next();
+        //DEBUG code
+        if(scNode.getAttributeValue("idProperty").equals("37")){
+          int fuckAnnotations = 5;
+        }
         if (scNode.getAttributeValue("isSelected").equals("true")) {
           this.propertiesToApplyMap.put(scNode.getAttributeValue("idProperty"), null);        
         }

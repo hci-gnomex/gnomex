@@ -296,6 +296,14 @@ public class DictionaryHelper implements Serializable {
     }
     return name;
   }
+  public String getIsolationPrepType(String codeIsolationPrepType) {
+    lazyLoadManagedDictionaries();
+    String name = "";
+    if (codeIsolationPrepType != null && codeIsolationPrepType.length() > 0) {
+      name = DictionaryManager.getDisplay("hci.gnomex.model.IsolationPrepType", codeIsolationPrepType);
+    }
+    return name;
+  }
   public String getRNAPrepType(String codeRNAPrepType) {
     lazyLoadManagedDictionaries();
     String name = "";

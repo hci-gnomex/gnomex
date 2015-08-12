@@ -167,6 +167,8 @@
 
   <Dictionary displayName="Molecular Diagnostics - DNA Prep Type" className="hci.gnomex.model.DNAPrepType" editable="Y" />
 	<Dictionary displayName="Molecular Diagnostics - RNA Prep Type" className="hci.gnomex.model.RNAPrepType" editable="Y" />
+	
+	<Dictionary displayName="Molecular Diagnostics - Isolation Prep Type" className="hci.gnomex.model.IsolationPrepType" editable="Y" />
   
 	
 	
