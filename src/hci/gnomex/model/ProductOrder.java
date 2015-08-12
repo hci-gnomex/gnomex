@@ -1,7 +1,7 @@
 package hci.gnomex.model;
 
-import hci.dictionary.model.DictionaryEntry;
 import hci.dictionary.utility.DictionaryManager;
+import hci.framework.model.DetailObject;
 
 import java.io.Serializable;
 import java.sql.Date;
@@ -10,7 +10,8 @@ import java.util.TreeSet;
 
 
 
-public class ProductOrder extends DictionaryEntry implements Serializable {
+@SuppressWarnings("serial")
+public class ProductOrder extends DetailObject implements Serializable {
 
   public static final String PRODUCT_ORDER_REQUEST_CATEGORY = "PRODUCTORDER";
   public static final String PRODUCT_ORDER_ICON = "assets/basket.png";
