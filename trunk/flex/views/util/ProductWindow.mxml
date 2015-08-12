@@ -195,14 +195,13 @@
 	
 	private function onDeleteProduct(event:ResultEvent): void {
 		if (deleteProduct.lastResult.name() == "SUCCESS") {
+			Alert.show(deleteProduct.lastResult.@message);
 			parentApplication.getProductList.send();
-			
 		} else {
 			mx.controls.Alert.show(deleteProduct.lastResult..ACTMESSAGE.@TEXT);
 		}
 	}
 		
-	
 		
 	private function save():void {
 		if (productList.selectedItem == null) {
