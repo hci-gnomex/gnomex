@@ -222,7 +222,7 @@
 							if (product.@idProduct == selectedProduct.@idProduct) {
 								foundProductInLedger = true;
 								availableLedgerAmount = product.@qty;
-								if (product.hasOwnProperty("@pendingQty")) {
+								if (product.hasOwnProperty("@pendingQty") && product.@pendingQty != "") {
 									pendingLedgerAmount = product.@pendingQty;
 								} else {
 									pendingLedgerAmount = NO_PRODUCTS;
