@@ -5471,7 +5471,7 @@
 							break;
 						}
 					}
-					if (!found && !(parentApplication.isSuperAdmin || parentApplication.isAdminState || parentApplication.isBillingAdmin)) {
+					if (!found && !(parentApplication.isSuperAdmin || parentApplication.isAdminState || parentApplication.isBillingAdminState)) {
 						return false;
 					}
 				}
