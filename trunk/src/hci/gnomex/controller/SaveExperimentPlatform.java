@@ -308,7 +308,7 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
         DictionaryHelper.reload(sess);
 
         if(unableToDelete){
-          this.xmlResult = "<SUCCESS codeRequestCategory=\"" + rc.getCodeRequestCategory() + "\" unableToDelete=\"Certain prep types were marked as inactive instead of deleted because their are requests that are associated with the given prep type\"/>";
+          this.xmlResult = "<SUCCESS codeRequestCategory=\"" + rc.getCodeRequestCategory() + "\" unableToDelete=\"Certain prep types were marked as inactive instead of deleted because there are requests that are associated with the given prep type\"/>";
         }else{
           this.xmlResult = "<SUCCESS codeRequestCategory=\"" + rc.getCodeRequestCategory() + "\"/>";
         }
@@ -401,16 +401,20 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
     
     sess.flush();
     List existingPrepTypes = sess.createQuery("SELECT x from IsolationPrepType x").list();
+    
+    //Look for prep types that have been deleted and see if we can delete them.
+    //If not just mark them as inactive.
     for(Iterator j = existingPrepTypes.iterator(); j.hasNext();){
       IsolationPrepType ep = (IsolationPrepType) j.next();
-      if(sess.createQuery("Select r from Request r where codeIsolationPrepType = " + ep.getCodeIsolationPrepType()).list().size() != 0){
-        ep.setIsActive("N");
-        sess.save(ep);
-        unableToDelete = true;
-        continue;
-      }
       if(!prepTypes.contains(ep)){
-        sess.delete(ep);
+        if(sess.createQuery("Select r from Request r where codeIsolationPrepType = '" + ep.getCodeIsolationPrepType() + "'").list().size() != 0){
+          ep.setIsActive("N");
+          sess.save(ep);
+          unableToDelete = true;
+          continue;
+        } else{
+          sess.delete(ep);
+        }
       }
     }
     

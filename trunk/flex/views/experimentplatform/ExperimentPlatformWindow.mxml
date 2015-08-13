@@ -178,7 +178,7 @@
 			private function onSaveExperimentPlatform(event:ResultEvent): void {
 				if (saveExperimentPlatform.lastResult.name() == "SUCCESS") {
 					afterSuccessfulSave(saveExperimentPlatform.lastResult.@codeRequestCategory);
-					if(saveExperimentPlatform.lastResult.@unableToDelete != ''){
+					if(saveExperimentPlatform.lastResult.@unableToDelete.toString() != ''){
 						Alert.show(saveExperimentPlatform.lastResult.@unableToDelete);
 					}
 				} else {
