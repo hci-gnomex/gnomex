@@ -302,18 +302,24 @@
 				}
 			}
 			
-			public function requiredProductSelection():String {
+			public function getErrors(action:String):String {
 				var message:String = "";
-				if (editable && selectedProduct == null) {
+				if (editable && selectedProduct == null && action == "submit") {
 					message += "A product is required; please select one.";
+				}
+				if (editable && selectedProduct != null && !hasSufficientProduct && action == "submit") {
+					message += "Your lab does not have sufficient products.";
 				}
 				return message;
 			}
 			
-			public function requiredProducts():String {
-				var message:String = '';
-				if (editable && !hasSufficientProduct) {
-					message += 'Your lab does not have sufficient products.';
+			public function getWarnings(action:String):String {
+				var message:String = "";
+				if (editable && selectedProduct == null) {
+					message += "A product is required but one was not selected.";
+				}
+				if (editable && selectedProduct != null && !hasSufficientProduct) {
+					message += "Your lab does not have sufficient products at this time.";
 				}
 				return message;
 			}
