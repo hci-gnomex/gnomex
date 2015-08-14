@@ -214,8 +214,8 @@
 			import views.util.DirtyEvent;
 			import views.util.GNomExStringUtil;
 			import views.util.PromptXMLListCollection;
-			import views.util.SampleConcentrationValidator;
 			import views.util.RequestStatusComparator;
+			import views.util.SampleConcentrationValidator;
 			
 			[Embed(source='../../assets/page.png')]
 			[Bindable]
@@ -2893,7 +2893,7 @@
 			}
 			
 			
-			private function validateRequest():void {
+			private function validateRequest(action:String):void {
 				errorMessage = '';
 				warningMessage = '';
 				
@@ -3180,8 +3180,8 @@
 				if (productsView != null && theTab.contains(productsView) && theTab.getTabAt(theTab.getChildIndex(productsView)).visible) {
 					productsView.refreshForSamples();
 					productsView.updateFields();
-					errorMessage += productsView.requiredProductSelection();
-					warningMessage += productsView.requiredProducts();
+					errorMessage += productsView.getErrors(action);
+					warningMessage += productsView.getWarnings(action);
 				}
 			}
 			
@@ -3226,8 +3226,17 @@
 			private function validateAndSubmitRequest():void {
 				this.submitButton.enabled = false;
 				
+				var action:String = "submit";
+				var actionDisplayed:String = "submit";
+				if (this.submitButton != null && this.submitButton.label != null && this.submitButton.label != "") {
+					if (StringUtil.trim(this.submitButton.label).toLowerCase() == "save") {
+						action = "submitsave";
+						actionDisplayed = "save";
+					}
+				}
+				
 				// Only submit request if it is valid
-				validateRequest();
+				validateRequest(action);
 				errorMessage += propertiesView.requiredAnnotationsEntered();
 				if (errorMessage != '') {
 					this.submitButton.enabled = true;
@@ -3235,7 +3244,7 @@
 					return;
 				}
 				if (warningMessage != '') {
-					promptToSubmitRequest();
+					promptToSubmitRequest(actionDisplayed);
 					return;
 				}
 				submitRequest();
@@ -3243,7 +3252,7 @@
 			
 			private function validateAndSaveRequest():void {
 				this.submitButton.enabled = false;
-				validateRequest();
+				validateRequest("save");
 				errorMessage += propertiesView.requiredAnnotationsEntered();
 				if (errorMessage != '') {
 					this.submitButton.enabled = true;
@@ -3903,8 +3912,8 @@
 				}
 			}
 			
-			public function promptToSubmitRequest():void {
-				Alert.show( warningMessage + "\n\nDo you want to submit the request anyway?", 
+			public function promptToSubmitRequest(action:String = "submit"):void {
+				Alert.show( warningMessage + "\n\nDo you want to " + action + " the request anyway?", 
 					"Warning", 
 					(Alert.YES | Alert.NO), this, 
 					onPromptSubmitRequest,
