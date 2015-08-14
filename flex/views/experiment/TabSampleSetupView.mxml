@@ -1303,7 +1303,7 @@
 				if(this.extractionTypeRadioGroup.selectedValue == this.DNA){
 					parentDocument.request.@coreToExtractDNA = 'Y';
 					parentDocument.request.@codeIsolationPrepType = isolationTypeRadioGroup.selectedValue != null ? isolationTypeRadioGroup.selectedValue : '';
-				} else if(this.extractionTypeRadioGroup.selectedValue == this.RNA){
+				} else{
 					parentDocument.request.@codeIsolationPrepType = isolationTypeRadioGroup.selectedValue != null ? isolationTypeRadioGroup.selectedValue : '';
 					parentDocument.request.@coreToExtractDNA = '';
 				}

@@ -419,10 +419,6 @@ public class RequestParser implements Serializable {
     if (n.getChild("PropertyEntries") != null) {
       for (Iterator i1 = n.getChild("PropertyEntries").getChildren("PropertyEntry").iterator(); i1.hasNext();) {
         Element scNode = (Element)i1.next();
-        //DEBUG code
-        if(scNode.getAttributeValue("idProperty").equals("37")){
-          int fuckAnnotations = 5;
-        }
         if (scNode.getAttributeValue("isSelected").equals("true")) {
           this.propertiesToApplyMap.put(scNode.getAttributeValue("idProperty"), null);        
         }
