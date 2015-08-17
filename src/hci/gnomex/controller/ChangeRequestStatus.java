@@ -140,7 +140,7 @@ public class ChangeRequestStatus extends GNomExCommand implements Serializable {
             	if (ProductUtil.updateLedgerOnRequestStatusChange(sess, req, oldRequestStatus, codeRequestStatus)) {
             		sess.flush();
             	} else {
-            		String errorMessage = "Unable to create ProductLedger for request. Please ensure the lab has sufficient products.";
+            		String errorMessage = "Unable to create ProductLedger for request. Please ensure a product is selected and the lab has sufficient products.";
             		log.error(errorMessage);
             		this.addInvalidField("Insufficient Products", errorMessage);
             		throw new RollBackCommandException(errorMessage);
