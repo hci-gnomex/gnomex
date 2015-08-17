@@ -58,6 +58,10 @@ public class ProductUtil {
 			Integer productsAvailableToLab = (Integer) sess.createQuery( "select SUM(qty) from ProductLedger where idLab = " + req.getIdLab() + " and idProduct = " + req.getIdProduct() ).uniqueResult();
 			Integer productsRequired = determineProductsRequired(sess, req);
 			
+			if (productsAvailableToLab == null || productsRequired == null) {
+				return false;
+			}
+			
 			if (productsRequired > -1 && productsAvailableToLab - productsRequired >= 0) {
 				ProductLedger ledger = new ProductLedger();
 				
