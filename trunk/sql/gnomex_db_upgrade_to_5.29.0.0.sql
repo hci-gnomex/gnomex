@@ -102,9 +102,9 @@ SET codeIsolationPrepType = codeDNAPrepType
 FROM Request
 WHERE codeDNAPrepType is not NULL;
 
--- For RNA
+-- For RNA, we have to append the '_RNA' because that is how we entered the codes into the IsolationPrepType table in the above query.
 UPDATE Request
-SET codeIsolationPrepType = codeRNAPrepType
+SET codeIsolationPrepType = codeRNAPrepType + '_RNA'
 FROM Request
 WHERE codeIsolationPrepType is null and codeRNAPrepType is not null;
 
