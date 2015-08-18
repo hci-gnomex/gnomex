@@ -1188,7 +1188,7 @@
 				if(moveAnalysis.lastResult.name() != "SUCCESS"){
 					Alert.show(moveAnalysis.lastResult..ACTMESSAGE.@TEXT);
 				} else{
-					if(moveAnalysis.lastResult.@invalidPermission != ""){
+					if (moveAnalysis.lastResult.hasOwnProperty("@invalidPermission") && moveAnalysis.lastResult.@invalidPermission != "") {
 						Alert.show(moveAnalysis.lastResult.@invalidPermission);
 					}
 					this.refreshAnalysis();
