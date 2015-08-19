@@ -29,20 +29,6 @@ ON DELETE NO ACTION
 ON UPDATE NO ACTION;
 call ExecuteIfTableExists('gnomex', 'Request_Audit', 'ALTER TABLE Request_Audit ADD COLUMN idProduct INT(10) NULL');
 
--- Add foreign key Sample to AnalysisExperimentItem
-ALTER TABLE AnalysisExperimentItem
-ADD CONSTRAINT `FK_AnalysisExperimentItem_Sample` FOREIGN KEY `FK_AnalysisExperimentItem_Sample` (`idSample`)
-REFERENCES `gnomex`.`Sample` (`idSample`)
-ON DELETE NO ACTION
-ON UPDATE NO ACTION;
-
--- Add foreign key ProductType to RequestCategory
-ALTER TABLE RequestCategory
-ADD CONSTRAINT `FK_RequestCategory_ProductType` FOREIGN KEY `FK_RequestCategory_ProductType` (`codeProductType`)
-REFERENCES `gnomex`.`ProductType` (`codeProductType`)
-ON DELETE NO ACTION
-ON UPDATE NO ACTION;
-
 
 
 
