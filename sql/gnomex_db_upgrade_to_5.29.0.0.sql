@@ -60,12 +60,3 @@ alter table Request add
     REFERENCES `gnomex`.`IsolationPrepType` (`codeIsolationPrepType`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION;
-	
-	
--- Remove both foreign keys that reference DNAPrepType and RNAPrepType tables from the Request Table.
-alter table Request drop
-	FOREIGN KEY FK_Request_DNAPrepType;
-	
--- Remove dna and rna code prep type columns from Request
-ALTER TABLE Request DROP COLUMN codeDNAPrepType;
-ALTER TABLE Request DROP COLUMN codeRNAPrepType;
