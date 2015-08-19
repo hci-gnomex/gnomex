@@ -1,0 +1,1113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<exp:TabSamplesBase
+	xmlns:mx="http://www.adobe.com/2006/mxml" 
+	xmlns:util="views.util.*"
+	xmlns:fx="*.views.renderers"
+	xmlns:exp="views.experiment.*"
+	show="{this.init();}"
+	label="Experiment Design" 
+	width="100%" height="100%"  enabled="false"  xmlns:renderers="views.renderers.*">
+	
+	<mx:Script>
+		<![CDATA[
+			import hci.flex.controls.DropdownLabel;
+			import hci.flex.controls.Label;
+			
+			import mx.collections.IHierarchicalCollectionView;
+			import mx.collections.SortField;
+			import mx.collections.XMLListCollection;
+			import mx.controls.AdvancedDataGrid;
+			import mx.controls.Alert;
+			import mx.controls.TextInput;
+			import mx.controls.ToolTip;
+			import mx.events.CloseEvent;
+			import mx.events.CollectionEvent;
+			import mx.events.CollectionEventKind;
+			import mx.events.DragEvent;
+			import mx.events.FlexEvent;
+			import mx.events.PropertyChangeEvent;
+			import mx.events.ValidationResultEvent;
+			import mx.managers.DragManager;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.ResultEvent;
+			import mx.utils.ObjectUtil;
+			import mx.utils.StringUtil;
+			import mx.validators.NumberValidator;
+			import mx.validators.ValidationResult;
+			
+			import views.renderers.CheckBoxRenderer;
+			import views.renderers.ComboBox;
+			import views.renderers.ComboBoxWorkflowStatus;
+			import views.renderers.GridColumnFillButton;
+			import views.renderers.MultiselectRenderer;
+			import views.renderers.TextInputSeqPrepByCore;
+			import views.renderers.URLRenderer;
+			import views.util.AdvancedDataGridColumnWithType;
+			import views.util.AnnotationAdvancedDataGridColumn;
+			import views.util.CopySampleSheetColumnView;
+			import views.util.DictionaryHelper;
+			import views.util.SampleConcentrationValidator;
+			import views.util.UploadSampleSheetInstructionsView;
+			import views.util.UploadSampleSheetView;
+			
+			
+			public  var DEFAULT_CONTROL_NAME:String	  = "Control";
+			
+			[Bindable]
+			private var isExternal:Boolean = false;
+			
+			private var uploadFR:FileReference;
+			private var uploadSampleSheetURL:String;
+			private var docTypes:FileFilter;
+			private var hasColumnNames:Boolean; 
+			private var	sampleSheetXML:XML;
+			
+			private var instructionsToolTipText:String = "";
+			
+			override protected function initButtons():void {
+				if (parentDocument.isEditState()) {
+					
+					this.downloadButton.visible = true;
+					this.downloadButton.includeInLayout = true;
+					this.uploadHintLink.visible = true;
+					this.uploadHintLink.includeInLayout = true;
+					
+				} else {
+					if (parentApplication.submitInternalExperiment()) {
+						this.downloadButton.visible = true;
+						this.downloadButton.includeInLayout = true;
+						this.uploadHintLink.visible = true;
+						this.uploadHintLink.includeInLayout = true;
+					} else {
+						this.downloadButton.visible = true;
+						this.downloadButton.includeInLayout = true;
+						this.uploadHintLink.visible = true;
+						this.uploadHintLink.includeInLayout = true;
+					}
+				}
+				
+				parentDocument.samples.removeEventListener(CollectionEvent.COLLECTION_CHANGE, this.onSampleChanged);
+				parentDocument.samples.addEventListener(CollectionEvent.COLLECTION_CHANGE, this.onSampleChanged);
+				setGridColors();
+				
+			}
+			
+			override public function getSamplesGrid():AdvancedDataGrid {
+				return AdvancedDataGrid(this.samplesGrid);
+			}
+			
+			override public function addSample():Boolean {
+				var emptyNode:XML = null;
+				var isValid:Boolean = true;
+				
+				emptyNode = this.getEmptyNode();
+				
+				if (emptyNode != null) {
+					parentDocument.samples.addItem(emptyNode);
+				}
+				
+				return isValid;
+			}
+			
+			private function getEmptyNode():XML {
+				var emptyNode:XML = null;
+				var isValid:Boolean = true;
+				var prepInstructions:String = parentApplication.submitInternalExperiment() && !parentDocument.isEditState() ? parentDocument.notesView.noteToSeq.text.replace(/\"/g, "&quot;") : '';
+				prepInstructions = prepInstructions.replace("'", "&apos;");
+				prepInstructions = prepInstructions.replace("<", "&lt;");
+				prepInstructions = prepInstructions.replace(">", "&gt;");
+				prepInstructions = prepInstructions.replace("&", "&amp;");
+				
+				var idSampleType:String = parentApplication.submitInternalExperiment() && !parentDocument.isEditState() ? 
+					parentDocument.sampleSetupView.sampleTypeRadioGroup.selectedValue : 
+					(parentDocument.request.@idSampleTypeDefault != null ? parentDocument.request.@idSampleTypeDefault : '');
+				var otherSamplePrepMethod:String	= parentApplication.submitInternalExperiment() && !parentDocument.isEditState()  ? 
+					parentDocument.sampleSetupView.otherSamplePrepMethod.text.replace(/\"/g, "&quot;") : '';				
+				var idOrganism:String	= parentApplication.submitInternalExperiment() && !parentDocument.isEditState() && parentDocument.sampleSetupView.sampleOrganismCombo.selectedItem != null ? 
+					parentDocument.sampleSetupView.sampleOrganismCombo.selectedItem.@value :
+					(parentDocument.request.@idOrganismSampleDefault != null ? parentDocument.request.@idOrganismSampleDefault : '');;				
+				var otherOrganism:String =  parentApplication.submitInternalExperiment() && !parentDocument.isEditState()  ? 
+					parentDocument.sampleSetupView.otherOrganism.text.replace(/\"/g, "&quot;") : '';
+				var idNumberSequencingCycles:String	= parentApplication.submitInternalExperiment() && !parentDocument.isEditState()  ? 
+					parentDocument.seqSetup1View.getIdNumberSequencingCyclesSelected() : '';
+				var idSeqRunType:String	= parentApplication.submitInternalExperiment() && !parentDocument.isEditState()  ? 
+					parentDocument.seqSetup1View.getIdSeqRunTypeSelected() : '';			
+				var idNumberSequencingCyclesAllowed:String	= parentApplication.submitInternalExperiment() && !parentDocument.isEditState()  ? 
+					parentDocument.seqSetup1View.getIdNumberSequencingCyclesAllowedSelected() : '';
+				var numberSequencingLanes:String	= parentDocument.request.@isRapidMode == 'Y' ? '2' : '1';
+					
+				var protocol:XML = parentApplication.dictionaryHelper.getProtocolFromApplication(parentDocument.codeApplication);
+				var idSeqLibProtocol:String = protocol != null ? protocol.@idSeqLibProtocol.toString() : "";
+				
+				
+					var xmlString:String = "<Sample " +
+						" idSample='" + "Sample" + getNextSampleId() + "'" +
+						" name='' description='' " +
+						" cy3='false'" +
+						" cy5='false'" +			    
+						" canChangeSampleName='Y'" +
+						" canChangeSampleType='Y'" +
+						" canChangeSampleConcentration='Y'" +
+						" canChangeSampleSource='Y'" +
+						" canChangeNumberSequencingCycles='Y'" +
+						" canChangeNumberSequencingLanes='Y'" + 
+						" concentration=''" + 
+						" idOligoBarcode = ''" +				
+						" barcodeSequence = ''" +
+						" idOligoBarcodeB = ''" +
+						" barcodeSequenceB = ''" +
+						" codeConcentrationUnit='ng/ul'" + 
+						" idSampleType='" + idSampleType + "'" +
+						" otherSamplePrepMethod=\"" + otherSamplePrepMethod + "\"" +	
+						" seqPrepByCore = 'Y'" +
+						" idOrganism='"  + idOrganism + "'" +				
+						" otherOrganism='" + otherOrganism + "'" 	+
+						" idSeqLibProtocol='" + idSeqLibProtocol + "'" +	
+						" multiplexGroupNumber='1'" +
+						" numberSequencingLanes='1'" +
+						"/>"
+					emptyNode = new XML(xmlString);
+				
+				
+				
+				return emptyNode;
+			}
+			
+			override protected function checkDeleteValidity(sample:Object):Boolean {
+				var isValid:Boolean = true;
+				for each(var lane:Object in parentDocument.getLanes(sample, -1)) {
+					if (sample.@idSample.indexOf("Sample") >= 0 || isExternal) {
+						parentDocument.lanes.removeItemAt(parentDocument.lanes.getItemIndex(lane));
+					} else {
+						Alert.show("Please remove sequence lanes for sample " + sample.@name + " before attempting to delete sample.");
+						isValid = false;
+						break;
+					}
+				}
+				
+				return isValid;
+			}
+			
+			override protected function uploadComplete(event:Event):void {
+				propagateIndexTagSequence();
+				super.uploadComplete(event);
+			}
+			
+			private function propagateIndexTagSequence():void {
+				for each(var s:XML in samplesGrid.dataProvider) {
+					var bc:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.OligoBarcode', s.@idOligoBarcode);
+					s.@barcodeSequence = bc != null ? bc.@barcodeSequence : "";
+					bc = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.OligoBarcode', s.@idOligoBarcodeB);
+					s.@barcodeSequenceB = bc != null ? bc.@barcodeSequence : "";
+				}
+			}
+			
+			private function deleteTheSample():void {
+				var idx:int = samplesGrid.selectedIndex;
+				deleteSample();
+				checkSamplesCompleteness();
+				samplesGrid.selectedIndex = idx;
+			}
+			
+			private function promptToDeleteSample():void{
+				if(samplesGrid.selectedItem != null){
+					Alert.show("Are you sure you wish to delete the selected sample?", "", (Alert.YES | Alert.NO), null, onPromptToDeleteSample, null, Alert.NO);
+				}
+			}
+			
+			private function onPromptToDeleteSample(event:CloseEvent):void{
+				if(event.detail == Alert.YES){
+					deleteTheSample();
+				}
+			}
+			
+			override protected function onPromptToClearAllSamples(event:CloseEvent):void {
+				if (event.detail==Alert.YES) {
+					parentDocument.samples.removeAll();
+					if ( !parentDocument.isEditState() ){
+						this.initializeSamplesGrid();
+					} else {
+						this.samplesGrid.addRow();
+					}
+					
+					checkSamplesCompleteness();
+					this.initializeBarcoding();
+				}
+			}	
+			
+			override public function initializeSamplesGrid():void {
+				if (parentDocument.requestToClone != null) {
+					return;
+				}
+				
+				var numberOfSamples:Number = 0;
+				var numberOfSamplesToAdd:Number = 0;
+				
+				if (parentApplication.submitInternalExperiment()) {
+					if (!parentDocument.sampleSetupView.checkSampleSetupCompleteness()) {
+						return;
+					}
+					numberOfSamples = new Number(parentDocument.sampleSetupView.numberOfSamples.text);
+					if (this.isEditState || parentDocument.isAmendState()) {
+						numberOfSamples = parentDocument.samples.length > 0 ? new Number(parentDocument.samples.length) : 1;
+					} 
+				} else {
+					numberOfSamples = 1;
+				}
+				if (parentDocument.samples.length <= numberOfSamples) {
+					numberOfSamplesToAdd = numberOfSamples - parentDocument.samples.length;
+					for(var x:int = 0; x < numberOfSamplesToAdd; x++) {
+						addSample();
+					}
+				} else {
+					while (parentDocument.samples.length > numberOfSamples) {
+						parentDocument.samples.removeItemAt(parentDocument.samples.length - 1);
+					}
+				}
+			}
+			
+			override public function checkSamplesCompleteness():void {
+				parentDocument.userWarningsSamples = "";
+								
+				var completeCount:int = 0;
+				var nameCompleteCount:int = 0;
+				for each(var sample:Object in parentDocument.samples) {
+					
+							if (isEntered(sample, "@name") && 
+								isEntered(sample, "@idSampleType") &&	
+								isEntered(sample, "@idOrganism") &&
+								reqdAnnotationsEntered(sample))   
+								{
+								
+								if (!parentDocument.isEditState()) {
+									if (sample.@numberSequencingLanes != '') {
+										if (parentDocument.showSampleCustomBarcodes()) {
+											if (isEntered( sample, "@barcodeSequence")) {
+												completeCount++;      			    		
+											}
+										} else if (parentDocument.showSampleBarcodes()) {
+											if (isEntered( sample, "@idOligoBarcode")) {
+												completeCount++;      			    		
+											}
+										} else {
+											completeCount++;
+										}
+									}		
+								} else {
+									completeCount++;
+								}
+							}
+				}
+				
+				
+				var isComplete:Boolean = false;
+				if (parentDocument.samples.length > 0 && completeCount == parentDocument.samples.length) {
+					isComplete = true;
+				} else if (parentDocument.isEditState()) {
+					isComplete = true;
+				}
+							
+				// Make sure lane #'s are grouped
+				if (isComplete && !areLaneNumbersSequential()) {
+					parentDocument.userWarningsSamples += "All samples in the same lane must be grouped together.";
+					isComplete = false;
+				}
+				
+				// If this is a Solexa request and the sample setup is complete,
+				// create the sequencing lanes based on the number of lanes 
+				// entered for each sample.
+				if (isComplete && currentState != null && currentState =='SolexaSamplesState') {
+					var isValidNumberSeqLanes:Boolean = true;
+					for each (var s:Object in parentDocument.samples) {
+						if (s.@numberSequencingLanes > 100) {
+							callLater(showMaxLaneError, [s.@numberSequencingLanes]);
+							parentDocument.userWarningsSamples += "Number of lanes to sequence '" + s.@numberSeqLanes + "' exceed max.  ";
+							isValidNumberSeqLanes = false;
+							break;
+						}
+					}
+					if (isValidNumberSeqLanes) {
+						var lanesAdded:Boolean = false;
+						for each (var theSample:Object in parentDocument.samples) {
+							var numberLanesForSample:int = parentDocument.getLaneCount(theSample);
+							if (numberLanesForSample < theSample.@numberSequencingLanes) {
+								var numberLanesToAdd:int = theSample.@numberSequencingLanes - numberLanesForSample;
+								for (var x:Number = 0; x < numberLanesToAdd; x++) {
+									addSequencingLaneForSample(theSample);
+									lanesAdded = true;
+								}
+							} else if (numberLanesForSample > theSample.@numberSequencingLanes) {
+								var numberLanesToRemove:int = numberLanesForSample - theSample.@numberSequencingLanes;
+								for each(var lane:Object in parentDocument.getLanes(theSample, numberLanesToRemove)) {
+									parentDocument.lanes.removeItemAt(parentDocument.lanes.getItemIndex(lane));
+								}
+							}
+							
+						}
+						
+						if (lanesAdded) {
+							parentDocument.lanes.refresh();
+						}
+					}
+				}
+				
+				// Make sure that sample concentration is valid
+				var cw:String = SampleConcentrationValidator.instance.validateSampleConcentration(parentDocument.samples);
+				if (cw != "") {
+					parentDocument.userWarningsSamples += cw;
+					isComplete = false;
+				}
+
+				if (!parentDocument.isEditState()) {
+					if (parentDocument.theTab.contains(parentDocument.visibilityView)) {
+						parentDocument.visibilityView.enabled = isComplete;
+					} else if (parentDocument.theTab.contains(parentDocument.confirmView)) {
+						parentDocument.confirmView.enabled = isComplete;
+					}
+					parentDocument.bioinformaticsView.enabled = isComplete;
+				}        	
+				parentDocument.enableNextButtons();
+				
+				callLater(postSamplesCompleteness, [isComplete]);
+				
+				
+			}
+			
+			private function onSampleChanged(event:CollectionEvent):void {
+				if (event.kind == CollectionEventKind.UPDATE) {
+					var groupNumberChanged:Boolean = false;
+					for each (var item:PropertyChangeEvent in event.items) {
+						if (item.property == "@multiplexGroupNumber" && item.oldValue != item.newValue) {
+							groupNumberChanged = true;
+							break;
+						}
+					}
+					
+					if (groupNumberChanged && !parentDocument.isEditState()) {
+						setGridColors();
+					}
+				}
+			}
+			
+			private function setGridColors():void {
+				var numsUsed:Object = new Object();
+				var prevSample:Object = null;
+				var colors:Array = ["0xFFFFFF","0xEEEEE0"];
+				var redColor:String = "0xF90F0F";
+				var colorIdx:int = 1;
+				if (parentDocument != null && parentDocument.samples != null) {
+					for each (var theSample:Object in parentDocument.samples) {
+						theSample.@customColor = colors[colorIdx];
+						if (prevSample == null || prevSample.@multiplexGroupNumber != theSample.@multiplexGroupNumber) {
+							if (numsUsed[theSample.@multiplexGroupNumber] != null) {
+								theSample.@customColor = redColor;
+							} else {
+								numsUsed[theSample.@multiplexGroupNumber] = true;
+								colorIdx++;
+								if (colorIdx > 1) colorIdx = 0;
+								theSample.@customColor = colors[colorIdx];
+							}
+						}
+						prevSample = theSample;
+					}
+				}
+			}
+			
+			private function areLaneNumbersSequential():Boolean {
+				if (!parentApplication.submitInternalExperiment()) {
+					return true;
+				}
+				var numsUsed:Object = new Object();
+				var prevSample:Object = null;
+				for each (var theSample:Object in parentDocument.samples) {
+					if (prevSample == null || prevSample.@multiplexGroupNumber != theSample.@multiplexGroupNumber) {
+						if (numsUsed[theSample.@multiplexGroupNumber] != null) {
+							return false;
+						} else {
+							numsUsed[theSample.@multiplexGroupNumber] = true;
+						}
+					}
+					prevSample = theSample;
+				}
+				return true;
+			}
+			
+			private function showMaxLaneError(numberSeqLanes:String):void {
+				Alert.show("Number of lanes to sequence " + numberSeqLanes + " exceeds max.");
+			}
+			
+			
+			private function postSamplesCompleteness(isComplete:Boolean):void {
+				
+				if (!isComplete && !parentDocument.isEditState()) {
+					if (parentDocument.theTab.contains(parentDocument.visibilityView)) {
+						parentDocument.visibilityView.enabled = false;					
+					}
+					if (parentDocument.theTab.contains(parentDocument.confirmView)) {
+						parentDocument.confirmView.enabled = false;					
+					}
+				}
+				
+			}
+			
+			private function addSequencingLaneForSample(sample:Object):void {
+				var lanePlus:int = parseInt(sample.@multiplexGroupNumber) + 100000;
+				var laneStr:String = lanePlus.toString().substr(1);
+				
+				var emptyNode:XML = new XML("<SequenceLane " +
+					" idSequenceLane='" + "SequenceLane" + laneStr + "'" +
+					" notes='' " + 
+					" idSeqRunType='" + sample.@idSeqRunType + "'" +
+					" idNumberSequencingCycles='" + sample.@idNumberSequencingCycles + "'" +
+					" idNumberSequencingCyclesAllowed='" + sample.@idNumberSequencingCyclesAllowed + "'" +
+					" idSample='" + sample.@idSample + "'" +
+					" idGenomeBuildAlignTo='" + parentDocument.request.@idGenomeBuildAlignTo + "'" +
+					"/>");
+				
+				parentDocument.lanes.addItem(emptyNode);
+			}
+			
+			override public function propagateNumberSequencingCycles(theSample:Object):void {
+				if (parentApplication.submitInternalExperiment() && currentState != null && currentState.indexOf('SolexaSamples') >= 0) {
+					for each(var lane:Object in parentDocument.getLanes(theSample, -1)) {
+						lane.@idNumberSequencingCycles = theSample.@idNumberSequencingCycles;
+						lane.@idNumberSequencingCyclesAllowed = theSample.@idNumberSequencingCyclesAllowed;
+					}
+				}
+			}		
+			
+			override public function initializeBarcoding():void {
+				if (parentDocument.isSolexaState()) {
+					
+					
+					if (barcodeList == null || this.barcodeList.length() == 0) {
+						barcodes.refresh();
+						barcodeList = new XMLList(barcodes.toXMLString());
+					}
+					
+					propagateBarcode();
+				}
+				
+				setSamplesGridDataProvider();
+				
+				this.barcodeColumn.visible = parentDocument.showSampleBarcodes();
+				this.barcodeColumn.editable = !parentDocument.isEditState() || parentApplication.hasPermission('canWriteAnyObject');
+				this.barcodeColumnB.visible = parentDocument.showSampleBarcodesB();
+				this.barcodeColumnB.editable = !parentDocument.isEditState() || parentApplication.hasPermission('canWriteAnyObject');
+				this.customBarcodeColumn.visible = parentDocument.showSampleCustomBarcodes();
+				this.customBarcodeColumnB.visible = parentDocument.showSampleCustomBarcodes();
+				
+				this.samplesGrid.validateNow();
+				callLater(this.checkSamplesCompleteness);
+				
+			}
+						
+			override public function setShowCCNumber(show:Boolean):void {
+				if (showCCNumberCheckbox != null) {
+					this.showCCNumberCheckbox.selected = show;
+				}
+			}
+			
+			override public function getShowCCNumber():Boolean {
+				if (showCCNumberCheckbox != null) {
+					return this.showCCNumberCheckbox.selected;
+				} else {
+					return false;
+				}
+			}
+			
+			private function setSamplesGridDataProvider():void {
+				this.samplesGrid.validateNow(); // Make sure columns on samples grid are created
+				this.samplesGrid.sortableColumns = false;
+				this.samplesGrid.dataProvider = parentDocument.samples;
+				
+				this.samplesGrid.dragMoveEnabled = false;
+				this.samplesGrid.dropEnabled = false;
+				this.samplesGrid.dragEnabled = false;
+			}
+			
+			private function setButtonsVisibility(vis:Boolean):void {
+				uploadSampleSheetButton.visible = vis;
+				uploadSampleSheetButton.includeInLayout = vis;
+				uploadHintLink.visible = vis;
+				uploadHintLink.includeInLayout = vis;
+			}
+			override public function showHideColumns():void {
+				isExternal = (parentDocument.isEditState() && parentDocument.request.@isExternal == 'Y') || (!parentDocument.isEditState() && !parentApplication.isInternalExperimentSubmission);
+				isEditState = parentDocument.isEditState();
+								
+				showCCNumberCheckbox.visible =  !isExternal;
+				showCCNumberCheckbox.includeInLayout =  !isExternal;
+				ccNumberVRule.visible = showCCNumberCheckbox.visible;
+				ccNumberCheckBoxHelp.visible = !isExternal;
+				ccNumberCheckBoxHelp.includeInLayout = !isExternal;
+
+//				addSampleHelp.visible = addSampleHelp.includeInLayout = isExternal;
+				
+				setButtonsVisibility(!parentDocument.isAmendState());
+				samplesGrid.rowOperationsAllowed = true;
+				samplesGrid.insertRowEnabled = false;
+				
+				// Don't allow sample editing on edit unless user is admin or experiment is external or experiment is non-submitted dna sq experiment.
+				if (isEditState && !parentApplication.isAdminState && !isExternal) {
+					setButtonsVisibility(false);
+					samplesGrid.rowOperationsAllowed = false;
+				} 
+				
+				// Edit columns shown
+				
+				seqPrepStatus.visible = isEditState && !isExternal;
+								
+				sampleNumberCol.visible = parentDocument.isEditState() || parentDocument.isAmendState();
+				
+				this.sampleTypeCol.visible = true; 
+				this.concentrationCol.visible = true;
+				this.sampleOrganismColumn.visible = !isExternal;
+				this.otherSamplePrepMethodCol.visible = !isExternal;
+				this.seqLibProtocolCol.visible = false;
+				
+				this.descriptionColumn.visible = (parentDocument.request.@hasSampleDescription == "Y");
+				
+				if (currentState != null && currentState.indexOf('SolexaSamples') >= 0 ) {
+					numberSequencingLanesCol.visible = !parentDocument.isEditState() && !parentDocument.isAmendState() && !isExternal && parentDocument.request.@isRapidMode != 'Y';
+					numberSequencingLanesCol.editable = true;
+					this.qual260_230Col.visible = false;
+					
+					meanLibSizeActual.visible = parentDocument.request.@idRequest != 0 && parentDocument.isEditState() && !isExternal;
+								
+					if (parentDocument.isEditState() ||
+						parentDocument.sampleSetupView.currentState == "SolexaSetupPreppedState" ||
+						parentDocument.sampleSetupView.currentState == "SolexaAmendPreppedState" ||
+						(parentDocument.sampleSetupView.seqPrepRadioGroup.selectedValue !=  null  && parentDocument.sampleSetupView.seqPrepRadioGroup.selectedValue ==  "N")) {
+						seqLibProtocolCol.visible = !isExternal;
+					} else {
+						seqLibProtocolCol.visible = false;
+					}
+
+					sampleOrganismColumn.editable = !isExternal;
+				}
+				
+				this.addOrganismButton.visible = this.sampleOrganismColumn.visible && !isExternal;
+				this.addOrganismButton.includeInLayout = this.addOrganismButton.visible;
+				addOrgVRule.visible = this.addOrganismButton.visible;
+				this.samplesTabNewOrganismHelp.visible = this.addOrganismButton.visible;
+				this.samplesTabNewOrganismHelp.includeInLayout = this.addOrganismButton.visible;
+				if (!parentDocument.isEditState()) {
+					if (parentDocument.theTab.contains(parentDocument.confirmView)) {
+						parentDocument.confirmView.showHideColumns();									
+					}
+				}
+			}
+			
+			private function toggleShowCCNumber():void {
+				if (!this.showCCNumberCheckbox.selected) {
+					for each(var s:XML in parentDocument.samples) {
+						s.@ccNumber = '';
+					}
+				}
+			}
+						
+			private function onDragDropSample(event:DragEvent) : void
+			{
+				var dropNode:Object = null;
+				if (idx > 0) {
+					idx--;
+				}
+				var idx:int = samplesGrid.calculateDropIndex(event);
+				var renderer:Object = samplesGrid.indexToItemRenderer(idx); 
+				if (renderer != null) {
+					dropNode = renderer.data; 
+				}
+				
+				if (dropNode == null) {
+					event.preventDefault();
+					return;
+				}
+				
+				var draggedFormat:String = event.dragSource.formats[0];
+				var draggedItems:Array = event.dragSource.dataForFormat(draggedFormat) as Array;	
+				if (draggedItems != null) {
+					for(var i:int = 0; i < draggedItems.length; i++) {
+						var dragItem:XML = XML(draggedItems[i]);
+						dragItem.@multiplexGroupNumber = dropNode.@multiplexGroupNumber;
+					}	 
+				} else {
+					event.preventDefault();
+				}
+			}		
+			
+			private function sortBarcodes(obj1:Object, obj2:Object, fields:Array=null):int {
+				if (obj1 == null && obj2 == null) {
+					return 0;
+				} else if (obj1 == null) {
+					return 1;
+				} else if (obj2 == null) {
+					return -1;
+				} else {
+					var scheme1:String = obj1.@oligoBarcodeSchemeDisplay;
+					var scheme2:String = obj2.@oligoBarcodeSchemeDisplay;
+					
+					if (scheme1 < scheme2) {
+						return -1;
+					} else if (scheme1 > scheme2) {
+						return 1; 
+					} else {
+						var order1:int = obj1.@sortOrder;
+						var order2:int = obj2.@sortOrder;
+						
+						if (obj1.@value == '') {
+							return -1;
+						} else if (obj2.@value == '') {
+							return 1;
+						} else {
+							if (order1 < order2) {
+								return -1;
+							} else if (order1 > order2) {
+								return 1;
+							} else {
+								return 0;
+							}
+						}
+						
+					}
+					
+				}			
+			}
+			
+			public function getIndexTagName(item:Object):String
+			{
+				if (item.@idOligoBarcode != '') {
+					return parentApplication.dictionaryManager.getEntryDisplay("hci.gnomex.model.OligoBarcode", item.@idOligoBarcode);    		
+				} else {
+					return '';
+				}
+			}
+			public function getIndexTagNameB(item:Object):String
+			{
+				if (item.@idOligoBarcodeB != '') {
+					return parentApplication.dictionaryManager.getEntryDisplay("hci.gnomex.model.OligoBarcode", item.@idOligoBarcodeB);    		
+				} else {
+					return '';
+				}
+			}
+			
+			public function textChange(item:String):void {
+				var txt:String = item;
+				if(txt.length == 30) {
+					Alert.show("Maximum allowed limit is 30 characters");					
+				}
+			}
+			
+			private function numberSequencingLanesColTip(item:Object):String{
+				return "This is the number of times (1 or greater) that you want to sequence this sample.";
+			}
+			
+			override public function setCoreFacilityNoteVisibility(vis:Boolean):void {
+				coreFacilityNoteVBox.visible = vis;
+				coreFacilityNoteVBox.includeInLayout = vis;
+			}
+			
+			override public function setTopBoxVisibility(vis:Boolean):void {
+				topBox.visible = vis;
+				topBox.includeInLayout = vis;
+			}
+			
+			private function defaultToZero(item:Object, column:AdvancedDataGridColumn):String{
+				if(item[column.dataField] == ''){
+					item[column.dataField] = '0';
+					return item[column.dataField];
+				} else{
+					return item[column.dataField];
+				}
+				
+			}
+			
+			private function instructionLink(event:TextEvent):void {
+				if (event.text == 'downloadSampleSheet') {
+					downloadSampleSheet();
+				} else if (event.text == 'uploadInstructions') {
+					PopUpManager.centerPopUp(PopUpManager.createPopUp(this, UploadSampleSheetInstructionsView, true));
+				}
+			}
+		]]>
+	</mx:Script>	
+	<mx:Sort id="barcodeSort"  compareFunction="sortBarcodes"/>
+	<mx:XMLListCollection id="barcodes" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.OligoBarcode').DictionaryEntry}" sort="{barcodeSort}"/>
+	<mx:XMLList id="barcodeList"/>
+	
+	<mx:VBox width="100%" height="100%" verticalGap="1" paddingBottom="2" paddingLeft="4" paddingRight="4" paddingTop="2">
+		<mx:HBox width="100%" id="topBox" paddingTop="0">
+			<mx:VBox  width="90%" id="coreFacilityNoteVBox"  verticalGap="0" paddingBottom="0" paddingTop="0">
+				<util:ContextHelp context1="coreFacilityNoteHelp" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Core Facility Note Help"
+								  label="Enter a note for the Core Facility (optional)." labelPlacement="left" id="coreFacilityNoteLabel"/>
+				<util:TextAreaWorkaround id="coreFacilityNoteText" text="{parentDocument.request.@corePrepInstructions}" focusOut="parentDocument.request.@corePrepInstructions = coreFacilityNoteText.text" 
+										 width="100%" height="50"/>
+			</mx:VBox>
+			<util:ContextHelp context1="samplesTabHelp" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" 
+							  context3="{(parentDocument.requestType == 'MISEQ') ? 'HISEQ' : parentDocument.requestType}"
+							  title="Samples Help" label="Click for Instructions" id="instructions" hideLabelIfNoHelp="true"/>
+			
+		</mx:HBox>
+		<mx:HBox width="100%" horizontalGap="0" paddingTop="4" paddingBottom="0" verticalAlign="middle">
+			<util:ContextHelp context1="addSampleHelp" context2="" context3="" 
+							  showEdit="{parentApplication.isSuperAdmin}" 
+							  title="Add Samples Help" label="How do I add a sample?" id="addSampleHelp" />
+			<util:ContextHelp context1="samplesGridHelp" context2="" context3=""
+							  showEdit="{parentApplication.isSuperAdmin}" 
+							  title="Sample Grid Help" label="Copy and paste sample grid" id="copyPasteHelp" />
+			<mx:LinkButton textDecoration="underline"  horizontalGap="0" label="Upload tab delimited sample sheet" click="uploadSampleSheet();" icon="@Embed(source='../../assets/upload.png')" id="uploadSampleSheetButton" toolTip="Upload sample sheet&#13;(tab delimited txt file)" />
+			<mx:LinkButton textDecoration="underline"  horizontalGap="0" id="downloadButton" label="Download sample sheet" click="{downloadSampleSheet()}"   icon="@Embed(source='../../assets/download.png')"/>
+			<mx:LinkButton textDecoration="underline" horizontalGap="0" id="uploadHintLink" 
+						   icon="@Embed(source='../../assets/information.png')" 
+						   label="Sample sheet help" 
+						   click="PopUpManager.centerPopUp(PopUpManager.createPopUp(parentApplication.theBody, UploadSampleSheetInstructionsView, true));"
+						   toolTip=" 1.  Download the sample sheet (see instructions) or create your own table&#13;       in a program like Excel.&#13; 2.  Fill in the table for all the samples.&#13; 3.  Save the file as a tab-delimited txt file.&#13; 4.  Click 'Upload sample sheet' and select the file you created."/>
+			
+			<mx:VRule height="20" id="ccNumberVRule" />
+			<mx:Spacer width="4"/>
+			
+			
+			<mx:CheckBox id= "showCCNumberCheckbox"
+						 selected="false"  horizontalGap="0" 
+						 click="toggleShowCCNumber()"  
+						 label="Enter CC Numbers" fontSize="11" 
+						 visible="{parentApplication.isInternalExperimentSubmission &amp;&amp; parentApplication.isBSTLinkageSupported}"
+						 includeInLayout="{parentApplication.isInternalExperimentSubmission &amp;&amp; parentApplication.isBSTLinkageSupported}" 
+						 toolTip="Link to itBioPath samples by entering the CC Number on each sample" />
+			<util:ContextHelp context1="ccNumberCheckBoxHelp" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="CC Number Help"
+							  label="" labelPlacement="left" id="ccNumberCheckBoxHelp"/>
+			
+			<mx:Spacer width="4"/>
+			<mx:VRule height="20" id="addOrgVRule"/>
+			<mx:LinkButton label="New Organism..." toolTip="If organism is not in dropdown, add here." textDecoration="underline"  click="addOrganism()" id="addOrganismButton"/>
+			<util:ContextHelp context1="samplesTabNewOrganismHelp" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="New Organism Help"
+							  label="" labelPlacement="left" id="samplesTabNewOrganismHelp"/>
+			
+		</mx:HBox>
+		
+		<util:AdvancedDataGridWithCustomRowColors width="100%" height="100%" id="samplesGrid"  
+												  editable="true" itemEditEnd="validateData(event)"
+												  itemFocusOut="checkSamplesCompleteness()"  
+												  dragDrop="onDragDropSample(event)"
+												  addRowEnabled="true"
+												  addRowFunction="{addSample}"
+												  clearAllFunction="promptToClearAllSamples"
+												  showRowNumberCol="true">
+			<util:columns>
+				
+				<mx:AdvancedDataGridColumn id="sampleNumberCol" headerText="ID" width="80" visible="true"  dataField="@number"  editable="false">
+					<mx:headerRenderer > 
+						<mx:Component>
+							<mx:VBox verticalGap="0" horizontalScrollPolicy="off"  verticalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle"> 
+								<util:ContextHelp context1="sampleNumber" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="Sample ID Help" 
+												  showEdit="{parentApplication.isAdminState}" label="ID" noIconSpaceIfNoHelp="true"/>
+							</mx:VBox> 
+						</mx:Component>
+					</mx:headerRenderer>
+				</mx:AdvancedDataGridColumn>					
+				<mx:AdvancedDataGridColumn headerText="Sample Name" width="100" editorDataField="text" dataField="@name" rendererIsEditor="false"
+										   id="sampleNameCol"
+										   editable="true" showDataTips="true" dataTipField="Please enter maximum of 30 Characters"
+										   itemRenderer="{hci.flex.controls.Label.create('@name')}" >
+					<mx:itemEditor>
+						<mx:Component id ="sampleNameTextField">
+							<mx:TextInput  maxChars="30" change="outerDocument.textChange(this.text)">
+							</mx:TextInput>
+						</mx:Component>
+					</mx:itemEditor> 
+					<mx:headerRenderer > 
+						<mx:Component>
+							<mx:VBox verticalGap="0" horizontalScrollPolicy="off"  verticalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle"> 
+								<util:ContextHelp context1="sampleName" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="Sample Name Help" 
+												  showEdit="{parentApplication.isAdminState}" label="Sample&#13;Name" noIconSpaceIfNoHelp="true"/>
+							</mx:VBox> 
+						</mx:Component>
+					</mx:headerRenderer>
+				</mx:AdvancedDataGridColumn>   
+				
+				<mx:AdvancedDataGridColumn headerText="Conc. (ng/ul)" id="concentrationCol" visible="{parentApplication.isInternalExperimentSubmission}"  width="77" formatter="{sampleConcentrationFormatter}" rendererIsEditor="false"
+										   itemRenderer="{hci.flex.controls.Label.create('@concentration')}"                
+										   itemEditor="{views.renderers.GridColumnFillButton.create(new views.renderers.TextInputSampleConcentration(), '')}" editorDataField="value" dataField="@concentration">
+					<mx:headerRenderer > 
+						<mx:Component>
+							<mx:VBox verticalGap="0" horizontalScrollPolicy="off"  verticalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle"> 
+								<util:ContextHelp context1="sampleConcentration" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="Concentration Help" 
+												  showEdit="{parentApplication.isAdminState}" label="Conc.   &#13;(ng/ul)" noIconSpaceIfNoHelp="true"/>
+							</mx:VBox> 
+						</mx:Component>
+					</mx:headerRenderer>
+				</mx:AdvancedDataGridColumn>
+				<mx:AdvancedDataGridColumn id="ccNumber" headerText="CC Number" dataField="@ccNumber" editable="true" 
+										   visible="{showCCNumberCheckbox.visible &amp;&amp; showCCNumberCheckbox.selected &amp;&amp; !parentDocument.isSequencingState() ? true : false}"
+										   width="80"
+										   itemRenderer="{hci.flex.controls.Label.createCustom('@ccNumber', parentApplication.annotationColor, parentApplication.annotationColorBorder, 0)}"                
+										   itemEditor="{views.renderers.GridColumnFillButton.create(hci.flex.controls.TextInput.create('@ccNumber').newInstance(), '')}" editorDataField="value">
+					<mx:headerRenderer > 
+						<mx:Component>
+							<mx:VBox verticalGap="0" horizontalGap="0" horizontalScrollPolicy="off"  verticalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle"> 
+								<util:ContextHelp context1="sampleCCNumber" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="CC Number Help" 
+												  showEdit="{parentApplication.isAdminState}" label="CC           &#13;Number" noIconSpaceIfNoHelp="true"/>
+							</mx:VBox> 
+						</mx:Component>
+					</mx:headerRenderer>
+				</mx:AdvancedDataGridColumn>
+				
+				
+				<mx:AdvancedDataGridColumn id="descriptionColumn" headerText="Sample Description" visible="false" width="140" dataField="@description" wordWrap="true"  itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" editorDataField="value"/>
+				
+				
+				<mx:AdvancedDataGridColumn id="numberSequencingLanesCol" headerText="# Seq Lanes" width="72" dataField="@numberSequencingLanes" 
+										   editable="false" showDataTips="true" dataTipFunction="numberSequencingLanesColTip"
+										   rendererIsEditor="false" labelFunction="defaultToZero"
+										   itemRenderer="{hci.flex.controls.Label.create('@numberSequencingLanes')}"         
+										   itemEditor="{views.renderers.GridColumnFillButton.create(new views.renderers.TextInputSampleNumberSeqLanes(), '')}" editorDataField="value">
+					<mx:headerRenderer > 
+						<mx:Component>
+							<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle"> 
+								<util:ContextHelp context1="sampleNumberSequencingLanes" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="# Seq Help" showEdit="{parentApplication.isAdminState}"
+												  label="# Seq&#13;Lanes" noIconSpaceIfNoHelp="true"/>
+							</mx:VBox> 
+						</mx:Component>
+					</mx:headerRenderer>
+				</mx:AdvancedDataGridColumn>  
+								
+				<util:AdvancedDataGridColumnWithType propertyType="OPTION" id="sampleTypeCol"  headerText="Sample Type" visible="true" width="180"   dataField="@idSampleType" 
+													 editorDataField="value" sortable="false" editable="true" rendererIsEditor="false" 
+													 itemRenderer="{views.renderers.DropdownLabel.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SampleType').DictionaryEntry, '@display', '@value', '@idSampleType', true, true)}"                 
+													 itemEditor="{views.renderers.GridColumnFillButton.create(hci.flex.controls.ComboBox.getFactory(this.filteredSampleTypeList.source, '@display', '@value', '@idSampleType', true).newInstance(), '')}">
+					<util:headerRenderer > 
+						<mx:Component>
+							<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle"> 
+								<util:ContextHelp context1="sampleType" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="Sample type Help" showEdit="{parentApplication.isAdminState}"
+												  label="Sample Type" noIconSpaceIfNoHelp="true"/>
+							</mx:VBox> 
+						</mx:Component>
+					</util:headerRenderer>
+				</util:AdvancedDataGridColumnWithType>					
+				<util:AdvancedDataGridColumnWithType propertyType="OPTION" id="sampleOrganismColumn" visible="true" width="170" headerText="Organism"  dataField="@idOrganism" 
+													 editorDataField="value" sortable="false" editable="true" rendererIsEditor="false"   
+													 itemRenderer="{views.renderers.DropdownLabel.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.OrganismLite').DictionaryEntry, '@display', '@value', '@idOrganism', true, true)}"              
+													 itemEditor="{views.renderers.GridColumnFillButton.create(hci.flex.controls.ComboBox.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.OrganismLite').DictionaryEntry, '@display', '@value', '@idOrganism', true).newInstance(), '')}">
+					<util:headerRenderer > 
+						<mx:Component>
+							<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle"> 
+								<util:ContextHelp context1="sampleOrganism" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="Organism Help" showEdit="{parentApplication.isAdminState}"
+												  label="Organism" noIconSpaceIfNoHelp="true"/>
+							</mx:VBox> 
+						</mx:Component>
+					</util:headerRenderer>
+				</util:AdvancedDataGridColumnWithType>
+				
+				<mx:AdvancedDataGridColumn id="seqLibProtocolCol" headerText="Seq Lib Protocol" visible="{true}"  width="180" dataField="@idSeqLibProtocol" 
+										   editorDataField="value" sortable="false" editable="{isEditState}" rendererIsEditor="false"
+										   itemRenderer="{views.renderers.DropdownLabel.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqLibProtocol').DictionaryEntry, '@display', '@value', '@idSeqLibProtocol')}"                
+										   itemEditor="{views.renderers.GridColumnFillButton.create(ComboBox.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqLibProtocol').DictionaryEntry, '@display', '@value', '@idSeqLibProtocol', '@canChangeSampleSource', true).newInstance(), '')}"/>
+
+				<util:AdvancedDataGridColumnWithType propertyType="OPTION" 
+													 id="barcodeColumn" 
+													 visible="true" 
+													 headerText="Index Tag A" 
+													 width="130" 
+													 dataField="@idOligoBarcode"
+													 editorDataField="value"
+													 sortable="false" 
+													 editable="true" 
+													 rendererIsEditor="false" 
+													 itemRenderer="{views.renderers.DropdownLabel.create(barcodeList, '@display', '@value', '@idOligoBarcode', true, true, 0xFFFFB9)}">
+					<util:itemEditor>
+						<mx:Component>
+							<renderers:FilterComboBoxOligoBarcode idSeqLibProtocol="{data.@idSeqLibProtocol}"
+																  parentApp="{outerDocument.parentApplication}"
+																  fontSize="10"
+																  prompt="{null}"
+																  indexTagLetter="A"
+																  filterString="{outerDocument.getIndexTagName(data)}"
+																  text="{outerDocument.getIndexTagName(data)}"
+																  labelFunction="{outerDocument.getIndexTagName}"
+																  change="{selectedItem!=null ? data.@idOligoBarcode = selectedItem.@idOligoBarcode : data.@idOligoBarcode = data.@idOligoBarcode; data.@barcodeSequence = outerDocument.parentApplication.dictionaryManager.getEntry('hci.gnomex.model.OligoBarcode', data.@idOligoBarcode).@barcodeSequence}">
+							</renderers:FilterComboBoxOligoBarcode>
+						</mx:Component>
+					</util:itemEditor> 					
+					<util:headerRenderer > 
+						<mx:Component>
+							<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle"> 
+								<util:ContextHelp context1="sampleIndexTagA" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="Index Tag A Help" showEdit="{parentApplication.isAdminState}"
+												  label="Index Tag A" noIconSpaceIfNoHelp="true"/>
+							</mx:VBox> 
+						</mx:Component>
+					</util:headerRenderer>
+				</util:AdvancedDataGridColumnWithType>
+				<util:AdvancedDataGridColumnWithType propertyType="OPTION" 
+													 id="barcodeColumnB" 
+													 headerText="Index Tag B" 
+													 visible="true" 
+													 width="130" 
+													 dataField="@idOligoBarcodeB" 
+													 sortable="false" 
+													 editable="true"
+													 editorDataField="value"
+													 rendererIsEditor="false" 
+													 itemRenderer="{views.renderers.DropdownLabel.create(barcodeList, '@display', '@value', '@idOligoBarcodeB', false, true)}">
+					<util:itemEditor>
+						<mx:Component>
+							<renderers:FilterComboBoxOligoBarcode idSeqLibProtocol="{data.@idSeqLibProtocol}"
+																  parentApp="{outerDocument.parentApplication}"
+																  fontSize="10"
+																  prompt="{null}"
+																  indexTagLetter="B"
+																  filterString="{outerDocument.getIndexTagNameB(data)}"
+																  text="{outerDocument.getIndexTagNameB(data)}"
+																  labelFunction="{outerDocument.getIndexTagName}"
+																  change="{selectedItem!=null ? data.@idOligoBarcodeB = selectedItem.@idOligoBarcode : data.@idOligoBarcodeB = data.@idOligoBarcodeB; data.@barcodeSequenceB = outerDocument.parentApplication.dictionaryManager.getEntry('hci.gnomex.model.OligoBarcode', data.@idOligoBarcodeB).@barcodeSequence}">
+							</renderers:FilterComboBoxOligoBarcode>
+						</mx:Component>
+					</util:itemEditor> 					
+					<util:headerRenderer > 
+						<mx:Component>
+							<mx:VBox verticalGap="0"   horizontalAlign="center" verticalAlign="middle"> 
+								<util:ContextHelp context1="sampleIndexTagB" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="Index Tag B Help" showEdit="{parentApplication.isAdminState}"
+												  label="Index Tag B" noIconSpaceIfNoHelp="true"/>
+							</mx:VBox> 
+						</mx:Component>
+					</util:headerRenderer>
+				</util:AdvancedDataGridColumnWithType>
+				<mx:AdvancedDataGridColumn id="customBarcodeColumn" headerText="Index Tag Sequence" dataField="@barcodeSequence" editable="false" visible="true"
+										   width="85"
+										   itemRenderer="mx.controls.Label"               
+										   itemEditor="{views.renderers.GridColumnFillButton.create(hci.flex.controls.TextInput.create('@barcodeSequence').newInstance(), '')}" editorDataField="value">
+					<mx:headerRenderer > 
+						<mx:Component>
+							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off" horizontalAlign="center" verticalAlign="middle"> 
+									<util:ContextHelp context1="sampleIndexTagSequenceA" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="Index Tag Sequence A Help" showEdit="{parentApplication.isAdminState}"
+													  label="Index Tag&#13;Sequence A" noIconSpaceIfNoHelp="true"/>
+							</mx:VBox> 
+						</mx:Component>
+					</mx:headerRenderer>
+				</mx:AdvancedDataGridColumn>
+				
+				<mx:AdvancedDataGridColumn id="customBarcodeColumnB" headerText="Index Tag Sequence B" dataField="@barcodeSequenceB" editable="false" visible="true"
+										   width="85"
+										   itemRenderer="mx.controls.Label"               
+										   itemEditor="{views.renderers.GridColumnFillButton.create(hci.flex.controls.TextInput.create('@barcodeSequenceB').newInstance(), '')}" editorDataField="value">
+					<mx:headerRenderer > 
+						<mx:Component>
+							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off" horizontalAlign="center" verticalAlign="middle"> 
+								<util:ContextHelp context1="sampleIndexTagSequenceB" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="Index Tag Sequence B Help" showEdit="{parentApplication.isAdminState}"
+												  label="Index Tag&#13;Sequence B" noIconSpaceIfNoHelp="true"/>
+							</mx:VBox> 
+						</mx:Component>
+					</mx:headerRenderer>
+				</mx:AdvancedDataGridColumn> 
+				<mx:AdvancedDataGridColumn id="otherSamplePrepMethodCol" headerText="Nucl. acid extraction meth." 
+										   width="140" dataField="@otherSamplePrepMethod" 
+										   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" editorDataField="value">
+					<mx:headerRenderer > 
+						<mx:Component>
+							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off" verticalScrollPolicy="off" horizontalAlign="center" verticalAlign="middle"> 
+								<util:ContextHelp context1="sampleNuclAcidExtraction" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="Nucl. Acid Extraction Help" showEdit="{parentApplication.isAdminState}"
+												  label="Nucl. acid                     &#13;extraction meth." noIconSpaceIfNoHelp="true"/>
+							</mx:VBox> 
+						</mx:Component>
+					</mx:headerRenderer>
+				</mx:AdvancedDataGridColumn>
+				
+				<mx:AdvancedDataGridColumn visible="{!isExternal &amp;&amp; isEditState}" 
+										   editable="{parentApplication.hasPermission('canWriteAnyObject')}" 
+										   headerText="QC Conc. ng/uL" 
+										   width="80" 
+										   dataField="@qualCalcConcentration" 
+										   id="qualCalcConcCol" 
+										   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" 
+										   editorDataField="value">
+					<mx:headerRenderer > 
+						<mx:Component>
+							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off" verticalScrollPolicy="off" horizontalAlign="center" verticalAlign="middle"> 
+								<util:ContextHelp context1="sampleQCConc" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="QC Conc. Help" showEdit="{parentApplication.isAdminState}"
+												  label="QC Conc.&#13;(ng/uL)" noIconSpaceIfNoHelp="true"/>
+							</mx:VBox> 
+						</mx:Component>
+					</mx:headerRenderer>
+				</mx:AdvancedDataGridColumn>
+				<mx:AdvancedDataGridColumn id="meanLibSizeActual" visible="false" headerText="Actual Ave Lib Size" width="90" dataField="@meanLibSizeActual" editable="true">
+					<mx:headerRenderer > 
+						<mx:Component>
+							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off" verticalScrollPolicy="off" horizontalAlign="center" verticalAlign="middle"> 
+								<util:ContextHelp context1="sampleMeanLibSizeActual" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="Actual Ave Lib Size Help" showEdit="{parentApplication.isAdminState}"
+												  label="Actual Ave.&#13;Lib. Size" noIconSpaceIfNoHelp="true"/>
+							</mx:VBox> 
+						</mx:Component>
+					</mx:headerRenderer>
+				</mx:AdvancedDataGridColumn>
+				<mx:AdvancedDataGridColumn visible="{!isExternal &amp;&amp; isEditState}" 
+										   editable="{parentApplication.hasPermission('canWriteAnyObject')}" 
+										   headerText="QC 260/230" 
+										   width="80" 
+										   dataField="@qual260nmTo230nmRatio" 
+										   id="qual260_230Col" 
+										   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" 
+										   editorDataField="value">
+					<mx:headerRenderer > 
+						<mx:Component>
+							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off" verticalScrollPolicy="off" horizontalAlign="center" verticalAlign="middle"> 
+								<util:ContextHelp context1="sampleQual260nmTo230nmRation" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="QC 260/230 Help" showEdit="{parentApplication.isAdminState}"
+												  label="QC 260/230" noIconSpaceIfNoHelp="true"/>
+							</mx:VBox> 
+						</mx:Component>
+					</mx:headerRenderer>
+				</mx:AdvancedDataGridColumn>
+				<mx:AdvancedDataGridColumn visible="{!isExternal &amp;&amp; isEditState}" headerText="QC Status" width="90" dataField="@qualStatus" id="qualStatusCol"
+										   editorDataField="value" sortable="false" editable="true" rendererIsEditor="false"  itemRenderer="mx.controls.Label" 
+										   itemEditor="{views.renderers.GridColumnFillButton.create(ComboBoxWorkflowStatus.create('@qualStatus').newInstance(), '')}">
+					<mx:headerRenderer > 
+						<mx:Component>
+							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off" verticalScrollPolicy="off" horizontalAlign="center" verticalAlign="middle"> 
+								<util:ContextHelp context1="sampleQualStatus" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="QC Status Help" showEdit="{parentApplication.isAdminState}"
+												  label="QC Status" noIconSpaceIfNoHelp="true"/>
+							</mx:VBox> 
+						</mx:Component>
+					</mx:headerRenderer>
+				</mx:AdvancedDataGridColumn>
+				
+				<mx:AdvancedDataGridColumn  id="seqPrepStatus" visible="true" headerText="Seq Prep Status" width="90" dataField="@seqPrepStatus"
+											sortable="false" editable="true" rendererIsEditor="false"  itemRenderer="mx.controls.Label" 
+											itemEditor="{views.renderers.GridColumnFillButton.create(new views.renderers.TextInputSampleNumberSeqLanes(), '')}" editorDataField="value">
+					<mx:headerRenderer > 
+						<mx:Component>
+							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off" verticalScrollPolicy="off" horizontalAlign="center" verticalAlign="middle"> 
+								<util:ContextHelp context1="sampleSeqPrepStatus" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="Seq PrepStatus Help" showEdit="{parentApplication.isAdminState}"
+												  label="Seq Prep Status" noIconSpaceIfNoHelp="true"/>
+							</mx:VBox> 
+						</mx:Component>
+					</mx:headerRenderer>
+				</mx:AdvancedDataGridColumn>
+				
+			</util:columns>
+		</util:AdvancedDataGridWithCustomRowColors>
+		
+		
+		
+	</mx:VBox>
+	
+	<exp:states>
+		<mx:State name="SamplesEditBaseState" >
+		</mx:State>
+		
+		<mx:State name="SamplesEditState" basedOn="SamplesEditBaseState">
+			
+		</mx:State>
+		
+		<mx:State name="SamplesAdminState" basedOn="SamplesEditBaseState">
+		</mx:State>
+		
+		
+		<mx:State name="SolexaSamplesState" >
+		</mx:State>
+		<mx:State name="SolexaSamplesEditState" basedOn="SamplesEditState" >
+		</mx:State>
+		<mx:State name="SolexaSamplesAdminState" basedOn="SamplesAdminState" >
+			
+		</mx:State>
+		
+	</exp:states>
+	
+</exp:TabSamplesBase>

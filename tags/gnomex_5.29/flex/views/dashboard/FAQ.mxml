@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"  
+				xmlns:db="views.dashboard.*" 
+				width="500" height="350" backgroundAlpha="1" cornerRadius="12" 
+				preinitialize="init()">   
+
+	<mx:HTTPService 
+		id="getFAQ" 
+		url="GetFAQ.gx"
+		resultFormat="e4x"
+		destination="getFAQ"
+		showBusyCursor="true"
+		result="onGetFAQInterface(event)"
+		fault="parentApplication.onFailHttpRequest('Unable to get items', event)"
+		useProxy="false">
+	</mx:HTTPService>
+	
+	<mx:HTTPService
+		id="deleteFAQ" 
+		url="DeleteFAQ.gx"
+		resultFormat="e4x"
+		destination="deleteFAQ"
+		showBusyCursor="true"
+		result="onDeleteFAQInterface(event)"
+		fault="parentApplication.onFailHttpRequest('Unable to delete item', event)"
+		useProxy="false">
+	</mx:HTTPService>
+
+	<mx:XMLListCollection id="FAQList" source="{getFAQ.lastResult.FAQ}" />
+	
+<mx:Script>
+	<![CDATA[
+		import flash.events.TimerEvent;
+		import flash.net.navigateToURL;
+		import flash.utils.Timer;
+		
+		import mx.collections.ArrayCollection;
+		import mx.collections.Sort;
+		import mx.collections.XMLListCollection;
+		import mx.controls.Alert;
+		import mx.events.CloseEvent;
+		import mx.events.CollectionEvent;
+		import mx.events.CollectionEventKind;
+		import mx.events.DragEvent;
+		import mx.events.FlexEvent;
+		import mx.events.ListEvent;
+		import mx.managers.DragManager;
+		import mx.managers.PopUpManager;
+		import mx.rpc.events.ResultEvent;
+				
+		// Variables
+		[Bindable]
+		private var refreshTimer:Timer = new Timer(600000);
+		
+		[Bindable]
+		private var paramDelete:Object = new Object();
+		
+		public function init():void {
+			getFAQ.send();
+		}
+		
+		public function refreshData(e:TimerEvent):void{
+			getFAQ.send();
+			refreshTimer.removeEventListener(TimerEvent.TIMER, refreshData);					
+		}
+		
+		private function onGetFAQInterface(event:ResultEvent):void {
+		if(event.result.name() == "FaqCollection"){
+			
+			// Set timer -- Polling with dynamic interval.
+			refreshTimer.addEventListener(TimerEvent.TIMER, refreshData);
+			refreshTimer.start();
+			
+			if(FAQList.length < 1){
+				faqRep.includeInLayout = false;
+				faqNote.includeInLayout = true;
+				faqNote.visible = true;
+			}else{
+				faqRep.includeInLayout = true;
+				faqRep.visible = true;
+				faqNote.includeInLayout = false;
+				faqNote.visible = false;
+			}
+			
+		} else {
+				Alert.show(event.result..ERROR.@message.toString(), "Error setting up Faq Interface.");
+			}
+		}
+		
+		private function onDeleteFAQInterface(event:ResultEvent):void {
+			if (deleteFAQ.lastResult.name() == "SUCCESS") {
+				// Success.
+				getFAQ.send();
+			}else{
+				Alert.show("Error in deleting item.");
+			}
+		}
+	
+		protected function FAQRemove_clickHandler(ci:Object):void
+		{
+			// Call remove HTTPService after confirm in onPromptToDelete.
+			paramDelete.idFAQ = ci.@idFAQ;
+			
+			Alert.show("Are you sure you wish to delete this item?", 
+				"Confirm", 
+				(Alert.YES | Alert.NO), this, 
+				onPromptToDelete);
+		}		
+		
+		private function onPromptToDelete(event:CloseEvent):void {
+			if (event.detail==Alert.YES) {
+				deleteFAQ.send(paramDelete);
+			}
+		}
+
+		public function showAddFAQ():void {
+			// Show detailed newsitem in popup.
+			var addFAQWindow:AddFAQ = AddFAQ(PopUpManager.createPopUp(parentApplication.theBody, AddFAQ, true));
+			addFAQWindow.saveButton.addEventListener("testEvent", onClose);
+			PopUpManager.centerPopUp(addFAQWindow);
+		}
+		
+		protected function onClose(ev:Event):void
+		{
+			getFAQ.send();
+		}   
+		
+	]]>
+</mx:Script>
+	<mx:VBox width="100%" height="100%" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
+		<mx:HBox width="100%" paddingLeft="155" horizontalGap="75"  paddingTop="5" horizontalAlign="center">
+			<mx:Label id="mainTitle" text="Quick Links" fontSize="18" />
+			<mx:Spacer width="100%" />
+			<mx:LinkButton id="addFAQ" click="showAddFAQ()" 
+						   icon="@Embed(source='../../assets/table_row_insert.png')" width="22" 
+						   includeInLayout="{parentApplication.isSuperAdmin}"
+						   visible="{parentApplication.isSuperAdmin}"
+						   toolTip="Add Item"
+						   paddingTop="6" paddingRight="12"
+						   />
+		</mx:HBox>
+					
+		<mx:VBox id="main" width="100%" paddingTop="10" verticalGap="5">
+				<mx:Repeater id="faqRep" dataProvider="{FAQList}" count="6">
+					<mx:HBox id="FAQItem" width="100%" height="25" backgroundColor="#E6E6E6" 
+							 cornerRadius="7" borderStyle="solid" borderThickness="0"
+							 paddingTop="2" paddingLeft="2" paddingRight="2"
+							 >
+
+						<mx:LinkButton id="FAQTitle" width="445" height="20"
+									   fontWeight="bold"
+									   fontSize="10"
+									   label="{faqRep.currentItem.@title}"
+									   click="navigateToURL(new URLRequest(event.currentTarget.getRepeaterItem().@url), '_blank');"
+									   rollOver="{FAQTitle[event.target.instanceIndex].setStyle('color', 0xED0018)}"
+									   rollOut="{FAQTitle[event.target.instanceIndex].setStyle('color', 0x000000)}"
+									   textAlign="left"
+								/>
+						<mx:VRule height="15" includeInLayout="{parentApplication.isSuperAdmin}" visible="{parentApplication.isSuperAdmin}"/>	
+						<mx:LinkButton id="FAQRemove"
+									   width="22"
+									   icon="@Embed(source='../../assets/table_row_delete.png')"
+									   click="FAQRemove_clickHandler(event.currentTarget.getRepeaterItem());"
+									   includeInLayout="{parentApplication.isSuperAdmin}"
+									   visible="{parentApplication.isSuperAdmin}"
+									   toolTip="Delete Item"
+								/>
+					</mx:HBox>						
+				</mx:Repeater>
+				<mx:HBox id="faqNote" horizontalAlign="center" paddingLeft="175" height="200" verticalAlign="middle">
+					<mx:Label text="No items available" fontSize="12" color="red" fontWeight="bold"/>	
+				</mx:HBox>
+			</mx:VBox>
+	</mx:VBox>
+</mx:Canvas>
