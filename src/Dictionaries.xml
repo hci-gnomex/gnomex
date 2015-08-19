@@ -163,10 +163,6 @@
   <Dictionary displayName="DNA Seq Core - Plate Type" className="hci.gnomex.model.PlateType" editable="N" />
   <Dictionary displayName="DNA Seq Core - Seal Type" className="hci.gnomex.model.SealType" editable="N" />
   <Dictionary displayName="DNA Seq Core - Reaction Type" className="hci.gnomex.model.ReactionType" editable="N" />
-  
-
-  <Dictionary displayName="Molecular Diagnostics - DNA Prep Type" className="hci.gnomex.model.DNAPrepType" editable="Y" />
-	<Dictionary displayName="Molecular Diagnostics - RNA Prep Type" className="hci.gnomex.model.RNAPrepType" editable="Y" />
 	
 	<Dictionary displayName="Molecular Diagnostics - Isolation Prep Type" className="hci.gnomex.model.IsolationPrepType" editable="Y" />
   

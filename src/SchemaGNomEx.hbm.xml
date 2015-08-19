@@ -1621,24 +1621,6 @@
 		<property name="isActive" column="isActive" type="string" />
 		<property name="sortOrder" column="sortOrder" type="integer" />
 	</class>
-
-	<!-- hci.gnomex.model.DNAPrepType -->
-	<class name="hci.gnomex.model.DNAPrepType" table="DNAPrepType">
-		<id name="codeDNAPrepType" column="codeDNAPrepType" type="string">
-			<generator class="assigned" />
-		</id>
-		<property name="dnaPrepType" column="dnaPrepType" type="string" />
-		<property name="isActive" column="isActive" type="string" />
-	</class>
-
-	<!-- hci.gnomex.model.RNAPrepType -->
-	<class name="hci.gnomex.model.RNAPrepType" table="RNAPrepType">
-		<id name="codeRNAPrepType" column="codeRNAPrepType" type="string">
-			<generator class="assigned" />
-		</id>
-		<property name="rnaPrepType" column="rnaPrepType" type="string" />
-		<property name="isActive" column="isActive" type="string" />
-	</class>
 	
 	<!-- hci.gnomex.model.IsolationPrepType -->
 	<class name="hci.gnomex.model.IsolationPrepType" table="IsolationPrepType">
