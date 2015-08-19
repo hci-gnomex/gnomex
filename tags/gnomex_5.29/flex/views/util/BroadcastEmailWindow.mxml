@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
+	layout="vertical" title="Send Email to all GNomEx Users" 
+	width="806" height="430"
+	xmlns:util="views.util.*" 
+	initialize="init()"
+	defaultButton="{saveButton}" showCloseButton="true" 
+	close="{PopUpManager.removePopUp(this)}" 
+	titleIcon="@Embed(source='../../assets/email_go.png')">
+    
+    <mx:HTTPService 
+    id="getUploadURL" 
+    url="UploadAndBroadcastEmailURLServlet.gx"
+    resultFormat="e4x"
+    showBusyCursor="true"
+    result="onGetUploadURL(event)"
+    fault="parentApplication.onFailHttpRequest('Unable to get upload URL', event)"
+    method="POST"
+    useProxy="false">
+    </mx:HTTPService >  
+    
+        
+    <mx:HTTPService 
+    id="sendBroadcastEmail" 
+    url="UploadAndBroadcastEmailServlet.gx"
+    resultFormat="e4x"
+    showBusyCursor="true"
+    result="onSendBroadcastEmail(event)"
+    fault="this.faultHandlerSendBroadcastEmail('', event)"
+    method="POST"
+    useProxy="false">
+    </mx:HTTPService >  
+
+<mx:Script>
+	<![CDATA[
+		import flash.net.URLRequest;
+		import flash.net.URLVariables;
+		
+		import mx.controls.Alert;
+		import mx.formatters.NumberFormatter;
+		import mx.managers.PopUpManager;
+		import mx.rpc.events.FaultEvent;
+		import mx.rpc.events.ResultEvent;
+		import mx.events.ValidationResultEvent;
+		  
+		[Bindable]	
+		private var fileSelected:Boolean = false;
+			    
+		[Bindable]
+		private var coreFacilitySelected:Boolean = false;
+		
+		private var fileRef:FileReference = null;
+		private var numberFormatter:NumberFormatter = new NumberFormatter();
+		private var uploadURLRequest:URLRequest = null;
+		
+		private function init():void {
+			getUploadURL.send();
+			// If only 1 core facility, they don't have to choose it.
+			if (parentDocument.coreFacilitiesICanManage.length() < 2) {
+				coreFacilitySelected = true;
+			}
+			fromAddress.text = parentApplication.getUserEmail();
+		}
+		
+		private function onGetUploadURL(event:ResultEvent):void {
+        	if (getUploadURL.lastResult.name() == "UploadAndBroadcastEmailServlet") {
+				uploadURLRequest = new URLRequest;
+	        	uploadURLRequest.method = "POST";  // this can also be set to "POST" depending on your needs 
+	        	uploadURLRequest.contentType = "multipart/form-data";
+        		uploadURLRequest.url = getUploadURL.lastResult.@url; 
+        		
+        	}
+        }
+
+        private function selectFileToUpload():void {
+    		fileRef = new FileReference();
+    		
+    		var docFilter:FileFilter = new FileFilter("*.txt,*.text,*.html", "*.txt;*.text;*.htm;*html");  
+
+        	fileRef.addEventListener(Event.SELECT, onFileRefSelect);
+        	fileRef.addEventListener(ProgressEvent.PROGRESS, onFileRefProgress);
+        	fileRef.addEventListener(Event.COMPLETE, onFileRefComplete);
+
+            fileRef.browse([docFilter]);
+        }
+
+        private function onFileRefSelect(evt:Event):void {
+            try {
+            	fileName.text = fileRef.name;
+                message.text = "(" + numberFormatter.format(fileRef.size) + " bytes)" ;
+                fileSelected = true;
+            } catch (err:Error) {
+                message.text = "ERROR: zero-byte file";
+            }
+        }
+
+        private function onFileRefProgress(evt:ProgressEvent):void {
+        }
+
+        private function onFileRefComplete(evt:Event):void {
+           Alert.show("Email message has been sent.");
+            PopUpManager.removePopUp(this);
+        }
+	
+		
+		
+		private function save():void {			
+			var coreIds:String = "";
+			if (parentApplication.coreFacilitiesICanManage.length() < 2) {
+				coreIds = parentApplication.coreFacilitiesICanManage[0].@idCoreFacility;
+			} else {
+				for (var x:int = 0; x < coreFacilityCheckbox.length; x++) {
+					if (coreFacilityCheckbox[x].selected == true) {
+						if (coreIds != '') {
+							coreIds = coreIds + ',';
+						}
+						coreIds = coreIds + parentApplication.coreFacilitiesICanManage[x].@idCoreFacility;
+					}
+				}
+			}
+			
+			if (fileRef != null) {
+				var postVariables:URLVariables = new URLVariables;
+				postVariables.subject = subject.text;
+				if (fileRef.name.toLowerCase().lastIndexOf('html') == fileRef.name.length - 4 || fileRef.name.toLowerCase().lastIndexOf('htm') == fileRef.name.length - 3) {
+					postVariables.format = "html";
+				} else {
+					postVariables.format = "text";
+				}				
+				postVariables.coreFacilityIds = coreIds;				
+				uploadURLRequest.data = postVariables;				
+				fileRef.upload(uploadURLRequest);
+			}  else {
+			 	var params:Object = new Object();
+			 	params.subject = subject.text;
+			 	params.format = "text";
+				params.fromAddress = fromAddress.text;
+			 	params.body = body.text;	
+				params.coreFacilityIds = coreIds;
+			 	this.sendBroadcastEmail.send(params);
+			}
+			
+		}
+		
+		private function onSendBroadcastEmail(event:ResultEvent):void {
+        	if (this.sendBroadcastEmail.lastResult.name() == "HTML") {
+				Alert.show(this.sendBroadcastEmail.lastResult..H3);
+            	PopUpManager.removePopUp(this);        		
+        	} else {
+        		Alert.show("A server error occurred.  Please contact GNomEx technical support.");
+        	}
+        }   
+        
+        public function faultHandlerSendBroadcastEmail(title:String, event:FaultEvent):void {
+        	if (event.message.body is String) {
+	        	var startPos:int = event.message.body.indexOf("H3");
+	        	var endPos:int   = event.message.body.indexOf("</H3>");
+	        	if (startPos != -1 && endPos != -1) {
+		        	Alert.show(event.message.body.toString().substring(startPos + 3, endPos), title);    		
+	            	PopUpManager.removePopUp(this);        		
+	        	} else {
+	        		Alert.show(event.message.body.toString(), title);
+	        	}        
+        		
+        	} else {
+        		Alert.show(event.fault.faultCode + "\n\n" + event.fault.faultString + "\n\n" + event.fault.faultDetail, title);
+        	}
+        }
+
+		private function onCoreFacilityClick():void {
+			this.coreFacilitySelected = false;
+			if (parentApplication.coreFacilitiesICanManage.length() < 2) {
+				this.coreFacilitySelected = true;
+			} else {
+				for (var x:int = 0; x < coreFacilityCheckbox.length; x++) {
+					if (coreFacilityCheckbox[x].selected == true) {
+						this.coreFacilitySelected = true;
+						break;
+					}
+				}
+			}
+		}
+		
+		private function checkEmailValidity(event:KeyboardEvent):void {
+			var validationEvent:ValidationResultEvent = emailValidator.validate(this.fromAddress.text);
+			if(validationEvent.type==ValidationResultEvent.VALID && (fileSelected || this.body.text != '') && subject.text != '' && fromAddress.text != '' && coreFacilitySelected){
+				saveButton.enabled = true;
+			} else{
+				saveButton.enabled = false;
+			}
+		}
+	]]>
+</mx:Script>
+	
+	<mx:EmailValidator id="emailValidator" required="true" source="{fromAddress}" property="text" />
+	
+	
+	<mx:VBox width="100%" height="100%" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4">
+		<mx:HBox verticalGap="0" paddingLeft="2" paddingRight="2"  id="coreFacilityHBox"
+				 visible="{parentDocument.coreFacilitiesICanManage.length() > 1}"
+				 includeInLayout="{parentDocument.coreFacilitiesICanManage.length() > 1}"  horizontalGap="0">
+			<mx:Label text="Cores" width="80" styleName="formLabel"/>
+			<mx:Repeater id="coreFacilityRepeater" dataProvider="{parentDocument.coreFacilitiesICanManage}">
+				<mx:CheckBox label="{coreFacilityRepeater.currentItem.@display}"  id="coreFacilityCheckbox" paddingTop="0" paddingBottom="1" click="{onCoreFacilityClick()}" />
+			</mx:Repeater>
+		</mx:HBox>
+		<mx:HBox width="100%" horizontalGap="0" verticalAlign="middle">
+			<mx:Label text="Subject" width="80" styleName="formLabel"/>
+			<mx:TextInput width="100%" id="subject"/>
+		</mx:HBox>
+		<mx:HBox width="100%" horizontalGap="0" verticalAlign="middle">
+			<mx:Label text="From" width="80" styleName="formLabel"/>
+			<mx:TextInput width="100%" id="fromAddress" keyUp="checkEmailValidity(event)"/>
+		</mx:HBox>
+		<mx:VBox width="100%" height="100%" verticalAlign="top" verticalGap="0">
+			<mx:HBox horizontalGap="4" verticalGap="0" verticalAlign="middle">
+				<mx:RadioButtonGroup id="bodyRadioGroup"/>
+				<mx:Label text="Body" width="80" styleName="formLabel"/>
+				<mx:RadioButton label="Enter Text"  click="{bodyViewStack.selectedIndex = 0;fileRef = null; fileSelected = false;}" groupName="bodyRadioGroup" selected="true"/>
+				<mx:RadioButton label="Upload File" click="{body.text = '';bodyViewStack.selectedIndex = 1;this.selectFileToUpload()}" groupName="bodyRadioGroup"/>
+			</mx:HBox>
+			<mx:ViewStack paddingLeft="80" id="bodyViewStack" width="100%" height="100%">
+				<mx:Canvas label="textView" width="100%" height="100%"> 
+					<util:TextAreaWorkaround width="100%" height="100%" id="body"/>
+				</mx:Canvas>
+				<mx:Canvas label="uploadView" width="100%" height="100%">
+				    <mx:HBox width="100%" paddingTop="10">
+				        <mx:Label id="fileName" fontWeight="bold"/>
+						<mx:Text id="message" fontWeight="bold"/>
+				    	
+				    </mx:HBox>
+				</mx:Canvas>
+			</mx:ViewStack>
+		</mx:VBox>
+	</mx:VBox>
+	<mx:ControlBar horizontalAlign="right">
+		<mx:Button label="Send email" id="saveButton" click="save()" icon="@Embed(source='../../assets/email_go.png')" enabled="{(fileSelected || this.body.text != '') &amp;&amp; subject.text != '' &amp;&amp; fromAddress.text != '' &amp;&amp; coreFacilitySelected}" disabledIcon="@Embed(source='../../assets/email_go_disable.png')"/>
+		<mx:Button label="Cancel" click="{mx.managers.PopUpManager.removePopUp(this)}"/>
+	</mx:ControlBar>
+
+	
+</mx:TitleWindow>

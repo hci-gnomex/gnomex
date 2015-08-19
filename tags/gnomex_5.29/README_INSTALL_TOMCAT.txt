@@ -1,0 +1,1 @@
+Please see Installation Guide here:  http://hci-scrum.hci.utah.edu/gnomexdoc/?page_id=102

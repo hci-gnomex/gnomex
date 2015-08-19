@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" width="400" height="300" xmlns:util="views.util.*">
+	
+	
+	<mx:Script>
+		<![CDATA[
+			
+			import mx.managers.PopUpManager;
+			import views.util.DirtyNote;
+			[Bindable]
+			private var prepType:Object = new Object();
+			
+			
+			public function init(selectedItem:Object):void{
+				this.prepType = selectedItem;
+			}
+			
+			private function save():void{
+				prepType.@unitPriceInternal = priceInternalText.text;
+				prepType.@unitPriceExternalAcademic = priceExternalAcademicText.text;
+				prepType.@unitPriceExternalCommercial = priceExternalCommercialText.text;
+				
+			}
+			
+			private function setDirty():void {
+				if (saveButton.enabled) {
+					dirty.setDirty();
+				}
+			}
+			
+		]]>
+	</mx:Script>
+	
+	
+	<mx:HBox width="100%" verticalGap="0" verticalAlign="top">
+		<mx:Text text="Pricing" width="80" styleName="formLabel"/>
+		<mx:VBox width="100%" paddingTop="0" verticalGap="2">
+			<mx:HBox width="100%" horizontalGap="0" verticalAlign="middle" paddingTop="0">
+				<mx:Label text="$" paddingRight="0" textAlign="right" width="20" />
+				<mx:TextInput width="250" id="priceInternalText" text="{prepType.@unitPriceInternal == '' ? '0.00' : prepType.@unitPriceInternal}" restrict="0-9." paddingLeft="0" change="setDirty()" />
+				<mx:Spacer width="5" />
+				<mx:Label id="priceInternalLabel" text="Internal Pricing" />
+			</mx:HBox>
+			<mx:HBox width="100%" horizontalGap="0" verticalAlign="middle" paddingTop="0">
+				<mx:Label text="$" paddingRight="0" textAlign="right" width="20" />
+				<mx:TextInput width="250" id="priceExternalAcademicText" text="{prepType.@unitPriceExternalAcademic == '' ? '0.00' : prepType.@unitPriceExternalAcademic}" restrict="0-9." paddingLeft="0" change="setDirty()" />
+				<mx:Spacer width="5" />
+				<mx:Label id="priceExternalAcademicLabel" text="External Academic Pricing" />
+			</mx:HBox>
+			<mx:HBox width="100%" horizontalGap="0" verticalAlign="middle" paddingTop="0">
+				<mx:Label text="$" paddingRight="0" textAlign="right" width="20" />
+				<mx:TextInput width="250" id="priceExternalCommercialText" text="{prepType.@unitPriceExternalCommercial == '' ? '0.00' : prepType.@unitPriceExternalCommercial}" restrict="0-9." paddingLeft="0" change="setDirty()" />
+				<mx:Spacer width="5" />
+				<mx:Label id="priceExternalCommercialLabel" text="External Commercial Pricing" />
+			</mx:HBox>
+		</mx:VBox>
+		
+	</mx:HBox>
+	
+	<mx:ControlBar horizontalAlign="right">
+		<mx:Spacer width="100%" />
+		<util:DirtyNote id="dirty" />
+		<mx:Button label="Apply" id="saveButton" click="save()" icon="@Embed(source='../../assets/save.png')" 
+				   disabledIcon="@Embed(source='../../assets/save_disable.png')"/>
+		<mx:Button label="Cancel" click="{mx.managers.PopUpManager.removePopUp(this)}"/>
+	</mx:ControlBar>
+	
+	
+</mx:TitleWindow>
