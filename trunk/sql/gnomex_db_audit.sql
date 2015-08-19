@@ -3,7 +3,6 @@ USE gnomex;
 
 delimiter $$
 
-
 DROP TRIGGER IF EXISTS TrAI_alignmentplatform_FER
 $$
 DROP TRIGGER IF EXISTS TrAU_alignmentplatform_FER
@@ -274,12 +273,6 @@ DROP TRIGGER IF EXISTS TrAU_diskusagebymonth_FER
 $$
 DROP TRIGGER IF EXISTS TrAD_diskusagebymonth_FER
 $$
-DROP TRIGGER IF EXISTS TrAI_dnapreptype_FER
-$$
-DROP TRIGGER IF EXISTS TrAU_dnapreptype_FER
-$$
-DROP TRIGGER IF EXISTS TrAD_dnapreptype_FER
-$$
 DROP TRIGGER IF EXISTS TrAI_experimentdesign_FER
 $$
 DROP TRIGGER IF EXISTS TrAU_experimentdesign_FER
@@ -417,6 +410,12 @@ $$
 DROP TRIGGER IF EXISTS TrAU_iscanchip_FER
 $$
 DROP TRIGGER IF EXISTS TrAD_iscanchip_FER
+$$
+DROP TRIGGER IF EXISTS TrAI_isolationpreptype_FER
+$$
+DROP TRIGGER IF EXISTS TrAU_isolationpreptype_FER
+$$
+DROP TRIGGER IF EXISTS TrAD_isolationpreptype_FER
 $$
 DROP TRIGGER IF EXISTS TrAI_lab_FER
 $$
@@ -790,12 +789,6 @@ DROP TRIGGER IF EXISTS TrAU_requesttotopic_FER
 $$
 DROP TRIGGER IF EXISTS TrAD_requesttotopic_FER
 $$
-DROP TRIGGER IF EXISTS TrAI_rnapreptype_FER
-$$
-DROP TRIGGER IF EXISTS TrAU_rnapreptype_FER
-$$
-DROP TRIGGER IF EXISTS TrAD_rnapreptype_FER
-$$
 DROP TRIGGER IF EXISTS TrAI_sample_FER
 $$
 DROP TRIGGER IF EXISTS TrAU_sample_FER
@@ -988,12 +981,6 @@ DROP TRIGGER IF EXISTS TrAU_visibility_FER
 $$
 DROP TRIGGER IF EXISTS TrAD_visibility_FER
 $$
-DROP TRIGGER IF EXISTS TrAI_visitlog_FER
-$$
-DROP TRIGGER IF EXISTS TrAU_visitlog_FER
-$$
-DROP TRIGGER IF EXISTS TrAD_visitlog_FER
-$$
 DROP TRIGGER IF EXISTS TrAI_workitem_FER
 $$
 DROP TRIGGER IF EXISTS TrAU_workitem_FER
@@ -1020,6 +1007,32 @@ $$
 
 
 --
+-- Initial audit table rows for alignmentplatform 
+--
+
+INSERT INTO alignmentplatform_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idAlignmentPlatform
+  , alignmentPlatformName
+  , webServiceName
+  , isActive )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idAlignmentPlatform
+  , alignmentPlatformName
+  , webServiceName
+  , isActive
+  FROM alignmentplatform
+  WHERE NOT EXISTS(SELECT * FROM alignmentplatform_Audit)
+$$
+
+--
 -- Audit Triggers For alignmentplatform 
 --
 
@@ -1036,9 +1049,9 @@ BEGIN
   , webServiceName
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idAlignmentPlatform
   , NEW.alignmentPlatformName
@@ -1060,9 +1073,9 @@ BEGIN
   , webServiceName
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idAlignmentPlatform
   , NEW.alignmentPlatformName
@@ -1084,9 +1097,9 @@ BEGIN
   , webServiceName
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idAlignmentPlatform
   , OLD.alignmentPlatformName
@@ -1112,6 +1125,28 @@ $$
 
 
 --
+-- Initial audit table rows for alignmentprofilegenomeindex 
+--
+
+INSERT INTO alignmentprofilegenomeindex_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idAlignmentProfile
+  , idGenomeIndex )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idAlignmentProfile
+  , idGenomeIndex
+  FROM alignmentprofilegenomeindex
+  WHERE NOT EXISTS(SELECT * FROM alignmentprofilegenomeindex_Audit)
+$$
+
+--
 -- Audit Triggers For alignmentprofilegenomeindex 
 --
 
@@ -1126,9 +1161,9 @@ BEGIN
   , idAlignmentProfile
   , idGenomeIndex )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idAlignmentProfile
   , NEW.idGenomeIndex );
@@ -1146,9 +1181,9 @@ BEGIN
   , idAlignmentProfile
   , idGenomeIndex )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idAlignmentProfile
   , NEW.idGenomeIndex );
@@ -1166,9 +1201,9 @@ BEGIN
   , idAlignmentProfile
   , idGenomeIndex )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idAlignmentProfile
   , OLD.idGenomeIndex );
@@ -1197,6 +1232,38 @@ $$
 
 
 --
+-- Initial audit table rows for alignmentprofile 
+--
+
+INSERT INTO alignmentprofile_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idAlignmentProfile
+  , alignmentProfileName
+  , description
+  , parameters
+  , isActive
+  , idAlignmentPlatform
+  , idSeqRunType )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idAlignmentProfile
+  , alignmentProfileName
+  , description
+  , parameters
+  , isActive
+  , idAlignmentPlatform
+  , idSeqRunType
+  FROM alignmentprofile
+  WHERE NOT EXISTS(SELECT * FROM alignmentprofile_Audit)
+$$
+
+--
 -- Audit Triggers For alignmentprofile 
 --
 
@@ -1216,9 +1283,9 @@ BEGIN
   , idAlignmentPlatform
   , idSeqRunType )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idAlignmentProfile
   , NEW.alignmentProfileName
@@ -1246,9 +1313,9 @@ BEGIN
   , idAlignmentPlatform
   , idSeqRunType )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idAlignmentProfile
   , NEW.alignmentProfileName
@@ -1276,9 +1343,9 @@ BEGIN
   , idAlignmentPlatform
   , idSeqRunType )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idAlignmentProfile
   , OLD.alignmentProfileName
@@ -1309,6 +1376,32 @@ $$
 
 
 --
+-- Initial audit table rows for analysiscollaborator 
+--
+
+INSERT INTO analysiscollaborator_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idAnalysis
+  , idAppUser
+  , canUploadData
+  , canUpdate )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idAnalysis
+  , idAppUser
+  , canUploadData
+  , canUpdate
+  FROM analysiscollaborator
+  WHERE NOT EXISTS(SELECT * FROM analysiscollaborator_Audit)
+$$
+
+--
 -- Audit Triggers For analysiscollaborator 
 --
 
@@ -1325,9 +1418,9 @@ BEGIN
   , canUploadData
   , canUpdate )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idAnalysis
   , NEW.idAppUser
@@ -1349,9 +1442,9 @@ BEGIN
   , canUploadData
   , canUpdate )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idAnalysis
   , NEW.idAppUser
@@ -1373,9 +1466,9 @@ BEGIN
   , canUploadData
   , canUpdate )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idAnalysis
   , OLD.idAppUser
@@ -1406,6 +1499,38 @@ $$
 
 
 --
+-- Initial audit table rows for analysisexperimentitem 
+--
+
+INSERT INTO analysisexperimentitem_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idAnalysisExperimentItem
+  , idSequenceLane
+  , idHybridization
+  , comments
+  , idAnalysis
+  , idRequest
+  , idSample )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idAnalysisExperimentItem
+  , idSequenceLane
+  , idHybridization
+  , comments
+  , idAnalysis
+  , idRequest
+  , idSample
+  FROM analysisexperimentitem
+  WHERE NOT EXISTS(SELECT * FROM analysisexperimentitem_Audit)
+$$
+
+--
 -- Audit Triggers For analysisexperimentitem 
 --
 
@@ -1425,9 +1550,9 @@ BEGIN
   , idRequest
   , idSample )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idAnalysisExperimentItem
   , NEW.idSequenceLane
@@ -1455,9 +1580,9 @@ BEGIN
   , idRequest
   , idSample )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idAnalysisExperimentItem
   , NEW.idSequenceLane
@@ -1485,9 +1610,9 @@ BEGIN
   , idRequest
   , idSample )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idAnalysisExperimentItem
   , OLD.idSequenceLane
@@ -1523,6 +1648,42 @@ $$
 
 
 --
+-- Initial audit table rows for analysisfile 
+--
+
+INSERT INTO analysisfile_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idAnalysisFile
+  , fileName
+  , fileSize
+  , comments
+  , uploadDate
+  , idAnalysis
+  , qualifiedFilePath
+  , baseFilePath
+  , createDate )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idAnalysisFile
+  , fileName
+  , fileSize
+  , comments
+  , uploadDate
+  , idAnalysis
+  , qualifiedFilePath
+  , baseFilePath
+  , createDate
+  FROM analysisfile
+  WHERE NOT EXISTS(SELECT * FROM analysisfile_Audit)
+$$
+
+--
 -- Audit Triggers For analysisfile 
 --
 
@@ -1544,9 +1705,9 @@ BEGIN
   , baseFilePath
   , createDate )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idAnalysisFile
   , NEW.fileName
@@ -1578,9 +1739,9 @@ BEGIN
   , baseFilePath
   , createDate )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idAnalysisFile
   , NEW.fileName
@@ -1612,9 +1773,9 @@ BEGIN
   , baseFilePath
   , createDate )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idAnalysisFile
   , OLD.fileName
@@ -1645,6 +1806,28 @@ $$
 
 
 --
+-- Initial audit table rows for analysisgenomebuild 
+--
+
+INSERT INTO analysisgenomebuild_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idAnalysis
+  , idGenomeBuild )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idAnalysis
+  , idGenomeBuild
+  FROM analysisgenomebuild
+  WHERE NOT EXISTS(SELECT * FROM analysisgenomebuild_Audit)
+$$
+
+--
 -- Audit Triggers For analysisgenomebuild 
 --
 
@@ -1659,9 +1842,9 @@ BEGIN
   , idAnalysis
   , idGenomeBuild )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idAnalysis
   , NEW.idGenomeBuild );
@@ -1679,9 +1862,9 @@ BEGIN
   , idAnalysis
   , idGenomeBuild )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idAnalysis
   , NEW.idGenomeBuild );
@@ -1699,9 +1882,9 @@ BEGIN
   , idAnalysis
   , idGenomeBuild )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idAnalysis
   , OLD.idGenomeBuild );
@@ -1725,6 +1908,28 @@ $$
 
 
 --
+-- Initial audit table rows for analysisgroupitem 
+--
+
+INSERT INTO analysisgroupitem_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idAnalysisGroup
+  , idAnalysis )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idAnalysisGroup
+  , idAnalysis
+  FROM analysisgroupitem
+  WHERE NOT EXISTS(SELECT * FROM analysisgroupitem_Audit)
+$$
+
+--
 -- Audit Triggers For analysisgroupitem 
 --
 
@@ -1739,9 +1944,9 @@ BEGIN
   , idAnalysisGroup
   , idAnalysis )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idAnalysisGroup
   , NEW.idAnalysis );
@@ -1759,9 +1964,9 @@ BEGIN
   , idAnalysisGroup
   , idAnalysis )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idAnalysisGroup
   , NEW.idAnalysis );
@@ -1779,9 +1984,9 @@ BEGIN
   , idAnalysisGroup
   , idAnalysis )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idAnalysisGroup
   , OLD.idAnalysis );
@@ -1809,6 +2014,36 @@ $$
 
 
 --
+-- Initial audit table rows for analysisgroup 
+--
+
+INSERT INTO analysisgroup_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idAnalysisGroup
+  , name
+  , description
+  , idLab
+  , codeVisibility
+  , idAppUser )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idAnalysisGroup
+  , name
+  , description
+  , idLab
+  , codeVisibility
+  , idAppUser
+  FROM analysisgroup
+  WHERE NOT EXISTS(SELECT * FROM analysisgroup_Audit)
+$$
+
+--
 -- Audit Triggers For analysisgroup 
 --
 
@@ -1827,9 +2062,9 @@ BEGIN
   , codeVisibility
   , idAppUser )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idAnalysisGroup
   , NEW.name
@@ -1855,9 +2090,9 @@ BEGIN
   , codeVisibility
   , idAppUser )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idAnalysisGroup
   , NEW.name
@@ -1883,9 +2118,9 @@ BEGIN
   , codeVisibility
   , idAppUser )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idAnalysisGroup
   , OLD.name
@@ -1918,6 +2153,38 @@ $$
 
 
 --
+-- Initial audit table rows for analysisprotocol 
+--
+
+INSERT INTO analysisprotocol_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idAnalysisProtocol
+  , analysisProtocol
+  , description
+  , url
+  , idAnalysisType
+  , isActive
+  , idAppUser )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idAnalysisProtocol
+  , analysisProtocol
+  , description
+  , url
+  , idAnalysisType
+  , isActive
+  , idAppUser
+  FROM analysisprotocol
+  WHERE NOT EXISTS(SELECT * FROM analysisprotocol_Audit)
+$$
+
+--
 -- Audit Triggers For analysisprotocol 
 --
 
@@ -1937,9 +2204,9 @@ BEGIN
   , isActive
   , idAppUser )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idAnalysisProtocol
   , NEW.analysisProtocol
@@ -1967,9 +2234,9 @@ BEGIN
   , isActive
   , idAppUser )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idAnalysisProtocol
   , NEW.analysisProtocol
@@ -1997,9 +2264,9 @@ BEGIN
   , isActive
   , idAppUser )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idAnalysisProtocol
   , OLD.analysisProtocol
@@ -2028,6 +2295,28 @@ $$
 
 
 --
+-- Initial audit table rows for analysistotopic 
+--
+
+INSERT INTO analysistotopic_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idTopic
+  , idAnalysis )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idTopic
+  , idAnalysis
+  FROM analysistotopic
+  WHERE NOT EXISTS(SELECT * FROM analysistotopic_Audit)
+$$
+
+--
 -- Audit Triggers For analysistotopic 
 --
 
@@ -2042,9 +2331,9 @@ BEGIN
   , idTopic
   , idAnalysis )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idTopic
   , NEW.idAnalysis );
@@ -2062,9 +2351,9 @@ BEGIN
   , idTopic
   , idAnalysis )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idTopic
   , NEW.idAnalysis );
@@ -2082,9 +2371,9 @@ BEGIN
   , idTopic
   , idAnalysis )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idTopic
   , OLD.idAnalysis );
@@ -2110,6 +2399,32 @@ $$
 
 
 --
+-- Initial audit table rows for analysistype 
+--
+
+INSERT INTO analysistype_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idAnalysisType
+  , analysisType
+  , isActive
+  , idAppUser )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idAnalysisType
+  , analysisType
+  , isActive
+  , idAppUser
+  FROM analysistype
+  WHERE NOT EXISTS(SELECT * FROM analysistype_Audit)
+$$
+
+--
 -- Audit Triggers For analysistype 
 --
 
@@ -2126,9 +2441,9 @@ BEGIN
   , isActive
   , idAppUser )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idAnalysisType
   , NEW.analysisType
@@ -2150,9 +2465,9 @@ BEGIN
   , isActive
   , idAppUser )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idAnalysisType
   , NEW.analysisType
@@ -2174,9 +2489,9 @@ BEGIN
   , isActive
   , idAppUser )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idAnalysisType
   , OLD.analysisType
@@ -2215,6 +2530,54 @@ $$
 
 
 --
+-- Initial audit table rows for analysis 
+--
+
+INSERT INTO analysis_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idAnalysis
+  , number
+  , name
+  , description
+  , idLab
+  , idAnalysisType
+  , idAnalysisProtocol
+  , idOrganism
+  , codeVisibility
+  , createDate
+  , idAppUser
+  , idInstitution
+  , idCoreFacility
+  , privacyExpirationDate
+  , idSubmitter )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idAnalysis
+  , number
+  , name
+  , description
+  , idLab
+  , idAnalysisType
+  , idAnalysisProtocol
+  , idOrganism
+  , codeVisibility
+  , createDate
+  , idAppUser
+  , idInstitution
+  , idCoreFacility
+  , privacyExpirationDate
+  , idSubmitter
+  FROM analysis
+  WHERE NOT EXISTS(SELECT * FROM analysis_Audit)
+$$
+
+--
 -- Audit Triggers For analysis 
 --
 
@@ -2242,9 +2605,9 @@ BEGIN
   , privacyExpirationDate
   , idSubmitter )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idAnalysis
   , NEW.number
@@ -2288,9 +2651,9 @@ BEGIN
   , privacyExpirationDate
   , idSubmitter )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idAnalysis
   , NEW.number
@@ -2334,9 +2697,9 @@ BEGIN
   , privacyExpirationDate
   , idSubmitter )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idAnalysis
   , OLD.number
@@ -2378,6 +2741,38 @@ $$
 
 
 --
+-- Initial audit table rows for annotationreportfield 
+--
+
+INSERT INTO annotationreportfield_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idAnnotationReportField
+  , source
+  , fieldName
+  , display
+  , isCustom
+  , sortOrder
+  , dictionaryLookUpTable )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idAnnotationReportField
+  , source
+  , fieldName
+  , display
+  , isCustom
+  , sortOrder
+  , dictionaryLookUpTable
+  FROM annotationreportfield
+  WHERE NOT EXISTS(SELECT * FROM annotationreportfield_Audit)
+$$
+
+--
 -- Audit Triggers For annotationreportfield 
 --
 
@@ -2397,9 +2792,9 @@ BEGIN
   , sortOrder
   , dictionaryLookUpTable )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idAnnotationReportField
   , NEW.source
@@ -2427,9 +2822,9 @@ BEGIN
   , sortOrder
   , dictionaryLookUpTable )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idAnnotationReportField
   , NEW.source
@@ -2457,9 +2852,9 @@ BEGIN
   , sortOrder
   , dictionaryLookUpTable )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idAnnotationReportField
   , OLD.source
@@ -2490,6 +2885,32 @@ $$
 
 
 --
+-- Initial audit table rows for applicationtheme 
+--
+
+INSERT INTO applicationtheme_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idApplicationTheme
+  , applicationTheme
+  , isActive
+  , sortOrder )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idApplicationTheme
+  , applicationTheme
+  , isActive
+  , sortOrder
+  FROM applicationtheme
+  WHERE NOT EXISTS(SELECT * FROM applicationtheme_Audit)
+$$
+
+--
 -- Audit Triggers For applicationtheme 
 --
 
@@ -2506,9 +2927,9 @@ BEGIN
   , isActive
   , sortOrder )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idApplicationTheme
   , NEW.applicationTheme
@@ -2530,9 +2951,9 @@ BEGIN
   , isActive
   , sortOrder )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idApplicationTheme
   , NEW.applicationTheme
@@ -2554,9 +2975,9 @@ BEGIN
   , isActive
   , sortOrder )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idApplicationTheme
   , OLD.applicationTheme
@@ -2582,6 +3003,28 @@ $$
 
 
 --
+-- Initial audit table rows for applicationtype 
+--
+
+INSERT INTO applicationtype_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , codeApplicationType
+  , applicationType )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , codeApplicationType
+  , applicationType
+  FROM applicationtype
+  WHERE NOT EXISTS(SELECT * FROM applicationtype_Audit)
+$$
+
+--
 -- Audit Triggers For applicationtype 
 --
 
@@ -2596,9 +3039,9 @@ BEGIN
   , codeApplicationType
   , applicationType )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeApplicationType
   , NEW.applicationType );
@@ -2616,9 +3059,9 @@ BEGIN
   , codeApplicationType
   , applicationType )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeApplicationType
   , NEW.applicationType );
@@ -2636,9 +3079,9 @@ BEGIN
   , codeApplicationType
   , applicationType )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.codeApplicationType
   , OLD.applicationType );
@@ -2675,6 +3118,54 @@ $$
 
 
 --
+-- Initial audit table rows for application 
+--
+
+INSERT INTO application_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , codeApplication
+  , application
+  , isActive
+  , idApplicationTheme
+  , sortOrder
+  , avgInsertSizeFrom
+  , avgInsertSizeTo
+  , hasCaptureLibDesign
+  , coreSteps
+  , coreStepsNoLibPrep
+  , codeApplicationType
+  , onlyForLabPrepped
+  , samplesPerBatch
+  , idCoreFacility
+  , hasChipTypes )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , codeApplication
+  , application
+  , isActive
+  , idApplicationTheme
+  , sortOrder
+  , avgInsertSizeFrom
+  , avgInsertSizeTo
+  , hasCaptureLibDesign
+  , coreSteps
+  , coreStepsNoLibPrep
+  , codeApplicationType
+  , onlyForLabPrepped
+  , samplesPerBatch
+  , idCoreFacility
+  , hasChipTypes
+  FROM application
+  WHERE NOT EXISTS(SELECT * FROM application_Audit)
+$$
+
+--
 -- Audit Triggers For application 
 --
 
@@ -2702,9 +3193,9 @@ BEGIN
   , idCoreFacility
   , hasChipTypes )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeApplication
   , NEW.application
@@ -2748,9 +3239,9 @@ BEGIN
   , idCoreFacility
   , hasChipTypes )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeApplication
   , NEW.application
@@ -2794,9 +3285,9 @@ BEGIN
   , idCoreFacility
   , hasChipTypes )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.codeApplication
   , OLD.application
@@ -2850,6 +3341,62 @@ $$
 
 
 --
+-- Initial audit table rows for appuser 
+--
+
+INSERT INTO appuser_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idAppUser
+  , lastName
+  , firstName
+  , uNID
+  , email
+  , phone
+  , department
+  , institute
+  , jobTitle
+  , isActive
+  , codeUserPermissionKind
+  , userNameExternal
+  , passwordExternal
+  , ucscUrl
+  , salt
+  , guid
+  , guidExpiration
+  , passwordExpired
+  , confirmEmailGuid )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idAppUser
+  , lastName
+  , firstName
+  , uNID
+  , email
+  , phone
+  , department
+  , institute
+  , jobTitle
+  , isActive
+  , codeUserPermissionKind
+  , userNameExternal
+  , passwordExternal
+  , ucscUrl
+  , salt
+  , guid
+  , guidExpiration
+  , passwordExpired
+  , confirmEmailGuid
+  FROM appuser
+  WHERE NOT EXISTS(SELECT * FROM appuser_Audit)
+$$
+
+--
 -- Audit Triggers For appuser 
 --
 
@@ -2881,9 +3428,9 @@ BEGIN
   , passwordExpired
   , confirmEmailGuid )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idAppUser
   , NEW.lastName
@@ -2935,9 +3482,9 @@ BEGIN
   , passwordExpired
   , confirmEmailGuid )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idAppUser
   , NEW.lastName
@@ -2989,9 +3536,9 @@ BEGIN
   , passwordExpired
   , confirmEmailGuid )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idAppUser
   , OLD.lastName
@@ -3035,6 +3582,34 @@ $$
 
 
 --
+-- Initial audit table rows for arraycoordinate 
+--
+
+INSERT INTO arraycoordinate_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idArrayCoordinate
+  , name
+  , x
+  , y
+  , idSlideDesign )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idArrayCoordinate
+  , name
+  , x
+  , y
+  , idSlideDesign
+  FROM arraycoordinate
+  WHERE NOT EXISTS(SELECT * FROM arraycoordinate_Audit)
+$$
+
+--
 -- Audit Triggers For arraycoordinate 
 --
 
@@ -3052,9 +3627,9 @@ BEGIN
   , y
   , idSlideDesign )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idArrayCoordinate
   , NEW.name
@@ -3078,9 +3653,9 @@ BEGIN
   , y
   , idSlideDesign )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idArrayCoordinate
   , NEW.name
@@ -3104,9 +3679,9 @@ BEGIN
   , y
   , idSlideDesign )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idArrayCoordinate
   , OLD.name
@@ -3135,6 +3710,32 @@ $$
 
 
 --
+-- Initial audit table rows for arraydesign 
+--
+
+INSERT INTO arraydesign_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idArrayDesign
+  , name
+  , accessionNumberUArrayExpress
+  , idArrayCoordinate )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idArrayDesign
+  , name
+  , accessionNumberUArrayExpress
+  , idArrayCoordinate
+  FROM arraydesign
+  WHERE NOT EXISTS(SELECT * FROM arraydesign_Audit)
+$$
+
+--
 -- Audit Triggers For arraydesign 
 --
 
@@ -3151,9 +3752,9 @@ BEGIN
   , accessionNumberUArrayExpress
   , idArrayCoordinate )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idArrayDesign
   , NEW.name
@@ -3175,9 +3776,9 @@ BEGIN
   , accessionNumberUArrayExpress
   , idArrayCoordinate )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idArrayDesign
   , NEW.name
@@ -3199,9 +3800,9 @@ BEGIN
   , accessionNumberUArrayExpress
   , idArrayCoordinate )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idArrayDesign
   , OLD.name
@@ -3229,6 +3830,32 @@ $$
 
 
 --
+-- Initial audit table rows for assay 
+--
+
+INSERT INTO assay_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idAssay
+  , name
+  , description
+  , isActive )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idAssay
+  , name
+  , description
+  , isActive
+  FROM assay
+  WHERE NOT EXISTS(SELECT * FROM assay_Audit)
+$$
+
+--
 -- Audit Triggers For assay 
 --
 
@@ -3245,9 +3872,9 @@ BEGIN
   , description
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idAssay
   , NEW.name
@@ -3269,9 +3896,9 @@ BEGIN
   , description
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idAssay
   , NEW.name
@@ -3293,9 +3920,9 @@ BEGIN
   , description
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idAssay
   , OLD.name
@@ -3321,6 +3948,28 @@ $$
 
 
 --
+-- Initial audit table rows for billingaccountuser 
+--
+
+INSERT INTO billingaccountuser_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idBillingAccount
+  , idAppUser )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idBillingAccount
+  , idAppUser
+  FROM billingaccountuser
+  WHERE NOT EXISTS(SELECT * FROM billingaccountuser_Audit)
+$$
+
+--
 -- Audit Triggers For billingaccountuser 
 --
 
@@ -3335,9 +3984,9 @@ BEGIN
   , idBillingAccount
   , idAppUser )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idBillingAccount
   , NEW.idAppUser );
@@ -3355,9 +4004,9 @@ BEGIN
   , idBillingAccount
   , idAppUser )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idBillingAccount
   , NEW.idAppUser );
@@ -3375,9 +4024,9 @@ BEGIN
   , idBillingAccount
   , idAppUser )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idBillingAccount
   , OLD.idAppUser );
@@ -3434,6 +4083,94 @@ $$
 
 
 --
+-- Initial audit table rows for billingaccount 
+--
+
+INSERT INTO billingaccount_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idBillingAccount
+  , accountName
+  , accountNumber
+  , expirationDate
+  , idLab
+  , accountNumberBus
+  , accountNumberOrg
+  , accountNumberFund
+  , accountNumberActivity
+  , accountNumberProject
+  , accountNumberAccount
+  , accountNumberAu
+  , accountNumberYear
+  , idFundingAgency
+  , idCreditCardCompany
+  , isPO
+  , isCreditCard
+  , zipCode
+  , isApproved
+  , approvedDate
+  , createDate
+  , submitterEmail
+  , submitterUID
+  , totalDollarAmount
+  , purchaseOrderForm
+  , orderFormFileType
+  , orderFormFileSize
+  , shortAcct
+  , startDate
+  , idCoreFacility
+  , custom1
+  , custom2
+  , custom3
+  , approverEmail
+  , idApprover )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idBillingAccount
+  , accountName
+  , accountNumber
+  , expirationDate
+  , idLab
+  , accountNumberBus
+  , accountNumberOrg
+  , accountNumberFund
+  , accountNumberActivity
+  , accountNumberProject
+  , accountNumberAccount
+  , accountNumberAu
+  , accountNumberYear
+  , idFundingAgency
+  , idCreditCardCompany
+  , isPO
+  , isCreditCard
+  , zipCode
+  , isApproved
+  , approvedDate
+  , createDate
+  , submitterEmail
+  , submitterUID
+  , totalDollarAmount
+  , purchaseOrderForm
+  , orderFormFileType
+  , orderFormFileSize
+  , shortAcct
+  , startDate
+  , idCoreFacility
+  , custom1
+  , custom2
+  , custom3
+  , approverEmail
+  , idApprover
+  FROM billingaccount
+  WHERE NOT EXISTS(SELECT * FROM billingaccount_Audit)
+$$
+
+--
 -- Audit Triggers For billingaccount 
 --
 
@@ -3481,9 +4218,9 @@ BEGIN
   , approverEmail
   , idApprover )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idBillingAccount
   , NEW.accountName
@@ -3567,9 +4304,9 @@ BEGIN
   , approverEmail
   , idApprover )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idBillingAccount
   , NEW.accountName
@@ -3653,9 +4390,9 @@ BEGIN
   , approverEmail
   , idApprover )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idBillingAccount
   , OLD.accountName
@@ -3713,6 +4450,30 @@ $$
 
 
 --
+-- Initial audit table rows for billingchargekind 
+--
+
+INSERT INTO billingchargekind_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , codeBillingChargeKind
+  , billingChargeKind
+  , isActive )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , codeBillingChargeKind
+  , billingChargeKind
+  , isActive
+  FROM billingchargekind
+  WHERE NOT EXISTS(SELECT * FROM billingchargekind_Audit)
+$$
+
+--
 -- Audit Triggers For billingchargekind 
 --
 
@@ -3728,9 +4489,9 @@ BEGIN
   , billingChargeKind
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeBillingChargeKind
   , NEW.billingChargeKind
@@ -3750,9 +4511,9 @@ BEGIN
   , billingChargeKind
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeBillingChargeKind
   , NEW.billingChargeKind
@@ -3772,9 +4533,9 @@ BEGIN
   , billingChargeKind
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.codeBillingChargeKind
   , OLD.billingChargeKind
@@ -3805,7 +4566,7 @@ CREATE TABLE IF NOT EXISTS `billingitem_Audit` (
  ,`idPrice`  int(10)  NULL DEFAULT NULL
  ,`idRequest`  int(10)  NULL DEFAULT NULL
  ,`idBillingAccount`  int(10)  NULL DEFAULT NULL
- ,`percentagePrice`  decimal(3,2)  NULL DEFAULT NULL
+ ,`percentagePrice`  decimal(4,3)  NULL DEFAULT NULL
  ,`notes`  varchar(500)  NULL DEFAULT NULL
  ,`idLab`  int(10)  NULL DEFAULT NULL
  ,`completeDate`  datetime  NULL DEFAULT NULL
@@ -3814,9 +4575,74 @@ CREATE TABLE IF NOT EXISTS `billingitem_Audit` (
  ,`idInvoice`  int(10)  NULL DEFAULT NULL
  ,`idDiskUsageByMonth`  int(10)  NULL DEFAULT NULL
  ,`idProductLineItem`  int(10)  NULL DEFAULT NULL
+ ,`tag`  varchar(10)  NULL DEFAULT NULL
 ) ENGINE=InnoDB
 $$
 
+
+--
+-- Initial audit table rows for billingitem 
+--
+
+INSERT INTO billingitem_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idBillingItem
+  , codeBillingChargeKind
+  , category
+  , description
+  , qty
+  , unitPrice
+  , invoicePrice
+  , idBillingPeriod
+  , codeBillingStatus
+  , idPriceCategory
+  , idPrice
+  , idRequest
+  , idBillingAccount
+  , percentagePrice
+  , notes
+  , idLab
+  , completeDate
+  , splitType
+  , idCoreFacility
+  , idInvoice
+  , idDiskUsageByMonth
+  , idProductLineItem
+  , tag )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idBillingItem
+  , codeBillingChargeKind
+  , category
+  , description
+  , qty
+  , unitPrice
+  , invoicePrice
+  , idBillingPeriod
+  , codeBillingStatus
+  , idPriceCategory
+  , idPrice
+  , idRequest
+  , idBillingAccount
+  , percentagePrice
+  , notes
+  , idLab
+  , completeDate
+  , splitType
+  , idCoreFacility
+  , idInvoice
+  , idDiskUsageByMonth
+  , idProductLineItem
+  , tag
+  FROM billingitem
+  WHERE NOT EXISTS(SELECT * FROM billingitem_Audit)
+$$
 
 --
 -- Audit Triggers For billingitem 
@@ -3851,11 +4677,12 @@ BEGIN
   , idCoreFacility
   , idInvoice
   , idDiskUsageByMonth
-  , idProductLineItem )
+  , idProductLineItem
+  , tag )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idBillingItem
   , NEW.codeBillingChargeKind
@@ -3878,7 +4705,8 @@ BEGIN
   , NEW.idCoreFacility
   , NEW.idInvoice
   , NEW.idDiskUsageByMonth
-  , NEW.idProductLineItem );
+  , NEW.idProductLineItem
+  , NEW.tag );
 END;
 $$
 
@@ -3911,11 +4739,12 @@ BEGIN
   , idCoreFacility
   , idInvoice
   , idDiskUsageByMonth
-  , idProductLineItem )
+  , idProductLineItem
+  , tag )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idBillingItem
   , NEW.codeBillingChargeKind
@@ -3938,7 +4767,8 @@ BEGIN
   , NEW.idCoreFacility
   , NEW.idInvoice
   , NEW.idDiskUsageByMonth
-  , NEW.idProductLineItem );
+  , NEW.idProductLineItem
+  , NEW.tag );
 END;
 $$
 
@@ -3971,11 +4801,12 @@ BEGIN
   , idCoreFacility
   , idInvoice
   , idDiskUsageByMonth
-  , idProductLineItem )
+  , idProductLineItem
+  , tag )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idBillingItem
   , OLD.codeBillingChargeKind
@@ -3998,7 +4829,8 @@ BEGIN
   , OLD.idCoreFacility
   , OLD.idInvoice
   , OLD.idDiskUsageByMonth
-  , OLD.idProductLineItem );
+  , OLD.idProductLineItem
+  , OLD.tag );
 END;
 $$
 
@@ -4022,6 +4854,34 @@ $$
 
 
 --
+-- Initial audit table rows for billingperiod 
+--
+
+INSERT INTO billingperiod_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idBillingPeriod
+  , billingPeriod
+  , startDate
+  , endDate
+  , isActive )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idBillingPeriod
+  , billingPeriod
+  , startDate
+  , endDate
+  , isActive
+  FROM billingperiod
+  WHERE NOT EXISTS(SELECT * FROM billingperiod_Audit)
+$$
+
+--
 -- Audit Triggers For billingperiod 
 --
 
@@ -4039,9 +4899,9 @@ BEGIN
   , endDate
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idBillingPeriod
   , NEW.billingPeriod
@@ -4065,9 +4925,9 @@ BEGIN
   , endDate
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idBillingPeriod
   , NEW.billingPeriod
@@ -4091,9 +4951,9 @@ BEGIN
   , endDate
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idBillingPeriod
   , OLD.billingPeriod
@@ -4121,6 +4981,30 @@ $$
 
 
 --
+-- Initial audit table rows for billingslideproductclass 
+--
+
+INSERT INTO billingslideproductclass_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idBillingSlideProductClass
+  , billingSlideProductClass
+  , isActive )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idBillingSlideProductClass
+  , billingSlideProductClass
+  , isActive
+  FROM billingslideproductclass
+  WHERE NOT EXISTS(SELECT * FROM billingslideproductclass_Audit)
+$$
+
+--
 -- Audit Triggers For billingslideproductclass 
 --
 
@@ -4136,9 +5020,9 @@ BEGIN
   , billingSlideProductClass
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idBillingSlideProductClass
   , NEW.billingSlideProductClass
@@ -4158,9 +5042,9 @@ BEGIN
   , billingSlideProductClass
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idBillingSlideProductClass
   , NEW.billingSlideProductClass
@@ -4180,9 +5064,9 @@ BEGIN
   , billingSlideProductClass
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idBillingSlideProductClass
   , OLD.billingSlideProductClass
@@ -4208,6 +5092,30 @@ $$
 
 
 --
+-- Initial audit table rows for billingslideserviceclass 
+--
+
+INSERT INTO billingslideserviceclass_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idBillingSlideServiceClass
+  , billingSlideServiceClass
+  , isActive )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idBillingSlideServiceClass
+  , billingSlideServiceClass
+  , isActive
+  FROM billingslideserviceclass
+  WHERE NOT EXISTS(SELECT * FROM billingslideserviceclass_Audit)
+$$
+
+--
 -- Audit Triggers For billingslideserviceclass 
 --
 
@@ -4223,9 +5131,9 @@ BEGIN
   , billingSlideServiceClass
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idBillingSlideServiceClass
   , NEW.billingSlideServiceClass
@@ -4245,9 +5153,9 @@ BEGIN
   , billingSlideServiceClass
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idBillingSlideServiceClass
   , NEW.billingSlideServiceClass
@@ -4267,9 +5175,9 @@ BEGIN
   , billingSlideServiceClass
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idBillingSlideServiceClass
   , OLD.billingSlideServiceClass
@@ -4295,6 +5203,30 @@ $$
 
 
 --
+-- Initial audit table rows for billingstatus 
+--
+
+INSERT INTO billingstatus_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , codeBillingStatus
+  , billingStatus
+  , isActive )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , codeBillingStatus
+  , billingStatus
+  , isActive
+  FROM billingstatus
+  WHERE NOT EXISTS(SELECT * FROM billingstatus_Audit)
+$$
+
+--
 -- Audit Triggers For billingstatus 
 --
 
@@ -4310,9 +5242,9 @@ BEGIN
   , billingStatus
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeBillingStatus
   , NEW.billingStatus
@@ -4332,9 +5264,9 @@ BEGIN
   , billingStatus
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeBillingStatus
   , NEW.billingStatus
@@ -4354,9 +5286,9 @@ BEGIN
   , billingStatus
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.codeBillingStatus
   , OLD.billingStatus
@@ -4389,6 +5321,44 @@ $$
 
 
 --
+-- Initial audit table rows for bioanalyzerchiptype 
+--
+
+INSERT INTO bioanalyzerchiptype_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , codeBioanalyzerChipType
+  , bioanalyzerChipType
+  , concentrationRange
+  , maxSampleBufferStrength
+  , costPerSample
+  , sampleWellsPerChip
+  , isActive
+  , codeConcentrationUnit
+  , codeApplication
+  , protocolDescription )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , codeBioanalyzerChipType
+  , bioanalyzerChipType
+  , concentrationRange
+  , maxSampleBufferStrength
+  , costPerSample
+  , sampleWellsPerChip
+  , isActive
+  , codeConcentrationUnit
+  , codeApplication
+  , protocolDescription
+  FROM bioanalyzerchiptype
+  WHERE NOT EXISTS(SELECT * FROM bioanalyzerchiptype_Audit)
+$$
+
+--
 -- Audit Triggers For bioanalyzerchiptype 
 --
 
@@ -4411,9 +5381,9 @@ BEGIN
   , codeApplication
   , protocolDescription )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeBioanalyzerChipType
   , NEW.bioanalyzerChipType
@@ -4447,9 +5417,9 @@ BEGIN
   , codeApplication
   , protocolDescription )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeBioanalyzerChipType
   , NEW.bioanalyzerChipType
@@ -4483,9 +5453,9 @@ BEGIN
   , codeApplication
   , protocolDescription )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.codeBioanalyzerChipType
   , OLD.bioanalyzerChipType
@@ -4531,6 +5501,56 @@ $$
 
 
 --
+-- Initial audit table rows for chromatogram 
+--
+
+INSERT INTO chromatogram_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idChromatogram
+  , idPlateWell
+  , idRequest
+  , displayName
+  , readLength
+  , trimmedLength
+  , q20
+  , q40
+  , aSignalStrength
+  , cSignalStrength
+  , gSignalStrength
+  , tSignalStrength
+  , releaseDate
+  , qualifiedFilePath
+  , idReleaser
+  , lane )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idChromatogram
+  , idPlateWell
+  , idRequest
+  , displayName
+  , readLength
+  , trimmedLength
+  , q20
+  , q40
+  , aSignalStrength
+  , cSignalStrength
+  , gSignalStrength
+  , tSignalStrength
+  , releaseDate
+  , qualifiedFilePath
+  , idReleaser
+  , lane
+  FROM chromatogram
+  WHERE NOT EXISTS(SELECT * FROM chromatogram_Audit)
+$$
+
+--
 -- Audit Triggers For chromatogram 
 --
 
@@ -4559,9 +5579,9 @@ BEGIN
   , idReleaser
   , lane )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idChromatogram
   , NEW.idPlateWell
@@ -4607,9 +5627,9 @@ BEGIN
   , idReleaser
   , lane )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idChromatogram
   , NEW.idPlateWell
@@ -4655,9 +5675,9 @@ BEGIN
   , idReleaser
   , lane )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idChromatogram
   , OLD.idPlateWell
@@ -4698,6 +5718,34 @@ $$
 
 
 --
+-- Initial audit table rows for concentrationunit 
+--
+
+INSERT INTO concentrationunit_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , codeConcentrationUnit
+  , concentrationUnit
+  , mageOntologyCode
+  , mageOntologyDefinition
+  , isActive )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , codeConcentrationUnit
+  , concentrationUnit
+  , mageOntologyCode
+  , mageOntologyDefinition
+  , isActive
+  FROM concentrationunit
+  WHERE NOT EXISTS(SELECT * FROM concentrationunit_Audit)
+$$
+
+--
 -- Audit Triggers For concentrationunit 
 --
 
@@ -4715,9 +5763,9 @@ BEGIN
   , mageOntologyDefinition
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeConcentrationUnit
   , NEW.concentrationUnit
@@ -4741,9 +5789,9 @@ BEGIN
   , mageOntologyDefinition
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeConcentrationUnit
   , NEW.concentrationUnit
@@ -4767,9 +5815,9 @@ BEGIN
   , mageOntologyDefinition
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.codeConcentrationUnit
   , OLD.concentrationUnit
@@ -4800,6 +5848,36 @@ $$
 
 
 --
+-- Initial audit table rows for contextsensitivehelp 
+--
+
+INSERT INTO contextsensitivehelp_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idContextSensitiveHelp
+  , context1
+  , context2
+  , context3
+  , helpText
+  , toolTipText )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idContextSensitiveHelp
+  , context1
+  , context2
+  , context3
+  , helpText
+  , toolTipText
+  FROM contextsensitivehelp
+  WHERE NOT EXISTS(SELECT * FROM contextsensitivehelp_Audit)
+$$
+
+--
 -- Audit Triggers For contextsensitivehelp 
 --
 
@@ -4818,9 +5896,9 @@ BEGIN
   , helpText
   , toolTipText )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idContextSensitiveHelp
   , NEW.context1
@@ -4846,9 +5924,9 @@ BEGIN
   , helpText
   , toolTipText )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idContextSensitiveHelp
   , NEW.context1
@@ -4874,9 +5952,9 @@ BEGIN
   , helpText
   , toolTipText )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idContextSensitiveHelp
   , OLD.context1
@@ -4904,6 +5982,28 @@ $$
 
 
 --
+-- Initial audit table rows for corefacilitylab 
+--
+
+INSERT INTO corefacilitylab_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idCoreFacility
+  , idLab )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idCoreFacility
+  , idLab
+  FROM corefacilitylab
+  WHERE NOT EXISTS(SELECT * FROM corefacilitylab_Audit)
+$$
+
+--
 -- Audit Triggers For corefacilitylab 
 --
 
@@ -4918,9 +6018,9 @@ BEGIN
   , idCoreFacility
   , idLab )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idCoreFacility
   , NEW.idLab );
@@ -4938,9 +6038,9 @@ BEGIN
   , idCoreFacility
   , idLab )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idCoreFacility
   , NEW.idLab );
@@ -4958,9 +6058,9 @@ BEGIN
   , idCoreFacility
   , idLab )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idCoreFacility
   , OLD.idLab );
@@ -4984,6 +6084,28 @@ $$
 
 
 --
+-- Initial audit table rows for corefacilitymanager 
+--
+
+INSERT INTO corefacilitymanager_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idCoreFacility
+  , idAppUser )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idCoreFacility
+  , idAppUser
+  FROM corefacilitymanager
+  WHERE NOT EXISTS(SELECT * FROM corefacilitymanager_Audit)
+$$
+
+--
 -- Audit Triggers For corefacilitymanager 
 --
 
@@ -4998,9 +6120,9 @@ BEGIN
   , idCoreFacility
   , idAppUser )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idCoreFacility
   , NEW.idAppUser );
@@ -5018,9 +6140,9 @@ BEGIN
   , idCoreFacility
   , idAppUser )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idCoreFacility
   , NEW.idAppUser );
@@ -5038,9 +6160,9 @@ BEGIN
   , idCoreFacility
   , idAppUser )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idCoreFacility
   , OLD.idAppUser );
@@ -5064,6 +6186,28 @@ $$
 
 
 --
+-- Initial audit table rows for corefacilitysubmitter 
+--
+
+INSERT INTO corefacilitysubmitter_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idCoreFacility
+  , idAppUser )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idCoreFacility
+  , idAppUser
+  FROM corefacilitysubmitter
+  WHERE NOT EXISTS(SELECT * FROM corefacilitysubmitter_Audit)
+$$
+
+--
 -- Audit Triggers For corefacilitysubmitter 
 --
 
@@ -5078,9 +6222,9 @@ BEGIN
   , idCoreFacility
   , idAppUser )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idCoreFacility
   , NEW.idAppUser );
@@ -5098,9 +6242,9 @@ BEGIN
   , idCoreFacility
   , idAppUser )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idCoreFacility
   , NEW.idAppUser );
@@ -5118,9 +6262,9 @@ BEGIN
   , idCoreFacility
   , idAppUser )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idCoreFacility
   , OLD.idAppUser );
@@ -5157,6 +6301,54 @@ $$
 
 
 --
+-- Initial audit table rows for corefacility 
+--
+
+INSERT INTO corefacility_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idCoreFacility
+  , facilityName
+  , isActive
+  , showProjectAnnotations
+  , description
+  , acceptOnlineWorkAuth
+  , shortDescription
+  , contactName
+  , contactEmail
+  , contactPhone
+  , sortOrder
+  , contactImage
+  , labPhone
+  , contactRoom
+  , labRoom )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idCoreFacility
+  , facilityName
+  , isActive
+  , showProjectAnnotations
+  , description
+  , acceptOnlineWorkAuth
+  , shortDescription
+  , contactName
+  , contactEmail
+  , contactPhone
+  , sortOrder
+  , contactImage
+  , labPhone
+  , contactRoom
+  , labRoom
+  FROM corefacility
+  WHERE NOT EXISTS(SELECT * FROM corefacility_Audit)
+$$
+
+--
 -- Audit Triggers For corefacility 
 --
 
@@ -5184,9 +6376,9 @@ BEGIN
   , contactRoom
   , labRoom )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idCoreFacility
   , NEW.facilityName
@@ -5230,9 +6422,9 @@ BEGIN
   , contactRoom
   , labRoom )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idCoreFacility
   , NEW.facilityName
@@ -5276,9 +6468,9 @@ BEGIN
   , contactRoom
   , labRoom )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idCoreFacility
   , OLD.facilityName
@@ -5317,6 +6509,32 @@ $$
 
 
 --
+-- Initial audit table rows for creditcardcompany 
+--
+
+INSERT INTO creditcardcompany_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idCreditCardCompany
+  , name
+  , isActive
+  , sortOrder )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idCreditCardCompany
+  , name
+  , isActive
+  , sortOrder
+  FROM creditcardcompany
+  WHERE NOT EXISTS(SELECT * FROM creditcardcompany_Audit)
+$$
+
+--
 -- Audit Triggers For creditcardcompany 
 --
 
@@ -5333,9 +6551,9 @@ BEGIN
   , isActive
   , sortOrder )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idCreditCardCompany
   , NEW.name
@@ -5357,9 +6575,9 @@ BEGIN
   , isActive
   , sortOrder )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idCreditCardCompany
   , NEW.name
@@ -5381,9 +6599,9 @@ BEGIN
   , isActive
   , sortOrder )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idCreditCardCompany
   , OLD.name
@@ -5409,6 +6627,28 @@ $$
 
 
 --
+-- Initial audit table rows for datatrackcollaborator 
+--
+
+INSERT INTO datatrackcollaborator_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idDataTrack
+  , idAppUser )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idDataTrack
+  , idAppUser
+  FROM datatrackcollaborator
+  WHERE NOT EXISTS(SELECT * FROM datatrackcollaborator_Audit)
+$$
+
+--
 -- Audit Triggers For datatrackcollaborator 
 --
 
@@ -5423,9 +6663,9 @@ BEGIN
   , idDataTrack
   , idAppUser )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idDataTrack
   , NEW.idAppUser );
@@ -5443,9 +6683,9 @@ BEGIN
   , idDataTrack
   , idAppUser )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idDataTrack
   , NEW.idAppUser );
@@ -5463,9 +6703,9 @@ BEGIN
   , idDataTrack
   , idAppUser )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idDataTrack
   , OLD.idAppUser );
@@ -5490,6 +6730,30 @@ $$
 
 
 --
+-- Initial audit table rows for datatrackfile 
+--
+
+INSERT INTO datatrackfile_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idDataTrackFile
+  , idAnalysisFile
+  , idDataTrack )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idDataTrackFile
+  , idAnalysisFile
+  , idDataTrack
+  FROM datatrackfile
+  WHERE NOT EXISTS(SELECT * FROM datatrackfile_Audit)
+$$
+
+--
 -- Audit Triggers For datatrackfile 
 --
 
@@ -5505,9 +6769,9 @@ BEGIN
   , idAnalysisFile
   , idDataTrack )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idDataTrackFile
   , NEW.idAnalysisFile
@@ -5527,9 +6791,9 @@ BEGIN
   , idAnalysisFile
   , idDataTrack )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idDataTrackFile
   , NEW.idAnalysisFile
@@ -5549,9 +6813,9 @@ BEGIN
   , idAnalysisFile
   , idDataTrack )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idDataTrackFile
   , OLD.idAnalysisFile
@@ -5582,6 +6846,40 @@ $$
 
 
 --
+-- Initial audit table rows for datatrackfolder 
+--
+
+INSERT INTO datatrackfolder_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idDataTrackFolder
+  , name
+  , description
+  , idParentDataTrackFolder
+  , idGenomeBuild
+  , idLab
+  , createdBy
+  , createDate )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idDataTrackFolder
+  , name
+  , description
+  , idParentDataTrackFolder
+  , idGenomeBuild
+  , idLab
+  , createdBy
+  , createDate
+  FROM datatrackfolder
+  WHERE NOT EXISTS(SELECT * FROM datatrackfolder_Audit)
+$$
+
+--
 -- Audit Triggers For datatrackfolder 
 --
 
@@ -5602,9 +6900,9 @@ BEGIN
   , createdBy
   , createDate )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idDataTrackFolder
   , NEW.name
@@ -5634,9 +6932,9 @@ BEGIN
   , createdBy
   , createDate )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idDataTrackFolder
   , NEW.name
@@ -5666,9 +6964,9 @@ BEGIN
   , createdBy
   , createDate )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idDataTrackFolder
   , OLD.name
@@ -5698,6 +6996,28 @@ $$
 
 
 --
+-- Initial audit table rows for datatracktofolder 
+--
+
+INSERT INTO datatracktofolder_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idDataTrack
+  , idDataTrackFolder )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idDataTrack
+  , idDataTrackFolder
+  FROM datatracktofolder
+  WHERE NOT EXISTS(SELECT * FROM datatracktofolder_Audit)
+$$
+
+--
 -- Audit Triggers For datatracktofolder 
 --
 
@@ -5712,9 +7032,9 @@ BEGIN
   , idDataTrack
   , idDataTrackFolder )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idDataTrack
   , NEW.idDataTrackFolder );
@@ -5732,9 +7052,9 @@ BEGIN
   , idDataTrack
   , idDataTrackFolder )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idDataTrack
   , NEW.idDataTrackFolder );
@@ -5752,9 +7072,9 @@ BEGIN
   , idDataTrack
   , idDataTrackFolder )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idDataTrack
   , OLD.idDataTrackFolder );
@@ -5778,6 +7098,28 @@ $$
 
 
 --
+-- Initial audit table rows for datatracktotopic 
+--
+
+INSERT INTO datatracktotopic_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idTopic
+  , idDataTrack )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idTopic
+  , idDataTrack
+  FROM datatracktotopic
+  WHERE NOT EXISTS(SELECT * FROM datatracktotopic_Audit)
+$$
+
+--
 -- Audit Triggers For datatracktotopic 
 --
 
@@ -5792,9 +7134,9 @@ BEGIN
   , idTopic
   , idDataTrack )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idTopic
   , NEW.idDataTrack );
@@ -5812,9 +7154,9 @@ BEGIN
   , idTopic
   , idDataTrack )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idTopic
   , NEW.idDataTrack );
@@ -5832,9 +7174,9 @@ BEGIN
   , idTopic
   , idDataTrack )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idTopic
   , OLD.idDataTrack );
@@ -5870,6 +7212,52 @@ $$
 
 
 --
+-- Initial audit table rows for datatrack 
+--
+
+INSERT INTO datatrack_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idDataTrack
+  , name
+  , description
+  , fileName
+  , idGenomeBuild
+  , codeVisibility
+  , idAppUser
+  , idLab
+  , summary
+  , createdBy
+  , createDate
+  , isLoaded
+  , idInstitution
+  , dataPath )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idDataTrack
+  , name
+  , description
+  , fileName
+  , idGenomeBuild
+  , codeVisibility
+  , idAppUser
+  , idLab
+  , summary
+  , createdBy
+  , createDate
+  , isLoaded
+  , idInstitution
+  , dataPath
+  FROM datatrack
+  WHERE NOT EXISTS(SELECT * FROM datatrack_Audit)
+$$
+
+--
 -- Audit Triggers For datatrack 
 --
 
@@ -5896,9 +7284,9 @@ BEGIN
   , idInstitution
   , dataPath )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idDataTrack
   , NEW.name
@@ -5940,9 +7328,9 @@ BEGIN
   , idInstitution
   , dataPath )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idDataTrack
   , NEW.name
@@ -5984,9 +7372,9 @@ BEGIN
   , idInstitution
   , dataPath )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idDataTrack
   , OLD.name
@@ -6031,6 +7419,46 @@ $$
 
 
 --
+-- Initial audit table rows for diskusagebymonth 
+--
+
+INSERT INTO diskusagebymonth_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idDiskUsageByMonth
+  , idLab
+  , asOfDate
+  , lastCalcDate
+  , totalAnalysisDiskSpace
+  , assessedAnalysisDiskSpace
+  , totalExperimentDiskSpace
+  , assessedExperimentDiskSpace
+  , idBillingPeriod
+  , idBillingAccount
+  , idCoreFacility )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idDiskUsageByMonth
+  , idLab
+  , asOfDate
+  , lastCalcDate
+  , totalAnalysisDiskSpace
+  , assessedAnalysisDiskSpace
+  , totalExperimentDiskSpace
+  , assessedExperimentDiskSpace
+  , idBillingPeriod
+  , idBillingAccount
+  , idCoreFacility
+  FROM diskusagebymonth
+  WHERE NOT EXISTS(SELECT * FROM diskusagebymonth_Audit)
+$$
+
+--
 -- Audit Triggers For diskusagebymonth 
 --
 
@@ -6054,9 +7482,9 @@ BEGIN
   , idBillingAccount
   , idCoreFacility )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idDiskUsageByMonth
   , NEW.idLab
@@ -6092,9 +7520,9 @@ BEGIN
   , idBillingAccount
   , idCoreFacility )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idDiskUsageByMonth
   , NEW.idLab
@@ -6130,9 +7558,9 @@ BEGIN
   , idBillingAccount
   , idCoreFacility )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idDiskUsageByMonth
   , OLD.idLab
@@ -6145,93 +7573,6 @@ BEGIN
   , OLD.idBillingPeriod
   , OLD.idBillingAccount
   , OLD.idCoreFacility );
-END;
-$$
-
-
---
--- Audit Table For dnapreptype 
---
-
-CREATE TABLE IF NOT EXISTS `dnapreptype_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
- ,`codeDNAPrepType`  varchar(10)  NULL DEFAULT NULL
- ,`dnaPrepType`  varchar(100)  NULL DEFAULT NULL
- ,`isActive`  char(1)  NULL DEFAULT NULL
-) ENGINE=InnoDB
-$$
-
-
---
--- Audit Triggers For dnapreptype 
---
-
-
-CREATE TRIGGER TrAI_dnapreptype_FER AFTER INSERT ON dnapreptype FOR EACH ROW
-BEGIN
-  INSERT INTO dnapreptype_Audit
-  ( AuditAppuser
-  , AuditOperation
-  , AuditSystemUser
-  , AuditOperationDate
-  , codeDNAPrepType
-  , dnaPrepType
-  , isActive )
-  VALUES
-  ( USER()
-  , 'I'
-  , CURRENT_USER()
-  , NOW()
-  , NEW.codeDNAPrepType
-  , NEW.dnaPrepType
-  , NEW.isActive );
-END;
-$$
-
-
-CREATE TRIGGER TrAU_dnapreptype_FER AFTER UPDATE ON dnapreptype FOR EACH ROW
-BEGIN
-  INSERT INTO dnapreptype_Audit
-  ( AuditAppuser
-  , AuditOperation
-  , AuditSystemUser
-  , AuditOperationDate
-  , codeDNAPrepType
-  , dnaPrepType
-  , isActive )
-  VALUES
-  ( USER()
-  , 'U'
-  , CURRENT_USER()
-  , NOW()
-  , NEW.codeDNAPrepType
-  , NEW.dnaPrepType
-  , NEW.isActive );
-END;
-$$
-
-
-CREATE TRIGGER TrAD_dnapreptype_FER AFTER DELETE ON dnapreptype FOR EACH ROW
-BEGIN
-  INSERT INTO dnapreptype_Audit
-  ( AuditAppuser
-  , AuditOperation
-  , AuditSystemUser
-  , AuditOperationDate
-  , codeDNAPrepType
-  , dnaPrepType
-  , isActive )
-  VALUES
-  ( USER()
-  , 'D'
-  , CURRENT_USER()
-  , NOW()
-  , OLD.codeDNAPrepType
-  , OLD.dnaPrepType
-  , OLD.isActive );
 END;
 $$
 
@@ -6255,6 +7596,34 @@ $$
 
 
 --
+-- Initial audit table rows for experimentdesignentry 
+--
+
+INSERT INTO experimentdesignentry_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idExperimentDesignEntry
+  , codeExperimentDesign
+  , idProject
+  , valueString
+  , otherLabel )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idExperimentDesignEntry
+  , codeExperimentDesign
+  , idProject
+  , valueString
+  , otherLabel
+  FROM experimentdesignentry
+  WHERE NOT EXISTS(SELECT * FROM experimentdesignentry_Audit)
+$$
+
+--
 -- Audit Triggers For experimentdesignentry 
 --
 
@@ -6272,9 +7641,9 @@ BEGIN
   , valueString
   , otherLabel )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idExperimentDesignEntry
   , NEW.codeExperimentDesign
@@ -6298,9 +7667,9 @@ BEGIN
   , valueString
   , otherLabel )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idExperimentDesignEntry
   , NEW.codeExperimentDesign
@@ -6324,9 +7693,9 @@ BEGIN
   , valueString
   , otherLabel )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idExperimentDesignEntry
   , OLD.codeExperimentDesign
@@ -6357,6 +7726,36 @@ $$
 
 
 --
+-- Initial audit table rows for experimentdesign 
+--
+
+INSERT INTO experimentdesign_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , codeExperimentDesign
+  , experimentDesign
+  , mageOntologyCode
+  , mageOntologyDefinition
+  , isActive
+  , idAppUser )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , codeExperimentDesign
+  , experimentDesign
+  , mageOntologyCode
+  , mageOntologyDefinition
+  , isActive
+  , idAppUser
+  FROM experimentdesign
+  WHERE NOT EXISTS(SELECT * FROM experimentdesign_Audit)
+$$
+
+--
 -- Audit Triggers For experimentdesign 
 --
 
@@ -6375,9 +7774,9 @@ BEGIN
   , isActive
   , idAppUser )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeExperimentDesign
   , NEW.experimentDesign
@@ -6403,9 +7802,9 @@ BEGIN
   , isActive
   , idAppUser )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeExperimentDesign
   , NEW.experimentDesign
@@ -6431,9 +7830,9 @@ BEGIN
   , isActive
   , idAppUser )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.codeExperimentDesign
   , OLD.experimentDesign
@@ -6464,6 +7863,34 @@ $$
 
 
 --
+-- Initial audit table rows for experimentfactorentry 
+--
+
+INSERT INTO experimentfactorentry_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idExperimentFactorEntry
+  , codeExperimentFactor
+  , idProject
+  , valueString
+  , otherLabel )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idExperimentFactorEntry
+  , codeExperimentFactor
+  , idProject
+  , valueString
+  , otherLabel
+  FROM experimentfactorentry
+  WHERE NOT EXISTS(SELECT * FROM experimentfactorentry_Audit)
+$$
+
+--
 -- Audit Triggers For experimentfactorentry 
 --
 
@@ -6481,9 +7908,9 @@ BEGIN
   , valueString
   , otherLabel )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idExperimentFactorEntry
   , NEW.codeExperimentFactor
@@ -6507,9 +7934,9 @@ BEGIN
   , valueString
   , otherLabel )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idExperimentFactorEntry
   , NEW.codeExperimentFactor
@@ -6533,9 +7960,9 @@ BEGIN
   , valueString
   , otherLabel )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idExperimentFactorEntry
   , OLD.codeExperimentFactor
@@ -6566,6 +7993,36 @@ $$
 
 
 --
+-- Initial audit table rows for experimentfactor 
+--
+
+INSERT INTO experimentfactor_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , codeExperimentFactor
+  , experimentFactor
+  , mageOntologyCode
+  , mageOntologyDefinition
+  , isActive
+  , idAppUser )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , codeExperimentFactor
+  , experimentFactor
+  , mageOntologyCode
+  , mageOntologyDefinition
+  , isActive
+  , idAppUser
+  FROM experimentfactor
+  WHERE NOT EXISTS(SELECT * FROM experimentfactor_Audit)
+$$
+
+--
 -- Audit Triggers For experimentfactor 
 --
 
@@ -6584,9 +8041,9 @@ BEGIN
   , isActive
   , idAppUser )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeExperimentFactor
   , NEW.experimentFactor
@@ -6612,9 +8069,9 @@ BEGIN
   , isActive
   , idAppUser )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeExperimentFactor
   , NEW.experimentFactor
@@ -6640,9 +8097,9 @@ BEGIN
   , isActive
   , idAppUser )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.codeExperimentFactor
   , OLD.experimentFactor
@@ -6673,6 +8130,34 @@ $$
 
 
 --
+-- Initial audit table rows for experimentfile 
+--
+
+INSERT INTO experimentfile_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idExperimentFile
+  , fileName
+  , fileSize
+  , idRequest
+  , createDate )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idExperimentFile
+  , fileName
+  , fileSize
+  , idRequest
+  , createDate
+  FROM experimentfile
+  WHERE NOT EXISTS(SELECT * FROM experimentfile_Audit)
+$$
+
+--
 -- Audit Triggers For experimentfile 
 --
 
@@ -6690,9 +8175,9 @@ BEGIN
   , idRequest
   , createDate )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idExperimentFile
   , NEW.fileName
@@ -6716,9 +8201,9 @@ BEGIN
   , idRequest
   , createDate )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idExperimentFile
   , NEW.fileName
@@ -6742,9 +8227,9 @@ BEGIN
   , idRequest
   , createDate )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idExperimentFile
   , OLD.fileName
@@ -6773,6 +8258,32 @@ $$
 
 
 --
+-- Initial audit table rows for faq 
+--
+
+INSERT INTO faq_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idFAQ
+  , title
+  , url
+  , idCoreFacility )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idFAQ
+  , title
+  , url
+  , idCoreFacility
+  FROM faq
+  WHERE NOT EXISTS(SELECT * FROM faq_Audit)
+$$
+
+--
 -- Audit Triggers For faq 
 --
 
@@ -6789,9 +8300,9 @@ BEGIN
   , url
   , idCoreFacility )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idFAQ
   , NEW.title
@@ -6813,9 +8324,9 @@ BEGIN
   , url
   , idCoreFacility )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idFAQ
   , NEW.title
@@ -6837,9 +8348,9 @@ BEGIN
   , url
   , idCoreFacility )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idFAQ
   , OLD.title
@@ -6869,6 +8380,36 @@ $$
 
 
 --
+-- Initial audit table rows for featureextractionprotocol 
+--
+
+INSERT INTO featureextractionprotocol_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idFeatureExtractionProtocol
+  , featureExtractionProtocol
+  , codeRequestCategory
+  , description
+  , url
+  , isActive )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idFeatureExtractionProtocol
+  , featureExtractionProtocol
+  , codeRequestCategory
+  , description
+  , url
+  , isActive
+  FROM featureextractionprotocol
+  WHERE NOT EXISTS(SELECT * FROM featureextractionprotocol_Audit)
+$$
+
+--
 -- Audit Triggers For featureextractionprotocol 
 --
 
@@ -6887,9 +8428,9 @@ BEGIN
   , url
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idFeatureExtractionProtocol
   , NEW.featureExtractionProtocol
@@ -6915,9 +8456,9 @@ BEGIN
   , url
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idFeatureExtractionProtocol
   , NEW.featureExtractionProtocol
@@ -6943,9 +8484,9 @@ BEGIN
   , url
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idFeatureExtractionProtocol
   , OLD.featureExtractionProtocol
@@ -6995,6 +8536,72 @@ $$
 
 
 --
+-- Initial audit table rows for flowcellchannel 
+--
+
+INSERT INTO flowcellchannel_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idFlowCellChannel
+  , idFlowCell
+  , number
+  , idSequenceLane
+  , idSequencingControl
+  , numberSequencingCyclesActual
+  , clustersPerTile
+  , fileName
+  , startDate
+  , firstCycleDate
+  , firstCycleCompleted
+  , firstCycleFailed
+  , lastCycleDate
+  , lastCycleCompleted
+  , lastCycleFailed
+  , sampleConcentrationpM
+  , pipelineDate
+  , pipelineFailed
+  , isControl
+  , phiXErrorRate
+  , read1ClustersPassedFilterM
+  , read2ClustersPassedFilterM
+  , q30Gb
+  , q30Percent )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idFlowCellChannel
+  , idFlowCell
+  , number
+  , idSequenceLane
+  , idSequencingControl
+  , numberSequencingCyclesActual
+  , clustersPerTile
+  , fileName
+  , startDate
+  , firstCycleDate
+  , firstCycleCompleted
+  , firstCycleFailed
+  , lastCycleDate
+  , lastCycleCompleted
+  , lastCycleFailed
+  , sampleConcentrationpM
+  , pipelineDate
+  , pipelineFailed
+  , isControl
+  , phiXErrorRate
+  , read1ClustersPassedFilterM
+  , read2ClustersPassedFilterM
+  , q30Gb
+  , q30Percent
+  FROM flowcellchannel
+  WHERE NOT EXISTS(SELECT * FROM flowcellchannel_Audit)
+$$
+
+--
 -- Audit Triggers For flowcellchannel 
 --
 
@@ -7031,9 +8638,9 @@ BEGIN
   , q30Gb
   , q30Percent )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idFlowCellChannel
   , NEW.idFlowCell
@@ -7095,9 +8702,9 @@ BEGIN
   , q30Gb
   , q30Percent )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idFlowCellChannel
   , NEW.idFlowCell
@@ -7159,9 +8766,9 @@ BEGIN
   , q30Gb
   , q30Percent )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idFlowCellChannel
   , OLD.idFlowCell
@@ -7218,6 +8825,50 @@ $$
 
 
 --
+-- Initial audit table rows for flowcell 
+--
+
+INSERT INTO flowcell_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idFlowCell
+  , idNumberSequencingCycles
+  , idSeqRunType
+  , number
+  , createDate
+  , notes
+  , barcode
+  , codeSequencingPlatform
+  , idCoreFacility
+  , idNumberSequencingCyclesAllowed
+  , runNumber
+  , idInstrument
+  , side )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idFlowCell
+  , idNumberSequencingCycles
+  , idSeqRunType
+  , number
+  , createDate
+  , notes
+  , barcode
+  , codeSequencingPlatform
+  , idCoreFacility
+  , idNumberSequencingCyclesAllowed
+  , runNumber
+  , idInstrument
+  , side
+  FROM flowcell
+  WHERE NOT EXISTS(SELECT * FROM flowcell_Audit)
+$$
+
+--
 -- Audit Triggers For flowcell 
 --
 
@@ -7243,9 +8894,9 @@ BEGIN
   , idInstrument
   , side )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idFlowCell
   , NEW.idNumberSequencingCycles
@@ -7285,9 +8936,9 @@ BEGIN
   , idInstrument
   , side )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idFlowCell
   , NEW.idNumberSequencingCycles
@@ -7327,9 +8978,9 @@ BEGIN
   , idInstrument
   , side )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idFlowCell
   , OLD.idNumberSequencingCycles
@@ -7366,6 +9017,32 @@ $$
 
 
 --
+-- Initial audit table rows for fundingagency 
+--
+
+INSERT INTO fundingagency_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idFundingAgency
+  , fundingAgency
+  , isPeerReviewedFunding
+  , isActive )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idFundingAgency
+  , fundingAgency
+  , isPeerReviewedFunding
+  , isActive
+  FROM fundingagency
+  WHERE NOT EXISTS(SELECT * FROM fundingagency_Audit)
+$$
+
+--
 -- Audit Triggers For fundingagency 
 --
 
@@ -7382,9 +9059,9 @@ BEGIN
   , isPeerReviewedFunding
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idFundingAgency
   , NEW.fundingAgency
@@ -7406,9 +9083,9 @@ BEGIN
   , isPeerReviewedFunding
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idFundingAgency
   , NEW.fundingAgency
@@ -7430,9 +9107,9 @@ BEGIN
   , isPeerReviewedFunding
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idFundingAgency
   , OLD.fundingAgency
@@ -7459,6 +9136,30 @@ $$
 
 
 --
+-- Initial audit table rows for genomebuildalias 
+--
+
+INSERT INTO genomebuildalias_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idGenomeBuildAlias
+  , alias
+  , idGenomeBuild )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idGenomeBuildAlias
+  , alias
+  , idGenomeBuild
+  FROM genomebuildalias
+  WHERE NOT EXISTS(SELECT * FROM genomebuildalias_Audit)
+$$
+
+--
 -- Audit Triggers For genomebuildalias 
 --
 
@@ -7474,9 +9175,9 @@ BEGIN
   , alias
   , idGenomeBuild )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idGenomeBuildAlias
   , NEW.alias
@@ -7496,9 +9197,9 @@ BEGIN
   , alias
   , idGenomeBuild )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idGenomeBuildAlias
   , NEW.alias
@@ -7518,9 +9219,9 @@ BEGIN
   , alias
   , idGenomeBuild )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idGenomeBuildAlias
   , OLD.alias
@@ -7559,6 +9260,56 @@ $$
 
 
 --
+-- Initial audit table rows for genomebuild 
+--
+
+INSERT INTO genomebuild_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idGenomeBuild
+  , genomeBuildName
+  , idOrganism
+  , isActive
+  , isLatestBuild
+  , idAppUser
+  , das2Name
+  , buildDate
+  , coordURI
+  , coordVersion
+  , coordSource
+  , coordTestRange
+  , coordAuthority
+  , ucscName
+  , igvName
+  , dataPath )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idGenomeBuild
+  , genomeBuildName
+  , idOrganism
+  , isActive
+  , isLatestBuild
+  , idAppUser
+  , das2Name
+  , buildDate
+  , coordURI
+  , coordVersion
+  , coordSource
+  , coordTestRange
+  , coordAuthority
+  , ucscName
+  , igvName
+  , dataPath
+  FROM genomebuild
+  WHERE NOT EXISTS(SELECT * FROM genomebuild_Audit)
+$$
+
+--
 -- Audit Triggers For genomebuild 
 --
 
@@ -7587,9 +9338,9 @@ BEGIN
   , igvName
   , dataPath )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idGenomeBuild
   , NEW.genomeBuildName
@@ -7635,9 +9386,9 @@ BEGIN
   , igvName
   , dataPath )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idGenomeBuild
   , NEW.genomeBuildName
@@ -7683,9 +9434,9 @@ BEGIN
   , igvName
   , dataPath )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idGenomeBuild
   , OLD.genomeBuildName
@@ -7726,6 +9477,34 @@ $$
 
 
 --
+-- Initial audit table rows for genomeindex 
+--
+
+INSERT INTO genomeindex_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idGenomeIndex
+  , genomeIndexName
+  , webServiceName
+  , isActive
+  , idOrganism )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idGenomeIndex
+  , genomeIndexName
+  , webServiceName
+  , isActive
+  , idOrganism
+  FROM genomeindex
+  WHERE NOT EXISTS(SELECT * FROM genomeindex_Audit)
+$$
+
+--
 -- Audit Triggers For genomeindex 
 --
 
@@ -7743,9 +9522,9 @@ BEGIN
   , isActive
   , idOrganism )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idGenomeIndex
   , NEW.genomeIndexName
@@ -7769,9 +9548,9 @@ BEGIN
   , isActive
   , idOrganism )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idGenomeIndex
   , NEW.genomeIndexName
@@ -7795,9 +9574,9 @@ BEGIN
   , isActive
   , idOrganism )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idGenomeIndex
   , OLD.genomeIndexName
@@ -7828,6 +9607,36 @@ $$
 
 
 --
+-- Initial audit table rows for hybprotocol 
+--
+
+INSERT INTO hybprotocol_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idHybProtocol
+  , hybProtocol
+  , codeRequestCategory
+  , description
+  , url
+  , isActive )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idHybProtocol
+  , hybProtocol
+  , codeRequestCategory
+  , description
+  , url
+  , isActive
+  FROM hybprotocol
+  WHERE NOT EXISTS(SELECT * FROM hybprotocol_Audit)
+$$
+
+--
 -- Audit Triggers For hybprotocol 
 --
 
@@ -7846,9 +9655,9 @@ BEGIN
   , url
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idHybProtocol
   , NEW.hybProtocol
@@ -7874,9 +9683,9 @@ BEGIN
   , url
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idHybProtocol
   , NEW.hybProtocol
@@ -7902,9 +9711,9 @@ BEGIN
   , url
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idHybProtocol
   , OLD.hybProtocol
@@ -7951,6 +9760,66 @@ $$
 
 
 --
+-- Initial audit table rows for hybridization 
+--
+
+INSERT INTO hybridization_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idHybridization
+  , number
+  , notes
+  , codeSlideSource
+  , idSlideDesign
+  , idHybProtocol
+  , idHybBuffer
+  , idLabeledSampleChannel1
+  , idLabeledSampleChannel2
+  , idSlide
+  , idArrayCoordinate
+  , idScanProtocol
+  , idFeatureExtractionProtocol
+  , hybDate
+  , hybFailed
+  , hybBypassed
+  , extractionDate
+  , extractionFailed
+  , extractionBypassed
+  , hasResults
+  , createDate )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idHybridization
+  , number
+  , notes
+  , codeSlideSource
+  , idSlideDesign
+  , idHybProtocol
+  , idHybBuffer
+  , idLabeledSampleChannel1
+  , idLabeledSampleChannel2
+  , idSlide
+  , idArrayCoordinate
+  , idScanProtocol
+  , idFeatureExtractionProtocol
+  , hybDate
+  , hybFailed
+  , hybBypassed
+  , extractionDate
+  , extractionFailed
+  , extractionBypassed
+  , hasResults
+  , createDate
+  FROM hybridization
+  WHERE NOT EXISTS(SELECT * FROM hybridization_Audit)
+$$
+
+--
 -- Audit Triggers For hybridization 
 --
 
@@ -7984,9 +9853,9 @@ BEGIN
   , hasResults
   , createDate )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idHybridization
   , NEW.number
@@ -8042,9 +9911,9 @@ BEGIN
   , hasResults
   , createDate )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idHybridization
   , NEW.number
@@ -8100,9 +9969,9 @@ BEGIN
   , hasResults
   , createDate )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idHybridization
   , OLD.number
@@ -8145,6 +10014,28 @@ $$
 
 
 --
+-- Initial audit table rows for institutionlab 
+--
+
+INSERT INTO institutionlab_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idInstitution
+  , idLab )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idInstitution
+  , idLab
+  FROM institutionlab
+  WHERE NOT EXISTS(SELECT * FROM institutionlab_Audit)
+$$
+
+--
 -- Audit Triggers For institutionlab 
 --
 
@@ -8159,9 +10050,9 @@ BEGIN
   , idInstitution
   , idLab )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idInstitution
   , NEW.idLab );
@@ -8179,9 +10070,9 @@ BEGIN
   , idInstitution
   , idLab )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idInstitution
   , NEW.idLab );
@@ -8199,9 +10090,9 @@ BEGIN
   , idInstitution
   , idLab )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idInstitution
   , OLD.idLab );
@@ -8228,6 +10119,34 @@ $$
 
 
 --
+-- Initial audit table rows for institution 
+--
+
+INSERT INTO institution_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idInstitution
+  , institution
+  , description
+  , isActive
+  , isDefault )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idInstitution
+  , institution
+  , description
+  , isActive
+  , isDefault
+  FROM institution
+  WHERE NOT EXISTS(SELECT * FROM institution_Audit)
+$$
+
+--
 -- Audit Triggers For institution 
 --
 
@@ -8245,9 +10164,9 @@ BEGIN
   , isActive
   , isDefault )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idInstitution
   , NEW.institution
@@ -8271,9 +10190,9 @@ BEGIN
   , isActive
   , isDefault )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idInstitution
   , NEW.institution
@@ -8297,9 +10216,9 @@ BEGIN
   , isActive
   , isDefault )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idInstitution
   , OLD.institution
@@ -8327,6 +10246,30 @@ $$
 
 
 --
+-- Initial audit table rows for instrumentrunstatus 
+--
+
+INSERT INTO instrumentrunstatus_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , codeInstrumentRunStatus
+  , instrumentRunStatus
+  , isActive )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , codeInstrumentRunStatus
+  , instrumentRunStatus
+  , isActive
+  FROM instrumentrunstatus
+  WHERE NOT EXISTS(SELECT * FROM instrumentrunstatus_Audit)
+$$
+
+--
 -- Audit Triggers For instrumentrunstatus 
 --
 
@@ -8342,9 +10285,9 @@ BEGIN
   , instrumentRunStatus
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeInstrumentRunStatus
   , NEW.instrumentRunStatus
@@ -8364,9 +10307,9 @@ BEGIN
   , instrumentRunStatus
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeInstrumentRunStatus
   , NEW.instrumentRunStatus
@@ -8386,9 +10329,9 @@ BEGIN
   , instrumentRunStatus
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.codeInstrumentRunStatus
   , OLD.instrumentRunStatus
@@ -8420,6 +10363,42 @@ $$
 
 
 --
+-- Initial audit table rows for instrumentrun 
+--
+
+INSERT INTO instrumentrun_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idInstrumentRun
+  , runDate
+  , createDate
+  , codeInstrumentRunStatus
+  , comments
+  , label
+  , codeReactionType
+  , creator
+  , codeSealType )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idInstrumentRun
+  , runDate
+  , createDate
+  , codeInstrumentRunStatus
+  , comments
+  , label
+  , codeReactionType
+  , creator
+  , codeSealType
+  FROM instrumentrun
+  WHERE NOT EXISTS(SELECT * FROM instrumentrun_Audit)
+$$
+
+--
 -- Audit Triggers For instrumentrun 
 --
 
@@ -8441,9 +10420,9 @@ BEGIN
   , creator
   , codeSealType )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idInstrumentRun
   , NEW.runDate
@@ -8475,9 +10454,9 @@ BEGIN
   , creator
   , codeSealType )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idInstrumentRun
   , NEW.runDate
@@ -8509,9 +10488,9 @@ BEGIN
   , creator
   , codeSealType )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idInstrumentRun
   , OLD.runDate
@@ -8543,6 +10522,30 @@ $$
 
 
 --
+-- Initial audit table rows for instrument 
+--
+
+INSERT INTO instrument_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idInstrument
+  , instrument
+  , isActive )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idInstrument
+  , instrument
+  , isActive
+  FROM instrument
+  WHERE NOT EXISTS(SELECT * FROM instrument_Audit)
+$$
+
+--
 -- Audit Triggers For instrument 
 --
 
@@ -8558,9 +10561,9 @@ BEGIN
   , instrument
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idInstrument
   , NEW.instrument
@@ -8580,9 +10583,9 @@ BEGIN
   , instrument
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idInstrument
   , NEW.instrument
@@ -8602,9 +10605,9 @@ BEGIN
   , instrument
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idInstrument
   , OLD.instrument
@@ -8636,6 +10639,42 @@ $$
 
 
 --
+-- Initial audit table rows for internalaccountfieldsconfiguration 
+--
+
+INSERT INTO internalaccountfieldsconfiguration_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idInternalAccountFieldsConfiguration
+  , fieldName
+  , include
+  , sortOrder
+  , displayName
+  , isRequired
+  , isNumber
+  , minLength
+  , maxLength )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idInternalAccountFieldsConfiguration
+  , fieldName
+  , include
+  , sortOrder
+  , displayName
+  , isRequired
+  , isNumber
+  , minLength
+  , maxLength
+  FROM internalaccountfieldsconfiguration
+  WHERE NOT EXISTS(SELECT * FROM internalaccountfieldsconfiguration_Audit)
+$$
+
+--
 -- Audit Triggers For internalaccountfieldsconfiguration 
 --
 
@@ -8657,9 +10696,9 @@ BEGIN
   , minLength
   , maxLength )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idInternalAccountFieldsConfiguration
   , NEW.fieldName
@@ -8691,9 +10730,9 @@ BEGIN
   , minLength
   , maxLength )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idInternalAccountFieldsConfiguration
   , NEW.fieldName
@@ -8725,9 +10764,9 @@ BEGIN
   , minLength
   , maxLength )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idInternalAccountFieldsConfiguration
   , OLD.fieldName
@@ -8762,6 +10801,36 @@ $$
 
 
 --
+-- Initial audit table rows for invoice 
+--
+
+INSERT INTO invoice_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idInvoice
+  , idCoreFacility
+  , idBillingPeriod
+  , idBillingAccount
+  , invoiceNumber
+  , lastEmailDate )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idInvoice
+  , idCoreFacility
+  , idBillingPeriod
+  , idBillingAccount
+  , invoiceNumber
+  , lastEmailDate
+  FROM invoice
+  WHERE NOT EXISTS(SELECT * FROM invoice_Audit)
+$$
+
+--
 -- Audit Triggers For invoice 
 --
 
@@ -8780,9 +10849,9 @@ BEGIN
   , invoiceNumber
   , lastEmailDate )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idInvoice
   , NEW.idCoreFacility
@@ -8808,9 +10877,9 @@ BEGIN
   , invoiceNumber
   , lastEmailDate )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idInvoice
   , NEW.idCoreFacility
@@ -8836,9 +10905,9 @@ BEGIN
   , invoiceNumber
   , lastEmailDate )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idInvoice
   , OLD.idCoreFacility
@@ -8872,6 +10941,40 @@ $$
 
 
 --
+-- Initial audit table rows for iscanchip 
+--
+
+INSERT INTO iscanchip_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idIScanChip
+  , name
+  , costPerSample
+  , samplesPerChip
+  , chipsPerKit
+  , markersPerSample
+  , catalogNumber
+  , isActive )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idIScanChip
+  , name
+  , costPerSample
+  , samplesPerChip
+  , chipsPerKit
+  , markersPerSample
+  , catalogNumber
+  , isActive
+  FROM iscanchip
+  WHERE NOT EXISTS(SELECT * FROM iscanchip_Audit)
+$$
+
+--
 -- Audit Triggers For iscanchip 
 --
 
@@ -8892,9 +10995,9 @@ BEGIN
   , catalogNumber
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idIScanChip
   , NEW.name
@@ -8924,9 +11027,9 @@ BEGIN
   , catalogNumber
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idIScanChip
   , NEW.name
@@ -8956,9 +11059,9 @@ BEGIN
   , catalogNumber
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idIScanChip
   , OLD.name
@@ -8968,6 +11071,135 @@ BEGIN
   , OLD.markersPerSample
   , OLD.catalogNumber
   , OLD.isActive );
+END;
+$$
+
+
+--
+-- Audit Table For isolationpreptype 
+--
+
+CREATE TABLE IF NOT EXISTS `isolationpreptype_Audit` (
+  `AuditAppuser`       varchar(128) NOT NULL
+ ,`AuditOperation`     char(1)      NOT NULL
+ ,`AuditSystemUser`    varchar(30)  NOT NULL
+ ,`AuditOperationDate` datetime     NOT NULL
+ ,`codeIsolationPrepType`  varchar(15)  NULL DEFAULT NULL
+ ,`isolationPrepType`  varchar(100)  NULL DEFAULT NULL
+ ,`type`  varchar(10)  NULL DEFAULT NULL
+ ,`isActive`  char(1)  NULL DEFAULT NULL
+ ,`codeRequestCategory`  varchar(50)  NULL DEFAULT NULL
+) ENGINE=InnoDB
+$$
+
+
+--
+-- Initial audit table rows for isolationpreptype 
+--
+
+INSERT INTO isolationpreptype_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , codeIsolationPrepType
+  , isolationPrepType
+  , type
+  , isActive
+  , codeRequestCategory )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , codeIsolationPrepType
+  , isolationPrepType
+  , type
+  , isActive
+  , codeRequestCategory
+  FROM isolationpreptype
+  WHERE NOT EXISTS(SELECT * FROM isolationpreptype_Audit)
+$$
+
+--
+-- Audit Triggers For isolationpreptype 
+--
+
+
+CREATE TRIGGER TrAI_isolationpreptype_FER AFTER INSERT ON isolationpreptype FOR EACH ROW
+BEGIN
+  INSERT INTO isolationpreptype_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , codeIsolationPrepType
+  , isolationPrepType
+  , type
+  , isActive
+  , codeRequestCategory )
+  VALUES
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
+  , 'I'
+  , USER()
+  , NOW()
+  , NEW.codeIsolationPrepType
+  , NEW.isolationPrepType
+  , NEW.type
+  , NEW.isActive
+  , NEW.codeRequestCategory );
+END;
+$$
+
+
+CREATE TRIGGER TrAU_isolationpreptype_FER AFTER UPDATE ON isolationpreptype FOR EACH ROW
+BEGIN
+  INSERT INTO isolationpreptype_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , codeIsolationPrepType
+  , isolationPrepType
+  , type
+  , isActive
+  , codeRequestCategory )
+  VALUES
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
+  , 'U'
+  , USER()
+  , NOW()
+  , NEW.codeIsolationPrepType
+  , NEW.isolationPrepType
+  , NEW.type
+  , NEW.isActive
+  , NEW.codeRequestCategory );
+END;
+$$
+
+
+CREATE TRIGGER TrAD_isolationpreptype_FER AFTER DELETE ON isolationpreptype FOR EACH ROW
+BEGIN
+  INSERT INTO isolationpreptype_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , codeIsolationPrepType
+  , isolationPrepType
+  , type
+  , isActive
+  , codeRequestCategory )
+  VALUES
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
+  , 'D'
+  , USER()
+  , NOW()
+  , OLD.codeIsolationPrepType
+  , OLD.isolationPrepType
+  , OLD.type
+  , OLD.isActive
+  , OLD.codeRequestCategory );
 END;
 $$
 
@@ -8989,6 +11221,30 @@ $$
 
 
 --
+-- Initial audit table rows for labcollaborator 
+--
+
+INSERT INTO labcollaborator_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idLab
+  , idAppUser
+  , sendUploadAlert )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idLab
+  , idAppUser
+  , sendUploadAlert
+  FROM labcollaborator
+  WHERE NOT EXISTS(SELECT * FROM labcollaborator_Audit)
+$$
+
+--
 -- Audit Triggers For labcollaborator 
 --
 
@@ -9004,9 +11260,9 @@ BEGIN
   , idAppUser
   , sendUploadAlert )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idLab
   , NEW.idAppUser
@@ -9026,9 +11282,9 @@ BEGIN
   , idAppUser
   , sendUploadAlert )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idLab
   , NEW.idAppUser
@@ -9048,9 +11304,9 @@ BEGIN
   , idAppUser
   , sendUploadAlert )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idLab
   , OLD.idAppUser
@@ -9084,6 +11340,46 @@ $$
 
 
 --
+-- Initial audit table rows for labeledsample 
+--
+
+INSERT INTO labeledsample_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idLabeledSample
+  , labelingYield
+  , idSample
+  , idLabel
+  , idLabelingProtocol
+  , codeLabelingReactionSize
+  , numberOfReactions
+  , labelingDate
+  , labelingFailed
+  , labelingBypassed
+  , idRequest )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idLabeledSample
+  , labelingYield
+  , idSample
+  , idLabel
+  , idLabelingProtocol
+  , codeLabelingReactionSize
+  , numberOfReactions
+  , labelingDate
+  , labelingFailed
+  , labelingBypassed
+  , idRequest
+  FROM labeledsample
+  WHERE NOT EXISTS(SELECT * FROM labeledsample_Audit)
+$$
+
+--
 -- Audit Triggers For labeledsample 
 --
 
@@ -9107,9 +11403,9 @@ BEGIN
   , labelingBypassed
   , idRequest )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idLabeledSample
   , NEW.labelingYield
@@ -9145,9 +11441,9 @@ BEGIN
   , labelingBypassed
   , idRequest )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idLabeledSample
   , NEW.labelingYield
@@ -9183,9 +11479,9 @@ BEGIN
   , labelingBypassed
   , idRequest )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idLabeledSample
   , OLD.labelingYield
@@ -9222,6 +11518,36 @@ $$
 
 
 --
+-- Initial audit table rows for labelingprotocol 
+--
+
+INSERT INTO labelingprotocol_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idLabelingProtocol
+  , labelingProtocol
+  , codeRequestCategory
+  , description
+  , url
+  , isActive )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idLabelingProtocol
+  , labelingProtocol
+  , codeRequestCategory
+  , description
+  , url
+  , isActive
+  FROM labelingprotocol
+  WHERE NOT EXISTS(SELECT * FROM labelingprotocol_Audit)
+$$
+
+--
 -- Audit Triggers For labelingprotocol 
 --
 
@@ -9240,9 +11566,9 @@ BEGIN
   , url
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idLabelingProtocol
   , NEW.labelingProtocol
@@ -9268,9 +11594,9 @@ BEGIN
   , url
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idLabelingProtocol
   , NEW.labelingProtocol
@@ -9296,9 +11622,9 @@ BEGIN
   , url
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idLabelingProtocol
   , OLD.labelingProtocol
@@ -9328,6 +11654,32 @@ $$
 
 
 --
+-- Initial audit table rows for labelingreactionsize 
+--
+
+INSERT INTO labelingreactionsize_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , codeLabelingReactionSize
+  , labelingReactionSize
+  , isActive
+  , sortOrder )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , codeLabelingReactionSize
+  , labelingReactionSize
+  , isActive
+  , sortOrder
+  FROM labelingreactionsize
+  WHERE NOT EXISTS(SELECT * FROM labelingreactionsize_Audit)
+$$
+
+--
 -- Audit Triggers For labelingreactionsize 
 --
 
@@ -9344,9 +11696,9 @@ BEGIN
   , isActive
   , sortOrder )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeLabelingReactionSize
   , NEW.labelingReactionSize
@@ -9368,9 +11720,9 @@ BEGIN
   , isActive
   , sortOrder )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeLabelingReactionSize
   , NEW.labelingReactionSize
@@ -9392,9 +11744,9 @@ BEGIN
   , isActive
   , sortOrder )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.codeLabelingReactionSize
   , OLD.labelingReactionSize
@@ -9421,6 +11773,30 @@ $$
 
 
 --
+-- Initial audit table rows for label 
+--
+
+INSERT INTO label_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idLabel
+  , label
+  , isActive )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idLabel
+  , label
+  , isActive
+  FROM label
+  WHERE NOT EXISTS(SELECT * FROM label_Audit)
+$$
+
+--
 -- Audit Triggers For label 
 --
 
@@ -9436,9 +11812,9 @@ BEGIN
   , label
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idLabel
   , NEW.label
@@ -9458,9 +11834,9 @@ BEGIN
   , label
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idLabel
   , NEW.label
@@ -9480,9 +11856,9 @@ BEGIN
   , label
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idLabel
   , OLD.label
@@ -9508,6 +11884,30 @@ $$
 
 
 --
+-- Initial audit table rows for labmanager 
+--
+
+INSERT INTO labmanager_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idLab
+  , idAppUser
+  , sendUploadAlert )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idLab
+  , idAppUser
+  , sendUploadAlert
+  FROM labmanager
+  WHERE NOT EXISTS(SELECT * FROM labmanager_Audit)
+$$
+
+--
 -- Audit Triggers For labmanager 
 --
 
@@ -9523,9 +11923,9 @@ BEGIN
   , idAppUser
   , sendUploadAlert )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idLab
   , NEW.idAppUser
@@ -9545,9 +11945,9 @@ BEGIN
   , idAppUser
   , sendUploadAlert )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idLab
   , NEW.idAppUser
@@ -9567,9 +11967,9 @@ BEGIN
   , idAppUser
   , sendUploadAlert )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idLab
   , OLD.idAppUser
@@ -9597,6 +11997,34 @@ $$
 
 
 --
+-- Initial audit table rows for labuser 
+--
+
+INSERT INTO labuser_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idLab
+  , idAppUser
+  , sortOrder
+  , isActive
+  , sendUploadAlert )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idLab
+  , idAppUser
+  , sortOrder
+  , isActive
+  , sendUploadAlert
+  FROM labuser
+  WHERE NOT EXISTS(SELECT * FROM labuser_Audit)
+$$
+
+--
 -- Audit Triggers For labuser 
 --
 
@@ -9614,9 +12042,9 @@ BEGIN
   , isActive
   , sendUploadAlert )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idLab
   , NEW.idAppUser
@@ -9640,9 +12068,9 @@ BEGIN
   , isActive
   , sendUploadAlert )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idLab
   , NEW.idAppUser
@@ -9666,9 +12094,9 @@ BEGIN
   , isActive
   , sendUploadAlert )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idLab
   , OLD.idAppUser
@@ -9716,6 +12144,70 @@ $$
 
 
 --
+-- Initial audit table rows for lab 
+--
+
+INSERT INTO lab_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idLab
+  , name
+  , department
+  , notes
+  , contactName
+  , contactAddress
+  , contactCodeState
+  , contactZip
+  , contactCity
+  , contactPhone
+  , contactEmail
+  , isCCSGMember
+  , firstName
+  , lastName
+  , isExternalPricing
+  , isExternalPricingCommercial
+  , isActive
+  , excludeUsage
+  , billingContactEmail
+  , version
+  , contactAddress2
+  , contactCountry
+  , billingContactPhone )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idLab
+  , name
+  , department
+  , notes
+  , contactName
+  , contactAddress
+  , contactCodeState
+  , contactZip
+  , contactCity
+  , contactPhone
+  , contactEmail
+  , isCCSGMember
+  , firstName
+  , lastName
+  , isExternalPricing
+  , isExternalPricingCommercial
+  , isActive
+  , excludeUsage
+  , billingContactEmail
+  , version
+  , contactAddress2
+  , contactCountry
+  , billingContactPhone
+  FROM lab
+  WHERE NOT EXISTS(SELECT * FROM lab_Audit)
+$$
+
+--
 -- Audit Triggers For lab 
 --
 
@@ -9751,9 +12243,9 @@ BEGIN
   , contactCountry
   , billingContactPhone )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idLab
   , NEW.name
@@ -9813,9 +12305,9 @@ BEGIN
   , contactCountry
   , billingContactPhone )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idLab
   , NEW.name
@@ -9875,9 +12367,9 @@ BEGIN
   , contactCountry
   , billingContactPhone )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idLab
   , OLD.name
@@ -9924,6 +12416,32 @@ $$
 
 
 --
+-- Initial audit table rows for metrixobject 
+--
+
+INSERT INTO metrixobject_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , id
+  , run_id
+  , object_value
+  , state )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , id
+  , run_id
+  , object_value
+  , state
+  FROM metrixobject
+  WHERE NOT EXISTS(SELECT * FROM metrixobject_Audit)
+$$
+
+--
 -- Audit Triggers For metrixobject 
 --
 
@@ -9940,9 +12458,9 @@ BEGIN
   , object_value
   , state )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.id
   , NEW.run_id
@@ -9964,9 +12482,9 @@ BEGIN
   , object_value
   , state )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.id
   , NEW.run_id
@@ -9988,9 +12506,9 @@ BEGIN
   , object_value
   , state )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.id
   , OLD.run_id
@@ -10020,6 +12538,36 @@ $$
 
 
 --
+-- Initial audit table rows for newsitem 
+--
+
+INSERT INTO newsitem_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idNewsItem
+  , idSubmitter
+  , idCoreFacility
+  , title
+  , message
+  , date )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idNewsItem
+  , idSubmitter
+  , idCoreFacility
+  , title
+  , message
+  , date
+  FROM newsitem
+  WHERE NOT EXISTS(SELECT * FROM newsitem_Audit)
+$$
+
+--
 -- Audit Triggers For newsitem 
 --
 
@@ -10038,9 +12586,9 @@ BEGIN
   , message
   , date )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idNewsItem
   , NEW.idSubmitter
@@ -10066,9 +12614,9 @@ BEGIN
   , message
   , date )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idNewsItem
   , NEW.idSubmitter
@@ -10094,9 +12642,9 @@ BEGIN
   , message
   , date )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idNewsItem
   , OLD.idSubmitter
@@ -10133,6 +12681,46 @@ $$
 
 
 --
+-- Initial audit table rows for notification 
+--
+
+INSERT INTO notification_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idNotification
+  , idUserTarget
+  , idLabTarget
+  , sourceType
+  , message
+  , date
+  , expID
+  , type
+  , fullNameUser
+  , imageSource
+  , idCoreFacility )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idNotification
+  , idUserTarget
+  , idLabTarget
+  , sourceType
+  , message
+  , date
+  , expID
+  , type
+  , fullNameUser
+  , imageSource
+  , idCoreFacility
+  FROM notification
+  WHERE NOT EXISTS(SELECT * FROM notification_Audit)
+$$
+
+--
 -- Audit Triggers For notification 
 --
 
@@ -10156,9 +12744,9 @@ BEGIN
   , imageSource
   , idCoreFacility )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idNotification
   , NEW.idUserTarget
@@ -10194,9 +12782,9 @@ BEGIN
   , imageSource
   , idCoreFacility )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idNotification
   , NEW.idUserTarget
@@ -10232,9 +12820,9 @@ BEGIN
   , imageSource
   , idCoreFacility )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idNotification
   , OLD.idUserTarget
@@ -10266,6 +12854,26 @@ $$
 
 
 --
+-- Initial audit table rows for nucleotidetype 
+--
+
+INSERT INTO nucleotidetype_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , codeNucleotideType )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , codeNucleotideType
+  FROM nucleotidetype
+  WHERE NOT EXISTS(SELECT * FROM nucleotidetype_Audit)
+$$
+
+--
 -- Audit Triggers For nucleotidetype 
 --
 
@@ -10279,9 +12887,9 @@ BEGIN
   , AuditOperationDate
   , codeNucleotideType )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeNucleotideType );
 END;
@@ -10297,9 +12905,9 @@ BEGIN
   , AuditOperationDate
   , codeNucleotideType )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeNucleotideType );
 END;
@@ -10315,9 +12923,9 @@ BEGIN
   , AuditOperationDate
   , codeNucleotideType )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.codeNucleotideType );
 END;
@@ -10347,6 +12955,42 @@ $$
 
 
 --
+-- Initial audit table rows for numbersequencingcyclesallowed 
+--
+
+INSERT INTO numbersequencingcyclesallowed_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idNumberSequencingCyclesAllowed
+  , idNumberSequencingCycles
+  , codeRequestCategory
+  , idSeqRunType
+  , name
+  , isCustom
+  , sortOrder
+  , isActive
+  , protocolDescription )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idNumberSequencingCyclesAllowed
+  , idNumberSequencingCycles
+  , codeRequestCategory
+  , idSeqRunType
+  , name
+  , isCustom
+  , sortOrder
+  , isActive
+  , protocolDescription
+  FROM numbersequencingcyclesallowed
+  WHERE NOT EXISTS(SELECT * FROM numbersequencingcyclesallowed_Audit)
+$$
+
+--
 -- Audit Triggers For numbersequencingcyclesallowed 
 --
 
@@ -10368,9 +13012,9 @@ BEGIN
   , isActive
   , protocolDescription )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idNumberSequencingCyclesAllowed
   , NEW.idNumberSequencingCycles
@@ -10402,9 +13046,9 @@ BEGIN
   , isActive
   , protocolDescription )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idNumberSequencingCyclesAllowed
   , NEW.idNumberSequencingCycles
@@ -10436,9 +13080,9 @@ BEGIN
   , isActive
   , protocolDescription )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idNumberSequencingCyclesAllowed
   , OLD.idNumberSequencingCycles
@@ -10472,6 +13116,34 @@ $$
 
 
 --
+-- Initial audit table rows for numbersequencingcycles 
+--
+
+INSERT INTO numbersequencingcycles_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idNumberSequencingCycles
+  , numberSequencingCycles
+  , isActive
+  , sortOrder
+  , notes )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idNumberSequencingCycles
+  , numberSequencingCycles
+  , isActive
+  , sortOrder
+  , notes
+  FROM numbersequencingcycles
+  WHERE NOT EXISTS(SELECT * FROM numbersequencingcycles_Audit)
+$$
+
+--
 -- Audit Triggers For numbersequencingcycles 
 --
 
@@ -10489,9 +13161,9 @@ BEGIN
   , sortOrder
   , notes )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idNumberSequencingCycles
   , NEW.numberSequencingCycles
@@ -10515,9 +13187,9 @@ BEGIN
   , sortOrder
   , notes )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idNumberSequencingCycles
   , NEW.numberSequencingCycles
@@ -10541,9 +13213,9 @@ BEGIN
   , sortOrder
   , notes )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idNumberSequencingCycles
   , OLD.numberSequencingCycles
@@ -10572,6 +13244,32 @@ $$
 
 
 --
+-- Initial audit table rows for oligobarcodeschemeallowed 
+--
+
+INSERT INTO oligobarcodeschemeallowed_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idOligoBarcodeSchemeAllowed
+  , idOligoBarcodeScheme
+  , idSeqLibProtocol
+  , isIndexGroupB )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idOligoBarcodeSchemeAllowed
+  , idOligoBarcodeScheme
+  , idSeqLibProtocol
+  , isIndexGroupB
+  FROM oligobarcodeschemeallowed
+  WHERE NOT EXISTS(SELECT * FROM oligobarcodeschemeallowed_Audit)
+$$
+
+--
 -- Audit Triggers For oligobarcodeschemeallowed 
 --
 
@@ -10588,9 +13286,9 @@ BEGIN
   , idSeqLibProtocol
   , isIndexGroupB )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idOligoBarcodeSchemeAllowed
   , NEW.idOligoBarcodeScheme
@@ -10612,9 +13310,9 @@ BEGIN
   , idSeqLibProtocol
   , isIndexGroupB )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idOligoBarcodeSchemeAllowed
   , NEW.idOligoBarcodeScheme
@@ -10636,9 +13334,9 @@ BEGIN
   , idSeqLibProtocol
   , isIndexGroupB )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idOligoBarcodeSchemeAllowed
   , OLD.idOligoBarcodeScheme
@@ -10666,6 +13364,32 @@ $$
 
 
 --
+-- Initial audit table rows for oligobarcodescheme 
+--
+
+INSERT INTO oligobarcodescheme_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idOligoBarcodeScheme
+  , oligoBarcodeScheme
+  , description
+  , isActive )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idOligoBarcodeScheme
+  , oligoBarcodeScheme
+  , description
+  , isActive
+  FROM oligobarcodescheme
+  WHERE NOT EXISTS(SELECT * FROM oligobarcodescheme_Audit)
+$$
+
+--
 -- Audit Triggers For oligobarcodescheme 
 --
 
@@ -10682,9 +13406,9 @@ BEGIN
   , description
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idOligoBarcodeScheme
   , NEW.oligoBarcodeScheme
@@ -10706,9 +13430,9 @@ BEGIN
   , description
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idOligoBarcodeScheme
   , NEW.oligoBarcodeScheme
@@ -10730,9 +13454,9 @@ BEGIN
   , description
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idOligoBarcodeScheme
   , OLD.oligoBarcodeScheme
@@ -10762,6 +13486,36 @@ $$
 
 
 --
+-- Initial audit table rows for oligobarcode 
+--
+
+INSERT INTO oligobarcode_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idOligoBarcode
+  , name
+  , barcodeSequence
+  , idOligoBarcodeScheme
+  , sortOrder
+  , isActive )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idOligoBarcode
+  , name
+  , barcodeSequence
+  , idOligoBarcodeScheme
+  , sortOrder
+  , isActive
+  FROM oligobarcode
+  WHERE NOT EXISTS(SELECT * FROM oligobarcode_Audit)
+$$
+
+--
 -- Audit Triggers For oligobarcode 
 --
 
@@ -10780,9 +13534,9 @@ BEGIN
   , sortOrder
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idOligoBarcode
   , NEW.name
@@ -10808,9 +13562,9 @@ BEGIN
   , sortOrder
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idOligoBarcode
   , NEW.name
@@ -10836,9 +13590,9 @@ BEGIN
   , sortOrder
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idOligoBarcode
   , OLD.name
@@ -10875,6 +13629,46 @@ $$
 
 
 --
+-- Initial audit table rows for organism 
+--
+
+INSERT INTO organism_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idOrganism
+  , organism
+  , abbreviation
+  , mageOntologyCode
+  , mageOntologyDefinition
+  , isActive
+  , idAppUser
+  , das2Name
+  , sortOrder
+  , binomialName
+  , NCBITaxID )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idOrganism
+  , organism
+  , abbreviation
+  , mageOntologyCode
+  , mageOntologyDefinition
+  , isActive
+  , idAppUser
+  , das2Name
+  , sortOrder
+  , binomialName
+  , NCBITaxID
+  FROM organism
+  WHERE NOT EXISTS(SELECT * FROM organism_Audit)
+$$
+
+--
 -- Audit Triggers For organism 
 --
 
@@ -10898,9 +13692,9 @@ BEGIN
   , binomialName
   , NCBITaxID )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idOrganism
   , NEW.organism
@@ -10936,9 +13730,9 @@ BEGIN
   , binomialName
   , NCBITaxID )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idOrganism
   , NEW.organism
@@ -10974,9 +13768,9 @@ BEGIN
   , binomialName
   , NCBITaxID )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idOrganism
   , OLD.organism
@@ -11011,6 +13805,32 @@ $$
 
 
 --
+-- Initial audit table rows for otheraccountfieldsconfiguration 
+--
+
+INSERT INTO otheraccountfieldsconfiguration_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idOtherAccountFieldsConfiguration
+  , fieldName
+  , include
+  , isRequired )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idOtherAccountFieldsConfiguration
+  , fieldName
+  , include
+  , isRequired
+  FROM otheraccountfieldsconfiguration
+  WHERE NOT EXISTS(SELECT * FROM otheraccountfieldsconfiguration_Audit)
+$$
+
+--
 -- Audit Triggers For otheraccountfieldsconfiguration 
 --
 
@@ -11027,9 +13847,9 @@ BEGIN
   , include
   , isRequired )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idOtherAccountFieldsConfiguration
   , NEW.fieldName
@@ -11051,9 +13871,9 @@ BEGIN
   , include
   , isRequired )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idOtherAccountFieldsConfiguration
   , NEW.fieldName
@@ -11075,9 +13895,9 @@ BEGIN
   , include
   , isRequired )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idOtherAccountFieldsConfiguration
   , OLD.fieldName
@@ -11104,6 +13924,30 @@ $$
 
 
 --
+-- Initial audit table rows for platetype 
+--
+
+INSERT INTO platetype_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , codePlateType
+  , plateTypeDescription
+  , isActive )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , codePlateType
+  , plateTypeDescription
+  , isActive
+  FROM platetype
+  WHERE NOT EXISTS(SELECT * FROM platetype_Audit)
+$$
+
+--
 -- Audit Triggers For platetype 
 --
 
@@ -11119,9 +13963,9 @@ BEGIN
   , plateTypeDescription
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codePlateType
   , NEW.plateTypeDescription
@@ -11141,9 +13985,9 @@ BEGIN
   , plateTypeDescription
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codePlateType
   , NEW.plateTypeDescription
@@ -11163,9 +14007,9 @@ BEGIN
   , plateTypeDescription
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.codePlateType
   , OLD.plateTypeDescription
@@ -11201,6 +14045,50 @@ $$
 
 
 --
+-- Initial audit table rows for platewell 
+--
+
+INSERT INTO platewell_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idPlateWell
+  , row
+  , col
+  , ind
+  , idPlate
+  , idSample
+  , idRequest
+  , createDate
+  , codeReactionType
+  , redoFlag
+  , isControl
+  , idAssay
+  , idPrimer )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idPlateWell
+  , row
+  , col
+  , ind
+  , idPlate
+  , idSample
+  , idRequest
+  , createDate
+  , codeReactionType
+  , redoFlag
+  , isControl
+  , idAssay
+  , idPrimer
+  FROM platewell
+  WHERE NOT EXISTS(SELECT * FROM platewell_Audit)
+$$
+
+--
 -- Audit Triggers For platewell 
 --
 
@@ -11226,9 +14114,9 @@ BEGIN
   , idAssay
   , idPrimer )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idPlateWell
   , NEW.row
@@ -11268,9 +14156,9 @@ BEGIN
   , idAssay
   , idPrimer )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idPlateWell
   , NEW.row
@@ -11310,9 +14198,9 @@ BEGIN
   , idAssay
   , idPrimer )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idPlateWell
   , OLD.row
@@ -11355,6 +14243,44 @@ $$
 
 
 --
+-- Initial audit table rows for plate 
+--
+
+INSERT INTO plate_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idPlate
+  , idInstrumentRun
+  , codePlateType
+  , quadrant
+  , createDate
+  , comments
+  , label
+  , codeReactionType
+  , creator
+  , codeSealType )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idPlate
+  , idInstrumentRun
+  , codePlateType
+  , quadrant
+  , createDate
+  , comments
+  , label
+  , codeReactionType
+  , creator
+  , codeSealType
+  FROM plate
+  WHERE NOT EXISTS(SELECT * FROM plate_Audit)
+$$
+
+--
 -- Audit Triggers For plate 
 --
 
@@ -11377,9 +14303,9 @@ BEGIN
   , creator
   , codeSealType )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idPlate
   , NEW.idInstrumentRun
@@ -11413,9 +14339,9 @@ BEGIN
   , creator
   , codeSealType )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idPlate
   , NEW.idInstrumentRun
@@ -11449,9 +14375,9 @@ BEGIN
   , creator
   , codeSealType )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idPlate
   , OLD.idInstrumentRun
@@ -11483,6 +14409,28 @@ $$
 
 
 --
+-- Initial audit table rows for pricecategorystep 
+--
+
+INSERT INTO pricecategorystep_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idPriceCategory
+  , codeStep )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idPriceCategory
+  , codeStep
+  FROM pricecategorystep
+  WHERE NOT EXISTS(SELECT * FROM pricecategorystep_Audit)
+$$
+
+--
 -- Audit Triggers For pricecategorystep 
 --
 
@@ -11497,9 +14445,9 @@ BEGIN
   , idPriceCategory
   , codeStep )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idPriceCategory
   , NEW.codeStep );
@@ -11517,9 +14465,9 @@ BEGIN
   , idPriceCategory
   , codeStep )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idPriceCategory
   , NEW.codeStep );
@@ -11537,9 +14485,9 @@ BEGIN
   , idPriceCategory
   , codeStep )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idPriceCategory
   , OLD.codeStep );
@@ -11569,6 +14517,40 @@ $$
 
 
 --
+-- Initial audit table rows for pricecategory 
+--
+
+INSERT INTO pricecategory_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idPriceCategory
+  , name
+  , description
+  , codeBillingChargeKind
+  , pluginClassName
+  , dictionaryClassNameFilter1
+  , dictionaryClassNameFilter2
+  , isActive )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idPriceCategory
+  , name
+  , description
+  , codeBillingChargeKind
+  , pluginClassName
+  , dictionaryClassNameFilter1
+  , dictionaryClassNameFilter2
+  , isActive
+  FROM pricecategory
+  WHERE NOT EXISTS(SELECT * FROM pricecategory_Audit)
+$$
+
+--
 -- Audit Triggers For pricecategory 
 --
 
@@ -11589,9 +14571,9 @@ BEGIN
   , dictionaryClassNameFilter2
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idPriceCategory
   , NEW.name
@@ -11621,9 +14603,9 @@ BEGIN
   , dictionaryClassNameFilter2
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idPriceCategory
   , NEW.name
@@ -11653,9 +14635,9 @@ BEGIN
   , dictionaryClassNameFilter2
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idPriceCategory
   , OLD.name
@@ -11687,6 +14669,32 @@ $$
 
 
 --
+-- Initial audit table rows for pricecriteria 
+--
+
+INSERT INTO pricecriteria_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idPriceCriteria
+  , filter1
+  , filter2
+  , idPrice )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idPriceCriteria
+  , filter1
+  , filter2
+  , idPrice
+  FROM pricecriteria
+  WHERE NOT EXISTS(SELECT * FROM pricecriteria_Audit)
+$$
+
+--
 -- Audit Triggers For pricecriteria 
 --
 
@@ -11703,9 +14711,9 @@ BEGIN
   , filter2
   , idPrice )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idPriceCriteria
   , NEW.filter1
@@ -11727,9 +14735,9 @@ BEGIN
   , filter2
   , idPrice )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idPriceCriteria
   , NEW.filter1
@@ -11751,9 +14759,9 @@ BEGIN
   , filter2
   , idPrice )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idPriceCriteria
   , OLD.filter1
@@ -11780,6 +14788,30 @@ $$
 
 
 --
+-- Initial audit table rows for pricesheetpricecategory 
+--
+
+INSERT INTO pricesheetpricecategory_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idPriceSheet
+  , idPriceCategory
+  , sortOrder )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idPriceSheet
+  , idPriceCategory
+  , sortOrder
+  FROM pricesheetpricecategory
+  WHERE NOT EXISTS(SELECT * FROM pricesheetpricecategory_Audit)
+$$
+
+--
 -- Audit Triggers For pricesheetpricecategory 
 --
 
@@ -11795,9 +14827,9 @@ BEGIN
   , idPriceCategory
   , sortOrder )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idPriceSheet
   , NEW.idPriceCategory
@@ -11817,9 +14849,9 @@ BEGIN
   , idPriceCategory
   , sortOrder )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idPriceSheet
   , NEW.idPriceCategory
@@ -11839,9 +14871,9 @@ BEGIN
   , idPriceCategory
   , sortOrder )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idPriceSheet
   , OLD.idPriceCategory
@@ -11866,6 +14898,28 @@ $$
 
 
 --
+-- Initial audit table rows for pricesheetrequestcategory 
+--
+
+INSERT INTO pricesheetrequestcategory_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idPriceSheet
+  , codeRequestCategory )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idPriceSheet
+  , codeRequestCategory
+  FROM pricesheetrequestcategory
+  WHERE NOT EXISTS(SELECT * FROM pricesheetrequestcategory_Audit)
+$$
+
+--
 -- Audit Triggers For pricesheetrequestcategory 
 --
 
@@ -11880,9 +14934,9 @@ BEGIN
   , idPriceSheet
   , codeRequestCategory )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idPriceSheet
   , NEW.codeRequestCategory );
@@ -11900,9 +14954,9 @@ BEGIN
   , idPriceSheet
   , codeRequestCategory )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idPriceSheet
   , NEW.codeRequestCategory );
@@ -11920,9 +14974,9 @@ BEGIN
   , idPriceSheet
   , codeRequestCategory )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idPriceSheet
   , OLD.codeRequestCategory );
@@ -11948,6 +15002,32 @@ $$
 
 
 --
+-- Initial audit table rows for pricesheet 
+--
+
+INSERT INTO pricesheet_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idPriceSheet
+  , name
+  , description
+  , isActive )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idPriceSheet
+  , name
+  , description
+  , isActive
+  FROM pricesheet
+  WHERE NOT EXISTS(SELECT * FROM pricesheet_Audit)
+$$
+
+--
 -- Audit Triggers For pricesheet 
 --
 
@@ -11964,9 +15044,9 @@ BEGIN
   , description
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idPriceSheet
   , NEW.name
@@ -11988,9 +15068,9 @@ BEGIN
   , description
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idPriceSheet
   , NEW.name
@@ -12012,9 +15092,9 @@ BEGIN
   , description
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idPriceSheet
   , OLD.name
@@ -12046,6 +15126,40 @@ $$
 
 
 --
+-- Initial audit table rows for price 
+--
+
+INSERT INTO price_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idPrice
+  , name
+  , description
+  , unitPrice
+  , unitPriceExternalAcademic
+  , unitPriceExternalCommercial
+  , idPriceCategory
+  , isActive )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idPrice
+  , name
+  , description
+  , unitPrice
+  , unitPriceExternalAcademic
+  , unitPriceExternalCommercial
+  , idPriceCategory
+  , isActive
+  FROM price
+  WHERE NOT EXISTS(SELECT * FROM price_Audit)
+$$
+
+--
 -- Audit Triggers For price 
 --
 
@@ -12066,9 +15180,9 @@ BEGIN
   , idPriceCategory
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idPrice
   , NEW.name
@@ -12098,9 +15212,9 @@ BEGIN
   , idPriceCategory
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idPrice
   , NEW.name
@@ -12130,9 +15244,9 @@ BEGIN
   , idPriceCategory
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idPrice
   , OLD.name
@@ -12165,6 +15279,34 @@ $$
 
 
 --
+-- Initial audit table rows for primer 
+--
+
+INSERT INTO primer_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idPrimer
+  , name
+  , description
+  , sequence
+  , isActive )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idPrimer
+  , name
+  , description
+  , sequence
+  , isActive
+  FROM primer
+  WHERE NOT EXISTS(SELECT * FROM primer_Audit)
+$$
+
+--
 -- Audit Triggers For primer 
 --
 
@@ -12182,9 +15324,9 @@ BEGIN
   , sequence
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idPrimer
   , NEW.name
@@ -12208,9 +15350,9 @@ BEGIN
   , sequence
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idPrimer
   , NEW.name
@@ -12234,9 +15376,9 @@ BEGIN
   , sequence
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idPrimer
   , OLD.name
@@ -12269,6 +15411,40 @@ $$
 
 
 --
+-- Initial audit table rows for productledger 
+--
+
+INSERT INTO productledger_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idProductLedger
+  , idLab
+  , idProduct
+  , qty
+  , comment
+  , timeStame
+  , idProductOrder
+  , idRequest )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idProductLedger
+  , idLab
+  , idProduct
+  , qty
+  , comment
+  , timeStame
+  , idProductOrder
+  , idRequest
+  FROM productledger
+  WHERE NOT EXISTS(SELECT * FROM productledger_Audit)
+$$
+
+--
 -- Audit Triggers For productledger 
 --
 
@@ -12289,9 +15465,9 @@ BEGIN
   , idProductOrder
   , idRequest )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idProductLedger
   , NEW.idLab
@@ -12321,9 +15497,9 @@ BEGIN
   , idProductOrder
   , idRequest )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idProductLedger
   , NEW.idLab
@@ -12353,9 +15529,9 @@ BEGIN
   , idProductOrder
   , idRequest )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idProductLedger
   , OLD.idLab
@@ -12389,6 +15565,36 @@ $$
 
 
 --
+-- Initial audit table rows for productlineitem 
+--
+
+INSERT INTO productlineitem_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idProductLineItem
+  , idProductOrder
+  , idProduct
+  , qty
+  , unitPrice
+  , codeProductOrderStatus )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idProductLineItem
+  , idProductOrder
+  , idProduct
+  , qty
+  , unitPrice
+  , codeProductOrderStatus
+  FROM productlineitem
+  WHERE NOT EXISTS(SELECT * FROM productlineitem_Audit)
+$$
+
+--
 -- Audit Triggers For productlineitem 
 --
 
@@ -12407,9 +15613,9 @@ BEGIN
   , unitPrice
   , codeProductOrderStatus )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idProductLineItem
   , NEW.idProductOrder
@@ -12435,9 +15641,9 @@ BEGIN
   , unitPrice
   , codeProductOrderStatus )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idProductLineItem
   , NEW.idProductOrder
@@ -12463,9 +15669,9 @@ BEGIN
   , unitPrice
   , codeProductOrderStatus )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idProductLineItem
   , OLD.idProductOrder
@@ -12496,6 +15702,34 @@ $$
 
 
 --
+-- Initial audit table rows for productorderfile 
+--
+
+INSERT INTO productorderfile_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idProductOrderFile
+  , idProductOrder
+  , fileName
+  , fileSize
+  , createDate )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idProductOrderFile
+  , idProductOrder
+  , fileName
+  , fileSize
+  , createDate
+  FROM productorderfile
+  WHERE NOT EXISTS(SELECT * FROM productorderfile_Audit)
+$$
+
+--
 -- Audit Triggers For productorderfile 
 --
 
@@ -12513,9 +15747,9 @@ BEGIN
   , fileSize
   , createDate )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idProductOrderFile
   , NEW.idProductOrder
@@ -12539,9 +15773,9 @@ BEGIN
   , fileSize
   , createDate )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idProductOrderFile
   , NEW.idProductOrder
@@ -12565,9 +15799,9 @@ BEGIN
   , fileSize
   , createDate )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idProductOrderFile
   , OLD.idProductOrder
@@ -12595,6 +15829,30 @@ $$
 
 
 --
+-- Initial audit table rows for productorderstatus 
+--
+
+INSERT INTO productorderstatus_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , codeProductOrderStatus
+  , productOrderStatus
+  , isActive )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , codeProductOrderStatus
+  , productOrderStatus
+  , isActive
+  FROM productorderstatus
+  WHERE NOT EXISTS(SELECT * FROM productorderstatus_Audit)
+$$
+
+--
 -- Audit Triggers For productorderstatus 
 --
 
@@ -12610,9 +15868,9 @@ BEGIN
   , productOrderStatus
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeProductOrderStatus
   , NEW.productOrderStatus
@@ -12632,9 +15890,9 @@ BEGIN
   , productOrderStatus
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeProductOrderStatus
   , NEW.productOrderStatus
@@ -12654,9 +15912,9 @@ BEGIN
   , productOrderStatus
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.codeProductOrderStatus
   , OLD.productOrderStatus
@@ -12690,6 +15948,46 @@ $$
 
 
 --
+-- Initial audit table rows for productorder 
+--
+
+INSERT INTO productorder_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idProductOrder
+  , idAppUser
+  , idLab
+  , idCoreFacility
+  , submitDate
+  , codeProductType
+  , quoteNumber
+  , quoteReceivedDate
+  , uuid
+  , idBillingAccount
+  , productOrderNumber )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idProductOrder
+  , idAppUser
+  , idLab
+  , idCoreFacility
+  , submitDate
+  , codeProductType
+  , quoteNumber
+  , quoteReceivedDate
+  , uuid
+  , idBillingAccount
+  , productOrderNumber
+  FROM productorder
+  WHERE NOT EXISTS(SELECT * FROM productorder_Audit)
+$$
+
+--
 -- Audit Triggers For productorder 
 --
 
@@ -12713,9 +16011,9 @@ BEGIN
   , idBillingAccount
   , productOrderNumber )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idProductOrder
   , NEW.idAppUser
@@ -12751,9 +16049,9 @@ BEGIN
   , idBillingAccount
   , productOrderNumber )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idProductOrder
   , NEW.idAppUser
@@ -12789,9 +16087,9 @@ BEGIN
   , idBillingAccount
   , productOrderNumber )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idProductOrder
   , OLD.idAppUser
@@ -12827,6 +16125,34 @@ $$
 
 
 --
+-- Initial audit table rows for producttype 
+--
+
+INSERT INTO producttype_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , codeProductType
+  , description
+  , idCoreFacility
+  , idVendor
+  , idPriceCategory )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , codeProductType
+  , description
+  , idCoreFacility
+  , idVendor
+  , idPriceCategory
+  FROM producttype
+  WHERE NOT EXISTS(SELECT * FROM producttype_Audit)
+$$
+
+--
 -- Audit Triggers For producttype 
 --
 
@@ -12844,9 +16170,9 @@ BEGIN
   , idVendor
   , idPriceCategory )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeProductType
   , NEW.description
@@ -12870,9 +16196,9 @@ BEGIN
   , idVendor
   , idPriceCategory )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeProductType
   , NEW.description
@@ -12896,9 +16222,9 @@ BEGIN
   , idVendor
   , idPriceCategory )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.codeProductType
   , OLD.description
@@ -12931,6 +16257,40 @@ $$
 
 
 --
+-- Initial audit table rows for product 
+--
+
+INSERT INTO product_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idProduct
+  , name
+  , codeProductType
+  , idPrice
+  , orderQty
+  , useQty
+  , catalogNumber
+  , isActive )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idProduct
+  , name
+  , codeProductType
+  , idPrice
+  , orderQty
+  , useQty
+  , catalogNumber
+  , isActive
+  FROM product
+  WHERE NOT EXISTS(SELECT * FROM product_Audit)
+$$
+
+--
 -- Audit Triggers For product 
 --
 
@@ -12951,9 +16311,9 @@ BEGIN
   , catalogNumber
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idProduct
   , NEW.name
@@ -12983,9 +16343,9 @@ BEGIN
   , catalogNumber
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idProduct
   , NEW.name
@@ -13015,9 +16375,9 @@ BEGIN
   , catalogNumber
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idProduct
   , OLD.name
@@ -13052,6 +16412,38 @@ $$
 
 
 --
+-- Initial audit table rows for project 
+--
+
+INSERT INTO project_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idProject
+  , name
+  , description
+  , publicDateForAppUsers
+  , idLab
+  , idAppUser
+  , codeVisibility )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idProject
+  , name
+  , description
+  , publicDateForAppUsers
+  , idLab
+  , idAppUser
+  , codeVisibility
+  FROM project
+  WHERE NOT EXISTS(SELECT * FROM project_Audit)
+$$
+
+--
 -- Audit Triggers For project 
 --
 
@@ -13071,9 +16463,9 @@ BEGIN
   , idAppUser
   , codeVisibility )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idProject
   , NEW.name
@@ -13101,9 +16493,9 @@ BEGIN
   , idAppUser
   , codeVisibility )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idProject
   , NEW.name
@@ -13131,9 +16523,9 @@ BEGIN
   , idAppUser
   , codeVisibility )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idProject
   , OLD.name
@@ -13162,6 +16554,28 @@ $$
 
 
 --
+-- Initial audit table rows for propertyanalysistype 
+--
+
+INSERT INTO propertyanalysistype_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idProperty
+  , idAnalysisType )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idProperty
+  , idAnalysisType
+  FROM propertyanalysistype
+  WHERE NOT EXISTS(SELECT * FROM propertyanalysistype_Audit)
+$$
+
+--
 -- Audit Triggers For propertyanalysistype 
 --
 
@@ -13176,9 +16590,9 @@ BEGIN
   , idProperty
   , idAnalysisType )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idProperty
   , NEW.idAnalysisType );
@@ -13196,9 +16610,9 @@ BEGIN
   , idProperty
   , idAnalysisType )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idProperty
   , NEW.idAnalysisType );
@@ -13216,9 +16630,9 @@ BEGIN
   , idProperty
   , idAnalysisType )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idProperty
   , OLD.idAnalysisType );
@@ -13242,6 +16656,28 @@ $$
 
 
 --
+-- Initial audit table rows for propertyappuser 
+--
+
+INSERT INTO propertyappuser_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idProperty
+  , idAppUser )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idProperty
+  , idAppUser
+  FROM propertyappuser
+  WHERE NOT EXISTS(SELECT * FROM propertyappuser_Audit)
+$$
+
+--
 -- Audit Triggers For propertyappuser 
 --
 
@@ -13256,9 +16692,9 @@ BEGIN
   , idProperty
   , idAppUser )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idProperty
   , NEW.idAppUser );
@@ -13276,9 +16712,9 @@ BEGIN
   , idProperty
   , idAppUser )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idProperty
   , NEW.idAppUser );
@@ -13296,9 +16732,9 @@ BEGIN
   , idProperty
   , idAppUser )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idProperty
   , OLD.idAppUser );
@@ -13327,6 +16763,38 @@ $$
 
 
 --
+-- Initial audit table rows for propertydictionary 
+--
+
+INSERT INTO propertydictionary_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idPropertyDictionary
+  , propertyName
+  , propertyValue
+  , propertyDescription
+  , forServerOnly
+  , idCoreFacility
+  , codeRequestCategory )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idPropertyDictionary
+  , propertyName
+  , propertyValue
+  , propertyDescription
+  , forServerOnly
+  , idCoreFacility
+  , codeRequestCategory
+  FROM propertydictionary
+  WHERE NOT EXISTS(SELECT * FROM propertydictionary_Audit)
+$$
+
+--
 -- Audit Triggers For propertydictionary 
 --
 
@@ -13346,9 +16814,9 @@ BEGIN
   , idCoreFacility
   , codeRequestCategory )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idPropertyDictionary
   , NEW.propertyName
@@ -13376,9 +16844,9 @@ BEGIN
   , idCoreFacility
   , codeRequestCategory )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idPropertyDictionary
   , NEW.propertyName
@@ -13406,9 +16874,9 @@ BEGIN
   , idCoreFacility
   , codeRequestCategory )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idPropertyDictionary
   , OLD.propertyName
@@ -13437,6 +16905,28 @@ $$
 
 
 --
+-- Initial audit table rows for propertyentryoption 
+--
+
+INSERT INTO propertyentryoption_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idPropertyEntry
+  , idPropertyOption )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idPropertyEntry
+  , idPropertyOption
+  FROM propertyentryoption
+  WHERE NOT EXISTS(SELECT * FROM propertyentryoption_Audit)
+$$
+
+--
 -- Audit Triggers For propertyentryoption 
 --
 
@@ -13451,9 +16941,9 @@ BEGIN
   , idPropertyEntry
   , idPropertyOption )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idPropertyEntry
   , NEW.idPropertyOption );
@@ -13471,9 +16961,9 @@ BEGIN
   , idPropertyEntry
   , idPropertyOption )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idPropertyEntry
   , NEW.idPropertyOption );
@@ -13491,9 +16981,9 @@ BEGIN
   , idPropertyEntry
   , idPropertyOption )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idPropertyEntry
   , OLD.idPropertyOption );
@@ -13518,6 +17008,30 @@ $$
 
 
 --
+-- Initial audit table rows for propertyentryvalue 
+--
+
+INSERT INTO propertyentryvalue_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idPropertyEntryValue
+  , value
+  , idPropertyEntry )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idPropertyEntryValue
+  , value
+  , idPropertyEntry
+  FROM propertyentryvalue
+  WHERE NOT EXISTS(SELECT * FROM propertyentryvalue_Audit)
+$$
+
+--
 -- Audit Triggers For propertyentryvalue 
 --
 
@@ -13533,9 +17047,9 @@ BEGIN
   , value
   , idPropertyEntry )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idPropertyEntryValue
   , NEW.value
@@ -13555,9 +17069,9 @@ BEGIN
   , value
   , idPropertyEntry )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idPropertyEntryValue
   , NEW.value
@@ -13577,9 +17091,9 @@ BEGIN
   , value
   , idPropertyEntry )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idPropertyEntryValue
   , OLD.value
@@ -13610,6 +17124,40 @@ $$
 
 
 --
+-- Initial audit table rows for propertyentry 
+--
+
+INSERT INTO propertyentry_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idPropertyEntry
+  , idProperty
+  , idSample
+  , valueString
+  , otherLabel
+  , idDataTrack
+  , idAnalysis
+  , idRequest )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idPropertyEntry
+  , idProperty
+  , idSample
+  , valueString
+  , otherLabel
+  , idDataTrack
+  , idAnalysis
+  , idRequest
+  FROM propertyentry
+  WHERE NOT EXISTS(SELECT * FROM propertyentry_Audit)
+$$
+
+--
 -- Audit Triggers For propertyentry 
 --
 
@@ -13630,9 +17178,9 @@ BEGIN
   , idAnalysis
   , idRequest )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idPropertyEntry
   , NEW.idProperty
@@ -13662,9 +17210,9 @@ BEGIN
   , idAnalysis
   , idRequest )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idPropertyEntry
   , NEW.idProperty
@@ -13694,9 +17242,9 @@ BEGIN
   , idAnalysis
   , idRequest )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idPropertyEntry
   , OLD.idProperty
@@ -13729,6 +17277,34 @@ $$
 
 
 --
+-- Initial audit table rows for propertyoption 
+--
+
+INSERT INTO propertyoption_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idPropertyOption
+  , value
+  , idProperty
+  , sortOrder
+  , isActive )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idPropertyOption
+  , value
+  , idProperty
+  , sortOrder
+  , isActive
+  FROM propertyoption
+  WHERE NOT EXISTS(SELECT * FROM propertyoption_Audit)
+$$
+
+--
 -- Audit Triggers For propertyoption 
 --
 
@@ -13746,9 +17322,9 @@ BEGIN
   , sortOrder
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idPropertyOption
   , NEW.value
@@ -13772,9 +17348,9 @@ BEGIN
   , sortOrder
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idPropertyOption
   , NEW.value
@@ -13798,9 +17374,9 @@ BEGIN
   , sortOrder
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idPropertyOption
   , OLD.value
@@ -13827,6 +17403,28 @@ $$
 
 
 --
+-- Initial audit table rows for propertyorganism 
+--
+
+INSERT INTO propertyorganism_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idProperty
+  , idOrganism )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idProperty
+  , idOrganism
+  FROM propertyorganism
+  WHERE NOT EXISTS(SELECT * FROM propertyorganism_Audit)
+$$
+
+--
 -- Audit Triggers For propertyorganism 
 --
 
@@ -13841,9 +17439,9 @@ BEGIN
   , idProperty
   , idOrganism )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idProperty
   , NEW.idOrganism );
@@ -13861,9 +17459,9 @@ BEGIN
   , idProperty
   , idOrganism )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idProperty
   , NEW.idOrganism );
@@ -13881,9 +17479,9 @@ BEGIN
   , idProperty
   , idOrganism )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idProperty
   , OLD.idOrganism );
@@ -13909,6 +17507,32 @@ $$
 
 
 --
+-- Initial audit table rows for propertyplatformapplication 
+--
+
+INSERT INTO propertyplatformapplication_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idPlatformApplication
+  , idProperty
+  , codeRequestCategory
+  , codeApplication )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idPlatformApplication
+  , idProperty
+  , codeRequestCategory
+  , codeApplication
+  FROM propertyplatformapplication
+  WHERE NOT EXISTS(SELECT * FROM propertyplatformapplication_Audit)
+$$
+
+--
 -- Audit Triggers For propertyplatformapplication 
 --
 
@@ -13925,9 +17549,9 @@ BEGIN
   , codeRequestCategory
   , codeApplication )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idPlatformApplication
   , NEW.idProperty
@@ -13949,9 +17573,9 @@ BEGIN
   , codeRequestCategory
   , codeApplication )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idPlatformApplication
   , NEW.idProperty
@@ -13973,9 +17597,9 @@ BEGIN
   , codeRequestCategory
   , codeApplication )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idPlatformApplication
   , OLD.idProperty
@@ -14002,6 +17626,30 @@ $$
 
 
 --
+-- Initial audit table rows for propertytype 
+--
+
+INSERT INTO propertytype_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , codePropertyType
+  , name
+  , isActive )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , codePropertyType
+  , name
+  , isActive
+  FROM propertytype
+  WHERE NOT EXISTS(SELECT * FROM propertytype_Audit)
+$$
+
+--
 -- Audit Triggers For propertytype 
 --
 
@@ -14017,9 +17665,9 @@ BEGIN
   , name
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codePropertyType
   , NEW.name
@@ -14039,9 +17687,9 @@ BEGIN
   , name
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codePropertyType
   , NEW.name
@@ -14061,9 +17709,9 @@ BEGIN
   , name
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.codePropertyType
   , OLD.name
@@ -14101,6 +17749,54 @@ $$
 
 
 --
+-- Initial audit table rows for property 
+--
+
+INSERT INTO property_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idProperty
+  , name
+  , description
+  , mageOntologyCode
+  , mageOntologyDefinition
+  , isActive
+  , idAppUser
+  , isRequired
+  , forSample
+  , forAnalysis
+  , forDataTrack
+  , codePropertyType
+  , sortOrder
+  , idCoreFacility
+  , forRequest )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idProperty
+  , name
+  , description
+  , mageOntologyCode
+  , mageOntologyDefinition
+  , isActive
+  , idAppUser
+  , isRequired
+  , forSample
+  , forAnalysis
+  , forDataTrack
+  , codePropertyType
+  , sortOrder
+  , idCoreFacility
+  , forRequest
+  FROM property
+  WHERE NOT EXISTS(SELECT * FROM property_Audit)
+$$
+
+--
 -- Audit Triggers For property 
 --
 
@@ -14128,9 +17824,9 @@ BEGIN
   , idCoreFacility
   , forRequest )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idProperty
   , NEW.name
@@ -14174,9 +17870,9 @@ BEGIN
   , idCoreFacility
   , forRequest )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idProperty
   , NEW.name
@@ -14220,9 +17916,9 @@ BEGIN
   , idCoreFacility
   , forRequest )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idProperty
   , OLD.name
@@ -14260,6 +17956,30 @@ $$
 
 
 --
+-- Initial audit table rows for protocoltype 
+--
+
+INSERT INTO protocoltype_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , codeProtocolType
+  , protocolType
+  , isActive )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , codeProtocolType
+  , protocolType
+  , isActive
+  FROM protocoltype
+  WHERE NOT EXISTS(SELECT * FROM protocoltype_Audit)
+$$
+
+--
 -- Audit Triggers For protocoltype 
 --
 
@@ -14275,9 +17995,9 @@ BEGIN
   , protocolType
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeProtocolType
   , NEW.protocolType
@@ -14297,9 +18017,9 @@ BEGIN
   , protocolType
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeProtocolType
   , NEW.protocolType
@@ -14319,9 +18039,9 @@ BEGIN
   , protocolType
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.codeProtocolType
   , OLD.protocolType
@@ -14349,6 +18069,34 @@ $$
 
 
 --
+-- Initial audit table rows for qualitycontrolstepentry 
+--
+
+INSERT INTO qualitycontrolstepentry_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idQualityControlStepEntry
+  , codeQualityControlStep
+  , idProject
+  , valueString
+  , otherLabel )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idQualityControlStepEntry
+  , codeQualityControlStep
+  , idProject
+  , valueString
+  , otherLabel
+  FROM qualitycontrolstepentry
+  WHERE NOT EXISTS(SELECT * FROM qualitycontrolstepentry_Audit)
+$$
+
+--
 -- Audit Triggers For qualitycontrolstepentry 
 --
 
@@ -14366,9 +18114,9 @@ BEGIN
   , valueString
   , otherLabel )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idQualityControlStepEntry
   , NEW.codeQualityControlStep
@@ -14392,9 +18140,9 @@ BEGIN
   , valueString
   , otherLabel )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idQualityControlStepEntry
   , NEW.codeQualityControlStep
@@ -14418,9 +18166,9 @@ BEGIN
   , valueString
   , otherLabel )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idQualityControlStepEntry
   , OLD.codeQualityControlStep
@@ -14450,6 +18198,34 @@ $$
 
 
 --
+-- Initial audit table rows for qualitycontrolstep 
+--
+
+INSERT INTO qualitycontrolstep_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , codeQualityControlStep
+  , qualityControlStep
+  , mageOntologyCode
+  , mageOntologyDefinition
+  , isActive )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , codeQualityControlStep
+  , qualityControlStep
+  , mageOntologyCode
+  , mageOntologyDefinition
+  , isActive
+  FROM qualitycontrolstep
+  WHERE NOT EXISTS(SELECT * FROM qualitycontrolstep_Audit)
+$$
+
+--
 -- Audit Triggers For qualitycontrolstep 
 --
 
@@ -14467,9 +18243,9 @@ BEGIN
   , mageOntologyDefinition
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeQualityControlStep
   , NEW.qualityControlStep
@@ -14493,9 +18269,9 @@ BEGIN
   , mageOntologyDefinition
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeQualityControlStep
   , NEW.qualityControlStep
@@ -14519,9 +18295,9 @@ BEGIN
   , mageOntologyDefinition
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.codeQualityControlStep
   , OLD.qualityControlStep
@@ -14549,6 +18325,30 @@ $$
 
 
 --
+-- Initial audit table rows for reactiontype 
+--
+
+INSERT INTO reactiontype_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , codeReactionType
+  , reactionType
+  , isActive )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , codeReactionType
+  , reactionType
+  , isActive
+  FROM reactiontype
+  WHERE NOT EXISTS(SELECT * FROM reactiontype_Audit)
+$$
+
+--
 -- Audit Triggers For reactiontype 
 --
 
@@ -14564,9 +18364,9 @@ BEGIN
   , reactionType
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeReactionType
   , NEW.reactionType
@@ -14586,9 +18386,9 @@ BEGIN
   , reactionType
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeReactionType
   , NEW.reactionType
@@ -14608,9 +18408,9 @@ BEGIN
   , reactionType
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.codeReactionType
   , OLD.reactionType
@@ -14639,6 +18439,36 @@ $$
 
 
 --
+-- Initial audit table rows for requestcategoryapplication 
+--
+
+INSERT INTO requestcategoryapplication_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , codeRequestCategory
+  , codeApplication
+  , idLabelingProtocolDefault
+  , idHybProtocolDefault
+  , idScanProtocolDefault
+  , idFeatureExtractionProtocolDefault )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , codeRequestCategory
+  , codeApplication
+  , idLabelingProtocolDefault
+  , idHybProtocolDefault
+  , idScanProtocolDefault
+  , idFeatureExtractionProtocolDefault
+  FROM requestcategoryapplication
+  WHERE NOT EXISTS(SELECT * FROM requestcategoryapplication_Audit)
+$$
+
+--
 -- Audit Triggers For requestcategoryapplication 
 --
 
@@ -14657,9 +18487,9 @@ BEGIN
   , idScanProtocolDefault
   , idFeatureExtractionProtocolDefault )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeRequestCategory
   , NEW.codeApplication
@@ -14685,9 +18515,9 @@ BEGIN
   , idScanProtocolDefault
   , idFeatureExtractionProtocolDefault )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeRequestCategory
   , NEW.codeApplication
@@ -14713,9 +18543,9 @@ BEGIN
   , idScanProtocolDefault
   , idFeatureExtractionProtocolDefault )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.codeRequestCategory
   , OLD.codeApplication
@@ -14746,6 +18576,34 @@ $$
 
 
 --
+-- Initial audit table rows for requestcategorytype 
+--
+
+INSERT INTO requestcategorytype_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , codeRequestCategoryType
+  , description
+  , defaultIcon
+  , isIllumina
+  , hasChannels )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , codeRequestCategoryType
+  , description
+  , defaultIcon
+  , isIllumina
+  , hasChannels
+  FROM requestcategorytype
+  WHERE NOT EXISTS(SELECT * FROM requestcategorytype_Audit)
+$$
+
+--
 -- Audit Triggers For requestcategorytype 
 --
 
@@ -14763,9 +18621,9 @@ BEGIN
   , isIllumina
   , hasChannels )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeRequestCategoryType
   , NEW.description
@@ -14789,9 +18647,9 @@ BEGIN
   , isIllumina
   , hasChannels )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeRequestCategoryType
   , NEW.description
@@ -14815,9 +18673,9 @@ BEGIN
   , isIllumina
   , hasChannels )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.codeRequestCategoryType
   , OLD.description
@@ -14861,6 +18719,62 @@ $$
 
 
 --
+-- Initial audit table rows for requestcategory 
+--
+
+INSERT INTO requestcategory_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , codeRequestCategory
+  , requestCategory
+  , idVendor
+  , isActive
+  , numberOfChannels
+  , notes
+  , icon
+  , type
+  , sortOrder
+  , idOrganism
+  , idCoreFacility
+  , isInternal
+  , isExternal
+  , refrainFromAutoDelete
+  , isClinicalResearch
+  , isOwnerOnly
+  , sampleBatchSize
+  , codeProductType
+  , associatedWithAnalysis )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , codeRequestCategory
+  , requestCategory
+  , idVendor
+  , isActive
+  , numberOfChannels
+  , notes
+  , icon
+  , type
+  , sortOrder
+  , idOrganism
+  , idCoreFacility
+  , isInternal
+  , isExternal
+  , refrainFromAutoDelete
+  , isClinicalResearch
+  , isOwnerOnly
+  , sampleBatchSize
+  , codeProductType
+  , associatedWithAnalysis
+  FROM requestcategory
+  WHERE NOT EXISTS(SELECT * FROM requestcategory_Audit)
+$$
+
+--
 -- Audit Triggers For requestcategory 
 --
 
@@ -14892,9 +18806,9 @@ BEGIN
   , codeProductType
   , associatedWithAnalysis )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeRequestCategory
   , NEW.requestCategory
@@ -14946,9 +18860,9 @@ BEGIN
   , codeProductType
   , associatedWithAnalysis )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeRequestCategory
   , NEW.requestCategory
@@ -15000,9 +18914,9 @@ BEGIN
   , codeProductType
   , associatedWithAnalysis )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.codeRequestCategory
   , OLD.requestCategory
@@ -15045,6 +18959,32 @@ $$
 
 
 --
+-- Initial audit table rows for requestcollaborator 
+--
+
+INSERT INTO requestcollaborator_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idRequest
+  , idAppUser
+  , canUploadData
+  , canUpdate )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idRequest
+  , idAppUser
+  , canUploadData
+  , canUpdate
+  FROM requestcollaborator
+  WHERE NOT EXISTS(SELECT * FROM requestcollaborator_Audit)
+$$
+
+--
 -- Audit Triggers For requestcollaborator 
 --
 
@@ -15061,9 +19001,9 @@ BEGIN
   , canUploadData
   , canUpdate )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idRequest
   , NEW.idAppUser
@@ -15085,9 +19025,9 @@ BEGIN
   , canUploadData
   , canUpdate )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idRequest
   , NEW.idAppUser
@@ -15109,9 +19049,9 @@ BEGIN
   , canUploadData
   , canUpdate )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idRequest
   , OLD.idAppUser
@@ -15137,6 +19077,28 @@ $$
 
 
 --
+-- Initial audit table rows for requesthybridization 
+--
+
+INSERT INTO requesthybridization_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idRequest
+  , idHybridization )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idRequest
+  , idHybridization
+  FROM requesthybridization
+  WHERE NOT EXISTS(SELECT * FROM requesthybridization_Audit)
+$$
+
+--
 -- Audit Triggers For requesthybridization 
 --
 
@@ -15151,9 +19113,9 @@ BEGIN
   , idRequest
   , idHybridization )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idRequest
   , NEW.idHybridization );
@@ -15171,9 +19133,9 @@ BEGIN
   , idRequest
   , idHybridization )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idRequest
   , NEW.idHybridization );
@@ -15191,9 +19153,9 @@ BEGIN
   , idRequest
   , idHybridization )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idRequest
   , OLD.idHybridization );
@@ -15217,6 +19179,28 @@ $$
 
 
 --
+-- Initial audit table rows for requestseqlibtreatment 
+--
+
+INSERT INTO requestseqlibtreatment_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idRequest
+  , idSeqLibTreatment )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idRequest
+  , idSeqLibTreatment
+  FROM requestseqlibtreatment
+  WHERE NOT EXISTS(SELECT * FROM requestseqlibtreatment_Audit)
+$$
+
+--
 -- Audit Triggers For requestseqlibtreatment 
 --
 
@@ -15231,9 +19215,9 @@ BEGIN
   , idRequest
   , idSeqLibTreatment )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idRequest
   , NEW.idSeqLibTreatment );
@@ -15251,9 +19235,9 @@ BEGIN
   , idRequest
   , idSeqLibTreatment )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idRequest
   , NEW.idSeqLibTreatment );
@@ -15271,9 +19255,9 @@ BEGIN
   , idRequest
   , idSeqLibTreatment )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idRequest
   , OLD.idSeqLibTreatment );
@@ -15298,6 +19282,30 @@ $$
 
 
 --
+-- Initial audit table rows for requeststatus 
+--
+
+INSERT INTO requeststatus_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , codeRequestStatus
+  , requestStatus
+  , isActive )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , codeRequestStatus
+  , requestStatus
+  , isActive
+  FROM requeststatus
+  WHERE NOT EXISTS(SELECT * FROM requeststatus_Audit)
+$$
+
+--
 -- Audit Triggers For requeststatus 
 --
 
@@ -15313,9 +19321,9 @@ BEGIN
   , requestStatus
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeRequestStatus
   , NEW.requestStatus
@@ -15335,9 +19343,9 @@ BEGIN
   , requestStatus
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeRequestStatus
   , NEW.requestStatus
@@ -15357,9 +19365,9 @@ BEGIN
   , requestStatus
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.codeRequestStatus
   , OLD.requestStatus
@@ -15384,6 +19392,28 @@ $$
 
 
 --
+-- Initial audit table rows for requesttotopic 
+--
+
+INSERT INTO requesttotopic_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idTopic
+  , idRequest )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idTopic
+  , idRequest
+  FROM requesttotopic
+  WHERE NOT EXISTS(SELECT * FROM requesttotopic_Audit)
+$$
+
+--
 -- Audit Triggers For requesttotopic 
 --
 
@@ -15398,9 +19428,9 @@ BEGIN
   , idTopic
   , idRequest )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idTopic
   , NEW.idRequest );
@@ -15418,9 +19448,9 @@ BEGIN
   , idTopic
   , idRequest )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idTopic
   , NEW.idRequest );
@@ -15438,9 +19468,9 @@ BEGIN
   , idTopic
   , idRequest )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idTopic
   , OLD.idRequest );
@@ -15498,18 +19528,136 @@ CREATE TABLE IF NOT EXISTS `request_Audit` (
  ,`coreToExtractDNA`  char(1)  NULL DEFAULT NULL
  ,`applicationNotes`  varchar(5000)  NULL DEFAULT NULL
  ,`processingDate`  datetime  NULL DEFAULT NULL
- ,`codeDNAPrepType`  varchar(10)  NULL DEFAULT NULL
+ ,`codeIsolationPrepType`  varchar(15)  NULL DEFAULT NULL
  ,`bioinformaticsAssist`  char(1)  NULL DEFAULT NULL
  ,`hasPrePooledLibraries`  char(1)  NULL DEFAULT NULL
  ,`numPrePooledTubes`  int(10)  NULL DEFAULT NULL
- ,`codeRNAPrepType`  varchar(10)  NULL DEFAULT NULL
  ,`includeBisulfideConversion`  char(1)  NULL DEFAULT NULL
  ,`includeQubitConcentration`  char(1)  NULL DEFAULT NULL
  ,`alignToGenomeBuild`  char(1)  NULL DEFAULT NULL
  ,`adminNotes`  varchar(5000)  NULL DEFAULT NULL
+ ,`idProduct`  int(10)  NULL DEFAULT NULL
 ) ENGINE=InnoDB
 $$
 
+
+--
+-- Initial audit table rows for request 
+--
+
+INSERT INTO request_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idRequest
+  , number
+  , createDate
+  , codeProtocolType
+  , protocolNumber
+  , idLab
+  , idAppUser
+  , idBillingAccount
+  , codeRequestCategory
+  , codeApplication
+  , idProject
+  , idSlideProduct
+  , idSampleTypeDefault
+  , idOrganismSampleDefault
+  , idSampleSourceDefault
+  , idSamplePrepMethodDefault
+  , codeBioanalyzerChipType
+  , notes
+  , completedDate
+  , isArrayINFORequest
+  , codeVisibility
+  , lastModifyDate
+  , isExternal
+  , idInstitution
+  , idCoreFacility
+  , name
+  , privacyExpirationDate
+  , description
+  , corePrepInstructions
+  , analysisInstructions
+  , captureLibDesignId
+  , avgInsertSizeFrom
+  , avgInsertSizeTo
+  , idSampleDropOffLocation
+  , codeRequestStatus
+  , idSubmitter
+  , numberIScanChips
+  , idIScanChip
+  , coreToExtractDNA
+  , applicationNotes
+  , processingDate
+  , codeIsolationPrepType
+  , bioinformaticsAssist
+  , hasPrePooledLibraries
+  , numPrePooledTubes
+  , includeBisulfideConversion
+  , includeQubitConcentration
+  , alignToGenomeBuild
+  , adminNotes
+  , idProduct )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idRequest
+  , number
+  , createDate
+  , codeProtocolType
+  , protocolNumber
+  , idLab
+  , idAppUser
+  , idBillingAccount
+  , codeRequestCategory
+  , codeApplication
+  , idProject
+  , idSlideProduct
+  , idSampleTypeDefault
+  , idOrganismSampleDefault
+  , idSampleSourceDefault
+  , idSamplePrepMethodDefault
+  , codeBioanalyzerChipType
+  , notes
+  , completedDate
+  , isArrayINFORequest
+  , codeVisibility
+  , lastModifyDate
+  , isExternal
+  , idInstitution
+  , idCoreFacility
+  , name
+  , privacyExpirationDate
+  , description
+  , corePrepInstructions
+  , analysisInstructions
+  , captureLibDesignId
+  , avgInsertSizeFrom
+  , avgInsertSizeTo
+  , idSampleDropOffLocation
+  , codeRequestStatus
+  , idSubmitter
+  , numberIScanChips
+  , idIScanChip
+  , coreToExtractDNA
+  , applicationNotes
+  , processingDate
+  , codeIsolationPrepType
+  , bioinformaticsAssist
+  , hasPrePooledLibraries
+  , numPrePooledTubes
+  , includeBisulfideConversion
+  , includeQubitConcentration
+  , alignToGenomeBuild
+  , adminNotes
+  , idProduct
+  FROM request
+  WHERE NOT EXISTS(SELECT * FROM request_Audit)
+$$
 
 --
 -- Audit Triggers For request 
@@ -15564,19 +19712,19 @@ BEGIN
   , coreToExtractDNA
   , applicationNotes
   , processingDate
-  , codeDNAPrepType
+  , codeIsolationPrepType
   , bioinformaticsAssist
   , hasPrePooledLibraries
   , numPrePooledTubes
-  , codeRNAPrepType
   , includeBisulfideConversion
   , includeQubitConcentration
   , alignToGenomeBuild
-  , adminNotes )
+  , adminNotes
+  , idProduct )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idRequest
   , NEW.number
@@ -15619,15 +19767,15 @@ BEGIN
   , NEW.coreToExtractDNA
   , NEW.applicationNotes
   , NEW.processingDate
-  , NEW.codeDNAPrepType
+  , NEW.codeIsolationPrepType
   , NEW.bioinformaticsAssist
   , NEW.hasPrePooledLibraries
   , NEW.numPrePooledTubes
-  , NEW.codeRNAPrepType
   , NEW.includeBisulfideConversion
   , NEW.includeQubitConcentration
   , NEW.alignToGenomeBuild
-  , NEW.adminNotes );
+  , NEW.adminNotes
+  , NEW.idProduct );
 END;
 $$
 
@@ -15680,19 +19828,19 @@ BEGIN
   , coreToExtractDNA
   , applicationNotes
   , processingDate
-  , codeDNAPrepType
+  , codeIsolationPrepType
   , bioinformaticsAssist
   , hasPrePooledLibraries
   , numPrePooledTubes
-  , codeRNAPrepType
   , includeBisulfideConversion
   , includeQubitConcentration
   , alignToGenomeBuild
-  , adminNotes )
+  , adminNotes
+  , idProduct )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idRequest
   , NEW.number
@@ -15735,15 +19883,15 @@ BEGIN
   , NEW.coreToExtractDNA
   , NEW.applicationNotes
   , NEW.processingDate
-  , NEW.codeDNAPrepType
+  , NEW.codeIsolationPrepType
   , NEW.bioinformaticsAssist
   , NEW.hasPrePooledLibraries
   , NEW.numPrePooledTubes
-  , NEW.codeRNAPrepType
   , NEW.includeBisulfideConversion
   , NEW.includeQubitConcentration
   , NEW.alignToGenomeBuild
-  , NEW.adminNotes );
+  , NEW.adminNotes
+  , NEW.idProduct );
 END;
 $$
 
@@ -15796,19 +19944,19 @@ BEGIN
   , coreToExtractDNA
   , applicationNotes
   , processingDate
-  , codeDNAPrepType
+  , codeIsolationPrepType
   , bioinformaticsAssist
   , hasPrePooledLibraries
   , numPrePooledTubes
-  , codeRNAPrepType
   , includeBisulfideConversion
   , includeQubitConcentration
   , alignToGenomeBuild
-  , adminNotes )
+  , adminNotes
+  , idProduct )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idRequest
   , OLD.number
@@ -15851,102 +19999,15 @@ BEGIN
   , OLD.coreToExtractDNA
   , OLD.applicationNotes
   , OLD.processingDate
-  , OLD.codeDNAPrepType
+  , OLD.codeIsolationPrepType
   , OLD.bioinformaticsAssist
   , OLD.hasPrePooledLibraries
   , OLD.numPrePooledTubes
-  , OLD.codeRNAPrepType
   , OLD.includeBisulfideConversion
   , OLD.includeQubitConcentration
   , OLD.alignToGenomeBuild
-  , OLD.adminNotes );
-END;
-$$
-
-
---
--- Audit Table For rnapreptype 
---
-
-CREATE TABLE IF NOT EXISTS `rnapreptype_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
- ,`codeRNAPrepType`  varchar(10)  NULL DEFAULT NULL
- ,`rnaPrepType`  varchar(100)  NULL DEFAULT NULL
- ,`isActive`  char(1)  NULL DEFAULT NULL
-) ENGINE=InnoDB
-$$
-
-
---
--- Audit Triggers For rnapreptype 
---
-
-
-CREATE TRIGGER TrAI_rnapreptype_FER AFTER INSERT ON rnapreptype FOR EACH ROW
-BEGIN
-  INSERT INTO rnapreptype_Audit
-  ( AuditAppuser
-  , AuditOperation
-  , AuditSystemUser
-  , AuditOperationDate
-  , codeRNAPrepType
-  , rnaPrepType
-  , isActive )
-  VALUES
-  ( USER()
-  , 'I'
-  , CURRENT_USER()
-  , NOW()
-  , NEW.codeRNAPrepType
-  , NEW.rnaPrepType
-  , NEW.isActive );
-END;
-$$
-
-
-CREATE TRIGGER TrAU_rnapreptype_FER AFTER UPDATE ON rnapreptype FOR EACH ROW
-BEGIN
-  INSERT INTO rnapreptype_Audit
-  ( AuditAppuser
-  , AuditOperation
-  , AuditSystemUser
-  , AuditOperationDate
-  , codeRNAPrepType
-  , rnaPrepType
-  , isActive )
-  VALUES
-  ( USER()
-  , 'U'
-  , CURRENT_USER()
-  , NOW()
-  , NEW.codeRNAPrepType
-  , NEW.rnaPrepType
-  , NEW.isActive );
-END;
-$$
-
-
-CREATE TRIGGER TrAD_rnapreptype_FER AFTER DELETE ON rnapreptype FOR EACH ROW
-BEGIN
-  INSERT INTO rnapreptype_Audit
-  ( AuditAppuser
-  , AuditOperation
-  , AuditSystemUser
-  , AuditOperationDate
-  , codeRNAPrepType
-  , rnaPrepType
-  , isActive )
-  VALUES
-  ( USER()
-  , 'D'
-  , CURRENT_USER()
-  , NOW()
-  , OLD.codeRNAPrepType
-  , OLD.rnaPrepType
-  , OLD.isActive );
+  , OLD.adminNotes
+  , OLD.idProduct );
 END;
 $$
 
@@ -15968,6 +20029,30 @@ $$
 
 
 --
+-- Initial audit table rows for sampledropofflocation 
+--
+
+INSERT INTO sampledropofflocation_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idSampleDropOffLocation
+  , sampleDropOffLocation
+  , isActive )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idSampleDropOffLocation
+  , sampleDropOffLocation
+  , isActive
+  FROM sampledropofflocation
+  WHERE NOT EXISTS(SELECT * FROM sampledropofflocation_Audit)
+$$
+
+--
 -- Audit Triggers For sampledropofflocation 
 --
 
@@ -15983,9 +20068,9 @@ BEGIN
   , sampleDropOffLocation
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idSampleDropOffLocation
   , NEW.sampleDropOffLocation
@@ -16005,9 +20090,9 @@ BEGIN
   , sampleDropOffLocation
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idSampleDropOffLocation
   , NEW.sampleDropOffLocation
@@ -16027,9 +20112,9 @@ BEGIN
   , sampleDropOffLocation
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idSampleDropOffLocation
   , OLD.sampleDropOffLocation
@@ -16057,6 +20142,34 @@ $$
 
 
 --
+-- Initial audit table rows for sampleexperimentfile 
+--
+
+INSERT INTO sampleexperimentfile_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idSampleExperimentFile
+  , idSample
+  , idExpFileRead1
+  , idExpFileRead2
+  , seqRunNumber )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idSampleExperimentFile
+  , idSample
+  , idExpFileRead1
+  , idExpFileRead2
+  , seqRunNumber
+  FROM sampleexperimentfile
+  WHERE NOT EXISTS(SELECT * FROM sampleexperimentfile_Audit)
+$$
+
+--
 -- Audit Triggers For sampleexperimentfile 
 --
 
@@ -16074,9 +20187,9 @@ BEGIN
   , idExpFileRead2
   , seqRunNumber )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idSampleExperimentFile
   , NEW.idSample
@@ -16100,9 +20213,9 @@ BEGIN
   , idExpFileRead2
   , seqRunNumber )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idSampleExperimentFile
   , NEW.idSample
@@ -16126,9 +20239,9 @@ BEGIN
   , idExpFileRead2
   , seqRunNumber )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idSampleExperimentFile
   , OLD.idSample
@@ -16155,6 +20268,28 @@ $$
 
 
 --
+-- Initial audit table rows for samplefiletype 
+--
+
+INSERT INTO samplefiletype_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , codeSampleFileType
+  , description )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , codeSampleFileType
+  , description
+  FROM samplefiletype
+  WHERE NOT EXISTS(SELECT * FROM samplefiletype_Audit)
+$$
+
+--
 -- Audit Triggers For samplefiletype 
 --
 
@@ -16169,9 +20304,9 @@ BEGIN
   , codeSampleFileType
   , description )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeSampleFileType
   , NEW.description );
@@ -16189,9 +20324,9 @@ BEGIN
   , codeSampleFileType
   , description )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeSampleFileType
   , NEW.description );
@@ -16209,9 +20344,9 @@ BEGIN
   , codeSampleFileType
   , description )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.codeSampleFileType
   , OLD.description );
@@ -16236,6 +20371,30 @@ $$
 
 
 --
+-- Initial audit table rows for sampleprepmethod 
+--
+
+INSERT INTO sampleprepmethod_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idSamplePrepMethod
+  , samplePrepMethod
+  , isActive )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idSamplePrepMethod
+  , samplePrepMethod
+  , isActive
+  FROM sampleprepmethod
+  WHERE NOT EXISTS(SELECT * FROM sampleprepmethod_Audit)
+$$
+
+--
 -- Audit Triggers For sampleprepmethod 
 --
 
@@ -16251,9 +20410,9 @@ BEGIN
   , samplePrepMethod
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idSamplePrepMethod
   , NEW.samplePrepMethod
@@ -16273,9 +20432,9 @@ BEGIN
   , samplePrepMethod
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idSamplePrepMethod
   , NEW.samplePrepMethod
@@ -16295,9 +20454,9 @@ BEGIN
   , samplePrepMethod
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idSamplePrepMethod
   , OLD.samplePrepMethod
@@ -16323,6 +20482,30 @@ $$
 
 
 --
+-- Initial audit table rows for samplesource 
+--
+
+INSERT INTO samplesource_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idSampleSource
+  , sampleSource
+  , isActive )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idSampleSource
+  , sampleSource
+  , isActive
+  FROM samplesource
+  WHERE NOT EXISTS(SELECT * FROM samplesource_Audit)
+$$
+
+--
 -- Audit Triggers For samplesource 
 --
 
@@ -16338,9 +20521,9 @@ BEGIN
   , sampleSource
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idSampleSource
   , NEW.sampleSource
@@ -16360,9 +20543,9 @@ BEGIN
   , sampleSource
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idSampleSource
   , NEW.sampleSource
@@ -16382,9 +20565,9 @@ BEGIN
   , sampleSource
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idSampleSource
   , OLD.sampleSource
@@ -16410,6 +20593,30 @@ $$
 
 
 --
+-- Initial audit table rows for sampletyperequestcategory 
+--
+
+INSERT INTO sampletyperequestcategory_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idSampleTypeRequestCategory
+  , idSampleType
+  , codeRequestCategory )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idSampleTypeRequestCategory
+  , idSampleType
+  , codeRequestCategory
+  FROM sampletyperequestcategory
+  WHERE NOT EXISTS(SELECT * FROM sampletyperequestcategory_Audit)
+$$
+
+--
 -- Audit Triggers For sampletyperequestcategory 
 --
 
@@ -16425,9 +20632,9 @@ BEGIN
   , idSampleType
   , codeRequestCategory )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idSampleTypeRequestCategory
   , NEW.idSampleType
@@ -16447,9 +20654,9 @@ BEGIN
   , idSampleType
   , codeRequestCategory )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idSampleTypeRequestCategory
   , NEW.idSampleType
@@ -16469,9 +20676,9 @@ BEGIN
   , idSampleType
   , codeRequestCategory )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idSampleTypeRequestCategory
   , OLD.idSampleType
@@ -16501,6 +20708,38 @@ $$
 
 
 --
+-- Initial audit table rows for sampletype 
+--
+
+INSERT INTO sampletype_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idSampleType
+  , sampleType
+  , sortOrder
+  , isActive
+  , codeNucleotideType
+  , notes
+  , idCoreFacility )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idSampleType
+  , sampleType
+  , sortOrder
+  , isActive
+  , codeNucleotideType
+  , notes
+  , idCoreFacility
+  FROM sampletype
+  WHERE NOT EXISTS(SELECT * FROM sampletype_Audit)
+$$
+
+--
 -- Audit Triggers For sampletype 
 --
 
@@ -16520,9 +20759,9 @@ BEGIN
   , notes
   , idCoreFacility )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idSampleType
   , NEW.sampleType
@@ -16550,9 +20789,9 @@ BEGIN
   , notes
   , idCoreFacility )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idSampleType
   , NEW.sampleType
@@ -16580,9 +20819,9 @@ BEGIN
   , notes
   , idCoreFacility )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idSampleType
   , OLD.sampleType
@@ -16660,6 +20899,126 @@ $$
 
 
 --
+-- Initial audit table rows for sample 
+--
+
+INSERT INTO sample_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idSample
+  , number
+  , name
+  , description
+  , concentration
+  , codeConcentrationUnit
+  , idSampleType
+  , idOrganism
+  , otherOrganism
+  , idSampleSource
+  , idSamplePrepMethod
+  , otherSamplePrepMethod
+  , idSeqLibProtocol
+  , codeBioanalyzerChipType
+  , idOligoBarcode
+  , qualDate
+  , qualFailed
+  , qualBypassed
+  , qual260nmTo280nmRatio
+  , qual260nmTo230nmRatio
+  , qualCalcConcentration
+  , qual28sTo18sRibosomalRatio
+  , qualRINNumber
+  , idRequest
+  , fragmentSizeFrom
+  , fragmentSizeTo
+  , seqPrepByCore
+  , seqPrepDate
+  , seqPrepFailed
+  , seqPrepBypassed
+  , qualFragmentSizeFrom
+  , qualFragmentSizeTo
+  , seqPrepLibConcentration
+  , seqPrepQualCodeBioanalyzerChipType
+  , seqPrepGelFragmentSizeFrom
+  , seqPrepGelFragmentSizeTo
+  , seqPrepStockLibVol
+  , seqPrepStockEBVol
+  , seqPrepStockDate
+  , seqPrepStockFailed
+  , seqPrepStockBypassed
+  , prepInstructions
+  , ccNumber
+  , multiplexGroupNumber
+  , barcodeSequence
+  , meanLibSizeActual
+  , idOligoBarcodeB
+  , barcodeSequenceB
+  , qubitConcentration
+  , groupName
+  , qcCodeApplication )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idSample
+  , number
+  , name
+  , description
+  , concentration
+  , codeConcentrationUnit
+  , idSampleType
+  , idOrganism
+  , otherOrganism
+  , idSampleSource
+  , idSamplePrepMethod
+  , otherSamplePrepMethod
+  , idSeqLibProtocol
+  , codeBioanalyzerChipType
+  , idOligoBarcode
+  , qualDate
+  , qualFailed
+  , qualBypassed
+  , qual260nmTo280nmRatio
+  , qual260nmTo230nmRatio
+  , qualCalcConcentration
+  , qual28sTo18sRibosomalRatio
+  , qualRINNumber
+  , idRequest
+  , fragmentSizeFrom
+  , fragmentSizeTo
+  , seqPrepByCore
+  , seqPrepDate
+  , seqPrepFailed
+  , seqPrepBypassed
+  , qualFragmentSizeFrom
+  , qualFragmentSizeTo
+  , seqPrepLibConcentration
+  , seqPrepQualCodeBioanalyzerChipType
+  , seqPrepGelFragmentSizeFrom
+  , seqPrepGelFragmentSizeTo
+  , seqPrepStockLibVol
+  , seqPrepStockEBVol
+  , seqPrepStockDate
+  , seqPrepStockFailed
+  , seqPrepStockBypassed
+  , prepInstructions
+  , ccNumber
+  , multiplexGroupNumber
+  , barcodeSequence
+  , meanLibSizeActual
+  , idOligoBarcodeB
+  , barcodeSequenceB
+  , qubitConcentration
+  , groupName
+  , qcCodeApplication
+  FROM sample
+  WHERE NOT EXISTS(SELECT * FROM sample_Audit)
+$$
+
+--
 -- Audit Triggers For sample 
 --
 
@@ -16723,9 +21082,9 @@ BEGIN
   , groupName
   , qcCodeApplication )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idSample
   , NEW.number
@@ -16841,9 +21200,9 @@ BEGIN
   , groupName
   , qcCodeApplication )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idSample
   , NEW.number
@@ -16959,9 +21318,9 @@ BEGIN
   , groupName
   , qcCodeApplication )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idSample
   , OLD.number
@@ -17038,6 +21397,36 @@ $$
 
 
 --
+-- Initial audit table rows for scanprotocol 
+--
+
+INSERT INTO scanprotocol_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idScanProtocol
+  , scanProtocol
+  , description
+  , codeRequestCategory
+  , url
+  , isActive )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idScanProtocol
+  , scanProtocol
+  , description
+  , codeRequestCategory
+  , url
+  , isActive
+  FROM scanprotocol
+  WHERE NOT EXISTS(SELECT * FROM scanprotocol_Audit)
+$$
+
+--
 -- Audit Triggers For scanprotocol 
 --
 
@@ -17056,9 +21445,9 @@ BEGIN
   , url
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idScanProtocol
   , NEW.scanProtocol
@@ -17084,9 +21473,9 @@ BEGIN
   , url
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idScanProtocol
   , NEW.scanProtocol
@@ -17112,9 +21501,9 @@ BEGIN
   , url
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idScanProtocol
   , OLD.scanProtocol
@@ -17143,6 +21532,30 @@ $$
 
 
 --
+-- Initial audit table rows for sealtype 
+--
+
+INSERT INTO sealtype_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , codeSealType
+  , sealType
+  , isActive )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , codeSealType
+  , sealType
+  , isActive
+  FROM sealtype
+  WHERE NOT EXISTS(SELECT * FROM sealtype_Audit)
+$$
+
+--
 -- Audit Triggers For sealtype 
 --
 
@@ -17158,9 +21571,9 @@ BEGIN
   , sealType
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeSealType
   , NEW.sealType
@@ -17180,9 +21593,9 @@ BEGIN
   , sealType
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeSealType
   , NEW.sealType
@@ -17202,9 +21615,9 @@ BEGIN
   , sealType
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.codeSealType
   , OLD.sealType
@@ -17232,6 +21645,34 @@ $$
 
 
 --
+-- Initial audit table rows for segment 
+--
+
+INSERT INTO segment_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idSegment
+  , length
+  , name
+  , idGenomeBuild
+  , sortOrder )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idSegment
+  , length
+  , name
+  , idGenomeBuild
+  , sortOrder
+  FROM segment
+  WHERE NOT EXISTS(SELECT * FROM segment_Audit)
+$$
+
+--
 -- Audit Triggers For segment 
 --
 
@@ -17249,9 +21690,9 @@ BEGIN
   , idGenomeBuild
   , sortOrder )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idSegment
   , NEW.length
@@ -17275,9 +21716,9 @@ BEGIN
   , idGenomeBuild
   , sortOrder )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idSegment
   , NEW.length
@@ -17301,9 +21742,9 @@ BEGIN
   , idGenomeBuild
   , sortOrder )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idSegment
   , OLD.length
@@ -17330,6 +21771,28 @@ $$
 
 
 --
+-- Initial audit table rows for seqlibprotocolapplication 
+--
+
+INSERT INTO seqlibprotocolapplication_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idSeqLibProtocol
+  , codeApplication )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idSeqLibProtocol
+  , codeApplication
+  FROM seqlibprotocolapplication
+  WHERE NOT EXISTS(SELECT * FROM seqlibprotocolapplication_Audit)
+$$
+
+--
 -- Audit Triggers For seqlibprotocolapplication 
 --
 
@@ -17344,9 +21807,9 @@ BEGIN
   , idSeqLibProtocol
   , codeApplication )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idSeqLibProtocol
   , NEW.codeApplication );
@@ -17364,9 +21827,9 @@ BEGIN
   , idSeqLibProtocol
   , codeApplication )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idSeqLibProtocol
   , NEW.codeApplication );
@@ -17384,9 +21847,9 @@ BEGIN
   , idSeqLibProtocol
   , codeApplication )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idSeqLibProtocol
   , OLD.codeApplication );
@@ -17415,6 +21878,38 @@ $$
 
 
 --
+-- Initial audit table rows for seqlibprotocol 
+--
+
+INSERT INTO seqlibprotocol_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idSeqLibProtocol
+  , seqLibProtocol
+  , description
+  , url
+  , isActive
+  , adapterSequenceRead1
+  , adapterSequenceRead2 )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idSeqLibProtocol
+  , seqLibProtocol
+  , description
+  , url
+  , isActive
+  , adapterSequenceRead1
+  , adapterSequenceRead2
+  FROM seqlibprotocol
+  WHERE NOT EXISTS(SELECT * FROM seqlibprotocol_Audit)
+$$
+
+--
 -- Audit Triggers For seqlibprotocol 
 --
 
@@ -17434,9 +21929,9 @@ BEGIN
   , adapterSequenceRead1
   , adapterSequenceRead2 )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idSeqLibProtocol
   , NEW.seqLibProtocol
@@ -17464,9 +21959,9 @@ BEGIN
   , adapterSequenceRead1
   , adapterSequenceRead2 )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idSeqLibProtocol
   , NEW.seqLibProtocol
@@ -17494,9 +21989,9 @@ BEGIN
   , adapterSequenceRead1
   , adapterSequenceRead2 )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idSeqLibProtocol
   , OLD.seqLibProtocol
@@ -17526,6 +22021,30 @@ $$
 
 
 --
+-- Initial audit table rows for seqlibtreatment 
+--
+
+INSERT INTO seqlibtreatment_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idSeqLibTreatment
+  , seqLibTreatment
+  , isActive )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idSeqLibTreatment
+  , seqLibTreatment
+  , isActive
+  FROM seqlibtreatment
+  WHERE NOT EXISTS(SELECT * FROM seqlibtreatment_Audit)
+$$
+
+--
 -- Audit Triggers For seqlibtreatment 
 --
 
@@ -17541,9 +22060,9 @@ BEGIN
   , seqLibTreatment
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idSeqLibTreatment
   , NEW.seqLibTreatment
@@ -17563,9 +22082,9 @@ BEGIN
   , seqLibTreatment
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idSeqLibTreatment
   , NEW.seqLibTreatment
@@ -17585,9 +22104,9 @@ BEGIN
   , seqLibTreatment
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idSeqLibTreatment
   , OLD.seqLibTreatment
@@ -17614,6 +22133,32 @@ $$
 
 
 --
+-- Initial audit table rows for seqruntype 
+--
+
+INSERT INTO seqruntype_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idSeqRunType
+  , seqRunType
+  , isActive
+  , sortOrder )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idSeqRunType
+  , seqRunType
+  , isActive
+  , sortOrder
+  FROM seqruntype
+  WHERE NOT EXISTS(SELECT * FROM seqruntype_Audit)
+$$
+
+--
 -- Audit Triggers For seqruntype 
 --
 
@@ -17630,9 +22175,9 @@ BEGIN
   , isActive
   , sortOrder )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idSeqRunType
   , NEW.seqRunType
@@ -17654,9 +22199,9 @@ BEGIN
   , isActive
   , sortOrder )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idSeqRunType
   , NEW.seqRunType
@@ -17678,9 +22223,9 @@ BEGIN
   , isActive
   , sortOrder )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idSeqRunType
   , OLD.seqRunType
@@ -17717,6 +22262,50 @@ $$
 
 
 --
+-- Initial audit table rows for sequencelane 
+--
+
+INSERT INTO sequencelane_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idSequenceLane
+  , number
+  , createDate
+  , idRequest
+  , idSample
+  , idSeqRunType
+  , idNumberSequencingCycles
+  , analysisInstructions
+  , idGenomeBuildAlignTo
+  , idFlowCellChannel
+  , readCount
+  , pipelineVersion
+  , idNumberSequencingCyclesAllowed )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idSequenceLane
+  , number
+  , createDate
+  , idRequest
+  , idSample
+  , idSeqRunType
+  , idNumberSequencingCycles
+  , analysisInstructions
+  , idGenomeBuildAlignTo
+  , idFlowCellChannel
+  , readCount
+  , pipelineVersion
+  , idNumberSequencingCyclesAllowed
+  FROM sequencelane
+  WHERE NOT EXISTS(SELECT * FROM sequencelane_Audit)
+$$
+
+--
 -- Audit Triggers For sequencelane 
 --
 
@@ -17742,9 +22331,9 @@ BEGIN
   , pipelineVersion
   , idNumberSequencingCyclesAllowed )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idSequenceLane
   , NEW.number
@@ -17784,9 +22373,9 @@ BEGIN
   , pipelineVersion
   , idNumberSequencingCyclesAllowed )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idSequenceLane
   , NEW.number
@@ -17826,9 +22415,9 @@ BEGIN
   , pipelineVersion
   , idNumberSequencingCyclesAllowed )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idSequenceLane
   , OLD.number
@@ -17865,6 +22454,32 @@ $$
 
 
 --
+-- Initial audit table rows for sequencingcontrol 
+--
+
+INSERT INTO sequencingcontrol_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idSequencingControl
+  , sequencingControl
+  , isActive
+  , idAppUser )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idSequencingControl
+  , sequencingControl
+  , isActive
+  , idAppUser
+  FROM sequencingcontrol
+  WHERE NOT EXISTS(SELECT * FROM sequencingcontrol_Audit)
+$$
+
+--
 -- Audit Triggers For sequencingcontrol 
 --
 
@@ -17881,9 +22496,9 @@ BEGIN
   , isActive
   , idAppUser )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idSequencingControl
   , NEW.sequencingControl
@@ -17905,9 +22520,9 @@ BEGIN
   , isActive
   , idAppUser )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idSequencingControl
   , NEW.sequencingControl
@@ -17929,9 +22544,9 @@ BEGIN
   , isActive
   , idAppUser )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idSequencingControl
   , OLD.sequencingControl
@@ -17958,6 +22573,30 @@ $$
 
 
 --
+-- Initial audit table rows for sequencingplatform 
+--
+
+INSERT INTO sequencingplatform_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , codeSequencingPlatform
+  , sequencingPlatform
+  , isActive )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , codeSequencingPlatform
+  , sequencingPlatform
+  , isActive
+  FROM sequencingplatform
+  WHERE NOT EXISTS(SELECT * FROM sequencingplatform_Audit)
+$$
+
+--
 -- Audit Triggers For sequencingplatform 
 --
 
@@ -17973,9 +22612,9 @@ BEGIN
   , sequencingPlatform
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeSequencingPlatform
   , NEW.sequencingPlatform
@@ -17995,9 +22634,9 @@ BEGIN
   , sequencingPlatform
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeSequencingPlatform
   , NEW.sequencingPlatform
@@ -18017,9 +22656,9 @@ BEGIN
   , sequencingPlatform
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.codeSequencingPlatform
   , OLD.sequencingPlatform
@@ -18048,6 +22687,36 @@ $$
 
 
 --
+-- Initial audit table rows for slidedesign 
+--
+
+INSERT INTO slidedesign_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idSlideDesign
+  , name
+  , slideDesignProtocolName
+  , idSlideProduct
+  , accessionNumberArrayExpress
+  , isActive )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idSlideDesign
+  , name
+  , slideDesignProtocolName
+  , idSlideProduct
+  , accessionNumberArrayExpress
+  , isActive
+  FROM slidedesign
+  WHERE NOT EXISTS(SELECT * FROM slidedesign_Audit)
+$$
+
+--
 -- Audit Triggers For slidedesign 
 --
 
@@ -18066,9 +22735,9 @@ BEGIN
   , accessionNumberArrayExpress
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idSlideDesign
   , NEW.name
@@ -18094,9 +22763,9 @@ BEGIN
   , accessionNumberArrayExpress
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idSlideDesign
   , NEW.name
@@ -18122,9 +22791,9 @@ BEGIN
   , accessionNumberArrayExpress
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idSlideDesign
   , OLD.name
@@ -18152,6 +22821,28 @@ $$
 
 
 --
+-- Initial audit table rows for slideproductapplication 
+--
+
+INSERT INTO slideproductapplication_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idSlideProduct
+  , codeApplication )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idSlideProduct
+  , codeApplication
+  FROM slideproductapplication
+  WHERE NOT EXISTS(SELECT * FROM slideproductapplication_Audit)
+$$
+
+--
 -- Audit Triggers For slideproductapplication 
 --
 
@@ -18166,9 +22857,9 @@ BEGIN
   , idSlideProduct
   , codeApplication )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idSlideProduct
   , NEW.codeApplication );
@@ -18186,9 +22877,9 @@ BEGIN
   , idSlideProduct
   , codeApplication )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idSlideProduct
   , NEW.codeApplication );
@@ -18206,9 +22897,9 @@ BEGIN
   , idSlideProduct
   , codeApplication )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idSlideProduct
   , OLD.codeApplication );
@@ -18244,6 +22935,52 @@ $$
 
 
 --
+-- Initial audit table rows for slideproduct 
+--
+
+INSERT INTO slideproduct_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idSlideProduct
+  , name
+  , catalogNumber
+  , isCustom
+  , idLab
+  , codeApplication
+  , idVendor
+  , idOrganism
+  , arraysPerSlide
+  , slidesInSet
+  , isSlideSet
+  , isActive
+  , idBillingSlideProductClass
+  , idBillingSlideServiceClass )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idSlideProduct
+  , name
+  , catalogNumber
+  , isCustom
+  , idLab
+  , codeApplication
+  , idVendor
+  , idOrganism
+  , arraysPerSlide
+  , slidesInSet
+  , isSlideSet
+  , isActive
+  , idBillingSlideProductClass
+  , idBillingSlideServiceClass
+  FROM slideproduct
+  WHERE NOT EXISTS(SELECT * FROM slideproduct_Audit)
+$$
+
+--
 -- Audit Triggers For slideproduct 
 --
 
@@ -18270,9 +23007,9 @@ BEGIN
   , idBillingSlideProductClass
   , idBillingSlideServiceClass )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idSlideProduct
   , NEW.name
@@ -18314,9 +23051,9 @@ BEGIN
   , idBillingSlideProductClass
   , idBillingSlideServiceClass )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idSlideProduct
   , NEW.name
@@ -18358,9 +23095,9 @@ BEGIN
   , idBillingSlideProductClass
   , idBillingSlideServiceClass )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idSlideProduct
   , OLD.name
@@ -18398,6 +23135,32 @@ $$
 
 
 --
+-- Initial audit table rows for slidesource 
+--
+
+INSERT INTO slidesource_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , codeSlideSource
+  , slideSource
+  , isActive
+  , sortOrder )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , codeSlideSource
+  , slideSource
+  , isActive
+  , sortOrder
+  FROM slidesource
+  WHERE NOT EXISTS(SELECT * FROM slidesource_Audit)
+$$
+
+--
 -- Audit Triggers For slidesource 
 --
 
@@ -18414,9 +23177,9 @@ BEGIN
   , isActive
   , sortOrder )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeSlideSource
   , NEW.slideSource
@@ -18438,9 +23201,9 @@ BEGIN
   , isActive
   , sortOrder )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeSlideSource
   , NEW.slideSource
@@ -18462,9 +23225,9 @@ BEGIN
   , isActive
   , sortOrder )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.codeSlideSource
   , OLD.slideSource
@@ -18492,6 +23255,32 @@ $$
 
 
 --
+-- Initial audit table rows for slide 
+--
+
+INSERT INTO slide_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idSlide
+  , barcode
+  , idSlideDesign
+  , slideName )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idSlide
+  , barcode
+  , idSlideDesign
+  , slideName
+  FROM slide
+  WHERE NOT EXISTS(SELECT * FROM slide_Audit)
+$$
+
+--
 -- Audit Triggers For slide 
 --
 
@@ -18508,9 +23297,9 @@ BEGIN
   , idSlideDesign
   , slideName )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idSlide
   , NEW.barcode
@@ -18532,9 +23321,9 @@ BEGIN
   , idSlideDesign
   , slideName )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idSlide
   , NEW.barcode
@@ -18556,9 +23345,9 @@ BEGIN
   , idSlideDesign
   , slideName )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idSlide
   , OLD.barcode
@@ -18585,6 +23374,30 @@ $$
 
 
 --
+-- Initial audit table rows for state 
+--
+
+INSERT INTO state_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , codeState
+  , state
+  , isActive )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , codeState
+  , state
+  , isActive
+  FROM state
+  WHERE NOT EXISTS(SELECT * FROM state_Audit)
+$$
+
+--
 -- Audit Triggers For state 
 --
 
@@ -18600,9 +23413,9 @@ BEGIN
   , state
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeState
   , NEW.state
@@ -18622,9 +23435,9 @@ BEGIN
   , state
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeState
   , NEW.state
@@ -18644,9 +23457,9 @@ BEGIN
   , state
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.codeState
   , OLD.state
@@ -18673,6 +23486,32 @@ $$
 
 
 --
+-- Initial audit table rows for step 
+--
+
+INSERT INTO step_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , codeStep
+  , step
+  , isActive
+  , sortOrder )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , codeStep
+  , step
+  , isActive
+  , sortOrder
+  FROM step
+  WHERE NOT EXISTS(SELECT * FROM step_Audit)
+$$
+
+--
 -- Audit Triggers For step 
 --
 
@@ -18689,9 +23528,9 @@ BEGIN
   , isActive
   , sortOrder )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeStep
   , NEW.step
@@ -18713,9 +23552,9 @@ BEGIN
   , isActive
   , sortOrder )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeStep
   , NEW.step
@@ -18737,9 +23576,9 @@ BEGIN
   , isActive
   , sortOrder )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.codeStep
   , OLD.step
@@ -18770,6 +23609,38 @@ $$
 
 
 --
+-- Initial audit table rows for submissioninstruction 
+--
+
+INSERT INTO submissioninstruction_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idSubmissionInstruction
+  , description
+  , url
+  , codeRequestCategory
+  , codeApplication
+  , codeBioanalyzerChipType
+  , idBillingSlideServiceClass )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idSubmissionInstruction
+  , description
+  , url
+  , codeRequestCategory
+  , codeApplication
+  , codeBioanalyzerChipType
+  , idBillingSlideServiceClass
+  FROM submissioninstruction
+  WHERE NOT EXISTS(SELECT * FROM submissioninstruction_Audit)
+$$
+
+--
 -- Audit Triggers For submissioninstruction 
 --
 
@@ -18789,9 +23660,9 @@ BEGIN
   , codeBioanalyzerChipType
   , idBillingSlideServiceClass )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idSubmissionInstruction
   , NEW.description
@@ -18819,9 +23690,9 @@ BEGIN
   , codeBioanalyzerChipType
   , idBillingSlideServiceClass )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idSubmissionInstruction
   , NEW.description
@@ -18849,9 +23720,9 @@ BEGIN
   , codeBioanalyzerChipType
   , idBillingSlideServiceClass )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idSubmissionInstruction
   , OLD.description
@@ -18888,6 +23759,44 @@ $$
 
 
 --
+-- Initial audit table rows for topic 
+--
+
+INSERT INTO topic_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idTopic
+  , name
+  , description
+  , idParentTopic
+  , idLab
+  , createdBy
+  , createDate
+  , idAppUser
+  , codeVisibility
+  , idInstitution )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idTopic
+  , name
+  , description
+  , idParentTopic
+  , idLab
+  , createdBy
+  , createDate
+  , idAppUser
+  , codeVisibility
+  , idInstitution
+  FROM topic
+  WHERE NOT EXISTS(SELECT * FROM topic_Audit)
+$$
+
+--
 -- Audit Triggers For topic 
 --
 
@@ -18910,9 +23819,9 @@ BEGIN
   , codeVisibility
   , idInstitution )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idTopic
   , NEW.name
@@ -18946,9 +23855,9 @@ BEGIN
   , codeVisibility
   , idInstitution )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idTopic
   , NEW.name
@@ -18982,9 +23891,9 @@ BEGIN
   , codeVisibility
   , idInstitution )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idTopic
   , OLD.name
@@ -19018,6 +23927,32 @@ $$
 
 
 --
+-- Initial audit table rows for treatmententry 
+--
+
+INSERT INTO treatmententry_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idTreatmentEntry
+  , treatment
+  , idSample
+  , otherLabel )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idTreatmentEntry
+  , treatment
+  , idSample
+  , otherLabel
+  FROM treatmententry
+  WHERE NOT EXISTS(SELECT * FROM treatmententry_Audit)
+$$
+
+--
 -- Audit Triggers For treatmententry 
 --
 
@@ -19034,9 +23969,9 @@ BEGIN
   , idSample
   , otherLabel )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idTreatmentEntry
   , NEW.treatment
@@ -19058,9 +23993,9 @@ BEGIN
   , idSample
   , otherLabel )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idTreatmentEntry
   , NEW.treatment
@@ -19082,9 +24017,9 @@ BEGIN
   , idSample
   , otherLabel )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idTreatmentEntry
   , OLD.treatment
@@ -19112,6 +24047,32 @@ $$
 
 
 --
+-- Initial audit table rows for unloaddatatrack 
+--
+
+INSERT INTO unloaddatatrack_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idUnloadDataTrack
+  , typeName
+  , idAppUser
+  , idGenomeBuild )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idUnloadDataTrack
+  , typeName
+  , idAppUser
+  , idGenomeBuild
+  FROM unloaddatatrack
+  WHERE NOT EXISTS(SELECT * FROM unloaddatatrack_Audit)
+$$
+
+--
 -- Audit Triggers For unloaddatatrack 
 --
 
@@ -19128,9 +24089,9 @@ BEGIN
   , idAppUser
   , idGenomeBuild )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idUnloadDataTrack
   , NEW.typeName
@@ -19152,9 +24113,9 @@ BEGIN
   , idAppUser
   , idGenomeBuild )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idUnloadDataTrack
   , NEW.typeName
@@ -19176,9 +24137,9 @@ BEGIN
   , idAppUser
   , idGenomeBuild )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idUnloadDataTrack
   , OLD.typeName
@@ -19205,6 +24166,30 @@ $$
 
 
 --
+-- Initial audit table rows for userpermissionkind 
+--
+
+INSERT INTO userpermissionkind_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , codeUserPermissionKind
+  , userPermissionKind
+  , isActive )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , codeUserPermissionKind
+  , userPermissionKind
+  , isActive
+  FROM userpermissionkind
+  WHERE NOT EXISTS(SELECT * FROM userpermissionkind_Audit)
+$$
+
+--
 -- Audit Triggers For userpermissionkind 
 --
 
@@ -19220,9 +24205,9 @@ BEGIN
   , userPermissionKind
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeUserPermissionKind
   , NEW.userPermissionKind
@@ -19242,9 +24227,9 @@ BEGIN
   , userPermissionKind
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeUserPermissionKind
   , NEW.userPermissionKind
@@ -19264,9 +24249,9 @@ BEGIN
   , userPermissionKind
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.codeUserPermissionKind
   , OLD.userPermissionKind
@@ -19293,6 +24278,32 @@ $$
 
 
 --
+-- Initial audit table rows for vendor 
+--
+
+INSERT INTO vendor_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idVendor
+  , vendorName
+  , description
+  , isActive )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idVendor
+  , vendorName
+  , description
+  , isActive
+  FROM vendor
+  WHERE NOT EXISTS(SELECT * FROM vendor_Audit)
+$$
+
+--
 -- Audit Triggers For vendor 
 --
 
@@ -19309,9 +24320,9 @@ BEGIN
   , description
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idVendor
   , NEW.vendorName
@@ -19333,9 +24344,9 @@ BEGIN
   , description
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idVendor
   , NEW.vendorName
@@ -19357,9 +24368,9 @@ BEGIN
   , description
   , isActive )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idVendor
   , OLD.vendorName
@@ -19385,6 +24396,28 @@ $$
 
 
 --
+-- Initial audit table rows for visibility 
+--
+
+INSERT INTO visibility_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , codeVisibility
+  , visibility )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , codeVisibility
+  , visibility
+  FROM visibility
+  WHERE NOT EXISTS(SELECT * FROM visibility_Audit)
+$$
+
+--
 -- Audit Triggers For visibility 
 --
 
@@ -19399,9 +24432,9 @@ BEGIN
   , codeVisibility
   , visibility )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeVisibility
   , NEW.visibility );
@@ -19419,9 +24452,9 @@ BEGIN
   , codeVisibility
   , visibility )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.codeVisibility
   , NEW.visibility );
@@ -19439,9 +24472,9 @@ BEGIN
   , codeVisibility
   , visibility )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.codeVisibility
   , OLD.visibility );
@@ -19474,6 +24507,46 @@ $$
 
 
 --
+-- Initial audit table rows for workitem 
+--
+
+INSERT INTO workitem_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idWorkItem
+  , codeStepNext
+  , idSample
+  , idLabeledSample
+  , idHybridization
+  , idRequest
+  , createDate
+  , idSequenceLane
+  , idFlowCellChannel
+  , idCoreFacility
+  , status )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idWorkItem
+  , codeStepNext
+  , idSample
+  , idLabeledSample
+  , idHybridization
+  , idRequest
+  , createDate
+  , idSequenceLane
+  , idFlowCellChannel
+  , idCoreFacility
+  , status
+  FROM workitem
+  WHERE NOT EXISTS(SELECT * FROM workitem_Audit)
+$$
+
+--
 -- Audit Triggers For workitem 
 --
 
@@ -19497,9 +24570,9 @@ BEGIN
   , idCoreFacility
   , status )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idWorkItem
   , NEW.codeStepNext
@@ -19535,9 +24608,9 @@ BEGIN
   , idCoreFacility
   , status )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , NEW.idWorkItem
   , NEW.codeStepNext
@@ -19573,9 +24646,9 @@ BEGIN
   , idCoreFacility
   , status )
   VALUES
-  ( USER()
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
-  , CURRENT_USER()
+  , USER()
   , NOW()
   , OLD.idWorkItem
   , OLD.codeStepNext
