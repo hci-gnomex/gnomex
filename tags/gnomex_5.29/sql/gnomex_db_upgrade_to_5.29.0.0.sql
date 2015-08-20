@@ -11,10 +11,10 @@ call ExecuteIfTableExists('gnomex', 'BillingItem_Audit', 'ALTER TABLE BillingIte
 
 -- Default folder location for sequenom prices
 INSERT INTO PropertyDictionary (propertyName, propertyValue, propertyDescription, forServerOnly, idCoreFacility, codeRequestCategory)
-	VALUES('illumina_libprep_default_price_category', 'Sequenom Panel', 'Default price category for sequenom prices created through experiment platform', 'N', 3, 'SEQUENOM'); 
+  VALUES('illumina_libprep_default_price_category', 'Sequenom Panel', 'Default price category for sequenom prices created through experiment platform', 'N', 3, 'SEQUENOM'); 
 
 
--- Remove these properties from the dictionary.  We now grab this info from the CoreFacility database table.	
+-- Remove these properties from the dictionary.  We now grab this info from the CoreFacility database table.  
 DELETE from PropertyDictionary where propertyName = 'contact_name_core_facility';
 DELETE from PropertyDictionary where propertyName = 'contact_email_core_facility';
 DELETE from PropertyDictionary where propertyName = 'contact_phone_core_facility';
@@ -38,15 +38,15 @@ call ExecuteIfTableExists('gnomex', 'Request_Audit', 'ALTER TABLE Request_Audit 
 -- Add table Isolation Prep Type  FOREIGN KEY on codeRequestCategory???
 DROP TABLE IF EXISTS `gnomex`.`IsolationPrepType`;
 CREATE TABLE `gnomex`.`IsolationPrepType` ( 
-     `codeIsolationPrepType`	varchar(15) NOT NULL,
-     `isolationPrepType`  		varchar(100) NULL,
-	 `type`			varchar(10) NULL,
-	 `isActive`		char(1) NULL,
-	 `codeRequestCategory` varchar(50) NULL,
+     `codeIsolationPrepType`  varchar(15) NOT NULL,
+     `isolationPrepType`      varchar(100) NULL,
+   `type`     varchar(10) NULL,
+   `isActive`   char(1) NULL,
+   `codeRequestCategory` varchar(50) NULL,
     PRIMARY KEY (`codeIsolationPrepType`),
-	CONSTRAINT `FK_IsolationPrepType_RequestCategory` FOREIGN KEY (`codeRequestCategory`) 
-	REFERENCES `gnomex`.`RequestCategory`(`codeRequestCategory`)
-	ON DELETE NO ACTION
+  CONSTRAINT `FK_IsolationPrepType_RequestCategory` FOREIGN KEY (`codeRequestCategory`) 
+  REFERENCES `gnomex`.`RequestCategory`(`codeRequestCategory`)
+  ON DELETE NO ACTION
     ON UPDATE NO ACTION
 ) ENGINE = INNODB;
 
@@ -60,15 +60,3 @@ alter table Request add
     REFERENCES `gnomex`.`IsolationPrepType` (`codeIsolationPrepType`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION;
-	
-	
--- Remove both foreign keys that reference DNAPrepType and RNAPrepType tables from the Request Table.
-alter table Request drop
-	CONSTRAINT FK_Request_DNAPrepType;
-	
-alter table Request drop
-	CONSTRAINT FK_Request_RNAPrepType;	
-
--- Remove dna and rna code prep type columns from Request
-ALTER TABLE Request DROP COLUMN codeDNAPrepType;
-ALTER TABLE Request DROP COLUMN codeRNAPrepType;
