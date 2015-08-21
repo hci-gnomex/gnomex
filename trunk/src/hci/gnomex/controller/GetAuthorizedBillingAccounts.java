@@ -2,6 +2,7 @@ package hci.gnomex.controller;
 
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
+import hci.framework.utilities.XMLReflectException;
 import hci.gnomex.model.BillingAccount;
 import hci.gnomex.model.Lab;
 
@@ -129,7 +130,7 @@ public class GetAuthorizedBillingAccounts extends GNomExCommand implements Seria
 		return this;
 	}
 	
-	private Document generateXMLDocument(HashMap<Integer, ArrayList<BillingAccount>> billingAccountsByLab, Session sess) {
+	private Document generateXMLDocument(HashMap<Integer, ArrayList<BillingAccount>> billingAccountsByLab, Session sess) throws XMLReflectException {
 		Element root = new Element("AuthorizedBillingAccounts");
 		root.setAttribute("idAppUser", idAppUser.toString());
 		root.setAttribute("hasAuthorizedAccounts", billingAccountsByLab.isEmpty() ? "N" : "Y");
@@ -146,21 +147,7 @@ public class GetAuthorizedBillingAccounts extends GNomExCommand implements Seria
 			labNode.setAttribute("isActive", lab.getIsActive());
 			
 			for (BillingAccount acct : accounts) {
-				Element accountNode = new Element("BillingAccount");
-				accountNode.setAttribute("idBillingAccount", acct.getIdBillingAccount().toString());
-				accountNode.setAttribute("accountNameAndNumber", acct.getAccountNameAndNumber());
-				accountNode.setAttribute("accountNameDisplay", acct.getAccountNameDisplay());
-				accountNode.setAttribute("accountNumberDisplay", acct.getAccountNumberDisplay());
-				accountNode.setAttribute("accountName", acct.getAccountName());
-				accountNode.setAttribute("accountNumber", acct.getAccountNumber());
-				accountNode.setAttribute("isActive", acct.getIsActive());
-				accountNode.setAttribute("isApproved", acct.getIsApproved());
-				accountNode.setAttribute("isCreditCard", acct.getIsCreditCard());
-				accountNode.setAttribute("isPO", acct.getIsPO());
-				accountNode.setAttribute("idLab", acct.getIdLab().toString());
-				accountNode.setAttribute("idCoreFacility", acct.getIdCoreFacility().toString());
-				accountNode.setAttribute("startDate", acct.getStartDateOther());
-				accountNode.setAttribute("expirationDate", acct.getExpirationDateOther());
+				Element accountNode = acct.toXMLDocument(null, GNomExCommand.DATE_OUTPUT_SQL).getRootElement();
 				
 				labNode.addContent(accountNode);
 			}
