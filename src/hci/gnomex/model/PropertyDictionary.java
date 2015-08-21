@@ -72,7 +72,7 @@ public class PropertyDictionary extends DictionaryEntry implements Serializable 
   public static final String        PERFORMANCE_LOG_ENABLED             = "performance_log_enabled";
   public static final String        PERFORMANCE_LOG_CUTOFF_MILLISECONDS = "performance_log_cutoff_milliseconds";
   public static final String        EXPERIMENT_DEFAULT_VIEW             = "experiment_default_view";
-  public static final String        EXPERIMENT_VIEW_LIMIT               = "experiment_view_limit";
+  public static final String        EXPERIMENT_VIEW_LIMIT               = "view_limit_experiments";
   public static final String        GET_REQUEST_NUMBER_PROCEDURE        = "get_request_number_procedure";
   public static final String        GET_PO_NUMBER_PROCEDURE             = "get_po_number_procedure";
   public static final String        ID_DEFAULT_INSTITUTION              = "id_default_institution";
@@ -144,8 +144,8 @@ public class PropertyDictionary extends DictionaryEntry implements Serializable 
   public static final String        BILLING_DURING_WORKFLOW             = "billing_during_workflow";
   public static final String        PROPERTY_HIDE_260_230_QC_WORKFLOW   = "qc_hide_260_230_qc_workflow";
   public static final String        PROPERTY_SAMPLE_BATCH_WARNING       = "sample_batch_warning";
-  public static final String		    PLATE_AND_RUN_VIEW_LIMIT			      = "plate_and_run_view_limit";
-  public static final String		    CHROMATOGRAM_VIEW_LIMIT				      = "chromatogram_view_limit";
+  public static final String		PLATE_AND_RUN_VIEW_LIMIT			= "view_limit_plates_and_runs";
+  public static final String		CHROMATOGRAM_VIEW_LIMIT				= "view_limit_chromatograms";
   public static final String        DISK_USAGE_BILLING_CORE             = "disk_usage_billing_core";
   public static final String        CORE_BILLING_OFFICE                 = "core_billing_office";
   public static final String        RESTRICT_ANNOTATION_ON_AUTO_ADD     = "restrict_annotation_on_auto_add";
@@ -159,8 +159,8 @@ public class PropertyDictionary extends DictionaryEntry implements Serializable 
   public static final String		SAMPLE_CONCENTRATION_PRECISION		= "sample_concentration_precision";
   public static final String		STATUS_TO_USE_PRODUCTS				= "status_to_use_products";
   public static final String		PROPERTY_NO_PRODUCTS_MESSAGE		= "no_products_message";
-  public static final String		ANALYSIS_VIEW_LIMIT					= "analysis_view_limit";
-  public static final String		DATATRACK_VIEW_LIMIT				= "datatrack_view_limit";
+  public static final String		ANALYSIS_VIEW_LIMIT					= "view_limit_analyses";
+  public static final String		DATATRACK_VIEW_LIMIT				= "view_limit_datatracks";
 
 
   private Integer       idPropertyDictionary;
