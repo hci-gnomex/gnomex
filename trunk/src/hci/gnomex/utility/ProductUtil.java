@@ -46,7 +46,7 @@ public class ProductUtil {
 		return required;
 	}
 	
-	public static boolean updateLedgerOnRequestStatusChange(Session sess, Request req, String oldRequestStatus, String newRequestStatus) {
+	public static boolean updateLedgerOnRequestStatusChange(Session sess, Request req, String oldRequestStatus, String newRequestStatus) throws ProductException {
 		String statusToUseProducts = determineStatusToUseProducts(sess, req);
 		if (statusToUseProducts == null || statusToUseProducts.trim().equals("")) {
 			return false;
@@ -58,8 +58,8 @@ public class ProductUtil {
 			Integer productsAvailableToLab = (Integer) sess.createQuery( "select SUM(qty) from ProductLedger where idLab = " + req.getIdLab() + " and idProduct = " + req.getIdProduct() ).uniqueResult();
 			Integer productsRequired = determineProductsRequired(sess, req);
 			
-			if (productsAvailableToLab == null || productsRequired == null) {
-				return false;
+			if (productsAvailableToLab == null || productsRequired == null || productsRequired == -1) {
+				throw new ProductException("Could not retrieve lab inventory and the number of products required. Please ensure a product is selected.");
 			}
 			
 			if (productsRequired > -1 && productsAvailableToLab - productsRequired >= 0) {
@@ -74,10 +74,14 @@ public class ProductUtil {
 		        
 		        sess.save(ledger);
 			} else {
-				return false;
+				throw new ProductException("Lab does not have sufficient inventory.");
 			}
 		} else if ((oldRequestStatus != null && statusComp.compare(oldRequestStatus, statusToUseProducts) >= 0) && statusComp.compare(newRequestStatus, statusToUseProducts) < 0) {
 			Integer productsRequired = determineProductsRequired(sess, req);
+			
+			if (productsRequired == null || productsRequired == -1) {
+				throw new ProductException("Could not retrieve the number of products required. Please ensure a product is selected.");
+			}
 			
 			ProductLedger ledger = new ProductLedger();
 			
