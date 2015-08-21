@@ -296,6 +296,7 @@
 			import mx.graphics.RadialGradient;
 			import mx.managers.PopUpManager;
 			import mx.rpc.events.ResultEvent;
+			import mx.utils.StringUtil;
 			
 			import views.experiment.ProjectDetailWindow;
 			import views.experiment.RequestCloneWindow;
@@ -337,6 +338,9 @@
 			
 			private var idAppUserLookup:Object = null;
 			private var idCoreFacilityLookup:String = null;
+			
+			[Bindable]
+			private var showRequiredStylingNameDescription:Boolean = false;
 			
 			public function init():void {
 				checkSecurity();
@@ -657,9 +661,11 @@
 					if (parentApplication.requireExperimentDescriptionAndName(this.getRequestCategory().@idCoreFacility, this.getRequestCategory().@codeRequestCategory)) {
 						nameLabel.label = nameLabel.label.replace("optional","required");
 						descriptionLabel.label = descriptionLabel.label.replace("optional","required");
+						showRequiredStylingNameDescription = true;
 					} else {
 						nameLabel.label = nameLabel.label.replace("required","optional");
 						descriptionLabel.label = descriptionLabel.label.replace("required","optional");
+						showRequiredStylingNameDescription = false;
 					}
 				}
 			}
@@ -1546,14 +1552,16 @@
 			</mx:HBox>
 		</mx:HBox>
 		<mx:VBox id="nameDescriptionHBox" width="100%" paddingBottom="0" paddingLeft="0" paddingTop="0" paddingRight="0">
-			<mx:HBox id="nameHBox" verticalGap="2" horizontalGap="0" paddingTop="0" paddingBottom="0">
+			<mx:HBox id="nameHBox" verticalGap="2" horizontalGap="0" paddingTop="0" paddingBottom="0"
+					 styleName="{showRequiredStylingNameDescription &amp;&amp; StringUtil.trim(experimentName.text) == '' ? 'requiredBox' : 'normalBox'}">
 				<util:ContextHelp context1="experimentName" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Description Help"
 								  labelPlacement="left" id="nameLabel" width="200" label="(5) Experiment Name. (optional)"/>
 				<mx:TextInput id="experimentName" focusOut="{propagateName();checkSetupCompleteness()}" text="{parentDocument.request == null ? '' : parentDocument.request.@name}"  
 							  width="380" maxChars="200" focusIn="scrollOnFocus(event);" paddingLeft="0" keyUp="checkSetupCompleteness()"/>
 				<mx:Spacer width="10"/>
 			</mx:HBox>	
-			<mx:VBox id="descriptionVBox" width="100%" paddingRight="20" paddingTop="0">
+			<mx:VBox id="descriptionVBox" width="940" paddingRight="20" paddingTop="0"
+					 styleName="{showRequiredStylingNameDescription &amp;&amp; StringUtil.trim(overallDescript.htmlText) == '' ? 'requiredBox' : 'normalBox'}">
 				<util:ContextHelp context1="experimentDescription" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Description Help"
 								  labelPlacement="left" id="descriptionLabel" width="500" label="(6) Experiment Description. (optional)"/>
 				<mx:RichTextEditor  borderStyle="none"  headerHeight="0"  
