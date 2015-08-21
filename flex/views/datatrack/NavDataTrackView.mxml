@@ -284,9 +284,6 @@
 			[Bindable]
 			public var launchIGVString:String = "yes";
 			
-			[Bindable]
-			private var dataTrackCountLabel:String = "";
-			
 			private var hitCount:int = 0;
 			private var firstHitItem:XML = null;
 			private var currentIndex:int = 0;
@@ -356,7 +353,6 @@
 					browseTree.visible = true;
 				}
 				var dataTracks:XMLList = getDataTrackList.lastResult..DataTrack;
-				dataTrackCountLabel = dataTracks.length() + " data tracks.";
 				
 				// If we are looking up a data track by number, get the tree item to select
 				if (this.dataTrackNumber != "") {
@@ -394,6 +390,11 @@
 					this.nextLocationButton.visible = false;
 				}
 				
+				if (getDataTrackList.lastResult.hasOwnProperty("@message") && getDataTrackList.lastResult.@message != "") {
+					countLabel.text = getDataTrackList.lastResult.@message;
+				} else {
+					countLabel.text = dataTracks.length() + " data tracks.";
+				}
 				
 				callLater(expandAppropriateNodes);    	
 				
@@ -1968,7 +1969,7 @@
 					<mx:LinkButton label="Expand" styleName="linkMenuButtonSmall" click="expandeSelectedNode()"/>
 					<mx:LinkButton label="Collapse" styleName="linkMenuButtonSmall" click="collapseSelectedNode()"/>
 					<mx:Spacer width="100%"/>
-					<mx:Label text="{dataTrackCountLabel}" styleName="menuLabelSmall" />
+					<mx:Label id="countLabel" styleName="menuLabelSmall" />
 				</mx:ControlBar>
 			</mx:VBox>
 			
