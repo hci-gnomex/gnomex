@@ -117,7 +117,11 @@
 				if ( event.result.name() == "SUCCESS" ) {
 					this.getList();
 					return;
+				} else if (event.result.name() == "FAILURE" && event.result.hasOwnProperty("@message")) {
+					Alert.show(event.result.@message, "Error saving order(s)");
+					return;
 				}
+				
 				Alert.show( event.result..ERROR.@message.toString(), "Error saving order(s)" );
 				
 			}

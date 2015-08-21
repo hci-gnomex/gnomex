@@ -57,6 +57,7 @@ import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.HybNumberComparator;
 import hci.gnomex.utility.MailUtil;
 import hci.gnomex.utility.MailUtilHelper;
+import hci.gnomex.utility.ProductException;
 import hci.gnomex.utility.ProductUtil;
 import hci.gnomex.utility.PropertyDictionaryHelper;
 import hci.gnomex.utility.PropertyEntryComparator;
@@ -687,11 +688,13 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         // If this request uses products, create ledger entries when appropriate
         if (ProductUtil.determineIfRequestUsesProducts(requestParser.getRequest())) {
         	String statusToUseProducts = ProductUtil.determineStatusToUseProducts(sess, requestParser.getRequest());
-            if (statusToUseProducts != null) {
-            	if (ProductUtil.updateLedgerOnRequestStatusChange(sess, requestParser.getRequest(), requestParser.getPreviousCodeRequestStatus(), requestParser.getRequest().getCodeRequestStatus())) {
-            		sess.flush();
-            	} else {
-            		throw new Exception("Unable to create ProductLedger for request. Please ensure a product is selected and the lab has sufficient products.");
+            if (statusToUseProducts != null && !statusToUseProducts.trim().equals("")) {
+            	try {
+            		if (ProductUtil.updateLedgerOnRequestStatusChange(sess, requestParser.getRequest(), requestParser.getPreviousCodeRequestStatus(), requestParser.getRequest().getCodeRequestStatus())) {
+                		sess.flush();
+                	}
+            	} catch (ProductException e) {
+            		throw new Exception("Unable to create ProductLedger for request. " + e.getMessage());
             	}
             }
         }

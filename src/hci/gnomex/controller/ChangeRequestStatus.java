@@ -20,6 +20,7 @@ import hci.gnomex.utility.EmailHelper;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.MailUtil;
 import hci.gnomex.utility.MailUtilHelper;
+import hci.gnomex.utility.ProductException;
 import hci.gnomex.utility.ProductUtil;
 import hci.gnomex.utility.PropertyDictionaryHelper;
 import hci.gnomex.utility.RequestEmailBodyFormatter;
@@ -93,98 +94,106 @@ public class ChangeRequestStatus extends GNomExCommand implements Serializable {
 
         Request req = (Request) sess.get( Request.class,idRequest );
         String oldRequestStatus = req.getCodeRequestStatus();
-
-        req.setCodeRequestStatus( codeRequestStatus );
-
-        // SUBMITTED
-        if ( oldRequestStatus!=null ) {
-          if (oldRequestStatus.equals(RequestStatus.NEW) && codeRequestStatus.equals(RequestStatus.SUBMITTED)) {
-            req.setCreateDate(new java.util.Date());
-
-            String otherRecipients = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityRequestCategoryProperty(req.getIdCoreFacility(), req.getCodeRequestCategory(), PropertyDictionary.REQUEST_SUBMIT_CONFIRMATION_EMAIL);
-            if ((req.getAppUser() != null
-                && req.getAppUser().getEmail() != null
-                && !req.getAppUser().getEmail().equals(""))
-                || (otherRecipients != null && otherRecipients.length() > 0)) {
-              try {
-                // confirmation email for dna seq requests is sent at submit time.
-                sendConfirmationEmail(sess, req, otherRecipients);
-              } catch (Exception e) {
-                String msg = "Unable to send confirmation email notifying submitter that request "
-                  + req.getNumber()
-                  + " has been submitted.  " + e.toString();
-                log.error(msg);
-              }
-            } else {
-              String msg = ( "Unable to send confirmation email notifying submitter that request "
-                  + req.getNumber()
-                  + " has been submitted.  Request submitter or request submitter email is blank.");
-              log.error(msg);
-            }
-          }
-        }
-
-        // If this is a DNA Seq core request, we need to create the billing items and send confirmation email
-        // when the status changes to submitted
-        if ( (codeRequestStatus.equals(RequestStatus.SUBMITTED)||codeRequestStatus.equals(RequestStatus.PROCESSING)) && RequestCategory.isDNASeqCoreRequestCategory(req.getCodeRequestCategory())) {
-          if (req.getBillingItems() == null || req.getBillingItems().isEmpty()) {
-            createBillingItems(sess, req);
-            sess.flush();
-          }
-        }
         
-        // If this request uses products, create ledger entries when appropriate
+        // If this request uses products, create ledger entries
+        // If there is a problem, don't proceed with changing the status
+        boolean errorEncounteredWithProducts = false;
+        String productErrorMessage = "";
+        
         if (ProductUtil.determineIfRequestUsesProducts(req)) {
         	String statusToUseProducts = ProductUtil.determineStatusToUseProducts(sess, req);
-            if (statusToUseProducts != null) {
-            	if (ProductUtil.updateLedgerOnRequestStatusChange(sess, req, oldRequestStatus, codeRequestStatus)) {
-            		sess.flush();
-            	} else {
-            		String errorMessage = "Unable to create ProductLedger for request. Please ensure a product is selected and the lab has sufficient products.";
-            		log.error(errorMessage);
-            		this.addInvalidField("Insufficient Products", errorMessage);
-            		throw new RollBackCommandException(errorMessage);
+            if (statusToUseProducts != null && !statusToUseProducts.trim().equals("")) {
+            	try {
+            		if (ProductUtil.updateLedgerOnRequestStatusChange(sess, req, oldRequestStatus, codeRequestStatus)) {
+                		sess.flush();
+                	}
+            	} catch (ProductException e) {
+            		errorEncounteredWithProducts = true;
+            		productErrorMessage = e.getMessage();
+            		log.error("Unable to create ProductLedger for request. " + e.getMessage());
             	}
             }
         }
+        
+        if (!errorEncounteredWithProducts) {
+        	req.setCodeRequestStatus( codeRequestStatus );
 
-        // COMPLETE
-        // Set the complete date
-        if ( codeRequestStatus.equals(RequestStatus.COMPLETED) ) {
-          if ( req.getCompletedDate() == null ) {
-            req.setCompletedDate( new java.sql.Date( System.currentTimeMillis() ) );
-          }
-          // Now change the billing items for the request from PENDING to COMPLETE
-          for (BillingItem billingItem : (Set<BillingItem>)req.getBillingItems()) {
-            if(billingItem.getCodeBillingStatus().equals(BillingStatus.PENDING)){
-              billingItem.setCodeBillingStatus(BillingStatus.COMPLETED);
+            // SUBMITTED
+            if ( oldRequestStatus!=null ) {
+              if (oldRequestStatus.equals(RequestStatus.NEW) && codeRequestStatus.equals(RequestStatus.SUBMITTED)) {
+                req.setCreateDate(new java.util.Date());
+
+                String otherRecipients = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityRequestCategoryProperty(req.getIdCoreFacility(), req.getCodeRequestCategory(), PropertyDictionary.REQUEST_SUBMIT_CONFIRMATION_EMAIL);
+                if ((req.getAppUser() != null
+                    && req.getAppUser().getEmail() != null
+                    && !req.getAppUser().getEmail().equals(""))
+                    || (otherRecipients != null && otherRecipients.length() > 0)) {
+                  try {
+                    // confirmation email for dna seq requests is sent at submit time.
+                    sendConfirmationEmail(sess, req, otherRecipients);
+                  } catch (Exception e) {
+                    String msg = "Unable to send confirmation email notifying submitter that request "
+                      + req.getNumber()
+                      + " has been submitted.  " + e.toString();
+                    log.error(msg);
+                  }
+                } else {
+                  String msg = ( "Unable to send confirmation email notifying submitter that request "
+                      + req.getNumber()
+                      + " has been submitted.  Request submitter or request submitter email is blank.");
+                  log.error(msg);
+                }
+              }
             }
-          }
 
-          // Send a confirmation email
+            // If this is a DNA Seq core request, we need to create the billing items and send confirmation email
+            // when the status changes to submitted
+            if ( (codeRequestStatus.equals(RequestStatus.SUBMITTED)||codeRequestStatus.equals(RequestStatus.PROCESSING)) && RequestCategory.isDNASeqCoreRequestCategory(req.getCodeRequestCategory())) {
+              if (req.getBillingItems() == null || req.getBillingItems().isEmpty()) {
+                createBillingItems(sess, req);
+                sess.flush();
+              }
+            }
 
-          try {
-            EmailHelper.sendConfirmationEmail(sess, req, this.getSecAdvisor(), launchAppURL, appURL, serverName);
-          } catch (Exception e) {
-            log.error("Unable to send confirmation email notifying submitter that request " + req.getNumber() +
-                " is complete. " + e.toString());
-          }
+            // COMPLETE
+            // Set the complete date
+            if ( codeRequestStatus.equals(RequestStatus.COMPLETED) ) {
+              if ( req.getCompletedDate() == null ) {
+                req.setCompletedDate( new java.sql.Date( System.currentTimeMillis() ) );
+              }
+              // Now change the billing items for the request from PENDING to COMPLETE
+              for (BillingItem billingItem : (Set<BillingItem>)req.getBillingItems()) {
+                if(billingItem.getCodeBillingStatus().equals(BillingStatus.PENDING)){
+                  billingItem.setCodeBillingStatus(BillingStatus.COMPLETED);
+                }
+              }
 
+              // Send a confirmation email
+
+              try {
+                EmailHelper.sendConfirmationEmail(sess, req, this.getSecAdvisor(), launchAppURL, appURL, serverName);
+              } catch (Exception e) {
+                log.error("Unable to send confirmation email notifying submitter that request " + req.getNumber() +
+                    " is complete. " + e.toString());
+              }
+
+            }
+
+            // PROCCESSING
+            if (codeRequestStatus.equals(RequestStatus.PROCESSING)) {
+              if (req.getProcessingDate() == null) {
+                req.setProcessingDate( new java.sql.Date( System.currentTimeMillis() ) );
+              }
+            }
+
+            sess.flush();
+
+            this.xmlResult = "<SUCCESS idRequest=\"" + idRequest +
+            "\" codeRequestStatus=\"" + codeRequestStatus  +
+            "\"/>";
+        } else {
+        	this.xmlResult = "<FAILURE message=\"PRODUCT ERROR: " + productErrorMessage + "\"/>";
         }
-
-        // PROCCESSING
-        if (codeRequestStatus.equals(RequestStatus.PROCESSING)) {
-          if (req.getProcessingDate() == null) {
-            req.setProcessingDate( new java.sql.Date( System.currentTimeMillis() ) );
-          }
-        }
-
-        sess.flush();
-
-        this.xmlResult = "<SUCCESS idRequest=\"" + idRequest +
-        "\" codeRequestStatus=\"" + codeRequestStatus  +
-        "\"/>";
-
 
       }
 

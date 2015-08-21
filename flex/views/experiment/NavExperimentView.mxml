@@ -1291,6 +1291,8 @@
 			if (submitRequest.lastResult.name() == "SUCCESS") {
 				this.refreshExperiments();
 				experimentViews.selectedChild = browseView;
+			} else if (submitRequest.lastResult.name() == "FAILURE" && submitRequest.lastResult.hasOwnProperty("@message")) {
+				Alert.show(submitRequest.lastResult.@message);
 			} else {
 				Alert.show(submitRequest.lastResult..ACTMESSAGE.@TEXT);
 			}
