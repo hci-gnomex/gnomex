@@ -31,7 +31,7 @@ public class GetAnalysisGroupList extends GNomExCommand implements Serializable 
 
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetAnalysisGroupList.class);
 
-  private static int           MAX_ANALYSIS_COUNT = 2000;
+  private static final int     MAX_ANALYSIS_COUNT_DEFAULT = 1000;
 
   private AnalysisGroupFilter  filter;
   private Element              rootNode = null;
@@ -43,6 +43,7 @@ public class GetAnalysisGroupList extends GNomExCommand implements Serializable 
 
   private String               message = "";
   private int                  analysisCount = 0;
+  private int				   maxAnalysisCount = 1000;
 
   public void validate() {
   }
@@ -75,6 +76,8 @@ public class GetAnalysisGroupList extends GNomExCommand implements Serializable 
 
       } else {
         Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
+        
+        maxAnalysisCount = getMaxAnalyses(sess);
 
         HashMap myLabMap = new HashMap();
         if (showMyLabsAlways.equals("Y")) {
@@ -172,7 +175,7 @@ public class GetAnalysisGroupList extends GNomExCommand implements Serializable 
                 prevIdAnalysisGroup = idAnalysisGroup;
                 prevIdLab           = idLab;
 
-                if (analysisCount >= MAX_ANALYSIS_COUNT) {
+                if (analysisCount >= maxAnalysisCount) {
                   break;
                 }
               }
@@ -221,7 +224,7 @@ public class GetAnalysisGroupList extends GNomExCommand implements Serializable 
             prevIdAnalysisGroup = idAnalysisGroup;
             prevIdLab           = idLab;
 
-            if (analysisCount >= MAX_ANALYSIS_COUNT) {
+            if (analysisCount >= maxAnalysisCount) {
               break;
             }
           }
@@ -237,7 +240,7 @@ public class GetAnalysisGroupList extends GNomExCommand implements Serializable 
           }
         }
         rootNode.setAttribute("analysisCount", Integer.valueOf(analysisCount).toString());
-        message = analysisCount == MAX_ANALYSIS_COUNT ? "First " + MAX_ANALYSIS_COUNT + " displayed" : ""; 
+        message = analysisCount == maxAnalysisCount ? "First " + maxAnalysisCount + " displayed" : ""; 
         rootNode.setAttribute("message", message);
       }
 
@@ -394,5 +397,18 @@ public class GetAnalysisGroupList extends GNomExCommand implements Serializable 
     //		    analysisGroupNode.setAttribute("labName",         labName);
     //		    
     //		    labNode.addContent(analysisGroupNode);
-  }  
+  }
+  
+  private Integer getMaxAnalyses(Session sess) {
+	    Integer maxAnalyses = MAX_ANALYSIS_COUNT_DEFAULT;
+	    String prop = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.ANALYSIS_VIEW_LIMIT);
+	    if (prop != null && prop.length() > 0) {
+	      try {
+	    	  maxAnalyses = Integer.parseInt(prop);
+	      }
+	      catch(NumberFormatException e) {
+	      }    
+	    }
+	    return maxAnalyses;
+  }
 }

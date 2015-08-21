@@ -932,6 +932,8 @@ Test City, UT 12345',
  (108,'show_funding_agency', 'N', 'show funding agency combo box on billing account edit/create screens.', 'N'),
  (109,'product_order_directory', '/home/gnomex/PurchseOrder_HSCGenomics', 'Directory to store purchase order forms', 'Y'),
  (110,'core_billing_office', '', 'Name of who handles billing for the core', 'Y');
+ (111, 'analysis_view_limit', '1000', 'The maximum number of analyses returned from the back-end.', 'N');
+ (112, 'datatrack_view_limit', '200', 'The maximum number of data tracks returned from the back-end.', 'N');
 
  
 

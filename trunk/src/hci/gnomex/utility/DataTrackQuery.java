@@ -128,8 +128,12 @@ public class DataTrackQuery implements Serializable {
 	  this.ids = ids;
 	}
 	
-	@SuppressWarnings("unchecked")
 	public Document getDataTrackDocument(Session sess, SecurityAdvisor secAdvisor) throws Exception {
+		return this.getDataTrackDocument(sess, secAdvisor, null);
+	}
+	
+	@SuppressWarnings("unchecked")
+	public Document getDataTrackDocument(Session sess, SecurityAdvisor secAdvisor, Integer maxDataTrackCount) throws Exception {
 	  // If we are looking up data track by number, prime the idGenomeBuild
 	  // criteria so that the folders are limited to the genome build
 	  // of the specific data track
@@ -150,6 +154,10 @@ public class DataTrackQuery implements Serializable {
 	  queryBuf = this.getDataTrackQuery(secAdvisor);
 	  Logger.getLogger(this.getClass().getName()).fine("DataTrack query: " + queryBuf.toString());
 	  query = sess.createQuery(queryBuf.toString());
+	  if (maxDataTrackCount != null && maxDataTrackCount > -1) {
+		  query.setFirstResult(0);
+		  query.setMaxResults(maxDataTrackCount);
+	  }
 	  List<Object[]> dataTrackRows = (List<Object[]>)query.list();
 
 	   
@@ -164,9 +172,15 @@ public class DataTrackQuery implements Serializable {
 	  queryBuf = this.getSegmentQuery();
 	  query = sess.createQuery(queryBuf.toString());
 	  List<Segment> segmentRows = (List<Segment>) query.list();
+	  
+	  String message = "";
+	  if (maxDataTrackCount != null && maxDataTrackCount > -1 && dataTrackRows.size() == maxDataTrackCount) {
+		  message = "First " + maxDataTrackCount + " displayed";
+	  }
 
 	  // Create an XML document
 	  Document doc = this.getDataTrackDocument(dataTrackFolderRows, dataTrackRows, folderCountRows, segmentRows, DictionaryHelper.getInstance(sess), secAdvisor);
+	  doc.getRootElement().setAttribute("message", message);
 	  return doc;
 		
 	}

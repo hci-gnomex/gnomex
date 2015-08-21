@@ -2,7 +2,9 @@ package hci.gnomex.controller;
 
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
+import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.utility.DataTrackQuery;
+import hci.gnomex.utility.PropertyDictionaryHelper;
 
 import java.io.Serializable;
 import java.sql.SQLException;
@@ -17,9 +19,11 @@ import org.jdom.Document;
 
 public class GetDataTrackList extends GNomExCommand implements Serializable {
   
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetDataTrackList.class);
+  private static org.apache.log4j.Logger 	log = org.apache.log4j.Logger.getLogger(GetDataTrackList.class);
   
-  private DataTrackQuery dataTrackQuery;
+  private static final int     				MAX_DATATRACK_COUNT_DEFAULT = 200; 
+  
+  private DataTrackQuery 					dataTrackQuery;
   
   public void validate() {
   }
@@ -35,7 +39,7 @@ public class GetDataTrackList extends GNomExCommand implements Serializable {
    
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
       
-      Document doc = dataTrackQuery.getDataTrackDocument(sess, this.getSecAdvisor());
+      Document doc = dataTrackQuery.getDataTrackDocument(sess, this.getSecAdvisor(), getMaxDataTracks(sess));
       
       org.jdom.output.XMLOutputter out = new org.jdom.output.XMLOutputter();
       this.xmlResult = out.outputString(doc);
@@ -62,5 +66,18 @@ public class GetDataTrackList extends GNomExCommand implements Serializable {
     }
     
     return this;
+  }
+  
+  private Integer getMaxDataTracks(Session sess) {
+	    Integer maxDataTracks = MAX_DATATRACK_COUNT_DEFAULT;
+	    String prop = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.DATATRACK_VIEW_LIMIT);
+	    if (prop != null && prop.length() > 0) {
+	      try {
+	    	  maxDataTracks = Integer.parseInt(prop);
+	      }
+	      catch(NumberFormatException e) {
+	      }    
+	    }
+	    return maxDataTracks;
   }
 }
