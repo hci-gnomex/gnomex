@@ -67,7 +67,8 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
   private Boolean          respondInHTML = false;
   private String           idLabs;
   private String           idBillingAccounts;
-
+  
+  private boolean		   includeBillingAccountContact = false;
 
   public void validate() {
   }
@@ -129,6 +130,11 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
         respondInHTML = true;
       }
     }
+    
+    if (request.getParameter("includeBillingAccountContact") != null && request.getParameter("includeBillingAccountContact").trim().equals("Y")) {
+    	includeBillingAccountContact = true;
+    }
+    
     serverName = request.getServerName();
   }
 
@@ -760,12 +766,21 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
     String note = "";
     boolean send = false;
     String emailRecipients = contactEmail;
+    if (includeBillingAccountContact && billingAccount.getLab() != null && !lab.getIdLab().equals(billingAccount.getLab().getIdLab())) {
+    	emailRecipients = appendBillingAccountLabEmail(emailRecipients, billingAccount);  
+    }
     String ccList = emailFormatter.getCCList(sess);
     String fromAddress = coreFacility.getContactEmail();
-    if(!MailUtil.isValidEmail(emailRecipients)){
-      log.error("Invalid email address " + emailRecipients);
+    if(emailRecipients.contains(",")){
+        for(String e : emailRecipients.split(",")){
+          if(!MailUtil.isValidEmail(e.trim())){
+            log.error("Invalid email address " + e);
+          }
+        }
+    } else if(!MailUtil.isValidEmail(emailRecipients)){
+        log.error("Invalid email address " + emailRecipients);
     }
-    if (contactEmail != null && !contactEmail.equals("")) {
+    if (emailRecipients != null && !emailRecipients.equals("")) {
       send = true;     
     } else {
       note = "Unable to email billing invoice. Billing contact email is blank for " + lab.getName(false, true);
@@ -791,7 +806,7 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
         
         billingInvoice.delete();
 
-        note = "Billing invoice emailed to " + contactEmail + ".";
+        note = "Billing invoice emailed to " + emailRecipients + ".";
 
         // Set last email date
         if (invoice != null) {
@@ -800,8 +815,8 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
           sess.flush();
         }
       } catch( Exception e) {
-        log.error("Unable to send invoice email to " + contactEmail, e);
-        note = "Unable to email invoice to " + contactEmail + " due to the following error: " + e.toString();        
+        log.error("Unable to send invoice email to " + emailRecipients, e);
+        note = "Unable to email invoice to " + emailRecipients + " due to the following error: " + e.toString();        
       } 
     }
     Document doc = null;
@@ -844,7 +859,22 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
     this.xmlResult = out.outputString(doc);
   }  
 
-
+  private String appendBillingAccountLabEmail(String recipients, BillingAccount billingAccount) {
+	  StringBuffer allRecipients = new StringBuffer(recipients);
+	  
+	  if (allRecipients.length() > 0) {
+		  allRecipients.append(",");
+	  }
+	  
+	  Lab lab = billingAccount.getLab();
+	  if (lab.getBillingContactEmail() != null && !lab.getBillingContactEmail().equals("") && allRecipients.indexOf(lab.getBillingContactEmail()) == -1) {
+		  allRecipients.append(lab.getBillingContactEmail());
+	  } else if(lab.getContactEmail() != null && !lab.getContactEmail().equals("") && allRecipients.indexOf(lab.getContactEmail()) == -1) {
+		  allRecipients.append(lab.getContactEmail());
+	  }
+	  
+	  return allRecipients.toString();
+  }
 
   /**
    *  The callback method called after the loadCommand, and execute methods,
