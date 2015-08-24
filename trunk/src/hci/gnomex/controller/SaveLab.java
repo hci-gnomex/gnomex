@@ -35,6 +35,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -441,10 +442,11 @@ public class SaveLab extends GNomExCommand implements Serializable {
           lab.setMembers(members);
 
           //Notify newly added members
-          ArrayList emails = labMemberParser.getNewMemberEmailList();
-          for(Iterator i = emails.iterator(); i.hasNext();) {
-            String email = (String)i.next();
-            newMemberNotificationEmail(sess, email, lab.getName(false, true));
+          Map<AppUser, String> newUsers = labMemberParser.getNewMemberEmailList();
+          for(Iterator<AppUser> iter = newUsers.keySet().iterator(); iter.hasNext();) {
+        	AppUser newMember = iter.next();
+            String email = newUsers.get(newMember);
+            newMemberNotificationEmail(sess, email, lab.getName(false, true), newMember);
           }
 
           sess.flush();
@@ -631,7 +633,7 @@ public class SaveLab extends GNomExCommand implements Serializable {
     return this;
   }
 
-  private void newMemberNotificationEmail(Session sess, String email, String labName) {
+  private void newMemberNotificationEmail(Session sess, String email, String labName, AppUser recipient) {
     PropertyDictionaryHelper pdh = PropertyDictionaryHelper.getInstance(sess);
     String fromAddress = pdh.getProperty(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
     StringBuffer body = new StringBuffer();
@@ -653,6 +655,9 @@ public class SaveLab extends GNomExCommand implements Serializable {
 				true, 
 				DictionaryHelper.getInstance(sess),
 				serverName 								);
+    	if (recipient != null) {
+    		helper.setRecipientAppUser(recipient);
+    	}
     	MailUtil.validateAndSendEmail(helper);
     } catch (Exception e) {
       e.printStackTrace();
@@ -712,7 +717,7 @@ public class SaveLab extends GNomExCommand implements Serializable {
 
     StringBuffer submitterNote = new StringBuffer();
     StringBuffer body = new StringBuffer();
-    String submitterSubject = "GNomEx Billing Account '" + billingAccount.getAccountName() + "' for " + lab.getName(false, true) + " approved"; 
+    String submitterSubject = "GNomEx Billing Account \'" + billingAccount.getAccountName() + "\' for " + lab.getName(false, true) + " approved"; 
 
     String PIEmail = lab.getContactEmail();
 
@@ -726,15 +731,16 @@ public class SaveLab extends GNomExCommand implements Serializable {
     submitterNote.append("The following billing account " +
         "has been approved." +
         "  Lab members can now submit experiment " +
-        "requests against this account in GNomEx " + launchAppURL + ".");
+        "requests against this account in <a href=\'" + launchAppURL + "\'>GNomEx</a>.");
 
-    body.append("\n");
-    body.append("\n");
-    body.append("Lab:               " + lab.getName(false, false) + "\n");
-    body.append("Account:           " + billingAccount.getAccountName() + "\n");
+    body.append("<br><br>");
+    body.append("<table border=\'0\'>");
+    body.append("<tr><td>Lab:</td><td>" + lab.getName(false, false) + "</td></tr>");
+    body.append("<tr><td>Account:</td><td>" + billingAccount.getAccountName() + "</td></tr>");
     if (billingAccount.getExpirationDateOther() != null && billingAccount.getExpirationDateOther().length() > 0) {
-      body.append("Effective until:   " + billingAccount.getExpirationDateOther() + "\n");
+      body.append("<tr><td>Effective until:</td><td>" + billingAccount.getExpirationDateOther() + "</td></tr>");
     }
+    body.append("</table>");
 
     String from = facility.getContactEmail();
     if(!MailUtil.isValidEmail(from)){
@@ -747,7 +753,7 @@ public class SaveLab extends GNomExCommand implements Serializable {
     		submitterSubject,
     		submitterNote.toString() + body.toString(),
     		null,
-			false, 
+			true, 
 			DictionaryHelper.getInstance(sess),
 			serverName 									);
     MailUtil.validateAndSendEmail(helper);
