@@ -2,7 +2,7 @@
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical" 
 	xmlns:util="views.util.*" 
 	title="{'Price ' + price.@name + ' (' + priceCategory.@name + ')'}" 
-	 defaultButton="{saveButton}" width="520" height="380">
+	 defaultButton="{saveButton}" width="540" height="380">
    
    <mx:HTTPService             
     id="savePrice" 
@@ -22,6 +22,8 @@
 		
 		import mx.collections.XMLListCollection;
 		import mx.controls.Alert;
+		import mx.controls.List;
+		import mx.events.ValidationResultEvent;
 		import mx.managers.PopUpManager;
 		import mx.rpc.events.FaultEvent;
 		import mx.rpc.events.ResultEvent;
@@ -106,16 +108,55 @@
 	    	params.name = priceName.text;
 	    	params.description = priceDescription.text;
 	    	params.idPrice = price.@idPrice;
-	    	params.unitPrice = unitPrice.text;
-	    	params.unitPriceExternalAcademic = unitPriceExternalAcademic.text;
-			params.unitPriceExternalCommercial = unitPriceExternalCommercial.text;
+	    	params.unitPrice = unitPrice.text != '' ? unitPrice.text : '0';
+	    	params.unitPriceExternalAcademic = unitPriceExternalAcademic.text != '' ? unitPriceExternalAcademic.text : '0';
+			params.unitPriceExternalCommercial = unitPriceExternalCommercial.text != '' ? unitPriceExternalCommercial.text : '0';
 	    	params.idPriceCategory = priceCategory.@idPriceCategory;
 	    	params.isActive = priceIsActive.selected ? "Y" : "N";
 	    	
 	    	params.priceCriteriasXMLString = "<priceCriterias>" + criteriaList.toXMLString() + "</priceCriterias>";
 
 			savePrice.send(params);		
-		}	
+		}
+		
+		private function checkPrice():void{
+			var priceErrorVisible:Boolean = false;
+			var prices:Array = new Array();
+			prices.push(unitPrice.text);
+			prices.push(this.unitPriceExternalAcademic.text);
+			prices.push(this.unitPriceExternalCommercial.text);
+			precisionErrorText.text = "Prices can have up to 5 digits before the decimal and only 2 after";
+			
+			for(var i:int = 0; i < prices.length; i++){
+				var price:String = prices[i];
+				if(priceValidator.validate(price).type == ValidationResultEvent.INVALID){
+					precisionErrorText.text = priceValidator.validate(price).message;
+					priceErrorVisible = true;
+					break;
+				}
+				if(price.indexOf(".") > 0){
+					var prefix:String = price.substring(0, price.indexOf("."));
+					var suffix:String = price.substring(price.indexOf(".") + 1, price.length);
+					
+					if(prefix.length > 5){
+						priceErrorVisible = true;
+						break;
+					}
+					if(suffix.length > 2){
+						priceErrorVisible = true;
+						break;
+					}
+				} else{
+					if(price.length > 5){
+						priceErrorVisible = true;
+						break;
+					}
+				}
+			}
+			
+			this.precisionError.visible = priceErrorVisible;
+			
+		}
 		
 		private function onSavePrice(event:ResultEvent):void {
 			if (savePrice.lastResult.name() == "SUCCESS") {
@@ -146,6 +187,7 @@
 		
 	]]>
 </mx:Script>
+	<mx:NumberValidator id="priceValidator" allowNegative="false" required="false" precision="2" />
 <mx:VBox width="100%" styleName="form" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
     <mx:HBox width="100%">
     	<mx:Label text="Name" width="70" styleName="formLabel"/>
@@ -162,15 +204,15 @@
 	<mx:HBox width="100%">
 		<mx:HBox height="100%" verticalGap="0" paddingRight="8" verticalAlign="middle" horizontalAlign="left">
 			<mx:Label text="Unit price" width="70" toolTip="Internal Unit Price" styleName="formLabel"/>
-			<mx:TextInput id="unitPrice" width="50" text="{price.@unitPrice}" textAlign="right"/>
+			<mx:TextInput id="unitPrice" width="50" focusOut="{checkPrice()}" text="{price.@unitPrice != '' ? price.@unitPrice : '0'}" textAlign="right"/>
 		</mx:HBox>
 		<mx:HBox height="100%" verticalGap="0" paddingRight="8" verticalAlign="middle" horizontalAlign="left">
 			<mx:Label text="External Academic" toolTip="External Unit Price for Academic Labs" styleName="formLabel"/>
-			<mx:TextInput id="unitPriceExternalAcademic" width="50" text="{price.@unitPriceExternalAcademic}" textAlign="right"/>
+			<mx:TextInput id="unitPriceExternalAcademic" focusOut="{checkPrice()}"  width="50" text="{price.@unitPriceExternalAcademic != '' ? price.@unitPriceExternalAcademic : '0'}" textAlign="right"/>
 		</mx:HBox>
 		<mx:HBox height="100%" verticalGap="0" width="100%" verticalAlign="middle" horizontalAlign="left">
 			<mx:Label text="External Commercial" toolTip="External Unit Price for Commercial Labs" styleName="formLabel"/>
-			<mx:TextInput id="unitPriceExternalCommercial" width="50" text="{price.@unitPriceExternalCommercial}" textAlign="right"/>
+			<mx:TextInput id="unitPriceExternalCommercial" width="50" focusOut="{checkPrice()}" text="{price.@unitPriceExternalCommercial != '' ? price.@unitPriceExternalCommercial : '0'}" textAlign="right"/>
 		</mx:HBox>
 	</mx:HBox>
 	<mx:VBox width="100%"  verticalGap="0">
@@ -194,7 +236,10 @@
 	</mx:VBox>
 </mx:VBox>
 	<mx:ControlBar horizontalAlign="right">
-		<mx:Button label="Save" id="saveButton" click="save()" enabled="true" icon="@Embed(source='../../assets/action_save.gif')"/>
+		<mx:HBox visible="false" id="precisionError" backgroundColor="#FFFEC3"  borderColor="#000000" borderStyle="{'solid'}" >
+			<mx:Label id="precisionErrorText"/>
+		</mx:HBox>
+		<mx:Button label="Save" id="saveButton" click="save()" enabled="{precisionError.visible == false}" disabledIcon="@Embed(source='../../assets/save_disable.png')" icon="@Embed(source='../../assets/action_save.gif')"/>
 		<mx:Button label="Cancel" click="{mx.managers.PopUpManager.removePopUp(this)}"/>
 	</mx:ControlBar>
 	
