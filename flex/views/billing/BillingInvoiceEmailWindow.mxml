@@ -10,7 +10,8 @@
 		result="onShowBillingInvoiceForm(event)" 
 		fault="parentApplication.onFailHttpRequest('Failed to send email', event)"
 		method="POST"
-		useProxy="false"> 
+		useProxy="false"
+		showBusyCursor="true"> 
 	</mx:HTTPService>
 	<mx:Script>
 		<![CDATA[
@@ -32,6 +33,7 @@
 				params.idCoreFacility= idCoreFacility;
 				params.action="email";
 				params.emailAddress = this.emailText.text;
+				params.includeBillingAccountContact = this.includeBillingAccountContact.selected ? "Y" : "N";
 				
 				showBillingInvoiceForm.send(params);
 			}
@@ -78,6 +80,7 @@
 		<mx:VBox height="100%" verticalGap="0" width="100%" id="emailVBox">
 			<mx:Label text="Email Address(es)"/>
 			<mx:TextArea id="emailText" width="100%" height="60" fontSize="11" keyUp="checkEmailValidity(event)"/>
+			<mx:CheckBox id="includeBillingAccountContact" selected="true" label="If the billing account belongs to a different lab, include that lab's billing contact automatically?" fontSize="9" />
 			<mx:Label text="*Please separate multiple email addresses with a comma" fontSize="9"/>
 		</mx:VBox>
 	</mx:HBox>

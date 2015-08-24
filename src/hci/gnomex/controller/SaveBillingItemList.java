@@ -311,6 +311,9 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
       } else if(lab.getContactEmail() != null && !lab.getContactEmail().equals("")) {
         emailRecipients = lab.getContactEmail();
       }
+      if (billingAccount.getLab() != null && !lab.getIdLab().equals(billingAccount.getLab().getIdLab())) {
+    	emailRecipients = appendBillingAccountLabEmail(emailRecipients, billingAccount);  
+      }
     } else {
       emailRecipients = coreFacility.getContactEmail();
       notifyCoreFacilityOfEmptyBillingEmail = true;
@@ -385,6 +388,22 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
     this.executionLogger.endLogItem(li);
   }  
 
+  private String appendBillingAccountLabEmail(String recipients, BillingAccount billingAccount) {
+	  StringBuffer allRecipients = new StringBuffer(recipients);
+	  
+	  if (allRecipients.length() > 0) {
+		  allRecipients.append(",");
+	  }
+	  
+	  Lab lab = billingAccount.getLab();
+	  if (lab.getBillingContactEmail() != null && !lab.getBillingContactEmail().equals("")) {
+		  allRecipients.append(lab.getBillingContactEmail());
+	  } else if(lab.getContactEmail() != null && !lab.getContactEmail().equals("")) {
+		  allRecipients.append(lab.getContactEmail());
+	  }
+	  
+	  return allRecipients.toString();
+  }
 
   private boolean readyToInvoice(Session sess, Integer idBillingPeriod, Lab lab, Integer idBillingAccount, Integer idCoreFacility) {
     LogItem li = this.executionLogger.startLogItem("readyToInvoice");
