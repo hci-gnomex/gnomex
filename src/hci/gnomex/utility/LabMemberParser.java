@@ -4,7 +4,6 @@ import hci.framework.model.DetailObject;
 import hci.gnomex.model.AppUser;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -17,8 +16,8 @@ import org.jdom.Element;
 public class LabMemberParser extends DetailObject implements Serializable {
 
   protected Document   doc;
-  protected Map        appUserMap = new HashMap();
-  protected ArrayList  newMemberEmailList = new ArrayList();
+  protected Map<Integer, AppUser>        appUserMap = new HashMap<Integer, AppUser>();
+  protected Map<AppUser, String>  newMemberEmailList = new HashMap<AppUser, String>();
 
   public LabMemberParser(Document doc) {
     this.doc = doc;
@@ -40,17 +39,17 @@ public class LabMemberParser extends DetailObject implements Serializable {
 
 
       if(node.getAttributeValue("newMember") != null && node.getAttributeValue("newMember").equals("Y")) {
-        newMemberEmailList.add(appUser.getEmail());
+    	  newMemberEmailList.put(appUser, appUser.getEmail());
       }
     }
   }
 
 
-  public Map getAppUserMap() {
+  public Map<Integer, AppUser> getAppUserMap() {
     return appUserMap;
   }
 
-  public ArrayList getNewMemberEmailList() {
+  public Map<AppUser, String> getNewMemberEmailList() {
     return newMemberEmailList;
   }
 }

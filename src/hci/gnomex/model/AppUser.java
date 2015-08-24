@@ -36,7 +36,15 @@ public class AppUser extends HibernateDetailObject implements Serializable, Comp
   private Set     managingLabs;
   private Set     managingCoreFacilities;
   private Set     coreFacilitiesICanSubmitTo;
-
+  
+  @Override
+  public boolean equals(Object obj) {
+	  if (obj != null && obj instanceof AppUser) {
+		  return this.idAppUser.equals(((AppUser) obj).idAppUser);
+	  }
+	  
+	  return false;
+  }
 
   public static String formatName(String lastName, String firstName) {
 
