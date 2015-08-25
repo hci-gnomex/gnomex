@@ -7,7 +7,7 @@
 			import mx.controls.Alert;
 			import mx.events.CloseEvent;
 			import mx.managers.PopUpManager;
-			
+			import mx.rpc.events.ResultEvent;
 			import views.renderers.ComboBox;
 			
 			[Bindable]
@@ -37,7 +37,11 @@
 				var newNode:XML = new XML("<IsolationPrepType " +
 					" isActive='Y'" +
 					" isNew='Y'" +
+					" unitPriceInternal=''" +
+					" unitPriceExternalAcademic=''" + 
+					" unitPriceExternalCommercial=''" +
 					" codeIsolationPrepType=''" +
+					" idPrice=''" + 
 					" isolationPrepType='" + 'enter prep type here...' + "'" +
 					" type='DNA'" +
 					" codeRequestCategory='" + state.requestCategory.@codeRequestCategory + "'" +
@@ -81,15 +85,16 @@
 				}
 			}
 			
-//			public function editPrepTypePricing():void {
-//				//showEditPrepTypePricingTypeWindow(prepTypeGrid.selectedItem);
-//			}
-//			
-//			private function showEditPrepTypePricingWindow(app:Object):void {
-//				var editWindow:PrepTypePricingWindow = PrepTypePricingWindow(PopUpManager.createPopUp(parentApplication.theBody, PrepTypePricingWindow, true));
-//				PopUpManager.centerPopUp(editWindow);
-//				editWindow.init(app);
-//			}
+			public function editPrepTypePricingWindow(app:Object):void {
+				var editWindow:PrepTypePricingWindow = PrepTypePricingWindow(PopUpManager.createPopUp(parentApplication.theBody, PrepTypePricingWindow, true));
+				editWindow.addEventListener(ResultEvent.RESULT, markDirty);
+				editWindow.init(app);
+				PopUpManager.centerPopUp(editWindow);
+			}
+			
+			protected function markDirty(event:ResultEvent):void{
+				parentDocument.dirty.setDirty();
+			}
 			
 
 		]]>
@@ -146,15 +151,15 @@
 								   wordWrap="true" width="60"
 								   sortable="false" editable="true" rendererIsEditor="true" >
 				</mx:DataGridColumn>
-<!--				<mx:DataGridColumn headerText="Edit Pricing" width="70" editable="false">
+				<mx:DataGridColumn headerText="Edit Pricing" width="70" editable="false">
 					<mx:itemRenderer>
 						<mx:Component>
 							<mx:HBox verticalAlign="top" horizontalGap="0"  horizontalScrollPolicy="off">
-								<mx:LinkButton label="Edit" textDecoration="underline" fontSize="9" color="#0000FF" click="outerDocument.editPrepTypePricing()"/>
+								<mx:LinkButton label="Edit" textDecoration="underline" fontSize="9" color="#0000FF" click="outerDocument.editPrepTypePricingWindow(outerDocument.prepTypeGrid.selectedItem)"/>
 							</mx:HBox>
 						</mx:Component>
 					</mx:itemRenderer>
-				</mx:DataGridColumn>-->
+				</mx:DataGridColumn>
 			</mx:columns>
 		</mx:DataGrid>
 	</mx:VBox>

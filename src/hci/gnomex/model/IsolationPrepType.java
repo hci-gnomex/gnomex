@@ -4,6 +4,8 @@ import hci.dictionary.model.DictionaryEntry;
 
 import java.io.Serializable;
 
+import org.hibernate.Session;
+
 
 
 public class IsolationPrepType extends DictionaryEntry implements Serializable {
@@ -20,6 +22,7 @@ public class IsolationPrepType extends DictionaryEntry implements Serializable {
   private String     type;
   private String     isActive;
   private String     codeRequestCategory;
+  private Integer    idPrice;
   
   public String getDisplay() {
     return isolationPrepType;
@@ -71,5 +74,28 @@ public class IsolationPrepType extends DictionaryEntry implements Serializable {
   public void setCodeRequestCategory(String codeRequestCategory) {
     this.codeRequestCategory = codeRequestCategory;
   }
+  
+  
+  public Integer getIdPrice() {
+    return idPrice;
+  }
+
+  public void setIdPrice(Integer idPrice) {
+    this.idPrice = idPrice;
+  }
+
+  public static Price getIsolationPrepTypePrice(Session sess, IsolationPrepType ipt) {
+    
+    if ( ipt == null || ipt.getIdPrice() == null ) {
+      return null;
+    }
+    
+    String priceQuery; 
+    
+     priceQuery = "SELECT p from Price as p where p.idPrice=" + ipt.getIdPrice();
+     Price price = (Price) sess.createQuery( priceQuery ).uniqueResult();
+     
+     return price;
+   }
 
 }
