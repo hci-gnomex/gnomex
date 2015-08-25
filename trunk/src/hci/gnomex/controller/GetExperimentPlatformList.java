@@ -248,10 +248,14 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
         if (prepList != null) {
           for(IsolationPrepType c : prepList) {
             this.getSecAdvisor().flagPermissions(c);
+            Price p = null;
+            if(c.getIdPrice() != null){
+              p = (Price)sess.load(Price.class, c.getIdPrice());
+            }
             Element cycleNode = c.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
-            //cycleNode.setAttribute("unitPriceInternal", getUnitPrice(seqOptionsToPriceMap, c, rc, this.PRICE_INTERNAL));
-            //cycleNode.setAttribute("unitPriceExternalAcademic", getUnitPrice(seqOptionsToPriceMap, c, rc, this.PRICE_EXTERNAL_ACADEMIC));
-            //cycleNode.setAttribute("unitPriceExternalCommercial", getUnitPrice(seqOptionsToPriceMap, c, rc, this.PRICE_EXTERNAL_COMMERCIAL));
+            cycleNode.setAttribute("unitPriceInternal", getUnitPrice(p, this.PRICE_INTERNAL));
+            cycleNode.setAttribute("unitPriceExternalAcademic", getUnitPrice(p, this.PRICE_EXTERNAL_ACADEMIC));
+            cycleNode.setAttribute("unitPriceExternalCommercial", getUnitPrice(p, this.PRICE_EXTERNAL_COMMERCIAL));
             listNode.addContent(cycleNode);
           }
         }  

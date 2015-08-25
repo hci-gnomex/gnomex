@@ -181,6 +181,8 @@
 					if(saveExperimentPlatform.lastResult.@unableToDelete.toString() != ''){
 						Alert.show(saveExperimentPlatform.lastResult.@unableToDelete);
 					}
+					dirty.resetDirty();
+					getExperimentPlatformList.send();
 				} else {
 					mx.controls.Alert.show(saveExperimentPlatform.lastResult..ACTMESSAGE.@TEXT);
 				}

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" width="400" height="300" xmlns:util="views.util.*">
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" width="395" title="Prep Type Pricing" height="180" xmlns:util="views.util.*" creationPolicy="all" verticalScrollPolicy="off">
 	
 	
 	<mx:Script>
@@ -7,18 +7,72 @@
 			
 			import mx.managers.PopUpManager;
 			import views.util.DirtyNote;
+			import mx.events.ValidationResultEvent;
+			import mx.rpc.events.ResultEvent;
+			
 			[Bindable]
-			private var prepType:Object = new Object();
+			private var prepType:Object;
 			
 			
 			public function init(selectedItem:Object):void{
 				this.prepType = selectedItem;
+				initValues();
+			}
+			
+			private function initValues():void{
+				unitPrice.text = prepType.@unitPriceInternal == '' ? '0.00' : prepType.@unitPriceInternal;
+				this.unitPriceExternalAcademic.text = prepType.@unitPriceExternalAcademic == '' ? '0.00' : prepType.@unitPriceExternalAcademic;
+				this.unitPriceExternalCommercial.text = prepType.@unitPriceExternalCommercial == '' ? '0.00' : prepType.@unitPriceExternalCommercial;
 			}
 			
 			private function save():void{
-				prepType.@unitPriceInternal = priceInternalText.text;
-				prepType.@unitPriceExternalAcademic = priceExternalAcademicText.text;
-				prepType.@unitPriceExternalCommercial = priceExternalCommercialText.text;
+				prepType.@unitPriceInternal = this.unitPrice.text;
+				prepType.@unitPriceExternalAcademic = this.unitPriceExternalAcademic.text;
+				prepType.@unitPriceExternalCommercial = this.unitPriceExternalCommercial.text;
+				
+				if(this.dirty.isDirty()){
+					dispatchEvent(new ResultEvent(ResultEvent.RESULT,false,true));
+				}
+				
+				PopUpManager.removePopUp(this);
+			}
+			
+			private function checkPrice():void{
+				var priceErrorVisible:Boolean = false;
+				var prices:Array = new Array();
+				prices.push(this.unitPrice.text);
+				prices.push(this.unitPriceExternalAcademic.text);
+				prices.push(this.unitPriceExternalCommercial.text);
+				precisionErrorText.text = "Prices can have up to 5 digits before the decimal and only 2 after";
+				
+				for(var i:int = 0; i < prices.length; i++){
+					var price:String = prices[i];
+					if(priceValidator.validate(price).type == ValidationResultEvent.INVALID){
+						precisionErrorText.text = priceValidator.validate(price).message;
+						priceErrorVisible = true;
+						break;
+					}
+					if(price.indexOf(".") > 0){
+						var prefix:String = price.substring(0, price.indexOf("."));
+						var suffix:String = price.substring(price.indexOf(".") + 1, price.length);
+						
+						if(prefix.length > 5){
+							priceErrorVisible = true;
+							break;
+						}
+						if(suffix.length > 2){
+							priceErrorVisible = true;
+							break;
+						}
+					} else{
+						if(price.length > 5){
+							priceErrorVisible = true;
+							break;
+						}
+					}
+				}
+				
+				this.precisionError.visible = priceErrorVisible;
 				
 			}
 			
@@ -31,32 +85,30 @@
 		]]>
 	</mx:Script>
 	
-	
+	<mx:NumberValidator id="priceValidator" allowNegative="false" required="false" precision="2" />
 	<mx:HBox width="100%" verticalGap="0" verticalAlign="top">
-		<mx:Text text="Pricing" width="80" styleName="formLabel"/>
 		<mx:VBox width="100%" paddingTop="0" verticalGap="2">
 			<mx:HBox width="100%" horizontalGap="0" verticalAlign="middle" paddingTop="0">
+				<mx:Label id="priceInternalLabel" text="Internal Pricing" width="168" />
 				<mx:Label text="$" paddingRight="0" textAlign="right" width="20" />
-				<mx:TextInput width="250" id="priceInternalText" text="{prepType.@unitPriceInternal == '' ? '0.00' : prepType.@unitPriceInternal}" restrict="0-9." paddingLeft="0" change="setDirty()" />
-				<mx:Spacer width="5" />
-				<mx:Label id="priceInternalLabel" text="Internal Pricing" />
+				<mx:TextInput width="100%" id="unitPrice" focusOut="{checkPrice()}" text="{prepType.@unitPriceInternal == '' ? '0.00' : prepType.@unitPriceInternal}" restrict="0-9." paddingLeft="0" change="setDirty()" />
 			</mx:HBox>
 			<mx:HBox width="100%" horizontalGap="0" verticalAlign="middle" paddingTop="0">
+				<mx:Label id="priceExternalAcademicLabel" text="External Academic Pricing" width="168" />
 				<mx:Label text="$" paddingRight="0" textAlign="right" width="20" />
-				<mx:TextInput width="250" id="priceExternalAcademicText" text="{prepType.@unitPriceExternalAcademic == '' ? '0.00' : prepType.@unitPriceExternalAcademic}" restrict="0-9." paddingLeft="0" change="setDirty()" />
-				<mx:Spacer width="5" />
-				<mx:Label id="priceExternalAcademicLabel" text="External Academic Pricing" />
+				<mx:TextInput width="100%" id="unitPriceExternalAcademic" focusOut="{checkPrice()}" text="{prepType.@unitPriceExternalAcademic == '' ? '0.00' : prepType.@unitPriceExternalAcademic}" restrict="0-9." paddingLeft="0" change="setDirty()" />
 			</mx:HBox>
 			<mx:HBox width="100%" horizontalGap="0" verticalAlign="middle" paddingTop="0">
+				<mx:Label id="priceExternalCommercialLabel" text="External Commercial Pricing" width="168" />
 				<mx:Label text="$" paddingRight="0" textAlign="right" width="20" />
-				<mx:TextInput width="250" id="priceExternalCommercialText" text="{prepType.@unitPriceExternalCommercial == '' ? '0.00' : prepType.@unitPriceExternalCommercial}" restrict="0-9." paddingLeft="0" change="setDirty()" />
-				<mx:Spacer width="5" />
-				<mx:Label id="priceExternalCommercialLabel" text="External Commercial Pricing" />
+				<mx:TextInput width="100%" id="unitPriceExternalCommercial" focusOut="{checkPrice()}" text="{prepType.@unitPriceExternalCommercial == '' ? '0.00' : prepType.@unitPriceExternalCommercial}" restrict="0-9." paddingLeft="0" change="setDirty()" />
 			</mx:HBox>
 		</mx:VBox>
 		
 	</mx:HBox>
-	
+	<mx:HBox visible="false" id="precisionError" backgroundColor="#FFFEC3"  borderColor="#000000" borderStyle="{'solid'}" >
+		<mx:Label id="precisionErrorText"/>
+	</mx:HBox>
 	<mx:ControlBar horizontalAlign="right">
 		<mx:Spacer width="100%" />
 		<util:DirtyNote id="dirty" />

@@ -64,7 +64,7 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
 
   private String                         sequencingOptionsXMLString;
   private Document                       sequencingOptionsDoc;
-  
+
   private String                         prepTypesXMLString;
   private Document                       prepTypesDoc; 
 
@@ -104,9 +104,9 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
     if(request.getParameter("customWarningMessage") != null && !request.getParameter("customWarningMessage").equals("")){
       this.customWarningMessage = request.getParameter("customWarningMessage");
     }
-    
+
     if (request.getParameter("noProductsMessage") != null && !request.getParameter("noProductsMessage").equals("")) {
-        this.noProductsMessage = request.getParameter("noProductsMessage");
+      this.noProductsMessage = request.getParameter("noProductsMessage");
     }
 
     if (request.getParameter("sampleTypesXMLString") != null && !request.getParameter("sampleTypesXMLString").equals("")) {
@@ -120,7 +120,7 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
         this.addInvalidField( "sampleTypesXMLString", "Invalid sampleTypesXMLString");
       }
     }
-    
+
     if (request.getParameter("prepTypesXMLString") != null && !request.getParameter("prepTypesXMLString").equals("")) {
       prepTypesXMLString = request.getParameter("prepTypesXMLString");
       StringReader reader = new StringReader(prepTypesXMLString);
@@ -216,7 +216,7 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
             }
           }
         }
-        
+
 
 
         RequestCategory rc = null;
@@ -244,7 +244,7 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
         Boolean unableToDelete = savePrepTypes(sess);
 
         //now check and see if we need to create a sample warning property for sample batch size
-        
+
         Integer idCoreFacility = rc.getIdCoreFacility();
         String codeRequestCategory = rc.getCodeRequestCategory();
 
@@ -275,32 +275,32 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
           }
 
         }
-        
+
         // Now check and see if we need to create a no products message property
         List noProductsMessageProps = generatePropertyQuery(sess, PropertyDictionary.PROPERTY_NO_PRODUCTS_MESSAGE, idCoreFacility, codeRequestCategory).list();
         if (noProductsMessage != null && !noProductsMessage.equals("")) {
-        	// If we don't have a property we need to create one
-        	if (noProductsMessageProps.size() == 0) {
-        		PropertyDictionary pd = new PropertyDictionary();
-        		pd.setPropertyName(PropertyDictionary.PROPERTY_NO_PRODUCTS_MESSAGE);
-        		pd.setIdCoreFacility(idCoreFacility);
-        		pd.setCodeRequestCategory(codeRequestCategory);
-        		pd.setForServerOnly("N");
-        		pd.setPropertyValue(noProductsMessage);
-        		pd.setPropertyDescription("The message displayed when submitting an experiment order requiring products if the lab does not have any applicable products in their inventory.");
-        		sess.save(pd);
-        	} else if (noProductsMessageProps.size() == 1) { // Maybe they are just updating the warning message
-        		PropertyDictionary pd = (PropertyDictionary)noProductsMessageProps.get(0);
-        		pd.setPropertyValue(noProductsMessage);
-        		sess.save(pd);
-        	}
+          // If we don't have a property we need to create one
+          if (noProductsMessageProps.size() == 0) {
+            PropertyDictionary pd = new PropertyDictionary();
+            pd.setPropertyName(PropertyDictionary.PROPERTY_NO_PRODUCTS_MESSAGE);
+            pd.setIdCoreFacility(idCoreFacility);
+            pd.setCodeRequestCategory(codeRequestCategory);
+            pd.setForServerOnly("N");
+            pd.setPropertyValue(noProductsMessage);
+            pd.setPropertyDescription("The message displayed when submitting an experiment order requiring products if the lab does not have any applicable products in their inventory.");
+            sess.save(pd);
+          } else if (noProductsMessageProps.size() == 1) { // Maybe they are just updating the warning message
+            PropertyDictionary pd = (PropertyDictionary)noProductsMessageProps.get(0);
+            pd.setPropertyValue(noProductsMessage);
+            sess.save(pd);
+          }
         } else { // This will remove the property for the given request category if they decide it no longer uses products
-        	if (noProductsMessageProps.size() > 0) {
-        		for (Iterator i = noProductsMessageProps.iterator(); i.hasNext();) {
-        			PropertyDictionary pd = (PropertyDictionary)i.next();
-        			sess.delete(pd);
-        		}
-        	}
+          if (noProductsMessageProps.size() > 0) {
+            for (Iterator i = noProductsMessageProps.iterator(); i.hasNext();) {
+              PropertyDictionary pd = (PropertyDictionary)i.next();
+              sess.delete(pd);
+            }
+          }
         }
 
         sess.flush();
@@ -363,17 +363,17 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
     rc.setCodeProductType(rcScreen.getCodeProductType());
     rc.setAssociatedWithAnalysis(rcScreen.getAssociatedWithAnalysis());
   }
-  
+
   private Boolean savePrepTypes(Session sess){
     if (prepTypesDoc == null || prepTypesDoc.getRootElement().getChildren().size() == 0) {
       return false;
     }
-    
+
     Boolean unableToDelete = false;
-    
+
     List prepTypes = new ArrayList();
     int currentPrepTypeCount = sess.createQuery("Select x from IsolationPrepType x").list().size();
-    
+
     for(Iterator i = this.prepTypesDoc.getRootElement().getChildren().iterator(); i.hasNext();){
       Element node = (Element)i.next();
       IsolationPrepType ipt =  null;
@@ -389,40 +389,98 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
         ipt = (IsolationPrepType) sess.load(IsolationPrepType.class, node.getAttributeValue("codeIsolationPrepType"));
         codeIsolationPrepType = node.getAttributeValue("codeIsolationPrepType");
       }
-      
+
       ipt.setIsActive(node.getAttributeValue("isActive"));
       ipt.setCodeIsolationPrepType(codeIsolationPrepType.toUpperCase());
       ipt.setType(node.getAttributeValue("type"));
       ipt.setIsolationPrepType(node.getAttributeValue("isolationPrepType"));
       ipt.setCodeRequestCategory(node.getAttributeValue("codeRequestCategory"));
+      ipt.setIdPrice(node.getAttributeValue("idPrice") != null && !node.getAttributeValue("idPrice").equals("") ? Integer.parseInt(node.getAttributeValue("idPrice")) : null);
       prepTypes.add(ipt);
       sess.save(ipt);
+
+      Price price = IsolationPrepType.getIsolationPrepTypePrice( sess, ipt );
+
+      if (price == null) {
+
+        RequestCategory rc = (RequestCategory)sess.load(RequestCategory.class, RequestCategory.ISOLATION_REQUEST_CATEGORY);
+        price = new Price();
+        price.setName(ipt.getIsolationPrepType());
+        price.setDescription("");
+        price.setIdPriceCategory(getDefaultIsolationPrepTypePriceCategoryId(sess, rc));
+        price.setIsActive(ipt.getIsActive());
+        price.setUnitPrice(node.getAttributeValue("unitPriceInternal") != null && !node.getAttributeValue("unitPriceInternal").equals("") ? new BigDecimal(node.getAttributeValue("unitPriceInternal")) : BigDecimal.ZERO);
+        price.setUnitPriceExternalAcademic(node.getAttributeValue("unitPriceExternalAcademic") != null && !node.getAttributeValue("unitPriceExternalAcademic").equals("") ? new BigDecimal(node.getAttributeValue("unitPriceExternalAcademic")) : BigDecimal.ZERO);
+        price.setUnitPriceExternalCommercial(node.getAttributeValue("unitPriceExternalCommercial") != null && !node.getAttributeValue("unitPriceExternalCommercial").equals("") ? new BigDecimal(node.getAttributeValue("unitPriceExternalCommercial")) : BigDecimal.ZERO);
+        sess.save(price);
+        ipt.setIdPrice(price.getIdPrice());
+        sess.save(ipt);
+        sess.flush();
+
+        PriceCriteria crit = new PriceCriteria();
+        crit.setIdPrice(price.getIdPrice());
+        crit.setFilter1(ipt.getCodeIsolationPrepType());
+        sess.save(crit);
+      } else{
+        price.setUnitPrice(node.getAttributeValue("unitPriceInternal") != null ? new BigDecimal(node.getAttributeValue("unitPriceInternal")) : BigDecimal.ZERO);
+        price.setUnitPriceExternalAcademic(node.getAttributeValue("unitPriceExternalAcademic") != null ? new BigDecimal(node.getAttributeValue("unitPriceExternalAcademic")) : BigDecimal.ZERO);
+        price.setUnitPriceExternalCommercial(node.getAttributeValue("unitPriceExternalCommercial") != null ? new BigDecimal(node.getAttributeValue("unitPriceExternalCommercial")) : BigDecimal.ZERO);
+        price.setIsActive(ipt.getIsActive());
+        price.setName(ipt.getIsolationPrepType());
+        sess.save(price);
+        sess.flush();
+      }
+
+
     }
-    
+
     sess.flush();
     List existingPrepTypes = sess.createQuery("SELECT x from IsolationPrepType x").list();
-    
+
     //Look for prep types that have been deleted and see if we can delete them.
     //If not just mark them as inactive.
     for(Iterator j = existingPrepTypes.iterator(); j.hasNext();){
       IsolationPrepType ep = (IsolationPrepType) j.next();
+      Price existingPrice = null;
+      if(ep.getIdPrice() != null && ep.getIdPrice().equals("")){
+        existingPrice = (Price)sess.load(Price.class, ep.getIdPrice());
+      }
       if(!prepTypes.contains(ep)){
         if(sess.createQuery("Select r from Request r where codeIsolationPrepType = '" + ep.getCodeIsolationPrepType() + "'").list().size() != 0){
           ep.setIsActive("N");
+          existingPrice.setIsActive("N");
           sess.save(ep);
+          if(existingPrice != null){
+            sess.save(existingPrice);
+          }
           unableToDelete = true;
           continue;
         } else{
+          if ( getPriceBillingItems(existingPrice, sess) == null || getPriceBillingItems( existingPrice, sess ).size() == 0 ) {
+            sess.delete(existingPrice); 
+          } else {
+            existingPrice.setIsActive("N");
+            sess.save(existingPrice);
+          }
           sess.delete(ep);
         }
       }
     }
-    
+
     sess.flush();
-    
+
     return unableToDelete;
-    
-    
+
+
+  }
+
+  private List getPriceBillingItems(Price price, Session sess) {  
+    if ( price == null ) {
+      return null;
+    }
+    String billingItemQuery = "SELECT bi from BillingItem as bi where bi.idPrice=" + price.getIdPrice();
+    List bi = sess.createQuery( billingItemQuery ).list();
+    return bi;
   }
 
   private void saveSampleTypes(Session sess, RequestCategory rc) {
@@ -919,16 +977,16 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
 
     Map<String, Price> map = new HashMap<String, Price>();
     String queryString = 
-      "select p, crit " +
-      " from PriceSheet ps " +
-      " join ps.requestCategories rc " +
-      " join ps.priceCategories pc " +
-      " join pc.priceCategory.prices p " +
-      " join p.priceCriterias crit " +
-      " where ( pc.priceCategory.pluginClassName='hci.gnomex.billing.illuminaLibPrepPlugin'" +
-      " or      pc.priceCategory.pluginClassName='hci.gnomex.billing.ApplicationBatchPlugin' )" +
-      "     and crit.filter1 is not null" +
-      "     and rc.codeRequestCategory = :code";
+        "select p, crit " +
+            " from PriceSheet ps " +
+            " join ps.requestCategories rc " +
+            " join ps.priceCategories pc " +
+            " join pc.priceCategory.prices p " +
+            " join p.priceCriterias crit " +
+            " where ( pc.priceCategory.pluginClassName='hci.gnomex.billing.illuminaLibPrepPlugin'" +
+            " or      pc.priceCategory.pluginClassName='hci.gnomex.billing.ApplicationBatchPlugin' )" +
+            "     and crit.filter1 is not null" +
+            "     and rc.codeRequestCategory = :code";
     Query query = sess.createQuery(queryString);
     query.setParameter("code", rc.getCodeRequestCategory());
     List l = query.list();
@@ -952,15 +1010,15 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
 
     Map<String, Price> map = new HashMap<String, Price>();
     String queryString = 
-      "select p, crit " +
-      " from PriceSheet ps " +
-      " join ps.requestCategories rc " +
-      " join ps.priceCategories pc " +
-      " join pc.priceCategory.prices p " +
-      " join p.priceCriterias crit " +
-      " where crit.filter1 is not null" +
-      "     and rc.codeRequestCategory = :code" +
-      "     and p.isActive = 'Y'";
+        "select p, crit " +
+            " from PriceSheet ps " +
+            " join ps.requestCategories rc " +
+            " join ps.priceCategories pc " +
+            " join pc.priceCategory.prices p " +
+            " join p.priceCriterias crit " +
+            " where crit.filter1 is not null" +
+            "     and rc.codeRequestCategory = :code" +
+            "     and p.isActive = 'Y'";
     Query query = sess.createQuery(queryString);
     query.setParameter("code", rc.getCodeRequestCategory());
     List l = query.list();
@@ -978,10 +1036,10 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
 
   private Boolean hasPriceSheet(Session sess, RequestCategory rc) {
     String queryString = 
-      "select rc " +
-      " from PriceSheet ps " +
-      " join ps.requestCategories rc " +
-      " where rc.codeRequestCategory = :code AND ps.isActive = 'Y'";
+        "select rc " +
+            " from PriceSheet ps " +
+            " join ps.requestCategories rc " +
+            " where rc.codeRequestCategory = :code AND ps.isActive = 'Y'";
     Query query = sess.createQuery(queryString);
     query.setParameter("code", rc.getCodeRequestCategory());
     List l = query.list();
@@ -995,14 +1053,14 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
       id = null;
     } else {
       String queryString = 
-        "select pc " +
-        " from PriceSheet ps " +
-        " join ps.requestCategories rc " +
-        " join ps.priceCategories pspc " +
-        " join pspc.priceCategory pc " +
-        " where ( pc.pluginClassName='hci.gnomex.billing.illuminaLibPrepPlugin' " +
-        " or      pc.pluginClassName='hci.gnomex.billing.ApplicationBatchPlugin' )" +
-        "     and rc.codeRequestCategory = :code and pc.name = :name";
+          "select pc " +
+              " from PriceSheet ps " +
+              " join ps.requestCategories rc " +
+              " join ps.priceCategories pspc " +
+              " join pspc.priceCategory pc " +
+              " where ( pc.pluginClassName='hci.gnomex.billing.illuminaLibPrepPlugin' " +
+              " or      pc.pluginClassName='hci.gnomex.billing.ApplicationBatchPlugin' )" +
+              "     and rc.codeRequestCategory = :code and pc.name = :name";
       Query query = sess.createQuery(queryString);
       query.setParameter("name", catName);
       query.setParameter("code", rc.getCodeRequestCategory());
@@ -1113,12 +1171,12 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
   private Integer getDefaultQCLibPrepPriceCategoryId(Session sess, RequestCategory rc) {
     Integer id = null;
     String queryString = 
-      "select pc " +
-      " from PriceSheet ps " +
-      " join ps.requestCategories rc " +
-      " join ps.priceCategories pspc " +
-      " join pspc.priceCategory pc " +
-      " where rc.codeRequestCategory = :code";
+        "select pc " +
+            " from PriceSheet ps " +
+            " join ps.requestCategories rc " +
+            " join ps.priceCategories pspc " +
+            " join pspc.priceCategory pc " +
+            " where rc.codeRequestCategory = :code";
     Query query = sess.createQuery(queryString);
     query.setParameter("code", rc.getCodeRequestCategory());
     try {
@@ -1338,13 +1396,13 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
       id = null;
     } else {
       String queryString =
-        "select pc " +
-        " from PriceSheet ps " +
-        " join ps.requestCategories rc " +
-        " join ps.priceCategories pspc " +
-        " join pspc.priceCategory pc " +
-        " where pc.pluginClassName='hci.gnomex.billing.IlluminaSeqPlugin'" +
-        "     and rc.codeRequestCategory = :code and pc.name = :name";
+          "select pc " +
+              " from PriceSheet ps " +
+              " join ps.requestCategories rc " +
+              " join ps.priceCategories pspc " +
+              " join pspc.priceCategory pc " +
+              " where pc.pluginClassName='hci.gnomex.billing.IlluminaSeqPlugin'" +
+              "     and rc.codeRequestCategory = :code and pc.name = :name";
       Query query = sess.createQuery(queryString);
       query.setParameter("name", catName);
       query.setParameter("code", rc.getCodeRequestCategory());
@@ -1365,6 +1423,40 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
     return id;
   }
 
+  private Integer getDefaultIsolationPrepTypePriceCategoryId(Session sess, RequestCategory rc) {
+    String catName = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityRequestCategoryProperty(rc.getIdCoreFacility(), rc.getCodeRequestCategory(), PropertyDictionary.ISOLATION_DEFAULT_PRICE_CATEGORY);
+    Integer id = null;
+    if (catName == null) {
+      id = null;
+    } else {
+      String queryString =
+          "select pc " +
+              " from PriceSheet ps " +
+              " join ps.requestCategories rc " +
+              " join ps.priceCategories pspc " +
+              " join pspc.priceCategory pc " +
+              " where pc.pluginClassName='hci.gnomex.billing.SequenomIsolationExtractPlugin'" +
+              "     and rc.codeRequestCategory = :code and pc.name = :name";
+      Query query = sess.createQuery(queryString);
+      query.setParameter("name", catName);
+      query.setParameter("code", rc.getCodeRequestCategory());
+      try {
+        PriceCategory cat = (PriceCategory)query.uniqueResult();
+        if (cat != null) {
+          id = cat.getIdPriceCategory();
+        } else {
+          log.error("SaveExperimentPlatform: Invalid default isolation prep type price category name -- " + catName);
+          id = null;
+        }
+      } catch(HibernateException e) {
+        log.error("SaveExperimentPlatform: Invalid default isolation prep type price category name -- " + catName, e);
+        id = null;
+      }
+    }
+
+    return id;
+  }
+
   private Map<String, Price> getIlluminaSeqOptionPriceMap(Session sess, RequestCategory rc) {
     if (!hasPriceSheet(sess, rc)) {
       return null;
@@ -1373,15 +1465,15 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
 
     Map<String, Price> map = new HashMap<String, Price>();
     String queryString = 
-      "select p, crit " +
-      " from PriceSheet ps " +
-      " join ps.requestCategories rc " +
-      " join ps.priceCategories pc " +
-      " join pc.priceCategory.prices p " +
-      " join p.priceCriterias crit " +
-      " where pc.priceCategory.pluginClassName='hci.gnomex.billing.IlluminaSeqPlugin'" +
-      "     and crit.filter1 is not null" +
-      "     and rc.codeRequestCategory = :code";
+        "select p, crit " +
+            " from PriceSheet ps " +
+            " join ps.requestCategories rc " +
+            " join ps.priceCategories pc " +
+            " join pc.priceCategory.prices p " +
+            " join p.priceCriterias crit " +
+            " where pc.priceCategory.pluginClassName='hci.gnomex.billing.IlluminaSeqPlugin'" +
+            "     and crit.filter1 is not null" +
+            "     and rc.codeRequestCategory = :code";
     Query query = sess.createQuery(queryString);
     query.setParameter("code", rc.getCodeRequestCategory());
     List l = query.list();
