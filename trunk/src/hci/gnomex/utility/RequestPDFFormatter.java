@@ -328,12 +328,17 @@ public class RequestPDFFormatter extends RequestPDFFormatterBase {
 	private Element makeTableCAPSEQ() {
 		Set samples = request.getSamples();
 		boolean isCapSeqPlate = request.isCapSeqPlate();
+		boolean showCCNumber = determineShowCCNumber(samples);
 		
 		PdfPTable table;
 		Font tableHeaderFont = FONT_TABLE_HEADERS_NORMAL;
 		Font tableValueFont = FONT_TABLE_VALUES_NORMAL;
-		if (isCapSeqPlate) {
+		if (isCapSeqPlate && showCCNumber) {
+			table = new PdfPTable(11);
+		} else if (isCapSeqPlate) {
 			table = new PdfPTable(10);
+		} else if (showCCNumber) {
+			table = new PdfPTable(9);
 		} else {
 			table = new PdfPTable(8);
 		}
@@ -349,6 +354,9 @@ public class RequestPDFFormatter extends RequestPDFFormatterBase {
 		}
 		PDFFormatterUtil.addToTableHeader(table, HEADER_SAMPLE_NAME, tableHeaderFont);
 		PDFFormatterUtil.addToTableHeader(table, HEADER_SAMPLE_TYPE, tableHeaderFont);
+		if (showCCNumber) {
+			PDFFormatterUtil.addToTableHeader(table, HEADER_CC_NUMBER, tableHeaderFont);
+		}
 		PDFFormatterUtil.addToTableHeader(table, HEADER_QUALITY_CONCENTRATION, tableHeaderFont);
 		PDFFormatterUtil.addToTableHeader(table, HEADER_QUALITY_RATIO, tableHeaderFont);
 		PDFFormatterUtil.addToTableHeader(table, HEADER_QUALITY_METHOD, tableHeaderFont);
@@ -386,6 +394,7 @@ public class RequestPDFFormatter extends RequestPDFFormatterBase {
 			if (s.getIdSample() != null) {
 				sampleType = dictionaryHelper.getSampleType(s);
 			}
+			String ccNumber = determineCCNumber(s);
 			String concentration = "";
 			if (s.getQualCalcConcentration() != null) {
 				concentration = s.getQualCalcConcentration().toString();
@@ -419,6 +428,9 @@ public class RequestPDFFormatter extends RequestPDFFormatterBase {
 			}
 			PDFFormatterUtil.addToTableValue(table, sampleName, tableValueFont);
 			PDFFormatterUtil.addToTableValue(table, sampleType, tableValueFont);
+			if (showCCNumber) {
+				PDFFormatterUtil.addCCNumberCell(ccNumber, table, FONT_CC_NUMBER_EMBED_SMALL, dictionaryHelper);
+			}
 			PDFFormatterUtil.addToTableValue(table, concentration, tableValueFont);
 			PDFFormatterUtil.addToTableValue(table, ratio, tableValueFont);
 			PDFFormatterUtil.addToTableValue(table, qcMeth, tableValueFont);
@@ -434,8 +446,14 @@ public class RequestPDFFormatter extends RequestPDFFormatterBase {
 	
 	private Element makeTableCLINSEQ() {
 		Set samples = request.getSamples();
+		boolean showCCNumber = determineShowCCNumber(samples);
 		
-		PdfPTable table = new PdfPTable(8);
+		PdfPTable table; 
+		if (showCCNumber) {
+			table = new PdfPTable(9);
+		} else {
+			table = new PdfPTable(8);
+		}
 		Font tableHeaderFont = FONT_TABLE_HEADERS_NORMAL;
 		Font tableValueFont = FONT_TABLE_VALUES_NORMAL;
 		PDFFormatterUtil.formatTable( table, TABLE_PERCENT_WIDTH_100 );
@@ -444,6 +462,9 @@ public class RequestPDFFormatter extends RequestPDFFormatterBase {
 		table.setHeaderRows(1);
 		PDFFormatterUtil.addToTableHeader(table, HEADER_SAMPLE_ID, tableHeaderFont);
 		PDFFormatterUtil.addToTableHeader(table, HEADER_SAMPLE_TYPE, tableHeaderFont);
+		if (showCCNumber) {
+			PDFFormatterUtil.addToTableHeader(table, HEADER_CC_NUMBER, tableHeaderFont);
+		}
 		PDFFormatterUtil.addToTableHeader(table, HEADER_CONCENTRATION, tableHeaderFont);
 		PDFFormatterUtil.addToTableHeader(table, HEADER_NUCLEIC_EXTRACTION_METHOD, tableHeaderFont);
 		PDFFormatterUtil.addToTableHeader(table, HEADER_QUALITY_CONCENTRATION, tableHeaderFont);
@@ -468,6 +489,7 @@ public class RequestPDFFormatter extends RequestPDFFormatterBase {
 			if (s.getIdSample() != null) {
 				sampleType = dictionaryHelper.getSampleType(s);
 			}
+			String ccNumber = determineCCNumber(s);
 			String conc = "";
 			if (s.getConcentration() != null) {
 				conc = getFormattedSampleConcentration(s.getConcentration());
@@ -506,6 +528,9 @@ public class RequestPDFFormatter extends RequestPDFFormatterBase {
 			// Add data to table
 			PDFFormatterUtil.addToTableValue(table, sampleID, FONT_TABLE_VALUES_SMALL);
 			PDFFormatterUtil.addToTableValue(table, sampleType, tableValueFont);
+			if (showCCNumber) {
+				PDFFormatterUtil.addCCNumberCell(ccNumber, table, FONT_CC_NUMBER_EMBED_SMALL, dictionaryHelper);
+			}
 			PDFFormatterUtil.addToTableValue(table, conc, tableValueFont);
 			PDFFormatterUtil.addToTableValue(table, extractMeth, tableValueFont);
 			PDFFormatterUtil.addToTableValue(table, concentration, tableValueFont);
@@ -523,8 +548,14 @@ public class RequestPDFFormatter extends RequestPDFFormatterBase {
 	
 	private Element makeTableISCAN() {
 		Set samples = request.getSamples();
+		boolean showCCNumber = determineShowCCNumber(samples);
 		
-		PdfPTable table = new PdfPTable(8);
+		PdfPTable table; 
+		if (showCCNumber) {
+			table = new PdfPTable(9);
+		} else {
+			table = new PdfPTable(8);
+		}
 		Font tableHeaderFont = FONT_TABLE_HEADERS_NORMAL;
 		Font tableValueFont = FONT_TABLE_VALUES_NORMAL;
 		PDFFormatterUtil.formatTable( table, TABLE_PERCENT_WIDTH_100 );
@@ -535,6 +566,9 @@ public class RequestPDFFormatter extends RequestPDFFormatterBase {
 		PDFFormatterUtil.addToTableHeader(table, HEADER_PLATE, tableHeaderFont);
 		PDFFormatterUtil.addToTableHeader(table, HEADER_WELL, tableHeaderFont);
 		PDFFormatterUtil.addToTableHeader(table, HEADER_SAMPLE_NAME, tableHeaderFont);
+		if (showCCNumber) {
+			PDFFormatterUtil.addToTableHeader(table, HEADER_CC_NUMBER, tableHeaderFont);
+		}
 		PDFFormatterUtil.addToTableHeader(table, HEADER_QUALITY_CONCENTRATION, tableHeaderFont);
 		PDFFormatterUtil.addToTableHeader(table, HEADER_QUALITY_RATIO, tableHeaderFont);
 		PDFFormatterUtil.addToTableHeader(table, HEADER_QUALITY_METHOD, tableHeaderFont);
@@ -565,6 +599,7 @@ public class RequestPDFFormatter extends RequestPDFFormatterBase {
 			if (s.getName() != null) {
 				sampleName = s.getName();
 			}
+			String ccNumber = determineCCNumber(s);
 			String concentration = "";
 			if (s.getQualCalcConcentration() != null) {
 				concentration = s.getQualCalcConcentration().toString();
@@ -594,6 +629,9 @@ public class RequestPDFFormatter extends RequestPDFFormatterBase {
 			PDFFormatterUtil.addToTableValue(table, plate, tableValueFont);
 			PDFFormatterUtil.addToTableValue(table, well, tableValueFont);
 			PDFFormatterUtil.addToTableValue(table, sampleName, tableValueFont);
+			if (showCCNumber) {
+				PDFFormatterUtil.addCCNumberCell(ccNumber, table, FONT_CC_NUMBER_EMBED_SMALL, dictionaryHelper);
+			}
 			PDFFormatterUtil.addToTableValue(table, concentration, tableValueFont);
 			PDFFormatterUtil.addToTableValue(table, ratio, tableValueFont);
 			PDFFormatterUtil.addToTableValue(table, qcMeth, tableValueFont);
@@ -609,8 +647,14 @@ public class RequestPDFFormatter extends RequestPDFFormatterBase {
 	
 	private Element makeTableISOLATION() {
 		Set samples = request.getSamples();
+		boolean showCCNumber = determineShowCCNumber(samples);
 		
-		PdfPTable table = new PdfPTable(2);
+		PdfPTable table;
+		if (showCCNumber) {
+			table = new PdfPTable(3);
+		} else {
+			table = new PdfPTable(2);
+		}
 		Font tableHeaderFont = FONT_TABLE_HEADERS_NORMAL;
 		Font tableValueFont = FONT_TABLE_VALUES_NORMAL;
 		PDFFormatterUtil.formatTable( table, TABLE_PERCENT_WIDTH_100 );
@@ -619,6 +663,9 @@ public class RequestPDFFormatter extends RequestPDFFormatterBase {
 		table.setHeaderRows(1);
 		PDFFormatterUtil.addToTableHeader(table, HEADER_SAMPLE_ID, tableHeaderFont);
 		PDFFormatterUtil.addToTableHeader(table, HEADER_SAMPLE_NAME, tableHeaderFont);
+		if (showCCNumber) {
+			PDFFormatterUtil.addToTableHeader(table, HEADER_CC_NUMBER, tableHeaderFont);
+		}
 		
 		// Populate table
 		for (Iterator i = samples.iterator(); i.hasNext();) {
@@ -633,10 +680,14 @@ public class RequestPDFFormatter extends RequestPDFFormatterBase {
 			if (s.getName() != null) {
 				sampleName = s.getName();
 			}
+			String ccNumber = determineCCNumber(s);
 			
 			// Add data to table
 			PDFFormatterUtil.addToTableValue(table, sampleID, FONT_TABLE_VALUES_SMALL);
 			PDFFormatterUtil.addToTableValue(table, sampleName, tableValueFont);
+			if (showCCNumber) {
+				PDFFormatterUtil.addCCNumberCell(ccNumber, table, FONT_CC_NUMBER_EMBED_SMALL, dictionaryHelper);
+			}
 		}
 		
 		return table;
@@ -644,8 +695,14 @@ public class RequestPDFFormatter extends RequestPDFFormatterBase {
 	
 	private Element makeTableMICROARRAY() {
 		Set samples = request.getSamples();
+		boolean showCCNumber = determineShowCCNumber(samples);
 		
-		PdfPTable table = new PdfPTable(9);
+		PdfPTable table;
+		if (showCCNumber) {
+			table = new PdfPTable(10);
+		} else {
+			table = new PdfPTable(9);
+		}
 		Font tableHeaderFont = FONT_TABLE_HEADERS_NORMAL;
 		Font tableValueFont = FONT_TABLE_VALUES_NORMAL;
 		PDFFormatterUtil.formatTable( table, TABLE_PERCENT_WIDTH_100 );
@@ -655,6 +712,9 @@ public class RequestPDFFormatter extends RequestPDFFormatterBase {
 		PDFFormatterUtil.addToTableHeader(table, HEADER_SAMPLE_ID, tableHeaderFont);
 		PDFFormatterUtil.addToTableHeader(table, HEADER_SAMPLE_NAME, tableHeaderFont);
 		PDFFormatterUtil.addToTableHeader(table, HEADER_SAMPLE_TYPE, tableHeaderFont);
+		if (showCCNumber) {
+			PDFFormatterUtil.addToTableHeader(table, HEADER_CC_NUMBER, tableHeaderFont);
+		}
 		PDFFormatterUtil.addToTableHeader(table, HEADER_CONCENTRATION, tableHeaderFont);
 		PDFFormatterUtil.addToTableHeader(table, HEADER_NUCLEIC_EXTRACTION_METHOD, tableHeaderFont);
 		PDFFormatterUtil.addToTableHeader(table, HEADER_QUALITY_CONCENTRATION, tableHeaderFont);
@@ -683,6 +743,7 @@ public class RequestPDFFormatter extends RequestPDFFormatterBase {
 			if (s.getIdSample() != null) {
 				sampleType = dictionaryHelper.getSampleType(s);
 			}
+			String ccNumber = determineCCNumber(s);
 			String conc = "";
 			if (s.getConcentration() != null) {
 				conc = getFormattedSampleConcentration(s.getConcentration());
@@ -722,6 +783,9 @@ public class RequestPDFFormatter extends RequestPDFFormatterBase {
 			PDFFormatterUtil.addToTableValue(table, sampleID, FONT_TABLE_VALUES_SMALL);
 			PDFFormatterUtil.addToTableValue(table, sampleName, tableValueFont);
 			PDFFormatterUtil.addToTableValue(table, sampleType, tableValueFont);
+			if (showCCNumber) {
+				PDFFormatterUtil.addCCNumberCell(ccNumber, table, FONT_CC_NUMBER_EMBED_SMALL, dictionaryHelper);
+			}
 			PDFFormatterUtil.addToTableValue(table, conc, tableValueFont);
 			PDFFormatterUtil.addToTableValue(table, extractMeth, tableValueFont);
 			PDFFormatterUtil.addToTableValue(table, concentration, tableValueFont);
@@ -739,8 +803,14 @@ public class RequestPDFFormatter extends RequestPDFFormatterBase {
 	
 	private Element makeTableNANOSTRING() {
 		Set samples = request.getSamples();
+		boolean showCCNumber = determineShowCCNumber(samples);
 		
-		PdfPTable table = new PdfPTable(9);
+		PdfPTable table;
+		if (showCCNumber) {
+			table = new PdfPTable(10);
+		} else {
+			table = new PdfPTable(9);
+		}
 		Font tableHeaderFont = FONT_TABLE_HEADERS_NORMAL;
 		Font tableValueFont = FONT_TABLE_VALUES_NORMAL;
 		PDFFormatterUtil.formatTable( table, TABLE_PERCENT_WIDTH_100 );
@@ -750,6 +820,9 @@ public class RequestPDFFormatter extends RequestPDFFormatterBase {
 		PDFFormatterUtil.addToTableHeader(table, HEADER_SAMPLE_ID, tableHeaderFont);
 		PDFFormatterUtil.addToTableHeader(table, HEADER_SAMPLE_NAME, tableHeaderFont);
 		PDFFormatterUtil.addToTableHeader(table, HEADER_SAMPLE_TYPE, tableHeaderFont);
+		if (showCCNumber) {
+			PDFFormatterUtil.addToTableHeader(table, HEADER_CC_NUMBER, tableHeaderFont);
+		}
 		PDFFormatterUtil.addToTableHeader(table, HEADER_CONCENTRATION, tableHeaderFont);
 		PDFFormatterUtil.addToTableHeader(table, HEADER_NUCLEIC_EXTRACTION_METHOD, tableHeaderFont);
 		PDFFormatterUtil.addToTableHeader(table, HEADER_QUALITY_CONCENTRATION, tableHeaderFont);
@@ -778,6 +851,7 @@ public class RequestPDFFormatter extends RequestPDFFormatterBase {
 			if (s.getIdSample() != null) {
 				sampleType = dictionaryHelper.getSampleType(s);
 			}
+			String ccNumber = determineCCNumber(s);
 			String conc = "";
 			if (s.getConcentration() != null) {
 				conc = getFormattedSampleConcentration(s.getConcentration());
@@ -817,6 +891,9 @@ public class RequestPDFFormatter extends RequestPDFFormatterBase {
 			PDFFormatterUtil.addToTableValue(table, sampleID, FONT_TABLE_VALUES_SMALL);
 			PDFFormatterUtil.addToTableValue(table, sampleName, tableValueFont);
 			PDFFormatterUtil.addToTableValue(table, sampleType, tableValueFont);
+			if (showCCNumber) {
+				PDFFormatterUtil.addCCNumberCell(ccNumber, table, FONT_CC_NUMBER_EMBED_SMALL, dictionaryHelper);
+			}
 			PDFFormatterUtil.addToTableValue(table, conc, tableValueFont);
 			PDFFormatterUtil.addToTableValue(table, extractMeth, tableValueFont);
 			PDFFormatterUtil.addToTableValue(table, concentration, tableValueFont);
@@ -834,8 +911,14 @@ public class RequestPDFFormatter extends RequestPDFFormatterBase {
 	
 	private Element makeTableQC() {
 		Set samples = request.getSamples();
+		boolean showCCNumber = determineShowCCNumber(samples);
 		
-		PdfPTable table = new PdfPTable(10);
+		PdfPTable table;
+		if (showCCNumber) {
+			table = new PdfPTable(11);
+		} else {
+			table = new PdfPTable(10);
+		}
 		Font tableHeaderFont = FONT_TABLE_HEADERS_VERY_SMALL;
 		Font tableValueFont = FONT_TABLE_VALUES_VERY_SMALL;
 		PDFFormatterUtil.formatTable( table, TABLE_PERCENT_WIDTH_100 );
@@ -845,6 +928,9 @@ public class RequestPDFFormatter extends RequestPDFFormatterBase {
 		PDFFormatterUtil.addToTableHeader(table, HEADER_SAMPLE_ID, tableHeaderFont);
 		PDFFormatterUtil.addToTableHeader(table, HEADER_SAMPLE_NAME, tableHeaderFont);
 		PDFFormatterUtil.addToTableHeader(table, HEADER_SAMPLE_TYPE, tableHeaderFont);
+		if (showCCNumber) {
+			PDFFormatterUtil.addToTableHeader(table, HEADER_CC_NUMBER, tableHeaderFont);
+		}
 		PDFFormatterUtil.addToTableHeader(table, HEADER_CONCENTRATION, tableHeaderFont);
 		PDFFormatterUtil.addToTableHeader(table, HEADER_NUCLEIC_EXTRACTION_METHOD, tableHeaderFont);
 		PDFFormatterUtil.addToTableHeader(table, "Chip Type", tableHeaderFont);
@@ -874,6 +960,7 @@ public class RequestPDFFormatter extends RequestPDFFormatterBase {
 			if (s.getIdSample() != null) {
 				sampleType = dictionaryHelper.getSampleType(s);
 			}
+			String ccNumber = determineCCNumber(s);
 			String conc = "";
 			if (s.getConcentration() != null) {
 				conc = getFormattedSampleConcentration(s.getConcentration());
@@ -917,6 +1004,9 @@ public class RequestPDFFormatter extends RequestPDFFormatterBase {
 			PDFFormatterUtil.addToTableValue(table, sampleID, FONT_TABLE_VALUES_SMALL);
 			PDFFormatterUtil.addToTableValue(table, sampleName, tableValueFont);
 			PDFFormatterUtil.addToTableValue(table, sampleType, tableValueFont);
+			if (showCCNumber) {
+				PDFFormatterUtil.addCCNumberCell(ccNumber, table, FONT_CC_NUMBER_EMBED_SMALL, dictionaryHelper);
+			}
 			PDFFormatterUtil.addToTableValue(table, conc, tableValueFont);
 			PDFFormatterUtil.addToTableValue(table, extractMeth, tableValueFont);
 			PDFFormatterUtil.addToTableValue(table, chipType, tableValueFont);
@@ -936,23 +1026,16 @@ public class RequestPDFFormatter extends RequestPDFFormatterBase {
 	private Element makeTableSEQUENOM() {
 		Set samples = request.getSamples();
 		boolean isSequenomPlate = request.isSequenomPlate();
-		boolean showCcNumber = false;
-		for (Iterator i = samples.iterator(); i.hasNext();) {
-			Sample s = (Sample) i.next();
-			if (s.getCcNumber() != null && !s.getCcNumber().equals("")) {
-				showCcNumber = true;
-				break;
-			}
-		}
+		boolean showCCNumber = determineShowCCNumber(samples);
 		
 		PdfPTable table;
 		Font tableHeaderFont = FONT_TABLE_HEADERS_NORMAL;
 		Font tableValueFont = FONT_TABLE_VALUES_NORMAL;
-		if (isSequenomPlate && showCcNumber) {
+		if (isSequenomPlate && showCCNumber) {
 			table = new PdfPTable(7);
 		} else if (isSequenomPlate) {
 			table = new PdfPTable(6);
-		} else if (showCcNumber) {
+		} else if (showCCNumber) {
 			table = new PdfPTable(5);
 		} else {
 			table = new PdfPTable(4);
@@ -967,7 +1050,7 @@ public class RequestPDFFormatter extends RequestPDFFormatterBase {
 			PDFFormatterUtil.addToTableHeader(table, HEADER_PLATE, tableHeaderFont);
 			PDFFormatterUtil.addToTableHeader(table, HEADER_WELL, tableHeaderFont);
 		}
-		if (showCcNumber) {
+		if (showCCNumber) {
 			PDFFormatterUtil.addToTableHeader(table, HEADER_CC_NUMBER, tableHeaderFont);
 		}
 		PDFFormatterUtil.addToTableHeader(table, HEADER_SAMPLE_NAME, tableHeaderFont);
@@ -993,12 +1076,7 @@ public class RequestPDFFormatter extends RequestPDFFormatterBase {
 					well = s.getASourceWell().getWellName();
 				}
 			}
-			String ccNumber = "";
-			if (showCcNumber) {
-				if (s.getCcNumber() != null) {
-					ccNumber = s.getCcNumber();
-				}
-			}
+			String ccNumber = determineCCNumber(s);
 			String sampleName = "";
 			if (s.getName() != null) {
 				sampleName = s.getName();
@@ -1015,10 +1093,8 @@ public class RequestPDFFormatter extends RequestPDFFormatterBase {
 				PDFFormatterUtil.addToTableValue(table, plate, tableValueFont);
 				PDFFormatterUtil.addToTableValue(table, well, tableValueFont);
 			}
-			if (showCcNumber) {
-				Anchor ccNumberAnchor = new Anchor(ccNumber, FONT_CC_NUMBER_EMBED_SMALL);
-				ccNumberAnchor.setReference(dictionaryHelper.getPropertyDictionary(PropertyDictionary.GNOMEX_LINKAGE_BST_URL) + "#ccNumber=" + ccNumber);
-				table.addCell(ccNumberAnchor);
+			if (showCCNumber) {
+				PDFFormatterUtil.addCCNumberCell(ccNumber, table, FONT_CC_NUMBER_EMBED_SMALL, dictionaryHelper);
 			}
 			PDFFormatterUtil.addToTableValue(table, sampleName, tableValueFont);
 			PDFFormatterUtil.addToTableValue(table, sampleType, tableValueFont);
@@ -1029,8 +1105,14 @@ public class RequestPDFFormatter extends RequestPDFFormatterBase {
 	
 	private Element makeTableGENERIC() {
 		Set samples = request.getSamples();
+		boolean showCCNumber = determineShowCCNumber(samples);
 		
-		PdfPTable table = new PdfPTable(9);
+		PdfPTable table;
+		if (showCCNumber) {
+			table = new PdfPTable(10);
+		} else {
+			table = new PdfPTable(9);
+		}
 		Font tableHeaderFont = FONT_TABLE_HEADERS_NORMAL;
 		Font tableValueFont = FONT_TABLE_VALUES_NORMAL;
 		PDFFormatterUtil.formatTable( table, TABLE_PERCENT_WIDTH_100 );
@@ -1040,6 +1122,9 @@ public class RequestPDFFormatter extends RequestPDFFormatterBase {
 		PDFFormatterUtil.addToTableHeader(table, HEADER_SAMPLE_ID, tableHeaderFont);
 		PDFFormatterUtil.addToTableHeader(table, HEADER_SAMPLE_NAME, tableHeaderFont);
 		PDFFormatterUtil.addToTableHeader(table, HEADER_SAMPLE_TYPE, tableHeaderFont);
+		if (showCCNumber) {
+			PDFFormatterUtil.addToTableHeader(table, HEADER_CC_NUMBER, tableHeaderFont);
+		}
 		PDFFormatterUtil.addToTableHeader(table, HEADER_CONCENTRATION, tableHeaderFont);
 		PDFFormatterUtil.addToTableHeader(table, HEADER_NUCLEIC_EXTRACTION_METHOD, tableHeaderFont);
 		PDFFormatterUtil.addToTableHeader(table, HEADER_QUALITY_CONCENTRATION, tableHeaderFont);
@@ -1068,6 +1153,7 @@ public class RequestPDFFormatter extends RequestPDFFormatterBase {
 			if (s.getIdSample() != null) {
 				sampleType = dictionaryHelper.getSampleType(s);
 			}
+			String ccNumber = determineCCNumber(s);
 			String conc = "";
 			if (s.getConcentration() != null) {
 				conc = getFormattedSampleConcentration(s.getConcentration());
@@ -1107,6 +1193,9 @@ public class RequestPDFFormatter extends RequestPDFFormatterBase {
 			PDFFormatterUtil.addToTableValue(table, sampleID, FONT_TABLE_VALUES_SMALL);
 			PDFFormatterUtil.addToTableValue(table, sampleName, tableValueFont);
 			PDFFormatterUtil.addToTableValue(table, sampleType, tableValueFont);
+			if (showCCNumber) {
+				PDFFormatterUtil.addCCNumberCell(ccNumber, table, FONT_CC_NUMBER_EMBED_SMALL, dictionaryHelper);
+			}
 			PDFFormatterUtil.addToTableValue(table, conc, tableValueFont);
 			PDFFormatterUtil.addToTableValue(table, extractMeth, tableValueFont);
 			PDFFormatterUtil.addToTableValue(table, concentration, tableValueFont);
@@ -1124,12 +1213,17 @@ public class RequestPDFFormatter extends RequestPDFFormatterBase {
 	
 	private Element makeTableIllumina() {
 		Set samples = request.getSamples();
+		boolean showCCNumber = determineShowCCNumber(samples);
 		
 		PdfPTable table;
 		Font tableHeaderFont = FONT_TABLE_HEADERS_NORMAL;
 		Font tableValueFont = FONT_TABLE_VALUES_NORMAL;
-		if (dnaSamples) {
+		if (dnaSamples && showCCNumber) {
+			table = new PdfPTable(11);
+		} else if (dnaSamples) {
 			table = new PdfPTable(10);
+		} else if (showCCNumber) {
+			table = new PdfPTable(12);
 		} else {
 			table = new PdfPTable(11);
 		}
@@ -1139,6 +1233,9 @@ public class RequestPDFFormatter extends RequestPDFFormatterBase {
 		table.setHeaderRows(1);
 		PDFFormatterUtil.addToTableHeader(table, HEADER_SAMPLE_ID, tableHeaderFont);
 		PDFFormatterUtil.addToTableHeader(table, HEADER_SAMPLE_NAME, tableHeaderFont);
+		if (showCCNumber) {
+			PDFFormatterUtil.addToTableHeader(table, HEADER_CC_NUMBER, tableHeaderFont);
+		}
 		PDFFormatterUtil.addToTableHeader(table, "Sample Conc.", tableHeaderFont);
 		if (!dnaSamples) {
 			PDFFormatterUtil.addToTableHeader(table, HEADER_QUALITY_RIN_NUMBER, tableHeaderFont);
@@ -1164,6 +1261,7 @@ public class RequestPDFFormatter extends RequestPDFFormatterBase {
 			if (s.getName() != null) {
 				sampleName = s.getName();
 			}
+			String ccNumber = determineCCNumber(s);
 			String sampleConc = "";
 			if (s.getConcentration() != null) {
 				sampleConc = getFormattedSampleConcentration(s.getConcentration()) + " /";
@@ -1204,6 +1302,9 @@ public class RequestPDFFormatter extends RequestPDFFormatterBase {
 			// Add data to table
 			PDFFormatterUtil.addToTableValue(table, sampleID, FONT_TABLE_VALUES_SMALL);
 			PDFFormatterUtil.addToTableValue(table, sampleName, tableValueFont);
+			if (showCCNumber) {
+				PDFFormatterUtil.addCCNumberCell(ccNumber, table, FONT_CC_NUMBER_EMBED_SMALL, dictionaryHelper);
+			}
 			PDFFormatterUtil.addToTableValue(table, sampleConc, FONT_TABLE_VALUES_SMALL);
 			if (!dnaSamples) {
 				PDFFormatterUtil.addToTableValue(table, rinNum, tableValueFont);
@@ -1528,6 +1629,24 @@ public class RequestPDFFormatter extends RequestPDFFormatterBase {
 		}
 		
 		return unformattedConcentration.setScale(scale, RoundingMode.HALF_UP).toString();
+	}
+	
+	private boolean determineShowCCNumber(Set samples) {
+		for (Iterator i = samples.iterator(); i.hasNext();) {
+			Sample s = (Sample) i.next();
+			if (s.getCcNumber() != null && !s.getCcNumber().equals("")) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	private String determineCCNumber(Sample s) {
+		if (s.getCcNumber() != null) {
+			return s.getCcNumber();
+		} else {
+			return "";
+		}
 	}
 	
 }

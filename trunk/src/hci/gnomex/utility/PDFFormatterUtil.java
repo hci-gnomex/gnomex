@@ -1,6 +1,7 @@
 package hci.gnomex.utility;
 
 import hci.gnomex.controller.GNomExFrontController;
+import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.RequestCategory;
 
@@ -14,6 +15,7 @@ import javax.imageio.ImageIO;
 import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLEditorKit;
 
+import com.itextpdf.text.Anchor;
 import com.itextpdf.text.BaseColor;
 import com.itextpdf.text.Chunk;
 import com.itextpdf.text.Element;
@@ -163,6 +165,17 @@ public class PDFFormatterUtil {
 	public static void addPhrase(List<Element> list, String text, Font font) {
 		if (!list.isEmpty()) list.add(Chunk.NEWLINE);
 		list.add(new Phrase(text, font));
+	}
+	
+	public static void addCCNumberCell(String ccNumber, PdfPTable table, Font font, DictionaryHelper dictionaryHelper) {
+		Anchor ccNumberAnchor = new Anchor(ccNumber, font);
+		ccNumberAnchor.setReference(dictionaryHelper.getPropertyDictionary(PropertyDictionary.GNOMEX_LINKAGE_BST_URL) + "#ccNumber=" + ccNumber);
+		
+		PdfPCell cell = new PdfPCell(ccNumberAnchor);
+		cell.setHorizontalAlignment(Element.ALIGN_LEFT);
+		cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+		
+		table.addCell(cell);
 	}
 	
 	public static String stripRichText(String richText) {
