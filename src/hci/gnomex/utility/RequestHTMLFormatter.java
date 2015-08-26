@@ -223,10 +223,11 @@ public class RequestHTMLFormatter {
     	if (s.getIdOligoBarcode() != null || (s.getBarcodeSequence() != null && !s.getBarcodeSequence().trim().equals(""))) {
     	  showBarcodeTag = true;
     	}
-    	if (  RequestCategory.isMolecularDiagnoticsRequestCategory(request.getCodeRequestCategory()) && 
-    	     (s.getCcNumber() != null && !s.getCcNumber().equals("")) ) {
-        showCcNumber = true;
-      }
+    	/*if (  RequestCategory.isMolecularDiagnoticsRequestCategory(request.getCodeRequestCategory()) && 
+    	     (s.getCcNumber() != null && !s.getCcNumber().equals("")) ) {*/
+    	if (s.getCcNumber() != null && !s.getCcNumber().equals("")) {
+    		showCcNumber = true;
+    	}
     }
     
     if (showMultiplexGroup) {
@@ -704,10 +705,12 @@ public class RequestHTMLFormatter {
     boolean showCcNumber = false;
      for(Iterator i = samples.iterator(); i.hasNext();) {
       Sample s = (Sample)i.next();
-      if ( (RequestCategory.isSequenomType( request.getCodeRequestCategory() ) || 
+      /*if ( (RequestCategory.isSequenomType( request.getCodeRequestCategory() ) || 
             request.getCodeRequestCategory().equals(RequestCategory.CLINICAL_SEQUENOM_REQUEST_CATEGORY)) && 
-           (s.getCcNumber() != null && !s.getCcNumber().equals("")) ) {
+           (s.getCcNumber() != null && !s.getCcNumber().equals("")) ) {*/
+      if (s.getCcNumber() != null && !s.getCcNumber().equals("")) {
         showCcNumber = true;
+        break;
       }
     }
 	  
