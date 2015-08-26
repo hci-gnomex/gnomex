@@ -10,7 +10,7 @@
 		id="saveOrganism" 
 		url="SaveOrganism.gx"
 		resultFormat="e4x"
-		showBusyCursor="false"
+		showBusyCursor="true"
 		result="onSaveOrganism(event)"
 		fault="parentApplication.onFailHttpRequest('Failed to save sample annotation', event)"
 		method="POST" 
@@ -272,6 +272,8 @@
 		
 		saveOrganism.send(params);
 		
+		saveButton.enabled = false;
+		
 	}
 		
 	private function onSaveOrganism(event:ResultEvent): void {
@@ -283,6 +285,7 @@
 			mx.controls.Alert.show(saveOrganism.lastResult..ACTMESSAGE.@TEXT);
 		}
 
+		saveButton.enabled = true;
 		
 	}
 		
