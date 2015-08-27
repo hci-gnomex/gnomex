@@ -36,6 +36,7 @@
 			import views.util.SampleConcentrationValidator;
 			import views.util.UploadSampleSheetInstructionsView;
 			import views.util.UploadSampleSheetView;
+			import views.util.SampleQCValidator;
 			
 			private var saveInstructionToolTipText:String;
 						
@@ -179,6 +180,13 @@
 				var cw:String = SampleConcentrationValidator.instance.validateSampleConcentration(parentDocument.samples);
 				if (cw != "") {
 					parentDocument.userWarningsSamples += cw;
+					isComplete = false;
+				}
+				
+				// Make sure that sample QC is valid
+				var qcWarning:String = SampleQCValidator.instance.validateSampleQC(parentDocument.samples);
+				if (qcWarning != "") {
+					parentDocument.userWarningsSamples += qcWarning;
 					isComplete = false;
 				}
 

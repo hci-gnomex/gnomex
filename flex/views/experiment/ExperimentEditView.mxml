@@ -216,6 +216,7 @@
 			import views.util.PromptXMLListCollection;
 			import views.util.RequestStatusComparator;
 			import views.util.SampleConcentrationValidator;
+			import views.util.SampleQCValidator;
 			
 			[Embed(source='../../assets/page.png')]
 			[Bindable]
@@ -2998,6 +2999,11 @@
 				var cw:String = SampleConcentrationValidator.instance.validateSampleConcentration(samples);
 				if (cw != "") {
 					errorMessage += cw + "\n\n";
+				}
+				
+				var qcWarning:String = SampleQCValidator.instance.validateSampleQC(samples);
+				if (qcWarning != "") {
+					errorMessage += qcWarning + "\n\n";
 				}
 				
 				// Check for duplicate sampleNames / wells
