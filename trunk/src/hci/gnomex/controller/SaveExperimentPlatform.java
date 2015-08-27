@@ -778,20 +778,52 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
         existingsAssociations = sess.createQuery("SELECT x from BioanalyzerChipType x where codeApplication = '" + application.getCodeApplication() + "'").list();
         for(Iterator i1 = existingsAssociations.iterator(); i1.hasNext();) {
           BioanalyzerChipType x = (BioanalyzerChipType)i1.next();
+          //We have to delete the prices (or set inactive) when we delete the chip type because we stored the prices in their map using the 
+          //code application + codeBioanalyzerChipType.  So check for a price and update accordingly before we delete the chip type.
+          //If a price has no current billing items we delete otherwise we set it to inactive.
+          Price p1 = illuminaLibPrepPriceMap.get(application.getCodeApplication());
+          Price p2 = qcLibPrepPriceMap.get(application.getCodeApplication() + "&" + (x != null ? x.getCodeBioanalyzerChipType() : ""));
+          if (deleteApplication) {
+            if(p1 != null){
+              if ( getPriceBillingItems(p1, sess) == null || getPriceBillingItems( p1, sess ).size() == 0 ) {
+                sess.delete(p1);
+              } else{
+                p1.setIsActive("N");
+                sess.save(p1);
+              }            
+            }
+            
+            if(p2 != null){
+              if ( getPriceBillingItems(p2, sess) == null || getPriceBillingItems( p2, sess ).size() == 0 ) {
+                sess.delete(p2);
+              } else{
+                p2.setIsActive("N");
+                sess.save(p2);
+              }            
+            }
+          } else {
+            if(p1 != null){
+              p1.setIsActive("N");
+              sess.save(p1);
+            }
+            if(p2 != null) {
+              p2.setIsActive("N");
+              sess.save(p2);
+            }
+          }
+
           sess.delete(x);
         }
-
-        // Remove or inactivate application
-        if (deleteApplication) {
+        
+        if(deleteApplication){
           sess.delete(application);
-        } else {
-          application.setIsActive("N");          
+        } else{
+          application.setIsActive("N");
+          sess.save(application);
         }
-
       }
     }    
     sess.flush();
-
   }
 
   private void addDefaultProtocol(Session sess, Application app, HashMap<Integer, SeqLibProtocol> protocolMap) {
@@ -1083,11 +1115,11 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
 
   private void saveIlluminaLibPrepPrices(Session sess, RequestCategory rc, Application app, Element node, Map<String, Price> map, Integer defaultCategoryId) {
     // Only save lib prep prices for illumina request categories that have price sheet defined.
-    if (map == null || !priceModified(node)) { //!RequestCategory.isIlluminaRequestCategory(rc.getCodeRequestCategory()) ||
+    if (map == null || !RequestCategory.isIlluminaRequestCategory(rc.getCodeRequestCategory())) {
       return;
     }
 
-    Boolean modified = false;
+    Boolean newPrice = false;
     Price price = map.get(app.getCodeApplication());
     if (price == null) {
       if (defaultCategoryId == null) {
@@ -1096,35 +1128,26 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
         return;
       }
       price = new Price();
+      newPrice = true;
+    }
       price.setName(app.getApplication());
       price.setDescription("");
       price.setIdPriceCategory(defaultCategoryId);
-      price.setIsActive("Y");
-      price.setUnitPrice(BigDecimal.ZERO);
-      price.setUnitPriceExternalAcademic(BigDecimal.ZERO);
-      price.setUnitPriceExternalCommercial(BigDecimal.ZERO);
+      price.setIsActive(app.getIsActive());
+      setPrice(node.getAttributeValue("unitPriceInternal"), price.getUnitPrice(), price, PRICE_INTERNAL);
+      setPrice(node.getAttributeValue("unitPriceExternalAcademic"), price.getUnitPriceExternalAcademic(), price, PRICE_EXTERNAL_ACADEMIC);
+      setPrice(node.getAttributeValue("unitPriceExternalCommercial"), price.getUnitPriceExternalCommercial(), price, PRICE_EXTERNAL_COMMERCIAL);
       sess.save(price);
       sess.flush();
-      PriceCriteria crit = new PriceCriteria();
-      crit.setIdPrice(price.getIdPrice());
-      crit.setFilter1(app.getCodeApplication());
-      sess.save(crit);
-      modified = true;
-    }
-
-    if (setPrice(node.getAttributeValue("unitPriceInternal"), price.getUnitPrice(), price, PRICE_INTERNAL)) {
-      modified = true;
-    }
-    if (setPrice(node.getAttributeValue("unitPriceExternalAcademic"), price.getUnitPriceExternalAcademic(), price, PRICE_EXTERNAL_ACADEMIC)) {
-      modified = true;
-    }
-    if (setPrice(node.getAttributeValue("unitPriceExternalCommercial"), price.getUnitPriceExternalCommercial(), price, PRICE_EXTERNAL_COMMERCIAL)) {
-      modified = true;
-    }
-
-    if (modified) {
-      sess.flush();
-    }
+      
+      if(newPrice){
+        PriceCriteria crit = new PriceCriteria();
+        crit.setIdPrice(price.getIdPrice());
+        crit.setFilter1(app.getCodeApplication());
+        sess.save(crit);
+        sess.flush();
+        map.put(app.getCodeApplication(), price);
+      }
   }
 
   private Boolean priceModified(Element node) {
@@ -1201,7 +1224,7 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
       return;
     }
 
-    Boolean modified = false;
+    Boolean newPrice = false;
     Price price = map.get(app.getCodeApplication() + "&" + (chipType != null ? chipType.getCodeBioanalyzerChipType() : ""));
     if (price == null) {
       if (defaultCategoryId == null) {
@@ -1210,6 +1233,9 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
         return;
       }
       price = new Price();
+      newPrice = true;
+    }
+
       if (chipType != null) {
         price.setName(chipType.getBioanalyzerChipType());
       } else {
@@ -1217,35 +1243,24 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
       }
       price.setDescription("");
       price.setIdPriceCategory(defaultCategoryId);
-      price.setIsActive("Y");
-      price.setUnitPrice(BigDecimal.ZERO);
-      price.setUnitPriceExternalAcademic(BigDecimal.ZERO);
-      price.setUnitPriceExternalCommercial(BigDecimal.ZERO);
+      price.setIsActive(app.getIsActive());
+      setPrice(node.getAttributeValue("unitPriceInternal"), price.getUnitPrice(), price, PRICE_INTERNAL);
+      setPrice(node.getAttributeValue("unitPriceExternalAcademic"), price.getUnitPriceExternalAcademic(), price, PRICE_EXTERNAL_ACADEMIC);
+      setPrice(node.getAttributeValue("unitPriceExternalCommercial"), price.getUnitPriceExternalCommercial(), price, PRICE_EXTERNAL_COMMERCIAL);
       sess.save(price);
       sess.flush();
-      PriceCriteria crit = new PriceCriteria();
-      crit.setIdPrice(price.getIdPrice());
-      crit.setFilter1(app.getCodeApplication());
-      if (chipType != null) {
-        crit.setFilter2(chipType.getCodeBioanalyzerChipType());
-      }
-      sess.save(crit);
-      modified = true;
-    }
-
-    if (setPrice(node.getAttributeValue("unitPriceInternal"), price.getUnitPrice(), price, PRICE_INTERNAL)) {
-      modified = true;
-    }
-    if (setPrice(node.getAttributeValue("unitPriceExternalAcademic"), price.getUnitPriceExternalAcademic(), price, PRICE_EXTERNAL_ACADEMIC)) {
-      modified = true;
-    }
-    if (setPrice(node.getAttributeValue("unitPriceExternalCommercial"), price.getUnitPriceExternalCommercial(), price, PRICE_EXTERNAL_COMMERCIAL)) {
-      modified = true;
-    }
-
-    if (modified) {
-      sess.flush();
-    }
+      
+      if(newPrice){
+        PriceCriteria crit = new PriceCriteria();
+        crit.setIdPrice(price.getIdPrice());
+        crit.setFilter1(app.getCodeApplication());
+        if (chipType != null) {
+          crit.setFilter2(chipType.getCodeBioanalyzerChipType());
+        }
+        sess.save(crit);
+        sess.flush();
+        map.put(app.getCodeApplication() + "&" + (chipType != null ? chipType.getCodeBioanalyzerChipType() : ""), price);
+      }    
   }
 
   private void saveRequestCategoryApplications(Session sess) {
@@ -1495,7 +1510,7 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
       return;
     }
 
-    Boolean modified = false;
+    Boolean newPrice = false;
 
     Price price = map.get(cyclesAllowed.getIdNumberSequencingCyclesAllowed().toString());
     if (price == null) {
@@ -1504,36 +1519,26 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
         log.error("SaveExperimentPlatform: Unable to store new seq option price due to no default category for " + rc.getCodeRequestCategory());
         return;
       }
-      price = new Price();
+     price = new Price(); 
+    }
       price.setName(cyclesAllowed.getName());
       price.setDescription("");
       price.setIdPriceCategory(defaultCategoryId);
-      price.setIsActive("Y");
-      price.setUnitPrice(BigDecimal.ZERO);
-      price.setUnitPriceExternalAcademic(BigDecimal.ZERO);
-      price.setUnitPriceExternalCommercial(BigDecimal.ZERO);
+      price.setIsActive(node.getAttributeValue("isActive"));
+      setPrice(node.getAttributeValue("unitPriceInternal"), price.getUnitPrice(), price, PRICE_INTERNAL);
+      setPrice(node.getAttributeValue("unitPriceExternalAcademic"), price.getUnitPriceExternalAcademic(), price, PRICE_EXTERNAL_ACADEMIC);
+      setPrice(node.getAttributeValue("unitPriceExternalCommercial"), price.getUnitPriceExternalCommercial(), price, PRICE_EXTERNAL_COMMERCIAL);
       sess.save(price);
       sess.flush();
-      PriceCriteria crit = new PriceCriteria();
-      crit.setIdPrice(price.getIdPrice());
-      crit.setFilter1(cyclesAllowed.getIdNumberSequencingCyclesAllowed().toString());
-      sess.save(crit);
-      modified = true;
-    }
-
-    if (setPrice(node.getAttributeValue("unitPriceInternal"), price.getUnitPrice(), price, PRICE_INTERNAL)) {
-      modified = true;
-    }
-    if (setPrice(node.getAttributeValue("unitPriceExternalAcademic"), price.getUnitPriceExternalAcademic(), price, PRICE_EXTERNAL_ACADEMIC)) {
-      modified = true;
-    }
-    if (setPrice(node.getAttributeValue("unitPriceExternalCommercial"), price.getUnitPriceExternalCommercial(), price, PRICE_EXTERNAL_COMMERCIAL)) {
-      modified = true;
-    }
-
-    if (modified) {
-      sess.flush();
-    }
+      
+      if(newPrice){
+        PriceCriteria crit = new PriceCriteria();
+        crit.setIdPrice(price.getIdPrice());
+        crit.setFilter1(cyclesAllowed.getIdNumberSequencingCyclesAllowed().toString());
+        sess.save(crit);
+      }
+    
+    
   }
 
   private Integer getNextAssignedAppNumber(Session sess) {
