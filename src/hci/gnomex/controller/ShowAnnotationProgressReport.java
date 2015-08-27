@@ -245,27 +245,7 @@ public class ShowAnnotationProgressReport extends ReportCommand implements Seria
         //    to determine what is annotations are missing.
         if (!prevIdRequest.equals(idRequest)) {
           if (!firstTime) {
-            // If there is only one sample on the experiment, don't consider replica count
-            // as missing
-            if (sampleCount == 1) {
-              missingAnnotationMapForExperiment.remove("Replica Number");
-            }
-
-            prevExperimentInfo.sampleCount = sampleCount;
-
-
-            // If the missing annotation hash is empty, add the experiment to the complete experiment list
-            // otherwise, add experiment to the incomplete experiment list
-            if (missingAnnotationMapForExperiment.isEmpty()) {
-              this.completeExperimentMapForLab.put(prevIdRequest, prevExperimentInfo);
-            } else {
-              // Put the missing annotations in a list so we can reference them with the experiment
-              // when we generate the detail report
-              prevExperimentInfo.missingAnnotationMapForExperiment = missingAnnotationMapForExperiment;
-              prevExperimentInfo.requiredPropertiesForExperiment = requiredPropertiesForExperiment;
-              this.incompleteExperimentMapForLab.put(prevIdRequest, prevExperimentInfo);
-            }
-
+            addToAnnotationMap(prevExperimentInfo, prevIdRequest, sampleCount);
             sampleCount = 0;
           }
 
@@ -301,6 +281,11 @@ public class ShowAnnotationProgressReport extends ReportCommand implements Seria
 
 
       }
+      //After looping above we need to add the last experiment
+      // If there is only one sample on the experiment, don't consider replica count
+      // as missing
+      addToAnnotationMap(prevExperimentInfo, prevIdRequest, sampleCount);
+      
       //  After the last row is read, hash the last lab
       LabInfo labInfo = new LabInfo();
       labInfo.labName = prevLabName;
@@ -474,6 +459,29 @@ public class ShowAnnotationProgressReport extends ReportCommand implements Seria
     }
 
 
+  }
+  
+  private void addToAnnotationMap(ExperimentInfo prevExperimentInfo, Integer prevIdRequest, Integer sampleCount){
+    // If there is only one sample on the experiment, don't consider replica count
+    // as missing
+    if (sampleCount == 1) {
+      missingAnnotationMapForExperiment.remove("Replica Number");
+    }
+
+    prevExperimentInfo.sampleCount = sampleCount;
+
+
+    // If the missing annotation hash is empty, add the experiment to the complete experiment list
+    // otherwise, add experiment to the incomplete experiment list
+    if (missingAnnotationMapForExperiment.isEmpty()) {
+      this.completeExperimentMapForLab.put(prevIdRequest, prevExperimentInfo);
+    } else {
+      // Put the missing annotations in a list so we can reference them with the experiment
+      // when we generate the detail report
+      prevExperimentInfo.missingAnnotationMapForExperiment = missingAnnotationMapForExperiment;
+      prevExperimentInfo.requiredPropertiesForExperiment = requiredPropertiesForExperiment;
+      this.incompleteExperimentMapForLab.put(prevIdRequest, prevExperimentInfo);
+    }
   }
 
   private void addMissingAnnotation(String propertyName, String sampleNumber) {
