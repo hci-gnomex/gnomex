@@ -14,10 +14,11 @@
 			private var state:ExperimentPlatformState = null;
 			
 			[Bindable]
-			private var types:XMLListCollection = new XMLListCollection();
+			private var types:XMLListCollection;
 			
 			public function init(state:ExperimentPlatformState):void {
 				this.state = state;
+				types = new XMLListCollection();
 				types.addItem(<Type type='DNA' />);
 				types.addItem(<Type type='RNA' />);
 				types.addItem(<Type type='BOTH' />);
