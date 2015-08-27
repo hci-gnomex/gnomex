@@ -23,6 +23,10 @@
 				unitPrice.text = prepType.@unitPriceInternal == '' ? '0.00' : prepType.@unitPriceInternal;
 				this.unitPriceExternalAcademic.text = prepType.@unitPriceExternalAcademic == '' ? '0.00' : prepType.@unitPriceExternalAcademic;
 				this.unitPriceExternalCommercial.text = prepType.@unitPriceExternalCommercial == '' ? '0.00' : prepType.@unitPriceExternalCommercial;
+				
+				setPriceLabel(this.priceInternalLabel, parentApplication.PROPERTY_INTERNAL_PRICE_LABEL, 'Internal Pricing');
+				setPriceLabel(this.priceExternalAcademicLabel, parentApplication.PROPERTY_EXTERNAL_ACADEMIC_PRICE_LABEL, 'External Academic Pricing');
+				setPriceLabel(this.priceExternalCommercialLabel, parentApplication.PROPERTY_EXTERNAL_COMMERCIAL_PRICE_LABEL, 'External Commercial Pricing');
 			}
 			
 			private function save():void{
@@ -79,6 +83,15 @@
 			private function setDirty():void {
 				if (saveButton.enabled) {
 					dirty.setDirty();
+				}
+			}
+			
+			private function setPriceLabel(label:Label, property:String, defaultLabel:String):void {
+				var val:String = parentApplication.getProperty(property);
+				if (val == null || val.length == 0) {
+					label.text = defaultLabel;
+				} else {
+					label.text = val;
 				}
 			}
 			
