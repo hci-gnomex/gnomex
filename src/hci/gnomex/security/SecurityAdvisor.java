@@ -245,9 +245,11 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     // Is this a GNomEx university user?
     StringBuffer queryBuf = new StringBuffer();
     queryBuf.append(" SELECT user from AppUser as user ");
-    queryBuf.append(" WHERE  user.uNID =  '" + uid + "' ");
+    queryBuf.append(" WHERE  user.uNID =  :uid ");
 
-    List users = sess.createQuery(queryBuf.toString()).list();
+    Query query = sess.createQuery(queryBuf.toString());
+    query.setParameter("uid", uid);
+    List users = query.list();
 
     AppUser appUser = null;
     if (users.size() > 0) {
@@ -268,9 +270,11 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     if (appUser == null) {
       queryBuf = new StringBuffer();
       queryBuf.append(" SELECT user from AppUser as user ");
-      queryBuf.append(" WHERE  user.userNameExternal =  '" + uid + "' ");
+      queryBuf.append(" WHERE  user.userNameExternal =  :uid ");
 
-      users = sess.createQuery(queryBuf.toString()).list();
+      query = sess.createQuery(queryBuf.toString());
+      query.setParameter("uid", uid);
+      users = query.list();
 
       appUser = null;
       if (users.size() > 0) {

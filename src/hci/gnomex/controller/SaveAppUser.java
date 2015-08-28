@@ -31,6 +31,7 @@ import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.jdom.Element;
 import org.jdom.input.SAXBuilder;
@@ -558,12 +559,16 @@ public class SaveAppUser extends GNomExCommand implements Serializable {
     }
 
     StringBuffer buf = new StringBuffer();
-    buf.append("SELECT a.userNameExternal from AppUser as a where a.userNameExternal = '"); 
-    buf.append(userNameExternal + "'");
+    buf.append("SELECT a.userNameExternal from AppUser as a where a.userNameExternal = :externalUserName");
     if (idAppUser != null) {
-      buf.append(" AND a.idAppUser != " + idAppUser);
+      buf.append(" AND a.idAppUser != :idAppUser");
     }
-    List users = sess.createQuery(buf.toString()).list();
+    Query query = sess.createQuery(buf.toString());
+    query.setParameter("externalUserName", userNameExternal);
+    if (idAppUser != null) {
+    	query.setParameter("idAppUser", idAppUser);
+    }
+    List users = query.list();
     return users.size() > 0;    
   }
   

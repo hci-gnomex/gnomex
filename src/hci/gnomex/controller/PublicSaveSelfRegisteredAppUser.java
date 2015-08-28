@@ -532,12 +532,16 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
     }
 
     StringBuffer buf = new StringBuffer();
-    buf.append("SELECT a.userNameExternal from AppUser as a where a.userNameExternal = '"); 
-    buf.append(userNameExternal + "'");
+    buf.append("SELECT a.userNameExternal from AppUser as a where a.userNameExternal = :userNameExternal");
     if (idAppUser != null) {
-      buf.append(" AND a.idAppUser != " + idAppUser);
+      buf.append(" AND a.idAppUser != :idAppUser");
     }
-    List users = sess.createQuery(buf.toString()).list();
+    Query query = sess.createQuery(buf.toString());
+    query.setParameter("userNameExternal", userNameExternal);
+    if (idAppUser != null) {
+    	query.setParameter("idAppUser", idAppUser);
+    }
+    List users = query.list();
     return users.size() > 0;    
   }
 
