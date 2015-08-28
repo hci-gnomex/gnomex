@@ -13,6 +13,7 @@ import hci.gnomex.model.ProductOrder;
 import hci.gnomex.model.ProductOrderStatus;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.Request;
+import hci.gnomex.model.RequestStatus;
 
 public class ProductUtil {
 	
@@ -54,7 +55,7 @@ public class ProductUtil {
 		
 		RequestStatusComparator statusComp = new RequestStatusComparator();
 		
-		if ((oldRequestStatus == null || statusComp.compare(newRequestStatus, oldRequestStatus) > 0) && newRequestStatus.equals(statusToUseProducts)) {
+		if (isGoingForwardThroughProductGate(oldRequestStatus, newRequestStatus, statusToUseProducts, statusComp) && !newRequestStatus.equals(RequestStatus.FAILED)) {
 			Integer productsAvailableToLab = (Integer) sess.createQuery( "select SUM(qty) from ProductLedger where idLab = " + req.getIdLab() + " and idProduct = " + req.getIdProduct() ).uniqueResult();
 			Integer productsRequired = determineProductsRequired(sess, req);
 			
@@ -76,7 +77,7 @@ public class ProductUtil {
 			} else {
 				throw new ProductException("Lab does not have sufficient inventory.");
 			}
-		} else if ((oldRequestStatus != null && statusComp.compare(oldRequestStatus, statusToUseProducts) >= 0) && statusComp.compare(newRequestStatus, statusToUseProducts) < 0) {
+		} else if (isGoingBackwardThroughProductGate(oldRequestStatus, newRequestStatus, statusToUseProducts, statusComp)) {
 			Integer productsRequired = determineProductsRequired(sess, req);
 			
 			if (productsRequired == null || productsRequired == -1) {
@@ -144,6 +145,18 @@ public class ProductUtil {
 	    	resultMessage.append("Status changed for " + po.getDisplay() + ",\n " + pli.getDisplay() + ".\r\n");
 	    }
 	    return true;
+	}
+	
+	public static boolean isGoingForwardThroughProductGate(String oldRequestStatus, String newRequestStatus, String statusToUseProducts, RequestStatusComparator statusComp) {
+		return 		(statusComp.compare(newRequestStatus, oldRequestStatus) > 0) 		// New status is further in workflow than old status
+				&& 	(statusComp.compare(oldRequestStatus, statusToUseProducts) < 0) 	// Old status is behind the product gate
+				&& 	(statusComp.compare(newRequestStatus, statusToUseProducts) >= 0); 	// New status is at or beyond product gate
+	}
+	
+	public static boolean isGoingBackwardThroughProductGate(String oldRequestStatus, String newRequestStatus, String statusToUseProducts, RequestStatusComparator statusComp) {
+		return 		(statusComp.compare(newRequestStatus, oldRequestStatus) < 0) 		// New status is earlier in workflow than old status
+				&& 	(statusComp.compare(oldRequestStatus, statusToUseProducts) >= 0) 	// Old status is at or beyond the product gate
+				&& 	(statusComp.compare(newRequestStatus, statusToUseProducts) < 0); 	// New status is behind product gate
 	}
 
 }
