@@ -445,11 +445,14 @@
 					this.theTab.getTabAt( theTab.getChildIndex( propertiesView ) ).includeInLayout = true;
 				}
 				
-				if (determineToShowProductsTab(requestCategory) && selectedExperiment.hasOwnProperty("@idProduct") && selectedExperiment.@idProduct != "") {
+				if (	determineToShowProductsTab(requestCategory) && selectedExperiment.hasOwnProperty("@codeRequestStatus") && 
+						selectedExperiment.@codeRequestStatus != "COMPLETE" && selectedExperiment.@codeRequestStatus != "FAILED") {
 					productsView.allowEdits(false);
 					productsView.refreshForRequestCategory(requestCategory);
 					productsView.refreshForLab(selectedExperiment.@idLab);
-					productsView.loadSelection(selectedExperiment.@idProduct, selectedExperiment.@idLab);
+					if (selectedExperiment.hasOwnProperty("@idProduct") && selectedExperiment.@idProduct != "") {
+						productsView.loadSelection(selectedExperiment.@idProduct, selectedExperiment.@idLab);
+					}
 					this.theTab.getTabAt( theTab.getChildIndex( productsView ) ).visible = true;
 					this.theTab.getTabAt( theTab.getChildIndex( productsView ) ).includeInLayout = true;
 				} else {
