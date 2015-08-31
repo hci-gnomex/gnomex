@@ -55,7 +55,7 @@ public class ProductUtil {
 		
 		RequestStatusComparator statusComp = new RequestStatusComparator();
 		
-		if (isGoingForwardThroughProductGate(oldRequestStatus, newRequestStatus, statusToUseProducts, statusComp) && !newRequestStatus.equals(RequestStatus.FAILED)) {
+		if (isGoingForwardThroughProductGate(oldRequestStatus, newRequestStatus, statusToUseProducts, statusComp) && (!newRequestStatus.equals(RequestStatus.FAILED) || statusToUseProducts.equals(RequestStatus.FAILED))) {
 			Integer productsAvailableToLab = (Integer) sess.createQuery( "select SUM(qty) from ProductLedger where idLab = " + req.getIdLab() + " and idProduct = " + req.getIdProduct() ).uniqueResult();
 			Integer productsRequired = determineProductsRequired(sess, req);
 			

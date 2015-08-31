@@ -57,6 +57,8 @@
 						break;
 					}
 				}
+
+				updateProductStatus(true);
 				
 				if (parentApplication.coreFacilitiesICanManage.length() == 1) {
 					coreFacilityCombo.enabled = false;
@@ -122,6 +124,7 @@
 				productTypeCombo.selectedItem = null;
 				filteredProductTypes.refresh();
 				updateProductType();
+				updateProductStatus(true);
 			}
 			
 			private function pickType(setDirty:Boolean = true):void {
@@ -229,6 +232,37 @@
 					state.requestCategory.@noProductsMessage = "";
 				}
 			}
+			
+			private function updateProductStatus(init:Boolean = false):void {
+				if (init) {
+					state.requestCategory.@productStatus = "";
+					var statusString:String = parentApplication.getRequestCategoryProperty(state.requestCategory.@idCoreFacility, state.requestCategory.@codeRequestCategory, parentApplication.PROPERTY_STATUS_TO_USE_PRODUCTS);
+					var found:Boolean = false;
+					if (statusString != null && statusString != "") {
+						for each (var status:Object in productStatusCombo.dataProvider) {
+							if (status.@codeRequestStatus == statusString) {
+								found = true;
+								productStatusCombo.selectedItem = status;
+								break;
+							}
+						}
+					}
+					if (!found) {
+						for each (var status2:Object in productStatusCombo.dataProvider) {
+							if (status2.@codeRequestStatus == "SUBMITTED") {
+								productStatusCombo.selectedItem = status2;
+								break;
+							}
+						}
+					}
+				}
+				
+				if (useProductsCheckBox.selected && productStatusCombo.selectedItem != null && productStatusCombo.selectedItem.hasOwnProperty("@codeRequestStatus")) {
+					state.requestCategory.@productStatus = productStatusCombo.selectedItem.@codeRequestStatus;
+				} else if (!init) {
+					state.requestCategory.@productStatus = "";
+				}
+			}
 		]]>
 	</mx:Script>
 	<mx:HBox width="100%" horizontalGap="1" verticalAlign="middle">
@@ -318,7 +352,7 @@
 	
 	<mx:HBox width="100%" verticalAlign="middle" horizontalGap="0">
 		<mx:Text text="Uses Products?" width="100" styleName="formLabel"/>
-		<mx:CheckBox id="useProductsCheckBox" click="{updateProductType(); state.dirty.setDirty()}" selected="{state.requestCategory.@codeProductType != ''}"/>
+		<mx:CheckBox id="useProductsCheckBox" click="{updateProductType(); updateProductStatus(); state.dirty.setDirty()}" selected="{state.requestCategory.@codeProductType != ''}"/>
 		<mx:Spacer width="10"/>
 		<mx:ComboBox id="productTypeCombo" dataProvider="{filteredProductTypes}" labelField="@display" visible="{useProductsCheckBox.selected}" includeInLayout="{useProductsCheckBox.selected}" 
 					 close="{updateProductType(); state.dirty.setDirty()}" width="277"/>
@@ -327,6 +361,11 @@
 		<mx:TextInput id="noProductsMessage" width="100%" change="state.requestCategory.@noProductsMessage = noProductsMessage.text; state.dirty.setDirty()" 
 					  text="{parentApplication.getRequestCategoryProperty(state.requestCategory.@idCoreFacility, state.requestCategory.@codeRequestCategory, parentApplication.PROPERTY_NO_PRODUCTS_MESSAGE)}"
 					  visible="{useProductsCheckBox.selected}" includeInLayout="{useProductsCheckBox.selected}"/>
+	</mx:HBox>
+	<mx:HBox width="100%" verticalAlign="middle" horizontalGap="0" visible="{useProductsCheckBox.selected}" includeInLayout="{useProductsCheckBox.selected}">
+		<mx:Text text="Status to Use Products" width="100" styleName="formLabel"/>
+		<mx:ComboBox id="productStatusCombo" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.RequestStatus').DictionaryEntry}" 
+					 labelField="@codeRequestStatus" close="{updateProductStatus(); state.dirty.setDirty()}" width="300" prompt="Select a Status..."/>
 	</mx:HBox>
 
 	<mx:Label text="" styleName="warningLabelMinor" width="100%" id="securityLabel"/>

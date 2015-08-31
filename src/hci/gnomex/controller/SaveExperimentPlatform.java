@@ -76,6 +76,7 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
   private String                         newCodeRequestCategory;
   private String                         customWarningMessage;
   private String						 noProductsMessage;
+  private String						 productStatus;
 
   private Map<String, String>            newCodeApplicationMap;
 
@@ -107,6 +108,10 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
 
     if (request.getParameter("noProductsMessage") != null && !request.getParameter("noProductsMessage").equals("")) {
       this.noProductsMessage = request.getParameter("noProductsMessage");
+    }
+    
+    if (request.getParameter("productStatus") != null && !request.getParameter("productStatus").equals("")) {
+        this.productStatus = request.getParameter("productStatus");
     }
 
     if (request.getParameter("sampleTypesXMLString") != null && !request.getParameter("sampleTypesXMLString").equals("")) {
@@ -297,6 +302,33 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
         } else { // This will remove the property for the given request category if they decide it no longer uses products
           if (noProductsMessageProps.size() > 0) {
             for (Iterator i = noProductsMessageProps.iterator(); i.hasNext();) {
+              PropertyDictionary pd = (PropertyDictionary)i.next();
+              sess.delete(pd);
+            }
+          }
+        }
+        
+        // Now check and see if we need to create a product status property
+        List productStatusProps = generatePropertyQuery(sess, PropertyDictionary.STATUS_TO_USE_PRODUCTS, idCoreFacility, codeRequestCategory).list();
+        if (productStatus != null && !productStatus.equals("")) {
+          // If we don't have a property we need to create one
+          if (productStatusProps.size() == 0) {
+            PropertyDictionary pd = new PropertyDictionary();
+            pd.setPropertyName(PropertyDictionary.STATUS_TO_USE_PRODUCTS);
+            pd.setIdCoreFacility(idCoreFacility);
+            pd.setCodeRequestCategory(codeRequestCategory);
+            pd.setForServerOnly("N");
+            pd.setPropertyValue(productStatus);
+            pd.setPropertyDescription("The request status where products are deducted from a lab's inventory.");
+            sess.save(pd);
+          } else if (productStatusProps.size() == 1) { // Maybe they are just updating the status
+            PropertyDictionary pd = (PropertyDictionary) productStatusProps.get(0);
+            pd.setPropertyValue(productStatus);
+            sess.save(pd);
+          }
+        } else { // This will remove the property for the given request category if they decide it no longer uses products
+          if (productStatusProps.size() > 0) {
+            for (Iterator i = productStatusProps.iterator(); i.hasNext();) {
               PropertyDictionary pd = (PropertyDictionary)i.next();
               sess.delete(pd);
             }
