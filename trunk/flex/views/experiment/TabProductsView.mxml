@@ -43,11 +43,13 @@
 			private static const NO_PRODUCTS:String = "0";
 			
 			private function init():void {
+				filteredProducts.source = parentApplication.productList.copy();
 				if (parentDocument.hasOwnProperty("requestCategory") && parentDocument.requestCategory != null && parentDocument.requestCategory.hasOwnProperty("@idCoreFacility") && parentDocument.requestCategory.hasOwnProperty("@codeRequestCategory")) {
 					updateShowOnlyLabsProductsProperty(parentDocument.requestCategory.@idCoreFacility, parentDocument.requestCategory.@codeRequestCategory);
 					updateNoProductsMessage(parentDocument.requestCategory.@idCoreFacility, parentDocument.requestCategory.@codeRequestCategory);
 				}
 				filteredProducts.refresh();
+				updateInventoryAmounts();
 				
 				updateSelectionOptions();
 				
@@ -58,6 +60,7 @@
 				if (parentDocument is ExperimentEditView && parentDocument.hasOwnProperty("requestCategory") && parentDocument.requestCategory != null) {
 					hasSufficientProduct = false;
 					productGroup.selection = null;
+					productGroup.selectedValue = null;
 					selectedProduct = null;
 					availableLedgerAmount = NO_PRODUCTS;
 					pendingLedgerAmount = NO_PRODUCTS;
@@ -73,6 +76,7 @@
 				} else if (requestCategory != null) {
 					hasSufficientProduct = false;
 					productGroup.selection = null;
+					productGroup.selectedValue = null;
 					selectedProduct = null;
 					availableLedgerAmount = NO_PRODUCTS;
 					pendingLedgerAmount = NO_PRODUCTS;
@@ -93,6 +97,7 @@
 				if (parentDocument is ExperimentEditView && parentDocument.getIdLab() != null) {
 					hasSufficientProduct = false;
 					productGroup.selection = null;
+					productGroup.selectedValue = null;
 					selectedProduct = null;
 					availableLedgerAmount = NO_PRODUCTS;
 					pendingLedgerAmount = NO_PRODUCTS;
@@ -100,6 +105,7 @@
 				} else if (idLab != null) {
 					hasSufficientProduct = false;
 					productGroup.selection = null;
+					productGroup.selectedValue = null;
 					selectedProduct = null;
 					availableLedgerAmount = NO_PRODUCTS;
 					pendingLedgerAmount = NO_PRODUCTS;
@@ -126,6 +132,7 @@
 				pendingLedgerAmount = NO_PRODUCTS;
 				hasSufficientProduct = false;
 				productGroup.selection = null;
+				productGroup.selectedValue = null;
 				selectedProduct = null;
 				requiredCodeProductType = null;
 				lastIdLabUsedForLookup = null;
@@ -248,6 +255,8 @@
 					if (showOnlyLabsProducts) {
 						filteredProducts.refresh();
 					}
+					
+					updateInventoryAmounts();
 					
 					if (idProductToLoad != null) {
 						for each (var product:XML in filteredProducts) {
@@ -430,10 +439,34 @@
 				productTypes = list;
 			}
 			
+			private function updateInventoryAmounts():void {
+				if (getProductLedgerList.lastResult != null) {
+					for each (var productChoice:XML in filteredProducts) {
+						var foundInLedger:Boolean = false;
+						for each (var productInLedger:Object in getProductLedgerList.lastResult.Lab.product) {
+							if (productChoice.@idProduct == productInLedger.@idProduct) {
+								foundInLedger = true;
+								productChoice.@inventory = productInLedger.@qty;
+								break;
+							}
+						}
+						if (!foundInLedger) {
+							productChoice.@inventory = NO_PRODUCTS;
+						}
+					}
+				} else {
+					for each (var productChoice2:XML in filteredProducts) {
+						productChoice.@inventory = NO_PRODUCTS;
+					}
+				}
+				
+				filteredProducts.refresh();
+			}
+			
 		]]>
 	</mx:Script>
 	
-	<mx:XMLListCollection id="filteredProducts" source="{parentApplication.productList.copy()}" filterFunction="filterProducts" />
+	<mx:XMLListCollection id="filteredProducts" filterFunction="filterProducts" />
 	<mx:XMLListCollection id="productTypes" />
 	
 	<mx:VBox width="100%" height="100%" verticalScrollPolicy="auto" verticalGap="10" paddingTop="0" paddingRight="0" paddingBottom="0" paddingLeft="0">
@@ -458,6 +491,9 @@
 					<mx:VBox width="100" height="100%" horizontalAlign="center" verticalAlign="top">
 						<mx:Label width="100" text="Use Quantity" styleName="formLabel" paddingLeft="16" />
 					</mx:VBox>
+					<mx:VBox width="100" height="100%" horizontalAlign="center" verticalAlign="top" >
+						<mx:Label width="80" text="Inventory" styleName="formLabel" paddingLeft="16" />
+					</mx:VBox>
 				</mx:HBox>
 				<mx:RadioButtonGroup id="productGroup" change="{selectProduct()}" />
 				<mx:Repeater id="productRepeater" dataProvider="{filteredProducts}">
@@ -467,6 +503,7 @@
 										value="{productRepeater.currentItem}" width="250"
 										paddingTop="0" paddingBottom="0" fontSize="11" paddingLeft="2" />
 						<mx:Label text="{productRepeater.currentItem.@useQty}" width="100" paddingLeft="45" />
+						<mx:Label text="{productRepeater.currentItem.@inventory}" width="80" paddingLeft="50" />
 					</mx:HBox>
 				</mx:Repeater>
 			</mx:VBox>
