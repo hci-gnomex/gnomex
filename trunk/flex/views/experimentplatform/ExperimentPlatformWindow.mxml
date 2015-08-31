@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?> 
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
-				layout="vertical" width="1100" height="615"  creationPolicy="all"
+				layout="vertical" width="1100" height="640"  creationPolicy="all"
 				xmlns:util="views.util.*"  creationComplete="init()"
 				xmlns:experimentplatform="views.experimentplatform.*"
 				showCloseButton="true" close="{closeWindow()}"
@@ -143,6 +143,8 @@
 				
 				params.customWarningMessage = state.requestCategory.@customWarningMessage;
 				params.noProductsMessage = state.requestCategory.@noProductsMessage;
+				
+				params.productStatus = state.requestCategory.@productStatus;
 				
 				var sampleTypes:XMLListCollection = new XMLListCollection(state.requestCategory.sampleTypes.SampleType);
 				params.sampleTypesXMLString = "<sampleTypes>" + sampleTypes.toXMLString() + "</sampleTypes>";
