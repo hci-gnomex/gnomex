@@ -77,6 +77,7 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
   private String                         customWarningMessage;
   private String						 noProductsMessage;
   private String						 productStatus;
+  private String						 requireNameDescription;
 
   private Map<String, String>            newCodeApplicationMap;
 
@@ -112,6 +113,10 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
     
     if (request.getParameter("productStatus") != null && !request.getParameter("productStatus").equals("")) {
         this.productStatus = request.getParameter("productStatus");
+    }
+    
+    if (request.getParameter("requireNameDescription") != null && !request.getParameter("requireNameDescription").equals("")) {
+        this.requireNameDescription = request.getParameter("requireNameDescription");
     }
 
     if (request.getParameter("sampleTypesXMLString") != null && !request.getParameter("sampleTypesXMLString").equals("")) {
@@ -254,86 +259,24 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
         String codeRequestCategory = rc.getCodeRequestCategory();
 
         //now check and see if we need to create a sample warning property for sample batch size
-        List customWarningMessageProps = generatePropertyQuery(sess, PropertyDictionary.PROPERTY_SAMPLE_BATCH_WARNING, idCoreFacility, codeRequestCategory).list();
-        if(customWarningMessage != null && !customWarningMessage.equals("")) {
-          //If we don't have a property we need to create one
-          if(customWarningMessageProps.size() == 0) {
-            PropertyDictionary pd = new PropertyDictionary();
-            pd.setPropertyName(PropertyDictionary.PROPERTY_SAMPLE_BATCH_WARNING);
-            pd.setIdCoreFacility(idCoreFacility);
-            pd.setCodeRequestCategory(codeRequestCategory);
-            pd.setForServerOnly("N");
-            pd.setPropertyValue(customWarningMessage);
-            pd.setPropertyDescription("Warning to notify users if they don't use a multiple of the sample batch size specified on the Request Category then they will be charged for unused wells.");
-            sess.save(pd);
-          } else if(customWarningMessageProps.size() == 1) { //Maybe they are just updating the warning message
-            PropertyDictionary pd = (PropertyDictionary)customWarningMessageProps.get(0);
-            pd.setPropertyValue(customWarningMessage);
-            sess.save(pd);
-          }
-        } else { //This will remove the property for the given request category if they decide they don't run in batches anymore
-          if(customWarningMessageProps.size() > 0) {
-            for(Iterator i = customWarningMessageProps.iterator(); i.hasNext();) {
-              PropertyDictionary pd = (PropertyDictionary)i.next();
-              sess.delete(pd);
-            }
-          }
-
-        }
+        updateProperty(	sess, PropertyDictionary.PROPERTY_SAMPLE_BATCH_WARNING, customWarningMessage, 
+        				"Warning to notify users if they don't use a multiple of the sample batch size specified on the Request Category then they will be charged for unused wells.", 
+        				"N", idCoreFacility, codeRequestCategory);
 
         // Now check and see if we need to create a no products message property
-        List noProductsMessageProps = generatePropertyQuery(sess, PropertyDictionary.PROPERTY_NO_PRODUCTS_MESSAGE, idCoreFacility, codeRequestCategory).list();
-        if (noProductsMessage != null && !noProductsMessage.equals("")) {
-          // If we don't have a property we need to create one
-          if (noProductsMessageProps.size() == 0) {
-            PropertyDictionary pd = new PropertyDictionary();
-            pd.setPropertyName(PropertyDictionary.PROPERTY_NO_PRODUCTS_MESSAGE);
-            pd.setIdCoreFacility(idCoreFacility);
-            pd.setCodeRequestCategory(codeRequestCategory);
-            pd.setForServerOnly("N");
-            pd.setPropertyValue(noProductsMessage);
-            pd.setPropertyDescription("The message displayed when submitting an experiment order requiring products if the lab does not have any applicable products in their inventory.");
-            sess.save(pd);
-          } else if (noProductsMessageProps.size() == 1) { // Maybe they are just updating the warning message
-            PropertyDictionary pd = (PropertyDictionary)noProductsMessageProps.get(0);
-            pd.setPropertyValue(noProductsMessage);
-            sess.save(pd);
-          }
-        } else { // This will remove the property for the given request category if they decide it no longer uses products
-          if (noProductsMessageProps.size() > 0) {
-            for (Iterator i = noProductsMessageProps.iterator(); i.hasNext();) {
-              PropertyDictionary pd = (PropertyDictionary)i.next();
-              sess.delete(pd);
-            }
-          }
-        }
+        updateProperty(	sess, PropertyDictionary.PROPERTY_NO_PRODUCTS_MESSAGE, noProductsMessage, 
+        				"The message displayed when submitting an experiment order requiring products if the lab does not have any applicable products in their inventory.", 
+        				"N", idCoreFacility, codeRequestCategory);
         
         // Now check and see if we need to create a product status property
-        List productStatusProps = generatePropertyQuery(sess, PropertyDictionary.STATUS_TO_USE_PRODUCTS, idCoreFacility, codeRequestCategory).list();
-        if (productStatus != null && !productStatus.equals("")) {
-          // If we don't have a property we need to create one
-          if (productStatusProps.size() == 0) {
-            PropertyDictionary pd = new PropertyDictionary();
-            pd.setPropertyName(PropertyDictionary.STATUS_TO_USE_PRODUCTS);
-            pd.setIdCoreFacility(idCoreFacility);
-            pd.setCodeRequestCategory(codeRequestCategory);
-            pd.setForServerOnly("N");
-            pd.setPropertyValue(productStatus);
-            pd.setPropertyDescription("The request status where products are deducted from a lab's inventory.");
-            sess.save(pd);
-          } else if (productStatusProps.size() == 1) { // Maybe they are just updating the status
-            PropertyDictionary pd = (PropertyDictionary) productStatusProps.get(0);
-            pd.setPropertyValue(productStatus);
-            sess.save(pd);
-          }
-        } else { // This will remove the property for the given request category if they decide it no longer uses products
-          if (productStatusProps.size() > 0) {
-            for (Iterator i = productStatusProps.iterator(); i.hasNext();) {
-              PropertyDictionary pd = (PropertyDictionary)i.next();
-              sess.delete(pd);
-            }
-          }
-        }
+        updateProperty(	sess, PropertyDictionary.STATUS_TO_USE_PRODUCTS, productStatus, 
+        				"The request status where products are deducted from a lab's inventory.", 
+        				"N", idCoreFacility, codeRequestCategory);
+        
+        // Now check for status of property that requires name and description
+        updateProperty(	sess, PropertyDictionary.DESCRIPTION_NAME_MANDATORY_FOR_INTERNAL_EXPERIMENTS, requireNameDescription, 
+						"Makes the experiment name and description mandatory fields.", 
+						"N", idCoreFacility, codeRequestCategory);
 
         sess.flush();
 
@@ -365,6 +308,34 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
     }
 
     return this;
+  }
+  
+  private void updateProperty(Session sess, String propertyName, String value, String description, String forServerOnly, Integer idCoreFacility, String codeRequestCategory) {
+	  List props = generatePropertyQuery(sess, propertyName, idCoreFacility, codeRequestCategory).list();
+      if (value != null && !value.equals("")) {
+        // If we don't have a property we need to create one
+        if (props.size() == 0) {
+          PropertyDictionary pd = new PropertyDictionary();
+          pd.setPropertyName(propertyName);
+          pd.setIdCoreFacility(idCoreFacility);
+          pd.setCodeRequestCategory(codeRequestCategory);
+          pd.setForServerOnly(forServerOnly);
+          pd.setPropertyValue(value);
+          pd.setPropertyDescription(description);
+          sess.save(pd);
+        } else if (props.size() == 1) { // Maybe they are just updating the property
+          PropertyDictionary pd = (PropertyDictionary) props.get(0);
+          pd.setPropertyValue(value);
+          sess.save(pd);
+        }
+      } else { // This will remove the property for the given request category
+        if (props.size() > 0) {
+          for (Iterator i = props.iterator(); i.hasNext();) {
+            PropertyDictionary pd = (PropertyDictionary)i.next();
+            sess.delete(pd);
+          }
+        }
+      }
   }
 
   private Query generatePropertyQuery(Session sess, String property, Integer idCoreFacility, String codeRequestCategory) {

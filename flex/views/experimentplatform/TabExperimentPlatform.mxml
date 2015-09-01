@@ -40,6 +40,7 @@
 				typeCombo.selectedItem = state.dictionaryManager.getEntry("hci.gnomex.model.RequestCategoryType", state.requestCategory.@type);
 				state.selectedType = typeCombo.selectedItem;
 				setIconCombo(state.requestCategory.@icon);
+				setRequireNameDescriptionCheckbox(state);
 				
 				for each (var facility:Object in coreFacilities) {
 					if (facility.@idCoreFacility == state.requestCategory.@idCoreFacility) {
@@ -263,6 +264,19 @@
 					state.requestCategory.@productStatus = "";
 				}
 			}
+			
+			private function setRequireNameDescriptionCheckbox(state:ExperimentPlatformState):void {
+				var prop:String = parentApplication.getRequestCategoryProperty(	state.requestCategory.@idCoreFacility, 
+																				state.requestCategory.@codeRequestCategory, 
+																				parentApplication.PROPERTY_DESCRIPTION_NAME_MANDATORY_FOR_INTERNAL_EXPERIMENTS	);
+				if (prop != null && prop == "Y") {
+					requireNameDescriptionCheckbox.selected = true;
+				} else {
+					requireNameDescriptionCheckbox.selected = false;
+				}
+				state.requestCategory.@requireNameDescription = requireNameDescriptionCheckbox.selected ? 'Y' : 'N';
+			}
+			
 		]]>
 	</mx:Script>
 	<mx:HBox width="100%" horizontalGap="1" verticalAlign="middle">
@@ -279,6 +293,9 @@
 		<mx:CheckBox id="associatedWithAnalysisCheckbox" label="Associated With Analysis?" 
 					 click="{state.requestCategory.@associatedWithAnalysis = associatedWithAnalysisCheckbox.selected ? 'Y' : 'N'; state.dirty.setDirty()}"
 					 selected="{state.requestCategory.@associatedWithAnalysis == 'Y' ? true : false}" />
+		<mx:Spacer width="10"/>
+		<mx:CheckBox id="requireNameDescriptionCheckbox" label="Require Name &amp; Description" 
+					 click="{state.requestCategory.@requireNameDescription = requireNameDescriptionCheckbox.selected ? 'Y' : 'N'; state.dirty.setDirty()}" />
 	</mx:HBox>
 
 	<mx:HBox width="100%" horizontalGap="1" verticalAlign="middle">
