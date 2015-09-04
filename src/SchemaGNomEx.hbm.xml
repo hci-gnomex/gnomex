@@ -2152,6 +2152,7 @@
     <property name="useQty" column="useQty" type="integer"/>
     <property name="catalogNumber" column="catalogNumber" type="string"/>
     <property name="isActive" column="isActive" type="string"/>
+    <property name="batchSamplesByUseQuantity" column="batchSamplesByUseQuantity" type="string"/>
   </class> 
   
   <!-- hci.gnomex.model.ProductLedger -->

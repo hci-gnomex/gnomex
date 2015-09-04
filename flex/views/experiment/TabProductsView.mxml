@@ -392,6 +392,10 @@
 				return selectedProduct;
 			}
 			
+			public function batchSamplesByUseQuantity():Boolean {
+				return (selectedProduct != null && selectedProduct.hasOwnProperty("@batchSamplesByUseQuantity") && selectedProduct.@batchSamplesByUseQuantity == "Y");
+			}
+			
 			private function setDirty():void {
 				if (parentDocument.hasOwnProperty("dirty") && parentDocument.dirty != null) {
 					parentDocument.dirty.setDirty();
