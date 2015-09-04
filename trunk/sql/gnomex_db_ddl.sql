@@ -824,7 +824,7 @@ ENGINE = INNODB;
 DROP TABLE IF EXISTS `gnomex`.`BioanalyzerChipType`;
 CREATE TABLE `gnomex`.`BioanalyzerChipType` (
   `codeBioanalyzerChipType` VARCHAR(10) NOT NULL,
-  `bioanalyzerChipType` VARCHAR(50) NULL,
+  `bioanalyzerChipType` VARCHAR(100) NULL,
   `concentrationRange` VARCHAR(50) NULL,
   `maxSampleBufferStrength` VARCHAR(50) NULL,
   `costPerSample` DECIMAL(5, 2) NULL,

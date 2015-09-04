@@ -36,3 +36,7 @@ CALL ExecuteIfTableExists('gnomex', 'PriceCriteria_Audit', 'alter table PriceCri
 ALTER TABLE Product
 ADD COLUMN batchSamplesByUseQuantity CHAR(1) NULL;
 CALL ExecuteIfTableExists('gnomex', 'Product_Audit', 'ALTER TABLE Product_Audit ADD COLUMN batchSamplesByUseQuantity CHAR(1) NULL');
+
+-- Increase size of bioanalyzerChipType on BioanalyzerChipType
+ALTER TABLE BioanalyzerChipType MODIFY bioanalyzerChipType VARCHAR(100) NULL;
+CALL ExecuteIfTableExists('gnomex', 'BioanalyzerChipType_Audit', 'ALTER TABLE BioanalyzerChipType_Audit MODIFY bioanalyzerChipType VARCHAR(100) NULL');
