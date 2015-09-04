@@ -31,3 +31,8 @@ alter column filter2 varchar(20);
 
 CALL ExecuteIfTableExists('gnomex', 'PriceCriteria_Audit', 'alter table PriceCriteria_Audit alter column filter1 varchar(20)');
 CALL ExecuteIfTableExists('gnomex', 'PriceCriteria_Audit', 'alter table PriceCriteria_Audit alter column filter2 varchar(20)');
+
+-- Add batchSamplesByUseQuantity to Product
+ALTER TABLE Product
+ADD COLUMN batchSamplesByUseQuantity CHAR(1) NULL;
+CALL ExecuteIfTableExists('gnomex', 'Product_Audit', 'ALTER TABLE Product_Audit ADD COLUMN batchSamplesByUseQuantity CHAR(1) NULL');

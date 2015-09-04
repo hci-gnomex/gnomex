@@ -580,37 +580,48 @@
 			private function generateSampleSizeWarnings():void {
 				sampleSizeWarning.text = "";
 				
-				//Check if we have a sample batch size restriction.  If so warn user.  Check on application level first and then requestCategory level
-				var sampleBatchWarning:String = "";
-				var hasBatchSampleSize:String = parentApplication.getRequestCategoryProperty(parentDocument.getRequestCategory().@idCoreFacility,parentDocument.getRequestCategory().@codeRequestCategory, parentApplication.PROPERTY_SAMPLE_BATCH_WARNING);
-				if(application != null && application.@samplesPerBatch != null && application.@samplesPerBatch != ''){
-					var appSampleSize:int = int(application.@samplesPerBatch);
-					if(numberOfSamples.text != "" && int(numberOfSamples.text) % appSampleSize != 0){
-						if(hasBatchSampleSize != ""){
-							sampleBatchWarning = hasBatchSampleSize;
-						} else{
-							sampleBatchWarning = " You have selected a panel which runs in batches of " + appSampleSize + " samples. Please note you will be responsible to pay for unused wells.";
-						}
-					}
-				} else if(parentDocument.getRequestCategory().@sampleBatchSize != null && parentDocument.getRequestCategory().@sampleBatchSize != ''){
-					var reqCatSampleSize:int = int(parentDocument.getRequestCategory().@sampleBatchSize);
-					if(numberOfSamples.text != "" && int(numberOfSamples.text) % reqCatSampleSize != 0){
-						if(hasBatchSampleSize != ""){
-							sampleBatchWarning = hasBatchSampleSize;
-						} else{
-							sampleBatchWarning = " You have selected a request category which runs in batches of " + reqCatSampleSize + " samples. Please note you will be responsible to pay for unused wells.";
-						}
-					}
-				}
-				sampleSizeWarning.text += sampleBatchWarning;
-				
 				// Check if product use quantity is matched with sample count
+				var batchByProductUseQuantity:Boolean = false;
 				var productUseWarning:String = "";
 				var productUseQty:Number = parentDocument.productsView.getUseQuantityOfSelectedProduct();
 				if (productUseQty > 0 && numberOfSamples.text != '' && int(numberOfSamples.text) % productUseQty != 0) {
 					productUseWarning = " The selected product has a use quantity of " + productUseQty.toString() + ". Unused product will be lost.";
+					if (parentDocument.productsView.batchSamplesByUseQuantity()) {
+						batchByProductUseQuantity = true;
+					}
 				}
-				sampleSizeWarning.text += productUseWarning;
+				sampleSizeWarning.text += " " + productUseWarning;
+				
+				//Check if we have a sample batch size restriction.  If so warn user.  Check on application level first and then requestCategory level
+				var sampleBatchWarning:String = "";
+				if (batchByProductUseQuantity) {
+					var warningProp:String = parentApplication.getCoreFacilityProperty(parentDocument.getRequestCategory().@idCoreFacility, parentApplication.PROPERTY_PRODUCT_SAMPLE_BATCH_WARNING);
+					if (warningProp != null) {
+						sampleBatchWarning = warningProp;
+					}
+				} else {
+					var hasBatchSampleSize:String = parentApplication.getRequestCategoryProperty(parentDocument.getRequestCategory().@idCoreFacility,parentDocument.getRequestCategory().@codeRequestCategory, parentApplication.PROPERTY_SAMPLE_BATCH_WARNING);
+					if(application != null && application.@samplesPerBatch != null && application.@samplesPerBatch != ''){
+						var appSampleSize:int = int(application.@samplesPerBatch);
+						if(numberOfSamples.text != "" && int(numberOfSamples.text) % appSampleSize != 0){
+							if(hasBatchSampleSize != ""){
+								sampleBatchWarning = hasBatchSampleSize;
+							} else{
+								sampleBatchWarning = " You have selected a panel which runs in batches of " + appSampleSize + " samples. Please note you will be responsible to pay for unused wells.";
+							}
+						}
+					} else if(parentDocument.getRequestCategory().@sampleBatchSize != null && parentDocument.getRequestCategory().@sampleBatchSize != ''){
+						var reqCatSampleSize:int = int(parentDocument.getRequestCategory().@sampleBatchSize);
+						if(numberOfSamples.text != "" && int(numberOfSamples.text) % reqCatSampleSize != 0){
+							if(hasBatchSampleSize != ""){
+								sampleBatchWarning = hasBatchSampleSize;
+							} else{
+								sampleBatchWarning = " You have selected a request category which runs in batches of " + reqCatSampleSize + " samples. Please note you will be responsible to pay for unused wells.";
+							}
+						}
+					}
+				}
+				sampleSizeWarning.text += " " + sampleBatchWarning;
 			}
 			
 			private function checkPrePooledSamplesCompleteness():Boolean {

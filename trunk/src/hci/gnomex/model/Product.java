@@ -17,6 +17,7 @@ public class Product extends DictionaryEntry implements Serializable {
   private Integer     useQty;
   private String      catalogNumber;
   private String      isActive;
+  private String	  batchSamplesByUseQuantity;
   
   public String getDisplay() {
     String display = this.getNonNullString(name);
@@ -120,6 +121,12 @@ public class Product extends DictionaryEntry implements Serializable {
     return "N";
   }
 
+  public String getBatchSamplesByUseQuantity() {
+	return batchSamplesByUseQuantity;
+  }
   
+  public void setBatchSamplesByUseQuantity(String batchSamplesByUseQuantity) {
+	this.batchSamplesByUseQuantity = batchSamplesByUseQuantity;
+  }
 
 }
