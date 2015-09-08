@@ -31,16 +31,18 @@
             <isActive>{isActive.selected == true ? 'Y' : 'N'}</isActive>
 			<userManagingCoreFacilities>{managingCoreFacilitiesString}</userManagingCoreFacilities>
 			<coreFacilitiesUserCanSubmitTo>{coreFacilitiesICanSubmitToString}</coreFacilitiesUserCanSubmitTo>
+			<beingInactivated>{(userWillBeInactivated &amp;&amp; !isActive.selected) ? 'Y' : 'N'}</beingInactivated>
     </mx:request>
     </mx:HTTPService >
     
     <mx:Script>
         <![CDATA[
-            import mx.controls.Alert;
-            import mx.events.CloseEvent;
-            import mx.events.ValidationResultEvent;
-            import mx.rpc.events.FaultEvent;
-            import mx.rpc.events.ResultEvent;
+			import mx.collections.XMLListCollection;
+			import mx.controls.Alert;
+			import mx.events.CloseEvent;
+			import mx.events.ValidationResultEvent;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
             
            
             [Bindable]
@@ -50,6 +52,9 @@
 			public var coreFacilitiesICanSubmitToString:String = '';
 			
             private var savedIdAppUser:Object = '';
+			
+			[Bindable]
+			private var userWillBeInactivated:Boolean = false;
             
 			public function promptToSaveDirty():void {
 				if (dirty.isDirty()) {
@@ -107,11 +112,50 @@
 					}
 					managingCoreFacilitiesString = parentDocument.managingCoreFacilities.toXMLString();
 					coreFacilitiesICanSubmitToString = parentDocument.coreFacilitiesICanSubmitTo.toXMLString();
-					saveAppUser.send();
+					if (userWillBeInactivated && !isActive.selected) {
+						showInactivatingUserWarning();
+					} else {
+						saveAppUser.send();
+					}
 				} else {
 					Alert.show("The user is marked as an admin; please specify the core facility(ies) the user can manage.", "Notice", Alert.OK, this);
 				}
             }
+			
+			private function showInactivatingUserWarning():void {
+				var message:String = "";
+				if (	(parentDocument.membershipLabs != null && parentDocument.membershipLabs.length > 0) || 
+						(parentDocument.collaboratingLabs != null && parentDocument.collaboratingLabs.length > 0) ||
+						(parentDocument.managingLabs != null && parentDocument.managingLabs.length > 0)					) {
+					message = "Inactivating this user will remove them from the following lab(s):"
+					if (parentDocument.membershipLabs != null) {
+						for each (var lab1:Object in parentDocument.membershipLabs) {
+							message += "\n" + lab1.@name + " as a member";
+						}
+					}
+					if (parentDocument.collaboratingLabs != null) {
+						for each (var lab2:Object in parentDocument.collaboratingLabs) {
+							message += "\n" + lab2.@name + " as a collaborator";
+						}
+					}
+					if (parentDocument.managingLabs != null) {
+						for each (var lab3:Object in parentDocument.managingLabs) {
+							message += "\n" + lab3.@name + " as a manager";
+						}
+					}
+				} else {
+					message = "This will inactivate the user";
+				}
+				Alert.show(message, "Warning", Alert.OK | Alert.CANCEL, this, onInactivatingUserWarningResponse, null, Alert.OK);
+			}
+			
+			private function onInactivatingUserWarningResponse(event:CloseEvent):void {
+				if (event.detail == Alert.OK) {
+					saveAppUser.send();
+					
+					userWillBeInactivated = false;
+				}
+			}
             
             private function onSaveAppUser(event:ResultEvent):void {
 				if (saveAppUser.lastResult.name() == "SUCCESS") {
@@ -190,7 +234,7 @@
 					<mx:Label text="Last name" styleName="formLabel"/>
 					<mx:TextInput id="lastName" maxChars="200" editable="true" enabled="true" text="{parentDocument.fullUser.@lastName}" width="200" change="dirty.setDirty()"/>
 				</mx:VBox>
-				<mx:CheckBox id="isActive" label="User is Active"  click="dirty.setDirty()">
+				<mx:CheckBox id="isActive" label="User is Active"  click="dirty.setDirty(); userWillBeInactivated = !isActive.selected" toolTip="Inactivating this user will remove them from all lab(s) they are a part of and inactivate their GNomEx account">
 				</mx:CheckBox>				
 
 				
