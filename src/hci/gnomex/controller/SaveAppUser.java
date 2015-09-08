@@ -55,6 +55,7 @@ public class SaveAppUser extends GNomExCommand implements Serializable {
   private String                          isWebForm = "Y";
   private EncryptionUtility               passwordEncrypter;
   private String 						  serverName;
+  private boolean						  beingInactivated = false;
   
   
   public void validate() {
@@ -72,6 +73,9 @@ public class SaveAppUser extends GNomExCommand implements Serializable {
       isWebForm = request.getParameter("isWebForm");
     }
 
+    if (request.getParameter("beingInactivated") != null && request.getParameter("beingInactivated").equals("Y")) {
+      beingInactivated = true;
+    }
 
     appUserScreen = new AppUser();
     HashMap errors = this.loadDetailObject(request, appUserScreen);
@@ -317,6 +321,9 @@ public class SaveAppUser extends GNomExCommand implements Serializable {
         if (this.isValid()) {
           setManagingCoreFacilities(sess, appUser);
           setSubmittingCoreFacilities(sess, appUser);
+          if (beingInactivated && appUser.getIsActive().equals("N")) {
+        	  updateUserOnInactivation(sess, appUser);
+          }
           sess.flush();
           this.xmlResult = "<SUCCESS idAppUser=\"" + appUser.getIdAppUser() + "\"/>";
           setResponsePage(this.SUCCESS_JSP);
@@ -368,6 +375,14 @@ public class SaveAppUser extends GNomExCommand implements Serializable {
     }
     
     return this;
+  }
+  
+  private void updateUserOnInactivation(Session sess, AppUser appUser) {
+	  appUser.getLabs().clear();
+	  appUser.getCollaboratingLabs().clear();
+	  appUser.getManagingLabs().clear();
+	  appUser.getManagingCoreFacilities().clear();
+      appUser.getCoreFacilitiesICanSubmitTo().clear();
   }
   
   private void sendAccountActivatedEmail(AppUser appUser, String coreFacilityContactEmail, Session sess)  throws NamingException, MessagingException, IOException {
