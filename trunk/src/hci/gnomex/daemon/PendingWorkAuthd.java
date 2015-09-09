@@ -195,9 +195,11 @@ public class PendingWorkAuthd extends TimerTask {
     boolean hasWorkAuthorizations = false;
 
     StringBuffer tableRows = new StringBuffer("");
+    boolean hasContactAddress = true;
     if (contactList == null || contactList.length() == 0) {
       contactList = propertyHelper.getQualifiedCoreFacilityProperty(PropertyDictionary.GNOMEX_SUPPORT_EMAIL, serverName, facility.getIdCoreFacility()); 
       tableRows.append("<tr><td width='250'>Following message was not sent to the " + facility.getFacilityName() + " core because no contacts have been set up in " + PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY_WORKAUTH_REMINDER + ".</td><td width='500'>&nbsp;</td></tr>");
+      hasContactAddress = false;
     }
     while(it.hasNext()) {
       if(!hasWorkAuthorizations) {
@@ -238,13 +240,15 @@ public class PendingWorkAuthd extends TimerTask {
     body.append(tableRows.toString());
     body.append("</table></td></tr></table></body></html>");     
 
-    if (contactList != null && contactList.length() > 0 && !testNoMailServer) {
-      boolean testEmail = false;
-      if(testEmailTo.length() > 0) {
-    	testEmail = true;               
-      }
-      MailUtilHelper helper = new MailUtilHelper(mailProps, contactList, null, null, replyEmail, subject, body.toString(), null, true, testEmail, testEmailTo);
-      MailUtil.validateAndSendEmail(helper);
+    if (hasContactAddress || hasWorkAuthorizations) {
+    	if (contactList != null && contactList.length() > 0 && !testNoMailServer) {
+    	      boolean testEmail = false;
+    	      if(testEmailTo.length() > 0) {
+    	    	testEmail = true;               
+    	      }
+    	      MailUtilHelper helper = new MailUtilHelper(mailProps, contactList, null, null, replyEmail, subject, body.toString(), null, true, testEmail, testEmailTo);
+    	      MailUtil.validateAndSendEmail(helper);
+    	}
     }
   }
 
