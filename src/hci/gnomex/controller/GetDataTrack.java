@@ -150,7 +150,11 @@ public class GetDataTrack extends GNomExCommand implements Serializable {
         } else if( x.getHybridization() != null) {
           request = x.getHybridization().getLabeledSampleChannel1().getRequest();
         }
-        requestMap.put(request.getIdRequest(), request);
+        
+        // request will be null if AnalysisExperimentItem contains rows with only idSample present
+        if (request != null) {
+        	requestMap.put(request.getIdRequest(), request);
+        }
       }
 
     }
