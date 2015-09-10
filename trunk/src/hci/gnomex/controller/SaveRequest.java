@@ -2248,8 +2248,23 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 
     if (isNewSequenceLane) {
       Sample theSample = (Sample)sess.get(Sample.class, sequenceLane.getIdSample());
-
-      String flowCellNumber = theSample.getNumber().toString().replaceFirst("X", PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.SEQ_LANE_LETTER));
+      String seqLaneLetter = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.SEQ_LANE_LETTER);
+      String flowCellNumber = theSample.getNumber().toString().replaceFirst("X", seqLaneLetter);
+      
+      for(Iterator i = requestParser.getSequenceLaneInfos().iterator(); i.hasNext();){
+        RequestParser.SequenceLaneInfo sli = (RequestParser.SequenceLaneInfo)i.next();
+        if(!sli.getIdSequenceLane().startsWith("SequenceLane")){
+          SequenceLane sl = (SequenceLane)sess.load(SequenceLane.class, Integer.parseInt(sli.getIdSequenceLane()));
+          String seqLaneNumber = sl.getNumber().substring(0, sl.getNumber().indexOf("_"));
+          if(seqLaneNumber.equals(flowCellNumber)){
+            Object seqLaneArray [] = requestParser.getRequest().getSequenceLanes().toArray();
+            SequenceLane s = (SequenceLane)seqLaneArray[seqLaneArray.length - 1];
+            Integer newHigh = Integer.parseInt(s.getNumber().substring(s.getNumber().indexOf(seqLaneLetter) + 1, s.getNumber().indexOf(seqLaneLetter) + 2)) + 1;
+            flowCellNumber = flowCellNumber.replaceFirst("F[0-9]", "F" + newHigh.toString());
+            break;
+          }
+        }
+      }
 
       if (isImport) {
 
