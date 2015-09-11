@@ -1,0 +1,18 @@
+<!-- Form to display Genome Build Sequence Files -->
+
+<div class="container-fluid" style="padding-top: 10px">
+	<div class="row">
+		<table class="table table-bordered table-striped table-hover">
+			<thead>
+			        <tr>
+			        	<th ng-repeat="field in selectedSeqFileLabels">{{field}}</th>
+			        </tr>
+			</thead>
+			<tbody>
+			        <tr ng-repeat="row in selectedSeqFiles">
+			            	<td ng-repeat="field in selectedSeqFileLabels">{{ row[field] }}</td>
+        			</tr>
+        		</tbody>
+		</table>
+	</div> <!-- end row -->
+</div> <!--  end container -->
