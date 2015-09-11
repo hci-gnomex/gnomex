@@ -717,7 +717,7 @@
 		<echo>+  Deploying (tomcat)                                   +</echo>
 		<echo>+                                                       +</echo>
 		<echo>+ ===================================================== +</echo>
-		<!-- <copy file="${dist.dir}/${war.name}" todir="${tomcat.dir}/webapps"/> -->		
+		<copy file="${dist.dir}/${war.name}" todir="${tomcat.dir}/webapps"/>		
     	<!-- <delete dir="${tomcat.dir}/webapps/${app.name}"/> -->
 		<copy file="${dist.dir}/${realmjar.name}" todir="${lib.tomcat.server.dir}"/>
 	</target>
@@ -733,7 +733,7 @@
 		<echo>+  Deploying (GNomExLite)                               +</echo>
 		<echo>+                                                       +</echo>
 		<echo>+ ===================================================== +</echo>
-		<!-- <copy file="${dist.dir}/${glwar.name}" todir="${tomcat.dir}/webapps"/> -->		
+		<copy file="${dist.dir}/${glwar.name}" todir="${tomcat.dir}/webapps"/>		
     	<!-- <delete dir="${tomcat.dir}/webapps/${glapp.name}"/> -->
 		<copy file="${dist.dir}/${realmjar.name}" todir="${lib.tomcat.server.dir}"/>
 	</target>
