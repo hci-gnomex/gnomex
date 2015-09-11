@@ -571,15 +571,96 @@
 
 
 	<welcome-file-list>
-		<welcome-file>gnomexFlex.jsp</welcome-file>
-		<welcome-file>gnomex.html</welcome-file>
+		<welcome-file>gnomexLite.jsp</welcome-file>
+		<welcome-file>index.html</welcome-file>
 	</welcome-file-list>
 
 
 
 	<security-constraint>
 		<web-resource-collection>
-			<url-pattern>/gnomexFlex.jsp</url-pattern>
+			<url-pattern>/gnomexLite.jsp</url-pattern>
+			<url-pattern>/app/app.js</url-pattern>
+			<url-pattern>/app/dashboard/dashboard.html</url-pattern>
+			<url-pattern>/app/dashboard/DashBoardcontroller.js</url-pattern>
+			<url-pattern>/app/analysis/analysis.html</url-pattern>
+			<url-pattern>/app/analysis/AnalysisController.js</url-pattern>
+			<url-pattern>/app/analysis/analysisDetailInfoIL.html</url-pattern>
+			<url-pattern>/app/analysis/analysisDetailDescriptionIL.html</url-pattern>
+			<url-pattern>/app/analysis/analysisDetailAnnotationIL.html</url-pattern>
+			<url-pattern>/app/analysis/analysisDetailIL.html</url-pattern>			
+			<url-pattern>/app/analysis/analysisList.html</url-pattern>
+			<url-pattern>/app/analysis/analysisListVisibility.html</url-pattern>
+			<url-pattern>/app/analysis/analysisListInfo.html</url-pattern>
+			<url-pattern>/app/analysis/analysisDetailSequenceLanesIL.html</url-pattern>
+			<url-pattern>/app/analysis/analysisDetailFiles.html</url-pattern>
+			<url-pattern>/app/datatrack/DataTrackController.js</url-pattern>
+			<url-pattern>/app/datatrack/datatrack.html</url-pattern>
+			<url-pattern>/app/datatrack/organismDetail.html</url-pattern>
+			<url-pattern>/app/datatrack/folderDetail.html</url-pattern>
+			<url-pattern>/app/datatrack/genomebuildDetail.html</url-pattern>
+			<url-pattern>/app/datatrack/genomebuildDetails.html</url-pattern>
+			<url-pattern>/app/datatrack/genomebuildSegments.html</url-pattern>
+			<url-pattern>/app/datatrack/genomebuildSeqFiles.html</url-pattern>
+			<url-pattern>/app/datatrack/datatrackDetail.html</url-pattern>
+			<url-pattern>/app/datatrack/datatrackSummary.html</url-pattern>
+			<url-pattern>/app/datatrack/datatrackAnnotations.html</url-pattern>
+			<url-pattern>/app/datatrack/datatrackFiles.html</url-pattern>
+			<url-pattern>/app/datatrack/datatrackRelatedData.html</url-pattern>
+			<url-pattern>/app/topic/TopicController.js</url-pattern>
+			<url-pattern>/app/topic/topic.html</url-pattern>
+			<url-pattern>/app/topic/topicDetail.html</url-pattern>	
+			<url-pattern>/app/report/ReportController.js</url-pattern>
+			<url-pattern>/app/report/report.html</url-pattern>
+			<url-pattern>/app/report/annotationProgressReport.html</url-pattern>	
+			<url-pattern>/app/topic/topicFolderDetail.html</url-pattern>
+			<url-pattern>/app/experiment/experiment.html</url-pattern>
+			<url-pattern>/app/experiment/ExperimentController.js</url-pattern>
+			<url-pattern>/app/experiment/template.html</url-pattern>
+			<url-pattern>/app/experiment/experimentListInfo.html</url-pattern>
+			<url-pattern>/app/experiment/experimentDetailInfo.html</url-pattern>
+			<url-pattern>/app/experiment/experimentList.html</url-pattern>
+			<url-pattern>/app/experiment/experimentDetail.html</url-pattern>
+			<url-pattern>/app/experiment/experimentListProgress.html</url-pattern>
+			<url-pattern>/app/experiment/experimentListVisibility.html</url-pattern>
+			<url-pattern>/app/experiment/experimentProgressMA.html</url-pattern>
+			<url-pattern>/app/experiment/experimentProgressIL.html</url-pattern>
+			<url-pattern>/app/experiment/experimentProgressDNA.html</url-pattern>
+			<url-pattern>/app/experiment/experimentDetailIL.html</url-pattern>
+			<url-pattern>/app/experiment/experimentDetailEIL.html</url-pattern>
+			<url-pattern>/app/experiment/experimentDetailHS.html</url-pattern>
+			<url-pattern>/app/experiment/experimentDetailDNA.html</url-pattern>
+			<url-pattern>/app/experiment/experimentDetailDescription.html</url-pattern>
+			<url-pattern>/app/experiment/experimentDetailDescriptionIL.html</url-pattern>
+			<url-pattern>/app/experiment/experimentDetailFiles.html</url-pattern>
+			<url-pattern>/app/experiment/experimentDetailInfoHS.html</url-pattern>
+			<url-pattern>/app/experiment/experimentDetailInfoDNA.html</url-pattern>
+			<url-pattern>/app/experiment/experimentDetailInfoIL.html</url-pattern>
+			<url-pattern>/app/experiment/experimentDetailSamplesDNA.html</url-pattern>
+			<url-pattern>/app/experiment/experimentDetailSamplesIL.html</url-pattern>
+			<url-pattern>/app/experiment/experimentDetailExprDesignIL.html</url-pattern>
+			<url-pattern>/app/experiment/experimentDetailExperimentDesign.html</url-pattern>
+			<url-pattern>/app/experiment/experimentDetailSequenceLanes.html</url-pattern>
+			<url-pattern>/app/experiment/experimentDetailSequenceLanesIL.html</url-pattern>
+			<url-pattern>/app/experiment/experimentDetailBioinformatics.html</url-pattern>
+			<url-pattern>/app/experiment/experimentListDownloads.html</url-pattern>
+			<url-pattern>/app/experiment/experimentDownload.html</url-pattern>			
+			<url-pattern>/app/experiment/template.html</url-pattern>
+			<url-pattern>/app/analysis/template.html</url-pattern>
+			<url-pattern>/app/common/changepassword.html</url-pattern>
+			<url-pattern>/app/common/confirmation.html</url-pattern>
+			<url-pattern>/app/common/ConfirmationController.js</url-pattern>
+			<url-pattern>/app/common/directives.js</url-pattern>
+			<url-pattern>/app/common/error.html</url-pattern>
+			<url-pattern>/app/common/ErrorController.js</url-pattern>
+			<url-pattern>/app/common/filters.js</url-pattern>
+			<url-pattern>/app/common/login.html</url-pattern>
+			<url-pattern>/app/common/LoginController.js</url-pattern>
+			<url-pattern>/app/common/NavbarController.js</url-pattern>
+			<url-pattern>/app/common/passwordreset.html</url-pattern>
+			<url-pattern>/app/common/reportIssue.html</url-pattern>
+			<url-pattern>/app/common/services.js</url-pattern>
+			<url-pattern>/app/common/userError.html</url-pattern>		
 			<url-pattern>/loginsucceeded.jsp</url-pattern>
 			<url-pattern>/CreateBillingItems.gx</url-pattern>
 			<url-pattern>/CreateSecurityAdvisor.gx</url-pattern>
