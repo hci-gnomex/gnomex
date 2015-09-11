@@ -156,6 +156,20 @@ $scope.lookUp = function() {
 	 lookupDataTrack(dtid);
  });
 
+ 
+ $scope.$on('okToPickLab', function (event, args) {
+	 // we got all the lab information
+	 $scope.labs = angular.copy($rootScope.labs);
+	 $scope.okToPickLab = false;
+	 console.log("[DataTrackController] $on okToPickLab event");
+ });
+
+ $scope.$on('okToFind', function (event, args) {
+	 // we got all the lab information
+	 $scope.okToFind = false;
+	 console.log("[DataTrackController] $on okToFind event");
+ });
+
  	/*********************
  	 * Watchers
  	 ********************/
@@ -168,6 +182,17 @@ $scope.lookUp = function() {
      	}
      });
 
+     $scope.$watch('okToPickLab',function() {
+   		//console.log("[DataTrackController] okToPickLab watcher $scope.okToPickLab: " + $scope.okToPickLab);
+        	if (!$scope.okToPickLab) {
+        		$scope.labs = angular.copy($rootScope.labs);
+        	}
+        });
+       
+       $scope.$watch('okToFind',function() {
+    		//console.log("[DataTrackController] okToFind watcher $scope.okToFind: " + $scope.okToFind);
+         });
+  
 
 
      $scope.showSelected = function(sel) {
