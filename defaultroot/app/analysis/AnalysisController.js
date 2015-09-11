@@ -207,6 +207,19 @@ $scope.lookUp = function() {
 	 lookupAnalysis(analid);
  });
 
+ $scope.$on('okToPickLab', function (event, args) {
+	 // we got all the lab information
+	 $scope.labs = angular.copy($rootScope.labs);
+	 $scope.okToPickLab = false;
+	 console.log("[AnalysisController] $on okToPickLab event");
+ });
+
+ $scope.$on('okToFind', function (event, args) {
+	 // we got all the lab information
+	 $scope.okToFind = false;
+	 console.log("[AnalysisController] $on okToFind event");
+ });
+
  	/*********************
  	 *
  	 * Watchers
@@ -220,6 +233,17 @@ $scope.lookUp = function() {
 			lookupAnalysis(analid);
      	}
      });
+
+     $scope.$watch('okToPickLab',function() {
+  		//console.log("[AnalysisController] okToPickLab watcher $scope.okToPickLab: " + $scope.okToPickLab);
+       	if (!$scope.okToPickLab) {
+       		$scope.labs = angular.copy($rootScope.labs);
+       	}
+       });
+      
+      $scope.$watch('okToFind',function() {
+   		//console.log("[AnalysisController] okToFind watcher $scope.okToFind: " + $scope.okToFind);
+        });
 
 
 
