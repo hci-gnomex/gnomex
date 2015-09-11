@@ -1,5 +1,7 @@
 package hci.gnomex.daemon;
 
+// 08/18/2015	tim		Added the ability to specify a particular Analysis or Request
+
 import hci.framework.utilities.XMLReflectException;
 import hci.gnomex.controller.GetExpandedAnalysisFileList;
 import hci.gnomex.controller.GetRequestDownloadList;
@@ -98,6 +100,10 @@ public class RegisterFiles extends TimerTask {
   private String                          fromEmailAddress;
 
   private String                       currentEntityString;
+  
+  private Boolean					   justOne = false;
+  private String					   analysisId = null;
+  private String					   requestId = null;
 
   Map<String, Map<String, String>> emailAnalysisMap = new HashMap<String, Map<String, String>>();
   Map<String, List<AnalysisFileInfo>> analysisFileMap = new HashMap<String, List<AnalysisFileInfo>>();
@@ -118,6 +124,12 @@ public class RegisterFiles extends TimerTask {
         orionPath = args[++i];
       } else if (args[i].equals ("-doNotSendMail")) {
         sendMail = false;
+      } else if (args[i].equals ("-analysis")) {
+        justOne = true;
+        analysisId = args[++i];          
+      } else if (args[i].equals ("-experiment")) {
+        justOne = true;
+        requestId = args[++i];          
       } else if(args[i].equals ("-debug")) {
         debug = true;
         testingSendMail = true;
@@ -182,8 +194,17 @@ public class RegisterFiles extends TimerTask {
       app.connect();
 
       app.initialize();
-      app.registerExperimentFiles();
-      app.registerAnalysisFiles();
+      
+      if (!justOne) {
+    	  app.registerExperimentFiles();
+    	  app.registerAnalysisFiles();
+      }
+      else if (analysisId != null) {
+    	  app.registerOneAnalysis(analysisId);
+      }
+//      else if (requestId != null) {
+//    	  app.registerOneExperiment(requestId);
+//      }
 
     } catch (Exception e) {
 
@@ -589,6 +610,196 @@ public class RegisterFiles extends TimerTask {
     } 
   }
 
+  private void registerOneAnalysis(String analysisId) throws Exception {
+
+	    // Get the analysis they are interested in
+	    StringBuffer buf = new StringBuffer("SELECT a ");
+	    buf.append(" FROM Analysis a");
+	    if (asOfDate != null) {
+	      buf.append(" WHERE a.idAnalysis = '" + analysisId + "' or a.number = '" + analysisId + "'");
+	    }
+	    List results = sess.createQuery(buf.toString()).list();
+
+	    // For the one analysis
+	    for (Iterator i = results.iterator(); i.hasNext();) {
+	      tx = sess.beginTransaction();
+	      Analysis analysis = (Analysis)i.next();
+	      this.currentEntityString = analysis.getNumber();
+
+	      System.out.println("\n" + getCurrentDateString() + ":" + analysis.getNumber());
+
+	      // Get all of the files from the file system
+	      Map fileMap = hashFiles(analysis);
+	      for (Iterator i1 = fileMap.keySet().iterator(); i1.hasNext();) {
+	        String fileName = (String)i1.next();
+	        AnalysisFileDescriptor fd = (AnalysisFileDescriptor)fileMap.get(fileName);
+	        System.out.println(getCurrentDateString() + ":" + fileName + " " + fd.getFileSizeText());
+	      }
+
+
+	      // Now compare to the analysis files already registered in the db
+	      TreeSet newAnalysisFiles = new TreeSet(new AnalysisFileComparator());
+	      for (Iterator i2 = analysis.getFiles().iterator(); i2.hasNext();) {
+
+	        AnalysisFile af= (AnalysisFile)i2.next();
+	        String directoryName = analysis.getNumber() + "/";
+	        if (af.getQualifiedFilePath() != null && !af.getQualifiedFilePath().trim().equals("")) {
+	          directoryName += af.getQualifiedFilePath() + "/";
+	        }
+	        String qualifiedFileName = directoryName + af.getFileName();
+	        AnalysisFileDescriptor fd = (AnalysisFileDescriptor)fileMap.get(qualifiedFileName);
+
+	        // If we don't find the file on the file system, delete it from the db.
+	        if (fd == null) {
+
+	          System.out.println("\n" + getCurrentDateString() + ":" + "WARNING - analysis file " + qualifiedFileName + " not found for " + af.getAnalysis().getNumber());
+
+	          // DataTrack and DataTrackFile query 
+	          StringBuffer queryBuf = new StringBuffer();
+	          queryBuf.append("SELECT dtf, dt FROM DataTrack dt ");
+	          queryBuf.append("JOIN dt.dataTrackFiles dtf ");
+	          queryBuf.append("WHERE dtf.idAnalysisFile = ");
+	          queryBuf.append( af.getIdAnalysisFile() );
+
+	          // Run the Query
+	          List dataTrackFiles = sess.createQuery(queryBuf.toString()).list();
+
+
+	          // Data tracks were found, so delete them and warn the owners
+	          if ( dataTrackFiles.size() > 0 ) {
+
+	            // Delete the DataTrackFiles and DataTracks 
+	            for (Iterator i4 = dataTrackFiles.iterator(); i4.hasNext();) {
+	              Object[] row = (Object[]) i4.next();
+	              DataTrackFile dtf = (DataTrackFile) row[0];
+	              DataTrack dt = (DataTrack) row[1];
+
+
+	              // Get an email address for the file
+	              String emailAddress = "";
+	              if ( dt.getAppUser() != null && dt.getAppUser().getEmail() != null ) {
+	                emailAddress = dt.getAppUser().getEmail();
+	              } 
+	              if ( emailAddress == null || emailAddress.equals( "" ) ) {
+	                if ( dt.getLab() != null && dt.getLab().getContactEmail() != null ) {
+	                  emailAddress = dt.getLab().getContactEmail();
+	                }
+	              }
+	              if (emailAddress == null ||  emailAddress.equals( "" ) ) {
+	                emailAddress = this.gnomexSupportEmail;
+	              }
+
+
+	              hashForNotification(emailAddress, af, dt);
+
+
+
+	              sess.delete( dtf );
+	              sess.flush();
+	            }
+	          }
+
+
+	          // If the analysis has any comments, warn the app user that it was deleted.
+	          if (af.getComments() != null && !af.getComments().trim().equals("")) {
+
+	            // Get an email address for the file
+	            String emailAddress = "";
+	            if ( af.getAnalysis().getAppUser() != null && af.getAnalysis().getAppUser().getEmail() != null ) {
+	              emailAddress = af.getAnalysis().getAppUser().getEmail();
+	            } 
+	            if ( emailAddress == null || emailAddress.equals( "" ) ) {
+	              if ( af.getAnalysis().getLab() != null && af.getAnalysis().getLab().getContactEmail() != null ) {
+	                emailAddress = af.getAnalysis().getLab().getContactEmail();
+	              }
+	            }
+	            if (emailAddress == null ||  emailAddress.equals( "" ) ) {
+	              emailAddress = this.gnomexSupportEmail;
+	            }
+
+
+	            hashForNotification(emailAddress, af, null);
+
+
+	          }
+	          i2.remove();
+	          sess.delete(af);
+
+	        } else {
+	          // Mark that the file system file has been found
+	          fd.isFound(true);
+	          newAnalysisFiles.add(af);
+	          // If the file size is different on the file system, update the AnalysisFile
+	          if (af.getFileSize() == null || !af.getFileSize().equals(BigDecimal.valueOf(fd.getFileSize()))) {
+	            af.setFileSize(BigDecimal.valueOf(fd.getFileSize()));
+	          }
+	          // If create date not set, then set it
+	          if (af.getCreateDate() == null) {
+	            af.setCreateDate(this.getEffectiveAnalysisFileCreateDate(fd, analysis.getCreateDate()));
+	          }
+	        }
+	      }
+
+
+	      // Now add AnalysisFiles to the db for any files on the file system
+	      // not found in the db.
+	      for (Iterator i3 = fileMap.keySet().iterator(); i3.hasNext();) {
+	        String fileName = (String)i3.next();
+	        AnalysisFileDescriptor fd = (AnalysisFileDescriptor)fileMap.get(fileName);
+	        if (!fd.isFound()) {
+	          AnalysisFile af = new AnalysisFile();
+	          af.setIdAnalysis(analysis.getIdAnalysis());
+	          af.setFileName(fd.getDisplayName());
+	          af.setQualifiedFilePath(fd.getQualifiedFilePath());
+	          af.setBaseFilePath(fd.getBaseFilePath());
+	          af.setFileSize(BigDecimal.valueOf(fd.getFileSize()));
+	          af.setBaseFilePath(baseAnalysisDir + analysis.getCreateYear() + File.separatorChar + analysis.getNumber());
+	          af.setCreateDate(this.getEffectiveAnalysisFileCreateDate(fd, analysis.getCreateDate()));
+	          newAnalysisFiles.add(af);
+	        }
+	      }
+
+	      if ( newAnalysisFiles == null || newAnalysisFiles.isEmpty() ){
+
+	        analysis.getFiles().clear();
+
+	      } else {
+
+	        analysis.getFiles().clear();
+	        analysis.getFiles().addAll(newAnalysisFiles);
+
+	      }
+
+	      sess.flush();
+	      tx.commit();
+	      this.currentEntityString = "";
+	    }
+
+	    try {
+	      sendNotifyEmails(this.gnomexSupportEmail );
+	    } catch (Exception e) {
+
+	      // Notify software people that the emails didn't go through?
+	      String msg = "Unable to send warning email notifying user that analysis files have been deleted:  " + e.toString() + "\n\t";
+
+	      StackTraceElement[] stack = e.getStackTrace();
+	      for (StackTraceElement s : stack) {
+	        msg = msg + s.toString() + "\n\t\t";
+	      };
+
+	      if ( !errorMessageString.equals( "" )) {
+	        errorMessageString += "\n";
+	      }
+	      errorMessageString += msg;
+
+	      this.sendErrorReport( this.gnomexSupportEmail, this.fromEmailAddress); 
+
+	      System.err.println(errorMessageString);
+	    } 
+	  }
+
+  
+  
   private java.sql.Date getEffectiveAnalysisFileCreateDate(AnalysisFileDescriptor fd, java.util.Date analysisCreateDate) {
     java.sql.Date createDate = new java.sql.Date(runDate.getTime().getTime());
 
