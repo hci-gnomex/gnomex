@@ -495,7 +495,7 @@
 		         eol="lf" eof="remove" />	
 		
 		<!--  Change gnomexLite.jsp to gnomexFlex.jsp -->
-		<copy file="${webroot.dir}/WEB-INF/web.xml"  tofile="${webroot.dir}/WEB-INF/tomcat/web.xml"/>
+		<copy file="${webroot.dir}/WEB-INF/web.xml"  tofile="${webroot.dir}/WEB-INF/tomcat/web.xml" overwrite="true" />
 	    <replace file="${webroot.dir}/WEB-INF/tomcat/web.xml" token="gnomexLite.jsp" value="gnomexFlex.jsp"/>
 
     <copy todir="${dist.dir}/tomcat" overwrite="true">
@@ -605,7 +605,7 @@
 					</fileset>
 		</copy> 	
 		
-    	<copy file="${webroot.dir}/WEB-INF/web.xml"  tofile="${webroot.dir}/WEB-INF/tomcat/web.xml"/>
+    	<copy file="${webroot.dir}/WEB-INF/web.xml"  tofile="${webroot.dir}/WEB-INF/tomcat/web.xml" overwrite="true"/>
     	
 		<war destfile="${dist.dir}/${glwar.name}" webxml="${webroot.dir}/WEB-INF/tomcat/web.xml">
 			 <metainf dir="${metainf.dir}"          includes="context.xml"/>
