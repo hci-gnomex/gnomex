@@ -1,0 +1,27 @@
+<!-- Annotation Progress Report Form -->
+
+<div class = "container-fluid">
+<hr>
+
+	<div class="panel panel-default">
+		<div class="panel-heading"><h5>Annotation Progress Report</h5></div>
+		<div class="panel-body" style="padding-top: 10px;">
+
+			<form class="form">
+  				<div class="form-group">
+					<label "col-sm-4"> Lab Group
+  						<select class="form-control" ng-disabled="okToPickLab" ng-model="searchFilter.group" ng-options="l.name for l in labs"><option value="">Select a lab...</option></select>
+					</label>
+				</div>
+  				<div class="form-group">
+					<div class="col-sm-4">
+						<button type="button" class="btn btn-default" ng-disabled="okToFind" ng-click="runAnnotationProgress()"><img src="resources/images/accept.png"/> Run</button>
+					</div>
+				</div>
+			</form>
+
+		</div> <!-- end of panel-body -->
+
+	</div> <!-- end of panel -->
+
+</div>
