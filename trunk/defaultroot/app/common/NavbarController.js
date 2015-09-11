@@ -101,6 +101,9 @@ activate();
           function(payload) {
               $rootScope.labs = payload.data;
               $rootScope.okToPickLab = false;
+              $scope.$broadcast('okToPickLab', { message: false });
+              $rootScope.$broadcast('okToPickLab', { message: false });              
+              console.log ("[navbarcontroller] after oktopicklab broadcast");
           },
           function(errorPayload) {
               console.log('[navbarcontroller] failure manage Dictionaries' + errorPayload);
@@ -145,7 +148,10 @@ activate();
 		//};
 
 		$rootScope.okToFind = false;
-		console.log("[navbarcontroller] ** leaving buildPropertyOptions **");
+		$scope.$broadcast('okToFind', { message: false });
+		$rootScope.$broadcast('okToFind', { message: false });
+		console.log ("[navbarcontroller] after okToFind broadcast");
+		//console.log("[navbarcontroller] ** leaving buildPropertyOptions **");
 
 	}; // end of buildPropertyOptions
 
