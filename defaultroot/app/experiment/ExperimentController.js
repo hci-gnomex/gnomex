@@ -151,6 +151,8 @@ $scope.lookUp = function() {
 	lookupExperiment(exprid);
 };
 
+
+
  $scope.$on('lookupExperiment', function (event, args) {
 	 $scope.searchFilter.lookup = args.message;
 	 var exprid = mapLookup($scope.searchFilter.lookup);
@@ -160,13 +162,28 @@ $scope.lookUp = function() {
 	 lookupExperiment(exprid);
  });
 
+ $scope.$on('okToPickLab', function (event, args) {
+	 // we got all the lab information
+	 $scope.labs = angular.copy($rootScope.labs);
+	 $scope.okToPickLab = false;
+	 console.log("[ExperimentController $on okToPickLab event]");
+
+ });
+
+ $scope.$on('okToFind', function (event, args) {
+	 // we got all the lab information
+	 $scope.okToFind = false;
+	 console.log("[ExperimentController $on okToFind event]");
+
+ });
+
  	/*********************
  	 *
  	 * Watchers
  	 *
  	 ********************/
      $scope.$watch('whatToLookup',function() {
-		console.log("[whatToLookup watcher] $scope.whatToLookup: " + $scope.whatToLookup);
+		console.log("[ExperimentController] whatToLookup watcher $scope.whatToLookup: " + $scope.whatToLookup);
      	if ($scope.whatToLookup != null && $scope.whatToLookup != "") {
 			$scope.searchFilter.lookup = $scope.whatToLookup;
 			var exprid = mapLookup($scope.searchFilter.lookup);
@@ -174,6 +191,16 @@ $scope.lookUp = function() {
      	}
      });
 
+     $scope.$watch('okToPickLab',function() {
+ 		//console.log("[ExperimentController] okToPickLab watcher $scope.okToPickLab: " + $scope.okToPickLab);
+      	if (!$scope.okToPickLab) {
+      		$scope.labs = angular.copy($rootScope.labs);
+      	}
+      });
+     
+     $scope.$watch('okToFind',function() {
+  		//console.log("[ExperimentController] okToFind watcher $scope.okToFind: " + $scope.okToFind);
+       });
 
 $scope.showSelected = function(sel) {
 		//console.log("In showSelected " + sel.type + " " + sel.label + " " + $scope.experimentForm);
@@ -238,12 +265,14 @@ $scope.showSelected = function(sel) {
 	function activate() {
 
 		// get what we need from the $rootScope
+		
 		$scope.labs = angular.copy($rootScope.labs);
 		console.log("[ExperimentController activate] $scope.labs.length: " + $scope.labs.length);
 		$scope.okToPickLab = angular.copy($rootScope.okToPickLab);
 		console.log("[ExperimentController activate] $scope.okToPickLab: " + $scope.okToPickLab);
 		$scope.okToFind = angular.copy($rootScope.okToFind);
 		console.log("[ExperimentController activate] $scope.okToFind: " + $scope.okToFind);
+		
 	};
 
      function getProjectRequestList(whatToGet) {
