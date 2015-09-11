@@ -111,6 +111,20 @@ $scope.lookUp = function() {
 	 lookupTopic(tid);
  });
 
+ $scope.$on('okToPickLab', function (event, args) {
+	 // we got all the lab information
+	 $scope.labs = angular.copy($rootScope.labs);
+	 $scope.okToPickLab = false;
+	 console.log("[TopicController] $on okToPickLab event");
+ });
+
+ $scope.$on('okToFind', function (event, args) {
+	 // we got all the lab information
+	 $scope.okToFind = false;
+	 console.log("[TopicController] $on okToFind event");
+ });
+
+ 
  	/*********************
  	 * Watchers
  	 ********************/
@@ -123,6 +137,17 @@ $scope.lookUp = function() {
      	}
      });
 
+     $scope.$watch('okToPickLab',function() {
+    		//console.log("[TopicController] okToPickLab watcher $scope.okToPickLab: " + $scope.okToPickLab);
+         	if (!$scope.okToPickLab) {
+         		$scope.labs = angular.copy($rootScope.labs);
+         	}
+         });
+        
+        $scope.$watch('okToFind',function() {
+     		//console.log("[TopicController] okToFind watcher $scope.okToFind: " + $scope.okToFind);
+          });
+   
 
      $scope.showSelected = function(sel) {
 		//console.log("In showSelected " + sel.type + " " + sel.label + " " + $scope.topicForm);
