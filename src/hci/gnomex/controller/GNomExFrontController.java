@@ -15,11 +15,14 @@ import hci.gnomex.utility.HibernateGuestSession;
 import hci.gnomex.utility.HibernateSession;
 import hci.utility.server.JNDILocator;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.rmi.RemoteException;
 import java.util.Date;
 import java.util.Properties;
+import java.util.Enumeration;
 
 import javax.ejb.CreateException;
 import javax.ejb.EJBException;
@@ -34,11 +37,15 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import net.sf.json.*;
+import net.sf.json.xml.*;
+
 public class GNomExFrontController extends HttpServlet {
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GNomExFrontController.class);
 
   private static String     webContextPath;
   private static Session    mailSession;
+  private static boolean 	GNomExLite;
   /**
    *  Initialize global variables
    *
@@ -47,6 +54,9 @@ public class GNomExFrontController extends HttpServlet {
   public void init(ServletConfig config) throws ServletException {
     super.init(config);
     webContextPath = config.getServletContext().getRealPath("/");    
+
+    // are we really GNomExLite?
+    GNomExLite = areWeLite();
     
     // First try to get the mail session using the Orion lookup.
     // If that fails, try the lookup based on JNDI for Apache Tomcat
@@ -100,6 +110,19 @@ public class GNomExFrontController extends HttpServlet {
     org.apache.log4j.PropertyConfigurator.configure(configFile);
   }
 
+  public static boolean areWeLite() {
+	  boolean glite = false;
+
+	  // check for GNomExLite.properties, if it exists, then we are GNomExLite
+	   String configFile = webContextPath + "/WEB-INF/classes/GNomExLite.properties";
+	   File glp = new File(configFile);
+	   if (glp.exists()) {
+		   glite = true;
+	   }
+	   
+	   return glite;
+  }
+  
   /**
    *  Process the HTTP Get request
    *
@@ -147,7 +170,6 @@ public class GNomExFrontController extends HttpServlet {
       }
     }
     
-
     // now get our command class and instantiate
     Class commandClass = null;
     Command commandInstance = null;
@@ -275,29 +297,66 @@ public class GNomExFrontController extends HttpServlet {
     log.debug("Calling setSessionState on " + commandClass);
     commandInstance.setSessionState(session);
 
+    // if GNomExLite, convert it to JSON and give it back
+    if (GNomExLite && !requestName.contains("ShowAnnotationProgressReport")) {
+    	System.out.println ("[GNomExFrontController] requestName: " + requestName);
+    	String thexml = (String) request.getAttribute("xmlResult");
+    	if (thexml != null && !thexml.equals("")) {
+    		
+    		if (thexml.length() < 80) {
+    			System.out.println ("WARNING short xml: -->" + thexml + "<--");
+    		}
+    		XMLSerializer xmlSerializer = new XMLSerializer();
+    		JSON json = xmlSerializer.read( thexml );
+    		String thejson = json.toString(2);
+    		
+    		// get rid of the "@
+    		thejson = thejson.replace("\"@", "\"");
+    		
+    		response.setContentType("application/json");
+    		// Get the printwriter object from response to write the required json object to the output stream      
+    		PrintWriter out = response.getWriter();
+    		// Assuming your json object is **jsonObject**, perform the following, it will return your json object  
+    		out.print(thejson);
+    		out.flush();  
+    		out.close();
+    		
+    		System.out.println ("Returned " + thejson.length() + " bytes of JSON for request " + requestName );
+    		   		
+    	}
+    	else {
+    		//  debug ****************
+    		System.out.println ("Empty XML for request: " + requestName);
+    	}
+    }
+    
     // get our response page
     String forwardJSP = commandInstance.getResponsePage();
+    
     // if command didn't provide one, default to message.jsp (for error)
     if (forwardJSP == null || forwardJSP.equals("")) {
       forwardJSP = "/message.jsp";
     }
 
-    // set our success headers for altio
-    response.setHeader("altio.status", "0");
-    response.setHeader("altio.message", "Success");
-    if (!commandInstance.isValid()) {
-      String tmpMessage = commandInstance.getInvalidFieldsMessage();
-      request.setAttribute("message", tmpMessage);
-    }
+    if (!GNomExLite || (requestName != null && requestName.contains("ShowAnnotationProgressReport")) ) {
+    	//System.out.println ("requestName: " + requestName + " forwardJSP: " + forwardJSP);
+    	
+    	// set our success headers for altio
+    	response.setHeader("altio.status", "0");
+    	response.setHeader("altio.message", "Success");
+    	if (!commandInstance.isValid()) {
+    		String tmpMessage = commandInstance.getInvalidFieldsMessage();
+    		request.setAttribute("message", tmpMessage);
+    	}
 
-    // if command is redirect
-    if (commandInstance.isRedirect()) {
-      this.sendRedirect(response, forwardJSP);
-    } else {
-      // forward to our response page
-      forwardPage(request, response, forwardJSP);
+    	if (commandInstance.isRedirect()) {
+    		this.sendRedirect(response, forwardJSP);
+    	} else {
+    		// forward to our response page
+    		forwardPage(request, response, forwardJSP);
+    	}
     }
-
+    
   }
 
   private void forwardWithError(HttpServletRequest request, HttpServletResponse response) {
@@ -330,7 +389,7 @@ public class GNomExFrontController extends HttpServlet {
     try {
       response.sendRedirect(url);
     } catch (Exception e) {
-      log.error(e.getClass().getName() + " while attempting to forward to " + url);
+      log.error(e.getClass().getName() + " while attempting to redirect to " + url);
       log.error("The stacktrace for the error:");
       log.error(e.getMessage());
     }
