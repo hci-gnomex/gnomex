@@ -111,7 +111,7 @@
 	<target name="all-opensource-gnomexlite" depends="init">
 		<antcall target="clean" />
 		<antcall target="build-opensource-gnomexlite" />
-		<antcall target="deploy-opensource-gnomexlite" />
+		<antcall target="deploy-gnomexlite" />
 	</target>
 
 	<!-- ============================================== -->
@@ -795,6 +795,7 @@
   		 <!--<copy file="${basedir}/META-INF/context.xml"  tofile="${sandbox.dir}/META-INF/context.xml"/>-->
 
   	    <!-- Change realm name in web.xml from hciEnv to gnomex.  -->
+		<!-- NOTE: there is no realm-name in web.xml to change.  09/14/2015 -->
 		<copy file="${basedir}/defaultroot/WEB-INF/web.xml"  tofile="${sandbox.dir}/defaultroot/WEB-INF/web.xml"/> 
 		<replace file="${sandbox.dir}/defaultroot/WEB-INF/web.xml"
 				     token="&lt;realm-name&gt;hciEnv&lt;/realm-name&gt;"
@@ -942,13 +943,19 @@
 	<!-- build GNomExLite                               -->
 	<!--                                                -->
 	<!-- ============================================== -->
-	<target name="build-gnomexlite" depends="init, -prebuild-opensource">
+	<target name="build-opensource-gnomexlite" depends="init, -prebuild-opensource">
 		<echo>+ ===================================================== +</echo>
 		<echo>+                                                       +</echo>
-		<echo>+   build GNomExLite                                    +</echo>
+		<echo>+   build opensource GNomExLite                                    +</echo>
 		<echo>+                                                       +</echo>
 		<echo>+ ===================================================== +</echo>
-
+		<!-- By default, gnomex will run unsecure (http: instead of https).
+		     Change the Constants.java file so that the front controller
+		     will not reject unsecure (http:) requests. -->
+		<replaceregexp  file="${basedir}/src/hci/gnomex/constants/Constants.java"
+				     match="REQUIRE_SECURE_REMOTE\s+=\s+true;"
+		         replace="REQUIRE_SECURE_REMOTE           = false;">
+		</replaceregexp>
 		
 		<!-- Build war -->
 		<subant target="war-gnomexlite">
@@ -980,8 +987,14 @@
 		    <fileset dir="${basedir}" includes="build.xml"/>
 	    </subant>
 
+	    <!-- Compile GNomex to run secure (https) only-->
+		<replaceregexp  file="${basedir}/src/hci/gnomex/constants/Constants.java"
+				     match="REQUIRE_SECURE_REMOTE\s+=\s+false;"
+		         replace="REQUIRE_SECURE_REMOTE           = true;">
+		</replaceregexp>
+		
 		<!-- Build war again, this time allowing https (secure) connections -->
-		<subant target="war-tomcat">
+		<subant target="war-gnomexlite">
 		    <property name="opensource" value="true"/>
 		    <property name="dist.dir" value="${dist.dir}/secure"/>
 			<property name="webroot.dir" value="${basedir}/defaultroot"/>
