@@ -322,7 +322,7 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
     return this;
   }
 
-  private String getEmailBody(AppUser appUser, Boolean isAdmin) {
+  private String getEmailBody(AppUser appUser, Boolean isAdmin, Session sess) {
     StringBuffer body = new StringBuffer();
     body.append("<table border='0'><tr><td>Last name:</td><td>" + this.getNonNullString(appUser.getLastName()));
     body.append("</td></tr><tr><td>First name:</td><td>" + this.getNonNullString(appUser.getFirstName()));
@@ -356,6 +356,14 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
       body.append("</td></tr><tr><td>Username:</td><td>" + this.getNonNullString(appUser.getUserNameExternal()));    
     }
     body.append("</td></tr></table>");
+    
+    if(existingLab && !isAdmin){
+      body.append("<br><br>Please note that the P.I. of the lab you requested to join will review your account request and either approve or deny your request.");
+      if(requestedLab.getContactEmail() != null && !requestedLab.getContactEmail().equals("")){
+        body.append("  If you have questions you may contact the P.I. at " + requestedLab.getContactEmail());
+      }
+      
+    }
 
     return body.toString();
   }
@@ -382,7 +390,7 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
     		appUser.getEmail(),
     		coreFacilityEmail,
     		"Your GNomEx user account has been created",
-    		intro.toString() + getEmailBody(appUser, false),
+    		intro.toString() + getEmailBody(appUser, false, sess),
     		null,
 			true, 
 			dictionaryHelper,
@@ -498,7 +506,7 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
     		null,
     		coreFacilityEmail,
     		subject,
-    		introForAdmin.toString() + getEmailBody(appUser, true),
+    		introForAdmin.toString() + getEmailBody(appUser, true, sess),
     		null,
     		true, 
     		dictionaryHelper,
