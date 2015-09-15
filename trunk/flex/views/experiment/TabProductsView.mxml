@@ -507,7 +507,7 @@
 										value="{productRepeater.currentItem}" width="250"
 										paddingTop="0" paddingBottom="0" fontSize="11" paddingLeft="2" />
 						<mx:Label text="{productRepeater.currentItem.@useQty}" width="100" paddingLeft="45" />
-						<mx:Label text="{productRepeater.currentItem.@inventory}" width="80" paddingLeft="50" />
+						<mx:Label text="{productRepeater.currentItem.@inventory}" width="100" paddingLeft="50" />
 					</mx:HBox>
 				</mx:Repeater>
 			</mx:VBox>
