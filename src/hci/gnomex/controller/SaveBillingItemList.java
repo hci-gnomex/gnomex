@@ -13,6 +13,7 @@ import hci.gnomex.model.Lab;
 import hci.gnomex.model.Notification;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.Request;
+import hci.gnomex.model.RequestStatus;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.BillingInvoiceEmailFormatter;
 import hci.gnomex.utility.BillingItemParser;
@@ -27,8 +28,10 @@ import hci.gnomex.utility.PropertyDictionaryHelper;
 import java.io.File;
 import java.io.Serializable;
 import java.io.StringReader;
+import java.sql.Date;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -154,8 +157,10 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
 
           li = executionLogger.startLogItem("Initial Save");
           ArrayList billingItems = new ArrayList();
+          HashSet<Integer> idRequests = new HashSet<Integer>();
           for(Iterator i = parser.getBillingItems().iterator(); i.hasNext();) {
             BillingItem billingItem = (BillingItem)i.next();
+            idRequests.add(billingItem.getIdRequest());
             if (billingItem.getIdCoreFacility() == null) {
               if (billingItem.getIdRequest() != null) {
                 Request req = (Request)sess.load(Request.class, billingItem.getIdRequest());
@@ -228,7 +233,29 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
           for(Iterator<LabAccountBillingPeriod> i = labAccountBillingPeriodMap.keySet().iterator(); i.hasNext();) {
             LabAccountBillingPeriod labp = i.next();
             this.checkToSendInvoiceEmail(sess, labp.getLab(), labp.getIdBillingPeriod(), labp.getBillingAccount(), labp.getIdCoreFacility());
-          }       
+          }
+          
+          //Check if all billing Items are complete.  If so mark the request as complete and capture date
+          for(Iterator<Integer> i = idRequests.iterator(); i.hasNext();){
+            Request r = (Request)sess.load(Request.class, i.next());
+            Boolean allComplete = true;
+            for(Iterator<BillingItem> j = r.getBillingItems().iterator(); j.hasNext();){
+              BillingItem bi = j.next();
+              if(!bi.getCodeBillingStatus().equals(BillingStatus.COMPLETED) && !bi.getCodeBillingStatus().equals(BillingStatus.APPROVED)
+                  && !bi.getCodeBillingStatus().equals(BillingStatus.APPROVED_CC) && !bi.getCodeBillingStatus().equals(BillingStatus.APPROVED_PO)){
+                allComplete = false;
+                break;
+              }
+            }
+            
+            if(allComplete){
+              r.setCodeRequestStatus(RequestStatus.COMPLETED);
+              r.setCompletedDate(new Date(System.currentTimeMillis()));
+              sess.save(r);
+            }
+          }
+          
+          sess.flush();
 
           this.xmlResult = "<SUCCESS/>";
 
