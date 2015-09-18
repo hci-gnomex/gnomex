@@ -1433,8 +1433,8 @@
 					}
 				}
 				
-				if ( currentState.substr( 0, 3 ) == "new" && !checkFormComplete()) {
-					Alert.show( "Run name, seal type, and status are all required", "Form not complete" );
+				if ( !checkFormComplete()) {
+					Alert.show( "Please fill in a name and select a seal type for this run", "Missing Information" );
 					return;
 				}
 				if ( currentState.substr( 0, 3 ) != "new" && !hasPlates ) {
@@ -1453,7 +1453,7 @@
 				if ( sealComboBox.selectedIndex == -1 || statusComboBox.selectedIndex == -1 ) {
 					return false;
 				}
-				if ( runNameText.text == null || runNameText.text == '' ) {
+				if ( runNameText == null || runNameText.text == null || runNameText.text == '' ) {
 					return false;
 				}
 				return true;
@@ -1531,7 +1531,7 @@
 				}
 				
 				if ( currentState.substr( 0, 3 ) == "new" && !checkPlateFormComplete()) {
-					Alert.show( "Please fill in a name and select a seal type for this plate", "Form not complete" );
+					Alert.show( "Please fill in a name and select a seal type for this plate", "Missing Information" );
 					return;
 				}
 				Alert.show( "Are you sure you want to save the plate?", "Confirm Save Plate", ( Alert.YES | Alert.NO ), this, onPromptToSavePlate, iconWarning );
