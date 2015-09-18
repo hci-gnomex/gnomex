@@ -231,5 +231,11 @@ public Integer getIdRequest() {
 	return null;
 }
 
+@Override
+public String getCodeBioanalyzerChipType() {
+	// TODO Auto-generated method stub
+	return null;
+}
+
 
 }
