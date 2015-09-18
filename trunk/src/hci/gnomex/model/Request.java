@@ -5,6 +5,7 @@ import hci.framework.utilities.XMLReflectException;
 import hci.gnomex.constants.Constants;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
+import hci.gnomex.utility.Order;
 import hci.hibernate3utils.HibernateDetailObject;
 
 import java.sql.Date;
@@ -24,7 +25,8 @@ import org.jdom.Document;
 import org.jdom.Element;
 
 
-public class Request extends HibernateDetailObject implements VisibilityInterface {
+@SuppressWarnings("serial")
+public class Request extends HibernateDetailObject implements VisibilityInterface, Order {
 
   private Integer         idRequest;
   private String          number;

@@ -2,6 +2,7 @@ package hci.gnomex.model;
 
 import hci.dictionary.utility.DictionaryManager;
 import hci.framework.model.DetailObject;
+import hci.gnomex.utility.Order;
 
 import java.io.Serializable;
 import java.sql.Date;
@@ -11,7 +12,7 @@ import java.util.TreeSet;
 
 
 @SuppressWarnings("serial")
-public class ProductOrder extends DetailObject implements Serializable {
+public class ProductOrder extends DetailObject implements Serializable, Order {
 
   public static final String PRODUCT_ORDER_REQUEST_CATEGORY = "PRODUCTORDER";
   public static final String PRODUCT_ORDER_ICON = "assets/basket.png";
@@ -205,6 +206,30 @@ public class ProductOrder extends DetailObject implements Serializable {
   public void setProductOrderNumber( String productOrderNumber ) {
     this.productOrderNumber = productOrderNumber;
   }
+
+@Override
+public Integer getIdProduct() {
+	// TODO Auto-generated method stub
+	return null;
+}
+
+@Override
+public String getCodeApplication() {
+	// TODO Auto-generated method stub
+	return null;
+}
+
+@Override
+public String getCodeRequestCategory() {
+	// TODO Auto-generated method stub
+	return null;
+}
+
+@Override
+public Integer getIdRequest() {
+	// TODO Auto-generated method stub
+	return null;
+}
 
 
 }
