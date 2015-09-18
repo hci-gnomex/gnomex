@@ -19,5 +19,7 @@ public interface Order {
 	public Integer getIdCoreFacility();
 	
 	public Lab getLab();
+	
+	public String getCodeBioanalyzerChipType();
 
 }
