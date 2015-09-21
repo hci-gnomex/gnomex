@@ -23,7 +23,7 @@
 //import org.hibernate.Session;
 //
 //
-//public class SequenomDNAExtractPlugin implements BillingPlugin {
+//public class SequenomDNAExtractPlugin extends BillingPlugin {
 //
 //  public List constructBillingItems(Session sess, String amendState, BillingPeriod billingPeriod, PriceCategory priceCategory, Request request, 
 //      Set<Sample> samples, Set<LabeledSample> labeledSamples, Set<Hybridization> hybs, Set<SequenceLane> lanes, Map<String, ArrayList<String>> sampleToAssaysMap, 

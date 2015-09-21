@@ -1,9 +1,7 @@
 package hci.gnomex.billing;
 
-import hci.gnomex.constants.Constants;
 import hci.gnomex.model.BillingItem;
 import hci.gnomex.model.BillingPeriod;
-import hci.gnomex.model.BillingStatus;
 import hci.gnomex.model.Hybridization;
 import hci.gnomex.model.LabeledSample;
 import hci.gnomex.model.Price;
@@ -16,7 +14,6 @@ import hci.gnomex.model.SequenceLane;
 import hci.gnomex.model.SlideSource;
 import hci.gnomex.utility.DictionaryHelper;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -26,12 +23,12 @@ import java.util.Set;
 import org.hibernate.Session;
 
 
-public class MicroarrayPlugin implements BillingPlugin {
-  public List constructBillingItems(Session sess, String amendState, BillingPeriod billingPeriod, PriceCategory priceCategory, Request request, 
+public class MicroarrayPlugin extends BillingPlugin {
+  public List<BillingItem> constructBillingItems(Session sess, String amendState, BillingPeriod billingPeriod, PriceCategory priceCategory, Request request, 
       Set<Sample> samples, Set<LabeledSample> labeledSamples, Set<Hybridization> hybs, Set<SequenceLane> lanes, Map<String, ArrayList<String>> sampleToAssaysMap, 
       String billingStatus, Set<PropertyEntry> propertyEntries) {
     
-    List billingItems = new ArrayList<BillingItem>();
+    List<BillingItem> billingItems = new ArrayList<BillingItem>();
     
     if (hybs == null || hybs.size() == 0) {
       return billingItems;
@@ -61,7 +58,7 @@ public class MicroarrayPlugin implements BillingPlugin {
     
     
     // Total number arrays
-    int qty = hybs.size();
+    qty = hybs.size();
     // If this is a multi-array slide, qty must be in same interval
     if (request.getSlideProduct() != null &&
         request.getSlideProduct().getArraysPerSlide() != null && request.getSlideProduct().getArraysPerSlide().intValue() > 1) {
@@ -112,42 +109,11 @@ public class MicroarrayPlugin implements BillingPlugin {
 
     // Instantiate a BillingItem for the matched price
     if (price != null) {
-      BigDecimal theUnitPrice = price.getEffectiveUnitPrice(request.getLab());
-
       DictionaryHelper dh = DictionaryHelper.getInstance(sess);
       String slideCategoryName = dh.getOrganism(request.getSlideProduct().getIdOrganism());
       slideCategoryName += " " + dh.getApplication(request.getCodeApplication());
       
-      BillingItem billingItem = new BillingItem();
-      billingItem.setCategory(price.getName());
-      billingItem.setDescription(slideCategoryName);
-      billingItem.setCodeBillingChargeKind(priceCategory.getCodeBillingChargeKind());
-      billingItem.setIdBillingPeriod(billingPeriod.getIdBillingPeriod());
-      billingItem.setQty(new Integer(qty));
-      billingItem.setUnitPrice(theUnitPrice);
-      billingItem.setPercentagePrice(new BigDecimal(1));      
-      if (qty > 0 && theUnitPrice != null) {      
-        billingItem.setInvoicePrice(theUnitPrice.multiply(new BigDecimal(qty)));
-      }
-      billingItem.setCodeBillingStatus(billingStatus);
-      if (!billingStatus.equals(BillingStatus.NEW) && !billingStatus.equals(BillingStatus.PENDING)) {
-        billingItem.setCompleteDate(new java.sql.Date(System.currentTimeMillis()));
-      }
-      billingItem.setIdRequest(request.getIdRequest());
-      billingItem.setIdLab(request.getIdLab());
-      billingItem.setIdBillingAccount(request.getIdBillingAccount());      
-      billingItem.setIdPrice(price.getIdPrice());
-      billingItem.setIdPriceCategory(price.getIdPriceCategory());
-      billingItem.setSplitType(Constants.BILLING_SPLIT_TYPE_PERCENT_CODE);
-      billingItem.setIdCoreFacility(request.getIdCoreFacility());
-
-      // Hold off on saving the notes.  Need to reserve note field
-      // for complete date, etc at this time.
-      //billingItem.setNotes(notes);
-
-
-      billingItems.add(billingItem);
-
+      billingItems.addAll(this.makeBillingItems(request, price, priceCategory, qty, billingPeriod, billingStatus, null, slideCategoryName, null, null));
     }
     
     

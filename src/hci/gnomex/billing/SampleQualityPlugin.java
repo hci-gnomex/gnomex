@@ -4,7 +4,6 @@ import hci.gnomex.constants.Constants;
 import hci.gnomex.model.Application;
 import hci.gnomex.model.BillingItem;
 import hci.gnomex.model.BillingPeriod;
-import hci.gnomex.model.BillingStatus;
 import hci.gnomex.model.BioanalyzerChipType;
 import hci.gnomex.model.Hybridization;
 import hci.gnomex.model.LabeledSample;
@@ -20,7 +19,6 @@ import hci.gnomex.model.SequenceLane;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.PropertyDictionaryHelper;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -31,14 +29,14 @@ import java.util.Set;
 import org.hibernate.Session;
 
 
-public class SampleQualityPlugin implements BillingPlugin {
+public class SampleQualityPlugin extends BillingPlugin {
 
-  public List constructBillingItems(Session sess, String amendState, BillingPeriod billingPeriod, PriceCategory priceCategory, Request request, 
+  public List<BillingItem> constructBillingItems(Session sess, String amendState, BillingPeriod billingPeriod, PriceCategory priceCategory, Request request, 
       Set<Sample> samples, Set<LabeledSample> labeledSamples, Set<Hybridization> hybs, Set<SequenceLane> lanes, Map<String, ArrayList<String>> sampleToAssaysMap, 
       String billingStatus, Set<PropertyEntry> propertyEntries) {
     
     
-    List billingItems = new ArrayList<BillingItem>();
+    List<BillingItem> billingItems = new ArrayList<BillingItem>();
     Map codeChipTypeMap = new HashMap();
     Map codeChipTypeNoteMap = new HashMap();
 
@@ -191,38 +189,7 @@ public class SampleQualityPlugin implements BillingPlugin {
       
       // Instantiate a BillingItem for the matched billing price
       if (price != null) {
-        BigDecimal theUnitPrice = price.getEffectiveUnitPrice(request.getLab());
-        
-        BillingItem billingItem = new BillingItem();
-        billingItem.setCodeBillingChargeKind(priceCategory.getCodeBillingChargeKind());
-        billingItem.setIdBillingPeriod(billingPeriod.getIdBillingPeriod());
-        billingItem.setDescription(price.getName());
-        billingItem.setQty(qty);
-        billingItem.setUnitPrice(theUnitPrice);
-        billingItem.setPercentagePrice(new BigDecimal(1));        
-        if (qty.intValue() > 0 && theUnitPrice != null) {      
-          billingItem.setInvoicePrice(theUnitPrice.multiply(new BigDecimal(qty.intValue())));
-        }
-        billingItem.setCodeBillingStatus(billingStatus);
-        if (!billingStatus.equals(BillingStatus.NEW) && !billingStatus.equals(BillingStatus.PENDING)) {
-          billingItem.setCompleteDate(new java.sql.Date(System.currentTimeMillis()));
-        }
-        billingItem.setIdRequest(request.getIdRequest());
-        billingItem.setIdLab(request.getIdLab());
-        billingItem.setIdBillingAccount(request.getIdBillingAccount());        
-        billingItem.setIdPrice(price.getIdPrice());
-        billingItem.setIdPriceCategory(priceCategory.getIdPriceCategory());
-        billingItem.setCategory(priceCategory.getName());
-        billingItem.setSplitType(Constants.BILLING_SPLIT_TYPE_PERCENT_CODE);
-        billingItem.setIdCoreFacility(request.getIdCoreFacility());
-
-        // Hold off on saving the notes.  Need to reserve note field
-        // for complete date, etc at this time.
-        //billingItem.setNotes(notes);
-
-        
-        billingItems.add(billingItem);
-        
+    	  billingItems.addAll(this.makeBillingItems(request, price, priceCategory, qty, billingPeriod, billingStatus));
       }
     }
     
