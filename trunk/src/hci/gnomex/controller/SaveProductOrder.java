@@ -199,9 +199,9 @@ public class SaveProductOrder extends GNomExCommand implements Serializable {
             poNode.setAttribute("idProductOrder", po.getIdProductOrder()!=null?po.getIdProductOrder().toString():"");
             outputDoc.getRootElement().addContent(poNode);
             
-            List billingItems = iscanPlugin.constructBillingItems(sess, billingPeriod, priceCategory, po, productLineItems);
-            for(Iterator j = billingItems.iterator(); j.hasNext();) {
-              BillingItem bi = (BillingItem)j.next();
+            List<BillingItem> billingItems = iscanPlugin.constructBillingItems(sess, billingPeriod, priceCategory, po, productLineItems);
+            for(Iterator<BillingItem> j = billingItems.iterator(); j.hasNext();) {
+              BillingItem bi = j.next();
               sess.save(bi);
             }
 

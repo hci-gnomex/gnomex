@@ -26,14 +26,14 @@ import java.util.Set;
 import org.hibernate.Session;
 
 
-public class IScanChipPlugin implements BillingPlugin {
+public class IScanChipPlugin extends BillingPlugin {
 
-  public List constructBillingItems(Session sess, String amendState, BillingPeriod billingPeriod, PriceCategory priceCategory, Request request, 
+  public List<BillingItem> constructBillingItems(Session sess, String amendState, BillingPeriod billingPeriod, PriceCategory priceCategory, Request request, 
       Set<Sample> samples, Set<LabeledSample> labeledSamples, Set<Hybridization> hybs, Set<SequenceLane> lanes, Map<String, ArrayList<String>> sampleToAssaysMap, 
       String billingStatus, Set<PropertyEntry> propertyEntries) {
 
 
-    List billingItems = new ArrayList<BillingItem>();
+    List<BillingItem> billingItems = new ArrayList<BillingItem>();
 
     if (samples == null || samples.size() == 0) {
       return billingItems;
@@ -60,47 +60,23 @@ public class IScanChipPlugin implements BillingPlugin {
 
 
     // Price is per sample but you have to pay for the possible samples per chip times the number of chips
-    int qty = request.getNumberIScanChips() * chip.getSamplesPerChip();
+    qty = request.getNumberIScanChips() * chip.getSamplesPerChip();
 
     // Instantiate a BillingItem for the matched billing price
     if (price != null) {
       // Get the price from the chip object
       BigDecimal theUnitPrice = chip.getCostPerSample();
 
-      BillingItem billingItem = new BillingItem();
-      billingItem.setCodeBillingChargeKind(priceCategory.getCodeBillingChargeKind());
-      billingItem.setIdBillingPeriod(billingPeriod.getIdBillingPeriod());
-      billingItem.setDescription(price.getName());
-      billingItem.setQty(qty);
-      billingItem.setUnitPrice(theUnitPrice);
-      billingItem.setPercentagePrice(new BigDecimal(1));
-      if (qty > 0 && theUnitPrice != null) {
-        billingItem.setInvoicePrice(theUnitPrice.multiply(new BigDecimal(qty)));
-      }
-      billingItem.setCodeBillingStatus(billingStatus);
-      if (!billingStatus.equals(BillingStatus.NEW) && !billingStatus.equals(BillingStatus.PENDING)) {
-        billingItem.setCompleteDate(new java.sql.Date(System.currentTimeMillis()));
-      }
-      billingItem.setIdRequest(request.getIdRequest());
-      billingItem.setIdLab(request.getIdLab());
-      billingItem.setIdBillingAccount(request.getIdBillingAccount());
-      billingItem.setIdPrice(price.getIdPrice());
-      billingItem.setIdPriceCategory(priceCategory.getIdPriceCategory());
-      billingItem.setCategory(priceCategory.getName());
-      billingItem.setIdCoreFacility(request.getIdCoreFacility());
-
-
-      billingItems.add(billingItem);
-
+      billingItems.addAll(this.makeBillingItems(request, price, priceCategory, qty, billingPeriod, billingStatus, null, null, theUnitPrice, null));
     }
 
 
     return billingItems;
   }
 
-  public List constructBillingItems(Session sess, BillingPeriod billingPeriod, PriceCategory priceCategory, ProductOrder po, Set productLineItems) {
+  public List<BillingItem> constructBillingItems(Session sess, BillingPeriod billingPeriod, PriceCategory priceCategory, ProductOrder po, Set productLineItems) {
 
-    List billingItems = new ArrayList<BillingItem>();
+    List<BillingItem> billingItems = new ArrayList<BillingItem>();
 
     // Get Product
 
@@ -122,27 +98,8 @@ public class IScanChipPlugin implements BillingPlugin {
       if (price != null) {
         // Get the price from the chip object
         BigDecimal theUnitPrice = lineItem.getUnitPrice();
-
-        BillingItem billingItem = new BillingItem();
-        billingItem.setCodeBillingChargeKind(priceCategory.getCodeBillingChargeKind());
-        billingItem.setIdBillingPeriod(billingPeriod.getIdBillingPeriod());
-        billingItem.setDescription(price.getName());
-        billingItem.setQty(qty);
-        billingItem.setUnitPrice(theUnitPrice);
-        billingItem.setPercentagePrice(new BigDecimal(1));
-        if (qty > 0 && theUnitPrice != null) {
-          billingItem.setInvoicePrice(theUnitPrice.multiply(new BigDecimal(qty)));
-        }
-        billingItem.setCodeBillingStatus(BillingStatus.PENDING);
-        billingItem.setIdLab(po.getIdLab());
-        billingItem.setIdBillingAccount(po.getIdBillingAccount());
-        billingItem.setIdPrice(price.getIdPrice());
-        billingItem.setIdPriceCategory(priceCategory.getIdPriceCategory());
-        billingItem.setCategory(priceCategory.getName());
-        billingItem.setIdCoreFacility(po.getIdCoreFacility());
-        billingItem.setIdProductLineItem(lineItem.getIdProductLineItem());
-
-        billingItems.add(billingItem);
+        
+        billingItems.addAll(this.makeBillingItems(po, price, priceCategory, qty, billingPeriod, BillingStatus.PENDING, null, null, theUnitPrice, lineItem.getIdProductLineItem()));
 
       }
     }
