@@ -286,7 +286,7 @@ public class ChromatogramParser extends DetailObject implements Serializable
     
   }
   
-  public static void changeRequestsToComplete(Session sess, InstrumentRun ir, SecurityAdvisor secAdvisor, String launchAppURL, String appURL, String serverName) {
+  public static void changeRequestsToComplete(Session sess, InstrumentRun ir, SecurityAdvisor secAdvisor, String launchAppURL, String appURL, String serverName) throws ProductException {
     
     // Get requests and hash plateWells by idRequest
     HashMap<Integer, List<Object[]>> requestPlateWellMap = queryAndHashPlateWells(sess, ir, secAdvisor);
@@ -343,6 +343,7 @@ public class ChromatogramParser extends DetailObject implements Serializable
         continue;
       }
       
+      ProductUtil.updateLedgerOnRequestStatusChange(sess, req, req.getCodeRequestStatus(), RequestStatus.COMPLETED);
       
       req.setCodeRequestStatus( RequestStatus.COMPLETED );
       req.setCompletedDate( new java.sql.Date( System.currentTimeMillis() ) );

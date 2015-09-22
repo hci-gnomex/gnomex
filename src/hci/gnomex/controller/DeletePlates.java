@@ -10,6 +10,8 @@ import hci.gnomex.model.RequestStatus;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.ChromatogramParser;
 import hci.gnomex.utility.HibernateSession;
+import hci.gnomex.utility.ProductException;
+import hci.gnomex.utility.ProductUtil;
 
 import java.io.Serializable;
 import java.io.StringReader;
@@ -95,7 +97,7 @@ public class DeletePlates extends GNomExCommand implements Serializable {
     return this;
   }
  
- private void changeStatusDeletePlates( Session sess, Plate plate, String status ) {
+ private void changeStatusDeletePlates( Session sess, Plate plate, String status ) throws ProductException {
     
     // Get any requests on that run
     Map requests = new HashMap();
@@ -120,6 +122,7 @@ public class DeletePlates extends GNomExCommand implements Serializable {
     for ( Iterator i = requests.keySet().iterator(); i.hasNext();) {
       int idReq = (Integer) i.next();
       Request req = (Request) sess.get(Request.class, idReq );
+      ProductUtil.updateLedgerOnRequestStatusChange(sess, req, req.getCodeRequestStatus(), status);
       req.setCodeRequestStatus( status );
     }
     sess.flush();

@@ -20,6 +20,7 @@ import hci.gnomex.utility.BillingItemParser;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.LogLongExecutionTimes;
+import hci.gnomex.utility.ProductUtil;
 import hci.gnomex.utility.LogLongExecutionTimes.LogItem;
 import hci.gnomex.utility.MailUtil;
 import hci.gnomex.utility.MailUtilHelper;
@@ -249,6 +250,7 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
             }
             
             if(allComplete){
+              ProductUtil.updateLedgerOnRequestStatusChange(sess, r, r.getCodeRequestStatus(), RequestStatus.COMPLETED);
               r.setCodeRequestStatus(RequestStatus.COMPLETED);
               r.setCompletedDate(new Date(System.currentTimeMillis()));
               sess.save(r);

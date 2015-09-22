@@ -13,6 +13,8 @@ import hci.gnomex.model.Request;
 import hci.gnomex.model.RequestStatus;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.HibernateSession;
+import hci.gnomex.utility.ProductException;
+import hci.gnomex.utility.ProductUtil;
 
 import java.io.Serializable;
 import java.io.StringReader;
@@ -217,7 +219,7 @@ public class SaveInstrumentRun extends GNomExCommand implements Serializable {
     return this;
   }
 
-  private void changeRequestStatus( Session sess, InstrumentRun ir, String status ) {
+  private void changeRequestStatus( Session sess, InstrumentRun ir, String status ) throws ProductException {
 
     // Get any requests on that run
     Map<Integer, Request> requests = new HashMap<Integer, Request>();
@@ -241,6 +243,7 @@ public class SaveInstrumentRun extends GNomExCommand implements Serializable {
       Integer idReq = (Integer) i.next();
       if (!inCompleteRequests.containsKey(idReq)) {
         Request req = (Request) sess.get(Request.class, idReq );
+        ProductUtil.updateLedgerOnRequestStatusChange(sess, req, req.getCodeRequestStatus(), status);
         req.setCodeRequestStatus( status );
         if ( status.equals( RequestStatus.COMPLETED ) ) {
           if ( req.getCompletedDate() == null ) {

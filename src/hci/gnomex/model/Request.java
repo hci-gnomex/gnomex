@@ -6,6 +6,8 @@ import hci.gnomex.constants.Constants;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.Order;
+import hci.gnomex.utility.ProductException;
+import hci.gnomex.utility.ProductUtil;
 import hci.hibernate3utils.HibernateDetailObject;
 
 import java.sql.Date;
@@ -564,10 +566,11 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
     this.appUser = appUser;
   }
 
-  public void completeRequestIfFinished(Session sess) {
+  public void completeRequestIfFinished(Session sess) throws ProductException {
     if (this.isConsideredFinished()) {
       if (this.getCompletedDate() == null) {
         this.setCompletedDate(new java.sql.Date(System.currentTimeMillis()));
+        ProductUtil.updateLedgerOnRequestStatusChange(sess, this, this.getCodeRequestStatus(), RequestStatus.COMPLETED);
         this.setCodeRequestStatus(RequestStatus.COMPLETED);
         sess.save(this);
       }

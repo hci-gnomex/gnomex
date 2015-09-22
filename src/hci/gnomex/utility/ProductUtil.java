@@ -48,6 +48,10 @@ public class ProductUtil {
 	}
 	
 	public static boolean updateLedgerOnRequestStatusChange(Session sess, Request req, String oldRequestStatus, String newRequestStatus) throws ProductException {
+		if (!determineIfRequestUsesProducts(req)) {
+			return false;
+		}
+		
 		String statusToUseProducts = determineStatusToUseProducts(sess, req);
 		if (statusToUseProducts == null || statusToUseProducts.trim().equals("")) {
 			return false;
