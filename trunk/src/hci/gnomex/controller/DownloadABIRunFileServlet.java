@@ -13,6 +13,8 @@ import hci.gnomex.model.RequestStatus;
 import hci.gnomex.model.SealType;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.HibernateSession;
+import hci.gnomex.utility.ProductException;
+import hci.gnomex.utility.ProductUtil;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -388,7 +390,7 @@ public class DownloadABIRunFileServlet extends HttpServlet {
     }
   }
 
-  private void changeRequestsToProcessing(Session sess, InstrumentRun ir) {
+  private void changeRequestsToProcessing(Session sess, InstrumentRun ir) throws ProductException {
     
     // Get any requests on that run
     Map requests = new HashMap();
@@ -410,9 +412,11 @@ public class DownloadABIRunFileServlet extends HttpServlet {
       int idReq = (Integer) i.next();
       Request req = (Request) sess.get(Request.class, idReq );
       if ( req.getCodeRequestStatus() == null ) {
+    	ProductUtil.updateLedgerOnRequestStatusChange(sess, req, req.getCodeRequestStatus(), RequestStatus.PROCESSING);
         req.setCodeRequestStatus( RequestStatus.PROCESSING );
       } else if ( req.getCodeRequestStatus().equals( RequestStatus.NEW ) || 
                   req.getCodeRequestStatus().equals( RequestStatus.SUBMITTED ) ) {
+    	ProductUtil.updateLedgerOnRequestStatusChange(sess, req, req.getCodeRequestStatus(), RequestStatus.PROCESSING);
         req.setCodeRequestStatus( RequestStatus.PROCESSING );
       }
     }

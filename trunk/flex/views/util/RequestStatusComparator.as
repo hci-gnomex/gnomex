@@ -30,7 +30,7 @@ package views.util {
 					value = 1;
 				} else if (requestStatus == "PROCESSING") {
 					value = 2;
-				} else if (requestStatus == "COMPLETED") {
+				} else if (requestStatus == "COMPLETE") {
 					value = 3;
 				} else if (requestStatus == "FAILED") {
 					value = 3;
