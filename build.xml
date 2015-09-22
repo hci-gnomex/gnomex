@@ -12,7 +12,7 @@
 		</propertyfile>
 	</target>
 
-    <!-- ============================================== -->
+  <!-- ============================================== -->
 	<!--                                                -->
 	<!-- Exclude bstx class for HCI build since it is   -->
 	<!-- in hciEnv jar                                  -->
@@ -24,7 +24,7 @@
 		<echo>bstx.exclude.class=${bstx.exclude.class}</echo>
 	</target>
 	
-    <!-- ============================================== -->
+  <!-- ============================================== -->
 	<!--                                                -->
 	<!-- Initialization                                 -->
 	<!--                                                -->
@@ -71,7 +71,7 @@
 		<antcall target="compile-tomcat" />
 		<antcall target="jar-tomcat" />
 		<antcall target="clientjar"/>
-    	<antcall target="realmjar"/>
+    <antcall target="realmjar"/>
 		<antcall target="flex"/>
 		<antcall target="war-tomcat" />
 		<antcall target="deploy-tomcat" />
@@ -87,7 +87,7 @@
 		<antcall target="compile-tomcat" />
 		<antcall target="jar-tomcat" />
 		<antcall target="clientjar"/>
-    	<antcall target="realmjar"/>
+    <antcall target="realmjar"/>
 		<antcall target="war-gnomexlite" />
 		<antcall target="deploy-gnomexlite" />
 	</target>
@@ -718,7 +718,7 @@
 		<echo>+                                                       +</echo>
 		<echo>+ ===================================================== +</echo>
 		<copy file="${dist.dir}/${war.name}" todir="${tomcat.dir}/webapps"/>		
-    	<!-- <delete dir="${tomcat.dir}/webapps/${app.name}"/> -->
+    <delete dir="${tomcat.dir}/webapps/${app.name}"/>
 		<copy file="${dist.dir}/${realmjar.name}" todir="${lib.tomcat.server.dir}"/>
 	</target>
 	
@@ -734,7 +734,7 @@
 		<echo>+                                                       +</echo>
 		<echo>+ ===================================================== +</echo>
 		<copy file="${dist.dir}/${glwar.name}" todir="${tomcat.dir}/webapps"/>		
-    	<!-- <delete dir="${tomcat.dir}/webapps/${glapp.name}"/> -->
+    <delete dir="${tomcat.dir}/webapps/${glapp.name}"/> 
 		<copy file="${dist.dir}/${realmjar.name}" todir="${lib.tomcat.server.dir}"/>
 	</target>
 	
