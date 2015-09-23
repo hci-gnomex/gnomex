@@ -66,7 +66,7 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
   public String responsePageSuccess = null;
   public String responsePageError = null;
 
-  private final static int APPROVE_USER_EXPIRATION_TIME = 86400000;  //One day
+  private final static int APPROVE_USER_EXPIRATION_TIME = 86400000 * 3;  //Three days
 
   public void loadCommand(HttpServletRequest request, HttpSession session) {
     serverName = request.getServerName();
@@ -488,11 +488,14 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
     } 
     
     introForAdmin.append(greeting);
-    introForAdmin.append("The following person has signed up for a GNomEx user account.  The user account has been created but not activated.<br><br>");
+    introForAdmin.append("The following person has signed up for a GNomEx user account.  The user account has been created but not activated. Please approve or deny their request.<br><br>");
     introForAdmin.append("<a href='" + approveURL + "'>Click here</a> to activate the account.  GNomEx will automatically send an email to notify the user that his/her user account has been activated.<br><br>");
     introForAdmin.append("<a href='" + deleteURL + "'>Click here</a> to deny and delete the pending user.  GNomEx will automatically send an email to notify the user that they have been denied an account with GNomEx.<br><br>");
     
-    String closing = "If you have any questions concerning this application for a new account within your lab group, pleast contact ";
+    introForAdmin.append("(These links will expire in 3 days.)<br><br>");
+    
+    
+    String closing = "If you have any questions concerning this application for a new account within your lab group, please contact ";
     if (facility != null ) {
       closing += facility.getContactName() + " (" + facility.getContactEmail() + ").<br><br>";
     } else {
