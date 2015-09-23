@@ -483,12 +483,16 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
     
     // Intro to Lab PI/Admin
     String greeting = "";
+    String intro = "";
     if ( requestedLab != null ) {
       greeting = "Dear " + requestedLab.getName( false, false, false ) + ",<br><br>";
-    } 
+      intro = "The following person has signed up for a GNomEx user account and would like to be added to your lab group.  The user account has been created but not activated. Please approve or deny their request.<br><br>";
+    } else {
+      intro = "The following person has signed up for a GNomEx user account.  The user account has been created but not activated. Please approve or deny their request.<br><br>";
+    }
     
     introForAdmin.append(greeting);
-    introForAdmin.append("The following person has signed up for a GNomEx user account.  The user account has been created but not activated. Please approve or deny their request.<br><br>");
+    introForAdmin.append(intro);
     introForAdmin.append("<a href='" + approveURL + "'>Click here</a> to activate the account.  GNomEx will automatically send an email to notify the user that his/her user account has been activated.<br><br>");
     introForAdmin.append("<a href='" + deleteURL + "'>Click here</a> to deny and delete the pending user.  GNomEx will automatically send an email to notify the user that they have been denied an account with GNomEx.<br><br>");
     
