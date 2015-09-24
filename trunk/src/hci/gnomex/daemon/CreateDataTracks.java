@@ -10,6 +10,7 @@ import hci.gnomex.model.GenomeBuild;
 import hci.gnomex.model.Institution;
 import hci.gnomex.model.Lab;
 import hci.gnomex.model.PropertyDictionary;
+import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.BatchDataSource;
 import hci.gnomex.utility.DataTrackComparator;
 import hci.gnomex.utility.DataTrackUtil;
@@ -40,6 +41,7 @@ public class CreateDataTracks {
 	private String analysisName = null;
 	private String directory = null;
 	private String fileName = null;
+	private String login = null;	
 	
 	//For use in datatrack creation
 	private Integer idLab;
@@ -48,6 +50,7 @@ public class CreateDataTracks {
 
 	
 	//hibernate stuff
+	private SecurityAdvisor secAdvisor;	
 	private BatchDataSource dataSource;
     private Session sess;
 	private Transaction tx;
@@ -84,6 +87,7 @@ public class CreateDataTracks {
 					case 'f': fileName = args[++i]; break;
 					case 'd': directory  = args[++i]; break;
 					case 's': serverName = args[++i]; break;
+					case 'l': login = args[++i]; break;					
 					case 'h': printDocs(); System.exit(0);
 					default: System.out.println("\nProblem, unknown option! " + mat.group()); System.exit(0);
 					}
@@ -104,6 +108,10 @@ public class CreateDataTracks {
 			System.exit(1);
 		}
 		
+		if (login == null) {
+			System.out.println("Please specify a username");
+			System.exit(1);
+		}
 	 	
 		if (directory == null) {
 			System.out.println("Inferring directory structure from analysis directory");
@@ -163,7 +171,10 @@ public class CreateDataTracks {
 	      //dataSource = new BatchDataSource(orionPath,schemaPath);
 	      dataSource = new BatchDataSource();
 	      app.connect();
-	      
+
+	      // Create a security advisor
+	      secAdvisor = SecurityAdvisor.create(sess, login);
+	      	      
 	      System.out.println("Trying to grab analysis");
 	      
 	      //Grab information from the analysis record.
