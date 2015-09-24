@@ -78,6 +78,12 @@
 				
 				this.precisionError.visible = priceErrorVisible;
 				
+				if(priceErrorVisible){
+					saveButton.enabled = false;
+				} else{
+					saveButton.enabled = true;
+				}
+				
 			}
 			
 			private function setDirty():void {
