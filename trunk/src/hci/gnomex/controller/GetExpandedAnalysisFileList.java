@@ -225,9 +225,9 @@ public class GetExpandedAnalysisFileList extends GNomExCommand implements Serial
       
       for (int x = 0; x < fileList.length; x++) {
         File f1 = fileList[x];
-        if (Util.isSymlink(f1)) {
-          continue;
-        }
+//        if (k(f1)) {
+//          continue;
+//        }
         
         String fileName = directoryName + "/" + f1.getName();
 
