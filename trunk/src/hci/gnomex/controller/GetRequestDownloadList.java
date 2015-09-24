@@ -652,10 +652,10 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
     String directoryName = baseDir + createYear + File.separator + requestNumber;
     File fd = new File(directoryName);
 
-    // Ignore soft links
-    if (Util.isSymlink(fd)) {
-      return folders;
-    }
+//    // Ignore soft links
+//    if (Util.isSymlink(fd)) {
+//      return folders;
+//    }
 
     if (fd.isDirectory()) {
       String[] fileList = fd.list();
@@ -691,7 +691,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
         } 
 
         // bypass directories and soft links.
-        if (f1.isDirectory() || Util.isSymlink(f1)) {
+        if (f1.isDirectory() ) {       //|| Util.isSymlink(f1)) {
           continue;
         }
 
