@@ -425,9 +425,9 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
         crit.setFilter1(ipt.getCodeIsolationPrepType());
         sess.save(crit);
       } else{
-        price.setUnitPrice(node.getAttributeValue("unitPriceInternal") != null ? new BigDecimal(node.getAttributeValue("unitPriceInternal")) : BigDecimal.ZERO);
-        price.setUnitPriceExternalAcademic(node.getAttributeValue("unitPriceExternalAcademic") != null ? new BigDecimal(node.getAttributeValue("unitPriceExternalAcademic")) : BigDecimal.ZERO);
-        price.setUnitPriceExternalCommercial(node.getAttributeValue("unitPriceExternalCommercial") != null ? new BigDecimal(node.getAttributeValue("unitPriceExternalCommercial")) : BigDecimal.ZERO);
+        price.setUnitPrice(node.getAttributeValue("unitPriceInternal") != null && !node.getAttributeValue("unitPriceInternal").equals("") ? new BigDecimal(node.getAttributeValue("unitPriceInternal")) : BigDecimal.ZERO);
+        price.setUnitPriceExternalAcademic(node.getAttributeValue("unitPriceExternalAcademic") != null && !node.getAttributeValue("unitPriceExternalAcademic").equals("") ? new BigDecimal(node.getAttributeValue("unitPriceExternalAcademic")) : BigDecimal.ZERO);
+        price.setUnitPriceExternalCommercial(node.getAttributeValue("unitPriceExternalCommercial") != null && !node.getAttributeValue("unitPriceExternalCommercial").equals("") ? new BigDecimal(node.getAttributeValue("unitPriceExternalCommercial")) : BigDecimal.ZERO);
         price.setIsActive(ipt.getIsActive());
         price.setName(ipt.getIsolationPrepType());
         sess.save(price);
