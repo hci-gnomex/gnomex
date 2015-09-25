@@ -18,6 +18,9 @@
 			[Bindable]
 			private var longDescriptionRowCount:int = 0;
 			
+			[Bindable]
+			private var concHeader:String = "Conc. ";
+			
 			override public function setupView():void {
 				this.parentDocument.samplesView.initializeBarcoding();
 				parentDocument.getEstimatedBilling();
@@ -63,6 +66,7 @@
 				}
 				
 				this.samplesGridConfirm.invalidateSize();
+				this.getConcentrationHeader();
 				
 				// Edit buttons shown
 				this.parentDocument.submitButton.label = 'Submit';
@@ -127,6 +131,12 @@
 				} else{
 					sampleBatchWarningBox.includeInLayout = true;
 					this.batchWarning.text = this.getSampleBatchWarning();	
+				}
+			}
+			
+			private function getConcentrationHeader():void{
+				if(this.filteredSamples.length > 0){
+					concHeader += filteredSamples.getItemAt(0).@codeConcentrationUnit;
 				}
 			}
 			
@@ -262,7 +272,7 @@
 						<mx:AdvancedDataGridColumn headerText="Sample Name" id="sampleNameColumn" width="100" dataField="@name">				    
 						</mx:AdvancedDataGridColumn>
 						
-						<mx:AdvancedDataGridColumn id="concentrationCol" visible="true" headerText="Conc.(ng/ul)" width="65" dataField="@concentration" formatter="{sampleConcentrationFormatter}"/>
+						<mx:AdvancedDataGridColumn id="concentrationCol" visible="true" headerText="{concHeader}" width="65" dataField="@concentration" formatter="{sampleConcentrationFormatter}"/>
 						
 						<mx:AdvancedDataGridColumn id="barcodeColumn"  headerText="Index Tag A" width="130" dataField="@idOlogiBarcode" 
 										   editorDataField="value" sortable="false" editable="false" rendererIsEditor="true" 

@@ -80,6 +80,9 @@
 			[Bindable]
 			private var alignToGenomeBuild:String = "N";
 			
+			[Bindable]
+			private var concHeader:String = "Conc. ";
+			
 			public var defaultTab:Container = null;
 			
 			private var numberFormatter:NumberFormatter = new NumberFormatter();
@@ -938,7 +941,7 @@
 				this.sampleNameColumn.visible = true;
 				qubitConcentrationCol.visible = (this.selectedExperiment.@includeQubitConcentration=="Y");
 				
-				this.concentrationCol.headerText = 'Conc.';
+				this.getConcentrationHeader();
 				// can't do this in state stuff because of external stuff below.
 				this.noteToCoreFacilityBox.visible = true;
 				this.noteToCoreFacilityBox.includeInLayout = true;
@@ -1196,7 +1199,7 @@
 						this.descriptionCol.visible = false;
 						this.sampleSourceCol.visible = true;
 						
-						this.concentrationCol.headerText = 'NanoDrop Conc.';
+						//this.concentrationCol.headerText = 'NanoDrop Conc.';
 					} else if (isIonTorrentState()) {
 						concentrationCol.visible = true; 
 						sampleTypeCol.visible = true;
@@ -1217,7 +1220,7 @@
 						this.sampleSourceCol.visible = false;
 						applicationCol.visible = true;
 						
-						this.concentrationCol.headerText = 'Conc. (ng/ul)';
+						//this.concentrationCol.headerText = 'Conc. (ng/ul)';
 						
 					}  else if (isGenericState()) {
 						concentrationCol.visible = false; 
@@ -1614,6 +1617,12 @@
 				return false;
 			}
 			
+			private function getConcentrationHeader():void{
+				if(this.samples.length > 0){
+					concHeader += samples.getItemAt(0).@codeConcentrationUnit;
+				}
+			}
+			
 		]]>
 	</mx:Script>
 	
@@ -1894,7 +1903,7 @@
 					
 					
 					
-					<mx:AdvancedDataGridColumn id="concentrationCol" headerText="Conc." width="65" visible="true" labelFunction="getSampleConcentrationFormatted"/>
+					<mx:AdvancedDataGridColumn id="concentrationCol" headerText="{concHeader}" width="65" visible="true" labelFunction="getSampleConcentrationFormatted"/>
 					<util:AdvancedDataGridColumnWithType propertyType="OPTION" id="concentrationUnitCol" visible="{true}"  headerText="Unit"  width="60" 
 											   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ConcentrationUnit').DictionaryEntry, '@display', '@value', '@codeConcentrationUnit')}"/>
 					

@@ -19,6 +19,9 @@
 			import views.util.AnnotationDataGridColumn;
 			
 			[Bindable]
+			private var concHeader:String = "Conc. ";
+			
+			[Bindable]
 			private var longDescriptionRowCount:int = 0;
 			
 			override public function setupView():void {
@@ -131,6 +134,12 @@
 				} else{
 					sampleBatchWarningBox.includeInLayout = true;
 					this.batchWarning.text = this.getSampleBatchWarning();	
+				}
+			}
+			
+			private function getConcentrationHeader():void{
+				if(this.filteredSamples.length > 0){
+					concHeader += filteredSamples.getItemAt(0).@codeConcentrationUnit;
 				}
 			}
 			
@@ -289,7 +298,7 @@
 						<mx:DataGridColumn id="ccNumber" headerText="CC Number" dataField="@ccNumber" visible="false" width="80"/>
 						
 						
-						<mx:DataGridColumn id="concentrationCol" visible="true" headerText="Conc." width="65" dataField="@concentration" labelFunction="getSampleConcentrationFormatted"/>
+						<mx:DataGridColumn id="concentrationCol" visible="true" headerText="{concHeader}" width="65" dataField="@concentration" labelFunction="getSampleConcentrationFormatted"/>
 						<mx:DataGridColumn id="sampleTypeColumn" headerText="Sample Type"  width="130"
 										   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SampleType').DictionaryEntry, '@display', '@value', '@idSampleType')}"/>
 					</mx:columns>

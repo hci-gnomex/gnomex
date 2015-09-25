@@ -47,9 +47,9 @@
 			import views.util.CopySampleSheetColumnView;
 			import views.util.DictionaryHelper;
 			import views.util.SampleConcentrationValidator;
+			import views.util.SampleQCValidator;
 			import views.util.UploadSampleSheetInstructionsView;
 			import views.util.UploadSampleSheetView;
-			import views.util.SampleQCValidator;
 			
 			
 			public  var DEFAULT_CONTROL_NAME:String	  = "Control";
@@ -89,6 +89,7 @@
 				
 				parentDocument.samples.removeEventListener(CollectionEvent.COLLECTION_CHANGE, this.onSampleChanged);
 				parentDocument.samples.addEventListener(CollectionEvent.COLLECTION_CHANGE, this.onSampleChanged);
+				
 				setGridColors();
 				
 			}
@@ -1037,6 +1038,14 @@
 					PopUpManager.centerPopUp(PopUpManager.createPopUp(this, UploadSampleSheetInstructionsView, true));
 				}
 			}
+			
+			public function changeConcentrationUnit(selectedUnit:String):void{
+				for each(var s:XML in samplesGrid.dataProvider) {
+					s.@codeConcentrationUnit = selectedUnit;
+					
+				}
+			}
+			
 		]]>
 	</mx:Script>	
 	<mx:Sort id="barcodeSort"  compareFunction="sortBarcodes"/>
@@ -1194,15 +1203,44 @@
 					</mx:headerRenderer>
 				</mx:AdvancedDataGridColumn>   
 				
-				<mx:AdvancedDataGridColumn headerText="Conc. (ng/ul)" id="concentrationCol" visible="{parentApplication.isInternalExperimentSubmission}"  width="77" formatter="{sampleConcentrationFormatter}" rendererIsEditor="false"
+				<mx:AdvancedDataGridColumn headerText="{parentApplication.getProperty(parentApplication.PROPERTY_CUSTOM_SAMPLE_CONC_UNITS) == 'N' ? 'Conc. (ng/ul)' : 'Conc.'}" id="concentrationCol" visible="{parentApplication.isInternalExperimentSubmission}"  width="77" formatter="{sampleConcentrationFormatter}" rendererIsEditor="false"
 										   itemRenderer="{hci.flex.controls.Label.create('@concentration')}"                
 										   itemEditor="{views.renderers.GridColumnFillButton.create(new views.renderers.TextInputSampleConcentration(), '')}" editorDataField="value" dataField="@concentration">
 					<mx:headerRenderer > 
 						<mx:Component>
 							<mx:VBox verticalGap="0" horizontalScrollPolicy="off"  verticalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle"> 
-								<util:ContextHelp context1="sampleConcentration" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="Concentration Help" 
-												  showEdit="{parentApplication.isAdminState}" label="Conc.   &#13;(ng/ul)" noIconSpaceIfNoHelp="true"/>
-							</mx:VBox> 
+								<util:ContextHelp context1="sampleConcentration" id="concentrationContextHelp" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="Concentration Help" 
+												  showEdit="{parentApplication.isAdminState}" label="{outerDocument.parentApplication.getProperty(outerDocument.parentApplication.PROPERTY_CUSTOM_SAMPLE_CONC_UNITS) == 'N' ? 'Conc. (ng/ul)' : 'Conc.'}" noIconSpaceIfNoHelp="true"/>
+								<mx:ComboBox id="concentrationCombo" render="{init()}" visible="{outerDocument.parentApplication.getProperty(outerDocument.parentApplication.PROPERTY_CUSTOM_SAMPLE_CONC_UNITS) == 'Y'}" 
+											 includeInLayout="{outerDocument.parentApplication.getProperty(outerDocument.parentApplication.PROPERTY_CUSTOM_SAMPLE_CONC_UNITS) == 'Y'}" dataProvider="{outerDocument.parentApplication.dictionaryManager.getEntriesExcludeBlank('hci.gnomex.model.ConcentrationUnit')}" 
+											 labelField="@display" change="outerDocument.changeConcentrationUnit(concentrationCombo.selectedLabel);" >
+									<mx:Script>
+										<![CDATA[
+											
+											private var selectedCombo:Boolean = false;
+											
+											private function init():void{
+												concentrationCombo.callLater(getIndex);
+											}
+											
+											private function getIndex():void{
+												if(outerDocument.parentDocument.samples.length == 0 || selectedCombo == true){
+													return;
+												}
+												var sampleConcUnit:String = outerDocument.parentDocument.samples[0].@codeConcentrationUnit;
+												var entries:XMLList = outerDocument.parentApplication.dictionaryManager.getEntriesExcludeBlank('hci.gnomex.model.ConcentrationUnit');
+												for(var i:int = 0; i <  entries.length(); i++){
+													if(entries[i].@codeConcentrationUnit == sampleConcUnit){
+														concentrationCombo.selectedIndex = i;
+														selectedCombo = true;
+														return;
+													}
+												}
+											}
+										]]>
+									</mx:Script>
+									</mx:ComboBox>
+							</mx:VBox>
 						</mx:Component>
 					</mx:headerRenderer>
 				</mx:AdvancedDataGridColumn>

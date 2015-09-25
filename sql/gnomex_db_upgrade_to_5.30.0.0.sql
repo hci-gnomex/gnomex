@@ -40,3 +40,7 @@ CALL ExecuteIfTableExists('gnomex', 'Product_Audit', 'ALTER TABLE Product_Audit 
 -- Increase size of bioanalyzerChipType on BioanalyzerChipType
 ALTER TABLE BioanalyzerChipType MODIFY bioanalyzerChipType VARCHAR(100) NULL;
 CALL ExecuteIfTableExists('gnomex', 'BioanalyzerChipType_Audit', 'ALTER TABLE BioanalyzerChipType_Audit MODIFY bioanalyzerChipType VARCHAR(100) NULL');
+
+-- New property for custom sample concentrations on experiment submission
+insert into PropertyDictionary (propertyName, propertyValue, propertyDescription, forServerOnly, idCoreFacility, codeRequestCategory)
+    VALUES ('custom_sample_conc_units', 'N', 'Allow for configurable sample concentration units on experiment submission', 'N', NULL, NULL);

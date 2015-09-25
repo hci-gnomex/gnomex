@@ -305,6 +305,12 @@
 					Alert.show("Maximum allowed limit is 30 characters");					
 				}
 			}
+			public function changeConcentrationUnit(selectedUnit:String):void{
+				for each(var s:XML in samplesGrid.dataProvider) {
+					s.@codeConcentrationUnit = selectedUnit;
+					
+				}
+			}
 
 		]]>
 	</mx:Script>	
@@ -397,7 +403,7 @@
 					</mx:headerRenderer>
 				</mx:AdvancedDataGridColumn>  
 
-				<mx:AdvancedDataGridColumn headerText="NanoDrop Conc (ng/ul)" id="concentrationCol" 
+				<mx:AdvancedDataGridColumn headerText="{parentApplication.getProperty(parentApplication.PROPERTY_CUSTOM_SAMPLE_CONC_UNITS) == 'N' ? 'NanoDrop Conc. (ng/ul)' : 'NanoDrop Conc.'}" id="concentrationCol" 
 										   visible="{parentApplication.isInternalExperimentSubmission}"  width="100" formatter="{sampleConcentrationFormatter}" rendererIsEditor="false"
 										   itemRenderer="{hci.flex.controls.Label.create('@concentration')}"                 
 										   itemEditor="{views.renderers.GridColumnFillButton.create(new views.renderers.TextInputSampleConcentration(), '')}" editorDataField="value" dataField="@concentration">
@@ -405,7 +411,10 @@
 						<mx:Component>
 							<mx:VBox verticalGap="0" horizontalScrollPolicy="off"  verticalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle"> 
 								<util:ContextHelp context1="sampleConcentration" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="Concentration Help" 
-												  showEdit="{parentApplication.isAdminState}" label="NanoDrop       &#13;Conc (ng/ul)" noIconSpaceIfNoHelp="true"/>
+												  showEdit="{parentApplication.isAdminState}" label="{outerDocument.parentApplication.getProperty(outerDocument.parentApplication.PROPERTY_CUSTOM_SAMPLE_CONC_UNITS) == 'N' ? 'NanoDrop Conc. (ng/ul)' : 'NanoDrop Conc.'}" noIconSpaceIfNoHelp="true"/>
+								<mx:ComboBox id="concentrationCombo" visible="{outerDocument.parentApplication.getProperty(outerDocument.parentApplication.PROPERTY_CUSTOM_SAMPLE_CONC_UNITS) == 'Y'}" 
+											 includeInLayout="{outerDocument.parentApplication.getProperty(outerDocument.parentApplication.PROPERTY_CUSTOM_SAMPLE_CONC_UNITS) == 'Y'}" dataProvider="{outerDocument.parentApplication.dictionaryManager.getEntriesExcludeBlank('hci.gnomex.model.ConcentrationUnit')}" 
+											 labelField="@display" change="{outerDocument.changeConcentrationUnit(concentrationCombo.selectedLabel)}"/>
 							</mx:VBox> 
 						</mx:Component>
 					</mx:headerRenderer>

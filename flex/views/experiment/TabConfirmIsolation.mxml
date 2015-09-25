@@ -25,6 +25,9 @@
 			[Bindable]
 			private var iScanChip:Object;
 			
+			[Bindable]
+			private var concHeader:String = "Conc. ";
+			
 			override public function setupView():void {
 				this.parentDocument.samplesView.initializeBarcoding();
 				parentDocument.getEstimatedBilling();
@@ -68,6 +71,8 @@
 				}
 				this.label1.text = 'Samples (' + filteredSamples.length + ')';
 				
+				this.getConcentrationHeader();
+				
 			}
 			
 			override public function getSamplesGrid():Object {
@@ -96,6 +101,12 @@
 				} else{
 					sampleBatchWarningBox.includeInLayout = true;
 					this.batchWarning.text = this.getSampleBatchWarning();	
+				}
+			}
+			
+			private function getConcentrationHeader():void{
+				if(this.filteredSamples.length > 0){
+					concHeader += filteredSamples.getItemAt(0).@codeConcentrationUnit;
 				}
 			}
 		]]>
@@ -235,7 +246,7 @@
 					<mx:columns>
 						<mx:DataGridColumn id="sampleRowNumberCol" visible="true" editable="false" headerText=""  width="45" resizable="false" labelFunction="getSamplesConfirmGridRowNumber"/>
 						<mx:DataGridColumn headerText="Sample Name" id="sampleNameColumn" dataField="@name" width="150"/>				    
-						<mx:DataGridColumn id="concentrationCol" visible="true" headerText="Conc." width="65" dataField="@concentration" labelFunction="getSampleConcentrationFormatted"/>
+						<mx:DataGridColumn id="concentrationCol" visible="true" headerText="{concHeader}" width="65" dataField="@concentration" labelFunction="getSampleConcentrationFormatted"/>
 						<mx:DataGridColumn id="qc_260_280Column" headerText="QC 260/280" width="80" dataField="@qual260nmTo280nmRatio" />
 						<mx:DataGridColumn id="ccNumber" headerText="CC Number" dataField="@ccNumber" visible="false" />
 						<mx:DataGridColumn id="sampleSourceColumn" headerText="Sample Source" width="80" dataField="@idSampleSource"
