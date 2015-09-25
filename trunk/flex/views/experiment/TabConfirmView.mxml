@@ -21,6 +21,9 @@
 		[Bindable]
 		private var longDescriptionRowCount:int = 0;
 		
+		[Bindable]
+		private var concHeader:String = "Conc. ";
+		
 		override public function setupView():void {
 	        this.parentDocument.samplesView.initializeBarcoding();
 			parentDocument.getEstimatedBilling();
@@ -242,6 +245,7 @@
 				this.sampleOrganismConfirmColumn.visible = false;
 			}
 			otherOrganismCol.visible = false;
+			this.getConcentrationHeader();
   						 
         }
 		
@@ -286,6 +290,12 @@
 			} else{
 				sampleBatchWarningBox.includeInLayout = true;
 				this.batchWarning.text = this.getSampleBatchWarning();	
+			}
+		}
+		
+		private function getConcentrationHeader():void{
+			if(this.filteredSamples.length > 0){
+				concHeader += filteredSamples.getItemAt(0).@codeConcentrationUnit;
 			}
 		}
 		
@@ -464,7 +474,7 @@
 						<mx:DataGridColumn id="destinationWell" visible="false" editable="false" headerText="Destination Well" width="75" resizable="false" dataField="@destinationWell">
 						</mx:DataGridColumn>
 
-						<mx:DataGridColumn id="concentrationCol" visible="true" headerText="Conc." width="65" dataField="@concentration" labelFunction="getSampleConcentrationFormatted"/>
+						<mx:DataGridColumn id="concentrationCol" visible="true" headerText="{concHeader}" width="65" dataField="@concentration" labelFunction="getSampleConcentrationFormatted"/>
 		                 <mx:DataGridColumn id="ccNumber" headerText="CC Number" dataField="@ccNumber" visible="false" width="80"/>
 
 		                <mx:DataGridColumn id="multiplexGroupNumberColumn" headerText="Multiplex #" dataField="@multipexGroupNumber" editable="false" visible="false"

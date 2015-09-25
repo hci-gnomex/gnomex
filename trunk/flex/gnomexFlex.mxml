@@ -1197,6 +1197,7 @@
 			public var PROPERTY_AUTH_ACCOUNTS_DESCRIPTION:String 		  = "auth_accounts_description";
 			public var PROPERTY_NO_PRODUCTS_MESSAGE:String				  = "no_products_message";
 			public var PROPERTY_PRODUCT_SAMPLE_BATCH_WARNING:String		  = "product_sample_batch_warning";
+			public var PROPERTY_CUSTOM_SAMPLE_CONC_UNITS:String			  = "custom_sample_conc_units";
 
 			
 			public var CAN_ADMINISTER_ALL_CORE_FACILITIES:String          = "canAdministerAllCoreFacilities";

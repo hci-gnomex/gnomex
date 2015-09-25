@@ -1329,6 +1329,13 @@
 				return true;
 			}
 			
+			public function changeConcentrationUnit(selectedUnit:String):void{
+				for each(var s:XML in samplesGrid.dataProvider) {
+					s.@codeConcentrationUnit = selectedUnit;
+					
+				}
+			}
+			
 		]]>
 	</mx:Script>	
 	<mx:Sort id="barcodeSort"  compareFunction="sortBarcodes"/>
@@ -1532,14 +1539,17 @@
 					
 				</mx:AdvancedDataGridColumn>
 				
-				<mx:AdvancedDataGridColumn headerText="Conc. (ng/ul)" id="concentrationCol" visible="{parentApplication.isInternalExperimentSubmission}"  width="72" formatter="{sampleConcentrationFormatter}" rendererIsEditor="false"
+				<mx:AdvancedDataGridColumn headerText="{parentApplication.getProperty(parentApplication.PROPERTY_CUSTOM_SAMPLE_CONC_UNITS) == 'N' ? 'Conc. (ng/ul)' : 'Conc.'}" id="concentrationCol" visible="{parentApplication.isInternalExperimentSubmission}"  width="72" formatter="{sampleConcentrationFormatter}" rendererIsEditor="false"
 										   itemRenderer="{hci.flex.controls.Label.create('@concentration')}"                 
 										   itemEditor="{views.renderers.GridColumnFillButton.create(new views.renderers.TextInputSampleConcentration(), '')}" editorDataField="value" dataField="@concentration">
 					<mx:headerRenderer > 
 						<mx:Component>
 							<mx:VBox verticalGap="0" horizontalScrollPolicy="off"  verticalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle"> 
 								<util:ContextHelp context1="sampleConcentration" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="Concentration Help" 
-												  showEdit="{parentApplication.isAdminState}" label="Conc.   &#13;(ng/ul)" noIconSpaceIfNoHelp="true"/>
+												  showEdit="{parentApplication.isAdminState}" label="{outerDocument.parentApplication.getProperty(outerDocument.parentApplication.PROPERTY_CUSTOM_SAMPLE_CONC_UNITS) == 'N' ? 'Conc. (ng/ul)' : 'Conc.'}" noIconSpaceIfNoHelp="true"/>
+								<mx:ComboBox id="concentrationCombo" visible="{outerDocument.parentApplication.getProperty(outerDocument.parentApplication.PROPERTY_CUSTOM_SAMPLE_CONC_UNITS) == 'Y'}" 
+											 includeInLayout="{outerDocument.parentApplication.getProperty(outerDocument.parentApplication.PROPERTY_CUSTOM_SAMPLE_CONC_UNITS) == 'Y'}" dataProvider="{outerDocument.parentApplication.dictionaryManager.getEntriesExcludeBlank('hci.gnomex.model.ConcentrationUnit')}" 
+											 labelField="@display" change="{outerDocument.changeConcentrationUnit(concentrationCombo.selectedLabel)}"/>
 							</mx:VBox> 
 						</mx:Component>
 					</mx:headerRenderer>
