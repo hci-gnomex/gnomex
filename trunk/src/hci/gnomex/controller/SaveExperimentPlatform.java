@@ -779,43 +779,21 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
           sess.delete(x);
         }
         existingsAssociations = sess.createQuery("SELECT x from BioanalyzerChipType x where codeApplication = '" + application.getCodeApplication() + "'").list();
-        for(Iterator i1 = existingsAssociations.iterator(); i1.hasNext();) {
-          BioanalyzerChipType x = (BioanalyzerChipType)i1.next();
-          //We have to delete the prices (or set inactive) when we delete the chip type because we stored the prices in their map using the 
-          //code application + codeBioanalyzerChipType.  So check for a price and update accordingly before we delete the chip type.
-          //If a price has no current billing items we delete otherwise we set it to inactive.
-          Price p1 = illuminaLibPrepPriceMap.get(application.getCodeApplication());
-          Price p2 = qcLibPrepPriceMap.get(application.getCodeApplication() + "&" + (x != null ? x.getCodeBioanalyzerChipType() : ""));
-          if (deleteApplication) {
-            if(p1 != null){
-              if ( getPriceBillingItems(p1, sess) == null || getPriceBillingItems( p1, sess ).size() == 0 ) {
-                sess.delete(p1);
-              } else{
-                p1.setIsActive("N");
-                sess.save(p1);
-              }            
-            }
-            
-            if(p2 != null){
-              if ( getPriceBillingItems(p2, sess) == null || getPriceBillingItems( p2, sess ).size() == 0 ) {
-                sess.delete(p2);
-              } else{
-                p2.setIsActive("N");
-                sess.save(p2);
-              }            
-            }
-          } else {
-            if(p1 != null){
-              p1.setIsActive("N");
-              sess.save(p1);
-            }
-            if(p2 != null) {
-              p2.setIsActive("N");
-              sess.save(p2);
-            }
+        if(existingsAssociations.size() > 0){
+          for(Iterator i1 = existingsAssociations.iterator(); i1.hasNext();) {
+            BioanalyzerChipType x = (BioanalyzerChipType)i1.next();
+            //We have to delete the prices (or set inactive) when we delete the chip type because we stored the prices in their map using the 
+            //code application + codeBioanalyzerChipType.  So check for a price and update accordingly before we delete the chip type.
+            //If a price has no current billing items we delete otherwise we set it to inactive.
+            Price p1 = illuminaLibPrepPriceMap.get(application.getCodeApplication());
+            Price p2 = qcLibPrepPriceMap.get(application.getCodeApplication() + "&" + (x != null ? x.getCodeBioanalyzerChipType() : ""));
+            deleteOrInactivatePrice(deleteApplication, sess, p1, p2);
+            sess.delete(x);
           }
-
-          sess.delete(x);
+        } else{
+          Price p1 = illuminaLibPrepPriceMap.get(application.getCodeApplication());
+          Price p2 = qcLibPrepPriceMap.get(application.getCodeApplication() + "&");
+          deleteOrInactivatePrice(deleteApplication, sess, p1, p2);
         }
         
         if(deleteApplication){
@@ -1595,7 +1573,35 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
     }
     return lastNumber + 1;
   }
+  
+  private void deleteOrInactivatePrice(Boolean deleteApplication, Session sess, Price p1, Price p2){
+    if (deleteApplication) {
+      if(p1 != null){
+        if ( getPriceBillingItems(p1, sess) == null || getPriceBillingItems( p1, sess ).size() == 0 ) {
+          sess.delete(p1);
+        } else{
+          p1.setIsActive("N");
+          sess.save(p1);
+        }            
+      }
 
-
-
+      if(p2 != null){
+        if ( getPriceBillingItems(p2, sess) == null || getPriceBillingItems( p2, sess ).size() == 0 ) {
+          sess.delete(p2);
+        } else{
+          p2.setIsActive("N");
+          sess.save(p2);
+        }            
+      }
+    } else {
+      if(p1 != null){
+        p1.setIsActive("N");
+        sess.save(p1);
+      }
+      if(p2 != null) {
+        p2.setIsActive("N");
+        sess.save(p2);
+      }
+    }
+  }
 }
