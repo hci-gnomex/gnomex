@@ -52,6 +52,7 @@
 					}
 				}
 				
+				concHeader = "Conc. ";
 				this.confirmContainer.validateNow();
 				
 			} 

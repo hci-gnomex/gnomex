@@ -80,6 +80,8 @@
 			} else {
 				this.primerVbox.visible = false;	
 			}
+			
+			concHeader = "Conc. ";
 			this.confirmContainer.validateNow();
 			
 		} 

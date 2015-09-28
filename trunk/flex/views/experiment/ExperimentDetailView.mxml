@@ -207,6 +207,7 @@
 				
 				genomeBuild = "";
 				organismName = "";
+				concHeader = "Conc. ";
 				var organismDict:Dictionary = new Dictionary();
 				var genomeBuildDict:Dictionary = new Dictionary();
 				for each(var seqLane:XML in selectedExperiment.sequenceLanes.SequenceLane){

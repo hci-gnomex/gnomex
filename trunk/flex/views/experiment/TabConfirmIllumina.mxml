@@ -52,6 +52,8 @@
 						longDescriptionRowCount += Math.round(count);
 					}
 				}
+				
+				concHeader = "Conc. ";
 					
 				this.confirmContainer.validateNow();
 				
