@@ -1118,6 +1118,7 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
       setPrice(node.getAttributeValue("unitPriceInternal"), price.getUnitPrice(), price, PRICE_INTERNAL);
       setPrice(node.getAttributeValue("unitPriceExternalAcademic"), price.getUnitPriceExternalAcademic(), price, PRICE_EXTERNAL_ACADEMIC);
       setPrice(node.getAttributeValue("unitPriceExternalCommercial"), price.getUnitPriceExternalCommercial(), price, PRICE_EXTERNAL_COMMERCIAL);
+      
       sess.save(price);
       sess.flush();
       
@@ -1150,6 +1151,16 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
     if (attributeValue != null && attributeValue.length() > 0) {
       try {
         BigDecimal value = new BigDecimal(attributeValue);
+        if (existingPrice == null || !existingPrice.equals(value)) {
+          setPrice(value, price, whichPrice);
+          modified = true;
+        }
+      } catch(NumberFormatException e) {
+        log.error("Unable to parse internal price: " + attributeValue, e);
+      }
+    } else{
+      try {
+        BigDecimal value = new BigDecimal(0);
         if (existingPrice == null || !existingPrice.equals(value)) {
           setPrice(value, price, whichPrice);
           modified = true;
