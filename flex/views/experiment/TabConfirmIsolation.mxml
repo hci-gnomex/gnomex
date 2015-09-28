@@ -59,6 +59,8 @@
 				this.parentDocument.agreeBox.includeInLayout = true;
 				this.parentDocument.agreeBox.visible = true;
 				
+				concHeader = "Conc. ";
+				
 				this.confirmContainer.validateNow();
 			} 
 			
