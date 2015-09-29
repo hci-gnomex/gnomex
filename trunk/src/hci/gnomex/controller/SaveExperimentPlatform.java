@@ -600,7 +600,8 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
     Integer idPriceCategoryDefault = getDefaultLibPrepPriceCategoryId(sess, rc);
     Map<String, Price> qcLibPrepPriceMap = getQCLibPrepPriceMap(sess, rc);
     Integer idQCPriceCategoryDefault = getDefaultQCLibPrepPriceCategoryId(sess, rc);
-
+    Map<String, Price> sequenomPriceMap = this.getSequenomPriceMap(sess, rc);
+    Integer idSequenomPriceCategoryDefault = getDefaultSequenomPriceCategoryId(sess, rc);
     //
     // Save applications
     //
@@ -746,6 +747,7 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
       saveIlluminaLibPrepPrices(sess, rc, app, node, illuminaLibPrepPriceMap, idPriceCategoryDefault);
       saveQCLibPrepPrices(sess, rc, app, null, node, qcLibPrepPriceMap, idQCPriceCategoryDefault);
       saveQCChipTypes(sess, rc, app, node, qcLibPrepPriceMap, idQCPriceCategoryDefault);
+      saveSequenomPrices(sess, rc, app, node, sequenomPriceMap, idSequenomPriceCategoryDefault);
 
       sess.flush();
     }
@@ -787,13 +789,15 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
             //If a price has no current billing items we delete otherwise we set it to inactive.
             Price p1 = illuminaLibPrepPriceMap.get(application.getCodeApplication());
             Price p2 = qcLibPrepPriceMap.get(application.getCodeApplication() + "&" + (x != null ? x.getCodeBioanalyzerChipType() : ""));
-            deleteOrInactivatePrice(deleteApplication, sess, p1, p2);
+            Price p3 = sequenomPriceMap.get(application.getCodeApplication());
+            deleteOrInactivatePrice(deleteApplication, sess, p1, p2, p3);
             sess.delete(x);
           }
         } else{
           Price p1 = illuminaLibPrepPriceMap.get(application.getCodeApplication());
           Price p2 = qcLibPrepPriceMap.get(application.getCodeApplication() + "&");
-          deleteOrInactivatePrice(deleteApplication, sess, p1, p2);
+          Price p3 = sequenomPriceMap.get(application.getCodeApplication());
+          deleteOrInactivatePrice(deleteApplication, sess, p1, p2, p3);
         }
         
         if(deleteApplication){
@@ -1014,6 +1018,37 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
 
     return map;
   }
+  
+  private Map<String, Price> getSequenomPriceMap(Session sess, RequestCategory rc) {
+    if (!hasPriceSheet(sess, rc)) {
+      return null;
+    }
+
+    Map<String, Price> map = new HashMap<String, Price>();
+    String queryString = 
+        "select p, crit " +
+            " from PriceSheet ps " +
+            " join ps.requestCategories rc " +
+            " join ps.priceCategories pc " +
+            " join pc.priceCategory.prices p " +
+            " join p.priceCriterias crit " +
+            " where pc.priceCategory.pluginClassName='hci.gnomex.billing.ApplicationBatchPlugin'" +
+            "     and crit.filter1 is not null" +
+            "     and rc.codeRequestCategory = :code";
+    Query query = sess.createQuery(queryString);
+    query.setParameter("code", rc.getCodeRequestCategory());
+    List l = query.list();
+    for(Iterator i = l.iterator(); i.hasNext(); ) {
+      Object[] objects = (Object[])i.next();
+      Price price = (Price)objects[0];
+      PriceCriteria priceCriteria = (PriceCriteria)objects[1];
+
+      String key = priceCriteria.getFilter1();
+      map.put(key, price);
+    }
+
+    return map;
+  }
 
   private Map<String, Price> getQCLibPrepPriceMap(Session sess, RequestCategory rc) {
     if (!hasPriceSheet(sess, rc)) {
@@ -1093,6 +1128,40 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
 
     return id;
   }
+  
+  private Integer getDefaultSequenomPriceCategoryId(Session sess, RequestCategory rc) {
+    Integer id = null;
+    String catName = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityRequestCategoryProperty(rc.getIdCoreFacility(), rc.getCodeRequestCategory(), PropertyDictionary.SEQUENOM_DEFAULT_PRICE_CATEGORY);
+    if (catName == null) {
+      id = null;
+    } else {
+      String queryString = 
+          "select pc " +
+              " from PriceSheet ps " +
+              " join ps.requestCategories rc " +
+              " join ps.priceCategories pspc " +
+              " join pspc.priceCategory pc " +
+              " where pc.pluginClassName='hci.gnomex.billing.ApplicationBatchPlugin' "+
+              "     and rc.codeRequestCategory = :code and pc.name = :name";
+      Query query = sess.createQuery(queryString);
+      query.setParameter("name", catName);
+      query.setParameter("code", rc.getCodeRequestCategory());
+      try {
+        PriceCategory cat = (PriceCategory)query.uniqueResult();
+        if (cat != null) {
+          id = cat.getIdPriceCategory();
+        } else {
+          log.error("SaveExperimentPlatform: Invalid default sequenom price category name -- " + catName);
+          return null;
+        }
+      } catch(HibernateException e) {
+        log.error("SaveExperimentPlatform: Invalid default sequenom price category name -- " + catName, e);
+        return null;
+      }
+    }
+
+    return id;
+  }
 
   private void saveIlluminaLibPrepPrices(Session sess, RequestCategory rc, Application app, Element node, Map<String, Price> map, Integer defaultCategoryId) {
     // Only save lib prep prices for illumina request categories that have price sheet defined.
@@ -1106,6 +1175,44 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
       if (defaultCategoryId == null) {
         // no default price category -- can't store new price.
         log.error("SaveExperimentPlatform: Unable to store new lib prep price due to no default category for " + rc.getCodeRequestCategory());
+        return;
+      }
+      price = new Price();
+      newPrice = true;
+    }
+      price.setName(app.getApplication());
+      price.setDescription("");
+      price.setIdPriceCategory(defaultCategoryId);
+      price.setIsActive(app.getIsActive());
+      setPrice(node.getAttributeValue("unitPriceInternal"), price.getUnitPrice(), price, PRICE_INTERNAL);
+      setPrice(node.getAttributeValue("unitPriceExternalAcademic"), price.getUnitPriceExternalAcademic(), price, PRICE_EXTERNAL_ACADEMIC);
+      setPrice(node.getAttributeValue("unitPriceExternalCommercial"), price.getUnitPriceExternalCommercial(), price, PRICE_EXTERNAL_COMMERCIAL);
+      
+      sess.save(price);
+      sess.flush();
+      
+      if(newPrice){
+        PriceCriteria crit = new PriceCriteria();
+        crit.setIdPrice(price.getIdPrice());
+        crit.setFilter1(app.getCodeApplication());
+        sess.save(crit);
+        sess.flush();
+        map.put(app.getCodeApplication(), price);
+      }
+  }
+  
+  private void saveSequenomPrices(Session sess, RequestCategory rc, Application app, Element node, Map<String, Price> map, Integer defaultCategoryId) {
+    // Only save lib prep prices for sequenom request categories that have price sheet defined.
+    if (map == null || !RequestCategory.isSequenom(rc.getCodeRequestCategory())) {
+      return;
+    }
+
+    Boolean newPrice = false;
+    Price price = map.get(app.getCodeApplication());
+    if (price == null) {
+      if (defaultCategoryId == null) {
+        // no default price category -- can't store new price.
+        log.error("SaveExperimentPlatform: Unable to store new sequenom price due to no default category for " + rc.getCodeRequestCategory());
         return;
       }
       price = new Price();
@@ -1585,7 +1692,7 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
     return lastNumber + 1;
   }
   
-  private void deleteOrInactivatePrice(Boolean deleteApplication, Session sess, Price p1, Price p2){
+  private void deleteOrInactivatePrice(Boolean deleteApplication, Session sess, Price p1, Price p2, Price p3){
     if (deleteApplication) {
       if(p1 != null){
         if ( getPriceBillingItems(p1, sess) == null || getPriceBillingItems( p1, sess ).size() == 0 ) {
@@ -1604,6 +1711,15 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
           sess.save(p2);
         }            
       }
+      
+      if(p3 != null){
+        if ( getPriceBillingItems(p3, sess) == null || getPriceBillingItems( p3, sess ).size() == 0 ) {
+          sess.delete(p3);
+        } else{
+          p3.setIsActive("N");
+          sess.save(p3);
+        }            
+      }
     } else {
       if(p1 != null){
         p1.setIsActive("N");
@@ -1612,6 +1728,10 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
       if(p2 != null) {
         p2.setIsActive("N");
         sess.save(p2);
+      }
+      if(p3 != null) {
+        p3.setIsActive("N");
+        sess.save(p3);
       }
     }
   }
