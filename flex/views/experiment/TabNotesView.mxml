@@ -114,7 +114,7 @@
 			<mx:Spacer width="10"/>
 		</mx:HBox>	
 		<mx:Spacer height="10" />
-		<mx:VBox id="descriptionBox" width="100%" height="350" styleName="{showRequiredStylingNameDescription &amp;&amp; StringUtil.trim(overallDescript.htmlText) == '' ? 'requiredBox' : 'normalBox'}">
+		<mx:VBox id="descriptionBox" width="100%" height="100%" styleName="{showRequiredStylingNameDescription &amp;&amp; StringUtil.trim(overallDescript.htmlText) == '' ? 'requiredBox' : 'normalBox'}">
 			<mx:Label text="(2) Provide an experiment description. (optional)" id="label1"/>
 			<mx:RichTextEditor  borderStyle="none"  headerHeight="0"  
 								id="overallDescript" width="100%" 
