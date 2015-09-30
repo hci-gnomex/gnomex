@@ -3,7 +3,9 @@ package hci.gnomex.model;
 import hci.dictionary.model.DictionaryEntry;
 
 import java.io.Serializable;
+import java.util.List;
 
+import org.hibernate.Query;
 import org.hibernate.Session;
 
 
@@ -22,7 +24,6 @@ public class IsolationPrepType extends DictionaryEntry implements Serializable {
   private String     type;
   private String     isActive;
   private String     codeRequestCategory;
-  private Integer    idPrice;
   
   public String getDisplay() {
     return isolationPrepType;
@@ -75,27 +76,34 @@ public class IsolationPrepType extends DictionaryEntry implements Serializable {
     this.codeRequestCategory = codeRequestCategory;
   }
   
-  
-  public Integer getIdPrice() {
-    return idPrice;
-  }
-
-  public void setIdPrice(Integer idPrice) {
-    this.idPrice = idPrice;
-  }
 
   public static Price getIsolationPrepTypePrice(Session sess, IsolationPrepType ipt) {
-    
-    if ( ipt == null || ipt.getIdPrice() == null ) {
+
+    if ( ipt == null ) {
       return null;
     }
     
-    String priceQuery; 
+    String queryString = 
+        "select p " +
+            " from PriceSheet ps " +
+            " join ps.requestCategories rc " +
+            " join ps.priceCategories pc " +
+            " join pc.priceCategory.prices p " +
+            " join p.priceCriterias crit " +
+            " where pc.priceCategory.pluginClassName='hci.gnomex.billing.SequenomIsolationExtractPlugin'" +
+            "     and crit.filter1 = :filter" +
+            "     and rc.codeRequestCategory = :code" + 
+            "     and ps.name = 'Nucleic Acid Isolation'";
     
-     priceQuery = "SELECT p from Price as p where p.idPrice=" + ipt.getIdPrice();
-     Price price = (Price) sess.createQuery( priceQuery ).uniqueResult();
-     
-     return price;
-   }
+    Query query = sess.createQuery(queryString);
+    query.setParameter("code", ipt.getCodeRequestCategory());
+    query.setParameter("filter", ipt.getCodeIsolationPrepType());
+
+    //Ideally this should be query.uniqueResult() for error checking purposes but the data on db-dev-08 is corrupt due to previous testing and currently the query returns multiple rows
+    List priceList = query.list();
+    Price price = priceList.size() > 0 ? (Price)priceList.get(0) : null;
+
+    return price;
+  }
 
 }
