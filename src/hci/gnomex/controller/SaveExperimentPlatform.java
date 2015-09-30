@@ -405,7 +405,7 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
 
       if (price == null) {
 
-        RequestCategory rc = (RequestCategory)sess.load(RequestCategory.class, RequestCategory.ISOLATION_REQUEST_CATEGORY);
+        RequestCategory rc = (RequestCategory)sess.load(RequestCategory.class, node.getAttributeValue("codeRequestCategory"));
         price = new Price();
         price.setName(ipt.getIsolationPrepType());
         price.setDescription("");
