@@ -63,6 +63,8 @@
 			private var organismName:String;
 			[Bindable] 
 			private var genomeBuildName:String;
+			[Bindable]
+			private var genomeIsActive:String = "N";
 			[Bindable] 
 			private var visibilityName:String;
 			[Bindable] 
@@ -198,6 +200,7 @@
 			private function getGenomeBuildName():void {
 				var dict:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.GenomeBuildLite', analysis.@idGenomeBuild);
 				genomeBuildName = dict.@display.toString();
+				genomeIsActive = dict.@isActive.toString();
 			}		
 			private function getVisibilityName():void {
 				var dict:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Visibility', analysis.@codeVisibility);
@@ -302,6 +305,17 @@
 			}
 			
 			private function makeAllDataTracks():void {
+				// check for genomebuild and complain if there isn't one
+				if (genomeBuildName == null || genomeBuildName == "") {
+					Alert.show("A genome build is required to create data tracks.");
+					return;
+				}
+				
+				if (genomeIsActive == null || genomeIsActive != "Y") {
+					Alert.show("An active genome build is required to create data tracks.");
+					return;
+				}
+
 				// We need to make sure that all of the analysis files on the file
 				// system and db objects; otherwise we cannot link the analysis file
 				// to the data track.
