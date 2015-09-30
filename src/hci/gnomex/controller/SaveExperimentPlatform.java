@@ -398,7 +398,6 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
       ipt.setType(node.getAttributeValue("type"));
       ipt.setIsolationPrepType(node.getAttributeValue("isolationPrepType"));
       ipt.setCodeRequestCategory(node.getAttributeValue("codeRequestCategory"));
-      ipt.setIdPrice(node.getAttributeValue("idPrice") != null && !node.getAttributeValue("idPrice").equals("") ? Integer.parseInt(node.getAttributeValue("idPrice")) : null);
       prepTypes.add(ipt);
       sess.save(ipt);
 
@@ -416,8 +415,6 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
         price.setUnitPriceExternalAcademic(node.getAttributeValue("unitPriceExternalAcademic") != null && !node.getAttributeValue("unitPriceExternalAcademic").equals("") ? new BigDecimal(node.getAttributeValue("unitPriceExternalAcademic")) : BigDecimal.ZERO);
         price.setUnitPriceExternalCommercial(node.getAttributeValue("unitPriceExternalCommercial") != null && !node.getAttributeValue("unitPriceExternalCommercial").equals("") ? new BigDecimal(node.getAttributeValue("unitPriceExternalCommercial")) : BigDecimal.ZERO);
         sess.save(price);
-        ipt.setIdPrice(price.getIdPrice());
-        sess.save(ipt);
         sess.flush();
 
         PriceCriteria crit = new PriceCriteria();
@@ -444,10 +441,8 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
     //If not just mark them as inactive.
     for(Iterator j = existingPrepTypes.iterator(); j.hasNext();){
       IsolationPrepType ep = (IsolationPrepType) j.next();
-      Price existingPrice = null;
-      if(ep.getIdPrice() != null && ep.getIdPrice().equals("")){
-        existingPrice = (Price)sess.load(Price.class, ep.getIdPrice());
-      }
+      Price existingPrice = IsolationPrepType.getIsolationPrepTypePrice(sess, ep);
+      
       if(!prepTypes.contains(ep)){
         if(sess.createQuery("Select r from Request r where codeIsolationPrepType = '" + ep.getCodeIsolationPrepType() + "'").list().size() != 0){
           ep.setIsActive("N");
