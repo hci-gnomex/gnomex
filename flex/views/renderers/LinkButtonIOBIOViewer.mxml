@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:LinkButton xmlns:mx="http://www.adobe.com/2006/mxml" 
 	label=""
-	click="clickLink(event)" textDecoration="underline" color="#5050E3" textAlign="left" icon="@Embed(source='../../assets/datatrack_world.png')"> 
+	click="clickLink(event)" textDecoration="underline" color="#5050E3" textAlign="center" icon="@Embed(source='../../assets/datatrack_world.png')"> 
 	
 	
     <mx:Script> 
