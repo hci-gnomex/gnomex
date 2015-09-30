@@ -279,12 +279,12 @@ public class AnalysisFileDescriptor extends DetailObject implements Serializable
     }
   }
   
-  public String getIsSupportedDataTrack() {
+  public String getIsUCSCViewerAllowed() {
     boolean found = false;
     if (type != null) {
       String extension = "." + type;
-      for (int x = 0; x < Constants.DATATRACK_FILE_EXTENSIONS.length; x++) {
-        if (extension.equalsIgnoreCase(Constants.DATATRACK_FILE_EXTENSIONS[x])) {
+      for (int x = 0; x < Constants.FILE_EXTENSIONS_FOR_UCSC_LINKS.length; x++) {
+        if (extension.equalsIgnoreCase(Constants.FILE_EXTENSIONS_FOR_UCSC_LINKS[x])) {
           found = true;
           break;
         }
@@ -293,7 +293,68 @@ public class AnalysisFileDescriptor extends DetailObject implements Serializable
     }
     return (found ? "Y" : "N");
   }
+
+  public String getIsIGVViewerAllowed() {
+	    boolean found = false;
+	    if (type != null) {
+	      String extension = "." + type;
+	      for (int x = 0; x < Constants.FILE_EXTENSIONS_FOR_IGV_LINKS.length; x++) {
+	        if (extension.equalsIgnoreCase(Constants.FILE_EXTENSIONS_FOR_IGV_LINKS[x])) {
+	          found = true;
+	          break;
+	        }
+	      }
+	      
+	    }
+	    return (found ? "Y" : "N");
+	  }
+	  
+  public String getIsBAMIOBIOViewerAllowed() {
+	    boolean found = false;
+	    if (type != null) {
+	      String extension = "." + type;
+	      for (int x = 0; x < Constants.FILE_EXTENSIONS_FOR_BAMIOBIO_LINKS.length; x++) {
+	        if (extension.equalsIgnoreCase(Constants.FILE_EXTENSIONS_FOR_BAMIOBIO_LINKS[x])) {
+	          found = true;
+	          break;
+	        }
+	      }
+	      
+	    }
+	    return (found ? "Y" : "N");
+	  }
+	  
+  public String getIsVCFIOBIOViewerAllowed() {
+	    boolean found = false;
+	    if (type != null) {
+	      String extension = "." + type;
+	      for (int x = 0; x < Constants.FILE_EXTENSIONS_FOR_VCFIOBIO_LINKS.length; x++) {
+	        if (extension.equalsIgnoreCase(Constants.FILE_EXTENSIONS_FOR_VCFIOBIO_LINKS[x])) {
+	          found = true;
+	          break;
+	        }
+	      }
+	      
+	    }
+	    return (found ? "Y" : "N");
+	  }
+	  
   
+  public String getIsSupportedDataTrack() {
+	    boolean found = false;
+	    if (type != null) {
+	      String extension = "." + type;
+	      for (int x = 0; x < Constants.DATATRACK_FILE_EXTENSIONS.length; x++) {
+	        if (extension.equalsIgnoreCase(Constants.DATATRACK_FILE_EXTENSIONS[x])) {
+	          found = true;
+	          break;
+	        }
+	      }
+	      
+	    }
+	    return (found ? "Y" : "N");
+	  }
+	  
 
   public String getIsSelected() {
     return "false";
