@@ -120,6 +120,27 @@ public class Constants {
     ".useq",
   };
 
+  public static final String[] FILE_EXTENSIONS_FOR_IGV_LINKS = new String[] {
+    ".bb",
+    ".bw",
+    ".bam",
+    ".bai",
+    ".vcf.gz",
+    ".vcf.gz.tbi",
+  };
+
+  public static final String[] FILE_EXTENSIONS_FOR_BAMIOBIO_LINKS = new String[] {
+    ".bam",
+    ".bai",
+    ".vcf.gz",
+    ".vcf.gz.tbi",
+  };
+
+  public static final String[] FILE_EXTENSIONS_FOR_VCFIOBIO_LINKS = new String[] {
+    ".vcf.gz",
+  };
+
+  
   public static final String[] FILE_EXTENSIONS_FOR_VIEW = new String[] {
     ".pdf",
     ".jpg",
