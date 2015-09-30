@@ -92,8 +92,7 @@ public class IsolationPrepType extends DictionaryEntry implements Serializable {
             " join p.priceCriterias crit " +
             " where pc.priceCategory.pluginClassName='hci.gnomex.billing.SequenomIsolationExtractPlugin'" +
             "     and crit.filter1 = :filter" +
-            "     and rc.codeRequestCategory = :code" + 
-            "     and ps.name = 'Nucleic Acid Isolation'";
+            "     and rc.codeRequestCategory = :code";
     
     Query query = sess.createQuery(queryString);
     query.setParameter("code", ipt.getCodeRequestCategory());
