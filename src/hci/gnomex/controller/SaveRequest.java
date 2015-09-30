@@ -283,548 +283,557 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     try {
       sess = HibernateSession.currentSession(this.getUsername());
       DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess);
-
-
-      // Get the current billing period
-      billingPeriod = dictionaryHelper.getCurrentBillingPeriod();
-      if (billingPeriod == null && requestXMLString.contains("isExternal=\"N\"")) {
-        throw new Exception("Cannot find current billing period to create billing items");
-      }
-
+      
       requestParser.parse(sess);
-
-
-      Lab lab = (Lab)sess.load(Lab.class, requestParser.getRequest().getIdLab());
-      if (!lab.validateVisibilityInLab(requestParser.getRequest())) {
-        this.addInvalidField("Institution", "You must choose an institution when visibility is set to Institute");
-      }
-
-      // The following code makes sure any ccNumbers that have been entered actually exist
-      PropertyDictionaryHelper propertyHelper = PropertyDictionaryHelper.getInstance(sess);
-      if (propertyHelper.getProperty(PropertyDictionary.BST_LINKAGE_SUPPORTED) != null && propertyHelper.getProperty(PropertyDictionary.BST_LINKAGE_SUPPORTED).equals("Y")) {
-        validateCCNumbers();
-      }
-
-
-      if (requestParser.isNewRequest()) {
-        Lab l = (Lab)sess.load(Lab.class, requestParser.getRequest().getIdLab());
-        if (!this.getSecAdvisor().isGroupIAmMemberOrManagerOf(requestParser.getRequest().getIdLab()) && !this.getSecAdvisor().isLabICanSubmitTo(l)) {
-          this.addInvalidField("PermissionLab", "Insufficient permissions to submit the request for this lab.");
-        }
-      } else {
-        if (!this.getSecAdvisor().canUpdate(requestParser.getRequest())) {
-          this.addInvalidField("PermissionAddRequest", "Insufficient permissions to edit the request.");
-        }
-      }
-
-      // If the default visibility is Institute level, make sure that the institution set for the
-      // Request is an institution the lab is associated with.  If not, set the default visibility
-      // to Member level.
-      if (requestParser.isNewRequest()) {
-        boolean foundInstitution = false;
-        if (requestParser.getRequest().getCodeVisibility().equals(Visibility.VISIBLE_TO_INSTITUTION_MEMBERS)) {
-          for (Institution inst : (Set<Institution>)lab.getInstitutions()) {
-            if (requestParser.getRequest().getIdInstitution() != null && requestParser.getRequest().getIdInstitution().equals(inst.getIdInstitution())) {
-              foundInstitution = true;
-              break;
-            }
-          }
-          if (!foundInstitution) {
-            requestParser.getRequest().setCodeVisibility(Visibility.VISIBLE_TO_GROUP_MEMBERS);
-            requestParser.getRequest().setIdInstitution(null);
-          }
-        }
-      }
-
+      
       if (this.isValid()) {
-        List labels = sess.createQuery("SELECT label from Label label").list();
-        for(Iterator i = labels.iterator(); i.hasNext();) {
-          Label l = (Label)i.next();
-          labelMap.put(l.getLabel(), l.getIdLabel());
-        }
-
-        // save request
-        originalRequestNumber = saveRequest(sess, requestParser, description);
-        sendNotification(requestParser.getRequest(), sess, requestParser.isNewRequest() ? Notification.NEW_STATE : Notification.EXISTING_STATE, Notification.SOURCE_TYPE_ADMIN, Notification.TYPE_REQUEST);
-        sendNotification(requestParser.getRequest(), sess, requestParser.isNewRequest() ? Notification.NEW_STATE : Notification.EXISTING_STATE, Notification.SOURCE_TYPE_USER, Notification.TYPE_REQUEST);
-
-        // Remove files from file system
-        if (filesToRemoveParser != null) {
-          for (Iterator i = filesToRemoveParser.parseFilesToRemove().iterator(); i.hasNext();) {
-            String fileName = (String)i.next();
-            File f = new File(fileName);
-
-            // Remove references of file in TransferLog
-            String queryBuf = "SELECT tl from TransferLog tl where tl.idRequest = " + requestParser.getRequest().getIdRequest() + " AND tl.fileName like '%" + new File(fileName).getName() + "'";
-            List transferLogs = sess.createQuery(queryBuf).list();
-            // Go ahead and delete the transfer log if there is just one row.
-            // If there are multiple transfer log rows for this filename, just
-            // bypass deleting the transfer log since it is not possible
-            // to tell which entry should be deleted.
-            if (transferLogs.size() == 1) {
-              TransferLog transferLog = (TransferLog)transferLogs.get(0);
-              sess.delete(transferLog);
-            }
-
-            if(f.isDirectory()){
-              deleteDir(f, fileName);
-            }
-
-            if(f.exists()){
-              boolean success = f.delete();
-              if (!success) {
-                // File was not successfully deleted
-                throw new Exception("Unable to delete file " + fileName);
+    	  // If this request uses products, create ledger entries
+          // If there is a problem, don't save request
+          boolean errorEncounteredWithProducts = false;
+          String productErrorMessage = "";
+          if (ProductUtil.determineIfRequestUsesProducts(requestParser.getRequest())) {
+          	String statusToUseProducts = ProductUtil.determineStatusToUseProducts(sess, requestParser.getRequest());
+              if (statusToUseProducts != null && !statusToUseProducts.trim().equals("")) {
+              	try {
+              		if (ProductUtil.updateLedgerOnRequestStatusChange(sess, requestParser.getRequest(), requestParser.getPreviousCodeRequestStatus(), requestParser.getRequest().getCodeRequestStatus())) {
+                  		sess.flush();
+                  	}
+              	} catch (ProductException e) {
+              		errorEncounteredWithProducts = true;
+            		productErrorMessage = e.getMessage();
+            		log.error("Unable to create ProductLedger for request. " + e.getMessage());
+              	}
               }
-            }
-
           }
-          sess.flush();
-        }
+          
+          if (!errorEncounteredWithProducts) {
+        	  // Get the current billing period
+              billingPeriod = dictionaryHelper.getCurrentBillingPeriod();
+              if (billingPeriod == null && requestXMLString.contains("isExternal=\"N\"")) {
+                throw new Exception("Cannot find current billing period to create billing items");
+              }
+
+              Lab lab = (Lab)sess.load(Lab.class, requestParser.getRequest().getIdLab());
+              if (!lab.validateVisibilityInLab(requestParser.getRequest())) {
+                this.addInvalidField("Institution", "You must choose an institution when visibility is set to Institute");
+              }
+
+              // The following code makes sure any ccNumbers that have been entered actually exist
+              PropertyDictionaryHelper propertyHelper = PropertyDictionaryHelper.getInstance(sess);
+              if (propertyHelper.getProperty(PropertyDictionary.BST_LINKAGE_SUPPORTED) != null && propertyHelper.getProperty(PropertyDictionary.BST_LINKAGE_SUPPORTED).equals("Y")) {
+                validateCCNumbers();
+              }
 
 
-        // Figure out which samples will be deleted
-        if (!requestParser.isNewRequest() && !requestParser.isAmendRequest()) {
-
-          for(Iterator i = requestParser.getRequest().getSamples().iterator(); i.hasNext();)
-          {
-            Sample sample = (Sample)i.next();
-            boolean found = false;
-            for(Iterator i1 = requestParser.getSampleIds().iterator(); i1.hasNext();) {
-              String idSampleString = (String)i1.next();
-              if (idSampleString != null && !idSampleString.equals("") && !idSampleString.startsWith("Sample")) {
-                if (Integer.valueOf(idSampleString).equals(sample.getIdSample())) {
-                  found = true;
-                  break;
+              if (requestParser.isNewRequest()) {
+                Lab l = (Lab)sess.load(Lab.class, requestParser.getRequest().getIdLab());
+                if (!this.getSecAdvisor().isGroupIAmMemberOrManagerOf(requestParser.getRequest().getIdLab()) && !this.getSecAdvisor().isLabICanSubmitTo(l)) {
+                  this.addInvalidField("PermissionLab", "Insufficient permissions to submit the request for this lab.");
                 }
-              }
-            }
-            if (!found) {
-              this.samplesDeleted.add(sample);
-            }
-          }
-        }
-
-
-        // Save the samples
-        saveSamples(sess);
-        requestParser.getRequest().setSamples(samples);
-
-        // If we are editing a request, figure out which hybs will be deleted
-        if (!requestParser.isNewRequest() && !requestParser.isAmendRequest()) {
-
-          for(Iterator i = requestParser.getRequest().getHybridizations().iterator(); i.hasNext();)
-          {
-            Hybridization hyb = (Hybridization)i.next();
-            boolean found = false;
-            for(Iterator i1 = requestParser.getHybInfos().iterator(); i1.hasNext();) {
-              HybInfo hybInfo = (HybInfo)i1.next();
-              if (hybInfo.getIdHybridization() != null && !hybInfo.getIdHybridization().equals("") && !hybInfo.getIdHybridization().startsWith("Hyb")) {
-                if (Integer.valueOf(hybInfo.getIdHybridization()).equals(hyb.getIdHybridization())) {
-                  found = true;
-                  break;
-                }
-              }
-            }
-            if (!found) {
-              this.hybsDeleted.add(hyb);
-            }
-          }
-        }
-        // Only admins should be deleting hybs
-        if (this.hybsDeleted.size() > 0) {
-          if (!this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_WRITE_ANY_OBJECT)) {
-            throw new RollBackCommandException("Insufficient permission to delete hybs.");
-          }
-        }
-
-        // Initialize sample channel 1 and 1 map if we are editting a request.
-        // This will allow us to keep track of brand new labeled samples
-        // vs. existing labeled samples when hybs are added to a request.
-        if (!requestParser.isNewRequest() && !requestParser.isAmendRequest()) {
-
-          for(Iterator i = requestParser.getRequest().getHybridizations().iterator(); i.hasNext();)
-          {
-            Hybridization hyb = (Hybridization)i.next();
-            if (hyb.getIdLabeledSampleChannel1() != null) {
-              this.channel1SampleMap.put(hyb.getIdSampleChannel1(), hyb.getIdLabeledSampleChannel1());
-            }
-            if (hyb.getIdLabeledSampleChannel2() != null) {
-              this.channel2SampleMap.put(hyb.getIdSampleChannel2(), hyb.getIdLabeledSampleChannel2());
-            }
-          }
-        }
-
-
-
-        // save hybs
-        if (!requestParser.isNewRequest()) {
-          requestParser.getRequest().getHybridizations().size();
-        }
-        if (!requestParser.getHybInfos().isEmpty()) {
-          int hybCount = 1;
-          int newHybCount = 0;
-          for(Iterator i = requestParser.getHybInfos().iterator(); i.hasNext();) {
-            RequestParser.HybInfo hybInfo = (RequestParser.HybInfo)i.next();
-            boolean isNewHyb = requestParser.isNewRequest() || hybInfo.getIdHybridization() == null || hybInfo.getIdHybridization().startsWith("Hyb");
-            if (isNewHyb) {
-              newHybCount++;
-            }
-            saveHyb(hybInfo, sess, hybCount);
-            hybCount++;
-          }
-          if (requestParser.isNewRequest()) {
-            requestParser.getRequest().setHybridizations(hybs);
-          } else if (newHybCount > 0) {
-            requestParser.getRequest().getHybridizations().addAll(hybs);
-
-          }
-        }
-
-
-        // Create Hyb work items if QC->Microarray request
-        StringBuffer buf = new StringBuffer();
-        if (requestParser.getAmendState().equals(Constants.AMEND_QC_TO_MICROARRAY)) {
-          for(Iterator i = requestParser.getSampleIds().iterator(); i.hasNext();) {
-            String idSampleString = (String)i.next();
-            boolean isNewSample = requestParser.isNewRequest() || idSampleString == null || idSampleString.equals("") || idSampleString.startsWith("Sample");
-            Sample sample = (Sample)requestParser.getSampleMap().get(idSampleString);
-
-            // Create work items for labeling step if experiment modified
-            if (!requestParser.isExternalExperiment() && !isNewSample) {
-              buf = new StringBuffer();
-              buf.append("SELECT  ls ");
-              buf.append(" from LabeledSample ls ");
-              buf.append(" WHERE  ls.idSample =  " + sample.getIdSample());
-
-
-              List labeledSamples = sess.createQuery(buf.toString()).list();
-              for(Iterator i1 = labeledSamples.iterator(); i1.hasNext();) {
-                LabeledSample ls = (LabeledSample)i1.next();
-
-                WorkItem wi = new WorkItem();
-                wi.setIdRequest(sample.getIdRequest());
-                wi.setIdCoreFacility(sample.getRequest().getIdCoreFacility());
-                wi.setCodeStepNext(Step.LABELING_STEP);
-                wi.setLabeledSample(ls);
-                wi.setCreateDate(new java.sql.Date(System.currentTimeMillis()));
-
-                sess.save(wi);
-              }
-
-            }
-          }
-        }
-
-        // save sequence lanes
-        RequestCategory requestCategory = dictionaryHelper.getRequestCategoryObject(requestParser.getRequest().getCodeRequestCategory());
-        Map existingLanesSaved = saveSequenceLanes(this.getSecAdvisor(), requestParser, sess, requestCategory, idSampleMap, sequenceLanes, sequenceLanesAdded);
-
-        // Delete sequence lanes (edit request only)
-        ArrayList samplesNotToDelete = new ArrayList();
-        if (!requestParser.isAmendRequest()) {
-          for(Iterator i = requestParser.getRequest().getSequenceLanes().iterator(); i.hasNext();) {
-            SequenceLane lane = (SequenceLane)i.next();
-            if (!existingLanesSaved.containsKey(lane.getIdSequenceLane())) {
-              boolean canDeleteLane = true;
-
-              if (!this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_WRITE_ANY_OBJECT) && !requestParser.isExternalExperiment()) {
-                this.addInvalidField("deleteLanePermissionError1", "Insufficient permissions to delete sequence lane\n");
-                canDeleteLane = false;
-              }
-
-              buf = new StringBuffer("SELECT x.idSequenceLane from AnalysisExperimentItem x where x.idSequenceLane = " + lane.getIdSequenceLane());
-              List analysis = sess.createQuery(buf.toString()).list();
-              if (analysis != null && analysis.size() > 0) {
-                canDeleteLane = false;
-                this.addInvalidField("deleteLaneError1", "Cannot delete lane " +
-                    lane.getNumber() + " because it is associated with existing analysis in GNomEx.  Please sever link before attempting delete\n");
-
-              }
-              if (lane.getFlowCellChannel() != null) {
-                canDeleteLane = false;
-                this.addInvalidField("deleteLaneError2", "Cannot delete lane " +
-                    lane.getNumber() + " because it is loaded on a flow cell.  Please delete flow cell channel before attempting delete\n");
-              }
-              if (lane.getFlowCellChannel() != null) {
-                buf = new StringBuffer("SELECT ch.idFlowCellChannel from WorkItem wi join wi.flowCellChannel ch where ch.idFlowCellChannel = " + lane.getIdFlowCellChannel());
-                List workItems = sess.createQuery(buf.toString()).list();
-                if (workItems != null && workItems.size() > 0) {
-                  canDeleteLane = false;
-                  this.addInvalidField("deleteLaneError3", "Cannot delete lane " +
-                      lane.getNumber() + " because it is loaded on a flow cell that is on the seq run worklist.  Please delete flow cell channel and work item before attempting delete\n");
-                }
-
-              }
-
-              if (canDeleteLane) {
-                sequenceLanesDeleted.add(lane);
-                sess.delete(lane);
               } else {
-                /*If it is a sample we can't delete because of linked data we need to add the idSample back to the list of idSamples
-                and we need to add the sample to the sample map, this way the samples idRequest won't be set to null in the following 
-                code starting on line 558*/
-                if(!requestParser.getSampleIds().contains(lane.getIdSample())) {
-                  Sample s = (Sample)sess.load(Sample.class, lane.getIdSample());
-                  samplesNotToDelete.add(s);
-                  for(Iterator it = samplesDeleted.iterator(); it.hasNext();) {
-                    Sample sd = (Sample)it.next();
-                    if(sd.getIdSample() == s.getIdSample()) {
-                      samplesDeleted.remove(s);
+                if (!this.getSecAdvisor().canUpdate(requestParser.getRequest())) {
+                  this.addInvalidField("PermissionAddRequest", "Insufficient permissions to edit the request.");
+                }
+              }
+
+              // If the default visibility is Institute level, make sure that the institution set for the
+              // Request is an institution the lab is associated with.  If not, set the default visibility
+              // to Member level.
+              if (requestParser.isNewRequest()) {
+                boolean foundInstitution = false;
+                if (requestParser.getRequest().getCodeVisibility().equals(Visibility.VISIBLE_TO_INSTITUTION_MEMBERS)) {
+                  for (Institution inst : (Set<Institution>)lab.getInstitutions()) {
+                    if (requestParser.getRequest().getIdInstitution() != null && requestParser.getRequest().getIdInstitution().equals(inst.getIdInstitution())) {
+                      foundInstitution = true;
                       break;
                     }
+                  }
+                  if (!foundInstitution) {
+                    requestParser.getRequest().setCodeVisibility(Visibility.VISIBLE_TO_GROUP_MEMBERS);
+                    requestParser.getRequest().setIdInstitution(null);
                   }
                 }
               }
 
-
-            }
-          }
-
-        }
-
-        //Add the samples we can't delete back to the sample set on the request
-        for(Iterator i = samplesNotToDelete.iterator(); i.hasNext();) {
-          Sample s = (Sample)i.next();
-          requestParser.getRequest().getSamples().add(s);
-        }
-
-        // Only admins should be deleting samples unless dna sequencing then based on status.
-        if (this.samplesDeleted.size() > 0) {
-          if (!this.getSecAdvisor().canDeleteSample(requestParser.getRequest())) {
-            this.addInvalidField("deleteSamplePermission", "Only admins can delete samples from the experiment.  Please contact " + propertyHelper.getProperty(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_BUGS) + ".");
-            throw new RollBackCommandException("Insufficient permission to delete samples.");
-          } else {
-
-            // delete wells for deleted samples
-            deleteWellsForDeletedSamples(sess);
-
-            for(Iterator i = samplesDeleted.iterator(); i.hasNext();) {
-              Sample s = (Sample)i.next();
-              sess.delete(s);
-            }
-
-          }
-        }
-
-
-        // Set the seq lib treatments
-        Set seqLibTreatments = new TreeSet();
-        for(Iterator i = requestParser.getSeqLibTreatmentMap().keySet().iterator(); i.hasNext();) {
-          String key = (String)i.next();
-          Integer idSeqLibTreatment = Integer.parseInt(key);
-          SeqLibTreatment slt = dictionaryHelper.getSeqLibTreatment(idSeqLibTreatment);
-          seqLibTreatments.add(slt);
-        }
-        this.requestParser.getRequest().setSeqLibTreatments(seqLibTreatments);
-
-        //
-        // Save properties
-        //
-        Set propertyEntries = this.saveRequestProperties(sess, requestParser);
-
-        sess.save(requestParser.getRequest());
-        sess.flush();
-
-        // Delete any collaborators that were removed
-        for (Iterator i1 = requestParser.getRequest().getCollaborators().iterator(); i1.hasNext();) {
-          ExperimentCollaborator ec = (ExperimentCollaborator)i1.next();
-          if (!requestParser.getCollaboratorUploadMap().containsKey(ec.getIdAppUser())) {
-            sess.delete(ec);
-          }
-        }
-
-        // Add/update collaborators
-        for(Iterator i = requestParser.getCollaboratorUpdateMap().keySet().iterator(); i.hasNext();) {
-          String key = (String)i.next();
-          Integer idAppUser = Integer.parseInt(key);
-          String canUploadData = (String)requestParser.getCollaboratorUploadMap().get(key);
-          String canUpdate = (String)requestParser.getCollaboratorUpdateMap().get(key);
-
-          // TODO (performance):  Would be better if app user was cached.
-          ExperimentCollaborator collaborator = (ExperimentCollaborator)sess.createQuery("SELECT ec from ExperimentCollaborator ec where idRequest = " + requestParser.getRequest().getIdRequest() + " and idAppUser = " + idAppUser).uniqueResult();
-
-          // If the collaborator doesn't exist, create it.
-          if (collaborator == null) {
-            collaborator = new ExperimentCollaborator();
-            collaborator.setIdAppUser(idAppUser);
-            collaborator.setIdRequest(requestParser.getRequest().getIdRequest());
-            collaborator.setCanUploadData(canUploadData);
-            collaborator.setCanUpdate(canUpdate);
-            sess.save(collaborator);
-          } else {
-            // If the collaborator does exist, just update the upload permission flag.
-            collaborator.setCanUploadData(canUploadData);
-            collaborator.setCanUpdate(canUpdate);
-          }
-        }
-        sess.flush();
-
-        // Bump up the revision number on the request if services have been added
-        // or services have been removed
-        if (!requestParser.isNewRequest() &&
-            (requestParser.isAmendRequest() ||
-                !samplesAdded.isEmpty() ||
-                !labeledSamplesAdded.isEmpty() ||
-                !hybsAdded.isEmpty() ||
-                !sequenceLanesAdded.isEmpty() ||
-                !sequenceLanesDeleted.isEmpty())) {
-          originalRequestNumber = requestParser.getRequest().getNumber();
-          int revNumber = 1;
-          // If services are being added to the request,
-          // add a revision number to the end of the request
-          String[] tokens = requestParser.getRequest().getNumber().split("R");
-          if (tokens.length > 1) {
-            if (tokens[1] != null && !tokens[1].equals("")) {
-              Integer oldRevNumber = Integer.valueOf(tokens[1]);
-              revNumber = oldRevNumber.intValue() + 1;
-            }
-            originalRequestNumber = tokens[0] + "R";
-          }
-          requestParser.getRequest().setNumber(originalRequestNumber + revNumber);
-          sess.flush();
-        }
-
-        // If this request uses products, create ledger entries when appropriate
-        if (ProductUtil.determineIfRequestUsesProducts(requestParser.getRequest())) {
-        	String statusToUseProducts = ProductUtil.determineStatusToUseProducts(sess, requestParser.getRequest());
-            if (statusToUseProducts != null && !statusToUseProducts.trim().equals("")) {
-            	try {
-            		if (ProductUtil.updateLedgerOnRequestStatusChange(sess, requestParser.getRequest(), requestParser.getPreviousCodeRequestStatus(), requestParser.getRequest().getCodeRequestStatus())) {
-                		sess.flush();
-                	}
-            	} catch (ProductException e) {
-            		throw new Exception("Unable to create ProductLedger for request. " + e.getMessage());
-            	}
-            }
-        }
-
-        billingAccountMessage = "";
-
-        // We will create billing items if this is not an external experiment.
-        // For new experiments, don't create billing items for DNA Seq Core experiments as these get
-        // created when the status is changed to submitted.
-        // For existing experiments, create billing items (for new charges) for all experiment
-        // types except fragment analysis and mit seq as these are plate based and should not be altered.
-        boolean createBillingItems = false;
-        if (!requestParser.isExternalExperiment()) {
-          if (requestParser.isNewRequest() && !RequestCategory.isDNASeqCoreRequestCategory(requestParser.getRequest().getCodeRequestCategory())) {
-            // if we are to create billing items during workflow we don't want to create them here...
-            String prop = propertyHelper.getCoreFacilityRequestCategoryProperty(requestCategory.getIdCoreFacility(), requestCategory.getCodeRequestCategory(), PropertyDictionary.BILLING_DURING_WORKFLOW);
-            if (prop == null || !prop.equals("Y")) {
-              createBillingItems = true;
-            }
-          } else if (!requestParser.isNewRequest() &&
-              !requestParser.getRequest().getCodeRequestCategory().equals(RequestCategory.FRAGMENT_ANALYSIS_REQUEST_CATEGORY) &&
-              !requestParser.getRequest().getCodeRequestCategory().equals(RequestCategory.MITOCHONDRIAL_DLOOP_SEQ_REQUEST_CATEGORY)) {
-
-            // For dna seq facility orders, warn the admin to adjust billing if samples have been added.
-            // (We don't automatically adjust billing items because of tiered pricing issues.)
-            if (RequestCategory.isDNASeqCoreRequestCategory(requestParser.getRequest().getCodeRequestCategory())) {
-              if (requestParser.getRequest().getBillingItems() != null && !requestParser.getRequest().getBillingItems().isEmpty()) {
-                if ( hasNewSample ) {
-                  billingAccountMessage = "Request " + requestParser.getRequest().getNumber() + " has been saved.\n\nSamples have been added, please adjust billing accordingly.";
+              if (this.isValid()) {
+                List labels = sess.createQuery("SELECT label from Label label").list();
+                for(Iterator i = labels.iterator(); i.hasNext();) {
+                  Label l = (Label)i.next();
+                  labelMap.put(l.getLabel(), l.getIdLabel());
                 }
-              }
-            }
-          }
-        }
-        billing_items_if:
-          if (createBillingItems || requestParser.isReassignBillingAccount()) {
-            sess.refresh(requestParser.getRequest());
 
-            if(!requestParser.getRequest().getBillingItems().isEmpty()) {
-              Iterator ibill = requestParser.getRequest().getBillingItems().iterator();
-              BillingItem bill = (BillingItem)ibill.next();
-              hci.gnomex.model.BillingAccount firstBillingAccount = bill.getBillingAccount();
-              while(ibill.hasNext()) {
-                bill = (BillingItem)ibill.next();
-                if(firstBillingAccount != bill.getBillingAccount()) {
-                  billingAccountMessage = "There are multiple billing accounts associated with this request. The accounts have not been changed. Please use the Admininstrator Billing Screen to assign new accounts.";
-                  break billing_items_if;
+                // save request
+                originalRequestNumber = saveRequest(sess, requestParser, description);
+                sendNotification(requestParser.getRequest(), sess, requestParser.isNewRequest() ? Notification.NEW_STATE : Notification.EXISTING_STATE, Notification.SOURCE_TYPE_ADMIN, Notification.TYPE_REQUEST);
+                sendNotification(requestParser.getRequest(), sess, requestParser.isNewRequest() ? Notification.NEW_STATE : Notification.EXISTING_STATE, Notification.SOURCE_TYPE_USER, Notification.TYPE_REQUEST);
+
+                // Remove files from file system
+                if (filesToRemoveParser != null) {
+                  for (Iterator i = filesToRemoveParser.parseFilesToRemove().iterator(); i.hasNext();) {
+                    String fileName = (String)i.next();
+                    File f = new File(fileName);
+
+                    // Remove references of file in TransferLog
+                    String queryBuf = "SELECT tl from TransferLog tl where tl.idRequest = " + requestParser.getRequest().getIdRequest() + " AND tl.fileName like '%" + new File(fileName).getName() + "'";
+                    List transferLogs = sess.createQuery(queryBuf).list();
+                    // Go ahead and delete the transfer log if there is just one row.
+                    // If there are multiple transfer log rows for this filename, just
+                    // bypass deleting the transfer log since it is not possible
+                    // to tell which entry should be deleted.
+                    if (transferLogs.size() == 1) {
+                      TransferLog transferLog = (TransferLog)transferLogs.get(0);
+                      sess.delete(transferLog);
+                    }
+
+                    if(f.isDirectory()){
+                      deleteDir(f, fileName);
+                    }
+
+                    if(f.exists()){
+                      boolean success = f.delete();
+                      if (!success) {
+                        // File was not successfully deleted
+                        throw new Exception("Unable to delete file " + fileName);
+                      }
+                    }
+
+                  }
+                  sess.flush();
                 }
-              }
-            }
-
-            // Create the billing items
-            // We need to include the samples even though they were not added
-            // b/c we need to perform lib prep on them.
-            if (requestParser.getAmendState().equals(Constants.AMEND_QC_TO_SEQ)) {
-              samplesAdded.addAll(requestParser.getRequest().getSamples());
-            }
-
-            createBillingItems(sess, requestParser.getRequest(), requestParser.getAmendState(), billingPeriod, dictionaryHelper, samplesAdded, labeledSamplesAdded, hybsAdded, sequenceLanesAdded, requestParser.getSampleAssays(), null, BillingStatus.PENDING, propertyEntries);
-            sess.flush();
 
 
-            // If this is an existing request and the billing account has been reassigned,
-            // change the account on the billing items as well.
-            int reassignCount =  0;
-            int unassignedCount = 0;
-            if (!requestParser.isNewRequest() && requestParser.isReassignBillingAccount()) {
-              for(Iterator ib = requestParser.getRequest().getBillingItems().iterator(); ib.hasNext();) {
-                BillingItem bi = (BillingItem)ib.next();
-                if (bi.getCodeBillingStatus().equals(BillingStatus.PENDING) || bi.getCodeBillingStatus().equals(BillingStatus.COMPLETED)) {
-                  bi.setIdBillingAccount(requestParser.getRequest().getIdBillingAccount());
-                  bi.setIdLab(requestParser.getRequest().getIdLab());
-                  bi.resetInvoiceForBillingItem(sess);
-                  reassignCount++;
-                } else  {
-                  unassignedCount++;
+                // Figure out which samples will be deleted
+                if (!requestParser.isNewRequest() && !requestParser.isAmendRequest()) {
+
+                  for(Iterator i = requestParser.getRequest().getSamples().iterator(); i.hasNext();)
+                  {
+                    Sample sample = (Sample)i.next();
+                    boolean found = false;
+                    for(Iterator i1 = requestParser.getSampleIds().iterator(); i1.hasNext();) {
+                      String idSampleString = (String)i1.next();
+                      if (idSampleString != null && !idSampleString.equals("") && !idSampleString.startsWith("Sample")) {
+                        if (Integer.valueOf(idSampleString).equals(sample.getIdSample())) {
+                          found = true;
+                          break;
+                        }
+                      }
+                    }
+                    if (!found) {
+                      this.samplesDeleted.add(sample);
+                    }
+                  }
                 }
-              }
-              if (unassignedCount > 0) {
-                billingAccountMessage = "WARNING: The billing account could not be reassigned for " + unassignedCount + " approved billing items.  Please reassign in the Billing screen.";
-              }
-              if (billingAccountMessage.length() > 0) {
-                billingAccountMessage += "\n\n(The billing account has been reassigned for  " + reassignCount + " billing item(s).)";
-              } else {
-                billingAccountMessage = "The billing account has been reassigned for " + reassignCount + " billing item(s).";
-              }
 
-              if (reassignCount > 0) {
+
+                // Save the samples
+                saveSamples(sess);
+                requestParser.getRequest().setSamples(samples);
+
+                // If we are editing a request, figure out which hybs will be deleted
+                if (!requestParser.isNewRequest() && !requestParser.isAmendRequest()) {
+
+                  for(Iterator i = requestParser.getRequest().getHybridizations().iterator(); i.hasNext();)
+                  {
+                    Hybridization hyb = (Hybridization)i.next();
+                    boolean found = false;
+                    for(Iterator i1 = requestParser.getHybInfos().iterator(); i1.hasNext();) {
+                      HybInfo hybInfo = (HybInfo)i1.next();
+                      if (hybInfo.getIdHybridization() != null && !hybInfo.getIdHybridization().equals("") && !hybInfo.getIdHybridization().startsWith("Hyb")) {
+                        if (Integer.valueOf(hybInfo.getIdHybridization()).equals(hyb.getIdHybridization())) {
+                          found = true;
+                          break;
+                        }
+                      }
+                    }
+                    if (!found) {
+                      this.hybsDeleted.add(hyb);
+                    }
+                  }
+                }
+                // Only admins should be deleting hybs
+                if (this.hybsDeleted.size() > 0) {
+                  if (!this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_WRITE_ANY_OBJECT)) {
+                    throw new RollBackCommandException("Insufficient permission to delete hybs.");
+                  }
+                }
+
+                // Initialize sample channel 1 and 1 map if we are editting a request.
+                // This will allow us to keep track of brand new labeled samples
+                // vs. existing labeled samples when hybs are added to a request.
+                if (!requestParser.isNewRequest() && !requestParser.isAmendRequest()) {
+
+                  for(Iterator i = requestParser.getRequest().getHybridizations().iterator(); i.hasNext();)
+                  {
+                    Hybridization hyb = (Hybridization)i.next();
+                    if (hyb.getIdLabeledSampleChannel1() != null) {
+                      this.channel1SampleMap.put(hyb.getIdSampleChannel1(), hyb.getIdLabeledSampleChannel1());
+                    }
+                    if (hyb.getIdLabeledSampleChannel2() != null) {
+                      this.channel2SampleMap.put(hyb.getIdSampleChannel2(), hyb.getIdLabeledSampleChannel2());
+                    }
+                  }
+                }
+
+
+
+                // save hybs
+                if (!requestParser.isNewRequest()) {
+                  requestParser.getRequest().getHybridizations().size();
+                }
+                if (!requestParser.getHybInfos().isEmpty()) {
+                  int hybCount = 1;
+                  int newHybCount = 0;
+                  for(Iterator i = requestParser.getHybInfos().iterator(); i.hasNext();) {
+                    RequestParser.HybInfo hybInfo = (RequestParser.HybInfo)i.next();
+                    boolean isNewHyb = requestParser.isNewRequest() || hybInfo.getIdHybridization() == null || hybInfo.getIdHybridization().startsWith("Hyb");
+                    if (isNewHyb) {
+                      newHybCount++;
+                    }
+                    saveHyb(hybInfo, sess, hybCount);
+                    hybCount++;
+                  }
+                  if (requestParser.isNewRequest()) {
+                    requestParser.getRequest().setHybridizations(hybs);
+                  } else if (newHybCount > 0) {
+                    requestParser.getRequest().getHybridizations().addAll(hybs);
+
+                  }
+                }
+
+
+                // Create Hyb work items if QC->Microarray request
+                StringBuffer buf = new StringBuffer();
+                if (requestParser.getAmendState().equals(Constants.AMEND_QC_TO_MICROARRAY)) {
+                  for(Iterator i = requestParser.getSampleIds().iterator(); i.hasNext();) {
+                    String idSampleString = (String)i.next();
+                    boolean isNewSample = requestParser.isNewRequest() || idSampleString == null || idSampleString.equals("") || idSampleString.startsWith("Sample");
+                    Sample sample = (Sample)requestParser.getSampleMap().get(idSampleString);
+
+                    // Create work items for labeling step if experiment modified
+                    if (!requestParser.isExternalExperiment() && !isNewSample) {
+                      buf = new StringBuffer();
+                      buf.append("SELECT  ls ");
+                      buf.append(" from LabeledSample ls ");
+                      buf.append(" WHERE  ls.idSample =  " + sample.getIdSample());
+
+
+                      List labeledSamples = sess.createQuery(buf.toString()).list();
+                      for(Iterator i1 = labeledSamples.iterator(); i1.hasNext();) {
+                        LabeledSample ls = (LabeledSample)i1.next();
+
+                        WorkItem wi = new WorkItem();
+                        wi.setIdRequest(sample.getIdRequest());
+                        wi.setIdCoreFacility(sample.getRequest().getIdCoreFacility());
+                        wi.setCodeStepNext(Step.LABELING_STEP);
+                        wi.setLabeledSample(ls);
+                        wi.setCreateDate(new java.sql.Date(System.currentTimeMillis()));
+
+                        sess.save(wi);
+                      }
+
+                    }
+                  }
+                }
+
+                // save sequence lanes
+                RequestCategory requestCategory = dictionaryHelper.getRequestCategoryObject(requestParser.getRequest().getCodeRequestCategory());
+                Map existingLanesSaved = saveSequenceLanes(this.getSecAdvisor(), requestParser, sess, requestCategory, idSampleMap, sequenceLanes, sequenceLanesAdded);
+
+                // Delete sequence lanes (edit request only)
+                ArrayList samplesNotToDelete = new ArrayList();
+                if (!requestParser.isAmendRequest()) {
+                  for(Iterator i = requestParser.getRequest().getSequenceLanes().iterator(); i.hasNext();) {
+                    SequenceLane lane = (SequenceLane)i.next();
+                    if (!existingLanesSaved.containsKey(lane.getIdSequenceLane())) {
+                      boolean canDeleteLane = true;
+
+                      if (!this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_WRITE_ANY_OBJECT) && !requestParser.isExternalExperiment()) {
+                        this.addInvalidField("deleteLanePermissionError1", "Insufficient permissions to delete sequence lane\n");
+                        canDeleteLane = false;
+                      }
+
+                      buf = new StringBuffer("SELECT x.idSequenceLane from AnalysisExperimentItem x where x.idSequenceLane = " + lane.getIdSequenceLane());
+                      List analysis = sess.createQuery(buf.toString()).list();
+                      if (analysis != null && analysis.size() > 0) {
+                        canDeleteLane = false;
+                        this.addInvalidField("deleteLaneError1", "Cannot delete lane " +
+                            lane.getNumber() + " because it is associated with existing analysis in GNomEx.  Please sever link before attempting delete\n");
+
+                      }
+                      if (lane.getFlowCellChannel() != null) {
+                        canDeleteLane = false;
+                        this.addInvalidField("deleteLaneError2", "Cannot delete lane " +
+                            lane.getNumber() + " because it is loaded on a flow cell.  Please delete flow cell channel before attempting delete\n");
+                      }
+                      if (lane.getFlowCellChannel() != null) {
+                        buf = new StringBuffer("SELECT ch.idFlowCellChannel from WorkItem wi join wi.flowCellChannel ch where ch.idFlowCellChannel = " + lane.getIdFlowCellChannel());
+                        List workItems = sess.createQuery(buf.toString()).list();
+                        if (workItems != null && workItems.size() > 0) {
+                          canDeleteLane = false;
+                          this.addInvalidField("deleteLaneError3", "Cannot delete lane " +
+                              lane.getNumber() + " because it is loaded on a flow cell that is on the seq run worklist.  Please delete flow cell channel and work item before attempting delete\n");
+                        }
+
+                      }
+
+                      if (canDeleteLane) {
+                        sequenceLanesDeleted.add(lane);
+                        sess.delete(lane);
+                      } else {
+                        /*If it is a sample we can't delete because of linked data we need to add the idSample back to the list of idSamples
+                        and we need to add the sample to the sample map, this way the samples idRequest won't be set to null in the following 
+                        code starting on line 558*/
+                        if(!requestParser.getSampleIds().contains(lane.getIdSample())) {
+                          Sample s = (Sample)sess.load(Sample.class, lane.getIdSample());
+                          samplesNotToDelete.add(s);
+                          for(Iterator it = samplesDeleted.iterator(); it.hasNext();) {
+                            Sample sd = (Sample)it.next();
+                            if(sd.getIdSample() == s.getIdSample()) {
+                              samplesDeleted.remove(s);
+                              break;
+                            }
+                          }
+                        }
+                      }
+
+
+                    }
+                  }
+
+                }
+
+                //Add the samples we can't delete back to the sample set on the request
+                for(Iterator i = samplesNotToDelete.iterator(); i.hasNext();) {
+                  Sample s = (Sample)i.next();
+                  requestParser.getRequest().getSamples().add(s);
+                }
+
+                // Only admins should be deleting samples unless dna sequencing then based on status.
+                if (this.samplesDeleted.size() > 0) {
+                  if (!this.getSecAdvisor().canDeleteSample(requestParser.getRequest())) {
+                    this.addInvalidField("deleteSamplePermission", "Only admins can delete samples from the experiment.  Please contact " + propertyHelper.getProperty(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_BUGS) + ".");
+                    throw new RollBackCommandException("Insufficient permission to delete samples.");
+                  } else {
+
+                    // delete wells for deleted samples
+                    deleteWellsForDeletedSamples(sess);
+
+                    for(Iterator i = samplesDeleted.iterator(); i.hasNext();) {
+                      Sample s = (Sample)i.next();
+                      sess.delete(s);
+                    }
+
+                  }
+                }
+
+
+                // Set the seq lib treatments
+                Set seqLibTreatments = new TreeSet();
+                for(Iterator i = requestParser.getSeqLibTreatmentMap().keySet().iterator(); i.hasNext();) {
+                  String key = (String)i.next();
+                  Integer idSeqLibTreatment = Integer.parseInt(key);
+                  SeqLibTreatment slt = dictionaryHelper.getSeqLibTreatment(idSeqLibTreatment);
+                  seqLibTreatments.add(slt);
+                }
+                this.requestParser.getRequest().setSeqLibTreatments(seqLibTreatments);
+
+                //
+                // Save properties
+                //
+                Set propertyEntries = this.saveRequestProperties(sess, requestParser);
+
+                sess.save(requestParser.getRequest());
                 sess.flush();
+
+                // Delete any collaborators that were removed
+                for (Iterator i1 = requestParser.getRequest().getCollaborators().iterator(); i1.hasNext();) {
+                  ExperimentCollaborator ec = (ExperimentCollaborator)i1.next();
+                  if (!requestParser.getCollaboratorUploadMap().containsKey(ec.getIdAppUser())) {
+                    sess.delete(ec);
+                  }
+                }
+
+                // Add/update collaborators
+                for(Iterator i = requestParser.getCollaboratorUpdateMap().keySet().iterator(); i.hasNext();) {
+                  String key = (String)i.next();
+                  Integer idAppUser = Integer.parseInt(key);
+                  String canUploadData = (String)requestParser.getCollaboratorUploadMap().get(key);
+                  String canUpdate = (String)requestParser.getCollaboratorUpdateMap().get(key);
+
+                  // TODO (performance):  Would be better if app user was cached.
+                  ExperimentCollaborator collaborator = (ExperimentCollaborator)sess.createQuery("SELECT ec from ExperimentCollaborator ec where idRequest = " + requestParser.getRequest().getIdRequest() + " and idAppUser = " + idAppUser).uniqueResult();
+
+                  // If the collaborator doesn't exist, create it.
+                  if (collaborator == null) {
+                    collaborator = new ExperimentCollaborator();
+                    collaborator.setIdAppUser(idAppUser);
+                    collaborator.setIdRequest(requestParser.getRequest().getIdRequest());
+                    collaborator.setCanUploadData(canUploadData);
+                    collaborator.setCanUpdate(canUpdate);
+                    sess.save(collaborator);
+                  } else {
+                    // If the collaborator does exist, just update the upload permission flag.
+                    collaborator.setCanUploadData(canUploadData);
+                    collaborator.setCanUpdate(canUpdate);
+                  }
+                }
+                sess.flush();
+
+                // Bump up the revision number on the request if services have been added
+                // or services have been removed
+                if (!requestParser.isNewRequest() &&
+                    (requestParser.isAmendRequest() ||
+                        !samplesAdded.isEmpty() ||
+                        !labeledSamplesAdded.isEmpty() ||
+                        !hybsAdded.isEmpty() ||
+                        !sequenceLanesAdded.isEmpty() ||
+                        !sequenceLanesDeleted.isEmpty())) {
+                  originalRequestNumber = requestParser.getRequest().getNumber();
+                  int revNumber = 1;
+                  // If services are being added to the request,
+                  // add a revision number to the end of the request
+                  String[] tokens = requestParser.getRequest().getNumber().split("R");
+                  if (tokens.length > 1) {
+                    if (tokens[1] != null && !tokens[1].equals("")) {
+                      Integer oldRevNumber = Integer.valueOf(tokens[1]);
+                      revNumber = oldRevNumber.intValue() + 1;
+                    }
+                    originalRequestNumber = tokens[0] + "R";
+                  }
+                  requestParser.getRequest().setNumber(originalRequestNumber + revNumber);
+                  sess.flush();
+                }
+
+                billingAccountMessage = "";
+
+                // We will create billing items if this is not an external experiment.
+                // For new experiments, don't create billing items for DNA Seq Core experiments as these get
+                // created when the status is changed to submitted.
+                // For existing experiments, create billing items (for new charges) for all experiment
+                // types except fragment analysis and mit seq as these are plate based and should not be altered.
+                boolean createBillingItems = false;
+                if (!requestParser.isExternalExperiment()) {
+                  if (requestParser.isNewRequest() && !RequestCategory.isDNASeqCoreRequestCategory(requestParser.getRequest().getCodeRequestCategory())) {
+                    // if we are to create billing items during workflow we don't want to create them here...
+                    String prop = propertyHelper.getCoreFacilityRequestCategoryProperty(requestCategory.getIdCoreFacility(), requestCategory.getCodeRequestCategory(), PropertyDictionary.BILLING_DURING_WORKFLOW);
+                    if (prop == null || !prop.equals("Y")) {
+                      createBillingItems = true;
+                    }
+                  } else if (!requestParser.isNewRequest() &&
+                      !requestParser.getRequest().getCodeRequestCategory().equals(RequestCategory.FRAGMENT_ANALYSIS_REQUEST_CATEGORY) &&
+                      !requestParser.getRequest().getCodeRequestCategory().equals(RequestCategory.MITOCHONDRIAL_DLOOP_SEQ_REQUEST_CATEGORY)) {
+
+                    // For dna seq facility orders, warn the admin to adjust billing if samples have been added.
+                    // (We don't automatically adjust billing items because of tiered pricing issues.)
+                    if (RequestCategory.isDNASeqCoreRequestCategory(requestParser.getRequest().getCodeRequestCategory())) {
+                      if (requestParser.getRequest().getBillingItems() != null && !requestParser.getRequest().getBillingItems().isEmpty()) {
+                        if ( hasNewSample ) {
+                          billingAccountMessage = "Request " + requestParser.getRequest().getNumber() + " has been saved.\n\nSamples have been added, please adjust billing accordingly.";
+                        }
+                      }
+                    }
+                  }
+                }
+                billing_items_if:
+                  if (createBillingItems || requestParser.isReassignBillingAccount()) {
+                    sess.refresh(requestParser.getRequest());
+
+                    if(!requestParser.getRequest().getBillingItems().isEmpty()) {
+                      Iterator ibill = requestParser.getRequest().getBillingItems().iterator();
+                      BillingItem bill = (BillingItem)ibill.next();
+                      hci.gnomex.model.BillingAccount firstBillingAccount = bill.getBillingAccount();
+                      while(ibill.hasNext()) {
+                        bill = (BillingItem)ibill.next();
+                        if(firstBillingAccount != bill.getBillingAccount()) {
+                          billingAccountMessage = "There are multiple billing accounts associated with this request. The accounts have not been changed. Please use the Admininstrator Billing Screen to assign new accounts.";
+                          break billing_items_if;
+                        }
+                      }
+                    }
+
+                    // Create the billing items
+                    // We need to include the samples even though they were not added
+                    // b/c we need to perform lib prep on them.
+                    if (requestParser.getAmendState().equals(Constants.AMEND_QC_TO_SEQ)) {
+                      samplesAdded.addAll(requestParser.getRequest().getSamples());
+                    }
+
+                    createBillingItems(sess, requestParser.getRequest(), requestParser.getAmendState(), billingPeriod, dictionaryHelper, samplesAdded, labeledSamplesAdded, hybsAdded, sequenceLanesAdded, requestParser.getSampleAssays(), null, BillingStatus.PENDING, propertyEntries);
+                    sess.flush();
+
+
+                    // If this is an existing request and the billing account has been reassigned,
+                    // change the account on the billing items as well.
+                    int reassignCount =  0;
+                    int unassignedCount = 0;
+                    if (!requestParser.isNewRequest() && requestParser.isReassignBillingAccount()) {
+                      for(Iterator ib = requestParser.getRequest().getBillingItems().iterator(); ib.hasNext();) {
+                        BillingItem bi = (BillingItem)ib.next();
+                        if (bi.getCodeBillingStatus().equals(BillingStatus.PENDING) || bi.getCodeBillingStatus().equals(BillingStatus.COMPLETED)) {
+                          bi.setIdBillingAccount(requestParser.getRequest().getIdBillingAccount());
+                          bi.setIdLab(requestParser.getRequest().getIdLab());
+                          bi.resetInvoiceForBillingItem(sess);
+                          reassignCount++;
+                        } else  {
+                          unassignedCount++;
+                        }
+                      }
+                      if (unassignedCount > 0) {
+                        billingAccountMessage = "WARNING: The billing account could not be reassigned for " + unassignedCount + " approved billing items.  Please reassign in the Billing screen.";
+                      }
+                      if (billingAccountMessage.length() > 0) {
+                        billingAccountMessage += "\n\n(The billing account has been reassigned for  " + reassignCount + " billing item(s).)";
+                      } else {
+                        billingAccountMessage = "The billing account has been reassigned for " + reassignCount + " billing item(s).";
+                      }
+
+                      if (reassignCount > 0) {
+                        sess.flush();
+                      }
+                    }
+                  }
+
+                // If the lab on the request was changed, reassign the lab on the
+                // transfer logs for this request
+                reassignLabForTransferLog(sess);
+                sess.flush();
+
+                //Create file server data directories for request based off of code request category
+                if (!requestParser.isExternalExperiment() && RequestCategory.isIlluminaRequestCategory(requestParser.getRequest().getCodeRequestCategory())){
+                  this.createResultDirectories(requestParser.getRequest(), "Sample QC", PropertyDictionaryHelper.getInstance(sess).getExperimentDirectory(serverName, requestParser.getRequest().getIdCoreFacility()));
+                  this.createResultDirectories(requestParser.getRequest(), "Library QC", PropertyDictionaryHelper.getInstance(sess).getExperimentDirectory(serverName, requestParser.getRequest().getIdCoreFacility()));
+                }
+                else if (!requestParser.isExternalExperiment() && (RequestCategory.isMicroarrayRequestCategory(requestParser.getRequest().getCodeRequestCategory()) || requestParser.getRequest().getCodeRequestCategory().equals(RequestCategoryType.TYPE_QC))){
+                  this.createResultDirectories(requestParser.getRequest(), "Sample QC", PropertyDictionaryHelper.getInstance(sess).getExperimentDirectory(serverName, requestParser.getRequest().getIdCoreFacility()));
+                }
+
+                String emailErrorMessage = sendEmails(sess);
+
+
+                this.xmlResult = "<SUCCESS idRequest=\"" + requestParser.getRequest().getIdRequest() +
+                "\" requestNumber=\"" + requestParser.getRequest().getNumber()  +
+                "\" deleteSampleCount=\"" + this.samplesDeleted.size() +
+                "\" deleteHybCount=\"" + this.hybsDeleted.size() +
+                "\" deleteLaneCount=\"" + this.sequenceLanesDeleted.size() +
+                "\" billingAccountMessage = \"" + billingAccountMessage +
+                "\" emailErrorMessage = \"" + emailErrorMessage +
+                "\"/>";
+
               }
-            }
+            
+          } else {
+        	  this.xmlResult = "<FAILURE message=\"PRODUCT ERROR: " + productErrorMessage + "\"/>";
           }
-
-        // If the lab on the request was changed, reassign the lab on the
-        // transfer logs for this request
-        reassignLabForTransferLog(sess);
-        sess.flush();
-
-        //Create file server data directories for request based off of code request category
-        if (!requestParser.isExternalExperiment() && RequestCategory.isIlluminaRequestCategory(requestParser.getRequest().getCodeRequestCategory())){
-          this.createResultDirectories(requestParser.getRequest(), "Sample QC", PropertyDictionaryHelper.getInstance(sess).getExperimentDirectory(serverName, requestParser.getRequest().getIdCoreFacility()));
-          this.createResultDirectories(requestParser.getRequest(), "Library QC", PropertyDictionaryHelper.getInstance(sess).getExperimentDirectory(serverName, requestParser.getRequest().getIdCoreFacility()));
-        }
-        else if (!requestParser.isExternalExperiment() && (RequestCategory.isMicroarrayRequestCategory(requestParser.getRequest().getCodeRequestCategory()) || requestParser.getRequest().getCodeRequestCategory().equals(RequestCategoryType.TYPE_QC))){
-          this.createResultDirectories(requestParser.getRequest(), "Sample QC", PropertyDictionaryHelper.getInstance(sess).getExperimentDirectory(serverName, requestParser.getRequest().getIdCoreFacility()));
-        }
-
-        String emailErrorMessage = sendEmails(sess);
-
-
-        this.xmlResult = "<SUCCESS idRequest=\"" + requestParser.getRequest().getIdRequest() +
-        "\" requestNumber=\"" + requestParser.getRequest().getNumber()  +
-        "\" deleteSampleCount=\"" + this.samplesDeleted.size() +
-        "\" deleteHybCount=\"" + this.hybsDeleted.size() +
-        "\" deleteLaneCount=\"" + this.sequenceLanesDeleted.size() +
-        "\" billingAccountMessage = \"" + billingAccountMessage +
-        "\" emailErrorMessage = \"" + emailErrorMessage +
-        "\"/>";
-
       }
-
-
+      
       if (isValid()) {
-        setResponsePage(this.SUCCESS_JSP);
-      } else {
-        setResponsePage(this.ERROR_JSP);
-      }
+          setResponsePage(this.SUCCESS_JSP);
+        } else {
+          setResponsePage(this.ERROR_JSP);
+        }
 
     } catch (Exception e){
-      log.error("An exception has occurred while emailing in SaveRequest ", e);
+      log.error("An exception has occurred in SaveRequest ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.toString());
     } finally {
