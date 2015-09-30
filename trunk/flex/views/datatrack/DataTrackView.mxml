@@ -23,17 +23,24 @@
 						   toolTip="Create file link(s) for viewing the selected data track in the IGV Genome Browser"
 						   click="{parentDocument.createIGVLink()}" 
 						   id="makeIGVLinkButton"  textDecoration="underline"/>
-			<mx:LinkButton label="URL Links" 
-						   icon="@Embed(source='../../assets/icon_link.gif')"
-						   disabledIcon="@Embed(source='../../assets/icon_link_disable.gif')"  					        	
-						   toolTip="Creates URL file link(s) for accessing the selected data tracks via HTTP"
+			<mx:LinkButton label="IOBIO Browser" 
+						   icon="@Embed(source='../../assets/datatrack_world.png')"
+						   disabledIcon="@Embed(source='../../assets/datatrack_world.png')"  					        	
+						   toolTip="Create file link(s) for viewing the selected data track in the IOBIO Genome Browser"
 						   enabled="{parentDocument.browseTree.selectedItem != null &amp;&amp; parentDocument.browseTree.selectedItem.name() == 'DataTrack' &amp;&amp;  dataTrackFiles.length !=0}"  
-						   click="{parentDocument.createURLLinks()}" 
-						   id="makeURLLinksButton"   textDecoration="underline"/>
+						   click="{parentDocument.createIOBIOLinks()}" 
+						   id="makeIOBIOLinksButton"   textDecoration="underline"/>
+		<mx:LinkButton label="URL Links" 
+					   icon="@Embed(source='../../assets/icon_link.gif')"
+					   disabledIcon="@Embed(source='../../assets/icon_link_disable.gif')"  					        	
+					   toolTip="Creates URL file link(s) for accessing the selected data tracks via HTTP"
+					   enabled="{parentDocument.browseTree.selectedItem != null &amp;&amp; parentDocument.browseTree.selectedItem.name() == 'DataTrack' &amp;&amp;  dataTrackFiles.length !=0}"  
+					   click="{parentDocument.createURLLinks()}" 
+					   id="makeURLLinksButton"   textDecoration="underline"/>
 			<mx:LinkButton label="Clear file links"
 					       icon="@Embed(source='../../assets/link_delete.png')"
 					       disabledIcon="@Embed(source='../../assets/link_delete_disable.png')"
-					       toolTip="Destroys all existing IGV, UCSC and URL links to user-owned datatracks.  Re-created links will have different random paths, making tracks private if old paths were distributed."
+					       toolTip="Destroys all existing IGV, UCSC, IOBIO and URL links to user-owned datatracks.  Re-created links will have different random paths, making tracks private if old paths were distributed."
 					       click="{parentDocument.removeLinks()}"
 					       id="destroyLinksButton" textDecoration="underline" />
 			<mx:LinkButton styleName="linkMenuButton" label="Download" 
