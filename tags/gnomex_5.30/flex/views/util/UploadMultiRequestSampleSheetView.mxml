@@ -1,0 +1,611 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
+				layout="vertical" 
+				creationPolicy="all"
+				xmlns:views="views.*" 
+				xmlns:util="views.util.*"
+				showCloseButton="true"
+				close="{PopUpManager.removePopUp(this)}" 
+				title="Upload Multi-Experiment Sample Sheet" 	 
+				width="850"
+				borderThickness="4">
+	
+	<mx:HTTPService  
+		id="saveMultiRequestSampleSheet" 
+		url="SaveMultiRequestSampleSheet.gx"
+		resultFormat="e4x"
+		showBusyCursor="true"
+		result="onSaveMultiRequestSampleSheet(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to save sample sheet', event)"
+		method="POST" 
+		useProxy="false">
+	</mx:HTTPService>
+
+	<mx:Resize widthTo="200" id="windowShrink" target="{this}" />
+	<mx:Resize widthTo="850" id="windowRestore" target="{this}" />
+
+	<mx:VBox width="100%" height="100%">
+		<mx:ViewStack id="vsMain" width="100%" height="100%">
+			<mx:Canvas id="showRequests" width="100%" height="100%">
+				<mx:VBox width="100%" height="100%">
+					<mx:HBox width="100%">
+						<mx:Label text="Experiments To Be Imported" styleName="titleLabel" id="showRequestsTitle"/>
+						<mx:Spacer width="100%" />
+						<mx:LinkButton label="Show Errors/Warnings" click="{showAllErrors()}" textDecoration="underline" fontSize="9" color="#FF0000" id="showErrorsWarningButton" />
+						<mx:LinkButton label="Show Samples" click="{showAllSamples()}" styleName="formLinkButton" />
+					</mx:HBox>
+					<mx:AdvancedDataGrid height="100%" width="100%" id="requestGrid"  
+										 displayItemsExpanded="true"  
+										 editable="false"  
+										 sortExpertMode="true" horizontalScrollPolicy="auto"
+										 sortableColumns="false"
+										 borderStyle="solid" showHeaders="true" 
+										 fontSize="10" iconFunction="parentApplication.getTreeIcon"
+										 dataProvider="{requestList}">
+						<mx:columns>
+							<mx:AdvancedDataGridColumn headerText="Import?" width="50" dataField="@includeFlag" 
+													   itemRenderer="{views.renderers.CheckBoxRenderer.create(null, true, '@enableCheckBox')}"
+													   editable="false"
+													   editorDataField="selected"/>
+							<mx:AdvancedDataGridColumn headerText="Experiment #" dataField="@requestNumber" editable="false" width="80" wordWrap="false" 
+													   styleFunction="requestStyleFunction" />
+							<mx:AdvancedDataGridColumn headerText="# Samples Unchanged" dataField="@numUnmodifiedSamples" editable="false" width="120" wordWrap="false" />
+							<mx:AdvancedDataGridColumn headerText="# Samples Updated" dataField="@numUpdatedSamples" editable="false" width="110" wordWrap="false" />
+							<mx:AdvancedDataGridColumn headerText="# Samples Created" dataField="@numCreatedSamples" editable="false" width="100" wordWrap="false" />
+							<mx:AdvancedDataGridColumn headerText="# Errors/Warnings" dataField="@numErrors" editable="false" width="120" wordWrap="false" />
+							<mx:AdvancedDataGridColumn headerText="View Action" width="85" editable="false" >
+								<mx:itemRenderer>
+									<mx:Component>
+										<mx:HBox verticalAlign="top" horizontalGap="0"  horizontalScrollPolicy="off">
+											<mx:LinkButton label="Samples" textDecoration="underline" click="outerDocument.showRequestSamples(event)" fontSize="9" color="#0000FF"/>
+											<mx:LinkButton label="Errors/Warnings" textDecoration="underline" fontSize="9" click="outerDocument.showRequestErrors(event)" color="#FF0000" visible="{data.@numErrors != '0'}"/>
+										</mx:HBox>
+									</mx:Component>
+								</mx:itemRenderer>
+							</mx:AdvancedDataGridColumn>
+						</mx:columns>
+					</mx:AdvancedDataGrid>
+					<mx:HBox width="100%">
+						<mx:Spacer width="100%" />
+						<mx:Button label="Import Samples" click="clickImportSamplesButton()"  id="importSamplesButton" />
+						<mx:Button label="Cancel" click="closePopup()" id="cancelButton" />
+					</mx:HBox>
+				</mx:VBox>
+			</mx:Canvas>
+			<mx:Canvas id="showErrors" width="100%" height="100%">
+				<mx:VBox width="100%" height="100%">
+					<mx:HBox width="100%">
+						<mx:Label text="All Errors" styleName="titleLabel" id="showErrorsTitle"/>	
+						<mx:Spacer width="100%" />
+						<mx:LinkButton label="Back" paddingRight="50" visible="{this.requestList != null}" click="{vsMain.selectedChild=showRequests}"  icon="@Embed(source='../../assets/arrow_left.png')" textDecoration="underline" paddingLeft="0" textAlign="left" fontStyle="normal"/>
+					</mx:HBox>
+					<mx:AdvancedDataGrid height="100%" width="100%" id="errorsGrid"  
+										 displayItemsExpanded="true"  
+										 editable="false"  
+										 sortExpertMode="true" horizontalScrollPolicy="auto"
+										 sortableColumns="false"
+										 borderStyle="solid" showHeaders="true" 
+										 fontSize="10"
+										 dataProvider="{allErrorsList}">
+						<mx:columns>
+							<mx:AdvancedDataGridColumn headerText="Row" dataField="@rowOrdinal" editable="false" width="35" wordWrap="false" />
+							<mx:AdvancedDataGridColumn headerText="Col" dataField="@columnOrdinal" editable="false" width="30" wordWrap="false" />
+							<mx:AdvancedDataGridColumn headerText="Experiment" dataField="@requestNumber" editable="false" width="70" wordWrap="false" />
+							<mx:AdvancedDataGridColumn headerText="Sample" dataField="@sampleNumber" editable="false" width="60" wordWrap="false" />
+							<mx:AdvancedDataGridColumn headerText="Col Name" dataField="@header" editable="false" width="120" wordWrap="false" />
+							<mx:AdvancedDataGridColumn headerText="Status" dataField="@status" editable="false" width="100" wordWrap="false" />
+							<mx:AdvancedDataGridColumn headerText="Message" dataField="@message" editable="false" wordWrap="false" />
+						</mx:columns>
+					</mx:AdvancedDataGrid>
+					<mx:VBox width="100%" borderStyle="solid" id="errorSamplesVBox">
+						<mx:Label text="Samples for selected error" />
+						<mx:AdvancedDataGrid height="100" width="100%" id="errorSamplesGrid"  
+											 displayItemsExpanded="true"  
+											 editable="false"  
+											 sortExpertMode="true" horizontalScrollPolicy="auto"
+											 sortableColumns="false"
+											 borderStyle="solid" showHeaders="true" 
+											 fontSize="10"
+											 dataProvider="{errorSamplesList}" selectionMode="singleRow" >
+							<mx:columns>
+								<mx:AdvancedDataGridColumn headerText="Experiment #" dataField="@requestNumber" editable="false" width="100" wordWrap="false" />
+								<mx:AdvancedDataGridColumn headerText="Sample #" dataField="@sampleNumber" editable="false" width="100" wordWrap="false" />
+							</mx:columns>
+						</mx:AdvancedDataGrid>
+					</mx:VBox>
+				</mx:VBox>
+			</mx:Canvas>
+			<mx:Canvas id="showSamples" width="100%" height="100%">
+				<mx:VBox width="100%" height="100%">
+					<mx:HBox width="100%">
+						<mx:Label text="All File Rows" styleName="titleLabel" id="showSamplesTitle"/>	
+						<mx:Spacer width="100%" />
+						<mx:LinkButton label="Back" paddingRight="50" visible="{this.requestList != null}" click="{vsMain.selectedChild=showRequests}"  icon="@Embed(source='../../assets/arrow_left.png')" textDecoration="underline" paddingLeft="0" textAlign="left" fontStyle="normal"/>
+					</mx:HBox>
+					<mx:AdvancedDataGrid height="100%" width="100%" id="samplesGrid"  
+										 displayItemsExpanded="true"  
+										 editable="false"  
+										 sortExpertMode="true" horizontalScrollPolicy="auto"
+										 sortableColumns="false"
+										 borderStyle="solid" showHeaders="true" 
+										 fontSize="10"
+										 dataProvider="{allSamplesList}">
+						<mx:columns>
+							<mx:AdvancedDataGridColumn headerText="Experiment #" dataField="@requestNumber" editable="false" width="100" wordWrap="false" />
+							<mx:AdvancedDataGridColumn headerText="Sample #" dataField="@sampleNumber" editable="false" width="100" wordWrap="false" />
+						</mx:columns>
+					</mx:AdvancedDataGrid>
+					<mx:VBox width="100%" borderStyle="solid">
+						<mx:Label text="Errors for selected row"/>
+						<mx:AdvancedDataGrid height="150" width="100%" id="sampleErrorsGrid"  
+											 displayItemsExpanded="true"  
+											 editable="false"  
+											 sortExpertMode="true" horizontalScrollPolicy="auto"
+											 sortableColumns="false"
+											 borderStyle="solid" showHeaders="true" 
+											 fontSize="10"
+											 dataProvider="{sampleErrorsList}">
+							<mx:columns>
+								<mx:AdvancedDataGridColumn headerText="Row" dataField="@rowOrdinal" editable="false" width="35" wordWrap="false" />
+								<mx:AdvancedDataGridColumn headerText="Col" dataField="@columnOrdinal" editable="false" width="30" wordWrap="false" />
+								<mx:AdvancedDataGridColumn headerText="Experiment" dataField="@requestNumber" editable="false" width="70" wordWrap="false" />
+								<mx:AdvancedDataGridColumn headerText="Sample" dataField="@sampleNumber" editable="false" width="60" wordWrap="false" />
+								<mx:AdvancedDataGridColumn headerText="Col Name" dataField="@header" editable="false" width="120" wordWrap="false" />
+								<mx:AdvancedDataGridColumn headerText="Status" dataField="@status" editable="false" width="100" wordWrap="false" />
+								<mx:AdvancedDataGridColumn headerText="Message" dataField="@message" editable="false" wordWrap="false" />
+							</mx:columns>
+						</mx:AdvancedDataGrid>
+					</mx:VBox>
+				</mx:VBox>
+			</mx:Canvas>
+			<mx:Canvas id="showResults" width="100%" height="100%" horizontalScrollPolicy="off">
+				<mx:VBox width="100%" height="100%">
+					<mx:HBox width="100%">
+						<mx:Label text="Import Results" styleName="titleLabel" id="showResultsTitle"/>	
+					</mx:HBox>
+					<mx:HDividedBox width="100%" height="100%">
+						<mx:VBox borderStyle="solid" height="100%">
+							<mx:Label text="Experiments Imported" />
+							<mx:Repeater id="requestRepeater" dataProvider="{requestList}" >
+								<mx:LinkButton label="{requestRepeater.currentItem.@requestNumber.toString()}" click="{showRequest(event.currentTarget.getRepeaterItem().@requestNumber)}" toolTip="Show Experiment" fontWeight="normal" textDecoration="underline" />
+							</mx:Repeater>
+						</mx:VBox>
+						<mx:VBox borderStyle="solid" height="100%" width="100%">
+							<mx:Label text="Import Errors" />
+							<mx:AdvancedDataGrid height="100%" width="100%" id="resultErrorsGrid"  
+												 displayItemsExpanded="true"  
+												 editable="false"  
+												 sortExpertMode="true" horizontalScrollPolicy="auto"
+												 sortableColumns="false"
+												 borderStyle="solid" showHeaders="true" 
+												 fontSize="10"
+												 dataProvider="{allErrorsList}">
+								<mx:columns>
+									<mx:AdvancedDataGridColumn headerText="Row" dataField="@rowOrdinal" editable="false" width="35" wordWrap="false" />
+									<mx:AdvancedDataGridColumn headerText="Col" dataField="@columnOrdinal" editable="false" width="30" wordWrap="false" />
+									<mx:AdvancedDataGridColumn headerText="Exp." dataField="@requestNumber" editable="false" width="60" wordWrap="false" />
+									<mx:AdvancedDataGridColumn headerText="Sample" dataField="@sampleNumber" editable="false" width="60" wordWrap="false" />
+									<mx:AdvancedDataGridColumn headerText="Col Name" dataField="@header" editable="false" width="120" wordWrap="false" />
+									<mx:AdvancedDataGridColumn headerText="Status" dataField="@status" editable="false" width="80" wordWrap="false" />
+									<mx:AdvancedDataGridColumn headerText="Message" dataField="@message" editable="false" wordWrap="false" />
+								</mx:columns>
+							</mx:AdvancedDataGrid>
+						</mx:VBox>
+					</mx:HDividedBox>
+					<mx:HBox width="100%">
+						<mx:Button label="Shrink Window" click="shrinkRestoreWindow()"  id="restoreButton" icon="{this.shrinkIcon}" textDecoration="underline" /> 
+						<mx:Button label="Close" click="closePopup()" id="closeWindowbutton" />
+					</mx:HBox>
+				</mx:VBox>
+			</mx:Canvas>
+			<mx:Canvas id="intro" width="100%" enabled="false">
+			</mx:Canvas>
+		</mx:ViewStack>
+		
+	</mx:VBox>
+	
+	<mx:Script>
+		<![CDATA[
+			import hci.flex.controls.DropdownLabel;
+			
+			import mx.collections.GroupingCollection;
+			import mx.collections.XMLListCollection;
+			import mx.controls.AdvancedDataGrid;
+			import mx.controls.Alert;
+			import mx.controls.advancedDataGridClasses.AdvancedDataGridColumn;
+			import mx.events.CloseEvent;
+			import mx.events.FlexEvent;
+			import mx.events.ListEvent;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			import views.renderers.CheckBoxRenderer;
+			import views.renderers.MultiselectRendererCommonInterface;
+			import views.util.SampleSheetColumnFormats;
+			
+			private var uploadFR:FileReference;
+			private var docTypes:FileFilter;
+			private var	sampleSheetXML:XML;	
+			private var fullHeight:int;
+			private var fullWidth:int;
+
+			[Embed(source='../../assets/application_side_contract.png')]
+			private const shrinkIcon:Class;
+			[Embed(source='../../assets/application_side_expand.png')]
+			private const restoreIcon:Class;
+			
+			[Bindable]
+			public var rowList:XMLList = null;
+			
+			[Bindable]
+			public var allErrorsList:XMLList = null;
+			
+			[Bindable]
+			public var requestList:XMLList = null;
+			
+			[Bindable]
+			public var allSamplesList:XMLList = null;
+			
+			[Bindable]
+			public var requestSamplesList:XMLListCollection = null;
+			
+			[Bindable]
+			public var requestErrorsList:XMLListCollection = null;
+			
+			[Bindable]
+			public var errorSamplesList:XMLListCollection = null;
+			
+			[Bindable]
+			public var sampleErrorsList:XMLListCollection = null;
+			
+			private var downloadRequest:URLRequest; 
+			private var downloadFileRef:FileReference; 
+			
+			public function init():void {
+
+				fullWidth = 950;
+				fullHeight = 700;
+
+				this.errorsGrid.addEventListener(ListEvent.CHANGE, errorsGridRowSelected);
+				this.samplesGrid.addEventListener(ListEvent.CHANGE, samplesGridRowSelected);
+				errorSamplesVBox.visible = true;
+				errorSamplesVBox.includeInLayout = true;
+
+				this.changeHeightWidth(1, 1);
+				vsMain.selectedChild=intro;
+				clickUploadFileButton();
+			}
+
+			private function errorsGridRowSelected(event:ListEvent):void
+			{
+				errorSamplesGrid.dataProvider = null;
+				errorSamplesList = new XMLListCollection();
+				if (errorsGrid.selectedItem != null) {
+					var err:Object = errorsGrid.selectedItem;
+					for each(var row:XML in allSamplesList) {
+						if (err.@rowOrdinal == null || err.@rowOrdinal == "" || row.@rowOrdinal == err.@rowOrdinal) {
+							errorSamplesList.addItem(row);
+						}
+					}
+				}
+
+				errorSamplesGrid.dataProvider = errorSamplesList;
+			}
+			
+			private function samplesGridRowSelected(event:ListEvent):void
+			{
+				sampleErrorsGrid.dataProvider = null;
+				sampleErrorsList = new XMLListCollection();
+				if (samplesGrid.selectedItem != null) {
+					var sample:Object = samplesGrid.selectedItem;
+					for each(var row:XML in allErrorsList) {
+						if (row.@rowOrdinal == sample.@rowOrdinal || row.@rowOrdinal == '') {
+							sampleErrorsList.addItem(row);
+						}
+					}
+				}
+				
+				sampleErrorsGrid.dataProvider = sampleErrorsList;
+			}
+			
+			private function changeHeightWidth(height:int, width:int):void {
+				this.height = height;
+				this.width = width;
+				PopUpManager.centerPopUp(this);
+			}
+			
+			private function clickUploadFileButton():void {
+				if(parentApplication.uploadSampleSheetURL != null) {
+					docTypes = new FileFilter("Documents (*.txt)", "*.txt"); 
+					uploadFR = new FileReference;
+					uploadFR.addEventListener(Event.SELECT, uploadSampleSheetSelectHandler); 
+					uploadFR.addEventListener(DataEvent.UPLOAD_COMPLETE_DATA, uploadSampleSheetCompleteHandler); 
+					uploadFR.addEventListener(SecurityErrorEvent.SECURITY_ERROR, uploadSecurityErrorHandler);
+					uploadFR.addEventListener(HTTPStatusEvent.HTTP_STATUS, uploadHttpStatusHandler);
+					uploadFR.addEventListener(IOErrorEvent.IO_ERROR, uploadIoErrorHandler);
+					uploadFR.addEventListener(Event.CANCEL, cancelHandler);
+					uploadFR.browse([docTypes]);									
+				}
+				else {
+					Alert.show("Error: the upload URL has not been retrieved.");
+					PopUpManager.removePopUp(this);
+				}
+			}
+			
+			private function cancelHandler(event:Event):void {
+				PopUpManager.removePopUp(this)
+			}
+			
+			private function uploadComplete():void {
+				PopUpManager.removePopUp(this);
+				dispatchEvent( new FlexEvent(FlexEvent.VALUE_COMMIT) );
+			}
+			
+			private function uploadSampleSheetSelectHandler(event:Event):void {
+				var url:String = parentApplication.uploadSampleSheetURL;
+				url = url.replace("UploadSampleSheetFileServlet", "UploadMultiRequestSampleSheetFileServlet");
+				var request:URLRequest = new URLRequest(url); 
+				request.method = URLRequestMethod.POST; 
+				
+				uploadFR.upload(request); 		
+			} 
+			
+			private function uploadSampleSheetCompleteHandler(event:DataEvent):void {
+				sampleSheetXML = null;
+				if (event.data.indexOf("<Requests") >= 0 || event.data.indexOf("<Errors") >= 0) {
+					updateLists(new XML(event.data));
+				} else {
+					var errorMessageSafe:String = "Unknown Error";
+					if (event.data.indexOf("<ERROR") >= 0) {
+						var errXML:XML = new XML(event.data);
+						errorMessageSafe = errXML.@message;
+					} else {
+						var errorMessage:String = event.text;
+						var removeHTML:RegExp = new RegExp("<[^>]*>", "gi");
+						errorMessageSafe = errorMessage.replace(removeHTML, "");
+					}
+					Alert.show(errorMessageSafe, "Upload Error");
+					PopUpManager.removePopUp(this);
+				}
+			} 	
+			
+			private function updateLists(xml:XML):void {
+				sampleSheetXML = xml;
+				requestList = sampleSheetXML..Request;
+				allErrorsList = sampleSheetXML..Error;
+				allSamplesList = sampleSheetXML..Row;
+				
+				if (requestList.length() == 0) {
+					requestList = null;
+					allErrorsList = sampleSheetXML..Error;
+					this.errorSamplesVBox.visible = false;
+					this.errorSamplesVBox.includeInLayout = false;
+					vsMain.selectedChild = showErrors;
+					this.changeHeightWidth(fullHeight, fullWidth);
+				} else {
+					
+					var sampleCols:Array = new Array();
+					var col:AdvancedDataGridColumn = new AdvancedDataGridColumn("rowOrdinal");
+					col.headerText = "Row";
+					col.dataField = "@rowOrdinal";
+					col.editable = false;
+					col.wordWrap = false;
+					col.width=35;
+					sampleCols.push(col);
+					for each (var hdr:Object in sampleSheetXML..Header) {
+						var ordinal:String = hdr.@columnOrdinal.toString();
+						var text:String = hdr.@header.toString();
+						col = new AdvancedDataGridColumn("hdr" + ordinal);
+						col.headerText = text;
+						col.dataField = "@n" + ordinal;
+						col.editable = false;
+						col.wordWrap = false;
+						col.itemRenderer = views.renderers.MultiRequestSampleCellRenderer.create(col.dataField, allErrorsList);
+						sampleCols.push(col);
+					}
+					
+					if (allErrorsList.length() > 0) {
+						this.showErrorsWarningButton.visible = true;
+					} else {
+						this.showErrorsWarningButton.visible = false;
+					}
+					
+					samplesGrid.columns = sampleCols;
+					errorSamplesGrid.columns = sampleCols;
+					
+					vsMain.selectedChild=showRequests;
+					this.changeHeightWidth(fullHeight, fullWidth);
+				}
+
+			}
+			
+			// only called if there is an  error detected by flash player browsing or uploading a file   
+			private function uploadIoErrorHandler(event:IOErrorEvent):void{
+				mx.controls.Alert.show("File \n" + event.target.name + "\n did not upload.  Please contact GNomEx support.",
+					"Upload IO error",0);
+				PopUpManager.removePopUp(this);
+			}    
+			// only called if a security error detected by flash player such as a sandbox violation
+			private function uploadSecurityErrorHandler(event:SecurityErrorEvent):void{
+				mx.controls.Alert.show(String(event),"Security Error",0);
+				PopUpManager.removePopUp(this);
+			}
+			
+			//  after a file upload is complete or attemted the server will return an http status code, code 200 means all is good anything else is bad.
+			private function uploadHttpStatusHandler(event:HTTPStatusEvent):void {
+				if (event.status == 200){
+				} else if (event.status == 900) {
+					mx.controls.Alert("File \n" + event.target.name + "\n did not upload. The GNomEx property 'temp_directory' is not specified.  Please contact GNomEx support.");
+				} else if (event.status == 901) {
+					mx.controls.Alert("File \n" + event.target.name + "\n did not upload. The temp directory is invalid.  Please contact GNomEx support.");
+				} else if (event.status == 902) {
+					mx.controls.Alert("File \n" + event.target.name + "\n did not upload due to insufficent permissions.  Please contact GNomEx support.");
+				} else {
+					mx.controls.Alert.show("File \n" + event.target.name + "\n did not upload.  Please contact GNomEx support.",
+						"HTTP status",0);
+				} 
+				clickUploadFileButton();
+			}
+			
+			private function downloadCompleteHandler(event:Event):void
+			{
+				mx.controls.Alert.show("Example sample sheet downloaded.");
+			}
+			
+			private function showAllSamples():void {
+				samplesGrid.dataProvider = null;
+				samplesGrid.dataProvider = this.allSamplesList;
+				sampleErrorsGrid.dataProvider = new XMLList();
+				showSamplesTitle.text="All File Rows";
+				vsMain.selectedChild = this.showSamples;
+			}
+			
+			private function showAllErrors():void {
+				errorsGrid.dataProvider = null;
+				errorsGrid.dataProvider = this.allErrorsList;
+				errorSamplesGrid.dataProvider = new XMLList();
+				showErrorsTitle.text="All Errors And Warnings";
+				vsMain.selectedChild = this.showErrors;
+			}
+			
+			public function showRequestSamples(event:MouseEvent):void {
+				samplesGrid.dataProvider = null;
+				var requestNumber:String = requestGrid.selectedItem.@requestNumber.toString();
+				requestSamplesList = new XMLListCollection();
+				for each(var row:XML in allSamplesList) {
+					if (row.@requestNumber == requestNumber) {
+						requestSamplesList.addItem(row);
+					}
+				} 
+				samplesGrid.dataProvider = requestSamplesList;
+				sampleErrorsGrid.dataProvider = new XMLList();
+				showSamplesTitle.text="File Rows for Experiment " + requestNumber;
+				vsMain.selectedChild = showSamples;
+			}
+			
+			public function showRequestErrors(event:MouseEvent):void {
+				errorsGrid.dataProvider = null;
+				var requestNumber:String = requestGrid.selectedItem.@requestNumber.toString();
+				requestErrorsList = new XMLListCollection();
+				for each(var row:XML in allErrorsList) {
+					if (row.@requestNumber == requestNumber) {
+						requestErrorsList.addItem(row);
+					}
+				} 
+				errorsGrid.dataProvider = requestErrorsList;
+				errorSamplesGrid.dataProvider = new XMLList();
+				showErrorsTitle.text="Errors and Warnings for Experiment " + requestNumber;
+				vsMain.selectedChild = showErrors;
+			}
+			
+			private function clickImportSamplesButton():void {
+				var message:String = "";
+				var numSkipped:int = 0;
+				for each(var obj:Object in requestList) {
+					if (obj.@includeFlag != 'Y') {
+						numSkipped++;
+					}
+				}
+				if (numSkipped > 0) {
+					message += numSkipped.toString() + " experiments are not checked and will be skipped.\n";
+				}
+				if (this.allErrorsList.length() > 0) {
+					message += "There are " + this.allErrorsList.length().toString() + " errors in the sheet.  These errors may result in rows and/or columns being ignored in the spread sheet.\n";
+				}
+				if (message.length > 0) {
+					message += "Do you wish to continue?";
+					Alert.show(message, "Data Skipped Warning", Alert.OK | Alert.CANCEL, this, afterImportSamplesButtonWarning, parentApplication.iconWarning);
+				} else {
+					afterImportSamplesButtonWarning(null);
+				}
+			}
+			
+			private function afterImportSamplesButtonWarning(event:CloseEvent):void {
+				var params:Object = new Object();
+				params.sampleSheetRowXMLString = getRowsToSubmit();
+				params.sampleSheetHeaderXMLString = getHeadersToSubmit();
+				this.saveMultiRequestSampleSheet.send(params);
+			}
+			
+			private function onSaveMultiRequestSampleSheet(event:ResultEvent):void {
+				if (saveMultiRequestSampleSheet.lastResult.name() == "SampleSheet") {
+					updateLists(new XML(saveMultiRequestSampleSheet.lastResult));
+					vsMain.selectedChild = this.showResults;
+				} else {
+					Alert.show(saveMultiRequestSampleSheet.lastResult..ACTMESSAGE.@TEXT);
+				}
+			}
+			
+			private function getHeadersToSubmit():XML {
+				var headersToSubmit:XML = new XML("<Headers></Headers>");
+				for each (var col:AdvancedDataGridColumn in samplesGrid.columns) {
+					var colX:XML = new XML("<Header name='" + col.dataField + "' header='" + col.headerText + "'/>");
+					headersToSubmit.appendChild(colX);
+				}
+				
+				return headersToSubmit;
+			}
+			
+			private function getRowsToSubmit():XML {
+				var rowsToSubmit:XML = new XML("<Rows></Rows>");
+				for each (var row:XML in allSamplesList) {
+					if (requestChecked(row)) {
+						rowsToSubmit.appendChild(row);
+					}
+				}
+				
+				return rowsToSubmit;
+			}
+			
+			private function requestChecked(row:XML):Boolean {
+				for each(var req:XML in this.requestList) {
+					if (row.@requestNumber == req.@requestNumber && req.@includeFlag == 'Y') {
+						return true;
+					}
+				}
+				return false;
+			}
+			
+			private function showRequest(requestNumber:Object):void {
+				parentApplication.showExperiment(requestNumber, false);
+				shrinkWindow();
+			}
+			
+			private function shrinkRestoreWindow():void {
+				if (this.restoreButton.label == "Restore Window") {
+					restoreWindow();
+				} else {
+					shrinkWindow();
+				}
+			}
+			
+			private function restoreWindow():void {
+				this.windowRestore.play();	
+				this.restoreButton.label = "Shrink Window";
+				this.restoreButton.setStyle("icon", this.shrinkIcon);
+			}
+			
+			private function shrinkWindow():void {
+				this.windowShrink.play();
+				this.restoreButton.label = "Restore Window";
+				this.restoreButton.setStyle("icon", this.restoreIcon);
+			}
+			
+			private function closePopup():void {
+				PopUpManager.removePopUp(this);
+			}
+			
+			private function requestStyleFunction(data:Object, col:AdvancedDataGridColumn):Object
+			{
+				// color text red if there is a request level error.
+				if ((data["@enableCheckBox"] == "N")) {
+					return {color:0xFF0000}; 
+				}
+				
+				// Return null if the selection is valid
+				return null;
+			}
+		]]>
+	</mx:Script>
+</mx:TitleWindow>

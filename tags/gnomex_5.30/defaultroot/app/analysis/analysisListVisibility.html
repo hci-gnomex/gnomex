@@ -1,0 +1,32 @@
+<!-- Analysis List Visibility -->
+<div class="container-fluid" style="padding-top: 10px">
+	<div class="row">
+			<table class="table table-bordered table-striped table-hover">
+			    <thead>
+			        <tr>
+			            <th width="10%">#</th>
+			            <th width="15%">Name</th>
+			            <th width="10%">Date</th>
+			            <th width="15%">Submitted by</th>
+			            <th width="15%">Analysis Type</th>
+			            <th width="15%">Visibility</th>
+			            <th width="10%">Organism</th>
+			            <th width="10%">Description</th>
+			        </tr>
+			    </thead>
+			    <tbody>
+			        <tr ng-repeat="anal in analyses">
+			            <td>{{anal.number}}</td>
+			            <td>{{anal.name}}</td>
+			            <td>{{anal.date}}</td>
+			            <td>{{anal.requestor}}</td>
+			            <td>{{anal.atype}}</td>
+			            <td>{{anal.visibility}}</td>
+			            <td>{{anal.organism}}</td>
+			            <td>{{anal.description}}</td>
+			          	</td>
+			        </tr>
+			    </tbody>
+			</table>
+	</div> <!-- end row -->
+</div> <!--  end container -->

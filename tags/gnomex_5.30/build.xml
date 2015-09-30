@@ -1,0 +1,1150 @@
+<project name="gnomex" default="all-tomcat" basedir="./">
+	
+
+	<!-- ============================================== -->
+	<!--                                                -->
+	<!-- Increment minor revision                       -->
+	<!--                                                -->
+	<!-- ============================================== -->
+	<target name="increment-revision">
+		<propertyfile file="build.properties">
+			<entry key="gnomex_build" type="int" operation="+" value="1" pattern="0"/>
+		</propertyfile>
+	</target>
+
+  <!-- ============================================== -->
+	<!--                                                -->
+	<!-- Exclude bstx class for HCI build since it is   -->
+	<!-- in hciEnv jar                                  -->
+	<!--                                                -->
+	<!-- ============================================== -->
+	<target name="setClassExclusions" unless="opensource" >
+		<echo> set bstx exclusion </echo>
+		<property name="bstx.exclude.class" value="hci/bstx/utility/*.class"/>		
+		<echo>bstx.exclude.class=${bstx.exclude.class}</echo>
+	</target>
+	
+  <!-- ============================================== -->
+	<!--                                                -->
+	<!-- Initialization                                 -->
+	<!--                                                -->
+	<!-- ============================================== -->
+	<target name="init" depends="setClassExclusions">
+
+    	<!-- General config -->
+        <tstamp />
+        <property environment="env"  />
+        <property file="${basedir}/build.properties" />
+
+		<tstamp>
+		    <format property="build.date" pattern="MMM-dd-yyyy HH:MM" locale="en,UK"/>
+		</tstamp> 
+
+        <!-- Directories -->
+       	<mkdir dir="${build.dir}" />
+       	<mkdir dir="${build.class.dir}" />		
+       	<mkdir dir="${dist.dir}" />
+
+	    <path id="project.class.path">
+	      <fileset dir="${lib.env.dir}"             includes="*.jar" />
+	      <fileset dir="${lib.dir}" 				includes="*.jar" />
+	    </path>
+		
+        <path id="project.tomcat.class.path">
+          <fileset dir="${lib.env.dir}"             includes="*.jar" />
+            <fileset dir="${lib.dir}" 				    includes="*.jar" />
+            <fileset dir="${lib.tomcat.dir}" 		    includes="*.jar" />
+        	<fileset dir="${lib.tomcat.common.dir}"     includes="*.jar" />
+        </path>		
+		
+
+			
+	</target>
+	
+	<!-- ============================================== -->
+	<!--                                                -->
+	<!-- All (tomcat)                                   -->
+	<!--                                                -->
+	<!-- ============================================== -->
+	<target name="all-tomcat" depends="init">
+		<antcall target="clean" />
+		<antcall target="compile-tomcat" />
+		<antcall target="jar-tomcat" />
+		<antcall target="clientjar"/>
+    <antcall target="realmjar"/>
+		<antcall target="flex"/>
+		<antcall target="war-tomcat" />
+		<antcall target="deploy-tomcat" />
+	</target>
+
+	<!-- ============================================== -->
+	<!--                                                -->
+	<!-- All (GNomExLite)                                   -->
+	<!--                                                -->
+	<!-- ============================================== -->
+	<target name="all-gnomexlite" depends="init">
+		<antcall target="clean" />
+		<antcall target="compile-tomcat" />
+		<antcall target="jar-tomcat" />
+		<antcall target="clientjar"/>
+    <antcall target="realmjar"/>
+		<antcall target="war-gnomexlite" />
+		<antcall target="deploy-gnomexlite" />
+	</target>
+	
+	<!-- ============================================== -->
+	<!--                                                -->
+	<!-- All (opensource tomcat)                               -->
+	<!--                                                -->
+	<!-- ============================================== -->
+	<target name="all-opensource-tomcat" depends="init">
+		<antcall target="clean" />
+		<antcall target="build-opensource-tomcat" />
+		<antcall target="deploy-tomcat" />
+	</target>
+
+	<!-- ============================================== -->
+	<!--                                                -->
+	<!-- All (opensource GNomExLite)                               -->
+	<!--                                                -->
+	<!-- ============================================== -->
+	<target name="all-opensource-gnomexlite" depends="init">
+		<antcall target="clean" />
+		<antcall target="build-opensource-gnomexlite" />
+		<antcall target="deploy-gnomexlite" />
+	</target>
+
+	<!-- ============================================== -->
+	<!--                                                -->
+	<!-- Clean                                          -->
+	<!--                                                -->
+	<!-- ============================================== -->
+	<target name="clean" depends="init" >
+		<echo>+ ===================================================== +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+  Cleaning                                             +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+ ===================================================== +</echo>
+
+		<delete includeEmptyDirs="true" quiet="true" verbose="false">
+		    <fileset dir="${dist.dir}" />
+		</delete>
+	</target>
+
+
+	<!-- ============================================== -->
+	<!--                                                -->
+	<!-- Compile client                                 -->
+	<!--                                                -->
+	<!-- ============================================== -->
+	<target name="compile-client" depends="init">
+		<echo>+ ===================================================== +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+  Compiling (client)                                   +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+ ===================================================== +</echo>
+
+      	<javac
+            destdir="${build.class.dir}"
+            debug="${compiler.debug}"
+            deprecation="${compiler.deprecation}"
+            compiler="${compiler.type}"
+            classpathref="project.class.path">
+
+            <src path="${src.dir}" />
+      		<include name="**/httpclient/**"/>      		
+        </javac>
+	</target>
+	
+	
+	<!-- ============================================== -->
+	<!--                                                -->
+	<!-- Compile batch                                 -->
+	<!--                                                -->
+	<!-- ============================================== -->
+	<target name="compile-batch" depends="init">
+		<echo>+ ===================================================== +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+  Compiling (batch)                                   +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+ ===================================================== +</echo>
+
+      	<javac
+            destdir="${build.class.dir}"
+            debug="${compiler.debug}"
+            deprecation="${compiler.deprecation}"
+            compiler="${compiler.type}"
+            classpathref="project.class.path">
+
+            <src path="${src.dir}" />
+      		<include name="**/daemon/**"/>      		
+        </javac>
+	</target>
+
+	
+	<!-- ============================================== -->
+	<!--                                                -->
+	<!-- Compile  (tomcat)                              -->
+	<!--                                                -->
+	<!-- ============================================== -->
+	<target name="compile-tomcat" depends="init">
+		<echo>+ ===================================================== +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+  Compiling (tomcat)                                   +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+ ===================================================== +</echo>
+
+      	<javac
+            destdir="${build.class.dir}"
+            debug="${compiler.debug}"
+            deprecation="${compiler.deprecation}"
+            compiler="${compiler.type}"
+            classpathref="project.tomcat.class.path">
+
+            <src path="${src.dir}"/>
+            <exclude name="**/fdt/**"/>      		
+          	<exclude name="**/security/SecurityManager**"/>      		
+          	<exclude name="**/controller/SBGNomEx**"/>
+        </javac>
+	</target>
+
+
+	
+	<!-- ============================================== -->
+	<!--                                                -->
+	<!-- Jar  (tomcat)                                  -->
+	<!--                                                -->
+	<!-- ============================================== -->
+	<target name="jar-tomcat" depends="init, compile-tomcat">
+		<echo>+ ===================================================== +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+  Building jar files  (tomcat)                         +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+ ===================================================== +</echo>
+		<delete>
+			<fileset dir="${dist.dir}" includes="${jar.name}" />
+		</delete>
+
+      	<jar basedir="${build.class.dir}"
+             excludes="**"
+             jarfile="${dist.dir}/${jar.name}">
+
+            <fileset dir="${build.class.dir}">
+            	<exclude name="hci/gnomex/httpclient/*.class" />
+            	<exclude name="hci/gnomex/daemon/FDTFileDaemon.class" />
+            	<exclude name="${bstx.exclude.class}"/>
+            	<include name="**/*.class" />
+            	<include name="**/*.properties" />
+            </fileset>
+
+			<manifest>
+			  <attribute name="class-path" value="log4j.jar"/>
+					<section name="gnomex">
+	  	      <attribute name="Built-By" value="${user.name}"/>
+            <attribute name="Implementation-Version" value="${gnomex_version}.${gnomex_build}    (${build.date})"/>
+					</section>
+    		</manifest>
+
+            <metainf dir="${metainf.dir}/jar" includes="ejb-jar.xml" />
+        </jar>
+		
+
+	</target>
+
+	
+	<!-- ============================================== -->
+	<!--                                                -->
+	<!-- Client Jar                                     -->
+	<!--                                                -->
+	<!-- ============================================== -->
+	<target name="clientjar" depends="init, compile-client">
+		<echo>+ ===================================================== +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+  Building jar files                                   +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+ ===================================================== +</echo>
+		<delete>
+			<fileset dir="${dist.dir}" includes="${clientjar.name}" />
+		</delete>
+
+      	<jar basedir="${build.class.dir}"
+             excludes="**"
+             jarfile="${dist.dir}/${clientjar.name}">
+
+            <fileset dir="${build.class.dir}">
+            	<include name="hci/gnomex/httpclient/*.class" />
+            </fileset>
+
+			<manifest>
+				<section name="gnomexClient">
+	    	      <attribute name="Built-By" value="${user.name}"/>
+  	  	          <attribute name="Implementation-Version" value="${gnomex_version}"/>
+				</section>
+    		</manifest>
+
+            <metainf dir="${metainf.dir}/jar" excludes="*.xml" />
+        </jar>
+		
+
+	</target>
+	
+
+	<!-- ============================================== -->
+	<!--                                                -->
+	<!-- Batch Jar                                      -->
+	<!--                                                -->
+	<!-- ============================================== -->
+	<target name="batchjar" depends="init, compile-batch">
+		<echo>+ ===================================================== +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+  Building batch jar                                   +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+ ===================================================== +</echo>
+		<delete>
+			<fileset dir="${dist.dir}" includes="${batchjar.name}" />
+		</delete>
+
+      	<jar basedir="${build.class.dir}"
+             excludes="**"
+             jarfile="${dist.dir}/${batchjar.name}">
+
+            <fileset dir="${build.class.dir}">
+            	<include name="hci/gnomex/daemon/*.class" />
+            </fileset>
+
+			<manifest>
+				<section name="gnomexBatch">
+	    	      <attribute name="Built-By" value="${user.name}"/>
+  	  	          <attribute name="Implementation-Version" value="${gnomex_version}"/>
+				</section>
+    		</manifest>
+
+            <metainf dir="${metainf.dir}/jar" excludes="*.xml" />
+        </jar>
+		
+
+	</target>
+
+	<!-- ============================================== -->
+	<!--                                                -->
+	<!-- Realm Jar                                     -->
+	<!--                                                -->
+	<!-- ============================================== -->
+	<target name="realmjar" depends="init, compile-tomcat">
+		<echo>+ ===================================================== +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+  Building realm jar file                              +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+ ===================================================== +</echo>
+		<delete>
+			<fileset dir="${dist.dir}" includes="${realmjar.name}" />
+		</delete>
+
+      	<jar basedir="${build.class.dir}"
+             excludes="**"
+             jarfile="${dist.dir}/${realmjar.name}">
+
+            <fileset dir="${build.class.dir}">
+            	<include name="hci/gnomex/utility/Util.class" />
+            	<include name="hci/gnomex/utility/TomcatCatalinaProperties.class" />
+            	<include name="hci/gnomex/security/ActiveDirectory.class" />
+            	<include name="hci/gnomex/security/EncrypterService.class" />
+            	<include name="hci/gnomex/security/EncryptionUtility.class" />
+            	<include name="hci/gnomex/security/tomcat/*.class" />
+            </fileset>
+
+			<manifest>
+				<section name="gnomexRealm">
+	    	      <attribute name="Built-By" value="${user.name}"/>
+  	  	          <attribute name="Implementation-Version" value="${gnomex_version}"/>
+				</section>
+    		</manifest>
+
+            <metainf dir="${metainf.dir}/jar" excludes="*.xml" />
+        </jar>
+		
+
+	</target>
+
+	<!-- ============================================== -->
+	<!--                                                -->
+	<!-- Flex                                           -->
+	<!--                                                -->
+	<!-- ============================================== -->
+	<target name="flex" depends="init" description="Compile Flex application">
+		<echo>+ ===================================================== +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+  Compiling flex app                                   +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+ ===================================================== +</echo>		
+		<taskdef resource="flexTasks.tasks" classpath="${FLEX_HOME}/ant/lib/flexTasks.jar"/> 	
+		
+		<!-- delete version.as if it still exists -->
+		<delete file="${flexapp.dir}/views/util/FlexAppVersion.as" />
+
+		<!-- create flexAppVersion class -->	
+		<echo>Flex Version ${gnomex_version}.${gnomex_build}</echo>
+		<copy file="${flexapp.dir}/views/util/FlexAppVersion.as.template" tofile="${flexapp.dir}/views/util/FlexAppVersion.as" />
+		<replace file="${flexapp.dir}/views/util/FlexAppVersion.as" token="@flexAppVersion@" value="${gnomex_version}.${gnomex_build}" />
+		<replace file="${flexapp.dir}/views/util/FlexAppVersion.as" token="@flexBuildDate@" value="${build.date}" />
+
+		<mxmlc file="${flexapp.dir}/${flexapp.name}.mxml" 
+			output="${build.dir}/${flexapp.name}.swf">
+	        <load-config filename="${FLEX_HOME}/frameworks/flex-config.xml"/>
+	        <source-path path-element="${FLEX_HOME}/frameworks"/>
+			    <compiler.library-path dir="${lib.dir}" append="true">
+			                <include name="AlivePDF.swc" />
+			     </compiler.library-path>
+			<compiler.debug>true</compiler.debug>			
+		</mxmlc>
+		<html-wrapper 
+		      title="${flexapp.title}"
+		      file="${flexapp.name}.html"
+		      width="100%"
+		      height="100%"
+		      application="${flexapp.name}"
+		      swf="${flexapp.name}"
+		      version-major="10"
+		      version-minor="0"
+		      version-revision="0"
+		      history="false"
+		      template="express-installation"
+		      output="${build.dir}"/>
+		
+		<!-- delete version.as -->
+		<delete file="${flexapp.dir}/views/util/FlexAppVersion.as" />
+		
+		<!-- add version number to swf -->
+		<replace file="${build.dir}/${flexapp.name}.html" 
+			token="src=&quot;${flexapp.name}.swf&quot;" value="src=&quot;${flexapp.name}.swf?v=${gnomex_version}.${gnomex_build}&quot;"/>
+		<replace file="${build.dir}/${flexapp.name}.html" 
+			token="value=&quot;${flexapp.name}.swf&quot;" value="value=&quot;${flexapp.name}.swf?v=${gnomex_version}.${gnomex_build}&quot;"/>
+		
+		<!--  Create gnomexFlex.jsp with parameters -->
+		<copy file="${build.dir}/${flexapp.name}.html" tofile="${build.dir}/${flexapp.name}.jsp"/>
+		<copy file="${build.dir}/${flexapp.name}.html" tofile="${build.dir}/${flexapp.guest.name}.jsp"/>
+	    <replace file="${build.dir}/${flexapp.name}.jsp"
+	                         token="&lt;html lang=&quot;en&quot;&gt;"
+	                         value="&lt;%@ include file=&quot;requireSecureRemote.jsp&quot; %&gt;${line.separator}&lt;html lang=&quot;en&quot;&gt;"/>
+		<replace file="${build.dir}/${flexapp.name}.jsp"
+    											 token="&quot;src&quot;, &quot;${flexapp.name}&quot;,"
+		                       value="&quot;src&quot;, &quot;${flexapp.name}&quot;,${line.separator}      &quot;FlashVars&quot;, &quot;idCore=&lt;%=request.getParameter(&quot;idCore&quot;)%&gt;&amp;isGuest=&lt;%=request.getParameter(&quot;isGuest&quot;)%&gt;&amp;launchWindow=&lt;%=request.getParameter(&quot;launchWindow&quot;)%&gt;&amp;requestNumber=&lt;%=request.getParameter(&quot;requestNumber&quot;)%&gt;&amp;dataTrackNumber=&lt;%=request.getParameter(&quot;dataTrackNumber&quot;)%&gt;&amp;topicNumber=&lt;%=request.getParameter(&quot;topicNumber&quot;)%&gt;&amp;analysisNumber=&lt;%=request.getParameter(&quot;analysisNumber&quot;)%&gt;&amp;idLab=&lt;%=request.getParameter(&quot;idLab&quot;)%&gt;&amp;idAppUser=&lt;%=request.getParameter(&quot;idAppUser&quot;)%&gt;&amp;ccNumberList=&lt;%=request.getParameter(&quot;ccNumberList&quot;)%&gt;&quot;,"/>
+	    <replace file="${build.dir}/${flexapp.name}.jsp"
+	                         token="&lt;meta http-equiv=&quot;Content-Type&quot; content=&quot;text/html; charset=utf-8&quot; /&gt;"
+	                         value="&lt;meta http-equiv=&quot;Content-Type&quot; content=&quot;text/html; charset=utf-8&quot; /&gt;${line.separator}&lt;meta http-equiv=&quot;Cache-Control&quot; content=&quot;no-cache, no-store, must-revalidate&quot;>${line.separator}&lt;meta http-equiv=&quot;Pragma&quot; content=&quot;no-cache&quot;&gt;${line.separator}&lt;meta http-equiv=&quot;Expires&quot; content=&quot;0&quot;&gt;"/>
+		<!--  Create gnomexGuestFlex.jsp - hardcoded isGuest parameters -->
+		<copy file="${build.dir}/${flexapp.name}.html" tofile="${build.dir}/${flexapp.guest.name}.jsp"/>
+	    <replace file="${build.dir}/${flexapp.guest.name}.jsp"
+	                         token="&lt;html lang=&quot;en&quot;&gt;"
+	                         value="&lt;%@ include file=&quot;requireSecureRemote.jsp&quot; %&gt;${line.separator}&lt;html lang=&quot;en&quot;&gt;"/>
+		<replace file="${build.dir}/${flexapp.guest.name}.jsp"
+    						   token="&quot;src&quot;, &quot;${flexapp.name}&quot;,"
+		                       value="&quot;src&quot;, &quot;${flexapp.name}&quot;,${line.separator}      &quot;FlashVars&quot;, &quot;idCore=&lt;%=request.getParameter(&quot;idCore&quot;)%&gt;&amp;isGuest=Y&amp;launchWindow=&lt;%=request.getParameter(&quot;launchWindow&quot;)%&gt;&amp;requestNumber=&lt;%=request.getParameter(&quot;requestNumber&quot;)%&gt;&amp;dataTrackNumber=&lt;%=request.getParameter(&quot;dataTrackNumber&quot;)%&gt;&amp;topicNumber=&lt;%=request.getParameter(&quot;topicNumber&quot;)%&gt;&amp;analysisNumber=&lt;%=request.getParameter(&quot;analysisNumber&quot;)%&gt;&amp;idLab=&lt;%=request.getParameter(&quot;idLab&quot;)%&gt;&amp;idAppUser=&lt;%=request.getParameter(&quot;idAppUser&quot;)%&gt;&amp;ccNumberList=&lt;%=request.getParameter(&quot;ccNumberList&quot;)%&gt;&quot;,"/>
+	    <replace file="${build.dir}/${flexapp.guest.name}.jsp"
+	                         token="&lt;meta http-equiv=&quot;Content-Type&quot; content=&quot;text/html; charset=utf-8&quot; /&gt;"
+	                         value="&lt;meta http-equiv=&quot;Content-Type&quot; content=&quot;text/html; charset=utf-8&quot; /&gt;${line.separator}&lt;meta http-equiv=&quot;Cache-Control&quot; content=&quot;no-cache, no-store, must-revalidate&quot;>${line.separator}&lt;meta http-equiv=&quot;Pragma&quot; content=&quot;no-cache&quot;&gt;${line.separator}&lt;meta http-equiv=&quot;Expires&quot; content=&quot;0&quot;&gt;"/>
+		
+		<!--  Version swf so we don't get caching -->
+		<replace file="${build.dir}/AC_OETags.js" token=".swf" value=".swf?v=${gnomex_version}.${gnomex_build}" />
+		
+		<!-- Copy the image files in the assets directory -->
+		<copy todir="${build.dir}/assets" overwrite="true">
+					<fileset dir="${flexapp.dir}/assets">
+						<include name="*.*" />
+					</fileset>
+		</copy> 	
+	</target>	
+	
+
+
+
+	<!-- ============================================== -->
+	<!--                                                -->
+	<!-- War  (tomcat)                                  -->
+	<!--                                                -->
+	<!-- ============================================== -->
+	<target name="war-tomcat" depends="init, jar-tomcat, -copylib">
+		<echo>+ ===================================================== +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+  Building war files  (tomcat)                         +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+ ===================================================== +</echo>
+		<delete>
+			<fileset dir="${dist.dir}" includes="${war.name}" />
+		</delete>
+		
+		
+		<!-- Use the tomcat versions of these jsps -->
+		<copy todir="${dist.dir}/tomcat" file="${webroot.dir}/tomcat/getHTML.jsp"/>
+		<copy todir="${dist.dir}/tomcat" file="${webroot.dir}/tomcat/getXML.jsp"/>
+		
+		<!-- Use the tomcat version of the script files -->
+		<copy todir="${dist.dir}/tomcat/scripts">
+		    <fileset dir="${basedir}/scripts/">
+			    <include name="*.*" />
+			</fileset>
+		</copy>
+		<copy todir="${dist.dir}/tomcat/scripts" overwrite="true">
+		    <fileset dir="${basedir}/scripts/tomcat/">
+			    <include name="*.*" />
+			</fileset>
+		</copy>
+
+		<!-- Use UNIX eol convention for .sh files -->
+		<fixcrlf srcdir="${dist.dir}/tomcat/scripts" includes="*.sh"
+		         eol="lf" eof="remove" />	
+		
+		<!--  Change gnomexLite.jsp to gnomexFlex.jsp -->
+		<copy file="${webroot.dir}/WEB-INF/web.xml"  tofile="${webroot.dir}/WEB-INF/tomcat/web.xml" overwrite="true" />
+	    <replace file="${webroot.dir}/WEB-INF/tomcat/web.xml" token="gnomexLite.jsp" value="gnomexFlex.jsp"/>
+
+    <copy todir="${dist.dir}/tomcat" overwrite="true">
+        <fileset dir="${hcienv.dir}/src" >
+          <include name="*.hbm.xml" />
+      </fileset>
+    </copy>
+    
+		<war destfile="${dist.dir}/${war.name}" webxml="${webroot.dir}/WEB-INF/tomcat/web.xml">
+			 <metainf dir="${metainf.dir}"          includes="context.xml"/>
+			 <lib dir="${lib.dir}"                  includes="*.jar"/>
+			 <lib dir="${lib.env.dir}">
+			   <include name="*.jar"/>
+			   <exclude name="mail.jar"/>
+			   <exclude name="log4j-1.2.11.jar"/>
+			 </lib>
+			 <lib dir="${dist.dir}"                 includes="${jar.name}"/>
+       		 <lib dir="${dist.dir}"                 includes="${clientjar.name}"/>
+			 <lib dir="${hcienv.dir}/lib"           includes="*.jar"/>
+			 <classes dir="${lib.dir}"              includes="persistence.xml"/> 
+			 <classes dir="${lib.dir}"              includes="*.tomcat.cfg.xml"/> 
+			 <classes dir="${lib.dir}"              includes="*.properties"/> 
+		     <classes dir="${src.dir}"			    includes="Dictionaries.xml"/>
+		     <classes dir="${src.dir}"			    includes="SchemaGNomEx.hbm.xml" />
+      <classes dir="${dist.dir}/tomcat"     includes="*.*" />
+		     <fileset dir="${webroot.dir}">
+				<include name="**/*.*" />
+			 	<exclude name="WEB-INF/**"/>
+				<exclude name="tomcat/**" />
+				<exclude name="gnomexlite/**" />
+			 	<exclude name="getXML.jsp"/>
+			 	<exclude name="getHTML.jsp"/>
+		 	 </fileset>
+		     <fileset dir="${basedir}">
+				<include name="UCSCExecutables/**" />
+		     </fileset>
+			 <fileset dir="${dist.dir}/tomcat">
+				<include name="*.jsp" />
+		 	 </fileset>
+			<fileset dir="${dist.dir}/tomcat">
+				<include name="scripts/*.*" />
+			</fileset>						
+			<fileset dir="${build.dir}">
+				<include name="*.swf" />
+				<include name="*.html" />
+				<include name="*.jsp" />
+				<include name="*.js" />
+				<include name="assets/*.*" />
+			</fileset>		
+	  </war>
+	  
+	  <delete  dir="${dist.dir}/tomcat" />
+
+	</target>
+	
+	
+	<!-- ============================================== -->
+	<!--                                                -->
+	<!-- War  (GNomExLite)                                  -->
+	<!--                                                -->
+	<!-- ============================================== -->
+	<target name="war-gnomexlite" depends="init, jar-tomcat, -copylib">
+		<echo>+ ===================================================== +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+  Building war file (gnomexlite)                       +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+ ===================================================== +</echo>
+		<delete>
+			<fileset dir="${dist.dir}" includes="${glwar.name}" />
+		</delete>
+		
+		
+		<!-- Use the tomcat versions of these jsps -->
+		<copy todir="${dist.dir}/tomcat" file="${webroot.dir}/tomcat/getHTML.jsp"/>
+		<copy todir="${dist.dir}/tomcat" file="${webroot.dir}/tomcat/getXML.jsp"/>
+		
+		<!-- Put gnomexLite.jsp where it belongs -->
+		<copy todir="${dist.dir}/tomcat" file="${webroot.dir}/gnomexlite/gnomexLite.jsp"/>
+		
+		<!-- Use the tomcat version of the script files -->
+		<copy todir="${dist.dir}/tomcat/scripts">
+		    <fileset dir="${basedir}/scripts/">
+			    <include name="*.*" />
+			</fileset>
+		</copy>
+		<copy todir="${dist.dir}/tomcat/scripts" overwrite="true">
+		    <fileset dir="${basedir}/scripts/tomcat/">
+			    <include name="*.*" />
+			</fileset>
+		</copy>
+
+		<!-- Use UNIX eol convention for .sh files -->
+		<fixcrlf srcdir="${dist.dir}/tomcat/scripts" includes="*.sh"
+		         eol="lf" eof="remove" />	
+		
+
+    	<copy todir="${dist.dir}/tomcat" overwrite="true">
+        	<fileset dir="${hcienv.dir}/src" >
+          		<include name="*.hbm.xml" />
+      		</fileset>
+    	</copy>
+		
+		<!-- Copy the image files in the assets directory -->
+		<copy todir="${build.dir}/assets" overwrite="true">
+					<fileset dir="${flexapp.dir}/assets">
+						<include name="*.*" />
+					</fileset>
+		</copy> 	
+		
+    	<copy file="${webroot.dir}/WEB-INF/web.xml"  tofile="${webroot.dir}/WEB-INF/tomcat/web.xml" overwrite="true"/>
+    	
+		<war destfile="${dist.dir}/${glwar.name}" webxml="${webroot.dir}/WEB-INF/tomcat/web.xml">
+			 <metainf dir="${metainf.dir}"          includes="context.xml"/>
+			 <lib dir="${lib.dir}"                  includes="*.jar"/>
+			 <lib dir="${lib.env.dir}">
+			   <include name="*.jar"/>
+			   <exclude name="mail.jar"/>
+			   <exclude name="log4j-1.2.11.jar"/>
+			 </lib>
+			 <lib dir="${dist.dir}"                 includes="${jar.name}"/>
+       		 <lib dir="${dist.dir}"                 includes="${clientjar.name}"/>
+			 <lib dir="${hcienv.dir}/lib"           includes="*.jar"/>
+			 <classes dir="${lib.dir}"              includes="persistence.xml"/> 
+			 <classes dir="${lib.dir}"              includes="*.tomcat.cfg.xml"/> 
+			 <classes dir="${lib.dir}"              includes="*.properties"/> 
+		     <classes dir="${src.dir}"			    includes="Dictionaries.xml"/>
+		     <classes dir="${src.dir}"			    includes="SchemaGNomEx.hbm.xml" />
+      		 <classes dir="${dist.dir}/tomcat"      includes="*.*" />
+			 <classes dir="${webroot.dir}/gnomexlite" includes="GNomExLite.properties" />
+		     <fileset dir="${webroot.dir}">
+				<include name="**/*.*" />
+			 	<exclude name="WEB-INF/**"/>
+				<exclude name="tomcat/**" />
+		     	<exclude name="gnomexlite/**" />
+			 	<exclude name="getXML.jsp"/>
+			 	<exclude name="getHTML.jsp"/>
+		 	 </fileset>
+		     <fileset dir="${basedir}">
+				<include name="UCSCExecutables/**" />
+		     </fileset>
+			 <fileset dir="${dist.dir}/tomcat">
+				<include name="*.jsp" />
+		 	 </fileset>
+			 <fileset dir="${dist.dir}/tomcat">
+				<include name="scripts/*.*" />
+			 </fileset>						
+			 <fileset dir="${build.dir}">
+				<include name="*.html" />
+				<include name="*.jsp" />
+				<include name="*.js" />
+				<include name="assets/*.*" />
+			 </fileset>		
+	  </war>
+	  
+	  <delete  dir="${dist.dir}/tomcat" />
+
+	</target>
+	
+	<!-- ============================================== -->
+	<!--                                                -->
+	<!-- check-for-libenv                               -->
+	<!--                                                -->
+	<!-- ============================================== -->
+	<target name="-check-for-libenv">
+	    <available file="${lib.env.dir}"  type="dir" property="libenv.present"/>
+	</target>
+	
+	<target name="-cleanlib">
+		<delete dir="${dist.dir}/lib"/>
+	</target>
+
+	<!-- ============================================== -->
+	<!--                                                -->
+	<!-- Copy jar files from lib                        -->
+	<!--                                                -->
+	<!-- ============================================== -->
+	<target name="-copylib" depends="-cleanlib, -copylibenv">
+		<echo>+ ===================================================== +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+  Copying jar files in lib                            +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+ ===================================================== +</echo>		
+
+		<copy todir="${dist.dir}/lib">
+		    <fileset dir="${lib.dir}">
+			    <include name="**" />
+			</fileset>
+		</copy>
+	</target>
+
+	<!-- ============================================== -->
+	<!--                                                -->
+	<!-- Copy jar files from libEnv (if dir exists)     -->
+	<!--                                                -->
+	<!-- ============================================== -->
+	<target name="-copylibenv" depends="-check-for-libenv" if="libenv.present">
+		<echo>+ ===================================================== +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+  Copying jar files in libEnv                         +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+ ===================================================== +</echo>		
+		
+		<copy todir="${dist.dir}/lib">
+		    <fileset dir="${lib.env.dir}">
+			    <include name="**" />
+			</fileset>
+		</copy>
+	</target>
+
+
+	<!-- ============================================== -->
+	<!--                                                -->
+	<!-- deploy  (tomcat)                               -->
+	<!--                                                -->
+	<!-- ============================================== -->
+	<target name="deploy-tomcat" depends="init">
+		<echo>+ ===================================================== +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+  Deploying (tomcat)                                   +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+ ===================================================== +</echo>
+		<copy file="${dist.dir}/${war.name}" todir="${tomcat.dir}/webapps"/>		
+    <delete dir="${tomcat.dir}/webapps/${app.name}"/>
+		<copy file="${dist.dir}/${realmjar.name}" todir="${lib.tomcat.server.dir}"/>
+	</target>
+	
+	<!-- ============================================== -->
+	<!--                                                -->
+	<!-- deploy  (GNomExLite)                           -->
+	<!--                                                -->
+	<!-- ============================================== -->
+	<target name="deploy-gnomexlite" depends="init">
+		<echo>+ ===================================================== +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+  Deploying (GNomExLite)                               +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+ ===================================================== +</echo>
+		<copy file="${dist.dir}/${glwar.name}" todir="${tomcat.dir}/webapps"/>		
+    <delete dir="${tomcat.dir}/webapps/${glapp.name}"/> 
+		<copy file="${dist.dir}/${realmjar.name}" todir="${lib.tomcat.server.dir}"/>
+	</target>
+	
+	
+	<!-- ============================================== -->
+	<!--                                                -->
+	<!-- distribute to genoviz                          -->
+	<!--                                                -->
+	<!-- ============================================== -->
+	<target name="distribute-to-genoviz" depends="init, jar-tomcat, realmjar">
+		<echo>+ ===================================================== +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+  Distributing jars to genoviz project                 +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+ ===================================================== +</echo>
+		
+		<!-- Copy gnomex.jar, gnomex_real.jar to genoviz/ext -->				
+		<copy todir="${genoviz.dir}/ext" file="${dist.dir}/gnomex.jar"/>
+		<copy todir="${genoviz.dir}/ext" file="${dist.dir}/gnomex_realm.jar"/>
+		
+		<!-- Copy SchemaGNomEx.hbm.xml to genoviz/das2server/resources -->
+		<copy todir="${genoviz.dir}/das2_server/resources" file="${src.dir}/SchemaGNomEx.hbm.xml"/>
+		
+	</target>
+	
+	
+	<!-- ============================================== -->
+	<!--                                                -->
+	<!-- prebuild opensource                            -->
+	<!--                                                -->
+	<!-- ============================================== -->
+	<target name="-prebuild-opensource" depends="init">
+		<echo>+ ===================================================== +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+   prebuildbuild opensource                            +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+ ===================================================== +</echo>
+	    <path id="project.class.path">
+	      <fileset dir="${lib.env.dir}"             includes="*.jar" />
+	      <fileset dir="${lib.dir}" 				includes="*.jar" />
+	    </path>
+		<property name="bstx.exclude.class" value=""/>
+		
+		<!-- Copy gnomex META-INF, scripts and lib dir -->
+  	    <copy todir="${sandbox.dir}">
+	  	  <fileset dir="${basedir}">
+		      <exclude name="**/CVS/**"/>
+		      <include name="scripts/**"/>
+		      <include name="lib/**"/>
+		      <exclude name="META-INF/context.xml"/>
+		      <exclude name="META-INF/context_opensource.xml"/>
+		      <include name="META-INF/**"/>
+		  </fileset>
+  	    </copy>
+		
+  		  <!-- Use the opensource version of the context file -->
+  		<copy file="${basedir}/META-INF/context_opensource.xml"  tofile="${sandbox.dir}/META-INF/context.xml"/>
+  		 <!--<copy file="${basedir}/META-INF/context.xml"  tofile="${sandbox.dir}/META-INF/context.xml"/>-->
+
+  	    <!-- Change realm name in web.xml from hciEnv to gnomex.  -->
+		<!-- NOTE: there is no realm-name in web.xml to change.  09/14/2015 -->
+		<copy file="${basedir}/defaultroot/WEB-INF/web.xml"  tofile="${sandbox.dir}/defaultroot/WEB-INF/web.xml"/> 
+		<replace file="${sandbox.dir}/defaultroot/WEB-INF/web.xml"
+				     token="&lt;realm-name&gt;hciEnv&lt;/realm-name&gt;"
+      	     value="&lt;realm-name&gt;gnomex&lt;/realm-name&gt;">
+		</replace>
+		<copy file="${basedir}/defaultroot/WEB-INF/tomcat/web.xml"  tofile="${sandbox.dir}/defaultroot/WEB-INF/tomcat/web.xml"/> 
+		<replace file="${sandbox.dir}/defaultroot/WEB-INF/tomcat/web.xml"
+				     token="&lt;realm-name&gt;hciEnv&lt;/realm-name&gt;"
+      	     value="&lt;realm-name&gt;gnomex&lt;/realm-name&gt;">
+		</replace>
+
+		<!-- Get rid of proxy and change to MySQL jdbc driver in hibernate.cfg.xml files -->
+		<replace dir="${sandbox.dir}/lib"
+		         token="&lt;property name=&quot;connection.provider_class&quot;&gt;com.opensourceconnections.msjdbcproxy.HibernateProvider&lt;/property&gt;"
+		         value="">
+			<include name="hibernate*.cfg.xml"/>
+		</replace>
+		<replace dir="${sandbox.dir}/lib"
+				     token="SQLServerDialect"
+		         value="MySQLDialect">
+			<include name="hibernate*.cfg.xml"/>
+		</replace>
+		
+		<!-- Get rid of BST mapping file entries in hibernate.cfg.xml files -->
+		<replaceregexp file="${sandbox.dir}/lib/hibernate.cfg.xml"
+			match="&lt;mapping file=&quot;applications/hciEnv/Schema(.*).hbm.xml(.*)/&gt;"
+			replace="" byline="true">			
+		</replaceregexp>
+		<replaceregexp file="${sandbox.dir}/lib/hibernateGuest.cfg.xml"
+			match="&lt;mapping file=&quot;applications/hciEnv/Schema(.*).hbm.xml(.*)/&gt;"
+			replace="" byline="true">			
+		</replaceregexp>
+		<replaceregexp file="${sandbox.dir}/lib/hibernate.tomcat.cfg.xml"
+			match="&lt;mapping file=&quot;applications/hciEnv/Schema(.*).hbm.xml(.*)/&gt;"
+			replace="" byline="true">			
+		</replaceregexp>
+		<replaceregexp file="${sandbox.dir}/lib/hibernateGuest.tomcat.cfg.xml"
+			match="&lt;mapping file=&quot;applications/hciEnv/Schema(.*).hbm.xml(.*)/&gt;"
+			replace="" byline="true">			
+		</replaceregexp>		
+		
+
+		<!-- Remove all references to hciEnv and hciFlex in scripts -->
+		<replaceregexp  file="${sandbox.dir}/scripts/index_gnomex.sh"
+			       match="HIBERNATE_HOME=\$ORION_HOME/applications/hciEnv"
+             replace="HIBERNATE_HOME=$$ORION_HOME/applications/gnomex">
+		</replaceregexp>
+		<replaceregexp  file="${sandbox.dir}/scripts/index_gnomex.cmd"
+			       match="HIBERNATE_HOME=\%ORION_HOME\%\\applications\\hciEnv"
+             replace="HIBERNATE_HOME=\%ORION_HOME\%\\\\applications\\\\gnomex">
+		</replaceregexp>
+		
+		<!-- Use UNIX eol convention for .sh files -->
+		<fixcrlf srcdir="${sandbox.dir}/scripts" includes="*.sh"
+		         eol="lf" eof="remove" />		
+
+	</target>
+		
+	
+	<!-- ============================================== -->
+	<!--                                                -->
+	<!-- build opensource tomcat                        -->
+	<!--                                                -->
+	<!-- ============================================== -->
+	<target name="build-opensource-tomcat" depends="init, -prebuild-opensource">
+		<echo>+ ===================================================== +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+   build opensource (tomcat)                           +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+ ===================================================== +</echo>
+		<!-- By default, gnomex will run unsecure (http: instead of https).
+		     Change the Constants.java file so that the front controller
+		     will not reject unsecure (http:) requests. -->
+		<replaceregexp  file="${basedir}/src/hci/gnomex/constants/Constants.java"
+				     match="REQUIRE_SECURE_REMOTE\s+=\s+true;"
+		         replace="REQUIRE_SECURE_REMOTE           = false;">
+		</replaceregexp>
+
+    <!-- Compile flex -->
+    <subant target="flex">
+          <property name="opensource" value="true"/>
+        <property name="dist.dir" value="${dist.dir}"/>
+          <property name="basedir" value="${basedir}"/>
+        <property name="metainf.dir" value="${sandbox.dir}/META-INF"/>
+        <property name="lib.dir" value="${sandbox.dir}/lib"/>
+        <property name="src.dir" value="${basedir}/src"/>
+          <property name="flex.appname" value="${flexapp.name}"/>
+          <property name="flex.title" value="${flex.title}"/>
+          <fileset dir="${basedir}" includes="build.xml"/>
+    </subant>
+		
+		<!-- Build war, this time allowing http (nonsecure) connections -->
+		<subant target="war-tomcat">
+		    <property name="opensource" value="true"/>
+			<property name="dist.dir" value="${dist.dir}"/>
+			<property name="webroot.dir" value="${basedir}/defaultroot"/>
+		    <property name="basedir" value="${basedir}"/>
+			<property name="metainf.dir" value="${sandbox.dir}/META-INF"/>
+			<property name="lib.dir" value="${sandbox.dir}/lib"/>
+			<property name="src.dir" value="${basedir}/src"/>
+		    <fileset dir="${basedir}" includes="build.xml"/>
+		</subant>
+
+		<subant target="clientjar">
+			<property name="dist.dir" value="${dist.dir}"/>
+		    <property name="basedir" value="${basedir}"/>
+			<property name="metainf.dir" value="${sandbox.dir}/META-INF"/>
+			<property name="lib.dir" value="${sandbox.dir}/lib"/>
+			<property name="src.dir" value="${basedir}/src"/>
+		    <fileset dir="${basedir}" includes="build.xml"/>
+		</subant>
+
+	    <subant target="realmjar">
+			<property name="dist.dir" value="${dist.dir}"/>
+		    <property name="basedir" value="${basedir}"/>
+			<property name="metainf.dir" value="${sandbox.dir}/META-INF"/>
+			<property name="lib.dir" value="${sandbox.dir}/lib"/>
+			<property name="src.dir" value="${basedir}/src"/>
+		    <fileset dir="${basedir}" includes="build.xml"/>
+	    </subant>
+
+	    <!-- Compile GNomex to run secure (https) only-->
+		<replaceregexp  file="${basedir}/src/hci/gnomex/constants/Constants.java"
+				     match="REQUIRE_SECURE_REMOTE\s+=\s+false;"
+		         replace="REQUIRE_SECURE_REMOTE           = true;">
+		</replaceregexp>
+
+		<!-- Build war again, this time allowing https (secure) connections -->
+		<subant target="war-tomcat">
+		    <property name="opensource" value="true"/>
+		    <property name="dist.dir" value="${dist.dir}/secure"/>
+			<property name="webroot.dir" value="${basedir}/defaultroot"/>
+		    <property name="basedir" value="${basedir}"/>
+			<property name="metainf.dir" value="${sandbox.dir}/META-INF"/>
+			<property name="lib.dir" value="${sandbox.dir}/lib"/>
+			<property name="src.dir" value="${basedir}/src"/>
+		    <fileset dir="${basedir}" includes="build.xml"/>
+		</subant>
+				
+	</target>
+
+
+	<!-- ============================================== -->
+	<!--                                                -->
+	<!-- build GNomExLite                               -->
+	<!--                                                -->
+	<!-- ============================================== -->
+	<target name="build-opensource-gnomexlite" depends="init, -prebuild-opensource">
+		<echo>+ ===================================================== +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+   build opensource GNomExLite                                    +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+ ===================================================== +</echo>
+		<!-- By default, gnomex will run unsecure (http: instead of https).
+		     Change the Constants.java file so that the front controller
+		     will not reject unsecure (http:) requests. -->
+		<replaceregexp  file="${basedir}/src/hci/gnomex/constants/Constants.java"
+				     match="REQUIRE_SECURE_REMOTE\s+=\s+true;"
+		         replace="REQUIRE_SECURE_REMOTE           = false;">
+		</replaceregexp>
+		
+		<!-- Build war -->
+		<subant target="war-gnomexlite">
+		    <property name="opensource" value="true"/>
+			<property name="dist.dir" value="${dist.dir}"/>
+			<property name="webroot.dir" value="${basedir}/defaultroot"/>
+		    <property name="basedir" value="${basedir}"/>
+			<property name="metainf.dir" value="${sandbox.dir}/META-INF"/>
+			<property name="lib.dir" value="${sandbox.dir}/lib"/>
+			<property name="src.dir" value="${basedir}/src"/>
+		    <fileset dir="${basedir}" includes="build.xml"/>
+		</subant>
+
+		<subant target="clientjar">
+			<property name="dist.dir" value="${dist.dir}"/>
+		    <property name="basedir" value="${basedir}"/>
+			<property name="metainf.dir" value="${sandbox.dir}/META-INF"/>
+			<property name="lib.dir" value="${sandbox.dir}/lib"/>
+			<property name="src.dir" value="${basedir}/src"/>
+		    <fileset dir="${basedir}" includes="build.xml"/>
+		</subant>
+
+	    <subant target="realmjar">
+			<property name="dist.dir" value="${dist.dir}"/>
+		    <property name="basedir" value="${basedir}"/>
+			<property name="metainf.dir" value="${sandbox.dir}/META-INF"/>
+			<property name="lib.dir" value="${sandbox.dir}/lib"/>
+			<property name="src.dir" value="${basedir}/src"/>
+		    <fileset dir="${basedir}" includes="build.xml"/>
+	    </subant>
+
+	    <!-- Compile GNomex to run secure (https) only-->
+		<replaceregexp  file="${basedir}/src/hci/gnomex/constants/Constants.java"
+				     match="REQUIRE_SECURE_REMOTE\s+=\s+false;"
+		         replace="REQUIRE_SECURE_REMOTE           = true;">
+		</replaceregexp>
+		
+		<!-- Build war again, this time allowing https (secure) connections -->
+		<subant target="war-gnomexlite">
+		    <property name="opensource" value="true"/>
+		    <property name="dist.dir" value="${dist.dir}/secure"/>
+			<property name="webroot.dir" value="${basedir}/defaultroot"/>
+		    <property name="basedir" value="${basedir}"/>
+			<property name="metainf.dir" value="${sandbox.dir}/META-INF"/>
+			<property name="lib.dir" value="${sandbox.dir}/lib"/>
+			<property name="src.dir" value="${basedir}/src"/>
+		    <fileset dir="${basedir}" includes="build.xml"/>
+		</subant>
+
+	</target>
+	
+
+
+	<!-- ============================================== -->
+	<!--                                                -->
+	<!-- check-for-tomcat                               -->
+	<!--                                                -->
+	<!-- ============================================== -->
+	<target name="-check-for-tomcat">
+	    <available file="${tomcat.dir}"  type="dir" property="tomcat.present"/>
+	</target>
+
+	<!-- ============================================== -->
+	<!--                                                -->
+	<!-- release-opensource-tomcat                      -->
+	<!--                                                -->
+	<!-- ============================================== -->
+	<target name="-release-opensource-tomcat" depends="init,-check-for-tomcat" if="tomcat.present">
+		<echo>+ ===================================================== +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+  release open source  (tomcat)                        +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+ ===================================================== +</echo>
+
+		<!-- Use UNIX eol convention for README_INSTALL.txt file -->
+		<fixcrlf srcdir="${sandbox.dir}" includes="README_INSTALL.txt"
+		         eol="lf" eof="remove" />		
+		<fixcrlf srcdir="${sandbox.dir}" includes="README_INSTALL_TOMCAT.txt"
+		         eol="lf" eof="remove" />		
+
+		<!-- Copy README_UPGRADE.txt and stick in actual version number into document -->				
+		<copy todir="${sandbox.dir}" file="${basedir}/README_UPGRADE.txt"/>
+		<replace file="${sandbox.dir}/README_UPGRADE.txt"
+					     token="$VERSION"
+	      	     value="${gnomex_version}">
+		</replace>
+
+		
+		<!-- Copy over the jars required in tomcat/lib -->
+		<copy todir="${sandbox.dir}/server/tomcat/lib">
+			<fileset dir="${basedir}/config/tomcat_config">
+	        	<include name="*.jar"/>
+	     	 </fileset>
+	    </copy>
+		
+
+		
+		<!-- Use the tomcat version of the script files -->
+		<copy todir="${sandbox.dir}/tomcat/scripts">
+		    <fileset dir="${basedir}/scripts/">
+			    <include name="*.*" />
+			</fileset>
+		</copy>
+		<copy todir="${sandbox.dir}/tomcat/scripts" overwrite="true">
+		    <fileset dir="${basedir}/scripts/tomcat/">
+			    <include name="*.*" />
+			</fileset>
+		</copy>
+
+		<!-- Use the tomcat version of the README_INSTALL -->
+		<copy todir="${sandbox.dir}/tomcat">
+		    <fileset dir="${basedir}">
+			    <include name="README_INSTALL_TOMCAT.txt" />
+			</fileset>
+		</copy>
+		<move file="${sandbox.dir}/tomcat/README_INSTALL_TOMCAT.txt"  tofile="${sandbox.dir}/tomcat/README_INSTALL.txt"/> 
+			
+		<!-- Create the zip file -->
+     	<mkdir dir="${dist.dir}/release" />
+		<zip destfile="${dist.dir}/release/${opensource.tomcat.name}.zip" >
+			<zipfileset dir="${dist.dir}" includes="gnomex.war" prefix="${opensource.name}/gnomex/dist"/>
+			<zipfileset dir="${dist.dir}" includes="gnomex_client.jar" prefix="${opensource.name}/gnomex/dist"/>
+			<zipfileset dir="${dist.dir}" includes="gnomex_realm.jar" prefix="${opensource.name}/gnomex/dist"/>
+			<zipfileset dir="${dist.dir}/secure" includes="gnomex.war" prefix="${opensource.name}/gnomex/dist/secure"/>
+			<zipfileset dir="${basedir}/doc" includes="*/**" prefix="${opensource.name}/gnomex/doc"/>
+			<zipfileset dir="${basedir}/sql" includes="*/**" prefix="${opensource.name}/gnomex/sql"/>
+			<zipfileset dir="${sandbox.dir}/tomcat/scripts" includes="*.*" prefix="${opensource.name}/gnomex/scripts"/>
+			<zipfileset dir="${sandbox.dir}/server/tomcat" prefix="${opensource.name}/tomcat"/>
+			<zipfileset dir="${sandbox.dir}" includes="LICENSE.txt" prefix="${opensource.name}"/>
+			<zipfileset dir="${sandbox.dir}/tomcat" includes="README_INSTALL.txt" prefix="${opensource.name}"/>
+			<zipfileset dir="${sandbox.dir}" includes="README_UPGRADE.txt" prefix="${opensource.name}"/>
+		</zip>
+
+		<delete dir="${sandbox.dir}/tomcat"/>
+		
+	</target>
+
+
+    <!-- ============================================== -->
+	<!--                                                -->
+	<!-- Refresh the hciFlex classes from the           -->
+	<!-- project hciFlex2                               -->
+	<!--                                                -->
+	<!-- ============================================== -->
+    <target name="refreshHCIFlex" depends="init">
+		<!-- Copy flex files normally in hciFlex2 directly to gnomex/flex -->
+	    <copy todir="${basedir}/flex">
+	      <fileset dir="${hciflex.dir}">
+	        <include name="assets/**"/>
+	        <include name="hci/**"/>
+	        <exclude name="hci/**/cod/**"/>
+	        <exclude name="**/CVS"/>
+	        <exclude name="**/.cvsignore"/>
+	        <exclude name="**/Thumbs.db"/>
+	      </fileset>
+	    </copy>
+		
+	</target>
+	
+    <!-- ============================================== -->
+	<!--                                                -->
+	<!-- Refresh the hciEnv jar files from the          -->
+	<!-- hciEnv project folder                          -->
+	<!--                                                -->
+	<!-- ============================================== -->
+
+	<target name="refreshHCIEnv" depends="init">
+		  <!-- Copy jar files normally in hciEnv directly to gnomex/libEnv -->
+		  <copy todir="${basedir}/libEnv">
+		    <fileset dir="${hcienv.dir}/lib">
+		      <include name="antlr-2.7.6rc1.jar"/>
+		      <include name="asm.jar"/>
+		      <include name="asm-attrs.jar"/>
+		      <include name="cglib-2.1.3.jar"/>
+			  <include name="ehcache-1.1.jar"/>
+		      <include name="hibernate3.jar"/>
+		      <include name="Hibernate3Utils.jar"/>
+		      <include name="HCIDictionary.jar"/>
+		      <include name="HCIReport.jar"/>
+		      <exclude name="**/CVS"/>
+		      <exclude name="**/.cvsignore"/>
+		      <exclude name="**/Thumbs.db"/>
+		    </fileset>
+		  </copy>
+			
+	</target>
+	
+	
+	
+	
+
+</project>

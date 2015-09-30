@@ -1,0 +1,31 @@
+<div class="container-fluid" style="padding-top: 10px">
+	<div class="row">
+			<table class="table table-bordered table-striped table-hover">
+			    <thead>
+			        <tr>
+			            <th width="10%">#</th>
+			            <th width="10%">Date</th>
+			            <th width="15%">Requestor</th>
+			            <th width="15%">Project</th>
+			            <th width="15%">Experiment Kind</th>
+			            <th width="10%">Microarray</th>
+			            <th width="10%">Analysis</th>
+			            <th width="15%">Analysis Names</th>
+			        </tr>
+			    </thead>
+			    <tbody>
+			        <tr ng-repeat="expr in experiments">
+			            <td>{{expr.number}}</td>
+			            <td>{{expr.date}}</td>
+			            <td>{{expr.requestor}}</td>
+			            <td>{{expr.project}}</td>
+			            <td>{{expr.kind}}</td>
+			            <td>{{expr.microarray}}</td>
+			            <td>{{expr.analysis}}</td>
+			            <td>{{expr.analysisnames}}</td>
+			          	</td>
+			        </tr>
+			    </tbody>
+			</table>
+	</div> <!-- end row -->
+</div> <!--  end container -->

@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml"
+				xmlns:renderers="views.renderers.*"
+				title="Add Authorized Billing Account"
+				layout="vertical" width="400" height="180"
+				showCloseButton="true" close="{close()}"
+				initialize="{init()}">
+	
+	<mx:HTTPService  
+		id="getLab" 
+		url="GetLab.gx" 
+		destination="getLab" 
+		resultFormat="e4x"
+		showBusyCursor="true"
+		result="onGetLab(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to get lab', event)"
+		method="POST"
+		useProxy="false">
+		<mx:request>
+			<idLab>{labCombo.selectedItem.@idLab}</idLab>
+		</mx:request>
+	</mx:HTTPService>
+	
+	<mx:Script>
+		<![CDATA[
+			import mx.controls.Alert;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.ResultEvent;
+			
+			import views.experiment.TabSetupView;
+			
+			private var parentView:Object = null;
+			private var idCoreFacility:String = null;
+			private var idAppUser:String = null;
+			private var isAdmin:Boolean = false;
+			private var authorizedBillingAccountResultForNonAdmins:Object = null;
+			
+			public function close():void {
+				PopUpManager.removePopUp(this);
+			}
+			
+			private function init():void {
+				if (parentApplication.isAdminState || parentApplication.isBillingAdminState || parentApplication.isSuperAdmin) {
+					isAdmin = true;
+				}
+			}
+			
+			public function setup(parentView:Object = null, idCoreFacility:String = null, idAppUser:String = null, authorizedBillingAccounts:Object = null):void {
+				this.parentView = parentView;
+				this.idCoreFacility = idCoreFacility;
+				this.idAppUser = idAppUser;
+				this.authorizedBillingAccountResultForNonAdmins = authorizedBillingAccounts;
+				
+				if (isAdmin) {
+					filteredLabs.source = parentApplication.labList.source;
+				} else if (authorizedBillingAccountResultForNonAdmins != null) {
+					filteredLabs.source = authorizedBillingAccountResultForNonAdmins..Lab;
+				}
+				
+				filteredLabs.refresh();
+			}
+			
+			private function getLabAccounts():void {
+				if (labCombo.selectedItem == null) {
+					return;
+				}
+				
+				if (isAdmin) {
+					getLab.send();
+				} else if (labCombo.selectedItem.hasOwnProperty("@idLab") && labCombo.selectedItem.@idLab != null) {
+					for each (var lab:Object in authorizedBillingAccountResultForNonAdmins..Lab) {
+						if (lab.@idLab == labCombo.selectedItem.@idLab) {
+							filteredAccounts.source = lab.BillingAccount;
+							filteredAccounts.refresh();
+							break;
+						}
+					}
+				}
+			}
+			
+			private function onGetLab(event:ResultEvent):void {
+				if (getLab.lastResult.name() == "OpenLabList") {
+					var lab:Object = getLab.lastResult..Lab.(@idLab == labCombo.selectedItem.@idLab);
+					filteredAccounts.source = lab.approvedBillingAccounts.BillingAccount;
+					filteredAccounts.refresh();
+				} else {
+					Alert.show("Could not retrieve lab information.", "Error", Alert.OK, this);
+				}
+			}
+			
+			private function addAccount():void {
+				if (accountCombo.selectedItem == null) {
+					return;
+				}
+				
+				if (parentView != null && parentView is TabSetupView) {
+					var tabSetupView:TabSetupView = parentView as TabSetupView;
+					var alreadyInList:Boolean = false;
+					for each (var account:Object in tabSetupView.billingAccounts) {
+						if (account.@idBillingAccount == accountCombo.selectedItem.@idBillingAccount) {
+							alreadyInList = true;
+							tabSetupView.billingAccountCombo.selectedItem = account;
+							break;
+						}
+					}
+					if (!alreadyInList) {
+						accountCombo.selectedItem.@accountNameAndNumber = "(" + labCombo.selectedItem.@name + ") " + accountCombo.selectedItem.@accountNameAndNumber;
+						accountCombo.selectedItem.@accountName = "(" + labCombo.selectedItem.@name + ") " + accountCombo.selectedItem.@accountName;
+						accountCombo.selectedItem.@accountNumberDisplay = "(" + labCombo.selectedItem.@name + ") " + accountCombo.selectedItem.@accountNumberDisplay;
+						accountCombo.selectedItem.@overrideFilter = "Y";
+						tabSetupView.billingAccounts.addItem(accountCombo.selectedItem);
+						tabSetupView.billingAccountCombo.selectedItem = accountCombo.selectedItem;
+					}
+					tabSetupView.makeBillingAccountSelection();
+				}
+				
+				close();
+			}
+			
+			private function filterLabs(item:Object):Boolean {
+				if (isAdmin) {
+					var keep:Boolean = false;
+					
+					if (idCoreFacility != null && item != null && item.hasOwnProperty("coreFacilities")) {
+						for each (var core:Object in item.coreFacilities..CoreFacility) {
+							if (core.hasOwnProperty("@idCoreFacility") && idCoreFacility == core.@idCoreFacility) {
+								keep = true;
+								break;
+							}
+						}
+					}
+					
+					if (item.hasOwnProperty("@isActive") && item.@isActive != "Y") {
+						keep = false;
+					}
+					
+					return keep;
+				}
+				
+				return true;
+			}
+			
+			private function filterAccounts(item:Object):Boolean {
+				if (isAdmin) {
+					if (item.@isActive == 'N') {
+						return false;
+					}
+					
+					if (item.@isApproved == 'N') {
+						return false;
+					}
+					
+					if (idCoreFacility == null || idCoreFacility == '') {
+						return false;
+					}
+					
+					if (idAppUser == null || idAppUser == '') {
+						return false;
+					}
+					
+					if (item.@idCoreFacility != '') {
+						if (item.@idCoreFacility.toString() != idCoreFacility) {
+							return false;
+						} 
+					}
+				}
+				
+				return true;
+			}
+			
+		]]>
+	</mx:Script>
+	
+	<mx:XMLListCollection id="filteredLabs" filterFunction="filterLabs" />
+	<mx:XMLListCollection id="filteredAccounts" filterFunction="filterAccounts" />
+	
+	<mx:VBox width="100%" height="100%" horizontalAlign="center" verticalGap="10" backgroundColor="#FFFFFF" paddingTop="2" paddingBottom="2" >
+		<mx:Spacer height="5" />
+		<renderers:FilterComboBox id="labCombo" prompt="Select a Lab..." close="getLabAccounts()" dataProvider="{filteredLabs}" labelField="@name" width="300" />
+		<renderers:FilterComboBox id="accountCombo" prompt="Select an Account..." dataProvider="{filteredAccounts}" labelField="@accountNameAndNumber" width="300" />
+		<mx:Spacer height="100%" />
+		<mx:Button label="Add Account" click="addAccount()" enabled="{labCombo.selectedItem != null &amp;&amp; accountCombo.selectedItem != null}" />
+		<mx:Spacer height="5" />
+	</mx:VBox>
+	
+</mx:TitleWindow>
