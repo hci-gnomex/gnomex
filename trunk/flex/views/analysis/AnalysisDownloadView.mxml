@@ -78,6 +78,53 @@
 		useProxy="false">
 	</mx:HTTPService>
 	
+	<mx:HTTPService             
+		id="makeUCSCLinks" 
+		url="MakeDataTrackUCSCLinks.gx"
+		resultFormat="e4x"
+		showBusyCursor="true"
+		result="onMakeUCSCLinks(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to get UCSC link URLs', event)"
+		method="POST"
+		useProxy="false">
+	</mx:HTTPService> 
+	
+	<mx:HTTPService             
+		id="makeIGVLink" 
+		url="MakeDataTrackIGVLink.gx"
+		resultFormat="e4x"
+		showBusyCursor="true"
+		result="onMakeIGVLink(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to get IGV link URL', event)"
+		method="POST"
+		useProxy="false">
+		<mx:request>
+			
+		</mx:request>
+	</mx:HTTPService> 
+	
+	<mx:HTTPService             
+		id="makeLinks" 
+		url="MakeDataTrackLinks.gx"
+		resultFormat="e4x"
+		showBusyCursor="true"
+		result="onMakeLinks(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to get link URLs', event)"
+		method="POST"
+		useProxy="false">
+	</mx:HTTPService> 
+	
+	<mx:HTTPService             
+		id="makeIOBIOLinks" 
+		url="MakeDataTrackLinks.gx"
+		resultFormat="e4x"
+		showBusyCursor="true"
+		result="onMakeIOBIOLinks(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to get link URLs', event)"
+		method="POST"
+		useProxy="false">
+	</mx:HTTPService> 
+	
 	
 	<mx:Script>
 		<![CDATA[
@@ -585,6 +632,142 @@
 				}
 			}
 			
+			/************************************************************************
+			 * Make URL Links for all files, converts useq to bw/bb
+			 *
+			 */
+			public function createURLLinks(txt:String):void {
+				//send to server
+				var params:Object = new Object();
+				params.idDataTrack = "12345";
+				params.idAnalysisFile = txt;
+
+//				var alert:Alert = Alert.show("idAnalysisFile: " + txt, "[createURLLinks]");
+//				alert.mx_internal::alertForm.mx_internal::textField.htmlText =txt;
+				
+				makeLinks.send(params);
+			}
+			
+			//response from server
+			private function onMakeLinks(event:ResultEvent):void {
+				if (makeLinks.lastResult.name() == "SUCCESS") {
+					var txt:String = makeLinks.lastResult.@urlsToLink;
+					var alert:Alert = Alert.show(txt, "URL Links:");
+					alert.mx_internal::alertForm.mx_internal::textField.htmlText =txt;
+					//paste to clipboard, doesn't work on all browsers
+					//System.setClipboard(txt);
+				}
+				else {
+					//this should never happen
+					Alert.show(makeLinks.lastResult..ACTMESSAGE.@TEXT, "Please click 'Auto Distribute All Data Tracks' first.");
+				}
+			}
+			
+			/************************************************************************
+			 * Make URL Links and start bam.iobio.io
+			 *
+			 */
+			public function createIOBIOLinks(txt:String):void {
+				
+				//send to server
+				var params:Object = new Object();
+				params.idDataTrack = "12345";
+				params.idAnalysisFile = txt;
+				
+//				var alert:Alert = Alert.show("idAnalysisFile: " + txt, "[createURLLinks]");
+//				alert.mx_internal::alertForm.mx_internal::textField.htmlText =txt;
+				
+				
+				makeIOBIOLinks.send(params);
+			}
+			
+			//response from server
+			private function onMakeIOBIOLinks(event:ResultEvent):void {
+				if (makeIOBIOLinks.lastResult.name() == "SUCCESS") {
+					var txt:String = "http://bam.iobio.io/?bam=" + makeIOBIOLinks.lastResult.@urlsToLink + "&region=1";
+					
+					navigateToURL(new URLRequest(txt),"IOBIO");
+				}
+				else {
+					//this should never happen
+					Alert.show(makeLinks.lastResult..ACTMESSAGE.@TEXT, "Please click 'Auto Distribute All Data Tracks' first.");
+				}
+			}
+			
+			/************************************************************************
+			 * Make IGV Link 
+			 *
+			 */
+			public function createIGVLink():void {
+//				if (dataTrackView.getDataTrack.lastResult..Dir.@ucscLinkFile == 'convert') {
+					Alert.show("Creating an IGV data repository containing all user-visible datatracks affiliated with IGV-supported genome builds. " + 
+						"If there are unconverted USeq files, this can take a significant amount of time.  When finished, a URL link will be displayed. " +
+						"Paste the link into IGV's Data Registry URL field.  If new data tracks are added, a new repository must be created, but the " +
+						"link will remain valid.\n\nDo you wish to continue?", "IGV Warning", Alert.YES | Alert.NO, this, onIGVLinkPrompt);
+//				} else {
+					makeIGVLink.send();
+//				}
+			}
+			
+			private function onIGVLinkPrompt(event:CloseEvent):void {
+				if (event.detail == Alert.YES) {
+					makeIGVLink.send();
+				}
+			}
+			
+			private function onMakeIGVLink(event:ResultEvent):void {
+				if (makeIGVLink.lastResult.name() == "SUCCESS") {
+					var txt:String = makeIGVLink.lastResult.@igvURL;
+					var alert:Alert = Alert.show(txt, "IGV Link:");
+					alert.mx_internal::alertForm.mx_internal::textField.htmlText =txt;
+				}
+				else {
+					//this should never happen
+					Alert.show(makeIGVLink.lastResult..ACTMESSAGE.@TEXT, "Please click 'Auto Distribute All Data Tracks' first.");
+				}
+			}
+			
+			/************************************************************************
+			 * Make UCSC Links 
+			 *
+			 */
+			public function createUCSCLink(txt:String):void {
+//				if (dataTrackView.getDataTrack.lastResult..Dir.@ucscLinkFile == 'convert') {
+//					Alert.show("Patience! Converting useq to bw/bb format.");
+//				}
+				
+				var params:Object = new Object();
+				params.idDataTrack = "12345";
+				params.idAnalysisFile = txt;
+				
+				//				var alert:Alert = Alert.show("idAnalysisFile: " + txt, "[createURLLinks]");
+				//				alert.mx_internal::alertForm.mx_internal::textField.htmlText =txt;
+				
+				
+				
+				makeUCSCLinks.send(params);
+			}
+			
+			private function onMakeUCSCLinks(event:ResultEvent):void {
+				if (makeUCSCLinks.lastResult.name() == "SUCCESS") {
+					navigateToURL(new URLRequest(makeUCSCLinks.lastResult.@ucscURL1),"UCSC");
+					//work around to flex bug
+					if (makeUCSCLinks.lastResult.@ucscURL2 != ""){
+						var txt:String = "Click to load second track after first completes:<br><br><a href='"+makeUCSCLinks.lastResult.@ucscURL2+"' target='UCSC'><b><u>Load Second Track</u></b></a>";
+						var alert:Alert = Alert.show(txt);
+						alert.mx_internal::alertForm.mx_internal::textField.htmlText =txt;
+					}
+					
+				}
+				else {
+					//this should never happen
+					Alert.show(makeUCSCLinks.lastResult..ACTMESSAGE.@TEXT, "Please click 'Auto Distribute All Data Tracks' first.");
+				}
+			}
+			
+			
+			
+			
 		]]>
 	</mx:Script>
 	
@@ -651,11 +834,14 @@
 				<mx:HierarchicalData source="{downloadList}"/>
 			</mx:dataProvider>						  
 			<mx:columns>
-				<mx:AdvancedDataGridColumn dataField="@displayName"  editable="false" headerText="Folder or File" width="250"/> 
+				<mx:AdvancedDataGridColumn dataField="@displayName"  editable="false" headerText="Folder or File" width="215"/> 
 				<mx:AdvancedDataGridColumn dataField="@viewURL" headerText="" editable="false" width="25" itemRenderer="views.renderers.LinkButtonViewFile"/>
-				<mx:AdvancedDataGridColumn dataField="@comments"  editable="{this.removeFileButtonsVisible}" headerText="Comments" width="80"/>
-				<mx:AdvancedDataGridColumn dataField="@fileSizeText" editable="false" headerText="Size" width="40" textAlign="right" /> 
-				<mx:AdvancedDataGridColumn dataField="@lastModifyDateDisplay" editable="false" headerText="Modified" width="50"/> 
+				<mx:AdvancedDataGridColumn dataField="@fileSizeText" editable="false" headerText="Size" width="25" textAlign="right" /> 
+				<mx:AdvancedDataGridColumn dataField="@lastModifyDateDisplay" editable="false" headerText="Modified" width="20"/>
+				<mx:AdvancedDataGridColumn dataField="@isSupportedDataTrack" headerText="URL" editable="false" width="15" minWidth="15" itemRenderer="views.renderers.LinkButtonURLLink"/>
+				<mx:AdvancedDataGridColumn dataField="@UCSCViewer" headerText="UCSC" editable="false" width="15" minWidth="15" itemRenderer="views.renderers.LinkButtonUCSCViewer"/>
+				<mx:AdvancedDataGridColumn dataField="@IGVViewer" headerText="IGV" editable="false" width="15" minWidth="15" itemRenderer="views.renderers.LinkButtonIGVViewer"/>
+				<mx:AdvancedDataGridColumn dataField="@BAMIOBIOViewer" headerText="IOBIO" editable="false" width="15" minWidth="15" itemRenderer="views.renderers.LinkButtonIOBIOViewer"/>
 			</mx:columns>
 		</mx:AdvancedDataGrid>
 		
