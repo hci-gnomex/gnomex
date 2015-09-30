@@ -217,6 +217,20 @@
 	</mx:HTTPService> 
 	
 	<mx:HTTPService             
+		id="makeIOBIOLinks" 
+		url="MakeDataTrackLinks.gx"
+		resultFormat="e4x"
+		showBusyCursor="true"
+		result="onMakeIOBIOLinks(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to get link URLs', event)"
+		method="POST"
+		useProxy="false">
+		<mx:request>
+			<idDataTrack>{browseTree.selectedItem.@idDataTrack}</idDataTrack>
+		</mx:request>
+	</mx:HTTPService> 
+	
+	<mx:HTTPService             
 		id="refreshDAS2Server" 
 		url="genome/refresh"
 		resultFormat="e4x"
@@ -1039,6 +1053,29 @@
 					alert.mx_internal::alertForm.mx_internal::textField.htmlText =txt;
 					//paste to clipboard, doesn't work on all browsers
 					//System.setClipboard(txt);
+				}
+				else {
+					//this should never happen
+					Alert.show(makeLinks.lastResult..ACTMESSAGE.@TEXT, "Failed to fetch URL links, contact site admin!");
+				}
+			}
+			
+			/************************************************************************
+			 * Make URL Links and start bam.iobio.io
+			 *
+			 */
+			public function createIOBIOLinks():void {
+
+				//send to server
+				makeIOBIOLinks.send();
+			}
+			
+			//response from server
+			private function onMakeIOBIOLinks(event:ResultEvent):void {
+				if (makeIOBIOLinks.lastResult.name() == "SUCCESS") {
+					var txt:String = "http://bam.iobio.io/?bam=" + makeIOBIOLinks.lastResult.@urlsToLink + "&region=1";
+					
+					navigateToURL(new URLRequest(txt),"IOBIO");
 				}
 				else {
 					//this should never happen
