@@ -246,17 +246,14 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
         node.addContent(listNode);
         List<IsolationPrepType> prepList = this.prepTypeMap.get(rc.getCodeRequestCategory());
         if (prepList != null) {
-          for(IsolationPrepType c : prepList) {
-            this.getSecAdvisor().flagPermissions(c);
-            Price p = null;
-            if(c.getIdPrice() != null){
-              p = (Price)sess.load(Price.class, c.getIdPrice());
-            }
-            Element cycleNode = c.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
-            cycleNode.setAttribute("unitPriceInternal", getUnitPrice(p, this.PRICE_INTERNAL));
-            cycleNode.setAttribute("unitPriceExternalAcademic", getUnitPrice(p, this.PRICE_EXTERNAL_ACADEMIC));
-            cycleNode.setAttribute("unitPriceExternalCommercial", getUnitPrice(p, this.PRICE_EXTERNAL_COMMERCIAL));
-            listNode.addContent(cycleNode);
+          for(IsolationPrepType ipt : prepList) {
+            this.getSecAdvisor().flagPermissions(ipt);
+            Price p = IsolationPrepType.getIsolationPrepTypePrice(sess, ipt);
+            Element iptNode = ipt.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
+            iptNode.setAttribute("unitPriceInternal", getUnitPrice(p, this.PRICE_INTERNAL));
+            iptNode.setAttribute("unitPriceExternalAcademic", getUnitPrice(p, this.PRICE_EXTERNAL_ACADEMIC));
+            iptNode.setAttribute("unitPriceExternalCommercial", getUnitPrice(p, this.PRICE_EXTERNAL_COMMERCIAL));
+            listNode.addContent(iptNode);
           }
         }  
       }
