@@ -8,15 +8,6 @@ alter table Request drop
 ALTER TABLE Request DROP COLUMN codeDNAPrepType;
 ALTER TABLE Request DROP COLUMN codeRNAPrepType;
 
-
--- Add idPrice to isolation prep type
-ALTER TABLE IsolationPrepType ADD COLUMN idPrice int NULL,
-ADD CONSTRAINT `FK_IsolationPrepType_Price` FOREIGN KEY `FK_IsolationPrepType_Price`(`idPrice`)
-REFERENCES `gnomex`.`Price` (`idPrice`)
-ON DELETE NO ACTION
-ON UPDATE NO ACTION;
-call ExecuteIfTableExists('gnomex', 'IsolationPrepType_Audit', 'alter table IsolationPrepType_Audit add column idPrice int NULL');
-
 -- Default price category for isolation prep types
 INSERT INTO PropertyDictionary (propertyName, propertyValue, propertyDescription, forServerOnly, idCoreFacility, codeRequestCategory)
 VALUES ('isolation_default_price_category', 'Nucleic Acid Isolation', 'Default price category for isolation prep types created through experiment platform', 'N', 3, 'ISOL');
