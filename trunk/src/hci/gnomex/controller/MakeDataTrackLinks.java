@@ -6,6 +6,7 @@ import hci.gnomex.constants.Constants;
 import hci.gnomex.model.DataTrack;
 import hci.gnomex.model.GenomeBuild;
 import hci.gnomex.model.PropertyDictionary;
+import hci.gnomex.model.Request;
 import hci.gnomex.model.UCSCLinkFiles;
 import hci.gnomex.utility.DataTrackUtil;
 import hci.gnomex.utility.HibernateSession;
@@ -15,6 +16,7 @@ import java.io.File;
 import java.io.Serializable;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import javax.naming.NamingException;
@@ -37,6 +39,7 @@ public class MakeDataTrackLinks extends GNomExCommand implements Serializable {
   private String serverName;
   private String dataTrackFileServerURL;
   private String dataTrackFileServerWebContext;
+  private Integer idAnalysisFile;
 
 
   public void validate() {
@@ -49,6 +52,11 @@ public class MakeDataTrackLinks extends GNomExCommand implements Serializable {
       this.addInvalidField("idDataTrack", "idDataTrack is required");
     }
     
+    // if idAnalysisFile is a parameter we will need to figure out idDataTrack
+    idAnalysisFile = null;
+    if (request.getParameter("idAnalysisFile") != null && !request.getParameter("idAnalysisFile").equals("")) {
+    	idAnalysisFile = new Integer(request.getParameter("idAnalysisFile"));   
+      }    
     serverName = request.getServerName();
   }
 
@@ -63,6 +71,10 @@ public class MakeDataTrackLinks extends GNomExCommand implements Serializable {
       dataTrackFileServerURL = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.DATATRACK_FILESERVER_URL);
       dataTrackFileServerWebContext = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.DATATRACK_FILESERVER_WEB_CONTEXT);
       
+      // do we need to figure out idDataTrack?
+      if (idAnalysisFile != null) {
+    	  idDataTrack = getidDataTrack (idAnalysisFile,sess);
+      }
       
       String portNumber = PropertyDictionaryHelper.getInstance(sess).getQualifiedProperty(PropertyDictionary.HTTP_PORT, serverName);
       if (portNumber == null) {
@@ -194,5 +206,23 @@ public class MakeDataTrackLinks extends GNomExCommand implements Serializable {
 		
 		return desiredDirectory;
 	}
-	
+
+  
+  public static int getidDataTrack(int idAnalysisFile, Session sess) {
+//	  System.out.println ("[getidDataTrack] ** starting ** idAnalysisFile: " + idAnalysisFile);
+	  
+
+	  int idDataTrack = -1;
+	  
+	    StringBuffer buf = new StringBuffer("SELECT idDataTrack from DataTrackFile where idAnalysisFile = " + idAnalysisFile);
+	    List results = sess.createQuery(buf.toString()).list();
+
+	    if (results.size() > 0) {
+	      idDataTrack = (Integer)results.get(0);
+	    }
+	    
+//	    System.out.println ("[getidDataTrack] ** leaving ** idDataTrack: " + idDataTrack);
+	    return idDataTrack;
+	  }
+
 }
