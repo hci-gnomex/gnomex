@@ -1,9 +1,9 @@
 #!/bin/bash
 
-TOMCAT_HOME=/usr/local/apache-tomcat-7.0.42
+TOMCAT_HOME=../../..
 COMMON_LIB=$TOMCAT_HOME/lib
-GNOMEX_LIB=/usr/local/apache-tomcat-7.0.42/webapps/gnomex/WEB-INF/lib
-GNOMEX_CLASSES=/usr/local/apache-tomcat-7.0.42/webapps/gnomex/WEB-INF/classes
+GNOMEX_LIB=../WEB-INF/lib
+GNOMEX_CLASSES=../WEB-INF/classes
 
 CLASSPATH=".:$GNOMEX_CLASSES"
 
@@ -25,3 +25,4 @@ export PATH
 echo $PATH
 
 java -Xmx2G hci.gnomex.daemon.CreateDataTracks $*
+
