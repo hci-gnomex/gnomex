@@ -4025,6 +4025,8 @@
 						}
 					}
 					Alert.show(message, title, 0, this, onNotifySubmitRequest);
+				} else if (saveNewRequest.lastResult.name() == "FAILURE" && saveNewRequest.lastResult.hasOwnProperty("@message")) {
+					Alert.show(saveNewRequest.lastResult.@message);
 				} else {
 					Alert.show(saveNewRequest.lastResult..ACTMESSAGE.@TEXT);
 				}
@@ -4113,6 +4115,8 @@
 					parms.idRequest = request.@idRequest;
 					getRequest.send(parms);
 					
+				} else if (saveExistingRequest.lastResult.name() == "FAILURE" && saveExistingRequest.lastResult.hasOwnProperty("@message")) {
+					Alert.show(saveExistingRequest.lastResult.@message);
 				} else {
 					Alert.show(saveExistingRequest.lastResult..ACTMESSAGE.@TEXT);
 				}

@@ -64,7 +64,7 @@ public class ProductUtil {
 			Integer productsRequired = determineProductsRequired(sess, req);
 			
 			if (productsAvailableToLab == null || productsRequired == null || productsRequired == -1) {
-				throw new ProductException("Could not retrieve lab inventory and the number of products required. Please ensure a product is selected.");
+				throw new ProductException("Could not retrieve lab inventory and the number of products required. Please ensure a product is selected and the lab has sufficient inventory.");
 			}
 			
 			if (productsRequired > -1 && productsAvailableToLab - productsRequired >= 0) {
