@@ -246,6 +246,12 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
               fdNode.setAttribute("isSelected", "N");
               fdNode.setAttribute("state", "unchecked");
               fdNode.setAttribute("isSupportedDataTrack", fd.getIsSupportedDataTrack());
+              
+              fdNode.setAttribute("UCSCViewer", fd.getIsUCSCViewerAllowed());     
+              fdNode.setAttribute("IGVViewer", fd.getIsIGVViewerAllowed());
+              fdNode.setAttribute("BAMIOBIOViewer", fd.getIsBAMIOBIOViewerAllowed());     
+              fdNode.setAttribute("VCFIOBIOViewer", fd.getIsVCFIOBIOViewerAllowed());   
+              
               fdNode.setAttribute("viewURL", fd.getViewURL());
               if ( StringUtils.isNumeric( fd.getIdAnalysisFileString()  )){
                 if (dataTrackMap.containsKey(Integer.valueOf(fd.getIdAnalysisFileString()))) {
@@ -419,6 +425,14 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
           Element fdNode = fd.toXMLDocument(null, fd.DATE_OUTPUT_ALTIO).getRootElement();
           fdNode.setAttribute("isSelected", "N");
           fdNode.setAttribute("state", "unchecked");
+          
+          fdNode.setAttribute("isSupportedDataTrack", fd.getIsSupportedDataTrack());
+          
+          fdNode.setAttribute("UCSCViewer", fd.getIsUCSCViewerAllowed());     
+          fdNode.setAttribute("IGVViewer", fd.getIsIGVViewerAllowed());
+          fdNode.setAttribute("BAMIOBIOViewer", fd.getIsBAMIOBIOViewerAllowed());     
+          fdNode.setAttribute("VCFIOBIOViewer", fd.getIsVCFIOBIOViewerAllowed());   
+                    
           fdNode.setAttribute("viewURL", fd.getViewURL()!=null?fd.getViewURL():"");
 
           if ( StringUtils.isNumeric( fd.getIdAnalysisFileString()  )){
@@ -528,8 +542,16 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
       childFdNode.setAttribute("analysisNumber", childFd.getNumber() != null ? childFd.getNumber() : "");
       childFdNode.setAttribute("idAnalysisFileString", childFd.getIdAnalysisFileString() != null ? childFd.getIdAnalysisFileString() : "");
       childFdNode.setAttribute("idLab", childFd.getIdLab() != null ? childFd.getIdLab().toString() : "");
-      childFdNode.setAttribute("viewURL", childFd.getViewURL() != null ? childFd.getViewURL() : "");
+      
       childFdNode.setAttribute("isSupportedDataTrack", childFd.getIsSupportedDataTrack());
+      
+      childFdNode.setAttribute("UCSCViewer", childFd.getIsUCSCViewerAllowed());     
+      childFdNode.setAttribute("IGVViewer", childFd.getIsIGVViewerAllowed());
+      childFdNode.setAttribute("BAMIOBIOViewer", childFd.getIsBAMIOBIOViewerAllowed());     
+      childFdNode.setAttribute("VCFIOBIOViewer", childFd.getIsVCFIOBIOViewerAllowed());   
+      
+      
+      childFdNode.setAttribute("viewURL", childFd.getViewURL() != null ? childFd.getViewURL() : "");
 
       childFdNode.setAttribute("isSelected", "N");
       childFdNode.setAttribute("state", "unchecked");
