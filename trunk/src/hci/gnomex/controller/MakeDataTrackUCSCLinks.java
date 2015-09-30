@@ -43,7 +43,7 @@ public class MakeDataTrackUCSCLinks extends GNomExCommand implements Serializabl
 	private String serverName;
 	private String dataTrackFileServerURL;
 	private String dataTrackFileServerWebContext;
-
+	private Integer idAnalysisFile;
 
 	public static final Pattern TO_STRIP = Pattern.compile("\\n");
 
@@ -61,6 +61,12 @@ public class MakeDataTrackUCSCLinks extends GNomExCommand implements Serializabl
 			this.addInvalidField("idDataTrack", "idDataTrack is required");
 		}
 
+	    // if idAnalysisFile is a parameter we will need to figure out idDataTrack
+	    idAnalysisFile = null;
+	    if (request.getParameter("idAnalysisFile") != null && !request.getParameter("idAnalysisFile").equals("")) {
+	    	idAnalysisFile = new Integer(request.getParameter("idAnalysisFile"));   
+	      }    
+		
 		serverName = request.getServerName();
 	}
 
@@ -78,7 +84,11 @@ public class MakeDataTrackUCSCLinks extends GNomExCommand implements Serializabl
 			// We have to serve files from Tomcat, so use das2 base url
 			baseURL =  dataTrackFileServerURL;
 
-
+		    // do we need to figure out idDataTrack?
+		    if (idAnalysisFile != null) {
+		      idDataTrack = getidDataTrack (idAnalysisFile,sess);
+		    }
+			
 			DataTrack dataTrack = DataTrack.class.cast(sess.load(DataTrack.class, idDataTrack));
 
 			if (this.getSecAdvisor().canRead(dataTrack)) {
@@ -293,4 +303,21 @@ public class MakeDataTrackUCSCLinks extends GNomExCommand implements Serializabl
 
 	}
 
+	  public static int getidDataTrack(int idAnalysisFile, Session sess) {
+//		  System.out.println ("[MakeDataTrackUCSCLinks:getidDataTrack] ** starting ** idAnalysisFile: " + idAnalysisFile);
+		  
+
+		  int idDataTrack = -1;
+		  
+		    StringBuffer buf = new StringBuffer("SELECT idDataTrack from DataTrackFile where idAnalysisFile = " + idAnalysisFile);
+		    List results = sess.createQuery(buf.toString()).list();
+
+		    if (results.size() > 0) {
+		      idDataTrack = (Integer)results.get(0);
+		    }
+		    
+//		    System.out.println ("[MakeDataTrackUCSCLinks:getidDataTrack] ** leaving ** idDataTrack: " + idDataTrack);
+		    return idDataTrack;
+		  }
+	
 }
