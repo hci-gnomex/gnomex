@@ -249,7 +249,7 @@
 			}
 			
 			public function setFileCount():void {
-				rowCountMessage = getAnalysisDownloadList.lastResult..AnalysisFileDescriptor.(@type != 'dir').length() + " file(s).";    	
+				rowCountMessage = getAnalysisDownloadList.lastResult..AnalysisFileDescriptor.(@type != 'dir').length() + " file(s)";    	
 			}
 			
 			public function downloadFilesUsingFDT(selectedFiles:XMLList):void {
@@ -658,8 +658,8 @@
 					//System.setClipboard(txt);
 				}
 				else {
-					//this should never happen
-					Alert.show(makeLinks.lastResult..ACTMESSAGE.@TEXT, "Please click 'Auto Distribute All Data Tracks' first.");
+					Alert.show("Please distribute a data track for this file or auto distribute all data tracks " +
+						"for this analysis and try again.", "No data track exists");
 				}
 			}
 			
@@ -689,8 +689,8 @@
 					navigateToURL(new URLRequest(txt),"IOBIO");
 				}
 				else {
-					//this should never happen
-					Alert.show(makeLinks.lastResult..ACTMESSAGE.@TEXT, "Please click 'Auto Distribute All Data Tracks' first.");
+					Alert.show("Please distribute a data track for this file or auto distribute all data tracks " +
+						"for this analysis and try again.", "No data track exists");
 				}
 			}
 			
@@ -722,8 +722,8 @@
 					alert.mx_internal::alertForm.mx_internal::textField.htmlText =txt;
 				}
 				else {
-					//this should never happen
-					Alert.show(makeIGVLink.lastResult..ACTMESSAGE.@TEXT, "Please click 'Auto Distribute All Data Tracks' first.");
+					Alert.show("Please distribute a data track for this file or auto distribute all data tracks " +
+						"for this analysis and try again.", "No data track exists");
 				}
 			}
 			
@@ -760,8 +760,8 @@
 					
 				}
 				else {
-					//this should never happen
-					Alert.show(makeUCSCLinks.lastResult..ACTMESSAGE.@TEXT, "Please click 'Auto Distribute All Data Tracks' first.");
+					Alert.show("Please distribute a data track for this file or auto distribute all data tracks " +
+						"for this analysis and try again.", "No data track exists");
 				}
 			}
 			
@@ -838,10 +838,10 @@
 				<mx:AdvancedDataGridColumn dataField="@viewURL" headerText="" editable="false" width="25" itemRenderer="views.renderers.LinkButtonViewFile"/>
 				<mx:AdvancedDataGridColumn dataField="@fileSizeText" editable="false" headerText="Size" width="25" textAlign="right" /> 
 				<mx:AdvancedDataGridColumn dataField="@lastModifyDateDisplay" editable="false" headerText="Modified" width="20"/>
-				<mx:AdvancedDataGridColumn dataField="@isSupportedDataTrack" headerText="URL" editable="false" width="15" minWidth="15" itemRenderer="views.renderers.LinkButtonURLLink"/>
-				<mx:AdvancedDataGridColumn dataField="@UCSCViewer" headerText="UCSC" editable="false" width="15" minWidth="15" itemRenderer="views.renderers.LinkButtonUCSCViewer"/>
-				<mx:AdvancedDataGridColumn dataField="@IGVViewer" headerText="IGV" editable="false" width="15" minWidth="15" itemRenderer="views.renderers.LinkButtonIGVViewer"/>
-				<mx:AdvancedDataGridColumn dataField="@BAMIOBIOViewer" headerText="IOBIO" editable="false" width="15" minWidth="15" itemRenderer="views.renderers.LinkButtonIOBIOViewer"/>
+				<mx:AdvancedDataGridColumn dataField="@isSupportedDataTrack" headerText="URL" editable="false" width="9" minWidth="9" itemRenderer="views.renderers.LinkButtonURLLink"/>
+				<mx:AdvancedDataGridColumn dataField="@UCSCViewer" headerText="UCSC" editable="false" width="10" minWidth="10" itemRenderer="views.renderers.LinkButtonUCSCViewer"/>
+				<mx:AdvancedDataGridColumn dataField="@IGVViewer" headerText="IGV" editable="false" width="9" minWidth="9" itemRenderer="views.renderers.LinkButtonIGVViewer"/>
+				<mx:AdvancedDataGridColumn dataField="@BAMIOBIOViewer" headerText="IOBIO" editable="false" width="12" minWidth="12" itemRenderer="views.renderers.LinkButtonIOBIOViewer"/>
 			</mx:columns>
 		</mx:AdvancedDataGrid>
 		
