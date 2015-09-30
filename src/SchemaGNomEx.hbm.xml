@@ -1631,7 +1631,6 @@
 		<property name="type" column="type" type="string" />
 		<property name="isActive" column="isActive" type="string" />
 		<property name="codeRequestCategory" column="codeRequestCategory" type="string" />
-		<property name="idPrice" column="idPrice" type="integer" />
 	</class>
 
 	<!-- hci.gnomex.model.ExperimentDesign -->
