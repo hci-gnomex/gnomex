@@ -24,8 +24,8 @@
 						   click="{parentDocument.createIGVLink()}" 
 						   id="makeIGVLinkButton"  textDecoration="underline"/>
 			<mx:LinkButton label="IOBIO Browser" 
-						   icon="@Embed(source='../../assets/datatrack_world.png')"
-						   disabledIcon="@Embed(source='../../assets/datatrack_world.png')"  					        	
+						   icon="@Embed(source='../../assets/iobio.png')"
+						   disabledIcon="@Embed(source='../../assets/iobio_disable.png')"  					        	
 						   toolTip="Create file link(s) for viewing the selected data track in the IOBIO Genome Browser"
 						   enabled="{parentDocument.browseTree.selectedItem != null &amp;&amp; parentDocument.browseTree.selectedItem.name() == 'DataTrack' &amp;&amp;  dataTrackFiles.length !=0}"  
 						   click="{parentDocument.createIOBIOLinks()}" 
