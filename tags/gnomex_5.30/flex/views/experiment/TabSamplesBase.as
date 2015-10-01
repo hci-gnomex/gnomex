@@ -28,7 +28,7 @@ package views.experiment
 	import views.util.AnnotationAdvancedDataGridColumn;
 	import views.util.CopySampleSheetColumnView;
 	import views.util.UploadSampleSheetView;
-
+	
 	[Bindable]
 	public class TabSamplesBase extends Canvas
 	{
@@ -38,9 +38,9 @@ package views.experiment
 		protected var downloadFileRef:FileReference;
 		
 		public var sampleConcentrationFormatter:NumberFormatter;
-
+		
 		public var filteredSampleTypeList:XMLListCollection;
-
+		
 		public static function getSamplesTab(existingTab:TabSamplesBase, requestCategory:Object, requestCategoryType:Object, isEditState:Boolean, isAmendState:Boolean):TabSamplesBase {
 			if (requestCategory.@codeRequestCategory == 'MDMISEQ') {
 				if (existingTab is TabSamplesMDMiSeq) {
@@ -78,7 +78,7 @@ package views.experiment
 				} else {
 					return new TabSamplesIsolation();
 				}
-			} else if (requestCategory.@codeRequestCategory.substr( 0, 6 ) == 'IONTOR') {
+			} else if ((requestCategory.@codeRequestCategory.toString()).substr( 0, 6 ) == 'IONTOR') {
 				if (existingTab is TabSamplesIonTorrent) {
 					return existingTab;
 				} else {
@@ -98,7 +98,7 @@ package views.experiment
 				}
 			}
 		}
-
+		
 		public function TabSamplesBase()
 		{
 			super();
@@ -141,7 +141,7 @@ package views.experiment
 		public function hasPlates():Boolean {
 			return false;
 		}
-
+		
 		public function fillPlates():void {
 			
 		}
@@ -318,16 +318,16 @@ package views.experiment
 			} else if (property.@codePropertyType == 'OPTION') {
 				dc.editable = true;
 				dc.editorDataField = "value"
-					/*
+				/*
 				dc.itemRenderer = views.renderers.DropdownLabel.create(
-					parentApplication.getPropertyOptions(propertyNode.@idProperty, includeInactiveOptions), 
-					'@option', 
-					'@idPropertyOption', 
-					fieldName,
-					propertyNode.@isRequired == 'true',
-					true,
-				    parentApplication.annotationColor);
-					*/
+				parentApplication.getPropertyOptions(propertyNode.@idProperty, includeInactiveOptions), 
+				'@option', 
+				'@idPropertyOption', 
+				fieldName,
+				propertyNode.@isRequired == 'true',
+				true,
+				parentApplication.annotationColor);
+				*/
 				dc.itemRenderer = views.renderers.DropdownLabelAnnotation.create(
 					"@option",
 					"@idPropertyOption",
@@ -338,15 +338,15 @@ package views.experiment
 					true,
 					parentApplication.annotationColor);
 				/*dc.itemEditor   = views.renderers.GridColumnFillButton.create(views.renderers.ComboBox.create(
-					parentApplication.getPropertyOptions(propertyNode.@idProperty, includeInactiveOptions),
-					"@option",
-					"@idPropertyOption",
-					fieldName, 
-					null,
-					true,
-					true,
-					false,
-					true).newInstance(), '');		*/				
+				parentApplication.getPropertyOptions(propertyNode.@idProperty, includeInactiveOptions),
+				"@option",
+				"@idPropertyOption",
+				fieldName, 
+				null,
+				true,
+				true,
+				false,
+				true).newInstance(), '');		*/				
 				dc.itemEditor   = views.renderers.GridColumnFillButton.create(views.renderers.FilterComboBoxAnnotation.create(
 					"@option",
 					"@idPropertyOption",
@@ -400,7 +400,7 @@ package views.experiment
 			var nextPlate:int = getNextPlate();
 			
 			uploadSampleSheetWindow.init(this, numPlates, nextPlate, fieldList, parentDocument.getAnnotationView());
-				
+			
 			uploadSampleSheetWindow.addEventListener(FlexEvent.VALUE_COMMIT, uploadComplete);
 		}
 		
@@ -489,22 +489,22 @@ package views.experiment
 		}
 		
 		protected function reqdAnnotationsEntered(sample:Object):Boolean {
-		/*
+			/*
 			for each(var col:AdvancedDataGridColumn in getSamplesGrid().columns) {
-				if (col is views.util.AnnotationAdvancedDataGridColumn && col.visible) {
-					if (!sample.hasOwnProperty(col.dataField) || sample[col.dataField] == '') {
-						var idProperty:String = col.dataField.substr(6);
-						var property:XML = parentApplication.getSampleProperty(idProperty);
-						if(property.@isRequired == "Y") {
-							return false;	
-						}
-					}					
-				}
+			if (col is views.util.AnnotationAdvancedDataGridColumn && col.visible) {
+			if (!sample.hasOwnProperty(col.dataField) || sample[col.dataField] == '') {
+			var idProperty:String = col.dataField.substr(6);
+			var property:XML = parentApplication.getSampleProperty(idProperty);
+			if(property.@isRequired == "Y") {
+			return false;	
+			}
+			}					
+			}
 			}
 			*/
 			return true;
 		}
-				
+		
 		public function deleteSample():void {
 			var isExternal:Boolean = (parentDocument.isEditState() && parentDocument.request.@isExternal == 'Y') || (!parentDocument.isEditState() && !parentApplication.isInternalExperimentSubmission);
 			parentDocument.dirty.setDirty();
@@ -531,7 +531,7 @@ package views.experiment
 					
 				}
 			}
-
+			
 			postDeleteProcessing(deleteHappened);
 			
 			this.initializeBarcoding();
@@ -550,7 +550,7 @@ package views.experiment
 		}
 		
 		protected function postDeleteProcessing(deleteHappened:Boolean):void {
-
+			
 		}
 		
 		
