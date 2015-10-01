@@ -50,6 +50,8 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
 
   private int                  experimentCount = 0;
   private String               message = "";
+  
+  private static final int     DEFAULT_MAX_REQUESTS_COUNT = 100;
 
 
   public void validate() {
@@ -295,7 +297,7 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
   }
 
   private Integer getMaxExperiments(Session sess) {
-    Integer maxExperiments = 1000;
+    Integer maxExperiments = DEFAULT_MAX_REQUESTS_COUNT;
     String prop = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.EXPERIMENT_VIEW_LIMIT);
     if (prop != null && prop.length() > 0) {
       try {
