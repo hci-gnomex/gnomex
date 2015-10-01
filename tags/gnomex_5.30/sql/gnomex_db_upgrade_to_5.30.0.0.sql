@@ -1,5 +1,10 @@
 use gnomex;
 
+-- Default price category for isolation prep types
+INSERT INTO PropertyDictionary (propertyName, propertyValue, propertyDescription, forServerOnly, idCoreFacility, codeRequestCategory)
+VALUES ('isolation_default_price_category', 'Nucleic Acid Isolation', 'Default price category for isolation prep types created through experiment platform', 'N', 3, 'ISOL');
+
+
 -- Increase size of filter columns on Price Criteria
 alter table PriceCriteria
 alter column filter1 varchar(20);
