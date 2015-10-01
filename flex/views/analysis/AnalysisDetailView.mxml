@@ -106,7 +106,6 @@
 				getAnalysisTypeName();
 				getAnalysisProtocolName();
 				getOrganismName();
-				getGenomeBuildName();
 				getVisibilityName();
 				getInstitutionName();
 				
@@ -197,11 +196,6 @@
 				var dict:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.OrganismLite', analysis.@idOrganism);
 				organismName = dict.@display.toString();
 			}
-			private function getGenomeBuildName():void {
-				var dict:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.GenomeBuildLite', analysis.@idGenomeBuild);
-				genomeBuildName = dict.@display.toString();
-				genomeIsActive = dict.@isActive.toString();
-			}		
 			private function getVisibilityName():void {
 				var dict:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Visibility', analysis.@codeVisibility);
 				visibilityName = dict.@display.toString();
@@ -306,6 +300,10 @@
 			
 			private function makeAllDataTracks():void {
 				// check for genomebuild and complain if there isn't one
+				
+				genomeBuildName = analysis.genomeBuilds.GenomeBuild.@display;
+				genomeIsActive = analysis.genomeBuilds.GenomeBuild.@isActive;
+				
 				if (genomeBuildName == null || genomeBuildName == "") {
 					Alert.show("A genome build is required to create data tracks.");
 					return;
