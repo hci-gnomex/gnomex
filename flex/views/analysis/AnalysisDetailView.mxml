@@ -18,6 +18,17 @@
 	</mx:HTTPService>
 
 	<mx:HTTPService  
+		id="saveAnalysisFilesForDDT" 
+		url="SaveAnalysisFiles.gx"
+		resultFormat="e4x"
+		showBusyCursor="false"
+		result="onSaveAnalysisFilesForDDT(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to save analysis files (Distribute All Data Tracks)', event)"
+		method="POST" 
+		useProxy="false">
+	</mx:HTTPService>
+	
+	<mx:HTTPService  
 		id="createAllDataTracks" 
 		url="CreateAllDataTracks.gx"
 		resultFormat="e4x"
@@ -75,14 +86,9 @@
 			private var selectedFileList:XMLListCollection;
 			
 			private var uploadWindow:AnalysisUploadWindow = null;
+						
 			
-			private var showDTWindow:Boolean = true;
-			
-			
-			
-			public function checkSecurity():void {
-
-				
+			public function checkSecurity():void {				
 			}
 			
 			public function setupForm(theAnalysis:Object):void {
@@ -321,29 +327,42 @@
 					var params:Object = new Object();
 					params.idAnalysis = analysis.@idAnalysis;
 					params.analysisFilesXMLString = filesView.getDataTrackAnalysisFiles();
-					
-					showDTWindow = false;					
-					saveAnalysisFiles.send(params);	
-					showDTWindow = true;
+									
+					saveAnalysisFilesForDDT.send(params);	
+				} else {
+					// create data tracks for all of the appropriate files in the analysis
+					// if this has already been done before, just do the right thing for the new ones
+					var param:Object = new Object();
+					param.idAnalysis = analysis.@idAnalysis;
+				
+					createAllDataTracks.send(param);					
 				}
-				
-				// create data tracks for all of the appropriate files in the analysis
-				// if this has already been done before, just do the right thing for the new ones
-				var param:Object = new Object();
-				param.idAnalysis = analysis.@idAnalysis;
-				
-				createAllDataTracks.send(param);					
 			}
 			
+			private function onSaveAnalysisFilesForDDT(event:ResultEvent):void {
+				// Now we need to refresh the download list of analysis files
+				// so that the drag-and-drop has the refreshed list (with ids
+				// for the saved analysis files).
+				if (saveAnalysisFilesForDDT.lastResult.name() == "SUCCESS") {
+					this.refreshDownloadView(null);
+					
+					// create data tracks for all of the appropriate files in the analysis
+					// if this has already been done before, just do the right thing for the new ones
+					var param:Object = new Object();
+					param.idAnalysis = analysis.@idAnalysis;
+					
+					createAllDataTracks.send(param);										
+				} else {
+					Alert.show(saveAnalysisFilesForDDT.lastResult..ACTMESSAGE.@TEXT);
+				}
+			}
+
 			private function onSaveAnalysisFiles(event:ResultEvent):void {
 				// Now we need to refresh the download list of analysis files
 				// so that the drag-and-drop has the refreshed list (with ids
 				// for the saved analysis files).
 				if (saveAnalysisFiles.lastResult.name() == "SUCCESS") {
-					if (showDTWindow) {
-						this.refreshDownloadView(null);
-						showDataTracksImpl();
-					}
+					this.refreshDownloadView(null);
 				} else {
 					Alert.show(saveAnalysisFiles.lastResult..ACTMESSAGE.@TEXT);
 				}
