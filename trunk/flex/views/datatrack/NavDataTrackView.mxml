@@ -1072,8 +1072,8 @@
 			
 			//response from server
 			private function onMakeIOBIOLinks(event:ResultEvent):void {
-				var txt:String = "http://bam.iobio.io/?bam=" + makeIOBIOLinks.lastResult.@urlsToLink + "&region=1";
 				if (makeIOBIOLinks.lastResult.name() == "SUCCESS") {
+					var txt:String = "http://bam.iobio.io/?bam=" + makeIOBIOLinks.lastResult.@urlsToLink;
 					if (makeIOBIOLinks.lastResult.@urlsToLink.toLowerCase().indexOf(".vcf.gz")>0) {
 						txt = "http://vcf.iobio.io/?vcf=" + makeIOBIOLinks.lastResult.@urlsToLink;
 					}
