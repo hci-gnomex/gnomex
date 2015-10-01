@@ -1,13 +1,5 @@
 use gnomex;
 
--- Remove both foreign keys that reference DNAPrepType and RNAPrepType tables from the Request Table.
-alter table Request drop
-	FOREIGN KEY FK_Request_DNAPrepType;
-	
--- Remove dna and rna code prep type columns from Request
-ALTER TABLE Request DROP COLUMN codeDNAPrepType;
-ALTER TABLE Request DROP COLUMN codeRNAPrepType;
-
 -- Default price category for isolation prep types
 INSERT INTO PropertyDictionary (propertyName, propertyValue, propertyDescription, forServerOnly, idCoreFacility, codeRequestCategory)
 VALUES ('isolation_default_price_category', 'Nucleic Acid Isolation', 'Default price category for isolation prep types created through experiment platform', 'N', 3, 'ISOL');
