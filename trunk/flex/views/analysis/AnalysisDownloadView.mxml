@@ -120,7 +120,7 @@
 		resultFormat="e4x"
 		showBusyCursor="true"
 		result="onMakeIOBIOLinks(event)"
-		fault="parentApplication.onFailHttpRequest('Failed to get link URLs', event)"
+		fault="parentApplication.onFailHttpRequest('Failed to get IOBIO link URLs', event)"
 		method="POST"
 		useProxy="false">
 	</mx:HTTPService> 
@@ -641,9 +641,6 @@
 				var params:Object = new Object();
 				params.idDataTrack = "12345";
 				params.idAnalysisFile = txt;
-
-//				var alert:Alert = Alert.show("idAnalysisFile: " + txt, "[createURLLinks]");
-//				alert.mx_internal::alertForm.mx_internal::textField.htmlText =txt;
 				
 				makeLinks.send(params);
 			}
@@ -654,8 +651,6 @@
 					var txt:String = makeLinks.lastResult.@urlsToLink;
 					var alert:Alert = Alert.show(txt, "URL Links:");
 					alert.mx_internal::alertForm.mx_internal::textField.htmlText =txt;
-					//paste to clipboard, doesn't work on all browsers
-					//System.setClipboard(txt);
 				}
 				else {
 					Alert.show("Please distribute a data track for this file or auto distribute all data tracks " +
@@ -673,25 +668,20 @@
 				var params:Object = new Object();
 				params.idDataTrack = "12345";
 				params.idAnalysisFile = txt;
-				
-//				var alert:Alert = Alert.show("idAnalysisFile: " + txt, "[createURLLinks]");
-//				alert.mx_internal::alertForm.mx_internal::textField.htmlText =txt;
-				
-				
+								
 				makeIOBIOLinks.send(params);
 			}
 			
 			//response from server
 			private function onMakeIOBIOLinks(event:ResultEvent):void {
-				var txt:String = "http://bam.iobio.io/?bam=" + makeIOBIOLinks.lastResult.@urlsToLink + "&region=1";
-				if (makeIOBIOLinks.lastResult.@urlsToLink.toLowerCase().contains(".vcf.gz")) {
-					txt = "http://vcf.iobio.io/?vcf=" + makeIOBIOLinks.lastResult.@urlsToLink;
-				}
-				
 				if (makeIOBIOLinks.lastResult.name() == "SUCCESS") {
+					var txt:String = "http://bam.iobio.io/?bam=" + makeIOBIOLinks.lastResult.@urlsToLink;
+					if (makeIOBIOLinks.lastResult.@urlsToLink.toLowerCase().indexOf(".vcf.gz")>0) {
+						txt = "http://vcf.iobio.io/?vcf=" + makeIOBIOLinks.lastResult.@urlsToLink;
+					}
+					
 					navigateToURL(new URLRequest(txt),"IOBIO");
-				}
-				else {
+				} else {
 					Alert.show("Please distribute a data track for this file or auto distribute all data tracks " +
 						"for this analysis and try again.", "No data track exists");
 				}
@@ -702,14 +692,11 @@
 			 *
 			 */
 			public function createIGVLink():void {
-//				if (dataTrackView.getDataTrack.lastResult..Dir.@ucscLinkFile == 'convert') {
 					Alert.show("Creating an IGV data repository containing all user-visible datatracks affiliated with IGV-supported genome builds. " + 
 						"If there are unconverted USeq files, this can take a significant amount of time.  When finished, a URL link will be displayed. " +
 						"Paste the link into IGV's Data Registry URL field.  If new data tracks are added, a new repository must be created, but the " +
 						"link will remain valid.\n\nDo you wish to continue?", "IGV Warning", Alert.YES | Alert.NO, this, onIGVLinkPrompt);
-//				} else {
 					makeIGVLink.send();
-//				}
 			}
 			
 			private function onIGVLinkPrompt(event:CloseEvent):void {
@@ -735,18 +722,9 @@
 			 *
 			 */
 			public function createUCSCLink(txt:String):void {
-//				if (dataTrackView.getDataTrack.lastResult..Dir.@ucscLinkFile == 'convert') {
-//					Alert.show("Patience! Converting useq to bw/bb format.");
-//				}
-				
 				var params:Object = new Object();
 				params.idDataTrack = "12345";
 				params.idAnalysisFile = txt;
-				
-				//				var alert:Alert = Alert.show("idAnalysisFile: " + txt, "[createURLLinks]");
-				//				alert.mx_internal::alertForm.mx_internal::textField.htmlText =txt;
-				
-				
 				
 				makeUCSCLinks.send(params);
 			}
