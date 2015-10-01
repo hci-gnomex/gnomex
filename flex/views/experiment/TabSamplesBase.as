@@ -78,7 +78,7 @@ package views.experiment
 				} else {
 					return new TabSamplesIsolation();
 				}
-			} else if (requestCategory.@codeRequestCategory.substr( 0, 6 ) == 'IONTOR') {
+			} else if ((requestCategory.@codeRequestCategory.toString()).substr( 0, 6 ) == 'IONTOR') {
 				if (existingTab is TabSamplesIonTorrent) {
 					return existingTab;
 				} else {
