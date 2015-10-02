@@ -75,7 +75,7 @@
 			
 			[Bindable]
 			private var organismName:String = "";
-
+			
 			
 			[Bindable]
 			private var alignToGenomeBuild:String = "N";
@@ -233,7 +233,7 @@
 				if(genomeBuild.length > 0){
 					this.alignToGenomeBuild = 'Y';
 				}
-								
+				
 				var requestApplication:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Application', selectedExperiment.@codeApplication);
 				if(selectedExperiment.@captureLibDesignId != "" || selectedExperiment.@captureLibDesignId != ""){
 					libDesignAndInsertBox.visible = true;
@@ -359,7 +359,7 @@
 					if ( parentDocument.parentDocument.experimentEditView.sampleSetupView != null ) {
 						parentDocument.parentDocument.experimentEditView.sampleSetupView.currentState = 'IsolationState';	
 					}	
-				}  else if (this.selectedExperiment.@codeRequestCategory.substr( 0, 6 ) == 'IONTOR') {
+				}  else if ((this.selectedExperiment.@codeRequestCategory.toString()).substr( 0, 6 ) == 'IONTOR') {
 					this.currentState = "IonTorrentState";
 					if ( parentDocument.parentDocument.experimentEditView.sampleSetupView != null ) {
 						parentDocument.parentDocument.experimentEditView.sampleSetupView.currentState = 'GenericState';	
@@ -450,7 +450,7 @@
 				}
 				
 				if (	determineToShowProductsTab(requestCategory) && selectedExperiment.hasOwnProperty("@codeRequestStatus") && 
-						selectedExperiment.@codeRequestStatus != "COMPLETE" && selectedExperiment.@codeRequestStatus != "FAILED") {
+					selectedExperiment.@codeRequestStatus != "COMPLETE" && selectedExperiment.@codeRequestStatus != "FAILED") {
 					productsView.allowEdits(false);
 					productsView.refreshForRequestCategory(requestCategory);
 					productsView.refreshForLab(selectedExperiment.@idLab);
@@ -1355,7 +1355,7 @@
 				
 				if (!isCapSeqState() && !isMitSeqState() && !isFragAnalState() && !isCherryPickState()) {
 					for each(annotation in this.selectedExperiment.PropertyEntries.PropertyEntry) {
-
+						
 						if(annotation.@idProperty == "-1") {
 							continue;
 						}
@@ -1402,7 +1402,7 @@
 							} else {
 								newCol.headerToolTip = property.@name;
 							}
-
+							
 							if (property.@codePropertyType == 'MOPTION') {
 								newCol.itemRenderer =  MultiselectRenderer.create(false);
 							} else if (property.@codePropertyType == 'URL') {
@@ -1428,7 +1428,7 @@
 							if((currentState == 'SolexaState' || currentState == 'MicroarrayState' || currentState == 'QCState' 
 								|| currentState == null || isNanoStringState() || this.isSequenomState() || this.isIonTorrentState() || currentState == 'ExternalMicroarrayState'
 								|| currentState == 'ExternalSeqState' || currentState == 'ExternalQCState') && column.dataField == "@idSampleType"){
-									newColumns.push(newCol);
+								newColumns.push(newCol);
 							}
 							
 							if (column != newCol) {
@@ -1563,7 +1563,7 @@
 				for each (var node : XML in fieldList){
 					names += node.toXMLString();
 				}
-								
+				
 				names += "</NameList>";
 				uv.names = names;
 				uv.requestXMLString = this.selectedExperiment.toXMLString();
@@ -1584,16 +1584,16 @@
 					if (col.dataField != null && col.dataField == '@codeConcentrationUnit') {
 						continue;
 					}
-
+					
 					var fieldType:String = "TEXT";
 					if(col is AdvancedDataGridColumnWithType) {
 						fieldType = AdvancedDataGridColumnWithType(col).propertyType;
 					}
 					
-						var emptyNode:XML = new XML("<FieldItem " +
-							" dataField='" + col.dataField + "' fieldText='" + col.headerText +
-							"' fieldType='" + fieldType + "' selectedSSColumn='0'/>");
-						fieldList.addItem(emptyNode);
+					var emptyNode:XML = new XML("<FieldItem " +
+						" dataField='" + col.dataField + "' fieldText='" + col.headerText +
+						"' fieldType='" + fieldType + "' selectedSSColumn='0'/>");
+					fieldList.addItem(emptyNode);
 				}					
 				
 				return fieldList;
@@ -1650,7 +1650,7 @@
 	<mx:XMLListCollection id="requestProperties" source="{this.selectedExperiment.RequestProperties.PropertyEntry}" 
 						  sort="{propertySorter}" filterFunction="{filterPropertyEntry}" />
 	<mx:Sort id="propertySorter" compareFunction="AnnotationUtility.sortProperties" unique="true"/>
-
+	
 	
 	<mx:TabNavigator width="100%" height="100%" verticalGap="5" id="theTab" paddingBottom="4" paddingRight="4" paddingLeft="4" paddingTop="2" change="tabChangeHandler(event)">
 		<mx:VBox label="Info" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4"  verticalGap="4" width="100%" id="infoTab"> 
@@ -1767,33 +1767,33 @@
 				</mx:VBox>
 			</mx:HBox>
 			<mx:VBox id="headerBox" width="100%" paddingLeft="4" visible="{this.selectedExperiment.protocols.Protocol.length() &gt; 0}">
-					<mx:Repeater id="protocolRepeater" width="100%" height="100%"
-								 dataProvider="{this.selectedExperiment.protocols.Protocol}"> 
-						<mx:HBox width="100%" horizontalAlign="left" horizontalGap="0" verticalAlign="top">
-							<mx:Label text="{protocolRepeater.currentItem.@label}" styleName="formLabel" width="105" textAlign="left"/>
-							<mx:VBox width="100%" horizontalAlign="left" horizontalGap="0">
-								<mx:LinkButton id="labelProtocol"
-											   label="{protocolRepeater.currentItem.@name}"
-											   click="{showProtocol(event.currentTarget.getRepeaterItem().@idProtocol, event.currentTarget.getRepeaterItem().@protocolClassName)}"
-											   paddingBottom="0" paddingLeft="1"
-											   paddingRight="1" paddingTop="0"
-											   styleName="formLinkProtocolButton"
-											   textAlign="left"/>
-								<mx:HBox width="100%" horizontalAlign="left" horizontalGap="0" verticalAlign="top"
-										 visible="{protocolRepeater.currentItem.@Adapter3Prime.toXMLString() != ''}"
-										 includeInLayout="{protocolRepeater.currentItem.@Adapter3Prime.toXMLString() != ''}" >
-									<mx:Label width="80" styleName="formLabel" text="Adapter Read 1"/>
-									<mx:Text width="100%" text="{protocolRepeater.currentItem.@Adapter3Prime}"/>
-								</mx:HBox>
-								<mx:HBox width="100%" horizontalAlign="left" horizontalGap="0" verticalAlign="top"
-										 visible="{protocolRepeater.currentItem.@Adapter5Prime.toXMLString() != ''}"
-										 includeInLayout="{protocolRepeater.currentItem.@Adapter5Prime.toXMLString() != ''}" >
-									<mx:Label width="80" styleName="formLabel" text="Adapter Read 2"/>
-									<mx:Text width="100%" text="{protocolRepeater.currentItem.@Adapter5Prime}"/>
-								</mx:HBox>
-							</mx:VBox>
-						</mx:HBox>
-					</mx:Repeater>					
+				<mx:Repeater id="protocolRepeater" width="100%" height="100%"
+							 dataProvider="{this.selectedExperiment.protocols.Protocol}"> 
+					<mx:HBox width="100%" horizontalAlign="left" horizontalGap="0" verticalAlign="top">
+						<mx:Label text="{protocolRepeater.currentItem.@label}" styleName="formLabel" width="105" textAlign="left"/>
+						<mx:VBox width="100%" horizontalAlign="left" horizontalGap="0">
+							<mx:LinkButton id="labelProtocol"
+										   label="{protocolRepeater.currentItem.@name}"
+										   click="{showProtocol(event.currentTarget.getRepeaterItem().@idProtocol, event.currentTarget.getRepeaterItem().@protocolClassName)}"
+										   paddingBottom="0" paddingLeft="1"
+										   paddingRight="1" paddingTop="0"
+										   styleName="formLinkProtocolButton"
+										   textAlign="left"/>
+							<mx:HBox width="100%" horizontalAlign="left" horizontalGap="0" verticalAlign="top"
+									 visible="{protocolRepeater.currentItem.@Adapter3Prime.toXMLString() != ''}"
+									 includeInLayout="{protocolRepeater.currentItem.@Adapter3Prime.toXMLString() != ''}" >
+								<mx:Label width="80" styleName="formLabel" text="Adapter Read 1"/>
+								<mx:Text width="100%" text="{protocolRepeater.currentItem.@Adapter3Prime}"/>
+							</mx:HBox>
+							<mx:HBox width="100%" horizontalAlign="left" horizontalGap="0" verticalAlign="top"
+									 visible="{protocolRepeater.currentItem.@Adapter5Prime.toXMLString() != ''}"
+									 includeInLayout="{protocolRepeater.currentItem.@Adapter5Prime.toXMLString() != ''}" >
+								<mx:Label width="80" styleName="formLabel" text="Adapter Read 2"/>
+								<mx:Text width="100%" text="{protocolRepeater.currentItem.@Adapter5Prime}"/>
+							</mx:HBox>
+						</mx:VBox>
+					</mx:HBox>
+				</mx:Repeater>					
 			</mx:VBox>										
 			<mx:HBox width="100%" horizontalAlign="left" paddingLeft="0" id="hbox9">
 				<mx:VBox id="workflowProgressBox"  verticalGap="0"  cornerRadius="6" borderStyle="solid" paddingLeft="4" paddingRight="4" paddingTop="4" shadowDirection="4">
@@ -1906,7 +1906,7 @@
 					
 					<mx:AdvancedDataGridColumn id="concentrationCol" headerText="{concHeader}" width="65" visible="true" labelFunction="getSampleConcentrationFormatted"/>
 					<util:AdvancedDataGridColumnWithType propertyType="OPTION" id="concentrationUnitCol" visible="{true}"  headerText="Unit"  width="60" 
-											   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ConcentrationUnit').DictionaryEntry, '@display', '@value', '@codeConcentrationUnit')}"/>
+														 itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ConcentrationUnit').DictionaryEntry, '@display', '@value', '@codeConcentrationUnit')}"/>
 					
 					<util:AdvancedDataGridColumnWithType propertyType="OPTION" id="sampleTypeCol" headerText="Sample Type"  width="105" visible="{true}" dataField="@idSampleType"
 														 itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SampleType').DictionaryEntry, '@display', '@value', '@idSampleType')}"/>
@@ -2004,7 +2004,7 @@
 														 itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.Application').DictionaryEntry, '@display', '@value', '@codeApplication')}"/>
 					<mx:AdvancedDataGridColumn visible="{currentState == 'SolexaState'}" headerText="Seq Lib Conc. ng/uL" width="90" dataField="@seqPrepLibConcentration"/>
 					<util:AdvancedDataGridColumnWithType propertyType="OPTION" id="sampleSourceCol" headerText="Sample Source"  width="105" visible="{false}" dataField="@idSampleSource"
-											   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SampleSource').DictionaryEntry, '@display', '@value', '@idSampleSource')}"/>
+														 itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SampleSource').DictionaryEntry, '@display', '@value', '@idSampleSource')}"/>
 					<mx:AdvancedDataGridColumn id="descriptionCol" headerText="Description" wordWrap="true" width="105" dataField="@description"/>
 				</grid:columns>
 			</grid:CopyPasteSampleGrid>
@@ -2027,7 +2027,7 @@
 						<mx:AdvancedDataGridColumn headerText="Acct" dataField="@accountName" editable="false" width="220" wordWrap="false" />
 						<mx:AdvancedDataGridColumn headerText="Period" dataField="@idBillingPeriod" editable="false" width="70"  wordWrap="false"
 												   itemRenderer="{views.renderers.DropdownLabelBillingItem.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BillingPeriod').DictionaryEntry,'@display', '@value', '@idBillingPeriod')}"/>
-
+						
 						<mx:AdvancedDataGridColumn headerText="Description" wordWrap="true" dataField="@description" editable="false" width="200">
 							<mx:itemRenderer>
 								<mx:Component>
