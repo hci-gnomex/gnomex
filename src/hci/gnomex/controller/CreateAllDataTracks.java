@@ -123,6 +123,8 @@ public class CreateAllDataTracks extends GNomExCommand implements Serializable {
 	  ArrayList<AnalysisFile> bamFiles = new ArrayList<AnalysisFile>();
 	  ArrayList<AnalysisFile> covFiles = new ArrayList<AnalysisFile>();
 	  ArrayList<AnalysisFile> vcfFiles = new ArrayList<AnalysisFile>();
+	  ArrayList<AnalysisFile> dtExists = new ArrayList<AnalysisFile>();
+	  
 	  
 	  //folderNames
 	  for (AnalysisFile af: fileList) {
@@ -130,14 +132,36 @@ public class CreateAllDataTracks extends GNomExCommand implements Serializable {
 
 			  String afFileNameUpperCase = af.getFileName().toUpperCase();
 				  if (afFileNameUpperCase.endsWith(".BAM")) {
+					  // is it already a data track?
+					  if (getidDataTrack(af.getIdAnalysisFile(),sess) == -1) {
 						bamFiles.add(af);
-				  } else if (afFileNameUpperCase.endsWith(".USEQ") || afFileNameUpperCase.endsWith(".USEQ")) {
+					  }
+					  else {
+						  dtExists.add(af);
+					  }
+				  } else if (afFileNameUpperCase.endsWith(".USEQ")) {
+					  // is it already a data track?
+					  if (getidDataTrack(af.getIdAnalysisFile(),sess) == -1) {
 						covFiles.add(af);
+					  }
+					  else {
+						  dtExists.add(af);
+					  }
 				  } else if (afFileNameUpperCase.endsWith(".VCF.GZ")) {
+					  // is it already a data track?
+					  if (getidDataTrack(af.getIdAnalysisFile(),sess) == -1) {
 						vcfFiles.add(af);
+					  }
+					  else {
+						  dtExists.add(af);
+					  }
 				  }
 	  }
 	  
+	  // for all the datatracks that exist, makek sure the index is associated with it
+	  if (dtExists.size() > 0) {
+		  checkDataTrackIndex(dtExists);
+	  }
 	  // if we found any files to make data tracks for, do the work
 	  if (bamFiles.size() > 0 || covFiles.size() > 0 || vcfFiles.size() > 0) {
 		  
@@ -174,6 +198,8 @@ public class CreateAllDataTracks extends GNomExCommand implements Serializable {
         			  if (dtf.getName().equals(dir)) {
 //        				  System.out.println("\tNope, this directory exists " + dir);
         				  exists = true;
+        				  
+        				  // get the folders it contains and check the next one
         				  existingFolders = new ArrayList<DataTrackFolder>(dtf.getFolders());
         				  parentId = dtf.getIdDataTrackFolder();
         				  break;
@@ -182,30 +208,37 @@ public class CreateAllDataTracks extends GNomExCommand implements Serializable {
         		 
         		  if (!exists) {
 //        			  System.out.println("\tDirectory didn't exist, lets create it " + dir);
-        			  parentId = this.createDataTrackFolders(dir, parentId);
+        			  parentId = this.createDataTrackFolder(dir, parentId);
         			  isNew = true;
         		  }
+        		  
     		  } else { // We are in new folder territory.
 //    			  System.out.println("\tNew territory, creating " + dir);
-    			  parentId = this.createDataTrackFolders(dir, parentId);
+    			  parentId = this.createDataTrackFolder(dir, parentId);
     			  isNew = true;
     		  }    		  
-    	  } // end of for
+    	  } // end of outer for
 		  		  
 		       
 	  /*************************************
 	   * Create DataTracks
 	   **************************************/	  
 	  //Create directory and datatracks for each type
-//	  System.out.println("Creating bam");
-	  this.createDataTrackDriver("bam", parentId, bamFiles,existingFolders);
-//	  System.out.println("Creating useq");
-	  this.createDataTrackDriver("useq",parentId,covFiles,existingFolders);
-//	  System.out.println("Creating vcf");
-	  this.createDataTrackDriver("vcf",parentId,vcfFiles,existingFolders);
-	  
-//        sess.flush();
-          
+      if (bamFiles.size() > 0 ) {
+//	  	 System.out.println("Creating bam");
+    	 this.createDataTrackDriver("bam", parentId, bamFiles);
+      }
+      
+      if (covFiles.size() > 0){
+//	  	 System.out.println("Creating useq");
+    	 this.createDataTrackDriver("useq",parentId,covFiles);
+      }
+      
+      if (vcfFiles.size() > 0) {
+//	  	 System.out.println("Creating vcf");
+    	 this.createDataTrackDriver("vcf",parentId,vcfFiles);
+      }
+	            
         this.xmlResult = "<SUCCESS idAnalysis=\"" + analysis.getIdAnalysis() + "\"" +  " idAnalysisGroup=\"" + "\"" + "/>";
       
         setResponsePage(this.SUCCESS_JSP);
@@ -227,48 +260,51 @@ public class CreateAllDataTracks extends GNomExCommand implements Serializable {
   }
   
 	/******************************
-	 * Create Datatracks
+	 * Create enclosing folder
 	 ****************************/
-	private void createDataTrackDriver(String folderName, Integer parentId, ArrayList<AnalysisFile> filesToLink, ArrayList<DataTrackFolder> existing) {
+	private void createDataTrackDriver(String folderName, Integer parentId, ArrayList<AnalysisFile> filesToLink) {
 
 //		System.out.println ("[createDataTrackDriver] folderName: " + folderName + " parentId: " + parentId + " fileToLink.size(): " + filesToLink.size() + " existing.size(): " + existing.size());
 		
-		//Create directory and datatracks for each type
-	  if (filesToLink.size() != 0) {
+		// get the existing data track folders
+		DataTrackFolder parentFolder = DataTrackFolder.class.cast(sess.load(DataTrackFolder.class, parentId));
+		
+		// create the folder if needed
 		  Integer subId = null;
 		  boolean exists = false;
-		  for (DataTrackFolder dtf: existing) {
-			if (dtf.getName().equals(folderName)) {
-				exists = true;
-				subId = dtf.getIdDataTrackFolder();
-//				System.out.println ("[createDataTrackDriver] exists subId: " + subId + " dtf.getName(): " + dtf.getName());
-				break;
-			}
-		  } // end of for
+		  
+		  if (parentFolder.getFolders() != null) {
+			  ArrayList<DataTrackFolder> existing = new ArrayList<DataTrackFolder> (parentFolder.getFolders());
+			  for (DataTrackFolder dtf: existing) {
+				  if (dtf.getName().equals(folderName)) {
+					  exists = true;
+					  subId = dtf.getIdDataTrackFolder();
+//					  System.out.println ("[createDataTrackDriver] exists subId: " + subId + " dtf.getName(): " + dtf.getName());
+					  break;
+			      }
+			  } // end of for
+		  }
 		  
 		  if (!exists) {
-			 subId = this.createDataTrackFolders(folderName,parentId);
+			 subId = this.createDataTrackFolder(folderName,parentId);
 //			 System.out.println ("[createDataTrackDriver] did not exist, new subId: " + subId);
 		  }
 		 
 		  for (AnalysisFile af: filesToLink) {
 //			  System.out.println ("[createDataTrackDriver] calling createDataTracks analysisfile: " + af.getFileName() + " idAnalysisFile: " + af.getIdAnalysisFile() + " subId: " + subId);
-			  this.createDataTracks(af.getIdAnalysisFile(),subId);
+			  this.createDataTrack(af.getIdAnalysisFile(),subId);
 		  }
-	  }
+
 	}
 	
 	/*******************************
 	 * Stolen from linkDataTrackFiles. 
 	 *********************************/
-	private void createDataTracks(Integer idAnalysisFile, Integer idDataTrackFolder) {
+	private void createDataTrack(Integer idAnalysisFile, Integer idDataTrackFolder) {
 //		System.out.println ("[createDataTracks] ** starting ** idAnalysisFile: " + idAnalysisFile + " idDataTrackFolder: " + idDataTrackFolder);
 		DataTrack dataTrack = null;
 		AnalysisFile analysisFile = null;
-		
-		// check and see if this data track already exists
-		
-      
+		      
 		try {
 			PropertyDictionaryHelper propertyHelper = PropertyDictionaryHelper.getInstance(sess);
 			baseDirDataTrack = propertyHelper.getDataTrackDirectory(serverName);
@@ -277,8 +313,7 @@ public class CreateAllDataTracks extends GNomExCommand implements Serializable {
 			analysisFile = (AnalysisFile)sess.load(AnalysisFile.class, idAnalysisFile);
 			Analysis analysis = (Analysis)sess.load(Analysis.class, analysisFile.getIdAnalysis());
 
-			dataTrack = new DataTrack();
-			
+			dataTrack = new DataTrack();			
 //			System.out.println ("[createDataTracks] data track name: " + analysisFile.getAnalysis().getNumber() + "_" + analysisFile.getFileName() );
 		
 			dataTrack.setName(analysisFile.getAnalysis().getNumber() + "_" + analysisFile.getFileName());
@@ -309,7 +344,7 @@ public class CreateAllDataTracks extends GNomExCommand implements Serializable {
 			dataTrack.setIdAppUser(analysis.getIdAppUser());
 			
 			dataTrack.setDataPath(baseDirDataTrack);
-			dataTrack.setCreatedBy(this.getUsername());					/////////////////////////////////////////////////////////////////////////
+			dataTrack.setCreatedBy(this.getUsername());	
 			dataTrack.setCreateDate(new java.sql.Date(System.currentTimeMillis()));
 			dataTrack.setIsLoaded("N");
 
@@ -319,94 +354,65 @@ public class CreateAllDataTracks extends GNomExCommand implements Serializable {
 			dataTrack.setFileName("DT" + dataTrack.getIdDataTrack());
 			sess.flush();
 
-			// If we are linking a .bw/.bb, .bai/.bam, or .vcf.gz/.vcf.gz.tbi see if we have linked to its pair.
-			// If not, fill in idAnalysisFileOther, so that the pair is linked as well.
+			// Create the datatrackfile
+			DataTrackFile dtFile = new DataTrackFile();
+			dtFile.setIdAnalysisFile(idAnalysisFile);
+			dtFile.setIdDataTrack(dataTrack.getIdDataTrack());
+//			System.out.println ("[createDataTracks] create datatrackfile, id: " + dataTrack.getIdDataTrack());
+			sess.save(dtFile);
+			sess.flush();
+
+			// deal with the index file if needed
 			Integer idAnalysisFileOther = null;
 			
-			boolean lookForBam = false;
 			boolean lookForBai = false;
 			boolean lookForBigWig = false;
-			boolean lookForUSeq = false;
-			boolean lookForVCF = false;
 			boolean lookForVCFTBI = false;
 
-			String baseFileName = fetchBaseName(analysisFile.getFileName(), Constants.DATATRACK_FILE_EXTENSIONS);			
+			String baseFileName = fetchBaseName(analysisFile.getQualifiedFileName(), Constants.DATATRACK_FILE_EXTENSIONS);
 
 			String fileName = analysisFile.getFileName().toUpperCase();
-			if (fileName.endsWith(".BAI")) lookForBam = true;
-			else if (fileName.endsWith(".BAM")) lookForBai = true;
+			if (fileName.endsWith(".BAM")) lookForBai = true;
 			else if (fileName.endsWith(".USEQ")) lookForBigWig = true;
-			else if (fileName.endsWith(".BW") || fileName.endsWith(".BB")  ) lookForUSeq = true;
 			else if (fileName.endsWith(".VCF.GZ")) lookForVCFTBI = true;
-			else if (fileName.endsWith(".VCF.GZ.TBI")) lookForVCF = true;	
 
+			// look thru all the files in this analysis
 			for (Iterator i = analysisFile.getAnalysis().getFiles().iterator(); i.hasNext();) {
 				AnalysisFile af = (AnalysisFile)i.next();
-				String afBaseFileName = fetchBaseName(af.getFileName(), Constants.DATATRACK_FILE_EXTENSIONS);
+				String afBaseFileName = fetchBaseName(af.getQualifiedFileName(), Constants.DATATRACK_FILE_EXTENSIONS);
+				
 
+//				System.out.println ("[CreateAllDataTracks] afbasename: " + afBaseFileName + " basename: " + baseFileName);
+				
 				//do the baseNames match?
 				String afFileNameUpperCase = af.getFileName().toUpperCase();
 				if (baseFileName.toUpperCase().equals(afBaseFileName.toUpperCase())) {						
 					if (lookForBai && afFileNameUpperCase.endsWith(".BAI")) {
 						idAnalysisFileOther = af.getIdAnalysisFile();
-					} else if (lookForBam && afFileNameUpperCase.endsWith(".BAM")) {
-						idAnalysisFileOther = af.getIdAnalysisFile();
 					} else if (lookForBigWig && (afFileNameUpperCase.endsWith(".BW") || afFileNameUpperCase.endsWith(".BB"))) {
-						idAnalysisFileOther = af.getIdAnalysisFile();
-					} else if (lookForUSeq && (afFileNameUpperCase.endsWith(".USEQ") || afFileNameUpperCase.endsWith(".USEQ"))) {
 						idAnalysisFileOther = af.getIdAnalysisFile();
 					} else if (lookForVCFTBI && afFileNameUpperCase.endsWith(".VCF.GZ.TBI")) {
 						idAnalysisFileOther = af.getIdAnalysisFile();
-					} else if (lookForVCF && afFileNameUpperCase.endsWith(".VCF.GZ")) {
-						idAnalysisFileOther = af.getIdAnalysisFile();
 					}
 				}
-			}
+			} // end of for
 
-			//is it a paired file set? then must have other
-			String afFileNameUpper = analysisFile.getFileName().toUpperCase(); 
-			boolean saveDataTrack = true;
-			if (afFileNameUpper.endsWith(".BAM") || afFileNameUpper.endsWith(".BAI") || afFileNameUpper.endsWith(".VCF.GZ") || afFileNameUpper.endsWith(".VCF.GZ.TBI")){
-				if (idAnalysisFileOther == null){
-					//not sure if this makes this invalid so using boolean
-//					System.out.println("Missing indexed file or file index?!  Please add either a matching xxx.bam or xxx.bai; or add a xxx.vcf.gz or xxx.vcf.gz.tbi.");
-					saveDataTrack = false;
-				}
-			}
-
-			if (saveDataTrack){
-				//Create datatrack
-				DataTrackFile dtFile = new DataTrackFile();
-				dtFile.setIdAnalysisFile(idAnalysisFile);
-				dtFile.setIdDataTrack(dataTrack.getIdDataTrack());
-//				System.out.println ("[createDataTracks] create datatrackfile, id: " + dataTrack.getIdDataTrack());
-				sess.save(dtFile);
-
-				// If this is a file pair, add the other analysis file
-				if (idAnalysisFileOther != null) {			
-					DataTrackFile dtFileOther = new DataTrackFile();
-					dtFileOther.setIdAnalysisFile(idAnalysisFileOther);
-					dtFileOther.setIdDataTrack(dataTrack.getIdDataTrack());
-//					System.out.println ("[createDataTracks] create datatrackfile other, id: " +idAnalysisFileOther);
-					sess.save(dtFileOther);
-				}
+			// If we found an index, create a datatrackfile entry for it (can't already be there)
+			if (idAnalysisFileOther != null) {			
+				DataTrackFile dtFileOther = new DataTrackFile();
+				dtFileOther.setIdAnalysisFile(idAnalysisFileOther);
+				dtFileOther.setIdDataTrack(dataTrack.getIdDataTrack());
+//				System.out.println ("[createDataTracks] create datatrackfile other, id: " +idAnalysisFileOther);
+				sess.save(dtFileOther);
 				sess.flush();
 			}
 
-			// *************************************************
-			// If this is a new data track, add it to the folder
-			// *************************************************
-			GenomeBuild genomeBuild = GenomeBuild.class.cast(sess.load(GenomeBuild.class, idGenomeBuild));
-
+			// *************************************************************
+			//  add the data track to the folder (it can't already be there)
+			// *************************************************************
 			DataTrackFolder folderNew = DataTrackFolder.class.cast(sess.load(DataTrackFolder.class, idDataTrackFolder));
-			if (folderNew == null) {
-//				System.out.println ("[createDataTracks] WARNING folderNew is null!!!!");
-			}
-//			System.out.println ("[createDataTracks] folderNew: " + folderNew.getName());
 			
-            //
             // Add the dataTrack to the dataTrack folder
-            //
             Set<DataTrack> newDataTracks = new TreeSet<DataTrack>(new DataTrackComparator());
             if (folderNew.getDataTracks() != null) {
             	for(Iterator<?> i = folderNew.getDataTracks().iterator(); i.hasNext();) {
@@ -432,7 +438,7 @@ public class CreateAllDataTracks extends GNomExCommand implements Serializable {
 	 * Stolen from SaveDataTrackFolder 
 	 *********************************************/
 	
-	private Integer createDataTrackFolders(String folderName, Integer idParentDataTrackFolder) {
+	private Integer createDataTrackFolder(String folderName, Integer idParentDataTrackFolder) {
 //		System.out.println ("[createDataTrackFolders] ** starting ** folderName: " + folderName);
 		
 	    DataTrackFolder dataTrackFolder = new DataTrackFolder();
@@ -470,7 +476,11 @@ public class CreateAllDataTracks extends GNomExCommand implements Serializable {
     return dataTrackFolder.getIdDataTrackFolder();
 	}  
 	
-	
+	// if there is an index file, make sure it is associated with the data track
+	private void checkDataTrackIndex (ArrayList<AnalysisFile> filesToCheck)
+	{
+		return;
+	}
 	
 	
 	/**Removes the extension and its period.  Thus alta.is.great.bam.bai -> alta.is.great.bam .*/
@@ -486,4 +496,21 @@ public class CreateAllDataTracks extends GNomExCommand implements Serializable {
 		return fileName.substring(0, fileName.length() - extLength);
 	}
 
+	  public static int getidDataTrack(int idAnalysisFile, Session sess) {
+//		  System.out.println ("[getidDataTrack] ** starting ** idAnalysisFile: " + idAnalysisFile);
+		  
+
+		  int idDataTrack = -1;
+		  
+		    StringBuffer buf = new StringBuffer("SELECT idDataTrack from DataTrackFile where idAnalysisFile = " + idAnalysisFile);
+		    List results = sess.createQuery(buf.toString()).list();
+
+		    if (results.size() > 0) {
+		      idDataTrack = (Integer)results.get(0);
+		    }
+		    
+//		    System.out.println ("[getidDataTrack] ** leaving ** idDataTrack: " + idDataTrack);
+		    return idDataTrack;
+		  }
+	
 }
