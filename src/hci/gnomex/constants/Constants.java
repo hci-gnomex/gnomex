@@ -101,6 +101,19 @@ public class Constants {
     ".vcf.gz.tbi",
   };
 
+  public static final String[] DATATRACK_FILE_EXTENSIONS_NO_INDEX = new String[] {                                                  
+	    ".bam",
+	    ".useq",
+	    ".bb", 
+	    ".bw",
+	    ".bed",
+	    ".bgr",
+	    ".brs",
+	    ".gff", 
+	    ".gtf",
+	    ".vcf.gz",
+	  };
+
   public static final String[] FILE_EXTENSIONS_TO_CHECK_SIZE_BEFORE_UPLOADING = new String[] {
     ".bed", 
     ".bgn", 
@@ -120,6 +133,15 @@ public class Constants {
     ".useq",
   };
 
+  /**xxx.ext for bigBed, bigWig, bam that can be accessed via http.*/
+  public static final String[] FILE_EXTENSIONS_FOR_UCSC_LINKS_NO_INDEX = new String[] {
+    ".bb",
+    ".bw",
+    ".bam",
+    ".vcf.gz",
+    ".useq",
+  };
+
   public static final String[] FILE_EXTENSIONS_FOR_IGV_LINKS = new String[] {
     ".bb",
     ".bw",
@@ -129,12 +151,24 @@ public class Constants {
     ".vcf.gz.tbi",
   };
 
+  public static final String[] FILE_EXTENSIONS_FOR_IGV_LINKS_NO_INDEX = new String[] {
+	    ".bb",
+	    ".bw",
+	    ".bam",
+	    ".vcf.gz",
+	  };
+
   public static final String[] FILE_EXTENSIONS_FOR_BAMIOBIO_LINKS = new String[] {
     ".bam",
     ".bai",
     ".vcf.gz",
     ".vcf.gz.tbi",
   };
+
+  public static final String[] FILE_EXTENSIONS_FOR_BAMIOBIO_LINKS_NO_INDEX = new String[] {
+	    ".bam",
+	    ".vcf.gz",
+	  };
 
   public static final String[] FILE_EXTENSIONS_FOR_VCFIOBIO_LINKS = new String[] {
     ".vcf.gz",
