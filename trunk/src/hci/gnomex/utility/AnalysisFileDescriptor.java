@@ -283,8 +283,8 @@ public class AnalysisFileDescriptor extends DetailObject implements Serializable
     boolean found = false;
     if (type != null) {
       String extension = "." + type;
-      for (int x = 0; x < Constants.FILE_EXTENSIONS_FOR_UCSC_LINKS.length; x++) {
-        if (extension.equalsIgnoreCase(Constants.FILE_EXTENSIONS_FOR_UCSC_LINKS[x])) {
+      for (int x = 0; x < Constants.FILE_EXTENSIONS_FOR_UCSC_LINKS_NO_INDEX.length; x++) {
+        if (extension.equalsIgnoreCase(Constants.FILE_EXTENSIONS_FOR_UCSC_LINKS_NO_INDEX[x])) {
           found = true;
           break;
         }
@@ -298,8 +298,8 @@ public class AnalysisFileDescriptor extends DetailObject implements Serializable
 	    boolean found = false;
 	    if (type != null) {
 	      String extension = "." + type;
-	      for (int x = 0; x < Constants.FILE_EXTENSIONS_FOR_IGV_LINKS.length; x++) {
-	        if (extension.equalsIgnoreCase(Constants.FILE_EXTENSIONS_FOR_IGV_LINKS[x])) {
+	      for (int x = 0; x < Constants.FILE_EXTENSIONS_FOR_IGV_LINKS_NO_INDEX.length; x++) {
+	        if (extension.equalsIgnoreCase(Constants.FILE_EXTENSIONS_FOR_IGV_LINKS_NO_INDEX[x])) {
 	          found = true;
 	          break;
 	        }
@@ -313,8 +313,8 @@ public class AnalysisFileDescriptor extends DetailObject implements Serializable
 	    boolean found = false;
 	    if (type != null) {
 	      String extension = "." + type;
-	      for (int x = 0; x < Constants.FILE_EXTENSIONS_FOR_BAMIOBIO_LINKS.length; x++) {
-	        if (extension.equalsIgnoreCase(Constants.FILE_EXTENSIONS_FOR_BAMIOBIO_LINKS[x])) {
+	      for (int x = 0; x < Constants.FILE_EXTENSIONS_FOR_BAMIOBIO_LINKS_NO_INDEX.length; x++) {
+	        if (extension.equalsIgnoreCase(Constants.FILE_EXTENSIONS_FOR_BAMIOBIO_LINKS_NO_INDEX[x])) {
 	          found = true;
 	          break;
 	        }
@@ -344,8 +344,8 @@ public class AnalysisFileDescriptor extends DetailObject implements Serializable
 	    boolean found = false;
 	    if (type != null) {
 	      String extension = "." + type;
-	      for (int x = 0; x < Constants.DATATRACK_FILE_EXTENSIONS.length; x++) {
-	        if (extension.equalsIgnoreCase(Constants.DATATRACK_FILE_EXTENSIONS[x])) {
+	      for (int x = 0; x < Constants.DATATRACK_FILE_EXTENSIONS_NO_INDEX.length; x++) {
+	        if (extension.equalsIgnoreCase(Constants.DATATRACK_FILE_EXTENSIONS_NO_INDEX[x])) {
 	          found = true;
 	          break;
 	        }
