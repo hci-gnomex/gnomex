@@ -369,7 +369,7 @@
 			}
 
 			private function onCreateAllDataTracks(event:ResultEvent):void {
-				if (createAllDataTracks.lastResult.name() != "SUCCESS") {
+				if (createAllDataTracks.lastResult.name() != "SUCCESS"  && createAllDataTracks.lastResult..ACTMESSAGE.@TEXT != "none") {
 					Alert.show(createAllDataTracks.lastResult..ACTMESSAGE.@TEXT);
 				} else {
 					Alert.show("Data tracks created for all applicable files.", "Success");
