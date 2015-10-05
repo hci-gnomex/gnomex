@@ -819,7 +819,7 @@
 				<mx:AdvancedDataGridColumn dataField="@viewURL" headerText="" editable="false" width="25" itemRenderer="views.renderers.LinkButtonViewFile"/>
 				<mx:AdvancedDataGridColumn dataField="@fileSizeText" editable="false" headerText="Size" width="25" textAlign="right" /> 
 				<mx:AdvancedDataGridColumn dataField="@lastModifyDateDisplay" editable="false" headerText="Modified" width="20"/>
-				<mx:AdvancedDataGridColumn dataField="@isSupportedDataTrack" headerText="URL" editable="false" width="9" minWidth="9" itemRenderer="views.renderers.LinkButtonURLLink"/>
+				<mx:AdvancedDataGridColumn dataField="@URLLinkAllowed" headerText="URL" editable="false" width="9" minWidth="9" itemRenderer="views.renderers.LinkButtonURLLink"/>
 				<mx:AdvancedDataGridColumn dataField="@UCSCViewer" headerText="UCSC" editable="false" width="12" minWidth="12" itemRenderer="views.renderers.LinkButtonUCSCViewer"/>
 				<mx:AdvancedDataGridColumn dataField="@IGVViewer" headerText="IGV" editable="false" width="9" minWidth="9" itemRenderer="views.renderers.LinkButtonIGVViewer"/>
 				<mx:AdvancedDataGridColumn dataField="@BAMIOBIOViewer" headerText="IOBIO" editable="false" width="12" minWidth="12" itemRenderer="views.renderers.LinkButtonIOBIOViewer"/>
