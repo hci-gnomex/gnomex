@@ -1119,7 +1119,9 @@
 				var invoicePrice:Number = new Number(0);
 				
 				for each ( var bi:Object in billingItemsDisplayed.source..BillingItem ) {
-					invoicePrice = sumInvoicePrice(invoicePrice, bi);
+					if(lastSelectedBillingPeriod.@value == bi.@idBillingPeriod){
+						invoicePrice = sumInvoicePrice(invoicePrice, bi);
+					}
 				}
 				
 				if (invoicePrice > 0) {
