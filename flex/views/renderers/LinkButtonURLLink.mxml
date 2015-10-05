@@ -9,12 +9,11 @@
         
         import mx.controls.dataGridClasses.DataGridListData; 
 		import mx.controls.Alert;
-//		import views.analysis.AnalysisDownloadView;
         
         private var columnIndex:int; 
         
         private function init():void {
-        	if (data.hasOwnProperty("@isSupportedDataTrack")  && data.@isSupportedDataTrack == 'Y') {
+        	if (data.hasOwnProperty("@URLLinkAllowed")  && data.@URLLinkAllowed == 'Y') {
         		visible = true;
         	} else {
         		visible = false;
@@ -23,15 +22,9 @@
         
         private function clickLink(event:MouseEvent):void{ 
 			var txt:String = data.@idAnalysisFileString;
-//			var alert:Alert = Alert.show(txt, "[LinkButtonURLLink clickLink]");
-//			alert.mx_internal::alertForm.mx_internal::textField.htmlText =txt;
 			
 			if (data != null) {
-				if (data.hasOwnProperty("@isSupportedDataTrack") && data.@isSupportedDataTrack == 'Y') {
-//					txt = data.@fileName;
-//					alert = Alert.show(txt, "calling createURLLinks:");
-//					alert.mx_internal::alertForm.mx_internal::textField.htmlText =txt;
-					
+				if (data.hasOwnProperty("@URLLinkAllowed") && data.@URLLinkAllowed == 'Y') {				
 					parentDocument.createURLLinks(data.@idAnalysisFileString);
 				}	
 			}
@@ -41,13 +34,13 @@
 
         override public function set data(value:Object):void{ 
                 super.data = value; 
-                //columnIndex = (DataGridListData(listData) as DataGridListData).columnIndex; 
-        } 
+         } 
+		
         override protected function updateDisplayList(w:Number, h:Number):void
 		{
 			super.updateDisplayList(w, h);
 			if (data != null) {
-				if (data.hasOwnProperty("@isSupportedDataTrack") && data.@isSupportedDataTrack == 'Y') {
+				if (data.hasOwnProperty("@URLLinkAllowed") && data.@URLLinkAllowed == 'Y') {
 					visible = true;
 				} else {
 					visible = false;
