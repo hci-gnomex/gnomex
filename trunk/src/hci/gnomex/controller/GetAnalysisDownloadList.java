@@ -250,7 +250,7 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
               fdNode.setAttribute("UCSCViewer", fd.getIsUCSCViewerAllowed());     
               fdNode.setAttribute("IGVViewer", fd.getIsIGVViewerAllowed());
               fdNode.setAttribute("BAMIOBIOViewer", fd.getIsBAMIOBIOViewerAllowed());     
-              fdNode.setAttribute("VCFIOBIOViewer", fd.getIsVCFIOBIOViewerAllowed());   
+              fdNode.setAttribute("URLLinkAllowed", fd.getIsURLLinkAllowed());   
               
               fdNode.setAttribute("viewURL", fd.getViewURL());
               if ( StringUtils.isNumeric( fd.getIdAnalysisFileString()  )){
@@ -431,7 +431,7 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
           fdNode.setAttribute("UCSCViewer", fd.getIsUCSCViewerAllowed());     
           fdNode.setAttribute("IGVViewer", fd.getIsIGVViewerAllowed());
           fdNode.setAttribute("BAMIOBIOViewer", fd.getIsBAMIOBIOViewerAllowed());     
-          fdNode.setAttribute("VCFIOBIOViewer", fd.getIsVCFIOBIOViewerAllowed());   
+          fdNode.setAttribute("URLLinkAllowed", fd.getIsURLLinkAllowed());   
                     
           fdNode.setAttribute("viewURL", fd.getViewURL()!=null?fd.getViewURL():"");
 
@@ -548,7 +548,7 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
       childFdNode.setAttribute("UCSCViewer", childFd.getIsUCSCViewerAllowed());     
       childFdNode.setAttribute("IGVViewer", childFd.getIsIGVViewerAllowed());
       childFdNode.setAttribute("BAMIOBIOViewer", childFd.getIsBAMIOBIOViewerAllowed());     
-      childFdNode.setAttribute("VCFIOBIOViewer", childFd.getIsVCFIOBIOViewerAllowed());   
+      childFdNode.setAttribute("URLLinkAllowed", childFd.getIsURLLinkAllowed());   
       
       
       childFdNode.setAttribute("viewURL", childFd.getViewURL() != null ? childFd.getViewURL() : "");
