@@ -324,12 +324,12 @@ public class AnalysisFileDescriptor extends DetailObject implements Serializable
 	    return (found ? "Y" : "N");
 	  }
 	  
-  public String getIsVCFIOBIOViewerAllowed() {
+  public String getIsURLLinkAllowed() {
 	    boolean found = false;
 	    if (type != null) {
 	      String extension = "." + type;
-	      for (int x = 0; x < Constants.FILE_EXTENSIONS_FOR_VCFIOBIO_LINKS.length; x++) {
-	        if (extension.equalsIgnoreCase(Constants.FILE_EXTENSIONS_FOR_VCFIOBIO_LINKS[x])) {
+	      for (int x = 0; x < Constants.DATATRACK_FILE_EXTENSIONS_NO_INDEX.length; x++) {
+	        if (extension.equalsIgnoreCase(Constants.DATATRACK_FILE_EXTENSIONS_NO_INDEX[x])) {
 	          found = true;
 	          break;
 	        }
@@ -344,8 +344,8 @@ public class AnalysisFileDescriptor extends DetailObject implements Serializable
 	    boolean found = false;
 	    if (type != null) {
 	      String extension = "." + type;
-	      for (int x = 0; x < Constants.DATATRACK_FILE_EXTENSIONS_NO_INDEX.length; x++) {
-	        if (extension.equalsIgnoreCase(Constants.DATATRACK_FILE_EXTENSIONS_NO_INDEX[x])) {
+	      for (int x = 0; x < Constants.DATATRACK_FILE_EXTENSIONS.length; x++) {
+	        if (extension.equalsIgnoreCase(Constants.DATATRACK_FILE_EXTENSIONS[x])) {
 	          found = true;
 	          break;
 	        }
