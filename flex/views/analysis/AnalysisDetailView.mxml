@@ -344,7 +344,7 @@
 				// so that the drag-and-drop has the refreshed list (with ids
 				// for the saved analysis files).
 				if (saveAnalysisFilesForDDT.lastResult.name() == "SUCCESS") {
-					this.refreshDownloadView(null);
+//					this.refreshDownloadView(null);
 					
 					// create data tracks for all of the appropriate files in the analysis
 					// if this has already been done before, just do the right thing for the new ones
@@ -372,6 +372,8 @@
 				if (createAllDataTracks.lastResult.name() != "SUCCESS"  && createAllDataTracks.lastResult..ACTMESSAGE.@TEXT != "none") {
 					Alert.show(createAllDataTracks.lastResult..ACTMESSAGE.@TEXT);
 				} else {
+					// Refresh the download list of analysis files
+					this.refreshDownloadView(null);					
 					Alert.show("Data tracks created for all applicable files.", "Success");
 				}
 			}
