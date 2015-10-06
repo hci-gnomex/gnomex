@@ -1,0 +1,24 @@
+<!-- Genome Build Detail form (tabs)  -->
+
+<div class="col-lg-10" >
+	<div class=" panel panel-default">
+		<div class="panel-heading"><h5>Genome Build {{genomeBuildSelected1.label}}</h5></div>
+
+		<div class="panel-body" style="padding-top: 10px;">
+			<tabset>
+				   <tab heading="Details">
+				   		<ng:include src="'app/datatrack/genomebuildDetails.html'"></ng:include>
+				   </tab>
+
+				   <tab heading="Segments">
+				   		<ng:include src="'app/datatrack/genomebuildSegments.html'"></ng:include>
+				   </tab>
+
+				   <tab heading="Sequence Files" >
+				   		<ng:include src="'app/datatrack/genomebuildSeqFiles.html'"></ng:include>
+				   </tab>
+			</tabset>
+		</div>
+	</div>
+
+</div>

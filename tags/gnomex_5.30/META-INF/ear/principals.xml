@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<!DOCTYPE principals PUBLIC "//Evermind - Orion Principals//" "http://www.orionserver.com/dtds/principals.dtd">
+
+<principals>
+ <groups>
+         <group name="GNomExUser">
+                 <description>Normal users</description>
+                 <permission name="rmi:login" />
+         </group>
+ </groups>
+ <users>
+ </users>
+</principals>

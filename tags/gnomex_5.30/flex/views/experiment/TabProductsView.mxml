@@ -1,0 +1,525 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas 	label="Products" 
+			xmlns:mx="http://www.adobe.com/2006/mxml"
+			xmlns:util="views.util.*"
+			width="100%" height="100%"
+			initialize="{init()}">
+	
+	<mx:HTTPService 
+		id="getProductLedgerList" 
+		url="GetProductLedgerList.gx"
+		resultFormat="e4x"
+		result="onGetProductLedgerList(event)"
+		showBusyCursor="true"
+		fault="parentApplication.onFailHttpRequest('Unable to get ledger entries', event)"
+		method="POST"
+		useProxy="false">
+	</mx:HTTPService>
+	
+	<mx:Script>
+		<![CDATA[
+			import mx.controls.Alert;
+			import mx.core.UIComponent;
+			import mx.rpc.events.ResultEvent;
+			
+			[Bindable]
+			private var availableLedgerAmount:String = NO_PRODUCTS;
+			[Bindable]
+			private var pendingLedgerAmount:String = NO_PRODUCTS;
+			[Bindable]
+			private var hasSufficientProduct:Boolean = false;
+			[Bindable]
+			private var selectedProduct:Object = null;
+			[Bindable]
+			private var requiredCodeProductType:String;
+			private var lastIdLabUsedForLookup:String;
+			[Bindable]
+			private var editable:Boolean = false;
+			private var showOnlyLabsProducts:Boolean = false;
+			private var idProductToLoad:String = null;
+			private var sampleNumber:Number = -1;
+			private var noProductsMessage:String = null;
+			
+			private static const NO_PRODUCTS:String = "0";
+			
+			private function init():void {
+				filteredProducts.source = parentApplication.productList.copy();
+				if (parentDocument.hasOwnProperty("requestCategory") && parentDocument.requestCategory != null && parentDocument.requestCategory.hasOwnProperty("@idCoreFacility") && parentDocument.requestCategory.hasOwnProperty("@codeRequestCategory")) {
+					updateShowOnlyLabsProductsProperty(parentDocument.requestCategory.@idCoreFacility, parentDocument.requestCategory.@codeRequestCategory);
+					updateNoProductsMessage(parentDocument.requestCategory.@idCoreFacility, parentDocument.requestCategory.@codeRequestCategory);
+				}
+				filteredProducts.refresh();
+				updateInventoryAmounts();
+				
+				updateSelectionOptions();
+				
+				createProductTypeList();
+			}
+			
+			public function refreshForRequestCategory(requestCategory:Object = null):void {
+				if (parentDocument is ExperimentEditView && parentDocument.hasOwnProperty("requestCategory") && parentDocument.requestCategory != null) {
+					hasSufficientProduct = false;
+					productGroup.selection = null;
+					productGroup.selectedValue = null;
+					selectedProduct = null;
+					availableLedgerAmount = NO_PRODUCTS;
+					pendingLedgerAmount = NO_PRODUCTS;
+					requiredCodeProductType = parentDocument.requestCategory.@codeProductType;
+					noProductsMessage = null;
+					
+					if (parentDocument.requestCategory.hasOwnProperty("@idCoreFacility") && parentDocument.requestCategory.hasOwnProperty("@codeRequestCategory")) {
+						updateShowOnlyLabsProductsProperty(parentDocument.requestCategory.@idCoreFacility, parentDocument.requestCategory.@codeRequestCategory);
+						updateNoProductsMessage(parentDocument.requestCategory.@idCoreFacility, parentDocument.requestCategory.@codeRequestCategory);
+					}
+					
+					filteredProducts.refresh();
+				} else if (requestCategory != null) {
+					hasSufficientProduct = false;
+					productGroup.selection = null;
+					productGroup.selectedValue = null;
+					selectedProduct = null;
+					availableLedgerAmount = NO_PRODUCTS;
+					pendingLedgerAmount = NO_PRODUCTS;
+					requiredCodeProductType = requestCategory.@codeProductType;
+					noProductsMessage = null;
+					
+					if (requestCategory.hasOwnProperty("@codeRequestCategory")) {
+						updateShowOnlyLabsProductsProperty(requestCategory.@idCoreFacility, requestCategory.@codeRequestCategory);
+						updateNoProductsMessage(requestCategory.@idCoreFacility, requestCategory.@codeRequestCategory);
+					}
+					
+					filteredProducts.refresh();
+				}
+				setProductTypeLabel();
+			}
+			
+			public function refreshForLab(idLab:String = null):void {
+				if (parentDocument is ExperimentEditView && parentDocument.getIdLab() != null) {
+					hasSufficientProduct = false;
+					productGroup.selection = null;
+					productGroup.selectedValue = null;
+					selectedProduct = null;
+					availableLedgerAmount = NO_PRODUCTS;
+					pendingLedgerAmount = NO_PRODUCTS;
+					lookupLedger(parentDocument.getIdLab());
+				} else if (idLab != null) {
+					hasSufficientProduct = false;
+					productGroup.selection = null;
+					productGroup.selectedValue = null;
+					selectedProduct = null;
+					availableLedgerAmount = NO_PRODUCTS;
+					pendingLedgerAmount = NO_PRODUCTS;
+					lookupLedger(idLab);
+				}
+			}
+			
+			public function refreshForSamples(sampleNumber:Number = -1):void {
+				this.sampleNumber = -1;
+				
+				if (parentDocument.hasOwnProperty("samples") && parentDocument.samples != null && parentDocument.samples.length >= 0) {
+					this.sampleNumber = parentDocument.samples.length;
+				} else if (sampleNumber > -1) {
+					this.sampleNumber = sampleNumber;
+				}
+			}
+			
+			public function allowEdits(allowEdits:Boolean):void {
+				editable = allowEdits;
+			}
+			
+			public function reset():void {
+				availableLedgerAmount = NO_PRODUCTS;
+				pendingLedgerAmount = NO_PRODUCTS;
+				hasSufficientProduct = false;
+				productGroup.selection = null;
+				productGroup.selectedValue = null;
+				selectedProduct = null;
+				requiredCodeProductType = null;
+				lastIdLabUsedForLookup = null;
+				editable = false;
+				setProductTypeLabel();
+			}
+			
+			public function hasSufficientInfo():Boolean {
+				if (requiredCodeProductType != null && lastIdLabUsedForLookup != null) {
+					return true;
+				}
+				
+				return false;
+			}
+			
+			private function filterProducts(item:Object):Boolean {
+				var keep:Boolean = true;
+				
+				if (showOnlyLabsProducts && getProductLedgerList.lastResult == null) {
+					keep = false;
+				}
+				
+				if (item.@isActive == 'N' || item.@useQty == '') {
+					keep = false;
+				}
+				
+				if (item.@codeProductType != requiredCodeProductType) {
+					keep = false;
+				}
+				
+				if (showOnlyLabsProducts && keep) {
+					keep = false;
+					for each (var product:Object in getProductLedgerList.lastResult.Lab.product) {
+						if (product.@idProduct == item.@idProduct) {
+							keep = true;
+							break;
+						}
+					}
+				}
+				
+				return keep;
+			}
+			
+			private function selectProduct():void {
+				if (editable && productGroup.selectedValue != null) {
+					selectedProduct = productGroup.selectedValue;
+					if (parentDocument is ExperimentEditView && !lookupLedger(parentDocument.getIdLab())) {
+						updateFields();
+					}
+					setDirty();
+				}
+			}
+			
+			private function lookupLedger(idLab:String = null, idProduct:String = null, forceReload:Boolean = false):Boolean {
+				if (forceReload || (getProductLedgerList.lastResult == null) || (lastIdLabUsedForLookup == null) || (lastIdLabUsedForLookup != null && idLab != lastIdLabUsedForLookup)) {
+					var params:Object = new Object();
+					params.idLab = idLab;
+					params.idProduct = idProduct;
+					getProductLedgerList.send(params);
+					
+					lastIdLabUsedForLookup = idLab;
+					return true;
+				}
+				
+				return false;
+			}
+			
+			private function validateLedgerAmount():void {
+				hasSufficientProduct = false;
+				var available:Number = parseInt(availableLedgerAmount);
+				var required:Number = Number.MAX_VALUE;
+				if (selectedProduct != null) {
+					for each (var product:Object in filteredProducts) {
+						if (product.@idProduct == selectedProduct.@idProduct) {
+							var useQuantity:Number = parseInt(product.@useQty);
+							required = useQuantity;
+							if (sampleNumber > -1) {
+								while (required < sampleNumber) {
+									required += useQuantity;
+								}
+							}
+							break;
+						}
+					}
+				}
+				hasSufficientProduct = (available >= required) && (available - required >= 0);
+			}
+			
+			public function updateFields():void {
+				if (getProductLedgerList.lastResult != null) {
+					var foundProductInLedger:Boolean = false;
+					if (selectedProduct != null) {
+						for each (var product:Object in getProductLedgerList.lastResult.Lab.product) {
+							if (product.@idProduct == selectedProduct.@idProduct) {
+								foundProductInLedger = true;
+								availableLedgerAmount = product.@qty;
+								if (product.hasOwnProperty("@pendingQty") && product.@pendingQty != "") {
+									pendingLedgerAmount = product.@pendingQty;
+								} else {
+									pendingLedgerAmount = NO_PRODUCTS;
+								}
+							}
+						}
+					}
+					if (!foundProductInLedger) {
+						availableLedgerAmount = NO_PRODUCTS;
+						pendingLedgerAmount = NO_PRODUCTS;
+					}
+					
+					validateLedgerAmount();
+				}
+				
+				checkCompleteness();
+			}
+			
+			private function onGetProductLedgerList(event:ResultEvent):void {
+				if (getProductLedgerList.lastResult.name() != 'LedgerList') {
+					Alert.show(event.result..ERROR.@message.toString(), "Error getting product ledger list");	
+				} else {
+					if (showOnlyLabsProducts) {
+						filteredProducts.refresh();
+					}
+					
+					updateInventoryAmounts();
+					
+					if (idProductToLoad != null) {
+						for each (var product:XML in filteredProducts) {
+							if (product.@idProduct == idProductToLoad) {
+								productGroup.selectedValue = product;
+								selectedProduct = product;
+								requiredCodeProductType = selectedProduct.@codeProductType;
+								setProductTypeLabel();
+								break;
+							}
+						}
+						idProductToLoad = null;
+					}
+					
+					updateSelectionOptions();
+					updateFields();
+				}
+			}
+			
+			private function checkCompleteness():void {
+				if (parentDocument is ExperimentDetailView) {
+					return;
+				}
+				
+				var complete:Boolean = false;
+				
+				/*if (editable && hasSufficientProduct) {
+					complete = true;
+				}*/
+				complete = true;
+				
+				var nextVisibleChild:UIComponent = null;
+				
+				var nextChildIndex:int = parentDocument.theTab.selectedIndex + 1;
+				while (nextChildIndex <= parentDocument.theTab.getChildren().length - 1) {
+					if (parentDocument.theTab.getTabAt(nextChildIndex).visible) {
+						nextVisibleChild = UIComponent(parentDocument.theTab.getChildAt(nextChildIndex));
+						break;
+					} else {
+						nextChildIndex++;
+					}
+				}
+				
+				if (nextVisibleChild != null) {
+					if (complete) {
+						nextVisibleChild.enabled = true;
+					} else {
+						nextVisibleChild.enabled = false;
+					}
+					
+					parentDocument.enableNextButtons();
+				}
+			}
+			
+			public function getErrors(action:String):String {
+				var message:String = "";
+				if (editable && selectedProduct == null && action == "submit") {
+					message += "A product is required; please select one.";
+				}
+				if (editable && selectedProduct != null && !hasSufficientProduct && action == "submit") {
+					message += "Your lab does not have sufficient products.";
+				}
+				return message;
+			}
+			
+			public function getWarnings(action:String):String {
+				var message:String = "";
+				if (editable && selectedProduct == null) {
+					message += "A product is required but one was not selected.";
+				}
+				if (editable && selectedProduct != null && !hasSufficientProduct) {
+					message += "Your lab does not have sufficient products at this time.";
+				}
+				return message;
+			}
+			
+			public function getUseQuantityOfSelectedProduct():Number {
+				var useQuantity:Number = -1;
+				if (selectedProduct != null && selectedProduct.hasOwnProperty("@useQty")) {
+					useQuantity = parseInt(selectedProduct.@useQty);
+				}
+				return useQuantity;
+			}
+			
+			private function updateSelectionOptions():void {
+				if ((editable && !showOnlyLabsProducts) || (editable && filteredProducts.length > 0 && getProductLedgerList.lastResult != null)) {
+					productSelectLabel.text = "Please select a product:";
+					productsBox.visible = true;
+					productsBox.includeInLayout = true;
+				} else if (editable) {
+					var prop:String = noProductsMessage;
+					if (prop == null) {
+						prop = "Your lab does not have any applicable products for this request.";
+					}
+					productSelectLabel.text = prop;
+					productsBox.visible = false;
+					productsBox.includeInLayout = false;
+				} else if (!editable) {
+					productSelectLabel.text = "Selected product:";
+					productsBox.visible = true;
+					productsBox.includeInLayout = true;
+				}
+			}
+			
+			private function updateShowOnlyLabsProductsProperty(idCoreFacility:String, codeRequestCategory:String):void {
+				if (idCoreFacility == null || idCoreFacility == '' || codeRequestCategory == null || codeRequestCategory == '') {
+					return;
+				}
+				
+				var prop:String = parentApplication.getRequestCategoryProperty(idCoreFacility, codeRequestCategory, parentApplication.PROPERTY_SHOW_ONLY_LABS_PRODUCTS);
+				if (prop != null && prop == 'Y') {
+					showOnlyLabsProducts = true;
+				} else {
+					showOnlyLabsProducts = false;
+				}
+			}
+			
+			private function updateNoProductsMessage(idCoreFacility:String, codeRequestCategory:String):void {
+				noProductsMessage = parentApplication.getRequestCategoryProperty(idCoreFacility, codeRequestCategory, parentApplication.PROPERTY_NO_PRODUCTS_MESSAGE);
+			}
+			
+			public function loadSelection(idProduct:String, idLab:String = null):void {
+				if (parentDocument is ExperimentEditView) {
+					idProductToLoad = idProduct;
+					lookupLedger(parentDocument.getIdLab(), null, true);
+				} else if (idLab != null) {
+					idProductToLoad = idProduct;
+					lookupLedger(idLab, null, true);
+				}
+			}
+			
+			public function getSelectedProduct():Object {
+				return selectedProduct;
+			}
+			
+			public function batchSamplesByUseQuantity():Boolean {
+				return (selectedProduct != null && selectedProduct.hasOwnProperty("@batchSamplesByUseQuantity") && selectedProduct.@batchSamplesByUseQuantity == "Y");
+			}
+			
+			private function setDirty():void {
+				if (parentDocument.hasOwnProperty("dirty") && parentDocument.dirty != null) {
+					parentDocument.dirty.setDirty();
+				}
+			}
+			
+			private function setProductTypeLabel():void {
+				var label:String = "This experiment type uses products.";
+				
+				var codeProductType:String = null;
+				if (selectedProduct != null && selectedProduct.hasOwnProperty("@codeProductType") && selectedProduct.@codeProductType != "") {
+					codeProductType = selectedProduct.@codeProductType;
+				} else if (requiredCodeProductType != null && requiredCodeProductType != "") {
+					codeProductType = requiredCodeProductType;
+				}
+				
+				if (codeProductType != null) {
+					if (productTypes == null) {
+						createProductTypeList();
+					}
+					
+					for each (var productType:XML in productTypes) {
+						if (productType.hasOwnProperty("@codeProductType") && productType.@codeProductType == codeProductType) {
+							label = "This experiment type uses products of type: " + productType.@display;
+							break;
+						}
+					}
+				}
+				
+				productTypeLabel.text = label;
+			}
+			
+			private function createProductTypeList():void {
+				var list:XMLListCollection = new XMLListCollection();
+				
+				for each (var dictionary:XML in parentApplication.dictionaryManager.xml.Dictionary) {
+					if (dictionary.@className == "hci.gnomex.model.ProductType") {
+						for each (var productType:XML in dictionary.DictionaryEntry) {
+							list.addItem(productType);
+						}
+						break;
+					}
+				}
+				
+				productTypes = list;
+			}
+			
+			private function updateInventoryAmounts():void {
+				if (getProductLedgerList.lastResult != null) {
+					for each (var productChoice:XML in filteredProducts) {
+						var foundInLedger:Boolean = false;
+						for each (var productInLedger:Object in getProductLedgerList.lastResult.Lab.product) {
+							if (productChoice.@idProduct == productInLedger.@idProduct) {
+								foundInLedger = true;
+								productChoice.@inventory = productInLedger.@qty;
+								break;
+							}
+						}
+						if (!foundInLedger) {
+							productChoice.@inventory = NO_PRODUCTS;
+						}
+					}
+				} else {
+					for each (var productChoice2:XML in filteredProducts) {
+						productChoice.@inventory = NO_PRODUCTS;
+					}
+				}
+				
+				filteredProducts.refresh();
+			}
+			
+		]]>
+	</mx:Script>
+	
+	<mx:XMLListCollection id="filteredProducts" filterFunction="filterProducts" />
+	<mx:XMLListCollection id="productTypes" />
+	
+	<mx:VBox width="100%" height="100%" verticalScrollPolicy="auto" verticalGap="10" paddingTop="0" paddingRight="0" paddingBottom="0" paddingLeft="0">
+		
+		<mx:HBox width="100%" horizontalGap="0" verticalAlign="top" paddingTop="2">
+			
+			<mx:Label text="This experiment type uses products." id="productTypeLabel" />
+			
+		</mx:HBox>
+			
+		<mx:HBox width="100%" horizontalGap="0" verticalAlign="top" paddingTop="2">
+			
+			<mx:Label text="Please select a product:" id="productSelectLabel" />
+			
+			<mx:Spacer width="10" />
+			
+			<mx:VBox id="productsBox" horizontalGap="8" verticalGap="0" styleName="{productGroup.selection != null ? 'normalBox' : 'requiredBox'}" paddingTop="1" paddingRight="4" paddingBottom="0" paddingLeft="2" verticalAlign="bottom">
+				<mx:HBox width="100%" height="100%" horizontalGap="10">
+					<mx:VBox width="250" height="100%" horizontalAlign="center" verticalAlign="top">
+						<mx:Label width="250" text="Product" styleName="formLabel" paddingLeft="103" />
+					</mx:VBox>
+					<mx:VBox width="100" height="100%" horizontalAlign="center" verticalAlign="top">
+						<mx:Label width="100" text="Use Quantity" styleName="formLabel" paddingLeft="16" />
+					</mx:VBox>
+					<mx:VBox width="100" height="100%" horizontalAlign="center" verticalAlign="top" >
+						<mx:Label width="80" text="Inventory" styleName="formLabel" paddingLeft="16" />
+					</mx:VBox>
+				</mx:HBox>
+				<mx:RadioButtonGroup id="productGroup" change="{selectProduct()}" />
+				<mx:Repeater id="productRepeater" dataProvider="{filteredProducts}">
+					<mx:HBox width="100%" verticalAlign="middle" paddingTop="0" paddingRight="0" paddingBottom="0" paddingLeft="0">
+						<mx:RadioButton id="productRadio" groupName="productGroup" enabled="{editable}"
+										label="{productRepeater.currentItem.@display}"
+										value="{productRepeater.currentItem}" width="250"
+										paddingTop="0" paddingBottom="0" fontSize="11" paddingLeft="2" />
+						<mx:Label text="{productRepeater.currentItem.@useQty}" width="100" paddingLeft="45" />
+						<mx:Label text="{productRepeater.currentItem.@inventory}" width="100" paddingLeft="50" />
+					</mx:HBox>
+				</mx:Repeater>
+			</mx:VBox>
+			
+		</mx:HBox>
+		
+		<mx:HBox width="100%" horizontalGap="0" verticalAlign="top" paddingTop="2" visible="{editable &amp;&amp; selectedProduct != null}" includeInLayout="{editable &amp;&amp; selectedProduct != null}">
+			
+			<mx:Label text="For this product your lab has {availableLedgerAmount} in inventory and {pendingLedgerAmount} pending." />
+			
+		</mx:HBox>
+		
+	</mx:VBox>	
+	
+</mx:Canvas>

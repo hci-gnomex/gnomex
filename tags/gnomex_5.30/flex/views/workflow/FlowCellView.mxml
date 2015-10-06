@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox styleName="panelBox"  xmlns:mx="http://www.adobe.com/2006/mxml" 
+	width="100%" height="100%" 
+	xmlns:util="views.util.*" xmlns:renderers="views.renderers.*" show="init()" defaultButton="{findButton}">
+<mx:HBox verticalAlign="middle">
+	<mx:Image source="{parentApplication.iconFlowCell}"/>
+	<mx:Label id="titleLabel" styleName="titleLabel" text="Flow Cells" />
+</mx:HBox>
+
+   <mx:HTTPService  
+    id="getFlowCellList" 
+    url="GetFlowCellList.gx"
+    resultFormat="e4x"
+    showBusyCursor="true"
+    result="onGetFlowCellList(event)"
+	fault="parentApplication.onFailHttpRequest('Failed to get flow cell list', event)"
+    method="POST"
+    useProxy="false">
+  </mx:HTTPService> 
+
+	<mx:HTTPService  
+		id="getFlowCell" 
+		url="GetFlowCellList.gx"
+		resultFormat="e4x"
+		showBusyCursor="true"
+		result="onGetFlowCell(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to get flow cell list', event)"
+		method="POST"
+		useProxy="false">
+	</mx:HTTPService> 
+
+	
+<mx:Script> 
+	<![CDATA[
+		import hci.flex.controls.DropdownLabel;
+		
+		import mx.controls.Alert;
+		import mx.controls.dataGridClasses.DataGridColumn;
+		import mx.events.CloseEvent;
+		import mx.events.CollectionEvent;
+		import mx.events.CollectionEventKind;
+		import mx.events.ItemClickEvent;
+		import mx.events.PropertyChangeEvent;
+		import mx.managers.PopUpManager;
+		import mx.rpc.events.ResultEvent;
+		
+		import views.workflow.EditFlowCellWindow;
+		import views.renderers.LinkButtonDateRangeMenu;
+		import views.util.DateSetEvent;
+		
+		[Bindable]
+		public var codeSequencingPlatform:String = "HISEQ";
+		private var addWindow:EditFlowCellWindow;
+		
+		public var selectedFlowCellNumber:String = null;
+		
+		public function clearAndRefreshList():void {
+			//if(getFlowCellList.lastResult != null) {
+			//	flowCells.removeAll();
+			//}
+			//getFlowCellList.send();
+		}
+
+		public function clearAndRefreshList2():void {
+			if(getFlowCell.lastResult != null) {
+				flowCells.removeAll();
+			}
+
+			getFlowCell.send(getSingleSearchParameters());
+		}
+		
+		private function init():void {
+			//this.getFlowCellList.send();
+			this.addEventListener("changed",refresh);
+			pickDateRangeButton.addEventListener(DateSetEvent.DATE_SET, handleDateSet);
+		}
+
+		private function refresh(e:Event):void{
+			this.getFlowCellList.send(getSearchParameters());
+		}    	
+
+        private function onGetFlowCellList(event:ResultEvent):void {
+        	if (event.result.name() == "FlowCellList") {
+        	} else {
+        		Alert.show(event.result..ERROR.@message.toString(), "Error getting flow cell list");
+        	}
+        }
+
+		private function onGetFlowCell(event:ResultEvent):void {
+			if (event.result.name() == "FlowCellList") {
+			} else {
+				Alert.show(event.result..ERROR.@message.toString(), "Error getting flow cell list");
+			}
+			if (selectedFlowCellNumber != null) {
+				showEdit();
+			}
+		}
+		
+		private function showPrintableForm():void {
+			var url:URLRequest = new URLRequest('ShowFlowCellForm.gx?idFlowCell=' + this.flowCellsGrid.selectedItem.@idFlowCell);
+			navigateToURL(url, '_blank');			
+		}
+		private function showPrintablePrepForm():void {
+			var url:URLRequest = new URLRequest('ShowFlowCellPrepForm.gx?idFlowCell=' + this.flowCellsGrid.selectedItem.@idFlowCell);
+			navigateToURL(url, '_blank');			
+		}
+		public function prepareToEdit():void {
+			
+			if(this.flowCellsGrid.selectedItem == null){
+				return;
+			}
+			
+			this.addWindow = EditFlowCellWindow(mx.managers.PopUpManager.createPopUp(parentApplication.theBody, EditFlowCellWindow, true));
+			this.addWindow.selectedFC = this.flowCellsGrid.selectedItem;
+			this.addWindow.parentView = this;
+			this.addWindow.addEventListener("changed", refresh);
+			mx.managers.PopUpManager.centerPopUp(this.addWindow);
+			addWindow.setFocus();
+		}
+
+		public function showEdit():void {
+			var number:String = getFlowCell.lastResult.FlowCell.@number;
+			if (number != "") {
+				this.addWindow = EditFlowCellWindow(mx.managers.PopUpManager.createPopUp(parentApplication.theBody, EditFlowCellWindow, true));
+				this.addWindow.selectedFC = getFlowCell.lastResult.FlowCell;
+				this.addWindow.parentView = this;
+				selectedFlowCellNumber = null;
+				this.lookupField2.text = "";
+				mx.managers.PopUpManager.centerPopUp(this.addWindow);
+				addWindow.setFocus();
+				
+			} else {
+				Alert.show("Could not find the requested Flow Cell");
+			}
+
+		}
+		private function getFragmentSizeRange(item:Object, col:DataGridColumn):String {
+			return (item.@fragmentSizeFrom != "" ? item.@fragmentSizeFrom : "?") + " - " + 
+			       (item.@fragmentSizeTo != "" ? item.@fragmentSizeTo : "?");
+		}
+		private function getSeqPrepLibFragmentSizeRange(item:Object, col:DataGridColumn):String {
+			if (item.@idSequencingControl != '') {
+				return '';
+			}
+			return (item.@seqPrepGelFragmentSizeFrom != "" ? item.@seqPrepGelFragmentSizeFrom : "?") + " - " + 
+			       (item.@seqPrepGelFragmentSizeTo != "" ? item.@seqPrepGelFragmentSizeTo : "?");
+		}    	
+		private function getOrganism(item:Object, col:DataGridColumn):String {
+			return parentApplication.dictionaryManager.getEntryDisplay('hci.gnomex.model.OrganismLite', item.@idOrganism);
+		}
+		private function getSequencingProtocol(item:Object, col:DataGridColumn):String {
+			return parentApplication.dictionaryManager.getEntryDisplay('hci.gnomex.model.NumberSequencingCyclesAllowed', item.@idNumberSequencingCyclesAllowed);
+		}			
+		
+		private function setDefaultButton():void {
+			if (this.lookupField.text != '') {
+				this.pickDateRangeButton.resetRange();
+			} 		
+		}
+	
+		private function flowCellOrExperimentLookup():void {
+			if ( lookupField.text.length == 0 || (lookupField.text.length > 0 && (lookupField.text.toUpperCase().indexOf('R') >= 0 || lookupField.text.toUpperCase().indexOf('FC') >= 0)) ) { 
+				this.getFlowCellList.send(getSearchParameters());
+			} else {
+				Alert.show("Invalid flow cell or experiment number.  Please use numbers like 111R or FC111.");
+			}
+		}
+		
+		public function getSearchParameters():Object {
+			var params:Object = new Object();
+			
+			params.codeSequencingPlatform = codeSequencingPlatform;
+			params.flowCellNumber = lookupField.text.toUpperCase().indexOf('FC') >= 0 ? lookupField.text : '';
+			params.requestNumber = lookupField.text.toUpperCase().indexOf('R') >= 0 ? lookupField.text : '';
+			if (pickDateRangeButton.fromDate != null && pickDateRangeButton.toDate != null) {
+				params.createDateFrom = pickDateRangeButton.dateFormatter.format(pickDateRangeButton.fromDate);
+				params.createDateTo = pickDateRangeButton.dateFormatter.format(pickDateRangeButton.toDate);
+			}
+			
+			return params;
+		}
+		
+		public function getSingleSearchParameters():Object {
+			var params:Object = new Object();
+			
+			params.codeSequencingPlatform = codeSequencingPlatform;
+			params.flowCellNumber = lookupField2.text.indexOf('FC') == 0 ? lookupField2.text : '';
+			params.requestNumber = lookupField2.text.indexOf('R') > 0 ? lookupField2.text : '';
+			if (pickDateRangeButton.fromDate != null && pickDateRangeButton.toDate != null) {
+				params.createDateFrom = pickDateRangeButton.dateFormatter.format(pickDateRangeButton.fromDate);
+				params.createDateTo = pickDateRangeButton.dateFormatter.format(pickDateRangeButton.toDate);
+			}
+			
+			return params;
+		}
+		
+		private function handleDateSet(event:DateSetEvent):void {
+			// Do nothing, search is updated when find button is clicked
+			this.lookupField.text = "";
+		}
+	]]>
+</mx:Script>    	
+<mx:XMLListCollection id="flowCells" source="{getFlowCellList.lastResult.FlowCell}"/>
+
+      <mx:HBox id="filterBox"  horizontalGap="20" verticalAlign="middle">
+      	  <mx:Label text="Filter by"/>
+      	  <mx:HBox horizontalGap="0" verticalAlign="middle">
+      	      <mx:Label text="Flow Cell # or Experiment #" id="label1"/>
+          	  <mx:TextInput id="lookupField" width="60" change="{setDefaultButton()}"/>     
+			  <mx:TextInput id="lookupField2" width="10" visible="false" />
+      	  </mx:HBox>
+
+	      <mx:HBox horizontalGap="0" verticalAlign="middle" verticalGap="0" horizontalAlign="right" paddingRight="0"  id="hbox3">
+			  <renderers:LinkButtonDateRangeMenu id="pickDateRangeButton" />
+		  </mx:HBox>
+			  
+		  <mx:VBox height="100%" verticalAlign="middle">
+			  <mx:LinkButton id="findButton" 
+							 height="25"
+							 label="Find"
+							 toolTip="Run Search"
+							 click="{flowCellOrExperimentLookup()}" 
+							 icon="@Embed('../../assets/magnifier.png')"/>
+		  </mx:VBox>
+
+      </mx:HBox>
+
+	<mx:VDividedBox width="100%" height="100%" styleName="form" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4">
+		<mx:VBox width="100%" height="100%"   verticalGap="0">	
+			<mx:VBox width="100%" height="100%" verticalGap="1">			
+				<mx:VBox width="100%" height="100%" verticalGap="1">		
+				    <mx:HBox width="100%" verticalAlign="bottom">
+				        <mx:HBox width="100%" verticalAlign="middle" paddingTop="8">
+				        	<mx:Label text="{'Flow Cell ' + flowCellsGrid.selectedItem.@number}"  fontWeight="bold"/>
+				        	<mx:LinkButton label="Preparation report" fontStyle="normal" textDecoration="underline" color="#2017D8" click="showPrintablePrepForm()"  enabled="{flowCellsGrid.selectedItem != null}"/>
+				        	<mx:LinkButton label="Run report" fontStyle="normal" textDecoration="underline" color="#2017D8" click="showPrintableForm()"  enabled="{flowCellsGrid.selectedItem != null}"/>
+				        	<mx:LinkButton label="Edit flow cell" fontStyle="normal" textDecoration="underline" color="#2017D8" click="prepareToEdit()"  enabled="{flowCellsGrid.selectedItem != null}"/>
+				        </mx:HBox>
+				        <mx:Spacer width="100%"/>
+				        <mx:Label text="{'(' + this.flowCells.length + ' flow cells)'}" fontWeight="normal" textAlign="right"/>
+				    </mx:HBox>	
+					<mx:DataGrid id="flowCellsGrid" width="100%" height="100%" dataProvider="{flowCells}" doubleClickEnabled="true" doubleClick="prepareToEdit()">
+						<mx:columns>
+							<mx:DataGridColumn  dataField="@number" headerText="#" width="65"/>
+							<mx:DataGridColumn  dataField="@barcode" headerText="Barcode" width="90"/>
+				 			<mx:DataGridColumn  dataField="@createDate" headerText="Cluster Gen Date" width="110"/>
+							<mx:DataGridColumn  dataField="@idNumberSequencingCyclesAllowed" headerText="Sequencing Protocol" width="100"
+								labelFunction="getSequencingProtocol"/>
+							<mx:DataGridColumn  dataField="@notes" headerText="Content" width="300"  />
+						</mx:columns>				
+					</mx:DataGrid>		
+				</mx:VBox>
+			</mx:VBox>
+		</mx:VBox>
+	</mx:VDividedBox>
+</mx:VBox>

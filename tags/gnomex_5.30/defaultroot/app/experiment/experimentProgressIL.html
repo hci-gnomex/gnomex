@@ -1,0 +1,35 @@
+<div class="container-fluid" style="padding-top: 10px">
+	<div class="row">
+			<table class="table table-bordered table-striped table-hover">
+			    <thead>
+			        <tr>
+			            <th width="5%">#</th>
+			            <th width="10%">Date</th>
+			            <th width="10%">Requestor</th>
+			            <th width="10%">Sample #</th>
+			            <th width="10%">Sample Name</th>
+			            <th width="5%">QC</th>
+			            <th width="5%">Prep</th>
+			            <th width="5%"># Lanes</th>
+			            <th width="10%">Seq</th>
+			            <th width="30%">Seq Status</th>
+			        </tr>
+			    </thead>
+			    <tbody>
+			        <tr ng-repeat="prog in selectedProgressIL">
+			            <td>{{prog.number}}</td>
+			            <td>{{prog.date}}</td>
+			            <td>{{prog.requestor}}</td>
+			            <td>{{prog.samplenumber}}</td>
+			            <td>{{prog.samplename}}</td>
+			            <td>{{prog.QC}}</td>
+			            <td>{{prog.prep}}</td>
+			            <td>{{prog.numlanes}}</td>
+			            <td>{{prog.seq}}</td>
+			            <td>{{prog.seqstatus}}</td>
+			          	</td>
+			        </tr>
+			    </tbody>
+			</table>
+	</div> <!-- end row -->
+</div> <!--  end container -->

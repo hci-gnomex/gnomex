@@ -1,0 +1,59 @@
+<!-- Experiment File Download -->
+
+<div class="modal-header">
+        <h4>Select Files to Download</h4>
+</div>
+
+<div class="modal-body">
+	<div class="row">
+	     <!-- Sidebar -->
+     	<div class="col-md-6">
+
+			<div class=" panel panel-default">
+
+				<div class="panel-heading"><h5>Available Files</h5></div>
+
+				<div class="panel-body" style="padding-top: 10px;">
+
+					<div class="container-fluid" style="padding-top: 10px">
+						<div class="row">
+							<tree-grid tree-data="etree_data" col-defs="ecol_defs" expand-on="eexpanding_property" expand-level="1" on-select="efileSelectedHandler(branch)" icon-expand="glyphicon glyphicon-triangle-right" icon-collapse="glyphicon glyphicon-triangle-bottom"></tree-grid>
+						</div>
+					</div>
+
+
+				</div>
+
+			</div>
+
+		</div>
+
+     	<div class="col-md-6">
+
+			<div class=" panel panel-default">
+
+				<div class="panel-heading"><h5>Files to Download</h5></div>
+
+				<div class="panel-body" style="padding-top: 10px;">
+
+					<div class="container-fluid" style="padding-top: 10px">
+						<div class="row">
+						</div>
+					</div>
+
+
+				</div>
+
+			</div>
+
+		</div>
+
+
+	</div>
+
+</div>
+
+<div class="modal-footer">
+            <button class="btn btn-primary" ng-click="download()">Download</button>
+            <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
+</div>
