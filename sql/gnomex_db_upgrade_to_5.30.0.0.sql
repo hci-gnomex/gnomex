@@ -7,13 +7,13 @@ VALUES ('isolation_default_price_category', 'Nucleic Acid Isolation', 'Default p
 
 -- Increase size of filter columns on Price Criteria
 alter table PriceCriteria
-alter column filter1 varchar(20);
+modify column filter1 varchar(20);
 
 alter table PriceCriteria
-alter column filter2 varchar(20);
+modify column filter2 varchar(20);
 
-CALL ExecuteIfTableExists('gnomex', 'PriceCriteria_Audit', 'alter table PriceCriteria_Audit alter column filter1 varchar(20)');
-CALL ExecuteIfTableExists('gnomex', 'PriceCriteria_Audit', 'alter table PriceCriteria_Audit alter column filter2 varchar(20)');
+CALL ExecuteIfTableExists('gnomex', 'PriceCriteria_Audit', 'alter table PriceCriteria_Audit modify column filter1 varchar(20)');
+CALL ExecuteIfTableExists('gnomex', 'PriceCriteria_Audit', 'alter table PriceCriteria_Audit modify column filter2 varchar(20)');
 
 -- Add batchSamplesByUseQuantity to Product
 ALTER TABLE Product
