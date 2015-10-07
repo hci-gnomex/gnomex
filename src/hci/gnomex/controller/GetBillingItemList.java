@@ -19,6 +19,7 @@ import java.sql.SQLException;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
@@ -136,12 +137,13 @@ public class GetBillingItemList extends GNomExCommand implements Serializable {
       // When filtering by billing period,
       // get the list of ids for the requests of these billing items
       // We will use this id list to augment the billing item list with
-      // billing items from other billing periods
+      // billing items from other billing periods and split billing items in same period
       HashMap otherBillingItemMap = new HashMap();
-      if (billingItemFilter.getIdBillingPeriod() != null && this.showOtherBillingItems.equals("Y")) {
-        HashMap idRequestMap = new HashMap();
+      if (this.showOtherBillingItems.equals("Y")) {
+        HashMap<Integer, Object> idRequestMap = new HashMap<Integer, Object>();
         for(Iterator i = billingItems.iterator(); i.hasNext();) {
           Object[] row = (Object[])i.next();
+          
           Integer idRequest           = (Integer)row[1];
           idRequestMap.put(idRequest, null);
         }
@@ -161,10 +163,10 @@ public class GetBillingItemList extends GNomExCommand implements Serializable {
       }
 
 
-
       Integer prevIdRequest = new Integer(-1);
       Integer prevIdLab = new Integer(-1);
       Integer prevIdBillingAccount = new Integer(-1);
+      Integer prevIdBillingPeriod = new Integer(-1);
 
       Element requestNode = null;
 
@@ -203,11 +205,17 @@ public class GetBillingItemList extends GNomExCommand implements Serializable {
               for(Iterator i1 = otherBillingItemRows.iterator(); i1.hasNext();) {
                 Object[] otherRow = (Object[])i1.next();
                 BillingItem otherBillingItem = (BillingItem)otherRow[9];
-                otherBillingItem.setCurrentCodeBillingStatus(otherBillingItem.getCodeBillingStatus());
-                Element otherBillingItemNode = otherBillingItem.toXMLDocument(null, this.DATE_OUTPUT_SQL).getRootElement();
-                otherBillingItemNode.setAttribute("other", "Y");
-                otherBillingItemNode.setAttribute("isDirty","N");
-                requestNode.addContent(otherBillingItemNode);
+                
+                // Only include if this billing item belongs to a different billing account/period,
+                // otherwise some items will be duplicated (because other billing items
+                // includes "split" items in same billing period)
+                if (!otherBillingItem.getIdBillingAccount().equals(prevIdBillingAccount) || !otherBillingItem.getIdBillingPeriod().equals(prevIdBillingPeriod)) {
+                	otherBillingItem.setCurrentCodeBillingStatus(otherBillingItem.getCodeBillingStatus());
+                    Element otherBillingItemNode = otherBillingItem.toXMLDocument(null, this.DATE_OUTPUT_SQL).getRootElement();
+                    otherBillingItemNode.setAttribute("other", "Y");
+                    otherBillingItemNode.setAttribute("isDirty","N");
+                    requestNode.addContent(otherBillingItemNode);
+                }
               }
             }
           }
@@ -262,6 +270,7 @@ public class GetBillingItemList extends GNomExCommand implements Serializable {
         prevIdRequest = billingItem.getIdRequest();
         prevIdLab = billingItem.getIdLab();
         prevIdBillingAccount = billingItem.getIdBillingAccount();
+        prevIdBillingPeriod = billingItem.getIdBillingPeriod();
       }
 
       // Before creating a new request node, attach all of the "other" billing
@@ -272,10 +281,17 @@ public class GetBillingItemList extends GNomExCommand implements Serializable {
           for(Iterator i1 = otherBillingItemRows.iterator(); i1.hasNext();) {
             Object[] otherRow = (Object[])i1.next();
             BillingItem otherBillingItem = (BillingItem)otherRow[9];
-            Element otherBillingItemNode = otherBillingItem.toXMLDocument(null, this.DATE_OUTPUT_SQL).getRootElement();
-            otherBillingItemNode.setAttribute("other", "Y");
-            otherBillingItemNode.setAttribute("isDirty", "N");
-            requestNode.addContent(otherBillingItemNode);
+            
+            // Only include if this billing item belongs to a different billing account/period,
+            // otherwise some items will be duplicated (because other billing items
+            // includes "split" items in same billing period)
+            if (!otherBillingItem.getIdBillingAccount().equals(prevIdBillingAccount) || !otherBillingItem.getIdBillingPeriod().equals(prevIdBillingPeriod)) {
+            	otherBillingItem.setCurrentCodeBillingStatus(otherBillingItem.getCodeBillingStatus());
+                Element otherBillingItemNode = otherBillingItem.toXMLDocument(null, this.DATE_OUTPUT_SQL).getRootElement();
+                otherBillingItemNode.setAttribute("other", "Y");
+                otherBillingItemNode.setAttribute("isDirty","N");
+                requestNode.addContent(otherBillingItemNode);
+            }
           }
         }
       }
@@ -284,6 +300,7 @@ public class GetBillingItemList extends GNomExCommand implements Serializable {
       Integer prevIdDiskUsage = -1;
       prevIdLab = -1;
       prevIdBillingAccount = -1;
+      prevIdBillingPeriod = new Integer(-1);
       // add any disk usage nodes
       StringBuffer diskUsageBuf = billingItemFilter.getDiskUsageBillingItemQuery();
       log.info("Query: " + diskUsageBuf.toString());
@@ -355,11 +372,13 @@ public class GetBillingItemList extends GNomExCommand implements Serializable {
         prevIdRequest = billingItem.getIdRequest();
         prevIdLab = billingItem.getIdLab();
         prevIdBillingAccount = billingItem.getIdBillingAccount();
+        prevIdBillingPeriod = billingItem.getIdBillingPeriod();
       }
 
       Integer prevIdProductOrder = -1;
       prevIdLab = -1;
       prevIdBillingAccount = -1;
+      prevIdBillingPeriod = new Integer(-1);
       // add any product order nodes
       StringBuffer productOrderBuf = billingItemFilter.getProductOrderBillingItemQuery();
       log.info("Query: " + productOrderBuf.toString());
@@ -413,6 +432,7 @@ public class GetBillingItemList extends GNomExCommand implements Serializable {
           prevIdProductOrder = idProductOrder;
           prevIdLab = billingItem.getIdLab();
           prevIdBillingAccount = billingItem.getIdBillingAccount();
+          prevIdBillingPeriod = billingItem.getIdBillingPeriod();
         }
 
         // Attach the billing item
@@ -436,6 +456,7 @@ public class GetBillingItemList extends GNomExCommand implements Serializable {
         prevIdRequest = billingItem.getIdRequest();
         prevIdLab = billingItem.getIdLab();
         prevIdBillingAccount = billingItem.getIdBillingAccount();
+        prevIdBillingPeriod = billingItem.getIdBillingPeriod();
       }
 
 
