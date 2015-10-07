@@ -275,28 +275,23 @@ public class BillingItemFilter extends DetailObject {
   }
 
 
-  public StringBuffer getRelatedBillingItemQuery(Set idRequests) {
+  public StringBuffer getRelatedBillingItemQuery(Set<Integer> idRequests) {
     getBaseBillingItemQuery();
 
-
     // Get all billing items in a different billing period for the
-    // requests of the billing items obtained in the main query
-    if (idRequests != null && idRequests.size() > 0){
+    // requests of the billing items obtained in the main query and
+    // split billing items in same period
+    if (idRequests != null && idRequests.size() > 0) {
       this.addWhereOrAnd();
       queryBuf.append(" req.idRequest in (");
-      for(Iterator i = idRequests.iterator(); i.hasNext();) {
-        Integer idRequest = (Integer)i.next();
+      for(Iterator<Integer> i = idRequests.iterator(); i.hasNext();) {
+        Integer idRequest = i.next();
         queryBuf.append(idRequest.toString());
         if (i.hasNext()) {
           queryBuf.append(", ");
         }
       }
       queryBuf.append(") ");
-      this.addWhereOrAnd();
-      // Get billing items from other period
-      queryBuf.append(" bi.idBillingPeriod !=");
-      queryBuf.append(idBillingPeriod);
-
     } 
 
     queryBuf.append(" order by req.number, bi.idLab, bi.idBillingAccount, bi.idBillingItem");

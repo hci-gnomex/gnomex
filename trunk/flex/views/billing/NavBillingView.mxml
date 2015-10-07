@@ -1118,9 +1118,11 @@
 				
 				var invoicePrice:Number = new Number(0);
 				
-				for each ( var bi:Object in billingItemsDisplayed.source..BillingItem ) {
-					if(lastSelectedBillingPeriod.@value == bi.@idBillingPeriod){
-						invoicePrice = sumInvoicePrice(invoicePrice, bi);
+				if (lastSelectedBillingPeriod != null) {
+					for each ( var bi:Object in billingItemsDisplayed.source..BillingItem ) {
+						if(lastSelectedBillingPeriod.@value == bi.@idBillingPeriod){
+							invoicePrice = sumInvoicePrice(invoicePrice, bi);
+						}
 					}
 				}
 				
@@ -2738,8 +2740,8 @@
 					<mx:HBox width="100%" verticalAlign="middle">
 						<mx:Label styleName="titleLabel" text="{'Billing Items' + (this.requestTree.selectedItem != null ? '     ' + this.requestTree.selectedItem.@label + '     ' + this.grandTotalPrice : '')}" fontSize="11"/>
 						<mx:Spacer width="100%"/>
-						<mx:CheckBox label="Show related charges in other periods" id="spanOtherCheckbox" selected="true" paddingTop="0" paddingBottom="0" fontSize="10" click="refreshRequestTab()" paddingLeft="8" paddingRight="0">
-							<mx:toolTip>When a request has billing items spanning multiple billing periods, show the related charges (grey, italics) that are in other billing periods.</mx:toolTip>
+						<mx:CheckBox label="Show Related Charges" id="spanOtherCheckbox" selected="true" paddingTop="0" paddingBottom="0" fontSize="10" click="refreshRequestTab()" paddingLeft="8" paddingRight="0">
+							<mx:toolTip>When a request has billing items spanning multiple billing periods or billing items split with other accounts, show the related charges (grey, italics).</mx:toolTip>
 						</mx:CheckBox>
 					</mx:HBox>
 					<mx:HBox width="100%" verticalAlign="middle">
