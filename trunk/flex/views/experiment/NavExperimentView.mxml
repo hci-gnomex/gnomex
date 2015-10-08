@@ -148,7 +148,6 @@
 	   <mx:Script> 
         <![CDATA[
 			import mx.collections.ArrayCollection;
-			
 			import mx.collections.XMLListCollection;
 			import mx.controls.Alert;
 			import mx.controls.Menu;
@@ -1308,8 +1307,15 @@
 			var emptyNode:XML = <AppUser idAppUser='' displayName=''/>;
 			appUsers = new XMLListCollection(lab.members.AppUser);
 			for each (var mgr:Object in lab.managers.AppUser) {
-				if (!appUsers.contains(mgr)) {
-					appUsers.addItem(mgr);				
+				var found:Boolean = false;
+				for each(var usr:Object in appUsers){
+					if(usr.@idAppUser == mgr.@idAppUser){
+						found = true;
+						break;
+					}
+				}
+				if(!found){
+					appUsers.addItem(mgr);
 				}
 			}
 			appUsers.addItemAt(emptyNode, 0);
