@@ -488,7 +488,7 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
       greeting = "Dear " + requestedLab.getName( false, false, false ) + ",<br><br>";
       intro = "The following person has signed up for a GNomEx user account and would like to be added to your lab group.  The user account has been created but not activated. Please approve or deny their request.<br><br>";
     } else {
-      intro = "The following person has signed up for a GNomEx user account.  The user account has been created but not activated. Please approve or deny their request.<br><br>";
+      intro = "The following person has signed up for a GNomEx user account and has requested a new lab.  The user account has been created but not activated. Please approve or deny their request.<br><br>";
     }
     
     introForAdmin.append(greeting);
@@ -496,16 +496,18 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
     introForAdmin.append("<a href='" + approveURL + "'>Click here</a> to activate the account.  GNomEx will automatically send an email to notify the user that his/her user account has been activated.<br><br>");
     introForAdmin.append("<a href='" + deleteURL + "'>Click here</a> to deny and delete the pending user.  GNomEx will automatically send an email to notify the user that they have been denied an account with GNomEx.<br><br>");
     
-    introForAdmin.append("(These links will expire in 3 days.)<br><br>");
-    
-    
-    String closing = "If you have any questions concerning this application for a new account within your lab group, please contact ";
-    if (facility != null ) {
-      closing += facility.getContactName() + " (" + facility.getContactEmail() + ").<br><br>";
-    } else {
-      closing += "GNomEx Support " + " (" + propertyHelper.getProperty( PropertyDictionary.GNOMEX_SUPPORT_EMAIL ) + ").<br><br>";
+    introForAdmin.append("<small>(These links will expire in 3 days.)</small><br><br>");
+
+    // Closing for Lab PI/Admin
+    if ( requestedLab != null ) {
+      String closing = "If you have any questions concerning this application for a new account within your lab group, please contact ";
+      if (facility != null ) {
+        closing += facility.getContactName() + " (" + facility.getContactEmail() + ").<br><br>";
+      } else {
+        closing += "GNomEx Support " + " (" + propertyHelper.getProperty( PropertyDictionary.GNOMEX_SUPPORT_EMAIL ) + ").<br><br>";
+      }
+      introForAdmin.append( closing );
     }
-    introForAdmin.append( closing );
     
     MailUtilHelper helper = new MailUtilHelper(	
     		toAddress,
