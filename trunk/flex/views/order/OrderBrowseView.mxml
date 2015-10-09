@@ -218,7 +218,7 @@
 						}
 					}
 					if (usedProducts) {
-						warningMessage += "\n\nWARNING: One or more of the selected orders used products. If the products were not actually consumed, please revert the status of the order to an earlier status or manually return the products to the lab before deleting.\n\n";
+						warningMessage += "\n\nWARNING: One or more of the selected orders may have used products. If the products were not actually consumed, please revert the status of the order to an earlier status or manually return the products to the lab before deleting.\n\n";
 					}
 					
 					Alert.show( warningMessage, 

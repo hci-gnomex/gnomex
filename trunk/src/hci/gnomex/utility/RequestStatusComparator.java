@@ -22,6 +22,14 @@ public class RequestStatusComparator implements Comparator<String> {
 		}
 	}
 	
+	public boolean isTerminationStatus(String status) {
+		if (status != null) {
+			return status.equals(RequestStatus.COMPLETED) || status.equals(RequestStatus.FAILED);
+		}
+		
+		return false;
+	}
+	
 	private int determineWorkflowValue(String requestStatus) {
 		int value = -1;
 		

@@ -59,7 +59,7 @@ public class ProductUtil {
 		
 		RequestStatusComparator statusComp = new RequestStatusComparator();
 		
-		if (isGoingForwardThroughProductGate(oldRequestStatus, newRequestStatus, statusToUseProducts, statusComp) && (!newRequestStatus.equals(RequestStatus.FAILED) || statusToUseProducts.equals(RequestStatus.FAILED))) {
+		if (isGoingForwardThroughProductGate(oldRequestStatus, newRequestStatus, statusToUseProducts, statusComp)) {
 			Integer productsAvailableToLab = (Integer) sess.createQuery( "select SUM(qty) from ProductLedger where idLab = " + req.getIdLab() + " and idProduct = " + req.getIdProduct() ).uniqueResult();
 			Integer productsRequired = determineProductsRequired(sess, req);
 			
@@ -152,15 +152,42 @@ public class ProductUtil {
 	}
 	
 	public static boolean isGoingForwardThroughProductGate(String oldRequestStatus, String newRequestStatus, String statusToUseProducts, RequestStatusComparator statusComp) {
-		return 		(statusComp.compare(newRequestStatus, oldRequestStatus) > 0) 		// New status is further in workflow than old status
-				&& 	(statusComp.compare(oldRequestStatus, statusToUseProducts) < 0) 	// Old status is behind the product gate
-				&& 	(statusComp.compare(newRequestStatus, statusToUseProducts) >= 0); 	// New status is at or beyond product gate
+		if (oldRequestStatus != null && oldRequestStatus.equals(newRequestStatus)) {
+			return false;
+		}
+		
+		// Allow setting status to failed without advancing through product gate
+		if (newRequestStatus.equals(RequestStatus.FAILED) && !statusToUseProducts.equals(RequestStatus.FAILED)) {
+			return false;
+		}
+		
+		if (!statusComp.isTerminationStatus(oldRequestStatus)) {
+			return 		(statusComp.compare(newRequestStatus, oldRequestStatus) > 0) 													// New status is further in work flow than old status
+					&& 	(statusComp.compare(oldRequestStatus, statusToUseProducts) < 0) 												// Old status is behind the product gate
+					&& 	(statusComp.compare(newRequestStatus, statusToUseProducts) >= 0)												// New status is at or beyond product gate
+					&& 	(statusComp.isTerminationStatus(statusToUseProducts) ? newRequestStatus.equals(statusToUseProducts) : true);	// Correct termination status was reached if applicable
+		} else {
+			return 		(!statusToUseProducts.equals(oldRequestStatus))																	// Old status is different termination status than gate 
+					&& 	(newRequestStatus.equals(statusToUseProducts))																	// New status is correct termination status as gate
+					&&	(statusComp.isTerminationStatus(statusToUseProducts));															// Product gate is a termination status
+		}
 	}
 	
 	public static boolean isGoingBackwardThroughProductGate(String oldRequestStatus, String newRequestStatus, String statusToUseProducts, RequestStatusComparator statusComp) {
-		return 		(statusComp.compare(newRequestStatus, oldRequestStatus) < 0) 		// New status is earlier in workflow than old status
-				&& 	(statusComp.compare(oldRequestStatus, statusToUseProducts) >= 0) 	// Old status is at or beyond the product gate
-				&& 	(statusComp.compare(newRequestStatus, statusToUseProducts) < 0); 	// New status is behind product gate
+		if (oldRequestStatus != null && oldRequestStatus.equals(newRequestStatus)) {
+			return false;
+		}
+		
+		if (!statusComp.isTerminationStatus(newRequestStatus)) {
+			return 		(statusComp.compare(newRequestStatus, oldRequestStatus) < 0) 													// New status is earlier in work flow than old status
+					&& 	(statusComp.compare(oldRequestStatus, statusToUseProducts) >= 0) 												// Old status is at or beyond the product gate
+					&& 	(statusComp.compare(newRequestStatus, statusToUseProducts) < 0) 												// New status is behind product gate
+					&&	(statusComp.isTerminationStatus(statusToUseProducts) ? statusToUseProducts.equals(oldRequestStatus) : true);	// Old status was at correct termination status if applicable
+		} else {
+			return		(!newRequestStatus.equals(statusToUseProducts))																	// New status is different termination status than gate
+					&&	(statusToUseProducts.equals(oldRequestStatus))																	// Old status is correct termination status as gate
+					&&	(statusComp.isTerminationStatus(statusToUseProducts));															// Product gate is a termination status
+		}
 	}
 
 }
