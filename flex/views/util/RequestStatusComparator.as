@@ -20,6 +20,14 @@ package views.util {
 			}
 		}
 		
+		public function isTerminationStatus(status:String):Boolean {
+			if (status != null) {
+				return status == "COMPLETE" || status == "FAILED";
+			}
+			
+			return false;
+		}
+		
 		private function determineWorkflowValue(requestStatus:String):int {
 			var value:int = -1;
 			

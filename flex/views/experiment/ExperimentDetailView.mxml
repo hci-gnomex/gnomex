@@ -798,7 +798,7 @@
 				if (statusToUseProducts != null && statusToUseProducts != "" && selectedExperiment.hasOwnProperty("@codeRequestStatus") && selectedExperiment.@codeRequestStatus != "") {
 					var comp:RequestStatusComparator = new RequestStatusComparator();
 					if (comp.compare(selectedExperiment.@codeRequestStatus, statusToUseProducts) >= 0) {
-						warningMessage += "\n\nWARNING: This experiment used products. If the products were not actually consumed, please revert the status of the experiment to an earlier status or manually return the products to the lab before deleting.\n\n";
+						warningMessage += "\n\nWARNING: This experiment may have used products. If the products were not actually consumed, please revert the status of the experiment to an earlier status or manually return the products to the lab before deleting.\n\n";
 					}
 				} 
 				
