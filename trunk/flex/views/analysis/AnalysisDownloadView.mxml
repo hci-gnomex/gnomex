@@ -675,9 +675,9 @@
 			//response from server
 			private function onMakeIOBIOLinks(event:ResultEvent):void {
 				if (makeIOBIOLinks.lastResult.name() == "SUCCESS") {
-					var txt:String = "http://bam.iobio.io/?bam=" + makeIOBIOLinks.lastResult.@urlsToLink;
+					var txt:String = parentApplication.bam_iobio_viewer_url + makeIOBIOLinks.lastResult.@urlsToLink;
 					if (makeIOBIOLinks.lastResult.@urlsToLink.toLowerCase().indexOf(".vcf.gz")>0) {
-						txt = "http://vcf.iobio.io/?vcf=" + makeIOBIOLinks.lastResult.@urlsToLink;
+						txt = parentApplication.vcf_iobio_viewer_url + makeIOBIOLinks.lastResult.@urlsToLink;
 					}
 					
 					navigateToURL(new URLRequest(txt),"IOBIO");
