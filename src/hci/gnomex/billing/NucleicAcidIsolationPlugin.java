@@ -22,7 +22,7 @@ import java.util.Set;
 import org.hibernate.Session;
 
 
-public class SequenomIsolationExtractPlugin extends BillingPlugin {
+public class NucleicAcidIsolationPlugin extends BillingPlugin {
 
   public List<BillingItem> constructBillingItems(Session sess, String amendState, BillingPeriod billingPeriod, PriceCategory priceCategory, Request request, 
       Set<Sample> samples, Set<LabeledSample> labeledSamples, Set<Hybridization> hybs, Set<SequenceLane> lanes, Map<String, ArrayList<String>> sampleToAssaysMap, 

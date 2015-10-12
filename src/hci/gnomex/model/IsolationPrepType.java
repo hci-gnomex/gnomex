@@ -90,7 +90,7 @@ public class IsolationPrepType extends DictionaryEntry implements Serializable {
             " join ps.priceCategories pc " +
             " join pc.priceCategory.prices p " +
             " join p.priceCriterias crit " +
-            " where pc.priceCategory.pluginClassName='hci.gnomex.billing.SequenomIsolationExtractPlugin'" +
+            " where pc.priceCategory.pluginClassName='hci.gnomex.billing.NucleicAcidIsolationPlugin'" +
             "     and crit.filter1 = :filter" +
             "     and rc.codeRequestCategory = :code";
     
