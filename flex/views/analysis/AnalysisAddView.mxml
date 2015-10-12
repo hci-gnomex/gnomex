@@ -342,6 +342,7 @@
 				 } else {
 					 parentApplication.navAnalysisView.selectedIdAnalysisGroup = analysisGroupCombo.selectedItem.@idAnalysisGroup;
 				 }
+				 parentApplication.navAnalysisView.forceReload = true;
 				 parentApplication.navAnalysisView.showEditView = true;
 				 parentApplication.navAnalysisView.refreshAnalysis();
 				 parentApplication.navAnalysisView.updateLabList();

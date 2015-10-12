@@ -203,7 +203,7 @@
 			
 			private var window:MultiLabFilterWindow;
 			
-			private var forceReload:Boolean = false;
+			public var forceReload:Boolean = false;
 			
 			public function checkDirty():void {
 			}
