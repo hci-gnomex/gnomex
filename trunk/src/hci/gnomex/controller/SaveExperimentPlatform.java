@@ -1544,7 +1544,7 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
               " join ps.requestCategories rc " +
               " join ps.priceCategories pspc " +
               " join pspc.priceCategory pc " +
-              " where pc.pluginClassName='hci.gnomex.billing.SequenomIsolationExtractPlugin'" +
+              " where pc.pluginClassName='hci.gnomex.billing.NucleicAcidIsolationPlugin'" +
               "     and rc.codeRequestCategory = :code and pc.name = :name";
       Query query = sess.createQuery(queryString);
       query.setParameter("name", catName);
