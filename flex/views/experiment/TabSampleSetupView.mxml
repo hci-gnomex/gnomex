@@ -1767,7 +1767,7 @@
 			<mx:AddChild relativeTo="{sequenomNumSourcePlatesBox}" position="before">
 				<mx:HBox horizontalGap="0" verticalAlign="top" width="100%" id="extractionBox">
 					<util:ContextHelp context1="sampleExtractionMethod" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Sample Extraction Method Help"
-									  label="(2) Select the extraction method." labelPlacement="left" id="sampleExtractionLabel" width="455"/>
+									  label="(2) Select the extraction type." labelPlacement="left" id="sampleExtractionLabel" width="455"/>
 					<mx:RadioButtonGroup id = "extractionTypeRadioGroup" change="{this.isolationTypeRadioGroup.selectedValue = null}" />       	
 					<mx:VBox verticalGap="0" paddingTop="0" paddingBottom="0" id="extractionTypeBox"  width="100%">
 						<mx:RadioButton id="dnaButton" groupName="extractionTypeRadioGroup" label="{this.DNA}" value="{this.DNA}"  
@@ -1786,7 +1786,7 @@
 									  label="(4) Select the isolation method." labelPlacement="left" id="sampleIsolationLabel" width="455"/>
 					<mx:RadioButtonGroup id = "isolationTypeRadioGroup" />       	
 					<mx:VBox verticalGap="0" paddingTop="0" paddingBottom="0" id="isolationTypeBox"  width="100%">
-						<mx:Text id="noPrepTypes" fontStyle="italic" fontSize="10"  textAlign="left" width="100%" color="green" text="There are currently no prep types that use the selected extraction method" visible="{parentDocument.isolationTypeList.length == 0}" includeInLayout="{parentDocument.isolationTypeList.length == 0}" />
+						<mx:Text id="noPrepTypes" fontStyle="italic" fontSize="10"  textAlign="left" width="100%" color="green" text="There are currently no prep types that use the selected extraction type" visible="{parentDocument.isolationTypeList.length == 0}" includeInLayout="{parentDocument.isolationTypeList.length == 0}" />
 						<mx:Repeater id="isolationTypeRepeater" dataProvider="{parentDocument.isolationTypeList}">
 							<mx:RadioButton id="isolationTypeBtn" groupName="isolationTypeRadioGroup" 
 											label="{isolationTypeRepeater.currentItem.@display}" 
