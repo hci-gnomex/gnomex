@@ -1198,6 +1198,10 @@
 			public var PROPERTY_NO_PRODUCTS_MESSAGE:String				  = "no_products_message";
 			public var PROPERTY_PRODUCT_SAMPLE_BATCH_WARNING:String		  = "product_sample_batch_warning";
 			public var PROPERTY_CUSTOM_SAMPLE_CONC_UNITS:String			  = "custom_sample_conc_units";
+			
+			public var BAM_IOBIO_VIEWER_URL:String 						  = "bam_iobio_viewer_url";
+			public var VCF_IOBIO_VIEWER_URL:String 						  = "vcf_iobio_viewer_url";
+			
 
 			
 			public var CAN_ADMINISTER_ALL_CORE_FACILITIES:String          = "canAdministerAllCoreFacilities";
@@ -1225,6 +1229,12 @@
 			public var baseURL:String = "";
 			public var GNOMEX_USER_JSP:String = "/gnomexFlex.jsp";
 			public var GNOMEX_GUEST_JSP:String = "/gnomexGuestFlex.jsp";
+			
+			[Bindable]
+			public var bam_iobio_viewer_url:String = "";
+			
+			[Bindable]
+			public var vcf_iobio_viewer_url:String = "";
 			
 			
 			
@@ -2676,6 +2686,14 @@
 				} 
 				if (this.getProperty(this.PROPERTY_SITE_WELCOME_MESSAGE) != null) {
 					this.siteWelcomeMessage = this.getProperty(this.PROPERTY_SITE_WELCOME_MESSAGE);
+				} 
+				
+				if (this.getProperty(this.BAM_IOBIO_VIEWER_URL) != null) {
+					this.bam_iobio_viewer_url = this.getProperty(this.BAM_IOBIO_VIEWER_URL);
+				} 
+				
+				if (this.getProperty(this.VCF_IOBIO_VIEWER_URL) != null) {
+					this.vcf_iobio_viewer_url = this.getProperty(this.VCF_IOBIO_VIEWER_URL);
 				} 
 				
 				// Admins can always view usage.  Normal gnomex users (non guest users)
