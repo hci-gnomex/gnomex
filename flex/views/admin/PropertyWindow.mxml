@@ -677,6 +677,10 @@
 					parentApplication.getPropertyList.send();
 					dispatchEvent(new Event("updateProperties"));
 					getPropertyList.send();
+					
+					if(saveProperty.lastResult.@inactivate == 'true'){
+						Alert.show("Certain options could not be deleted because they are associated with existing samples.  The option has been marked as inactive instead.");
+					}
 				} else {
 					Alert.show(saveProperty.lastResult..ACTMESSAGE.@TEXT);
 				}

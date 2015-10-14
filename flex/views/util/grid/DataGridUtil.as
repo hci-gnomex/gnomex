@@ -136,20 +136,7 @@ package views.util.grid
 						//to specify which key to use.
 						var col:AdvancedDataGridColumn = dataGrid.columns[k];
 						var dataField:String = col.dataField;
-						if ( (col is AdvancedDataGridColumnWithType) || (col is AnnotationAdvancedDataGridColumn) )
-						{
-							var fieldType:String = "TEXT";
-							if(col is AnnotationAdvancedDataGridColumn) {
-								fieldType = AnnotationAdvancedDataGridColumn(col).propertyType;
-							}
-							if(col is AdvancedDataGridColumnWithType) {
-								fieldType = AdvancedDataGridColumnWithType(col).propertyType;
-							}
-							value = getTextForType(item[ dataField ], fieldType, col, parentApplication);
-							
-						} else {
-							value = item[ dataField ];
-						}
+						value = item[ dataField ];
 					}
 					
 					
@@ -264,20 +251,8 @@ package views.util.grid
 						//to specify which key to use.
 						var col:AdvancedDataGridColumn = dataGrid.columns[k];
 						var dataField:String = col.dataField;
-						if ( (col is AdvancedDataGridColumnWithType) || (col is AnnotationAdvancedDataGridColumn) )
-						{
-							var fieldType:String = "TEXT";
-							if(col is AnnotationAdvancedDataGridColumn) {
-								fieldType = AnnotationAdvancedDataGridColumn(col).propertyType;
-							}
-							if(col is AdvancedDataGridColumnWithType) {
-								fieldType = AdvancedDataGridColumnWithType(col).propertyType;
-							}
-							value = getTextForType(item[ dataField ], fieldType, col, parentApplication);
-							
-						} else {
-							value = item[ dataField ];
-						}
+						
+						value = item[ dataField ];
 					}
 					
 					if (value)

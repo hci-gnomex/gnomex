@@ -263,7 +263,8 @@ public class SaveProperty extends GNomExCommand implements Serializable {
             }
           }
   
-          // Remove options no longer in the list -- note if type does not allow options we remove all options.
+          // Remove options no longer in the list or inactivate if they are associated with any property entries.
+          boolean inactivate = false;
           List optionsToRemove = new ArrayList();
           if (sc.getOptions() != null) {
             for(Iterator i = sc.getOptions().iterator(); i.hasNext();) {
@@ -273,11 +274,12 @@ public class SaveProperty extends GNomExCommand implements Serializable {
                 optionsToRemove.add(op);
               }
             }
+            
             for(Iterator i = optionsToRemove.iterator(); i.hasNext();) {
               PropertyOption op = (PropertyOption)i.next();
               
               Integer entryCount = new Integer(0);
-              String buf = "SELECT count(*) from PropertyEntry e JOIN e.options as eo where eo.idPropertyOption = " + op.getIdPropertyOption();
+              String buf = "SELECT count(*) from PropertyEntry pe where pe.value like '%" + op.getOption() + "%' and pe.idProperty = " + op.getIdProperty().toString();
               List entryCounts = sess.createQuery(buf).list();
               if (entryCounts != null && entryCounts.size() > 0) {
                 entryCount = Integer.class.cast(entryCounts.get(0));
@@ -286,6 +288,7 @@ public class SaveProperty extends GNomExCommand implements Serializable {
               // Inactive if there are existing property entries pointing to this option.
               // If no existing entries, delete option.
               if (entryCount.intValue() > 0) {
+                inactivate = true;
                 op.setIsActive("N");              
               } else {
                 sess.delete(op);
@@ -417,7 +420,13 @@ public class SaveProperty extends GNomExCommand implements Serializable {
   
           DictionaryHelper.reload(sess);
           
-          this.xmlResult = "<SUCCESS idProperty=\"" + sc.getIdProperty() + "\"/>";
+          if(inactivate){
+            this.xmlResult = "<SUCCESS idProperty=\"" + sc.getIdProperty() + "\" inactivate=\"true\"/>";
+          } else{
+            this.xmlResult = "<SUCCESS idProperty=\"" + sc.getIdProperty() + "\" inactivate=\"false\"/>";
+            
+          }
+          
         
           setResponsePage(this.SUCCESS_JSP);
         }      

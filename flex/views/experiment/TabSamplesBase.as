@@ -330,7 +330,7 @@ package views.experiment
 					*/
 				dc.itemRenderer = views.renderers.DropdownLabelAnnotation.create(
 					"@option",
-					"@idPropertyOption",
+					"@option",
 					fieldName,
 					propertyNode.@idProperty.toString(),
 					parentApplication,
@@ -349,7 +349,7 @@ package views.experiment
 					true).newInstance(), '');		*/				
 				dc.itemEditor   = views.renderers.GridColumnFillButton.create(views.renderers.FilterComboBoxAnnotation.create(
 					"@option",
-					"@idPropertyOption",
+					"@option",
 					fieldName,
 					propertyNode.@idProperty.toString(),
 					includeInactiveOptions,
