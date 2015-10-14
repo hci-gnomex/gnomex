@@ -50,6 +50,8 @@
 			import mx.events.CloseEvent;
 			import mx.rpc.events.ResultEvent;
 			
+			import views.util.DateSetEvent;
+			
 			[Bindable]
 			private var selectedOrders:Object = new Object();
 			
@@ -57,11 +59,31 @@
 			private var selectedOrder:Object = null;
 			
 			[Bindable]
+			private var coreFacilities:XMLListCollection;
+			
+			[Bindable]
+			private var filteredProductTypes:XMLListCollection;
+			
+			[Bindable]
 			private var atLeastOneSelection:Boolean = false;
 			private var isLabSelected:Boolean = false;
 			
-			private function init():void{
+			private function init():void {
+				filteredProductTypes = new XMLListCollection(parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.ProductType').DictionaryEntry);
+				filteredProductTypes.addItemAt(new XML("<Product value='' description='' idCoreFacility='' codeProductType='' />"), 0);
 				
+				coreFacilities = new XMLListCollection();
+				coreFacilities.addItem(new XML("<DictionaryEntry display='' idCoreFacility=''/>"));
+				coreFacilities.addAll(new XMLListCollection(parentApplication.myCoreFacilities));
+				
+				filteredProductTypes.filterFunction = filterProductTypes;
+				filteredProductTypes.refresh();
+				coreFacilities.filterFunction = filterCoreFacilities;
+				coreFacilities.refresh();
+				
+				filteredProductTypes.refresh();
+				
+				pickDateRangeButton.addEventListener(DateSetEvent.DATE_SET, handleDateSet);
 			}
 			
 			private function onGetProductOrderList(event:ResultEvent):void{
@@ -137,8 +159,16 @@
 				if(browseLabCombo.selectedItem != null){
 					params.idLab = browseLabCombo.selectedItem.@idLab;
 				}
-				if(toggleBar.selectedIndex==1 && orderStatusCombo.selectedItem != null){
+				if (orderStatusCombo.selectedItem != null) {
 					params.codeProductOrderStatus = orderStatusCombo.selectedItem.@codeProductOrderStatus;
+				}
+				
+				if (coreFacilityCombo.selectedItem != null && coreFacilityCombo.selectedItem.@idCoreFacility != "") {
+					params.idCoreFacility = coreFacilityCombo.selectedItem.@idCoreFacility;
+				}
+				
+				if (productTypeCombo.selectedItem != null && productTypeCombo.selectedItem.@codeProductType != "") {
+					params.codeProductType = productTypeCombo.selectedItem.@codeProductType;
 				}
 				
 				return params;
@@ -325,51 +355,135 @@
 				}
 			}
 			
+			private function filterCoreFacilities(item:Object):Boolean {
+				if (item.@display == "" && item.@idCoreFacility == "") {
+					return true;
+				}
+				
+				for each (var productType:XML in filteredProductTypes) {
+					if (productType.@idCoreFacility == item.@idCoreFacility) {
+						return true;
+					}
+				}
+				
+				return false;
+			}
+			
+			private function filterProductTypes(item:Object):Boolean {
+				if (item.@description == "") {
+					return true;
+				}
+				
+				if (item.@value == null || item.@value == "") {
+					return false;
+				}
+				
+				if (coreFacilityCombo.selectedItem != null && coreFacilityCombo.selectedItem.@idCoreFacility != "") {
+					if (item.@idCoreFacility == coreFacilityCombo.selectedItem.@idCoreFacility) {
+						return true;
+					}
+				} else {
+					for each (var coreFacility:Object in coreFacilities) {
+						if (item.@idCoreFacility == coreFacility.@idCoreFacility) {
+							return true;
+						}
+					}
+				}
+				
+				return false;
+			}
+			
+			private function updateProductTypes():void {
+				productTypeCombo.selectedItem = null;
+				filteredProductTypes.refresh();
+			}
+			
+			private function checkComboBoxSelections():void {
+				if (coreFacilityCombo.selectedItem != null && coreFacilityCombo.selectedItem.@display == "") {
+					coreFacilityCombo.selectedItem = null;
+					coreFacilityCombo.selectedIndex = -1;
+				}
+				
+				if (productTypeCombo.selectedItem != null && productTypeCombo.selectedItem.@description == "") {
+					productTypeCombo.selectedItem = null;
+					productTypeCombo.selectedIndex = -1;
+				}
+				
+				if (orderStatusCombo.selectedItem != null && orderStatusCombo.selectedItem.@value == "") {
+					orderStatusCombo.selectedItem = null;
+					orderStatusCombo.selectedIndex = -1;
+				}
+			}
+			
+			private function handleDateSet(event:DateSetEvent):void {
+				this.getProductOrders();
+			}
+			
 		]]>
 	</mx:Script> 
 	
 	<mx:DateFormatter id="dateFormatter" formatString="MM/DD/YYYY"/>
 	
 	<mx:VBox id="vbox1" width="100%" height="100%" horizontalAlign="left" verticalGap="2">
-		<mx:HBox width="100%" styleName="titleBox" >
-			<renderers:TitleLabel iconSource="{parentApplication.iconBasket}" titleText="Product Orders" />
-			
-			<mx:HBox horizontalGap="10" paddingTop="0" paddingLeft="0" horizontalAlign="left" verticalAlign="middle" width="100%">
+		<mx:VBox width="100%" styleName="titleBox" >
+			<mx:HBox width="100%">
+				<renderers:TitleLabel iconSource="{parentApplication.iconBasket}" titleText="Product Orders" width="200"/>
 				
-				<mx:HBox verticalAlign="middle"  
+				<mx:HBox verticalAlign="middle" 
 						 visible="{parentApplication.submitRequestLabList.source.length() &gt; 1}"
-						 includeInLayout="{parentApplication.submitRequestLabList.source.length() &gt; 1}">
-					<mx:Label text="Lab:"/>
+						 includeInLayout="{parentApplication.submitRequestLabList.source.length() &gt; 1}" width="300">
+					<mx:Label text="Lab:" width="80"/>
 					<renderers:FilterComboBox dataProvider="{parentApplication.submitRequestLabList.source}"
 											  editable="{parentApplication.submitRequestLabList.source.length() &gt; 1}"
 											  enabled="{parentApplication.submitRequestLabList.source.length() &gt; 1}"
 											  labelField="@name" 
 											  prompt="Select a lab..."
-											  width="160"  
+											  width="200" paddingRight="0"  
 											  selectedIndex="{parentApplication.submitRequestLabList.source.length() == 1 ? 0 : -1}"
-											  id="browseLabCombo" fontSize="10">
+											  id="browseLabCombo" fontSize="10" close="{getProductOrders()}">
 					</renderers:FilterComboBox>
 				</mx:HBox>
 				
-				<mx:HBox visible="{toggleBar.selectedIndex==1}" includeInLayout="{toggleBar.selectedIndex==1}" verticalAlign="middle">
+				<mx:VRule height="20" width="4"/>
+				
+				<mx:HBox verticalAlign="middle">
 					<mx:Label text="Status:"/>
-					<mx:ComboBox id="orderStatusCombo"
+					<mx:ComboBox id="orderStatusCombo" prompt="Status..."
 								 dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ProductOrderStatus').DictionaryEntry}"
-								 labelField="@productOrderStatus" />
+								 labelField="@productOrderStatus" change="checkComboBoxSelections(); getProductOrders()"/>
 				</mx:HBox>
+				
+				<mx:VRule height="20" width="4"/>
 				
 				<mx:HBox height = "100%" verticalAlign = "middle">
 					<renderers:LinkButtonDateRangeMenu id="pickDateRangeButton" />
 				</mx:HBox>
-				
-				<mx:Button label="Search" icon="@Embed('../../assets/magnifier.png')" click="getProductOrders()"/>
 				
 				<mx:Spacer width="100%"/>
 				
 				<mx:ToggleButtonBar id="toggleBar" dataProvider="{viewStack}"/>
 				
 			</mx:HBox>
-		</mx:HBox>
+					
+			<mx:HBox width="100%" verticalAlign="middle">
+				<mx:Spacer width="200"/>
+				
+				<mx:HBox verticalAlign="middle" width="300">
+					<mx:Label text="Core Facility:" width="80"/>
+					<mx:ComboBox id="coreFacilityCombo" labelField="@display" prompt="Core Facility..." width="200"
+								 dataProvider="{coreFacilities}" change="{updateProductTypes(); checkComboBoxSelections(); getProductOrders()}" />
+				</mx:HBox>
+				
+				<mx:VRule height="20" width="4"/>
+				
+				<mx:HBox verticalAlign="middle">
+					<mx:Label text="Product Type:"/>
+					<mx:ComboBox id="productTypeCombo" labelField="@description" prompt="Product Type..."
+								 dataProvider="{filteredProductTypes}" 
+								 change="checkComboBoxSelections(); getProductOrders()" />
+				</mx:HBox>
+			</mx:HBox>
+		</mx:VBox>
 		
 		<mx:ViewStack id="viewStack" creationPolicy="all" visible="true" width="100%" height="100%" >
 			
