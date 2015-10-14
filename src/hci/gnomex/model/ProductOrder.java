@@ -31,7 +31,8 @@ public class ProductOrder extends DetailObject implements Serializable, Order {
   private String      uuid;
   private String      productOrderNumber;
 
-  private Set         productLineItems = new TreeSet();  
+  private Set         productLineItems = new TreeSet();
+  private Set         billingItems = new TreeSet();    
   private Set         files = new TreeSet();
 
   public String getDisplay() {
@@ -197,7 +198,14 @@ public class ProductOrder extends DetailObject implements Serializable, Order {
     this.idBillingAccount = idBillingAccount;
   }
 
-  
+  public Set getBillingItems() {
+    return billingItems;
+  }
+
+  public void setBillingItems(Set billingItems) {
+    this.billingItems = billingItems;
+  }
+
   public String getProductOrderNumber() {
     return productOrderNumber;
   }

@@ -40,8 +40,8 @@ public class BillingItem extends HibernateDetailObject {
   private Integer        idInvoice;
   private Invoice        invoice;
   private Integer        idDiskUsageByMonth;
-  private Integer        idProductLineItem;
-  private String		 tag;
+  private Integer        idProductOrder;
+  private String		     tag;
 
 
   public Integer getIdBillingItem() {
@@ -355,12 +355,12 @@ public class BillingItem extends HibernateDetailObject {
     idDiskUsageByMonth = id;
   }
 
-  public Integer getIdProductLineItem() {
-    return idProductLineItem;
+  public Integer getIdProductOrder() {
+    return idProductOrder;
   }
 
-  public void setIdProductLineItem(Integer idProductLineItem) {
-    this.idProductLineItem = idProductLineItem;
+  public void setIdProductOrder(Integer idProductOrder) {
+    this.idProductOrder = idProductOrder;
   }
   
   public String getTag() {

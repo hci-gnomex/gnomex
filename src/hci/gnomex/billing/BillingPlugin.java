@@ -157,10 +157,10 @@ public abstract class BillingPlugin {
 	}
 	
 	protected ArrayList<BillingItem> makeBillingItems(	Order request, Price price, PriceCategory priceCategory, int qty, BillingPeriod billingPeriod, 
-														String billingStatus, String notes, String description, BigDecimal unitPrice, Integer idProductLineItem	) {
+														String billingStatus, String notes, String description, BigDecimal unitPrice, Integer idProductOrder	) {
 		ArrayList<BillingItem> billingItems = new ArrayList<BillingItem>();
 		
-		billingItems.add(makeBillingItem(request, price, priceCategory, qty, billingPeriod, billingStatus, new BigDecimal(1), Constants.BILLING_SPLIT_TYPE_PERCENT_CODE, notes, description, unitPrice, idProductLineItem));
+		billingItems.add(makeBillingItem(request, price, priceCategory, qty, billingPeriod, billingStatus, new BigDecimal(1), Constants.BILLING_SPLIT_TYPE_PERCENT_CODE, notes, description, unitPrice, idProductOrder));
 		
 		return billingItems;
 	}
@@ -172,7 +172,7 @@ public abstract class BillingPlugin {
 	
 	protected BillingItem makeBillingItem(	Order request, Price price, PriceCategory priceCategory, int qty, BillingPeriod billingPeriod, 
 											String billingStatus, BigDecimal percentagePrice, String splitType, String notes, String description, 
-											BigDecimal unitPrice, Integer idProductLineItem															) {
+											BigDecimal unitPrice, Integer idProductOrder															) {
         BillingItem billingItem = new BillingItem();
         
         if (request.getIdRequest() != null) {
@@ -220,8 +220,8 @@ public abstract class BillingPlugin {
         	billingItem.setNotes(notes);
         }
         
-        if (idProductLineItem != null) {
-        	billingItem.setIdProductLineItem(idProductLineItem);
+        if (idProductOrder != null) {
+        	billingItem.setIdProductOrder(idProductOrder);
         }
 
         return billingItem;

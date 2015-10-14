@@ -464,7 +464,7 @@ public class ShowBillingInvoiceFormNew extends ReportCommand implements Serializ
 	    buf.append("SELECT pli, po, bi ");
 	    buf.append("FROM   ProductLineItem pli ");
 	    buf.append("JOIN   pli.productOrder po ");
-	    buf.append("JOIN   pli.billingItems bi ");
+	    buf.append("JOIN   po.billingItems bi ");
 	    buf.append("WHERE  bi.idLab = :idLab ");
 	    buf.append("AND    bi.idBillingAccount = :idBillingAccount ");
 	    buf.append("AND    bi.idBillingPeriod = :idBillingPeriod ");
@@ -494,7 +494,7 @@ public class ShowBillingInvoiceFormNew extends ReportCommand implements Serializ
 
 	    	// Exclude any disk usage that have
 	    	// pending billing items.  (shouldn't be any)
-	    	if (determineContainsPendingItems(pli.getBillingItems(), idBillingPeriod, idBillingAccount)) {
+	    	if (determineContainsPendingItems(po.getBillingItems(), idBillingPeriod, idBillingAccount)) {
 	    		continue;
 	    	}
 

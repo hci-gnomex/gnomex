@@ -413,7 +413,7 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
       buf.append("SELECT pli, bi, po ");
       buf.append("FROM   ProductLineItem pli ");
       buf.append("JOIN   pli.productOrder po ");
-      buf.append("JOIN   pli.billingItems bi ");
+      buf.append("JOIN   po.billingItems bi ");
     }
     buf.append("JOIN   bi.lab as lab ");
     buf.append("JOIN   bi.billingAccount as ba ");
@@ -450,7 +450,7 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
       } else {
         ProductLineItem pli = (ProductLineItem)row[0];
         ProductOrder po = (ProductOrder)row[2];
-        allBillingItems = pli.getBillingItems();
+        allBillingItems = po.getBillingItems();
         number = po.getProductOrderNumber() != null ? po.getProductOrderNumber() : po.getIdProductOrder().toString();
       }
       BillingItem bi =  (BillingItem)row[1];

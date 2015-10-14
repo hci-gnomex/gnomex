@@ -99,7 +99,7 @@ public class IScanChipPlugin extends BillingPlugin {
         // Get the price from the chip object
         BigDecimal theUnitPrice = lineItem.getUnitPrice();
         
-        billingItems.addAll(this.makeBillingItems(po, price, priceCategory, qty, billingPeriod, BillingStatus.PENDING, null, null, theUnitPrice, lineItem.getIdProductLineItem()));
+        billingItems.addAll(this.makeBillingItems(po, price, priceCategory, qty, billingPeriod, BillingStatus.PENDING, null, null, theUnitPrice, lineItem.getIdProductOrder()));
 
       }
     }

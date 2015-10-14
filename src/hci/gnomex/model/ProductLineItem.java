@@ -19,9 +19,7 @@ public class ProductLineItem extends DictionaryEntry implements Serializable {
   private Integer     qty;
   private BigDecimal  unitPrice;
   private String      codeProductOrderStatus;
-  
-  private Set         billingItems = new TreeSet();  
- 
+   
   
   public String getDisplay() {
     String display = this.getNonNullString(product.getName());
@@ -112,12 +110,5 @@ public class ProductLineItem extends DictionaryEntry implements Serializable {
   }
 
 
-  public Set getBillingItems() {
-    return billingItems;
-  }
-
-  public void setBillingItems(Set billingItems) {
-    this.billingItems = billingItems;
-  }
 
 }
