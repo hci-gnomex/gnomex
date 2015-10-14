@@ -1318,33 +1318,6 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       }
       sess.flush();
 
-      // If the sample property type is "option" or "multi-option", save the options.
-      if (value != null && !value.equals("") &&
-          (property.getCodePropertyType().equals(PropertyType.OPTION) || property.getCodePropertyType().equals(PropertyType.MULTI_OPTION))) {
-        Set options = new TreeSet();
-        String[] valueTokens = value.split(",");
-        for (int x = 0; x < valueTokens.length; x++) {
-          String v = valueTokens[x];
-          v = v.trim();
-          Boolean found = false;
-          for (Iterator i1 = property.getOptions().iterator(); i1.hasNext();) {
-            PropertyOption option = (PropertyOption)i1.next();
-            if (v.equals(option.getIdPropertyOption().toString())) {
-              options.add(option);
-              found = true;
-              break;
-            }
-          }
-
-          if(found == false) {
-            PropertyOption newOption = new PropertyOption();
-            newOption.setIdPropertyOption(Integer.parseInt(v));
-            newOption.setIdProperty(property.getIdProperty());
-            options.add(newOption);
-          }
-        }
-        entry.setOptions(options);
-      }
     }
   }
 

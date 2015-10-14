@@ -81,32 +81,7 @@ public class DeleteProperty extends GNomExCommand implements Serializable {
         for(Iterator i1 = samples.iterator(); i1.hasNext();) {
           PropertyEntry pe = (PropertyEntry) i1.next();
           if(pe.getValue() != null && pe.getValue().length() > 0) {
-            boolean isBlankOption = false;
-            if(property.getCodePropertyType().compareTo(PropertyType.OPTION)==0 
-                || property.getCodePropertyType().compareTo(PropertyType.MULTI_OPTION)==0) {
-              if (property.getOptions() != null) {
-                String[] tokens = pe.getValue().split(",");
-                int isBlankCount = 0;
-                for (int x = 0; x < tokens.length; x++) {
-                  Integer optId = Integer.valueOf(tokens[x]);
-                  for(Iterator i = property.getOptions().iterator(); i.hasNext();) {
-                    PropertyOption pa = (PropertyOption) i.next();
-                    if(optId.compareTo(pa.getIdPropertyOption())==0) {
-                      String thisOption = pa.getOption();
-                      if(thisOption == null || thisOption.length() == 0 || thisOption.compareTo(" ")==0) {
-                        isBlankCount++;
-                      }
-                    }
-                  }                  
-                }
-                if(isBlankCount == tokens.length) {
-                  isBlankOption = true;
-                }
-              }             
-            }
-            if(!isBlankOption) {
-              nonBlankSampleCount++;
-            }  
+            nonBlankSampleCount++; 
           }
         }        
         
@@ -118,25 +93,7 @@ public class DeleteProperty extends GNomExCommand implements Serializable {
         for(Iterator i1 = analyses.iterator(); i1.hasNext();) {
           PropertyEntry pe = (PropertyEntry) i1.next();
           if(pe.getValue() != null && pe.getValue().length() > 0) {
-            boolean isBlankOption = false;
-            if(property.getCodePropertyType().compareTo(PropertyType.OPTION)==0 
-                || property.getCodePropertyType().compareTo(PropertyType.MULTI_OPTION)==0) {
-              if (property.getOptions() != null) {
-                String[] tokens = pe.getValue().split(",");
-                int isBlankCount = 0;
-                for (int x = 0; x < tokens.length; x++) {
-                  if(tokens[x] == null || tokens[x].length() == 0 || tokens[x].compareTo(" ")==0) {
-                    isBlankCount++;
-                  }                                   
-                }
-                if(isBlankCount == tokens.length) {
-                  isBlankOption = true;
-                }
-              }             
-            }
-            if(!isBlankOption) {
-              nonBlankAnalysisCount++;
-            } 
+            nonBlankAnalysisCount++;
           }
         }             
         
@@ -148,25 +105,7 @@ public class DeleteProperty extends GNomExCommand implements Serializable {
         for(Iterator i1 = dataTracks.iterator(); i1.hasNext();) {
           PropertyEntry pe = (PropertyEntry) i1.next();
           if(pe.getValue() != null && pe.getValue().length() > 0) {
-            boolean isBlankOption = false;
-            if(property.getCodePropertyType().compareTo(PropertyType.OPTION)==0 
-                || property.getCodePropertyType().compareTo(PropertyType.MULTI_OPTION)==0) {
-              if (property.getOptions() != null) {
-                String[] tokens = pe.getValue().split(",");
-                int isBlankCount = 0;
-                for (int x = 0; x < tokens.length; x++) {
-                  if(tokens[x] == null || tokens[x].length() == 0 || tokens[x].compareTo(" ")==0) {
-                    isBlankCount++;
-                  }                                   
-                }
-                if(isBlankCount == tokens.length) {
-                  isBlankOption = true;
-                }
-              }             
-            }
-            if(!isBlankOption) {
-              nonBlankDataTrackCount++;
-            } 
+            nonBlankDataTrackCount++;
           }
         }
         

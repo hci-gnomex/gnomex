@@ -485,45 +485,12 @@ public class ShowAnnotationReport extends ReportCommand implements Serializable 
         grabOption = true;
       } 
 
-      if (grabOption) {
-        if (propertyOption != null) {
-          if (value.length() > 0) {
-            value += ", ";
-          }
-          value += propertyOption;
-        }
-      } else if (codePropertyType.equals(PropertyType.OPTION) && target.equals(TARGET_SAMPLE))  {
-        // Workaround code (see comment above) until sample annotations save property entry options correctly.
-        if (propertyValue != null) {
-          if (value.length() > 0) {
-            value += ", ";
-          }
-          try {
-            Integer idPropertyOption = Integer.valueOf(propertyValue);
-            Property property = dh.getPropertyObject(idProperty);
-            for (PropertyOption option : (Set<PropertyOption>)property.getOptions()) {
-              if (option.getIdPropertyOption().equals(idPropertyOption)) {
-                value += option.getOption();                
-              }
-            }            
-          } catch (NumberFormatException e) {
-            // If the valueString is not an integer, just show the value in the report.
-            value += propertyValue;
-          }
-        }
-      } else {
-        if (propertyValue != null) {
-          if (value.length() > 0) {
-            value += ", ";
-          }
-          value += propertyValue;
-        } else if (propertyMultiValue != null) {
-          if (value.length() > 0) {
-            value += ", ";
-          }
-          value += propertyMultiValue;
-        } 
+      if (propertyValue != null) {
+        value += propertyValue;
+      } else if (propertyMultiValue != null) {
+        value += propertyMultiValue;
       }
+      
       annotationMap.put(propertyName, value);
     }
 

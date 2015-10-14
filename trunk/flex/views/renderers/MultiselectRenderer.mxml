@@ -56,7 +56,7 @@
 					var isSelected:Boolean = false;
 					if (values != null) {
 						for (idx in values) {
-							if (values[idx] != null && theOption.@idPropertyOption == values[idx]) {
+							if (values[idx] != null && theOption.@option == values[idx]) {
 								isSelected = true;
 								break;
 							}
