@@ -408,7 +408,7 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
     buf.append("SELECT pli, po, bi ");
     buf.append("FROM   ProductLineItem pli ");
     buf.append("JOIN   pli.productOrder po ");
-    buf.append("JOIN   pli.billingItems bi ");
+    buf.append("JOIN   po.billingItems bi ");
     buf.append("WHERE  bi.idLab = " + idLab + " ");
     buf.append("AND    bi.idBillingAccount = " + idBillingAccount + " ");
     buf.append("AND    bi.idBillingPeriod = " + idBillingPeriod + " ");
@@ -435,7 +435,7 @@ public class ShowBillingInvoiceForm extends GNomExCommand implements Serializabl
       // Exclude any disk usage that have
       // pending billing items.  (shouldn't be any)
       boolean hasPendingItems = false;
-      for(Iterator i1 = pli.getBillingItems().iterator(); i1.hasNext();) {
+      for(Iterator i1 = po.getBillingItems().iterator(); i1.hasNext();) {
         BillingItem item = (BillingItem)i1.next();
 
         if (item.getIdBillingPeriod().equals(idBillingPeriod) &&

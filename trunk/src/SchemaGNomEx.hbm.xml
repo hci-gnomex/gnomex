@@ -345,7 +345,7 @@
     	<property name="idInvoice" column="idInvoice" type="integer"/>
     	<many-to-one name="invoice" column="idInvoice" class="hci.gnomex.model.Invoice" cascade="none" insert="false" update="false" />
     	<property name="idDiskUsageByMonth" column="idDiskUsageByMonth" type="integer" />
-    	<property name="idProductLineItem" column="idProductLineItem" type="integer" />
+    	<property name="idProductOrder" column="idProductOrder" type="integer" />
     	<property name="tag" column="tag" type="string" />
   </class>	
   
@@ -2190,10 +2190,6 @@
     <property name="qty" column="qty" type="integer"/>
     <property name="unitPrice" column="unitPrice" type="big_decimal"/>
     <property name="codeProductOrderStatus" column="codeProductOrderStatus" type="string"/>
-    <set name="billingItems" table="BillingItem" lazy="true" cascade="none" order-by="idBillingItem">
-      <key column="idProductLineItem"/>
-      <one-to-many class="hci.gnomex.model.BillingItem" />
-    </set>
   </class>  
   
   <!-- hci.gnomex.model.ProductOrder -->
@@ -2219,6 +2215,10 @@
     <set name="productLineItems" table="ProductLineItem" lazy="true" cascade="none" order-by="idProductLineItem">
       <key column="idProductOrder"/>
       <one-to-many class="hci.gnomex.model.ProductLineItem" />
+    </set>
+    <set name="billingItems" table="BillingItem" lazy="true" cascade="none" order-by="idBillingItem">
+      <key column="idProductOrder"/>
+      <one-to-many class="hci.gnomex.model.BillingItem" />
     </set>
     <set name="files" table="ExperimentFile" lazy="false" cascade="all" order-by="fileName">
       <key column="idProductOrder"/>

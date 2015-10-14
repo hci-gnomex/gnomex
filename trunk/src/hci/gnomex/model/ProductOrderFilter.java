@@ -98,35 +98,6 @@ public class ProductOrderFilter extends DetailObject {
     //queryBuf.append(" group by po.idProductOrder ");
   }
 
-  public StringBuffer getBillingItemQuery() {
-    addWhere = true;
-    queryBuf = new StringBuffer();
-
-    queryBuf.append(" SELECT DISTINCT ");
-    // queryBuf.append(" po.idProductOrder, ");
-    queryBuf.append(" billingItem ");
-
-    //queryBuf.append(" SELECT DISTINCT po from ProductOrder as po ");
-
-    // queryBuf.append(" billingItem ");
-    // queryBuf.append(" billingItem.billingAccount, ");
-    // queryBuf.append(" billingItem.billingAccount, ");
-
-    getBillingItemQueryBody(queryBuf);
-
-    return queryBuf;
-
-  }
-
-  public void getBillingItemQueryBody(StringBuffer queryBuf) {
-
-    queryBuf.append(" FROM        ProductLineItem as pli ");
-    queryBuf.append(" JOIN        pli.billingItems as billingItem ");
-
-    addPOCriteria();
-    addSecurityCriteria("po");
-  }
-
   public StringBuffer getFilesQuery() {
     addWhere = true;
     queryBuf = new StringBuffer();

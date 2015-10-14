@@ -2,6 +2,8 @@ package hci.gnomex.utility;
 
 import hci.gnomex.model.Lab;
 
+import java.util.Set;
+
 public interface Order {
 	
 	public Integer getIdProduct();
@@ -15,6 +17,8 @@ public interface Order {
 	public Integer getIdLab();
 	
 	public Integer getIdBillingAccount();
+	
+	public Set getBillingItems();
 	
 	public Integer getIdCoreFacility();
 	
