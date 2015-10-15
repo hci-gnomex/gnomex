@@ -406,6 +406,7 @@ public class GetBillingItemList extends GNomExCommand implements Serializable {
           // Create the new request node
           requestNode = new Element("Request");
           requestNode.setAttribute("idRequest", idProductOrder.toString());
+          requestNode.setAttribute("idProductOrder", idProductOrder.toString());
           requestNode.setAttribute("idLab", billingItem.getIdLab().toString());
           requestNode.setAttribute("requestNumber", productOrderNumber.equals("") ? idProductOrder.toString() : productOrderNumber);
           requestNode.setAttribute("label", "Product Order " + (productOrderNumber.equals("") ? idProductOrder.toString() : productOrderNumber));
