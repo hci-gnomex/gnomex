@@ -492,6 +492,7 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
 
         Element node = new Element("Request");
         node.setAttribute("idRequest", idProductOrder.toString());
+        node.setAttribute("idProductOrder", idProductOrder.toString());
         node.setAttribute("label", "Product Order " + (productOrderNumber.equals("") ? idProductOrder.toString() : productOrderNumber));       
         node.setAttribute("requestNumber", productOrderNumber.equals("") ? idProductOrder.toString() : productOrderNumber);
         node.setAttribute("toolTip", toolTip);

@@ -11,6 +11,7 @@ import hci.gnomex.model.DiskUsageByMonth;
 import hci.gnomex.model.Invoice;
 import hci.gnomex.model.Lab;
 import hci.gnomex.model.Notification;
+import hci.gnomex.model.ProductOrder;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.RequestStatus;
@@ -161,11 +162,17 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
           HashSet<Integer> idRequests = new HashSet<Integer>();
           for(Iterator i = parser.getBillingItems().iterator(); i.hasNext();) {
             BillingItem billingItem = (BillingItem)i.next();
-            idRequests.add(billingItem.getIdRequest());
+            if ( billingItem.getIdRequest()!=null ) {
+              idRequests.add(billingItem.getIdRequest());
+            }
             if (billingItem.getIdCoreFacility() == null) {
               if (billingItem.getIdRequest() != null) {
                 Request req = (Request)sess.load(Request.class, billingItem.getIdRequest());
                 billingItem.setIdCoreFacility(req.getIdCoreFacility());
+              }
+              if (billingItem.getIdProductOrder() != null) {
+                ProductOrder po = (ProductOrder)sess.load(ProductOrder.class, billingItem.getIdProductOrder());
+                billingItem.setIdCoreFacility(po.getIdCoreFacility());
               }
               if (billingItem.getIdDiskUsageByMonth() != null) {
                 DiskUsageByMonth dsk = (DiskUsageByMonth)sess.load(DiskUsageByMonth.class, billingItem.getIdDiskUsageByMonth());
