@@ -402,7 +402,6 @@
 						this.theTab.removeChild(downloadView);
 					}
 					
-					this.initializeData();
 					this.checkSecurity();
 					this.setupDataListeners();
 					
@@ -410,6 +409,7 @@
 					isInitialized = true;
 				}
 				
+				this.initializeData();
 				// Force the setting of request category name to reset
 				// the state if we are toggling between register external
 				// experiment and submit internal experiment.
@@ -1116,8 +1116,6 @@
 					}
 					
 				}
-				
-				
 			}
 			
 			public function applicationSelected(experimentApplication:String):void {
@@ -2609,7 +2607,7 @@
 			public function setupDataListeners():void {
 				hybs.addEventListener(CollectionEvent.COLLECTION_CHANGE, underlyingHybDataChange);
 				samples.addEventListener( CollectionEvent.COLLECTION_CHANGE, underlyingSampleDataChange);			
-				lanes.addEventListener( CollectionEvent.COLLECTION_CHANGE, underlyingLaneDataChange);			
+				lanes.addEventListener( CollectionEvent.COLLECTION_CHANGE, underlyingLaneDataChange);
 				dirty.addEventListener(DirtyEvent.NOW_DIRTY, handleDirtyEvent);
 				dirty.addEventListener(DirtyEvent.NOW_CLEAN, handleDirtyEvent);
 			}
@@ -4163,6 +4161,8 @@
 				}
 				updateDirtyNote(true);
 			}
+			
+			
 			private function underlyingSampleDataChange(event:CollectionEvent):void {
 				var ignore:int = 0;
 				if (event.kind == CollectionEventKind.RESET || event.kind == CollectionEventKind.REFRESH) {
@@ -5899,7 +5899,7 @@
 			<experiment:TabSampleSetupView id="sampleSetupView">		    	
 			</experiment:TabSampleSetupView>
 			
-			<experiment:TabSeqSetupView id="seqSetupView" enabled="false">		    	
+			<experiment:TabSeqSetupView id="seqSetupView" enabled="false" >		    	
 			</experiment:TabSeqSetupView>			
 			
 			<experiment:TabSeqSetup1View id="seqSetup1View" enabled="false">
