@@ -93,8 +93,8 @@
 						<mx:LinkButton label="Print Experiment Order" toolTip="Create PDF form for this experiment order" click="detail.showPrintableRequestForm()" icon="@Embed(source='../../assets/page_white_acrobat.png')" id="requestFormButton" textDecoration="underline" textAlign="left"/>
 						<mx:LinkButton label="Create New Analysis" id="createAnalysisButton" click="parentDocument.showNewAnalysisWindow()" icon="@Embed(source='../../assets/map_add.png')" fontSize="10" textDecoration="underline" textAlign="left"
 									   toolTip="Create an analysis linked to this experiment"
-									   visible="{parentDocument.showCreateAnalysisButton(parentDocument.selectedExperiment)}"
-									   includeInLayout="{parentDocument.showCreateAnalysisButton(parentDocument.selectedExperiment)}"/>
+									   visible="{parentDocument is NavExperimentView &amp;&amp; parentDocument.showCreateAnalysisButton(parentDocument.selectedExperiment)}"
+									   includeInLayout="{parentDocument is NavExperimentView &amp;&amp; parentDocument.showCreateAnalysisButton(parentDocument.selectedExperiment)}"/>
 					    <mx:Spacer width="5"/>
 						<mx:LinkButton label="Share Link"  click="{showLinks();}" icon="@Embed(source='../../assets/globe_link.png')" id="shareWebLink" textDecoration="underline" textAlign="left"/>
 						<mx:LinkButton label="Generate OncoCarta Import"  click="{downloadOncoCartaFDF();}" icon="@Embed(source='../../assets/download.png')" 

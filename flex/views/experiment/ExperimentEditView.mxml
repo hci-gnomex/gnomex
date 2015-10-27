@@ -6087,8 +6087,8 @@
 					<mx:LinkButton label="Print Experiment Order" toolTip="Create PDF form for this experiment order" fontSize="10" click="parentApplication.navExperimentView.experimentDetailView.detail.showPrintableRequestForm()" icon="@Embed(source='../../assets/page_white_acrobat.png')" id="requestFormButton" textDecoration="underline" textAlign="left"/>
 					<mx:LinkButton label="Create New Analysis" id="createAnalysisButton" click="parentDocument.showNewAnalysisWindow()" icon="@Embed(source='../../assets/map_add.png')" fontSize="10" textDecoration="underline" textAlign="left"
 								   enabled="{!isDirty}" toolTip="{!isDirty ? 'Create an analysis linked to this experiment' : 'Please save the request before creating a linked analysis'}"
-								   visible="{parentDocument.showCreateAnalysisButton(parentDocument.selectedExperiment)}"
-								   includeInLayout="{parentDocument.showCreateAnalysisButton(parentDocument.selectedExperiment)}"/>
+								   visible="{parentDocument is NavExperimentView &amp;&amp; parentDocument.showCreateAnalysisButton(parentDocument.selectedExperiment)}"
+								   includeInLayout="{parentDocument is NavExperimentView &amp;&amp; parentDocument.showCreateAnalysisButton(parentDocument.selectedExperiment)}"/>
 					<mx:Spacer width="10"/>
 					<mx:Text visible="{this.request.@lastModifyDate != ''}" paddingLeft="8" text="{'Last modified  ' + this.request.@lastModifyDate}"  fontSize="9"/>
 				</mx:HBox>
