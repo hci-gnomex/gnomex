@@ -161,8 +161,9 @@ public class PropertyDictionary extends DictionaryEntry implements Serializable 
   public static final String		PROPERTY_NO_PRODUCTS_MESSAGE		= "no_products_message";
   public static final String		ANALYSIS_VIEW_LIMIT					= "view_limit_analyses";
   public static final String		DATATRACK_VIEW_LIMIT				= "view_limit_datatracks";
-  public static final String    ISOLATION_DEFAULT_PRICE_CATEGORY        = "isolation_default_price_category";
-  public static final String    SEQUENOM_DEFAULT_PRICE_CATEGORY        = "sequenom_default_price_category";
+  public static final String    	ISOLATION_DEFAULT_PRICE_CATEGORY  	= "isolation_default_price_category";
+  public static final String    	SEQUENOM_DEFAULT_PRICE_CATEGORY    	= "sequenom_default_price_category";
+  public static final String		PRODUCT_SHEET_NAME					= "product_sheet_name";
 
 
   private Integer       idPropertyDictionary;

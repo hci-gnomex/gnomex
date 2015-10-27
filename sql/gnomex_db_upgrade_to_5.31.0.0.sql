@@ -37,3 +37,7 @@ DELETE FROM PropertyDictionary WHERE propertyName = 'chromatogram_view_limit';
 DELETE FROM PropertyDictionary WHERE propertyName = 'experiment_view_limit';
 
 DELETE FROM PropertyDictionary WHERE propertyName = 'plate_and_run_view_limit';
+
+-- Add product_sheet_name property
+INSERT INTO PropertyDictionary (propertyName, propertyValue, propertyDescription, forServerOnly)
+VALUES ('product_sheet_name', 'Product Purchasing', 'The name of the price sheet for products.', 'N');

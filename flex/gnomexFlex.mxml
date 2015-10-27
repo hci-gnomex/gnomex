@@ -388,7 +388,7 @@
 							requestNumber.text = 'Lookup by #';
 							requestNumber.setStyle('fontStyle', 'italic');
 							requestNumber.setStyle('color', 0x666666);
-
+							
 						} 
 					}
 				}
@@ -440,11 +440,11 @@
 			[Embed(source="assets/house.png")]
 			public var iconHome:Class;
 			
-
+			
 			[Bindable]
 			[Embed(source="assets/hyperlink.png")]
 			public var iconLinks:Class;
-
+			
 			[Bindable]
 			[Embed(source="assets/tick.png")]
 			public var iconCheck:Class;
@@ -456,7 +456,7 @@
 			[Bindable]
 			[Embed(source="assets/white_information.png")]
 			public var iconEmptyInformation:Class;
-
+			
 			[Bindable]
 			[Embed(source="assets/information.png")]
 			public var iconInformation:Class;
@@ -832,15 +832,15 @@
 			[Bindable]
 			[Embed(source="assets/microarray_small.png")]
 			public var iconExtraction:Class;
-
+			
 			[Bindable]
 			[Embed(source="assets/flask.png")]
 			public var iconLibPrep:Class;
-
+			
 			[Bindable]
 			[Embed(source="assets/server_go.png")]
 			public var iconPipeline:Class;
-
+			
 			
 			[Bindable]
 			[Embed(source="assets/rectangle.png")]
@@ -853,7 +853,7 @@
 			[Bindable]
 			[Embed(source="assets/blue_folder.png")]
 			public var iconBlueFolder:Class;
-
+			
 			
 			
 			[Bindable]
@@ -1008,7 +1008,7 @@
 			
 			[Bindable]
 			public var useConfigurableBillingAccounts:Boolean = false;
-
+			
 			[Bindable]
 			public var isPublicVisibility:Boolean = true;
 			
@@ -1198,11 +1198,12 @@
 			public var PROPERTY_NO_PRODUCTS_MESSAGE:String				  = "no_products_message";
 			public var PROPERTY_PRODUCT_SAMPLE_BATCH_WARNING:String		  = "product_sample_batch_warning";
 			public var PROPERTY_CUSTOM_SAMPLE_CONC_UNITS:String			  = "custom_sample_conc_units";
+			public var PROPERTY_PRODUCT_SHEET_NAME:String				  = "product_sheet_name";
 			
 			public var BAM_IOBIO_VIEWER_URL:String 						  = "bam_iobio_viewer_url";
 			public var VCF_IOBIO_VIEWER_URL:String 						  = "vcf_iobio_viewer_url";
 			
-
+			
 			
 			public var CAN_ADMINISTER_ALL_CORE_FACILITIES:String          = "canAdministerAllCoreFacilities";
 			
@@ -1242,7 +1243,7 @@
 			public function takeScreenshotForReportIssue(source:IBitmapDrawable):void {
 				var imageSnap:ImageSnapshot = ImageSnapshot.captureImage(source);
 				var imageByteArray:ByteArray = new ByteArray();		
-					imageByteArray = imageSnap.data as ByteArray;					
+				imageByteArray = imageSnap.data as ByteArray;					
 				var screenshotWindow:ScreenshotWindow = ScreenshotWindow(PopUpManager.createPopUp(DisplayObject(this.theBody), ScreenshotWindow, false));			
 				screenshotWindow.imageByteArray = imageByteArray;
 				PopUpManager.centerPopUp(screenshotWindow);
@@ -1423,10 +1424,10 @@
 					theViews.selectedChild = navWorkflowView;
 					
 				}
-
+				
 			}
 			
-
+			
 			
 			public function showExperiment(requestNumber:String, showPromptToUpload:Boolean):void {
 				navExperimentView.selectedRequestNumber = requestNumber;
@@ -1678,7 +1679,7 @@
 			}
 			
 			public function showProductOrder(productOrder:Object):void {
-						
+				
 				this.stateStack.selectedChild = theViews;
 				theViews.visible = true;
 				theViews.selectedChild = navProductOrderView;
@@ -1686,7 +1687,7 @@
 				callLater( function():void {
 					navProductOrderView.lookupProductOrder(productOrder);
 				});
-								
+				
 			}
 			
 			private function onCheckTopicPermission(event:ResultEvent):void {
@@ -1942,7 +1943,7 @@
 					}
 				}
 			}
-				
+			
 			private function onGetFAQInterface(event:ResultEvent):void {
 				if(event.result.name() == "FaqCollection"){
 					faqList = new XMLListCollection(getFAQ.lastResult.FAQ);
@@ -2095,7 +2096,7 @@
 			
 			private function loggedInInit():void {
 				
-
+				
 				appProgressBar = new AppProgressView();
 				appProgressBar.currentState = "ShowCreditsState";
 				PopUpManager.addPopUp(appProgressBar, theBody, false);
@@ -2300,7 +2301,7 @@
 				addNewExperimentMenus(navMenu);
 				addProductOrderMenus(navMenu);
 			}
-						
+			
 			private function addNewExperimentMenus(navMenu:XMLList):void {
 				if (this.myCoreFacilities != null && this.myCoreFacilities.length() > 1) {
 					for(var i:int; i < navMenu.length(); i++) {
@@ -2403,7 +2404,7 @@
 					}
 				}
 			}
-
+			
 			private function hideMenusByProperties(navMenu:XMLList):void {
 				var showMenus:Dictionary = new Dictionary();
 				var hideMenus:Dictionary = new Dictionary();
@@ -2419,12 +2420,12 @@
 									// Only hide a menu for a core facility admin when
 									// the menu_ property matches the core facility
 									// the admin manages.
-										for each (var cf:Object in coreFacilitiesICanManage) {
-											if (property.@idCoreFacility == cf.@idCoreFacility) {
-												menuToHideShow = property.@propertyName.toString().substr(5);
-												break;
-											}
+									for each (var cf:Object in coreFacilitiesICanManage) {
+										if (property.@idCoreFacility == cf.@idCoreFacility) {
+											menuToHideShow = property.@propertyName.toString().substr(5);
+											break;
 										}
+									}
 								} else {
 									
 									if (menuToHideShow == null) {
@@ -2477,7 +2478,7 @@
 				}
 			}
 			
-
+			
 			private function checkSecurity():void {
 				customizeMenus(adminMenu);
 				customizeMenus(this.adminPlateBasedMenu);
@@ -2522,7 +2523,7 @@
 				} else {
 					currentState = "UserNonSubmitterState";
 				}
-
+				
 				// Hide help edit unless admin
 				if (!isAdminState) {
 					hideMenusByContext(topMenu, 'helpEdit');
@@ -2536,7 +2537,7 @@
 					getFAQ.send();
 					faqLoaded = true;
 				}
-
+				
 				// Let's remove Orders from admin menu for Microarray core
 				// since it uses the workflow
 				callLater(this.resizeMenuItems);
@@ -2643,7 +2644,7 @@
 				} else {
 					this.allowPaste = true;
 				}
-
+				
 				if (this.getProperty(this.PROPERTY_NO_PUBLIC_VISIBILITY) != null && 
 					this.getProperty(this.PROPERTY_NO_PUBLIC_VISIBILITY) == 'Y') {
 					this.isPublicVisibility = false;
@@ -2974,7 +2975,7 @@
 					for each (var requestCategory:Object in dictionaryManager.getEntriesExcludeBlank("hci.gnomex.model.RequestCategory")) {
 						if (requestCategory.@idCoreFacility == cf.@idCoreFacility &&
 							requestCategory.@type.toLowerCase() == experimentType.toLowerCase() &&
-						    requestCategory.@isActive == 'Y') {
+							requestCategory.@isActive == 'Y') {
 							return true;
 							break;
 						}
@@ -3013,8 +3014,8 @@
 				return false;
 			}
 			
-
-
+			
+			
 			
 			private function onGetSessionTimeout(event:ResultEvent):void {
 				var sessionTimeout:int = parseInt(getSessionTimeout.lastResult.@maxInactiveTime);
@@ -3160,9 +3161,9 @@
 				organismList = new XMLListCollection(getOrganismList.lastResult.Organism);
 				das2OrganismList = new XMLListCollection();
 				activeOrganismList = new XMLListCollection();
-//				var emptyNode:XML = <Organism idOrganism='' bionomialName=''  das2Name = '' label='' value=''/>;
-//				das2OrganismList.addItem(emptyNode);
-//				activeOrganismList.addItem(emptyNode.copy());
+				//				var emptyNode:XML = <Organism idOrganism='' bionomialName=''  das2Name = '' label='' value=''/>;
+				//				das2OrganismList.addItem(emptyNode);
+				//				activeOrganismList.addItem(emptyNode.copy());
 				for each(var organism:XML in getOrganismList.lastResult.Organism) {
 					if (organism.@das2Name != '' && organism.@bionomialName != '' && organism.@isActive == 'Y') {
 						das2OrganismList.addItem(organism.copy());
@@ -3268,7 +3269,7 @@
 						var changePasswordWindow:ChangePassword = ChangePassword(PopUpManager.createPopUp(this.mainArea, ChangePassword, true));
 						PopUpManager.centerPopUp(changePasswordWindow);	
 					}
-
+					
 				}
 			}
 			
@@ -3869,7 +3870,7 @@
 				onTopMenuImpl(event.item);
 			}
 			
-				
+			
 			
 			private function onTopMenuImpl(menuItem:Object):void {				
 				var label:String = menuItem.@label;
@@ -3902,18 +3903,18 @@
 				} else if(menuItem.@url != null && menuItem.@url != ''){
 					navigateToURL(new URLRequest(menuItem.@url), '_blank');	
 				} 
-
+				
 			}
-
 			
-			 
+			
+			
 			private function resizeMenuItems():void{
 				var menuBarSpacing:int = 12;
 				var screenResolutionX:Number = flash.system.Capabilities.screenResolutionX;
 				if (screenResolutionX >= 1200) {
 					menuBarSpacing = 30;
 				} 
-
+				
 				if (this.mainMenu.menuBarItems.length <= 5) {
 					menuBarSpacing += 10;
 				} else if (this.mainMenu.menuBarItems.length <= 7) {
@@ -3924,7 +3925,7 @@
 				for each(var item:MenuBarItem in this.mainMenu.menuBarItems){
 					item.width += menuBarSpacing;
 				}
-
+				
 			}
 			
 			public function getCurrentFiscalYear():String {
@@ -3997,7 +3998,7 @@
 					Alert.show("This feature is not enabled for this site.");
 				}
 			}
-
+			
 			public function escapeRegexChars(s:String):String
 			{
 				var newString:String = 
@@ -4101,7 +4102,7 @@
 	<mx:XMLList id="adminMenu"> 
 		
 		<menuitem label="Orders" icon="iconOrders" />
-
+		
 		<menuitem label="Experiments..."  icon="iconFlask" >
 			<menuitem  label="Browse Experiments"  icon="iconFlask" />
 			<menuitem  label="New Experiment Order"  icon="iconSubmitExperiment" context="newInternalExperiment" />
@@ -4156,7 +4157,7 @@
 			<menuitem label="Plates &amp; Runs" icon="iconPlatesAndRuns"   />
 			<menuitem label="Results" icon="iconResults"   />
 		</menuitem>
-
+		
 		<menuitem label="Workflow" icon="iconWorkflow">
 			<menuitem label="QC" icon="iconQC" codeStepNext="QC" context="QC"  />
 			<menuitem type="separator" context="HISEQ" label="hiseqSeparator"/>
@@ -4182,8 +4183,8 @@
 			<menuitem label="Workflow (all)" icon="iconWorkflow" codeStepNext="ALL" />
 			
 		</menuitem>
-			
-
+		
+		
 		<menuitem label="Billing" icon="iconBilling"   />
 		
 		<menuitem label="Users &amp; Groups" icon="iconUsers"   >
@@ -4382,7 +4383,7 @@
 			<menuitem label="Configure iScan Chips" icon="iconConfig" /> 
 			<menuitem label="Configure Products" icon="iconConfig" />
 		</menuitem>
-		 
+		
 		<menuitem label="Workflow..." icon="iconWorkflow"  >
 			<menuitem label="QC" icon="iconQC" codeStepNext="QC" context="QC"   />
 			<menuitem type="separator" context="HISEQ" label="hiseqSeparator"/>
@@ -4479,7 +4480,7 @@
 			<menuitem label="Annotation Progress Report" icon="iconPage" />
 			<menuitem label="Project/Experiment Report" icon="iconFlask" />			
 		</menuitem>
-
+		
 	</mx:XMLList>
 	
 	
@@ -4574,12 +4575,12 @@
 			 backgroundImage="@Embed(source='assets/gnomex_background.png')" backgroundSize="100%" 
 			 paddingTop="0" paddingLeft="0" 
 			 paddingRight="0" paddingBottom="0">		   
-		 
+		
 		<mx:VBox width="100%"  id="navBar" 
 				 verticalGap="0"   backgroundAlpha="1"
 				 paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0"   
-				  visible="false" borderStyle="solid"  borderThickness="0" dropShadowEnabled="true" dropShadowColor="#A5A5A8" 
-				  backgroundImage="@Embed(source='assets/navbar_gradient.png')" backgroundSize="100%">
+				 visible="false" borderStyle="solid"  borderThickness="0" dropShadowEnabled="true" dropShadowColor="#A5A5A8" 
+				 backgroundImage="@Embed(source='assets/navbar_gradient.png')" backgroundSize="100%">
 			
 			<mx:VBox width="100%" verticalGap="0"  
 					 paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" visible="false" id="vbox1">
@@ -4605,7 +4606,7 @@
 									   click="lookupExperiment()" visible="false" icon="@Embed('assets/arrow_right.png')"/>
 						</mx:HBox>				  
 						<mx:HBox height="36" paddingTop="8" horizontalAlign="right" horizontalGap="2" verticalAlign="middle" defaultButton="{searchButton}" paddingLeft="8">
-					
+							
 							<mx:TextInput id="searchText"
 										  text="Search"   fontStyle="italic" color="0x666666"
 										  click="{onSearchClick()}"
@@ -4617,9 +4618,9 @@
 						<mx:HBox  horizontalGap="4" paddingTop="0" verticalAlign="top">
 							<mx:LinkButton label="Get Help"   click="{takeScreenshotForReportIssue(this.theBody)}" textDecoration="underline" color="0xFF0000"/>
 							<mx:MenuBar  id="topMenuBar"  styleName="topMenuBar"   dataProvider="{topMenu}" 
-									  itemClick="{onTopMenuSelect(event)}"  
-									  click="{onTopMenuClick(event)}"
-									  labelField="@label" iconField="@icon" alpha="1.0">
+										 itemClick="{onTopMenuSelect(event)}"  
+										 click="{onTopMenuClick(event)}"
+										 labelField="@label" iconField="@icon" alpha="1.0">
 							</mx:MenuBar> 
 						</mx:HBox>						
 					</mx:HBox>					
@@ -4652,7 +4653,7 @@
 					<dashboard:ExpOverview id="expOverview" label="Overview" />
 					
 					<dashboard:SequencerOverview id="sequencerOverview" label="Sequencer Overview" />
-
+					
 					
 					<experiment:ExperimentEditView id="submitRequestView" label="{!isInternalExperimentSubmission ? 'Register Experiment' : 'New Experiment Order'}" 
 												   icon="{isInternalExperimentSubmission ? iconSubmitExperiment : iconAddExternalExperiment}"  width="100%" height="100%">

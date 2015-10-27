@@ -937,6 +937,7 @@ Test City, UT 12345',
  (113, 'view_limit_chromatograms', '1000', 'The maximum number of chromatograms returned from the back-end.', 'N');
  (114, 'view_limit_experiments', '100', 'The maximum number of experiments returned from the back-end.', 'N');
  (115, 'view_limit_plates_and_runs', '200', 'The maximum number of plates and runs returned from the back-end.', 'N');
+ (116, 'product_sheet_name', 'Product Purchasing', 'The name of the price sheet for products.', 'N');
 
  
 

@@ -6,6 +6,28 @@
 				showCloseButton="true" close="{close()}"
 				width="815" height="350">
 	
+	<mx:HTTPService  
+		id="getPriceCategories" 
+		url="GetPriceCategories.gx"
+		resultFormat="e4x"
+		showBusyCursor="true"
+		result="onGetPriceCategories(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to retrieve price categories', event)"
+		method="POST" 
+		useProxy="false">
+	</mx:HTTPService>
+	
+	<mx:HTTPService  
+		id="updateProductType" 
+		url="UpdateProductType.gx"
+		resultFormat="e4x"
+		showBusyCursor="true"
+		result="onUpdateProductType(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to update product type', event)"
+		method="POST" 
+		useProxy="false">
+	</mx:HTTPService>
+	
 	<mx:Script>
 		<![CDATA[
 			import hci.flex.dictionary.DictionaryEvent;
@@ -14,10 +36,13 @@
 			import mx.controls.Alert;
 			import mx.events.CloseEvent;
 			import mx.managers.PopUpManager;
+			import mx.rpc.events.ResultEvent;
 			import mx.utils.StringUtil;
 			
 			import views.util.DirtyEvent;
+			import views.util.NewProductPriceCategoryWindow;
 			import views.util.ProductWindow;
+			import views.util.SelectAuthorizedBillingAccountWindow;
 			
 			[Bindable]
 			private var dictionaryManager:DictionaryManager;
@@ -32,11 +57,14 @@
 			[Bindable]
 			private var saveMode:String = null;
 			private var previousItemCode:String = null;
+			private var idPriceCategoryToSelect:String = null;
 			
 			private static const SAVE_MODE_UPDATE:String = "update";
 			private static const SAVE_MODE_INSERT:String = "insert";
 			
 			private function init():void {
+				retrievePriceCategories();
+				
 				dictionaryManager = parentApplication.dictionaryManager;
 				
 				dictionaryManager.addEventListener(DictionaryEvent.DICTIONARY_ENTRY_ADDED, handleDictionaryEvent);
@@ -83,6 +111,15 @@
 				dirty.setDirty();
 				canDeleteSelectedProductType = false;
 				saveMode = SAVE_MODE_INSERT;
+			}
+			
+			public function retrievePriceCategories(idPriceCategoryToSelect:String = null):void {
+				this.idPriceCategoryToSelect = idPriceCategoryToSelect;
+				
+				var params:Object = new Object();
+				params.requireIsActive = "Y";
+				params.priceSheetName = parentApplication.getProperty(parentApplication.PROPERTY_PRODUCT_SHEET_NAME);
+				getPriceCategories.send(params);
 			}
 			
 			private function removeProductType():void {
@@ -220,14 +257,6 @@
 				return false;
 			}
 			
-			private function filterPriceCategories(item:Object):Boolean {
-				if (item.@isActive != null && item.@isActive == 'Y') {
-					return true;
-				}
-				
-				return false;
-			}
-			
 			private function handleDirtyEvent(event:DirtyEvent):void {
 				if (event.type == DirtyEvent.NOW_DIRTY) {
 					changeDetected = true;
@@ -248,6 +277,12 @@
 					dirty.resetDirty();
 				} else if (event.type == DictionaryEvent.DICTIONARY_LOADED) {
 					if (filteredProductTypes != null) {
+						if (saveMode == SAVE_MODE_UPDATE) {
+							var params:Object = new Object();
+							params.codeProductType = codeProductTypeText.text;
+							params.idPriceCategory = (priceCategoryCombo.selectedIndex == -1) ? ("") : (priceCategoryCombo.selectedItem.@idPriceCategory);
+							updateProductType.send(params);
+						}
 						filteredProductTypes.refresh();
 						callLater(selectItemInTree);
 					}
@@ -273,13 +308,47 @@
 				}
 			}
 			
+			private function onGetPriceCategories(event:ResultEvent):void {
+				if (getPriceCategories.lastResult.name() == "PriceCategoryList") {
+					productPriceCategories = new XMLListCollection();
+					priceCategoryCombo.selectedItem = null;
+					for each (var priceCategory:XML in getPriceCategories.lastResult.PriceCategory) {
+						productPriceCategories.addItem(priceCategory);
+					}
+					if (this.idPriceCategoryToSelect != null) {
+						for each (var priceCategory2:XML in priceCategoryCombo.dataProvider) {
+							if (priceCategory2.hasOwnProperty("@idPriceCategory") && priceCategory2.@idPriceCategory == this.idPriceCategoryToSelect) {
+								priceCategoryCombo.selectedItem = priceCategory2;
+								dirty.setDirty();
+								break;
+							}
+						}
+						this.idPriceCategoryToSelect = null;
+					}
+				} else {
+					mx.controls.Alert.show(getPriceCategories.lastResult..ACTMESSAGE.@TEXT);
+				}	
+			}
+			
+			private function onUpdateProductType(event:ResultEvent):void {
+				if (updateProductType.lastResult.name() != "SUCCESS") {
+					mx.controls.Alert.show(updateProductType.lastResult..ACTMESSAGE.@TEXT);
+				}	
+			}
+			
+			private function showNewProductTypeWindow():void {
+				var newPriceCategoryWindow:NewProductPriceCategoryWindow = NewProductPriceCategoryWindow(PopUpManager.createPopUp(this, NewProductPriceCategoryWindow, true));
+				PopUpManager.centerPopUp(newPriceCategoryWindow);
+				newPriceCategoryWindow.parentView = this;
+			}
+			
 		]]>
 	</mx:Script>
 	
 	<mx:XMLListCollection id="filteredProductTypes" source="{dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.ProductType').DictionaryEntry}" filterFunction="filterProductTypes" />
 	<mx:XMLListCollection id="myCoreFacilities" source="{parentApplication.coreFacilitiesICanManage}" />
 	<mx:XMLListCollection id="vendors" source="{dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Vendor').DictionaryEntry}" filterFunction="filterVendors" />
-	<mx:XMLListCollection id="priceCategories" source="{dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.PriceCategoryLite').DictionaryEntry}" filterFunction="filterPriceCategories" />
+	<mx:XMLListCollection id="productPriceCategories" />
 	
 	<mx:VBox height="100%" width="100%">
 		
@@ -310,7 +379,11 @@
 				<mx:ComboBox id="vendorCombo" dataProvider="{vendors}" labelField="@display" change="{dirty.setDirty()}" width="100%" />
 				
 				<mx:Label text="Price Category" width="100%" />
-				<mx:ComboBox id="priceCategoryCombo" dataProvider="{priceCategories}" labelField="@display" change="{dirty.setDirty()}" width="100%" />
+				<mx:HBox width="100%">
+					<mx:ComboBox id="priceCategoryCombo" dataProvider="{productPriceCategories}" labelField="@display" change="{dirty.setDirty()}" width="100%" />
+					<mx:LinkButton id="newProductTypeButton" label="New..." click="showNewProductTypeWindow()" textDecoration="underline" color="#0000FF"  
+								   visible="{parentApplication.isAdminState || parentApplication.isSuperAdmin}" includeInLayout="{parentApplication.isAdminState || parentApplication.isSuperAdmin}" />
+				</mx:HBox>
 				
 				<mx:Label text="Description" width="100%" />
 				<mx:TextInput id="descriptionText" change="{dirty.setDirty()}" width="100%" />
