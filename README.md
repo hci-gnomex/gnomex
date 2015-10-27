@@ -1,6 +1,6 @@
 # GNomEx
 
-Project Website:  <http://hci-bio-dev.hci.utah.edu/gnomexDocumentation/wordpress/>
+Project website:  <http://hci-bio-dev.hci.utah.edu/gnomexDocumentation/wordpress/>
 
 ## Description
 
