@@ -15,3 +15,4 @@ GNomEx is a web application with a Flash client user interface and a Java backen
 -Configurable annotations for experiments, samples, or analyses
 -Built in ABI file viewer
 
+-test
