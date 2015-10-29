@@ -133,6 +133,7 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
 
           Element node = new Element("Request");
           node.setAttribute("idRequest", idRequest.toString());
+          node.setAttribute("idProductOrder", "");
           node.setAttribute("requestNumber", requestNumber);
           node.setAttribute("label", requestNumber);
           node.setAttribute("codeRequestCategory", codeRequestCategory);
@@ -265,6 +266,7 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
 
         Element node = new Element("Request");
         node.setAttribute("idRequest", idRequest.toString());
+        node.setAttribute("idProductOrder", "");
         node.setAttribute("label", requestNumber);        
         node.setAttribute("requestNumber", requestNumber);        
         node.setAttribute("toolTip", toolTip);
@@ -379,6 +381,7 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
 
         Element node = new Element("Request");
         node.setAttribute("idRequest", idDiskUsage.toString());
+        node.setAttribute("idProductOrder", "");
         node.setAttribute("label", "Disk Usage");        
         node.setAttribute("requestNumber", "Disk Usage");        
         node.setAttribute("toolTip", toolTip);
