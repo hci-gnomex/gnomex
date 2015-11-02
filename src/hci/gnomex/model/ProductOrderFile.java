@@ -15,6 +15,8 @@ public class ProductOrderFile extends HibernateDetailObject {
   private Integer        idProductOrder;
   private ProductOrder   productOrder;
   private String         fileName;
+  private String         baseFilePath;
+  private String         qualifiedFilePath;
   private BigDecimal     fileSize;
   private Date           createDate;
 
@@ -42,6 +44,12 @@ public class ProductOrderFile extends HibernateDetailObject {
   public void setFileName(String fileName) {
     this.fileName = fileName;
   }
+  public String getBaseFilePath() {
+    return baseFilePath;
+  }
+  public void setBaseFilePath(String baseFilePath) {
+    this.baseFilePath = baseFilePath;
+  }
   public BigDecimal getFileSize() {
     return fileSize;
   }
@@ -53,6 +61,32 @@ public class ProductOrderFile extends HibernateDetailObject {
   }
   public void setCreateDate(Date createDate) {
     this.createDate = createDate;
+  }
+  public String getQualifiedFilePath(){
+    return qualifiedFilePath;
+  }
+
+  public void setQualifiedFilePath(String qualifiedFilePath){
+    this.qualifiedFilePath = qualifiedFilePath;
+  }
+  
+  public String getFullPathName() {
+    String fullPathName = getBaseFilePath();
+    if ( getQualifiedFilePath() != null && !getQualifiedFilePath().equals("") ) {
+      fullPathName += "/" + getQualifiedFilePath();  
+    }
+    fullPathName += "/" + getFileName();
+    
+    return fullPathName;
+  }
+  
+  public String getQualifiedFileName() {
+    String fullPathName = "";
+    if ( getQualifiedFilePath() != null && !getQualifiedFilePath().equals("") ) {
+      fullPathName += getQualifiedFilePath() + "/";  
+    }
+    fullPathName += getFileName();
+    return fullPathName;
   }
 
   

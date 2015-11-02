@@ -11,6 +11,12 @@ alter table Request drop
 ALTER TABLE Request DROP COLUMN codeDNAPrepType;
 ALTER TABLE Request DROP COLUMN codeRNAPrepType;
 
+alter table Request Drop column codeDNAPrepType;
+call ExecuteIfTableExists('gnomex','Request_Audit','alter table Request_Audit DROP COLUMN codeDNAPrepType');
+
+alter table Request Drop column codeRNAPrepType;
+call ExecuteIfTableExists('gnomex','Request_Audit','alter table Request_Audit DROP COLUMN codeRNAPrepType');
+
 -- Add new view_limit properties
 INSERT INTO PropertyDictionary (propertyName, propertyValue, propertyDescription, forServerOnly)
 VALUES ('view_limit_analyses', '1000', 'The maximum number of analyses returned from the back-end.', 'N');
@@ -48,6 +54,7 @@ ALTER TABLE BillingItem DROP CONSTRAINT FK_BillingItem_ProductLineItem;
 
 -- Change idProductLineItem to idProduct Order on BillingItem
 ALTER TABLE BillingItem change column idProductLineItem idProductOrder INT(10) NULL;
+call ExecuteIfTableExists('gnomex','BillingItem_Audit','alter table BillingItem_Audit CHANGE COLUMN idProductOrder INT(10) NULL');
 
 -- Script to update idProductLineItem to idProduct Order on existing BillingItems
 update bi
@@ -61,4 +68,15 @@ where bi.idProductOrder is not null
 ALTER TABLE BillingItem ADD CONSTRAINT `FK_BillingItem_ProductOrder` FOREIGN KEY `FK_BillingItem_ProductOrder` (`idProductOrder`)
     REFERENCES `gnomex`.`ProductOrder` (`idProductOrder`)
     ON DELETE NO ACTION
-    ON UPDATE NO ACTION
+    ON UPDATE NO ACTION;
+	
+	
+-- Add base file path and qualified file path to the Product Order File table	
+alter table ProductOrderFile
+ADD column baseFilePath varchar(300) NULL;
+
+alter table ProductOrderFile
+ADD column qualifiedFilePath varchar(300) NULL;
+
+call ExecuteIfTableExists('gnomex','ProductOrderFile_Audit','alter table ProductOrderFile_Audit ADD COLUMN baseFilePath varchar(300) NULL');
+call ExecuteIfTableExists('gnomex','ProductOrderFile_Audit','alter table ProductOrderFile_Audit ADD COLUMN qualifiedFilePath varchar(300) NULL');

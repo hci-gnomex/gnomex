@@ -2,7 +2,6 @@ package hci.gnomex.controller;
 
 import hci.gnomex.constants.Constants;
 import hci.gnomex.model.PropertyDictionary;
-import hci.gnomex.model.Request;
 import hci.gnomex.utility.HibernateGuestSession;
 import hci.gnomex.utility.PropertyDictionaryHelper;
 
@@ -16,7 +15,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.hibernate.Session;
 
-public class UploadExperimentURLServlet extends HttpServlet {
+public class UploadProductOrderURLServlet extends HttpServlet {
 
   protected void doGet( HttpServletRequest req, HttpServletResponse res ) throws ServletException, IOException {
 
@@ -69,17 +68,17 @@ public class UploadExperimentURLServlet extends HttpServlet {
       }
       
       String baseURL =  "http" + (useSecureDownload ? "s" : "") + "://"  + req.getServerName() + portNumber + req.getContextPath();
-      String URL = baseURL + "/" + "UploadExperimentFileServlet.gx";
+      String URL = baseURL + "/" + "UploadProductOrderFileServlet.gx";
       // Encode session id in URL so that session maintains for upload servlet when called from
       // Flex upload component inside FireFox, Safari
       URL += ";jsessionid=" + req.getRequestedSessionId();
       
       
       res.setContentType("application/xml");
-      res.getOutputStream().println("<UploadExperimentURL url='" + URL + "'/>");
+      res.getOutputStream().println("<UploadProductOrderURL url='" + URL + "'/>");
       
     } catch (Exception e) {
-      System.out.println("An error has occured in UploadExperimentURLServlet - " + e.toString());
+      System.out.println("An error has occured in UploadProductOrderURLServlet - " + e.toString());
     } finally {
       if (sess != null) {
         try {

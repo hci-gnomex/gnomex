@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" width="540" title="{'Rename ' + oldName}" height="98"
+				horizontalScrollPolicy="off" verticalScrollPolicy="off" defaultButton="{saveButton}" xmlns:util="views.util.*">
+	
+	
+	<mx:HTTPService  
+		id="organizeProductOrderUploadFiles" 
+		url="OrganizeProductOrderUploadFiles.gx"
+		resultFormat="e4x"
+		showBusyCursor="true"
+		result="onOrganizeProductOrderUploadFiles(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to organize product order upload files', event)"
+		method="POST"
+		useProxy="false">
+	</mx:HTTPService >
+	
+	
+	<mx:Script>
+		<![CDATA[
+			import mx.collections.XMLListCollection;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.ResultEvent;
+			
+			
+			[Bindable]
+			public var oldName:String = "";
+			
+			public var fileList:XMLListCollection;
+			
+			[Bindable]
+			public var oldProductOrderName:String = "";
+			
+			public var idProductOrder:Object;
+			
+			private var nameChanged:Boolean = false;
+			
+			private function save():void{
+				var params:Object = new Object();
+				params.idProductOrder = idProductOrder;
+				var xmllist:XMLList = fileList.children();
+				for each(var file:XML in fileList.children()){
+					if(file.@displayName == oldProductOrderName){
+						var extension:String = file.@displayName;
+						if(nameProductOrder.text.lastIndexOf(".") == -1 && file.@type != "dir"){
+							file.@displayName = nameProductOrder.text + extension.substring(extension.lastIndexOf("."));
+						}
+						else{
+							file.@displayName = nameProductOrder.text;
+						}
+						break;
+					}
+					if(file.@key == oldProductOrderName){
+						file.@newName = nameProductOrder.text;
+						break;
+					}
+					checkChildren(file);
+					if(nameChanged){
+						break;
+					}
+				}
+				
+				params.filesXMLString = fileList.toXMLString();
+				organizeProductOrderUploadFiles.send(params);
+			}
+			
+			private function checkChildren(file:XML):void{
+				for each(var child:XML in file.children()){
+					if(child.@displayName == oldProductOrderName){
+						var extension:String = child.@displayName;
+						if(nameProductOrder.text.lastIndexOf(".") == -1 && child.@type != "dir"){
+							child.@displayName = nameProductOrder.text + extension.substring(extension.lastIndexOf("."));
+						}
+						else{
+							child.@displayName = nameProductOrder.text;
+						}
+						nameChanged = true;
+						return;
+					}
+					else if(child.@key == oldProductOrderName){
+						file.@newName = nameProductOrder.text;
+						nameChanged = true;
+						return;
+					}
+					
+					if(child.children().length() != 0){
+						checkChildren(child);
+					}
+					
+				}
+			}
+			
+			private function onOrganizeProductOrderUploadFiles(event:ResultEvent):void{
+				if (organizeProductOrderUploadFiles.lastResult.name() != "SUCCESS") {
+					mx.controls.Alert.show(organizeProductOrderUploadFiles.lastResult..ACTMESSAGE.@TEXT);
+				}
+				else{
+					dispatchEvent(new Event("refreshUploadFiles", true));
+					PopUpManager.removePopUp(this);
+				}
+				
+			}
+			
+		]]>
+	</mx:Script>
+	<mx:VBox width="100%" height="100%" styleName="form">
+		<mx:HBox width="100%" height="100%" verticalAlign="middle">
+			<mx:Label text="To"/>
+			<mx:TextInput id="nameProductOrder" text="{oldName}" width="100%" change="this.dirty.setDirty()"/>
+		</mx:HBox>
+		
+		<mx:HBox width="100%">
+			<mx:Spacer  width="100%" height="10"/>		
+			<util:DirtyNote id="dirty"/>
+			<mx:Button label="Save" id="saveButton" click="save()" visible="true" icon="@Embed(source='../../assets/save.png')" enabled="{nameProductOrder.text != ''}"/>	      	
+			<mx:Button label="Close" enabled="true" click="{PopUpManager.removePopUp(this)}" visible="true" />	      	
+		</mx:HBox>
+	</mx:VBox>
+	
+</mx:TitleWindow>

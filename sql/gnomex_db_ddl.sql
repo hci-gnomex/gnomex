@@ -812,6 +812,8 @@ CREATE TABLE `gnomex`.`ProductOrderFile` (
   `fileName` VARCHAR(2000) NULL,
   `fileSize` DECIMAL(14, 0) NULL,
   `createDate` DATE NULL,
+  `baseFilePath` VARCHAR(300) NULL,
+  `qualifiedFilePath` VARCHAR(300) NULL,
   PRIMARY KEY (`idProductOrderFile`),
   CONSTRAINT `FK_ProductOrderFile_ProductOrder` FOREIGN KEY `FK_ProductOrderFile_ProductOrder` (`idProductOrder`)
     REFERENCES `gnomex`.`ProductOrder` (`idProductOrder`)

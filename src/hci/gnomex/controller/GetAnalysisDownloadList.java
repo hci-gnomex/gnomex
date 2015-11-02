@@ -141,6 +141,7 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
         a.excludeMethodFromXML("getCollaborators");
         a.excludeMethodFromXML("getGenomeBuilds");
         a.excludeMethodFromXML("getTopics");
+
         Element aNode = a.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
         aNode.setAttribute("displayName", a.getName());
         aNode.setAttribute("idLab", a.getIdLab().toString());

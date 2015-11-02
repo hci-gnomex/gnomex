@@ -93,6 +93,13 @@
 	</servlet>
 	
 	<servlet>
+		<servlet-name>FastDataTransferDownloadProductOrderServlet</servlet-name>
+		<servlet-class>
+			hci.gnomex.controller.FastDataTransferDownloadProductOrderServlet
+		</servlet-class>
+	</servlet>
+	
+	<servlet>
 		<servlet-name>FastDataTransferDownloadDataTrackServlet</servlet-name>
 		<servlet-class>
 			hci.gnomex.controller.FastDataTransferDownloadDataTrackServlet
@@ -133,6 +140,13 @@
 		<servlet-name>DownloadAnalysisFileServlet</servlet-name>
 		<servlet-class>
 			hci.gnomex.controller.DownloadAnalysisFileServlet
+		</servlet-class>
+	</servlet>
+	
+	<servlet>
+		<servlet-name>DownloadProductOrderFileServlet</servlet-name>
+		<servlet-class>
+			hci.gnomex.controller.DownloadProductOrderFileServlet
 		</servlet-class>
 	</servlet>
 
@@ -253,6 +267,20 @@
 		<servlet-name>UploadExperimentURLServlet</servlet-name>
 		<servlet-class>
 			hci.gnomex.controller.UploadExperimentURLServlet
+		</servlet-class>
+	</servlet>
+	
+	<servlet>
+		<servlet-name>UploadProductOrderFileServlet</servlet-name>
+		<servlet-class>
+			hci.gnomex.controller.UploadProductOrderFileServlet
+		</servlet-class>
+	</servlet>
+
+	<servlet>
+		<servlet-name>UploadProductOrderURLServlet</servlet-name>
+		<servlet-class>
+			hci.gnomex.controller.UploadProductOrderURLServlet
 		</servlet-class>
 	</servlet>
 	
@@ -384,6 +412,11 @@
 		<servlet-name>FastDataTransferDownloadExpServlet</servlet-name>
 		<url-pattern>/FastDataTransferDownloadExpServlet.gx</url-pattern>
 	</servlet-mapping>
+	
+	<servlet-mapping>
+		<servlet-name>FastDataTransferDownloadProductOrderServlet</servlet-name>
+		<url-pattern>/FastDataTransferDownloadProductOrderServlet.gx</url-pattern>
+	</servlet-mapping>
 
 	<servlet-mapping>
 		<servlet-name>FastDataTransferDownloadAnalysisServlet</servlet-name>
@@ -414,6 +447,11 @@
 		<servlet-name>DownloadAnalysisFileServlet</servlet-name>
 		<url-pattern>/DownloadAnalysisFileServlet.gx</url-pattern>
 	</servlet-mapping>
+	
+	<servlet-mapping>
+		<servlet-name>DownloadProductOrderFileServlet</servlet-name>
+		<url-pattern>/DownloadProductOrderFileServlet.gx</url-pattern>
+	</servlet-mapping>	
 
 	<servlet-mapping>
 		<servlet-name>UploadAnalysisFileServlet</servlet-name>
@@ -493,6 +531,16 @@
 	<servlet-mapping>
 		<servlet-name>UploadExperimentURLServlet</servlet-name>
 		<url-pattern>/UploadExperimentURLServlet.gx</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+		<servlet-name>UploadProductOrderFileServlet</servlet-name>
+		<url-pattern>/UploadProductOrderFileServlet.gx</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>UploadProductOrderURLServlet</servlet-name>
+		<url-pattern>/UploadProductOrderURLServlet.gx</url-pattern>
 	</servlet-mapping>
   
   <servlet-mapping>
@@ -767,6 +815,7 @@
 			<url-pattern>/UploadSequenceFileServlet.gx</url-pattern>
 			<url-pattern>/UploadAnalysisFileServlet.gx</url-pattern>
 			<url-pattern>/UploadExperimentFileServlet.gx</url-pattern>
+			<url-pattern>/UploadProductOrderFileServlet.gx</url-pattern>
 			<url-pattern>/UploadAndBroadcastEmailServlet.gx</url-pattern>		
 			<url-pattern>/FastDataTransferUploadGetJnlpServlet.gx</url-pattern>	
 			<url-pattern>/VerifyDas2Refresh.gx</url-pattern>	

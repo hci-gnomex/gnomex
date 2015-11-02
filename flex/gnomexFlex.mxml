@@ -3510,7 +3510,17 @@
 						return iconDataTrack;
 					} else {
 						return null;			
-					} ;
+					}
+				}else if (item.name() == "ProductOrderFileDescriptor") {
+					if (item.hasOwnProperty("@type") && item.@type == "dir") {
+						if (item.hasOwnProperty("@isEmpty") && item.@isEmpty == "Y") {
+							return iconFolderDisabled;
+						} else {
+							return iconFolder;			
+						} 
+					} else {
+						return null;			
+					}
 				} else if (item.name() == "Request" || item.name() == "RequestNode") {
 					return this.iconFlask;
 				} else if (item.name() == "Item") {

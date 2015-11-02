@@ -5,6 +5,7 @@ import hci.framework.control.RollBackCommandException;
 import hci.gnomex.constants.Constants;
 import hci.gnomex.model.Analysis;
 import hci.gnomex.model.DataTrack;
+import hci.gnomex.model.ProductOrder;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.Request;
 import hci.gnomex.security.SecurityAdvisor;
@@ -35,6 +36,7 @@ public class FastDataTransferUploadStart extends GNomExCommand implements Serial
   private Integer idAnalysis;
   private Integer idRequest;
   private Integer idDataTrack;
+  private Integer idProductOrder;
   
   private String analysisNumber;
   private String requestNumber;
@@ -56,6 +58,9 @@ public class FastDataTransferUploadStart extends GNomExCommand implements Serial
     if (request.getParameter("idDataTrack") != null && !request.getParameter("idDataTrack").equals("")) {
       idDataTrack = Integer.valueOf(request.getParameter("idDataTrack"));
     }
+    if (request.getParameter("idProductOrder") != null && !request.getParameter("idProductOrder").equals("")) {
+      idProductOrder = Integer.valueOf(request.getParameter("idProductOrder"));
+    }
     if (request.getParameter("requestNumber") != null && !request.getParameter("requestNumber").equals("")) {
       requestNumber = request.getParameter("requestNumber");
     }
@@ -63,8 +68,8 @@ public class FastDataTransferUploadStart extends GNomExCommand implements Serial
       analysisNumber = request.getParameter("analysisNumber");
     }
     
-    if (idAnalysis == null && idRequest == null && idDataTrack == null && analysisNumber == null && requestNumber == null) {
-      this.addInvalidField("missing id", "idRequest/requestNumber or idAnalysis/analysisNumber or idDataTrack must be provided");
+    if (idAnalysis == null && idRequest == null && idDataTrack == null && analysisNumber == null && requestNumber == null && idProductOrder == null) {
+      this.addInvalidField("missing id", "idRequest/requestNumber or idAnalysis/analysisNumber or idDataTrack or idProductOrder must be provided");
     }
   }
 
@@ -136,6 +141,15 @@ public class FastDataTransferUploadStart extends GNomExCommand implements Serial
           String baseDir = PropertyDictionaryHelper.getInstance(sess).getDataTrackDirectory(serverName);
           targetDir = baseDir + File.separator + dataTrack.getFileName() + File.separator + Constants.UPLOAD_STAGING_DIR;
           targetNumber = dataTrack.getNumber();
+        }
+      } else if (idProductOrder != null) {
+        ProductOrder po = null;
+        po = (ProductOrder)sess.get(ProductOrder.class, idProductOrder);
+        if (this.isValid()) {
+          createYear = yearFormatter.format(po.getSubmitDate());
+          String baseDir = PropertyDictionaryHelper.getInstance(sess).getProductOrderDirectory(serverName, po.getIdCoreFacility());
+          targetDir = baseDir + createYear + File.separator + po.getProductOrderNumber() + File.separator + Constants.UPLOAD_STAGING_DIR;
+          targetNumber = po.getProductOrderNumber();
         }
       }
       if (this.isValid()) {

@@ -140,8 +140,18 @@
 					lineItemTab.productOrder = browseTree.selectedItem;
 					lineItemTab.init();
 					detailTab.init();
+					filesView.getProductOrderDownloadList.send(getBrowseParametersOrderView());
 				}
 				
+			}
+			
+			public function getBrowseParametersOrderView():Object {
+				var params:Object = new Object();
+				params.idProductOrder = selectedOrder.@idProductOrder;
+				params.idLab = selectedOrder.@idLab;
+				params.lastYear = 'Y';
+				
+				return params;					
 			}
 			
 			private function getProductOrders():void {
@@ -518,6 +528,8 @@
 						<product:ProductOrderDetailTab id="detailTab"/>
 						
 						<product:LineItemDetailTab id="lineItemTab"/>
+						
+						<product:ProductOrderDownloadView id="filesView" productOrder="{this.selectedOrder}" />
 						
 					</mx:TabNavigator>
 					

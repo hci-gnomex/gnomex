@@ -1,0 +1,533 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" xmlns:views="views.*" xmlns:util="views.util.*" label="Files">
+	
+	
+	<mx:HTTPService  
+		id="cacheProductOrderFileDownloadList" 
+		url="CacheProductOrderFileDownloadList.gx"
+		destination="cacheProductOrderFileDownloadList"
+		resultFormat="e4x"
+		showBusyCursor="false"
+		result="onCacheProductOrderFileDownloadList(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to get cache file download list', event)"
+		method="POST"
+		useProxy="false">
+		<mx:request>
+			<fileDescriptorXMLString>{selectedFileList.toXMLString()}</fileDescriptorXMLString>
+		</mx:request>
+	</mx:HTTPService>
+	
+	<mx:HTTPService  
+		id="cacheProductOrderFDTFileDownloadList" 
+		url="CacheProductOrderFileDownloadList.gx"
+		destination="cacheFileDownloadList"
+		resultFormat="e4x"
+		showBusyCursor="true"
+		result="onCacheProductOrderFDTFileDownloadList(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to get cache file download list', event)"
+		method="POST"
+		useProxy="false">
+		<mx:request>
+			<fileDescriptorXMLString>{selectedFileList.toXMLString()}</fileDescriptorXMLString>
+		</mx:request>
+	</mx:HTTPService>
+	
+	
+	<mx:HTTPService  
+		id="getProductOrderDownloadList" 
+		url="GetProductOrderDownloadList.gx"
+		destination="getProductOrderDownloadList"
+		resultFormat="e4x"
+		showBusyCursor="true"
+		result="onGetProductOrderDownloadList(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to get product order download list', event)"
+		method="POST"
+		useProxy="false">
+	</mx:HTTPService >
+	
+	<mx:HTTPService  
+		id="fdtUploadStart" 
+		url="FastDataTransferUploadStart.gx"
+		resultFormat="e4x"
+		showBusyCursor="true" 
+		result="onFdtUploadStart(event)" 
+		fault="parentApplication.onFailHttpRequest('Failed to start FDT upload', event)"
+		method="POST"
+		useProxy="false">
+	</mx:HTTPService>
+	
+	<mx:HTTPService  
+		id="getFDTUploadInstructions" 
+		url="FastDataTransferUploadGetJnlpServlet.gx"
+		resultFormat="e4x"
+		showBusyCursor="true" 
+		result="onGetFDTUploadInstructions(event)" 
+		fault="parentApplication.onFailHttpRequest('Failed to start FDT upload', event)"
+		method="POST"
+		useProxy="false">
+	</mx:HTTPService>
+	
+	
+	<mx:HTTPService  
+		id="getFDTDownloadInstructions" 
+		url="FastDataTransferDownloadProductOrderServlet.gx"
+		resultFormat="e4x"
+		showBusyCursor="true" 
+		result="onGetFDTDownloadInstructions(event)" 
+		fault="parentApplication.onFailHttpRequest('Failed to start FDT upload', event)"
+		method="GET"
+		useProxy="false">
+	</mx:HTTPService>
+	
+	
+	<mx:Script>
+		<![CDATA[
+			import flash.display.Sprite;
+			import flash.net.FileReference;
+			import flash.net.URLRequest;
+			import flash.net.URLRequestMethod;
+			import flash.net.URLVariables;
+			
+			import hci.flex.controls.CheckBox;
+			
+			import mx.collections.Sort;
+			import mx.collections.SortField;
+			import mx.controls.Alert;
+			import mx.events.CloseEvent;
+			import mx.events.ListEvent;
+			import mx.events.PropertyChangeEvent;
+			import mx.formatters.DateFormatter;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.ResultEvent;
+			
+			import views.experiment.DownloadProgressView;
+			import views.product.ProductOrderUploadWindow;
+			import views.renderers.CheckBoxGroupedItem;
+			import views.util.FileUtil;
+			import views.util.GuestDownloadTermsWindow;
+			
+			private var downloadWindow:ProductOrderDownloadWindow;
+			
+			[Bindable]
+			public var uploadButtonsVisible:Boolean = true;
+			
+			[Bindable]
+			public var removeFileButtonsVisible:Boolean = true;
+			
+			[Bindable]
+			public var rowCountMessage:String = new String();
+			
+			[Bindable]
+			public var productOrder:Object;
+			
+			[Bindable]
+			public var browseMessage:String = new String();
+			
+			
+			[Bindable]
+			public var selectedFileList:XMLListCollection;
+			
+			private var estimatedDownloadSize:Number;
+			
+			public var showFdtCommand:Boolean = true;
+			
+			private const DOWNLOAD_FILES_URL:String    = "DownloadProductOrderFileServlet.gx"; 
+			private const SUGGESTED_LOCAL_FILENAME:String = "gnomex-productOrder";  
+			
+			[Bindable]
+			public var resultKeys:String;
+			
+			private var filesExceedingMaxMessage:String = "";
+			
+			public static const   ALERT_BUTTON_WIDTH:int = Alert.buttonWidth;
+			
+			private var dateFormatter:DateFormatter = new DateFormatter();
+			
+			public var showCommandLineInstructions:Boolean = false;
+			
+			private function onGetProductOrderDownloadList(event:ResultEvent): void {
+				if (getProductOrderDownloadList.lastResult.name() != "ProductOrderDownloadList") {
+					Alert.show(getProductOrderDownloadList.lastResult..ACTMESSAGE.@TEXT);
+					return; 
+				}    	 
+				this.downloadTree.visible = true;
+				setFileCount();
+				sortDownloadList(this.downloadList);
+				callLater(expandNodes);
+			}
+			
+			private function sortDownloadList(theList:XMLListCollection):void{
+				var sort:Sort = new Sort();
+				sort.fields = [new SortField("@displayName", true)];
+				theList.sort = sort;
+				theList.refresh();
+			}
+			
+			private function expandNodes():void {
+				if(downloadList.length > 0) {
+					downloadTree.expandItem(downloadList.getItemAt(0),true); 
+				}	
+			}
+			
+			private function expandAllNodes():void {
+				for each (var item3:Object in getProductOrderDownloadList.lastResult..ProductOrderFileDescriptor.(@type == "dir")) {
+					downloadTree.expandItem(item3, false);
+				}
+			}
+			
+			
+			public function downloadExpandedFiles(selectedFiles:XMLList):void {      	
+				selectedFileList = new XMLListCollection(selectedFiles);
+				
+				filesExceedingMaxMessage = "";
+				if (selectedFileList.length == 0) {
+					Alert.show("Please select the files to download.");
+				} else {
+					estimatedDownloadSize = 0;
+					for each (var item:Object in selectedFileList) {
+						var size:Number = FileUtil.getEstimatedCompressedSize(item);
+						if (size > parentApplication.MAX_DOWNLOAD_SIZE) {
+							if (filesExceedingMaxMessage.length > 0) {
+								filesExceedingMaxMessage += ", ";
+							}
+							filesExceedingMaxMessage += item.@displayName;
+						}
+						estimatedDownloadSize += size;
+					}
+					
+					var call:Object = cacheProductOrderFileDownloadList.send();
+					call.marker = estimatedDownloadSize;    		
+				}
+			}
+			
+			
+			private function getDownloadName(item:Object, col:int):String {
+				var empty:String = item.name() == "ProductOrder" && item.hasOwnProperty("@isEmpty") && item.@isEmpty == "Y" ? " (no downloads)" : "";
+				if (item.name() == "ProductOrderDownload") {
+					if (item.hasOwnProperty("@itemNumber") && item.@itemNumber != '') {
+						var results:String = item.hasOwnProperty("@results") && item.@results != '' ? " - " + item.@results : '';
+						return item.@itemNumber + results + empty;
+					} else {
+						return item.@results + empty;
+					}
+				} else {
+					return item.@displayName + empty;
+				} 
+			}
+			
+			public function setFileCount():void {
+				rowCountMessage = getProductOrderDownloadList.lastResult..ProductOrderFileDescriptor.(@type != 'dir').length() + " file(s)";    	
+			}
+			
+			
+			private function onCacheProductOrderFileDownloadList(event:ResultEvent):void {
+				var call:Object = event.token;
+				var message:String = "";
+				var title:String = "";
+				var estimatedSize:Number = call.marker;
+				if (filesExceedingMaxMessage != "") {
+					message = "The following files exceed the " + parentApplication.MAX_DOWNLOAD_SIZE_DISPLAY + " maximum:\n" + this.filesExceedingMaxMessage + ".\n\n";
+					if (parentApplication.isFDTSupported) {
+						message += "Do you want to be download using FDT instead?";
+					} else {
+						message += "Do you want to be directed to the browser page for downloading large files individually?";
+					}
+					title = "Download file exceeds maximum size"; 
+					Alert.show( message,
+						title,
+						(Alert.OK | Alert.NO), parentApplication.theBody, 
+						onAlternateDownloadFiles,						
+						parentApplication.iconWarning);
+					
+				} else if (estimatedSize >= parentApplication.MAX_DOWNLOAD_SIZE) {
+					message =  
+						"The total download size (" + FileUtil.getFileSizeText(call.marker) + ") exceeds the " + parentApplication.MAX_DOWNLOAD_SIZE_DISPLAY + " maximum.\n\n"
+					if (parentApplication.isFDTSupported) {
+						message += "Please choose FDT Download instead";
+					} else {
+						message += "You must unselect some files or click on the 'Download large files' link to download files individually."; 
+					}
+					title = "Total download size exceeds maximum size"; 
+					Alert.show( message, title);
+					
+				} else {
+					message = "Ready to download approximately " + FileUtil.getFileSizeText(call.marker) + " of data.  Proceed?";
+					Alert.show( message,
+						title,
+						(Alert.YES | Alert.NO), parentApplication.theBody, 
+						onDownloadFiles,						
+						parentApplication.iconWarning);
+				}
+				
+				
+			}
+			
+			private function onDownloadFiles(event:CloseEvent):void {
+				if (event.detail==Alert.YES) {
+					var parms:URLVariables = new URLVariables();
+					parms.mode =  "zip";
+					if (parentApplication.guestEmailAddress != null) {
+						parms.emailAddress = parentApplication.guestEmailAddress;
+					}
+					var progressWindow:DownloadProgressView = new DownloadProgressView();
+					progressWindow.init(parentApplication.theBody, this.DOWNLOAD_FILES_URL, parms, downloadWindow.downloadExpandedFilesButton, estimatedDownloadSize, this.SUGGESTED_LOCAL_FILENAME);		
+				}
+			}    
+			
+			private function onAlternateDownloadFiles(event:CloseEvent):void {
+				if (event.detail==Alert.OK) {
+					if (parentApplication.isFDTSupported) {
+						this.downloadFilesUsingFDT(selectedFileList.source);
+					} else {
+						this.showAlternateDownloadPage(selectedFileList.source);	
+					}
+				} 		
+			}
+			
+			public function selectDownload(requestNumber:String):void {
+				var pos:int = -1;
+				for each(var r:Object in downloadList) {
+					if (r.@requestNumber == requestNumber) {
+						downloadTree.selectedItem = r;
+						break;
+					}
+					pos++;
+					for each(var rd:Object in r.RequestDownload) {
+						pos++;
+						for each(var fd:Object in rd.ProductOrderFileDescriptor) {
+							pos++;
+						}
+					}
+				}
+				
+				if (pos >= 0) {
+					downloadTree.scrollToIndex(pos);
+				}
+			}
+			
+			public function downloadFilesUsingFDT(selectedFiles:XMLList):void {
+				selectedFileList = new XMLListCollection(selectedFiles);					
+				
+				if (selectedFileList.length == 0) {
+					mx.controls.Alert.show("Please select the files to download.");
+				} else {
+					cacheProductOrderFDTFileDownloadList.send();
+				}
+			}
+			
+			private function onCacheProductOrderFDTFileDownloadList(event:ResultEvent):void {
+				// We have cached the selected analysis files
+				// Now call the URL to start the FDT app using webstart
+				showFastDataTransferDownloadPage();
+			}
+			
+			public function showFastDataTransferDownloadPage():void {
+				
+				if(showCommandLineInstructions){
+					var params:Object = new Object();
+					params.showCommandLineInstructions = showCommandLineInstructions ? "Y" : "N";
+					if (parentApplication.guestEmailAddress != null) {
+						params.emailAddress = parentApplication.guestEmailAddress;
+					}
+					getFDTDownloadInstructions.send(params);
+					showCommandLineInstructions = false;
+				} else{
+					var url:URLRequest = new URLRequest('FastDataTransferDownloadProductOrderServlet.gx');	
+					url.contentType = "text/plain";
+					url.method = URLRequestMethod.GET;
+					var parms:URLVariables = new URLVariables();
+					if (parentApplication.guestEmailAddress != null) {
+						parms.emailAddress = parentApplication.guestEmailAddress;
+					}
+					parms.showCommandLineInstructions = this.showCommandLineInstructions ? "Y" : "N";
+					url.data = parms;
+					
+					navigateToURL(url, '_self');
+				}
+			}
+			
+			private function onGetFDTDownloadInstructions(event:ResultEvent):void{
+				Alert.show(event.result.toString(), "Command Line Instructions");
+			}
+			
+			public function showAlternateDownloadPage(selectedFiles:XMLList):void {
+				// Sort by request number to avoid duplicates
+				var filesCollection:XMLListCollection = new XMLListCollection(selectedFiles);
+				var sortByNum:Sort = new Sort();
+				sortByNum.fields = [new SortField("requestNumber")];
+				filesCollection.sort = sortByNum;
+				filesCollection.refresh();
+				
+				var requestNumbers:String = "";
+				var previous:String = "";
+				for each(var dl:Object in filesCollection.source) {
+					var currentNum:String = dl.@requestNumber;
+					if ( currentNum != previous ) {
+						if (requestNumbers.length > 0) {
+							requestNumbers += ":"
+						}
+						requestNumbers += currentNum;
+					}
+					previous = currentNum;
+				}
+				if (requestNumbers.length > 0) {
+					var url1:URLRequest = new URLRequest('ShowRequestDownloadForm' + 
+						(parentDocument.parentApplication.isGuestMode() ? 'ForGuest' : '') +   
+						'.gx?requestNumbers=' + 
+						requestNumbers);
+					navigateToURL(url1, '_blank');	
+				}
+				
+			}
+			
+			public function startFDTUpload():void {			
+				var params:Object = new Object();		
+				params.idProductOrder = getProductOrderDownloadList.lastResult..ProductOrder[0].@idProductOrder;
+				showCommandLineInstructions = true;
+				
+				fdtUploadStart.send(params);
+			}
+			
+			private function onFdtUploadStart(event:ResultEvent):void {
+				if (fdtUploadStart.lastResult.name() == "FDTUploadUuid") {
+					var uuid:String = fdtUploadStart.lastResult.@uuid;
+					
+					if(showCommandLineInstructions){
+						var params:Object = new Object();
+						params.uuid = uuid;
+						params.showCommandLineInstructions = showCommandLineInstructions ? "Y" : "N";
+						getFDTUploadInstructions.send(params);
+						showCommandLineInstructions = false;
+					} else{
+						var url:URLRequest = new URLRequest('FastDataTransferUploadGetJnlpServlet.gx');
+						var uv:URLVariables = new URLVariables();
+						uv.uuid = uuid;
+						uv.showCommandLineInstructions = showCommandLineInstructions ? "Y" : "N";
+						url.data = uv;
+						url.method = URLRequestMethod.POST;
+						
+						navigateToURL(url, '_self');
+					}
+				}
+			}
+			
+			
+			private function onGetFDTUploadInstructions(event:ResultEvent):void{
+				Alert.show(event.result.toString(), "Command Line Instructions");
+			}
+						
+			
+			private function showProductOrderUploadWindow(index:int):void {
+				var uploadWindow:ProductOrderUploadWindow = ProductOrderUploadWindow(PopUpManager.createPopUp(parent, ProductOrderUploadWindow, true));
+				
+				uploadWindow.parentView = this;
+				uploadWindow.productOrder = this.productOrder;
+				PopUpManager.centerPopUp(uploadWindow);
+				uploadWindow.init(this.productOrder);
+				uploadWindow.theTab.selectedIndex = index;
+			}
+			
+			public function showDownloadWindow():void {
+				var params:Object = new Object();
+				params.idProductOrder = productOrder.@idProductOrder;
+				params.includeUploadStagingDir = 'Y';
+				
+				downloadWindow = ProductOrderDownloadWindow(PopUpManager.createPopUp(parentApplication.theBody, ProductOrderDownloadWindow, true));
+				downloadWindow.downloadView = this;
+				downloadWindow.browseParameters = params;
+				downloadWindow.centerWindow();
+				downloadWindow.init();
+			}
+			
+			private function showProductOrderFDTUploadWindow():void {
+				var idProductOrder:String = getProductOrderDownloadList.lastResult..ProductOrder[0].@idProductOrder;
+				var productOrderNumber:String = getProductOrderDownloadList.lastResult..ProductOrder[0].@productOrderNumber;
+				if (idProductOrder != null && idProductOrder != "") {
+					var uploadWindow:ProductOrderUploadWindow = ProductOrderUploadWindow(PopUpManager.createPopUp(parent, ProductOrderUploadWindow, true));
+					PopUpManager.centerPopUp(uploadWindow);
+					uploadWindow.init(this.productOrder);
+					uploadWindow.uploadFilesStack.selectedIndex = 1;
+				}
+			}
+
+		]]>
+	</mx:Script>
+	
+	<mx:XMLListCollection id="downloadList" source="{getProductOrderDownloadList.lastResult.ProductOrder}"/>
+	
+	<mx:VBox width="100%" height="100%" paddingBottom="0" paddingLeft="4" paddingRight="4" paddingTop="0" verticalGap="0">
+		
+		<mx:HBox width="100%" visible="{browseMessage != ''}" includeInLayout="{browseMessage != ''}" horizontalAlign="center" styleName="warningLabel" verticalAlign="middle">
+			<mx:Label text="{browseMessage}"/>			
+		</mx:HBox>
+		
+		<mx:HBox  paddingTop="2" paddingBottom="2" verticalAlign="middle">	
+			<mx:HBox includeInLayout="{this.removeFileButtonsVisible || this.uploadButtonsVisible}" 
+					 visible="{this.removeFileButtonsVisible || this.uploadButtonsVisible}" 
+					 horizontalAlign="right" paddingTop="2" paddingBottom="2">
+				<mx:LinkButton label="Upload files" 
+							   click="showProductOrderUploadWindow(0)" 
+							   id="linkbutton1" textDecoration="underline" icon="@Embed(source='../../assets/upload.png')" 
+							   textAlign="left"/>
+				<mx:LinkButton label="FDT Upload files" 
+							   visible="{parentApplication.isFDTSupported}"
+							   includeInLayout="{parentApplication.isFDTSupported}"
+							   click="showProductOrderFDTUploadWindow()" 
+							   id="linkbuttonUploadFDT" textDecoration="underline" icon="@Embed(source='../../assets/upload_large.png')" textAlign="left"/>
+				<mx:LinkButton label="FDT Upload Command Line" 
+							   visible="{parentApplication.isFDTSupported}"
+							   includeInLayout="{parentApplication.isFDTSupported}"
+							   click="startFDTUpload()" 
+							   id="fdtUploadCommandLine" textDecoration="underline" icon="@Embed(source='../../assets/upload_large.png')" textAlign="left"/>
+				<mx:LinkButton label="Manage files"  
+							   toolTip="Add, delete, rename files and folders."
+							   id="uploadOrganizeLink" click="showProductOrderUploadWindow(1)" 
+							   textDecoration="underline" icon="@Embed(source='../../assets/chart_organisation.png')" 
+							   textAlign="left"/>
+			</mx:HBox>
+			<mx:LinkButton label="Download files"  
+						   id="downloadLink" 
+						   textDecoration="underline" icon="@Embed(source='../../assets/download.png')" 
+						   textAlign="left" click="showDownloadWindow()"
+						   includeInLayout="{this.downloadTree.visible}" 
+						   visible="{this.downloadTree.visible}"/>
+			
+		</mx:HBox>
+		<mx:Spacer height="6" includeInLayout="{!this.uploadButtonsVisible &amp;&amp; !this.removeFileButtonsVisible}" visible="{!this.uploadButtonsVisible &amp;&amp; !this.removeFileButtonsVisible}"/>
+		<mx:AdvancedDataGrid id="downloadTree" width="100%" height="100%" 
+							 dropEnabled="false"  
+							 displayItemsExpanded="false"
+							 iconFunction="parentApplication.getTreeIcon"
+							 dragEnabled="false" 
+							 dragMoveEnabled="false"  
+							 showHeaders="true"   
+							 sortExpertMode="true" 
+							 sortableColumns="false"
+							 borderStyle="solid" 
+							 headerWordWrap="false" 
+							 allowMultipleSelection="true"
+							 resizableColumns="true">						
+			<mx:dataProvider> 
+				<mx:HierarchicalData source="{downloadList}"/>
+			</mx:dataProvider>						  
+			<mx:columns>
+				<mx:AdvancedDataGridColumn dataField="@displayName"  labelFunction="getDownloadName"  headerText="Folder or File" width="250"/> 
+				<!--<mx:AdvancedDataGridColumn dataField="@viewURL" headerText="" width="25" itemRenderer="views.renderers.LinkButtonViewFile"/>-->
+				<mx:AdvancedDataGridColumn dataField="@info" headerText="Info" width="80"/>
+<!--				<mx:AdvancedDataGridColumn dataField="@linkedSampleNumber" headerText="Linked Sample" width="100"/>-->
+				<mx:AdvancedDataGridColumn dataField="@fileSizeText"  headerText="Size" width="40" textAlign="right" /> 
+				<mx:AdvancedDataGridColumn dataField="@lastModifyDateDisplay"  headerText="Modified" width="50"/> 
+			</mx:columns>
+		</mx:AdvancedDataGrid>
+		<mx:HBox width="100%" horizontalAlign="left">
+			<mx:Label text="{rowCountMessage}" />
+		</mx:HBox>
+		
+	</mx:VBox>
+	
+	
+	
+	
+</mx:Canvas>
+
+
