@@ -6,29 +6,13 @@ package hci.gnomex.httpclient;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
-import java.net.Authenticator;
-import java.net.InetAddress;
-import java.net.PasswordAuthentication;
-import java.net.URL;
-import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.nio.channels.FileChannel;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
-import java.util.Properties;
 import java.util.TreeSet;
-
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
 
 
 /**
@@ -137,7 +121,7 @@ public class SaveChromatogramsFromFiles extends HttpClientBase {
 
     SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");   
     System.out.println("-------------------------------------------------------------------");
-    System.out.println(dateFormat.format(new Date(System.currentTimeMillis())) + " SaveChromatogramsFromFile started");
+    System.out.println(dateFormat.format(new Date(System.currentTimeMillis())) + " SaveChromatogramsFromFiles started");
    
 
     try {

@@ -3,10 +3,12 @@ package hci.gnomex.controller;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.Chromatogram;
+import hci.gnomex.model.InstrumentRun;
 import hci.gnomex.model.PlateWell;
 import hci.gnomex.model.Request;
 import hci.gnomex.utility.ChromatReadUtil;
 import hci.gnomex.utility.ChromatTrimUtil;
+import hci.gnomex.utility.ChromatogramParser;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.PropertyDictionaryHelper;
@@ -31,7 +33,9 @@ public class SaveChromatogramFromFile extends GNomExCommand implements Serializa
   private Integer idPlateWell = 0;
   private Integer idCoreFacility;
 
-
+  private String                launchAppURL;
+  private String                appURL;
+  
   public void validate() {
   }
 
@@ -61,6 +65,12 @@ public class SaveChromatogramFromFile extends GNomExCommand implements Serializa
       this.addInvalidField("idCoreFacility", "Unable to find Core Facility for DNA Sequencing");
     }
 
+    try {
+      launchAppURL = this.getLaunchAppURL(request);      
+      appURL = this.getAppURL(request);      
+    } catch (Exception e) {
+      log.warn("Cannot get launch app URL in SaveChromatogramFromFile", e);
+    }
   }
 
   public Command execute() throws RollBackCommandException {
@@ -178,7 +188,10 @@ public class SaveChromatogramFromFile extends GNomExCommand implements Serializa
       
       sess.flush();
       
-
+      // Check for complete requests.
+      InstrumentRun ir = well.getPlate().getInstrumentRun();
+      ChromatogramParser.changeRequestsToComplete(sess, ir, this.getSecAdvisor(), launchAppURL, appURL, serverName);
+      
       if (isValid())  {
         // Success!
         this.xmlResult = "<SUCCESS idChromatogram=\"" + chromatogram.getIdChromatogram() + "\"" +

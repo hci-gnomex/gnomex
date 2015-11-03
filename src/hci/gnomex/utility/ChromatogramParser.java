@@ -320,8 +320,8 @@ public class ChromatogramParser extends DetailObject implements Serializable
               break;
             }
           } else if ( codePlateType != null && codePlateType.equals( PlateType.REACTION_PLATE_TYPE ) ) {
-            // Check for reaction plate wells with no chromatogram or unreleased chromatogram 
-            if ( idChromatogram == null || releaseDate == null ) {
+            // Check for reaction plate wells with no chromatogram -- no longer care if the chromats are unreleased or not 
+            if ( idChromatogram == null ) {
               hasMissingChromat = true;
               break;
             }
