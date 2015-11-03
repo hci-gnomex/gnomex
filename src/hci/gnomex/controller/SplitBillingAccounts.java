@@ -246,7 +246,7 @@ public class SplitBillingAccounts extends GNomExCommand implements Serializable 
             TreeMap relatedBillingItemMap = new TreeMap();
             TreeMap requestMap = new TreeMap();
             Boolean allItemsApproved = true;
-            ShowBillingInvoiceForm.cacheBillingItemMap(sess, this.getSecAdvisor(), idBillingPeriod, lab.getIdLab(), ba.getIdBillingAccount(), ba.getIdCoreFacility(), billingItemMap, relatedBillingItemMap, requestMap);
+            ShowBillingInvoiceForm.cacheBillingItemMaps(sess, this.getSecAdvisor(), idBillingPeriod, lab.getIdLab(), ba.getIdBillingAccount(), ba.getIdCoreFacility(), billingItemMap, relatedBillingItemMap, requestMap);
             for(Iterator j = parser.getRequest().getBillingItems().iterator(); j.hasNext();){
               BillingItem bi = (BillingItem)j.next();
               if(!bi.getCodeBillingStatus().equals(BillingStatus.APPROVED) && !bi.getCodeBillingStatus().equals(BillingStatus.APPROVED_PO) && !bi.getCodeBillingStatus().equals(BillingStatus.APPROVED_CC))

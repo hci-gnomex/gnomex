@@ -804,6 +804,7 @@
 			<url-pattern>/MovePriceCategory.gx</url-pattern>
 			<url-pattern>/OrganizeExperimentUploadFiles.gx</url-pattern>
 			<url-pattern>/ReassignBillingAccount.gx</url-pattern>
+			<url-pattern>/SendBillingInvoiceEmail.gx</url-pattern>
 			<url-pattern>/ShowAnalysisDownloadForm.gx</url-pattern>
 			<url-pattern>/ShowBillingGLInterface.gx</url-pattern>
 			<url-pattern>/ShowBillingInvoiceForm.gx</url-pattern>

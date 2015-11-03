@@ -1331,7 +1331,7 @@
 				if (this.invoiceBillingAccountList == null || this.invoiceBillingAccountList.length == 0) {
 					Alert.show("Please choose at least one billing account.");
 				}
-				var showUrl:URLRequest = new URLRequest('ShowBillingInvoiceFormNew.gx' +
+				var showUrl:URLRequest = new URLRequest('ShowBillingInvoiceForm.gx' +
 					'?idBillingPeriod=' + invoiceBillingPeriod.@idBillingPeriod + 
 					'&idLabs=' + this.invoiceLabList +
 					'&idCoreFacility=' + this.getSelectedInvoiceCoreFacility().@idCoreFacility +

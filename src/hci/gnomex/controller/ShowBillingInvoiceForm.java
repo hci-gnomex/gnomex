@@ -2,892 +2,559 @@ package hci.gnomex.controller;
 
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
-import hci.framework.security.UnknownPermissionException;
-import hci.gnomex.constants.Constants;
 import hci.gnomex.model.BillingAccount;
 import hci.gnomex.model.BillingItem;
 import hci.gnomex.model.BillingPeriod;
 import hci.gnomex.model.BillingStatus;
 import hci.gnomex.model.CoreFacility;
 import hci.gnomex.model.DiskUsageByMonth;
-import hci.gnomex.model.Invoice;
 import hci.gnomex.model.Lab;
 import hci.gnomex.model.ProductLineItem;
 import hci.gnomex.model.ProductOrder;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.Request;
 import hci.gnomex.security.SecurityAdvisor;
-import hci.gnomex.utility.BillingInvoiceEmailFormatter;
-import hci.gnomex.utility.BillingInvoiceHTMLFormatter;
+import hci.gnomex.utility.BillingPDFFormatter;
 import hci.gnomex.utility.DictionaryHelper;
-import hci.gnomex.utility.MailUtil;
-import hci.gnomex.utility.MailUtilHelper;
 import hci.gnomex.utility.PropertyDictionaryHelper;
+import hci.report.constants.ReportFormats;
+import hci.report.model.ReportTray;
+import hci.report.utility.ReportCommand;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.Serializable;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 
-import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.hibernate.Query;
 import org.hibernate.Session;
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.output.XMLOutputter;
-
-
-public class ShowBillingInvoiceForm extends GNomExCommand implements Serializable {
-
-  private static final String     ACTION_SHOW  = "show";
-  private static final String     ACTION_EMAIL = "email";
-  public static final String      DISK_USAGE_NUMBER_PREFIX = "ZZZZDiskUsage"; // Leading Z's to make it sort last.
-  public static final String      PRODUCT_ORDER_NUMBER_PREFIX = "ZZZZProductOrder"; // Leading Z's to make it sort last.
-
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(ShowBillingInvoiceForm.class);  
-
-  public String SUCCESS_JSP = "/getHTML.jsp";
-
-  private String           serverName;
-
-  private Integer          idLab;
-  private Integer          idBillingAccount;
-  private Integer          idBillingPeriod;
-  private Integer          idCoreFacility;
-  private String           action = "show";
-  private String           emailAddress = null;
-  private Boolean          respondInHTML = false;
-  private String           idLabs;
-  private String           idBillingAccounts;
-  
-  private boolean		   includeBillingAccountContact = false;
-
-  public void validate() {
-  }
-
-  public void loadCommand(HttpServletRequest request, HttpSession session) {
-
-    if (request.getParameter("idLabs") != null && !request.getParameter("idLabs").equals("")) {
-      idLabs = request.getParameter("idLabs");
-
-      if(request.getParameter("idBillingPeriod") != null && !request.getParameter("idBillingPeriod").equals("")){
-        idBillingPeriod = new Integer(request.getParameter("idBillingPeriod"));
-      } else {
-        this.addInvalidField("idBillingPeriod", "idBillingPeriod is required");
-      }
-
-      if(request.getParameter("idCoreFacility") != null && !request.getParameter("idCoreFacility").equals("")){
-        idCoreFacility = new Integer(request.getParameter("idCoreFacility"));
-      } else {
-        this.addInvalidField("idCoreFacility", "idCoreFacility is required");
-      }
-
-      if(request.getParameter("idBillingAccounts") != null && !request.getParameter("idBillingAccounts").equals("")){
-        idBillingAccounts = request.getParameter("idBillingAccounts");
-      }
-
-      if (request.getParameter("action") != null && !request.getParameter("action").equals("")) {
-        action = request.getParameter("action");
-      }
-    }
-
-    if(idLabs == null){
-      if (request.getParameter("idLab") != null) {
-        idLab = new Integer(request.getParameter("idLab"));
-      } else {
-        this.addInvalidField("idLab", "idLab is required");
-      }
-      if (request.getParameter("idBillingAccount") != null && request.getParameter("idBillingAccount").length() > 0) {
-        idBillingAccount = new Integer(request.getParameter("idBillingAccount"));
-      } else {
-        this.addInvalidField("idBillingAccount", "idBillingAccount is required");
-      }
-      if (request.getParameter("idBillingPeriod") != null) {
-        idBillingPeriod = new Integer(request.getParameter("idBillingPeriod"));
-      } else {
-        this.addInvalidField("idBillingPeriod", "idBillingPeriod is required");
-      }
-      if (request.getParameter("idCoreFacility") != null) {
-        idCoreFacility = new Integer(request.getParameter("idCoreFacility"));
-      } else {
-        this.addInvalidField("idCoreFacility", "idCoreFacility is required");
-      }
-      if (request.getParameter("action") != null && !request.getParameter("action").equals("")) {
-        action = request.getParameter("action");
-      }
-      if (request.getParameter("emailAddress") != null && !request.getParameter("emailAddress").equals("")) {
-        emailAddress = request.getParameter("emailAddress");
-      }
-      if (request.getParameter("respondInHTML") != null && request.getParameter("respondInHTML").equals("Y")) {
-        respondInHTML = true;
-      }
-    }
-    
-    if (request.getParameter("includeBillingAccountContact") != null && request.getParameter("includeBillingAccountContact").trim().equals("Y")) {
-    	includeBillingAccountContact = true;
-    }
-    
-    serverName = request.getServerName();
-  }
-
-  public Command execute() throws RollBackCommandException {
-
-    try {
-
-
-      Session sess = this.getSecAdvisor().getHibernateSession(this.getUsername());
-
-
-      DictionaryHelper dh = DictionaryHelper.getInstance(sess);
-
-
-
-      if (this.isValid()) {
-        if (this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_MANAGE_BILLING)) { 
-
-          if(idLabs != null){
-            String[] labs = idLabs.split(",");
-            String[] billingAccounts = idBillingAccounts.split(",");
-            if (action.equals(ACTION_SHOW)) {
-              this.makeInvoiceReports(sess, labs, billingAccounts);
-            }
-          }
-
-          else{
-            BillingPeriod billingPeriod = dh.getBillingPeriod(idBillingPeriod);
-            Lab lab = (Lab)sess.get(Lab.class, idLab);
-            BillingAccount billingAccount = (BillingAccount)sess.get(BillingAccount.class, idBillingAccount);
-            CoreFacility coreFacility = (CoreFacility)sess.get(CoreFacility.class, idCoreFacility);
-            String queryString = "from Invoice where idBillingPeriod=:idBillingPeriod and idBillingAccount=:idBillingAccount and idCoreFacility=:idCoreFacility";
-            Query query = sess.createQuery(queryString);
-            query.setParameter("idBillingPeriod", billingPeriod.getIdBillingPeriod());
-            query.setParameter("idBillingAccount", billingAccount.getIdBillingAccount());
-            query.setParameter("idCoreFacility", coreFacility.getIdCoreFacility());
-            Invoice invoice = (Invoice)query.uniqueResult();
-
-            TreeMap requestMap = new TreeMap();
-            TreeMap billingItemMap = new TreeMap();
-            TreeMap relatedBillingItemMap = new TreeMap();
-            cacheBillingItemMap(sess, this.getSecAdvisor(), idBillingPeriod, idLab, idBillingAccount, idCoreFacility, billingItemMap, relatedBillingItemMap, requestMap);
-
-
-            if (action.equals(ACTION_SHOW)) {
-              this.makeInvoiceReport(sess, billingPeriod, lab, billingAccount, invoice, billingItemMap, relatedBillingItemMap, requestMap);
-            } else if (action.equals(ACTION_EMAIL)) {
-              String contactEmail = this.emailAddress;
-              if (contactEmail == null) {
-                contactEmail = lab.getBillingNotificationEmail();
-              }
-              this.sendInvoiceEmail(sess, contactEmail, coreFacility, billingPeriod, lab, billingAccount, billingItemMap, relatedBillingItemMap, requestMap);
-            }
-
-            else {
-              this.addInvalidField("Insufficient permissions", "Insufficient permission to show flow cell report.");
-            }
-          }
-
-          if (isValid()) {
-            setResponsePage(this.SUCCESS_JSP);
-          } else {
-            setResponsePage(this.ERROR_JSP);
-          }
-        }
-      }
-
-
-    }catch (UnknownPermissionException e){
-      log.error("An exception has occurred in ShowBillingInvoiceForm ", e);
-      e.printStackTrace();
-      throw new RollBackCommandException(e.getMessage());
-
-    }catch (NamingException e){
-      log.error("An exception has occurred in ShowBillingInvoiceForm ", e);
-      e.printStackTrace();
-      throw new RollBackCommandException(e.getMessage());
-
-    }catch (SQLException e) {
-      log.error("An exception has occurred in ShowBillingInvoiceForm ", e);
-      e.printStackTrace();
-      throw new RollBackCommandException(e.getMessage());
-
-    } catch (Exception e) {
-      log.error("An exception has occurred in ShowBillingInvoiceForm ", e);
-      e.printStackTrace();
-      throw new RollBackCommandException(e.getMessage());
-    } finally {
-      try {
-        this.getSecAdvisor().closeHibernateSession();    
-      } catch(Exception e) {
-
-      }
-    }
-
-    return this;
-  }
-
-
-  public static void cacheBillingItemMap(Session sess, SecurityAdvisor secAdvisor, Integer idBillingPeriod, Integer idLab, Integer idBillingAccount, Integer idCoreFacility, Map billingItemMap, Map relatedBillingItemMap, Map requestMap)
-  throws Exception {
-    cacheRequestBillingItemMap(sess, secAdvisor, idBillingPeriod, idLab, idBillingAccount, idCoreFacility, billingItemMap, relatedBillingItemMap, requestMap);
-    cacheDiskUsageBillingItemMap(sess, secAdvisor, idBillingPeriod, idLab, idBillingAccount, idCoreFacility, billingItemMap, relatedBillingItemMap, requestMap);
-    cacheProductOrderBillingItemMap(sess, secAdvisor, idBillingPeriod, idLab, idBillingAccount, idCoreFacility, billingItemMap, relatedBillingItemMap, requestMap);
-  }
-
-  public static void cacheRequestBillingItemMap(Session sess, SecurityAdvisor secAdvisor, Integer idBillingPeriod, Integer idLab, Integer idBillingAccount, Integer idCoreFacility, Map billingItemMap, Map relatedBillingItemMap, Map requestMap)
-  throws Exception {
-    StringBuffer buf = new StringBuffer();
-    buf.append("SELECT req, bi ");
-    buf.append("FROM   Request req ");
-    buf.append("JOIN   req.billingItems bi ");
-    buf.append("WHERE  bi.idLab = " + idLab + " ");
-    buf.append("AND    bi.idBillingAccount = " + idBillingAccount + " ");
-    buf.append("AND    bi.idBillingPeriod = " + idBillingPeriod + " ");
-    buf.append("AND    bi.idCoreFacility = " + idCoreFacility + " ");
-    buf.append("AND    bi.codeBillingStatus in ('" + BillingStatus.COMPLETED + "', '" + BillingStatus.APPROVED + "', '" + BillingStatus.APPROVED_CC + "', '" + BillingStatus.APPROVED_PO + "')");
-
-    if (!secAdvisor.hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
-      buf.append(" AND ");
-      secAdvisor.appendCoreFacilityCriteria(buf, "bi");
-      buf.append(" ");
-    }
-
-    buf.append("ORDER BY req.number, bi.idBillingItem ");
-
-    List results = sess.createQuery(buf.toString()).list();
-
-
-    for(Iterator i = results.iterator(); i.hasNext();) {
-      Object[] row = (Object[])i.next();
-      Request req    =  (Request)row[0];
-      BillingItem bi =  (BillingItem)row[1];
-
-      // Exclude any requests that are have
-      // pending billing items.
-      boolean hasPendingItems = false;
-      for(Iterator i1 = req.getBillingItems().iterator(); i1.hasNext();) {
-        BillingItem item = (BillingItem)i1.next();
-
-        if (item.getIdBillingPeriod().equals(idBillingPeriod) &&
-            item.getIdBillingAccount().equals(idBillingAccount)) {
-          if (item.getCodeBillingStatus().equals(BillingStatus.PENDING)) {
-            hasPendingItems = true;
-            break;
-          }          
-        }
-      }
-      if (hasPendingItems) {
-        continue;
-      }
-
-
-      requestMap.put(req.getNumber(), req);
-
-      List billingItems = (List)billingItemMap.get(req.getNumber());
-      if (billingItems == null) {
-        billingItems = new ArrayList();
-        billingItemMap.put(req.getNumber(), billingItems);
-      }
-      billingItems.add(bi);
-    }    
-
-    buf = new StringBuffer();
-    buf.append("SELECT req, bi ");
-    buf.append("FROM   Request req ");
-    buf.append("JOIN   req.billingItems bi ");
-    buf.append("WHERE  bi.idBillingAccount != " + idBillingAccount + " ");
-    buf.append("AND    bi.idBillingPeriod = " + idBillingPeriod + " ");
-
-    if(requestMap.keySet().iterator().hasNext()){
-      buf.append("AND    bi.idRequest in (");
-      Boolean first = true;
-      for(Iterator i = requestMap.keySet().iterator(); i.hasNext();) {
-        String requestNumber = (String)i.next();      
-        Request request = (Request)requestMap.get(requestNumber);
-        if (!first) {
-          buf.append(", ");
-        }
-        first = false;
-        buf.append(request.getIdRequest().toString());
-      }
-      buf.append(")");
-    }
-
-    if (!secAdvisor.hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
-      buf.append(" AND ");
-      secAdvisor.appendCoreFacilityCriteria(buf, "req");
-      buf.append(" ");
-    }
-
-    buf.append(" ORDER BY req.number, bi.idBillingAccount, bi.idBillingItem ");
-
-    results = sess.createQuery(buf.toString()).list();
-
-    for(Iterator i = results.iterator(); i.hasNext();) {
-      Object[] row = (Object[])i.next();
-      Request req    =  (Request)row[0];
-      BillingItem bi =  (BillingItem)row[1];
-
-      List billingItems = (List)relatedBillingItemMap.get(req.getNumber());
-      if (billingItems == null) {
-        billingItems = new ArrayList();
-        relatedBillingItemMap.put(req.getNumber(), billingItems);
-      }
-      billingItems.add(bi);
-    }    
-  }
-
-  public static void cacheDiskUsageBillingItemMap(Session sess, SecurityAdvisor secAdvisor, Integer idBillingPeriod, Integer idLab, Integer idBillingAccount, Integer idCoreFacility, Map billingItemMap, Map relatedBillingItemMap, Map requestMap)
-  throws Exception {
-    StringBuffer buf = new StringBuffer();
-    buf.append("SELECT dsk, bi ");
-    buf.append("FROM   DiskUsageByMonth dsk ");
-    buf.append("JOIN   dsk.billingItems bi ");
-    buf.append("WHERE  bi.idLab = " + idLab + " ");
-    buf.append("AND    bi.idBillingAccount = " + idBillingAccount + " ");
-    buf.append("AND    bi.idBillingPeriod = " + idBillingPeriod + " ");
-    buf.append("AND    bi.idCoreFacility = " + idCoreFacility + " ");
-    buf.append("AND    bi.codeBillingStatus in ('" + BillingStatus.COMPLETED + "', '" + BillingStatus.APPROVED + "', '" + BillingStatus.APPROVED_CC + "', '" + BillingStatus.APPROVED_PO + "')");
-
-    if (!secAdvisor.hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
-      buf.append(" AND ");
-      secAdvisor.appendCoreFacilityCriteria(buf, "bi");
-      buf.append(" ");
-    }
-
-    buf.append("ORDER BY dsk.idDiskUsageByMonth, bi.idBillingItem ");
-
-    List results = sess.createQuery(buf.toString()).list();
-
-
-    for(Iterator i = results.iterator(); i.hasNext();) {
-      Object[] row = (Object[])i.next();
-      DiskUsageByMonth dsk    =  (DiskUsageByMonth)row[0];
-      BillingItem bi          =  (BillingItem)row[1];
-
-      // Exclude any disk usage that have
-      // pending billing items.  (shouldn't be any)
-      boolean hasPendingItems = false;
-      for(Iterator i1 = dsk.getBillingItems().iterator(); i1.hasNext();) {
-        BillingItem item = (BillingItem)i1.next();
-
-        if (item.getIdBillingPeriod().equals(idBillingPeriod) &&
-            item.getIdBillingAccount().equals(idBillingAccount)) {
-          if (item.getCodeBillingStatus().equals(BillingStatus.PENDING)) {
-            hasPendingItems = true;
-            break;
-          }          
-        }
-      }
-      if (hasPendingItems) {
-        continue;
-      }
-
-      String diskUsageNumber = DISK_USAGE_NUMBER_PREFIX + dsk.getIdDiskUsageByMonth().toString();
-      requestMap.put(diskUsageNumber, dsk);
-
-      List billingItems = (List)billingItemMap.get(diskUsageNumber);
-      if (billingItems == null) {
-        billingItems = new ArrayList();
-        billingItemMap.put(diskUsageNumber, billingItems);
-      }
-      billingItems.add(bi);
-    }    
-  }
-
-  public static void cacheProductOrderBillingItemMap(Session sess, SecurityAdvisor secAdvisor, Integer idBillingPeriod, Integer idLab, Integer idBillingAccount, Integer idCoreFacility, Map billingItemMap, Map relatedBillingItemMap, Map requestMap)
-  throws Exception {
-    StringBuffer buf = new StringBuffer();
-    buf.append("SELECT pli, po, bi ");
-    buf.append("FROM   ProductLineItem pli ");
-    buf.append("JOIN   pli.productOrder po ");
-    buf.append("JOIN   po.billingItems bi ");
-    buf.append("WHERE  bi.idLab = " + idLab + " ");
-    buf.append("AND    bi.idBillingAccount = " + idBillingAccount + " ");
-    buf.append("AND    bi.idBillingPeriod = " + idBillingPeriod + " ");
-    buf.append("AND    bi.idCoreFacility = " + idCoreFacility + " ");
-    buf.append("AND    bi.codeBillingStatus in ('" + BillingStatus.COMPLETED + "', '" + BillingStatus.APPROVED + "', '" + BillingStatus.APPROVED_CC + "', '" + BillingStatus.APPROVED_PO + "')");
-
-    if (!secAdvisor.hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
-      buf.append(" AND ");
-      secAdvisor.appendCoreFacilityCriteria(buf, "po");
-      buf.append(" ");
-    }
-
-    buf.append("ORDER BY po.productOrderNumber, bi.idBillingItem ");
-
-    List results = sess.createQuery(buf.toString()).list();
-
-
-    for(Iterator i = results.iterator(); i.hasNext();) {
-      Object[] row = (Object[])i.next();
-      ProductLineItem pli     = (ProductLineItem)row[0];
-      ProductOrder po         = (ProductOrder)row[1];
-      BillingItem bi          =  (BillingItem)row[2];
-
-      // Exclude any disk usage that have
-      // pending billing items.  (shouldn't be any)
-      boolean hasPendingItems = false;
-      for(Iterator i1 = po.getBillingItems().iterator(); i1.hasNext();) {
-        BillingItem item = (BillingItem)i1.next();
-
-        if (item.getIdBillingPeriod().equals(idBillingPeriod) &&
-            item.getIdBillingAccount().equals(idBillingAccount)) {
-          if (item.getCodeBillingStatus().equals(BillingStatus.PENDING)) {
-            hasPendingItems = true;
-            break;
-          }          
-        }
-      }
-      if (hasPendingItems) {
-        continue;
-      }
-
-      String productOrderNumber = PRODUCT_ORDER_NUMBER_PREFIX + po.getProductOrderNumber().toString();
-      requestMap.put(productOrderNumber, po);
-
-      List billingItems = (List)billingItemMap.get(productOrderNumber);
-      if (billingItems == null) {
-        billingItems = new ArrayList();
-        billingItemMap.put(productOrderNumber, billingItems);
-      }
-      billingItems.add(bi);
-    } 
-
-  }
-
-  private void makeInvoiceReport(Session sess, BillingPeriod billingPeriod, 
-      Lab lab, BillingAccount billingAccount, Invoice invoice,
-      Map billingItemMap, Map relatedBillingItemMap, Map requestMap) throws Exception {
-
-    DictionaryHelper dh = DictionaryHelper.getInstance(sess);
-    CoreFacility cf = (CoreFacility)sess.load(CoreFacility.class, idCoreFacility);
-    BillingInvoiceHTMLFormatter formatter = new BillingInvoiceHTMLFormatter(
-        cf.getFacilityName(),
-        cf.getContactName(),
-        cf.getContactPhone(),
-        PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.INVOICE_NOTE_1),
-        PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.INVOICE_NOTE_2),
-        billingPeriod, 
-        lab, billingAccount, invoice, billingItemMap, relatedBillingItemMap, requestMap,
-        PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.CONTACT_ADDRESS_CORE_FACILITY),
-        PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.CONTACT_REMIT_ADDRESS_CORE_FACILITY),
-        PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.CORE_BILLING_OFFICE));
-
-    Element root = new Element("HTML");
-    Document doc = new Document(root);
-
-    Element head = new Element("HEAD");
-    root.addContent(head);
-
-    Element link = new Element("link");
-    link.setAttribute("rel", "stylesheet");
-    link.setAttribute("type", "text/css");
-    link.setAttribute("href", Constants.INVOICE_FORM_CSS);
-    head.addContent(link);
-
-    Element title = new Element("TITLE");
-    title.addContent("Billing Invoice - " + lab.getName(false, true) + 
-        " " + billingAccount.getAccountName());
-    head.addContent(title);
-
-    Element body = new Element("BODY");
-    root.addContent(body);
-
-
-    Element center = new Element("CENTER");
-    body.addContent(center);
-
-
-    // Show print and email link
-    Element emailLink = new Element("A");
-    emailLink.setAttribute("HREF",
-        "ShowBillingInvoiceForm.gx?idLab=" + idLab +
-        "&idBillingAccount=" + idBillingAccount + 
-        "&idBillingPeriod=" + idBillingPeriod +
-        "&idCoreFacility=" + idCoreFacility +
-        "&action=" + ACTION_EMAIL +
-    "&respondInHTML=Y");
-    String contactEmail = lab.getBillingNotificationEmail();
-    if (contactEmail == null || contactEmail.equals("")) {
-      contactEmail = "billing contact";
-    }
-    emailLink.addContent(contactEmail);
-
-    Element linkTable = new Element("TABLE");   
-    Element row = new Element("TR");
-    linkTable.addContent(row);
-
-    Element cell = new Element("TD");
-    cell.setAttribute("ALIGN", "RIGHT");
-    row.addContent(cell);
-    cell.addContent(emailLink);    
-
-    center.addContent(linkTable);
-
-
-
-    Element center1 = new Element("CENTER");
-    body.addContent(center1);
-
-    center1.addContent(formatter.makeHeader(sess));
-
-    body.addContent(new Element("BR"));
-
-    Element center2 = new Element("CENTER");
-    body.addContent(center2);
-
-    if (!billingItemMap.isEmpty()) {
-      center2.addContent(formatter.makeDetail());          
-    }
-
-    if(billingAccount.getIdCoreFacility().intValue() == CoreFacility.CORE_FACILITY_DNA_SEQ_ID.intValue() && billingAccount.getIsPO().equals("Y") && billingAccount.getIsCreditCard().equals("N")){
-      body.addContent(new Element("BR"));
-      Element hr = new Element("HR");
-      hr.setAttribute("style", "border-style:dashed");
-      hr.setAttribute("align", "center");
-      hr.setAttribute("width", "50%");
-      body.addContent(hr);
-      Element p = new Element("P");
-      p.setAttribute("align", "center");
-      p.addContent("To ensure proper credit, please return this portion with your payment to University of Utah");
-      body.addContent(p);
-      body.addContent(new Element("BR"));
-
-      Element wrapDiv = new Element("DIV");
-      wrapDiv.setAttribute("class", "wrap");
-
-      Element remitAddressDiv = new Element("DIV");
-      remitAddressDiv.setAttribute("class", "remitAddress");
-      Element h3 = new Element("H3");
-      Element u = new Element("U");
-      u.addContent("REMITTANCE ADVICE");
-      h3.addContent(u);
-      remitAddressDiv.addContent(h3);
-      Element h5 = new Element("H5");
-      h5.addContent("Your payment is due upon receipt");
-      remitAddressDiv.addContent(h5);
-      remitAddressDiv.addContent(formatter.makeRemittanceAddress());
-
-      wrapDiv.addContent(remitAddressDiv);
-
-      Element labAddressDiv = new Element("DIV");
-      labAddressDiv.setAttribute("class", "labAddress");
-      String useInvoiceNumbering = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(cf.getIdCoreFacility(), PropertyDictionary.USE_INVOICE_NUMBERING);
-      if (invoice != null && (useInvoiceNumbering == null || !useInvoiceNumbering.equals("N"))) {
-    	  Element p1 = new Element("P");
-          Element b = new Element("B");
-          b.addContent("Invoice Number: " + invoice.getInvoiceNumber());
-          p1.addContent(b);
-          labAddressDiv.addContent(p1);  
-      }
-      Element p2 = new Element("P");
-      Element b1 = new Element("B");
-      b1.addContent("Amount Due: " + formatter.getGrandTotal());
-      p2.addContent(b1);
-      labAddressDiv.addContent(p2);
-      labAddressDiv.addContent(formatter.makeLabAddress());
-
-      wrapDiv.addContent(labAddressDiv);
-      body.addContent(wrapDiv);
-    }
-
-
-
-    XMLOutputter out = new org.jdom.output.XMLOutputter();
-    out.setOmitEncoding(true);
-    this.xmlResult = out.outputString(doc);
-    this.xmlResult = this.xmlResult.replaceAll("&amp;", "&");
-    this.xmlResult = this.xmlResult.replaceAll("�",     "&micro");
-
-  }
-
-  private void makeInvoiceReports(Session sess, String[] labs, String[] billingAccounts) throws Exception {
-    Element root = new Element("HTML");
-    Document doc = new Document(root);
-
-    CoreFacility cf = (CoreFacility)sess.load(CoreFacility.class, idCoreFacility);
-
-    Element head = new Element("HEAD");
-    root.addContent(head);
-
-    Element link = new Element("link");
-    link.setAttribute("rel", "stylesheet");
-    link.setAttribute("type", "text/css");
-    link.setAttribute("href", Constants.INVOICE_FORM_CSS);
-    head.addContent(link);
-
-    Element title = new Element("TITLE");
-    title.addContent("Billing Invoices");
-    head.addContent(title);
-
-    Element body = new Element("BODY");
-    root.addContent(body);
-    DictionaryHelper dh = DictionaryHelper.getInstance(sess);
-
-    for(int i = 0; i < labs.length; i++){
-      idLab = new Integer(labs[i]);
-      BillingPeriod billingPeriod = dh.getBillingPeriod(idBillingPeriod);
-      Lab lab = (Lab)sess.get(Lab.class, idLab);
-      BillingAccount billingAccount = (BillingAccount) sess.get(BillingAccount.class, new Integer(billingAccounts[i]));
-      idBillingAccount = new Integer(billingAccounts[i]);
-      CoreFacility coreFacility = (CoreFacility)sess.get(CoreFacility.class, new Integer(idCoreFacility));
-      String queryString = "from Invoice where idBillingPeriod=:idBillingPeriod and idBillingAccount=:idBillingAccount and idCoreFacility=:idCoreFacility";
-      Query query = sess.createQuery(queryString);
-      query.setParameter("idBillingPeriod", billingPeriod.getIdBillingPeriod());
-      query.setParameter("idBillingAccount", billingAccount.getIdBillingAccount());
-      query.setParameter("idCoreFacility", coreFacility.getIdCoreFacility());
-      Invoice invoice = (Invoice)query.uniqueResult();
-
-      TreeMap requestMap = new TreeMap();
-      TreeMap billingItemMap = new TreeMap();
-      TreeMap relatedBillingItemMap = new TreeMap();
-      cacheBillingItemMap(sess, this.getSecAdvisor(), idBillingPeriod, idLab, idBillingAccount, idCoreFacility, billingItemMap, relatedBillingItemMap, requestMap);
-
-      BillingInvoiceHTMLFormatter formatter = new BillingInvoiceHTMLFormatter(
-          cf.getFacilityName(),
-          cf.getContactName(),
-          cf.getContactPhone(),
-          PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.INVOICE_NOTE_1),
-          PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.INVOICE_NOTE_2),
-          billingPeriod, 
-          lab, billingAccount, invoice, billingItemMap, relatedBillingItemMap, requestMap,
-          PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.CONTACT_ADDRESS_CORE_FACILITY),
-          PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.CONTACT_REMIT_ADDRESS_CORE_FACILITY),
-          PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.CORE_BILLING_OFFICE));
-
-
-      Element center1 = new Element("CENTER");
-      body.addContent(center1);
-
-      center1.addContent(formatter.makeHeader(sess));
-
-      body.addContent(new Element("BR"));
-
-      Element center2 = new Element("CENTER");
-      body.addContent(center2);
-
-      if (!billingItemMap.isEmpty()) {
-        center2.addContent(formatter.makeDetail());          
-      }
-
-      if(billingAccount.getIdCoreFacility().intValue() == CoreFacility.CORE_FACILITY_DNA_SEQ_ID.intValue() && billingAccount.getIsPO().equals("Y") && billingAccount.getIsCreditCard().equals("N")){
-        body.addContent(new Element("BR"));
-        Element hr = new Element("HR");
-        hr.setAttribute("style", "border-style:dashed");
-        hr.setAttribute("align", "center");
-        hr.setAttribute("width", "50%");
-        body.addContent(hr);
-        Element p = new Element("P");
-        p.setAttribute("align", "center");
-        p.addContent("To ensure proper credit, please return this portion with your payment to University of Utah");
-        body.addContent(p);
-        body.addContent(new Element("BR"));
-
-        Element wrapDiv = new Element("DIV");
-        wrapDiv.setAttribute("class", "wrap");
-
-        Element remitAddressDiv = new Element("DIV");
-        remitAddressDiv.setAttribute("class", "remitAddress");
-        Element h3 = new Element("H3");
-        Element u = new Element("U");
-        u.addContent("REMITTANCE ADVICE");
-        h3.addContent(u);
-        remitAddressDiv.addContent(h3);
-        Element h5 = new Element("H5");
-        h5.addContent("Your payment is due upon receipt");
-        remitAddressDiv.addContent(h5);
-        remitAddressDiv.addContent(formatter.makeRemittanceAddress());
-
-        wrapDiv.addContent(remitAddressDiv);
-
-        Element labAddressDiv = new Element("DIV");
-        labAddressDiv.setAttribute("class", "labAddress");
-        String useInvoiceNumbering = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(cf.getIdCoreFacility(), PropertyDictionary.USE_INVOICE_NUMBERING);
-        if (invoice != null && (useInvoiceNumbering == null || !useInvoiceNumbering.equals("N"))) {
-        	Element p1 = new Element("P");
-            Element b = new Element("B");
-            b.addContent("Invoice Number: " + invoice.getInvoiceNumber());
-            p1.addContent(b);
-            labAddressDiv.addContent(p1);
-        }
-        Element p2 = new Element("P");
-        Element b1 = new Element("B");
-        b1.addContent("Amount Due: " + formatter.getGrandTotal());
-        p2.addContent(b1);
-        labAddressDiv.addContent(p2);
-        labAddressDiv.addContent(formatter.makeLabAddress());
-
-        wrapDiv.addContent(labAddressDiv);
-        body.addContent(wrapDiv);
-      }
-
-      if(i != labs.length - 1){
-        Element p3 = new Element("P");
-        p3.setAttribute("style", "page-break-after:always");
-        body.addContent(p3);
-      }
-
-    }
-
-    XMLOutputter out = new org.jdom.output.XMLOutputter();
-    out.setOmitEncoding(true);
-    this.xmlResult = out.outputString(doc);
-    this.xmlResult = this.xmlResult.replaceAll("&amp;", "&");
-    this.xmlResult = this.xmlResult.replaceAll("�",     "&micro");
-
-  }
-
-  private void sendInvoiceEmail(Session sess, String contactEmail, CoreFacility coreFacility,
-      BillingPeriod billingPeriod, Lab lab,
-      BillingAccount billingAccount, Map billingItemMap, Map relatedBillingItemMap,
-      Map requestMap) throws Exception {
-
-    DictionaryHelper dh = DictionaryHelper.getInstance(sess);
-
-    String queryString="from Invoice where idCoreFacility=:idCoreFacility and idBillingPeriod=:idBillingPeriod and idBillingAccount=:idBillingAccount";
-    Query query = sess.createQuery(queryString);
-    query.setParameter("idCoreFacility", idCoreFacility);
-    query.setParameter("idBillingPeriod", idBillingPeriod);
-    query.setParameter("idBillingAccount", idBillingAccount);
-    Invoice invoice = (Invoice)query.uniqueResult();
-    BillingInvoiceEmailFormatter emailFormatter = new BillingInvoiceEmailFormatter(sess, coreFacility,
-        billingPeriod, lab, billingAccount, invoice, billingItemMap, relatedBillingItemMap, requestMap);
-    String subject = emailFormatter.getSubject();
-    String body = emailFormatter.format();
-
-    String note = "";
-    boolean send = false;
-    String emailRecipients = contactEmail;
-    if (includeBillingAccountContact && billingAccount.getLab() != null && !lab.getIdLab().equals(billingAccount.getLab().getIdLab())) {
-    	emailRecipients = appendBillingAccountLabEmail(emailRecipients, billingAccount);  
-    }
-    String ccList = emailFormatter.getCCList(sess);
-    String fromAddress = coreFacility.getContactEmail();
-    if(emailRecipients.contains(",")){
-        for(String e : emailRecipients.split(",")){
-          if(!MailUtil.isValidEmail(e.trim())){
-            log.error("Invalid email address " + e);
-          }
-        }
-    } else if(!MailUtil.isValidEmail(emailRecipients)){
-        log.error("Invalid email address " + emailRecipients);
-    }
-    if (emailRecipients != null && !emailRecipients.equals("")) {
-      send = true;     
-    } else {
-      note = "Unable to email billing invoice. Billing contact email is blank for " + lab.getName(false, true);
-    }
-
-    Map[] billingItemMaps = {billingItemMap};
-    Map[] relatedBillingItemMaps = {relatedBillingItemMap};
-    Map[] requestMaps = {requestMap};
-    
-    if (send) {
-      if(!MailUtil.isValidEmail(fromAddress)){
-        fromAddress = DictionaryHelper.getInstance(sess).getPropertyDictionary(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
-      }
-      try {
-    	File billingInvoice = ShowBillingInvoiceFormNew.makePDFBillingInvoice(sess, serverName, billingPeriod, coreFacility, false, lab, 
-    																			new Lab[0], billingAccount, new BillingAccount[0], 
-    																			PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(coreFacility.getIdCoreFacility(), PropertyDictionary.CONTACT_ADDRESS_CORE_FACILITY), 
-    																			PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(coreFacility.getIdCoreFacility(), PropertyDictionary.CONTACT_REMIT_ADDRESS_CORE_FACILITY), 
-    																			billingItemMaps, relatedBillingItemMaps, requestMaps);
-    	
-    	MailUtilHelper helper = new MailUtilHelper(emailRecipients, ccList, null, fromAddress, subject, body, billingInvoice, true, dh, serverName);
-    	MailUtil.validateAndSendEmail(helper);
-        
-        billingInvoice.delete();
-
-        note = "Billing invoice emailed to " + emailRecipients + ".";
-
-        // Set last email date
-        if (invoice != null) {
-          invoice.setLastEmailDate(new java.sql.Date(System.currentTimeMillis()));
-          sess.save(invoice);
-          sess.flush();
-        }
-      } catch( Exception e) {
-        log.error("Unable to send invoice email to " + emailRecipients, e);
-        note = "Unable to email invoice to " + emailRecipients + " due to the following error: " + e.toString();        
-      } 
-    }
-    Document doc = null;
-    if (respondInHTML) {
-      if (note.length() == 0) {
-        note = "&nbsp";
-      }
-      Element root = new Element("HTML");
-      doc = new Document(root);
-
-      Element head = new Element("HEAD");
-      root.addContent(head);
-
-      Element link = new Element("link");
-      link.setAttribute("rel", "stylesheet");
-      link.setAttribute("type", "text/css");
-      link.setAttribute("href", "invoiceForm.css");
-      head.addContent(link);
-
-      Element title = new Element("TITLE");
-      title.addContent("Email Billing Invoice - " + lab.getName(false, true) + 
-          " " + billingAccount.getAccountName());
-      head.addContent(title);
-
-      Element responseBody = new Element("BODY");
-      root.addContent(responseBody);
-
-      Element h = new Element("H3");
-      h.addContent(note);   
-      responseBody.addContent(h);
-    } else {
-      Element root = new Element("BillingInvoiceEmail");
-      doc = new Document(root);
-      root.setAttribute("note", note);
-      root.setAttribute("title", "Email Billing Invoice - " + lab.getName(false, true) + " " + billingAccount.getAccountName());
-    }
-
-    XMLOutputter out = new org.jdom.output.XMLOutputter();
-    out.setOmitEncoding(true);
-    this.xmlResult = out.outputString(doc);
-  }  
-
-  private String appendBillingAccountLabEmail(String recipients, BillingAccount billingAccount) {
-	  StringBuffer allRecipients = new StringBuffer(recipients);
-	  
-	  if (allRecipients.length() > 0) {
-		  allRecipients.append(",");
-	  }
-	  
-	  Lab lab = billingAccount.getLab();
-	  if (lab.getBillingContactEmail() != null && !lab.getBillingContactEmail().equals("") && allRecipients.indexOf(lab.getBillingContactEmail()) == -1) {
-		  allRecipients.append(lab.getBillingContactEmail());
-	  } else if(lab.getContactEmail() != null && !lab.getContactEmail().equals("") && allRecipients.indexOf(lab.getContactEmail()) == -1) {
-		  allRecipients.append(lab.getContactEmail());
-	  }
-	  
-	  return allRecipients.toString();
-  }
-
-  /**
-   *  The callback method called after the loadCommand, and execute methods,
-   *  this method allows you to manipulate the HttpServletResponse object prior
-   *  to forwarding to the result JSP (add a cookie, etc.)
-   *
-   *@param  request  The HttpServletResponse for the command
-   *@return          The processed response
-   */
-  public HttpServletResponse setResponseState(HttpServletResponse response) {
-    return response;
-  } 
-
-
+import com.itextpdf.text.Document;
+import com.itextpdf.text.Element;
+import com.itextpdf.text.PageSize;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.pdf.PdfWriter;
+
+@SuppressWarnings("serial")
+public class ShowBillingInvoiceForm extends ReportCommand implements Serializable {
+	
+	public static final String      		DISK_USAGE_NUMBER_PREFIX 		= "ZZZZDiskUsage"; // Leading Z's to make it sort last
+	public static final String     			PRODUCT_ORDER_NUMBER_PREFIX 	= "ZZZZProductOrder"; // Leading Z's to make it sort last
+	
+	private static org.apache.log4j.Logger 	log = org.apache.log4j.Logger.getLogger(ShowBillingInvoiceForm.class);
+	
+	public String 							SUCCESS_JSP = "/form_pdf.jsp";
+	
+	private Integer 						idLab;
+	private Integer 						idBillingAccount;
+	private Integer 						idBillingPeriod;
+	private Integer 						idCoreFacility;
+	private String 							idLabs;
+	private String 							idBillingAccounts;
+	
+	private SecurityAdvisor 				secAdvisor;
+	private DictionaryHelper				dh;
+	private BillingPeriod 					billingPeriod;
+	private CoreFacility 					coreFacility;
+	
+	private boolean 						multipleLabs;
+	
+	private Lab 							lab;
+	private Lab[] 							labs;
+	private BillingAccount 					billingAccount;
+	private BillingAccount[] 				billingAccounts;
+	
+	@Override
+	public void validate() {
+	}
+	
+	@Override
+	public void loadCommand(HttpServletRequest request, HttpSession session) {
+		if (request.getParameter("idLabs") != null && !request.getParameter("idLabs").equals("")) {
+			idLabs = request.getParameter("idLabs");
+			
+			if (request.getParameter("idBillingPeriod") != null && !request.getParameter("idBillingPeriod").equals("")) {
+				idBillingPeriod = new Integer(request.getParameter("idBillingPeriod"));
+			} else {
+				this.addInvalidField("idBillingPeriod", "idBillingPeriod is required");
+			}
+			
+			if (request.getParameter("idCoreFacility") != null && !request.getParameter("idCoreFacility").equals("")) {
+				idCoreFacility = new Integer(request.getParameter("idCoreFacility"));
+			} else {
+				this.addInvalidField("idCoreFacility", "idCoreFacility is required");
+			}
+			
+			if (request.getParameter("idBillingAccounts") != null && !request.getParameter("idBillingAccounts").equals("")) {
+				idBillingAccounts = request.getParameter("idBillingAccounts");
+			}
+		}
+		
+		if (idLabs == null) {
+			if (request.getParameter("idLab") != null) {
+				idLab = new Integer(request.getParameter("idLab"));
+			} else {
+				this.addInvalidField("idLab", "idLab is required");
+			}
+			
+			if (request.getParameter("idBillingAccount") != null && request.getParameter("idBillingAccount").length() > 0) {
+				idBillingAccount = new Integer(request.getParameter("idBillingAccount"));
+			} else {
+				this.addInvalidField("idBillingAccount", "idBillingAccount is required");
+			}
+			
+			if (request.getParameter("idBillingPeriod") != null) {
+				idBillingPeriod = new Integer(request.getParameter("idBillingPeriod"));
+			} else {
+				this.addInvalidField("idBillingPeriod", "idBillingPeriod is required");
+			}
+			
+			if (request.getParameter("idCoreFacility") != null) {
+				idCoreFacility = new Integer(request.getParameter("idCoreFacility"));
+			} else {
+				this.addInvalidField("idCoreFacility", "idCoreFacility is required");
+			}
+		}
+		
+		secAdvisor = (SecurityAdvisor) session.getAttribute(SecurityAdvisor.SECURITY_ADVISOR_SESSION_KEY);
+	}	
+
+	@Override
+	public Command execute() throws RollBackCommandException { 
+		try {
+		    
+		    if (isValid()) {
+		    	
+		    	if (secAdvisor.hasPermission(SecurityAdvisor.CAN_MANAGE_BILLING)) {
+		    		
+		    		Session sess = secAdvisor.getHibernateSession(this.getUsername());
+		    		dh = DictionaryHelper.getInstance(sess);
+		    		billingPeriod = dh.getBillingPeriod(idBillingPeriod);
+		    		coreFacility = (CoreFacility) sess.get(CoreFacility.class, idCoreFacility);
+		    		
+		    		String title;
+		    		String fileName;
+		    		
+		    		Map[] billingItemMap;
+		    		Map[] relatedBillingItemMap;
+		    		Map[] requestMap;
+		    		
+		    		if (idLabs != null) {
+		    			multipleLabs = true;
+		    			
+		    			String[] labsAsString = idLabs.split(",");
+		    			labs = new Lab[labsAsString.length];
+		    			for (int i = 0; i < labsAsString.length; i++) {
+		    				labs[i] = (Lab) sess.get(Lab.class, new Integer(labsAsString[i]));
+		    			}
+		    			
+		                String[] billingAccountsAsString = idBillingAccounts.split(",");
+		                billingAccounts = new BillingAccount[billingAccountsAsString.length];
+		                for (int i = 0; i < billingAccountsAsString.length; i++) {
+		                	billingAccounts[i] = (BillingAccount) sess.get(BillingAccount.class, new Integer(billingAccountsAsString[i]));
+		                }
+		                
+		                lab = null;
+		                billingAccount = null;
+		                
+		                title = "Billing Invoices";
+		                fileName = "gnomex_billing_invoices";
+		                
+		                billingItemMap = new TreeMap[labs.length];
+			    		relatedBillingItemMap = new TreeMap[labs.length];
+			    		requestMap = new TreeMap[labs.length];
+			    		for (int i = 0; i < labs.length; i++) {
+			    			billingItemMap[i] = new TreeMap();
+				    		relatedBillingItemMap[i] = new TreeMap();
+				    		requestMap[i] = new TreeMap();
+			    			cacheBillingItemMaps(sess, secAdvisor, idBillingPeriod, labs[i].getIdLab(), billingAccounts[i].getIdBillingAccount(), idCoreFacility, billingItemMap[i], relatedBillingItemMap[i], requestMap[i]);
+			    		}
+		    		} else {
+		    			multipleLabs = false;
+		    			
+		    			lab = (Lab) sess.get(Lab.class, new Integer(idLab));
+		    			billingAccount = (BillingAccount) sess.get(BillingAccount.class, idBillingAccount);
+		    			
+		    			labs = null;
+		    			billingAccounts = null;
+		    			
+		    			title = "Billing Invoice - " + lab.getName(false, true) + " " + billingAccount.getAccountName();
+		    			fileName = "gnomex_billing_invoice";
+		    			
+		    			billingItemMap = new TreeMap[1];
+		    			billingItemMap[0] = new TreeMap();
+			    		relatedBillingItemMap = new TreeMap[1];
+			    		relatedBillingItemMap[0] = new TreeMap();
+			    		requestMap = new TreeMap[1];
+			    		requestMap[0] = new TreeMap();
+			    		cacheBillingItemMaps(sess, secAdvisor, idBillingPeriod, idLab, idBillingAccount, idCoreFacility, billingItemMap[0], relatedBillingItemMap[0], requestMap[0]);
+		    		}
+		    		
+		    		// Set up the ReportTray
+				    tray = new ReportTray();
+				    tray.setReportDate(new java.util.Date(System.currentTimeMillis()));
+				    tray.setReportTitle(title);
+				    tray.setReportDescription(title);
+				    tray.setFileName(fileName);
+				    tray.setFormat(ReportFormats.PDF);
+		    		
+		    		@SuppressWarnings("rawtypes")
+					java.util.List rows = new ArrayList();
+		    		
+		    		// Build PDF elements
+		    		BillingPDFFormatter formatter = new BillingPDFFormatter(
+		    				sess, 
+		    				billingPeriod, 
+		    				coreFacility, 
+		    				multipleLabs, 
+		    				lab, 
+		    				labs, 
+		    				billingAccount, 
+		    				billingAccounts, 
+		    				PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.CONTACT_ADDRESS_CORE_FACILITY),
+		    				PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility, PropertyDictionary.CONTACT_REMIT_ADDRESS_CORE_FACILITY),
+		    				coreFacility.getContactName(),
+		    				coreFacility.getContactPhone(),
+		    				billingItemMap,
+		    				relatedBillingItemMap,
+		    				requestMap);
+		    		
+		    		ArrayList<Element> content = formatter.makeContent();
+		    		for (Element e : content) {
+		    			rows.add(e);
+		    		}
+		    		
+		    		tray.setRows(rows);
+		    		
+		    	}
+		    }
+			
+			if (isValid()) {
+				setResponsePage(this.SUCCESS_JSP);
+		    } else {
+		        setResponsePage(this.ERROR_JSP);
+		    }
+			
+		} catch (Exception e) {
+		    log.error("An exception has occurred in ShowBillingInvoiceForm ", e);
+		    e.printStackTrace();
+		    throw new RollBackCommandException(e.getMessage());
+		} finally {
+			try {
+				secAdvisor.closeHibernateSession();    
+			} catch(Exception e) {
+				
+		    }
+		}
+		
+		return this;
+	}
+	
+	public static File makePDFBillingInvoice(Session sess, String serverName, BillingPeriod billingPeriod, CoreFacility coreFacility, boolean multipleLabs, Lab lab, Lab[] labs, 
+												BillingAccount billingAccount, BillingAccount[] billingAccounts, String contactAddressCoreFacility, String contactRemitAddressCoreFacility, 
+												Map[] billingItemMap, Map[] relatedBillingItemMap, Map[] requestMap) throws Exception {
+		PropertyDictionaryHelper pdh = PropertyDictionaryHelper.getInstance(sess);
+		
+		String filename = "gnomex_billing_invoice.pdf";
+		filename = pdh.getQualifiedProperty(PropertyDictionary.TEMP_DIRECTORY, serverName) + filename;
+		File outputFile = new File(filename);
+		FileOutputStream fileout = new FileOutputStream(outputFile);
+		
+		Document doc = new Document(PageSize.LETTER);
+		PdfWriter.getInstance(doc, fileout);
+		doc.open();
+
+		doc.addCreationDate();
+		doc.addTitle("Billing Invoice - " + lab.getName(false, true) + " " + billingAccount.getAccountName());
+		
+		BillingPDFFormatter formatter = new BillingPDFFormatter(
+				sess, 
+				billingPeriod, 
+				coreFacility, 
+				multipleLabs, 
+				lab, 
+				labs, 
+				billingAccount, 
+				billingAccounts, 
+				PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(coreFacility.getIdCoreFacility(), PropertyDictionary.CONTACT_ADDRESS_CORE_FACILITY),
+				PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(coreFacility.getIdCoreFacility(), PropertyDictionary.CONTACT_REMIT_ADDRESS_CORE_FACILITY),
+				coreFacility.getContactName(),
+				coreFacility.getContactPhone(),
+				billingItemMap,
+				relatedBillingItemMap,
+				requestMap);
+		
+		
+		ArrayList<Element> content = formatter.makeContent();
+		for (Element e : content) {
+			doc.add(e);
+		}
+		if (content.isEmpty()) {
+			doc.add(new Paragraph("No Results"));
+		}
+		
+		doc.close();
+		
+		return outputFile;
+	}
+	
+	public static void cacheBillingItemMaps(Session sess, SecurityAdvisor secAdvisor, Integer idBillingPeriod, Integer idLab, Integer idBillingAccount, Integer idCoreFacility, Map billingItemMap, Map relatedBillingItemMap, Map requestMap) throws Exception {
+		cacheRequestBillingItemMap(sess, secAdvisor, idBillingPeriod, idLab, idBillingAccount, idCoreFacility, billingItemMap, relatedBillingItemMap, requestMap);
+		cacheDiskUsageBillingItemMap(sess, secAdvisor, idBillingPeriod, idLab, idBillingAccount, idCoreFacility, billingItemMap, relatedBillingItemMap, requestMap);
+		cacheProductOrderBillingItemMap(sess, secAdvisor, idBillingPeriod, idLab, idBillingAccount, idCoreFacility, billingItemMap, relatedBillingItemMap, requestMap);
+	}
+	
+	private static void cacheRequestBillingItemMap(Session sess, SecurityAdvisor secAdvisor, Integer idBillingPeriod, Integer idLab, Integer idBillingAccount, Integer idCoreFacility, Map billingItemMap, Map relatedBillingItemMap, Map requestMap) {
+	    StringBuffer buf = new StringBuffer();
+	    buf.append("SELECT req, bi ");
+	    buf.append("FROM   Request req ");
+	    buf.append("JOIN   req.billingItems bi ");
+	    buf.append("WHERE  bi.idLab = :idLab ");
+	    buf.append("AND    bi.idBillingAccount = :idBillingAccount ");
+	    buf.append("AND    bi.idBillingPeriod = :idBillingPeriod ");
+	    buf.append("AND    bi.idCoreFacility = :idCoreFacility ");
+	    buf.append("AND    bi.codeBillingStatus in ('" + BillingStatus.COMPLETED + "', '" + BillingStatus.APPROVED + "', '" + BillingStatus.APPROVED_CC + "', '" + BillingStatus.APPROVED_PO + "')");
+
+	    if (!secAdvisor.hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
+	    	buf.append(" AND ");
+	    	secAdvisor.appendCoreFacilityCriteria(buf, "bi");
+	    	buf.append(" ");
+	    }
+
+	    buf.append("ORDER BY req.number, bi.idBillingItem ");
+
+	    Query query1 = sess.createQuery(buf.toString());
+	    query1.setParameter("idLab", idLab);
+	    query1.setParameter("idBillingAccount", idBillingAccount);
+	    query1.setParameter("idBillingPeriod", idBillingPeriod);
+	    query1.setParameter("idCoreFacility", idCoreFacility);
+	    List results = query1.list();
+
+	    for (Iterator i = results.iterator(); i.hasNext();) {
+	    	Object[] row = (Object[]) i.next();
+	    	Request req    =  (Request) row[0];
+	    	BillingItem bi =  (BillingItem) row[1];
+
+	    	// Exclude any requests that have
+	    	// pending billing items.
+	    	if (determineContainsPendingItems(req.getBillingItems(), idBillingPeriod, idBillingAccount)) {
+	    		continue;
+	    	}
+
+	    	requestMap.put(req.getNumber(), req);
+
+	    	List billingItems = (List)billingItemMap.get(req.getNumber());
+	    	if (billingItems == null) {
+	    		billingItems = new ArrayList();
+	    		billingItemMap.put(req.getNumber(), billingItems);
+	    	}
+	    	billingItems.add(bi);
+	    }
+
+	    buf = new StringBuffer();
+	    buf.append("SELECT req, bi ");
+	    buf.append("FROM   Request req ");
+	    buf.append("JOIN   req.billingItems bi ");
+	    buf.append("WHERE  bi.idBillingAccount != :idBillingAccount ");
+	    buf.append("AND    bi.idBillingPeriod = :idBillingPeriod ");
+
+	    if (requestMap.keySet().iterator().hasNext()) {
+	    	buf.append("AND    bi.idRequest in (");
+	    	Boolean first = true;
+	    	for(Iterator i = requestMap.keySet().iterator(); i.hasNext();) {
+	    		String requestNumber = (String)i.next();      
+	    		Request request = (Request)requestMap.get(requestNumber);
+	    		if (!first) {
+	    			buf.append(", ");
+	    		}
+	    		first = false;
+	    		buf.append(request.getIdRequest().toString());
+	      }
+	      buf.append(")");
+	    }
+
+	    if (!secAdvisor.hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
+	    	buf.append(" AND ");
+	    	secAdvisor.appendCoreFacilityCriteria(buf, "req");
+	    	buf.append(" ");
+	    }
+
+	    buf.append(" ORDER BY req.number, bi.idBillingAccount, bi.idBillingItem ");
+
+	    Query query2 = sess.createQuery(buf.toString());
+	    query2.setParameter("idBillingAccount", idBillingAccount);
+	    query2.setParameter("idBillingPeriod", idBillingPeriod);
+	    results = query2.list();
+
+	    for (Iterator i = results.iterator(); i.hasNext();) {
+	    	Object[] row = (Object[]) i.next();
+	    	Request req    =  (Request) row[0];
+	    	BillingItem bi =  (BillingItem) row[1];
+
+	    	List billingItems = (List)relatedBillingItemMap.get(req.getNumber());
+	    	if (billingItems == null) {
+	    		billingItems = new ArrayList();
+	    		relatedBillingItemMap.put(req.getNumber(), billingItems);
+	    	}
+	    	billingItems.add(bi);
+	    }		
+	}
+	
+	private static void cacheDiskUsageBillingItemMap(Session sess, SecurityAdvisor secAdvisor, Integer idBillingPeriod, Integer idLab, Integer idBillingAccount, Integer idCoreFacility, Map billingItemMap, Map relatedBillingItemMap, Map requestMap) {
+	    StringBuffer buf = new StringBuffer();
+	    buf.append("SELECT dsk, bi ");
+	    buf.append("FROM   DiskUsageByMonth dsk ");
+	    buf.append("JOIN   dsk.billingItems bi ");
+	    buf.append("WHERE  bi.idLab = :idLab ");
+	    buf.append("AND    bi.idBillingAccount = :idBillingAccount ");
+	    buf.append("AND    bi.idBillingPeriod = :idBillingPeriod ");
+	    buf.append("AND    bi.idCoreFacility = :idCoreFacility ");
+	    buf.append("AND    bi.codeBillingStatus in ('" + BillingStatus.COMPLETED + "', '" + BillingStatus.APPROVED + "', '" + BillingStatus.APPROVED_CC + "', '" + BillingStatus.APPROVED_PO + "')");
+
+	    if (!secAdvisor.hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
+	    	buf.append(" AND ");
+	    	secAdvisor.appendCoreFacilityCriteria(buf, "bi");
+	    	buf.append(" ");
+	    }
+
+	    buf.append("ORDER BY dsk.idDiskUsageByMonth, bi.idBillingItem ");
+
+	    Query query = sess.createQuery(buf.toString());
+	    query.setParameter("idLab", idLab);
+	    query.setParameter("idBillingAccount", idBillingAccount);
+	    query.setParameter("idBillingPeriod", idBillingPeriod);
+	    query.setParameter("idCoreFacility", idCoreFacility);
+	    List results = query.list();
+
+	    for(Iterator i = results.iterator(); i.hasNext();) {
+	    	Object[] row = (Object[]) i.next();
+	    	DiskUsageByMonth dsk    =  (DiskUsageByMonth) row[0];
+	    	BillingItem bi          =  (BillingItem) row[1];
+
+	    	// Exclude any disk usage that have
+	    	// pending billing items.  (shouldn't be any)
+	    	if (determineContainsPendingItems(dsk.getBillingItems(), idBillingPeriod, idBillingAccount)) {
+	    		continue;
+	    	}
+
+	    	String diskUsageNumber = DISK_USAGE_NUMBER_PREFIX + dsk.getIdDiskUsageByMonth().toString();
+	    	requestMap.put(diskUsageNumber, dsk);
+
+	    	List billingItems = (List)billingItemMap.get(diskUsageNumber);
+	      	if (billingItems == null) {
+	      		billingItems = new ArrayList();
+	      		billingItemMap.put(diskUsageNumber, billingItems);
+	      	}
+	      	billingItems.add(bi);
+	    }		
+	}
+	
+	private static void cacheProductOrderBillingItemMap(Session sess, SecurityAdvisor secAdvisor, Integer idBillingPeriod, Integer idLab, Integer idBillingAccount, Integer idCoreFacility, Map billingItemMap, Map relatedBillingItemMap, Map requestMap) {
+		StringBuffer buf = new StringBuffer();
+	    buf.append("SELECT pli, po, bi ");
+	    buf.append("FROM   ProductLineItem pli ");
+	    buf.append("JOIN   pli.productOrder po ");
+	    buf.append("JOIN   po.billingItems bi ");
+	    buf.append("WHERE  bi.idLab = :idLab ");
+	    buf.append("AND    bi.idBillingAccount = :idBillingAccount ");
+	    buf.append("AND    bi.idBillingPeriod = :idBillingPeriod ");
+	    buf.append("AND    bi.idCoreFacility = :idCoreFacility ");
+	    buf.append("AND    bi.codeBillingStatus in ('" + BillingStatus.COMPLETED + "', '" + BillingStatus.APPROVED + "', '" + BillingStatus.APPROVED_CC + "', '" + BillingStatus.APPROVED_PO + "')");
+
+	    if (!secAdvisor.hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
+	    	buf.append(" AND ");
+	    	secAdvisor.appendCoreFacilityCriteria(buf, "po");
+	    	buf.append(" ");
+	    }
+
+	    buf.append("ORDER BY po.productOrderNumber, bi.idBillingItem ");
+
+	    Query query = sess.createQuery(buf.toString());
+	    query.setParameter("idLab", idLab);
+	    query.setParameter("idBillingAccount", idBillingAccount);
+	    query.setParameter("idBillingPeriod", idBillingPeriod);
+	    query.setParameter("idCoreFacility", idCoreFacility);
+	    List results = query.list();
+
+	    for (Iterator i = results.iterator(); i.hasNext();) {
+	    	Object[] row = (Object[])i.next();
+	    	ProductLineItem pli     = (ProductLineItem)row[0];
+	    	ProductOrder po         = (ProductOrder)row[1];
+	    	BillingItem bi          =  (BillingItem)row[2];
+
+	    	// Exclude any disk usage that have
+	    	// pending billing items.  (shouldn't be any)
+	    	if (determineContainsPendingItems(po.getBillingItems(), idBillingPeriod, idBillingAccount)) {
+	    		continue;
+	    	}
+
+	    	String productOrderNumber = PRODUCT_ORDER_NUMBER_PREFIX + po.getProductOrderNumber().toString();
+	    	requestMap.put(productOrderNumber, po);
+
+	    	List billingItems = (List)billingItemMap.get(productOrderNumber);
+	    	if (billingItems == null) {
+	    		billingItems = new ArrayList();
+	    		billingItemMap.put(productOrderNumber, billingItems);
+	    	}
+	    	billingItems.add(bi);
+	    }
+	}
+	
+	private static boolean determineContainsPendingItems(Set set, Integer idBillingPeriod, Integer idBillingAccount) {
+		for (Iterator iter = set.iterator(); iter.hasNext();) {
+    		BillingItem item = (BillingItem)iter.next();
+
+    		if (item.getIdBillingPeriod().equals(idBillingPeriod) &&
+    			item.getIdBillingAccount().equals(idBillingAccount)) {
+    				if (item.getCodeBillingStatus().equals(BillingStatus.PENDING)) {
+    					return true;
+    				}          
+    		}
+    	}
+		
+		return false;
+	}
+
+	/* (non-Javadoc)
+	 * @see hci.framework.control.Command#setRequestState(javax.servlet.http.HttpServletRequest)
+	 */
+	@Override
+	public HttpServletRequest setRequestState(HttpServletRequest request) {
+		request.setAttribute("tray", this.tray);
+	    return request;
+	}
+
+	/**
+	  *  The callback method called after the loadCommand, and execute methods,
+	  *  this method allows you to manipulate the HttpServletResponse object prior
+	  *  to forwarding to the result JSP (add a cookie, etc.)
+	  *
+	  *@param  request  The HttpServletResponse for the command
+	  *@return          The processed response
+	  */
+	@Override
+	public HttpServletResponse setResponseState(HttpServletResponse response) {
+		return response;
+	}
+
+	@Override
+	public HttpSession setSessionState(HttpSession session) {
+		return session;
+	}
+	
+	/* (non-Javadoc)
+	 * @see hci.report.utility.ReportCommand#loadContextPermissions()
+	 */
+	@Override
+	public void loadContextPermissions() {
+	}	
 
 }

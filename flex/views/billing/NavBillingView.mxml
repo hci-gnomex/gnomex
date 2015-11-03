@@ -1551,7 +1551,7 @@
 						if (email) {
 							showBillingInvoiceEmailWindow(labNode);
 						} else {
-							var showUrl:URLRequest = new URLRequest('ShowBillingInvoiceFormNew.gx' +
+							var showUrl:URLRequest = new URLRequest('ShowBillingInvoiceForm.gx' +
 								'?idBillingPeriod=' + lastSelectedBillingPeriod.@idBillingPeriod + 
 								'&idLab=' + labNode.@idLab +
 								'&idBillingAccount=' + labNode.@idBillingAccount +
@@ -1577,7 +1577,7 @@
 						idBillingAccounts += lab.@idBillingAccount + ',';
 						
 					}
-					var showAllRequests:URLRequest = new URLRequest('ShowBillingInvoiceFormNew.gx' + 
+					var showAllRequests:URLRequest = new URLRequest('ShowBillingInvoiceForm.gx' + 
 						'?idLabs=' + idLabs + 
 						'&idBillingPeriod=' + lastSelectedBillingPeriod.@idBillingPeriod + 
 						'&idBillingAccounts=' + idBillingAccounts + 

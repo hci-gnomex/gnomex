@@ -332,7 +332,7 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
     query.setParameter("idBillingPeriod", idBillingPeriod);
     query.setParameter("idBillingAccount", billingAccount.getIdBillingAccount());
     Invoice invoice = (Invoice)query.uniqueResult();
-    ShowBillingInvoiceForm.cacheBillingItemMap(sess, this.getSecAdvisor(), idBillingPeriod, lab.getIdLab(), billingAccount.getIdBillingAccount(), idCoreFacility, billingItemMap, relatedBillingItemMap, requestMap);
+    ShowBillingInvoiceForm.cacheBillingItemMaps(sess, this.getSecAdvisor(), idBillingPeriod, lab.getIdLab(), billingAccount.getIdBillingAccount(), idCoreFacility, billingItemMap, relatedBillingItemMap, requestMap);
 
     BillingInvoiceEmailFormatter emailFormatter = new BillingInvoiceEmailFormatter(sess, coreFacility, billingPeriod, lab, billingAccount, invoice, billingItemMap, relatedBillingItemMap, requestMap);
     String subject = emailFormatter.getSubject();
@@ -397,7 +397,7 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
     Map[] relatedBillingItemMaps = {relatedBillingItemMap};
     Map[] requestMaps = {requestMap};
     try {
-    	File billingInvoice = ShowBillingInvoiceFormNew.makePDFBillingInvoice(sess, serverName, billingPeriod, coreFacility, false, lab, 
+    	File billingInvoice = ShowBillingInvoiceForm.makePDFBillingInvoice(		sess, serverName, billingPeriod, coreFacility, false, lab, 
 																				new Lab[0], billingAccount, new BillingAccount[0], 
 																				PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(coreFacility.getIdCoreFacility(), PropertyDictionary.CONTACT_ADDRESS_CORE_FACILITY), 
 																				PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(coreFacility.getIdCoreFacility(), PropertyDictionary.CONTACT_REMIT_ADDRESS_CORE_FACILITY), 

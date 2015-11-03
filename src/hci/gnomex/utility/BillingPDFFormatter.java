@@ -21,7 +21,7 @@ import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 
 import hci.framework.model.DetailObject;
-import hci.gnomex.controller.ShowBillingInvoiceFormNew;
+import hci.gnomex.controller.ShowBillingInvoiceForm;
 import hci.gnomex.model.BillingAccount;
 import hci.gnomex.model.BillingItem;
 import hci.gnomex.model.BillingPeriod;
@@ -332,9 +332,9 @@ public class BillingPDFFormatter extends DetailObject {
 		Request request = null;
 		DiskUsageByMonth dsk = null;
 		ProductOrder po = null;
-		if (number.startsWith(ShowBillingInvoiceFormNew.DISK_USAGE_NUMBER_PREFIX)) {
+		if (number.startsWith(ShowBillingInvoiceForm.DISK_USAGE_NUMBER_PREFIX)) {
 			dsk = (DiskUsageByMonth) requestMap.get(number);
-		} else if (number.startsWith(ShowBillingInvoiceFormNew.PRODUCT_ORDER_NUMBER_PREFIX)) {
+		} else if (number.startsWith(ShowBillingInvoiceForm.PRODUCT_ORDER_NUMBER_PREFIX)) {
 			po = (ProductOrder) requestMap.get(number);
 		} else {
 			request = (Request) requestMap.get(number);
