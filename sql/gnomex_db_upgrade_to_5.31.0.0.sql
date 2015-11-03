@@ -8,9 +8,6 @@ alter table Request drop
     FOREIGN KEY FK_Request_RNAPrepType;
        
 -- Remove dna and rna code prep type columns from Request
-ALTER TABLE Request DROP COLUMN codeDNAPrepType;
-ALTER TABLE Request DROP COLUMN codeRNAPrepType;
-
 alter table Request Drop column codeDNAPrepType;
 call ExecuteIfTableExists('gnomex','Request_Audit','alter table Request_Audit DROP COLUMN codeDNAPrepType');
 
