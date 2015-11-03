@@ -1352,6 +1352,7 @@
 		<property name="emailAddress" column="emailAddress" type="string" />
 		<property name="ipAddress" column="ipAddress" type="string" />
 		<property name="idAppUser" column="idAppUser" type="integer" />
+		<property name="idProductOrder" column="idProductOrder" type="integer" />
 	</class>
 
 	<!-- hci.gnomex.model.WorkItem -->
