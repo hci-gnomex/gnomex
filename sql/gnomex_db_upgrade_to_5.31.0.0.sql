@@ -80,3 +80,9 @@ ADD column qualifiedFilePath varchar(300) NULL;
 
 call ExecuteIfTableExists('gnomex','ProductOrderFile_Audit','alter table ProductOrderFile_Audit ADD COLUMN baseFilePath varchar(300) NULL');
 call ExecuteIfTableExists('gnomex','ProductOrderFile_Audit','alter table ProductOrderFile_Audit ADD COLUMN qualifiedFilePath varchar(300) NULL');
+
+-- Add sort order to bioanalyzer chip type
+alter table BioanalyzerChipType
+ADD column sortOrder int DEFAULT NULL;
+
+call ExecuteIfTableExists('gnomex','BioanalyzerChipType_Audit','alter table BioanalyzerChipType_Audit ADD COLUMN sortOrder int NULL');

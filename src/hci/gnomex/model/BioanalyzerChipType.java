@@ -23,6 +23,7 @@ public class BioanalyzerChipType extends DictionaryEntry implements Serializable
   private String      isActive;
   private String      codeApplication;
   private String      protocolDescription;
+  private Integer     sortOrder;
   
   public String getDisplay() {
     String display = this.getNonNullString(getBioanalyzerChipType());
@@ -119,5 +120,13 @@ public class BioanalyzerChipType extends DictionaryEntry implements Serializable
   }
   public void setProtocolDescription(String protocolDescription) {
     this.protocolDescription = protocolDescription;
+  }
+
+  public Integer getSortOrder() {
+    return sortOrder;
+  }
+
+  public void setSortOrder(Integer sortOrder) {
+    this.sortOrder = sortOrder;
   }
 }

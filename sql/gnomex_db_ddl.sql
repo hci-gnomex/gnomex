@@ -835,6 +835,7 @@ CREATE TABLE `gnomex`.`BioanalyzerChipType` (
   `codeConcentrationUnit` VARCHAR(10) NULL,
   `codeApplication` VARCHAR(10) null,
   `protocolDescription` LONGTEXT null,
+  `sortOrder` INT(10) null,
   PRIMARY KEY (`codeBioanalyzerChipType`)
 )
 ENGINE = INNODB;
