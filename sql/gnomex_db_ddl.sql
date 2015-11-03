@@ -2766,6 +2766,7 @@ CREATE TABLE `gnomex`.`TransferLog` (
   `emailAddress` VARCHAR(1000) NULL,
   `ipAddress` VARCHAR(50) NULL,
   `idAppUser` INT(10)  NULL ,
+  `idProductOrder` INT(10) NULL,
   PRIMARY KEY (`idTransferLog`),
   CONSTRAINT `FK_TransferLog_Request` FOREIGN KEY `FK_TransferLog_Request` (`idRequest`)
     REFERENCES `gnomex`.`Request` (`idRequest`)
@@ -2777,6 +2778,10 @@ CREATE TABLE `gnomex`.`TransferLog` (
     ON UPDATE NO ACTION,
   CONSTRAINT `FK_TransferLog_Lab` FOREIGN KEY `FK_TransferLog_Lab` (`idLab`)
     REFERENCES `gnomex`.`Lab` (`idLab`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `FK_TransferLog_ProductOrder` FOREIGN KEY `FK_TransferLog_ProductOrder` (`idProductOrder`)
+    REFERENCES `gnomex`.`ProductOrder` (`idProductOrder`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
 )

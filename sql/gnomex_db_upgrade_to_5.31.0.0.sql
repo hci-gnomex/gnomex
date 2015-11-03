@@ -83,3 +83,13 @@ alter table BioanalyzerChipType
 ADD column sortOrder int DEFAULT NULL;
 
 call ExecuteIfTableExists('gnomex','BioanalyzerChipType_Audit','alter table BioanalyzerChipType_Audit ADD COLUMN sortOrder int NULL');
+
+
+-- update TransferLog table with product order stuff
+	alter table TransferLog
+	add columnidProductOrder int default null;
+	
+	ALTER TABLE TransferLog ADD CONSTRAINT `FK_TransferLog_ProductOrder` FOREIGN KEY `FK_TransferLog_ProductOrder` (`idProductOrder`)
+    REFERENCES `gnomex`.`ProductOrder` (`idProductOrder`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION;
