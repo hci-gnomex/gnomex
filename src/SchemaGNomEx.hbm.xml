@@ -1540,6 +1540,7 @@
 		<property name="isActive" column="isActive" type="string" />
 		<property name="codeApplication" column="codeApplication" type="string" />
 		<property name="protocolDescription" column="protocolDescription" type="string" />
+		<property name="sortOrder" column="sortOrder" type="integer" />
 	</class>
 
 	<!-- hci.gnomex.model.BillingChargeKind -->
