@@ -931,13 +931,14 @@ Test City, UT 12345',
  (107,'billing_gl_blank_year', 'N', 'leave year blank in gl line', 'Y'),
  (108,'show_funding_agency', 'N', 'show funding agency combo box on billing account edit/create screens.', 'N'),
  (109,'product_order_directory', '/home/gnomex/PurchseOrder_HSCGenomics', 'Directory to store purchase order forms', 'Y'),
- (110,'core_billing_office', '', 'Name of who handles billing for the core', 'Y');
- (111, 'view_limit_analyses', '1000', 'The maximum number of analyses returned from the back-end.', 'N');
- (112, 'view_limit_datatracks', '200', 'The maximum number of data tracks returned from the back-end.', 'N');
- (113, 'view_limit_chromatograms', '1000', 'The maximum number of chromatograms returned from the back-end.', 'N');
- (114, 'view_limit_experiments', '100', 'The maximum number of experiments returned from the back-end.', 'N');
- (115, 'view_limit_plates_and_runs', '200', 'The maximum number of plates and runs returned from the back-end.', 'N');
- (116, 'product_sheet_name', 'Product Purchasing', 'The name of the price sheet for products.', 'N');
+ (110,'core_billing_office', '', 'Name of who handles billing for the core', 'Y'),
+ (111, 'view_limit_analyses', '1000', 'The maximum number of analyses returned from the back-end.', 'N'),
+ (112, 'view_limit_datatracks', '200', 'The maximum number of data tracks returned from the back-end.', 'N'),
+ (113, 'view_limit_chromatograms', '1000', 'The maximum number of chromatograms returned from the back-end.', 'N'),
+ (114, 'view_limit_experiments', '100', 'The maximum number of experiments returned from the back-end.', 'N'),
+ (115, 'view_limit_plates_and_runs', '200', 'The maximum number of plates and runs returned from the back-end.', 'N'),
+ (116, 'product_sheet_name', 'Product Purchasing', 'The name of the price sheet for products.', 'N'),
+ (117, 'product_order_directory', '/home/gnomex/productOrder/', 'Default directory for product order files', 'N');
 
  
 
