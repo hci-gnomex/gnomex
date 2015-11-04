@@ -4,9 +4,11 @@ import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.BillingAccount;
 import hci.gnomex.model.BillingItem;
+import hci.gnomex.model.ProductOrder;
 import hci.gnomex.model.Request;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.HibernateSession;
+import hci.gnomex.utility.Order;
 
 import java.io.Serializable;
 import java.util.Iterator;
@@ -28,6 +30,7 @@ public class ReassignBillingAccount extends GNomExCommand implements Serializabl
   
   private Integer                      idBillingPeriod; 
   private Integer                      idRequest;
+  private Integer                      idProductOrder;
   private Integer                      idLab;
   private Integer                      idBillingAccount;
   private Integer                      idBillingAccountOld;
@@ -46,9 +49,15 @@ public class ReassignBillingAccount extends GNomExCommand implements Serializabl
     
     if (request.getParameter("idRequest") != null && !request.getParameter("idRequest").equals("")) {
       idRequest = new Integer(request.getParameter("idRequest"));
-    } else {
+    } /*else {
       this.addInvalidField("idRequest", "idRequest is required");
-    }
+    }*/
+    
+    if (request.getParameter("idProductOrder") != null && !request.getParameter("idProductOrder").equals("")) {
+      idProductOrder = new Integer(request.getParameter("idProductOrder"));
+    } /*else {
+      this.addInvalidField("idProductOrder", "idProductOrder is required");
+    }*/
     
     if (request.getParameter("idLab") != null && !request.getParameter("idLab").equals("")) {
       idLab = new Integer(request.getParameter("idLab"));
@@ -83,7 +92,14 @@ public class ReassignBillingAccount extends GNomExCommand implements Serializabl
         if (this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_MANAGE_BILLING)) {
          
             BillingAccount ba = (BillingAccount)sess.load(BillingAccount.class, idBillingAccountOld);
-            Request request = (Request)sess.load(Request.class, idRequest);
+            Order request;
+            if ( idProductOrder != null ) {
+              ProductOrder po = (ProductOrder)sess.load(ProductOrder.class, idProductOrder);
+              request = po;
+            } else {
+              Request r = (Request)sess.load(Request.class, idRequest);
+              request = r;
+            }
             
             if (ba.getIdCoreFacility().equals(request.getIdCoreFacility())) {
               boolean found = false;

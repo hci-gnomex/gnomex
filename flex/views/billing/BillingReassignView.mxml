@@ -71,12 +71,21 @@
 		
 		private function onGetLab(event:ResultEvent):void {			
 			var lab:Object = getLab.lastResult..Lab;
-			var requestCategory:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory',request.@codeRequestCategory);
-			if (this.showInactiveAccountsCheckBox.selected) {
-				billingAccounts = new XMLListCollection(lab.billingAccounts.BillingAccount.(@isApproved == 'Y' && @idCoreFacility == requestCategory.@idCoreFacility));
+			if ( request.@codeRequestCategory == parentApplication.TYPE_PRODUCT_ORDER || request.@codeBillingChargeKind == "PRODUCT" ) {
+				if (this.showInactiveAccountsCheckBox.selected) {
+					billingAccounts = new XMLListCollection(lab.billingAccounts.BillingAccount.(@isApproved == 'Y' && @idCoreFacility == request.@idCoreFacility));
+				} else {
+					billingAccounts = new XMLListCollection(lab.billingAccounts.BillingAccount.(@isApproved == 'Y' && @isActive == 'Y' && @idCoreFacility == request.@idCoreFacility));
+				}
 			} else {
-				billingAccounts = new XMLListCollection(lab.billingAccounts.BillingAccount.(@isApproved == 'Y' && @isActive == 'Y' && @idCoreFacility == requestCategory.@idCoreFacility));
+				var requestCategory:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory',request.@codeRequestCategory);
+				if (this.showInactiveAccountsCheckBox.selected) {
+					billingAccounts = new XMLListCollection(lab.billingAccounts.BillingAccount.(@isApproved == 'Y' && @idCoreFacility == requestCategory.@idCoreFacility));
+				} else {
+					billingAccounts = new XMLListCollection(lab.billingAccounts.BillingAccount.(@isApproved == 'Y' && @isActive == 'Y' && @idCoreFacility == requestCategory.@idCoreFacility));
+				}
 			}
+			
 			var blankNode:XML = new XML("<BillingAccount idCoreFacility='' idLab='' labName='' idBillingAccount='' accountName=''/>");
 			billingAccounts.addItemAt(blankNode, 0);
 			billingAccounts.filterFunction = filterCore;
@@ -136,6 +145,7 @@
  			params.idBillingAccountOld = request.@idBillingAccount;   
  			params.idBillingPeriod = idBillingPeriod;
  			params.idRequest = request.@idRequest;
+			params.idProductOrder = request.@idProductOrder;
  			params.idLab = labCombo.selectedItem.@idLab;
  			params.idBillingAccount = billingAccountCombo.selectedItem.@idBillingAccount;
  			this.reassignBillingAccount.send(params);
@@ -146,7 +156,7 @@
  				parentApplication.navBillingView.refresh();
  				mx.managers.PopUpManager.removePopUp(this);		
  			} else {
-				Alert.show(reassignBillingAccount.lastResult..ACTMESSAGE.@TEXT);
+				Alert.show(reassignBillingAccount.lastResult..ACTMESSAGE.@TEXT, "Error reassigning billing account");
 			}
 		} 
 		

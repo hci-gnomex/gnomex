@@ -183,7 +183,8 @@ public class BillingItemFilter extends DetailObject {
     queryBuf.append("        lab.isExternalPricing, ");
     queryBuf.append("        lab.isExternalPricingCommercial, ");
     queryBuf.append("        bi.idInvoice, ");
-    queryBuf.append("        lab.contactEmail ");
+    queryBuf.append("        lab.contactEmail, ");
+    queryBuf.append("        po.idCoreFacility ");
 
     queryBuf.append(" FROM        ProductLineItem as pli ");
     queryBuf.append(" JOIN        pli.productOrder as po ");

@@ -441,6 +441,7 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
         String labIsExternalPricingCommercial = (String)row[9];
         Integer idInvoice           = (Integer)row[10];
         String contactEmail         = (String)row[11];
+        Integer idCoreFacility      = (Integer)row[12];
 
         String labName = Lab.formatLabName(labLastName, labFirstName);
 
@@ -496,6 +497,7 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
         Element node = new Element("Request");
         node.setAttribute("idRequest", idProductOrder.toString());
         node.setAttribute("idProductOrder", idProductOrder.toString());
+        node.setAttribute("idCoreFacility", idCoreFacility.toString());
         node.setAttribute("label", "Product Order " + (productOrderNumber.equals("") ? idProductOrder.toString() : productOrderNumber));       
         node.setAttribute("requestNumber", productOrderNumber.equals("") ? idProductOrder.toString() : productOrderNumber);
         node.setAttribute("toolTip", toolTip);
