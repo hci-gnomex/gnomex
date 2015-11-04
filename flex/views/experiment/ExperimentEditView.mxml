@@ -5892,12 +5892,11 @@
 			<experiment:TabNotesView id="notesView" enabled="false">
 			</experiment:TabNotesView>
 			
-			<experiment:TabPropertiesView id="propertiesView" properties="{requestProperties}" editable="true" />
-			
-			<experiment:TabProductsView id="productsView" />
-			
 			<experiment:TabSampleSetupView id="sampleSetupView">		    	
 			</experiment:TabSampleSetupView>
+			
+			<experiment:TabPropertiesView id="propertiesView" properties="{requestProperties}" editable="true" />
+			<experiment:TabProductsView id="productsView" />
 			
 			<experiment:TabSeqSetupView id="seqSetupView" enabled="false" >		    	
 			</experiment:TabSeqSetupView>			
