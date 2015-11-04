@@ -115,6 +115,16 @@ public class RequestPDFFormatter extends RequestPDFFormatterBase {
                 header.add("Sample Nucl. Extraction Method: " + s.getOtherSamplePrepMethod());
         	}
 		}		
+
+    String lastCodeChipType = "";
+		if (request.getSamples().size() > 0) {
+      Sample s = (Sample) request.getSamples().iterator().next();
+          if (s.getCodeBioanalyzerChipType() != null && !s.getCodeBioanalyzerChipType().equals( lastCodeChipType ) ) {
+            if (!header.isEmpty()) header.add(Chunk.NEWLINE);
+                header.add("Assay Type: " + dictionaryHelper.getChipTypeName(s.getCodeBioanalyzerChipType()));
+                lastCodeChipType = s.getCodeBioanalyzerChipType();
+          }
+    }   
 		
 		// Number of seq cycles and seq run type
 		if (request.getSequenceLanes().iterator().hasNext() && (request.getIsExternal() != null && !request.getIsExternal().equals("Y"))) {
@@ -915,9 +925,9 @@ public class RequestPDFFormatter extends RequestPDFFormatterBase {
 		
 		PdfPTable table;
 		if (showCCNumber) {
-			table = new PdfPTable(11);
+			table = new PdfPTable(9);
 		} else {
-			table = new PdfPTable(10);
+			table = new PdfPTable(8);
 		}
 		Font tableHeaderFont = FONT_TABLE_HEADERS_VERY_SMALL;
 		Font tableValueFont = FONT_TABLE_VALUES_VERY_SMALL;
@@ -932,8 +942,6 @@ public class RequestPDFFormatter extends RequestPDFFormatterBase {
 			PDFFormatterUtil.addToTableHeader(table, HEADER_CC_NUMBER, tableHeaderFont);
 		}
 		PDFFormatterUtil.addToTableHeader(table, HEADER_CONCENTRATION, tableHeaderFont);
-		PDFFormatterUtil.addToTableHeader(table, HEADER_NUCLEIC_EXTRACTION_METHOD, tableHeaderFont);
-		PDFFormatterUtil.addToTableHeader(table, "Chip Type", tableHeaderFont);
 		PDFFormatterUtil.addToTableHeader(table, HEADER_QUALITY_CONCENTRATION, tableHeaderFont);
 		PDFFormatterUtil.addToTableHeader(table, HEADER_QUALITY_RATIO, tableHeaderFont);
 		PDFFormatterUtil.addToTableHeader(table, HEADER_QUALITY_METHOD, tableHeaderFont);
@@ -968,14 +976,6 @@ public class RequestPDFFormatter extends RequestPDFFormatterBase {
 		        	conc += " " + s.getCodeConcentrationUnit();
 		        }
 			}
-			String extractMeth = "";
-			if (s.getOtherSamplePrepMethod() != null) {
-				extractMeth = s.getOtherSamplePrepMethod();
-			}
-			String chipType = "";
-			if (dictionaryHelper.getChipTypeName(s.getCodeBioanalyzerChipType()) != null) {
-				chipType = dictionaryHelper.getChipTypeName(s.getCodeBioanalyzerChipType());
-			}
 			String concentration = "";
 			if (s.getQualCalcConcentration() != null) {
 				concentration = s.getQualCalcConcentration().toString();
@@ -1008,8 +1008,6 @@ public class RequestPDFFormatter extends RequestPDFFormatterBase {
 				PDFFormatterUtil.addCCNumberCell(ccNumber, table, FONT_CC_NUMBER_EMBED_SMALL, dictionaryHelper);
 			}
 			PDFFormatterUtil.addToTableValue(table, conc, tableValueFont);
-			PDFFormatterUtil.addToTableValue(table, extractMeth, tableValueFont);
-			PDFFormatterUtil.addToTableValue(table, chipType, tableValueFont);
 			PDFFormatterUtil.addToTableValue(table, concentration, tableValueFont);
 			PDFFormatterUtil.addToTableValue(table, ratio, tableValueFont);
 			PDFFormatterUtil.addToTableValue(table, qcMeth, tableValueFont);
