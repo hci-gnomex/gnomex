@@ -327,7 +327,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 
           if (requestParser.isNewRequest()) {
             Lab l = (Lab)sess.load(Lab.class, requestParser.getRequest().getIdLab());
-            if (!this.getSecAdvisor().isGroupIAmMemberOrManagerOf(requestParser.getRequest().getIdLab()) && !this.getSecAdvisor().isLabICanSubmitTo(l)) {
+            if (!this.getSecAdvisor().isGroupIAmMemberOrManagerOf(requestParser.getRequest().getIdLab()) && !this.getSecAdvisor().isLabICanSubmitTo(l) && !this.getSecAdvisor().isGroupICollaborateWith(l.getIdLab())) {
               this.addInvalidField("PermissionLab", "Insufficient permissions to submit the request for this lab.");
             }
           } else {

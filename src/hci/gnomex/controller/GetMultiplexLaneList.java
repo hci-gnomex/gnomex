@@ -100,7 +100,8 @@ public class GetMultiplexLaneList extends GNomExCommand implements Serializable 
       // charges            
       if (!this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_ACCESS_ANY_OBJECT) &&
           !this.getSecAdvisor().isGroupIAmMemberOrManagerOf(request.getIdLab()) && 
-          !this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_SUBMIT_FOR_OTHER_CORES)) {
+          !this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_SUBMIT_FOR_OTHER_CORES) &&
+          !this.getSecAdvisor().isGroupICollaborateWith(request.getIdLab())) {
         throw new RollBackCommandException("Insufficient permission to view estimated charges");
       }
 

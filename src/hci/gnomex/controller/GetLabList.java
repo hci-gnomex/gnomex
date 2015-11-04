@@ -128,6 +128,13 @@ public class GetLabList extends GNomExCommand implements Serializable {
         
       }
       
+      /*Collaborating Labs*/
+      Map<Integer,Integer> collaboratingLabs = new HashMap<Integer, Integer>();
+      for(Iterator i = this.getSecAdvisor().getAppUser().getCollaboratingLabs().iterator(); i.hasNext();){
+        Lab l = (Lab)i.next();
+        collaboratingLabs.put(l.getIdLab(), l.getIdLab());
+      }
+      
       StringBuffer queryBuf = labFilter.getQueryWithInstitutionAndCore(this.getSecAdvisor());
       List labs = (List)sess.createQuery(queryBuf.toString()).list();
       
@@ -146,7 +153,9 @@ public class GetLabList extends GNomExCommand implements Serializable {
           updateLists(inst, cf, institutions, coreFacilities);
         }
         if (prevLab == null || !prevLab.getIdLab().equals(lab.getIdLab()) || !i.hasNext()) {
-          if (prevLab != null && (prevLab.getIsMyLab().equals("Y") || otherLabMap.containsKey(prevLab.getIdLab()) || activeLabMap.containsKey(prevLab.getIdLab()) || labsToSubmitOnBehalfOf.containsKey(prevLab.getIdLab()))) {
+          if (prevLab != null && (prevLab.getIsMyLab().equals("Y") || otherLabMap.containsKey(prevLab.getIdLab()) 
+              || activeLabMap.containsKey(prevLab.getIdLab()) || labsToSubmitOnBehalfOf.containsKey(prevLab.getIdLab()) 
+              ||collaboratingLabs.containsKey(prevLab.getIdLab()))) {
             processLab(doc, prevLab, institutions, coreFacilities);
           }
           institutions = new ArrayList<Institution>();
@@ -157,7 +166,9 @@ public class GetLabList extends GNomExCommand implements Serializable {
         updateLists(inst, cf, institutions, coreFacilities);
       }
       
-      if (prevLab != null && (prevLab.getIsMyLab().equals("Y") || otherLabMap.containsKey(prevLab.getIdLab()) || activeLabMap.containsKey(prevLab.getIdLab()) || labsToSubmitOnBehalfOf.containsKey(prevLab.getIdLab()) )) {
+      if (prevLab != null && (prevLab.getIsMyLab().equals("Y") || otherLabMap.containsKey(prevLab.getIdLab()) 
+          || activeLabMap.containsKey(prevLab.getIdLab()) || labsToSubmitOnBehalfOf.containsKey(prevLab.getIdLab())
+          || collaboratingLabs.containsKey(prevLab.getIdLab()))) {
         processLab(doc, prevLab, institutions, coreFacilities);
       }
     }
@@ -204,12 +215,14 @@ public class GetLabList extends GNomExCommand implements Serializable {
   }
   
   private void setPermissions(Lab lab) {
-    if (this.getSecAdvisor().isGroupIAmMemberOrManagerOf(lab.getIdLab())) {
+    /*Members, managers, and collaborators can submit requests for labs*/
+    if (this.getSecAdvisor().isGroupIAmMemberOrManagerOf(lab.getIdLab()) || this.getSecAdvisor().isGroupICollaborateWith(lab.getIdLab())) {
       lab.canSubmitRequests(true);
     } else {
       lab.canSubmitRequests(false);
     }
     
+    /*If not one of the above roles maybe this user was given special access to submit on behalf of other users*/
     if(this.getSecAdvisor().isLabICanSubmitTo(lab)) {
       lab.canGuestSubmit(true);
     } else {

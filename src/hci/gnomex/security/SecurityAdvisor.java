@@ -478,6 +478,15 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
           canRead = true;
         }
       }
+      
+      /*If visibility checks failed then do a final check to make sure that this isn't a request that a collaborator submitted and is trying to view
+       * We don't handle collaborators in above cases b/c it would give them access to all requests from the lab they collaborate with*/
+      if(!canRead){
+        if(this.appUser.getIdAppUser().equals(req.getIdAppUser())){
+          canRead = true;
+        }
+      }
+      
       if (canRead) {
         canRead = checkBSTXSecurity(object);
       }
@@ -1097,7 +1106,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
           canUpdate = true;
         }
         // Owner of request
-        else if (isGroupIAmMemberOf(req.getIdLab()) && isOwner(req.getIdAppUser())) {
+        else if ((isGroupIAmMemberOf(req.getIdLab()) || this.isGroupICollaborateWith(req.getIdLab())) && isOwner(req.getIdAppUser())) {
           canUpdate = true;
           // Collaborator with update
         } else if (this.isCollaboratorUpdater(req)) {
@@ -1487,7 +1496,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
         canUpdate = true;
       } 
       // Owner of object
-      else if (isGroupIAmMemberOf(idLab) && isOwner(idAppUser)) {
+      else if ((isGroupIAmMemberOf(idLab) || this.isGroupICollaborateWith(idLab)) && isOwner(idAppUser)) {
         canUpdate = true;
       } 
     } 
@@ -2551,8 +2560,15 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
         queryBuf.append(" AND ");
         queryBuf.append(" " + leftJoinExclusionCriteria + " is NULL ");
         queryBuf.append(" ) ");
-      } 
+      }
 
+  
+      /*If a user is the submitter they should be able to view the experiment 
+       * This case should only be hit if a collaborator submits the experiment*/
+      queryBuf.append( !criteriaAdded ? "WHERE " : " OR ");
+      queryBuf.append(" ( ");
+      this.appendOwnerCriteria(queryBuf, classShortName, false);
+      queryBuf.append(" ) ");
 
       queryBuf.append(" ) ");
 

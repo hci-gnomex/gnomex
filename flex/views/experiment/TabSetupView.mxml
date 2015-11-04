@@ -527,6 +527,22 @@
 						return false;
 					}
 				}
+				
+				/*Check if collaborator can submit to billing account*/
+				if(getAuthorizedBillingAccounts.lastResult != null){
+					var isAuthorized:Boolean = false;
+					
+					for each(var ba:XML in getAuthorizedBillingAccounts.lastResult..BillingAccount){
+						if(item.@idBillingAccount == ba.@idBillingAccount){
+							isAuthorized = true;
+						}
+					}
+					
+					if(!isAuthorized){
+						return false;
+					}
+				}
+				
 				return true;
 			}
 			private function showEditProjectWindow():void {
