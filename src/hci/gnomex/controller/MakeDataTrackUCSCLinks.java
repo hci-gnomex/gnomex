@@ -101,6 +101,7 @@ public class MakeDataTrackUCSCLinks extends GNomExCommand implements Serializabl
 				if (urlsToLoad.size() == 2) url2 = urlsToLoad.get(1);
 
 				//post results with link urls
+				System.out.println ("[MakeDataTrackUCSCLinks] url1: " + url1);
 				this.xmlResult = "<SUCCESS ucscURL1=\"" +  url1 + "\" ucscURL2=\"" +  url2 + "\"" + "/>";
 				setResponsePage(this.SUCCESS_JSP);
 
