@@ -4149,7 +4149,7 @@
 			}
 			
 			private function showPrintableRequestForm():void {
-				var url:URLRequest = new URLRequest('ShowRequestFormNew.gx?idRequest=' + submittedIdRequest + '&amendState=' + this.currentState);
+				var url:URLRequest = new URLRequest('ShowRequestForm.gx?idRequest=' + submittedIdRequest + '&amendState=' + this.currentState);
 				navigateToURL(url, '_blank');	
 			}
 			
