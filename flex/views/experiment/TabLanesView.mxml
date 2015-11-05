@@ -22,7 +22,7 @@
         private var lanesToDelete:XMLListCollection = null;
 		private var configuredCodeRequestCategory:String = "";
         
-		private function init():void {
+		public function init():void {
 			if (parentDocument.request.@codeRequestCategory != configuredCodeRequestCategory) {
 				var numberSequencingCyclesAllowedSorter:Sort = new Sort();
 				numberSequencingCyclesAllowedSorter.compareFunction = this.sortNumberSequencingCyclesAllowed;
@@ -404,14 +404,15 @@
 					    <mx:DataGridColumn editable="false" headerText="ID"   resizable="true" width="90" dataField="@number"/>
 					    <mx:DataGridColumn  headerText="Sample"  width="150" 
 					    	labelFunction="parentDocument.getLaneSampleName" 
-					    	 sortable="false"
+					    	sortable="false"
                             editorDataField="text" editable="true" rendererIsEditor="false" itemEditor="views.renderers.TextInputLaneSample" 
-                            itemRenderer="views.renderers.LabelLaneSample" />                 
+                            itemRenderer="views.renderers.LabelLaneSample" />
+						
 						<mx:DataGridColumn width="250"  headerText="Sequencing Protocol"   editable="true" dataField="@idNumberSequencingCyclesAllowed" 					             						             
 										   editorDataField="value"  
 										   rendererIsEditor="false"  
 										   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.NumberSequencingCyclesAllowed').DictionaryEntry, '@display', '@value','@idNumberSequencingCyclesAllowed', true)}"                 
-										   itemEditor="{ComboBoxNumberSequencingCyclesAllowed.create(this.filteredNumberSequencingCyclesAllowedList)}">
+										   itemEditor="{views.renderers.GridColumnFillButton.create(ComboBoxNumberSequencingCyclesAllowed.create(this.filteredNumberSequencingCyclesAllowedList).newInstance(), '')}">
 						</mx:DataGridColumn>							 
 			             <mx:DataGridColumn  editable="false" headerText="Status in Workflow" width="235" dataField="@workflowStatus"/>
 				         <mx:DataGridColumn  width="70" id="flowCellNumberCol" headerText="Flow Cell #"  editable="false" dataField="@flowCellNumber"/> 						             						             
