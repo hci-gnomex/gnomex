@@ -40,6 +40,7 @@ public class MakeDataTrackLinks extends GNomExCommand implements Serializable {
   private String dataTrackFileServerURL;
   private String dataTrackFileServerWebContext;
   private Integer idAnalysisFile;
+  private String requestType;
 
 
   public void validate() {
@@ -56,7 +57,14 @@ public class MakeDataTrackLinks extends GNomExCommand implements Serializable {
     idAnalysisFile = null;
     if (request.getParameter("idAnalysisFile") != null && !request.getParameter("idAnalysisFile").equals("")) {
     	idAnalysisFile = new Integer(request.getParameter("idAnalysisFile"));   
-      }    
+      }
+    
+    // do we need to do special things for IOBIO?
+    requestType = "NORMAL";
+    if (request.getParameter("requestType") != null && !request.getParameter("requestType").equals("")) {
+    	requestType = request.getParameter("requestType");   
+      }
+    
     serverName = request.getServerName();
   }
 
@@ -100,7 +108,22 @@ public class MakeDataTrackLinks extends GNomExCommand implements Serializable {
         
         
         //post results with link urls
-        this.xmlResult = "<SUCCESS urlsToLink=\"" +  sb.toString() + "\"" + "/>";
+        String theURL = sb.toString().replace("\\", "/");
+        
+        // is this an IOBIO request?
+        if (requestType.equals("IOBIO")) {
+        	// setup the url based on file type
+        	if (theURL.toLowerCase().contains(".vcf.gz")) {
+        		theURL = "http://vcf.iobio.io/?vcf=" + theURL;
+        	}
+        	else {
+        		theURL = "http://bam.iobio.io/?bam=" + theURL;
+        	}
+        		
+        }
+        
+        System.out.println ("\n[MakeDataTrackLinks] requestType: " + requestType + " urlsToLink: " + theURL + "\n");
+        this.xmlResult = "<SUCCESS urlsToLink=\"" +  theURL + "\"" + "/>";
         setResponsePage(this.SUCCESS_JSP);
         
       } else {
@@ -177,7 +200,18 @@ public class MakeDataTrackLinks extends GNomExCommand implements Serializable {
       DataTrackUtil.makeSoftLinkViaUNIXCommandLine(f, annoFile);
 
       //is it a bam index xxx.bai? If so then skip after making soft link.
-      if (dataTrackString.endsWith(".bai") || dataTrackString.endsWith(".vcf.gz.tbi")) continue;
+      if (dataTrackString.endsWith(".bam.bai") || dataTrackString.endsWith(".vcf.gz.tbi")) continue;
+      
+      // if it's just a .bai, make a .bam.bai link so IOBIO will work
+      if (!dataTrackString.endsWith(".bam.bai") && dataTrackString.endsWith(".bai")) {
+    	  // fix the name
+    	  dataTrackString = dataTrackString.substring(0, dataTrackString.length() - 4) + ".bam.bai";
+    	  
+    	  // make the soft link
+    	  DataTrackUtil.makeSoftLinkViaUNIXCommandLine (f, dataTrackString);
+    	  
+    	  continue;    	  
+      }
 
       //make URL to link
       int index = dataTrackString.indexOf(Constants.URL_LINK_DIR_NAME);
