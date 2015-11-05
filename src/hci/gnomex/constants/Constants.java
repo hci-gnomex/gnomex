@@ -69,6 +69,10 @@ public class Constants {
 
   public static final int MAXIMUM_NUMBER_TEXT_FILE_LINES = 10000;
 
+  public static final String TRIO_FILE_EXTENSION = ".trio";
+  
+  public static final String GENE_IOBIO_URL = "http://gene.iobio.io";
+  
   public static final String UCSC_URL = "http://genome.ucsc.edu";
   //public static final int DAYS_TO_KEEP_URL_LINKS= 7; //We used to delete links based on time, we are now allowing customers to delete whenever they want
   public static final String URL_LINK_DIR_NAME = "URLLinks";
