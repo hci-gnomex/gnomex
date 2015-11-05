@@ -117,7 +117,19 @@ public class DataTrackUtil {
 		}
 		return false;
 	}
-	
+
+	/**Makes a soft link between the realFile and the linked File using the linux 'ln -s' command.*/
+	public static boolean makeSoftLinkViaUNIXCommandLine(File realFile, String link){
+		try {
+			String[] cmd = {"ln", "-s", realFile.getCanonicalPath(), link};
+			Runtime.getRuntime().exec(cmd);
+			return true;
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
+
 	public static Integer getIntegerParameter(HttpServletRequest req, String parameterName) {
 		if (req.getParameter(parameterName) != null && !req.getParameter(parameterName).equals("")) {
 			return new Integer(req.getParameter(parameterName));
