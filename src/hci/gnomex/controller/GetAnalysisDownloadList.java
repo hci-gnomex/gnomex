@@ -141,7 +141,6 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
         a.excludeMethodFromXML("getCollaborators");
         a.excludeMethodFromXML("getGenomeBuilds");
         a.excludeMethodFromXML("getTopics");
-
         Element aNode = a.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
         aNode.setAttribute("displayName", a.getName());
         aNode.setAttribute("idLab", a.getIdLab().toString());
@@ -251,7 +250,9 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
               fdNode.setAttribute("UCSCViewer", fd.getIsUCSCViewerAllowed());     
               fdNode.setAttribute("IGVViewer", fd.getIsIGVViewerAllowed());
               fdNode.setAttribute("BAMIOBIOViewer", fd.getIsBAMIOBIOViewerAllowed());     
-              fdNode.setAttribute("URLLinkAllowed", fd.getIsURLLinkAllowed());   
+              fdNode.setAttribute("URLLinkAllowed", fd.getIsURLLinkAllowed()); 
+              fdNode.setAttribute("GENEIOBIOViewer", fd.getIsGENELinkAllowed()); 
+              
               
               fdNode.setAttribute("viewURL", fd.getViewURL());
               if ( StringUtils.isNumeric( fd.getIdAnalysisFileString()  )){
@@ -433,7 +434,8 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
           fdNode.setAttribute("IGVViewer", fd.getIsIGVViewerAllowed());
           fdNode.setAttribute("BAMIOBIOViewer", fd.getIsBAMIOBIOViewerAllowed());     
           fdNode.setAttribute("URLLinkAllowed", fd.getIsURLLinkAllowed());   
-                    
+          fdNode.setAttribute("GENEIOBIOViewer", fd.getIsGENELinkAllowed()); 
+          
           fdNode.setAttribute("viewURL", fd.getViewURL()!=null?fd.getViewURL():"");
 
           if ( StringUtils.isNumeric( fd.getIdAnalysisFileString()  )){
@@ -549,7 +551,8 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
       childFdNode.setAttribute("UCSCViewer", childFd.getIsUCSCViewerAllowed());     
       childFdNode.setAttribute("IGVViewer", childFd.getIsIGVViewerAllowed());
       childFdNode.setAttribute("BAMIOBIOViewer", childFd.getIsBAMIOBIOViewerAllowed());     
-      childFdNode.setAttribute("URLLinkAllowed", childFd.getIsURLLinkAllowed());   
+      childFdNode.setAttribute("URLLinkAllowed", childFd.getIsURLLinkAllowed());
+      childFdNode.setAttribute("GENEIOBIOViewer", childFd.getIsGENELinkAllowed()); 
       
       
       childFdNode.setAttribute("viewURL", childFd.getViewURL() != null ? childFd.getViewURL() : "");
