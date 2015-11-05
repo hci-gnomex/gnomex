@@ -1053,7 +1053,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       if (con.getMetaData().getDatabaseProductName().toUpperCase().indexOf(Constants.SQL_SERVER) >= 0) {
         queryString = "exec " + procedure;
       } else {
-        queryString = "call " + procedure;
+    	  queryString = "select " + procedure + "();";
       }
       SQLQuery query = sess.createSQLQuery(queryString);
       List l = query.list();
