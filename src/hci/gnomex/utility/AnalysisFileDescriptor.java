@@ -339,6 +339,19 @@ public class AnalysisFileDescriptor extends DetailObject implements Serializable
 	    return (found ? "Y" : "N");
 	  }
 	  
+  public String getIsGENELinkAllowed() {
+	    boolean found = false;
+	    if (type != null) {
+	      String extension = "." + type;
+	      
+	      if (extension.equalsIgnoreCase(Constants.TRIO_FILE_EXTENSION)) {
+	    	  found = true;
+	      }
+	    }
+
+	      return (found ? "Y" : "N");
+	  }
+	  
   
   public String getIsSupportedDataTrack() {
 	    boolean found = false;
