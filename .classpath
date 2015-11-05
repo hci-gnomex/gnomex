@@ -22,21 +22,33 @@
 	<classpathentry kind="lib" path="libEnv/HCIReport.jar"/>
 	<classpathentry kind="lib" path="libEnv/hibernate3.jar"/>
 	<classpathentry kind="lib" path="libEnv/Hibernate3Utils.jar"/>
-	<classpathentry kind="lib" path="C:/orion/lib/jdom.jar"/>
-	<classpathentry kind="lib" path="C:/orion/lib/tools.jar"/>
+	<classpathentry kind="lib" path="libEnv/jdom.jar"/>
 	<classpathentry kind="lib" path="libEnv/hci_framework.jar"/>
-	<classpathentry kind="lib" path="libEnv/log4j-1.2.11.jar"/>
-	<classpathentry kind="lib" path="libEnv/commons-logging-1.0.4.jar"/>
+	<classpathentry kind="lib" path="C:/Program Files/Apache Software Foundation/Tomcat 7.0/lib/log4j-1.2.11.jar"/>
 	<classpathentry kind="lib" path="libEnv/dom4j-1.6.1.jar"/>
-	<classpathentry kind="lib" path="libEnv/servlet-api.jar"/>
-	<classpathentry kind="lib" path="libEnv/mail.jar"/>
-	<classpathentry kind="lib" path="libEnv/commons-lang-1.0.1.jar"/>
+	<classpathentry kind="lib" path="C:/Program Files/Apache Software Foundation/Tomcat 7.0/lib/mail.jar"/>
 	<classpathentry kind="lib" path="libEnv/hci_utils.jar"/>
-	<classpathentry kind="lib" path="C:/orion/orion.jar"/>
-	<classpathentry kind="lib" path="C:/Program Files/Apache Software Foundation/Tomcat 7.0/lib/catalina.jar" sourcepath="C:/Users/u0351456/.m2/repository/org/apache/tomcat/tomcat-catalina/7.0.54/tomcat-catalina-7.0.54-sources.jar"/>
 	<classpathentry kind="lib" path="lib/commons-io-2.4.jar"/>
 	<classpathentry kind="lib" path="lib/itextpdf-5.4.2.jar"/>
-	<classpathentry kind="lib" path="C:/Program Files/Apache Software Foundation/Tomcat 7.0/lib/tomcat-jdbc.jar"/>
 	<classpathentry kind="lib" path="libEnv/freemarker.jar"/>
+	<classpathentry kind="lib" path="C:/Program Files/Apache Software Foundation/Tomcat 7.0/lib/catalina.jar"/>
+	<classpathentry kind="lib" path="C:/Program Files/Apache Software Foundation/Tomcat 7.0/lib/tomcat-jdbc.jar"/>
+	<classpathentry kind="lib" path="libEnv/ant-1.7.0.jar"/>
+	<classpathentry kind="lib" path="libEnv/ant-launcher-1.7.0.jar"/>
+	<classpathentry kind="lib" path="libEnv/commons-beanutils-1.8.0.jar"/>
+	<classpathentry kind="lib" path="libEnv/commons-collections-3.2.1.jar"/>
+	<classpathentry kind="lib" path="libEnv/commons-lang-2.5.jar"/>
+	<classpathentry kind="lib" path="libEnv/commons-logging-1.1.1.jar"/>
+	<classpathentry kind="lib" path="libEnv/ezmorph-1.0.6.jar"/>
+	<classpathentry kind="lib" path="libEnv/jaxen-1.1-beta-8.jar"/>
+	<classpathentry kind="lib" path="libEnv/jline-0.9.94.jar"/>
+	<classpathentry kind="lib" path="libEnv/json-lib-2.4-jdk15.jar"/>
+	<classpathentry kind="lib" path="libEnv/xalan-2.7.0.jar"/>
+	<classpathentry kind="lib" path="libEnv/xercesImpl-2.6.2.jar"/>
+	<classpathentry kind="lib" path="libEnv/xml-apis-1.0.b2.jar"/>
+	<classpathentry kind="lib" path="libEnv/xmlParserAPIs-2.6.2.jar"/>
+	<classpathentry kind="lib" path="libEnv/xom-1.2.5.jar"/>
+	<classpathentry kind="lib" path="libEnv/ejb.jar"/>
+	<classpathentry kind="lib" path="C:/Program Files/Apache Software Foundation/Tomcat 7.0/lib/servlet-api.jar"/>
 	<classpathentry kind="output" path="build-eclipse"/>
 </classpath>
