@@ -186,7 +186,7 @@ public class MakeDataTrackIGVLink extends HttpServlet {
 			
 			//Create Duplicate IGV repository
 			Pattern broadPattern = Pattern.compile("\"((.+?)_dataServerRegistry\\.txt)\"");
-			URL broadAnns = new URL("http://www.broadinstitute.org/igvdata");
+			URL broadAnns = new URL("http://igv.broadinstitute.org");
 			
 			//Clear out links to make
 			linksToMake = new ArrayList<String[]>();
@@ -198,7 +198,7 @@ public class MakeDataTrackIGVLink extends HttpServlet {
 					if (broadMatch.find()) {
 						File broadFile = new File(dir,"igv_registry_" + broadMatch.group(2) + ".txt");
 						StringBuilder broadAnnData = new StringBuilder("");
-						URL broad = new URL("http://www.broadinstitute.org/igvdata/"+broadMatch.group(1));
+						URL broad = new URL("http://igv.broadinstitute.org/"+broadMatch.group(1));
 						try {
 							BufferedReader br2 = new BufferedReader(new InputStreamReader(broad.openStream()));
 							String line2;
