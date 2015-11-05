@@ -281,7 +281,7 @@ public class LinkDataTrackFile extends GNomExCommand implements Serializable {
 
       if (saveDataTrack){
 
-        //Create datatrack
+        //Create datatrackfile
         DataTrackFile dtFile = new DataTrackFile();
         dtFile.setIdAnalysisFile(idAnalysisFile);
         dtFile.setIdDataTrack(dataTrack.getIdDataTrack());
