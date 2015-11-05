@@ -225,9 +225,6 @@
 		fault="parentApplication.onFailHttpRequest('Failed to get link URLs', event)"
 		method="POST"
 		useProxy="false">
-		<mx:request>
-			<idDataTrack>{browseTree.selectedItem.@idDataTrack}</idDataTrack>
-		</mx:request>
 	</mx:HTTPService> 
 	
 	<mx:HTTPService             
@@ -1066,18 +1063,17 @@
 			 */
 			public function createIOBIOLinks():void {
 
-				//send to server
-				makeIOBIOLinks.send();
+				var params:Object = new Object();
+				params.idDataTrack = browseTree.selectedItem.@idDataTrack;
+				params.requestType = "IOBIO";
+				
+				makeIOBIOLinks.send(params);
 			}
 			
 			//response from server
 			private function onMakeIOBIOLinks(event:ResultEvent):void {
 				if (makeIOBIOLinks.lastResult.name() == "SUCCESS") {
-					var txt:String = parentApplication.bam_iobio_viewer_url + makeIOBIOLinks.lastResult.@urlsToLink;
-					if (makeIOBIOLinks.lastResult.@urlsToLink.toLowerCase().indexOf(".vcf.gz")>0) {
-						txt = parentApplication.vcf_iobio_viewer_url + makeIOBIOLinks.lastResult.@urlsToLink;
-					}
-					navigateToURL(new URLRequest(txt),"IOBIO");
+					navigateToURL(new URLRequest(makeIOBIOLinks.lastResult.@urlsToLink),"IOBIO");
 				}
 				else {
 					//this should never happen
