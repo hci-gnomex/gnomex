@@ -1482,6 +1482,13 @@ CREATE TABLE gnomex.ApplicationType (
   PRIMARY KEY (codeApplicationType)
 ) ENGINE = INNODB;
 
+DROP TABLE IF EXISTS `gnomex`.`MicroArrayRequestNumber`;
+CREATE TABLE `gnomex`.`MicroArrayRequestNumber` (
+  `number` int(10) NOT NULL AUTO_INCREMENT,
+  `dummy` char(1) DEFAULT NULL,
+  PRIMARY KEY (`number`)
+) ENGINE=InnoDB;
+
 DROP TABLE IF EXISTS `gnomex`.`NumberSequencingCycles`;
 CREATE TABLE `gnomex`.`NumberSequencingCycles` (
   `idNumberSequencingCycles` INT(10) NOT NULL AUTO_INCREMENT,
@@ -3423,6 +3430,24 @@ BEGIN
   END IF;
 END;
 //
+
+-- Function to create new request number
+drop function if exists GetNextMicroarrayRequestNumber//
+CREATE FUNCTION GetNextMicroarrayRequestNumber() RETURNS varchar(50) CHARSET utf8
+    READS SQL DATA
+BEGIN
+ DECLARE nextNumber INT DEFAULT 0;
+ DECLARE RequestNumber VARCHAR(50);
+
+ INSERT INTO MicroArrayRequestNumber (dummy) VALUES ('');
+
+ SELECT number INTO nextNumber FROM MicroArrayRequestNumber;
+ DELETE FROM MicroArrayRequestNumber WHERE number=nextNumber;
+ SELECT CONCAT(CAST(nextNumber AS CHAR),'R') INTO RequestNumber;
+ RETURN RequestNumber;
+END;
+//
+
 delimiter ';'
 
 -- ----------------------------------------------------------------------
