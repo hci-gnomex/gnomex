@@ -44,6 +44,8 @@
        	<mkdir dir="${build.dir}" />
        	<mkdir dir="${build.class.dir}" />		
        	<mkdir dir="${dist.dir}" />
+       	<mkdir dir="${glsave.dir}" />
+       	<mkdir dir="${glsave.dir}/secure" />
 
 	    <path id="project.class.path">
 	      <fileset dir="${lib.env.dir}"             includes="*.jar" />
@@ -650,6 +652,8 @@
 			 </fileset>		
 	  </war>
 	  
+	  <copy file="${dist.dir}/${glwar.name}" todir="${glsave.dir}" overwrite="true" />
+	  
 	  <delete  dir="${dist.dir}/tomcat" />
 
 	</target>
@@ -733,7 +737,7 @@
 		<echo>+  Deploying (GNomExLite)                               +</echo>
 		<echo>+                                                       +</echo>
 		<echo>+ ===================================================== +</echo>
-		<copy file="${dist.dir}/${glwar.name}" todir="${tomcat.dir}/webapps"/>		
+		<copy file="${dist.dir}/${glwar.name}" todir="${tomcat.dir}/webapps"/>	
     <delete dir="${tomcat.dir}/webapps/${glapp.name}"/> 
 		<copy file="${dist.dir}/${realmjar.name}" todir="${lib.tomcat.server.dir}"/>
 	</target>
@@ -961,6 +965,7 @@
 		<subant target="war-gnomexlite">
 		    <property name="opensource" value="true"/>
 			<property name="dist.dir" value="${dist.dir}"/>
+			<property name="glsave.dir" value="${glsave.dir}"/>
 			<property name="webroot.dir" value="${basedir}/defaultroot"/>
 		    <property name="basedir" value="${basedir}"/>
 			<property name="metainf.dir" value="${sandbox.dir}/META-INF"/>
@@ -997,6 +1002,7 @@
 		<subant target="war-gnomexlite">
 		    <property name="opensource" value="true"/>
 		    <property name="dist.dir" value="${dist.dir}/secure"/>
+		    <property name="glsave.dir" value="${glsave.dir}/secure"/>
 			<property name="webroot.dir" value="${basedir}/defaultroot"/>
 		    <property name="basedir" value="${basedir}"/>
 			<property name="metainf.dir" value="${sandbox.dir}/META-INF"/>
@@ -1009,24 +1015,16 @@
 	
 
 
-	<!-- ============================================== -->
-	<!--                                                -->
-	<!-- check-for-tomcat                               -->
-	<!--                                                -->
-	<!-- ============================================== -->
-	<target name="-check-for-tomcat">
-	    <available file="${tomcat.dir}"  type="dir" property="tomcat.present"/>
-	</target>
 
 	<!-- ============================================== -->
 	<!--                                                -->
 	<!-- release-opensource-tomcat                      -->
 	<!--                                                -->
 	<!-- ============================================== -->
-	<target name="-release-opensource-tomcat" depends="init,-check-for-tomcat" if="tomcat.present">
+	<target name="release-opensource-tomcat" depends="init,check-for-tomcat,build-opensource-gnomexlite,build-opensource-tomcat" if="tomcat.present">
 		<echo>+ ===================================================== +</echo>
 		<echo>+                                                       +</echo>
-		<echo>+  release open source  (tomcat)                        +</echo>
+		<echo>+  release open source (tomcat) gnomex and gnomexlite   +</echo>
 		<echo>+                                                       +</echo>
 		<echo>+ ===================================================== +</echo>
 
@@ -1078,8 +1076,10 @@
 		<zip destfile="${dist.dir}/release/${opensource.tomcat.name}.zip" >
 			<zipfileset dir="${dist.dir}" includes="gnomex.war" prefix="${opensource.name}/gnomex/dist"/>
 			<zipfileset dir="${dist.dir}" includes="gnomex_client.jar" prefix="${opensource.name}/gnomex/dist"/>
-			<zipfileset dir="${dist.dir}" includes="gnomex_realm.jar" prefix="${opensource.name}/gnomex/dist"/>
+			<zipfileset dir="${dist.dir}" includes="gnomex_realm.jar" prefix="${opensource.name}/gnomex/dist"/>			
+			<zipfileset dir="${glsave.dir}" includes="gnomexlite.war" prefix="${opensource.name}/gnomex/dist"/>			
 			<zipfileset dir="${dist.dir}/secure" includes="gnomex.war" prefix="${opensource.name}/gnomex/dist/secure"/>
+			<zipfileset dir="${glsave.dir}/secure" includes="gnomexlite.war" prefix="${opensource.name}/gnomex/dist/secure"/>			
 			<zipfileset dir="${basedir}/doc" includes="*/**" prefix="${opensource.name}/gnomex/doc"/>
 			<zipfileset dir="${basedir}/sql" includes="*/**" prefix="${opensource.name}/gnomex/sql"/>
 			<zipfileset dir="${sandbox.dir}/tomcat/scripts" includes="*.*" prefix="${opensource.name}/gnomex/scripts"/>
@@ -1093,6 +1093,14 @@
 		
 	</target>
 
+	<!-- ============================================== -->
+	<!--                                                -->
+	<!-- check-for-tomcat                               -->
+	<!--                                                -->
+	<!-- ============================================== -->
+	<target name="check-for-tomcat">
+	    <available file="${tomcat.dir}"  type="dir" property="tomcat.present"/>
+	</target>
 
     <!-- ============================================== -->
 	<!--                                                -->
