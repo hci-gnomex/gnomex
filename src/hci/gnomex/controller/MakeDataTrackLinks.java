@@ -41,17 +41,17 @@ public class MakeDataTrackLinks extends GNomExCommand implements Serializable {
   private String dataTrackFileServerWebContext;
   private Integer idAnalysisFile;
   private String requestType;
+  private String pathName;
 
 
   public void validate() {
   }
   
   public void loadCommand(HttpServletRequest request, HttpSession session) {
+	idDataTrack = -1;
     if (request.getParameter("idDataTrack") != null && !request.getParameter("idDataTrack").equals("")) {
       idDataTrack = new Integer(request.getParameter("idDataTrack"));   
-    } else {
-      this.addInvalidField("idDataTrack", "idDataTrack is required");
-    }
+    } 
     
     // if idAnalysisFile is a parameter we will need to figure out idDataTrack
     idAnalysisFile = null;
@@ -65,6 +65,12 @@ public class MakeDataTrackLinks extends GNomExCommand implements Serializable {
     	requestType = request.getParameter("requestType");   
       }
     
+    // if pathName is a parameter we don't require a datatrack
+    pathName = null;
+    if (request.getParameter("pathName") != null && !request.getParameter("pathName").equals("")) {
+    	pathName = request.getParameter("pathName");   
+      }
+        
     serverName = request.getServerName();
   }
 
@@ -94,9 +100,9 @@ public class MakeDataTrackLinks extends GNomExCommand implements Serializable {
       // We have to serve files from Tomcat, so use das2 base url
       baseURL =  dataTrackFileServerURL;
 
-      DataTrack dataTrack = DataTrack.class.cast(sess.load(DataTrack.class, idDataTrack));
+//      DataTrack dataTrack = DataTrack.class.cast(sess.load(DataTrack.class, idDataTrack));
 
-      if (this.getSecAdvisor().canRead(dataTrack)) {
+      if (pathName != null || this.getSecAdvisor().canRead(DataTrack.class.cast(sess.load(DataTrack.class, idDataTrack)))) {
         
         //make links fetching url(s)
         ArrayList<String>  urlsToLink = makeURLLinks(sess);
@@ -156,22 +162,45 @@ public class MakeDataTrackLinks extends GNomExCommand implements Serializable {
   private ArrayList<String>  makeURLLinks(Session sess) throws Exception {
 
     ArrayList<String> urlsToLoad = new ArrayList<String>();
-    //load dataTrack
-    DataTrack dataTrack = DataTrack.class.cast(sess.load(DataTrack.class, idDataTrack));    
-
-    //check genome has UCSC name
-    GenomeBuild gv = GenomeBuild.class.cast(sess.load(GenomeBuild.class, dataTrack.getIdGenomeBuild()));
-    String ucscGenomeBuildName = gv.getUcscName();
-
-    //pull all files and if needed auto convert xxx.useq to xxx.bb/.bw
-    UCSCLinkFiles link = DataTrackUtil.fetchURLLinkFiles(dataTrack.getFiles(baseDir, analysisBaseDir), GNomExFrontController.getWebContextPath());
-    File[] filesToLink = link.getFilesToLink();
-    if (filesToLink== null)  throw new Exception ("No files to link?!");
     
-    // When new .bw/.bb files are created, add analysis files and then link via data
-    // track file to the data track.
-    MakeDataTrackUCSCLinks.registerDataTrackFiles(sess, analysisBaseDir, dataTrack, filesToLink);
+    // if data track, process it
+    File[] filesToLink = null;
+    if (pathName == null) {
+    	//load dataTrack
+    	DataTrack dataTrack = DataTrack.class.cast(sess.load(DataTrack.class, idDataTrack));    
 
+    	//check genome has UCSC name
+    	GenomeBuild gv = GenomeBuild.class.cast(sess.load(GenomeBuild.class, dataTrack.getIdGenomeBuild()));
+    	String ucscGenomeBuildName = gv.getUcscName();
+
+    	//pull all files and if needed auto convert xxx.useq to xxx.bb/.bw
+    	UCSCLinkFiles link = DataTrackUtil.fetchURLLinkFiles(dataTrack.getFiles(baseDir, analysisBaseDir), GNomExFrontController.getWebContextPath());
+    	filesToLink = link.getFilesToLink();
+    	if (filesToLink== null)  throw new Exception ("No files to link?!");
+    
+    	// When new .bw/.bb files are created, add analysis files and then link via data
+    	// track file to the data track.
+    	MakeDataTrackUCSCLinks.registerDataTrackFiles(sess, analysisBaseDir, dataTrack, filesToLink);
+    } else {
+    	// the file we want to link to
+    	filesToLink = new File[2];
+    	filesToLink[0] = new File(pathName);
+    	
+    	// add the correct index file
+    	if (pathName.endsWith(".vcf.gz")) {
+    		filesToLink[1] = new File(pathName + ".tbi");
+    	} else {
+    		// figure out whether the .bam.bai or the .bai file exists
+    		File bambai = new File (pathName + ".bai");
+    		if (bambai.exists()) {
+    			filesToLink[1] = new File(pathName + ".bai");
+    		} else {
+    			// we will assume the index file ends in .bai (without the .bam)
+    			// we don't check or complain if it doesn't because the user can't do anything anyway
+    			filesToLink[1] = new File (pathName.substring(0, pathName.length() - 4) + ".bai");
+    		}
+    	}
+    }
 
     //look and or make directory to hold softlinks to data
     File urlLinkDir = DataTrackUtil.checkUCSCLinkDirectory(baseURL, dataTrackFileServerWebContext);
@@ -182,9 +211,6 @@ public class MakeDataTrackLinks extends GNomExCommand implements Serializable {
 	    linkPath = UUID.randomUUID().toString() + username;
 	  }
       
-    //if (randomWord.length() > 6) randomWord = randomWord.substring(0, 6) +"_"+gv.getDas2Name();
-    //if (ucscGenomeBuildName != null && ucscGenomeBuildName.length() !=0) randomWord = randomWord+"_"+ ucscGenomeBuildName;
-
 	  //Create the users' data directory
 	  File dir = new File(urlLinkDir.getAbsoluteFile(),linkPath);
 	  if (!dir.exists())

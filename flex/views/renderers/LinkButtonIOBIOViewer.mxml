@@ -24,7 +24,7 @@
 			
 			if (data != null) {
 				if (data.hasOwnProperty("@BAMIOBIOViewer") && data.@BAMIOBIOViewer == 'Y') {
-					parentDocument.createIOBIOLinks(data.@idAnalysisFileString);
+					parentDocument.createIOBIOLinks(data.@fileName);
 				}	
 			}
 		} 

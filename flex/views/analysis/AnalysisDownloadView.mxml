@@ -650,8 +650,7 @@
 			public function createURLLinks(txt:String):void {
 				//send to server
 				var params:Object = new Object();
-				params.idDataTrack = "12345";
-				params.idAnalysisFile = txt;
+				params.pathName = txt;
 				
 				makeLinks.send(params);
 			}
@@ -664,8 +663,8 @@
 					alert.mx_internal::alertForm.mx_internal::textField.htmlText =txt;
 				}
 				else {
-					Alert.show("Please distribute a data track for this file or auto distribute all data tracks " +
-						"for this analysis and try again.", "No data track exists");
+					Alert.show("Check that the file exists and you have access then try again.",
+						"Unable to create a URLLink for this file.");
 				}
 			}
 			
@@ -677,8 +676,7 @@
 				
 				//send to server
 				var params:Object = new Object();
-				params.idDataTrack = "12345";
-				params.idAnalysisFile = txt;
+				params.pathName = txt;
 				params.requestType = "IOBIO";
 								
 				makeIOBIOLinks.send(params);
@@ -691,8 +689,8 @@
 					
 					navigateToURL(new URLRequest(makeIOBIOLinks.lastResult.@urlsToLink),"IOBIO");						
 				} else {
-					Alert.show("Please distribute a data track for this file or auto distribute all data tracks " +
-						"for this analysis and try again.", "No data track exists");
+					Alert.show("Check that the file exists and you have access then try again.",
+						"Unable to start the iobio.io viewer.");
 				}
 			}
 
