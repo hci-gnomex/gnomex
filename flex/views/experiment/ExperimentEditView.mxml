@@ -443,6 +443,10 @@
 					this.theTab.selectedIndex = 0;
 				} else {
 					this.theTab.selectedChild = defaultTab;
+					
+					if(this.theTab.selectedChild is TabLanesView){
+						lanesView.init();
+					}
 					defaultTab = null;
 				}
 				
