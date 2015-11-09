@@ -238,6 +238,7 @@
 								option.@idPropertyOption == propertyCombo[i].selectedItem.@idPropertyOption) {
 								option.@selected = 'Y';
 								var optName:String = option.@name;
+								property.@value = optName;
 								if(optName != null && optName.length > 0 && optName != " ") {
 									comboItemSelected = true;
 								}

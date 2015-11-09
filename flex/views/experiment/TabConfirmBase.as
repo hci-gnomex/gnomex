@@ -323,6 +323,7 @@ package views.experiment
 		
 		public function setupView():void {
 			
+			
 		}
 		
 		public function setBarcodeColVisibility(visibility:Boolean):void {

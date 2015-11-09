@@ -429,7 +429,7 @@ public class GetRequest extends GNomExCommand implements Serializable {
               }
             }
 
-            // Skip if property has no values for samples and is not active.
+
             if (entry == null && prop.getIsActive().equals("N")) {
               continue;
             }

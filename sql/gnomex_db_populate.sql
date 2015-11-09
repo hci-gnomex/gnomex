@@ -938,7 +938,8 @@ Test City, UT 12345',
  (114, 'view_limit_experiments', '100', 'The maximum number of experiments returned from the back-end.', 'N'),
  (115, 'view_limit_plates_and_runs', '200', 'The maximum number of plates and runs returned from the back-end.', 'N'),
  (116, 'product_sheet_name', 'Product Purchasing', 'The name of the price sheet for products.', 'N'),
- (117, 'product_order_directory', '/home/gnomex/productOrder/', 'Default directory for product order files', 'N');
+ (117, 'product_order_directory', '/home/gnomex/productOrder/', 'Default directory for product order files', 'N'),
+ (118, 'request_props_on_confirm_tab', 'Y', 'Show request properties on confirm tab of new experiment setup', 'N');
 
  
 
