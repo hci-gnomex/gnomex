@@ -45,6 +45,10 @@ DELETE FROM PropertyDictionary WHERE propertyName = 'plate_and_run_view_limit';
 INSERT INTO PropertyDictionary (propertyName, propertyValue, propertyDescription, forServerOnly)
 VALUES ('product_sheet_name', 'Product Purchasing', 'The name of the price sheet for products.', 'N');
 
+-- Add request_props_on_confirm_tab property
+insert into PropertyDictionary (propertyName, propertyValue, propertyDescription, forServerOnly, idCoreFacility, codeRequestCategory)
+    VALUES ('request_props_on_confirm_tab', 'Y', 'Show the request properties box on the confirm tab', 'N', NULL, NULL);
+
 -- Move BillingItem from ProductLineItem to ProductOrder --
 -- Drop foreign key idProductLineItem from BillingItem
 ALTER TABLE BillingItem DROP CONSTRAINT FK_BillingItem_ProductLineItem;

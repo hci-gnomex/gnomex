@@ -144,8 +144,8 @@ public class PropertyDictionary extends DictionaryEntry implements Serializable 
   public static final String        BILLING_DURING_WORKFLOW             = "billing_during_workflow";
   public static final String        PROPERTY_HIDE_260_230_QC_WORKFLOW   = "qc_hide_260_230_qc_workflow";
   public static final String        PROPERTY_SAMPLE_BATCH_WARNING       = "sample_batch_warning";
-  public static final String		PLATE_AND_RUN_VIEW_LIMIT			= "view_limit_plates_and_runs";
-  public static final String		CHROMATOGRAM_VIEW_LIMIT				= "view_limit_chromatograms";
+  public static final String		    PLATE_AND_RUN_VIEW_LIMIT			      = "view_limit_plates_and_runs";
+  public static final String		    CHROMATOGRAM_VIEW_LIMIT				      = "view_limit_chromatograms";
   public static final String        DISK_USAGE_BILLING_CORE             = "disk_usage_billing_core";
   public static final String        CORE_BILLING_OFFICE                 = "core_billing_office";
   public static final String        RESTRICT_ANNOTATION_ON_AUTO_ADD     = "restrict_annotation_on_auto_add";
@@ -155,15 +155,16 @@ public class PropertyDictionary extends DictionaryEntry implements Serializable 
   public static final String        EXPERIMENT_INVOICE_EMAIL_TEMPLATE   = "experiment_invoice_email_template";
   public static final String        EXPERIMENT_CONFIRMATION_EMAIL_TEMPLATE = "experiment_confirmation_email_template";
   public static final String        SHOW_ACTIVITY_DASHBOARD             = "show_activity_dashboard";
-  public static final String		USE_INVOICE_NUMBERING				= "use_invoice_numbering";
-  public static final String		SAMPLE_CONCENTRATION_PRECISION		= "sample_concentration_precision";
-  public static final String		STATUS_TO_USE_PRODUCTS				= "status_to_use_products";
-  public static final String		PROPERTY_NO_PRODUCTS_MESSAGE		= "no_products_message";
-  public static final String		ANALYSIS_VIEW_LIMIT					= "view_limit_analyses";
-  public static final String		DATATRACK_VIEW_LIMIT				= "view_limit_datatracks";
-  public static final String    	ISOLATION_DEFAULT_PRICE_CATEGORY  	= "isolation_default_price_category";
-  public static final String    	SEQUENOM_DEFAULT_PRICE_CATEGORY    	= "sequenom_default_price_category";
-  public static final String		PRODUCT_SHEET_NAME					= "product_sheet_name";
+  public static final String		    USE_INVOICE_NUMBERING				        = "use_invoice_numbering";
+  public static final String		    SAMPLE_CONCENTRATION_PRECISION		  = "sample_concentration_precision";
+  public static final String		    STATUS_TO_USE_PRODUCTS				      = "status_to_use_products";
+  public static final String		    PROPERTY_NO_PRODUCTS_MESSAGE		    = "no_products_message";
+  public static final String		    ANALYSIS_VIEW_LIMIT					        = "view_limit_analyses";
+  public static final String		    DATATRACK_VIEW_LIMIT				        = "view_limit_datatracks";
+  public static final String        ISOLATION_DEFAULT_PRICE_CATEGORY  	= "isolation_default_price_category";
+  public static final String        SEQUENOM_DEFAULT_PRICE_CATEGORY    	= "sequenom_default_price_category";
+  public static final String		    PRODUCT_SHEET_NAME					        = "product_sheet_name";
+  public static final String        REQUEST_PROPS_ON_CONFIRM_TAB        = "request_props_on_confirm_tab";
 
 
   private Integer       idPropertyDictionary;

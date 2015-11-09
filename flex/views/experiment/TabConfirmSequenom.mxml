@@ -52,6 +52,10 @@
 					}
 				}
 				
+				this.requestPropBox.includeInLayout = parentApplication.getCoreFacilityProperty(parentDocument.request.@idCoreFacility, parentApplication.PROPERTY_REQUEST_PROPS_ON_CONFIRM_TAB) == 'Y';
+				this.requestPropBox.visible = parentApplication.getCoreFacilityProperty(parentDocument.request.@idCoreFacility, parentApplication.PROPERTY_REQUEST_PROPS_ON_CONFIRM_TAB) == 'Y';
+
+				
 				concHeader = "Conc. ";
 				this.confirmContainer.validateNow();
 				
@@ -144,11 +148,21 @@
 				}
 			}
 			
+			public function filterRequestProperties(prop:Object):Boolean{
+				if(parentDocument != null && prop.@value != "" && prop.@idCoreFacility == parentDocument.request.@idCoreFacility){
+					return true;
+				} else{
+					return false;
+				}
+				
+			}
+			
 		]]>
 		
 	</mx:Script>
 	
 	<mx:XMLListCollection id="filteredSamples" />
+	<mx:XMLListCollection id="requestProperties" source="{parentDocument.request.RequestProperties.PropertyEntry}" filterFunction="filterRequestProperties" />
 	
 	<mx:VBox id="confirmHeaderContainer"  width="100%" backgroundAlpha="0.0" verticalGap="0" paddingRight="25"  >
 		<mx:VBox   width="100%"  backgroundAlpha="0.0" verticalGap="0" paddingBottom="5" paddingLeft="5" paddingTop="0" id="confirmContainer" >
@@ -279,6 +293,33 @@
 												 text="{parentDocument.isAmendState() ? parentDocument.request.@corePrepInstructions : ''}" borderColor="#E3E6E8"/>
 					</mx:VBox>
 				</mx:HBox>
+				
+				<mx:VBox id="requestPropBox" width="100%">					
+					<mx:Label text ="Request Properties" styleName="formLabel" />
+					<mx:DataGrid id="requestPropertyGrid" showHeaders="false" horizontalScrollPolicy="off"  
+								 editable="false" dataProvider="{requestProperties}"  
+								 backgroundAlpha="0"  horizontalGridLines="false" verticalGridLines="false" variableRowHeight="true" selectable="false" 
+								 sortableColumns="false" fontSize="11" borderStyle="none" width="60%" height="100" >
+						
+						<mx:columns>
+							<mx:DataGridColumn dataField="@name" editable="false" headerText="" >
+								<mx:itemRenderer>
+									<mx:Component>
+										<mx:Text text="{data.@name}" styleName="normal" />
+									</mx:Component>
+								</mx:itemRenderer> 
+							</mx:DataGridColumn>
+							<mx:DataGridColumn dataField="@value" editable="false" headerText="" >
+								<mx:itemRenderer>
+									<mx:Component>
+										<mx:Text text="{data.@value}" styleName="normal" />
+									</mx:Component>
+								</mx:itemRenderer> 
+							</mx:DataGridColumn>
+						</mx:columns>
+						
+					</mx:DataGrid>
+				</mx:VBox>
 			</mx:VBox>
 			
 			
