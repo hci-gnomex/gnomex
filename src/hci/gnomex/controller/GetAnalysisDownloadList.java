@@ -11,10 +11,12 @@ import hci.gnomex.model.AnalysisGroupFilter;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.AnalysisFileDescriptor;
 import hci.gnomex.utility.DictionaryHelper;
+import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.PropertyDictionaryHelper;
 
 import java.io.File;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -89,7 +91,7 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
 
     try {
       
-      Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
+      Session sess = HibernateSession.currentSession(this.getUsername());
 
       DictionaryHelper dh = DictionaryHelper.getInstance(sess);
       baseDir = PropertyDictionaryHelper.getInstance(sess).getAnalysisDirectory(serverName);
@@ -150,7 +152,7 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
         aNode.setAttribute("isEmpty", "N");
         
         
-        // Hash the know analysis files
+        // Hash the known analysis files
         Map knownAnalysisFileMap = new HashMap();
         for(Iterator i = a.getFiles().iterator(); i.hasNext();) {
           AnalysisFile af = (AnalysisFile)i.next();
@@ -215,8 +217,30 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
                 fd.setComments(af.getComments());
                 fd.setIdAnalysis(a.getIdAnalysis());
               } else {
-                fd.setIdAnalysisFileString("AnalysisFile-" + fd.getFilePathName());
-                fd.setIdAnalysis(a.getIdAnalysis());
+                // if this is a data track type file add the analysisFile to the database so we don't have to have the front end
+                // call SaveAnalysisFiles with a potentially huge XML request
+                if (fd.getIsSupportedDataTrack().equals("Y")) {
+                	af = new AnalysisFile();
+                	af.setBaseFilePath(getAnalysisDirectory(baseDir,a));
+                	af.setQualifiedFilePath(directoryName);
+                	af.setFileName(fd.getDisplayName());              
+                	af.setIdAnalysis(a.getIdAnalysis());
+                	af.setFileSize(new BigDecimal (fd.getFileSize()));
+                	
+                	sess.save(af);
+                	sess.flush();
+                	
+                	knownAnalysisFileMap.put(af.getQualifiedFileName(),af);
+                	
+                	fd.setIdAnalysisFileString(af.getIdAnalysisFile().toString());
+                	fd.setIdAnalysis(a.getIdAnalysis());
+                	                
+                } else {
+                	// just pretend
+                    fd.setIdAnalysisFileString("AnalysisFile-" + fd.getFilePathName());
+                    fd.setIdAnalysis(a.getIdAnalysis());                	               	
+                }
+                
               }
               fd.setQualifiedFilePath(directoryName);
               fd.setBaseFilePath(getAnalysisDirectory(baseDir,a));
@@ -414,7 +438,26 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
             fd.setIdAnalysisFileString(af.getIdAnalysisFile().toString());
             fd.setComments(af.getComments());
           } else {
-            fd.setIdAnalysisFileString("AnalysisFile-" + fd.getFilePathName());
+              if (fd.getIsSupportedDataTrack().equals("Y")) {
+              	af = new AnalysisFile();
+              	af.setBaseFilePath(fd.getBaseFilePath());
+              	af.setQualifiedFilePath(fd.getQualifiedFilePath());
+              	af.setFileName(fd.getDisplayName());              
+              	af.setIdAnalysis(fd.getIdAnalysis());
+              	af.setFileSize(new BigDecimal (fd.getFileSize()));
+              	
+              	sess.save(af);
+              	sess.flush();
+              	
+              	knownAnalysisFileMap.put(af.getQualifiedFileName(),af);
+              	
+              	fd.setIdAnalysisFileString(af.getIdAnalysisFile().toString());
+              	fd.setIdAnalysis(af.getIdAnalysis());
+              	                
+              } else {
+              	// just pretend
+                  fd.setIdAnalysisFileString("AnalysisFile-" + fd.getFilePathName());              	               	
+              }
           }
           
           fd.setQualifiedFilePath(directoryName);
@@ -518,8 +561,27 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
         childFd.setComments(af.getComments());
         childFd.setIdAnalysis(af.getIdAnalysis());
       } else {
-        childFd.setIdAnalysisFileString("AnalysisFile-" + childFd.getFilePathName());
-        childFd.setIdAnalysis(fd.getIdAnalysis());
+    	  if (childFd.getIsSupportedDataTrack().equals("Y")) {
+    		// create an AnalysisFile
+          	af = new AnalysisFile();
+          	af.setBaseFilePath(childFd.getBaseFilePath() != null ? childFd.getBaseFilePath() : "");
+          	af.setQualifiedFilePath(childFd.getQualifiedFilePath() != null ? childFd.getQualifiedFilePath() : "");
+          	af.setFileName(childFd.getDisplayName());
+        
+          	af.setIdAnalysis(childFd.getIdAnalysis());
+          	af.setFileSize(new BigDecimal (fd.getFileSize()));
+          	
+          	sess.save(af);
+          	sess.flush();
+          	
+          	// it is now known
+          	knownFilesMap.put(af.getQualifiedFileName(),af);
+          	
+          	childFd.setIdAnalysisFileString(af.getIdAnalysisFile().toString());
+    	  } else {
+    		  childFd.setIdAnalysisFileString("AnalysisFile-" + childFd.getFilePathName());
+    		  childFd.setIdAnalysis(fd.getIdAnalysis());
+    	  }
       }
       
       childFd.excludeMethodFromXML("getChildren");
