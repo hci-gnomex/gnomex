@@ -5,6 +5,7 @@ import hci.framework.control.RollBackCommandException;
 import hci.gnomex.constants.Constants;
 import hci.gnomex.model.Analysis;
 import hci.gnomex.model.AnalysisFile;
+import hci.gnomex.model.AnalysisCollaborator;
 import hci.gnomex.model.GenomeBuild;
 import hci.gnomex.model.Lab;
 import hci.gnomex.security.SecurityAdvisor;
@@ -27,11 +28,13 @@ import org.jdom.Document;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 
+import hci.gnomex.model.AppUser;
 import hci.gnomex.model.DataTrack;
 import hci.gnomex.model.DataTrackFile;
 import hci.gnomex.model.DataTrackFolder;
 import hci.gnomex.model.Institution;
 import hci.gnomex.model.PropertyDictionary;
+import hci.gnomex.utility.AppUserComparator;
 import hci.gnomex.utility.DataTrackComparator;
 import hci.gnomex.utility.DataTrackUtil;
 import hci.gnomex.utility.DictionaryHelper;
@@ -81,6 +84,7 @@ public class CreateAllDataTracks extends GNomExCommand implements Serializable {
 
   private String baseDirDataTrack = null;
   private String baseDirAnalysis = null;
+  
 
   
   
@@ -320,7 +324,21 @@ public class CreateAllDataTracks extends GNomExCommand implements Serializable {
 			dataTrack.setIdLab(idLab);
 			dataTrack.setIdGenomeBuild(idGenomeBuild);
 			
-
+		    //
+		    // Clone the collaborators
+		    //
+			if (analysis.getCollaborators() != null) {
+				TreeSet<AppUser> collaborators = new TreeSet<AppUser>(new AppUserComparator());
+				Iterator<?> cIt = analysis.getCollaborators().iterator();
+				while (cIt.hasNext()) {
+					AnalysisCollaborator ac = (AnalysisCollaborator)cIt.next();
+					AppUser au = (AppUser)sess.load(AppUser.class, ac.getIdAppUser());
+		      
+					collaborators.add(au);
+					dataTrack.setCollaborators(collaborators);      
+				}
+			}
+		
 			String defaultVisibility = propertyHelper.getProperty(PropertyDictionary.DEFAULT_VISIBILITY_DATATRACK);
 			if (defaultVisibility != null && defaultVisibility.length() > 0) {
 				dataTrack.setCodeVisibility(defaultVisibility);
