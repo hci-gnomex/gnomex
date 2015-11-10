@@ -22,6 +22,8 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -114,7 +116,8 @@ public class MakeDataTrackIGVLink extends HttpServlet {
 		boolean toWrite = false;
 		
 		//Print out data within the folder
-		StringBuilder dataTrackResult = new StringBuilder("");		
+		StringBuilder dataTrackResult = new StringBuilder("");	
+		List <String> dtr = new ArrayList<String> ();
 		
 		ArrayList<DataTrack> dts = new ArrayList<DataTrack>(folder.getDataTracks());
 		for (DataTrack dt: dts) {
@@ -126,11 +129,20 @@ public class MakeDataTrackIGVLink extends HttpServlet {
 				
 				String trackResults = makeIGVLink(sess,dt,path,prefix);
 				if (!trackResults.equals("")) {
-					dataTrackResult.append(trackResults);
+					dtr.add(trackResults);
+//					dataTrackResult.append(trackResults);
 					toWrite = true;
 				}
 			}
 			
+		}
+		
+		// sort it
+		if (toWrite) {
+			Collections.sort(dtr,new MyComp());
+			for (String s: dtr) {
+				dataTrackResult.append(s);
+			}			
 		}
 		
 		
@@ -370,7 +382,6 @@ public class MakeDataTrackIGVLink extends HttpServlet {
 
 	private String makeIGVLink(Session sess, DataTrack dataTrack, String directory, StringBuilder prefix) throws Exception {
 		StringBuilder sb = new StringBuilder("");
-		TreeMap<String,String> sortit = new TreeMap<String,String>(); 
 		try {
 			
 			List<File> dataTrackFiles = dataTrack.getFiles(baseDir, analysisBaseDir);
@@ -425,16 +436,8 @@ public class MakeDataTrackIGVLink extends HttpServlet {
 					String bigDataUrl = baseURL + annoPartialPath;
 					fileURLs.add(bigDataUrl);
 					
-//					sb.append(prefix + "\t<Resource name=\"" + dataTrack.getName() + "\" path=\"" + bigDataUrl + "\"/>\n");
-					sortit.put(dataTrack.getName(), bigDataUrl);
-				}
-				
-				// put them out sorted
-		        Set<String> keys = sortit.keySet();
-		        for(String key: keys){
-		        	sb.append(prefix + "\t<Resource name=\"" + key + "\" path=\"" + sortit.get(key) + "\"/>\n");
-		        }
-								
+					sb.append(prefix + "\t<Resource name=\"" + dataTrack.getName() + "\" path=\"" + bigDataUrl + "\"/>\n");
+				}				
 			} 
 			
 			
@@ -474,4 +477,13 @@ public class MakeDataTrackIGVLink extends HttpServlet {
 		name.replaceAll(",", "_");
 		return name;
 	}
+}
+
+class MyComp implements Comparator<String>{
+	 
+    @Override
+    public int compare(String str1, String str2) {
+        return str1.compareTo(str2);
+    }
+     
 }
