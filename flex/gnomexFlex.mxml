@@ -1538,16 +1538,6 @@
 				navAnalysisView.selectedIdLab = null;
 				navAnalysisView.selectedIdAnalysisGroup = null;
 				
-				
-				
-				// We have to make sure that the first time a lookup
-				// occurs after lauch, we refresh the analysis
-				// through show event (init()).  The next time
-				// through, we will make the call directly.
-				if (navAnalysisView.isInitialized) {
-					navAnalysisView.refreshAnalysisForLookup();
-				}
-				
 				this.stateStack.selectedChild = theViews;
 				theViews.visible = true;
 				theViews.selectedChild = navAnalysisView;
