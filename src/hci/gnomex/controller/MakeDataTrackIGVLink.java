@@ -24,6 +24,8 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeMap;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -368,6 +370,7 @@ public class MakeDataTrackIGVLink extends HttpServlet {
 
 	private String makeIGVLink(Session sess, DataTrack dataTrack, String directory, StringBuilder prefix) throws Exception {
 		StringBuilder sb = new StringBuilder("");
+		TreeMap<String,String> sortit = new TreeMap<String,String>(); 
 		try {
 			
 			List<File> dataTrackFiles = dataTrack.getFiles(baseDir, analysisBaseDir);
@@ -376,17 +379,7 @@ public class MakeDataTrackIGVLink extends HttpServlet {
 			//disallow AUTOCONVERT!!!!
 			UCSCLinkFiles link;
 			link = DataTrackUtil.fetchUCSCLinkFiles(dataTrackFiles, GNomExFrontController.getWebContextPath(),false);
-			
-//			//If the user is an admin or is a member of datatrack lab, allow autoconvert
-//			if (secAdvisor.hasPermission(SecurityAdvisor.CAN_ACCESS_ANY_OBJECT) || secAdvisor.isOwner(dataTrack.getIdAppUser()) || 
-//					secAdvisor.isGroupIAmMemberOf(dataTrack.getIdLab()) || secAdvisor.isGroupICollaborateWith(dataTrack.getIdLab())) {
-//				//check if dataTrack has exportable file type (xxx.bam, xxx.bai, xxx.bw, xxx.bb, xxx.vcf.gz, xxx.vcf.gz.tbi, xxx.useq (will be converted if autoConvert is true))
-//				link = DataTrackUtil.fetchUCSCLinkFiles(dataTrackFiles, GNomExFrontController.getWebContextPath(),true);
-//			} else {
-//				link = DataTrackUtil.fetchUCSCLinkFiles(dataTrackFiles, GNomExFrontController.getWebContextPath(),false);
-//			}
-			
-			
+						
 			//'link' will be null if the user can read the track, doesn't own the track and the bw has not yet been created.
 			if (link != null) {
 				//check if dataTrack has exportable file type (xxx.bam, xxx.bai, xxx.bw, xxx.bb, xxx.vcf.gz, xxx.vcf.gz.tbi, xxx.useq (will be converted if autoConvert is true))
@@ -406,10 +399,7 @@ public class MakeDataTrackIGVLink extends HttpServlet {
 					File annoFile = new File(directory, DataTrackUtil.stripBadURLChars(f.getName(), "_"));
 					String annoString = annoFile.toString();
 
-					//make soft link
-					//DataTrackUtil.makeSoftLinkViaUNIXCommandLine(f, annoFile);
-					
-					//We are no storing the links and creating them in a batch.
+					//We are now storing the links and creating them in a batch.
 					String[] links = {f.toString(),annoString};
 					linksToMake.add(links);
 
@@ -435,8 +425,16 @@ public class MakeDataTrackIGVLink extends HttpServlet {
 					String bigDataUrl = baseURL + annoPartialPath;
 					fileURLs.add(bigDataUrl);
 					
-					sb.append(prefix + "\t<Resource name=\"" + dataTrack.getName() + "\" path=\"" + bigDataUrl + "\"/>\n");
+//					sb.append(prefix + "\t<Resource name=\"" + dataTrack.getName() + "\" path=\"" + bigDataUrl + "\"/>\n");
+					sortit.put(dataTrack.getName(), bigDataUrl);
 				}
+				
+				// put them out sorted
+		        Set<String> keys = sortit.keySet();
+		        for(String key: keys){
+		        	sb.append(prefix + "\t<Resource name=\"" + key + "\" path=\"" + sortit.get(key) + "\"/>\n");
+		        }
+								
 			} 
 			
 			
