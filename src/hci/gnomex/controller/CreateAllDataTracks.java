@@ -143,7 +143,7 @@ public class CreateAllDataTracks extends GNomExCommand implements Serializable {
 					  else {
 						  dtExists.add(af);
 					  }
-				  } else if (afFileNameUpperCase.endsWith(".USEQ")) {
+				  } else if (afFileNameUpperCase.endsWith(".USEQ")  || afFileNameUpperCase.endsWith(".BB") || afFileNameUpperCase.endsWith(".BW")) {
 					  // is it already a data track?
 					  if (getidDataTrack(af.getIdAnalysisFile(),sess) == -1) {
 						covFiles.add(af);
@@ -384,14 +384,12 @@ public class CreateAllDataTracks extends GNomExCommand implements Serializable {
 			Integer idAnalysisFileOther = null;
 			
 			boolean lookForBai = false;
-			boolean lookForBigWig = false;
 			boolean lookForVCFTBI = false;
 
 			String baseFileName = fetchBaseName(analysisFile.getQualifiedFileName(), Constants.DATATRACK_FILE_EXTENSIONS);
 
 			String fileName = analysisFile.getFileName().toUpperCase();
 			if (fileName.endsWith(".BAM")) lookForBai = true;
-			else if (fileName.endsWith(".USEQ")) lookForBigWig = true;
 			else if (fileName.endsWith(".VCF.GZ")) lookForVCFTBI = true;
 
 			// look thru all the files in this analysis
@@ -400,14 +398,10 @@ public class CreateAllDataTracks extends GNomExCommand implements Serializable {
 				String afBaseFileName = fetchBaseName(af.getQualifiedFileName(), Constants.DATATRACK_FILE_EXTENSIONS);
 				
 
-//				System.out.println ("[CreateAllDataTracks] afbasename: " + afBaseFileName + " basename: " + baseFileName);
-				
 				//do the baseNames match?
 				String afFileNameUpperCase = af.getFileName().toUpperCase();
 				if (baseFileName.toUpperCase().equals(afBaseFileName.toUpperCase())) {						
 					if (lookForBai && afFileNameUpperCase.endsWith(".BAI")) {
-						idAnalysisFileOther = af.getIdAnalysisFile();
-					} else if (lookForBigWig && (afFileNameUpperCase.endsWith(".BW") || afFileNameUpperCase.endsWith(".BB"))) {
 						idAnalysisFileOther = af.getIdAnalysisFile();
 					} else if (lookForVCFTBI && afFileNameUpperCase.endsWith(".VCF.GZ.TBI")) {
 						idAnalysisFileOther = af.getIdAnalysisFile();
