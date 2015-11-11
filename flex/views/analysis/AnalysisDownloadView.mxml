@@ -745,10 +745,10 @@
 			 * Make UCSC Links 
 			 *
 			 */
-			public function createUCSCLink(txt:String):void {
+			public function createUCSCLink(txta:String, txtf:String):void {
 				var params:Object = new Object();
-				params.idDataTrack = "12345";
-				params.idAnalysisFile = txt;
+				params.idAnalysis = txta;
+				params.pathName = txtf;
 				
 				makeUCSCLinks.send(params);
 			}
@@ -765,8 +765,8 @@
 					
 				}
 				else {
-					Alert.show("Please distribute a data track for this file or auto distribute all data tracks " +
-						"for this analysis and try again.", "No data track exists");
+					Alert.show("Check that the file exists and you have access then try again.",
+						"Unable to start the UCSC viewer.");
 				}
 			}
 			

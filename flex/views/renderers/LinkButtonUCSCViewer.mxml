@@ -24,7 +24,7 @@
 			
 			if (data != null) {
 				if (data.hasOwnProperty("@UCSCViewer") && data.@UCSCViewer == 'Y') {					
-					parentDocument.createUCSCLink(data.@idAnalysisFileString);
+					parentDocument.createUCSCLink(data.@idAnalysis,data.@fileName);
 				}	
 			}
 
