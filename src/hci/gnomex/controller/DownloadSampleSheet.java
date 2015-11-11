@@ -207,6 +207,7 @@ public class DownloadSampleSheet extends ReportCommand implements Serializable {
       String propertyName = names[SampleSheetColumnNamesParser.PROPERTY_NAME_IDX];
       String gridLabel = names[SampleSheetColumnNamesParser.GRID_LABEL_IDX];
       String value = getSpecialValue(sample, propertyName);
+      
       if (value == null) {
         value = getAssayValue(sample, propertyName);
       }
@@ -287,7 +288,7 @@ public class DownloadSampleSheet extends ReportCommand implements Serializable {
     if (sample.getPropertyEntries() != null) {
       for(PropertyEntry pe : (Set<PropertyEntry>)sample.getPropertyEntries()) {
         if (pe.getProperty().getName().equals(name)) {
-          retVal = pe.getValueForDisplay();
+          retVal = pe.getValue();
           break;
         }
       }
