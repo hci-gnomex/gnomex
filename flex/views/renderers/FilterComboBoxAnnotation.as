@@ -50,8 +50,6 @@ package views.renderers
 			
 			this.enabled = true;
 			this.editable = true;
-			this.removeFilterOnSelection = false;
-			this.removeInputOnFocusOut = false;
 			if ( idProperty != null ){
 				dataProvider = parentApplication.getPropertyOptions(idProperty, includeInactiveOptions);
 				selectTheItem();

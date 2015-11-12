@@ -482,8 +482,8 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
       /*If visibility checks failed then do a final check to make sure that this isn't a request that a collaborator submitted and is trying to view
        * We don't handle collaborators in above cases b/c it would give them access to all requests from the lab they collaborate with*/
       if(!canRead){
-        if(this.appUser.getIdAppUser().equals(req.getIdAppUser())){
-          canRead = true;
+        if(this.appUser!=null && this.appUser.getIdAppUser()!=null && this.appUser.getIdAppUser().equals(req.getIdAppUser())){
+           canRead = true;
         }
       }
       
