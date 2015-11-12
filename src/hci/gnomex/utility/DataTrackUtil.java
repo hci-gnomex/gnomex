@@ -109,6 +109,8 @@ public class DataTrackUtil {
 	/**Makes a soft link between the realFile and the linked File using the linux 'ln -s' command.*/
 	public static boolean makeSoftLinkViaUNIXCommandLine(File realFile, File link){
 		try {
+			String[] cmd1 = {"rm", "-f", link.toString()};
+			Runtime.getRuntime().exec(cmd1);
 			String[] cmd = {"ln", "-s", realFile.getCanonicalPath(), link.toString()};
 			Runtime.getRuntime().exec(cmd);
 			return true;
@@ -121,6 +123,8 @@ public class DataTrackUtil {
 	/**Makes a soft link between the realFile and the linked File using the linux 'ln -s' command.*/
 	public static boolean makeSoftLinkViaUNIXCommandLine(File realFile, String link){
 		try {
+			String[] cmd1 = {"rm", "-f", link};
+			Runtime.getRuntime().exec(cmd1);			
 			String[] cmd = {"ln", "-s", realFile.getCanonicalPath(), link};
 			Runtime.getRuntime().exec(cmd);
 			return true;
