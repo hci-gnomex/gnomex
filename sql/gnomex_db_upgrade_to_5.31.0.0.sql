@@ -51,19 +51,17 @@ insert into PropertyDictionary (propertyName, propertyValue, propertyDescription
 
 -- Move BillingItem from ProductLineItem to ProductOrder --
 -- Drop foreign key idProductLineItem from BillingItem
-ALTER TABLE BillingItem DROP CONSTRAINT FK_BillingItem_ProductLineItem;
+ALTER TABLE BillingItem DROP FOREIGN KEY FK_BillingItem_ProductLineItem;
 
 -- Change idProductLineItem to idProduct Order on BillingItem
 ALTER TABLE BillingItem change column idProductLineItem idProductOrder INT(10) NULL;
-call ExecuteIfTableExists('gnomex','BillingItem_Audit','alter table BillingItem_Audit CHANGE COLUMN idProductOrder INT(10) NULL');
+call ExecuteIfTableExists('gnomex','BillingItem_Audit','alter table BillingItem_Audit CHANGE COLUMN idProductLineItem idProductOrder INT(10) NULL');
 
 -- Script to update idProductLineItem to idProduct Order on existing BillingItems
-update bi
-set bi.idProductOrder = pli.idProductOrder
-from BillingItem bi 
-join ProductLineItem pli on bi.idProductOrder = pli.idProductLineItem
-where bi.idProductOrder is not null
-  and bi.idProductOrder = pli.idProductLineItem;
+update BillingItem, ProductLineItem
+set BillingItem.idProductOrder = ProductLineItem.idProductOrder 
+where BillingItem.idProductOrder is not null
+  and BillingItem.idProductOrder = ProductLineItem.idProductLineItem;
 
 -- Add foreign key idProductOrder to BillingItem
 ALTER TABLE BillingItem ADD CONSTRAINT `FK_BillingItem_ProductOrder` FOREIGN KEY `FK_BillingItem_ProductOrder` (`idProductOrder`)
