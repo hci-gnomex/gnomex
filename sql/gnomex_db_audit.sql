@@ -471,6 +471,12 @@ DROP TRIGGER IF EXISTS TrAU_MetrixObject_FER
 $$
 DROP TRIGGER IF EXISTS TrAD_MetrixObject_FER
 $$
+DROP TRIGGER IF EXISTS TrAI_MicroArrayRequestNumber_FER
+$$
+DROP TRIGGER IF EXISTS TrAU_MicroArrayRequestNumber_FER
+$$
+DROP TRIGGER IF EXISTS TrAD_MicroArrayRequestNumber_FER
+$$
 DROP TRIGGER IF EXISTS TrAI_NewsItem_FER
 $$
 DROP TRIGGER IF EXISTS TrAU_NewsItem_FER
@@ -4574,7 +4580,7 @@ CREATE TABLE IF NOT EXISTS `BillingItem_Audit` (
  ,`idCoreFacility`  int(10)  NULL DEFAULT NULL
  ,`idInvoice`  int(10)  NULL DEFAULT NULL
  ,`idDiskUsageByMonth`  int(10)  NULL DEFAULT NULL
- ,`idProductLineItem`  int(10)  NULL DEFAULT NULL
+ ,`idProductOrder`  int(10)  NULL DEFAULT NULL
  ,`tag`  varchar(10)  NULL DEFAULT NULL
 ) ENGINE=InnoDB
 $$
@@ -4610,7 +4616,7 @@ INSERT INTO BillingItem_Audit
   , idCoreFacility
   , idInvoice
   , idDiskUsageByMonth
-  , idProductLineItem
+  , idProductOrder
   , tag )
   SELECT
   'No Context'
@@ -4638,7 +4644,7 @@ INSERT INTO BillingItem_Audit
   , idCoreFacility
   , idInvoice
   , idDiskUsageByMonth
-  , idProductLineItem
+  , idProductOrder
   , tag
   FROM BillingItem
   WHERE NOT EXISTS(SELECT * FROM BillingItem_Audit)
@@ -4677,7 +4683,7 @@ BEGIN
   , idCoreFacility
   , idInvoice
   , idDiskUsageByMonth
-  , idProductLineItem
+  , idProductOrder
   , tag )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
@@ -4705,7 +4711,7 @@ BEGIN
   , NEW.idCoreFacility
   , NEW.idInvoice
   , NEW.idDiskUsageByMonth
-  , NEW.idProductLineItem
+  , NEW.idProductOrder
   , NEW.tag );
 END;
 $$
@@ -4739,7 +4745,7 @@ BEGIN
   , idCoreFacility
   , idInvoice
   , idDiskUsageByMonth
-  , idProductLineItem
+  , idProductOrder
   , tag )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
@@ -4767,7 +4773,7 @@ BEGIN
   , NEW.idCoreFacility
   , NEW.idInvoice
   , NEW.idDiskUsageByMonth
-  , NEW.idProductLineItem
+  , NEW.idProductOrder
   , NEW.tag );
 END;
 $$
@@ -4801,7 +4807,7 @@ BEGIN
   , idCoreFacility
   , idInvoice
   , idDiskUsageByMonth
-  , idProductLineItem
+  , idProductOrder
   , tag )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
@@ -4829,7 +4835,7 @@ BEGIN
   , OLD.idCoreFacility
   , OLD.idInvoice
   , OLD.idDiskUsageByMonth
-  , OLD.idProductLineItem
+  , OLD.idProductOrder
   , OLD.tag );
 END;
 $$
@@ -5316,6 +5322,7 @@ CREATE TABLE IF NOT EXISTS `BioanalyzerChipType_Audit` (
  ,`codeConcentrationUnit`  varchar(10)  NULL DEFAULT NULL
  ,`codeApplication`  varchar(10)  NULL DEFAULT NULL
  ,`protocolDescription`  longtext  NULL DEFAULT NULL
+ ,`sortOrder`  int(10)  NULL DEFAULT NULL
 ) ENGINE=InnoDB
 $$
 
@@ -5338,7 +5345,8 @@ INSERT INTO BioanalyzerChipType_Audit
   , isActive
   , codeConcentrationUnit
   , codeApplication
-  , protocolDescription )
+  , protocolDescription
+  , sortOrder )
   SELECT
   'No Context'
   , 'L'
@@ -5354,6 +5362,7 @@ INSERT INTO BioanalyzerChipType_Audit
   , codeConcentrationUnit
   , codeApplication
   , protocolDescription
+  , sortOrder
   FROM BioanalyzerChipType
   WHERE NOT EXISTS(SELECT * FROM BioanalyzerChipType_Audit)
 $$
@@ -5379,7 +5388,8 @@ BEGIN
   , isActive
   , codeConcentrationUnit
   , codeApplication
-  , protocolDescription )
+  , protocolDescription
+  , sortOrder )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
@@ -5394,7 +5404,8 @@ BEGIN
   , NEW.isActive
   , NEW.codeConcentrationUnit
   , NEW.codeApplication
-  , NEW.protocolDescription );
+  , NEW.protocolDescription
+  , NEW.sortOrder );
 END;
 $$
 
@@ -5415,7 +5426,8 @@ BEGIN
   , isActive
   , codeConcentrationUnit
   , codeApplication
-  , protocolDescription )
+  , protocolDescription
+  , sortOrder )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
@@ -5430,7 +5442,8 @@ BEGIN
   , NEW.isActive
   , NEW.codeConcentrationUnit
   , NEW.codeApplication
-  , NEW.protocolDescription );
+  , NEW.protocolDescription
+  , NEW.sortOrder );
 END;
 $$
 
@@ -5451,7 +5464,8 @@ BEGIN
   , isActive
   , codeConcentrationUnit
   , codeApplication
-  , protocolDescription )
+  , protocolDescription
+  , sortOrder )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
@@ -5466,7 +5480,8 @@ BEGIN
   , OLD.isActive
   , OLD.codeConcentrationUnit
   , OLD.codeApplication
-  , OLD.protocolDescription );
+  , OLD.protocolDescription
+  , OLD.sortOrder );
 END;
 $$
 
@@ -12519,6 +12534,108 @@ $$
 
 
 --
+-- Audit Table For MicroArrayRequestNumber 
+--
+
+CREATE TABLE IF NOT EXISTS `MicroArrayRequestNumber_Audit` (
+  `AuditAppuser`       varchar(128) NOT NULL
+ ,`AuditOperation`     char(1)      NOT NULL
+ ,`AuditSystemUser`    varchar(30)  NOT NULL
+ ,`AuditOperationDate` datetime     NOT NULL
+ ,`number`  int(10)  NULL DEFAULT NULL
+ ,`dummy`  char(1)  NULL DEFAULT NULL
+) ENGINE=InnoDB
+$$
+
+
+--
+-- Initial audit table rows for MicroArrayRequestNumber 
+--
+
+INSERT INTO MicroArrayRequestNumber_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , number
+  , dummy )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , number
+  , dummy
+  FROM MicroArrayRequestNumber
+  WHERE NOT EXISTS(SELECT * FROM MicroArrayRequestNumber_Audit)
+$$
+
+--
+-- Audit Triggers For MicroArrayRequestNumber 
+--
+
+
+CREATE TRIGGER TrAI_MicroArrayRequestNumber_FER AFTER INSERT ON MicroArrayRequestNumber FOR EACH ROW
+BEGIN
+  INSERT INTO MicroArrayRequestNumber_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , number
+  , dummy )
+  VALUES
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
+  , 'I'
+  , USER()
+  , NOW()
+  , NEW.number
+  , NEW.dummy );
+END;
+$$
+
+
+CREATE TRIGGER TrAU_MicroArrayRequestNumber_FER AFTER UPDATE ON MicroArrayRequestNumber FOR EACH ROW
+BEGIN
+  INSERT INTO MicroArrayRequestNumber_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , number
+  , dummy )
+  VALUES
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
+  , 'U'
+  , USER()
+  , NOW()
+  , NEW.number
+  , NEW.dummy );
+END;
+$$
+
+
+CREATE TRIGGER TrAD_MicroArrayRequestNumber_FER AFTER DELETE ON MicroArrayRequestNumber FOR EACH ROW
+BEGIN
+  INSERT INTO MicroArrayRequestNumber_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , number
+  , dummy )
+  VALUES
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
+  , 'D'
+  , USER()
+  , NOW()
+  , OLD.number
+  , OLD.dummy );
+END;
+$$
+
+
+--
 -- Audit Table For NewsItem 
 --
 
@@ -15697,6 +15814,8 @@ CREATE TABLE IF NOT EXISTS `ProductOrderFile_Audit` (
  ,`fileName`  varchar(2000)  NULL DEFAULT NULL
  ,`fileSize`  decimal(14,0)  NULL DEFAULT NULL
  ,`createDate`  date  NULL DEFAULT NULL
+ ,`baseFilePath`  varchar(300)  NULL DEFAULT NULL
+ ,`qualifiedFilePath`  varchar(300)  NULL DEFAULT NULL
 ) ENGINE=InnoDB
 $$
 
@@ -15714,7 +15833,9 @@ INSERT INTO ProductOrderFile_Audit
   , idProductOrder
   , fileName
   , fileSize
-  , createDate )
+  , createDate
+  , baseFilePath
+  , qualifiedFilePath )
   SELECT
   'No Context'
   , 'L'
@@ -15725,6 +15846,8 @@ INSERT INTO ProductOrderFile_Audit
   , fileName
   , fileSize
   , createDate
+  , baseFilePath
+  , qualifiedFilePath
   FROM ProductOrderFile
   WHERE NOT EXISTS(SELECT * FROM ProductOrderFile_Audit)
 $$
@@ -15745,7 +15868,9 @@ BEGIN
   , idProductOrder
   , fileName
   , fileSize
-  , createDate )
+  , createDate
+  , baseFilePath
+  , qualifiedFilePath )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
@@ -15755,7 +15880,9 @@ BEGIN
   , NEW.idProductOrder
   , NEW.fileName
   , NEW.fileSize
-  , NEW.createDate );
+  , NEW.createDate
+  , NEW.baseFilePath
+  , NEW.qualifiedFilePath );
 END;
 $$
 
@@ -15771,7 +15898,9 @@ BEGIN
   , idProductOrder
   , fileName
   , fileSize
-  , createDate )
+  , createDate
+  , baseFilePath
+  , qualifiedFilePath )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
@@ -15781,7 +15910,9 @@ BEGIN
   , NEW.idProductOrder
   , NEW.fileName
   , NEW.fileSize
-  , NEW.createDate );
+  , NEW.createDate
+  , NEW.baseFilePath
+  , NEW.qualifiedFilePath );
 END;
 $$
 
@@ -15797,7 +15928,9 @@ BEGIN
   , idProductOrder
   , fileName
   , fileSize
-  , createDate )
+  , createDate
+  , baseFilePath
+  , qualifiedFilePath )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
@@ -15807,7 +15940,9 @@ BEGIN
   , OLD.idProductOrder
   , OLD.fileName
   , OLD.fileSize
-  , OLD.createDate );
+  , OLD.createDate
+  , OLD.baseFilePath
+  , OLD.qualifiedFilePath );
 END;
 $$
 
