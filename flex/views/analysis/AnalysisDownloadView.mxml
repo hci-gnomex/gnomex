@@ -518,6 +518,7 @@
 				var params:Object = new Object();
 				params.idAnalysis = e.detail;
 				params.includeUploadStagingDir = 'Y';
+				params.autoCreate = 'Y';
 				getAnalysisDownloadList.send(params);
 			}
 			

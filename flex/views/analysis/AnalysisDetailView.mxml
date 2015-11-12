@@ -128,6 +128,7 @@
 				var params:Object = new Object();
 				params.idAnalysis = analysis.@idAnalysis;
 				params.includeUploadStagingDir = 'Y';
+				params.autoCreate = 'Y';
 				filesView.getAnalysisDownloadList.send(params);
 				filesView.browseParameters = params;
 				
@@ -153,6 +154,7 @@
 				var params:Object = new Object();
 				params.idAnalysis = analysis.@idAnalysis;
 				params.includeUploadStagingDir = 'Y';
+				params.autoCreate = 'Y';
 				filesView.getAnalysisDownloadList.send(params);
 				filesView.browseParameters = params;
 				
