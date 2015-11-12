@@ -263,9 +263,9 @@
 					break;
 				}
 			}
-			if(currentOwnerNotFound) {						
-				Alert.show("There is either no owner or the owner of this data track is not a member its current lab group. Please select an owner from the dropdown on the Visibility tab and save.", "Owner Not Assigned");				
-			}
+//			if(currentOwnerNotFound) {						
+//				Alert.show("There is either no owner or the owner of this data track is not a member its current lab group. Please select an owner from the dropdown on the Visibility tab and save.", "Owner Not Assigned");				
+//			}
 			
 		}
 	}
