@@ -16,16 +16,16 @@ call ExecuteIfTableExists('gnomex','Request_Audit','alter table Request_Audit DR
 
 -- Add new view_limit properties
 INSERT INTO PropertyDictionary (propertyName, propertyValue, propertyDescription, forServerOnly)
-VALUES ('view_limit_analyses', '1000', 'The maximum number of analyses returned from the back-end.', 'N');
+VALUES ('view_limit_analyses', '100000', 'The maximum number of analyses returned from the back-end.', 'N');
  
 INSERT INTO PropertyDictionary (propertyName, propertyValue, propertyDescription, forServerOnly)
-VALUES ('view_limit_datatracks', '200', 'The maximum number of data tracks returned from the back-end.', 'N');
+VALUES ('view_limit_datatracks', '200000', 'The maximum number of data tracks returned from the back-end.', 'N');
 
 INSERT INTO PropertyDictionary (propertyName, propertyValue, propertyDescription, forServerOnly)
 VALUES ('view_limit_chromatograms', '1000', 'The maximum number of chromatograms returned from the back-end.', 'N');
  
 INSERT INTO PropertyDictionary (propertyName, propertyValue, propertyDescription, forServerOnly)
-VALUES ('view_limit_experiments', '100', 'The maximum number of experiments returned from the back-end.', 'N');
+VALUES ('view_limit_experiments', '100000', 'The maximum number of experiments returned from the back-end.', 'N');
  
 INSERT INTO PropertyDictionary (propertyName, propertyValue, propertyDescription, forServerOnly)
 VALUES ('view_limit_plates_and_runs', '200', 'The maximum number of plates and runs returned from the back-end.', 'N');
@@ -89,9 +89,11 @@ call ExecuteIfTableExists('gnomex','BioanalyzerChipType_Audit','alter table Bioa
 
 -- update TransferLog table with product order stuff
 	alter table TransferLog
-	add columnidProductOrder int default null;
+	add column idProductOrder int default null;
 	
 	ALTER TABLE TransferLog ADD CONSTRAINT `FK_TransferLog_ProductOrder` FOREIGN KEY `FK_TransferLog_ProductOrder` (`idProductOrder`)
     REFERENCES `gnomex`.`ProductOrder` (`idProductOrder`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION;
+    
+    
