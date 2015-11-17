@@ -150,6 +150,9 @@
 				if (codeProductTypeText.text == null || StringUtil.trim(codeProductTypeText.text) == '') {
 					errorMessage = errorMessage + " the code product type,";
 				}
+				if (priceCategoryCombo.selectedItem == null) {
+					errorMessage = errorMessage + " the price category,";
+				}
 				if (errorMessage == 'Please specify:') {
 					validated = true;
 				}

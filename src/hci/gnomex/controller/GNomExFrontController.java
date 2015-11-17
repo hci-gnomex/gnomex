@@ -11,6 +11,7 @@ import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.constants.Constants;
 import hci.gnomex.security.SecurityAdvisor;
+import hci.gnomex.utility.GNomExRollbackException;
 import hci.gnomex.utility.HibernateGuestSession;
 import hci.gnomex.utility.HibernateSession;
 import hci.utility.server.JNDILocator;
@@ -274,7 +275,11 @@ public class GNomExFrontController extends HttpServlet {
           log.error("The stacktrace for the error:");
           log.error(e.getMessage(), e);
           
-        	this.forwardWithError(request, response);
+          if (e instanceof GNomExRollbackException && ((GNomExRollbackException) e).getDisplayFriendlyMessage() != null) {
+        	  this.forwardWithError(request, response, ((GNomExRollbackException) e).getDisplayFriendlyMessage());
+          } else {
+        	  this.forwardWithError(request, response);
+          }
         }
         return;
       } finally {
