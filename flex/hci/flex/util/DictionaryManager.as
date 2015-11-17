@@ -122,13 +122,13 @@ package hci.flex.util
 	        	var startPos:int = event.message.body.indexOf("TEXT=");
 	        	var endPos:int   = event.message.body.indexOf("TYPE=");
 	        	if (startPos != -1 && endPos != -1) {
-		        	Alert.show(event.message.body.toString().substring(startPos + 5, endPos), "Mananage Dictionaries error");    		
+		        	Alert.show(event.message.body.toString().substring(startPos + 5, endPos), "Manage Dictionaries error");    		
 	        	} else {
-	        		Alert.show(event.message.body.toString(), "Mananage Dictionaries error");
+	        		Alert.show(event.message.body.toString(), "Manage Dictionaries error");
 	        	}        
 	    		
 	    	} else {
-	    		Alert.show(event.fault.faultCode + "\n\n" + event.fault.faultString + "\n\n" + event.fault.faultDetail, "Mananage Dictionaries error");
+	    		Alert.show(event.fault.faultCode + "\n\n" + event.fault.faultString + "\n\n" + event.fault.faultDetail, "Manage Dictionaries error");
 	    		
 	    	}
         }

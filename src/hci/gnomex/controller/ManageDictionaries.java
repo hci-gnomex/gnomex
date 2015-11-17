@@ -9,6 +9,7 @@ import hci.gnomex.constants.Constants;
 import hci.gnomex.model.DictionaryEntryUserOwned;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
+import hci.gnomex.utility.GNomExRollbackException;
 import hci.gnomex.utility.HibernateSession;
 
 import java.io.Serializable;
@@ -130,7 +131,7 @@ public class ManageDictionaries extends DictionaryCommand implements Serializabl
     }
   }
 
-  public Command execute() throws RollBackCommandException {
+  public Command execute() throws GNomExRollbackException {
     log.debug("Executing execute method in " + this.getClass().getName());
    
     try {
@@ -141,21 +142,27 @@ public class ManageDictionaries extends DictionaryCommand implements Serializabl
     	}
     	isLoaded = true;
 
-		} catch (Exception e) {
+    } catch (Exception e) {
 			String msg = e.getMessage();
+			String displayMsg = null;
 			if (e.getCause() != null && e.getCause() instanceof SQLException) {
 				msg = e.getCause().getMessage();
 				if (msg != null) {
 					if (msg.indexOf("]") > 0) {
 						msg = msg.substring(msg.lastIndexOf("]") + 1);
 					}
+					if (msg.indexOf("Cannot insert duplicate key in object") > 0 && msg.indexOf("(") > 0 && msg.indexOf(")") > 0) {
+						msg = "Code \"" + msg.substring(msg.lastIndexOf("(") + 1, msg.lastIndexOf(")")) +"\" is already in use";
+						displayMsg = "Error: " + msg;
+					}
 					msg = "Error: " + msg; 
 				}
 			} else if (e instanceof org.hibernate.id.IdentifierGenerationException) {
-			  msg = "Incomplete data.  Please fill in mandatory fields.";
+			  msg = "Incomplete data. Please fill in mandatory fields.";
+			  displayMsg = msg;
 			}
       e.printStackTrace();
-			throw new RollBackCommandException(msg);
+      throw new GNomExRollbackException(msg, true, displayMsg);
     } finally {
       try {
         HibernateSession.closeSession();
