@@ -1,7 +1,7 @@
 package hci.gnomex.controller;
 
 import hci.framework.control.Command;
-import hci.framework.control.RollBackCommandException;
+import hci.gnomex.utility.GNomExRollbackException;
 import hci.gnomex.model.AppUser;
 import hci.gnomex.model.BillingAccount;
 import hci.gnomex.model.Lab;
@@ -47,7 +47,7 @@ public class DeleteAppUser extends GNomExCommand implements Serializable {
 
   }
 
-  public Command execute() throws RollBackCommandException {
+  public Command execute() throws GNomExRollbackException {
     
     try {
       Session sess = HibernateSession.currentSession(this.getUsername());
@@ -125,13 +125,13 @@ public class DeleteAppUser extends GNomExCommand implements Serializable {
     }catch (Exception e){
       log.error("An exception has occurred in DeleteAppUser ", e);
       e.printStackTrace();
-      throw new RollBackCommandException(e.getMessage());
+      throw new GNomExRollbackException(e.getMessage(), true, "Unable to delete app user");
         
     }finally {
       try {
         HibernateSession.closeSession();        
       } catch(Exception e) {
-        
+        log.error("Exception trying to close the Hibernate session: "+ e);
       }
     }
     

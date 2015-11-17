@@ -212,9 +212,7 @@
 				checkSecurity();
 				
 				if (!isInitialized) {
-					if (currentState == "AdminState") {
-						this.updateLabList();				
-					}
+					this.updateLabList();				
 				}
 				
 				// Only initialize analysis if the user clicked on
@@ -1227,7 +1225,9 @@
 			}
 			
 			public function updateLabList():void {
-				this.getAnalysisLabList.send();
+				if(currentState == 'AdminState'){
+					this.getAnalysisLabList.send();
+				}
 			}
 			
 		]]>
