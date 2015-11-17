@@ -14,3 +14,6 @@ GNomEx is a web application with a Flash client user interface and a Java backen
 - Automated billing/customer notifications
 - Configurable annotations for experiments, samples, or analyses
 - Built in ABI file viewer
+
+# SourceForge 
+<https://sourceforge.net/projects/gnomex/>
