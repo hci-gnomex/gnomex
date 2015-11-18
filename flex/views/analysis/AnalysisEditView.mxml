@@ -150,7 +150,10 @@
 			
 			[Bindable]
 			private var appUsersForLab:XMLListCollection;
-			private var appUserSort:Sort;			
+			private var appUserSort:Sort;
+			
+			[Bindable]
+			private var isCollaborator:Boolean = true;
 			
 			public var parentIdLab:Object = null;
 			
@@ -227,6 +230,8 @@
 				//privacyExpirationPicker.text = analysis.@privacyExpirationDate;
 				setDefaultPrivacyExpirationDate();
 				setPrivacyExpirationPickerEditable();
+				
+				this.notCollaborator();
 				
 				// setupEditForm gets called again later in the case of drag/drop analysis so in that case skip the call this time around
 				if(!skipGetInfo) {
@@ -1032,6 +1037,20 @@
 				}
 			}
 			
+			//If they are a collaborator don't show the "Distribute Data Tracks" link
+			private function notCollaborator():void{
+				if(this.analysis.@idAppUser != parentApplication.getIdAppUser() && !parentApplication.isAdminState){
+					for each(var collab:XML in this.analysis..AnalysisCollaborator){
+						if(collab.@idAppUser == parentApplication.getIdAppUser()){
+							isCollaborator =  true;
+							return;
+						}
+					}
+				}
+				
+				isCollaborator = false;;
+			}
+			
 		]]>
 	</mx:Script>
 	
@@ -1060,8 +1079,8 @@
 						   click="showDataTracks()" 
 						   icon="@Embed(source='../../assets/datatrack.png')" 
 						   textDecoration="underline" 
-						   visible="{analysis.@canUpdate == 'Y' &amp;&amp; parentApplication.dataTrackSupported}"
-						   includeInLayout="{analysis.@canUpdate == 'Y'  &amp;&amp; parentApplication.dataTrackSupported}"
+						   visible="{analysis.@canUpdate == 'Y' &amp;&amp; parentApplication.dataTrackSupported &amp;&amp; !isCollaborator}"
+						   includeInLayout="{analysis.@canUpdate == 'Y'  &amp;&amp; parentApplication.dataTrackSupported &amp;&amp; !isCollaborator}"
 						   textAlign="left" paddingLeft="0">    	        
 			</mx:LinkButton>				
 

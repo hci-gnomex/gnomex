@@ -84,6 +84,8 @@
 			public var analysis:Object;
 			[Bindable]
 			private var selectedFileList:XMLListCollection;
+			[Bindable]
+			private var isCollaborator:Boolean = true;
 			
 			private var uploadWindow:AnalysisUploadWindow = null;
 						
@@ -114,6 +116,7 @@
 				getOrganismName();
 				getVisibilityName();
 				getInstitutionName();
+				notCollaborator();
 				
 				var sequenceLanes:int = 0;
 				for each (var experimentItem:Object in analysis.experimentItems.AnalysisExperimentItem..SequenceLane) {
@@ -147,7 +150,6 @@
 				if (relatedTopics.length > 0) {
 					callLater( this.relatedTopicsTree.expandChildrenOf, [ relatedTopics[0], true]); 
 				}
-				
 			}
 			
 			private function refreshDownloadView(e:CloseEvent):void {
@@ -480,6 +482,20 @@
 				
 			}
 			
+			//If they are a collaborator don't show the "Distribute Data Tracks" link
+			private function notCollaborator():void{
+				if(this.analysis.@idAppUser != parentApplication.getIdAppUser() && !parentApplication.isAdminState){
+					for each(var collab:XML in this.analysis..AnalysisCollaborator){
+						if(collab.@idAppUser == parentApplication.getIdAppUser()){
+							isCollaborator =  true;
+							return;
+						}
+					}
+				}
+				
+				isCollaborator = false;
+			}
+			
 		]]>
 	</mx:Script>
 	
@@ -522,8 +538,8 @@
 							   click="showDataTracks()" 
 							   icon="@Embed(source='../../assets/datatrack.png')" 
 							   textDecoration="underline" 
-							   visible="{!isGuest &amp;&amp; parentDocument.selectedAnalysis.@canRead == 'Y' &amp;&amp; parentApplication.dataTrackSupported}"
-							   includeInLayout="{!isGuest &amp;&amp; parentDocument.selectedAnalysis.@canRead == 'Y'  &amp;&amp; parentApplication.dataTrackSupported}"
+							   visible="{!isGuest &amp;&amp; parentDocument.selectedAnalysis.@canRead == 'Y' &amp;&amp; parentApplication.dataTrackSupported &amp;&amp; !isCollaborator}"
+							   includeInLayout="{!isGuest &amp;&amp; parentDocument.selectedAnalysis.@canRead == 'Y'  &amp;&amp; parentApplication.dataTrackSupported &amp;&amp; !isCollaborator}"
 							   textAlign="left" paddingLeft="2" paddingRight="0" >    	        
 				</mx:LinkButton>		
 			<mx:LinkButton id="adstButton" label="Auto Distribute All Data Tracks" 
