@@ -7,7 +7,7 @@ import hci.gnomex.model.RequestCategory;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
-import hci.gnomex.utility.PriceSheetCategoryParser;
+import hci.gnomex.utility.parsers.PriceSheetCategoryParser;
 
 import java.io.Serializable;
 import java.io.StringReader;

@@ -3,7 +3,7 @@ package hci.gnomex.controller;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.utility.HibernateSession;
-import hci.gnomex.utility.RequestVisibilityParser;
+import hci.gnomex.utility.parsers.RequestVisibilityParser;
 
 import java.io.Serializable;
 import java.io.StringReader;

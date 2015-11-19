@@ -7,7 +7,7 @@ import hci.gnomex.constants.Constants;
 import hci.gnomex.model.FlowCell;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
-import hci.gnomex.utility.FlowCellHTMLFormatter;
+import hci.gnomex.utility.formatters.FlowCellHTMLFormatter;
 
 import java.io.Serializable;
 import java.sql.SQLException;

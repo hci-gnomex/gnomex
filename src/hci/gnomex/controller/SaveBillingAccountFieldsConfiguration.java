@@ -5,8 +5,8 @@ import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.InternalAccountFieldsConfiguration;
 import hci.gnomex.model.OtherAccountFieldsConfiguration;
 import hci.gnomex.utility.HibernateSession;
-import hci.gnomex.utility.InternalBillingAccountFieldsConfigurationParser;
-import hci.gnomex.utility.OtherBillingAccountFieldsConfigurationParser;
+import hci.gnomex.utility.parsers.InternalBillingAccountFieldsConfigurationParser;
+import hci.gnomex.utility.parsers.OtherBillingAccountFieldsConfigurationParser;
 
 import java.io.Serializable;
 import java.io.StringReader;

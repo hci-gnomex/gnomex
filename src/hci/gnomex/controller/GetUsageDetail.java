@@ -12,7 +12,7 @@ import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.PropertyDictionaryHelper;
 import hci.gnomex.utility.UsageRowDescriptor;
-import hci.gnomex.utility.UsageRowDescriptorComparator;
+import hci.gnomex.utility.comparators.UsageRowDescriptorComparator;
 
 import java.io.Serializable;
 import java.sql.SQLException;

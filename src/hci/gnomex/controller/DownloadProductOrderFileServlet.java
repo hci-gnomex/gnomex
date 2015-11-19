@@ -5,11 +5,11 @@ import hci.gnomex.model.ProductOrder;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.TransferLog;
 import hci.gnomex.security.SecurityAdvisor;
-import hci.gnomex.utility.ProductOrderFileDescriptor;
-import hci.gnomex.utility.ProductOrderFileDescriptorParser;
 import hci.gnomex.utility.ArchiveHelper;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
+import hci.gnomex.utility.file.ProductOrderFileDescriptor;
+import hci.gnomex.utility.file.ProductOrderFileDescriptorParser;
 
 import java.io.IOException;
 import java.io.InputStream;

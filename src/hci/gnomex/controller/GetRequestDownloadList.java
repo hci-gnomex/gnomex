@@ -12,10 +12,10 @@ import hci.gnomex.model.RequestDownloadFilter;
 import hci.gnomex.model.SlideDesign;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
-import hci.gnomex.utility.FileDescriptor;
 import hci.gnomex.utility.PropertyDictionaryHelper;
 import hci.gnomex.utility.UploadDownloadHelper;
 import hci.gnomex.utility.Util;
+import hci.gnomex.utility.file.FileDescriptor;
 
 import java.io.File;
 import java.io.Serializable;

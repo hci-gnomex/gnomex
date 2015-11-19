@@ -6,10 +6,10 @@ import hci.gnomex.model.Request;
 import hci.gnomex.model.SequenceLane;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
-import hci.gnomex.utility.FileDescriptor;
-import hci.gnomex.utility.FileDescriptorParser;
 import hci.gnomex.utility.PropertyDictionaryHelper;
 import hci.gnomex.utility.UploadDownloadHelper;
+import hci.gnomex.utility.file.FileDescriptor;
+import hci.gnomex.utility.file.FileDescriptorParser;
 
 import java.io.BufferedReader;
 import java.io.File;

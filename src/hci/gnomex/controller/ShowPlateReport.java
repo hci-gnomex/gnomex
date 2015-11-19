@@ -14,7 +14,7 @@ import hci.gnomex.model.Primer;
 import hci.gnomex.model.ReactionType;
 import hci.gnomex.model.Request;
 import hci.gnomex.security.SecurityAdvisor;
-import hci.gnomex.utility.PlateReportHTMLFormatter;
+import hci.gnomex.utility.formatters.PlateReportHTMLFormatter;
 
 import java.io.Serializable;
 import java.sql.SQLException;

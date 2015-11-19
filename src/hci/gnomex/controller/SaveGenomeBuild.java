@@ -6,9 +6,9 @@ import hci.gnomex.model.DataTrackFolder;
 import hci.gnomex.model.GenomeBuild;
 import hci.gnomex.model.Segment;
 import hci.gnomex.security.SecurityAdvisor;
-import hci.gnomex.utility.DataTrackFolderComparator;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
+import hci.gnomex.utility.comparators.DataTrackFolderComparator;
 
 import java.io.File;
 import java.io.Serializable;

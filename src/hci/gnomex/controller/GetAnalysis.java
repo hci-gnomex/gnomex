@@ -24,10 +24,10 @@ import hci.gnomex.model.SequenceLane;
 import hci.gnomex.model.Topic;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
-import hci.gnomex.utility.HybNumberComparator;
 import hci.gnomex.utility.PropertyDictionaryHelper;
-import hci.gnomex.utility.SampleComparator;
-import hci.gnomex.utility.SequenceLaneNumberComparator;
+import hci.gnomex.utility.comparators.HybNumberComparator;
+import hci.gnomex.utility.comparators.SampleComparator;
+import hci.gnomex.utility.comparators.SequenceLaneNumberComparator;
 
 import java.io.Serializable;
 import java.sql.SQLException;

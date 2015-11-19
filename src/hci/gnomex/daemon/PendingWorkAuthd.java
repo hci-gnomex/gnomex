@@ -7,10 +7,10 @@ import hci.gnomex.model.InternalAccountFieldsConfiguration;
 import hci.gnomex.model.Lab;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.utility.BatchDataSource;
-import hci.gnomex.utility.BatchMailer;
-import hci.gnomex.utility.MailUtil;
-import hci.gnomex.utility.MailUtilHelper;
 import hci.gnomex.utility.PropertyDictionaryHelper;
+import hci.gnomex.utility.mail.BatchMailer;
+import hci.gnomex.utility.mail.MailUtil;
+import hci.gnomex.utility.mail.MailUtilHelper;
 
 import java.io.IOException;
 import java.io.StringReader;

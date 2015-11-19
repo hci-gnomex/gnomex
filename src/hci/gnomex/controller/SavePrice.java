@@ -6,7 +6,7 @@ import hci.gnomex.model.Price;
 import hci.gnomex.model.PriceCriteria;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.HibernateSession;
-import hci.gnomex.utility.PriceCriteriaParser;
+import hci.gnomex.utility.parsers.PriceCriteriaParser;
 
 import java.io.Serializable;
 import java.io.StringReader;

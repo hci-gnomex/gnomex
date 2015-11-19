@@ -10,7 +10,7 @@ import hci.gnomex.model.BillingAccount;
 import hci.gnomex.model.InternalAccountFieldsConfiguration;
 import hci.gnomex.model.Lab;
 import hci.gnomex.security.SecurityAdvisor;
-import hci.gnomex.utility.AppUserNameComparator;
+import hci.gnomex.utility.comparators.AppUserNameComparator;
 
 import java.io.Serializable;
 import java.math.BigDecimal;

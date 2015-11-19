@@ -11,7 +11,7 @@ import hci.gnomex.model.Sample;
 import hci.gnomex.model.SequenceLane;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
-import hci.gnomex.utility.RequestParser;
+import hci.gnomex.utility.parsers.RequestParser;
 
 import java.io.Serializable;
 import java.io.StringReader;

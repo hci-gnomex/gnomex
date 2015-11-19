@@ -11,9 +11,9 @@ import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.constants.Constants;
 import hci.gnomex.security.SecurityAdvisor;
-import hci.gnomex.utility.GNomExRollbackException;
 import hci.gnomex.utility.HibernateGuestSession;
 import hci.gnomex.utility.HibernateSession;
+import hci.gnomex.utility.exceptions.GNomExRollbackException;
 import hci.utility.server.JNDILocator;
 
 import java.io.File;

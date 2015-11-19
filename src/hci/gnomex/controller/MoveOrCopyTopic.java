@@ -6,11 +6,11 @@ import hci.gnomex.model.Analysis;
 import hci.gnomex.model.DataTrack;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.Topic;
-import hci.gnomex.utility.AnalysisComparator;
-import hci.gnomex.utility.DataTrackComparator;
 import hci.gnomex.utility.HibernateSession;
-import hci.gnomex.utility.RequestComparator;
-import hci.gnomex.utility.TopicComparator;
+import hci.gnomex.utility.comparators.AnalysisComparator;
+import hci.gnomex.utility.comparators.DataTrackComparator;
+import hci.gnomex.utility.comparators.RequestComparator;
+import hci.gnomex.utility.comparators.TopicComparator;
 
 import java.io.Serializable;
 import java.util.Iterator;

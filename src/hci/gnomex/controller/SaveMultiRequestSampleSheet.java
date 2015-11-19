@@ -6,7 +6,7 @@ import hci.gnomex.model.Request;
 import hci.gnomex.model.Sample;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
-import hci.gnomex.utility.MultiRequestSampleSheetXMLParser;
+import hci.gnomex.utility.parsers.MultiRequestSampleSheetXMLParser;
 
 import java.io.Serializable;
 import java.io.StringReader;

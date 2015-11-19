@@ -13,8 +13,8 @@ import hci.gnomex.model.RequestStatus;
 import hci.gnomex.model.SealType;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.HibernateSession;
-import hci.gnomex.utility.ProductException;
 import hci.gnomex.utility.ProductUtil;
+import hci.gnomex.utility.exceptions.ProductException;
 
 import java.io.IOException;
 import java.io.InputStream;

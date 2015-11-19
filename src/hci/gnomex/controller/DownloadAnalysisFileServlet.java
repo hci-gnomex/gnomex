@@ -5,11 +5,11 @@ import hci.gnomex.model.Analysis;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.TransferLog;
 import hci.gnomex.security.SecurityAdvisor;
-import hci.gnomex.utility.AnalysisFileDescriptor;
-import hci.gnomex.utility.AnalysisFileDescriptorParser;
 import hci.gnomex.utility.ArchiveHelper;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
+import hci.gnomex.utility.file.AnalysisFileDescriptor;
+import hci.gnomex.utility.file.AnalysisFileDescriptorParser;
 
 import java.io.IOException;
 import java.io.InputStream;

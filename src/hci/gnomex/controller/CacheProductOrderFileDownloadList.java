@@ -2,7 +2,7 @@ package hci.gnomex.controller;
 
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
-import hci.gnomex.utility.ProductOrderFileDescriptorParser;
+import hci.gnomex.utility.parsers.ProductOrderFileDescriptorParser;
 
 import java.io.Serializable;
 import java.io.StringReader;

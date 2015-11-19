@@ -8,10 +8,10 @@ import hci.gnomex.model.FlowCell;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.Request;
 import hci.gnomex.security.SecurityAdvisor;
-import hci.gnomex.utility.FileDescriptor;
 import hci.gnomex.utility.HibernateGuestSession;
 import hci.gnomex.utility.PropertyDictionaryHelper;
 import hci.gnomex.utility.UploadDownloadHelper;
+import hci.gnomex.utility.file.FileDescriptor;
 
 import java.io.Serializable;
 import java.sql.SQLException;

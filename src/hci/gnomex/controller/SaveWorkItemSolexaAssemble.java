@@ -14,11 +14,11 @@ import hci.gnomex.model.Step;
 import hci.gnomex.model.WorkItem;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
-import hci.gnomex.utility.FlowCellChannelComparator;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.PropertyDictionaryHelper;
-import hci.gnomex.utility.WorkItemSolexaAssembleParser;
-import hci.gnomex.utility.WorkItemSolexaAssembleParser.ChannelContent;
+import hci.gnomex.utility.comparators.FlowCellChannelComparator;
+import hci.gnomex.utility.parsers.WorkItemSolexaAssembleParser;
+import hci.gnomex.utility.parsers.WorkItemSolexaAssembleParser.ChannelContent;
 
 import java.io.File;
 import java.io.Serializable;

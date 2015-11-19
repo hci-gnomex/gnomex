@@ -5,8 +5,8 @@ import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateGuestSession;
-import hci.gnomex.utility.MailUtil;
-import hci.gnomex.utility.MailUtilHelper;
+import hci.gnomex.utility.mail.MailUtil;
+import hci.gnomex.utility.mail.MailUtilHelper;
 
 import java.io.BufferedReader;
 import java.io.IOException;

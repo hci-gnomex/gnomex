@@ -9,11 +9,11 @@ import hci.gnomex.model.Request;
 import hci.gnomex.model.Visibility;
 import hci.gnomex.model.VisibilityInterface;
 import hci.gnomex.utility.BatchDataSource;
-import hci.gnomex.utility.BatchMailer;
 import hci.gnomex.utility.DictionaryHelper;
-import hci.gnomex.utility.MailUtil;
-import hci.gnomex.utility.MailUtilHelper;
 import hci.gnomex.utility.PropertyDictionaryHelper;
+import hci.gnomex.utility.mail.BatchMailer;
+import hci.gnomex.utility.mail.MailUtil;
+import hci.gnomex.utility.mail.MailUtilHelper;
 
 import java.io.IOException;
 import java.io.StringReader;

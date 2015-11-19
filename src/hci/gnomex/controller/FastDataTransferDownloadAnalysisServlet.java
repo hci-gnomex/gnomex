@@ -4,11 +4,11 @@ import hci.gnomex.constants.Constants;
 import hci.gnomex.model.Analysis;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.security.SecurityAdvisor;
-import hci.gnomex.utility.AnalysisFileDescriptor;
-import hci.gnomex.utility.AnalysisFileDescriptorParser;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.PropertyDictionaryHelper;
 import hci.gnomex.utility.UploadDownloadHelper;
+import hci.gnomex.utility.file.AnalysisFileDescriptor;
+import hci.gnomex.utility.file.AnalysisFileDescriptorParser;
 
 import java.io.BufferedReader;
 import java.io.File;

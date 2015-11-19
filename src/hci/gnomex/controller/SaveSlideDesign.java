@@ -7,9 +7,9 @@ import hci.gnomex.model.ArrayCoordinate;
 import hci.gnomex.model.SlideDesign;
 import hci.gnomex.model.SlideProduct;
 import hci.gnomex.security.SecurityAdvisor;
-import hci.gnomex.utility.ApplicationParser;
-import hci.gnomex.utility.ArrayCoordinateParser;
 import hci.gnomex.utility.HibernateSession;
+import hci.gnomex.utility.parsers.ApplicationParser;
+import hci.gnomex.utility.parsers.ArrayCoordinateParser;
 
 import java.io.Serializable;
 import java.io.StringReader;

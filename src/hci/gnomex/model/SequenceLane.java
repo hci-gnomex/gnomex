@@ -3,8 +3,8 @@ package hci.gnomex.model;
 import hci.framework.model.DetailObject;
 import hci.framework.utilities.XMLReflectException;
 import hci.gnomex.constants.Constants;
-import hci.gnomex.utility.MultiplexLaneComparator;
-import hci.gnomex.utility.SequenceLaneNumberComparator;
+import hci.gnomex.utility.comparators.MultiplexLaneComparator;
+import hci.gnomex.utility.comparators.SequenceLaneNumberComparator;
 import hci.hibernate3utils.HibernateDetailObject;
 
 import java.math.BigDecimal;

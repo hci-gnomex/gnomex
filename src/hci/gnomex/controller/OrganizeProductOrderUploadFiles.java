@@ -6,8 +6,8 @@ import hci.gnomex.constants.Constants;
 import hci.gnomex.model.ProductOrder;
 import hci.gnomex.model.ProductOrderFile;
 import hci.gnomex.model.TransferLog;
-import hci.gnomex.utility.ProductOrderFileDescriptorUploadParser;
 import hci.gnomex.utility.PropertyDictionaryHelper;
+import hci.gnomex.utility.parsers.ProductOrderFileDescriptorUploadParser;
 
 import java.io.File;
 import java.io.IOException;

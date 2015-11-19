@@ -20,9 +20,9 @@ import hci.gnomex.model.SampleType;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.BatchDataSource;
 import hci.gnomex.utility.DictionaryHelper;
-import hci.gnomex.utility.RequestParser;
-import hci.gnomex.utility.SampleNumberComparator;
-import hci.gnomex.utility.SequenceLaneNumberComparator;
+import hci.gnomex.utility.comparators.SampleNumberComparator;
+import hci.gnomex.utility.comparators.SequenceLaneNumberComparator;
+import hci.gnomex.utility.parsers.RequestParser;
 
 import java.io.File;
 import java.text.SimpleDateFormat;

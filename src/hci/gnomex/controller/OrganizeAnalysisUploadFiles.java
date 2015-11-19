@@ -6,8 +6,8 @@ import hci.gnomex.constants.Constants;
 import hci.gnomex.model.Analysis;
 import hci.gnomex.model.AnalysisFile;
 import hci.gnomex.model.TransferLog;
-import hci.gnomex.utility.AnalysisFileDescriptorUploadParser;
 import hci.gnomex.utility.PropertyDictionaryHelper;
+import hci.gnomex.utility.parsers.AnalysisFileDescriptorUploadParser;
 
 import java.io.File;
 import java.io.IOException;

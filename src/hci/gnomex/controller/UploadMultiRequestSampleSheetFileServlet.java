@@ -4,8 +4,8 @@ import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateGuestSession;
-import hci.gnomex.utility.MultiRequestSampleSheetFileParser;
 import hci.gnomex.utility.PropertyDictionaryHelper;
+import hci.gnomex.utility.parsers.MultiRequestSampleSheetFileParser;
 
 import java.io.File;
 import java.io.IOException;

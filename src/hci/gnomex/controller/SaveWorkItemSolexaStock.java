@@ -11,7 +11,7 @@ import hci.gnomex.model.WorkItem;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
-import hci.gnomex.utility.WorkItemSolexaStockParser;
+import hci.gnomex.utility.parsers.WorkItemSolexaStockParser;
 
 import java.io.Serializable;
 import java.io.StringReader;

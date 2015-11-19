@@ -14,6 +14,8 @@ import hci.gnomex.model.BillingAccount;
 import hci.gnomex.model.CoreFacility;
 import hci.gnomex.model.Lab;
 import hci.gnomex.model.PropertyDictionary;
+import hci.gnomex.utility.mail.MailUtil;
+import hci.gnomex.utility.mail.MailUtilHelper;
 
 public class BillingAccountUtil {
 	

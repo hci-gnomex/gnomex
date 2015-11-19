@@ -9,10 +9,10 @@ import hci.gnomex.model.Lab;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
-import hci.gnomex.utility.MailUtil;
-import hci.gnomex.utility.MailUtilHelper;
 import hci.gnomex.utility.PropertyDictionaryHelper;
-import hci.gnomex.utility.VerifyLabUsersEmailFormatter;
+import hci.gnomex.utility.formatters.VerifyLabUsersEmailFormatter;
+import hci.gnomex.utility.mail.MailUtil;
+import hci.gnomex.utility.mail.MailUtilHelper;
 
 import java.io.IOException;
 import java.io.Serializable;

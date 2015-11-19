@@ -9,10 +9,10 @@ import hci.gnomex.model.PlateType;
 import hci.gnomex.model.PlateWell;
 import hci.gnomex.model.Request;
 import hci.gnomex.security.SecurityAdvisor;
-import hci.gnomex.utility.ChromatogramParser;
 import hci.gnomex.utility.HibernateSession;
-import hci.gnomex.utility.PlateWellComparator;
-import hci.gnomex.utility.PlateWellParser;
+import hci.gnomex.utility.comparators.PlateWellComparator;
+import hci.gnomex.utility.parsers.ChromatogramParser;
+import hci.gnomex.utility.parsers.PlateWellParser;
 
 import java.io.Serializable;
 import java.io.StringReader;

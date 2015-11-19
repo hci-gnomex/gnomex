@@ -12,13 +12,13 @@ import hci.gnomex.model.Invoice;
 import hci.gnomex.model.Lab;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.security.SecurityAdvisor;
-import hci.gnomex.utility.BillingAccountSplitParser;
-import hci.gnomex.utility.BillingInvoiceEmailFormatter;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
-import hci.gnomex.utility.MailUtil;
-import hci.gnomex.utility.MailUtilHelper;
 import hci.gnomex.utility.PropertyDictionaryHelper;
+import hci.gnomex.utility.formatters.BillingInvoiceEmailFormatter;
+import hci.gnomex.utility.mail.MailUtil;
+import hci.gnomex.utility.mail.MailUtilHelper;
+import hci.gnomex.utility.parsers.BillingAccountSplitParser;
 
 import java.io.Serializable;
 import java.io.StringReader;

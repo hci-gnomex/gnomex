@@ -6,9 +6,9 @@ import hci.framework.security.UnknownPermissionException;
 import hci.gnomex.constants.Constants;
 import hci.gnomex.model.Analysis;
 import hci.gnomex.security.SecurityAdvisor;
-import hci.gnomex.utility.AnalysisFileDescriptor;
 import hci.gnomex.utility.HibernateGuestSession;
 import hci.gnomex.utility.PropertyDictionaryHelper;
+import hci.gnomex.utility.file.AnalysisFileDescriptor;
 
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;

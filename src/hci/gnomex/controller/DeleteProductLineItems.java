@@ -7,7 +7,7 @@ import hci.gnomex.model.ProductOrder;
 import hci.gnomex.model.ProductOrderStatus;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.HibernateSession;
-import hci.gnomex.utility.ProductLineItemComparator;
+import hci.gnomex.utility.comparators.ProductLineItemComparator;
 
 import java.io.Serializable;
 import java.io.StringReader;

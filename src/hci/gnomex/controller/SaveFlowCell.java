@@ -12,8 +12,8 @@ import hci.gnomex.model.NumberSequencingCyclesAllowed;
 import hci.gnomex.model.SequenceLane;
 import hci.gnomex.model.WorkItem;
 import hci.gnomex.utility.DictionaryHelper;
-import hci.gnomex.utility.FlowCellChannelParser;
 import hci.gnomex.utility.HibernateSession;
+import hci.gnomex.utility.parsers.FlowCellChannelParser;
 
 import java.io.Serializable;
 import java.io.StringReader;

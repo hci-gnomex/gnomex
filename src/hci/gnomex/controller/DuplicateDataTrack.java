@@ -9,11 +9,11 @@ import hci.gnomex.model.GenomeBuild;
 import hci.gnomex.model.PropertyEntry;
 import hci.gnomex.model.PropertyEntryValue;
 import hci.gnomex.model.PropertyOption;
-import hci.gnomex.utility.AppUserComparator;
-import hci.gnomex.utility.DataTrackComparator;
-import hci.gnomex.utility.DataTrackFolderComparator;
 import hci.gnomex.utility.HibernateSession;
-import hci.gnomex.utility.PropertyOptionComparator;
+import hci.gnomex.utility.comparators.AppUserComparator;
+import hci.gnomex.utility.comparators.DataTrackComparator;
+import hci.gnomex.utility.comparators.DataTrackFolderComparator;
+import hci.gnomex.utility.comparators.PropertyOptionComparator;
 
 import java.io.Serializable;
 import java.util.HashSet;

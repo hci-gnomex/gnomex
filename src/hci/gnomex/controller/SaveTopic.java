@@ -10,7 +10,7 @@ import hci.gnomex.model.Topic;
 import hci.gnomex.model.Visibility;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.PropertyDictionaryHelper;
-import hci.gnomex.utility.RequestParser;
+import hci.gnomex.utility.parsers.RequestParser;
 
 import java.io.Serializable;
 import java.util.HashMap;

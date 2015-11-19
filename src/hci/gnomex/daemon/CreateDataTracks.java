@@ -12,11 +12,11 @@ import hci.gnomex.model.Lab;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.BatchDataSource;
-import hci.gnomex.utility.DataTrackComparator;
 import hci.gnomex.utility.DataTrackUtil;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.PropertyDictionaryHelper;
-import hci.gnomex.utility.RequestParser;
+import hci.gnomex.utility.comparators.DataTrackComparator;
+import hci.gnomex.utility.parsers.RequestParser;
 
 import java.io.File;
 import java.util.ArrayList;
