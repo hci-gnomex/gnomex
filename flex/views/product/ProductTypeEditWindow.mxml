@@ -142,16 +142,16 @@
 				var validated:Boolean = false;
 				var errorMessage:String = "Please specify:";
 				if (coreFacilityCombo.selectedItem == null || coreFacilityCombo.selectedIndex == -1) {
-					errorMessage = errorMessage + " the core facility,";
+					errorMessage = this.appendAbsentField(errorMessage, "core facility");
 				} 
 				if (descriptionText.text == null || StringUtil.trim(descriptionText.text) == '') {
-					errorMessage = errorMessage + " the description,";
+					errorMessage = this.appendAbsentField(errorMessage, "description");
 				}
 				if (codeProductTypeText.text == null || StringUtil.trim(codeProductTypeText.text) == '') {
-					errorMessage = errorMessage + " the code product type,";
+					errorMessage = this.appendAbsentField(errorMessage, "code product type");
 				}
 				if (priceCategoryCombo.selectedItem == null) {
-					errorMessage = errorMessage + " the price category,";
+					errorMessage = this.appendAbsentField(errorMessage, "price category");
 				}
 				if (errorMessage == 'Please specify:') {
 					validated = true;
@@ -170,6 +170,20 @@
 				} else {
 					Alert.show(errorMessage, "Error", Alert.OK, this);
 				}
+			}
+			
+			private function appendAbsentField(errorMessage:String, absentField:String):String {
+				var newErrorMessage:String = errorMessage;
+				var includeComma:Boolean = false;
+				if (newErrorMessage.charAt(newErrorMessage.length - 1) != ":") {
+					includeComma = true;
+				}
+				if (includeComma) {
+					newErrorMessage += ", " + absentField;
+				} else {
+					newErrorMessage += " " + absentField;
+				}
+				return newErrorMessage;
 			}
 			
 			private function collectFieldData():Object {
