@@ -75,9 +75,9 @@
 		<![CDATA[
 			import hci.flex.controls.DropdownLabel;
 			
-			import mx.collections.ICollectionView;
 			import mx.collections.GroupingCollection;
 			import mx.collections.HierarchicalCollectionView;
+			import mx.collections.ICollectionView;
 			import mx.collections.XMLListCollection;
 			import mx.controls.AdvancedDataGrid;
 			import mx.controls.Alert;
@@ -110,6 +110,7 @@
 			private var tabAnnotationView:TabAnnotationView;
 			private var fullHeight:int;
 			private var fullWidth:int;
+			private var idSeqLibProtocol:String;
 			
 			[Bindable]
 			private var samplesViewState:String = "";
@@ -136,8 +137,8 @@
 				return displayText;
 			}
 			
-			public function init(tabSamplesView:TabSamplesBase, numPlates:int, nextPlate:int, specifiedFieldList:Dictionary, tabAnnotationView:TabAnnotationView):void {
-				initVars(tabSamplesView, numPlates, nextPlate, specifiedFieldList, tabAnnotationView);
+			public function init(tabSamplesView:TabSamplesBase, numPlates:int, nextPlate:int, specifiedFieldList:Dictionary, tabAnnotationView:TabAnnotationView, idSeqLibProtocol:String):void {
+				initVars(tabSamplesView, numPlates, nextPlate, specifiedFieldList, tabAnnotationView, idSeqLibProtocol);
 				
 				// Cap seq window is simplified and should be smaller.
 				fullWidth = 738;
@@ -175,13 +176,13 @@
 				}
 			}
 
-			private function initVars(tabSamplesView:TabSamplesBase, numPlates:int, nextPlate:int, specifiedFieldList:Dictionary, tabAnnotationView:TabAnnotationView):void {
+			private function initVars(tabSamplesView:TabSamplesBase, numPlates:int, nextPlate:int, specifiedFieldList:Dictionary, tabAnnotationView:TabAnnotationView, idSeqLibProtocol:String):void {
 				this.tabSamplesView = tabSamplesView;
 				this.numPlates = numPlates;
 				this.specifiedFieldList = specifiedFieldList;
 				this.tabAnnotationView = tabAnnotationView;
 				this.startRow = 0;
-				
+				this.idSeqLibProtocol = idSeqLibProtocol;
 				// We need to know what example sample sheet link to show
 				this.samplesViewState = this.tabSamplesView.currentState;
 				
@@ -295,6 +296,19 @@
 				PopUpManager.removePopUp(this)
 			}
 			
+			private function isValidBarcode(barcode:XML, isBTag:Boolean):Boolean{
+				var schemesAllowedForSeqLib:XMLListCollection = new XMLListCollection(parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OligoBarcodeSchemeAllowed').DictionaryEntry.(@value != '' && @idSeqLibProtocol == this.idSeqLibProtocol));
+				var match:Boolean = false;
+				for each(var entry:XML in schemesAllowedForSeqLib){
+					if(barcode.@idOligoBarcodeScheme == entry.@idOligoBarcodeScheme){
+						if((isBTag && entry.@isIndexGroupB == 'Y') || (!isBTag && entry.@isIndexGroupB == 'N')){
+							return true;
+						}
+					}
+				}
+				return false;
+			}
+			
 			private function clickPopulateFieldsButtonAfterWarning():void {
 				var ssRowList:XMLList = sampleSheetXML.SampleSheetData.Row;
 				if (tabSamplesView.hasPlates()) {
@@ -397,12 +411,23 @@
 													// Strip off @ if it's there -- not needed for this action
 													thisValueField = thisValueField.substr(1);
 												}
-												if(thisDataProvider != null) {
+												if(thisDataProvider != null && this.idSeqLibProtocol != null && this.idSeqLibProtocol.length > 0) {
 													for each (var dataProviderItem:XML in thisDataProvider) {
 														if(dataProviderItem.@[thisLabelField].toLowerCase() == ssColItemValue.toLowerCase() 
 															|| (col.dataField.toLocaleLowerCase().substr(0, 15) == "@idoligobarcode" && dataProviderItem.@name.toString().toLowerCase() == ssColItemValue.toLowerCase())) {
-															ssColItemValue = dataProviderItem.@[thisValueField];
-															optionFound = true;
+															// we found a barcode that matches the name provided but is it right for specified seq lib protocol and is it for A or B index tag?
+															var isValid:Boolean = false;
+															if(col.dataField.toLocaleLowerCase() == "@idoligobarcodeb"){
+																isValid = this.isValidBarcode(dataProviderItem, true);
+															} else if(col.dataField.toLocaleLowerCase() == "@idoligobarcode"){
+																isValid = this.isValidBarcode(dataProviderItem, false);
+															} else{
+																isValid = true;
+															}
+															if(isValid){
+																ssColItemValue = dataProviderItem.@[thisValueField];
+																optionFound = true;
+															}
 															break;
 														}
 													}												

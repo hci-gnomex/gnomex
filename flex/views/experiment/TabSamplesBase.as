@@ -398,8 +398,9 @@ package views.experiment
 			var fieldList:Dictionary = getSampleSheetSpecifiedFieldList();
 			var numPlates:int = getNumPlates();
 			var nextPlate:int = getNextPlate();
+			var idSeqLibProtocol:String = parentDocument.request..Sample[0].@idSeqLibProtocol;
 			
-			uploadSampleSheetWindow.init(this, numPlates, nextPlate, fieldList, parentDocument.getAnnotationView());
+			uploadSampleSheetWindow.init(this, numPlates, nextPlate, fieldList, parentDocument.getAnnotationView(), idSeqLibProtocol);
 				
 			uploadSampleSheetWindow.addEventListener(FlexEvent.VALUE_COMMIT, uploadComplete);
 		}
