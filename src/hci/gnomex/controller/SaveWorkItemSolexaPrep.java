@@ -17,8 +17,8 @@ import hci.gnomex.utility.BillingItemAutoComplete;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.PropertyDictionaryHelper;
-import hci.gnomex.utility.comparators.SampleComparator;
-import hci.gnomex.utility.parsers.WorkItemSolexaPrepParser;
+import hci.gnomex.utility.SampleComparator;
+import hci.gnomex.utility.WorkItemSolexaPrepParser;
 
 import java.io.Serializable;
 import java.io.StringReader;

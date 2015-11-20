@@ -8,7 +8,7 @@ import hci.gnomex.model.Step;
 import hci.gnomex.model.WorkItem;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.HibernateSession;
-import hci.gnomex.utility.parsers.WorkItemHybParser;
+import hci.gnomex.utility.WorkItemHybParser;
 
 import java.io.Serializable;
 import java.io.StringReader;

@@ -8,9 +8,9 @@ import hci.gnomex.model.TransferLog;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.ArchiveHelper;
 import hci.gnomex.utility.DictionaryHelper;
+import hci.gnomex.utility.FileDescriptor;
+import hci.gnomex.utility.FileDescriptorParser;
 import hci.gnomex.utility.HibernateSession;
-import hci.gnomex.utility.file.FileDescriptor;
-import hci.gnomex.utility.file.FileDescriptorParser;
 
 import java.io.IOException;
 import java.io.InputStream;

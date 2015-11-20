@@ -8,8 +8,6 @@ import hci.gnomex.model.Segment;
 import hci.gnomex.model.UnloadDataTrack;
 import hci.gnomex.model.Visibility;
 import hci.gnomex.security.SecurityAdvisor;
-import hci.gnomex.utility.comparators.GenomeBuildComparator;
-import hci.gnomex.utility.comparators.OrganismComparator;
 
 import java.io.Serializable;
 import java.util.ArrayList;

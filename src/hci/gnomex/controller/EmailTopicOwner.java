@@ -5,8 +5,8 @@ import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.AppUser;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.utility.DictionaryHelper;
-import hci.gnomex.utility.mail.MailUtil;
-import hci.gnomex.utility.mail.MailUtilHelper;
+import hci.gnomex.utility.MailUtil;
+import hci.gnomex.utility.MailUtilHelper;
 
 import java.io.Serializable;
 

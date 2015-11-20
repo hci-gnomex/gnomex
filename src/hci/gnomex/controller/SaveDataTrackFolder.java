@@ -6,7 +6,7 @@ import hci.gnomex.model.DataTrackFolder;
 import hci.gnomex.model.GenomeBuild;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
-import hci.gnomex.utility.parsers.RequestParser;
+import hci.gnomex.utility.RequestParser;
 
 import java.io.Serializable;
 import java.util.HashMap;

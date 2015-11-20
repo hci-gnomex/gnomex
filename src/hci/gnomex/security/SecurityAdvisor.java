@@ -40,8 +40,8 @@ import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateBSTXSession;
 import hci.gnomex.utility.HibernateGuestSession;
 import hci.gnomex.utility.HibernateSession;
+import hci.gnomex.utility.LabComparator;
 import hci.gnomex.utility.PropertyDictionaryHelper;
-import hci.gnomex.utility.comparators.LabComparator;
 
 import java.io.Serializable;
 import java.sql.SQLException;

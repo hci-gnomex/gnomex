@@ -13,8 +13,8 @@ import hci.gnomex.model.Request;
 import hci.gnomex.model.RequestStatus;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.HibernateSession;
+import hci.gnomex.utility.ProductException;
 import hci.gnomex.utility.ProductUtil;
-import hci.gnomex.utility.exceptions.ProductException;
 
 import java.io.Serializable;
 import java.io.StringReader;

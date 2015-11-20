@@ -3,7 +3,7 @@ package hci.gnomex.controller;
 import hci.gnomex.model.NewsItem;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.HibernateSession;
-import hci.gnomex.utility.parsers.RequestParser;
+import hci.gnomex.utility.RequestParser;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 

@@ -12,11 +12,11 @@ import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
+import hci.gnomex.utility.LabCoreFacilityParser;
+import hci.gnomex.utility.MailUtil;
+import hci.gnomex.utility.MailUtilHelper;
 import hci.gnomex.utility.PropertyDictionaryHelper;
 import hci.gnomex.utility.Util;
-import hci.gnomex.utility.mail.MailUtil;
-import hci.gnomex.utility.mail.MailUtilHelper;
-import hci.gnomex.utility.parsers.LabCoreFacilityParser;
 
 import java.io.IOException;
 import java.io.Serializable;

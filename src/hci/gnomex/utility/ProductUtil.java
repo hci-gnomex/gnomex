@@ -14,8 +14,6 @@ import hci.gnomex.model.ProductOrderStatus;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.RequestStatus;
-import hci.gnomex.utility.comparators.RequestStatusComparator;
-import hci.gnomex.utility.exceptions.ProductException;
 
 public class ProductUtil {
 	

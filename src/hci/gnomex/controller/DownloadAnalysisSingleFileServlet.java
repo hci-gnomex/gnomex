@@ -4,9 +4,9 @@ import hci.gnomex.constants.Constants;
 import hci.gnomex.model.Analysis;
 import hci.gnomex.model.TransferLog;
 import hci.gnomex.security.SecurityAdvisor;
+import hci.gnomex.utility.AnalysisFileDescriptor;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.PropertyDictionaryHelper;
-import hci.gnomex.utility.file.AnalysisFileDescriptor;
 
 import java.io.File;
 import java.io.FileInputStream;

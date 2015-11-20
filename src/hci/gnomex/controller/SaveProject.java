@@ -9,7 +9,7 @@ import hci.gnomex.model.ExperimentFactorEntry;
 import hci.gnomex.model.Project;
 import hci.gnomex.model.QualityControlStepEntry;
 import hci.gnomex.utility.HibernateSession;
-import hci.gnomex.utility.parsers.RequestParser;
+import hci.gnomex.utility.RequestParser;
 
 import java.io.Serializable;
 import java.io.StringReader;

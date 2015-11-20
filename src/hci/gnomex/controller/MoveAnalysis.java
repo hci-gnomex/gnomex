@@ -4,8 +4,8 @@ import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.Analysis;
 import hci.gnomex.model.AnalysisGroup;
+import hci.gnomex.utility.AnalysisGroupParser;
 import hci.gnomex.utility.HibernateSession;
-import hci.gnomex.utility.parsers.AnalysisGroupParser;
 
 import java.io.Serializable;
 import java.io.StringReader;

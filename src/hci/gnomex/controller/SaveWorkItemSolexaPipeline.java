@@ -19,13 +19,13 @@ import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.BillingItemAutoComplete;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
+import hci.gnomex.utility.MailUtil;
+import hci.gnomex.utility.MailUtilHelper;
 import hci.gnomex.utility.PropertyDictionaryHelper;
+import hci.gnomex.utility.RequestEmailBodyFormatter;
+import hci.gnomex.utility.SequenceLaneNumberComparator;
 import hci.gnomex.utility.Util;
-import hci.gnomex.utility.comparators.SequenceLaneNumberComparator;
-import hci.gnomex.utility.formatters.RequestEmailBodyFormatter;
-import hci.gnomex.utility.mail.MailUtil;
-import hci.gnomex.utility.mail.MailUtilHelper;
-import hci.gnomex.utility.parsers.WorkItemSolexaPipelineParser;
+import hci.gnomex.utility.WorkItemSolexaPipelineParser;
 
 import java.io.IOException;
 import java.io.Serializable;

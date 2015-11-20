@@ -5,8 +5,8 @@ import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.Request;
 import hci.gnomex.utility.DictionaryHelper;
+import hci.gnomex.utility.FileDescriptor;
 import hci.gnomex.utility.PropertyDictionaryHelper;
-import hci.gnomex.utility.file.FileDescriptor;
 
 import java.io.File;
 import java.io.IOException;

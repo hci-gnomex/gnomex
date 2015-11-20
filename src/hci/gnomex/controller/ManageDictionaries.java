@@ -9,8 +9,8 @@ import hci.gnomex.constants.Constants;
 import hci.gnomex.model.DictionaryEntryUserOwned;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
+import hci.gnomex.utility.GNomExRollbackException;
 import hci.gnomex.utility.HibernateSession;
-import hci.gnomex.utility.exceptions.GNomExRollbackException;
 
 import java.io.Serializable;
 import java.sql.SQLException;

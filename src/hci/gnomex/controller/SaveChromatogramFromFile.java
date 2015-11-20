@@ -8,10 +8,10 @@ import hci.gnomex.model.PlateWell;
 import hci.gnomex.model.Request;
 import hci.gnomex.utility.ChromatReadUtil;
 import hci.gnomex.utility.ChromatTrimUtil;
+import hci.gnomex.utility.ChromatogramParser;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.PropertyDictionaryHelper;
-import hci.gnomex.utility.parsers.ChromatogramParser;
 
 import java.io.File;
 import java.io.Serializable;

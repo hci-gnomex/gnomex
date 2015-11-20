@@ -4,7 +4,6 @@ import hci.gnomex.constants.Constants;
 import hci.gnomex.controller.GNomExCommand;
 import hci.gnomex.model.Request;
 import hci.gnomex.security.SecurityAdvisor;
-import hci.gnomex.utility.file.FileDescriptor;
 
 import java.io.File;
 import java.io.FileWriter;

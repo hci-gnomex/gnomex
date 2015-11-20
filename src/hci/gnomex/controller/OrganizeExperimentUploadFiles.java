@@ -8,8 +8,8 @@ import hci.gnomex.model.Sample;
 import hci.gnomex.model.SampleExperimentFile;
 import hci.gnomex.model.TransferLog;
 import hci.gnomex.utility.DictionaryHelper;
+import hci.gnomex.utility.FileDescriptorUploadParser;
 import hci.gnomex.utility.PropertyDictionaryHelper;
-import hci.gnomex.utility.parsers.FileDescriptorUploadParser;
 
 import java.io.File;
 import java.io.Serializable;

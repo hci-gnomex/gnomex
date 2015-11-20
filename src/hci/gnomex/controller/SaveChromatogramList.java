@@ -3,8 +3,8 @@ package hci.gnomex.controller;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.security.SecurityAdvisor;
+import hci.gnomex.utility.ChromatogramParser;
 import hci.gnomex.utility.HibernateSession;
-import hci.gnomex.utility.parsers.ChromatogramParser;
 
 import java.io.Serializable;
 import java.io.StringReader;

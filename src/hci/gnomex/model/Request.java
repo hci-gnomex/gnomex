@@ -6,8 +6,8 @@ import hci.gnomex.constants.Constants;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.Order;
+import hci.gnomex.utility.ProductException;
 import hci.gnomex.utility.ProductUtil;
-import hci.gnomex.utility.exceptions.ProductException;
 import hci.hibernate3utils.HibernateDetailObject;
 
 import java.sql.Date;

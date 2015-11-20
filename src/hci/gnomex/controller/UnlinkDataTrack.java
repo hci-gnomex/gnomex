@@ -6,8 +6,8 @@ import hci.gnomex.model.DataTrack;
 import hci.gnomex.model.DataTrackFolder;
 import hci.gnomex.model.GenomeBuild;
 import hci.gnomex.model.UnloadDataTrack;
+import hci.gnomex.utility.DataTrackComparator;
 import hci.gnomex.utility.HibernateSession;
-import hci.gnomex.utility.comparators.DataTrackComparator;
 
 import java.io.Serializable;
 import java.util.Iterator;

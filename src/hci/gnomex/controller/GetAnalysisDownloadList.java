@@ -9,10 +9,10 @@ import hci.gnomex.model.Analysis;
 import hci.gnomex.model.AnalysisFile;
 import hci.gnomex.model.AnalysisGroupFilter;
 import hci.gnomex.security.SecurityAdvisor;
+import hci.gnomex.utility.AnalysisFileDescriptor;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.PropertyDictionaryHelper;
-import hci.gnomex.utility.file.AnalysisFileDescriptor;
 
 import java.io.File;
 import java.io.Serializable;

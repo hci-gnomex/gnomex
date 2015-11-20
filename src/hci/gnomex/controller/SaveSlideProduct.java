@@ -6,8 +6,8 @@ import hci.gnomex.model.Application;
 import hci.gnomex.model.SlideDesign;
 import hci.gnomex.model.SlideProduct;
 import hci.gnomex.security.SecurityAdvisor;
+import hci.gnomex.utility.ApplicationParser;
 import hci.gnomex.utility.HibernateSession;
-import hci.gnomex.utility.parsers.ApplicationParser;
 
 import java.io.Serializable;
 import java.io.StringReader;

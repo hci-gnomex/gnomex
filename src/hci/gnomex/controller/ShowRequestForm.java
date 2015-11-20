@@ -18,7 +18,7 @@ import hci.gnomex.model.BillingAccount;
 import hci.gnomex.model.Request;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
-import hci.gnomex.utility.formatters.RequestPDFFormatter;
+import hci.gnomex.utility.RequestPDFFormatter;
 import hci.report.constants.ReportFormats;
 import hci.report.model.ReportTray;
 import hci.report.utility.ReportCommand;

@@ -9,9 +9,9 @@ import hci.gnomex.model.RequestStatus;
 import hci.gnomex.model.WorkItem;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
+import hci.gnomex.utility.EmailHelper;
 import hci.gnomex.utility.HibernateSession;
-import hci.gnomex.utility.mail.EmailHelper;
-import hci.gnomex.utility.parsers.WorkItemExtractionParser;
+import hci.gnomex.utility.WorkItemExtractionParser;
 
 import java.io.Serializable;
 import java.io.StringReader;

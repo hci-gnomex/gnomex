@@ -10,8 +10,8 @@ import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.Step;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.HibernateSession;
+import hci.gnomex.utility.PriceCategoryStepParser;
 import hci.gnomex.utility.PropertyDictionaryHelper;
-import hci.gnomex.utility.parsers.PriceCategoryStepParser;
 
 import java.io.Serializable;
 import java.io.StringReader;

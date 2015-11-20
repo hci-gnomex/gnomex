@@ -6,7 +6,7 @@ import hci.gnomex.model.AppUser;
 import hci.gnomex.model.Lab;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.HibernateSession;
-import hci.gnomex.utility.parsers.LabMemberParser;
+import hci.gnomex.utility.LabMemberParser;
 
 import java.io.Serializable;
 import java.io.StringReader;

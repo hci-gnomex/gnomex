@@ -9,6 +9,7 @@ import hci.gnomex.model.AnalysisCollaborator;
 import hci.gnomex.model.GenomeBuild;
 import hci.gnomex.model.Lab;
 import hci.gnomex.security.SecurityAdvisor;
+import hci.gnomex.utility.AnalysisFileParser;
 import hci.gnomex.utility.BatchDataSource;
 import hci.gnomex.utility.HibernateSession;
 
@@ -33,13 +34,12 @@ import hci.gnomex.model.DataTrackFile;
 import hci.gnomex.model.DataTrackFolder;
 import hci.gnomex.model.Institution;
 import hci.gnomex.model.PropertyDictionary;
+import hci.gnomex.utility.AppUserComparator;
+import hci.gnomex.utility.DataTrackComparator;
 import hci.gnomex.utility.DataTrackUtil;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.PropertyDictionaryHelper;
-import hci.gnomex.utility.comparators.AppUserComparator;
-import hci.gnomex.utility.comparators.DataTrackComparator;
-import hci.gnomex.utility.parsers.AnalysisFileParser;
-import hci.gnomex.utility.parsers.RequestParser;
+import hci.gnomex.utility.RequestParser;
 
 import java.io.File;
 import java.util.Date;
