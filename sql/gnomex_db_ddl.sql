@@ -2137,17 +2137,22 @@ CREATE TABLE `gnomex`.`Property` (
   `sortOrder` INT(10) NULL,
   `idCoreFacility` INT(10) NULL,
   `forRequest` CHAR(1) NULL default 'N',
+  `idPriceCategory` INT(10) NULL,
   PRIMARY KEY (`idProperty`),
   CONSTRAINT `FK_Property_AppUser` FOREIGN KEY `FK_Property_AppUser` (`idAppUser`)
     REFERENCES `gnomex`.`AppUser` (`idAppUser`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  CONSTRAINT FK_Property_PropertyType FOREIGN KEY FK_Property_PropertyType (codePropertyType)
-    REFERENCES gnomex.PropertyType (codePropertyType)
+  CONSTRAINT `FK_Property_PropertyType` FOREIGN KEY `FK_Property_PropertyType` (`codePropertyType`)
+    REFERENCES `gnomex`.`PropertyType` (`codePropertyType`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,        
-  CONSTRAINT FK_Property_CoreFacility FOREIGN KEY FK_Property_CoreFacility (idCoreFacility)
-    REFERENCES gnomex.CoreFacility (idCoreFacility)
+  CONSTRAINT `FK_Property_CoreFacility` FOREIGN KEY `FK_Property_CoreFacility` (`idCoreFacility`)
+    REFERENCES `gnomex`.`CoreFacility` (`idCoreFacility`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION   
+  CONSTRAINT `FK_Property_PriceCategory` FOREIGN KEY `FK_Property_PriceCategory` (`idPriceCategory`)
+    REFERENCES `gnomex`.`PriceCategory` (`idPriceCategory`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION        
 )
