@@ -2,8 +2,8 @@ use gnomex;
 
 
 -- Add PriceCategory to Property
-alter table Property
-ADD column idPriceCategory int default NULL;
+ALTER TABLE Property
+ADD COLUMN idPriceCategory int default NULL;
 
 ALTER TABLE Property ADD CONSTRAINT FK_Property_PriceCategory FOREIGN KEY FK_Property_PriceCategory (idPriceCategory)
     REFERENCES gnomex.PriceCategory (idPriceCategory)
