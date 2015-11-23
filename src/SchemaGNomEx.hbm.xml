@@ -2382,6 +2382,7 @@
     <property name="forRequest" column="forRequest" type="string" />
 		<property name="sortOrder" column="sortOrder" type="integer" />
 		<property name="idCoreFacility" column="idCoreFacility" type="integer" />
+    <property name="idPriceCategory" column="idPriceCategory" type="integer" />
 
 		<set name="options" table="PropertyOption" lazy="false" cascade="delete"
 			order-by="sortOrder" inverse="true">
