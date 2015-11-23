@@ -157,6 +157,7 @@
 				" useQty=''" + 
 				" catalogNumber=''" +
 				" batchSamplesByUseQuantity='N'" +
+				" billThroughGnomex='Y'" +
 				" />");
 			
 			products.addItemAt(newProduct, 0);
@@ -222,6 +223,7 @@
 		params.unitPriceExternalAcademic = priceExternalAcademicText.text;
 		params.unitPriceExternalCommercial = priceExternalCommercialText.text;
 		params.batchSamplesByUseQuantity = batchSamplesByUseQuantityCheckbox.selected ? "Y" : "N";
+		params.billThroughGnomex = billThroughGnomexCheckBox.selected ? "Y" : "N";
 		
 		saveProduct.send(params);
 		
@@ -354,6 +356,9 @@
 			 <mx:HBox width="100%" verticalGap="0" verticalAlign="middle">
 				 <mx:CheckBox id="batchSamplesByUseQuantityCheckbox" label="Batch Samples by Use Quantity" click="dirty.setDirty()" 
 							  selected="{productList.selectedItem.@batchSamplesByUseQuantity == 'Y'}" />
+				 
+				 <mx:CheckBox id="billThroughGnomexCheckBox" label="Use GNomEx for Billing?" click="dirty.setDirty()" 
+							  selected="{productList.selectedItem.@billThroughGnomex == 'Y'}" />
 			 </mx:HBox>
 			 <mx:HBox width="100%" verticalGap="0" verticalAlign="top">
 				 <mx:Text text="Pricing" width="80" styleName="formLabel"/>
