@@ -8,9 +8,9 @@ use gnomex;
 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
 
 -- Default core facility
-INSERT INTO `gnomex`.`CoreFacility`(`idCoreFacility`, `facilityName`, `isActive`) VALUES (1, 'Microarray and Genomic Analysis', 'Y');
+INSERT INTO gnomex.CoreFacility(idCoreFacility, facilityName, isActive) VALUES (1, 'Microarray and Genomic Analysis', 'Y');
 
-INSERT INTO `gnomex`.`AnalysisType`(`idAnalysisType`, `analysisType`, `isActive`, `idAppUser`)
+INSERT INTO gnomex.AnalysisType(idAnalysisType, analysisType, isActive, idAppUser)
 VALUES (1, 'ChIP-Seq analysis', 'Y', NULL),
   (2, 'TiMAT2 Tiling Analysis', 'Y', 566),
   (3, 'RNA-Seq, Differential', 'Y', 566),
@@ -23,11 +23,11 @@ VALUES (1, 'ChIP-Seq analysis', 'Y', NULL),
   (10, 'Cap-Seq', 'Y', 566),
   (11, 'SNP/INDEL', 'Y', 566);
 
-INSERT INTO `gnomex`.`AppUser`(`idAppUser`, `lastName`, `firstName`, `uNID`, `email`, `phone`, `department`, `institute`, `jobTitle`, `isActive`, `codeUserPermissionKind`, `userNameExternal`, `passwordExternal`, `ucscUrl`, `salt`, `guid`, `guidExpiration`, `passwordExpired`)
+INSERT INTO gnomex.AppUser(idAppUser, lastName, firstName, uNID, email, phone, department, institute, jobTitle, isActive, codeUserPermissionKind, userNameExternal, passwordExternal, ucscUrl, salt, guid, guidExpiration, passwordExpired)
 VALUES (1, '', 'admin', null, null, null, NULL, NULL, NULL, 'Y', 'SUPER', 'admin', '-446f018f07117636316c70c46b0c594248e81887018e5b0d', null, '-3015cc4680d7f2bbcd4aaee6dde2314c3eaf87435e592c6e9f15dd374f208b86d423f8f76d65d6e6b7dd85c8df7e1aa5e73e5018b431e232bbe9f8f38ece7330', null, null, 'N');
 
 
-INSERT INTO `gnomex`.`ArrayCoordinate`(`idArrayCoordinate`, `name`, `x`, `y`, `idSlideDesign`)
+INSERT INTO gnomex.ArrayCoordinate(idArrayCoordinate, name, x, y, idSlideDesign)
 VALUES  (2,'1_1',1,1,54),
  (3,'1_2',1,2,54),
  (16,'1',1,1,3),
@@ -139,12 +139,12 @@ VALUES  (2,'1_1',1,1,54),
 
 
 
-INSERT INTO `gnomex`.`BillingChargeKind`(`codeBillingChargeKind`, `billingChargeKind`, `isActive`)
+INSERT INTO gnomex.BillingChargeKind(codeBillingChargeKind, billingChargeKind, isActive)
 VALUES ('PRODUCT', 'Product', 'Y'),
   ('SERVICE', 'Service', 'Y');
 
 
-INSERT INTO `gnomex`.`BillingPeriod`(`idBillingPeriod`, `billingPeriod`, `startDate`, `endDate`, `isActive`)
+INSERT INTO gnomex.BillingPeriod(idBillingPeriod, billingPeriod, startDate, endDate, isActive)
 VALUES (1, 'Jan 2009', '2009-01-01 00:00:00', '2009-01-31 00:00:00', 'Y'),
   (2, 'Feb 2009', '2009-02-01 00:00:00', '2009-02-28 00:00:00', 'Y'),
   (3, 'Mar 2009', '2009-03-01 00:00:00', '2009-03-31 00:00:00', 'Y'),
@@ -236,7 +236,7 @@ VALUES (1, 'Jan 2009', '2009-01-01 00:00:00', '2009-01-31 00:00:00', 'Y'),
 
 
 
-INSERT INTO `gnomex`.`BillingSlideProductClass`(`idBillingSlideProductClass`, `billingSlideProductClass`, `isActive`)
+INSERT INTO gnomex.BillingSlideProductClass(idBillingSlideProductClass, billingSlideProductClass, isActive)
 VALUES (1, 'Agilent 244K microarray', 'Y'),
   (2, 'Agilent 105K microarray', 'Y'),
   (3, 'Agilent 44K microarray', 'Y'),
@@ -251,7 +251,7 @@ VALUES (1, 'Agilent 244K microarray', 'Y'),
   (12, 'Agilent 1M microarray', 'Y'),
   (13, 'Agilent 180K microarray', 'Y');
 
-INSERT INTO `gnomex`.`BillingSlideServiceClass`(`idBillingSlideServiceClass`, `billingSlideServiceClass`, `isActive`)
+INSERT INTO gnomex.BillingSlideServiceClass(idBillingSlideServiceClass, billingSlideServiceClass, isActive)
 VALUES (1, 'Agilent Gene Expression 44K', 'Y'),
   (2, 'Aglient CGH 244K', 'Y'),
   (3, 'Agilent CGH 105K', 'Y'),
@@ -272,7 +272,7 @@ VALUES (1, 'Agilent Gene Expression 44K', 'Y'),
   (18, 'Agilent HybMap 1M', 'Y'),
   (19, 'Agilent CGH 180K', 'Y');
 
-INSERT INTO `gnomex`.`BillingStatus`(`codeBillingStatus`, `billingStatus`, `isActive`)
+INSERT INTO gnomex.BillingStatus(codeBillingStatus, billingStatus, isActive)
 VALUES ('APPROVED', 'Approved', 'Y'),
   ('APPROVEDEX', 'Approved (External)', 'Y'),
   ('APPROVEDCC', 'Approved (Credit Card)', 'Y'),
@@ -280,7 +280,7 @@ VALUES ('APPROVED', 'Approved', 'Y'),
   ('NEW', 'New', 'Y'),
   ('PENDING', 'Pending', 'Y');
 
-INSERT INTO `gnomex`.`PriceSheet`(`idPriceSheet`, `name`, `description`, `isActive`)
+INSERT INTO gnomex.PriceSheet(idPriceSheet, name, description, isActive)
 VALUES 
   (1, 'Sample Quality', 'Sample Quality Price Sheet', 'Y'),
   (2, 'Agilent Microarray', 'Agilent Microarray Price Sheet', 'Y'),
@@ -289,7 +289,7 @@ VALUES
   (5, 'Illumina HiSeq 2000 Sequencing', 'Illumina HiSeq 2000 Sequencing Price Sheet', 'Y'),
   (10, 'Illumina MiSeq Sequencing', 'Illumina MiSeq Sequencing Price Sheet', 'Y');
 
-INSERT INTO `gnomex`.`PriceSheetRequestCategory`(`idPriceSheet`, `codeRequestCategory`)
+INSERT INTO gnomex.PriceSheetRequestCategory(idPriceSheet, codeRequestCategory)
 VALUES (1, 'QC'),
   (2, 'AGIL'),
   (2, 'AGIL1'),
@@ -298,7 +298,7 @@ VALUES (1, 'QC'),
   (5, 'HISEQ'),
   (10, 'MISEQ');
 
-INSERT INTO `gnomex`.`PriceCategory`(`idPriceCategory`, `name`, `description`, `pluginClassName`, `codeBillingChargeKind`, `dictionaryClassNameFilter1`, `dictionaryClassNameFilter2`, `isActive`)
+INSERT INTO gnomex.PriceCategory(idPriceCategory, name, description, pluginClassName, codeBillingChargeKind, dictionaryClassNameFilter1, dictionaryClassNameFilter2, isActive)
 VALUES (1, 'Sample Quality', 'Sample Quality', 'hci.gnomex.billing.SampleQualityPlugin', 'SERVICE', 'hci.gnomex.model.Application', 'hci.gnomex.model.BioanalyzerChipType', 'Y'),
   (2, 'Microarray Labeling Reaction', 'Agilent Microarray Labeling Reaction', 'hci.gnomex.billing.LabelingReactionPlugin', 'SERVICE', 'hci.gnomex.model.Application', NULL, 'Y'),
   (3, 'Microarray Analysis', 'Agilent Microarray Analysis', 'hci.gnomex.billing.MicroarrayAnalysisPlugin', 'SERVICE', 'hci.gnomex.model.BillingSlideServiceClass', NULL, 'Y'),
@@ -314,7 +314,7 @@ VALUES (1, 'Sample Quality', 'Sample Quality', 'hci.gnomex.billing.SampleQuality
   (11, 'Illumina HiSeq Sequencing', 'Illumina HiSeq Sequencing', 'hci.gnomex.billing.IlluminaSeqPlugin', 'SERVICE', 'hci.gnomex.model.SeqRunType', 'hci.gnomex.model.NumberSequencingCycles', 'Y'),
   (100, 'Illumina MiSeq Sequencing', 'Illumina MiSeq Sequencing', 'hci.gnomex.billing.IlluminaSeqPlugin', 'SERVICE', 'hci.gnomex.model.SeqRunType', 'hci.gnomex.model.NumberSequencingCycles', 'Y');
 
-INSERT INTO `gnomex`.`PriceSheetPriceCategory`(`idPriceSheet`, `idPriceCategory`, `sortOrder`)
+INSERT INTO gnomex.PriceSheetPriceCategory(idPriceSheet, idPriceCategory, sortOrder)
 VALUES
   (1, 1, 1),
   (2, 1, 1),
@@ -342,7 +342,7 @@ VALUES
   (10, 100, 6);
   
 
-INSERT INTO `gnomex`.`Price` (`idPrice`,`name`,`description`,`unitPrice`,`unitPriceExternalAcademic`,`idPriceCategory`,`isActive`) VALUES
+INSERT INTO gnomex.Price (idPrice,name,description,unitPrice,unitPriceExternalAcademic,idPriceCategory,isActive) VALUES
  (1,'Bioanalyzer RNA Nano','sample quality','0.00',0,1,'Y'),
  (2,'Bioanalyzer RNA Pico','sample quality','0.00',0,1,'Y'),
  (3,'Bioanalyzer DNA 1000','sample quality','0.00',0,1,'Y'),
@@ -425,7 +425,7 @@ INSERT INTO `gnomex`.`Price` (`idPrice`,`name`,`description`,`unitPrice`,`unitPr
  (200,'MiSeq 26 cycle paired end','HiSeq 26 cycle paired end','0.00',0,100,'Y'),
  (201,'MiSeq 150 cycle paired end','HiSeq 150 cycle paired end','0.00',0,100,'Y');
 
-INSERT INTO `gnomex`.`PriceCriteria` (`idPriceCriteria`,`filter1`,`filter2`,`idPrice`) VALUES 
+INSERT INTO gnomex.PriceCriteria (idPriceCriteria,filter1,filter2,idPrice) VALUES 
  (1,'BIOAN','RNANANO',1),
  (2,'BIOAN','RNAPICO',2),
  (3,'BIOAN','DNA1000',3),
@@ -514,11 +514,11 @@ INSERT INTO `gnomex`.`PriceCriteria` (`idPriceCriteria`,`filter1`,`filter2`,`idP
 
 
 
-INSERT INTO `gnomex`.`ConcentrationUnit`(`codeConcentrationUnit`, `concentrationUnit`, `mageOntologyCode`, `mageOntologyDefinition`, `isActive`)
+INSERT INTO gnomex.ConcentrationUnit(codeConcentrationUnit, concentrationUnit, mageOntologyCode, mageOntologyDefinition, isActive)
 VALUES ('ng/ul', 'ng/ul', NULL, NULL, 'Y'),
   ('pg/ul', 'pg/ul', NULL, NULL, 'Y');
 
-INSERT INTO `gnomex`.`ExperimentDesign`(`codeExperimentDesign`, `experimentDesign`, `mageOntologyCode`, `mageOntologyDefinition`, `isActive`, `idAppUser`)
+INSERT INTO gnomex.ExperimentDesign(codeExperimentDesign, experimentDesign, mageOntologyCode, mageOntologyDefinition, isActive, idAppUser)
 VALUES ('BINDSITE', 'Binding Site Identification', 'binding_site_identification_design', NULL, 'Y', NULL),
   ('CGH', 'Comparative Genomic Hybridization', 'comparative_genome_hybridization_design', NULL, 'Y', NULL),
   ('CHROM', 'Chromatin Marks / Modifications', NULL, NULL, 'Y', NULL),
@@ -530,7 +530,7 @@ VALUES ('BINDSITE', 'Binding Site Identification', 'binding_site_identification_
   ('TRANSCRIPT', 'Transcript Identification', 'transcript_identification_design', NULL, 'Y', NULL);
 
 
-INSERT INTO `gnomex`.`ExperimentFactor`(`codeExperimentFactor`, `experimentFactor`, `mageOntologyCode`, `mageOntologyDefinition`, `isActive`, `idAppUser`)
+INSERT INTO gnomex.ExperimentFactor(codeExperimentFactor, experimentFactor, mageOntologyCode, mageOntologyDefinition, isActive, idAppUser)
 VALUES ('AGE', 'Age / Developmental Stage', 'age', NULL, 'Y', NULL),
   ('CELLLINE', 'Cell Line / Strain', 'cell_line', NULL, 'Y', NULL),
   ('CELLTYPE', 'Cell Type', 'cell_type', NULL, 'Y', NULL),
@@ -551,7 +551,7 @@ VALUES ('AGE', 'Age / Developmental Stage', 'age', NULL, 'Y', NULL),
 
 
 
-INSERT INTO `gnomex`.`FundingAgency`(`idFundingAgency`, `fundingAgency`, `isPeerReviewedFunding`, `isActive`)
+INSERT INTO gnomex.FundingAgency(idFundingAgency, fundingAgency, isPeerReviewedFunding, isActive)
 VALUES (4, 'NIH', 'Y', 'Y'),
   (5, 'Howard Hughes Foundation', 'Y', 'Y'),
   (6, 'American Cancer Society (ACS)\r\n', 'Y', 'Y'),
@@ -574,8 +574,8 @@ VALUES (4, 'NIH', 'Y', 'Y'),
 
 
 
-/*!40000 ALTER TABLE `GenomeBuild` DISABLE KEYS */;
-INSERT INTO `gnomex`.`GenomeBuild`(`idGenomeBuild`,genomeBuildName, `das2Name`,`idOrganism`,`buildDate`,`coordURI`,`coordVersion`,`coordSource`,`coordTestRange`,`coordAuthority`,`ucscName`,`isActive`,`igvName`) VALUES 
+/*!40000 ALTER TABLE GenomeBuild DISABLE KEYS */;
+INSERT INTO gnomex.GenomeBuild(idGenomeBuild,genomeBuildName, das2Name,idOrganism,buildDate,coordURI,coordVersion,coordSource,coordTestRange,coordAuthority,ucscName,isActive,igvName) VALUES 
  (400,'A_thaliana_Jan_2004','A_thaliana_Jan_2004', 400,'2004-01-01 00:00:00',NULL,NULL,NULL,NULL,NULL,NULL,'Y',NULL),
  (401,'TAIR8; A_thaliana_Mar_2008','A_thaliana_Mar_2008', 400,'2008-03-01 00:00:00',NULL,NULL,NULL,NULL,NULL,NULL,'Y','tair8'),
  (501,'B_taurus_Oct_2007','B_taurus_Oct_2007',500,'2007-10-01 00:00:00',NULL,NULL,NULL,NULL,NULL,'bosTau4','Y',NULL),
@@ -617,16 +617,16 @@ insert into gnomex.DataTrackFolder (idGenomeBuild, name)
 select idGenomeBuild, genomeBuildName from GenomeBuild;
 
 
-INSERT INTO `gnomex`.`Label`(`idLabel`, `label`, `isActive`)
+INSERT INTO gnomex.Label(idLabel, label, isActive)
 VALUES (1, 'Cy3', 'Y'),
   (2, 'Cy5', 'Y');
 
 
-INSERT INTO `gnomex`.`LabelingReactionSize`(`codeLabelingReactionSize`, `labelingReactionSize`, `isActive`, `sortOrder`)
+INSERT INTO gnomex.LabelingReactionSize(codeLabelingReactionSize, labelingReactionSize, isActive, sortOrder)
 VALUES ('STD', 'Standard', 'Y', 1),
   ('LRG', 'Large', 'Y', 2);
 
-INSERT INTO `gnomex`.`ApplicationTheme`(`idApplicationTheme`, `applicationTheme`, `isActive`, sortOrder)
+INSERT INTO gnomex.ApplicationTheme(idApplicationTheme, applicationTheme, isActive, sortOrder)
 VALUES (1, 'DNA Sequencing', 'Y', 1),
   (2, 'RNA Sequencing', 'Y', 2),
   (3, 'Microarray', 'Y', 3),
@@ -638,7 +638,7 @@ insert into gnomex.ApplicationType values('Illumina', 'Illumina'),
   ('Sequenom', 'Sequenom'),
   ('Other', 'Other');
 
-INSERT INTO `gnomex`.`Application`(`codeApplication`, `application`, `isActive`, `idApplicationTheme`, `sortOrder`, `codeApplicationType`, idCoreFacility, hasChipTypes)
+INSERT INTO gnomex.Application(codeApplication, application, isActive, idApplicationTheme, sortOrder, codeApplicationType, idCoreFacility, hasChipTypes)
 VALUES ('CGH', 'CGH', 'Y', 3, NULL, 'Microarray', 1, 'N'),
   ('CHIP', 'ChiP-on-chip', 'Y', 3, NULL, 'Microarray', 1, 'N'),
   ('EXON', 'Exon', 'Y', 3, NULL, 'Microarray', 1, 'N'),
@@ -661,7 +661,7 @@ VALUES ('CGH', 'CGH', 'Y', 3, NULL, 'Microarray', 1, 'N'),
   ('TSCRPTSEQ', '3.	Transcriptome sequencing (with DSN treatment of library)', 'Y', 2, 3, 'Illumina', 1, 'N'),
   ('OTHER', 'Custom', 'Y', NULL, 100, 'Other', 1, 'N');
 
-INSERT INTO `gnomex`.`BioanalyzerChipType`(`codeBioanalyzerChipType`, `bioanalyzerChipType`, `concentrationRange`, `maxSampleBufferStrength`, `costPerSample`, `sampleWellsPerChip`, `isActive`, `codeConcentrationUnit`,`codeApplication`)
+INSERT INTO gnomex.BioanalyzerChipType(codeBioanalyzerChipType, bioanalyzerChipType, concentrationRange, maxSampleBufferStrength, costPerSample, sampleWellsPerChip, isActive, codeConcentrationUnit,codeApplication)
 VALUES ('DNA1000', 'DNA 1000 Chip', '5 to 50 ng/ul', '250 mM KCl/NaCl', 10.00, 12, 'Y', 'ng/ul', 'BIOAN'),
   ('RNANANO', 'RNA Nano Chip', '25 to 500 ng/ul', '10mM TE', 7.00, 12, 'Y', 'ng/ul', 'BIOAN'),
   ('RNAPICO', 'RNA Pico Chip', '200 to 5000 pg/ul', '10 mM TE', 8.00, 11, 'Y', 'pg/ul', 'BIOAN'),
@@ -676,7 +676,7 @@ values
 ('PENDING',  'pending', 'Y'),
 ('RUNNING', 'running',  'Y');
 
-INSERT INTO `gnomex`.`NumberSequencingCycles`(`idNumberSequencingCycles`, `numberSequencingCycles`, `isActive`)
+INSERT INTO gnomex.NumberSequencingCycles(idNumberSequencingCycles, numberSequencingCycles, isActive)
 VALUES (1, 18, 'Y'),
   (2, 26, 'Y'),
   (3, 36, 'Y'),
@@ -685,7 +685,7 @@ VALUES (1, 18, 'Y'),
   (6, 101, 'Y'),
   (7, 150, 'Y');
 
-INSERT INTO `gnomex`.`NumberSequencingCyclesAllowed`(`idNumberSequencingCyclesAllowed`, `idNumberSequencingCycles`, `codeRequestCategory`, idSeqRunType, name, isCustom)
+INSERT INTO gnomex.NumberSequencingCyclesAllowed(idNumberSequencingCyclesAllowed, idNumberSequencingCycles, codeRequestCategory, idSeqRunType, name, isCustom)
 VALUES 
   (1, 1, 'SOLEXA', 3, '18 cycle single-end reads', 'N'),
   (2, 3, 'SOLEXA', 3, '36 cycle single-end reads', 'N'),
@@ -701,12 +701,12 @@ VALUES
   (12, 6, 'HISEQ', 5,  '101 cycle single-end reads - Rapide Mode', 'Y');
 
 
-INSERT INTO `gnomex`.`OligoBarcodeScheme`(`idOligoBarcodeScheme`, `oligoBarcodeScheme`, `description`, `isActive`)
+INSERT INTO gnomex.OligoBarcodeScheme(idOligoBarcodeScheme, oligoBarcodeScheme, description, isActive)
 VALUES (2, 'HiSeq 12 sequence tag scheme', 'HiSeq 12 sequence tag scheme, allows for 2-12 samples per flowcell channel', 'Y'),
        (3, 'Nextera Index A', 'Nextera Dual Index Scheme (Index A)', 'Y'),
        (4, 'Nextera Index B', 'Nextera Dual Index Scheme (Index B)', 'Y');
 
-INSERT INTO `gnomex`.`OligoBarcode`(`idOligoBarcode`, `name`, `barcodeSequence`, `idOligoBarcodeScheme`, `isActive`, `sortOrder`)
+INSERT INTO gnomex.OligoBarcode(idOligoBarcode, name, barcodeSequence, idOligoBarcodeScheme, isActive, sortOrder)
 VALUES 
 	   (5,  'HiSeq Tag 1', 'CGTGAT', 2, 'Y', 1),
 	   (6,	'HiSeq Tag 2', 'ACATCG', 2, 'Y', 2),
@@ -722,7 +722,7 @@ VALUES
 	   (16,	'HiSeq Tag 12', 'TACAAG', 2, 'Y', 12);
 	   
 	   
-INSERT INTO `gnomex`.`OligoBarcode`(`idOligoBarcode`, `name`, `barcodeSequence`, `idOligoBarcodeScheme`, `sortOrder`,`isActive`)
+INSERT INTO gnomex.OligoBarcode(idOligoBarcode, name, barcodeSequence, idOligoBarcodeScheme, sortOrder,isActive)
 VALUES 	   
        (20, 'N701','TAAGGCGA',3, 1, 'Y'),
        (21, 'N702','CGTACTAG',3, 2, 'Y'),
@@ -747,8 +747,8 @@ VALUES
 	   
 
   
-/*!40000 ALTER TABLE `Organism` DISABLE KEYS */;
-INSERT INTO gnomex.`Organism` (`idOrganism`,`organism`,`sortOrder`,`binomialName`,`NCBITaxID`,`idAppUser`,`das2Name`,`isActive`) VALUES 
+/*!40000 ALTER TABLE Organism DISABLE KEYS */;
+INSERT INTO gnomex.Organism (idOrganism,organism,sortOrder,binomialName,NCBITaxID,idAppUser,das2Name,isActive) VALUES 
  (100,'Lizard',NULL,'Anolis carolinensis',NULL,NULL,'A_carolinensis','Y'),
  (200,'A.gambiae',NULL,'Anopheles gambiae',NULL,NULL,'A_gambiae','Y'),
  (300,'A_mellifera',NULL,'Apis mellifera','',NULL,'A_mellifera','Y'),
@@ -811,143 +811,142 @@ INSERT INTO gnomex.`Organism` (`idOrganism`,`organism`,`sortOrder`,`binomialName
  (6000,'Tetraodon',NULL,'Tetraodon nigroviridis','',NULL,'T_nigroviridis','Y'),
  (6100,'Common Grape Vine',NULL,'Vitis vinifera',NULL,NULL,'V_vinifera','Y'),
  (6200,'Pipid Frog',NULL,'Xenopus tropicalis','',NULL,'X_tropicalis','Y');
-/*!40000 ALTER TABLE `Organism` ENABLE KEYS */;
+/*!40000 ALTER TABLE Organism ENABLE KEYS */;
   
 
-INSERT INTO `gnomex`.`PropertyDictionary` (`idPropertyDictionary`,`propertyName`,`propertyValue`,`propertyDescription`, `forServerOnly`) VALUES
-(1,'workauth_instructions','If billing account is inactive, please download the work authorization form below.<br> Forward the completed form to the [ENTER FACILITY NAME HERE] ([ENTER ROOM AND PHONE NUMBER HERE])','The instructions about work authorization that appear on the Experiment Submit Request page', 'N'),
- (2,'qc_instructions','Terms:  Bioanalyzer chips will be run when sufficient samples have been collected to load all wells of a chip.  Expedited service can be obtained if the researcher is willing to accept charges for any remaining empty wells on a chip.  Call [ENTER CORE FACILITY INFO HERE] for details.','The instructions regarding sample quality experiments.  These instructions about on Sample Tab of Experiment Submit Request window.', 'N'),
- (3,'workauth1_url','doc/blank_microarray_core_work_authorization_form.pdf','The URL to the work authorization document (pdf).', 'N'),
- (4,'workauth1_name','Work authorization (internal customers)','The name of the link', 'N'),
- (5,'contact_name_software_bugs','Bionformatics Core','Software org or contact', 'N'),
- (6,'contact_email_software_bugs','first.last@location.edu','Email address for reporting software bugs', 'N'),
- (7,'contact_email_core_facility','first.last@somwhere.edu','Core facility\'s email adress', 'N'),
- (8,'help_url','http://hci-scrum.hci.utah.edu/gnomexdoc','The URL to the GNomEx help documentation', 'N'),
- (9,'pricing_url','','The URL containing pricing info.', 'N'),
- (10,'university_user_authentication','N','Always set to \'N\' for open source GNomEx.  Indicates that authentication is performed against local user name and passwords, stored in GNomEx database.', 'N'),
- (11,'generate_general_ledger_interface','N','Always set to \'N\' for open source GNomEx.  Indicates that GL interface file cannot be generated.', 'N'),
- (12,'contact_email_software_tester','softwaredeveloper.name@somewhere.edu','Email address of the software tester.  Test will receive auto emails (on test server) when this email is entered as user\'s email or group contact\'s email.', 'N'),
- (13,'flowcell_directory_flag','FC','Always set to \'FC\'.  Indicates the prefix of the flowcell directory name.', 'N'),
- (14,'qc_directory','bioanalysis','The name of the QC folder under the experiment folder.  Place all sample quality (bioanalysis, spectrophotometer reports, etc.) in this directory', 'N'),
- (15,'production_server','','The DNS name or IP address of the production app server, example:  myprodserver.hci.utah.edu', 'N'),
- (16,'lucene_index_directory','/home/gnomex/luceneIndex','The file directory for storing lucene index files.', 'Y'),
- (17,'lucene_experiment_index_directory','/home/gnomex/luceneIndex/Experiment','The file directory for storing lucene index files on experiment data.', 'Y'),
- (18,'lucene_analysis_index_directory','/home/gnomex/luceneIndex/Analysis','The file directory for storing lucene index files on analysis data.', 'Y'),
- (19,'lucene_protocol_index_directory','/home/gnomex/luceneIndex/Protocol','The file directory for storing lucene index files on protocol data.', 'Y'),
- (20,'experiment_directory','/home/gnomex/experimentData/','The file directory where experiment results are stored. NOTE: must end in /', 'Y'),
- (21,'analysis_directory','/home/gnomex/analysisData/','The file directory where analysis files are stored. NOTE: must end in /', 'Y'),
- (22,'lucene_global_index_directory','/home/gnomex/luceneIndex/Global/','The file directory for storing lucene index files on combined data for all object types.','Y'),
- (23,'flowcell_directory','/home/gnomex/flowCellData/','The file directory where sequencing pipeline results for a flowcell are stored. NOTE: must end in /', 'Y'),
- (24,'flowcell_test_directory','/home/gnomex/flowCellData/','The test file directory where sequencing pipeline results for a flowcell are stored. NOTE: must end in /', 'Y'),
- (25,'billing_core_facility_business_unit','','Always blank for open source GNomEx', 'Y'),
- (26,'billing_core_facility_account','','Always blank for open source GNomEx', 'Y'),
- (27,'billing_core_facility_fund','','Always blank for open source GNomEx', 'Y'),
- (28,'billing_core_facility_org','','Always blank for open source GNomEx', 'Y'),
- (29,'billing_core_facility_activity','','Always blank for open source GNomEx', 'Y'),
- (30,'temp_directory','/temp','The temp directory where temp files are created', 'Y'),
- (31,'illumina_barcoding_note','','Illumina sample barcoding instructions', 'N'),
- (32,'workauth2_url','doc/blank_microarray_core_work_authorization_form.pdf','The URL to an alternalte work authorization document.', 'N'),
- (33,'workauth2_name','Work authorization (internal customers)','The name of the link', 'N'),
- (34, 'experiment_submission_default_mode', 'INTERNAL', 'INTERNAL if new experiment request to core facility, EXTERNAL if external experiment submission', 'N'), 
- (35, 'bst_linkage_supported', 'N', 'Set to N.  Only HCI installation supports linkage from GNomEx to Biospecimen tracking system.', 'Y'), 
- (36, 'fdt_supported', 'N', 'Flag indicating if FDT is supported.', 'N'),
- (37, 'http_port', '80', 'The port number that non-secure (http) runs on.', 'Y'),
- (38, 'fdt_directory', '', 'The fdt staging directory (file path) that is accessible from the fdt server.', 'N'),
- (39, 'fdt_directory_gnomex', '', 'The fdt staging directory (file path) that is accessible from gnomex application server.', 'N'),
- (40, 'fdt_client_codebase', '', 'The URL that the fdtClient.jar is served from.', 'N'),
- (41, 'fdt_server_name', '', 'The server name that the fdt server is running on', 'N'),
- (42, 'fdt_file_daemon_task_dir', '', 'Location for fdtfilemonitor task files (these contain info on source/target folders for moving files after completion of uploads).', 'N'),
- (43, 'fdt_user', 'fdt', 'User account that fdt server runs under.', 'N'),
- (44, 'fdt_group', 'fdtsecurity', 'Unix group for fdt user account.', 'N'),
- (45, 'usage_user_visibility', 'none', 'Permission level for non-admin gnomex users to view lab usage data. [none, masked, full]', 'N'),
- (46, 'external_data_sharing_site', 'N', 'Indicates if this gnomex installation is for external data sharting site, which limits options on welcome screen', 'N'),
- (47, 'site_title', '', 'The server name that appears next to the GNomEx title on the right top corner of the app', 'N'),
- (48, 'site_welcome_message', '', 'Welcome message that appears on the GNomEx home/welcome page', 'N'),
- (49, 'show_usage_on_startup', 'N', 'Y/N - Show usage charts on startup rather than home (welcome) view', 'N'),
- (50, 'billing_core_facility_po_account', '', 'Used in GL interface (internal use only)', 'Y'),
- (51, 'billing_po_account', '', 'Used in GL interface (internal use only)', 'Y'),
- (52, 'bst_linkage_gnomex_url', '', 'The url used in BST to launch gnomex when samples are inked (internal use only)', 'Y'),
- (53, 'contact_email_core_facility_workauth_reminder', 'first.last@somwhere.edu', 'Who should receive daily email reminder for pending work authorizations and an email notification when user self registers.', 'Y'),
- (54, 'dataset_privacy_expiration', '0', 'When a new dataset is created, this value will determine the default number of months until its visibility is automatically changed to public. If the value is <= 0 then the feature is disabled.', 'N'),
- (55, 'dataset_privacy_expiration_warning', '0', 'This value determines the number of days before dataset_privacy_expiration that a warning message is sent out. If the value is <= 0 then the feature is disabled.', 'N'),
- (56, 'fdt_jar_location', 'http://monalisa.cern.ch/FDT/', 'The public website for obtaining the fdt jar ', 'Y'),
- (57, 'fdt_help_url', '', 'The URL that contains help information on using Fast Data Transfer', 'N'),
- (58,'contact_email_bioinformatics','first.last@somwhere.edu','Bioinformatics core facility\'s email adress', 'N'),
- (59,'reply_email_core_facility_workauth_reminder','first.last@somewhere.edu','Email reply address for pending work authorizations reminder messages', 'Y'),
- (60,'dataset_privacy_expiration_reply_email','first.last@somewhere.edu','Reply address for dataset privacy expiration reminder emails', 'Y'),
- (61,'datatrack_directory','/home/gnomex/dataTrackData/','The file directory where data track files are stored that are not linked to an analysis file. NOTE: must end in /', 'Y'),
- (62,'lucene_datatrack_index_directory','/home/gnomex/luceneIndex/DataTrack','The file directory for storing lucene index files on data track data.', 'Y'),
- (63, 'datatrack_supported','Y','Indicates if data track feature is supported', 'N'),
- (64, 'topics_supported', 'N', 'Flag indicating if topics feature is supported.', 'N'),
- (65, 'datatrack_fileserver_url','http://yourservername:8080/das2gnomex/','The URL from Apache Tomcat where the data track files will be served', 'N'),
- (66, 'datatrack_fileserver_web_context','/path/to/apachetomcat/webapps/das2gnomex/','The directory in the web app on Apache Tomcat that will server the data track files.', 'N'),
- (67, 'default_visibility_analysis','MEM','Default visibility for new Analysis. Use value OWNER for Owner, MEM for Members, INST for Institution and PUBLIC for Public. Property can also be eliminated or set to blank to leave original default behavior in place.', 'N'),
- (68, 'default_visibility_datatrack','MEM','Default visibility for new Data Track. Use value OWNER for Owner, MEM for Members, INST for Institution and PUBLIC for Public. Property can also be eliminated or set to blank to leave original default behavior in place.', 'N'),
- (69, 'default_visibility_experiment','MEM','Default visibility for new Experiment. Use value OWNER for Owner, MEM for Members, INST for Institution and PUBLIC for Public. Property can also be eliminated or set to blank to leave original default behavior in place.', 'N'),
- (70, 'default_visibility_topic','MEM','Default visibility for new Topic. Use value OWNER for Owner, MEM for Members, INST for Institution and PUBLIC for Public. Property can also be eliminated or set to blank to leave original default behavior in place.', 'N'),
- (71,'lucene_topic_index_directory','/home/gnomex/luceneIndex/Topic','The file directory for storing lucene index files on topic data.', 'Y'),
- (72,'billing_gl_journal_line_ref_core_facility','','Always blank for open source GNomEx', 'Y'),
- (73,'billing_gl_journal_id_core_facility','','Always blank for open source GNomEx', 'Y'),
- (74,'generic_no_reply_email', 'DoNotReply@somewhere.edu', 'Generic no reply to use for emails going to multiple core facilities.', 'Y'),
- (75,'experiment_default_view', 'my experiments', 'Indicates default experiment view for non-admin users.  Values are "my experiments", "my lab" or "all".', 'N'),
- (76,'experiment_view_limit', '1000', 'Maximum number of experiments shown in experiment browse view.', 'N'),
- (77,'configurable_billing_accounts', 'Y', 'Y/N value indicating whether hard-coded or configuration billing account fields should be used.', 'N'),
- (78,'das2_url', 'Y', 'http://localhost:8080/das2gnomex/genome', 'N'),
- (79,'guest_download_terms', '', 'If property is set, then guests are prompted to agree to these terms prior to allowing download of files.  In addition an email is required which is saved in the transfer log.', 'N'),
- (80,'submit_request_instructions','Experiment has been submitted.  Please deliver your samples.','Instructions upon saving a new experiment', 'N'),
- (81,'contact_remit_address_core_facility',
+INSERT INTO gnomex.PropertyDictionary (propertyName,propertyValue,propertyDescription, forServerOnly) VALUES
+('workauth_instructions','If billing account is inactive, please download the work authorization form below.<br> Forward the completed form to the [ENTER FACILITY NAME HERE] ([ENTER ROOM AND PHONE NUMBER HERE])','The instructions about work authorization that appear on the Experiment Submit Request page', 'N'),
+ ('qc_instructions','Terms:  Bioanalyzer chips will be run when sufficient samples have been collected to load all wells of a chip.  Expedited service can be obtained if the researcher is willing to accept charges for any remaining empty wells on a chip.  Call [ENTER CORE FACILITY INFO HERE] for details.','The instructions regarding sample quality experiments.  These instructions about on Sample Tab of Experiment Submit Request window.', 'N'),
+ ('workauth1_url','doc/blank_microarray_core_work_authorization_form.pdf','The URL to the work authorization document (pdf).', 'N'),
+ ('workauth1_name','Work authorization (internal customers)','The name of the link', 'N'),
+ ('contact_name_software_bugs','Bionformatics Core','Software org or contact', 'N'),
+ ('contact_email_software_bugs','first.last@location.edu','Email address for reporting software bugs', 'N'),
+ ('contact_email_core_facility','first.last@somwhere.edu','Core facility\'s email adress', 'N'),
+ ('help_url','http://hci-scrum.hci.utah.edu/gnomexdoc','The URL to the GNomEx help documentation', 'N'),
+ ('university_user_authentication','N','Always set to \'N\' for open source GNomEx.  Indicates that authentication is performed against local user name and passwords, stored in GNomEx database.', 'N'),
+ ('generate_general_ledger_interface','N','Always set to \'N\' for open source GNomEx.  Indicates that GL interface file cannot be generated.', 'N'),
+ ('contact_email_software_tester','softwaredeveloper.name@somewhere.edu','Email address of the software tester.  Test will receive auto emails (on test server) when this email is entered as user\'s email or group contact\'s email.', 'N'),
+ ('flowcell_directory_flag','FC','Always set to \'FC\'.  Indicates the prefix of the flowcell directory name.', 'N'),
+ ('qc_directory','bioanalysis','The name of the QC folder under the experiment folder.  Place all sample quality (bioanalysis, spectrophotometer reports, etc.) in this directory', 'N'),
+ ('production_server','','The DNS name or IP address of the production app server, example:  myprodserver.hci.utah.edu', 'N'),
+ ('lucene_index_directory','/home/gnomex/luceneIndex','The file directory for storing lucene index files.', 'Y'),
+ ('lucene_experiment_index_directory','/home/gnomex/luceneIndex/Experiment','The file directory for storing lucene index files on experiment data.', 'Y'),
+ ('lucene_analysis_index_directory','/home/gnomex/luceneIndex/Analysis','The file directory for storing lucene index files on analysis data.', 'Y'),
+ ('lucene_protocol_index_directory','/home/gnomex/luceneIndex/Protocol','The file directory for storing lucene index files on protocol data.', 'Y'),
+ ('experiment_directory','/home/gnomex/experimentData/','The file directory where experiment results are stored. NOTE: must end in /', 'Y'),
+ ('analysis_directory','/home/gnomex/analysisData/','The file directory where analysis files are stored. NOTE: must end in /', 'Y'),
+ ('lucene_global_index_directory','/home/gnomex/luceneIndex/Global/','The file directory for storing lucene index files on combined data for all object types.','Y'),
+ ('flowcell_directory','/home/gnomex/flowCellData/','The file directory where sequencing pipeline results for a flowcell are stored. NOTE: must end in /', 'Y'),
+ ('flowcell_test_directory','/home/gnomex/flowCellData/','The test file directory where sequencing pipeline results for a flowcell are stored. NOTE: must end in /', 'Y'),
+ ('billing_core_facility_business_unit','','Always blank for open source GNomEx', 'Y'),
+ ('billing_core_facility_account','','Always blank for open source GNomEx', 'Y'),
+ ('billing_core_facility_fund','','Always blank for open source GNomEx', 'Y'),
+ ('billing_core_facility_org','','Always blank for open source GNomEx', 'Y'),
+ ('billing_core_facility_activity','','Always blank for open source GNomEx', 'Y'),
+ ('temp_directory','/temp','The temp directory where temp files are created', 'Y'),
+ ('illumina_barcoding_note','','Illumina sample barcoding instructions', 'N'),
+ ('workauth2_url','doc/blank_microarray_core_work_authorization_form.pdf','The URL to an alternalte work authorization document.', 'N'),
+ ('workauth2_name','Work authorization (internal customers)','The name of the link', 'N'),
+ ('experiment_submission_default_mode', 'INTERNAL', 'INTERNAL if new experiment request to core facility, EXTERNAL if external experiment submission', 'N'), 
+ ('bst_linkage_supported', 'N', 'Set to N.  Only HCI installation supports linkage from GNomEx to Biospecimen tracking system.', 'Y'), 
+ ('fdt_supported', 'N', 'Flag indicating if FDT is supported.', 'N'),
+ ('http_port', '80', 'The port number that non-secure (http) runs on.', 'Y'),
+ ('fdt_directory', '', 'The fdt staging directory (file path) that is accessible from the fdt server.', 'N'),
+ ('fdt_directory_gnomex', '', 'The fdt staging directory (file path) that is accessible from gnomex application server.', 'N'),
+ ('fdt_client_codebase', '', 'The URL that the fdtClient.jar is served from.', 'N'),
+ ('fdt_server_name', '', 'The server name that the fdt server is running on', 'N'),
+ ('fdt_file_daemon_task_dir', '', 'Location for fdtfilemonitor task files (these contain info on source/target folders for moving files after completion of uploads).', 'N'),
+ ('fdt_user', 'fdt', 'User account that fdt server runs under.', 'N'),
+ ('fdt_group', 'fdtsecurity', 'Unix group for fdt user account.', 'N'),
+ ('usage_user_visibility', 'none', 'Permission level for non-admin gnomex users to view lab usage data. [none, masked, full]', 'N'),
+ ('external_data_sharing_site', 'N', 'Indicates if this gnomex installation is for external data sharting site, which limits options on welcome screen', 'N'),
+ ('site_title', '', 'The server name that appears next to the GNomEx title on the right top corner of the app', 'N'),
+ ('site_welcome_message', '', 'Welcome message that appears on the GNomEx home/welcome page', 'N'),
+ ('show_usage_on_startup', 'N', 'Y/N - Show usage charts on startup rather than home (welcome) view', 'N'),
+ ('billing_core_facility_po_account', '', 'Used in GL interface (internal use only)', 'Y'),
+ ('billing_po_account', '', 'Used in GL interface (internal use only)', 'Y'),
+ ('bst_linkage_gnomex_url', '', 'The url used in BST to launch gnomex when samples are inked (internal use only)', 'Y'),
+ ('contact_email_core_facility_workauth_reminder', 'first.last@somwhere.edu', 'Who should receive daily email reminder for pending work authorizations and an email notification when user self registers.', 'Y'),
+ ('dataset_privacy_expiration', '0', 'When a new dataset is created, this value will determine the default number of months until its visibility is automatically changed to public. If the value is <= 0 then the feature is disabled.', 'N'),
+ ('dataset_privacy_expiration_warning', '0', 'This value determines the number of days before dataset_privacy_expiration that a warning message is sent out. If the value is <= 0 then the feature is disabled.', 'N'),
+ ('fdt_jar_location', 'http://monalisa.cern.ch/FDT/', 'The public website for obtaining the fdt jar ', 'Y'),
+ ('fdt_help_url', '', 'The URL that contains help information on using Fast Data Transfer', 'N'),
+ ('contact_email_bioinformatics','first.last@somwhere.edu','Bioinformatics core facility\'s email adress', 'N'),
+ ('reply_email_core_facility_workauth_reminder','first.last@somewhere.edu','Email reply address for pending work authorizations reminder messages', 'Y'),
+ ('dataset_privacy_expiration_reply_email','first.last@somewhere.edu','Reply address for dataset privacy expiration reminder emails', 'Y'),
+ ('datatrack_directory','/home/gnomex/dataTrackData/','The file directory where data track files are stored that are not linked to an analysis file. NOTE: must end in /', 'Y'),
+ ('lucene_datatrack_index_directory','/home/gnomex/luceneIndex/DataTrack','The file directory for storing lucene index files on data track data.', 'Y'),
+ ('datatrack_supported','Y','Indicates if data track feature is supported', 'N'),
+ ('topics_supported', 'N', 'Flag indicating if topics feature is supported.', 'N'),
+ ('datatrack_fileserver_url','http://yourservername:8080/das2gnomex/','The URL from Apache Tomcat where the data track files will be served', 'N'),
+ ('datatrack_fileserver_web_context','/path/to/apachetomcat/webapps/das2gnomex/','The directory in the web app on Apache Tomcat that will server the data track files.', 'N'),
+ ('default_visibility_analysis','MEM','Default visibility for new Analysis. Use value OWNER for Owner, MEM for Members, INST for Institution and PUBLIC for Public. Property can also be eliminated or set to blank to leave original default behavior in place.', 'N'),
+ ('default_visibility_datatrack','MEM','Default visibility for new Data Track. Use value OWNER for Owner, MEM for Members, INST for Institution and PUBLIC for Public. Property can also be eliminated or set to blank to leave original default behavior in place.', 'N'),
+ ('default_visibility_experiment','MEM','Default visibility for new Experiment. Use value OWNER for Owner, MEM for Members, INST for Institution and PUBLIC for Public. Property can also be eliminated or set to blank to leave original default behavior in place.', 'N'),
+ ('default_visibility_topic','MEM','Default visibility for new Topic. Use value OWNER for Owner, MEM for Members, INST for Institution and PUBLIC for Public. Property can also be eliminated or set to blank to leave original default behavior in place.', 'N'),
+ ('lucene_topic_index_directory','/home/gnomex/luceneIndex/Topic','The file directory for storing lucene index files on topic data.', 'Y'),
+ ('billing_gl_journal_line_ref_core_facility','','Always blank for open source GNomEx', 'Y'),
+ ('billing_gl_journal_id_core_facility','','Always blank for open source GNomEx', 'Y'),
+ ('generic_no_reply_email', 'DoNotReply@somewhere.edu', 'Generic no reply to use for emails going to multiple core facilities.', 'Y'),
+ ('experiment_default_view', 'my experiments', 'Indicates default experiment view for non-admin users.  Values are "my experiments", "my lab" or "all".', 'N'),
+ ('experiment_view_limit', '1000', 'Maximum number of experiments shown in experiment browse view.', 'N'),
+ ('configurable_billing_accounts', 'Y', 'Y/N value indicating whether hard-coded or configuration billing account fields should be used.', 'N'),
+ ('das2_url', 'Y', 'http://localhost:8080/das2gnomex/genome', 'N'),
+ ('guest_download_terms', '', 'If property is set, then guests are prompted to agree to these terms prior to allowing download of files.  In addition an email is required which is saved in the transfer log.', 'N'),
+ ('submit_request_instructions','Experiment has been submitted.  Please deliver your samples.','Instructions upon saving a new experiment', 'N'),
+ ('contact_remit_address_core_facility',
 'Core Facility Remit Address
 123 N 456 E Anywhere
 Test City, UT 12345', 
 'Core facility remittance address', 'N'),
- (82,'contact_address_core_facility','Core Facility Lab Address
+ ('contact_address_core_facility','Core Facility Lab Address
  123 N 456 E Anywhere
  Test City, UT 12345', 
  'Core facility lab address', 'N'),
- (83,'menu_Orders', 'hide super', 'Supress Orders for super admins in menu; it is available in a submenu', 'N'),
- (84,'menu_Workflow', 'hide super', 'Supress Workflow for super admins in menu; it is available in a submenu', 'N'),
- (85,'hiseq_run_type_label_standard', 'HiSeq High Output Run Mode', 'Label for sequencing cycles on seq setup screen for numberSequencingCyclesAllowed with isCustom=N', 'N'),
- (86,'hiseq_run_type_label_custom', 'HiSeq Rapid Run Mode', 'Label for sequencing cycles on seq setup screen for numberSequencingCyclesAllowed with isCustom=Y', 'N'),
- (87,'hiseq_run_type_custom_warning', 'Warning: These options are only available if you fill all lanes of the flow cells.', 'warning text for sequencing cycles on seq setup screen for numberSequencingCyclesAllowed with isCustom=Y', 'N'),
- (88,'analysis_assistance_note', '', 'Note that is sent when sequencing of an experiment is complete notifiying user who to contact if they have further questions', 'N'),
- (89,'fdt_help_url','http://hci-scrum.hci.utah.edu/gnomexdoc/?page_id=1063','The URL to the GNomEx FDT help documentation', 'N'),
- (90,'request_work_auth_link_text','Submit Work Authorization','Text for the link on the experiment setup tab to submit a work authorization', 'N'),
- (91,'request_bio_analysis_note','(Extra charges may apply)','Text for note on request submission bioinformatics tab explaining details required when requesting help from the bio core', 'N'),
- (92,'contact_email_manage_sample_file_link','','Email address of who should be notified when a sample experiment file is deleted from the database', 'Y'),
- (93,'experiment_file_sample_linking_enabled','Y','Enable this property in order to see the Sample Linking button on the Files tab of the experiment edit view', 'N'),
- (94, 'contact_email_bioinformatics_analysis_requests', '', 'Who should be contacted when Analysis assistance is requested on experiments', 'N'),
- (95, 'analysis_assistance_group', '', 'Name of the group that oversees analysis assistance on new requests', 'N'),
- (96, 'analysis_assistance_header', 'The following optional services are made available through the ENTER GROUP NAME HERE', 'Header found on bioinformatics tab to notify user who handles analysis assistance requests', 'N'),
- (97,'metrix_server_host','localhost','Hostname or IP on which the Illumina statistics Metrix Server is running.','Y'),
- (98,'metrix_server_port','12345','Port (>1024) on which the Illumina statistics Metrix Server is running.','Y'),
- (99,'seq_lane_number_separator', '-', 'The default separator character for sequence lane numbers','Y'),
- (100,'seq_lane_letter', 'F', 'The default letter used in Sequence Lane naming','Y'),
- (101,'status_to_start_workflow', 'SUBMITTED', 'What request status is required before work items are shown for that request','Y'),
- (102,'show_activity_dashboard','N','Should the activity feed be shown on the dashboard','N'),
- (103,'show_metrix_dashboard','N','Should the metrix server feed be shown on the dashboard','N'),
- (104,'show_news_dashboard','N','Should the news feed be shown on the dashboard','N'),
- (105,'file_max_viewable_size','50','Maximum size of file in mb that can be viewed via "view" link in the file download tab','N'),
- (106,'billing_gl_header_currency', 'USDX', 'currency on the gl interface header', 'Y'),
- (107,'billing_gl_blank_year', 'N', 'leave year blank in gl line', 'Y'),
- (108,'show_funding_agency', 'N', 'show funding agency combo box on billing account edit/create screens.', 'N'),
- (109,'product_order_directory', '/home/gnomex/PurchseOrder_HSCGenomics', 'Directory to store purchase order forms', 'Y'),
- (110,'core_billing_office', '', 'Name of who handles billing for the core', 'Y'),
- (111, 'view_limit_analyses', '1000', 'The maximum number of analyses returned from the back-end.', 'N'),
- (112, 'view_limit_datatracks', '200', 'The maximum number of data tracks returned from the back-end.', 'N'),
- (113, 'view_limit_chromatograms', '1000', 'The maximum number of chromatograms returned from the back-end.', 'N'),
- (114, 'view_limit_experiments', '100', 'The maximum number of experiments returned from the back-end.', 'N'),
- (115, 'view_limit_plates_and_runs', '200', 'The maximum number of plates and runs returned from the back-end.', 'N'),
- (116, 'product_sheet_name', 'Product Purchasing', 'The name of the price sheet for products.', 'N'),
- (117, 'product_order_directory', '/home/gnomex/productOrder/', 'Default directory for product order files', 'N'),
- (118, 'request_props_on_confirm_tab', 'Y', 'Show request properties on confirm tab of new experiment setup', 'N');
+ ('menu_Orders', 'hide super', 'Supress Orders for super admins in menu; it is available in a submenu', 'N'),
+ ('menu_Workflow', 'hide super', 'Supress Workflow for super admins in menu; it is available in a submenu', 'N'),
+ ('hiseq_run_type_label_standard', 'HiSeq High Output Run Mode', 'Label for sequencing cycles on seq setup screen for numberSequencingCyclesAllowed with isCustom=N', 'N'),
+ ('hiseq_run_type_label_custom', 'HiSeq Rapid Run Mode', 'Label for sequencing cycles on seq setup screen for numberSequencingCyclesAllowed with isCustom=Y', 'N'),
+ ('hiseq_run_type_custom_warning', 'Warning: These options are only available if you fill all lanes of the flow cells.', 'warning text for sequencing cycles on seq setup screen for numberSequencingCyclesAllowed with isCustom=Y', 'N'),
+ ('analysis_assistance_note', '', 'Note that is sent when sequencing of an experiment is complete notifiying user who to contact if they have further questions', 'N'),
+ ('fdt_help_url','http://hci-scrum.hci.utah.edu/gnomexdoc/?page_id=1063','The URL to the GNomEx FDT help documentation', 'N'),
+ ('request_work_auth_link_text','Submit Work Authorization','Text for the link on the experiment setup tab to submit a work authorization', 'N'),
+ ('request_bio_analysis_note','(Extra charges may apply)','Text for note on request submission bioinformatics tab explaining details required when requesting help from the bio core', 'N'),
+ ('contact_email_manage_sample_file_link','','Email address of who should be notified when a sample experiment file is deleted from the database', 'Y'),
+ ('experiment_file_sample_linking_enabled','Y','Enable this property in order to see the Sample Linking button on the Files tab of the experiment edit view', 'N'),
+ ('contact_email_bioinformatics_analysis_requests', '', 'Who should be contacted when Analysis assistance is requested on experiments', 'N'),
+ ('analysis_assistance_group', '', 'Name of the group that oversees analysis assistance on new requests', 'N'),
+ ('analysis_assistance_header', 'The following optional services are made available through the ENTER GROUP NAME HERE', 'Header found on bioinformatics tab to notify user who handles analysis assistance requests', 'N'),
+ ('metrix_server_host','localhost','Hostname or IP on which the Illumina statistics Metrix Server is running.','Y'),
+ ('metrix_server_port','12345','Port (>1024) on which the Illumina statistics Metrix Server is running.','Y'),
+ ('seq_lane_number_separator', '-', 'The default separator character for sequence lane numbers','Y'),
+ ('seq_lane_letter', 'F', 'The default letter used in Sequence Lane naming','Y'),
+ ('status_to_start_workflow', 'SUBMITTED', 'What request status is required before work items are shown for that request','Y'),
+ ('show_activity_dashboard','N','Should the activity feed be shown on the dashboard','N'),
+ ('show_metrix_dashboard','N','Should the metrix server feed be shown on the dashboard','N'),
+ ('show_news_dashboard','N','Should the news feed be shown on the dashboard','N'),
+ ('file_max_viewable_size','50','Maximum size of file in mb that can be viewed via "view" link in the file download tab','N'),
+ ('billing_gl_header_currency', 'USDX', 'currency on the gl interface header', 'Y'),
+ ('billing_gl_blank_year', 'N', 'leave year blank in gl line', 'Y'),
+ ('show_funding_agency', 'N', 'show funding agency combo box on billing account edit/create screens.', 'N'),
+ ('product_order_directory', '/home/gnomex/PurchseOrder_HSCGenomics', 'Directory to store purchase order forms', 'Y'),
+ ('core_billing_office', '', 'Name of who handles billing for the core', 'Y'),
+ ('view_limit_analyses', '1000', 'The maximum number of analyses returned from the back-end.', 'N'),
+ ('view_limit_datatracks', '200', 'The maximum number of data tracks returned from the back-end.', 'N'),
+ ('view_limit_chromatograms', '1000', 'The maximum number of chromatograms returned from the back-end.', 'N'),
+ ('view_limit_experiments', '100', 'The maximum number of experiments returned from the back-end.', 'N'),
+ ('view_limit_plates_and_runs', '200', 'The maximum number of plates and runs returned from the back-end.', 'N'),
+ ('product_sheet_name', 'Product Purchasing', 'The name of the price sheet for products.', 'N'),
+ ('product_order_directory', '/home/gnomex/productOrder/', 'Default directory for product order files', 'N'),
+ ('request_props_on_confirm_tab', 'Y', 'Show request properties on confirm tab of new experiment setup', 'N');
 
  
 
-INSERT INTO `gnomex`.`ProtocolType`(`codeProtocolType`, `protocolType`, `isActive`)
+INSERT INTO gnomex.ProtocolType(codeProtocolType, protocolType, isActive)
 VALUES ('IACUC', 'IACUC', 'Y'),
   ('IRB', 'IRB', 'Y');
 
-INSERT INTO `gnomex`.`QualityControlStep`(`codeQualityControlStep`, `qualityControlStep`, `mageOntologyCode`, `mageOntologyDefinition`, `isActive`)
+INSERT INTO gnomex.QualityControlStep(codeQualityControlStep, qualityControlStep, mageOntologyCode, mageOntologyDefinition, isActive)
 VALUES ('BIOREPL', 'Biological Replicate', 'biological_replicate', NULL, 'Y'),
   ('DYESWAP', 'Dye Swap', 'dye_swap_quality_control', NULL, 'Y'),
   ('NORTHBLOT', 'Northern Blotting', NULL, NULL, 'Y'),
@@ -981,7 +980,7 @@ insert into RequestCategoryType values('MITSEQ','Mitochondrial D-Loop Sequencing
 insert into RequestCategoryType values('QC','Sample Quality','assets/chart_line.png','N','N');
 insert into RequestCategoryType values('SEQUENOM', 'Sequenom', 'assets/cherrypick.png', 'N', 'N');
 
-INSERT INTO `gnomex`.`RequestCategory`(`codeRequestCategory`, `requestCategory`, `idVendor`, `isActive`, `numberOfChannels`, `notes`, `icon`, `type`, isInternal, isExternal, idCoreFacility, refrainFromAutoDelete)
+INSERT INTO gnomex.RequestCategory(codeRequestCategory, requestCategory, idVendor, isActive, numberOfChannels, notes, icon, type, isInternal, isExternal, idCoreFacility, refrainFromAutoDelete)
 VALUES ('AFFY', 'Affymetrix Microarray', 2, 'Y', 1, 'Gene expression, SNP analysis', 'assets/microarray_chip.png', 'MICROARRAY', 'Y', 'Y', 1, 'Y'),
   ('AGIL', 'Agilent 2-color Microarray', 1, 'Y', 2, 'Gene expression, CGH, ChIP-on-chip', 'assets/microarray_small.png', 'MICROARRAY', 'Y', 'Y', 1, 'Y'),
   ('INHOUSE', 'In-house Spotted Microarray', 4, 'N', 2, null, null, 'MICROARRAY', 'Y', 'Y', 1, 'Y'),
@@ -995,7 +994,7 @@ VALUES ('AFFY', 'Affymetrix Microarray', 2, 'Y', 1, 'Gene expression, SNP analys
   ('ISCAN', 'iScan', null, 'Y', null, '', 'assets/iscan.png', 'ISCAN', 'Y', 'Y', 1, 'Y'),
   ('CAPSEQ', 'Capillary Sequencing', 8, 'Y', 1, '', 'assets/dna-helix-icon.png', 'CAPSEQ', 'Y', 'Y', 1, 'Y');
 
-INSERT INTO `gnomex`.`RequestCategoryApplication`(`codeRequestCategory`, `codeApplication`)
+INSERT INTO gnomex.RequestCategoryApplication(codeRequestCategory, codeApplication)
 VALUES ('AFFY', 'CHIP'),
   ('AFFY', 'EXON'),
   ('AFFY', 'EXP'),
@@ -1066,7 +1065,7 @@ INSERT INTO gnomex.PropertyType (codePropertyType, name) values ('MOPTION',     
  
 
 
-INSERT INTO `gnomex`.`Property`(`idProperty`, `name`, `mageOntologyCode`, `mageOntologyDefinition`, `isActive`, `idAppUser`, codePropertyType, isRequired, idCoreFacility)
+INSERT INTO gnomex.Property(idProperty, name, mageOntologyCode, mageOntologyDefinition, isActive, idAppUser, codePropertyType, isRequired, idCoreFacility)
 VALUES (1, 'Age / Developmental Stage', 'age', NULL, 'Y', NULL, 'TEXT', 'N', 1),
   (2, 'Cell Line / Strain', 'cell_line', NULL, 'Y', NULL, 'TEXT', 'N', 1),
   (3, 'Cell Type', 'cell_type', NULL, 'Y', NULL, 'TEXT', 'N', 1),
@@ -1084,7 +1083,7 @@ VALUES (1, 'Age / Developmental Stage', 'age', NULL, 'Y', NULL, 'TEXT', 'N', 1),
   (15, 'Temperature', NULL, NULL, 'Y', NULL, 'TEXT', 'N', 1),
   (16, 'Time Course', 'sampling_time_point', NULL, 'Y', NULL, 'TEXT', 'N', 1);
 
-INSERT INTO `gnomex`.`SamplePrepMethod`(`idSamplePrepMethod`, `samplePrepMethod`, `isActive`)
+INSERT INTO gnomex.SamplePrepMethod(idSamplePrepMethod, samplePrepMethod, isActive)
 VALUES (1, 'Qiagen RNeasy mini kit', 'Y'),
   (2, 'Trizol Reagent', 'Y'),
   (3, 'Agilent total RNA isolation mini kit', 'Y'),
@@ -1104,7 +1103,7 @@ VALUES (1, 'Qiagen RNeasy mini kit', 'Y'),
   (30, 'Qiagen Genomic-tip', 'Y'),
   (41, 'Qiagen miRNeasy Mini Kit', 'Y');
 
-INSERT INTO `gnomex`.`SampleSource`(`idSampleSource`, `sampleSource`, `isActive`)
+INSERT INTO gnomex.SampleSource(idSampleSource, sampleSource, isActive)
 VALUES (1, 'Cell Line', 'Y'),
   (2, 'Organ', 'Y'),
   (3, 'Whole Organism', 'Y'),
@@ -1112,9 +1111,9 @@ VALUES (1, 'Cell Line', 'Y'),
   (5, 'Other (specify in notes)', 'Y'),
   (6, 'Blood', 'Y');
 
-INSERT INTO `gnomex`.`NucleotideType` values('RNA'), ('DNA');
+INSERT INTO gnomex.NucleotideType values('RNA'), ('DNA');
 
-INSERT INTO `gnomex`.`SampleType`(`idSampleType`, `sampleType`, `sortOrder`, `isActive`, `codeNucleotideType`, `idCoreFacility`)
+INSERT INTO gnomex.SampleType(idSampleType, sampleType, sortOrder, isActive, codeNucleotideType, idCoreFacility)
 VALUES (1, 'DNA', 3, 'Y', 'DNA', 1),
   (2, 'aRNA', 6, 'N', 'RNA', 1),
   (3, 'miRNA', 8, 'Y', 'RNA', 1),
@@ -1128,7 +1127,7 @@ VALUES (1, 'DNA', 3, 'Y', 'DNA', 1),
   (11, 'cap RNA', 6, 'Y', 'RNA', 1),
   (12, 'small RNA', 10, 'Y', 'RNA', 1);
 
-INSERT INTO `gnomex`.`SampleTypeRequestCategory`(`idSampleTypeRequestCategory`, `idSampleType`, `codeRequestCategory`)
+INSERT INTO gnomex.SampleTypeRequestCategory(idSampleTypeRequestCategory, idSampleType, codeRequestCategory)
 VALUES (1, 1, 'AGIL'),
   (2, 2, 'AGIL'),
   (3, 3, 'AGIL'),
@@ -1194,7 +1193,7 @@ VALUES (1, 1, 'AGIL'),
   
 
 
-INSERT INTO `gnomex`.`SeqLibProtocol`(`idSeqLibProtocol`, `seqLibProtocol`,`description`,`url`, `isActive`)
+INSERT INTO gnomex.SeqLibProtocol(idSeqLibProtocol, seqLibProtocol,description,url, isActive)
 VALUES  (31, 'Illumina Genomic DNA Sample Prep Kit', 'Illumina Genomic DNA Sample Prep Kit', null, 'Y'),
   (32, 'Illumina DGE-Tag Profiling NlaIII Sample Prep Kit', 'Illumina DGE-Tag Profiling NlaIII Sample Prep Kit', null, 'N'),
   (33, 'Illumina DGE-Tag Profiling DpnII Sample Prep Kit', 'Illumina DGE-Tag Profiling DpnII Sample Prep Kit', null, 'N'),
@@ -1202,7 +1201,7 @@ VALUES  (31, 'Illumina Genomic DNA Sample Prep Kit', 'Illumina Genomic DNA Sampl
   (35, 'Illumina Small RNA Sample Prep Kit', 'Illumina Small RNA Sample Prep Kit', null, 'Y'),
   (39, 'Illumina mRNA-Seq Sample Prep Kit', 'Illumina mRNA-Seq Sample Prep Kit', null, 'Y');
 
-INSERT INTO `gnomex`.`SeqLibProtocolApplication`(`idSeqLibProtocol`, `codeApplication`)
+INSERT INTO gnomex.SeqLibProtocolApplication(idSeqLibProtocol, codeApplication)
 VALUES (31, 'DNASEQ'),
   (34,'CHIPSEQ'),
   (35, 'SMRNASEQ'),
@@ -1222,7 +1221,7 @@ values (2,  31, 'N'),
        
 
 
-INSERT INTO `gnomex`.`SeqRunType`(`idSeqRunType`, `seqRunType`, `isActive`, `sortOrder`)
+INSERT INTO gnomex.SeqRunType(idSeqRunType, seqRunType, isActive, sortOrder)
 VALUES 
   (3, 'Single-end reads', 'Y',1),
   (4, 'Paired-end reads', 'Y',2),
@@ -1230,15 +1229,15 @@ VALUES
   (6, 'Paired-end reads - Rapid Mode', 'Y',4);
   
 
-INSERT INTO `gnomex`.`SequencingControl`(`idSequencingControl`, `sequencingControl`, `isActive`, `idAppUser`)
+INSERT INTO gnomex.SequencingControl(idSequencingControl, sequencingControl, isActive, idAppUser)
 VALUES (1, 'PhiX Control', 'Y', NULL);
 
-INSERT INTO `gnomex`.`SequencingPlatform`(`codeSequencingPlatform`, `sequencingPlatform`, `isActive`)
+INSERT INTO gnomex.SequencingPlatform(codeSequencingPlatform, sequencingPlatform, isActive)
 VALUES ('GAIIX', 'Illumina GAIIx Sequencing', 'Y'),
    ('HISEQ', 'Illumina HiSeq 2000 Sequencing', 'Y'),
    ('MISEQ', 'Illumina MiSeq Sequencing', 'Y');
 
-INSERT INTO `gnomex`.`SlideDesign`(`idSlideDesign`, `name`, `slideDesignProtocolName`, `idSlideProduct`, `accessionNumberArrayExpress`, `isActive`)
+INSERT INTO gnomex.SlideDesign(idSlideDesign, name, slideDesignProtocolName, idSlideProduct, accessionNumberArrayExpress, isActive)
 VALUES (3,'Whole human genome microarray (44K)','012391',2,'A-AGIL-28','N'),
  (4,'Human promoter 1 ChIP-on-chip (44K)',NULL,3,NULL,'N'),
  (5,'Human promoter 2 ChIP-on-chip (44K)',NULL,3,NULL,'Y'),
@@ -1292,58 +1291,58 @@ VALUES (3,'Whole human genome microarray (44K)','012391',2,'A-AGIL-28','N'),
 
 
 
-INSERT INTO `SlideProduct` (`idSlideProduct`, `name`, `catalogNumber`, `isCustom`, `idLab`, `codeApplication`, `idVendor`, `idOrganism`, `arraysPerSlide`, `slidesInSet`, `isSlideSet`, `isActive`, `idBillingSlideProductClass`, `idBillingSlideServiceClass`) VALUES (2,'Whole human genome microarray (44K)',NULL,'N',NULL,'EXP',1,3400,1,1,'N','N',NULL,NULL);
-INSERT INTO `SlideProduct` (`idSlideProduct`, `name`, `catalogNumber`, `isCustom`, `idLab`, `codeApplication`, `idVendor`, `idOrganism`, `arraysPerSlide`, `slidesInSet`, `isSlideSet`, `isActive`, `idBillingSlideProductClass`, `idBillingSlideServiceClass`) VALUES (3,'Human promoter ChIP-on-chip Set (2 slides) (44K)',NULL,'N',NULL,'CHIP',1,1,1,2,'Y','N',3,8);
-INSERT INTO `SlideProduct` (`idSlideProduct`, `name`, `catalogNumber`, `isCustom`, `idLab`, `codeApplication`, `idVendor`, `idOrganism`, `arraysPerSlide`, `slidesInSet`, `isSlideSet`, `isActive`, `idBillingSlideProductClass`, `idBillingSlideServiceClass`) VALUES (5,'Human 1A GE microarray (22K)',NULL,'N',NULL,'EXP',1,1,1,1,'N','N',NULL,NULL);
-INSERT INTO `SlideProduct` (`idSlideProduct`, `name`, `catalogNumber`, `isCustom`, `idLab`, `codeApplication`, `idVendor`, `idOrganism`, `arraysPerSlide`, `slidesInSet`, `isSlideSet`, `isActive`, `idBillingSlideProductClass`, `idBillingSlideServiceClass`) VALUES (7,'Human genome CGH 44B (4x44K)',NULL,'N',NULL,'CGH',1,3400,1,1,'N','Y',3,4);
-INSERT INTO `SlideProduct` (`idSlideProduct`, `name`, `catalogNumber`, `isCustom`, `idLab`, `codeApplication`, `idVendor`, `idOrganism`, `arraysPerSlide`, `slidesInSet`, `isSlideSet`, `isActive`, `idBillingSlideProductClass`, `idBillingSlideServiceClass`) VALUES (10,'Human Genome CGH (1x185K)',NULL,'N',NULL,'CGH',1,3400,1,1,'N','N',NULL,NULL);
-INSERT INTO `SlideProduct` (`idSlideProduct`, `name`, `catalogNumber`, `isCustom`, `idLab`, `codeApplication`, `idVendor`, `idOrganism`, `arraysPerSlide`, `slidesInSet`, `isSlideSet`, `isActive`, `idBillingSlideProductClass`, `idBillingSlideServiceClass`) VALUES (11,'Arabidopsis 3 oligo expression array (44K)',NULL,'N',NULL,'EXP',1,11,1,1,'N','N',NULL,NULL);
-INSERT INTO `SlideProduct` (`idSlideProduct`, `name`, `catalogNumber`, `isCustom`, `idLab`, `codeApplication`, `idVendor`, `idOrganism`, `arraysPerSlide`, `slidesInSet`, `isSlideSet`, `isActive`, `idBillingSlideProductClass`, `idBillingSlideServiceClass`) VALUES (13,'C. elegans Gene Expression (22K)',NULL,'N',NULL,'EXP',1,6,1,1,'N','N',NULL,NULL);
-INSERT INTO `SlideProduct` (`idSlideProduct`, `name`, `catalogNumber`, `isCustom`, `idLab`, `codeApplication`, `idVendor`, `idOrganism`, `arraysPerSlide`, `slidesInSet`, `isSlideSet`, `isActive`, `idBillingSlideProductClass`, `idBillingSlideServiceClass`) VALUES (14,'Canine Gene Expression v2 (4x44K)',NULL,'N',NULL,'EXP',1,15,4,1,'N','Y',3,1);
-INSERT INTO `SlideProduct` (`idSlideProduct`, `name`, `catalogNumber`, `isCustom`, `idLab`, `codeApplication`, `idVendor`, `idOrganism`, `arraysPerSlide`, `slidesInSet`, `isSlideSet`, `isActive`, `idBillingSlideProductClass`, `idBillingSlideServiceClass`) VALUES (16,'Chicken Gene Expression (4x44k)',NULL,'N',NULL,'EXP',1,13,4,1,'N','Y',3,1);
-INSERT INTO `SlideProduct` (`idSlideProduct`, `name`, `catalogNumber`, `isCustom`, `idLab`, `codeApplication`, `idVendor`, `idOrganism`, `arraysPerSlide`, `slidesInSet`, `isSlideSet`, `isActive`, `idBillingSlideProductClass`, `idBillingSlideServiceClass`) VALUES (17,'Whole mouse genome microarray (44K)',NULL,'N',NULL,'EXP',1,3400,1,1,'N','N',NULL,NULL);
-INSERT INTO `SlideProduct` (`idSlideProduct`, `name`, `catalogNumber`, `isCustom`, `idLab`, `codeApplication`, `idVendor`, `idOrganism`, `arraysPerSlide`, `slidesInSet`, `isSlideSet`, `isActive`, `idBillingSlideProductClass`, `idBillingSlideServiceClass`) VALUES (24,'Rat oligo microarray (22K)',NULL,'N',NULL,'EXP',1,5200,1,1,'N','N',NULL,NULL);
-INSERT INTO `SlideProduct` (`idSlideProduct`, `name`, `catalogNumber`, `isCustom`, `idLab`, `codeApplication`, `idVendor`, `idOrganism`, `arraysPerSlide`, `slidesInSet`, `isSlideSet`, `isActive`, `idBillingSlideProductClass`, `idBillingSlideServiceClass`) VALUES (25,'Whole rat genome microarray (44K)',NULL,'N',NULL,'EXP',1,5200,4,1,'N','Y',3,1);
-INSERT INTO `SlideProduct` (`idSlideProduct`, `name`, `catalogNumber`, `isCustom`, `idLab`, `codeApplication`, `idVendor`, `idOrganism`, `arraysPerSlide`, `slidesInSet`, `isSlideSet`, `isActive`, `idBillingSlideProductClass`, `idBillingSlideServiceClass`) VALUES (30,'Xenopus oligo expression microarray (22K)',NULL,'N',NULL,'EXP',1,8,1,1,'N','N',NULL,NULL);
-INSERT INTO `SlideProduct` (`idSlideProduct`, `name`, `catalogNumber`, `isCustom`, `idLab`, `codeApplication`, `idVendor`, `idOrganism`, `arraysPerSlide`, `slidesInSet`, `isSlideSet`, `isActive`, `idBillingSlideProductClass`, `idBillingSlideServiceClass`) VALUES (31,'Yeast V2 oligo expression microarray (11K)',NULL,'N',NULL,'EXP',1,5300,2,1,'N','N',NULL,NULL);
-INSERT INTO `SlideProduct` (`idSlideProduct`, `name`, `catalogNumber`, `isCustom`, `idLab`, `codeApplication`, `idVendor`, `idOrganism`, `arraysPerSlide`, `slidesInSet`, `isSlideSet`, `isActive`, `idBillingSlideProductClass`, `idBillingSlideServiceClass`) VALUES (32,'S. cerevisiae ChIP array(4x44K)',NULL,'N',NULL,'CHIP',1,5300,4,1,'N','Y',3,8);
-INSERT INTO `SlideProduct` (`idSlideProduct`, `name`, `catalogNumber`, `isCustom`, `idLab`, `codeApplication`, `idVendor`, `idOrganism`, `arraysPerSlide`, `slidesInSet`, `isSlideSet`, `isActive`, `idBillingSlideProductClass`, `idBillingSlideServiceClass`) VALUES (35,'Zebrafish oligo expression microarray (22K)',NULL,'N',NULL,'EXP',1,2700,1,1,'N','N',NULL,NULL);
-INSERT INTO `SlideProduct` (`idSlideProduct`, `name`, `catalogNumber`, `isCustom`, `idLab`, `codeApplication`, `idVendor`, `idOrganism`, `arraysPerSlide`, `slidesInSet`, `isSlideSet`, `isActive`, `idBillingSlideProductClass`, `idBillingSlideServiceClass`) VALUES (54,'Whole human genome microarray (4x44K)',NULL,'N',NULL,'EXP',1,3400,4,1,'N','Y',3,1);
-INSERT INTO `SlideProduct` (`idSlideProduct`, `name`, `catalogNumber`, `isCustom`, `idLab`, `codeApplication`, `idVendor`, `idOrganism`, `arraysPerSlide`, `slidesInSet`, `isSlideSet`, `isActive`, `idBillingSlideProductClass`, `idBillingSlideServiceClass`) VALUES (110,'Yeast Whole Genome ChIP-on-chip microarray (244K)',NULL,'N',NULL,'CHIP',1,5300,1,1,'N','Y',1,6);
-INSERT INTO `SlideProduct` (`idSlideProduct`, `name`, `catalogNumber`, `isCustom`, `idLab`, `codeApplication`, `idVendor`, `idOrganism`, `arraysPerSlide`, `slidesInSet`, `isSlideSet`, `isActive`, `idBillingSlideProductClass`, `idBillingSlideServiceClass`) VALUES (111,'Human Genome CGH 244A (1x244K)',NULL,'N',NULL,'CGH',1,3400,1,1,'N','Y',1,2);
-INSERT INTO `SlideProduct` (`idSlideProduct`, `name`, `catalogNumber`, `isCustom`, `idLab`, `codeApplication`, `idVendor`, `idOrganism`, `arraysPerSlide`, `slidesInSet`, `isSlideSet`, `isActive`, `idBillingSlideProductClass`, `idBillingSlideServiceClass`) VALUES (113,'Human Genome CGH 105A (2x105K)',NULL,'N',NULL,'CGH',1,3400,2,1,'N','Y',2,3);
-INSERT INTO `SlideProduct` (`idSlideProduct`, `name`, `catalogNumber`, `isCustom`, `idLab`, `codeApplication`, `idVendor`, `idOrganism`, `arraysPerSlide`, `slidesInSet`, `isSlideSet`, `isActive`, `idBillingSlideProductClass`, `idBillingSlideServiceClass`) VALUES (114,'Affymetrix GeneChip Human Genome U133 Plus 2.0',NULL,'N',NULL,'EXP',2,1,1,1,'N','Y',7,12);
-INSERT INTO `SlideProduct` (`idSlideProduct`, `name`, `catalogNumber`, `isCustom`, `idLab`, `codeApplication`, `idVendor`, `idOrganism`, `arraysPerSlide`, `slidesInSet`, `isSlideSet`, `isActive`, `idBillingSlideProductClass`, `idBillingSlideServiceClass`) VALUES (123,'Human GeneChip Mapping 250K Nsp Array',NULL,'N',NULL,'SNP',2,3400,1,1,'N','Y',5,13);
-INSERT INTO `SlideProduct` (`idSlideProduct`, `name`, `catalogNumber`, `isCustom`, `idLab`, `codeApplication`, `idVendor`, `idOrganism`, `arraysPerSlide`, `slidesInSet`, `isSlideSet`, `isActive`, `idBillingSlideProductClass`, `idBillingSlideServiceClass`) VALUES (124,'Arabidopsis Gene Expression v3 (4x44K)',NULL,'N',NULL,'EXP',1,11,4,1,'N','Y',3,1);
-INSERT INTO `SlideProduct` (`idSlideProduct`, `name`, `catalogNumber`, `isCustom`, `idLab`, `codeApplication`, `idVendor`, `idOrganism`, `arraysPerSlide`, `slidesInSet`, `isSlideSet`, `isActive`, `idBillingSlideProductClass`, `idBillingSlideServiceClass`) VALUES (125,'Arabidopsis Whole Genome ChIP-on-chip Set (244K)',NULL,'N',NULL,'CHIP',1,11,1,2,'Y','Y',1,6);
-INSERT INTO `SlideProduct` (`idSlideProduct`, `name`, `catalogNumber`, `isCustom`, `idLab`, `codeApplication`, `idVendor`, `idOrganism`, `arraysPerSlide`, `slidesInSet`, `isSlideSet`, `isActive`, `idBillingSlideProductClass`, `idBillingSlideServiceClass`) VALUES (126,'C. elegans Gene Expression (4x44K)',NULL,'N',NULL,'EXP',1,6,4,1,'N','Y',3,1);
-INSERT INTO `SlideProduct` (`idSlideProduct`, `name`, `catalogNumber`, `isCustom`, `idLab`, `codeApplication`, `idVendor`, `idOrganism`, `arraysPerSlide`, `slidesInSet`, `isSlideSet`, `isActive`, `idBillingSlideProductClass`, `idBillingSlideServiceClass`) VALUES (127,'Zebrafish oligo microarray (4x44K)',NULL,'N',NULL,'EXP',1,2700,4,1,'N','N',3,1);
-INSERT INTO `SlideProduct` (`idSlideProduct`, `name`, `catalogNumber`, `isCustom`, `idLab`, `codeApplication`, `idVendor`, `idOrganism`, `arraysPerSlide`, `slidesInSet`, `isSlideSet`, `isActive`, `idBillingSlideProductClass`, `idBillingSlideServiceClass`) VALUES (128,'Xenopus oligo microarray (4x44K)',NULL,'N',NULL,'EXP',1,8,4,1,'N','Y',3,1);
-INSERT INTO `SlideProduct` (`idSlideProduct`, `name`, `catalogNumber`, `isCustom`, `idLab`, `codeApplication`, `idVendor`, `idOrganism`, `arraysPerSlide`, `slidesInSet`, `isSlideSet`, `isActive`, `idBillingSlideProductClass`, `idBillingSlideServiceClass`) VALUES (130,'Sodalis tiling microarray (4x44K)',NULL,'N',NULL,'EXP',1,5500,4,1,'N','Y',NULL,NULL);
-INSERT INTO `SlideProduct` (`idSlideProduct`, `name`, `catalogNumber`, `isCustom`, `idLab`, `codeApplication`, `idVendor`, `idOrganism`, `arraysPerSlide`, `slidesInSet`, `isSlideSet`, `isActive`, `idBillingSlideProductClass`, `idBillingSlideServiceClass`) VALUES (131,'Yeast GE microarray (4x44K)',NULL,'N',NULL,'EXP',1,5300,4,1,'N','Y',3,1);
-INSERT INTO `SlideProduct` (`idSlideProduct`, `name`, `catalogNumber`, `isCustom`, `idLab`, `codeApplication`, `idVendor`, `idOrganism`, `arraysPerSlide`, `slidesInSet`, `isSlideSet`, `isActive`, `idBillingSlideProductClass`, `idBillingSlideServiceClass`) VALUES (132,'Human Promoter ChIP-on-chip 244K Set',NULL,'N',NULL,'CHIP',1,1,1,2,'Y','Y',1,6);
-INSERT INTO `SlideProduct` (`idSlideProduct`, `name`, `catalogNumber`, `isCustom`, `idLab`, `codeApplication`, `idVendor`, `idOrganism`, `arraysPerSlide`, `slidesInSet`, `isSlideSet`, `isActive`, `idBillingSlideProductClass`, `idBillingSlideServiceClass`) VALUES (133,'Whole Mouse Genome Microarray (4x44K)',NULL,'N',NULL,'EXP',1,3800,4,1,'N','Y',3,1);
-INSERT INTO `SlideProduct` (`idSlideProduct`, `name`, `catalogNumber`, `isCustom`, `idLab`, `codeApplication`, `idVendor`, `idOrganism`, `arraysPerSlide`, `slidesInSet`, `isSlideSet`, `isActive`, `idBillingSlideProductClass`, `idBillingSlideServiceClass`) VALUES (135,'Canine SNP Array (520431)',NULL,'N',NULL,NULL,NULL,NULL,1,1,'N','Y',5,13);
-INSERT INTO `SlideProduct` (`idSlideProduct`, `name`, `catalogNumber`, `isCustom`, `idLab`, `codeApplication`, `idVendor`, `idOrganism`, `arraysPerSlide`, `slidesInSet`, `isSlideSet`, `isActive`, `idBillingSlideProductClass`, `idBillingSlideServiceClass`) VALUES (136,'Mouse Genome 430 2.0 Array',NULL,'N',NULL,NULL,2,3800,1,1,'N','Y',7,12);
-INSERT INTO `SlideProduct` (`idSlideProduct`, `name`, `catalogNumber`, `isCustom`, `idLab`, `codeApplication`, `idVendor`, `idOrganism`, `arraysPerSlide`, `slidesInSet`, `isSlideSet`, `isActive`, `idBillingSlideProductClass`, `idBillingSlideServiceClass`) VALUES (137,'Human CpG Island (1x244K)',NULL,'N',NULL,NULL,1,3400,1,1,'N','Y',1,6);
-INSERT INTO `SlideProduct` (`idSlideProduct`, `name`, `catalogNumber`, `isCustom`, `idLab`, `codeApplication`, `idVendor`, `idOrganism`, `arraysPerSlide`, `slidesInSet`, `isSlideSet`, `isActive`, `idBillingSlideProductClass`, `idBillingSlideServiceClass`) VALUES (141,'Mouse Promoter ChIP-on-chip Set (244K)',NULL,'N',NULL,NULL,1,3,1,2,'Y','Y',1,6);
-INSERT INTO `SlideProduct` (`idSlideProduct`, `name`, `catalogNumber`, `isCustom`, `idLab`, `codeApplication`, `idVendor`, `idOrganism`, `arraysPerSlide`, `slidesInSet`, `isSlideSet`, `isActive`, `idBillingSlideProductClass`, `idBillingSlideServiceClass`) VALUES (143,'Human ENCODE ChIP-on-chip (1x244K)',NULL,'N',NULL,NULL,1,3400,1,1,'N','Y',1,6);
-INSERT INTO `SlideProduct` (`idSlideProduct`, `name`, `catalogNumber`, `isCustom`, `idLab`, `codeApplication`, `idVendor`, `idOrganism`, `arraysPerSlide`, `slidesInSet`, `isSlideSet`, `isActive`, `idBillingSlideProductClass`, `idBillingSlideServiceClass`) VALUES (145,'Drosophila Gene Expression (4x44K)',NULL,'N',NULL,NULL,1,4,4,1,'N','Y',3,1);
-INSERT INTO `SlideProduct` (`idSlideProduct`, `name`, `catalogNumber`, `isCustom`, `idLab`, `codeApplication`, `idVendor`, `idOrganism`, `arraysPerSlide`, `slidesInSet`, `isSlideSet`, `isActive`, `idBillingSlideProductClass`, `idBillingSlideServiceClass`) VALUES (147,'Affymetrix Human SNP 5.0 Array','901069','N',NULL,NULL,2,1,1,1,'N','Y',6,13);
-INSERT INTO `SlideProduct` (`idSlideProduct`, `name`, `catalogNumber`, `isCustom`, `idLab`, `codeApplication`, `idVendor`, `idOrganism`, `arraysPerSlide`, `slidesInSet`, `isSlideSet`, `isActive`, `idBillingSlideProductClass`, `idBillingSlideServiceClass`) VALUES (155,'Zebrafish Gene Expression v2 (4x44K)',NULL,'N',NULL,NULL,1,2700,4,1,'N','Y',3,1);
-INSERT INTO `SlideProduct` (`idSlideProduct`, `name`, `catalogNumber`, `isCustom`, `idLab`, `codeApplication`, `idVendor`, `idOrganism`, `arraysPerSlide`, `slidesInSet`, `isSlideSet`, `isActive`, `idBillingSlideProductClass`, `idBillingSlideServiceClass`) VALUES (156,'Mouse miRNA microarray (8x15K)',NULL,'N',NULL,NULL,1,3800,8,1,'N','Y',11,16);
-INSERT INTO `SlideProduct` (`idSlideProduct`, `name`, `catalogNumber`, `isCustom`, `idLab`, `codeApplication`, `idVendor`, `idOrganism`, `arraysPerSlide`, `slidesInSet`, `isSlideSet`, `isActive`, `idBillingSlideProductClass`, `idBillingSlideServiceClass`) VALUES (158,'Human miRNA v2 (8x15K)',NULL,'N',NULL,NULL,1,3400,8,1,'N','Y',11,16);
-INSERT INTO `SlideProduct` (`idSlideProduct`, `name`, `catalogNumber`, `isCustom`, `idLab`, `codeApplication`, `idVendor`, `idOrganism`, `arraysPerSlide`, `slidesInSet`, `isSlideSet`, `isActive`, `idBillingSlideProductClass`, `idBillingSlideServiceClass`) VALUES (159,'Human CGH (4x180K)',NULL,'N',NULL,NULL,1,3400,4,1,'N','Y',13,19);
-INSERT INTO `SlideProduct` (`idSlideProduct`, `name`, `catalogNumber`, `isCustom`, `idLab`, `codeApplication`, `idVendor`, `idOrganism`, `arraysPerSlide`, `slidesInSet`, `isSlideSet`, `isActive`, `idBillingSlideProductClass`, `idBillingSlideServiceClass`) VALUES (161,'Affymetrix Human SNP 6.0 Array',NULL,'N',NULL,NULL,2,1,1,1,'N','Y',8,14);
-INSERT INTO `SlideProduct` (`idSlideProduct`, `name`, `catalogNumber`, `isCustom`, `idLab`, `codeApplication`, `idVendor`, `idOrganism`, `arraysPerSlide`, `slidesInSet`, `isSlideSet`, `isActive`, `idBillingSlideProductClass`, `idBillingSlideServiceClass`) VALUES (166,'Porcine Gene Expression Microarray',NULL,'N',NULL,NULL,1,23,4,1,'N','Y',3,1);
-INSERT INTO `SlideProduct` (`idSlideProduct`, `name`, `catalogNumber`, `isCustom`, `idLab`, `codeApplication`, `idVendor`, `idOrganism`, `arraysPerSlide`, `slidesInSet`, `isSlideSet`, `isActive`, `idBillingSlideProductClass`, `idBillingSlideServiceClass`) VALUES (168,'Mouse miRNA microarray v2 (8x15K)',NULL,'N',NULL,NULL,1,3800,8,1,'N','Y',11,16);
-INSERT INTO `SlideProduct` (`idSlideProduct`, `name`, `catalogNumber`, `isCustom`, `idLab`, `codeApplication`, `idVendor`, `idOrganism`, `arraysPerSlide`, `slidesInSet`, `isSlideSet`, `isActive`, `idBillingSlideProductClass`, `idBillingSlideServiceClass`) VALUES (170,'Human miRNA v3 (8x15K)',NULL,'N',NULL,NULL,1,3400,1,1,'N','Y',11,16);
-INSERT INTO `SlideProduct` (`idSlideProduct`, `name`, `catalogNumber`, `isCustom`, `idLab`, `codeApplication`, `idVendor`, `idOrganism`, `arraysPerSlide`, `slidesInSet`, `isSlideSet`, `isActive`, `idBillingSlideProductClass`, `idBillingSlideServiceClass`) VALUES (171,'Human Promoter ChIP-on-chip 244K Set',NULL,'N',NULL,NULL,1,3400,1,1,'Y','Y',1,6);
-INSERT INTO `SlideProduct` (`idSlideProduct`, `name`, `catalogNumber`, `isCustom`, `idLab`, `codeApplication`, `idVendor`, `idOrganism`, `arraysPerSlide`, `slidesInSet`, `isSlideSet`, `isActive`, `idBillingSlideProductClass`, `idBillingSlideServiceClass`) VALUES (172,'Human promoter ChIP-on-chip Set (2 slides) (44K)',NULL,'N',NULL,NULL,1,3400,1,1,'Y','N',3,8);
-INSERT INTO `SlideProduct` (`idSlideProduct`, `name`, `catalogNumber`, `isCustom`, `idLab`, `codeApplication`, `idVendor`, `idOrganism`, `arraysPerSlide`, `slidesInSet`, `isSlideSet`, `isActive`, `idBillingSlideProductClass`, `idBillingSlideServiceClass`) VALUES (173,'Mouse Promoter ChIP-on-chip Set (244K)',NULL,'N',NULL,NULL,1,3800,1,1,'Y','Y',1,6);
+INSERT INTO SlideProduct (idSlideProduct, name, catalogNumber, isCustom, idLab, codeApplication, idVendor, idOrganism, arraysPerSlide, slidesInSet, isSlideSet, isActive, idBillingSlideProductClass, idBillingSlideServiceClass) VALUES (2,'Whole human genome microarray (44K)',NULL,'N',NULL,'EXP',1,3400,1,1,'N','N',NULL,NULL);
+INSERT INTO SlideProduct (idSlideProduct, name, catalogNumber, isCustom, idLab, codeApplication, idVendor, idOrganism, arraysPerSlide, slidesInSet, isSlideSet, isActive, idBillingSlideProductClass, idBillingSlideServiceClass) VALUES (3,'Human promoter ChIP-on-chip Set (2 slides) (44K)',NULL,'N',NULL,'CHIP',1,1,1,2,'Y','N',3,8);
+INSERT INTO SlideProduct (idSlideProduct, name, catalogNumber, isCustom, idLab, codeApplication, idVendor, idOrganism, arraysPerSlide, slidesInSet, isSlideSet, isActive, idBillingSlideProductClass, idBillingSlideServiceClass) VALUES (5,'Human 1A GE microarray (22K)',NULL,'N',NULL,'EXP',1,1,1,1,'N','N',NULL,NULL);
+INSERT INTO SlideProduct (idSlideProduct, name, catalogNumber, isCustom, idLab, codeApplication, idVendor, idOrganism, arraysPerSlide, slidesInSet, isSlideSet, isActive, idBillingSlideProductClass, idBillingSlideServiceClass) VALUES (7,'Human genome CGH 44B (4x44K)',NULL,'N',NULL,'CGH',1,3400,1,1,'N','Y',3,4);
+INSERT INTO SlideProduct (idSlideProduct, name, catalogNumber, isCustom, idLab, codeApplication, idVendor, idOrganism, arraysPerSlide, slidesInSet, isSlideSet, isActive, idBillingSlideProductClass, idBillingSlideServiceClass) VALUES (10,'Human Genome CGH (1x185K)',NULL,'N',NULL,'CGH',1,3400,1,1,'N','N',NULL,NULL);
+INSERT INTO SlideProduct (idSlideProduct, name, catalogNumber, isCustom, idLab, codeApplication, idVendor, idOrganism, arraysPerSlide, slidesInSet, isSlideSet, isActive, idBillingSlideProductClass, idBillingSlideServiceClass) VALUES (11,'Arabidopsis 3 oligo expression array (44K)',NULL,'N',NULL,'EXP',1,11,1,1,'N','N',NULL,NULL);
+INSERT INTO SlideProduct (idSlideProduct, name, catalogNumber, isCustom, idLab, codeApplication, idVendor, idOrganism, arraysPerSlide, slidesInSet, isSlideSet, isActive, idBillingSlideProductClass, idBillingSlideServiceClass) VALUES (13,'C. elegans Gene Expression (22K)',NULL,'N',NULL,'EXP',1,6,1,1,'N','N',NULL,NULL);
+INSERT INTO SlideProduct (idSlideProduct, name, catalogNumber, isCustom, idLab, codeApplication, idVendor, idOrganism, arraysPerSlide, slidesInSet, isSlideSet, isActive, idBillingSlideProductClass, idBillingSlideServiceClass) VALUES (14,'Canine Gene Expression v2 (4x44K)',NULL,'N',NULL,'EXP',1,15,4,1,'N','Y',3,1);
+INSERT INTO SlideProduct (idSlideProduct, name, catalogNumber, isCustom, idLab, codeApplication, idVendor, idOrganism, arraysPerSlide, slidesInSet, isSlideSet, isActive, idBillingSlideProductClass, idBillingSlideServiceClass) VALUES (16,'Chicken Gene Expression (4x44k)',NULL,'N',NULL,'EXP',1,13,4,1,'N','Y',3,1);
+INSERT INTO SlideProduct (idSlideProduct, name, catalogNumber, isCustom, idLab, codeApplication, idVendor, idOrganism, arraysPerSlide, slidesInSet, isSlideSet, isActive, idBillingSlideProductClass, idBillingSlideServiceClass) VALUES (17,'Whole mouse genome microarray (44K)',NULL,'N',NULL,'EXP',1,3400,1,1,'N','N',NULL,NULL);
+INSERT INTO SlideProduct (idSlideProduct, name, catalogNumber, isCustom, idLab, codeApplication, idVendor, idOrganism, arraysPerSlide, slidesInSet, isSlideSet, isActive, idBillingSlideProductClass, idBillingSlideServiceClass) VALUES (24,'Rat oligo microarray (22K)',NULL,'N',NULL,'EXP',1,5200,1,1,'N','N',NULL,NULL);
+INSERT INTO SlideProduct (idSlideProduct, name, catalogNumber, isCustom, idLab, codeApplication, idVendor, idOrganism, arraysPerSlide, slidesInSet, isSlideSet, isActive, idBillingSlideProductClass, idBillingSlideServiceClass) VALUES (25,'Whole rat genome microarray (44K)',NULL,'N',NULL,'EXP',1,5200,4,1,'N','Y',3,1);
+INSERT INTO SlideProduct (idSlideProduct, name, catalogNumber, isCustom, idLab, codeApplication, idVendor, idOrganism, arraysPerSlide, slidesInSet, isSlideSet, isActive, idBillingSlideProductClass, idBillingSlideServiceClass) VALUES (30,'Xenopus oligo expression microarray (22K)',NULL,'N',NULL,'EXP',1,8,1,1,'N','N',NULL,NULL);
+INSERT INTO SlideProduct (idSlideProduct, name, catalogNumber, isCustom, idLab, codeApplication, idVendor, idOrganism, arraysPerSlide, slidesInSet, isSlideSet, isActive, idBillingSlideProductClass, idBillingSlideServiceClass) VALUES (31,'Yeast V2 oligo expression microarray (11K)',NULL,'N',NULL,'EXP',1,5300,2,1,'N','N',NULL,NULL);
+INSERT INTO SlideProduct (idSlideProduct, name, catalogNumber, isCustom, idLab, codeApplication, idVendor, idOrganism, arraysPerSlide, slidesInSet, isSlideSet, isActive, idBillingSlideProductClass, idBillingSlideServiceClass) VALUES (32,'S. cerevisiae ChIP array(4x44K)',NULL,'N',NULL,'CHIP',1,5300,4,1,'N','Y',3,8);
+INSERT INTO SlideProduct (idSlideProduct, name, catalogNumber, isCustom, idLab, codeApplication, idVendor, idOrganism, arraysPerSlide, slidesInSet, isSlideSet, isActive, idBillingSlideProductClass, idBillingSlideServiceClass) VALUES (35,'Zebrafish oligo expression microarray (22K)',NULL,'N',NULL,'EXP',1,2700,1,1,'N','N',NULL,NULL);
+INSERT INTO SlideProduct (idSlideProduct, name, catalogNumber, isCustom, idLab, codeApplication, idVendor, idOrganism, arraysPerSlide, slidesInSet, isSlideSet, isActive, idBillingSlideProductClass, idBillingSlideServiceClass) VALUES (54,'Whole human genome microarray (4x44K)',NULL,'N',NULL,'EXP',1,3400,4,1,'N','Y',3,1);
+INSERT INTO SlideProduct (idSlideProduct, name, catalogNumber, isCustom, idLab, codeApplication, idVendor, idOrganism, arraysPerSlide, slidesInSet, isSlideSet, isActive, idBillingSlideProductClass, idBillingSlideServiceClass) VALUES (110,'Yeast Whole Genome ChIP-on-chip microarray (244K)',NULL,'N',NULL,'CHIP',1,5300,1,1,'N','Y',1,6);
+INSERT INTO SlideProduct (idSlideProduct, name, catalogNumber, isCustom, idLab, codeApplication, idVendor, idOrganism, arraysPerSlide, slidesInSet, isSlideSet, isActive, idBillingSlideProductClass, idBillingSlideServiceClass) VALUES (111,'Human Genome CGH 244A (1x244K)',NULL,'N',NULL,'CGH',1,3400,1,1,'N','Y',1,2);
+INSERT INTO SlideProduct (idSlideProduct, name, catalogNumber, isCustom, idLab, codeApplication, idVendor, idOrganism, arraysPerSlide, slidesInSet, isSlideSet, isActive, idBillingSlideProductClass, idBillingSlideServiceClass) VALUES (113,'Human Genome CGH 105A (2x105K)',NULL,'N',NULL,'CGH',1,3400,2,1,'N','Y',2,3);
+INSERT INTO SlideProduct (idSlideProduct, name, catalogNumber, isCustom, idLab, codeApplication, idVendor, idOrganism, arraysPerSlide, slidesInSet, isSlideSet, isActive, idBillingSlideProductClass, idBillingSlideServiceClass) VALUES (114,'Affymetrix GeneChip Human Genome U133 Plus 2.0',NULL,'N',NULL,'EXP',2,1,1,1,'N','Y',7,12);
+INSERT INTO SlideProduct (idSlideProduct, name, catalogNumber, isCustom, idLab, codeApplication, idVendor, idOrganism, arraysPerSlide, slidesInSet, isSlideSet, isActive, idBillingSlideProductClass, idBillingSlideServiceClass) VALUES (123,'Human GeneChip Mapping 250K Nsp Array',NULL,'N',NULL,'SNP',2,3400,1,1,'N','Y',5,13);
+INSERT INTO SlideProduct (idSlideProduct, name, catalogNumber, isCustom, idLab, codeApplication, idVendor, idOrganism, arraysPerSlide, slidesInSet, isSlideSet, isActive, idBillingSlideProductClass, idBillingSlideServiceClass) VALUES (124,'Arabidopsis Gene Expression v3 (4x44K)',NULL,'N',NULL,'EXP',1,11,4,1,'N','Y',3,1);
+INSERT INTO SlideProduct (idSlideProduct, name, catalogNumber, isCustom, idLab, codeApplication, idVendor, idOrganism, arraysPerSlide, slidesInSet, isSlideSet, isActive, idBillingSlideProductClass, idBillingSlideServiceClass) VALUES (125,'Arabidopsis Whole Genome ChIP-on-chip Set (244K)',NULL,'N',NULL,'CHIP',1,11,1,2,'Y','Y',1,6);
+INSERT INTO SlideProduct (idSlideProduct, name, catalogNumber, isCustom, idLab, codeApplication, idVendor, idOrganism, arraysPerSlide, slidesInSet, isSlideSet, isActive, idBillingSlideProductClass, idBillingSlideServiceClass) VALUES (126,'C. elegans Gene Expression (4x44K)',NULL,'N',NULL,'EXP',1,6,4,1,'N','Y',3,1);
+INSERT INTO SlideProduct (idSlideProduct, name, catalogNumber, isCustom, idLab, codeApplication, idVendor, idOrganism, arraysPerSlide, slidesInSet, isSlideSet, isActive, idBillingSlideProductClass, idBillingSlideServiceClass) VALUES (127,'Zebrafish oligo microarray (4x44K)',NULL,'N',NULL,'EXP',1,2700,4,1,'N','N',3,1);
+INSERT INTO SlideProduct (idSlideProduct, name, catalogNumber, isCustom, idLab, codeApplication, idVendor, idOrganism, arraysPerSlide, slidesInSet, isSlideSet, isActive, idBillingSlideProductClass, idBillingSlideServiceClass) VALUES (128,'Xenopus oligo microarray (4x44K)',NULL,'N',NULL,'EXP',1,8,4,1,'N','Y',3,1);
+INSERT INTO SlideProduct (idSlideProduct, name, catalogNumber, isCustom, idLab, codeApplication, idVendor, idOrganism, arraysPerSlide, slidesInSet, isSlideSet, isActive, idBillingSlideProductClass, idBillingSlideServiceClass) VALUES (130,'Sodalis tiling microarray (4x44K)',NULL,'N',NULL,'EXP',1,5500,4,1,'N','Y',NULL,NULL);
+INSERT INTO SlideProduct (idSlideProduct, name, catalogNumber, isCustom, idLab, codeApplication, idVendor, idOrganism, arraysPerSlide, slidesInSet, isSlideSet, isActive, idBillingSlideProductClass, idBillingSlideServiceClass) VALUES (131,'Yeast GE microarray (4x44K)',NULL,'N',NULL,'EXP',1,5300,4,1,'N','Y',3,1);
+INSERT INTO SlideProduct (idSlideProduct, name, catalogNumber, isCustom, idLab, codeApplication, idVendor, idOrganism, arraysPerSlide, slidesInSet, isSlideSet, isActive, idBillingSlideProductClass, idBillingSlideServiceClass) VALUES (132,'Human Promoter ChIP-on-chip 244K Set',NULL,'N',NULL,'CHIP',1,1,1,2,'Y','Y',1,6);
+INSERT INTO SlideProduct (idSlideProduct, name, catalogNumber, isCustom, idLab, codeApplication, idVendor, idOrganism, arraysPerSlide, slidesInSet, isSlideSet, isActive, idBillingSlideProductClass, idBillingSlideServiceClass) VALUES (133,'Whole Mouse Genome Microarray (4x44K)',NULL,'N',NULL,'EXP',1,3800,4,1,'N','Y',3,1);
+INSERT INTO SlideProduct (idSlideProduct, name, catalogNumber, isCustom, idLab, codeApplication, idVendor, idOrganism, arraysPerSlide, slidesInSet, isSlideSet, isActive, idBillingSlideProductClass, idBillingSlideServiceClass) VALUES (135,'Canine SNP Array (520431)',NULL,'N',NULL,NULL,NULL,NULL,1,1,'N','Y',5,13);
+INSERT INTO SlideProduct (idSlideProduct, name, catalogNumber, isCustom, idLab, codeApplication, idVendor, idOrganism, arraysPerSlide, slidesInSet, isSlideSet, isActive, idBillingSlideProductClass, idBillingSlideServiceClass) VALUES (136,'Mouse Genome 430 2.0 Array',NULL,'N',NULL,NULL,2,3800,1,1,'N','Y',7,12);
+INSERT INTO SlideProduct (idSlideProduct, name, catalogNumber, isCustom, idLab, codeApplication, idVendor, idOrganism, arraysPerSlide, slidesInSet, isSlideSet, isActive, idBillingSlideProductClass, idBillingSlideServiceClass) VALUES (137,'Human CpG Island (1x244K)',NULL,'N',NULL,NULL,1,3400,1,1,'N','Y',1,6);
+INSERT INTO SlideProduct (idSlideProduct, name, catalogNumber, isCustom, idLab, codeApplication, idVendor, idOrganism, arraysPerSlide, slidesInSet, isSlideSet, isActive, idBillingSlideProductClass, idBillingSlideServiceClass) VALUES (141,'Mouse Promoter ChIP-on-chip Set (244K)',NULL,'N',NULL,NULL,1,3,1,2,'Y','Y',1,6);
+INSERT INTO SlideProduct (idSlideProduct, name, catalogNumber, isCustom, idLab, codeApplication, idVendor, idOrganism, arraysPerSlide, slidesInSet, isSlideSet, isActive, idBillingSlideProductClass, idBillingSlideServiceClass) VALUES (143,'Human ENCODE ChIP-on-chip (1x244K)',NULL,'N',NULL,NULL,1,3400,1,1,'N','Y',1,6);
+INSERT INTO SlideProduct (idSlideProduct, name, catalogNumber, isCustom, idLab, codeApplication, idVendor, idOrganism, arraysPerSlide, slidesInSet, isSlideSet, isActive, idBillingSlideProductClass, idBillingSlideServiceClass) VALUES (145,'Drosophila Gene Expression (4x44K)',NULL,'N',NULL,NULL,1,4,4,1,'N','Y',3,1);
+INSERT INTO SlideProduct (idSlideProduct, name, catalogNumber, isCustom, idLab, codeApplication, idVendor, idOrganism, arraysPerSlide, slidesInSet, isSlideSet, isActive, idBillingSlideProductClass, idBillingSlideServiceClass) VALUES (147,'Affymetrix Human SNP 5.0 Array','901069','N',NULL,NULL,2,1,1,1,'N','Y',6,13);
+INSERT INTO SlideProduct (idSlideProduct, name, catalogNumber, isCustom, idLab, codeApplication, idVendor, idOrganism, arraysPerSlide, slidesInSet, isSlideSet, isActive, idBillingSlideProductClass, idBillingSlideServiceClass) VALUES (155,'Zebrafish Gene Expression v2 (4x44K)',NULL,'N',NULL,NULL,1,2700,4,1,'N','Y',3,1);
+INSERT INTO SlideProduct (idSlideProduct, name, catalogNumber, isCustom, idLab, codeApplication, idVendor, idOrganism, arraysPerSlide, slidesInSet, isSlideSet, isActive, idBillingSlideProductClass, idBillingSlideServiceClass) VALUES (156,'Mouse miRNA microarray (8x15K)',NULL,'N',NULL,NULL,1,3800,8,1,'N','Y',11,16);
+INSERT INTO SlideProduct (idSlideProduct, name, catalogNumber, isCustom, idLab, codeApplication, idVendor, idOrganism, arraysPerSlide, slidesInSet, isSlideSet, isActive, idBillingSlideProductClass, idBillingSlideServiceClass) VALUES (158,'Human miRNA v2 (8x15K)',NULL,'N',NULL,NULL,1,3400,8,1,'N','Y',11,16);
+INSERT INTO SlideProduct (idSlideProduct, name, catalogNumber, isCustom, idLab, codeApplication, idVendor, idOrganism, arraysPerSlide, slidesInSet, isSlideSet, isActive, idBillingSlideProductClass, idBillingSlideServiceClass) VALUES (159,'Human CGH (4x180K)',NULL,'N',NULL,NULL,1,3400,4,1,'N','Y',13,19);
+INSERT INTO SlideProduct (idSlideProduct, name, catalogNumber, isCustom, idLab, codeApplication, idVendor, idOrganism, arraysPerSlide, slidesInSet, isSlideSet, isActive, idBillingSlideProductClass, idBillingSlideServiceClass) VALUES (161,'Affymetrix Human SNP 6.0 Array',NULL,'N',NULL,NULL,2,1,1,1,'N','Y',8,14);
+INSERT INTO SlideProduct (idSlideProduct, name, catalogNumber, isCustom, idLab, codeApplication, idVendor, idOrganism, arraysPerSlide, slidesInSet, isSlideSet, isActive, idBillingSlideProductClass, idBillingSlideServiceClass) VALUES (166,'Porcine Gene Expression Microarray',NULL,'N',NULL,NULL,1,23,4,1,'N','Y',3,1);
+INSERT INTO SlideProduct (idSlideProduct, name, catalogNumber, isCustom, idLab, codeApplication, idVendor, idOrganism, arraysPerSlide, slidesInSet, isSlideSet, isActive, idBillingSlideProductClass, idBillingSlideServiceClass) VALUES (168,'Mouse miRNA microarray v2 (8x15K)',NULL,'N',NULL,NULL,1,3800,8,1,'N','Y',11,16);
+INSERT INTO SlideProduct (idSlideProduct, name, catalogNumber, isCustom, idLab, codeApplication, idVendor, idOrganism, arraysPerSlide, slidesInSet, isSlideSet, isActive, idBillingSlideProductClass, idBillingSlideServiceClass) VALUES (170,'Human miRNA v3 (8x15K)',NULL,'N',NULL,NULL,1,3400,1,1,'N','Y',11,16);
+INSERT INTO SlideProduct (idSlideProduct, name, catalogNumber, isCustom, idLab, codeApplication, idVendor, idOrganism, arraysPerSlide, slidesInSet, isSlideSet, isActive, idBillingSlideProductClass, idBillingSlideServiceClass) VALUES (171,'Human Promoter ChIP-on-chip 244K Set',NULL,'N',NULL,NULL,1,3400,1,1,'Y','Y',1,6);
+INSERT INTO SlideProduct (idSlideProduct, name, catalogNumber, isCustom, idLab, codeApplication, idVendor, idOrganism, arraysPerSlide, slidesInSet, isSlideSet, isActive, idBillingSlideProductClass, idBillingSlideServiceClass) VALUES (172,'Human promoter ChIP-on-chip Set (2 slides) (44K)',NULL,'N',NULL,NULL,1,3400,1,1,'Y','N',3,8);
+INSERT INTO SlideProduct (idSlideProduct, name, catalogNumber, isCustom, idLab, codeApplication, idVendor, idOrganism, arraysPerSlide, slidesInSet, isSlideSet, isActive, idBillingSlideProductClass, idBillingSlideServiceClass) VALUES (173,'Mouse Promoter ChIP-on-chip Set (244K)',NULL,'N',NULL,NULL,1,3800,1,1,'Y','Y',1,6);
 
 
-INSERT INTO `gnomex`.`SlideProductApplication`(`idSlideProduct`, `codeApplication`)
+INSERT INTO gnomex.SlideProductApplication(idSlideProduct, codeApplication)
 VALUES  (7,'CGH'),
  (10,'CGH'),
  (111,'CGH'),
@@ -1395,12 +1394,12 @@ VALUES  (7,'CGH'),
  (143,'WTRANSCRP');
 
 
-INSERT INTO `gnomex`.`SlideSource`(`codeSlideSource`, `slideSource`, `isActive`)
+INSERT INTO gnomex.SlideSource(codeSlideSource, slideSource, isActive)
 VALUES ('CLIENT', 'New microarray purchased by lab', 'Y'),
   ('CORE', 'New microarray purchased from core facility', 'Y'),
   ('REUSE', 'Strip and reuse existing microarray', 'Y');
 
-INSERT INTO `gnomex`.`State`(`codeState`, `state`, `isActive`)
+INSERT INTO gnomex.State(codeState, state, isActive)
 VALUES ('AK', 'Alaska', 'Y'),
   ('AL', 'Alabama', 'Y'),
   ('AR', 'Arkansas', 'Y'),
@@ -1452,7 +1451,7 @@ VALUES ('AK', 'Alaska', 'Y'),
   ('WV', 'West Virginia', 'Y'),
   ('WY', 'Wyoming', 'Y');
 
-INSERT INTO `gnomex`.`Step`(`codeStep`, `step`, `isActive`, sortOrder)
+INSERT INTO gnomex.Step(codeStep, step, isActive, sortOrder)
 VALUES ('COMPLETE', 'Complete', 'Y', null),
   ('EXT', 'Scan/Feature Extraction', 'Y', 4),
   ('HYB', 'Hybridization', 'Y', 3),
@@ -1475,14 +1474,14 @@ VALUES ('COMPLETE', 'Complete', 'Y', null),
   ('STOP', 'Stop/Failed', 'Y', null);
 
 
-INSERT INTO `gnomex`.`UserPermissionKind`(`codeUserPermissionKind`, `userPermissionKind`, `isActive`)
+INSERT INTO gnomex.UserPermissionKind(codeUserPermissionKind, userPermissionKind, isActive)
 VALUES ('ADMIN', 'Admin', 'Y'),
   ('BILLING', 'Billing', 'Y'),
   ('LAB', 'Lab', 'Y'),
   ('USER', 'User', 'Y'),
   ('SUPER', 'Super', 'Y');
 
-INSERT INTO `gnomex`.`Vendor`(`idVendor`, `vendorName`, `description`, `isActive`)
+INSERT INTO gnomex.Vendor(idVendor, vendorName, description, isActive)
 VALUES (1, 'Agilent', 'Agilent', 'Y'),
   (2, 'Affymetrix', 'Affymetrix', 'Y'),
   (4, 'In House', 'In House', 'N'),
@@ -1490,14 +1489,14 @@ VALUES (1, 'Agilent', 'Agilent', 'Y'),
   (6, 'NimbleGen', 'NimbleGen', 'N'),
   (7, 'Illumina', 'Illumina', 'Y');
 
-INSERT INTO `gnomex`.`Visibility`(`codeVisibility`, `visibility`)
+INSERT INTO gnomex.Visibility(codeVisibility, visibility)
 VALUES ('OWNER', 'Owner'),
   ('MEM', 'All Lab Members'),
   ('INST', 'Institution'),
   ('PUBLIC', 'Public');
 
-INSERT INTO `gnomex`.`PlateType`(`codePlateType`, `plateTypeDescription`, `isActive`) values('REACTION', 'Reaction plate', 'Y');
-INSERT INTO `gnomex`.`PlateType`(`codePlateType`, `plateTypeDescription`, `isActive`) values('SOURCE', 'Source plate', 'Y');
+INSERT INTO gnomex.PlateType(codePlateType, plateTypeDescription, isActive) values('REACTION', 'Reaction plate', 'Y');
+INSERT INTO gnomex.PlateType(codePlateType, plateTypeDescription, isActive) values('SOURCE', 'Source plate', 'Y');
 
 
 -- Test lab and billing account
