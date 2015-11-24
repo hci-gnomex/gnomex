@@ -105,12 +105,44 @@
 				if ( comboBox.selectedItem == null ) {
 					return;
 				}
+				
+				var reqsWithWorkItems:String = '';
+				if(comboBox.selectedLabel == 'COMPLETE'){
+					reqsWithWorkItems = checkForWorkItems();
+				}
+				
+				if(reqsWithWorkItems.length > 0 ){
+					Alert.show( "The following requests still have work items in the workflow process: " + reqsWithWorkItems + ".\n\nIf you mark these requests as complete their work items will be deleted and the requests will be removed from the workflow.  This may impact Billing.  Continue?", "Confirm Change Request Status", ( Alert.YES | Alert.NO ), this, onPromptToChangeStatus, parentApplication.iconError );
+				} else{
+					changeStatus();	
+				}
+			}
+			
+			private function onPromptToChangeStatus( event:CloseEvent ):void {
+				
+				if ( event.detail == Alert.YES ) {
+					changeStatus();
+				}
+			}
+			
+			private function changeStatus():void{
 				for each ( var req:Object in selectedOrders ) {
 					var params:Object = new Object;
 					params.idRequest = req.@idRequest;
 					params.codeRequestStatus = comboBox.selectedItem.@codeRequestStatus;
 					changeRequestStatus.send( params );
 				}
+			}
+			
+			private function checkForWorkItems():String{
+				var reqsWithWorkItems:String = '';
+				for each (var req:Object in selectedOrders){
+					if(req.@hasWorkItems == 'Y'){
+						reqsWithWorkItems += req.@number + ', ';
+					}
+				}
+				
+				return reqsWithWorkItems.substring(0, reqsWithWorkItems.lastIndexOf(', '));
 			}
 			
 			private function onChangeRequestStatus( event:ResultEvent ):void {

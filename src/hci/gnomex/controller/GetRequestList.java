@@ -30,17 +30,16 @@ import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.output.XMLOutputter;
 
-
 public class GetRequestList extends GNomExCommand implements Serializable {
 
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetRequestList.class);
+  private static org.apache.log4j.Logger   log                        = org.apache.log4j.Logger.getLogger(GetRequestList.class);
 
-  private RequestFilter requestFilter;
-  private HashMap<Integer, List<Object[]>> reactionPlateMap = new HashMap<Integer, List<Object[]>>();
-  private HashMap<Integer, List<Object[]>> sourcePlateMap = new HashMap<Integer, List<Object[]>>();
-  
-  private String			   message = "";
-  private static final int	   DEFAULT_MAX_REQUESTS_COUNT = 100;
+  private RequestFilter                    requestFilter;
+  private HashMap<Integer, List<Object[]>> reactionPlateMap           = new HashMap<Integer, List<Object[]>>();
+  private HashMap<Integer, List<Object[]>> sourcePlateMap             = new HashMap<Integer, List<Object[]>>();
+
+  private String                           message                    = "";
+  private static final int                 DEFAULT_MAX_REQUESTS_COUNT = 100;
 
   public void validate() {
   }
@@ -63,43 +62,44 @@ public class GetRequestList extends GNomExCommand implements Serializable {
       log.info("Query for GetRequestList: " + buf.toString());
       List rows = sess.createQuery(buf.toString()).list();
 
-      //Hash reaction plate info by idRequest
+      // Hash reaction plate info by idRequest
       hashReactionPlates(sess);
 
       // Hash source plate info by idRequest
       hashSourcePlates(sess);
 
       Map<Integer, Integer> requestsToSkip = this.getSecAdvisor().getBSTXSecurityIdsToExclude(sess, dh, rows, 0, 6);
-      
-      Integer maxRequests = getMaxRequests(sess);
-      int          requestCount = 0;
-      
-      Document doc = new Document(new Element("RequestList"));
-      for(Iterator i = rows.iterator(); i.hasNext();) {
-        Object[] row = (Object[])i.next();
 
-        Integer idRequest               = (Integer)row[0];
+      Integer maxRequests = getMaxRequests(sess);
+      int requestCount = 0;
+
+      Document doc = new Document(new Element("RequestList"));
+      for (Iterator i = rows.iterator(); i.hasNext();) {
+        Object[] row = (Object[]) i.next();
+
+        Integer idRequest = (Integer) row[0];
         if (requestsToSkip.get(idRequest) != null) {
           // BST Security failed.
           continue;
         }
-        String number                   = (String)row[1];
-        String name                     = (String)row[2];
-        String description              = (String)row[3];
-        Integer idSampleDropOffLocation = (Integer)row[4];
-        String codeRequestStatus        = (String)row[5];
-        String codeRequestCategory      = (String)row[6];
-        String createDate               = row[7] != null ? this.formatDateTime((java.util.Date)row[7], this.DATE_OUTPUT_DASH) : "";
-        String submitterFirstName       = (String)row[8];
-        String submitterLastName        = (String)row[9];
-        String labFirstName             = (String)row[10];
-        String labLastName              = (String)row[11];
-        Integer idAppUser               = (Integer)row[12];
-        Integer idLab                   = (Integer)row[13];
-        Integer idCoreFacility          = (Integer)row[14];
-        String  corePrepInstructions    = (String)row[15];
-        Integer numberOfSamples         = (Integer)row[16];
-        String adminNotes               = (String)row[17];
+        String number = (String) row[1];
+        String name = (String) row[2];
+        String description = (String) row[3];
+        Integer idSampleDropOffLocation = (Integer) row[4];
+        String codeRequestStatus = (String) row[5];
+        String codeRequestCategory = (String) row[6];
+        String createDate = row[7] != null ? this.formatDateTime((java.util.Date) row[7], this.DATE_OUTPUT_DASH) : "";
+        String submitterFirstName = (String) row[8];
+        String submitterLastName = (String) row[9];
+        String labFirstName = (String) row[10];
+        String labLastName = (String) row[11];
+        Integer idAppUser = (Integer) row[12];
+        Integer idLab = (Integer) row[13];
+        Integer idCoreFacility = (Integer) row[14];
+        String corePrepInstructions = (String) row[15];
+        Integer numberOfSamples = (Integer) row[16];
+        String adminNotes = (String) row[17];
+        Integer numberOfWorkItems = (Integer) row[18];
 
         String requestStatus = dh.getRequestStatus(codeRequestStatus);
         String labName = Lab.formatLabNameFirstLast(labFirstName, labLastName);
@@ -129,10 +129,9 @@ public class GetRequestList extends GNomExCommand implements Serializable {
         node.setAttribute("numberOfSamples", toString(numberOfSamples));
         node.setAttribute("isSelected", "N");
         node.setAttribute("adminNotes", toString(adminNotes));
-
+        node.setAttribute("hasWorkItems", numberOfWorkItems > 0 ? "Y" : "N");
 
         node.setAttribute("icon", requestCategory != null && requestCategory.getIcon() != null ? requestCategory.getIcon() : "");
-
 
         List<Object[]> rxnPlateRows = reactionPlateMap.get(idRequest);
         appendReactionPlateInfo(node, rxnPlateRows);
@@ -146,10 +145,10 @@ public class GetRequestList extends GNomExCommand implements Serializable {
 
         requestCount++;
         if (requestCount >= maxRequests) {
-            break;
+          break;
         }
       }
-      
+
       doc.getRootElement().setAttribute("requestCount", Integer.valueOf(requestCount).toString());
       message = requestCount == maxRequests ? "First " + maxRequests + " displayed of " + rows.size() : "";
       doc.getRootElement().setAttribute("message", message);
@@ -158,44 +157,43 @@ public class GetRequestList extends GNomExCommand implements Serializable {
       this.xmlResult = out.outputString(doc);
 
       setResponsePage(this.SUCCESS_JSP);
-    }catch (NamingException e){
+    } catch (NamingException e) {
       log.error("An exception has occurred in GetRequestList ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
-    }catch (SQLException e) {
+    } catch (SQLException e) {
       log.error("An exception has occurred in GetRequestList ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
-    } catch (XMLReflectException e){
+    } catch (XMLReflectException e) {
       log.error("An exception has occurred in GetRequestList ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
-    } catch (Exception e){
+    } catch (Exception e) {
       log.error("An exception has occurred in GetRequestList ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
     } finally {
       try {
-        this.getSecAdvisor().closeReadOnlyHibernateSession();        
-      } catch(Exception e) {
+        this.getSecAdvisor().closeReadOnlyHibernateSession();
+      } catch (Exception e) {
 
       }
     }
 
     return this;
   }
-  
+
   private Integer getMaxRequests(Session sess) {
-	  Integer maxRequests = DEFAULT_MAX_REQUESTS_COUNT;
-	  String prop = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.EXPERIMENT_VIEW_LIMIT);
-	  if (prop != null && prop.length() > 0) {
-		  try {
-			  maxRequests = Integer.parseInt(prop);
-	      }
-	      catch(NumberFormatException e) {
-	      }    
-	    }
-	    return maxRequests;
+    Integer maxRequests = DEFAULT_MAX_REQUESTS_COUNT;
+    String prop = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.EXPERIMENT_VIEW_LIMIT);
+    if (prop != null && prop.length() > 0) {
+      try {
+        maxRequests = Integer.parseInt(prop);
+      } catch (NumberFormatException e) {
+      }
+    }
+    return maxRequests;
   }
 
   private String toString(Object theValue) {
@@ -215,10 +213,10 @@ public class GetRequestList extends GNomExCommand implements Serializable {
     if (plateRows != null) {
 
       for (Object[] plateRow : plateRows) {
-        Integer idRequest        = (Integer)plateRow[0];
-        String plateLabel        = (String)plateRow[1];
-        Integer idInstrumentRun  = (Integer)plateRow[2];
-        String runLabel          = (String)plateRow[3];
+        Integer idRequest = (Integer) plateRow[0];
+        String plateLabel = (String) plateRow[1];
+        Integer idInstrumentRun = (Integer) plateRow[2];
+        String runLabel = (String) plateRow[3];
 
         List<Object[]> thePlateRows = reactionPlateMap.get(idRequest);
         if (thePlateRows == null) {
@@ -227,7 +225,7 @@ public class GetRequestList extends GNomExCommand implements Serializable {
         }
         thePlateRows.add(plateRow);
       }
-    }    
+    }
   }
 
   private void appendReactionPlateInfo(Element node, List<Object[]> plateRows) {
@@ -237,10 +235,10 @@ public class GetRequestList extends GNomExCommand implements Serializable {
     String runNames = "";
     if (plateRows != null) {
       for (Object[] plateRow : plateRows) {
-        Integer idRequest        = (Integer)plateRow[0];
-        String plateLabel        = (String)plateRow[1];
-        Integer idInstrumentRun  = (Integer)plateRow[2];
-        String runLabel          = (String)plateRow[3];
+        Integer idRequest = (Integer) plateRow[0];
+        String plateLabel = (String) plateRow[1];
+        Integer idInstrumentRun = (Integer) plateRow[2];
+        String runLabel = (String) plateRow[3];
 
         if (rxnPlateNames.length() > 0 && toString(plateLabel).length() > 0) {
           rxnPlateNames += ", ";
@@ -259,7 +257,7 @@ public class GetRequestList extends GNomExCommand implements Serializable {
 
     node.setAttribute("plateLabel", rxnPlateNames);
     node.setAttribute("idInstrumentRun", runIds);
-    node.setAttribute("runLabel", runNames);        
+    node.setAttribute("runLabel", runNames);
 
   }
 
@@ -272,8 +270,8 @@ public class GetRequestList extends GNomExCommand implements Serializable {
     if (plateRows != null) {
 
       for (Object[] plateRow : plateRows) {
-        Integer idRequest        = (Integer)plateRow[0];
-        Integer idPlate          = (Integer)plateRow[1];
+        Integer idRequest = (Integer) plateRow[0];
+        Integer idPlate = (Integer) plateRow[1];
 
         List<Object[]> thePlateRows = sourcePlateMap.get(idRequest);
         if (thePlateRows == null) {
@@ -282,7 +280,7 @@ public class GetRequestList extends GNomExCommand implements Serializable {
         }
         thePlateRows.add(plateRow);
       }
-    }    
+    }
   }
 
   private void appendSourcePlateInfo(Element node, List<Object[]> plateRows) {
@@ -291,8 +289,7 @@ public class GetRequestList extends GNomExCommand implements Serializable {
 
   }
 
-  private void appendSecurityFlags(Element node, String codeRequestStatus, 
-      String codeRequestCategory, Integer idLab, Integer idAppUser, Integer idCoreFacility) {
+  private void appendSecurityFlags(Element node, String codeRequestStatus, String codeRequestCategory, Integer idLab, Integer idAppUser, Integer idCoreFacility) {
     boolean canUpdate = false;
     boolean isDNASeqExperiment = RequestCategory.isDNASeqCoreRequestCategory(codeRequestCategory);
 
@@ -303,8 +300,7 @@ public class GetRequestList extends GNomExCommand implements Serializable {
     // Admins - Can only update requests from core facility user manages
     else if (this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_WRITE_ANY_OBJECT)) {
       canUpdate = this.getSecAdvisor().isCoreFacilityIManage(idCoreFacility);
-      if (isDNASeqExperiment && !(codeRequestStatus.equals(RequestStatus.SUBMITTED) || codeRequestStatus.equals(RequestStatus.NEW)
-          || (codeRequestStatus.equals( RequestStatus.PROCESSING ) && node.getAttributeValue( "plateLabel").equals( "" )))) {
+      if (isDNASeqExperiment && !(codeRequestStatus.equals(RequestStatus.SUBMITTED) || codeRequestStatus.equals(RequestStatus.NEW) || (codeRequestStatus.equals(RequestStatus.PROCESSING) && node.getAttributeValue("plateLabel").equals("")))) {
         canUpdate = false;
       }
     }
@@ -318,11 +314,11 @@ public class GetRequestList extends GNomExCommand implements Serializable {
       // Owner of request
       else if (this.getSecAdvisor().isGroupIAmMemberOf(idLab) && this.getSecAdvisor().isOwner(idAppUser)) {
         canUpdate = true;
-      } 
+      }
       if (canUpdate && isDNASeqExperiment && !codeRequestStatus.equals(RequestStatus.NEW)) {
         canUpdate = false;
       }
-    } 
+    }
 
     node.setAttribute("canUpdate", canUpdate ? "Y" : "N");
 

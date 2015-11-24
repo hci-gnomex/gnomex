@@ -1,6 +1,5 @@
 package hci.gnomex.model;
 
-
 import hci.framework.model.DetailObject;
 import hci.gnomex.security.SecurityAdvisor;
 
@@ -9,30 +8,27 @@ import java.util.Calendar;
 
 public class RequestFilter extends DetailObject {
 
-
   // Criteria
-  private String                number;
-  private Integer               idAppUser;
-  private Integer               idLab;
-  private Date                  createDateFrom;
-  private Date                  createDateTo;
+  private String          number;
+  private Integer         idAppUser;
+  private Integer         idLab;
+  private Date            createDateFrom;
+  private Date            createDateTo;
 
+  private String          lastWeek        = "N";
+  private String          lastMonth       = "N";
+  private String          lastThreeMonths = "N";
+  private String          lastYear        = "N";
 
-  private String                lastWeek = "N";
-  private String                lastMonth = "N";
-  private String                lastThreeMonths = "N";
-  private String                lastYear = "N";
+  private String          codeRequestCategory;
+  private String          status;
+  private Integer         idCoreFacility;
 
-  private String                codeRequestCategory;
-  private String                status;
-  private Integer               idCoreFacility;
+  private String          hasRedo         = "N";
 
-  private String                hasRedo = "N";
-
-  private StringBuffer          queryBuf;
-  private boolean               addWhere = true;
-  private SecurityAdvisor       secAdvisor;
-
+  private StringBuffer    queryBuf;
+  private boolean         addWhere        = true;
+  private SecurityAdvisor secAdvisor;
 
   public StringBuffer getQuery(SecurityAdvisor secAdvisor) {
     addWhere = true;
@@ -57,7 +53,8 @@ public class RequestFilter extends DetailObject {
     queryBuf.append(" req.idCoreFacility, ");
     queryBuf.append(" req.corePrepInstructions, ");
     queryBuf.append(" count(distinct sample.idSample), ");
-    queryBuf.append(" req.adminNotes ");
+    queryBuf.append(" req.adminNotes, ");
+    queryBuf.append(" count(distinct wi.idWorkItem) ");
 
     getQueryBody(queryBuf);
 
@@ -108,7 +105,7 @@ public class RequestFilter extends DetailObject {
     this.secAdvisor = secAdvisor;
     queryBuf = new StringBuffer();
 
-    queryBuf.append( "SELECT distinct req.idRequest, plate.idPlate ");
+    queryBuf.append("SELECT distinct req.idRequest, plate.idPlate ");
 
     getSourcePlateQueryBody(queryBuf);
 
@@ -116,13 +113,13 @@ public class RequestFilter extends DetailObject {
 
   }
 
-
   public void getQueryBody(StringBuffer queryBuf) {
 
     queryBuf.append(" FROM        Request as req ");
     queryBuf.append(" JOIN        req.samples as sample ");
     queryBuf.append(" JOIN        req.submitter as submitter ");
     queryBuf.append(" JOIN        req.lab as lab ");
+    queryBuf.append(" LEFT JOIN   req.workItems as wi ");
 
     if (hasRedo.equals("Y")) {
       queryBuf.append(" JOIN        sample.wells as well ");
@@ -133,9 +130,7 @@ public class RequestFilter extends DetailObject {
     addWellCriteria();
     addSecurityCriteria();
 
-
   }
-
 
   public void getReactionPlateQueryBody(StringBuffer queryBuf) {
 
@@ -151,7 +146,6 @@ public class RequestFilter extends DetailObject {
     addSecurityCriteria();
   }
 
-
   public void getSourcePlateQueryBody(StringBuffer queryBuf) {
 
     queryBuf.append(" FROM        Request as req ");
@@ -164,42 +158,41 @@ public class RequestFilter extends DetailObject {
     addSecurityCriteria();
   }
 
-
   private void addRequestCriteria() {
-    // Search by request number 
-    if (number != null && !number.equals("")){
+    // Search by request number
+    if (number != null && !number.equals("")) {
       this.addWhereOrAnd();
       queryBuf.append(" req.number like '");
       queryBuf.append(number);
       queryBuf.append("%'");
-    } 
-    // Search by lab 
-    if (idLab != null){
+    }
+    // Search by lab
+    if (idLab != null) {
       this.addWhereOrAnd();
       queryBuf.append(" req.idLab =");
       queryBuf.append(idLab);
-    } 
-    // Search by user 
-    if (idAppUser != null){
+    }
+    // Search by user
+    if (idAppUser != null) {
       this.addWhereOrAnd();
       queryBuf.append(" req.idAppUser = ");
       queryBuf.append(idAppUser);
-    } 
-    //  Search by create date from 
-    if (createDateFrom != null){
+    }
+    // Search by create date from
+    if (createDateFrom != null) {
       this.addWhereOrAnd();
       queryBuf.append(" req.createDate >= '");
       queryBuf.append(this.formatDate(createDateFrom, this.DATE_OUTPUT_SQL));
       queryBuf.append("'");
-    } 
-    //  Search by create date to 
-    if (createDateTo != null){
-      createDateTo.setTime(createDateTo.getTime() + 24*60*60*1000);
+    }
+    // Search by create date to
+    if (createDateTo != null) {
+      createDateTo.setTime(createDateTo.getTime() + 24 * 60 * 60 * 1000);
       this.addWhereOrAnd();
       queryBuf.append(" req.createDate <= '");
       queryBuf.append(this.formatDate(createDateTo, this.DATE_OUTPUT_SQL));
       queryBuf.append("'");
-    } 
+    }
     // Search last week
     if (lastWeek.equals("Y")) {
 
@@ -247,51 +240,51 @@ public class RequestFilter extends DetailObject {
       queryBuf.append(" req.createDate >= '");
       queryBuf.append(this.formatDate(lastYear, this.DATE_OUTPUT_SQL));
       queryBuf.append("'");
-    }    
-    // Search by request status 
-    if (status != null && !status.equals("")){
+    }
+    // Search by request status
+    if (status != null && !status.equals("")) {
       this.addWhereOrAnd();
       queryBuf.append(" req.codeRequestStatus like '");
       queryBuf.append(status);
       queryBuf.append("%'");
-    } 
-    if (codeRequestCategory != null && !codeRequestCategory.equals("")){
+    }
+    if (codeRequestCategory != null && !codeRequestCategory.equals("")) {
       this.addWhereOrAnd();
       queryBuf.append(" req.codeRequestCategory = '");
       queryBuf.append(codeRequestCategory);
       queryBuf.append("'");
-    } 
-    if (idCoreFacility != null){
+    }
+    if (idCoreFacility != null) {
       this.addWhereOrAnd();
       queryBuf.append(" req.idCoreFacility = ");
       queryBuf.append(idCoreFacility);
-    } 
+    }
   }
 
   private void addWellCriteria() {
     // Search by redoFlag
-    if (hasRedo.equals("Y")){
+    if (hasRedo.equals("Y")) {
       this.addWhereOrAnd();
       queryBuf.append("(");
       queryBuf.append(" well.redoFlag = 'Y'");
       queryBuf.append(")");
-    }    
-  } 
+    }
+  }
 
   private void addReactionPlateCriteria() {
     this.addWhereOrAnd();
     queryBuf.append(" plate.codePlateType = '" + PlateType.REACTION_PLATE_TYPE + "' ");
-  }   
+  }
 
   private void addSourcePlateCriteria() {
     this.addWhereOrAnd();
     queryBuf.append(" plate.codePlateType = '" + PlateType.SOURCE_PLATE_TYPE + "' ");
 
   }
+
   private void addSecurityCriteria() {
     secAdvisor.buildSecurityCriteria(queryBuf, "req", "collab", addWhere, false, true);
   }
-
 
   protected boolean addWhereOrAnd() {
     if (addWhere) {
@@ -303,105 +296,83 @@ public class RequestFilter extends DetailObject {
     return addWhere;
   }
 
-
   public Integer getIdLab() {
     return idLab;
   }
-
 
   public Integer getIdUser() {
     return idAppUser;
   }
 
-
   public String getNumber() {
     return number;
   }
-
 
   public void setIdLab(Integer idLab) {
     this.idLab = idLab;
   }
 
-
   public void setIdUser(Integer idAppUser) {
     this.idAppUser = idAppUser;
   }
-
 
   public void setNumber(String number) {
     this.number = number;
   }
 
-
   public Date getCreateDateFrom() {
     return createDateFrom;
   }
-
-
 
   public void setCreateDateFrom(Date createDateFrom) {
     this.createDateFrom = createDateFrom;
   }
 
-
   public Date getCreateDateTo() {
     return createDateTo;
   }
-
 
   public void setCreateDateTo(Date createDateTo) {
     this.createDateTo = createDateTo;
   }
 
-
-
   public String getLastWeek() {
     return lastWeek;
   }
 
-
-  public void setLastWeek( String lastWeek ) {
+  public void setLastWeek(String lastWeek) {
     this.lastWeek = lastWeek;
   }
-
 
   public String getLastMonth() {
     return lastMonth;
   }
 
-
-  public void setLastMonth( String lastMonth ) {
+  public void setLastMonth(String lastMonth) {
     this.lastMonth = lastMonth;
   }
-
 
   public String getLastThreeMonths() {
     return lastThreeMonths;
   }
 
-
-  public void setLastThreeMonths( String lastThreeMonths ) {
+  public void setLastThreeMonths(String lastThreeMonths) {
     this.lastThreeMonths = lastThreeMonths;
   }
-
 
   public String getLastYear() {
     return lastYear;
   }
 
-
-  public void setLastYear( String lastYear ) {
+  public void setLastYear(String lastYear) {
     this.lastYear = lastYear;
   }
-
 
   public String getCodeRequestCategory() {
     return codeRequestCategory;
   }
 
-
-  public void setCodeRequestCategory( String codeRequestCategory ) {
+  public void setCodeRequestCategory(String codeRequestCategory) {
     this.codeRequestCategory = codeRequestCategory;
   }
 
@@ -409,8 +380,7 @@ public class RequestFilter extends DetailObject {
     return status;
   }
 
-
-  public void setStatus( String status ) {
+  public void setStatus(String status) {
     this.status = status;
   }
 
@@ -429,7 +399,5 @@ public class RequestFilter extends DetailObject {
   public void setIdCoreFacility(Integer id) {
     idCoreFacility = id;
   }
-
-
 
 }
