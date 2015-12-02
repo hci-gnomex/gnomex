@@ -22,36 +22,32 @@ import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.output.XMLOutputter;
 
-
 public class GetAppUserPublic extends GNomExCommand implements Serializable {
-  
- 
-  
+
   // the static field for logging in Log4J
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetAppUserPublic.class);
-  
-  
-  private AppUserPublic        appUser;
-  
+
+  private AppUserPublic                  appUser;
+
   public void validate() {
   }
-  
+
   public void loadCommand(HttpServletRequest request, HttpSession session) {
-    
+
     appUser = new AppUserPublic();
     HashMap errors = this.loadDetailObject(request, appUser);
     this.addInvalidFields(errors);
-    
+
     if (appUser.getIdAppUser() == null) {
       this.addInvalidField("idAppUser required", "idAppUser required");
     }
-    
+
     if (isValid()) {
       setResponsePage(this.SUCCESS_JSP);
     } else {
       setResponsePage(this.ERROR_JSP);
     }
-    
+
   }
 
   public Command execute() throws RollBackCommandException {
@@ -61,13 +57,13 @@ public class GetAppUserPublic extends GNomExCommand implements Serializable {
     try {
       sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
 
-      AppUserPublic theAppUser = (AppUserPublic)sess.get(AppUserPublic.class, appUser.getIdAppUser());
-      
+      AppUserPublic theAppUser = (AppUserPublic) sess.get(AppUserPublic.class, appUser.getIdAppUser());
+
       Document doc = new Document(theAppUser.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement());
 
       Statement stmt = null;
-      ResultSet rs = null;    
-      con = sess.connection();      
+      ResultSet rs = null;
+      con = sess.connection();
       stmt = con.createStatement();
 
       StringBuffer buf = new StringBuffer("select lm.idLab, l.lastName, l.firstName, 'Manager' as role, sendUploadAlert as doUploadAlert\n");
@@ -93,8 +89,8 @@ public class GetAppUserPublic extends GNomExCommand implements Serializable {
       Element notificationLabs = new Element("notificationLabs");
       while (rs.next()) {
         Element labNode = new Element("Lab");
-        labNode.setAttribute("idLab", ""+rs.getInt("idLab"));
-        
+        labNode.setAttribute("idLab", "" + rs.getInt("idLab"));
+
         String lastName = rs.getString("lastName");
         String firstName = rs.getString("firstName");
         String labName = lastName != null ? lastName : "";
@@ -104,35 +100,35 @@ public class GetAppUserPublic extends GNomExCommand implements Serializable {
           }
           labName += firstName;
         }
-        String doUploadAlert =  rs.getString("doUploadAlert");
+        String doUploadAlert = rs.getString("doUploadAlert");
         if (doUploadAlert == null || doUploadAlert.equals("")) {
           doUploadAlert = "N";
         }
-        
+
         labNode.setAttribute("labName", labName + " Lab");
         labNode.setAttribute("role", rs.getString("role"));
-        labNode.setAttribute("doUploadAlert", doUploadAlert );
-        notificationLabs.addContent(labNode);   
+        labNode.setAttribute("doUploadAlert", doUploadAlert);
+        notificationLabs.addContent(labNode);
       }
-      doc.getRootElement().addContent(notificationLabs); 
+      doc.getRootElement().addContent(notificationLabs);
       rs.close();
-      stmt.close();      
+      stmt.close();
 
       XMLOutputter out = new org.jdom.output.XMLOutputter();
       this.xmlResult = out.outputString(doc);
 
-      setResponsePage(this.SUCCESS_JSP);  
+      setResponsePage(this.SUCCESS_JSP);
 
-    } catch (NamingException e){
+    } catch (NamingException e) {
       log.error("An exception has occurred in GetAppUserPublic ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
 
-    }catch (SQLException e) {
+    } catch (SQLException e) {
       log.error("An exception has occurred in GetAppUserPublic ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
-    } catch (XMLReflectException e){
+    } catch (XMLReflectException e) {
       log.error("An exception has occurred in GetAppUserPublic ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
@@ -142,13 +138,13 @@ public class GetAppUserPublic extends GNomExCommand implements Serializable {
       throw new RollBackCommandException(e.getMessage());
     } finally {
       try {
-        if(sess != null) {
+        if (sess != null) {
           if (con != null) {
             con.close();
           }
-          this.getSecAdvisor().closeReadOnlyHibernateSession(); 
-        }         
-      } catch(Exception e) {
+          this.getSecAdvisor().closeReadOnlyHibernateSession();
+        }
+      } catch (Exception e) {
 
       }
     }

@@ -327,6 +327,13 @@
   </servlet>
   
   <servlet>
+    <servlet-name>ApproveLabMembership</servlet-name>
+    <servlet-class>
+      hci.gnomex.controller.ApproveLabMembership
+    </servlet-class>
+  </servlet>
+  
+  <servlet>
     <servlet-name>ConfirmEmail</servlet-name>
     <servlet-class>
       hci.gnomex.controller.ConfirmEmail
@@ -580,6 +587,11 @@
   <servlet-mapping>
     <servlet-name>ApproveUser</servlet-name>
     <url-pattern>/ApproveUser.gx</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>ApproveLabMembership</servlet-name>
+    <url-pattern>/ApproveLabMembership.gx</url-pattern>
   </servlet-mapping>
   
   <servlet-mapping>

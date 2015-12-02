@@ -51,6 +51,8 @@
 			[Bindable]
 			public var publicUser:Object;
 			
+			private var window:RequestLabMembershipWindow;
+			
 			
 			public function init():void {
 				getAppUserPublic.send();
@@ -175,7 +177,13 @@
 				} else if (this.radioExternalUser.selected){            		
 					currentState = "externalUserState";
 				}
-			}			
+			}
+			
+			private function showRequestLabMembershipWindow():void {  
+				window = RequestLabMembershipWindow(PopUpManager.createPopUp(this, RequestLabMembershipWindow, false));
+				window.currentLabList = this.notificationLabs;
+				PopUpManager.centerPopUp(window);
+			}	
 			
 			
         ]]>
@@ -230,20 +238,22 @@
 					
 				</mx:HBox>
 				<mx:VBox id="userTypeContainer" borderStyle="inset" borderColor="#C9D7E1" paddingBottom="4" paddingRight="4" paddingLeft="4" verticalGap="0">
-					<mx:HBox verticalGap="0" visible="true" id="radioUnivOrExternalBox">
-						<mx:RadioButtonGroup id="radioGroupUserAccount"/>
-						<mx:RadioButton label="University user" groupName="radiogroup1" click="{onUserAccountChange()}" value="UNID" id="radioUniversityUser"/>
-						<mx:RadioButton label="External user" groupName="radiogroup1" click="{onUserAccountChange()}" value="EXTERNAL" id="radioExternalUser">
-						</mx:RadioButton>
-						
-					</mx:HBox>	
-					<mx:HBox paddingLeft="0" id="hbox1">	  	      
-						<mx:VBox verticalGap="0" id="unidContainer" width="100">
-							<mx:Label text="uNID"  styleName="formLabel"/>
-							<mx:TextInput id="uNID" 
-										  width="100" change="setDirty()" text="{publicUser.@uNID}"/>
-						</mx:VBox>		  	    	
-					</mx:HBox>		  		
+
+						<mx:HBox verticalGap="0" visible="true" id="radioUnivOrExternalBox">
+							<mx:RadioButtonGroup id="radioGroupUserAccount"/>
+							<mx:RadioButton label="University user" groupName="radiogroup1" click="{onUserAccountChange()}" value="UNID" id="radioUniversityUser"/>
+							<mx:RadioButton label="External user" groupName="radiogroup1" click="{onUserAccountChange()}" value="EXTERNAL" id="radioExternalUser">
+							</mx:RadioButton>
+							
+						</mx:HBox>	
+						<mx:HBox paddingLeft="0" id="hbox1">	  	      
+							<mx:VBox verticalGap="0" id="unidContainer" width="100">
+								<mx:Label text="uNID"  styleName="formLabel"/>
+								<mx:TextInput id="uNID" 
+											  width="100" change="setDirty()" text="{publicUser.@uNID}"/>
+							</mx:VBox>		  	    	
+						</mx:HBox>
+						<mx:LinkButton label="Request membership to additional labs" color="#0000EE" textDecoration="underline" click="showRequestLabMembershipWindow()" />
 				</mx:VBox>
 			</mx:VBox>
 			
