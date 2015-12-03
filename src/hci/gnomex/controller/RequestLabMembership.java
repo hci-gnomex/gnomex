@@ -141,6 +141,7 @@ public class RequestLabMembership extends GNomExCommand implements Serializable 
       String closing = "If you have any questions concerning this application for a new account within your lab group, please contact ";
       closing += "GNomEx Support " + " (" + propertyHelper.getProperty(PropertyDictionary.GNOMEX_SUPPORT_EMAIL) + ").<br><br>";
       introForAdmin.append(closing);
+      introForAdmin.append("<small>(These links will expire in 3 days.)</small><br><br>");
     }
 
     MailUtilHelper helper = new MailUtilHelper(toAddress, ccAddress, null, fromAddress, subject, introForAdmin.toString(), null, true, dictionaryHelper, serverName);

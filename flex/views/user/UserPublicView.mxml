@@ -253,7 +253,6 @@
 											  width="100" change="setDirty()" text="{publicUser.@uNID}"/>
 							</mx:VBox>		  	    	
 						</mx:HBox>
-						<mx:LinkButton label="Request membership to additional labs" color="#0000EE" textDecoration="underline" click="showRequestLabMembershipWindow()" />
 				</mx:VBox>
 			</mx:VBox>
 			
@@ -274,6 +273,7 @@
 						</mx:columns>
 					</mx:DataGrid>
 				</mx:HBox>
+				<mx:LinkButton label="Request membership to additional labs" color="#0000EE" textDecoration="underline" click="showRequestLabMembershipWindow()" visible="{!parentApplication.isAdminState}" includeInLayout="{!parentApplication.isAdminState}" />
 			</mx:VBox>			
 			
 		</mx:VDividedBox>
