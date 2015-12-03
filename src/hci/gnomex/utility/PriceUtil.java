@@ -36,4 +36,28 @@ public class PriceUtil {
     }
   }
 
+
+  public static Boolean setPrice( String attributeValue, BigDecimal existingPrice, Price price, String whichPrice ) throws NumberFormatException {
+    Boolean modified = false;
+    // If attribute not specified then don't set the value
+    if( attributeValue != null && attributeValue.length() > 0 ) {
+
+      BigDecimal value = new BigDecimal( attributeValue );
+      if( existingPrice == null || ! existingPrice.equals( value ) ) {
+        setPrice( value, price, whichPrice );
+        modified = true;
+      }
+
+    } else {
+
+      BigDecimal value = new BigDecimal( 0 );
+      if( existingPrice == null || ! existingPrice.equals( value ) ) {
+        setPrice( value, price, whichPrice );
+        modified = true;
+      }
+    }
+
+    return modified;
+  }
+
 }

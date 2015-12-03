@@ -48,7 +48,7 @@ import hci.gnomex.utility.PriceUtil;
 import hci.gnomex.utility.PropertyDictionaryHelper;
 
 public class SaveExperimentPlatform extends GNomExCommand
-    implements Serializable {
+implements Serializable {
 
   // the static field for logging in Log4J
   private static org.apache.log4j.Logger log                  = org.apache.log4j.Logger.getLogger(
@@ -473,10 +473,10 @@ public class SaveExperimentPlatform extends GNomExCommand
         price.setIsActive( ipt.getIsActive() );
         price.setUnitPrice(
             node.getAttributeValue( "unitPriceInternal" ) != null
-                && ! node.getAttributeValue( "unitPriceInternal" ).equals( "" )
-                    ? new BigDecimal(
-                        node.getAttributeValue( "unitPriceInternal" ) )
-                    : BigDecimal.ZERO );
+            && ! node.getAttributeValue( "unitPriceInternal" ).equals( "" )
+            ? new BigDecimal(
+                node.getAttributeValue( "unitPriceInternal" ) )
+                : BigDecimal.ZERO );
         price.setUnitPriceExternalAcademic( node.getAttributeValue(
             "unitPriceExternalAcademic" ) != null
             && ! node.getAttributeValue( "unitPriceExternalAcademic" ).equals(
@@ -499,10 +499,10 @@ public class SaveExperimentPlatform extends GNomExCommand
       } else {
         price.setUnitPrice(
             node.getAttributeValue( "unitPriceInternal" ) != null
-                && ! node.getAttributeValue( "unitPriceInternal" ).equals( "" )
-                    ? new BigDecimal(
-                        node.getAttributeValue( "unitPriceInternal" ) )
-                    : BigDecimal.ZERO );
+            && ! node.getAttributeValue( "unitPriceInternal" ).equals( "" )
+            ? new BigDecimal(
+                node.getAttributeValue( "unitPriceInternal" ) )
+                : BigDecimal.ZERO );
         price.setUnitPriceExternalAcademic( node.getAttributeValue(
             "unitPriceExternalAcademic" ) != null
             && ! node.getAttributeValue( "unitPriceExternalAcademic" ).equals(
@@ -779,7 +779,7 @@ public class SaveExperimentPlatform extends GNomExCommand
       }
       app.setIdApplicationTheme(
           idApplicationTheme != null && ! idApplicationTheme.equals( "" )
-              ? Integer.valueOf( idApplicationTheme ) : null );
+          ? Integer.valueOf( idApplicationTheme ) : null );
       app.setCoreSteps( node.getAttributeValue( "coreSteps" ) );
       app.setCoreStepsNoLibPrep(
           node.getAttributeValue( "coreStepsNoLibPrep" ) );
@@ -787,7 +787,7 @@ public class SaveExperimentPlatform extends GNomExCommand
           ? Integer.valueOf( sortOrder ) : 0 );
       app.setSamplesPerBatch(
           samplesPerBatch != null && ! samplesPerBatch.equals( "" )
-              ? Integer.valueOf( samplesPerBatch ) : null );
+          ? Integer.valueOf( samplesPerBatch ) : null );
       app.setIdCoreFacility( rc.getIdCoreFacility() );
       sess.save( app );
 
@@ -812,37 +812,37 @@ public class SaveExperimentPlatform extends GNomExCommand
             x.setCodeRequestCategory( rc.getCodeRequestCategory() );
             x.setIdLabelingProtocolDefault( idLabelingProtocolDefault != null
                 && ! idLabelingProtocolDefault.equals( "" )
-                    ? Integer.valueOf( idLabelingProtocolDefault ) : null );
+                ? Integer.valueOf( idLabelingProtocolDefault ) : null );
             x.setIdHybProtocolDefault( idHybProtocolDefault != null
                 && ! idHybProtocolDefault.equals( "" )
-                    ? Integer.valueOf( idHybProtocolDefault ) : null );
+                ? Integer.valueOf( idHybProtocolDefault ) : null );
             x.setIdScanProtocolDefault( idScanProtocolDefault != null
                 && ! idScanProtocolDefault.equals( "" )
-                    ? Integer.valueOf( idScanProtocolDefault ) : null );
+                ? Integer.valueOf( idScanProtocolDefault ) : null );
             x.setIdFeatureExtractionProtocolDefault(
                 idFeatureExtractionProtocolDefault != null
-                    && ! idFeatureExtractionProtocolDefault.equals( "" )
-                        ? Integer.valueOf( idFeatureExtractionProtocolDefault )
-                        : null );
+                && ! idFeatureExtractionProtocolDefault.equals( "" )
+                ? Integer.valueOf( idFeatureExtractionProtocolDefault )
+                    : null );
             sess.save( x );
           } else {
             for( Iterator ix = existingAssociations.iterator(); ix.hasNext(); ) {
               RequestCategoryApplication x = ( RequestCategoryApplication ) ix.next();
               x.setIdLabelingProtocolDefault( idLabelingProtocolDefault != null
                   && ! idLabelingProtocolDefault.equals( "" )
-                      ? Integer.valueOf( idLabelingProtocolDefault ) : null );
+                  ? Integer.valueOf( idLabelingProtocolDefault ) : null );
               x.setIdHybProtocolDefault( idHybProtocolDefault != null
                   && ! idHybProtocolDefault.equals( "" )
-                      ? Integer.valueOf( idHybProtocolDefault ) : null );
+                  ? Integer.valueOf( idHybProtocolDefault ) : null );
               x.setIdScanProtocolDefault( idScanProtocolDefault != null
                   && ! idScanProtocolDefault.equals( "" )
-                      ? Integer.valueOf( idScanProtocolDefault ) : null );
+                  ? Integer.valueOf( idScanProtocolDefault ) : null );
               x.setIdFeatureExtractionProtocolDefault(
                   idFeatureExtractionProtocolDefault != null
-                      && ! idFeatureExtractionProtocolDefault.equals( "" )
-                          ? Integer.valueOf(
-                              idFeatureExtractionProtocolDefault )
-                          : null );
+                  && ! idFeatureExtractionProtocolDefault.equals( "" )
+                  ? Integer.valueOf(
+                      idFeatureExtractionProtocolDefault )
+                      : null );
               sess.save( x );
             }
           }
@@ -1039,7 +1039,7 @@ public class SaveExperimentPlatform extends GNomExCommand
       Boolean delete = true;
       if( idA != null && obsa.getIdOligoBarcodeScheme().equals( idA )
           && ( obsa.getIsIndexGroupB() == null
-              || ! obsa.getIsIndexGroupB().equals( "Y" ) ) ) {
+          || ! obsa.getIsIndexGroupB().equals( "Y" ) ) ) {
         aFound = true;
         delete = false;
       }
@@ -1162,7 +1162,7 @@ public class SaveExperimentPlatform extends GNomExCommand
         chipNode.getAttributeValue( "protocolDescription" ) );
     chip.setSortOrder(
         ! chipNode.getAttributeValue( "sortOrder" ).trim().equals( "" )
-            ? new Integer( chipNode.getAttributeValue( "sortOrder" ) ) : null );
+        ? new Integer( chipNode.getAttributeValue( "sortOrder" ) ) : null );
     if( chipNode.getAttributeValue( "sampleWellsPerChip" ) != null ) {
       try {
         Integer wells = Integer.parseInt(
@@ -1342,7 +1342,7 @@ public class SaveExperimentPlatform extends GNomExCommand
         log.error(
             "SaveExperimentPlatform: Invalid default illumina lib prep price category name -- "
                 + catName,
-            e );
+                e );
         return null;
       }
     }
@@ -1383,7 +1383,7 @@ public class SaveExperimentPlatform extends GNomExCommand
         log.error(
             "SaveExperimentPlatform: Invalid default sequenom price category name -- "
                 + catName,
-            e );
+                e );
         return null;
       }
     }
@@ -1432,10 +1432,8 @@ public class SaveExperimentPlatform extends GNomExCommand
     price.setIdPriceCategory( defaultCategoryId );
     price.setIsActive( app.getIsActive() );
     setPrice( internal, price.getUnitPrice(), price, PriceUtil.PRICE_INTERNAL );
-    setPrice( academic, price.getUnitPriceExternalAcademic(), price,
-        PriceUtil.PRICE_EXTERNAL_ACADEMIC );
-    setPrice( commercial, price.getUnitPriceExternalCommercial(), price,
-        PriceUtil.PRICE_EXTERNAL_COMMERCIAL );
+    setPrice( academic, price.getUnitPriceExternalAcademic(), price, PriceUtil.PRICE_EXTERNAL_ACADEMIC );
+    setPrice( commercial, price.getUnitPriceExternalCommercial(), price, PriceUtil.PRICE_EXTERNAL_COMMERCIAL );
 
     sess.save( price );
     sess.flush();
@@ -1478,8 +1476,7 @@ public class SaveExperimentPlatform extends GNomExCommand
     price.setDescription( "" );
     price.setIdPriceCategory( defaultCategoryId );
     price.setIsActive( app.getIsActive() );
-    setPrice( node.getAttributeValue( "unitPriceInternal" ),
-        price.getUnitPrice(), price, PriceUtil.PRICE_INTERNAL );
+    setPrice( node.getAttributeValue( "unitPriceInternal" ), price.getUnitPrice(), price, PriceUtil.PRICE_INTERNAL );
     setPrice( node.getAttributeValue( "unitPriceExternalAcademic" ),
         price.getUnitPriceExternalAcademic(), price,
         PriceUtil.PRICE_EXTERNAL_ACADEMIC );
@@ -1520,30 +1517,14 @@ public class SaveExperimentPlatform extends GNomExCommand
   }
 
 
-  private Boolean setPrice( String attributeValue, BigDecimal existingPrice,
-      Price price, String whichPrice ) {
+  private Boolean setPrice( String attributeValue, BigDecimal existingPrice, Price price, String whichPrice ) {
+
     Boolean modified = false;
-    // If attribute not specified then don't set the value
-    if( attributeValue != null && attributeValue.length() > 0 ) {
-      try {
-        BigDecimal value = new BigDecimal( attributeValue );
-        if( existingPrice == null || ! existingPrice.equals( value ) ) {
-          PriceUtil.setPrice( value, price, whichPrice );
-          modified = true;
-        }
-      } catch( NumberFormatException e ) {
-        log.error( "Unable to parse internal price: " + attributeValue, e );
-      }
-    } else {
-      try {
-        BigDecimal value = new BigDecimal( 0 );
-        if( existingPrice == null || ! existingPrice.equals( value ) ) {
-          PriceUtil.setPrice( value, price, whichPrice );
-          modified = true;
-        }
-      } catch( NumberFormatException e ) {
-        log.error( "Unable to parse internal price: " + attributeValue, e );
-      }
+
+    try {
+      modified = PriceUtil.setPrice( attributeValue, price.getUnitPrice(), price, whichPrice );
+    } catch( NumberFormatException e ) {
+      log.error( "Unable to parse price: " + attributeValue, e );
     }
 
     return modified;
@@ -1573,7 +1554,7 @@ public class SaveExperimentPlatform extends GNomExCommand
       log.error(
           "SaveExperimentPlatform: Unable to determine price category for request category "
               + rc.getCodeRequestCategory(),
-          e );
+              e );
       return null;
     }
 
@@ -1614,13 +1595,10 @@ public class SaveExperimentPlatform extends GNomExCommand
     price.setDescription( "" );
     price.setIdPriceCategory( defaultCategoryId );
     price.setIsActive( app.getIsActive() );
-    setPrice( node.getAttributeValue( "unitPriceInternal" ),
-        price.getUnitPrice(), price, PriceUtil.PRICE_INTERNAL );
-    setPrice( node.getAttributeValue( "unitPriceExternalAcademic" ),
-        price.getUnitPriceExternalAcademic(), price,
+    setPrice( node.getAttributeValue( "unitPriceInternal" ), price.getUnitPrice(), price, PriceUtil.PRICE_INTERNAL );
+    setPrice( node.getAttributeValue( "unitPriceExternalAcademic" ), price.getUnitPriceExternalAcademic(), price,
         PriceUtil.PRICE_EXTERNAL_ACADEMIC );
-    setPrice( node.getAttributeValue( "unitPriceExternalCommercial" ),
-        price.getUnitPriceExternalCommercial(), price,
+    setPrice( node.getAttributeValue( "unitPriceExternalCommercial" ), price.getUnitPriceExternalCommercial(), price,
         PriceUtil.PRICE_EXTERNAL_COMMERCIAL );
     sess.save( price );
     sess.flush();
@@ -1839,7 +1817,7 @@ public class SaveExperimentPlatform extends GNomExCommand
         log.error(
             "SaveExperimentPlatform: Invalid default illumina seq option price category name -- "
                 + catName,
-            e );
+                e );
         id = null;
       }
     }
@@ -1880,7 +1858,7 @@ public class SaveExperimentPlatform extends GNomExCommand
         log.error(
             "SaveExperimentPlatform: Invalid default isolation prep type price category name -- "
                 + catName,
-            e );
+                e );
         id = null;
       }
     }

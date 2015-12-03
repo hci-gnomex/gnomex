@@ -108,7 +108,7 @@ public Command execute() throws RollBackCommandException {
           
           priceCategory = (PriceCategory)sess.load(PriceCategory.class, priceCategoryScreen.getIdPriceCategory());
           
-          initializePrice(priceCategory);
+          initializePriceCategory(priceCategory);
         }
 
         sess.flush();
@@ -223,7 +223,7 @@ public Command execute() throws RollBackCommandException {
 	  return pc;
   }
   
-  private void initializePrice(PriceCategory priceCategory) {
+  private void initializePriceCategory(PriceCategory priceCategory) {
     priceCategory.setName(priceCategoryScreen.getName());
     priceCategory.setDescription(priceCategoryScreen.getDescription());
     priceCategory.setIsActive(priceCategoryScreen.getIsActive());
