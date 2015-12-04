@@ -1,15 +1,9 @@
 package hci.gnomex.controller;
 
 
-import hci.framework.control.Command;
-import hci.framework.control.RollBackCommandException;
-import hci.framework.model.DetailObject;
-import hci.framework.security.UnknownPermissionException;
-import hci.framework.utilities.XMLReflectException;
-import hci.gnomex.model.Property;
-
 import java.io.Serializable;
 import java.sql.SQLException;
+import java.util.Iterator;
 
 import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
@@ -19,6 +13,16 @@ import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.output.XMLOutputter;
+
+import hci.framework.control.Command;
+import hci.framework.control.RollBackCommandException;
+import hci.framework.model.DetailObject;
+import hci.framework.security.UnknownPermissionException;
+import hci.framework.utilities.XMLReflectException;
+import hci.gnomex.model.Price;
+import hci.gnomex.model.PriceCategory;
+import hci.gnomex.model.Property;
+import hci.gnomex.model.PropertyOption;
 
 
 public class GetProperty extends GNomExCommand implements Serializable {
@@ -40,20 +44,59 @@ public class GetProperty extends GNomExCommand implements Serializable {
   public Command execute() throws RollBackCommandException {
     try {
 
-        Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
-        Property property = null;
+      Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
+      Property property = null;
 
-        property = (Property)sess.get(Property.class, idProperty);
-        
-        Document doc = new Document(new Element("PropertyList"));
+      property = (Property)sess.get(Property.class, idProperty);
 
-        Element node = property.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
-        doc.getRootElement().addContent(node);
+      Document doc = new Document(new Element("PropertyList"));
 
-        XMLOutputter out = new org.jdom.output.XMLOutputter();
-        this.xmlResult = out.outputString(doc);
+      property.excludeMethodFromXML("getOptions");
 
-      
+      Element node = property.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
+
+      // Add prices
+      if ( property.getIdPriceCategory() != null ) {
+        node.setAttribute( "includePricing", "Y" );
+        PriceCategory pc = ( PriceCategory ) sess.load( PriceCategory.class, property.getIdPriceCategory() );
+        Price price = SaveProperty.getPriceForCheckProperty( property, pc );
+        if ( price != null ) {
+          node.setAttribute( "unitPriceInternal", price.getUnitPrice().toString());
+          node.setAttribute( "unitPriceExternalAcademic", price.getUnitPriceExternalAcademic().toString());
+          node.setAttribute( "unitPriceExternalCommercial", price.getUnitPriceExternalCommercial().toString());
+        }
+      }
+
+      // Add options
+      Element optionsNode = new Element("options");
+
+      if (property.getOptions() != null) {
+        for(Iterator i = property.getOptions().iterator(); i.hasNext();) {
+          PropertyOption po = (PropertyOption) i.next();
+          Element optionNode = po.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
+
+          if ( property.getIdPriceCategory() != null ) {
+            PriceCategory pc = ( PriceCategory ) sess.load( PriceCategory.class, property.getIdPriceCategory() );
+            Price price = SaveProperty.getPriceForPropertyOption( po, pc );
+            if ( price != null ) {
+              optionNode.setAttribute( "unitPriceInternal", price.getUnitPrice().toString());
+              optionNode.setAttribute( "unitPriceExternalAcademic", price.getUnitPriceExternalAcademic().toString());
+              optionNode.setAttribute( "unitPriceExternalCommercial", price.getUnitPriceExternalCommercial().toString());
+            }
+          }
+
+          optionsNode.addContent( optionNode );
+        }
+      }
+
+      node.addContent( optionsNode );
+
+      doc.getRootElement().addContent(node);
+
+      XMLOutputter out = new org.jdom.output.XMLOutputter();
+      this.xmlResult = out.outputString(doc);
+
+
 
     }catch (UnknownPermissionException e){
       log.error("An exception has occurred in GetProperty ", e);
@@ -77,10 +120,10 @@ public class GetProperty extends GNomExCommand implements Serializable {
       throw new RollBackCommandException(e.getMessage());
     } finally {
       try {
-        this.getSecAdvisor().closeReadOnlyHibernateSession();        
+        this.getSecAdvisor().closeReadOnlyHibernateSession();
       } catch(Exception e) {
       }
-    } 
+    }
     return this;
   }
 
