@@ -1,33 +1,6 @@
 package hci.gnomex.controller;
 
-import hci.dictionary.model.NullDictionaryEntry;
-import hci.dictionary.utility.DictionaryManager;
-import hci.framework.control.Command;
-import hci.framework.control.RollBackCommandException;
-import hci.framework.model.DetailObject;
-import hci.framework.utilities.XMLReflectException;
-import hci.gnomex.model.Application;
-import hci.gnomex.model.ApplicationTheme;
-import hci.gnomex.model.ApplicationType;
-import hci.gnomex.model.BioanalyzerChipType;
-import hci.gnomex.model.CoreFacility;
-import hci.gnomex.model.IsolationPrepType;
-import hci.gnomex.model.NumberSequencingCyclesAllowed;
-import hci.gnomex.model.Price;
-import hci.gnomex.model.PriceCriteria;
-import hci.gnomex.model.PropertyDictionary;
-import hci.gnomex.model.RequestCategory;
-import hci.gnomex.model.RequestCategoryApplication;
-import hci.gnomex.model.RequestCategoryType;
-import hci.gnomex.model.SampleType;
-import hci.gnomex.model.SampleTypeRequestCategory;
-import hci.gnomex.model.SeqLibProtocolApplication;
-import hci.gnomex.security.SecurityAdvisor;
-import hci.gnomex.utility.DictionaryHelper;
-import hci.gnomex.utility.PropertyDictionaryHelper;
-
 import java.io.Serializable;
-import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -47,9 +20,35 @@ import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
 
+import hci.dictionary.model.NullDictionaryEntry;
+import hci.dictionary.utility.DictionaryManager;
+import hci.framework.control.Command;
+import hci.framework.control.RollBackCommandException;
+import hci.framework.model.DetailObject;
+import hci.framework.utilities.XMLReflectException;
+import hci.gnomex.model.Application;
+import hci.gnomex.model.ApplicationTheme;
+import hci.gnomex.model.BioanalyzerChipType;
+import hci.gnomex.model.CoreFacility;
+import hci.gnomex.model.IsolationPrepType;
+import hci.gnomex.model.NumberSequencingCyclesAllowed;
+import hci.gnomex.model.Price;
+import hci.gnomex.model.PriceCriteria;
+import hci.gnomex.model.PropertyDictionary;
+import hci.gnomex.model.RequestCategory;
+import hci.gnomex.model.RequestCategoryApplication;
+import hci.gnomex.model.RequestCategoryType;
+import hci.gnomex.model.SampleType;
+import hci.gnomex.model.SampleTypeRequestCategory;
+import hci.gnomex.model.SeqLibProtocolApplication;
+import hci.gnomex.security.SecurityAdvisor;
+import hci.gnomex.utility.DictionaryHelper;
+import hci.gnomex.utility.PriceUtil;
+import hci.gnomex.utility.PropertyDictionaryHelper;
+
 
 public class GetExperimentPlatformList extends GNomExCommand implements Serializable {
-  
+
   // the static field for logging in Log4J
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetExperimentPlatformList.class);
 
@@ -64,18 +63,18 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
   private HashMap<String, List<NumberSequencingCyclesAllowed>> numberSeqCyclesAllowedMap = new HashMap<String, List<NumberSequencingCyclesAllowed>>();
   private HashMap<Integer, ApplicationTheme> applicationThemeMap = new HashMap<Integer, ApplicationTheme>();
   private Map<String, List<Element>> applicationToRequestCategoryMap = new HashMap<String, List<Element>>();
-  
+
   private final static String PRICE_INTERNAL            = "internal";
   private final static String PRICE_EXTERNAL_ACADEMIC   = "academic";
   private final static String PRICE_EXTERNAL_COMMERCIAL = "commercial";
-      
-  
+
+
   public void validate() {
   }
-  
+
   public void loadCommand(HttpServletRequest request, HttpSession session) {
 
-    
+
     if (isValid()) {
       setResponsePage(this.SUCCESS_JSP);
     } else {
@@ -93,7 +92,7 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
 
       DictionaryHelper dh = DictionaryHelper.getInstance(sess);
       hashSupportingDictionaries(sess, dh);
-      
+
       Document doc = new Document(new Element("ExperimentPlatformList"));
 
       List platforms = sess.createQuery("SELECT rc from RequestCategory rc order by rc.requestCategory").list();
@@ -104,7 +103,7 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
       Map<String, Price> seqOptionsToPriceMap = getSeqOptionsToPriceMap(sess);
       Map<String, String> requestCategoryToPriceSheetMap = getRequestCategoryToPriceSheetMap(sess);
       Map<String, Price> qcApplicationPriceMap = getQCApplicationPriceMap(sess);
-      Map<String, Price> qcChipTypePriceMap = getQCChipTypePriceMap(sess); 
+      Map<String, Price> qcChipTypePriceMap = getQCChipTypePriceMap(sess);
       Map<String, List<BioanalyzerChipType>> qcApplicationToChipTypeMap = getQCApplicationToChipTypeMap(sess);
       for(Iterator i = platforms.iterator(); i.hasNext();) {
         RequestCategory rc = (RequestCategory)i.next();
@@ -112,7 +111,7 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
         Element node = rc.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
         node.setAttribute("canEnterPrices", requestCategoryToPriceSheetMap.containsKey(rc.getCodeRequestCategory()) ? "Y" : "N");
         doc.getRootElement().addContent(node);
-        
+
         Element listNode = new Element("sampleTypes");
         node.addContent(listNode);
         for(Iterator i1 = sampleTypes.iterator(); i1.hasNext();) {
@@ -128,12 +127,12 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
             sampleTypeNode.setAttribute("isSelected", isAssociated(rc, st) ? "Y" : "N");
           }
         }
-        
-        
+
+
         listNode = new Element("applications");
         node.addContent(listNode);
         RequestCategoryType rct = dh.getRequestCategoryType(rc.getType());
-        Element parentNode = listNode; 
+        Element parentNode = listNode;
         String prevTheme = "UnInitialized";
         Integer prevThemeId = -1;
         DictionaryManager dm;
@@ -167,7 +166,7 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
           applicationNode.setAttribute("applicationThemeSortOrder", (theme == null || theme.getSortOrder() == null) ? "-1" : theme.getSortOrder().toString());
           applicationNode.setAttribute("isSelected", isAssociated(rc, a) ? "Y" : "N");
           applicationNode.setAttribute("idSeqLibProtocols", getIdSeqLibProtocols(a));
-          RequestCategoryApplication x = (RequestCategoryApplication)getRequestCategoryApplication(rc, a);
+          RequestCategoryApplication x = getRequestCategoryApplication(rc, a);
           applicationNode.setAttribute("idLabelingProtocolDefault", x != null && x.getIdLabelingProtocolDefault() != null ? x.getIdLabelingProtocolDefault().toString() : "");
           applicationNode.setAttribute("idHybProtocolDefault", x != null && x.getIdHybProtocolDefault() != null ? x.getIdHybProtocolDefault().toString() : "");
           applicationNode.setAttribute("idScanProtocolDefault", x != null && x.getIdScanProtocolDefault() != null ? x.getIdScanProtocolDefault().toString() : "");
@@ -185,7 +184,7 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
             applicationNode.setAttribute("unitPriceExternalCommercial", getUnitPrice(qcApplicationPriceMap, a, rc, PRICE_EXTERNAL_COMMERCIAL));
             applicationNode.setAttribute("hasChipTypes", a.getHasChipTypes() == null ? "" : a.getHasChipTypes());
           }
-          
+
           List<Element> rcAppList = this.applicationToRequestCategoryMap.get(a.getCodeApplication());
           if (rcAppList != null) {
             for(Element rcAppNode : rcAppList) {
@@ -208,8 +207,8 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
               chipTypeNode.setAttribute("unitPriceExternalAcademic", getUnitPrice(qcChipTypePriceMap, a, bct, rc, PRICE_EXTERNAL_ACADEMIC));
               chipTypeNode.setAttribute("unitPriceExternalCommercial", getUnitPrice(qcChipTypePriceMap, a, bct, rc, PRICE_EXTERNAL_COMMERCIAL));
               chipTypeNode.setAttribute("unitPriceDisplay", chipTypeNode.getAttributeValue("unitPriceInternal") + "/"
-                                                            + chipTypeNode.getAttributeValue("unitPriceExternalAcademic") + "/"
-                                                            + chipTypeNode.getAttributeValue("unitPriceExternalCommercial"));
+                  + chipTypeNode.getAttributeValue("unitPriceExternalAcademic") + "/"
+                  + chipTypeNode.getAttributeValue("unitPriceExternalCommercial"));
               chipTypes.addContent(chipTypeNode);
             }
           }
@@ -223,7 +222,7 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
             listNode.addContent(themeNode);
           }
         }
-        
+
         if (parentNode != listNode) {
           parentNode.setAttribute("isSelected", foundSelected ? "Y" : "N");
         }
@@ -241,7 +240,7 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
             listNode.addContent(cycleNode);
           }
         }
-        
+
         listNode = new Element("prepTypes");
         node.addContent(listNode);
         List<IsolationPrepType> prepList = this.prepTypeMap.get(rc.getCodeRequestCategory());
@@ -250,12 +249,12 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
             this.getSecAdvisor().flagPermissions(ipt);
             Price p = IsolationPrepType.getIsolationPrepTypePrice(sess, ipt);
             Element iptNode = ipt.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
-            iptNode.setAttribute("unitPriceInternal", getUnitPrice(p, this.PRICE_INTERNAL));
-            iptNode.setAttribute("unitPriceExternalAcademic", getUnitPrice(p, this.PRICE_EXTERNAL_ACADEMIC));
-            iptNode.setAttribute("unitPriceExternalCommercial", getUnitPrice(p, this.PRICE_EXTERNAL_COMMERCIAL));
+            iptNode.setAttribute("unitPriceInternal", PriceUtil.getUnitPrice(p, this.PRICE_INTERNAL));
+            iptNode.setAttribute("unitPriceExternalAcademic", PriceUtil.getUnitPrice(p, this.PRICE_EXTERNAL_ACADEMIC));
+            iptNode.setAttribute("unitPriceExternalCommercial", PriceUtil.getUnitPrice(p, this.PRICE_EXTERNAL_COMMERCIAL));
             listNode.addContent(iptNode);
           }
-        }  
+        }
       }
 
       org.jdom.output.XMLOutputter out = new org.jdom.output.XMLOutputter();
@@ -266,7 +265,7 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
       log.error("An exception has occurred in GetExperimentPlatformList ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
-        
+
     }catch (SQLException e) {
       log.error("An exception has occurred in GetExperimentPlatformList ", e);
       e.printStackTrace();
@@ -281,9 +280,9 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
       throw new RollBackCommandException(e.getMessage());
     } finally {
       try {
-        this.getSecAdvisor().closeReadOnlyHibernateSession();        
+        this.getSecAdvisor().closeReadOnlyHibernateSession();
       } catch(Exception e) {
-        
+
       }
     }
 
@@ -292,15 +291,15 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
     } else {
       setResponsePage(this.ERROR_JSP);
     }
-    
+
     return this;
   }
-  
+
   private boolean isAssociated(RequestCategory rc, SampleType st) {
     Map idMap = sampleTypeMap.get(rc.getCodeRequestCategory());
     return idMap != null && idMap.containsKey(st.getIdSampleType());
   }
-  
+
   private boolean isAssociated(RequestCategory rc, Application a) {
     if (a.getIsActive() == null || !a.getIsActive().equals("Y")) {
       return false;
@@ -309,7 +308,7 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
       return idMap != null && idMap.containsKey(a.getCodeApplication());
     }
   }
-  
+
   private RequestCategoryApplication getRequestCategoryApplication(RequestCategory rc, Application a) {
     Map<String, RequestCategoryApplication> idMap = applicationMap.get(rc.getCodeRequestCategory());
     if (idMap != null && idMap.containsKey(a.getCodeApplication())) {
@@ -318,7 +317,7 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
       return null;
     }
   }
-  
+
   private String getIdSeqLibProtocols(Application app) {
     String buf = "";
     Map idMap = applicationXSeqLibProtocolMap.get(app.getCodeApplication());
@@ -333,7 +332,7 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
     }
     return buf;
   }
-  
+
   private String getIdBarcodeScheme(Map<String, Integer> map, Application a, String type) {
     String idBarcodeScheme = "";
     Map idMap = applicationXSeqLibProtocolMap.get(a.getCodeApplication());
@@ -349,91 +348,74 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
     }
     return idBarcodeScheme;
   }
-  
+
   private String getUnitPrice(Map<String, Price> applicationToLibPrepPriceMap, Application a, RequestCategory rc, String priceType) {
     String priceAsString = "";
     String key = rc.getCodeRequestCategory() + "\t" + a.getCodeApplication();
-    return getUnitPrice(applicationToLibPrepPriceMap.get(key), priceType);
+    return PriceUtil.getUnitPrice(applicationToLibPrepPriceMap.get(key), priceType);
   }
-  
+
   private String getUnitPrice(Map<String, Price> seqOptionsToPriceMap, NumberSequencingCyclesAllowed n, RequestCategory rc, String priceType) {
     String key = rc.getCodeRequestCategory() + "\t" + n.getIdNumberSequencingCyclesAllowed().toString();
-    return getUnitPrice(seqOptionsToPriceMap.get(key), priceType);
+    return PriceUtil.getUnitPrice(seqOptionsToPriceMap.get(key), priceType);
   }
 
   private String getUnitPrice(Map<String, Price> priceMap, Application a, BioanalyzerChipType bct, RequestCategory rc, String priceType) {
     String priceAsString = "";
     String key = rc.getCodeRequestCategory() + "\t" + a.getCodeApplication() + "\t" + bct.getCodeBioanalyzerChipType();
-    return getUnitPrice(priceMap.get(key), priceType);
+    return PriceUtil.getUnitPrice(priceMap.get(key), priceType);
   }
 
-  private String getUnitPrice(Price p, String priceType) {
-    String priceAsString = "";
-    if (p == null) {
-      priceAsString = "";
-    } else {
-      if (priceType.equals(this.PRICE_INTERNAL)) {
-        priceAsString = p.getUnitPrice().toString();
-      } else if (priceType.equals(this.PRICE_EXTERNAL_ACADEMIC)) {
-        priceAsString = p.getUnitPriceExternalAcademic().toString();
-      } else if (priceType.equals(this.PRICE_EXTERNAL_COMMERCIAL)) {
-        priceAsString = p.getUnitPriceExternalCommercial().toString();
-      } else {
-        priceAsString = "";
-      }
-    }
-    
-    return priceAsString;
-  }
-  
+
+
   private void hashSupportingDictionaries(Session sess, DictionaryHelper dh) throws Exception {
     sampleTypes = sess.createQuery("SELECT st from SampleType st where isActive is null OR isActive = 'Y' order by st.sampleType").list();
     List sampleTypeXrefs = sess.createQuery("SELECT x from SampleTypeRequestCategory x").list();
     for(Iterator i = sampleTypeXrefs.iterator(); i.hasNext();) {
       SampleTypeRequestCategory x = (SampleTypeRequestCategory)i.next();
-      Map idMap = (Map)sampleTypeMap.get(x.getCodeRequestCategory());
+      Map idMap = sampleTypeMap.get(x.getCodeRequestCategory());
       if (idMap == null) {
         idMap = new HashMap();
       }
       idMap.put(x.getIdSampleType(), null);
       sampleTypeMap.put(x.getCodeRequestCategory(), idMap);
     }
-    
+
     applications = sess.createQuery("SELECT a from Application a order by a.application").list();
     List applicationXrefs = sess.createQuery("SELECT x from RequestCategoryApplication x").list();
     for(Iterator i = applicationXrefs.iterator(); i.hasNext();) {
       RequestCategoryApplication x = (RequestCategoryApplication)i.next();
-      Map idMap = (Map)applicationMap.get(x.getCodeRequestCategory());
+      Map idMap = applicationMap.get(x.getCodeRequestCategory());
       if (idMap == null) {
         idMap = new HashMap();
       }
       idMap.put(x.getCodeApplication(), x);
       applicationMap.put(x.getCodeRequestCategory(), idMap);
     }
-    
+
     prepTypes = sess.createQuery("SELECT i from IsolationPrepType i").list();
     for(Iterator i = prepTypes.iterator(); i.hasNext();) {
       IsolationPrepType x = (IsolationPrepType)i.next();
-      List prepList = (List)prepTypeMap.get(x.getCodeRequestCategory());
+      List prepList = prepTypeMap.get(x.getCodeRequestCategory());
       if (prepList == null) {
         prepList = new ArrayList<NumberSequencingCyclesAllowed>();
       }
       prepList.add(x);
       prepTypeMap.put(x.getCodeRequestCategory(), prepList);
     }
-    
+
     List applicationXSeqLibProtocols = sess.createQuery("SELECT x from SeqLibProtocolApplication x").list();
     for(Iterator i = applicationXSeqLibProtocols.iterator(); i.hasNext();) {
       SeqLibProtocolApplication x = (SeqLibProtocolApplication)i.next();
-      Map idMap = (Map)applicationXSeqLibProtocolMap.get(x.getCodeApplication());
+      Map idMap = applicationXSeqLibProtocolMap.get(x.getCodeApplication());
       if (idMap == null) {
         idMap = new HashMap();
       }
       idMap.put(x.getIdSeqLibProtocol(), null);
       applicationXSeqLibProtocolMap.put(x.getCodeApplication(), idMap);
     }
-    
-    
+
+
     List numberSeqCyclesAllowed = sess.createQuery("SELECT x from NumberSequencingCyclesAllowed x join x.numberSequencingCycles c order by c.numberSequencingCycles").list();
     for(Iterator i = numberSeqCyclesAllowed.iterator(); i.hasNext();) {
       NumberSequencingCyclesAllowed x = (NumberSequencingCyclesAllowed)i.next();
@@ -444,7 +426,7 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
       allowedList.add(x);
       numberSeqCyclesAllowedMap.put(x.getCodeRequestCategory(), allowedList);
     }
-    
+
     Set themes = DictionaryManager.getDictionaryEntries("hci.gnomex.model.ApplicationTheme");
     for(Iterator i = themes.iterator(); i.hasNext();) {
       Object obj = i.next();
@@ -455,33 +437,33 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
       applicationThemeMap.put(theme.getIdApplicationTheme(), theme);
     }
   }
-  
+
   private List<Application> getApplications(RequestCategory rc, RequestCategoryType rct) {
     ArrayList<Application> apps = new ArrayList<Application>();
-    Map<Integer, Integer> selectedThemes = new HashMap<Integer, Integer>(); 
+    Map<Integer, Integer> selectedThemes = new HashMap<Integer, Integer>();
     for(Iterator i1 = applications.iterator(); i1.hasNext();) {
       Application a = (Application)i1.next();
       // Skip applications not of right application type for this request category.
       if (!a.isApplicableApplication(rct, rc.getIdCoreFacility())) {
         continue;
       }
-      
+
       if (isAssociated(rc, a)) {
         selectedThemes.put(a.getIdApplicationTheme(), a.getIdApplicationTheme());
       }
-      
+
       apps.add(a);
     }
-    
+
     if (rct.getIsIllumina() != null && rct.getIsIllumina().equals("Y")) {
       Collections.sort(apps, new illuminaAppComparator(selectedThemes, applicationMap.get(rc.getCodeRequestCategory())));
     } else {
       Collections.sort(apps, new appComparator(applicationMap.get(rc.getCodeRequestCategory())));
     }
-    
+
     return apps;
   }
-  
+
   private List<ApplicationTheme> getEmptyApplicationThemes(Session sess) {
     String queryString = "select distinct idApplicationTheme from Application where idApplicationTheme is not null";
     Query query = sess.createQuery(queryString);
@@ -489,16 +471,16 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
     queryString = "select t from ApplicationTheme t where t.idApplicationTheme not in (:ids)";
     query = sess.createQuery(queryString);
     query.setParameterList("ids", ids);
-    List<ApplicationTheme> l = (List<ApplicationTheme>)query.list();
+    List<ApplicationTheme> l = query.list();
     return l;
   }
-  
+
   private Map<String, List<Element>> getApplicationRequestCategoryMap(Session sess, DictionaryHelper dh) throws XMLReflectException {
     Map<String, List<Element>> arcMap = new HashMap<String, List<Element>>();
     String appQueryString = "from Application";
     Query appQuery = sess.createQuery(appQueryString);
     List apps = appQuery.list();
-    
+
     Map<String, String> selectedCategories = new HashMap<String, String>();
     String rcaQueryString = "from RequestCategoryApplication";
     Query rcaQuery = sess.createQuery(rcaQueryString);
@@ -507,7 +489,7 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
       String key = rca.getCodeApplication() + "\t" + rca.getCodeRequestCategory();
       selectedCategories.put(key, key);
     }
-    
+
     String rcQueryString = "from RequestCategory rc";
     if (!this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
       rcQueryString += " where idCoreFacility in (:ids)";
@@ -538,18 +520,18 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
         }
       }
     }
-    
+
     return arcMap;
   }
-  
+
   private Map<String, Integer> getSeqLibProtocolBarCodeSchemeMap(Session sess) {
     String queryString = "select slp.idSeqLibProtocol, obsa.isIndexGroupB, MIN(obs.idOligoBarcodeScheme)"
-                         + "  from OligoBarcodeSchemeAllowed obsa"
-                         + "  join obsa.seqLibProtocol slp"
-                         + "  join obsa.oligoBarcodeScheme obs"
-                         + "  where case when slp.isActive is null then 'Y' else slp.isActive end = 'Y' "
-                         + "        and case when obs.isActive is null then 'Y' else obs.isActive end = 'Y' "
-                         + "  group by slp.idSeqLibProtocol, obsa.isIndexGroupB";
+        + "  from OligoBarcodeSchemeAllowed obsa"
+        + "  join obsa.seqLibProtocol slp"
+        + "  join obsa.oligoBarcodeScheme obs"
+        + "  where case when slp.isActive is null then 'Y' else slp.isActive end = 'Y' "
+        + "        and case when obs.isActive is null then 'Y' else obs.isActive end = 'Y' "
+        + "  group by slp.idSeqLibProtocol, obsa.isIndexGroupB";
     List l = sess.createQuery(queryString).list();
     Map<String, Integer> map = new HashMap<String, Integer>();
     for(Iterator i = l.iterator(); i.hasNext(); ) {
@@ -557,25 +539,25 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
       Integer idSeqLibProtocol = (Integer)objects[0];
       String isIndexGroupB = (String)objects[1];
       Integer idOligoBarCodeScheme = (Integer)objects[2];
-      
+
       String key = idSeqLibProtocol.toString() + "\t" + (isIndexGroupB.equals("Y") ? "B" : "A");
       map.put(key, idOligoBarCodeScheme);
     }
-    
+
     return map;
   }
-  
+
   private Map<String, Price> getIlluminaApplicationToLibPrepPriceMap(Session sess) {
-    String queryString = 
+    String queryString =
         "select rc, p, crit " +
-        " from PriceSheet ps " +
-        " join ps.requestCategories rc " +
-        " join ps.priceCategories pc " +
-        " join pc.priceCategory.prices p " +
-        " join p.priceCriterias crit " +
-        " where ( pc.priceCategory.pluginClassName='hci.gnomex.billing.illuminaLibPrepPlugin' " +
-        " or      pc.priceCategory.pluginClassName='hci.gnomex.billing.ApplicationBatchPlugin' ) " +
-        "     and crit.filter1 is not null";
+            " from PriceSheet ps " +
+            " join ps.requestCategories rc " +
+            " join ps.priceCategories pc " +
+            " join pc.priceCategory.prices p " +
+            " join p.priceCriterias crit " +
+            " where ( pc.priceCategory.pluginClassName='hci.gnomex.billing.illuminaLibPrepPlugin' " +
+            " or      pc.priceCategory.pluginClassName='hci.gnomex.billing.ApplicationBatchPlugin' ) " +
+            "     and crit.filter1 is not null";
     Query query = sess.createQuery(queryString);
     List l = query.list();
     Map<String, Price> map = new HashMap<String, Price>();
@@ -584,24 +566,24 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
       RequestCategory requestCategory = (RequestCategory)objects[0];
       Price price = (Price)objects[1];
       PriceCriteria priceCriteria = (PriceCriteria)objects[2];
-      
+
       String key = requestCategory.getCodeRequestCategory() + "\t" + priceCriteria.getFilter1();
       map.put(key, price);
     }
-    
+
     return map;
   }
-  
+
   private Map<String, Price> getQCApplicationPriceMap(Session sess) {
     // Assumes a single price defined for QC
-    String queryString = 
+    String queryString =
         "select rc, p, crit " +
-        " from PriceSheet ps " +
-        " join ps.requestCategories rc " +
-        " join ps.priceCategories pc " +
-        " join pc.priceCategory.prices p " +
-        " join p.priceCriterias crit " +
-        " where crit.filter1 is not null and crit.filter2 is null";
+            " from PriceSheet ps " +
+            " join ps.requestCategories rc " +
+            " join ps.priceCategories pc " +
+            " join pc.priceCategory.prices p " +
+            " join p.priceCriterias crit " +
+            " where crit.filter1 is not null and crit.filter2 is null";
     Query query = sess.createQuery(queryString);
     List l = query.list();
     Map<String, Price> map = new HashMap<String, Price>();
@@ -611,25 +593,25 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
       if (requestCategory.isQCRequestCategory()) {
         Price price = (Price)objects[1];
         PriceCriteria priceCriteria = (PriceCriteria)objects[2];
-      
+
         String key = requestCategory.getCodeRequestCategory() + "\t" + priceCriteria.getFilter1();
         map.put(key, price);
       }
     }
-    
+
     return map;
   }
-  
+
   private Map<String, Price> getSeqOptionsToPriceMap(Session sess) {
-    String queryString = 
+    String queryString =
         "select rc, p, crit " +
-        " from PriceSheet ps " +
-        " join ps.requestCategories rc " +
-        " join ps.priceCategories pc " +
-        " join pc.priceCategory.prices p " +
-        " join p.priceCriterias crit " +
-        " where pc.priceCategory.pluginClassName='hci.gnomex.billing.illuminaSeqPlugin'" +
-        "     and crit.filter1 is not null";
+            " from PriceSheet ps " +
+            " join ps.requestCategories rc " +
+            " join ps.priceCategories pc " +
+            " join pc.priceCategory.prices p " +
+            " join p.priceCriterias crit " +
+            " where pc.priceCategory.pluginClassName='hci.gnomex.billing.illuminaSeqPlugin'" +
+            "     and crit.filter1 is not null";
     Query query = sess.createQuery(queryString);
     List l = query.list();
     Map<String, Price> map = new HashMap<String, Price>();
@@ -638,23 +620,23 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
       RequestCategory requestCategory = (RequestCategory)objects[0];
       Price price = (Price)objects[1];
       PriceCriteria priceCriteria = (PriceCriteria)objects[2];
-      
+
       String key = requestCategory.getCodeRequestCategory() + "\t" + priceCriteria.getFilter1();
       map.put(key, price);
     }
-    
+
     return map;
   }
-  
+
   private Map<String, Price> getQCChipTypePriceMap(Session sess) {
-    String queryString = 
+    String queryString =
         "select rc, p, crit " +
-        " from PriceSheet ps " +
-        " join ps.requestCategories rc " +
-        " join ps.priceCategories pc " +
-        " join pc.priceCategory.prices p " +
-        " join p.priceCriterias crit " +
-        " where crit.filter1 is not null and crit.filter2 is not null";
+            " from PriceSheet ps " +
+            " join ps.requestCategories rc " +
+            " join ps.priceCategories pc " +
+            " join pc.priceCategory.prices p " +
+            " join p.priceCriterias crit " +
+            " where crit.filter1 is not null and crit.filter2 is not null";
     Query query = sess.createQuery(queryString);
     List l = query.list();
     Map<String, Price> map = new HashMap<String, Price>();
@@ -664,22 +646,22 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
       if (requestCategory.isQCRequestCategory()) {
         Price price = (Price)objects[1];
         PriceCriteria priceCriteria = (PriceCriteria)objects[2];
-        
+
         String key = requestCategory.getCodeRequestCategory() + "\t" + priceCriteria.getFilter1() + "\t" + priceCriteria.getFilter2();
         map.put(key, price);
       }
     }
-    
+
     return map;
   }
-  
+
   private Map<String, String> getRequestCategoryToPriceSheetMap(Session sess) {
-    String queryString = 
+    String queryString =
         "select rc.codeRequestCategory, rc.idCoreFacility, COUNT(*) " +
-        " from PriceSheet ps " +
-        " join ps.requestCategories rc " +
-        " where ps.isActive = 'Y' " +
-        " group by rc.codeRequestCategory, rc.idCoreFacility";
+            " from PriceSheet ps " +
+            " join ps.requestCategories rc " +
+            " where ps.isActive = 'Y' " +
+            " group by rc.codeRequestCategory, rc.idCoreFacility";
     Query query = sess.createQuery(queryString);
     List l = query.list();
     Map<String, String> map = new HashMap<String, String>();
@@ -695,16 +677,16 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
         map.put(codeRequestCategory, codeRequestCategory);
       }
     }
-    
+
     return map;
   }
-  
+
   @SuppressWarnings("unchecked")
   private Map<String, List<BioanalyzerChipType>> getQCApplicationToChipTypeMap(Session sess) {
     String queryString = "select ct from BioanalyzerChipType ct where ct.isActive = 'Y' ";
     Query query = sess.createQuery(queryString);
-    List<BioanalyzerChipType> l = (List<BioanalyzerChipType>)query.list();
-    Map<String, List<BioanalyzerChipType>> map = new HashMap<String, List<BioanalyzerChipType>>(); 
+    List<BioanalyzerChipType> l = query.list();
+    Map<String, List<BioanalyzerChipType>> map = new HashMap<String, List<BioanalyzerChipType>>();
     for(BioanalyzerChipType bct: l) {
       List<BioanalyzerChipType> ctl = map.get(bct.getCodeApplication());
       if (ctl == null) {
@@ -713,10 +695,10 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
       }
       ctl.add(bct);
     }
-    
+
     return map;
   }
-  
+
   private class appComparator implements Comparator<Application>, Serializable {
     private Map<String, RequestCategoryApplication> appMap;
 
@@ -726,9 +708,9 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
         this.appMap = new HashMap<String, RequestCategoryApplication>();
       }
     }
-    
+
     public int compare(Application a1, Application a2) {
-      
+
       Integer sort1 = a1.getSortOrder() == null ? -1 : a1.getSortOrder();
       Integer sort2 = a2.getSortOrder() == null ? -1 : a2.getSortOrder();
 
@@ -746,16 +728,16 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
         return sort1.compareTo(sort2);
       }
     }
- }
-  
+  }
+
   private class illuminaAppComparator extends appComparator implements Serializable {
     private Map<Integer, Integer> selectedThemes;
-    
+
     public illuminaAppComparator(Map<Integer, Integer>selectedThemes, Map<String, RequestCategoryApplication> appMap) {
       super(appMap);
       this.selectedThemes = selectedThemes;
     }
-    
+
     public int compare(Application a1, Application a2) {
       if (selectedThemes.containsKey(a1.getIdApplicationTheme()) && !selectedThemes.containsKey(a2.getIdApplicationTheme())) {
         return -1;

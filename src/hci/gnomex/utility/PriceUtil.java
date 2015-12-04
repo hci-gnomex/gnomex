@@ -60,4 +60,23 @@ public class PriceUtil {
     return modified;
   }
 
+  public static String getUnitPrice(Price p, String priceType) {
+    String priceAsString = "";
+    if (p == null) {
+      priceAsString = "";
+    } else {
+      if (priceType.equals(PRICE_INTERNAL)) {
+        priceAsString = p.getUnitPrice().toString();
+      } else if (priceType.equals(PRICE_EXTERNAL_ACADEMIC)) {
+        priceAsString = p.getUnitPriceExternalAcademic().toString();
+      } else if (priceType.equals(PRICE_EXTERNAL_COMMERCIAL)) {
+        priceAsString = p.getUnitPriceExternalCommercial().toString();
+      } else {
+        priceAsString = "";
+      }
+    }
+
+    return priceAsString;
+  }
+
 }
