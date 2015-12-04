@@ -511,6 +511,11 @@
 				params.platformsXMLString = "<platformApplications>" + this.platformApplications.toXMLString() + "</platformApplications>";
 				params.analysisTypesXMLString = "<analysisTypes></analysisTypes>";
 				
+				params.includePricing = this.includePricing.selected ? "Y" : "N";
+				params.unitPriceInternal = property.@unitPriceInternal;
+				params.unitPriceExternalAcademic = property.@unitPriceExternalAcademic;
+				params.unitPriceExternalCommercial = property.@unitPriceExternalCommercial;
+				
 				saveProperty.send(params);
 			}
 			
@@ -652,6 +657,17 @@
 				}
 			}
 			
+			public function editPropertyOptionPricingWindow(option:Object, headerText:String = ""):void {
+				var editWindow:PropertyPricingWindow = PropertyPricingWindow(PopUpManager.createPopUp(this, PropertyPricingWindow, true));
+				editWindow.addEventListener(ResultEvent.RESULT, markDirty);
+				editWindow.init(option, headerText);
+				PopUpManager.centerPopUp(editWindow);
+			}
+			
+			protected function markDirty(event:ResultEvent):void{
+				parentDocument.dirty.setDirty();
+			}
+			
 		]]>
 	</mx:Script>
 	
@@ -732,8 +748,14 @@
 					<mx:RadioButton label="Dropdown (single selection)"  groupName="characteristicTypeRadioGroup" value="OPTION" paddingBottom="0" paddingTop="0"  click="addBlank();setDirty()" />
 					<mx:RadioButton label="Dropdown (multiple selection)"  groupName="characteristicTypeRadioGroup" value="MOPTION" paddingBottom="0" paddingTop="0" click="setDirty()" />
 				</mx:VBox>
-				<mx:HBox width="100%"  visible="{characteristicTypeRadioGroup.selectedValue == 'OPTION' || characteristicTypeRadioGroup.selectedValue == 'MOPTION'}" verticalGap="0" height="100%">
-					<mx:VBox verticalGap="0" height="100%" width="100%">
+				<mx:VBox width="100%"  visible="{characteristicTypeRadioGroup.selectedValue == 'CHECK' || characteristicTypeRadioGroup.selectedValue == 'OPTION' || characteristicTypeRadioGroup.selectedValue == 'MOPTION'}" verticalGap="0" height="100%">
+					<mx:HBox verticalAlign="middle" >
+						<mx:CheckBox id="includePricing" label="Include pricing" />
+						<mx:LinkButton label="Edit Price" visible="{characteristicTypeRadioGroup.selectedValue == 'CHECK' &amp;&amp; includePricing.selected}" 
+									   textDecoration="underline" fontSize="9" color="#0000FF" click="editPropertyOptionPricingWindow(property, 'Set pricing for when this option is selected.')"/>
+					</mx:HBox>
+					<mx:VBox verticalGap="0" height="100%" width="100%"
+							 visible="{characteristicTypeRadioGroup.selectedValue == 'OPTION' || characteristicTypeRadioGroup.selectedValue == 'MOPTION'}">
 						<mx:HBox>
 							<mx:LinkButton label="Add option" styleName="linkMenuButton" click="addOption()"   enabled="{property.@canUpdate == 'Y' ? true : false}" icon="@Embed(source='../../assets/add.png')" disabledIcon="@Embed(source='../../assets/add_disable.png')" fontSize="10"/>
 							<mx:LinkButton label="Remove option" styleName="linkMenuButton" click="removeOption()" enabled="{property.@canUpdate == 'Y' &amp;&amp; optionGrid.selectedItem != null}"   icon="@Embed(source='../../assets/delete.png')" disabledIcon="@Embed(source='../../assets/delete_disable.png')" fontSize="10"/>
@@ -743,10 +765,19 @@
 								<mx:DataGridColumn headerText="Option" width="120" dataField="@option"/>
 								<mx:DataGridColumn headerText="Order"  width="25" dataField="@sortOrder"/>
 								<mx:DataGridColumn headerText="Active"  width="25" dataField="@isActive"/>
+								<mx:DataGridColumn headerText="Pricing" visible="{includePricing.selected}" >
+									<mx:itemRenderer>
+										<mx:Component>
+											<mx:HBox verticalAlign="top" horizontalGap="0"  horizontalScrollPolicy="off">
+												<mx:LinkButton label="Edit" textDecoration="underline" fontSize="9" color="#0000FF" click="outerDocument.editPropertyOptionPricingWindow(outerDocument.optionGrid.selectedItem, 'Set the prices for this option: ' + outerDocument.optionGrid.selectedItem.@option)"/>
+											</mx:HBox>
+										</mx:Component>
+									</mx:itemRenderer>
+								</mx:DataGridColumn>
 							</mx:columns>
 						</mx:DataGrid>
 					</mx:VBox>
-				</mx:HBox>
+				</mx:VBox>
 			</mx:HBox>
 			<mx:HBox width="100%" height="100%" >
 				<mx:VBox   verticalGap="1" width="50%" verticalScrollPolicy="off" height="100%" visible="{filteredAppList.length>1}" includeInLayout="{filteredAppList.length>1}">
