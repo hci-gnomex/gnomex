@@ -1,17 +1,5 @@
 package hci.gnomex.controller;
 
-import hci.framework.control.Command;
-import hci.framework.control.RollBackCommandException;
-import hci.gnomex.model.Property;
-import hci.gnomex.model.PropertyEntry;
-import hci.gnomex.model.PropertyEntryValue;
-import hci.gnomex.model.PropertyOption;
-import hci.gnomex.model.PropertyPlatformApplication;
-import hci.gnomex.model.PropertyType;
-import hci.gnomex.security.SecurityAdvisor;
-import hci.gnomex.utility.DictionaryHelper;
-import hci.gnomex.utility.HibernateSession;
-
 import java.io.Serializable;
 import java.util.Iterator;
 import java.util.List;
@@ -23,28 +11,39 @@ import javax.servlet.http.HttpSession;
 import org.hibernate.Session;
 import org.hibernate.exception.ConstraintViolationException;
 
+import hci.framework.control.Command;
+import hci.framework.control.RollBackCommandException;
+import hci.gnomex.model.Property;
+import hci.gnomex.model.PropertyEntry;
+import hci.gnomex.model.PropertyEntryValue;
+import hci.gnomex.model.PropertyOption;
+import hci.gnomex.model.PropertyPlatformApplication;
+import hci.gnomex.security.SecurityAdvisor;
+import hci.gnomex.utility.DictionaryHelper;
+import hci.gnomex.utility.HibernateSession;
+
 
 
 
 public class DeleteProperty extends GNomExCommand implements Serializable {
-  
- 
-  
+
+
+
   // the static field for logging in Log4J
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(DeleteProperty.class);
-  
-  
+
+
   private Integer      idProperty = null;
   private String       deleteAll = null;
-  
- 
-  
-  
+
+
+
+
   public void validate() {
   }
-  
+
   public void loadCommand(HttpServletRequest request, HttpSession session) {
-    
+
     if (request.getParameter("idProperty") != null && !request.getParameter("idProperty").equals("")) {
       idProperty = new Integer(request.getParameter("idProperty"));
     } else {
@@ -61,18 +60,18 @@ public class DeleteProperty extends GNomExCommand implements Serializable {
   public Command execute() throws RollBackCommandException {
     Session sess = null;
     Property property = null;
-    
+
     int nonBlankSampleCount = 0;
     int nonBlankAnalysisCount = 0;
     int nonBlankDataTrackCount = 0;
-    
+
     try {
       sess = HibernateSession.currentSession(this.getUsername());
-      property = (Property)sess.load(Property.class, idProperty);       
-                      
+      property = (Property)sess.load(Property.class, idProperty);
+
       // Check permissions
       if (this.getSecAdvisor().canDelete(property)) {
-        
+
         StringBuffer propertyEntryQuery = new StringBuffer();
         propertyEntryQuery.append("SELECT pe from PropertyEntry as pe");
         propertyEntryQuery.append(" where pe.idProperty = " + idProperty.intValue());
@@ -81,10 +80,10 @@ public class DeleteProperty extends GNomExCommand implements Serializable {
         for(Iterator i1 = samples.iterator(); i1.hasNext();) {
           PropertyEntry pe = (PropertyEntry) i1.next();
           if(pe.getValue() != null && pe.getValue().length() > 0) {
-            nonBlankSampleCount++; 
+            nonBlankSampleCount++;
           }
-        }        
-        
+        }
+
         propertyEntryQuery = new StringBuffer();
         propertyEntryQuery.append("SELECT pe from PropertyEntry as pe");
         propertyEntryQuery.append(" where pe.idProperty = " + idProperty.intValue());
@@ -95,8 +94,8 @@ public class DeleteProperty extends GNomExCommand implements Serializable {
           if(pe.getValue() != null && pe.getValue().length() > 0) {
             nonBlankAnalysisCount++;
           }
-        }             
-        
+        }
+
         propertyEntryQuery = new StringBuffer();
         propertyEntryQuery.append("SELECT pe from PropertyEntry as pe");
         propertyEntryQuery.append(" where pe.idProperty = " + idProperty.intValue());
@@ -108,8 +107,8 @@ public class DeleteProperty extends GNomExCommand implements Serializable {
             nonBlankDataTrackCount++;
           }
         }
-        
-        if(deleteAll.compareTo("Y")!=0 && 
+
+        if(deleteAll.compareTo("Y")!=0 &&
             (nonBlankSampleCount > 0 || nonBlankAnalysisCount > 0 || nonBlankDataTrackCount > 0)) {
           try {
             sess.clear();
@@ -117,25 +116,25 @@ public class DeleteProperty extends GNomExCommand implements Serializable {
             property.setIsActive("N");
             sess.save(property);
             sess.flush();
-            
+
             DictionaryHelper.reload(sess);
-            
+
             this.xmlResult = "<NONBLANKVALUES idProperty='" + property.getIdProperty().intValue() + "' sampleCount='"+ nonBlankSampleCount +"' analysisCount='"+ nonBlankAnalysisCount +"' dataTrackCount='"+ nonBlankDataTrackCount +"'/>";
             setResponsePage(this.SUCCESS_JSP);
             return this;
-            
+
           } catch(Exception e) {
             log.error("An exception has occurred in DeleteProperty when trying to inactivate property ", e);
             e.printStackTrace();
             throw new RollBackCommandException(e.getMessage());
-            
-          }          
+
+          }
         }
-        
-        if(deleteAll.compareTo("Y")==0 && 
+
+        if(deleteAll.compareTo("Y")==0 &&
             (this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES))
-              || (nonBlankSampleCount == 0 && nonBlankAnalysisCount == 0 && nonBlankDataTrackCount == 0)) {
-          
+            || (nonBlankSampleCount == 0 && nonBlankAnalysisCount == 0 && nonBlankDataTrackCount == 0)) {
+
           StringBuffer allPropertyEntries = new StringBuffer();
           allPropertyEntries.append("SELECT pe from PropertyEntry as pe");
           allPropertyEntries.append(" where pe.idProperty = " + idProperty.intValue());
@@ -148,102 +147,107 @@ public class DeleteProperty extends GNomExCommand implements Serializable {
             }
             sess.flush();
             entry.setValues(null);
-            sess.delete(entry);                        
-          }  
+            sess.delete(entry);
+          }
           sess.flush();
         }
-                
+
+        //
+        // Delete prices associated with property (if any)
+        //
+        SaveProperty.removePriceCategoryForProperty( property, sess );
+
         //
         // Clear out property organism list
         //
         property.setOrganisms(new TreeSet());
         sess.flush();
-        
+
         //
         // Clear out property user list
         //
         property.setAppUsers(new TreeSet());
         sess.flush();
-        
+
         //
         // Clear out property platformApplication list
-        //       
+        //
         if (property.getPlatformApplications() != null) {
           for(Iterator i = property.getPlatformApplications().iterator(); i.hasNext();) {
             PropertyPlatformApplication pa = (PropertyPlatformApplication) i.next();
-            sess.delete(pa);            
+            sess.delete(pa);
           }
         }
-        sess.flush();        
-        
-        
+        sess.flush();
+
+
         property.setPlatformApplications(new TreeSet());
         sess.flush();
-        
+
         //
         // Clear out property options list
         //
         if (property.getOptions() != null) {
           for(Iterator i = property.getOptions().iterator(); i.hasNext();) {
             PropertyOption pa = (PropertyOption) i.next();
-            sess.delete(pa);            
+            sess.delete(pa);
           }
         }
-        sess.flush();               
-             
+        sess.flush();
+
         property.setOptions(new TreeSet());
         sess.flush();
-        
+
         //
         // Clear out property analysisTypes list
         //
         property.setAnalysisTypes(new TreeSet());
         sess.flush();
-        
+
         sess.update(property);
         sess.flush();
-        
+
         //
         // Delete property
         //
         sess.delete(property);
-      
-        
+
+
         sess.flush();
-        
-       
+
+
         DictionaryHelper.reload(sess);
-        
+
         this.xmlResult = "<SUCCESS/>";
-      
+
         setResponsePage(this.SUCCESS_JSP);
-   
+
       } else {
         this.addInvalidField("insufficient permission", "Insufficient permissions to delete property.");
         setResponsePage(this.ERROR_JSP);
       }
     } catch (ConstraintViolationException ce) {
       log.error("An exception has occurred in DeleteProperty ", ce);
-      ce.printStackTrace(); 
+      ce.printStackTrace();
     } catch (Exception e){
       log.error("An exception has occurred in DeleteProperty ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
-        
+
     }finally {
       try {
-        HibernateSession.closeSession();        
+        HibernateSession.closeSession();
       } catch(Exception e) {
-        
+
       }
     }
-    
+
     return this;
   }
-  
- 
-  
-  
-  
+
+
+
+
+
 
 }
