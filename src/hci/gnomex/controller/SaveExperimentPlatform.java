@@ -1522,7 +1522,7 @@ implements Serializable {
     Boolean modified = false;
 
     try {
-      modified = PriceUtil.setPrice( attributeValue, price.getUnitPrice(), price, whichPrice );
+      modified = PriceUtil.setPrice( attributeValue, existingPrice, price, whichPrice );
     } catch( NumberFormatException e ) {
       log.error( "Unable to parse price: " + attributeValue, e );
     }
