@@ -675,6 +675,7 @@ public class SaveProperty extends GNomExCommand implements Serializable {
     return deletedPrice;
   }
 
+  //TODO: Move to Price class?? PriceUtil class??
   public static boolean priceHasBillingItems( Price price, Session sess ) {
     // Determine if this price is already referenced on any billing items
     boolean existingBillingItems = false;
@@ -776,7 +777,6 @@ public class SaveProperty extends GNomExCommand implements Serializable {
 
   }
 
-
   public static void deletePriceSheetPriceCategoryEntries( PriceCategory priceCategory, Session sess ) {
     for(Iterator i = getPriceSheetPriceCategoryForPriceCategory(priceCategory, sess ).iterator(); i.hasNext();) {
       PriceSheetPriceCategory x = (PriceSheetPriceCategory)i.next();
@@ -792,7 +792,6 @@ public class SaveProperty extends GNomExCommand implements Serializable {
     List pspcList = sess.createQuery( buf.toString() ).list();
     return pspcList;
   }
-
 
   private void savePricesForPropertyOption( Element poNode, PropertyOption po, PriceCategory pc, Session sess ) {
     Price price = null;
@@ -828,7 +827,8 @@ public class SaveProperty extends GNomExCommand implements Serializable {
     sess.flush();
   }
 
-  private Price getPriceForPropertyOption ( PropertyOption po, PriceCategory pc ) {
+  //TODO: Move to PropertyOption class?? PriceUtil class??
+  public static Price getPriceForPropertyOption ( PropertyOption po, PriceCategory pc ) {
     Price price = null;
     if ( po == null || po.getOption() == null  ) {
       return price;
@@ -891,7 +891,8 @@ public class SaveProperty extends GNomExCommand implements Serializable {
     sess.flush();
   }
 
-  private Price getPriceForCheckProperty ( Property property, PriceCategory pc ) {
+  //TODO: Move to Property class?? PriceUtil class??
+  public static Price getPriceForCheckProperty ( Property property, PriceCategory pc ) {
     Price price = null;
     if ( property == null || property.getDisplay().length() == 0  ) {
       return price;
