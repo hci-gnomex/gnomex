@@ -400,6 +400,7 @@
 					p.@idAppUser = parentApplication.getIdAppUser();
 				}
 				p.@codePropertyType = 'TEXT';
+				p.@includePricing = 'N';
 				
 				property = p;
 				setComponentsFromProperty();
@@ -750,7 +751,7 @@
 				</mx:VBox>
 				<mx:VBox width="100%"  visible="{characteristicTypeRadioGroup.selectedValue == 'CHECK' || characteristicTypeRadioGroup.selectedValue == 'OPTION' || characteristicTypeRadioGroup.selectedValue == 'MOPTION'}" verticalGap="0" height="100%">
 					<mx:HBox verticalAlign="middle" >
-						<mx:CheckBox id="includePricing" label="Include pricing" />
+						<mx:CheckBox id="includePricing" label="Include pricing" selected="{property.@includePricing == 'Y'}"/>
 						<mx:LinkButton label="Edit Price" visible="{characteristicTypeRadioGroup.selectedValue == 'CHECK' &amp;&amp; includePricing.selected}" 
 									   textDecoration="underline" fontSize="9" color="#0000FF" click="editPropertyOptionPricingWindow(property, 'Set pricing for when this option is selected.')"/>
 					</mx:HBox>
