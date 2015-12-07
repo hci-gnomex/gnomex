@@ -1200,9 +1200,11 @@
 			public var PROPERTY_CUSTOM_SAMPLE_CONC_UNITS:String			  = "custom_sample_conc_units";
 			public var PROPERTY_PRODUCT_SHEET_NAME:String				  = "product_sheet_name";
 			public var PROPERTY_REQUEST_PROPS_ON_CONFIRM_TAB:String		  = "request_props_on_confirm_tab";
+			public var PROPERTY_NEW_REQUEST_SAVE_BEFORE_SUBMIT:String	  = "new_request_save_before_submit";
 			
 			public var BAM_IOBIO_VIEWER_URL:String 						  = "bam_iobio_viewer_url";
 			public var VCF_IOBIO_VIEWER_URL:String 						  = "vcf_iobio_viewer_url";
+			
 			
 			
 			

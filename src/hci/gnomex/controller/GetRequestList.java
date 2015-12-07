@@ -32,14 +32,14 @@ import org.jdom.output.XMLOutputter;
 
 public class GetRequestList extends GNomExCommand implements Serializable {
 
-  private static org.apache.log4j.Logger   log                        = org.apache.log4j.Logger.getLogger(GetRequestList.class);
+  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetRequestList.class);
 
-  private RequestFilter                    requestFilter;
-  private HashMap<Integer, List<Object[]>> reactionPlateMap           = new HashMap<Integer, List<Object[]>>();
-  private HashMap<Integer, List<Object[]>> sourcePlateMap             = new HashMap<Integer, List<Object[]>>();
+  private RequestFilter requestFilter;
+  private HashMap<Integer, List<Object[]>> reactionPlateMap = new HashMap<Integer, List<Object[]>>();
+  private HashMap<Integer, List<Object[]>> sourcePlateMap = new HashMap<Integer, List<Object[]>>();
 
-  private String                           message                    = "";
-  private static final int                 DEFAULT_MAX_REQUESTS_COUNT = 100;
+  private String message = "";
+  private static final int DEFAULT_MAX_REQUESTS_COUNT = 100;
 
   public void validate() {
   }
@@ -56,6 +56,7 @@ public class GetRequestList extends GNomExCommand implements Serializable {
     try {
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
       DictionaryHelper dh = DictionaryHelper.getInstance(sess);
+      PropertyDictionaryHelper pdh = PropertyDictionaryHelper.getInstance(sess);
 
       StringBuffer buf = requestFilter.getQuery(this.getSecAdvisor());
 
@@ -139,7 +140,7 @@ public class GetRequestList extends GNomExCommand implements Serializable {
         List<Object[]> sourcePlateRows = sourcePlateMap.get(idRequest);
         appendSourcePlateInfo(node, sourcePlateRows);
 
-        appendSecurityFlags(node, codeRequestStatus, codeRequestCategory, idLab, idAppUser, idCoreFacility);
+        appendSecurityFlags(node, codeRequestStatus, codeRequestCategory, idLab, idAppUser, idCoreFacility, pdh);
 
         doc.getRootElement().addContent(node);
 
@@ -289,9 +290,10 @@ public class GetRequestList extends GNomExCommand implements Serializable {
 
   }
 
-  private void appendSecurityFlags(Element node, String codeRequestStatus, String codeRequestCategory, Integer idLab, Integer idAppUser, Integer idCoreFacility) {
+  private void appendSecurityFlags(Element node, String codeRequestStatus, String codeRequestCategory, Integer idLab, Integer idAppUser, Integer idCoreFacility, PropertyDictionaryHelper pdh) {
     boolean canUpdate = false;
     boolean isDNASeqExperiment = RequestCategory.isDNASeqCoreRequestCategory(codeRequestCategory);
+    boolean saveThenSubmitExperiment = pdh.getCoreFacilityRequestCategoryProperty(idCoreFacility, codeRequestCategory, PropertyDictionary.NEW_REQUEST_SAVE_BEFORE_SUBMIT).equals("Y") ? true : false;
 
     // Super Admins
     if (this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
@@ -315,7 +317,7 @@ public class GetRequestList extends GNomExCommand implements Serializable {
       else if (this.getSecAdvisor().isGroupIAmMemberOf(idLab) && this.getSecAdvisor().isOwner(idAppUser)) {
         canUpdate = true;
       }
-      if (canUpdate && isDNASeqExperiment && !codeRequestStatus.equals(RequestStatus.NEW)) {
+      if (canUpdate && saveThenSubmitExperiment && !codeRequestStatus.equals(RequestStatus.NEW)) {
         canUpdate = false;
       }
     }

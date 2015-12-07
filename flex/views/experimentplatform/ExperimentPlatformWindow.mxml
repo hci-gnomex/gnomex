@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?> 
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
-				layout="vertical" width="1120" height="640"  creationPolicy="all"
+				layout="vertical" width="1120" height="700"  creationPolicy="all"
 				xmlns:util="views.util.*"  creationComplete="init()"
 				xmlns:experimentplatform="views.experimentplatform.*"
 				showCloseButton="true" close="{closeWindow()}"
@@ -135,6 +135,7 @@
 				params.codeProductType = state.requestCategory.@codeProductType;
 				params.associatedWithAnalysis = state.requestCategory.@associatedWithAnalysis;
 				params.requireNameDescription = state.requestCategory.@requireNameDescription;
+				params.saveAndSubmit = state.requestCategory.@saveAndSubmit;
 				
 				//params.icon = this.theIcon.text;
 				params.icon = state.requestCategory.@icon;

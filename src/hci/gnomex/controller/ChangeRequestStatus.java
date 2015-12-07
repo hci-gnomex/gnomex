@@ -45,13 +45,13 @@ import org.hibernate.Session;
 public class ChangeRequestStatus extends GNomExCommand implements Serializable {
 
   // the static field for logging in Log4J
-  private static org.apache.log4j.Logger log               = org.apache.log4j.Logger.getLogger(ChangeRequestStatus.class);
+  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(ChangeRequestStatus.class);
 
-  private String                         codeRequestStatus = null;
-  private Integer                        idRequest         = 0;
-  private String                         launchAppURL;
-  private String                         appURL;
-  private String                         serverName;
+  private String codeRequestStatus = null;
+  private Integer idRequest = 0;
+  private String launchAppURL;
+  private String appURL;
+  private String serverName;
 
   public void validate() {
   }
@@ -82,6 +82,7 @@ public class ChangeRequestStatus extends GNomExCommand implements Serializable {
 
     try {
       sess = HibernateSession.currentSession(this.getUsername());
+      PropertyDictionaryHelper pdh = PropertyDictionaryHelper.getInstance(sess);
 
       if (codeRequestStatus == null || idRequest.equals("0")) {
         this.addInvalidField("Missing information", "id and code request status needed");
@@ -140,7 +141,7 @@ public class ChangeRequestStatus extends GNomExCommand implements Serializable {
           // If this is a DNA Seq core request, we need to create the billing
           // items and send confirmation email
           // when the status changes to submitted
-          if ((codeRequestStatus.equals(RequestStatus.SUBMITTED) || codeRequestStatus.equals(RequestStatus.PROCESSING)) && RequestCategory.isDNASeqCoreRequestCategory(req.getCodeRequestCategory())) {
+          if ((codeRequestStatus.equals(RequestStatus.SUBMITTED) || codeRequestStatus.equals(RequestStatus.PROCESSING)) && pdh.getCoreFacilityRequestCategoryProperty(req.getIdCoreFacility(), req.getCodeRequestCategory(), PropertyDictionary.NEW_REQUEST_SAVE_BEFORE_SUBMIT).equals("Y")) {
             if (req.getBillingItems() == null || req.getBillingItems().isEmpty()) {
               createBillingItems(sess, req);
               sess.flush();

@@ -277,6 +277,14 @@
 				state.requestCategory.@requireNameDescription = requireNameDescriptionCheckbox.selected ? 'Y' : 'N';
 			}
 			
+			private function setSaveAndSubmit():void{
+				if(saveAndSubmit.selected){
+					state.requestCategory.@saveAndSubmit = 'Y';
+				} else{
+					state.requestCategory.@saveAndSubmit = 'N';
+				}
+			}
+			
 		]]>
 	</mx:Script>
 	<mx:HBox width="100%" horizontalGap="1" verticalAlign="middle">
@@ -383,6 +391,12 @@
 		<mx:Text text="Status to Use Products" width="100" styleName="formLabel"/>
 		<mx:ComboBox id="productStatusCombo" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.RequestStatus').DictionaryEntry}" 
 					 labelField="@codeRequestStatus" close="{updateProductStatus(); state.dirty.setDirty()}" width="300" prompt="Select a Status..."/>
+	</mx:HBox>
+	
+	<mx:HBox width="100%" verticalAlign="middle" horizontalGap="0">
+		<mx:Text text="Allow saving of request before submission" width="100" styleName="formLabel" toolTip="This will allow a user to save a new request and still make changes to their samples from the experiment edit screen.  When the user is ready they can submit the request which will prevent them from making changes to the samples."/>
+		<mx:CheckBox id="saveAndSubmit" selected="{parentApplication.getRequestCategoryProperty(state.requestCategory.@idCoreFacility, state.requestCategory.@codeRequestCategory, parentApplication.PROPERTY_NEW_REQUEST_SAVE_BEFORE_SUBMIT) == 'Y'}"
+					 change="setSaveAndSubmit()"/>
 	</mx:HBox>
 
 	<mx:Label text="" styleName="warningLabelMinor" width="100%" id="securityLabel"/>

@@ -106,62 +106,56 @@ import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 
-
-
-
 public class SaveRequest extends GNomExCommand implements Serializable {
-
-
 
   // the static field for logging in Log4J
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(SaveRequest.class);
 
-  private String           requestXMLString;
-  private String           description;
-  private Document         requestDoc;
-  private RequestParser    requestParser;
+  private String requestXMLString;
+  private String description;
+  private Document requestDoc;
+  private RequestParser requestParser;
 
-  private String                       filesToRemoveXMLString;
-  private Document                     filesToRemoveDoc;
-  private FileDescriptorUploadParser   filesToRemoveParser;
+  private String filesToRemoveXMLString;
+  private Document filesToRemoveDoc;
+  private FileDescriptorUploadParser filesToRemoveParser;
 
-  private String           propertiesXML;
+  private String propertiesXML;
 
-  private BillingPeriod    billingPeriod;
+  private BillingPeriod billingPeriod;
 
-  private String           launchAppURL;
-  private String           appURL;
-  private String           serverName;
+  private String launchAppURL;
+  private String appURL;
+  private String serverName;
 
-  private String           originalRequestNumber;
-  private Integer          nextSampleNumber;
-  private boolean          hasNewSample;
+  private String originalRequestNumber;
+  private Integer nextSampleNumber;
+  private boolean hasNewSample;
 
-  private Map              labelMap = new HashMap();
-  private Map              idSampleMap = new HashMap();
-  private TreeSet          hybs = new TreeSet(new HybNumberComparator());
-  private TreeSet          samples = new TreeSet(new SampleNumberComparator());
-  private TreeSet          sequenceLanes = new TreeSet(new SequenceLaneNumberComparator());
+  private Map labelMap = new HashMap();
+  private Map idSampleMap = new HashMap();
+  private TreeSet hybs = new TreeSet(new HybNumberComparator());
+  private TreeSet samples = new TreeSet(new SampleNumberComparator());
+  private TreeSet sequenceLanes = new TreeSet(new SequenceLaneNumberComparator());
 
-  private TreeSet          hybsAdded = new TreeSet(new HybNumberComparator());
-  private TreeSet          samplesAdded = new TreeSet(new SampleNumberComparator());
-  private TreeSet          labeledSamplesAdded = new TreeSet(new LabeledSampleComparator());
-  private TreeSet          sequenceLanesAdded = new TreeSet(new SequenceLaneNumberComparator());
+  private TreeSet hybsAdded = new TreeSet(new HybNumberComparator());
+  private TreeSet samplesAdded = new TreeSet(new SampleNumberComparator());
+  private TreeSet labeledSamplesAdded = new TreeSet(new LabeledSampleComparator());
+  private TreeSet sequenceLanesAdded = new TreeSet(new SequenceLaneNumberComparator());
 
-  private TreeSet          samplesDeleted = new TreeSet(new SampleNumberComparator());
-  private TreeSet          sequenceLanesDeleted= new TreeSet(new SequenceLaneNumberComparator());
-  private TreeSet          hybsDeleted = new TreeSet(new HybNumberComparator());
+  private TreeSet samplesDeleted = new TreeSet(new SampleNumberComparator());
+  private TreeSet sequenceLanesDeleted = new TreeSet(new SequenceLaneNumberComparator());
+  private TreeSet hybsDeleted = new TreeSet(new HybNumberComparator());
 
+  private Map channel1SampleMap = new HashMap();
+  private Map channel2SampleMap = new HashMap();
 
-  private Map              channel1SampleMap = new HashMap();
-  private Map              channel2SampleMap = new HashMap();
+  private Integer idLabelingProtocolDefault;
+  private Integer idHybProtocolDefault;
+  private Integer idScanProtocolDefault;
+  private Integer idFeatureExtractionProtocolDefault;
 
-  private Integer          idLabelingProtocolDefault;
-  private Integer          idHybProtocolDefault;
-  private Integer          idScanProtocolDefault;
-  private Integer          idFeatureExtractionProtocolDefault;
-
-  private String           invoicePrice;
+  private String invoicePrice;
 
   private Map<String, Plate> storePlateMap = new HashMap<String, Plate>();
 
@@ -182,8 +176,6 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 
   public void loadCommand(HttpServletRequest request, HttpSession session) {
 
-
-
     if (request.getParameter("requestXMLString") != null && !request.getParameter("requestXMLString").equals("")) {
       requestXMLString = request.getParameter("requestXMLString");
     }
@@ -193,26 +185,27 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     }
 
     if (request.getParameter("filesToRemoveXMLString") != null && !request.getParameter("filesToRemoveXMLString").equals("")) {
-      filesToRemoveXMLString = "<FilesToRemove>" + request.getParameter("filesToRemoveXMLString") +  "</FilesToRemove>";
+      filesToRemoveXMLString = "<FilesToRemove>" + request.getParameter("filesToRemoveXMLString") + "</FilesToRemove>";
 
       StringReader reader = new StringReader(filesToRemoveXMLString);
       try {
         SAXBuilder sax = new SAXBuilder();
         filesToRemoveDoc = sax.build(reader);
         filesToRemoveParser = new FileDescriptorUploadParser(filesToRemoveDoc);
-      } catch (JDOMException je ) {
-        log.error( "Cannot parse filesToRemoveXMLString", je );
-        this.addInvalidField( "FilesToRemoveXMLString", "Invalid filesToRemove xml");
+      } catch (JDOMException je) {
+        log.error("Cannot parse filesToRemoveXMLString", je);
+        this.addInvalidField("FilesToRemoveXMLString", "Invalid filesToRemove xml");
       }
     }
 
     if (request.getParameter("propertiesXML") != null && !request.getParameter("propertiesXML").equals("")) {
-      propertiesXML = request.getParameter("propertiesXML");    
+      propertiesXML = request.getParameter("propertiesXML");
     }
 
     invoicePrice = "";
     if (request.getParameter("invoicePrice") != null && request.getParameter("invoicePrice").length() > 0) {
-      // If total price present it means price exceeded $500.00 so we want to send an advisory email
+      // If total price present it means price exceeded $500.00 so we want to
+      // send an advisory email
       invoicePrice = request.getParameter("invoicePrice");
     }
 
@@ -221,11 +214,10 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       SAXBuilder sax = new SAXBuilder();
       requestDoc = sax.build(reader);
       requestParser = new RequestParser(requestDoc, this.getSecAdvisor());
-    } catch (JDOMException je ) {
-      log.error( "Cannot parse requestXMLString", je );
-      this.addInvalidField( "RequestXMLString", "Invalid request xml");
+    } catch (JDOMException je) {
+      log.error("Cannot parse requestXMLString", je);
+      this.addInvalidField("RequestXMLString", "Invalid request xml");
     }
-
 
     if (request.getParameter("idProject") != null && !request.getParameter("idProject").equals("")) {
       new Integer(request.getParameter("idProject"));
@@ -248,9 +240,9 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         SAXBuilder sax = new SAXBuilder();
         Document assaysDoc = sax.build(reader);
         assaysParser = new SampleAssaysParser(assaysDoc);
-      } catch (JDOMException je ) {
-        log.error( "Cannot parse assays", je );
-        this.addInvalidField( "Assays", "Invalid assays xml");
+      } catch (JDOMException je) {
+        log.error("Cannot parse assays", je);
+        this.addInvalidField("Assays", "Invalid assays xml");
       }
     }
 
@@ -261,9 +253,9 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         SAXBuilder sax = new SAXBuilder();
         Document primersDoc = sax.build(reader);
         primersParser = new SamplePrimersParser(primersDoc);
-      } catch (JDOMException je ) {
-        log.error( "Cannot parse primers", je );
-        this.addInvalidField( "Primers", "Invalid primers xml");
+      } catch (JDOMException je) {
+        log.error("Cannot parse primers", je);
+        this.addInvalidField("Primers", "Invalid primers xml");
       }
     }
 
@@ -271,7 +263,6 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       log.error("Insufficient permissions to submit requests for " + this.getSecAdvisor().getUserFirstName() + " " + this.getSecAdvisor().getUserLastName());
       this.addInvalidField("PermissionError", "Insufficient permissions to submit request");
     }
-
 
   }
 
@@ -283,6 +274,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     try {
       sess = HibernateSession.currentSession(this.getUsername());
       DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess);
+      PropertyDictionaryHelper pdh = PropertyDictionaryHelper.getInstance(sess);
 
       requestParser.parse(sess);
 
@@ -313,20 +305,20 @@ public class SaveRequest extends GNomExCommand implements Serializable {
             throw new Exception("Cannot find current billing period to create billing items");
           }
 
-          Lab lab = (Lab)sess.load(Lab.class, requestParser.getRequest().getIdLab());
+          Lab lab = (Lab) sess.load(Lab.class, requestParser.getRequest().getIdLab());
           if (!lab.validateVisibilityInLab(requestParser.getRequest())) {
             this.addInvalidField("Institution", "You must choose an institution when visibility is set to Institute");
           }
 
-          // The following code makes sure any ccNumbers that have been entered actually exist
+          // The following code makes sure any ccNumbers that have been entered
+          // actually exist
           PropertyDictionaryHelper propertyHelper = PropertyDictionaryHelper.getInstance(sess);
           if (propertyHelper.getProperty(PropertyDictionary.BST_LINKAGE_SUPPORTED) != null && propertyHelper.getProperty(PropertyDictionary.BST_LINKAGE_SUPPORTED).equals("Y")) {
             validateCCNumbers();
           }
 
-
           if (requestParser.isNewRequest()) {
-            Lab l = (Lab)sess.load(Lab.class, requestParser.getRequest().getIdLab());
+            Lab l = (Lab) sess.load(Lab.class, requestParser.getRequest().getIdLab());
             if (!this.getSecAdvisor().isGroupIAmMemberOrManagerOf(requestParser.getRequest().getIdLab()) && !this.getSecAdvisor().isLabICanSubmitTo(l) && !this.getSecAdvisor().isGroupICollaborateWith(l.getIdLab())) {
               this.addInvalidField("PermissionLab", "Insufficient permissions to submit the request for this lab.");
             }
@@ -336,13 +328,15 @@ public class SaveRequest extends GNomExCommand implements Serializable {
             }
           }
 
-          // If the default visibility is Institute level, make sure that the institution set for the
-          // Request is an institution the lab is associated with.  If not, set the default visibility
+          // If the default visibility is Institute level, make sure that the
+          // institution set for the
+          // Request is an institution the lab is associated with. If not, set
+          // the default visibility
           // to Member level.
           if (requestParser.isNewRequest()) {
             boolean foundInstitution = false;
             if (requestParser.getRequest().getCodeVisibility().equals(Visibility.VISIBLE_TO_INSTITUTION_MEMBERS)) {
-              for (Institution inst : (Set<Institution>)lab.getInstitutions()) {
+              for (Institution inst : (Set<Institution>) lab.getInstitutions()) {
                 if (requestParser.getRequest().getIdInstitution() != null && requestParser.getRequest().getIdInstitution().equals(inst.getIdInstitution())) {
                   foundInstitution = true;
                   break;
@@ -357,8 +351,8 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 
           if (this.isValid()) {
             List labels = sess.createQuery("SELECT label from Label label").list();
-            for(Iterator i = labels.iterator(); i.hasNext();) {
-              Label l = (Label)i.next();
+            for (Iterator i = labels.iterator(); i.hasNext();) {
+              Label l = (Label) i.next();
               labelMap.put(l.getLabel(), l.getIdLabel());
             }
 
@@ -370,26 +364,28 @@ public class SaveRequest extends GNomExCommand implements Serializable {
             // Remove files from file system
             if (filesToRemoveParser != null) {
               for (Iterator i = filesToRemoveParser.parseFilesToRemove().iterator(); i.hasNext();) {
-                String fileName = (String)i.next();
+                String fileName = (String) i.next();
                 File f = new File(fileName);
 
                 // Remove references of file in TransferLog
                 String queryBuf = "SELECT tl from TransferLog tl where tl.idRequest = " + requestParser.getRequest().getIdRequest() + " AND tl.fileName like '%" + new File(fileName).getName() + "'";
                 List transferLogs = sess.createQuery(queryBuf).list();
-                // Go ahead and delete the transfer log if there is just one row.
-                // If there are multiple transfer log rows for this filename, just
+                // Go ahead and delete the transfer log if there is just one
+                // row.
+                // If there are multiple transfer log rows for this filename,
+                // just
                 // bypass deleting the transfer log since it is not possible
                 // to tell which entry should be deleted.
                 if (transferLogs.size() == 1) {
-                  TransferLog transferLog = (TransferLog)transferLogs.get(0);
+                  TransferLog transferLog = (TransferLog) transferLogs.get(0);
                   sess.delete(transferLog);
                 }
 
-                if(f.isDirectory()){
+                if (f.isDirectory()) {
                   deleteDir(f, fileName);
                 }
 
-                if(f.exists()){
+                if (f.exists()) {
                   boolean success = f.delete();
                   if (!success) {
                     // File was not successfully deleted
@@ -401,16 +397,14 @@ public class SaveRequest extends GNomExCommand implements Serializable {
               sess.flush();
             }
 
-
             // Figure out which samples will be deleted
             if (!requestParser.isNewRequest() && !requestParser.isAmendRequest()) {
 
-              for(Iterator i = requestParser.getRequest().getSamples().iterator(); i.hasNext();)
-              {
-                Sample sample = (Sample)i.next();
+              for (Iterator i = requestParser.getRequest().getSamples().iterator(); i.hasNext();) {
+                Sample sample = (Sample) i.next();
                 boolean found = false;
-                for(Iterator i1 = requestParser.getSampleIds().iterator(); i1.hasNext();) {
-                  String idSampleString = (String)i1.next();
+                for (Iterator i1 = requestParser.getSampleIds().iterator(); i1.hasNext();) {
+                  String idSampleString = (String) i1.next();
                   if (idSampleString != null && !idSampleString.equals("") && !idSampleString.startsWith("Sample")) {
                     if (Integer.valueOf(idSampleString).equals(sample.getIdSample())) {
                       found = true;
@@ -424,20 +418,19 @@ public class SaveRequest extends GNomExCommand implements Serializable {
               }
             }
 
-
             // Save the samples
             saveSamples(sess);
             requestParser.getRequest().setSamples(samples);
 
-            // If we are editing a request, figure out which hybs will be deleted
+            // If we are editing a request, figure out which hybs will be
+            // deleted
             if (!requestParser.isNewRequest() && !requestParser.isAmendRequest()) {
 
-              for(Iterator i = requestParser.getRequest().getHybridizations().iterator(); i.hasNext();)
-              {
-                Hybridization hyb = (Hybridization)i.next();
+              for (Iterator i = requestParser.getRequest().getHybridizations().iterator(); i.hasNext();) {
+                Hybridization hyb = (Hybridization) i.next();
                 boolean found = false;
-                for(Iterator i1 = requestParser.getHybInfos().iterator(); i1.hasNext();) {
-                  HybInfo hybInfo = (HybInfo)i1.next();
+                for (Iterator i1 = requestParser.getHybInfos().iterator(); i1.hasNext();) {
+                  HybInfo hybInfo = (HybInfo) i1.next();
                   if (hybInfo.getIdHybridization() != null && !hybInfo.getIdHybridization().equals("") && !hybInfo.getIdHybridization().startsWith("Hyb")) {
                     if (Integer.valueOf(hybInfo.getIdHybridization()).equals(hyb.getIdHybridization())) {
                       found = true;
@@ -457,14 +450,14 @@ public class SaveRequest extends GNomExCommand implements Serializable {
               }
             }
 
-            // Initialize sample channel 1 and 1 map if we are editting a request.
+            // Initialize sample channel 1 and 1 map if we are editting a
+            // request.
             // This will allow us to keep track of brand new labeled samples
             // vs. existing labeled samples when hybs are added to a request.
             if (!requestParser.isNewRequest() && !requestParser.isAmendRequest()) {
 
-              for(Iterator i = requestParser.getRequest().getHybridizations().iterator(); i.hasNext();)
-              {
-                Hybridization hyb = (Hybridization)i.next();
+              for (Iterator i = requestParser.getRequest().getHybridizations().iterator(); i.hasNext();) {
+                Hybridization hyb = (Hybridization) i.next();
                 if (hyb.getIdLabeledSampleChannel1() != null) {
                   this.channel1SampleMap.put(hyb.getIdSampleChannel1(), hyb.getIdLabeledSampleChannel1());
                 }
@@ -474,8 +467,6 @@ public class SaveRequest extends GNomExCommand implements Serializable {
               }
             }
 
-
-
             // save hybs
             if (!requestParser.isNewRequest()) {
               requestParser.getRequest().getHybridizations().size();
@@ -483,8 +474,8 @@ public class SaveRequest extends GNomExCommand implements Serializable {
             if (!requestParser.getHybInfos().isEmpty()) {
               int hybCount = 1;
               int newHybCount = 0;
-              for(Iterator i = requestParser.getHybInfos().iterator(); i.hasNext();) {
-                RequestParser.HybInfo hybInfo = (RequestParser.HybInfo)i.next();
+              for (Iterator i = requestParser.getHybInfos().iterator(); i.hasNext();) {
+                RequestParser.HybInfo hybInfo = (RequestParser.HybInfo) i.next();
                 boolean isNewHyb = requestParser.isNewRequest() || hybInfo.getIdHybridization() == null || hybInfo.getIdHybridization().startsWith("Hyb");
                 if (isNewHyb) {
                   newHybCount++;
@@ -500,14 +491,13 @@ public class SaveRequest extends GNomExCommand implements Serializable {
               }
             }
 
-
             // Create Hyb work items if QC->Microarray request
             StringBuffer buf = new StringBuffer();
             if (requestParser.getAmendState().equals(Constants.AMEND_QC_TO_MICROARRAY)) {
-              for(Iterator i = requestParser.getSampleIds().iterator(); i.hasNext();) {
-                String idSampleString = (String)i.next();
+              for (Iterator i = requestParser.getSampleIds().iterator(); i.hasNext();) {
+                String idSampleString = (String) i.next();
                 boolean isNewSample = requestParser.isNewRequest() || idSampleString == null || idSampleString.equals("") || idSampleString.startsWith("Sample");
-                Sample sample = (Sample)requestParser.getSampleMap().get(idSampleString);
+                Sample sample = (Sample) requestParser.getSampleMap().get(idSampleString);
 
                 // Create work items for labeling step if experiment modified
                 if (!requestParser.isExternalExperiment() && !isNewSample) {
@@ -516,10 +506,9 @@ public class SaveRequest extends GNomExCommand implements Serializable {
                   buf.append(" from LabeledSample ls ");
                   buf.append(" WHERE  ls.idSample =  " + sample.getIdSample());
 
-
                   List labeledSamples = sess.createQuery(buf.toString()).list();
-                  for(Iterator i1 = labeledSamples.iterator(); i1.hasNext();) {
-                    LabeledSample ls = (LabeledSample)i1.next();
+                  for (Iterator i1 = labeledSamples.iterator(); i1.hasNext();) {
+                    LabeledSample ls = (LabeledSample) i1.next();
 
                     WorkItem wi = new WorkItem();
                     wi.setIdRequest(sample.getIdRequest());
@@ -542,8 +531,8 @@ public class SaveRequest extends GNomExCommand implements Serializable {
             // Delete sequence lanes (edit request only)
             ArrayList samplesNotToDelete = new ArrayList();
             if (!requestParser.isAmendRequest()) {
-              for(Iterator i = requestParser.getRequest().getSequenceLanes().iterator(); i.hasNext();) {
-                SequenceLane lane = (SequenceLane)i.next();
+              for (Iterator i = requestParser.getRequest().getSequenceLanes().iterator(); i.hasNext();) {
+                SequenceLane lane = (SequenceLane) i.next();
                 if (!existingLanesSaved.containsKey(lane.getIdSequenceLane())) {
                   boolean canDeleteLane = true;
 
@@ -556,22 +545,19 @@ public class SaveRequest extends GNomExCommand implements Serializable {
                   List analysis = sess.createQuery(buf.toString()).list();
                   if (analysis != null && analysis.size() > 0) {
                     canDeleteLane = false;
-                    this.addInvalidField("deleteLaneError1", "Cannot delete lane " +
-                        lane.getNumber() + " because it is associated with existing analysis in GNomEx.  Please sever link before attempting delete\n");
+                    this.addInvalidField("deleteLaneError1", "Cannot delete lane " + lane.getNumber() + " because it is associated with existing analysis in GNomEx.  Please sever link before attempting delete\n");
 
                   }
                   if (lane.getFlowCellChannel() != null) {
                     canDeleteLane = false;
-                    this.addInvalidField("deleteLaneError2", "Cannot delete lane " +
-                        lane.getNumber() + " because it is loaded on a flow cell.  Please delete flow cell channel before attempting delete\n");
+                    this.addInvalidField("deleteLaneError2", "Cannot delete lane " + lane.getNumber() + " because it is loaded on a flow cell.  Please delete flow cell channel before attempting delete\n");
                   }
                   if (lane.getFlowCellChannel() != null) {
                     buf = new StringBuffer("SELECT ch.idFlowCellChannel from WorkItem wi join wi.flowCellChannel ch where ch.idFlowCellChannel = " + lane.getIdFlowCellChannel());
                     List workItems = sess.createQuery(buf.toString()).list();
                     if (workItems != null && workItems.size() > 0) {
                       canDeleteLane = false;
-                      this.addInvalidField("deleteLaneError3", "Cannot delete lane " +
-                          lane.getNumber() + " because it is loaded on a flow cell that is on the seq run worklist.  Please delete flow cell channel and work item before attempting delete\n");
+                      this.addInvalidField("deleteLaneError3", "Cannot delete lane " + lane.getNumber() + " because it is loaded on a flow cell that is on the seq run worklist.  Please delete flow cell channel and work item before attempting delete\n");
                     }
 
                   }
@@ -580,15 +566,19 @@ public class SaveRequest extends GNomExCommand implements Serializable {
                     sequenceLanesDeleted.add(lane);
                     sess.delete(lane);
                   } else {
-                    /*If it is a sample we can't delete because of linked data we need to add the idSample back to the list of idSamples
-                        and we need to add the sample to the sample map, this way the samples idRequest won't be set to null in the following 
-                        code starting on line 558*/
-                    if(!requestParser.getSampleIds().contains(lane.getIdSample())) {
-                      Sample s = (Sample)sess.load(Sample.class, lane.getIdSample());
+                    /*
+                     * If it is a sample we can't delete because of linked data
+                     * we need to add the idSample back to the list of idSamples
+                     * and we need to add the sample to the sample map, this way
+                     * the samples idRequest won't be set to null in the
+                     * following code starting on line 558
+                     */
+                    if (!requestParser.getSampleIds().contains(lane.getIdSample())) {
+                      Sample s = (Sample) sess.load(Sample.class, lane.getIdSample());
                       samplesNotToDelete.add(s);
-                      for(Iterator it = samplesDeleted.iterator(); it.hasNext();) {
-                        Sample sd = (Sample)it.next();
-                        if(sd.getIdSample() == s.getIdSample()) {
+                      for (Iterator it = samplesDeleted.iterator(); it.hasNext();) {
+                        Sample sd = (Sample) it.next();
+                        if (sd.getIdSample() == s.getIdSample()) {
                           samplesDeleted.remove(s);
                           break;
                         }
@@ -596,21 +586,20 @@ public class SaveRequest extends GNomExCommand implements Serializable {
                     }
                   }
 
-
                 }
               }
-              
-              
 
             }
 
-            //Add the samples we can't delete back to the sample set on the request
-            for(Iterator i = samplesNotToDelete.iterator(); i.hasNext();) {
-              Sample s = (Sample)i.next();
+            // Add the samples we can't delete back to the sample set on the
+            // request
+            for (Iterator i = samplesNotToDelete.iterator(); i.hasNext();) {
+              Sample s = (Sample) i.next();
               requestParser.getRequest().getSamples().add(s);
             }
 
-            // Only admins should be deleting samples unless dna sequencing then based on status.
+            // Only admins should be deleting samples unless dna sequencing then
+            // based on status.
             if (this.samplesDeleted.size() > 0) {
               if (!this.getSecAdvisor().canDeleteSample(requestParser.getRequest())) {
                 this.addInvalidField("deleteSamplePermission", "Only admins can delete samples from the experiment.  Please contact " + propertyHelper.getProperty(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_BUGS) + ".");
@@ -620,19 +609,18 @@ public class SaveRequest extends GNomExCommand implements Serializable {
                 // delete wells for deleted samples
                 deleteWellsForDeletedSamples(sess);
 
-                for(Iterator i = samplesDeleted.iterator(); i.hasNext();) {
-                  Sample s = (Sample)i.next();
+                for (Iterator i = samplesDeleted.iterator(); i.hasNext();) {
+                  Sample s = (Sample) i.next();
                   sess.delete(s);
                 }
 
               }
             }
 
-
             // Set the seq lib treatments
             Set seqLibTreatments = new TreeSet();
-            for(Iterator i = requestParser.getSeqLibTreatmentMap().keySet().iterator(); i.hasNext();) {
-              String key = (String)i.next();
+            for (Iterator i = requestParser.getSeqLibTreatmentMap().keySet().iterator(); i.hasNext();) {
+              String key = (String) i.next();
               Integer idSeqLibTreatment = Integer.parseInt(key);
               SeqLibTreatment slt = dictionaryHelper.getSeqLibTreatment(idSeqLibTreatment);
               seqLibTreatments.add(slt);
@@ -649,21 +637,21 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 
             // Delete any collaborators that were removed
             for (Iterator i1 = requestParser.getRequest().getCollaborators().iterator(); i1.hasNext();) {
-              ExperimentCollaborator ec = (ExperimentCollaborator)i1.next();
+              ExperimentCollaborator ec = (ExperimentCollaborator) i1.next();
               if (!requestParser.getCollaboratorUploadMap().containsKey(ec.getIdAppUser())) {
                 sess.delete(ec);
               }
             }
 
             // Add/update collaborators
-            for(Iterator i = requestParser.getCollaboratorUpdateMap().keySet().iterator(); i.hasNext();) {
-              String key = (String)i.next();
+            for (Iterator i = requestParser.getCollaboratorUpdateMap().keySet().iterator(); i.hasNext();) {
+              String key = (String) i.next();
               Integer idAppUser = Integer.parseInt(key);
-              String canUploadData = (String)requestParser.getCollaboratorUploadMap().get(key);
-              String canUpdate = (String)requestParser.getCollaboratorUpdateMap().get(key);
+              String canUploadData = (String) requestParser.getCollaboratorUploadMap().get(key);
+              String canUpdate = (String) requestParser.getCollaboratorUpdateMap().get(key);
 
-              // TODO (performance):  Would be better if app user was cached.
-              ExperimentCollaborator collaborator = (ExperimentCollaborator)sess.createQuery("SELECT ec from ExperimentCollaborator ec where idRequest = " + requestParser.getRequest().getIdRequest() + " and idAppUser = " + idAppUser).uniqueResult();
+              // TODO (performance): Would be better if app user was cached.
+              ExperimentCollaborator collaborator = (ExperimentCollaborator) sess.createQuery("SELECT ec from ExperimentCollaborator ec where idRequest = " + requestParser.getRequest().getIdRequest() + " and idAppUser = " + idAppUser).uniqueResult();
 
               // If the collaborator doesn't exist, create it.
               if (collaborator == null) {
@@ -674,22 +662,18 @@ public class SaveRequest extends GNomExCommand implements Serializable {
                 collaborator.setCanUpdate(canUpdate);
                 sess.save(collaborator);
               } else {
-                // If the collaborator does exist, just update the upload permission flag.
+                // If the collaborator does exist, just update the upload
+                // permission flag.
                 collaborator.setCanUploadData(canUploadData);
                 collaborator.setCanUpdate(canUpdate);
               }
             }
             sess.flush();
 
-            // Bump up the revision number on the request if services have been added
+            // Bump up the revision number on the request if services have been
+            // added
             // or services have been removed
-            if (!requestParser.isNewRequest() &&
-                (requestParser.isAmendRequest() ||
-                    !samplesAdded.isEmpty() ||
-                    !labeledSamplesAdded.isEmpty() ||
-                    !hybsAdded.isEmpty() ||
-                    !sequenceLanesAdded.isEmpty() ||
-                    !sequenceLanesDeleted.isEmpty())) {
+            if (!requestParser.isNewRequest() && (requestParser.isAmendRequest() || !samplesAdded.isEmpty() || !labeledSamplesAdded.isEmpty() || !hybsAdded.isEmpty() || !sequenceLanesAdded.isEmpty() || !sequenceLanesDeleted.isEmpty())) {
               originalRequestNumber = requestParser.getRequest().getNumber();
               int revNumber = 1;
               // If services are being added to the request,
@@ -708,118 +692,115 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 
             billingAccountMessage = "";
 
-            // We will create billing items if this is not an external experiment.
-            // For new experiments, don't create billing items for DNA Seq Core experiments as these get
+            // We will create billing items if this is not an external
+            // experiment.
+            // For new experiments, don't create billing items for DNA Seq Core
+            // experiments as these get
             // created when the status is changed to submitted.
-            // For existing experiments, create billing items (for new charges) for all experiment
-            // types except fragment analysis and mit seq as these are plate based and should not be altered.
+            // For existing experiments, create billing items (for new charges)
+            // for all experiment
+            // types except fragment analysis and mit seq as these are plate
+            // based and should not be altered.
+
             boolean createBillingItems = false;
             if (!requestParser.isExternalExperiment()) {
-              if (requestParser.isNewRequest() && !RequestCategory.isDNASeqCoreRequestCategory(requestParser.getRequest().getCodeRequestCategory())) {
-                // if we are to create billing items during workflow we don't want to create them here...
+              if (requestParser.isNewRequest() && pdh.getCoreFacilityRequestCategoryProperty(requestParser.getRequest().getIdCoreFacility(), requestParser.getRequest().getCodeRequestCategory(), PropertyDictionary.NEW_REQUEST_SAVE_BEFORE_SUBMIT).equals("N")) {
+                // if we are to create billing items during workflow we don't
+                // want to create them here...
                 String prop = propertyHelper.getCoreFacilityRequestCategoryProperty(requestCategory.getIdCoreFacility(), requestCategory.getCodeRequestCategory(), PropertyDictionary.BILLING_DURING_WORKFLOW);
                 if (prop == null || !prop.equals("Y")) {
                   createBillingItems = true;
                 }
-              } else if (!requestParser.isNewRequest() &&
-                  !requestParser.getRequest().getCodeRequestCategory().equals(RequestCategory.FRAGMENT_ANALYSIS_REQUEST_CATEGORY) &&
-                  !requestParser.getRequest().getCodeRequestCategory().equals(RequestCategory.MITOCHONDRIAL_DLOOP_SEQ_REQUEST_CATEGORY)) {
+              } else if (!requestParser.isNewRequest() && !requestParser.getRequest().getCodeRequestCategory().equals(RequestCategory.FRAGMENT_ANALYSIS_REQUEST_CATEGORY) && !requestParser.getRequest().getCodeRequestCategory().equals(RequestCategory.MITOCHONDRIAL_DLOOP_SEQ_REQUEST_CATEGORY)) {
 
-                // For dna seq facility orders, warn the admin to adjust billing if samples have been added.
-                // (We don't automatically adjust billing items because of tiered pricing issues.)
+                // For dna seq facility orders, warn the admin to adjust billing
+                // if samples have been added.
+                // (We don't automatically adjust billing items because of
+                // tiered pricing issues.)
                 if (RequestCategory.isDNASeqCoreRequestCategory(requestParser.getRequest().getCodeRequestCategory())) {
                   if (requestParser.getRequest().getBillingItems() != null && !requestParser.getRequest().getBillingItems().isEmpty()) {
-                    if ( hasNewSample ) {
+                    if (hasNewSample) {
                       billingAccountMessage = "Request " + requestParser.getRequest().getNumber() + " has been saved.\n\nSamples have been added, please adjust billing accordingly.";
                     }
                   }
                 }
               }
             }
-            billing_items_if:
-              if (createBillingItems || requestParser.isReassignBillingAccount()) {
-                sess.refresh(requestParser.getRequest());
+            billing_items_if: if (createBillingItems || requestParser.isReassignBillingAccount()) {
+              sess.refresh(requestParser.getRequest());
 
-                if(!requestParser.getRequest().getBillingItems().isEmpty()) {
-                  Iterator ibill = requestParser.getRequest().getBillingItems().iterator();
-                  BillingItem bill = (BillingItem)ibill.next();
-                  hci.gnomex.model.BillingAccount firstBillingAccount = bill.getBillingAccount();
-                  while(ibill.hasNext()) {
-                    bill = (BillingItem)ibill.next();
-                    if(firstBillingAccount != bill.getBillingAccount()) {
-                      billingAccountMessage = "There are multiple billing accounts associated with this request. The accounts have not been changed. Please use the Admininstrator Billing Screen to assign new accounts.";
-                      break billing_items_if;
-                    }
-                  }
-                }
-
-                // Create the billing items
-                // We need to include the samples even though they were not added
-                // b/c we need to perform lib prep on them.
-                if (requestParser.getAmendState().equals(Constants.AMEND_QC_TO_SEQ)) {
-                  samplesAdded.addAll(requestParser.getRequest().getSamples());
-                }
-
-                createBillingItems(sess, requestParser.getRequest(), requestParser.getAmendState(), billingPeriod, dictionaryHelper, samplesAdded, labeledSamplesAdded, hybsAdded, sequenceLanesAdded, requestParser.getSampleAssays(), null, BillingStatus.PENDING, propertyEntries);
-                sess.flush();
-
-
-                // If this is an existing request and the billing account has been reassigned,
-                // change the account on the billing items as well.
-                int reassignCount =  0;
-                int unassignedCount = 0;
-                if (!requestParser.isNewRequest() && requestParser.isReassignBillingAccount()) {
-                  for(Iterator ib = requestParser.getRequest().getBillingItems().iterator(); ib.hasNext();) {
-                    BillingItem bi = (BillingItem)ib.next();
-                    if (bi.getCodeBillingStatus().equals(BillingStatus.PENDING) || bi.getCodeBillingStatus().equals(BillingStatus.COMPLETED)) {
-                      bi.setIdBillingAccount(requestParser.getRequest().getIdBillingAccount());
-                      bi.setIdLab(requestParser.getRequest().getIdLab());
-                      bi.resetInvoiceForBillingItem(sess);
-                      reassignCount++;
-                    } else  {
-                      unassignedCount++;
-                    }
-                  }
-                  if (unassignedCount > 0) {
-                    billingAccountMessage = "WARNING: The billing account could not be reassigned for " + unassignedCount + " approved billing items.  Please reassign in the Billing screen.";
-                  }
-                  if (billingAccountMessage.length() > 0) {
-                    billingAccountMessage += "\n\n(The billing account has been reassigned for  " + reassignCount + " billing item(s).)";
-                  } else {
-                    billingAccountMessage = "The billing account has been reassigned for " + reassignCount + " billing item(s).";
-                  }
-
-                  if (reassignCount > 0) {
-                    sess.flush();
+              if (!requestParser.getRequest().getBillingItems().isEmpty()) {
+                Iterator ibill = requestParser.getRequest().getBillingItems().iterator();
+                BillingItem bill = (BillingItem) ibill.next();
+                hci.gnomex.model.BillingAccount firstBillingAccount = bill.getBillingAccount();
+                while (ibill.hasNext()) {
+                  bill = (BillingItem) ibill.next();
+                  if (firstBillingAccount != bill.getBillingAccount()) {
+                    billingAccountMessage = "There are multiple billing accounts associated with this request. The accounts have not been changed. Please use the Admininstrator Billing Screen to assign new accounts.";
+                    break billing_items_if;
                   }
                 }
               }
+
+              // Create the billing items
+              // We need to include the samples even though they were not added
+              // b/c we need to perform lib prep on them.
+              if (requestParser.getAmendState().equals(Constants.AMEND_QC_TO_SEQ)) {
+                samplesAdded.addAll(requestParser.getRequest().getSamples());
+              }
+
+              createBillingItems(sess, requestParser.getRequest(), requestParser.getAmendState(), billingPeriod, dictionaryHelper, samplesAdded, labeledSamplesAdded, hybsAdded, sequenceLanesAdded, requestParser.getSampleAssays(), null, BillingStatus.PENDING, propertyEntries);
+              sess.flush();
+
+              // If this is an existing request and the billing account has been
+              // reassigned,
+              // change the account on the billing items as well.
+              int reassignCount = 0;
+              int unassignedCount = 0;
+              if (!requestParser.isNewRequest() && requestParser.isReassignBillingAccount()) {
+                for (Iterator ib = requestParser.getRequest().getBillingItems().iterator(); ib.hasNext();) {
+                  BillingItem bi = (BillingItem) ib.next();
+                  if (bi.getCodeBillingStatus().equals(BillingStatus.PENDING) || bi.getCodeBillingStatus().equals(BillingStatus.COMPLETED)) {
+                    bi.setIdBillingAccount(requestParser.getRequest().getIdBillingAccount());
+                    bi.setIdLab(requestParser.getRequest().getIdLab());
+                    bi.resetInvoiceForBillingItem(sess);
+                    reassignCount++;
+                  } else {
+                    unassignedCount++;
+                  }
+                }
+                if (unassignedCount > 0) {
+                  billingAccountMessage = "WARNING: The billing account could not be reassigned for " + unassignedCount + " approved billing items.  Please reassign in the Billing screen.";
+                }
+                if (billingAccountMessage.length() > 0) {
+                  billingAccountMessage += "\n\n(The billing account has been reassigned for  " + reassignCount + " billing item(s).)";
+                } else {
+                  billingAccountMessage = "The billing account has been reassigned for " + reassignCount + " billing item(s).";
+                }
+
+                if (reassignCount > 0) {
+                  sess.flush();
+                }
+              }
+            }
 
             // If the lab on the request was changed, reassign the lab on the
             // transfer logs for this request
             reassignLabForTransferLog(sess);
             sess.flush();
 
-            //Create file server data directories for request based off of code request category
-            if (!requestParser.isExternalExperiment() && RequestCategory.isIlluminaRequestCategory(requestParser.getRequest().getCodeRequestCategory())){
+            // Create file server data directories for request based off of code
+            // request category
+            if (!requestParser.isExternalExperiment() && RequestCategory.isIlluminaRequestCategory(requestParser.getRequest().getCodeRequestCategory())) {
               this.createResultDirectories(requestParser.getRequest(), "Sample QC", PropertyDictionaryHelper.getInstance(sess).getExperimentDirectory(serverName, requestParser.getRequest().getIdCoreFacility()));
               this.createResultDirectories(requestParser.getRequest(), "Library QC", PropertyDictionaryHelper.getInstance(sess).getExperimentDirectory(serverName, requestParser.getRequest().getIdCoreFacility()));
-            }
-            else if (!requestParser.isExternalExperiment() && (RequestCategory.isMicroarrayRequestCategory(requestParser.getRequest().getCodeRequestCategory()) || requestParser.getRequest().getCodeRequestCategory().equals(RequestCategoryType.TYPE_QC))){
+            } else if (!requestParser.isExternalExperiment() && (RequestCategory.isMicroarrayRequestCategory(requestParser.getRequest().getCodeRequestCategory()) || requestParser.getRequest().getCodeRequestCategory().equals(RequestCategoryType.TYPE_QC))) {
               this.createResultDirectories(requestParser.getRequest(), "Sample QC", PropertyDictionaryHelper.getInstance(sess).getExperimentDirectory(serverName, requestParser.getRequest().getIdCoreFacility()));
             }
 
             String emailErrorMessage = sendEmails(sess);
 
-
-            this.xmlResult = "<SUCCESS idRequest=\"" + requestParser.getRequest().getIdRequest() +
-                "\" requestNumber=\"" + requestParser.getRequest().getNumber()  +
-                "\" deleteSampleCount=\"" + this.samplesDeleted.size() +
-                "\" deleteHybCount=\"" + this.hybsDeleted.size() +
-                "\" deleteLaneCount=\"" + this.sequenceLanesDeleted.size() +
-                "\" billingAccountMessage = \"" + billingAccountMessage +
-                "\" emailErrorMessage = \"" + emailErrorMessage +
-                "\"/>";
+            this.xmlResult = "<SUCCESS idRequest=\"" + requestParser.getRequest().getIdRequest() + "\" requestNumber=\"" + requestParser.getRequest().getNumber() + "\" deleteSampleCount=\"" + this.samplesDeleted.size() + "\" deleteHybCount=\"" + this.hybsDeleted.size() + "\" deleteLaneCount=\"" + this.sequenceLanesDeleted.size() + "\" billingAccountMessage = \"" + billingAccountMessage + "\" emailErrorMessage = \"" + emailErrorMessage + "\"/>";
 
           }
 
@@ -834,7 +815,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         setResponsePage(this.ERROR_JSP);
       }
 
-    } catch (Exception e){
+    } catch (Exception e) {
       log.error("An exception has occurred in SaveRequest ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.toString());
@@ -844,7 +825,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         if (sess != null) {
           HibernateSession.closeSession();
         }
-      } catch(Exception e) {
+      } catch (Exception e) {
 
       }
     }
@@ -857,73 +838,62 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     StringBuffer message = new StringBuffer();
     if (requestParser.isNewRequest() || requestParser.isAmendRequest()) {
       sess.refresh(requestParser.getRequest());
-      if (!RequestCategory.isDNASeqCoreRequestCategory(requestParser.getRequest().getCodeRequestCategory())) {
+      if (PropertyDictionaryHelper.getInstance(sess).getCoreFacilityRequestCategoryProperty(requestParser.getRequest().getIdCoreFacility(), requestParser.getRequest().getCodeRequestCategory(), PropertyDictionary.NEW_REQUEST_SAVE_BEFORE_SUBMIT).equals("N")) {
         String otherRecipients = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityRequestCategoryProperty(requestParser.getRequest().getIdCoreFacility(), requestParser.getRequest().getCodeRequestCategory(), PropertyDictionary.REQUEST_SUBMIT_CONFIRMATION_EMAIL);
-        if ((requestParser.getRequest().getAppUser() != null
-            && requestParser.getRequest().getAppUser().getEmail() != null
-            && !requestParser.getRequest().getAppUser().getEmail().equals(""))
-            || (otherRecipients != null && otherRecipients.length() > 0)) {
+        if ((requestParser.getRequest().getAppUser() != null && requestParser.getRequest().getAppUser().getEmail() != null && !requestParser.getRequest().getAppUser().getEmail().equals("")) || (otherRecipients != null && otherRecipients.length() > 0)) {
           try {
             // confirmation email for dna seq requests is sent at submit time.
             sendConfirmationEmail(sess, otherRecipients);
           } catch (Exception e) {
-            String msg = "Unable to send confirmation email notifying submitter that request "
-                + requestParser.getRequest().getNumber()
-                + " has been submitted.  " + e.toString();
+            String msg = "Unable to send confirmation email notifying submitter that request " + requestParser.getRequest().getNumber() + " has been submitted.  " + e.toString();
             log.error(msg);
             message.append(msg + "\n");
           }
         } else {
-          String msg = ( "Unable to send confirmation email notifying submitter that request "
-              + requestParser.getRequest().getNumber()
-              + " has been submitted.  Request submitter or request submitter email is blank.");
+          String msg = ("Unable to send confirmation email notifying submitter that request " + requestParser.getRequest().getNumber() + " has been submitted.  Request submitter or request submitter email is blank.");
           log.error(msg);
           message.append(msg + "\n");
         }
       }
       if (this.invoicePrice.length() > 0) {
-        HashSet <String> emails = new HashSet <String>();
+        HashSet<String> emails = new HashSet<String>();
         Lab lab = requestParser.getRequest().getLab();
         String billedAccountName = requestParser.getRequest().getBillingAccountName();
         emails.add(lab.getContactEmail());
-        //String contactEmail = lab.getContactEmail();
-        //String ccEmail = "";
+        // String contactEmail = lab.getContactEmail();
+        // String ccEmail = "";
         if (lab.getBillingContactEmail() != null && lab.getBillingContactEmail().length() > 0) {
           emails.add(lab.getBillingContactEmail());
-          //ccEmail = lab.getBillingContactEmail() + ", ";
+          // ccEmail = lab.getBillingContactEmail() + ", ";
         }
-        for(Iterator i1 = lab.getManagers().iterator(); i1.hasNext();) {
-          AppUser manager = (AppUser)i1.next();
+        for (Iterator i1 = lab.getManagers().iterator(); i1.hasNext();) {
+          AppUser manager = (AppUser) i1.next();
           if (manager.getIsActive() != null && manager.getIsActive().equalsIgnoreCase("Y")) {
-            if(manager.getEmail() != null) {
-              //ccEmail = ccEmail + manager.getEmail() + ", ";
+            if (manager.getEmail() != null) {
+              // ccEmail = ccEmail + manager.getEmail() + ", ";
               emails.add(manager.getEmail());
             }
           }
         }
-        if(emails.size() > 0) {
+        if (emails.size() > 0) {
           try {
             String contactEmail = "";
             String ccEmail = "";
-            for(Iterator i = emails.iterator(); i.hasNext();) {
-              String address = (String)i.next();
+            for (Iterator i = emails.iterator(); i.hasNext();) {
+              String address = (String) i.next();
               contactEmail += address;
-              if(i.hasNext()) {
+              if (i.hasNext()) {
                 contactEmail += ", ";
               }
             }
             sendInvoicePriceEmail(sess, contactEmail, ccEmail, billedAccountName);
           } catch (Exception e) {
-            String msg = "Unable to send estimated charges notification for request "
-                + requestParser.getRequest().getNumber()
-                + "  " + e.toString();
+            String msg = "Unable to send estimated charges notification for request " + requestParser.getRequest().getNumber() + "  " + e.toString();
             log.error(msg);
             message.append(msg + "\n");
           }
         } else {
-          String msg = "Unable to send estimated charges notification for request "
-              + requestParser.getRequest().getNumber()
-              + " has been submitted.  Contact or lab manager(s) email is blank.";
+          String msg = "Unable to send estimated charges notification for request " + requestParser.getRequest().getNumber() + " has been submitted.  Contact or lab manager(s) email is blank.";
           log.error(msg);
           message.append(msg + "\n");
         }
@@ -947,7 +917,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     StringBuffer buf = new StringBuffer("select ccNumber from BST.dbo.Sample WHERE ccNumber in (");
     Iterator<String> itStr = ccNumberList.iterator();
     boolean firstTime = true;
-    while(itStr.hasNext()) {
+    while (itStr.hasNext()) {
       hasCCNumbers = true;
       String thisKey = itStr.next();
       if (!firstTime)
@@ -958,12 +928,13 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     }
     buf.append(")");
 
-    if(hasCCNumbers) {
+    if (hasCCNumbers) {
       try {
         Statement stmt = null;
         ResultSet rs = null;
 
-        // Use guest session for validating ccNumbers because it has read permissions on BST
+        // Use guest session for validating ccNumbers because it has read
+        // permissions on BST
         sessGuest = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
 
         con = sessGuest.connection();
@@ -980,9 +951,9 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         // Now check to see if any ccNumbers weren't found
         itStr = ccNumberList.iterator();
         firstTime = true;
-        while(itStr.hasNext()) {
+        while (itStr.hasNext()) {
           String thisKey = itStr.next();
-          if(!ccNumbersRetreivedList.contains(thisKey)) {
+          if (!ccNumbersRetreivedList.contains(thisKey)) {
             if (!firstTime)
               buf.append(", ");
             else
@@ -990,7 +961,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
             buf.append("'" + thisKey + "'");
           }
         }
-        if(buf.toString().length() > 0) {
+        if (buf.toString().length() > 0) {
           this.addInvalidField("InvalidCCNumber", "The following CC Numbers do not exist in BST: " + buf.toString() + ".\n\nPlease correct on the Samples tab.");
         }
 
@@ -998,7 +969,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 
       } finally {
         try {
-          if(sessGuest != null) {
+          if (sessGuest != null) {
             if (con != null) {
               con.close();
             }
@@ -1016,7 +987,6 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     boolean isImport = false;
     return saveRequest(sess, requestParser, description, isImport);
   }
-
 
   public static String saveRequest(Session sess, RequestParser requestParser, String description, boolean isImport) throws Exception {
 
@@ -1043,24 +1013,21 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 
   public static String getNextRequestNumber(RequestParser requestParser, Session sess) throws SQLException {
     String requestNumber = "";
-    String procedure = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityRequestCategoryProperty(
-        requestParser.getRequest().getIdCoreFacility(),
-        requestParser.getRequest().getCodeRequestCategory(),
-        PropertyDictionary.GET_REQUEST_NUMBER_PROCEDURE);
+    String procedure = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityRequestCategoryProperty(requestParser.getRequest().getIdCoreFacility(), requestParser.getRequest().getCodeRequestCategory(), PropertyDictionary.GET_REQUEST_NUMBER_PROCEDURE);
     if (procedure != null && procedure.length() > 0) {
       Connection con = sess.connection();
       String queryString = "";
       if (con.getMetaData().getDatabaseProductName().toUpperCase().indexOf(Constants.SQL_SERVER) >= 0) {
         queryString = "exec " + procedure;
       } else {
-    	  queryString = "select " + procedure + "();";
+        queryString = "select " + procedure + "();";
       }
       SQLQuery query = sess.createSQLQuery(queryString);
       List l = query.list();
       if (l.size() != 0) {
         Object o = l.get(0);
         if (o.getClass().equals(String.class)) {
-          requestNumber = (String)o;
+          requestNumber = (String) o;
           requestNumber = requestNumber.toUpperCase();
           if (!requestNumber.endsWith("R")) {
             requestNumber = requestNumber + "R";
@@ -1083,23 +1050,21 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     hasNewSample = false;
     DictionaryHelper dh = DictionaryHelper.getInstance(sess);
     RequestCategory requestCategory = dh.getRequestCategoryObject(requestParser.getRequest().getCodeRequestCategory());
-    for(Iterator i = requestParser.getSampleIds().iterator(); i.hasNext();) {
-      String idSampleString = (String)i.next();
+    for (Iterator i = requestParser.getSampleIds().iterator(); i.hasNext();) {
+      String idSampleString = (String) i.next();
       boolean isNewSample = requestParser.isNewRequest() || idSampleString == null || idSampleString.equals("") || idSampleString.startsWith("Sample");
       hasNewSample = isNewSample || hasNewSample;
-      Sample sample = (Sample)requestParser.getSampleMap().get(idSampleString);
-
+      Sample sample = (Sample) requestParser.getSampleMap().get(idSampleString);
 
       nextSampleNumber = saveSample(sess, requestParser, idSampleString, sample, idSampleMap, samples, samplesAdded, dh.getPropertyMap(), nextSampleNumber);
 
-
-      // Set the barcodeSequence if  idOligoBarcodeSequence is filled in
+      // Set the barcodeSequence if idOligoBarcodeSequence is filled in
       if (sample.getIdOligoBarcode() != null) {
         sample.setBarcodeSequence(dh.getBarcodeSequence(sample.getIdOligoBarcode()));
       }
 
-      // Set the barcodeSequenceB if  idOligoBarcodeB is filled in
-      if(sample.getIdOligoBarcodeB() != null){
+      // Set the barcodeSequenceB if idOligoBarcodeB is filled in
+      if (sample.getIdOligoBarcodeB() != null) {
         sample.setBarcodeSequenceB(dh.getBarcodeSequence(sample.getIdOligoBarcodeB()));
       }
 
@@ -1127,15 +1092,9 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       // handle plates and plate wells for iScan
       updateIScanPlates(sess, sample, idSampleString);
 
-
-
       // if this is a new request, create QC work items for each sample
-      if (!requestParser.isExternalExperiment() && 
-          ( RequestCategory.isIlluminaRequestCategory(requestParser.getRequest().getCodeRequestCategory()) || 
-              RequestCategory.isQCRequestCategory(requestParser.getRequest().getCodeRequestCategory()) ||
-              RequestCategory.isMicroarrayRequestCategory(requestParser.getRequest().getCodeRequestCategory()) ||
-              RequestCategory.isNanoStringRequestCategoryType(requestParser.getRequest().getCodeRequestCategory()))) {
-        if ((requestParser.isNewRequest()  || isNewSample || requestParser.isQCAmendRequest())) {
+      if (!requestParser.isExternalExperiment() && (RequestCategory.isIlluminaRequestCategory(requestParser.getRequest().getCodeRequestCategory()) || RequestCategory.isQCRequestCategory(requestParser.getRequest().getCodeRequestCategory()) || RequestCategory.isMicroarrayRequestCategory(requestParser.getRequest().getCodeRequestCategory()) || RequestCategory.isNanoStringRequestCategoryType(requestParser.getRequest().getCodeRequestCategory()))) {
+        if ((requestParser.isNewRequest() || isNewSample || requestParser.isQCAmendRequest())) {
           WorkItem workItem = new WorkItem();
           workItem.setIdRequest(requestParser.getRequest().getIdRequest());
           workItem.setIdCoreFacility(requestCategory.getIdCoreFacility());
@@ -1143,7 +1102,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 
             if (requestParser.isQCAmendRequest() && !isNewSample) {
               String codeStepNext = "";
-              if(requestCategory.getType().equals(RequestCategoryType.TYPE_HISEQ)) {
+              if (requestCategory.getType().equals(RequestCategoryType.TYPE_HISEQ)) {
                 codeStepNext = Step.HISEQ_PREP;
               } else if (requestCategory.getType().equals(RequestCategoryType.TYPE_MISEQ)) {
                 codeStepNext = Step.MISEQ_PREP;
@@ -1152,25 +1111,28 @@ public class SaveRequest extends GNomExCommand implements Serializable {
               // Place samples on Seq Prep worklist.
               workItem.setCodeStepNext(codeStepNext);
               if (sample.getSeqPrepByCore() != null && sample.getSeqPrepByCore().equalsIgnoreCase("Y")) {
-                sample.setQualBypassed( "Y");
+                sample.setQualBypassed("Y");
                 sample.setQualDate(new java.sql.Date(System.currentTimeMillis()));
               }
             } else {
               // New request....
-              // For Solexa samples to be prepped by core, place on Solexa QC worklist.
-              // For samples NOT prepped by core, place on Solexa Seq Prep worklist (where the post Lib prep QC fields
+              // For Solexa samples to be prepped by core, place on Solexa QC
+              // worklist.
+              // For samples NOT prepped by core, place on Solexa Seq Prep
+              // worklist (where the post Lib prep QC fields
               // will be recorded.
               if (sample.getSeqPrepByCore() != null && sample.getSeqPrepByCore().equalsIgnoreCase("Y")) {
                 String codeStepNext = "";
-                if(requestCategory.getType().equals(RequestCategoryType.TYPE_HISEQ)) {
+                if (requestCategory.getType().equals(RequestCategoryType.TYPE_HISEQ)) {
                   codeStepNext = Step.HISEQ_QC;
-                } if (requestCategory.getType().equals(RequestCategoryType.TYPE_MISEQ))  {
+                }
+                if (requestCategory.getType().equals(RequestCategoryType.TYPE_MISEQ)) {
                   codeStepNext = Step.MISEQ_QC;
                 }
                 workItem.setCodeStepNext(codeStepNext);
               } else {
                 String codeStepNext = "";
-                if(requestCategory.getType().equals(RequestCategoryType.TYPE_HISEQ)) {
+                if (requestCategory.getType().equals(RequestCategoryType.TYPE_HISEQ)) {
                   codeStepNext = Step.HISEQ_PREP;
                 } else if (requestCategory.getType().equals(RequestCategoryType.TYPE_MISEQ)) {
                   codeStepNext = Step.MISEQ_PREP;
@@ -1199,41 +1161,35 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       sampleCountOnPlate++;
     }
 
-
   }
 
-  public static Integer saveSample(Session sess, RequestParser requestParser, String idSampleString,
-      Sample sample, Map idSampleMap, Set samples, Set samplesAdded, Map<Integer, Property> propertyMap, Integer nextSampleNumber) throws Exception {
+  public static Integer saveSample(Session sess, RequestParser requestParser, String idSampleString, Sample sample, Map idSampleMap, Set samples, Set samplesAdded, Map<Integer, Property> propertyMap, Integer nextSampleNumber) throws Exception {
 
     boolean isNewSample = requestParser.isNewRequest() || idSampleString == null || idSampleString.equals("") || idSampleString.startsWith("Sample");
 
     nextSampleNumber = initSample(sess, requestParser.getRequest(), sample, isNewSample, nextSampleNumber);
 
-    if(requestParser.getSampleAnnotationMap() != null && propertyMap != null) {
-      setSampleProperties(sess, requestParser.getRequest(), sample, isNewSample,
-          (Map)requestParser.getSampleAnnotationMap().get(idSampleString),
-          requestParser.getOtherCharacteristicLabel(), propertyMap);
+    if (requestParser.getSampleAnnotationMap() != null && propertyMap != null) {
+      setSampleProperties(sess, requestParser.getRequest(), sample, isNewSample, (Map) requestParser.getSampleAnnotationMap().get(idSampleString), requestParser.getOtherCharacteristicLabel(), propertyMap);
       addStandardSampleProperties(sess, requestParser, idSampleString, sample);
 
       // Delete the existing sample treatments
       if (!isNewSample && sample.getTreatmentEntries() != null) {
-        for(Iterator i = sample.getTreatmentEntries().iterator(); i.hasNext();) {
-          TreatmentEntry entry = (TreatmentEntry)i.next();
+        for (Iterator i = sample.getTreatmentEntries().iterator(); i.hasNext();) {
+          TreatmentEntry entry = (TreatmentEntry) i.next();
           sess.delete(entry);
         }
       }
 
       // Add treatment
-      String treatment = (String)requestParser.getSampleTreatmentMap().get(idSampleString);
-      if(requestParser.getShowTreatments() && treatment != null && !treatment.equals("")) {
+      String treatment = (String) requestParser.getSampleTreatmentMap().get(idSampleString);
+      if (requestParser.getShowTreatments() && treatment != null && !treatment.equals("")) {
         TreatmentEntry entry = new TreatmentEntry();
         entry.setIdSample(sample.getIdSample());
         entry.setTreatment(treatment);
         sess.save(entry);
       }
     }
-
-
 
     sess.flush();
 
@@ -1261,21 +1217,18 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     return nextSampleNumber;
   }
 
-  public static void setSampleProperties(Session sess, Request request, Sample sample, Boolean isNewSample,
-      Map sampleAnnotations, String otherCharacteristicLabel, Map<Integer, Property>idToPropertyMap) {
+  public static void setSampleProperties(Session sess, Request request, Sample sample, Boolean isNewSample, Map sampleAnnotations, String otherCharacteristicLabel, Map<Integer, Property> idToPropertyMap) {
     setSampleProperties(sess, request, sample, isNewSample, sampleAnnotations, otherCharacteristicLabel, null, idToPropertyMap);
   }
 
-  public static void setSampleProperties(Session sess, Request request, Sample sample, Boolean isNewSample,
-      Map sampleAnnotations, String otherCharacteristicLabel, Map propertiesToDelete,
-      Map<Integer, Property>idToPropertyMap) {
+  public static void setSampleProperties(Session sess, Request request, Sample sample, Boolean isNewSample, Map sampleAnnotations, String otherCharacteristicLabel, Map propertiesToDelete, Map<Integer, Property> idToPropertyMap) {
     // Delete the existing sample property entries
     if (!isNewSample) {
-      for(Iterator i = sample.getPropertyEntries().iterator(); i.hasNext();) {
-        PropertyEntry entry = (PropertyEntry)i.next();
+      for (Iterator i = sample.getPropertyEntries().iterator(); i.hasNext();) {
+        PropertyEntry entry = (PropertyEntry) i.next();
         if (propertiesToDelete == null || propertiesToDelete.get(entry.getIdProperty()) != null) {
-          for(Iterator i1 = entry.getValues().iterator(); i1.hasNext();) {
-            PropertyEntryValue v = (PropertyEntryValue)i1.next();
+          for (Iterator i1 = entry.getValues().iterator(); i1.hasNext();) {
+            PropertyEntryValue v = (PropertyEntryValue) i1.next();
             sess.delete(v);
           }
           sess.flush();
@@ -1286,16 +1239,15 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     }
 
     // Create sample property entries
-    for(Iterator i = sampleAnnotations.keySet().iterator(); i.hasNext(); ) {
+    for (Iterator i = sampleAnnotations.keySet().iterator(); i.hasNext();) {
 
-      Integer idProperty = (Integer)i.next();
-      String value = (String)sampleAnnotations.get(idProperty);
+      Integer idProperty = (Integer) i.next();
+      String value = (String) sampleAnnotations.get(idProperty);
       if (idProperty == -1) {
         continue;
       }
 
       Property property = idToPropertyMap.get(idProperty);
-
 
       PropertyEntry entry = new PropertyEntry();
       entry.setIdSample(sample.getIdSample());
@@ -1323,12 +1275,11 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     }
   }
 
-  private  void updatePlates(Session sess, RequestParser requestParser, Sample sample, String idSampleString) {
+  private void updatePlates(Session sess, RequestParser requestParser, Sample sample, String idSampleString) {
     DictionaryHelper dh = DictionaryHelper.getInstance(sess);
     RequestCategory requestCategory = dh.getRequestCategoryObject(requestParser.getRequest().getCodeRequestCategory());
 
-    if (requestParser.getRequest().getCodeRequestCategory().equals(RequestCategory.CAPILLARY_SEQUENCING_REQUEST_CATEGORY) ||
-        RequestCategory.isSequenom( requestParser.getRequest().getCodeRequestCategory() ) ){
+    if (requestParser.getRequest().getCodeRequestCategory().equals(RequestCategory.CAPILLARY_SEQUENCING_REQUEST_CATEGORY) || RequestCategory.isSequenom(requestParser.getRequest().getCodeRequestCategory())) {
 
       Plate plate = requestParser.getPlate(idSampleString);
       PlateWell well = requestParser.getWell(idSampleString);
@@ -1339,7 +1290,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         if (realPlate == null) {
           realPlate = plate;
           if (plate.getIdPlate() != null) {
-            realPlate = (Plate)sess.load(Plate.class, plate.getIdPlate());
+            realPlate = (Plate) sess.load(Plate.class, plate.getIdPlate());
           } else {
             realPlate.setCreateDate(new java.util.Date(System.currentTimeMillis()));
           }
@@ -1355,7 +1306,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         }
         PlateWell realWell = well;
         if (well.getIdPlateWell() != null) {
-          realWell = (PlateWell)sess.load(PlateWell.class, well.getIdPlateWell());
+          realWell = (PlateWell) sess.load(PlateWell.class, well.getIdPlateWell());
         } else {
           realWell.setSample(sample);
           realWell.setIdSample(sample.getIdSample());
@@ -1375,9 +1326,10 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       } else {
         well = null;
         if (sample.getWells() != null && sample.getWells().size() > 0) {
-          // this loop should be unnecessary since there should only be the 1 well with no plate (source well)
-          for(Iterator i = sample.getWells().iterator(); i.hasNext();) {
-            PlateWell w = (PlateWell)i.next();
+          // this loop should be unnecessary since there should only be the 1
+          // well with no plate (source well)
+          for (Iterator i = sample.getWells().iterator(); i.hasNext();) {
+            PlateWell w = (PlateWell) i.next();
             if (w.getIdPlate() == null) {
               well = w;
               break;
@@ -1398,7 +1350,8 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       sess.flush();
     }
   }
-  private  void updateFragAnalPlates(Session sess, Sample sample, String idSampleString) throws Exception {
+
+  private void updateFragAnalPlates(Session sess, Sample sample, String idSampleString) throws Exception {
     if (requestParser.getRequest().getCodeRequestCategory().equals(RequestCategory.FRAGMENT_ANALYSIS_REQUEST_CATEGORY)) {
       if (assaysParser != null) {
         assaysParser.parse(sess);
@@ -1413,12 +1366,12 @@ public class SaveRequest extends GNomExCommand implements Serializable {
             sess.flush();
           } else {
             String query = "select p from Plate p where p.codePlateType='" + PlateType.SOURCE_PLATE_TYPE + "' and p.idPlate in (select idPlate from PlateWell where idRequest = " + requestParser.getRequest().getIdRequest() + ")";
-            assayPlate = (Plate)sess.createQuery(query).uniqueResult();
+            assayPlate = (Plate) sess.createQuery(query).uniqueResult();
           }
         }
         PlateWell parsedWell = requestParser.getWell(idSampleString);
         if (sample.getWells() == null) {
-          for (String assayName:requestParser.getAssays(idSampleString)) {
+          for (String assayName : requestParser.getAssays(idSampleString)) {
             PlateWell assayWell = new PlateWell();
             assayWell.setCreateDate(new java.util.Date(System.currentTimeMillis()));
             assayWell.setIdAssay(assaysParser.getID(assayName));
@@ -1434,13 +1387,14 @@ public class SaveRequest extends GNomExCommand implements Serializable {
           }
           sess.flush();
         } else {
-          // update any wells for assays that are still around and delete ones that aren't
+          // update any wells for assays that are still around and delete ones
+          // that aren't
           ArrayList<PlateWell> wellsFound = new ArrayList<PlateWell>();
-          for(Iterator i = sample.getWells().iterator(); i.hasNext();) {
-            PlateWell well = (PlateWell)i.next();
+          for (Iterator i = sample.getWells().iterator(); i.hasNext();) {
+            PlateWell well = (PlateWell) i.next();
             if (well.getPlate().getCodePlateType().equals(PlateType.SOURCE_PLATE_TYPE)) {
               Boolean found = false;
-              for (String assayName:requestParser.getAssays(idSampleString)) {
+              for (String assayName : requestParser.getAssays(idSampleString)) {
                 if (well.getAssay() != null && assayName.equals(well.getAssay().getName())) {
                   wellsFound.add(well);
                   well.setCol(parsedWell.getCol());
@@ -1457,9 +1411,9 @@ public class SaveRequest extends GNomExCommand implements Serializable {
           }
 
           // add wells for any new assays for the sample.
-          for (String assayName:requestParser.getAssays(idSampleString)) {
+          for (String assayName : requestParser.getAssays(idSampleString)) {
             Boolean found = false;
-            for(PlateWell well:wellsFound) {
+            for (PlateWell well : wellsFound) {
               if (well.getAssay().getName().equals(assayName)) {
                 found = true;
               }
@@ -1486,7 +1440,8 @@ public class SaveRequest extends GNomExCommand implements Serializable {
   }
 
   private void updateMitSeqWells(Session sess, Sample sample, String idSampleString) throws Exception {
-    // create/update plate and plate wells for mitochondrial sequencing, if applicable
+    // create/update plate and plate wells for mitochondrial sequencing, if
+    // applicable
     if (requestParser.getRequest().getCodeRequestCategory().equals(RequestCategory.MITOCHONDRIAL_DLOOP_SEQ_REQUEST_CATEGORY)) {
       primersParser.parse(sess);
 
@@ -1500,7 +1455,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
           sess.flush();
         } else {
           String query = "select p from Plate p where p.codePlateType='" + PlateType.SOURCE_PLATE_TYPE + "' and p.idPlate in (select idPlate from PlateWell where idRequest = " + requestParser.getRequest().getIdRequest() + ")";
-          primerPlate = (Plate)sess.createQuery(query).uniqueResult();
+          primerPlate = (Plate) sess.createQuery(query).uniqueResult();
         }
       }
 
@@ -1521,8 +1476,8 @@ public class SaveRequest extends GNomExCommand implements Serializable {
           sess.save(primerWell);
         }
       } else {
-        for(Iterator i = sample.getWells().iterator(); i.hasNext();) {
-          PlateWell well = (PlateWell)i.next();
+        for (Iterator i = sample.getWells().iterator(); i.hasNext();) {
+          PlateWell well = (PlateWell) i.next();
           if (well.getPlate().getCodePlateType().equals(PlateType.SOURCE_PLATE_TYPE)) {
             if (!well.getCol().equals(parsedWell.getCol()) || !well.getPosition().equals(new Integer(sampleCountOnPlate)) || !well.getRow().equals(parsedWell.getRow())) {
               well.setCol(parsedWell.getCol());
@@ -1537,7 +1492,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     }
   }
 
-  private  void updateCherryPickWells(Session sess, Sample sample, String idSampleString) throws Exception {
+  private void updateCherryPickWells(Session sess, Sample sample, String idSampleString) throws Exception {
     if (requestParser.getRequest().getCodeRequestCategory().equals(RequestCategory.CHERRY_PICKING_REQUEST_CATEGORY)) {
       String cherryPickSourceWell = requestParser.getCherryPickSourceWell(idSampleString);
       if (cherryPickSourceWell != null && cherryPickSourceWell.length() > 0) {
@@ -1553,7 +1508,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
             sess.flush();
           } else {
             String query = "select p from Plate p where p.idPlate in (select idPlate from PlateWell where p.codePlateType='" + PlateType.SOURCE_PLATE_TYPE + "' and p.label = '" + sourcePlateName + "' and idRequest = " + requestParser.getRequest().getIdRequest() + ")";
-            cherrySourcePlate = (Plate)sess.createQuery(query).uniqueResult();
+            cherrySourcePlate = (Plate) sess.createQuery(query).uniqueResult();
           }
           cherrySourcePlateMap.put(sourcePlateName, cherrySourcePlate);
         }
@@ -1571,7 +1526,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
           sess.save(sourceWell);
         } else {
           for (Iterator i = sample.getWells().iterator(); i.hasNext();) {
-            PlateWell well = (PlateWell)i.next();
+            PlateWell well = (PlateWell) i.next();
             if (well.getPlate().getCodePlateType().equals(PlateType.SOURCE_PLATE_TYPE)) {
               well.setCol(Integer.parseInt(cherryPickSourceWell.substring(1)));
               well.setRow(cherryPickSourceWell.substring(0, 1));
@@ -1597,7 +1552,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
             sess.flush();
           } else {
             String query = "select p from Plate p where p.idPlate in (select idPlate from PlateWell where p.codePlateType='" + PlateType.REACTION_PLATE_TYPE + "' and idRequest = " + requestParser.getRequest().getIdRequest() + ")";
-            cherryPickDestinationPlate = (Plate)sess.createQuery(query).uniqueResult();
+            cherryPickDestinationPlate = (Plate) sess.createQuery(query).uniqueResult();
           }
         }
         if (sample.getWells() == null) {
@@ -1615,7 +1570,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
           sess.save(destinationWell);
         } else {
           for (Iterator i = sample.getWells().iterator(); i.hasNext();) {
-            PlateWell well = (PlateWell)i.next();
+            PlateWell well = (PlateWell) i.next();
             if (well.getPlate().getCodePlateType().equals(PlateType.REACTION_PLATE_TYPE)) {
               well.setCol(Integer.parseInt(cherryPickDestinationWell.substring(1)));
               well.setRow(cherryPickDestinationWell.substring(0, 1));
@@ -1628,6 +1583,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       }
     }
   }
+
   private void updateIScanPlates(Session sess, Sample sample, String idSampleString) {
     if (requestParser.getRequest().getCodeRequestCategory().equals(RequestCategory.ISCAN_REQUEST_CATEGORY)) {
       Plate plate = requestParser.getPlate(idSampleString);
@@ -1639,7 +1595,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         if (realPlate == null) {
           realPlate = plate;
           if (plate.getIdPlate() != null) {
-            realPlate = (Plate)sess.load(Plate.class, plate.getIdPlate());
+            realPlate = (Plate) sess.load(Plate.class, plate.getIdPlate());
           } else {
             realPlate.setCreateDate(new java.util.Date(System.currentTimeMillis()));
           }
@@ -1655,7 +1611,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         }
         PlateWell realWell = well;
         if (well.getIdPlateWell() != null) {
-          realWell = (PlateWell)sess.load(PlateWell.class, well.getIdPlateWell());
+          realWell = (PlateWell) sess.load(PlateWell.class, well.getIdPlateWell());
         } else {
           realWell.setSample(sample);
           realWell.setIdSample(sample.getIdSample());
@@ -1675,9 +1631,10 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       } else {
         well = null;
         if (sample.getWells() != null && sample.getWells().size() > 0) {
-          // this loop should be unnecessary since there should only be the 1 well with no plate (source well)
-          for(Iterator i = sample.getWells().iterator(); i.hasNext();) {
-            PlateWell w = (PlateWell)i.next();
+          // this loop should be unnecessary since there should only be the 1
+          // well with no plate (source well)
+          for (Iterator i = sample.getWells().iterator(); i.hasNext();) {
+            PlateWell w = (PlateWell) i.next();
             if (w.getIdPlate() == null) {
               well = w;
               break;
@@ -1703,20 +1660,21 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     if (this.samplesDeleted.size() > 0) {
       // get wells to delete
       ArrayList<Integer> sampleIds = new ArrayList<Integer>();
-      for(Iterator i = this.samplesDeleted.iterator();i.hasNext();) {
-        Sample sample = (Sample)i.next();
+      for (Iterator i = this.samplesDeleted.iterator(); i.hasNext();) {
+        Sample sample = (Sample) i.next();
         sampleIds.add(sample.getIdSample());
       }
-      // instrument run check there just to be paranoid.  Should never happen because of edit security around statuses.
+      // instrument run check there just to be paranoid. Should never happen
+      // because of edit security around statuses.
       String queryString = "SELECT pw from PlateWell pw left join pw.plate p where p.idInstrumentRun is null AND pw.idSample in (:ids) Order By pw.idSample";
       Query query = sess.createQuery(queryString);
       query.setParameterList("ids", sampleIds);
       List wells = query.list();
 
-      //Delete the wells.  Save list of plate ids in case we orphan one or more.
+      // Delete the wells. Save list of plate ids in case we orphan one or more.
       HashMap<Integer, Integer> plateIds = new HashMap<Integer, Integer>();
-      for(Iterator i = wells.iterator(); i.hasNext();) {
-        PlateWell well = (PlateWell)i.next();
+      for (Iterator i = wells.iterator(); i.hasNext();) {
+        PlateWell well = (PlateWell) i.next();
         if (well.getIdPlate() != null) {
           plateIds.put(well.getIdPlate(), well.getIdPlate());
         }
@@ -1730,8 +1688,8 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         Query plateQuery = sess.createQuery(queryString);
         plateQuery.setParameterList("ids", plateIds.keySet());
         List plates = plateQuery.list();
-        for(Iterator i = plates.iterator();i.hasNext(); ) {
-          Plate plate = (Plate)i.next();
+        for (Iterator i = plates.iterator(); i.hasNext();) {
+          Plate plate = (Plate) i.next();
           sess.delete(plate);
         }
       }
@@ -1740,7 +1698,8 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 
   private void saveHyb(RequestParser.HybInfo hybInfo, Session sess, int hybCount) throws Exception {
 
-    // Figure out the default protocol for the given request category and microarray application.
+    // Figure out the default protocol for the given request category and
+    // microarray application.
     StringBuffer buf = new StringBuffer();
     buf.append("SELECT x.idLabelingProtocolDefault, x.idHybProtocolDefault, x.idScanProtocolDefault, x.idFeatureExtractionProtocolDefault ");
     buf.append(" FROM  RequestCategoryApplication x ");
@@ -1748,17 +1707,15 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     buf.append(" AND   x.codeApplication = '" + requestParser.getRequest().getCodeApplication() + "'");
     List defaultProtocolIds = sess.createQuery(buf.toString()).list();
     if (defaultProtocolIds.size() > 0) {
-      Object[] row = (Object[])defaultProtocolIds.get(0);
-      idLabelingProtocolDefault          = (Integer)row[0];
-      idHybProtocolDefault               = (Integer)row[1];
-      idScanProtocolDefault              = (Integer)row[2];
-      idFeatureExtractionProtocolDefault = (Integer)row[3];
+      Object[] row = (Object[]) defaultProtocolIds.get(0);
+      idLabelingProtocolDefault = (Integer) row[0];
+      idHybProtocolDefault = (Integer) row[1];
+      idScanProtocolDefault = (Integer) row[2];
+      idFeatureExtractionProtocolDefault = (Integer) row[3];
     }
-
 
     Hybridization hyb = null;
     boolean isNewHyb = requestParser.isNewRequest() || hybInfo.getIdHybridization() == null || hybInfo.getIdHybridization().startsWith("Hyb");
-
 
     if (isNewHyb) {
       hyb = new Hybridization();
@@ -1768,28 +1725,27 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       hyb.setIdFeatureExtractionProtocol(idFeatureExtractionProtocolDefault);
       isNewHyb = true;
     } else {
-      hyb = (Hybridization)sess.load(Hybridization.class, new Integer(hybInfo.getIdHybridization()));
+      hyb = (Hybridization) sess.load(Hybridization.class, new Integer(hybInfo.getIdHybridization()));
     }
-
 
     Integer idSampleChannel1Real = null;
     if (hybInfo.getIdSampleChannel1String() != null && !hybInfo.getIdSampleChannel1String().equals("")) {
-      idSampleChannel1Real = (Integer)idSampleMap.get(hybInfo.getIdSampleChannel1String());
+      idSampleChannel1Real = (Integer) idSampleMap.get(hybInfo.getIdSampleChannel1String());
     }
     Integer idSampleChannel2Real = null;
     if (hybInfo.getIdSampleChannel2String() != null && !hybInfo.getIdSampleChannel2String().equals("")) {
-      idSampleChannel2Real =  (Integer)idSampleMap.get(hybInfo.getIdSampleChannel2String());
+      idSampleChannel2Real = (Integer) idSampleMap.get(hybInfo.getIdSampleChannel2String());
     }
 
     LabeledSample labeledSampleChannel1 = null;
     LabeledSample labeledSampleChannel2 = null;
     if (isNewHyb) {
-      Integer idLabeledSampleChannel1 = (Integer)channel1SampleMap.get(idSampleChannel1Real);
+      Integer idLabeledSampleChannel1 = (Integer) channel1SampleMap.get(idSampleChannel1Real);
 
       if (!channel1SampleMap.containsKey(idSampleChannel1Real)) {
         labeledSampleChannel1 = new LabeledSample();
         labeledSampleChannel1.setIdSample(idSampleChannel1Real);
-        labeledSampleChannel1.setIdLabel((Integer)labelMap.get("Cy3"));
+        labeledSampleChannel1.setIdLabel((Integer) labelMap.get("Cy3"));
         labeledSampleChannel1.setIdRequest(requestParser.getRequest().getIdRequest());
         labeledSampleChannel1.setCodeLabelingReactionSize(LabelingReactionSize.STANDARD);
         labeledSampleChannel1.setNumberOfReactions(new Integer(1));
@@ -1804,15 +1760,14 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       }
       hyb.setIdLabeledSampleChannel1(idLabeledSampleChannel1);
 
-
       if (idSampleChannel2Real != null) {
 
-        Integer idLabeledSampleChannel2 = (Integer)channel2SampleMap.get(idSampleChannel2Real);
+        Integer idLabeledSampleChannel2 = (Integer) channel2SampleMap.get(idSampleChannel2Real);
 
         if (!channel2SampleMap.containsKey(idSampleChannel2Real)) {
           labeledSampleChannel2 = new LabeledSample();
           labeledSampleChannel2.setIdSample(idSampleChannel2Real);
-          labeledSampleChannel2.setIdLabel((Integer)labelMap.get("Cy5"));
+          labeledSampleChannel2.setIdLabel((Integer) labelMap.get("Cy5"));
           labeledSampleChannel2.setIdRequest(requestParser.getRequest().getIdRequest());
           labeledSampleChannel2.setCodeLabelingReactionSize(LabelingReactionSize.STANDARD);
           labeledSampleChannel2.setNumberOfReactions(new Integer(1));
@@ -1831,13 +1786,10 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     } else {
       boolean changedChannelSample = false;
 
-      // If the sample has changed, for an existing hyb, create a new labeled sample and
+      // If the sample has changed, for an existing hyb, create a new labeled
+      // sample and
       // delete the old one
-      if ((hyb.getLabeledSampleChannel1() == null && idSampleChannel1Real != null) ||
-          (hyb.getLabeledSampleChannel1() != null && idSampleChannel1Real == null) ||
-          (hyb.getLabeledSampleChannel1() != null &&
-          idSampleChannel1Real != null &&
-          !hyb.getLabeledSampleChannel1().getIdSample().equals(idSampleChannel1Real))) {
+      if ((hyb.getLabeledSampleChannel1() == null && idSampleChannel1Real != null) || (hyb.getLabeledSampleChannel1() != null && idSampleChannel1Real == null) || (hyb.getLabeledSampleChannel1() != null && idSampleChannel1Real != null && !hyb.getLabeledSampleChannel1().getIdSample().equals(idSampleChannel1Real))) {
 
         LabeledSample labeledSampleObsoleted = null;
         if (hyb.getIdLabeledSampleChannel1() != null) {
@@ -1848,11 +1800,11 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         if (idSampleChannel1Real != null) {
           Integer idLabeledSampleChannel1 = null;
           if (channel1SampleMap.containsKey(idSampleChannel1Real)) {
-            idLabeledSampleChannel1 = (Integer)channel1SampleMap.get(idSampleChannel1Real);
+            idLabeledSampleChannel1 = (Integer) channel1SampleMap.get(idSampleChannel1Real);
           } else {
             labeledSampleChannel1 = new LabeledSample();
             labeledSampleChannel1.setIdSample(idSampleChannel1Real);
-            labeledSampleChannel1.setIdLabel((Integer)labelMap.get("Cy3"));
+            labeledSampleChannel1.setIdLabel((Integer) labelMap.get("Cy3"));
             labeledSampleChannel1.setIdRequest(requestParser.getRequest().getIdRequest());
             labeledSampleChannel1.setCodeLabelingReactionSize(LabelingReactionSize.STANDARD);
             labeledSampleChannel1.setNumberOfReactions(new Integer(1));
@@ -1863,8 +1815,6 @@ public class SaveRequest extends GNomExCommand implements Serializable {
             channel1SampleMap.put(idSampleChannel1Real, idLabeledSampleChannel1);
           }
 
-
-
           hyb.setIdLabeledSampleChannel1(idLabeledSampleChannel1);
         }
         // If the Cy3 Sample has been blanked out
@@ -1874,11 +1824,11 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         sess.flush();
 
         if (labeledSampleObsoleted != null) {
-          //  Replace the labeled sample on the labeling worklist (if present).
+          // Replace the labeled sample on the labeling worklist (if present).
           List referencingWorkItems = sess.createQuery("SELECT wi from WorkItem wi join wi.labeledSample as ls where ls.idLabeledSample = " + labeledSampleObsoleted.getIdLabeledSample()).list();
           if (referencingWorkItems.size() > 0) {
-            for(Iterator i1 = referencingWorkItems.iterator(); i1.hasNext();) {
-              WorkItem wi = (WorkItem)i1.next();
+            for (Iterator i1 = referencingWorkItems.iterator(); i1.hasNext();) {
+              WorkItem wi = (WorkItem) i1.next();
               if (labeledSampleChannel1 != null) {
                 wi.setLabeledSample(labeledSampleChannel1);
               } else {
@@ -1899,13 +1849,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 
       }
 
-
-      if ((hyb.getLabeledSampleChannel2() == null && idSampleChannel2Real != null) ||
-          (hyb.getLabeledSampleChannel2() != null && idSampleChannel2Real == null) ||
-          (hyb.getLabeledSampleChannel2() != null &&
-          idSampleChannel2Real != null &&
-          !hyb.getLabeledSampleChannel2().getIdSample().equals(idSampleChannel2Real))) {
-
+      if ((hyb.getLabeledSampleChannel2() == null && idSampleChannel2Real != null) || (hyb.getLabeledSampleChannel2() != null && idSampleChannel2Real == null) || (hyb.getLabeledSampleChannel2() != null && idSampleChannel2Real != null && !hyb.getLabeledSampleChannel2().getIdSample().equals(idSampleChannel2Real))) {
 
         LabeledSample labeledSampleObsoleted = null;
         if (hyb.getIdLabeledSampleChannel1() != null) {
@@ -1915,11 +1859,11 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         if (idSampleChannel2Real != null) {
           Integer idLabeledSampleChannel2 = null;
           if (channel2SampleMap.containsKey(idSampleChannel2Real)) {
-            idLabeledSampleChannel2 = (Integer)channel2SampleMap.get(idSampleChannel2Real);
+            idLabeledSampleChannel2 = (Integer) channel2SampleMap.get(idSampleChannel2Real);
           } else {
             labeledSampleChannel2 = new LabeledSample();
             labeledSampleChannel2.setIdSample(idSampleChannel2Real);
-            labeledSampleChannel2.setIdLabel((Integer)labelMap.get("Cy5"));
+            labeledSampleChannel2.setIdLabel((Integer) labelMap.get("Cy5"));
             labeledSampleChannel2.setIdRequest(requestParser.getRequest().getIdRequest());
             labeledSampleChannel2.setCodeLabelingReactionSize(LabelingReactionSize.STANDARD);
             labeledSampleChannel2.setNumberOfReactions(new Integer(1));
@@ -1943,8 +1887,8 @@ public class SaveRequest extends GNomExCommand implements Serializable {
           // Replace the labeled sample on the labeling worklist (if present).
           List referencingWorkItems = sess.createQuery("SELECT wi from WorkItem wi join wi.labeledSample as ls where ls.idLabeledSample = " + labeledSampleObsoleted.getIdLabeledSample()).list();
           if (referencingWorkItems.size() > 0) {
-            for(Iterator i1 = referencingWorkItems.iterator(); i1.hasNext();) {
-              WorkItem wi = (WorkItem)i1.next();
+            for (Iterator i1 = referencingWorkItems.iterator(); i1.hasNext();) {
+              WorkItem wi = (WorkItem) i1.next();
               if (labeledSampleChannel2 != null) {
                 wi.setLabeledSample(labeledSampleChannel2);
               } else {
@@ -1964,15 +1908,15 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 
       }
 
-      // If the user has not changed the sample designations and the user can manage workflow,
+      // If the user has not changed the sample designations and the user can
+      // manage workflow,
       // save any changes made to workflow fields.
       if (this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_MANAGE_WORKFLOW)) {
 
         // Labeling reaction for channel1 labeled sample
         if (!changedChannelSample) {
           if (hyb.getLabeledSampleChannel1() != null) {
-            if (hybInfo.getLabelingCompletedChannel1().equals("Y") &&
-                hyb.getLabeledSampleChannel1().getLabelingDate() == null) {
+            if (hybInfo.getLabelingCompletedChannel1().equals("Y") && hyb.getLabeledSampleChannel1().getLabelingDate() == null) {
               hyb.getLabeledSampleChannel1().setLabelingDate(new java.sql.Date(System.currentTimeMillis()));
             }
             hyb.getLabeledSampleChannel1().setLabelingBypassed(hybInfo.getLabelingBypassedChannel1());
@@ -1983,10 +1927,9 @@ public class SaveRequest extends GNomExCommand implements Serializable {
             hyb.getLabeledSampleChannel1().setCodeLabelingReactionSize(hybInfo.getCodeLabelingReactionSizeChannel1());
           }
 
-          // Labeling reaction for channel2  labeled sample
+          // Labeling reaction for channel2 labeled sample
           if (hyb.getLabeledSampleChannel2() != null) {
-            if (hybInfo.getLabelingCompletedChannel2().equals("Y") &&
-                hyb.getLabeledSampleChannel2().getLabelingDate() == null) {
+            if (hybInfo.getLabelingCompletedChannel2().equals("Y") && hyb.getLabeledSampleChannel2().getLabelingDate() == null) {
               hyb.getLabeledSampleChannel2().setLabelingDate(new java.sql.Date(System.currentTimeMillis()));
             }
             hyb.getLabeledSampleChannel2().setLabelingBypassed(hybInfo.getLabelingBypassedChannel2());
@@ -2011,7 +1954,6 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         hyb.setHybFailed(hybInfo.getHybFailed());
         hyb.setHybBypassed(hybInfo.getHybBypassed());
 
-
         if (hybInfo.getExtractionCompleted().equals("Y") && hyb.getExtractionDate() == null) {
           hyb.setExtractionDate(new java.sql.Date(System.currentTimeMillis()));
         }
@@ -2028,7 +1970,8 @@ public class SaveRequest extends GNomExCommand implements Serializable {
             slide = new Slide();
             sess.save(slide);
 
-            // If we are switching out the old slide, we need to delete the old one if there are not any references to it.
+            // If we are switching out the old slide, we need to delete the old
+            // one if there are not any references to it.
             if (hyb.getSlide() != null) {
               WorkItemHybParser.deleteOrphanSlide(sess, hyb, requestParser.getRequest().getIdRequest());
             }
@@ -2049,7 +1992,6 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         }
       }
 
-
     }
 
     String codeSlideSource = hybInfo.getCodeSlideSource();
@@ -2064,12 +2006,11 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       } else if (slideDesigns.size() == 0) {
         throw new Exception("Cannot set slide design because no slide designs exist for slide product " + requestParser.getRequest().getIdSlideProduct());
       }
-      SlideDesign sd = (SlideDesign)slideDesigns.get(0);
+      SlideDesign sd = (SlideDesign) slideDesigns.get(0);
       hyb.setIdSlideDesign(sd.getIdSlideDesign());
     }
 
     hyb.setNotes(hybInfo.getNotes());
-
 
     sess.save(hyb);
 
@@ -2091,29 +2032,24 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 
     }
 
-
-
-
     sess.flush();
   }
 
-  public static Map saveSequenceLanes(SecurityAdvisor secAdvisor, RequestParser requestParser, Session sess,
-      RequestCategory requestCategory, Map idSampleMap, Set sequenceLanes, Set sequenceLanesAdded) throws Exception {
+  public static Map saveSequenceLanes(SecurityAdvisor secAdvisor, RequestParser requestParser, Session sess, RequestCategory requestCategory, Map idSampleMap, Set sequenceLanes, Set sequenceLanesAdded) throws Exception {
     return saveSequenceLanes(secAdvisor, requestParser, sess, requestCategory, idSampleMap, sequenceLanes, sequenceLanesAdded, false);
   }
 
-  public static Map saveSequenceLanes(SecurityAdvisor secAdvisor, RequestParser requestParser, Session sess,
-      RequestCategory requestCategory, Map idSampleMap, Set sequenceLanes, Set sequenceLanesAdded, boolean isImport) throws Exception {
+  public static Map saveSequenceLanes(SecurityAdvisor secAdvisor, RequestParser requestParser, Session sess, RequestCategory requestCategory, Map idSampleMap, Set sequenceLanes, Set sequenceLanesAdded, boolean isImport) throws Exception {
 
     HashMap sampleToLaneMap = new HashMap();
     HashMap existingLanesSaved = new HashMap();
     if (!requestParser.getSequenceLaneInfos().isEmpty()) {
 
       // Hash lanes by sample id
-      for(Iterator i = requestParser.getSequenceLaneInfos().iterator(); i.hasNext();) {
-        RequestParser.SequenceLaneInfo laneInfo = (RequestParser.SequenceLaneInfo)i.next();
+      for (Iterator i = requestParser.getSequenceLaneInfos().iterator(); i.hasNext();) {
+        RequestParser.SequenceLaneInfo laneInfo = (RequestParser.SequenceLaneInfo) i.next();
 
-        List lanes = (List)sampleToLaneMap.get(laneInfo.getIdSampleString());
+        List lanes = (List) sampleToLaneMap.get(laneInfo.getIdSampleString());
         if (lanes == null) {
           lanes = new ArrayList();
           sampleToLaneMap.put(laneInfo.getIdSampleString(), lanes);
@@ -2121,76 +2057,82 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         lanes.add(laneInfo);
       }
 
-      Date timestamp = new Date(System.currentTimeMillis()); // save the current time here so that the timestamp is the same on every sequence lane in this batch
-      for(Iterator i = sampleToLaneMap.keySet().iterator(); i.hasNext();) {
-        String idSampleString = (String)i.next();
-        List lanes = (List)sampleToLaneMap.get(idSampleString);
+      Date timestamp = new Date(System.currentTimeMillis()); // save the current
+                                                             // time here so
+                                                             // that the
+                                                             // timestamp is the
+                                                             // same on every
+                                                             // sequence lane in
+                                                             // this batch
+      for (Iterator i = sampleToLaneMap.keySet().iterator(); i.hasNext();) {
+        String idSampleString = (String) i.next();
+        List lanes = (List) sampleToLaneMap.get(idSampleString);
 
-        Integer idSample = (Integer)idSampleMap.get(idSampleString);
+        Integer idSample = (Integer) idSampleMap.get(idSampleString);
         Sample s = null;
-        if(idSample != null) {
-          s = (Sample)sess.load(Sample.class, idSample); 
+        if (idSample != null) {
+          s = (Sample) sess.load(Sample.class, idSample);
         }
 
         int lastSampleSeqCount = 0;
 
-
         // Figure out next number to assign for a
-        for(Iterator i1 = lanes.iterator(); i1.hasNext();) {
-          RequestParser.SequenceLaneInfo laneInfo = (RequestParser.SequenceLaneInfo)i1.next();
+        for (Iterator i1 = lanes.iterator(); i1.hasNext();) {
+          RequestParser.SequenceLaneInfo laneInfo = (RequestParser.SequenceLaneInfo) i1.next();
           boolean isNewLane = requestParser.isNewRequest() || laneInfo.getIdSequenceLane() == null || laneInfo.getIdSequenceLane().startsWith("SequenceLane");
           if (!isNewLane) {
 
-            SequenceLane sl = (SequenceLane)sess.load(SequenceLane.class, new Integer(laneInfo.getIdSequenceLane()));
+            SequenceLane sl = (SequenceLane) sess.load(SequenceLane.class, new Integer(laneInfo.getIdSequenceLane()));
             boolean seqLaneReassignment = isSeqReassignment(sess, laneInfo, idSampleMap);
-            
-            if(!seqLaneReassignment){
+
+            if (!seqLaneReassignment) {
               lastSampleSeqCount++;
             }
-
 
           }
         }
 
-
-        for(Iterator i1 = lanes.iterator(); i1.hasNext();) {
-          RequestParser.SequenceLaneInfo laneInfo = (RequestParser.SequenceLaneInfo)i1.next();
+        for (Iterator i1 = lanes.iterator(); i1.hasNext();) {
+          RequestParser.SequenceLaneInfo laneInfo = (RequestParser.SequenceLaneInfo) i1.next();
           if (idSampleMap.get(laneInfo.getIdSampleString()) == null) {
-            // Looks like sample for this lane is deleted.  This will cause lane to get deleted as well.
+            // Looks like sample for this lane is deleted. This will cause lane
+            // to get deleted as well.
             continue;
           }
           boolean isNewLane = requestParser.isNewRequest() || laneInfo.getIdSequenceLane() == null || laneInfo.getIdSequenceLane().startsWith("SequenceLane");
-          //If the sample id's don't match up then we had a drag and drop reassignment from one sample to another.  We need to adjust the number to match new sample
+          // If the sample id's don't match up then we had a drag and drop
+          // reassignment from one sample to another. We need to adjust the
+          // number to match new sample
           boolean seqLaneReassignment = false;
           Integer idSampleReal = null;
-          if(!isNewLane){
-            SequenceLane sl = (SequenceLane)sess.load(SequenceLane.class, new Integer(laneInfo.getIdSequenceLane()));
+          if (!isNewLane) {
+            SequenceLane sl = (SequenceLane) sess.load(SequenceLane.class, new Integer(laneInfo.getIdSequenceLane()));
             if (laneInfo.getIdSampleString() != null && !laneInfo.getIdSampleString().equals("") && !laneInfo.getIdSampleString().equals("0")) {
-              idSampleReal = (Integer)idSampleMap.get(laneInfo.getIdSampleString());
+              idSampleReal = (Integer) idSampleMap.get(laneInfo.getIdSampleString());
             }
-            
-            if(idSampleReal != null && sl.getIdSample() != null && !idSampleReal.equals(sl.getIdSample())){
+
+            if (idSampleReal != null && sl.getIdSample() != null && !idSampleReal.equals(sl.getIdSample())) {
               seqLaneReassignment = true;
             }
           }
-          
-          SequenceLane lane = saveSequenceLane(secAdvisor, requestParser, laneInfo, sess, lastSampleSeqCount,
-              timestamp, idSampleMap, sequenceLanes, sequenceLanesAdded, isImport);
+
+          SequenceLane lane = saveSequenceLane(secAdvisor, requestParser, laneInfo, sess, lastSampleSeqCount, timestamp, idSampleMap, sequenceLanes, sequenceLanesAdded, isImport);
 
           if (!isNewLane) {
             existingLanesSaved.put(lane.getIdSequenceLane(), lane);
           }
 
-          //           if this is a not a new request, but these is a new sequence lane,
-          //           create a work item for the Cluster Gen (Assemble) worklist.
-          //           Also ignore this if this is a QC Amend as seqPrep work items were created above.
+          // if this is a not a new request, but these is a new sequence lane,
+          // create a work item for the Cluster Gen (Assemble) worklist.
+          // Also ignore this if this is a QC Amend as seqPrep work items were
+          // created above.
           if ((!requestParser.isExternalExperiment() && !requestParser.isNewRequest() && !requestParser.isQCAmendRequest() && isNewLane && s != null && s.getWorkItems() != null && s.getWorkItems().size() == 0)) {
             WorkItem workItem = new WorkItem();
             workItem.setIdRequest(requestParser.getRequest().getIdRequest());
             workItem.setIdCoreFacility(requestParser.getRequest().getIdCoreFacility());
             workItem.setSequenceLane(lane);
             String codeStepNext = "";
-            if(requestCategory.getType().equals(RequestCategoryType.TYPE_HISEQ)) {
+            if (requestCategory.getType().equals(RequestCategoryType.TYPE_HISEQ)) {
               codeStepNext = Step.HISEQ_CLUSTER_GEN;
             } else if (requestCategory.getType().equals(RequestCategoryType.TYPE_MISEQ)) {
               codeStepNext = Step.MISEQ_CLUSTER_GEN;
@@ -2210,33 +2152,31 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     return existingLanesSaved;
 
   }
-  
-  /*Helper function to determine if an existing sequence lane had a new sample reassigned to it*/
-  private static boolean isSeqReassignment(Session sess, RequestParser.SequenceLaneInfo laneInfo, Map idSampleMap){
-    SequenceLane sl = (SequenceLane)sess.load(SequenceLane.class, new Integer(laneInfo.getIdSequenceLane()));
+
+  /*
+   * Helper function to determine if an existing sequence lane had a new sample
+   * reassigned to it
+   */
+  private static boolean isSeqReassignment(Session sess, RequestParser.SequenceLaneInfo laneInfo, Map idSampleMap) {
+    SequenceLane sl = (SequenceLane) sess.load(SequenceLane.class, new Integer(laneInfo.getIdSequenceLane()));
     Integer idSampleReal = null;
     if (laneInfo.getIdSampleString() != null && !laneInfo.getIdSampleString().equals("") && !laneInfo.getIdSampleString().equals("0")) {
-      idSampleReal = (Integer)idSampleMap.get(laneInfo.getIdSampleString());
+      idSampleReal = (Integer) idSampleMap.get(laneInfo.getIdSampleString());
     }
-    
-    if(idSampleReal != null && sl.getIdSample() != null && !idSampleReal.equals(sl.getIdSample())){
+
+    if (idSampleReal != null && sl.getIdSample() != null && !idSampleReal.equals(sl.getIdSample())) {
       return true;
-    } else{
+    } else {
       return false;
     }
-    
-  }
-  
-  private static SequenceLane saveSequenceLane(SecurityAdvisor secAdvisor, RequestParser requestParser,
-      RequestParser.SequenceLaneInfo sequenceLaneInfo,
-      Session sess, int lastSampleSeqCount, Date theTime,
-      Map idSampleMap, Set sequenceLanes, Set sequenceLanesAdded, boolean isImport) throws Exception {
 
+  }
+
+  private static SequenceLane saveSequenceLane(SecurityAdvisor secAdvisor, RequestParser requestParser, RequestParser.SequenceLaneInfo sequenceLaneInfo, Session sess, int lastSampleSeqCount, Date theTime, Map idSampleMap, Set sequenceLanes, Set sequenceLanesAdded, boolean isImport) throws Exception {
 
     SequenceLane sequenceLane = null;
     boolean seqLaneReassignment = false;
     boolean isNewSequenceLane = requestParser.isNewRequest() || sequenceLaneInfo.getIdSequenceLane() == null || sequenceLaneInfo.getIdSequenceLane().startsWith("SequenceLane");
-
 
     if (isNewSequenceLane) {
       sequenceLane = new SequenceLane();
@@ -2244,17 +2184,17 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       sequenceLane.setCreateDate(theTime);
       isNewSequenceLane = true;
     } else {
-      sequenceLane = (SequenceLane)sess.load(SequenceLane.class, new Integer(sequenceLaneInfo.getIdSequenceLane()));
+      sequenceLane = (SequenceLane) sess.load(SequenceLane.class, new Integer(sequenceLaneInfo.getIdSequenceLane()));
     }
-
 
     Integer idSampleReal = null;
     if (sequenceLaneInfo.getIdSampleString() != null && !sequenceLaneInfo.getIdSampleString().equals("") && !sequenceLaneInfo.getIdSampleString().equals("0")) {
-      idSampleReal = (Integer)idSampleMap.get(sequenceLaneInfo.getIdSampleString());
+      idSampleReal = (Integer) idSampleMap.get(sequenceLaneInfo.getIdSampleString());
     }
-    
-    //If the samples don't line up then we had a drag and drop reassignment.  We need to adjust the number to match new sample
-    if(idSampleReal != null && sequenceLane.getIdSample() != null && !idSampleReal.equals(sequenceLane.getIdSample())){
+
+    // If the samples don't line up then we had a drag and drop reassignment. We
+    // need to adjust the number to match new sample
+    if (idSampleReal != null && sequenceLane.getIdSample() != null && !idSampleReal.equals(sequenceLane.getIdSample())) {
       seqLaneReassignment = true;
     }
     sequenceLane.setIdSample(idSampleReal);
@@ -2264,11 +2204,10 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     sequenceLane.setIdNumberSequencingCyclesAllowed(sequenceLaneInfo.getIdNumberSequencingCyclesAllowed());
     sequenceLane.setIdGenomeBuildAlignTo(sequenceLaneInfo.getIdGenomeBuildAlignTo());
     sequenceLane.setAnalysisInstructions(sequenceLaneInfo.getAnalysisInstructions());
-    
-    Sample theSample = (Sample)sess.get(Sample.class, idSampleReal);
+
+    Sample theSample = (Sample) sess.get(Sample.class, idSampleReal);
     String seqLaneLetter = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.SEQ_LANE_LETTER);
     String flowCellNumber = theSample.getNumber().toString().replaceFirst("X", seqLaneLetter);
-
 
     if (isNewSequenceLane) {
       if (isImport) {
@@ -2281,13 +2220,12 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       sequenceLanes.add(sequenceLane);
       sequenceLanesAdded.add(sequenceLane); // used in createBillingItems
     }
-    
-    if(seqLaneReassignment){
+
+    if (seqLaneReassignment) {
       sequenceLane.setNumber(flowCellNumber + PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.SEQ_LANE_NUMBER_SEPARATOR) + (lastSampleSeqCount + 1));
     }
-    
+
     sess.save(sequenceLane);
-    
 
     // Update workflow fields (for flow cell channel)
     if (secAdvisor.hasPermission(SecurityAdvisor.CAN_MANAGE_WORKFLOW)) {
@@ -2312,47 +2250,40 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         }
         channel.setPipelineFailed(sequenceLaneInfo.getSeqRunPipelineFailed());
 
-
       }
     }
 
-    if(sequenceLane.getFlowCellChannel() != null) {
+    if (sequenceLane.getFlowCellChannel() != null) {
       FlowCellChannel channel = sequenceLane.getFlowCellChannel();
       channel.setSampleConcentrationpM(sequenceLaneInfo.getFlowCellChannelSampleConcentrationpM());
     }
-
-
 
     sess.flush();
     sess.refresh(sequenceLane);
     return sequenceLane;
   }
 
-  public static void createBillingItems(Session sess, Request request, String amendState, BillingPeriod billingPeriod, DictionaryHelper dh, Set<Sample> samples,
-      Set<LabeledSample> labeledSamples, Set<Hybridization> hybs, Set<SequenceLane> lanes, Map<String, ArrayList<String>> sampleToAssaysMap, String codeStepNext, String billingStatus) throws Exception {
+  public static void createBillingItems(Session sess, Request request, String amendState, BillingPeriod billingPeriod, DictionaryHelper dh, Set<Sample> samples, Set<LabeledSample> labeledSamples, Set<Hybridization> hybs, Set<SequenceLane> lanes, Map<String, ArrayList<String>> sampleToAssaysMap, String codeStepNext, String billingStatus) throws Exception {
     createBillingItems(sess, request, amendState, billingPeriod, dh, samples, labeledSamples, hybs, lanes, sampleToAssaysMap, codeStepNext, billingStatus, null);
   }
 
-  public static void createBillingItems(Session sess, Request request, String amendState, BillingPeriod billingPeriod, DictionaryHelper dh, Set<Sample> samples,
-      Set<LabeledSample> labeledSamples, Set<Hybridization> hybs, Set<SequenceLane> lanes, Map<String, ArrayList<String>> sampleToAssaysMap) throws Exception {
+  public static void createBillingItems(Session sess, Request request, String amendState, BillingPeriod billingPeriod, DictionaryHelper dh, Set<Sample> samples, Set<LabeledSample> labeledSamples, Set<Hybridization> hybs, Set<SequenceLane> lanes, Map<String, ArrayList<String>> sampleToAssaysMap) throws Exception {
     createBillingItems(sess, request, amendState, billingPeriod, dh, samples, labeledSamples, hybs, lanes, sampleToAssaysMap, null, BillingStatus.PENDING, null);
   }
 
-  public static void createBillingItems(Session sess, Request request, String amendState, BillingPeriod billingPeriod, DictionaryHelper dh, Set<Sample> samples,
-      Set<LabeledSample> labeledSamples, Set<Hybridization> hybs, Set<SequenceLane> lanes, Map<String, ArrayList<String>> sampleToAssaysMap, String codeStepNext, String billingStatus, Set<PropertyEntry> propertyEntries) throws Exception {
+  public static void createBillingItems(Session sess, Request request, String amendState, BillingPeriod billingPeriod, DictionaryHelper dh, Set<Sample> samples, Set<LabeledSample> labeledSamples, Set<Hybridization> hybs, Set<SequenceLane> lanes, Map<String, ArrayList<String>> sampleToAssaysMap, String codeStepNext, String billingStatus, Set<PropertyEntry> propertyEntries) throws Exception {
 
     List billingItems = new ArrayList<BillingItem>();
     List discountBillingItems = new ArrayList<BillingItem>();
 
-
     // Find the appropriate price sheet
     PriceSheet priceSheet = null;
     List priceSheets = sess.createQuery("SELECT ps from PriceSheet as ps").list();
-    for(Iterator i = priceSheets.iterator(); i.hasNext();) {
-      PriceSheet ps = (PriceSheet)i.next();
-      for(Iterator i1 = ps.getRequestCategories().iterator(); i1.hasNext();) {
-        RequestCategory requestCategory = (RequestCategory)i1.next();
-        if(requestCategory.getCodeRequestCategory().equals(request.getCodeRequestCategory())) {
+    for (Iterator i = priceSheets.iterator(); i.hasNext();) {
+      PriceSheet ps = (PriceSheet) i.next();
+      for (Iterator i1 = ps.getRequestCategories().iterator(); i1.hasNext();) {
+        RequestCategory requestCategory = (RequestCategory) i1.next();
+        if (requestCategory.getCodeRequestCategory().equals(request.getCodeRequestCategory())) {
           priceSheet = ps;
           break;
         }
@@ -2360,13 +2291,14 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       }
     }
 
-    //if (priceSheet == null) {
-    //  throw new Exception("Cannot find price sheet to create billing items for added services");
-    //}
+    // if (priceSheet == null) {
+    // throw new
+    // Exception("Cannot find price sheet to create billing items for added services");
+    // }
 
     if (priceSheet != null) {
-      for(Iterator i1 = priceSheet.getPriceCategories().iterator(); i1.hasNext();) {
-        PriceSheetPriceCategory priceCategoryX = (PriceSheetPriceCategory)i1.next();
+      for (Iterator i1 = priceSheet.getPriceCategories().iterator(); i1.hasNext();) {
+        PriceSheetPriceCategory priceCategoryX = (PriceSheetPriceCategory) i1.next();
         PriceCategory priceCategory = priceCategoryX.getPriceCategory();
 
         // Ignore inactive price categories
@@ -2374,10 +2306,11 @@ public class SaveRequest extends GNomExCommand implements Serializable {
           continue;
         }
 
-        // If a step is provided, ignore price categories that are not available for that step
+        // If a step is provided, ignore price categories that are not available
+        // for that step
         if (codeStepNext != null) {
           Boolean found = false;
-          for(Step s : (Set<Step>)priceCategory.getSteps()) {
+          for (Step s : (Set<Step>) priceCategory.getSteps()) {
             if (s.getCodeStep().equals(codeStepNext)) {
               found = true;
               break;
@@ -2393,11 +2326,11 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         Boolean isDiscount = false;
         if (priceCategory.getPluginClassName() != null) {
           try {
-            plugin = (BillingPlugin)Class.forName(priceCategory.getPluginClassName()).newInstance();
-            if ( priceCategory.getPluginClassName().toLowerCase().indexOf( "discount" ) != -1 ) {
+            plugin = (BillingPlugin) Class.forName(priceCategory.getPluginClassName()).newInstance();
+            if (priceCategory.getPluginClassName().toLowerCase().indexOf("discount") != -1) {
               isDiscount = true;
             }
-          } catch(Exception e) {
+          } catch (Exception e) {
             log.error("Unable to instantiate billing plugin " + priceCategory.getPluginClassName());
           }
 
@@ -2415,19 +2348,19 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       }
 
       BigDecimal grandInvoicePrice = new BigDecimal(0);
-      for(Iterator i = billingItems.iterator(); i.hasNext();) {
-        BillingItem bi = (BillingItem)i.next();
+      for (Iterator i = billingItems.iterator(); i.hasNext();) {
+        BillingItem bi = (BillingItem) i.next();
         grandInvoicePrice = grandInvoicePrice.add(bi.getInvoicePrice());
         if (bi.resetInvoiceForBillingItem(sess)) {
           sess.save(bi);
         }
       }
-      for(Iterator i = discountBillingItems.iterator(); i.hasNext();) {
-        BillingItem bi = (BillingItem)i.next();
+      for (Iterator i = discountBillingItems.iterator(); i.hasNext();) {
+        BillingItem bi = (BillingItem) i.next();
         if (bi.getUnitPrice() != null) {
-          BigDecimal invoicePrice = bi.getUnitPrice().multiply( grandInvoicePrice );
-          bi.setUnitPrice( invoicePrice );
-          bi.setInvoicePrice( invoicePrice );
+          BigDecimal invoicePrice = bi.getUnitPrice().multiply(grandInvoicePrice);
+          bi.setUnitPrice(invoicePrice);
+          bi.setInvoicePrice(invoicePrice);
           bi.resetInvoiceForBillingItem(sess);
           sess.save(bi);
         }
@@ -2440,15 +2373,15 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 
     DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess);
     PropertyDictionaryHelper pdh = PropertyDictionaryHelper.getInstance(sess);
-    CoreFacility cf = (CoreFacility)sess.load(CoreFacility.class, this.requestParser.getRequest().getIdCoreFacility());
+    CoreFacility cf = (CoreFacility) sess.load(CoreFacility.class, this.requestParser.getRequest().getIdCoreFacility());
 
     // Refresh request and samples to make sure everything is populated.
     sess.refresh(requestParser.getRequest());
     for (Iterator i = requestParser.getRequest().getSamples().iterator(); i.hasNext();) {
-      Sample s = (Sample)i.next();
+      Sample s = (Sample) i.next();
       sess.refresh(s);
       if (requestParser.getRequest().getRequestCategory() != null && requestParser.getRequest().getCodeRequestCategory().equals(RequestCategory.FRAGMENT_ANALYSIS_REQUEST_CATEGORY)) {
-        for (Iterator j = s.getSourceWells().iterator();j.hasNext();) {
+        for (Iterator j = s.getSourceWells().iterator(); j.hasNext();) {
           sess.refresh(j.next());
         }
       }
@@ -2459,9 +2392,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       body = getDefaultConfirmationEmailBody(cf, sess, dictionaryHelper);
     }
 
-    String subject = dictionaryHelper.getRequestCategory(requestParser.getRequest().getCodeRequestCategory()) +
-        (requestParser.isExternalExperiment() ? " Experiment " : " Experiment Request ") +
-        requestParser.getRequest().getNumber() + (requestParser.isExternalExperiment() ? " registered" : " submitted");
+    String subject = dictionaryHelper.getRequestCategory(requestParser.getRequest().getCodeRequestCategory()) + (requestParser.isExternalExperiment() ? " Experiment " : " Experiment Request ") + requestParser.getRequest().getNumber() + (requestParser.isExternalExperiment() ? " registered" : " submitted");
 
     String contactEmailCoreFacility = cf.getContactEmail();
     String contactEmailSoftwareBugs = pdh.getCoreFacilityProperty(requestParser.getRequest().getIdCoreFacility(), PropertyDictionary.CONTACT_EMAIL_SOFTWARE_BUGS);
@@ -2469,7 +2400,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     if (requestParser.getRequest().getAppUser() != null && requestParser.getRequest().getAppUser().getEmail() != null) {
       emailRecipients = requestParser.getRequest().getAppUser().getEmail();
     }
-    if(!emailRecipients.equals("") && !MailUtil.isValidEmail(emailRecipients)){
+    if (!emailRecipients.equals("") && !MailUtil.isValidEmail(emailRecipients)) {
       log.error("Invalid email address " + emailRecipients);
     }
     if (otherRecipients != null && otherRecipients.length() > 0) {
@@ -2479,9 +2410,9 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       emailRecipients += otherRecipients;
     }
 
-    if(emailRecipients.contains(",")){
-      for (String e: emailRecipients.split(",")){
-        if(!MailUtil.isValidEmail(e.trim())){
+    if (emailRecipients.contains(",")) {
+      for (String e : emailRecipients.split(",")) {
+        if (!MailUtil.isValidEmail(e.trim())) {
           log.error("Invalid email address: " + e);
         }
       }
@@ -2489,19 +2420,11 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 
     String fromAddress = requestParser.isExternalExperiment() ? contactEmailSoftwareBugs : contactEmailCoreFacility;
 
-    if(!MailUtil.isValidEmail(fromAddress)){
+    if (!MailUtil.isValidEmail(fromAddress)) {
       fromAddress = DictionaryHelper.getInstance(sess).getPropertyDictionary(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
     }
 
-    MailUtilHelper helper = new MailUtilHelper(	
-        emailRecipients,
-        fromAddress,
-        subject,
-        body,
-        null,
-        true, 
-        dictionaryHelper,
-        serverName 			);
+    MailUtilHelper helper = new MailUtilHelper(emailRecipients, fromAddress, subject, body, null, true, dictionaryHelper, serverName);
     helper.setRecipientAppUser(requestParser.getRequest().getAppUser());
     MailUtil.validateAndSendEmail(helper);
 
@@ -2521,11 +2444,9 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 
     } else {
       if (requestParser.isNewRequest()) {
-        introNote.append("Experiment request " + requestParser.getRequest().getNumber() + " has been submitted to the " + cf.getFacilityName() +
-            " core.  You will receive email notification when the experiment is complete.");
+        introNote.append("Experiment request " + requestParser.getRequest().getNumber() + " has been submitted to the " + cf.getFacilityName() + " core.  You will receive email notification when the experiment is complete.");
       } else {
-        introNote.append("Request " + requestParser.getRequest().getNumber() + " to add services to existing experiment " + originalRequestNumber + " has been submitted to the " + cf.getFacilityName() +
-            " core.  You will receive email notification when the experiment is complete.");
+        introNote.append("Request " + requestParser.getRequest().getNumber() + " to add services to existing experiment " + originalRequestNumber + " has been submitted to the " + cf.getFacilityName() + " core.  You will receive email notification when the experiment is complete.");
 
       }
       introNote.append("<br><br>To track progress on the experiment request, click <a href=\"" + trackRequestURL + "\">" + Constants.APP_NAME + " - " + requestParser.getRequest().getNumber() + "</a>.");
@@ -2544,17 +2465,16 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     String genomeBuildToAlignTo = "";
     if (requestParser.getRequest().getSequenceLanes().iterator().hasNext()) {
       SequenceLane lane = (SequenceLane) requestParser.getRequest().getSequenceLanes().iterator().next();
-      numberSequencingCyclesAllowed = lane.getIdNumberSequencingCyclesAllowed()!= null  ? dictionaryHelper.getNumberSequencingCyclesAllowed(lane.getIdNumberSequencingCyclesAllowed()) : "";
-      genomeBuildToAlignTo = lane.getIdGenomeBuildAlignTo() != null  ? dictionaryHelper.getGenomeBuild(lane.getIdGenomeBuildAlignTo()) : "";
+      numberSequencingCyclesAllowed = lane.getIdNumberSequencingCyclesAllowed() != null ? dictionaryHelper.getNumberSequencingCyclesAllowed(lane.getIdNumberSequencingCyclesAllowed()) : "";
+      genomeBuildToAlignTo = lane.getIdGenomeBuildAlignTo() != null ? dictionaryHelper.getGenomeBuild(lane.getIdGenomeBuildAlignTo()) : "";
     }
 
-    String templateString = pdh.getCoreFacilityRequestCategoryProperty(requestParser.getRequest().getIdCoreFacility(), requestParser.getRequest().getCodeRequestCategory(), 
-        PropertyDictionary.EXPERIMENT_CONFIRMATION_EMAIL_TEMPLATE);
+    String templateString = pdh.getCoreFacilityRequestCategoryProperty(requestParser.getRequest().getIdCoreFacility(), requestParser.getRequest().getCodeRequestCategory(), PropertyDictionary.EXPERIMENT_CONFIRMATION_EMAIL_TEMPLATE);
 
     if (templateString != null && templateString.length() > 0) {
       Map root = new HashMap();
       root.put("request", requestParser.getRequest());
-      root.put("facility",cf);
+      root.put("facility", cf);
       root.put("originalRequestNumber", originalRequestNumber != null ? originalRequestNumber : "");
       root.put("requestCategory", requestCategory);
       root.put("isNewRequest", requestParser.isNewRequest());
@@ -2567,12 +2487,12 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       try {
         Template template = new Template("root", new StringReader(templateString), FreeMarkerConfiguration.instance().getConfiguration());
 
-        Writer out = new StringWriter(); 
-        template.process(root, out); 
+        Writer out = new StringWriter();
+        template.process(root, out);
         emailBody = out.toString();
-      } catch(IOException ex) {
+      } catch (IOException ex) {
         log.error("Unable to read template for invoice email for " + requestParser.getRequest().getNumber(), ex);
-      } catch(TemplateException ex) {
+      } catch (TemplateException ex) {
         log.error("Error processing template for invoice email for " + requestParser.getRequest().getNumber(), ex);
       }
     }
@@ -2584,10 +2504,9 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 
     DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess);
     PropertyDictionaryHelper pdh = PropertyDictionaryHelper.getInstance(sess);
-    CoreFacility cf = (CoreFacility)sess.load(CoreFacility.class, requestParser.getRequest().getIdCoreFacility());
+    CoreFacility cf = (CoreFacility) sess.load(CoreFacility.class, requestParser.getRequest().getIdCoreFacility());
 
-
-    //If it isn't microarray or illumina, don't send email
+    // If it isn't microarray or illumina, don't send email
     if (!RequestCategory.isMicroarrayRequestCategory(requestParser.getRequest().getCodeRequestCategory()) && !RequestCategory.isIlluminaRequestCategory(requestParser.getRequest().getCodeRequestCategory())) {
       return;
     }
@@ -2607,41 +2526,31 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     if (contactEmail == null || contactEmail.length() == 0) {
       contactEmail = ccEmail;
       ccEmail = null;
-      if(contactEmail == null) {
+      if (contactEmail == null) {
         // If neither email present then just cend to the lab
         contactEmail = senderEmail;
       }
-    } else if(ccEmail != null && ccEmail.length() == 0) {
+    } else if (ccEmail != null && ccEmail.length() == 0) {
       ccEmail = null;
     }
 
-    if(contactEmail.contains(",")){
-      for(String e: contactEmail.split(",")){
-        if(!MailUtil.isValidEmail(e.trim())){
+    if (contactEmail.contains(",")) {
+      for (String e : contactEmail.split(",")) {
+        if (!MailUtil.isValidEmail(e.trim())) {
           log.error("Invalid email address: " + e);
         }
       }
-    } else{
-      if(!MailUtil.isValidEmail(contactEmail)){
+    } else {
+      if (!MailUtil.isValidEmail(contactEmail)) {
         log.error("Invalid email address: " + contactEmail);
       }
     }
 
-    if(!MailUtil.isValidEmail(senderEmail)) {
+    if (!MailUtil.isValidEmail(senderEmail)) {
       senderEmail = DictionaryHelper.getInstance(sess).getPropertyDictionary(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
     }
 
-    MailUtilHelper helper = new MailUtilHelper(	
-        contactEmail,
-        ccEmail,
-        null,
-        senderEmail,
-        subject,
-        emailBody,
-        null,
-        true, 
-        dictionaryHelper,
-        serverName 			);
+    MailUtilHelper helper = new MailUtilHelper(contactEmail, ccEmail, null, senderEmail, subject, emailBody, null, true, dictionaryHelper, serverName);
     MailUtil.validateAndSendEmail(helper);
 
   }
@@ -2655,14 +2564,11 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     String trackRequestURL = launchAppURL + "?requestNumber=" + requestNumber + "&launchWindow=" + Constants.WINDOW_TRACK_REQUESTS;
 
     if (requestParser.isNewRequest()) {
-      emailBody.append("An experiment request has been submitted to the " + cf.getFacilityName() +
-          " core.");
+      emailBody.append("An experiment request has been submitted to the " + cf.getFacilityName() + " core.");
     } else {
-      emailBody.append("A request to add services to existing experiment (" + originalRequestNumber + ") has been submitted to the " + cf.getFacilityName() +
-          " core.");
+      emailBody.append("A request to add services to existing experiment (" + originalRequestNumber + ") has been submitted to the " + cf.getFacilityName() + " core.");
     }
     // emailBody.append(" You are receiving this email notification because estimated charges are over $500.00 and the account to be billed belongs to your lab or group.");
-
 
     emailBody.append("<br><br><table border='0' width = '400'><tr><td>Request Type:</td><td>" + requestType);
     emailBody.append("</td></tr><tr><td>Request #:</td><td>" + requestNumber);
@@ -2679,13 +2585,12 @@ public class SaveRequest extends GNomExCommand implements Serializable {
   private String getTemplatedInvoiceEmailBody(CoreFacility cf, DictionaryHelper dictionaryHelper, PropertyDictionaryHelper pdh) {
     String emailBody = "";
     RequestCategory requestCategory = dictionaryHelper.getRequestCategoryObject(requestParser.getRequest().getCodeRequestCategory());
-    String templateString = pdh.getCoreFacilityRequestCategoryProperty(requestParser.getRequest().getIdCoreFacility(), requestParser.getRequest().getCodeRequestCategory(), 
-        PropertyDictionary.EXPERIMENT_INVOICE_EMAIL_TEMPLATE);
+    String templateString = pdh.getCoreFacilityRequestCategoryProperty(requestParser.getRequest().getIdCoreFacility(), requestParser.getRequest().getCodeRequestCategory(), PropertyDictionary.EXPERIMENT_INVOICE_EMAIL_TEMPLATE);
 
     if (templateString != null && templateString.length() > 0) {
       Map root = new HashMap();
       root.put("request", requestParser.getRequest());
-      root.put("facility",cf);
+      root.put("facility", cf);
       root.put("invoicePrice", invoicePrice);
       root.put("requestCategory", requestCategory);
       root.put("gnomexURL", launchAppURL);
@@ -2694,12 +2599,12 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       try {
         Template template = new Template("root", new StringReader(templateString), FreeMarkerConfiguration.instance().getConfiguration());
 
-        Writer out = new StringWriter(); 
-        template.process(root, out); 
+        Writer out = new StringWriter();
+        template.process(root, out);
         emailBody = out.toString();
-      } catch(IOException ex) {
+      } catch (IOException ex) {
         log.error("Unable to read template for invoice email for " + requestParser.getRequest().getNumber(), ex);
-      } catch(TemplateException ex) {
+      } catch (TemplateException ex) {
         log.error("Error processing template for invoice email for " + requestParser.getRequest().getNumber(), ex);
       }
     }
@@ -2714,7 +2619,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       String buf = "SELECT tl from TransferLog tl where idRequest = " + requestParser.getRequest().getIdRequest();
       List transferLogs = sess.createQuery(buf).list();
       for (Iterator i = transferLogs.iterator(); i.hasNext();) {
-        TransferLog tl = (TransferLog)i.next();
+        TransferLog tl = (TransferLog) i.next();
         tl.setIdLab(requestParser.getRequest().getIdLab());
       }
     }
@@ -2722,7 +2627,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 
   private void createResultDirectories(Request req, String qcDirectory, String microarrayDir) {
 
-    String createYear = this.formatDate(req.getCreateDate(), this.DATE_OUTPUT_ALTIO).substring(0,4);
+    String createYear = this.formatDate(req.getCreateDate(), this.DATE_OUTPUT_ALTIO).substring(0, 4);
     String rootDir = microarrayDir + File.separator + createYear;
 
     boolean success = false;
@@ -2752,10 +2657,9 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       }
     }
 
-
     if (req.getHybridizations() != null) {
-      for(Iterator i = req.getHybridizations().iterator(); i.hasNext();) {
-        Hybridization hyb = (Hybridization)i.next();
+      for (Iterator i = req.getHybridizations().iterator(); i.hasNext();) {
+        Hybridization hyb = (Hybridization) i.next();
         String hybDirectoryName = directoryName + "/" + hyb.getNumber();
         if (!new File(hybDirectoryName).exists()) {
           success = (new File(hybDirectoryName)).mkdir();
@@ -2770,9 +2674,9 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 
   public static Integer getStartingNextSampleNumber(RequestParser requestParser) {
     Integer nextSampleNumber = 0;
-    for(Iterator i = requestParser.getSampleIds().iterator(); i.hasNext();) {
-      String idSampleString = (String)i.next();
-      Sample sample = (Sample)requestParser.getSampleMap().get(idSampleString);
+    for (Iterator i = requestParser.getSampleIds().iterator(); i.hasNext();) {
+      String idSampleString = (String) i.next();
+      Sample sample = (Sample) requestParser.getSampleMap().get(idSampleString);
       String numberAsString = sample.getNumber();
       if (numberAsString != null && numberAsString.length() != 0 && numberAsString.indexOf("X") > 0) {
         numberAsString = numberAsString.substring(numberAsString.indexOf("X") + 1);
@@ -2781,7 +2685,8 @@ public class SaveRequest extends GNomExCommand implements Serializable {
           if (number.intValue() > nextSampleNumber.intValue()) {
             nextSampleNumber = number;
           }
-        } catch(Exception ex) {}
+        } catch (Exception ex) {
+        }
       }
     }
     return ++nextSampleNumber;
@@ -2789,31 +2694,28 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 
   public class LabeledSampleComparator implements Comparator, Serializable {
     public int compare(Object o1, Object o2) {
-      LabeledSample ls1 = (LabeledSample)o1;
-      LabeledSample ls2 = (LabeledSample)o2;
-
+      LabeledSample ls1 = (LabeledSample) o1;
+      LabeledSample ls2 = (LabeledSample) o2;
 
       return ls1.getIdLabeledSample().compareTo(ls2.getIdLabeledSample());
 
     }
   }
 
-  public void deleteDir(File f, String fileName) throws Exception{
-    for(String file : f.list()){
+  public void deleteDir(File f, String fileName) throws Exception {
+    for (String file : f.list()) {
       File child = new File(fileName + File.separator + file);
-      if(child.isDirectory()){
+      if (child.isDirectory()) {
         deleteDir(child, child.getCanonicalPath());
-      }
-      else if (!(new File(fileName + File.separator + file).delete())) {
+      } else if (!(new File(fileName + File.separator + file).delete())) {
         throw new Exception("Unable to delete file " + fileName + File.separator + file);
-      }
-      else{
+      } else {
         filesToRemoveParser.parseFilesToRemove().remove(fileName + File.separator + file);
       }
 
     }
-    if(f.list().length == 0){
-      if(!f.delete()){
+    if (f.list().length == 0) {
+      if (!f.delete()) {
         throw new Exception("Unable to delete file " + f.getCanonicalPath());
       }
       return;
@@ -2823,31 +2725,31 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 
   private Set saveRequestProperties(Session sess, RequestParser requestParser) throws org.jdom.JDOMException {
     Set<PropertyEntry> propertyEntries = new TreeSet<PropertyEntry>(new PropertyEntryComparator());
-    // Delete properties  
+    // Delete properties
     if (propertiesXML != null && !propertiesXML.equals("")) {
       StringReader reader = new StringReader(propertiesXML);
       SAXBuilder sax = new SAXBuilder();
       Document propsDoc = sax.build(reader);
       if (requestParser.getRequest().getPropertyEntries() != null) {
-        for(Iterator<?> i = requestParser.getRequest().getPropertyEntries().iterator(); i.hasNext();) {
+        for (Iterator<?> i = requestParser.getRequest().getPropertyEntries().iterator(); i.hasNext();) {
           PropertyEntry pe = PropertyEntry.class.cast(i.next());
           boolean found = false;
-          for(Iterator<?> i1 = propsDoc.getRootElement().getChildren().iterator(); i1.hasNext();) {
-            Element propNode = (Element)i1.next();
+          for (Iterator<?> i1 = propsDoc.getRootElement().getChildren().iterator(); i1.hasNext();) {
+            Element propNode = (Element) i1.next();
             String idPropertyEntry = propNode.getAttributeValue("idPropertyEntry");
             if (idPropertyEntry != null && !idPropertyEntry.equals("")) {
               if (pe.getIdPropertyEntry().equals(new Integer(idPropertyEntry))) {
                 found = true;
                 break;
               }
-            }                   
+            }
           }
           if (!found) {
             // delete property values
-            for(Iterator<?> i1 = pe.getValues().iterator(); i1.hasNext();) {
+            for (Iterator<?> i1 = pe.getValues().iterator(); i1.hasNext();) {
               PropertyEntryValue av = PropertyEntryValue.class.cast(i1.next());
               sess.delete(av);
-            }  
+            }
             sess.flush();
             pe.setValues(null);
             sess.save(pe);
@@ -2855,25 +2757,25 @@ public class SaveRequest extends GNomExCommand implements Serializable {
             // delete property
             sess.delete(pe);
           }
-        } 
+        }
         sess.flush();
       }
 
       // Add properties
-      for(Iterator<?> i = propsDoc.getRootElement().getChildren().iterator(); i.hasNext();) {
-        Element node = (Element)i.next();
-        //Adding dataTracks
+      for (Iterator<?> i = propsDoc.getRootElement().getChildren().iterator(); i.hasNext();) {
+        Element node = (Element) i.next();
+        // Adding dataTracks
         String idPropertyEntry = node.getAttributeValue("idPropertyEntry");
 
         PropertyEntry pe = null;
         if (idPropertyEntry == null || idPropertyEntry.equals("")) {
           pe = new PropertyEntry();
         } else {
-          pe  = PropertyEntry.class.cast(sess.get(PropertyEntry.class, Integer.valueOf(idPropertyEntry))); 
+          pe = PropertyEntry.class.cast(sess.get(PropertyEntry.class, Integer.valueOf(idPropertyEntry)));
         }
         pe.setIdProperty(Integer.valueOf(node.getAttributeValue("idProperty")));
         pe.setValue(node.getAttributeValue("value"));
-        pe.setIdRequest( requestParser.getRequest().getIdRequest() );
+        pe.setIdRequest(requestParser.getRequest().getIdRequest());
 
         if (idPropertyEntry == null || idPropertyEntry.equals("")) {
           sess.save(pe);
@@ -2882,11 +2784,11 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 
         // Remove PropertyEntryValues
         if (pe.getValues() != null) {
-          for(Iterator<?> i1 = pe.getValues().iterator(); i1.hasNext();) {
+          for (Iterator<?> i1 = pe.getValues().iterator(); i1.hasNext();) {
             PropertyEntryValue av = PropertyEntryValue.class.cast(i1.next());
             boolean found = false;
-            for(Iterator<?> i2 = node.getChildren().iterator(); i2.hasNext();) {
-              Element n = (Element)i2.next();
+            for (Iterator<?> i2 = node.getChildren().iterator(); i2.hasNext();) {
+              Element n = (Element) i2.next();
               if (n.getName().equals("PropertyEntryValue")) {
                 String idPropertyEntryValue = n.getAttributeValue("idPropertyEntryValue");
                 if (idPropertyEntryValue != null && !idPropertyEntryValue.equals("")) {
@@ -2894,7 +2796,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
                     found = true;
                     break;
                   }
-                }                   
+                }
               }
             }
             if (!found) {
@@ -2905,8 +2807,8 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         }
 
         // Add and update PropertyEntryValues
-        for(Iterator<?> i1 = node.getChildren().iterator(); i1.hasNext();) {
-          Element n = (Element)i1.next();
+        for (Iterator<?> i1 = node.getChildren().iterator(); i1.hasNext();) {
+          Element n = (Element) i1.next();
           if (n.getName().equals("PropertyEntryValue")) {
             String idPropertyEntryValue = n.getAttributeValue("idPropertyEntryValue");
             String value = n.getAttributeValue("value");
@@ -2919,7 +2821,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
               av = new PropertyEntryValue();
               av.setIdPropertyEntry(pe.getIdPropertyEntry());
             } else {
-              av = PropertyEntryValue.class.cast(sess.load(PropertyEntryValue.class, Integer.valueOf(idPropertyEntryValue)));              
+              av = PropertyEntryValue.class.cast(sess.load(PropertyEntryValue.class, Integer.valueOf(idPropertyEntryValue)));
             }
             av.setValue(n.getAttributeValue("value"));
 
@@ -2930,11 +2832,10 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         }
         sess.flush();
 
-
         String optionValue = "";
         TreeSet<PropertyOption> options = new TreeSet<PropertyOption>(new PropertyOptionComparator());
-        for(Iterator<?> i1 = node.getChildren().iterator(); i1.hasNext();) {
-          Element n = (Element)i1.next();
+        for (Iterator<?> i1 = node.getChildren().iterator(); i1.hasNext();) {
+          Element n = (Element) i1.next();
           if (n.getName().equals("PropertyOption")) {
             Integer idPropertyOption = Integer.parseInt(n.getAttributeValue("idPropertyOption"));
             String selected = n.getAttributeValue("selected");
@@ -2954,26 +2855,26 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         }
         sess.flush();
 
-        propertyEntries.add( pe );
+        propertyEntries.add(pe);
       }
     }
     return propertyEntries;
   }
 
-  // Sequenom experiments add a default annotation that doesn't show up in submit but then
+  // Sequenom experiments add a default annotation that doesn't show up in
+  // submit but then
   // shows up in view and edit.
   private static void addStandardSampleProperties(Session sess, RequestParser requestParser, String idSampleString, Sample sample) {
     DictionaryHelper dh = DictionaryHelper.getInstance(sess);
     RequestCategory requestCategory = dh.getRequestCategoryObject(requestParser.getRequest().getCodeRequestCategory());
     Boolean addedProperty = false;
     if (requestCategory.getType().equals(RequestCategoryType.TYPE_SEQUENOM) || requestCategory.getType().equals(RequestCategoryType.TYPE_CLINICAL_SEQUENOM)) {
-      Map sampleAnnotations = (Map)requestParser.getSampleAnnotationMap().get(idSampleString);
-      for(Property prop : dh.getPropertyList()) {
+      Map sampleAnnotations = (Map) requestParser.getSampleAnnotationMap().get(idSampleString);
+      for (Property prop : dh.getPropertyList()) {
         if (prop != null && prop.getPlatformApplications() != null && !sampleAnnotations.containsKey(prop.getIdProperty())) {
-          for(Iterator i1 = prop.getPlatformApplications().iterator(); i1.hasNext();) {
+          for (Iterator i1 = prop.getPlatformApplications().iterator(); i1.hasNext();) {
             PropertyPlatformApplication pa = (PropertyPlatformApplication) i1.next();
-            if ( pa.getCodeRequestCategory() != null && pa.getCodeRequestCategory().equals(requestParser.getRequest().getCodeRequestCategory())
-                && (pa.getCodeApplication() == null || pa.getCodeApplication().equals(requestParser.getRequest().getCodeApplication()))) {
+            if (pa.getCodeRequestCategory() != null && pa.getCodeRequestCategory().equals(requestParser.getRequest().getCodeRequestCategory()) && (pa.getCodeApplication() == null || pa.getCodeApplication().equals(requestParser.getRequest().getCodeApplication()))) {
               PropertyEntry entry = new PropertyEntry();
               entry.setIdSample(sample.getIdSample());
               entry.setIdProperty(prop.getIdProperty());

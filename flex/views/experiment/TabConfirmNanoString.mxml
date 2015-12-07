@@ -59,11 +59,19 @@
 				this.getConcentrationHeader();
 				
 				// Edit buttons shown
-				this.parentDocument.submitButton.label = 'Submit';
-				this.parentDocument.agreeBox.visible = true;
-				this.parentDocument.agreeBox.includeInLayout = true;
-				this.parentDocument.agreeCheckbox.selected = false;
-				
+				if(parentApplication.getRequestCategoryProperty(parentDocument.request.@idCoreFacility, parentDocument.request.@codeRequestCategory, parentApplication.PROPERTY_NEW_REQUEST_SAVE_BEFORE_SUBMIT) == 'Y'){
+					this.parentDocument.submitButton.label = 'Save';
+					this.parentDocument.submitButton.enabled = true;
+					this.parentDocument.agreeBox.visible = false;
+					this.parentDocument.agreeBox.includeInLayout = false;
+					this.parentDocument.agreeCheckbox.selected = true;
+					
+				} else{
+					this.parentDocument.submitButton.label = 'Submit';
+					this.parentDocument.agreeBox.visible = true;
+					this.parentDocument.agreeBox.includeInLayout = true;
+					this.parentDocument.agreeCheckbox.selected = false;
+				}
 				// Edit columns shown
 				this.sampleTypeColumn.visible = true;
 				this.sampleNameColumn.visible = true;

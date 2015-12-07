@@ -100,13 +100,12 @@
 			this.label1.text = 'Samples (' + filteredSamples.length + ')';
 			
 			// Edit buttons shown
-			if (parentDocument.isSequencingState()) {
+			if(parentApplication.getRequestCategoryProperty(parentDocument.request.@idCoreFacility, parentDocument.request.@codeRequestCategory, parentApplication.PROPERTY_NEW_REQUEST_SAVE_BEFORE_SUBMIT) == 'Y'){
 				this.parentDocument.submitButton.label = 'Save';
 				this.parentDocument.submitButton.enabled = true;
 				this.parentDocument.agreeCheckbox.selected = true;
 				this.parentDocument.agreeBox.includeInLayout = false;
 				this.parentDocument.agreeBox.visible = false;
-				
 			} else {
 				this.parentDocument.submitButton.label = 'Submit';
 				this.parentDocument.agreeBox.visible = true;

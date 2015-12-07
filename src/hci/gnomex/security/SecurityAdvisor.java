@@ -64,75 +64,77 @@ import org.hibernate.Session;
 
 public class SecurityAdvisor extends DetailObject implements Serializable, hci.framework.security.SecurityAdvisor {
   // Security advisor session variable
-  public static final String             SECURITY_ADVISOR_SESSION_KEY           = "gnomexSecurityAdvisor";
+  public static final String SECURITY_ADVISOR_SESSION_KEY = "gnomexSecurityAdvisor";
 
-  private static final String            RESTRICTED                             = "(restricted)";
+  private static final String RESTRICTED = "(restricted)";
 
-  private static org.apache.log4j.Logger log                                    = org.apache.log4j.Logger.getLogger(SecurityAdvisor.class);
+  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(SecurityAdvisor.class);
 
-  public static final int                PROFILE_OBJECT_VISIBILITY              = 1;
-  public static final int                PROFILE_GROUP_MEMBERSHIP               = 2;
-  public static final int                SAMPLES_UPDATE                         = 3;
+  public static final int PROFILE_OBJECT_VISIBILITY = 1;
+  public static final int PROFILE_GROUP_MEMBERSHIP = 2;
+  public static final int SAMPLES_UPDATE = 3;
 
   // Global Permissions
-  public static final String             CAN_WRITE_DICTIONARIES                 = "canWriteDictionaries";
-  public static final String             CAN_WRITE_PROPERTY_DICTIONARY          = "canWritePropertyDictionary";
-  public static final String             CAN_MANAGE_WORKFLOW                    = "canManageWorkflow";
-  public static final String             CAN_MANAGE_BILLING                     = "canManageBilling";
-  public static final String             CAN_ADMINISTER_USERS                   = "canAdministerUsers";
-  public static final String             CAN_ACCESS_ANY_OBJECT                  = "canAccessAnyObject";
-  public static final String             CAN_WRITE_ANY_OBJECT                   = "canWriteAnyObject";
-  public static final String             CAN_DELETE_ANY_PROJECT                 = "canDeleteAnyProject";
-  public static final String             CAN_DELETE_REQUESTS                    = "canDeleteRequests";
-  public static final String             CAN_MANAGE_DNA_SEQ_CORE                = "canManageDNASeqCore";
-  public static final String             CAN_MANAGE_GENOMICS_CORE               = "canManageGenomicsCore";
-  public static final String             CAN_SUBMIT_FOR_OTHER_CORES             = "canSubmitForOtherCores";
+  public static final String CAN_WRITE_DICTIONARIES = "canWriteDictionaries";
+  public static final String CAN_WRITE_PROPERTY_DICTIONARY = "canWritePropertyDictionary";
+  public static final String CAN_MANAGE_WORKFLOW = "canManageWorkflow";
+  public static final String CAN_MANAGE_BILLING = "canManageBilling";
+  public static final String CAN_ADMINISTER_USERS = "canAdministerUsers";
+  public static final String CAN_ACCESS_ANY_OBJECT = "canAccessAnyObject";
+  public static final String CAN_WRITE_ANY_OBJECT = "canWriteAnyObject";
+  public static final String CAN_DELETE_ANY_PROJECT = "canDeleteAnyProject";
+  public static final String CAN_DELETE_REQUESTS = "canDeleteRequests";
+  public static final String CAN_MANAGE_DNA_SEQ_CORE = "canManageDNASeqCore";
+  public static final String CAN_MANAGE_GENOMICS_CORE = "canManageGenomicsCore";
+  public static final String CAN_SUBMIT_FOR_OTHER_CORES = "canSubmitForOtherCores";
 
-  public static final String             CAN_PARTICIPATE_IN_GROUPS              = "canParticipateInGroups";
-  public static final String             CAN_SUBMIT_REQUESTS                    = "canSubmitRequests";
+  public static final String CAN_PARTICIPATE_IN_GROUPS = "canParticipateInGroups";
+  public static final String CAN_SUBMIT_REQUESTS = "canSubmitRequests";
 
-  public static final String             CAN_MANAGE_DASHBOARD                   = "canManageDashboard";
-  public static final String             CAN_RECEIVE_ADMIN_NOTIFICATION         = "canReceiveAdminNotification";
-  public static final String             CAN_RECEIVE_BILLING_NOTIFICATION       = "canReceiveBillingNotification";
-  public static final String             CAN_RECEIVE_WORKFLOW_NOTIFICATION      = "canReceiveWorkflowNotification";
+  public static final String CAN_MANAGE_DASHBOARD = "canManageDashboard";
+  public static final String CAN_RECEIVE_ADMIN_NOTIFICATION = "canReceiveAdminNotification";
+  public static final String CAN_RECEIVE_BILLING_NOTIFICATION = "canReceiveBillingNotification";
+  public static final String CAN_RECEIVE_WORKFLOW_NOTIFICATION = "canReceiveWorkflowNotification";
 
-  public static final String             CAN_BE_LAB_MEMBER                      = "canBeLabMember";
-  public static final String             CAN_BE_LAB_COLLABORATOR                = "canBeLabCollaborator";
-  public static final String             CAN_SUBMIT_WORK_AUTH_FORMS             = "canSubmitWorkAuthForms";
+  public static final String CAN_BE_LAB_MEMBER = "canBeLabMember";
+  public static final String CAN_BE_LAB_COLLABORATOR = "canBeLabCollaborator";
+  public static final String CAN_SUBMIT_WORK_AUTH_FORMS = "canSubmitWorkAuthForms";
 
-  public static final String             CAN_ADMINISTER_ALL_CORE_FACILITIES     = "canAdministerAllCoreFacilities";
-  public static final String             CAN_ASSIGN_SUPER_ADMIN_ROLE            = "canAssignSuperAdminRole";
+  public static final String CAN_ADMINISTER_ALL_CORE_FACILITIES = "canAdministerAllCoreFacilities";
+  public static final String CAN_ASSIGN_SUPER_ADMIN_ROLE = "canAssignSuperAdminRole";
 
-  public static final String             USER_SCOPE_LEVEL                       = "USER";
-  public static final String             GROUP_SCOPE_LEVEL                      = "GROUP";
-  public static final String             ALL_SCOPE_LEVEL                        = "ALL";
+  public static final String USER_SCOPE_LEVEL = "USER";
+  public static final String GROUP_SCOPE_LEVEL = "GROUP";
+  public static final String ALL_SCOPE_LEVEL = "ALL";
 
   // Session info
-  private AppUser                        appUser;
-  private boolean                        isGuest                                = false;
-  private boolean                        isGNomExUniversityUser                 = false;
-  private boolean                        isGNomExExternalUser                   = false;
-  private boolean                        isUniversityOnlyUser                   = false;
-  private boolean                        isLabManager                           = false;
-  private boolean                        isReadOnlySession                      = false;
-  private boolean                        canAccessBSTX                          = false;
-  private Integer                        specifiedIdCoreFacility                = null;
+  private AppUser appUser;
+  private boolean isGuest = false;
+  private boolean isGNomExUniversityUser = false;
+  private boolean isGNomExExternalUser = false;
+  private boolean isUniversityOnlyUser = false;
+  private boolean isLabManager = false;
+  private boolean isReadOnlySession = false;
+  private boolean canAccessBSTX = false;
+  private Integer specifiedIdCoreFacility = null;
 
   // version info
-  private String                         version;
+  private String version;
 
   // Global permission map
-  private Map                            globalPermissionMap                    = new HashMap();
+  private Map globalPermissionMap = new HashMap();
 
   // ids of core facilities that allow users to have global submission
   // privileges.
-  private Map<Integer, Integer>          coreFacilitiesAllowingGlobalSubmission = new HashMap<Integer, Integer>();
+  private Map<Integer, Integer> coreFacilitiesAllowingGlobalSubmission = new HashMap<Integer, Integer>();
 
-  private String                         loginDateTime;
+  private String loginDateTime;
 
-  private BSTXSecurityAdvisor            bstxSecurityAdvisor;
+  private BSTXSecurityAdvisor bstxSecurityAdvisor;
 
-  private String                         ntUserName;
+  private String ntUserName;
+
+  private static PropertyDictionaryHelper pdh;
 
   public String getLoginDateTime() {
     return loginDateTime;
@@ -223,6 +225,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
 
   public static SecurityAdvisor create(Session sess, String uid, Integer idCoreFacility) throws InvalidSecurityAdvisorException {
     SecurityAdvisor securityAdvisor = null;
+    pdh = PropertyDictionaryHelper.getInstance(sess);
 
     // If the login is "guest" just instantiate a security advisor
     // as 'guest'.
@@ -317,7 +320,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     // check if can access BSTX
     String ntUserName = null;
     if (isGNomExUniversityUser) {
-      String canAccessBSTXString = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.CAN_ACCESS_BSTX);
+      String canAccessBSTXString = pdh.getProperty(PropertyDictionary.CAN_ACCESS_BSTX);
       if (canAccessBSTXString != null && canAccessBSTXString.equals("Y")) {
         ntUserName = getNtUserName(uid);
         if (ntUserName != null) {
@@ -335,7 +338,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
       }
 
       CoreFacility cf = (CoreFacility) de;
-      String canHaveGlobalSubmission = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(cf.getIdCoreFacility(), PropertyDictionary.ALLOW_CORE_GLOBAL_SUBMISSION);
+      String canHaveGlobalSubmission = pdh.getCoreFacilityProperty(cf.getIdCoreFacility(), PropertyDictionary.ALLOW_CORE_GLOBAL_SUBMISSION);
       if (canHaveGlobalSubmission != null && canHaveGlobalSubmission.equals("Y")) {
         submitMap.put(cf.getIdCoreFacility(), cf.getIdCoreFacility());
       }
@@ -1436,14 +1439,14 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
         // Admins - Can only update requests from core facility user manages
         else if (hasPermission(this.CAN_WRITE_ANY_OBJECT)) {
           canUpdate = canUpdate(req);
-          if (req.isDNASeqExperiment().equals("Y") && !(req.getCodeRequestStatus().equals(RequestStatus.SUBMITTED) || req.getCodeRequestStatus().equals(RequestStatus.NEW) || (req.getCodeRequestStatus().equals(RequestStatus.PROCESSING) && !req.onReactionPlate()))) {
+          if (pdh.getCoreFacilityRequestCategoryProperty(req.getIdCoreFacility(), req.getCodeRequestCategory(), PropertyDictionary.NEW_REQUEST_SAVE_BEFORE_SUBMIT).equals("Y") && !(req.getCodeRequestStatus().equals(RequestStatus.SUBMITTED) || req.getCodeRequestStatus().equals(RequestStatus.NEW) || (req.getCodeRequestStatus().equals(RequestStatus.PROCESSING) && !req.onReactionPlate()))) {
             canUpdate = false;
           }
         }
         // University GNomEx users
         else if (hasPermission(this.CAN_PARTICIPATE_IN_GROUPS)) {
           canUpdate = canUpdate(req);
-          if (canUpdate && req.isDNASeqExperiment().equals("Y") && !req.getCodeRequestStatus().equals(RequestStatus.NEW)) {
+          if (canUpdate && pdh.getCoreFacilityRequestCategoryProperty(req.getIdCoreFacility(), req.getCodeRequestCategory(), PropertyDictionary.NEW_REQUEST_SAVE_BEFORE_SUBMIT).equals("Y") && !req.getCodeRequestStatus().equals(RequestStatus.NEW)) {
             canUpdate = false;
           }
         }
@@ -1531,14 +1534,14 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
       // Admin - can delete experiments from core facility user manages
       else if (hasPermission(this.CAN_DELETE_REQUESTS)) {
         canDelete = true;
-        if (r.isDNASeqExperiment().equals("Y") && !r.getCodeRequestStatus().equals(RequestStatus.SUBMITTED) && !r.getCodeRequestStatus().equals(RequestStatus.NEW)) {
+        if (pdh.getCoreFacilityRequestCategoryProperty(r.getIdCoreFacility(), r.getCodeRequestCategory(), PropertyDictionary.NEW_REQUEST_SAVE_BEFORE_SUBMIT).equals("Y") && !r.getCodeRequestStatus().equals(RequestStatus.SUBMITTED) && !r.getCodeRequestStatus().equals(RequestStatus.NEW)) {
           canDelete = false;
         }
       }
       // Lab manager or owner can delete experiment if the samples
       // have not proceeded in the workflow
       else if (isGroupIManage(r.getIdLab()) || (isGroupIAmMemberOf(r.getIdLab()) && isOwner(r.getIdAppUser()))) {
-        if (r.isDNASeqExperiment().equals("Y")) {
+        if (pdh.getCoreFacilityRequestCategoryProperty(r.getIdCoreFacility(), r.getCodeRequestCategory(), PropertyDictionary.NEW_REQUEST_SAVE_BEFORE_SUBMIT).equals("Y")) {
           canDelete = r.getCodeRequestStatus().equals(RequestStatus.NEW);
         } else {
           int deleteSampleCount = 0;
@@ -1735,7 +1738,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
   }
 
   public Boolean canDeleteSample(Request req) throws UnknownPermissionException {
-    if ((req.isDNASeqExperiment() != null && req.isDNASeqExperiment().equals("Y")) || (req.getIsExternal() != null && req.getIsExternal().equals("Y"))) {
+    if ((pdh.getCoreFacilityRequestCategoryProperty(req.getIdCoreFacility(), req.getCodeRequestCategory(), PropertyDictionary.NEW_REQUEST_SAVE_BEFORE_SUBMIT).equals("Y")) || (req.getIsExternal() != null && req.getIsExternal().equals("Y"))) {
       return canDelete(req);
     }
     return hasPermission(CAN_WRITE_ANY_OBJECT);

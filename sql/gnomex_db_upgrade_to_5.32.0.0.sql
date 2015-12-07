@@ -18,3 +18,8 @@ call ExecuteIfTableExists('gnomex','Property_Audit','alter table Property_Audit 
 ALTER TABLE Product ADD COLUMN billThroughGnomex CHAR(1) NULL;
 CALL ExecuteIfTableExists('gnomex', 'Product_Audit', 'ALTER TABLE Product_Audit ADD COLUMN billThroughGnomex CHAR(1) NULL');
 
+
+-- new property that allows users to just save their request before actually submitting.  Submitting the experiment will prevent the user from making changes to their samples.
+  insert into PropertyDictionary (propertyName, propertyValue, propertyDescription, forServerOnly, idCoreFacility, codeRequestCategory)
+  VALUES('new_request_save_before_submit', 'N', 'Allow users to save a new request and still make changes to the request until they mark the request as submitted.', 'N', NULL, NULL);
+
