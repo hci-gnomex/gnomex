@@ -938,6 +938,7 @@ Test City, UT 12345',
  ('view_limit_plates_and_runs', '200', 'The maximum number of plates and runs returned from the back-end.', 'N'),
  ('product_sheet_name', 'Product Purchasing', 'The name of the price sheet for products.', 'N'),
  ('product_order_directory', '/home/gnomex/productOrder/', 'Default directory for product order files', 'N'),
+ ('new_request_save_before_submit', 'N', 'Request category property that allows new requests to be saved before the final submission so that they can be edited by the user in the future', 'N'),
  ('request_props_on_confirm_tab', 'Y', 'Show request properties on confirm tab of new experiment setup', 'N');
 
  

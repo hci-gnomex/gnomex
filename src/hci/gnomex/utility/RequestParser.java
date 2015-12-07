@@ -344,7 +344,7 @@ public class RequestParser implements Serializable {
       if (billingTemplate == null) {
     	  billingTemplate = new BillingTemplate(request);
       }
-      billingTemplate.setIdBillingAccount(newIdBillingAccount);  
+      billingTemplate.setIdBillingAccount(newIdBillingAccount);
     } else if (n.getAttributeValue("billingTemplate") != null && !n.getAttributeValue("billingTemplate").equals("")) {
     	billingTemplate = BillingTemplateParser.parse(new Element(n.getAttributeValue("billingTemplate")), sess);
     	if (!isNewRequest && !this.isExternalExperiment()) {
@@ -1988,7 +1988,7 @@ public class RequestParser implements Serializable {
   public BillingTemplate getBillingTemplate() {
 	  return billingTemplate;
   }
-  
+
 
   private class SamplePlateWell implements Serializable {
     public String plateIdAsString = "";

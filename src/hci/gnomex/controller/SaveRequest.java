@@ -740,14 +740,14 @@ public class SaveRequest extends GNomExCommand implements Serializable {
             billing_items_if:
               if (createBillingItems || requestParser.isReassignBillingAccount()) {
                 sess.refresh(requestParser.getRequest());
-                
+
                 BillingTemplate billingTemplate = requestParser.getRequest().getBillingTemplate(sess);
-                
+
                 if (billingTemplate.getItems().size() > 1) {
                 	billingAccountMessage = "There are multiple billing accounts associated with this request. The accounts have not been changed. Please use the Admininstrator Billing Screen to assign new accounts.";
                     break billing_items_if;
                 }
-                
+
                 // If this is an existing request and the billing account has been reassigned,
                 // change the account on the billing items as well.
                 if (!requestParser.isNewRequest() && requestParser.isReassignBillingAccount()) {
@@ -755,11 +755,11 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     				for (BillingItem billingItemToDelete : billingTemplate.getBillingItems(sess)) {
     					sess.delete(billingItemToDelete);
     				}
-    				
+
     				billingTemplate.recreateBillingItems(sess);
-    				
+
     				sess.flush();
-    				
+
     				billingAccountMessage = "The billing account has been reassigned for " + billingTemplate.getBillingItems(sess).size() + " billing item(s).";
                 }
 
@@ -836,7 +836,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     StringBuffer message = new StringBuffer();
     if (requestParser.isNewRequest() || requestParser.isAmendRequest()) {
       sess.refresh(requestParser.getRequest());
-      if (!RequestCategory.isDNASeqCoreRequestCategory(requestParser.getRequest().getCodeRequestCategory())) {
+      if (PropertyDictionaryHelper.getInstance(sess).getCoreFacilityRequestCategoryProperty(requestParser.getRequest().getIdCoreFacility(), requestParser.getRequest().getCodeRequestCategory(), PropertyDictionary.NEW_REQUEST_SAVE_BEFORE_SUBMIT).equals("N")) {
         String otherRecipients = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityRequestCategoryProperty(requestParser.getRequest().getIdCoreFacility(), requestParser.getRequest().getCodeRequestCategory(), PropertyDictionary.REQUEST_SUBMIT_CONFIRMATION_EMAIL);
         if ((requestParser.getRequest().getAppUser() != null
             && requestParser.getRequest().getAppUser().getEmail() != null
@@ -2384,7 +2384,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 
         // Get the billing items
         if (plugin != null) {
-          List billingItemsForCategory = plugin.constructBillingItems(sess, amendState, billingPeriod, priceCategory, request, samples, labeledSamples, hybs, lanes, sampleToAssaysMap, billingStatus, propertyEntries, billingTemplate);
+          List billingItemsForCategory = plugin.constructBillingItems(sess, amendState, billingPeriod, priceCategory, request, samples, labeledSamples, hybs, lanes, sampleToAssaysMap, billingStatus, propertyEntries);
           if (isDiscount) {
             discountBillingItems.addAll(billingItemsForCategory);
           } else {

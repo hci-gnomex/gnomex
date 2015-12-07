@@ -73,12 +73,12 @@
 					   <mx:Text id="submitWarning" text="Order not yet submitted" 
 							visible="{submitExperimentButton.enabled &amp;&amp; submitExperimentButton.visible}"
 							 includeInLayout="{submitExperimentButton.enabled  &amp;&amp; submitExperimentButton.visible }" styleName="warningLabelSevere"/>
-						<mx:LinkButton  label="Submit" id="submitExperimentButton"  icon="@Embed(source='../../assets/tick.png')"
+					<mx:LinkButton  label="Submit" id="submitExperimentButton"  icon="@Embed(source='../../assets/tick.png')"
 									click="detail.promptToSubmitExperiment()"
-									visible="{detail.selectedExperiment != null &amp;&amp; detail.selectedExperiment.@isDNASeqExperiment == 'Y' &amp;&amp; detail.selectedExperiment.@codeRequestStatus == 'NEW' &amp;&amp; detail.selectedExperiment.@canUpdate=='Y' ? true : false}"
-									includeInLayout="{detail.selectedExperiment != null &amp;&amp; detail.selectedExperiment.@isDNASeqExperiment == 'Y' &amp;&amp; detail.selectedExperiment.@codeRequestStatus == 'NEW' &amp;&amp; detail.selectedExperiment.@canUpdate=='Y' ? true : false}"
+									visible="{detail.selectedExperiment != null &amp;&amp; parentApplication.getRequestCategoryProperty(detail.selectedExperiment.@idCoreFacility, detail.selectedExperiment.@codeRequestCategory, parentApplication.PROPERTY_NEW_REQUEST_SAVE_BEFORE_SUBMIT) == 'Y' &amp;&amp; detail.selectedExperiment.@codeRequestStatus == 'NEW' &amp;&amp; detail.selectedExperiment.@canUpdate=='Y' ? true : false}"
+									includeInLayout="{detail.selectedExperiment != null &amp;&amp; parentApplication.getRequestCategoryProperty(detail.selectedExperiment.@idCoreFacility, detail.selectedExperiment.@codeRequestCategory, parentApplication.PROPERTY_NEW_REQUEST_SAVE_BEFORE_SUBMIT) == 'Y' &amp;&amp; detail.selectedExperiment.@codeRequestStatus == 'NEW' &amp;&amp; detail.selectedExperiment.@canUpdate=='Y' ? true : false}"
 									toolTip="Submit experiment" 
-									enabled="{detail.selectedExperiment != null &amp;&amp; detail.selectedExperiment.@isDNASeqExperiment == 'Y' &amp;&amp; detail.selectedExperiment.@codeRequestStatus == 'NEW' &amp;&amp; detail.selectedExperiment.@canUpdate=='Y' ? true : false}" 
+									enabled="{detail.selectedExperiment != null &amp;&amp; parentApplication.getRequestCategoryProperty(detail.selectedExperiment.@idCoreFacility, detail.selectedExperiment.@codeRequestCategory, parentApplication.PROPERTY_NEW_REQUEST_SAVE_BEFORE_SUBMIT) == 'Y' &amp;&amp; detail.selectedExperiment.@codeRequestStatus == 'NEW' &amp;&amp; detail.selectedExperiment.@canUpdate=='Y' ? true : false}" 
 									textDecoration="underline">
 							<mx:disabledIcon>@Embed(source='../../assets/tick_disable.png')</mx:disabledIcon>
 						</mx:LinkButton>
