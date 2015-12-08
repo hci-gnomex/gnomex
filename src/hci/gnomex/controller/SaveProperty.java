@@ -300,7 +300,7 @@ public class SaveProperty extends GNomExCommand implements Serializable {
             }
 
           } else {
-            removePriceCategoryForProperty( sc, sess );
+            Property.removePriceCategoryForProperty( sc, sess );
           }
 
           //
@@ -601,51 +601,6 @@ public class SaveProperty extends GNomExCommand implements Serializable {
     return pc;
   }
 
-  // TODO: Move to Property class?? PriceUtil class??
-  public static boolean removePriceCategoryForProperty( Property property, Session sess ) {
-
-    boolean deletedPC = false;
-    PriceCategory priceCategory = null;
-
-    // Load PriceCategory
-    if( property.getIdPriceCategory() != null ) {
-      priceCategory = ( PriceCategory ) sess.load( PriceCategory.class, property.getIdPriceCategory() );
-    }
-
-    if( priceCategory == null ) {
-      property.setIdPriceCategory( null );
-      sess.save( property );
-      return deletedPC;
-    }
-
-    // Determine if this category is already referenced on any billing items
-    boolean existingBillingItems = DeletePriceCategory.hasBillingItems( priceCategory, sess );
-
-    // Initialize the prices. We don't want to orphan them unintentionally.
-    Hibernate.initialize( priceCategory.getPrices() );
-    for( Iterator i = priceCategory.getPrices().iterator(); i.hasNext(); ) {
-      Price price = ( Price ) i.next();
-      Hibernate.initialize( price.getPriceCriterias() );
-    }
-
-    // Delete the price category if
-    // no fk violations will occur.
-    if( !existingBillingItems ) {
-      // Unlink the category from the price sheet
-      deletePriceSheetPriceCategoryEntries( priceCategory, sess );
-      property.setIdPriceCategory( null );
-      sess.save( property );
-      sess.delete( priceCategory );
-      deletedPC = true;
-    } else {
-      priceCategory.setIsActive( "N" );
-    }
-
-    sess.flush();
-
-    return deletedPC;
-  }
-
   private boolean removePriceForPropertyOption( Property property, PropertyOption po, PriceCategory pc, Session sess ) {
 
     boolean deletedPrice = false;
@@ -653,14 +608,14 @@ public class SaveProperty extends GNomExCommand implements Serializable {
     Price price = null;
 
     // Look up price/price criteria or create new
-    price = getPriceForPropertyOption ( po, pc );
+    price = PropertyOption.getPriceForPropertyOption ( po, pc );
     if( price == null ) {
       return deletedPrice;
     }
     Hibernate.initialize( price.getPriceCriterias() );
 
     // Determine if this category is already referenced on any billing items
-    boolean existingBillingItems = priceHasBillingItems( price, sess );
+    boolean existingBillingItems = PriceUtil.priceHasBillingItems( price, sess );
 
     // Delete the price if no fk violations will occur.
     if( ! existingBillingItems ) {
@@ -675,24 +630,10 @@ public class SaveProperty extends GNomExCommand implements Serializable {
     return deletedPrice;
   }
 
-  //TODO: Move to Price class?? PriceUtil class??
-  public static boolean priceHasBillingItems( Price price, Session sess ) {
-    // Determine if this price is already referenced on any billing items
-    boolean existingBillingItems = false;
-    StringBuffer buf = new StringBuffer();
-    buf.append( "SELECT bi from BillingItem bi " );
-    buf.append( "WHERE  bi.idPrice = " + price.getIdPrice().toString() );
-    List billingItems = sess.createQuery( buf.toString() ).list();
-    if( billingItems.size() > 0 ) {
-      existingBillingItems = true;
-    }
-    return existingBillingItems;
-  }
-
   private void updatePriceSheetPriceCategoryEntries( Property property, PriceCategory priceCategory, Session sess ) {
 
     // Delete links from price category to price sheets
-    deletePriceSheetPriceCategoryEntries( priceCategory, sess );
+    PriceCategory.deletePriceSheetPriceCategoryEntries( priceCategory, sess );
 
     // If there are no platforms, no links will need to be created (Should not happen)
     if( property.getPlatformApplications() == null ) {
@@ -777,28 +718,12 @@ public class SaveProperty extends GNomExCommand implements Serializable {
 
   }
 
-  public static void deletePriceSheetPriceCategoryEntries( PriceCategory priceCategory, Session sess ) {
-    for(Iterator i = getPriceSheetPriceCategoryForPriceCategory(priceCategory, sess ).iterator(); i.hasNext();) {
-      PriceSheetPriceCategory x = (PriceSheetPriceCategory)i.next();
-      sess.delete( x );
-    }
-    sess.flush();
-  }
-
-  public static List getPriceSheetPriceCategoryForPriceCategory( PriceCategory priceCategory, Session sess ) {
-    StringBuffer buf = new StringBuffer();
-    buf.append( "SELECT pspc from PriceSheetPriceCategory pspc " );
-    buf.append( "WHERE  pspc.idPriceCategory = " + priceCategory.getIdPriceCategory().toString() );
-    List pspcList = sess.createQuery( buf.toString() ).list();
-    return pspcList;
-  }
-
   private void savePricesForPropertyOption( Element poNode, PropertyOption po, PriceCategory pc, Session sess ) {
     Price price = null;
     PriceCriteria priceCriteria = null;
 
     // Look up price/price criteria or create new
-    price = getPriceForPropertyOption ( po, pc );
+    price = PropertyOption.getPriceForPropertyOption ( po, pc );
     if( price == null ) {
       price = new Price();
     } else {
@@ -827,21 +752,6 @@ public class SaveProperty extends GNomExCommand implements Serializable {
     sess.flush();
   }
 
-  //TODO: Move to PropertyOption class?? PriceUtil class??
-  public static Price getPriceForPropertyOption ( PropertyOption po, PriceCategory pc ) {
-    Price price = null;
-    if ( po == null || po.getOption() == null  ) {
-      return price;
-    }
-    for( Iterator i = pc.getPrices().iterator(); i.hasNext(); ) {
-      price = ( Price ) i.next();
-      if ( price.getName().equalsIgnoreCase( po.getOption() )) {
-        break;
-      }
-    }
-    return price;
-  }
-
   private PriceCriteria getPriceCriteriaForPropertyOption ( Price price, PropertyOption po ) {
     PriceCriteria priceCriteria = null;
     if ( po == null ) {
@@ -861,7 +771,7 @@ public class SaveProperty extends GNomExCommand implements Serializable {
     PriceCriteria priceCriteria = new PriceCriteria();
 
     // Look up price/price criteria or create new
-    price = getPriceForCheckProperty ( property, pc );
+    price = Property.getPriceForCheckProperty ( property, pc );
     if( price == null ) {
       price = new Price();
     }
@@ -889,21 +799,6 @@ public class SaveProperty extends GNomExCommand implements Serializable {
 
     sess.save( priceCriteria );
     sess.flush();
-  }
-
-  //TODO: Move to Property class?? PriceUtil class??
-  public static Price getPriceForCheckProperty ( Property property, PriceCategory pc ) {
-    Price price = null;
-    if ( property == null || property.getDisplay().length() == 0  ) {
-      return price;
-    }
-    for( Iterator i = pc.getPrices().iterator(); i.hasNext(); ) {
-      price = ( Price ) i.next();
-      if ( price.getName().equalsIgnoreCase( property.getDisplay() )) {
-        break;
-      }
-    }
-    return price;
   }
 
 

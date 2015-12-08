@@ -2,13 +2,18 @@
 package hci.gnomex.model;
 
 import java.io.Serializable;
+import java.util.Iterator;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.hibernate.Hibernate;
+import org.hibernate.Session;
+
 import hci.dictionary.model.DictionaryEntry;
+import hci.gnomex.controller.DeletePriceCategory;
 
 public class Property extends DictionaryEntry
-    implements Serializable, OntologyEntry, DictionaryEntryUserOwned {
+implements Serializable, OntologyEntry, DictionaryEntryUserOwned {
 
   private Integer idProperty;
   private String  name;
@@ -362,5 +367,65 @@ public class Property extends DictionaryEntry
     } else {
       return false;
     }
+  }
+
+
+  public static Price getPriceForCheckProperty ( Property property, PriceCategory pc ) {
+    Price price = null;
+    if ( property == null || property.getDisplay().length() == 0  ) {
+      return price;
+    }
+    for( Iterator i = pc.getPrices().iterator(); i.hasNext(); ) {
+      price = ( Price ) i.next();
+      if ( price.getName().equalsIgnoreCase( property.getDisplay() )) {
+        break;
+      }
+    }
+    return price;
+  }
+
+
+  public static boolean removePriceCategoryForProperty( Property property, Session sess ) {
+
+    boolean deletedPC = false;
+    PriceCategory priceCategory = null;
+
+    // Load PriceCategory
+    if( property.getIdPriceCategory() != null ) {
+      priceCategory = ( PriceCategory ) sess.load( PriceCategory.class, property.getIdPriceCategory() );
+    }
+
+    if( priceCategory == null ) {
+      property.setIdPriceCategory( null );
+      sess.save( property );
+      return deletedPC;
+    }
+
+    // Determine if this category is already referenced on any billing items
+    boolean existingBillingItems = DeletePriceCategory.hasBillingItems( priceCategory, sess );
+
+    // Initialize the prices. We don't want to orphan them unintentionally.
+    Hibernate.initialize( priceCategory.getPrices() );
+    for( Iterator i = priceCategory.getPrices().iterator(); i.hasNext(); ) {
+      Price price = ( Price ) i.next();
+      Hibernate.initialize( price.getPriceCriterias() );
+    }
+
+    // Delete the price category if
+    // no fk violations will occur.
+    if( !existingBillingItems ) {
+      // Unlink the category from the price sheet
+      PriceCategory.deletePriceSheetPriceCategoryEntries( priceCategory, sess );
+      property.setIdPriceCategory( null );
+      sess.save( property );
+      sess.delete( priceCategory );
+      deletedPC = true;
+    } else {
+      priceCategory.setIsActive( "N" );
+    }
+
+    sess.flush();
+
+    return deletedPC;
   }
 }
