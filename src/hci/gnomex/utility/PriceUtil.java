@@ -2,6 +2,9 @@
 package hci.gnomex.utility;
 
 import java.math.BigDecimal;
+import java.util.List;
+
+import org.hibernate.Session;
 
 import hci.gnomex.model.Price;
 
@@ -77,6 +80,20 @@ public class PriceUtil {
     }
 
     return priceAsString;
+  }
+
+
+  public static boolean priceHasBillingItems( Price price, Session sess ) {
+    // Determine if this price is already referenced on any billing items
+    boolean existingBillingItems = false;
+    StringBuffer buf = new StringBuffer();
+    buf.append( "SELECT bi from BillingItem bi " );
+    buf.append( "WHERE  bi.idPrice = " + price.getIdPrice().toString() );
+    List billingItems = sess.createQuery( buf.toString() ).list();
+    if( billingItems.size() > 0 ) {
+      existingBillingItems = true;
+    }
+    return existingBillingItems;
   }
 
 }

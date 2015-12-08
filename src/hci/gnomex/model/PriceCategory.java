@@ -3,8 +3,12 @@ package hci.gnomex.model;
 import hci.dictionary.model.DictionaryEntry;
 
 import java.io.Serializable;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
+
+import org.hibernate.Session;
 
 
 
@@ -134,6 +138,22 @@ public class PriceCategory extends DictionaryEntry implements Comparable, Serial
     } else {
       return -1;
     }
+  }
+
+  public static List getPriceSheetPriceCategoryForPriceCategory( PriceCategory priceCategory, Session sess ) {
+    StringBuffer buf = new StringBuffer();
+    buf.append( "SELECT pspc from PriceSheetPriceCategory pspc " );
+    buf.append( "WHERE  pspc.idPriceCategory = " + priceCategory.getIdPriceCategory().toString() );
+    List pspcList = sess.createQuery( buf.toString() ).list();
+    return pspcList;
+  }
+
+  public static void deletePriceSheetPriceCategoryEntries( PriceCategory priceCategory, Session sess ) {
+    for(Iterator i = PriceCategory.getPriceSheetPriceCategoryForPriceCategory(priceCategory, sess ).iterator(); i.hasNext();) {
+      PriceSheetPriceCategory x = (PriceSheetPriceCategory)i.next();
+      sess.delete( x );
+    }
+    sess.flush();
   }
 
 }

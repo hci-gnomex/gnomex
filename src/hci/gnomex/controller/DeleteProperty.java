@@ -155,7 +155,7 @@ public class DeleteProperty extends GNomExCommand implements Serializable {
         //
         // Delete prices associated with property (if any)
         //
-        SaveProperty.removePriceCategoryForProperty( property, sess );
+        Property.removePriceCategoryForProperty( property, sess );
 
         //
         // Clear out property organism list
