@@ -81,7 +81,7 @@ public class IScanChipPlugin extends BillingPlugin {
       // If no product or if a product but we do not bill through gnomex then
       // return an empty list.
       if (product == null || (product.getBillThroughGnomex() != null && product.getBillThroughGnomex().equals("N"))) {
-        return billingItems;
+        continue;
       }
 
       // Find the price for product
