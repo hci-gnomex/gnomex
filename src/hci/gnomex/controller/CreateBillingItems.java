@@ -72,7 +72,7 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
   private String           	requestXMLString;
   private Document         	requestDoc;
   private RequestParser    	requestParser;
-  
+
   private String          	propertiesXML;
   
   
@@ -180,7 +180,7 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
         requestParser.parse(sess);
         request = requestParser.getRequest();
         billingTemplate = requestParser.getBillingTemplate();
-        
+
         // Clear session here so we don't get caught with an auto-flush later on.
         sess.clear();
         
@@ -197,7 +197,7 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
           request.setNumber("");          
         }
 
-        
+
         // Plugin assumes lab is initialized on request
         if (request.getIdLab() != null) {
           request.setLab((Lab)sess.load(Lab.class, request.getIdLab()));
@@ -315,8 +315,8 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
 
       }
 
-      Set propertyEntries = this.saveRequestProperties(sess, requestParser);
-      
+      Set propertyEntries = SaveRequest.saveRequestProperties( propertiesXML, sess, requestParser, false );
+
       List discountBillingItems = new ArrayList<BillingItem>();
       
       // Find the appropriate price sheet
@@ -385,7 +385,7 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
       requestNode.setAttribute("idLab", request.getIdLab().toString());
       requestNode.setAttribute("label", request.getNumber());
       requestNode.setAttribute("submitter", request.getAppUser() != null ? request.getAppUser().getDisplayName() : "");
-      requestNode.setAttribute("codeRequestCategory", request.getCodeRequestCategory());             
+      requestNode.setAttribute("codeRequestCategory", request.getCodeRequestCategory());
       requestNode.setAttribute("status", BillingStatus.NEW);
       requestNode.setAttribute("isDirty", "Y");
       requestNode.addContent(billingTemplate.toXML(null));
@@ -431,7 +431,7 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
               totalChargesToDate = new BigDecimal(0);
             }
           }
-          
+
           BigDecimal newCharges = new BigDecimal(0);
           for(Iterator i = billingItems.iterator(); i.hasNext();) {
         	  BillingItem bi = (BillingItem)i.next();
@@ -446,9 +446,9 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
         	  }
           }
           totalChargesToDate = totalChargesToDate.add(newCharges);
-          
+
           account.setTotalChargesToDate(totalChargesToDate);
-          
+
           if (!exceedsBillingAccountBalance) {
         	  exceedsBillingAccountBalance = account.getTotalDollarAmountRemaining() != null && account.getTotalDollarAmountRemaining().doubleValue() < 0;
           }
@@ -498,15 +498,15 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
     
     return this;
   }
-  
+
   private Set saveRequestProperties(Session sess, RequestParser requestParser) throws org.jdom.JDOMException {
     Set<PropertyEntry> propertyEntries = new TreeSet<PropertyEntry>(new PropertyEntryComparator());
-    // Delete properties  
+    // Delete properties
     if (propertiesXML != null && !propertiesXML.equals("")) {
       StringReader reader = new StringReader(propertiesXML);
       SAXBuilder sax = new SAXBuilder();
       Document propsDoc = sax.build(reader);
-                  
+
       // Add properties
       for(Iterator<?> i = propsDoc.getRootElement().getChildren().iterator(); i.hasNext();) {
         Element node = (Element)i.next();
