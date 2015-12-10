@@ -1,40 +1,5 @@
 package hci.gnomex.controller;
 
-import hci.framework.control.Command;
-import hci.framework.control.RollBackCommandException;
-import hci.framework.utilities.XMLReflectException;
-import hci.gnomex.billing.BillingPlugin;
-import hci.gnomex.constants.Constants;
-import hci.gnomex.model.BillingAccount;
-import hci.gnomex.model.BillingItem;
-import hci.gnomex.model.BillingPeriod;
-import hci.gnomex.model.BillingStatus;
-import hci.gnomex.model.Hybridization;
-import hci.gnomex.model.Lab;
-import hci.gnomex.model.Label;
-import hci.gnomex.model.LabeledSample;
-import hci.gnomex.model.LabelingReactionSize;
-import hci.gnomex.model.Plate;
-import hci.gnomex.model.PlateType;
-import hci.gnomex.model.PlateWell;
-import hci.gnomex.model.PriceCategory;
-import hci.gnomex.model.PriceSheet;
-import hci.gnomex.model.PriceSheetPriceCategory;
-import hci.gnomex.model.PropertyEntry;
-import hci.gnomex.model.PropertyEntryValue;
-import hci.gnomex.model.PropertyOption;
-import hci.gnomex.model.Request;
-import hci.gnomex.model.RequestCategory;
-import hci.gnomex.model.Sample;
-import hci.gnomex.model.SequenceLane;
-import hci.gnomex.model.SlideProduct;
-import hci.gnomex.security.SecurityAdvisor;
-import hci.gnomex.utility.DictionaryHelper;
-import hci.gnomex.utility.PlateWellComparator;
-import hci.gnomex.utility.PropertyEntryComparator;
-import hci.gnomex.utility.PropertyOptionComparator;
-import hci.gnomex.utility.RequestParser;
-
 import java.io.Serializable;
 import java.io.StringReader;
 import java.math.BigDecimal;
@@ -60,32 +25,62 @@ import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.jdom.output.XMLOutputter;
 
+import hci.framework.control.Command;
+import hci.framework.control.RollBackCommandException;
+import hci.framework.utilities.XMLReflectException;
+import hci.gnomex.billing.BillingPlugin;
+import hci.gnomex.constants.Constants;
+import hci.gnomex.model.BillingAccount;
+import hci.gnomex.model.BillingItem;
+import hci.gnomex.model.BillingPeriod;
+import hci.gnomex.model.BillingStatus;
+import hci.gnomex.model.Hybridization;
+import hci.gnomex.model.Lab;
+import hci.gnomex.model.Label;
+import hci.gnomex.model.LabeledSample;
+import hci.gnomex.model.LabelingReactionSize;
+import hci.gnomex.model.Plate;
+import hci.gnomex.model.PlateType;
+import hci.gnomex.model.PlateWell;
+import hci.gnomex.model.PriceCategory;
+import hci.gnomex.model.PriceSheet;
+import hci.gnomex.model.PriceSheetPriceCategory;
+import hci.gnomex.model.Request;
+import hci.gnomex.model.RequestCategory;
+import hci.gnomex.model.Sample;
+import hci.gnomex.model.SequenceLane;
+import hci.gnomex.model.SlideProduct;
+import hci.gnomex.security.SecurityAdvisor;
+import hci.gnomex.utility.DictionaryHelper;
+import hci.gnomex.utility.PlateWellComparator;
+import hci.gnomex.utility.RequestParser;
+
 
 public class CreateBillingItems extends GNomExCommand implements Serializable {
-  
- 
-  
+
+
+
   // the static field for logging in Log4J
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(CreateBillingItems.class);
-  
+
   private Integer          idRequest;
   private Integer          idBillingPeriod;
   private String           requestXMLString;
   private Document         requestDoc;
   private RequestParser    requestParser;
-  
+
   private String                propertiesXML;
-  
-  
+
+
   public void validate() {
   }
-  
+
   public void loadCommand(HttpServletRequest request, HttpSession session) {
-    
+
     if (request.getParameter("idRequest") != null && !request.getParameter("idRequest").equals("")) {
       idRequest = new Integer(request.getParameter("idRequest"));
     }
-    
+
     if (request.getParameter("requestXMLString") != null && !request.getParameter("requestXMLString").equals("")) {
       requestXMLString = request.getParameter("requestXMLString");
       this.requestXMLString = this.requestXMLString.replaceAll("&", "&amp;");
@@ -99,35 +94,35 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
         this.addInvalidField( "RequestXMLString", "Invalid request xml");
       }
     }
-    
+
     if (request.getParameter("propertiesXML") != null && !request.getParameter("propertiesXML").equals("")) {
-      propertiesXML = request.getParameter("propertiesXML");    
+      propertiesXML = request.getParameter("propertiesXML");
     }
-    
+
     if (request.getParameter("idBillingPeriod") != null && !request.getParameter("idBillingPeriod").equals("")) {
       idBillingPeriod = new Integer(request.getParameter("idBillingPeriod"));
     }
-    
+
     if (idRequest == null && requestParser == null) {
       this.addInvalidField("idRequest", "idRequest or RequestXMLString is required.");
     }
-    
-    
+
+
     if (isValid()) {
       setResponsePage(this.SUCCESS_JSP);
     } else {
       setResponsePage(this.ERROR_JSP);
     }
-    
+
   }
 
   public Command execute() throws RollBackCommandException {
-    
+
     try {
 
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
-    
-          
+
+
       List billingItems = new ArrayList<BillingItem>();
 
       DictionaryHelper dh = DictionaryHelper.getInstance(sess);
@@ -178,10 +173,10 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
       } else {
         requestParser.parse(sess);
         request = requestParser.getRequest();
-        
+
         // Clear session here so we don't get caught with an auto-flush later on.
         sess.clear();
-        
+
         // Admins and users authorized to submit requests can view estimated
         // charges
         Lab l = (Lab)sess.load(Lab.class, request.getIdLab());
@@ -192,10 +187,10 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
 
         if (request.getIdRequest() == null) {
           request.setIdRequest(new Integer(0));
-          request.setNumber("");          
+          request.setNumber("");
         }
 
-        
+
         // Plugin assumes lab is initialized on request
         if (request.getIdLab() != null) {
           request.setLab((Lab)sess.load(Lab.class, request.getIdLab()));
@@ -208,7 +203,7 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
           SlideProduct slideProduct = (SlideProduct)sess.load(SlideProduct.class, request.getIdSlideProduct());
           request.setSlideProduct(slideProduct);
         }
-        
+
 
         hybs = new TreeSet(new HybComparator());
         samples = new TreeSet(new SampleComparator());
@@ -240,7 +235,7 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
               sample.setWells(wells);
             }
             samples.add(sample);
-          }          
+          }
         }
 
         // Parse the hybs. Plugin just need a thinly initialized Hyb for count purposes in the
@@ -253,10 +248,10 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
           }
           hyb.setCodeSlideSource(hybInfo.getCodeSlideSource());
           if (hybInfo.getIdSampleChannel1String() != null && !hybInfo.getIdSampleChannel1String().equals("") && !hybInfo.getIdSampleChannel1String().equals("0")) {
-            labeledSampleChannel1Map.put(hybInfo.getIdSampleChannel1String(), null);                
+            labeledSampleChannel1Map.put(hybInfo.getIdSampleChannel1String(), null);
           }
           if (hybInfo.getIdSampleChannel2String() != null && !hybInfo.getIdSampleChannel2String().equals("") && !hybInfo.getIdSampleChannel2String().equals("0") ) {
-            labeledSampleChannel2Map.put(hybInfo.getIdSampleChannel2String(), null);       
+            labeledSampleChannel2Map.put(hybInfo.getIdSampleChannel2String(), null);
           }
           hybs.add(hyb);
         }
@@ -292,31 +287,31 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
         for(Iterator i = requestParser.getSequenceLaneInfos().iterator(); i.hasNext();) {
           RequestParser.SequenceLaneInfo laneInfo = (RequestParser.SequenceLaneInfo)i.next();
           SequenceLane lane = new SequenceLane();
-          
+
           boolean isNewLane = requestParser.isNewRequest() || laneInfo.getIdSequenceLane() == null || laneInfo.getIdSequenceLane().startsWith("SequenceLane");
-          
+
           if (isNewLane) {
             if (lane.getIdSequenceLane() == null) {
               lane.setIdSequenceLane(new Integer(x++));
-              lane.setIdNumberSequencingCycles(laneInfo.getIdNumberSequencingCycles());            
+              lane.setIdNumberSequencingCycles(laneInfo.getIdNumberSequencingCycles());
               lane.setIdNumberSequencingCyclesAllowed(laneInfo.getIdNumberSequencingCyclesAllowed());
             }
             lane.setIdSeqRunType(laneInfo.getIdSeqRunType());
             Sample sample = (Sample)requestParser.getSampleMap().get(laneInfo.getIdSampleString());
             lane.setSample(sample);
-            
+
             lanes.add(lane);
-            
+
           }
         }
 
 
       }
 
-      Set propertyEntries = this.saveRequestProperties(sess, requestParser);
-      
+      Set propertyEntries = SaveRequest.saveRequestProperties( propertiesXML, sess, requestParser, false );
+
       List discountBillingItems = new ArrayList<BillingItem>();
-      
+
       // Find the appropriate price sheet
       PriceSheet priceSheet = null;
       List priceSheets = sess.createQuery("SELECT ps from PriceSheet as ps").list();
@@ -357,7 +352,7 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
             } catch(Exception e) {
               log.error("Unable to instantiate billing plugin " + priceCategory.getPluginClassName());
             }
-            
+
           }
 
           // Get the billing items
@@ -372,7 +367,7 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
         }
 
       }
-      
+
 
       Document doc = new Document(new Element("NewBilling"));
 
@@ -384,12 +379,12 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
       requestNode.setAttribute("idLab", request.getIdLab().toString());
       requestNode.setAttribute("label", request.getNumber());
       requestNode.setAttribute("submitter", request.getAppUser() != null ? request.getAppUser().getDisplayName() : "");
-      requestNode.setAttribute("codeRequestCategory", request.getCodeRequestCategory());        
-      requestNode.setAttribute("billingLabName", request.getLabName());        
-      requestNode.setAttribute("billingAccountName", request.getBillingAccount() != null ? request.getBillingAccount().getAccountName() : "");        
+      requestNode.setAttribute("codeRequestCategory", request.getCodeRequestCategory());
+      requestNode.setAttribute("billingLabName", request.getLabName());
+      requestNode.setAttribute("billingAccountName", request.getBillingAccount() != null ? request.getBillingAccount().getAccountName() : "");
       requestNode.setAttribute("status", BillingStatus.NEW);
       requestNode.setAttribute("isDirty", "Y");
-      doc.getRootElement().addContent(requestNode);          
+      doc.getRootElement().addContent(requestNode);
 
 
       BigDecimal grandInvoicePrice = new BigDecimal(0);
@@ -398,7 +393,7 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
         Element billingItemNode = bi.toXMLDocument(null, this.DATE_OUTPUT_SQL).getRootElement();
         if (bi.getInvoicePrice() != null) {
           grandInvoicePrice = grandInvoicePrice.add(bi.getInvoicePrice());
-          billingItemNode.setAttribute("invoicePrice", nf.format(bi.getInvoicePrice().doubleValue()));        
+          billingItemNode.setAttribute("invoicePrice", nf.format(bi.getInvoicePrice().doubleValue()));
         }
         billingItemNode.setAttribute("isDirty", "Y");
         requestNode.addContent(billingItemNode);
@@ -413,7 +408,7 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
           bi.setInvoicePrice( invoicePrice );
           billingItemNode.setAttribute("invoicePrice", nf.format(bi.getInvoicePrice().doubleValue()));
           billingItemNode.setAttribute("unitPrice", nf.format(bi.getInvoicePrice().doubleValue()));
-          grandInvoicePrice = grandInvoicePrice.add(invoicePrice); 
+          grandInvoicePrice = grandInvoicePrice.add(invoicePrice);
         }
         billingItemNode.setAttribute("isDirty", "Y");
         requestNode.addContent(billingItemNode);
@@ -430,10 +425,10 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
         }
       }
       totalChargesToDate = totalChargesToDate.add(grandInvoicePrice);
-      
+
       BillingAccount billingAccount = (BillingAccount)sess.load(BillingAccount.class, request.getIdBillingAccount());
       billingAccount.setTotalChargesToDate(totalChargesToDate);
-      
+
       requestNode.setAttribute("invoicePrice", NumberFormat.getCurrencyInstance().format(grandInvoicePrice.doubleValue()));
       requestNode.setAttribute("exceedsBillingAccountBalance", billingAccount.getTotalDollarAmountRemaining() != null && billingAccount.getTotalDollarAmountRemaining().doubleValue() < 0 ? "Y" : "N");
       requestNode.setAttribute("exceededDollarAmount", billingAccount.getTotalDollarAmountRemaining() != null && billingAccount.getTotalDollarAmountRemaining().doubleValue() < 0 ?  NumberFormat.getCurrencyInstance().format(billingAccount.getTotalDollarAmountRemaining().abs()) : "N");
@@ -450,7 +445,7 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
       log.error("An exception has occurred in CreateBillingItems ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
-        
+
     }catch (SQLException e) {
       log.error("An exception has occurred in CreateBillingItems ", e);
       e.printStackTrace();
@@ -465,9 +460,9 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
       throw new RollBackCommandException(e.getMessage());
     } finally {
       try {
-        this.getSecAdvisor().closeReadOnlyHibernateSession();        
+        this.getSecAdvisor().closeReadOnlyHibernateSession();
       } catch(Exception e) {
-        
+
       }
     }
 
@@ -476,46 +471,17 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
     } else {
       setResponsePage(this.ERROR_JSP);
     }
-    
+
     return this;
   }
-  
-  private Set saveRequestProperties(Session sess, RequestParser requestParser) throws org.jdom.JDOMException {
-    Set<PropertyEntry> propertyEntries = new TreeSet<PropertyEntry>(new PropertyEntryComparator());
-    // Delete properties  
-    if (propertiesXML != null && !propertiesXML.equals("")) {
-      StringReader reader = new StringReader(propertiesXML);
-      SAXBuilder sax = new SAXBuilder();
-      Document propsDoc = sax.build(reader);
-                  
-      // Add properties
-      for(Iterator<?> i = propsDoc.getRootElement().getChildren().iterator(); i.hasNext();) {
-        Element node = (Element)i.next();
-        //Adding dataTracks
-        String idPropertyEntry = node.getAttributeValue("idPropertyEntry");
 
-        PropertyEntry pe = null;
-        if (idPropertyEntry == null || idPropertyEntry.equals("")) {
-          pe = new PropertyEntry();
-        } else {
-          pe  = PropertyEntry.class.cast(sess.get(PropertyEntry.class, Integer.valueOf(idPropertyEntry))); 
-        }
-        pe.setIdProperty(Integer.valueOf(node.getAttributeValue("idProperty")));
-        pe.setValue(node.getAttributeValue("value"));
-        pe.setIdRequest( requestParser.getRequest().getIdRequest() );
 
-        propertyEntries.add( pe );
-      }
-    }
-    return propertyEntries;
-  }
-  
   public class SampleComparator implements Comparator, Serializable {
     public int compare(Object o1, Object o2) {
       Sample s1 = (Sample)o1;
       Sample s2 = (Sample)o2;
       return s1.getIdSample().compareTo(s2.getIdSample());
-      
+
     }
   }
   public class LabeledSampleComparator implements Comparator, Serializable {
@@ -523,7 +489,7 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
       LabeledSample ls1 = (LabeledSample)o1;
       LabeledSample ls2 = (LabeledSample)o2;
       return ls1.getIdLabeledSample().compareTo(ls2.getIdLabeledSample());
-      
+
     }
   }
   public class HybComparator implements Comparator, Serializable {
@@ -531,7 +497,7 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
       Hybridization h1 = (Hybridization)o1;
       Hybridization h2 = (Hybridization)o2;
       return h1.getIdHybridization().compareTo(h2.getIdHybridization());
-      
+
     }
   }
   public class LaneComparator implements Comparator, Serializable {
@@ -539,7 +505,7 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
       SequenceLane l1 = (SequenceLane)o1;
       SequenceLane l2 = (SequenceLane)o2;
       return l1.getIdSequenceLane().compareTo(l2.getIdSequenceLane());
-      
+
     }
   }
 }
