@@ -21,6 +21,7 @@ import hci.gnomex.model.PropertyOption;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.Sample;
 import hci.gnomex.model.SequenceLane;
+import hci.gnomex.utility.Order;
 
 
 public class PropertyPricingPlugin extends BillingPlugin {
@@ -35,10 +36,7 @@ public class PropertyPricingPlugin extends BillingPlugin {
       return billingItems;
     }
 
-    //qty = this.getQty(sess, request, samples);
-    // TODO should we allow admins to set price by sample qty or just 1?
-    qty = 1;
-
+    qty = this.getQty(sess, request, samples);
 
     // Find the price
     Price price = null;
@@ -98,7 +96,6 @@ public class PropertyPricingPlugin extends BillingPlugin {
     }
 
 
-
     // Instantiate a BillingItem for the matched billing price
     if (price != null) {
       billingItems.addAll(this.makeBillingItems(request, price, priceCategory, qty, billingPeriod, billingStatus));
@@ -106,6 +103,13 @@ public class PropertyPricingPlugin extends BillingPlugin {
 
 
     return billingItems;
+  }
+
+  protected int getQty(Session sess, Order request, Set<Sample> samples) {
+    if (sess == null || request == null || samples == null) {
+      return 0;
+    }
+    return samples.size();
   }
 
 }
