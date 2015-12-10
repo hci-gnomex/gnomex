@@ -1,28 +1,14 @@
 package hci.gnomex.controller;
 
 
-import hci.gnomex.model.PropertyDictionary;
-import hci.gnomex.security.SecurityAdvisor;
-import hci.gnomex.utility.DictionaryHelper;
-import hci.gnomex.utility.HibernateGuestSession;
-import hci.gnomex.utility.MailUtil;
-import hci.gnomex.utility.MailUtilHelper;
-import hci.gnomex.utility.PropertyDictionaryHelper;
-
 import java.awt.image.BufferedImage;
-
 import java.io.ByteArrayInputStream;
 import java.io.File;
-
 import java.io.IOException;
 import java.io.InputStream;
-
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
-
 import java.util.Date;
-
-
 
 import javax.imageio.ImageIO;
 import javax.servlet.ServletException;
@@ -34,14 +20,20 @@ import org.apache.commons.io.IOUtils;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
-
 import org.hibernate.Session;
-
 
 import com.oreilly.servlet.multipart.FilePart;
 import com.oreilly.servlet.multipart.MultipartParser;
 import com.oreilly.servlet.multipart.ParamPart;
 import com.oreilly.servlet.multipart.Part;
+
+import hci.gnomex.model.PropertyDictionary;
+import hci.gnomex.security.SecurityAdvisor;
+import hci.gnomex.utility.DictionaryHelper;
+import hci.gnomex.utility.HibernateGuestSession;
+import hci.gnomex.utility.MailUtil;
+import hci.gnomex.utility.MailUtilHelper;
+import hci.gnomex.utility.PropertyDictionaryHelper;
 
 
 public class ReportIssueFeedbackServlet extends HttpServlet {
@@ -51,7 +43,7 @@ public class ReportIssueFeedbackServlet extends HttpServlet {
   private String format = "text";
   private String IdAppUser = "";
   private String AppUserName = "";
-  private String UNID = "";		
+  private String UNID = "";
   private BufferedImage image = null;
   private File outputfile = null;
   private String Filename = null; //not needed
@@ -62,7 +54,7 @@ public class ReportIssueFeedbackServlet extends HttpServlet {
   private static final int STATUS_ERROR = 999;
 
   protected void doGet(HttpServletRequest req, HttpServletResponse res)
-  throws ServletException, IOException {
+      throws ServletException, IOException {
     doPost(req, res);
   }
 
@@ -76,7 +68,7 @@ public class ReportIssueFeedbackServlet extends HttpServlet {
    * this servlet must be run non-secure.
    */
   protected void doPost(HttpServletRequest req, HttpServletResponse res)
-  throws ServletException, IOException {
+      throws ServletException, IOException {
     try {
       serverName = req.getServerName();
       currentDate = new Date(System.currentTimeMillis());
@@ -125,7 +117,7 @@ public class ReportIssueFeedbackServlet extends HttpServlet {
 					.hasPermission(SecurityAdvisor.CAN_ACCESS_ANY_OBJECT)) {
 				throw new ServletException("Insufficent permissions");
 			}
-       */			
+       */
       MultipartParser mp = new MultipartParser(req, Integer.MAX_VALUE);
       Part part;
       while ((part = mp.readNextPart()) != null) {
@@ -179,7 +171,7 @@ public class ReportIssueFeedbackServlet extends HttpServlet {
             System.out.println(e.toString());
             e.printStackTrace();
             throw new ServletException(
-            "Failed to write screenshot to file.");
+                "Failed to write screenshot to file.");
 
           } finally {
             is.close();
@@ -196,20 +188,29 @@ public class ReportIssueFeedbackServlet extends HttpServlet {
 
 
 
-      String emailBody =  "Time: "					+ sdf.format(currentDate)															+ "\r" +
-      "RequestURL: " 				+ req.getRequestURL().toString() 													+ "\r" + 
-      "IdAppUser: " 				+ this.IdAppUser 																	+ "\r" +
-      "AppUserName: " 			+ this.AppUserName 																	+ "\r" +
-      "UNID: " 					+ this.UNID 																		+ "\r" +
-      "-------------------------------------------User Feedback-----------------------------------------------------" + "\r" +
-      body.toString();
       // Email app user
+      String emailBody;
       if (!MailUtil.isValidEmail(fromAddress)) {
-          fromAddress = DictionaryHelper.getInstance(sess).getPropertyDictionary(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
+        fromAddress = DictionaryHelper.getInstance(sess).getPropertyDictionary(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
+        emailBody =  "Time: "          + sdf.format(currentDate)                             + "\r" +
+            "RequestURL: "        + req.getRequestURL().toString()                          + "\r"  +
+            "AppUserName: "       + "Anonymous "                                   + "\r"  +
+            "-------------------------------------------User Feedback-----------------------------------------------------" + "\r" +
+            body.toString();
+      } else {
+
+        emailBody =  "Time: "          + sdf.format(currentDate)                             + "\r" +
+            "RequestURL: "        + req.getRequestURL().toString()                          + "\r" +
+            "IdAppUser: "         + this.IdAppUser                                  + "\r" +
+            "AppUserName: "       + this.AppUserName                                  + "\r" +
+            "UNID: "          + this.UNID                                     + "\r" +
+            "-------------------------------------------User Feedback-----------------------------------------------------" + "\r" +
+            body.toString();
       }
+
       MailUtilHelper helper = new MailUtilHelper(emailRecipients, fromAddress, theSubject, emailBody, outputfile, format.equalsIgnoreCase("HTML") ? true : false, dh, serverName);
       MailUtil.validateAndSendEmail(helper);
-      
+
       outputfile.delete();
 
       PrintWriter out = res.getWriter();
@@ -218,14 +219,14 @@ public class ReportIssueFeedbackServlet extends HttpServlet {
       String baseURL = "";
       StringBuffer fullPath = req.getRequestURL();
       String extraPath = req.getServletPath()
-      + (req.getPathInfo() != null ? req.getPathInfo() : "");
+          + (req.getPathInfo() != null ? req.getPathInfo() : "");
       int pos = fullPath.lastIndexOf(extraPath);
       if (pos > 0) {
         baseURL = fullPath.substring(0, pos);
       }
 
       org.dom4j.io.OutputFormat format = org.dom4j.io.OutputFormat
-      .createPrettyPrint();
+          .createPrettyPrint();
       org.dom4j.io.HTMLWriter writer = null;
       res.setContentType("text/html");
 
