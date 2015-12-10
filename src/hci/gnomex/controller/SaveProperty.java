@@ -27,7 +27,6 @@ import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.AnalysisType;
 import hci.gnomex.model.AppUserLite;
 import hci.gnomex.model.Application;
-import hci.gnomex.model.BillingChargeKind;
 import hci.gnomex.model.Organism;
 import hci.gnomex.model.Price;
 import hci.gnomex.model.PriceCategory;
@@ -75,6 +74,9 @@ public class SaveProperty extends GNomExCommand implements Serializable {
   private String                         unitPriceInternal;
   private String                         unitPriceExternalAcademic;
   private String                         unitPriceExternalCommercial;
+
+  private String                         codeBillingChargeKind;
+  private String                         qtyType;
 
 
   public void validate() {
@@ -190,6 +192,18 @@ public class SaveProperty extends GNomExCommand implements Serializable {
       unitPriceExternalCommercial = request.getParameter( "unitPriceExternalCommercial" );
     } else {
       unitPriceExternalCommercial = null;
+    }
+
+    if( request.getParameter( "codeBillingChargeKind" ) != null && request.getParameter( "codeBillingChargeKind" ).length() > 0 ) {
+      codeBillingChargeKind = request.getParameter( "codeBillingChargeKind" );
+    } else {
+      codeBillingChargeKind = null;
+    }
+
+    if( request.getParameter( "qtyType" ) != null && request.getParameter( "qtyType" ).length() > 0 ) {
+      qtyType = request.getParameter( "qtyType" );
+    } else {
+      qtyType = null;
     }
 
   }
@@ -584,11 +598,13 @@ public class SaveProperty extends GNomExCommand implements Serializable {
     pc.setName( property.getDisplay() );
     pc.setDescription( property.getDescription() );
     pc.setIsActive( "Y" );
-    // TODO: GET FROM FRONT END (product or service) -- add as an option to PropertyPricingWindow
-    pc.setCodeBillingChargeKind( BillingChargeKind.SERVICE );
+    pc.setCodeBillingChargeKind( codeBillingChargeKind );
     pc.setDictionaryClassNameFilter2( null );
     // Make this a property?
     pc.setPluginClassName( "hci.gnomex.billing.PropertyPricingPlugin" );
+    if ( qtyType.equalsIgnoreCase( "NOTBYSAMPLE" )) {
+      pc.setPluginClassName( "hci.gnomex.billing.PropertyPricingNotBySamplePlugin" );
+    }
 
     if( property.getCodePropertyType().equals( PropertyType.CHECKBOX ) ) {
       pc.setDictionaryClassNameFilter1( null );
