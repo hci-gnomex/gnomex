@@ -44,6 +44,7 @@ $scope.okToFind = true;				// comes from $rootScope
 $scope.okToPickLab = true;			// comes from $rootScope
 $scope.showColumnForm = true;
 $scope.whatToLookup = $rootScope.whatToLookup;
+$scope.showProgressBar = false;    //comes from $rootScope
 
 $scope.searchFilter = {selectAll: false, group: "", owner: "", lookup: ""};
 
@@ -110,6 +111,7 @@ $scope.findAll = function() {
 
 $scope.find = function() {
 	//console.log("[find] current searchFilter, selectAll: " + $scope.searchFilter.selectAll + " group: " + $scope.searchFilter.group + " lookup: " + $scope.searchFilter.lookup);
+	$scope.showProgressBar = true;
 	$scope.showColumnForm = true;
 
 	if ($scope.searchFilter.lookup != "") {
@@ -272,6 +274,7 @@ $scope.showSelected = function(sel) {
 		console.log("[ExperimentController activate] $scope.okToPickLab: " + $scope.okToPickLab);
 		$scope.okToFind = angular.copy($rootScope.okToFind);
 		console.log("[ExperimentController activate] $scope.okToFind: " + $scope.okToFind);
+		$scope.showProgressBar = angular.copy($rootScope.showProgressBar);
 		
 	};
 
@@ -284,6 +287,7 @@ $scope.showSelected = function(sel) {
 
               // setup the experiment tree
               buildExperimentTree();
+              $scope.showProgressBar = false;
           },
           function(errorPayload) {
               console.log('failure getProjectRequestList' + errorPayload);

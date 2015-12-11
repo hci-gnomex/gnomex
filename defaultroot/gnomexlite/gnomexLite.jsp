@@ -61,10 +61,11 @@
 <link rel="stylesheet" href="resources/css/chosen-bootstrap.css">
 <link rel="stylesheet" href="resources/css/biominer.css">
 <link rel="stylesheet" href="resources/css/angular-busy.min.css">
+<link rel="stylesheet" href="resources/css/gnomexLite.css">
     
 
-	<nav  class="navbar navbar-default navbar-fixed-top" role="navigation">
-	   <div class="container-fluid" ng-controller="NavbarController">
+	<nav  class="navbar navbar-default navbar-fixed-top gnomex-top-nav" role="navigation" >
+	   <div class="container-fluid gnomex-container-fluid" ng-controller="NavbarController">
 	      <!-- Brand and toggle get grouped for better mobile display -->
 	      <div class="navbar-header">
 	        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
@@ -81,27 +82,27 @@
 	      <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
 	          <ul class="nav navbar-nav">
 
-<p class="navbar-text navbar-left">                    </p>
-
-     <form class="navbar-form navbar-left" role="lookup">
-        <div class="form-group">
-          <input type="text" class="form-control" placeholder="Lookup by #" ng-model="whatToLookup">
-        </div>
-	<button type="lookup" class="btn btn-default" aria-label="Lookup By Number" ng-click="lookup(whatToLookup)">
-	<img src="resources/images/arrow_right.png"/>
-	</button>        
-
-     </form>
-	          
-     <form class="navbar-form navbar-left" role="search">
-        <div class="form-group">
-          <input type="text" class="form-control" placeholder="Search          ">
-        </div>
-	<button type="search" class="btn btn-default" aria-label="Search">
-	<img src="resources/images/magnifier.png"/>	
-	</button>        
-
-     </form>
+				<p class="navbar-text navbar-left" style="margin:-1px">                    </p>
+				
+				     <form class="navbar-form navbar-left" role="lookup">
+				        <div class="form-group">
+				          <input type="text" class="form-control" placeholder="Lookup by #" ng-model="whatToLookup">
+				        </div>
+					<button type="lookup" class="btn btn-default" aria-label="Lookup By Number" ng-click="lookup(whatToLookup)">
+					<img src="resources/images/arrow_right.png"/>
+					</button>        
+				
+				     </form>
+					          
+				     <form class="navbar-form navbar-left" role="search">
+				        <div class="form-group">
+				          <input type="text" class="form-control" placeholder="Search          ">
+				        </div>
+					<button type="search" class="btn btn-default" aria-label="Search">
+					<img src="resources/images/magnifier.png"/>	
+					</button>        
+				
+				     </form>
 
 	          </ul>
 	          <div class="nav navbar-nav navbar-right">
@@ -128,23 +129,23 @@
 	          </div>
 	       </div> <!-- /.navbar-collapse -->
 	       
-      <ul class="nav nav-pills">
-		<li><a href="#/experiment"><img src="resources/images/flask.png"/> Experiments</a></li>
-        <li><a href="#/analysis"><img src="resources/images/map.png"/> Analysis</a></li>
-        <li><a href="#/datatrack"><img src="resources/images/datatrack.png"/> Data Tracks</a></li>
-        <li><a href="#/topic"><img src="resources/images/topic_tag.png"/> Topics</a></li>
-        <li class="dropdown">
-          <a class="dropdown-toggle" data-toggle="dropdown" href="#"><img src="resources/images/data.png"/> Reports <span class="caret"></span></a>
-          <ul class="dropdown-menu">
-            <li><a href="#"><img src="resources/images/chart_bar.png"/>Track Usage</a></li>
-            <li><a href="#"><img src="resources/images/data.png"/>Annotation Report</a></li>
-            <li><a href="#/report"><img src="resources/images/data.png"/>Annotation Progress Report</a></li>
-            <li><a href="#"><img src="resources/images/flask.png"/>Project/Experiment Report</a></li>
-          </ul>
-        </li>
-	    <!-- <li><a ng-click="refresh()"><span class="glyphicon glyphicon-refresh"></span> Refresh</a></li> -->
-      </ul>	       
-	       
+	      <div class="row">
+	       <ul class="nav nav-pills">
+          <li class="col-md-2 col-md-offset-1"><a href="#/experiment"><img src="resources/images/flask.png"/> Experiments</a></li>
+          <li class="col-md-2"><a href="#/analysis"><img src="resources/images/map.png"/> Analysis</a></li>
+          <li class="col-md-2"><a href="#/datatrack"><img src="resources/images/datatrack.png"/> Data Tracks</a></li>
+          <li class="col-md-2"><a href="#/topic"><img src="resources/images/topic_tag.png"/> Topics</a></li>
+          <li class="dropdown col-md-2">
+            <a class="dropdown-toggle" data-toggle="dropdown" href="#"><img src="resources/images/data.png"/> Reports <span class="caret"></span></a>
+            <ul class="dropdown-menu">
+              <li><a href="#"><img src="resources/images/chart_bar.png"/>Track Usage</a></li>
+              <li><a href="#"><img src="resources/images/data.png"/>Annotation Report</a></li>
+              <li><a href="#/report"><img src="resources/images/data.png"/>Annotation Progress Report</a></li>
+              <li><a href="#"><img src="resources/images/flask.png"/>Project/Experiment Report</a></li>
+            </ul>
+          </li>
+      <!-- <li><a ng-click="refresh()"><span class="glyphicon glyphicon-refresh"></span> Refresh</a></li> -->
+        </ul> 
 	    </div> <!-- /.container-fluid -->
 	</nav>
 
