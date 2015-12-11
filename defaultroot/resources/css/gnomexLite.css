@@ -1,0 +1,16 @@
+/* CSS file */
+
+.nav-pills{
+	background-color: #f8f8f8;
+	margin: -1px;
+	float: left;
+	width: 100%;
+}
+
+.gnomex-top-nav{
+	border: 0px;
+}
+
+.gnomex-container-fluid{
+	background-color: #f8f8f8;
+}
