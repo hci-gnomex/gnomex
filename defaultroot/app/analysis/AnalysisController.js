@@ -51,6 +51,7 @@ $scope.okToFind = true;						// comes from $rootScope
 $scope.okToPickLab = true;					// comes from $rootScope
 $scope.whatToLookup = $rootScope.whatAnalysisToLookup;
 $scope.showColumnForm = true;
+$scope.showProgressBar = false; //comes from $rootScope
 
 $scope.searchFilter = {selectAll: false, group: "", owner: "", lookup: ""};
 
@@ -166,6 +167,7 @@ $scope.findAll = function() {
 $scope.find = function() {
 	//console.log("[find] current searchFilter, selectAll: " + $scope.searchFilter.selectAll + " group: " + $scope.searchFilter.group);
 	$scope.showColumnForm = true;
+	$scope.showProgressBar = true;
 
     // do they want all of them?
     var whatToGet = "?allAnalysis=Y";
@@ -309,6 +311,7 @@ $scope.lookUp = function() {
 		console.log("[AnalysisController activate] $scope.okToPickLab: " + $scope.okToPickLab);
 		$scope.okToFind = angular.copy($rootScope.okToFind);
 		console.log("[AnalysisController activate] $scope.okToFind: " + $scope.okToFind);
+		$scope.showProgressBar = angular.copy($rootScope.showProgressBar);
 	};
 
 
@@ -321,6 +324,7 @@ $scope.lookUp = function() {
 
               // setup the analysis tree
               buildAnalysisTree();
+              $scope.showProgressBar = false;
           },
           function(errorPayload) {
               console.log('failure getAnalysisGroupList' + errorPayload);

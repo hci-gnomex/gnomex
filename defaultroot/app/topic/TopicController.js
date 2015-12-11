@@ -29,6 +29,7 @@ $scope.okToFind = true;						// comes from $rootScope
 $scope.okToPickLab = true;					// comes from $rootScope
 $scope.whatToLookup = $rootScope.whatTopicToLookup;
 $scope.showColumnForm = true;
+$scope.showProgressBar = false;
 
 $scope.searchFilter = {selectAll: false, group: "", owner: "", lookup: ""};
 
@@ -69,6 +70,7 @@ $scope.findAll = function() {
 $scope.find = function() {
 	//console.log("[find] current searchFilter, selectAll: " + $scope.searchFilter.selectAll + " group: " + $scope.searchFilter.group);
 	$scope.showColumnForm = true;
+	$scope.showProgressBar = true;
 
     // do they want all of them?
     var whatToGet = "?allTopic=Y";
@@ -183,6 +185,7 @@ $scope.lookUp = function() {
 		console.log("[TopicController activate] $scope.okToPickLab: " + $scope.okToPickLab);
 		$scope.okToFind = angular.copy($rootScope.okToFind);
 		console.log("[TopicController activate] $scope.okToFind: " + $scope.okToFind);
+		$scope.showProgressBar = angular.copy($rootScope.showProgressBar);
 	};
 
      function getTopicList(whatToGet) {
@@ -194,6 +197,7 @@ $scope.lookUp = function() {
 
               // setup the topic tree
               buildTopicTree();
+              $scope.showProgressBar = false;
           },
           function(errorPayload) {
               console.log('failure getTopicList' + errorPayload);
