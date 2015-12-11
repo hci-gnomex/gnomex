@@ -1,12 +1,46 @@
 package hci.gnomex.controller;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.Serializable;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.io.Writer;
+import java.math.BigDecimal;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
+
+import javax.mail.MessagingException;
+import javax.naming.NamingException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
+import org.hibernate.Query;
+import org.hibernate.SQLQuery;
+import org.hibernate.Session;
+import org.jdom.Document;
+import org.jdom.Element;
+import org.jdom.JDOMException;
+import org.jdom.input.SAXBuilder;
+
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.billing.BillingPlugin;
 import hci.gnomex.constants.Constants;
-import hci.gnomex.model.Analysis;
 import hci.gnomex.model.AppUser;
 import hci.gnomex.model.BillingItem;
 import hci.gnomex.model.BillingPeriod;
@@ -52,7 +86,6 @@ import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.FileDescriptorUploadParser;
 import hci.gnomex.utility.FreeMarkerConfiguration;
-import hci.gnomex.utility.HibernateGuestSession;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.HybNumberComparator;
 import hci.gnomex.utility.MailUtil;
@@ -70,41 +103,6 @@ import hci.gnomex.utility.SampleNumberComparator;
 import hci.gnomex.utility.SamplePrimersParser;
 import hci.gnomex.utility.SequenceLaneNumberComparator;
 import hci.gnomex.utility.WorkItemHybParser;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.Serializable;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.io.Writer;
-import java.math.BigDecimal;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
-
-import javax.mail.MessagingException;
-import javax.naming.NamingException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-
-import org.hibernate.Query;
-import org.hibernate.SQLQuery;
-import org.hibernate.Session;
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.JDOMException;
-import org.jdom.input.SAXBuilder;
 
 public class SaveRequest extends GNomExCommand implements Serializable {
 
@@ -630,7 +628,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
             //
             // Save properties
             //
-            Set propertyEntries = this.saveRequestProperties(sess, requestParser);
+            Set propertyEntries = this.saveRequestProperties(propertiesXML, sess, requestParser);
 
             sess.save(requestParser.getRequest());
             sess.flush();
@@ -2058,12 +2056,12 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       }
 
       Date timestamp = new Date(System.currentTimeMillis()); // save the current
-                                                             // time here so
-                                                             // that the
-                                                             // timestamp is the
-                                                             // same on every
-                                                             // sequence lane in
-                                                             // this batch
+      // time here so
+      // that the
+      // timestamp is the
+      // same on every
+      // sequence lane in
+      // this batch
       for (Iterator i = sampleToLaneMap.keySet().iterator(); i.hasNext();) {
         String idSampleString = (String) i.next();
         List lanes = (List) sampleToLaneMap.get(idSampleString);
@@ -2723,14 +2721,18 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 
   }
 
-  private Set saveRequestProperties(Session sess, RequestParser requestParser) throws org.jdom.JDOMException {
+  private Set saveRequestProperties(String propertiesXML, Session sess, RequestParser requestParser) throws org.jdom.JDOMException {
+    return saveRequestProperties( propertiesXML, sess, requestParser, true );
+  }
+
+  public static Set saveRequestProperties(String propertiesXML, Session sess, RequestParser requestParser, boolean saveToDB) throws org.jdom.JDOMException {
     Set<PropertyEntry> propertyEntries = new TreeSet<PropertyEntry>(new PropertyEntryComparator());
     // Delete properties
     if (propertiesXML != null && !propertiesXML.equals("")) {
       StringReader reader = new StringReader(propertiesXML);
       SAXBuilder sax = new SAXBuilder();
       Document propsDoc = sax.build(reader);
-      if (requestParser.getRequest().getPropertyEntries() != null) {
+      if (requestParser.getRequest().getPropertyEntries() != null && saveToDB) {
         for (Iterator<?> i = requestParser.getRequest().getPropertyEntries().iterator(); i.hasNext();) {
           PropertyEntry pe = PropertyEntry.class.cast(i.next());
           boolean found = false;
@@ -2777,7 +2779,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         pe.setValue(node.getAttributeValue("value"));
         pe.setIdRequest(requestParser.getRequest().getIdRequest());
 
-        if (idPropertyEntry == null || idPropertyEntry.equals("")) {
+        if ((idPropertyEntry == null || idPropertyEntry.equals("")) && saveToDB) {
           sess.save(pe);
           sess.flush();
         }
@@ -2799,11 +2801,13 @@ public class SaveRequest extends GNomExCommand implements Serializable {
                 }
               }
             }
-            if (!found) {
+            if (!found && saveToDB) {
               sess.delete(av);
             }
           }
-          sess.flush();
+          if ( saveToDB ) {
+            sess.flush();
+          }
         }
 
         // Add and update PropertyEntryValues
@@ -2825,12 +2829,14 @@ public class SaveRequest extends GNomExCommand implements Serializable {
             }
             av.setValue(n.getAttributeValue("value"));
 
-            if (idPropertyEntryValue == null || idPropertyEntryValue.equals("")) {
+            if ((idPropertyEntryValue == null || idPropertyEntryValue.equals("")) && saveToDB) {
               sess.save(av);
             }
           }
         }
-        sess.flush();
+        if ( saveToDB ) {
+          sess.flush();
+        }
 
         String optionValue = "";
         TreeSet<PropertyOption> options = new TreeSet<PropertyOption>(new PropertyOptionComparator());
@@ -2841,6 +2847,10 @@ public class SaveRequest extends GNomExCommand implements Serializable {
             String selected = n.getAttributeValue("selected");
             if (selected != null && selected.equals("Y")) {
               PropertyOption option = PropertyOption.class.cast(sess.load(PropertyOption.class, idPropertyOption));
+              if ( !saveToDB ) {
+                // Need to explicitly save if not using hibernate to save to db
+                option.setIdPropertyOption( idPropertyOption );
+              }
               options.add(option);
               if (optionValue.length() > 0) {
                 optionValue += ",";
@@ -2853,7 +2863,9 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         if (options.size() > 0) {
           pe.setValue(optionValue);
         }
-        sess.flush();
+        if ( saveToDB ) {
+          sess.flush();
+        }
 
         propertyEntries.add(pe);
       }

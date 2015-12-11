@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" width="395" title="Property Pricing" height="180" xmlns:util="views.util.*" creationPolicy="all" verticalScrollPolicy="off">
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" width="395" title="Property Pricing"  xmlns:util="views.util.*" creationPolicy="all" verticalScrollPolicy="off">
 	
 	
 	<mx:Script>
@@ -107,32 +107,31 @@
 	</mx:Script>
 	
 	<mx:NumberValidator id="priceValidator" allowNegative="false" required="false" precision="2" />
-	<mx:HBox width="100%" verticalGap="0" verticalAlign="top">
+	<mx:VBox width="100%" styleName="form" verticalGap="0" verticalAlign="top" paddingRight="2">
 		<mx:VBox width="100%" paddingTop="0" verticalGap="2">
 			<mx:HBox width="100%" horizontalGap="0" verticalAlign="middle" paddingTop="0">
 				<mx:Label id="headerLabel" visible="{headerLabel.text != null &amp;&amp; headerLabel.text.length > 0}" includeInLayout="{headerLabel.text != null &amp;&amp; headerLabel.text.length > 0}"/>
 			</mx:HBox>
 			<mx:HBox width="100%" horizontalGap="0" verticalAlign="middle" paddingTop="0">
-				<mx:Label id="priceInternalLabel" text="Internal Pricing" width="168" />
+				<mx:Label id="priceInternalLabel" styleName="formLabel" text="Internal Pricing" width="168" />
 				<mx:Label text="$" paddingRight="0" textAlign="right" width="20" />
 				<mx:TextInput width="100%" id="unitPrice" focusOut="{checkPrice()}" text="{propertyObject.@unitPriceInternal == '' ? '0.00' : propertyObject.@unitPriceInternal}" restrict="0-9." paddingLeft="0" change="setDirty()" />
 			</mx:HBox>
 			<mx:HBox width="100%" horizontalGap="0" verticalAlign="middle" paddingTop="0">
-				<mx:Label id="priceExternalAcademicLabel" text="External Academic Pricing" width="168" />
+				<mx:Label id="priceExternalAcademicLabel" styleName="formLabel" text="External Academic Pricing" width="168" />
 				<mx:Label text="$" paddingRight="0" textAlign="right" width="20" />
 				<mx:TextInput width="100%" id="unitPriceExternalAcademic" focusOut="{checkPrice()}" text="{propertyObject.@unitPriceExternalAcademic == '' ? '0.00' : propertyObject.@unitPriceExternalAcademic}" restrict="0-9." paddingLeft="0" change="setDirty()" />
 			</mx:HBox>
 			<mx:HBox width="100%" horizontalGap="0" verticalAlign="middle" paddingTop="0">
-				<mx:Label id="priceExternalCommercialLabel" text="External Commercial Pricing" width="168" />
+				<mx:Label id="priceExternalCommercialLabel" styleName="formLabel" text="External Commercial Pricing" width="168" />
 				<mx:Label text="$" paddingRight="0" textAlign="right" width="20" />
 				<mx:TextInput width="100%" id="unitPriceExternalCommercial" focusOut="{checkPrice()}" text="{propertyObject.@unitPriceExternalCommercial == '' ? '0.00' : propertyObject.@unitPriceExternalCommercial}" restrict="0-9." paddingLeft="0" change="setDirty()" />
 			</mx:HBox>
 		</mx:VBox>
-		
-	</mx:HBox>
-	<mx:HBox visible="false" id="precisionError" backgroundColor="#FFFEC3"  borderColor="#000000" borderStyle="{'solid'}" >
-		<mx:Label id="precisionErrorText"/>
-	</mx:HBox>
+		<mx:HBox visible="false" id="precisionError" backgroundColor="#FFFEC3"  borderColor="#000000" borderStyle="{'solid'}" >
+			<mx:Label id="precisionErrorText"/>
+		</mx:HBox>
+	</mx:VBox>
 	<mx:ControlBar horizontalAlign="right">
 		<mx:Spacer width="100%" />
 		<util:DirtyNote id="dirty" />

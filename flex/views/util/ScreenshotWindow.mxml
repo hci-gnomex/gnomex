@@ -32,14 +32,21 @@
 		<![CDATA[
 			import flash.net.FileReference;
 			
-			import views.util.UploadPostHelper;
-			
+			import mx.events.CloseEvent;
 			import mx.controls.Alert;
 			import mx.events.ValidationResultEvent;
 			import mx.managers.PopUpManager;
+			import mx.messaging.messages.ErrorMessage;
 			import mx.rpc.events.FaultEvent;
 			import mx.rpc.events.ResultEvent;
 			import mx.validators.*;
+			
+			import views.util.UploadPostHelper;
+			
+			// Warning Icon
+			[Embed( source = '../../assets/error.png' )]
+			[Bindable]
+			public var iconWarning:Class;
 			
 			private var fileRef:FileReference = null;
 
@@ -69,31 +76,48 @@
 				
 				if(result.results != null) {
 					var errorMessage:String = result.results[0].errorMessage;
-					var errorCode:String = result.results[0].errorCode;									
-					Alert.show(errorMessage, errorCode);
+					var errorCode:String = result.results[0].errorCode;			
+					
+					if (errorCode == "requiredField") {
+						Alert.show( "No email address is provided.  The support team won't be able to reply, but they will review your feedback.  Do you still wish to send feedback?", "Submit Anonymous Feedback", ( Alert.YES | Alert.NO ), this, onPromptToReportIssue, iconWarning );
+						
+					} else {
+						Alert.show(errorMessage, "Invalid Email Address");
+					}
 				}
 				else {					
-					var parameters:Object = new Object();
-					parameters.fromAddress = fromAddress.text;
-					parameters.body = feedbackTextArea.text;
-					parameters.IdAppUser = parentApplication.getIdAppUser();
-					parameters.AppUserName = parentApplication.getAppUserName();
-					parameters.UNID = parentApplication.getUID();			
-		
-					
-					var urlRequest:URLRequest = new URLRequest();
-					urlRequest.url = reportIssueURL;
-					urlRequest.contentType = 'multipart/form-data; boundary=' + UploadPostHelper.getBoundary();
-					urlRequest.method = URLRequestMethod.POST;
-					urlRequest.data = UploadPostHelper.getPostData("testfile.png", imageByteArray, parameters);
-					urlRequest.requestHeaders.push( new URLRequestHeader( 'Cache-Control', 'no-cache' ));
-								
-					var urlLoader:URLLoader = new URLLoader();
-					urlLoader.dataFormat = URLLoaderDataFormat.BINARY;
-					urlLoader.addEventListener(Event.COMPLETE, onReportIssue);
-					urlLoader.addEventListener(IOErrorEvent.IO_ERROR, onIOError);
-					urlLoader.load(urlRequest);
+					continueReportIssue();
 				}
+			}
+			
+			private function onPromptToReportIssue( event:CloseEvent ):void {
+				
+				if ( event.detail == Alert.YES ) {
+					continueReportIssue();
+				}
+			}
+			
+			public function continueReportIssue():void {
+				var parameters:Object = new Object();
+				parameters.fromAddress = fromAddress.text;
+				parameters.body = feedbackTextArea.text;
+				parameters.IdAppUser = parentApplication.getIdAppUser();
+				parameters.AppUserName = parentApplication.getAppUserName();
+				parameters.UNID = parentApplication.getUID();			
+				
+				
+				var urlRequest:URLRequest = new URLRequest();
+				urlRequest.url = reportIssueURL;
+				urlRequest.contentType = 'multipart/form-data; boundary=' + UploadPostHelper.getBoundary();
+				urlRequest.method = URLRequestMethod.POST;
+				urlRequest.data = UploadPostHelper.getPostData("testfile.png", imageByteArray, parameters);
+				urlRequest.requestHeaders.push( new URLRequestHeader( 'Cache-Control', 'no-cache' ));
+				
+				var urlLoader:URLLoader = new URLLoader();
+				urlLoader.dataFormat = URLLoaderDataFormat.BINARY;
+				urlLoader.addEventListener(Event.COMPLETE, onReportIssue);
+				urlLoader.addEventListener(IOErrorEvent.IO_ERROR, onIOError);
+				urlLoader.load(urlRequest);
 			}
 			
 			private function onReportIssue(event:Event):void {			
@@ -136,14 +160,17 @@
 	<mx:EmailValidator id="fromAddressValidator" source="{fromAddress}" property="text" required="true" trigger="{sendEmailButton}" triggerEvent="click"/>
 	
 	<mx:VBox id="vbox" styleName="form" width="100%" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4" verticalGap="8" height="100%">								
-		<mx:HBox width="100%" verticalAlign="middle">
-			<mx:VBox verticalGap="0">
+		<mx:HBox width="100%" verticalAlign="top">
+			<mx:VBox verticalGap="0" height="100%">
 				<mx:Label text="Please enter your feedback in the text box below." styleName="formLabel" />
 				<mx:Label text="A member of the GNomEx help team will respond right away." styleName="formLabel" />
 			</mx:VBox>
 			<mx:Spacer width="100%" />
-			<mx:Label id="userEmailAddressTextAreaLabel" text="Your email address:" styleName="formLabel" />
-			<mx:TextInput id="fromAddress" width="232" />
+			<mx:Label id="userEmailAddressTextAreaLabel" text="Your email address:*" styleName="formLabel" toolTip="Leave blank to submit feedback anonymously." paddingTop="2" />
+			<mx:VBox verticalGap="0" paddingTop="1" paddingBottom="1" height="100%" >
+				<mx:TextInput id="fromAddress" width="232" toolTip="Leave blank to submit feedback anonymously."  />
+				<mx:Label text="*Leave blank to submit feedback anonymously" styleName="labelSmall" toolTip="Leave blank to submit feedback anonymously." />
+			</mx:VBox>
 		</mx:HBox>		
 		<util:TextAreaWorkaround id="feedbackTextArea" width="100%" height="100%"
 								 text='Enter feedback here'

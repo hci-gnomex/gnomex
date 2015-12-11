@@ -59,7 +59,10 @@ public class GetProperty extends GNomExCommand implements Serializable {
       if ( property.getIdPriceCategory() != null ) {
         node.setAttribute( "includePricing", "Y" );
         PriceCategory pc = ( PriceCategory ) sess.load( PriceCategory.class, property.getIdPriceCategory() );
-        Price price = SaveProperty.getPriceForCheckProperty( property, pc );
+        node.setAttribute( "qtyType", getQtyType( pc ) );
+        node.setAttribute( "codeBillingChargeKind", pc.getCodeBillingChargeKind() );
+
+        Price price = Property.getPriceForCheckProperty( property, pc );
         if ( price != null ) {
           node.setAttribute( "unitPriceInternal", price.getUnitPrice().toString());
           node.setAttribute( "unitPriceExternalAcademic", price.getUnitPriceExternalAcademic().toString());
@@ -77,7 +80,7 @@ public class GetProperty extends GNomExCommand implements Serializable {
 
           if ( property.getIdPriceCategory() != null ) {
             PriceCategory pc = ( PriceCategory ) sess.load( PriceCategory.class, property.getIdPriceCategory() );
-            Price price = SaveProperty.getPriceForPropertyOption( po, pc );
+            Price price = PropertyOption.getPriceForPropertyOption( po, pc );
             if ( price != null ) {
               optionNode.setAttribute( "unitPriceInternal", price.getUnitPrice().toString());
               optionNode.setAttribute( "unitPriceExternalAcademic", price.getUnitPriceExternalAcademic().toString());
@@ -125,6 +128,14 @@ public class GetProperty extends GNomExCommand implements Serializable {
       }
     }
     return this;
+  }
+
+  private String getQtyType(PriceCategory pc) {
+
+    if ( pc!=null && pc.getPluginClassName() != null && pc.getPluginClassName().equals( "hci.gnomex.billing.PropertyPricingNotBySamplePlugin" )) {
+      return "NOTBYSAMPLE";
+    }
+    return "SAMPLE";
   }
 
   public void validate() {
