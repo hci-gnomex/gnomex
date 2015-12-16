@@ -706,6 +706,12 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
       // Add associations
       for (Iterator i1 = protocolMap.keySet().iterator(); i1.hasNext();) {
         Integer idSeqLibProtocol = (Integer) i1.next();
+        // in case the application name has changed be sure to update the seq
+        // lib protocol name to match
+        SeqLibProtocol slp = (SeqLibProtocol) sess.load(SeqLibProtocol.class, idSeqLibProtocol);
+        slp.setSeqLibProtocol(app.getApplication());
+        sess.save(slp);
+
         if (!existingProtocolMap.containsKey(idSeqLibProtocol)) {
           SeqLibProtocolApplication x = new SeqLibProtocolApplication();
           x.setCodeApplication(app.getCodeApplication());
