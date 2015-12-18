@@ -21,6 +21,15 @@ CALL ExecuteIfTableExists('gnomex', 'Product_Audit', 'ALTER TABLE Product_Audit 
 -- new property that allows users to just save their request before actually submitting.  Submitting the experiment will prevent the user from making changes to their samples.
 insert into PropertyDictionary (propertyName, propertyValue, propertyDescription, forServerOnly, idCoreFacility, codeRequestCategory)
   VALUES('new_request_save_before_submit', 'N', 'Allow users to save a new request and still make changes to the request until they mark the request as submitted.', 'N', NULL, NULL);
+  
+  -- update directory names
+update PropertyDictionary set propertyName = 'directory_experiment' where propertyName = 'experiment_directory';
+update PropertyDictionary set propertyName = 'directory_analysis' where propertyName = 'analysis_directory';
+update PropertyDictionary set propertyName = 'directory_datatrack' where propertyName = 'datatrack_directory'; 
+update PropertyDictionary set propertyName = 'directory_flowcell' where propertyName = 'flowcell_directory'; 
+update PropertyDictionary set propertyName = 'directory_instrument_run' where propertyName = 'instrument_run_directory'; 
+update PropertyDictionary set propertyName = 'directory_product_order' where propertyName = 'product_order_directory'; 
+
 
 -- iobio viewer URL's
 INSERT INTO gnomex.PropertyDictionary (propertyName,propertyValue,propertyDescription, forServerOnly) VALUES

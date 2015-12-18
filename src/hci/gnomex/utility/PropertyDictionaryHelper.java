@@ -13,28 +13,25 @@ import java.util.Map;
 import org.hibernate.Query;
 import org.hibernate.Session;
 
-
-
 public class PropertyDictionaryHelper implements Serializable {
-  private static PropertyDictionaryHelper   theInstance;
+  private static PropertyDictionaryHelper theInstance;
 
-  private Map                      propertyMap = new HashMap();
+  private Map propertyMap = new HashMap();
 
-  private static final String    PROPERTY_PRODUCTION_SERVER                   = "production_server";
+  private static final String PROPERTY_PRODUCTION_SERVER = "production_server";
 
-  private static final String    PROPERTY_EXPERIMENT_DIRECTORY                = "experiment_directory";
-  private static final String    PROPERTY_ANALYSIS_DIRECTORY                  = "analysis_directory";
-  private static final String    PROPERTY_DATATRACK_DIRECTORY                 = "datatrack_directory";
-  private static final String    PROPERTY_FLOWCELL_DIRECTORY                  = "flowcell_directory";
-  private static final String    PROPERTY_INSTRUMENT_RUN_DIRECTORY            = "instrument_run_directory";
-  private static final String    PROPERTY_FDT_DIRECTORY_GNOMEX                = "fdt_directory_gnomex";
-  private static final String    PROPERTY_FDT_DIRECTORY                       = "fdt_directory";
-  private static final String    PROPERTY_FDT_CLIENT_CODEBASE                 = "fdt_client_codebase";
-  private static final String    PROPERTY_FDT_SERVER_NAME                     = "fdt_server_name";
-  private static final String    PROPERTY_FILE_FDT_FILE_DAEMON_TASK_DIR       = "fdt_file_daemon_task_dir";
-  private static final String    PROPERTY_FDT_JAR_LOCATION                    = "fdt_jar_location";
-  private static final String    PROPERTY_PRODUCT_ORDER_DIRECTORY            = "product_order_directory";
-
+  private static final String PROPERTY_EXPERIMENT_DIRECTORY = "directory_experiment";
+  private static final String PROPERTY_ANALYSIS_DIRECTORY = "directory_analysis";
+  private static final String PROPERTY_DATATRACK_DIRECTORY = "directory_datatrack";
+  private static final String PROPERTY_FLOWCELL_DIRECTORY = "directory_flowcell";
+  private static final String PROPERTY_INSTRUMENT_RUN_DIRECTORY = "directory_instrument_run";
+  private static final String PROPERTY_FDT_DIRECTORY_GNOMEX = "fdt_directory_gnomex";
+  private static final String PROPERTY_FDT_DIRECTORY = "fdt_directory";
+  private static final String PROPERTY_FDT_CLIENT_CODEBASE = "fdt_client_codebase";
+  private static final String PROPERTY_FDT_SERVER_NAME = "fdt_server_name";
+  private static final String PROPERTY_FILE_FDT_FILE_DAEMON_TASK_DIR = "fdt_file_daemon_task_dir";
+  private static final String PROPERTY_FDT_JAR_LOCATION = "fdt_jar_location";
+  private static final String PROPERTY_PRODUCT_ORDER_DIRECTORY = "directory_product_order";
 
   public PropertyDictionaryHelper() {
   }
@@ -43,7 +40,7 @@ public class PropertyDictionaryHelper implements Serializable {
     String property = "";
     String propertyName = null;
 
-    // First use the property qualified by server name.  If
+    // First use the property qualified by server name. If
     // it isn't found, get the property without any qualification.
     propertyName = PROPERTY_FILE_FDT_FILE_DAEMON_TASK_DIR + "_" + serverName;
     property = this.getProperty(propertyName);
@@ -58,7 +55,7 @@ public class PropertyDictionaryHelper implements Serializable {
     String property = "";
     String propertyName = null;
 
-    // First use the property qualified by server name.  If
+    // First use the property qualified by server name. If
     // it isn't found, get the property without any qualification.
     propertyName = PROPERTY_FDT_DIRECTORY_GNOMEX + "_" + serverName;
     property = this.getProperty(propertyName);
@@ -73,7 +70,7 @@ public class PropertyDictionaryHelper implements Serializable {
     String property = "";
     String propertyName = null;
 
-    // First use the property qualified by server name.  If
+    // First use the property qualified by server name. If
     // it isn't found, get the property without any qualification.
     propertyName = PROPERTY_FDT_DIRECTORY + "_" + serverName;
     property = this.getProperty(propertyName);
@@ -83,11 +80,12 @@ public class PropertyDictionaryHelper implements Serializable {
     }
     return addFileSepIfNec(property);
   }
+
   public String getFDTClientCodebase(String serverName) {
     String property = "";
     String propertyName = null;
 
-    // First use the property qualified by server name.  If
+    // First use the property qualified by server name. If
     // it isn't found, get the property without any qualification.
     propertyName = PROPERTY_FDT_CLIENT_CODEBASE + "_" + serverName;
     property = this.getProperty(propertyName);
@@ -102,7 +100,7 @@ public class PropertyDictionaryHelper implements Serializable {
     String property = "";
     String propertyName = null;
 
-    // First use the property qualified by server name.  If
+    // First use the property qualified by server name. If
     // it isn't found, get the property without any qualification.
     propertyName = PROPERTY_FDT_SERVER_NAME + "_" + serverName;
     property = this.getProperty(propertyName);
@@ -129,12 +127,11 @@ public class PropertyDictionaryHelper implements Serializable {
 
   }
 
-
-  private void loadProperties(Session sess)  {
+  private void loadProperties(Session sess) {
     Query propQuery = sess.createQuery("select p from PropertyDictionary as p");
     List properties = propQuery.list();
     for (Iterator i = properties.iterator(); i.hasNext();) {
-      PropertyDictionary prop = (PropertyDictionary)i.next();
+      PropertyDictionary prop = (PropertyDictionary) i.next();
       String name = prop.getPropertyName();
       if (prop.getIdCoreFacility() != null) {
         name = prop.getIdCoreFacility().toString() + "\t" + prop.getPropertyName();
@@ -146,12 +143,10 @@ public class PropertyDictionaryHelper implements Serializable {
     }
   }
 
-
-
   public String getProperty(String name) {
     String propertyValue = "";
     if (name != null && !name.equals("")) {
-      return (String)propertyMap.get(name);
+      return (String) propertyMap.get(name);
     } else {
       return "";
     }
@@ -164,9 +159,9 @@ public class PropertyDictionaryHelper implements Serializable {
     String propertyValue = "";
     if (name != null && !name.equals("")) {
       String qualName = idCoreFacility.toString() + "\t" + name;
-      propertyValue = (String)propertyMap.get(qualName);
+      propertyValue = (String) propertyMap.get(qualName);
       if (propertyValue == null) {
-        propertyValue = (String)propertyMap.get(name);
+        propertyValue = (String) propertyMap.get(name);
       }
     }
 
@@ -179,7 +174,7 @@ public class PropertyDictionaryHelper implements Serializable {
       propertyValue = null;
       if (codeRequestCategory != null && codeRequestCategory.length() > 0) {
         String qualName = codeRequestCategory + "\t" + name;
-        propertyValue = (String)propertyMap.get(qualName);
+        propertyValue = (String) propertyMap.get(qualName);
       }
       if (propertyValue == null) {
         propertyValue = getCoreFacilityProperty(idCoreFacility, name);
@@ -191,7 +186,7 @@ public class PropertyDictionaryHelper implements Serializable {
 
   public String getQualifiedProperty(String name, String serverName) {
     // First try to get property that is
-    // qualified by server name.  If that isn't found, get the property without
+    // qualified by server name. If that isn't found, get the property without
     // any qualification.
     String property = "";
     if (serverName != null && !serverName.equals("")) {
@@ -221,7 +216,7 @@ public class PropertyDictionaryHelper implements Serializable {
     if (property != null) {
       try {
         intProperty = Integer.parseInt(property);
-      } catch(NumberFormatException ex) {
+      } catch (NumberFormatException ex) {
 
       }
     }
@@ -229,8 +224,7 @@ public class PropertyDictionaryHelper implements Serializable {
   }
 
   public boolean isProductionServer(String serverName) {
-    if (this.getProperty(PROPERTY_PRODUCTION_SERVER) != null &&
-        this.getProperty(PROPERTY_PRODUCTION_SERVER).contains(serverName)) {
+    if (this.getProperty(PROPERTY_PRODUCTION_SERVER) != null && this.getProperty(PROPERTY_PRODUCTION_SERVER).contains(serverName)) {
       return true;
     } else {
       return false;
@@ -291,8 +285,6 @@ public class PropertyDictionaryHelper implements Serializable {
     return property;
   }
 
-
-
   public String getFlowCellDirectory(String serverName) {
     // First try to get property that is qualified by server name.
     // If that isn't found then get the property without any qualification.
@@ -315,8 +307,8 @@ public class PropertyDictionaryHelper implements Serializable {
 
   public String getExperimentDirectory(String serverName, Integer idCoreFacility) {
     // First try to get property that is qualified by server name
-    // and core facility.  if not found, if not found, try by
-    // property name (not qualified) and id core facility.  last,
+    // and core facility. if not found, if not found, try by
+    // property name (not qualified) and id core facility. last,
     // try by just plain property name.
     String property = "";
     property = this.getCoreFacilityProperty(idCoreFacility, PROPERTY_EXPERIMENT_DIRECTORY + "_" + serverName);
@@ -342,8 +334,8 @@ public class PropertyDictionaryHelper implements Serializable {
 
   public String getProductOrderDirectory(String serverName, Integer idCoreFacility) {
     // First try to get property that is qualified by server name
-    // and core facility.  if not found, if not found, try by
-    // property name (not qualified) and id core facility.  last,
+    // and core facility. if not found, if not found, try by
+    // property name (not qualified) and id core facility. last,
     // try by just plain property name.
     String property = "";
     property = this.getCoreFacilityProperty(idCoreFacility, PROPERTY_PRODUCT_ORDER_DIRECTORY + "_" + serverName);
@@ -369,8 +361,8 @@ public class PropertyDictionaryHelper implements Serializable {
 
   public String getInstrumentRunDirectory(String serverName, Integer idCoreFacility) {
     // First try to get property that is qualified by server name
-    // and core facility.  if not found, if not found, try by
-    // property name (not qualified) and id core facility.  last,
+    // and core facility. if not found, if not found, try by
+    // property name (not qualified) and id core facility. last,
     // try by just plain property name.
     String property = "";
     property = this.getCoreFacilityProperty(idCoreFacility, PROPERTY_INSTRUMENT_RUN_DIRECTORY + "_" + serverName);
@@ -445,7 +437,6 @@ public class PropertyDictionaryHelper implements Serializable {
       }
     }
 
-
     return zipEntryName;
   }
 
@@ -500,7 +491,6 @@ public class PropertyDictionaryHelper implements Serializable {
       }
     }
 
-
     return zipEntryName;
   }
 
@@ -509,7 +499,7 @@ public class PropertyDictionaryHelper implements Serializable {
     String baseDirLastPart = "";
 
     String experimentDirectory = this.getExperimentDirectory(serverName, idCoreFacility);
-    String flowCellDirectory   = this.getFlowCellDirectory(serverName);
+    String flowCellDirectory = this.getFlowCellDirectory(serverName);
 
     try {
       experimentDirectory = new File(experimentDirectory).getCanonicalPath();
@@ -522,13 +512,12 @@ public class PropertyDictionaryHelper implements Serializable {
       throw new RuntimeException("Cannot instantiate file for flowCellDirectory" + flowCellDirectory);
     }
 
-
     // Change all file separators to forward slash
     String theFileName = fileName.replaceAll("\\\\", "/");
     experimentDirectory = experimentDirectory.replaceAll("\\\\", "/");
     flowCellDirectory = flowCellDirectory.replaceAll("\\\\", "/");
 
-    // Parse out last part of experiment and flow cell path.  We must isolate
+    // Parse out last part of experiment and flow cell path. We must isolate
     // this part because the canonical path of the file may not match the
     // experiment/flowcell directory (due to file links).
     String tokens[] = experimentDirectory.split("/");
@@ -541,7 +530,6 @@ public class PropertyDictionaryHelper implements Serializable {
       throw new RuntimeException("Cannot parse flow cell directory into expected parts");
     }
     String flowCellDirLastPart = tokens[tokens.length - 1];
-
 
     if (theFileName.toLowerCase().indexOf(experimentDirLastPart.toLowerCase()) >= 0) {
       baseDirLastPart = experimentDirLastPart;
@@ -558,7 +546,6 @@ public class PropertyDictionaryHelper implements Serializable {
       throw new RuntimeException("Cannot parse experiment directory into expected parts");
     }
     String lastFilePart = tokens[tokens.length - 1];
-
 
     tokens = lastFilePart.split("/");
     if (tokens == null || tokens.length < 2) {
@@ -585,7 +572,7 @@ public class PropertyDictionaryHelper implements Serializable {
 
   public static String addFileSepIfNec(String inputPath) {
 
-    if(inputPath == null || inputPath.length() < 1) {
+    if (inputPath == null || inputPath.length() < 1) {
       return inputPath;
     }
     String tempStr = inputPath;
@@ -593,7 +580,7 @@ public class PropertyDictionaryHelper implements Serializable {
     tempStr = tempStr.replaceAll("\\\\", "/");
 
     // And then see if there is a separator at the end of the string
-    if(tempStr.charAt(tempStr.length()-1) != '/') {
+    if (tempStr.charAt(tempStr.length() - 1) != '/') {
       inputPath = inputPath + File.separator;
     }
 
@@ -601,7 +588,8 @@ public class PropertyDictionaryHelper implements Serializable {
 
   }
 
-  // returns facility specific site logo.  Note that this is static because it is called before
+  // returns facility specific site logo. Note that this is static because it is
+  // called before
   // properties are loaded.
   public static String getSiteLogo(Session sess, Integer idCoreFacility) {
     String siteLogo = "./assets/gnomex_logo.png";
@@ -610,12 +598,12 @@ public class PropertyDictionaryHelper implements Serializable {
       Query propSiteQuery = sess.createQuery("from PropertyDictionary p where p.propertyName=:propName AND p.idCoreFacility = :idCoreFacility");
       propSiteQuery.setParameter("propName", PropertyDictionary.SITE_LOGO);
       propSiteQuery.setParameter("idCoreFacility", idCoreFacility);
-      propSiteLogo = (PropertyDictionary)propSiteQuery.uniqueResult();
+      propSiteLogo = (PropertyDictionary) propSiteQuery.uniqueResult();
     }
     if (propSiteLogo == null) {
       Query propSiteQuery = sess.createQuery("from PropertyDictionary p where p.propertyName=:propName AND p.idCoreFacility is null");
       propSiteQuery.setParameter("propName", PropertyDictionary.SITE_LOGO);
-      propSiteLogo = (PropertyDictionary)propSiteQuery.uniqueResult();
+      propSiteLogo = (PropertyDictionary) propSiteQuery.uniqueResult();
     }
     if (propSiteLogo != null && !propSiteLogo.getPropertyValue().equals("")) {
       siteLogo = "./" + propSiteLogo.getPropertyValue();
@@ -624,7 +612,8 @@ public class PropertyDictionaryHelper implements Serializable {
     return siteLogo;
   }
 
-  // returns facility specific site splash.  Note that this is static because it is called before
+  // returns facility specific site splash. Note that this is static because it
+  // is called before
   // properties are loaded.
   public static String getSiteSplash(Session sess, Integer idCoreFacility) {
     String siteSplash = "./assets/gnomex_splash_logo.png";
@@ -633,12 +622,12 @@ public class PropertyDictionaryHelper implements Serializable {
       Query propSiteQuery = sess.createQuery("from PropertyDictionary p where p.propertyName=:propName AND p.idCoreFacility = :idCoreFacility");
       propSiteQuery.setParameter("propName", PropertyDictionary.SITE_SPLASH);
       propSiteQuery.setParameter("idCoreFacility", idCoreFacility);
-      propSiteSplash = (PropertyDictionary)propSiteQuery.uniqueResult();
+      propSiteSplash = (PropertyDictionary) propSiteQuery.uniqueResult();
     }
     if (propSiteSplash == null) {
       Query propSiteQuery = sess.createQuery("from PropertyDictionary p where p.propertyName=:propName AND p.idCoreFacility is null");
       propSiteQuery.setParameter("propName", PropertyDictionary.SITE_SPLASH);
-      propSiteSplash = (PropertyDictionary)propSiteQuery.uniqueResult();
+      propSiteSplash = (PropertyDictionary) propSiteQuery.uniqueResult();
     }
     if (propSiteSplash != null && !propSiteSplash.getPropertyValue().equals("")) {
       siteSplash = "./" + propSiteSplash.getPropertyValue();
