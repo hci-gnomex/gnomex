@@ -550,7 +550,7 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
             }
           }
 
-          boolean setLastModify = false;
+          boolean setLastModify = true;
           for (Iterator i = sampleGroup.keySet().iterator(); i.hasNext();) {
             String displayName = (String) i.next();
             int fileCount = 1;
@@ -621,19 +621,19 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
                     if (!k.hasNext()) {
                       sef.setIdExpFileRead2(null);
                       sess.saveOrUpdate(sef);
-                      if (!setLastModify) {
+                      if (setLastModify) {
                         request.setLastModifyDate(new Date(System.currentTimeMillis()));
                         sess.save(request);
-                        setLastModify = true;
+                        setLastModify = false;
                       }
                     }
                   } else if (fileCount == 2) {
                     sef.setIdExpFileRead2(ef.getIdExperimentFile());
                     sess.saveOrUpdate(sef);
-                    if (!setLastModify) {
+                    if (setLastModify) {
                       request.setLastModifyDate(new Date(System.currentTimeMillis()));
                       sess.save(request);
-                      setLastModify = true;
+                      setLastModify = false;
                     }
                   }
                   fileCount++;
