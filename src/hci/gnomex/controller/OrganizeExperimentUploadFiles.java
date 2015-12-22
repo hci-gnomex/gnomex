@@ -408,9 +408,6 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
               }
 
             }
-            // We deleted some files update the modify date.
-            request.setLastModifyDate(new Date(System.currentTimeMillis()));
-            sess.save(request);
             sess.flush();
           }
 
@@ -465,8 +462,6 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
               }
             }
 
-            request.setLastModifyDate(new Date(System.currentTimeMillis()));
-            sess.save(request);
             sess.flush();
 
           }
@@ -502,8 +497,6 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
                 }
               }
             }
-            request.setLastModifyDate(new Date(System.currentTimeMillis()));
-            sess.save(request);
             sess.flush();
           }
 
@@ -550,7 +543,6 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
             }
           }
 
-          boolean setLastModify = true;
           for (Iterator i = sampleGroup.keySet().iterator(); i.hasNext();) {
             String displayName = (String) i.next();
             int fileCount = 1;
@@ -621,20 +613,10 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
                     if (!k.hasNext()) {
                       sef.setIdExpFileRead2(null);
                       sess.saveOrUpdate(sef);
-                      if (setLastModify) {
-                        request.setLastModifyDate(new Date(System.currentTimeMillis()));
-                        sess.save(request);
-                        setLastModify = false;
-                      }
                     }
                   } else if (fileCount == 2) {
                     sef.setIdExpFileRead2(ef.getIdExperimentFile());
                     sess.saveOrUpdate(sef);
-                    if (setLastModify) {
-                      request.setLastModifyDate(new Date(System.currentTimeMillis()));
-                      sess.save(request);
-                      setLastModify = false;
-                    }
                   }
                   fileCount++;
                 }
