@@ -233,9 +233,7 @@ public class GNomExFrontController extends HttpServlet {
       try {
         if (GNomExFrontController.isTomcat()) {
           commandInstance.execute();
-        } else {
-          commandInstance = getRequestProcessor(request, response).processCommand(commandInstance);
-        }
+        } 
       } catch (Exception e) {
         HibernateSession.rollback();
         String msg = null;
@@ -400,45 +398,6 @@ public class GNomExFrontController extends HttpServlet {
     }
   }
 
-  private SBGNomExRequestProcessor getRequestProcessor(HttpServletRequest request, HttpServletResponse response) {
-    SBGNomExRequestProcessor remote = null;
-    SBGNomExRequestProcessorHome home = null;
-
-    try {
-
-      // look up home interface
-      if (isTomcat()) {
-        // OpenEJB lookup
-        Properties p = new Properties();
-        p.put(Context.INITIAL_CONTEXT_FACTORY, "org.apache.openejb.client.LocalInitialContextFactory");
-        p.put("openejb.loader", "embed");
-        Context context = (Context) new InitialContext(p);        
-        home = (SBGNomExRequestProcessorHome)context.lookup("SBGNomExRequestProcessorRemoteHome");
-      } else {
-        // Orion lookup
-        home = (SBGNomExRequestProcessorHome) JNDILocator.getJNDILocator().getEJBHome("SBGNomExRequestProcessor", SBGNomExRequestProcessorHome.class, true);
-      }
-      
-
-      
-      // create a remote reference
-      remote = home.create();
-
-    } catch (NamingException ne) {
-      log.error("Unable to find " + home.getClass().getName());
-      this.forwardWithError(request, response);
-    } catch (CreateException ce) {
-      log.error("Unable to create " + remote.getClass().getName());
-      this.forwardWithError(request, response);
-    } catch (RemoteException re) {
-      log.error(re.getClass().getName() + " while looking up and creating " + remote.getClass().getName());
-      log.error("The stacktrace for the error:");
-      log.error(re.getMessage());
-      this.forwardWithError(request, response);
-    }
-
-    return remote;
-  }
 
   /**
    *  Clean up resources

@@ -11,9 +11,8 @@ import java.sql.Types;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.engine.SessionImplementor;
+import org.hibernate.engine.spi.SessionImplementor;
 import org.hibernate.id.IdentifierGenerator;
-import org.hibernate.util.JDBCExceptionReporter;
 
 /**
  * <p>Title: </p>
@@ -55,14 +54,12 @@ public class Hibernate3xUIDGenerator implements IdentifierGenerator, Serializabl
       return new Integer(id);
     }
     catch (SQLException sqle) {
-            JDBCExceptionReporter.logExceptions(sqle);
             throw new RuntimeException( "Cannot get next id " + sqle.toString());
     }
     finally {
       try {
-            session.getBatcher().closeStatement(stmt);
+            stmt.close();
       } catch (SQLException sqle) {
-        JDBCExceptionReporter.logExceptions(sqle);
         throw new RuntimeException( "Cannot close statement " + sqle.toString());
       }
     }

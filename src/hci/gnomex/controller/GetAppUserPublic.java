@@ -5,6 +5,7 @@ import hci.framework.control.RollBackCommandException;
 import hci.framework.model.DetailObject;
 import hci.framework.utilities.XMLReflectException;
 import hci.gnomex.model.AppUserPublic;
+import hci.gnomex.utility.HibernateUtil;
 
 import java.io.Serializable;
 import java.sql.Connection;
@@ -63,7 +64,7 @@ public class GetAppUserPublic extends GNomExCommand implements Serializable {
 
       Statement stmt = null;
       ResultSet rs = null;
-      con = sess.connection();
+      con = HibernateUtil.getConnection(sess);
       stmt = con.createStatement();
 
       StringBuffer buf = new StringBuffer("select lm.idLab, l.lastName, l.firstName, 'Manager' as role, sendUploadAlert as doUploadAlert\n");

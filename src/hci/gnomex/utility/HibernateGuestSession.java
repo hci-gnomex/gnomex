@@ -21,7 +21,6 @@ import javax.naming.NamingException;
 
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 
 public class HibernateGuestSession {
 
@@ -37,10 +36,7 @@ public class HibernateGuestSession {
       
       if (GNomExFrontController.isTomcat()) {
         s = HibernateGuestUtil.getSessionFactory().openSession();
-      } else {
-        SessionFactory sf = CachedGuestSessionFactory.getCachedGuestSessionFactory().getFactory(GUEST_SESSION_FACTORY_JNDI_NAME);
-        s = sf.openSession();
-      }
+      } 
       guestSession.set(s);
     }
 

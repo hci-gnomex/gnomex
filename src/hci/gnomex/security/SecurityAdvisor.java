@@ -1,6 +1,5 @@
 package hci.gnomex.security;
 
-import hci.bstx.utility.BSTXSecurityAdvisor;
 import hci.dictionary.model.DictionaryEntry;
 import hci.dictionary.model.NullDictionaryEntry;
 import hci.framework.model.DetailObject;
@@ -37,14 +36,18 @@ import hci.gnomex.model.Topic;
 import hci.gnomex.model.UserPermissionKind;
 import hci.gnomex.model.Visibility;
 import hci.gnomex.utility.DictionaryHelper;
-import hci.gnomex.utility.HibernateBSTXSession;
+
 import hci.gnomex.utility.HibernateGuestSession;
 import hci.gnomex.utility.HibernateSession;
+import hci.gnomex.utility.HibernateUtil;
 import hci.gnomex.utility.LabComparator;
 import hci.gnomex.utility.PropertyDictionaryHelper;
 
 import java.io.Serializable;
+import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -55,8 +58,6 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import javax.naming.NamingException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 
 import org.hibernate.Hibernate;
 import org.hibernate.Query;
@@ -130,9 +131,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
 
   private String loginDateTime;
 
-  private BSTXSecurityAdvisor bstxSecurityAdvisor;
-
-  private String ntUserName;
+  private String BSTpersonId;
 
   private static PropertyDictionaryHelper pdh;
 
@@ -140,7 +139,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     return loginDateTime;
   }
 
-  private SecurityAdvisor(AppUser appUser, boolean isGNomExUniversityUser, boolean isGNomExExternalUser, boolean isUniversityOnlyUser, boolean isLabManager, boolean canAccessBSTX, String ntUserName, Integer idCoreFacility, Map<Integer, Integer> submitMap) throws InvalidSecurityAdvisorException {
+  private SecurityAdvisor(AppUser appUser, boolean isGNomExUniversityUser, boolean isGNomExExternalUser, boolean isUniversityOnlyUser, boolean isLabManager, boolean canAccessBSTX, String BSTpersonId, Integer idCoreFacility, Map<Integer, Integer> submitMap) throws InvalidSecurityAdvisorException {
 
     this.appUser = appUser;
     this.isGNomExUniversityUser = isGNomExUniversityUser;
@@ -149,7 +148,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     this.loginDateTime = new SimpleDateFormat("MMM dd hh:mm a").format(System.currentTimeMillis());
     this.isLabManager = isLabManager;
     this.canAccessBSTX = canAccessBSTX;
-    this.ntUserName = ntUserName;
+    this.BSTpersonId = BSTpersonId;
     this.specifiedIdCoreFacility = idCoreFacility;
     this.coreFacilitiesAllowingGlobalSubmission = submitMap;
 
@@ -318,12 +317,12 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     }
 
     // check if can access BSTX
-    String ntUserName = null;
+    String BSTpersonId = null;
     if (isGNomExUniversityUser) {
       String canAccessBSTXString = pdh.getProperty(PropertyDictionary.CAN_ACCESS_BSTX);
       if (canAccessBSTXString != null && canAccessBSTXString.equals("Y")) {
-        ntUserName = getNtUserName(uid);
-        if (ntUserName != null) {
+        BSTpersonId = getBSTpersonId(uid);
+        if (BSTpersonId != null) {
           canAccessBSTX = true;
         }
       }
@@ -345,7 +344,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     }
 
     // Instantiate SecurityAdvisor
-    securityAdvisor = new SecurityAdvisor(appUser, isGNomExUniversityUser, isGNomExExternalUser, isUniversityOnlyUser, isLabManager, canAccessBSTX, ntUserName, idCoreFacility, submitMap);
+    securityAdvisor = new SecurityAdvisor(appUser, isGNomExUniversityUser, isGNomExExternalUser, isUniversityOnlyUser, isLabManager, canAccessBSTX, BSTpersonId, idCoreFacility, submitMap);
     // Make sure we have a valid state.
     securityAdvisor.validate();
     // Initialize institutions (lazy loading causing invalid object
@@ -354,29 +353,33 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     return securityAdvisor;
   }
 
-  private static String getNtUserName(String uid) {
-    String name = null;
+  private static String getBSTpersonId(String uid) {
+    String pId = null;
     String peopleSoftID = "0" + uid.substring(1);
     try {
-      Session bstxSession = HibernateBSTXSession.currentBSTXSession(uid);
-      Query query = bstxSession.createQuery("SELECT ntUserName, idSite, assocPreferredName, assocFirstName, assocLastName, personID " + "FROM Associate WHERE peopleSoftID = :peopleSoftID");
-      query.setParameter("peopleSoftID", peopleSoftID);
-      List assocUsers = query.list();
-      if (assocUsers.size() > 0) {
-        Object[] row = (Object[]) assocUsers.get(0);
-        name = (String) row[0];
-      }
-    } catch (Exception ex) {
-      log.error("Error querying associate table.", ex);
-    } finally {
-      try {
-        HibernateBSTXSession.closeBSTXSession();
-      } catch (Exception ex) {
-        log.error("Error closing BSTX session", ex);
-      }
+
+        Statement stmt = null;
+        ResultSet rs = null;
+        Session sess = HibernateGuestSession.currentGuestSession(uid);
+        Connection con = HibernateUtil.getConnection(sess);
+        stmt = con.createStatement();
+
+        StringBuffer buf = new StringBuffer("SELECT PersonID " + "FROM Administration.dbo.Associate WHERE peopleSoftID = '" + peopleSoftID + "'\n");
+        System.out.println ("[getBSTpersonId] query: " + buf.toString());
+        rs = stmt.executeQuery(buf.toString());
+        while (rs.next()) {
+        	pId = "" + rs.getInt("PersonID");
+        	break;
+        }
+        rs.close();
+        stmt.close();
+    }
+    catch (Exception ex) {
+    	log.error("Error querying associate table.", ex);
+    	System.out.println ("Error querying associate table. " + ex);
     }
 
-    return name;
+    return pId;
   }
 
   public static SecurityAdvisor createGuest() throws InvalidSecurityAdvisorException {
@@ -833,17 +836,6 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
           canRead = true;
         }
       }
-      /*
-       * // Admins if (hasPermission(this.CAN_ACCESS_ANY_OBJECT)) { canRead =
-       * true; } // GNomEx Users else if
-       * (hasPermission(this.CAN_PARTICIPATE_IN_GROUPS)) { Topic t =
-       * (Topic)object; if (isGroupIAmMemberOf(t.getIdLab()) ||
-       * isGroupIManage(t.getIdLab()) || isGroupICollaborateWith(t.getIdLab()))
-       * { canRead = true; } else { if (t.hasPublicChildren()) { canRead = true;
-       * } } } // Guests else { Topic t = (Topic)object; // Analysis group is
-       * accessible if any of its analysis are marked as public if
-       * (t.hasPublicChildren()) { canRead = true; } }
-       */
     }
 
     //
@@ -861,11 +853,6 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
       }
       // GNomEx Users
       else if (hasPermission(this.CAN_PARTICIPATE_IN_GROUPS)) {
-        // ProductOrders can be read if user is member or manager of order's lab
-        // if (isGroupIAmMemberOf(prodOrder.getIdLab()) ||
-        // isGroupIManage(prodOrder.getIdLab()) ) {
-        // canRead = true;
-        // }
         // Can see your own product orders only
         if (isOwner(prodOrder.getIdAppUser())) {
           canRead = true;
@@ -932,9 +919,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
       Request req = (Request) object;
       if (req.getRequestCategory().getIsClinicalResearch() != null && req.getRequestCategory().getIsClinicalResearch().equals("Y")) {
         if (this.canAccessBSTX) {
-          if (this.bstxSecurityAdvisor != null) {
             canRead = canReadAllCCNumbers(req);
-          }
         } else {
           canRead = false;
         }
@@ -946,29 +931,16 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
 
   private Map<String, boolean[]> canReadCCNumbers(List<String> ccNumbers) throws NamingException, SQLException {
     Map<String, boolean[]> secMap = new HashMap<String, boolean[]>();
-    if (bstxSecurityAdvisor != null) {
-      try {
-        Session bstxSession = HibernateBSTXSession.currentBSTXSession(this.username);
-        secMap = bstxSecurityAdvisor.canReadSamples(ccNumbers, bstxSession);
-      } finally {
-        try {
-          HibernateBSTXSession.closeBSTXSession();
-        } catch (Exception e) {
-          log.error("Error closing BSTX session", e);
-        }
-      }
-    }
+
+    secMap = canReadSamples(ccNumbers);
     return secMap;
   }
 
   public boolean canReadAllCCNumbers(Request req) {
     boolean canRead = true;
-    if (bstxSecurityAdvisor == null) {
-      canRead = false;
-    } else {
       try {
         List<String> ccNumbers = new ArrayList<String>();
-        for (Sample s : (Set<Sample>) req.getSamples()) {
+        for (Sample s : (Set<Sample>)req.getSamples()) {
           if (s.getCcNumber() != null) {
             ccNumbers.add(s.getCcNumber());
           } else {
@@ -980,11 +952,10 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
         if (canRead) {
           canRead = canReadAllCCNumbers(ccNumbers);
         }
-      } catch (Exception ex) {
+      } catch(Exception ex) {
         log.error("Error getting BSTX security settings to check ccNumbers", ex);
         canRead = false;
       }
-    }
 
     return canRead;
   }
@@ -1000,6 +971,70 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
       }
     }
     return canRead;
+  }
+
+  private Map<String, boolean[]> canReadSamples(List<String> ccNumbers) throws NamingException, SQLException {
+	    Map<String, boolean[]> secMap = new HashMap<String, boolean[]>();
+
+        Statement stmt = null;
+        ResultSet rs = null;
+        Session sess = HibernateGuestSession.currentGuestSession(this.getUsername());
+        Connection con = HibernateUtil.getConnection(sess);
+        stmt = con.createStatement();
+
+        StringBuffer buf = buildSampleQuery (ccNumbers);
+        System.out.println ("[canReadSamples] query: " + buf.toString());
+        rs = stmt.executeQuery(buf.toString());
+        while (rs.next()) {
+        	String ccNumber = rs.getString("col_0_0_");
+        	boolean [] perm = new boolean[3];
+        	perm[0] = rs.getBoolean("col_3_0_");
+        	perm[1] = rs.getBoolean("col_2_0_");
+        	perm[2] = rs.getBoolean("col_1_0_");
+        	secMap.put(ccNumber, perm);
+        }
+        rs.close();
+        stmt.close();
+
+	    return secMap;
+  }
+
+
+  public StringBuffer buildSampleQuery (List<String> ccNumbers) {
+	  StringBuffer buf = new StringBuffer();
+
+	  buf = buf.append("select distinct bstxsample0_.ccNumber as col_0_0_, (select count(*) from BST..Sample bstxsample7_ where bstxsample7_.id=bstxsample0_.id and (bstxcollec1_.idProtocol in ((select bstprot.id from BST..VIEW_Protocol bstprot where bstprot.isShared = 'Y' and bstprot.isITSApproved = 'Y') union (select pu.idProtocol from BST..ProtocolUsers pu, BST..VIEW_Protocol vp where pu.personId = ");
+	  buf = buf.append(BSTpersonId);
+	  buf = buf.append(" and pu.idProtocol = vp.id and vp.isITSApproved = 'Y')) or person4_.isITSPatient is null or person4_.isITSPatient='N')) as col_1_0_, (select count(*) from BST..Sample bstxsample9_ where bstxsample9_.id=bstxsample0_.id and (bstxcollec1_.idProtocol in (select pu.idProtocol from BST..ProtocolUsers pu where pu.personId = ");
+	  buf = buf.append(BSTpersonId);
+	  buf = buf.append(" and canViewIdent = 'Y') )) as col_2_0_, (select count(*) from BST..Sample bstxsample8_ where bstxsample8_.id=bstxsample0_.id and (bstxcollec1_.idProtocol in ((select bstprot.id from BST..VIEW_Protocol bstprot where bstprot.isShared = 'Y') union (select pu.idProtocol from BST..ProtocolUsers pu where pu.personId = ");
+	  buf = buf.append(BSTpersonId);
+	  buf = buf.append(")))) as col_3_0_ ");
+	  buf = buf.append("from BST..Sample bstxsample0_ inner join BST..VIEW_Collection bstxcollec1_ on bstxsample0_.idBSTCollection=bstxcollec1_.idBSTCollection left outer join BST..Institution bstxinstit2_ on bstxcollec1_.idInstitution=bstxinstit2_.id inner join BST..BSTPatient bstxpatien3_ on bstxsample0_.idBSTPatient=bstxpatien3_.idBSTPatient ");
+	  buf = buf.append("inner join PersonResearch..Person person4_ on bstxpatien3_.idPerson=person4_.idPerson left outer join BST..Disburse disburses5_ on bstxsample0_.id=disburses5_.idSample left outer join BST..Registration registrati6_ on bstxsample0_.id=registrati6_.idSample ");
+	  buf = buf.append("where bstxsample0_.ccNumber in (");
+	  buf = buf.append(listStrToString(ccNumbers));
+	  buf = buf.append(");");
+
+	  return buf;
+  }
+
+  public static String listStrToString(List<String> list)
+  {
+    if (list == null || list.size() == 0)
+      return "";
+
+    boolean firstTime = true;
+    String stringList = "";
+    for (String str : list)
+    {
+      if (!firstTime)
+        stringList += ",";
+      else
+        firstTime = false;
+      stringList += "'" + str + "'";
+    }
+    return stringList;
   }
 
   // Used to scrub list of requests being shown to user. CanRead makes sure even
@@ -3325,43 +3360,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     return addWhere;
   }
 
-  /**
-   * This method retrieves the BSTX Security Advisor used for testing BST
-   * permissions through an external application. If the BSTX Security Advisor
-   * hasn't been created yet, this method creates it.
-   *
-   * @param request
-   *          A copy of the active HTTP Servlet Request that was passed into the
-   *          command.
-   * @param httpSession
-   *          A copy of the HTTP Session.
-   * @param username
-   *          The username of the individual the initiated this request.
-   * @return A copy of the BSTX Security Advisor.
-   */
-  public BSTXSecurityAdvisor getBSTXSecurityAdvisor(HttpServletRequest request, HttpSession httpSession, String username) throws SQLException, NamingException {
-    if (bstxSecurityAdvisor == null && canAccessBSTX) {
-      // Get the BSTX SecurityAdvisor.
-      if (httpSession.getAttribute(BSTXSecurityAdvisor.SECURITY_ADVISOR_SESSION_KEY) != null) {
-        bstxSecurityAdvisor = (BSTXSecurityAdvisor) httpSession.getAttribute(BSTXSecurityAdvisor.SECURITY_ADVISOR_SESSION_KEY);
-      }
-
-      // If it doesn't exist, create it and save it for later (so we only have
-      // to create it once).
-      else {
-        Session bstxSession = HibernateBSTXSession.currentBSTXSession(username);
-        try {
-          bstxSecurityAdvisor = BSTXSecurityAdvisor.create(request, httpSession, bstxSession, this.ntUserName);
-          httpSession.setAttribute(BSTXSecurityAdvisor.SECURITY_ADVISOR_SESSION_KEY, bstxSecurityAdvisor);
-        } finally {
-          HibernateBSTXSession.closeBSTXSession();
-        }
-      }
-    }
-
-    return bstxSecurityAdvisor;
-  }
-
+  
   public Session getReadOnlyHibernateSession(String userName) throws Exception {
     Session sess = null;
     sess = HibernateGuestSession.currentGuestSession(userName);

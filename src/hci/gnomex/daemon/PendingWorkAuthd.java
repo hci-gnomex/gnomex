@@ -11,6 +11,7 @@ import hci.gnomex.utility.BatchMailer;
 import hci.gnomex.utility.MailUtil;
 import hci.gnomex.utility.MailUtilHelper;
 import hci.gnomex.utility.PropertyDictionaryHelper;
+import hci.gnomex.utility.HibernateUtil;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -144,7 +145,7 @@ public class PendingWorkAuthd extends TimerTask {
 
       Connection myConn = null;
       try {
-        myConn = sess.connection();
+        myConn = HibernateUtil.getConnection(sess);
         String queryString = "from CoreFacility";
         Query query = sess.createQuery(queryString);
         List coreFacilityList = query.list();

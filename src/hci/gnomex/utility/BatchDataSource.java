@@ -1,18 +1,17 @@
 package hci.gnomex.utility;
 
 import hci.framework.model.DetailObject;
-import hci.gnomex.security.tomcat.AESEncryption;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.Iterator;
-import java.util.Properties;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
+import org.hibernate.service.ServiceRegistry;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
@@ -49,23 +48,15 @@ public class BatchDataSource extends DetailObject {
   
   public Session connect() throws Exception {
     String filePath = "../";
-    if(specifiedOrionPath.length() > 0) {
-      filePath = specifiedOrionPath;
-    }
     filePath = filePath + "META-INF/context.xml";
     File file = new File(filePath);
 
     if (file.exists()) {
       return connectTomcat(file);
-    } else {
-      filePath = "../../";
-      if(specifiedOrionPath.length() > 0) {
-        filePath = specifiedOrionPath;
-      }
-      filePath = filePath + "config/data-sources.xml";
-      file = new File(filePath);
-      return connectOrion(file);	
     }
+    
+    System.out.println ("[BatchDataSource] WARNING file doesn't exist: " + filePath);
+    return null;
   }
 
   public Session connectTomcat(File dataSourcesFile) throws Exception {
@@ -79,18 +70,7 @@ public class BatchDataSource extends DetailObject {
     configuration = new Configuration().addFile(filePath);
     return connectImpl();
   }
-  
-  public Session connectOrion(File dataSourcesFile) throws Exception {
-    this.registerDataSources(dataSourcesFile);
-    String filePath = "";
-    if(specifiedOrionPath.length() > 0) {
-      filePath = specifiedSchemaPath;
-    }    
-    filePath = filePath + "SchemaGNomEx.hbm.xml";
-    configuration = new Configuration().addFile(filePath);
-    return connectImpl();
-  }
-  
+
   public Session getSession() {
     return sess;
   }
@@ -104,7 +84,12 @@ public class BatchDataSource extends DetailObject {
                  .setProperty("hibernate.connection.url", this.gnomex_db_url )
                  .setProperty("hibernate.cache.provider_class", "org.hibernate.cache.HashtableCacheProvider");
     
-    sessionFactory = configuration.buildSessionFactory();
+   
+    ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder().applySettings(configuration.getProperties()).build();
+    
+    // builds a session factory from the service registry
+    sessionFactory = configuration.buildSessionFactory(serviceRegistry);           
+       
     sess = sessionFactory.openSession();    
     return sess;
   }

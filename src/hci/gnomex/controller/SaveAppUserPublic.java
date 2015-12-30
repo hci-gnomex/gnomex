@@ -3,9 +3,9 @@ package hci.gnomex.controller;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.AppUser;
-import hci.gnomex.security.EncrypterService;
 import hci.gnomex.security.EncryptionUtility;
 import hci.gnomex.utility.HibernateSession;
+import hci.gnomex.utility.HibernateUtil;
 
 import java.io.Serializable;
 import java.io.StringReader;
@@ -83,7 +83,7 @@ public class SaveAppUserPublic extends GNomExCommand implements Serializable {
         Element root = userNotificationLabsDoc.getRootElement();
         
         Statement stmt = null;
-        con = sess.connection();      
+        con = HibernateUtil.getConnection(sess);
         
         for(Iterator i = root.getChildren("Lab").iterator(); i.hasNext();) {
           Element node = (Element)i.next();
