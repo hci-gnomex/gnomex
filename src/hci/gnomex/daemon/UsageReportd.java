@@ -8,6 +8,7 @@ import hci.gnomex.model.Lab;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.utility.BatchDataSource;
 import hci.gnomex.utility.BatchMailer;
+import hci.gnomex.utility.HibernateUtil;
 import hci.gnomex.utility.MailUtil;
 import hci.gnomex.utility.MailUtilHelper;
 import hci.gnomex.utility.PropertyDictionaryHelper;
@@ -18,9 +19,7 @@ import java.io.StringReader;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -62,9 +61,7 @@ public class UsageReportd extends TimerTask {
   private String                      baseURL="https://b2b.hci.utah.edu/gnomex";
   
   private String                      bccTo="";
-  
-  private ArrayList<String>           waList; 
-  
+   
   private PropertyDictionaryHelper    propertyHelper; 
   
   private static UsageReportd         app;
@@ -466,14 +463,11 @@ public class UsageReportd extends TimerTask {
 
     try 
     {
-      myConn = sess.connection();
+      myConn = HibernateUtil.getConnection(sess);
       
       StringBuffer hqlbuf = new StringBuffer("SELECT l from Lab l ");
       hqlbuf.append(" where l.isActive <> 'N' and l.excludeUsage <> 'Y'");
-      //hqlbuf.append(" where l.isActive <> 'N'");
-      
-//      waList = new ArrayList<String>(); doesn't appear to be used - jfk
-        
+             
       List results = sess.createQuery(hqlbuf.toString()).list();
       // Build a hashmap "labInfo" with lab IDs for keys and new LabStats objects for values.
       for (Iterator i = results.iterator(); i.hasNext();) {

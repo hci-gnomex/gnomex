@@ -14,22 +14,10 @@
 
   <!-- ============================================== -->
 	<!--                                                -->
-	<!-- Exclude bstx class for HCI build since it is   -->
-	<!-- in hciEnv jar                                  -->
-	<!--                                                -->
-	<!-- ============================================== -->
-	<target name="setClassExclusions" unless="opensource" >
-		<echo> set bstx exclusion </echo>
-		<property name="bstx.exclude.class" value="hci/bstx/utility/*.class"/>		
-		<echo>bstx.exclude.class=${bstx.exclude.class}</echo>
-	</target>
-	
-  <!-- ============================================== -->
-	<!--                                                -->
 	<!-- Initialization                                 -->
 	<!--                                                -->
 	<!-- ============================================== -->
-	<target name="init" depends="setClassExclusions">
+	<target name="init">
 
     	<!-- General config -->
         <tstamp />
@@ -68,7 +56,7 @@
 	<!-- All (tomcat)                                   -->
 	<!--                                                -->
 	<!-- ============================================== -->
-	<target name="all-tomcat" depends="init">
+	<target name="all-tomcat" depends="init, increment-revision">
 		<antcall target="clean" />
 		<antcall target="compile-tomcat" />
 		<antcall target="jar-tomcat" />
@@ -84,7 +72,7 @@
 	<!-- All (GNomExLite)                                   -->
 	<!--                                                -->
 	<!-- ============================================== -->
-	<target name="all-gnomexlite" depends="init">
+	<target name="all-gnomexlite" depends="init, increment-revision">
 		<antcall target="clean" />
 		<antcall target="compile-tomcat" />
 		<antcall target="jar-tomcat" />
@@ -99,7 +87,7 @@
 	<!-- All (opensource tomcat)                               -->
 	<!--                                                -->
 	<!-- ============================================== -->
-	<target name="all-opensource-tomcat" depends="init">
+	<target name="all-opensource-tomcat" depends="init, increment-revision">
 		<antcall target="clean" />
 		<antcall target="build-opensource-tomcat" />
 		<antcall target="deploy-tomcat" />
@@ -110,7 +98,7 @@
 	<!-- All (opensource GNomExLite)                               -->
 	<!--                                                -->
 	<!-- ============================================== -->
-	<target name="all-opensource-gnomexlite" depends="init">
+	<target name="all-opensource-gnomexlite" depends="init, increment-revision">
 		<antcall target="clean" />
 		<antcall target="build-opensource-gnomexlite" />
 		<antcall target="deploy-gnomexlite" />
@@ -205,8 +193,6 @@
 
             <src path="${src.dir}"/>
             <exclude name="**/fdt/**"/>      		
-          	<exclude name="**/security/SecurityManager**"/>      		
-          	<exclude name="**/controller/SBGNomEx**"/>
         </javac>
 	</target>
 
@@ -234,7 +220,6 @@
             <fileset dir="${build.class.dir}">
             	<exclude name="hci/gnomex/httpclient/*.class" />
             	<exclude name="hci/gnomex/daemon/FDTFileDaemon.class" />
-            	<exclude name="${bstx.exclude.class}"/>
             	<include name="**/*.class" />
             	<include name="**/*.properties" />
             </fileset>
@@ -500,12 +485,6 @@
 		<copy file="${webroot.dir}/WEB-INF/web.xml"  tofile="${webroot.dir}/WEB-INF/tomcat/web.xml" overwrite="true" />
 	    <replace file="${webroot.dir}/WEB-INF/tomcat/web.xml" token="gnomexLite.jsp" value="gnomexFlex.jsp"/>
 
-    <copy todir="${dist.dir}/tomcat" overwrite="true">
-        <fileset dir="${hcienv.dir}/src" >
-          <include name="*.hbm.xml" />
-      </fileset>
-    </copy>
-    
 		<war destfile="${dist.dir}/${war.name}" webxml="${webroot.dir}/WEB-INF/tomcat/web.xml">
 			 <metainf dir="${metainf.dir}"          includes="context.xml"/>
 			 <lib dir="${lib.dir}"                  includes="*.jar"/>
@@ -516,13 +495,12 @@
 			 </lib>
 			 <lib dir="${dist.dir}"                 includes="${jar.name}"/>
        		 <lib dir="${dist.dir}"                 includes="${clientjar.name}"/>
-			 <lib dir="${hcienv.dir}/lib"           includes="*.jar"/>
 			 <classes dir="${lib.dir}"              includes="persistence.xml"/> 
 			 <classes dir="${lib.dir}"              includes="*.tomcat.cfg.xml"/> 
 			 <classes dir="${lib.dir}"              includes="*.properties"/> 
 		     <classes dir="${src.dir}"			    includes="Dictionaries.xml"/>
 		     <classes dir="${src.dir}"			    includes="SchemaGNomEx.hbm.xml" />
-      <classes dir="${dist.dir}/tomcat"     includes="*.*" />
+             <classes dir="${dist.dir}/tomcat"     includes="*.*" />
 		     <fileset dir="${webroot.dir}">
 				<include name="**/*.*" />
 			 	<exclude name="WEB-INF/**"/>
@@ -593,13 +571,6 @@
 		<fixcrlf srcdir="${dist.dir}/tomcat/scripts" includes="*.sh"
 		         eol="lf" eof="remove" />	
 		
-
-    	<copy todir="${dist.dir}/tomcat" overwrite="true">
-        	<fileset dir="${hcienv.dir}/src" >
-          		<include name="*.hbm.xml" />
-      		</fileset>
-    	</copy>
-		
 		<!-- Copy the image files in the assets directory -->
 		<copy todir="${build.dir}/assets" overwrite="true">
 					<fileset dir="${flexapp.dir}/assets">
@@ -619,7 +590,6 @@
 			 </lib>
 			 <lib dir="${dist.dir}"                 includes="${jar.name}"/>
        		 <lib dir="${dist.dir}"                 includes="${clientjar.name}"/>
-			 <lib dir="${hcienv.dir}/lib"           includes="*.jar"/>
 			 <classes dir="${lib.dir}"              includes="persistence.xml"/> 
 			 <classes dir="${lib.dir}"              includes="*.tomcat.cfg.xml"/> 
 			 <classes dir="${lib.dir}"              includes="*.properties"/> 
@@ -780,7 +750,6 @@
 	      <fileset dir="${lib.env.dir}"             includes="*.jar" />
 	      <fileset dir="${lib.dir}" 				includes="*.jar" />
 	    </path>
-		<property name="bstx.exclude.class" value=""/>
 		
 		<!-- Copy gnomex META-INF, scripts and lib dir -->
   	    <copy todir="${sandbox.dir}">
@@ -822,35 +791,6 @@
 		         value="MySQLDialect">
 			<include name="hibernate*.cfg.xml"/>
 		</replace>
-		
-		<!-- Get rid of BST mapping file entries in hibernate.cfg.xml files -->
-		<replaceregexp file="${sandbox.dir}/lib/hibernate.cfg.xml"
-			match="&lt;mapping file=&quot;applications/hciEnv/Schema(.*).hbm.xml(.*)/&gt;"
-			replace="" byline="true">			
-		</replaceregexp>
-		<replaceregexp file="${sandbox.dir}/lib/hibernateGuest.cfg.xml"
-			match="&lt;mapping file=&quot;applications/hciEnv/Schema(.*).hbm.xml(.*)/&gt;"
-			replace="" byline="true">			
-		</replaceregexp>
-		<replaceregexp file="${sandbox.dir}/lib/hibernate.tomcat.cfg.xml"
-			match="&lt;mapping file=&quot;applications/hciEnv/Schema(.*).hbm.xml(.*)/&gt;"
-			replace="" byline="true">			
-		</replaceregexp>
-		<replaceregexp file="${sandbox.dir}/lib/hibernateGuest.tomcat.cfg.xml"
-			match="&lt;mapping file=&quot;applications/hciEnv/Schema(.*).hbm.xml(.*)/&gt;"
-			replace="" byline="true">			
-		</replaceregexp>		
-		
-
-		<!-- Remove all references to hciEnv and hciFlex in scripts -->
-		<replaceregexp  file="${sandbox.dir}/scripts/index_gnomex.sh"
-			       match="HIBERNATE_HOME=\$ORION_HOME/applications/hciEnv"
-             replace="HIBERNATE_HOME=$$ORION_HOME/applications/gnomex">
-		</replaceregexp>
-		<replaceregexp  file="${sandbox.dir}/scripts/index_gnomex.cmd"
-			       match="HIBERNATE_HOME=\%ORION_HOME\%\\applications\\hciEnv"
-             replace="HIBERNATE_HOME=\%ORION_HOME\%\\\\applications\\\\gnomex">
-		</replaceregexp>
 		
 		<!-- Use UNIX eol convention for .sh files -->
 		<fixcrlf srcdir="${sandbox.dir}/scripts" includes="*.sh"
@@ -1134,13 +1074,10 @@
 		  <!-- Copy jar files normally in hciEnv directly to gnomex/libEnv -->
 		  <copy todir="${basedir}/libEnv">
 		    <fileset dir="${hcienv.dir}/lib">
-		      <include name="antlr-2.7.6rc1.jar"/>
 		      <include name="asm.jar"/>
 		      <include name="asm-attrs.jar"/>
 		      <include name="cglib-2.1.3.jar"/>
 			  <include name="ehcache-1.1.jar"/>
-		      <include name="hibernate3.jar"/>
-		      <include name="Hibernate3Utils.jar"/>
 		      <include name="HCIDictionary.jar"/>
 		      <include name="HCIReport.jar"/>
 		      <exclude name="**/CVS"/>

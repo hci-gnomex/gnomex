@@ -23,9 +23,9 @@ import javax.naming.NamingException;
 
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
-import org.hibernate.TransactionException;
+import org.hibernate.resource.transaction.spi.TransactionStatus;
+
 
 public class HibernateSession {
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(HibernateSession.class);
@@ -40,18 +40,16 @@ public class HibernateSession {
   public static Session currentSession(String username) throws NamingException, HibernateException, SQLException {
     Session s = (Session) session.get();
     if (s == null || !s.isOpen()) {
-
+    	
       if (GNomExFrontController.isTomcat()) {
         s = HibernateUtil.getSessionFactory().openSession();
         if (GNomExFrontController.isTomcat()) {
           // User hibernate transactions (not EJB) if tomcat.
           Transaction tx = s.beginTransaction();
           transaction.set(tx);
+          
         }
-      } else {
-        SessionFactory sf = CachedSessionFactory.getCachedSessionFactory().getFactory(SESSION_FACTORY_JNDI_NAME);     
-        s = sf.openSession();
-      }
+      } 
       session.set(s);
     }
 
@@ -72,8 +70,10 @@ public class HibernateSession {
   }
 
   public static void rollback() {
-    // tx will be null unless Tomcat server.
-    Transaction tx = (Transaction) transaction.get();
+	  Session s = (Session) session.get();
+	  if (s == null) return;
+	  
+    Transaction tx = s.getTransaction();
     if (tx != null) {
       tx.rollback();
       transaction.set(null);
@@ -97,25 +97,36 @@ public class HibernateSession {
   private static void closeSessionForReal() throws HibernateException, SQLException {
     // tx will be null if not tomcat or if transaction already rolled back.
     Session s = (Session) session.get();
-    Transaction tx = (Transaction) transaction.get();
+    if (s == null) {
+    	return;
+    }
+    
+    Transaction tx = s.getTransaction();
+    if (tx == null) {
+        session.set(null);
+        transaction.set(null);    	
+    }
+    TransactionStatus txStat = tx.getStatus();
+
     CallableStatement stmt;
     try {
       setAppName(s, null);
     }
     finally {
-      if (tx != null && !tx.wasCommitted() && !tx.wasRolledBack() && tx.isActive()) {
+      if (txStat != null && txStat.isNotOneOf(TransactionStatus.COMMITTED) && txStat.isNotOneOf(TransactionStatus.COMMITTING) && 
+    		  txStat.isOneOf(TransactionStatus.ACTIVE) && txStat.isNotOneOf(TransactionStatus.ROLLED_BACK) && txStat.isNotOneOf(TransactionStatus.ROLLING_BACK)) {
         try {
           tx.commit();
         }catch(Exception e) {
-          log.error("Failed to commit Transaction, going to try and rollback");
+          log.error("Failed to commit Transaction, going to try and rollback " + e);
         }
         try {
           //Maybe the commit above worked and so the transaction is no longer active therefore don't try the rollback or else we will get an inactive tx exception.
-          if(tx.isActive()) {
+          if(txStat != null && txStat.isOneOf(TransactionStatus.ACTIVE)) {
             tx.rollback();
           }
         } catch(Exception e) {
-          log.error("Failed to rollback transaction");
+          log.error("Failed to rollback transaction " + e);
         }
       }
       if (s != null) {
@@ -132,7 +143,7 @@ public class HibernateSession {
 
   public static void setAppName(Session s, String username) throws SQLException {
     if (s != null) {
-      Connection con = s.connection();    
+      Connection con = HibernateUtil.getConnection(s);
       if (con.getMetaData().getDatabaseProductName().toUpperCase().indexOf(Constants.SQL_SERVER) >= 0) {
         CallableStatement stmt;
         stmt = con.prepareCall("{ call master.dbo.setAppUser(?) }");

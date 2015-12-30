@@ -55,6 +55,7 @@ import hci.gnomex.utility.FileDescriptorUploadParser;
 import hci.gnomex.utility.FreeMarkerConfiguration;
 import hci.gnomex.utility.HibernateGuestSession;
 import hci.gnomex.utility.HibernateSession;
+import hci.gnomex.utility.HibernateUtil;
 import hci.gnomex.utility.HybNumberComparator;
 import hci.gnomex.utility.MailUtil;
 import hci.gnomex.utility.MailUtilHelper;
@@ -634,7 +635,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
             //
             // Save properties
             //
-            Set propertyEntries = this.saveRequestProperties(sess, requestParser);
+            Set propertyEntries = this.saveRequestProperties(propertiesXML, sess, requestParser);
 
             sess.save(requestParser.getRequest());
             sess.flush();
@@ -929,7 +930,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         // permissions on BST
         sessGuest = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
 
-        con = sessGuest.connection();
+        con = HibernateUtil.getConnection(sessGuest);
         stmt = con.createStatement();
         rs = stmt.executeQuery(buf.toString());
         List<String> ccNumbersRetreivedList = new ArrayList<String>();
@@ -1010,7 +1011,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         requestParser.getRequest().getCodeRequestCategory(),
         PropertyDictionary.GET_REQUEST_NUMBER_PROCEDURE);
     if (procedure != null && procedure.length() > 0) {
-      Connection con = sess.connection();
+      Connection con = HibernateUtil.getConnection(sess);
       String queryString = "";
       if (con.getMetaData().getDatabaseProductName().toUpperCase().indexOf(Constants.SQL_SERVER) >= 0) {
         queryString = "exec " + procedure;

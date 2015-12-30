@@ -4,15 +4,11 @@ import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.model.DetailObject;
 import hci.gnomex.model.InternalAccountFieldsConfiguration;
-import hci.gnomex.model.TransferLog;
 import hci.gnomex.security.InvalidSecurityAdvisorException;
 import hci.gnomex.security.SecurityAdvisor;
-import hci.gnomex.utility.HibernateBSTXSession;
 import hci.gnomex.utility.HibernateSession;
 
-import java.io.File;
 import java.io.Serializable;
-import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
@@ -25,10 +21,6 @@ import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.output.XMLOutputter;
-
-import com.oreilly.servlet.multipart.FilePart;
-import com.oreilly.servlet.multipart.MultipartParser;
-import com.oreilly.servlet.multipart.Part;
 
 /**
  *
@@ -101,16 +93,12 @@ public class CreateSecurityAdvisor extends GNomExCommand implements Serializable
       
       secAdvisor = SecurityAdvisor.create(sess, this.getUsername(), idCoreFacility);
       
-      if (secAdvisor.canAccessBSTX()) {
-        // Initialize the BSTX Security 
-        secAdvisor.getBSTXSecurityAdvisor(request, session, this.getUsername());
-      }
-
       // Get gnomex version
       String filename= this.getClass().getProtectionDomain().getCodeSource().getLocation().getFile();
       filename = filename.replace("%20", " ");      // convert any blanks
       JarFile jarfile = new JarFile( filename );
       Manifest manifest = jarfile.getManifest();
+      jarfile.close();
       Attributes value = (Attributes)manifest.getEntries().get("gnomex");
       secAdvisor.setVersion(value.getValue("Implementation-Version"));
 

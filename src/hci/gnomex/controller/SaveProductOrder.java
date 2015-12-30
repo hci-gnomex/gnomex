@@ -18,6 +18,7 @@ import hci.gnomex.model.ProductType;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
+import hci.gnomex.utility.HibernateUtil;
 import hci.gnomex.utility.MailUtil;
 import hci.gnomex.utility.MailUtilHelper;
 import hci.gnomex.utility.PropertyDictionaryHelper;
@@ -260,7 +261,7 @@ public class SaveProductOrder extends GNomExCommand implements Serializable {
     String poNumber = "";
     String procedure = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(po.getIdCoreFacility(), PropertyDictionary.GET_PO_NUMBER_PROCEDURE);
     if (procedure != null && procedure.length() > 0) {
-      Connection con = sess.connection();
+      Connection con = HibernateUtil.getConnection(sess);
       String queryString = "";
       if (con.getMetaData().getDatabaseProductName().toUpperCase().indexOf(Constants.SQL_SERVER) >= 0) {
         queryString = "exec " + procedure;

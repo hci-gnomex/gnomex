@@ -86,23 +86,6 @@
             factory="hci.gnomex.security.tomcat.EncryptedDataSourceFactory"
             url="${hci.gnomexguest.url}" />
 
-    <Resource name="jdbc/BST"
-            auth="Container"
-            driverClassName="${hci.bst.driverClassName}"
-            maxActive="100"
-            maxIdle="0"
-            maxWait="10000"
-            initialSize="0"
-            validationQuery="SELECT 1"
-            testOnBorrow="true"
-            testOnReturn="true"
-            testWhileIdle="true"
-            timeBetweenEvictionRunsMillis="3600000"
-            username="${hci.bst.username}"
-            password="${hci.bst.password}"
-            type="javax.sql.DataSource"
-            factory="hci.gnomex.security.tomcat.EncryptedDataSourceFactory"
-            url="${hci.bst.url}" />
     
 </Context>
 

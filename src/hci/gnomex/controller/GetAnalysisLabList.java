@@ -65,7 +65,7 @@ public class GetAnalysisLabList extends GNomExCommand implements Serializable {
         Integer idLab          = (Integer)row[0];
         String lastName        = (String)row[1];
         String firstName       = (String)row[2];
-        Integer analysisCount  = (Integer)row[3];
+        Integer analysisCount  = (int) (long)row[3];
         
         String labName = "";
         if (lastName != null) {
