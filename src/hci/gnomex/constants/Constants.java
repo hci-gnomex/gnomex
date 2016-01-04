@@ -97,17 +97,17 @@ public class Constants {
                                                                                                            // ".bam"
                                                                                                            // and
                                                                                                            // ".bai"
-      ".bam", ".bai", ".useq", ".bb", ".bw", ".bed", ".bgr", ".brs", ".gff", ".gtf", ".vcf.gz", ".vcf.gz.tbi", };
+      ".bam", ".bai", ".useq", ".bb", ".bw", ".bed", ".bgr", ".brs", ".gff", ".gtf", ".vcf.gz", ".vcf.gz.tbi", ".narrowPeak", ".broadPeak", ".gappedPeak"};
 
-  public static final String[] DATATRACK_FILE_EXTENSIONS_NO_INDEX             = new String[] { ".bam", ".useq", ".bb", ".bw", ".bed", ".bgr", ".brs", ".gff", ".gtf", ".vcf.gz", };
+  public static final String[] DATATRACK_FILE_EXTENSIONS_NO_INDEX             = new String[] { ".bam", ".useq", ".bb", ".bw", ".bed", ".bgr", ".brs", ".gff", ".gtf", ".vcf.gz", ".narrowPeak", ".broadPeak", ".gappedPeak"};
 
   public static final String[] FILE_EXTENSIONS_TO_CHECK_SIZE_BEFORE_UPLOADING = new String[] { ".bed", ".bgn", ".gff", ".gtf", ".psl", };
 
   /** xxx.ext for bigBed, bigWig, bam that can be accessed via http. */
-  public static final String[] FILE_EXTENSIONS_FOR_UCSC_LINKS                 = new String[] { ".bb", ".bw", ".bam", ".bai", ".vcf.gz", ".vcf.gz.tbi", ".useq", };
+  public static final String[] FILE_EXTENSIONS_FOR_UCSC_LINKS                 = new String[] { ".bb", ".bw", ".bam", ".bai", ".vcf.gz", ".vcf.gz.tbi", ".useq", ".narrowPeak", ".broadPeak", ".gappedPeak"};
 
   /** xxx.ext for bigBed, bigWig, bam that can be accessed via http. */
-  public static final String[] FILE_EXTENSIONS_FOR_UCSC_LINKS_NO_INDEX        = new String[] { ".bb", ".bw", ".bam", ".vcf.gz", ".useq", };
+  public static final String[] FILE_EXTENSIONS_FOR_UCSC_LINKS_NO_INDEX        = new String[] { ".bb", ".bw", ".bam", ".vcf.gz", ".useq", ".narrowPeak", ".broadPeak", ".gappedPeak" };
 
   public static final String[] FILE_EXTENSIONS_FOR_IGV_LINKS                  = new String[] { ".bb", ".bw", ".bam", ".bai", ".vcf.gz", ".vcf.gz.tbi", };
 
