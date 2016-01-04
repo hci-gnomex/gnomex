@@ -2,7 +2,6 @@ package hci.gnomex.controller;
 
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
-import hci.gnomex.constants.Constants;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.PropertyDictionaryHelper;
@@ -26,6 +25,7 @@ public class MakeGeneURL extends GNomExCommand implements Serializable {
   
   private String serverName;
   private String triopath;
+  private String geneiobioviewerURL;
 
 
   public void validate() {
@@ -37,6 +37,8 @@ public class MakeGeneURL extends GNomExCommand implements Serializable {
     	triopath = request.getParameter("fileName");   
       }    
     serverName = request.getServerName();
+    
+    
   }
 
   public Command execute() throws RollBackCommandException {
@@ -52,6 +54,8 @@ public class MakeGeneURL extends GNomExCommand implements Serializable {
       } else {
         portNumber = ":" + portNumber;           
       }
+      
+      geneiobioviewerURL = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.GENE_IOBIO_VIEWER_URL);
       
       // parse the definition file and construct the URL
       ArrayList<String>  urlsToLink = processTrioFile(triopath);
@@ -187,7 +191,7 @@ public class MakeGeneURL extends GNomExCommand implements Serializable {
 
   
   private String buildURL (String genename, HashMap<String,String[]> samples) {
-	  String url = Constants.GENE_IOBIO_URL + "/?rel0=proband";
+	  String url = geneiobioviewerURL + "/?rel0=proband";
 	  
 	  // get the proband
 	  String [] proband = samples.get("sample0");

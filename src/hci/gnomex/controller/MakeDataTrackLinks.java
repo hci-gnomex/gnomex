@@ -6,7 +6,6 @@ import hci.gnomex.constants.Constants;
 import hci.gnomex.model.DataTrack;
 import hci.gnomex.model.GenomeBuild;
 import hci.gnomex.model.PropertyDictionary;
-import hci.gnomex.model.Request;
 import hci.gnomex.model.UCSCLinkFiles;
 import hci.gnomex.utility.DataTrackUtil;
 import hci.gnomex.utility.HibernateSession;
@@ -39,6 +38,8 @@ public class MakeDataTrackLinks extends GNomExCommand implements Serializable {
   private String serverName;
   private String dataTrackFileServerURL;
   private String dataTrackFileServerWebContext;
+  private String bamiobioviewerURL;
+  private String vcfiobioviewerURL;
   private Integer idAnalysisFile;
   private String requestType;
   private String pathName;
@@ -83,6 +84,9 @@ public class MakeDataTrackLinks extends GNomExCommand implements Serializable {
       baseDir = PropertyDictionaryHelper.getInstance(sess).getDataTrackDirectory(serverName);
       analysisBaseDir = PropertyDictionaryHelper.getInstance(sess).getAnalysisDirectory(serverName);
       dataTrackFileServerURL = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.DATATRACK_FILESERVER_URL);
+      bamiobioviewerURL = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.BAM_IOBIO_VIEWER_URL);
+      vcfiobioviewerURL = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.VCF_IOBIO_VIEWER_URL);
+      
       dataTrackFileServerWebContext = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.DATATRACK_FILESERVER_WEB_CONTEXT);
       
       // do we need to figure out idDataTrack?
@@ -99,8 +103,6 @@ public class MakeDataTrackLinks extends GNomExCommand implements Serializable {
       
       // We have to serve files from Tomcat, so use das2 base url
       baseURL =  dataTrackFileServerURL;
-
-//      DataTrack dataTrack = DataTrack.class.cast(sess.load(DataTrack.class, idDataTrack));
 
       if (pathName != null || this.getSecAdvisor().canRead(DataTrack.class.cast(sess.load(DataTrack.class, idDataTrack)))) {
         
@@ -120,10 +122,10 @@ public class MakeDataTrackLinks extends GNomExCommand implements Serializable {
         if (requestType.equals("IOBIO")) {
         	// setup the url based on file type
         	if (theURL.toLowerCase().contains(".vcf.gz")) {
-        		theURL = "http://vcf.iobio.io/?vcf=" + theURL;
+        		theURL = vcfiobioviewerURL + theURL;     
         	}
         	else {
-        		theURL = "http://bam.iobio.io/?bam=" + theURL;
+        		theURL = bamiobioviewerURL + theURL;
         	}
         		
         }
@@ -268,9 +270,7 @@ public class MakeDataTrackLinks extends GNomExCommand implements Serializable {
 	}
 
   
-  public static int getidDataTrack(int idAnalysisFile, Session sess) {
-//	  System.out.println ("[getidDataTrack] ** starting ** idAnalysisFile: " + idAnalysisFile);
-	  
+  public static int getidDataTrack(int idAnalysisFile, Session sess) {  
 
 	  int idDataTrack = -1;
 	  
@@ -281,7 +281,6 @@ public class MakeDataTrackLinks extends GNomExCommand implements Serializable {
 	      idDataTrack = (Integer)results.get(0);
 	    }
 	    
-//	    System.out.println ("[getidDataTrack] ** leaving ** idDataTrack: " + idDataTrack);
 	    return idDataTrack;
 	  }
 
