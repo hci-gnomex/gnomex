@@ -38,6 +38,8 @@ public class GetRequestList extends GNomExCommand implements Serializable {
   private HashMap<Integer, List<Object[]>> reactionPlateMap = new HashMap<Integer, List<Object[]>>();
   private HashMap<Integer, List<Object[]>> sourcePlateMap = new HashMap<Integer, List<Object[]>>();
 
+  private Boolean includePlateInfo = true;
+
   private String message = "";
   private static final int DEFAULT_MAX_REQUESTS_COUNT = 100;
 
@@ -49,6 +51,10 @@ public class GetRequestList extends GNomExCommand implements Serializable {
     requestFilter = new RequestFilter();
     HashMap errors = this.loadDetailObject(request, requestFilter);
     this.addInvalidFields(errors);
+
+    if (request.getParameter("includePlateInfo") != null && !request.getParameter("includePlateInfo").equals("")) {
+      includePlateInfo = request.getParameter("includePlateInfo").equals("Y") ? true : false;
+    }
   }
 
   public Command execute() throws RollBackCommandException {
@@ -98,9 +104,11 @@ public class GetRequestList extends GNomExCommand implements Serializable {
         Integer idLab = (Integer) row[13];
         Integer idCoreFacility = (Integer) row[14];
         String corePrepInstructions = (String) row[15];
-        Integer numberOfSamples = (int) (long) row[16];
+        Long numberOfSamples = (Long) row[16];
         String adminNotes = (String) row[17];
-        Integer numberOfWorkItems = (int) (long) row[18];
+        Long numberOfWorkItems = (Long) row[18];
+        // Integer numberOfSeqLanes = (Integer) row[19];
+        // Integer numberOfHybs = (Integer) row[20];
 
         String requestStatus = dh.getRequestStatus(codeRequestStatus);
         String labName = Lab.formatLabNameFirstLast(labFirstName, labLastName);
@@ -128,17 +136,21 @@ public class GetRequestList extends GNomExCommand implements Serializable {
         node.setAttribute("labName", toString(labName));
         node.setAttribute("corePrepInstructions", toString(corePrepInstructions));
         node.setAttribute("numberOfSamples", toString(numberOfSamples));
+        // node.setAttribute("numberOfSeqLanes", toString(numberOfSeqLanes));
+        // node.setAttribute("numberOfHybs", toString(numberOfHybs));
         node.setAttribute("isSelected", "N");
         node.setAttribute("adminNotes", toString(adminNotes));
         node.setAttribute("hasWorkItems", numberOfWorkItems > 0 ? "Y" : "N");
 
         node.setAttribute("icon", requestCategory != null && requestCategory.getIcon() != null ? requestCategory.getIcon() : "");
 
-        List<Object[]> rxnPlateRows = reactionPlateMap.get(idRequest);
-        appendReactionPlateInfo(node, rxnPlateRows);
+        if (includePlateInfo) {
+          List<Object[]> rxnPlateRows = reactionPlateMap.get(idRequest);
+          appendReactionPlateInfo(node, rxnPlateRows);
 
-        List<Object[]> sourcePlateRows = sourcePlateMap.get(idRequest);
-        appendSourcePlateInfo(node, sourcePlateRows);
+          List<Object[]> sourcePlateRows = sourcePlateMap.get(idRequest);
+          appendSourcePlateInfo(node, sourcePlateRows);
+        }
 
         appendSecurityFlags(node, codeRequestStatus, codeRequestCategory, idLab, idAppUser, idCoreFacility, pdh);
 
