@@ -153,6 +153,9 @@
 			private var appUserSort:Sort;
 			
 			[Bindable]
+			private var isGuest:Boolean = false;
+			
+			[Bindable]
 			private var isCollaborator:Boolean = true;
 			
 			public var parentIdLab:Object = null;
@@ -219,6 +222,12 @@
 					for each (var lane:Object in item..SequenceLane) {
 						lane.@idRequest = item.@idRequest;
 					}
+				}
+				
+				if (parentApplication.isGuestMode()) {
+					isGuest = true;
+				} else {
+					isGuest = false;
 				}
 				
 				expLabCombo.selectedItem           = parentApplication.getLabList.lastResult.Lab.(@idLab == analysis.@idLab);
@@ -1051,6 +1060,13 @@
 				isCollaborator = false;;
 			}
 			
+			private function showLinkToExpWindow():void{
+				var linkToExpWindow:LinkToExpWindow = LinkToExpWindow(PopUpManager.createPopUp(this, LinkToExpWindow, true));
+				linkToExpWindow.idLab = parentDocument.selectedIdLab;
+				linkToExpWindow.idAnalysis = parentDocument.selectedIdAnalysis;
+				PopUpManager.centerPopUp(linkToExpWindow);
+			}
+			
 		]]>
 	</mx:Script>
 	
@@ -1082,7 +1098,16 @@
 						   visible="{analysis.@canUpdate == 'Y' &amp;&amp; parentApplication.dataTrackSupported &amp;&amp; !isCollaborator}"
 						   includeInLayout="{analysis.@canUpdate == 'Y'  &amp;&amp; parentApplication.dataTrackSupported &amp;&amp; !isCollaborator}"
 						   textAlign="left" paddingLeft="0">    	        
-			</mx:LinkButton>				
+			</mx:LinkButton>
+			
+			<mx:LinkButton id="linkAnalysis" label="Link to Experiment" 
+						   click="showLinkToExpWindow()" 
+						   icon="@Embed(source='../../assets/icon_link.gif')" 
+						   textDecoration="underline" 
+						   visible="{!isGuest &amp;&amp; parentDocument.selectedAnalysis.@canRead == 'Y'}"
+						   includeInLayout="{!isGuest &amp;&amp; parentDocument.selectedAnalysis.@canRead == 'Y'}"
+						   textAlign="left" paddingLeft="2" paddingRight="0">    	        
+			</mx:LinkButton>
 
 			<mx:LinkButton label="Refresh" textDecoration="underline" icon="@Embed(source='../../assets/refresh.png')" click="refreshAnalysis()" textAlign="left"/>
 		</mx:HBox>

@@ -496,6 +496,13 @@
 				isCollaborator = false;
 			}
 			
+			private function showLinkToExpWindow():void{
+				var linkToExpWindow:LinkToExpWindow = LinkToExpWindow(PopUpManager.createPopUp(this, LinkToExpWindow, true));
+				linkToExpWindow.idLab = parentDocument.selectedIdLab;
+				linkToExpWindow.idAnalysis = parentDocument.selectedIdAnalysis;
+				PopUpManager.centerPopUp(linkToExpWindow);
+			}
+			
 		]]>
 	</mx:Script>
 	
@@ -542,7 +549,7 @@
 							   includeInLayout="{!isGuest &amp;&amp; parentDocument.selectedAnalysis.@canRead == 'Y'  &amp;&amp; parentApplication.dataTrackSupported &amp;&amp; !isCollaborator}"
 							   textAlign="left" paddingLeft="2" paddingRight="0" >    	        
 				</mx:LinkButton>		
-			<mx:LinkButton id="adstButton" label="Auto Distribute All Data Tracks" 
+				<mx:LinkButton id="adstButton" label="Auto Distribute All Data Tracks" 
 							   click="makeAllDataTracks()" 
 							   icon="@Embed(source='../../assets/datatrack_new.png')" 
 							   textDecoration="underline" 
@@ -551,7 +558,16 @@
 							   textAlign="left" paddingLeft="2" paddingRight="0">    	        
 				</mx:LinkButton>		
 				<mx:LinkButton label="Share web link" click="{showLinks();}" icon="@Embed(source='../../assets/globe_link.png')" id="shareWebLink" 
-							   textDecoration="underline" textAlign="left" paddingLeft="2" paddingRight="0"/>				
+							   textDecoration="underline" textAlign="left" paddingLeft="2" paddingRight="0"/>
+				
+				<mx:LinkButton id="linkAnalysis" label="Link to Experiment" 
+							   click="showLinkToExpWindow()" 
+							   icon="@Embed(source='../../assets/icon_link.gif')" 
+							   textDecoration="underline" 
+							   visible="{!isGuest &amp;&amp; parentDocument.selectedAnalysis.@canRead == 'Y'}"
+							   includeInLayout="{!isGuest &amp;&amp; parentDocument.selectedAnalysis.@canRead == 'Y'}"
+							   textAlign="left" paddingLeft="2" paddingRight="0">    	        
+				</mx:LinkButton>
 				
 			</mx:HBox>
 			
