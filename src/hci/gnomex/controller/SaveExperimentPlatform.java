@@ -540,11 +540,11 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
         Integer count = 0;
         List samples = sess.createQuery("select count(*) from Sample s where s.idSampleType = " + sampleType.getIdSampleType()).list();
         if (samples.size() > 0) {
-          count += (Integer) samples.get(0);
+          count += (int) (long) samples.get(0);
         }
         List categories = sess.createQuery("select count(*) from SampleTypeRequestCategory r where r.idSampleType = " + sampleType.getIdSampleType() + " AND r.codeRequestCategory != '" + rc.getCodeRequestCategory() + "'").list();
         if (categories.size() > 0) {
-          count += (Integer) categories.get(0);
+          count += (int) (long) categories.get(0);
         }
         if (count.intValue() > 0) {
           deleteSampleType = false;
@@ -751,7 +751,7 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
         boolean deleteApplication = true;
         List experiments = sess.createQuery("select count(*)from Request r where r.codeApplication = '" + application.getCodeApplication() + "'").list();
         if (experiments.size() > 0) {
-          Integer count = (Integer) experiments.get(0);
+          Integer count = (int) (long) experiments.get(0);
           if (count.intValue() > 0) {
             deleteApplication = false;
           }

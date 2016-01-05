@@ -104,11 +104,9 @@ public class GetRequestList extends GNomExCommand implements Serializable {
         Integer idLab = (Integer) row[13];
         Integer idCoreFacility = (Integer) row[14];
         String corePrepInstructions = (String) row[15];
-        Long numberOfSamples = (Long) row[16];
+        Integer numberOfSamples = (int) (long) row[16];
         String adminNotes = (String) row[17];
-        Long numberOfWorkItems = (Long) row[18];
-        // Integer numberOfSeqLanes = (Integer) row[19];
-        // Integer numberOfHybs = (Integer) row[20];
+        Integer numberOfWorkItems = (int) (long) row[18];
 
         String requestStatus = dh.getRequestStatus(codeRequestStatus);
         String labName = Lab.formatLabNameFirstLast(labFirstName, labLastName);

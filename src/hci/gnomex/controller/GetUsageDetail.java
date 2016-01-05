@@ -505,7 +505,7 @@ public class GetUsageDetail extends GNomExCommand implements Serializable {
       String labFirstName = (String)row[2];
       Date createDate = (Date)row[3];
       String requestNumber = (String)row[4];
-      Integer count = (Integer)row[5];
+      Integer count = (int) (long)row[5];
 
       Element node = new Element("Entry");
       node.setAttribute("labName", getLabName(idLab, labLastName, labFirstName));
@@ -538,7 +538,7 @@ public class GetUsageDetail extends GNomExCommand implements Serializable {
       String labFirstName = (String)row[2];
       Date createDate = (Date)row[3];
       String analysisNumber = (String)row[4];
-      Integer count = (Integer)row[5];
+      Integer count = (int) (long)row[5];
 
       Element node = new Element("Entry");
       node.setAttribute("labName", getLabName(idLab, labLastName, labFirstName));
