@@ -250,7 +250,7 @@ public class ShowProjectExperimentReport extends ReportCommand implements Serial
     Date modifyDate = (Date)row[ProjectExperimentReportFilter.COL_MODIFY_DATE];
     String codeVisibility = (String)row[ProjectExperimentReportFilter.COL_CODE_VISIBILITY];
     Integer idOrganism = (Integer)row[ProjectExperimentReportFilter.COL_ORGANISM];
-    Integer numSamples = (Integer)row[ProjectExperimentReportFilter.COL_NUMBER_SAMPLES];
+    Integer numSamples = (int)(long)row[ProjectExperimentReportFilter.COL_NUMBER_SAMPLES];
     String submitterLastName = (String)row[ProjectExperimentReportFilter.COL_SUBMITTER_LASTNAME];
     String submitterFirstName = (String)row[ProjectExperimentReportFilter.COL_SUBMITTER_FIRSTNAME];
     String requestName = (String)row[ProjectExperimentReportFilter.COL_REQUEST_NAME];

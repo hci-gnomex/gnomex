@@ -38,7 +38,7 @@ public class DataTrackQuery implements Serializable {
 	private Integer            idOrganism;
 	private Integer            idGenomeBuild;
 	private String             isVisibilityPublic = "Y";
-  private String             isVisibilityOwner = "Y";
+    private String             isVisibilityOwner = "Y";
 	private String             isVisibilityMembers = "Y";
 	private String             isVisibilityInstitute = "Y";
 	private String             isServerRefreshMode = "N";
@@ -109,11 +109,11 @@ public class DataTrackQuery implements Serializable {
 	
 	public DataTrackQuery(HttpServletRequest req) {
 		scopeLevel         = req.getParameter("scopeLevel");
-    number         = req.getParameter("number");
+        number         = req.getParameter("number");
 		idLab        = DataTrackUtil.getIntegerParameter(req, "idLab");
 		idOrganism         = DataTrackUtil.getIntegerParameter(req, "idOrganism");
 		idGenomeBuild    = DataTrackUtil.getIntegerParameter(req, "idGenomeBuild");
-    this.isVisibilityOwner = DataTrackUtil.getFlagParameter(req, "isVisibilityOwner");
+        this.isVisibilityOwner = DataTrackUtil.getFlagParameter(req, "isVisibilityOwner");
 		this.isVisibilityMembers = DataTrackUtil.getFlagParameter(req, "isVisibilityMembers");
 		this.isVisibilityInstitute = DataTrackUtil.getFlagParameter(req, "isVisibilityInstitute");
 		this.isVisibilityPublic = DataTrackUtil.getFlagParameter(req, "isVisibilityPublic");
@@ -144,7 +144,7 @@ public class DataTrackQuery implements Serializable {
 	  
 	  // Run query to get dataTrack folders, organized under
 	  // organism and genome build
-	  StringBuffer queryBuf = this.getDataTrackFolderQuery(secAdvisor);    	
+	  StringBuffer queryBuf = this.getDataTrackFolderQuery(secAdvisor);  
 	  Logger.getLogger(this.getClass().getName()).fine("DataTrack folder query: " + queryBuf.toString());
 	  Query query = sess.createQuery(queryBuf.toString());
 	  List<Object[]> dataTrackFolderRows = (List<Object[]>)query.list();
@@ -154,19 +154,18 @@ public class DataTrackQuery implements Serializable {
 	  queryBuf = this.getDataTrackQuery(secAdvisor);
 	  Logger.getLogger(this.getClass().getName()).fine("DataTrack query: " + queryBuf.toString());
 	  query = sess.createQuery(queryBuf.toString());
-	  if (maxDataTrackCount != null && maxDataTrackCount > -1) {
-		  query.setFirstResult(0);
-		  query.setMaxResults(maxDataTrackCount);
-	  }
+//	  if (maxDataTrackCount != null && maxDataTrackCount > -1) {
+//		  query.setFirstResult(0);
+//		  query.setMaxResults(maxDataTrackCount);
+//	  }
 	  List<Object[]> dataTrackRows = (List<Object[]>)query.list();
 
-	   
     // Run query to get parent folder count by data track
     queryBuf = this.getFolderCountQuery(secAdvisor);
     Logger.getLogger(this.getClass().getName()).fine("Folder count query: " + queryBuf.toString());
+
     query = sess.createQuery(queryBuf.toString());
     List<Object[]> folderCountRows = (List<Object[]>)query.list();
-    
 	  
 	  // Now run query to get the genome build segments
 	  queryBuf = this.getSegmentQuery();
@@ -209,7 +208,7 @@ public class DataTrackQuery implements Serializable {
 		queryBuf = this.getFolderCountQuery(secAdvisor);
 		Logger.getLogger(this.getClass().getName()).fine("Folder count query: " + queryBuf.toString());
 		query = sess.createQuery(queryBuf.toString());
-    List<Object[]> folderCountRows = (List<Object[]>)query.list();
+        List<Object[]> folderCountRows = (List<Object[]>)query.list();
     
 		
 		// Now run query to get the genome build segments

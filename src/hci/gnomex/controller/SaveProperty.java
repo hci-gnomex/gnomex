@@ -380,7 +380,7 @@ public class SaveProperty extends GNomExCommand implements Serializable {
                   + op.getIdProperty().toString();
               List entryCounts = sess.createQuery( buf ).list();
               if( entryCounts != null && entryCounts.size() > 0 ) {
-                entryCount = Integer.class.cast( entryCounts.get( 0 ) );
+                entryCount = (int) (long) entryCounts.get( 0 );
               }
 
               // Delete or inactivate prices/price criteria for that option

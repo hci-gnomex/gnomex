@@ -790,8 +790,8 @@ public class UsageReportd extends TimerTask {
 			if (ls != null) {
 				String number = (String) row[2];
 				String name = (String) row[3];
-				Integer userCount = ((Integer) row[4]).intValue();
-				Integer downloadCount = ((Integer) row[5]).intValue();
+				Integer userCount = ((Long) row[4]).intValue();
+				Integer downloadCount = ((Long) row[5]).intValue();
 				HashMap<String, AEGuestUsageStats> statsMap = ls
 						.getGuestUsageStatsList();
 				AEGuestUsageStats stat = new AEGuestUsageStats();
@@ -826,8 +826,8 @@ public class UsageReportd extends TimerTask {
 			if (ls != null) {
 				String number = (String) row[2];
 				String name = (String) row[3];
-				Integer userCount = ((Integer) row[4]).intValue();
-				Integer downloadCount = ((Integer) row[5]).intValue();
+				Integer userCount = ((Long) row[4]).intValue();
+				Integer downloadCount = ((Long) row[5]).intValue();
 				HashMap<String, AEGuestUsageStats> statsMap = ls
 						.getGuestUsageStatsList();
 				AEGuestUsageStats stat = new AEGuestUsageStats();
@@ -858,8 +858,8 @@ public class UsageReportd extends TimerTask {
 			LabStats ls = labInfo.get(idLab);
 			if (ls != null) {
 				String number = (String) row[2];
-				Integer cumUserCount = ((Integer) row[4]).intValue();
-				Integer cumDownloadCount = ((Integer) row[5]).intValue();
+				Integer cumUserCount = ((Long) row[4]).intValue();
+				Integer cumDownloadCount = ((Long) row[5]).intValue();
 //				cumTotalGuests			 += cumUserCount;
 //				cumTotalGuestDownloads += cumDownloadCount;
 				HashMap<String, AEGuestUsageStats> statsMap = ls
@@ -896,7 +896,7 @@ public class UsageReportd extends TimerTask {
 			Integer idLab = (Integer) row[0];
 			LabStats ls = labInfo.get(idLab);
 			if(ls != null) {
-				Integer guestUserCountSum = (Integer) row[1];
+				Integer guestUserCountSum = (int) (long) row[1];
 				ls.setGuestUserCountSum(guestUserCountSum);
 			}
 		}
@@ -917,7 +917,7 @@ public class UsageReportd extends TimerTask {
 			Integer idLab = (Integer) row[0];
 			LabStats ls = labInfo.get(idLab);
 			if(ls != null) {
-				Integer guestCumUserCountSum = (Integer) row[1];
+				Integer guestCumUserCountSum = (int) (long) row[1];
 				ls.setGuestCumUserCountSum(guestCumUserCountSum);
 			}
 		}
@@ -942,8 +942,8 @@ public class UsageReportd extends TimerTask {
 			LabStats ls = labInfo.get(idLab);
 			if (ls != null) {
 				String number = (String) row[2];
-				Integer cumUserCount = ((Integer) row[4]).intValue();
-				Integer cumDownloadCount = ((Integer) row[5]).intValue();
+				Integer cumUserCount = ((Long) row[4]).intValue();
+				Integer cumDownloadCount = ((Long) row[5]).intValue();
 				HashMap<String, AEGuestUsageStats> statsMap = ls
 						.getGuestUsageStatsList();
 				AEGuestUsageStats stat = statsMap.get(number);
@@ -973,8 +973,8 @@ public class UsageReportd extends TimerTask {
 		rows = sess.createQuery(queryBuf.toString()).list();
 		for (Iterator i = rows.iterator(); i.hasNext();) {
 			Object[] row = (Object[]) i.next();
-			weeklyTotalGuests = (Integer)row[0];
-			weeklyTotalGuestDownloads = (Integer)row[1];
+			weeklyTotalGuests = (int) (long)row[0];
+			weeklyTotalGuestDownloads = (int) (long)row[1];
 			break;
 		}
 		
@@ -988,8 +988,8 @@ public class UsageReportd extends TimerTask {
 		rows = sess.createQuery(queryBuf.toString()).list();
 		for (Iterator i = rows.iterator(); i.hasNext();) {
 			Object[] row = (Object[]) i.next();
-			cumTotalGuests = (Integer)row[0];
-			cumTotalGuestDownloads = (Integer)row[1];
+			cumTotalGuests = (int) (long)row[0];
+			cumTotalGuestDownloads = (int) (long)row[1];
 			break;
 		}
 		
@@ -1001,7 +1001,7 @@ public class UsageReportd extends TimerTask {
 		queryBuf.append(" AND idAppUser = -999999 ");
 		rows = sess.createQuery(queryBuf.toString()).list();
 		for(Iterator i = rows.iterator(); i.hasNext();) {
-			weeklyTotalVisits = (Integer)i.next();
+			weeklyTotalVisits = (int) (long)i.next();
 			break;
 		}
 		
@@ -1011,7 +1011,7 @@ public class UsageReportd extends TimerTask {
 		queryBuf.append(" WHERE idAppUser = -999999 ");
 		rows = sess.createQuery(queryBuf.toString()).list();
 		for(Iterator i = rows.iterator(); i.hasNext(); ) {			
-			cumTotalVisits = (Integer)i.next();
+			cumTotalVisits = (int) (long)i.next();
 			break;
 		}
 			

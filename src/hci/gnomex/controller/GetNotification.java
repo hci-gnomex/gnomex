@@ -167,7 +167,7 @@ private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(G
 	                    x = new Element("workflow");
 	                    
 	                    x.setAttribute("codeStep", 	row[0] == null ? "" : (String)row[0]);
-	                    x.setAttribute("count", 	row[2] == null ? "" : ((Integer)row[2]).toString());
+	                    x.setAttribute("count", 	row[2] == null ? "" : ((Long)row[2]).toString());
 	                    x.setAttribute("date",   row[1] == null ? "" : this.formatDate((java.util.Date)row[1]));
 //	                    x.setAttribute("sourceType", "WORKFLOW");
 	                    x.setAttribute("codeStepName", dictionaryHelper.getCodeStepName(x.getAttributeValue("codeStep")));

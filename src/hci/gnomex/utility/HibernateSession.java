@@ -40,16 +40,11 @@ public class HibernateSession {
   public static Session currentSession(String username) throws NamingException, HibernateException, SQLException {
     Session s = (Session) session.get();
     if (s == null || !s.isOpen()) {
-    	
-      if (GNomExFrontController.isTomcat()) {
         s = HibernateUtil.getSessionFactory().openSession();
-        if (GNomExFrontController.isTomcat()) {
+
           // User hibernate transactions (not EJB) if tomcat.
           Transaction tx = s.beginTransaction();
           transaction.set(tx);
-          
-        }
-      } 
       session.set(s);
     }
 
@@ -104,11 +99,20 @@ public class HibernateSession {
     Transaction tx = s.getTransaction();
     if (tx == null) {
         session.set(null);
-        transaction.set(null);    	
+        transaction.set(null); 
+        
+        try {
+            setAppName(s, null);
+          }
+        catch (Exception e)
+        {}
+        
+        s.close();
+        return;
     }
+    
     TransactionStatus txStat = tx.getStatus();
 
-    CallableStatement stmt;
     try {
       setAppName(s, null);
     }
@@ -117,6 +121,7 @@ public class HibernateSession {
     		  txStat.isOneOf(TransactionStatus.ACTIVE) && txStat.isNotOneOf(TransactionStatus.ROLLED_BACK) && txStat.isNotOneOf(TransactionStatus.ROLLING_BACK)) {
         try {
           tx.commit();
+          txStat = null;
         }catch(Exception e) {
           log.error("Failed to commit Transaction, going to try and rollback " + e);
         }
