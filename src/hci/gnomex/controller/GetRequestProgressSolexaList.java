@@ -82,7 +82,7 @@ public class GetRequestProgressSolexaList extends GNomExCommand implements Seria
         
         String sampleNumber          = (String)row[0];
         java.sql.Date lastCycleDate  = (java.sql.Date)row[1];
-        Integer laneCount            = (Integer)row[2];
+        Integer laneCount            = (int) (long)row[2];
         
         laneSeqStatusMap.put(sampleNumber, laneCount); 
       }   
@@ -97,7 +97,7 @@ public class GetRequestProgressSolexaList extends GNomExCommand implements Seria
         
         String sampleNumber          = (String)row[0];
         java.sql.Date pipelineDate   = (java.sql.Date)row[1];
-        Integer laneCount            = (Integer)row[2];
+        Integer laneCount            = (int) (long)row[2];
         
         lanePipelineStatusMap.put(sampleNumber, laneCount); 
       }            
@@ -111,7 +111,7 @@ public class GetRequestProgressSolexaList extends GNomExCommand implements Seria
         Object[] row = (Object[])i.next();
         
         String sampleNumber          = (String)row[0];
-        Integer laneCount            = (Integer)row[1];
+        Integer laneCount            = (int) (long)row[1];
         
         laneStatusMap.put(sampleNumber, laneCount); 
       }      

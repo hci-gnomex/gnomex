@@ -296,10 +296,10 @@ public class GetUsageData extends GNomExCommand implements Serializable {
           summaryRows = sess.createQuery(buf.toString()).list();
           addEntryIntegerNodes(summaryExperimentsNode, summaryRows, "experimentCount", true);
           if(idCoreFacility == null){
-            totalExperiments = (Integer)sess.createQuery("SELECT count(*) from Request r ").uniqueResult();
+            totalExperiments = (int) (long)sess.createQuery("SELECT count(*) from Request r ").uniqueResult();
           }
           else{
-            totalExperiments = (Integer)sess.createQuery("SELECT count(*) from Request r where r.idCoreFacility = " + idCoreFacility + " ").uniqueResult();
+            totalExperiments = (int) (long)sess.createQuery("SELECT count(*) from Request r where r.idCoreFacility = " + idCoreFacility + " ").uniqueResult();
           }
           summaryExperimentsNode.setAttribute("experimentCount", totalExperiments.toString());
         }
@@ -311,7 +311,7 @@ public class GetUsageData extends GNomExCommand implements Serializable {
           totalCount = 0;
           summaryRows = sess.createQuery("SELECT a.idLab, count(*) from Analysis a group by a.idLab order by count(*) desc").list();
           addEntryIntegerNodes(summaryAnalysisNode, summaryRows, "analysisCount", true);
-          totalAnalysisCount = (Integer)sess.createQuery("SELECT count(*) from Analysis r ").uniqueResult();
+          totalAnalysisCount = (int) (long)sess.createQuery("SELECT count(*) from Analysis r ").uniqueResult();
           summaryAnalysisNode.setAttribute("analysisCount", totalAnalysisCount.toString());
         }
 
@@ -334,7 +334,7 @@ public class GetUsageData extends GNomExCommand implements Serializable {
           buf.append("SELECT count(distinct fileName) ");
           buf.append("FROM TransferLog tl ");
           buf.append("WHERE tl.transferType = 'upload' ");
-          Integer totalUploadCount = (Integer)sess.createQuery(buf.toString()).uniqueResult();
+          Integer totalUploadCount = (int) (long)sess.createQuery(buf.toString()).uniqueResult();
           summaryUploadsNode.setAttribute("uploadCount", totalUploadCount.toString());
 
           //Download count ordered by lab and count
@@ -353,7 +353,7 @@ public class GetUsageData extends GNomExCommand implements Serializable {
           buf.append("SELECT count(distinct fileName) ");
           buf.append("FROM TransferLog tl ");
           buf.append("WHERE tl.transferType = 'download' ");
-          Integer totalDownloadCount = (Integer)sess.createQuery(buf.toString()).uniqueResult();
+          Integer totalDownloadCount = (int) (long)sess.createQuery(buf.toString()).uniqueResult();
           summaryRows = sess.createQuery(buf.toString()).list();
           summaryDownloadsNode.setAttribute("downloadCount", totalDownloadCount.toString());
         }
@@ -555,7 +555,7 @@ public class GetUsageData extends GNomExCommand implements Serializable {
             queryBuf.append(" AND r.idCoreFacility = " + idCoreFacility + " ");
           }
 
-          totalExperiments = (Integer)sess.createQuery(queryBuf.toString()).uniqueResult();
+          totalExperiments = (int) (long)sess.createQuery(queryBuf.toString()).uniqueResult();
           addEntryIntegerNodes(summaryExperimentsByTypeNode, summaryRows, "experimentCount", false);
           summaryExperimentsByTypeNode.setAttribute("experimentCount", totalExperiments.toString());
         }
@@ -580,7 +580,7 @@ public class GetUsageData extends GNomExCommand implements Serializable {
           if(idCoreFacility != null){
             queryBuf.append(" AND r.idCoreFacility = " + idCoreFacility + " ");
           }
-          totalExperiments = (Integer)sess.createQuery(queryBuf.toString()).uniqueResult();
+          totalExperiments = (int) (long)sess.createQuery(queryBuf.toString()).uniqueResult();
           rank = 0;
           totalCount = 0;
           addEntryIntegerNodes(summarySeqExperimentsByAppNode, summaryRows, "experimentCount", false);
@@ -653,7 +653,7 @@ public class GetUsageData extends GNomExCommand implements Serializable {
       for(Iterator i = summaryRows.iterator(); i.hasNext();) {
         Object[] rows = (Object[])i.next();
         java.util.Date createDate  = (java.util.Date)rows[0];
-        Integer experimentCount   = (Integer)rows[1];
+        Integer experimentCount   = (int) (long)rows[1];
 
         String createDateKey = dfNormal.format(createDate);
         Integer weekNumber = weekNumberMap.get(createDateKey);
@@ -673,7 +673,7 @@ public class GetUsageData extends GNomExCommand implements Serializable {
       for(Iterator i = summaryRows.iterator(); i.hasNext();) {
         Object[] rows = (Object[])i.next();
         java.sql.Date createDate  = (java.sql.Date)rows[0];
-        Integer analysisCount     = (Integer)rows[1];
+        Integer analysisCount     = (int) (long)rows[1];
 
         String createDateKey = dfNormal.format(createDate);
         Integer weekNumber = weekNumberMap.get(createDateKey);
@@ -787,7 +787,7 @@ public class GetUsageData extends GNomExCommand implements Serializable {
     for(Iterator i = summaryRows.iterator(); i.hasNext();) {
       Object[] rows = (Object[])i.next();
       java.util.Date createDate  = (java.util.Date)rows[0];
-      Integer  downloadCount  = (Integer)rows[1];
+      Integer  downloadCount  = (int) (long)rows[1];
 
       String createDateKey = dfNormal.format(createDate);
       Integer weekNumber = weekNumberMap.get(createDateKey);
@@ -845,7 +845,7 @@ public class GetUsageData extends GNomExCommand implements Serializable {
     for(Iterator i = summaryRows.iterator(); i.hasNext();) {
       Object[] rows = (Object[])i.next();
       Object label    = rows[0];
-      Integer value   = (Integer)rows[1];
+      Integer value   = (int) (long)rows[1];
 
       if (label == null) {
         continue;

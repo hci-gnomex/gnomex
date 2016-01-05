@@ -669,7 +669,7 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
       Object[] row = (Object[])i.next();
       String codeRequestCategory = (String)row[0];
       Integer idCoreFacility = (Integer)row[1];
-      Integer cnt = (Integer)row[2];
+      Integer cnt = (int) (long)row[2];
       if (PropertyDictionaryHelper.getInstance(sess).getCoreFacilityRequestCategoryProperty(idCoreFacility, codeRequestCategory, PropertyDictionary.ILLUMINA_LIBPREP_DEFAULT_PRICE_CATEGORY) != null
           && PropertyDictionaryHelper.getInstance(sess).getCoreFacilityRequestCategoryProperty(idCoreFacility, codeRequestCategory, PropertyDictionary.ILLUMINA_SEQOPTION_DEFAULT_PRICE_CATEGORY) != null) {
         map.put(codeRequestCategory, codeRequestCategory);

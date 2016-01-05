@@ -465,7 +465,7 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
       for(Iterator i = countList.iterator(); i.hasNext();) {
         Object[] countRow = (Object[])i.next();
         String codeBillingStatus = (String)countRow[0];
-        Integer count = (Integer)countRow[1];
+        Integer count = (int) (long)countRow[1];
 
         if (codeBillingStatus.equals(BillingStatus.APPROVED) || codeBillingStatus.equals(BillingStatus.APPROVED_PO) || codeBillingStatus.equals(BillingStatus.APPROVED_CC)) {
           approvedCount = count.intValue();
