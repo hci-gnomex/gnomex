@@ -38,6 +38,8 @@ public class GetRequestList extends GNomExCommand implements Serializable {
   private HashMap<Integer, List<Object[]>> reactionPlateMap = new HashMap<Integer, List<Object[]>>();
   private HashMap<Integer, List<Object[]>> sourcePlateMap = new HashMap<Integer, List<Object[]>>();
 
+  private Boolean includePlateInfo = true;
+
   private String message = "";
   private static final int DEFAULT_MAX_REQUESTS_COUNT = 100;
 
@@ -49,6 +51,10 @@ public class GetRequestList extends GNomExCommand implements Serializable {
     requestFilter = new RequestFilter();
     HashMap errors = this.loadDetailObject(request, requestFilter);
     this.addInvalidFields(errors);
+
+    if (request.getParameter("includePlateInfo") != null && !request.getParameter("includePlateInfo").equals("")) {
+      includePlateInfo = request.getParameter("includePlateInfo").equals("Y") ? true : false;
+    }
   }
 
   public Command execute() throws RollBackCommandException {
@@ -63,11 +69,13 @@ public class GetRequestList extends GNomExCommand implements Serializable {
       log.info("Query for GetRequestList: " + buf.toString());
       List rows = sess.createQuery(buf.toString()).list();
 
-      // Hash reaction plate info by idRequest
-      hashReactionPlates(sess);
+      if (includePlateInfo) {
+        // Hash reaction plate info by idRequest
+        hashReactionPlates(sess);
 
-      // Hash source plate info by idRequest
-      hashSourcePlates(sess);
+        // Hash source plate info by idRequest
+        hashSourcePlates(sess);
+      }
 
       Map<Integer, Integer> requestsToSkip = this.getSecAdvisor().getBSTXSecurityIdsToExclude(sess, dh, rows, 0, 6);
 
@@ -128,17 +136,21 @@ public class GetRequestList extends GNomExCommand implements Serializable {
         node.setAttribute("labName", toString(labName));
         node.setAttribute("corePrepInstructions", toString(corePrepInstructions));
         node.setAttribute("numberOfSamples", toString(numberOfSamples));
+        // node.setAttribute("numberOfSeqLanes", toString(numberOfSeqLanes));
+        // node.setAttribute("numberOfHybs", toString(numberOfHybs));
         node.setAttribute("isSelected", "N");
         node.setAttribute("adminNotes", toString(adminNotes));
         node.setAttribute("hasWorkItems", numberOfWorkItems > 0 ? "Y" : "N");
 
         node.setAttribute("icon", requestCategory != null && requestCategory.getIcon() != null ? requestCategory.getIcon() : "");
 
-        List<Object[]> rxnPlateRows = reactionPlateMap.get(idRequest);
-        appendReactionPlateInfo(node, rxnPlateRows);
+        if (includePlateInfo) {
+          List<Object[]> rxnPlateRows = reactionPlateMap.get(idRequest);
+          appendReactionPlateInfo(node, rxnPlateRows);
 
-        List<Object[]> sourcePlateRows = sourcePlateMap.get(idRequest);
-        appendSourcePlateInfo(node, sourcePlateRows);
+          List<Object[]> sourcePlateRows = sourcePlateMap.get(idRequest);
+          appendSourcePlateInfo(node, sourcePlateRows);
+        }
 
         appendSecurityFlags(node, codeRequestStatus, codeRequestCategory, idLab, idAppUser, idCoreFacility, pdh);
 
