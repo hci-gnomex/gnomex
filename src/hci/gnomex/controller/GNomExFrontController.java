@@ -263,10 +263,7 @@ public class GNomExFrontController extends HttpServlet {
         }
         
         if (msg != null) {
-          response.setHeader("altio.status", "0");
-          response.setHeader("altio.message", "Success");        	
-        	this.forwardWithError(request, response, msg);
-        	
+        	this.forwardWithError(request, response, msg);        	
         }
         else {
           log.error(e.getClass().getName() + " while executing command " + commandClass);
@@ -344,9 +341,6 @@ public class GNomExFrontController extends HttpServlet {
     if (!GNomExLite || (requestName != null && requestName.contains("ShowAnnotationProgressReport")) ) {
     	//System.out.println ("requestName: " + requestName + " forwardJSP: " + forwardJSP);
     	
-    	// set our success headers for altio
-    	response.setHeader("altio.status", "0");
-    	response.setHeader("altio.message", "Success");
     	if (!commandInstance.isValid()) {
     		String tmpMessage = commandInstance.getInvalidFieldsMessage();
     		request.setAttribute("message", tmpMessage);

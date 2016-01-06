@@ -3,6 +3,7 @@ package hci.gnomex.controller;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.model.DetailObject;
+import hci.framework.model.FieldFormatter;
 import hci.framework.utilities.XMLReflectException;
 import hci.gnomex.constants.Constants;
 import hci.gnomex.model.Analysis;
@@ -328,7 +329,7 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
             fd.setIdLab(a.getIdLab());
             fd.excludeMethodFromXML("getChildren");
 
-            Element fdNode = fd.toXMLDocument(null, fd.DATE_OUTPUT_ALTIO).getRootElement();
+            Element fdNode = fd.toXMLDocument(null, FieldFormatter.DATE_OUTPUT_ALTIO).getRootElement();
             fdNode.setAttribute("isSelected", "N");
             fdNode.setAttribute("state", "unchecked");
             
@@ -475,7 +476,7 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
           fd.setIdLab(idLab == null || idLab.equals("") ? null : Integer.valueOf(idLab));
           fd.excludeMethodFromXML("getChildren");
           
-          Element fdNode = fd.toXMLDocument(null, fd.DATE_OUTPUT_ALTIO).getRootElement();
+          Element fdNode = fd.toXMLDocument(null, FieldFormatter.DATE_OUTPUT_ALTIO).getRootElement();
           fdNode.setAttribute("isSelected", "N");
           fdNode.setAttribute("state", "unchecked");
           

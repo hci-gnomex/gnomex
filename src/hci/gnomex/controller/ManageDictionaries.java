@@ -1,10 +1,10 @@
 
 package hci.gnomex.controller;
 
+import hci.dictionary.utility.DictionaryActions;
 import hci.dictionary.utility.DictionaryCommand;
 import hci.dictionary.utility.DictionaryManager;
 import hci.framework.control.Command;
-import hci.framework.control.RollBackCommandException;
 import hci.gnomex.constants.Constants;
 import hci.gnomex.model.DictionaryEntryUserOwned;
 import hci.gnomex.security.SecurityAdvisor;
@@ -58,14 +58,8 @@ public class ManageDictionaries extends DictionaryCommand implements Serializabl
 
   protected static void initLog4j() {
     String configFile = "";
-    if (GNomExFrontController.isTomcat()) {
-      configFile = GNomExFrontController.getWebContextPath() + "WEB-INF/classes/" + Constants.LOGGING_PROPERTIES;      
-    } else {
-      configFile = GNomExFrontController.getWebContextPath() + Constants.LOGGING_PROPERTIES;      
-    }
-    if (configFile == null) {
-      System.err.println("No configuration file specified for log4j!");
-    }
+      
+    configFile = GNomExFrontController.getWebContextPath() + "WEB-INF/classes/" + Constants.LOGGING_PROPERTIES;         
     org.apache.log4j.PropertyConfigurator.configure(configFile);
   }
 
@@ -82,31 +76,24 @@ public class ManageDictionaries extends DictionaryCommand implements Serializabl
     
     	//Get the dictionary manager and load it if it isn't already loaded
     	String dictionaryFileName = null;
-    	if (GNomExFrontController.isTomcat()) {
-    	  dictionaryFileName = GNomExFrontController.getWebContextPath() + "WEB-INF/classes/" + DICTIONARY_NAMES_XML;    	  
-    	} else {
-        dictionaryFileName = GNomExFrontController.getWebContextPath() + "../" + DICTIONARY_NAMES_XML;        
-    	}
+    	dictionaryFileName = GNomExFrontController.getWebContextPath() + "WEB-INF/classes/" + DICTIONARY_NAMES_XML;    	  
     	manager = DictionaryManager.getDictionaryManager(dictionaryFileName, sess, this, true);
-      manager.loadCommand(this, request);
+        manager.loadCommand(this, request);
       
-      // Force personal ownership of dictionary entry if user not admin
-      if (this.dictionaryEntry != null &&
+        // Force personal ownership of dictionary entry if user not admin
+        if (this.dictionaryEntry != null &&
           this.dictionaryEntry instanceof DictionaryEntryUserOwned &&
           !this.getSecurityAdvisor().hasPermission(SecurityAdvisor.CAN_WRITE_DICTIONARIES)) {
-
-        SecurityAdvisor secAd = (SecurityAdvisor)this.getSecurityAdvisor();
-        ((DictionaryEntryUserOwned)this.dictionaryEntry).setIdAppUser(secAd.getIdAppUser());
-      }
+        	SecurityAdvisor secAd = (SecurityAdvisor)this.getSecurityAdvisor();
+            ((DictionaryEntryUserOwned)this.dictionaryEntry).setIdAppUser(secAd.getIdAppUser());
+            }
       
-      if (request.getParameter("action") != null && !request.getParameter("action").equals("")) {
-        action = request.getParameter("action");
-      }
-      
-      
-  	} catch (Exception e) {  
-  		e.printStackTrace();
-    } finally {
+        if (request.getParameter("action") != null && !request.getParameter("action").equals("")) {
+        	action = request.getParameter("action");
+        	}
+        } catch (Exception e) {  
+        	e.printStackTrace();
+        	} finally {
       try {
         HibernateSession.closeSession();
       }
@@ -115,8 +102,6 @@ public class ManageDictionaries extends DictionaryCommand implements Serializabl
       }
     }
     
-
-
     this.validate();
 
     // see if we have a valid form
@@ -137,7 +122,7 @@ public class ManageDictionaries extends DictionaryCommand implements Serializabl
     try {
     	manager.executeCommand(this, HibernateSession.currentSession(this.username), this.getSecurityAdvisor(), true);
 
-    	if (action != null && action.equals(manager.RELOAD_CACHE)) {
+    	if (action != null && action.equals(DictionaryActions.RELOAD_CACHE)) {
         DictionaryHelper.reload(HibernateSession.currentSession(this.username));
     	}
     	isLoaded = true;
