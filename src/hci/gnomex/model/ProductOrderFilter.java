@@ -8,24 +8,24 @@ import java.sql.Date;
 public class ProductOrderFilter extends DetailObject {
 
   // Criteria
-  private Integer         idBillingPeriod;
-  private BillingPeriod   billingPeriod;
+  private Integer idBillingPeriod;
+  private BillingPeriod billingPeriod;
 
-  private Integer         idProductOrder;
-  private Integer         idLab;
-  private Integer         idAppUser;
-  private Integer         idBillingAccount;
-  private Integer         idCoreFacility;
+  private Integer idProductOrder;
+  private Integer idLab;
+  private Integer idAppUser;
+  private Integer idBillingAccount;
+  private Integer idCoreFacility;
 
-  private Date            submitDateFrom;
-  private Date            submitDateTo;
+  private Date submitDateFrom;
+  private Date submitDateTo;
 
-  private String          codeProductOrderStatus;
-  private String          codeProductType;
-  private String          quoteReceived = "N";
+  private String codeProductOrderStatus;
+  private String codeProductType;
+  private String quoteReceived = "N";
 
-  private StringBuffer    queryBuf;
-  private boolean         addWhere      = true;
+  private StringBuffer queryBuf;
+  private boolean addWhere = true;
 
   private SecurityAdvisor secAdvisor;
 
@@ -34,8 +34,7 @@ public class ProductOrderFilter extends DetailObject {
   }
 
   public boolean hasCriteria() {
-    if (idBillingPeriod == null && idCoreFacility == null && idLab == null
-        && idBillingAccount == null) {
+    if (idBillingPeriod == null && idCoreFacility == null && idLab == null && idBillingAccount == null) {
       return false;
     }
     return true;
@@ -94,8 +93,8 @@ public class ProductOrderFilter extends DetailObject {
     addPOCriteria();
     addLineItemCriteria();
     addSecurityCriteria("po");
-    
-    //queryBuf.append(" group by po.idProductOrder ");
+
+    // queryBuf.append(" group by po.idProductOrder ");
   }
 
   public StringBuffer getFilesQuery() {
@@ -151,12 +150,8 @@ public class ProductOrderFilter extends DetailObject {
     }
     // Search by billing period
     if (billingPeriod != null) {
-      queryBuf.append(" AND        po.submitDate >= '"
-          + this.formatDateTime(billingPeriod.getStartDate(),
-              this.dateOutputStyle) + "'");
-      queryBuf.append(" AND        po.submitDate <= '"
-          + this.formatDate(billingPeriod.getEndDate(), this.DATE_OUTPUT_SQL)
-          + " 23:59:59'");
+      queryBuf.append(" AND        po.submitDate >= '" + this.formatDateTime(billingPeriod.getStartDate(), this.dateOutputStyle) + "'");
+      queryBuf.append(" AND        po.submitDate <= '" + this.formatDate(billingPeriod.getEndDate(), this.DATE_OUTPUT_SQL) + " 23:59:59'");
     }
     // Search by product order type
     if (codeProductType != null && !codeProductType.equals("")) {
@@ -179,7 +174,7 @@ public class ProductOrderFilter extends DetailObject {
       queryBuf.append(idProductOrder);
     }
   }
-  
+
   private void addLineItemCriteria() {
 
     // Search by product order status
@@ -189,7 +184,7 @@ public class ProductOrderFilter extends DetailObject {
       queryBuf.append(codeProductOrderStatus);
       queryBuf.append("%'");
     }
-   
+
   }
 
   private void addSecurityCriteria(String classShortName) {

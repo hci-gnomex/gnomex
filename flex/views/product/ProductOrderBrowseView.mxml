@@ -143,6 +143,8 @@
 							   dataField="@labName"/>
 			<mx:DataGridColumn headerText="Submitter"
 							   dataField="@submitter"/>
+			<mx:DataGridColumn headerText="Submit Date"
+							   dataField="@submitDate"/>
 			<mx:DataGridColumn headerText="Product"
 							   dataField="@name"/>
 			<mx:DataGridColumn headerText="Unit price" 
