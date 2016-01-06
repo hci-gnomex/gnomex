@@ -60,7 +60,7 @@ public class ProductUtil {
 		RequestStatusComparator statusComp = new RequestStatusComparator();
 		
 		if (isGoingForwardThroughProductGate(oldRequestStatus, newRequestStatus, statusToUseProducts, statusComp)) {
-			Integer productsAvailableToLab = (Integer) sess.createQuery( "select SUM(qty) from ProductLedger where idLab = " + req.getIdLab() + " and idProduct = " + req.getIdProduct() ).uniqueResult();
+			Integer productsAvailableToLab = (int)(long) sess.createQuery( "select SUM(qty) from ProductLedger where idLab = " + req.getIdLab() + " and idProduct = " + req.getIdProduct() ).uniqueResult();
 			Integer productsRequired = determineProductsRequired(sess, req);
 			
 			if (productsAvailableToLab == null || productsRequired == null || productsRequired == -1) {
@@ -127,8 +127,8 @@ public class ProductUtil {
 	    else if ( (oldCodePOStatus != null && oldCodePOStatus.equals( ProductOrderStatus.COMPLETED )) && !newPOStatus.equals( ProductOrderStatus.COMPLETED ) ) {
 	    	if ( pli.getIdProductOrder() != null ) {
 
-	    		Integer labTotal = (Integer) sess.createQuery( "select SUM(qty) from ProductLedger where idLab = " + po.getIdLab() + " and idProduct = " + pli.getIdProduct() ).uniqueResult();
-	    		Integer poTotal = (Integer) sess.createQuery( "select SUM(qty) from ProductLedger where idProductOrder = " + pli.getIdProductOrder() + " and idProduct = " + pli.getIdProduct() ).uniqueResult();
+	    		Integer labTotal = (int)(long) sess.createQuery( "select SUM(qty) from ProductLedger where idLab = " + po.getIdLab() + " and idProduct = " + pli.getIdProduct() ).uniqueResult();
+	    		Integer poTotal = (int)(long) sess.createQuery( "select SUM(qty) from ProductLedger where idProductOrder = " + pli.getIdProductOrder() + " and idProduct = " + pli.getIdProduct() ).uniqueResult();
 
 	    		if ( labTotal - poTotal >= 0 ) {
 	    			String query = "SELECT pl from ProductLedger pl where pl.idProductOrder = " + pli.getIdProductOrder() + " and idProduct = " + pli.getIdProduct() ;

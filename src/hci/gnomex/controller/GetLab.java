@@ -269,7 +269,7 @@ public class GetLab extends GNomExCommand implements Serializable {
       Element product = new Element("product");
       Object[] row = (Object[])i.next();
       Integer idProduct = (Integer)row[0];
-      Integer qty = (Integer)row[1];
+      Integer qty = (int)(long) row[1];
 
       product.setAttribute("idProduct", idProduct.toString());
       product.setAttribute("qty", qty.toString());
