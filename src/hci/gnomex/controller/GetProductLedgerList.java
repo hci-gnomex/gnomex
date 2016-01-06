@@ -83,7 +83,7 @@ public class GetProductLedgerList extends GNomExCommand implements Serializable 
         Object[] row = (Object[])i.next();
         String firstName = row[0] != null ? (String)row[0] : "";
         String lastName = row[1] != null ? (String)row[1] : "";
-        String qty = row[2] != null ? ((Integer)row[2]).toString() : "";
+        String qty = row[2] != null ? ((Long)row[2]).toString() : "";
         String idProduct = row[3] != null ? ((Integer)row[3]).toString() : "";
         String name = row[4] != null ? (String)row[4] : "";
         String idLab = row[5] != null ? ((Integer)row[5]).toString() : "";
@@ -91,7 +91,7 @@ public class GetProductLedgerList extends GNomExCommand implements Serializable 
         Object[] pendingRow = getPendingRow(idLab, idProduct, pendingLedger);
         String pendingQty = "";
         if (pendingRow != null) {
-        	pendingQty = pendingRow[2] != null ? ((Integer)pendingRow[2]).toString() : "";
+        	pendingQty = pendingRow[2] != null ? ((Long)pendingRow[2]).toString() : "";
         }
 
         Element product = new Element("product");
@@ -128,7 +128,7 @@ public class GetProductLedgerList extends GNomExCommand implements Serializable 
           String idProduct = pendingRow[1] != null ? ((Integer)pendingRow[1]).toString() : "";
           String name = pendingRow[5] != null ? (String)pendingRow[5] : "";
           String idLab = pendingRow[0] != null ? ((Integer)pendingRow[0]).toString() : "";
-          String pendingQty = pendingRow[2] != null ? ((Integer)pendingRow[2]).toString() : "";
+          String pendingQty = pendingRow[2] != null ? ((Long)pendingRow[2]).toString() : "";
 
           Element product = new Element("product");
           if (!pendingQty.equals("")) {
