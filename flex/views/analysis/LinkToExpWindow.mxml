@@ -121,7 +121,7 @@
 			}
 			
 			private function filterByLab():void{
-				if(labCombo.selectedItem.@idLab != ""){
+				if(labCombo.selectedItem != null && labCombo.selectedItem.@idLab != ""){
 					var params:Object = new Object();
 					params.idLab = labCombo.selectedItem.@idLab;
 					params.includePlateInfo = 'N';
@@ -135,7 +135,7 @@
 	
 	<mx:XMLListCollection id="orderList" source="{getRequestList.lastResult.Request}"/>
 	<mx:XMLListCollection id="requestCategories" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry.(@isActive == 'Y' &amp;&amp; @value != '')}"/>
-	<mx:XMLListCollection id="userLabs" source="{parentApplication.labList.source}"/>
+	<mx:XMLListCollection id="userLabs" source="{parentApplication.submitRequestLabList.source}"/>
 	
 	
 	<mx:HBox>

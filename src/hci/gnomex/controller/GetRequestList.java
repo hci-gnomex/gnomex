@@ -69,11 +69,13 @@ public class GetRequestList extends GNomExCommand implements Serializable {
       log.info("Query for GetRequestList: " + buf.toString());
       List rows = sess.createQuery(buf.toString()).list();
 
-      // Hash reaction plate info by idRequest
-      hashReactionPlates(sess);
+      if (includePlateInfo) {
+        // Hash reaction plate info by idRequest
+        hashReactionPlates(sess);
 
-      // Hash source plate info by idRequest
-      hashSourcePlates(sess);
+        // Hash source plate info by idRequest
+        hashSourcePlates(sess);
+      }
 
       Map<Integer, Integer> requestsToSkip = this.getSecAdvisor().getBSTXSecurityIdsToExclude(sess, dh, rows, 0, 6);
 
