@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml"  
 				layout="vertical" title="Send Email to GNomEx Team"
-				width="800" 
+				width="800" height="650"
 				xmlns:util="views.util.*"
 				initialize="init()"				
 				defaultButton="{sendEmailButton}"
 				showCloseButton="true"  
 				close="{mx.managers.PopUpManager.removePopUp(this)}"
-				titleIcon="@Embed(source='../../assets/email_go.png')" height="650">
+				titleIcon="@Embed(source='../../assets/email_go.png')">
 	<mx:HTTPService
 		id="ReportIssueGetURLService"
 		url="ReportIssueServletGetURL.gx"
@@ -59,7 +59,8 @@
 			private function init():void {
 				ReportIssueGetURLService.send();				
 				fromAddress.text = parentApplication.getUserEmail();
-				
+				this.height = Math.min(parentApplication.height,this.height);
+				this.validateSize(true);
 			}
 			
 			private function onReportIssueGetURLService(event:ResultEvent):void {
