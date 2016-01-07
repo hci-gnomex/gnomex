@@ -2505,10 +2505,10 @@
 				this.initializeData();
 				
 				if (theTab.contains(visibilityView)) {
+					this.visibilityView.currentState = "EditState";	
 					if( requestCategory.@isOwnerOnly=='Y' ) {
 						theTab.removeChild(visibilityView);
 					} else if (request.@canUpdateVisibility == 'Y') {
-						this.visibilityView.currentState = "EditState";	
 						this.visibilityView.enabled = true;
 					} else {
 						this.visibilityView.enabled = false;
