@@ -622,7 +622,11 @@ angular.module("experiment")
                     experSelIL.submitterName = $scope.xmlExperiment.Request.submitterName;
                     experSelIL.requestCategory = $scope.xmlExperiment.Request.requestCategory;
                     experSelIL.email = $scope.xmlExperiment.Request.email;
-                    experSelIL.experimentCategoryName = $scope.xmlExperiment.Request.application.Application.display;
+                    if($scope.xmlExperiment.Request.application.Application != null) {
+                        experSelIL.experimentCategoryName = $scope.xmlExperiment.Request.application.Application.display;
+                    } else{
+                        experSelIL.experimentCategoryName = "";
+                    }
                     experSelIL.phone = $scope.xmlExperiment.Request.phone;
                     if ($scope.xmlExperiment.Request.seqPrepByCore == "N") {
                         experSelIL.seqPrep = "Libary Prep. By Core";
