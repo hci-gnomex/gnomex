@@ -675,6 +675,8 @@
 			<url-pattern>/app/report/annotationProgressReport.html</url-pattern>	
 			<url-pattern>/app/topic/topicFolderDetail.html</url-pattern>
 			<url-pattern>/app/experiment/experiment.html</url-pattern>
+			<url-pattern>/app/common/ReportIssueController.js</url-pattern>
+			<url-pattern>/app/experiment/reportIssue.html</url-pattern>
 			<url-pattern>/app/experiment/ExperimentController.js</url-pattern>
 			<url-pattern>/app/experiment/template.html</url-pattern>
 			<url-pattern>/app/experiment/experimentListInfo.html</url-pattern>
