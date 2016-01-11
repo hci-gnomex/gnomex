@@ -453,7 +453,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
             for(Iterator i1 = flowCellNumbers.iterator(); i1.hasNext();) {
               FlowCellFolder fcFolder = (FlowCellFolder)i1.next();
 
-              String theCreateDate    = this.formatDate((java.sql.Date)fcFolder.getCreateDate());
+              String theCreateDate    = this.formatDate(fcFolder.getCreateDate());
               String dateTokens[] = theCreateDate.split("/");
               String createMonth = dateTokens[0];
               String createDay   = dateTokens[1];
