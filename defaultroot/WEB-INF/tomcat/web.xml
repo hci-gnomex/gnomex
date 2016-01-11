@@ -631,7 +631,7 @@
 
 
 	<welcome-file-list>
-		<welcome-file>gnomexFlex.jsp</welcome-file>
+		<welcome-file>gnomexLite.jsp</welcome-file>
 		<welcome-file>index.html</welcome-file>
 	</welcome-file-list>
 
@@ -639,7 +639,7 @@
 
 	<security-constraint>
 		<web-resource-collection>
-			<url-pattern>/gnomexFlex.jsp</url-pattern>
+			<url-pattern>/gnomexLite.jsp</url-pattern>
 			<url-pattern>/app/app.js</url-pattern>
 			<url-pattern>/app/dashboard/dashboard.html</url-pattern>
 			<url-pattern>/app/dashboard/DashBoardcontroller.js</url-pattern>
@@ -675,6 +675,8 @@
 			<url-pattern>/app/report/annotationProgressReport.html</url-pattern>	
 			<url-pattern>/app/topic/topicFolderDetail.html</url-pattern>
 			<url-pattern>/app/experiment/experiment.html</url-pattern>
+			<url-pattern>/app/common/ReportIssueController.js</url-pattern>
+			<url-pattern>/app/experiment/reportIssue.html</url-pattern>
 			<url-pattern>/app/experiment/ExperimentController.js</url-pattern>
 			<url-pattern>/app/experiment/template.html</url-pattern>
 			<url-pattern>/app/experiment/experimentListInfo.html</url-pattern>
