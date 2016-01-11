@@ -107,21 +107,21 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
 
       StringBuffer buf = filter.getMicroarrayResultQuery(this.getSecAdvisor(), dh);
       log.debug("Query for GetRequestDownloadList (1): " + buf.toString());
-      List rows1 = sess.createQuery(buf.toString()).list();
+      List rows1 = (List)sess.createQuery(buf.toString()).list();
       TreeMap rowMap = new TreeMap(new HybSampleComparator());
-      for (Iterator i = rows1.iterator(); i.hasNext();) {
-        Object[] row = (Object[]) i.next();
+      for(Iterator i = rows1.iterator(); i.hasNext();) {
+        Object[] row = (Object[])i.next();
 
-        String requestNumber = (String) row[1];
-        String codeRequestCategory = (String) row[2];
-        String hybNumber = row[5] == null || row[5].equals("") ? "" : (String) row[5];
-        Integer idCoreFacility = (Integer) row[31];
+        String requestNumber = (String)row[1];
+        String codeRequestCategory = (String)row[2];
+        String hybNumber     = row[5] == null || row[5].equals("") ? "" : (String)row[5];
+        Integer idCoreFacility = (Integer)row[31];
 
-        String createDate = this.formatDate((java.util.Date) row[0]);
+        String createDate    = this.formatDate((java.util.Date)row[0]);
         String tokens[] = createDate.split("/");
         String createMonth = tokens[0];
-        String createDay = tokens[1];
-        String createYear = tokens[2];
+        String createDay   = tokens[1];
+        String createYear  = tokens[2];
         String sortDate = createYear + createMonth + createDay;
 
         String baseKey = createYear + Constants.DOWNLOAD_KEY_SEPARATOR + sortDate + Constants.DOWNLOAD_KEY_SEPARATOR + requestNumber;
@@ -185,7 +185,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
       log.debug("Query for GetRequestDownloadList (3): " + buf.toString());
       List rows3 = (List)sess.createQuery(buf.toString()).list();
       Map<Integer, Integer> idsToSkip = this.getSecAdvisor().getBSTXSecurityIdsToExclude(sess, dh, rows3, 21, 2);
-      
+
       // remember the requestNumbers for use in checkSampleExperimentFile
       List requestNumberList = new ArrayList<String>();
       
@@ -472,7 +472,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
               n1.setAttribute("idAppUser", row[4] == null ? "" : ((Integer)row[4]).toString());
               n1.setAttribute("idLab", row[17] == null ? "" : ((Integer)row[17]).toString());
               n1.setAttribute("results", "flow cell quality report");
-              n1.setAttribute("hasResults", "Y");
+              n1.setAttribute("hasResults", "Y"); 
               n1.setAttribute("status", "");
               n1.setAttribute("canDelete", "N");
               n1.setAttribute("canRename", "N");
