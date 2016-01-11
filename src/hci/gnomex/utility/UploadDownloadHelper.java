@@ -112,11 +112,7 @@ public class UploadDownloadHelper {
   }      
       
   private static void getFileNames(String theBaseDir, String fullBaseDir, String requestNumber, String directoryName, List theFiles, String subDirName, String flowCellIndicator, String flowCellDirectoryFlag, boolean flattenSubDirs)  {
-    File fd = new File(directoryName);
-//    if (Util.isSymlink(fd)) {
-//      return;
-//    }
-    
+    File fd = new File(directoryName);   
 
     if (fd.isDirectory()) {
       File[] fileList = fd.listFiles();
@@ -129,12 +125,8 @@ public class UploadDownloadHelper {
       
       for (int x = 0; x < fileList.length; x++) {
         File f1 = fileList[x];
-//        if (Util.isSymlink(f1)) {
-//          continue;
-//        }
         
         String fileName = directoryName + "/" + f1.getName();
-
         
         // Show the subdirectory in the name if we are not at the main folder level
         String displayName = "";

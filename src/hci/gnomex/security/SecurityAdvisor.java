@@ -36,6 +36,7 @@ import hci.gnomex.model.Topic;
 import hci.gnomex.model.UserPermissionKind;
 import hci.gnomex.model.Visibility;
 import hci.gnomex.utility.DictionaryHelper;
+import hci.gnomex.utility.Util;
 
 import hci.gnomex.utility.HibernateGuestSession;
 import hci.gnomex.utility.HibernateSession;
@@ -1013,29 +1014,12 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
 	  buf = buf.append("from BST..Sample bstxsample0_ inner join BST..VIEW_Collection bstxcollec1_ on bstxsample0_.idBSTCollection=bstxcollec1_.idBSTCollection left outer join BST..Institution bstxinstit2_ on bstxcollec1_.idInstitution=bstxinstit2_.id inner join BST..BSTPatient bstxpatien3_ on bstxsample0_.idBSTPatient=bstxpatien3_.idBSTPatient ");
 	  buf = buf.append("inner join PersonResearch..Person person4_ on bstxpatien3_.idPerson=person4_.idPerson left outer join BST..Disburse disburses5_ on bstxsample0_.id=disburses5_.idSample left outer join BST..Registration registrati6_ on bstxsample0_.id=registrati6_.idSample ");
 	  buf = buf.append("where bstxsample0_.ccNumber in (");
-	  buf = buf.append(listStrToString(ccNumbers));
+	  buf = buf.append(Util.listStrToString(ccNumbers));
 	  buf = buf.append(");");
 
 	  return buf;
   }
 
-  public static String listStrToString(List<String> list)
-  {
-    if (list == null || list.size() == 0)
-      return "";
-
-    boolean firstTime = true;
-    String stringList = "";
-    for (String str : list)
-    {
-      if (!firstTime)
-        stringList += ",";
-      else
-        firstTime = false;
-      stringList += "'" + str + "'";
-    }
-    return stringList;
-  }
 
   // Used to scrub list of requests being shown to user. CanRead makes sure even
   // if this scrubbing is not done they don't see details.
