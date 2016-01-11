@@ -56,6 +56,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
   private String                         serverName;
   private String                         baseDirFlowCell;
   private SimpleDateFormat               yearFormat= new SimpleDateFormat("yyyy");
+  private static boolean noLinkedSamples;
 
   public void validate() {
   }
@@ -188,7 +189,11 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
       log.debug("Query for GetRequestDownloadList (3): " + buf.toString());
       List rows3 = (List)sess.createQuery(buf.toString()).list();
       Map<Integer, Integer> idsToSkip = this.getSecAdvisor().getBSTXSecurityIdsToExclude(sess, dh, rows3, 21, 2);
-
+      
+      // remember the requestNumbers for use in checkSampleExperimentFile
+      List requestNumberList = new ArrayList<String>();
+      
+      // we will always get here...
       for(Iterator i = rows3.iterator(); i.hasNext();) {
         Object[] row = (Object[])i.next();
 
@@ -197,6 +202,8 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
           continue;
         }
         String requestNumber = (String)row[1];
+        requestNumberList.add(requestNumber);
+        
         String codeRequestCategory = (String)row[2];
         String sampleNumber     = row[11] == null || row[11].equals("") ? "" : (String)row[11];
 
@@ -232,8 +239,11 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
           }
         }
 
-
-      }
+      } // end of for rows3.iterator
+      
+      // if we are never going to find anything in SampleExperimentFile, avoid those queries
+      noLinkedSamples = checkSampleExperimentFile(sess,requestNumberList);
+      
 
       boolean alt = false;
       String prevRequestNumber = "";
@@ -242,6 +252,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
 
       Document doc = new Document(new Element("RequestDownloadList"));
 
+      // rowmap has all of the directories we are going to look at
       for(Iterator i = rowMap.keySet().iterator(); i.hasNext();) {
         String key = (String)i.next();
         String[] tokens = key.split(Constants.DOWNLOAD_KEY_SEPARATOR);
@@ -274,12 +285,13 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
 
 
         String requestNumber = (String)row[1];
+        
+        // first time for this requestNumber?
         if (!requestNumber.equals(prevRequestNumber)) {
+          // yes
           alt = !alt;    
 
-
           RequestCategory requestCategory = dh.getRequestCategoryObject(codeRequestCategory);
-
 
           requestNode = new Element("Request");
           requestNode.setAttribute("displayName", requestNumber);
@@ -306,16 +318,17 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
           if (includeUploadStagingDir.equals("Y")) {
             addRootFileNodes(baseDir, requestNode, requestNumber,  createDateString, Constants.UPLOAD_STAGING_DIR, sess);            
           }
-        }
+          
+        } // end of if first time we have seen this request number
 
 
 
         if (resultDir.equals(this.DUMMY_DIRECTORY)) {
-
+          // add the files that live in the root directory
           addExpandedFileNodes(sess, serverName, baseDirFlowCell, requestNode, requestNode, requestNumber, key, codeRequestCategory, dh, false);
 
-
         } else {
+          // we are not in the root directory	
           Element n = new Element("RequestDownload");
           n.setAttribute("key", key);
           n.setAttribute("isSelected", "N");
@@ -628,7 +641,44 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
 
   }
 
+  private boolean checkSampleExperimentFile(Session sess, List requestNumberList) {
+	  boolean nolinkedsamples = true;
+
+	  StringBuffer buf = new StringBuffer("SELECT count(*) from SampleExperimentFile");  
+	  List results = sess.createQuery(buf.toString()).list();	    
+	  int qty = (int)(long)results.get(0);
+	  
+	  if (qty > 0) {
+		  // check to see if there are any for the experiment files we have
+		  buf = new StringBuffer ("SELECT count(*) from SampleExperimentFile sef, ExperimentFile ef where sef.idExpFileRead1 = ef.idExperimentFile and ef.idRequest in (" + Util.listStrToString(requestNumberList) + ")");
+		  List results1 = sess.createQuery(buf.toString()).list();	    
+		  int qty1 = (int)(long)results1.get(0);
+		  
+		  if (qty1 == 0) {
+			  // check idExpFileRead2
+			  buf = new StringBuffer ("SELECT count(*) from SampleExperimentFile sef, ExperimentFile ef where sef.idExpFileRead2 = ef.idExperimentFile and ef.idRequest in (" + Util.listStrToString(requestNumberList) + ")");
+			  List results2 = sess.createQuery(buf.toString()).list();	    
+			  int qty2 = (int)(long)results2.get(0);
+			  
+			  if (qty2 > 0) {
+				  nolinkedsamples = false;
+			  }		  
+		  } 
+		  else {
+			  nolinkedsamples = false;
+		  }
+	  }
+	  
+	  return nolinkedsamples;
+  }
+    
+  
   private static String getLinkedSampleNumber(Session sess, String fileName) {
+	  // can we skip this?
+	  if (noLinkedSamples) {
+		  return "";
+	  }
+	  
 	String queryString = "Select ef from ExperimentFile ef WHERE ef.fileName = :fileName";
 	Query query = sess.createQuery(queryString);
 	query.setParameter("fileName", fileName.replace("\\", "/"));
@@ -646,16 +696,12 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
   }
 
 
+  // returns a set containing any folders that exist UNDER the experiment directory
   public static Set getRequestDownloadFolders(String baseDir, String requestNumber, String createYear, String codeRequestCategory) {
 
     TreeSet folders = new TreeSet<String>(new FolderComparator(codeRequestCategory));
     String directoryName = baseDir + createYear + File.separator + requestNumber;
     File fd = new File(directoryName);
-
-//    // Ignore soft links
-//    if (Util.isSymlink(fd)) {
-//      return folders;
-//    }
 
     if (fd.isDirectory()) {
       String[] fileList = fd.list();
@@ -690,12 +736,13 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
           continue;
         } 
 
-        // bypass directories and soft links.
-        if (f1.isDirectory() ) {       //|| Util.isSymlink(f1)) {
+        // bypass directories 
+        if (f1.isDirectory() ) {
           continue;
         }
 
         // Hide that the files are in the upload staging directory.  Show them in the root experiment directory instead.
+        // It's FileDescriptor that does the hiding
         String zipEntryName = Request.getBaseRequestNumber(requestNumber) + "/" + f1.getName();
 
         FileDescriptor fdesc = new FileDescriptor(requestNumber, f1.getName(), f1, zipEntryName);
@@ -712,9 +759,9 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
         requestNode.addContent(fdNode);
         requestNode.setAttribute("isEmpty", "N");
 
-      }
+      } // end of for fileList
 
-    }
+    } // end of if file exists and is a directory
 
   }
 
