@@ -94,7 +94,6 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
 
     try {
 
-
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
       DictionaryHelper dh = DictionaryHelper.getInstance(sess);
       baseDirFlowCell = PropertyDictionaryHelper.getInstance(sess).getFlowCellDirectory(serverName);
@@ -107,10 +106,10 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
 
       StringBuffer buf = filter.getMicroarrayResultQuery(this.getSecAdvisor(), dh);
       log.debug("Query for GetRequestDownloadList (1): " + buf.toString());
-      List rows1 = (List)sess.createQuery(buf.toString()).list();
+      List rows1 = sess.createQuery(buf.toString()).list();
       TreeMap rowMap = new TreeMap(new HybSampleComparator());
-      for(Iterator i = rows1.iterator(); i.hasNext();) {
-        Object[] row = (Object[])i.next();
+      for (Iterator i = rows1.iterator(); i.hasNext();) {
+        Object[] row = (Object[]) i.next();
 
         String requestNumber = (String)row[1];
         String codeRequestCategory = (String)row[2];
@@ -178,32 +177,32 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
         }
         flowCellFolders.add(new FlowCellFolder(requestNumber, flowCellNumber, createDate, idCoreFacility));
 
-        flowCellMap.put(requestNumber, flowCellFolders); 
+        flowCellMap.put(requestNumber, flowCellFolders);
       }
 
       buf = filter.getQualityControlResultQuery(this.getSecAdvisor(), dh);
       log.debug("Query for GetRequestDownloadList (3): " + buf.toString());
-      List rows3 = (List)sess.createQuery(buf.toString()).list();
+      List rows3 = sess.createQuery(buf.toString()).list();
       Map<Integer, Integer> idsToSkip = this.getSecAdvisor().getBSTXSecurityIdsToExclude(sess, dh, rows3, 21, 2);
 
       // remember the requestNumbers for use in checkSampleExperimentFile
       List requestNumberList = new ArrayList<String>();
-      
+
       // we will always get here...
       for(Iterator i = rows3.iterator(); i.hasNext();) {
         Object[] row = (Object[])i.next();
 
-        if (idsToSkip.get((Integer)row[21]) != null) {
+        if (idsToSkip.get(row[21]) != null) {
           // skip for BSTX security
           continue;
         }
         String requestNumber = (String)row[1];
         requestNumberList.add(requestNumber);
-        
+
         String codeRequestCategory = (String)row[2];
         String sampleNumber     = row[11] == null || row[11].equals("") ? "" : (String)row[11];
 
-        String createDate    = this.formatDate((java.util.Date)row[0]);
+        String createDate = this.formatDate((java.util.Date) row[0]);
         String tokens[] = createDate.split("/");
         String createMonth = tokens[0];
         String createDay   = tokens[1];
@@ -213,7 +212,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
 
         String requestNumberBase = Request.getBaseRequestNumber(requestNumber);
 
-        String baseKey = createYear + Constants.DOWNLOAD_KEY_SEPARATOR + sortDate + Constants.DOWNLOAD_KEY_SEPARATOR + requestNumber; 
+        String baseKey = createYear + Constants.DOWNLOAD_KEY_SEPARATOR + sortDate + Constants.DOWNLOAD_KEY_SEPARATOR + requestNumber;
 
         // Now read the request directory to identify all its subdirectories
         String baseDir = PropertyDictionaryHelper.getInstance(sess).getExperimentDirectory(serverName, idCoreFacility);
@@ -236,15 +235,13 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
         }
 
       } // end of for rows3.iterator
-      
+
       // if we are never going to find anything in SampleExperimentFile, avoid those queries
       noLinkedSamples = checkSampleExperimentFile(sess,requestNumberList);
-      
 
       boolean alt = false;
       String prevRequestNumber = "";
       Element requestNode = null;
-
 
       Document doc = new Document(new Element("RequestDownloadList"));
 
@@ -271,7 +268,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
         }
         if (row[28] != null) {
           if (appUserName.length() > 0) {
-            appUserName += ", ";            
+            appUserName += ", ";
           }
           appUserName += (String)row[28];
         }
@@ -279,13 +276,12 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
         boolean isSolexaRequest = RequestCategory.isIlluminaRequestCategory(codeRequestCategory);
         boolean isMicroarrayRequest = RequestCategory.isMicroarrayRequestCategory(codeRequestCategory);
 
-
         String requestNumber = (String)row[1];
-        
+
         // first time for this requestNumber?
         if (!requestNumber.equals(prevRequestNumber)) {
           // yes
-          alt = !alt;    
+          alt = !alt;
 
           RequestCategory requestCategory = dh.getRequestCategoryObject(codeRequestCategory);
 
@@ -312,11 +308,10 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
 
           // Show the files (and directories) under upload staging.  Show these under request node.
           if (includeUploadStagingDir.equals("Y")) {
-            addRootFileNodes(baseDir, requestNode, requestNumber,  createDateString, Constants.UPLOAD_STAGING_DIR, sess);            
+            addRootFileNodes(baseDir, requestNode, requestNumber,  createDateString, Constants.UPLOAD_STAGING_DIR, sess);
           }
-          
-        } // end of if first time we have seen this request number
 
+        } // end of if first time we have seen this request number
 
 
         if (resultDir.equals(this.DUMMY_DIRECTORY)) {
@@ -324,63 +319,62 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
           addExpandedFileNodes(sess, serverName, baseDirFlowCell, requestNode, requestNode, requestNumber, key, codeRequestCategory, dh, false);
 
         } else {
-          // we are not in the root directory	
+          // we are not in the root directory
           Element n = new Element("RequestDownload");
           n.setAttribute("key", key);
           n.setAttribute("isSelected", "N");
-          n.setAttribute("state", "unchecked");        
+          n.setAttribute("state", "unchecked");
           n.setAttribute("altColor", new Boolean(alt).toString());
           n.setAttribute("showRequestNumber", !requestNumber.equals(prevRequestNumber) ? "Y" : "N");
           n.setAttribute("idRequest", row[21].toString());
           n.setAttribute("createDate", createDate);
-          n.setAttribute("requestNumber", (String)row[1]);
+          n.setAttribute("requestNumber", (String) row[1]);
           n.setAttribute("idRequest", idRequest.toString());
-          n.setAttribute("codeRequestCategory", row[2] == null ? "" : (String)row[2]);
-          n.setAttribute("codeApplication", row[3] == null ? "" : (String)row[3]);
-          n.setAttribute("idAppUser", row[4] == null ? "" : ((Integer)row[4]).toString());
-          n.setAttribute("itemNumber", row[5] == null ? "" : (String)row[5]);
-          n.setAttribute("hybDate", row[6] == null || row[6].equals("") ? "" : this.formatDate((java.sql.Date)row[6]));
-          n.setAttribute("extractionDate", row[7] == null || row[7].equals("") ? "" : this.formatDate((java.sql.Date)row[7]));
-          n.setAttribute("hybFailed", row[8] == null ? "" : (String)row[8]);
-          n.setAttribute("labelingDateSample1", row[9] == null || row[9].equals("")? "" : this.formatDate((java.sql.Date)row[9]));
-          n.setAttribute("qualDateSample1", row[10] == null || row[10].equals("")? "" : this.formatDate((java.sql.Date)row[10]));
-          n.setAttribute("numberSample1", row[11] == null ? "" :  (String)row[11]);
-          n.setAttribute("nameSample1", row[12] == null ? "" :  (String)row[12]);
-          n.setAttribute("labelingDateSample2", row[13] == null || row[13].equals("") ? "" : this.formatDate((java.sql.Date)row[13]));
-          n.setAttribute("qualDateSample2", row[14] == null || row[14].equals("") ? "" : this.formatDate((java.sql.Date)row[14]));
-          n.setAttribute("numberSample2", row[15] == null ? "" :  (String)row[15]);
-          n.setAttribute("nameSample2", row[16] == null ? "" :  (String)row[16]);
-          n.setAttribute("idLab", row[17] == null ? "" : ((Integer)row[17]).toString());
-          n.setAttribute("canDelete", isMicroarrayRequest ? "N" : "Y");  // User can't delete or rename hyb folders
+          n.setAttribute("codeRequestCategory", row[2] == null ? "" : (String) row[2]);
+          n.setAttribute("codeApplication", row[3] == null ? "" : (String) row[3]);
+          n.setAttribute("idAppUser", row[4] == null ? "" : ((Integer) row[4]).toString());
+          n.setAttribute("itemNumber", row[5] == null ? "" : (String) row[5]);
+          n.setAttribute("hybDate", row[6] == null || row[6].equals("") ? "" : this.formatDate((java.sql.Date) row[6]));
+          n.setAttribute("extractionDate", row[7] == null || row[7].equals("") ? "" : this.formatDate((java.sql.Date) row[7]));
+          n.setAttribute("hybFailed", row[8] == null ? "" : (String) row[8]);
+          n.setAttribute("labelingDateSample1", row[9] == null || row[9].equals("") ? "" : this.formatDate((java.sql.Date) row[9]));
+          n.setAttribute("qualDateSample1", row[10] == null || row[10].equals("") ? "" : this.formatDate((java.sql.Date) row[10]));
+          n.setAttribute("numberSample1", row[11] == null ? "" : (String) row[11]);
+          n.setAttribute("nameSample1", row[12] == null ? "" : (String) row[12]);
+          n.setAttribute("labelingDateSample2", row[13] == null || row[13].equals("") ? "" : this.formatDate((java.sql.Date) row[13]));
+          n.setAttribute("qualDateSample2", row[14] == null || row[14].equals("") ? "" : this.formatDate((java.sql.Date) row[14]));
+          n.setAttribute("numberSample2", row[15] == null ? "" : (String) row[15]);
+          n.setAttribute("nameSample2", row[16] == null ? "" : (String) row[16]);
+          n.setAttribute("idLab", row[17] == null ? "" : ((Integer) row[17]).toString());
+          n.setAttribute("canDelete", isMicroarrayRequest ? "N" : "Y"); // User can't delete or rename hyb folders
           n.setAttribute("canRename", isMicroarrayRequest ? "N" : "Y");
 
           String baseDir = PropertyDictionaryHelper.getInstance(sess).getExperimentDirectory(serverName, idCoreFacility);
           String directoryName =  baseDir  + createYear + File.separator + Request.getBaseRequestNumber(requestNumber) + File.separator + resultDir;
           n.setAttribute("fileName", directoryName);
 
+          Integer idSlideDesign = row[20] == null || row[20].equals("") ? null : (Integer) row[20];
 
-          Integer idSlideDesign = row[20] == null || row[20].equals("") ? null : (Integer)row[20];
+          String sample1QualFailed = row[22] == null || row[22].equals("") ? "N" : (String) row[22];
+          String sample2QualFailed = row[23] == null || row[23].equals("") ? "N" : (String) row[23];
+          String labeledSample1LabelingFailed = row[24] == null || row[24].equals("") ? "N" : (String) row[24];
+          String labeledSample2LabelingFailed = row[25] == null || row[25].equals("") ? "N" : (String) row[25];
+          String extractionFailed = row[26] == null || row[26].equals("") ? "N" : (String) row[26];
+          String extractionBypassed = row[27] == null || row[27].equals("") ? "N" : (String) row[27];
 
-          String  sample1QualFailed             = row[22] == null || row[22].equals("") ? "N" : (String)row[22];
-          String  sample2QualFailed             = row[23] == null || row[23].equals("") ? "N" : (String)row[23];
-          String  labeledSample1LabelingFailed  = row[24] == null || row[24].equals("") ? "N" : (String)row[24];
-          String  labeledSample2LabelingFailed  = row[25] == null || row[25].equals("") ? "N" : (String)row[25];
-          String  extractionFailed              = row[26] == null || row[26].equals("") ? "N" : (String)row[26];
-          String  extractionBypassed            = row[27] == null || row[27].equals("") ? "N" : (String)row[27];
-
-          n.setAttribute("ownerFirstName", row[28] == null ? "" :  (String)row[28]);
-          n.setAttribute("ownerLastName",  row[29] == null ? "" :  (String)row[29]);
+          n.setAttribute("ownerFirstName", row[28] == null ? "" : (String) row[28]);
+          n.setAttribute("ownerLastName", row[29] == null ? "" : (String) row[29]);
           n.setAttribute("appUserName", appUserName);
 
-          String seqPrepByCore = row[30] == null || row[30].equals("") ? "N" : (String)row[30];
+          String seqPrepByCore = row[30] == null || row[30].equals("") ? "N" : (String) row[30];
 
           if (idSlideDesign == null && (hybNumber == null || hybNumber.equals(""))) {
             n.setAttribute("results", "sample quality");
             n.setAttribute("type", "dir");
           } else {
             if (idSlideDesign != null) {
-              n.setAttribute("results", (String)slideDesignMap.get(idSlideDesign));              
-            } else if (isSolexaRequest){
+              n.setAttribute("results", (String) slideDesignMap.get(idSlideDesign));
+            } else if (isSolexaRequest) {
               n.setAttribute("results", "");
             } else {
               n.setAttribute("results", "");
@@ -393,39 +387,39 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
               hasMaxQualDate = true;
             }
             if(hasMaxQualDate) {
-              n.setAttribute("hasResults","Y"); 
+              n.setAttribute("hasResults","Y");
             } else if (seqPrepByCore.equals("Y")) {
               n.setAttribute("status", "not yet performed");
               n.setAttribute("hasResults", "N");
             } else {
-              n.setAttribute("status", "in progress");            
+              n.setAttribute("status", "in progress");
               n.setAttribute("hasResults","N");
             }
           } else if (isSolexaRequest) {
-            n.setAttribute("hasResults", "Y"); 
+            n.setAttribute("hasResults", "Y");
             n.setAttribute("status", "");
           } else {
             if(!n.getAttributeValue("extractionDate").equals("")) {
-              n.setAttribute("hasResults","Y");                       
+              n.setAttribute("hasResults","Y");
             } else if(extractionBypassed.equals("Y")) {
-              n.setAttribute("status", "bypassed scan/fe");          
-              n.setAttribute("hasResults","Y");                       
+              n.setAttribute("status", "bypassed scan/fe");
+              n.setAttribute("hasResults","Y");
             } else if(extractionFailed.equals("Y")) {
-              n.setAttribute("status", "failed scan/fe");          
-              n.setAttribute("hasResults","N");                       
+              n.setAttribute("status", "failed scan/fe");
+              n.setAttribute("hasResults","N");
             } else  if (n.getAttributeValue("hybFailed").equals("Y")){
-              n.setAttribute("status", "failed hyb");          
-              n.setAttribute("hasResults","N");                       
+              n.setAttribute("status", "failed hyb");
+              n.setAttribute("hasResults","N");
             } else  if (sample1QualFailed.equals("Y") || sample2QualFailed.equals("Y")){
-              n.setAttribute("status", "failed QC");          
-              n.setAttribute("hasResults","N");                       
+              n.setAttribute("status", "failed QC");
+              n.setAttribute("hasResults","N");
             } else  if (labeledSample1LabelingFailed.equals("Y") || labeledSample2LabelingFailed.equals("Y")){
-              n.setAttribute("status", "failed labeling");          
-              n.setAttribute("hasResults","N");                       
+              n.setAttribute("status", "failed labeling");
+              n.setAttribute("hasResults","N");
             } else {
-              n.setAttribute("status", "in progress");          
-              n.setAttribute("hasResults","N");                       
-            }     
+              n.setAttribute("status", "in progress");
+              n.setAttribute("hasResults","N");
+            }
             String sampleInfo = n.getAttributeValue("nameSample1");
             if (!n.getAttributeValue("nameSample2").equals("")) {
               if (sampleInfo.length() > 0) {
@@ -441,23 +435,22 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
           addExpandedFileNodes(sess, serverName, baseDirFlowCell, requestNode, n, requestNumber, key, codeRequestCategory, dh, false);
         }
 
-
         // Add directories for flow cells
         if (isSolexaRequest) {
-          List flowCellNumbers = (List)flowCellMap.get(requestNumber);
+          List flowCellNumbers = (List) flowCellMap.get(requestNumber);
           if (flowCellNumbers != null) {
-            for(Iterator i1 = flowCellNumbers.iterator(); i1.hasNext();) {
-              FlowCellFolder fcFolder = (FlowCellFolder)i1.next();
+            for (Iterator i1 = flowCellNumbers.iterator(); i1.hasNext();) {
+              FlowCellFolder fcFolder = (FlowCellFolder) i1.next();
 
-              String theCreateDate    = this.formatDate(fcFolder.getCreateDate());
+              String theCreateDate = this.formatDate(fcFolder.getCreateDate());
               String dateTokens[] = theCreateDate.split("/");
               String createMonth = dateTokens[0];
-              String createDay   = dateTokens[1];
-              String theCreateYear  = dateTokens[2];
-              String sortDate = theCreateYear + createMonth + createDay;      
+              String createDay = dateTokens[1];
+              String theCreateYear = dateTokens[2];
+              String sortDate = theCreateYear + createMonth + createDay;
 
               String fcKey = theCreateYear + Constants.DOWNLOAD_KEY_SEPARATOR + sortDate + Constants.DOWNLOAD_KEY_SEPARATOR + fcFolder.getRequestNumber() + Constants.DOWNLOAD_KEY_SEPARATOR + fcFolder.getFlowCellNumber() + Constants.DOWNLOAD_KEY_SEPARATOR + fcFolder.getIdCoreFacility() + Constants.DOWNLOAD_KEY_SEPARATOR + dh.getPropertyDictionary(PropertyDictionary.FLOWCELL_DIRECTORY_FLAG);
-              String fcCodeRequestCategory = row[2] == null ? "" : (String)row[2];
+              String fcCodeRequestCategory = row[2] == null ? "" : (String) row[2];
 
               Element n1 = new Element("RequestDownload");
               n1.setAttribute("key", fcKey);
@@ -465,14 +458,14 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
               n1.setAttribute("state", "unchecked");
               n1.setAttribute("altColor", new Boolean(alt).toString());
               n1.setAttribute("idRequest", row[21].toString());
-              n1.setAttribute("createDate", this.formatDate((java.util.Date)row[0]));
-              n1.setAttribute("requestNumber", (String)row[1]);
+              n1.setAttribute("createDate", this.formatDate((java.util.Date) row[0]));
+              n1.setAttribute("requestNumber", (String) row[1]);
               n1.setAttribute("codeRequestCategory", fcCodeRequestCategory);
-              n1.setAttribute("codeApplication", row[3] == null ? "" : (String)row[3]);
-              n1.setAttribute("idAppUser", row[4] == null ? "" : ((Integer)row[4]).toString());
-              n1.setAttribute("idLab", row[17] == null ? "" : ((Integer)row[17]).toString());
+              n1.setAttribute("codeApplication", row[3] == null ? "" : (String) row[3]);
+              n1.setAttribute("idAppUser", row[4] == null ? "" : ((Integer) row[4]).toString());
+              n1.setAttribute("idLab", row[17] == null ? "" : ((Integer) row[17]).toString());
               n1.setAttribute("results", "flow cell quality report");
-              n1.setAttribute("hasResults", "Y"); 
+              n1.setAttribute("hasResults", "Y");
               n1.setAttribute("status", "");
               n1.setAttribute("canDelete", "N");
               n1.setAttribute("canRename", "N");
@@ -488,7 +481,6 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
 
           }
         }
-
 
         prevRequestNumber = requestNumber;
 
@@ -512,7 +504,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
       throw new RollBackCommandException(e.getMessage());
     } finally {
       try {
-        this.getSecAdvisor().closeReadOnlyHibernateSession();        
+        this.getSecAdvisor().closeReadOnlyHibernateSession();
       } catch(Exception e) {
 
       }
@@ -537,7 +529,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
       newRow[5] = folderName;
       rowMap.put(key, newRow);
       foldersHashed++;
-    }    
+    }
     return foldersHashed;
   }
 
@@ -545,10 +537,10 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
       String serverName,
       String baseDirFlowCell,
       Element requestNode,
-      Element requestDownloadNode, 
-      String requestNumber, 
-      String key, 
-      String codeRequestCategory, 
+      Element requestDownloadNode,
+      String requestNumber,
+      String key,
+      String codeRequestCategory,
       DictionaryHelper dh,
       boolean isFlowCellDirectory ) throws XMLReflectException {
     //
@@ -601,35 +593,34 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
 
   private static void recurseAddChildren(Element fdNode, FileDescriptor fd, boolean isFlowCellDirectory, Session sess) throws XMLReflectException {
     if (fd.getChildren() == null || fd.getChildren().size() == 0) {
-      if ( fd.getType().equals("dir")) {
+      if (fd.getType().equals("dir")) {
         fdNode.setAttribute("isEmpty", "Y");
       }
     } else if (fd.getChildren() == null || fd.getChildren().size() > 0) {
-      if ( fd.getType().equals("dir")) {
+      if (fd.getType().equals("dir")) {
         fdNode.setAttribute("isEmpty", "N");
       }
     }
 
-    for(Iterator i = fd.getChildren().iterator(); i.hasNext();) {
-      FileDescriptor childFd = (FileDescriptor)i.next();
+    for (Iterator i = fd.getChildren().iterator(); i.hasNext();) {
+      FileDescriptor childFd = (FileDescriptor) i.next();
 
       childFd.excludeMethodFromXML("getChildren");
       Element childFdNode = childFd.toXMLDocument(null, childFd.DATE_OUTPUT_ALTIO).getRootElement();
       childFdNode.setAttribute("isSelected", "N");
       childFdNode.setAttribute("state", "unchecked");
-      childFdNode.setAttribute( "dir", fdNode.getAttributeValue( "displayName" ) != null ? fdNode.getAttributeValue( "displayName" ) : "" );
+      childFdNode.setAttribute("dir", fdNode.getAttributeValue("displayName") != null ? fdNode.getAttributeValue("displayName") : "");
 
       childFdNode.setAttribute("canDelete", isFlowCellDirectory ? "N" : "Y");
       childFdNode.setAttribute("canRename", isFlowCellDirectory ? "N" : "Y");
-      childFdNode.setAttribute("linkedSampleNumber",  getLinkedSampleNumber(sess, childFd.getZipEntryName()));
+      childFdNode.setAttribute("linkedSampleNumber", getLinkedSampleNumber(sess, childFd.getZipEntryName()));
 
       fdNode.addContent(childFdNode);
 
-
       if (childFd.getChildren() != null && childFd.getChildren().size() > 0) {
         recurseAddChildren(childFdNode, childFd, isFlowCellDirectory, sess);
-      }else {
-        if ( childFd.getType().equals("dir")) {
+      } else {
+        if (childFd.getType().equals("dir")) {
           childFdNode.setAttribute("isEmpty", "Y");
         }
       }
@@ -640,41 +631,46 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
   private boolean checkSampleExperimentFile(Session sess, List requestNumberList) {
 	  boolean nolinkedsamples = true;
 
-	  StringBuffer buf = new StringBuffer("SELECT count(*) from SampleExperimentFile");  
-	  List results = sess.createQuery(buf.toString()).list();	    
+	  String efsl_enabled = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.EXPERIMENT_FILE_SAMPLE_LINKING_ENABLED);
+	  if (efsl_enabled == null || efsl_enabled.equalsIgnoreCase("N")) {
+		  return nolinkedsamples;
+	  }
+
+	  StringBuffer buf = new StringBuffer("SELECT count(*) from SampleExperimentFile");
+	  List results = sess.createQuery(buf.toString()).list();
 	  int qty = (int)(long)results.get(0);
-	  
+
 	  if (qty > 0) {
 		  // check to see if there are any for the experiment files we have
 		  buf = new StringBuffer ("SELECT count(*) from SampleExperimentFile sef, ExperimentFile ef where sef.idExpFileRead1 = ef.idExperimentFile and ef.idRequest in (" + Util.listStrToString(requestNumberList) + ")");
-		  List results1 = sess.createQuery(buf.toString()).list();	    
+		  List results1 = sess.createQuery(buf.toString()).list();
 		  int qty1 = (int)(long)results1.get(0);
-		  
+
 		  if (qty1 == 0) {
 			  // check idExpFileRead2
 			  buf = new StringBuffer ("SELECT count(*) from SampleExperimentFile sef, ExperimentFile ef where sef.idExpFileRead2 = ef.idExperimentFile and ef.idRequest in (" + Util.listStrToString(requestNumberList) + ")");
-			  List results2 = sess.createQuery(buf.toString()).list();	    
+			  List results2 = sess.createQuery(buf.toString()).list();
 			  int qty2 = (int)(long)results2.get(0);
-			  
+
 			  if (qty2 > 0) {
 				  nolinkedsamples = false;
-			  }		  
-		  } 
+			  }
+		  }
 		  else {
 			  nolinkedsamples = false;
 		  }
 	  }
-	  
+
 	  return nolinkedsamples;
   }
-    
-  
+
+
   private static String getLinkedSampleNumber(Session sess, String fileName) {
 	  // can we skip this?
 	  if (noLinkedSamples) {
 		  return "";
 	  }
-	  
+
 	String queryString = "Select ef from ExperimentFile ef WHERE ef.fileName = :fileName";
 	Query query = sess.createQuery(queryString);
 	query.setParameter("fileName", fileName.replace("\\", "/"));
@@ -682,8 +678,8 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
     if(expFile.size() > 0) {
       ExperimentFile ef = (ExperimentFile) expFile.get(0);
       List sampleNumber = sess.createQuery("Select samp.number from SampleExperimentFile sef JOIN sef.sample as samp where sef.idExpFileRead1 = " + ef.getIdExperimentFile() + " or sef.idExpFileRead2 = " + ef.getIdExperimentFile()).list();
-      if(sampleNumber.size() > 0) {
-        return (String)sampleNumber.get(0);
+      if (sampleNumber.size() > 0) {
+        return (String) sampleNumber.get(0);
       }
     }
 
@@ -705,7 +701,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
         String fileName = directoryName + File.separator + fileList[x];
         File f1 = new File(fileName);
         if (f1.isDirectory()) {
-          folders.add(fileList[x]);          
+          folders.add(fileList[x]);
         }
       }
     }
@@ -716,10 +712,9 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
   private void addRootFileNodes(String baseDir, Element requestNode, String requestNumber, String createDate, String subDirectory, Session sess) throws Exception {
 
     String dirTokens[] = createDate.split("/");
-    String createYear  = dirTokens[2];
+    String createYear = dirTokens[2];
 
-    String directoryName = baseDir + File.separator + createYear + File.separator + Request.getBaseRequestNumber(requestNumber) + 
-    (subDirectory != null ? File.separator + Constants.UPLOAD_STAGING_DIR : "");
+    String directoryName = baseDir + File.separator + createYear + File.separator + Request.getBaseRequestNumber(requestNumber) + (subDirectory != null ? File.separator + Constants.UPLOAD_STAGING_DIR : "");
     File fd = new File(directoryName);
     if (fd.exists() && fd.isDirectory()) {
       String[] fileList = fd.list();
@@ -730,9 +725,9 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
         // bypass temp files
         if (f1.getName().toLowerCase().endsWith("thumbs.db") || f1.getName().toUpperCase().startsWith(".DS_STORE") || f1.getName().startsWith("._")) {
           continue;
-        } 
+        }
 
-        // bypass directories 
+        // bypass directories
         if (f1.isDirectory() ) {
           continue;
         }
@@ -750,7 +745,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
         fdNode.setAttribute("state", "unchecked");
         fdNode.setAttribute("canDelete", "Y");
         fdNode.setAttribute("canRename", "Y");
-        fdNode.setAttribute("linkedSampleNumber",  getLinkedSampleNumber(sess, fileName.substring(fileName.indexOf(Request.getBaseRequestNumber(requestNumber)))));
+        fdNode.setAttribute("linkedSampleNumber", getLinkedSampleNumber(sess, fileName.substring(fileName.indexOf(Request.getBaseRequestNumber(requestNumber)))));
 
         requestNode.addContent(fdNode);
         requestNode.setAttribute("isEmpty", "N");
@@ -761,7 +756,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
 
   }
 
-  public static class  FolderComparator implements Comparator, Serializable {
+  public static class FolderComparator implements Comparator, Serializable {
     private String codeRequestCategory;
 
     public FolderComparator(String codeRequestCategory) {
@@ -769,8 +764,8 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
     }
 
     public int compare(Object o1, Object o2) {
-      String key1 = (String)o1;
-      String key2 = (String)o2;
+      String key1 = (String) o1;
+      String key2 = (String) o2;
 
       Integer sorta1 = null;
       Integer sorta2 = null;
@@ -789,7 +784,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
       String sortb2 = "";
       Integer sortc1 = null;
       Integer sortc2 = null;
-      if (RequestCategory.isMicroarrayRequestCategory(codeRequestCategory)) {        
+      if (RequestCategory.isMicroarrayRequestCategory(codeRequestCategory)) {
         String tokens[] = key1.split("E");
         if (tokens.length == 2) {
           try {
@@ -811,7 +806,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
             sortc2 = new Integer(tokens[1]);
             sortb2 = tokens[0];
 
-          } catch(Exception e) {
+          } catch (Exception e) {
             sortc2 = new Integer(2);
             sortb2 = key2;
 
@@ -831,7 +826,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
 
       if (sorta1.equals(sorta2)) {
         if (sortb1.equals(sortb2)) {
-          return  sortc1.compareTo(sortc2);
+          return sortc1.compareTo(sortc2);
         } else {
           return sortb1.compareTo(sortb2);
         }
@@ -842,26 +837,25 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
     }
   }
 
-  public static class  HybSampleComparator implements Comparator, Serializable {
+  public static class HybSampleComparator implements Comparator, Serializable {
     public int compare(Object o1, Object o2) {
-      String key1 = (String)o1;
-      String key2 = (String)o2;
+      String key1 = (String) o1;
+      String key2 = (String) o2;
 
       String[] tokens1 = key1.split(Constants.DOWNLOAD_KEY_SEPARATOR, 4);
       String[] tokens2 = key2.split(Constants.DOWNLOAD_KEY_SEPARATOR, 4);
 
-      String yr1           = tokens1[0];
-      String date1         = tokens1[1];
-      String reqNumber1    = tokens1[2];
-      String hybNumber1    = tokens1[3];
-      String folder1       = tokens1[3];
+      String yr1 = tokens1[0];
+      String date1 = tokens1[1];
+      String reqNumber1 = tokens1[2];
+      String hybNumber1 = tokens1[3];
+      String folder1 = tokens1[3];
 
-
-      String yr2           = tokens2[0];
-      String date2         = tokens2[1];
-      String reqNumber2    = tokens2[2];
-      String hybNumber2    = tokens2[3];
-      String folder2       = tokens2[3];
+      String yr2 = tokens2[0];
+      String date2 = tokens2[1];
+      String reqNumber2 = tokens2[2];
+      String hybNumber2 = tokens2[3];
+      String folder2 = tokens2[3];
 
       String number1 = null;
 
@@ -877,10 +871,10 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
         }
         if (splitLetter != null) {
           String[] hybNumberTokens1 = hybNumber1.split(splitLetter);
-          number1 = hybNumberTokens1[hybNumberTokens1.length - 1];   
+          number1 = hybNumberTokens1[hybNumberTokens1.length - 1];
           try {
             new Integer(number1);
-          } catch(Exception e) {
+          } catch (Exception e) {
             number1 = "1";
           }
         } else {
@@ -903,7 +897,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
 
         if (splitLetter != null) {
           String[] hybNumberTokens2 = hybNumber2.split(splitLetter);
-          number2 = hybNumberTokens2[hybNumberTokens2.length - 1];   
+          number2 = hybNumberTokens2[hybNumberTokens2.length - 1];
           try {
             new Integer(number2);
           } catch (Exception e) {
@@ -916,15 +910,15 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
       }
 
       if (date1.equals(date2)) {
-        if (reqNumber1.equals(reqNumber2)) {    
+        if (reqNumber1.equals(reqNumber2)) {
           if (number1.equals(number2)) {
             return folder1.compareTo(folder2);
           } else {
-            return new Integer(number1).compareTo(new Integer(number2));                    
+            return new Integer(number1).compareTo(new Integer(number2));
           }
         } else {
           return reqNumber2.compareTo(reqNumber1);
-        }  
+        }
       } else {
         return date2.compareTo(date1);
       }
@@ -934,9 +928,9 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
 
   private static class LaneStatusInfo {
     private java.sql.Date firstCycleDate;
-    private String        firstCycleFailed;
+    private String firstCycleFailed;
     private java.sql.Date lastCycleDate;
-    private String        lastCycleFailed;
+    private String lastCycleFailed;
 
     public java.sql.Date getFirstCycleDate() {
       return firstCycleDate;
@@ -990,44 +984,34 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
       this.idCoreFacility = idCoreFacility;
     }
 
-
     public java.sql.Date getCreateDate() {
       return createDate;
     }
-
 
     public void setCreateDate(java.sql.Date createDate) {
       this.createDate = createDate;
     }
 
-
     public String getFlowCellNumber() {
       return flowCellNumber;
     }
-
 
     public void setFlowCellNumber(String flowCellNumber) {
       this.flowCellNumber = flowCellNumber;
     }
 
-
-
     public String getRequestNumber() {
       return requestNumber;
     }
 
-
-
     public void setRequestNumber(String requestNumber) {
       this.requestNumber = requestNumber;
     }
-
 
     public Integer getIdCoreFacility() {
       return idCoreFacility;
     }
 
   }
-
 
 }
