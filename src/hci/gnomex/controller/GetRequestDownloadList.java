@@ -623,6 +623,11 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
   private boolean checkSampleExperimentFile(Session sess, List requestNumberList) {
 	  boolean nolinkedsamples = true;
 
+	  String efsl_enabled = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.EXPERIMENT_FILE_SAMPLE_LINKING_ENABLED);
+	  if (efsl_enabled == null || efsl_enabled.equalsIgnoreCase("N")) {
+		  return nolinkedsamples;
+	  }
+	  
 	  StringBuffer buf = new StringBuffer("SELECT count(*) from SampleExperimentFile");
 	  List results = sess.createQuery(buf.toString()).list();
 	  int qty = (int)(long)results.get(0);
