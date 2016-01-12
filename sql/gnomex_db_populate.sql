@@ -941,7 +941,8 @@ Test City, UT 12345',
  ('request_props_on_confirm_tab', 'Y', 'Show request properties on confirm tab of new experiment setup', 'N'),
  ('bam_iobio_viewer_url','http://bam.iobio.io/?bam=','','N'),
  ('vcf_iobio_viewer_url','http://vcf.iobio.io/?vcf=','','N'),
- ('gene_iobio_viewer_url','http://gene.iobio.io','','N');
+ ('gene_iobio_viewer_url','http://gene.iobio.io','','N'),
+ ('directory_product_order', '/home/gnomex/ProductOrders/', 'file directory for product order files', 'N');
 
  
 
