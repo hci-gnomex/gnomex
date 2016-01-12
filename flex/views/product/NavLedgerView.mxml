@@ -40,7 +40,6 @@
 			public function init():void{
 				getProductLedgerList.send();
 				getProductList.send();
-				
 			}
 			
 			private function onGetProductLedgerList(event:ResultEvent):void{

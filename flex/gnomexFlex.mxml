@@ -1683,6 +1683,23 @@
 				
 			}
 			
+			private function showProductLedgerView():void{
+				var foundProducts:Boolean = false;
+				for(var i:int = 0; i < mainMenu.dataProvider.length; i++){
+					var menuItem:Object = mainMenu.dataProvider[i];
+					if(menuItem.@label == 'Products...'){
+						foundProducts = true;
+					}
+				}
+				
+				if(foundProducts){
+					this.stateStack.selectedChild = theViews;
+					theViews.visible = true;
+					theViews.selectedChild = this.navProductLedgerView;
+					this.navProductLedgerView.init();
+				}
+			}
+			
 			private function onCheckTopicPermission(event:ResultEvent):void {
 				if (checkTopicPermission.lastResult.name() != "SUCCESS") {
 					Alert.show(checkTopicPermission.lastResult..ACTMESSAGE.@TEXT);
@@ -1957,6 +1974,14 @@
 			}
 			public function launchExperimentDetail():Boolean {
 				if (Application.application.parameters.requestNumber != null && Application.application.parameters.requestNumber != 'null') {
+					return true;
+				} else { 
+					return false;
+				}
+			}
+			public function launchProductLedgerView():Boolean {
+				if (Application.application.parameters.launchWindow != null &&
+					Application.application.parameters.launchWindow == "ProductLedgerView") {
 					return true;
 				} else { 
 					return false;
@@ -3307,6 +3332,8 @@
 					this.showUserWindow(this.getLaunchIdAppUser());
 				} else if (launchCreateExperiment()) {
 					this.showNewExperiment(getNewExperimentCCNumbers());
+				} else if(launchProductLedgerView()){
+					showProductLedgerView();
 				} else {
 					if (showUsage && showUsageOnStartup) {
 						theViews.selectedChild = this.navUsageView;
@@ -3317,8 +3344,7 @@
 							theViews.selectedChild = this.homeView;						
 						}
 					}					
-				}
-				
+				}			
 			}
 			
 			public function sortExperimentDesigns(obj1:Object, obj2:Object, fields:Array=null):int {

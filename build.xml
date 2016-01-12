@@ -232,7 +232,6 @@
 					</section>
     		</manifest>
 
-            <metainf dir="${metainf.dir}/jar" includes="ejb-jar.xml" />
         </jar>
 		
 
@@ -269,7 +268,6 @@
 				</section>
     		</manifest>
 
-            <metainf dir="${metainf.dir}/jar" excludes="*.xml" />
         </jar>
 		
 
@@ -306,7 +304,6 @@
 				</section>
     		</manifest>
 
-            <metainf dir="${metainf.dir}/jar" excludes="*.xml" />
         </jar>
 		
 
@@ -347,7 +344,6 @@
 				</section>
     		</manifest>
 
-            <metainf dir="${metainf.dir}/jar" excludes="*.xml" />
         </jar>
 		
 

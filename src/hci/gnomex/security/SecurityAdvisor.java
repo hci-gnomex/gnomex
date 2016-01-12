@@ -36,6 +36,7 @@ import hci.gnomex.model.Topic;
 import hci.gnomex.model.UserPermissionKind;
 import hci.gnomex.model.Visibility;
 import hci.gnomex.utility.DictionaryHelper;
+import hci.gnomex.utility.Util;
 
 import hci.gnomex.utility.HibernateGuestSession;
 import hci.gnomex.utility.HibernateSession;
@@ -358,25 +359,24 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     String peopleSoftID = "0" + uid.substring(1);
     try {
 
-        Statement stmt = null;
-        ResultSet rs = null;
-        Session sess = HibernateGuestSession.currentGuestSession(uid);
-        Connection con = HibernateUtil.getConnection(sess);
-        stmt = con.createStatement();
+      Statement stmt = null;
+      ResultSet rs = null;
+      Session sess = HibernateGuestSession.currentGuestSession(uid);
+      Connection con = HibernateUtil.getConnection(sess);
+      stmt = con.createStatement();
 
-        StringBuffer buf = new StringBuffer("SELECT PersonID " + "FROM Administration.dbo.Associate WHERE peopleSoftID = '" + peopleSoftID + "'\n");
-        System.out.println ("[getBSTpersonId] query: " + buf.toString());
-        rs = stmt.executeQuery(buf.toString());
-        while (rs.next()) {
-        	pId = "" + rs.getInt("PersonID");
-        	break;
-        }
-        rs.close();
-        stmt.close();
-    }
-    catch (Exception ex) {
-    	log.error("Error querying associate table.", ex);
-    	System.out.println ("Error querying associate table. " + ex);
+      StringBuffer buf = new StringBuffer("SELECT PersonID " + "FROM Administration.dbo.Associate WHERE peopleSoftID = '" + peopleSoftID + "'\n");
+      System.out.println("[getBSTpersonId] query: " + buf.toString());
+      rs = stmt.executeQuery(buf.toString());
+      while (rs.next()) {
+        pId = "" + rs.getInt("PersonID");
+        break;
+      }
+      rs.close();
+      stmt.close();
+    } catch (Exception ex) {
+      log.error("Error querying associate table.", ex);
+      System.out.println("Error querying associate table. " + ex);
     }
 
     return pId;
@@ -917,9 +917,9 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     canRead = true;
     if (object instanceof Request) {
       Request req = (Request) object;
-      if (req.getRequestCategory().getIsClinicalResearch() != null && req.getRequestCategory().getIsClinicalResearch().equals("Y")) {
+      if (req.getRequestCategory() != null && req.getRequestCategory().getIsClinicalResearch() != null && req.getRequestCategory().getIsClinicalResearch().equals("Y")) {
         if (this.canAccessBSTX) {
-            canRead = canReadAllCCNumbers(req);
+          canRead = canReadAllCCNumbers(req);
         } else {
           canRead = false;
         }
@@ -938,24 +938,24 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
 
   public boolean canReadAllCCNumbers(Request req) {
     boolean canRead = true;
-      try {
-        List<String> ccNumbers = new ArrayList<String>();
-        for (Sample s : (Set<Sample>)req.getSamples()) {
-          if (s.getCcNumber() != null) {
-            ccNumbers.add(s.getCcNumber());
-          } else {
-            canRead = false;
-            break;
-          }
+    try {
+      List<String> ccNumbers = new ArrayList<String>();
+      for (Sample s : (Set<Sample>) req.getSamples()) {
+        if (s.getCcNumber() != null) {
+          ccNumbers.add(s.getCcNumber());
+        } else {
+          canRead = false;
+          break;
         }
-
-        if (canRead) {
-          canRead = canReadAllCCNumbers(ccNumbers);
-        }
-      } catch(Exception ex) {
-        log.error("Error getting BSTX security settings to check ccNumbers", ex);
-        canRead = false;
       }
+
+      if (canRead) {
+        canRead = canReadAllCCNumbers(ccNumbers);
+      }
+    } catch (Exception ex) {
+      log.error("Error getting BSTX security settings to check ccNumbers", ex);
+      canRead = false;
+    }
 
     return canRead;
   }
@@ -974,67 +974,48 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
   }
 
   private Map<String, boolean[]> canReadSamples(List<String> ccNumbers) throws NamingException, SQLException {
-	    Map<String, boolean[]> secMap = new HashMap<String, boolean[]>();
+    Map<String, boolean[]> secMap = new HashMap<String, boolean[]>();
 
-        Statement stmt = null;
-        ResultSet rs = null;
-        Session sess = HibernateGuestSession.currentGuestSession(this.getUsername());
-        Connection con = HibernateUtil.getConnection(sess);
-        stmt = con.createStatement();
+    Statement stmt = null;
+    ResultSet rs = null;
+    Session sess = HibernateGuestSession.currentGuestSession(this.getUsername());
+    Connection con = HibernateUtil.getConnection(sess);
+    stmt = con.createStatement();
 
-        StringBuffer buf = buildSampleQuery (ccNumbers);
-        System.out.println ("[canReadSamples] query: " + buf.toString());
-        rs = stmt.executeQuery(buf.toString());
-        while (rs.next()) {
-        	String ccNumber = rs.getString("col_0_0_");
-        	boolean [] perm = new boolean[3];
-        	perm[0] = rs.getBoolean("col_3_0_");
-        	perm[1] = rs.getBoolean("col_2_0_");
-        	perm[2] = rs.getBoolean("col_1_0_");
-        	secMap.put(ccNumber, perm);
-        }
-        rs.close();
-        stmt.close();
-
-	    return secMap;
-  }
-
-
-  public StringBuffer buildSampleQuery (List<String> ccNumbers) {
-	  StringBuffer buf = new StringBuffer();
-
-	  buf = buf.append("select distinct bstxsample0_.ccNumber as col_0_0_, (select count(*) from BST..Sample bstxsample7_ where bstxsample7_.id=bstxsample0_.id and (bstxcollec1_.idProtocol in ((select bstprot.id from BST..VIEW_Protocol bstprot where bstprot.isShared = 'Y' and bstprot.isITSApproved = 'Y') union (select pu.idProtocol from BST..ProtocolUsers pu, BST..VIEW_Protocol vp where pu.personId = ");
-	  buf = buf.append(BSTpersonId);
-	  buf = buf.append(" and pu.idProtocol = vp.id and vp.isITSApproved = 'Y')) or person4_.isITSPatient is null or person4_.isITSPatient='N')) as col_1_0_, (select count(*) from BST..Sample bstxsample9_ where bstxsample9_.id=bstxsample0_.id and (bstxcollec1_.idProtocol in (select pu.idProtocol from BST..ProtocolUsers pu where pu.personId = ");
-	  buf = buf.append(BSTpersonId);
-	  buf = buf.append(" and canViewIdent = 'Y') )) as col_2_0_, (select count(*) from BST..Sample bstxsample8_ where bstxsample8_.id=bstxsample0_.id and (bstxcollec1_.idProtocol in ((select bstprot.id from BST..VIEW_Protocol bstprot where bstprot.isShared = 'Y') union (select pu.idProtocol from BST..ProtocolUsers pu where pu.personId = ");
-	  buf = buf.append(BSTpersonId);
-	  buf = buf.append(")))) as col_3_0_ ");
-	  buf = buf.append("from BST..Sample bstxsample0_ inner join BST..VIEW_Collection bstxcollec1_ on bstxsample0_.idBSTCollection=bstxcollec1_.idBSTCollection left outer join BST..Institution bstxinstit2_ on bstxcollec1_.idInstitution=bstxinstit2_.id inner join BST..BSTPatient bstxpatien3_ on bstxsample0_.idBSTPatient=bstxpatien3_.idBSTPatient ");
-	  buf = buf.append("inner join PersonResearch..Person person4_ on bstxpatien3_.idPerson=person4_.idPerson left outer join BST..Disburse disburses5_ on bstxsample0_.id=disburses5_.idSample left outer join BST..Registration registrati6_ on bstxsample0_.id=registrati6_.idSample ");
-	  buf = buf.append("where bstxsample0_.ccNumber in (");
-	  buf = buf.append(listStrToString(ccNumbers));
-	  buf = buf.append(");");
-
-	  return buf;
-  }
-
-  public static String listStrToString(List<String> list)
-  {
-    if (list == null || list.size() == 0)
-      return "";
-
-    boolean firstTime = true;
-    String stringList = "";
-    for (String str : list)
-    {
-      if (!firstTime)
-        stringList += ",";
-      else
-        firstTime = false;
-      stringList += "'" + str + "'";
+    StringBuffer buf = buildSampleQuery(ccNumbers);
+    System.out.println("[canReadSamples] query: " + buf.toString());
+    rs = stmt.executeQuery(buf.toString());
+    while (rs.next()) {
+      String ccNumber = rs.getString("col_0_0_");
+      boolean[] perm = new boolean[3];
+      perm[0] = rs.getBoolean("col_3_0_");
+      perm[1] = rs.getBoolean("col_2_0_");
+      perm[2] = rs.getBoolean("col_1_0_");
+      secMap.put(ccNumber, perm);
     }
-    return stringList;
+    rs.close();
+    stmt.close();
+
+    return secMap;
+  }
+
+  public StringBuffer buildSampleQuery(List<String> ccNumbers) {
+    StringBuffer buf = new StringBuffer();
+
+    buf = buf.append("select distinct bstxsample0_.ccNumber as col_0_0_, (select count(*) from BST..Sample bstxsample7_ where bstxsample7_.id=bstxsample0_.id and (bstxcollec1_.idProtocol in ((select bstprot.id from BST..VIEW_Protocol bstprot where bstprot.isShared = 'Y' and bstprot.isITSApproved = 'Y') union (select pu.idProtocol from BST..ProtocolUsers pu, BST..VIEW_Protocol vp where pu.personId = ");
+    buf = buf.append(BSTpersonId);
+    buf = buf.append(" and pu.idProtocol = vp.id and vp.isITSApproved = 'Y')) or person4_.isITSPatient is null or person4_.isITSPatient='N')) as col_1_0_, (select count(*) from BST..Sample bstxsample9_ where bstxsample9_.id=bstxsample0_.id and (bstxcollec1_.idProtocol in (select pu.idProtocol from BST..ProtocolUsers pu where pu.personId = ");
+    buf = buf.append(BSTpersonId);
+    buf = buf.append(" and canViewIdent = 'Y') )) as col_2_0_, (select count(*) from BST..Sample bstxsample8_ where bstxsample8_.id=bstxsample0_.id and (bstxcollec1_.idProtocol in ((select bstprot.id from BST..VIEW_Protocol bstprot where bstprot.isShared = 'Y') union (select pu.idProtocol from BST..ProtocolUsers pu where pu.personId = ");
+    buf = buf.append(BSTpersonId);
+    buf = buf.append(")))) as col_3_0_ ");
+    buf = buf.append("from BST..Sample bstxsample0_ inner join BST..VIEW_Collection bstxcollec1_ on bstxsample0_.idBSTCollection=bstxcollec1_.idBSTCollection left outer join BST..Institution bstxinstit2_ on bstxcollec1_.idInstitution=bstxinstit2_.id inner join BST..BSTPatient bstxpatien3_ on bstxsample0_.idBSTPatient=bstxpatien3_.idBSTPatient ");
+    buf = buf.append("inner join PersonResearch..Person person4_ on bstxpatien3_.idPerson=person4_.idPerson left outer join BST..Disburse disburses5_ on bstxsample0_.id=disburses5_.idSample left outer join BST..Registration registrati6_ on bstxsample0_.id=registrati6_.idSample ");
+    buf = buf.append("where bstxsample0_.ccNumber in (");
+    buf = buf.append(Util.listStrToString(ccNumbers));
+    buf = buf.append(");");
+
+    return buf;
   }
 
   // Used to scrub list of requests being shown to user. CanRead makes sure even
@@ -3360,7 +3341,6 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     return addWhere;
   }
 
-  
   public Session getReadOnlyHibernateSession(String userName) throws Exception {
     Session sess = null;
     sess = HibernateGuestSession.currentGuestSession(userName);

@@ -23,12 +23,22 @@ CALL ExecuteIfTableExists('gnomex', 'Product_Audit', 'ALTER TABLE Product_Audit 
   insert into PropertyDictionary (propertyName, propertyValue, propertyDescription, forServerOnly, idCoreFacility, codeRequestCategory)
   VALUES('new_request_save_before_submit', 'N', 'Allow users to save a new request and still make changes to the request until they mark the request as submitted.', 'N', NULL, NULL);
   
+  -- iobio viewer URL's
+  INSERT INTO gnomex.PropertyDictionary (propertyName,propertyValue,propertyDescription, forServerOnly) VALUES
+   ('bam_iobio_viewer_url','http://bam.iobio.io/?bam=','','N'),
+   ('vcf_iobio_viewer_url','http://vcf.iobio.io/?vcf=','','N'),
+   ('gene_iobio_viewer_url','http://gene.iobio.io','','N');
+  
+  
   -- update directory names
 update PropertyDictionary set propertyName = 'directory_experiment' where propertyName = 'experiment_directory';
 update PropertyDictionary set propertyName = 'directory_analysis' where propertyName = 'analysis_directory';
 update PropertyDictionary set propertyName = 'directory_datatrack' where propertyName = 'datatrack_directory'; 
 update PropertyDictionary set propertyName = 'directory_flowcell' where propertyName = 'flowcell_directory'; 
 update PropertyDictionary set propertyName = 'directory_instrument_run' where propertyName = 'instrument_run_directory'; 
-update PropertyDictionary set propertyName = 'directory_product_order' where propertyName = 'product_order_directory'; 
+update PropertyDictionary set propertyName = 'directory_product_order' where propertyName = 'product_order_directory';
+
+insert into PropertyDictionary (propertyName, propertyValue, propertyDescription, forServerOnly, idCoreFacility, codeRequestCategory)
+values ('directory_product_order', '/home/gnomex/ProductOrders/', 'file directory for product order files', 'N', NULL, NULL); 
 
 

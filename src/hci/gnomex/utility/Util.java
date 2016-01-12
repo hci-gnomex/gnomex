@@ -4,6 +4,7 @@ import hci.gnomex.controller.GetOrganismList;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 public class Util {
@@ -122,4 +123,42 @@ public class Util {
     url += parameter;
     return url;
   }
+  
+  
+  public static String listIntToString(List<Integer> list)
+  {
+    if (list == null || list.size() == 0)
+      return "";
+    
+    boolean firstTime = true;
+    String stringList = "";
+    for (Integer id : list)
+    {
+      if (!firstTime)
+        stringList += ",";
+      else
+        firstTime = false;
+      stringList += id;
+    }
+    return stringList;
+  }
+
+  public static String listStrToString(List<String> list)
+  {
+    if (list == null || list.size() == 0)
+      return "";
+    
+    boolean firstTime = true;
+    String stringList = "";
+    for (String str : list)
+    {
+      if (!firstTime)
+        stringList += ",";
+      else
+        firstTime = false;
+      stringList += "'" + str + "'";
+    }
+    return stringList;
+  }
+  
 }
