@@ -186,7 +186,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
       Map<Integer, Integer> idsToSkip = this.getSecAdvisor().getBSTXSecurityIdsToExclude(sess, dh, rows3, 21, 2);
 
       // remember the requestNumbers for use in checkSampleExperimentFile
-      List requestNumberList = new ArrayList<String>();
+      List<Integer> requestIdList = new ArrayList<Integer>();
 
       // we will always get here...
       for(Iterator i = rows3.iterator(); i.hasNext();) {
@@ -198,7 +198,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
         }
 
         String requestNumber = (String)row[1];
-        requestNumberList.add(requestNumber);
+        requestIdList.add((Integer)row[21]);
 
         String codeRequestCategory = (String)row[2];
         String sampleNumber     = row[11] == null || row[11].equals("") ? "" : (String)row[11];
@@ -238,7 +238,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
       } // end of for rows3.iterator
 
       // if we are never going to find anything in SampleExperimentFile, avoid those queries
-      noLinkedSamples = checkSampleExperimentFile(sess,requestNumberList);
+      noLinkedSamples = checkSampleExperimentFile(sess,requestIdList);
 
       boolean alt = false;
       String prevRequestNumber = "";
@@ -620,7 +620,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
 
   }
 
-  private boolean checkSampleExperimentFile(Session sess, List requestNumberList) {
+  private boolean checkSampleExperimentFile(Session sess, List requestIdList) {
 	  boolean nolinkedsamples = true;
 
 	  String efsl_enabled = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.EXPERIMENT_FILE_SAMPLE_LINKING_ENABLED);
@@ -634,13 +634,13 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
 
 	  if (qty > 0) {
 		  // check to see if there are any for the experiment files we have
-		  buf = new StringBuffer ("SELECT count(*) from SampleExperimentFile sef, ExperimentFile ef where sef.idExpFileRead1 = ef.idExperimentFile and ef.idRequest in (" + Util.listStrToString(requestNumberList) + ")");
+		  buf = new StringBuffer ("SELECT count(*) from SampleExperimentFile sef, ExperimentFile ef where sef.idExpFileRead1 = ef.idExperimentFile and ef.idRequest in (" + Util.listIntToString(requestIdList) + ")");
 		  List results1 = sess.createQuery(buf.toString()).list();
 		  int qty1 = (int)(long)results1.get(0);
 
 		  if (qty1 == 0) {
 			  // check idExpFileRead2
-			  buf = new StringBuffer ("SELECT count(*) from SampleExperimentFile sef, ExperimentFile ef where sef.idExpFileRead2 = ef.idExperimentFile and ef.idRequest in (" + Util.listStrToString(requestNumberList) + ")");
+			  buf = new StringBuffer ("SELECT count(*) from SampleExperimentFile sef, ExperimentFile ef where sef.idExpFileRead2 = ef.idExperimentFile and ef.idRequest in (" + Util.listIntToString(requestIdList) + ")");
 			  List results2 = sess.createQuery(buf.toString()).list();
 			  int qty2 = (int)(long)results2.get(0);
 
