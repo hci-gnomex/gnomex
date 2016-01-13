@@ -36,6 +36,9 @@ update PropertyDictionary set propertyName = 'directory_analysis' where property
 update PropertyDictionary set propertyName = 'directory_datatrack' where propertyName = 'datatrack_directory'; 
 update PropertyDictionary set propertyName = 'directory_flowcell' where propertyName = 'flowcell_directory'; 
 update PropertyDictionary set propertyName = 'directory_instrument_run' where propertyName = 'instrument_run_directory'; 
-update PropertyDictionary set propertyName = 'directory_product_order' where propertyName = 'product_order_directory'; 
+update PropertyDictionary set propertyName = 'directory_product_order' where propertyName = 'product_order_directory';
+
+insert into PropertyDictionary (propertyName, propertyValue, propertyDescription, forServerOnly, idCoreFacility, codeRequestCategory)
+values ('directory_product_order', '/home/gnomex/ProductOrders/', 'file directory for product order files', 'N', NULL, NULL); 
 
 

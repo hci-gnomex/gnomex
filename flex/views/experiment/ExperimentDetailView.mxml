@@ -256,7 +256,7 @@
 					
 				}
 				
-				if (selectedExperiment.@canUpdate == 'Y' && this.billingItems.length > 0) {
+				if (selectedExperiment.@canRead == 'Y' && this.billingItems.length > 0) {
 					if (!theTab.contains(this.billingTab)) {
 						theTab.addChild(billingTab);
 					}

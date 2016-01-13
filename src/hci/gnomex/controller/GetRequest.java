@@ -146,7 +146,7 @@ public class GetRequest extends GNomExCommand implements Serializable {
         }
 
       } else if (idRequest != null) {
-        request = (Request) sess.get(Request.class, idRequest);
+        request = sess.get(Request.class, idRequest);
       } else {
         request = GetRequest.getRequestFromRequestNumber(sess, requestNumber);
       }
@@ -221,7 +221,7 @@ public class GetRequest extends GNomExCommand implements Serializable {
 
           AppUser user = null;
           if (request.getIdAppUser() != null && request.getIdAppUser() != 0) {
-            user = (AppUser) sess.load(AppUser.class, request.getIdAppUser());
+            user = sess.load(AppUser.class, request.getIdAppUser());
           }
 
           String requestStatus = request.getCodeRequestStatus() != null ? DictionaryManager.getDisplay("hci.gnomex.model.RequestStatus", request.getCodeRequestStatus()) : "";
@@ -229,7 +229,7 @@ public class GetRequest extends GNomExCommand implements Serializable {
 
           IScanChip iScanChip = null;
           if (request.getIdIScanChip() != null && request.getIdIScanChip() != 0) {
-            iScanChip = (IScanChip) sess.load(IScanChip.class, request.getIdIScanChip());
+            iScanChip = sess.load(IScanChip.class, request.getIdIScanChip());
             if (iScanChip != null) {
               requestNode.setAttribute("iScanChipName", iScanChip.getName() != null ? iScanChip.getName() : "");
             }
@@ -649,7 +649,7 @@ public class GetRequest extends GNomExCommand implements Serializable {
 
           // If user has write permission, show billing items for this request
           // Organize split accounts by lab
-          if (this.getSecAdvisor().canUpdate(request)) {
+          if (this.getSecAdvisor().canRead(request)) {
             Element billingItemsNode = new Element("billingItems");
             requestNode.addContent(billingItemsNode);
             TreeMap billingItemMap = new TreeMap();
