@@ -42,6 +42,7 @@
 			public function init():void{
 				var params:Object = new Object();
 				params.includePlateInfo = 'N';
+				params.linkToAnalysisExpsOnly = 'Y';
 				params.idLab = this.idLab;
 				getRequestList.send(params);
 				labCombo.selectedIndex = this.getSelectedLabIndex();
@@ -50,7 +51,6 @@
 			
 			private function onGetRequestList(event:ResultEvent):void{
 				if ( getRequestList.lastResult.name() == "RequestList"){
-					orderList.filterFunction = canLinkToAnalysis;
 					orderList.refresh();
 					
 					if(orderList.length == 0){
@@ -63,21 +63,6 @@
 				} else{
 					Alert.show( event.result..ERROR.@message.toString(), "Error getting orders" );
 				}
-			}
-			
-			private function canLinkToAnalysis(request:Object):Boolean{			
-				for each (var requestCategory:Object in requestCategories) {
-					if(expSearch.text != ""){
-						if (requestCategory.@codeRequestCategory == request.@codeRequestCategory && requestCategory.@associatedWithAnalysis == 'Y' && request.@requestNumber.indexOf(expSearch.text) > -1) {
-							return true;
-						}
-					} else{
-						if (requestCategory.@codeRequestCategory == request.@codeRequestCategory && requestCategory.@associatedWithAnalysis == 'Y') {
-							return true;
-						}
-					}
-				}
-				return false;
 			}
 			
 			private function linkExperiment():void{
@@ -97,36 +82,31 @@
 				}
 			}
 			
-			private function filterList():void{
-				orderList.filterFunction = canLinkToAnalysis; 
-				orderList.refresh();
-			}
-			
 			private function getSelectedLabIndex():int{
-				if(this.idLab == 1764){
-					var debug:int = 16;
-				}
 				for(var i:int = 0; i < userLabs.length; i++){
 					var lab:Object = userLabs.getItemAt(i);
-					if(lab.@idLab.toString() == "1764"){
-						var debug1:int = 16
-					}
 					if(lab.@idLab == this.idLab){
 						return i;
 					}
-				}
-				
-				return -1;
-				
+				}			
+				return -1;			
 			}
 			
-			private function filterByLab():void{
+			private function filterResults():void{
+				var params:Object = new Object();
+				//search by lab
 				if(labCombo.selectedItem != null && labCombo.selectedItem.@idLab != ""){
-					var params:Object = new Object();
 					params.idLab = labCombo.selectedItem.@idLab;
 					params.includePlateInfo = 'N';
-					getRequestList.send(params);
 				}
+				//search by request number
+				if(expSearch.length > 0){
+					params.number = expSearch.text;
+				}
+				//only bring back experiments that are able to be linked
+				params.linkToAnalysisExpsOnly = 'Y';
+				
+				getRequestList.send(params);
 				
 			}
 			
@@ -139,13 +119,13 @@
 	
 	
 	<mx:HBox>
-		<mx:Label text="Find by number: "/>
-		<mx:TextInput id="expSearch" change="filterList()" enabled="{this.orderList.length > 0 || expSearch.text.length > 0}"/>
+		<mx:Label text="Search by request number: "/>
+		<mx:TextInput id="expSearch" change="filterResults()" enabled="{this.orderList.length > 0 || expSearch.text.length > 0}"/>
 		
 		<mx:Spacer width="25" />
 		
 		<mx:Label text="Filter by Lab: "/>
-		<renderers:FilterComboBox id="labCombo" width="250" close="filterByLab()" dataProvider="{this.userLabs}" labelField="@name"/>
+		<renderers:FilterComboBox id="labCombo" width="250" close="filterResults()" dataProvider="{this.userLabs}" labelField="@name"/>
 	</mx:HBox>
 	
 	<mx:Text id="noExpMessage" text="There are no experiments eligible for linking in this lab" visible="false" includeInLayout="false"/>
