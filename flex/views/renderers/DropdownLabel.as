@@ -13,18 +13,18 @@ package views.renderers
 										  labelField:String,
 										  valueField:String,
 										  dataField:String,
+										  toolTipField:String="",
 										  isRequired:Boolean=false,
 										  isEditable:Boolean=false,
-										  missingRequiredFieldBackground:uint = 0xeaeaea
-								          ):IFactory {
+										  missingRequiredFieldBackground:uint = 0xeaeaea):IFactory {
 			return RendererFactory.create(views.renderers.DropdownLabel, {dataProvider: dataProvider, 
 																		 labelField: labelField,
 																		 valueField: valueField,
 																		 dataField: dataField,
+																		 toolTipField: toolTipField,
 																		 isRequired:isRequired,
 																		 isEditable:isEditable,
-																		 missingRequiredFieldBackground: missingRequiredFieldBackground
-																		 });			
+																		 missingRequiredFieldBackground: missingRequiredFieldBackground});			
 		}
 			
 		override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void {

@@ -100,7 +100,7 @@
 					    editorDataField="value"
 		                editable="true"  
 		                rendererIsEditor="false" 
-		                itemRenderer="{hci.flex.controls.DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.RequestCategory').DictionaryEntry,'@display', '@value', '@codeRequestCategory', true)}"
+		                itemRenderer="{hci.flex.controls.DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.RequestCategory').DictionaryEntry,'@display', '@value', '@codeRequestCategory', '', true)}"
 					    itemEditor="{hci.flex.controls.ComboBox.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.RequestCategory').DictionaryEntry,'@display', '@value', '@codeRequestCategory', true)}">
 					</mx:DataGridColumn>					    
     			</mx:columns>

@@ -57,7 +57,7 @@
 				if (filter1Name != null) {
 					this.filter1Col.headerText = filter1Name.toString();
 					this.filter1Col.rendererIsEditor = false;
-					this.filter1Col.itemRenderer = hci.flex.controls.DropdownLabel.getFactory(filter1Entries, "@display", "@value", "@filter1", true);
+					this.filter1Col.itemRenderer = hci.flex.controls.DropdownLabel.getFactory(filter1Entries, "@display", "@value", "@filter1", '', true);
 					this.filter1Col.itemEditor   = hci.flex.controls.ComboBox.getFactory(filter1Entries, "@display", "@value", "@filter1", true);
 				} else {
 					this.filter1Col.visible = false;
@@ -75,7 +75,7 @@
 					if (filter2Name != null && filter2Name != "") {
 						this.filter2Col.headerText = filter2Name.toString();
 						this.filter2Col.rendererIsEditor = false;
-						this.filter2Col.itemRenderer = hci.flex.controls.DropdownLabel.getFactory(filter2Entries, "@display", "@value", "@filter2", true);
+						this.filter2Col.itemRenderer = hci.flex.controls.DropdownLabel.getFactory(filter2Entries, "@display", "@value", "@filter2", '', true);
 						this.filter2Col.itemEditor   = hci.flex.controls.ComboBox.getFactory(filter2Entries, "@display", "@value", "@filter2", true);
 					}
 				} else {

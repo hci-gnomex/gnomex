@@ -692,6 +692,10 @@
 				//Alert.show("Changing the protocol for the flow cell will change the protocol for all samples it contains.", "Warning");
 			}
 			
+			private function showAppUserName(row:Object):String{
+				return row.@appUserName;
+			}
+			
 		]]>
 	</mx:Script>
 	
@@ -788,13 +792,13 @@
 					sortableColumns="false" 				
 					fontSize="10"
 					resizableColumns="true"
-					dataProvider="{pendingSequenceLanesWorkList}"
+					dataProvider="{pendingSequenceLanesWorkList}" dataTipField="@appUserName"
 					allowMultipleSelection="true"
 					editable="true">
 					<util:columns>
 						<mx:AdvancedDataGridColumn id="channelChooserColumn" width="75"
 												   dataField="@flowCellChannelNumber" editable="true"
-												   rendererIsEditor="false"												    
+												   rendererIsEditor="false" showDataTips="true"												    
 												   editorDataField="value" >
 							<mx:itemEditor>
 								<mx:Component id ="channelChooserColumnItemEditor">
@@ -814,7 +818,7 @@
 								</mx:Component>
 							</mx:headerRenderer>
 						</mx:AdvancedDataGridColumn>
-						<mx:AdvancedDataGridColumn dataField="@number" editable="false" width="75" >
+						<mx:AdvancedDataGridColumn dataField="@number" showDataTips="true" editable="false" width="75" >
 							<mx:headerRenderer>
 								<mx:Component>
 									<mx:VBox width="100%" verticalGap="0"   horizontalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle">
@@ -823,7 +827,7 @@
 								</mx:Component>
 							</mx:headerRenderer>
 						</mx:AdvancedDataGridColumn>
-						<mx:AdvancedDataGridColumn dataField="@idOligoBarcode" labelFunction="lookupOligoBarcode" width="120" editable="false">
+						<mx:AdvancedDataGridColumn dataField="@idOligoBarcode" showDataTips="true" labelFunction="lookupOligoBarcode" width="120" editable="false">
 							<mx:headerRenderer>
 								<mx:Component>
 									<mx:VBox width="100%" verticalGap="0"   horizontalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle">
@@ -832,7 +836,7 @@
 								</mx:Component>
 							</mx:headerRenderer>
 						</mx:AdvancedDataGridColumn>
-						<mx:AdvancedDataGridColumn dataField="@idOligoBarcodeB" labelFunction="lookupOligoBarcodeB" width="120" editable="false">
+						<mx:AdvancedDataGridColumn dataField="@idOligoBarcodeB" showDataTips="true" labelFunction="lookupOligoBarcodeB" width="120" editable="false">
 							<mx:headerRenderer>
 								<mx:Component>
 									<mx:VBox width="100%" verticalGap="0"   horizontalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle">
@@ -841,12 +845,12 @@
 								</mx:Component>
 							</mx:headerRenderer>
 						</mx:AdvancedDataGridColumn>
-						<mx:AdvancedDataGridColumn id="protocolChooserColumn" width="295"
+						<mx:AdvancedDataGridColumn id="protocolChooserColumn" width="295"	
 												   dataField="@idNumberSequencingCyclesAllowed" editable="false"
 												   rendererIsEditor="false"
-												   itemRenderer="{views.renderers.DropdownLabel.create(sequenceProtocolsList.source, '@display', '@value', '@idNumberSequencingCyclesAllowed', true, true)}"
+												   itemRenderer="{views.renderers.DropdownLabel.create(sequenceProtocolsList.source, '@display', '@value', '@idNumberSequencingCyclesAllowed', '@appUserName', true, true)}"
 												   itemEditor="{views.renderers.GridColumnFillButton.create(views.renderers.ComboBox.create(sequenceProtocolsList.source,'@display', '@value', '@idNumberSequencingCyclesAllowed', null, true).newInstance(), 'idRequestAndMultiplexGroup')}" 
-												   editorDataField="value" >
+												   editorDataField="value" showDataTips="true">
 							<mx:headerRenderer>
 								<mx:Component>
 									<mx:VBox width="100%" verticalGap="0"   horizontalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle">

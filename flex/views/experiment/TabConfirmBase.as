@@ -272,7 +272,8 @@ package views.experiment
 					parentApplication.getPropertyOptions(propertyNode.@idProperty, false), 
 					'@option', 
 					'@idPropertyOption', 
-					fieldName,
+					fieldName, 
+					'',
 					false, false);            					
 			} 
 		}
@@ -309,6 +310,7 @@ package views.experiment
 					'@option', 
 					'@idPropertyOption', 
 					fieldName,
+					'',
 					false, false);            					
 			} 
 		}
