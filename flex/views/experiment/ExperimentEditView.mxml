@@ -1753,9 +1753,9 @@
 			
 			private function highlightAmendRequestCategory():void {
 				var i:int = 0;
-				for (i = 0; i < radioAmendRequestCategory1.length; i++) {
-					radioAmendRequestCategory1[i].setStyle("fontWeight", radioAmendRequestCategory1[i].selected    == true ?  "bold" : "normal");	
-				}
+//				for (i = 0; i < radioAmendRequestCategory1.length; i++) {
+//					radioAmendRequestCategory1[i].setStyle("fontWeight", radioAmendRequestCategory1[i].selected    == true ?  "bold" : "normal");	
+//				}
 				for (i = 0; i < radioAmendRequestCategory2.length; i++) {
 					radioAmendRequestCategory2[i].setStyle("fontWeight", radioAmendRequestCategory2[i].selected    == true ?  "bold" : "normal");	
 				}
@@ -6555,7 +6555,7 @@
 					<mx:HBox width="100%" horizontalGap="8">
 						<mx:Text text="(3) Select the category that best describes the services that you will be adding to this request." width="194"/>
 						<mx:VBox width="100%" height="100%" verticalGap="8" fontSize="11">							
-							<mx:VBox width="100%" height="100%" verticalGap="0">							
+<!--							<mx:VBox width="100%" height="100%" verticalGap="0">							
 								<mx:Repeater id="requestCategoryRepeater1" dataProvider="{qcAmendRequestCategories}">
 									<mx:HBox verticalGap="2" paddingRight="2" paddingBottom="2" width="100%" verticalAlign="middle">
 										<mx:HBox horizontalAlign="center">
@@ -6570,7 +6570,7 @@
 									</mx:HBox>
 								</mx:Repeater>
 							</mx:VBox>
-							<mx:HRule width="100%"/>
+							<mx:HRule width="100%"/>-->
 							<mx:VBox width="100%" height="100%" verticalGap="0">							
 								<mx:Repeater id="requestCategoryRepeater2" dataProvider="{addLanesAmendRequestCategories}">
 									<mx:HBox verticalGap="2" paddingRight="2" paddingBottom="2" width="100%" verticalAlign="middle">
