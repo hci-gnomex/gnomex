@@ -39,6 +39,7 @@ public class GetRequestList extends GNomExCommand implements Serializable {
   private HashMap<Integer, List<Object[]>> sourcePlateMap = new HashMap<Integer, List<Object[]>>();
 
   private Boolean includePlateInfo = true;
+  private Boolean linkToAnalysisExpsOnly = false;
 
   private String message = "";
   private static final int DEFAULT_MAX_REQUESTS_COUNT = 100;
@@ -54,6 +55,10 @@ public class GetRequestList extends GNomExCommand implements Serializable {
 
     if (request.getParameter("includePlateInfo") != null && !request.getParameter("includePlateInfo").equals("")) {
       includePlateInfo = request.getParameter("includePlateInfo").equals("Y") ? true : false;
+    }
+
+    if (request.getParameter("linkToAnalysisExpsOnly") != null && !request.getParameter("linkToAnalysisExpsOnly").equals("")) {
+      linkToAnalysisExpsOnly = request.getParameter("linkToAnalysisExpsOnly").equals("Y") ? true : false;
     }
   }
 
@@ -91,12 +96,19 @@ public class GetRequestList extends GNomExCommand implements Serializable {
           // BST Security failed.
           continue;
         }
+        // If we only want exps that can be linked to analysis then skip the ones who don't have it.
+        String codeRequestCategory = (String) row[6];
+        RequestCategory requestCategory = dh.getRequestCategoryObject(codeRequestCategory);
+        if (linkToAnalysisExpsOnly && (requestCategory.getAssociatedWithAnalysis() == null || requestCategory.getAssociatedWithAnalysis().equals("N"))) {
+          continue;
+        }
+
         String number = (String) row[1];
         String name = (String) row[2];
         String description = (String) row[3];
         Integer idSampleDropOffLocation = (Integer) row[4];
         String codeRequestStatus = (String) row[5];
-        String codeRequestCategory = (String) row[6];
+        // String codeRequestCategory = (String) row[6];
         String createDate = row[7] != null ? this.formatDateTime((java.util.Date) row[7], this.DATE_OUTPUT_DASH) : "";
         String submitterFirstName = (String) row[8];
         String submitterLastName = (String) row[9];
@@ -115,7 +127,7 @@ public class GetRequestList extends GNomExCommand implements Serializable {
         String requestStatus = dh.getRequestStatus(codeRequestStatus);
         String labName = Lab.formatLabNameFirstLast(labFirstName, labLastName);
         String ownerName = AppUser.formatName(submitterLastName, submitterFirstName);
-        RequestCategory requestCategory = dh.getRequestCategoryObject(codeRequestCategory);
+        // RequestCategory requestCategory = dh.getRequestCategoryObject(codeRequestCategory);
 
         String experimentName = toString(name);
         if (experimentName.length() == 0) {
