@@ -1415,6 +1415,7 @@
 									'@option', 
 									'@idPropertyOption', 
 									"@ANNOT" + annotation.@idProperty,
+									'',
 									false);                
 							} else{
 								newCol.wordWrap = true;

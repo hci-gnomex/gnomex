@@ -47,7 +47,7 @@
 		useProxy="false">
 	</mx:HTTPService >    
 	
-	<!--<mx:HTTPService 
+	<mx:HTTPService 
 		id="deleteWorkItem"   
 		url="DeleteWorkItem.gx" 
 		resultFormat="e4x"
@@ -56,7 +56,7 @@
 		fault="parentApplication.onFailHttpRequest('Unable to delete work item', event)"
 		method="POST"
 		useProxy="false">
-	</mx:HTTPService > -->
+	</mx:HTTPService > 
 	
 	<mx:XMLListCollection id="masterWorkList"																														/>
 	<mx:XMLListCollection id="pendingSequenceLanesWorkList"			source="{masterWorkList.source}" filterFunction="filterPendingSequenceLanesWorkList" 								/> <!-- Left Hand Side Work List -->
@@ -622,6 +622,35 @@
 					return "";
 				}
 			}
+			
+			private function promptToDelete():void{
+				Alert.show("You are about to delete " + this.pendingSequenceLanesGrid.selectedItems.length + " sequence lanes from the workflow.  Continue?", "Warning", (Alert.YES | Alert.NO), this, onPromptToDelete);
+			}
+			
+			private function onPromptToDelete(event:CloseEvent):void {	
+				if(event.detail==Alert.YES){
+					var params:Object = new Object();
+					var workItemIds:String = "";
+					for(var i:int; i < this.pendingSequenceLanesGrid.selectedItems.length; i++){
+						workItemIds += this.pendingSequenceLanesGrid.selectedItems[i].@idWorkItem + ",";
+					}
+					
+					params.workItemIds = workItemIds.substring(0, workItemIds.lastIndexOf(","));
+					deleteWorkItem.send(params);
+				} else{
+					return;
+				}
+			}
+			
+			private function onDeleteWorkItem(event:ResultEvent):void{
+				if(deleteWorkItem.lastResult.name() == "SUCCESS"){
+					Alert.show("Work item(s) successfully deleted.");
+					getWorkList.send();
+				} else{
+					Alert.show(deleteWorkItem.lastResult..ACTMESSAGE.@TEXT);
+				}
+			}
+			
 		]]>
 	</mx:Script>
 	<!--							END Grid Labeling Functions						-->
@@ -690,6 +719,10 @@
 			}
 			public function flowCellProtocolChangeHandler(event:ListEvent):void {
 				//Alert.show("Changing the protocol for the flow cell will change the protocol for all samples it contains.", "Warning");
+			}
+			
+			private function showAppUserName(row:Object):String{
+				return row.@appUserName;
 			}
 			
 		]]>
@@ -788,13 +821,13 @@
 					sortableColumns="false" 				
 					fontSize="10"
 					resizableColumns="true"
-					dataProvider="{pendingSequenceLanesWorkList}"
+					dataProvider="{pendingSequenceLanesWorkList}" dataTipField="@appUserName"
 					allowMultipleSelection="true"
 					editable="true">
 					<util:columns>
 						<mx:AdvancedDataGridColumn id="channelChooserColumn" width="75"
 												   dataField="@flowCellChannelNumber" editable="true"
-												   rendererIsEditor="false"												    
+												   rendererIsEditor="false" showDataTips="true"												    
 												   editorDataField="value" >
 							<mx:itemEditor>
 								<mx:Component id ="channelChooserColumnItemEditor">
@@ -814,7 +847,7 @@
 								</mx:Component>
 							</mx:headerRenderer>
 						</mx:AdvancedDataGridColumn>
-						<mx:AdvancedDataGridColumn dataField="@number" editable="false" width="75" >
+						<mx:AdvancedDataGridColumn dataField="@number" showDataTips="true" editable="false" width="75" >
 							<mx:headerRenderer>
 								<mx:Component>
 									<mx:VBox width="100%" verticalGap="0"   horizontalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle">
@@ -823,7 +856,7 @@
 								</mx:Component>
 							</mx:headerRenderer>
 						</mx:AdvancedDataGridColumn>
-						<mx:AdvancedDataGridColumn dataField="@idOligoBarcode" labelFunction="lookupOligoBarcode" width="120" editable="false">
+						<mx:AdvancedDataGridColumn dataField="@idOligoBarcode" showDataTips="true" labelFunction="lookupOligoBarcode" width="120" editable="false">
 							<mx:headerRenderer>
 								<mx:Component>
 									<mx:VBox width="100%" verticalGap="0"   horizontalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle">
@@ -832,7 +865,7 @@
 								</mx:Component>
 							</mx:headerRenderer>
 						</mx:AdvancedDataGridColumn>
-						<mx:AdvancedDataGridColumn dataField="@idOligoBarcodeB" labelFunction="lookupOligoBarcodeB" width="120" editable="false">
+						<mx:AdvancedDataGridColumn dataField="@idOligoBarcodeB" showDataTips="true" labelFunction="lookupOligoBarcodeB" width="120" editable="false">
 							<mx:headerRenderer>
 								<mx:Component>
 									<mx:VBox width="100%" verticalGap="0"   horizontalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle">
@@ -841,12 +874,12 @@
 								</mx:Component>
 							</mx:headerRenderer>
 						</mx:AdvancedDataGridColumn>
-						<mx:AdvancedDataGridColumn id="protocolChooserColumn" width="295"
+						<mx:AdvancedDataGridColumn id="protocolChooserColumn" width="295"	
 												   dataField="@idNumberSequencingCyclesAllowed" editable="false"
 												   rendererIsEditor="false"
-												   itemRenderer="{views.renderers.DropdownLabel.create(sequenceProtocolsList.source, '@display', '@value', '@idNumberSequencingCyclesAllowed', true, true)}"
+												   itemRenderer="{views.renderers.DropdownLabel.create(sequenceProtocolsList.source, '@display', '@value', '@idNumberSequencingCyclesAllowed', '@appUserName', true, true)}"
 												   itemEditor="{views.renderers.GridColumnFillButton.create(views.renderers.ComboBox.create(sequenceProtocolsList.source,'@display', '@value', '@idNumberSequencingCyclesAllowed', null, true).newInstance(), 'idRequestAndMultiplexGroup')}" 
-												   editorDataField="value" >
+												   editorDataField="value" showDataTips="true">
 							<mx:headerRenderer>
 								<mx:Component>
 									<mx:VBox width="100%" verticalGap="0"   horizontalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle">
@@ -988,6 +1021,11 @@
 	</mx:HDividedBox>
 	<mx:ControlBar horizontalAlign="right" width="100%">
 		<mx:HBox width="100%" horizontalAlign="left">
+			<mx:LinkButton label="Delete" id="deleteButton" icon="@Embed('../../assets/delete.png')" 
+						   click="promptToDelete()"
+						   letterSpacing=".3" horizontalGap="0" toolTip="Delete selected sequence lanes"  enabled="{this.pendingSequenceLanesGrid.selectedItems.length > 0}" textDecoration="underline" 
+						   disabledIcon="@Embed(source='../../assets/delete_disable.png')">
+			</mx:LinkButton>
 		</mx:HBox>
 		<util:DirtyNote id="dirty"/>
 		<mx:Button label="Save" id="saveButton" icon="@Embed(source='../../assets/save.png')" disabledIcon="@Embed(source='../../assets/save_disable.png')" click="save()"/>

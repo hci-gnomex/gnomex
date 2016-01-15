@@ -1,9 +1,11 @@
 package hci.flex.controls
 {
 	import flash.display.Graphics;
+	
+	import hci.flex.renderers.RendererFactory;
+	
 	import mx.controls.Label;
 	import mx.core.IFactory;
-	import hci.flex.renderers.RendererFactory;
 	
 	public class DropdownLabel extends mx.controls.Label
 	{
@@ -16,6 +18,7 @@ package hci.flex.controls
 	    public var missingRequiredFieldBorder:uint = RendererFactory.DEFAULT_MISSING_REQUIRED_FIELD_BORDER;
 	    public var missingRequiredFieldBorderThickness:uint = RendererFactory.DEFAULT_MISSING_REQUIRED_FIELD_BORDER_THICKNESS;
 		public var missingFieldBackground:uint = RendererFactory.DEFAULT_MISSING_FIELD_BACKGROUND;
+		public var toolTipField:String;
 		
 		//For use in list
 		public var dataField:String;	
@@ -27,7 +30,7 @@ package hci.flex.controls
 			
 			//Defaults - Change as needed
 			labelField = "@display";
-			valueField = "@value";		
+			valueField = "@value";
 		}
 		
 		public function set value(val:String):void {
@@ -61,7 +64,8 @@ package hci.flex.controls
 			dataProvider:XMLList, 
 			labelField:String, 
 			valueField:String, 
-			dataField:String, 
+			dataField:String,
+			toolTipField:String="",
 			isRequired:Boolean=false, 
 			isEditable:Boolean=false, 
 			missingRequiredFieldBackground:uint = 0xeaeaea):IFactory {			
@@ -70,6 +74,7 @@ package hci.flex.controls
 													labelField: labelField,  
 													valueField: valueField,
 													dataField: dataField,
+													toolTipField: toolTipField,
 													isRequired: isRequired,
 													isEditable: isEditable,
 													missingRequiredFieldBackground: missingRequiredFieldBackground});				
@@ -82,6 +87,9 @@ package hci.flex.controls
 	      	}
 	      	if (!data.hasOwnProperty(dataField)) {
 				return;
+			}
+			if(this.toolTipField != null && this.toolTipField != ""){
+				this.toolTip = data[toolTipField];
 			}
 			
 			if ( isEditable ) {
