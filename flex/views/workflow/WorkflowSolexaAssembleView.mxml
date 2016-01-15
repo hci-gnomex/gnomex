@@ -47,7 +47,7 @@
 		useProxy="false">
 	</mx:HTTPService >    
 	
-	<!--<mx:HTTPService 
+	<mx:HTTPService 
 		id="deleteWorkItem"   
 		url="DeleteWorkItem.gx" 
 		resultFormat="e4x"
@@ -56,7 +56,7 @@
 		fault="parentApplication.onFailHttpRequest('Unable to delete work item', event)"
 		method="POST"
 		useProxy="false">
-	</mx:HTTPService > -->
+	</mx:HTTPService > 
 	
 	<mx:XMLListCollection id="masterWorkList"																														/>
 	<mx:XMLListCollection id="pendingSequenceLanesWorkList"			source="{masterWorkList.source}" filterFunction="filterPendingSequenceLanesWorkList" 								/> <!-- Left Hand Side Work List -->
@@ -622,6 +622,35 @@
 					return "";
 				}
 			}
+			
+			private function promptToDelete():void{
+				Alert.show("You are about to delete " + this.pendingSequenceLanesGrid.selectedItems.length + " sequence lanes from the workflow.  Continue?", "Warning", (Alert.YES | Alert.NO), this, onPromptToDelete);
+			}
+			
+			private function onPromptToDelete(event:CloseEvent):void {	
+				if(event.detail==Alert.YES){
+					var params:Object = new Object();
+					var workItemIds:String = "";
+					for(var i:int; i < this.pendingSequenceLanesGrid.selectedItems.length; i++){
+						workItemIds += this.pendingSequenceLanesGrid.selectedItems[i].@idWorkItem + ",";
+					}
+					
+					params.workItemIds = workItemIds.substring(0, workItemIds.lastIndexOf(","));
+					deleteWorkItem.send(params);
+				} else{
+					return;
+				}
+			}
+			
+			private function onDeleteWorkItem(event:ResultEvent):void{
+				if(deleteWorkItem.lastResult.name() == "SUCCESS"){
+					Alert.show("Work item(s) successfully deleted.");
+					getWorkList.send();
+				} else{
+					Alert.show(deleteWorkItem.lastResult..ACTMESSAGE.@TEXT);
+				}
+			}
+			
 		]]>
 	</mx:Script>
 	<!--							END Grid Labeling Functions						-->
@@ -992,6 +1021,11 @@
 	</mx:HDividedBox>
 	<mx:ControlBar horizontalAlign="right" width="100%">
 		<mx:HBox width="100%" horizontalAlign="left">
+			<mx:LinkButton label="Delete" id="deleteButton" icon="@Embed('../../assets/delete.png')" 
+						   click="promptToDelete()"
+						   letterSpacing=".3" horizontalGap="0" toolTip="Delete selected sequence lanes"  enabled="{this.pendingSequenceLanesGrid.selectedItems.length > 0}" textDecoration="underline" 
+						   disabledIcon="@Embed(source='../../assets/delete_disable.png')">
+			</mx:LinkButton>
 		</mx:HBox>
 		<util:DirtyNote id="dirty"/>
 		<mx:Button label="Save" id="saveButton" icon="@Embed(source='../../assets/save.png')" disabledIcon="@Embed(source='../../assets/save_disable.png')" click="save()"/>
