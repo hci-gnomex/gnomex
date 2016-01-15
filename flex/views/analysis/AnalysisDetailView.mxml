@@ -500,6 +500,7 @@
 				var linkToExpWindow:LinkToExpWindow = LinkToExpWindow(PopUpManager.createPopUp(this, LinkToExpWindow, true));
 				linkToExpWindow.idLab = parentDocument.selectedIdLab;
 				linkToExpWindow.idAnalysis = parentDocument.selectedIdAnalysis;
+				linkToExpWindow.parentWindow = this;
 				PopUpManager.centerPopUp(linkToExpWindow);
 			}
 			

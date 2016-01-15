@@ -39,6 +39,8 @@
 			
 			public var idLab:Object = null;
 			
+			public var parentWindow:Object = null;
+			
 			public function init():void{
 				var params:Object = new Object();
 				params.includePlateInfo = 'N';
@@ -76,6 +78,12 @@
 			private function onLinkExpToAnalysis(event:ResultEvent):void{
 				if(linkExpToAnalysis.lastResult.name() == "SUCCESS"){
 					Alert.show("Analysis was successfully linked");
+					//We will only be coming from analysisDetail or analysisEdit and both of them
+					//have parent of NavAnalysisView.  So refresh the selected analysis to pick up link
+					if(parentWindow != null){
+						parentWindow.parentDocument.forceReload = true;
+						parentWindow.parentDocument.refreshAnalysis();
+					}
 					PopUpManager.removePopUp(this);
 				} else{
 					Alert.show( event.result..ERROR.@message.toString(), "Error during linking " );
