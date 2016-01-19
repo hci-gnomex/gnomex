@@ -75,7 +75,7 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
   private Set             hybridizations = new TreeSet();
   private Set             workItems = new TreeSet();
   private Set             sequenceLanes = new TreeSet();
-  private Set             analysisExperimentItems = new TreeSet();  
+  private Set             analysisExperimentItems = new TreeSet();
   private Set             seqLibTreatments = new TreeSet();
   private Set             collaborators = new TreeSet();
   private Set             files = new TreeSet();
@@ -115,13 +115,13 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
   public void setTopics(Set topics) {
     this.topics = topics;
   }
-  
+
   public Integer getIdProduct() {
-	return idProduct;
+    return idProduct;
   }
-  
+
   public void setIdProduct(Integer idProduct) {
-	this.idProduct = idProduct;
+    this.idProduct = idProduct;
   }
 
   public String getCodeApplication() {
@@ -608,14 +608,14 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
               doneLaneCount++;
             } else if (l.getFlowCellChannel().getPipelineDate() != null) {
               doneLaneCount++;
-            } 
+            }
           }
         }
       }
 
       if (doneLaneCount == this.getSequenceLanes().size()) {
         isFinished = true;
-      }            
+      }
     } else {
       int doneHybCount = 0;
       for(Iterator i1 = this.getHybridizations().iterator(); i1.hasNext();) {
@@ -774,15 +774,21 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
   public String getLabName() {
     if (lab != null) {
       return lab.getName();
-    } else {
-      return "";
     }
+    return "";
   }
-  
+
+  public String getTruncatedLabName() {
+    if (lab != null) {
+      return lab.getName( false, false );
+    }
+    return "";
+  }
+
   public Integer getTargetClassIdentifier() {
 	  return idRequest;
   }
-  
+
   public String getTargetClassName() {
 	  return this.getClass().getName();
   }
@@ -1144,7 +1150,7 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
       displayName.append(" - ");
       displayName.append(root.getAttributeValue("labName"));
       displayName.append(" ");
-      displayName.append(root.getAttributeValue("requestCreateDateDisplayMedium"));      
+      displayName.append(root.getAttributeValue("requestCreateDateDisplayMedium"));
 
       root.setAttribute("displayName", displayName.toString());
       root.setAttribute("label",       displayName.toString());
@@ -1158,12 +1164,12 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
       }
       if (root.getAttributeValue("codeApplication") != null && !root.getAttributeValue("codeApplication").equals("")) {
         displayName.append(" - ");
-        displayName.append(dh.getApplication(root.getAttributeValue("codeApplication")));                
+        displayName.append(dh.getApplication(root.getAttributeValue("codeApplication")));
       }
       displayName.append(" - ");
       displayName.append(root.getAttributeValue("labName"));
       displayName.append(" ");
-      displayName.append(root.getAttributeValue("requestCreateDateDisplayMedium"));      
+      displayName.append(root.getAttributeValue("requestCreateDateDisplayMedium"));
 
       root.setAttribute("displayName", displayName.toString());
       root.setAttribute("label",       displayName.toString());
@@ -1185,7 +1191,7 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
     root.setAttribute("name",                   this.getNonNullString(this.getName()));
     root.setAttribute("number",          this.getNonNullString(this.getNumber())); // analysis and datatrack have "number". Now all three are congruent.
     return doc;
-  }  
+  }
 
 
   public String isDNASeqExperiment() {
@@ -1343,7 +1349,7 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
 
     return channels;
   }
-  
+
   @Override
   public Set<BillingItem> getBillingItems(Session sess) {
 	  BillingTemplate template = BillingTemplateQueryManager.retrieveBillingTemplate(sess, this);
@@ -1353,7 +1359,7 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
 		  return new TreeSet<BillingItem>();
 	  }
   }
-  
+
   @Override
   public BillingTemplate getBillingTemplate(Session sess) {
 	  return BillingTemplateQueryManager.retrieveBillingTemplate(sess, this);
@@ -1380,7 +1386,7 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
     parentNode.addContent(requestNode);
     return requestNode;
   }
-  
+
   public String getCodeIsolationPrepType(){
     return this.codeIsolationPrepType;
   }

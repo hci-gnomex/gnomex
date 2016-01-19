@@ -1660,7 +1660,7 @@
 					
 					<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle">
 						<mx:Label text="Lab group"  width="105"  styleName="formLabel" textAlign="left" id="label2"/>
-						<mx:Text   text="{this.selectedExperiment.@labName}" width="280"/>
+						<mx:Text   text="{this.selectedExperiment.@truncatedLabName}" width="280"/>
 					</mx:HBox>
 					<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="top" id="nameBox">
 						<mx:Label text="Name" width="105" styleName="formLabel" textAlign="left" id="label3"/>
