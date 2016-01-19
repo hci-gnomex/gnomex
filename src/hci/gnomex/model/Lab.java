@@ -1,12 +1,12 @@
 package hci.gnomex.model;
 
-import hci.hibernate3utils.HibernateDetailObject;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+
+import hci.hibernate3utils.HibernateDetailObject;
 
 
 public class Lab extends HibernateDetailObject implements java.lang.Comparable {
@@ -154,9 +154,9 @@ public class Lab extends HibernateDetailObject implements java.lang.Comparable {
   public String getName() {
     return getName(true,true,true);
   }
-  
+
   public String getNameFirstLast() {
-	  return getName(false, true, true);
+    return getName(false, true, true);
   }
 
   public String getName( Boolean lastNameFirst, Boolean includeLab ) {
@@ -188,7 +188,7 @@ public class Lab extends HibernateDetailObject implements java.lang.Comparable {
     }
     if ( includeLab ) {
       if (name.length() > 0) {
-        name += " Lab";      
+        name += " Lab";
       }
     }
     if ( includeActiveFlag ) {
@@ -334,7 +334,7 @@ public class Lab extends HibernateDetailObject implements java.lang.Comparable {
     }
   }
 
-  public static String formatLabName(String lastName, String firstName) {
+  public static String formatLabName(String lastName, String firstName, boolean includeLab) {
 
     String labName = "";
     if (lastName != null && !lastName.equals("")) {
@@ -346,13 +346,18 @@ public class Lab extends HibernateDetailObject implements java.lang.Comparable {
       }
       labName += firstName;
     }
-    if (labName.length() > 0) {
+    if (labName.length() > 0 && includeLab) {
       labName += " Lab";
     }
     return labName;
   }
 
-  public static String formatLabNameFirstLast(String firstName, String lastName) {
+  public static String formatLabName(String lastName, String firstName ) {
+
+    return formatLabName(lastName, firstName, true);
+  }
+
+  public static String formatLabNameFirstLast(String firstName, String lastName, boolean includeLab) {
 
     String labName = "";
     if (firstName != null && !firstName.equals("")) {
@@ -363,10 +368,15 @@ public class Lab extends HibernateDetailObject implements java.lang.Comparable {
       labName += " " + lastName;
     }
 
-    if (labName.length() > 0) {
+    if (labName.length() > 0 && includeLab) {
       labName += " Lab";
     }
     return labName;
+  }
+
+  public static String formatLabNameFirstLast(String firstName, String lastName) {
+
+    return formatLabNameFirstLast(firstName, lastName, true);
   }
 
 
@@ -415,7 +425,7 @@ public class Lab extends HibernateDetailObject implements java.lang.Comparable {
 
   public void setInstitutions(Set institutions) {
     this.institutions = institutions;
-  }  
+  }
 
   public Set getCoreFacilities() {
     return coreFacilities;
@@ -423,11 +433,11 @@ public class Lab extends HibernateDetailObject implements java.lang.Comparable {
 
   public void setCoreFacilities(Set coreFacilities) {
     this.coreFacilities = coreFacilities;
-  }  
+  }
 
   public Boolean isExternalLab() {
     return (getIsExternalPricing() != null && getIsExternalPricing().equals("Y"))
-    || (getIsExternalPricingCommercial() != null && getIsExternalPricingCommercial().equals("Y"));
+        || (getIsExternalPricingCommercial() != null && getIsExternalPricingCommercial().equals("Y"));
   }
 
   public List getApprovedBillingAccounts() {
@@ -456,7 +466,7 @@ public class Lab extends HibernateDetailObject implements java.lang.Comparable {
     ArrayList poBillingAccounts = new ArrayList();
     for(Iterator i = getBillingAccounts().iterator(); i.hasNext();) {
       BillingAccount ba = (BillingAccount)i.next();
-      if (ba.getIsPO() != null && 
+      if (ba.getIsPO() != null &&
           ba.getIsPO().equals("Y") ) {
         poBillingAccounts.add(ba);
       }
@@ -467,7 +477,7 @@ public class Lab extends HibernateDetailObject implements java.lang.Comparable {
     ArrayList creditCardBillingAccounts = new ArrayList();
     for(Iterator i = getBillingAccounts().iterator(); i.hasNext();) {
       BillingAccount ba = (BillingAccount)i.next();
-      if (ba.getIsCreditCard() != null && 
+      if (ba.getIsCreditCard() != null &&
           ba.getIsCreditCard().equals("Y") ) {
         creditCardBillingAccounts.add(ba);
       }
@@ -536,7 +546,7 @@ public class Lab extends HibernateDetailObject implements java.lang.Comparable {
   }
 
   public Integer getDefaultIdInstitutionForLab() {
-    return getDefaultIdInstitutionForLab((Set<Institution>)getInstitutions());
+    return getDefaultIdInstitutionForLab(getInstitutions());
   }
 
   public Integer getDefaultIdInstitutionForLab(Collection<Institution> institutions) {
