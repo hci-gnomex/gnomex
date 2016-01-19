@@ -1799,18 +1799,19 @@
 			<mx:HBox width="100%" horizontalAlign="left" paddingLeft="0" id="hbox9">
 				<mx:VBox id="workflowProgressBox"  verticalGap="0"  cornerRadius="6" borderStyle="solid" paddingLeft="4" paddingRight="4" paddingTop="4" shadowDirection="4">
 					<mx:HBox width="100%" >
-						<mx:Text width="90" text="Order Status" styleName="formLabel"  textAlign="right"/>
+						<mx:Text width="90" text="Order Status" styleName="formLabel"  textAlign="left"/>
 						
 					</mx:HBox>
-					<mx:HBox  verticalGap="0">
+					<mx:HBox  verticalGap="0" horizontalGap="0">
 						<mx:Repeater id="stepLabelRepeater" dataProvider="{selectedExperiment.workflowStatus.Step}">
-							<mx:Text text="{stepLabelRepeater.currentItem.@name}" width="89" fontSize="9" id="text1"/>
+							<mx:Text text="{stepLabelRepeater.currentItem.@name}" width="100" fontSize="8" id="text1" textAlign="right" paddingRight="0"/>
+							<mx:Spacer width="2" />
 						</mx:Repeater>
 					</mx:HBox>
 					<mx:VBox >
 						<mx:Repeater id="workflowProgressRepeater" dataProvider="{selectedExperiment.workflowStatus.Progress}" >
 							<mx:HBox horizontalGap="0" verticalAlign="middle">
-								<mx:ProgressBar id="workflowProgressBar" labelPlacement="right" width="{100 * selectedExperiment.workflowStatus.@numberOfSteps}" maximum="{selectedExperiment.workflowStatus.@numberOfSteps}" mode="manual" label="" themeColor="#2C9D11" paddingRight="0" paddingLeft="4"/>
+								<mx:ProgressBar id="workflowProgressBar" labelPlacement="right" width="{105 * selectedExperiment.workflowStatus.@numberOfSteps}" maximum="{selectedExperiment.workflowStatus.@numberOfSteps}" mode="manual" label="" themeColor="#2C9D11" paddingRight="0" paddingLeft="4"/>
 								<mx:Text  text="{workflowProgressRepeater.currentItem.@title}" fontSize="9" paddingLeft="0" fontStyle="italic"/>
 							</mx:HBox>
 						</mx:Repeater>
