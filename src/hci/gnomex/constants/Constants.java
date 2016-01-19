@@ -92,14 +92,14 @@ public class Constants {
 
   /* Keep lower case. */
   public static final String[] DATATRACK_FILE_EXTENSIONS                      = new String[] { ".bam.bai", // this
-                                                                                                           // must
-                                                                                                           // precede
-                                                                                                           // ".bam"
-                                                                                                           // and
-                                                                                                           // ".bai"
-      ".bam", ".bai", ".useq", ".bb", ".bw", ".bed", ".bgr", ".brs", ".gff", ".gtf", ".vcf.gz", ".vcf.gz.tbi", ".narrowPeak", ".broadPeak", ".gappedPeak"};
+      // must
+      // precede
+      // ".bam"
+      // and
+      // ".bai"
+      ".bam", ".bai", ".useq", ".bb", ".bw", ".bed", ".bgr", ".brs", ".gff", ".gtf", ".vcf.gz", ".vcf.gz.tbi", ".narrowPeak", ".broadPeak", ".gappedPeak", ".trio"};
 
-  public static final String[] DATATRACK_FILE_EXTENSIONS_NO_INDEX             = new String[] { ".bam", ".useq", ".bb", ".bw", ".bed", ".bgr", ".brs", ".gff", ".gtf", ".vcf.gz", ".narrowPeak", ".broadPeak", ".gappedPeak"};
+  public static final String[] DATATRACK_FILE_EXTENSIONS_NO_INDEX             = new String[] { ".bam", ".useq", ".bb", ".bw", ".bed", ".bgr", ".brs", ".gff", ".gtf", ".vcf.gz", ".narrowPeak", ".broadPeak", ".gappedPeak", ".trio"};
 
   public static final String[] FILE_EXTENSIONS_TO_CHECK_SIZE_BEFORE_UPLOADING = new String[] { ".bed", ".bgn", ".gff", ".gtf", ".psl", };
 
