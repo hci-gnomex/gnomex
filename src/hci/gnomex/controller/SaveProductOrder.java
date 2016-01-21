@@ -166,7 +166,7 @@ public class SaveProductOrder extends GNomExCommand implements Serializable {
 
         billingPeriod = DictionaryHelper.getInstance(sess).getCurrentBillingPeriod();
         Lab lab = DictionaryHelper.getInstance(sess).getLabObject(idLab);
-        HashMap<String, ArrayList<Element>> productTypes = new HashMap<String, ArrayList<Element>>();
+        HashMap<Integer, ArrayList<Element>> productTypes = new HashMap<Integer, ArrayList<Element>>();
 
         for (Iterator i = productDoc.getRootElement().getChildren().iterator(); i.hasNext();) {
           Element n = (Element) i.next();
@@ -176,11 +176,11 @@ public class SaveProductOrder extends GNomExCommand implements Serializable {
           if (!productTypes.containsKey(n.getAttributeValue("idProductType"))) {
             ArrayList<Element> products = new ArrayList<Element>();
             products.add(n);
-            productTypes.put(n.getAttributeValue("idProductType"), products);
+            productTypes.put(Integer.parseInt(n.getAttributeValue("idProductType")), products);
           } else {
             ArrayList<Element> existingList = productTypes.get(n.getAttributeValue("idProductType"));
             existingList.add(n);
-            productTypes.put(n.getAttributeValue("idProductType"), existingList);
+            productTypes.put(Integer.parseInt(n.getAttributeValue("idProductType")), existingList);
           }
         }
 
@@ -236,26 +236,26 @@ public class SaveProductOrder extends GNomExCommand implements Serializable {
             }
 
             boolean isHCI = lab.getContactEmail().indexOf("@hci.utah.edu") > 0;
-            //TODO : Make this a property on Product Type to Link to Purchasing System
-            //            if (po.getIdProductType().equals(ProductType.TYPE_ISCAN_CHIP) && !isHCI && !lab.isExternalLab()) {
-            //              // REQUISITION FORM
-            //              try {
-            //                // Download and fill out requisition form
-            //                File reqFile = RequisitionFormUtil.saveReqFileFromURL(po, sess, serverName);
-            //                reqFile = RequisitionFormUtil.populateRequisitionForm(po, reqFile, sess);
-            //                if (reqFile == null) {
-            //                  String msg = "Unable to download requisition form for product order " + po.getIdProductOrder() + ".";
-            //                  System.out.println(msg);
-            //                } else {
-            //                  sendIlluminaEmail(sess, po);
-            //                }
+            // TODO : Make this a property on Product Type to Link to Purchasing System
+            // if (po.getIdProductType().equals(ProductType.TYPE_ISCAN_CHIP) && !isHCI && !lab.isExternalLab()) {
+            // // REQUISITION FORM
+            // try {
+            // // Download and fill out requisition form
+            // File reqFile = RequisitionFormUtil.saveReqFileFromURL(po, sess, serverName);
+            // reqFile = RequisitionFormUtil.populateRequisitionForm(po, reqFile, sess);
+            // if (reqFile == null) {
+            // String msg = "Unable to download requisition form for product order " + po.getIdProductOrder() + ".";
+            // System.out.println(msg);
+            // } else {
+            // sendIlluminaEmail(sess, po);
+            // }
             //
-            //              } catch (Exception e) {
-            //                String msg = "Unable to download requisition form OR unable to send Illumina email for Request " + po.getIdProductOrder() + ".  " + e.toString();
-            //                System.out.println(msg);
-            //                e.printStackTrace();
-            //              }
-            //            }
+            // } catch (Exception e) {
+            // String msg = "Unable to download requisition form OR unable to send Illumina email for Request " + po.getIdProductOrder() + ".  " + e.toString();
+            // System.out.println(msg);
+            // e.printStackTrace();
+            // }
+            // }
           }
         }
 
@@ -314,7 +314,7 @@ public class SaveProductOrder extends GNomExCommand implements Serializable {
     String toAddress = contactEmailCoreFacility + "," + contactEmailAppUser;
 
     BillingAccount ba = sess.load(BillingAccount.class, po.getIdBillingAccount());
-    ProductType pt = sess.load(ProductType.class, po.getCodeProductType());
+    ProductType pt = sess.load(ProductType.class, po.getIdProductType());
 
     StringBuffer products = new StringBuffer();
     for (Iterator i = po.getProductLineItems().iterator(); i.hasNext();) {
