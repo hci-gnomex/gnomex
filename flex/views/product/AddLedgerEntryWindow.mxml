@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" width="400" height="166" xmlns:util="views.util.*"
-				showCloseButton="true" title="{'Add Ledger Entry for ' + parentWindow.productName}" close="{closeWindow()}">
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" width="400" height="200" xmlns:util="views.util.*"
+				showCloseButton="true" title="Add Ledger Entry" close="{closeWindow()}">
 	
 	<mx:HTTPService 
 		id="saveProductLedgerEntry" 
@@ -66,6 +66,7 @@
 	<mx:NumberValidator allowNegative="true" integerError="Must be an integer" source="{qtyInput}" property="text" />
 	
 	<mx:VBox height="100%" width="100%">
+		<mx:Label text="{parentWindow.productName}" />
 		<mx:HBox width="100%">
 			<mx:Label text="Quantity"  width="62"/>
 			<mx:TextInput width="100%" id="qtyInput" change="{qtyInput.text != '' &amp;&amp; commentText.text != '' ? dirty.setDirty() : dirty.resetDirty()}" restrict="0-9\-" />
