@@ -100,7 +100,12 @@
 					<mx:Image source="assets/review.png"/>
 					<mx:Label id="titleLabel" styleName="titleLabel" text="{'Product Total: ' + productCount}" />
 					<mx:Spacer width="100%"/>
-					<mx:LinkButton id="addLedgerEntryButton" label="Add row" icon="@Embed('../../assets/add.png')" enabled="{parentDocument.browseTree.selectedItem != null &amp;&amp; parentDocument.browseTree.selectedItem.name() == 'product'}" click="showAddLedgerEntryWindow()"/>
+					<mx:LinkButton id="addLedgerEntryButton" 
+								   label="Add row" icon="@Embed('../../assets/add.png')" 
+								   visible="{parentApplication.isAdminState}"
+								   includeInLayout="{parentApplication.isAdminState}"
+								   enabled="{parentDocument.browseTree.selectedItem != null &amp;&amp; parentDocument.browseTree.selectedItem.name() == 'product'}" 
+								   click="showAddLedgerEntryWindow()"/>
 				</mx:HBox>
 			</mx:HBox>
 		</mx:VBox>
