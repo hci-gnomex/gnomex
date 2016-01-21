@@ -31,7 +31,7 @@
 			[Bindable]
 			private var selectedProduct:Object = null;
 			[Bindable]
-			private var requiredCodeProductType:String;
+			private var requiredIdProductType:String;
 			private var lastIdLabUsedForLookup:String;
 			[Bindable]
 			private var editable:Boolean = false;
@@ -64,7 +64,7 @@
 					selectedProduct = null;
 					availableLedgerAmount = NO_PRODUCTS;
 					pendingLedgerAmount = NO_PRODUCTS;
-					requiredCodeProductType = parentDocument.requestCategory.@codeProductType;
+					requiredIdProductType = parentDocument.requestCategory.@idProductType;
 					noProductsMessage = null;
 					
 					if (parentDocument.requestCategory.hasOwnProperty("@idCoreFacility") && parentDocument.requestCategory.hasOwnProperty("@codeRequestCategory")) {
@@ -80,7 +80,7 @@
 					selectedProduct = null;
 					availableLedgerAmount = NO_PRODUCTS;
 					pendingLedgerAmount = NO_PRODUCTS;
-					requiredCodeProductType = requestCategory.@codeProductType;
+					requiredIdProductType = requestCategory.@idProductType;
 					noProductsMessage = null;
 					
 					if (requestCategory.hasOwnProperty("@codeRequestCategory")) {
@@ -134,14 +134,14 @@
 				productGroup.selection = null;
 				productGroup.selectedValue = null;
 				selectedProduct = null;
-				requiredCodeProductType = null;
+				requiredIdProductType = null;
 				lastIdLabUsedForLookup = null;
 				editable = false;
 				setProductTypeLabel();
 			}
 			
 			public function hasSufficientInfo():Boolean {
-				if (requiredCodeProductType != null && lastIdLabUsedForLookup != null) {
+				if (requiredIdProductType != null && lastIdLabUsedForLookup != null) {
 					return true;
 				}
 				
@@ -159,7 +159,7 @@
 					keep = false;
 				}
 				
-				if (item.@codeProductType != requiredCodeProductType) {
+				if (item.@idProductType != requiredIdProductType) {
 					keep = false;
 				}
 				
@@ -263,7 +263,7 @@
 							if (product.@idProduct == idProductToLoad) {
 								productGroup.selectedValue = product;
 								selectedProduct = product;
-								requiredCodeProductType = selectedProduct.@codeProductType;
+								requiredIdProductType = selectedProduct.@idProductType;
 								setProductTypeLabel();
 								break;
 							}
@@ -405,20 +405,20 @@
 			private function setProductTypeLabel():void {
 				var label:String = "This experiment type uses products.";
 				
-				var codeProductType:String = null;
-				if (selectedProduct != null && selectedProduct.hasOwnProperty("@codeProductType") && selectedProduct.@codeProductType != "") {
-					codeProductType = selectedProduct.@codeProductType;
-				} else if (requiredCodeProductType != null && requiredCodeProductType != "") {
-					codeProductType = requiredCodeProductType;
+				var idProductType:String = null;
+				if (selectedProduct != null && selectedProduct.hasOwnProperty("@idProductType") && selectedProduct.@idProductType != "") {
+					idProductType = selectedProduct.@idProductType;
+				} else if (requiredIdProductType != null && requiredIdProductType != "") {
+					idProductType = requiredIdProductType;
 				}
 				
-				if (codeProductType != null) {
+				if (idProductType != null) {
 					if (productTypes == null) {
 						createProductTypeList();
 					}
 					
 					for each (var productType:XML in productTypes) {
-						if (productType.hasOwnProperty("@codeProductType") && productType.@codeProductType == codeProductType) {
+						if (productType.hasOwnProperty("@idProductType") && productType.@idProductType == idProductType) {
 							label = "This experiment type uses products of type: " + productType.@display;
 							break;
 						}

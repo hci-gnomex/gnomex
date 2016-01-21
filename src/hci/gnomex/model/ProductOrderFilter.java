@@ -1,9 +1,9 @@
 package hci.gnomex.model;
 
+import java.sql.Date;
+
 import hci.framework.model.DetailObject;
 import hci.gnomex.security.SecurityAdvisor;
-
-import java.sql.Date;
 
 public class ProductOrderFilter extends DetailObject {
 
@@ -21,7 +21,7 @@ public class ProductOrderFilter extends DetailObject {
   private Date submitDateTo;
 
   private String codeProductOrderStatus;
-  private String codeProductType;
+  private Integer idProductType;
   private String quoteReceived = "N";
 
   private StringBuffer queryBuf;
@@ -154,10 +154,10 @@ public class ProductOrderFilter extends DetailObject {
       queryBuf.append(" AND        po.submitDate <= '" + this.formatDate(billingPeriod.getEndDate(), this.DATE_OUTPUT_SQL) + " 23:59:59'");
     }
     // Search by product order type
-    if (codeProductType != null && !codeProductType.equals("")) {
+    if (idProductType != null && idProductType != 0) {
       this.addWhereOrAnd();
-      queryBuf.append(" po.codeProductType like '");
-      queryBuf.append(codeProductType);
+      queryBuf.append(" po.idProductType like '");
+      queryBuf.append(idProductType);
       queryBuf.append("%'");
     }
     // Search by core facility
@@ -287,12 +287,12 @@ public class ProductOrderFilter extends DetailObject {
     this.codeProductOrderStatus = codeProductOrderStatus;
   }
 
-  public String getCodeProductType() {
-    return codeProductType;
+  public Integer getIdProductType() {
+    return idProductType;
   }
 
-  public void setCodeProductType(String codeProductType) {
-    this.codeProductType = codeProductType;
+  public void setIdProductType(Integer idProductType) {
+    this.idProductType = idProductType;
   }
 
   public String getQuoteReceived() {

@@ -1,9 +1,9 @@
+<!--
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
-    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+    "hibernate-mapping-3.0.dtd">
+-->
 
 <hibernate-mapping>
-
-
 	<!-- -->
 	<!-- DOMAIN OBJECTS -->
 	<!-- -->
@@ -2199,8 +2199,8 @@
       <generator class="native"/>
     </id>
     <property name="name" column="name" type="string"/>
-    <property name="codeProductType" column="codeProductType" type="string"/>
-    <many-to-one name="productType" column="codeProductType" class="hci.gnomex.model.ProductType"
+    <property name="idProductType" column="idProductType" type="integer"/>
+    <many-to-one name="productType" column="idProductType" class="hci.gnomex.model.ProductType"
       cascade="none" insert="false" update="false" />
     <property name="idPrice" column="idPrice" type="integer"/>
     <property name="orderQty" column="orderQty" type="integer"/>
@@ -2263,7 +2263,7 @@
       cascade="none" insert="false" update="false" />
     <property name="idCoreFacility" column="idCoreFacility" type="integer"/>
     <property name="submitDate" column="submitDate" type="date"/>
-    <property name="codeProductType" column="codeProductType" type="string"/>
+    <property name="idProductType" column="idProductType" type="integer"/>
     <property name="quoteNumber" column="quoteNumber" type="string"/>
     <property name="quoteReceivedDate" column="quoteReceivedDate" type="date"/>
     <property name="uuid" column="uuid" type="string"/>
@@ -2309,8 +2309,8 @@
   
    <!-- hci.gnomex.model.ProductType -->
   <class name="hci.gnomex.model.ProductType" table="ProductType">
-    <id name="codeProductType" column="codeProductType" type="string">
-      <generator class="assigned"/>
+    <id name="idProductType" column="idProductType" type="integer">
+      <generator class="native"/>
     </id>
     <property name="description" column="description" type="string"/>
     <property name="idCoreFacility" column="idCoreFacility" type="integer"/>
@@ -2385,7 +2385,7 @@
 			class="hci.gnomex.model.RequestCategoryType" cascade="none" insert="false"
 			update="false" lazy="false" />
 			<property name="sampleBatchSize" column="sampleBatchSize" type="integer" />
-		<property name="codeProductType" column="codeProductType" type="string" />
+		<property name="idProductType" column="idProductType" type="integer" />
 		<property name="associatedWithAnalysis" column="associatedWithAnalysis" type="string" />
 	</class>
 

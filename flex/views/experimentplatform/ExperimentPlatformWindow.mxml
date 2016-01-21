@@ -132,7 +132,7 @@
 				params.isClinicalResearch = state.requestCategory.@isClinicalResearch;
 				params.isOwnerOnly = state.requestCategory.@isOwnerOnly;
 				params.sampleBatchSize = state.requestCategory.@sampleBatchSize;
-				params.codeProductType = state.requestCategory.@codeProductType;
+				params.idProductType = state.requestCategory.@idProductType;
 				params.associatedWithAnalysis = state.requestCategory.@associatedWithAnalysis;
 				params.requireNameDescription = state.requestCategory.@requireNameDescription;
 				params.saveAndSubmit = state.requestCategory.@saveAndSubmit;
@@ -288,7 +288,7 @@
 					}
 
 					state.requestCategory.@customWarningMessage = parentApplication.getRequestCategoryProperty(state.requestCategory.@idCoreFacility, state.requestCategory.@codeRequestCategory, parentApplication.PROPERTY_SAMPLE_BATCH_WARNING);
-					if (state.requestCategory.@codeProductType != '') {
+					if (state.requestCategory.@idProductType != '') {
 						state.requestCategory.@noProductsMessage = parentApplication.getRequestCategoryProperty(state.requestCategory.@idCoreFacility, state.requestCategory.@codeRequestCategory, parentApplication.PROPERTY_NO_PRODUCTS_MESSAGE);
 					} else {
 						state.requestCategory.@noProductsMessage = "";

@@ -73,7 +73,7 @@
 	private function initValues():void {
 		
 		for each (var pt:Object in parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ProductType').DictionaryEntry) {
-			if (pt.@codeProductType == productList.selectedItem.@codeProductType) {
+			if (pt.@idProductType == productList.selectedItem.@idProductType) {
 				productTypeCombo.selectedItem = pt;
 			}
 		}
@@ -151,7 +151,7 @@
 				" idProduct=''" +
 				" name=''" +
 				" isActive='Y'" +
-				" codeProductType=''" + 
+				" idProductType=''" + 
 				" idPrice=''" + 
 				" orderQty=''" + 
 				" useQty=''" + 
@@ -217,7 +217,7 @@
 		params.orderQty = orderQty.text;
 		params.useQty = useQty.text; 
 		params.catalogNumber = catalogNumber.text;
-		params.codeProductType = productTypeCombo.selectedItem.@codeProductType;
+		params.idProductType = productTypeCombo.selectedItem.@idProductType;
 		params.idPrice = productList.selectedItem.@idPrice;
 		params.unitPriceInternal = priceInternalText.text;
 		params.unitPriceExternalAcademic = priceExternalAcademicText.text;
@@ -272,9 +272,9 @@
 				return true;
 			}
 			
-			if (item.@codeProductType != null && item.@codeProductType != '') {
+			if (item.@idProductType != null && item.@idProductType != '') {
 				for each (var productType:Object in filteredProductTypes) {
-					if (productType.@value == item.@codeProductType) {
+					if (productType.@value == item.@idProductType) {
 						return true;
 					}
 				}

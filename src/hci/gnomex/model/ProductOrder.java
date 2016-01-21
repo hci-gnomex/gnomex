@@ -29,20 +29,20 @@ public class ProductOrder extends DetailObject implements Serializable, Order {
   private Integer     idCoreFacility;
   private Integer     idBillingAccount;
   private Date        submitDate;
-  private String      codeProductType;
+  private Integer     idProductType;
   private String      quoteNumber;
   private Date        quoteReceivedDate;
   private String      uuid;
   private String      productOrderNumber;
 
   private Set<ProductLineItem>         	productLineItems = new TreeSet<ProductLineItem>();
-  private Set         					billingItems = new TreeSet();    
+  private Set         					billingItems = new TreeSet();
   private Set         					files = new TreeSet();
 
   public String getDisplay() {
     if ( this.productOrderNumber != null ) {
       return "Product Order " + this.getNonNullString( getProductOrderNumber() );
-    } 
+    }
     return "Product Order " + this.getNonNullString(getIdProductOrder());
   }
 
@@ -117,18 +117,18 @@ public class ProductOrder extends DetailObject implements Serializable, Order {
     this.submitDate = submitDate;
   }
 
-  public String getCodeProductType() {
-    return codeProductType;
+  public Integer getIdProductType() {
+    return idProductType;
   }
 
-  public void setCodeProductType( String codeProductType ) {
-    this.codeProductType = codeProductType;
+  public void setIdProductType( Integer idProductType ) {
+    this.idProductType = idProductType;
   }
 
   public String getStatus() {
     boolean isComplete = true;
     boolean isNew = true;
-    
+
     for (ProductLineItem li : (Set<ProductLineItem>) getProductLineItems()) {
       if ( li.getCodeProductOrderStatus() == null || !li.getCodeProductOrderStatus().equals( ProductOrderStatus.COMPLETED ) ) {
         isComplete = false;
@@ -142,10 +142,10 @@ public class ProductOrder extends DetailObject implements Serializable, Order {
       status = ProductOrderStatus.NEW;
     } else if ( isComplete ) {
       status = ProductOrderStatus.COMPLETED;
-    } 
-     return  status != null ? DictionaryManager.getDisplay("hci.gnomex.model.ProductOrderStatus", status) : "";
+    }
+    return  status != null ? DictionaryManager.getDisplay("hci.gnomex.model.ProductOrderStatus", status) : "";
   }
-  
+
   public String getQuoteNumber() {
     return quoteNumber;
   }
@@ -197,22 +197,22 @@ public class ProductOrder extends DetailObject implements Serializable, Order {
       return "";
     } else {
       String createDate = new SimpleDateFormat("MM/dd/yyyy")
-      .format(theCreateDate);
+          .format(theCreateDate);
       String tokens[] = createDate.split("/");
       String createMonth = tokens[0];
       String createDay = tokens[1];
       String createYear = tokens[2];
       String sortDate = createYear + createMonth + createDay;
       String key = createYear + "-" + sortDate + "-" + analysisNumber + "-"
-      + resultsDir;
+          + resultsDir;
       return key;
     }
   }
-  
+
   public Integer getTargetClassIdentifier() {
 	  return idProductOrder;
   }
-  
+
   public String getTargetClassName() {
 	  return this.getClass().getName();
   }
@@ -276,35 +276,35 @@ public class ProductOrder extends DetailObject implements Serializable, Order {
     }
   }
 
-@Override
-public Integer getIdProduct() {
-	// TODO Auto-generated method stub
-	return null;
-}
+  @Override
+  public Integer getIdProduct() {
+    // TODO Auto-generated method stub
+    return null;
+  }
 
-@Override
-public String getCodeApplication() {
-	// TODO Auto-generated method stub
-	return null;
-}
+  @Override
+  public String getCodeApplication() {
+    // TODO Auto-generated method stub
+    return null;
+  }
 
-@Override
-public String getCodeRequestCategory() {
-	// TODO Auto-generated method stub
-	return null;
-}
+  @Override
+  public String getCodeRequestCategory() {
+    // TODO Auto-generated method stub
+    return null;
+  }
 
-@Override
-public Integer getIdRequest() {
-	// TODO Auto-generated method stub
-	return null;
-}
+  @Override
+  public Integer getIdRequest() {
+    // TODO Auto-generated method stub
+    return null;
+  }
 
-@Override
-public String getCodeBioanalyzerChipType() {
-	// TODO Auto-generated method stub
-	return null;
-}
+  @Override
+  public String getCodeBioanalyzerChipType() {
+    // TODO Auto-generated method stub
+    return null;
+  }
 
 @SuppressWarnings("unchecked")
 @Override
