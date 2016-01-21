@@ -102,7 +102,7 @@ public class SaveProduct extends GNomExCommand implements Serializable {
       DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance( sess );
 
       ProductType pt = dictionaryHelper.getProductTypeObject(
-          productScreen.getCodeProductType() );
+          productScreen.getIdProductType().intValue() );
 
       if( pt == null || pt.getIdCoreFacility() == null
           || this.getSecAdvisor().isCoreFacilityIManage(
@@ -120,7 +120,7 @@ public class SaveProduct extends GNomExCommand implements Serializable {
 
         } else {
 
-          product = ( Product ) sess.load( Product.class,
+          product = sess.load( Product.class,
               productScreen.getIdProduct() );
 
           initializeProduct( product );
@@ -134,7 +134,7 @@ public class SaveProduct extends GNomExCommand implements Serializable {
         DictionaryHelper.reload( sess );
 
         this.xmlResult = "<SUCCESS idProduct=\"" + product.getIdProduct()
-            + "\"/>";
+        + "\"/>";
 
         setResponsePage( this.SUCCESS_JSP );
       } else {
@@ -163,7 +163,7 @@ public class SaveProduct extends GNomExCommand implements Serializable {
   private void initializeProduct( Product product ) {
 
     product.setName( productScreen.getName() );
-    product.setCodeProductType( productScreen.getCodeProductType() );
+    product.setIdProductType( productScreen.getIdProductType() );
     product.setIdPrice( productScreen.getIdPrice() );
     product.setOrderQty( productScreen.getOrderQty() );
     product.setUseQty( productScreen.getUseQty() );
@@ -189,7 +189,7 @@ public class SaveProduct extends GNomExCommand implements Serializable {
       // no price category -- can't store new price.
       log.error(
           "SaveProduct: Unable to store new product price due to no price category for ProductType:"
-              + pt.getCodeProductType() );
+              + pt.getIdProductType() );
       return;
     }
 

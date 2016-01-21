@@ -144,9 +144,9 @@
 					return true;
 				}
 				
-				if (item.@codeProductType != null && item.@codeProductType != '') {
+				if (item.@idProductType != null && item.@idProductType != '') {
 					for each (var productType:Object in filteredProductTypes) {
-						if (productType.@value == item.@codeProductType) {
+						if (productType.@value == item.@idProductType) {
 							return true;
 						}
 					}

@@ -1,9 +1,9 @@
 package hci.gnomex.model;
 
+import java.io.Serializable;
+
 import hci.dictionary.model.DictionaryEntry;
 import hci.gnomex.utility.DictionaryHelper;
-
-import java.io.Serializable;
 
 
 
@@ -32,9 +32,9 @@ public class RequestCategory extends DictionaryEntry implements Comparable, Seri
 
   public static final String   CLINICAL_SEQUENOM_REQUEST_CATEGORY = "CLINSEQ";
   public static final String   SEQUENOM_REQUEST_CATEGORY = "SEQUENOM";
-  
+
   public static final String   ISOLATION_REQUEST_CATEGORY = "ISOL";
-  
+
   public static final String   MD_MISEQ_REQUEST_CATEGORY = "MDMISEQ";
 
   private String                codeRequestCategory;
@@ -55,7 +55,7 @@ public class RequestCategory extends DictionaryEntry implements Comparable, Seri
   private String                isOwnerOnly;
   private RequestCategoryType   categoryType;
   private Integer               sampleBatchSize;
-  private String				codeProductType;
+  private Integer				idProductType;
   private String				associatedWithAnalysis;
 
   public static boolean isMicroarrayRequestCategory(String codeRequestCategory) {
@@ -66,7 +66,7 @@ public class RequestCategory extends DictionaryEntry implements Comparable, Seri
     } else {
       return false;
     }
-  }  
+  }
 
   public static boolean isIlluminaRequestCategory(String codeRequestCategory) {
     DictionaryHelper dh = DictionaryHelper.getInstance(null);
@@ -83,7 +83,7 @@ public class RequestCategory extends DictionaryEntry implements Comparable, Seri
     if (codeRequestCategory != null && (codeRequestCategory.equals(CAPILLARY_SEQUENCING_REQUEST_CATEGORY) ||
         codeRequestCategory.equals(FRAGMENT_ANALYSIS_REQUEST_CATEGORY) ||
         codeRequestCategory.equals(MITOCHONDRIAL_DLOOP_SEQ_REQUEST_CATEGORY) ||
-        codeRequestCategory.equals(CHERRY_PICKING_REQUEST_CATEGORY) || 
+        codeRequestCategory.equals(CHERRY_PICKING_REQUEST_CATEGORY) ||
         codeRequestCategory.equals(ISCAN_REQUEST_CATEGORY) ||
         codeRequestCategory.equals(ION_TORRENT_PGM_REQUEST_CATEGORY) ||
         codeRequestCategory.equals(ION_TORRENT_PROTON_REQUEST_CATEGORY))) {
@@ -131,7 +131,7 @@ public class RequestCategory extends DictionaryEntry implements Comparable, Seri
     if (type != null && type.getCodeRequestCategoryType().equals( RequestCategoryType.TYPE_SEQUENOM ) ||
         type.getCodeRequestCategoryType().equals(RequestCategoryType.TYPE_CLINICAL_SEQUENOM) ) {
       return true;
-    } 
+    }
     return false;
 
   }
@@ -148,12 +148,12 @@ public class RequestCategory extends DictionaryEntry implements Comparable, Seri
 
   public static boolean isMolecularDiagnoticsRequestCategory(String codeRequestCategory) {
     if (codeRequestCategory != null &&
-        ( RequestCategory.isSequenom( codeRequestCategory ) || 
+        ( RequestCategory.isSequenom( codeRequestCategory ) ||
             RequestCategory.isSequenomType( codeRequestCategory ) ||
-            codeRequestCategory.equals( ISOLATION_REQUEST_CATEGORY ) ||  
+            codeRequestCategory.equals( ISOLATION_REQUEST_CATEGORY ) ||
             codeRequestCategory.equals( MD_MISEQ_REQUEST_CATEGORY ))) {
       return true;
-    } 
+    }
     return false;
 
   }
@@ -354,20 +354,20 @@ public class RequestCategory extends DictionaryEntry implements Comparable, Seri
   public void setSampleBatchSize(Integer sampleBatchSize) {
     this.sampleBatchSize = sampleBatchSize;
   }
-  
-  public String getCodeProductType() {
-	return codeProductType;
+
+  public Integer getIdProductType() {
+    return idProductType;
   }
-  
-  public void setCodeProductType(String codeProductType) {
-	this.codeProductType = codeProductType;
+
+  public void setIdProductType(Integer idProductType) {
+    this.idProductType = idProductType;
   }
-  
+
   public String getAssociatedWithAnalysis() {
-	return associatedWithAnalysis;
+    return associatedWithAnalysis;
   }
-  
+
   public void setAssociatedWithAnalysis(String associatedWithAnalysis) {
-	this.associatedWithAnalysis = associatedWithAnalysis;
+    this.associatedWithAnalysis = associatedWithAnalysis;
   }
 }

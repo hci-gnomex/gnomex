@@ -1,11 +1,5 @@
 package hci.gnomex.controller;
 
-import hci.framework.control.Command;
-import hci.framework.control.RollBackCommandException;
-import hci.gnomex.model.ProductOrder;
-import hci.gnomex.model.ProductOrderFilter;
-import hci.gnomex.utility.DictionaryHelper;
-
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -18,6 +12,12 @@ import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.output.XMLOutputter;
+
+import hci.framework.control.Command;
+import hci.framework.control.RollBackCommandException;
+import hci.gnomex.model.ProductOrder;
+import hci.gnomex.model.ProductOrderFilter;
+import hci.gnomex.utility.DictionaryHelper;
 
 public class GetProductOrderListForLab extends GNomExCommand implements Serializable {
 
@@ -56,9 +56,9 @@ public class GetProductOrderListForLab extends GNomExCommand implements Serializ
           Element e = new Element("ProductOrder");
 
           String submitter = dh.getAppUserObject(po.getIdAppUser()).getDisplayName();
-          //String productType = dh.getProductTypeObject(po.getCodeProductType()).getDisplay();
+          //String productType = dh.getProductTypeObject(po.getIdProductType()).getDisplay();
           String orderStatus = po.getStatus();
-          
+
           e.setAttribute("display", po.getDisplay() );
           e.setAttribute("submitter", submitter);
           e.setAttribute("submitDate", po.getSubmitDate().toString());
@@ -78,11 +78,11 @@ public class GetProductOrderListForLab extends GNomExCommand implements Serializ
     } catch(Exception e) {
       log.error("An exception has occurred in GetProductOrderList ", e);
       e.printStackTrace();
-      throw new RollBackCommandException(e.getMessage());  
+      throw new RollBackCommandException(e.getMessage());
 
     } finally {
       try {
-        this.getSecAdvisor().closeReadOnlyHibernateSession();        
+        this.getSecAdvisor().closeReadOnlyHibernateSession();
       } catch(Exception e) {
 
       }

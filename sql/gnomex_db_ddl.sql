@@ -663,12 +663,12 @@ ENGINE = INNODB;
     
 DROP TABLE IF EXISTS gnomex.ProductType;
 CREATE TABLE gnomex.ProductType (
-  codeProductType VARCHAR(10) NOT NULL,
+  idProductType INT(10) NOT NULL AUTO_INCREMENT,
   description VARCHAR(5000) NULL,
   idCoreFacility INT(10) NULL,
   idVendor INT(10) NULL,
   idPriceCategory INT(10) NULL,
-  PRIMARY KEY (codeProductType),
+  PRIMARY KEY (idProductType),
   CONSTRAINT FK_ProductType_CoreFacility FOREIGN KEY FK_ProductType_CoreFacility (idCoreFacility)
     REFERENCES gnomex.CoreFacility (idCoreFacility)
     ON DELETE NO ACTION
@@ -699,7 +699,7 @@ DROP TABLE IF EXISTS gnomex.Product;
 CREATE TABLE gnomex.Product (
   idProduct INT(10) NOT NULL AUTO_INCREMENT,
   name VARCHAR(200) NULL,
-  codeProductType VARCHAR(10) NULL,
+  idProductType INT(10) NULL,
   idPrice INT(10) NULL,
   orderQty INT(10) NULL,
   useQty INT(10) NULL,
@@ -711,8 +711,8 @@ CREATE TABLE gnomex.Product (
     REFERENCES gnomex.Price (idPrice)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  CONSTRAINT FK_Product_ProductType FOREIGN KEY FK_Product_ProductType (codeProductType)
-    REFERENCES gnomex.ProductType (codeProductType)
+  CONSTRAINT FK_Product_ProductType FOREIGN KEY FK_Product_ProductType (idProductType)
+    REFERENCES gnomex.ProductType (idProductType)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
 )
@@ -726,7 +726,7 @@ CREATE TABLE gnomex.ProductOrder (
   idLab INT(10) NULL,
   idCoreFacility INT(10) NULL,
   submitDate DATETIME NULL,
-  codeProductType VARCHAR(10) NULL,
+  idProductType INT(10) NULL,
   quoteNumber VARCHAR(50) NULL,
   quoteReceivedDate DATETIME NULL,
   uuid VARCHAR(36) NULL,
@@ -745,8 +745,8 @@ CREATE TABLE gnomex.ProductOrder (
     REFERENCES gnomex.Lab (idLab)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  CONSTRAINT FK_ProductOrder_ProductType FOREIGN KEY FK_ProductOrder_ProductType (codeProductType)
-    REFERENCES gnomex.ProductType (codeProductType)
+  CONSTRAINT FK_ProductOrder_ProductType FOREIGN KEY FK_ProductOrder_ProductType (idProductType)
+    REFERENCES gnomex.ProductType (idProductType)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
 )
@@ -1908,7 +1908,7 @@ CREATE TABLE gnomex.RequestCategory (
   isClinicalResearch CHAR(1) NULL,
   isOwnerOnly CHAR(1) NULL,
   sampleBatchSize INT(10) NULL,
-  codeProductType VARCHAR(10) NULL,
+  idProductType INT(10) NULL,
   associatedWithAnalysis CHAR(1) NULL,
   PRIMARY KEY (codeRequestCategory),
   CONSTRAINT FK_RequestCategory_Vendor FOREIGN KEY FK_RequestCategory_Vendor (idVendor)
@@ -1927,8 +1927,8 @@ CREATE TABLE gnomex.RequestCategory (
     REFERENCES gnomex.RequestCategoryType (codeRequestCategoryType)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  CONSTRAINT FK_RequestCategory_ProductType FOREIGN KEY FK_RequestCategory_ProductType (codeProductType)
-    REFERENCES gnomex.ProductType (codeProductType)
+  CONSTRAINT FK_RequestCategory_ProductType FOREIGN KEY FK_RequestCategory_ProductType (idProductType)
+    REFERENCES gnomex.ProductType (idProductType)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
 )
