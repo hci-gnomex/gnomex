@@ -58,6 +58,28 @@ import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.jdom.output.XMLOutputter;
 
+import hci.framework.control.Command;
+import hci.framework.control.RollBackCommandException;
+import hci.gnomex.billing.IScanChipPlugin;
+import hci.gnomex.constants.Constants;
+import hci.gnomex.model.BillingItem;
+import hci.gnomex.model.BillingPeriod;
+import hci.gnomex.model.CoreFacility;
+import hci.gnomex.model.Lab;
+import hci.gnomex.model.Price;
+import hci.gnomex.model.PriceCategory;
+import hci.gnomex.model.Product;
+import hci.gnomex.model.ProductLineItem;
+import hci.gnomex.model.ProductOrder;
+import hci.gnomex.model.ProductType;
+import hci.gnomex.model.PropertyDictionary;
+import hci.gnomex.utility.DictionaryHelper;
+import hci.gnomex.utility.HibernateSession;
+import hci.gnomex.utility.HibernateUtil;
+import hci.gnomex.utility.MailUtil;
+import hci.gnomex.utility.MailUtilHelper;
+import hci.gnomex.utility.PropertyDictionaryHelper;
+
 public class SaveProductOrder extends GNomExCommand implements Serializable {
 
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(SaveProductOrder.class);
@@ -151,28 +173,28 @@ public class SaveProductOrder extends GNomExCommand implements Serializable {
           if (n.getAttribute("quantity") == null || n.getAttributeValue("quantity").equals("") || n.getAttributeValue("quantity").equals("0")) {
             continue;
           }
-          if (!productTypes.containsKey(n.getAttributeValue("codeProductType"))) {
+          if (!productTypes.containsKey(n.getAttributeValue("idProductType"))) {
             ArrayList<Element> products = new ArrayList<Element>();
             products.add(n);
-            productTypes.put(n.getAttributeValue("codeProductType"), products);
+            productTypes.put(n.getAttributeValue("idProductType"), products);
           } else {
-            ArrayList<Element> existingList = productTypes.get(n.getAttributeValue("codeProductType"));
+            ArrayList<Element> existingList = productTypes.get(n.getAttributeValue("idProductType"));
             existingList.add(n);
-            productTypes.put(n.getAttributeValue("codeProductType"), existingList);
+            productTypes.put(n.getAttributeValue("idProductType"), existingList);
           }
         }
 
         for (Iterator i = productTypes.keySet().iterator(); i.hasNext();) {
-          String codeProductTypeKey = (String) i.next();
-          ProductType productType = sess.load(ProductType.class, codeProductTypeKey);
+          Integer idProductTypeKey = (Integer) i.next();
+          ProductType productType = sess.load(ProductType.class, idProductTypeKey);
           PriceCategory priceCategory = sess.load(PriceCategory.class, productType.getIdPriceCategory());
-          ArrayList<Element> products = productTypes.get(codeProductTypeKey);
+          ArrayList<Element> products = productTypes.get(idProductTypeKey);
           Set<ProductLineItem> productLineItems = new TreeSet<ProductLineItem>(new ProductLineItemComparator());
 
           ProductOrder po = new ProductOrder();
 
           if (products.size() > 0) {
-            initializeProductOrder(po, codeProductTypeKey);
+            initializeProductOrder(po, idProductTypeKey);
             sess.save(po);
             po.setProductOrderNumber(getNextPONumber(po, sess));
 
@@ -214,25 +236,26 @@ public class SaveProductOrder extends GNomExCommand implements Serializable {
             }
 
             boolean isHCI = lab.getContactEmail().indexOf("@hci.utah.edu") > 0;
-            if (po.getCodeProductType().equals(ProductType.TYPE_ISCAN_CHIP) && !isHCI && !lab.isExternalLab()) {
-              // REQUISITION FORM
-              try {
-                // Download and fill out requisition form
-                File reqFile = RequisitionFormUtil.saveReqFileFromURL(po, sess, serverName);
-                reqFile = RequisitionFormUtil.populateRequisitionForm(po, reqFile, sess);
-                if (reqFile == null) {
-                  String msg = "Unable to download requisition form for product order " + po.getIdProductOrder() + ".";
-                  System.out.println(msg);
-                } else {
-                  sendIlluminaEmail(sess, po);
-                }
-
-              } catch (Exception e) {
-                String msg = "Unable to download requisition form OR unable to send Illumina email for Request " + po.getIdProductOrder() + ".  " + e.toString();
-                System.out.println(msg);
-                e.printStackTrace();
-              }
-            }
+            //TODO : Make this a property on Product Type to Link to Purchasing System
+            //            if (po.getIdProductType().equals(ProductType.TYPE_ISCAN_CHIP) && !isHCI && !lab.isExternalLab()) {
+            //              // REQUISITION FORM
+            //              try {
+            //                // Download and fill out requisition form
+            //                File reqFile = RequisitionFormUtil.saveReqFileFromURL(po, sess, serverName);
+            //                reqFile = RequisitionFormUtil.populateRequisitionForm(po, reqFile, sess);
+            //                if (reqFile == null) {
+            //                  String msg = "Unable to download requisition form for product order " + po.getIdProductOrder() + ".";
+            //                  System.out.println(msg);
+            //                } else {
+            //                  sendIlluminaEmail(sess, po);
+            //                }
+            //
+            //              } catch (Exception e) {
+            //                String msg = "Unable to download requisition form OR unable to send Illumina email for Request " + po.getIdProductOrder() + ".  " + e.toString();
+            //                System.out.println(msg);
+            //                e.printStackTrace();
+            //              }
+            //            }
           }
         }
 
@@ -359,9 +382,9 @@ public class SaveProductOrder extends GNomExCommand implements Serializable {
     return poNumber;
   }
 
-  private void initializeProductOrder(ProductOrder po, String codeProductType) {
+  private void initializeProductOrder(ProductOrder po, Integer idProductType) {
     po.setSubmitDate(new Date(System.currentTimeMillis()));
-    po.setCodeProductType(codeProductType);
+    po.setIdProductType(idProductType);
     po.setQuoteNumber("");
     po.setUuid(UUID.randomUUID().toString());
     po.setIdAppUser(idAppUser);

@@ -1,14 +1,5 @@
 package hci.gnomex.controller;
 
-import hci.framework.control.Command;
-import hci.framework.control.RollBackCommandException;
-import hci.gnomex.model.Price;
-import hci.gnomex.model.Product;
-import hci.gnomex.model.ProductType;
-import hci.gnomex.security.SecurityAdvisor;
-import hci.gnomex.utility.DictionaryHelper;
-import hci.gnomex.utility.HibernateSession;
-
 import java.io.Serializable;
 import java.util.List;
 
@@ -18,6 +9,15 @@ import javax.servlet.http.HttpSession;
 import org.hibernate.Hibernate;
 import org.hibernate.Session;
 
+import hci.framework.control.Command;
+import hci.framework.control.RollBackCommandException;
+import hci.gnomex.model.Price;
+import hci.gnomex.model.Product;
+import hci.gnomex.model.ProductType;
+import hci.gnomex.security.SecurityAdvisor;
+import hci.gnomex.utility.DictionaryHelper;
+import hci.gnomex.utility.HibernateSession;
+
 
 
 public class DeleteProduct extends GNomExCommand implements Serializable {
@@ -26,7 +26,7 @@ public class DeleteProduct extends GNomExCommand implements Serializable {
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(DeleteProduct.class);
 
 
-  private Integer      idProduct = null; 
+  private Integer      idProduct = null;
   private String       resultMessage = "";
 
   public void validate() {
@@ -46,20 +46,20 @@ public class DeleteProduct extends GNomExCommand implements Serializable {
       Session sess = HibernateSession.currentSession(this.getUsername());
       DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess);
 
-      Product product = (Product)sess.load(Product.class, idProduct);
-      ProductType pt = dictionaryHelper.getProductTypeObject(product.getCodeProductType());
+      Product product = sess.load(Product.class, idProduct);
+      ProductType pt = dictionaryHelper.getProductTypeObject(product.getIdProductType());
 
       if (pt != null && ((pt.getIdCoreFacility() != null && this.getSecAdvisor().isCoreFacilityIManage(pt.getIdCoreFacility())) || this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES))) {
 
-        // Get and delete the corresponding price 
+        // Get and delete the corresponding price
         Price price = GetProductList.getProductPrice( sess, product, pt );
         if ( price != null ) {
           product.setIdPrice( null );
           sess.save( product );
           sess.flush();
-          
+
           if ( getPriceBillingItems(price, sess) == null || getPriceBillingItems( price, sess ).size() == 0 ) {
-            deletePrice( price, sess ); 
+            deletePrice( price, sess );
           } else {
             inactivatePrice( price, sess );
           }
@@ -75,7 +75,7 @@ public class DeleteProduct extends GNomExCommand implements Serializable {
           inactivateProduct( product, sess );
           resultMessage += "There are ledger entries for this product.  " + product.getDisplay() + " marked as inactive instead of deleted.";
         }
-        
+
         sess.flush();
 
         this.xmlResult = "<SUCCESS message=\"" + resultMessage + "\"/>";
@@ -94,7 +94,7 @@ public class DeleteProduct extends GNomExCommand implements Serializable {
 
     }finally {
       try {
-        HibernateSession.closeSession();        
+        HibernateSession.closeSession();
       } catch(Exception e) {
 
       }
@@ -104,36 +104,36 @@ public class DeleteProduct extends GNomExCommand implements Serializable {
   }
 
   private void deletePrice(Price price, Session sess) {
-      Hibernate.initialize(price.getPriceCriterias());
-      sess.delete(price);
-      sess.flush();
+    Hibernate.initialize(price.getPriceCriterias());
+    sess.delete(price);
+    sess.flush();
   }
 
-  private List getPriceBillingItems(Price price, Session sess) {  
+  private List getPriceBillingItems(Price price, Session sess) {
     if ( price == null ) {
       return null;
     }
     String billingItemQuery = "SELECT bi from BillingItem as bi where bi.idPrice=" + price.getIdPrice();
     List bi = sess.createQuery( billingItemQuery ).list();
     return bi;
-   }
-  
-  private void inactivatePrice(Price price, Session sess) {   
+  }
+
+  private void inactivatePrice(Price price, Session sess) {
     price.setIsActive( "N" );
     sess.save( price );
     sess.flush();
   }
 
-  private List getProductLedgerEntries(Product product, Session sess) {  
+  private List getProductLedgerEntries(Product product, Session sess) {
     if ( product == null ) {
       return null;
     }
     String ledgerEntryQuery = "SELECT le from ProductLedger as le where le.idProduct=" + product.getIdProduct();
     List le = sess.createQuery( ledgerEntryQuery ).list();
     return le;
-   }
-  
-  private void inactivateProduct(Product product, Session sess) {   
+  }
+
+  private void inactivateProduct(Product product, Session sess) {
     product.setIsActive( "N" );
     sess.save( product );
     sess.flush();

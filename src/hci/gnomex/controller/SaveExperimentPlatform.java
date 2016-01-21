@@ -232,7 +232,7 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
           }
           sess.save(rc);
         } else {
-          rc = (RequestCategory) sess.load(RequestCategory.class, rcScreen.getCodeRequestCategory());
+          rc = sess.load(RequestCategory.class, rcScreen.getCodeRequestCategory());
           initializeRequestCategory(rc);
         }
 
@@ -353,7 +353,7 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
     rc.setIsClinicalResearch(rcScreen.getIsClinicalResearch());
     rc.setIsOwnerOnly(rcScreen.getIsOwnerOnly());
     rc.setSampleBatchSize(rcScreen.getSampleBatchSize());
-    rc.setCodeProductType(rcScreen.getCodeProductType());
+    rc.setIdProductType(rcScreen.getIdProductType());
     rc.setAssociatedWithAnalysis(rcScreen.getAssociatedWithAnalysis());
   }
 
@@ -379,7 +379,7 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
         ipt = new IsolationPrepType();
         codeIsolationPrepType = IsolationPrepType.CODE_PREP_PREFIX + ++currentPrepTypeCount;
       } else {
-        ipt = (IsolationPrepType) sess.load(IsolationPrepType.class, node.getAttributeValue("codeIsolationPrepType"));
+        ipt = sess.load(IsolationPrepType.class, node.getAttributeValue("codeIsolationPrepType"));
         codeIsolationPrepType = node.getAttributeValue("codeIsolationPrepType");
       }
 
@@ -395,7 +395,7 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
 
       if (price == null) {
 
-        RequestCategory rc = (RequestCategory) sess.load(RequestCategory.class, node.getAttributeValue("codeRequestCategory"));
+        RequestCategory rc = sess.load(RequestCategory.class, node.getAttributeValue("codeRequestCategory"));
         price = new Price();
         price.setName(ipt.getIsolationPrepType());
         price.setDescription("");
@@ -488,7 +488,7 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
       if (id.startsWith("SampleType")) {
         st = new SampleType();
       } else {
-        st = (SampleType) sess.load(SampleType.class, Integer.valueOf(id));
+        st = sess.load(SampleType.class, Integer.valueOf(id));
       }
 
       st.setSampleType(node.getAttributeValue("display"));
@@ -598,7 +598,7 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
         app.setCodeApplication("APP" + getNextAssignedAppNumber(sess));
         newCodeApplicationMap.put(codeApplication, app.getCodeApplication());
       } else {
-        app = (Application) sess.load(Application.class, codeApplication);
+        app = sess.load(Application.class, codeApplication);
       }
 
       if (app.getCodeApplicationType() == null) {
@@ -708,7 +708,7 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
         Integer idSeqLibProtocol = (Integer) i1.next();
         // in case the application name has changed be sure to update the seq
         // lib protocol name to match
-        SeqLibProtocol slp = (SeqLibProtocol) sess.load(SeqLibProtocol.class, idSeqLibProtocol);
+        SeqLibProtocol slp = sess.load(SeqLibProtocol.class, idSeqLibProtocol);
         slp.setSeqLibProtocol(app.getApplication());
         sess.save(slp);
 
@@ -1381,7 +1381,7 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
       if (idNumberSequencingCyclesAllowed.startsWith("NumberSequencingCyclesAllowed")) {
         cyclesAllowed = new NumberSequencingCyclesAllowed();
       } else {
-        cyclesAllowed = (NumberSequencingCyclesAllowed) sess.load(NumberSequencingCyclesAllowed.class, Integer.valueOf(idNumberSequencingCyclesAllowed));
+        cyclesAllowed = sess.load(NumberSequencingCyclesAllowed.class, Integer.valueOf(idNumberSequencingCyclesAllowed));
       }
 
       cyclesAllowed.setCodeRequestCategory(rc.getCodeRequestCategory());

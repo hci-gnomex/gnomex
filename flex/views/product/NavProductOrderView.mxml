@@ -70,7 +70,7 @@
 			
 			private function init():void {
 				filteredProductTypes = new XMLListCollection(parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.ProductType').DictionaryEntry);
-				filteredProductTypes.addItemAt(new XML("<Product value='' description='' idCoreFacility='' codeProductType='' />"), 0);
+				filteredProductTypes.addItemAt(new XML("<Product value='' description='' idCoreFacility='' idProductType='' />"), 0);
 				
 				coreFacilities = new XMLListCollection();
 				coreFacilities.addItem(new XML("<DictionaryEntry display='' idCoreFacility=''/>"));
@@ -177,8 +177,8 @@
 					params.idCoreFacility = coreFacilityCombo.selectedItem.@idCoreFacility;
 				}
 				
-				if (productTypeCombo.selectedItem != null && productTypeCombo.selectedItem.@codeProductType != "") {
-					params.codeProductType = productTypeCombo.selectedItem.@codeProductType;
+				if (productTypeCombo.selectedItem != null && productTypeCombo.selectedItem.@idProductType != "") {
+					params.idProductType = productTypeCombo.selectedItem.@idProductType;
 				}
 				
 				return params;
