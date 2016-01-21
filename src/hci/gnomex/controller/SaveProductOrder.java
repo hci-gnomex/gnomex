@@ -59,6 +59,28 @@ import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.jdom.output.XMLOutputter;
 
+import hci.framework.control.Command;
+import hci.framework.control.RollBackCommandException;
+import hci.gnomex.billing.IScanChipPlugin;
+import hci.gnomex.constants.Constants;
+import hci.gnomex.model.BillingItem;
+import hci.gnomex.model.BillingPeriod;
+import hci.gnomex.model.CoreFacility;
+import hci.gnomex.model.Lab;
+import hci.gnomex.model.Price;
+import hci.gnomex.model.PriceCategory;
+import hci.gnomex.model.Product;
+import hci.gnomex.model.ProductLineItem;
+import hci.gnomex.model.ProductOrder;
+import hci.gnomex.model.ProductType;
+import hci.gnomex.model.PropertyDictionary;
+import hci.gnomex.utility.DictionaryHelper;
+import hci.gnomex.utility.HibernateSession;
+import hci.gnomex.utility.HibernateUtil;
+import hci.gnomex.utility.MailUtil;
+import hci.gnomex.utility.MailUtilHelper;
+import hci.gnomex.utility.PropertyDictionaryHelper;
+
 public class SaveProductOrder extends GNomExCommand implements Serializable {
 
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(SaveProductOrder.class);
@@ -145,7 +167,7 @@ public class SaveProductOrder extends GNomExCommand implements Serializable {
 
         billingPeriod = DictionaryHelper.getInstance(sess).getCurrentBillingPeriod();
         Lab lab = DictionaryHelper.getInstance(sess).getLabObject(idLab);
-        HashMap<String, ArrayList<Element>> productTypes = new HashMap<String, ArrayList<Element>>();
+        HashMap<Integer, ArrayList<Element>> productTypes = new HashMap<Integer, ArrayList<Element>>();
 
         for (Iterator i = productDoc.getRootElement().getChildren().iterator(); i.hasNext();) {
           Element n = (Element) i.next();
@@ -155,11 +177,11 @@ public class SaveProductOrder extends GNomExCommand implements Serializable {
           if (!productTypes.containsKey(n.getAttributeValue("idProductType"))) {
             ArrayList<Element> products = new ArrayList<Element>();
             products.add(n);
-            productTypes.put(n.getAttributeValue("idProductType"), products);
+            productTypes.put(Integer.parseInt(n.getAttributeValue("idProductType")), products);
           } else {
             ArrayList<Element> existingList = productTypes.get(n.getAttributeValue("idProductType"));
             existingList.add(n);
-            productTypes.put(n.getAttributeValue("idProductType"), existingList);
+            productTypes.put(Integer.parseInt(n.getAttributeValue("idProductType")), existingList);
           }
         }
 
@@ -295,7 +317,7 @@ public class SaveProductOrder extends GNomExCommand implements Serializable {
     String toAddress = contactEmailCoreFacility + "," + contactEmailAppUser;
 
     BillingAccount ba = sess.load(BillingAccount.class, po.getIdBillingAccount());
-    ProductType pt = sess.load(ProductType.class, po.getCodeProductType());
+    ProductType pt = sess.load(ProductType.class, po.getIdProductType());
 
     StringBuffer products = new StringBuffer();
     for (Iterator i = po.getProductLineItems().iterator(); i.hasNext();) {
