@@ -680,7 +680,9 @@ CREATE TABLE gnomex.ProductType (
   CONSTRAINT FK_ProductType_PriceCategory FOREIGN KEY FK_ProductType_PriceCategory (idPriceCategory)
     REFERENCES gnomex.PriceCategory (idPriceCategory)
     ON DELETE NO ACTION
-    ON UPDATE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT UNQ_ProductType_idCoreFacility_description
+    UNIQUE (idCoreFacility, description)
 )
 ENGINE = INNODB;
 
