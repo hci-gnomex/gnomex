@@ -1,14 +1,14 @@
 package hci.gnomex.model;
 
-import hci.dictionary.model.DictionaryEntry;
-
 import java.io.Serializable;
+
+import hci.dictionary.model.DictionaryEntry;
 
 public class Product extends DictionaryEntry implements Serializable {
 
   private Integer     idProduct;
   private String      name;
-  private String      codeProductType;
+  private Integer     idProductType;
   private ProductType productType;
   private Integer     idPrice;
   private Integer     orderQty;
@@ -43,12 +43,12 @@ public class Product extends DictionaryEntry implements Serializable {
     this.name = name;
   }
 
-  public String getCodeProductType() {
-    return codeProductType;
+  public Integer getIdProductType() {
+    return idProductType;
   }
 
-  public void setCodeProductType(String codeProductType) {
-    this.codeProductType = codeProductType;
+  public void setIdProductType(Integer idProductType) {
+    this.idProductType = idProductType;
   }
 
   public ProductType getProductType() {

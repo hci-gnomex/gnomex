@@ -15,6 +15,7 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.hibernate.Hibernate;
 import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -30,108 +31,131 @@ public class ChangeProductOrderStatus extends GNomExCommand implements Serializa
   private Document orderDoc;
   private Document lineItemDoc;
   private StringBuffer resultMessage = new StringBuffer("");
+  private String serverName;
 
   public void loadCommand(HttpServletRequest request, HttpSession sess) {
 
-    if(request.getParameter("selectedOrders") != null && !request.getParameter("selectedOrders").equals("") ) {
+    if (request.getParameter("selectedOrders") != null && !request.getParameter("selectedOrders").equals("")) {
       selectedOrdersXMLString = request.getParameter("selectedOrders");
 
       StringReader reader = new StringReader(selectedOrdersXMLString);
       try {
         SAXBuilder sax = new SAXBuilder();
         orderDoc = sax.build(reader);
-      } catch (JDOMException je ) {
-        log.error( "Cannot parse selectedOrdersXMLString", je );
-        this.addInvalidField( "selectedOrdersXMLString", "Invalid selectedOrders xml");
+      } catch (JDOMException je) {
+        log.error("Cannot parse selectedOrdersXMLString", je);
+        this.addInvalidField("selectedOrdersXMLString", "Invalid selectedOrders xml");
       }
 
-    } else if(request.getParameter("selectedLineItems") != null && !request.getParameter("selectedLineItems").equals("") ) {
+    } else if (request.getParameter("selectedLineItems") != null && !request.getParameter("selectedLineItems").equals("")) {
       selectedlineItemsXMLString = request.getParameter("selectedLineItems");
       StringReader reader = new StringReader(selectedlineItemsXMLString);
       try {
         SAXBuilder sax = new SAXBuilder();
         lineItemDoc = sax.build(reader);
-      } catch (JDOMException je ) {
-        log.error( "Cannot parse selectedlineItemsXMLString", je );
-        this.addInvalidField( "selectedlineItemsXMLString", "Invalid selectedlineItems xml");
+      } catch (JDOMException je) {
+        log.error("Cannot parse selectedlineItemsXMLString", je);
+        this.addInvalidField("selectedlineItemsXMLString", "Invalid selectedlineItems xml");
       }
     } else {
       this.addInvalidField("lineItemsXMLString", "Missing line item list");
     }
 
-    if(request.getParameter("codeProductOrderStatus") != null && !request.getParameter("codeProductOrderStatus").equals("") ) {
+    if (request.getParameter("codeProductOrderStatus") != null && !request.getParameter("codeProductOrderStatus").equals("")) {
       codeProductOrderStatus = request.getParameter("codeProductOrderStatus");
     } else {
       this.addInvalidField("codeProductOrderStatus", "Missing codeProductOrderStatus");
     }
 
+    serverName = request.getServerName();
+
   }
 
   public Command execute() throws RollBackCommandException {
     try {
-      if(this.isValid()) {
+      if (this.isValid()) {
         Session sess = this.getSecAdvisor().getHibernateSession(this.getUsername());
 
-        if ( orderDoc != null ) {
-          for(Iterator i = orderDoc.getRootElement().getChildren().iterator(); i.hasNext();) {
-            Element n = (Element)i.next();
+        if (orderDoc != null) {
+          for (Iterator i = orderDoc.getRootElement().getChildren().iterator(); i.hasNext();) {
+            Element n = (Element) i.next();
             Integer idProductOrder = Integer.valueOf(n.getAttributeValue("idProductOrder"));
-            ProductOrder po = (ProductOrder)sess.load(ProductOrder.class, idProductOrder);
-            for (ProductLineItem li : (Set<ProductLineItem>)po.getProductLineItems()) {
+            ProductOrder po = sess.load(ProductOrder.class, idProductOrder);
+            for (ProductLineItem li : (Set<ProductLineItem>) po.getProductLineItems()) {
               String oldStatus = li.getCodeProductOrderStatus();
-              if ( ProductUtil.updateLedgerOnProductOrderStatusChange(li, po, oldStatus, codeProductOrderStatus, sess, resultMessage) ) {
+              if (ProductUtil.updateLedgerOnProductOrderStatusChange(li, po, oldStatus, codeProductOrderStatus, sess, resultMessage)) {
                 li.setCodeProductOrderStatus(codeProductOrderStatus);
-                updateBillingStatus( li, po, oldStatus, codeProductOrderStatus, sess );
-                sess.update(li);
-              } 
+                updateBillingStatus(li, po, oldStatus, codeProductOrderStatus, sess);
+                sess.save(li);
+              }
+            }
+
+            sess.refresh(po);
+            if (codeProductOrderStatus.equals(ProductOrderStatus.COMPLETED)) {
+              SaveProductOrder.sendConfirmationEmail(sess, po, ProductOrderStatus.COMPLETED, serverName);
             }
           }
         }
-        if ( lineItemDoc != null ) {
-          for(Iterator i = lineItemDoc.getRootElement().getChildren().iterator(); i.hasNext();) {
-            Element n = (Element)i.next();
+        if (lineItemDoc != null) {
+          for (Iterator i = lineItemDoc.getRootElement().getChildren().iterator(); i.hasNext();) {
+            Element n = (Element) i.next();
             Integer idProductLineItem = Integer.valueOf(n.getAttributeValue("idProductLineItem"));
-            ProductLineItem pli = (ProductLineItem)sess.load(ProductLineItem.class, idProductLineItem);
-            ProductOrder po = (ProductOrder)sess.load(ProductOrder.class, pli.getIdProductOrder());
+            ProductLineItem pli = sess.load(ProductLineItem.class, idProductLineItem);
+            ProductOrder po = sess.load(ProductOrder.class, pli.getIdProductOrder());
             String oldStatus = pli.getCodeProductOrderStatus();
-            if ( ProductUtil.updateLedgerOnProductOrderStatusChange(pli, po, oldStatus, codeProductOrderStatus, sess, resultMessage) ) {
+            if (ProductUtil.updateLedgerOnProductOrderStatusChange(pli, po, oldStatus, codeProductOrderStatus, sess, resultMessage)) {
               pli.setCodeProductOrderStatus(codeProductOrderStatus);
-              updateBillingStatus( pli, po, oldStatus, codeProductOrderStatus, sess );
-              sess.update(pli);
-            } 
+              updateBillingStatus(pli, po, oldStatus, codeProductOrderStatus, sess);
+              sess.save(pli);
+            }
+
+            sess.refresh(po);
+            Boolean allItemsComplete = true;
+            for (Iterator j = po.getProductLineItems().iterator(); j.hasNext();) {
+              ProductLineItem item = (ProductLineItem) j.next();
+              if (!item.getCodeProductOrderStatus().equals(ProductOrderStatus.COMPLETED)) {
+                allItemsComplete = false;
+                break;
+              }
+            }
+
+            if (allItemsComplete) {
+              SaveProductOrder.sendConfirmationEmail(sess, po, ProductOrderStatus.COMPLETED, serverName);
+            }
+
           }
         }
+
         sess.flush();
         this.xmlResult = "<SUCCESS message=\"" + resultMessage.toString() + "\"/>";
         this.setResponsePage(this.SUCCESS_JSP);
       } else {
         this.setResponsePage(this.ERROR_JSP);
       }
-    }catch(Exception e) {
+    } catch (Exception e) {
       log.error("An exception has occurred in ChangeProductOrderStatus ", e);
       e.printStackTrace();
-      throw new RollBackCommandException(e.getMessage()); 
-    }finally {
+      throw new RollBackCommandException(e.getMessage());
+    } finally {
       try {
         this.getSecAdvisor().closeHibernateSession();
-      } catch(Exception e) {
+      } catch (Exception e) {
       }
     }
     return this;
   }
-  
+
   public boolean updateBillingStatus(ProductLineItem pli, ProductOrder po, String oldCodePOStatus, String newPOStatus, Session sess) {
 
-    if ( (oldCodePOStatus == null || !oldCodePOStatus.equals( ProductOrderStatus.COMPLETED )) && newPOStatus.equals( ProductOrderStatus.COMPLETED ) ) {
-      
+    if ((oldCodePOStatus == null || !oldCodePOStatus.equals(ProductOrderStatus.COMPLETED)) && newPOStatus.equals(ProductOrderStatus.COMPLETED)) {
+
     }
-    // Check for old status is completed and new status is not.  
+    // Check for old status is completed and new status is not.
     // If so, remove items in ledger
-    else if ( (oldCodePOStatus != null && oldCodePOStatus.equals( ProductOrderStatus.COMPLETED )) && !newPOStatus.equals( ProductOrderStatus.COMPLETED ) ) {
-      
-    }
-    else {
-     
+    else if ((oldCodePOStatus != null && oldCodePOStatus.equals(ProductOrderStatus.COMPLETED)) && !newPOStatus.equals(ProductOrderStatus.COMPLETED)) {
+
+    } else {
+
     }
     return true;
   }

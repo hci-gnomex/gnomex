@@ -56,7 +56,7 @@
 			private var showFields:Boolean = false;
 			[Bindable]
 			private var saveMode:String = null;
-			private var previousItemCode:String = null;
+			private var previousItemId:int = 0;
 			private var idPriceCategoryToSelect:String = null;
 			
 			private static const SAVE_MODE_UPDATE:String = "update";
@@ -133,7 +133,7 @@
 					var fieldData:Object = collectFieldData();
 					fieldData["action"] = 'delete';
 					fieldData["className"] = 'hci.gnomex.model.ProductType';
-					previousItemCode = null;
+					previousItemId = 0;
 					dictionaryManager.callWithParameters(fieldData);
 				}
 			}
@@ -146,9 +146,6 @@
 				} 
 				if (descriptionText.text == null || StringUtil.trim(descriptionText.text) == '') {
 					errorMessage = this.appendAbsentField(errorMessage, "description");
-				}
-				if (codeProductTypeText.text == null || StringUtil.trim(codeProductTypeText.text) == '') {
-					errorMessage = this.appendAbsentField(errorMessage, "code product type");
 				}
 				if (priceCategoryCombo.selectedItem == null) {
 					errorMessage = this.appendAbsentField(errorMessage, "price category");
@@ -165,7 +162,6 @@
 						fieldData["action"] = 'add';
 					}
 					fieldData["className"] = 'hci.gnomex.model.ProductType';
-					previousItemCode = codeProductTypeText.text;
 					dictionaryManager.callWithParameters(fieldData);
 				} else {
 					Alert.show(errorMessage, "Error", Alert.OK, this);
@@ -190,12 +186,12 @@
 				var fieldData:Object = new Object();
 				
 				fieldData["value"] = descriptionText.text;
-				fieldData["display"] = codeProductTypeText.text;
+				fieldData["display"] = descriptionText.text;
 				fieldData["idCoreFacility"] = (coreFacilityCombo.selectedIndex == -1) ? ("") : (coreFacilityCombo.selectedItem.@idCoreFacility); 
 				fieldData["idVendor"] = (vendorCombo.selectedIndex == -1) ? ("") : (vendorCombo.selectedItem.@idVendor);
 				fieldData["idPriceCategory"] = (priceCategoryCombo.selectedIndex == -1) ? ("") : (priceCategoryCombo.selectedItem.@idPriceCategory);
 				fieldData["description"] = descriptionText.text;
-				fieldData["codeProductType"] = codeProductTypeText.text;
+				fieldData["idProductType"] = previousItemId;
 				
 				return fieldData;
 			}
@@ -230,8 +226,8 @@
 					if (selectedProductType.@description != null && selectedProductType.@description != '') {
 						descriptionText.text = selectedProductType.@description;
 					}
-					if (selectedProductType.@codeProductType != null && selectedProductType.@codeProductType != '') {
-						codeProductTypeText.text = selectedProductType.@codeProductType;
+					if (selectedProductType.@idProductType != null && selectedProductType.@idProductType != '') {
+						previousItemId = selectedProductType.@idProductType;
 					}
 				}
 			}
@@ -241,7 +237,7 @@
 				vendorCombo.selectedIndex = -1;
 				priceCategoryCombo.selectedIndex = -1;
 				descriptionText.text = '';
-				codeProductTypeText.text = '';
+				previousItemId = 0;
 			}
 			
 			private function determineCanDeleteSelectedProductType():void {
@@ -296,7 +292,6 @@
 					if (filteredProductTypes != null) {
 						if (saveMode == SAVE_MODE_UPDATE) {
 							var params:Object = new Object();
-							params.codeProductType = codeProductTypeText.text;
 							params.idPriceCategory = (priceCategoryCombo.selectedIndex == -1) ? ("") : (priceCategoryCombo.selectedItem.@idPriceCategory);
 							updateProductType.send(params);
 						}
@@ -309,9 +304,9 @@
 			private function selectItemInTree():void {
 				saveMode = null;
 				showFields = false;
-				if (previousItemCode != null && productTypeList != null && productTypeList.dataProvider != null) {
+				if (previousItemId != 0 && productTypeList != null && productTypeList.dataProvider != null) {
 					for each (var productType:Object in productTypeList.dataProvider) {
-						if (productType.@codeProductType == previousItemCode) {
+						if (productType.@idProductType == previousItemId) {
 							productTypeList.selectedItem = productType;
 							onProductTypeSelect();
 							break;
@@ -353,7 +348,7 @@
 				}	
 			}
 			
-			private function showNewProductTypeWindow():void {
+			private function showNewPriceCategoryWindow():void {
 				var newPriceCategoryWindow:NewProductPriceCategoryWindow = NewProductPriceCategoryWindow(PopUpManager.createPopUp(this, NewProductPriceCategoryWindow, true));
 				PopUpManager.centerPopUp(newPriceCategoryWindow);
 				newPriceCategoryWindow.parentView = this;
@@ -398,15 +393,12 @@
 				<mx:Label text="Price Category" width="100%" />
 				<mx:HBox width="100%">
 					<mx:ComboBox id="priceCategoryCombo" dataProvider="{productPriceCategories}" labelField="@display" change="{dirty.setDirty()}" width="100%" />
-					<mx:LinkButton id="newProductTypeButton" label="New..." click="showNewProductTypeWindow()" textDecoration="underline" color="#0000FF"  
+					<mx:LinkButton id="newCategoryButton" label="New..." click="showNewPriceCategoryWindow()" textDecoration="underline" color="#0000FF"  
 								   visible="{parentApplication.isAdminState || parentApplication.isSuperAdmin}" includeInLayout="{parentApplication.isAdminState || parentApplication.isSuperAdmin}" />
 				</mx:HBox>
 				
 				<mx:Label text="Description" width="100%" />
 				<mx:TextInput id="descriptionText" change="{dirty.setDirty()}" width="100%" />
-				
-				<mx:Label text="Code Product Type" width="100%" />
-				<mx:TextInput id="codeProductTypeText" editable="{saveMode == SAVE_MODE_INSERT}" change="{dirty.setDirty()}" width="100%" />
 				
 				<mx:ControlBar horizontalAlign="right" height="100%" width="100%" paddingTop="0" paddingRight="0" paddingLeft="0" paddingBottom="0">
 					<util:DirtyNote id="dirty" />

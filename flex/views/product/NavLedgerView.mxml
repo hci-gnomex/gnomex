@@ -29,6 +29,7 @@
 	<mx:Script> 
 		<![CDATA[
 			import mx.controls.Alert;
+			import mx.managers.PopUpManager;
 			import mx.rpc.events.ResultEvent;
 			
 			
@@ -64,7 +65,7 @@
 					Alert.show( event.result..ERROR.@message.toString(), "Error getting product list" );	
 				} else{
 					var emptyNode:XML = <Product name="" idProduct="" />
-					products.addItemAt(emptyNode, 0);
+					filteredProducts.addItemAt(emptyNode, 0);
 					productCombo.selectedIndex = -1;
 				}
 			}
@@ -101,7 +102,8 @@
 						for each(var product:XML in lab.children()){
 							index++;
 							if(product.@idProduct == selectedIdProduct){
-								browseTree.selectedIndex = index;
+//								browseTree.selectedIndex = index;
+								browseTree.selectedItem = product;
 								found = true;
 								break;
 							}
@@ -142,9 +144,9 @@
 					return true;
 				}
 				
-				if (item.@codeProductType != null && item.@codeProductType != '') {
+				if (item.@idProductType != null && item.@idProductType != '') {
 					for each (var productType:Object in filteredProductTypes) {
-						if (productType.@value == item.@codeProductType) {
+						if (productType.@value == item.@idProductType) {
 							return true;
 						}
 					}
@@ -172,7 +174,53 @@
 				
 				return false;
 			}
+						
+			public function addButtonClick():void {
+				var addProductWindow:AddProductWindow = new AddProductWindow();
+				addProductWindow.parentWindow = this;
+				addProductWindow.products = this.products;
+				
+				PopUpManager.addPopUp(addProductWindow,this, true)
+				PopUpManager.centerPopUp(addProductWindow);
+				this.setFocus();
+			}
 			
+			public function addProductToTree(labToGetProduct:Object, productToAdd:Object):void{
+				var index:int = 2;
+				var found:Boolean = false;
+				for each(var lab:XML in browseTree.dataProvider){
+					index++;
+					if(lab.@idLab == labToGetProduct.@idLab){
+						for each(var product:XML in lab.children()){
+							index++;
+							if(product.@idProduct == productToAdd.@idProduct){
+//								browseTree.selectedIndex = index;
+								browseTree.selectedItem = product;
+								found = true;
+								break;
+							}
+						}
+						if (!found) {
+							lab.appendChild(productToAdd);
+							browseTree.selectedItem = productToAdd;
+							found = true;
+						}
+					}
+					
+					if(found){
+						break;
+					}
+				}
+				
+				if (!found) {
+					labToGetProduct.appendChild(productToAdd);
+					labs.addItem(labToGetProduct);
+					browseTree.expandItem(labToGetProduct, true, false);
+					browseTree.selectedItem = productToAdd;
+				}
+				
+				onBrowseTree();
+			}
 			
 		]]>
 	</mx:Script> 
@@ -180,7 +228,8 @@
 	
 	
 	<mx:XMLListCollection id="labs" source="{getProductLedgerList.lastResult..Lab}"/>
-	<mx:XMLListCollection id="products" source="{getProductList.lastResult..Product}" filterFunction="filterProducts"/>
+	<mx:XMLListCollection id="products" source="{getProductList.lastResult..Product}" />
+	<mx:XMLListCollection id="filteredProducts" source="{getProductList.lastResult..Product}" filterFunction="filterProducts"/>
 	<mx:XMLListCollection id="filteredProductTypes" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.ProductType').DictionaryEntry}" filterFunction="filterProductTypes"/>
 	
 	<mx:VBox id="vbox1" width="100%" height="100%" horizontalAlign="left" verticalGap="2">
@@ -206,22 +255,37 @@
 								
 				<mx:Spacer width="5"/>
 				<mx:Label text="Product:"/>
-				<mx:ComboBox id="productCombo" dataProvider="{this.products}" labelField="@name" close="{this.resetProductCombo(); this.filterLedgerList()}" selectedIndex="-1" fontSize="10"/>
+				<mx:ComboBox id="productCombo" dataProvider="{this.filteredProducts}" labelField="@name" close="{this.resetProductCombo(); this.filterLedgerList()}" selectedIndex="-1" fontSize="10"/>
 			</mx:HBox>
 		</mx:HBox>
 		
 		<mx:HDividedBox height="100%" width="100%" dividerAlpha="0" dividerThickness="3" dividerAffordance="0">	
 			
 			<mx:VBox styleName="panelBox" id="navPanel" height="100%" width="270">
-				<mx:Tree width="100%" height="100%"  
-						 dataProvider="{labs}" 
-						 showRoot="false"
-						 id="browseTree" click="onBrowseTree();" 
-						 doubleClickEnabled="false" 
-						 labelField="@display" allowMultipleSelection="false" toolTip="Each lab's products available in inventory and pending in product order(s)"
-						 iconFunction="parentApplication.getTreeIcon" backgroundAlpha="1" dropShadowEnabled="true" borderStyle="none">
-				</mx:Tree>
 				
+				<mx:HBox width="100%" verticalAlign="middle" height="26">
+					
+					<mx:Spacer width="100%" height="100%" />
+					<mx:LinkButton label="Add product"
+								   icon="@Embed('../../assets/add.png')"
+								   click="{addButtonClick()}"
+								   id="addProductButton"
+								   textDecoration="underline"
+								   visible="{parentApplication.isAdminState}"
+								   includeInLayout="{parentApplication.isAdminState}"
+								   color="#000000"  fontSize="10"/>
+				</mx:HBox>
+				<mx:VBox styleName="panelBox" height="100%" width="100%" >
+					<mx:Tree width="100%" height="100%"  
+							 dataProvider="{labs}" 
+							 showRoot="false"
+							 id="browseTree" click="onBrowseTree();" 
+							 doubleClickEnabled="false" 
+							 labelField="@display" allowMultipleSelection="false" toolTip="Each lab's products available in inventory and pending in product order(s)"
+							 iconFunction="parentApplication.getTreeIcon" backgroundAlpha="1" dropShadowEnabled="true" borderStyle="none">
+					</mx:Tree>
+					
+				</mx:VBox>
 			</mx:VBox>
 			
 			

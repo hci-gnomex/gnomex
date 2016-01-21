@@ -1611,7 +1611,7 @@
 			
 			private function determineToShowProductsTab(requestCategory:Object):Boolean {
 				if (selectedExperiment != null && selectedExperiment.@isExternal != 'Y' && requestCategory != null) {
-					if (requestCategory.@codeProductType != null && requestCategory.@codeProductType != '') {
+					if (requestCategory.@idProductType != null && requestCategory.@idProductType != '') {
 						return true;
 					}
 				}

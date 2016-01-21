@@ -1,57 +1,57 @@
 package hci.gnomex.model;
 
-import hci.dictionary.model.DictionaryEntry;
-
 import java.io.Serializable;
+
+import hci.dictionary.model.DictionaryEntry;
 
 
 
 public class ProductType extends DictionaryEntry implements Serializable {
-  
-  private String   codeProductType;
+
+  private Integer  idProductType;
   private String   description;
   private Integer  idCoreFacility;
   private Integer  idVendor;
   private Integer  idPriceCategory;
 
   public static final String   TYPE_ISCAN_CHIP  = "ISCAN";
-  
+
   public String getDisplay() {
     String display = this.getNonNullString(getDescription());
     return display;
   }
 
   public String getValue() {
-    return getCodeProductType();
+    return getNonNullString( getIdProductType() );
   }
 
-  
-  public String getCodeProductType() {
-    return codeProductType;
+
+  public Integer getIdProductType() {
+    return idProductType;
   }
 
-  
-  public void setCodeProductType(String code) {
-    this.codeProductType = code;
+
+  public void setIdProductType(Integer idProductType) {
+    this.idProductType = idProductType;
   }
 
-  
+
   public String getDescription() {
     return description;
   }
 
-  
+
   public void setDescription( String description ) {
     this.description = description;
   }
 
-  
-  
+
+
   public Integer getIdCoreFacility() {
     return idCoreFacility;
   }
 
-  
+
   public void setIdCoreFacility( Integer idCoreFacility ) {
     this.idCoreFacility = idCoreFacility;
   }
@@ -60,21 +60,21 @@ public class ProductType extends DictionaryEntry implements Serializable {
     return idVendor;
   }
 
-  
+
   public void setIdVendor( Integer idVendor ) {
     this.idVendor = idVendor;
   }
 
-  
+
   public Integer getIdPriceCategory() {
     return idPriceCategory;
   }
 
-  
+
   public void setIdPriceCategory( Integer idPriceCategory ) {
     this.idPriceCategory = idPriceCategory;
   }
 
-  
-  
+
+
 }

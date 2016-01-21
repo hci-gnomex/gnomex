@@ -84,7 +84,7 @@
 				
 				for each(var product:XML in parentApplication.productList){
 					for each(var productType:XML in productTypeList){
-						if(product.@codeProductType == productType.@codeProductType){
+						if(product.@idProductType == productType.@idProductType){
 							var p:XML = product.copy();
 							p.@isSelected = 'N';
 							p.@quantity = '0';

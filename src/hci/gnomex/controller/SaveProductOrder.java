@@ -4,6 +4,8 @@ import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.billing.IScanChipPlugin;
 import hci.gnomex.constants.Constants;
+import hci.gnomex.model.AppUser;
+import hci.gnomex.model.BillingAccount;
 import hci.gnomex.model.BillingItem;
 import hci.gnomex.model.BillingPeriod;
 import hci.gnomex.model.CoreFacility;
@@ -13,8 +15,11 @@ import hci.gnomex.model.PriceCategory;
 import hci.gnomex.model.Product;
 import hci.gnomex.model.ProductLineItem;
 import hci.gnomex.model.ProductOrder;
+import hci.gnomex.model.ProductOrderStatus;
 import hci.gnomex.model.ProductType;
 import hci.gnomex.model.PropertyDictionary;
+import hci.gnomex.model.RequestCategory;
+import hci.gnomex.model.Sample;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.HibernateUtil;
@@ -24,6 +29,7 @@ import hci.gnomex.utility.PropertyDictionaryHelper;
 import hci.gnomex.utility.RequisitionFormUtil;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.Serializable;
 import java.io.StringReader;
 import java.math.BigDecimal;
@@ -52,23 +58,45 @@ import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.jdom.output.XMLOutputter;
 
+import hci.framework.control.Command;
+import hci.framework.control.RollBackCommandException;
+import hci.gnomex.billing.IScanChipPlugin;
+import hci.gnomex.constants.Constants;
+import hci.gnomex.model.BillingItem;
+import hci.gnomex.model.BillingPeriod;
+import hci.gnomex.model.CoreFacility;
+import hci.gnomex.model.Lab;
+import hci.gnomex.model.Price;
+import hci.gnomex.model.PriceCategory;
+import hci.gnomex.model.Product;
+import hci.gnomex.model.ProductLineItem;
+import hci.gnomex.model.ProductOrder;
+import hci.gnomex.model.ProductType;
+import hci.gnomex.model.PropertyDictionary;
+import hci.gnomex.utility.DictionaryHelper;
+import hci.gnomex.utility.HibernateSession;
+import hci.gnomex.utility.HibernateUtil;
+import hci.gnomex.utility.MailUtil;
+import hci.gnomex.utility.MailUtilHelper;
+import hci.gnomex.utility.PropertyDictionaryHelper;
+
 public class SaveProductOrder extends GNomExCommand implements Serializable {
 
-  private static org.apache.log4j.Logger log         = org.apache.log4j.Logger.getLogger(SaveProductOrder.class);
+  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(SaveProductOrder.class);
 
-  private String                         productListXMLString;
-  private Integer                        idBillingAccount;
-  private Integer                        idAppUser;
-  private Integer                        idLab;
-  private BillingPeriod                  billingPeriod;
-  private Integer                        idCoreFacility;
-  private Document                       productDoc;
-  private String                         codeProductOrderStatus;
+  private String productListXMLString;
+  private Integer idBillingAccount;
+  private Integer idAppUser;
+  private Integer idLab;
+  private BillingPeriod billingPeriod;
+  private Integer idCoreFacility;
+  private Document productDoc;
+  private String codeProductOrderStatus;
 
-  private IScanChipPlugin                iscanPlugin = new IScanChipPlugin();
+  private IScanChipPlugin iscanPlugin = new IScanChipPlugin();
 
-  private String                         appURL;
-  private String                         serverName;
+  private String appURL;
+  private String serverName;
 
   public void loadCommand(HttpServletRequest request, HttpSession sess) {
 
@@ -138,42 +166,42 @@ public class SaveProductOrder extends GNomExCommand implements Serializable {
 
         billingPeriod = DictionaryHelper.getInstance(sess).getCurrentBillingPeriod();
         Lab lab = DictionaryHelper.getInstance(sess).getLabObject(idLab);
-        HashMap<String, ArrayList<Element>> productTypes = new HashMap<String, ArrayList<Element>>();
+        HashMap<Integer, ArrayList<Element>> productTypes = new HashMap<Integer, ArrayList<Element>>();
 
         for (Iterator i = productDoc.getRootElement().getChildren().iterator(); i.hasNext();) {
           Element n = (Element) i.next();
           if (n.getAttribute("quantity") == null || n.getAttributeValue("quantity").equals("") || n.getAttributeValue("quantity").equals("0")) {
             continue;
           }
-          if (!productTypes.containsKey(n.getAttributeValue("codeProductType"))) {
+          if (!productTypes.containsKey(n.getAttributeValue("idProductType"))) {
             ArrayList<Element> products = new ArrayList<Element>();
             products.add(n);
-            productTypes.put(n.getAttributeValue("codeProductType"), products);
+            productTypes.put(Integer.parseInt(n.getAttributeValue("idProductType")), products);
           } else {
-            ArrayList<Element> existingList = productTypes.get(n.getAttributeValue("codeProductType"));
+            ArrayList<Element> existingList = productTypes.get(n.getAttributeValue("idProductType"));
             existingList.add(n);
-            productTypes.put(n.getAttributeValue("codeProductType"), existingList);
+            productTypes.put(Integer.parseInt(n.getAttributeValue("idProductType")), existingList);
           }
         }
 
         for (Iterator i = productTypes.keySet().iterator(); i.hasNext();) {
-          String codeProductTypeKey = (String) i.next();
-          ProductType productType = (ProductType) sess.load(ProductType.class, codeProductTypeKey);
-          PriceCategory priceCategory = (PriceCategory) sess.load(PriceCategory.class, productType.getIdPriceCategory());
-          ArrayList<Element> products = productTypes.get(codeProductTypeKey);
+          Integer idProductTypeKey = (Integer) i.next();
+          ProductType productType = sess.load(ProductType.class, idProductTypeKey);
+          PriceCategory priceCategory = sess.load(PriceCategory.class, productType.getIdPriceCategory());
+          ArrayList<Element> products = productTypes.get(idProductTypeKey);
           Set<ProductLineItem> productLineItems = new TreeSet<ProductLineItem>(new ProductLineItemComparator());
 
           ProductOrder po = new ProductOrder();
 
           if (products.size() > 0) {
-            initializeProductOrder(po, codeProductTypeKey);
+            initializeProductOrder(po, idProductTypeKey);
             sess.save(po);
             po.setProductOrderNumber(getNextPONumber(po, sess));
 
             for (Element n : products) {
               if (n.getAttributeValue("isSelected").equals("Y") && n.getAttributeValue("quantity") != null && !n.getAttributeValue("quantity").equals("") && !n.getAttributeValue("quantity").equals("0")) {
                 ProductLineItem pi = new ProductLineItem();
-                Price p = (Price) sess.load(Price.class, Integer.parseInt(n.getAttributeValue("idPrice")));
+                Price p = sess.load(Price.class, Integer.parseInt(n.getAttributeValue("idPrice")));
 
                 initializeProductLineItem(pi, po.getIdProductOrder(), n, p.getEffectiveUnitPrice(lab));
                 productLineItems.add(pi);
@@ -183,6 +211,10 @@ public class SaveProductOrder extends GNomExCommand implements Serializable {
             po.setProductLineItems(productLineItems);
 
             sess.save(po);
+            sess.flush();
+            sess.refresh(po);
+
+            sendConfirmationEmail(sess, po, ProductOrderStatus.NEW, serverName);
 
             Element poNode = new Element("ProductOrder");
 
@@ -204,25 +236,26 @@ public class SaveProductOrder extends GNomExCommand implements Serializable {
             }
 
             boolean isHCI = lab.getContactEmail().indexOf("@hci.utah.edu") > 0;
-            if (po.getCodeProductType().equals(ProductType.TYPE_ISCAN_CHIP) && !isHCI && !lab.isExternalLab()) {
-              // REQUISITION FORM
-              try {
-                // Download and fill out requisition form
-                File reqFile = RequisitionFormUtil.saveReqFileFromURL(po, sess, serverName);
-                reqFile = RequisitionFormUtil.populateRequisitionForm(po, reqFile, sess);
-                if (reqFile == null) {
-                  String msg = "Unable to download requisition form for product order " + po.getIdProductOrder() + ".";
-                  System.out.println(msg);
-                } else {
-                  sendIlluminaEmail(sess, po);
-                }
-
-              } catch (Exception e) {
-                String msg = "Unable to download requisition form OR unable to send Illumina email for Request " + po.getIdProductOrder() + ".  " + e.toString();
-                System.out.println(msg);
-                e.printStackTrace();
-              }
-            }
+            // TODO : Make this a property on Product Type to Link to Purchasing System
+            // if (po.getIdProductType().equals(ProductType.TYPE_ISCAN_CHIP) && !isHCI && !lab.isExternalLab()) {
+            // // REQUISITION FORM
+            // try {
+            // // Download and fill out requisition form
+            // File reqFile = RequisitionFormUtil.saveReqFileFromURL(po, sess, serverName);
+            // reqFile = RequisitionFormUtil.populateRequisitionForm(po, reqFile, sess);
+            // if (reqFile == null) {
+            // String msg = "Unable to download requisition form for product order " + po.getIdProductOrder() + ".";
+            // System.out.println(msg);
+            // } else {
+            // sendIlluminaEmail(sess, po);
+            // }
+            //
+            // } catch (Exception e) {
+            // String msg = "Unable to download requisition form OR unable to send Illumina email for Request " + po.getIdProductOrder() + ".  " + e.toString();
+            // System.out.println(msg);
+            // e.printStackTrace();
+            // }
+            // }
           }
         }
 
@@ -254,6 +287,73 @@ public class SaveProductOrder extends GNomExCommand implements Serializable {
     return this;
   }
 
+  public static void sendConfirmationEmail(Session sess, ProductOrder po, String orderStatus, String serverName) throws NamingException, MessagingException, IOException {
+
+    DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess);
+    PropertyDictionaryHelper pdh = PropertyDictionaryHelper.getInstance(sess);
+    CoreFacility cf = sess.load(CoreFacility.class, po.getIdCoreFacility());
+
+    // we have to load these from the id's b/c the po is currently loaded in this session and
+    // therefore a sess.get() or sess.load() won't return a new po with these fields initialized,
+    // it will just return the current po object that is recorded in this session which is just a bare bones version
+    // since we haven't gone back to the DB yet.
+    // AppUser au = sess.load(AppUser.class, po.getIdAppUser());
+    // Lab l = sess.load(Lab.class, po.getIdLab());
+
+    String subject = "";
+    if (orderStatus.equals(ProductOrderStatus.NEW)) {
+      subject = "Product Order " + po.getProductOrderNumber() + " has been submitted.";
+    } else if (orderStatus.equals(ProductOrderStatus.COMPLETED)) {
+      subject = "Product Order " + po.getProductOrderNumber() + " has been completed.";
+    }
+    String contactEmailCoreFacility = cf.getContactEmail() != null ? cf.getContactEmail() : "";
+    String contactEmailAppUser = po.getSubmitter().getEmail() != null ? po.getSubmitter().getEmail() : "";
+    String fromAddress = dictionaryHelper.getPropertyDictionary(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
+    String noAppUserEmailMsg = "";
+
+    String toAddress = contactEmailCoreFacility + "," + contactEmailAppUser;
+
+    BillingAccount ba = sess.load(BillingAccount.class, po.getIdBillingAccount());
+    ProductType pt = sess.load(ProductType.class, po.getIdProductType());
+
+    StringBuffer products = new StringBuffer();
+    for (Iterator i = po.getProductLineItems().iterator(); i.hasNext();) {
+      ProductLineItem pli = (ProductLineItem) i.next();
+      Product p = sess.load(Product.class, pli.getIdProduct());
+      products.append(p.getDisplay() + "(Qty: " + pli.getQty() + "), ");
+    }
+    products.replace(products.lastIndexOf(","), products.lastIndexOf(",") + 1, "");
+
+    if (!MailUtil.isValidEmail(contactEmailAppUser)) {
+      noAppUserEmailMsg = "The user who submitted this product order did not receive a copy of this confirmation because they do not have a valid email on file.\n";
+    }
+
+    // If no valid to address then send to gnomex support team
+    if (!MailUtil.isValidEmail(toAddress)) {
+      toAddress = dictionaryHelper.getPropertyDictionary(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_TESTER);
+    }
+
+    StringBuffer body = new StringBuffer();
+    if (orderStatus.equals(ProductOrderStatus.NEW)) {
+      body.append("Product Order " + po.getProductOrderNumber() + " has been submitted to the " + cf.getFacilityName() + ".\n\n");
+    } else if (orderStatus.equals(ProductOrderStatus.COMPLETED)) {
+      body.append("Product Order " + po.getProductOrderNumber() + " has been completed and the products are ready for your use.\n\n");
+    }
+    body.append("Product Order #: \t\t" + po.getProductOrderNumber() + "\n");
+    body.append("Products Ordered: \t\t" + products.toString() + "\n");
+    body.append("Product Type: \t\t" + pt.getDisplay() + "\n");
+    body.append("Submit Date: \t\t" + po.getSubmitDate() + "\n");
+    body.append("Submitted By: \t\t" + po.getSubmitter().getDisplayName() + "\n");
+    body.append("Lab: \t\t\t" + po.getLab().getName(false, true) + "\n");
+    body.append("Billing Acct: \t\t" + ba.getAccountNameAndNumber() + "\n");
+    body.append(noAppUserEmailMsg);
+
+    MailUtilHelper mailHelper = new MailUtilHelper(toAddress, fromAddress, subject, body.toString(), null, false, dictionaryHelper, serverName);
+
+    MailUtil.validateAndSendEmail(mailHelper);
+
+  }
+
   public static String getNextPONumber(ProductOrder po, Session sess) throws SQLException {
     String poNumber = "";
     String procedure = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(po.getIdCoreFacility(), PropertyDictionary.GET_PO_NUMBER_PROCEDURE);
@@ -282,9 +382,9 @@ public class SaveProductOrder extends GNomExCommand implements Serializable {
     return poNumber;
   }
 
-  private void initializeProductOrder(ProductOrder po, String codeProductType) {
+  private void initializeProductOrder(ProductOrder po, Integer idProductType) {
     po.setSubmitDate(new Date(System.currentTimeMillis()));
-    po.setCodeProductType(codeProductType);
+    po.setIdProductType(idProductType);
     po.setQuoteNumber("");
     po.setUuid(UUID.randomUUID().toString());
     po.setIdAppUser(idAppUser);
@@ -306,7 +406,7 @@ public class SaveProductOrder extends GNomExCommand implements Serializable {
 
     DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess);
 
-    CoreFacility cf = (CoreFacility) sess.load(CoreFacility.class, idCoreFacility);
+    CoreFacility cf = sess.load(CoreFacility.class, idCoreFacility);
 
     StringBuffer emailBody = new StringBuffer();
 
@@ -318,7 +418,7 @@ public class SaveProductOrder extends GNomExCommand implements Serializable {
     emailBody.append("<br><br><table border='0' width = '600'>");
     for (Iterator i = po.getProductLineItems().iterator(); i.hasNext();) {
       ProductLineItem pi = (ProductLineItem) i.next();
-      Product p = (Product) sess.load(Product.class, pi.getIdProduct());
+      Product p = sess.load(Product.class, pi.getIdProduct());
 
       emailBody.append("<tr><td>Chip Type:</td><td>" + p.getName() + "</td></tr>");
       emailBody.append("<tr><td>Catalog Number:</td><td>" + p.getCatalogNumber() + "</td></tr>");
