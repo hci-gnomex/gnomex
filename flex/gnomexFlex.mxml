@@ -4147,7 +4147,6 @@
 			<menuitem label="Order Products" icon="iconOrders" context="newProductOrder"  />
 			<menuitem label="Product Orders" icon="iconOrders"   />
 			<menuitem label="Product Ledger" icon="iconOrders"   />
-			<menuitem label="Configure iScan Chips" icon="iconConfig" /> 
 			<menuitem label="Configure Products" icon="iconConfig" />
 		</menuitem>
 		
@@ -4409,7 +4408,6 @@
 			<menuitem label="Order Products" icon="iconOrders" context="newProductOrder"  />
 			<menuitem label="Product Orders" icon="iconOrders"   />
 			<menuitem label="Product Ledger" icon="iconOrders"   />
-			<menuitem label="Configure iScan Chips" icon="iconConfig" /> 
 			<menuitem label="Configure Products" icon="iconConfig" />
 		</menuitem>
 		
@@ -4457,7 +4455,6 @@
 			<menuitem label="Configure Experiment Platform" icon="iconConfig" />
 			<menuitem label="Configure Billing Account Fields" icon="iconConfigureBillingAccounts"  />
 			<menuitem label="Protocols" icon="iconProtocol" />
-			<menuitem label="Configure iScan Chips" icon="iconConfig" />
 			<menuitem label="Configure Products" icon="iconConfig" />
 		</menuitem>
 		
