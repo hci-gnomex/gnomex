@@ -194,7 +194,7 @@ public class GetExpandedAnalysisFileList extends GNomExCommand implements Serial
         analysisNumbers.add(analysisNumber);
       }
 
-      List theFiles = new ArrayList();    
+      List theFiles = new ArrayList(5000);    
       getFileNames(analysisNumber, directoryName, theFiles, null, baseDir, flattenSubDirs);
 
       // Hash the list of file names (by directory name)

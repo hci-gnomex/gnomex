@@ -18,6 +18,7 @@ import hci.gnomex.controller.GNomExFrontController;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 import javax.naming.NamingException;
 
@@ -155,10 +156,15 @@ public class HibernateSession {
         stmt.setString(1, username);
         stmt.executeUpdate();
       } else {
+    	  Statement stmt = con.createStatement();
+    	  stmt.executeUpdate("set @username='" + username + "';");
+    	  
+/*    	  
         CallableStatement stmt;
         stmt = con.prepareCall("call setAppUser(?);");
         stmt.setString(1, username);
         stmt.executeUpdate();
+*/
       }
     }    
   }

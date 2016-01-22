@@ -28,6 +28,7 @@ import hci.gnomex.utility.HybNumberComparator;
 import hci.gnomex.utility.PropertyDictionaryHelper;
 import hci.gnomex.utility.SampleComparator;
 import hci.gnomex.utility.SequenceLaneNumberComparator;
+import hci.gnomex.utility.Util;
 
 import java.io.Serializable;
 import java.sql.SQLException;
@@ -88,8 +89,11 @@ public class GetAnalysis extends GNomExCommand implements Serializable {
 
   public Command execute() throws RollBackCommandException {
     
+	long startTime = System.currentTimeMillis();
+	String reqNumber = "";
+	
     try {
-      
+
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
       
       DictionaryHelper dh = DictionaryHelper.getInstance(sess);
@@ -123,6 +127,7 @@ public class GetAnalysis extends GNomExCommand implements Serializable {
       }
       
       if (isValid())  {
+    	  reqNumber = a.getNumber();
         
         // If user can write analysis, show collaborators.
         if (this.getSecAdvisor().canUpdate(a)) {
@@ -153,7 +158,7 @@ public class GetAnalysis extends GNomExCommand implements Serializable {
         
         
         // Hash the know analysis files
-        Map knownAnalysisFileMap = new HashMap();
+        Map knownAnalysisFileMap = new HashMap(5000);
         for(Iterator i = a.getFiles().iterator(); i.hasNext();) {
           AnalysisFile af = (AnalysisFile)i.next();
           knownAnalysisFileMap.put(af.getQualifiedFileName(), af);
@@ -166,7 +171,7 @@ public class GetAnalysis extends GNomExCommand implements Serializable {
         
         Map analysisMap = new TreeMap();
         Map directoryMap = new TreeMap();
-        Map fileMap = new HashMap();
+        Map fileMap = new HashMap(5000);
         List analysisNumbers = new ArrayList<String>();
         GetExpandedAnalysisFileList.getFileNamesToDownload(baseDir, a.getKey(), analysisNumbers, analysisMap, directoryMap, false);
 
@@ -246,6 +251,9 @@ public class GetAnalysis extends GNomExCommand implements Serializable {
         
       }
     }
+    
+    String dinfo = "GetAnalysis (" + this.getUsername() + " - " + reqNumber + "), ";
+    Util.showTime (startTime,dinfo);
     
     return this;
   }
@@ -502,11 +510,13 @@ public class GetAnalysis extends GNomExCommand implements Serializable {
     	  }
     	  samples.add(x.getSample());
       }
+      
       Element requestNode = requestNodeMap.get(request.getIdRequest());
       if (requestNode == null) {
         requestNode = request.appendBasicXML(secAdvisor, relatedNode);
         requestNodeMap.put(request.getIdRequest(), requestNode);
       }
+      
     }
     
     

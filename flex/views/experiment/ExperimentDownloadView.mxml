@@ -158,7 +158,32 @@
 				if (getRequestDownloadList.lastResult.name() != "RequestDownloadList") {
 					Alert.show(getRequestDownloadList.lastResult..ACTMESSAGE.@TEXT);
 					return; 
-				}    	 
+				}
+				
+				var idRequest:String = getRequestDownloadList.lastResult.Request.@idRequest;
+				var requestNumber:String = getRequestDownloadList.lastResult.Request.@requestNumber;
+//				Alert.show(idRequest,requestNumber);
+				
+				parentApplication.lastGetRequestDownloadListidRequest = idRequest;
+				parentApplication.lastGetRequestDownloadListrequestNumber = requestNumber;
+				
+				this.downloadTree.visible = true;
+				setFileCount();
+				sortDownloadList(this.downloadList);
+				callLater(expandNodes);
+				parentDocument.filterList();
+				
+			}
+
+			public function gotGetRequestDownloadList(): void {
+				if (getRequestDownloadList == null) {
+					return;
+				}
+				
+				if (getRequestDownloadList.lastResult.name() != "RequestDownloadList") {
+					return; 
+				}
+								
 				this.downloadTree.visible = true;
 				setFileCount();
 				sortDownloadList(this.downloadList);
@@ -167,14 +192,14 @@
 				
 			}
 			
-			private function sortDownloadList(theList:XMLListCollection):void{
+			public function sortDownloadList(theList:XMLListCollection):void{
 				var sort:Sort = new Sort();
 				sort.fields = [new SortField("@displayName", true)];
 				theList.sort = sort;
 				theList.refresh();
 			}
 			
-			private function expandNodes():void {
+			public function expandNodes():void {
 				if(downloadList.length > 0) {
 					downloadTree.expandItem(downloadList.getItemAt(0),true); 
 				}	
@@ -210,7 +235,6 @@
 					call.marker = estimatedDownloadSize;    		
 				}
 			}
-			
 			
 			private function getDownloadName(item:Object, col:int):String {
 				var empty:String = item.name() == "Request" && item.hasOwnProperty("@isEmpty") && item.@isEmpty == "Y" ? " (no downloads)" : "";

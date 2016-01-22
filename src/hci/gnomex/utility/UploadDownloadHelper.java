@@ -51,7 +51,9 @@ public class UploadDownloadHelper {
 
   
   public static void getFileNamesToDownload(Session sess, String serverName, String baseDirFlowCell, String keysString, List requestNumbers, Map requestMap, Map directoryMap, String flowCellDirectoryFlag, boolean flattenSubDirs) {
-    String[] keys = keysString.split(":");
+ long stime = System.currentTimeMillis();
+ 
+	  String[] keys = keysString.split(":");
     for (int i = 0; i < keys.length; i++) {
       String key = keys[i];
 
@@ -94,7 +96,7 @@ public class UploadDownloadHelper {
         requestNumbers.add(requestNumber);
       }
       
-      List theFiles = new ArrayList();    
+      List theFiles = new ArrayList(5000);    
       getFileNames(theBaseDir, fullBaseDir, requestNumber, directoryName, theFiles, null, flowCellIndicator, flowCellDirectoryFlag, flattenSubDirs);
       
       // Hash the list of file names (by directory name)
@@ -109,6 +111,10 @@ public class UploadDownloadHelper {
       // Hash the list of directories (by request number)
       requestMap.put(requestNumber, directoryKeys);
     }
+    
+    String info = "GetRequest getFileNamesToDownload, keysString: " + keysString + ", ";
+//    Util.showTime(stime, info);
+    
   }      
       
   private static void getFileNames(String theBaseDir, String fullBaseDir, String requestNumber, String directoryName, List theFiles, String subDirName, String flowCellIndicator, String flowCellDirectoryFlag, boolean flattenSubDirs)  {

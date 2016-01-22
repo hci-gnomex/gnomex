@@ -37,6 +37,7 @@ import hci.gnomex.model.Visibility;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.PropertyDictionaryHelper;
+import hci.gnomex.utility.Util;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -98,6 +99,10 @@ public class GetRequest extends GNomExCommand implements Serializable {
   }
 
   public Command execute() throws RollBackCommandException {
+	  
+	long startTime = System.currentTimeMillis();
+	String reqNumber = "";
+
 
     try {
 
@@ -160,6 +165,7 @@ public class GetRequest extends GNomExCommand implements Serializable {
 
         if (this.isValid()) {
 
+          reqNumber = request.getNumber();
           baseDir = PropertyDictionaryHelper.getInstance(sess).getExperimentDirectory(serverName, request.getIdCoreFacility());
 
           Hibernate.initialize(request.getSamples());
@@ -295,6 +301,9 @@ public class GetRequest extends GNomExCommand implements Serializable {
               }
               if (idOrganism != null) {
                 organismName = dh.getOrganism(idOrganism);
+                if (organismName == null) {
+                	organismName = "";
+                }
                 if (organismName.equals("Other")) {
                   organismName += " (" + otherOrganism + ")";
                 }
@@ -1052,7 +1061,7 @@ public class GetRequest extends GNomExCommand implements Serializable {
       } else {
         setResponsePage(this.ERROR_JSP);
       }
-
+      
     } catch (UnknownPermissionException e) {
       log.error("An exception has occurred in GetRequest ", e);
       throw new RollBackCommandException(e.getMessage());
@@ -1080,6 +1089,9 @@ public class GetRequest extends GNomExCommand implements Serializable {
       }
     }
 
+    String dinfo = "GetRequest (" + this.getUsername() + " - " + reqNumber + "), ";
+    Util.showTime (startTime,dinfo);
+    
     return this;
   }
 

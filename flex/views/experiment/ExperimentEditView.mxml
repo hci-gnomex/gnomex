@@ -1753,9 +1753,9 @@
 			
 			private function highlightAmendRequestCategory():void {
 				var i:int = 0;
-//				for (i = 0; i < radioAmendRequestCategory1.length; i++) {
-//					radioAmendRequestCategory1[i].setStyle("fontWeight", radioAmendRequestCategory1[i].selected    == true ?  "bold" : "normal");	
-//				}
+				for (i = 0; i < radioAmendRequestCategory1.length; i++) {
+					radioAmendRequestCategory1[i].setStyle("fontWeight", radioAmendRequestCategory1[i].selected    == true ?  "bold" : "normal");	
+				}
 				for (i = 0; i < radioAmendRequestCategory2.length; i++) {
 					radioAmendRequestCategory2[i].setStyle("fontWeight", radioAmendRequestCategory2[i].selected    == true ?  "bold" : "normal");	
 				}
@@ -5355,13 +5355,19 @@
 				// Getting the download list is slow since we now show an expanded file
 				// view by default.  Only show downloads at request or project level.
 				if (parentDocument is NavOrderView) {
-					downloadView.getRequestDownloadList.send(getBrowseParametersOrderView());
+					if (parentApplication.needToLoad(getBrowseParametersOrderView()) ) {
+						downloadView.getRequestDownloadList.send(getBrowseParametersOrderView());
+					} 
+
 					downloadView.browseParameters = getBrowseParametersOrderView();
 					downloadView.browseMessage = "";
 				} else {
 					if (parentDocument.selectedIdProject != null || 
 						parentDocument.selectedIdRequest != null) {
-						downloadView.getRequestDownloadList.send(getBrowseParameters());
+						if (parentApplication.needToLoad(getBrowseParameters()) ) {
+							downloadView.getRequestDownloadList.send(getBrowseParameters());
+						} 
+
 						downloadView.browseParameters = getBrowseParameters();
 						downloadView.browseMessage = "";
 					} else {
@@ -5373,18 +5379,22 @@
 			}
 			
 			public function refreshDownloadList():void {
-				if (theTab.selectedChild == downloadView) {
-					// Getting the download list is slow since we now show an expanded file
-					// view by default.  Only show downloads at request or project level.
+//				if (theTab.selectedChild == downloadView) {
+//					// Getting the download list is slow since we now show an expanded file
+//					// view by default.  Only show downloads at request or project level.
 					reloadDownloadList();
-					theTab.selectedChild = downloadView;
-				}
+//					theTab.selectedChild = downloadView;
+//				}
 			}
 			
 			public function refreshDownloadListForExperiment():void {
 				var params:Object = new Object();
 				params.requestNumber = parentDocument.selectedExperiment.@number;
-				downloadView.getRequestDownloadList.send(params);
+				params.whereami = "5";				
+				if (parentApplication.needToLoad(params) ) {
+					downloadView.getRequestDownloadList.send(params);
+				} 
+
 				downloadView.browseParameters = params;
 			}
 			
@@ -5610,7 +5620,7 @@
 			
 			private function determineIfProductsNeeded():Boolean {
 				if (parentApplication.submitInternalExperiment() && requestCategory != null) {
-					if (requestCategory.@idProductType != null && requestCategory.@idProductType != '') {
+					if (requestCategory.@codeProductType != null && requestCategory.@codeProductType != '') {
 						return true;
 					}
 				}
@@ -6555,7 +6565,7 @@
 					<mx:HBox width="100%" horizontalGap="8">
 						<mx:Text text="(3) Select the category that best describes the services that you will be adding to this request." width="194"/>
 						<mx:VBox width="100%" height="100%" verticalGap="8" fontSize="11">							
-<!--							<mx:VBox width="100%" height="100%" verticalGap="0">							
+							<mx:VBox width="100%" height="100%" verticalGap="0">							
 								<mx:Repeater id="requestCategoryRepeater1" dataProvider="{qcAmendRequestCategories}">
 									<mx:HBox verticalGap="2" paddingRight="2" paddingBottom="2" width="100%" verticalAlign="middle">
 										<mx:HBox horizontalAlign="center">
@@ -6570,7 +6580,7 @@
 									</mx:HBox>
 								</mx:Repeater>
 							</mx:VBox>
-							<mx:HRule width="100%"/>-->
+							<mx:HRule width="100%"/>
 							<mx:VBox width="100%" height="100%" verticalGap="0">							
 								<mx:Repeater id="requestCategoryRepeater2" dataProvider="{addLanesAmendRequestCategories}">
 									<mx:HBox verticalGap="2" paddingRight="2" paddingBottom="2" width="100%" verticalAlign="middle">

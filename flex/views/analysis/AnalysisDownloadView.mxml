@@ -212,7 +212,10 @@
 				if (getAnalysisDownloadList.lastResult.name() != "AnalysisDownloadList") {
 					Alert.show(getAnalysisDownloadList.lastResult..ACTMESSAGE.@TEXT);
 					return;
-				} 
+				}
+				parentApplication.lastGetAnalysisDownloadListidAnalysis = getAnalysisDownloadList.lastResult.Analysis.@idAnalysis; 
+				parentApplication.lastGetAnalysisDownloadlistnumber = getAnalysisDownloadList.lastResult.Analysis.@number;
+				
 				this.downloadTree.visible = true;
 				setFileCount();
 				callLater(expandNodes); 
@@ -519,7 +522,9 @@
 				params.idAnalysis = e.detail;
 				params.includeUploadStagingDir = 'Y';
 				params.autoCreate = 'Y';
+				if (parentApplication.needToLoadAnalysis(params)) {				
 				getAnalysisDownloadList.send(params);
+				}
 			}
 			
 			

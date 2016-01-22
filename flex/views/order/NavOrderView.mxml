@@ -72,6 +72,10 @@
 				experimentEditView.request = this.selectedRequest;
 				experimentViews.selectedChild = experimentEditView;
 				experimentEditView.removeDataListeners();
+				
+				parentApplication.lastGetRequestDownloadListidRequest = "";
+				parentApplication.lastGetRequestDownloadListrequestNumber = "";
+				
 				experimentEditView.setupEditForm(this.selectedRequest);
 				experimentEditView.titleLabel.text = title;
 				experimentEditView.initializeData();
@@ -96,6 +100,9 @@
 				
 				var title:String = 'View Experiment ' + selectedRequest.@number;
 
+				parentApplication.lastGetRequestDownloadListidRequest = "";
+				parentApplication.lastGetRequestDownloadListrequestNumber = "";
+				
 				experimentDetailView.detail.setupForm(this.selectedRequest);
 
 				experimentViews.selectedChild = experimentDetailView;

@@ -161,4 +161,15 @@ public class Util {
     return stringList;
   }
   
+  public static void showTime (long start, String info)
+  {
+	  long endTime = System.currentTimeMillis();
+	  long numMillis = endTime - start;
+	  
+	  double numsec = numMillis / 1000.0;
+	  
+	  System.out.println (info + numsec + " seconds elapsed time.");
+	   
+  }
+  
 }
