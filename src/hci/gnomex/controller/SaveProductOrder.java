@@ -173,12 +173,12 @@ public class SaveProductOrder extends GNomExCommand implements Serializable {
           if (n.getAttribute("quantity") == null || n.getAttributeValue("quantity").equals("") || n.getAttributeValue("quantity").equals("0")) {
             continue;
           }
-          if (!productTypes.containsKey(n.getAttributeValue("idProductType"))) {
+          if (!productTypes.containsKey(Integer.parseInt(n.getAttributeValue("idProductType")))) {
             ArrayList<Element> products = new ArrayList<Element>();
             products.add(n);
             productTypes.put(Integer.parseInt(n.getAttributeValue("idProductType")), products);
           } else {
-            ArrayList<Element> existingList = productTypes.get(n.getAttributeValue("idProductType"));
+            ArrayList<Element> existingList = productTypes.get(Integer.parseInt(n.getAttributeValue("idProductType")));
             existingList.add(n);
             productTypes.put(Integer.parseInt(n.getAttributeValue("idProductType")), existingList);
           }
