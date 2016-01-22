@@ -534,7 +534,7 @@
 			}
 			
 			
-			public function onBrowseTree(event:MouseEvent):void {
+			public function onBrowseTree(event:MouseEvent=null):void {
 				if(browseTree.selectedItems.length < 1 || (!forceReload && browseTree.selectedItem.@idAnalysis == selectedIdAnalysis) || (event != null && (event.ctrlKey || event.shiftKey))){
 					return;
 				}
