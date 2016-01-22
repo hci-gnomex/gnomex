@@ -166,6 +166,7 @@
 				var params:Object = new Object();
 				params.idRequest = idRequest;
 				params.includeUploadStagingDir = 'N';
+				params.whereami = "EUW";
 				getRequestDownloadList.send(params);
 				refreshUploadFiles();
 				this.addEventListener("refreshUploadFiles", onUploadFinished);
@@ -188,6 +189,7 @@
 				var params:Object = new Object();
 				params.idRequest = idRequest;
 				params.includeUploadStagingDir = 'N';
+				params.whereami = "3";
 				getRequestDownloadList.send(params);
 				
 			}
@@ -1126,8 +1128,11 @@
 				params.isMicroarray  = "N";
 				params.isNextGenSeq  = "N";
 				params.isBioanalyzer = "N";
+				params.whereami = "4";				
 				if(parentView.downloadView != null){
-					parentView.downloadView.getRequestDownloadList.send(params);
+					if (parentApplication.needToLoad(params) ) {
+						parentView.downloadView.getRequestDownloadList.send(params);
+					}
 				}
 				PopUpManager.removePopUp(this);
 			}

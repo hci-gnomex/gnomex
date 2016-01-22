@@ -160,7 +160,9 @@
    		// view by default.  Only show downloads at request or project level.
    		if (parentDocument.selectedIdProject != null || 
    		     parentDocument.selectedIdRequest != null) {
-			downloadView.getRequestDownloadList.send(getBrowseParameters());
+			if (parentApplication.needToLoad(getBrowseParameters()) ) {
+				downloadView.getRequestDownloadList.send(getBrowseParameters());
+			} 
 			downloadView.browseParameters = getBrowseParameters();
 			downloadView.browseMessage = "";
 		} else {
@@ -176,7 +178,9 @@
 	   		// view by default.  Only show downloads at request or project level.
 	   		if (parentDocument.selectedIdProject != null || 
 	   		     parentDocument.selectedIdRequest != null) {
-				downloadView.getRequestDownloadList.send(getBrowseParameters());
+				if (parentApplication.needToLoad(getBrowseParameters()) ) {			
+					downloadView.getRequestDownloadList.send(getBrowseParameters());
+				} 
 				downloadView.browseParameters = getBrowseParameters();
 				downloadView.browseMessage = "";
 	   		} else {
@@ -191,7 +195,11 @@
   	public function refreshDownloadListForExperiment():void {
 		var params:Object = new Object();
 		params.requestNumber = parentDocument.selectedExperiment.@number;
-		downloadView.getRequestDownloadList.send(params);
+		params.whereami = "6";
+		if (parentApplication.needToLoad(params) ) {		
+			downloadView.getRequestDownloadList.send(params);
+		} 
+
 		downloadView.browseParameters = params;
 	}
 	

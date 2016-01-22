@@ -37,6 +37,7 @@ import hci.gnomex.model.Visibility;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.PropertyDictionaryHelper;
+import hci.gnomex.utility.Util;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -92,13 +93,16 @@ public class GetRequest extends GNomExCommand implements Serializable {
 
     serverName = request.getServerName();
 
-
     if (idRequest == null && requestNumber == null) {
       this.addInvalidField("idRequest or requestNumber", "Either idRequest or requestNumber must be provided");
     }
   }
 
   public Command execute() throws RollBackCommandException {
+
+	long startTime = System.currentTimeMillis();
+	String reqNumber = "";
+
 
     try {
 
@@ -161,6 +165,7 @@ public class GetRequest extends GNomExCommand implements Serializable {
 
         if (this.isValid()) {
 
+          reqNumber = request.getNumber();
           baseDir = PropertyDictionaryHelper.getInstance(sess).getExperimentDirectory(serverName, request.getIdCoreFacility());
 
           Hibernate.initialize(request.getSamples());
@@ -296,6 +301,9 @@ public class GetRequest extends GNomExCommand implements Serializable {
               }
               if (idOrganism != null) {
                 organismName = dh.getOrganism(idOrganism);
+                if (organismName == null) {
+                	organismName = "";
+                }
                 if (organismName.equals("Other")) {
                   organismName += " (" + otherOrganism + ")";
                 }
@@ -1080,6 +1088,9 @@ public class GetRequest extends GNomExCommand implements Serializable {
 
       }
     }
+
+    String dinfo = "GetRequest (" + this.getUsername() + " - " + reqNumber + "), ";
+    Util.showTime (startTime,dinfo);
 
     return this;
   }

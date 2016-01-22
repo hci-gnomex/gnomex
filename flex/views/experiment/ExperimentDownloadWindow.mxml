@@ -51,6 +51,7 @@
 				this.filesToDownload.removeEventListener(CollectionEvent.COLLECTION_CHANGE, this.underlyingDownloadsChange);
 				this.filesToDownload.addEventListener(CollectionEvent.COLLECTION_CHANGE, this.underlyingDownloadsChange);
 				
+				browseParameters.whereami = "EDW";
 				getRequestDownloadList.send(browseParameters);
 			}
 			
@@ -59,6 +60,9 @@
 					mx.controls.Alert.show(getRequestDownloadList.lastResult..ACTMESSAGE.@TEXT);
 					return;
 				} else {
+//					parentApplication.lastGetRequestDownloadListidRequest = getRequestDownloadList.lastResult.Request.@idRequest;
+//					parentApplication.lastGetRequestDownloadListrequestNumber = getRequestDownloadList.lastResult.Request.@requestNumber;
+					
 					callLater( function():void {
 						if ( downloadList.length > 0 ){
 							filesTree.expandItem(downloadList.getItemAt(0),true);

@@ -14,6 +14,7 @@ import hci.gnomex.utility.AnalysisFileDescriptor;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.PropertyDictionaryHelper;
+import hci.gnomex.utility.Util;
 
 import java.io.File;
 import java.io.Serializable;
@@ -96,8 +97,11 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
 
   public Command execute() throws RollBackCommandException {
 
+	long startTime = System.currentTimeMillis();
+	String reqNumber = "";
+	
     try {
-      
+        
       Session sess = HibernateSession.currentSession(this.getUsername());
 
       DictionaryHelper dh = DictionaryHelper.getInstance(sess);
@@ -132,6 +136,7 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
       }
       
       if (isValid())  {
+    	  reqNumber = a.getNumber();
 
         Document doc = new Document(new Element("AnalysisDownloadList"));
 
@@ -160,7 +165,7 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
         
         
         // Hash the known analysis files
-        Map knownAnalysisFileMap = new HashMap();
+        Map knownAnalysisFileMap = new HashMap(5000);
         for(Iterator i = a.getFiles().iterator(); i.hasNext();) {
           AnalysisFile af = (AnalysisFile)i.next();
           knownAnalysisFileMap.put(af.getQualifiedFileName(), af);
@@ -169,7 +174,7 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
         // Now add in the files that exist on the file server
         Map analysisMap = new TreeMap();
         Map directoryMap = new TreeMap();
-        Map fileMap = new HashMap();
+        Map fileMap = new HashMap(5000);
         List analysisNumbers = new ArrayList<String>();
         GetExpandedAnalysisFileList.getFileNamesToDownload(baseDir, a.getKey(), analysisNumbers, analysisMap, directoryMap, false);
     
@@ -305,7 +310,10 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
         }
         
 
+        // **********************************************************************
         // Add any files that are registered in the db, but not on the fileserver
+        // **********************************************************************
+/*  tim 01/14/2016 -- I don't see any reason to do this, it's just noise and extra effort.  If they aren't on the disk, who cares!        
         autoCreate = false;  // don't do any auto creating in this case
         for(Iterator i = a.getFiles().iterator(); i.hasNext();) {
           AnalysisFile af = (AnalysisFile)i.next();
@@ -347,7 +355,7 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
             recurseAddChildren(autoCreate,fdNode, fd, fileMap, knownAnalysisFileMap, dataTrackMap, sess);
           }
         }
-
+*/
         doc.getRootElement().addContent(aNode);
 
         XMLOutputter out = new org.jdom.output.XMLOutputter();
@@ -380,6 +388,9 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
       }
     }
 
+    String dinfo = "GetAnalysisDownloadList (" + this.getUsername() + " - " + reqNumber + "), ";
+    Util.showTime (startTime,dinfo);
+    
     return this;
   }
   
@@ -491,6 +502,17 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
           fdNode.setAttribute("viewURL", fd.getViewURL()!=null?fd.getViewURL():"");
 
           if ( StringUtils.isNumeric( fd.getIdAnalysisFileString()  )){
+              if (dataTrackMap.containsKey(Integer.valueOf(fd.getIdAnalysisFileString()))) {
+                fdNode.setAttribute("hasDataTrack", "Y");
+              } else {
+                fdNode.setAttribute("hasDataTrack", "N");
+              }
+            } else {
+              fdNode.setAttribute("hasDataTrack", "N");
+            }
+
+/*          
+          if ( StringUtils.isNumeric( fd.getIdAnalysisFileString()  )){
             StringBuffer buf = new StringBuffer("SELECT dtf from DataTrackFile as dtf where dtf.idAnalysisFile = '" + fd.getIdAnalysisFileString() + "'");
             List dataTrackFiles = sess.createQuery(buf.toString()).list();
             if (dataTrackFiles.size() > 0) {
@@ -501,7 +523,7 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
           } else {
             fdNode.setAttribute("hasDataTrack", "N");
           }
-          
+*/          
           recurseAddChildren(autocreate,fdNode, fd, fileMap, knownAnalysisFileMap, dataTrackMap, sess);
           
           analysisDownloadNode.addContent(fdNode);
@@ -523,15 +545,16 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
   public static Map<Integer, Integer> getDataTrackMap(Session sess, Integer idAnalysis) {
     Map<Integer, Integer> dataTrackMap = new HashMap<Integer, Integer>();
     
-    String queryString = "SELECT idAnalysisFile from DataTrackFile as dtf where dtf.idAnalysisFile in (select idAnalysisFile from AnalysisFile where idAnalysis=:id)";
+//    String queryString = "SELECT idAnalysisFile from DataTrackFile as dtf where dtf.idAnalysisFile in (select idAnalysisFile from AnalysisFile where idAnalysis=:id)";
+    String queryString = "SELECT dtf.idAnalysisFile from DataTrackFile as dtf, AnalysisFile as af where af.idAnalysis = :id and dtf.idAnalysisFile = af.idAnalysisFile";
     SQLQuery query = sess.createSQLQuery(queryString);
     query.setParameter("id", idAnalysis);
     List l = query.list();
     for(Iterator i = l.iterator(); i.hasNext(); ) {
       Object o = (Object)i.next();
-      if (o.getClass().equals(Integer.class)) {
+//      if (o.getClass().equals(Integer.class)) {
         dataTrackMap.put((Integer)o, (Integer)o);
-      }
+//      }
     }
     
     return dataTrackMap;

@@ -969,6 +969,14 @@
 			
 			[Bindable]
 			public var isInternalExperimentSubmission:Boolean = true;
+
+			// used to avoid unnecessary GetRequestDownloadList requests 
+			public var lastGetRequestDownloadListidRequest:String = "";			
+			public var lastGetRequestDownloadListrequestNumber:String = "";
+			
+			// used to avoid unnecessary GetAnalysisDownloadList requests 
+			public var lastGetAnalysisDownloadListidAnalysis:String = "";			
+			public var lastGetAnalysisDownloadListnumber:String = "";
 			
 			[Bindable]
 			public var isBSTLinkageSupported:Boolean = false;
@@ -1894,6 +1902,98 @@
 				theViews.visible = true;
 				
 				currentView = theViews.selectedChild;
+			}
+			
+			public function needToLoad(params:Object):Boolean {
+				var theidRequest:String = params.idRequest;
+				var therequestNumber:String = params.requestNumber;
+				
+				// anything to check?
+				if ((theidRequest != null && theidRequest != "") || (therequestNumber != null && therequestNumber != "")) {
+				
+				if (this.lastGetRequestDownloadListidRequest == "" && this.lastGetRequestDownloadListrequestNumber == "") {
+					// need to issue request, mark as busy
+					this.lastGetRequestDownloadListidRequest = "busy";
+					this.lastGetRequestDownloadListrequestNumber = "busy";
+					return true;
+				}
+				
+				// are we busy
+				if (this.lastGetRequestDownloadListidRequest == "busy") {
+					return false;
+				}
+				
+				if (theidRequest != null && this.lastGetRequestDownloadListidRequest != null && this.lastGetRequestDownloadListidRequest != "") {
+					if (theidRequest == this.lastGetRequestDownloadListidRequest) {
+						return false;
+					}
+					
+					// they don't match, mark as busy
+					this.lastGetRequestDownloadListidRequest = "busy";
+					this.lastGetRequestDownloadListrequestNumber = "busy";
+					return true;					
+				}
+				
+				if (therequestNumber != null&& this.lastGetRequestDownloadListrequestNumber != null && this.lastGetRequestDownloadListrequestNumber != "") {
+					if (therequestNumber == this.lastGetRequestDownloadListrequestNumber) {
+						return false;
+					}
+					
+					// they don't match, mark as busy
+					this.lastGetRequestDownloadListidRequest = "busy";
+					this.lastGetRequestDownloadListrequestNumber = "busy";
+					return true;					
+				}
+				
+				}
+
+				return true;					
+			}
+			
+			public function needToLoadAnalysis(params:Object):Boolean {
+				var theidAnalysis:String = params.idAnalysis;
+				var thenumber:String = params.number;
+				
+				// anything to check?
+				if ((theidAnalysis != null && theidAnalysis != "") || (thenumber != null && thenumber != "")) {
+					
+					if (this.lastGetAnalysisDownloadListidAnalysis == "" && this.lastGetAnalysisDownloadListnumber == "") {
+						// need to issue request, mark as busy
+						this.lastGetAnalysisDownloadListidAnalysis = "busy";
+						this.lastGetAnalysisDownloadListnumber = "busy";
+						return true;
+					}
+					
+					// are we busy
+					if (this.lastGetAnalysisDownloadListidAnalysis == "busy") {
+						return false;
+					}
+					
+					if (theidAnalysis != null && this.lastGetAnalysisDownloadListidAnalysis != null && this.lastGetAnalysisDownloadListidAnalysis != "") {
+						if (theidAnalysis == this.lastGetAnalysisDownloadListidAnalysis) {
+							return false;
+						}
+						
+						// they don't match, mark as busy
+						this.lastGetAnalysisDownloadListidAnalysis = "busy";
+						this.lastGetAnalysisDownloadListnumber = "busy";
+						return true;					
+					}
+					
+					if (thenumber != null&& this.lastGetAnalysisDownloadListnumber != null && this.lastGetAnalysisDownloadListnumber != "") {
+						if (thenumber == this.lastGetAnalysisDownloadListnumber) {
+							return false;
+						}
+						
+						// they don't match, mark as busy
+						this.lastGetAnalysisDownloadListidAnalysis = "busy";
+						this.lastGetAnalysisDownloadListnumber = "busy";
+						return true;					
+					}
+					
+				}
+				
+				return true;					
 			}
 			
 			
@@ -3748,7 +3848,7 @@
 				} else if (label == 'New Analysis') {
 					theViews.selectedChild = navAnalysisView;
 					navAnalysisView.showNewAnalysisWindow();
-				} else if (label == "Add Additional Illumina Sequencing Lanes") {
+				} else if (label == "Add Additional Illumina Sequencing Lanes") {					
 					this.isInternalExperimentSubmission = true;
 					theViews.selectedChild = amendRequestView;
 				} else if (GNomExStringUtil.startsWith(label,"Upload Experiment data generated at third party facility") || GNomExStringUtil.startsWith(label,"Create New Experiment and Upload Files")) {
@@ -4473,7 +4573,7 @@
 		<menuitem label="Experiments..."  icon="iconFlask" >
 			<menuitem  label="Browse Experiments"  icon="iconFlask" />
 			<menuitem  label="New Experiment Order"  icon="iconSubmitExperiment" context="newInternalExperiment"/>
-			<menuitem  label="Add Additional Illumina Sequencing Lanes"  icon="iconEditExperiment" />
+			<menuitem  label="Add Additional Illumina Sequencing Lanes"  icon="iconEditExperiment" />			
 			<menuitem label="New Project" icon="iconFolderAdd"/>
 			<menuitem label="Upload Experiment data generated at third party facility" icon="iconAddExternalExperiment" context="newExternalExperiment"/>
 			<menuitem label="New Billing Account" icon="iconBilling"   />

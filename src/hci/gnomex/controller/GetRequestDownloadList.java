@@ -42,7 +42,6 @@ import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.output.XMLOutputter;
 
-
 public class GetRequestDownloadList extends GNomExCommand implements Serializable {
 
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetRequestDownloadList.class);
@@ -57,6 +56,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
   private String                         baseDirFlowCell;
   private SimpleDateFormat               yearFormat= new SimpleDateFormat("yyyy");
   private static boolean noLinkedSamples;
+  private static String whereami;
 
   public void validate() {
   }
@@ -69,6 +69,12 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
 
     if (request.getParameter("includeUploadStagingDir") != null && !request.getParameter("includeUploadStagingDir").equals("")) {
       includeUploadStagingDir = request.getParameter("includeUploadStagingDir");
+    }
+
+    if (request.getParameter("whereami") != null) {
+    	whereami = request.getParameter("whereami");
+    } else {
+    	whereami = "unknown";
     }
 
     String idRequestStringList = request.getParameter("idRequestStringList");
@@ -92,6 +98,9 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
 
   public Command execute() throws RollBackCommandException {
 
+	long startTime = System.currentTimeMillis();
+	String reqNumber = "";
+
     try {
 
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
@@ -111,10 +120,11 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
       for (Iterator i = rows1.iterator(); i.hasNext();) {
         Object[] row = (Object[]) i.next();
 
-        String requestNumber = (String)row[1];
-        String codeRequestCategory = (String)row[2];
-        String hybNumber     = row[5] == null || row[5].equals("") ? "" : (String)row[5];
-        Integer idCoreFacility = (Integer)row[31];
+        String requestNumber = (String) row[1];
+        reqNumber = requestNumber;
+        String codeRequestCategory = (String) row[2];
+        String hybNumber = row[5] == null || row[5].equals("") ? "" : (String) row[5];
+        Integer idCoreFacility = (Integer) row[31];
 
         String createDate    = this.formatDate((java.util.Date)row[0]);
         String tokens[] = createDate.split("/");
@@ -135,8 +145,9 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
       for(Iterator i = rows2.iterator(); i.hasNext();) {
         Object[] row = (Object[])i.next();
 
-        String requestNumber = (String)row[1];
-        String codeRequestCategory = (String)row[2];
+        String requestNumber = (String) row[1];
+        reqNumber = requestNumber;
+        String codeRequestCategory = (String) row[2];
 
         String createDate    = this.formatDate((java.util.Date)row[0]);
         String tokens[] = createDate.split("/");
@@ -166,10 +177,11 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
       for(Iterator i = flowCellRows.iterator(); i.hasNext();) {
         Object[] row = (Object[])i.next();
 
-        String requestNumber         = (String)row[0];
-        String flowCellNumber        = (String)row[1];
-        java.sql.Date createDate     = (java.sql.Date)row[2];
-        Integer idCoreFacility       = (Integer)row[3];
+        String requestNumber = (String) row[0];
+        reqNumber = requestNumber;
+        String flowCellNumber = (String) row[1];
+        java.sql.Date createDate = (java.sql.Date) row[2];
+        Integer idCoreFacility = (Integer) row[3];
 
         List flowCellFolders = (List)flowCellMap.get(requestNumber);
         if (flowCellFolders == null) {
@@ -198,6 +210,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
         }
 
         String requestNumber = (String)row[1];
+        reqNumber = requestNumber;
         requestIdList.add((Integer)row[21]);
 
         String codeRequestCategory = (String)row[2];
@@ -511,6 +524,9 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
       }
     }
 
+    String dinfo = "GetRequestDownloadList (" + this.getUsername() + " - " + reqNumber + " - " + whereami + "), ";
+    Util.showTime (startTime,dinfo);
+
     return this;
   }
 
@@ -544,6 +560,8 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
       String codeRequestCategory,
       DictionaryHelper dh,
       boolean isFlowCellDirectory ) throws XMLReflectException {
+
+    long stime = System.currentTimeMillis();
     //
     // Get expanded file list
     //
@@ -590,6 +608,8 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
 
     }
 
+    String info = "GetRequest addExpandedFileNodes, key: " + key + ", ";
+//    Util.showTime(stime, info);
   }
 
   private static void recurseAddChildren(Element fdNode, FileDescriptor fd, boolean isFlowCellDirectory, Session sess) throws XMLReflectException {
@@ -643,13 +663,15 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
 
 	  if (qty > 0) {
 		  // check to see if there are any for the experiment files we have
-		  buf = new StringBuffer ("SELECT count(*) from SampleExperimentFile sef, ExperimentFile ef where sef.idExpFileRead1 = ef.idExperimentFile and ef.idRequest in (" + Util.listIntToString(requestIdList) + ")");
+//		  buf = new StringBuffer ("SELECT count(*) from SampleExperimentFile sef, ExperimentFile ef where sef.idExpFileRead1 = ef.idExperimentFile and ef.idRequest in (" + Util.listIntToString(requestIdList) + ")");
+		  buf = new StringBuffer ("SELECT count(*) from SampleExperimentFile sef where sef.idExpFileRead1 in (select idExperimentFile from ExperimentFile where idRequest in (" + Util.listIntToString(requestIdList) + "))");
 		  List results1 = sess.createQuery(buf.toString()).list();
 		  int qty1 = (int)(long)results1.get(0);
 
 		  if (qty1 == 0) {
 			  // check idExpFileRead2
-			  buf = new StringBuffer ("SELECT count(*) from SampleExperimentFile sef, ExperimentFile ef where sef.idExpFileRead2 = ef.idExperimentFile and ef.idRequest in (" + Util.listIntToString(requestIdList) + ")");
+//			  buf = new StringBuffer ("SELECT count(*) from SampleExperimentFile sef, ExperimentFile ef where sef.idExpFileRead2 = ef.idExperimentFile and ef.idRequest in (" + Util.listIntToString(requestIdList) + ")");
+			  buf = new StringBuffer ("SELECT count(*) from SampleExperimentFile sef where sef.idExpFileRead2 in (select idExperimentFile from ExperimentFile where idRequest in (" + Util.listIntToString(requestIdList) + "))");
 			  List results2 = sess.createQuery(buf.toString()).list();
 			  int qty2 = (int)(long)results2.get(0);
 

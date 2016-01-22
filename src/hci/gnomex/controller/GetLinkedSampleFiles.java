@@ -203,15 +203,15 @@ public class GetLinkedSampleFiles extends GNomExCommand implements Serializable 
       setResponsePage(this.SUCCESS_JSP);
 
     }catch (NamingException e){
-      log.error("An exception has occurred in GetRequestDownloadList ", e);
+      log.error("An exception has occurred in GetLinkedSampleFiles ", e);
       e.printStackTrace(System.out);
       throw new RollBackCommandException(e.getMessage());
     }catch (SQLException e) {
-      log.error("An exception has occurred in GetRequestDownloadList ", e);
+      log.error("An exception has occurred in GetLinkedSampleFiles ", e);
       e.printStackTrace(System.out);
       throw new RollBackCommandException(e.getMessage());
     } catch (Exception e) {
-      log.error("An exception has occurred in GetRequestDownloadList ", e);
+      log.error("An exception has occurred in GetLinkedSampleFiles ", e);
       e.printStackTrace(System.out);
       throw new RollBackCommandException(e.getMessage());
     } finally {

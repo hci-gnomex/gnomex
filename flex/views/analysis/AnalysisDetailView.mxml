@@ -132,7 +132,10 @@
 				params.idAnalysis = analysis.@idAnalysis;
 				params.includeUploadStagingDir = 'Y';
 				params.autoCreate = 'Y';
-				filesView.getAnalysisDownloadList.send(params);
+				
+				if (parentApplication.needToLoadAnalysis(params)) {
+					filesView.getAnalysisDownloadList.send(params);
+				}
 				filesView.browseParameters = params;
 				
 				if (parentApplication.isGuestMode()) {
@@ -157,7 +160,9 @@
 				params.idAnalysis = analysis.@idAnalysis;
 				params.includeUploadStagingDir = 'Y';
 				params.autoCreate = 'Y';
-				filesView.getAnalysisDownloadList.send(params);
+				if (parentApplication.needToLoadAnalysis(params)) {				
+					filesView.getAnalysisDownloadList.send(params);
+				}
 				filesView.browseParameters = params;
 				
 			}
@@ -217,6 +222,8 @@
 			
 			
 			private function showEditWindow():void {
+				parentApplication.lastGetAnalysisDownloadListidAnalysis = "";
+				parentApplication.lastGetAnalysisDownloadListnumber = "";
 				parentDocument.analysisEditView.setupEditForm(analysis, false);
 				parentDocument.analysisViews.selectedChild = parentDocument.analysisEditView;
 			}

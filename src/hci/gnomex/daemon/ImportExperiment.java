@@ -137,7 +137,7 @@ public class ImportExperiment {
 
       // Connect to the database
       dataSource = new BatchDataSource();
-      app.connect();
+      sess = dataSource.connect();
       
       // Create a security advisor
       secAdvisor = SecurityAdvisor.create(sess, login);
@@ -173,31 +173,42 @@ public class ImportExperiment {
       
       
       // Save the experiment
+      System.out.println ("[ImportExperiment] before SaveRequest.saveRequest");
       SaveRequest.saveRequest(sess, requestParser, requestNode.getAttributeValue("description"), true);
-     
+      System.out.println ("[ImportExperiment] after SaveRequest.saveRequest");
+      
       // Save the samples
       saveSamples();
+      System.out.println ("[ImportExperiment] after saveSamples()");
       
       // Save the sequence lanes
       SaveRequest.saveSequenceLanes(secAdvisor, requestParser, sess, requestCategory, idSampleMap, sequenceLanes, sequenceLanesAdded, true);
+      System.out.println ("[ImportExperiment] after SaveRequest.saveSequenceLanes()");
       
-      // Commit the transaction     
-      tx.commit();
+      // Commit the transaction   
+      sess.getTransaction().commit();
+      
+      System.out.println ("[ImportExperiment] after sess.getTransaction().commit()");
       
 
     } catch (Exception e) {
-            
+      if (tx!=null) {
+    	  tx.rollback();      
+      }
       this.sendErrorReport(e);
 
     } finally {
       if (sess != null) {
         try {
-          app.disconnect();
+          sess.close();
         } catch(Exception e) {
           System.err.println( "ImportExperiment unable to disconnect from hibernate session.   " + e.toString() );
         }
       }
     }
+    
+    System.out.println ("[ImportExperiment] at the very end");
+    System.exit(0);
 
       
   }
@@ -287,51 +298,28 @@ public class ImportExperiment {
     requestNode.setAttribute("idRequest", "0");
     requestNode.setAttribute("isExternal", isExternal);
     
-//    requestNode.setAttribute("name", requestNode.getAttributeValue("name") + " (" + requestNode.getAttributeValue("number") + ")");
-    //  remove the code that is appending the source experiment ID (request number) to the experiment name
     requestNode.setAttribute("name", requestNode.getAttributeValue("name"));
     
     // We only handle Illumina request types for importing at this time
     String codeRequestCategory = requestNode.getAttributeValue("codeRequestCategory");
     RequestCategory rc = requestCategoryMap.get(codeRequestCategory);
-    if (rc.getCategoryType() == null || rc.getCategoryType().getIsIllumina() == null || !rc.getCategoryType().getIsIllumina().equals("Y")) {
-      throw new Exception("Only Illumina HiSeq/MiSeq experiment types can be imported");
+    if (rc == null) {
+    	throw new Exception("codeRequestCategory is not defined: " + codeRequestCategory);
     }
+//    if (rc.getCategoryType() == null || rc.getCategoryType().getIsIllumina() == null || !rc.getCategoryType().getIsIllumina().equals("Y")) {
+//      throw new Exception("Only Illumina HiSeq/MiSeq experiment types can be imported");
+//    }
 
     // Fill in the idLab based on the lab name 
     parseLabName();
-    Query labQuery = sess.createQuery("select l from Lab l where lastName = '" + labLastName + "'" + " and firstName = '" + labFirstName + "'");
-    lab = (Lab)labQuery.uniqueResult();   
-    if (lab == null) {
-	     	  
-    	// make a skeleton AppUser
-//    	appuser = new AppUser();
-    	
-//    	appuser.setFirstName(labFirstName);
-//    	appuser.setLastName(labLastName);
-//    	appuser.setIsActive("Y");
-//    	appuser.setCodeUserPermissionKind("LAB");
-    	
-    	// save it and flush to assign the id
-//    	sess.save(appuser);
-//    	sess.flush();
-    	
-    	// appuser will be a member of the lab we are about to create
-//    	members = new HashSet<AppUser>();
-//    	members.add(appuser);
-    	
-    	// we don't have this lab, make a skeleton of it
-//    	lab = new Lab();
-      	  
-//      	lab.setFirstName(labFirstName);
-//      	lab.setLastName(labLastName);     	
-//      	lab.setIsActive("Y");
-//      	lab.setMembers(members);
+    String theQuery = "select l from Lab l where lastName = '" + labLastName + "'" + " and firstName = '" + labFirstName + "'";
+    if (labFirstName == null) {
+    	theQuery = "select l from Lab l where lastName = '" + labLastName + "'";    	
+    }
     
-      	//save it and flush it to assign the DB id
- //       sess.save(lab);
- //       sess.flush();
-    	  	    	
+    Query labQuery = sess.createQuery(theQuery);
+    lab = (Lab)labQuery.uniqueResult();   
+    if (lab == null) {    	  	    	
       throw new Exception("Cannot find lab " + labLastName + ", " + labFirstName);
     }
     requestNode.setAttribute("idLab", lab.getIdLab().toString());
@@ -357,12 +345,12 @@ public class ImportExperiment {
     requestNode.setAttribute("idOrganismSampleDefault", organism.getIdOrganism().toString());
     
     // Make sure that we can find the application based on the application name
-    String applicationName = requestNode.getChild("application").getChild("Application").getAttributeValue("application");
-    Query applicationQuery = sess.createQuery("select a from Application a where application = '" + applicationName + "'");
-    application = (Application)applicationQuery.uniqueResult();
-    if (application == null) {
-      throw new Exception("Cannot find the application '" + applicationName + "'");
-    }
+//    String applicationName = requestNode.getChild("application").getChild("Application").getAttributeValue("application");
+//    Query applicationQuery = sess.createQuery("select a from Application a where application = '" + applicationName + "'");
+//    application = (Application)applicationQuery.uniqueResult();
+//    if (application == null) {
+//      throw new Exception("Cannot find the application '" + applicationName + "'");
+//    }
 
     // Find the project based on the name.  If it isn't found, create a new one
     String projectName        = requestNode.getChild("project").getChild("Project").getAttributeValue("name");
@@ -709,6 +697,7 @@ public class ImportExperiment {
   
   
   private void saveSample(String idSampleString, Sample sample, Session sess) throws Exception {
+    System.out.println ("[saveSample] idSampleString: " + idSampleString);
     
     boolean isNewSample = requestParser.isNewRequest() || idSampleString == null || idSampleString.equals("") || idSampleString.startsWith("Sample");
 
@@ -727,7 +716,7 @@ public class ImportExperiment {
       samplesAdded.add(sample);
     }
 
-    
+    System.out.println ("[saveSample] **leaving**");    
   }
   
   
@@ -772,23 +761,8 @@ public class ImportExperiment {
     
     System.err.println(errorMessageString);
     
-    if (tx != null) {
-    tx.rollback();    
-    }
-
   }
 
-  
-  private void connect()
-  throws Exception
-  {
-    sess = dataSource.connect();
-  }
-  
-  private void disconnect() 
-  throws Exception {
-    sess.close();
-  }
   
   protected boolean checkParms() {
     if (login == null || fileName == null || annotationFileName == null) {

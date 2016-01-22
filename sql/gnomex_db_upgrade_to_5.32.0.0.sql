@@ -84,6 +84,10 @@ ALTER TABLE ProductOrder ADD CONSTRAINT `FK_ProductOrder_ProductType` FOREIGN KE
     ON DELETE NO ACTION
     ON UPDATE NO ACTION;
 --------------------------------------------------------------
+-- missing indexes
+create index ix_Analysis_number on Analysis(number);
+create index ix_Request_number on Request(number);
+
 
 -- Add BillingTemplate Table
 DROP TABLE IF EXISTS `gnomex`.`BillingTemplate`;
