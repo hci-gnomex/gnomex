@@ -1482,20 +1482,21 @@
 			} 
 			
 			public function refreshDownloadList():void {
-				var params:Object = new Object();
-				params.idRequest = this.selectedExperiment.@idRequest;
-				if (parentApplication.needToLoad(params) ) {				
-				var oldId:String = parentApplication.lastGetRequestDownloadListidRequest;
-				var newId:String = parentApplication.lastGetRequestDownloadListrequestNumber;
-				if (oldId == null) oldId = "crap";
-				if (newId == null) newId = "crap";
-				params.whereami = "1" + "/" + oldId + "/" + newId;
+				if (theTab.selectedChild == filesView) {				
+					var params:Object = new Object();
+					params.idRequest = this.selectedExperiment.@idRequest;
+					if (parentApplication.needToLoad(params) ) {				
+						var oldId:String = parentApplication.lastGetRequestDownloadListidRequest;
+						var newId:String = parentApplication.lastGetRequestDownloadListrequestNumber;
+						if (oldId == null) oldId = "crap";
+						if (newId == null) newId = "crap";
+						params.whereami = "1" + "/" + oldId + "/" + newId;
 
+						filesView.getRequestDownloadList.send(params);
+					} 
 
-					filesView.getRequestDownloadList.send(params);
-				} 
-
-				filesView.browseParameters = params;				
+					filesView.browseParameters = params;
+				}
 			}
 			
 			public function filterList():void{		}
