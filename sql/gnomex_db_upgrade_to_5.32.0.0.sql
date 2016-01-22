@@ -63,7 +63,7 @@ call ExecuteIfTableExists('gnomex','ProductType_Audit','alter table ProductType_
 
 -- Add constraint for uniqueness on corefacility / description
 ALTER TABLE ProductType change column idCoreFacility idCoreFacility INT(10) NOT NULL;
-ALTER TABLE ProductType change column description description VARCHAR(5000) NOT NULL
+ALTER TABLE ProductType change column description description VARCHAR(5000) NOT NULL;
 
 -- Change name/type on other tables from codeProductType to idProductType
 ALTER TABLE RequestCategory change column codeProductType idProductType INT(10) NULL;
