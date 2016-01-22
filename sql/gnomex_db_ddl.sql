@@ -664,8 +664,8 @@ ENGINE = INNODB;
 DROP TABLE IF EXISTS gnomex.ProductType;
 CREATE TABLE gnomex.ProductType (
   idProductType INT(10) NOT NULL AUTO_INCREMENT,
-  description VARCHAR(5000) NULL,
-  idCoreFacility INT(10) NULL,
+  description VARCHAR(5000) NOT NULL,
+  idCoreFacility INT(10) NOT NULL,
   idVendor INT(10) NULL,
   idPriceCategory INT(10) NULL,
   PRIMARY KEY (idProductType),
