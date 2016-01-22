@@ -55,6 +55,7 @@ ALTER TABLE ProductType drop primary key;
 
 -- Drop the column on ProductType
 ALTER TABLE ProductType DROP COLUMN codeProductType;
+call ExecuteIfTableExists('gnomex','ProductType_Audit','alter table ProductType_Audit DROP COLUMN codeProductType');
 
 -- Add new column to ProductType (and audit) as primary key
 ALTER TABLE ProductType ADD COLUMN idProductType int(10) PRIMARY KEY NOT NULL AUTO_INCREMENT;
