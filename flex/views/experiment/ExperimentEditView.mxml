@@ -3863,11 +3863,12 @@
 				}
 				
 				// Collaborators
-				request.replace("collaborators", <collaborators></collaborators>);
-				for each(var collaborator:Object in visibilityView.getCollaborators()) {
-					request.collaborators.appendChild(collaborator);
-				}
-				
+				if(visibilityView != null && visibilityView.enabled){
+					request.replace("collaborators", <collaborators></collaborators>);
+					for each(var collaborator:Object in visibilityView.getCollaborators()) {
+						request.collaborators.appendChild(collaborator);
+					}					
+				}				
 				request.@privacyExpirationDate = visibilityView.privacyExpirationPicker.text;
 				
 				request.@idAppUser = ownerCombo.selectedItem.@idAppUser;
