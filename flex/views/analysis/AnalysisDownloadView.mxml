@@ -214,7 +214,7 @@
 					return;
 				}
 				parentApplication.lastGetAnalysisDownloadListidAnalysis = getAnalysisDownloadList.lastResult.Analysis.@idAnalysis; 
-				parentApplication.lastGetAnalysisDownloadlistnumber = getAnalysisDownloadList.lastResult.Analysis.@number;
+				parentApplication.lastGetAnalysisDownloadListnumber = getAnalysisDownloadList.lastResult.Analysis.@number;
 				
 				this.downloadTree.visible = true;
 				setFileCount();
@@ -522,9 +522,9 @@
 				params.idAnalysis = e.detail;
 				params.includeUploadStagingDir = 'Y';
 				params.autoCreate = 'Y';
-				if (parentApplication.needToLoadAnalysis(params)) {				
+//				if (parentApplication.needToLoadAnalysis(params)) {				
 				getAnalysisDownloadList.send(params);
-				}
+//				}
 			}
 			
 			
