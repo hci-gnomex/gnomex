@@ -1130,9 +1130,9 @@
 				params.isBioanalyzer = "N";
 				params.whereami = "4";				
 				if(parentView.downloadView != null){
-					if (parentApplication.needToLoad(params) ) {
+//					if (parentApplication.needToLoad(params) ) {
 						parentView.downloadView.getRequestDownloadList.send(params);
-					}
+//					}
 				}
 				PopUpManager.removePopUp(this);
 			}
