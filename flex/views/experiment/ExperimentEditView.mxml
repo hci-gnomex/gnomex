@@ -5380,12 +5380,12 @@
 			}
 			
 			public function refreshDownloadList():void {
-//				if (theTab.selectedChild == downloadView) {
+				if (theTab.selectedChild == downloadView) {
 //					// Getting the download list is slow since we now show an expanded file
 //					// view by default.  Only show downloads at request or project level.
 					reloadDownloadList();
 //					theTab.selectedChild = downloadView;
-//				}
+				}
 			}
 			
 			public function refreshDownloadListForExperiment():void {
