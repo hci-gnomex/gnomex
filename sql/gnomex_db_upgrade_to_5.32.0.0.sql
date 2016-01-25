@@ -87,3 +87,4 @@ ALTER TABLE ProductOrder ADD CONSTRAINT `FK_ProductOrder_ProductType` FOREIGN KE
 -- missing indexes
 create index ix_Analysis_number on Analysis(number);
 create index ix_Request_number on Request(number);
+create index IX_Sample_ccNumber on Sample(ccNumber);
