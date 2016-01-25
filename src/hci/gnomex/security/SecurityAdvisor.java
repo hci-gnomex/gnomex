@@ -366,7 +366,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
       stmt = con.createStatement();
 
       StringBuffer buf = new StringBuffer("SELECT PersonID " + "FROM Administration.dbo.Associate WHERE peopleSoftID = '" + peopleSoftID + "'\n");
-      System.out.println("[getBSTpersonId] query: " + buf.toString());
+//      System.out.println("[getBSTpersonId] query: " + buf.toString());
       rs = stmt.executeQuery(buf.toString());
       while (rs.next()) {
         pId = "" + rs.getInt("PersonID");
