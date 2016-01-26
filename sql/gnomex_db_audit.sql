@@ -16072,7 +16072,7 @@ CREATE TABLE IF NOT EXISTS `ProductOrder_Audit` (
  ,`idLab`  int(10)  NULL DEFAULT NULL
  ,`idCoreFacility`  int(10)  NULL DEFAULT NULL
  ,`submitDate`  datetime  NULL DEFAULT NULL
- ,`codeProductType`  varchar(10)  NULL DEFAULT NULL
+ ,`idProductType`  int(10)  NULL DEFAULT NULL
  ,`quoteNumber`  varchar(50)  NULL DEFAULT NULL
  ,`quoteReceivedDate`  datetime  NULL DEFAULT NULL
  ,`uuid`  varchar(36)  NULL DEFAULT NULL
@@ -16096,7 +16096,7 @@ INSERT INTO ProductOrder_Audit
   , idLab
   , idCoreFacility
   , submitDate
-  , codeProductType
+  , idProductType
   , quoteNumber
   , quoteReceivedDate
   , uuid
@@ -16112,7 +16112,7 @@ INSERT INTO ProductOrder_Audit
   , idLab
   , idCoreFacility
   , submitDate
-  , codeProductType
+  , idProductType
   , quoteNumber
   , quoteReceivedDate
   , uuid
@@ -16139,7 +16139,7 @@ BEGIN
   , idLab
   , idCoreFacility
   , submitDate
-  , codeProductType
+  , idProductType
   , quoteNumber
   , quoteReceivedDate
   , uuid
@@ -16155,7 +16155,7 @@ BEGIN
   , NEW.idLab
   , NEW.idCoreFacility
   , NEW.submitDate
-  , NEW.codeProductType
+  , NEW.idProductType
   , NEW.quoteNumber
   , NEW.quoteReceivedDate
   , NEW.uuid
@@ -16177,7 +16177,7 @@ BEGIN
   , idLab
   , idCoreFacility
   , submitDate
-  , codeProductType
+  , idProductType
   , quoteNumber
   , quoteReceivedDate
   , uuid
@@ -16193,7 +16193,7 @@ BEGIN
   , NEW.idLab
   , NEW.idCoreFacility
   , NEW.submitDate
-  , NEW.codeProductType
+  , NEW.idProductType
   , NEW.quoteNumber
   , NEW.quoteReceivedDate
   , NEW.uuid
@@ -16215,7 +16215,7 @@ BEGIN
   , idLab
   , idCoreFacility
   , submitDate
-  , codeProductType
+  , idProductType
   , quoteNumber
   , quoteReceivedDate
   , uuid
@@ -16231,7 +16231,7 @@ BEGIN
   , OLD.idLab
   , OLD.idCoreFacility
   , OLD.submitDate
-  , OLD.codeProductType
+  , OLD.idProductType
   , OLD.quoteNumber
   , OLD.quoteReceivedDate
   , OLD.uuid
@@ -16250,7 +16250,7 @@ CREATE TABLE IF NOT EXISTS `ProductType_Audit` (
  ,`AuditOperation`     char(1)      NOT NULL
  ,`AuditSystemUser`    varchar(30)  NOT NULL
  ,`AuditOperationDate` datetime     NOT NULL
- ,`codeProductType`  varchar(10)  NULL DEFAULT NULL
+ ,`idProductType`  int(10)  NULL DEFAULT NULL
  ,`description`  varchar(5000)  NULL DEFAULT NULL
  ,`idCoreFacility`  int(10)  NULL DEFAULT NULL
  ,`idVendor`  int(10)  NULL DEFAULT NULL
@@ -16268,7 +16268,7 @@ INSERT INTO ProductType_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
-  , codeProductType
+  , idProductType
   , description
   , idCoreFacility
   , idVendor
@@ -16278,7 +16278,7 @@ INSERT INTO ProductType_Audit
   , 'L'
   , USER()
   , NOW()
-  , codeProductType
+  , idProductType
   , description
   , idCoreFacility
   , idVendor
@@ -16299,7 +16299,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
-  , codeProductType
+  , idProductType
   , description
   , idCoreFacility
   , idVendor
@@ -16309,7 +16309,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
-  , NEW.codeProductType
+  , NEW.idProductType
   , NEW.description
   , NEW.idCoreFacility
   , NEW.idVendor
@@ -16325,7 +16325,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
-  , codeProductType
+  , idProductType
   , description
   , idCoreFacility
   , idVendor
@@ -16335,7 +16335,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
-  , NEW.codeProductType
+  , NEW.idProductType
   , NEW.description
   , NEW.idCoreFacility
   , NEW.idVendor
@@ -16351,7 +16351,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
-  , codeProductType
+  , idProductType
   , description
   , idCoreFacility
   , idVendor
@@ -16361,7 +16361,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
-  , OLD.codeProductType
+  , OLD.idProductType
   , OLD.description
   , OLD.idCoreFacility
   , OLD.idVendor
@@ -16381,13 +16381,14 @@ CREATE TABLE IF NOT EXISTS `Product_Audit` (
  ,`AuditOperationDate` datetime     NOT NULL
  ,`idProduct`  int(10)  NULL DEFAULT NULL
  ,`name`  varchar(200)  NULL DEFAULT NULL
- ,`codeProductType`  varchar(10)  NULL DEFAULT NULL
+ ,`idProductType`  int(10)  NULL DEFAULT NULL
  ,`idPrice`  int(10)  NULL DEFAULT NULL
  ,`orderQty`  int(10)  NULL DEFAULT NULL
  ,`useQty`  int(10)  NULL DEFAULT NULL
  ,`catalogNumber`  varchar(100)  NULL DEFAULT NULL
  ,`isActive`  char(1)  NULL DEFAULT NULL
  ,`batchSamplesByUseQuantity`  char(1)  NULL DEFAULT NULL
+ ,`billThroughGnomex`  char(1)  NULL DEFAULT NULL
 ) ENGINE=InnoDB
 $$
 
@@ -16403,13 +16404,14 @@ INSERT INTO Product_Audit
   , AuditOperationDate
   , idProduct
   , name
-  , codeProductType
+  , idProductType
   , idPrice
   , orderQty
   , useQty
   , catalogNumber
   , isActive
-  , batchSamplesByUseQuantity )
+  , batchSamplesByUseQuantity
+  , billThroughGnomex )
   SELECT
   'No Context'
   , 'L'
@@ -16417,13 +16419,14 @@ INSERT INTO Product_Audit
   , NOW()
   , idProduct
   , name
-  , codeProductType
+  , idProductType
   , idPrice
   , orderQty
   , useQty
   , catalogNumber
   , isActive
   , batchSamplesByUseQuantity
+  , billThroughGnomex
   FROM Product
   WHERE NOT EXISTS(SELECT * FROM Product_Audit)
 $$
@@ -16442,13 +16445,14 @@ BEGIN
   , AuditOperationDate
   , idProduct
   , name
-  , codeProductType
+  , idProductType
   , idPrice
   , orderQty
   , useQty
   , catalogNumber
   , isActive
-  , batchSamplesByUseQuantity )
+  , batchSamplesByUseQuantity
+  , billThroughGnomex )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
@@ -16456,13 +16460,14 @@ BEGIN
   , NOW()
   , NEW.idProduct
   , NEW.name
-  , NEW.codeProductType
+  , NEW.idProductType
   , NEW.idPrice
   , NEW.orderQty
   , NEW.useQty
   , NEW.catalogNumber
   , NEW.isActive
-  , NEW.batchSamplesByUseQuantity );
+  , NEW.batchSamplesByUseQuantity
+  , NEW.billThroughGnomex );
 END;
 $$
 
@@ -16476,13 +16481,14 @@ BEGIN
   , AuditOperationDate
   , idProduct
   , name
-  , codeProductType
+  , idProductType
   , idPrice
   , orderQty
   , useQty
   , catalogNumber
   , isActive
-  , batchSamplesByUseQuantity )
+  , batchSamplesByUseQuantity
+  , billThroughGnomex )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
@@ -16490,13 +16496,14 @@ BEGIN
   , NOW()
   , NEW.idProduct
   , NEW.name
-  , NEW.codeProductType
+  , NEW.idProductType
   , NEW.idPrice
   , NEW.orderQty
   , NEW.useQty
   , NEW.catalogNumber
   , NEW.isActive
-  , NEW.batchSamplesByUseQuantity );
+  , NEW.batchSamplesByUseQuantity
+  , NEW.billThroughGnomex );
 END;
 $$
 
@@ -16510,13 +16517,14 @@ BEGIN
   , AuditOperationDate
   , idProduct
   , name
-  , codeProductType
+  , idProductType
   , idPrice
   , orderQty
   , useQty
   , catalogNumber
   , isActive
-  , batchSamplesByUseQuantity )
+  , batchSamplesByUseQuantity
+  , billThroughGnomex )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
@@ -16524,13 +16532,14 @@ BEGIN
   , NOW()
   , OLD.idProduct
   , OLD.name
-  , OLD.codeProductType
+  , OLD.idProductType
   , OLD.idPrice
   , OLD.orderQty
   , OLD.useQty
   , OLD.catalogNumber
   , OLD.isActive
-  , OLD.batchSamplesByUseQuantity );
+  , OLD.batchSamplesByUseQuantity
+  , OLD.billThroughGnomex );
 END;
 $$
 
@@ -18856,7 +18865,7 @@ CREATE TABLE IF NOT EXISTS `RequestCategory_Audit` (
  ,`isClinicalResearch`  char(1)  NULL DEFAULT NULL
  ,`isOwnerOnly`  char(1)  NULL DEFAULT NULL
  ,`sampleBatchSize`  int(10)  NULL DEFAULT NULL
- ,`codeProductType`  varchar(10)  NULL DEFAULT NULL
+ ,`idProductType`  int(10)  NULL DEFAULT NULL
  ,`associatedWithAnalysis`  char(1)  NULL DEFAULT NULL
 ) ENGINE=InnoDB
 $$
@@ -18888,7 +18897,7 @@ INSERT INTO RequestCategory_Audit
   , isClinicalResearch
   , isOwnerOnly
   , sampleBatchSize
-  , codeProductType
+  , idProductType
   , associatedWithAnalysis )
   SELECT
   'No Context'
@@ -18912,7 +18921,7 @@ INSERT INTO RequestCategory_Audit
   , isClinicalResearch
   , isOwnerOnly
   , sampleBatchSize
-  , codeProductType
+  , idProductType
   , associatedWithAnalysis
   FROM RequestCategory
   WHERE NOT EXISTS(SELECT * FROM RequestCategory_Audit)
@@ -18947,7 +18956,7 @@ BEGIN
   , isClinicalResearch
   , isOwnerOnly
   , sampleBatchSize
-  , codeProductType
+  , idProductType
   , associatedWithAnalysis )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
@@ -18971,7 +18980,7 @@ BEGIN
   , NEW.isClinicalResearch
   , NEW.isOwnerOnly
   , NEW.sampleBatchSize
-  , NEW.codeProductType
+  , NEW.idProductType
   , NEW.associatedWithAnalysis );
 END;
 $$
@@ -19001,7 +19010,7 @@ BEGIN
   , isClinicalResearch
   , isOwnerOnly
   , sampleBatchSize
-  , codeProductType
+  , idProductType
   , associatedWithAnalysis )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
@@ -19025,7 +19034,7 @@ BEGIN
   , NEW.isClinicalResearch
   , NEW.isOwnerOnly
   , NEW.sampleBatchSize
-  , NEW.codeProductType
+  , NEW.idProductType
   , NEW.associatedWithAnalysis );
 END;
 $$
@@ -19055,7 +19064,7 @@ BEGIN
   , isClinicalResearch
   , isOwnerOnly
   , sampleBatchSize
-  , codeProductType
+  , idProductType
   , associatedWithAnalysis )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
@@ -19079,7 +19088,7 @@ BEGIN
   , OLD.isClinicalResearch
   , OLD.isOwnerOnly
   , OLD.sampleBatchSize
-  , OLD.codeProductType
+  , OLD.idProductType
   , OLD.associatedWithAnalysis );
 END;
 $$
