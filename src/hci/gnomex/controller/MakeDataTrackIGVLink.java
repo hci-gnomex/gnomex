@@ -197,44 +197,9 @@ public class MakeDataTrackIGVLink extends HttpServlet {
 			String rootPath = dir.getAbsolutePath(); //Path via server
 			String htmlPath = dataTrackFileServerURL + Constants.IGV_LINK_DIR_NAME + "/" + linkPath + "/"; //Path wia web
 			
-			
-			//Create Duplicate IGV repository
-			Pattern broadPattern = Pattern.compile("\"((.+?)_dataServerRegistry\\.txt)\"");
-			URL broadAnns = new URL("http://igv.broadinstitute.org");
-			
 			//Clear out links to make
 			linksToMake = new ArrayList<String[]>();
-			try {
-				BufferedReader br = new BufferedReader(new InputStreamReader(broadAnns.openStream()));
-				String line;
-				while ((line=br.readLine()) != null) {
-					Matcher broadMatch = broadPattern.matcher(line);
-					if (broadMatch.find()) {
-						File broadFile = new File(dir,"igv_registry_" + broadMatch.group(2) + ".txt");
-						StringBuilder broadAnnData = new StringBuilder("");
-						URL broad = new URL("http://igv.broadinstitute.org/"+broadMatch.group(1));
-						try {
-							BufferedReader br2 = new BufferedReader(new InputStreamReader(broad.openStream()));
-							String line2;
-							while((line2=br2.readLine()) != null) {
-								broadAnnData.append(line2 + "\n");
-							}
-							br2.close();
-							
-							BufferedWriter bw2 = new BufferedWriter(new FileWriter(broadFile));
-							bw2.write(broadAnnData.toString());
-							bw2.close();
-						} catch (IOException ex) {
-							log.error("MakeDataTrackIGVLink -- Could not read from the Broad repository file: " + broadMatch.group(1));
-						}
-						
-					}
-				}
-				br.close();
-			} catch (IOException ioex) {
-				log.error("MakeDataTrackIGVLink -- Could not read from the Broad repository");
-			}
-			
+
 			/*****************************************************************
 			 * Grab the list of available genomes.  Check if the user has data for the genome
 			 * and if the genome is supported by IGV.  If so, create a repository for the local 
@@ -281,8 +246,29 @@ public class MakeDataTrackIGVLink extends HttpServlet {
 					if (!result.equals("")) {
 						//Write registry file
 						File registry = new File(dir,"igv_registry_" + igvGenomeBuildName + ".txt");
-						BufferedWriter br = new BufferedWriter(new FileWriter(registry,true)); //append to registry file in case
-						br.write(htmlPath + igvGenomeBuildName + "_dataset.xml");
+						
+						// add any data sets available from the broad institute to our local registry
+						StringBuilder broadAnnData = new StringBuilder("");
+						String theURL = "http://data.broadinstitute.org/" + igvGenomeBuildName + "_dataServerRegistry.txt";
+						URL broad = new URL(theURL);
+						try {
+							BufferedReader br2 = new BufferedReader(new InputStreamReader(broad.openStream()));
+							String line2;
+							while((line2=br2.readLine()) != null) {
+								broadAnnData.append(line2 + "\n");
+							}
+							br2.close();
+							
+							BufferedWriter bw2 = new BufferedWriter(new FileWriter(registry));
+							bw2.write(broadAnnData.toString());
+							bw2.close();
+						} catch (IOException ex) {
+//							log.error("MakeDataTrackIGVLink -- Could not read from the Broad repository file: " + theURL);
+						}
+											
+						
+						BufferedWriter br = new BufferedWriter(new FileWriter(registry,true)); 
+						br.write(htmlPath + igvGenomeBuildName + "_dataset.xml\n");
 						br.close();
 						
 						//Create repository
