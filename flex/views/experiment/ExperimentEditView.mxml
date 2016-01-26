@@ -5621,7 +5621,7 @@
 			
 			private function determineIfProductsNeeded():Boolean {
 				if (parentApplication.submitInternalExperiment() && requestCategory != null) {
-					if (requestCategory.@codeProductType != null && requestCategory.@codeProductType != '') {
+					if (requestCategory.@idProductType != null && requestCategory.@idProductType != '') {
 						return true;
 					}
 				}
