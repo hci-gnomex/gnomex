@@ -3,6 +3,7 @@ package hci.gnomex.daemon;
 // 08/18/2015	tim		Added the ability to specify a particular Analysis or Request
 
 import hci.framework.utilities.XMLReflectException;
+import hci.gnomex.constants.Constants;
 import hci.gnomex.controller.GetExpandedAnalysisFileList;
 import hci.gnomex.controller.GetRequestDownloadList;
 import hci.gnomex.model.Analysis;
@@ -25,6 +26,7 @@ import hci.gnomex.utility.UploadDownloadHelper;
 import hci.gnomex.utility.Util;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Serializable;
 import java.io.StringReader;
@@ -103,6 +105,9 @@ public class RegisterFiles extends TimerTask {
   private Boolean justOne = false;
   private String analysisId = null;
   private String requestId = null;
+  private Boolean removeLinks = false;
+  
+  private String dataTrackFileServerWebContext;
 
   Map<String, Map<String, String>> emailAnalysisMap = new HashMap<String, Map<String, String>>();
   Map<String, List<AnalysisFileInfo>> analysisFileMap = new HashMap<String, List<AnalysisFileInfo>>();
@@ -129,6 +134,8 @@ public class RegisterFiles extends TimerTask {
       } else if (args[i].equals("-experiment")) {
         justOne = true;
         requestId = args[++i];
+      } else if (args[i].equals("-removeLinks")) {
+          removeLinks = true;
       } else if (args[i].equals("-debug")) {
         debug = true;
         testingSendMail = true;
@@ -196,11 +203,15 @@ public class RegisterFiles extends TimerTask {
 
       app.initialize();
 
-      if (!justOne) {
-        app.registerExperimentFiles();
-        app.registerAnalysisFiles();
-      } else if (analysisId != null) {
-        app.registerOneAnalysis(analysisId);
+      if (removeLinks) {
+    	  app.destroyLinks();
+      } else {
+    	  if (!justOne) {
+    		  app.registerExperimentFiles();
+    		  app.registerAnalysisFiles();
+    	  } else if (analysisId != null) {
+    		  app.registerOneAnalysis(analysisId);
+    	  }
       }
       // else if (requestId != null) {
       // app.registerOneExperiment(requestId);
@@ -208,7 +219,7 @@ public class RegisterFiles extends TimerTask {
 
     } catch (Exception e) {
 
-      String msg = "Could not register experiment or analysis files (error at " + this.currentEntityString + "). Transaction rolled back:   " + e.toString() + "\n\t";
+      String msg = "Could not remove links or register experiment or analysis files (error at " + this.currentEntityString + "). Transaction rolled back:   " + e.toString() + "\n\t";
 
       StackTraceElement[] stack = e.getStackTrace();
       for (StackTraceElement s : stack) {
@@ -247,6 +258,8 @@ public class RegisterFiles extends TimerTask {
     baseFlowCellDir = ph.getFlowCellDirectory(serverName);
     baseAnalysisDir = ph.getAnalysisDirectory(serverName);
     flowCellDirFlag = ph.getProperty(PropertyDictionary.FLOWCELL_DIRECTORY_FLAG);
+    
+    
 
     gnomexSupportEmail = ph.getQualifiedProperty(PropertyDictionary.GNOMEX_SUPPORT_EMAIL, serverName);
     if (gnomexSupportEmail == null) {
@@ -279,6 +292,17 @@ public class RegisterFiles extends TimerTask {
 
   }
 
+  private void destroyLinks () throws Exception {
+		dataTrackFileServerWebContext = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.DATATRACK_FILESERVER_WEB_CONTEXT);
+		
+		File igvLinkDir = new File (dataTrackFileServerWebContext,Constants.IGV_LINK_DIR_NAME);
+		File ucscLinkDir = new File(dataTrackFileServerWebContext,Constants.URL_LINK_DIR_NAME);
+		
+		destroyFolder(igvLinkDir);
+		destroyFolder(ucscLinkDir);	  
+  }
+  
+  
   private void registerExperimentFiles() throws Exception {
     // Hash experiment files
     StringBuffer buf = new StringBuffer();
@@ -1146,4 +1170,21 @@ public class RegisterFiles extends TimerTask {
 
   }
 
+	private static void destroyFolder(File igvLinkDir) throws Exception{
+		File[] directoryList = igvLinkDir.listFiles();
+		
+		for (File directory: directoryList) {
+				delete(directory);
+			}		
+	}
+	
+	private static void delete(File f) throws IOException {
+		  if (f.isDirectory()) {
+		    for (File c : f.listFiles())
+		      delete(c);
+		  }
+		  if (!f.delete())
+		    throw new FileNotFoundException("Failed to delete file: " + f);
+	}
+  
 }
