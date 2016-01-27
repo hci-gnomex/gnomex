@@ -329,10 +329,10 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
   }
 
   private Query generatePropertyQuery(Session sess, String property, Integer idCoreFacility, String codeRequestCategory) {
-    Query propQuery = sess.createQuery("SELECT p from PropertyDictionary p where p.propertyName = ? and p.idCoreFacility = ? and p.codeRequestCategory = ?");
-    propQuery.setParameter(0, property);
-    propQuery.setParameter(1, idCoreFacility);
-    propQuery.setParameter(2, codeRequestCategory);
+    Query propQuery = sess.createQuery("SELECT p from PropertyDictionary p where p.propertyName = :property and p.idCoreFacility = :idCoreFacility and p.codeRequestCategory = :codeRequestCategory");
+    propQuery.setParameter("property", property);
+    propQuery.setParameter("idCoreFacility", idCoreFacility);
+    propQuery.setParameter("codeRequestCategory", codeRequestCategory);
 
     return propQuery;
   }
