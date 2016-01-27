@@ -295,10 +295,10 @@ public class RegisterFiles extends TimerTask {
   private void destroyLinks () throws Exception {
 		dataTrackFileServerWebContext = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.DATATRACK_FILESERVER_WEB_CONTEXT);
 		
-		File igvLinkDir = new File (dataTrackFileServerWebContext,Constants.IGV_LINK_DIR_NAME);
+//		File igvLinkDir = new File (dataTrackFileServerWebContext,Constants.IGV_LINK_DIR_NAME);
 		File ucscLinkDir = new File(dataTrackFileServerWebContext,Constants.URL_LINK_DIR_NAME);
 		
-		destroyFolder(igvLinkDir);
+//		destroyFolder(igvLinkDir);
 		destroyFolder(ucscLinkDir);	  
   }
   
