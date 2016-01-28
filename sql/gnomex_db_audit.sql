@@ -17897,6 +17897,7 @@ CREATE TABLE IF NOT EXISTS `Property_Audit` (
  ,`sortOrder`  int(10)  NULL DEFAULT NULL
  ,`idCoreFacility`  int(10)  NULL DEFAULT NULL
  ,`forRequest`  char(1)  NULL DEFAULT NULL
+ ,`idPriceCategory`  int(10)  NULL DEFAULT NULL
 ) ENGINE=InnoDB
 $$
 
@@ -17924,7 +17925,8 @@ INSERT INTO Property_Audit
   , codePropertyType
   , sortOrder
   , idCoreFacility
-  , forRequest )
+  , forRequest
+  , idPriceCategory )
   SELECT
   'No Context'
   , 'L'
@@ -17945,6 +17947,7 @@ INSERT INTO Property_Audit
   , sortOrder
   , idCoreFacility
   , forRequest
+  , idPriceCategory
   FROM Property
   WHERE NOT EXISTS(SELECT * FROM Property_Audit)
 $$
@@ -17975,7 +17978,8 @@ BEGIN
   , codePropertyType
   , sortOrder
   , idCoreFacility
-  , forRequest )
+  , forRequest
+  , idPriceCategory )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
@@ -17995,7 +17999,8 @@ BEGIN
   , NEW.codePropertyType
   , NEW.sortOrder
   , NEW.idCoreFacility
-  , NEW.forRequest );
+  , NEW.forRequest
+  , NEW.idPriceCategory );
 END;
 $$
 
@@ -18021,7 +18026,8 @@ BEGIN
   , codePropertyType
   , sortOrder
   , idCoreFacility
-  , forRequest )
+  , forRequest
+  , idPriceCategory )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
@@ -18041,7 +18047,8 @@ BEGIN
   , NEW.codePropertyType
   , NEW.sortOrder
   , NEW.idCoreFacility
-  , NEW.forRequest );
+  , NEW.forRequest
+  , NEW.idPriceCategory );
 END;
 $$
 
@@ -18067,7 +18074,8 @@ BEGIN
   , codePropertyType
   , sortOrder
   , idCoreFacility
-  , forRequest )
+  , forRequest
+  , idPriceCategory )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
@@ -18087,7 +18095,8 @@ BEGIN
   , OLD.codePropertyType
   , OLD.sortOrder
   , OLD.idCoreFacility
-  , OLD.forRequest );
+  , OLD.forRequest
+  , OLD.idPriceCategory );
 END;
 $$
 
