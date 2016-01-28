@@ -49,7 +49,8 @@
 				this.seqNotes.height = this.seqNotes.textHeight + this.seqNotes..mx_internal::getTextField().getLineMetrics(0).height; 
 				
 				// Edit buttons shown
-				if (this.currentState == 'ExternalExperimentState') {
+				if (this.currentState == 'ExternalExperimentState' || 
+					parentApplication.getRequestCategoryProperty(parentDocument.request.@idCoreFacility, parentDocument.request.@codeRequestCategory, parentApplication.PROPERTY_NEW_REQUEST_SAVE_BEFORE_SUBMIT) == 'Y') {
 					this.parentDocument.submitButton.label = 'Save';
 					this.parentDocument.submitButton.enabled = true;
 					this.parentDocument.agreeCheckbox.selected = true;
