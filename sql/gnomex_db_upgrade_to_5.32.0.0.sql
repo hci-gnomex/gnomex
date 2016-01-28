@@ -8,10 +8,10 @@ ADD COLUMN idPriceCategory int default NULL;
 ALTER TABLE Property ADD CONSTRAINT FK_Property_PriceCategory FOREIGN KEY FK_Property_PriceCategory (idPriceCategory)
     REFERENCES gnomex.PriceCategory (idPriceCategory)
     ON DELETE NO ACTION
-    ON UPDATE NO ACTION   
+    ON UPDATE NO ACTION;
 
 
-call ExecuteIfTableExists('gnomex','Property_Audit','alter table Property_Audit ADD COLUMN idPriceCategory int NULL');
+CALL ExecuteIfTableExists('gnomex','Property_Audit','alter table Property_Audit ADD COLUMN idPriceCategory int NULL');
 
 
 -- script for billThroughGnomex MYSQL
@@ -41,10 +41,10 @@ update PropertyDictionary set propertyName = 'directory_product_order' where pro
 insert into PropertyDictionary (propertyName, propertyValue, propertyDescription, forServerOnly, idCoreFacility, codeRequestCategory)
 values ('directory_product_order', '/home/gnomex/ProductOrders/', 'file directory for product order files', 'N', NULL, NULL);
 
--------------------------------------------------------------
+-- -----------------------------------------------------------
 -- Change codeProductType to idProductType
 -- This assumes no Product Ordering rows have been added yet
--------------------------------------------------------------
+-- -----------------------------------------------------------
 -- Drop foreign keys to codeProduct Type
 ALTER TABLE RequestCategory DROP FOREIGN KEY FK_RequestCategory_ProductType;
 ALTER TABLE Product DROP FOREIGN KEY FK_Product_ProductType;
