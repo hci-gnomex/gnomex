@@ -818,6 +818,13 @@
 			}
 			
 			public function promptToSubmitExperiment():void {
+				if(this.productsView.enabled){
+					var error:String = this.productsView.getErrors("submit");
+					if(error != ""){
+						Alert.show(error);
+						return;
+					}
+				}
 				Alert.show("Submit experiment " + this.selectedExperiment.@number + "?  After submission only facility personnel will be able to make changes.", 
 					"Confirm", 
 					(Alert.YES | Alert.NO), this, 
