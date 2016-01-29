@@ -441,6 +441,15 @@
 						getLinkedSampleFiles.send();
 					}
 					refreshFiles();
+
+					var params:Object = new Object();
+					params.idRequest = request.@idRequest;
+					params.idLab = request.@idLab;
+					params.whereami = "4a";				
+					if(parentView.downloadView != null){
+						parentView.downloadView.getRequestDownloadList.send(params);
+					}
+										
 				} 	 
 			}
 			private function getFilesGridRowNumber(item:Object,col:int):String
@@ -1125,9 +1134,9 @@
 				var params:Object = new Object();
 				params.idRequest = request.@idRequest;
 				params.idLab = request.@idLab;
-				params.isMicroarray  = "N";
-				params.isNextGenSeq  = "N";
-				params.isBioanalyzer = "N";
+//				params.isMicroarray  = "N";
+//				params.isNextGenSeq  = "N";
+//				params.isBioanalyzer = "N";
 				params.whereami = "4";				
 				if(parentView.downloadView != null){
 //					if (parentApplication.needToLoad(params) ) {
