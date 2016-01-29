@@ -2,4 +2,4 @@
 *.iml
 dist/
 glsave/
-web.xml
+**/WEB-INF/
