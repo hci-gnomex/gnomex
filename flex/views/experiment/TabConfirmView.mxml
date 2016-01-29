@@ -108,6 +108,7 @@
 				this.parentDocument.agreeBox.visible = false;
 			} else {
 				this.parentDocument.submitButton.label = 'Submit';
+				this.parentDocument.submitButton.enabled = false;
 				this.parentDocument.agreeBox.visible = true;
 				this.parentDocument.agreeBox.includeInLayout = true;
 				this.parentDocument.agreeCheckbox.selected = false;
