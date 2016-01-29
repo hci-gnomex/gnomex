@@ -15,6 +15,31 @@
 		{
      		theform.username.focus();
 		}
+		
+		function showEmail(){
+		
+		  document.getElementById("emailDiv").style.display = "block";
+      document.getElementById("emailDiv1").style.display = "block";
+      
+      document.getElementById("nameDiv").style.display = "none";
+      document.getElementById("nameDiv1").style.display = "none";
+      
+      document.getElementById("forgotUserName").innerHTML = "Lookup by user name";
+      document.getElementById("forgotUserName").onclick = hideEmail;
+		  
+		}
+		
+		function hideEmail(){
+		  document.getElementById("emailDiv").style.display = "none";
+		  document.getElementById("emailDiv1").style.display = "none";
+		  
+		  document.getElementById("nameDiv").style.display = "block";
+      document.getElementById("nameDiv1").style.display = "block";
+      
+      document.getElementById("forgotUserName").innerHTML = "Lookup by email";
+      document.getElementById("forgotUserName").onclick = showEmail;
+      
+    }
 	</script>	
 </head>
 
@@ -60,7 +85,7 @@ try {
 %>
 
 
-<body onload="setFocus()">
+<body onload="setFocus(); hideEmail()">
 
 
 
@@ -85,12 +110,16 @@ try {
   <div class="box">
     <h3>Reset Password</h3>
 
-      <div class="col1"><div class="right">User name</div></div>
-      <div class="col2"><input id="username" name="userName" type="text" class="text"/></div>
+      <div class="col1" id="nameDiv" ><div class="right">User name</div></div>
+      <div class="col2" id="nameDiv1"><input id="username" name="userName" type="text" class="text"/></div>
+      
+      <div class="col1" id="emailDiv"><div class="right">Email</div></div>
+      <div class="col2" id="emailDiv1"><input id="email" name="email" type="text" class="text"/></div>
 
 
 
       <div class="buttonPanel"><input type="submit" class="submit" value="Submit" /></div>
+      <a href="#" onclick="showEmail()" class="lookup" id="forgotUserName">Lookup by email</a>
       
 <% if (showCampusInfoLink) { %>
 <div class="bottomPanel">
