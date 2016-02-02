@@ -457,11 +457,13 @@
 					if (selectedExperiment.hasOwnProperty("@idProduct") && selectedExperiment.@idProduct != "") {
 						productsView.loadSelection(selectedExperiment.@idProduct, selectedExperiment.@idLab);
 					}
+					productsView.enabled = true;
 					this.theTab.getTabAt( theTab.getChildIndex( productsView ) ).visible = true;
 					this.theTab.getTabAt( theTab.getChildIndex( productsView ) ).includeInLayout = true;
 				} else {
 					productsView.reset();
 					productsView.allowEdits(false);
+					productsView.enabled = false;
 					this.theTab.getTabAt( theTab.getChildIndex( productsView ) ).visible = false;
 					this.theTab.getTabAt( theTab.getChildIndex( productsView ) ).includeInLayout = false;
 				}
