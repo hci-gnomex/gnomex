@@ -834,9 +834,9 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
       throw new RollBackCommandException("Lab name not provided or does not parse correctly: " + labName);
     }
     
-    StringBuffer buf = new StringBuffer("SELECT l from Lab l where l.lastName = '" + lastName + "'");
+    StringBuffer buf = new StringBuffer("SELECT l from Lab l where l.lastName = \"" + lastName + "\"");
     if (firstName != null) {
-      buf.append(" AND l.firstName = '" + firstName + "'");
+      buf.append(" AND l.firstName = \"" + firstName + "\"");
     }
     Lab lab = (Lab)sess.createQuery(buf.toString()).uniqueResult();
     if (lab == null) {
