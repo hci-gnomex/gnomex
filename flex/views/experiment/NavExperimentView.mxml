@@ -594,12 +594,11 @@
 			deleteProjectButton.enabled = false;
 			newProjectButton.enabled = false;
 
-			
-			if (browseTree.selectedItem == null || browseTree.selectedItem == selectedNode) {
-				return; 
+			if (browseTree.selectedItem == null) {
+				browseTree.selectedItem = selectedNode; 
 			} else{
 				selectedNode = browseTree.selectedItem;
-			} 
+			}
 			
 			if (browseTree.selectedItem.name() == 'Request') {
 				var viewTitle:String = (browseTree.selectedItem.@isExternal == 'Y' ? 'External Experiment ' :  'Experiment ') + browseTree.selectedItem.@requestNumber;
