@@ -1,18 +1,6 @@
 <project name="gnomex" default="all-tomcat" basedir="./">
-	
 
-	<!-- ============================================== -->
-	<!--                                                -->
-	<!-- Increment minor revision                       -->
-	<!--                                                -->
-	<!-- ============================================== -->
-	<target name="increment-revision">
-		<propertyfile file="build.properties">
-			<entry key="gnomex_build" type="int" operation="+" value="1" pattern="0"/>
-		</propertyfile>
-	</target>
-
-  <!-- ============================================== -->
+  	<!-- ============================================== -->
 	<!--                                                -->
 	<!-- Initialization                                 -->
 	<!--                                                -->
@@ -56,7 +44,7 @@
 	<!-- All (tomcat)                                   -->
 	<!--                                                -->
 	<!-- ============================================== -->
-	<target name="all-tomcat" depends="init, increment-revision">
+	<target name="all-tomcat" depends="init">
 		<antcall target="clean" />
 		<antcall target="compile-tomcat" />
 		<antcall target="jar-tomcat" />
@@ -69,10 +57,10 @@
 
 	<!-- ============================================== -->
 	<!--                                                -->
-	<!-- All (GNomExLite)                                   -->
+	<!-- All (GNomExLite)                               -->
 	<!--                                                -->
 	<!-- ============================================== -->
-	<target name="all-gnomexlite" depends="init, increment-revision">
+	<target name="all-gnomexlite" depends="init">
 		<antcall target="clean" />
 		<antcall target="compile-tomcat" />
 		<antcall target="jar-tomcat" />
@@ -87,7 +75,7 @@
 	<!-- All (opensource tomcat)                               -->
 	<!--                                                -->
 	<!-- ============================================== -->
-	<target name="all-opensource-tomcat" depends="init, increment-revision">
+	<target name="all-opensource-tomcat" depends="init">
 		<antcall target="clean" />
 		<antcall target="build-opensource-tomcat" />
 		<antcall target="deploy-tomcat" />
@@ -98,7 +86,7 @@
 	<!-- All (opensource GNomExLite)                               -->
 	<!--                                                -->
 	<!-- ============================================== -->
-	<target name="all-opensource-gnomexlite" depends="init, increment-revision">
+	<target name="all-opensource-gnomexlite" depends="init">
 		<antcall target="clean" />
 		<antcall target="build-opensource-gnomexlite" />
 		<antcall target="deploy-gnomexlite" />

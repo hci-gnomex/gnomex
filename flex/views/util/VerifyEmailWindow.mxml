@@ -52,6 +52,8 @@
 				if(updateAppUserEmail.lastResult.name() == "SUCCESS"){
 					Alert.show("Your email address has been confirmed", "Thank you!");
 					this.closeWindow();	
+				} else if(updateAppUserEmail.lastResult.name() == "ERROR"){
+					Alert.show(updateAppUserEmail.lastResult.@message);
 				} else{
 					Alert.show("There was an error updating your user account.  Please contact GNomEx support.");
 					this.closeWindow();
