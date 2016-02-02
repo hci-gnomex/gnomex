@@ -4,19 +4,22 @@ import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.AppUser;
 import hci.gnomex.utility.HibernateSession;
+import hci.gnomex.utility.MailUtil;
 
 import java.io.Serializable;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.hibernate.Query;
 import org.hibernate.Session;
 
 public class UpdateAppUserEmail extends GNomExCommand implements Serializable {
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(UpdateAppUserEmail.class);
 
   private Integer idAppUser;
-  private String  email = "";
+  private String email = "";
 
   public void loadCommand(HttpServletRequest request, HttpSession sess) {
     if (request.getParameter("idAppUser") != null && !request.getParameter("idAppUser").equals("")) {
@@ -33,18 +36,35 @@ public class UpdateAppUserEmail extends GNomExCommand implements Serializable {
 
   }
 
-
   public Command execute() throws RollBackCommandException {
     try {
-      if(this.isValid()) {
+      if (this.isValid()) {
         Session sess = HibernateSession.currentSession(this.getUsername());
-        AppUser au = (AppUser)sess.load(AppUser.class, idAppUser);
-        au.setEmail(email);
-        au.setConfirmEmailGuid(null);
-        au.setIsActive("Y");
-        sess.save(au);
-        sess.flush();
+        AppUser au = sess.load(AppUser.class, idAppUser);
+        Integer idUser = getIdAppUserFromEmail(sess, email);
+        Boolean dupEmail = false;
+        Boolean badEmail = false;
+        String outMsg = "";
 
+        if (!idUser.equals(au.getIdAppUser())) {
+          dupEmail = true;
+        } else if (!MailUtil.isValidEmail(email)) {
+          badEmail = true;
+        } else {
+          au.setEmail(email);
+          au.setConfirmEmailGuid(null);
+          au.setIsActive("Y");
+          sess.save(au);
+          sess.flush();
+        }
+
+        if (badEmail) {
+          outMsg = "The email address " + email + " is not formatted properly.";
+          this.xmlResult = "<ERROR message=\"" + outMsg + "\"/>";
+        } else if (dupEmail) {
+          outMsg = "The email address " + email + " is already in use.";
+          this.xmlResult = "<ERROR message=\"" + outMsg + "\"/>";
+        }
 
         setResponsePage(this.SUCCESS_JSP);
 
@@ -52,23 +72,38 @@ public class UpdateAppUserEmail extends GNomExCommand implements Serializable {
         setResponsePage(this.ERROR_JSP);
       }
 
-    }catch(Exception e) {
+    } catch (Exception e) {
 
-    }finally {
+    } finally {
       try {
-        HibernateSession.closeSession();        
-      } catch(Exception e) {
+        HibernateSession.closeSession();
+      } catch (Exception e) {
 
       }
     }
-
-
 
     return this;
   }
 
   public void validate() {
 
+  }
+
+  private Integer getIdAppUserFromEmail(Session sess, String email) {
+
+    StringBuffer buf = new StringBuffer();
+    buf.append("SELECT a.idAppUser from AppUser as a where a.email = :email");
+
+    Query usersQuery = sess.createQuery(buf.toString());
+
+    usersQuery.setParameter("email", email);
+
+    List users = usersQuery.list();
+    if (users.size() == 1) {
+      return (Integer) users.get(0);
+    } else {
+      return -1;
+    }
   }
 
 }
