@@ -990,10 +990,10 @@
 		<!-- Use the tomcat version of the README_INSTALL -->
 		<copy todir="${sandbox.dir}/tomcat">
 		    <fileset dir="${basedir}">
-			    <include name="README_INSTALL_TOMCAT.txt" />
+			    <include name="README_INSTALL.txt" />
 			</fileset>
 		</copy>
-		<move file="${sandbox.dir}/tomcat/README_INSTALL_TOMCAT.txt"  tofile="${sandbox.dir}/tomcat/README_INSTALL.txt"/> 
+		<move file="${sandbox.dir}/tomcat/README_INSTALL.txt"  tofile="${sandbox.dir}/tomcat/README_INSTALL.txt"/>
 			
 		<!-- Create the zip file -->
      	<mkdir dir="${dist.dir}/release" />
