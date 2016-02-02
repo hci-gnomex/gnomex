@@ -312,9 +312,9 @@ public class ImportExperiment {
 
     // Fill in the idLab based on the lab name 
     parseLabName();
-    String theQuery = "select l from Lab l where lastName = '" + labLastName + "'" + " and firstName = '" + labFirstName + "'";
+    String theQuery = "select l from Lab l where lastName = \"" + labLastName + "\"" + " and firstName = \"" + labFirstName + "\"";
     if (labFirstName == null) {
-    	theQuery = "select l from Lab l where lastName = '" + labLastName + "'";    	
+    	theQuery = "select l from Lab l where lastName = \"" + labLastName + "\"";    	
     }
     
     Query labQuery = sess.createQuery(theQuery);

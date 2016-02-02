@@ -8,11 +8,11 @@ import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.PropertyEntry;
 import hci.gnomex.model.PropertyEntryValue;
 import hci.gnomex.model.PropertyOption;
-import hci.gnomex.model.RequestCategory;
+//import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.RequestCategoryType;
 import hci.gnomex.model.Visibility;
 import hci.gnomex.utility.BatchDataSource;
-import hci.gnomex.utility.DictionaryHelper;
+//import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.PropertyDictionaryHelper;
 
 import java.io.IOException;
@@ -137,6 +137,8 @@ public class BuildSearchIndex extends DetailObject {
       System.out.println( e.toString() );
       e.printStackTrace();
     }
+    
+    System.exit(0);
   }
 
 
