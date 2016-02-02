@@ -310,19 +310,23 @@
 					parentDocument.enableNextButtons();
 				}
 			}
-			
+
 			public function getErrors(action:String):String {
 				var message:String = "";
-				if ((editable || (!editable && parentApplication.getRequestCategoryProperty(parentDocument.selectedExperiment.@idCoreFacility, parentDocument.selectedExperiment.@codeRequestCategory, parentApplication.PROPERTY_NEW_REQUEST_SAVE_BEFORE_SUBMIT) == 'Y')) 
-					&& selectedProduct == null && action == "submit") {
-					message += "A product is required; please select one.";
-				}
-				if (editable && selectedProduct != null && !hasSufficientProduct && action == "submit") {
-					message += "Your lab does not have sufficient products.";
+				if(action == "submit"){
+					if (selectedProduct == null &&
+							(editable || (!editable && parentApplication.getRequestCategoryProperty(parentDocument.selectedExperiment.@idCoreFacility, parentDocument.selectedExperiment.@codeRequestCategory, parentApplication.PROPERTY_NEW_REQUEST_SAVE_BEFORE_SUBMIT) == 'Y')) ) {
+						message += "A product is required; please select one.";
+					}
+					if (editable && selectedProduct != null && !hasSufficientProduct) {
+						message += "Your lab does not have sufficient products.";
+					}
+
 				}
 				return message;
 			}
-			
+
+
 			public function getWarnings(action:String):String {
 				var message:String = "";
 				if (editable && selectedProduct == null) {

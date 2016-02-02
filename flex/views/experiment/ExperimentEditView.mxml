@@ -5671,7 +5671,7 @@
 				if (theTab.contains(productsView) && productsView != null) {
 					productsView.reset();
 					productsView.allowEdits(false);
-					productsView.enabled = true;
+					productsView.enabled = false;
 					theTab.getTabAt( theTab.getChildIndex( productsView ) ).visible = false;
 					theTab.getTabAt( theTab.getChildIndex( productsView ) ).includeInLayout = false;
 				}
