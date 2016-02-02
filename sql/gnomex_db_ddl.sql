@@ -246,7 +246,7 @@ CREATE TABLE gnomex.AppUser (
   lastName VARCHAR(200) NULL,
   firstName VARCHAR(200) NULL,
   uNID VARCHAR(50) NULL,
-  email VARCHAR(200) NULL,
+  email VARCHAR(200) NULL UNIQUE,
   phone VARCHAR(50) NULL,
   department VARCHAR(100) NULL,
   institute VARCHAR(100) NULL,
