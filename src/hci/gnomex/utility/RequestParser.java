@@ -190,7 +190,7 @@ public class RequestParser implements Serializable {
       }
       isNewRequest = true;
     } else {
-      request = (Request) sess.load(Request.class, idRequest);
+      request = sess.load(Request.class, idRequest);
       originalIdLab = request.getIdLab();
       saveReuseOfSlides = true;
 
@@ -407,7 +407,7 @@ public class RequestParser implements Serializable {
         }
       }
     } else {
-      if (PropertyDictionaryHelper.getInstance(sess).getCoreFacilityRequestCategoryProperty(request.getIdCoreFacility(), request.getCodeRequestCategory(), PropertyDictionary.NEW_REQUEST_SAVE_BEFORE_SUBMIT).equals("Y") && !requestCategory.getType().equals(RequestCategoryType.TYPE_GENERIC)) {
+      if (PropertyDictionaryHelper.getInstance(sess).getCoreFacilityRequestCategoryProperty(request.getIdCoreFacility(), request.getCodeRequestCategory(), PropertyDictionary.NEW_REQUEST_SAVE_BEFORE_SUBMIT).equals("Y")) {
         request.setCodeRequestStatus(RequestStatus.NEW);
       } else {
         request.setCodeRequestStatus(RequestStatus.SUBMITTED);
@@ -472,7 +472,7 @@ public class RequestParser implements Serializable {
       sample = new Sample();
       isNewSample = true;
     } else {
-      sample = (Sample) sess.load(Sample.class, new Integer(idSampleString));
+      sample = sess.load(Sample.class, new Integer(idSampleString));
     }
     sample.setIdSampleString(idSampleString);
 
@@ -1120,7 +1120,7 @@ public class RequestParser implements Serializable {
   private boolean ensureNonAdminCanAccessBillingAccount(Integer idBillingAccount, Session sess) {
     boolean canAccess = false;
 
-    BillingAccount billingAccount = (BillingAccount) sess.load(BillingAccount.class, idBillingAccount);
+    BillingAccount billingAccount = sess.load(BillingAccount.class, idBillingAccount);
     if (billingAccount.getUsers() != null && billingAccount.getUsers().size() > 0) {
       for (Iterator iter = billingAccount.getUsers().iterator(); iter.hasNext();) {
         AppUser user = (AppUser) iter.next();

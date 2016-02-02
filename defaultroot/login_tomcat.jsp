@@ -175,12 +175,6 @@ try {
        <div class="leftMenu">
             <img src="<%=siteLogo%>"/>
        </div>
-       <div class="rightMenu" >          
-          <a href="reset_password.jsp<%=idCoreParm%>">Reset password</a>
-        <%if(showUserSignup) {%>
-            |   <a href="select_core.jsp<%=idCoreParm%>">Sign up for an account</a>
-        <%}%> 
-      </div>
     </div>
     <form id="theform" method="POST" action="j_security_check<%=idCoreParm%>"  >
 
@@ -220,13 +214,24 @@ The <%= itemType %> you are linking to does not have public visibility. Please s
        if ( allowGuest ) {
        %>
       <div class="bottomPanel">
-        <div class="col1Wide"><note class="inline"><i>For guest access to public data</i></note></div>
+<!--         <div class="col1Wide"><note class="inline"><i>For guest access to public data</i></note></div> -->
         <!-- Note that guest ignores idCore parameter -- guest just sees all public objects. -->
-        <div class="buttonPanelShort"><a href="gnomexGuestFlex.jsp" class="buttonLarge">Sign in as guest</a></div>
+        <div class="buttonPanelShort"><a href="gnomexGuestFlex.jsp" class="button">Guest Login</a></div>
+        <div class="buttonPanelShort"><a href="reset_password.jsp<%=idCoreParm%>" class="button">Reset Password</a></div>
+        <%if(showUserSignup) {%>
+           <div class="buttonPanelShort"><a href="select_core.jsp<%=idCoreParm%>" class="button">New Account</a></div>
+        <%}%> 
       </div>
       <%
-      }
+      } else{
       %>
+      <div class="bottomPanel" >          
+          <div class="buttonPanelShort"><a href="reset_password.jsp<%=idCoreParm%>">Reset password</a></div>
+        <%if(showUserSignup) {%>
+           <div class="buttonPanelShort"><a href="select_core.jsp<%=idCoreParm%>">New Account</a></div>
+        <%}%> 
+      </div>
+      <%} %>
 
     </div>
        
