@@ -633,7 +633,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
             //
             // Save properties
             //
-            Set propertyEntries = this.saveRequestProperties(sess, requestParser);
+            Set propertyEntries = this.saveRequestProperties(propertiesXML, sess, requestParser);
 
             sess.save(requestParser.getRequest());
             sess.flush();
@@ -719,7 +719,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
                 // For dna seq facility orders, warn the admin to adjust billing if samples have been added.
                 // (We don't automatically adjust billing items because of tiered pricing issues.)
                 if (RequestCategory.isDNASeqCoreRequestCategory(requestParser.getRequest().getCodeRequestCategory())) {
-                  if (requestParser.getRequest().getBillingItems() != null && !requestParser.getRequest().getBillingItems().isEmpty()) {
+                  if (requestParser.getRequest().getBillingItems(sess) != null && !requestParser.getRequest().getBillingItems(sess).isEmpty()) {
                     if ( hasNewSample ) {
                       billingAccountMessage = "Request " + requestParser.getRequest().getNumber() + " has been saved.\n\nSamples have been added, please adjust billing accordingly.";
                     }
@@ -731,8 +731,8 @@ public class SaveRequest extends GNomExCommand implements Serializable {
               if (createBillingItems || requestParser.isReassignBillingAccount()) {
                 sess.refresh(requestParser.getRequest());
 
-                if(!requestParser.getRequest().getBillingItems().isEmpty()) {
-                  Iterator ibill = requestParser.getRequest().getBillingItems().iterator();
+                if(!requestParser.getRequest().getBillingItems(sess).isEmpty()) {
+                  Iterator ibill = requestParser.getRequest().getBillingItems(sess).iterator();
                   BillingItem bill = (BillingItem)ibill.next();
                   hci.gnomex.model.BillingAccount firstBillingAccount = bill.getBillingAccount();
                   while(ibill.hasNext()) {
@@ -751,7 +751,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
                   samplesAdded.addAll(requestParser.getRequest().getSamples());
                 }
 
-                createBillingItems(sess, requestParser.getRequest(), requestParser.getAmendState(), billingPeriod, dictionaryHelper, samplesAdded, labeledSamplesAdded, hybsAdded, sequenceLanesAdded, requestParser.getSampleAssays(), null, BillingStatus.PENDING, propertyEntries, billingTemplate);
+                createBillingItems(sess, requestParser.getRequest(), requestParser.getAmendState(), billingPeriod, dictionaryHelper, samplesAdded, labeledSamplesAdded, hybsAdded, sequenceLanesAdded, requestParser.getSampleAssays(), null, BillingStatus.PENDING, propertyEntries, requestParser.getRequest().getBillingTemplate(sess));
                 sess.flush();
               }
 
@@ -2202,8 +2202,6 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       Session sess, int lastSampleSeqCount, Date theTime,
       Map idSampleMap, Set sequenceLanes, Set sequenceLanesAdded, boolean isImport) throws Exception {
 
-  private static SequenceLane saveSequenceLane(SecurityAdvisor secAdvisor, RequestParser requestParser, RequestParser.SequenceLaneInfo sequenceLaneInfo, Session sess, int lastSampleSeqCount, Date theTime, Map idSampleMap, Set sequenceLanes, Set sequenceLanesAdded, boolean isImport) throws Exception {
-
     SequenceLane sequenceLane = null;
     boolean seqLaneReassignment = false;
     boolean isNewSequenceLane = requestParser.isNewRequest() || sequenceLaneInfo.getIdSequenceLane() == null || sequenceLaneInfo.getIdSequenceLane().startsWith("SequenceLane");
@@ -2300,17 +2298,17 @@ public class SaveRequest extends GNomExCommand implements Serializable {
   }
 
   public static void createBillingItems(Session sess, Request request, String amendState, BillingPeriod billingPeriod, DictionaryHelper dh, Set<Sample> samples,
-      Set<LabeledSample> labeledSamples, Set<Hybridization> hybs, Set<SequenceLane> lanes, Map<String, ArrayList<String>> sampleToAssaysMap, String codeStepNext, String billingStatus) throws Exception {
-    createBillingItems(sess, request, amendState, billingPeriod, dh, samples, labeledSamples, hybs, lanes, sampleToAssaysMap, codeStepNext, billingStatus, null);
+      Set<LabeledSample> labeledSamples, Set<Hybridization> hybs, Set<SequenceLane> lanes, Map<String, ArrayList<String>> sampleToAssaysMap, String codeStepNext, String billingStatus, BillingTemplate billingTemplate) throws Exception {
+    createBillingItems(sess, request, amendState, billingPeriod, dh, samples, labeledSamples, hybs, lanes, sampleToAssaysMap, codeStepNext, billingStatus, null, billingTemplate);
   }
 
   public static void createBillingItems(Session sess, Request request, String amendState, BillingPeriod billingPeriod, DictionaryHelper dh, Set<Sample> samples,
-      Set<LabeledSample> labeledSamples, Set<Hybridization> hybs, Set<SequenceLane> lanes, Map<String, ArrayList<String>> sampleToAssaysMap) throws Exception {
-    createBillingItems(sess, request, amendState, billingPeriod, dh, samples, labeledSamples, hybs, lanes, sampleToAssaysMap, null, BillingStatus.PENDING, null);
+                                        Set<LabeledSample> labeledSamples, Set<Hybridization> hybs, Set<SequenceLane> lanes, Map<String, ArrayList<String>> sampleToAssaysMap, BillingTemplate billingTemplate) throws Exception {
+    createBillingItems(sess, request, amendState, billingPeriod, dh, samples, labeledSamples, hybs, lanes, sampleToAssaysMap, null, BillingStatus.PENDING, null, billingTemplate);
   }
 
   public static void createBillingItems(Session sess, Request request, String amendState, BillingPeriod billingPeriod, DictionaryHelper dh, Set<Sample> samples,
-      Set<LabeledSample> labeledSamples, Set<Hybridization> hybs, Set<SequenceLane> lanes, Map<String, ArrayList<String>> sampleToAssaysMap, String codeStepNext, String billingStatus, Set<PropertyEntry> propertyEntries) throws Exception {
+      Set<LabeledSample> labeledSamples, Set<Hybridization> hybs, Set<SequenceLane> lanes, Map<String, ArrayList<String>> sampleToAssaysMap, String codeStepNext, String billingStatus, Set<PropertyEntry> propertyEntries, BillingTemplate billingTemplate) throws Exception {
 
     List billingItems = new ArrayList<BillingItem>();
     List discountBillingItems = new ArrayList<BillingItem>();
@@ -2376,7 +2374,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 
         // Get the billing items
         if (plugin != null) {
-          List billingItemsForCategory = plugin.constructBillingItems(sess, amendState, billingPeriod, priceCategory, request, samples, labeledSamples, hybs, lanes, sampleToAssaysMap, billingStatus, propertyEntries);
+          List billingItemsForCategory = plugin.constructBillingItems(sess, amendState, billingPeriod, priceCategory, request, samples, labeledSamples, hybs, lanes, sampleToAssaysMap, billingStatus, propertyEntries, billingTemplate);
           if (isDiscount) {
             discountBillingItems.addAll(billingItemsForCategory);
           } else {

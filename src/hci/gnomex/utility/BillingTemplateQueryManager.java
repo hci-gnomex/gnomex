@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import org.hibernate.Hibernate;
 import org.hibernate.Query;
 import org.hibernate.Session;
+import org.hibernate.type.IntegerType;
+import org.hibernate.type.StringType;
 import org.hibernate.type.Type;
 
 import hci.gnomex.model.BillingTemplate;
@@ -37,10 +39,10 @@ public class BillingTemplateQueryManager extends QueryManager {
 		
 		this.addWhereOrAnd();
 		this.queryBuffer.append(" bt.targetClassIdentifier = ? ");
-		this.addCriteria(targetClassIdentifier, Hibernate.INTEGER);
+		this.addCriteria(targetClassIdentifier, IntegerType.INSTANCE);
 		this.addWhereOrAnd();
 		this.queryBuffer.append(" bt.targetClassName = ? ");
-		this.addCriteria(targetClassName, Hibernate.STRING);
+		this.addCriteria(targetClassName, StringType.INSTANCE);
 		
 		this.query = sess.createQuery(queryBuffer.toString());
 		this.applyCriteria();
@@ -69,11 +71,11 @@ public class BillingTemplateQueryManager extends QueryManager {
 		queryBuffer.append(" WHERE ");
 		queryBuffer.append(" bt.targetClassIdentifier = ? ");
 		valueList.add(targetClassIdentifier);
-		typeList.add(Hibernate.INTEGER);
+		typeList.add(IntegerType.INSTANCE);
 		queryBuffer.append(" AND ");
 		queryBuffer.append(" bt.targetClassName = ? ");
 		valueList.add(targetClassName);
-		typeList.add(Hibernate.STRING);
+		typeList.add(StringType.INSTANCE);
 		
 		Query query = sess.createQuery(queryBuffer.toString());
 		Type[] typeArray = typeList.toArray(new Type[typeList.size()]);

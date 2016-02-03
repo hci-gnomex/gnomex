@@ -10,6 +10,8 @@ import org.hibernate.Session;
 import hci.gnomex.model.BillingItem;
 import hci.gnomex.model.Request;
 import hci.gnomex.security.SecurityAdvisor;
+import org.hibernate.type.IntegerType;
+import org.hibernate.type.StringType;
 
 public class BillingItemQueryManager extends QueryManager {
 	
@@ -53,41 +55,41 @@ public class BillingItemQueryManager extends QueryManager {
 		if (idLab != null) {
 			this.addWhereOrAnd();
 			queryBuffer.append(" bi.idLab = ? ");
-			this.addCriteria(idLab, Hibernate.INTEGER);
+			this.addCriteria(idLab, IntegerType.INSTANCE);
 		}
 		
 		if (idCoreFacility != null) {
 			this.addWhereOrAnd();
 			queryBuffer.append(" req.idCoreFacility = ? ");
-			this.addCriteria(idCoreFacility, Hibernate.INTEGER);
+			this.addCriteria(idCoreFacility, IntegerType.INSTANCE);
 		}
 		
 		if (idBillingAccount != null) {
 			this.addWhereOrAnd();
 			queryBuffer.append(" req.idBillingAccount = ? ");
-			this.addCriteria(idBillingAccount, Hibernate.INTEGER);
+			this.addCriteria(idBillingAccount, IntegerType.INSTANCE);
 		}
 		
 		if (requestNumber != null) {
 			this.addWhereOrAnd();
 			queryBuffer.append(" (req.number LIKE ? OR req.number = ? OR req.number LIKE ? OR req.number = ?) ");
 			String requestNumberBase = Request.getBaseRequestNumber(requestNumber);
-			this.addCriteria(requestNumberBase + "[0-9]", Hibernate.STRING);
-			this.addCriteria(requestNumberBase, Hibernate.STRING);
-			this.addCriteria(requestNumberBase + "R[0-9]", Hibernate.STRING);
-			this.addCriteria(requestNumberBase + "R", Hibernate.STRING);
+			this.addCriteria(requestNumberBase + "[0-9]", StringType.INSTANCE);
+			this.addCriteria(requestNumberBase, StringType.INSTANCE);
+			this.addCriteria(requestNumberBase + "R[0-9]", StringType.INSTANCE);
+			this.addCriteria(requestNumberBase + "R", StringType.INSTANCE);
 		}
 		
 		if (invoiceLookupNumber != null) {
 			this.addWhereOrAnd();
 			queryBuffer.append(" (inv.invoiceNumber LIKE ?) ");
-			this.addCriteria("%" + invoiceLookupNumber + "%", Hibernate.STRING);
+			this.addCriteria("%" + invoiceLookupNumber + "%", StringType.INSTANCE);
 		}
 		
 		if (excludeNewRequests != null && excludeNewRequests == true) {
 			this.addWhereOrAnd();
 			queryBuffer.append(" req.codeRequestStatus != ? ");
-			this.addCriteria("NEW", Hibernate.STRING);
+			this.addCriteria("NEW", StringType.INSTANCE);
 		}
 	}
 

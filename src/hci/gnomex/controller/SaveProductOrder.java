@@ -171,7 +171,7 @@ public class SaveProductOrder extends GNomExCommand implements Serializable {
 
           if (products.size() > 0) {
             BillingTemplate billingTemplate = new BillingTemplate();
-            initializeProductOrder(po, idProductTypeKey);
+            initializeProductOrder(po, idProductTypeKey, billingTemplate);
             sess.save(po);
             sess.save(billingTemplate);
             po.setProductOrderNumber(getNextPONumber(po, sess));
