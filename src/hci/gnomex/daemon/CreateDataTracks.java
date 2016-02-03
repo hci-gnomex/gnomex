@@ -345,6 +345,7 @@ public class CreateDataTracks {
 	      }
 	    }
 	    System.out.println(new Date() + " processing complete");
+	    System.exit(0);
 	  }
 	
 	/******************************

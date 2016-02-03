@@ -8,7 +8,7 @@ import hci.gnomex.model.Lab;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.utility.BatchDataSource;
 import hci.gnomex.utility.BatchMailer;
-import hci.gnomex.utility.HibernateUtil;
+//import hci.gnomex.utility.HibernateUtil;
 import hci.gnomex.utility.MailUtil;
 import hci.gnomex.utility.MailUtilHelper;
 import hci.gnomex.utility.PropertyDictionaryHelper;
@@ -41,6 +41,7 @@ import javax.mail.internet.MimeMessage;
 
 import org.apache.log4j.Level;
 import org.hibernate.Session;
+import org.hibernate.internal.SessionImpl;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -265,6 +266,8 @@ public class UsageReportd extends TimerTask {
       System.out.println( e.toString() );
       e.printStackTrace();
     }
+    
+    System.exit(0);
   }
   
   
@@ -463,8 +466,9 @@ public class UsageReportd extends TimerTask {
 
     try 
     {
-      myConn = HibernateUtil.getConnection(sess);
-      
+      	SessionImpl sessionImpl = (SessionImpl) sess;   	  
+        myConn = sessionImpl.connection();   
+    	      
       StringBuffer hqlbuf = new StringBuffer("SELECT l from Lab l ");
       hqlbuf.append(" where l.isActive <> 'N' and l.excludeUsage <> 'Y'");
              

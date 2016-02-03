@@ -5,7 +5,7 @@ import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.AppUser;
 import hci.gnomex.security.EncryptionUtility;
 import hci.gnomex.utility.HibernateSession;
-import hci.gnomex.utility.HibernateUtil;
+//import hci.gnomex.utility.HibernateUtil;
 
 import java.io.Serializable;
 import java.io.StringReader;
@@ -18,6 +18,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.hibernate.Session;
+import org.hibernate.internal.SessionImpl;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
@@ -83,7 +84,8 @@ public class SaveAppUserPublic extends GNomExCommand implements Serializable {
         Element root = userNotificationLabsDoc.getRootElement();
         
         Statement stmt = null;
-        con = HibernateUtil.getConnection(sess);
+    	SessionImpl sessionImpl = (SessionImpl) sess;   	  
+        con =  sessionImpl.connection();   
         
         for(Iterator i = root.getChildren("Lab").iterator(); i.hasNext();) {
           Element node = (Element)i.next();

@@ -1,6 +1,6 @@
 @echo off
 
-set TOMCAT_HOME=..\..\..\
+set TOMCAT_HOME=..\..\..
 set COMMON_LIB=%TOMCAT_HOME%\lib
 
 set GNOMEX_LIB=..\WEB-INF\lib

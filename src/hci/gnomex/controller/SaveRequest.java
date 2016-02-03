@@ -1,5 +1,41 @@
 package hci.gnomex.controller;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.Serializable;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.io.Writer;
+import java.math.BigDecimal;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
+
+import javax.mail.MessagingException;
+import javax.naming.NamingException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
+import org.hibernate.Query;
+import org.hibernate.SQLQuery;
+import org.hibernate.Session;
+import org.hibernate.internal.SessionImpl;
+import org.jdom.Document;
+import org.jdom.Element;
+import org.jdom.JDOMException;
+import org.jdom.input.SAXBuilder;
+
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import hci.framework.control.Command;
@@ -55,7 +91,6 @@ import hci.gnomex.utility.FileDescriptorUploadParser;
 import hci.gnomex.utility.FreeMarkerConfiguration;
 import hci.gnomex.utility.HibernateGuestSession;
 import hci.gnomex.utility.HibernateSession;
-import hci.gnomex.utility.HibernateUtil;
 import hci.gnomex.utility.HybNumberComparator;
 import hci.gnomex.utility.MailUtil;
 import hci.gnomex.utility.MailUtilHelper;
@@ -72,44 +107,6 @@ import hci.gnomex.utility.SampleNumberComparator;
 import hci.gnomex.utility.SamplePrimersParser;
 import hci.gnomex.utility.SequenceLaneNumberComparator;
 import hci.gnomex.utility.WorkItemHybParser;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.Serializable;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.io.Writer;
-import java.math.BigDecimal;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
-
-import javax.mail.MessagingException;
-import javax.naming.NamingException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-
-import org.hibernate.Query;
-import org.hibernate.SQLQuery;
-import org.hibernate.Session;
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.JDOMException;
-import org.jdom.input.SAXBuilder;
-
-
-
 
 public class SaveRequest extends GNomExCommand implements Serializable {
 
@@ -930,7 +927,9 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         // permissions on BST
         sessGuest = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
 
-        con = HibernateUtil.getConnection(sessGuest);
+    	SessionImpl sessionImpl = (SessionImpl) sessGuest;
+        con =  sessionImpl.connection();
+
         stmt = con.createStatement();
         rs = stmt.executeQuery(buf.toString());
         List<String> ccNumbersRetreivedList = new ArrayList<String>();
@@ -1011,7 +1010,10 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         requestParser.getRequest().getCodeRequestCategory(),
         PropertyDictionary.GET_REQUEST_NUMBER_PROCEDURE);
     if (procedure != null && procedure.length() > 0) {
-      Connection con = HibernateUtil.getConnection(sess);
+
+    	SessionImpl sessionImpl = (SessionImpl) sess;
+        Connection con =  sessionImpl.connection();
+
       String queryString = "";
       if (con.getMetaData().getDatabaseProductName().toUpperCase().indexOf(Constants.SQL_SERVER) >= 0) {
         queryString = "exec " + procedure;

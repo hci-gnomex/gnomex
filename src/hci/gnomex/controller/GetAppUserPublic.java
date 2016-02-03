@@ -19,6 +19,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.hibernate.Session;
+import org.hibernate.internal.SessionImpl;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.output.XMLOutputter;
@@ -64,7 +65,10 @@ public class GetAppUserPublic extends GNomExCommand implements Serializable {
 
       Statement stmt = null;
       ResultSet rs = null;
-      con = HibernateUtil.getConnection(sess);
+      
+   	  SessionImpl sessionImpl = (SessionImpl) sess;   	  
+      con =  sessionImpl.connection();   
+      
       stmt = con.createStatement();
 
       StringBuffer buf = new StringBuffer("select lm.idLab, l.lastName, l.firstName, 'Manager' as role, sendUploadAlert as doUploadAlert\n");

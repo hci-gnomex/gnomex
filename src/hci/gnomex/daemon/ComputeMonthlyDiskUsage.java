@@ -177,6 +177,7 @@ public class ComputeMonthlyDiskUsage {
       }
     }
 
+    System.exit(0);
 
   }
 

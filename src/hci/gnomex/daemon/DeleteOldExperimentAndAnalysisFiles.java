@@ -259,6 +259,7 @@ public class DeleteOldExperimentAndAnalysisFiles {
       }
     }
     System.out.println("   " + new Date() + " processing complete");
+    System.exit(0);
   }
 
   private void doFileDeletion(CoreFacility facility) {
