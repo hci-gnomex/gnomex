@@ -1,12 +1,15 @@
 package hci.gnomex.billing;
 
 import hci.gnomex.constants.Constants;
+import hci.gnomex.controller.SaveBillingTemplate;
 import hci.gnomex.model.Application;
 import hci.gnomex.model.BillingItem;
 import hci.gnomex.model.BillingPeriod;
 import hci.gnomex.model.BillingStatus;
+import hci.gnomex.model.BillingTemplate;
 import hci.gnomex.model.Hybridization;
 import hci.gnomex.model.LabeledSample;
+import hci.gnomex.model.MasterBillingItem;
 import hci.gnomex.model.PlateType;
 import hci.gnomex.model.PlateWell;
 import hci.gnomex.model.Price;
@@ -33,7 +36,7 @@ public abstract class BillingPlugin {
 	
 	public abstract List<BillingItem> constructBillingItems(Session sess, String amendState, BillingPeriod billingPeriod, PriceCategory priceCategory, Request request, 
       Set<Sample> samples, Set<LabeledSample> labeledSamples, Set<Hybridization> hybs, Set<SequenceLane> lanes, Map<String, ArrayList<String>> sampleToAssaysMap, 
-      String billingStatus, Set<PropertyEntry> propertyEntries);
+      String billingStatus, Set<PropertyEntry> propertyEntries, BillingTemplate billingTemplate);
 	
 	protected boolean hasValidData(Session sess, Order request, Set<Sample> samples) {
 		if (sess == null || request == null || samples == null || samples.size() == 0) {
@@ -157,74 +160,61 @@ public abstract class BillingPlugin {
 	}
 	
 	protected ArrayList<BillingItem> makeBillingItems(	Order request, Price price, PriceCategory priceCategory, int qty, BillingPeriod billingPeriod, 
-														String billingStatus, String notes, String description, BigDecimal unitPrice, Integer idProductOrder	) {
+														String billingStatus, String notes, String description, BigDecimal unitPrice, Integer idProductOrder,
+														Session sess, BillingTemplate billingTemplate															) {
+		
 		ArrayList<BillingItem> billingItems = new ArrayList<BillingItem>();
 		
-		billingItems.add(makeBillingItem(request, price, priceCategory, qty, billingPeriod, billingStatus, new BigDecimal(1), Constants.BILLING_SPLIT_TYPE_PERCENT_CODE, notes, description, unitPrice, idProductOrder));
+		billingItems.addAll(makeBillingItem(request, price, priceCategory, qty, billingPeriod, billingStatus, new BigDecimal(1), Constants.BILLING_SPLIT_TYPE_PERCENT_CODE, notes, description, unitPrice, idProductOrder, sess, billingTemplate));
 		
 		return billingItems;
 	}
 	
 	protected ArrayList<BillingItem> makeBillingItems(	Order request, Price price, PriceCategory priceCategory, int qty, BillingPeriod billingPeriod, 
-														String billingStatus																				) {
-		return makeBillingItems(request, price, priceCategory, qty, billingPeriod, billingStatus, null, null, null, null);
+														String billingStatus, Session sess, BillingTemplate billingTemplate								) {
+		
+		return makeBillingItems(request, price, priceCategory, qty, billingPeriod, billingStatus, null, null, null, null, sess, billingTemplate);
 	}
 	
-	protected BillingItem makeBillingItem(	Order request, Price price, PriceCategory priceCategory, int qty, BillingPeriod billingPeriod, 
-											String billingStatus, BigDecimal percentagePrice, String splitType, String notes, String description, 
-											BigDecimal unitPrice, Integer idProductOrder															) {
-        BillingItem billingItem = new BillingItem();
-        
-        if (request.getIdRequest() != null) {
-        	billingItem.setIdRequest(request.getIdRequest());
-        }
-        billingItem.setIdLab(request.getIdLab());
-        billingItem.setIdBillingAccount(request.getIdBillingAccount());
-        billingItem.setIdCoreFacility(request.getIdCoreFacility());
-        
+	protected Set<BillingItem> makeBillingItem(	Order request, Price price, PriceCategory priceCategory, int qty, BillingPeriod billingPeriod, 
+												String billingStatus, BigDecimal percentagePrice, String splitType, String notes, String description, 
+												BigDecimal unitPrice, Integer idProductOrder, Session sess, BillingTemplate template					) {
+		
+		MasterBillingItem master = new MasterBillingItem();
+		master.setIdCoreFacility(request.getIdCoreFacility());
         if (description != null) {
-        	billingItem.setDescription(description);
+        	master.setDescription(description);
         } else {
-        	billingItem.setDescription(price.getName());
+        	master.setDescription(price.getName());
         }
-        billingItem.setIdPrice(price.getIdPrice());
-        
-        billingItem.setCodeBillingChargeKind(priceCategory.getCodeBillingChargeKind());
-        billingItem.setIdPriceCategory(priceCategory.getIdPriceCategory());
-        billingItem.setCategory(priceCategory.getName());
-        
+        master.setIdPrice(price.getIdPrice());
+        master.setCodeBillingChargeKind(priceCategory.getCodeBillingChargeKind());
+        master.setIdPriceCategory(priceCategory.getIdPriceCategory());
+        master.setCategory(priceCategory.getName());
         BigDecimal theUnitPrice;
         if (unitPrice != null) {
         	theUnitPrice = unitPrice;
         } else {
         	theUnitPrice = price.getEffectiveUnitPrice(request.getLab());
         }
-        billingItem.setUnitPrice(theUnitPrice);
+        master.setUnitPrice(theUnitPrice);
+        master.setQty(new Integer(qty));
+        master.setTotalPrice(theUnitPrice.multiply(BigDecimal.valueOf(qty)));
+        master.setIdBillingPeriod(billingPeriod.getIdBillingPeriod());
         
-        billingItem.setQty(new Integer(qty));
-        if (qty > 0 && theUnitPrice != null) {      
-        	billingItem.setInvoicePrice(theUnitPrice.multiply(new BigDecimal(qty)));
+        Set<BillingItem> newlyCreatedBillingItems = SaveBillingTemplate.createBillingItemsForMaster(sess, master, template);
+        
+        for (BillingItem billingItem : newlyCreatedBillingItems) {
+        	billingItem.setCodeBillingStatus(billingStatus);
+            if (!billingStatus.equals(BillingStatus.NEW) && !billingStatus.equals(BillingStatus.PENDING)) {
+            	billingItem.setCompleteDate(new java.sql.Date(System.currentTimeMillis()));
+            }
+            if (notes != null) {
+            	billingItem.setNotes(notes);
+            }
         }
         
-        billingItem.setIdBillingPeriod(billingPeriod.getIdBillingPeriod());
-        
-        billingItem.setCodeBillingStatus(billingStatus);
-        if (!billingStatus.equals(BillingStatus.NEW) && !billingStatus.equals(BillingStatus.PENDING)) {
-        	billingItem.setCompleteDate(new java.sql.Date(System.currentTimeMillis()));
-        }
-        
-        billingItem.setPercentagePrice(percentagePrice);
-        billingItem.setSplitType(splitType);
-        
-        if (notes != null) {
-        	billingItem.setNotes(notes);
-        }
-        
-        if (idProductOrder != null) {
-        	billingItem.setIdProductOrder(idProductOrder);
-        }
-
-        return billingItem;
+        return newlyCreatedBillingItems;
 	}
 	
 }

@@ -1,0 +1,416 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml"
+				xmlns:renderers="views.renderers.*"
+				layout="vertical" width="800" height="300"
+				title="Billing Template" showCloseButton="true"
+				close="close()">
+	
+	<mx:HTTPService             
+		id="getLab" 
+		url="GetLab.gx"
+		destination="getLab" 
+		resultFormat="e4x"
+		result="onGetLab(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to get group', event)"
+		method="POST"
+		useProxy="false"
+		showBusyCursor="true">
+		<mx:request>
+			<idLab>{labCombo.selectedItem.@idLab}</idLab>
+		</mx:request>
+	</mx:HTTPService>
+	
+	<mx:HTTPService             
+		id="getBillingTemplate" 
+		url="GetBillingTemplate.gx"
+		destination="getBillingTemplate" 
+		resultFormat="e4x"
+		result="onGetBillingTemplate(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to get billing template', event)"
+		method="POST"
+		useProxy="false"
+		showBusyCursor="true">
+	</mx:HTTPService>
+	
+	<mx:HTTPService             
+		id="saveBillingTemplate" 
+		url="SaveBillingTemplate.gx"
+		destination="saveBillingTemplate" 
+		resultFormat="e4x"
+		result="onSaveBillingTemplate(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to save billing template', event)"
+		method="POST"
+		useProxy="false"
+		showBusyCursor="true">
+	</mx:HTTPService>
+	
+	<mx:Script>
+		<![CDATA[
+			import hci.flex.controls.Label;
+			import hci.flex.controls.TextInput;
+			
+			import mx.collections.Sort;
+			import mx.collections.SortField;
+			import mx.collections.XMLListCollection;
+			import mx.controls.Alert;
+			import mx.events.DataGridEvent;
+			import mx.formatters.CurrencyFormatter;
+			import mx.formatters.NumberBaseRoundType;
+			import mx.formatters.NumberFormatter;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.ResultEvent;
+			
+			import views.renderers.CheckBoxRenderer;
+			import views.util.GNomExStringUtil;
+			
+			[Bindable]
+			private var billingAccounts:XMLListCollection;
+			
+			[Bindable]
+			private var billingTemplateItems:XMLListCollection;
+			
+			private var currencyFormatter:CurrencyFormatter = new CurrencyFormatter();
+			private var percentageFormatter:NumberFormatter = new NumberFormatter();
+			
+			private var billingTemplate:XML;
+			private var order:Object;
+			
+			private var savingNewTemplateMode:Boolean;
+			
+			public function performSetup(savingNewTemplateMode:Boolean):void {
+				this.savingNewTemplateMode = savingNewTemplateMode;
+				
+				currencyFormatter.currencySymbol = "$";
+				currencyFormatter.precision = 2;
+				currencyFormatter.useThousandsSeparator;
+				
+				percentageFormatter.precision = 1;
+				percentageFormatter.rounding = NumberBaseRoundType.NEAREST;
+				
+				billingTemplate = null;
+				refreshBillingAccounts();
+				radioSplitPct.selected = true;
+				splitTypeChange(true);
+				
+				billingTemplateItems = new XMLListCollection();
+				var sort:Sort = new Sort();
+				sort.fields = [new SortField("@sortOrder", true)];
+				billingTemplateItems.sort = sort;
+				billingTemplateItems.refresh();
+			}
+			
+			public function close():void {
+				PopUpManager.removePopUp(this);
+			}
+			
+			private function save():void {
+				var billingTemplateXML:XML = new XML(
+					"<BillingTemplate " +
+					" idBillingAccount='" + !savingNewTemplateMode ? billingTemplate.@idBillingTemplate : 0 + "'" +
+					" targetClassIdentifier='" + !savingNewTemplateMode ? billingTemplate.@targetClassIdentifier : "" + "'" +
+					" targetClassName='" + !savingNewTemplateMode ? billingTemplate.@targetClassName : "" + "'" +
+					" usingPercentSplit='" + radioSplitPct.selected + "'" +
+					" />");
+				for each (var item:XML in billingTemplateItems) {
+					billingTemplateXML.appendChild(item);
+				}
+				
+				if (savingNewTemplateMode) {
+					// TODO
+				} else {
+					var params:Object = new Object();
+					params.billingTemplateXMLString = billingTemplateXML.toXMLString();
+					saveBillingTemplate.send(params);
+				}
+			}
+			
+			public function loadBillingTemplate(targetClassIdentifier:Number, targetClassName:String):void {
+				var params:Object = new Object();
+				params.targetClassIdentifier = targetClassIdentifier;
+				params.targetClassName = targetClassName;
+				getBillingTemplate.send(params);
+			}
+			
+			private function onGetBillingTemplate(event:ResultEvent):void {			
+				if (getBillingTemplate.lastResult.name() == "BillingTemplate") {
+					billingTemplate = new XML(getBillingTemplate.lastResult);
+					billingTemplateItems = billingTemplate.BillingTemplateItems;
+				} else {
+					Alert.show(getBillingTemplate.lastResult.ERROR.@message, "Error");
+				}
+			}
+			
+			private function onSaveBillingTemplate(event:ResultEvent):void {			
+				if (saveBillingTemplate.lastResult.name() == "SUCCESS") {
+					this.close();
+				} else {
+					Alert.show(saveBillingTemplate.lastResult.ERROR.@message, "Error");
+				}
+			}
+			
+			private function addAccountEntry():void {
+				var newNode:XML = new XML(   
+					"<BillingTemplateItem " + 
+					" idBillingAccount='" + billingAccountCombo.selectedItem.@idBillingAccount + "'" +
+					" accountName='" + GNomExStringUtil.makeXMLSafe(billingAccountCombo.selectedItem.@accountName) + "'" +
+					" accountNumber='" + GNomExStringUtil.makeXMLSafe(billingAccountCombo.selectedItem.@accountNumber) + "'" +
+					" accountNumberDisplay='" + GNomExStringUtil.makeXMLSafe(billingAccountCombo.selectedItem.@accountNumberDisplay) + "'" +
+					" idLab='"  + labCombo.selectedItem.@idLab + "'" +
+					" labName='" + GNomExStringUtil.makeXMLSafe(labCombo.selectedItem.@name) + "'" +
+					" percent=''" +
+					" dollarAmount=''" +
+					" acceptBalance='false'" +
+					" sortOrder='" + (billingTemplateItems.length + 1).toString() + "'" +
+					" />");
+				billingTemplateItems.addItem(newNode);
+				updateSortOrders();
+				labCombo.selectedItem = null;
+				billingAccountCombo.selectedItem = null;
+				refreshBillingAccounts(true);
+			}
+			
+			private function removeAccountEntry():void {
+				if (accountsGrid.selectedItem != null) {
+					billingTemplateItems.removeItemAt(billingTemplateItems.getItemIndex(accountsGrid.selectedItem));
+					updateSortOrders();
+					labCombo.selectedItem = null;
+					billingAccountCombo.selectedItem = null;
+					refreshBillingAccounts(true);
+				}
+			}
+			
+			private function onGetLab(event:ResultEvent):void {			
+				refreshBillingAccounts();
+			}
+			
+			private function refreshBillingAccounts(forceRefresh:Boolean = false):void {
+				if (getLab.lastResult != null && !forceRefresh) {
+					var lab:Object = getLab.lastResult..Lab;
+					if (order != null && order.hasOwnProperty("@codeRequestCategory")) {
+						var requestCategory:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', order.@codeRequestCategory);
+						if (this.showInactiveAccountsCheckBox.selected) {
+							billingAccounts = new XMLListCollection(lab.billingAccounts.BillingAccount.(@isApproved == 'Y' && @idCoreFacility == requestCategory.@idCoreFacility));
+						} else {
+							billingAccounts = new XMLListCollection(lab.billingAccounts.BillingAccount.(@isApproved == 'Y' && @isActive == 'Y' && @idCoreFacility == requestCategory.@idCoreFacility));
+						}
+					} else {
+						if (this.showInactiveAccountsCheckBox.selected) {
+							billingAccounts = new XMLListCollection(lab.billingAccounts.BillingAccount.(@isApproved == 'Y'));
+						} else {
+							billingAccounts = new XMLListCollection(lab.billingAccounts.BillingAccount.(@isApproved == 'Y' && @isActive == 'Y'));
+						}
+					}
+				} else {
+					billingAccounts = new XMLListCollection();
+				}
+				
+				billingAccounts.filterFunction = filterBillingAccounts;
+				billingAccounts.refresh();
+				
+				billingAccountCombo.selectedIndex = -1;
+			}
+			
+			private function filterBillingAccounts(item:Object):Boolean {
+				var passCoreCheck:Boolean = false;
+				if (item.@idCoreFacility == "") {
+					passCoreCheck = true;
+				} else {
+					passCoreCheck = parentApplication.isCoreFacilityIManage(item.@idCoreFacility);
+				}
+				
+				if (passCoreCheck) {
+					for each (var alreadyAddedBillingAccount:Object in billingTemplateItems) {
+						if (alreadyAddedBillingAccount.@idBillingAccount == item.@idBillingAccount) {
+							return false;
+						}
+					}
+					return true;
+				} else {
+					return false;
+				}
+			}
+			
+			private function getLabName(item:Object,col:int):String {
+				return item.@labName; 
+			}
+			
+			private function getBillingAccountName(item:Object,col:int):String {
+				return item.@accountNumberDisplay;
+			}
+			
+			private function splitTypeChange(splitByPercentage:Boolean):void {
+				if (splitByPercentage) {
+					percentageColumn.visible = true;
+					dollarColumn.visible = false;
+					for each (var entry:XML in billingTemplateItems) {
+						entry.@dollarAmount = "";
+					}
+					percentTotal.text = "Total: %0";
+				} else {
+					dollarColumn.visible = true;
+					percentageColumn.visible = false;
+					for each (var entry2:XML in billingTemplateItems) {
+						entry2.@percent = "";
+					}
+				}
+			}
+			
+			public function updateBillingAccountEntry(billingAccountEntry:XML, acceptingBalance:Boolean):void {
+				billingAccountEntry.@acceptBalance = acceptingBalance ? 'true' : 'false';
+				if (acceptingBalance) {
+					billingAccountEntry.@dollarAmount = "";
+					billingAccountEntry.@percent = "";
+					billingAccountEntry.@sortOrder = int.MAX_VALUE;
+					
+					for each (var entry:XML in billingTemplateItems) {
+						if (entry.@idBillingAccount != billingAccountEntry.@idBillingAccount) {
+							entry.@acceptBalance = false;
+						}
+					}
+					
+					updateSortOrders();
+				}
+			}
+			
+			private function updateSortOrders():void {
+				for (var i:int = 0; i < billingTemplateItems.length; i++) {
+					billingTemplateItems[i].@sortOrder = i + 1;
+				}
+				billingTemplateItems.refresh();
+			}
+
+
+			protected function accountsGrid_itemEditEndHandler(event:DataGridEvent):void {
+				if (event.columnIndex == 0) {
+					var editor:hci.flex.controls.TextInput = TextInput(event.currentTarget.itemEditorInstance);
+					var newSortOrder:String = editor.text;
+					var modifiedID:String = billingTemplateItems[event.rowIndex].@idBillingAccount;
+					billingTemplateItems[event.rowIndex].@sortOrder = newSortOrder;
+					
+					updateSortOrders();
+					
+					for (var i:int = 0; i < billingTemplateItems.length; i++) {
+						if (billingTemplateItems[i].@idBillingAccount == modifiedID) {
+							editor.text = (i + 1).toString();
+							break;
+						}
+					}
+				} else if (event.columnIndex == 3 || event.columnIndex == 4) {
+					var editor2:hci.flex.controls.TextInput = TextInput(event.currentTarget.itemEditorInstance);
+					var value:String = editor2.text;
+					var newValue:String;
+					if (radioSplitPct.selected) {
+						newValue = percentageFormatter.format(value) + "%";
+						billingTemplateItems[event.rowIndex].@percent = newValue;
+						editor2.text = newValue;
+						
+						var total:Number = 0;
+						for each (var entry:XML in billingTemplateItems) {
+							if (entry.@percent != "") {
+								total = total + Number(((String) (entry.@percent)).replace("%", ""));
+							}
+						}
+						percentTotal.text = "Total: " + percentageFormatter.format(total) +"%";
+					} else {
+						newValue = currencyFormatter.format(value);
+						billingTemplateItems[event.rowIndex].@dollarAmount = newValue;
+						editor2.text = newValue;
+					}
+				}
+			}
+
+		]]>
+	</mx:Script>
+	
+	<mx:HBox verticalGap="0" width="100%" verticalAlign="top" horizontalGap="0">
+		<mx:Label text="Split with:"/>
+		<renderers:FilterComboBox dataProvider="{parentApplication.labList.source}" 
+								  labelField="@name" 
+								  prompt="Select a lab..."
+								  width="160"
+								  close="getLab.send()"
+								  id="labCombo">
+		</renderers:FilterComboBox>
+		<mx:Label text="Account:" paddingLeft="4"/>
+		<mx:VBox verticalGap="0" width="100%">
+			<mx:ComboBox id="billingAccountCombo" width="345" labelField="@accountNumberDisplay" dataProvider="{billingAccounts}"/>
+			<mx:CheckBox id="showInactiveAccountsCheckBox"  click="refreshBillingAccounts()" label="Show inactive accounts" selected="false" paddingTop="0"/>			
+		</mx:VBox>
+		<mx:LinkButton textDecoration="underline" label="Add" 
+					   enabled="{labCombo.selectedItem != null &amp;&amp; labCombo.selectedItem.@idLab != '' &amp;&amp; billingAccountCombo.selectedItem != null &amp;&amp; billingAccountCombo.selectedItem.@idBillingAccount != ''}"
+					   click="addAccountEntry()" 
+					   icon="@Embed(source='../../assets/add.png')" id="addAccountButton" toolTip="Add account"  paddingLeft="2" disabledIcon="@Embed(source='../../assets/add_disable.png')"/>
+		<mx:LinkButton textDecoration="underline" label="Remove" click="removeAccountEntry()" icon="@Embed(source='../../assets/delete.png')" id="deleteAccountButton" toolTip="Remove account"  paddingLeft="8"/>
+	</mx:HBox>
+	<mx:HBox verticalGap="0" width="100%" verticalAlign="top" horizontalAlign="right" horizontalGap="0">
+		<mx:RadioButton label="Split By %" styleName="labelSmall" id="radioSplitPct" paddingBottom="0" paddingLeft="0" paddingRight="0" paddingTop="0" textAlign="left" horizontalGap="0">
+			<mx:click>{splitTypeChange(true)}</mx:click>
+		</mx:RadioButton>
+		<mx:RadioButton label="Split By $" styleName="labelSmall" id="radioSplitDollar" paddingLeft="0" paddingBottom="0" paddingRight="0" paddingTop="0" horizontalGap="0">
+			<mx:click>{splitTypeChange(false)}</mx:click>
+		</mx:RadioButton>
+	</mx:HBox>
+	<mx:DataGrid id="accountsGrid" width="100%" height="100%"  
+				 editable="true" allowMultipleSelection="false"
+				 dataProvider="{billingTemplateItems}" sortableColumns="true"
+				 itemEditEnd="accountsGrid_itemEditEndHandler(event)">
+		<mx:columns>
+			<mx:DataGridColumn headerText="Sort Order" width="30"
+							   dataField="@sortOrder"
+							   editable="true"
+							   editorDataField="text"
+							   rendererIsEditor="false"
+							   itemRenderer="{hci.flex.controls.Label.create('@sortOrder')}"
+							   itemEditor="{hci.flex.controls.TextInput.create('@sortOrder', '0-9')}"
+							   sortable="true"/>
+			<mx:DataGridColumn headerText="Group" width="50" 
+							   dataField="@idLab" 
+							   editable="false"
+							   editorDataField="value" 
+							   rendererIsEditor="true"
+							   labelFunction="getLabName"
+							   itemRenderer="{hci.flex.controls.Label.create('@idLab')}"
+							   sortable="false"/>        				
+			<mx:DataGridColumn headerText="Billing Account" 
+							   width="130"  dataField="@idBillingAccount" 
+							   editable="false"
+							   dataTipFunction="getBillingAccountName"
+							   showDataTips="true" 
+							   editorDataField="value"  
+							   labelFunction="getBillingAccountName"
+							   rendererIsEditor="true"
+							   itemRenderer="mx.controls.Label"
+							   sortable="false"/>        
+			<mx:DataGridColumn id="percentageColumn"
+							   headerText="%" width="30" dataField="@percent" editable="true"
+							   editorDataField="text" 
+							   rendererIsEditor="false"
+							   itemRenderer="{hci.flex.controls.Label.create('@percent')}"
+							   itemEditor="{hci.flex.controls.TextInput.create('@percent', '0-9.')}"
+							   sortable="false"/>        
+			<mx:DataGridColumn id="dollarColumn"
+							   headerText="$" width="30" dataField="@dollarAmount" editable="true"
+							   editorDataField="text" 
+							   rendererIsEditor="false"
+							   itemRenderer="{hci.flex.controls.Label.create('@dollarAmount')}"
+							   itemEditor="{hci.flex.controls.TextInput.create('@dollarAmount', '0-9.')}"
+							   sortable="false"/>
+			<mx:DataGridColumn headerText="Accept Balance" dataField="@acceptBalance" width="40" textAlign="center" rendererIsEditor="true" editorDataField="selected" sortable="false">
+				<mx:itemRenderer>
+					<mx:Component>
+						<mx:CheckBox click="{parentDocument.updateBillingAccountEntry(data, data.@acceptBalance != 'true')}"
+									 selected="{data.@acceptBalance == 'true'}" />
+					</mx:Component>
+				</mx:itemRenderer>
+			</mx:DataGridColumn>
+		</mx:columns>
+	</mx:DataGrid>
+	<mx:HBox width="100%" visible="{radioSplitPct.selected}" includeInLayout="{radioSplitPct.selected}" horizontalAlign="right" paddingRight="50">
+		<mx:Label id="percentTotal" />
+	</mx:HBox>
+	<mx:ControlBar horizontalAlign="right">
+		<mx:Button label="Save" id="saveButton" click="save()" icon="@Embed(source='../../assets/save.png')" disabledIcon="@Embed(source='../../assets/save_disable.png')"/>
+		<mx:Button label="Cancel" click="close()"/>
+	</mx:ControlBar>
+	
+</mx:TitleWindow>

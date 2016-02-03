@@ -103,7 +103,7 @@ public class ReassignBillingAccount extends GNomExCommand implements Serializabl
             
             if (ba.getIdCoreFacility().equals(request.getIdCoreFacility())) {
               boolean found = false;
-              for(Iterator i1 = request.getBillingItems().iterator(); i1.hasNext();) {
+              for(Iterator i1 = request.getBillingItems(sess).iterator(); i1.hasNext();) {
                 BillingItem bi = (BillingItem)i1.next();
                 
                 // Only reassign billing account for billing items in specified period.

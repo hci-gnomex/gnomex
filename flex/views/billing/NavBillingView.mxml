@@ -1925,6 +1925,12 @@
 			
 			
 			private function showSplitAccountsView():void {
+				var splitWindow:BillingTemplateWindow = BillingTemplateWindow(mx.managers.PopUpManager.createPopUp(this, BillingTemplateWindow, true));
+				splitWindow.performSetup(false);
+				mx.managers.PopUpManager.centerPopUp(splitWindow); 
+				splitWindow.setFocus();
+				
+				/*
 				var requestNode:Object = null;
 				if (this.billingItemGrid.selectedItem != null && this.billingItemGrid.selectedItem.name() == "Request") {
 					
@@ -2059,7 +2065,7 @@
 				splitWindow.billingAccountEntries = billingAccountEntries;
 				splitWindow.origSplitType = splitType;
 				splitWindow.initializeData();
-				
+				*/
 			}
 			
 			

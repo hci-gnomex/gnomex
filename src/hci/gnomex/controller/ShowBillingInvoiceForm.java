@@ -345,7 +345,7 @@ public class ShowBillingInvoiceForm extends ReportCommand implements Serializabl
 
 	    	// Exclude any requests that have
 	    	// pending billing items.
-	    	if (determineContainsPendingItems(req.getBillingItems(), idBillingPeriod, idBillingAccount)) {
+	    	if (determineContainsPendingItems(req.getBillingItems(sess), idBillingPeriod, idBillingAccount)) {
 	    		continue;
 	    	}
 

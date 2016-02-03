@@ -4,6 +4,8 @@ import hci.framework.security.UnknownPermissionException;
 import hci.framework.utilities.XMLReflectException;
 import hci.gnomex.constants.Constants;
 import hci.gnomex.security.SecurityAdvisor;
+import hci.gnomex.utility.BillingItemQueryManager;
+import hci.gnomex.utility.BillingTemplateQueryManager;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.Order;
 import hci.gnomex.utility.ProductException;
@@ -73,8 +75,7 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
   private Set             hybridizations = new TreeSet();
   private Set             workItems = new TreeSet();
   private Set             sequenceLanes = new TreeSet();
-  private Set             analysisExperimentItems = new TreeSet();
-  private Set             billingItems = new TreeSet();  
+  private Set             analysisExperimentItems = new TreeSet();  
   private Set             seqLibTreatments = new TreeSet();
   private Set             collaborators = new TreeSet();
   private Set             files = new TreeSet();
@@ -574,7 +575,7 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
         this.setCodeRequestStatus(RequestStatus.COMPLETED);
         sess.save(this);
       }
-      for (Object o : this.getBillingItems()) {
+      for (Object o : this.getBillingItems(sess)) {
         BillingItem bi = (BillingItem)o;
         if (bi.getCodeBillingStatus().equals(BillingStatus.PENDING)) {
           bi.setCodeBillingStatus(BillingStatus.COMPLETED);
@@ -777,6 +778,14 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
       return "";
     }
   }
+  
+  public Integer getTargetClassIdentifier() {
+	  return idRequest;
+  }
+  
+  public String getTargetClassName() {
+	  return this.getClass().getName();
+  }
 
 
   public Set getSequenceLanes() {
@@ -797,17 +806,6 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
   public void setAnalysisExperimentItems(Set analysisExperimentItems) {
     this.analysisExperimentItems = analysisExperimentItems;
   }
-
-
-  public Set getBillingItems() {
-    return billingItems;
-  }
-
-
-  public void setBillingItems(Set billingItems) {
-    this.billingItems = billingItems;
-  }
-
 
   public BillingAccount getBillingAccount() {
     return billingAccount;
@@ -1345,7 +1343,21 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
 
     return channels;
   }
-
+  
+  @Override
+  public Set<BillingItem> getBillingItems(Session sess) {
+	  BillingTemplate template = BillingTemplateQueryManager.retrieveBillingTemplate(sess, this);
+	  if (template != null) {
+		  return BillingItemQueryManager.getBillingItemsForBillingTemplate(sess, template.getIdBillingTemplate());
+	  } else {
+		  return new TreeSet<BillingItem>();
+	  }
+  }
+  
+  @Override
+  public BillingTemplate getBillingTemplate(Session sess) {
+	  return BillingTemplateQueryManager.retrieveBillingTemplate(sess, this);
+  }
 
   /*
    * This is a convenience method used by GetRequest, GetAnalysis, GetDataTrack to fill in the XML for a "related" experiment.

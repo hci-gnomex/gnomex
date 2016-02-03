@@ -5,6 +5,7 @@ import hci.gnomex.model.AppUser;
 import hci.gnomex.model.BillingAccount;
 import hci.gnomex.model.BillingItem;
 import hci.gnomex.model.BillingStatus;
+import hci.gnomex.model.BillingTemplate;
 import hci.gnomex.model.ConcentrationUnit;
 import hci.gnomex.model.Plate;
 import hci.gnomex.model.PlateWell;
@@ -73,6 +74,7 @@ public class RequestParser implements Serializable {
   private Boolean forDownload = false;
   private String seqPrepByCore = null;
   private String previousCodeRequestStatus = null;
+  private BillingTemplate billingTemplate;
 
   public RequestParser(Document requestDoc, SecurityAdvisor secAdvisor) {
     this.requestNode = requestDoc.getRootElement();
@@ -338,7 +340,20 @@ public class RequestParser implements Serializable {
           }
         }        
       }
-      request.setIdBillingAccount(newIdBillingAccount);      
+      billingTemplate = BillingTemplateQueryManager.retrieveBillingTemplate(sess, request);
+      if (billingTemplate == null) {
+    	  billingTemplate = new BillingTemplate(request);
+      }
+      billingTemplate.setIdBillingAccount(newIdBillingAccount);  
+    } else if (n.getAttributeValue("billingTemplate") != null && !n.getAttributeValue("billingTemplate").equals("")) {
+    	billingTemplate = BillingTemplateParser.parse(new Element(n.getAttributeValue("billingTemplate")), sess);
+    	if (!isNewRequest && !this.isExternalExperiment()) {
+    		BillingTemplate oldTemplate = BillingTemplateQueryManager.retrieveBillingTemplate(sess, request);
+    		if (oldTemplate == null || !oldTemplate.equals(billingTemplate)) {
+    			reassignBillingAccount = true;
+    		}
+    	}
+    	billingTemplate.setOrder(request);
     }
 
     if (n.getAttributeValue("description") != null && !n.getAttributeValue("description").equals("")) {
@@ -399,7 +414,7 @@ public class RequestParser implements Serializable {
             request.setCompletedDate( new java.sql.Date(System.currentTimeMillis()) );
           }
           // Now change the billing items for the request from PENDING to COMPLETE
-          for (BillingItem billingItem : (Set<BillingItem>)request.getBillingItems()) {
+          for (BillingItem billingItem : (Set<BillingItem>)request.getBillingItems(sess)) {
             if(billingItem.getCodeBillingStatus().equals(BillingStatus.PENDING)){
               billingItem.setCodeBillingStatus(BillingStatus.COMPLETED);
             }
@@ -1970,7 +1985,10 @@ public class RequestParser implements Serializable {
 	  return previousCodeRequestStatus;
   }
 
-
+  public BillingTemplate getBillingTemplate() {
+	  return billingTemplate;
+  }
+  
 
   private class SamplePlateWell implements Serializable {
     public String plateIdAsString = "";

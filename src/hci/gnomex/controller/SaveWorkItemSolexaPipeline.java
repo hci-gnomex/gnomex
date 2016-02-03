@@ -6,6 +6,7 @@ import hci.gnomex.constants.Constants;
 import hci.gnomex.model.AppUser;
 import hci.gnomex.model.BillingPeriod;
 import hci.gnomex.model.BillingStatus;
+import hci.gnomex.model.BillingTemplate;
 import hci.gnomex.model.CoreFacility;
 import hci.gnomex.model.FlowCellChannel;
 import hci.gnomex.model.GenomeBuild;
@@ -17,6 +18,7 @@ import hci.gnomex.model.SequenceLane;
 import hci.gnomex.model.WorkItem;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.BillingItemAutoComplete;
+import hci.gnomex.utility.BillingTemplateQueryManager;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.MailUtil;
@@ -264,7 +266,8 @@ public class SaveWorkItemSolexaPipeline extends GNomExCommand implements Seriali
         // Need to create billing items at this point.
         Set<SequenceLane> laneSet = sequenceLanesCompletedMap.get(auto.getRequest().getIdRequest());
         if (laneSet != null) {
-            SaveRequest.createBillingItems(sess, auto.getRequest(), null, billingPeriod, dictionaryHelper, null, null, null, laneSet, null, auto.getCodeStep(), BillingStatus.COMPLETED);
+        	BillingTemplate billingTemplate = BillingTemplateQueryManager.retrieveBillingTemplate(sess, auto.getRequest());
+            SaveRequest.createBillingItems(sess, auto.getRequest(), null, billingPeriod, dictionaryHelper, null, null, null, laneSet, null, auto.getCodeStep(), BillingStatus.COMPLETED, billingTemplate);
         }
       }
     }

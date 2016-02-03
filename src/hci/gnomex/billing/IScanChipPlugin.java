@@ -3,6 +3,7 @@ package hci.gnomex.billing;
 import hci.gnomex.model.BillingItem;
 import hci.gnomex.model.BillingPeriod;
 import hci.gnomex.model.BillingStatus;
+import hci.gnomex.model.BillingTemplate;
 import hci.gnomex.model.Hybridization;
 import hci.gnomex.model.IScanChip;
 import hci.gnomex.model.LabeledSample;
@@ -27,7 +28,7 @@ import org.hibernate.Session;
 
 public class IScanChipPlugin extends BillingPlugin {
 
-  public List<BillingItem> constructBillingItems(Session sess, String amendState, BillingPeriod billingPeriod, PriceCategory priceCategory, Request request, Set<Sample> samples, Set<LabeledSample> labeledSamples, Set<Hybridization> hybs, Set<SequenceLane> lanes, Map<String, ArrayList<String>> sampleToAssaysMap, String billingStatus, Set<PropertyEntry> propertyEntries) {
+  public List<BillingItem> constructBillingItems(Session sess, String amendState, BillingPeriod billingPeriod, PriceCategory priceCategory, Request request, Set<Sample> samples, Set<LabeledSample> labeledSamples, Set<Hybridization> hybs, Set<SequenceLane> lanes, Map<String, ArrayList<String>> sampleToAssaysMap, String billingStatus, Set<PropertyEntry> propertyEntries, BillingTemplate billingTemplate) {
 
     List<BillingItem> billingItems = new ArrayList<BillingItem>();
 
@@ -62,26 +63,26 @@ public class IScanChipPlugin extends BillingPlugin {
       // Get the price from the chip object
       BigDecimal theUnitPrice = chip.getCostPerSample();
 
-      billingItems.addAll(this.makeBillingItems(request, price, priceCategory, qty, billingPeriod, billingStatus, null, null, theUnitPrice, null));
+      billingItems.addAll(this.makeBillingItems(request, price, priceCategory, qty, billingPeriod, billingStatus, null, null, theUnitPrice, null, sess, billingTemplate));
     }
 
     return billingItems;
   }
 
-  public List<BillingItem> constructBillingItems(Session sess, BillingPeriod billingPeriod, PriceCategory priceCategory, ProductOrder po, Set productLineItems) {
+  public List<BillingItem> constructBillingItems(Session sess, BillingPeriod billingPeriod, PriceCategory priceCategory, ProductOrder po, Set<ProductLineItem> productLineItems, BillingTemplate billingTemplate) {
 
     List<BillingItem> billingItems = new ArrayList<BillingItem>();
 
     // Get Product
 
-    for (Iterator i = productLineItems.iterator(); i.hasNext();) {
+    for (Iterator<ProductLineItem> i = productLineItems.iterator(); i.hasNext();) {
       ProductLineItem lineItem = (ProductLineItem) i.next();
       Product product = (Product) sess.load(Product.class, lineItem.getIdProduct());
 
       // If no product or if a product but we do not bill through gnomex then
       // return an empty list.
       if (product == null || (product.getBillThroughGnomex() != null && product.getBillThroughGnomex().equals("N"))) {
-        return billingItems;
+        continue;
       }
 
       // Find the price for product
@@ -95,7 +96,7 @@ public class IScanChipPlugin extends BillingPlugin {
         // Get the price from the chip object
         BigDecimal theUnitPrice = lineItem.getUnitPrice();
 
-        billingItems.addAll(this.makeBillingItems(po, price, priceCategory, qty, billingPeriod, BillingStatus.PENDING, null, null, theUnitPrice, lineItem.getIdProductOrder()));
+        billingItems.addAll(this.makeBillingItems(po, price, priceCategory, qty, billingPeriod, BillingStatus.PENDING, null, null, theUnitPrice, lineItem.getIdProductOrder(), sess, billingTemplate));
 
       }
     }

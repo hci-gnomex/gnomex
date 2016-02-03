@@ -368,6 +368,35 @@ CREATE TABLE gnomex.BillingAccount (
 )
 ENGINE = INNODB;
 
+DROP TABLE IF EXISTS `gnomex`.`BillingTemplate`;
+CREATE TABLE `gnomex`.`BillingTemplate` (
+	`idBillingTemplate` INT(10) NOT NULL AUTO_INCREMENT,
+	`targetClassIdentifier` INT(10) NOT NULL,
+	`targetClassName` VARCHAR(100) NOT NULL,
+	PRIMARY KEY (`idBillingTemplate`)
+)
+ENGINE = INNODB;
+
+DROP TABLE IF EXISTS `gnomex`.`BillingTemplateItem`;
+CREATE TABLE `gnomex`.`BillingTemplateItem` (
+	`idBillingTemplateItem` INT(10) NOT NULL AUTO_INCREMENT,
+	`idBillingTemplate` INT(10) NOT NULL,
+	`idBillingAccount` INT(10) NOT NULL,
+	`percentSplit` DECIMAL(4, 3) NULL,
+	`dollarAmount` DECIMAL(7, 2) NULL,
+	`dollarAmountBalance` DECIMAL(7, 2) NULL,
+	`sortOrder` INT(10) NULL,
+	PRIMARY KEY (`idBillingTemplateItem`),
+	CONSTRAINT `FK_BillingTemplateItem_BillingAccount` FOREIGN KEY `FK_BillingTemplateItem_BillingAccount` (`idBillingAccount`)
+		REFERENCES `gnomex`.`BillingAccount` (`idBillingAccount`)
+		ON DELETE NO ACTION
+		ON UPDATE NO ACTION,
+	CONSTRAINT `FK_BillingTemplateItem_BillingTemplate` FOREIGN KEY `FK_BillingTemplateItem_BillingTemplate` (`idBillingTemplate`)
+		REFERENCES `gnomex`.`BillingTemplate` (`idBillingTemplate`)
+		ON DELETE NO ACTION
+		ON UPDATE NO ACTION
+)
+ENGINE = INNODB;
 
 DROP TABLE IF EXISTS gnomex.BillingChargeKind;
 CREATE TABLE gnomex.BillingChargeKind (
@@ -448,6 +477,48 @@ CREATE TABLE gnomex.DiskUsageByMonth (
 )
 ENGINE = INNODB;
 
+DROP TABLE IF EXISTS gnomex.MasterBillingItem;
+CREATE TABLE gnomex.MasterBillingItem (
+	idMasterBillingItem INT(10) NOT NULL AUTO_INCREMENT,
+	idBillingTemplate INT(10) NOT NULL,
+	codeBillingChargeKind VARCHAR(10) NULL,
+	category VARCHAR(200) NULL,
+	description VARCHAR(500) NULL,
+	qty INT(10) NULL,
+	unitPrice DECIMAL(7, 2) NULL,
+	totalPrice DECIMAL(9, 2) NULL,
+	idBillingPeriod INT(10) NULL,
+	idPrice INT(10) NULL,
+	idPriceCategory INT(10) NULL,
+	idCoreFacility INT(10) NULL,
+	PRIMARY KEY (idMasterBillingItem),
+	CONSTRAINT FK_MasterBillingItem_BillingChargeKind FOREIGN KEY (codeBillingChargeKind)
+		REFERENCES gnomex.BillingChargeKind (codeBillingChargeKind)
+		ON DELETE NO ACTION
+		ON UPDATE NO ACTION,
+	CONSTRAINT FK_MasterBillingItem_BillingTemplate FOREIGN KEY (idBillingTemplate)
+		REFERENCES gnomex.BillingTemplate (idBillingTemplate)
+		ON DELETE NO ACTION
+		ON UPDATE NO ACTION,
+	CONSTRAINT FK_MasterBillingItem_BillingPeriod FOREIGN KEY (idBillingPeriod)
+		REFERENCES gnomex.BillingPeriod (idBillingPeriod)
+		ON DELETE NO ACTION
+		ON UPDATE NO ACTION,
+	CONSTRAINT FK_MasterBillingItem_Price FOREIGN KEY (idPrice)
+		REFERENCES gnomex.Price (idPrice)
+		ON DELETE NO ACTION
+		ON UPDATE NO ACTION,
+	CONSTRAINT FK_MasterBillingItem_PriceCategory FOREIGN KEY (idPriceCategory)
+		REFERENCES gnomex.PriceCategory (idPriceCategory)
+		ON DELETE NO ACTION
+		ON UPDATE NO ACTION,
+	CONSTRAINT FK_MasterBillingItem_CoreFacility FOREIGN KEY (idCoreFacility)
+		REFERENCES gnomex.CoreFacility (idCoreFacility)
+		ON DELETE NO ACTION
+		ON UPDATE NO ACTION
+)
+ENGINE = INNODB;
+
 DROP TABLE IF EXISTS gnomex.BillingItem;
 CREATE TABLE gnomex.BillingItem (
   idBillingItem INT(10) NOT NULL AUTO_INCREMENT,
@@ -473,6 +544,7 @@ CREATE TABLE gnomex.BillingItem (
   idDiskUsageByMonth INT(10) NULL,
   idProductOrder INT(10) NULL,
   tag VARCHAR(10) NULL,
+  idMasterBillingItem INT(10) NULL,
   PRIMARY KEY (idBillingItem),
   CONSTRAINT FK_BillingItem_PriceCategory FOREIGN KEY  (idPriceCategory)
     REFERENCES gnomex.PriceCategory (idPriceCategory)
@@ -521,8 +593,11 @@ CREATE TABLE gnomex.BillingItem (
   CONSTRAINT FK_BillingItem_ProductOrder FOREIGN KEY FK_BillingItem_ProductOrder (idProductOrder)
     REFERENCES gnomex.ProductOrder (idProductOrder)
     ON DELETE NO ACTION
-    ON UPDATE NO ACTION
-    
+    ON UPDATE NO ACTION,
+  CONSTRAINT FK_BillingItem_MasterBillingItem FOREIGN KEY FK_BillingItem_MasterBillingItem (idMasterBillingItem)
+  	REFERENCES gnomex.MasterBillingItem (idMasterBillingItem)
+  	ON DELETE NO ACTION
+  	ON UPDATE NO ACTION
 )
 ENGINE = INNODB;
 

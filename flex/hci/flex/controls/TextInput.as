@@ -1,8 +1,8 @@
 package hci.flex.controls
 {
-	import hci.flex.renderers.RendererFactory;
-	
 	import ext.com.Consts;
+	
+	import hci.flex.renderers.RendererFactory;
 	
 	import mx.controls.TextInput;
 	import mx.core.IFactory;
@@ -17,7 +17,8 @@ package hci.flex.controls
 		
 		
 		public static function create(
-			dataField:String, 
+			dataField:String,
+			restrict:String = null,
 			isRequired:Boolean = false,
 			missingRequiredFieldBackground:uint = 0xFFFFB9,
 			missingFieldBackground:uint = 0xeaeaea):IFactory {
@@ -26,7 +27,8 @@ package hci.flex.controls
 				dataField: dataField,
 				isRequired: isRequired, 
 				missingRequiredFieldBackground: missingRequiredFieldBackground,
-				missingFieldBackground: missingFieldBackground});							  
+				missingFieldBackground: missingFieldBackground,
+				restrict: restrict});							  
 		}
 		
 		override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void {

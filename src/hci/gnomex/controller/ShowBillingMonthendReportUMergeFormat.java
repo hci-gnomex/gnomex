@@ -276,7 +276,7 @@ public class ShowBillingMonthendReportUMergeFormat extends ReportCommand impleme
       String number = "";
       if (mainObject.equals("req")) {
         req = (Request)row[0];
-        allBillingItems = req.getBillingItems();
+        allBillingItems = req.getBillingItems(sess);
         number = req.getNumber();
       } else {
         dsk = (DiskUsageByMonth)row[0];

@@ -1,10 +1,18 @@
 package hci.gnomex.utility;
 
+import hci.gnomex.model.BillingItem;
+import hci.gnomex.model.BillingTemplate;
 import hci.gnomex.model.Lab;
 
 import java.util.Set;
 
+import org.hibernate.Session;
+
 public interface Order {
+	
+	public Integer getTargetClassIdentifier();
+	
+	public String getTargetClassName();
 	
 	public Integer getIdProduct();
 	
@@ -18,12 +26,14 @@ public interface Order {
 	
 	public Integer getIdBillingAccount();
 	
-	public Set getBillingItems();
+	public Set<BillingItem> getBillingItems(Session sess);
 	
 	public Integer getIdCoreFacility();
 	
 	public Lab getLab();
 	
 	public String getCodeBioanalyzerChipType();
+	
+	public BillingTemplate getBillingTemplate(Session sess);
 
 }

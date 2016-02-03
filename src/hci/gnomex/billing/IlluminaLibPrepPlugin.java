@@ -3,6 +3,7 @@ package hci.gnomex.billing;
 import hci.gnomex.model.Application;
 import hci.gnomex.model.BillingItem;
 import hci.gnomex.model.BillingPeriod;
+import hci.gnomex.model.BillingTemplate;
 import hci.gnomex.model.Hybridization;
 import hci.gnomex.model.LabeledSample;
 import hci.gnomex.model.Price;
@@ -28,7 +29,7 @@ public class IlluminaLibPrepPlugin extends BillingPlugin {
 
   public List<BillingItem> constructBillingItems(Session sess, String amendState, BillingPeriod billingPeriod, PriceCategory priceCategory, Request request, 
       Set<Sample> samples, Set<LabeledSample> labeledSamples, Set<Hybridization> hybs, Set<SequenceLane> lanes, Map<String, ArrayList<String>> sampleToAssaysMap, 
-      String billingStatus, Set<PropertyEntry> propertyEntries) {
+      String billingStatus, Set<PropertyEntry> propertyEntries, BillingTemplate billingTemplate) {
 
     List<BillingItem> billingItems = new ArrayList<BillingItem>();
     
@@ -77,7 +78,7 @@ public class IlluminaLibPrepPlugin extends BillingPlugin {
         Integer qty = appQtyMap.get(appCode);
         qty = this.checkQty(sess, request, samples, qty.intValue());
   
-        billingItems.addAll(this.makeBillingItems(request, price, priceCategory, qty.intValue(), billingPeriod, billingStatus));
+        billingItems.addAll(this.makeBillingItems(request, price, priceCategory, qty.intValue(), billingPeriod, billingStatus, sess, billingTemplate));
       }
     }    
     

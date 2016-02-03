@@ -439,7 +439,7 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
       Set allBillingItems = null;
       if (mainObject.equals("req")) {
         Request req    =  (Request)row[0];
-        allBillingItems = req.getBillingItems();
+        allBillingItems = req.getBillingItems(sess);
         number = req.getNumber();
       } else if(mainObject.equals("dsk")) { 
         DiskUsageByMonth dsk = (DiskUsageByMonth)row[0];

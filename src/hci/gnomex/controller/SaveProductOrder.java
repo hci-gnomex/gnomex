@@ -6,6 +6,7 @@ import hci.gnomex.billing.IScanChipPlugin;
 import hci.gnomex.constants.Constants;
 import hci.gnomex.model.BillingItem;
 import hci.gnomex.model.BillingPeriod;
+import hci.gnomex.model.BillingTemplate;
 import hci.gnomex.model.CoreFacility;
 import hci.gnomex.model.Lab;
 import hci.gnomex.model.Price;
@@ -165,8 +166,10 @@ public class SaveProductOrder extends GNomExCommand implements Serializable {
           ProductOrder po = new ProductOrder();
 
           if (products.size() > 0) {
-            initializeProductOrder(po, codeProductTypeKey);
+        	BillingTemplate billingTemplate = new BillingTemplate();
+            initializeProductOrder(po, codeProductTypeKey, billingTemplate);
             sess.save(po);
+            sess.save(billingTemplate);
             po.setProductOrderNumber(getNextPONumber(po, sess));
 
             for (Element n : products) {
@@ -196,7 +199,7 @@ public class SaveProductOrder extends GNomExCommand implements Serializable {
             poNode.setAttribute("idProductOrder", po.getIdProductOrder() != null ? po.getIdProductOrder().toString() : "");
             outputDoc.getRootElement().addContent(poNode);
 
-            List<BillingItem> billingItems = iscanPlugin.constructBillingItems(sess, billingPeriod, priceCategory, po, productLineItems);
+            List<BillingItem> billingItems = iscanPlugin.constructBillingItems(sess, billingPeriod, priceCategory, po, productLineItems, billingTemplate);
             for (Iterator<BillingItem> j = billingItems.iterator(); j.hasNext();) {
               BillingItem bi = j.next();
               sess.save(bi);
@@ -281,7 +284,7 @@ public class SaveProductOrder extends GNomExCommand implements Serializable {
     return poNumber;
   }
 
-  private void initializeProductOrder(ProductOrder po, String codeProductType) {
+  private void initializeProductOrder(ProductOrder po, String codeProductType, BillingTemplate billingTemplate) {
     po.setSubmitDate(new Date(System.currentTimeMillis()));
     po.setCodeProductType(codeProductType);
     po.setQuoteNumber("");
@@ -291,6 +294,8 @@ public class SaveProductOrder extends GNomExCommand implements Serializable {
     po.setIdBillingAccount(idBillingAccount);
     po.setIdLab(idLab);
 
+    billingTemplate.setOrder(po);
+    billingTemplate.setIdBillingAccount(idBillingAccount);
   }
 
   private void initializeProductLineItem(ProductLineItem pi, Integer idProductOrder, Element n, BigDecimal unitPrice) {

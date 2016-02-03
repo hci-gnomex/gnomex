@@ -250,7 +250,7 @@ public class SaveInstrumentRun extends GNomExCommand implements Serializable {
             req.setCompletedDate( new java.sql.Date(System.currentTimeMillis()) );
           }
           // Now change the billing items for the request from PENDING to COMPLETE
-          for (BillingItem billingItem : (Set<BillingItem>)req.getBillingItems()) {
+          for (BillingItem billingItem : (Set<BillingItem>)req.getBillingItems(sess)) {
             if(billingItem.getCodeBillingStatus().equals(BillingStatus.PENDING)){
               billingItem.setCodeBillingStatus(BillingStatus.COMPLETED);
             }

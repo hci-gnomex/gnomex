@@ -100,13 +100,12 @@
 			this.label1.text = 'Samples (' + filteredSamples.length + ')';
 			
 			// Edit buttons shown
-			if (parentDocument.isSequencingState()) {
+			if(parentApplication.getRequestCategoryProperty(parentDocument.request.@idCoreFacility, parentDocument.request.@codeRequestCategory, parentApplication.PROPERTY_NEW_REQUEST_SAVE_BEFORE_SUBMIT) == 'Y'){
 				this.parentDocument.submitButton.label = 'Save';
 				this.parentDocument.submitButton.enabled = true;
 				this.parentDocument.agreeCheckbox.selected = true;
 				this.parentDocument.agreeBox.includeInLayout = false;
 				this.parentDocument.agreeBox.visible = false;
-				
 			} else {
 				this.parentDocument.submitButton.label = 'Submit';
 				this.parentDocument.agreeBox.visible = true;
@@ -588,7 +587,7 @@
 		<mx:State name="BillingExceedState" >
 			<mx:AddChild relativeTo="{chargesHeaderBox}" position="lastChild">
 				<mx:HBox borderStyle="none" id="hbox1" paddingBottom="2" >
-					<mx:Text text="{'Total charges exceed balance remaining on billing account by ' + parentDocument.createBillingItems.lastResult.Request.@exceededDollarAmount + '. Experiment request cannot be submitted.'}" styleName="warningLabelSevere"/>			    	
+					<mx:Text text="{'Total charges exceed balance remaining on billing account. Experiment request cannot be submitted.'}" styleName="warningLabelSevere"/>			    	
 				</mx:HBox>
 			</mx:AddChild>
 			<mx:SetStyle target="{chargesHeaderBox}" name="verticalAlign" value="bottom"/>

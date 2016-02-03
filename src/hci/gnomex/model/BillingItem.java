@@ -1,48 +1,75 @@
 package hci.gnomex.model;
 
+import hci.framework.model.FieldFormatter;
 import hci.hibernate3utils.HibernateDetailObject;
 
 import java.math.BigDecimal;
-import java.math.MathContext;
 import java.math.RoundingMode;
 import java.sql.Date;
 
 import org.hibernate.Query;
 import org.hibernate.Session;
 
+@SuppressWarnings("serial")
 public class BillingItem extends HibernateDetailObject {
 
-  private Integer        idBillingItem;
-  private String         category;
-  private String         description;
-  private Integer        qty;
-  private BigDecimal     unitPrice;
-  private BigDecimal     totalPrice;
-  private BigDecimal     invoicePrice;
-  private BigDecimal     percentagePrice;
-  private String         codeBillingChargeKind;
-  private String         codeBillingStatus;
-  private String         currentCodeBillingStatus;
-  private Integer        idBillingPeriod;  
-  private BillingPeriod  billingPeriod;
-  private Integer        idPriceCategory;
-  private PriceCategory  priceCategory;
-  private Integer        idPrice;
-  private Integer        idRequest;
-  private Integer        idBillingAccount;
-  private BillingAccount billingAccount;
-  private Integer        idLab;
-  private Lab            lab;
-  private String         notes;
-  private Date           completeDate;
-  private String         splitType;
-  private Integer        idCoreFacility;
-  private Integer        idInvoice;
-  private Invoice        invoice;
-  private Integer        idDiskUsageByMonth;
-  private Integer        idProductOrder;
-  private String		     tag;
+  private Integer        	idBillingItem;
+  private String         	category;
+  private String         	description;
+  private Integer        	qty;
+  private BigDecimal     	unitPrice;
+  private BigDecimal     	totalPrice;
+  private BigDecimal     	invoicePrice;
+  private BigDecimal     	percentagePrice;
+  private String         	codeBillingChargeKind;
+  private String         	codeBillingStatus;
+  private String         	currentCodeBillingStatus;
+  private Integer        	idBillingPeriod;  
+  private BillingPeriod  	billingPeriod;
+  private Integer        	idPriceCategory;
+  private PriceCategory  	priceCategory;
+  private Integer        	idPrice;
+  private Integer        	idRequest;
+  private Integer        	idBillingAccount;
+  private BillingAccount 	billingAccount;
+  private Integer        	idLab;
+  private Lab            	lab;
+  private String         	notes;
+  private Date           	completeDate;
+  private String         	splitType;
+  private Integer        	idCoreFacility;
+  private Integer        	idInvoice;
+  private Invoice        	invoice;
+  private Integer        	idDiskUsageByMonth;
+  private Integer        	idProductOrder;
+  private String			tag;
+  private Integer			idMasterBillingItem;
+  private MasterBillingItem	masterBillingItem;
 
+  @Override
+  public int hashCode() {
+	final int prime = 31;
+	int result = 1;
+	result = prime * result + ((this.idBillingItem == null) ? 0 : this.idBillingItem.hashCode());
+	return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+	if (this == obj)
+		return true;
+	if (obj == null)
+		return false;
+	if (!(obj instanceof BillingItem))
+		return false;
+	BillingItem other = (BillingItem) obj;
+	if (this.idBillingItem == null) {
+		if (other.idBillingItem != null)
+			return false;
+	} else if (!this.idBillingItem.equals(other.idBillingItem))
+		return false;
+	return true;
+  }
 
   public Integer getIdBillingItem() {
     return idBillingItem;
@@ -189,7 +216,7 @@ public class BillingItem extends HibernateDetailObject {
   }
 
   public String getCompleteDateOther() {
-    return this.formatDate(this.completeDate, this.DATE_OUTPUT_SLASH); 
+    return this.formatDate(this.completeDate, FieldFormatter.DATE_OUTPUT_SLASH); 
   }
 
   public String getSplitType() {
@@ -371,7 +398,23 @@ public class BillingItem extends HibernateDetailObject {
 	this.tag = tag;
   }
 
-  private Invoice getInvoiceForBillingItem(Session sess) {
+  public Integer getIdMasterBillingItem() {
+	return this.idMasterBillingItem;
+}
+
+public void setIdMasterBillingItem(Integer idMasterBillingItem) {
+	this.idMasterBillingItem = idMasterBillingItem;
+}
+
+public MasterBillingItem getMasterBillingItem() {
+	return this.masterBillingItem;
+}
+
+public void setMasterBillingItem(MasterBillingItem masterBillingItem) {
+	this.masterBillingItem = masterBillingItem;
+}
+
+private Invoice getInvoiceForBillingItem(Session sess) {
     Invoice inv = new Invoice();
     String queryString = "from Invoice where idCoreFacility=:idCoreFacility and idBillingPeriod=:idBillingPeriod and idBillingAccount=:idBillingAccount";
     Query query = sess.createQuery(queryString);

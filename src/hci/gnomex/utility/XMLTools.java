@@ -23,6 +23,14 @@ public class XMLTools {
 		  }
 		  
 		  return s;
-	  }
+	}
+	
+	public static String safeXMLValue(Object field) {
+		if (field == null) {
+			return "";
+		}
+		
+		return escapeXMLChars(field.toString());
+	}
 
 }

@@ -2,6 +2,7 @@ package hci.gnomex.billing;
 
 import hci.gnomex.model.BillingItem;
 import hci.gnomex.model.BillingPeriod;
+import hci.gnomex.model.BillingTemplate;
 import hci.gnomex.model.Hybridization;
 import hci.gnomex.model.LabeledSample;
 import hci.gnomex.model.Plate;
@@ -29,7 +30,7 @@ public class CapSeqPlatePlugin extends BillingPlugin {
 
   public List<BillingItem> constructBillingItems(Session sess, String amendState, BillingPeriod billingPeriod, PriceCategory priceCategory, Request request, 
       Set<Sample> samples, Set<LabeledSample> labeledSamples, Set<Hybridization> hybs, Set<SequenceLane> lanes, Map<String, ArrayList<String>> sampleToAssaysMap, 
-      String billingStatus, Set<PropertyEntry> propertyEntries) {
+      String billingStatus, Set<PropertyEntry> propertyEntries, BillingTemplate billingTemplate) {
     
     
     List<BillingItem> billingItems = new ArrayList<BillingItem>();
@@ -39,7 +40,7 @@ public class CapSeqPlatePlugin extends BillingPlugin {
     }
     
     // We don't add billing items on a 4-plate cap seq order since it is a bulk charge on the 4 plates, partial or full
-    if (request.getBillingItems() != null && !request.getBillingItems().isEmpty()) {
+    if (request.getBillingItems(sess) != null && !request.getBillingItems(sess).isEmpty()) {
       return billingItems;
     }
     
@@ -126,7 +127,7 @@ public class CapSeqPlatePlugin extends BillingPlugin {
 
     // Instantiate a BillingItem for the matched billing price
     if (price != null) {
-    	billingItems.addAll(this.makeBillingItems(request, price, priceCategory, qty, billingPeriod, billingStatus));
+    	billingItems.addAll(this.makeBillingItems(request, price, priceCategory, qty, billingPeriod, billingStatus, sess, billingTemplate));
     }
     
     

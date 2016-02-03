@@ -313,6 +313,34 @@
 		<property name="invoiceNumber" column="invoiceNumber" type="string" />
 		<property name="lastEmailDate" column="lastEmailDate" type="date" />
 	</class>
+	
+	<!-- hci.gnomex.model.MasterBillingItem -->
+	<class name="hci.gnomex.model.MasterBillingItem" table="MasterBillingItem">
+		<id name="idMasterBillingItem" column="idMasterBillingItem" type="integer">
+			<generator class="native" />
+		</id>
+		<property name="idBillingTemplate" column="idBillingTemplate" type="integer"/>
+		<property name="codeBillingChargeKind" column="codeBillingChargeKind" type="string"/>
+		<property name="category" column="category" type="string"/>
+		<property name="description" column="description" type="string"/>
+		<property name="qty" column="qty" type="integer"/>
+		<property name="unitPrice" column="unitPrice" type="big_decimal"/>
+		<property name="totalPrice" type="big_decimal" formula="qty * unitPrice"/>
+		<property name="idBillingPeriod" column="idBillingPeriod" type="integer"/>
+		<property name="idPrice" column="idPrice" type="integer"/>
+		<property name="idPriceCategory" column="idPriceCategory" type="integer"/>
+		<property name="idCoreFacility" column="idCoreFacility" type="integer"/>
+		<set name="billingItems" table="BillingItem" lazy="true" cascade="none" order-by="idBillingItem">
+  			<key column="idMasterBillingItem" />
+  			<one-to-many class="hci.gnomex.model.BillingItem" />
+  		</set>
+  		<many-to-one name="billingTemplate" column="idBillingTemplate" class="hci.gnomex.model.BillingTemplate" cascade="none" insert="false" update="false" />
+  		<many-to-one name="billingChargeKind" column="codeBillingChargeKind" class="hci.gnomex.model.BillingChargeKind" cascade="none" insert="false" update="false" />
+  		<many-to-one name="billingPeriod" column="idBillingPeriod" class="hci.gnomex.model.BillingPeriod" cascade="none" insert="false" update="false" />
+  		<many-to-one name="price" column="idPrice" class="hci.gnomex.model.Price" cascade="none" insert="false" update="false" />
+  		<many-to-one name="priceCategory" column="idPriceCategory" class="hci.gnomex.model.PriceCategory" cascade="none" insert="false" update="false" />
+  		<many-to-one name="coreFacility" column="idCoreFacility" class="hci.gnomex.model.CoreFacility" cascade="none" insert="false" update="false" />
+  </class>
 
 	<!-- hci.gnomex.model.BillingItem -->
 	<class name="hci.gnomex.model.BillingItem" table="BillingItem">
@@ -347,8 +375,39 @@
     	<property name="idDiskUsageByMonth" column="idDiskUsageByMonth" type="integer" />
     	<property name="idProductOrder" column="idProductOrder" type="integer" />
     	<property name="tag" column="tag" type="string" />
+    	<property name="idMasterBillingItem" column="idMasterBillingItem" type="integer" />
+    	<many-to-one name="masterBillingItem" column="idMasterBillingItem" class="hci.gnomex.model.MasterBillingItem" cascade="none" insert="false" update="false" />
   </class>	
   
+  	<!-- hci.gnomex.model.BillingTemplate -->
+  	<class name="hci.gnomex.model.BillingTemplate" table="BillingTemplate">
+  		<id name="idBillingTemplate" column="idBillingTemplate" type="integer">
+  			<generator class="native" />
+  		</id>
+  		<property name="targetClassIdentifier" column="targetClassIdentifier" type="integer" />
+  		<property name="targetClassName" column="targetClassName" type="string" />
+  		<set name="items" table="BillingTemplateItem" lazy="true" cascade="none" order-by="idBillingTemplateItem">
+  			<key column="idBillingTemplate" />
+  			<one-to-many class="hci.gnomex.model.BillingTemplateItem" />
+  		</set>
+  		<set name="masterBillingItems" table="MasterBillingItem" lazy="true" cascade="none" order-by="idMasterBillingItem">
+  			<key column="idMasterBillingItem" />
+  			<one-to-many class="hci.gnomex.model.MasterBillingItem" />
+  		</set>
+  	</class>
+  	
+  	<!-- hci.gnomex.model.BillingTemplateItem -->
+  	<class name="hci.gnomex.model.BillingTemplateItem" table="BillingTemplateItem">
+  		<id name="idBillingTemplateItem" column="idBillingTemplateItem" type="integer">
+  			<generator class="native" />
+  		</id>
+  		<property name="idBillingTemplate" column="idBillingTemplate" type="integer" />
+  		<property name="idBillingAccount" column="idBillingAccount" type="integer" />
+  		<property name="percentSplit" column="percentSplit" type="big_decimal" />
+  		<property name="dollarAmount" column="dollarAmount" type="big_decimal" />
+  		<property name="dollarAmountBalance" column="dollarAmountBalance" type="big_decimal" />
+  		<property name="sortOrder" column="sortOrder" type="integer" />
+  	</class>
 
 	<!-- hci.gnomex.model.Chromatogram -->
 	<class name="hci.gnomex.model.Chromatogram" table="Chromatogram">
@@ -1045,11 +1104,6 @@
 			lazy="false" cascade="none">
 			<key column="idRequest" />
 			<one-to-many class="hci.gnomex.model.AnalysisExperimentItem" />
-		</set>
-		<set name="billingItems" table="BillingItem" lazy="true" cascade="none"
-			order-by="idBillingItem">
-			<key column="idRequest" />
-			<one-to-many class="hci.gnomex.model.BillingItem" />
 		</set>
 		<set name="seqLibTreatments" table="RequestSeqLibTreatment" lazy="true"
 			cascade="delete">

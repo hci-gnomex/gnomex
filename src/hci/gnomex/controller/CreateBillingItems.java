@@ -9,6 +9,7 @@ import hci.gnomex.model.BillingAccount;
 import hci.gnomex.model.BillingItem;
 import hci.gnomex.model.BillingPeriod;
 import hci.gnomex.model.BillingStatus;
+import hci.gnomex.model.BillingTemplate;
 import hci.gnomex.model.Hybridization;
 import hci.gnomex.model.Lab;
 import hci.gnomex.model.Label;
@@ -21,18 +22,16 @@ import hci.gnomex.model.PriceCategory;
 import hci.gnomex.model.PriceSheet;
 import hci.gnomex.model.PriceSheetPriceCategory;
 import hci.gnomex.model.PropertyEntry;
-import hci.gnomex.model.PropertyEntryValue;
-import hci.gnomex.model.PropertyOption;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.Sample;
 import hci.gnomex.model.SequenceLane;
 import hci.gnomex.model.SlideProduct;
 import hci.gnomex.security.SecurityAdvisor;
+import hci.gnomex.utility.BillingTemplateQueryManager;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.PlateWellComparator;
 import hci.gnomex.utility.PropertyEntryComparator;
-import hci.gnomex.utility.PropertyOptionComparator;
 import hci.gnomex.utility.RequestParser;
 
 import java.io.Serializable;
@@ -68,13 +67,13 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
   // the static field for logging in Log4J
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(CreateBillingItems.class);
   
-  private Integer          idRequest;
-  private Integer          idBillingPeriod;
-  private String           requestXMLString;
-  private Document         requestDoc;
-  private RequestParser    requestParser;
+  private Integer          	idRequest;
+  private Integer          	idBillingPeriod;
+  private String           	requestXMLString;
+  private Document         	requestDoc;
+  private RequestParser    	requestParser;
   
-  private String                propertiesXML;
+  private String          	propertiesXML;
   
   
   public void validate() {
@@ -155,6 +154,7 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
 
       // Read the experiment
       Request request = null;
+      BillingTemplate billingTemplate = null;
       Set hybs = null;
       Set samples = null;
       Set lanes = null;
@@ -165,6 +165,7 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
       Map labeledSampleChannel2Map = new HashMap();
       if (idRequest != null) {
         request = (Request)sess.get(Request.class, idRequest);
+        billingTemplate = BillingTemplateQueryManager.retrieveBillingTemplate(sess, request);
 
         // Only admins can create billing items for existing requests
         if (!this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_MANAGE_BILLING)) {
@@ -178,6 +179,7 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
       } else {
         requestParser.parse(sess);
         request = requestParser.getRequest();
+        billingTemplate = requestParser.getBillingTemplate();
         
         // Clear session here so we don't get caught with an auto-flush later on.
         sess.clear();
@@ -362,7 +364,7 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
 
           // Get the billing items
           if (plugin != null) {
-            List billingItemsForCategory = plugin.constructBillingItems(sess, idRequest != null ? "" : requestParser.getAmendState(), billingPeriod, priceCategory, request, samples, labeledSamples, hybs, lanes, requestParser != null ? requestParser.getSampleAssays() : null, BillingStatus.PENDING, propertyEntries);
+            List billingItemsForCategory = plugin.constructBillingItems(sess, idRequest != null ? "" : requestParser.getAmendState(), billingPeriod, priceCategory, request, samples, labeledSamples, hybs, lanes, requestParser != null ? requestParser.getSampleAssays() : null, BillingStatus.PENDING, propertyEntries, billingTemplate);
             if (isDiscount) {
               discountBillingItems.addAll(billingItemsForCategory);
             } else {
@@ -379,17 +381,15 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
 
       Element requestNode = new Element("Request");
       requestNode.setAttribute("idRequest", request.getIdRequest().toString());
-      requestNode.setAttribute("idBillingAccount", request.getIdBillingAccount().toString());
       requestNode.setAttribute("requestNumber", request.getNumber());
       requestNode.setAttribute("idLab", request.getIdLab().toString());
       requestNode.setAttribute("label", request.getNumber());
       requestNode.setAttribute("submitter", request.getAppUser() != null ? request.getAppUser().getDisplayName() : "");
-      requestNode.setAttribute("codeRequestCategory", request.getCodeRequestCategory());        
-      requestNode.setAttribute("billingLabName", request.getLabName());        
-      requestNode.setAttribute("billingAccountName", request.getBillingAccount() != null ? request.getBillingAccount().getAccountName() : "");        
+      requestNode.setAttribute("codeRequestCategory", request.getCodeRequestCategory());             
       requestNode.setAttribute("status", BillingStatus.NEW);
       requestNode.setAttribute("isDirty", "Y");
-      doc.getRootElement().addContent(requestNode);          
+      requestNode.addContent(billingTemplate.toXML(null));
+      doc.getRootElement().addContent(requestNode);
 
 
       BigDecimal grandInvoicePrice = new BigDecimal(0);
@@ -419,24 +419,43 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
         requestNode.addContent(billingItemNode);
       }
 
-      StringBuffer buf = new StringBuffer();
-      buf.append("SELECT sum(bi.invoicePrice) from BillingItem bi where bi.idBillingAccount = " + request.getIdBillingAccount());
-      List rows = sess.createQuery(buf.toString()).list();
-      BigDecimal totalChargesToDate = new BigDecimal(0);
-      if (rows.size() == 1) {
-        totalChargesToDate = (BigDecimal)rows.iterator().next();
-        if (totalChargesToDate == null) {
-          totalChargesToDate = new BigDecimal(0);
-        }
+      boolean exceedsBillingAccountBalance = false;
+      for (BillingAccount account : billingTemplate.getBillingAccounts(sess)) {
+    	  StringBuffer buf = new StringBuffer();
+          buf.append("SELECT sum(bi.invoicePrice) from BillingItem bi where bi.idBillingAccount = " + account.getIdBillingAccount());
+          List rows = sess.createQuery(buf.toString()).list();
+          BigDecimal totalChargesToDate = new BigDecimal(0);
+          if (rows.size() == 1) {
+            totalChargesToDate = (BigDecimal)rows.iterator().next();
+            if (totalChargesToDate == null) {
+              totalChargesToDate = new BigDecimal(0);
+            }
+          }
+          
+          BigDecimal newCharges = new BigDecimal(0);
+          for(Iterator i = billingItems.iterator(); i.hasNext();) {
+        	  BillingItem bi = (BillingItem)i.next();
+        	  if (bi.getIdBillingAccount().equals(account.getIdBillingAccount())) {
+        		  newCharges = newCharges.add(bi.getInvoicePrice());
+        	  }
+          }
+          for(Iterator i = discountBillingItems.iterator(); i.hasNext();) {
+        	  BillingItem bi = (BillingItem)i.next();
+        	  if (bi.getIdBillingAccount().equals(account.getIdBillingAccount())) {
+        		  newCharges = newCharges.add(bi.getInvoicePrice());
+        	  }
+          }
+          totalChargesToDate = totalChargesToDate.add(newCharges);
+          
+          account.setTotalChargesToDate(totalChargesToDate);
+          
+          if (!exceedsBillingAccountBalance) {
+        	  exceedsBillingAccountBalance = account.getTotalDollarAmountRemaining() != null && account.getTotalDollarAmountRemaining().doubleValue() < 0;
+          }
       }
-      totalChargesToDate = totalChargesToDate.add(grandInvoicePrice);
-      
-      BillingAccount billingAccount = (BillingAccount)sess.load(BillingAccount.class, request.getIdBillingAccount());
-      billingAccount.setTotalChargesToDate(totalChargesToDate);
       
       requestNode.setAttribute("invoicePrice", NumberFormat.getCurrencyInstance().format(grandInvoicePrice.doubleValue()));
-      requestNode.setAttribute("exceedsBillingAccountBalance", billingAccount.getTotalDollarAmountRemaining() != null && billingAccount.getTotalDollarAmountRemaining().doubleValue() < 0 ? "Y" : "N");
-      requestNode.setAttribute("exceededDollarAmount", billingAccount.getTotalDollarAmountRemaining() != null && billingAccount.getTotalDollarAmountRemaining().doubleValue() < 0 ?  NumberFormat.getCurrencyInstance().format(billingAccount.getTotalDollarAmountRemaining().abs()) : "N");
+      requestNode.setAttribute("exceedsBillingAccountBalance", exceedsBillingAccountBalance ? "Y" : "N");
 
       XMLOutputter out = new org.jdom.output.XMLOutputter();
       this.xmlResult = out.outputString(doc);

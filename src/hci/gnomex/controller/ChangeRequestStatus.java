@@ -45,13 +45,13 @@ import org.hibernate.Session;
 public class ChangeRequestStatus extends GNomExCommand implements Serializable {
 
   // the static field for logging in Log4J
-  private static org.apache.log4j.Logger log               = org.apache.log4j.Logger.getLogger(ChangeRequestStatus.class);
+  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(ChangeRequestStatus.class);
 
-  private String                         codeRequestStatus = null;
-  private Integer                        idRequest         = 0;
-  private String                         launchAppURL;
-  private String                         appURL;
-  private String                         serverName;
+  private String codeRequestStatus = null;
+  private Integer idRequest = 0;
+  private String launchAppURL;
+  private String appURL;
+  private String serverName;
 
   public void validate() {
   }
@@ -82,6 +82,7 @@ public class ChangeRequestStatus extends GNomExCommand implements Serializable {
 
     try {
       sess = HibernateSession.currentSession(this.getUsername());
+      PropertyDictionaryHelper pdh = PropertyDictionaryHelper.getInstance(sess);
 
       if (codeRequestStatus == null || idRequest.equals("0")) {
         this.addInvalidField("Missing information", "id and code request status needed");
@@ -140,8 +141,8 @@ public class ChangeRequestStatus extends GNomExCommand implements Serializable {
           // If this is a DNA Seq core request, we need to create the billing
           // items and send confirmation email
           // when the status changes to submitted
-          if ((codeRequestStatus.equals(RequestStatus.SUBMITTED) || codeRequestStatus.equals(RequestStatus.PROCESSING)) && RequestCategory.isDNASeqCoreRequestCategory(req.getCodeRequestCategory())) {
-            if (req.getBillingItems() == null || req.getBillingItems().isEmpty()) {
+          if ((codeRequestStatus.equals(RequestStatus.SUBMITTED) || codeRequestStatus.equals(RequestStatus.PROCESSING)) && pdh.getCoreFacilityRequestCategoryProperty(req.getIdCoreFacility(), req.getCodeRequestCategory(), PropertyDictionary.NEW_REQUEST_SAVE_BEFORE_SUBMIT).equals("Y")) {
+            if (req.getBillingItems(sess) == null || req.getBillingItems(sess).isEmpty()) {
               createBillingItems(sess, req);
               sess.flush();
             }
@@ -155,7 +156,7 @@ public class ChangeRequestStatus extends GNomExCommand implements Serializable {
             }
             // Now change the billing items for the request from PENDING to
             // COMPLETE
-            for (BillingItem billingItem : (Set<BillingItem>) req.getBillingItems()) {
+            for (BillingItem billingItem : (Set<BillingItem>) req.getBillingItems(sess)) {
               if (billingItem.getCodeBillingStatus().equals(BillingStatus.PENDING)) {
                 billingItem.setCodeBillingStatus(BillingStatus.COMPLETED);
               }
@@ -259,7 +260,7 @@ public class ChangeRequestStatus extends GNomExCommand implements Serializable {
       assays.add(idAssay.toString());
     }
 
-    SaveRequest.createBillingItems(sess, req, null, billingPeriod, dictionaryHelper, req.getSamples(), null, null, null, sampleAssays);
+    SaveRequest.createBillingItems(sess, req, null, billingPeriod, dictionaryHelper, req.getSamples(), null, null, null, sampleAssays, req.getBillingTemplate(sess));
     sess.flush();
 
   }

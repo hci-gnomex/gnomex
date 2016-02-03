@@ -2,6 +2,7 @@ package hci.gnomex.billing;
 
 import hci.gnomex.model.BillingItem;
 import hci.gnomex.model.BillingPeriod;
+import hci.gnomex.model.BillingTemplate;
 import hci.gnomex.model.Hybridization;
 import hci.gnomex.model.LabeledSample;
 import hci.gnomex.model.Price;
@@ -26,7 +27,7 @@ import org.hibernate.Session;
 public class MicroarrayPlugin extends BillingPlugin {
   public List<BillingItem> constructBillingItems(Session sess, String amendState, BillingPeriod billingPeriod, PriceCategory priceCategory, Request request, 
       Set<Sample> samples, Set<LabeledSample> labeledSamples, Set<Hybridization> hybs, Set<SequenceLane> lanes, Map<String, ArrayList<String>> sampleToAssaysMap, 
-      String billingStatus, Set<PropertyEntry> propertyEntries) {
+      String billingStatus, Set<PropertyEntry> propertyEntries, BillingTemplate billingTemplate) {
     
     List<BillingItem> billingItems = new ArrayList<BillingItem>();
     
@@ -46,7 +47,7 @@ public class MicroarrayPlugin extends BillingPlugin {
     //     with qty of 4 we should just bypass because billing
     //     for 4-array slide already covered.
     int totalQtyBilled = 0;
-    for(Iterator i = request.getBillingItems().iterator(); i.hasNext();) {
+    for(Iterator i = request.getBillingItems(sess).iterator(); i.hasNext();) {
       BillingItem bi = (BillingItem)i.next();
       if (bi.getIdPriceCategory().equals(priceCategory.getIdPriceCategory())) {
         totalQtyBilled += bi.getQty().intValue();
@@ -113,7 +114,7 @@ public class MicroarrayPlugin extends BillingPlugin {
       String slideCategoryName = dh.getOrganism(request.getSlideProduct().getIdOrganism());
       slideCategoryName += " " + dh.getApplication(request.getCodeApplication());
       
-      billingItems.addAll(this.makeBillingItems(request, price, priceCategory, qty, billingPeriod, billingStatus, null, slideCategoryName, null, null));
+      billingItems.addAll(this.makeBillingItems(request, price, priceCategory, qty, billingPeriod, billingStatus, null, slideCategoryName, null, null, sess, billingTemplate));
     }
     
     

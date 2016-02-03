@@ -5,6 +5,7 @@ import hci.framework.control.RollBackCommandException;
 import hci.gnomex.constants.Constants;
 import hci.gnomex.model.BillingPeriod;
 import hci.gnomex.model.BillingStatus;
+import hci.gnomex.model.BillingTemplate;
 import hci.gnomex.model.CoreFacility;
 import hci.gnomex.model.LabeledSample;
 import hci.gnomex.model.PropertyDictionary;
@@ -16,6 +17,7 @@ import hci.gnomex.model.Step;
 import hci.gnomex.model.WorkItem;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.BillingItemAutoComplete;
+import hci.gnomex.utility.BillingTemplateQueryManager;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.MailUtil;
@@ -305,7 +307,8 @@ public class SaveCombinedWorkItemQualityControl extends GNomExCommand implements
               break;
             }
           }
-          SaveRequest.createBillingItems(sess, auto.getRequest(), null, billingPeriod, dictionaryHelper, sampleSet, null, null, null, null, auto.getCodeStep(), BillingStatus.COMPLETED);
+          BillingTemplate billingTemplate = BillingTemplateQueryManager.retrieveBillingTemplate(sess, auto.getRequest());
+          SaveRequest.createBillingItems(sess, auto.getRequest(), null, billingPeriod, dictionaryHelper, sampleSet, null, null, null, null, auto.getCodeStep(), BillingStatus.COMPLETED, billingTemplate);
         }
       }
     }

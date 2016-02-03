@@ -11,6 +11,7 @@ import hci.gnomex.model.AppUser;
 import hci.gnomex.model.BillingItem;
 import hci.gnomex.model.BillingPeriod;
 import hci.gnomex.model.BillingStatus;
+import hci.gnomex.model.BillingTemplate;
 import hci.gnomex.model.CoreFacility;
 import hci.gnomex.model.ExperimentCollaborator;
 import hci.gnomex.model.FlowCellChannel;
@@ -728,7 +729,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
                 // For dna seq facility orders, warn the admin to adjust billing if samples have been added.
                 // (We don't automatically adjust billing items because of tiered pricing issues.)
                 if (RequestCategory.isDNASeqCoreRequestCategory(requestParser.getRequest().getCodeRequestCategory())) {
-                  if (requestParser.getRequest().getBillingItems() != null && !requestParser.getRequest().getBillingItems().isEmpty()) {
+                  if (requestParser.getRequest().getBillingItems(sess) != null && !requestParser.getRequest().getBillingItems(sess).isEmpty()) {
                     if ( hasNewSample ) {
                       billingAccountMessage = "Request " + requestParser.getRequest().getNumber() + " has been saved.\n\nSamples have been added, please adjust billing accordingly.";
                     }
@@ -739,18 +740,27 @@ public class SaveRequest extends GNomExCommand implements Serializable {
             billing_items_if:
               if (createBillingItems || requestParser.isReassignBillingAccount()) {
                 sess.refresh(requestParser.getRequest());
-
-                if(!requestParser.getRequest().getBillingItems().isEmpty()) {
-                  Iterator ibill = requestParser.getRequest().getBillingItems().iterator();
-                  BillingItem bill = (BillingItem)ibill.next();
-                  hci.gnomex.model.BillingAccount firstBillingAccount = bill.getBillingAccount();
-                  while(ibill.hasNext()) {
-                    bill = (BillingItem)ibill.next();
-                    if(firstBillingAccount != bill.getBillingAccount()) {
-                      billingAccountMessage = "There are multiple billing accounts associated with this request. The accounts have not been changed. Please use the Admininstrator Billing Screen to assign new accounts.";
-                      break billing_items_if;
-                    }
-                  }
+                
+                BillingTemplate billingTemplate = requestParser.getRequest().getBillingTemplate(sess);
+                
+                if (billingTemplate.getItems().size() > 1) {
+                	billingAccountMessage = "There are multiple billing accounts associated with this request. The accounts have not been changed. Please use the Admininstrator Billing Screen to assign new accounts.";
+                    break billing_items_if;
+                }
+                
+                // If this is an existing request and the billing account has been reassigned,
+                // change the account on the billing items as well.
+                if (!requestParser.isNewRequest() && requestParser.isReassignBillingAccount()) {
+                	// Delete existing billing items
+    				for (BillingItem billingItemToDelete : billingTemplate.getBillingItems(sess)) {
+    					sess.delete(billingItemToDelete);
+    				}
+    				
+    				billingTemplate.recreateBillingItems(sess);
+    				
+    				sess.flush();
+    				
+    				billingAccountMessage = "The billing account has been reassigned for " + billingTemplate.getBillingItems(sess).size() + " billing item(s).";
                 }
 
                 // Create the billing items
@@ -760,39 +770,8 @@ public class SaveRequest extends GNomExCommand implements Serializable {
                   samplesAdded.addAll(requestParser.getRequest().getSamples());
                 }
 
-                createBillingItems(sess, requestParser.getRequest(), requestParser.getAmendState(), billingPeriod, dictionaryHelper, samplesAdded, labeledSamplesAdded, hybsAdded, sequenceLanesAdded, requestParser.getSampleAssays(), null, BillingStatus.PENDING, propertyEntries);
+                createBillingItems(sess, requestParser.getRequest(), requestParser.getAmendState(), billingPeriod, dictionaryHelper, samplesAdded, labeledSamplesAdded, hybsAdded, sequenceLanesAdded, requestParser.getSampleAssays(), null, BillingStatus.PENDING, propertyEntries, billingTemplate);
                 sess.flush();
-
-
-                // If this is an existing request and the billing account has been reassigned,
-                // change the account on the billing items as well.
-                int reassignCount =  0;
-                int unassignedCount = 0;
-                if (!requestParser.isNewRequest() && requestParser.isReassignBillingAccount()) {
-                  for(Iterator ib = requestParser.getRequest().getBillingItems().iterator(); ib.hasNext();) {
-                    BillingItem bi = (BillingItem)ib.next();
-                    if (bi.getCodeBillingStatus().equals(BillingStatus.PENDING) || bi.getCodeBillingStatus().equals(BillingStatus.COMPLETED)) {
-                      bi.setIdBillingAccount(requestParser.getRequest().getIdBillingAccount());
-                      bi.setIdLab(requestParser.getRequest().getIdLab());
-                      bi.resetInvoiceForBillingItem(sess);
-                      reassignCount++;
-                    } else  {
-                      unassignedCount++;
-                    }
-                  }
-                  if (unassignedCount > 0) {
-                    billingAccountMessage = "WARNING: The billing account could not be reassigned for " + unassignedCount + " approved billing items.  Please reassign in the Billing screen.";
-                  }
-                  if (billingAccountMessage.length() > 0) {
-                    billingAccountMessage += "\n\n(The billing account has been reassigned for  " + reassignCount + " billing item(s).)";
-                  } else {
-                    billingAccountMessage = "The billing account has been reassigned for " + reassignCount + " billing item(s).";
-                  }
-
-                  if (reassignCount > 0) {
-                    sess.flush();
-                  }
-                }
               }
 
             // If the lab on the request was changed, reassign the lab on the
@@ -2329,17 +2308,17 @@ public class SaveRequest extends GNomExCommand implements Serializable {
   }
 
   public static void createBillingItems(Session sess, Request request, String amendState, BillingPeriod billingPeriod, DictionaryHelper dh, Set<Sample> samples,
-      Set<LabeledSample> labeledSamples, Set<Hybridization> hybs, Set<SequenceLane> lanes, Map<String, ArrayList<String>> sampleToAssaysMap, String codeStepNext, String billingStatus) throws Exception {
-    createBillingItems(sess, request, amendState, billingPeriod, dh, samples, labeledSamples, hybs, lanes, sampleToAssaysMap, codeStepNext, billingStatus, null);
+      Set<LabeledSample> labeledSamples, Set<Hybridization> hybs, Set<SequenceLane> lanes, Map<String, ArrayList<String>> sampleToAssaysMap, String codeStepNext, String billingStatus, BillingTemplate billingTemplate) throws Exception {
+    createBillingItems(sess, request, amendState, billingPeriod, dh, samples, labeledSamples, hybs, lanes, sampleToAssaysMap, codeStepNext, billingStatus, null, billingTemplate);
   }
 
   public static void createBillingItems(Session sess, Request request, String amendState, BillingPeriod billingPeriod, DictionaryHelper dh, Set<Sample> samples,
-      Set<LabeledSample> labeledSamples, Set<Hybridization> hybs, Set<SequenceLane> lanes, Map<String, ArrayList<String>> sampleToAssaysMap) throws Exception {
-    createBillingItems(sess, request, amendState, billingPeriod, dh, samples, labeledSamples, hybs, lanes, sampleToAssaysMap, null, BillingStatus.PENDING, null);
+      Set<LabeledSample> labeledSamples, Set<Hybridization> hybs, Set<SequenceLane> lanes, Map<String, ArrayList<String>> sampleToAssaysMap, BillingTemplate billingTemplate) throws Exception {
+    createBillingItems(sess, request, amendState, billingPeriod, dh, samples, labeledSamples, hybs, lanes, sampleToAssaysMap, null, BillingStatus.PENDING, null, billingTemplate);
   }
 
   public static void createBillingItems(Session sess, Request request, String amendState, BillingPeriod billingPeriod, DictionaryHelper dh, Set<Sample> samples,
-      Set<LabeledSample> labeledSamples, Set<Hybridization> hybs, Set<SequenceLane> lanes, Map<String, ArrayList<String>> sampleToAssaysMap, String codeStepNext, String billingStatus, Set<PropertyEntry> propertyEntries) throws Exception {
+      Set<LabeledSample> labeledSamples, Set<Hybridization> hybs, Set<SequenceLane> lanes, Map<String, ArrayList<String>> sampleToAssaysMap, String codeStepNext, String billingStatus, Set<PropertyEntry> propertyEntries, BillingTemplate billingTemplate) throws Exception {
 
     List billingItems = new ArrayList<BillingItem>();
     List discountBillingItems = new ArrayList<BillingItem>();
@@ -2405,7 +2384,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 
         // Get the billing items
         if (plugin != null) {
-          List billingItemsForCategory = plugin.constructBillingItems(sess, amendState, billingPeriod, priceCategory, request, samples, labeledSamples, hybs, lanes, sampleToAssaysMap, billingStatus, propertyEntries);
+          List billingItemsForCategory = plugin.constructBillingItems(sess, amendState, billingPeriod, priceCategory, request, samples, labeledSamples, hybs, lanes, sampleToAssaysMap, billingStatus, propertyEntries, billingTemplate);
           if (isDiscount) {
             discountBillingItems.addAll(billingItemsForCategory);
           } else {

@@ -2,6 +2,7 @@ package hci.gnomex.model;
 
 import hci.dictionary.utility.DictionaryManager;
 import hci.framework.model.DetailObject;
+import hci.gnomex.utility.BillingTemplateQueryManager;
 import hci.gnomex.utility.Order;
 
 import java.io.Serializable;
@@ -9,6 +10,8 @@ import java.sql.Date;
 import java.text.SimpleDateFormat;
 import java.util.Set;
 import java.util.TreeSet;
+
+import org.hibernate.Session;
 
 
 
@@ -32,9 +35,9 @@ public class ProductOrder extends DetailObject implements Serializable, Order {
   private String      uuid;
   private String      productOrderNumber;
 
-  private Set         productLineItems = new TreeSet();
-  private Set         billingItems = new TreeSet();    
-  private Set         files = new TreeSet();
+  private Set<ProductLineItem>         	productLineItems = new TreeSet<ProductLineItem>();
+  private Set         					billingItems = new TreeSet();    
+  private Set         					files = new TreeSet();
 
   public String getDisplay() {
     if ( this.productOrderNumber != null ) {
@@ -205,15 +208,23 @@ public class ProductOrder extends DetailObject implements Serializable, Order {
       return key;
     }
   }
+  
+  public Integer getTargetClassIdentifier() {
+	  return idProductOrder;
+  }
+  
+  public String getTargetClassName() {
+	  return this.getClass().getName();
+  }
 
 
 
-  public Set getProductLineItems() {
+  public Set<ProductLineItem> getProductLineItems() {
     return productLineItems;
   }
 
 
-  public void setProductLineItems( Set productLineItems ) {
+  public void setProductLineItems( Set<ProductLineItem> productLineItems ) {
     this.productLineItems = productLineItems;
   }
 
@@ -293,6 +304,17 @@ public Integer getIdRequest() {
 public String getCodeBioanalyzerChipType() {
 	// TODO Auto-generated method stub
 	return null;
+}
+
+@SuppressWarnings("unchecked")
+@Override
+public Set<BillingItem> getBillingItems(Session sess) {
+	return (Set<BillingItem>) billingItems;
+}
+
+@Override
+public BillingTemplate getBillingTemplate(Session sess) {
+	return BillingTemplateQueryManager.retrieveBillingTemplate(sess, this);
 }
 
 

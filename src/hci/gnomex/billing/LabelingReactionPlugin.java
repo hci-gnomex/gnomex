@@ -3,6 +3,7 @@ package hci.gnomex.billing;
 import hci.gnomex.model.Application;
 import hci.gnomex.model.BillingItem;
 import hci.gnomex.model.BillingPeriod;
+import hci.gnomex.model.BillingTemplate;
 import hci.gnomex.model.Hybridization;
 import hci.gnomex.model.LabeledSample;
 import hci.gnomex.model.Price;
@@ -27,7 +28,7 @@ import org.hibernate.Session;
 public class LabelingReactionPlugin extends BillingPlugin {
   public List<BillingItem> constructBillingItems(Session sess, String amendState, BillingPeriod billingPeriod, PriceCategory priceCategory, Request request, 
       Set<Sample> samples, Set<LabeledSample> labeledSamples, Set<Hybridization> hybs, Set<SequenceLane> lanes, Map<String, ArrayList<String>> sampleToAssaysMap, 
-      String billingStatus, Set<PropertyEntry> propertyEntries) {
+      String billingStatus, Set<PropertyEntry> propertyEntries, BillingTemplate billingTemplate) {
     
     List<BillingItem> billingItems = new ArrayList<BillingItem>();
     DictionaryHelper dh = DictionaryHelper.getInstance(sess);
@@ -104,7 +105,7 @@ public class LabelingReactionPlugin extends BillingPlugin {
 
     // Instantiate a BillingItem for the matched price
     if (price != null) {
-    	billingItems.addAll(this.makeBillingItems(request, price, priceCategory, qty, billingPeriod, billingStatus));
+    	billingItems.addAll(this.makeBillingItems(request, price, priceCategory, qty, billingPeriod, billingStatus, sess, billingTemplate));
 
     }
     

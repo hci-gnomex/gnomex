@@ -2,6 +2,7 @@ package hci.gnomex.billing;
 
 import hci.gnomex.model.BillingItem;
 import hci.gnomex.model.BillingPeriod;
+import hci.gnomex.model.BillingTemplate;
 import hci.gnomex.model.Hybridization;
 import hci.gnomex.model.LabeledSample;
 import hci.gnomex.model.Price;
@@ -24,7 +25,7 @@ import org.hibernate.Session;
 public class InternalPercentDiscountPlugin extends BillingPlugin {
   public List<BillingItem> constructBillingItems(Session sess, String amendState, BillingPeriod billingPeriod, PriceCategory priceCategory, Request request, 
       Set<Sample> samples, Set<LabeledSample> labeledSamples, Set<Hybridization> hybs, Set<SequenceLane> lanes, Map<String, ArrayList<String>> sampleToAssaysMap, 
-      String billingStatus, Set<PropertyEntry> propertyEntries) {
+      String billingStatus, Set<PropertyEntry> propertyEntries, BillingTemplate billingTemplate) {
 
     List<BillingItem> billingItems = new ArrayList<BillingItem>();
     
@@ -55,7 +56,7 @@ public class InternalPercentDiscountPlugin extends BillingPlugin {
 
     // Instantiate a BillingItem for the matched price
     if (price != null) {
-    	billingItems.addAll(this.makeBillingItems(request, price, priceCategory, 1, billingPeriod, billingStatus));
+    	billingItems.addAll(this.makeBillingItems(request, price, priceCategory, 1, billingPeriod, billingStatus, sess, billingTemplate));
     }
     
     
