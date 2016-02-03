@@ -174,7 +174,7 @@ public class ProductOrder extends DetailObject implements Serializable, Order {
   public void setUuid( String uuid ) {
     this.uuid = uuid;
   }
-  
+
   /* Used for file system retrieval of files */
   public String getKey() {
     String createDate = this.formatDate(this.getSubmitDate());
@@ -186,7 +186,7 @@ public class ProductOrder extends DetailObject implements Serializable, Order {
     String key = createYear + "-" + sortDate + "-" + this.getProductOrderNumber();
     return key;
   }
-  
+
   public String getKey(String resultsDir) {
     return ProductOrder.getKey(this.getProductOrderNumber(), this.getSubmitDate(), resultsDir);
   }

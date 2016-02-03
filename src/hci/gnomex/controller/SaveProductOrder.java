@@ -23,6 +23,7 @@ import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.MailUtil;
 import hci.gnomex.utility.MailUtilHelper;
 import hci.gnomex.utility.PropertyDictionaryHelper;
+import hci.gnomex.utility.RequisitionFormUtil;
 
 
 import java.io.IOException;
@@ -54,7 +55,6 @@ import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.jdom.output.XMLOutputter;
-
 
 public class SaveProductOrder extends GNomExCommand implements Serializable {
 

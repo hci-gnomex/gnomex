@@ -47,11 +47,11 @@ public class ChangeRequestStatus extends GNomExCommand implements Serializable {
   // the static field for logging in Log4J
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(ChangeRequestStatus.class);
 
-  private String codeRequestStatus = null;
-  private Integer idRequest = 0;
-  private String launchAppURL;
-  private String appURL;
-  private String serverName;
+  private String                         codeRequestStatus = null;
+  private Integer                        idRequest         = 0;
+  private String                         launchAppURL;
+  private String                         appURL;
+  private String                         serverName;
 
   public void validate() {
   }

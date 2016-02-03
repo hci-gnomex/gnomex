@@ -76,6 +76,7 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
   private Set             workItems = new TreeSet();
   private Set             sequenceLanes = new TreeSet();
   private Set             analysisExperimentItems = new TreeSet();
+  private Set             billingItems = new TreeSet();
   private Set             seqLibTreatments = new TreeSet();
   private Set             collaborators = new TreeSet();
   private Set             files = new TreeSet();
@@ -85,7 +86,7 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
   private RequestStatus   requestStatus;
   private Set             chromatograms;
   private Set             plateWells;
-  private Set             topics;    
+  private Set             topics;
   private Integer         idSubmitter;
   private AppUser         submitter;
   private Integer         idIScanChip;
@@ -115,13 +116,13 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
   public void setTopics(Set topics) {
     this.topics = topics;
   }
-
+  
   public Integer getIdProduct() {
-    return idProduct;
+	return idProduct;
   }
-
+  
   public void setIdProduct(Integer idProduct) {
-    this.idProduct = idProduct;
+	this.idProduct = idProduct;
   }
 
   public String getCodeApplication() {
@@ -646,12 +647,12 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
           doneHybCount++;
         } else if (h.getLabeledSampleChannel2() != null && h.getLabeledSampleChannel2().getSample() != null && h.getLabeledSampleChannel2().getSample().getQualBypassed() != null && h.getLabeledSampleChannel2().getSample().getQualBypassed().equals("Y")) {
           doneHybCount++;
-        } 
+        }
       }
 
       if (doneHybCount == this.getHybridizations().size()) {
         isFinished = true;
-      }      
+      }
     }
 
     return isFinished;
@@ -663,7 +664,7 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
     int completedSampleCount = 0;
     for (Iterator i1 = this.getSamples().iterator(); i1.hasNext();) {
       Sample s = (Sample) i1.next();
-      if (s.getQualDate() != null || 
+      if (s.getQualDate() != null ||
           (s.getQualFailed() != null && s.getQualFailed().equalsIgnoreCase( "Y")) ||
           (s.getQualBypassed() != null && s.getQualBypassed().equalsIgnoreCase( "Y"))) {
         completedSampleCount++;
@@ -793,7 +794,6 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
 	  return this.getClass().getName();
   }
 
-
   public Set getSequenceLanes() {
     return sequenceLanes;
   }
@@ -912,7 +912,7 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
       String createDay   = tokens[1];
       String createYear  = tokens[2];
       String sortDate = createYear + createMonth + createDay;
-      String key = createYear + Constants.DOWNLOAD_KEY_SEPARATOR + sortDate + Constants.DOWNLOAD_KEY_SEPARATOR + requestNumber + Constants.DOWNLOAD_KEY_SEPARATOR + resultsDir + Constants.DOWNLOAD_KEY_SEPARATOR + idCoreFacility;     
+      String key = createYear + Constants.DOWNLOAD_KEY_SEPARATOR + sortDate + Constants.DOWNLOAD_KEY_SEPARATOR + requestNumber + Constants.DOWNLOAD_KEY_SEPARATOR + resultsDir + Constants.DOWNLOAD_KEY_SEPARATOR + idCoreFacility;
       return key;
     }
   }
@@ -1143,10 +1143,10 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
       displayName.append(root.getAttributeValue("requestNumber"));
       if (root.getAttributeValue("name") != null && !root.getAttributeValue("name").equals("")) {
         displayName.append(" - ");
-        displayName.append(root.getAttributeValue("name"));                
-      }      
+        displayName.append(root.getAttributeValue("name"));
+      }
       displayName.append(" - ");
-      displayName.append(root.getAttributeValue("slideProductName"));      
+      displayName.append(root.getAttributeValue("slideProductName"));
       displayName.append(" - ");
       displayName.append(root.getAttributeValue("labName"));
       displayName.append(" ");
@@ -1160,7 +1160,7 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
       displayName.append(root.getAttributeValue("requestNumber"));
       if (root.getAttributeValue("name") != null && !root.getAttributeValue("name").equals("")) {
         displayName.append(" - ");
-        displayName.append(root.getAttributeValue("name"));                
+        displayName.append(root.getAttributeValue("name"));
       }
       if (root.getAttributeValue("codeApplication") != null && !root.getAttributeValue("codeApplication").equals("")) {
         displayName.append(" - ");
