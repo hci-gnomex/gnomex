@@ -30,6 +30,7 @@ import javax.servlet.http.HttpSession;
 import org.hibernate.Query;
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
+import org.hibernate.internal.SessionImpl;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
@@ -87,7 +88,7 @@ import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.FileDescriptorUploadParser;
 import hci.gnomex.utility.FreeMarkerConfiguration;
 import hci.gnomex.utility.HibernateSession;
-import hci.gnomex.utility.HibernateUtil;
+//import hci.gnomex.utility.HibernateUtil;
 import hci.gnomex.utility.HybNumberComparator;
 import hci.gnomex.utility.MailUtil;
 import hci.gnomex.utility.MailUtilHelper;
@@ -935,8 +936,10 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         // Use guest session for validating ccNumbers because it has read
         // permissions on BST
         sessGuest = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
-
-        con = HibernateUtil.getConnection(sessGuest);
+        
+    	SessionImpl sessionImpl = (SessionImpl) sessGuest;   	  
+        con =  sessionImpl.connection();   
+        
         stmt = con.createStatement();
         rs = stmt.executeQuery(buf.toString());
         List<String> ccNumbersRetreivedList = new ArrayList<String>();
@@ -1014,7 +1017,10 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     String requestNumber = "";
     String procedure = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityRequestCategoryProperty(requestParser.getRequest().getIdCoreFacility(), requestParser.getRequest().getCodeRequestCategory(), PropertyDictionary.GET_REQUEST_NUMBER_PROCEDURE);
     if (procedure != null && procedure.length() > 0) {
-      Connection con = HibernateUtil.getConnection(sess);
+
+    	SessionImpl sessionImpl = (SessionImpl) sess;   	  
+        Connection con =  sessionImpl.connection();   
+    	
       String queryString = "";
       if (con.getMetaData().getDatabaseProductName().toUpperCase().indexOf(Constants.SQL_SERVER) >= 0) {
         queryString = "exec " + procedure;

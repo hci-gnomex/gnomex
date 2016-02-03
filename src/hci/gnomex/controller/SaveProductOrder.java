@@ -4,7 +4,7 @@ import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.billing.IScanChipPlugin;
 import hci.gnomex.constants.Constants;
-import hci.gnomex.model.AppUser;
+//import hci.gnomex.model.AppUser;
 import hci.gnomex.model.BillingAccount;
 import hci.gnomex.model.BillingItem;
 import hci.gnomex.model.BillingPeriod;
@@ -18,17 +18,17 @@ import hci.gnomex.model.ProductOrder;
 import hci.gnomex.model.ProductOrderStatus;
 import hci.gnomex.model.ProductType;
 import hci.gnomex.model.PropertyDictionary;
-import hci.gnomex.model.RequestCategory;
-import hci.gnomex.model.Sample;
+//import hci.gnomex.model.RequestCategory;
+//import hci.gnomex.model.Sample;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
-import hci.gnomex.utility.HibernateUtil;
+//import hci.gnomex.utility.HibernateUtil;
 import hci.gnomex.utility.MailUtil;
 import hci.gnomex.utility.MailUtilHelper;
 import hci.gnomex.utility.PropertyDictionaryHelper;
-import hci.gnomex.utility.RequisitionFormUtil;
+//import hci.gnomex.utility.RequisitionFormUtil;
 
-import java.io.File;
+//import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.io.StringReader;
@@ -52,33 +52,34 @@ import javax.servlet.http.HttpSession;
 
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
+import org.hibernate.internal.SessionImpl;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.jdom.output.XMLOutputter;
 
-import hci.framework.control.Command;
-import hci.framework.control.RollBackCommandException;
-import hci.gnomex.billing.IScanChipPlugin;
-import hci.gnomex.constants.Constants;
-import hci.gnomex.model.BillingItem;
-import hci.gnomex.model.BillingPeriod;
-import hci.gnomex.model.CoreFacility;
-import hci.gnomex.model.Lab;
-import hci.gnomex.model.Price;
-import hci.gnomex.model.PriceCategory;
-import hci.gnomex.model.Product;
-import hci.gnomex.model.ProductLineItem;
-import hci.gnomex.model.ProductOrder;
-import hci.gnomex.model.ProductType;
-import hci.gnomex.model.PropertyDictionary;
-import hci.gnomex.utility.DictionaryHelper;
-import hci.gnomex.utility.HibernateSession;
-import hci.gnomex.utility.HibernateUtil;
-import hci.gnomex.utility.MailUtil;
-import hci.gnomex.utility.MailUtilHelper;
-import hci.gnomex.utility.PropertyDictionaryHelper;
+//import hci.framework.control.Command;
+//import hci.framework.control.RollBackCommandException;
+//import hci.gnomex.billing.IScanChipPlugin;
+//import hci.gnomex.constants.Constants;
+//import hci.gnomex.model.BillingItem;
+//import hci.gnomex.model.BillingPeriod;
+//import hci.gnomex.model.CoreFacility;
+//import hci.gnomex.model.Lab;
+//import hci.gnomex.model.Price;
+//import hci.gnomex.model.PriceCategory;
+//import hci.gnomex.model.Product;
+//import hci.gnomex.model.ProductLineItem;
+//import hci.gnomex.model.ProductOrder;
+//import hci.gnomex.model.ProductType;
+//import hci.gnomex.model.PropertyDictionary;
+//import hci.gnomex.utility.DictionaryHelper;
+//import hci.gnomex.utility.HibernateSession;
+//import hci.gnomex.utility.HibernateUtil;
+//import hci.gnomex.utility.MailUtil;
+//import hci.gnomex.utility.MailUtilHelper;
+//import hci.gnomex.utility.PropertyDictionaryHelper;
 
 public class SaveProductOrder extends GNomExCommand implements Serializable {
 
@@ -358,7 +359,8 @@ public class SaveProductOrder extends GNomExCommand implements Serializable {
     String poNumber = "";
     String procedure = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(po.getIdCoreFacility(), PropertyDictionary.GET_PO_NUMBER_PROCEDURE);
     if (procedure != null && procedure.length() > 0) {
-      Connection con = HibernateUtil.getConnection(sess);
+      SessionImpl sessionImpl = (SessionImpl) sess;   	  
+      Connection con =  sessionImpl.connection();   
       String queryString = "";
       if (con.getMetaData().getDatabaseProductName().toUpperCase().indexOf(Constants.SQL_SERVER) >= 0) {
         queryString = "exec " + procedure;

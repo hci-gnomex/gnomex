@@ -115,6 +115,8 @@ public class RemoveUserEmails {
       }
 
     }
+    
+    System.exit(0);
 
   }
 

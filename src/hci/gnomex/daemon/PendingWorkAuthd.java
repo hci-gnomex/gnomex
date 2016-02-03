@@ -11,7 +11,7 @@ import hci.gnomex.utility.BatchMailer;
 import hci.gnomex.utility.MailUtil;
 import hci.gnomex.utility.MailUtilHelper;
 import hci.gnomex.utility.PropertyDictionaryHelper;
-import hci.gnomex.utility.HibernateUtil;
+//import hci.gnomex.utility.HibernateUtil;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -36,6 +36,7 @@ import javax.mail.internet.MimeMessage;
 import org.apache.log4j.Level;
 import org.hibernate.Query;
 import org.hibernate.Session;
+import org.hibernate.internal.SessionImpl;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -145,7 +146,9 @@ public class PendingWorkAuthd extends TimerTask {
 
       Connection myConn = null;
       try {
-        myConn = HibernateUtil.getConnection(sess);
+      	SessionImpl sessionImpl = (SessionImpl) sess;   	  
+        myConn = sessionImpl.connection();   
+
         String queryString = "from CoreFacility";
         Query query = sess.createQuery(queryString);
         List coreFacilityList = query.list();
@@ -183,6 +186,9 @@ public class PendingWorkAuthd extends TimerTask {
       System.out.println(e.toString());
       e.printStackTrace();
     }
+    
+    System.out.println ("Exiting...");
+    System.exit(0);
   }
 
   private void mailReminders(Session sess, CoreFacility facility) throws Exception {

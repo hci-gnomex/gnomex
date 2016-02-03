@@ -14,9 +14,9 @@ import java.util.List;
 import java.util.Properties;
 import java.util.UUID;
 
-import javax.mail.MessagingException;
-import javax.mail.internet.AddressException;
-import javax.naming.NamingException;
+//import javax.mail.MessagingException;
+//import javax.mail.internet.AddressException;
+//import javax.naming.NamingException;
 
 import org.hibernate.Session;
 import org.hibernate.Transaction;
@@ -168,6 +168,8 @@ public class VerifyUserEmails {
       }
 
     }
+    
+    System.exit(0);
   }
 
   private void sendCompleteEmail() {

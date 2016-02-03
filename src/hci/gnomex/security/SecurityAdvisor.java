@@ -37,10 +37,9 @@ import hci.gnomex.model.UserPermissionKind;
 import hci.gnomex.model.Visibility;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.Util;
-
 import hci.gnomex.utility.HibernateGuestSession;
 import hci.gnomex.utility.HibernateSession;
-import hci.gnomex.utility.HibernateUtil;
+//import hci.gnomex.utility.HibernateUtil;
 import hci.gnomex.utility.LabComparator;
 import hci.gnomex.utility.PropertyDictionaryHelper;
 
@@ -63,6 +62,7 @@ import javax.naming.NamingException;
 import org.hibernate.Hibernate;
 import org.hibernate.Query;
 import org.hibernate.Session;
+import org.hibernate.internal.SessionImpl;
 
 public class SecurityAdvisor extends DetailObject implements Serializable, hci.framework.security.SecurityAdvisor {
   // Security advisor session variable
@@ -362,7 +362,10 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
       Statement stmt = null;
       ResultSet rs = null;
       Session sess = HibernateGuestSession.currentGuestSession(uid);
-      Connection con = HibernateUtil.getConnection(sess);
+      
+    	SessionImpl sessionImpl = (SessionImpl) sess;   	  
+        Connection con =  sessionImpl.connection();  
+      
       stmt = con.createStatement();
 
       StringBuffer buf = new StringBuffer("SELECT PersonID " + "FROM Administration.dbo.Associate WHERE peopleSoftID = '" + peopleSoftID + "'\n");
@@ -979,7 +982,8 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     Statement stmt = null;
     ResultSet rs = null;
     Session sess = HibernateGuestSession.currentGuestSession(this.getUsername());
-    Connection con = HibernateUtil.getConnection(sess);
+	SessionImpl sessionImpl = (SessionImpl) sess;   	  
+    Connection con =  sessionImpl.connection();   //HibernateUtil.getConnection(sess);
     stmt = con.createStatement();
 
     StringBuffer buf = buildSampleQuery(ccNumbers);

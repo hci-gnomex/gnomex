@@ -94,11 +94,12 @@ public class RegisterFiles extends TimerTask {
   private Boolean sendMail = true;
   private Boolean testingSendMail = false;
   private Boolean debug = false;
+  private Boolean testConnection = false;
 
   private String errorMessageString = "Error in RegisterFiles";
 
-  private String gnomexSupportEmail;
-  private String fromEmailAddress;
+  private String gnomexSupportEmail = "GNomEx.Support@hci.utah.edu";
+  private String fromEmailAddress = "DoNotReply@hci.utah.edu";
 
   private String currentEntityString;
 
@@ -128,6 +129,8 @@ public class RegisterFiles extends TimerTask {
         orionPath = args[++i];
       } else if (args[i].equals("-doNotSendMail")) {
         sendMail = false;
+      } else if (args[i].equals("-testConnection")) {
+          testConnection = true;        
       } else if (args[i].equals("-analysis")) {
         justOne = true;
         analysisId = args[++i];
@@ -216,6 +219,10 @@ public class RegisterFiles extends TimerTask {
       // else if (requestId != null) {
       // app.registerOneExperiment(requestId);
       // }
+      
+      app.disconnect();
+      System.out.println ("Exiting...");
+      System.exit(0);
 
     } catch (Exception e) {
 
@@ -251,6 +258,9 @@ public class RegisterFiles extends TimerTask {
     } finally {
     }
 
+    System.out.println ("Exiting(2)...");
+    System.exit(0);
+    
   }
 
   private void initialize() throws Exception {
@@ -654,6 +664,10 @@ public class RegisterFiles extends TimerTask {
       this.currentEntityString = analysis.getNumber();
 
       System.out.println("\n" + getCurrentDateString() + ":" + analysis.getNumber());
+      
+      if (testConnection) {
+    	  return;
+      }
 
       // Get all of the files from the file system
       Map fileMap = hashFiles(analysis);
@@ -1114,9 +1128,16 @@ public class RegisterFiles extends TimerTask {
 
   private void connect() throws Exception {
     sess = dataSource.connect();
+    if (sess == null) {
+    	System.out.println ("[RegisterFiles] ERROR: Unable to acquire session. Exiting...");
+    	System.exit(1);
+    }
   }
 
   private void disconnect() throws Exception {
+	  if (sess == null) {
+		  return;
+	  }
     sess.close();
   }
 
