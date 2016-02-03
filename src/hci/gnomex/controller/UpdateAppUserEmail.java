@@ -46,7 +46,7 @@ public class UpdateAppUserEmail extends GNomExCommand implements Serializable {
         Boolean badEmail = false;
         String outMsg = "";
 
-        if (!idUser.equals(au.getIdAppUser())) {
+        if (idUser != -1 && !idUser.equals(au.getIdAppUser())) {
           dupEmail = true;
         } else if (!MailUtil.isValidEmail(email)) {
           badEmail = true;
