@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <util:ResizableTitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical" 
-				width="482" height="488" showCloseButton="true" 
+				width="482" height="488" closeable="true"
 				xmlns:util="views.util.*"
 				title="Data Tracks" close="{parentApplication.removeDistributeDataTrackWindow()}">
 	

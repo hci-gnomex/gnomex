@@ -4,7 +4,7 @@
 				layout="vertical" 
 				title="Billing Item Notes to Core" 
 				width="800" 
-				showCloseButton="true" close="mx.managers.PopUpManager.removePopUp(this)"
+				closeable="true" close="mx.managers.PopUpManager.removePopUp(this)"
 				creationComplete="init()"
 				titleIcon="@Embed(source='../../assets/note_edit.png')">
     

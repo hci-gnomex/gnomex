@@ -3,7 +3,7 @@
 				layout="vertical" height="500" width="700"
 				xmlns:views="views.*"
 				xmlns:util="views.util.*" 
-				showCloseButton="true" 
+				closeable="true"
 				close="{closeWindow()}"
 				title="Help Edit" >
 	

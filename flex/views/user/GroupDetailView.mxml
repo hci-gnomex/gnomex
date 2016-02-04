@@ -1547,7 +1547,7 @@
 						<mx:VBox verticalGap="0" height="100%" borderStyle="solid" paddingTop="0" paddingRight="2" paddingLeft="2" paddingBottom="2" cornerRadius="6" width="50%"
 								 visible="{parentApplication.getProperty(parentApplication.PROPERTY_HIDE_INSTITUTIONS) != 'Y'}"
 								 includeInLayout="{parentApplication.getProperty(parentApplication.PROPERTY_HIDE_INSTITUTIONS) != 'Y'}">
-							<mx:HBox horizontalAlign="left" verticalAlign="top" paddingLeft="0" paddingRight="0" paddingTop="0" shadowDirection="0">
+							<mx:HBox horizontalAlign="left" verticalAlign="top" paddingLeft="0" paddingRight="0" paddingTop="0">
 								<mx:Label text="Institutions" styleName="formLabel"/>
 								<mx:LinkButton paddingBottom="0"   id="newProjectButton1" label="Edit..." click="showNewInstitutionWindow()" textDecoration="underline" styleName="formLinkButton" paddingRight="0" paddingTop="0" color="0x0000FF"/>
 							</mx:HBox>	

@@ -4,7 +4,7 @@
 	xmlns:views="views.*"  
 	xmlns:util="views.util.*"  
 	xmlns:search="views.search.*" 
-	showCloseButton="true"
+	closeable="true"
 	close="{PopUpManager.removePopUp(this)}"
 	title="Advanced Search"  defaultButton="{searchButton}"
 	creationPolicy="all" show="init()" 
