@@ -45,6 +45,8 @@
 			// Refresh the data track tree
 			parentApplication.navDataTrackView.refreshDataTrackFilters("0");
 			parentApplication.navDataTrackView.refreshDataTracksAndSelect(itemToSelect);
+			parentApplication.getOrganismList.send();
+			parentApplication.dictionaryManager.reload("hci.gnomex.model.OrganismLite")
 			
 						
 

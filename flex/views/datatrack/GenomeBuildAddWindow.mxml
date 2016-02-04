@@ -58,6 +58,7 @@
 			// Refresh the annotations tree
 			parentApplication.navDataTrackView.refreshDataTrackFilters(organismCombo.selectedItem.@idOrganism);
 			parentApplication.navDataTrackView.refreshDataTracksAndSelect(itemToSelect);
+			parentApplication.dictionaryManager.reload("hci.gnomex.model.GenomeBuildLite");
 			
 				
 		} else if (addGenomeBuild.lastResult.name() == "Error") {
