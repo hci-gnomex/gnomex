@@ -127,6 +127,7 @@ public class ChangePassword extends GNomExCommand implements Serializable {
       Session sess = HibernateSession.currentSession(this.getUsername());
       EncryptionUtility passwordEncrypter = new EncryptionUtility();
       dictionaryHelper = DictionaryHelper.getInstance(sess);
+      PropertyDictionaryHelper pdh = PropertyDictionaryHelper.getInstance(sess);
 
       // First make sure this person is registered by looking them
       // up in the user table
@@ -168,7 +169,7 @@ public class ChangePassword extends GNomExCommand implements Serializable {
         else {
           // Check that the user has an email if we are attempting a reset password
           if (appUser.getEmail() == null || appUser.getEmail().equals("")) {
-            regErrorMsg = "Unable to reset password because the email is not filled in. Please contact GNomEx support.";
+            regErrorMsg = "Your GNomEx account does not have an email address associated with it. Please contact " + pdh.getProperty(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_BUGS) + " for help.";
             this.addInvalidField("Invalid email", regErrorMsg);
           } else {
             UUID uuid = UUID.randomUUID();
@@ -182,27 +183,12 @@ public class ChangePassword extends GNomExCommand implements Serializable {
               sess.update(appUser);
               sess.flush();
 
-              Integer idCoreFacility = null;
-              for (Iterator i = appUser.getLabs().iterator(); i.hasNext();) {
-                Lab l = (Lab) i.next();
-                for (Iterator j = l.getCoreFacilities().iterator(); j.hasNext();) {
-                  CoreFacility facility = (CoreFacility) j.next();
-                  if (idCoreFacility == null) {
-                    idCoreFacility = facility.getIdCoreFacility();
-                  } else if (!idCoreFacility.equals(facility.getIdCoreFacility())) {
-                    idCoreFacility = null;
-                    break;
-                  }
-                }
-              }
-
               // Code for change_password
 
-              PropertyDictionaryHelper pdh = PropertyDictionaryHelper.getInstance(sess);
-              if (idCoreFacility == null) {
-                labContactEmail = pdh.getProperty(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
+              if (pdh.getProperty(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_BUGS) != null) {
+                labContactEmail = pdh.getProperty(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_BUGS);
               } else {
-                labContactEmail = sess.load(CoreFacility.class, idCoreFacility).getContactEmail();
+                labContactEmail = pdh.getProperty(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_BUGS);
               }
 
               sendConfirmationEmail(appUser, uuid.toString());
@@ -264,21 +250,31 @@ public class ChangePassword extends GNomExCommand implements Serializable {
 
   public void sendConfirmationEmail(AppUser appUser, String guid) throws NamingException, MessagingException, IOException {
     StringBuffer content = new StringBuffer();
-    appURL += "/change_password.jsp?guid=" + guid;
 
-    // If they provided their email, give them their user name. It might cause them to remember their password.
-    // Still provide the link just in case
-    if (email != null) {
-      content.append("Your user name is: " + appUser.getUserNameExternal() + "<br><br>");
+    if (appUser.getuNID() != null && !appUser.getuNID().equals("")) {
+      // If they provided their email, give them their user name. It might cause them to remember their password.
+      // Still provide the link just in case
+      if (email != null) {
+        content.append("Your uNID is : " + appUser.getuNID() + "<br><br>");
+      }
+
+      content.append("A change of password has been requested for the gnomex account associated with this email.  ");
+      content.append("However, this account is associated with a University of Utah account.  If you know your CIS credentials please login using those here: <a href=\"" + appURL + "\">" + appURL + "</a>");
+      content.append("<br><br>If you do not recall your CIS credentials you can reset them here: <a href=https://go.utah.edu/cas/login>https://go.utah.edu/cas/login</a><br>");
+
+    } else {
+      appURL += "/change_password.jsp?guid=" + guid;
+
+      // If they provided their email, give them their user name. It might cause them to remember their password.
+      // Still provide the link just in case
+      if (email != null) {
+        content.append("Your user name is: " + appUser.getUserNameExternal() + "<br><br>");
+      }
+
+      content.append("A change of password has been requested for the gnomex account associated with this email.<br>");
+      content.append("Please follow this link to change your password <a href=\"" + appURL + "\">" + appURL + "</a><br>");
+      content.append("This link will expire in 30 minutes.");
     }
-
-    content.append("A change of password has been requested for the gnomex account associated with this email.<br>");
-    content.append("Please follow this link to change your password <a href=\"" + appURL + "\">" + appURL + "</a><br>");
-    content.append("This link will expire in 30 minutes.");
-
-    // content.append("Your GNomEx password has been reset. Your new temporary password is:<br><br>" + guid + "<br><br>");
-    // content.append("Please take a moment to change your temporary password to a new password the next time you log in.<br>");
-    // content.append("<a href=\"" + appURL + "\">" + "Sign in to " + Constants.APP_NAME + "</a>");
 
     MailUtilHelper helper = new MailUtilHelper(appUser.getEmail(), this.labContactEmail, "Reset GNomEx Password", content.toString(), null, true, dictionaryHelper, serverName);
     helper.setRecipientAppUser(appUser);
