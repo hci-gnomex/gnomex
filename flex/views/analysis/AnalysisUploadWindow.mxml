@@ -4,7 +4,7 @@
 				xmlns:util="views.util.*"
 				height="408" creationPolicy="all"
 				creationComplete="centerMe()"
-				showCloseButton="true"
+				closeable="true"
 				close="xClose(event);" 
 				title="{'Upload Files for Analysis ' + this.analysis.@number}"  xmlns:controls="hci.flex.controls.*">
 	

@@ -3,7 +3,7 @@
 						   layout="vertical" width="994" 
 						   xmlns:util="views.util.*"
 						   height="408" creationPolicy="all"
-						   showCloseButton="true"
+						   closeable="true"
 						   close="{mx.managers.PopUpManager.removePopUp(this)}" 
 						   title="Select Files to Download"  xmlns:controls="hci.flex.controls.*">
 	

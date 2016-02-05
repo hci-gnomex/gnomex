@@ -1819,7 +1819,7 @@
 					</mx:Repeater>					
 			</mx:VBox>										
 			<mx:HBox width="100%" horizontalAlign="left" paddingLeft="0" id="hbox9">
-				<mx:VBox id="workflowProgressBox"  verticalGap="0"  cornerRadius="6" borderStyle="solid" paddingLeft="4" paddingRight="4" paddingTop="4" shadowDirection="4">
+				<mx:VBox id="workflowProgressBox"  verticalGap="0"  cornerRadius="6" borderStyle="solid" paddingLeft="4" paddingRight="4" paddingTop="4" shadowDirection="right">
 					<mx:HBox width="100%" >
 						<mx:Text width="90" text="Order Status" styleName="formLabel"  textAlign="left"/>						
 					</mx:HBox>

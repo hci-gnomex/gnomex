@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <util:ResizableTitleWindow
 	xmlns:mx="http://www.adobe.com/2006/mxml"
-	xmlns:hci = "hci.components.*"
 	xmlns:util="views.util.*"
 	layout="vertical"
 	
-	showCloseButton="true"
+	closeable="true"
 	close="onClose()" 
 	
 	creationComplete="initializeData()" 

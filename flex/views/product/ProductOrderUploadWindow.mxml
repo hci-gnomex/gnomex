@@ -3,7 +3,7 @@
 						   layout="vertical" width="1000" 
 						   xmlns:util="views.util.*"
 						   height="408" creationPolicy="all"
-						   showCloseButton="true" creationComplete="centerMe()"
+						   closeable="true" creationComplete="centerMe()"
 						   close="{closeMe()}" 
 						   title="{'Upload Files for Product Order ' + productOrderNumber}"  xmlns:controls="hci.flex.controls.*">
 	
