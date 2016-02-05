@@ -59,15 +59,9 @@
 			private var state:ExperimentPlatformState = null;
 			
 			public var codeRequestCategorySelected:Object = null;
-			
-			[Bindable]
-			public var dictionaryManager:DictionaryManager;
 
 			private function init():void {
 				getExperimentPlatformList.send();
-				
-				dictionaryManager = new DictionaryManager("ManageDictionaries.gx");
-				dictionaryManager.call("load", "");
 			}
 			
 			private function closeWindow():void {
@@ -199,13 +193,10 @@
 				parentApplication.dictionaryManager.reload();
 				// Must reload dictionary manager in case user changed seqlibprotocol.  Need to get platform list
 				// after reload complete so various dropdowns are ok.
-				dictionaryManager.reload();
-				dictionaryManager.addEventListener(DictionaryEvent.DICTIONARY_LOADED, onDictionariesLoadedAfterSave);
 			}
 			
 			public function onDictionariesLoadedAfterSave(event:Event):void {	
 				getExperimentPlatformList.send();
-				dictionaryManager.removeEventListener(DictionaryEvent.DICTIONARY_LOADED, onDictionariesLoadedAfterSave);
 			}		
 			
 			private function addPlatform():void {
@@ -264,7 +255,7 @@
 					
 					codeRequestCategorySelected = platformList.selectedItem.@codeRequestCategory;
 					
-					state = new ExperimentPlatformState(platformList.selectedItem, dirty, dictionaryManager);
+					state = new ExperimentPlatformState(platformList.selectedItem, dirty, parentApplication.dictionaryManager);
 					if (state.isIllumina || state.isNanoString || state.isSequenom) {
 						tabStack.selectedIndex = 1;
 						experimentPlatformIllumina.init(state);
@@ -359,7 +350,7 @@
 	
 	
 	<mx:XMLListCollection id="platforms"  source="{getExperimentPlatformList.lastResult.RequestCategory}"/>
-	<mx:XMLListCollection id="coreFacilities" source="{dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.CoreFacility').DictionaryEntry}"/>
+	<mx:XMLListCollection id="coreFacilities" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.CoreFacility').DictionaryEntry}"/>
 	
 	<mx:VBox height="100%" width="100%" id="mainBody" verticalGap="2">
 		<mx:HBox width="100%" verticalAlign="middle">
