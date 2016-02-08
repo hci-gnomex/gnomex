@@ -190,9 +190,9 @@
 			public function afterSuccessfulSave(savedCodeRequestCategory:String):void {
 				this.enabled = false;
 				codeRequestCategorySelected = savedCodeRequestCategory;
-				parentApplication.dictionaryManager.reload();
 				// Must reload dictionary manager in case user changed seqlibprotocol.  Need to get platform list
 				// after reload complete so various dropdowns are ok.
+				parentApplication.dictionaryManager.reload();
 			}
 			
 			public function onDictionariesLoadedAfterSave(event:Event):void {	

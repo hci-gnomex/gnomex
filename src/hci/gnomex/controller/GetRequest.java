@@ -8,32 +8,7 @@ import hci.framework.model.DetailObject;
 import hci.framework.security.UnknownPermissionException;
 import hci.framework.utilities.XMLReflectException;
 import hci.gnomex.constants.Constants;
-import hci.gnomex.model.AnalysisExperimentItem;
-import hci.gnomex.model.AppUser;
-import hci.gnomex.model.Assay;
-import hci.gnomex.model.BillingItem;
-import hci.gnomex.model.Hybridization;
-import hci.gnomex.model.IScanChip;
-import hci.gnomex.model.LabeledSample;
-import hci.gnomex.model.Plate;
-import hci.gnomex.model.PlateType;
-import hci.gnomex.model.PlateWell;
-import hci.gnomex.model.Primer;
-import hci.gnomex.model.Property;
-import hci.gnomex.model.PropertyDictionary;
-import hci.gnomex.model.PropertyEntry;
-import hci.gnomex.model.PropertyEntryValue;
-import hci.gnomex.model.PropertyOption;
-import hci.gnomex.model.PropertyPlatformApplication;
-import hci.gnomex.model.PropertyType;
-import hci.gnomex.model.Request;
-import hci.gnomex.model.RequestCategory;
-import hci.gnomex.model.RequestCategoryType;
-import hci.gnomex.model.Sample;
-import hci.gnomex.model.SeqLibTreatment;
-import hci.gnomex.model.SequenceLane;
-import hci.gnomex.model.Topic;
-import hci.gnomex.model.Visibility;
+import hci.gnomex.model.*;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.PropertyDictionaryHelper;
@@ -624,7 +599,13 @@ public class GetRequest extends GNomExCommand implements Serializable {
               protocolsNode.addContent(protocolNode);
               protocolNode.setAttribute("idProtocol", s.getIdSeqLibProtocol().toString());
               protocolNode.setAttribute("protocolClassName", "hci.gnomex.model.SeqLibProtocol");
-              protocolNode.setAttribute("name", dh.getSeqLibProtocol(s.getIdSeqLibProtocol()));
+
+              String protocolName = dh.getSeqLibProtocol(s.getIdSeqLibProtocol());
+              if ( protocolName == null ){
+                SeqLibProtocol slp = (SeqLibProtocol) sess.load(SeqLibProtocol.class, s.getIdSeqLibProtocol());
+                protocolName = slp.getDisplay();
+              }
+              protocolNode.setAttribute("name", protocolName != null ? protocolName : "");
               protocolNode.setAttribute("label", isFirst ? "Lib. Prep. Protocols" : "");
 
               String fivePrime = dh.getSeqLibProtocolObject(s.getIdSeqLibProtocol()).getAdapterSequenceFivePrime();
