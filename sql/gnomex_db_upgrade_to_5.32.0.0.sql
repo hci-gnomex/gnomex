@@ -24,7 +24,7 @@ insert into PropertyDictionary (propertyName, propertyValue, propertyDescription
   VALUES('new_request_save_before_submit', 'N', 'Allow users to save a new request and still make changes to the request until they mark the request as submitted.', 'N', NULL, NULL);
 
 -- iobio viewer URL's
-INSERT INTO gnomex.PropertyDictionary (propertyName,propertyValue,propertyDescription, forServerOnly) VALUES
+INSERT INTO PropertyDictionary (propertyName,propertyValue,propertyDescription, forServerOnly) VALUES
  ('bam_iobio_viewer_url','http://bam.iobio.io/?bam=','','N'),
  ('vcf_iobio_viewer_url','http://vcf.iobio.io/?vcf=','','N'),
  ('gene_iobio_viewer_url','http://gene.iobio.io','','N');
