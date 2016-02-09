@@ -36,37 +36,35 @@ import hci.gnomex.model.SeqRunType;
 import hci.gnomex.model.SlideDesign;
 import hci.gnomex.model.SubmissionInstruction;
 
-
-
 public class DictionaryHelper implements Serializable {
   private static DictionaryHelper theInstance;
 
   private PropertyDictionaryHelper propertyDictionaryHelper;
-  private List                                  requestCategoryList      = new ArrayList();
-  private Map                                   requestCategoryMap       = new HashMap();
-  private Map                                   productTypeMap           = new HashMap();
-  private Map                                   oligoBarcodeMap          = new HashMap();
-  private Map                                   submissionInstructionMap = new HashMap();
-  private Map                                   billingPeriodMap         = new HashMap();
-  private Map                                   seqLibTreatmentMap       = new HashMap();
-  private Map                                   slideDesignMap           = new HashMap();
-  private Map                                   propertyDictionaryMap    = new HashMap();
-  private Map									seqLibProtocolsMap		 = new HashMap();
-  private Map<String, RequestCategoryType>      requestCategoryTypeMap   = new HashMap<String, RequestCategoryType>();
-  private List                                  seqRunTypeList           = new ArrayList();
-  private Boolean                               dictionariesLoaded       = false; // Indicates if the non-managed dictionaries have been loaded.
+  private List requestCategoryList = new ArrayList();
+  private Map requestCategoryMap = new HashMap();
+  private Map productTypeMap = new HashMap();
+  private Map oligoBarcodeMap = new HashMap();
+  private Map submissionInstructionMap = new HashMap();
+  private Map billingPeriodMap = new HashMap();
+  private Map seqLibTreatmentMap = new HashMap();
+  private Map slideDesignMap = new HashMap();
+  private Map propertyDictionaryMap = new HashMap();
+  private Map seqLibProtocolsMap = new HashMap();
+  private Map<String, RequestCategoryType> requestCategoryTypeMap = new HashMap<String, RequestCategoryType>();
+  private List seqRunTypeList = new ArrayList();
+  private Boolean dictionariesLoaded = false; // Indicates if the non-managed dictionaries have been loaded.
 
   // For DataTrack functionality
-  private final HashMap<Integer, Property>            propertyMap  = new HashMap<Integer, Property>();
-  private final List<Property>                        propertyList = new ArrayList<Property>();
-  private final HashMap<Integer, Organism>            organismMap  = new HashMap<Integer, Organism>();
-  private final  List<Organism>                       organismList = new ArrayList<Organism>();
-  private final HashMap<Integer, GenomeBuild>         genomeBuildMap  = new HashMap<Integer, GenomeBuild>();
-  private final List<GenomeBuild>                     genomeBuildList = new ArrayList<GenomeBuild>();
-  private final HashMap<Integer, List<GenomeBuild>>   organismToGenomeBuildMap = new HashMap<Integer, List<GenomeBuild>>();
-  private final HashMap<Integer, AppUser>             appUserMap               = new HashMap<Integer, AppUser>();
-  private final HashMap<Integer, Lab>                 labMap  = new HashMap<Integer, Lab>();
-  private final List<Lab>                             labList = new ArrayList<Lab>();
+  private final HashMap<Integer, Property> propertyMap = new HashMap<Integer, Property>();
+  private final List<Property> propertyList = new ArrayList<Property>();
+  private final HashMap<Integer, Organism> organismMap = new HashMap<Integer, Organism>();
+  private final List<Organism> organismList = new ArrayList<Organism>();
+  private final HashMap<Integer, GenomeBuild> genomeBuildMap = new HashMap<Integer, GenomeBuild>();
+  private final List<GenomeBuild> genomeBuildList = new ArrayList<GenomeBuild>();
+  private final HashMap<Integer, List<GenomeBuild>> organismToGenomeBuildMap = new HashMap<Integer, List<GenomeBuild>>();
+  private final HashMap<Integer, AppUser> appUserMap = new HashMap<Integer, AppUser>();
+  private final HashMap<Integer, Lab> labMap = new HashMap<Integer, Lab>();
+  private final List<Lab> labList = new ArrayList<Lab>();
 
   private boolean managedDictionariesLoaded = false;
 
@@ -94,10 +92,7 @@ public class DictionaryHelper implements Serializable {
   }
 
   /**
-   * Only reload the cached dictionaries here, not the dictionary managed
-   * dictionaries.  we need this special reload for web apps outside
-   * of gnomex (das2) so that they can get a fresh copy of dictionaries
-   * like organism and genome build.
+   * Only reload the cached dictionaries here, not the dictionary managed dictionaries. we need this special reload for web apps outside of gnomex (das2) so that they can get a fresh copy of dictionaries like organism and genome build.
    */
   public static synchronized DictionaryHelper reloadLimited(Session sess) {
     theInstance = new DictionaryHelper();
@@ -106,9 +101,9 @@ public class DictionaryHelper implements Serializable {
     return theInstance;
   }
 
-  private void lazyLoadManagedDictionaries(){
+  private void lazyLoadManagedDictionaries() {
     if (!managedDictionariesLoaded) {
-      synchronized(this) {
+      synchronized (this) {
         if (!managedDictionariesLoaded) {
           loadManagedDictionaries();
         }
@@ -116,17 +111,15 @@ public class DictionaryHelper implements Serializable {
     }
   }
 
-
-  private void loadDictionaries(Session sess)  {
+  private void loadDictionaries(Session sess) {
 
     propertyDictionaryHelper = PropertyDictionaryHelper.getInstance(sess);
-
 
     StringBuffer queryBuf = new StringBuffer();
     queryBuf.append("SELECT p from Property as p order by case when sortOrder is null then 999999 else sortOrder end, p.name");
     List properties = sess.createQuery(queryBuf.toString()).list();
     for (Iterator i = properties.iterator(); i.hasNext();) {
-      Property prop = (Property)i.next();
+      Property prop = (Property) i.next();
       try {
         Hibernate.initialize(prop.getOptions());
       } catch (HibernateException e) {
@@ -162,13 +155,11 @@ public class DictionaryHelper implements Serializable {
       labList.add(l);
     }
 
-
-
     queryBuf = new StringBuffer();
     queryBuf.append("SELECT au from AppUser as au ");
     List appUsers = sess.createQuery(queryBuf.toString()).list();
     for (Iterator i = appUsers.iterator(); i.hasNext();) {
-      AppUser appUser = (AppUser)i.next();
+      AppUser appUser = (AppUser) i.next();
       appUserMap.put(appUser.getIdAppUser(), appUser);
 
     }
@@ -187,7 +178,7 @@ public class DictionaryHelper implements Serializable {
       if (de instanceof NullDictionaryEntry) {
         continue;
       }
-      RequestCategory rc = (RequestCategory)de;
+      RequestCategory rc = (RequestCategory) de;
       requestCategoryList.add(rc);
       requestCategoryMap.put(rc.getCodeRequestCategory(), rc);
     }
@@ -196,7 +187,7 @@ public class DictionaryHelper implements Serializable {
       if (de instanceof NullDictionaryEntry) {
         continue;
       }
-      ProductType pt = (ProductType)de;
+      ProductType pt = (ProductType) de;
       productTypeMap.put(pt.getIdProductType(), pt);
     }
     seqRunTypeList = new ArrayList();
@@ -205,7 +196,7 @@ public class DictionaryHelper implements Serializable {
       if (de instanceof NullDictionaryEntry) {
         continue;
       }
-      SeqRunType srt = (SeqRunType)de;
+      SeqRunType srt = (SeqRunType) de;
       seqRunTypeList.add(srt);
     }
     for (Iterator i = DictionaryManager.getDictionaryEntries("hci.gnomex.model.OligoBarcode").iterator(); i.hasNext();) {
@@ -213,7 +204,7 @@ public class DictionaryHelper implements Serializable {
       if (de instanceof NullDictionaryEntry) {
         continue;
       }
-      OligoBarcode ob = (OligoBarcode)de;
+      OligoBarcode ob = (OligoBarcode) de;
       oligoBarcodeMap.put(ob.getIdOligoBarcode(), ob);
     }
     for (Iterator i = DictionaryManager.getDictionaryEntries("hci.gnomex.model.SubmissionInstruction").iterator(); i.hasNext();) {
@@ -221,7 +212,7 @@ public class DictionaryHelper implements Serializable {
       if (de instanceof NullDictionaryEntry) {
         continue;
       }
-      SubmissionInstruction si = (SubmissionInstruction)de;
+      SubmissionInstruction si = (SubmissionInstruction) de;
       submissionInstructionMap.put(si.getIdSubmissionInstruction(), si);
     }
     for (Iterator i = DictionaryManager.getDictionaryEntries("hci.gnomex.model.BillingPeriod").iterator(); i.hasNext();) {
@@ -229,7 +220,7 @@ public class DictionaryHelper implements Serializable {
       if (de instanceof NullDictionaryEntry) {
         continue;
       }
-      BillingPeriod bp = (BillingPeriod)de;
+      BillingPeriod bp = (BillingPeriod) de;
       billingPeriodMap.put(bp.getIdBillingPeriod(), bp);
     }
     for (Iterator i = DictionaryManager.getDictionaryEntries("hci.gnomex.model.SeqLibTreatment").iterator(); i.hasNext();) {
@@ -237,7 +228,7 @@ public class DictionaryHelper implements Serializable {
       if (de instanceof NullDictionaryEntry) {
         continue;
       }
-      SeqLibTreatment st = (SeqLibTreatment)de;
+      SeqLibTreatment st = (SeqLibTreatment) de;
       seqLibTreatmentMap.put(st.getIdSeqLibTreatment(), st);
     }
 
@@ -246,25 +237,25 @@ public class DictionaryHelper implements Serializable {
       if (de instanceof NullDictionaryEntry) {
         continue;
       }
-      SeqLibProtocol sp = (SeqLibProtocol)de;
+      SeqLibProtocol sp = (SeqLibProtocol) de;
       seqLibProtocolsMap.put(sp.getIdSeqLibProtocol(), sp);
     }
 
-    for(Iterator i = DictionaryManager.getDictionaryEntries("hci.gnomex.model.SlideDesign").iterator(); i.hasNext();) {
+    for (Iterator i = DictionaryManager.getDictionaryEntries("hci.gnomex.model.SlideDesign").iterator(); i.hasNext();) {
       Object de = i.next();
       if (de instanceof NullDictionaryEntry) {
         continue;
       }
-      SlideDesign sd = (SlideDesign)de;
+      SlideDesign sd = (SlideDesign) de;
       slideDesignMap.put(sd.getIdSlideDesign(), sd);
     }
 
-    for(Iterator i = DictionaryManager.getDictionaryEntries("hci.gnomex.model.RequestCategoryType").iterator(); i.hasNext();) {
+    for (Iterator i = DictionaryManager.getDictionaryEntries("hci.gnomex.model.RequestCategoryType").iterator(); i.hasNext();) {
       Object de = i.next();
       if (de instanceof NullDictionaryEntry) {
         continue;
       }
-      RequestCategoryType type = (RequestCategoryType)de;
+      RequestCategoryType type = (RequestCategoryType) de;
       this.requestCategoryTypeMap.put(type.getCodeRequestCategoryType(), type);
     }
 
@@ -272,7 +263,7 @@ public class DictionaryHelper implements Serializable {
   }
 
   public Property getPropertyDictionary(Integer idProperty) {
-    return (Property)propertyDictionaryMap.get(idProperty);
+    return (Property) propertyDictionaryMap.get(idProperty);
   }
 
   public String getCodeStepName(String abbr) {
@@ -305,6 +296,7 @@ public class DictionaryHelper implements Serializable {
     }
     return name;
   }
+
   public String getReactionType(String codeReactionType) {
     lazyLoadManagedDictionaries();
     String name = "";
@@ -313,6 +305,7 @@ public class DictionaryHelper implements Serializable {
     }
     return name;
   }
+
   public String getSealType(String codeSealType) {
     lazyLoadManagedDictionaries();
     String name = "";
@@ -321,6 +314,7 @@ public class DictionaryHelper implements Serializable {
     }
     return name;
   }
+
   public String getInstrumentRunStatus(String codeInstrumentRunStatus) {
     lazyLoadManagedDictionaries();
     String name = "";
@@ -329,6 +323,7 @@ public class DictionaryHelper implements Serializable {
     }
     return name;
   }
+
   public String getRequestStatus(String codeRequestStatus) {
     lazyLoadManagedDictionaries();
     String name = "";
@@ -337,6 +332,7 @@ public class DictionaryHelper implements Serializable {
     }
     return name;
   }
+
   public String getSampleType(Sample sample) {
     lazyLoadManagedDictionaries();
     String name = "";
@@ -345,6 +341,7 @@ public class DictionaryHelper implements Serializable {
     }
     return name;
   }
+
   public String getOrganism(Sample sample) {
     lazyLoadManagedDictionaries();
     String name = "";
@@ -353,6 +350,7 @@ public class DictionaryHelper implements Serializable {
     }
     return name;
   }
+
   public String getOrganism(Integer idOrganism) {
     lazyLoadManagedDictionaries();
     String name = "";
@@ -361,6 +359,7 @@ public class DictionaryHelper implements Serializable {
     }
     return name;
   }
+
   public String getVisibility(String codeVisibility) {
     lazyLoadManagedDictionaries();
     String name = "";
@@ -369,6 +368,7 @@ public class DictionaryHelper implements Serializable {
     }
     return name;
   }
+
   public String getSampleSource(Integer idSampleSource) {
     lazyLoadManagedDictionaries();
     String name = "";
@@ -377,6 +377,7 @@ public class DictionaryHelper implements Serializable {
     }
     return name;
   }
+
   public String getSampleDropOffLocation(Integer idSampleDropOffLocation) {
     lazyLoadManagedDictionaries();
     String name = "";
@@ -385,6 +386,7 @@ public class DictionaryHelper implements Serializable {
     }
     return name;
   }
+
   public String getSampleType(Integer idSampleType) {
     lazyLoadManagedDictionaries();
     String name = "";
@@ -393,30 +395,34 @@ public class DictionaryHelper implements Serializable {
     }
     return name;
   }
+
   public String getSequencingPlatform(String codeSequencingPlatform) {
     lazyLoadManagedDictionaries();
     String name = "";
     name = DictionaryManager.getDisplay("hci.gnomex.model.SequencingPlatform", codeSequencingPlatform);
     return name;
   }
+
   public String getSlideDesignName(Integer idSlideDesign) {
     String name = "";
     if (idSlideDesign != null) {
-      SlideDesign sd = (SlideDesign)slideDesignMap.get(idSlideDesign);
+      SlideDesign sd = (SlideDesign) slideDesignMap.get(idSlideDesign);
       if (sd != null) {
         name = sd.getName();
       }
     }
     return name;
   }
+
   public String getSlideSource(String code) {
     lazyLoadManagedDictionaries();
     return DictionaryManager.getDisplay("hci.gnomex.model.SlideSource", code);
   }
+
   public String getSlideDesignProtocolName(Integer idSlideDesign) {
     String name = "";
     if (idSlideDesign != null) {
-      SlideDesign sd = (SlideDesign)slideDesignMap.get(idSlideDesign);
+      SlideDesign sd = (SlideDesign) slideDesignMap.get(idSlideDesign);
       if (sd != null) {
         name = sd.getSlideDesignProtocolName();
       }
@@ -435,13 +441,13 @@ public class DictionaryHelper implements Serializable {
 
   public String getBioanalyzerCodeApplication(String codeBioanalyzerChipType) {
     String codeApplication = null;
-    // Find the core facility for DNA Sequencing.  If we can't find it, throw an error.
+    // Find the core facility for DNA Sequencing. If we can't find it, throw an error.
     for (Iterator i = DictionaryManager.getDictionaryEntries("hci.gnomex.model.BioanalyzerChipType").iterator(); i.hasNext();) {
-      DictionaryEntry de = (DictionaryEntry)i.next();
+      DictionaryEntry de = (DictionaryEntry) i.next();
       if (de instanceof NullDictionaryEntry) {
         continue;
       }
-      BioanalyzerChipType chip = (BioanalyzerChipType)de;
+      BioanalyzerChipType chip = (BioanalyzerChipType) de;
       if (chip.getCodeBioanalyzerChipType().equals(codeBioanalyzerChipType)) {
         codeApplication = chip.getCodeApplication();
         break;
@@ -467,7 +473,7 @@ public class DictionaryHelper implements Serializable {
   public List<RequestCategory> getClinicResearchRequestCategoryList() {
     lazyLoadManagedDictionaries();
     List<RequestCategory> list = new ArrayList<RequestCategory>();
-    for(RequestCategory cat : (List<RequestCategory>)requestCategoryList) {
+    for (RequestCategory cat : (List<RequestCategory>) requestCategoryList) {
       if (cat != null && cat.getIsClinicalResearch() != null && cat.getIsClinicalResearch().equals("Y")) {
         list.add(cat);
       }
@@ -494,12 +500,14 @@ public class DictionaryHelper implements Serializable {
       return null;
     }
     lazyLoadManagedDictionaries();
-    return (RequestCategory)requestCategoryMap.get(code);
+    return (RequestCategory) requestCategoryMap.get(code);
   }
+
   public ProductType getProductTypeObject(Integer id) {
     lazyLoadManagedDictionaries();
-    return (ProductType)productTypeMap.get(id);
+    return (ProductType) productTypeMap.get(id);
   }
+
   public String getSeqRunType(Integer id) {
     lazyLoadManagedDictionaries();
     String name = "";
@@ -508,6 +516,7 @@ public class DictionaryHelper implements Serializable {
     }
     return name;
   }
+
   public String getNumberSequencingCycles(Integer id) {
     lazyLoadManagedDictionaries();
     String name = "";
@@ -516,6 +525,7 @@ public class DictionaryHelper implements Serializable {
     }
     return name;
   }
+
   public String getNumberSequencingCyclesAllowed(Integer id) {
     lazyLoadManagedDictionaries();
     String name = "";
@@ -533,6 +543,7 @@ public class DictionaryHelper implements Serializable {
     }
     return name;
   }
+
   public String getLabel(Integer id) {
     lazyLoadManagedDictionaries();
     String name = "";
@@ -541,6 +552,7 @@ public class DictionaryHelper implements Serializable {
     }
     return name;
   }
+
   public String getAnalysisType(Integer id) {
     lazyLoadManagedDictionaries();
     String name = "";
@@ -549,6 +561,7 @@ public class DictionaryHelper implements Serializable {
     }
     return name;
   }
+
   public String getAnalysisProtocol(Integer id) {
     lazyLoadManagedDictionaries();
     String name = "";
@@ -557,6 +570,7 @@ public class DictionaryHelper implements Serializable {
     }
     return name;
   }
+
   public String getLabelingProtocol(Integer id) {
     lazyLoadManagedDictionaries();
     String name = "";
@@ -565,6 +579,7 @@ public class DictionaryHelper implements Serializable {
     }
     return name;
   }
+
   public String getHybProtocol(Integer id) {
     lazyLoadManagedDictionaries();
     String name = "";
@@ -573,6 +588,7 @@ public class DictionaryHelper implements Serializable {
     }
     return name;
   }
+
   public String getScanProtocol(Integer id) {
     lazyLoadManagedDictionaries();
     String name = "";
@@ -581,6 +597,7 @@ public class DictionaryHelper implements Serializable {
     }
     return name;
   }
+
   public String getFeatureExtractionProtocol(Integer id) {
     lazyLoadManagedDictionaries();
     String name = "";
@@ -589,6 +606,7 @@ public class DictionaryHelper implements Serializable {
     }
     return name;
   }
+
   public String getSeqLibProtocol(Integer id) {
     lazyLoadManagedDictionaries();
     String name = "";
@@ -597,6 +615,7 @@ public class DictionaryHelper implements Serializable {
     }
     return name;
   }
+
   public String getBioanalyzerChipType(String code) {
     lazyLoadManagedDictionaries();
     String name = "";
@@ -605,6 +624,7 @@ public class DictionaryHelper implements Serializable {
     }
     return name;
   }
+
   public String getIlluminaSequencingProtocol(Integer id) {
     lazyLoadManagedDictionaries();
     String name = "";
@@ -613,10 +633,11 @@ public class DictionaryHelper implements Serializable {
     }
     return name;
   }
+
   public SeqLibTreatment getSeqLibTreatment(Integer id) {
     lazyLoadManagedDictionaries();
     if (id != null) {
-      SeqLibTreatment t = (SeqLibTreatment)seqLibTreatmentMap.get(id);
+      SeqLibTreatment t = (SeqLibTreatment) seqLibTreatmentMap.get(id);
       return t;
     }
     return null;
@@ -625,7 +646,7 @@ public class DictionaryHelper implements Serializable {
   public SeqLibProtocol getSeqLibProtocolObject(Integer id) {
     lazyLoadManagedDictionaries();
     if (id != null) {
-      SeqLibProtocol sp = (SeqLibProtocol)seqLibProtocolsMap.get(id);
+      SeqLibProtocol sp = (SeqLibProtocol) seqLibProtocolsMap.get(id);
       return sp;
     }
     return null;
@@ -635,6 +656,7 @@ public class DictionaryHelper implements Serializable {
     lazyLoadManagedDictionaries();
     return DictionaryManager.getDictionaryEntries("hci.gnomex.model.SeqLibTreatment");
   }
+
   public String getBillingStatus(String codeBillingStatus) {
     lazyLoadManagedDictionaries();
     String billingStatus = "";
@@ -643,6 +665,7 @@ public class DictionaryHelper implements Serializable {
     }
     return billingStatus;
   }
+
   public String getBillingChargeKind(String codeBillingChargeKind) {
     lazyLoadManagedDictionaries();
     String billingChargeKind = "";
@@ -656,7 +679,7 @@ public class DictionaryHelper implements Serializable {
     lazyLoadManagedDictionaries();
     BillingPeriod billingPeriod = null;
     if (idBillingPeriod != null) {
-      BillingPeriod bp = (BillingPeriod)billingPeriodMap.get(idBillingPeriod);
+      BillingPeriod bp = (BillingPeriod) billingPeriodMap.get(idBillingPeriod);
       if (bp != null) {
         billingPeriod = bp;
       }
@@ -667,9 +690,9 @@ public class DictionaryHelper implements Serializable {
   public BillingPeriod getCurrentBillingPeriod() {
     lazyLoadManagedDictionaries();
     BillingPeriod billingPeriod = null;
-    for(Iterator i = billingPeriodMap.keySet().iterator(); i.hasNext();) {
-      Integer id = (Integer)i.next();
-      BillingPeriod bp = (BillingPeriod)billingPeriodMap.get(id);
+    for (Iterator i = billingPeriodMap.keySet().iterator(); i.hasNext();) {
+      Integer id = (Integer) i.next();
+      BillingPeriod bp = (BillingPeriod) billingPeriodMap.get(id);
       if (bp.getIsCurrentPeriod().equals("Y")) {
         billingPeriod = bp;
         break;
@@ -677,6 +700,7 @@ public class DictionaryHelper implements Serializable {
     }
     return billingPeriod;
   }
+
   public String getInstrument(Integer id) {
     lazyLoadManagedDictionaries();
     String name = "";
@@ -686,7 +710,6 @@ public class DictionaryHelper implements Serializable {
     return name;
   }
 
-
   public List<Organism> getOrganisms() {
     return this.organismList;
   }
@@ -695,10 +718,10 @@ public class DictionaryHelper implements Serializable {
     return this.organismToGenomeBuildMap.get(idOrganism);
   }
 
-
   public GenomeBuild getGenomeBuildObject(Integer idGenomeBuild) {
     return genomeBuildMap.get(idGenomeBuild);
   }
+
   public String getOrganismName(GenomeBuild genomeBuild) {
     if (genomeBuild != null && genomeBuild.getIdOrganism() != null) {
       Organism organism = organismMap.get(genomeBuild.getIdOrganism());
@@ -711,6 +734,7 @@ public class DictionaryHelper implements Serializable {
       return "";
     }
   }
+
   public String getOrganismBinomialName(Integer idOrganism) {
     Organism organism = organismMap.get(idOrganism);
     if (organism != null) {
@@ -719,6 +743,7 @@ public class DictionaryHelper implements Serializable {
       return "";
     }
   }
+
   public String getOrganismBinomialName(GenomeBuild genomeBuild) {
     if (genomeBuild != null && genomeBuild.getIdOrganism() != null) {
       Organism organism = organismMap.get(genomeBuild.getIdOrganism());
@@ -731,6 +756,7 @@ public class DictionaryHelper implements Serializable {
       return "";
     }
   }
+
   public String getGenomeBuildName(Integer idGenomeBuild) {
     GenomeBuild genomeBuild = genomeBuildMap.get(idGenomeBuild);
     if (genomeBuild != null) {
@@ -757,19 +783,20 @@ public class DictionaryHelper implements Serializable {
     lazyLoadManagedDictionaries();
     String barcodeSequence = null;
     if (idOligoBarcode != null) {
-      OligoBarcode bc = (OligoBarcode)oligoBarcodeMap.get(idOligoBarcode);
+      OligoBarcode bc = (OligoBarcode) oligoBarcodeMap.get(idOligoBarcode);
       if (bc != null) {
         barcodeSequence = bc.getBarcodeSequence();
       }
     }
     return barcodeSequence;
   }
+
   public List<Property> getPropertyList() {
     return propertyList;
   }
 
   public Property getPropertyByNameAndCore(String name, Integer idCoreFacility) {
-    for(Property p : propertyList) {
+    for (Property p : propertyList) {
       if (p.getName().equals(name) && p.getIdCoreFacility().equals(idCoreFacility)) {
         return p;
       }
@@ -786,7 +813,6 @@ public class DictionaryHelper implements Serializable {
     return propertyMap;
   }
 
-
   public String getPropertyDictionary(String name) {
     return propertyDictionaryHelper.getProperty(name);
   }
@@ -797,13 +823,13 @@ public class DictionaryHelper implements Serializable {
 
   public static Integer getIdCoreFacilityDNASeq() {
     Integer idCoreFacility = null;
-    // Find the core facility for DNA Sequencing.  If we can't find it, throw an error.
+    // Find the core facility for DNA Sequencing. If we can't find it, throw an error.
     for (Iterator i = DictionaryManager.getDictionaryEntries("hci.gnomex.model.CoreFacility").iterator(); i.hasNext();) {
-      DictionaryEntry de = (DictionaryEntry)i.next();
+      DictionaryEntry de = (DictionaryEntry) i.next();
       if (de instanceof NullDictionaryEntry) {
         continue;
       }
-      CoreFacility cf = (CoreFacility)de;
+      CoreFacility cf = (CoreFacility) de;
       if (cf.getFacilityName().equals(CoreFacility.CORE_FACILITY_DNA_SEQ)) {
         idCoreFacility = cf.getIdCoreFacility();
         break;
@@ -820,13 +846,13 @@ public class DictionaryHelper implements Serializable {
 
   public Application getApplicationObject(String code) {
     Application app = null;
-    // Find the core facility for DNA Sequencing.  If we can't find it, throw an error.
+    // Find the core facility for DNA Sequencing. If we can't find it, throw an error.
     for (Iterator i = DictionaryManager.getDictionaryEntries("hci.gnomex.model.Application").iterator(); i.hasNext();) {
-      DictionaryEntry de = (DictionaryEntry)i.next();
+      DictionaryEntry de = (DictionaryEntry) i.next();
       if (de instanceof NullDictionaryEntry) {
         continue;
       }
-      Application a = (Application)de;
+      Application a = (Application) de;
       if (a.getCodeApplication().equals(code)) {
         app = a;
         break;

@@ -19,19 +19,16 @@ import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
 
-
 public class GetGenomeIndexList extends GNomExCommand implements Serializable {
-  
+
   // the static field for logging in Log4J
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetGenomeIndexList.class);
 
-  
   public void validate() {
   }
-  
+
   public void loadCommand(HttpServletRequest request, HttpSession session) {
 
-    
     if (isValid()) {
       setResponsePage(this.SUCCESS_JSP);
     } else {
@@ -46,14 +43,12 @@ public class GetGenomeIndexList extends GNomExCommand implements Serializable {
 
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
 
-      //DictionaryManager dictionaryManager = DictionaryManager.getDictionaryManager(ManageDictionaries.DICTIONARY_NAMES_XML, sess, this, true);
-
       Document doc = new Document(new Element("GenomeIndexList"));
 
       List genomeIndexList = sess.createQuery("SELECT genomeIndex from GenomeIndex genomeIndex order by genomeIndex.genomeIndexName").list();
 
-      for(Iterator i = genomeIndexList.iterator(); i.hasNext();) {
-        GenomeIndex gnIdx = (GenomeIndex)i.next();
+      for (Iterator i = genomeIndexList.iterator(); i.hasNext();) {
+        GenomeIndex gnIdx = (GenomeIndex) i.next();
         this.getSecAdvisor().flagPermissions(gnIdx);
         Element node = gnIdx.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
         doc.getRootElement().addContent(node);
@@ -63,16 +58,16 @@ public class GetGenomeIndexList extends GNomExCommand implements Serializable {
       this.xmlResult = out.outputString(doc);
 
       setResponsePage(this.SUCCESS_JSP);
-    }catch (NamingException e){
+    } catch (NamingException e) {
       log.error("An exception has occurred in GetGenomeIndexList ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
-        
-    }catch (SQLException e) {
+
+    } catch (SQLException e) {
       log.error("An exception has occurred in GetGenomeIndexList ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
-    } catch (XMLReflectException e){
+    } catch (XMLReflectException e) {
       log.error("An exception has occurred in GetGenomeIndexList ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
@@ -82,9 +77,9 @@ public class GetGenomeIndexList extends GNomExCommand implements Serializable {
       throw new RollBackCommandException(e.getMessage());
     } finally {
       try {
-        this.getSecAdvisor().closeReadOnlyHibernateSession();        
-      } catch(Exception e) {
-        
+        this.getSecAdvisor().closeReadOnlyHibernateSession();
+      } catch (Exception e) {
+
       }
     }
 
@@ -93,7 +88,7 @@ public class GetGenomeIndexList extends GNomExCommand implements Serializable {
     } else {
       setResponsePage(this.ERROR_JSP);
     }
-    
+
     return this;
   }
 

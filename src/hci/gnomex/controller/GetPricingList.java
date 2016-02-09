@@ -11,6 +11,7 @@ import hci.gnomex.model.PriceCriteria;
 import hci.gnomex.model.PriceSheet;
 import hci.gnomex.model.PriceSheetPriceCategory;
 import hci.gnomex.security.SecurityAdvisor;
+import hci.gnomex.utility.DictionaryHelper;
 
 import java.io.Serializable;
 import java.sql.SQLException;
@@ -26,7 +27,6 @@ import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
 
-
 public class GetPricingList extends GNomExCommand implements Serializable {
 
   private String showInactive = "N";
@@ -36,7 +36,6 @@ public class GetPricingList extends GNomExCommand implements Serializable {
 
   // the static field for logging in Log4J
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetPricingList.class);
-
 
   public void validate() {
   }
@@ -58,7 +57,7 @@ public class GetPricingList extends GNomExCommand implements Serializable {
     if (request.getParameter("idCoreFacility") != null) {
       idCoreFacility = request.getParameter("idCoreFacility");
     }
-    
+
     if (isValid()) {
       setResponsePage(this.SUCCESS_JSP);
     } else {
@@ -74,8 +73,6 @@ public class GetPricingList extends GNomExCommand implements Serializable {
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
 
       if (this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_MANAGE_BILLING)) {
-
-        DictionaryManager dictionaryManager = DictionaryManager.getDictionaryManager(ManageDictionaries.DICTIONARY_NAMES_XML, sess, this, true);
 
         Document doc = new Document(new Element("Pricing"));
 
@@ -94,8 +91,8 @@ public class GetPricingList extends GNomExCommand implements Serializable {
         buf.append("order by p.name");
         List priceSheets = sess.createQuery(buf.toString()).list();
 
-        for(Iterator i = priceSheets.iterator(); i.hasNext();) {
-          PriceSheet priceSheet = (PriceSheet)i.next();
+        for (Iterator i = priceSheets.iterator(); i.hasNext();) {
+          PriceSheet priceSheet = (PriceSheet) i.next();
 
           if (showInactive.equals("N")) {
             if (priceSheet.getIsActive() != null && priceSheet.getIsActive().equals("N")) {
@@ -109,11 +106,10 @@ public class GetPricingList extends GNomExCommand implements Serializable {
           Element priceSheetNode = priceSheet.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
           doc.getRootElement().addContent(priceSheetNode);
 
-
           Set categories = priceSheet.getPriceCategories();
           if (categories != null) {
-            for(Iterator i1 = categories.iterator(); i1.hasNext();) {
-              PriceSheetPriceCategory x = (PriceSheetPriceCategory)i1.next();
+            for (Iterator i1 = categories.iterator(); i1.hasNext();) {
+              PriceSheetPriceCategory x = (PriceSheetPriceCategory) i1.next();
               PriceCategory priceCat = x.getPriceCategory();
 
               if (showInactive.equals("N")) {
@@ -131,8 +127,8 @@ public class GetPricingList extends GNomExCommand implements Serializable {
               Set prices = priceCat.getPrices();
 
               if (prices != null && showPrices.equals("Y")) {
-                for(Iterator i2 = prices.iterator(); i2.hasNext();) {
-                  Price price = (Price)i2.next();
+                for (Iterator i2 = prices.iterator(); i2.hasNext();) {
+                  Price price = (Price) i2.next();
 
                   price.excludeMethodFromXML("getPriceCriterias");
 
@@ -140,26 +136,26 @@ public class GetPricingList extends GNomExCommand implements Serializable {
                   if (showInactive.equals("N")) {
                     if (price.getIsActive() != null && price.getIsActive().equals("N")) {
                       continue;
-                    }                                           
+                    }
                   }
 
                   Element priceNode = price.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
                   priceNode.setAttribute("category", categoryNode.getAttributeValue("description"));
                   priceNode.setAttribute("codeBillingChargeKind", categoryNode.getAttributeValue("codeBillingChargeKind"));
-                  categoryNode.addContent(priceNode);                                              
+                  categoryNode.addContent(priceNode);
 
                   if (showPriceCriteria.equals("Y")) {
-                    for(Iterator i3 = price.getPriceCriterias().iterator(); i3.hasNext();) {
-                      PriceCriteria priceCriteria = (PriceCriteria)i3.next();
+                    for (Iterator i3 = price.getPriceCriterias().iterator(); i3.hasNext();) {
+                      PriceCriteria priceCriteria = (PriceCriteria) i3.next();
 
                       Element priceCriteriaNode = priceCriteria.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
 
                       String label = "";
                       if (priceCat.getDictionaryClassNameFilter1() != null && !priceCat.getDictionaryClassNameFilter1().equals("")) {
-                        label = dictionaryManager.getDisplayByValue(priceCat.getDictionaryClassNameFilter1(), priceCriteria.getFilter1());                        
+                        label = DictionaryManager.getDisplay(priceCat.getDictionaryClassNameFilter1(), priceCriteria.getFilter1());
                       }
                       if (priceCat.getDictionaryClassNameFilter1() != null && !priceCat.getDictionaryClassNameFilter1().equals("")) {
-                        label += " " + dictionaryManager.getDisplayByValue(priceCat.getDictionaryClassNameFilter2(), priceCriteria.getFilter2());
+                        label += " " + DictionaryManager.getDisplay(priceCat.getDictionaryClassNameFilter2(), priceCriteria.getFilter2());
                       }
                       priceCriteriaNode.setAttribute("display", label);
                       priceNode.addContent(priceCriteriaNode);
@@ -182,16 +178,16 @@ public class GetPricingList extends GNomExCommand implements Serializable {
       } else {
         this.addInvalidField("insufficient permission", "Insufficient permission to access pricing");
       }
-    }catch (NamingException e){
+    } catch (NamingException e) {
       log.error("An exception has occurred in GetPricingList ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
 
-    }catch (SQLException e) {
+    } catch (SQLException e) {
       log.error("An exception has occurred in GetPricingList ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
-    } catch (XMLReflectException e){
+    } catch (XMLReflectException e) {
       log.error("An exception has occurred in GetPricingList ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
@@ -201,8 +197,8 @@ public class GetPricingList extends GNomExCommand implements Serializable {
       throw new RollBackCommandException(e.getMessage());
     } finally {
       try {
-        this.getSecAdvisor().closeReadOnlyHibernateSession();        
-      } catch(Exception e) {
+        this.getSecAdvisor().closeReadOnlyHibernateSession();
+      } catch (Exception e) {
 
       }
     }

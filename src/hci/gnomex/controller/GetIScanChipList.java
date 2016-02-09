@@ -20,19 +20,16 @@ import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
 
-
 public class GetIScanChipList extends GNomExCommand implements Serializable {
-  
+
   // the static field for logging in Log4J
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetIScanChipList.class);
 
-  
   public void validate() {
   }
-  
+
   public void loadCommand(HttpServletRequest request, HttpSession session) {
 
-    
     if (isValid()) {
       setResponsePage(this.SUCCESS_JSP);
     } else {
@@ -47,20 +44,16 @@ public class GetIScanChipList extends GNomExCommand implements Serializable {
 
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
 
-
-
-      DictionaryManager dictionaryManager = DictionaryManager.getDictionaryManager(ManageDictionaries.DICTIONARY_NAMES_XML, sess, this, true);
-
       Document doc = new Document(new Element("IScanChipList"));
-      
+
       List iScanChips = sess.createQuery("SELECT c from IScanChip c order by c.name").list();
 
-      for(Iterator i = iScanChips.iterator(); i.hasNext();) {
-        IScanChip iScanChip = (IScanChip)i.next();
+      for (Iterator i = iScanChips.iterator(); i.hasNext();) {
+        IScanChip iScanChip = (IScanChip) i.next();
         this.getSecAdvisor().flagPermissions(iScanChip);
         Element node = iScanChip.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
-        node.setAttribute( "costPerSampleDisplay", iScanChip.getCostPerSample() != null ? iScanChip.getCostPerSample().toString() : "" );
-        
+        node.setAttribute("costPerSampleDisplay", iScanChip.getCostPerSample() != null ? iScanChip.getCostPerSample().toString() : "");
+
         doc.getRootElement().addContent(node);
       }
 
@@ -68,16 +61,16 @@ public class GetIScanChipList extends GNomExCommand implements Serializable {
       this.xmlResult = out.outputString(doc);
 
       setResponsePage(this.SUCCESS_JSP);
-    }catch (NamingException e){
+    } catch (NamingException e) {
       log.error("An exception has occurred in GetIScanChipList ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
-        
-    }catch (SQLException e) {
+
+    } catch (SQLException e) {
       log.error("An exception has occurred in GetIScanChipList ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
-    } catch (XMLReflectException e){
+    } catch (XMLReflectException e) {
       log.error("An exception has occurred in GetIScanChipList ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
@@ -87,9 +80,9 @@ public class GetIScanChipList extends GNomExCommand implements Serializable {
       throw new RollBackCommandException(e.getMessage());
     } finally {
       try {
-        this.getSecAdvisor().closeReadOnlyHibernateSession();        
-      } catch(Exception e) {
-        
+        this.getSecAdvisor().closeReadOnlyHibernateSession();
+      } catch (Exception e) {
+
       }
     }
 
@@ -98,7 +91,7 @@ public class GetIScanChipList extends GNomExCommand implements Serializable {
     } else {
       setResponsePage(this.ERROR_JSP);
     }
-    
+
     return this;
   }
 

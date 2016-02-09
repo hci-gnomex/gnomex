@@ -21,25 +21,23 @@ import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
 
-
 public class GetPropertyList extends GNomExCommand implements Serializable {
-  
+
   // the static field for logging in Log4J
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetPropertyList.class);
-  
+
   // If Y indicates only the property without optinos, organisms, etc. is to be returned.
   private String propertyOnly = "N";
 
-  
   public void validate() {
   }
-  
+
   public void loadCommand(HttpServletRequest request, HttpSession session) {
 
-    if (request.getParameter("propertyOnly")!= null && !request.getParameter("propertyOnly").equals("")) {
+    if (request.getParameter("propertyOnly") != null && !request.getParameter("propertyOnly").equals("")) {
       propertyOnly = request.getParameter("propertyOnly");
     }
-    
+
     if (isValid()) {
       setResponsePage(this.SUCCESS_JSP);
     } else {
@@ -54,19 +52,15 @@ public class GetPropertyList extends GNomExCommand implements Serializable {
 
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
 
-
-
-      DictionaryManager dictionaryManager = DictionaryManager.getDictionaryManager(ManageDictionaries.DICTIONARY_NAMES_XML, sess, this, true);
-
       Document doc = new Document(new Element("PropertyList"));
 
       List properties = sess.createQuery("SELECT prop from Property prop order by prop.name").list();
 
-      for(Iterator i = properties.iterator(); i.hasNext();) {
-        
-        Property property = (Property)i.next();
+      for (Iterator i = properties.iterator(); i.hasNext();) {
+
+        Property property = (Property) i.next();
         this.getSecAdvisor().flagPermissions(property);
-        
+
         if (propertyOnly.equals("Y")) {
           property.excludeMethodFromXML("getOptions");
           property.excludeMethodFromXML("getOrganisms");
@@ -74,7 +68,7 @@ public class GetPropertyList extends GNomExCommand implements Serializable {
           property.excludeMethodFromXML("getAnalysisTypes");
           property.excludeMethodFromXML("getAppUsers");
         }
-        
+
         Element node = property.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
         doc.getRootElement().addContent(node);
       }
@@ -83,16 +77,16 @@ public class GetPropertyList extends GNomExCommand implements Serializable {
       this.xmlResult = out.outputString(doc);
 
       setResponsePage(this.SUCCESS_JSP);
-    }catch (NamingException e){
+    } catch (NamingException e) {
       log.error("An exception has occurred in GetPropertyList ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
-        
-    }catch (SQLException e) {
+
+    } catch (SQLException e) {
       log.error("An exception has occurred in GetPropertyList ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
-    } catch (XMLReflectException e){
+    } catch (XMLReflectException e) {
       log.error("An exception has occurred in GetPropertyList ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
@@ -102,9 +96,9 @@ public class GetPropertyList extends GNomExCommand implements Serializable {
       throw new RollBackCommandException(e.getMessage());
     } finally {
       try {
-        this.getSecAdvisor().closeReadOnlyHibernateSession();        
-      } catch(Exception e) {
-        
+        this.getSecAdvisor().closeReadOnlyHibernateSession();
+      } catch (Exception e) {
+
       }
     }
 
@@ -113,7 +107,7 @@ public class GetPropertyList extends GNomExCommand implements Serializable {
     } else {
       setResponsePage(this.ERROR_JSP);
     }
-    
+
     return this;
   }
 

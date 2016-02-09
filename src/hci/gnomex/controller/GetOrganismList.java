@@ -21,19 +21,16 @@ import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
 
-
 public class GetOrganismList extends GNomExCommand implements Serializable {
-  
+
   // the static field for logging in Log4J
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetOrganismList.class);
 
-  
   public void validate() {
   }
-  
+
   public void loadCommand(HttpServletRequest request, HttpSession session) {
 
-    
     if (isValid()) {
       setResponsePage(this.SUCCESS_JSP);
     } else {
@@ -48,16 +45,12 @@ public class GetOrganismList extends GNomExCommand implements Serializable {
 
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
 
-
-
-      DictionaryManager dictionaryManager = DictionaryManager.getDictionaryManager(ManageDictionaries.DICTIONARY_NAMES_XML, sess, this, true);
-
       Document doc = new Document(new Element("OrganismList"));
-      
+
       List organisms = sess.createQuery("SELECT o from Organism o order by case when o.organism='Other' then 'aaa' else o.organism end").list();
 
-      for(Iterator i = organisms.iterator(); i.hasNext();) {
-        Organism organism = (Organism)i.next();
+      for (Iterator i = organisms.iterator(); i.hasNext();) {
+        Organism organism = (Organism) i.next();
         this.getSecAdvisor().flagPermissions(organism);
         Element node = organism.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
 
@@ -65,17 +58,17 @@ public class GetOrganismList extends GNomExCommand implements Serializable {
         query.append(" where gb.idOrganism=" + organism.getIdOrganism());
         query.append(" order by gb.genomeBuildName");
         List genomeBuilds = sess.createQuery(query.toString()).list();
-        
+
         Element gbEle = new Element("genomeBuilds");
-        for(Iterator j = genomeBuilds.iterator(); j.hasNext();) {
-          GenomeBuildLite genomeBuild = (GenomeBuildLite)j.next();
+        for (Iterator j = genomeBuilds.iterator(); j.hasNext();) {
+          GenomeBuildLite genomeBuild = (GenomeBuildLite) j.next();
           this.getSecAdvisor().flagPermissions(genomeBuild);
           Element childNode = genomeBuild.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
           childNode.setName("GenomeBuild");
           gbEle.addContent(childNode);
         }
         node.addContent(gbEle);
-        
+
         doc.getRootElement().addContent(node);
       }
 
@@ -83,16 +76,16 @@ public class GetOrganismList extends GNomExCommand implements Serializable {
       this.xmlResult = out.outputString(doc);
 
       setResponsePage(this.SUCCESS_JSP);
-    }catch (NamingException e){
+    } catch (NamingException e) {
       log.error("An exception has occurred in GetOrganismList ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
-        
-    }catch (SQLException e) {
+
+    } catch (SQLException e) {
       log.error("An exception has occurred in GetOrganismList ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
-    } catch (XMLReflectException e){
+    } catch (XMLReflectException e) {
       log.error("An exception has occurred in GetOrganismList ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
@@ -102,9 +95,9 @@ public class GetOrganismList extends GNomExCommand implements Serializable {
       throw new RollBackCommandException(e.getMessage());
     } finally {
       try {
-        this.getSecAdvisor().closeReadOnlyHibernateSession();        
-      } catch(Exception e) {
-        
+        this.getSecAdvisor().closeReadOnlyHibernateSession();
+      } catch (Exception e) {
+
       }
     }
 
@@ -113,7 +106,7 @@ public class GetOrganismList extends GNomExCommand implements Serializable {
     } else {
       setResponsePage(this.ERROR_JSP);
     }
-    
+
     return this;
   }
 
