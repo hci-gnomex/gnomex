@@ -130,6 +130,7 @@
 			
 			private function onSaveAnalysis(event:ResultEvent):void {
 				if (saveAnalysis.lastResult.name() == "SUCCESS") {
+					parentApplication.navAnalysisView.forceReload = true;
 					parentApplication.navAnalysisView.onBrowseTree();
 					cancel();
 				} else {

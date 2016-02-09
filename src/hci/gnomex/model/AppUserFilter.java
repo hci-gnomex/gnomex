@@ -13,7 +13,7 @@ public class AppUserFilter extends DetailObject {
   private String userFirstName;
   private Integer idLab;
   private Integer idAppUser;
-  private Boolean membersOnly;
+  private Boolean membersOnly = false;
 
   private SecurityAdvisor secAdvisor;
 
