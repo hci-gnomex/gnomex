@@ -6122,7 +6122,7 @@
 					
 					<mx:HBox verticalGap="0" horizontalGap="0" width="100%" id="experimentCategoryHBox">
 						<mx:Spacer width="100"/>
-						<mx:TextInput editable="false" backgroundColor="#FFFFFF"  text="{experimentCategoryName}" fontWeight="normal" width="500"/>
+						<mx:Text text="{experimentCategoryName}" fontWeight="normal" width="500"/>
 					</mx:HBox>
 					
 					<mx:HBox id="designBox" verticalGap="0" horizontalGap="0" 
@@ -6254,8 +6254,8 @@
 		<mx:State name="SequencingEditState" basedOn="EditState">
 			<mx:AddChild relativeTo="{this.completedBox}" position="after">
 				<mx:HBox verticalGap="0" width="100%" horizontalGap="0" id="requestStatusBox">
-					<mx:Text  width="100" text="Status" styleName="formLabel" />
-					<mx:TextInput editable="false" backgroundColor="#FFFFFF" text="{request.@requestStatus}" width="500" />
+					<mx:Text width="100" text="Status" styleName="formLabel" />
+					<mx:Text text="{request.@requestStatus}" width="500" />
 				</mx:HBox>
 			</mx:AddChild>
 		</mx:State>
@@ -6314,8 +6314,8 @@
 			<mx:RemoveChild target="{bioinformaticsView}"/>
 			<mx:AddChild relativeTo="{this.requestStatusBox}" position="before">
 				<mx:HBox verticalGap="0" width="100%" horizontalGap="0">
-					<mx:Text  width="100" text="Container"  styleName="formLabel" />
-					<mx:TextInput editable="false" backgroundColor="#FFFFFF" text="{request.@containerType}" width="500" />
+					<mx:Text width="100" text="Container"  styleName="formLabel" />
+					<mx:Text text="{request.@containerType}" width="500" />
 				</mx:HBox>
 			</mx:AddChild>
 			<mx:AddChild relativeTo="{this.requestStatusBox}" position="before">
