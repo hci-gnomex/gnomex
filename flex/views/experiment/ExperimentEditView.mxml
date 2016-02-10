@@ -6114,10 +6114,10 @@
 			</mx:AddChild>
 			<mx:SetProperty target="{navBox}" name="width" value="100%"/>
 			<mx:AddChild relativeTo="{theTab}" position="firstChild">
-				<mx:VBox label="Info" width="100%" height="100%" verticalGap="6" id="infoTab">
+				<mx:VBox label="Overview" width="100%" height="100%" verticalGap="6" id="infoTab">
 					<mx:HBox verticalGap="0" horizontalGap="0">
 						<mx:Text text="Experiment" width="100"  fontWeight="normal" styleName="formLabel"/>
-						<mx:TextInput editable="false" backgroundColor="#FFFFFF"  text="{requestCategoryName}" width="500"  fontWeight="normal"/>
+						<mx:Text text="{requestCategoryName}" width="500"  fontWeight="normal"/>
 					</mx:HBox>
 					
 					<mx:HBox verticalGap="0" horizontalGap="0" width="100%" id="experimentCategoryHBox">
@@ -6176,11 +6176,6 @@
 													   width="500"/>
 					</mx:HBox>
 					
-					<mx:HBox horizontalGap="0">
-						<mx:Text  text="Submit Date" width="100"  fontWeight="normal" styleName="formLabel"/>    				       
-						<mx:TextInput editable="false" backgroundColor="#FFFFFF"  text="{this.request.@createDate}" paddingLeft="1"/>
-					</mx:HBox>
-					
 					<mx:HBox verticalGap="0" horizontalGap="0">
 						<mx:Label text="Owner"  width="100" fontWeight="normal" styleName="formLabel"/>
 						<util:ComboBoxDatProvChangeFix id="ownerCombo"
@@ -6191,9 +6186,14 @@
 													   width="500"/>
 					</mx:HBox>
 					
+					<mx:HBox horizontalGap="0">
+						<mx:Text text="Submit Date" width="100"  fontWeight="normal" styleName="formLabel"/>    				       
+						<mx:Text text="{this.request.@createDate}" paddingLeft="1"/>
+					</mx:HBox>
+					
 					<mx:HBox id="completedBox" horizontalGap="0" visible= "{parentDocument.selectedExperiment.@isExternal == 'N'}" includeInLayout="{parentDocument.selectedExperiment.@isExternal == 'N'}">
-						<mx:Text  text="Completed" width="100"  fontWeight="normal" styleName="formLabel"/>    				       
-						<mx:TextInput editable="false" backgroundColor="#FFFFFF"   text="{this.request.@completedDate}"/>
+						<mx:Text text="Completed" width="100"  fontWeight="normal" styleName="formLabel"/>    				       
+						<mx:Text text="{this.request.@completedDate}"/>
 					</mx:HBox>
 					
 					<topic:TopicLinkBar id="linkToTopicBar" automaticLinking="true" idRequest="{parentDocument.selectedExperiment != null ? parentDocument.selectedExperiment.@idRequest : ''}"

@@ -449,8 +449,16 @@
 					this.theTab.getTabAt( theTab.getChildIndex( propertiesView ) ).includeInLayout = true;
 				}
 				
-				if (	determineToShowProductsTab(requestCategory) && selectedExperiment.hasOwnProperty("@codeRequestStatus") && 
-						selectedExperiment.@codeRequestStatus != "COMPLETE" && selectedExperiment.@codeRequestStatus != "FAILED") {
+				if ( shouldShowMMBox() ) {
+					this.theTab.getTabAt( theTab.getChildIndex( mmBox ) ).visible = true;
+					this.theTab.getTabAt( theTab.getChildIndex( mmBox ) ).includeInLayout = true;
+				} else {
+					this.theTab.getTabAt( theTab.getChildIndex( mmBox ) ).visible = false;
+					this.theTab.getTabAt( theTab.getChildIndex( mmBox ) ).includeInLayout = false;
+				}
+				
+				if ( determineToShowProductsTab(requestCategory) && selectedExperiment.hasOwnProperty("@codeRequestStatus") && 
+					 selectedExperiment.@codeRequestStatus != "COMPLETE" && selectedExperiment.@codeRequestStatus != "FAILED") {
 					productsView.allowEdits(false);
 					productsView.refreshForRequestCategory(requestCategory);
 					productsView.refreshForLab(selectedExperiment.@idLab);
@@ -478,6 +486,19 @@
 				// Workflow progress
 				callLater(setWorkflowStatus);
 				
+			}
+			
+			private function shouldShowMMBox():Boolean {
+				if ( libDesignAndInsertBox.visible ){
+					return true;
+				} 
+				if ( this.selectedExperiment.@codeIsolationPrepType != null && this.selectedExperiment.@codeIsolationPrepType!='' ) {
+					return true;
+				}
+				if ( this.selectedExperiment.protocols.Protocol.length() > 0 ) {
+					return true;
+				}
+				return false;
 			}
 			
 			private function setWorkflowStatus():void {
@@ -1676,7 +1697,7 @@
 
 	
 	<mx:TabNavigator width="100%" height="100%" verticalGap="5" id="theTab" paddingBottom="4" paddingRight="4" paddingLeft="4" paddingTop="2" change="tabChangeHandler(event)">
-		<mx:VBox label="Info" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4"  verticalGap="4" width="100%" id="infoTab"> 
+		<mx:VBox label="Overview" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4"  verticalGap="4" width="100%" id="infoTab"> 
 			<mx:HBox horizontalGap="0" width="100%" >
 				<mx:VBox verticalGap="4" label="Info" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4" >
 					
@@ -1715,11 +1736,6 @@
 					<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle" id="hbox5" visible="{this.selectedExperiment.@coreToExtractDNA!=null&amp;&amp;this.selectedExperiment.@coreToExtractDNA=='Y'}" includeInLayout="{this.selectedExperiment.@coreToExtractDNA!=null&amp;&amp;this.selectedExperiment.@coreToExtractDNA=='Y'}">
 						<mx:Label text="Core to extract DNA"  width="105" styleName="formLabel" textAlign="left" id="label0"/>
 						<mx:Text  text="{this.selectedExperiment.@coreToExtractDNA=='Y' ? 'Yes' : 'No'}" width="280"/>
-					</mx:HBox>
-					<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle" includeInLayout="{this.selectedExperiment.@codeIsolationPrepType != null &amp;&amp; this.selectedExperiment.@codeIsolationPrepType!=''}" visible="{this.selectedExperiment.@codeIsolationPrepType != null &amp;&amp; this.selectedExperiment.@codeIsolationPrepType!=''}" id="hbox8">
-						<mx:Label text="Isolation prep type"  width="105" styleName="formLabel" textAlign="left"  id="label10"/>
-						<mx:Text text="{this.selectedExperiment.@codeIsolationPrepType != null ? parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.IsolationPrepType').DictionaryEntry.(@value == this.selectedExperiment.@codeIsolationPrepType).@display : ''}" 
-								 width="280"/>
 					</mx:HBox>
 					<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle" visible="{this.selectedExperiment.@isExternal == 'Y' || this.selectedExperiment.@organismName != ''}" includeInLayout="{this.selectedExperiment.@isExternal == 'Y' || this.selectedExperiment.@organismName  != ''}" id="hbox3">
 						<mx:Label text="Organism"  width="105"  styleName="formLabel" textAlign="left" id="label6"/>
@@ -1789,35 +1805,6 @@
 										mainButtonStyleName="formLabel" mainButtonWidth="105"/>
 				</mx:VBox>
 			</mx:HBox>
-			<mx:VBox id="headerBox" width="100%" paddingLeft="4" visible="{this.selectedExperiment.protocols.Protocol.length() &gt; 0}">
-					<mx:Repeater id="protocolRepeater" width="100%" height="100%"
-								 dataProvider="{this.selectedExperiment.protocols.Protocol}"> 
-						<mx:HBox width="100%" horizontalAlign="left" horizontalGap="0" verticalAlign="top">
-							<mx:Label text="{protocolRepeater.currentItem.@label}" styleName="formLabel" width="105" textAlign="left"/>
-							<mx:VBox width="100%" horizontalAlign="left" horizontalGap="0">
-								<mx:LinkButton id="labelProtocol"
-											   label="{protocolRepeater.currentItem.@name}"
-											   click="{showProtocol(event.currentTarget.getRepeaterItem().@idProtocol, event.currentTarget.getRepeaterItem().@protocolClassName)}"
-											   paddingBottom="0" paddingLeft="1"
-											   paddingRight="1" paddingTop="0"
-											   styleName="formLinkProtocolButton"
-											   textAlign="left"/>
-								<mx:HBox width="100%" horizontalAlign="left" horizontalGap="0" verticalAlign="top"
-										 visible="{protocolRepeater.currentItem.@Adapter3Prime.toXMLString() != ''}"
-										 includeInLayout="{protocolRepeater.currentItem.@Adapter3Prime.toXMLString() != ''}" >
-									<mx:Label width="80" styleName="formLabel" text="Adapter Read 1"/>
-									<mx:Text width="100%" text="{protocolRepeater.currentItem.@Adapter3Prime}"/>
-								</mx:HBox>
-								<mx:HBox width="100%" horizontalAlign="left" horizontalGap="0" verticalAlign="top"
-										 visible="{protocolRepeater.currentItem.@Adapter5Prime.toXMLString() != ''}"
-										 includeInLayout="{protocolRepeater.currentItem.@Adapter5Prime.toXMLString() != ''}" >
-									<mx:Label width="80" styleName="formLabel" text="Adapter Read 2"/>
-									<mx:Text width="100%" text="{protocolRepeater.currentItem.@Adapter5Prime}"/>
-								</mx:HBox>
-							</mx:VBox>
-						</mx:HBox>
-					</mx:Repeater>					
-			</mx:VBox>										
 			<mx:HBox width="100%" horizontalAlign="left" paddingLeft="0" id="hbox9">
 				<mx:VBox id="workflowProgressBox"  verticalGap="0"  cornerRadius="6" borderStyle="solid" paddingLeft="4" paddingRight="4" paddingTop="4" shadowDirection="right">
 					<mx:HBox width="100%" >
@@ -1876,6 +1863,58 @@
 					<mx:Label text="Administration Notes"  styleName="formLabel"/>
 					<util:TextAreaWorkaround id="noteToAdmin" backgroundColor="0xffffff" editable="false" text="{this.selectedExperiment.@adminNotes}" width ="100%" height="100%"  />
 				</mx:VBox>
+			</mx:VBox>
+		</mx:VBox>
+		
+		<mx:VBox label="Materials &amp; Methods" id="mmBox" paddingLeft="8" paddingRight="8" paddingTop="8" paddingBottom="8"  verticalGap="4" width="100%" height="100%">
+			<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle" width="100%">
+				<mx:Label text="Experiment"  width="105" styleName="formLabel" textAlign="left"/>
+				<mx:Text  text="{requestCategoryName}" width="100%"/>
+			</mx:HBox>
+			<mx:HBox verticalGap="0" horizontalGap="0" verticalAlign="middle"
+					 visible = "{experimentCategoryName != ''}" includeInLayout="{experimentCategoryName != ''}" width="100%">
+				<mx:Label width="105"  />
+				<mx:Text   text="{experimentCategoryName}" width="100%"/>
+			</mx:HBox>
+			<mx:HBox width="100%" id="libDesignAndInsertBox2" visible="{libDesignAndInsertBox.visible}" includeInLayout="{libDesignAndInsertBox.includeInLayout}">					
+				<mx:HBox verticalGap="0" width="100%" horizontalGap="0">
+					<mx:Text id="designAndInsertLabel2" width="105" styleName="formLabel" text="{designAndInsertLabel.text}" />
+					<mx:Text  id="designAndInsertText2" width="100%" text="{designAndInsertText.text}"  height="100%"/>
+				</mx:HBox>
+			</mx:HBox>
+			<mx:HBox verticalGap="0" horizontalGap="0" paddingLeft="4" verticalAlign="middle" includeInLayout="{this.selectedExperiment.@codeIsolationPrepType != null &amp;&amp; this.selectedExperiment.@codeIsolationPrepType!=''}" visible="{this.selectedExperiment.@codeIsolationPrepType != null &amp;&amp; this.selectedExperiment.@codeIsolationPrepType!=''}" id="hbox8" width="100%">
+				<mx:Label text="Isolation prep type"  width="105" styleName="formLabel" textAlign="left"  id="label10"/>
+				<mx:Text text="{this.selectedExperiment.@codeIsolationPrepType != null ? parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.IsolationPrepType').DictionaryEntry.(@value == this.selectedExperiment.@codeIsolationPrepType).@display : ''}" 
+						 width="100%"/>
+			</mx:HBox>
+			<mx:VBox id="headerBox" width="100%" paddingLeft="4" visible="{this.selectedExperiment.protocols.Protocol.length() &gt; 0}">
+				<mx:Repeater id="protocolRepeater" width="100%" height="100%"
+							 dataProvider="{this.selectedExperiment.protocols.Protocol}"> 
+					<mx:HBox width="100%" horizontalAlign="left" horizontalGap="0" verticalAlign="top">
+						<mx:Label text="{protocolRepeater.currentItem.@label}" styleName="formLabel" width="105" textAlign="left"/>
+						<mx:VBox width="100%" horizontalAlign="left" horizontalGap="0">
+							<mx:LinkButton id="labelProtocol"
+										   label="{protocolRepeater.currentItem.@name}"
+										   click="{showProtocol(event.currentTarget.getRepeaterItem().@idProtocol, event.currentTarget.getRepeaterItem().@protocolClassName)}"
+										   paddingBottom="0" paddingLeft="1"
+										   paddingRight="1" paddingTop="0"
+										   styleName="formLinkProtocolButton"
+										   textAlign="left"/>
+							<mx:HBox width="100%" horizontalAlign="left" horizontalGap="0" verticalAlign="top"
+									 visible="{protocolRepeater.currentItem.@Adapter3Prime.toXMLString() != ''}"
+									 includeInLayout="{protocolRepeater.currentItem.@Adapter3Prime.toXMLString() != ''}" >
+								<mx:Label width="80" styleName="formLabel" text="Adapter Read 1"/>
+								<mx:Text width="100%" text="{protocolRepeater.currentItem.@Adapter3Prime}"/>
+							</mx:HBox>
+							<mx:HBox width="100%" horizontalAlign="left" horizontalGap="0" verticalAlign="top"
+									 visible="{protocolRepeater.currentItem.@Adapter5Prime.toXMLString() != ''}"
+									 includeInLayout="{protocolRepeater.currentItem.@Adapter5Prime.toXMLString() != ''}" >
+								<mx:Label width="80" styleName="formLabel" text="Adapter Read 2"/>
+								<mx:Text width="100%" text="{protocolRepeater.currentItem.@Adapter5Prime}"/>
+							</mx:HBox>
+						</mx:VBox>
+					</mx:HBox>
+				</mx:Repeater>					
 			</mx:VBox>
 		</mx:VBox>
 		
@@ -2408,8 +2447,6 @@
 			</mx:AddChild>
 		</mx:State>
 		<mx:State name="ExternalMicroarrayState" basedOn="MicroarrayState">
-			<mx:SetProperty target="{headerBox}" name="includeInLayout" value="false"/>
-			<mx:SetProperty target="{headerBox}" name="visible" value="false"/>
 		</mx:State>
 		<mx:State name="ExternalSeqState">
 			<mx:SetProperty target="{samplesTab}" name="label" value="Samples"/>
@@ -2417,8 +2454,6 @@
 		<mx:State name="BaseSeqState">
 			<mx:SetProperty target="{prePoolBox}" name="includeInLayout" value="false"/>
 			<mx:SetProperty target="{prePoolBox}" name="visible" value="false"/>
-			<mx:SetProperty target="{headerBox}" name="includeInLayout" value="false"/>
-			<mx:SetProperty target="{headerBox}" name="visible" value="false"/>
 			<mx:SetProperty target="{controlbar1}" name="includeInLayout" value="false"/>
 			<mx:SetProperty target="{controlbar1}" name="visible" value="false"/>
 			<mx:AddChild relativeTo="{hbox7}" position="before">
@@ -2497,8 +2532,6 @@
 			</mx:AddChild>
 			<mx:SetProperty target="{prePoolBox}" name="includeInLayout" value="false"/>
 			<mx:SetProperty target="{prePoolBox}" name="visible" value="false"/>
-			<mx:SetProperty target="{headerBox}" name="includeInLayout" value="false"/>
-			<mx:SetProperty target="{headerBox}" name="visible" value="false"/>
 			<mx:SetProperty target="{controlbar1}" name="includeInLayout" value="false"/>
 			<mx:SetProperty target="{controlbar1}" name="visible" value="false"/>
 		</mx:State>
@@ -2517,8 +2550,6 @@
 			</mx:AddChild>
 			<mx:SetProperty target="{controlbar1}" name="includeInLayout" value="false"/>
 			<mx:SetProperty target="{controlbar1}" name="visible" value="false"/>
-			<mx:SetProperty target="{headerBox}" name="includeInLayout" value="false"/>
-			<mx:SetProperty target="{headerBox}" name="visible" value="false"/>
 			<mx:SetProperty target="{prePoolBox}" name="includeInLayout" value="false"/>
 			<mx:SetProperty target="{prePoolBox}" name="visible" value="false"/>
 		</mx:State>
@@ -2545,12 +2576,8 @@
 		<mx:State name="GenericState">
 			<mx:SetProperty target="{hbox5}" name="includeInLayout" value="false"/>
 			<mx:SetProperty target="{hbox5}" name="visible" value="false"/>
-			<mx:SetProperty target="{hbox8}" name="includeInLayout" value="false"/>
-			<mx:SetProperty target="{hbox8}" name="visible" value="false"/>
 			<mx:SetProperty target="{prePoolBox}" name="includeInLayout" value="false"/>
 			<mx:SetProperty target="{prePoolBox}" name="visible" value="false"/>
-			<mx:SetProperty target="{headerBox}" name="includeInLayout" value="false"/>
-			<mx:SetProperty target="{headerBox}" name="visible" value="false"/>
 		</mx:State>
 		<mx:State name="IonTorrentState" basedOn="GenericState"/>
 		<mx:State name="NanoStringState" basedOn="SequenomState">
