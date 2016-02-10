@@ -2223,6 +2223,7 @@
     <property name="timeStamp" column="timeStamp" type="timestamp"/>
     <property name="idProductOrder" column="idProductOrder" type="integer"/>
     <property name="idRequest" column="idRequest" type="integer"/>
+    <property name="notes" column="notes" type="string"/>
     <many-to-one name="lab" column="idLab" class="hci.gnomex.model.Lab"
       cascade="none" insert="false" update="false" />
     <many-to-one name="product" column="idProduct" class="hci.gnomex.model.Product"

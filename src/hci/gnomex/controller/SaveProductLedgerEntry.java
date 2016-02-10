@@ -5,23 +5,21 @@ import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.ProductLedger;
 
 import java.io.Serializable;
-import java.sql.Date;
 import java.sql.Timestamp;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.hibernate.Session;
 
+@SuppressWarnings("serial")
 public class SaveProductLedgerEntry extends GNomExCommand implements Serializable {
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(SaveProductLedgerEntry.class);
 
-  private Integer idLab;
-  private Integer idProduct;
-  private Integer qty;
-  private String comment;
+  private Integer 	idLab;
+  private Integer 	idProduct;
+  private Integer 	qty;
+  private String 	comment;
+  private String 	notes;
 
 
   @Override
@@ -51,7 +49,11 @@ public class SaveProductLedgerEntry extends GNomExCommand implements Serializabl
       this.addInvalidField("missing comment", "missing comment");
     }
 
-
+    if (request.getParameter("notes") != null) {
+        notes = request.getParameter("notes");
+    } else {
+        this.addInvalidField("missing notes", "missing notes");
+    }
 
   }
 
@@ -70,8 +72,7 @@ public class SaveProductLedgerEntry extends GNomExCommand implements Serializabl
         pl.setQty(qty);
         pl.setComment(comment);
         pl.setIdProduct(idProduct);
-
-        SimpleDateFormat sdf = new SimpleDateFormat ("yyyy-mm-dd hh:mm:ss");
+        pl.setNotes(notes);
 
         pl.setTimeStamp(new Timestamp(System.currentTimeMillis()));
 

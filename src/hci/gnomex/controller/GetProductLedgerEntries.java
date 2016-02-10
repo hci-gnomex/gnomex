@@ -78,6 +78,7 @@ public class GetProductLedgerEntries extends GNomExCommand implements Serializab
           productOrderNumber = po.getProductOrderNumber();
         }
 
+        e.setAttribute("idProductLedger", pl.getIdProductLedger().toString());
         e.setAttribute("productOrderNumber", productOrderNumber != null ? productOrderNumber : (idProductOrder != null ? idProductOrder.toString() : "") );
         e.setAttribute("requestNumber", requestNumber );
         e.setAttribute("idProductOrder", idProductOrder != null ? idProductOrder.toString() : "");
@@ -85,6 +86,7 @@ public class GetProductLedgerEntries extends GNomExCommand implements Serializab
         e.setAttribute("comment", comment);
         e.setAttribute("date", date);
         e.setAttribute("qty", pl.getQty().toString());
+        e.setAttribute("notes", pl.getNotesDisplay());
 
         doc.getRootElement().addContent(e);
       }

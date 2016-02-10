@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" label="Ledger">
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:util="views.util.*" width="100%" height="100%" label="Ledger">
 	
 	
 	<mx:HTTPService 
@@ -23,6 +23,17 @@
 		method="POST"
 		useProxy="false">
 	</mx:HTTPService >
+	
+	<mx:HTTPService 
+		id="saveProductLedgerEntryList" 
+		url="SaveProductLedgerEntryList.gx"
+		resultFormat="e4x"
+		result="onSaveProductLedgerEntryList(event)"
+		showBusyCursor="true"
+		fault="parentApplication.onFailHttpRequest('Unable to save product ledger entry list', event)"
+		method="POST"
+		useProxy="false">
+	</mx:HTTPService>
 	
 	
 	<mx:Script> 
@@ -87,6 +98,27 @@
 				getProductOrder.send(params);
 			}
 			
+			private function saveLedgerEntries():void {
+				if (dirty.isDirty()) {
+					var params:Object = new Object();
+					var productLedgerEntryList:String = "<productLedgerEntryList>";
+					for each (var entry:XML in ledgerEntries) {
+						productLedgerEntryList += entry.toXMLString();
+					}
+					productLedgerEntryList += "</productLedgerEntryList>";
+					params.productLedgerEntryList = productLedgerEntryList;
+					saveProductLedgerEntryList.send(params);
+				}
+			}
+			
+			private function onSaveProductLedgerEntryList(event:ResultEvent):void {
+				if (saveProductLedgerEntryList.lastResult.name() != "SUCCESS") {
+					Alert.show(event.result..ERROR.@message.toString());
+				} else {
+					dirty.resetDirty();
+					this.init();
+				}
+			}
 			
 		]]>
 	</mx:Script>
@@ -113,18 +145,19 @@
 		
 		<mx:VBox width="100%" height="100%" styleName="panelBox"   backgroundSize="100%" >
 			
-			<mx:DataGrid id="ledgerGrid" width="100%" wordWrap="true" height="100%" dataProvider="{ledgerEntries}" >
+			<mx:DataGrid id="ledgerGrid" width="100%" wordWrap="true" height="100%" dataProvider="{ledgerEntries}" editable="{parentApplication.isAdminState || parentApplication.isSuperAdmin}"
+						 itemEditEnd="dirty.setDirty()">
 				
 				<mx:columns>
-					<mx:DataGridColumn dataField="@date" width="100" headerWordWrap="true" headerText="Operation Date"/>
-					<mx:DataGridColumn dataField="@qty" width="40" id="quantity" headerText="Qty" >
+					<mx:DataGridColumn dataField="@date" width="100" headerWordWrap="true" headerText="Operation Date" editable="false"/>
+					<mx:DataGridColumn dataField="@qty" width="40" id="quantity" headerText="Qty" editable="false">
 						<mx:itemRenderer>
 							<mx:Component>
 								<mx:Label color="{int(data.@qty) &lt; 0 ? 0xFF0000 : 0x197319}"/>
 							</mx:Component>
 						</mx:itemRenderer>
 					</mx:DataGridColumn>
-					<mx:DataGridColumn dataField="@productOrderNumber" width="105" headerWordWrap="true" headerText="Product Order #" >
+					<mx:DataGridColumn dataField="@productOrderNumber" width="105" headerWordWrap="true" headerText="Product Order #" editable="false">
 						<mx:itemRenderer>
 							<mx:Component>
 								<mx:HBox verticalAlign="top" horizontalGap="0"  horizontalScrollPolicy="off" horizontalAlign="center">
@@ -133,7 +166,7 @@
 							</mx:Component>
 						</mx:itemRenderer>
 					</mx:DataGridColumn>
-					<mx:DataGridColumn dataField="@requestNumber" width="100" headerWordWrap="true" headerText="Request #" >
+					<mx:DataGridColumn dataField="@requestNumber" width="100" headerWordWrap="true" headerText="Request #" editable="false">
 						<mx:itemRenderer>
 							<mx:Component>
 								<mx:HBox verticalAlign="top" horizontalGap="0"  horizontalScrollPolicy="off" horizontalAlign="center">
@@ -142,9 +175,18 @@
 							</mx:Component>
 						</mx:itemRenderer>
 					</mx:DataGridColumn>
-					<mx:DataGridColumn dataField="@comment" headerWordWrap="true" headerText="Comment" />
+					<mx:DataGridColumn dataField="@comment" headerWordWrap="true" headerText="Comment" editable="false"/>
+					<mx:DataGridColumn dataField="@notes" headerWordWrap="true" headerText="Notes" />
 				</mx:columns>
 			</mx:DataGrid>
+			
+			<mx:HBox width="100%" horizontalAlign="right" paddingRight="1" visible="{parentApplication.isAdminState || parentApplication.isSuperAdmin}" includeInLayout="{parentApplication.isAdminState || parentApplication.isSuperAdmin}">
+				<util:DirtyNote id="dirty" />
+				<mx:Button id="saveButton" label="Save"
+						   icon="@Embed('../../assets/action_save.gif')"
+						   click="saveLedgerEntries()">
+				</mx:Button>
+			</mx:HBox>
 			
 		</mx:VBox>
 		

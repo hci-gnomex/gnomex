@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" width="400" height="200" xmlns:util="views.util.*"
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" width="400" height="245" xmlns:util="views.util.*"
 				showCloseButton="true" title="Add Ledger Entry" close="{closeWindow()}">
 	
 	<mx:HTTPService 
@@ -53,6 +53,7 @@
 				params.idLab = parentWindow.idLab;
 				params.qty = qtyInput.text;
 				params.comment = commentText.text;
+				params.notes = notesText.text;
 				
 				saveProductLedgerEntry.send(params);
 				
@@ -73,8 +74,13 @@
 		</mx:HBox>
 		
 		<mx:HBox width="100%">
-			<mx:Label text="Comment"/>
+			<mx:Label text="Comment" width="62"/>
 			<mx:TextArea width="100%" height="100%" id="commentText" maxChars="{ext.com.Consts.MAX_CHARS}" />
+		</mx:HBox>
+		
+		<mx:HBox width="100%">
+			<mx:Label text="Notes" width="62"/>
+			<mx:TextArea width="100%" height="100%" id="notesText" maxChars="{ext.com.Consts.MAX_CHARS}" />
 		</mx:HBox>
 		
 		<mx:Label text="{'Quantity will bring product count below zero'}" id="negativeCount" visible="{int(parentWindow.productCount) + int(qtyInput.text) &lt; 0}"/>

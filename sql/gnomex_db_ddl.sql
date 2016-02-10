@@ -839,6 +839,7 @@ CREATE TABLE gnomex.ProductLedger (
   timeStame DATETIME NULL,
   idProductOrder INT(10) NULL,
   idRequest INT(10) NULL,
+  notes VARCHAR(5000) NULL,
   PRIMARY KEY (idProductLedger),
   CONSTRAINT FK_ProductLedger_Lab FOREIGN KEY FK_ProductLedger_Lab (idLab)
     REFERENCES gnomex.Lab (idLab)

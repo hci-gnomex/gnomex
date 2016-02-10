@@ -105,3 +105,8 @@ ADD COLUMN sortOrder INT(10) NULL;
 CALL ExecuteIfTableExists('gnomex','BillingTemplateItem_Audit','ALTER TABLE BillingTemplateItem_Audit ADD COLUMN sortOrder INT(10) NULL');
 
 -----------------------------------------------------------------
+
+-- Add notes to ProductLedger
+ALTER TABLE ProductLedger
+ADD COLUMN notes VARCHAR(5000) NULL;
+CALL ExecuteIfTableExists('gnomex','ProductLedger_Audit','ALTER TABLE ProductLedger_Audit ADD COLUMN notes VARCHAR(5000) NULL');
