@@ -113,6 +113,27 @@
 				}
 			}
 			
+			public function setCoreFacilityNoteVisibility(vis:Boolean):void {
+				coreNotesBox.visible = vis;
+				coreNotesBox.includeInLayout = vis;
+			}
+			
+			public function setExternalNoteVisibility():void {
+				if (!parentApplication.isInternalExperimentSubmission) {
+					if (parentDocument.request.@corePrepInstructions == null || parentDocument.request.@corePrepInstructions == "") {
+						setCoreFacilityNoteVisibility(false);
+					} else {
+						setCoreFacilityNoteVisibility(true);
+					}
+				} else {
+					if (parentDocument.isEditState()) {
+						setCoreFacilityNoteVisibility(false);
+					} else {
+						setCoreFacilityNoteVisibility(true);
+					}
+				}
+			}
+			
 			private function buildChipTypeKey(obj:Object):String {
 				var key:String = "";
 				if (obj != null) {
@@ -1496,7 +1517,7 @@
 	
 	<mx:Canvas width="100%" height="100%" horizontalScrollPolicy="off" verticalScrollPolicy="auto" id="sampleSetupCanvas">
 		
-		<mx:VBox width="100%" height="100%" verticalGap="2" >
+		<mx:VBox width="100%"  verticalGap="2" >
 			<mx:VBox height="100%"  paddingTop="2"  verticalGap="5" id="sampleSetupContainer" width="100%">
 				<mx:HBox horizontalGap="0" id="hbox3" verticalAlign="middle" width="100%">
 					<util:ContextHelp context1="SampleDetailsNumSamples" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Number of Samples Help"
@@ -1580,10 +1601,20 @@
 								  maxChars="50"/>
 				</mx:HBox>
 				
+				
 			</mx:VBox>
 			
+			<mx:HBox width="100%" id="coreNotesBox">
+					<mx:VBox height="140" width="100%" id="coreFacilityNoteVBox" verticalGap="0" paddingBottom="0" paddingTop="50" paddingLeft="8" paddingRight="8">
+						<util:ContextHelp context1="coreFacilityNoteHelp" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Core Facility Note Help"
+										  label="Enter a note for the Core Facility (optional)." labelPlacement="left" id="coreFacilityNoteLabel"/>
+						<util:TextAreaWorkaround id="coreFacilityNoteText" text="{parentDocument.request.@corePrepInstructions}" 
+												 focusOut="parentDocument.request.@corePrepInstructions = coreFacilityNoteText.text" 
+												 width ="100%" height="100%"/>
+					</mx:VBox>
+			</mx:HBox>
+			
 		</mx:VBox>
-		
 		
 	</mx:Canvas>
 	

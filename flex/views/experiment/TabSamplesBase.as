@@ -1,5 +1,6 @@
 package views.experiment
 {
+	import flash.events.Event;
 	import flash.net.*;
 	import flash.utils.Dictionary;
 	
@@ -7,6 +8,7 @@ package views.experiment
 	
 	import mx.collections.XMLListCollection;
 	import mx.containers.Canvas;
+	import mx.containers.HBox;
 	import mx.controls.AdvancedDataGrid;
 	import mx.controls.Alert;
 	import mx.controls.TextInput;
@@ -102,7 +104,6 @@ package views.experiment
 		public function TabSamplesBase()
 		{
 			super();
-			
 			setupSampleConcentrationFormatter();
 		}
 		
@@ -132,6 +133,21 @@ package views.experiment
 		
 		public function showHideColumns():void {
 			
+		}
+		
+		public function showHideCCNumberBox():void {
+			getCCNumberBox().visible =  !getIsExternal();
+			getCCNumberBox().includeInLayout =  !getIsExternal();
+		}
+		
+		public function setButtonVisibility(vis:Boolean):void {
+			getButtonsContainer().visible = vis;
+			getButtonsContainer().includeInLayout = vis;
+		}
+		
+		public function setAddOrganismVisibility(vis:Boolean):void {
+			getAddOrganismContainer().visible = vis;
+			getAddOrganismContainer().includeInLayout = vis;
 		}
 		
 		public function prepareCherryPickingSamplesForEdit(numDestinationWells:int):void {
@@ -169,6 +185,18 @@ package views.experiment
 		}
 		
 		public function getSamplesGrid():AdvancedDataGrid {
+			return null;
+		}
+		
+		public function getCCNumberBox():HBox {
+			return null;
+		}
+		
+		public function getButtonsContainer():HBox {
+			return null;
+		}
+		
+		public function getAddOrganismContainer():HBox {
 			return null;
 		}
 		
@@ -377,6 +405,7 @@ package views.experiment
 			if (parentDocument != null) {
 				parentDocument.propertyEntries.refresh();
 				showHideColumns();
+				showHideCCNumberBox();
 				initButtons();
 				rebuildSamplesGrid();
 				initializeBarcoding();
@@ -624,33 +653,6 @@ package views.experiment
 		protected function addOrganism():void {
 			var addOrganismWindow:AddOrganismWindow = AddOrganismWindow(PopUpManager.createPopUp(parentApplication.theBody, AddOrganismWindow, true));
 			PopUpManager.centerPopUp(addOrganismWindow);
-		}
-		
-		public function setCoreFacilityNoteVisibility(vis:Boolean):void {
-			
-		}
-		
-		public function setTopBoxVisibility(vis:Boolean):void {
-			
-		}
-		
-		public function setExternalNoteVisibility():void {
-			if (!parentApplication.isInternalExperimentSubmission) {
-				if (parentDocument.request.@corePrepInstructions == null || parentDocument.request.@corePrepInstructions == "") {
-					setCoreFacilityNoteVisibility(false);
-					setTopBoxVisibility(true);
-				} else {
-					setCoreFacilityNoteVisibility(true);
-					setTopBoxVisibility(true);
-				}
-			} else {
-				if (parentDocument.isEditState()) {
-					setCoreFacilityNoteVisibility(false);
-				} else {
-					setCoreFacilityNoteVisibility(true);
-				}
-				setTopBoxVisibility(true);
-			}
 		}
 		
 		public function getPlateName(idx:int):String {

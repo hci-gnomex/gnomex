@@ -97,6 +97,18 @@
 				return AdvancedDataGrid(this.samplesGrid);
 			}
 			
+			override public function getCCNumberBox():HBox {
+				return this.ccNumberContainer;
+			}
+			
+			override public function getButtonsContainer():HBox {
+				return this.buttonsContainer;
+			}
+			
+			override public function getAddOrganismContainer():HBox {
+				return this.addOrganismContainer;
+			}
+			
 			override public function addSample():Boolean {
 				var emptyNode:XML = null;
 				var isValid:Boolean = true;
@@ -469,31 +481,17 @@
 				this.samplesGrid.dragEnabled = false;
 			}
 			
-			private function setButtonsVisibility(vis:Boolean):void {
-				uploadSampleSheetButton.visible = vis;
-				uploadSampleSheetButton.includeInLayout = vis;
-				uploadHintLink.visible = vis;
-				uploadHintLink.includeInLayout = vis;
-			}
 			override public function showHideColumns():void {
 				isExternal = (parentDocument.isEditState() && parentDocument.request.@isExternal == 'Y') || (!parentDocument.isEditState() && !parentApplication.isInternalExperimentSubmission);
 				isEditState = parentDocument.isEditState();
-								
-				showCCNumberCheckbox.visible =  !isExternal;
-				showCCNumberCheckbox.includeInLayout =  !isExternal;
-				ccNumberVRule.visible = showCCNumberCheckbox.visible;
-				ccNumberCheckBoxHelp.visible = !isExternal;
-				ccNumberCheckBoxHelp.includeInLayout = !isExternal;
-
-//				addSampleHelp.visible = addSampleHelp.includeInLayout = isExternal;
 				
-				setButtonsVisibility(!parentDocument.isAmendState());
+				setButtonVisibility(!parentDocument.isAmendState());
 				samplesGrid.rowOperationsAllowed = true;
 				samplesGrid.insertRowEnabled = false;
 				
 				// Don't allow sample editing on edit unless user is admin or experiment is external or experiment is non-submitted dna sq experiment.
 				if (isEditState && !parentApplication.isAdminState && !isExternal) {
-					setButtonsVisibility(false);
+					setButtonVisibility(false);
 					samplesGrid.rowOperationsAllowed = false;
 				} 
 				
@@ -510,11 +508,12 @@
 				
 				this.descriptionColumn.visible = (parentDocument.request.@hasSampleDescription == "Y");
 				
-				this.addOrganismButton.visible = this.sampleOrganismColumn.visible && !isExternal;
-				this.addOrganismButton.includeInLayout = this.addOrganismButton.visible;
-				addOrgVRule.visible = this.addOrganismButton.visible;
-				this.samplesTabNewOrganismHelp.visible = this.addOrganismButton.visible;
-				this.samplesTabNewOrganismHelp.includeInLayout = this.addOrganismButton.visible;
+				if ( this.sampleOrganismColumn != null ) {
+					setAddOrganismVisibility(this.sampleOrganismColumn.visible && !isExternal);
+				} else {
+					setAddOrganismVisibility(false);
+				}
+				
 				if (!parentDocument.isEditState()) {
 					if (parentDocument.theTab.contains(parentDocument.confirmView)) {
 						parentDocument.confirmView.showHideColumns();									
@@ -620,17 +619,7 @@
 					Alert.show("Maximum allowed limit is 30 characters");					
 				}
 			}
-						
-			override public function setCoreFacilityNoteVisibility(vis:Boolean):void {
-				coreFacilityNoteVBox.visible = vis;
-				coreFacilityNoteVBox.includeInLayout = vis;
-			}
-			
-			override public function setTopBoxVisibility(vis:Boolean):void {
-				topBox.visible = vis;
-				topBox.includeInLayout = vis;
-			}
-			
+				
 			private function defaultToZero(item:Object, column:AdvancedDataGridColumn):String{
 				if(item[column.dataField] == ''){
 					item[column.dataField] = '0';
@@ -662,53 +651,80 @@
 	<mx:XMLList id="barcodeList"/>
 	
 	<mx:VBox width="100%" height="100%" verticalGap="1" paddingBottom="2" paddingLeft="4" paddingRight="4" paddingTop="2">
-		<mx:HBox width="100%" id="topBox" paddingTop="0">
-			<mx:VBox  width="90%" id="coreFacilityNoteVBox"  verticalGap="0" paddingBottom="0" paddingTop="0">
-				<util:ContextHelp context1="coreFacilityNoteHelp" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Core Facility Note Help"
-								  label="Enter a note for the Core Facility (optional)." labelPlacement="left" id="coreFacilityNoteLabel"/>
-				<util:TextAreaWorkaround id="coreFacilityNoteText" text="{parentDocument.request.@corePrepInstructions}" focusOut="parentDocument.request.@corePrepInstructions = coreFacilityNoteText.text" 
-										 width="100%" height="50"/>
-			</mx:VBox>
-			<util:ContextHelp context1="samplesTabHelp" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" 
-							  context3="{(parentDocument.requestType == 'MISEQ') ? 'HISEQ' : parentDocument.requestType}"
-							  title="Samples Help" label="Click for Instructions" id="instructions" hideLabelIfNoHelp="true"/>
+		
+		<mx:HBox width="100%" horizontalGap="0" verticalAlign="middle">
+			<mx:HBox verticalAlign="middle" 
+					 horizontalGap="0"
+					 visible="{parentApplication.isInternalExperimentSubmission &amp;&amp; samplesTabHelp.visible}" 
+					 includeInLayout="{parentApplication.isInternalExperimentSubmission &amp;&amp; samplesTabHelp.visible}"  
+					 id="instructionVBox">
+				<util:ContextHelp context1="samplesTabHelp" 
+								  context2="{isExternal? 'External' : parentDocument.coreFacility.@idCoreFacility}" 
+								  context3="{(parentDocument.requestType == 'MISEQ') ? 'HISEQ' : parentDocument.requestType}"
+								  showEdit="{parentApplication.isAdminState}" 
+								  title="Samples Tab Instructions" label="Instructions" id="samplesTabHelp" hideLabelIfNoHelp="true"/>
+				
+				<mx:Spacer width="6"/>
+				<mx:VRule height="20"  />
+				<mx:Spacer width="6"/>
+			</mx:HBox>
 			
-		</mx:HBox>
-		<mx:HBox width="100%" horizontalGap="0" paddingTop="4" paddingBottom="0" verticalAlign="middle">
-			<util:ContextHelp context1="addSampleHelp" context2="" context3="" 
-							  showEdit="{parentApplication.isSuperAdmin}" 
-							  title="Add Samples Help" label="How do I add a sample?" id="addSampleHelp" />
-			<util:ContextHelp context1="samplesGridHelp" context2="" context3=""
-							  showEdit="{parentApplication.isSuperAdmin}" 
-							  title="Sample Grid Help" label="Copy and paste sample grid" id="copyPasteHelp" />
-			<mx:LinkButton textDecoration="underline"  horizontalGap="0" label="Upload tab delimited sample sheet" click="uploadSampleSheet();" icon="@Embed(source='../../assets/upload.png')" id="uploadSampleSheetButton" toolTip="Upload sample sheet&#13;(tab delimited txt file)" />
-			<mx:LinkButton textDecoration="underline"  horizontalGap="0" id="downloadButton" label="Download sample sheet" click="{downloadSampleSheet()}"   icon="@Embed(source='../../assets/download.png')"/>
-			<mx:LinkButton textDecoration="underline" horizontalGap="0" id="uploadHintLink" 
-						   icon="@Embed(source='../../assets/information.png')" 
-						   label="Sample sheet help" 
-						   click="PopUpManager.centerPopUp(PopUpManager.createPopUp(parentApplication.theBody, UploadSampleSheetInstructionsView, true));"
-						   toolTip=" 1.  Download the sample sheet (see instructions) or create your own table&#13;       in a program like Excel.&#13; 2.  Fill in the table for all the samples.&#13; 3.  Save the file as a tab-delimited txt file.&#13; 4.  Click 'Upload sample sheet' and select the file you created."/>
+			<mx:HBox id="buttonsContainer" horizontalGap="0" verticalAlign="middle">
+				<util:ContextHelp context1="addSampleHelp" context2="" context3="" 
+								  showEdit="{parentApplication.isSuperAdmin}" 
+								  title="Add Samples Help" label="Adding samples" id="addSampleHelp" />
+				<util:ContextHelp context1="samplesGridHelp" context2="" context3=""
+								  showEdit="{parentApplication.isSuperAdmin}" 
+								  title="Sample Grid Help" label="Copy and paste help" id="copyPasteHelp" />
+				
+				<mx:Spacer width="6"/>
+				<mx:VRule height="20"/>
+				<mx:Spacer width="6"/>
+				
+				<mx:LinkButton textDecoration="underline"  horizontalGap="0" paddingLeft="0" paddingRight="0"
+							   label="Upload sample sheet" 
+							   click="uploadSampleSheet();" icon="@Embed(source='../../assets/upload.png')" 
+							   id="uploadSampleSheetButton" toolTip="Upload sample sheet&#13;(tab delimited txt file)" />
+				<mx:LinkButton textDecoration="underline" horizontalGap="0" id="uploadHintLink"  paddingRight="0" paddingLeft="0"
+							   icon="@Embed(source='../../assets/information.png')" 
+							   label=""  
+							   click="PopUpManager.centerPopUp(PopUpManager.createPopUp(parentApplication.theBody, UploadSampleSheetInstructionsView, true));"
+							   toolTip=" 1.  Download the sample sheet (see instructions) or create your own table&#13;       in a program like Excel.&#13; 2.  Fill in the table for all the samples.&#13; 3.  Save the file as a tab-delimited txt file.&#13; 4.  Click 'Upload sample sheet' and select the file you created."/>
+			</mx:HBox>
 			
-			<mx:VRule height="20" id="ccNumberVRule" />
-			<mx:Spacer width="4"/>
+			<mx:LinkButton textDecoration="underline"  horizontalGap="0"  paddingRight="0"
+						   id="downloadButton" label="Download sample sheet" 
+						   click="{downloadSampleSheet()}"   icon="@Embed(source='../../assets/download.png')"/>
 			
 			
-			<mx:CheckBox id= "showCCNumberCheckbox"
-						 selected="false"  horizontalGap="0" 
-						 click="toggleShowCCNumber()"  
-						 label="Enter CC Numbers" fontSize="11" 
-						 visible="{parentApplication.isInternalExperimentSubmission &amp;&amp; parentApplication.isBSTLinkageSupported}"
-						 includeInLayout="{parentApplication.isInternalExperimentSubmission &amp;&amp; parentApplication.isBSTLinkageSupported}" 
-						 toolTip="Link to itBioPath samples by entering the CC Number on each sample" />
-			<util:ContextHelp context1="ccNumberCheckBoxHelp" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="CC Number Help"
-							  label="" labelPlacement="left" id="ccNumberCheckBoxHelp"/>
+			<mx:HBox id="ccNumberContainer" horizontalGap="0" verticalAlign="middle">
+				<mx:Spacer width="6"/>
+				<mx:VRule height="20"/>
+				<mx:Spacer width="6"/>
+				<mx:CheckBox id="showCCNumberCheckbox"
+							 selected="false"
+							 click="toggleShowCCNumber()"  
+							 visible="{parentApplication.isInternalExperimentSubmission &amp;&amp; parentApplication.isBSTLinkageSupported}"
+							 includeInLayout="{parentApplication.isInternalExperimentSubmission &amp;&amp; parentApplication.isBSTLinkageSupported}" 
+							 toolTip="Link samples to itBioPath using CC Number"
+							 label="Enter CC Numbers" 
+							 fontSize="11"/>
+				<util:ContextHelp context1="ccNumberCheckBoxHelp" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="CC Number Help"
+								  label="" labelPlacement="left" id="ccNumberCheckBoxHelp" hideLabelIfNoHelp="true"/>
+				
+			</mx:HBox>
 			
-			<mx:Spacer width="4"/>
-			<mx:VRule height="20" id="addOrgVRule"/>
-			<mx:LinkButton label="New Organism..." toolTip="If organism is not in dropdown, add here." textDecoration="underline"  click="addOrganism()" id="addOrganismButton"/>
-			<util:ContextHelp context1="samplesTabNewOrganismHelp" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="New Organism Help"
-							  label="" labelPlacement="left" id="samplesTabNewOrganismHelp"/>
-			
+			<mx:HBox id="addOrganismContainer" horizontalGap="0" verticalAlign="middle">
+				<mx:Spacer width="6" />
+				<mx:VRule height="20"/>
+				<mx:Spacer width="6" />
+				<mx:LinkButton  horizontalGap="0" label="Add Organism ..." textDecoration="underline"  
+								click="addOrganism()" id="addOrganismButton"/>
+				<util:ContextHelp context1="samplesTabNewOrganismHelp" 
+								  context2="{parentDocument.coreFacility.@idCoreFacility}" 
+								  showEdit="{parentApplication.isAdminState}" title="New Organism Help"
+								  label="" labelPlacement="left" id="samplesTabNewOrganismHelp"/>
+			</mx:HBox>
 		</mx:HBox>
 		
 		<util:AdvancedDataGridWithCustomRowColors width="100%" height="100%" id="samplesGrid"  

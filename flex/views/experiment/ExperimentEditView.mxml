@@ -1489,8 +1489,8 @@
 				if (theTab.contains(notesView)) {
 					notesView.setExternalNoteVisibility();
 				}
-				if (theTab.contains(samplesView)) {
-					samplesView.setExternalNoteVisibility();
+				if (theTab.contains(sampleSetupView)) {
+					sampleSetupView.setExternalNoteVisibility();
 				}
 				
 				loadPriceLists(getIdLab());
@@ -2414,12 +2414,14 @@
 					
 				} else if (requestCategory.@type == parentApplication.TYPE_GENERIC) {
 					this.currentState = "GenericEditState";
-					this.sampleSetupView.currentState = 'GenericState';
-					
+					if (theTab.contains(sampleSetupView)) {
+						this.sampleSetupView.currentState = 'GenericState';
+					}
 				} else if (requestCategory.@type == parentApplication.TYPE_CAP_SEQ) {
 					this.currentState = "CapSeqEditState";
-					this.sampleSetupView.currentState = 'CapSeqState';
-					
+					if (theTab.contains(sampleSetupView)) {
+						this.sampleSetupView.currentState = 'CapSeqState';
+					}
 					this.samplesView.currentState = 'CapSeqState';				
 					this.samplesView.showHideColumns();				
 					if (this.samplesView.hasPlates()) {
@@ -2428,22 +2430,25 @@
 					
 				} else if (requestCategory.@type == parentApplication.TYPE_MIT_SEQ) {
 					this.currentState = "MitSeqEditState";
-					this.sampleSetupView.currentState = 'MitSeqState';
-					
+					if (theTab.contains(sampleSetupView)) {
+						this.sampleSetupView.currentState = 'MitSeqState';
+					}
 					this.samplesView.currentState = 'MitSeqState';				
 					this.samplesView.showHideColumns();				
 					
 				} else if (requestCategory.@type == parentApplication.TYPE_FRAG_ANAL) {
 					this.currentState = "FragAnalEditState";
-					this.sampleSetupView.currentState = 'FragAnalState';
-					
+					if (theTab.contains(sampleSetupView)) {
+						this.sampleSetupView.currentState = 'FragAnalState';
+					}
 					this.samplesView.currentState = 'FragAnalState';				
 					this.samplesView.showHideColumns();				
 					
 				} else if (requestCategory.@type == parentApplication.TYPE_CHERRY_PICK) {
 					this.currentState = "CherryPickEditState";
-					this.sampleSetupView.currentState = 'CherryPickState';
-					
+					if (theTab.contains(sampleSetupView)) {
+						this.sampleSetupView.currentState = 'CherryPickState';
+					}
 					this.samplesView.currentState = 'CherryPickState';				
 					var numDestinationWells:int = Number(this.request.@numDestinationWells.toString());
 					cherryPlateList = this.request.cherryPlateList.Plate;
@@ -2454,16 +2459,21 @@
 					this.currentState = "IScanEditState";
 				}  else if (requestCategory.@type == parentApplication.TYPE_ISOLATION) {
 					this.currentState = "IsolationEditState";
-					this.sampleSetupView.currentState = 'IsolationState';
+					if (theTab.contains(sampleSetupView)) {
+						this.sampleSetupView.currentState = "IsolationState";
+					}
 					
 				} else if (requestCategory.@type == parentApplication.TYPE_SEQUENOM) {
 					this.currentState = "SequenomEditState";
-					this.sampleSetupView.currentState = 'SequenomState';
+					if (theTab.contains(sampleSetupView)) {
+						this.sampleSetupView.currentState = "SequenomState";
+					}
 					
 				} else if (requestCategory.@type == parentApplication.TYPE_CLINICAL_SEQUENOM) {
 					this.currentState = "ClinicalSequenomEditState";
-					this.sampleSetupView.currentState = 'ClinicalSequenomState';
-					
+					if (theTab.contains(sampleSetupView)) {
+						this.sampleSetupView.currentState = "ClinicalSequenomState";
+					}
 					this.samplesView.currentState = 'ClinicalSequenomState';
 					
 				}  else if(requestCategory.@type == parentApplication.TYPE_MICROARRAY) {
@@ -2499,7 +2509,9 @@
 					
 				} else if (requestCategory.@type == parentApplication.TYPE_NANOSTRING) {
 					this.currentState = "NanoStringEditState";
-					this.sampleSetupView.currentState = "NanoStringState";
+					if (theTab.contains(sampleSetupView)) {
+						this.sampleSetupView.currentState = "NanoStringState";
+					}
 				}
 				
 				this.initializeData();
@@ -2538,8 +2550,12 @@
 					
 				}
 				
-				notesView.setExternalNoteVisibility();
-				samplesView.setExternalNoteVisibility();
+				if (theTab.contains(notesView)) {
+					notesView.setExternalNoteVisibility();
+				}
+				if (theTab.contains(sampleSetupView)) {
+					sampleSetupView.setExternalNoteVisibility();
+				}
 				
 				if (this.linkToTopicBar != null) {
 					this.linkToTopicBar.refreshForDisplay();
@@ -3505,7 +3521,7 @@
 					idAppUserOwner = parentApplication.getIdAppUser();				
 				} else if (!this.isAmendState() && !this.isEditState()) {
 					idAppUserOwner = this.setupView.idAppUser;
-				} else if (this.isEditState()) {
+				} else if (this.isEditState() && ownerCombo!=null && ownerCombo.selectedItem!=null) {
 					idAppUserOwner = ownerCombo.selectedItem.@idAppUser;
 				} else {
 					idAppUserOwner = request.@idAppUser;
