@@ -5,6 +5,7 @@ import hci.framework.control.RollBackCommandException;
 import hci.framework.model.DetailObject;
 import hci.framework.utilities.XMLReflectException;
 import hci.gnomex.model.AppUserPublic;
+import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.HibernateUtil;
 
 import java.io.Serializable;
@@ -13,6 +14,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashMap;
+import java.util.Iterator;
 
 import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
@@ -20,6 +22,8 @@ import javax.servlet.http.HttpSession;
 
 import org.hibernate.Session;
 import org.hibernate.internal.SessionImpl;
+import org.hibernate.jdbc.ReturningWork;
+import org.hibernate.jdbc.Work;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.output.XMLOutputter;
@@ -59,38 +63,13 @@ public class GetAppUserPublic extends GNomExCommand implements Serializable {
     try {
       sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
 
-      AppUserPublic theAppUser = (AppUserPublic) sess.get(AppUserPublic.class, appUser.getIdAppUser());
+      AppUserPublic theAppUser = sess.get(AppUserPublic.class, appUser.getIdAppUser());
 
       Document doc = new Document(theAppUser.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement());
 
-      Statement stmt = null;
-      ResultSet rs = null;
-      
-   	  SessionImpl sessionImpl = (SessionImpl) sess;   	  
-      con =  sessionImpl.connection();   
-      
-      stmt = con.createStatement();
+      MyReturnWork mw  = new MyReturnWork(appUser.getIdAppUser());
+      ResultSet rs = sess.doReturningWork(mw);
 
-      StringBuffer buf = new StringBuffer("select lm.idLab, l.lastName, l.firstName, 'Manager' as role, sendUploadAlert as doUploadAlert\n");
-      buf.append(" from LabManager lm\n");
-      buf.append("   join Lab l\n");
-      buf.append("   on lm.idLab = l.idLab\n");
-      buf.append(" where idAppUser = " + appUser.getIdAppUser().intValue() + "\n");
-      buf.append(" union\n");
-      buf.append(" select  lm.idLab, l.lastName, l.firstName, 'Collaborator' as role, sendUploadAlert as doUploadAlert\n");
-      buf.append(" from LabCollaborator lm\n");
-      buf.append("   join Lab l\n");
-      buf.append("   on lm.idLab = l.idLab\n");
-      buf.append(" where idAppUser = " + appUser.getIdAppUser().intValue() + "\n");
-      buf.append(" union\n");
-      buf.append(" select  lm.idLab, l.lastName, l.firstName, 'User' as role, sendUploadAlert  as doUploadAlert\n");
-      buf.append(" from LabUser lm\n");
-      buf.append("   join Lab l\n");
-      buf.append("   on lm.idLab = l.idLab\n");
-      buf.append(" where idAppUser = " + appUser.getIdAppUser().intValue() + "\n");
-      buf.append(" order by lastName, firstName, role\n");
-
-      rs = stmt.executeQuery(buf.toString());
       Element notificationLabs = new Element("notificationLabs");
       while (rs.next()) {
         Element labNode = new Element("Lab");
@@ -117,7 +96,6 @@ public class GetAppUserPublic extends GNomExCommand implements Serializable {
       }
       doc.getRootElement().addContent(notificationLabs);
       rs.close();
-      stmt.close();
 
       XMLOutputter out = new org.jdom.output.XMLOutputter();
       this.xmlResult = out.outputString(doc);
@@ -144,10 +122,7 @@ public class GetAppUserPublic extends GNomExCommand implements Serializable {
     } finally {
       try {
         if (sess != null) {
-          if (con != null) {
-            con.close();
-          }
-          this.getSecAdvisor().closeReadOnlyHibernateSession();
+          HibernateSession.closeTomcatSession();
         }
       } catch (Exception e) {
 
@@ -161,6 +136,40 @@ public class GetAppUserPublic extends GNomExCommand implements Serializable {
     }
 
     return this;
+  }
+
+}
+
+class MyReturnWork implements ReturningWork<ResultSet>{
+  private Integer idAppUser;
+
+  public MyReturnWork(Integer idAppUser){
+    this.idAppUser = idAppUser;
+  }
+
+  @Override
+  public ResultSet execute(Connection conn) throws SQLException {
+    Statement stmt = conn.createStatement();
+    StringBuffer buf = new StringBuffer("select lm.idLab, l.lastName, l.firstName, 'Manager' as role, sendUploadAlert as doUploadAlert\n");
+    buf.append(" from LabManager lm\n");
+    buf.append("   join Lab l\n");
+    buf.append("   on lm.idLab = l.idLab\n");
+    buf.append(" where idAppUser = " + idAppUser.intValue() + "\n");
+    buf.append(" union\n");
+    buf.append(" select  lm.idLab, l.lastName, l.firstName, 'Collaborator' as role, sendUploadAlert as doUploadAlert\n");
+    buf.append(" from LabCollaborator lm\n");
+    buf.append("   join Lab l\n");
+    buf.append("   on lm.idLab = l.idLab\n");
+    buf.append(" where idAppUser = " + idAppUser.intValue() + "\n");
+    buf.append(" union\n");
+    buf.append(" select  lm.idLab, l.lastName, l.firstName, 'User' as role, sendUploadAlert  as doUploadAlert\n");
+    buf.append(" from LabUser lm\n");
+    buf.append("   join Lab l\n");
+    buf.append("   on lm.idLab = l.idLab\n");
+    buf.append(" where idAppUser = " + idAppUser.intValue() + "\n");
+    buf.append(" order by lastName, firstName, role\n");
+    return stmt.executeQuery(buf.toString());
+
   }
 
 }

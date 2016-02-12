@@ -928,10 +928,11 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       } finally {
         try {
           if (sessGuest != null) {
-            if (con != null) {
-              con.close();
-            }
-            this.getSecAdvisor().closeReadOnlyHibernateSession();
+//            if (con != null) {
+//              con.close();
+//            }
+//            this.getSecAdvisor().closeReadOnlyHibernateSession();
+            HibernateSession.closeTomcatSession();
           }
         } catch (Exception e) {
         }
