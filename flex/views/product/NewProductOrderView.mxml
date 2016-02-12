@@ -224,7 +224,8 @@
 			
 			private function onSaveProductOrder(event:ResultEvent):void {			
 				if(saveProductOrder.lastResult.name() != "SUCCESS"){
-					Alert.show(saveProductOrder.lastResult..ACTMESSAGE.@TEXT);					
+					Alert.show(saveProductOrder.lastResult..ACTMESSAGE.@TEXT);
+					this.saveButton.enabled = true;
 				} else{
 					var message:String = "Your product order(s) has been successfully placed";
 					for each ( var po:Object in saveProductOrder.lastResult..ProductOrder ) {
@@ -289,6 +290,7 @@
 					Alert.show("Please agree to the terms.", "Warning");
 					return;
 				}
+				this.saveButton.enabled = false;
 				var params:Object = new Object();
 				params.productListXMLString = "<productList>" + productList.toXMLString() + "</productList>";
 				params.idBillingAccount = billingAccountCombo.selectedItem.@idBillingAccount;

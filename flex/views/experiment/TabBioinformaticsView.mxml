@@ -107,9 +107,7 @@
 						seqLane.@genomeBuild = "";
 					}
 				}
-				
-				
-				
+
 				return 0;
 			}
 		]]>
@@ -130,10 +128,10 @@
 			<mx:Repeater id="genomeBuildRepeater" dataProvider="{sampleOrganisms}" >
 				<mx:HBox width="100%" verticalGap="0" paddingBottom="0" paddingTop="0">
 					<mx:Label text="{genomeBuildRepeater.currentItem.@organism}" width="100" />
-					<mx:CheckBox id="alignCheckBox" label="Yes, align to genome build" click="{onAlignCheckBoxClick(event); parentDocument.dirty.setDirty();}" selected="{genomeBuildRepeater.currentItem.@idGenomeBuildAlignTo != '' || genomeBuildRepeater.currentItem.@alignToGenomeBuild == 'Y'}"/>
+					<mx:CheckBox id="alignCheckBox" label="Yes, align to genome build" enabled="{!parentDocument.isEditState() || (parentDocument.isEditState() &amp;&amp; parentApplication.isAdminState) }" click="{onAlignCheckBoxClick(event); parentDocument.dirty.setDirty();}" selected="{genomeBuildRepeater.currentItem.@idGenomeBuildAlignTo != '' || genomeBuildRepeater.currentItem.@alignToGenomeBuild == 'Y'}"/>
 					<mx:ComboBox labelField="@display" id="genomeBuildCombo" change="{onGenomeBuildComboChange(event); parentDocument.dirty.setDirty();}" 
 								 width="300" dataProvider="{parentDocument.getFilteredGenomeBuildList(genomeBuildRepeater.currentItem.@idOrganism)}" 
-								 enabled="{genomeBuildRepeater.currentItem.@idGenomeBuildAlignTo != '' || genomeBuildRepeater.currentItem.@alignToGenomeBuild == 'Y'}" selectedIndex="{getIndexOfGenomeBuild(genomeBuildRepeater.currentItem.@idGenomeBuildAlignTo, genomeBuildRepeater.currentItem.@idOrganism, genomeBuildRepeater.currentItem.@idSequenceLane)}"/>
+								 enabled="{(!parentDocument.isEditState() || (parentDocument.isEditState() &amp;&amp; parentApplication.isAdminState)) &amp;&amp; (genomeBuildRepeater.currentItem.@idGenomeBuildAlignTo != '' || genomeBuildRepeater.currentItem.@alignToGenomeBuild == 'Y')}" selectedIndex="{getIndexOfGenomeBuild(genomeBuildRepeater.currentItem.@idGenomeBuildAlignTo, genomeBuildRepeater.currentItem.@idOrganism, genomeBuildRepeater.currentItem.@idSequenceLane)}"/>
 				</mx:HBox>
 			</mx:Repeater>
 		</mx:VBox>

@@ -100,9 +100,8 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
   private Integer         numPrePooledTubes;
   private String          includeBisulfideConversion;
   private String          includeQubitConcentration;
-  private String          alignToGenomeBuild;
   private String          adminNotes;
-  private Integer		  idProduct;
+  private Integer		      idProduct;
 
   // permission field
   private boolean     canUpdateVisibility;
@@ -1438,14 +1437,6 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
 
   public void setIncludeQubitConcentration( String includeQubitConcentration ) {
     this.includeQubitConcentration = includeQubitConcentration;
-  }
-
-  public String getAlignToGenomeBuild() {
-    return alignToGenomeBuild;
-  }
-
-  public void setAlignToGenomeBuild(String alignToGenomeBuild) {
-    this.alignToGenomeBuild = alignToGenomeBuild;
   }
 
   public String getTurnAroundTime() {

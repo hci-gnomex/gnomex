@@ -110,3 +110,10 @@ CALL ExecuteIfTableExists('gnomex','BillingTemplateItem_Audit','ALTER TABLE Bill
 ALTER TABLE ProductLedger
 ADD COLUMN notes VARCHAR(5000) NULL;
 CALL ExecuteIfTableExists('gnomex','ProductLedger_Audit','ALTER TABLE ProductLedger_Audit ADD COLUMN notes VARCHAR(5000) NULL');
+
+
+-- Drop the alignToGenomeBuild column
+ALTER TABLE Request
+DROP COLUMN alignToGenomeBuild;
+
+CALL ExecuteIfTableExists('gnomex', 'Request_Audit', 'ALTER TABLE Request_Audit DROP COLUMN alignToGenomeBuild');

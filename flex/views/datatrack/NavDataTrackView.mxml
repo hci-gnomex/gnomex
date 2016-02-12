@@ -717,6 +717,7 @@
 				params.idOrganism = refreshItem.@idOrganism;
 				params.idGenomeBuild = refreshItem.@idGenomeBuild;
 				params.idLab = refreshItem.@idLab;
+				params.number = refreshItem.@number;
 				getDataTrackList.send(params);
 			}
 			

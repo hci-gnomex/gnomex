@@ -68,7 +68,7 @@ public class DataTrack extends DetailObject implements Serializable, Owned, Visi
 	private Set                 dataTrackFiles;
 	private AppUser             appUser;
 	private Set                 topics;
-	
+
   public Set getTopics() {
     return topics;
   }
@@ -78,7 +78,7 @@ public class DataTrack extends DetailObject implements Serializable, Owned, Visi
   private Map<String, Object> props;  // tag/value representation of annotation properties
 
   private Integer             folderCount;  // transient variable - initialized in DataTrackQuery
-  
+
 	public Integer getIdDataTrack() {
 		return idDataTrack;
 	}
@@ -130,7 +130,7 @@ public class DataTrack extends DetailObject implements Serializable, Owned, Visi
 		} else {
 			return false;
 		}
-	}    
+	}
 	public String getSummary() {
 		return summary;
 	}
@@ -197,7 +197,7 @@ public class DataTrack extends DetailObject implements Serializable, Owned, Visi
   public void setAppUser(AppUser u) {
     appUser = u;
   }
-  
+
   public Integer getIdDataTrackFolder() {
     int id = 0;
     if ( this.getFolders() != null ) {
@@ -210,7 +210,7 @@ public class DataTrack extends DetailObject implements Serializable, Owned, Visi
     }
     return id;
   }
-  
+
   @SuppressWarnings("unchecked")
 	public Document getXML(SecurityAdvisor secAdvisor, DictionaryHelper dh, String data_root, String analysis_data_root) throws Exception {
 		Document doc = new Document(new Element("DataTrack"));
@@ -235,7 +235,8 @@ public class DataTrack extends DetailObject implements Serializable, Owned, Visi
 		root.setAttribute("idInstitution", this.getIdInstitution() != null ? this.getIdInstitution().toString() : "");
 		root.setAttribute("owner", this.getIdAppUser() != null ? dh.getAppUserObject(this.getIdAppUser()).getDisplayName() : "");
 		root.setAttribute("genomeBuild", genomeBuild != null ? genomeBuild.getGenomeBuildName() : "");
-		String orgString = DictionaryManager.getDisplay("hci.gnomex.model.Organism", genomeBuild.getIdOrganism().toString());
+		String orgString = DictionaryManager.getDisplay("hci.gnomex.model.OrganismLite", genomeBuild.getIdOrganism().toString());
+		root.setAttribute("idOrganism", genomeBuild.getIdOrganism() != null ? genomeBuild.getIdOrganism().toString() : "");
 		root.setAttribute("organism", orgString != null ? orgString : "");
 		root.setAttribute("securityGroup", this.getLab() != null ? this.getLab().getName() : "");
 		root.setAttribute("createdBy", this.getCreatedBy() != null ? this.getCreatedBy() : "");
@@ -248,7 +249,7 @@ public class DataTrack extends DetailObject implements Serializable, Owned, Visi
 		// Also look for files that can be linked to the UCSC Genome Browser
 		if (data_root != null) {
       root.setAttribute("folderCount", Integer.valueOf(this.getFolders().size()).toString());
-			Element foldersNode = new Element("DataTrackFolders"); 
+			Element foldersNode = new Element("DataTrackFolders");
 			root.addContent(foldersNode);
 			for(DataTrackFolder dtf : (Set<DataTrackFolder>)this.getFolders()) {
 				Element folderNode = new Element("DataTrackFolder");
@@ -273,7 +274,7 @@ public class DataTrack extends DetailObject implements Serializable, Owned, Visi
             ucscLinkFile = appendFileXML(dtFile.getAssociatedFilePath(analysis_data_root), dirNode, null, dtFile, ucscLinkFile);
           }
         }
-        dirNode.setAttribute("ucscLinkFile", ucscLinkFile);			  
+        dirNode.setAttribute("ucscLinkFile", ucscLinkFile);
 			} else if (fd.exists()) {
 			  // We have files in the Data Track folder
         Element dirNode = new Element("Dir");
@@ -296,13 +297,13 @@ public class DataTrack extends DetailObject implements Serializable, Owned, Visi
 					AppUser u = (AppUser)i.next();
 					Element userNode = new Element("AppUser");
 					collaboratorsNode.addContent(userNode);
-					userNode.setAttribute("idAppUser", u.getIdAppUser().toString());  
+					userNode.setAttribute("idAppUser", u.getIdAppUser().toString());
 					userNode.setAttribute("name", u.getDisplayName());
 					userNode.setAttribute("userDisplayName", u.getDisplayName());
 				}
 			}
 		}
-		
+
     // Show list of topics.  Only show for
     // annotation detail (when data_root is provided)
     if (data_root != null) {
@@ -313,14 +314,14 @@ public class DataTrack extends DetailObject implements Serializable, Owned, Visi
           Topic t = (Topic)i.next();
           Element topicNode = new Element("Topic");
           topicsNode.addContent(topicNode);
-          topicNode.setAttribute("idTopic", t.getIdTopic().toString()); 
+          topicNode.setAttribute("idTopic", t.getIdTopic().toString());
           topicNode.setAttribute("name", t.getName());
           topicNode.setAttribute("description", t.getDescription()==null?"":t.getDescription());
           topicNode.setAttribute("idAppUser", t.getIdAppUser()==null?"":t.getIdAppUser().toString());
           topicNode.setAttribute("idLab", t.getIdLab()==null?"":t.getIdLab().toString());
           topicNode.setAttribute("createdBy",  t.getCreatedBy()==null?"":t.getCreatedBy());
           topicNode.setAttribute("createDate", t.getCreateDate()==null?"":this.formatDate(t.getCreateDate()));
-          topicNode.setAttribute("idParentTopic", t.getIdParentTopic()==null?"":t.getIdParentTopic().toString()); 
+          topicNode.setAttribute("idParentTopic", t.getIdParentTopic()==null?"":t.getIdParentTopic().toString());
         }
       }
     }
@@ -352,7 +353,7 @@ public class DataTrack extends DetailObject implements Serializable, Owned, Visi
 					AppUser user = possibleCollaboratorMap.get(name);
 					Element userNode = new Element("AppUser");
 					possibleCollaboratorsNode.addContent(userNode);
-					userNode.setAttribute("idAppUser", user.getIdAppUser().toString());  
+					userNode.setAttribute("idAppUser", user.getIdAppUser().toString());
 					userNode.setAttribute("name", user.getDisplayName());
 					userNode.setAttribute("userDisplayName", user.getDisplayName());
 				}
@@ -369,14 +370,14 @@ public class DataTrack extends DetailObject implements Serializable, Owned, Visi
 				root.addContent(institutesNode);
 				Element emptyNode = new Element("Institution");
 				institutesNode.addContent(emptyNode);
-				emptyNode.setAttribute("idInstitution", "");  
+				emptyNode.setAttribute("idInstitution", "");
 				emptyNode.setAttribute("name", "");
 
 				for(Iterator i = lab.getInstitutions().iterator(); i.hasNext();) {
 					Institution institute = (Institution)i.next();
 					Element userNode = new Element("Institution");
 					institutesNode.addContent(userNode);
-					userNode.setAttribute("idInstitution", institute.getIdInstitution().toString());  
+					userNode.setAttribute("idInstitution", institute.getIdInstitution().toString());
           userNode.setAttribute("name", institute.getInstitution());
           userNode.setAttribute("isDefault", institute.getIsDefault());
 				}
@@ -404,15 +405,15 @@ public class DataTrack extends DetailObject implements Serializable, Owned, Visi
 						break;
 					}
 				}
-        
+
 				// Skip property if it has no data and is not active.
 				if (ap == null && property.getIsActive().equals("N")) {
 				  continue;
 				}
-				
+
         Element propNode = new Element("PropertyEntry");
         propertiesNode.addContent(propNode);
-				propNode.setAttribute("idPropertyEntry", ap != null ? ap.getIdPropertyEntry().toString() : "");  
+				propNode.setAttribute("idPropertyEntry", ap != null ? ap.getIdPropertyEntry().toString() : "");
 				propNode.setAttribute("name", property.getName());
 				propNode.setAttribute("value", ap != null && ap.getValue() != null ? ap.getValue() : "");
 				propNode.setAttribute("codePropertyType", property.getCodePropertyType());
@@ -462,7 +463,7 @@ public class DataTrack extends DetailObject implements Serializable, Owned, Visi
 						optionNode.setAttribute("selected", isSelected ? "Y" : "N");
 					}
 				}
-			}      
+			}
 		}
 
 
@@ -471,24 +472,24 @@ public class DataTrack extends DetailObject implements Serializable, Owned, Visi
 
 		return doc;
 	}
-  
+
 
 	/**Returns 'none' if no files available for UCSC linking, 'convert' for files requiring conversion, or 'link' if they are ready to go.*/
 	public static String appendFileXML(String filePath, Element parentNode, String subDirName, DataTrackFile dataTrackFile, String ucscLinkFile) {
 		File fd = new File(filePath);
-		
+
 		if (fd.exists()) {
 		  if (fd.isDirectory()) {
   			String[] fileList = fd.list();
   			for (int x = 0; x < fileList.length; x++) {
   				String fileName = filePath + "/" + fileList[x];
   				File f1 = new File(fileName);
-  				
+
   				ucscLinkFile = formatUCSCLink(fileList[x], ucscLinkFile);
-  
+
   				// Show the subdirectory in the name if we are not at the main folder level
   				String displayName = formatDisplayName(fileList[x], f1, subDirName);
-  
+
   				if (f1.isDirectory()) {
   					Element fileNode = new Element("Dir");
   					parentNode.addContent(fileNode);
@@ -498,10 +499,10 @@ public class DataTrack extends DetailObject implements Serializable, Owned, Visi
   				} else {
   					Element fileNode = new Element("File");
   					parentNode.addContent(fileNode);
-  
+
   					long kb = DataTrackUtil.getKilobytes(f1.length());
   					String kilobytes = kb + " kb";
-  
+
   					fileNode.setAttribute("name", displayName);
   					fileNode.setAttribute("url", fileName);
   					fileNode.setAttribute("size", kilobytes);
@@ -515,16 +516,16 @@ public class DataTrack extends DetailObject implements Serializable, Owned, Visi
   		} else {
   		  // fd is a File
   		  ucscLinkFile = formatUCSCLink(fd.getName(), ucscLinkFile);
-  
+
         // Show the subdirectory in the name if we are not at the main folder level
         String displayName = formatDisplayName(fd.getName(), fd, subDirName);
-  
+
         Element fileNode = new Element("File");
         parentNode.addContent(fileNode);
-  
+
         long kb = DataTrackUtil.getKilobytes(fd.length());
         String kilobytes = kb + " kb";
-  
+
         fileNode.setAttribute("name", displayName);
         fileNode.setAttribute("url", fd.getName());
         fileNode.setAttribute("size", kilobytes);
@@ -533,7 +534,7 @@ public class DataTrack extends DetailObject implements Serializable, Owned, Visi
         fileNode.setAttribute("idAnalysis", dataTrackFile != null ? dataTrackFile.getAnalysisFile().getAnalysis().getIdAnalysis().toString() : "");
         fileNode.setAttribute("analysisNumber", dataTrackFile != null ? dataTrackFile.getAnalysisFile().getAnalysis().getNumber() : "");
         fileNode.setAttribute("analysisLabel", dataTrackFile != null ?  dataTrackFile.getAnalysisFile().getAnalysis().getNumber() + " " + dataTrackFile.getAnalysisFile().getAnalysis().getName() : "");
-  
+
   		}
 		}else {
       // If we can't find the analysis file, just show the entry with ? for file size and last modify date
@@ -551,12 +552,12 @@ public class DataTrack extends DetailObject implements Serializable, Owned, Visi
       fileNode.setAttribute("idAnalysis", dataTrackFile != null ? dataTrackFile.getAnalysisFile().getAnalysis().getIdAnalysis().toString() : "");
       fileNode.setAttribute("analysisNumber", dataTrackFile != null ? dataTrackFile.getAnalysisFile().getAnalysis().getNumber() : "");
       fileNode.setAttribute("analysisLabel", dataTrackFile != null ?  dataTrackFile.getAnalysisFile().getAnalysis().getNumber() + " " + dataTrackFile.getAnalysisFile().getAnalysis().getName() : "");
-		  
+
 		}
-		
+
 		return ucscLinkFile;
 	}
-	
+
 	private static String formatUCSCLink(String fileName, String ucscLinkFile) {
     //link file?
 	  String ucscLink = ucscLinkFile;
@@ -567,9 +568,9 @@ public class DataTrack extends DetailObject implements Serializable, Owned, Visi
       ucscLink = "link";
     }
     return ucscLink;
-	  
+
 	}
-	
+
 	private static String formatDisplayName(String fileName, File file, String subDirName) {
     String displayName = "";
     if (subDirName != null) {
@@ -577,7 +578,7 @@ public class DataTrack extends DetailObject implements Serializable, Owned, Visi
     } else {
       displayName = file.getName();
     }
-    return displayName;	  
+    return displayName;
 	}
 
 	public void removeFiles(String data_root) throws IOException {
@@ -601,7 +602,7 @@ public class DataTrack extends DetailObject implements Serializable, Owned, Visi
 			}
 
 			// Delete the data track directory
-			boolean success = dir.delete();	    	
+			boolean success = dir.delete();
 			if (!success) {
 				Logger.getLogger(DataTrack.class.getName()).log(Level.WARNING, "Unable to delete directory " + filePath);
 			}
@@ -628,7 +629,7 @@ public class DataTrack extends DetailObject implements Serializable, Owned, Visi
 
 			}
 		}
-		
+
 		// Now list any analysis files associated with this dataTrack
     if (this.getDataTrackFiles() != null && this.getDataTrackFiles().size() > 0) {
       for (DataTrackFile dtFile : (Set<DataTrackFile>)this.getDataTrackFiles()) {
@@ -706,13 +707,13 @@ public class DataTrack extends DetailObject implements Serializable, Owned, Visi
 			}
 			//make sure it's not a ucsc big file xxx.bw, or xxx.bb
 			if (filePath.endsWith(".bb") || filePath.endsWith(".bw")) {
-        
+
 			  filePath = "";
 			} else {
-			  //bar files should return the directory so don't do anything		
+			  //bar files should return the directory so don't do anything
 			}
-			
-			
+
+
 		}
 		return filePath;
 	}
@@ -828,8 +829,8 @@ public class DataTrack extends DetailObject implements Serializable, Owned, Visi
   public void setDataTrackFiles(Set dataTrackFiles) {
     this.dataTrackFiles = dataTrackFiles;
   }
-  
-  
+
+
   /*
    * This is a convenience method used by GetRequest, GetAnalysis, GetDataTrack to fill in the XML for a "related" analysis.
    * This experiment may be related in terms of the Experiment->Analysis->DataTrack links or the links to Topics.

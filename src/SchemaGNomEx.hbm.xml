@@ -1074,7 +1074,6 @@
 			type="string" />
 		<property name="numPrePooledTubes" column="numPrePooledTubes"
 			type="integer" />
-		<property name="alignToGenomeBuild" column="alignToGenomeBuild" type="string" />
 		<property name="adminNotes" column="adminNotes" type="string" />
 		<property name="idProduct" column="idProduct" type="integer" />
 		<set name="samples" table="Sample" lazy="true" cascade="delete"

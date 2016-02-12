@@ -40,28 +40,28 @@ import org.jdom.Element;
 public class RequestParser implements Serializable {
 
   private SecurityAdvisor secAdvisor;
-  private boolean        isImport = false;
-  private Element        requestNode;
-  private Request         request;
-  private boolean        isNewRequest = false;
-  private boolean        reassignBillingAccount = false;
-  private String          otherCharacteristicLabel;
-  private List            sampleIds = new ArrayList();
-  private Map             sampleMap = new HashMap();
-  private Map             propertiesToApplyMap = new TreeMap();
-  private Map             seqLibTreatmentMap = new HashMap();
-  private Map             collaboratorUploadMap = new HashMap();
-  private Map             collaboratorUpdateMap = new HashMap();
-  private Map             sampleAnnotationMap = new HashMap();
-  private boolean        showTreatments = false;
-  private Map             sampleTreatmentMap = new HashMap();
-  private Map             sampleAnnotationCodeMap = new TreeMap();
-  private List            hybInfos = new ArrayList();
-  private List            sequenceLaneInfos = new ArrayList();
-  private boolean        saveReuseOfSlides = false;
-  private String          amendState = "";
-  private List<String>    ccNumberList = new ArrayList<String>();
-  private Integer         originalIdLab = null;
+  private boolean isImport = false;
+  private Element requestNode;
+  private Request request;
+  private boolean isNewRequest = false;
+  private boolean reassignBillingAccount = false;
+  private String otherCharacteristicLabel;
+  private List sampleIds = new ArrayList();
+  private Map sampleMap = new HashMap();
+  private Map propertiesToApplyMap = new TreeMap();
+  private Map seqLibTreatmentMap = new HashMap();
+  private Map collaboratorUploadMap = new HashMap();
+  private Map collaboratorUpdateMap = new HashMap();
+  private Map sampleAnnotationMap = new HashMap();
+  private boolean showTreatments = false;
+  private Map sampleTreatmentMap = new HashMap();
+  private Map sampleAnnotationCodeMap = new TreeMap();
+  private List hybInfos = new ArrayList();
+  private List sequenceLaneInfos = new ArrayList();
+  private boolean saveReuseOfSlides = false;
+  private String amendState = "";
+  private List<String> ccNumberList = new ArrayList<String>();
+  private Integer originalIdLab = null;
   private Map<String, Plate> plateMap = new HashMap<String, Plate>();
   private Map<String, PlateWell> wellMap = new HashMap<String, PlateWell>();
   private Map<String, SamplePlateWell> sampleToPlateMap = new HashMap<String, SamplePlateWell>();
@@ -151,14 +151,12 @@ public class RequestParser implements Serializable {
 
     this.initializeRequest(requestNode, sess, requestCategory);
 
-    for(Iterator i = requestNode.getChild("samples").getChildren("Sample").iterator(); i.hasNext();) {
-      Element sampleNode = (Element)i.next();
+    for (Iterator i = requestNode.getChild("samples").getChildren("Sample").iterator(); i.hasNext();) {
+      Element sampleNode = (Element) i.next();
       this.initializeSample(requestNode, sampleNode, sess, requestCategory);
     }
 
-
-    if (requestNode.getChild("hybridizations") != null &&
-        !requestNode.getChild("hybridizations").getChildren("Hybridization").isEmpty()) {
+    if (requestNode.getChild("hybridizations") != null && !requestNode.getChild("hybridizations").getChildren("Hybridization").isEmpty()) {
 
       for (Iterator i = requestNode.getChild("hybridizations").getChildren("Hybridization").iterator(); i.hasNext();) {
         Element hybNode = (Element) i.next();
@@ -277,7 +275,7 @@ public class RequestParser implements Serializable {
     }
     if (n.getAttributeValue("idSubmitter") != null && !n.getAttributeValue("idSubmitter").equals("")) {
       request.setIdSubmitter(new Integer(n.getAttributeValue("idSubmitter")));
-    } 
+    }
     if (n.getAttributeValue("idLab") != null && !n.getAttributeValue("idLab").equals("")) {
       request.setIdLab(new Integer(n.getAttributeValue("idLab")));
     }
@@ -323,12 +321,6 @@ public class RequestParser implements Serializable {
     if (n.getAttributeValue("includeQubitConcentration") != null && !n.getAttributeValue("includeQubitConcentration").equals(""))
       request.setIncludeQubitConcentration(n.getAttributeValue("includeQubitConcentration"));
 
-    if (n.getAttributeValue("alignToGenomeBuild") != null && !n.getAttributeValue("alignToGenomeBuild").equals("")) {
-      request.setAlignToGenomeBuild(n.getAttributeValue("alignToGenomeBuild"));
-    } else {
-      request.setAlignToGenomeBuild("N");
-    }
-
     if (n.getAttributeValue("idBillingAccount") != null && !n.getAttributeValue("idBillingAccount").equals("")) {
       Integer newIdBillingAccount = new Integer(n.getAttributeValue("idBillingAccount"));
       // If the billing account has been changed, we need to know so that any billing items can be revised as well.
@@ -342,18 +334,18 @@ public class RequestParser implements Serializable {
       }
       billingTemplate = BillingTemplateQueryManager.retrieveBillingTemplate(sess, request);
       if (billingTemplate == null) {
-    	  billingTemplate = new BillingTemplate(request);
+        billingTemplate = new BillingTemplate(request);
       }
       billingTemplate.setIdBillingAccount(newIdBillingAccount);
     } else if (n.getAttributeValue("billingTemplate") != null && !n.getAttributeValue("billingTemplate").equals("")) {
-    	billingTemplate = BillingTemplateParser.parse(new Element(n.getAttributeValue("billingTemplate")), sess);
-    	if (!isNewRequest && !this.isExternalExperiment()) {
-    		BillingTemplate oldTemplate = BillingTemplateQueryManager.retrieveBillingTemplate(sess, request);
-    		if (oldTemplate == null || !oldTemplate.equals(billingTemplate)) {
-    			reassignBillingAccount = true;
-    		}
-    	}
-    	billingTemplate.setOrder(request);
+      billingTemplate = BillingTemplateParser.parse(new Element(n.getAttributeValue("billingTemplate")), sess);
+      if (!isNewRequest && !this.isExternalExperiment()) {
+        BillingTemplate oldTemplate = BillingTemplateQueryManager.retrieveBillingTemplate(sess, request);
+        if (oldTemplate == null || !oldTemplate.equals(billingTemplate)) {
+          reassignBillingAccount = true;
+        }
+      }
+      billingTemplate.setOrder(request);
     }
 
     if (n.getAttributeValue("description") != null && !n.getAttributeValue("description").equals("")) {
@@ -404,18 +396,17 @@ public class RequestParser implements Serializable {
     previousCodeRequestStatus = request.getCodeRequestStatus();
     if (n.getAttributeValue("codeRequestStatus") != null && !n.getAttributeValue("codeRequestStatus").equals("")) {
       // Don't change request status to submitted unless the request is in new status
-      if ( n.getAttributeValue( "codeRequestStatus" ).equals( RequestStatus.SUBMITTED )&&
-          ( request.getCodeRequestStatus()!=null && !request.getCodeRequestStatus().equals( RequestStatus.NEW ))){
-        //Do nothing
+      if (n.getAttributeValue("codeRequestStatus").equals(RequestStatus.SUBMITTED) && (request.getCodeRequestStatus() != null && !request.getCodeRequestStatus().equals(RequestStatus.NEW))) {
+        // Do nothing
       } else {
         request.setCodeRequestStatus(n.getAttributeValue("codeRequestStatus"));
-        if ( n.getAttributeValue("codeRequestStatus").equals( RequestStatus.COMPLETED ) ) {
-          if ( request.getCompletedDate() == null ) {
-            request.setCompletedDate( new java.sql.Date(System.currentTimeMillis()) );
+        if (n.getAttributeValue("codeRequestStatus").equals(RequestStatus.COMPLETED)) {
+          if (request.getCompletedDate() == null) {
+            request.setCompletedDate(new java.sql.Date(System.currentTimeMillis()));
           }
           // Now change the billing items for the request from PENDING to COMPLETE
-          for (BillingItem billingItem : (Set<BillingItem>)request.getBillingItems(sess)) {
-            if(billingItem.getCodeBillingStatus().equals(BillingStatus.PENDING)){
+          for (BillingItem billingItem : request.getBillingItems(sess)) {
+            if (billingItem.getCodeBillingStatus().equals(BillingStatus.PENDING)) {
               billingItem.setCodeBillingStatus(BillingStatus.COMPLETED);
             }
           }
@@ -432,7 +423,7 @@ public class RequestParser implements Serializable {
 
     if (n.getChild("PropertyEntries") != null) {
       for (Iterator i1 = n.getChild("PropertyEntries").getChildren("PropertyEntry").iterator(); i1.hasNext();) {
-        Element scNode = (Element)i1.next();
+        Element scNode = (Element) i1.next();
         if (scNode.getAttributeValue("isSelected").equals("true")) {
           this.propertiesToApplyMap.put(scNode.getAttributeValue("idProperty"), null);
         }
@@ -441,22 +432,21 @@ public class RequestParser implements Serializable {
 
     if (n.getChild("SeqLibTreatmentEntries") != null) {
       for (Iterator i1 = n.getChild("SeqLibTreatmentEntries").getChildren("SeqLibTreatment").iterator(); i1.hasNext();) {
-        Element sltNode = (Element)i1.next();
+        Element sltNode = (Element) i1.next();
         this.seqLibTreatmentMap.put(sltNode.getAttributeValue("value"), null);
       }
     }
 
     if (n.getChild("collaborators") != null) {
       for (Iterator i1 = n.getChild("collaborators").getChildren("ExperimentCollaborator").iterator(); i1.hasNext();) {
-        Element collaboratorNode = (Element)i1.next();
+        Element collaboratorNode = (Element) i1.next();
         this.collaboratorUploadMap.put(collaboratorNode.getAttributeValue("idAppUser"), collaboratorNode.getAttributeValue("canUploadData"));
         this.collaboratorUpdateMap.put(collaboratorNode.getAttributeValue("idAppUser"), collaboratorNode.getAttributeValue("canUpdate"));
       }
     }
 
     // Figure out if the user intended to save sample treatments
-    if (n.getAttributeValue(TreatmentEntry.TREATMENT) != null &&
-        n.getAttributeValue(TreatmentEntry.TREATMENT).equalsIgnoreCase("Y")) {
+    if (n.getAttributeValue(TreatmentEntry.TREATMENT) != null && n.getAttributeValue(TreatmentEntry.TREATMENT).equalsIgnoreCase("Y")) {
       showTreatments = true;
     }
 
@@ -556,22 +546,22 @@ public class RequestParser implements Serializable {
     }
     if (n.getAttributeValue("concentration") != null && !n.getAttributeValue("concentration").equals("")) {
       String conc = n.getAttributeValue("concentration").replaceAll(",", "");
-      sample.setConcentration(new BigDecimal(conc));      
+      sample.setConcentration(new BigDecimal(conc));
     } else {
       sample.setConcentration(null);
     }
     if (n.getAttributeValue("codeConcentrationUnit") != null && !n.getAttributeValue("codeConcentrationUnit").equals("")) {
-      sample.setCodeConcentrationUnit(unEscape(n.getAttributeValue("codeConcentrationUnit")));      
+      sample.setCodeConcentrationUnit(unEscape(n.getAttributeValue("codeConcentrationUnit")));
     } else {
       sample.setCodeConcentrationUnit(ConcentrationUnit.DEFAULT_SAMPLE_CONCENTRATION_UNIT);
     }
     if (n.getAttributeValue("qubitConcentration") != null && !n.getAttributeValue("qubitConcentration").equals("")) {
-      sample.setQubitConcentration(new BigDecimal(n.getAttributeValue("qubitConcentration")));      
+      sample.setQubitConcentration(new BigDecimal(n.getAttributeValue("qubitConcentration")));
     } else {
       sample.setQubitConcentration(null);
     }
     if (n.getAttributeValue("qcCodeApplication") != null && !n.getAttributeValue("qcCodeApplication").equals("")) {
-      sample.setQcCodeApplication(n.getAttributeValue("qcCodeApplication"));      
+      sample.setQcCodeApplication(n.getAttributeValue("qcCodeApplication"));
     } else {
       sample.setQcCodeApplication(null);
     }
@@ -681,8 +671,7 @@ public class RequestParser implements Serializable {
         attributeName = attributeName.substring(5);
       }
 
-      if (value != null &&
-          this.propertiesToApplyMap.containsKey(attributeName)) {
+      if (value != null && this.propertiesToApplyMap.containsKey(attributeName)) {
         annotations.put(Integer.valueOf(attributeName), value);
         sampleAnnotationCodeMap.put(attributeName, null);
       }
@@ -690,11 +679,9 @@ public class RequestParser implements Serializable {
     sampleAnnotationMap.put(idSampleString, annotations);
 
     // Hash sample treatment
-    if (showTreatments &&
-        n.getAttributeValue(TreatmentEntry.TREATMENT) != null && !n.getAttributeValue(TreatmentEntry.TREATMENT).equals("")) {
+    if (showTreatments && n.getAttributeValue(TreatmentEntry.TREATMENT) != null && !n.getAttributeValue(TreatmentEntry.TREATMENT).equals("")) {
       sampleTreatmentMap.put(idSampleString, unEscape(n.getAttributeValue(TreatmentEntry.TREATMENT)));
     }
-
 
     // If the user can manage workflow, initialize the sample quality control fields
     // (for updating).
@@ -710,7 +697,6 @@ public class RequestParser implements Serializable {
       } else {
         sample.setQual260nmTo230nmRatio(null);
       }
-
 
       if (n.getAttributeValue("qualFragmentSizeFrom") != null && !n.getAttributeValue("qualFragmentSizeFrom").equals("")) {
         sample.setQualFragmentSizeFrom(new Integer(n.getAttributeValue("qualFragmentSizeFrom")));
@@ -739,12 +725,12 @@ public class RequestParser implements Serializable {
         sample.setQualRINNumber(n.getAttributeValue("qualRINNumber"));
       } else {
         sample.setQualRINNumber(null);
-      }   
+      }
 
       if (n.getAttributeValue("qualStatus") != null && !n.getAttributeValue("qualStatus").equals("")) {
         String status = n.getAttributeValue("qualStatus");
         if (status.equals(Constants.STATUS_COMPLETED)) {
-          sample.setQualDate(new java.sql.Date(System.currentTimeMillis()));      
+          sample.setQualDate(new java.sql.Date(System.currentTimeMillis()));
           sample.setQualFailed("N");
           sample.setQualBypassed("N");
 
@@ -756,7 +742,7 @@ public class RequestParser implements Serializable {
         } else if (status.equals(Constants.STATUS_BYPASSED)) {
           sample.setQualDate(null);
           sample.setQualFailed("N");
-          sample.setQualBypassed("Y");        
+          sample.setQualBypassed("Y");
         }
       } else {
         sample.setQualDate(null);
@@ -796,7 +782,7 @@ public class RequestParser implements Serializable {
         } else if (status.equals(Constants.STATUS_BYPASSED)) {
           sample.setSeqPrepDate(null);
           sample.setSeqPrepFailed("N");
-          sample.setSeqPrepBypassed("Y");        
+          sample.setSeqPrepBypassed("Y");
         }
       } else {
         sample.setSeqPrepDate(null);
@@ -841,10 +827,10 @@ public class RequestParser implements Serializable {
       this.sampleToPlateMap.put(idSampleString, samplePlateWell);
     }
 
-    // Hash map of assays chosen.  Build up the map
+    // Hash map of assays chosen. Build up the map
     ArrayList<String> assays = new ArrayList<String>();
-    for(Iterator i = n.getAttributes().iterator(); i.hasNext();) {
-      Attribute attr = (Attribute)i.next();
+    for (Iterator i = n.getAttributes().iterator(); i.hasNext();) {
+      Attribute attr = (Attribute) i.next();
       if (attr.getName().startsWith("hasAssay") && attr.getValue() != null && attr.getValue().equals("Y")) {
         String name = attr.getName().substring(8);
         assays.add(name);
@@ -870,16 +856,16 @@ public class RequestParser implements Serializable {
 
     hybInfo.setIdHybridization(n.getAttributeValue("idHybridization"));
 
-    String idSampleChannel1String =  n.getAttributeValue("idSampleChannel1");
+    String idSampleChannel1String = n.getAttributeValue("idSampleChannel1");
     if (idSampleChannel1String != null && !idSampleChannel1String.equals("")) {
       hybInfo.setIdSampleChannel1String(idSampleChannel1String);
-      hybInfo.setSampleChannel1((Sample)sampleMap.get(idSampleChannel1String));
+      hybInfo.setSampleChannel1((Sample) sampleMap.get(idSampleChannel1String));
     }
 
-    String idSampleChannel2String =  n.getAttributeValue("idSampleChannel2");
+    String idSampleChannel2String = n.getAttributeValue("idSampleChannel2");
     if (idSampleChannel2String != null && !idSampleChannel2String.equals("")) {
       hybInfo.setIdSampleChannel2String(idSampleChannel2String);
-      hybInfo.setSampleChannel2((Sample)sampleMap.get(idSampleChannel2String));
+      hybInfo.setSampleChannel2((Sample) sampleMap.get(idSampleChannel2String));
     }
 
     String codeSlideSource = null;
@@ -916,37 +902,37 @@ public class RequestParser implements Serializable {
     if (n.getAttributeValue("labelingStatusChannel1") != null && !n.getAttributeValue("labelingStatusChannel1").equals("")) {
       String status = n.getAttributeValue("labelingStatusChannel1");
       if (status.equals(Constants.STATUS_COMPLETED)) {
-        hybInfo.setLabelingCompletedChannel1("Y");          
-        hybInfo.setLabelingFailedChannel1("N");      
+        hybInfo.setLabelingCompletedChannel1("Y");
+        hybInfo.setLabelingFailedChannel1("N");
         hybInfo.setLabelingBypassedChannel1("N");
 
       } else if (status.equals(Constants.STATUS_TERMINATED)) {
-        hybInfo.setLabelingCompletedChannel1("N");          
-        hybInfo.setLabelingFailedChannel1("Y");      
+        hybInfo.setLabelingCompletedChannel1("N");
+        hybInfo.setLabelingFailedChannel1("Y");
         hybInfo.setLabelingBypassedChannel1("N");
 
       } else if (status.equals(Constants.STATUS_BYPASSED)) {
-        hybInfo.setLabelingCompletedChannel1("N");          
-        hybInfo.setLabelingFailedChannel1("N");      
+        hybInfo.setLabelingCompletedChannel1("N");
+        hybInfo.setLabelingFailedChannel1("N");
         hybInfo.setLabelingBypassedChannel1("Y");
       }
     } else {
-      hybInfo.setLabelingCompletedChannel1("N");          
-      hybInfo.setLabelingFailedChannel1("N");      
+      hybInfo.setLabelingCompletedChannel1("N");
+      hybInfo.setLabelingFailedChannel1("N");
       hybInfo.setLabelingBypassedChannel1("N");
     }
 
     // Labeling (channel2)
     if (n.getAttributeValue("labelingYieldChannel2") != null && !n.getAttributeValue("labelingYieldChannel2").equals("")) {
       hybInfo.setLabelingYieldChannel2(new BigDecimal(n.getAttributeValue("labelingYieldChannel2")));
-    } 
+    }
     if (n.getAttributeValue("idLabelingProtocolChannel2") != null && !n.getAttributeValue("idLabelingProtocolChannel2").equals("")) {
       hybInfo.setIdLabelingProtocolChannel2(new Integer(n.getAttributeValue("idLabelingProtocolChannel2")));
-    } 
+    }
 
     if (n.getAttributeValue("codeLabelingReactionSizeChannel2") != null && !n.getAttributeValue("codeLabelingReactionSizeChannel2").equals("")) {
       hybInfo.setCodeLabelingReactionSizeChannel2(n.getAttributeValue("codeLabelingReactionSizeChannel2"));
-    } 
+    }
 
     if (n.getAttributeValue("numberOfReactionsChannel2") != null && !n.getAttributeValue("numberOfReactionsChannel2").equals("")) {
       hybInfo.setNumberOfReactionsChannel2(new Integer(n.getAttributeValue("numberOfReactionsChannel2")));
@@ -954,23 +940,23 @@ public class RequestParser implements Serializable {
     if (n.getAttributeValue("labelingStatusChannel2") != null && !n.getAttributeValue("labelingStatusChannel2").equals("")) {
       String status = n.getAttributeValue("labelingStatusChannel2");
       if (status.equals(Constants.STATUS_COMPLETED)) {
-        hybInfo.setLabelingCompletedChannel2("Y");          
-        hybInfo.setLabelingFailedChannel2("N");      
+        hybInfo.setLabelingCompletedChannel2("Y");
+        hybInfo.setLabelingFailedChannel2("N");
         hybInfo.setLabelingBypassedChannel2("N");
 
       } else if (status.equals(Constants.STATUS_TERMINATED)) {
-        hybInfo.setLabelingCompletedChannel2("N");          
-        hybInfo.setLabelingFailedChannel2("Y");      
+        hybInfo.setLabelingCompletedChannel2("N");
+        hybInfo.setLabelingFailedChannel2("Y");
         hybInfo.setLabelingBypassedChannel2("N");
 
       } else if (status.equals(Constants.STATUS_BYPASSED)) {
-        hybInfo.setLabelingCompletedChannel2("N");          
-        hybInfo.setLabelingFailedChannel2("N");      
+        hybInfo.setLabelingCompletedChannel2("N");
+        hybInfo.setLabelingFailedChannel2("N");
         hybInfo.setLabelingBypassedChannel2("Y");
       }
     } else {
-      hybInfo.setLabelingCompletedChannel2("N");          
-      hybInfo.setLabelingFailedChannel2("N");      
+      hybInfo.setLabelingCompletedChannel2("N");
+      hybInfo.setLabelingFailedChannel2("N");
       hybInfo.setLabelingBypassedChannel2("N");
     }
 
@@ -978,30 +964,30 @@ public class RequestParser implements Serializable {
     if (n.getAttributeValue("hybStatus") != null && !n.getAttributeValue("hybStatus").equals("")) {
       String status = n.getAttributeValue("hybStatus");
       if (status.equals(Constants.STATUS_COMPLETED)) {
-        hybInfo.setHybCompleted("Y");      
+        hybInfo.setHybCompleted("Y");
         hybInfo.setHybFailed("N");
-        hybInfo.setHybBypassed("N");          
+        hybInfo.setHybBypassed("N");
       } else if (status.equals(Constants.STATUS_TERMINATED)) {
-        hybInfo.setHybCompleted("N");      
+        hybInfo.setHybCompleted("N");
         hybInfo.setHybFailed("Y");
-        hybInfo.setHybBypassed("N");                    
+        hybInfo.setHybBypassed("N");
       } else if (status.equals(Constants.STATUS_BYPASSED)) {
-        hybInfo.setHybCompleted("N");      
+        hybInfo.setHybCompleted("N");
         hybInfo.setHybFailed("N");
-        hybInfo.setHybBypassed("Y");                    
+        hybInfo.setHybBypassed("Y");
       }
     } else {
-      hybInfo.setHybCompleted("N");      
+      hybInfo.setHybCompleted("N");
       hybInfo.setHybFailed("N");
-      hybInfo.setHybBypassed("N"); 
+      hybInfo.setHybBypassed("N");
     }
 
     if (n.getAttributeValue("slideBarcode") != null && !n.getAttributeValue("slideBarcode").equals("")) {
       hybInfo.setSlideBarcode(n.getAttributeValue("slideBarcode"));
     }
     if (n.getAttributeValue("arrayCoordinateName") != null && !n.getAttributeValue("arrayCoordinateName").equals("")) {
-      hybInfo.setArrayCoordinateName(n.getAttributeValue("arrayCoordinateName"));        
-    } 
+      hybInfo.setArrayCoordinateName(n.getAttributeValue("arrayCoordinateName"));
+    }
 
     if (n.getAttributeValue("idHybProtocol") != null && !n.getAttributeValue("idHybProtocol").equals("")) {
       hybInfo.setIdHybProtocol(new Integer(n.getAttributeValue("idHybProtocol")));
@@ -1017,22 +1003,22 @@ public class RequestParser implements Serializable {
     if (n.getAttributeValue("extractionStatus") != null && !n.getAttributeValue("extractionStatus").equals("")) {
       String status = n.getAttributeValue("extractionStatus");
       if (status.equals(Constants.STATUS_COMPLETED)) {
-        hybInfo.setExtractionCompleted("Y");      
+        hybInfo.setExtractionCompleted("Y");
         hybInfo.setExtractionFailed("N");
-        hybInfo.setExtractionBypassed("N");          
+        hybInfo.setExtractionBypassed("N");
       } else if (status.equals(Constants.STATUS_TERMINATED)) {
-        hybInfo.setExtractionCompleted("N");      
+        hybInfo.setExtractionCompleted("N");
         hybInfo.setExtractionFailed("Y");
-        hybInfo.setExtractionBypassed("N");                    
+        hybInfo.setExtractionBypassed("N");
       } else if (status.equals(Constants.STATUS_BYPASSED)) {
-        hybInfo.setExtractionCompleted("N");      
+        hybInfo.setExtractionCompleted("N");
         hybInfo.setExtractionFailed("N");
-        hybInfo.setExtractionBypassed("Y");                    
+        hybInfo.setExtractionBypassed("Y");
       }
     } else {
-      hybInfo.setExtractionCompleted("N");      
+      hybInfo.setExtractionCompleted("N");
       hybInfo.setExtractionFailed("N");
-      hybInfo.setExtractionBypassed("N"); 
+      hybInfo.setExtractionBypassed("N");
     }
 
     hybInfos.add(hybInfo);
@@ -1044,16 +1030,16 @@ public class RequestParser implements Serializable {
 
     sequenceLaneInfo.setIdSequenceLane(n.getAttributeValue("idSequenceLane"));
 
-    String idSampleString=  n.getAttributeValue("idSample");
+    String idSampleString = n.getAttributeValue("idSample");
     if (idSampleString != null && !idSampleString.equals("")) {
       sequenceLaneInfo.setIdSampleString(idSampleString);
-      sequenceLaneInfo.setSample((Sample)sampleMap.get(idSampleString));
+      sequenceLaneInfo.setSample((Sample) sampleMap.get(idSampleString));
     }
 
     // We use the sample ID in the XML if this is an import
     if (isImport) {
       sequenceLaneInfo.setNumber(n.getAttributeValue("number"));
-    }    
+    }
 
     if (n.getAttributeValue("idNumberSequencingCycles") != null && !n.getAttributeValue("idNumberSequencingCycles").equals("")) {
       sequenceLaneInfo.setIdNumberSequencingCycles(new Integer(n.getAttributeValue("idNumberSequencingCycles")));
@@ -1092,14 +1078,14 @@ public class RequestParser implements Serializable {
     if (n.getAttributeValue("firstCycleStatus") != null && !n.getAttributeValue("firstCycleStatus").equals("")) {
       String status = n.getAttributeValue("firstCycleStatus");
       if (status.equals(Constants.STATUS_COMPLETED)) {
-        sequenceLaneInfo.setSeqRunFirstCycleCompleted("Y");      
+        sequenceLaneInfo.setSeqRunFirstCycleCompleted("Y");
         sequenceLaneInfo.setSeqRunFirstCycleFailed("N");
       } else if (status.equals(Constants.STATUS_TERMINATED)) {
-        sequenceLaneInfo.setSeqRunFirstCycleCompleted("N");      
+        sequenceLaneInfo.setSeqRunFirstCycleCompleted("N");
         sequenceLaneInfo.setSeqRunFirstCycleFailed("Y");
-      } 
+      }
     } else {
-      sequenceLaneInfo.setSeqRunFirstCycleCompleted("N");      
+      sequenceLaneInfo.setSeqRunFirstCycleCompleted("N");
       sequenceLaneInfo.setSeqRunFirstCycleFailed("N");
     }
 
@@ -1107,29 +1093,29 @@ public class RequestParser implements Serializable {
     if (n.getAttributeValue("lastCycleStatus") != null && !n.getAttributeValue("lastCycleStatus").equals("")) {
       String status = n.getAttributeValue("lastCycleStatus");
       if (status.equals(Constants.STATUS_COMPLETED)) {
-        sequenceLaneInfo.setSeqRunLastCycleCompleted("Y");      
+        sequenceLaneInfo.setSeqRunLastCycleCompleted("Y");
         sequenceLaneInfo.setSeqRunLastCycleFailed("N");
       } else if (status.equals(Constants.STATUS_TERMINATED)) {
-        sequenceLaneInfo.setSeqRunLastCycleCompleted("N");      
+        sequenceLaneInfo.setSeqRunLastCycleCompleted("N");
         sequenceLaneInfo.setSeqRunLastCycleFailed("Y");
-      } 
+      }
     } else {
-      sequenceLaneInfo.setSeqRunLastCycleCompleted("N");      
+      sequenceLaneInfo.setSeqRunLastCycleCompleted("N");
       sequenceLaneInfo.setSeqRunLastCycleFailed("N");
-    } 
+    }
 
     // pipeline status
     if (n.getAttributeValue("pipelineStatus") != null && !n.getAttributeValue("pipelineStatus").equals("")) {
       String status = n.getAttributeValue("pipelineStatus");
       if (status.equals(Constants.STATUS_COMPLETED)) {
-        sequenceLaneInfo.setSeqRunPipelineCompleted("Y");      
+        sequenceLaneInfo.setSeqRunPipelineCompleted("Y");
         sequenceLaneInfo.setSeqRunPipelineFailed("N");
       } else if (status.equals(Constants.STATUS_TERMINATED)) {
-        sequenceLaneInfo.setSeqRunPipelineCompleted("N");      
+        sequenceLaneInfo.setSeqRunPipelineCompleted("N");
         sequenceLaneInfo.setSeqRunPipelineFailed("Y");
-      } 
+      }
     } else {
-      sequenceLaneInfo.setSeqRunPipelineCompleted("N");      
+      sequenceLaneInfo.setSeqRunPipelineCompleted("N");
       sequenceLaneInfo.setSeqRunPipelineFailed("N");
     }
 
@@ -1212,42 +1198,42 @@ public class RequestParser implements Serializable {
   }
 
   public static class HybInfo implements Serializable {
-    private String   idHybridization;
-    private String   idSampleChannel1String;
-    private String   idSampleChannel2String;
-    private Sample   sampleChannel1;
-    private Sample   sampleChannel2;
-    private String   codeSlideSource;
-    private Integer  idSlideDesign;
-    private String   notes;
+    private String idHybridization;
+    private String idSampleChannel1String;
+    private String idSampleChannel2String;
+    private Sample sampleChannel1;
+    private Sample sampleChannel2;
+    private String codeSlideSource;
+    private Integer idSlideDesign;
+    private String notes;
 
     private BigDecimal labelingYieldChannel1;
-    private Integer    idLabelingProtocolChannel1;
-    private Integer    numberOfReactionsChannel1;
-    private String     codeLabelingReactionSizeChannel1;
-    private String     labelingCompletedChannel1 = "N";
-    private String     labelingFailedChannel1 = "N";
-    private String     labelingBypassedChannel1 = "N";
+    private Integer idLabelingProtocolChannel1;
+    private Integer numberOfReactionsChannel1;
+    private String codeLabelingReactionSizeChannel1;
+    private String labelingCompletedChannel1 = "N";
+    private String labelingFailedChannel1 = "N";
+    private String labelingBypassedChannel1 = "N";
 
     private BigDecimal labelingYieldChannel2;
-    private Integer    idLabelingProtocolChannel2;
-    private Integer    numberOfReactionsChannel2;
-    private String     codeLabelingReactionSizeChannel2;
-    private String     labelingCompletedChannel2 = "N";
-    private String     labelingFailedChannel2 = "N";
-    private String     labelingBypassedChannel2 = "N";
+    private Integer idLabelingProtocolChannel2;
+    private Integer numberOfReactionsChannel2;
+    private String codeLabelingReactionSizeChannel2;
+    private String labelingCompletedChannel2 = "N";
+    private String labelingFailedChannel2 = "N";
+    private String labelingBypassedChannel2 = "N";
 
-    private String     slideBarcode;
-    private String     arrayCoordinateName;
-    private Integer    idHybProtocol;
-    private Integer    idScanProtocol;
-    private Integer    idFeatureExtractionProtocol;
-    private String     hybCompleted = "N";
-    private String     hybFailed = "N";
-    private String     hybBypassed = "N";
-    private String     extractionCompleted;
-    private String     extractionFailed;
-    private String     extractionBypassed;
+    private String slideBarcode;
+    private String arrayCoordinateName;
+    private Integer idHybProtocol;
+    private Integer idScanProtocol;
+    private Integer idFeatureExtractionProtocol;
+    private String hybCompleted = "N";
+    private String hybFailed = "N";
+    private String hybBypassed = "N";
+    private String extractionCompleted;
+    private String extractionFailed;
+    private String extractionBypassed;
 
     public String getIdHybridization() {
       return idHybridization;
@@ -1349,7 +1335,6 @@ public class RequestParser implements Serializable {
       return hybCompleted;
     }
 
-
     public void setHybCompleted(String hybCompleted) {
       this.hybCompleted = hybCompleted;
     }
@@ -1358,176 +1343,141 @@ public class RequestParser implements Serializable {
       return hybFailed;
     }
 
-
     public void setHybFailed(String hybFailed) {
       this.hybFailed = hybFailed;
     }
-
 
     public Integer getIdHybProtocol() {
       return idHybProtocol;
     }
 
-
     public void setIdHybProtocol(Integer idHybProtocol) {
       this.idHybProtocol = idHybProtocol;
     }
-
 
     public BigDecimal getLabelingYieldChannel1() {
       return labelingYieldChannel1;
     }
 
-
     public void setLabelingYieldChannel1(BigDecimal labelingYieldChannel1) {
       this.labelingYieldChannel1 = labelingYieldChannel1;
     }
-
 
     public BigDecimal getLabelingYieldChannel2() {
       return labelingYieldChannel2;
     }
 
-
     public void setLabelingYieldChannel2(BigDecimal labelingYieldChannel2) {
       this.labelingYieldChannel2 = labelingYieldChannel2;
     }
-
 
     public Integer getIdLabelingProtocolChannel1() {
       return idLabelingProtocolChannel1;
     }
 
-
     public void setIdLabelingProtocolChannel1(Integer idLabelingProtocolChannel1) {
       this.idLabelingProtocolChannel1 = idLabelingProtocolChannel1;
     }
-
 
     public Integer getIdLabelingProtocolChannel2() {
       return idLabelingProtocolChannel2;
     }
 
-
     public void setIdLabelingProtocolChannel2(Integer idLabelingProtocolChannel2) {
       this.idLabelingProtocolChannel2 = idLabelingProtocolChannel2;
     }
-
 
     public Integer getNumberOfReactionsChannel1() {
       return numberOfReactionsChannel1;
     }
 
-
     public void setNumberOfReactionsChannel1(Integer numberOfReactionsChannel1) {
       this.numberOfReactionsChannel1 = numberOfReactionsChannel1;
     }
-
 
     public Integer getNumberOfReactionsChannel2() {
       return numberOfReactionsChannel2;
     }
 
-
     public void setNumberOfReactionsChannel2(Integer numberOfReactionsChannel2) {
       this.numberOfReactionsChannel2 = numberOfReactionsChannel2;
     }
-
 
     public String getSlideBarcode() {
       return slideBarcode;
     }
 
-
     public void setSlideBarcode(String slideBarcode) {
       this.slideBarcode = slideBarcode;
     }
-
 
     public String getLabelingCompletedChannel1() {
       return labelingCompletedChannel1;
     }
 
-
     public void setLabelingCompletedChannel1(String labelingCompletedChannel1) {
       this.labelingCompletedChannel1 = labelingCompletedChannel1;
     }
-
 
     public String getLabelingCompletedChannel2() {
       return labelingCompletedChannel2;
     }
 
-
     public void setLabelingCompletedChannel2(String labelingCompletedChannel2) {
       this.labelingCompletedChannel2 = labelingCompletedChannel2;
     }
-
 
     public String getLabelingFailedChannel1() {
       return labelingFailedChannel1;
     }
 
-
     public void setLabelingFailedChannel1(String labelingFailedChannel1) {
       this.labelingFailedChannel1 = labelingFailedChannel1;
     }
-
 
     public String getLabelingFailedChannel2() {
       return labelingFailedChannel2;
     }
 
-
     public void setLabelingFailedChannel2(String labelingFailedChannel2) {
       this.labelingFailedChannel2 = labelingFailedChannel2;
     }
-
 
     public Integer getIdFeatureExtractionProtocol() {
       return idFeatureExtractionProtocol;
     }
 
-
     public void setIdFeatureExtractionProtocol(Integer idFeatureExtractionProtocol) {
       this.idFeatureExtractionProtocol = idFeatureExtractionProtocol;
     }
-
 
     public Integer getIdScanProtocol() {
       return idScanProtocol;
     }
 
-
     public void setIdScanProtocol(Integer idScanProtocol) {
       this.idScanProtocol = idScanProtocol;
     }
-
 
     public String getExtractionBypassed() {
       return extractionBypassed;
     }
 
-
     public void setExtractionBypassed(String extractionBypassed) {
       this.extractionBypassed = extractionBypassed;
     }
-
 
     public String getExtractionFailed() {
       return extractionFailed;
     }
 
-
     public void setExtractionFailed(String extractionFailed) {
       this.extractionFailed = extractionFailed;
     }
 
-
     public String getHybBypassed() {
       return hybBypassed;
     }
-
 
     public void setHybBypassed(String hybBypassed) {
       this.hybBypassed = hybBypassed;
@@ -1589,183 +1539,129 @@ public class RequestParser implements Serializable {
       this.flowCellChannelSampleConcentrationpM = flowCellChannelSampleConcentrationpM;
     }
 
-
     public Integer getIdNumberSequencingCycles() {
       return idNumberSequencingCycles;
     }
-
 
     public void setIdNumberSequencingCycles(Integer idNumberSequencingCycles) {
       this.idNumberSequencingCycles = idNumberSequencingCycles;
     }
 
-
     public Integer getIdNumberSequencingCyclesAllowed() {
       return idNumberSequencingCyclesAllowed;
     }
-
 
     public void setIdNumberSequencingCyclesAllowed(Integer idNumberSequencingCyclesAllowed) {
       this.idNumberSequencingCyclesAllowed = idNumberSequencingCyclesAllowed;
     }
 
-
     public String getIdSampleString() {
       return idSampleString;
     }
-
 
     public void setIdSampleString(String idSampleString) {
       this.idSampleString = idSampleString;
     }
 
-
     public String getIdSequenceLane() {
       return idSequenceLane;
     }
-
 
     public void setIdSequenceLane(String idSequenceLane) {
       this.idSequenceLane = idSequenceLane;
     }
 
-
     public Sample getSample() {
       return sample;
     }
-
 
     public void setSample(Sample sample) {
       this.sample = sample;
     }
 
-
-
     public Integer getIdGenomeBuildAlignTo() {
       return idGenomeBuildAlignTo;
     }
-
-
 
     public void setIdGenomeBuildAlignTo(Integer idGenomeBuildAlignTo) {
       this.idGenomeBuildAlignTo = idGenomeBuildAlignTo;
     }
 
-
-
     public String getAnalysisInstructions() {
       return analysisInstructions;
     }
-
-
 
     public void setAnalysisInstructions(String analysisInstructions) {
       this.analysisInstructions = analysisInstructions;
     }
 
-
-
     public Integer getNumberSequencingCyclesActual() {
       return numberSequencingCyclesActual;
     }
-
-
 
     public void setNumberSequencingCyclesActual(Integer numberSequencingCyclesActual) {
       this.numberSequencingCyclesActual = numberSequencingCyclesActual;
     }
 
-
-
     public Integer getClustersPerTile() {
       return clustersPerTile;
     }
-
-
 
     public void setClustersPerTile(Integer clustersPerTile) {
       this.clustersPerTile = clustersPerTile;
     }
 
-
-
     public String getFileName() {
       return fileName;
     }
-
-
 
     public void setFileName(String fileName) {
       this.fileName = fileName;
     }
 
-
-
     public String getSeqRunFirstCycleCompleted() {
       return seqRunFirstCycleCompleted;
     }
-
-
 
     public void setSeqRunFirstCycleCompleted(String seqRunFirstCycleCompleted) {
       this.seqRunFirstCycleCompleted = seqRunFirstCycleCompleted;
     }
 
-
-
     public String getSeqRunFirstCycleFailed() {
       return seqRunFirstCycleFailed;
     }
-
-
 
     public void setSeqRunFirstCycleFailed(String seqRunFirstCycleFailed) {
       this.seqRunFirstCycleFailed = seqRunFirstCycleFailed;
     }
 
-
-
     public String getSeqRunLastCycleCompleted() {
       return seqRunLastCycleCompleted;
     }
-
-
 
     public void setSeqRunLastCycleCompleted(String seqRunLastCycleCompleted) {
       this.seqRunLastCycleCompleted = seqRunLastCycleCompleted;
     }
 
-
-
     public String getSeqRunLastCycleFailed() {
       return seqRunLastCycleFailed;
     }
-
-
 
     public void setSeqRunLastCycleFailed(String seqRunLastCycleFailed) {
       this.seqRunLastCycleFailed = seqRunLastCycleFailed;
     }
 
-
-
     public String getSeqRunPipelineCompleted() {
       return seqRunPipelineCompleted;
     }
-
-
 
     public void setSeqRunPipelineCompleted(String seqRunPipelineCompleted) {
       this.seqRunPipelineCompleted = seqRunPipelineCompleted;
     }
 
-
-
     public String getSeqRunPipelineFailed() {
       return seqRunPipelineFailed;
     }
-
-
 
     public void setSeqRunPipelineFailed(String seqRunPipelineFailed) {
       this.seqRunPipelineFailed = seqRunPipelineFailed;
@@ -1805,23 +1701,21 @@ public class RequestParser implements Serializable {
     return saveReuseOfSlides;
   }
 
-
   public void setSaveReuseOfSlides(boolean saveReuseOfSlides) {
     this.saveReuseOfSlides = saveReuseOfSlides;
   }
-
 
   public static String unEscapeBasic(String text) {
     if (text == null) {
       return text;
     }
-    text = text.replaceAll("&amp;",    "&");
-    text = text.replaceAll("&quot;",   "\"");
-    text = text.replaceAll("&apos;",   "'");
-    text = text.replaceAll("&gt;",     ">");
-    text = text.replaceAll("&lt;",     "<");
-    text = text.replaceAll("&#181;",   "�");
-    text = text.replaceAll("&#xD;",   "\r");
+    text = text.replaceAll("&amp;", "&");
+    text = text.replaceAll("&quot;", "\"");
+    text = text.replaceAll("&apos;", "'");
+    text = text.replaceAll("&gt;", ">");
+    text = text.replaceAll("&lt;", "<");
+    text = text.replaceAll("&#181;", "�");
+    text = text.replaceAll("&#xD;", "\r");
 
     return text;
   }
@@ -1831,35 +1725,30 @@ public class RequestParser implements Serializable {
       return text;
     }
 
-    text = text.replaceAll("&#xD;",   "         ");
+    text = text.replaceAll("&#xD;", "         ");
     text = unEscapeBasic(text);
-    text = text.replaceAll("&#xA;",   "         ");
-    text = text.replaceAll("&#x10;",  "         ");
-    text = text.replaceAll("&#13;",   "         ");
-    text = text.replaceAll("&#x9;",   "    ");
+    text = text.replaceAll("&#xA;", "         ");
+    text = text.replaceAll("&#x10;", "         ");
+    text = text.replaceAll("&#13;", "         ");
+    text = text.replaceAll("&#x9;", "    ");
     return text;
   }
-
 
   public List getSequenceLaneInfos() {
     return sequenceLaneInfos;
   }
 
-
   public void setSequenceLaneInfos(List sequenceLaneInfos) {
     this.sequenceLaneInfos = sequenceLaneInfos;
   }
-
 
   public String getAmendState() {
     return amendState;
   }
 
-
   public void setAmendState(String amendState) {
     this.amendState = amendState;
   }
-
 
   public boolean isReassignBillingAccount() {
     return reassignBillingAccount;
@@ -1925,9 +1814,8 @@ public class RequestParser implements Serializable {
   }
 
   public BillingTemplate getBillingTemplate() {
-	  return billingTemplate;
+    return billingTemplate;
   }
-
 
   private class SamplePlateWell implements Serializable {
     public String plateIdAsString = "";

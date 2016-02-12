@@ -1876,7 +1876,6 @@ CREATE TABLE gnomex.Request (
   numPrePooledTubes INT(10) null,
   includeBisulfideConversion CHAR(1) NULL,
   includeQubitConcentration CHAR(1) NULL,
-  alignToGenomeBuild CHAR(1) NULL,
   adminNotes VARCHAR(5000) NULL,
   idProduct INT(10) NULL,
   PRIMARY KEY (idRequest),

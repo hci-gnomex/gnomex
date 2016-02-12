@@ -206,6 +206,7 @@
 				parentDocument.parentDocument.experimentEditView.instantiateTabs(this.selectedExperiment.@codeRequestCategory, true, false);
 				
 				genomeBuild = "";
+				this.alignToGenomeBuild = 'N';
 				organismName = "";
 				concHeader = "Conc. ";
 				var organismDict:Dictionary = new Dictionary();

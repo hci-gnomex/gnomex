@@ -1552,6 +1552,11 @@
 				theViews.visible = true;
 				theViews.selectedChild = navAnalysisView;
 				
+				//If it is already initialized we need to force the lookup for subsequent searches.
+				if(navAnalysisView.isInitialized){
+					navAnalysisView.refreshAnalysisForLookup();	
+				}
+				
 			}
 			
 			public function showDataTrackViewForItem(itemToSelect:Object, refreshItem:Object):void {

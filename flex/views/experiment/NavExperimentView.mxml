@@ -1628,6 +1628,16 @@
 							</mx:CheckBox>
 							<mx:Spacer width="14" id="spacer3"/>
 							<mx:HBox horizontalGap="2" verticalAlign="middle" >
+								<renderers:FilterComboBox dataProvider="{labMembers}" 
+														  labelField="@displayName" 
+														  prompt="Filter by lab member..."
+														  width="200" fontSize="10"
+														  close="getProjectRequestList.send(getBrowseParameters())" visible="{filterBox.visible &amp;&amp; myLabsExperimentsCheckbox.selected}"
+														  includeInLayout="{filterBox.visible &amp;&amp; myLabsExperimentsCheckbox.selected}"
+														  id="memberCombo">
+								</renderers:FilterComboBox>
+								<mx:Spacer width="10" includeInLayout="{parentApplication.myCoreFacilities.length() > 1}" 
+										   visible="{parentApplication.myCoreFacilities.length() > 1}"/>
 								<mx:VBox verticalGap="0" verticalAlign="middle" fontSize="9" id="vbox4"
 										 includeInLayout="{parentApplication.myCoreFacilities.length() > 1}" 
 										 visible="{parentApplication.myCoreFacilities.length() > 1}" >
@@ -1635,15 +1645,7 @@
 												 labelField="@display" prompt="Core facility..." fontSize="10" visible="{!parentApplication.isExternalDataSharingSite}" includeInLayout="{!parentApplication.isExternalDataSharingSite}">
 										<mx:change>this.ccLookupText.text = '';selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;requestCategoryComboBox.selectedItem = null;requestCategories.refresh();</mx:change>
 									</mx:ComboBox>
-								</mx:VBox>								
-								<renderers:FilterComboBox dataProvider="{labMembers}" 
-														  labelField="@displayName" 
-														  prompt="Filter by lab member..."
-														  width="200"
-														  close="getProjectRequestList.send(getBrowseParameters())" visible="{filterBox.visible &amp;&amp; myLabsExperimentsCheckbox.selected}"
-														  includeInLayout="{filterBox.visible &amp;&amp; myLabsExperimentsCheckbox.selected}"
-														  id="memberCombo">
-								</renderers:FilterComboBox>
+								</mx:VBox>
 								<mx:Spacer width="10" includeInLayout="{parentApplication.myCoreFacilities.length() > 1}" 
 										   visible="{parentApplication.myCoreFacilities.length() > 1}"/>
 								<renderers:FilterComboBox id="requestCategoryComboBox" fontSize="10" 

@@ -44,11 +44,8 @@ public class AppUserFilter extends DetailObject {
     queryBuf.append(" FROM           AppUser as user ");
     if (hasLabCriteria() || joinToCoreFacility) {
       queryBuf.append(" LEFT JOIN           user.labs as lab ");
-
-      if (membersOnly == false) {
-        queryBuf.append(" LEFT JOIN           user.collaboratingLabs as collabLab ");
-        queryBuf.append(" LEFT JOIN           user.managingLabs as managerLab ");
-      }
+      queryBuf.append(" LEFT JOIN           user.collaboratingLabs as collabLab ");
+      queryBuf.append(" LEFT JOIN           user.managingLabs as managerLab ");
     }
 
     addUserCriteria();
@@ -122,8 +119,7 @@ public class AppUserFilter extends DetailObject {
         throw new RuntimeException("Admin is not assigned to any core facilities.  Cannot apply appropriate filter to user query.");
       }
 
-    } else if (secAdvisor.getGroupsIManage().size() > 0) {
-
+    } else if (secAdvisor.getGroupsIManage().size() > 0 && membersOnly == false) {
       // Lab managers must be able to add any user to his/her lab,
       // so only criteria applied is to get active gnomex accounts
       this.addWhereOrAnd();
@@ -149,29 +145,27 @@ public class AppUserFilter extends DetailObject {
         }
         queryBuf.append(" )");
 
-        if (membersOnly == false) {
-          queryBuf.append(" OR ");
-          queryBuf.append(" collabLab.idLab in ( ");
-          for (Iterator i = this.secAdvisor.getAllMyGroups().iterator(); i.hasNext();) {
-            Lab theLab = (Lab) i.next();
-            queryBuf.append(theLab.getIdLab());
-            if (i.hasNext()) {
-              queryBuf.append(", ");
-            }
+        queryBuf.append(" OR ");
+        queryBuf.append(" collabLab.idLab in ( ");
+        for (Iterator i = this.secAdvisor.getAllMyGroups().iterator(); i.hasNext();) {
+          Lab theLab = (Lab) i.next();
+          queryBuf.append(theLab.getIdLab());
+          if (i.hasNext()) {
+            queryBuf.append(", ");
           }
-          queryBuf.append(" )");
-
-          queryBuf.append(" OR ");
-          queryBuf.append(" managerLab.idLab in ( ");
-          for (Iterator i = this.secAdvisor.getAllMyGroups().iterator(); i.hasNext();) {
-            Lab theLab = (Lab) i.next();
-            queryBuf.append(theLab.getIdLab());
-            if (i.hasNext()) {
-              queryBuf.append(", ");
-            }
-          }
-          queryBuf.append(" )");
         }
+        queryBuf.append(" )");
+
+        queryBuf.append(" OR ");
+        queryBuf.append(" managerLab.idLab in ( ");
+        for (Iterator i = this.secAdvisor.getAllMyGroups().iterator(); i.hasNext();) {
+          Lab theLab = (Lab) i.next();
+          queryBuf.append(theLab.getIdLab());
+          if (i.hasNext()) {
+            queryBuf.append(", ");
+          }
+        }
+        queryBuf.append(" )");
 
         queryBuf.append(")");
 
