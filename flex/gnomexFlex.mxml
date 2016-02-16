@@ -4247,14 +4247,7 @@
 			<menuitem label="Orders" icon="iconOrders"   />
 			<menuitem label="Bulk Sample Sheet Import" icon="iconOrders"   />
 		</menuitem>
-		
-		<menuitem label="Products..."  icon="iconCategory" >
-			<menuitem label="Order Products" icon="iconOrders" context="newProductOrder"  />
-			<menuitem label="Product Orders" icon="iconOrders"   />
-			<menuitem label="Product Ledger" icon="iconOrders"   />
-			<menuitem label="Configure Products" icon="iconConfig" />
-		</menuitem>
-		
+
 		<menuitem label="Analysis" icon="iconAnalysis"  context="bioinformatics" />
 		
 		<menuitem label="Data Tracks" icon="iconDataTrack"  context="bioinformatics"  />
@@ -4316,8 +4309,14 @@
 			<menuitem label="Workflow (all)" icon="iconWorkflow" codeStepNext="ALL" />
 			
 		</menuitem>
-		
-		
+
+		<menuitem label="Products..."  icon="iconCategory" >
+			<menuitem label="Order Products" icon="iconOrders" context="newProductOrder"  />
+			<menuitem label="Product Orders" icon="iconOrders"   />
+			<menuitem label="Product Ledger" icon="iconOrders"   />
+			<menuitem label="Configure Products" icon="iconConfig" />
+		</menuitem>
+
 		<menuitem label="Billing" icon="iconBilling"   />
 		
 		<menuitem label="Users &amp; Groups" icon="iconUsers"   >
@@ -4348,12 +4347,12 @@
 	<mx:XMLList id="billingAdminMenu">
 		<menuitem label="Experiments"  icon="iconFlask" >
 		</menuitem>
-		
+
 		<menuitem label="Products..."  icon="iconCategory" >
 			<menuitem label="Product Orders" icon="iconOrders"   />
 			<menuitem label="Product Ledger" icon="iconOrders"   />
 		</menuitem>
-		
+
 		<menuitem label="Billing" icon="iconBilling"   />
 		
 		<menuitem label="Users &amp; Groups" icon="iconUsers"   />
@@ -4508,14 +4507,7 @@
 			<menuitem label="Upload Experiment data generated at third party facility" icon="iconAddExternalExperiment" context="newExternalExperiment"/>
 			<menuitem label="New Billing Account" icon="iconBilling"   />
 		</menuitem>
-		
-		<menuitem label="Products..."  icon="iconCategory" >
-			<menuitem label="Order Products" icon="iconOrders" context="newProductOrder"  />
-			<menuitem label="Product Orders" icon="iconOrders"   />
-			<menuitem label="Product Ledger" icon="iconOrders"   />
-			<menuitem label="Configure Products" icon="iconConfig" />
-		</menuitem>
-		
+
 		<menuitem label="Workflow..." icon="iconWorkflow"  >
 			<menuitem label="QC" icon="iconQC" codeStepNext="QC" context="QC"   />
 			<menuitem type="separator" context="HISEQ" label="hiseqSeparator"/>
@@ -4545,8 +4537,14 @@
 			<menuitem label="Plates &amp; Runs" icon="iconPlatesAndRuns"   />
 			<menuitem label="Results" icon="iconResults"   />
 		</menuitem>
-		
-		
+
+		<menuitem label="Products..."  icon="iconCategory" >
+			<menuitem label="Order Products" icon="iconOrders" context="newProductOrder"  />
+			<menuitem label="Product Orders" icon="iconOrders"   />
+			<menuitem label="Product Ledger" icon="iconOrders"   />
+			<menuitem label="Configure Products" icon="iconConfig" />
+		</menuitem>
+
 		<menuitem label="Admin..." icon="iconUsers"   >
 			<menuitem label="Billing" icon="iconBilling"   />
 			<menuitem label="Users &amp; Groups" icon="iconUsers"   />
@@ -4560,7 +4558,6 @@
 			<menuitem label="Configure Experiment Platform" icon="iconConfig" />
 			<menuitem label="Configure Billing Account Fields" icon="iconConfigureBillingAccounts"  />
 			<menuitem label="Protocols" icon="iconProtocol" />
-			<menuitem label="Configure Products" icon="iconConfig" />
 		</menuitem>
 		
 		<menuitem label="Reports..."  icon="iconPage" >
@@ -4583,22 +4580,19 @@
 			<menuitem label="Upload Experiment data generated at third party facility" icon="iconAddExternalExperiment" context="newExternalExperiment"/>
 			<menuitem label="New Billing Account" icon="iconBilling"   />
 		</menuitem>
-		
-		
-		<menuitem label="Products..."  icon="iconCategory" >
-			<menuitem label="Order Products" icon="iconOrders" context="newProductOrder"  />
-			<menuitem label="Product Orders" icon="iconOrders"   />
-			<menuitem label="Product Ledger" icon="iconOrders"   />
-		</menuitem>
-		
-		
+
 		<menuitem label="Analysis" icon="iconAnalysis"  context="bioinformatics"  />
 		
 		<menuitem label="Data Tracks" icon="iconDataTrack" context="bioinformatics"   />
 		
 		<menuitem label="Topics" icon="iconTopic"  context="bioinformatics"  />
-		
-		
+
+		<menuitem label="Products..."  icon="iconCategory" >
+			<menuitem label="Order Products" icon="iconOrders" context="newProductOrder"  />
+			<menuitem label="Product Orders" icon="iconOrders"   />
+			<menuitem label="Product Ledger" icon="iconOrders"   />
+		</menuitem>
+
 		<menuitem label="Configure..." icon="iconConfig"   >
 			<menuitem label="Configure Annotations" icon="iconConfig" />
 			<menuitem label="Configure Organisms and Genome Builds" icon="iconConfig" />
@@ -4624,19 +4618,19 @@
 			<menuitem label="Upload Experiment data generated at third party facility" icon="iconAddExternalExperiment" context="newExternalExperiment"/>
 			<menuitem label="New Billing Account" icon="iconBilling"   />
 		</menuitem>
-		
-		<menuitem label="Products..."  icon="iconCategory" >
-			<menuitem label="Order Products" icon="iconOrders" context="newProductOrder"  />
-			<menuitem label="Product Orders" icon="iconOrders"   />
-			<menuitem label="Product Ledger" icon="iconOrders"   />
-		</menuitem>
-		
+
 		<menuitem label="Analysis" icon="iconAnalysis"  context="bioinformatics"  />
 		
 		<menuitem label="Data Tracks" icon="iconDataTrack"  context="bioinformatics"  />
 		
 		<menuitem label="Topics" icon="iconTopic"  context="bioinformatics"  />
-		
+
+		<menuitem label="Products..."  icon="iconCategory" >
+			<menuitem label="Order Products" icon="iconOrders" context="newProductOrder"  />
+			<menuitem label="Product Orders" icon="iconOrders"   />
+			<menuitem label="Product Ledger" icon="iconOrders"   />
+		</menuitem>
+
 		<menuitem label="Users &amp; Groups" icon="iconUsers"   />
 		
 		<menuitem label="Configure..." icon="iconConfig"   >
@@ -4655,22 +4649,19 @@
 	</mx:XMLList>
 	
 	<mx:XMLList id="userNonSubmitterMenu">
-		<menuitem label="Experiments"  icon="iconFlask" >
-		</menuitem>
+		<menuitem label="Experiments"  icon="iconFlask" />
 		
 		<menuitem label="Analysis" icon="iconAnalysis"   />
 		
 		<menuitem label="Data Tracks" icon="iconDataTrack"   />
 		
 		<menuitem label="Topics" icon="iconTopic"   />
-		
-		
+
 	</mx:XMLList>
 	
 	<mx:XMLList id="guestMenu">
-		<menuitem label="Experiments"  icon="iconFlask" >
-		</menuitem>
-		
+		<menuitem label="Experiments"  icon="iconFlask" />
+
 		<menuitem label="New Billing Account" icon="iconBilling" context="guest"  />
 		
 		<menuitem label="Analysis" icon="iconAnalysis"   />
@@ -4680,8 +4671,7 @@
 		<menuitem label="Topics" icon="iconTopic"   />
 		
 		<menuitem label="Protocols" icon="iconProtocol" />
-		
-		
+
 	</mx:XMLList>
 	
 	
