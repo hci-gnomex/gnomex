@@ -6,7 +6,6 @@ import hci.framework.model.DetailObject;
 import hci.framework.utilities.XMLReflectException;
 import hci.gnomex.model.AppUserPublic;
 import hci.gnomex.utility.HibernateSession;
-import hci.gnomex.utility.HibernateUtil;
 
 import java.io.Serializable;
 import java.sql.Connection;
@@ -14,16 +13,13 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashMap;
-import java.util.Iterator;
 
 import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.hibernate.Session;
-import org.hibernate.internal.SessionImpl;
 import org.hibernate.jdbc.ReturningWork;
-import org.hibernate.jdbc.Work;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.output.XMLOutputter;
