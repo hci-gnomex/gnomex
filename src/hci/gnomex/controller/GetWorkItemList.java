@@ -84,7 +84,8 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
             filter.getCodeStepNext().equals(Step.SEQ_FLOWCELL_STOCK) ||
             filter.getCodeStepNext().equals(Step.SEQ_PREP) ||
             filter.getCodeStepNext().equals(Step.HISEQ_PREP) ||
-            filter.getCodeStepNext().equals(Step.MISEQ_PREP)) {
+            filter.getCodeStepNext().equals(Step.MISEQ_PREP) ||
+            filter.getCodeStepNext().equals(Step.ALL_PREP)) {
           comparator = new SampleComparator();
         } else if (filter.getCodeStepNext().equals(Step.LABELING_STEP)) {
           comparator  = new LabeledSampleComparator();
@@ -122,7 +123,7 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
         TreeMap allRows = new TreeMap(comparator);
         StringBuffer queryBuf = filter.getQuery(this.getSecAdvisor());
         log.info("GetWorkItemList query: " + queryBuf.toString());
-        List rows = (List) sess.createQuery(queryBuf.toString()).list();
+        List rows = sess.createQuery(queryBuf.toString()).list();
 
         Map<Integer, Integer> idsToSkip = this.getSecAdvisor().getBSTXSecurityIdsToExclude(sess, dh, rows, 0, 3);
 
@@ -138,7 +139,7 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
           String sampleNumber     = (String) row[WorkItemFilter.SAMPLE_NUMBER];
           String itemNumber       = (String) row[WorkItemFilter.SEQ_NUMBER];
 
-          if (idsToSkip.get((Integer)row[WorkItemFilter.ID_REQUEST]) != null) {
+          if (idsToSkip.get(row[WorkItemFilter.ID_REQUEST]) != null) {
             // skip for BSTX Security
             continue;
           }
@@ -151,19 +152,20 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
               filter.getCodeStepNext().equals(Step.SEQ_PREP) ||
               filter.getCodeStepNext().equals(Step.HISEQ_PREP) ||
               filter.getCodeStepNext().equals(Step.MISEQ_PREP) ||
-              filter.getCodeStepNext().equals(Step.SEQ_FLOWCELL_STOCK)) {
+              filter.getCodeStepNext().equals(Step.SEQ_FLOWCELL_STOCK) ||
+              filter.getCodeStepNext().equals(Step.ALL_PREP)) {
             key = requestNumber + "," + sampleNumber;
           } else if (filter.getCodeStepNext().equals(Step.LABELING_STEP)) {
             Integer idLabel         = row[WorkItemFilter.LABELING_FAILED] == null || row[WorkItemFilter.ID_LABEL].equals("") ? null : (Integer)row[WorkItemFilter.ID_LABEL];
             Integer idLabeledSample = row[WorkItemFilter.ID_LABEL] == null || row[WorkItemFilter.ID_LABELED_SAMPLE].equals("") ? null : (Integer)row[WorkItemFilter.ID_LABELED_SAMPLE];
             key = requestNumber + "," + sampleNumber + "," + idLabel  + "," + idLabeledSample;
-          } else if (filter.getCodeStepNext().equals(Step.SEQ_RUN) || 
+          } else if (filter.getCodeStepNext().equals(Step.SEQ_RUN) ||
               filter.getCodeStepNext().equals(Step.HISEQ_RUN)) {
             FlowCell fc = (FlowCell)row[WorkItemFilter.FLOWCELL_OBJECT];
             FlowCellChannel ch = (FlowCellChannel)row[WorkItemFilter.FLOWCELL_CHANNEL_OBJECT];
             String flowCellNumber              = fc.getNumber();
             Integer flowCellChannelNumber      = ch.getNumber();
-            key = flowCellNumber + "," + flowCellChannelNumber; 
+            key = flowCellNumber + "," + flowCellChannelNumber;
           } else if (filter.getCodeStepNext().equals(Step.SEQ_DATA_PIPELINE) ||
               filter.getCodeStepNext().equals(Step.HISEQ_DATA_PIPELINE) ||
               filter.getCodeStepNext().equals(Step.MISEQ_DATA_PIPELINE)) {
@@ -171,7 +173,7 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
             FlowCellChannel ch = (FlowCellChannel)row[WorkItemFilter.FLOWCELL_CHANNEL_OBJECT];
             String flowCellNumber              = fc.getNumber();
             Integer flowCellChannelNumber      = ch.getNumber();
-            key = flowCellNumber + "," + flowCellChannelNumber; 
+            key = flowCellNumber + "," + flowCellChannelNumber;
           } else if (filter.getCodeStepNext().equals(Step.SEQ_CLUSTER_GEN) ||
               filter.getCodeStepNext().equals(Step.HISEQ_CLUSTER_GEN) ||
               filter.getCodeStepNext().equals(Step.MISEQ_CLUSTER_GEN)) {
@@ -194,7 +196,7 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
           allRows.put(key, row);
         }
 
-        if ((filter.getCodeStepNext().equals(Step.SEQ_CLUSTER_GEN) || 
+        if ((filter.getCodeStepNext().equals(Step.SEQ_CLUSTER_GEN) ||
             filter.getCodeStepNext().equals(Step.HISEQ_CLUSTER_GEN) ||
             filter.getCodeStepNext().equals(Step.MISEQ_CLUSTER_GEN)) && !idSamples.isEmpty()) {
           List flowCells = sess.createQuery(filter.getRelatedFlowCellQuery(idSamples.keySet()).toString()).list();
@@ -226,7 +228,7 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
         clusterGenNodeMap = new TreeMap<String, List<Element>>(new ClusterGenComparator());
         clusterGenLaneMap = new TreeMap<String, List<SequenceLane>>(new ClusterGenComparator());
 
-        // Need NumberSequencingCyclesAllowed for WorkItems 
+        // Need NumberSequencingCyclesAllowed for WorkItems
         numberSequencingCyclesAllowedMap = getNumberSequencingCyclesAllowedMap(sess);
         Document doc = new Document(new Element("WorkItemList"));
         for(Iterator i = allRows.keySet().iterator(); i.hasNext();) {
@@ -244,17 +246,17 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
               String statusToStartWorkflow = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility,PropertyDictionary.STATUS_TO_START_WORKFLOW);
               if(statusToStartWorkflow != null && !statusToStartWorkflow.equals("") && !codeRequestStatus.equals(statusToStartWorkflow)) {
                 continue;
-              } 
+              }
             }
           }
 
           Integer idRequest = (Integer)row[WorkItemFilter.ID_REQUEST];
           String requestNumber = (String)row[WorkItemFilter.REQ_NUMBER];
           String codeRequestCategory = row[WorkItemFilter.CODE_REQUEST_CATEGORY] == null ? "" :  (String)row[WorkItemFilter.CODE_REQUEST_CATEGORY];
-          String flowCellNumber = null; 
+          String flowCellNumber = null;
           labName = "";
 
-          if (filter.getCodeStepNext().equals(Step.SEQ_RUN) || 
+          if (filter.getCodeStepNext().equals(Step.SEQ_RUN) ||
               filter.getCodeStepNext().equals(Step.HISEQ_RUN)) {
             FlowCell fc = (FlowCell)row[WorkItemFilter.FLOWCELL_OBJECT];
             flowCellNumber            = fc.getNumber();
@@ -262,7 +264,7 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
               alt = !alt;
             }
 
-          } else if (filter.getCodeStepNext().equals(Step.SEQ_DATA_PIPELINE) || 
+          } else if (filter.getCodeStepNext().equals(Step.SEQ_DATA_PIPELINE) ||
               filter.getCodeStepNext().equals(Step.HISEQ_DATA_PIPELINE) ||
               filter.getCodeStepNext().equals(Step.MISEQ_DATA_PIPELINE)) {
             FlowCell fc = (FlowCell)row[WorkItemFilter.FLOWCELL_OBJECT];
@@ -301,7 +303,8 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
             fillExtraction(n, row, codeRequestCategory);
           }  else if (filter.getCodeStepNext().equals(Step.SEQ_PREP) ||
               filter.getCodeStepNext().equals(Step.HISEQ_PREP) ||
-              filter.getCodeStepNext().equals(Step.MISEQ_PREP)) {
+              filter.getCodeStepNext().equals(Step.MISEQ_PREP) ||
+              filter.getCodeStepNext().equals(Step.ALL_PREP)) {
             fillSeqPrep(n, row, codeRequestCategory, seqLibProtocolMap);
 
           }   else if (filter.getCodeStepNext().equals(Step.SEQ_FLOWCELL_STOCK)) {
@@ -310,7 +313,7 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
               filter.getCodeStepNext().equals(Step.HISEQ_CLUSTER_GEN) ||
               filter.getCodeStepNext().equals(Step.MISEQ_CLUSTER_GEN)) {
 
-            String labLastName = (String)row[WorkItemFilter.CLSTR_LAB_LAST_NAME];            
+            String labLastName = (String)row[WorkItemFilter.CLSTR_LAB_LAST_NAME];
             String labFirstName = (String)row[WorkItemFilter.CLSTR_LAB_FIRST_NAME];
             labName = Lab.formatLabNameFirstLast(labFirstName, labLastName);
             String multiplexGroupNumber = row[WorkItemFilter.CLSTR_MULTIPLEX_GROUP_NUM] != null ? ((Integer)row[WorkItemFilter.CLSTR_MULTIPLEX_GROUP_NUM]).toString() : "-1";
@@ -334,11 +337,11 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
           if (filter.getCodeStepNext().equals(Step.SEQ_CLUSTER_GEN) ||
               filter.getCodeStepNext().equals(Step.HISEQ_CLUSTER_GEN) ||
               filter.getCodeStepNext().equals(Step.MISEQ_CLUSTER_GEN)) {
-            List nodes = (List)clusterGenNodeMap.get(clusterGenKey);
+            List nodes = clusterGenNodeMap.get(clusterGenKey);
 
             if (nodes == null) {
               nodes = new ArrayList();
-              clusterGenNodeMap.put(clusterGenKey, nodes);              
+              clusterGenNodeMap.put(clusterGenKey, nodes);
             }
             nodes.add(n);
 
@@ -397,7 +400,7 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
       throw new RollBackCommandException(e.getMessage());
     } finally {
       try {
-        this.getSecAdvisor().closeReadOnlyHibernateSession();        
+        this.getSecAdvisor().closeReadOnlyHibernateSession();
       } catch(Exception e) {
 
       }
@@ -412,18 +415,18 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
    * 1. the Sequence Lane's number of sequencing cycles
    * 2. the Request's code request category
    * 3. the Sequence Lane's Seq Run Type
-   * 
+   *
    * These three will uniquely identify a protocol in NumberSequencingCyclesAllowed
-   * 
+   *
    * @param sess
    * @return TreeMap<String, String>
-   */  
+   */
   private TreeMap<String, String> getNumberSequencingCyclesAllowedMap(Session sess) {
     StringBuffer buf = new StringBuffer();
     buf.append(" SELECT idNumberSequencingCyclesAllowed, idNumberSequencingCycles, codeRequestCategory, idSeqRunType ");
     buf.append(" FROM NumberSequencingCyclesAllowed ");
     buf.append(" WHERE isActive = 'Y' ");
-    TreeMap<String,String> numberSequencingCyclesAllowedMap = new TreeMap<String, String>();	  
+    TreeMap<String,String> numberSequencingCyclesAllowedMap = new TreeMap<String, String>();
     List rows = sess.createQuery(buf.toString()).list();
     for(Iterator i = rows.iterator(); i.hasNext();) {
       Object[] row = (Object[])i.next();
@@ -458,8 +461,8 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
     if (filter.getCodeStepNext().equals(Step.SEQ_CLUSTER_GEN) ||
         filter.getCodeStepNext().equals(Step.HISEQ_CLUSTER_GEN) ||
         filter.getCodeStepNext().equals(Step.MISEQ_CLUSTER_GEN)) {
-      n.setAttribute("laneNumber",           row[WorkItemFilter.SEQ_NUMBER] == null ? "" :  (String)row[WorkItemFilter.SEQ_NUMBER]);              
-      n.setAttribute("number",               row[WorkItemFilter.SEQ_NUMBER] == null ? "" :  (String)row[WorkItemFilter.SEQ_NUMBER]);  
+      n.setAttribute("laneNumber",           row[WorkItemFilter.SEQ_NUMBER] == null ? "" :  (String)row[WorkItemFilter.SEQ_NUMBER]);
+      n.setAttribute("number",               row[WorkItemFilter.SEQ_NUMBER] == null ? "" :  (String)row[WorkItemFilter.SEQ_NUMBER]);
     } else {
       n.setAttribute("hybNumber",            row[WorkItemFilter.HYB_NUMBER] == null ? "" :  (String)row[WorkItemFilter.HYB_NUMBER]);
     }
@@ -488,7 +491,7 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
     n.setAttribute("qualFailed",                 row[WorkItemFilter.SAMPLE_QUAL_FAILED] == null ? "" :  (String)row[WorkItemFilter.SAMPLE_QUAL_FAILED]);
     n.setAttribute("qual260nmTo280nmRatio",      row[WorkItemFilter.QUAL_260_280_RATIO] == null ? "" :  ((BigDecimal)row[WorkItemFilter.QUAL_260_280_RATIO]).toString());
     n.setAttribute("qual260nmTo230nmRatio",      row[WorkItemFilter.QUAL_260_230_RATIO] == null ? "" :  ((BigDecimal)row[WorkItemFilter.QUAL_260_230_RATIO]).toString());
-    n.setAttribute("qualCalcConcentration",      row[WorkItemFilter.QUAL_CALC_CONC] == null ? "" :  Constants.concentrationFormatter.format((BigDecimal)row[WorkItemFilter.QUAL_CALC_CONC]));
+    n.setAttribute("qualCalcConcentration",      row[WorkItemFilter.QUAL_CALC_CONC] == null ? "" :  Constants.concentrationFormatter.format(row[WorkItemFilter.QUAL_CALC_CONC]));
     n.setAttribute("qual28sTo18sRibosomalRatio", row[WorkItemFilter.QUAL_28_18_RIBO_RATIO] == null ? "" :  ((BigDecimal)row[WorkItemFilter.QUAL_28_18_RIBO_RATIO]).toString());
     n.setAttribute("qualRINNumber",              row[WorkItemFilter.QUAL_RIN_NUMBER] == null ? "" :  ((String)row[WorkItemFilter.QUAL_RIN_NUMBER]));
     n.setAttribute("qualBypassed",               row[WorkItemFilter.QUAL_BYPASSED] == null ? "" :  (String)row[WorkItemFilter.QUAL_BYPASSED]);
@@ -503,7 +506,7 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
     n.setAttribute("sampleType", sampleType == null ? "" : sampleType);
 
     String experimentType = "";
-    if (RequestCategory.isMicroarrayRequestCategory(codeRequestCategory) || 
+    if (RequestCategory.isMicroarrayRequestCategory(codeRequestCategory) ||
         RequestCategory.isIlluminaRequestCategory(codeRequestCategory)) {
       experimentType = DictionaryManager.getDisplay("hci.gnomex.model.RequestCategory", codeRequestCategory);
     } else {
@@ -621,11 +624,11 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
     String codeApplication = (String)row[WorkItemFilter.PREP_CODE_APPLICATION];
     if (codeApplication != null) {
       Integer idSeqLibProtocolDefault = seqLibProtocolMap.get(codeApplication);
-      if (n.getAttributeValue("seqPrepByCore").equals("Y") && 
+      if (n.getAttributeValue("seqPrepByCore").equals("Y") &&
           n.getAttributeValue("idSeqLibProtocol").equals("") &&
           idSeqLibProtocolDefault != null) {
         n.setAttribute("idSeqLibProtocol", idSeqLibProtocolDefault.toString());
-      }              
+      }
     }
     n.setAttribute("idOligoBarcode",                      row[WorkItemFilter.PREP_ID_OLIGO_BARCODE_A] == null ? "" :  ((Integer)row[WorkItemFilter.PREP_ID_OLIGO_BARCODE_A]).toString());
     n.setAttribute("barcodeSequence",                     row[WorkItemFilter.PREP_BARCODE_SEQUENCE_A] == null ? "" :  ((String)row[WorkItemFilter.PREP_BARCODE_SEQUENCE_A]));
@@ -680,7 +683,7 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
     n.setAttribute("idOligoBarcode",               row[WorkItemFilter.CLSTR_ID_OLIGO_BARCODE_A] == null ? "" :  ((Integer)row[WorkItemFilter.CLSTR_ID_OLIGO_BARCODE_A]).toString());
     n.setAttribute("barcodeSequence",              row[WorkItemFilter.CLSTR_BARCODE_SEQUENCE_A] == null ? "" :  ((String)row[WorkItemFilter.CLSTR_BARCODE_SEQUENCE_A]));
     n.setAttribute("multiplexGroupNumber",         row[WorkItemFilter.CLSTR_MULTIPLEX_GROUP_NUM] == null ? "" :  ((Integer)row[WorkItemFilter.CLSTR_MULTIPLEX_GROUP_NUM]).toString());
-    n.setAttribute("isControl",                    "false");            
+    n.setAttribute("isControl",                    "false");
     n.setAttribute("assembleStatus",               row[WorkItemFilter.WI_STATUS] == null ? "" :  (String)row[WorkItemFilter.WI_STATUS]);
     n.setAttribute("idOligoBarcodeB",               row[WorkItemFilter.CLSTR_ID_OLIGO_BARCODE_B] == null ? "" :  ((Integer)row[WorkItemFilter.CLSTR_ID_OLIGO_BARCODE_B]).toString());
     n.setAttribute("barcodeSequenceB",              row[WorkItemFilter.CLSTR_BARCODE_SEQUENCE_B] == null ? "" :  ((String)row[WorkItemFilter.CLSTR_BARCODE_SEQUENCE_B]));
@@ -714,15 +717,15 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
         RelatedFlowCellInfo info = (RelatedFlowCellInfo)i2.next();
         if (info.idSequenceLane.equals(idSequenceLane)) {
           continue;
-        } 
+        }
 
         infoBuf.append(info.toString());
-        if (i2.hasNext()) { 
+        if (i2.hasNext()) {
           infoBuf.append("\n");
         }
 
-      }  
-      n.setAttribute("relatedFlowCellInfo", infoBuf.toString());             
+      }
+      n.setAttribute("relatedFlowCellInfo", infoBuf.toString());
     }
 
 
@@ -739,16 +742,16 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
     n.setAttribute("number",                       ch.getContentNumbers());
     n.setAttribute("channelNumber",                ch.getNumber().toString());
     n.setAttribute("sequencingControl",            ch.getIdSequencingControl() != null ? ch.getIdSequencingControl().toString() : "");
-    n.setAttribute("firstCycleDate",               ch.getFirstCycleDate() == null ? "" :  this.formatDate((java.sql.Date)ch.getFirstCycleDate()));
+    n.setAttribute("firstCycleDate",               ch.getFirstCycleDate() == null ? "" :  this.formatDate(ch.getFirstCycleDate()));
     n.setAttribute("firstCycleCompleted",          ch.getFirstCycleDate() == null ? "N" : "Y");
     n.setAttribute("firstCycleFailed",             ch.getFirstCycleFailed() == null ? "" :  ((String)ch.getFirstCycleFailed()));
-    n.setAttribute("lastCycleDate",                ch.getLastCycleDate() == null ? "" :  this.formatDate((java.sql.Date)ch.getLastCycleDate()));
+    n.setAttribute("lastCycleDate",                ch.getLastCycleDate() == null ? "" :  this.formatDate(ch.getLastCycleDate()));
     n.setAttribute("lastCycleCompleted",           ch.getLastCycleDate() == null ? "N" : "Y");
     n.setAttribute("lastCycleFailed",              ch.getLastCycleFailed() == null ? "" :  ((String)ch.getLastCycleFailed()));
-    n.setAttribute("firstCycleStartDate",          ch.getFirstCycleDate() == null ? "" :   this.formatDate((java.sql.Date)ch.getFirstCycleDate()));
+    n.setAttribute("firstCycleStartDate",          ch.getFirstCycleDate() == null ? "" :   this.formatDate(ch.getFirstCycleDate()));
     n.setAttribute("flowCellNumber",               fc.getNumber() == null ? "" :  ((String)fc.getNumber()));
-    n.setAttribute("numberSequencingCyclesActual", ch.getNumberSequencingCyclesActual() == null ? "" :  ((Integer)ch.getNumberSequencingCyclesActual()).toString());
-    n.setAttribute("clustersPerTile",              ch.getClustersPerTile() == null ? "" :  clustersPerTileFormat.format((Integer)ch.getClustersPerTile()));
+    n.setAttribute("numberSequencingCyclesActual", ch.getNumberSequencingCyclesActual() == null ? "" :  ch.getNumberSequencingCyclesActual().toString());
+    n.setAttribute("clustersPerTile",              ch.getClustersPerTile() == null ? "" :  clustersPerTileFormat.format(ch.getClustersPerTile()));
     n.setAttribute("fileName",                     ch.getFileName() == null ? "" :  ((String)ch.getFileName()));
     n.setAttribute("flowCellBarcode",              fc.getBarcode() == null ? "" :  ((String)fc.getBarcode()));
 
@@ -760,7 +763,7 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
       firstCycleStatus = Constants.STATUS_TERMINATED;
     } else if (!n.getAttributeValue("firstCycleStartDate").equals("")) {
       firstCycleStatus = Constants.STATUS_IN_PROGRESS;
-    } 
+    }
 
 
     n.setAttribute("firstCycleStatus", firstCycleStatus);
@@ -788,12 +791,12 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
     n.setAttribute("number",                       ch.getContentNumbers());
     n.setAttribute("channelNumber",                ch.getNumber().toString());
     n.setAttribute("sequencingControl",            ch.getIdSequencingControl() != null ? ch.getIdSequencingControl().toString() : "");
-    n.setAttribute("pipelineDate",                 ch.getPipelineDate() == null ? "" :  this.formatDate((java.sql.Date)ch.getPipelineDate()));
+    n.setAttribute("pipelineDate",                 ch.getPipelineDate() == null ? "" :  this.formatDate(ch.getPipelineDate()));
     n.setAttribute("pipelineCompleted",            ch.getPipelineDate() == null ? "N" : "Y");
     n.setAttribute("pipelineFailed",               ch.getPipelineFailed() == null ? "" :  ((String)ch.getPipelineFailed()));
     n.setAttribute("flowCellNumber",               fc.getNumber() == null ? "" :  ((String)fc.getNumber()));
-    n.setAttribute("numberSequencingCyclesActual", ch.getNumberSequencingCyclesActual() == null ? "" :  ((Integer)ch.getNumberSequencingCyclesActual()).toString());
-    n.setAttribute("clustersPerTile",              ch.getClustersPerTile() == null ? "" :  clustersPerTileFormat.format((Integer)ch.getClustersPerTile()));
+    n.setAttribute("numberSequencingCyclesActual", ch.getNumberSequencingCyclesActual() == null ? "" :  ch.getNumberSequencingCyclesActual().toString());
+    n.setAttribute("clustersPerTile",              ch.getClustersPerTile() == null ? "" :  clustersPerTileFormat.format(ch.getClustersPerTile()));
     n.setAttribute("fileName",                     ch.getFileName() == null ? "" :  ((String)ch.getFileName()));
     n.setAttribute("flowCellBarcode",              fc.getBarcode() == null ? "" :  ((String)fc.getBarcode()));
     n.setAttribute("phiXErrorRate",                ch.getPhiXErrorRate()  == null ? "" :  ch.getPhiXErrorRate().toString());
@@ -864,7 +867,7 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
               break;
             }
           }
-          if (matchingNode != null) {        	  
+          if (matchingNode != null) {
             multiplexLaneNode.addContent(matchingNode);
           }
 
@@ -898,7 +901,7 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
       String number2 = itemNumberTokens2[itemNumberTokens2.length - 1];
 
       if (reqNumber1.equals(reqNumber2)) {
-        return new Integer(number1).compareTo(new Integer(number2));        
+        return new Integer(number1).compareTo(new Integer(number2));
       } else {
         return Util.compareRequestNumbers(reqNumber1, reqNumber2);
       }
@@ -929,7 +932,7 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
       String number2 = itemNumberTokens2[itemNumberTokens2.length - 1];
 
       if (reqNumber1.equals(reqNumber2)) {
-        return new Integer(number1).compareTo(new Integer(number2));        
+        return new Integer(number1).compareTo(new Integer(number2));
       } else {
         return reqNumber1.compareTo(reqNumber2);
       }
@@ -968,7 +971,7 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
         String number1         = tokens[tokens.length - 1];
         String[] numberTokens  = number1.split(PropertyDictionaryHelper.getInstance(null).getProperty(PropertyDictionary.SEQ_LANE_NUMBER_SEPARATOR));
         sampleNumber1          = numberTokens[0];
-        seqNumber1             = numberTokens[1];        
+        seqNumber1             = numberTokens[1];
       } else {
         String[] tokens        = itemNumber1.split("L");
         sampleNumber1          = tokens[tokens.length - 1];
@@ -982,7 +985,7 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
         String number2         = tokens[tokens.length - 1];
         String[] numberTokens  = number2.split(PropertyDictionaryHelper.getInstance(null).getProperty(PropertyDictionary.SEQ_LANE_NUMBER_SEPARATOR));
         sampleNumber2          = numberTokens[0];
-        seqNumber2             = numberTokens[1];        
+        seqNumber2             = numberTokens[1];
       } else {
         String[] tokens        = itemNumber2.split("L");
         sampleNumber2          = tokens[tokens.length - 1];
@@ -996,20 +999,20 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
             if (sampleNumber1.equals(sampleNumber2)) {
               return new Integer(seqNumber1).compareTo(new Integer(seqNumber2));
             } else {
-              return new Integer(sampleNumber1).compareTo(new Integer(sampleNumber2));        
-            }              
+              return new Integer(sampleNumber1).compareTo(new Integer(sampleNumber2));
+            }
 
           } else {
             return multiplexNumber1.compareTo(multiplexNumber2);
           }
         } else {
           return Util.compareRequestNumbers(reqNumber1, reqNumber2);
-        }        
+        }
       } else {
         return status1.compareTo(status2);
       }
     }
-  }  
+  }
 
   public static class  FlowCellChannelComparator implements Comparator, Serializable {
     public int compare(Object o1, Object o2) {
@@ -1036,11 +1039,11 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
       if (fcNumber1.equals(fcNumber2)) {
         return new Integer(channelNumber1).compareTo(new Integer(channelNumber2));
       } else {
-        return new Integer(fcOrdinal1).compareTo(new Integer(fcOrdinal2));        
-      }      
+        return new Integer(fcOrdinal1).compareTo(new Integer(fcOrdinal2));
+      }
 
     }
-  }  
+  }
 
   public static class  LabeledSampleComparator implements Comparator, Serializable {
     public int compare(Object o1, Object o2) {
@@ -1133,8 +1136,8 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
 
     public String toString() {
       return sequenceLaneNumber + " - " +
-      (sampleConcentrationpM != null ? Constants.concentrationFormatter.format(sampleConcentrationpM) + " pM, " : "") + 
-      (clustersPerTile != null ? clustersPerTile + " clusters/tile " : "");          
+      (sampleConcentrationpM != null ? Constants.concentrationFormatter.format(sampleConcentrationpM) + " pM, " : "") +
+      (clustersPerTile != null ? clustersPerTile + " clusters/tile " : "");
     }
 
 

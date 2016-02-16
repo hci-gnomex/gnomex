@@ -32,11 +32,12 @@ public class Step extends DictionaryEntry implements Serializable {
   public static final String   MISEQ_FINALIZE_FC		 = "MISEQFINFC";
   public static final String   MISEQ_DATA_PIPELINE       = "MISEQPIPE";
 
+  public static final String   ALL_PREP                = "ALLPREP";
   private String codeStep;
   private String step;
   private String isActive;
   private Integer sortOrder;
-  
+
   public String getDisplay() {
     String display = this.getNonNullString(getStep());
     return display;
@@ -46,32 +47,32 @@ public class Step extends DictionaryEntry implements Serializable {
     return getCodeStep();
   }
 
-  
+
   public String getCodeStep() {
     return codeStep;
   }
 
-  
+
   public void setCodeStep(String codeStep) {
     this.codeStep = codeStep;
   }
 
-  
+
   public String getStep() {
     return step;
   }
 
-  
+
   public void setStep(String step) {
     this.step = step;
   }
 
-  
+
   public String getIsActive() {
     return isActive;
   }
 
-  
+
   public void setIsActive(String isActive) {
     this.isActive = isActive;
   }
