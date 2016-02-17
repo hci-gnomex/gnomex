@@ -3,6 +3,7 @@
 		   xmlns:mx="http://www.adobe.com/2006/mxml"
 		   xmlns:util="views.util.*" 
 		   xmlns:renderers="views.renderers.*"
+		   horizontalScrollPolicy="off"
 		   width="100%" height="100%" show="{init();}" >
 	
 	<mx:HTTPService  
@@ -63,7 +64,7 @@
 					sampleType = null;
 					sampleTypeDNARNAHBox.styleName = 'requiredBox';
 				} 
-				sampleSetupCanvas.verticalScrollPosition = 0;
+				this.verticalScrollPosition = 0;
 				if (parentDocument.getRequestCategory().@isIlluminaType == 'Y') {
 					initIllumina();
 				}
@@ -1515,108 +1516,103 @@
 	
 	<mx:CurrencyFormatter id="dollarFormatter" currencySymbol="$" precision="2" decimalSeparatorTo="." thousandsSeparatorTo="," useThousandsSeparator="true"/> 
 	
-	<mx:Canvas width="100%" height="100%" horizontalScrollPolicy="off" verticalScrollPolicy="auto" id="sampleSetupCanvas">
-		
-		<mx:VBox width="100%"  verticalGap="2" >
-			<mx:VBox height="100%"  paddingTop="2"  verticalGap="5" id="sampleSetupContainer" width="100%">
-				<mx:HBox horizontalGap="0" id="hbox3" verticalAlign="middle" width="100%">
-					<util:ContextHelp context1="SampleDetailsNumSamples" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Number of Samples Help"
-									  label="(1) How many unique samples are in this experiment order?" labelPlacement="left" id="label5" width="340"/>
-					<mx:TextInput width="40" id="numberOfSamples" >
-						<mx:focusOut>onNumberOfSamplesChanged()</mx:focusOut>
-					</mx:TextInput>
-					<mx:HBox width="100%">
-						<mx:Text id="sampleSizeWarning" fontStyle="italic" fontSize="10"  textAlign="left" width="100%" color="green"/>
-					</mx:HBox>
+	<mx:VBox width="100%" height="100%" verticalGap="2" horizontalScrollPolicy="off" verticalScrollPolicy="off" >
+		<mx:VBox paddingTop="2" verticalGap="5" id="sampleSetupContainer" width="100%">
+			<mx:HBox horizontalGap="0" id="hbox3" verticalAlign="middle" width="100%">
+				<util:ContextHelp context1="SampleDetailsNumSamples" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Number of Samples Help"
+								  label="(1) How many unique samples are in this experiment order?" labelPlacement="left" id="label5" width="350"/>
+				<mx:TextInput width="40" id="numberOfSamples" >
+					<mx:focusOut>onNumberOfSamplesChanged()</mx:focusOut>
+				</mx:TextInput>
+				<mx:HBox width="100%">
+					<mx:Text id="sampleSizeWarning" fontStyle="italic" fontSize="10"  textAlign="left" width="100%" color="green"/>
 				</mx:HBox>
-				<mx:HBox horizontalGap="0" verticalAlign="top" id="sampleTypeHBox" width="100%">
-					<util:ContextHelp context1="SampleDetailsSampleCategory" context2="{parentDocument.coreFacility.@idCoreFacility}" 
-									  context3="{(parentDocument.requestType == 'MISEQ') ? 'HISEQ' : parentDocument.requestType}"
-									  showEdit="{parentApplication.isAdminState}" title="Sample Category Help"
-									  label="(2) Which category best describes your samples?" labelPlacement="left" id="label8" width="340"/>
-					<mx:RadioButtonGroup id = "sampleTypeRadioGroup" />
-					<mx:HBox verticalGap="0" paddingTop="0" paddingBottom="0" styleName="requiredBox" id="sampleTypeDNARNAHBox">				
-						<mx:VBox verticalGap="0" paddingTop="0" paddingBottom="0" id="sampleTypeBox">
-							<mx:Label text="DNA" styleName="formLabelLarge" 
-									  visible="{parentDocument.filteredSampleTypeListDna.length > 0 &amp;&amp; parentDocument.filteredSampleTypeListRna.length > 0}"
-									  includeInLayout="{parentDocument.filteredSampleTypeListDna.length > 0 &amp;&amp; parentDocument.filteredSampleTypeListRna.length > 0}"/>
-							<mx:Repeater id="sampleTypeDnaRepeater" dataProvider="{parentDocument.filteredSampleTypeListDna}">
-								<mx:RadioButton id="sampleTypeDnaBtn" groupName="sampleTypeRadioGroup" 
-												label="{sampleTypeDnaRepeater.currentItem.@display}" 
-												value="{sampleTypeDnaRepeater.currentItem.@value}" 
-												click="{pickSampleType()}" fontSize="11" paddingTop="0" paddingBottom="0"
-												width="250" />							
-							</mx:Repeater>
-							<mx:RadioButton id="sampleTypeDNANull" groupName="sampleTypeRadioGroup" 
-											label="" value="{null}" width="0" height="0" visible="false" includeInLayout="false" />
-						</mx:VBox>
-						<mx:VBox verticalGap="0" paddingTop="0" paddingBottom="0">
-							<mx:Label text="RNA" styleName="formLabelLarge"
-									  visible="{parentDocument.filteredSampleTypeListRna.length > 0 &amp;&amp; parentDocument.filteredSampleTypeListDna.length > 0}"
-									  includeInLayout="{parentDocument.filteredSampleTypeListRna.length > 0 &amp;&amp; parentDocument.filteredSampleTypeListDna.length > 0}"/>
-							<mx:Repeater id="sampleTypeRnaRepeater" dataProvider="{parentDocument.filteredSampleTypeListRna}">
-								<mx:RadioButton id="sampleTypeRnaBtn" groupName="sampleTypeRadioGroup" 
-												label="{sampleTypeRnaRepeater.currentItem.@display}" 
-												value="{sampleTypeRnaRepeater.currentItem.@value}" 
-												click="{pickSampleType()}" fontSize="11" paddingTop="0" paddingBottom="0"
-												width="250" />							
-							</mx:Repeater>
-						</mx:VBox>
-					</mx:HBox>
-					<mx:TextArea id="sampleTypeNotes"
-								 htmlText="{sampleType.@notes}"
-								 editable="false"
-								 textAlign="left"
-								 borderStyle="none"
-								 visible="{sampleTypeRadioGroup.selectedValue != null &amp;&amp; sampleTypeRadioGroup.selectedValue != '' &amp;&amp; sampleType != null &amp;&amp; sampleType.@notes != null &amp;&amp; sampleType.@notes != ''}"
-								 includeInLayout="{sampleTypeRadioGroup.selectedValue != null &amp;&amp; sampleTypeRadioGroup.selectedValue != '' &amp;&amp; sampleType != null &amp;&amp; sampleType.@notes != null &amp;&amp; sampleType.@notes != ''}"
-								 width="250" height="100%"
-								 paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0"
-								 borderThickness="0"
-								 styleName="readOnly"
-								 backgroundColor="#FFFFFF"/>
-				</mx:HBox>
-				<mx:HBox horizontalGap="0" id="sampleOrganismContainer" paddingRight="4" verticalAlign="middle">
-					<util:ContextHelp context1="SampleDetailsOrganism" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Sample Organism Help"
-									  label="(3) Which organism is the source for these samples?" labelPlacement="left" id="label7" width="340"/>
-					<renderers:FilterComboBox labelField="@combinedName" 
-											  prompt="Organism..."
-											  close="pickOrganism()"
-											  id="sampleOrganismCombo"
-											  dataProvider="{parentApplication.activeOrganismList}"
-											  width="{sampleOrganismCombo.selectedItem != null &amp;&amp; sampleOrganismCombo.selectedItem.@display == 'Other' ? 75 : 250}">
-					</renderers:FilterComboBox>
-					<mx:Label text="Please specify" paddingLeft="6">
-						<mx:visible>{sampleOrganismCombo.selectedItem != null &amp;&amp; sampleOrganismCombo.selectedItem.@display == 'Other'}</mx:visible>
-					</mx:Label>
-					<mx:TextInput width="450" id="otherOrganism" focusOut="{propagateOtherSampleOrganism();checkSampleSetupCompleteness()}" maxChars="200">
-						<mx:visible>{sampleOrganismCombo.selectedItem != null &amp;&amp; sampleOrganismCombo.selectedItem.@display == 'Other'}</mx:visible>
-					</mx:TextInput>
-				</mx:HBox>
-				<mx:HBox horizontalGap="0" id="samplePrepContainer" paddingRight="4" verticalAlign="middle">
-					<util:ContextHelp context1="sampleDetailsNucleicAcidExtraction" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Nucleic Acid Extraction Help"
-									  label="(4) Specify the nucleic acid extraction method. (required)." labelPlacement="left" id="label2" width="340"/>
-					<mx:TextInput width="300" id="otherSamplePrepMethod" 
-								  change="{propagateOtherSamplePrepMethod();checkSampleSetupCompleteness();parentDocument.samplesView.initializeSamplesGrid();}" 
-								  maxChars="50"/>
-				</mx:HBox>
-				
-				
-			</mx:VBox>
-			
-			<mx:HBox width="100%" id="coreNotesBox">
-					<mx:VBox height="140" width="100%" id="coreFacilityNoteVBox" verticalGap="0" paddingBottom="0" paddingTop="50" paddingLeft="8" paddingRight="8">
-						<util:ContextHelp context1="coreFacilityNoteHelp" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Core Facility Note Help"
-										  label="Enter a note for the Core Facility (optional)." labelPlacement="left" id="coreFacilityNoteLabel"/>
-						<util:TextAreaWorkaround id="coreFacilityNoteText" text="{parentDocument.request.@corePrepInstructions}" 
-												 focusOut="parentDocument.request.@corePrepInstructions = coreFacilityNoteText.text" 
-												 width ="100%" height="100%"/>
-					</mx:VBox>
 			</mx:HBox>
-			
+			<mx:HBox horizontalGap="0" verticalAlign="top" id="sampleTypeHBox" width="100%">
+				<util:ContextHelp context1="SampleDetailsSampleCategory" context2="{parentDocument.coreFacility.@idCoreFacility}"
+								  context3="{(parentDocument.requestType == 'MISEQ') ? 'HISEQ' : parentDocument.requestType}"
+								  showEdit="{parentApplication.isAdminState}" title="Sample Category Help"
+								  label="(2) Which category best describes your samples?" labelPlacement="left" id="label8" width="350"/>
+				<mx:RadioButtonGroup id = "sampleTypeRadioGroup" />
+				<mx:HBox verticalGap="0" paddingTop="0" paddingBottom="0" styleName="requiredBox" id="sampleTypeDNARNAHBox">
+					<mx:VBox verticalGap="0" paddingTop="0" paddingBottom="0" id="sampleTypeBox">
+						<mx:Label text="DNA" styleName="formLabelLarge"
+								  visible="{parentDocument.filteredSampleTypeListDna.length > 0 &amp;&amp; parentDocument.filteredSampleTypeListRna.length > 0}"
+								  includeInLayout="{parentDocument.filteredSampleTypeListDna.length > 0 &amp;&amp; parentDocument.filteredSampleTypeListRna.length > 0}"/>
+						<mx:Repeater id="sampleTypeDnaRepeater" dataProvider="{parentDocument.filteredSampleTypeListDna}">
+							<mx:RadioButton id="sampleTypeDnaBtn" groupName="sampleTypeRadioGroup"
+											label="{sampleTypeDnaRepeater.currentItem.@display}"
+											value="{sampleTypeDnaRepeater.currentItem.@value}"
+											click="{pickSampleType()}" fontSize="11" paddingTop="0" paddingBottom="0"
+											width="250" />
+						</mx:Repeater>
+						<mx:RadioButton id="sampleTypeDNANull" groupName="sampleTypeRadioGroup"
+										label="" value="{null}" width="0" height="0" visible="false" includeInLayout="false" />
+					</mx:VBox>
+					<mx:VBox verticalGap="0" paddingTop="0" paddingBottom="0">
+						<mx:Label text="RNA" styleName="formLabelLarge"
+								  visible="{parentDocument.filteredSampleTypeListRna.length > 0 &amp;&amp; parentDocument.filteredSampleTypeListDna.length > 0}"
+								  includeInLayout="{parentDocument.filteredSampleTypeListRna.length > 0 &amp;&amp; parentDocument.filteredSampleTypeListDna.length > 0}"/>
+						<mx:Repeater id="sampleTypeRnaRepeater" dataProvider="{parentDocument.filteredSampleTypeListRna}">
+							<mx:RadioButton id="sampleTypeRnaBtn" groupName="sampleTypeRadioGroup"
+											label="{sampleTypeRnaRepeater.currentItem.@display}"
+											value="{sampleTypeRnaRepeater.currentItem.@value}"
+											click="{pickSampleType()}" fontSize="11" paddingTop="0" paddingBottom="0"
+											width="250" />
+						</mx:Repeater>
+					</mx:VBox>
+				</mx:HBox>
+				<mx:TextArea id="sampleTypeNotes"
+							 htmlText="{sampleType.@notes}"
+							 editable="false"
+							 textAlign="left"
+							 borderStyle="none"
+							 visible="{sampleTypeRadioGroup.selectedValue != null &amp;&amp; sampleTypeRadioGroup.selectedValue != '' &amp;&amp; sampleType != null &amp;&amp; sampleType.@notes != null &amp;&amp; sampleType.@notes != ''}"
+							 includeInLayout="{sampleTypeRadioGroup.selectedValue != null &amp;&amp; sampleTypeRadioGroup.selectedValue != '' &amp;&amp; sampleType != null &amp;&amp; sampleType.@notes != null &amp;&amp; sampleType.@notes != ''}"
+							 width="250" height="100%"
+							 paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0"
+							 borderThickness="0"
+							 styleName="readOnly"
+							 backgroundColor="#FFFFFF"/>
+			</mx:HBox>
+			<mx:HBox horizontalGap="0" id="sampleOrganismContainer" paddingRight="4" verticalAlign="middle">
+				<util:ContextHelp context1="SampleDetailsOrganism" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Sample Organism Help"
+								  label="(3) Which organism is the source for these samples?" labelPlacement="left" id="label7" width="350"/>
+				<renderers:FilterComboBox labelField="@combinedName"
+										  prompt="Organism..."
+										  close="pickOrganism()"
+										  id="sampleOrganismCombo"
+										  dataProvider="{parentApplication.activeOrganismList}"
+										  width="{sampleOrganismCombo.selectedItem != null &amp;&amp; sampleOrganismCombo.selectedItem.@display == 'Other' ? 75 : 300}">
+				</renderers:FilterComboBox>
+				<mx:Label text="Please specify" paddingLeft="6">
+					<mx:visible>{sampleOrganismCombo.selectedItem != null &amp;&amp; sampleOrganismCombo.selectedItem.@display == 'Other'}</mx:visible>
+				</mx:Label>
+				<mx:TextInput width="200" id="otherOrganism" focusOut="{propagateOtherSampleOrganism();checkSampleSetupCompleteness()}" maxChars="200">
+					<mx:visible>{sampleOrganismCombo.selectedItem != null &amp;&amp; sampleOrganismCombo.selectedItem.@display == 'Other'}</mx:visible>
+				</mx:TextInput>
+			</mx:HBox>
+			<mx:HBox horizontalGap="0" id="samplePrepContainer" paddingRight="4" verticalAlign="middle">
+				<util:ContextHelp context1="sampleDetailsNucleicAcidExtraction" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Nucleic Acid Extraction Help"
+								  label="(4) Specify the nucleic acid extraction method. (required)." labelPlacement="left" id="label2" width="350"/>
+				<mx:TextInput width="300" id="otherSamplePrepMethod"
+							  change="{propagateOtherSamplePrepMethod();checkSampleSetupCompleteness();parentDocument.samplesView.initializeSamplesGrid();}"
+							  maxChars="50"/>
+			</mx:HBox>
 		</mx:VBox>
-		
-	</mx:Canvas>
+		<mx:Spacer height="10" />
+		<mx:HBox width="100%" id="coreNotesBox">
+				<mx:VBox height="140" width="825" id="coreFacilityNoteVBox" verticalGap="0" paddingBottom="2" paddingTop="2" paddingLeft="2" paddingRight="2">
+					<util:ContextHelp context1="coreFacilityNoteHelp" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Core Facility Note Help"
+									  label="Enter a note for the Core Facility (optional)." labelPlacement="left" id="coreFacilityNoteLabel"/>
+					<util:TextAreaWorkaround id="coreFacilityNoteText" text="{parentDocument.request.@corePrepInstructions}"
+											 focusOut="parentDocument.request.@corePrepInstructions = coreFacilityNoteText.text"
+											 width ="100%" height="100%"/>
+				</mx:VBox>
+		</mx:HBox>
+
+	</mx:VBox>
+
 	
 	<mx:states>
 		<mx:State name="QCSetupState">
@@ -1626,7 +1622,7 @@
 				<mx:VBox id="bioanalyzerContainer" visible="true" width="100%" height="100%">
 					<mx:VBox width="100%" horizontalGap="0" id="chipTypeVBox">
 						<util:ContextHelp context1="sampleDetailsSamplePooling" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Bioanalyzer Chip Type Help"
-										  label="(5) Select a QC Assay." labelPlacement="left" id="bioanalyzerChipTypeLabel" width="340"/>
+										  label="(5) Select a QC Assay." labelPlacement="left" id="bioanalyzerChipTypeLabel" width="350"/>
 						<mx:HBox id="chipTypeBox"  width="100%" height="100%" styleName="requiredBoxThick" >							
 							<mx:DataGrid width="100%" height="100%" fontSize="10" visible="true" id="bioanalyzerChipTypeGrid"  backgroundAlpha="0"   itemClick="toggleChipTypeCheck(event)">
 								<mx:dataProvider>{filteredChipTypeList}</mx:dataProvider>
@@ -1669,7 +1665,7 @@
 			<mx:AddChild relativeTo="{hbox3}" position="before">
 				<mx:HBox width="100%" horizontalGap="0">
 					<util:ContextHelp context1="sampleDetailsQCApplication" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Sample Quality Experiment Type Help"
-									  label="(1) Select a sample quality Experiment Type." labelPlacement="left" id="labelQCApplication" width="340"/>
+									  label="(1) Select a sample quality Experiment Type." labelPlacement="left" id="labelQCApplication" width="350"/>
 					<mx:VBox height="100%" verticalGap="0" paddingLeft="2" paddingRight="2" paddingBottom="0" paddingTop="0" styleName="requiredBox" id="qcAppBox">
 						<mx:RadioButtonGroup id="radioGroupQCApp"/>
 						<mx:Repeater id="qcAppRepeater" dataProvider="{parentDocument.filteredAppList}"> 
@@ -1772,7 +1768,7 @@
 			<mx:AddChild relativeTo="{sampleTypeHBox}" position="before">
 				<mx:HBox width="100%" horizontalGap="0">
 					<util:ContextHelp context1="sampleDetailsSampleContainer" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Container Help"
-									  label="(2) The samples will be delivered in what container?" labelPlacement="left" id="label0" width="340"/>
+									  label="(2) The samples will be delivered in what container?" labelPlacement="left" id="label0" width="350"/>
 					<mx:RadioButtonGroup id="containerTypeRadioGroup" selectedValue="TUBE" change="{callLater(onContainerTypeChange)}"/>
 					<mx:RadioButton id="containerTypeTube" label="Tubes" value="TUBE" groupName="containerTypeRadioGroup"/>
 					<mx:RadioButton id="containerTypePlate" label="Plate" value="PLATE" groupName="containerTypeRadioGroup" paddingLeft="20"/>
@@ -1781,7 +1777,7 @@
 			<mx:AddChild relativeTo="{sampleTypeHBox}" position="before">
 				<mx:HBox horizontalGap="0" id="capSeqNumPlatesBox" verticalAlign="middle">
 					<util:ContextHelp context1="sampleDetailsNumPlates" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Number Of Plates Help"
-									  label="(3) If plates, how many plates will you be submitting?" labelPlacement="left" id="capSeqNumPlatesLabel" width="340"/>
+									  label="(3) If plates, how many plates will you be submitting?" labelPlacement="left" id="capSeqNumPlatesLabel" width="350"/>
 					<mx:RadioButtonGroup id="capSeqNumPlatesRadioGroup"  change="onCapSeqNumPlatesChanged()" />
 					<mx:RadioButton id="capSeqNumPlates1" label="1" value="1" groupName="capSeqNumPlatesRadioGroup" enabled="{containerTypePlate.selected}"/>
 					<mx:Spacer width="20"/>
@@ -1797,7 +1793,7 @@
 			<mx:AddChild relativeTo="{sampleSetupContainer}" position="lastChild">
 				<mx:HBox horizontalGap="0" id="sampleDropOffLocationHbox" verticalAlign="middle">
 					<util:ContextHelp context1="sampleDetailsDropOff" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Sample Drop Off Help"
-									  label="(5) Where are you dropping off your samples?" labelPlacement="left" id="sampleDropOffLocationLabel" width="340"/>
+									  label="(5) Where are you dropping off your samples?" labelPlacement="left" id="sampleDropOffLocationLabel" width="350"/>
 					<mx:ComboBox labelField="@display" width="300" id="sampleDropOffLocationCombo" 
 								 change="parentDocument.samplesView.initializeSamplesGrid();" 
 								 dataProvider="{parentDocument.filteredSampleDropOffLocationList}" 
@@ -1976,7 +1972,7 @@
 			<mx:AddChild relativeTo="{sampleTypeHBox}" position="before">
 				<mx:HBox width="100%" horizontalGap="0">
 					<util:ContextHelp context1="sampleDetailsDestinationWells" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Sample Destination Wells Help"
-									  label="(1) How many wells does the destination plate contain?" labelPlacement="left" id="cherryNumDestinationWells" width="340"/>
+									  label="(1) How many wells does the destination plate contain?" labelPlacement="left" id="cherryNumDestinationWells" width="350"/>
 					<mx:RadioButtonGroup id="cherryNumDestinationWellsRadioGroup" change="parentDocument.samples.removeAll();parentDocument.samplesView.initializeSamplesGrid()"/>
 					<mx:RadioButton id="cherryNumDestinationWells96" label="96" click="{callLater(checkSampleSetupCompleteness)}" value="96" groupName="cherryNumDestinationWellsRadioGroup"/>
 					<mx:RadioButton id="cherryNumDestinationWells384" label="384" click="{callLater(checkSampleSetupCompleteness)}" value="384" groupName="cherryNumDestinationWellsRadioGroup"/>
@@ -1985,7 +1981,7 @@
 			<mx:AddChild relativeTo="{sampleTypeHBox}" position="before">
 				<mx:HBox horizontalGap="0" id="cherryNumSourcePlatesBox" verticalAlign="middle">
 					<util:ContextHelp context1="sampleDetailsNumSourcePlates" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Sample Source Plates Help"
-									  label="(2) How many source plates will you be submitting?" labelPlacement="left" id="cherryNumSourcePlatesLabel" width="340"/>
+									  label="(2) How many source plates will you be submitting?" labelPlacement="left" id="cherryNumSourcePlatesLabel" width="350"/>
 					<mx:TextInput width="40" id="cherryNumSourcePlates" 
 								  change="onCherryNumSourcePlatesChanged()">
 					</mx:TextInput>							
@@ -1994,7 +1990,7 @@
 			<mx:AddChild relativeTo="{sampleTypeHBox}" position="before">
 				<mx:VBox horizontalGap="0" id="cherryPlateNamesBox" verticalAlign="middle">
 					<util:ContextHelp context1="sampleDetailsPlateNames" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Sample Plate Names Help"
-									  label="(3) Name your plates." labelPlacement="left" id="plateNamesLabel" width="340"/>
+									  label="(3) Name your plates." labelPlacement="left" id="plateNamesLabel" width="350"/>
 					<mx:HBox horizontalGap="10" verticalAlign="middle">
 						<mx:HBox horizontalGap="0" verticalAlign="middle" id="cherryPlate1Box" visible="false">
 							<mx:Label text="Plate 1:"/>
@@ -2070,7 +2066,7 @@
 			<mx:AddChild relativeTo="{sampleTypeHBox}" position="before">
 				<mx:HBox id="iScanChipContainer" width="100%" horizontalGap="0">
 					<util:ContextHelp context1="sampleDetailsIScanChip" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="IScan Chip Help"
-									  label="(1) Select the desired chip:" labelPlacement="left" id="iscanChipLabel" width="340"/>
+									  label="(1) Select the desired chip:" labelPlacement="left" id="iscanChipLabel" width="350"/>
 					<mx:VBox verticalGap="0" id="iScanChipBox" styleName="requiredBox">
 						<mx:HBox width="100%" paddingBottom="5">
 							<mx:VBox width="230"  height="100%" horizontalAlign="center" verticalAlign="middle" verticalGap="0"> 
@@ -2116,7 +2112,7 @@
 			<mx:AddChild relativeTo="{sampleTypeHBox}" position="before">
 				<mx:HBox horizontalGap="0" id="iScanNumSourcePlatesBox" verticalAlign="middle" includeInLayout="{parentDocument.request.@idRequest == '0'}" visible="{parentDocument.request.@idRequest == '0'}">
 					<util:ContextHelp context1="SampleDetailsIScanNumSourcePlates" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="IScan Source Plates Help"
-									  label="(3) How many source plates will you be submitting?" labelPlacement="left" id="iScanNumSourcePlatesLabel" width="340"/>
+									  label="(3) How many source plates will you be submitting?" labelPlacement="left" id="iScanNumSourcePlatesLabel" width="350"/>
 					<mx:TextInput width="40" id="iScanNumSourcePlates" 
 								  change="onIScanNumSourcePlatesChanged()" focusOut="parentDocument.samplesView.initializeSamplesGrid();">
 					</mx:TextInput>							
@@ -2125,7 +2121,7 @@
 			<mx:AddChild relativeTo="{sampleTypeHBox}" position="before">
 				<mx:VBox horizontalGap="0" id="iScanPlateNamesBox" verticalAlign="middle" visible="{parentDocument.request.@idRequest == '0'}" includeInLayout="{parentDocument.request.@idRequest == '0'}">
 					<util:ContextHelp context1="SampleDetailsIScanNamePlates" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="IScan Plate Names Help"
-									  label="(4) Name your plates." labelPlacement="left" id="iScanPlateNamesLabel" width="340"/>
+									  label="(4) Name your plates." labelPlacement="left" id="iScanPlateNamesLabel" width="350"/>
 					<mx:HBox horizontalGap="10" verticalAlign="middle">
 						<mx:HBox horizontalGap="0" verticalAlign="middle" id="iScanPlate1Box" visible="false">
 							<mx:Label text="Plate 1:"/>
@@ -2215,7 +2211,7 @@
 			<mx:AddChild relativeTo="{sampleSetupContainer}" position="lastChild">
 				<mx:HBox width="100%" horizontalGap="0" id="hbox7">
 					<util:ContextHelp context1="SampleDetailsSequenomSeqApplication" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Experiment Type Help"
-									  label="(1) Select an experiment type." labelPlacement="left" id="labelSeqApplication" width="340"/>
+									  label="(1) Select an experiment type." labelPlacement="left" id="labelSeqApplication" width="350"/>
 					<mx:VBox verticalGap="2" id="appAndPanelContainerVBox">
 						<mx:VBox height="100%" width="400" verticalGap="1" paddingLeft="2" paddingRight="2" paddingBottom="2" paddingTop="2" styleName="requiredBox" id="seqAppBox">
 							<mx:RadioButtonGroup id="radioGroupSeqApp"/>
@@ -2245,7 +2241,7 @@
 			<mx:AddChild relativeTo="{sampleSetupContainer}" position="lastChild">
 				<mx:HBox width="100%" horizontalGap="0" id="hbox8">
 					<util:ContextHelp context1="SampleDetailsSequenomContainer" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Container Help"
-									  label="(4) The samples will be delivered in what container?" labelPlacement="left" id="seqContLabel" width="340"/>
+									  label="(4) The samples will be delivered in what container?" labelPlacement="left" id="seqContLabel" width="350"/>
 					<mx:RadioButtonGroup id="sequenomContainerTypeRadioGrp" selectedValue="TUBE" change="{callLater(onSequenomContainerTypeChange)}"/>
 					<mx:RadioButton id="sequenomContainerTypeTube" label="Tubes" value="TUBE" groupName="sequenomContainerTypeRadioGrp"/>
 					<mx:RadioButton id="sequenomContainerTypePlate" label="Plates" value="PLATE" groupName="sequenomContainerTypeRadioGrp" paddingLeft="20"/>
@@ -2256,7 +2252,7 @@
 						 includeInLayout="{sequenomContainerTypeRadioGrp.selectedValue == 'PLATE' &amp;&amp; parentDocument.request.@idRequest == '0'}" 
 						 visible="{sequenomContainerTypeRadioGrp.selectedValue == 'PLATE' &amp;&amp; parentDocument.request.@idRequest == '0'}">
 					<util:ContextHelp context1="SampleDetailsSequenomNumSourcePlates" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Source Plates Help"
-									  label="(5) How many source plates will you be submitting?" labelPlacement="left" id="sequenomNumSourcePlatesLabel" width="340"/>
+									  label="(5) How many source plates will you be submitting?" labelPlacement="left" id="sequenomNumSourcePlatesLabel" width="350"/>
 					<mx:TextInput width="40" id="sequenomNumSourcePlates" 
 								  change="onSequenomNumSourcePlatesChanged()" 
 								  focusOut="onNumberOfSamplesChanged()">
@@ -2268,7 +2264,7 @@
 						 visible="{sequenomContainerTypeRadioGrp.selectedValue == 'PLATE' &amp;&amp; parentDocument.request.@idRequest == '0'}" 
 						 includeInLayout="{sequenomContainerTypeRadioGrp.selectedValue == 'PLATE' &amp;&amp; parentDocument.request.@idRequest == '0'}">
 					<util:ContextHelp context1="SampleDetailsSequenomPlateNames" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Plate Name Help"
-									  label="(6) Name your plates." labelPlacement="left" id="sequenomPlateNameLabel" width="340"/>
+									  label="(6) Name your plates." labelPlacement="left" id="sequenomPlateNameLabel" width="350"/>
 					<mx:HBox horizontalGap="10" verticalAlign="middle">
 						<mx:HBox horizontalGap="0" verticalAlign="middle" id="sequenomPlate1Box" visible="false">
 							<mx:Label text="Plate 1:"/>
@@ -2338,7 +2334,7 @@
 			<mx:AddChild relativeTo="{hbox3}" position="before">
 				<mx:HBox horizontalGap="0"  verticalAlign="middle" id="bisulfideConversionBox">
 					<util:ContextHelp context1="SampleDetailsSequenomBisulfideConversion" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Bisulfide Conversion Help"
-									  label="(2) Would you like to include bisulfide conversion?" labelPlacement="left" id="sequenomBisulfideConversionLabel" width="340"/>
+									  label="(2) Would you like to include bisulfide conversion?" labelPlacement="left" id="sequenomBisulfideConversionLabel" width="350"/>
 					<mx:CheckBox label="Yes" id="bisulfideConversionCheckBox" change="onIncludeBisulfideConversionCheckBoxChanged()" width="100%" paddingRight="9" selected="{parentDocument.request.@includeBisulfideConversion == 'Y'}"/>	
 				</mx:HBox>
 			</mx:AddChild>
@@ -2383,7 +2379,7 @@
 			<mx:AddChild relativeTo="{sampleSetupContainer}" position="lastChild">
 				<mx:HBox id="appListBox" width="100%" horizontalGap="0" visible="{parentDocument.filteredAppList.length&gt;0}" includeInLayout="{parentDocument.filteredAppList.length&gt;0}">
 					<util:ContextHelp context1="SampleDetailsApplication" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Experiment Type Help"
-									  label="(4) Select an experiment type." labelPlacement="left" id="labelApplication" width="340"/>
+									  label="(4) Select an experiment type." labelPlacement="left" id="labelApplication" width="350"/>
 					<mx:VBox verticalGap="2" id="appContainerVBox">
 						<mx:VBox height="100%" width="400" verticalGap="1" paddingLeft="2" paddingRight="2" paddingBottom="2" paddingTop="2" styleName="requiredBox" id="appBox">
 							<mx:RadioButtonGroup id="radioGroupApp"/>
