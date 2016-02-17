@@ -2005,18 +2005,18 @@
 						<mx:headerRenderer>
 							<mx:Component>
 								<mx:VBox verticalGap="0" horizontalScrollPolicy="off">
-									<mx:Label text="Custom"/>
 									<mx:Label text="Index Tag"/>
+									<mx:Label text="Sequence A"/>
 								</mx:VBox>
 							</mx:Component>
-						</mx:headerRenderer> 
+						</mx:headerRenderer>
 					</mx:AdvancedDataGridColumn>
 					<mx:AdvancedDataGridColumn id="customBarcodeColB" headerText="Index Tag B" width="65" visible="true"  dataField="@barcodeSequenceB">
 						<mx:headerRenderer>
 							<mx:Component>
 								<mx:VBox verticalGap="0" horizontalScrollPolicy="off">
-									<mx:Label text="Custom"/>
-									<mx:Label text="Index Tag B"/>
+									<mx:Label text="Index Tag"/>
+									<mx:Label text="Sequence B"/>
 								</mx:VBox>
 							</mx:Component>
 						</mx:headerRenderer> 
