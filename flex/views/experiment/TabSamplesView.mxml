@@ -68,7 +68,11 @@
 			override public function getCCNumberBox():HBox {
 				return this.ccNumberContainer;
 			}
-			
+
+			override public function getShowCCNumberCheckbox():CheckBox {
+				return this.showCCNumberCheckbox;
+			}
+
 			override public function getButtonsContainer():HBox {
 				return this.buttonsContainer;
 			}
@@ -951,21 +955,7 @@
 				callLater(this.checkSamplesCompleteness);
 				
 			}
-			
-			override public function setShowCCNumber(show:Boolean):void {
-				if (showCCNumberCheckbox != null) {
-					this.showCCNumberCheckbox.selected = show;
-				}
-			}
-			
-			override public function getShowCCNumber():Boolean {
-				if (showCCNumberCheckbox != null) {
-					return this.showCCNumberCheckbox.selected;
-				} else {
-					return false;
-				}
-			}
-			
+
 			private function setSamplesGridDataProvider():void {
 				this.samplesGrid.validateNow(); // Make sure columns on samples grid are created
 				
@@ -1218,15 +1208,7 @@
 					parentDocument.confirmView.hybsGridConfirm.invalidateDisplayList();
 				}
 			}
-			
-			private function toggleShowCCNumber():void {
-				if (!this.showCCNumberCheckbox.selected) {
-					for each(var s:XML in parentDocument.samples) {
-						s.@ccNumber = '';
-					}
-				}
-			}
-			
+
 			private function sortBarcodes(obj1:Object, obj2:Object, fields:Array=null):int {
 				if (obj1 == null && obj2 == null) {
 					return 0;
@@ -1576,7 +1558,7 @@
 					</mx:headerRenderer>
 				</mx:AdvancedDataGridColumn>
 				<mx:AdvancedDataGridColumn id="ccNumber" headerText="CC Number" dataField="@ccNumber" editable="true" 
-										   visible="{showCCNumberCheckbox.visible &amp;&amp; showCCNumberCheckbox.selected &amp;&amp; !parentDocument.isSequencingState() ? true : false}"
+										   visible="{showCCNumberCheckbox.visible &amp;&amp; showCCNumberCheckbox.selected ? true : false}"
 										   width="76"
 										   itemRenderer="{hci.flex.controls.Label.createCustom('@ccNumber', parentApplication.annotationColor, parentApplication.annotationColorBorder, 0)}"                
 										   itemEditor="{views.renderers.GridColumnFillButton.create(hci.flex.controls.TextInput.create('@ccNumber').newInstance(), '')}" editorDataField="value">

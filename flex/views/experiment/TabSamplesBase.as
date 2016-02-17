@@ -11,7 +11,8 @@ package views.experiment
 	import mx.containers.HBox;
 	import mx.controls.AdvancedDataGrid;
 	import mx.controls.Alert;
-	import mx.controls.TextInput;
+import mx.controls.CheckBox;
+import mx.controls.TextInput;
 	import mx.controls.advancedDataGridClasses.AdvancedDataGridColumn;
 	import mx.core.IFactory;
 	import mx.events.AdvancedDataGridEvent;
@@ -191,6 +192,10 @@ package views.experiment
 		public function getCCNumberBox():HBox {
 			return null;
 		}
+
+		public function getShowCCNumberCheckbox():CheckBox {
+			return null;
+		}
 		
 		public function getButtonsContainer():HBox {
 			return null;
@@ -213,13 +218,27 @@ package views.experiment
 		}
 		
 		public function setShowCCNumber(show:Boolean):void {
-			
+			if (this.getShowCCNumberCheckbox() != null) {
+				this.getShowCCNumberCheckbox().selected = show;
+			}
 		}
 		
 		public function getShowCCNumber():Boolean {
-			return false;
+			if (this.getShowCCNumberCheckbox() != null) {
+				return this.getShowCCNumberCheckbox().selected;
+			} else {
+				return false;
+			}
 		}
-		
+
+		public function toggleShowCCNumber():void {
+			if (this.getShowCCNumberCheckbox() == null || !this.getShowCCNumberCheckbox().selected) {
+				for each(var s:XML in parentDocument.samples) {
+					s.@ccNumber = '';
+				}
+			}
+		}
+
 		public function propagateBarcode():void {
 			
 		}
