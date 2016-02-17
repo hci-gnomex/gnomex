@@ -81,8 +81,18 @@
         [Bindable]
         private var requestNumbers:ArrayCollection;
 			
+		[Bindable]
+		private var requestCategories:XML = <Categories><RequestCategory label="HiSeq, MiSeq combined" codeStepNext="ALLPREP"/><RequestCategory label="Illumina HiSeq" codeStepNext="HSEQPREP"/><RequestCategory label="Illumina MiSeq" codeStepNext="MISEQPREP"/></Categories>;
+			
         private function init():void {
         	barcodes.refresh();
+			//select the index of the category combo based off of what lib prep view we are in (hiseq or miseq)
+			for(var i: int = 0; i < categoryCombo.dataProvider.length; i++){
+				if(categoryCombo.dataProvider[i].@codeStepNext == parentDocument.codeStepNext){
+					categoryCombo.selectedIndex = i;
+					break;
+				}
+			}
         }
 
 		public function titleInit():void {
@@ -491,6 +501,9 @@
 	            	<mx:Label text="Request #"/>
 	            	<mx:ComboBox id="requestNumberCombo" dataProvider="{requestNumbers}" change="workList.filterFunction = filterWorkList;workList.refresh()"  width="90"></mx:ComboBox>
             	</mx:HBox>
+				<mx:HBox  verticalAlign="middle">
+					<mx:ComboBox id="categoryCombo" dataProvider="{requestCategories.RequestCategory}" labelField="@label" change="{this.codeStepNext = categoryCombo.selectedItem.@codeStepNext; getWorkList.send()}"></mx:ComboBox>
+				</mx:HBox>
             	<mx:Spacer width="100%"/>
                 <mx:Label text="{requestNumberCount}"/>
             </mx:HBox>

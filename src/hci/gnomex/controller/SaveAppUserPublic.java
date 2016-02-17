@@ -3,7 +3,6 @@ package hci.gnomex.controller;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.AppUser;
-import hci.gnomex.model.Lab;
 import hci.gnomex.security.EncryptionUtility;
 import hci.gnomex.utility.HibernateSession;
 //import hci.gnomex.utility.HibernateUtil;
@@ -23,7 +22,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.hibernate.Session;
-import org.hibernate.internal.SessionImpl;
 import org.hibernate.jdbc.Work;
 import org.jdom.Document;
 import org.jdom.Element;
