@@ -2,6 +2,7 @@ package hci.gnomex.controller;
 
 import java.io.Serializable;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -9,6 +10,7 @@ import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -17,9 +19,11 @@ import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.model.DetailObject;
 import hci.framework.utilities.XMLReflectException;
+import hci.gnomex.model.CoreFacility;
 import hci.gnomex.model.Price;
 import hci.gnomex.model.Product;
 import hci.gnomex.model.ProductType;
+import hci.gnomex.model.UserPermissionKind;
 import hci.gnomex.utility.DictionaryHelper;
 
 
@@ -52,7 +56,32 @@ public class GetProductList extends GNomExCommand implements Serializable {
 
       Document doc = new Document(new Element("ProductList"));
 
-      List products = sess.createQuery("SELECT p from Product p order by p.name").list();
+      List idCoreFacility = new ArrayList();
+      // If we are super admin add all active core ids.  Otherwise get the core facilities that a normal admin manages.
+      if(this.getSecAdvisor().getAppUser().getCodeUserPermissionKind().equals(UserPermissionKind.SUPER_ADMIN_PERMISSION_KIND)){
+        for(Iterator i = CoreFacility.getActiveCoreFacilities(sess).iterator(); i.hasNext();){
+          CoreFacility cf = (CoreFacility)i.next();
+          idCoreFacility.add(cf.getIdCoreFacility());
+        }
+
+      } else{
+        for(Iterator i = this.getSecAdvisor().getCoreFacilitiesIManage().iterator(); i.hasNext();){
+          CoreFacility cf = (CoreFacility)i.next();
+          idCoreFacility.add(cf.getIdCoreFacility());
+        }
+
+      }
+
+      StringBuffer buf = new StringBuffer();
+      buf.append(" SELECT p from Product p ");
+      buf.append(" JOIN p.productType as pt ");
+      buf.append(" WHERE pt.idCoreFacility IN (:ids) ");
+      buf.append(" order by p.name ");
+
+      Query q = sess.createQuery(buf.toString());
+      q.setParameterList("ids", idCoreFacility);
+
+      List products = q.list();
 
       for(Iterator i = products.iterator(); i.hasNext();) {
         Product product = (Product)i.next();

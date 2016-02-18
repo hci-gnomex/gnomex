@@ -179,6 +179,7 @@
 				var addProductWindow:AddProductWindow = new AddProductWindow();
 				addProductWindow.parentWindow = this;
 				addProductWindow.products = this.products;
+				addProductWindow.getCoreFacilityLabList.send();
 				
 				PopUpManager.addPopUp(addProductWindow,this, true)
 				PopUpManager.centerPopUp(addProductWindow);
