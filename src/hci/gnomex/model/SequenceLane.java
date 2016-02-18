@@ -40,7 +40,8 @@ public class SequenceLane extends HibernateDetailObject {
   private Integer         idFlowCellChannel;
   private FlowCellChannel flowCellChannel;
   private NumberSequencingCycles numberSeqCycles;
-  private SeqRunType    seqRunType;
+  private SeqRunType      seqRunType;
+  private Set             workItems;
 
   public void setSeqRunType(SeqRunType srt){
     this.seqRunType = srt;
@@ -762,6 +763,14 @@ public class SequenceLane extends HibernateDetailObject {
 
   public void setNumberSeqCycles(NumberSequencingCycles numberSeqCycles) {
     this.numberSeqCycles = numberSeqCycles;
+  }
+
+  public Set getWorkItems() {
+    return workItems;
+  }
+
+  public void setWorkItems(Set workItems) {
+    this.workItems = workItems;
   }
 
 }  

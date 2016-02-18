@@ -762,20 +762,26 @@ public class Sample extends HibernateDetailObject {
 
     String step = "1";
     if (RequestCategory.isIlluminaRequestCategory(getRequest().getCodeRequestCategory())) {
-      int lastStep = this.getSeqPrepByCore() == null || this.getSeqPrepByCore().equals("Y") ? 5 : 4;
+      int lastStep = this.getSeqPrepByCore() == null || this.getSeqPrepByCore().equals("Y") ? 6 : 5;
       TreeMap<String, String> laneStatusMap = getLaneWorkflowStep(lastStep);
+      TreeMap<String, String> workItemStatusMap = getWorkItemStep(lastStep);
       if (this.getSeqPrepByCore() == null || this.getSeqPrepByCore().equals("Y")) {
         if (laneStatusMap.size() > 0) {
           step = laneStatusMap.lastKey();
           if (laneStatusMap.size() > 1) {
             step += ",partial";
           }
+        } if (workItemStatusMap.size() > 0) {
+          step = workItemStatusMap.lastKey();
+          if (workItemStatusMap.size() > 1) {
+            step += ",partial";
+          }
         } else if (this.getSeqPrepDate() != null) {
-          step = new Integer(lastStep - 2).toString();
-        } else if (this.getQualDate() != null) {
           step = new Integer(lastStep - 3).toString();
-        } else {
+        } else if (this.getQualDate() != null) {
           step = new Integer(lastStep - 4).toString();
+        } else {
+          step = new Integer(lastStep - 5).toString();
         }      
 
       } else {
@@ -784,10 +790,15 @@ public class Sample extends HibernateDetailObject {
           if (laneStatusMap.size() > 1) {
             step += ",partial";
           }
-        } else if (this.getSeqPrepDate() != null) {
-          step = new Integer(lastStep - 2).toString();
-        } else {
+        } if (workItemStatusMap.size() > 0) {
+          step = workItemStatusMap.lastKey();
+          if (workItemStatusMap.size() > 1) {
+            step += ",partial";
+          }
+        }  else if (this.getSeqPrepDate() != null) {
           step = new Integer(lastStep - 3).toString();
+        } else {
+          step = new Integer(lastStep - 4).toString();
         }      
 
       }
@@ -815,6 +826,23 @@ public class Sample extends HibernateDetailObject {
     }
 
     return step;
+  }
+
+  private TreeMap<String, String> getWorkItemStep(int lastStep) {
+    TreeMap<String, String> stepMap = new TreeMap();
+    for (SequenceLane lane : (Set<SequenceLane>)this.getSequenceLanes()) {
+      for (WorkItem workItem : (Set<WorkItem>) lane.getWorkItems()) {
+
+        // Check that the sample is ready to be added to a flow cell
+        if (workItem.getCodeStepNext().equals(Step.HISEQ_CLUSTER_GEN)) {
+          stepMap.put(new Integer(lastStep - 2).toString(), null);
+        } else if (workItem.getCodeStepNext().equals(Step.MISEQ_CLUSTER_GEN)) {
+          stepMap.put(new Integer(lastStep - 2).toString(), null);
+        }
+      }
+    }
+    return stepMap;
+
   }
 
   private TreeMap<String, String> getLaneWorkflowStep(int lastStep) {

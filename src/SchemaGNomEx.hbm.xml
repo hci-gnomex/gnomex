@@ -1361,6 +1361,10 @@
 		<many-to-one name="seqRunType" column="idSeqRunType"
 			class="hci.gnomex.model.SeqRunType" cascade="none" insert="false"
 			update="false" />
+		<set name="workItems" table="WorkItem" lazy="true" cascade="none">
+			<key column="idSequenceLane" />
+			<one-to-many class="hci.gnomex.model.WorkItem" />
+		</set>
 	</class>
 
 	<!-- hci.gnomex.model.Slide -->
