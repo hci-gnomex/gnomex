@@ -13,7 +13,7 @@
 		<mx:ViewStack id="vsMain" width="100%" height="100%">
 			<mx:Canvas id="chooseColumns" width="100%" height="100%">
 				<mx:VBox fontSize="10" verticalGap="10" paddingLeft="8" verticalAlign="top" styleName="form" horizontalAlign="left" paddingRight="8" width="100%" id="vbox0" height="100%" paddingTop="8" paddingBottom="8">
-					<mx:VBox verticalAlign="0" verticalGap="0" paddingTop="0" paddingBottom="0" width="100%">
+					<mx:VBox verticalGap="0" paddingTop="0" paddingBottom="0" width="100%">
 						<mx:HBox width="100%">
 							<mx:CheckBox id="hasColNames" label="First row contains column headings" selected="true" click="{uploadSampleSheetSelectHandler(null)}" scaleX=".75" scaleY=".75" width="100%"/>
 							<mx:Spacer width="100%" height="100%" />
