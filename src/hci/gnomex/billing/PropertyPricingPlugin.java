@@ -41,7 +41,7 @@ public class PropertyPricingPlugin extends BillingPlugin {
           PropertyEntry pe = (PropertyEntry)pi.next();
           Property prop = (Property) sess.load( Property.class, pe.getIdProperty() );
 
-          if ( prop!=null && prop.getIdPriceCategory().equals(priceCategory.getIdPriceCategory()) ) {
+          if ( prop!=null && prop.getIdPriceCategory()!=null && prop.getIdPriceCategory().equals(priceCategory.getIdPriceCategory()) ) {
             if ( pe.getValue().equalsIgnoreCase( "Y" )) {
               price = p;
               break;
@@ -66,7 +66,7 @@ public class PropertyPricingPlugin extends BillingPlugin {
               Property prop = (Property) sess.load( Property.class, pe.getIdProperty() );
 
               // this property entry is for a property that uses the price category
-              if ( prop!=null && prop.getIdPriceCategory().equals(priceCategory.getIdPriceCategory()) && pe.getOptions()!=null ) {
+              if ( prop!=null && prop.getIdPriceCategory()!=null && prop.getIdPriceCategory().equals(priceCategory.getIdPriceCategory()) && pe.getOptions()!=null ) {
                 // check all property entry options for one that matches the criteria
                 for (PropertyOption option : (Set<PropertyOption>) pe.getOptions()) {
                   if ( option.getIdPropertyOption().toString().equals( criteria.getFilter1() )) {
