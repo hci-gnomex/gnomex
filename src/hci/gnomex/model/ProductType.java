@@ -13,8 +13,7 @@ public class ProductType extends DictionaryEntry implements Serializable {
   private Integer  idCoreFacility;
   private Integer  idVendor;
   private Integer  idPriceCategory;
-
-  public static final String   TYPE_ISCAN_CHIP  = "ISCAN";
+  private String   utilizePurchasingSystem;
 
   public String getDisplay() {
     String display = this.getNonNullString(getDescription());
@@ -75,6 +74,12 @@ public class ProductType extends DictionaryEntry implements Serializable {
     this.idPriceCategory = idPriceCategory;
   }
 
+  public String getUtilizePurchasingSystem() {
+    return utilizePurchasingSystem;
+  }
 
+  public void setUtilizePurchasingSystem(String utilizePurchasingSystem) {
+    this.utilizePurchasingSystem = utilizePurchasingSystem;
+  }
 
 }

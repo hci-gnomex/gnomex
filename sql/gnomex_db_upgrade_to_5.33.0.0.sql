@@ -117,3 +117,9 @@ ALTER TABLE Request
 DROP COLUMN alignToGenomeBuild;
 
 CALL ExecuteIfTableExists('gnomex', 'Request_Audit', 'ALTER TABLE Request_Audit DROP COLUMN alignToGenomeBuild');
+
+
+-- Add property to ProductType to determine if the purchasing system should be utilized
+ALTER TABLE ProductType
+ADD COLUMN utilizePurchasingSystem CHAR(1) NULL;
+CALL ExecuteIfTableExists('gnomex','ProductType_Audit','ALTER TABLE ProductType_Audit ADD COLUMN utilizePurchasingSystem CHAR(1) NULL');

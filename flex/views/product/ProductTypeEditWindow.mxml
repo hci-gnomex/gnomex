@@ -191,6 +191,7 @@
 				fieldData["idVendor"] = (vendorCombo.selectedIndex == -1) ? ("") : (vendorCombo.selectedItem.@idVendor);
 				fieldData["idPriceCategory"] = (priceCategoryCombo.selectedIndex == -1) ? ("") : (priceCategoryCombo.selectedItem.@idPriceCategory);
 				fieldData["description"] = descriptionText.text;
+				fieldData["utilizePurchasingSystem"] = utilizePurchasingCheckBox.selected ? ("Y") : ("N");
 				fieldData["idProductType"] = previousItemId;
 				
 				return fieldData;
@@ -229,6 +230,12 @@
 					if (selectedProductType.@idProductType != null && selectedProductType.@idProductType != '') {
 						previousItemId = selectedProductType.@idProductType;
 					}
+					if (selectedProductType.@utilizePurchasingSystem != null && selectedProductType.@utilizePurchasingSystem != '') {
+						utilizePurchasingCheckBox.selected = selectedProductType.@utilizePurchasingSystem == 'Y';
+					} else {
+						utilizePurchasingCheckBox.selected = false;
+					}
+
 				}
 			}
 			
@@ -237,6 +244,7 @@
 				vendorCombo.selectedIndex = -1;
 				priceCategoryCombo.selectedIndex = -1;
 				descriptionText.text = '';
+				utilizePurchasingCheckBox.selected = false;
 				previousItemId = 0;
 			}
 			
@@ -382,25 +390,32 @@
 				
 			</mx:VBox>
 			
-			<mx:VBox id="fieldsBox" visible="{showFields}" styleName="form" height="100%" width="100%" verticalGap="1" paddingTop="2" paddingRight="2" paddingBottom="2" paddingLeft="2">
-				
-				<mx:Label text="General - Core Facility" width="100%" />
+			<mx:VBox id="fieldsBox" visible="{showFields}" styleName="form" height="100%" width="100%" verticalGap="0" paddingTop="2" paddingRight="2" paddingBottom="2" paddingLeft="2">
+
+				<mx:Label text="General - Core Facility" width="100%" styleName="formLabel"/>
 				<mx:ComboBox id="coreFacilityCombo" dataProvider="{myCoreFacilities}" labelField="@display" change="{dirty.setDirty()}" width="100%" />
 				
-				<mx:Label text="General - Vendor" width="100%" />
+				<mx:Label text="General - Vendor" width="100%" styleName="formLabel" paddingTop="5"/>
 				<mx:ComboBox id="vendorCombo" dataProvider="{vendors}" labelField="@display" change="{dirty.setDirty()}" width="100%" />
-				
-				<mx:Label text="Price Category" width="100%" />
+
+				<mx:HBox width="100%" paddingTop="8">
+					<mx:Label text="Use Purchasing System" styleName="formLabel"/>
+					<mx:CheckBox id="utilizePurchasingCheckBox" change="{dirty.setDirty()}" />
+				</mx:HBox>
+
+				<mx:Label text="Price Category" width="100%" styleName="formLabel" paddingTop="5"/>
 				<mx:HBox width="100%">
 					<mx:ComboBox id="priceCategoryCombo" dataProvider="{productPriceCategories}" labelField="@display" change="{dirty.setDirty()}" width="100%" />
 					<mx:LinkButton id="newCategoryButton" label="New..." click="showNewPriceCategoryWindow()" textDecoration="underline" color="#0000FF"  
 								   visible="{parentApplication.isAdminState || parentApplication.isSuperAdmin}" includeInLayout="{parentApplication.isAdminState || parentApplication.isSuperAdmin}" />
 				</mx:HBox>
 				
-				<mx:Label text="Description" width="100%" />
+				<mx:Label text="Description" width="100%" styleName="formLabel" paddingTop="5"/>
 				<mx:TextInput id="descriptionText" change="{dirty.setDirty()}" width="100%" />
-				
-				<mx:ControlBar horizontalAlign="right" height="100%" width="100%" paddingTop="0" paddingRight="0" paddingLeft="0" paddingBottom="0">
+
+				<mx:Spacer height="100%" />
+
+				<mx:ControlBar horizontalAlign="right" width="100%" paddingTop="0" paddingRight="0" paddingLeft="0" paddingBottom="0">
 					<util:DirtyNote id="dirty" />
 					<mx:Button id="saveButton" label="Save" click="{validateAndSave()}" enabled="{changeDetected}"
 							   icon="@Embed('../../assets/action_save.gif')" disabledIcon="@Embed(source='../../assets/save_disable.png')" />

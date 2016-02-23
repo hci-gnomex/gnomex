@@ -2320,6 +2320,7 @@
     <property name="idCoreFacility" column="idCoreFacility" type="integer"/>
     <property name="idVendor" column="idVendor" type="integer"/>
     <property name="idPriceCategory" column="idPriceCategory" type="integer"/>
+    <property name="utilizePurchasingSystem" column="utilizePurchasingSystem" type="string"/>
   </class>  
 	
   <!-- hci.gnomex.model.PropertyDictionary -->

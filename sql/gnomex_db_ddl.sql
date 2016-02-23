@@ -743,6 +743,7 @@ CREATE TABLE gnomex.ProductType (
   idCoreFacility INT(10) NOT NULL,
   idVendor INT(10) NULL,
   idPriceCategory INT(10) NULL,
+  utilizePurchasingSystem  CHAR(1) NULL,
   PRIMARY KEY (idProductType),
   CONSTRAINT FK_ProductType_CoreFacility FOREIGN KEY FK_ProductType_CoreFacility (idCoreFacility)
     REFERENCES gnomex.CoreFacility (idCoreFacility)
