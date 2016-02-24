@@ -2485,16 +2485,8 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       ccEmail = null;
     }
 
-    if (contactEmail.contains(",")) {
-      for (String e : contactEmail.split(",")) {
-        if (!MailUtil.isValidEmail(e.trim())) {
-          log.error("Invalid email address: " + e);
-        }
-      }
-    } else {
-      if (!MailUtil.isValidEmail(contactEmail)) {
-        log.error("Invalid email address: " + contactEmail);
-      }
+    if (!MailUtil.isValidEmail(contactEmail)) {
+      log.error("Invalid email address: " + contactEmail);
     }
 
     if (!MailUtil.isValidEmail(senderEmail)) {
