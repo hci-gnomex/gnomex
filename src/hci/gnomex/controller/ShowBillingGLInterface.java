@@ -447,7 +447,7 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
         number = "Disk Usage";
       } else {
         ProductOrder po = (ProductOrder)row[0];
-        allBillingItems = po.getBillingItems();
+        allBillingItems = po.getBillingItems(sess);
         number = po.getProductOrderNumber() != null ? po.getProductOrderNumber() : po.getIdProductOrder().toString();
       }
       BillingItem bi =  (BillingItem)row[1];

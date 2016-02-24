@@ -8,8 +8,10 @@ import hci.gnomex.model.BillingAccount;
 import hci.gnomex.model.BillingItem;
 import hci.gnomex.model.BillingPeriod;
 import hci.gnomex.model.BillingTemplate;
+import hci.gnomex.model.BillingTemplateItem;
 import hci.gnomex.model.CoreFacility;
 import hci.gnomex.model.Lab;
+import hci.gnomex.model.MasterBillingItem;
 import hci.gnomex.model.Price;
 import hci.gnomex.model.PriceCategory;
 import hci.gnomex.model.Product;
@@ -23,9 +25,6 @@ import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.MailUtil;
 import hci.gnomex.utility.MailUtilHelper;
 import hci.gnomex.utility.PropertyDictionaryHelper;
-import hci.gnomex.utility.RequisitionFormUtil;
-
-
 import java.io.IOException;
 import java.io.Serializable;
 import java.io.StringReader;
@@ -173,7 +172,12 @@ public class SaveProductOrder extends GNomExCommand implements Serializable {
             BillingTemplate billingTemplate = new BillingTemplate();
             initializeProductOrder(po, idProductTypeKey, billingTemplate);
             sess.save(po);
+            billingTemplate.setOrder(po);
             sess.save(billingTemplate);
+            for (BillingTemplateItem item : billingTemplate.getItems()) {
+            	item.setIdBillingTemplate(billingTemplate.getIdBillingTemplate());
+            	sess.save(item);
+            }
             po.setProductOrderNumber(getNextPONumber(po, sess));
 
             for (Element n : products) {
@@ -192,8 +196,6 @@ public class SaveProductOrder extends GNomExCommand implements Serializable {
             sess.flush();
             sess.refresh(po);
 
-            sendConfirmationEmail(sess, po, ProductOrderStatus.NEW, serverName);
-
             Element poNode = new Element("ProductOrder");
 
             String submitter = dh.getAppUserObject(po.getIdAppUser()).getDisplayName();
@@ -208,10 +210,20 @@ public class SaveProductOrder extends GNomExCommand implements Serializable {
             outputDoc.getRootElement().addContent(poNode);
 
             List<BillingItem> billingItems = iscanPlugin.constructBillingItems(sess, billingPeriod, priceCategory, po, productLineItems, billingTemplate);
+            
+            for (MasterBillingItem masterBillingItem : billingTemplate.getMasterBillingItems()) {
+          	  sess.save(masterBillingItem);
+          	  for (BillingItem billingItem : masterBillingItem.getBillingItems()) {
+          		  billingItem.setIdMasterBillingItem(masterBillingItem.getIdMasterBillingItem());
+          	  }
+            }
+            
             for (Iterator<BillingItem> j = billingItems.iterator(); j.hasNext();) {
               BillingItem bi = j.next();
               sess.save(bi);
             }
+            
+            sendConfirmationEmail(sess, po, ProductOrderStatus.NEW, serverName);
 
             boolean isHCI = lab.getContactEmail().indexOf("@hci.utah.edu") > 0;
             //TODO : Make this a property on Product Type to Link to Purchasing System
@@ -319,11 +331,11 @@ public class SaveProductOrder extends GNomExCommand implements Serializable {
     }
     body.append("Product Order #: \t\t" + po.getProductOrderNumber() + "\n");
     body.append("Products Ordered: \t\t" + products.toString() + "\n");
-    body.append("Product Type: \t\t" + pt.getDisplay() + "\n");
+    body.append("Product Type: \t\t\t" + pt.getDisplay() + "\n");
     body.append("Submit Date: \t\t\t" + po.getSubmitDate() + "\n");
-    body.append("Submitted By: \t\t" + po.getSubmitter().getDisplayName() + "\n");
+    body.append("Submitted By: \t\t\t" + po.getSubmitter().getDisplayName() + "\n");
     body.append("Lab: \t\t\t\t" + po.getLab().getName(false, true) + "\n");
-    body.append("Billing Acct: \t\t" + ba.getAccountNameAndNumber() + "\n");
+    body.append("Billing Acct: \t\t\t" + ba.getAccountNameAndNumber() + "\n");
     body.append(noAppUserEmailMsg);
 
     MailUtilHelper mailHelper = new MailUtilHelper(toAddress, fromAddress, subject, body.toString(), null, false, dictionaryHelper, serverName);
@@ -371,7 +383,6 @@ public class SaveProductOrder extends GNomExCommand implements Serializable {
     po.setIdBillingAccount(idBillingAccount);
     po.setIdLab(idLab);
 
-    billingTemplate.setOrder(po);
     billingTemplate.setIdBillingAccount(idBillingAccount);
   }
 

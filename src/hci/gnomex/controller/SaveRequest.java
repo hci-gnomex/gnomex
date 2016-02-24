@@ -48,6 +48,7 @@ import hci.gnomex.model.BillingItem;
 import hci.gnomex.model.BillingPeriod;
 import hci.gnomex.model.BillingStatus;
 import hci.gnomex.model.BillingTemplate;
+import hci.gnomex.model.BillingTemplateItem;
 import hci.gnomex.model.CoreFacility;
 import hci.gnomex.model.ExperimentCollaborator;
 import hci.gnomex.model.FlowCellChannel;
@@ -57,6 +58,7 @@ import hci.gnomex.model.Lab;
 import hci.gnomex.model.Label;
 import hci.gnomex.model.LabeledSample;
 import hci.gnomex.model.LabelingReactionSize;
+import hci.gnomex.model.MasterBillingItem;
 import hci.gnomex.model.Notification;
 import hci.gnomex.model.Plate;
 import hci.gnomex.model.PlateType;
@@ -359,6 +361,16 @@ public class SaveRequest extends GNomExCommand implements Serializable {
             originalRequestNumber = saveRequest(sess, requestParser, description);
             sendNotification(requestParser.getRequest(), sess, requestParser.isNewRequest() ? Notification.NEW_STATE : Notification.EXISTING_STATE, Notification.SOURCE_TYPE_ADMIN, Notification.TYPE_REQUEST);
             sendNotification(requestParser.getRequest(), sess, requestParser.isNewRequest() ? Notification.NEW_STATE : Notification.EXISTING_STATE, Notification.SOURCE_TYPE_USER, Notification.TYPE_REQUEST);
+            
+            BillingTemplate billingTemplate = requestParser.getBillingTemplate();
+            if (requestParser.isNewRequest()) {
+            	billingTemplate.setOrder(requestParser.getRequest());
+            }
+            sess.save(billingTemplate);
+            for (BillingTemplateItem item : billingTemplate.getItems()) {
+            	item.setIdBillingTemplate(billingTemplate.getIdBillingTemplate());
+            	sess.save(item);
+            }
 
             // Remove files from file system
             if (filesToRemoveParser != null) {
@@ -734,11 +746,8 @@ public class SaveRequest extends GNomExCommand implements Serializable {
                 samplesAdded.addAll(requestParser.getRequest().getSamples());
               }
 
-              // DEBUGGING CODE!!!!!!!!!!
-              // Skip this line since createBillingItems currently doesn't work
-              if (5 != 5) {
-                createBillingItems(sess, requestParser.getRequest(), requestParser.getAmendState(), billingPeriod, dictionaryHelper, samplesAdded, labeledSamplesAdded, hybsAdded, sequenceLanesAdded, requestParser.getSampleAssays(), null, BillingStatus.PENDING, propertyEntries, requestParser.getRequest().getBillingTemplate(sess));
-              }
+              createBillingItems(sess, requestParser.getRequest(), requestParser.getAmendState(), billingPeriod, dictionaryHelper, samplesAdded, labeledSamplesAdded, hybsAdded, sequenceLanesAdded, requestParser.getSampleAssays(), null, BillingStatus.PENDING, propertyEntries, billingTemplate);
+              
               sess.flush();
             }
 
@@ -2282,6 +2291,13 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         }
       }
 
+      for (MasterBillingItem masterBillingItem : billingTemplate.getMasterBillingItems()) {
+    	  sess.save(masterBillingItem);
+    	  for (BillingItem billingItem : masterBillingItem.getBillingItems()) {
+      		  billingItem.setIdMasterBillingItem(masterBillingItem.getIdMasterBillingItem());
+      	  }
+      }
+      
       BigDecimal grandInvoicePrice = new BigDecimal(0);
       for (Iterator i = billingItems.iterator(); i.hasNext();) {
         BillingItem bi = (BillingItem) i.next();

@@ -76,7 +76,9 @@ public class SaveBillingTemplate extends GNomExCommand implements Serializable {
 					sess.delete(billingItemToDelete);
 				}
 				
-				newBillingTemplate.recreateBillingItems(sess);
+				for (BillingItem newlyCreatedBillingItem : newBillingTemplate.recreateBillingItems(sess)) {
+					sess.save(newlyCreatedBillingItem);
+				}
 				
 				sess.flush();
 				
@@ -138,6 +140,7 @@ public class SaveBillingTemplate extends GNomExCommand implements Serializable {
 			billingItem.setIdPriceCategory(masterBillingItem.getIdPriceCategory());
 			billingItem.setIdCoreFacility(masterBillingItem.getIdCoreFacility());
 			billingItem.setIdBillingAccount(templateItem.getIdBillingAccount());
+			billingItem.setPercentagePrice(BigDecimal.valueOf(1));
 			BillingAccount billingAccount = (BillingAccount) sess.load(BillingAccount.class, templateItem.getIdBillingAccount());
 			if (billingAccount != null) {
 				billingItem.setIdLab(billingAccount.getLab().getIdLab());
@@ -159,6 +162,8 @@ public class SaveBillingTemplate extends GNomExCommand implements Serializable {
 					templateItem.setDollarAmountBalance(new BigDecimal(0));
 				}
 			}
+			
+			masterBillingItem.getBillingItems().add(billingItem);
 			
 			amountAccountedFor = amountAccountedFor.add(billingItem.getInvoicePrice());
 			

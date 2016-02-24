@@ -2,6 +2,7 @@ package hci.gnomex.model;
 
 import hci.dictionary.utility.DictionaryManager;
 import hci.framework.model.DetailObject;
+import hci.gnomex.utility.BillingItemQueryManager;
 import hci.gnomex.utility.BillingTemplateQueryManager;
 import hci.gnomex.utility.Order;
 
@@ -36,7 +37,6 @@ public class ProductOrder extends DetailObject implements Serializable, Order {
   private String      productOrderNumber;
 
   private Set<ProductLineItem>         	productLineItems = new TreeSet<ProductLineItem>();
-  private Set         					billingItems = new TreeSet();
   private Set         					files = new TreeSet();
 
   public String getDisplay() {
@@ -244,14 +244,6 @@ public class ProductOrder extends DetailObject implements Serializable, Order {
     this.idBillingAccount = idBillingAccount;
   }
 
-  public Set getBillingItems() {
-    return billingItems;
-  }
-
-  public void setBillingItems(Set billingItems) {
-    this.billingItems = billingItems;
-  }
-
   public String getProductOrderNumber() {
     return productOrderNumber;
   }
@@ -306,16 +298,19 @@ public class ProductOrder extends DetailObject implements Serializable, Order {
     return null;
   }
 
-@SuppressWarnings("unchecked")
-@Override
-public Set<BillingItem> getBillingItems(Session sess) {
-	return (Set<BillingItem>) billingItems;
-}
+  @Override
+  public Set<BillingItem> getBillingItems(Session sess) {
+	BillingTemplate template = BillingTemplateQueryManager.retrieveBillingTemplate(sess, this);
+	if (template != null) {
+		return BillingItemQueryManager.getBillingItemsForBillingTemplate(sess, template.getIdBillingTemplate());
+	} else {
+		return new TreeSet<BillingItem>();
+	}
+  }
 
-@Override
-public BillingTemplate getBillingTemplate(Session sess) {
+  @Override
+  public BillingTemplate getBillingTemplate(Session sess) {
 	return BillingTemplateQueryManager.retrieveBillingTemplate(sess, this);
-}
-
+  }
 
 }

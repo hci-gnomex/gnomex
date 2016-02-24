@@ -24,6 +24,7 @@ import hci.gnomex.utility.Order;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -201,6 +202,9 @@ public abstract class BillingPlugin {
         master.setQty(new Integer(qty));
         master.setTotalPrice(theUnitPrice.multiply(BigDecimal.valueOf(qty)));
         master.setIdBillingPeriod(billingPeriod.getIdBillingPeriod());
+        master.setIdBillingTemplate(template.getIdBillingTemplate());
+        master.setBillingItems(new HashSet<BillingItem>());
+        template.getMasterBillingItems().add(master);
         
         Set<BillingItem> newlyCreatedBillingItems = SaveBillingTemplate.createBillingItemsForMaster(sess, master, template);
         

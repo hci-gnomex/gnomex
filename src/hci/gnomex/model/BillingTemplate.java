@@ -1,6 +1,7 @@
 package hci.gnomex.model;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -8,12 +9,10 @@ import java.util.TreeSet;
 import org.hibernate.Session;
 import org.jdom.Element;
 
-import hci.framework.utilities.XMLReflectException;
 import hci.gnomex.controller.SaveBillingTemplate;
 import hci.gnomex.utility.BillingItemQueryManager;
 import hci.gnomex.utility.DetailObject;
 import hci.gnomex.utility.Order;
-import hci.gnomex.utility.QueryManager;
 import hci.gnomex.utility.XMLTools;
 import hci.hibernate3utils.HibernateDetailObject;
 
@@ -30,7 +29,7 @@ public class BillingTemplate extends HibernateDetailObject implements DetailObje
 		super();
 		
 		this.setItems(new TreeSet<BillingTemplateItem>());
-		this.setMasterBillingItems(new TreeSet<MasterBillingItem>());
+		this.setMasterBillingItems(new HashSet<MasterBillingItem>());
 	}
 	
 	public BillingTemplate(Order order) {
@@ -52,11 +51,13 @@ public class BillingTemplate extends HibernateDetailObject implements DetailObje
 		return BillingItemQueryManager.getBillingItemsForBillingTemplate(sess, this.idBillingTemplate);
 	}
 	
-	public void recreateBillingItems(Session sess) {
+	public Set<BillingItem> recreateBillingItems(Session sess) {
+		Set<BillingItem> createdBillingItems = new HashSet<BillingItem>();
 		// Apply new template to all master billing items
 		for (MasterBillingItem masterBillingItem : this.getMasterBillingItems()) {
-			SaveBillingTemplate.createBillingItemsForMaster(sess, masterBillingItem, this);
+			createdBillingItems.addAll(SaveBillingTemplate.createBillingItemsForMaster(sess, masterBillingItem, this));
 		}
+		return createdBillingItems;
 	}
 	
 	public void setOrder(Order order) {

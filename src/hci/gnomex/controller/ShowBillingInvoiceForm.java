@@ -492,7 +492,7 @@ public class ShowBillingInvoiceForm extends ReportCommand implements Serializabl
 
 	    	// Exclude any disk usage that have
 	    	// pending billing items.  (shouldn't be any)
-	    	if (determineContainsPendingItems(po.getBillingItems(), idBillingPeriod, idBillingAccount)) {
+	    	if (determineContainsPendingItems(po.getBillingItems(sess), idBillingPeriod, idBillingAccount)) {
 	    		continue;
 	    	}
 

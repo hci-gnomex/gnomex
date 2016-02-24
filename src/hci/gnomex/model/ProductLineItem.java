@@ -4,21 +4,19 @@ import hci.dictionary.model.DictionaryEntry;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.util.Set;
-import java.util.TreeSet;
 
 
 
 public class ProductLineItem extends DictionaryEntry implements Serializable {
   
-  private Integer     idProductLineItem;
-  private Integer     idProductOrder;
-  private ProductOrder productOrder;
-  private Integer     idProduct;
-  private Product     product;
-  private Integer     qty;
-  private BigDecimal  unitPrice;
-  private String      codeProductOrderStatus;
+  private Integer     	idProductLineItem;
+  private Integer     	idProductOrder;
+  private ProductOrder 	productOrder;
+  private Integer     	idProduct;
+  private Product     	product;
+  private Integer     	qty;
+  private BigDecimal  	unitPrice;
+  private String      	codeProductOrderStatus;
    
   
   public String getDisplay() {

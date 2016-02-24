@@ -76,7 +76,6 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
   private Set             workItems = new TreeSet();
   private Set             sequenceLanes = new TreeSet();
   private Set             analysisExperimentItems = new TreeSet();
-  private Set             billingItems = new TreeSet();
   private Set             seqLibTreatments = new TreeSet();
   private Set             collaborators = new TreeSet();
   private Set             files = new TreeSet();
@@ -101,7 +100,7 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
   private String          includeBisulfideConversion;
   private String          includeQubitConcentration;
   private String          adminNotes;
-  private Integer		      idProduct;
+  private Integer		  idProduct;
 
   // permission field
   private boolean     canUpdateVisibility;
