@@ -2,21 +2,7 @@ package hci.gnomex.utility;
 
 import hci.dictionary.utility.DictionaryManager;
 import hci.gnomex.constants.Constants;
-import hci.gnomex.model.AppUser;
-import hci.gnomex.model.Assay;
-import hci.gnomex.model.BillingAccount;
-import hci.gnomex.model.FlowCellChannel;
-import hci.gnomex.model.Hybridization;
-import hci.gnomex.model.IScanChip;
-import hci.gnomex.model.LabeledSample;
-import hci.gnomex.model.PlateWell;
-import hci.gnomex.model.PropertyDictionary;
-import hci.gnomex.model.Request;
-import hci.gnomex.model.RequestCategory;
-import hci.gnomex.model.Sample;
-import hci.gnomex.model.SequenceLane;
-import hci.gnomex.model.SequencingControl;
-import hci.gnomex.model.SlideSource;
+import hci.gnomex.model.*;
 import hci.gnomex.security.SecurityAdvisor;
 
 import java.util.ArrayList;
@@ -39,7 +25,6 @@ public class RequestHTMLFormatter {
   private AppUser          appUser;
   private BillingAccount   billingAccount;
   private DictionaryHelper dictionaryHelper;
-  private IScanChip        iScanChip;
   private boolean         includeMicroarrayCoreNotes = true;
   private boolean         dnaSamples = false;
   private Map<String, Assay> assays = null; // this is list of all assays for request if fragment analysis request.
@@ -70,12 +55,7 @@ public class RequestHTMLFormatter {
    }
    
  }
- 
- public RequestHTMLFormatter(SecurityAdvisor secAdvisor, Request request, AppUser appUser, BillingAccount billingAccount, DictionaryHelper dictionaryHelper, IScanChip iScanChip) {
-   this(secAdvisor, request, appUser, billingAccount, dictionaryHelper);
-   this.iScanChip = iScanChip;
- }
- 
+
  public Element makeIntroNote(String note) {
    Element table = new Element("TABLE");   
    Element row = new Element("TR");
@@ -166,13 +146,7 @@ public class RequestHTMLFormatter {
            			"", "&nbsp;"));
       
     }
-    if (request.getCodeRequestCategory().equals(RequestCategory.ISCAN_REQUEST_CATEGORY) && iScanChip != null) {
-    	// "iScan Chip"	chipName	|	"# of chips"	numberIScanChips
-      table.addContent(makeRow("iScan Chip", iScanChip.getName(),
-          "# of Chips",        request.getNumberIScanChips().toString()));
-    }
-    
-    
+
     
     return table;
   } 

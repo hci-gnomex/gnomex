@@ -275,13 +275,12 @@ public class UploadQuoteInfoServlet extends HttpServlet {
     InternalAccountFieldsConfiguration.getConfiguration(sess);
 
     DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess);
-    //IScanChip chip = (IScanChip) sess.get( IScanChip.class, req.getIdIScanChip() );
     Lab lab = (Lab) sess.get( Lab.class, po.getIdLab() );
     BillingAccount acct = (BillingAccount) sess.get( BillingAccount.class, po.getIdBillingAccount() );
     AppUser user = (AppUser) sess.get(AppUser.class, po.getIdAppUser());
 
     if ( po == null || po.getProductLineItems().size() == 0 || acct == null ) {
-      throw new MessagingException( "Request or Acct is null" );
+      throw new MessagingException( "Product Order or Account is null" );
     }
 
     String labName = lab.getName(false, true)!=null ? lab.getName(false, true) : "";
@@ -297,7 +296,7 @@ public class UploadQuoteInfoServlet extends HttpServlet {
 
     emailBody.append("A purchasing request for Illumina iScan chips has been submitted by the " +
         labName +
-    ".");
+        ".");
 
     // Email for the lab PI and Billing contact requesting signature on req form
     StringBuffer emailBodyForLab = new StringBuffer();

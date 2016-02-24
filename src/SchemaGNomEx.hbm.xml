@@ -1056,9 +1056,6 @@
 		<many-to-one name="submitter" column="idSubmitter"
 			class="hci.gnomex.model.AppUser" cascade="none" insert="false"
 			update="false" />
-		<property name="numberIScanChips" column="numberIScanChips"
-			type="integer" />
-		<property name="idIScanChip" column="idIScanChip" type="integer" />
 		<property name="coreToExtractDNA" column="coreToExtractDNA"
 			type="string" />
 		<property name="includeBisulfideConversion" column="includeBisulfideConversion"
@@ -1745,21 +1742,6 @@
 		</id>
 		<property name="instrumentRunStatus" column="instrumentRunStatus"
 			type="string" />
-		<property name="isActive" column="isActive" type="string" />
-	</class>
-
-	<!-- hci.gnomex.model.IScanChip -->
-	<class name="hci.gnomex.model.IScanChip" table="IScanChip">
-		<id name="idIScanChip" column="idIScanChip" type="integer">
-			<generator class="native" />
-		</id>
-		<property name="name" column="name" type="string" />
-		<property name="costPerSample" column="costPerSample" type="big_decimal" />
-		<property name="samplesPerChip" column="samplesPerChip" type="integer" />
-		<property name="chipsPerKit" column="chipsPerKit" type="integer" />
-		<property name="markersPerSample" column="markersPerSample"
-			type="string" />
-		<property name="catalogNumber" column="catalogNumber" type="string" />
 		<property name="isActive" column="isActive" type="string" />
 	</class>
 

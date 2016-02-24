@@ -1319,20 +1319,6 @@ CREATE TABLE gnomex.InstrumentRunStatus (
 )
 ENGINE = INNODB;
 
-DROP TABLE IF EXISTS gnomex.IScanChip;
-CREATE TABLE gnomex.IScanChip (
-  idIScanChip INT(10) NOT NULL AUTO_INCREMENT,
-  name VARCHAR(500) NULL,
-  costPerSample DECIMAL(5, 2) NULL,
-  samplesPerChip INT(10) NULL,
-  chipsPerKit INT(10) NULL,
-  markersPerSample VARCHAR(100) NULL,
-  catalogNumber VARCHAR(100) NULL,
-  isActive CHAR(1) NULL,
-  PRIMARY KEY (idIScanChip)
-)
-ENGINE = INNODB;
-
 DROP TABLE IF EXISTS gnomex.Lab;
 CREATE TABLE gnomex.Lab (
   idLab INT(10) NOT NULL AUTO_INCREMENT,
@@ -1866,8 +1852,6 @@ CREATE TABLE gnomex.Request (
   idSampleDropOffLocation INT(10) NULL,
   codeRequestStatus VARCHAR(10) NULL,
   idSubmitter INT(10) NULL,
-  numberIScanChips INT(10) NULL,
-  idIScanChip INT(10) NULL,
   coreToExtractDNA CHAR(1) NULL,
   applicationNotes varchar(5000) null,
   processingDate DATETIME NULL,
@@ -1934,10 +1918,6 @@ CREATE TABLE gnomex.Request (
     ON UPDATE NO ACTION,     
   CONSTRAINT FK_Request_AppUser1 FOREIGN KEY  (idSubmitter)
     REFERENCES gnomex.AppUser (idAppUser)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION, 
-  CONSTRAINT FK_Request_IScanChip FOREIGN KEY  (idIScanChip)
-    REFERENCES gnomex.IScanChip (idIScanChip)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT FK_Request_IsolationPrepType FOREIGN KEY FK_Request_IsolationPrepType (codeIsolationPrepType)

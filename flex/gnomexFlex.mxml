@@ -131,20 +131,7 @@
 		<mx:request>
 		</mx:request>
 	</mx:HTTPService >
-	
-	<mx:HTTPService 
-		id="getIScanChipList" 
-		url="GetIScanChipList.gx"
-		resultFormat="e4x"
-		showBusyCursor="false"
-		destination="getIScanChipList"
-		result="onGetIScanChipList(event)"
-		fault="onFailHttpRequest('Failed to get iScan chip list', event)"
-		useProxy="false">
-		<mx:request>
-		</mx:request>
-	</mx:HTTPService >
-	
+
 	<mx:HTTPService 
 		id="getProductList" 
 		url="GetProductList.gx"
@@ -356,7 +343,6 @@
 			import views.util.DictionaryHelper;
 			import views.util.DownloadHints;
 			import views.util.GNomExStringUtil;
-			import views.util.IScanChipWindow;
 			import views.util.IconUtility;
 			import views.util.OrganismEvent;
 			import views.util.OrganismsWindow;
@@ -1072,8 +1058,6 @@
 			public var coreFacilityList:XMLListCollection;
 			[Bindable]
 			public var protocolList:XMLListCollection;
-			[Bindable]
-			public var iScanChipList:XMLListCollection;
 			[Bindable]
 			public var productList:XMLListCollection;
 			
@@ -2956,8 +2940,7 @@
 				this.usesExperimentTypeMitSeq = this.usesExperimentType(this.TYPE_MIT_SEQ);
 				this.usesExperimentTypeCherryPick = this.usesExperimentType(this.TYPE_CHERRY_PICK);
 				this.usesExperimentTypeIScan = this.usesExperimentType(this.TYPE_ISCAN);
-				
-				
+
 				if (isGuest) {
 					isCoreGenomics = true;
 				} else if (hasPermission(CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
@@ -3256,7 +3239,6 @@
 				getGenomeIndexList.send();
 				getOrganismList.send();
 				getPropertyList.send();
-				getIScanChipList.send();
 				getProductList.send();
 				
 				getAccountFieldsConfiguration.send();
@@ -3333,17 +3315,7 @@
 					return 0;
 				}
 			}
-			
-			private function onGetIScanChipList(event:ResultEvent):void {
-				iScanChipList = new XMLListCollection(getIScanChipList.lastResult..IScanChip);
-				var emptyNode:XML = <IScanChip idIScanChip='' name='' />;
-				
-				if (currentState == null || currentState == "") {
-					showProgress(10);
-					enableApp();
-				}
-			}
-			
+
 			private function onGetProductList(event:ResultEvent):void {
 				productList = new XMLListCollection(getProductList.lastResult..Product);
 				var emptyNode:XML = <Product idProduct='' name='' />;
@@ -3950,8 +3922,6 @@
 					showProtocols();
 				} else if (label == "Upload and Download Help") {
 					this.showUploadDownloadHints();
-				} else if (label == "Configure iScan Chips") {
-					showIScanChipWindow();				
 				} else if (label == "Configure Products") {
 					showProductWindow();				
 				}  else if (label == "Bulk Sample Sheet Import") {
@@ -4098,17 +4068,7 @@
 				}
 				
 			}
-			
-			private function showIScanChipWindow():void {
-				if (managesPlateBasedWorkflow || hasPermission(this.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
-					var configWindow:IScanChipWindow = IScanChipWindow(PopUpManager.createPopUp(this.theBody, IScanChipWindow, true));
-					PopUpManager.centerPopUp(configWindow);
-				} else {
-					Alert.show("This feature is not enabled.");
-				}
-				
-			}
-			
+
 			private function showProductWindow():void {
 				if (coreFacilitiesICanManage.length() >= 1) {
 					var configWindow:ProductWindow = ProductWindow(PopUpManager.createPopUp(this.theBody, ProductWindow, true));

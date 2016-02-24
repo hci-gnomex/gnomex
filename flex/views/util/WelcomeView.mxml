@@ -31,16 +31,6 @@
 			<mx:SetProperty target="{text3}" name="text" value="Restricted - For additional access, please sign up for a GNomEx user account "/>
 			<mx:SetProperty target="{text5}" name="text" value="University guest access"/>
 		</mx:State>
-		<mx:State name="UnivGuestESState" basedOn="UserNonSubmitterESState">
-			<mx:SetProperty target="{text5}" name="text" value="Guess privileges only"/>
-		</mx:State>
-		
-		<mx:State name="AdminSuperState" basedOn="AdminDNASeqState">
-			<mx:SetProperty target="{text5}" name="text" value="Super Admin privileges"/>
-		</mx:State>
-		<mx:State name="BillingAdminDNASeqState" basedOn="AdminDNASeqState">
-			<mx:SetProperty target="{text5}" name="text" value="Billing Admin privileges"/>
-		</mx:State>
 	</mx:states>
 	<mx:Script>
 		<![CDATA[
@@ -262,13 +252,7 @@
 				PopUpManager.centerPopUp(configWindow);
 				
 			}
-			
-			private function showIScanChipWindow():void {
-				var configWindow:IScanChipWindow = IScanChipWindow(PopUpManager.createPopUp(parentApplication.theBody, IScanChipWindow, true));
-				PopUpManager.centerPopUp(configWindow);
-				
-			}
-			
+
 			private function showProductWindow():void {
 				var productWindow:ProductWindow = ProductWindow(PopUpManager.createPopUp(parentApplication.theBody, ProductWindow, true));
 				PopUpManager.centerPopUp(productWindow);

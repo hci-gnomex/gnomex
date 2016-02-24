@@ -5,7 +5,6 @@ import hci.gnomex.model.BillingPeriod;
 import hci.gnomex.model.BillingStatus;
 import hci.gnomex.model.BillingTemplate;
 import hci.gnomex.model.Hybridization;
-import hci.gnomex.model.IScanChip;
 import hci.gnomex.model.LabeledSample;
 import hci.gnomex.model.Price;
 import hci.gnomex.model.PriceCategory;
@@ -26,23 +25,17 @@ import java.util.Set;
 
 import org.hibernate.Session;
 
-public class IScanChipPlugin extends BillingPlugin {
+public class ProductPlugin extends BillingPlugin {
 
   public List<BillingItem> constructBillingItems(Session sess, String amendState, BillingPeriod billingPeriod, PriceCategory priceCategory, Request request, Set<Sample> samples, Set<LabeledSample> labeledSamples, Set<Hybridization> hybs, Set<SequenceLane> lanes, Map<String, ArrayList<String>> sampleToAssaysMap, String billingStatus, Set<PropertyEntry> propertyEntries, BillingTemplate billingTemplate) {
 
     List<BillingItem> billingItems = new ArrayList<BillingItem>();
 
-    if (samples == null || samples.size() == 0) {
+    if (!this.hasValidData(sess, request, samples)) {
       return billingItems;
     }
 
-    // Get iScan Chip
-    int idChip = request.getIdIScanChip();
-    IScanChip chip = (IScanChip) sess.get(IScanChip.class, idChip);
-
-    if (chip == null || chip.getSamplesPerChip() == null) {
-      return billingItems;
-    }
+    qty = this.getQty(sess, request, samples);
 
     // Find the price for iScanChip - there is only one
     Price price = null;
@@ -54,17 +47,11 @@ public class IScanChipPlugin extends BillingPlugin {
       }
     }
 
-    // Price is per sample but you have to pay for the possible samples per chip
-    // times the number of chips
-    qty = request.getNumberIScanChips() * chip.getSamplesPerChip();
-
     // Instantiate a BillingItem for the matched billing price
     if (price != null) {
-      // Get the price from the chip object
-      BigDecimal theUnitPrice = chip.getCostPerSample();
-
-      billingItems.addAll(this.makeBillingItems(request, price, priceCategory, qty, billingPeriod, billingStatus, null, null, theUnitPrice, null, sess, billingTemplate));
+      billingItems.addAll(this.makeBillingItems(request, price, priceCategory, qty, billingPeriod, billingStatus, sess, billingTemplate));
     }
+
 
     return billingItems;
   }

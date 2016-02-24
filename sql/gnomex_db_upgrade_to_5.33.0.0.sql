@@ -123,3 +123,18 @@ CALL ExecuteIfTableExists('gnomex', 'Request_Audit', 'ALTER TABLE Request_Audit 
 ALTER TABLE ProductType
 ADD COLUMN utilizePurchasingSystem CHAR(1) NULL;
 CALL ExecuteIfTableExists('gnomex','ProductType_Audit','ALTER TABLE ProductType_Audit ADD COLUMN utilizePurchasingSystem CHAR(1) NULL');
+
+--------------------------------------------------------------------
+-- Drop IScanChip References
+--------------------------------------------------------------------
+-- Drop iScanChip column from request
+ALTER TABLE Request DROP FOREIGN KEY FK_Request_IScanChip;
+ALTER TABLE Request
+DROP COLUMN idIScanChip;
+CALL ExecuteIfTableExists('gnomex', 'Request_Audit', 'ALTER TABLE Request_Audit DROP COLUMN idIScanChip');
+ALTER TABLE Request
+DROP COLUMN numberIscanChips;
+CALL ExecuteIfTableExists('gnomex', 'Request_Audit', 'ALTER TABLE Request_Audit DROP COLUMN numberIscanChips');
+
+-- Drop iScanChip table
+DROP TABLE IF EXISTS gnomex.IScanChip;

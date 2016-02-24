@@ -88,8 +88,6 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
   private Set             topics;
   private Integer         idSubmitter;
   private AppUser         submitter;
-  private Integer         idIScanChip;
-  private Integer         numberIScanChips;
   private String          applicationNotes;
   private String          coreToExtractDNA;
   private Date            processingDate;   // Date request was set to Processing status
@@ -1286,22 +1284,6 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
     }
     return redoSamples.toString();
   }
-
-  public Integer getIdIScanChip() {
-    return idIScanChip;
-  }
-
-  public void setIdIScanChip( Integer idIScanChip ) {
-    this.idIScanChip = idIScanChip;
-  }
-  public Integer getNumberIScanChips() {
-    return numberIScanChips;
-  }
-
-  public void setNumberIScanChips( Integer numberIScanChips ) {
-    this.numberIScanChips = numberIScanChips;
-  }
-
 
   public String getApplicationNotes() {
     return applicationNotes;

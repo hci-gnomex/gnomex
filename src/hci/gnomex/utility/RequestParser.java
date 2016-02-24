@@ -300,12 +300,6 @@ public class RequestParser implements Serializable {
     } else {
       request.setIdSampleDropOffLocation(null);
     }
-    if (n.getAttributeValue("idIScanChip") != null && !n.getAttributeValue("idIScanChip").equals("")) {
-      request.setIdIScanChip(new Integer(n.getAttributeValue("idIScanChip")));
-    }
-    if (n.getAttributeValue("numberIScanChips") != null && !n.getAttributeValue("numberIScanChips").equals("")) {
-      request.setNumberIScanChips(new Integer(n.getAttributeValue("numberIScanChips")));
-    }
     if (n.getAttributeValue("idProduct") != null && !n.getAttributeValue("idProduct").equals("")) {
       request.setIdProduct(new Integer(n.getAttributeValue("idProduct")));
     }

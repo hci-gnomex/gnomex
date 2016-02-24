@@ -205,13 +205,6 @@ public class GetRequest extends GNomExCommand implements Serializable {
           String requestStatus = request.getCodeRequestStatus() != null ? DictionaryManager.getDisplay("hci.gnomex.model.RequestStatus", request.getCodeRequestStatus()) : "";
           requestNode.setAttribute("requestStatus", requestStatus);
 
-          IScanChip iScanChip = null;
-          if (request.getIdIScanChip() != null && request.getIdIScanChip() != 0) {
-            iScanChip = sess.load(IScanChip.class, request.getIdIScanChip());
-            if (iScanChip != null) {
-              requestNode.setAttribute("iScanChipName", iScanChip.getName() != null ? iScanChip.getName() : "");
-            }
-          }
           if (request.getProject() != null && request.getProject().getDescription() != null && !request.getProject().getDescription().equals("")) {
             requestNode.setAttribute("projectDescription", request.getProject().getDescription());
           } else {

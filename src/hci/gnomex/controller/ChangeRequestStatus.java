@@ -277,14 +277,10 @@ public class ChangeRequestStatus extends GNomExCommand implements Serializable {
 
     // Special notes for iScan requests
     if (req.getCodeRequestCategory().equals(RequestCategory.ISCAN_REQUEST_CATEGORY)) {
-      if (req.getNumberIScanChips() == 0) {
-        introNote.append("<br><br><b><FONT COLOR=\"#ff0000\">Please note that this is an order with a custom number of samples and/or iScan chips.  An email has not been sent to the Illumina rep requesting a quote number for purchasing chips and a requisition form has not been downloaded.</FONT></b>");
-      } else {
-        Lab lab = dictionaryHelper.getLabObject(req.getIdLab());
-        String email = lab.getContactEmail();
-        if (email.indexOf("@hci.utah.edu") > 0) {
-          introNote.append("<br><br><b><FONT COLOR=\"#ff0000\">Please note that this is an order from an internal HCI lab.  An email has not been sent to the Illumina rep requesting a quote number for purchasing chips and a requisition form has not been downloaded.</FONT></b>");
-        }
+      Lab lab = dictionaryHelper.getLabObject(req.getIdLab());
+      String email = lab.getContactEmail();
+      if (email.indexOf("@hci.utah.edu") > 0) {
+        introNote.append("<br><br><b><FONT COLOR=\"#ff0000\">Please note that this is an order from an internal HCI lab.  An email has not been sent to the Illumina rep requesting a quote number for purchasing chips and a requisition form has not been downloaded.</FONT></b>");
       }
     }
 

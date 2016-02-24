@@ -23,7 +23,6 @@ import hci.gnomex.constants.Constants;
 import hci.gnomex.model.AppUser;
 import hci.gnomex.model.BillingAccount;
 import hci.gnomex.model.Hybridization;
-import hci.gnomex.model.IScanChip;
 import hci.gnomex.model.LabeledSample;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.Request;
@@ -160,24 +159,7 @@ public class RequestPDFFormatter extends RequestPDFFormatterBase {
 		
 		return header;
 	}
-	
-	@Override
-	protected Element makeRequestTable() {
-		PdfPTable table = (PdfPTable) super.makeRequestTable();
-		
-		if (request.getCodeRequestCategory().equals(RequestCategory.ISCAN_REQUEST_CATEGORY) && request.getIdIScanChip() != null) {
-			IScanChip iScanChip = (IScanChip) sess.get(IScanChip.class, request.getIdIScanChip());
-			
-			PDFFormatterUtil.addToTable(table, "iScan Chip", RequestPDFFormatter.FONT_REQUEST_TABLE_FIELD, Element.ALIGN_RIGHT, Element.ALIGN_MIDDLE, false, false, false, false, BaseColor.BLACK, 1, 1);
-			PDFFormatterUtil.addToTable(table, iScanChip.getName(), RequestPDFFormatter.FONT_REQUEST_TABLE_VALUE, Element.ALIGN_LEFT, Element.ALIGN_MIDDLE, false, false, false, false, BaseColor.BLACK, 2, 1);
-			
-			PDFFormatterUtil.addToTable(table, "# of Chips", RequestPDFFormatter.FONT_REQUEST_TABLE_FIELD, Element.ALIGN_RIGHT, Element.ALIGN_MIDDLE, false, false, false, false, BaseColor.BLACK, 1, 1);
-			PDFFormatterUtil.addToTable(table, request.getNumberIScanChips().toString(), RequestPDFFormatter.FONT_REQUEST_TABLE_VALUE, Element.ALIGN_LEFT, Element.ALIGN_MIDDLE, false, false, false, false, BaseColor.BLACK, 2, 1);
-		}
-		
-		return table;
-	}
-	
+
 	private Element makeDescriptionNotes() {
 		Paragraph notes = null;
 		
