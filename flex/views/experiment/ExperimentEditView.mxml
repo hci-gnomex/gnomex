@@ -453,6 +453,8 @@
 				if (this.isAmendState()) {
 					refreshAmendSetup();
 				}
+				
+				this.convertIlluminaButton.label = getLabel();
 			}
 			
 			private function enableTabs(enable:Boolean):void {
@@ -5729,6 +5731,40 @@
 				}
 			}
 			
+			private function getLabel():String{
+				if(request == null){
+					return "";
+				}
+				if(request.@codeRequestCategory == parentApplication.TYPE_HISEQ){
+					return "Convert to MiSeq";
+				} else if(request.@codeRequestCategory == parentApplication.TYPE_MISEQ){
+					return "Convert to HiSeq";
+				} else{
+					return "";
+				}
+			}
+			
+			private function showConversionWindow():void{
+				var convertWindow:ConvertIlluminaWindow = new ConvertIlluminaWindow();
+				convertWindow.request = this.request;
+				
+				if(request.@codeRequestCategory == parentApplication.TYPE_HISEQ){
+					convertWindow.convertToCategory = parentApplication.TYPE_MISEQ;
+				} else if(request.@codeRequestCategory == parentApplication.TYPE_MISEQ){
+					convertWindow.convertToCategory = parentApplication.TYPE_HISEQ;
+				}
+				
+				PopUpManager.addPopUp(convertWindow,this, true)
+				this.setFocus();
+				//PopUpManager.centerPopUp(convertWindow);
+				var x:Number = flash.system.Capabilities.screenResolutionX;
+				var y:Number = flash.system.Capabilities.screenResolutionY;
+				callLater(function():void{
+					convertWindow.move((x/2)-500, (y/2) - 500);
+				});
+				convertWindow.init();
+			}
+			
 			public function refreshAmendSetup():void {
 				theTab.selectedChild = amendSetupView;
 				
@@ -6124,6 +6160,10 @@
 								   enabled="{!isDirty}" toolTip="{!isDirty ? 'Create an analysis linked to this experiment' : 'Please save the request before creating a linked analysis'}"
 								   visible="{parentDocument is NavExperimentView &amp;&amp; parentDocument.showCreateAnalysisButton(parentDocument.selectedExperiment)}"
 								   includeInLayout="{parentDocument is NavExperimentView &amp;&amp; parentDocument.showCreateAnalysisButton(parentDocument.selectedExperiment)}"/>
+					
+					<mx:LinkButton label="{getLabel()}" id="convertIlluminaButton" textDecoration="underline" icon="@Embed(source='../../assets/database_refresh.png')" fontSize="10" textAlign="left" visible="{parentApplication.isAdminState &amp;&amp; (this.request.@codeRequestCategory == parentApplication.TYPE_HISEQ || this.request.@codeRequestCategory == parentApplication.TYPE_MISEQ)}" 
+								   includeInLayout="{this.request.@codeRequestCategory == parentApplication.TYPE_HISEQ || this.request.@codeRequestCategory == parentApplication.TYPE_MISEQ}"
+								   click="{showConversionWindow()}"/>
 					<mx:Spacer width="10"/>
 					<mx:Text visible="{this.request.@lastModifyDate != ''}" paddingLeft="8" text="{'Last modified  ' + this.request.@lastModifyDate}"  fontSize="9"/>
 				</mx:HBox>
