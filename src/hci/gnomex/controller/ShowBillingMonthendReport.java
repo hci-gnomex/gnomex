@@ -332,7 +332,7 @@ public class ShowBillingMonthendReport extends ReportCommand implements Serializ
       String number = "";
       if (mainObject.equals("req")) {
         req = (Request)row[0];
-        allBillingItems = req.getBillingItems(sess);
+        allBillingItems = req.getBillingItemList(sess);
         number = req.getNumber();
       } else {
         dsk = (DiskUsageByMonth)row[0];

@@ -131,7 +131,7 @@ public class SaveRequestProject extends GNomExCommand implements Serializable {
           // Change the account on the billing items.
           int reassignCount =  0;
           int unassignedCount = 0;
-          for(Iterator ib = request.getBillingItems(sess).iterator(); ib.hasNext();) {
+          for(Iterator ib = request.getBillingItemList(sess).iterator(); ib.hasNext();) {
             BillingItem bi = (BillingItem)ib.next();
             if (bi.getCodeBillingStatus().equals(BillingStatus.PENDING) || bi.getCodeBillingStatus().equals(BillingStatus.COMPLETED)) {
               bi.setIdBillingAccount(request.getIdBillingAccount());   

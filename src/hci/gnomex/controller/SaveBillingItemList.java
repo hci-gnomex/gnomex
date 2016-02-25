@@ -247,7 +247,7 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
           for(Iterator<Integer> i = idRequests.iterator(); i.hasNext();){
             Request r = (Request)sess.load(Request.class, i.next());
             Boolean allComplete = true;
-            for(Iterator<BillingItem> j = r.getBillingItems(sess).iterator(); j.hasNext();){
+            for(Iterator<BillingItem> j = r.getBillingItemList(sess).iterator(); j.hasNext();){
               BillingItem bi = j.next();
               if(!bi.getCodeBillingStatus().equals(BillingStatus.COMPLETED) && !bi.getCodeBillingStatus().equals(BillingStatus.APPROVED)
                   && !bi.getCodeBillingStatus().equals(BillingStatus.APPROVED_CC) && !bi.getCodeBillingStatus().equals(BillingStatus.APPROVED_PO)){

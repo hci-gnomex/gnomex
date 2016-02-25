@@ -40,7 +40,7 @@ public class CapSeqPlatePlugin extends BillingPlugin {
     }
     
     // We don't add billing items on a 4-plate cap seq order since it is a bulk charge on the 4 plates, partial or full
-    if (request.getBillingItems(sess) != null && !request.getBillingItems(sess).isEmpty()) {
+    if (request.getBillingItemList(sess) != null && !request.getBillingItemList(sess).isEmpty()) {
       return billingItems;
     }
     

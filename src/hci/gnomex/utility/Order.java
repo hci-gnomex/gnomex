@@ -26,7 +26,7 @@ public interface Order {
 	
 	public Integer getIdBillingAccount();
 	
-	public Set<BillingItem> getBillingItems(Session sess);
+	public Set<BillingItem> getBillingItemList(Session sess);
 	
 	public Integer getIdCoreFacility();
 	

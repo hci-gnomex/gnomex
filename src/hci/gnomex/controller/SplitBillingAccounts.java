@@ -18,7 +18,6 @@ import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.MailUtil;
 import hci.gnomex.utility.MailUtilHelper;
-import hci.gnomex.utility.PropertyDictionaryHelper;
 
 import java.io.Serializable;
 import java.io.StringReader;
@@ -108,7 +107,7 @@ public class SplitBillingAccounts extends GNomExCommand implements Serializable 
 
           // Set up hashmap to keep track of which billing items are still around.
           HashMap<Integer, Boolean> allBi = new HashMap<Integer, Boolean>();
-          for(Iterator i1 = parser.getRequest().getBillingItems(sess).iterator(); i1.hasNext();) {
+          for(Iterator i1 = parser.getRequest().getBillingItemList(sess).iterator(); i1.hasNext();) {
             BillingItem bi = (BillingItem)i1.next();
             // Only update percentages for billing items for the given billing period.
             if (!bi.getIdBillingPeriod().equals(idBillingPeriod)) {
@@ -131,7 +130,7 @@ public class SplitBillingAccounts extends GNomExCommand implements Serializable 
             boolean found = false;
             // For billing account, find all matching billing items for the request and
             // change the percentage.
-            for(Iterator i1 = parser.getRequest().getBillingItems(sess).iterator(); i1.hasNext();) {
+            for(Iterator i1 = parser.getRequest().getBillingItemList(sess).iterator(); i1.hasNext();) {
               BillingItem bi = (BillingItem)i1.next();
               // Only update percentages for billing items for the given billing period.
               if (!bi.getIdBillingPeriod().equals(idBillingPeriod)) {
@@ -162,7 +161,7 @@ public class SplitBillingAccounts extends GNomExCommand implements Serializable 
             if (!found) {
               HashSet<String> alreadyClonedTags = new HashSet<String>();
               
-              for(Iterator i1 = parser.getRequest().getBillingItems(sess).iterator(); i1.hasNext();) {
+              for(Iterator i1 = parser.getRequest().getBillingItemList(sess).iterator(); i1.hasNext();) {
                 BillingItem bi = (BillingItem)i1.next();
 
                 // Only clone billing items for the given billing period.
@@ -247,7 +246,7 @@ public class SplitBillingAccounts extends GNomExCommand implements Serializable 
             TreeMap requestMap = new TreeMap();
             Boolean allItemsApproved = true;
             ShowBillingInvoiceForm.cacheBillingItemMaps(sess, this.getSecAdvisor(), idBillingPeriod, lab.getIdLab(), ba.getIdBillingAccount(), ba.getIdCoreFacility(), billingItemMap, relatedBillingItemMap, requestMap);
-            for(Iterator j = parser.getRequest().getBillingItems(sess).iterator(); j.hasNext();){
+            for(Iterator j = parser.getRequest().getBillingItemList(sess).iterator(); j.hasNext();){
               BillingItem bi = (BillingItem)j.next();
               if(!bi.getCodeBillingStatus().equals(BillingStatus.APPROVED) && !bi.getCodeBillingStatus().equals(BillingStatus.APPROVED_PO) && !bi.getCodeBillingStatus().equals(BillingStatus.APPROVED_CC))
                 allItemsApproved = false;
@@ -299,7 +298,7 @@ public class SplitBillingAccounts extends GNomExCommand implements Serializable 
 	  candidateLoop : for (int count = 1; count <= 999999999; count++) {
 		  candidate = "" + count;
 		  
-		  for (Iterator allBiIter = parser.getRequest().getBillingItems(sess).iterator(); allBiIter.hasNext();) {
+		  for (Iterator allBiIter = parser.getRequest().getBillingItemList(sess).iterator(); allBiIter.hasNext();) {
 			  BillingItem bi = (BillingItem) allBiIter.next();
 			  if (bi.getTag() != null) {
 				  if (candidate.equalsIgnoreCase(bi.getTag())) {

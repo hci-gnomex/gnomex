@@ -439,7 +439,7 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
       Set allBillingItems = null;
       if (mainObject.equals("req")) {
         Request req    =  (Request)row[0];
-        allBillingItems = req.getBillingItems(sess);
+        allBillingItems = req.getBillingItemList(sess);
         number = req.getNumber();
       } else if(mainObject.equals("dsk")) { 
         DiskUsageByMonth dsk = (DiskUsageByMonth)row[0];
@@ -447,7 +447,7 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
         number = "Disk Usage";
       } else {
         ProductOrder po = (ProductOrder)row[0];
-        allBillingItems = po.getBillingItems(sess);
+        allBillingItems = po.getBillingItemList(sess);
         number = po.getProductOrderNumber() != null ? po.getProductOrderNumber() : po.getIdProductOrder().toString();
       }
       BillingItem bi =  (BillingItem)row[1];

@@ -180,7 +180,7 @@ public class DeleteRequest extends GNomExCommand implements Serializable {
           sess.flush();
 
           // Delete billing items
-          for(Iterator i = req.getBillingItems(sess).iterator(); i.hasNext();) {
+          for(Iterator i = req.getBillingItemList(sess).iterator(); i.hasNext();) {
             BillingItem bi = (BillingItem)i.next();
             sess.delete(bi);
           }

@@ -29,7 +29,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
 
 import org.hibernate.Session;
@@ -399,7 +398,7 @@ public class RequestParser implements Serializable {
             request.setCompletedDate(new java.sql.Date(System.currentTimeMillis()));
           }
           // Now change the billing items for the request from PENDING to COMPLETE
-          for (BillingItem billingItem : request.getBillingItems(sess)) {
+          for (BillingItem billingItem : request.getBillingItemList(sess)) {
             if (billingItem.getCodeBillingStatus().equals(BillingStatus.PENDING)) {
               billingItem.setCodeBillingStatus(BillingStatus.COMPLETED);
             }

@@ -142,7 +142,7 @@ public class ChangeRequestStatus extends GNomExCommand implements Serializable {
           // items and send confirmation email
           // when the status changes to submitted
           if ((codeRequestStatus.equals(RequestStatus.SUBMITTED) || codeRequestStatus.equals(RequestStatus.PROCESSING)) && pdh.getCoreFacilityRequestCategoryProperty(req.getIdCoreFacility(), req.getCodeRequestCategory(), PropertyDictionary.NEW_REQUEST_SAVE_BEFORE_SUBMIT).equals("Y")) {
-            if (req.getBillingItems(sess) == null || req.getBillingItems(sess).isEmpty()) {
+            if (req.getBillingItemList(sess) == null || req.getBillingItemList(sess).isEmpty()) {
               createBillingItems(sess, req);
               sess.flush();
             }
@@ -156,7 +156,7 @@ public class ChangeRequestStatus extends GNomExCommand implements Serializable {
             }
             // Now change the billing items for the request from PENDING to
             // COMPLETE
-            for (BillingItem billingItem : (Set<BillingItem>) req.getBillingItems(sess)) {
+            for (BillingItem billingItem : (Set<BillingItem>) req.getBillingItemList(sess)) {
               if (billingItem.getCodeBillingStatus().equals(BillingStatus.PENDING)) {
                 billingItem.setCodeBillingStatus(BillingStatus.COMPLETED);
               }

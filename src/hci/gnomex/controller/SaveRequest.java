@@ -42,7 +42,6 @@ import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.billing.BillingPlugin;
 import hci.gnomex.constants.Constants;
-import hci.gnomex.model.Analysis;
 import hci.gnomex.model.AppUser;
 import hci.gnomex.model.BillingItem;
 import hci.gnomex.model.BillingPeriod;
@@ -715,7 +714,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
                 // For dna seq facility orders, warn the admin to adjust billing if samples have been added.
                 // (We don't automatically adjust billing items because of tiered pricing issues.)
                 if (RequestCategory.isDNASeqCoreRequestCategory(requestParser.getRequest().getCodeRequestCategory())) {
-                  if (requestParser.getRequest().getBillingItems(sess) != null && !requestParser.getRequest().getBillingItems(sess).isEmpty()) {
+                  if (requestParser.getRequest().getBillingItemList(sess) != null && !requestParser.getRequest().getBillingItemList(sess).isEmpty()) {
                     if (hasNewSample) {
                       billingAccountMessage = "Request " + requestParser.getRequest().getNumber() + " has been saved.\n\nSamples have been added, please adjust billing accordingly.";
                     }
@@ -726,8 +725,8 @@ public class SaveRequest extends GNomExCommand implements Serializable {
             billing_items_if: if (createBillingItems || requestParser.isReassignBillingAccount()) {
               sess.refresh(requestParser.getRequest());
 
-              if (!requestParser.getRequest().getBillingItems(sess).isEmpty()) {
-                Iterator ibill = requestParser.getRequest().getBillingItems(sess).iterator();
+              if (!requestParser.getRequest().getBillingItemList(sess).isEmpty()) {
+                Iterator ibill = requestParser.getRequest().getBillingItemList(sess).iterator();
                 BillingItem bill = (BillingItem) ibill.next();
                 hci.gnomex.model.BillingAccount firstBillingAccount = bill.getBillingAccount();
                 while (ibill.hasNext()) {

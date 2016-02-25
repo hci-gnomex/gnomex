@@ -345,7 +345,7 @@ public class ShowBillingInvoiceForm extends ReportCommand implements Serializabl
 
 	    	// Exclude any requests that have
 	    	// pending billing items.
-	    	if (determineContainsPendingItems(req.getBillingItems(sess), idBillingPeriod, idBillingAccount)) {
+	    	if (determineContainsPendingItems(req.getBillingItemList(sess), idBillingPeriod, idBillingAccount)) {
 	    		continue;
 	    	}
 
@@ -492,7 +492,7 @@ public class ShowBillingInvoiceForm extends ReportCommand implements Serializabl
 
 	    	// Exclude any disk usage that have
 	    	// pending billing items.  (shouldn't be any)
-	    	if (determineContainsPendingItems(po.getBillingItems(sess), idBillingPeriod, idBillingAccount)) {
+	    	if (determineContainsPendingItems(po.getBillingItemList(sess), idBillingPeriod, idBillingAccount)) {
 	    		continue;
 	    	}
 

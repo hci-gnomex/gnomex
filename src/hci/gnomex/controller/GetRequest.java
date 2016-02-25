@@ -160,7 +160,7 @@ public class GetRequest extends GNomExCommand implements Serializable {
 
           }
 
-          request.excludeMethodFromXML("getBillingItems");
+          request.excludeMethodFromXML("getBillingItemList");
           request.excludeMethodFromXML("getTopics");
 
           // If user can write the request, show collaborators.
@@ -629,7 +629,7 @@ public class GetRequest extends GNomExCommand implements Serializable {
             Element billingItemsNode = new Element("billingItems");
             requestNode.addContent(billingItemsNode);
             TreeMap billingItemMap = new TreeMap();
-            for (Iterator i = request.getBillingItems(sess).iterator(); i.hasNext();) {
+            for (Iterator i = request.getBillingItemList(sess).iterator(); i.hasNext();) {
               BillingItem bi = (BillingItem) i.next();
               String key = bi.getLabName() + "_%%%_" + bi.getAccountNameAndNumber();
               List billingItems = (List) billingItemMap.get(key);

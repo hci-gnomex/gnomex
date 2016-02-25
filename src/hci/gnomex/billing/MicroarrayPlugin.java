@@ -47,7 +47,7 @@ public class MicroarrayPlugin extends BillingPlugin {
     //     with qty of 4 we should just bypass because billing
     //     for 4-array slide already covered.
     int totalQtyBilled = 0;
-    for(Iterator i = request.getBillingItems(sess).iterator(); i.hasNext();) {
+    for(Iterator i = request.getBillingItemList(sess).iterator(); i.hasNext();) {
       BillingItem bi = (BillingItem)i.next();
       if (bi.getIdPriceCategory().equals(priceCategory.getIdPriceCategory())) {
         totalQtyBilled += bi.getQty().intValue();

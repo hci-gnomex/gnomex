@@ -299,7 +299,7 @@ public class ProductOrder extends DetailObject implements Serializable, Order {
   }
 
   @Override
-  public Set<BillingItem> getBillingItems(Session sess) {
+  public Set<BillingItem> getBillingItemList(Session sess) {
 	BillingTemplate template = BillingTemplateQueryManager.retrieveBillingTemplate(sess, this);
 	if (template != null) {
 		return BillingItemQueryManager.getBillingItemsForBillingTemplate(sess, template.getIdBillingTemplate());

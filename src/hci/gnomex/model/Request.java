@@ -100,6 +100,9 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
   private String          adminNotes;
   private Integer		  idProduct;
 
+  //Billing fields
+  private Set             billingItems;
+
   // permission field
   private boolean     canUpdateVisibility;
   private boolean     canUploadData;
@@ -350,6 +353,14 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
     this.bioinformaticsAssist = bioinformaticsAssist;
   }
 
+  public Set getBillingItems() {
+    return billingItems;
+  }
+
+  public void setBillingItems(Set billingItems) {
+    this.billingItems = billingItems;
+  }
+
   public Document toXMLDocument(List useBaseClass) throws XMLReflectException {
     return toXMLDocument(useBaseClass, DATE_OUTPUT_SQL);
   }
@@ -572,7 +583,7 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
         this.setCodeRequestStatus(RequestStatus.COMPLETED);
         sess.save(this);
       }
-      for (Object o : this.getBillingItems(sess)) {
+      for (Object o : this.getBillingItemList(sess)) {
         BillingItem bi = (BillingItem)o;
         if (bi.getCodeBillingStatus().equals(BillingStatus.PENDING)) {
           bi.setCodeBillingStatus(BillingStatus.COMPLETED);
@@ -1331,7 +1342,7 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
   }
 
   @Override
-  public Set<BillingItem> getBillingItems(Session sess) {
+  public Set<BillingItem> getBillingItemList(Session sess) {
 	  BillingTemplate template = BillingTemplateQueryManager.retrieveBillingTemplate(sess, this);
 	  if (template != null) {
 		  return BillingItemQueryManager.getBillingItemsForBillingTemplate(sess, template.getIdBillingTemplate());
