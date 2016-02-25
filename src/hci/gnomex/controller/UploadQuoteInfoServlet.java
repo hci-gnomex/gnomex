@@ -1,23 +1,5 @@
 package hci.gnomex.controller;
 
-import hci.gnomex.constants.Constants;
-import hci.gnomex.model.AppUser;
-import hci.gnomex.model.BillingAccount;
-import hci.gnomex.model.CoreFacility;
-import hci.gnomex.model.InternalAccountFieldsConfiguration;
-import hci.gnomex.model.Lab;
-import hci.gnomex.model.Product;
-import hci.gnomex.model.ProductLineItem;
-import hci.gnomex.model.ProductOrder;
-import hci.gnomex.model.ProductOrderFile;
-import hci.gnomex.model.PropertyDictionary;
-import hci.gnomex.model.TransferLog;
-import hci.gnomex.utility.DictionaryHelper;
-import hci.gnomex.utility.HibernateSession;
-import hci.gnomex.utility.MailUtil;
-import hci.gnomex.utility.MailUtilHelper;
-import hci.gnomex.utility.PropertyDictionaryHelper;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -45,6 +27,24 @@ import com.oreilly.servlet.multipart.FilePart;
 import com.oreilly.servlet.multipart.MultipartParser;
 import com.oreilly.servlet.multipart.ParamPart;
 import com.oreilly.servlet.multipart.Part;
+
+import hci.gnomex.constants.Constants;
+import hci.gnomex.model.AppUser;
+import hci.gnomex.model.BillingAccount;
+import hci.gnomex.model.CoreFacility;
+import hci.gnomex.model.InternalAccountFieldsConfiguration;
+import hci.gnomex.model.Lab;
+import hci.gnomex.model.Product;
+import hci.gnomex.model.ProductLineItem;
+import hci.gnomex.model.ProductOrder;
+import hci.gnomex.model.ProductOrderFile;
+import hci.gnomex.model.PropertyDictionary;
+import hci.gnomex.model.TransferLog;
+import hci.gnomex.utility.DictionaryHelper;
+import hci.gnomex.utility.HibernateSession;
+import hci.gnomex.utility.MailUtil;
+import hci.gnomex.utility.MailUtilHelper;
+import hci.gnomex.utility.PropertyDictionaryHelper;
 
 public class UploadQuoteInfoServlet extends HttpServlet {
 
@@ -157,8 +157,8 @@ public class UploadQuoteInfoServlet extends HttpServlet {
             }
           } catch (Exception e) {
             String msg = "Unable to send email to purchasing regarding Illumina iScan Chip(s) for Product Order "
-              + productOrder.getIdProductOrder()
-              + ".  " + e.toString();
+                + productOrder.getIdProductOrder()
+                + ".  " + e.toString();
             System.out.println(msg);
             e.printStackTrace();
             Element h3 = body.addElement("H3");
@@ -222,26 +222,23 @@ public class UploadQuoteInfoServlet extends HttpServlet {
 
               body.addElement("P");
               body.addCDATA("File '" + fileName + "' successfully uploaded (" + sizeFormatter.format(size) + " bytes).");
+
+              String baseDirectory = PropertyDictionaryHelper.getInstance(sess).getProductOrderDirectory(serverName, productOrder.getIdCoreFacility()) +
+                  productOrder.getCreateYear() + "/" + productOrder.getIdProductOrder();
+              String qualDir =  "/" +  Constants.MATERIAL_QUOTE_DIR;
+              ProductOrderFile poFile = new ProductOrderFile();
+              poFile.setIdProductOrder(productOrder.getIdProductOrder());
+              poFile.setCreateDate(new Date(System.currentTimeMillis()));
+              poFile.setFileName(fileName);
+              poFile.setFileSize(new BigDecimal(size));
+              poFile.setBaseFilePath(baseDirectory);
+              poFile.setQualifiedFilePath(qualDir);
+              sess.save(poFile);
             }
 
             out.flush();
 
           }
-        }
-
-        File uploadedFile = new File(directoryName + File.pathSeparator + fileName);
-        if(uploadedFile.exists()) {
-          String baseDirectory = PropertyDictionaryHelper.getInstance(sess).getProductOrderDirectory(serverName, productOrder.getIdCoreFacility()) +
-                  productOrder.getCreateYear() + "/" + productOrder.getIdProductOrder();
-          String qualDir =  "/" +  Constants.MATERIAL_QUOTE_DIR;
-          ProductOrderFile poFile = new ProductOrderFile();
-          poFile.setIdProductOrder(productOrder.getIdProductOrder());
-          poFile.setCreateDate(new Date(System.currentTimeMillis()));
-          poFile.setFileName(fileName);
-          poFile.setFileSize(new BigDecimal(uploadedFile.length()));
-          poFile.setBaseFilePath(baseDirectory);
-          poFile.setQualifiedFilePath(qualDir);
-          sess.save(poFile);
         }
 
 
@@ -280,9 +277,9 @@ public class UploadQuoteInfoServlet extends HttpServlet {
     InternalAccountFieldsConfiguration.getConfiguration(sess);
 
     DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess);
-    Lab lab = (Lab) sess.get( Lab.class, po.getIdLab() );
-    BillingAccount acct = (BillingAccount) sess.get( BillingAccount.class, po.getIdBillingAccount() );
-    AppUser user = (AppUser) sess.get(AppUser.class, po.getIdAppUser());
+    Lab lab = sess.get( Lab.class, po.getIdLab() );
+    BillingAccount acct = sess.get( BillingAccount.class, po.getIdBillingAccount() );
+    AppUser user = sess.get(AppUser.class, po.getIdAppUser());
 
     if ( po == null || po.getProductLineItems().size() == 0 || acct == null ) {
       throw new MessagingException( "Product Order or Account is null" );
@@ -308,11 +305,11 @@ public class UploadQuoteInfoServlet extends HttpServlet {
 
     emailBodyForLab.append("A purchasing request for Illumina iScan chips has been submitted by " +
         submitterName +
-    ".");
+        ".");
 
     for(Iterator i = po.getProductLineItems().iterator(); i.hasNext();) {
       ProductLineItem lineItem = (ProductLineItem) i.next();
-      Product product = (Product)sess.load(Product.class, lineItem.getIdProduct());
+      Product product = sess.load(Product.class, lineItem.getIdProduct());
 
       String numberChips = lineItem.getQty() != null ? lineItem.getQty().toString() : "";
       String chipName = product.getName() != null ? product.getName() : "";
@@ -357,7 +354,7 @@ public class UploadQuoteInfoServlet extends HttpServlet {
 
     String subject = "Purchasing Request for iScan Chips";
 
-    String contactEmailCoreFacility = ((CoreFacility)sess.load(CoreFacility.class, po.getIdCoreFacility())).getContactEmail();
+    String contactEmailCoreFacility = sess.load(CoreFacility.class, po.getIdCoreFacility()).getContactEmail();
     String contactEmailPurchasing  = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(po.getIdCoreFacility(), PropertyDictionary.CONTACT_EMAIL_PURCHASING);
     String contactEmailLabBilling = lab.getBillingContactEmail() != null ? lab.getBillingContactEmail() : "";
     String contactEmailLabPI = lab.getContactEmail() != null ? lab.getContactEmail() : "";
@@ -436,8 +433,8 @@ public class UploadQuoteInfoServlet extends HttpServlet {
       ccEmail = null;
     }
     if (send && !contactEmail.equals( "" )) {
-    	MailUtilHelper helper = new MailUtilHelper(contactEmail, ccEmail, null, senderEmail, subject, emailBodyForLab.toString(), reqFolder, true, dictionaryHelper, serverName);
-    	MailUtil.validateAndSendEmail(helper);
+      MailUtilHelper helper = new MailUtilHelper(contactEmail, ccEmail, null, senderEmail, subject, emailBodyForLab.toString(), reqFolder, true, dictionaryHelper, serverName);
+      MailUtil.validateAndSendEmail(helper);
     }
 
     return send;
