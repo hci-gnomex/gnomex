@@ -141,6 +141,7 @@ public class RequisitionFormUtil {
     PdfStamper stamper = new PdfStamper( reader, new FileOutputStream( temp ) );
     AcroFields form = stamper.getAcroFields();
 
+    // TODO Enter these as properties in the dictionary
     // Set form field values
     setField(form, "Req Date", new SimpleDateFormat("MM-dd-yyyy").format(System.currentTimeMillis()));
     setField(form, "Requesting Department", "HSC Core Research Facilities 'Genomics'");
@@ -162,6 +163,7 @@ public class RequisitionFormUtil {
       setField(form, "Year", ba.getAccountNumberYear() != null ? ba.getAccountNumberYear() : "");
       setField(form, "Funding End Date", ba.getExpirationDate() != null ? new SimpleDateFormat("MM-dd-yyyy").format(ba.getExpirationDate()) : "" );
     }
+    // TODO Add address to vendor object and use that instead of hard coding it here
     // Vendor information
     setField(form, "Vendor Name and Address", "Illumina");
     setField(form, "Vendor Name and Address 2", "5200 Illumina Way");

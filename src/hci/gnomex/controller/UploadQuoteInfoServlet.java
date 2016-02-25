@@ -231,11 +231,16 @@ public class UploadQuoteInfoServlet extends HttpServlet {
 
         File uploadedFile = new File(directoryName + File.pathSeparator + fileName);
         if(uploadedFile.exists()) {
+          String baseDirectory = PropertyDictionaryHelper.getInstance(sess).getProductOrderDirectory(serverName, productOrder.getIdCoreFacility()) +
+                  productOrder.getCreateYear() + "/" + productOrder.getIdProductOrder();
+          String qualDir =  "/" +  Constants.MATERIAL_QUOTE_DIR;
           ProductOrderFile poFile = new ProductOrderFile();
           poFile.setIdProductOrder(productOrder.getIdProductOrder());
           poFile.setCreateDate(new Date(System.currentTimeMillis()));
-          poFile.setFileName(directoryName + File.pathSeparator + fileName);
+          poFile.setFileName(fileName);
           poFile.setFileSize(new BigDecimal(uploadedFile.length()));
+          poFile.setBaseFilePath(baseDirectory);
+          poFile.setQualifiedFilePath(qualDir);
           sess.save(poFile);
         }
 
@@ -379,7 +384,7 @@ public class UploadQuoteInfoServlet extends HttpServlet {
     // Find requisition file
     SimpleDateFormat formatter = new SimpleDateFormat("yyyy");
     String createYear = formatter.format(po.getSubmitDate());
-    String baseDir = PropertyDictionaryHelper.getInstance(sess).getExperimentDirectory(serverName, po.getIdCoreFacility());
+    String baseDir = PropertyDictionaryHelper.getInstance(sess).getProductOrderDirectory(serverName, po.getIdCoreFacility());
     baseDir +=  "/" + createYear;
     baseDir = baseDir + "/" + po.getIdProductOrder();
     String directoryName = baseDir + "/" + Constants.REQUISITION_DIR;
