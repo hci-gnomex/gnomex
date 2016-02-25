@@ -6,7 +6,9 @@ import hci.gnomex.utility.BillingItemQueryManager;
 import hci.gnomex.utility.BillingTemplateQueryManager;
 import hci.gnomex.utility.Order;
 
+import java.io.File;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.sql.Date;
 import java.text.SimpleDateFormat;
 import java.util.Set;
@@ -256,7 +258,21 @@ public class ProductOrder extends DetailObject implements Serializable, Order {
   public String getCreateYear() {
     return ProductOrder.getCreateYear(this.getSubmitDate());
   }
-  
+
+  public Boolean addFileToProductOrder (File file, ProductOrder po, Session sess ){
+    if(file.exists()) {
+      ProductOrderFile poFile = new ProductOrderFile();
+      poFile.setIdProductOrder(po.getIdProductOrder());
+      poFile.setCreateDate(new Date(System.currentTimeMillis()));
+      poFile.setFileName(file.getName());
+      poFile.setFileSize(new BigDecimal(file.length()));
+      sess.save(poFile);
+    } else {
+      return false;
+    }
+    return true;
+  }
+
   public static String getCreateYear(java.util.Date theCreateDate) {
     if (theCreateDate == null) {
       return "";
