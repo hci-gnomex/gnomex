@@ -689,10 +689,10 @@
 				if (this.selectedPrice == null) {
 					return null;
 				} 
-				if (this.selectedPrice is XMLList && selectedPrice.length() == 0) {
+				if (this.selectedPrice is XMLList && XMLList(selectedPrice).length() == 0) {
 					return null;	
 				}
-				if (this.selectedPrice is XMLList && this.selectedPrice > 0) {
+				if (this.selectedPrice is XMLList && XMLList(selectedPrice).length() > 0) {
 					selectedPrice = selectedPrice[0];
 				}
 				
@@ -2653,7 +2653,6 @@
 										 change="onRequestNodeSelected()"
 										 iconFunction="parentApplication.getTreeIcon"  
 										 labelFunction="getTreeLabel"
-										 showDataTips="true"
 										 dragMoveEnabled="false" dropEnabled="false" borderStyle="solid" dropShadowEnabled="false" fontSize="11"
 										 itemOpen="requestTree_itemOpenHandler(event)"
 										 itemClose="requestTree_itemCloseHandler(event)">
@@ -2787,8 +2786,7 @@
 												   dragDrop="onDragDropBillingItemGrid(event)"
 												   allowMultipleSelection="true" 
 												   iconFunction="parentApplication.getTreeIcon" 
-												   wordWrap="true" 
-												   showDataTips="true"
+												   wordWrap="true"
 												   headerWordWrap="true" 
 												   selectionMode="singleRow" 
 												   itemEditEnd="onEdit()" 
