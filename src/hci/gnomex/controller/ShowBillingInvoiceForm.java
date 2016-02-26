@@ -367,7 +367,7 @@ public class ShowBillingInvoiceForm extends ReportCommand implements Serializabl
 	    buf.append("AND    bi.idBillingPeriod = :idBillingPeriod ");
 
 	    if (requestMap.keySet().iterator().hasNext()) {
-	    	buf.append("AND    bi.idRequest in (");
+	    	buf.append("AND    req.idRequest in (");
 	    	Boolean first = true;
 	    	for(Iterator i = requestMap.keySet().iterator(); i.hasNext();) {
 	    		String requestNumber = (String)i.next();      

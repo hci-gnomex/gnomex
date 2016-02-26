@@ -41,6 +41,9 @@ public class ProductOrder extends DetailObject implements Serializable, Order {
   private Set<ProductLineItem>         	productLineItems = new TreeSet<ProductLineItem>();
   private Set         					files = new TreeSet();
 
+  //Billing fields
+  private Set             billingItems;
+
   public String getDisplay() {
     if ( this.productOrderNumber != null ) {
       return "Product Order " + this.getNonNullString( getProductOrderNumber() );
@@ -282,6 +285,14 @@ public class ProductOrder extends DetailObject implements Serializable, Order {
       String createYear  = tokens[2];
       return createYear;
     }
+  }
+
+  public Set getBillingItems() {
+    return billingItems;
+  }
+
+  public void setBillingItems(Set billingItems) {
+    this.billingItems = billingItems;
   }
 
   @Override

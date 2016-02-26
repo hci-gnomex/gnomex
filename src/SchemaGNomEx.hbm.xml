@@ -372,7 +372,6 @@
     	<property name="idInvoice" column="idInvoice" type="integer"/>
     	<many-to-one name="invoice" column="idInvoice" class="hci.gnomex.model.Invoice" cascade="none" insert="false" update="false" />
     	<property name="idDiskUsageByMonth" column="idDiskUsageByMonth" type="integer" />
-    	<property name="idProductOrder" column="idProductOrder" type="integer" />
     	<property name="tag" column="tag" type="string" />
     	<property name="idMasterBillingItem" column="idMasterBillingItem" type="integer" />
     	<many-to-one name="masterBillingItem" column="idMasterBillingItem" class="hci.gnomex.model.MasterBillingItem" cascade="none" insert="false" update="false" />
@@ -1134,24 +1133,12 @@
 		  <key column="idRequest" />
 		  <one-to-many class="hci.gnomex.model.PropertyEntry" />
    		</set>
-		<!--<set name="billingItems" >
-			<key />
-			<one-to-many class="hci.gnomex.model.BillingItem" not-found="ignore" />
+		<set name="billingItems" >
+			<key column="idRequest"/>
+			<one-to-many class="hci.gnomex.model.BillingItem" />
 			<loader query-ref="billingItemsForRequest" />
-		</set>-->
+		</set>
 	</class>
-
-	<!--<sql-query name="billingItemsForRequest" >
-		<load-collection alias="bi" role="Request.billingItems" />
-		SELECT {bi.*}
-		From BillingItem bi
-		JOIN MasterBillingItem mbi
-		ON mbi.idMasterBillingItem = bi.idMasterBillingItem
-		JOIN BillingTemplate bt
-		ON bt.idBillingTemplate = mbi.idBillingTemplate
-		WHERE bt.targetClassName LIKE '%Request%'
-		AND bt.targetClassIdentifier = :idRequest
-	</sql-query>-->
 
 	<!-- hci.gnomex.model.ExperimentCollaborator -->
 	<class name="hci.gnomex.model.ExperimentCollaborator" table="RequestCollaborator">
@@ -2279,6 +2266,11 @@
       <key column="idProductOrder"/>
       <one-to-many class="hci.gnomex.model.ProductOrderFile" />
     </set>
+	  <set name="billingItems" >
+		  <key column="idProductOrder"/>
+		  <one-to-many class="hci.gnomex.model.BillingItem" />
+		  <loader query-ref="billingItemsForProductOrder" />
+	  </set>
   </class> 
   
   <!-- hci.gnomex.model.ProductOrderFile -->
@@ -3029,5 +3021,32 @@
 		<property name="helpText" column="helpText" type="string" />
 		<property name="toolTipText" column="toolTipText" type="string" />
 	</class>
+
+	<!-- -->
+	<!-- Named Queries -->
+	<!-- -->
+	<sql-query name="billingItemsForRequest" >
+		<load-collection alias="bi" role="hci.gnomex.model.Request.billingItems" />
+		SELECT {bi.*}
+		From BillingItem bi
+		JOIN MasterBillingItem mbi
+		ON mbi.idMasterBillingItem = bi.idMasterBillingItem
+		JOIN BillingTemplate bt
+		ON bt.idBillingTemplate = mbi.idBillingTemplate
+		WHERE bt.targetClassName LIKE '%Request%'
+		AND bt.targetClassIdentifier = :idRequest
+	</sql-query>
+
+	<sql-query name="billingItemsForProductOrder" >
+		<load-collection alias="bi" role="hci.gnomex.model.ProductOrder.billingItems" />
+		SELECT {bi.*}
+		From BillingItem bi
+		JOIN MasterBillingItem mbi
+		ON mbi.idMasterBillingItem = bi.idMasterBillingItem
+		JOIN BillingTemplate bt
+		ON bt.idBillingTemplate = mbi.idBillingTemplate
+		WHERE bt.targetClassName LIKE '%ProductOrder%'
+		AND bt.targetClassIdentifier = :idProductOrder
+	</sql-query>
 
 </hibernate-mapping>

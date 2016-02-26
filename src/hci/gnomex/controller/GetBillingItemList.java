@@ -267,7 +267,7 @@ public class GetBillingItemList extends GNomExCommand implements Serializable {
 
 
 
-        prevIdRequest = billingItem.getIdRequest();
+        prevIdRequest = idRequest;
         prevIdLab = billingItem.getIdLab();
         prevIdBillingAccount = billingItem.getIdBillingAccount();
         prevIdBillingPeriod = billingItem.getIdBillingPeriod();
