@@ -118,7 +118,6 @@ public class RequisitionFormUtil {
 
     FileUtils.copyURLToFile( url, reqFile );
 
-    //    return new File(directoryName, "114948.pdf"); // For testing purposes - comment out url call and just use this
 
     return reqFile;
 
@@ -171,23 +170,24 @@ public class RequisitionFormUtil {
     // Chip information
     Integer totalQuantity = 0;
     BigDecimal grandTotal = new BigDecimal(BigInteger.ZERO, 2);
+    Integer count = 0;
     for(Iterator i = po.getProductLineItems().iterator(); i.hasNext();) {
       ProductLineItem lineItem = (ProductLineItem) i.next();
       Product product = (Product)sess.load(Product.class, lineItem.getIdProduct());
 
       if( product != null ) {
-        setField(form, "Quantity[0]", lineItem.getQty().toString() );
+        setField(form, "Quantity["+count+"]", lineItem.getQty().toString() );
         totalQuantity += lineItem.getQty();
-        setField(form, "Description[0]", product.getDisplay() + " BeadChip, Illumina Catalog #: " + product.getCatalogNumber() );
+        setField(form, "Description["+count+"]", product.getDisplay() + ", Illumina Catalog #: " + product.getCatalogNumber() );
         BigDecimal estimatedCost = new BigDecimal( BigInteger.ZERO, 2 ) ;
         estimatedCost = lineItem.getUnitPrice().multiply(new BigDecimal(lineItem.getQty()));
-        setField(form, "Estimated Unit Price[0]", estimatedCost.toString());
+        setField(form, "Estimated Unit Price["+count+"]", estimatedCost.toString());
         grandTotal.add(estimatedCost);
       }
-
+      count++;
     }
 
-    setField(form, "Description[5]", "Please Reference \"" + lab.getLastName() + " Project\"");
+    setField(form, "Description[8]", "Please Reference \"" + lab.getLastName() + " Project\"");
 
     // Save and close the PDF
     stamper.close();

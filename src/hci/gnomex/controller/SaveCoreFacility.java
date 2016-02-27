@@ -77,7 +77,7 @@ public class SaveCoreFacility extends GNomExCommand implements Serializable {
       
         setResponsePage(this.SUCCESS_JSP);
       } else {
-        this.addInvalidField("Insufficient permissions", "Insufficient permission to save iScan Chip.");
+        this.addInvalidField("Insufficient permissions", "Insufficient permission to save Core Facility.");
         setResponsePage(this.ERROR_JSP);
       }
       

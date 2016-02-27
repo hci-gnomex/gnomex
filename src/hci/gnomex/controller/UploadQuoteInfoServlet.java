@@ -151,12 +151,12 @@ public class UploadQuoteInfoServlet extends HttpServlet {
         if (productOrder.getQuoteNumber() != null && !productOrder.getQuoteNumber().equals( "" )) {
           // Send email to purchasing
           try {
-            if ( sendPurchasingEmail(sess, productOrder, serverName) ) {
+            if ( ProductOrder.sendPurchasingEmail(sess, productOrder, serverName) ) {
               body.addElement("BR");
               body.addCDATA("Email sent to purchasing department.");
             }
           } catch (Exception e) {
-            String msg = "Unable to send email to purchasing regarding Illumina iScan Chip(s) for Product Order "
+            String msg = "Unable to send email to purchasing regarding Product Order "
                 + productOrder.getIdProductOrder()
                 + ".  " + e.toString();
             System.out.println(msg);
@@ -249,14 +249,14 @@ public class UploadQuoteInfoServlet extends HttpServlet {
         }
 
       } else {
-        System.out.println("UploadQuoteInfoServlet - unable to upload quote information for request requestNumber=" + productOrder.getIdProductOrder());
-        System.out.println("valid requestNumber is required");
+        System.out.println("UploadQuoteInfoServlet - unable to upload quote information for ProductOrder " + productOrder.getIdProductOrder());
+        System.out.println("valid idProductOrder is required");
         throw new ServletException("Unable to upload quote information due to a server error.  Please contact GNomEx support.");
       }
 
     } catch (Exception e) {
       HibernateSession.rollback();
-      System.out.println("UploadQuoteInfoServlet - unable to upload quote information for product order " + productOrder.getIdProductOrder());
+      System.out.println("UploadQuoteInfoServlet - unable to upload quote information for ProductOrder " + productOrder.getIdProductOrder());
       System.out.println(e.toString());
       e.printStackTrace();
       throw new ServletException("Unable to upload quote information due to a server error.  Please contact GNomEx support.");
@@ -271,172 +271,4 @@ public class UploadQuoteInfoServlet extends HttpServlet {
 
   }
 
-  public static Boolean sendPurchasingEmail(Session sess, ProductOrder po, String serverName) throws NamingException, MessagingException, IOException {
-
-    //workaround until NullPointer exception is dealt with
-    InternalAccountFieldsConfiguration.getConfiguration(sess);
-
-    DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess);
-    Lab lab = sess.get( Lab.class, po.getIdLab() );
-    BillingAccount acct = sess.get( BillingAccount.class, po.getIdBillingAccount() );
-    AppUser user = sess.get(AppUser.class, po.getIdAppUser());
-
-    if ( po == null || po.getProductLineItems().size() == 0 || acct == null ) {
-      throw new MessagingException( "Product Order or Account is null" );
-    }
-
-    String labName = lab.getName(false, true)!=null ? lab.getName(false, true) : "";
-    String submitterName = user.getFirstLastDisplayName()!=null ? user.getFirstLastDisplayName() : "";
-    String acctName = acct.getAccountName() != null ? acct.getAccountName() : "";
-    String acctNumber = acct.getAccountNumber() != null ? acct.getAccountNumber() : "";
-    String quoteNum = po.getQuoteNumber() != null ? po.getQuoteNumber() : "";
-
-    BigDecimal grandTotal = new BigDecimal( BigInteger.ZERO, 2 ) ;
-
-    // Email to purchasing department
-    StringBuffer emailBody = new StringBuffer();
-
-    emailBody.append("A purchasing request for Illumina iScan chips has been submitted by the " +
-        labName +
-        ".");
-
-    // Email for the lab PI and Billing contact requesting signature on req form
-    StringBuffer emailBodyForLab = new StringBuffer();
-
-    emailBodyForLab.append("A purchasing request for Illumina iScan chips has been submitted by " +
-        submitterName +
-        ".");
-
-    for(Iterator i = po.getProductLineItems().iterator(); i.hasNext();) {
-      ProductLineItem lineItem = (ProductLineItem) i.next();
-      Product product = sess.load(Product.class, lineItem.getIdProduct());
-
-      String numberChips = lineItem.getQty() != null ? lineItem.getQty().toString() : "";
-      String chipName = product.getName() != null ? product.getName() : "";
-      String catNumber = product.getCatalogNumber() != null ? product.getCatalogNumber() : "";
-
-      BigDecimal estimatedCost = new BigDecimal( BigInteger.ZERO, 2 ) ;
-      estimatedCost = lineItem.getUnitPrice().multiply(new BigDecimal(lineItem.getQty()));
-
-      grandTotal.add(estimatedCost);
-
-      emailBody.append("<br><br><table border='0' width = '600'><tr><td>Lab:</td><td>" + labName );
-      emailBody.append("</td></tr><tr><td>Account Name:</td><td>" + acctName );
-      emailBody.append("</td></tr><tr><td>Account Number:</td><td>" + acctNumber );
-      emailBody.append("</td></tr><tr><td>Chip Type:</td><td>" + chipName );
-      emailBody.append("</td></tr><tr><td>Catalog Number:</td><td>" + catNumber );
-      emailBody.append("</td></tr><tr><td>Number of Chips Requested:</td><td>" + numberChips );
-      emailBody.append("</td></tr><tr><td>Total Estimated Charges:</td><td>" + "$" + estimatedCost);
-      emailBody.append("</td></tr><tr><td>Quote Number:</td><td>" + quoteNum);
-
-      emailBody.append("</td></tr></table><br><br>");
-
-
-      emailBodyForLab.append("<br><br><table border='0' width = '600'><tr><td>Lab:</td><td>" + labName );
-      emailBodyForLab.append("</td></tr><tr><td>Account Name:</td><td>" + acctName );
-      emailBodyForLab.append("</td></tr><tr><td>Account Number:</td><td>" + acctNumber );
-      emailBodyForLab.append("</td></tr><tr><td>Chip Type:</td><td>" + chipName );
-      emailBodyForLab.append("</td></tr><tr><td>Catalog Number:</td><td>" + catNumber );
-      emailBodyForLab.append("</td></tr><tr><td>Number of Chips Requested:</td><td>" + numberChips );
-      emailBodyForLab.append("</td></tr><tr><td>Total Estimated Charges:</td><td>" + "$" + estimatedCost);
-      emailBodyForLab.append("</td></tr><tr><td>Quote Number:</td><td>" + quoteNum);
-
-      emailBodyForLab.append("</td></tr></table><br><br>");
-      emailBodyForLab.append("</td></tr></table>");
-
-
-    }
-
-    emailBody.append("Grand Total:  " + grandTotal);
-    emailBodyForLab.append("Grand Total:  " + grandTotal);
-
-    emailBodyForLab.append("<b><FONT COLOR=\"#ff0000\">Please sign the attached requisition form and send it to the purchasing department.</FONT></b>");
-
-    String subject = "Purchasing Request for iScan Chips";
-
-    String contactEmailCoreFacility = sess.load(CoreFacility.class, po.getIdCoreFacility()).getContactEmail();
-    String contactEmailPurchasing  = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(po.getIdCoreFacility(), PropertyDictionary.CONTACT_EMAIL_PURCHASING);
-    String contactEmailLabBilling = lab.getBillingContactEmail() != null ? lab.getBillingContactEmail() : "";
-    String contactEmailLabPI = lab.getContactEmail() != null ? lab.getContactEmail() : "";
-
-    String senderEmail = contactEmailCoreFacility;
-    String contactEmail = contactEmailPurchasing;
-    String ccEmail = null;
-
-    boolean send = true;
-
-    // Check that purchasing email is valid
-    if(contactEmail.contains(",")){
-      for(String e: contactEmail.split(",")){
-        if(!MailUtil.isValidEmail(e.trim())){
-          System.out.println("Invalid email address: " + e);
-        }
-      }
-    } else{
-      if(!MailUtil.isValidEmail(contactEmail)){
-        System.out.println("Invalid email address: " + contactEmail);
-      }
-    }
-
-    // Find requisition file
-    SimpleDateFormat formatter = new SimpleDateFormat("yyyy");
-    String createYear = formatter.format(po.getSubmitDate());
-    String baseDir = PropertyDictionaryHelper.getInstance(sess).getProductOrderDirectory(serverName, po.getIdCoreFacility());
-    baseDir +=  "/" + createYear;
-    baseDir = baseDir + "/" + po.getIdProductOrder();
-    String directoryName = baseDir + "/" + Constants.REQUISITION_DIR;
-    File reqFolder = new File(directoryName);
-    if ( !reqFolder.exists() ) {
-      send = false;
-    }
-
-    // Send email to purchasing
-    if (send) {
-      if(!MailUtil.isValidEmail(senderEmail)){
-        senderEmail = DictionaryHelper.getInstance(sess).getPropertyDictionary(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
-      }
-      MailUtilHelper helper = new MailUtilHelper(contactEmail, ccEmail, null, senderEmail, subject, emailBody.toString(), new File(baseDir), true, dictionaryHelper, serverName);
-      MailUtil.validateAndSendEmail(helper);
-    }
-
-    // Now send the email to lab billing contact and PI
-    contactEmail = contactEmailLabPI;
-    ccEmail = contactEmailLabBilling;
-
-    // Check billing contact email
-    if(contactEmail.contains(",")){
-      for(String e: contactEmail.split(",")){
-        if(!MailUtil.isValidEmail(e.trim())){
-          System.out.println("Invalid email address for lab: " + e);
-        }
-      }
-    } else{
-      if(!MailUtil.isValidEmail(contactEmail)){
-        System.out.println("Invalid email address for lab: " + contactEmail);
-      }
-    }
-
-    // Check PI email
-    if(ccEmail.contains(",")){
-      for(String e: ccEmail.split(",")){
-        if(!MailUtil.isValidEmail(e.trim())){
-          ccEmail = null;
-        }
-      }
-    } else{
-      if(!MailUtil.isValidEmail(ccEmail)){
-        ccEmail = null;
-      }
-    }
-    if ( contactEmail.equals("") && ccEmail != null ) {
-      contactEmail = ccEmail;
-      ccEmail = null;
-    }
-    if (send && !contactEmail.equals( "" )) {
-      MailUtilHelper helper = new MailUtilHelper(contactEmail, ccEmail, null, senderEmail, subject, emailBodyForLab.toString(), reqFolder, true, dictionaryHelper, serverName);
-      MailUtil.validateAndSendEmail(helper);
-    }
-
-    return send;
-  }
 }

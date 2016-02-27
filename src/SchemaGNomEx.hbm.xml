@@ -2253,6 +2253,8 @@
     <property name="idCoreFacility" column="idCoreFacility" type="integer"/>
     <property name="submitDate" column="submitDate" type="date"/>
     <property name="idProductType" column="idProductType" type="integer"/>
+  	<many-to-one name="productType" column="idProductType" class="hci.gnomex.model.ProductType"
+				   cascade="none" insert="false" update="false" />
     <property name="quoteNumber" column="quoteNumber" type="string"/>
     <property name="quoteReceivedDate" column="quoteReceivedDate" type="date"/>
     <property name="uuid" column="uuid" type="string"/>

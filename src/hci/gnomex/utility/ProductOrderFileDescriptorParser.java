@@ -80,6 +80,7 @@ public class ProductOrderFileDescriptorParser extends DetailObject implements Se
     fd.setZipEntryName(n.getAttributeValue("zipEntryName"));
     fd.setType(n.getAttributeValue("type"));
     fd.setProductOrderNumber(n.getAttributeValue("productOrderNumber"));
+    fd.setIdProductOrder(Integer.valueOf(n.getAttributeValue("idProductOrder")));
     if(n.getAttributeValue("fileSize").length() > 0) {
         long fileSize = Long.parseLong(n.getAttributeValue("fileSize"));
         fd.setFileSize(fileSize);    	

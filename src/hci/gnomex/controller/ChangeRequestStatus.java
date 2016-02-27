@@ -275,12 +275,13 @@ public class ChangeRequestStatus extends GNomExCommand implements Serializable {
 
     introNote.append("Experiment request " + req.getNumber() + " has been submitted to the " + cf.getFacilityName() + " core.  You will receive email notification when the experiment is complete.");
 
+    //TODO: This should check that the request uses products and uses the purchasing system
     // Special notes for iScan requests
     if (req.getCodeRequestCategory().equals(RequestCategory.ISCAN_REQUEST_CATEGORY)) {
       Lab lab = dictionaryHelper.getLabObject(req.getIdLab());
       String email = lab.getContactEmail();
       if (email.indexOf("@hci.utah.edu") > 0) {
-        introNote.append("<br><br><b><FONT COLOR=\"#ff0000\">Please note that this is an order from an internal HCI lab.  An email has not been sent to the Illumina rep requesting a quote number for purchasing chips and a requisition form has not been downloaded.</FONT></b>");
+        introNote.append("<br><br><b><FONT COLOR=\"#ff0000\">Please note that this is an order from an internal HCI lab.  An email has not been sent to the vendor rep requesting a quote number for purchasing products and a requisition form has not been downloaded.</FONT></b>");
       }
     }
 

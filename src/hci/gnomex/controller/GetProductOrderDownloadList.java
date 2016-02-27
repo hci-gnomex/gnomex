@@ -72,6 +72,8 @@ public class GetProductOrderDownloadList extends GNomExCommand implements Serial
         Document doc = new Document(new Element("ProductOrderDownloadList"));
         po.excludeMethodFromXML("getProductLineItems");
         po.excludeMethodFromXML("getBillingItemList");
+        po.excludeMethodFromXML("getBillingItems");
+        po.excludeMethodFromXML("getProductType");
         po.excludeMethodFromXML("getFiles");
         po.excludeMethodFromXML("getLab");
         po.excludeMethodFromXML("getSubmitter");
@@ -81,6 +83,7 @@ public class GetProductOrderDownloadList extends GNomExCommand implements Serial
         poNode.setAttribute("displayName", po.getDisplay());
         poNode.setAttribute("idLab", po.getIdLab().toString());
         poNode.setAttribute("number", po.getProductOrderNumber());
+        poNode.setAttribute("idProductOrder", String.valueOf(po.getIdProductOrder()));
         poNode.setAttribute("isSelected", "N");
         poNode.setAttribute("state", "unchecked");
         poNode.setAttribute("isEmpty", "N");

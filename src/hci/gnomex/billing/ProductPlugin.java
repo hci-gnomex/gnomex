@@ -29,29 +29,8 @@ public class ProductPlugin extends BillingPlugin {
 
   public List<BillingItem> constructBillingItems(Session sess, String amendState, BillingPeriod billingPeriod, PriceCategory priceCategory, Request request, Set<Sample> samples, Set<LabeledSample> labeledSamples, Set<Hybridization> hybs, Set<SequenceLane> lanes, Map<String, ArrayList<String>> sampleToAssaysMap, String billingStatus, Set<PropertyEntry> propertyEntries, BillingTemplate billingTemplate) {
 
+    // This method not used for Products
     List<BillingItem> billingItems = new ArrayList<BillingItem>();
-
-    if (!this.hasValidData(sess, request, samples)) {
-      return billingItems;
-    }
-
-    qty = this.getQty(sess, request, samples);
-
-    // Find the price for iScanChip - there is only one
-    Price price = null;
-    for (Iterator i1 = priceCategory.getPrices().iterator(); i1.hasNext();) {
-      Price p = (Price) i1.next();
-      if (p.getIsActive() != null && p.getIsActive().equals("Y")) {
-        price = p;
-        break;
-      }
-    }
-
-    // Instantiate a BillingItem for the matched billing price
-    if (price != null) {
-      billingItems.addAll(this.makeBillingItems(request, price, priceCategory, qty, billingPeriod, billingStatus, sess, billingTemplate));
-    }
-
 
     return billingItems;
   }

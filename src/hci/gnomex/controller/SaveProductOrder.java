@@ -159,6 +159,7 @@ public class SaveProductOrder extends GNomExCommand implements Serializable {
             // Set up product order
             ProductOrder po = new ProductOrder();
             initializeProductOrder(po, idProductTypeKey);
+            sess.save(po);
             po.setProductOrderNumber(getNextPONumber(po, sess));
             sess.save(po);
 
@@ -197,6 +198,7 @@ public class SaveProductOrder extends GNomExCommand implements Serializable {
             poNode.setAttribute("status", orderStatus);
             poNode.setAttribute("idLab", idLab == null ? "" : idLab.toString());
             poNode.setAttribute("idProductOrder", po.getIdProductOrder() != null ? po.getIdProductOrder().toString() : "");
+            poNode.setAttribute("productOrderNumber", po.getProductOrderNumber() != null ? po.getProductOrderNumber() : "");
             outputDoc.getRootElement().addContent(poNode);
 
             List<BillingItem> billingItems = productPlugin.constructBillingItems(sess, billingPeriod, priceCategory, po, productLineItems, billingTemplate);
@@ -217,7 +219,7 @@ public class SaveProductOrder extends GNomExCommand implements Serializable {
 
             boolean isHCI = lab.getContactEmail().indexOf("@hci.utah.edu") > 0;
             // Check that the product type is set up to use the purchasing system
-            if (productType.getUtilizePurchasingSystem().equals("Y") && !isHCI && !lab.isExternalLab()) {
+            if (productType.getUtilizePurchasingSystem()!=null && productType.getUtilizePurchasingSystem().equals("Y") && !isHCI && !lab.isExternalLab()) {
               // REQUISITION FORM
               try {
                 // Download and fill out requisition form
@@ -225,9 +227,10 @@ public class SaveProductOrder extends GNomExCommand implements Serializable {
                 reqFile = RequisitionFormUtil.populateRequisitionForm(po, reqFile, sess);
 
                 if (reqFile == null) {
-                  String msg = "Unable to download requisition form for product order " + po.getIdProductOrder() + ".";
+                  String msg = "Unable to download requisition form for ProductOrder " + po.getIdProductOrder() + ".";
                   System.out.println(msg);
                 } else {
+                  // Save requisition form as ProductOrderFile and send vendor email
                   String baseDir = PropertyDictionaryHelper.getInstance(sess).getProductOrderDirectory(serverName, po.getIdCoreFacility()) +
                           po.getCreateYear() + "/" + po.getIdProductOrder();
                   String qualDir =  "/" + Constants.REQUISITION_DIR;
@@ -239,11 +242,12 @@ public class SaveProductOrder extends GNomExCommand implements Serializable {
                   poFile.setBaseFilePath(baseDir);
                   poFile.setQualifiedFilePath(qualDir);
                   sess.save(poFile);
+
                   sendVendorEmail(sess, po, productType);
                 }
 
               } catch (Exception e) {
-                String msg = "Unable to download requisition form OR unable to send Illumina email for Request " + po.getIdProductOrder() + ".  " + e.toString();
+                String msg = "Unable to download requisition form for ProductOrder " + po.getIdProductOrder() + ".  " + e.toString();
                 System.out.println(msg);
                 e.printStackTrace();
               }
@@ -419,16 +423,16 @@ public class SaveProductOrder extends GNomExCommand implements Serializable {
       ProductLineItem pi = (ProductLineItem) i.next();
       Product p = sess.load(Product.class, pi.getIdProduct());
 
-      emailBody.append("<tr><td>Chip Type:</td><td>" + p.getName() + "</td></tr>");
+      emailBody.append("<tr><td>Product Name:</td><td>" + p.getName() + "</td></tr>");
       emailBody.append("<tr><td>Catalog Number:</td><td>" + p.getCatalogNumber() + "</td></tr>");
 
       if (i.hasNext()) {
-        emailBody.append("<br><br>");
+        emailBody.append("</table><br><table border='0' width = '600'>");
       }
 
     }
 
-    emailBody.append("</td></tr></table><br><br>To enter a quote number and upload a file, click <a href=\"" + uploadQuoteURL + "\">" + Constants.APP_NAME + " - Upload Quote Info</a>.");
+    emailBody.append("</table><br><br>To enter a quote number and upload a file, click <a href=\"" + uploadQuoteURL + "\">" + Constants.APP_NAME + " - Upload Quote Info</a>.");
 
     String subject = "Request for Quote Number for " + productTypeString;
 

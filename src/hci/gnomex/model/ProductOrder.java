@@ -2,20 +2,24 @@ package hci.gnomex.model;
 
 import hci.dictionary.utility.DictionaryManager;
 import hci.framework.model.DetailObject;
-import hci.gnomex.utility.BillingItemQueryManager;
-import hci.gnomex.utility.BillingTemplateQueryManager;
-import hci.gnomex.utility.Order;
+import hci.gnomex.constants.Constants;
+import hci.gnomex.utility.*;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.sql.Date;
 import java.text.SimpleDateFormat;
+import java.util.Iterator;
 import java.util.Set;
 import java.util.TreeSet;
 
 import org.hibernate.Session;
 
+import javax.mail.MessagingException;
+import javax.naming.NamingException;
 
 
 @SuppressWarnings("serial")
@@ -33,6 +37,7 @@ public class ProductOrder extends DetailObject implements Serializable, Order {
   private Integer     idBillingAccount;
   private Date        submitDate;
   private Integer     idProductType;
+  private ProductType productType;
   private String      quoteNumber;
   private Date        quoteReceivedDate;
   private String      uuid;
@@ -128,6 +133,14 @@ public class ProductOrder extends DetailObject implements Serializable, Order {
 
   public void setIdProductType( Integer idProductType ) {
     this.idProductType = idProductType;
+  }
+
+  public ProductType getProductType() {
+    return productType;
+  }
+
+  public void setProductType(ProductType productType) {
+    this.productType = productType;
   }
 
   public String getStatus() {
@@ -338,6 +351,155 @@ public class ProductOrder extends DetailObject implements Serializable, Order {
   @Override
   public BillingTemplate getBillingTemplate(Session sess) {
 	return BillingTemplateQueryManager.retrieveBillingTemplate(sess, this);
+  }
+
+  public static Boolean sendPurchasingEmail(Session sess, ProductOrder po, String serverName) throws NamingException, MessagingException, IOException {
+
+    //workaround until NullPointer exception is dealt with
+    InternalAccountFieldsConfiguration.getConfiguration(sess);
+
+    DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess);
+    Lab lab = sess.get( Lab.class, po.getIdLab() );
+    BillingAccount acct = sess.get( BillingAccount.class, po.getIdBillingAccount() );
+    AppUser user = sess.get(AppUser.class, po.getIdAppUser());
+
+    if ( po == null || po.getProductLineItems().size() == 0 || acct == null ) {
+      throw new MessagingException( "Product Order or Account is null" );
+    }
+
+    String labName = lab.getName(false, true)!=null ? lab.getName(false, true) : "";
+    String submitterName = user.getFirstLastDisplayName()!=null ? user.getFirstLastDisplayName() : "";
+    String acctName = acct.getAccountName() != null ? acct.getAccountName() : "";
+    String acctNumber = acct.getAccountNumber() != null ? acct.getAccountNumber() : "";
+    String quoteNum = po.getQuoteNumber() != null ? po.getQuoteNumber() : "";
+
+    BigDecimal grandTotal = new BigDecimal( BigInteger.ZERO, 2 ) ;
+
+    // Email to purchasing department
+    StringBuffer emailBody = new StringBuffer();
+
+    emailBody.append("A purchasing request for products has been submitted by the " +
+            labName +
+            ".");
+
+    // Email for the lab PI and Billing contact requesting signature on req form
+    StringBuffer emailBodyForLab = new StringBuffer();
+
+    emailBodyForLab.append("A purchasing request for " + po.getProductType().getDisplay() +
+            " has been submitted by " +
+            submitterName +
+            ".");
+
+    emailBody.append("<br><br><table border='0' width = '400'><tr><td>Lab:</td><td>" + labName );
+    emailBody.append("</td></tr><tr><td>Account Name:</td><td>" + acctName );
+    emailBody.append("</td></tr><tr><td>Account Number:</td><td>" + acctNumber );
+    emailBody.append("</td></tr></table>");
+
+    emailBodyForLab.append("<br><br><table border='0' width = '400'><tr><td>Lab:</td><td>" + labName );
+    emailBodyForLab.append("</td></tr><tr><td>Account Name:</td><td>" + acctName );
+    emailBodyForLab.append("</td></tr><tr><td>Account Number:</td><td>" + acctNumber );
+    emailBodyForLab.append("</td></tr></table>");
+
+    for(Iterator i = po.getProductLineItems().iterator(); i.hasNext();) {
+      ProductLineItem lineItem = (ProductLineItem) i.next();
+      Product product = sess.load(Product.class, lineItem.getIdProduct());
+
+      String numberProducts = lineItem.getQty() != null ? lineItem.getQty().toString() : "";
+      String productName = product.getName() != null ? product.getName() : "";
+      String catNumber = product.getCatalogNumber() != null ? product.getCatalogNumber() : "";
+
+      BigDecimal estimatedCost = new BigDecimal( BigInteger.ZERO, 2 ) ;
+      estimatedCost = lineItem.getUnitPrice().multiply(new BigDecimal(lineItem.getQty()));
+
+      grandTotal = grandTotal.add(estimatedCost);
+
+      emailBody.append("<br><table border='0' width = '400'>");
+      emailBody.append("<tr><td>Product Name:</td><td>" + productName );
+      emailBody.append("</td></tr><tr><td>Catalog Number:</td><td>" + catNumber );
+      emailBody.append("</td></tr><tr><td>Number Requested:</td><td>" + numberProducts );
+      emailBody.append("</td></tr><tr><td>Total Estimated Charges:</td><td>" + "$" + estimatedCost);
+      emailBody.append("</td></tr><tr><td>Quote Number:</td><td>" + quoteNum);
+
+      emailBody.append("</td></tr></table>");
+
+      emailBodyForLab.append("<br><table border='0' width = '400'>");
+      emailBodyForLab.append("<tr><td>Product Name:</td><td>" + productName );
+      emailBodyForLab.append("</td></tr><tr><td>Catalog Number:</td><td>" + catNumber );
+      emailBodyForLab.append("</td></tr><tr><td>Number Requested:</td><td>" + numberProducts );
+      emailBodyForLab.append("</td></tr><tr><td>Total Estimated Charges:</td><td>" + "$" + estimatedCost);
+      emailBodyForLab.append("</td></tr><tr><td>Quote Number:</td><td>" + quoteNum);
+
+      emailBodyForLab.append("</td></tr></table>");
+    }
+
+    emailBody.append("<br>Grand Total:  " + grandTotal);
+    emailBodyForLab.append("<br>Grand Total:  " + grandTotal);
+
+    emailBodyForLab.append("<br><br><b><FONT COLOR=\"#ff0000\">Please sign the attached requisition form and send it to the purchasing department.</FONT></b>");
+
+    String subject = "Purchasing Request for " + po.getProductType().getDisplay();
+
+    String contactEmailCoreFacility = sess.load(CoreFacility.class, po.getIdCoreFacility()).getContactEmail();
+    String contactEmailPurchasing  = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(po.getIdCoreFacility(), PropertyDictionary.CONTACT_EMAIL_PURCHASING);
+    String contactEmailLabBilling = lab.getBillingContactEmail() != null ? lab.getBillingContactEmail() : "";
+    String contactEmailLabPI = lab.getContactEmail() != null ? lab.getContactEmail() : "";
+
+    String senderEmail = contactEmailCoreFacility;
+    String contactEmail = contactEmailPurchasing;
+    String ccEmail = null;
+
+    boolean send = true;
+
+    // Check that purchasing email is valid
+    if(!MailUtil.isValidEmail(contactEmail)){
+      System.out.println("Invalid email address: " + contactEmail);
+    }
+
+    // Find requisition file
+    SimpleDateFormat formatter = new SimpleDateFormat("yyyy");
+    String createYear = formatter.format(po.getSubmitDate());
+    String baseDir = PropertyDictionaryHelper.getInstance(sess).getProductOrderDirectory(serverName, po.getIdCoreFacility());
+    baseDir +=  "/" + createYear;
+    baseDir = baseDir + "/" + po.getIdProductOrder();
+    String directoryName = baseDir + "/" + Constants.REQUISITION_DIR;
+    File reqFolder = new File(directoryName);
+    if ( !reqFolder.exists() ) {
+      send = false;
+    }
+
+    // Send email to purchasing
+    if (send) {
+      if(!MailUtil.isValidEmail(senderEmail)){
+        senderEmail = DictionaryHelper.getInstance(sess).getPropertyDictionary(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
+      }
+      MailUtilHelper helper = new MailUtilHelper(contactEmail, ccEmail, null, senderEmail, subject, emailBody.toString(), new File(baseDir), true, dictionaryHelper, serverName);
+      MailUtil.validateAndSendEmail(helper);
+    }
+
+    // Now send the email to lab billing contact and PI
+    contactEmail = contactEmailLabPI;
+    ccEmail = contactEmailLabBilling;
+
+    // Check billing contact email
+    if(!MailUtil.isValidEmail(contactEmail)){
+      System.out.println("Invalid email address for lab: " + contactEmail);
+    }
+
+    // Check PI email
+    if(!MailUtil.isValidEmail(ccEmail)){
+      ccEmail = null;
+    }
+
+    if ( contactEmail.equals("") && ccEmail != null ) {
+      contactEmail = ccEmail;
+      ccEmail = null;
+    }
+    if (send && !contactEmail.equals( "" )) {
+      MailUtilHelper helper = new MailUtilHelper(contactEmail, ccEmail, null, senderEmail, subject, emailBodyForLab.toString(), reqFolder, true, dictionaryHelper, serverName);
+      MailUtil.validateAndSendEmail(helper);
+    }
+
+    return send;
   }
 
 }

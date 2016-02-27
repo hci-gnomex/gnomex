@@ -119,8 +119,7 @@
 				 dataProvider="{orderList}"
 				 fontSize="9"
 				 sortableColumns="false"
-				 wordWrap="true" 
-				 showDataTips="true"
+				 wordWrap="true"
 				 allowMultipleSelection="true"
 				 itemClick = "gridItemClick(event)"
 				 click="{selectedOrders.refresh()}">

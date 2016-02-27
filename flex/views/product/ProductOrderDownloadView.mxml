@@ -354,27 +354,27 @@
 				// Sort by request number to avoid duplicates
 				var filesCollection:XMLListCollection = new XMLListCollection(selectedFiles);
 				var sortByNum:Sort = new Sort();
-				sortByNum.fields = [new SortField("requestNumber")];
+				sortByNum.fields = [new SortField("productOrderNumber")];
 				filesCollection.sort = sortByNum;
 				filesCollection.refresh();
 				
-				var requestNumbers:String = "";
+				var productOrderNumbers:String = "";
 				var previous:String = "";
 				for each(var dl:Object in filesCollection.source) {
-					var currentNum:String = dl.@requestNumber;
+					var currentNum:String = dl.@productOrderNumber;
 					if ( currentNum != previous ) {
-						if (requestNumbers.length > 0) {
-							requestNumbers += ":"
+						if (productOrderNumbers.length > 0) {
+							productOrderNumbers += ":"
 						}
-						requestNumbers += currentNum;
+						productOrderNumbers += currentNum;
 					}
 					previous = currentNum;
 				}
-				if (requestNumbers.length > 0) {
+				if (productOrderNumbers.length > 0) {
 					var url1:URLRequest = new URLRequest('ShowRequestDownloadForm' + 
 						(parentDocument.parentApplication.isGuestMode() ? 'ForGuest' : '') +   
-						'.gx?requestNumbers=' + 
-						requestNumbers);
+						'.gx?productOrderNumbers=' +
+						productOrderNumbers);
 					navigateToURL(url1, '_blank');	
 				}
 				
