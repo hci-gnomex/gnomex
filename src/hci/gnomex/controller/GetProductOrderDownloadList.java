@@ -99,13 +99,13 @@ public class GetProductOrderDownloadList extends GNomExCommand implements Serial
         Map productOrderMap = new TreeMap();
         Map directoryMap = new TreeMap();
         Map fileMap = new HashMap();
-        List productOrderNumbers = new ArrayList<String>();
+        List productOrderIds = new ArrayList<Integer>();
         //The analysis file code looks like it will server our purpose here for Product Orders
-        getFileNamesToDownload(baseDir, po.getKey(), productOrderNumbers, productOrderMap, directoryMap, false);
+        getFileNamesToDownload(baseDir, po.getKey(), productOrderIds, productOrderMap, directoryMap, false);
 
-        for(Iterator i = productOrderNumbers.iterator(); i.hasNext();) {
-          String productOrderNumber = (String)i.next();
-          List directoryKeys   = (List)productOrderMap.get(productOrderNumber);
+        for(Iterator i = productOrderIds.iterator(); i.hasNext();) {
+          Integer idProductOrder = (Integer) i.next();
+          List directoryKeys   = (List)productOrderMap.get(idProductOrder);
 
           // For each directory of product orders
           for(Iterator i1 = directoryKeys.iterator(); i1.hasNext();) {
@@ -123,13 +123,13 @@ public class GetProductOrderDownloadList extends GNomExCommand implements Serial
             // Show files uploads that are in the staging area.
             if (includeUploadStagingDir.equals("Y")) {
               String key = po.getKey(Constants.UPLOAD_STAGING_DIR);
-              addExpandedFileNodes(baseDir, poNode, poNode, productOrderNumber, key, dh, knownProductOrderFileMap, fileMap, sess);
+              addExpandedFileNodes(baseDir, poNode, poNode, idProductOrder, key, dh, knownProductOrderFileMap, fileMap, sess);
             } else {
               // This will add the uploaded files to the file map so if they are not displayed,
               // they will not be displayed because they are in the DB.
               String key = po.getKey(Constants.UPLOAD_STAGING_DIR);
               Element dummyNode = new Element("dummy");
-              addExpandedFileNodes(baseDir, poNode, dummyNode, productOrderNumber, key, dh, knownProductOrderFileMap, fileMap, sess);
+              addExpandedFileNodes(baseDir, poNode, dummyNode, idProductOrder, key, dh, knownProductOrderFileMap, fileMap, sess);
             }
 
             List   theFiles     = (List)directoryMap.get(directoryKey);
@@ -229,7 +229,7 @@ public class GetProductOrderDownloadList extends GNomExCommand implements Serial
   public static void addExpandedFileNodes(String baseDir,
       Element poNode,
       Element poDownloadNode,
-      String productOrderNumber,
+      Integer productOrderId,
       String key,
       DictionaryHelper dh,
       Map knownProductOrderFileMap,
@@ -245,9 +245,9 @@ public class GetProductOrderDownloadList extends GNomExCommand implements Serial
       baseDir += "/";
     }
 
-    List productOrderNumbers = new ArrayList<String>();
-    GetProductOrderDownloadList.getFileNamesToDownload(baseDir, key, productOrderNumbers, productOrderMap, directoryMap, true);
-    List directoryKeys   = (List)productOrderMap.get(productOrderNumber);
+    List productOrderIds = new ArrayList<String>();
+    GetProductOrderDownloadList.getFileNamesToDownload(baseDir, key, productOrderIds, productOrderMap, directoryMap, true);
+    List directoryKeys   = (List)productOrderMap.get(productOrderId);
 
     String[] tokens = key.split("-");
     String createYear  = tokens[0];
@@ -279,8 +279,9 @@ public class GetProductOrderDownloadList extends GNomExCommand implements Serial
           }
 
           fd.setQualifiedFilePath(directoryName);
-          fd.setBaseFilePath(baseDir + createYear + File.separator + productOrderNumber);
+          fd.setBaseFilePath(baseDir + createYear + File.separator + productOrderId);
           fd.setIdProductOrder(poNode.getAttributeValue("idProductOrder") != null ? Integer.valueOf(poNode.getAttributeValue("idProductOrder")) : null);
+          fd.setProductOrderNumber(poNode.getAttributeValue("productOrderNumber") != null ? poNode.getAttributeValue("productOrderNumber") : null);
           String idLab = poNode.getAttributeValue("idLab");
           fd.setIdLab(idLab == null || idLab.equals("") ? null : Integer.valueOf(idLab));
           fd.excludeMethodFromXML("getChildren");
@@ -384,56 +385,56 @@ public class GetProductOrderDownloadList extends GNomExCommand implements Serial
       baseDir += "/";
     }
 
-    String directoryName = baseDir + createYear + File.separator + po.getProductOrderNumber();
+    String directoryName = baseDir + createYear + File.separator + po.getIdProductOrder();
     return directoryName;
   }
 
-  public static void getFileNamesToDownload(String baseDir, String keysString, List productOrderNumbers, Map productOrderMap, Map directoryMap, boolean flattenSubDirs){
+  public static void getFileNamesToDownload(String baseDir, String keysString, List productOrderIds, Map productOrderMap, Map directoryMap, boolean flattenSubDirs){
     String[] keys = keysString.split(":");
     for (int i = 0; i < keys.length; i++) {
       String key = keys[i];
 
       String tokens[] = key.split("-");
       String createYear = tokens[0];
-      String analysisNumber = tokens[2];
+      Integer idProductOrder = Integer.valueOf(tokens[2]);
 
-      String directoryKey = analysisNumber;
+      String directoryKey = String.valueOf(idProductOrder);
       if (!baseDir.endsWith("/") && !baseDir.endsWith("\\")) {
         baseDir += "/";
       }
-      String directoryName = baseDir + createYear + "/" + analysisNumber;
+      String directoryName = baseDir + createYear + "/" + idProductOrder;
 
       if (tokens.length > 3 ) {
         String resultDir = tokens[3];
-        directoryKey = analysisNumber + "-" + resultDir;
-        directoryName = baseDir +  createYear + "/" + analysisNumber + "/" + resultDir;
+        directoryKey = idProductOrder + "-" + resultDir;
+        directoryName = baseDir +  createYear + "/" + idProductOrder + "/" + resultDir;
       }
 
       // We want the list to be ordered the same way as the original keys,
-      // so we will keep the analysis numbers in a list
-      if (!productOrderNumbers.contains(analysisNumber)) {
-        productOrderNumbers.add(analysisNumber);
+      // so we will keep the ProductOrder Ids in a list
+      if (!productOrderIds.contains(idProductOrder)) {
+        productOrderIds.add(idProductOrder);
       }
 
       List theFiles = new ArrayList();
-      getFileNames(analysisNumber, directoryName, theFiles, null, baseDir, flattenSubDirs);
+      getFileNames(idProductOrder, directoryName, theFiles, null, baseDir, flattenSubDirs);
 
       // Hash the list of file names (by directory name)
       directoryMap.put(directoryKey, theFiles);
 
-      List directoryKeys = (List)productOrderMap.get(analysisNumber);
+      List directoryKeys = (List)productOrderMap.get(idProductOrder);
       if (directoryKeys == null) {
         directoryKeys = new ArrayList<String>();
       }
       directoryKeys.add(directoryKey);
 
-      // Hash the list of directories (by analysisNumber)
-      productOrderMap.put(analysisNumber, directoryKeys);
+      // Hash the list of directories (by idProductOrder)
+      productOrderMap.put(idProductOrder, directoryKeys);
     }
 
   }
 
-  public static void getFileNames(String productOrderNumber, String directoryName, List theFiles, String subDirName, String baseDir, boolean flattenSubDirs){
+  public static void getFileNames(Integer idProductOrder, String directoryName, List theFiles, String subDirName, String baseDir, boolean flattenSubDirs){
     File fd = new File(directoryName);
 
     if (fd.isDirectory()) {
@@ -462,18 +463,18 @@ public class GetProductOrderDownloadList extends GNomExCommand implements Serial
         }
 
         if (f1.isDirectory()) {
-          ProductOrderFileDescriptor dirFileDescriptor = new ProductOrderFileDescriptor(productOrderNumber, f1.getName(), f1, baseDir);
+          ProductOrderFileDescriptor dirFileDescriptor = new ProductOrderFileDescriptor(idProductOrder, f1.getName(), f1, baseDir);
           dirFileDescriptor.setType("dir");
           dirFileDescriptor.setQualifiedFilePath(subDirName!=null ? subDirName : "");
           theFiles.add(dirFileDescriptor);
-          getFileNames(productOrderNumber, fileName, dirFileDescriptor.getChildren(), subDirName != null ? subDirName + "/" + f1.getName() : f1.getName(), baseDir, flattenSubDirs);
+          getFileNames(idProductOrder, fileName, dirFileDescriptor.getChildren(), subDirName != null ? subDirName + "/" + f1.getName() : f1.getName(), baseDir, flattenSubDirs);
         } else {
           boolean include = true;
           if (fileName.toLowerCase().endsWith("thumbs.db")) {
             include = false;
           }
           if (include) {
-            ProductOrderFileDescriptor fileDescriptor = new ProductOrderFileDescriptor(productOrderNumber, displayName, f1, baseDir);
+            ProductOrderFileDescriptor fileDescriptor = new ProductOrderFileDescriptor(idProductOrder, displayName, f1, baseDir);
             fileDescriptor.setQualifiedFilePath(subDirName!=null ? subDirName : "");
             theFiles.add(fileDescriptor);
           }

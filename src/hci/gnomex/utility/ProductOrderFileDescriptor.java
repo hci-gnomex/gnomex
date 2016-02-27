@@ -39,8 +39,8 @@ public class ProductOrderFileDescriptor extends DetailObject implements Serializ
   public ProductOrderFileDescriptor() {    
   }
   
-  public ProductOrderFileDescriptor(String productOrderNumber, String displayName, File file, String baseDir) {
-    this.productOrderNumber = productOrderNumber;
+  public ProductOrderFileDescriptor(Integer idProductOrder, String displayName, File file, String baseDir) {
+    this.idProductOrder = idProductOrder;
     this.displayName = displayName;
     
     this.fileSize = file.length();
@@ -171,7 +171,7 @@ public class ProductOrderFileDescriptor extends DetailObject implements Serializ
   
 
   public String getDirectoryNumber(int analysisFileDirectoryLength) {
-    String analysisNumber = "";
+    String idProductOrder = "";
     if (fileName != null && !fileName.equals("")) {
       // Get the directory name starting after the year
       String relativePath = fileName.substring(analysisFileDirectoryLength + 5);
@@ -180,10 +180,10 @@ public class ProductOrderFileDescriptor extends DetailObject implements Serializ
         tokens = relativePath.split("/", 2);
       }
       if (tokens.length == 2) {
-        analysisNumber = tokens[0];
+        idProductOrder = tokens[0];
       }
     }
-    return analysisNumber;
+    return idProductOrder;
   }
 
   

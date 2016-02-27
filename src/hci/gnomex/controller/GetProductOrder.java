@@ -122,12 +122,12 @@ public class GetProductOrder extends GNomExCommand implements Serializable {
         Map productOrderMap = new TreeMap();
         Map directoryMap = new TreeMap();
         Map fileMap = new HashMap();
-        List productOrderNumbers = new ArrayList<String>();
-        GetProductOrderDownloadList.getFileNamesToDownload(baseDir, po.getKey(), productOrderNumbers, productOrderMap, directoryMap, false);
+        List ProductOrderIds = new ArrayList<Integer>();
+        GetProductOrderDownloadList.getFileNamesToDownload(baseDir, po.getKey(), ProductOrderIds, productOrderMap, directoryMap, false);
 
-        for (Iterator i = productOrderNumbers.iterator(); i.hasNext();) {
-          String productOrderNumber = (String) i.next();
-          List directoryKeys = (List) productOrderMap.get(productOrderNumber);
+        for (Iterator i = ProductOrderIds.iterator(); i.hasNext();) {
+          Integer idProductOrder = (Integer) i.next();
+          List directoryKeys = (List) productOrderMap.get(idProductOrder);
 
           // For each directory of analysis
           for (Iterator i1 = directoryKeys.iterator(); i1.hasNext();) {
@@ -145,7 +145,7 @@ public class GetProductOrder extends GNomExCommand implements Serializable {
             Element productOrderUploadNode = new Element("ProductOrderUpload");
             filesNode.addContent(productOrderUploadNode);
             String key = po.getKey(Constants.UPLOAD_STAGING_DIR);
-            GetProductOrderDownloadList.addExpandedFileNodes(baseDir, root, productOrderUploadNode, productOrderNumber, key, dh, knownProductOrderFileMap, fileMap, sess);
+            GetProductOrderDownloadList.addExpandedFileNodes(baseDir, root, productOrderUploadNode, idProductOrder, key, dh, knownProductOrderFileMap, fileMap, sess);
           }
         }
 

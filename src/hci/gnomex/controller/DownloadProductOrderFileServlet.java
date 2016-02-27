@@ -132,29 +132,29 @@ public class DownloadProductOrderFileServlet extends HttpServlet {
         int totalArchiveSize = 0;
         // For each request
         
-        for(Iterator i = parser.getProductOrderNumbers().iterator(); i.hasNext();) {
-          String productOrderNumber = (String)i.next();
+        for(Iterator i = parser.getProductOrderIds().iterator(); i.hasNext();) {
+          String idProductOrder = (String)i.next();
           
           ProductOrder productOrder = null;
-          List productOrderList = sess.createQuery("SELECT po from ProductOrder po where po.productOrderNumber = '" + productOrderNumber + "'").list();
+          List productOrderList = sess.createQuery("SELECT po from ProductOrder po where po.idProductOrder = " + idProductOrder ).list();
           if (productOrderList.size() == 1) {
             productOrder = (ProductOrder)productOrderList.get(0);
           }
           
           // If we can't find the productOrder in the database, just bypass it.
           if (productOrder == null) {
-            log.error("Unable to find productOrder " + productOrderNumber + ".  Bypassing download for user " + req.getUserPrincipal().getName() + ".");
+            log.error("Unable to find productOrder " + idProductOrder + ".  Bypassing download for user " + req.getUserPrincipal().getName() + ".");
             continue;
           }
           
           // Check permissions - bypass this productOrder if the user 
           // does not have  permission to read it.
           if (!secAdvisor.canRead(productOrder)) {  
-            log.error("Insufficient permissions to read productOrder " + productOrderNumber + ".  Bypassing download for user " + req.getUserPrincipal().getName() + ".");
+            log.error("Insufficient permissions to read productOrder " + idProductOrder + ".  Bypassing download for user " + req.getUserPrincipal().getName() + ".");
             continue;
           }
           
-          List fileDescriptors = parser.getFileDescriptors(productOrderNumber);
+          List fileDescriptors = parser.getFileDescriptors(idProductOrder);
           
           // For each file to be downloaded for the productOrder
           for (Iterator i1 = fileDescriptors.iterator(); i1.hasNext();) {
@@ -184,8 +184,8 @@ public class DownloadProductOrderFileServlet extends HttpServlet {
             // Since we use the request number to determine if user has permission to read the data, match sure
             // it matches the request number of the directory.  If it doesn't bypass the download
             // for this file.
-            if (!productOrderNumber.equalsIgnoreCase(fd.getProductOrderNumber())) {
-              log.error("ProductOrder number does not match directory for attempted download on " + fd.getFileName() + " for user " + req.getUserPrincipal().getName() + ".  Bypassing download." );
+            if (!idProductOrder.equalsIgnoreCase(String.valueOf(fd.getIdProductOrder()))) {
+              log.error("ProductOrder id does not match directory for attempted download on " + fd.getFileName() + " for user " + req.getUserPrincipal().getName() + ".  Bypassing download." );
               continue;
             }
 

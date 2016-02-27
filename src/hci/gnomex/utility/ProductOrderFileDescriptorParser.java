@@ -32,13 +32,13 @@ public class ProductOrderFileDescriptorParser extends DetailObject implements Se
     
     for(Iterator i = root.getChildren("ProductOrderFileDescriptor").iterator(); i.hasNext();) {
       Element node = (Element)i.next();      
-      String productOrderNumber = node.getAttributeValue("productOrderNumber");
+      String idProductOrder = node.getAttributeValue("idProductOrder");
       ProductOrderFileDescriptor fd = initializeFileDescriptor(node);
       
-      List fileDescriptors = (List)fileDescriptorMap.get(productOrderNumber);
+      List fileDescriptors = (List)fileDescriptorMap.get(idProductOrder);
       if (fileDescriptors == null) {
         fileDescriptors = new ArrayList();
-        fileDescriptorMap.put(productOrderNumber, fileDescriptors);
+        fileDescriptorMap.put(idProductOrder, fileDescriptors);
       }
       
       fileDescriptors.add(fd);
@@ -54,13 +54,13 @@ public class ProductOrderFileDescriptorParser extends DetailObject implements Se
     if (parentNode.getChildren("children") != null && parentNode.getChildren("children").size() > 0) {
       for(Iterator i = parentNode.getChild("children").getChildren("ProductOrderFileDescriptor").iterator(); i.hasNext();) {
         Element node = (Element)i.next();      
-        String productOrderNumber = node.getAttributeValue("productOrderNumber");
+        String idProductOrder = node.getAttributeValue("idProductOrder");
         ProductOrderFileDescriptor fd = initializeFileDescriptor(node);
         
-        List fileDescriptors = (List)fileDescriptorMap.get(productOrderNumber);
+        List fileDescriptors = (List)fileDescriptorMap.get(idProductOrder);
         if (fileDescriptors == null) {
           fileDescriptors = new ArrayList();
-          fileDescriptorMap.put(productOrderNumber, fileDescriptors);
+          fileDescriptorMap.put(idProductOrder, fileDescriptors);
         }
         
         fileDescriptors.add(fd);
@@ -91,13 +91,13 @@ public class ProductOrderFileDescriptorParser extends DetailObject implements Se
   }
 
   
-  public Set getProductOrderNumbers() {
+  public Set getProductOrderIds() {
     return fileDescriptorMap.keySet();
   }
 
   
-  public List getFileDescriptors(String productOrderNumber) {
-    return (List)fileDescriptorMap.get(productOrderNumber);
+  public List getFileDescriptors(String idProductOrder) {
+    return (List)fileDescriptorMap.get(idProductOrder);
   }
   
 

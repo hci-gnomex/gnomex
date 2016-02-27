@@ -119,7 +119,7 @@ public class FastDataTransferDownloadProductOrderServlet extends HttpServlet {
         
 
         // For each productOrder
-        for(Iterator i = parser.getProductOrderNumbers().iterator(); i.hasNext();) {
+        for(Iterator i = parser.getProductOrderIds().iterator(); i.hasNext();) {
           String productOrderNumber = (String)i.next();
 
           ProductOrder productOrder = null;
