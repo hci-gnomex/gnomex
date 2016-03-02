@@ -314,7 +314,8 @@
 			import mx.managers.PopUpManager;
 			import mx.rpc.events.FaultEvent;
 			import mx.rpc.events.ResultEvent;
-			
+			import mx.utils.StringUtil;
+
 			import views.admin.BillingAccountFieldsConfigurationWindow;
 			import views.admin.GenomeIndexEvent;
 			import views.admin.PropertyEvent;
@@ -4099,6 +4100,7 @@
 					s.replace(
 						new RegExp("([{}\(\)\^$&.\*\?\/\+\|\[\\\\]|\]|\-)","g"),
 						"\\$1");
+				newString = StringUtil.trim(newString);
 				return newString;
 			}
 			
