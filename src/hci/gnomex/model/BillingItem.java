@@ -50,7 +50,7 @@ public class BillingItem extends HibernateDetailObject {
   public int hashCode() {
 	final int prime = 31;
 	int result = 1;
-	result = prime * result + ((this.idBillingItem == null) ? 0 : this.idBillingItem.hashCode());
+	result = prime * result + ((this.idBillingItem == null) ? super.hashCode() : this.idBillingItem.hashCode());
 	return result;
   }
 

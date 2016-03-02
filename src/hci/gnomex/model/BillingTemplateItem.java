@@ -41,7 +41,7 @@ public class BillingTemplateItem extends HibernateDetailObject implements Compar
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((this.idBillingTemplateItem == null) ? 0 : this.idBillingTemplateItem.hashCode());
+		result = prime * result + ((this.idBillingTemplateItem == null) ? super.hashCode() : this.idBillingTemplateItem.hashCode());
 		return result;
 	}
 	@Override

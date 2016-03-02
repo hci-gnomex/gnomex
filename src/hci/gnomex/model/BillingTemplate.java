@@ -82,7 +82,7 @@ public class BillingTemplate extends HibernateDetailObject implements DetailObje
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((this.idBillingTemplate == null) ? 0 : this.idBillingTemplate.hashCode());
+		result = prime * result + ((this.idBillingTemplate == null) ? super.hashCode() : this.idBillingTemplate.hashCode());
 		return result;
 	}
 	@Override

@@ -1445,4 +1445,8 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
   public void setAdminNotes(String adminNotes) {
     this.adminNotes = adminNotes;
   }
+@Override
+public Integer getIdProductOrder() {
+	return null;
+}
 }

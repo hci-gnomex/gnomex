@@ -35,5 +35,7 @@ public interface Order {
 	public String getCodeBioanalyzerChipType();
 	
 	public BillingTemplate getBillingTemplate(Session sess);
+	
+	public Integer getIdProductOrder();
 
 }

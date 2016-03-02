@@ -32,7 +32,7 @@ public class MasterBillingItem extends HibernateDetailObject {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((this.idMasterBillingItem == null) ? 0 : this.idMasterBillingItem.hashCode());
+		result = prime * result + ((this.idMasterBillingItem == null) ? super.hashCode() : this.idMasterBillingItem.hashCode());
 		return result;
 	}
 	@Override

@@ -216,6 +216,12 @@ public abstract class BillingPlugin {
             if (notes != null) {
             	billingItem.setNotes(notes);
             }
+            
+            if (request.getIdRequest() != null) {
+            	billingItem.setIdRequest(request.getIdRequest());
+            } else if (request.getIdProductOrder() != null) {
+            	billingItem.setIdProductOrder(request.getIdProductOrder());
+            }
         }
         
         return newlyCreatedBillingItems;

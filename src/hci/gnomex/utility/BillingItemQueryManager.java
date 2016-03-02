@@ -1,10 +1,8 @@
 package hci.gnomex.utility;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.TreeSet;
-
-import org.hibernate.Hibernate;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import hci.gnomex.model.BillingItem;
@@ -48,7 +46,7 @@ public class BillingItemQueryManager extends QueryManager {
 		Query query = sess.createQuery(queryBuffer.toString());
 		query.setParameter("idBillingTemplate", idBillingTemplate);
 		
-		return new TreeSet<BillingItem>((List<BillingItem>) query.list());
+		return new HashSet<BillingItem>((List<BillingItem>) query.list());
 	}
 	
 	private void addRequestCriteria() {
