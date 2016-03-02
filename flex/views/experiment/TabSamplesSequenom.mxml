@@ -460,6 +460,7 @@
 				isExternal = (parentDocument.isEditState() && parentDocument.request.@isExternal == 'Y') || (!parentDocument.isEditState() && !parentApplication.isInternalExperimentSubmission);
 				isEditState = parentDocument.isEditState();
 				
+				showHideCCNumberBox();
 				setButtonVisibility(true);
 				samplesGrid.rowOperationsAllowed = true;
 				

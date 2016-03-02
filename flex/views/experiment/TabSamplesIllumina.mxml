@@ -725,6 +725,7 @@
 					multiplexGroupNumberEditColumn.editable = false;
 				}
 				
+				showHideCCNumberBox();
 				setButtonVisibility(!parentDocument.isAmendState());
 				samplesGrid.rowOperationsAllowed = true;
 				samplesGrid.insertRowEnabled = false;

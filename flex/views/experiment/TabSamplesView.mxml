@@ -1082,6 +1082,7 @@
 					hideSampleTypeOnExternalExperiment = true;
 				}
 				
+				showHideCCNumberBox();
 				setButtonVisibility(true);
 				samplesGrid.rowOperationsAllowed = true;
 				

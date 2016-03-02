@@ -137,8 +137,8 @@ import mx.controls.TextInput;
 		}
 		
 		public function showHideCCNumberBox():void {
-			getCCNumberBox().visible =  !getIsExternal();
-			getCCNumberBox().includeInLayout =  !getIsExternal();
+			getCCNumberBox().visible =  !getIsExternal() && parentApplication.isBSTLinkageSupported;
+			getCCNumberBox().includeInLayout =  !getIsExternal() && parentApplication.isBSTLinkageSupported;
 		}
 		
 		public function setButtonVisibility(vis:Boolean):void {
