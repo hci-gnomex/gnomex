@@ -162,7 +162,9 @@ public class SaveBillingTemplate extends GNomExCommand implements Serializable {
 					templateItem.setDollarAmountBalance(new BigDecimal(0));
 				}
 			}
-			
+
+			sess.save(billingItem);
+
 			masterBillingItem.getBillingItems().add(billingItem);
 			
 			amountAccountedFor = amountAccountedFor.add(billingItem.getInvoicePrice());

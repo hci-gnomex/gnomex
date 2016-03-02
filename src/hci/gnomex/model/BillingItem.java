@@ -233,6 +233,7 @@ public class BillingItem extends HibernateDetailObject {
     this.excludeMethodFromXML("getBillingPeriod");
     this.excludeMethodFromXML("getPriceCategory");
     this.excludeMethodFromXML("getMasterBillingItem");
+    this.excludeMethodFromXML("getInvoice");
   }
 
 

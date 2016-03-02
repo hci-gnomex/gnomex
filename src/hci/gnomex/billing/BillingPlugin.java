@@ -204,6 +204,7 @@ public abstract class BillingPlugin {
         master.setIdBillingPeriod(billingPeriod.getIdBillingPeriod());
         master.setIdBillingTemplate(template.getIdBillingTemplate());
         master.setBillingItems(new HashSet<BillingItem>());
+		sess.save(master);
         template.getMasterBillingItems().add(master);
         
         Set<BillingItem> newlyCreatedBillingItems = SaveBillingTemplate.createBillingItemsForMaster(sess, master, template);
