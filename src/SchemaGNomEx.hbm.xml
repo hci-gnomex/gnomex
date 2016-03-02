@@ -1133,10 +1133,9 @@
 		  <key column="idRequest" />
 		  <one-to-many class="hci.gnomex.model.PropertyEntry" />
    		</set>
-		<set name="billingItems" >
+		<set name="billingItems" lazy="true" cascade="delete">
 			<key column="idRequest"/>
 			<one-to-many class="hci.gnomex.model.BillingItem" />
-			<loader query-ref="billingItemsForRequest" />
 		</set>
 	</class>
 
@@ -2268,10 +2267,9 @@
       <key column="idProductOrder"/>
       <one-to-many class="hci.gnomex.model.ProductOrderFile" />
     </set>
-	  <set name="billingItems" >
+	  <set name="billingItems" lazy="true" cascade="delete">
 		  <key column="idProductOrder"/>
 		  <one-to-many class="hci.gnomex.model.BillingItem" />
-		  <loader query-ref="billingItemsForProductOrder" />
 	  </set>
   </class> 
   
