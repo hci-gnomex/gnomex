@@ -453,8 +453,9 @@
 				if (this.isAmendState()) {
 					refreshAmendSetup();
 				}
-				
-				this.convertIlluminaButton.label = getLabel();
+				if(convertIlluminaButton != null){
+					this.convertIlluminaButton.label = getLabel();
+				}
 			}
 			
 			private function enableTabs(enable:Boolean):void {
