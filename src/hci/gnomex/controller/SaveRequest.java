@@ -360,15 +360,17 @@ public class SaveRequest extends GNomExCommand implements Serializable {
             originalRequestNumber = saveRequest(sess, requestParser, description);
             sendNotification(requestParser.getRequest(), sess, requestParser.isNewRequest() ? Notification.NEW_STATE : Notification.EXISTING_STATE, Notification.SOURCE_TYPE_ADMIN, Notification.TYPE_REQUEST);
             sendNotification(requestParser.getRequest(), sess, requestParser.isNewRequest() ? Notification.NEW_STATE : Notification.EXISTING_STATE, Notification.SOURCE_TYPE_USER, Notification.TYPE_REQUEST);
-            
+
             BillingTemplate billingTemplate = requestParser.getBillingTemplate();
-            if (requestParser.isNewRequest()) {
-            	billingTemplate.setOrder(requestParser.getRequest());
-            }
-            sess.save(billingTemplate);
-            for (BillingTemplateItem item : billingTemplate.getItems()) {
-            	item.setIdBillingTemplate(billingTemplate.getIdBillingTemplate());
-            	sess.save(item);
+            if ( billingTemplate != null ) {
+              if (requestParser.isNewRequest()) {
+                billingTemplate.setOrder(requestParser.getRequest());
+              }
+              sess.save(billingTemplate);
+              for (BillingTemplateItem item : billingTemplate.getItems()) {
+                item.setIdBillingTemplate(billingTemplate.getIdBillingTemplate());
+                sess.save(item);
+              }
             }
 
             // Remove files from file system
@@ -746,7 +748,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
               }
 
               createBillingItems(sess, requestParser.getRequest(), requestParser.getAmendState(), billingPeriod, dictionaryHelper, samplesAdded, labeledSamplesAdded, hybsAdded, sequenceLanesAdded, requestParser.getSampleAssays(), null, BillingStatus.PENDING, propertyEntries, billingTemplate);
-              
+
               sess.flush();
             }
 
@@ -2291,12 +2293,12 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       }
 
       for (MasterBillingItem masterBillingItem : billingTemplate.getMasterBillingItems()) {
-    	  sess.save(masterBillingItem);
-    	  for (BillingItem billingItem : masterBillingItem.getBillingItems()) {
-      		  billingItem.setIdMasterBillingItem(masterBillingItem.getIdMasterBillingItem());
-      	  }
+        sess.save(masterBillingItem);
+        for (BillingItem billingItem : masterBillingItem.getBillingItems()) {
+          billingItem.setIdMasterBillingItem(masterBillingItem.getIdMasterBillingItem());
+        }
       }
-      
+
       BigDecimal grandInvoicePrice = new BigDecimal(0);
       for (Iterator i = billingItems.iterator(); i.hasNext();) {
         BillingItem bi = (BillingItem) i.next();
