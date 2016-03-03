@@ -7,6 +7,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.TreeSet;
@@ -290,7 +291,7 @@ public class SaveProperty extends GNomExCommand implements Serializable {
             sess.save( sc );
           } else {
 
-            sc = ( Property ) sess.load( Property.class, propertyScreen.getIdProperty() );
+            sc = sess.load( Property.class, propertyScreen.getIdProperty() );
 
             // Need to initialize billing accounts; otherwise new accounts
             // get in the list and get deleted.
@@ -330,7 +331,7 @@ public class SaveProperty extends GNomExCommand implements Serializable {
               if( idPropertyOption.startsWith( "PropertyOption" ) ) {
                 option = new PropertyOption();
               } else {
-                option = ( PropertyOption ) sess.load( PropertyOption.class,
+                option = sess.load( PropertyOption.class,
                     Integer.valueOf( idPropertyOption ) );
               }
 
@@ -408,7 +409,7 @@ public class SaveProperty extends GNomExCommand implements Serializable {
           if( organismsDoc != null ) {
             for( Iterator i = this.organismsDoc.getRootElement().getChildren().iterator(); i.hasNext(); ) {
               Element organismNode = ( Element ) i.next();
-              Organism organism = ( Organism ) sess.load( Organism.class,
+              Organism organism = sess.load( Organism.class,
                   Integer.valueOf(
                       organismNode.getAttributeValue( "idOrganism" ) ) );
               organisms.add( organism );
@@ -427,7 +428,7 @@ public class SaveProperty extends GNomExCommand implements Serializable {
             if( appUsersDoc != null ) {
               for( Iterator i = this.appUsersDoc.getRootElement().getChildren().iterator(); i.hasNext(); ) {
                 Element appUserNode = ( Element ) i.next();
-                AppUserLite appUser = ( AppUserLite ) sess.load(
+                AppUserLite appUser = sess.load(
                     AppUserLite.class, Integer.valueOf(
                         appUserNode.getAttributeValue( "idAppUser" ) ) );
                 appUsers.add( appUser );
@@ -489,16 +490,16 @@ public class SaveProperty extends GNomExCommand implements Serializable {
               // Reload to insure RequestCategory and Application objects are
               // populated
               Integer idPlatformApplication = pa.getIdPlatformApplication();
-              pa = ( PropertyPlatformApplication ) sess.load(
+              pa = sess.load(
                   PropertyPlatformApplication.class, idPlatformApplication );
 
-              RequestCategory rc = ( RequestCategory ) sess.load(
+              RequestCategory rc = sess.load(
                   RequestCategory.class, pa.getCodeRequestCategory() );
 
 
               pa.setRequestCategory( rc );
               if( pa.getCodeApplication() != null ) {
-                Application a = ( Application ) sess.load( Application.class,
+                Application a = sess.load( Application.class,
                     pa.getCodeApplication() );
                 pa.setApplication( a );
               }
@@ -539,7 +540,7 @@ public class SaveProperty extends GNomExCommand implements Serializable {
           if( analysisTypesDoc != null ) {
             for( Iterator i = this.analysisTypesDoc.getRootElement().getChildren().iterator(); i.hasNext(); ) {
               Element analysisTypeNode = ( Element ) i.next();
-              AnalysisType at = ( AnalysisType ) sess.load( AnalysisType.class,
+              AnalysisType at = sess.load( AnalysisType.class,
                   Integer.valueOf( analysisTypeNode.getAttributeValue(
                       "idAnalysisType" ) ) );
               analysisTypes.add( at );
@@ -588,7 +589,7 @@ public class SaveProperty extends GNomExCommand implements Serializable {
 
     // Create (or load) PriceCategory
     if( property.getIdPriceCategory() != null ) {
-      pc = ( PriceCategory ) sess.load( PriceCategory.class, property.getIdPriceCategory() );
+      pc = sess.load( PriceCategory.class, property.getIdPriceCategory() );
     }
     if( pc == null ) {
       pc = new PriceCategory();
@@ -658,6 +659,7 @@ public class SaveProperty extends GNomExCommand implements Serializable {
 
     // List of all price sheets
     List priceSheets = sess.createQuery("SELECT ps from PriceSheet as ps").list();
+    HashSet addedPriceCat = new HashSet();
     // Get each platform application for property
     for( Iterator i2 = property.getPlatformApplications().iterator(); i2.hasNext(); ) {
       PropertyPlatformApplication pa = ( PropertyPlatformApplication ) i2.next();
@@ -688,14 +690,14 @@ public class SaveProperty extends GNomExCommand implements Serializable {
                 foundPriceSheetPriceCategory = true;
               }
             }
-            if (!foundPriceSheetPriceCategory) {
+            if (!foundPriceSheetPriceCategory && !addedPriceCat.contains(priceSheet.getIdPriceSheet())) {
               PriceSheetPriceCategory x = new PriceSheetPriceCategory();
               x.setIdPriceCategory(priceCategory.getIdPriceCategory());
               x.setIdPriceSheet(priceSheet.getIdPriceSheet());
               x.setPriceCategory(priceCategory);
               x.setSortOrder(Integer.valueOf(maxSortOrder.intValue() + 1));
               sess.save(x);
-              sess.flush();
+              addedPriceCat.add(priceSheet.getIdPriceSheet());
             }
           }
 
@@ -705,6 +707,7 @@ public class SaveProperty extends GNomExCommand implements Serializable {
 
       }
 
+      sess.flush();
       // Create a price sheet if there isn't one already for the request category
       if (!foundPriceSheet) {
         DictionaryHelper dh = DictionaryHelper.getInstance(sess);
