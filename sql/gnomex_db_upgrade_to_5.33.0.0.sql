@@ -11,9 +11,9 @@ ALTER TABLE ProductType ADD CONSTRAINT UNQ_ProductType_idCoreFacility_descriptio
 ALTER TABLE AppUser ADD CONSTRAINT UNQ_AppUser_email UNIQUE (email);
 
 
------------------------------------------------------------------
+---------------------------------------------------------------------------------
 -- Billing Template
------------------------------------------------------------------
+---------------------------------------------------------------------------------
 -- Add BillingTemplate Table
 DROP TABLE IF EXISTS `gnomex`.`BillingTemplate`;
 CREATE TABLE `gnomex`.`BillingTemplate` (
@@ -104,7 +104,81 @@ ALTER TABLE BillingTemplateItem
 ADD COLUMN sortOrder INT(10) NULL;
 CALL ExecuteIfTableExists('gnomex','BillingTemplateItem_Audit','ALTER TABLE BillingTemplateItem_Audit ADD COLUMN sortOrder INT(10) NULL');
 
------------------------------------------------------------------
+---------------------------------------------------------------------------------
+-- Wrap existing billing items with template
+---------------------------------------------------------------------------------
+-- REQUESTS:
+-- Insert BillingTemplate for each Request that has a BillingItem
+INSERT INTO BillingTemplate (targetClassIdentifier, targetClassName )
+SELECT DISTINCT bi.idRequest, 'hci.gnomex.model.Request'
+from BillingItem bi WHERE bi.idRequest IS NOT NULL AND bi.idMasterBillingItem IS NULL;
+
+-- Insert BillingTemplateItem for each BillingItem
+INSERT INTO BillingTemplateItem (idBillingTemplate, idBillingAccount, percentSplit, sortOrder)
+SELECT DISTINCT bt.idBillingTemplate, bi.idBillingAccount, -1, 1
+FROM BillingTemplate bt
+JOIN BillingItem bi on bt.targetClassIdentifier = bi.idRequest
+WHERE bt.targetClassName = 'hci.gnomex.model.Request' AND
+bi.idRequest IS NOT NULL AND bi.idMasterBillingItem IS NULL;
+
+-- Insert MasterBillingItem for each BillingItem
+INSERT INTO MasterBillingItem
+(idBillingTemplate, codeBillingChargeKind, category, description, qty, unitPrice, totalPrice, idBillingPeriod, idPrice, idPriceCategory, idCoreFacility)
+SELECT DISTINCT bt.idBillingTemplate, bi.codeBillingChargeKind, bi.category, bi.description, bi.qty, bi.unitPrice, bi.totalPrice, bi.idBillingPeriod, bi.idPrice, bi.idPriceCategory, bi.idCoreFacility
+FROM BillingTemplate bt
+JOIN BillingItem bi on bt.targetClassIdentifier = bi.idRequest
+WHERE bt.targetClassName = 'hci.gnomex.model.Request' AND
+bi.idRequest IS NOT NULL AND bi.idMasterBillingItem IS NULL;
+
+-- Add idMasterBillingItem to each BillingItem
+UPDATE bi
+set bi.idMasterBillingItem = mbi.idMasterBillingItem
+FROM BillingItem bi
+JOIN MasterBillingItem mbi on
+bi.idPrice = mbi.idPrice
+JOIN BillingTemplate bt
+on bt.idBillingTemplate = mbi.idBillingTemplate
+WHERE bt.targetClassIdentifier = bi.idRequest AND
+bt.targetClassName = 'hci.gnomex.model.Request' AND
+bi.idRequest IS NOT NULL AND bi.idMasterBillingItem IS NULL;
+---------------------------------------------------------------------------------
+
+-- PRODUCTORDERS:
+-- Insert BillingTemplate for each ProductOrder that has a BillingItem
+INSERT INTO BillingTemplate (targetClassIdentifier, targetClassName )
+SELECT DISTINCT bi.idProductOrder, 'hci.gnomex.model.ProductOrder'
+from BillingItem bi WHERE bi.idProductOrder IS NOT NULL AND bi.idMasterBillingItem IS NULL;
+
+-- Insert BillingTemplateItem for each BillingItem
+INSERT INTO BillingTemplateItem (idBillingTemplate, idBillingAccount, percentSplit, sortOrder)
+SELECT DISTINCT bt.idBillingTemplate, bi.idBillingAccount, -1, 1
+FROM BillingTemplate bt
+JOIN BillingItem bi on bt.targetClassIdentifier = bi.idProductOrder
+WHERE bt.targetClassName = 'hci.gnomex.model.ProductOrder' AND
+bi.idProductOrder IS NOT NULL AND bi.idMasterBillingItem IS NULL;
+
+-- Insert MasterBillingItem for each BillingItem
+INSERT INTO MasterBillingItem
+(idBillingTemplate, codeBillingChargeKind, category, description, qty, unitPrice, totalPrice, idBillingPeriod, idPrice, idPriceCategory, idCoreFacility)
+SELECT DISTINCT bt.idBillingTemplate, bi.codeBillingChargeKind, bi.category, bi.description, bi.qty, bi.unitPrice, bi.totalPrice, bi.idBillingPeriod, bi.idPrice, bi.idPriceCategory, bi.idCoreFacility
+FROM BillingTemplate bt
+JOIN BillingItem bi on bt.targetClassIdentifier = bi.idProductOrder
+WHERE bt.targetClassName = 'hci.gnomex.model.ProductOrder' AND
+bi.idProductOrder IS NOT NULL AND bi.idMasterBillingItem IS NULL;
+
+-- Add idMasterBillingItem to each BillingItem
+Update bi
+set bi.idMasterBillingItem = mbi.idMasterBillingItem
+FROM BillingItem bi
+JOIN MasterBillingItem mbi on
+bi.idPrice = mbi.idPrice
+JOIN BillingTemplate bt
+on bt.idBillingTemplate = mbi.idBillingTemplate
+WHERE bt.targetClassIdentifier = bi.idProductOrder AND
+bt.targetClassName = 'hci.gnomex.model.ProductOrder' AND
+bi.idProductOrder IS NOT NULL AND bi.idMasterBillingItem IS NULL;
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
 
 -- Add notes to ProductLedger
 ALTER TABLE ProductLedger
@@ -138,3 +212,4 @@ CALL ExecuteIfTableExists('gnomex', 'Request_Audit', 'ALTER TABLE Request_Audit 
 
 -- Drop iScanChip table
 DROP TABLE IF EXISTS gnomex.IScanChip;
+DROP TABLE IF EXISTS gnomex.IScanChip_Audit;
