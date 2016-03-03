@@ -32,105 +32,105 @@ import java.util.Set;
 import org.hibernate.Session;
 
 public abstract class BillingPlugin {
-	
+
 	protected int qty;
-	
-	public abstract List<BillingItem> constructBillingItems(Session sess, String amendState, BillingPeriod billingPeriod, PriceCategory priceCategory, Request request, 
-      Set<Sample> samples, Set<LabeledSample> labeledSamples, Set<Hybridization> hybs, Set<SequenceLane> lanes, Map<String, ArrayList<String>> sampleToAssaysMap, 
+
+	public abstract List<BillingItem> constructBillingItems(Session sess, String amendState, BillingPeriod billingPeriod, PriceCategory priceCategory, Request request,
+      Set<Sample> samples, Set<LabeledSample> labeledSamples, Set<Hybridization> hybs, Set<SequenceLane> lanes, Map<String, ArrayList<String>> sampleToAssaysMap,
       String billingStatus, Set<PropertyEntry> propertyEntries, BillingTemplate billingTemplate);
-	
+
 	protected boolean hasValidData(Session sess, Order request, Set<Sample> samples) {
 		if (sess == null || request == null || samples == null || samples.size() == 0) {
 			return false;
 		}
-	    
+
 	    return true;
 	}
-	
+
 	protected int getQty(Session sess, Order request, Set<Sample> samples) {
 		if (sess == null || request == null || samples == null) {
 			return 0;
 		}
-		
+
 		int qtyIfProductBatching = getQtyIfProductBatching(sess, request, samples, samples.size());
 		if (qtyIfProductBatching > 0) {
 			return qtyIfProductBatching;
 		}
-		
+
 	    int qtyIfApplicationBatching = getQtyIfApplicationBatching(sess, request, samples, samples.size());
 		if (qtyIfApplicationBatching > 0) {
 			return qtyIfApplicationBatching;
 		}
-		
+
 		int qtyIfRequestCategoryBatching = getQtyIfRequestCategoryBatching(sess, request, samples, samples.size());
 		if (qtyIfRequestCategoryBatching > 0) {
 			return qtyIfRequestCategoryBatching;
 		}
-		
+
 		return samples.size();
 	}
-	
+
 	protected int checkQty(Session sess, Order request, Set<Sample> samples, int qty) {
 		if (sess == null || request == null || samples == null) {
 			return qty;
 		}
-		
+
 		int qtyIfProductBatching = getQtyIfProductBatching(sess, request, samples, qty);
 		if (qtyIfProductBatching > 0) {
 			return qtyIfProductBatching;
 		}
-		
+
 	    int qtyIfApplicationBatching = getQtyIfApplicationBatching(sess, request, samples, qty);
 		if (qtyIfApplicationBatching > 0) {
 			return qtyIfApplicationBatching;
 		}
-		
+
 		int qtyIfRequestCategoryBatching = getQtyIfRequestCategoryBatching(sess, request, samples, qty);
 		if (qtyIfRequestCategoryBatching > 0) {
 			return qtyIfRequestCategoryBatching;
 		}
-		
+
 		return qty;
 	}
-	
+
 	protected int getQtyIfProductBatching(Session sess, Order request, Set<Sample> samples, int qty) {
 		if (sess != null && request != null && samples != null && request.getIdProduct() != null) {
-			Product product = (Product) sess.load(Product.class, request.getIdProduct());
+			Product product = sess.load(Product.class, request.getIdProduct());
 			if (product != null && product.getBatchSamplesByUseQuantity() != null && product.getBatchSamplesByUseQuantity().equalsIgnoreCase("Y") && product.getUseQty() != null) {
 				int productBatch = product.getUseQty();
 				return doBatching(productBatch, qty);
 			}
 		}
-		
+
 		return -1;
 	}
-	
+
 	protected int getQtyIfApplicationBatching(Session sess, Order request, Set<Sample> samples, int qty) {
 		Application application = null;
 	    if (request != null && request.getCodeApplication() != null && !request.getCodeApplication().equals("")) {
-	    	application = (Application) sess.get(Application.class, request.getCodeApplication());
+	    	application = sess.get(Application.class, request.getCodeApplication());
 	    }
-		
+
 		if (sess != null && request != null && application != null && samples != null && application.getSamplesPerBatch() != null) {
 			int applicationBatch = application.getSamplesPerBatch();
 			return doBatching(applicationBatch, qty);
 		}
-		
+
 		return -1;
 	}
-	
+
 	protected int getQtyIfRequestCategoryBatching(Session sess, Order request, Set<Sample> samples, int qty) {
 		if (sess != null && request != null && samples != null && request.getCodeRequestCategory() != null) {
-			RequestCategory reqCat = (RequestCategory) sess.get(RequestCategory.class, request.getCodeRequestCategory());
+			RequestCategory reqCat = sess.get(RequestCategory.class, request.getCodeRequestCategory());
 			if (reqCat.getSampleBatchSize() != null) {
 				int reqCatBatch = reqCat.getSampleBatchSize();
 				return doBatching(reqCatBatch, qty);
 			}
 		}
-		
+
 		return -1;
 	}
-	
+
 	protected int doBatching(int batchSize, int sampleSize) {
 		if (batchSize < 1) {
 			return sampleSize;
@@ -142,7 +142,7 @@ public abstract class BillingPlugin {
 			}
 		}
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	protected boolean isSampleInPlateWell(Set<Sample> samples) {
 		if (samples != null) {
@@ -156,31 +156,31 @@ public abstract class BillingPlugin {
 				}
 			}
 		}
-	    
+
 		return false;
 	}
-	
-	protected ArrayList<BillingItem> makeBillingItems(	Order request, Price price, PriceCategory priceCategory, int qty, BillingPeriod billingPeriod, 
+
+	protected ArrayList<BillingItem> makeBillingItems(	Order request, Price price, PriceCategory priceCategory, int qty, BillingPeriod billingPeriod,
 														String billingStatus, String notes, String description, BigDecimal unitPrice, Integer idProductOrder,
 														Session sess, BillingTemplate billingTemplate															) {
-		
+
 		ArrayList<BillingItem> billingItems = new ArrayList<BillingItem>();
-		
+
 		billingItems.addAll(makeBillingItem(request, price, priceCategory, qty, billingPeriod, billingStatus, new BigDecimal(1), Constants.BILLING_SPLIT_TYPE_PERCENT_CODE, notes, description, unitPrice, idProductOrder, sess, billingTemplate));
-		
+
 		return billingItems;
 	}
-	
-	protected ArrayList<BillingItem> makeBillingItems(	Order request, Price price, PriceCategory priceCategory, int qty, BillingPeriod billingPeriod, 
+
+	protected ArrayList<BillingItem> makeBillingItems(	Order request, Price price, PriceCategory priceCategory, int qty, BillingPeriod billingPeriod,
 														String billingStatus, Session sess, BillingTemplate billingTemplate								) {
-		
+
 		return makeBillingItems(request, price, priceCategory, qty, billingPeriod, billingStatus, null, null, null, null, sess, billingTemplate);
 	}
-	
-	protected Set<BillingItem> makeBillingItem(	Order request, Price price, PriceCategory priceCategory, int qty, BillingPeriod billingPeriod, 
-												String billingStatus, BigDecimal percentagePrice, String splitType, String notes, String description, 
+
+	protected Set<BillingItem> makeBillingItem(	Order request, Price price, PriceCategory priceCategory, int qty, BillingPeriod billingPeriod,
+												String billingStatus, BigDecimal percentagePrice, String splitType, String notes, String description,
 												BigDecimal unitPrice, Integer idProductOrder, Session sess, BillingTemplate template					) {
-		
+
 		MasterBillingItem master = new MasterBillingItem();
 		master.setIdCoreFacility(request.getIdCoreFacility());
         if (description != null) {
@@ -204,11 +204,10 @@ public abstract class BillingPlugin {
         master.setIdBillingPeriod(billingPeriod.getIdBillingPeriod());
         master.setIdBillingTemplate(template.getIdBillingTemplate());
         master.setBillingItems(new HashSet<BillingItem>());
-		sess.save(master);
         template.getMasterBillingItems().add(master);
-        
+
         Set<BillingItem> newlyCreatedBillingItems = SaveBillingTemplate.createBillingItemsForMaster(sess, master, template);
-        
+
         for (BillingItem billingItem : newlyCreatedBillingItems) {
         	billingItem.setCodeBillingStatus(billingStatus);
             if (!billingStatus.equals(BillingStatus.NEW) && !billingStatus.equals(BillingStatus.PENDING)) {
@@ -217,15 +216,15 @@ public abstract class BillingPlugin {
             if (notes != null) {
             	billingItem.setNotes(notes);
             }
-            
+
             if (request.getIdRequest() != null) {
             	billingItem.setIdRequest(request.getIdRequest());
             } else if (request.getIdProductOrder() != null) {
             	billingItem.setIdProductOrder(request.getIdProductOrder());
             }
         }
-        
+
         return newlyCreatedBillingItems;
 	}
-	
+
 }

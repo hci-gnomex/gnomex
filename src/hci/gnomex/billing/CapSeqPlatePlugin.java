@@ -28,22 +28,22 @@ import org.hibernate.Session;
 
 public class CapSeqPlatePlugin extends BillingPlugin {
 
-  public List<BillingItem> constructBillingItems(Session sess, String amendState, BillingPeriod billingPeriod, PriceCategory priceCategory, Request request, 
-      Set<Sample> samples, Set<LabeledSample> labeledSamples, Set<Hybridization> hybs, Set<SequenceLane> lanes, Map<String, ArrayList<String>> sampleToAssaysMap, 
+  public List<BillingItem> constructBillingItems(Session sess, String amendState, BillingPeriod billingPeriod, PriceCategory priceCategory, Request request,
+      Set<Sample> samples, Set<LabeledSample> labeledSamples, Set<Hybridization> hybs, Set<SequenceLane> lanes, Map<String, ArrayList<String>> sampleToAssaysMap,
       String billingStatus, Set<PropertyEntry> propertyEntries, BillingTemplate billingTemplate) {
-    
-    
+
+
     List<BillingItem> billingItems = new ArrayList<BillingItem>();
-    
+
     if (samples == null || samples.size() == 0) {
       return billingItems;
     }
-    
+
     // We don't add billing items on a 4-plate cap seq order since it is a bulk charge on the 4 plates, partial or full
-    if (request.getBillingItemList(sess) != null && !request.getBillingItemList(sess).isEmpty()) {
+    if (request.getBillingItems() != null && !request.getBillingItems().isEmpty()) {
       return billingItems;
     }
-    
+
 
     // detect if samples submitted in plate wells
     boolean sampleInPlateWell = false;
@@ -66,10 +66,10 @@ public class CapSeqPlatePlugin extends BillingPlugin {
     if (plateMap.size() != 4) {
       return billingItems;
     }
-    
+
     qty = 4;
 
-    
+
     // Find the price for capillary sequencing
     Price price = null;
     for(Iterator i1 = priceCategory.getPrices().iterator(); i1.hasNext();) {
@@ -79,17 +79,17 @@ public class CapSeqPlatePlugin extends BillingPlugin {
         // on the prices to find the one where the qty range applies.
         for(Iterator i2 = p.getPriceCriterias().iterator(); i2.hasNext();) {
           PriceCriteria criteria = (PriceCriteria)i2.next();
-          
+
           Integer qty1 = null;
           Integer qty2 = null;
-          
+
           // Range check
           if (criteria.getFilter1().contains("-")) {
             String[] tokens = criteria.getFilter1().split("-");
             if (tokens.length < 2) {
               continue;
             }
-            
+
             qty1 = Integer.valueOf(tokens[0]);
             qty2 = Integer.valueOf(tokens[1]);
 
@@ -103,7 +103,7 @@ public class CapSeqPlatePlugin extends BillingPlugin {
             String tokens[] =  criteria.getFilter1().split("\\+");
 
             qty1 = Integer.valueOf(tokens[0]);
-            
+
             if (qty >= qty1.intValue()) {
               price = p;
               break;
@@ -111,27 +111,27 @@ public class CapSeqPlatePlugin extends BillingPlugin {
           } else {
             // Equals check
             qty1 = Integer.valueOf(criteria.getFilter1());
-            
+
             if (qty == qty1.intValue()) {
               price = p;
               break;
             }
           }
-          
+
         }
       }
     }
-    
-    // Unit price is for 4 plates. 
+
+    // Unit price is for 4 plates.
     qty = 1;
 
     // Instantiate a BillingItem for the matched billing price
     if (price != null) {
     	billingItems.addAll(this.makeBillingItems(request, price, priceCategory, qty, billingPeriod, billingStatus, sess, billingTemplate));
     }
-    
-    
+
+
     return billingItems;
   }
-  
+
 }
