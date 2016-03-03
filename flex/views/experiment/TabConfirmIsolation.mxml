@@ -21,10 +21,7 @@
 			
 			[Bindable]
 			private var longDescriptionRowCount:int = 0;
-			
-			[Bindable]
-			private var iScanChip:Object;
-			
+
 			[Bindable]
 			private var concHeader:String = "Conc. ";
 			
