@@ -980,13 +980,6 @@
 						sampleSetupView.prePooledNumTubes.text = '';
 					}
 					
-					if ( sampleSetupView.iScanChipRadioGroup != null ){
-						sampleSetupView.iScanChipRadioGroup.selectedValue = null;
-						sampleSetupView.iScanChipRadioGroup.selection = null;
-					}
-					if ( sampleSetupView.numberIScanSamples != null ){
-						sampleSetupView.numberIScanSamples.selectedIndex = -1;
-					}
 					if ( sampleSetupView.iScanNumSourcePlates != null ) {
 						sampleSetupView.iScanNumSourcePlates.text = '';
 						sampleSetupView.onIScanNumSourcePlatesChanged();
@@ -1184,15 +1177,6 @@
 						// propagate selected chip type to samples
 						sampleSetupView.propagateChipType();   
 					} 
-					if ( sampleSetupView.iScanChipRadioGroup != null ){
-						sampleSetupView.iScanChipRadioGroup.selectedValue = null;
-					}
-					if ( sampleSetupView.numberIScanSamples != null ){
-						sampleSetupView.numberIScanSamples.selectedIndex = -1;
-					}
-					if ( sampleSetupView.iScanChipBox != null ){
-						sampleSetupView.iScanChipBox.styleName = "requiredBox";
-					}
 				}
 				
 				if (theTab.contains(setupView)) {
@@ -2778,27 +2762,6 @@
 						this.theTab.getTabAt( theTab.getChildIndex( annotationView ) ).visible = false;
 						this.theTab.getTabAt( theTab.getChildIndex( annotationView ) ).includeInLayout = false;
 						
-						
-						for each(var chip:Object in sampleSetupView.iScanChipRepeater.dataProvider) {
-							if (chip.@idIScanChip == request.@idIScanChip) {
-								sampleSetupView.iScanChipRadioGroup.selectedValue = chip;
-								break;
-							}
-						}
-						if ( sampleSetupView.iScanChipRadioGroup.selectedValue != null ) {
-							if (sampleSetupView.iScanChipRadioGroup.selectedValue.@idIScanChip != null && sampleSetupView.iScanChipRadioGroup.selectedValue.@idIScanChip != '') {
-								if ( sampleSetupView.iScanChipBox != null ) {
-									sampleSetupView.iScanChipBox.styleName = "normalBox";
-								}
-							}
-						}
-						if ( sampleSetupView.numberIScanSamples != null ){
-							for each (var item:XML in sampleSetupView.numberIScanSamples.dataProvider ) {
-								if ( item.@numberOfChips == request.@numberIScanChips ) {
-									sampleSetupView.numberIScanSamples.selectedItem = item;
-								}
-							}
-						}
 						sampleSetupView.numberOfSamples.text = new String(request.samples.Sample.(@name!='').length());
 						this.propertyEntries.refresh();
 						this.annotationView.checkSecurity();
@@ -3835,8 +3798,6 @@
 					request.@idSampleDropOffLocation = this.sampleDropOffLocationCombo.selectedItem.@value; 
 				}
 				if (this.isIScanState()) {
-					request.@idIScanChip = sampleSetupView.iScanChipRadioGroup.selectedValue.@idIScanChip;
-					request.@numberIScanChips = sampleSetupView.numIScanChips;
 					request.@codeApplication = "";
 					request.@codeBioanalyzerChipType = "";
 				}

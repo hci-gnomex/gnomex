@@ -32,8 +32,6 @@
 			private var validNumberOfSamples:Boolean = true;
 			private var validConcentration:Boolean = true;
 			
-			public var numIScanChips:int = 0;
-			
 			private var addOrganismOpen:Boolean = false;
 			
 			private var currencyFormatter:CurrencyFormatter = new CurrencyFormatter();
@@ -294,11 +292,6 @@
 			private function onNumberOfSamplesChanged():void {
 				if ( parentDocument.isIScanState() ) {
 					numberOfSamplesValidator.maxValue = 600;
-					if ( this.numberIScanSamples.selectedItem != null){
-						this.numberOfSamples.text = this.numberIScanSamples.selectedItem.@numberOfSamples;
-						this.numIScanChips = this.numberIScanSamples.selectedItem.@numberOfChips;
-						parentDocument.request.@numberIScanChips = this.numIScanChips;
-					}
 				} else {
 					numberOfSamplesValidator.maxValue = 384;
 				}
@@ -532,20 +525,14 @@
 						isComplete = true;	        	    	
 					}
 				}  else if (parentDocument.isIScanState()) {
-					if ( this.numberIScanSamples.selectedItem!=null){
+					if ( this.numberOfSamples.text != null && this.numberOfSamples.text != '' ){
 						isComplete = true;
-					}
-					
-					if (this.iScanChipRadioGroup.selectedValue == null || 
-						(this.iScanChipRadioGroup.selectedValue.@idIScanChip == null || this.iScanChipRadioGroup.selectedValue.@idIScanChip == '')) {
-						isComplete = false;
 					}
 					
 					if ( this.iScanNumSourcePlates == null || this.iScanNumSourcePlates.text == '' 
 						|| parseInt(this.iScanNumSourcePlates.text) > 12 || parseInt(this.iScanNumSourcePlates.text) < 1 ) {
 						isComplete = false;
 					} 
-					iScanNumSourcePlatesValidator.validate();
 					
 				} else if (parentDocument.isSequenomState()) {
 					if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' ) {
@@ -1316,22 +1303,7 @@
 					parentDocument.samplesView.initializeSamplesGrid();
 				}
 			}
-			
-			private function pickChip():void {
-				
-				if (this.iScanChipRadioGroup.selectedValue != null && 
-					(this.iScanChipRadioGroup.selectedValue.@idIScanChip != null && this.iScanChipRadioGroup.selectedValue.@idIScanChip != '')) {
-					this.iScanChipBox.styleName = "normalBox";
-					parentDocument.request.@idIScanChip = iScanChipRadioGroup.selectedValue.@idIScanChip;
-					numberIScanSamples.dataProvider.refresh();
-					numberIScanSamples.selectedIndex = -1;
-				} else {
-					this.iScanChipBox.styleName = "requiredBox";
-				}
-				
-				this.onNumberOfSamplesChanged();
-			}
-			
+						
 			private function pickIsolationType():void {
 				if(this.extractionTypeRadioGroup.selectedValue == this.DNA){
 					parentDocument.request.@coreToExtractDNA = 'Y';
@@ -1482,7 +1454,7 @@
 		]]>
 	</mx:Script>
 	<mx:XMLListCollection id="primerCollection" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Primer').DictionaryEntry.(@display != '')}"/>
-	<mx:NumberValidator enabled="{currentState!='IScanState'}" 
+	<mx:NumberValidator enabled="true" 
 						id="numberOfSamplesValidator" source="{numberOfSamples}" property="text" 
 						requiredFieldError="Please enter the number of samples you are submitting."
 						required="true" 
@@ -1503,11 +1475,6 @@
 						lowerThanMinError="This field is required."
 						property="selectedIndex"
 						minValue="1" />
-	<mx:NumberValidator enabled="{currentState=='IScanState'}" id="iScanNumSourcePlatesValidator" source="{iScanNumSourcePlates}" property="text" 
-						required="true" allowNegative="false" domain="int" maxValue="12" minValue="1"
-						lowerThanMinError="You must submit your samples on at least 1 plate."
-						requiredFieldError="Please enter the number of plates you are submitting your samples on."
-						exceedsMaxError="You can only submit up to 12 plates per order."/>
 	<mx:StringValidator	id="samplePrepValidator" 
 						source="{this.otherSamplePrepMethod}" 
 						property="text"
@@ -2063,56 +2030,12 @@
 			<mx:SetProperty target="{sampleOrganismContainer}" name="includeInLayout" value="false"/>
 			<mx:SetProperty target="{samplePrepContainer}" name="visible" value="false"/>
 			<mx:SetProperty target="{samplePrepContainer}" name="includeInLayout" value="false"/>
-			<mx:AddChild relativeTo="{sampleTypeHBox}" position="before">
-				<mx:HBox id="iScanChipContainer" width="100%" horizontalGap="0">
-					<util:ContextHelp context1="sampleDetailsIScanChip" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="IScan Chip Help"
-									  label="(1) Select the desired chip:" labelPlacement="left" id="iscanChipLabel" width="350"/>
-					<mx:VBox verticalGap="0" id="iScanChipBox" styleName="requiredBox">
-						<mx:HBox width="100%" paddingBottom="5">
-							<mx:VBox width="230"  height="100%" horizontalAlign="center" verticalAlign="middle" verticalGap="0"> 
-								<mx:Label width="230" styleName="formLabel" text="Chip" paddingLeft="25"/>
-							</mx:VBox>
-							<mx:VBox width="115" height="100%" horizontalAlign="center" verticalAlign="middle" verticalGap="0"> 
-								<mx:Text width="115" styleName="formLabel" text="Markers per Sample" textAlign="center"/>
-							</mx:VBox>
-							<mx:VBox width="80" height="100%" horizontalAlign="center" verticalAlign="middle" verticalGap="0"> 
-								<mx:Text width="80" styleName="formLabel" text="Samples per Chip" textAlign="center"/>
-							</mx:VBox>
-							<mx:VBox width="45" height="100%" horizontalAlign="center" verticalAlign="middle" verticalGap="0"> 
-								<mx:Text width="45" styleName="formLabel" text="Chips per Kit" textAlign="center"/>
-							</mx:VBox>
-							<mx:VBox width="95" height="100%" horizontalAlign="center" verticalAlign="middle" verticalGap="0"> 
-								<mx:Text width="95" styleName="formLabel" text="Illumina Cost per Sample" textAlign="center"/>
-							</mx:VBox>
-						</mx:HBox>
-						<mx:RadioButtonGroup id="iScanChipRadioGroup"/>
-						<mx:Repeater id="iScanChipRepeater" dataProvider="{parentApplication.iScanChipList}"> 
-							<mx:HBox verticalAlign="top" width="100%">
-								<mx:RadioButton width="230" 
-												enabled="{parentDocument.request.@idRequest == '0' || parentDocument.request.@codeRequestStatus == 'NEW'}"
-												label="{iScanChipRepeater.currentItem.@name}" 
-												paddingLeft="0" paddingRight="1"
-												value="{iScanChipRepeater.currentItem}" 
-												click="{pickChip()}"
-												groupName="iScanChipRadioGroup" />
-								<mx:Text width="115" textAlign="center" fontSize="9" text="{iScanChipRepeater.currentItem.@markersPerSample}" />
-								<mx:Text width="80" textAlign="center" fontSize="9" text="{iScanChipRepeater.currentItem.@samplesPerChip}" />
-								<mx:Text width="45" textAlign="center" fontSize="9" text="{iScanChipRepeater.currentItem.@chipsPerKit}" />
-								<mx:Text width="95" textAlign="center" fontSize="9" 
-										 text="{iScanChipRepeater.currentItem.@costPerSampleDisplay!='0'&amp;&amp;iScanChipRepeater.currentItem.@costPerSampleDisplay!=''?dollarFormatter.format(iScanChipRepeater.currentItem.@costPerSampleDisplay):''}" />
-							</mx:HBox>
-						</mx:Repeater>
-						
-					</mx:VBox>
-				</mx:HBox>
-			</mx:AddChild>
 			<mx:RemoveChild target="{hbox3}"/>
 			<mx:AddChild relativeTo="{sampleTypeHBox}" position="before" target="{hbox3}"/>
-			<mx:SetProperty target="{label5}" name="label" value="(2) How many samples will you be submitting?"/>
 			<mx:AddChild relativeTo="{sampleTypeHBox}" position="before">
 				<mx:HBox horizontalGap="0" id="iScanNumSourcePlatesBox" verticalAlign="middle" includeInLayout="{parentDocument.request.@idRequest == '0'}" visible="{parentDocument.request.@idRequest == '0'}">
 					<util:ContextHelp context1="SampleDetailsIScanNumSourcePlates" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="IScan Source Plates Help"
-									  label="(3) How many source plates will you be submitting?" labelPlacement="left" id="iScanNumSourcePlatesLabel" width="350"/>
+									  label="(2) How many source plates will you be submitting?" labelPlacement="left" id="iScanNumSourcePlatesLabel" width="350"/>
 					<mx:TextInput width="40" id="iScanNumSourcePlates" 
 								  change="onIScanNumSourcePlatesChanged()" focusOut="parentDocument.samplesView.initializeSamplesGrid();">
 					</mx:TextInput>							
@@ -2121,7 +2044,7 @@
 			<mx:AddChild relativeTo="{sampleTypeHBox}" position="before">
 				<mx:VBox horizontalGap="0" id="iScanPlateNamesBox" verticalAlign="middle" visible="{parentDocument.request.@idRequest == '0'}" includeInLayout="{parentDocument.request.@idRequest == '0'}">
 					<util:ContextHelp context1="SampleDetailsIScanNamePlates" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="IScan Plate Names Help"
-									  label="(4) Name your plates." labelPlacement="left" id="iScanPlateNamesLabel" width="350"/>
+									  label="(3) Name your plates." labelPlacement="left" id="iScanPlateNamesLabel" width="350"/>
 					<mx:HBox horizontalGap="10" verticalAlign="middle">
 						<mx:HBox horizontalGap="0" verticalAlign="middle" id="iScanPlate1Box" visible="false">
 							<mx:Label text="Plate 1:"/>
@@ -2190,18 +2113,6 @@
 			</mx:AddChild>
 			<mx:SetProperty target="{sampleTypeHBox}" name="visible" value="false"/>
 			<mx:SetProperty target="{sampleTypeHBox}" name="includeInLayout" value="false"/>
-			<mx:AddChild relativeTo="{numberOfSamples}" position="before">
-				<renderers:FilterComboBoxNumberIScanSamples id="numberIScanSamples"
-															enabled="{parentDocument.request.@idRequest == '0' || parentDocument.request.@codeRequestStatus == 'NEW'}"
-															iScanChip="{iScanChipRadioGroup.selectedValue}"
-															labelField="@display"
-															fontSize="10"
-															prompt="Select number of samples"
-															focusOut="{onNumberOfSamplesChanged()}">
-				</renderers:FilterComboBoxNumberIScanSamples>
-			</mx:AddChild>
-			<mx:SetProperty target="{numberOfSamples}" name="editable" value="false"/>
-			<mx:SetProperty target="{numberOfSamples}" name="visible" value="false"/>
 		</mx:State>
 		<mx:State name="SequenomState">
 			<mx:SetProperty target="{sampleOrganismContainer}" name="visible" value="false"/>

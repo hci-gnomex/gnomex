@@ -35,10 +35,10 @@ package views.experiment
 					return new TabConfirmGeneric();
 				}
 			} else if (requestCategoryType.@codeRequestCategoryType == 'ISCAN') {
-				if (existingTab is TabConfirmIScan) {
+				if (existingTab is TabConfirmGeneric) {
 					return existingTab;
 				} else {
-					return new TabConfirmIScan();
+					return new TabConfirmGeneric();
 				}
 			} else if (requestCategoryType.@isIllumina == 'Y') {
 				if (existingTab is TabConfirmIllumina) {
