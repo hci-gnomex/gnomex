@@ -181,7 +181,7 @@ public class RequisitionFormUtil {
         setField(form, "Description["+count+"]", product.getDisplay() + ", Illumina Catalog #: " + product.getCatalogNumber() );
         BigDecimal estimatedCost = new BigDecimal( BigInteger.ZERO, 2 ) ;
         estimatedCost = lineItem.getUnitPrice().multiply(new BigDecimal(lineItem.getQty()));
-        setField(form, "Estimated Unit Price["+count+"]", estimatedCost.toString());
+        setField(form, "Estimated Unit Price["+count+"]", lineItem.getUnitPrice().toString());
         grandTotal.add(estimatedCost);
       }
       count++;
