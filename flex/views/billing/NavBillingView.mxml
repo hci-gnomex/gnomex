@@ -334,6 +334,8 @@
 		
 		private var statusFoldersMap:Object = new Object();
 		
+		private var glInterfaceSelected:Boolean = false;
+		
         private function init():void {
 			refreshBillingTimer = new Timer(1000); /* 1000ms == 1second */
 			refreshBillingTimer.addEventListener(TimerEvent.TIMER, onRefreshBillingTimerTimer);
@@ -760,7 +762,12 @@
 				}  else {
 					var message:String = getBillingRequestList.lastResult.ERROR.@message;
 					Alert.show(message);
-				}				
+				}
+				
+				if(glInterfaceSelected == true){
+					this.showBillingGLInterface()
+					glInterfaceSelected = false;
+				}
 			}
 			
 			private function onGetBillingItemList(event:ResultEvent):void {
@@ -1706,6 +1713,14 @@
 					Alert.show("Please select a billing period.");
 					return;    	
 				} 
+				
+				// uncheck the show related charges box because if these items are shown then they mess up the GL interface
+				if(spanOtherCheckbox.selected == true){
+					spanOtherCheckbox.selected = false;
+					this.refreshRequestTab();
+					glInterfaceSelected = true;
+					return;
+				}
 				
 				// Gather up grand total for approved node.  We do this as a
 				// double-check to make sure the journal entries match to
