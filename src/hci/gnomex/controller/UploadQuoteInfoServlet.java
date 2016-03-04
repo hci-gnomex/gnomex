@@ -1,50 +1,32 @@
 package hci.gnomex.controller;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.sql.Date;
-import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
-import java.util.Iterator;
-
-import javax.mail.MessagingException;
-import javax.naming.NamingException;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import com.oreilly.servlet.multipart.FilePart;
+import com.oreilly.servlet.multipart.MultipartParser;
+import com.oreilly.servlet.multipart.ParamPart;
+import com.oreilly.servlet.multipart.Part;
+import hci.gnomex.constants.Constants;
+import hci.gnomex.model.ProductOrder;
+import hci.gnomex.model.ProductOrderFile;
+import hci.gnomex.model.TransferLog;
+import hci.gnomex.utility.HibernateSession;
+import hci.gnomex.utility.PropertyDictionaryHelper;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.hibernate.Query;
 import org.hibernate.Session;
 
-import com.oreilly.servlet.multipart.FilePart;
-import com.oreilly.servlet.multipart.MultipartParser;
-import com.oreilly.servlet.multipart.ParamPart;
-import com.oreilly.servlet.multipart.Part;
-
-import hci.gnomex.constants.Constants;
-import hci.gnomex.model.AppUser;
-import hci.gnomex.model.BillingAccount;
-import hci.gnomex.model.CoreFacility;
-import hci.gnomex.model.InternalAccountFieldsConfiguration;
-import hci.gnomex.model.Lab;
-import hci.gnomex.model.Product;
-import hci.gnomex.model.ProductLineItem;
-import hci.gnomex.model.ProductOrder;
-import hci.gnomex.model.ProductOrderFile;
-import hci.gnomex.model.PropertyDictionary;
-import hci.gnomex.model.TransferLog;
-import hci.gnomex.utility.DictionaryHelper;
-import hci.gnomex.utility.HibernateSession;
-import hci.gnomex.utility.MailUtil;
-import hci.gnomex.utility.MailUtilHelper;
-import hci.gnomex.utility.PropertyDictionaryHelper;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.math.BigDecimal;
+import java.sql.Date;
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 
 public class UploadQuoteInfoServlet extends HttpServlet {
 
