@@ -1,6 +1,9 @@
 package hci.gnomex.utility;
 
 import java.math.BigDecimal;
+import java.util.Set;
+import java.util.TreeSet;
+
 import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -31,6 +34,7 @@ public class BillingTemplateParser {
 		BigDecimal percentTotal = BigDecimal.valueOf(0);
 		boolean hasItemAcceptingBalance = false;
 		
+		parsedBillingTemplate.setItems(new TreeSet<BillingTemplateItem>());
 		for (Object child : billingTemplateNode.getChildren("BillingTemplateItem")) {
 			Element billingTemplateItemNode = (Element) child;
 			
@@ -56,7 +60,7 @@ public class BillingTemplateParser {
 				hasItemAcceptingBalance = true;
 			} else {
 				if (usingPercentSplit) {
-					BigDecimal percentSplit = new BigDecimal(billingTemplateItemNode.getAttributeValue("percent"));
+					BigDecimal percentSplit = new BigDecimal(billingTemplateItemNode.getAttributeValue("percentSplit"));
 					if (percentSplit.compareTo(BigDecimal.valueOf(0)) <= 0) {
 						throw new ParserException("All billing accounts must accept a percentage greater than 0%.");
 					}
@@ -87,6 +91,14 @@ public class BillingTemplateParser {
 	
 	public static BillingTemplate parse(Document bilingTemplateDoc, Session sess) throws Exception {
 		return BillingTemplateParser.parse(bilingTemplateDoc.getRootElement(), sess);
+	}
+	
+	public static BillingTemplate parseExistingBillingTemplate(Element billingTemplateNode, Session sess) {
+		try {
+			return (BillingTemplate) sess.load(BillingTemplate.class, Integer.parseInt(billingTemplateNode.getAttributeValue("idBillingTemplate")));
+		} catch (Exception e) {
+			return null;
+		}
 	}
 
 }

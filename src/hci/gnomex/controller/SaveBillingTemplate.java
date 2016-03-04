@@ -4,11 +4,9 @@ import java.io.Serializable;
 import java.io.StringReader;
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
@@ -20,7 +18,6 @@ import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.BillingAccount;
 import hci.gnomex.model.BillingItem;
-import hci.gnomex.model.BillingStatus;
 import hci.gnomex.model.BillingTemplate;
 import hci.gnomex.model.BillingTemplateItem;
 import hci.gnomex.model.MasterBillingItem;
@@ -70,13 +67,22 @@ public class SaveBillingTemplate extends GNomExCommand implements Serializable {
 			if (this.isValid()) {
 				sess = HibernateSession.currentSession(this.getUsername());
 
-				BillingTemplate newBillingTemplate = BillingTemplateParser.parse(billingTemplateDoc, sess);
+				BillingTemplate newBillingTemplate = BillingTemplateParser.parse(billingTemplateDoc.getRootElement(), sess);
+				sess.save(newBillingTemplate);
+				sess.flush();
+				
+				// Save new billing template items
+				for (BillingTemplateItem newlyCreatedItem : newBillingTemplate.getItems()) {
+					newlyCreatedItem.setIdBillingTemplate(newBillingTemplate.getIdBillingTemplate());
+					sess.save(newlyCreatedItem);
+				}
 
 				// Delete existing billing items
 				for (BillingItem billingItemToDelete : newBillingTemplate.getBillingItems(sess)) {
 					sess.delete(billingItemToDelete);
 				}
 
+				// Save new billing items
 				for (BillingItem newlyCreatedBillingItem : newBillingTemplate.recreateBillingItems(sess)) {
 					sess.save(newlyCreatedBillingItem);
 				}
@@ -142,7 +148,7 @@ public class SaveBillingTemplate extends GNomExCommand implements Serializable {
 			billingItem.setIdCoreFacility(masterBillingItem.getIdCoreFacility());
 			billingItem.setIdBillingAccount(templateItem.getIdBillingAccount());
 			billingItem.setPercentagePrice(BigDecimal.valueOf(1));
-			BillingAccount billingAccount = sess.load(BillingAccount.class, templateItem.getIdBillingAccount());
+			BillingAccount billingAccount = (BillingAccount) sess.load(BillingAccount.class, templateItem.getIdBillingAccount());
 			if (billingAccount != null) {
 				billingItem.setIdLab(billingAccount.getLab().getIdLab());
 			}

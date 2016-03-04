@@ -2,7 +2,6 @@ package hci.gnomex.utility;
 
 import java.util.ArrayList;
 
-import org.hibernate.Hibernate;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.type.IntegerType;
@@ -42,7 +41,7 @@ public class BillingTemplateQueryManager extends QueryManager {
 		this.addCriteria(targetClassIdentifier, IntegerType.INSTANCE);
 		this.addWhereOrAnd();
 		this.queryBuffer.append(" bt.targetClassName = ? ");
-		this.addCriteria(targetClassName, StringType.INSTANCE);
+		this.addCriteria(QueryManager.convertToFullTargetClassName(targetClassName), StringType.INSTANCE);
 		
 		this.query = sess.createQuery(queryBuffer.toString());
 		this.applyCriteria();

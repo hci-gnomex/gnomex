@@ -38,7 +38,7 @@ public class BillingTemplate extends HibernateDetailObject implements DetailObje
 		this.setOrder(order);
 	}
 	
-	public void setIdBillingAccount(Integer idBillingAccount) {
+	public void updateSingleBillingAccount(Integer idBillingAccount) {
 		this.setItems(new TreeSet<BillingTemplateItem>());
 		BillingTemplateItem item = new BillingTemplateItem(this);
 		item.setIdBillingAccount(idBillingAccount);
@@ -133,16 +133,23 @@ public class BillingTemplate extends HibernateDetailObject implements DetailObje
 	}
 
 	@Override
-	public Element toXML(Set<String> detailParameters) {
+	public Element toXML(Session sess, Set<String> detailParameters) {
 		Element billingTemplateNode = new Element("BillingTemplate");
 		
 		billingTemplateNode.setAttribute("idBillingTemplate", XMLTools.safeXMLValue(this.getIdBillingTemplate()));
 		billingTemplateNode.setAttribute("targetClassIdentifier", XMLTools.safeXMLValue(this.getTargetClassIdentifier()));
 		billingTemplateNode.setAttribute("targetClassName", XMLTools.safeXMLValue(this.getTargetClassName()));
 		
+		boolean usingPercentSplit = false;
 		for (BillingTemplateItem item : this.getItems()) {
-			billingTemplateNode.addContent(item.toXML(null));
+			if (item.getPercentSplit() != null) {
+				usingPercentSplit = true;
+			}
+			
+			billingTemplateNode.addContent(item.toXML(sess, null));
 		}
+		
+		billingTemplateNode.setAttribute("usingPercentSplit", usingPercentSplit ? "true" : "false");
 		
 		return billingTemplateNode;
 	}

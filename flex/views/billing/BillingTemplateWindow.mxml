@@ -93,10 +93,7 @@
 				splitTypeChange(true);
 				
 				billingTemplateItems = new XMLListCollection();
-				var sort:Sort = new Sort();
-				sort.fields = [new SortField("@sortOrder", true)];
-				billingTemplateItems.sort = sort;
-				billingTemplateItems.refresh();
+				setupBillingTemplateItems();
 			}
 			
 			public function close():void {
@@ -104,22 +101,28 @@
 			}
 			
 			private function save():void {
-				var billingTemplateXML:XML = new XML(
+				var idBillingTemplate:String = !savingNewTemplateMode ? billingTemplate.@idBillingTemplate : "0";
+				var targetClassIdentifier:String = !savingNewTemplateMode ? billingTemplate.@targetClassIdentifier : "";
+				var targetClassName:String = !savingNewTemplateMode ? billingTemplate.@targetClassName : "";
+				var usingPercentSplit:String = radioSplitPct.selected ? "true" : "false";
+				
+				var billingTemplateXML:String =
 					"<BillingTemplate " +
-					" idBillingAccount='" + !savingNewTemplateMode ? billingTemplate.@idBillingTemplate : 0 + "'" +
-					" targetClassIdentifier='" + !savingNewTemplateMode ? billingTemplate.@targetClassIdentifier : "" + "'" +
-					" targetClassName='" + !savingNewTemplateMode ? billingTemplate.@targetClassName : "" + "'" +
-					" usingPercentSplit='" + radioSplitPct.selected + "'" +
-					" />");
+					" idBillingTemplate='" + idBillingTemplate + "'" +
+					" targetClassIdentifier='" + targetClassIdentifier + "'" +
+					" targetClassName='" + targetClassName + "'" +
+					" usingPercentSplit='" + usingPercentSplit + "'" +
+					" >";
 				for each (var item:XML in billingTemplateItems) {
-					billingTemplateXML.appendChild(item);
+					billingTemplateXML += item.toXMLString();
 				}
+				billingTemplateXML += "</BillingTemplate>";
 				
 				if (savingNewTemplateMode) {
 					// TODO
 				} else {
 					var params:Object = new Object();
-					params.billingTemplateXMLString = billingTemplateXML.toXMLString();
+					params.billingTemplateXMLString = billingTemplateXML;
 					saveBillingTemplate.send(params);
 				}
 			}
@@ -134,10 +137,33 @@
 			private function onGetBillingTemplate(event:ResultEvent):void {			
 				if (getBillingTemplate.lastResult.name() == "BillingTemplate") {
 					billingTemplate = new XML(getBillingTemplate.lastResult);
-					billingTemplateItems = billingTemplate.BillingTemplateItems;
+					billingTemplateItems = new XMLListCollection(billingTemplate.BillingTemplateItem);
+					setupBillingTemplateItems();
+					for each (var entry:XML in billingTemplateItems) {
+						updateBillingAccountEntry(entry, entry.@acceptBalance == "true");
+					}
+					if (billingTemplate.@usingPercentSplit == "true") {
+						radioSplitPct.selected = true;
+						radioSplitDollar.selected = false;
+						percentageColumn.visible = true;
+						dollarColumn.visible = false;
+						updatePercentTotal();
+					} else {
+						radioSplitPct.selected = false;
+						radioSplitDollar.selected = true;
+						dollarColumn.visible = true;
+						percentageColumn.visible = false;
+					}
 				} else {
 					Alert.show(getBillingTemplate.lastResult.ERROR.@message, "Error");
 				}
+			}
+			
+			private function setupBillingTemplateItems():void {
+				var sort:Sort = new Sort();
+				sort.fields = [new SortField("@sortOrder", true)];
+				billingTemplateItems.sort = sort;
+				billingTemplateItems.refresh();
 			}
 			
 			private function onSaveBillingTemplate(event:ResultEvent):void {			
@@ -157,7 +183,7 @@
 					" accountNumberDisplay='" + GNomExStringUtil.makeXMLSafe(billingAccountCombo.selectedItem.@accountNumberDisplay) + "'" +
 					" idLab='"  + labCombo.selectedItem.@idLab + "'" +
 					" labName='" + GNomExStringUtil.makeXMLSafe(labCombo.selectedItem.@name) + "'" +
-					" percent=''" +
+					" percentSplit=''" +
 					" dollarAmount=''" +
 					" acceptBalance='false'" +
 					" sortOrder='" + (billingTemplateItems.length + 1).toString() + "'" +
@@ -245,12 +271,12 @@
 					for each (var entry:XML in billingTemplateItems) {
 						entry.@dollarAmount = "";
 					}
-					percentTotal.text = "Total: %0";
+					updatePercentTotal();
 				} else {
 					dollarColumn.visible = true;
 					percentageColumn.visible = false;
 					for each (var entry2:XML in billingTemplateItems) {
-						entry2.@percent = "";
+						entry2.@percentSplit = "";
 					}
 				}
 			}
@@ -259,7 +285,7 @@
 				billingAccountEntry.@acceptBalance = acceptingBalance ? 'true' : 'false';
 				if (acceptingBalance) {
 					billingAccountEntry.@dollarAmount = "";
-					billingAccountEntry.@percent = "";
+					billingAccountEntry.@percentSplit = "";
 					billingAccountEntry.@sortOrder = int.MAX_VALUE;
 					
 					for each (var entry:XML in billingTemplateItems) {
@@ -301,22 +327,26 @@
 					var newValue:String;
 					if (radioSplitPct.selected) {
 						newValue = percentageFormatter.format(value) + "%";
-						billingTemplateItems[event.rowIndex].@percent = newValue;
+						billingTemplateItems[event.rowIndex].@percentSplit = newValue;
 						editor2.text = newValue;
 						
-						var total:Number = 0;
-						for each (var entry:XML in billingTemplateItems) {
-							if (entry.@percent != "") {
-								total = total + Number(((String) (entry.@percent)).replace("%", ""));
-							}
-						}
-						percentTotal.text = "Total: " + percentageFormatter.format(total) +"%";
+						updatePercentTotal();
 					} else {
 						newValue = currencyFormatter.format(value);
 						billingTemplateItems[event.rowIndex].@dollarAmount = newValue;
 						editor2.text = newValue;
 					}
 				}
+			}
+			
+			private function updatePercentTotal():void {
+				var total:Number = 0;
+				for each (var entry:XML in billingTemplateItems) {
+					if (entry.@percentSplit != "") {
+						total = total + Number(((String) (entry.@percentSplit)).replace("%", ""));
+					}
+				}
+				percentTotal.text = "Total: " + percentageFormatter.format(total) +"%";
 			}
 
 		]]>
@@ -382,11 +412,11 @@
 							   itemRenderer="mx.controls.Label"
 							   sortable="false"/>        
 			<mx:DataGridColumn id="percentageColumn"
-							   headerText="%" width="30" dataField="@percent" editable="true"
+							   headerText="%" width="30" dataField="@percentSplit" editable="true"
 							   editorDataField="text" 
 							   rendererIsEditor="false"
-							   itemRenderer="{hci.flex.controls.Label.create('@percent')}"
-							   itemEditor="{hci.flex.controls.TextInput.create('@percent', '0-9.')}"
+							   itemRenderer="{hci.flex.controls.Label.create('@percentSplit')}"
+							   itemEditor="{hci.flex.controls.TextInput.create('@percentSplit', '0-9.')}"
 							   sortable="false"/>        
 			<mx:DataGridColumn id="dollarColumn"
 							   headerText="$" width="30" dataField="@dollarAmount" editable="true"
@@ -405,7 +435,7 @@
 			</mx:DataGridColumn>
 		</mx:columns>
 	</mx:DataGrid>
-	<mx:HBox width="100%" visible="{radioSplitPct.selected}" includeInLayout="{radioSplitPct.selected}" horizontalAlign="right" paddingRight="50">
+	<mx:HBox width="100%" visible="{false}" includeInLayout="{false}" horizontalAlign="right" paddingRight="50">
 		<mx:Label id="percentTotal" />
 	</mx:HBox>
 	<mx:ControlBar horizontalAlign="right">

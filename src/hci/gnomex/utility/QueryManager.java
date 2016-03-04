@@ -18,15 +18,16 @@ import org.hibernate.type.Type;
 import hci.gnomex.model.ProductOrder;
 import hci.gnomex.model.Request;
 import hci.gnomex.security.SecurityAdvisor;
-import hci.hibernate3utils.HibernateDetailObject;
 
 public abstract class QueryManager {
 	
 	private static final HashMap<String, String> targetClassNameMap;
 	static {
 		targetClassNameMap = new HashMap<String, String>();
-		targetClassNameMap.put(Request.class.getName(), Request.class.getSimpleName());
-		targetClassNameMap.put(ProductOrder.class.getName(), ProductOrder.class.getSimpleName());
+		
+		targetClassNameMap.put(Request.class.getSimpleName(), Request.class.getName());
+		targetClassNameMap.put(ProductOrder.class.getSimpleName(), ProductOrder.class.getName());
+		targetClassNameMap.put("ProductOrder", ProductOrder.class.getName());
 	}
 	
 	protected SecurityAdvisor 	secAdvisor;
@@ -186,13 +187,17 @@ public abstract class QueryManager {
 			return null;
 		}
 		
-		for (Map.Entry<String, String> entry : targetClassNameMap.entrySet()) {
-			if (entry.getValue().equals(simpleClassName)) {
-				return entry.getKey();
+		if (targetClassNameMap.containsKey(simpleClassName)) {
+			return targetClassNameMap.get(simpleClassName);
+		} else {
+			for (Map.Entry<String, String> entry : targetClassNameMap.entrySet()) {
+				if (entry.getValue().equals(simpleClassName)) {
+					return simpleClassName;
+				}
 			}
+			
+			return null;
 		}
-		
-		return null;
 	}
 	
 	public static String convertToSimpleTargetClassName(String fullClassName) {
@@ -200,11 +205,17 @@ public abstract class QueryManager {
 			return null;
 		}
 		
-		if (targetClassNameMap.containsKey(fullClassName)) {
-			return targetClassNameMap.get(fullClassName);
-		} else {
-			return null;
+		for (Map.Entry<String, String> entry : targetClassNameMap.entrySet()) {
+			if (entry.getValue().equals(fullClassName)) {
+				return entry.getKey();
+			}
 		}
+		
+		if (targetClassNameMap.containsKey(fullClassName)) {
+			return fullClassName;
+		}
+		
+		return null;
 	}
 
 }

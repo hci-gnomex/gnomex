@@ -392,7 +392,7 @@ public class SaveProductOrder extends GNomExCommand implements Serializable {
 
   private void initializeBillingTemplate(ProductOrder po, BillingTemplate billingTemplate) {
     billingTemplate.setOrder(po);
-    billingTemplate.setIdBillingAccount(idBillingAccount);
+    billingTemplate.updateSingleBillingAccount(idBillingAccount);
   }
 
   private void initializeProductLineItem(ProductLineItem pi, Integer idProductOrder, Element n, BigDecimal unitPrice) {

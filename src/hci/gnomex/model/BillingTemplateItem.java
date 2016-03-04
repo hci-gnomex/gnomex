@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Set;
 
+import org.hibernate.Session;
 import org.jdom.Element;
 
 import hci.gnomex.utility.DetailObject;
@@ -124,7 +125,7 @@ public class BillingTemplateItem extends HibernateDetailObject implements Compar
 	}
 
 	@Override
-	public Element toXML(Set<String> detailParameters) {
+	public Element toXML(Session sess, Set<String> detailParameters) {
 		Element billingTemplateItemNode = new Element("BillingTemplateItem");
 		
 		billingTemplateItemNode.setAttribute("idBillingTemplateItem", XMLTools.safeXMLValue(this.getIdBillingTemplateItem()));
@@ -133,7 +134,20 @@ public class BillingTemplateItem extends HibernateDetailObject implements Compar
 		billingTemplateItemNode.setAttribute("percentSplit", XMLTools.safeXMLValue(this.getPercentSplit()));
 		billingTemplateItemNode.setAttribute("dollarAmount", XMLTools.safeXMLValue(this.getDollarAmount()));
 		billingTemplateItemNode.setAttribute("dollarAmountBalance", XMLTools.safeXMLValue(this.getDollarAmountBalance()));
-		billingTemplateItemNode.setAttribute("sortOrder", XMLTools.safeXMLValue(this.getSortOrder()));	
+		billingTemplateItemNode.setAttribute("sortOrder", XMLTools.safeXMLValue(this.getSortOrder()));
+		billingTemplateItemNode.setAttribute("acceptBalance", this.isAcceptingBalance() ? "true" : "false");
+		
+		BillingAccount billingAccount = (BillingAccount) sess.load(BillingAccount.class, this.getIdBillingAccount());
+		if (billingAccount != null) {
+			billingTemplateItemNode.setAttribute("accountName", XMLTools.safeXMLValue(billingAccount.getAccountName()));
+			billingTemplateItemNode.setAttribute("accountNumber", XMLTools.safeXMLValue(billingAccount.getAccountNumber()));
+			billingTemplateItemNode.setAttribute("accountNumberDisplay", XMLTools.safeXMLValue(billingAccount.getAccountNumberDisplay()));
+			Lab lab = billingAccount.getLab();
+			if (lab != null) {
+				billingTemplateItemNode.setAttribute("idLab", XMLTools.safeXMLValue(lab.getIdLab()));
+				billingTemplateItemNode.setAttribute("labName", XMLTools.safeXMLValue(lab.getName()));
+			}
+		}
 		
 		return billingTemplateItemNode;
 	}

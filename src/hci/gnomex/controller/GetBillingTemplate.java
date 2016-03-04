@@ -1,7 +1,6 @@
 package hci.gnomex.controller;
 
 import java.io.Serializable;
-import java.util.HashMap;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
@@ -14,8 +13,8 @@ import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.BillingTemplate;
 import hci.gnomex.utility.BillingTemplateQueryManager;
-import hci.gnomex.utility.DetailObject;
 import hci.gnomex.utility.GNomExRollbackException;
+import hci.gnomex.utility.QueryManager;
 
 @SuppressWarnings("serial")
 public class GetBillingTemplate extends GNomExCommand implements Serializable {
@@ -24,16 +23,35 @@ public class GetBillingTemplate extends GNomExCommand implements Serializable {
 	
 	private static final String 			ERROR_MESSAGE = "An error occurred while retrieving the billing template";
 	
-	private BillingTemplateQueryManager 	queryManager;
+	private Integer 	targetClassIdentifier;
+	private String 		targetClassName;
+	
+//	private BillingTemplateQueryManager 	queryManager;
 
 	@Override
 	public void loadCommand(HttpServletRequest request, HttpSession sess) {
-		queryManager = new BillingTemplateQueryManager(this.getSecAdvisor());
+		if (request.getParameter("targetClassIdentifier") != null && !request.getParameter("targetClassIdentifier").equals("")) {
+			try {
+				targetClassIdentifier = Integer.parseInt(request.getParameter("targetClassIdentifier"));
+			} catch (NumberFormatException e) {
+				this.addInvalidField("Target Class Identifier", "Target Class Identifier is malformed.");
+			}
+		} else {
+			this.addInvalidField("Target Class Identifier", "Target Class Identifier is required.");
+		}
+		
+		if (request.getParameter("targetClassName") != null && !request.getParameter("targetClassName").equals("")) {
+			targetClassName = request.getParameter("targetClassName");
+		} else {
+			this.addInvalidField("Target Class Name", "Target Class Name is required.");
+		}
+		
+		/*queryManager = new BillingTemplateQueryManager(this.getSecAdvisor());
 		HashMap<String, String> errors = queryManager.load(request);
 		this.addInvalidFields(errors);
 		if (!queryManager.hasSufficientCriteria()) {
 			this.addInvalidField("Insufficient Criteria", "Insufficient criteria provided.");
-		}
+		}*/
 	}
 	
 	@Override
@@ -43,9 +61,10 @@ public class GetBillingTemplate extends GNomExCommand implements Serializable {
 			if (this.isValid()) {
 				Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
 				
-				BillingTemplate billingTemplate = queryManager.retrieveBillingTemplate(sess);
+				//BillingTemplate billingTemplate = queryManager.retrieveBillingTemplate(sess);
+				BillingTemplate billingTemplate = BillingTemplateQueryManager.retrieveBillingTemplate(sess, targetClassIdentifier, QueryManager.convertToFullTargetClassName(targetClassName));
 				
-				Element billingTemplateNode = billingTemplate.toXML(null);
+				Element billingTemplateNode = billingTemplate.toXML(sess, null);
 				
 				XMLOutputter out = new org.jdom.output.XMLOutputter();
 				this.xmlResult = out.outputString(new Document(billingTemplateNode));
