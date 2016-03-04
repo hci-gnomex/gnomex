@@ -337,11 +337,11 @@ public class SaveProductOrder extends GNomExCommand implements Serializable {
     }
     body.append("Product Order #: \t\t" + po.getProductOrderNumber() + "\n");
     body.append("Products Ordered: \t\t" + products.toString() + "\n");
-    body.append("Product Type: \t\t\t" + pt.getDisplay() + "\n");
+    body.append("Product Type: \t\t" + pt.getDisplay() + "\n");
     body.append("Submit Date: \t\t\t" + po.getSubmitDate() + "\n");
-    body.append("Submitted By: \t\t\t" + po.getSubmitter().getDisplayName() + "\n");
+    body.append("Submitted By: \t\t" + po.getSubmitter().getDisplayName() + "\n");
     body.append("Lab: \t\t\t\t" + po.getLab().getName(false, true) + "\n");
-    body.append("Billing Acct: \t\t\t" + ba.getAccountNameAndNumber() + "\n");
+    body.append("Billing Acct: \t\t" + ba.getAccountNameAndNumber() + "\n");
     body.append(noAppUserEmailMsg);
 
     MailUtilHelper mailHelper = new MailUtilHelper(toAddress, fromAddress, subject, body.toString(), null, false, dictionaryHelper, serverName);
