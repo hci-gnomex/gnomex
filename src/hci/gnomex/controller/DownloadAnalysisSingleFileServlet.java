@@ -411,6 +411,12 @@ public class DownloadAnalysisSingleFileServlet extends HttpServlet {
 
 	private boolean processIMG (String imgline, OutputStream out) {
 		boolean processed = false;
+		
+		// if already an inline base64 image, just return
+		int jpos = imgline.indexOf("src=\"data:image/");
+		if (jpos != -1) {
+			return processed;
+		}
 
 		// there are two types of syntax, image tags containing DownloadAnalysisSingleFileServlet
 		// and those with src="local image name" without a &dir specified
