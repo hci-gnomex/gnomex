@@ -2303,9 +2303,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       for (Iterator i = billingItems.iterator(); i.hasNext();) {
         BillingItem bi = (BillingItem) i.next();
         grandInvoicePrice = grandInvoicePrice.add(bi.getInvoicePrice());
-        if (bi.resetInvoiceForBillingItem(sess)) {
-          sess.save(bi);
-        }
+        sess.save(bi);
       }
       for (Iterator i = discountBillingItems.iterator(); i.hasNext();) {
         BillingItem bi = (BillingItem) i.next();
