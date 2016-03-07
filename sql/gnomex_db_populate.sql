@@ -954,6 +954,7 @@ Test City, UT 12345',
  ('bam_iobio_viewer_url','http://bam.iobio.io/?bam=','','N'),
  ('vcf_iobio_viewer_url','http://vcf.iobio.io/?vcf=','','N'),
  ('gene_iobio_viewer_url','http://gene.iobio.io','','N'),
+ ('notify_support_of_new_user','N','','N'),
  ('directory_product_order', '/home/gnomex/ProductOrders/', 'file directory for product order files', 'N');
 
  
