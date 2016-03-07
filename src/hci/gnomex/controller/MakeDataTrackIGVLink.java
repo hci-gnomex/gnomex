@@ -249,21 +249,25 @@ public class MakeDataTrackIGVLink extends HttpServlet {
 						
 						// add any data sets available from the broad institute to our local registry
 						StringBuilder broadAnnData = new StringBuilder("");
-						String theURL = "http://data.broadinstitute.org/" + igvGenomeBuildName + "_dataServerRegistry.txt";
+						String theURL = "http://data.broadinstitute.org/igvdata/" + igvGenomeBuildName + "_dataServerRegistry.txt";
 						URL broad = new URL(theURL);
 						try {
 							BufferedReader br2 = new BufferedReader(new InputStreamReader(broad.openStream()));
 							String line2;
 							while((line2=br2.readLine()) != null) {
-								broadAnnData.append(line2 + "\n");
+								if (line2.startsWith("http")) {
+									broadAnnData.append(line2 + "\n");
+								}
 							}
 							br2.close();
 							
-							BufferedWriter bw2 = new BufferedWriter(new FileWriter(registry));
-							bw2.write(broadAnnData.toString());
-							bw2.close();
+							if (broadAnnData.length() > 0) {
+								BufferedWriter bw2 = new BufferedWriter(new FileWriter(registry));
+								bw2.write(broadAnnData.toString());
+								bw2.close();
+							}
 						} catch (IOException ex) {
-//							log.error("MakeDataTrackIGVLink -- Could not read from the Broad repository file: " + theURL);
+							log.error("MakeDataTrackIGVLink -- Could not read from the Broad repository file: " + theURL);
 						}
 											
 						
