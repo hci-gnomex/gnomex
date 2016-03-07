@@ -5,6 +5,7 @@ import hci.framework.control.RollBackCommandException;
 import hci.framework.utilities.XMLReflectException;
 import hci.gnomex.billing.BillingPlugin;
 import hci.gnomex.constants.Constants;
+import hci.gnomex.model.AppUser;
 import hci.gnomex.model.BillingAccount;
 import hci.gnomex.model.BillingItem;
 import hci.gnomex.model.BillingPeriod;
@@ -52,6 +53,7 @@ import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.hibernate.Hibernate;
 import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -108,7 +110,7 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
     }
 
     if (idRequest == null && requestParser == null) {
-      this.addInvalidField("idRequest", "idRequest or RequestXMLString is required.");
+      this.addInvalidField("CreateBillingItems - idRequest", "idRequest or RequestXMLString is required.");
     }
 
 
@@ -176,6 +178,8 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
         samples = request.getSamples();
         hybs = request.getHybridizations();
         lanes = request.getSequenceLanes();
+        Hibernate.initialize(request.getAppUser());
+        
       } else {
         requestParser.parse(sess);
         request = requestParser.getRequest();
@@ -203,6 +207,12 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
           request.setLab((Lab)sess.load(Lab.class, request.getIdLab()));
         }
 
+        // AppUser
+        if (request.getIdAppUser() != null) {
+        	AppUser au = (AppUser)sess.load(AppUser.class,  request.getIdAppUser());
+            request.setAppUser(au);
+        }
+        
 
 
         // Plugin assumes slide product initialized on request
