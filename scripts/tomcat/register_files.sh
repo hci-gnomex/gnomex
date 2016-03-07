@@ -20,4 +20,4 @@ CLASSPATH="$CLASSPATH:$JAR"
 done
 export CLASSPATH
 
-java hci.gnomex.daemon.RegisterFiles $*
+java -Xmx6000M hci.gnomex.daemon.RegisterFiles $*

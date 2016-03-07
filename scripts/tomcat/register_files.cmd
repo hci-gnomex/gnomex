@@ -14,4 +14,4 @@ for %%i in (%COMMON_LIB%\*.jar) do call append_classpath.cmd %%i
 
 set PATH=%JAVA_HOME%\bin;%PATH%
 
-java -classpath %CP% hci.gnomex.daemon.RegisterFiles %*
+java -Xmx6000M -classpath %CP% hci.gnomex.daemon.RegisterFiles %*

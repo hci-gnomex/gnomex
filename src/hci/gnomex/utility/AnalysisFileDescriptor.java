@@ -46,7 +46,12 @@ public class AnalysisFileDescriptor extends DetailObject implements Serializable
     this.fileSize = file.length();
     this.lastModifyDate  = new Date(file.lastModified());
     try {
-      this.fileName = file.getCanonicalPath();      
+      if (Util.isSymlink(file)) {
+    	  this.fileName = file.getPath();
+      }
+      else {
+    	  this.fileName = file.getCanonicalPath();   
+      }
     } catch (Exception e) {
       System.err.println("IO Exception occurred when trying to get absolute path for file " + file.toString());
       this.fileName = file.getAbsolutePath().replace("\\", "/");
