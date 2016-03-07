@@ -214,3 +214,25 @@ CALL ExecuteIfTableExists('gnomex', 'Request_Audit', 'ALTER TABLE Request_Audit 
 -- Drop iScanChip table
 DROP TABLE IF EXISTS gnomex.IScanChip;
 DROP TABLE IF EXISTS gnomex.IScanChip_Audit;
+
+delimiter '//'
+
+-- Function to create new request number
+drop function if exists GetNextMicroarrayRequestNumber//
+CREATE FUNCTION GetNextMicroarrayRequestNumber() RETURNS varchar(50) CHARSET utf8
+    READS SQL DATA
+BEGIN
+ DECLARE nextNumber INT DEFAULT 0;
+ DECLARE RequestNumber VARCHAR(50);
+
+ INSERT INTO MicroArrayRequestNumber (dummy) VALUES ('');
+
+ SELECT MAX(number) INTO nextNumber FROM MicroArrayRequestNumber;
+ SELECT CONCAT(CAST(nextNumber AS CHAR),'R') INTO RequestNumber;
+ RETURN RequestNumber;
+END;
+//
+
+delimiter ';'
+
+

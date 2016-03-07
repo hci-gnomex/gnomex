@@ -3503,8 +3503,7 @@ BEGIN
 
  INSERT INTO MicroArrayRequestNumber (dummy) VALUES ('');
 
- SELECT number INTO nextNumber FROM MicroArrayRequestNumber;
- DELETE FROM MicroArrayRequestNumber WHERE number=nextNumber;
+ SELECT MAX(number) INTO nextNumber FROM MicroArrayRequestNumber;
  SELECT CONCAT(CAST(nextNumber AS CHAR),'R') INTO RequestNumber;
  RETURN RequestNumber;
 END;
