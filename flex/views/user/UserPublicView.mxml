@@ -158,7 +158,7 @@
 					dirty.resetDirty();
 					closeWindow();
 				} else { 
-					Alert.show("An error occurred while saving the user record.");
+					Alert.show(saveAppUserPublic.lastResult.ERROR.@message);
 				}	
 			}
 			

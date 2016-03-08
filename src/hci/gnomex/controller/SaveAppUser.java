@@ -218,7 +218,7 @@ public class SaveAppUser extends GNomExCommand implements Serializable {
             isBadEmail = true;
           }
 
-          if (emailAlreadyExists(sess, appUserScreen.getEmail())) {
+          if (emailAlreadyExists(sess, appUserScreen.getEmail(), appUserScreen.getIdAppUser())) {
             this.addInvalidField("invalid email", "The email address " + appUserScreen.getEmail() + " is already in use.");
             isDupEmail = true;
           }
@@ -320,7 +320,7 @@ public class SaveAppUser extends GNomExCommand implements Serializable {
           this.xmlResult = "<SUCCESS idAppUser=\"" + appUser.getIdAppUser() + "\"/>";
           setResponsePage(this.SUCCESS_JSP);
         } else {
-          if (isUsedUsername || isUseduNID || isManageFacilityError || isNullEmail || isBadEmail || isNoLogon) {
+          if (isUsedUsername || isUseduNID || isManageFacilityError || isNullEmail || isBadEmail || isNoLogon || isDupEmail) {
             if (isWebForm.equals("Y")) {
               String outMsg = "";
               if (isUsedUsername) {
@@ -568,19 +568,30 @@ public class SaveAppUser extends GNomExCommand implements Serializable {
     return users.size() > 0;
   }
 
-  private static boolean emailAlreadyExists(Session sess, String email) {
+  public static boolean emailAlreadyExists(Session sess, String email, Integer idAppUser) {
     if (email == null || email.equals("")) {
       return false;
     }
 
     StringBuffer buf = new StringBuffer();
-    buf.append("SELECT a.idAppUser from AppUser as a where a.email = :email");
+    // There are two cases.  ONe this is an existing user so we want to make sure we don't mark their own email as a duplicate
+    // Second case is that it is a new user so they don't have an idAppUser yet so just check on email
+    if(idAppUser != null){
+      buf.append("SELECT a.idAppUser from AppUser as a where a.email = :email and a.idAppUser != :idAppUser");
+    } else {
+      buf.append("SELECT a.idAppUser from AppUser as a where a.email = :email");
+    }
 
     Query usersQuery = sess.createQuery(buf.toString());
-
-    usersQuery.setParameter("email", email);
+    if(idAppUser != null){
+      usersQuery.setParameter("email", email);
+      usersQuery.setParameter("idAppUser", idAppUser);
+    } else{
+      usersQuery.setParameter("email", email);
+    }
 
     List users = usersQuery.list();
+
     return users.size() > 0;
   }
 

@@ -10,6 +10,7 @@ import hci.gnomex.utility.HibernateSession;
 
 
 
+
 import java.io.Serializable;
 import java.io.StringReader;
 import java.sql.Connection;
@@ -17,10 +18,12 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.jdbc.Work;
 import org.jdom.Document;
@@ -82,8 +85,12 @@ public class SaveAppUserPublic extends GNomExCommand implements Serializable {
       passwordEncrypter = new EncryptionUtility();
 
       AppUser appUser = sess.load(AppUser.class, appUserScreen.getIdAppUser());
-      initializeAppUser(appUser);
-      sess.save(appUser);
+      if(SaveAppUser.emailAlreadyExists(sess, appUserScreen.getEmail(), appUserScreen.getIdAppUser())){
+        this.addInvalidField("invalid email", "The email address " + appUserScreen.getEmail() + " is already in use.");
+      }else {
+        initializeAppUser(appUser);
+        sess.save(appUser);
+      }
 
       if (this.isValid()) {
         sess.flush();
@@ -146,36 +153,35 @@ public class SaveAppUserPublic extends GNomExCommand implements Serializable {
 
   }
 
-}
 
-class MyWork implements Work{
-  private Element root;
-  private Integer idAppUser;
+  class MyWork implements Work{
+    private Element root;
+    private Integer idAppUser;
 
-  public MyWork(Element e, Integer idAppUser){
-    this.root = e;
-    this.idAppUser = idAppUser;
-  }
-
-  @Override
-  public void execute(Connection conn) throws SQLException {
-    Statement stmt = null;
-    for(Iterator i = root.getChildren("Lab").iterator(); i.hasNext();) {
-      Element node = (Element)i.next();
-      stmt = conn.createStatement();
-      String idLab = node.getAttributeValue("idLab");
-      String role = node.getAttributeValue("role");
-      String doUploadAlert = node.getAttributeValue("doUploadAlert");
-
-      String tableName = "Lab" + role;
-
-      StringBuffer buf = new StringBuffer("update " + tableName + "\n");
-      buf.append(" set sendUploadAlert = '" + doUploadAlert + "'\n");
-      buf.append(" where idLab = " + idLab + "\n");
-      buf.append("       and idAppUser = " + idAppUser.intValue() + "\n");
-      stmt.executeUpdate(buf.toString());
+    public MyWork(Element e, Integer idAppUser){
+      this.root = e;
+      this.idAppUser = idAppUser;
     }
 
-  }
+    @Override
+    public void execute(Connection conn) throws SQLException {
+      Statement stmt = null;
+      for(Iterator i = root.getChildren("Lab").iterator(); i.hasNext();) {
+        Element node = (Element)i.next();
+        stmt = conn.createStatement();
+        String idLab = node.getAttributeValue("idLab");
+        String role = node.getAttributeValue("role");
+        String doUploadAlert = node.getAttributeValue("doUploadAlert");
 
+        String tableName = "Lab" + role;
+
+        StringBuffer buf = new StringBuffer("update " + tableName + "\n");
+        buf.append(" set sendUploadAlert = '" + doUploadAlert + "'\n");
+        buf.append(" where idLab = " + idLab + "\n");
+        buf.append("       and idAppUser = " + idAppUser.intValue() + "\n");
+        stmt.executeUpdate(buf.toString());
+      }
+
+    }
+  }
 }
