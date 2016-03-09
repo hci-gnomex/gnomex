@@ -771,7 +771,7 @@ public class Sample extends HibernateDetailObject {
           if (laneStatusMap.size() > 1) {
             step += ",partial";
           }
-        } if (workItemStatusMap.size() > 0) {
+        } else if (workItemStatusMap.size() > 0) {
           step = workItemStatusMap.lastKey();
           if (workItemStatusMap.size() > 1) {
             step += ",partial";
@@ -790,7 +790,7 @@ public class Sample extends HibernateDetailObject {
           if (laneStatusMap.size() > 1) {
             step += ",partial";
           }
-        } if (workItemStatusMap.size() > 0) {
+        } else if (workItemStatusMap.size() > 0) {
           step = workItemStatusMap.lastKey();
           if (workItemStatusMap.size() > 1) {
             step += ",partial";
