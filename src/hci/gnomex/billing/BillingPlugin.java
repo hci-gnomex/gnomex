@@ -2,32 +2,11 @@ package hci.gnomex.billing;
 
 import hci.gnomex.constants.Constants;
 import hci.gnomex.controller.SaveBillingTemplate;
-import hci.gnomex.model.Application;
-import hci.gnomex.model.BillingItem;
-import hci.gnomex.model.BillingPeriod;
-import hci.gnomex.model.BillingStatus;
-import hci.gnomex.model.BillingTemplate;
-import hci.gnomex.model.Hybridization;
-import hci.gnomex.model.LabeledSample;
-import hci.gnomex.model.MasterBillingItem;
-import hci.gnomex.model.PlateType;
-import hci.gnomex.model.PlateWell;
-import hci.gnomex.model.Price;
-import hci.gnomex.model.PriceCategory;
-import hci.gnomex.model.Product;
-import hci.gnomex.model.PropertyEntry;
-import hci.gnomex.model.Request;
-import hci.gnomex.model.RequestCategory;
-import hci.gnomex.model.Sample;
-import hci.gnomex.model.SequenceLane;
+import hci.gnomex.model.*;
 import hci.gnomex.utility.Order;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.hibernate.Session;
 
@@ -225,6 +204,65 @@ public abstract class BillingPlugin {
         }
 
         return newlyCreatedBillingItems;
+	}
+
+	protected Price getPriceForRange(PriceCategory priceCategory) {
+		return getPriceForRange(priceCategory, qty);
+	}
+
+	protected Price getPriceForRange(PriceCategory priceCategory, int qty){
+
+		// Find the price for capillary sequencing
+		Price price = null;
+		for(Iterator i1 = priceCategory.getPrices().iterator(); i1.hasNext();) {
+			Price p = (Price)i1.next();
+			if (p.getIsActive() != null && p.getIsActive().equals("Y")) {
+				// Pricing for is tiered.  Look at filter 1 on the prices to find the one where the qty range applies.
+				for(Iterator i2 = p.getPriceCriterias().iterator(); i2.hasNext();) {
+					PriceCriteria criteria = (PriceCriteria)i2.next();
+
+					Integer qty1 = null;
+					Integer qty2 = null;
+
+					if (criteria.getFilter1().contains("-")) {
+						// Range check
+						String[] tokens = criteria.getFilter1().split("-");
+						if (tokens.length < 2) {
+							continue;
+						}
+
+						qty1 = Integer.valueOf(tokens[0]);
+						qty2 = Integer.valueOf(tokens[1]);
+
+						// If the qty falls within the range, this is the price that applies
+						if (qty >= qty1.intValue() && qty <= qty2.intValue()) {
+							price = p;
+							break;
+						}
+					} else if (criteria.getFilter1().contains("+")) {
+						// Lower limit check
+						String tokens[] =  criteria.getFilter1().split("\\+");
+
+						qty1 = Integer.valueOf(tokens[0]);
+
+						if (qty >= qty1.intValue()) {
+							price = p;
+							break;
+						}
+					} else {
+						// Equals check
+						qty1 = Integer.valueOf(criteria.getFilter1());
+
+						if (qty == qty1.intValue()) {
+							price = p;
+							break;
+						}
+					}
+
+				}
+			}
+		}
+		return price;
 	}
 
 }
