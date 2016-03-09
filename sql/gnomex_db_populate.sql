@@ -955,7 +955,8 @@ Test City, UT 12345',
  ('vcf_iobio_viewer_url','http://vcf.iobio.io/?vcf=','','N'),
  ('gene_iobio_viewer_url','http://gene.iobio.io','','N'),
  ('notify_support_of_new_user','N','','N'),
- ('directory_product_order', '/home/gnomex/ProductOrders/', 'file directory for product order files', 'N');
+ ('directory_product_order', '/home/gnomex/ProductOrders/', 'file directory for product order files', 'N'),
+ ('min_samples_allowed_for_plate_submission', '32', 'And integer that represents the minimum number of samples that can be submitted on a plate for capillary sequencing experiments.', 'N');
 
  
 
