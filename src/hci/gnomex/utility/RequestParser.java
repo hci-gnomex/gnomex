@@ -319,7 +319,7 @@ public class RequestParser implements Serializable {
       Integer newIdBillingAccount = new Integer(n.getAttributeValue("idBillingAccount"));
       // If the billing account has been changed, we need to know so that any billing items can be revised as well.
       if (!isNewRequest && !this.isExternalExperiment()) {
-        if (request.getIdBillingAccount() == null || !request.getIdBillingAccount().equals(newIdBillingAccount)) {
+        if (request.getAcceptingBalanceAccountId(sess) == null || !request.getAcceptingBalanceAccountId(sess).equals(newIdBillingAccount)) {
           reassignBillingAccount = true;
           if (!this.secAdvisor.hasPermission(SecurityAdvisor.CAN_ACCESS_ANY_OBJECT) && !ensureNonAdminCanAccessBillingAccount(newIdBillingAccount, sess)) {
             throw new Exception("User cannot access selected billing account.");

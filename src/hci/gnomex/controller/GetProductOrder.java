@@ -85,8 +85,8 @@ public class GetProductOrder extends GNomExCommand implements Serializable {
           if (canRead) {
             String billingAccountName = "";
 
-            if (po.getIdBillingAccount() != null) {
-              BillingAccount ba = sess.load(BillingAccount.class, po.getIdBillingAccount());
+            if (po.getAcceptingBalanceAccountId(sess) != null) {
+              BillingAccount ba = sess.load(BillingAccount.class, po.getAcceptingBalanceAccountId(sess));
               billingAccountName = ba.getAccountNameDisplay();
             }
             SimpleDateFormat sdf = new SimpleDateFormat("MM-dd-yyyy");

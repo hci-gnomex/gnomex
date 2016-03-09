@@ -132,7 +132,7 @@ public class RequisitionFormUtil {
 
     AppUser user = (AppUser)sess.load(AppUser.class, po.getIdAppUser());
     Lab lab = (Lab)sess.load(Lab.class, po.getIdLab());
-    BillingAccount ba = (BillingAccount)sess.load(BillingAccount.class, po.getIdBillingAccount());
+    BillingAccount ba = (BillingAccount)sess.load(BillingAccount.class, po.getAcceptingBalanceAccountId(sess));
 
     // Load the PDF file, get the form
     PdfReader reader = new PdfReader( reqFile.getCanonicalPath() );

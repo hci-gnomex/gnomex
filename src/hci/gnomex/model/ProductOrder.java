@@ -360,7 +360,7 @@ public class ProductOrder extends DetailObject implements Serializable, Order {
 
     DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess);
     Lab lab = sess.get( Lab.class, po.getIdLab() );
-    BillingAccount acct = sess.get( BillingAccount.class, po.getIdBillingAccount() );
+    BillingAccount acct = sess.get( BillingAccount.class, po.getAcceptingBalanceAccountId(sess) );
     AppUser user = sess.get(AppUser.class, po.getIdAppUser());
 
     if ( po == null || po.getProductLineItems().size() == 0 || acct == null ) {
@@ -501,5 +501,17 @@ public class ProductOrder extends DetailObject implements Serializable, Order {
 
     return send;
   }
+
+@Override
+public Integer getAcceptingBalanceAccountId(Session sess) {
+	BillingTemplate billingTemplate = this.getBillingTemplate(sess);
+	if (billingTemplate != null) {
+		BillingTemplateItem item = billingTemplate.getAcceptingBalanceItem();
+		if (item != null) {
+			return item.getIdBillingAccount();
+		}
+	}
+	return null;
+}
 
 }

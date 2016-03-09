@@ -37,5 +37,7 @@ public interface Order {
 	public BillingTemplate getBillingTemplate(Session sess);
 	
 	public Integer getIdProductOrder();
+	
+	public Integer getAcceptingBalanceAccountId(Session sess);
 
 }

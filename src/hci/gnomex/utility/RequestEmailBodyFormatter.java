@@ -62,8 +62,8 @@ public class RequestEmailBodyFormatter extends DetailObject{
       appUser = (AppUser)sess.get(AppUser.class, request.getIdAppUser());        
     }
     billingAccount = null;
-    if (request.getIdBillingAccount() != null) {
-      billingAccount = (BillingAccount)sess.get(BillingAccount.class, request.getIdBillingAccount());
+    if (request.getAcceptingBalanceAccountId(sess) != null) {
+      billingAccount = (BillingAccount)sess.get(BillingAccount.class, request.getAcceptingBalanceAccountId(sess));
     }
     
     if (RequestCategory.isDNASeqCoreRequestCategory(request.getCodeRequestCategory()) || RequestCategory.isSequenom(request.getCodeRequestCategory())) {

@@ -153,5 +153,15 @@ public class BillingTemplate extends HibernateDetailObject implements DetailObje
 		
 		return billingTemplateNode;
 	}
+	
+	public BillingTemplateItem getAcceptingBalanceItem() {
+		for (BillingTemplateItem item : this.getItems()) {
+			if (item.isAcceptingBalance()) {
+				return item;
+			}
+		}
+		
+		return null;
+	}
 
 }

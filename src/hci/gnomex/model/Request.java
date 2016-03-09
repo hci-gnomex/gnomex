@@ -1449,4 +1449,15 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
 public Integer getIdProductOrder() {
 	return null;
 }
+@Override
+public Integer getAcceptingBalanceAccountId(Session sess) {
+	BillingTemplate billingTemplate = this.getBillingTemplate(sess);
+	if (billingTemplate != null) {
+		BillingTemplateItem item = billingTemplate.getAcceptingBalanceItem();
+		if (item != null) {
+			return item.getIdBillingAccount();
+		}
+	}
+	return null;
+}
 }

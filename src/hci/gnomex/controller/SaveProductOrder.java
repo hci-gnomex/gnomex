@@ -309,7 +309,7 @@ public class SaveProductOrder extends GNomExCommand implements Serializable {
 
     String toAddress = contactEmailCoreFacility + "," + contactEmailAppUser;
 
-    BillingAccount ba = sess.load(BillingAccount.class, po.getIdBillingAccount());
+    BillingAccount ba = sess.load(BillingAccount.class, po.getAcceptingBalanceAccountId(sess));
     ProductType pt = sess.load(ProductType.class, po.getIdProductType());
 
     StringBuffer products = new StringBuffer();
