@@ -386,7 +386,7 @@
   		</id>
   		<property name="targetClassIdentifier" column="targetClassIdentifier" type="integer" />
   		<property name="targetClassName" column="targetClassName" type="string" />
-  		<set name="items" table="BillingTemplateItem" lazy="true" cascade="none" order-by="idBillingTemplateItem">
+  		<set name="items" table="BillingTemplateItem" lazy="true" cascade="delete" order-by="idBillingTemplateItem">
   			<key column="idBillingTemplate" />
   			<one-to-many class="hci.gnomex.model.BillingTemplateItem" />
   		</set>

@@ -68,14 +68,16 @@ public class SaveBillingTemplate extends GNomExCommand implements Serializable {
 				sess = HibernateSession.currentSession(this.getUsername());
 
 				BillingTemplate newBillingTemplate = BillingTemplateParser.parse(billingTemplateDoc.getRootElement(), sess);
-				sess.save(newBillingTemplate);
+//				sess.save(newBillingTemplate);
+
+//				newBillingTemplate.setItems(BillingTemplateParser.getBillingTemplateItems(billingTemplateDoc.getRootElement(), sess));
 				sess.flush();
-				
+
 				// Save new billing template items
-				for (BillingTemplateItem newlyCreatedItem : newBillingTemplate.getItems()) {
+				/*for (BillingTemplateItem newlyCreatedItem : newBillingTemplate.getItems()) {
 					newlyCreatedItem.setIdBillingTemplate(newBillingTemplate.getIdBillingTemplate());
 					sess.save(newlyCreatedItem);
-				}
+				}*/
 
 				// Delete existing billing items
 				for (BillingItem billingItemToDelete : newBillingTemplate.getBillingItems(sess)) {

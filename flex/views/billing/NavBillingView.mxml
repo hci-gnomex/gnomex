@@ -1953,7 +1953,7 @@
 				}
 				
 				if (requestNode == null) { 
-					Alert.show("Please select an experiment (in the list) to split into separate accounts.");
+					Alert.show("Please select an experiment or product order (in the list) to reassign or split into separate accounts.");
 					return;
 				}
 				if (requestNode.@status == "NEW") {
@@ -1973,230 +1973,13 @@
 				
 				var splitWindow:BillingTemplateWindow = BillingTemplateWindow(mx.managers.PopUpManager.createPopUp(this, BillingTemplateWindow, true));
 				splitWindow.performSetup(false);
+				splitWindow.order = requestNode;
 				splitWindow.loadBillingTemplate(parseInt(identifierAsString), className);
 				mx.managers.PopUpManager.centerPopUp(splitWindow); 
 				splitWindow.setFocus();
-				
-				/*
-				var requestNode:Object = null;
-				if (this.billingItemGrid.selectedItem != null && this.billingItemGrid.selectedItem.name() == "Request") {
-				
-				requestNode = this.billingItemGrid.selectedItem;
-				} else if (this.billingItemGrid.selectedItem != null && this.billingItemGrid.selectedItem.name() == "BillingItem") {
-				requestNode = this.billingItemGrid.selectedItem.parent();
-				} else if (this.billingItemGrid.selectedItem == null) {
-				for each(var item:Object in this.billingItemsDisplayed) {
-				// We have more than 1 request in the billing item grid, so we don't
-				// know which one to selected.  
-				if (requestNode != null && requestNode.@idRequest != item.@idRequest) {
-				requestNode = null;
-				break;
-				}
-				// We only have one request is the billing item grid.  Assume
-				// this one should be split.
-				requestNode = item;
-				}
-				}
-				
-				if (requestNode == null) { 
-				Alert.show("Please select an experiment (in the list) to split into separate accounts.");
-				return;
-				}
-				
-				
-				if (requestNode.@status == "NEW") {
-				Alert.show("Please save the billing items before splitting into separate accounts.");
-				return;				
-				}
-				
-				if (this.dirty.isDirty()) {
-				Alert.show("Please save changes before splitting billing items.");
-				return
-				}
-				
-				var billingAccountEntries:XMLListCollection = new XMLListCollection();	
-				var billingPeriods:XMLListCollection = new XMLListCollection();
-				var labs:XMLListCollection = new XMLListCollection();
-				for each(var lab:Object in parentApplication.promptedLabList) {
-				labs.addItem(lab);
-				}
-				var totalPrice:Number = 0;
-				var invoicePrice:Number = 0;
-				var splitType:String = "%";
-				for each(var r:Object in this.billingItems) {
-				for each(var billingItem:Object in r.BillingItem) {
-				if (billingItem.@idRequest != requestNode.@idRequest) {
-				continue; 
-				}
-				if (billingItem.@other == "Y") {
-				continue;
-				}
-				
-				// Figure out split type for the screen
-				var biPercent:String = billingItem.@percentageDisplay;
-				var biInvoicePrice:String = billingItem.@invoicePrice;
-				var biTotalPrice:String = billingItem.@totalPrice;
-				var p:Number = Number(biPercent.replace("%",""));
-				var ip:Number = Number(biInvoicePrice.replace("$","").replace(",",""));
-				var tp:Number = Number(biTotalPrice.replace("$","").replace(",",""));
-				splitType = billingItem.@splitType;
-				
-				var found:Boolean = false;
-				for each(var acct:Object in billingAccountEntries) {
-				if (acct.@idBillingAccount == billingItem.@idBillingAccount) {
-				found = true;
-				break; 
-				} 
-				}  
-				
-				if (!found) {
-				var newBillingAccount:XML = new XML(
-				"<BillingAccount " + 
-				" idBillingAccount='" + billingItem.@idBillingAccount + "'" +
-				" accountName='" + GNomExStringUtil.makeXMLSafe(billingItem.@accountNameAndNumber) + "'" +
-				" accountNumberDisplay='" + GNomExStringUtil.makeXMLSafe(billingItem.@accountNumberDisplay) + "'" +
-				" idLab='" + billingItem.@idLab + "'" +
-				" labName='" + GNomExStringUtil.makeXMLSafe(billingItem.@labName) + "'" +
-				" percentage='" + billingItem.@percentageDisplay + "'" +
-				" invoicePrice='" + r.@invoicePrice + "'" +
-				"/>"); 
-				billingAccountEntries.addItem(newBillingAccount);
-				var invoicePriceString:String = r.@invoicePrice;
-				invoicePrice = invoicePrice + Number(invoicePriceString.replace('$','').replace(',',''));
-				var totalPriceString:String = requestNode.@totalPrice;
-				totalPrice = Number(totalPriceString.replace('$','').replace(',',''));
-				} 
-				
-				var foundBillingPeriod:Boolean = false;
-				for each(var bp:Object in billingPeriods) {
-				if (bp.@idBillingPeriod == billingItem.@idBillingPeriod) {
-				foundBillingPeriod = true;
-				break; 
-				} 
-				}  
-				if (!foundBillingPeriod) {
-				var newBillingPeriod:XML = new XML("<BillingPeriod idBillingPeriod='" + billingItem.@idBillingPeriod + "'/>");
-				billingPeriods.addItem(newBillingPeriod);
-				}
-				
-				}
-				
-				}
-				
-				if (billingPeriods.length > 1) {
-				if (this.lastSelectedBillingPeriod != null && this.lastSelectedBillingPeriod.@idBillingPeriod != '' && this.spanOtherCheckbox.selected) {
-				Alert.show("This experiment has billing items spanning multiple billing periods.\n\nPlease uncheck the checkbox 'Show related charges in other periods' to narrow the billing items to qualify the billing items to be split.");
-				return;			
-				} else {
-				Alert.show("This experiment has billing items spanning multiple billing periods.  Please select a billing period from the dropdown to qualify the billing items to be split.");
-				return;
-				
-				}
-				}
-				
-				if (billingPeriods.length == 0) {
-				Alert.show("Please select a billing period from the dropdown first.");
-				return;
-				}
-				
-				var idBillingPeriod:Object = billingPeriods.getItemAt(0).@idBillingPeriod;
-				
-				var splitWindow:BillingSplitView = BillingSplitView(mx.managers.PopUpManager.createPopUp(this, BillingSplitView, true));
-				mx.managers.PopUpManager.centerPopUp(splitWindow); 
-				splitWindow.setFocus();
-				splitWindow.idBillingPeriod = idBillingPeriod;
-				splitWindow.totalPrice = currencyFormatter.format(totalPrice.toString());
-				splitWindow.invoicePrice = currencyFormatter.format(invoicePrice.toString());
-				splitWindow.request = requestNode;			
-				splitWindow.labs = labs;
-				splitWindow.billingAccountEntries = billingAccountEntries;
-				splitWindow.origSplitType = splitType;
-				splitWindow.initializeData();
-				*/
+
 			}
-			
-			
-			private function showReassignAccountView():void {
-				var requestNode:Object = null;
-				if (this.dirty.isDirty()) {
-					Alert.show("Please save the billing items before trying to reassign the account.");
-					return;
-				}
-				if (this.billingItemGrid.selectedItem != null && this.billingItemGrid.selectedItem.name() == "Request") {				 
-					requestNode = this.billingItemGrid.selectedItem;
-					if (requestNode.@status == "NEW") {
-						Alert.show("Please save the new billing items before trying to reassign the account.");
-						return;				
-					} 
-				} else if (this.requestTree.selectedItem != null && this.requestTree.selectedItem.name() == "Request") {
-					requestNode = this.requestTree.selectedItem;
-					if (requestNode.@codeBillingStatus == "NEW") {
-						Alert.show("Please save the new billing items before trying to reassign the account.");
-						return;				
-					} 
-				} 
-				
-				if (requestNode == null) { 
-					Alert.show("To reassign the account, you must first select an experiment in the list.");
-					return;
-				}
-				
-				
-				
-				var billingPeriods:XMLListCollection = new XMLListCollection();
-				var approvedItemCount:int = 0;
-				for each(var r:Object in this.billingItemsDisplayed) {
-					for each(var billingItem:Object in r.BillingItem) {
-						if (billingItem.@codeBillingChargeKind == "PRODUCT") {
-							if (billingItem.@idProductOrder != requestNode.@idProductOrder) {
-								continue; 
-							} 
-						} else if (billingItem.@idRequest != requestNode.@idRequest) {
-							continue; 
-						}
-						if(billingItem.@codeBillingStatus == "APPROVED" ||
-							billingItem.@codeBillingStatus == "APPROVEDCC" || 
-							billingItem.@codeBillingStatus == "APPROVEDEX"){
-							approvedItemCount++;
-						}
-						var foundBillingPeriod:Boolean = false;
-						for each(var bp:Object in billingPeriods) {
-							if (bp.@idBillingPeriod == billingItem.@idBillingPeriod) {
-								foundBillingPeriod = true;
-								break; 
-							} 
-						}  
-						if (!foundBillingPeriod) {
-							var newBillingPeriod:XML = new XML("<BillingPeriod idBillingPeriod='" + billingItem.@idBillingPeriod + "'/>");
-							billingPeriods.addItem(newBillingPeriod);
-						}					
-					}
-					
-				}
-				
-				if (billingPeriods.length > 1) {
-					Alert.show("This experiment has billing items spanning multiple billing periods.  Please select a billing period from the dropdown to qualify the billing items to be reassigned to different account.");
-					return;
-				}
-				if (billingPeriods.length == 0) {
-					Alert.show("Please select a billing period from the dropdown first.");
-					return;
-				}
-				
-				var idBillingPeriod:Object = billingPeriods.getItemAt(0).@idBillingPeriod;
-				
-				
-				var reassignWindow:BillingReassignView = BillingReassignView(mx.managers.PopUpManager.createPopUp(this, BillingReassignView, true));
-				mx.managers.PopUpManager.centerPopUp(reassignWindow);
-				reassignWindow.setFocus();
-				reassignWindow.approvedCount = approvedItemCount;
-				reassignWindow.request = requestNode;
-				reassignWindow.idBillingPeriod = idBillingPeriod;
-				reassignWindow.initializeData();
-				
-			}
-			
-			
+
 			
 			private function onBillingTabChange():void {
 				if (billingTabNavigator.selectedChild == this.priceTab) {
@@ -2890,14 +2673,7 @@
 					
 					<mx:HBox width="100%" horizontalAlign="right" horizontalGap="0" verticalAlign="middle">
 						<mx:HBox width="100%" horizontalGap="0">
-							<mx:LinkButton  label="Reassign" disabledIcon="@Embed(source='../../assets/account_disable.png')" icon="@Embed(source='../../assets/account.png')" 
-											toolTip="Reassign charges to another account"  textDecoration="underline" click="showReassignAccountView()" visible="true">
-								<mx:enabled>{(billingItemGrid.selectedItem != null &amp;&amp; billingItemGrid.selectedItem.name() == 'Request' 
-									&amp;&amp; billingItemGrid.selectedItem.@codeRequestCategory != parentApplication.TYPE_DISK_USAGE) 
-									|| (this.requestTree.selectedItem != null &amp;&amp; this.requestTree.selectedItem.name() == 'Request' 
-									&amp;&amp; requestTree.selectedItem.@codeRequestCategory != parentApplication.TYPE_DISK_USAGE) ? true : false}</mx:enabled>
-							</mx:LinkButton> 
-							<mx:LinkButton  label="Split" disabledIcon="@Embed(source='../../assets/account_split_disable.png')" icon="@Embed(source='../../assets/account_split.png')" toolTip="Split charges into multiple accounts"  textDecoration="underline" click="showSplitAccountsView()" visible="true">
+							<mx:LinkButton  label="Reassign/Split" disabledIcon="@Embed(source='../../assets/account_split_disable.png')" icon="@Embed(source='../../assets/account_split.png')" toolTip="Split charges into multiple accounts"  textDecoration="underline" click="showSplitAccountsView()" visible="true">
 								<mx:enabled>{(billingItemGrid.selectedItem != null &amp;&amp; billingItemGrid.selectedItem.name() == 'Request' 
 											&amp;&amp; billingItemGrid.selectedItem.@codeRequestCategory != parentApplication.TYPE_DISK_USAGE) 
 											|| (this.requestTree.selectedItem != null &amp;&amp; this.requestTree.selectedItem.name() == 'Request' 
