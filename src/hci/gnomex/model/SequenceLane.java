@@ -450,6 +450,7 @@ public class SequenceLane extends HibernateDetailObject {
     this.excludeMethodFromXML("getRequest");
     this.excludeMethodFromXML("getSeqRunType");
     this.excludeMethodFromXML("getNumberSeqCycles");
+    this.excludeMethodFromXML("getWorkItems");
   }
 
 
