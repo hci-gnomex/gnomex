@@ -10,6 +10,7 @@ import hci.framework.utilities.XMLReflectException;
 import hci.gnomex.constants.Constants;
 import hci.gnomex.model.*;
 import hci.gnomex.security.SecurityAdvisor;
+import hci.gnomex.utility.BillingTemplateQueryManager;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.PropertyDictionaryHelper;
 import hci.gnomex.utility.Util;
@@ -192,6 +193,11 @@ public class GetRequest extends GNomExCommand implements Serializable {
 
           Element requestNode = request.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
           requestNode.setAttribute("canUpdateVisibility", this.getSecAdvisor().canUpdateVisibility(request.getIdLab(), request.getIdAppUser()) ? "Y" : "N");
+          
+          BillingTemplate billingTemplate = BillingTemplateQueryManager.retrieveBillingTemplate(sess, request);
+          if (billingTemplate != null) {
+        	  requestNode.setAttribute("idBillingTemplate", billingTemplate.getIdBillingTemplate().toString());
+          }
 
           if (request.isDNASeqExperiment().equals("Y") || request.isSequenomPlate()) {
             flagPlateInfo(newRequest, request, requestNode);

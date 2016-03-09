@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.hibernate.Hibernate;
 import org.hibernate.Session;
 import org.jdom.Attribute;
 import org.jdom.Document;
@@ -330,8 +331,19 @@ public class RequestParser implements Serializable {
         billingTemplate = new BillingTemplate(request);
       }
       billingTemplate.updateSingleBillingAccount(newIdBillingAccount);
-    } else if (n.getAttributeValue("billingTemplate") != null && !n.getAttributeValue("billingTemplate").equals("")) {
-      billingTemplate = BillingTemplateParser.parse(new Element(n.getAttributeValue("billingTemplate")), sess);
+    } else if (n.getAttributeValue("idBillingTemplate") != null && !n.getAttributeValue("idBillingTemplate").equals("")) {
+    	billingTemplate = sess.get(BillingTemplate.class, Integer.parseInt(n.getAttributeValue("idBillingTemplate")));
+    	Hibernate.initialize(billingTemplate.getItems());
+    	Hibernate.initialize(billingTemplate.getMasterBillingItems());
+        if (!isNewRequest && !this.isExternalExperiment()) {
+          BillingTemplate oldTemplate = BillingTemplateQueryManager.retrieveBillingTemplate(sess, request);
+          if (oldTemplate == null || !oldTemplate.equals(billingTemplate)) {
+            reassignBillingAccount = true;
+          }
+        }
+        billingTemplate.setOrder(request);
+    } else if (n.getChild("BillingTemplate") != null) {
+      billingTemplate = BillingTemplateParser.parse(n.getChild("BillingTemplate"), sess);
       if (!isNewRequest && !this.isExternalExperiment()) {
         BillingTemplate oldTemplate = BillingTemplateQueryManager.retrieveBillingTemplate(sess, request);
         if (oldTemplate == null || !oldTemplate.equals(billingTemplate)) {
