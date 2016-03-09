@@ -907,14 +907,18 @@
 			}
 			
 			private function pickContainerType():void {
-				
+				var minSamplesString:String = parentApplication.getProperty(parentApplication.PROPERTY_MIN_SAMPLES_ALLOWED_FOR_PLATE_SUBMISSION);
+				var minSamplesAllowedForPlate:int = 32;
+				if ( minSamplesString != null && parseInt(minSamplesString) >= 0 ) {
+					minSamplesAllowedForPlate = parseInt(minSamplesString);
+				}
 				if (this.numberOfSamples.text == '') {
 					this.containerTypeRadioGroup.selectedValue = "TUBE";
 					this.containerTypePlate.enabled = true;
 					this.containerTypeTube.enabled = true;
 				} else {
 					var sampleCount:int = parseInt(numberOfSamples.text);
-					if (sampleCount < 32) {
+					if (sampleCount < minSamplesAllowedForPlate ) {
 						this.containerTypeRadioGroup.selectedValue = "TUBE";
 						this.containerTypeTube.enabled = true;
 						this.containerTypePlate.enabled = false;
