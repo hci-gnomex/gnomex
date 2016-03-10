@@ -491,8 +491,13 @@
 			override protected function checkDeleteValidity(sample:Object):Boolean {
 				var isValid:Boolean = true;							
 				if (currentState != null && (currentState.indexOf('CapSeqState') >= 0)) {
-					if (parentDocument.samples.length <= 32 && parentDocument.request.@containerType == 'PLATE') {
-						Alert.show("You may not have less than 32 samples in a Plate container.  Delete ignored.");
+					var minSamplesString:String = parentApplication.getProperty(parentApplication.PROPERTY_MIN_SAMPLES_ALLOWED_FOR_PLATE_SUBMISSION);
+					var minSamplesAllowedForPlate:int = 32;
+					if ( minSamplesString != null && parseInt(minSamplesString) >= 0 ) {
+						minSamplesAllowedForPlate = parseInt(minSamplesString);
+					}
+					if (parentDocument.samples.length <= minSamplesAllowedForPlate && parentDocument.request.@containerType == 'PLATE') {
+						Alert.show("You may not have less than " + minSamplesAllowedForPlate + " samples in a Plate container.  Delete ignored.");
 						isValid = false;
 					}
 				}

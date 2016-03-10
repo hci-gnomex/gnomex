@@ -2900,8 +2900,13 @@
 				}
 				
 				if (isCapSeqState()) {
-					if (samples.length < 32 && this.request.@containerType == 'PLATE') {
-						errorMessage += "You may not have less than 32 samples on a plate container.\n\n";
+					var minSamplesString:String = parentApplication.getProperty(parentApplication.PROPERTY_MIN_SAMPLES_ALLOWED_FOR_PLATE_SUBMISSION);
+					var minSamplesAllowedForPlate:int = 32;
+					if ( minSamplesString != null && parseInt(minSamplesString) >= 0 ) {
+						minSamplesAllowedForPlate = parseInt(minSamplesString);
+					}
+					if (samples.length < minSamplesAllowedForPlate && this.request.@containerType == 'PLATE') {
+						errorMessage += "You may not have less than " + minSamplesAllowedForPlate + " samples on a plate container.\n\n";
 					}
 					if (this.request.@containerType == 'PLATE') {
 						var addedPlateNumberSamplesError:Boolean = false;
