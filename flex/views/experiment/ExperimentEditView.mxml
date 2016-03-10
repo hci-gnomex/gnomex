@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:VBox styleName="panelBox"   xmlns:mx="http://www.adobe.com/2006/mxml"     
-		 xmlns:SubmitRequestView="SubmitRequestView.*" 
+<mx:VBox styleName="panelBox"   xmlns:mx="http://www.adobe.com/2006/mxml"
 		 xmlns:views="views.*" 
 		 xmlns:util="views.util.*"  
 		 xmlns:experiment="views.experiment.*"
@@ -2940,8 +2939,8 @@
 							if (idx > 0 && numSamplesOnPlate == 0 && this.numCapSeqPlates == 1) {
 								break;
 							}
-							if (numSamplesOnPlate < 32 && !addedPlateNumberSamplesError && (this.numCapSeqPlates == 1 || idx == 3)) {
-								errorMessage += "You may not have less than 32 samples on a plate.\n\n";
+							if (numSamplesOnPlate < minSamplesAllowedForPlate && !addedPlateNumberSamplesError && (this.numCapSeqPlates == 1 || idx == 3)) {
+								errorMessage += "You may not have less than " + minSamplesAllowedForPlate +  " samples on a plate.\n\n";
 								addedPlateNumberSamplesError = true;
 							}
 							if (numSamplesOnPlate < 80 && !addedPlateNumberSamplesError && this.numCapSeqPlates == 4) {
