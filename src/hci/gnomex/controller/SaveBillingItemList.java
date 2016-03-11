@@ -2,19 +2,7 @@ package hci.gnomex.controller;
 
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
-import hci.gnomex.model.BillingAccount;
-import hci.gnomex.model.BillingItem;
-import hci.gnomex.model.BillingPeriod;
-import hci.gnomex.model.BillingStatus;
-import hci.gnomex.model.CoreFacility;
-import hci.gnomex.model.DiskUsageByMonth;
-import hci.gnomex.model.Invoice;
-import hci.gnomex.model.Lab;
-import hci.gnomex.model.Notification;
-import hci.gnomex.model.ProductOrder;
-import hci.gnomex.model.PropertyDictionary;
-import hci.gnomex.model.Request;
-import hci.gnomex.model.RequestStatus;
+import hci.gnomex.model.*;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.BillingInvoiceEmailFormatter;
 import hci.gnomex.utility.BillingItemParser;
@@ -162,6 +150,11 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
           HashSet<Integer> idRequests = new HashSet<Integer>();
           for(Iterator i = parser.getBillingItems().iterator(); i.hasNext();) {
             BillingItem billingItem = (BillingItem)i.next();
+
+            MasterBillingItem masterBillingItem = billingItem.getMasterBillingItem();
+            sess.save(masterBillingItem);
+            billingItem.setIdMasterBillingItem(masterBillingItem.getIdMasterBillingItem());
+
             if ( billingItem.getIdRequest()!=null ) {
               idRequests.add(billingItem.getIdRequest());
             }
@@ -226,7 +219,17 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
           li = executionLogger.startLogItem("Delete Items");
           for(Iterator i = parser.getBillingItemsToRemove().iterator(); i.hasNext();) {
             BillingItem bi = (BillingItem)i.next();
+            // Check to see if the master billing item only has this billing item
+            Boolean deleteMaster = false;
+            MasterBillingItem masterBillingItem = bi.getMasterBillingItem();
+            if ( masterBillingItem != null && (masterBillingItem.getBillingItems() == null || masterBillingItem.getBillingItems().size() == 1) ){
+              deleteMaster = true;
+            }
+
             sess.delete(bi);
+            if ( deleteMaster ) {
+              sess.delete(masterBillingItem);
+            }
           }
           sess.flush();
           executionLogger.endLogItem(li);
