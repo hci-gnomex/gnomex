@@ -705,7 +705,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
             // types except fragment analysis and mit seq as these are plate based and should not be altered.
             boolean createBillingItems = false;
             if (!requestParser.isExternalExperiment()) {
-              if (requestParser.isNewRequest() && !RequestCategory.isDNASeqCoreRequestCategory(requestParser.getRequest().getCodeRequestCategory())) {
+              if (requestParser.isNewRequest() && !pdh.getCoreFacilityRequestCategoryProperty(requestParser.getRequest().getIdCoreFacility(), requestParser.getRequest().getCodeRequestCategory(), PropertyDictionary.NEW_REQUEST_SAVE_BEFORE_SUBMIT).equals("Y")) {
                 // if we are to create billing items during workflow we don't want to create them here...
                 String prop = propertyHelper.getCoreFacilityRequestCategoryProperty(requestCategory.getIdCoreFacility(), requestCategory.getCodeRequestCategory(), PropertyDictionary.BILLING_DURING_WORKFLOW);
                 if (prop == null || !prop.equals("Y")) {
