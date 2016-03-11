@@ -49,6 +49,7 @@
 		<![CDATA[
 			import hci.flex.controls.Label;
 			
+			import mx.events.CloseEvent;
 			import mx.collections.Sort;
 			import mx.collections.SortField;
 			import mx.collections.XMLListCollection;
@@ -80,6 +81,10 @@
 			private var savingNewTemplateMode:Boolean;
 			
 			public function performSetup(savingNewTemplateMode:Boolean):void {
+				if ( this.order != null ) {
+					this.title = "Reassign/split billing for " + order.@label;  
+				}
+				
 				this.savingNewTemplateMode = savingNewTemplateMode;
 				
 				currencyFormatter.currencySymbol = "$";
@@ -102,7 +107,49 @@
 				PopUpManager.removePopUp(this);
 			}
 			
-			private function save():void {
+			public function save():void {
+				if (!checkOkayToSave()) {
+					Alert.show( "One account need to be marked as accepting the balance and all others need either a percent or dollar amount filled in.  Make sure this is the case and try again.",
+						"Error saving billing template");
+				} else {
+					Alert.show( "This will recreate all billing items for " + order.@display + ". The new billing items will be 'Pending' and any notes on existing billing items will be lost.  Would you still like to proceed?" ,
+						"",
+						(Alert.YES | Alert.NO), this, 
+						onPromptToRefresh,						
+						parentApplication.iconWarning);
+				}
+			}
+			
+			private function onPromptToRefresh(event:CloseEvent):void {
+				if (event.detail==Alert.YES) {
+					saveImpl();
+				}
+			}
+			
+			private function checkOkayToSave():Boolean {
+				var oneAcceptBalance:Boolean = false;
+				var allAccountsAssigned:Boolean = true;
+				if (percentageColumn.visible) {
+					for each (var entry:XML in billingTemplateItems) {
+						if (entry.@acceptBalance == "true") {
+							oneAcceptBalance = !oneAcceptBalance;
+						} else if ( entry.@percentSplit == "" ) {
+							allAccountsAssigned = false;
+						}
+					}
+				} else {
+					for each (var entry1:XML in billingTemplateItems) {
+						if (entry1.@acceptBalance == "true") {
+							oneAcceptBalance = !oneAcceptBalance;
+						} else if ( entry1.@dollarAmount == "" ) {
+							allAccountsAssigned = false;
+						}
+					}
+				}
+				return oneAcceptBalance && allAccountsAssigned;
+			}
+			
+			private function saveImpl():void {				
 				var idBillingTemplate:String = !savingNewTemplateMode ? billingTemplate.@idBillingTemplate : "0";
 				var targetClassIdentifier:String = !savingNewTemplateMode ? billingTemplate.@targetClassIdentifier : "";
 				var targetClassName:String = !savingNewTemplateMode ? billingTemplate.@targetClassName : "";
@@ -170,6 +217,7 @@
 			
 			private function onSaveBillingTemplate(event:ResultEvent):void {			
 				if (saveBillingTemplate.lastResult.name() == "SUCCESS") {
+					parentApplication.navBillingView.refresh();
 					this.close();
 				} else {
 					Alert.show(saveBillingTemplate.lastResult.ERROR.@message, "Error");
@@ -191,10 +239,12 @@
 					" sortOrder='" + (billingTemplateItems.length + 1).toString() + "'" +
 					" />");
 				billingTemplateItems.addItem(newNode);
-				updateSortOrders();
 				labCombo.selectedItem = null;
 				billingAccountCombo.selectedItem = null;
 				refreshBillingAccounts(true);
+				for each (var entry:XML in billingTemplateItems) {
+					updateBillingAccountEntry(entry, entry.@acceptBalance == "true");
+				}
 			}
 			
 			private function removeAccountEntry():void {
@@ -405,6 +455,8 @@
 				 itemEditEnd="accountsGrid_itemEditEndHandler(event)">
 		<mx:columns>
 			<mx:DataGridColumn headerText="Sort Order" width="30"
+							   minWidth="30"
+							   resizable="false"
 							   dataField="@sortOrder"
 							   editable="true"
 							   sortable="true"/>
@@ -427,12 +479,12 @@
 							   itemRenderer="mx.controls.Label"
 							   sortable="false"/>        
 			<mx:DataGridColumn id="percentageColumn"
-							   headerText="%" width="30" dataField="@percentSplit" editable="true"
+							   headerText="%" width="30" minWidth="30" dataField="@percentSplit" editable="true"
 							   sortable="false"/>
 			<mx:DataGridColumn id="dollarColumn"
-							   headerText="$" width="30" dataField="@dollarAmount" editable="true"
+							   headerText="$" width="50" dataField="@dollarAmount" minWidth="50" editable="true"
 							   sortable="false"/>
-			<mx:DataGridColumn headerText="Accept Balance" dataField="@acceptBalance" width="40" textAlign="center" rendererIsEditor="true" editorDataField="selected" sortable="false">
+			<mx:DataGridColumn headerText="Accept Balance" dataField="@acceptBalance" width="30" minWidth="30" resizable="false" textAlign="center" rendererIsEditor="true" editorDataField="selected" sortable="false">
 				<mx:itemRenderer>
 					<mx:Component>
 						<mx:CheckBox click="{parentDocument.updateBillingAccountEntry(data, data.@acceptBalance != 'true')}"

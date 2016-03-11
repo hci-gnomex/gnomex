@@ -84,7 +84,7 @@ public class BillingTemplateItem extends HibernateDetailObject implements Compar
 	}
 	public void setPercentSplit(BigDecimal percentSplit) {
 		if (percentSplit != null) {
-			this.percentSplit = percentSplit.setScale(1, RoundingMode.HALF_EVEN);
+			this.percentSplit = percentSplit.setScale(3, RoundingMode.HALF_EVEN);
 			this.setDollarAmount(null);
 			this.setDollarAmountBalance(null);
 		} else {
@@ -131,13 +131,14 @@ public class BillingTemplateItem extends HibernateDetailObject implements Compar
 		billingTemplateItemNode.setAttribute("idBillingTemplateItem", XMLTools.safeXMLValue(this.getIdBillingTemplateItem()));
 		billingTemplateItemNode.setAttribute("idBillingTemplate", XMLTools.safeXMLValue(this.getIdBillingTemplate()));
 		billingTemplateItemNode.setAttribute("idBillingAccount", XMLTools.safeXMLValue(this.getIdBillingAccount()));
-		billingTemplateItemNode.setAttribute("percentSplit", XMLTools.safeXMLValue(this.getPercentSplit()));
+		// Return percent split as a percent instead of a decimal value
+		billingTemplateItemNode.setAttribute("percentSplit", this.getPercentSplit()!=null ? XMLTools.safeXMLValue(this.getPercentSplit().multiply( new BigDecimal(100) )) : "");
 		billingTemplateItemNode.setAttribute("dollarAmount", XMLTools.safeXMLValue(this.getDollarAmount()));
 		billingTemplateItemNode.setAttribute("dollarAmountBalance", XMLTools.safeXMLValue(this.getDollarAmountBalance()));
 		billingTemplateItemNode.setAttribute("sortOrder", XMLTools.safeXMLValue(this.getSortOrder()));
 		billingTemplateItemNode.setAttribute("acceptBalance", this.isAcceptingBalance() ? "true" : "false");
 		
-		BillingAccount billingAccount = (BillingAccount) sess.load(BillingAccount.class, this.getIdBillingAccount());
+		BillingAccount billingAccount = sess.load(BillingAccount.class, this.getIdBillingAccount());
 		if (billingAccount != null) {
 			billingTemplateItemNode.setAttribute("accountName", XMLTools.safeXMLValue(billingAccount.getAccountName()));
 			billingTemplateItemNode.setAttribute("accountNumber", XMLTools.safeXMLValue(billingAccount.getAccountNumber()));

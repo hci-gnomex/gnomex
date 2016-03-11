@@ -1,7 +1,6 @@
 package hci.gnomex.utility;
 
 import java.math.BigDecimal;
-import java.util.Set;
 import java.util.TreeSet;
 
 import org.hibernate.Session;
@@ -13,42 +12,41 @@ import hci.gnomex.model.BillingTemplateItem;
 
 public class BillingTemplateParser {
 	
-	public static BillingTemplate parse(Element billingTemplateNode, Session sess) throws Exception {
-		BillingTemplate parsedBillingTemplate;
-		
+  private BillingTemplate billingTemplate;
+  private Element billingTemplateNode;
+  
+  public BillingTemplateParser(Document doc) {
+    this(doc.getRootElement());
+  }
+  
+  public BillingTemplateParser(Element node) {
+    this.billingTemplateNode = node;
+  }
+  
+  public BillingTemplate getBillingTemplate() {
+    return billingTemplate;
+  }
+  
+	public void parse(Session sess) throws Exception {
+		// Get billing template or create new one
 		Integer idBillingTemplate = Integer.parseInt(billingTemplateNode.getAttributeValue("idBillingTemplate"));
 		if (idBillingTemplate.intValue() == 0) {
-			parsedBillingTemplate = new BillingTemplate();
-			sess.save(parsedBillingTemplate);
-			sess.flush();
+			billingTemplate = new BillingTemplate();
 		} else {
-			parsedBillingTemplate = (BillingTemplate) sess.load(BillingTemplate.class, idBillingTemplate);
+			billingTemplate = sess.load(BillingTemplate.class, idBillingTemplate);
 		}
 		
+		// Populate fields
 		String fullTargetClassName = QueryManager.convertToFullTargetClassName(billingTemplateNode.getAttributeValue("targetClassName"));
 		if (!QueryManager.isValidTargetClass(billingTemplateNode.getAttributeValue("targetClassIdentifier"), fullTargetClassName, sess)) {
 			throw new ParserException("The specified target class identifier and class name are not valid");
 		}
-		parsedBillingTemplate.setTargetClassIdentifier(Integer.parseInt(billingTemplateNode.getAttributeValue("targetClassIdentifier")));
-		parsedBillingTemplate.setTargetClassName(fullTargetClassName);
-
-		sess.save(parsedBillingTemplate);
-
-		for (BillingTemplateItem billingTemplateItemToDelete : parsedBillingTemplate.getItems()) {
-			sess.delete(billingTemplateItemToDelete);
-		}
-		sess.flush();
-
-		for (BillingTemplateItem newlyCreatedItem : getBillingTemplateItems(billingTemplateNode, sess)) {
-			newlyCreatedItem.setIdBillingTemplate(parsedBillingTemplate.getIdBillingTemplate());
-			parsedBillingTemplate.getItems().add(newlyCreatedItem);
-		}
-		sess.flush();
-
-		return parsedBillingTemplate;
+		billingTemplate.setTargetClassIdentifier(Integer.parseInt(billingTemplateNode.getAttributeValue("targetClassIdentifier")));
+		billingTemplate.setTargetClassName(fullTargetClassName);
 	}
+	
 
-	public static TreeSet<BillingTemplateItem> getBillingTemplateItems(Element billingTemplateNode, Session sess) throws Exception {
+	public TreeSet<BillingTemplateItem> getBillingTemplateItems() throws Exception {
 
 		TreeSet<BillingTemplateItem> billingTemplateItems = new TreeSet<BillingTemplateItem>();
 
@@ -88,7 +86,7 @@ public class BillingTemplateParser {
 					if (percentTotal.compareTo(BigDecimal.valueOf(100)) >= 0) {
 						throw new ParserException("Total percentage of all billing accounts cannot exceed 100%.");
 					}
-					parsedBillingTemplateItem.setPercentSplit(percentSplit);
+					parsedBillingTemplateItem.setPercentSplit( percentSplit.divide( new BigDecimal(100) ));
 				} else {
 					BigDecimal dollarAmount = new BigDecimal(billingTemplateItemNode.getAttributeValue("dollarAmount").replace("$",""));
 					if (dollarAmount.compareTo(BigDecimal.valueOf(0)) <= 0) {
@@ -98,6 +96,7 @@ public class BillingTemplateParser {
 					parsedBillingTemplateItem.setDollarAmountBalance(dollarAmount);
 				}
 			}
+			billingTemplateItems.add( parsedBillingTemplateItem );
 		}
 
 		if (!hasItemAcceptingBalance) {
@@ -107,16 +106,5 @@ public class BillingTemplateParser {
 		return billingTemplateItems;
 	}
 	
-	public static BillingTemplate parse(Document billingTemplateDoc, Session sess) throws Exception {
-		return BillingTemplateParser.parse(billingTemplateDoc.getRootElement(), sess);
-	}
-	
-	public static BillingTemplate parseExistingBillingTemplate(Element billingTemplateNode, Session sess) {
-		try {
-			return (BillingTemplate) sess.load(BillingTemplate.class, Integer.parseInt(billingTemplateNode.getAttributeValue("idBillingTemplate")));
-		} catch (Exception e) {
-			return null;
-		}
-	}
 
 }

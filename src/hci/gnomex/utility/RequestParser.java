@@ -1,5 +1,22 @@
 package hci.gnomex.utility;
 
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+
+import org.hibernate.Hibernate;
+import org.hibernate.Session;
+import org.jdom.Attribute;
+import org.jdom.Document;
+import org.jdom.Element;
+
 import hci.gnomex.constants.Constants;
 import hci.gnomex.model.AppUser;
 import hci.gnomex.model.BillingAccount;
@@ -19,23 +36,6 @@ import hci.gnomex.model.Sample;
 import hci.gnomex.model.TreatmentEntry;
 import hci.gnomex.model.Visibility;
 import hci.gnomex.security.SecurityAdvisor;
-
-import java.io.Serializable;
-import java.math.BigDecimal;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
-
-import org.hibernate.Hibernate;
-import org.hibernate.Session;
-import org.jdom.Attribute;
-import org.jdom.Document;
-import org.jdom.Element;
 
 public class RequestParser implements Serializable {
 
@@ -343,7 +343,10 @@ public class RequestParser implements Serializable {
         }
         billingTemplate.setOrder(request);
     } else if (n.getChild("BillingTemplate") != null) {
-      billingTemplate = BillingTemplateParser.parse(n.getChild("BillingTemplate"), sess);
+      BillingTemplateParser btParser = new BillingTemplateParser( n.getChild("BillingTemplate") );
+      btParser.parse( sess );
+      billingTemplate = btParser.getBillingTemplate();
+      billingTemplate.setItems( btParser.getBillingTemplateItems() );
       if (!isNewRequest && !this.isExternalExperiment()) {
         BillingTemplate oldTemplate = BillingTemplateQueryManager.retrieveBillingTemplate(sess, request);
         if (oldTemplate == null || !oldTemplate.equals(billingTemplate)) {

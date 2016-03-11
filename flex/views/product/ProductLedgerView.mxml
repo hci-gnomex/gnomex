@@ -175,7 +175,7 @@
 							</mx:Component>
 						</mx:itemRenderer>
 					</mx:DataGridColumn>
-					<mx:DataGridColumn dataField="@comment" headerWordWrap="true" headerText="Comment" editable="false"/>
+					<mx:DataGridColumn dataField="@comment" headerWordWrap="true" width="400" headerText="Comment" editable="false"/>
 					<mx:DataGridColumn dataField="@notes" headerWordWrap="true" headerText="Notes" />
 				</mx:columns>
 			</mx:DataGrid>

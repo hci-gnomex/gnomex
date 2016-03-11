@@ -1,17 +1,5 @@
 package hci.gnomex.controller;
 
-import hci.framework.control.Command;
-import hci.framework.control.RollBackCommandException;
-import hci.gnomex.model.AppUser;
-import hci.gnomex.model.BillingItem;
-import hci.gnomex.model.BillingItemFilter;
-import hci.gnomex.model.DiskUsageByMonth;
-import hci.gnomex.model.Lab;
-import hci.gnomex.model.ProductOrder;
-import hci.gnomex.model.RequestCategory;
-import hci.gnomex.security.SecurityAdvisor;
-import hci.gnomex.utility.DictionaryHelper;
-
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.sql.Date;
@@ -19,7 +7,6 @@ import java.sql.SQLException;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
@@ -31,6 +18,18 @@ import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.output.XMLOutputter;
+
+import hci.framework.control.Command;
+import hci.framework.control.RollBackCommandException;
+import hci.gnomex.model.AppUser;
+import hci.gnomex.model.BillingItem;
+import hci.gnomex.model.BillingItemFilter;
+import hci.gnomex.model.DiskUsageByMonth;
+import hci.gnomex.model.Lab;
+import hci.gnomex.model.ProductOrder;
+import hci.gnomex.model.RequestCategory;
+import hci.gnomex.security.SecurityAdvisor;
+import hci.gnomex.utility.DictionaryHelper;
 
 
 public class GetBillingItemList extends GNomExCommand implements Serializable {
@@ -440,7 +439,7 @@ public class GetBillingItemList extends GNomExCommand implements Serializable {
         Element billingItemNode = billingItem.toXMLDocument(null, this.DATE_OUTPUT_SQL).getRootElement();
         billingItemNode.setAttribute("other", "N");
         billingItemNode.setAttribute("isDirty","N");
-        billingItemNode.setAttribute("currentCodeBillingStatus", billingItem.getCodeBillingStatus());
+        billingItemNode.setAttribute("currentCodeBillingStatus", billingItem.getCodeBillingStatus() != null ? billingItem.getCodeBillingStatus() : "");
         if (billingItem.getInvoicePrice() != null) {
           billingItemNode.setAttribute("invoicePrice", nf.format(billingItem.getInvoicePrice().doubleValue()));        
         }
@@ -451,8 +450,6 @@ public class GetBillingItemList extends GNomExCommand implements Serializable {
         requestNode.setAttribute("invoicePrice", nf.format(invoicePrice.doubleValue()));
         totalPrice = totalPrice.add(billingItem.getTotalPrice() != null ? billingItem.getTotalPrice() : new BigDecimal(0));
         requestNode.setAttribute("totalPrice", nf.format(totalPrice.doubleValue()));
-
-
 
         prevIdRequest = billingItem.getIdRequest();
         prevIdLab = billingItem.getIdLab();
