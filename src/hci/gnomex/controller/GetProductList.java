@@ -32,6 +32,8 @@ public class GetProductList extends GNomExCommand implements Serializable {
   // the static field for logging in Log4J
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetProductList.class);
 
+  private boolean isAdmin = false;
+
 
   public void validate() {
   }
@@ -56,6 +58,7 @@ public class GetProductList extends GNomExCommand implements Serializable {
 
       Document doc = new Document(new Element("ProductList"));
 
+
       List idCoreFacility = new ArrayList();
       // If we are super admin add all active core ids.  Otherwise get the core facilities that a normal admin manages.
       if(this.getSecAdvisor().getAppUser().getCodeUserPermissionKind().equals(UserPermissionKind.SUPER_ADMIN_PERMISSION_KIND)){
@@ -63,23 +66,35 @@ public class GetProductList extends GNomExCommand implements Serializable {
           CoreFacility cf = (CoreFacility)i.next();
           idCoreFacility.add(cf.getIdCoreFacility());
         }
+        isAdmin = true;
 
-      } else{
+      } else if(this.getSecAdvisor().getCoreFacilitiesIManage().size() > 0){
         for(Iterator i = this.getSecAdvisor().getCoreFacilitiesIManage().iterator(); i.hasNext();){
           CoreFacility cf = (CoreFacility)i.next();
           idCoreFacility.add(cf.getIdCoreFacility());
         }
 
+        isAdmin = true;
+
       }
 
+      // if they are admin then filter this list by core facility so that admins don't see other admins products in the prodcut dropdowns in the ledger and config windows.
+      // if they are normal users then bring back all products b/c they may be able to submit to all cores.  This list that this servlet returns is used in both locations.
       StringBuffer buf = new StringBuffer();
-      buf.append(" SELECT p from Product p ");
-      buf.append(" JOIN p.productType as pt ");
-      buf.append(" WHERE pt.idCoreFacility IN (:ids) ");
-      buf.append(" order by p.name ");
+      if(isAdmin){
+        buf.append(" SELECT p from Product p ");
+        buf.append(" JOIN p.productType as pt ");
+        buf.append(" WHERE pt.idCoreFacility IN (:ids) ");
+        buf.append(" order by p.name ");
+      } else{
+        buf.append(" SELECT p from Product p ");
+      }
 
       Query q = sess.createQuery(buf.toString());
-      q.setParameterList("ids", idCoreFacility);
+
+      if(isAdmin){
+        q.setParameterList("ids", idCoreFacility);
+      }
 
       List products = q.list();
 
