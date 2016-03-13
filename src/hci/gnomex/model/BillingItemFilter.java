@@ -64,7 +64,7 @@ public class BillingItemFilter extends DetailObject {
 
     queryBuf.append(" FROM       Request as req ");
     queryBuf.append(" JOIN       req.lab as lab ");
-    queryBuf.append(" JOIN       req.billingAccount as ba ");
+    queryBuf.append(" LEFT JOIN  req.billingAccount as ba ");
     queryBuf.append(" LEFT JOIN  req.appUser as appUser ");
     queryBuf.append(" LEFT JOIN  req.billingItems as bi ");
     queryBuf.append(" LEFT JOIN  bi.invoice as inv ");

@@ -150,7 +150,11 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
           node.setAttribute("isExternalPricingCommercial", labIsExternalPricingCommercial != null ? labIsExternalPricingCommercial : "N");
           node.setAttribute("hasBillingItems", "N");
 
-          String labBillingName = labName + " (" + billingAcct.getAccountNameAndNumber() + ")";
+          String labBillingName = labName;
+          if ( billingAcct != null ) {
+            labBillingName +=  " (" + billingAcct.getAccountNameAndNumber() + ")";
+          }
+
           String requestNumberBilled = requestNumber + DELIM + labBillingName;
 
           // Hash the status node.

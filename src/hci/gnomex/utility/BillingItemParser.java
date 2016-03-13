@@ -11,6 +11,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.hibernate.FlushMode;
+import org.hibernate.Hibernate;
 import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -82,28 +83,54 @@ public class BillingItemParser extends DetailObject implements Serializable {
         if (node.getAttributeValue("idDiskUsageByMonth") != null) {
           billingItem.setIdDiskUsageByMonth(!node.getAttributeValue("idDiskUsageByMonth").equals("") ? new Integer(node.getAttributeValue("idDiskUsageByMonth")) : null);          
         }
+        BillingTemplate billingTemplate = new BillingTemplate();
         if (node.getAttributeValue("idRequest")!=null && !node.getAttributeValue("idRequest").equals("") ) {
           Request request = sess.load(Request.class, new Integer(node.getAttributeValue("idRequest")) );
-          String query = "SELECT bt.idBillingTemplate from BillingTemplate as bt where bt.targetClassIdentifier = " + request.getIdRequest() + " AND bt.targetClassName like '%Request'";
-          int idBillingTemplate = (int) sess.createQuery(query).setFlushMode(FlushMode.MANUAL).uniqueResult();
-          if (idBillingTemplate == -1) {
+          String query = "SELECT bt from BillingTemplate as bt where bt.targetClassIdentifier = " + request.getIdRequest() + " AND bt.targetClassName like '%Request'";
+          billingTemplate = (BillingTemplate) sess.createQuery(query).setFlushMode(FlushMode.MANUAL).uniqueResult();
+          if (billingTemplate == null ) {
             throw new Error("No billing template for request: " + request.getIdRequest());
           }
           billingItem.setIdRequest(!node.getAttributeValue("idRequest").equals("") ? new Integer(node.getAttributeValue("idRequest")) : null);
-          masterBillingItem.setIdBillingTemplate(idBillingTemplate);
+          masterBillingItem.setIdBillingTemplate(billingTemplate.getIdBillingTemplate());
         }
         if (node.getAttributeValue("idProductOrder")!=null && !node.getAttributeValue("idProductOrder").equals("") ) {
           ProductOrder productOrder = sess.load(ProductOrder.class, new Integer(node.getAttributeValue("idProductOrder")) );
-          String query = "SELECT bt.idBillingTemplate from BillingTemplate as bt where bt.targetClassIdentifier = " + productOrder.getIdProductOrder() + " AND bt.targetClassName like '%ProductOrder'";
-          int idBillingTemplate = (int) sess.createQuery(query).setFlushMode(FlushMode.MANUAL).uniqueResult();
-          if (idBillingTemplate == -1) {
+          String query = "SELECT bt from BillingTemplate as bt where bt.targetClassIdentifier = " + productOrder.getIdProductOrder() + " AND bt.targetClassName like '%ProductOrder'";
+          billingTemplate = (BillingTemplate) sess.createQuery(query).setFlushMode(FlushMode.MANUAL).uniqueResult();
+          if (billingTemplate == null ) {
             throw new Error("No billing template for product order: " + productOrder.getIdProductOrder());
           }
           billingItem.setIdProductOrder((node.getAttributeValue("idProductOrder") != null && !node.getAttributeValue("idProductOrder").equals("")) ? new Integer(node.getAttributeValue("idProductOrder")) : null);
-          masterBillingItem.setIdBillingTemplate(idBillingTemplate);
+          masterBillingItem.setIdBillingTemplate(billingTemplate.getIdBillingTemplate());
         }
 
-        billingItem.setIdBillingAccount(!node.getAttributeValue("idBillingAccount").equals("") ? new Integer(node.getAttributeValue("idBillingAccount")) : null);
+        // Set the billing account for the billing item
+        boolean billingAccountSet = false;
+        if ( !node.getAttributeValue("idBillingAccount").equals("") ){
+          // Use billing account from the request node if there is one
+          billingItem.setIdBillingAccount( new Integer(node.getAttributeValue("idBillingAccount")) );
+          billingAccountSet = true;
+        } else {
+          // Look up the 'accepting balance' account from the billing template
+          int idBillingAccount = -1;
+          Hibernate.initialize(billingTemplate.getItems());
+          for(Iterator i2 = billingTemplate.getItems().iterator(); i2.hasNext();) {
+            BillingTemplateItem billingTemplateItem = (BillingTemplateItem) i2.next();
+            if ( billingTemplateItem.isAcceptingBalance() ){
+              idBillingAccount = billingTemplateItem.getIdBillingAccount();
+              break;
+            }
+          }
+          if (idBillingAccount!=-1) {
+            billingAccountSet = true;
+          }
+          billingItem.setIdBillingAccount( idBillingAccount );
+        }
+        if (!billingAccountSet){
+          throw new Error("No billing account found");
+        }
+
         billingItem.setIdLab(!node.getAttributeValue("idLab").equals("") ? new Integer(node.getAttributeValue("idLab")) : null);
         masterBillingItem.setQty(!node.getAttributeValue("qty").equals("") ? new Integer(node.getAttributeValue("qty")) : null);
         billingItem.setQty(!node.getAttributeValue("qty").equals("") ? new Integer(node.getAttributeValue("qty")) : null);
