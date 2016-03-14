@@ -2,16 +2,15 @@ package hci.gnomex.controller;
 
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
-import hci.gnomex.model.BillingItem;
-import hci.gnomex.model.BillingStatus;
-import hci.gnomex.model.Project;
-import hci.gnomex.model.Request;
-import hci.gnomex.model.TransferLog;
+import hci.gnomex.model.*;
+import hci.gnomex.utility.BillingTemplateQueryManager;
 import hci.gnomex.utility.HibernateSession;
 
 import java.io.Serializable;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -126,16 +125,43 @@ public class SaveRequestProject extends GNomExCommand implements Serializable {
         request.setIdLab(project.getIdLab());
         request.setIdAppUser(idAppUser);
         if (changeBilling) {
+
           request.setIdBillingAccount(idBillingAccount);
-            
+          BillingTemplate billingTemplate = BillingTemplateQueryManager.retrieveBillingTemplate(sess, request);
+          if (billingTemplate == null) {
+            billingTemplate = new BillingTemplate(request);
+          }
+          // Delete old billing template items if any
+          Set<BillingTemplateItem> oldBtiSet = new TreeSet<BillingTemplateItem>();
+          oldBtiSet.addAll( billingTemplate.getItems() );
+          for (BillingTemplateItem billingTemplateItemToDelete : oldBtiSet) {
+            BillingTemplateItem persistentBTI = sess.load( BillingTemplateItem.class, billingTemplateItemToDelete.getIdBillingTemplateItem() );
+            sess.delete(persistentBTI);
+          }
+          sess.flush();
+          billingTemplate.getItems().clear();
+
+          BillingTemplateItem item = new BillingTemplateItem(billingTemplate);
+          item.setIdBillingAccount(idBillingAccount);
+          item.setPercentSplit(BillingTemplateItem.WILL_TAKE_REMAINING_BALANCE);
+          item.setSortOrder(1);
+          billingTemplate.getItems().add(item);
+          sess.save(item);
+
+          sess.flush();
+
           // Change the account on the billing items.
           int reassignCount =  0;
           int unassignedCount = 0;
           for(Iterator ib = request.getBillingItemList(sess).iterator(); ib.hasNext();) {
             BillingItem bi = (BillingItem)ib.next();
             if (bi.getCodeBillingStatus().equals(BillingStatus.PENDING) || bi.getCodeBillingStatus().equals(BillingStatus.COMPLETED)) {
-              bi.setIdBillingAccount(request.getAcceptingBalanceAccountId(sess));   
+              bi.setIdBillingAccount(request.getAcceptingBalanceAccountId(sess));
               bi.resetInvoiceForBillingItem(sess);
+              BillingAccount billingAccount = sess.load(BillingAccount.class, bi.getIdBillingAccount());
+              if (billingAccount != null) {
+                bi.setIdLab(billingAccount.getLab().getIdLab());
+              }
               reassignCount++;
             } else  {
               unassignedCount++;

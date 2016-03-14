@@ -75,24 +75,24 @@ public class SaveBillingTemplate extends GNomExCommand implements Serializable {
 				BillingTemplate billingTemplate = btParser.getBillingTemplate();
 				sess.save( billingTemplate );
 				sess.flush();
-				
+
 				// Delete old billing template items if any
 				Set<BillingTemplateItem> oldBtiSet = new TreeSet<BillingTemplateItem>();
 				oldBtiSet.addAll( billingTemplate.getItems() );
 				for (BillingTemplateItem billingTemplateItemToDelete : oldBtiSet) {
-				  BillingTemplateItem persistentBTI = sess.load( BillingTemplateItem.class, billingTemplateItemToDelete.getIdBillingTemplateItem() );
-				  sess.delete(persistentBTI);
+					BillingTemplateItem persistentBTI = sess.load( BillingTemplateItem.class, billingTemplateItemToDelete.getIdBillingTemplateItem() );
+					sess.delete(persistentBTI);
 				}
-        sess.flush();
-        billingTemplate.getItems().clear();
-		    
-        // Get new template items from parser and save to billing template
-		    TreeSet<BillingTemplateItem> btiSet = btParser.getBillingTemplateItems();
-		    for (BillingTemplateItem newlyCreatedItem : btiSet) {
-		      newlyCreatedItem.setIdBillingTemplate(billingTemplate.getIdBillingTemplate());
-		      billingTemplate.getItems().add(newlyCreatedItem);
-		      sess.save( newlyCreatedItem );
-		    }
+				sess.flush();
+				billingTemplate.getItems().clear();
+
+				// Get new template items from parser and save to billing template
+				TreeSet<BillingTemplateItem> btiSet = btParser.getBillingTemplateItems();
+				for (BillingTemplateItem newlyCreatedItem : btiSet) {
+					newlyCreatedItem.setIdBillingTemplate(billingTemplate.getIdBillingTemplate());
+					billingTemplate.getItems().add(newlyCreatedItem);
+					sess.save( newlyCreatedItem );
+				}
 				sess.flush();
 
 				// Delete existing billing items
@@ -101,7 +101,7 @@ public class SaveBillingTemplate extends GNomExCommand implements Serializable {
 					sess.delete(billingItemToDelete);
 				}
 				sess.flush();
-				
+
 				// Save new billing items
 				Set<BillingItem> newBillingItems = billingTemplate.recreateBillingItems(sess);
 				for (BillingItem newlyCreatedBillingItem : newBillingItems) {
@@ -169,18 +169,18 @@ public class SaveBillingTemplate extends GNomExCommand implements Serializable {
 			billingItem.setIdCoreFacility(masterBillingItem.getIdCoreFacility());
 			billingItem.setIdBillingAccount(templateItem.getIdBillingAccount());
 			if (!templateItem.isAcceptingBalance()) {
-			  billingItem.setPercentagePrice(templateItem.getPercentSplit()!=null?templateItem.getPercentSplit():BigDecimal.valueOf(1));
-			} 
+				billingItem.setPercentagePrice(templateItem.getPercentSplit()!=null?templateItem.getPercentSplit():BigDecimal.valueOf(1));
+			}
 			billingItem.setCodeBillingStatus( BillingStatus.PENDING );
 			BillingAccount billingAccount = sess.load(BillingAccount.class, templateItem.getIdBillingAccount());
 			if (billingAccount != null) {
 				billingItem.setIdLab(billingAccount.getLab().getIdLab());
 			}
 			if ( template.getTargetClassName().indexOf( "Request" ) >= 0 ) {
-        billingItem.setIdRequest( template.getTargetClassIdentifier() );
-      } else if ( template.getTargetClassName().indexOf( "ProductOrder" ) >= 0 ) {
-        billingItem.setIdProductOrder( template.getTargetClassIdentifier() );
-      }
+				billingItem.setIdRequest( template.getTargetClassIdentifier() );
+			} else if ( template.getTargetClassName().indexOf( "ProductOrder" ) >= 0 ) {
+				billingItem.setIdProductOrder( template.getTargetClassIdentifier() );
+			}
 
 			BigDecimal percentSplit = templateItem.getPercentSplit();
 			BigDecimal dollarAmountBalance = templateItem.getDollarAmountBalance();

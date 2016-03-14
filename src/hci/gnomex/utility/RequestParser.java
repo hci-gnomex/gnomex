@@ -4,13 +4,9 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
+import hci.gnomex.model.*;
 import org.hibernate.Hibernate;
 import org.hibernate.Session;
 import org.jdom.Attribute;
@@ -18,23 +14,6 @@ import org.jdom.Document;
 import org.jdom.Element;
 
 import hci.gnomex.constants.Constants;
-import hci.gnomex.model.AppUser;
-import hci.gnomex.model.BillingAccount;
-import hci.gnomex.model.BillingItem;
-import hci.gnomex.model.BillingStatus;
-import hci.gnomex.model.BillingTemplate;
-import hci.gnomex.model.ConcentrationUnit;
-import hci.gnomex.model.Plate;
-import hci.gnomex.model.PlateWell;
-import hci.gnomex.model.PropertyDictionary;
-import hci.gnomex.model.PropertyEntry;
-import hci.gnomex.model.Request;
-import hci.gnomex.model.RequestCategory;
-import hci.gnomex.model.RequestCategoryType;
-import hci.gnomex.model.RequestStatus;
-import hci.gnomex.model.Sample;
-import hci.gnomex.model.TreatmentEntry;
-import hci.gnomex.model.Visibility;
 import hci.gnomex.security.SecurityAdvisor;
 
 public class RequestParser implements Serializable {
@@ -74,6 +53,7 @@ public class RequestParser implements Serializable {
   private String seqPrepByCore = null;
   private String previousCodeRequestStatus = null;
   private BillingTemplate billingTemplate;
+  private Set<BillingTemplateItem> 	billingTemplateItems;
 
   public RequestParser(Document requestDoc, SecurityAdvisor secAdvisor) {
     this.requestNode = requestDoc.getRootElement();
@@ -317,6 +297,7 @@ public class RequestParser implements Serializable {
 
     if (n.getAttributeValue("idBillingAccount") != null && !n.getAttributeValue("idBillingAccount").equals("")) {
       Integer newIdBillingAccount = new Integer(n.getAttributeValue("idBillingAccount"));
+      request.setIdBillingAccount(newIdBillingAccount);
       // If the billing account has been changed, we need to know so that any billing items can be revised as well.
       if (!isNewRequest && !this.isExternalExperiment()) {
         if (request.getAcceptingBalanceAccountId(sess) == null || !request.getAcceptingBalanceAccountId(sess).equals(newIdBillingAccount)) {
@@ -330,22 +311,26 @@ public class RequestParser implements Serializable {
       if (billingTemplate == null) {
         billingTemplate = new BillingTemplate(request);
       }
-      billingTemplate.updateSingleBillingAccount(newIdBillingAccount);
+      billingTemplateItems = new TreeSet<BillingTemplateItem>();
+      billingTemplateItems.add(getBillingTemplateItemForIdBA(newIdBillingAccount));
+
     } else if (n.getAttributeValue("idBillingTemplate") != null && !n.getAttributeValue("idBillingTemplate").equals("")) {
-    	billingTemplate = sess.get(BillingTemplate.class, Integer.parseInt(n.getAttributeValue("idBillingTemplate")));
-    	Hibernate.initialize(billingTemplate.getItems());
-    	Hibernate.initialize(billingTemplate.getMasterBillingItems());
-        if (!isNewRequest && !this.isExternalExperiment()) {
-          BillingTemplate oldTemplate = BillingTemplateQueryManager.retrieveBillingTemplate(sess, request);
-          if (oldTemplate == null || !oldTemplate.equals(billingTemplate)) {
-            reassignBillingAccount = true;
-          }
+      billingTemplate = sess.get(BillingTemplate.class, Integer.parseInt(n.getAttributeValue("idBillingTemplate")));
+      Hibernate.initialize(billingTemplate.getItems());
+      billingTemplateItems = billingTemplate.getItems();
+      Hibernate.initialize(billingTemplate.getMasterBillingItems());
+      if (!isNewRequest && !this.isExternalExperiment()) {
+        BillingTemplate oldTemplate = BillingTemplateQueryManager.retrieveBillingTemplate(sess, request);
+        if (oldTemplate == null || !oldTemplate.equals(billingTemplate)) {
+          reassignBillingAccount = true;
         }
-        billingTemplate.setOrder(request);
+      }
+      billingTemplate.setOrder(request);
     } else if (n.getChild("BillingTemplate") != null) {
       BillingTemplateParser btParser = new BillingTemplateParser( n.getChild("BillingTemplate") );
       btParser.parse( sess );
       billingTemplate = btParser.getBillingTemplate();
+      billingTemplateItems = btParser.getBillingTemplateItems();
       billingTemplate.setItems( btParser.getBillingTemplateItems() );
       if (!isNewRequest && !this.isExternalExperiment()) {
         BillingTemplate oldTemplate = BillingTemplateQueryManager.retrieveBillingTemplate(sess, request);
@@ -475,6 +460,20 @@ public class RequestParser implements Serializable {
       }
     }
 
+  }
+
+  public BillingTemplateItem getBillingTemplateItemForIdBA(int idBillingAccount) throws Exception {
+
+    BillingTemplateItem item = new BillingTemplateItem();
+    item.setIdBillingAccount(idBillingAccount);
+    item.setPercentSplit(BillingTemplateItem.WILL_TAKE_REMAINING_BALANCE);
+    item.setSortOrder(1);
+
+    return item;
+  }
+
+  public Set<BillingTemplateItem> getBillingTemplateItems() {
+    return billingTemplateItems;
   }
 
   private void initializeSample(Element requestNode, Element n, Session sess, RequestCategory requestCategory) throws Exception {

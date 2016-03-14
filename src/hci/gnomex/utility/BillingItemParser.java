@@ -86,8 +86,7 @@ public class BillingItemParser extends DetailObject implements Serializable {
         BillingTemplate billingTemplate = new BillingTemplate();
         if (node.getAttributeValue("idRequest")!=null && !node.getAttributeValue("idRequest").equals("") ) {
           Request request = sess.load(Request.class, new Integer(node.getAttributeValue("idRequest")) );
-          String query = "SELECT bt from BillingTemplate as bt where bt.targetClassIdentifier = " + request.getIdRequest() + " AND bt.targetClassName like '%Request'";
-          billingTemplate = (BillingTemplate) sess.createQuery(query).setFlushMode(FlushMode.MANUAL).uniqueResult();
+          billingTemplate = BillingTemplateQueryManager.retrieveBillingTemplate(sess, request);
           if (billingTemplate == null ) {
             throw new Error("No billing template for request: " + request.getIdRequest());
           }
@@ -96,8 +95,7 @@ public class BillingItemParser extends DetailObject implements Serializable {
         }
         if (node.getAttributeValue("idProductOrder")!=null && !node.getAttributeValue("idProductOrder").equals("") ) {
           ProductOrder productOrder = sess.load(ProductOrder.class, new Integer(node.getAttributeValue("idProductOrder")) );
-          String query = "SELECT bt from BillingTemplate as bt where bt.targetClassIdentifier = " + productOrder.getIdProductOrder() + " AND bt.targetClassName like '%ProductOrder'";
-          billingTemplate = (BillingTemplate) sess.createQuery(query).setFlushMode(FlushMode.MANUAL).uniqueResult();
+          billingTemplate = BillingTemplateQueryManager.retrieveBillingTemplate(sess, productOrder);
           if (billingTemplate == null ) {
             throw new Error("No billing template for product order: " + productOrder.getIdProductOrder());
           }

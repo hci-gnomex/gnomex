@@ -2,6 +2,7 @@ package hci.gnomex.utility;
 
 import java.util.ArrayList;
 
+import org.hibernate.FlushMode;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.type.IntegerType;
@@ -76,7 +77,7 @@ public class BillingTemplateQueryManager extends QueryManager {
 		valueList.add(targetClassName);
 		typeList.add(StringType.INSTANCE);
 		
-		Query query = sess.createQuery(queryBuffer.toString());
+		Query query = sess.createQuery(queryBuffer.toString()).setFlushMode(FlushMode.MANUAL);
 		Type[] typeArray = typeList.toArray(new Type[typeList.size()]);
 		query.setParameters(valueList.toArray(), typeArray);
 		

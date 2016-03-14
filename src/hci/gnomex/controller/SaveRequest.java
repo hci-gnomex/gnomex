@@ -361,15 +361,51 @@ public class SaveRequest extends GNomExCommand implements Serializable {
             sendNotification(requestParser.getRequest(), sess, requestParser.isNewRequest() ? Notification.NEW_STATE : Notification.EXISTING_STATE, Notification.SOURCE_TYPE_ADMIN, Notification.TYPE_REQUEST);
             sendNotification(requestParser.getRequest(), sess, requestParser.isNewRequest() ? Notification.NEW_STATE : Notification.EXISTING_STATE, Notification.SOURCE_TYPE_USER, Notification.TYPE_REQUEST);
 
+            // Save billing template
             BillingTemplate billingTemplate = requestParser.getBillingTemplate();
             if ( billingTemplate != null ) {
+
               if (requestParser.isNewRequest()) {
                 billingTemplate.setOrder(requestParser.getRequest());
               }
-              sess.save(billingTemplate);
-              for (BillingTemplateItem item : billingTemplate.getItems()) {
-                item.setIdBillingTemplate(billingTemplate.getIdBillingTemplate());
-                sess.save(item);
+              sess.save( billingTemplate );
+              sess.flush();
+
+              // Delete old billing template items if any
+              Set<BillingTemplateItem> oldBtiSet = new TreeSet<BillingTemplateItem>();
+              oldBtiSet.addAll( billingTemplate.getItems() );
+              for (BillingTemplateItem billingTemplateItemToDelete : oldBtiSet) {
+                BillingTemplateItem persistentBTI = sess.load( BillingTemplateItem.class, billingTemplateItemToDelete.getIdBillingTemplateItem() );
+                sess.delete(persistentBTI);
+              }
+              sess.flush();
+              billingTemplate.getItems().clear();
+
+              // Save new billing template items
+              Set<BillingTemplateItem> btiSet = requestParser.getBillingTemplateItems();
+              for (BillingTemplateItem newlyCreatedItem : btiSet) {
+                if ( newlyCreatedItem.isAcceptingBalance() ){
+                  requestParser.getRequest().setIdBillingAccount( newlyCreatedItem.getIdBillingAccount() );
+                }
+                newlyCreatedItem.setIdBillingTemplate(billingTemplate.getIdBillingTemplate());
+                billingTemplate.getItems().add(newlyCreatedItem);
+                sess.save( newlyCreatedItem );
+              }
+              sess.flush();
+              if (!requestParser.isNewRequest() && requestParser.isReassignBillingAccount()) {
+                // Delete existing billing items
+                Set<BillingItem> oldBillingItems = billingTemplate.getBillingItems(sess);
+                for (BillingItem billingItemToDelete : oldBillingItems) {
+                  sess.delete(billingItemToDelete);
+                }
+                sess.flush();
+
+                // Save new billing items
+                Set<BillingItem> newBillingItems = billingTemplate.recreateBillingItems(sess);
+                for (BillingItem newlyCreatedBillingItem : newBillingItems) {
+                  sess.save(newlyCreatedBillingItem);
+                }
+                sess.flush();
               }
             }
 

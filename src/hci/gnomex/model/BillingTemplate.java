@@ -39,7 +39,7 @@ public class BillingTemplate extends HibernateDetailObject implements DetailObje
 	}
 	
 	public void updateSingleBillingAccount(Integer idBillingAccount) {
-		this.setItems(new TreeSet<BillingTemplateItem>());
+		this.getItems().clear();
 		BillingTemplateItem item = new BillingTemplateItem(this);
 		item.setIdBillingAccount(idBillingAccount);
 		item.setPercentSplit(BillingTemplateItem.WILL_TAKE_REMAINING_BALANCE);
