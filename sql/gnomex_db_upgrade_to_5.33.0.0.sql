@@ -3,6 +3,7 @@ use gnomex;
 
 -- Add constraint for uniqueness on corefacility / description
 ALTER TABLE ProductType change column description description VARCHAR(500) NOT NULL;
+call ExecuteIfTableExists('gnomex','ProductType_Audit','alter table ProductType_Audit change column description description VARCHAR(500) NOT NULL');
 ALTER TABLE ProductType ADD CONSTRAINT UNQ_ProductType_idCoreFacility_description
     UNIQUE (idCoreFacility, description);
 	

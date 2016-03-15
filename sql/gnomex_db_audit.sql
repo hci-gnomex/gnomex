@@ -177,6 +177,18 @@ DROP TRIGGER IF EXISTS TrAU_BillingStatus_FER
 $$
 DROP TRIGGER IF EXISTS TrAD_BillingStatus_FER
 $$
+DROP TRIGGER IF EXISTS TrAI_BillingTemplate_FER
+$$
+DROP TRIGGER IF EXISTS TrAU_BillingTemplate_FER
+$$
+DROP TRIGGER IF EXISTS TrAD_BillingTemplate_FER
+$$
+DROP TRIGGER IF EXISTS TrAI_BillingTemplateItem_FER
+$$
+DROP TRIGGER IF EXISTS TrAU_BillingTemplateItem_FER
+$$
+DROP TRIGGER IF EXISTS TrAD_BillingTemplateItem_FER
+$$
 DROP TRIGGER IF EXISTS TrAI_BioanalyzerChipType_FER
 $$
 DROP TRIGGER IF EXISTS TrAU_BioanalyzerChipType_FER
@@ -272,6 +284,12 @@ $$
 DROP TRIGGER IF EXISTS TrAU_DiskUsageByMonth_FER
 $$
 DROP TRIGGER IF EXISTS TrAD_DiskUsageByMonth_FER
+$$
+DROP TRIGGER IF EXISTS TrAI_DNAPrepType_FER
+$$
+DROP TRIGGER IF EXISTS TrAU_DNAPrepType_FER
+$$
+DROP TRIGGER IF EXISTS TrAD_DNAPrepType_FER
 $$
 DROP TRIGGER IF EXISTS TrAI_ExperimentDesign_FER
 $$
@@ -405,12 +423,6 @@ DROP TRIGGER IF EXISTS TrAU_Invoice_FER
 $$
 DROP TRIGGER IF EXISTS TrAD_Invoice_FER
 $$
-DROP TRIGGER IF EXISTS TrAI_IScanChip_FER
-$$
-DROP TRIGGER IF EXISTS TrAU_IScanChip_FER
-$$
-DROP TRIGGER IF EXISTS TrAD_IScanChip_FER
-$$
 DROP TRIGGER IF EXISTS TrAI_IsolationPrepType_FER
 $$
 DROP TRIGGER IF EXISTS TrAU_IsolationPrepType_FER
@@ -465,17 +477,17 @@ DROP TRIGGER IF EXISTS TrAU_LabUser_FER
 $$
 DROP TRIGGER IF EXISTS TrAD_LabUser_FER
 $$
+DROP TRIGGER IF EXISTS TrAI_MasterBillingItem_FER
+$$
+DROP TRIGGER IF EXISTS TrAU_MasterBillingItem_FER
+$$
+DROP TRIGGER IF EXISTS TrAD_MasterBillingItem_FER
+$$
 DROP TRIGGER IF EXISTS TrAI_MetrixObject_FER
 $$
 DROP TRIGGER IF EXISTS TrAU_MetrixObject_FER
 $$
 DROP TRIGGER IF EXISTS TrAD_MetrixObject_FER
-$$
-DROP TRIGGER IF EXISTS TrAI_MicroArrayRequestNumber_FER
-$$
-DROP TRIGGER IF EXISTS TrAU_MicroArrayRequestNumber_FER
-$$
-DROP TRIGGER IF EXISTS TrAD_MicroArrayRequestNumber_FER
 $$
 DROP TRIGGER IF EXISTS TrAI_NewsItem_FER
 $$
@@ -794,6 +806,12 @@ $$
 DROP TRIGGER IF EXISTS TrAU_RequestToTopic_FER
 $$
 DROP TRIGGER IF EXISTS TrAD_RequestToTopic_FER
+$$
+DROP TRIGGER IF EXISTS TrAI_RNAPrepType_FER
+$$
+DROP TRIGGER IF EXISTS TrAU_RNAPrepType_FER
+$$
+DROP TRIGGER IF EXISTS TrAD_RNAPrepType_FER
 $$
 DROP TRIGGER IF EXISTS TrAI_Sample_FER
 $$
@@ -4066,7 +4084,7 @@ CREATE TABLE IF NOT EXISTS `BillingAccount_Audit` (
  ,`idCreditCardCompany`  int(10)  NULL DEFAULT NULL
  ,`isPO`  char(1)  NULL DEFAULT NULL
  ,`isCreditCard`  char(1)  NULL DEFAULT NULL
- ,`zipCode`  varchar(20)  NULL DEFAULT NULL
+ ,`ZipCode`  varchar(20)  NULL DEFAULT NULL
  ,`isApproved`  char(1)  NULL DEFAULT NULL
  ,`approvedDate`  datetime  NULL DEFAULT NULL
  ,`createDate`  datetime  NULL DEFAULT NULL
@@ -4114,7 +4132,7 @@ INSERT INTO BillingAccount_Audit
   , idCreditCardCompany
   , isPO
   , isCreditCard
-  , zipCode
+  , ZipCode
   , isApproved
   , approvedDate
   , createDate
@@ -4154,7 +4172,7 @@ INSERT INTO BillingAccount_Audit
   , idCreditCardCompany
   , isPO
   , isCreditCard
-  , zipCode
+  , ZipCode
   , isApproved
   , approvedDate
   , createDate
@@ -4205,7 +4223,7 @@ BEGIN
   , idCreditCardCompany
   , isPO
   , isCreditCard
-  , zipCode
+  , ZipCode
   , isApproved
   , approvedDate
   , createDate
@@ -4245,7 +4263,7 @@ BEGIN
   , NEW.idCreditCardCompany
   , NEW.isPO
   , NEW.isCreditCard
-  , NEW.zipCode
+  , NEW.ZipCode
   , NEW.isApproved
   , NEW.approvedDate
   , NEW.createDate
@@ -4291,7 +4309,7 @@ BEGIN
   , idCreditCardCompany
   , isPO
   , isCreditCard
-  , zipCode
+  , ZipCode
   , isApproved
   , approvedDate
   , createDate
@@ -4331,7 +4349,7 @@ BEGIN
   , NEW.idCreditCardCompany
   , NEW.isPO
   , NEW.isCreditCard
-  , NEW.zipCode
+  , NEW.ZipCode
   , NEW.isApproved
   , NEW.approvedDate
   , NEW.createDate
@@ -4377,7 +4395,7 @@ BEGIN
   , idCreditCardCompany
   , isPO
   , isCreditCard
-  , zipCode
+  , ZipCode
   , isApproved
   , approvedDate
   , createDate
@@ -4417,7 +4435,7 @@ BEGIN
   , OLD.idCreditCardCompany
   , OLD.isPO
   , OLD.isCreditCard
-  , OLD.zipCode
+  , OLD.ZipCode
   , OLD.isApproved
   , OLD.approvedDate
   , OLD.createDate
@@ -4581,6 +4599,7 @@ CREATE TABLE IF NOT EXISTS `BillingItem_Audit` (
  ,`idInvoice`  int(10)  NULL DEFAULT NULL
  ,`idDiskUsageByMonth`  int(10)  NULL DEFAULT NULL
  ,`idProductOrder`  int(10)  NULL DEFAULT NULL
+ ,`idMasterBillingItem`  int(10)  NULL DEFAULT NULL
  ,`tag`  varchar(10)  NULL DEFAULT NULL
 ) ENGINE=InnoDB
 $$
@@ -4617,6 +4636,7 @@ INSERT INTO BillingItem_Audit
   , idInvoice
   , idDiskUsageByMonth
   , idProductOrder
+  , idMasterBillingItem
   , tag )
   SELECT
   'No Context'
@@ -4645,6 +4665,7 @@ INSERT INTO BillingItem_Audit
   , idInvoice
   , idDiskUsageByMonth
   , idProductOrder
+  , idMasterBillingItem
   , tag
   FROM BillingItem
   WHERE NOT EXISTS(SELECT * FROM BillingItem_Audit)
@@ -4684,6 +4705,7 @@ BEGIN
   , idInvoice
   , idDiskUsageByMonth
   , idProductOrder
+  , idMasterBillingItem
   , tag )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
@@ -4712,6 +4734,7 @@ BEGIN
   , NEW.idInvoice
   , NEW.idDiskUsageByMonth
   , NEW.idProductOrder
+  , NEW.idMasterBillingItem
   , NEW.tag );
 END;
 $$
@@ -4746,6 +4769,7 @@ BEGIN
   , idInvoice
   , idDiskUsageByMonth
   , idProductOrder
+  , idMasterBillingItem
   , tag )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
@@ -4774,6 +4798,7 @@ BEGIN
   , NEW.idInvoice
   , NEW.idDiskUsageByMonth
   , NEW.idProductOrder
+  , NEW.idMasterBillingItem
   , NEW.tag );
 END;
 $$
@@ -4808,6 +4833,7 @@ BEGIN
   , idInvoice
   , idDiskUsageByMonth
   , idProductOrder
+  , idMasterBillingItem
   , tag )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
@@ -4836,6 +4862,7 @@ BEGIN
   , OLD.idInvoice
   , OLD.idDiskUsageByMonth
   , OLD.idProductOrder
+  , OLD.idMasterBillingItem
   , OLD.tag );
 END;
 $$
@@ -5304,6 +5331,264 @@ $$
 
 
 --
+-- Audit Table For BillingTemplateItem 
+--
+
+CREATE TABLE IF NOT EXISTS `BillingTemplateItem_Audit` (
+  `AuditAppuser`       varchar(128) NOT NULL
+ ,`AuditOperation`     char(1)      NOT NULL
+ ,`AuditSystemUser`    varchar(30)  NOT NULL
+ ,`AuditOperationDate` datetime     NOT NULL
+ ,`idBillingTemplateItem`  int(10)  NULL DEFAULT NULL
+ ,`idBillingTemplate`  int(10)  NULL DEFAULT NULL
+ ,`idBillingAccount`  int(10)  NULL DEFAULT NULL
+ ,`percentSplit`  decimal(4,3)  NULL DEFAULT NULL
+ ,`dollarAmount`  decimal(7,2)  NULL DEFAULT NULL
+ ,`dollarAmountBalance`  decimal(7,2)  NULL DEFAULT NULL
+ ,`sortOrder`  int(10)  NULL DEFAULT NULL
+) ENGINE=InnoDB
+$$
+
+
+--
+-- Initial audit table rows for BillingTemplateItem 
+--
+
+INSERT INTO BillingTemplateItem_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idBillingTemplateItem
+  , idBillingTemplate
+  , idBillingAccount
+  , percentSplit
+  , dollarAmount
+  , dollarAmountBalance
+  , sortOrder )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idBillingTemplateItem
+  , idBillingTemplate
+  , idBillingAccount
+  , percentSplit
+  , dollarAmount
+  , dollarAmountBalance
+  , sortOrder
+  FROM BillingTemplateItem
+  WHERE NOT EXISTS(SELECT * FROM BillingTemplateItem_Audit)
+$$
+
+--
+-- Audit Triggers For BillingTemplateItem 
+--
+
+
+CREATE TRIGGER TrAI_BillingTemplateItem_FER AFTER INSERT ON BillingTemplateItem FOR EACH ROW
+BEGIN
+  INSERT INTO BillingTemplateItem_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idBillingTemplateItem
+  , idBillingTemplate
+  , idBillingAccount
+  , percentSplit
+  , dollarAmount
+  , dollarAmountBalance
+  , sortOrder )
+  VALUES
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
+  , 'I'
+  , USER()
+  , NOW()
+  , NEW.idBillingTemplateItem
+  , NEW.idBillingTemplate
+  , NEW.idBillingAccount
+  , NEW.percentSplit
+  , NEW.dollarAmount
+  , NEW.dollarAmountBalance
+  , NEW.sortOrder );
+END;
+$$
+
+
+CREATE TRIGGER TrAU_BillingTemplateItem_FER AFTER UPDATE ON BillingTemplateItem FOR EACH ROW
+BEGIN
+  INSERT INTO BillingTemplateItem_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idBillingTemplateItem
+  , idBillingTemplate
+  , idBillingAccount
+  , percentSplit
+  , dollarAmount
+  , dollarAmountBalance
+  , sortOrder )
+  VALUES
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
+  , 'U'
+  , USER()
+  , NOW()
+  , NEW.idBillingTemplateItem
+  , NEW.idBillingTemplate
+  , NEW.idBillingAccount
+  , NEW.percentSplit
+  , NEW.dollarAmount
+  , NEW.dollarAmountBalance
+  , NEW.sortOrder );
+END;
+$$
+
+
+CREATE TRIGGER TrAD_BillingTemplateItem_FER AFTER DELETE ON BillingTemplateItem FOR EACH ROW
+BEGIN
+  INSERT INTO BillingTemplateItem_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idBillingTemplateItem
+  , idBillingTemplate
+  , idBillingAccount
+  , percentSplit
+  , dollarAmount
+  , dollarAmountBalance
+  , sortOrder )
+  VALUES
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
+  , 'D'
+  , USER()
+  , NOW()
+  , OLD.idBillingTemplateItem
+  , OLD.idBillingTemplate
+  , OLD.idBillingAccount
+  , OLD.percentSplit
+  , OLD.dollarAmount
+  , OLD.dollarAmountBalance
+  , OLD.sortOrder );
+END;
+$$
+
+
+--
+-- Audit Table For BillingTemplate 
+--
+
+CREATE TABLE IF NOT EXISTS `BillingTemplate_Audit` (
+  `AuditAppuser`       varchar(128) NOT NULL
+ ,`AuditOperation`     char(1)      NOT NULL
+ ,`AuditSystemUser`    varchar(30)  NOT NULL
+ ,`AuditOperationDate` datetime     NOT NULL
+ ,`idBillingTemplate`  int(10)  NULL DEFAULT NULL
+ ,`targetClassIdentifier`  int(10)  NULL DEFAULT NULL
+ ,`targetClassName`  varchar(100)  NULL DEFAULT NULL
+) ENGINE=InnoDB
+$$
+
+
+--
+-- Initial audit table rows for BillingTemplate 
+--
+
+INSERT INTO BillingTemplate_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idBillingTemplate
+  , targetClassIdentifier
+  , targetClassName )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idBillingTemplate
+  , targetClassIdentifier
+  , targetClassName
+  FROM BillingTemplate
+  WHERE NOT EXISTS(SELECT * FROM BillingTemplate_Audit)
+$$
+
+--
+-- Audit Triggers For BillingTemplate 
+--
+
+
+CREATE TRIGGER TrAI_BillingTemplate_FER AFTER INSERT ON BillingTemplate FOR EACH ROW
+BEGIN
+  INSERT INTO BillingTemplate_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idBillingTemplate
+  , targetClassIdentifier
+  , targetClassName )
+  VALUES
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
+  , 'I'
+  , USER()
+  , NOW()
+  , NEW.idBillingTemplate
+  , NEW.targetClassIdentifier
+  , NEW.targetClassName );
+END;
+$$
+
+
+CREATE TRIGGER TrAU_BillingTemplate_FER AFTER UPDATE ON BillingTemplate FOR EACH ROW
+BEGIN
+  INSERT INTO BillingTemplate_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idBillingTemplate
+  , targetClassIdentifier
+  , targetClassName )
+  VALUES
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
+  , 'U'
+  , USER()
+  , NOW()
+  , NEW.idBillingTemplate
+  , NEW.targetClassIdentifier
+  , NEW.targetClassName );
+END;
+$$
+
+
+CREATE TRIGGER TrAD_BillingTemplate_FER AFTER DELETE ON BillingTemplate FOR EACH ROW
+BEGIN
+  INSERT INTO BillingTemplate_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idBillingTemplate
+  , targetClassIdentifier
+  , targetClassName )
+  VALUES
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
+  , 'D'
+  , USER()
+  , NOW()
+  , OLD.idBillingTemplate
+  , OLD.targetClassIdentifier
+  , OLD.targetClassName );
+END;
+$$
+
+
+--
 -- Audit Table For BioanalyzerChipType 
 --
 
@@ -5322,7 +5607,7 @@ CREATE TABLE IF NOT EXISTS `BioanalyzerChipType_Audit` (
  ,`codeConcentrationUnit`  varchar(10)  NULL DEFAULT NULL
  ,`codeApplication`  varchar(10)  NULL DEFAULT NULL
  ,`protocolDescription`  longtext  NULL DEFAULT NULL
- ,`sortOrder`  int(10)  NULL DEFAULT NULL
+ ,`sortOrder`  int(11)  NULL DEFAULT NULL
 ) ENGINE=InnoDB
 $$
 
@@ -7588,6 +7873,117 @@ BEGIN
   , OLD.idBillingPeriod
   , OLD.idBillingAccount
   , OLD.idCoreFacility );
+END;
+$$
+
+
+--
+-- Audit Table For DNAPrepType 
+--
+
+CREATE TABLE IF NOT EXISTS `DNAPrepType_Audit` (
+  `AuditAppuser`       varchar(128) NOT NULL
+ ,`AuditOperation`     char(1)      NOT NULL
+ ,`AuditSystemUser`    varchar(30)  NOT NULL
+ ,`AuditOperationDate` datetime     NOT NULL
+ ,`codeDNAPrepType`  varchar(10)  NULL DEFAULT NULL
+ ,`dnaPrepType`  varchar(100)  NULL DEFAULT NULL
+ ,`isActive`  char(1)  NULL DEFAULT NULL
+) ENGINE=InnoDB
+$$
+
+
+--
+-- Initial audit table rows for DNAPrepType 
+--
+
+INSERT INTO DNAPrepType_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , codeDNAPrepType
+  , dnaPrepType
+  , isActive )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , codeDNAPrepType
+  , dnaPrepType
+  , isActive
+  FROM DNAPrepType
+  WHERE NOT EXISTS(SELECT * FROM DNAPrepType_Audit)
+$$
+
+--
+-- Audit Triggers For DNAPrepType 
+--
+
+
+CREATE TRIGGER TrAI_DNAPrepType_FER AFTER INSERT ON DNAPrepType FOR EACH ROW
+BEGIN
+  INSERT INTO DNAPrepType_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , codeDNAPrepType
+  , dnaPrepType
+  , isActive )
+  VALUES
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
+  , 'I'
+  , USER()
+  , NOW()
+  , NEW.codeDNAPrepType
+  , NEW.dnaPrepType
+  , NEW.isActive );
+END;
+$$
+
+
+CREATE TRIGGER TrAU_DNAPrepType_FER AFTER UPDATE ON DNAPrepType FOR EACH ROW
+BEGIN
+  INSERT INTO DNAPrepType_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , codeDNAPrepType
+  , dnaPrepType
+  , isActive )
+  VALUES
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
+  , 'U'
+  , USER()
+  , NOW()
+  , NEW.codeDNAPrepType
+  , NEW.dnaPrepType
+  , NEW.isActive );
+END;
+$$
+
+
+CREATE TRIGGER TrAD_DNAPrepType_FER AFTER DELETE ON DNAPrepType FOR EACH ROW
+BEGIN
+  INSERT INTO DNAPrepType_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , codeDNAPrepType
+  , dnaPrepType
+  , isActive )
+  VALUES
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
+  , 'D'
+  , USER()
+  , NOW()
+  , OLD.codeDNAPrepType
+  , OLD.dnaPrepType
+  , OLD.isActive );
 END;
 $$
 
@@ -10935,162 +11331,6 @@ $$
 
 
 --
--- Audit Table For IScanChip 
---
-
-CREATE TABLE IF NOT EXISTS `IScanChip_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
- ,`idIScanChip`  int(10)  NULL DEFAULT NULL
- ,`name`  varchar(500)  NULL DEFAULT NULL
- ,`costPerSample`  decimal(5,2)  NULL DEFAULT NULL
- ,`samplesPerChip`  int(10)  NULL DEFAULT NULL
- ,`chipsPerKit`  int(10)  NULL DEFAULT NULL
- ,`markersPerSample`  varchar(100)  NULL DEFAULT NULL
- ,`catalogNumber`  varchar(100)  NULL DEFAULT NULL
- ,`isActive`  char(1)  NULL DEFAULT NULL
-) ENGINE=InnoDB
-$$
-
-
---
--- Initial audit table rows for IScanChip 
---
-
-INSERT INTO IScanChip_Audit
-  ( AuditAppuser
-  , AuditOperation
-  , AuditSystemUser
-  , AuditOperationDate
-  , idIScanChip
-  , name
-  , costPerSample
-  , samplesPerChip
-  , chipsPerKit
-  , markersPerSample
-  , catalogNumber
-  , isActive )
-  SELECT
-  'No Context'
-  , 'L'
-  , USER()
-  , NOW()
-  , idIScanChip
-  , name
-  , costPerSample
-  , samplesPerChip
-  , chipsPerKit
-  , markersPerSample
-  , catalogNumber
-  , isActive
-  FROM IScanChip
-  WHERE NOT EXISTS(SELECT * FROM IScanChip_Audit)
-$$
-
---
--- Audit Triggers For IScanChip 
---
-
-
-CREATE TRIGGER TrAI_IScanChip_FER AFTER INSERT ON IScanChip FOR EACH ROW
-BEGIN
-  INSERT INTO IScanChip_Audit
-  ( AuditAppuser
-  , AuditOperation
-  , AuditSystemUser
-  , AuditOperationDate
-  , idIScanChip
-  , name
-  , costPerSample
-  , samplesPerChip
-  , chipsPerKit
-  , markersPerSample
-  , catalogNumber
-  , isActive )
-  VALUES
-  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
-  , 'I'
-  , USER()
-  , NOW()
-  , NEW.idIScanChip
-  , NEW.name
-  , NEW.costPerSample
-  , NEW.samplesPerChip
-  , NEW.chipsPerKit
-  , NEW.markersPerSample
-  , NEW.catalogNumber
-  , NEW.isActive );
-END;
-$$
-
-
-CREATE TRIGGER TrAU_IScanChip_FER AFTER UPDATE ON IScanChip FOR EACH ROW
-BEGIN
-  INSERT INTO IScanChip_Audit
-  ( AuditAppuser
-  , AuditOperation
-  , AuditSystemUser
-  , AuditOperationDate
-  , idIScanChip
-  , name
-  , costPerSample
-  , samplesPerChip
-  , chipsPerKit
-  , markersPerSample
-  , catalogNumber
-  , isActive )
-  VALUES
-  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
-  , 'U'
-  , USER()
-  , NOW()
-  , NEW.idIScanChip
-  , NEW.name
-  , NEW.costPerSample
-  , NEW.samplesPerChip
-  , NEW.chipsPerKit
-  , NEW.markersPerSample
-  , NEW.catalogNumber
-  , NEW.isActive );
-END;
-$$
-
-
-CREATE TRIGGER TrAD_IScanChip_FER AFTER DELETE ON IScanChip FOR EACH ROW
-BEGIN
-  INSERT INTO IScanChip_Audit
-  ( AuditAppuser
-  , AuditOperation
-  , AuditSystemUser
-  , AuditOperationDate
-  , idIScanChip
-  , name
-  , costPerSample
-  , samplesPerChip
-  , chipsPerKit
-  , markersPerSample
-  , catalogNumber
-  , isActive )
-  VALUES
-  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
-  , 'D'
-  , USER()
-  , NOW()
-  , OLD.idIScanChip
-  , OLD.name
-  , OLD.costPerSample
-  , OLD.samplesPerChip
-  , OLD.chipsPerKit
-  , OLD.markersPerSample
-  , OLD.catalogNumber
-  , OLD.isActive );
-END;
-$$
-
-
---
 -- Audit Table For IsolationPrepType 
 --
 
@@ -12414,6 +12654,198 @@ $$
 
 
 --
+-- Audit Table For MasterBillingItem 
+--
+
+CREATE TABLE IF NOT EXISTS `MasterBillingItem_Audit` (
+  `AuditAppuser`       varchar(128) NOT NULL
+ ,`AuditOperation`     char(1)      NOT NULL
+ ,`AuditSystemUser`    varchar(30)  NOT NULL
+ ,`AuditOperationDate` datetime     NOT NULL
+ ,`idMasterBillingItem`  int(10)  NULL DEFAULT NULL
+ ,`idBillingTemplate`  int(10)  NULL DEFAULT NULL
+ ,`codeBillingChargeKind`  varchar(10)  NULL DEFAULT NULL
+ ,`category`  varchar(200)  NULL DEFAULT NULL
+ ,`description`  varchar(500)  NULL DEFAULT NULL
+ ,`qty`  int(10)  NULL DEFAULT NULL
+ ,`unitPrice`  decimal(7,2)  NULL DEFAULT NULL
+ ,`totalPrice`  decimal(9,2)  NULL DEFAULT NULL
+ ,`idBillingPeriod`  int(10)  NULL DEFAULT NULL
+ ,`idPrice`  int(10)  NULL DEFAULT NULL
+ ,`idPriceCategory`  int(10)  NULL DEFAULT NULL
+ ,`idCoreFacility`  int(10)  NULL DEFAULT NULL
+) ENGINE=InnoDB
+$$
+
+
+--
+-- Initial audit table rows for MasterBillingItem 
+--
+
+INSERT INTO MasterBillingItem_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idMasterBillingItem
+  , idBillingTemplate
+  , codeBillingChargeKind
+  , category
+  , description
+  , qty
+  , unitPrice
+  , totalPrice
+  , idBillingPeriod
+  , idPrice
+  , idPriceCategory
+  , idCoreFacility )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idMasterBillingItem
+  , idBillingTemplate
+  , codeBillingChargeKind
+  , category
+  , description
+  , qty
+  , unitPrice
+  , totalPrice
+  , idBillingPeriod
+  , idPrice
+  , idPriceCategory
+  , idCoreFacility
+  FROM MasterBillingItem
+  WHERE NOT EXISTS(SELECT * FROM MasterBillingItem_Audit)
+$$
+
+--
+-- Audit Triggers For MasterBillingItem 
+--
+
+
+CREATE TRIGGER TrAI_MasterBillingItem_FER AFTER INSERT ON MasterBillingItem FOR EACH ROW
+BEGIN
+  INSERT INTO MasterBillingItem_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idMasterBillingItem
+  , idBillingTemplate
+  , codeBillingChargeKind
+  , category
+  , description
+  , qty
+  , unitPrice
+  , totalPrice
+  , idBillingPeriod
+  , idPrice
+  , idPriceCategory
+  , idCoreFacility )
+  VALUES
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
+  , 'I'
+  , USER()
+  , NOW()
+  , NEW.idMasterBillingItem
+  , NEW.idBillingTemplate
+  , NEW.codeBillingChargeKind
+  , NEW.category
+  , NEW.description
+  , NEW.qty
+  , NEW.unitPrice
+  , NEW.totalPrice
+  , NEW.idBillingPeriod
+  , NEW.idPrice
+  , NEW.idPriceCategory
+  , NEW.idCoreFacility );
+END;
+$$
+
+
+CREATE TRIGGER TrAU_MasterBillingItem_FER AFTER UPDATE ON MasterBillingItem FOR EACH ROW
+BEGIN
+  INSERT INTO MasterBillingItem_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idMasterBillingItem
+  , idBillingTemplate
+  , codeBillingChargeKind
+  , category
+  , description
+  , qty
+  , unitPrice
+  , totalPrice
+  , idBillingPeriod
+  , idPrice
+  , idPriceCategory
+  , idCoreFacility )
+  VALUES
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
+  , 'U'
+  , USER()
+  , NOW()
+  , NEW.idMasterBillingItem
+  , NEW.idBillingTemplate
+  , NEW.codeBillingChargeKind
+  , NEW.category
+  , NEW.description
+  , NEW.qty
+  , NEW.unitPrice
+  , NEW.totalPrice
+  , NEW.idBillingPeriod
+  , NEW.idPrice
+  , NEW.idPriceCategory
+  , NEW.idCoreFacility );
+END;
+$$
+
+
+CREATE TRIGGER TrAD_MasterBillingItem_FER AFTER DELETE ON MasterBillingItem FOR EACH ROW
+BEGIN
+  INSERT INTO MasterBillingItem_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idMasterBillingItem
+  , idBillingTemplate
+  , codeBillingChargeKind
+  , category
+  , description
+  , qty
+  , unitPrice
+  , totalPrice
+  , idBillingPeriod
+  , idPrice
+  , idPriceCategory
+  , idCoreFacility )
+  VALUES
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
+  , 'D'
+  , USER()
+  , NOW()
+  , OLD.idMasterBillingItem
+  , OLD.idBillingTemplate
+  , OLD.codeBillingChargeKind
+  , OLD.category
+  , OLD.description
+  , OLD.qty
+  , OLD.unitPrice
+  , OLD.totalPrice
+  , OLD.idBillingPeriod
+  , OLD.idPrice
+  , OLD.idPriceCategory
+  , OLD.idCoreFacility );
+END;
+$$
+
+
+--
 -- Audit Table For MetrixObject 
 --
 
@@ -12529,108 +12961,6 @@ BEGIN
   , OLD.run_id
   , OLD.object_value
   , OLD.state );
-END;
-$$
-
-
---
--- Audit Table For MicroArrayRequestNumber 
---
-
-CREATE TABLE IF NOT EXISTS `MicroArrayRequestNumber_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
- ,`number`  int(10)  NULL DEFAULT NULL
- ,`dummy`  char(1)  NULL DEFAULT NULL
-) ENGINE=InnoDB
-$$
-
-
---
--- Initial audit table rows for MicroArrayRequestNumber 
---
-
-INSERT INTO MicroArrayRequestNumber_Audit
-  ( AuditAppuser
-  , AuditOperation
-  , AuditSystemUser
-  , AuditOperationDate
-  , number
-  , dummy )
-  SELECT
-  'No Context'
-  , 'L'
-  , USER()
-  , NOW()
-  , number
-  , dummy
-  FROM MicroArrayRequestNumber
-  WHERE NOT EXISTS(SELECT * FROM MicroArrayRequestNumber_Audit)
-$$
-
---
--- Audit Triggers For MicroArrayRequestNumber 
---
-
-
-CREATE TRIGGER TrAI_MicroArrayRequestNumber_FER AFTER INSERT ON MicroArrayRequestNumber FOR EACH ROW
-BEGIN
-  INSERT INTO MicroArrayRequestNumber_Audit
-  ( AuditAppuser
-  , AuditOperation
-  , AuditSystemUser
-  , AuditOperationDate
-  , number
-  , dummy )
-  VALUES
-  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
-  , 'I'
-  , USER()
-  , NOW()
-  , NEW.number
-  , NEW.dummy );
-END;
-$$
-
-
-CREATE TRIGGER TrAU_MicroArrayRequestNumber_FER AFTER UPDATE ON MicroArrayRequestNumber FOR EACH ROW
-BEGIN
-  INSERT INTO MicroArrayRequestNumber_Audit
-  ( AuditAppuser
-  , AuditOperation
-  , AuditSystemUser
-  , AuditOperationDate
-  , number
-  , dummy )
-  VALUES
-  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
-  , 'U'
-  , USER()
-  , NOW()
-  , NEW.number
-  , NEW.dummy );
-END;
-$$
-
-
-CREATE TRIGGER TrAD_MicroArrayRequestNumber_FER AFTER DELETE ON MicroArrayRequestNumber FOR EACH ROW
-BEGIN
-  INSERT INTO MicroArrayRequestNumber_Audit
-  ( AuditAppuser
-  , AuditOperation
-  , AuditSystemUser
-  , AuditOperationDate
-  , number
-  , dummy )
-  VALUES
-  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
-  , 'D'
-  , USER()
-  , NOW()
-  , OLD.number
-  , OLD.dummy );
 END;
 $$
 
@@ -14778,8 +15108,8 @@ CREATE TABLE IF NOT EXISTS `PriceCriteria_Audit` (
  ,`AuditSystemUser`    varchar(30)  NOT NULL
  ,`AuditOperationDate` datetime     NOT NULL
  ,`idPriceCriteria`  int(10)  NULL DEFAULT NULL
- ,`filter1`  varchar(10)  NULL DEFAULT NULL
- ,`filter2`  varchar(10)  NULL DEFAULT NULL
+ ,`filter1`  varchar(20)  NULL DEFAULT NULL
+ ,`filter2`  varchar(20)  NULL DEFAULT NULL
  ,`idPrice`  int(10)  NULL DEFAULT NULL
 ) ENGINE=InnoDB
 $$
@@ -15523,6 +15853,7 @@ CREATE TABLE IF NOT EXISTS `ProductLedger_Audit` (
  ,`timeStame`  datetime  NULL DEFAULT NULL
  ,`idProductOrder`  int(10)  NULL DEFAULT NULL
  ,`idRequest`  int(10)  NULL DEFAULT NULL
+ ,`notes`  varchar(5000)  NULL DEFAULT NULL
 ) ENGINE=InnoDB
 $$
 
@@ -15543,7 +15874,8 @@ INSERT INTO ProductLedger_Audit
   , comment
   , timeStame
   , idProductOrder
-  , idRequest )
+  , idRequest
+  , notes )
   SELECT
   'No Context'
   , 'L'
@@ -15557,6 +15889,7 @@ INSERT INTO ProductLedger_Audit
   , timeStame
   , idProductOrder
   , idRequest
+  , notes
   FROM ProductLedger
   WHERE NOT EXISTS(SELECT * FROM ProductLedger_Audit)
 $$
@@ -15580,7 +15913,8 @@ BEGIN
   , comment
   , timeStame
   , idProductOrder
-  , idRequest )
+  , idRequest
+  , notes )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
@@ -15593,7 +15927,8 @@ BEGIN
   , NEW.comment
   , NEW.timeStame
   , NEW.idProductOrder
-  , NEW.idRequest );
+  , NEW.idRequest
+  , NEW.notes );
 END;
 $$
 
@@ -15612,7 +15947,8 @@ BEGIN
   , comment
   , timeStame
   , idProductOrder
-  , idRequest )
+  , idRequest
+  , notes )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
@@ -15625,7 +15961,8 @@ BEGIN
   , NEW.comment
   , NEW.timeStame
   , NEW.idProductOrder
-  , NEW.idRequest );
+  , NEW.idRequest
+  , NEW.notes );
 END;
 $$
 
@@ -15644,7 +15981,8 @@ BEGIN
   , comment
   , timeStame
   , idProductOrder
-  , idRequest )
+  , idRequest
+  , notes )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
@@ -15657,7 +15995,8 @@ BEGIN
   , OLD.comment
   , OLD.timeStame
   , OLD.idProductOrder
-  , OLD.idRequest );
+  , OLD.idRequest
+  , OLD.notes );
 END;
 $$
 
@@ -16076,7 +16415,7 @@ CREATE TABLE IF NOT EXISTS `ProductOrder_Audit` (
  ,`quoteNumber`  varchar(50)  NULL DEFAULT NULL
  ,`quoteReceivedDate`  datetime  NULL DEFAULT NULL
  ,`uuid`  varchar(36)  NULL DEFAULT NULL
- ,`idBillingAccount`  int(10)  NULL DEFAULT NULL
+ ,`idBillingAccount`  int(11)  NULL DEFAULT NULL
  ,`productOrderNumber`  varchar(10)  NULL DEFAULT NULL
 ) ENGINE=InnoDB
 $$
@@ -16250,11 +16589,12 @@ CREATE TABLE IF NOT EXISTS `ProductType_Audit` (
  ,`AuditOperation`     char(1)      NOT NULL
  ,`AuditSystemUser`    varchar(30)  NOT NULL
  ,`AuditOperationDate` datetime     NOT NULL
- ,`idProductType`  int(10)  NULL DEFAULT NULL
- ,`description`  varchar(5000)  NULL DEFAULT NULL
+ ,`description`  varchar(500)  NULL DEFAULT NULL
  ,`idCoreFacility`  int(10)  NULL DEFAULT NULL
  ,`idVendor`  int(10)  NULL DEFAULT NULL
  ,`idPriceCategory`  int(10)  NULL DEFAULT NULL
+ ,`utilizePurchasingSystem`  char(1)  NULL DEFAULT NULL
+ ,`idProductType`  int(10)  NULL DEFAULT NULL
 ) ENGINE=InnoDB
 $$
 
@@ -16268,21 +16608,23 @@ INSERT INTO ProductType_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
-  , idProductType
   , description
   , idCoreFacility
   , idVendor
-  , idPriceCategory )
+  , idPriceCategory
+  , utilizePurchasingSystem
+  , idProductType )
   SELECT
   'No Context'
   , 'L'
   , USER()
   , NOW()
-  , idProductType
   , description
   , idCoreFacility
   , idVendor
   , idPriceCategory
+  , utilizePurchasingSystem
+  , idProductType
   FROM ProductType
   WHERE NOT EXISTS(SELECT * FROM ProductType_Audit)
 $$
@@ -16299,21 +16641,23 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
-  , idProductType
   , description
   , idCoreFacility
   , idVendor
-  , idPriceCategory )
+  , idPriceCategory
+  , utilizePurchasingSystem
+  , idProductType )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
   , USER()
   , NOW()
-  , NEW.idProductType
   , NEW.description
   , NEW.idCoreFacility
   , NEW.idVendor
-  , NEW.idPriceCategory );
+  , NEW.idPriceCategory
+  , NEW.utilizePurchasingSystem
+  , NEW.idProductType );
 END;
 $$
 
@@ -16325,21 +16669,23 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
-  , idProductType
   , description
   , idCoreFacility
   , idVendor
-  , idPriceCategory )
+  , idPriceCategory
+  , utilizePurchasingSystem
+  , idProductType )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
   , USER()
   , NOW()
-  , NEW.idProductType
   , NEW.description
   , NEW.idCoreFacility
   , NEW.idVendor
-  , NEW.idPriceCategory );
+  , NEW.idPriceCategory
+  , NEW.utilizePurchasingSystem
+  , NEW.idProductType );
 END;
 $$
 
@@ -16351,21 +16697,23 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
-  , idProductType
   , description
   , idCoreFacility
   , idVendor
-  , idPriceCategory )
+  , idPriceCategory
+  , utilizePurchasingSystem
+  , idProductType )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
   , USER()
   , NOW()
-  , OLD.idProductType
   , OLD.description
   , OLD.idCoreFacility
   , OLD.idVendor
-  , OLD.idPriceCategory );
+  , OLD.idPriceCategory
+  , OLD.utilizePurchasingSystem
+  , OLD.idProductType );
 END;
 $$
 
@@ -16387,8 +16735,8 @@ CREATE TABLE IF NOT EXISTS `Product_Audit` (
  ,`useQty`  int(10)  NULL DEFAULT NULL
  ,`catalogNumber`  varchar(100)  NULL DEFAULT NULL
  ,`isActive`  char(1)  NULL DEFAULT NULL
- ,`batchSamplesByUseQuantity`  char(1)  NULL DEFAULT NULL
  ,`billThroughGnomex`  char(1)  NULL DEFAULT NULL
+ ,`batchSamplesByUseQuantity`  char(1)  NULL DEFAULT NULL
 ) ENGINE=InnoDB
 $$
 
@@ -16410,8 +16758,8 @@ INSERT INTO Product_Audit
   , useQty
   , catalogNumber
   , isActive
-  , batchSamplesByUseQuantity
-  , billThroughGnomex )
+  , billThroughGnomex
+  , batchSamplesByUseQuantity )
   SELECT
   'No Context'
   , 'L'
@@ -16425,8 +16773,8 @@ INSERT INTO Product_Audit
   , useQty
   , catalogNumber
   , isActive
-  , batchSamplesByUseQuantity
   , billThroughGnomex
+  , batchSamplesByUseQuantity
   FROM Product
   WHERE NOT EXISTS(SELECT * FROM Product_Audit)
 $$
@@ -16451,8 +16799,8 @@ BEGIN
   , useQty
   , catalogNumber
   , isActive
-  , batchSamplesByUseQuantity
-  , billThroughGnomex )
+  , billThroughGnomex
+  , batchSamplesByUseQuantity )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
@@ -16466,8 +16814,8 @@ BEGIN
   , NEW.useQty
   , NEW.catalogNumber
   , NEW.isActive
-  , NEW.batchSamplesByUseQuantity
-  , NEW.billThroughGnomex );
+  , NEW.billThroughGnomex
+  , NEW.batchSamplesByUseQuantity );
 END;
 $$
 
@@ -16487,8 +16835,8 @@ BEGIN
   , useQty
   , catalogNumber
   , isActive
-  , batchSamplesByUseQuantity
-  , billThroughGnomex )
+  , billThroughGnomex
+  , batchSamplesByUseQuantity )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
@@ -16502,8 +16850,8 @@ BEGIN
   , NEW.useQty
   , NEW.catalogNumber
   , NEW.isActive
-  , NEW.batchSamplesByUseQuantity
-  , NEW.billThroughGnomex );
+  , NEW.billThroughGnomex
+  , NEW.batchSamplesByUseQuantity );
 END;
 $$
 
@@ -16523,8 +16871,8 @@ BEGIN
   , useQty
   , catalogNumber
   , isActive
-  , batchSamplesByUseQuantity
-  , billThroughGnomex )
+  , billThroughGnomex
+  , batchSamplesByUseQuantity )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
@@ -16538,8 +16886,8 @@ BEGIN
   , OLD.useQty
   , OLD.catalogNumber
   , OLD.isActive
-  , OLD.batchSamplesByUseQuantity
-  , OLD.billThroughGnomex );
+  , OLD.billThroughGnomex
+  , OLD.batchSamplesByUseQuantity );
 END;
 $$
 
@@ -17267,11 +17615,11 @@ CREATE TABLE IF NOT EXISTS `PropertyEntry_Audit` (
  ,`idPropertyEntry`  int(10)  NULL DEFAULT NULL
  ,`idProperty`  int(10)  NULL DEFAULT NULL
  ,`idSample`  int(10)  NULL DEFAULT NULL
- ,`valueString`  varchar(200)  NULL DEFAULT NULL
+ ,`valueString`  varchar(2000)  NULL DEFAULT NULL
  ,`otherLabel`  varchar(100)  NULL DEFAULT NULL
  ,`idDataTrack`  int(10)  NULL DEFAULT NULL
  ,`idAnalysis`  int(10)  NULL DEFAULT NULL
- ,`idRequest`  int(10)  NULL DEFAULT NULL
+ ,`idRequest`  int(11)  NULL DEFAULT NULL
 ) ENGINE=InnoDB
 $$
 
@@ -17897,7 +18245,7 @@ CREATE TABLE IF NOT EXISTS `Property_Audit` (
  ,`sortOrder`  int(10)  NULL DEFAULT NULL
  ,`idCoreFacility`  int(10)  NULL DEFAULT NULL
  ,`forRequest`  char(1)  NULL DEFAULT NULL
- ,`idPriceCategory`  int(10)  NULL DEFAULT NULL
+ ,`idPriceCategory`  int(11)  NULL DEFAULT NULL
 ) ENGINE=InnoDB
 $$
 
@@ -18873,9 +19221,9 @@ CREATE TABLE IF NOT EXISTS `RequestCategory_Audit` (
  ,`refrainFromAutoDelete`  char(1)  NULL DEFAULT NULL
  ,`isClinicalResearch`  char(1)  NULL DEFAULT NULL
  ,`isOwnerOnly`  char(1)  NULL DEFAULT NULL
- ,`sampleBatchSize`  int(10)  NULL DEFAULT NULL
- ,`idProductType`  int(10)  NULL DEFAULT NULL
+ ,`sampleBatchSize`  int(11)  NULL DEFAULT NULL
  ,`associatedWithAnalysis`  char(1)  NULL DEFAULT NULL
+ ,`idProductType`  int(10)  NULL DEFAULT NULL
 ) ENGINE=InnoDB
 $$
 
@@ -18906,8 +19254,8 @@ INSERT INTO RequestCategory_Audit
   , isClinicalResearch
   , isOwnerOnly
   , sampleBatchSize
-  , idProductType
-  , associatedWithAnalysis )
+  , associatedWithAnalysis
+  , idProductType )
   SELECT
   'No Context'
   , 'L'
@@ -18930,8 +19278,8 @@ INSERT INTO RequestCategory_Audit
   , isClinicalResearch
   , isOwnerOnly
   , sampleBatchSize
-  , idProductType
   , associatedWithAnalysis
+  , idProductType
   FROM RequestCategory
   WHERE NOT EXISTS(SELECT * FROM RequestCategory_Audit)
 $$
@@ -18965,8 +19313,8 @@ BEGIN
   , isClinicalResearch
   , isOwnerOnly
   , sampleBatchSize
-  , idProductType
-  , associatedWithAnalysis )
+  , associatedWithAnalysis
+  , idProductType )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
@@ -18989,8 +19337,8 @@ BEGIN
   , NEW.isClinicalResearch
   , NEW.isOwnerOnly
   , NEW.sampleBatchSize
-  , NEW.idProductType
-  , NEW.associatedWithAnalysis );
+  , NEW.associatedWithAnalysis
+  , NEW.idProductType );
 END;
 $$
 
@@ -19019,8 +19367,8 @@ BEGIN
   , isClinicalResearch
   , isOwnerOnly
   , sampleBatchSize
-  , idProductType
-  , associatedWithAnalysis )
+  , associatedWithAnalysis
+  , idProductType )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
@@ -19043,8 +19391,8 @@ BEGIN
   , NEW.isClinicalResearch
   , NEW.isOwnerOnly
   , NEW.sampleBatchSize
-  , NEW.idProductType
-  , NEW.associatedWithAnalysis );
+  , NEW.associatedWithAnalysis
+  , NEW.idProductType );
 END;
 $$
 
@@ -19073,8 +19421,8 @@ BEGIN
   , isClinicalResearch
   , isOwnerOnly
   , sampleBatchSize
-  , idProductType
-  , associatedWithAnalysis )
+  , associatedWithAnalysis
+  , idProductType )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
@@ -19097,8 +19445,8 @@ BEGIN
   , OLD.isClinicalResearch
   , OLD.isOwnerOnly
   , OLD.sampleBatchSize
-  , OLD.idProductType
-  , OLD.associatedWithAnalysis );
+  , OLD.associatedWithAnalysis
+  , OLD.idProductType );
 END;
 $$
 
@@ -19685,20 +20033,17 @@ CREATE TABLE IF NOT EXISTS `Request_Audit` (
  ,`idSampleDropOffLocation`  int(10)  NULL DEFAULT NULL
  ,`codeRequestStatus`  varchar(10)  NULL DEFAULT NULL
  ,`idSubmitter`  int(10)  NULL DEFAULT NULL
- ,`numberIScanChips`  int(10)  NULL DEFAULT NULL
- ,`idIScanChip`  int(10)  NULL DEFAULT NULL
  ,`coreToExtractDNA`  char(1)  NULL DEFAULT NULL
  ,`applicationNotes`  varchar(5000)  NULL DEFAULT NULL
  ,`processingDate`  datetime  NULL DEFAULT NULL
- ,`codeIsolationPrepType`  varchar(15)  NULL DEFAULT NULL
  ,`bioinformaticsAssist`  char(1)  NULL DEFAULT NULL
  ,`hasPrePooledLibraries`  char(1)  NULL DEFAULT NULL
  ,`numPrePooledTubes`  int(10)  NULL DEFAULT NULL
  ,`includeBisulfideConversion`  char(1)  NULL DEFAULT NULL
  ,`includeQubitConcentration`  char(1)  NULL DEFAULT NULL
- ,`alignToGenomeBuild`  char(1)  NULL DEFAULT NULL
  ,`adminNotes`  varchar(5000)  NULL DEFAULT NULL
  ,`idProduct`  int(10)  NULL DEFAULT NULL
+ ,`codeIsolationPrepType`  varchar(15)  NULL DEFAULT NULL
 ) ENGINE=InnoDB
 $$
 
@@ -19748,20 +20093,17 @@ INSERT INTO Request_Audit
   , idSampleDropOffLocation
   , codeRequestStatus
   , idSubmitter
-  , numberIScanChips
-  , idIScanChip
   , coreToExtractDNA
   , applicationNotes
   , processingDate
-  , codeIsolationPrepType
   , bioinformaticsAssist
   , hasPrePooledLibraries
   , numPrePooledTubes
   , includeBisulfideConversion
   , includeQubitConcentration
-  , alignToGenomeBuild
   , adminNotes
-  , idProduct )
+  , idProduct
+  , codeIsolationPrepType )
   SELECT
   'No Context'
   , 'L'
@@ -19803,20 +20145,17 @@ INSERT INTO Request_Audit
   , idSampleDropOffLocation
   , codeRequestStatus
   , idSubmitter
-  , numberIScanChips
-  , idIScanChip
   , coreToExtractDNA
   , applicationNotes
   , processingDate
-  , codeIsolationPrepType
   , bioinformaticsAssist
   , hasPrePooledLibraries
   , numPrePooledTubes
   , includeBisulfideConversion
   , includeQubitConcentration
-  , alignToGenomeBuild
   , adminNotes
   , idProduct
+  , codeIsolationPrepType
   FROM Request
   WHERE NOT EXISTS(SELECT * FROM Request_Audit)
 $$
@@ -19869,20 +20208,17 @@ BEGIN
   , idSampleDropOffLocation
   , codeRequestStatus
   , idSubmitter
-  , numberIScanChips
-  , idIScanChip
   , coreToExtractDNA
   , applicationNotes
   , processingDate
-  , codeIsolationPrepType
   , bioinformaticsAssist
   , hasPrePooledLibraries
   , numPrePooledTubes
   , includeBisulfideConversion
   , includeQubitConcentration
-  , alignToGenomeBuild
   , adminNotes
-  , idProduct )
+  , idProduct
+  , codeIsolationPrepType )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
@@ -19924,20 +20260,17 @@ BEGIN
   , NEW.idSampleDropOffLocation
   , NEW.codeRequestStatus
   , NEW.idSubmitter
-  , NEW.numberIScanChips
-  , NEW.idIScanChip
   , NEW.coreToExtractDNA
   , NEW.applicationNotes
   , NEW.processingDate
-  , NEW.codeIsolationPrepType
   , NEW.bioinformaticsAssist
   , NEW.hasPrePooledLibraries
   , NEW.numPrePooledTubes
   , NEW.includeBisulfideConversion
   , NEW.includeQubitConcentration
-  , NEW.alignToGenomeBuild
   , NEW.adminNotes
-  , NEW.idProduct );
+  , NEW.idProduct
+  , NEW.codeIsolationPrepType );
 END;
 $$
 
@@ -19985,20 +20318,17 @@ BEGIN
   , idSampleDropOffLocation
   , codeRequestStatus
   , idSubmitter
-  , numberIScanChips
-  , idIScanChip
   , coreToExtractDNA
   , applicationNotes
   , processingDate
-  , codeIsolationPrepType
   , bioinformaticsAssist
   , hasPrePooledLibraries
   , numPrePooledTubes
   , includeBisulfideConversion
   , includeQubitConcentration
-  , alignToGenomeBuild
   , adminNotes
-  , idProduct )
+  , idProduct
+  , codeIsolationPrepType )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
@@ -20040,20 +20370,17 @@ BEGIN
   , NEW.idSampleDropOffLocation
   , NEW.codeRequestStatus
   , NEW.idSubmitter
-  , NEW.numberIScanChips
-  , NEW.idIScanChip
   , NEW.coreToExtractDNA
   , NEW.applicationNotes
   , NEW.processingDate
-  , NEW.codeIsolationPrepType
   , NEW.bioinformaticsAssist
   , NEW.hasPrePooledLibraries
   , NEW.numPrePooledTubes
   , NEW.includeBisulfideConversion
   , NEW.includeQubitConcentration
-  , NEW.alignToGenomeBuild
   , NEW.adminNotes
-  , NEW.idProduct );
+  , NEW.idProduct
+  , NEW.codeIsolationPrepType );
 END;
 $$
 
@@ -20101,20 +20428,17 @@ BEGIN
   , idSampleDropOffLocation
   , codeRequestStatus
   , idSubmitter
-  , numberIScanChips
-  , idIScanChip
   , coreToExtractDNA
   , applicationNotes
   , processingDate
-  , codeIsolationPrepType
   , bioinformaticsAssist
   , hasPrePooledLibraries
   , numPrePooledTubes
   , includeBisulfideConversion
   , includeQubitConcentration
-  , alignToGenomeBuild
   , adminNotes
-  , idProduct )
+  , idProduct
+  , codeIsolationPrepType )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
@@ -20156,20 +20480,128 @@ BEGIN
   , OLD.idSampleDropOffLocation
   , OLD.codeRequestStatus
   , OLD.idSubmitter
-  , OLD.numberIScanChips
-  , OLD.idIScanChip
   , OLD.coreToExtractDNA
   , OLD.applicationNotes
   , OLD.processingDate
-  , OLD.codeIsolationPrepType
   , OLD.bioinformaticsAssist
   , OLD.hasPrePooledLibraries
   , OLD.numPrePooledTubes
   , OLD.includeBisulfideConversion
   , OLD.includeQubitConcentration
-  , OLD.alignToGenomeBuild
   , OLD.adminNotes
-  , OLD.idProduct );
+  , OLD.idProduct
+  , OLD.codeIsolationPrepType );
+END;
+$$
+
+
+--
+-- Audit Table For RNAPrepType 
+--
+
+CREATE TABLE IF NOT EXISTS `RNAPrepType_Audit` (
+  `AuditAppuser`       varchar(128) NOT NULL
+ ,`AuditOperation`     char(1)      NOT NULL
+ ,`AuditSystemUser`    varchar(30)  NOT NULL
+ ,`AuditOperationDate` datetime     NOT NULL
+ ,`codeRNAPrepType`  varchar(10)  NULL DEFAULT NULL
+ ,`rnaPrepType`  varchar(100)  NULL DEFAULT NULL
+ ,`isActive`  char(1)  NULL DEFAULT NULL
+) ENGINE=InnoDB
+$$
+
+
+--
+-- Initial audit table rows for RNAPrepType 
+--
+
+INSERT INTO RNAPrepType_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , codeRNAPrepType
+  , rnaPrepType
+  , isActive )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , codeRNAPrepType
+  , rnaPrepType
+  , isActive
+  FROM RNAPrepType
+  WHERE NOT EXISTS(SELECT * FROM RNAPrepType_Audit)
+$$
+
+--
+-- Audit Triggers For RNAPrepType 
+--
+
+
+CREATE TRIGGER TrAI_RNAPrepType_FER AFTER INSERT ON RNAPrepType FOR EACH ROW
+BEGIN
+  INSERT INTO RNAPrepType_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , codeRNAPrepType
+  , rnaPrepType
+  , isActive )
+  VALUES
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
+  , 'I'
+  , USER()
+  , NOW()
+  , NEW.codeRNAPrepType
+  , NEW.rnaPrepType
+  , NEW.isActive );
+END;
+$$
+
+
+CREATE TRIGGER TrAU_RNAPrepType_FER AFTER UPDATE ON RNAPrepType FOR EACH ROW
+BEGIN
+  INSERT INTO RNAPrepType_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , codeRNAPrepType
+  , rnaPrepType
+  , isActive )
+  VALUES
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
+  , 'U'
+  , USER()
+  , NOW()
+  , NEW.codeRNAPrepType
+  , NEW.rnaPrepType
+  , NEW.isActive );
+END;
+$$
+
+
+CREATE TRIGGER TrAD_RNAPrepType_FER AFTER DELETE ON RNAPrepType FOR EACH ROW
+BEGIN
+  INSERT INTO RNAPrepType_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , codeRNAPrepType
+  , rnaPrepType
+  , isActive )
+  VALUES
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
+  , 'D'
+  , USER()
+  , NOW()
+  , OLD.codeRNAPrepType
+  , OLD.rnaPrepType
+  , OLD.isActive );
 END;
 $$
 

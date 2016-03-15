@@ -63,24 +63,29 @@ call ExecuteIfTableExists('gnomex','ProductType_Audit','alter table ProductType_
 
 -- Add constraint for uniqueness on corefacility / description
 ALTER TABLE ProductType change column idCoreFacility idCoreFacility INT(10) NOT NULL;
+call ExecuteIfTableExists('gnomex','ProductType_Audit','alter table ProductType_Audit change column idCoreFacility idCoreFacility INT(10) NOT NULL;');
 ALTER TABLE ProductType change column description description VARCHAR(5000) NOT NULL;
+call ExecuteIfTableExists('gnomex','ProductType_Audit','alter table ProductType_Audit change column description description VARCHAR(5000) NOT NULL;');
 
 -- Change name/type on other tables from codeProductType to idProductType
 ALTER TABLE RequestCategory change column codeProductType idProductType INT(10) NULL;
+call ExecuteIfTableExists('gnomex','RequestCategory_Audit','alter table RequestCategory_Audit change column codeProductType idProductType INT(10) NULL;');
 ALTER TABLE Product change column codeProductType idProductType INT(10) NULL;
+call ExecuteIfTableExists('gnomex','Product_Audit','alter table Product_Audit change column codeProductType idProductType INT(10) NULL;');
 ALTER TABLE ProductOrder change column codeProductType idProductType INT(10) NULL;
+call ExecuteIfTableExists('gnomex','ProductOrder_Audit','alter table ProductOrder_Audit change column codeProductType idProductType INT(10) NULL;');
 
 -- Reinstitute foreign keys to ProductType
-ALTER TABLE RequestCategory ADD CONSTRAINT `FK_RequestCategory_ProductType` FOREIGN KEY `FK_RequestCategory_ProductType` (`idProductType`)
-    REFERENCES `gnomex`.`ProductType` (`idProductType`)
+ALTER TABLE RequestCategory ADD CONSTRAINT FK_RequestCategory_ProductType FOREIGN KEY FK_RequestCategory_ProductType (idProductType)
+    REFERENCES gnomex.ProductType (idProductType)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION;
-ALTER TABLE Product ADD CONSTRAINT `FK_Product_ProductType` FOREIGN KEY `FK_Product_ProductType` (`idProductType`)
-    REFERENCES `gnomex`.`ProductType` (`idProductType`)
+ALTER TABLE Product ADD CONSTRAINT FK_Product_ProductType FOREIGN KEY FK_Product_ProductType (idProductType)
+    REFERENCES gnomex.ProductType (idProductType)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION;
-ALTER TABLE ProductOrder ADD CONSTRAINT `FK_ProductOrder_ProductType` FOREIGN KEY `FK_ProductOrder_ProductType` (`idProductType`)
-    REFERENCES `gnomex`.`ProductType` (`idProductType`)
+ALTER TABLE ProductOrder ADD CONSTRAINT FK_ProductOrder_ProductType FOREIGN KEY FK_ProductOrder_ProductType (idProductType)
+    REFERENCES gnomex.ProductType (idProductType)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION;
 --------------------------------------------------------------

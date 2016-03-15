@@ -76,7 +76,8 @@ public class BillingTemplateQueryManager extends QueryManager {
 		queryBuffer.append(" bt.targetClassName = ? ");
 		valueList.add(targetClassName);
 		typeList.add(StringType.INSTANCE);
-		
+
+		// Use manual flush mode to force the query to run without flushing first
 		Query query = sess.createQuery(queryBuffer.toString()).setFlushMode(FlushMode.MANUAL);
 		Type[] typeArray = typeList.toArray(new Type[typeList.size()]);
 		query.setParameters(valueList.toArray(), typeArray);
