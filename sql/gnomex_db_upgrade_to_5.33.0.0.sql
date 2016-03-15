@@ -118,7 +118,7 @@ INSERT INTO BillingTemplate (targetClassIdentifier, targetClassName )
 SELECT DISTINCT req.idRequest, 'hci.gnomex.model.Request'
 FROM Request req
 LEFT JOIN BillingItem bi on req.idRequest = bi.idRequest
-WHERE req.createDate > (getDate()-360) AND bi.idBillingItem IS NULL AND req.idBillingAccount IS NOT NULL;
+WHERE bi.idBillingItem IS NULL AND req.idBillingAccount IS NOT NULL;
 
 -- Insert BillingTemplateItem for each for each Request that has no billing items
 INSERT INTO BillingTemplateItem (idBillingTemplate, idBillingAccount, percentSplit, sortOrder)
@@ -126,8 +126,8 @@ SELECT DISTINCT  bt.idBillingTemplate, req.idBillingAccount, -1, 1
 FROM BillingTemplate bt
 JOIN Request req on bt.targetClassIdentifier = req.idRequest
 LEFT JOIN BillingItem bi on req.idRequest = bi.idRequest
-WHERE bt.targetClassName = 'hci.gnomex.model.Request' AND
- req.createDate > (getDate()-360) AND bi.idBillingItem IS NULL AND req.idBillingAccount IS NOT NULL;
+WHERE bt.targetClassName = 'hci.gnomex.model.Request'
+AND bi.idBillingItem IS NULL AND req.idBillingAccount IS NOT NULL;
 
 
 ---------------------------------------------------------------------------------
@@ -157,13 +157,12 @@ WHERE bt.targetClassName = 'hci.gnomex.model.Request' AND
 bi.idRequest IS NOT NULL AND bi.idMasterBillingItem IS NULL;
 
 -- Add idMasterBillingItem to each BillingItem
-UPDATE bi
-set bi.idMasterBillingItem = mbi.idMasterBillingItem
-FROM BillingItem bi
+UPDATE BillingItem bi
 JOIN MasterBillingItem mbi on
 bi.idPrice = mbi.idPrice
 JOIN BillingTemplate bt
 on bt.idBillingTemplate = mbi.idBillingTemplate
+set bi.idMasterBillingItem = mbi.idMasterBillingItem
 WHERE bt.targetClassIdentifier = bi.idRequest AND
 bt.targetClassName = 'hci.gnomex.model.Request' AND
 bi.idRequest IS NOT NULL AND bi.idMasterBillingItem IS NULL;
@@ -193,13 +192,12 @@ WHERE bt.targetClassName = 'hci.gnomex.model.ProductOrder' AND
 bi.idProductOrder IS NOT NULL AND bi.idMasterBillingItem IS NULL;
 
 -- Add idMasterBillingItem to each BillingItem
-Update bi
-set bi.idMasterBillingItem = mbi.idMasterBillingItem
-FROM BillingItem bi
+Update BillingItem bi
 JOIN MasterBillingItem mbi on
 bi.idPrice = mbi.idPrice
 JOIN BillingTemplate bt
 on bt.idBillingTemplate = mbi.idBillingTemplate
+set bi.idMasterBillingItem = mbi.idMasterBillingItem
 WHERE bt.targetClassIdentifier = bi.idProductOrder AND
 bt.targetClassName = 'hci.gnomex.model.ProductOrder' AND
 bi.idProductOrder IS NOT NULL AND bi.idMasterBillingItem IS NULL;
