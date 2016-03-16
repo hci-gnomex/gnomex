@@ -61,7 +61,7 @@ public class ApproveLabMembership extends HttpServlet {
       lab = (Lab) sess.createQuery("from Lab l where l.idLab = '" + idLab + "'").uniqueResult();
 
       Set<Lab> labs = new HashSet();
-      ;
+
       if (au != null) {
         labs = au.getLabs();
 

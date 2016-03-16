@@ -37,7 +37,7 @@ public class RequestLabMembership extends GNomExCommand implements Serializable 
   private String serverName;
 
   private final static int APPROVE_USER_EXPIRATION_TIME = 86400000 * 3;// Three
-                                                                       // days
+  // days
 
   @Override
   public void loadCommand(HttpServletRequest request, HttpSession sess) {
@@ -144,9 +144,29 @@ public class RequestLabMembership extends GNomExCommand implements Serializable 
       introForAdmin.append("<small>(These links will expire in 3 days.)</small><br><br>");
     }
 
-    MailUtilHelper helper = new MailUtilHelper(toAddress, ccAddress, null, fromAddress, subject, introForAdmin.toString(), null, true, dictionaryHelper, serverName);
+    MailUtilHelper helper = new MailUtilHelper(toAddress, ccAddress, null, fromAddress, subject, introForAdmin.toString() + getEmailBody(appUser, requestedLab, sess), null, true, dictionaryHelper, serverName);
     MailUtil.validateAndSendEmail(helper);
 
+  }
+
+  private String getEmailBody(AppUser appUser, Lab requestedLab, Session sess) {
+    StringBuffer body = new StringBuffer();
+    body.append("<table border='0'><tr><td>Last name:</td><td>" + this.getNonNullString(appUser.getLastName()));
+    body.append("</td></tr><tr><td>First name:</td><td>" + this.getNonNullString(appUser.getFirstName()));
+    body.append("</td></tr><tr><td>Lab:</td><td>" + this.getNonNullString(requestedLab.getName(false, false, false)));
+    if (!this.getNonNullString(appUser.getInstitute()).equals("")){
+      body.append("</td></tr><tr><td>Institution:</td><td>" + this.getNonNullString(appUser.getInstitute()));
+    }
+    body.append("</td></tr><tr><td>Email:</td><td>" + this.getNonNullString(appUser.getEmail()));
+    body.append("</td></tr><tr><td>Phone:</td><td>" + this.getNonNullString(appUser.getPhone()));
+    if (appUser.getuNID() != null && appUser.getuNID().length() > 0) {
+      body.append("</td></tr><tr><td>University uNID:</td><td>" + this.getNonNullString(appUser.getuNID()));
+    } else {
+      body.append("</td></tr><tr><td>Username:</td><td>" + this.getNonNullString(appUser.getUserNameExternal()));
+    }
+    body.append("</td></tr></table>");
+
+    return body.toString();
   }
 
   @Override

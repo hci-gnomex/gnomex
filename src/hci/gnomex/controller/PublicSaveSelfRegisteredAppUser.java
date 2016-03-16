@@ -335,7 +335,9 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
         body.append("</td></tr><tr><td>Core Facility:</td><td>" + this.getNonNullString(facility.getFacilityName()));
       }
     }
-    body.append("</td></tr><tr><td>Institution:</td><td>" + this.getNonNullString(appUser.getInstitute()));
+    if (!this.getNonNullString(appUser.getInstitute()).equals("")){
+      body.append("</td></tr><tr><td>Institution:</td><td>" + this.getNonNullString(appUser.getInstitute()));
+    }
     body.append("</td></tr><tr><td>Email:</td><td>" + this.getNonNullString(appUser.getEmail()));
     body.append("</td></tr><tr><td>Phone:</td><td>" + this.getNonNullString(appUser.getPhone()));
     if (appUser.getuNID() != null && appUser.getuNID().length() > 0) {
