@@ -871,6 +871,20 @@
 				parentDocument.parentDocument.submitExperiment();
 			}
 			
+			public function promptToArchiveExperiment():void{
+				Alert.show("Archive experiment " + this.selectedExperiment.@number + "?  Archiving an experiment will delete all files on disk associated with this experiment and it will no longer appear in browse experiment lists.  However, GNomEx will retain a record of the experiment/sample details if you wish to restore them at a later date.", 
+					"Confirm", 
+					(Alert.YES | Alert.NO), this, 
+					onPromptToArchiveExperiment);
+				
+			}
+			
+			private function onPromptToArchiveExperiment(event:CloseEvent):void{
+				if (event.detail==Alert.YES) {
+					parentDocument.parentDocument.archiveExperiment();
+				}
+			}
+			
 			public function showPrintableRequestForm():void {
 				var url:URLRequest = new URLRequest('ShowRequestForm.gx?idRequest=' + this.selectedExperiment.@idRequest);
 				navigateToURL(url, '_blank');			

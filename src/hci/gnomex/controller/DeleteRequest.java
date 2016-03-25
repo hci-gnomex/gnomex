@@ -69,19 +69,19 @@ public class DeleteRequest extends GNomExCommand implements Serializable {
 
     if (request.getParameter("idRequest") != null && !request.getParameter("idRequest").equals("")) {
       idRequest = new Integer(request.getParameter("idRequest"));
-    } 
+    }
 
     if (request.getParameter("requestsToDeleteXMLString") != null && !request.getParameter("requestsToDeleteXMLString").equals("")) {
       requestsToDeleteXMLString = request.getParameter("requestsToDeleteXMLString");
       StringReader reader = new StringReader(requestsToDeleteXMLString);
       try {
         SAXBuilder sax = new SAXBuilder();
-        requestsToDeleteDoc = sax.build(reader);     
+        requestsToDeleteDoc = sax.build(reader);
       } catch (JDOMException je ) {
         log.error( "Cannot parse requestsToDeleteXMLString", je );
         this.addInvalidField( "requestsToDeleteXMLString", "Invalid requestsToDeleteXMLString");
       }
-    } 
+    }
     if ( requestsToDeleteXMLString == null && idRequest == null ) {
       this.addInvalidField("idRequest(s)", "idRequest(s) required.");
     }
@@ -110,7 +110,7 @@ public class DeleteRequest extends GNomExCommand implements Serializable {
     try {
 
       Session sess = HibernateSession.currentSession(this.getUsername());
-      Request req = (Request)sess.get(Request.class, idReq);
+      Request req = sess.get(Request.class, idReq);
 
       if (req!=null) {
 
@@ -119,12 +119,12 @@ public class DeleteRequest extends GNomExCommand implements Serializable {
         if (this.getSecAdvisor().canDelete(req)) {
 
           // Check for related analyses and data tracks
-          HashMap<Integer, Integer> analysisHash = new HashMap<Integer, Integer>();  
-          
+          HashMap<Integer, Integer> analysisHash = new HashMap<Integer, Integer>();
+
           int dataTrackCount = 0;
           for (AnalysisExperimentItem x : (Set<AnalysisExperimentItem>)req.getAnalysisExperimentItems()) {
             if (!analysisHash.containsKey(x.getAnalysis().getIdAnalysis())) {
-              
+
               if (x.getAnalysis().getFiles().size() > 0) {
                 StringBuffer queryBuf = new StringBuffer();
                 queryBuf.append("SELECT DISTINCT dt FROM DataTrack dt ");
@@ -133,22 +133,22 @@ public class DeleteRequest extends GNomExCommand implements Serializable {
                 queryBuf.append("WHERE af.idAnalysis=:id");
                 Query q = sess.createQuery(queryBuf.toString());
                 q.setParameter("id", x.getAnalysis().getIdAnalysis());
-                
+
                 List dataTracks = q.list();
-                dataTrackCount +=  dataTracks.size();         
+                dataTrackCount +=  dataTracks.size();
               }
 
               analysisHash.put(x.getAnalysis().getIdAnalysis(), null);
             }
           }
-          
+
           if ( analysisHash.size() > 0 ) {
             this.addInvalidField("Related data", "There are " + analysisHash.size() + " analyses" + (dataTrackCount > 0 ? " and " + dataTrackCount + " data tracks" : "")  +  " associated with this request. Please delete these and try again.");
             setResponsePage(this.ERROR_JSP);
             HibernateSession.closeSession();
             return;
           }
-          
+
           // Remove the work items
           for(Iterator i = req.getWorkItems().iterator(); i.hasNext();) {
             WorkItem wi = (WorkItem)i.next();
@@ -184,9 +184,9 @@ public class DeleteRequest extends GNomExCommand implements Serializable {
             BillingItem bi = (BillingItem)i.next();
             sess.delete(bi);
           }
-          sess.flush(); 
+          sess.flush();
 
-          // Remove transfer logs 
+          // Remove transfer logs
           List transferLogs = sess.createQuery("SELECT x from TransferLog x where x.idRequest = '" + req.getIdRequest() + "'").list();
           for(Iterator i = transferLogs.iterator(); i.hasNext();) {
             TransferLog tl = (TransferLog)i.next();
@@ -215,7 +215,7 @@ public class DeleteRequest extends GNomExCommand implements Serializable {
               sess.delete(well);
             }
             if (idSourcePlate != null) {
-              Plate sourcePlate = (Plate)sess.load(Plate.class, idSourcePlate);
+              Plate sourcePlate = sess.load(Plate.class, idSourcePlate);
               if (sourcePlate != null) {
                 sess.delete(sourcePlate);
               }
@@ -248,7 +248,7 @@ public class DeleteRequest extends GNomExCommand implements Serializable {
                 sess.delete(well);
               }
               if (idRxnPlate != null) {
-                Plate rxnPlate = (Plate)sess.load(Plate.class, idRxnPlate);
+                Plate rxnPlate = sess.load(Plate.class, idRxnPlate);
                 if (rxnPlate != null) {
                   sess.delete(rxnPlate);
                 }
@@ -271,7 +271,7 @@ public class DeleteRequest extends GNomExCommand implements Serializable {
           if (!baseDir.endsWith("/") && !baseDir.endsWith("\\")) {
             baseDir += "/";
           }
-          String directoryName = baseDir + createYear + "/" + req.getNumber().replace("R1", "R"); 
+          String directoryName = baseDir + createYear + "/" + req.getNumber().replaceFirst("R+\\d", "R");
           removeExperimentFiles(directoryName);
 
           //
@@ -302,14 +302,14 @@ public class DeleteRequest extends GNomExCommand implements Serializable {
 
     }finally {
       try {
-        HibernateSession.closeSession();        
+        HibernateSession.closeSession();
       } catch(Exception e) {
 
       }
     }
   }
 
-  private void removeExperimentFiles(String folderName) throws IOException{
+  public static void removeExperimentFiles(String folderName) throws IOException{
     File f = new File(folderName);
     String [] folderContents = f.list();
 
@@ -330,13 +330,13 @@ public class DeleteRequest extends GNomExCommand implements Serializable {
       else{
         if (!child.delete()) {
           log.error("Unable to remove " + child.getName() + " from file system");
-        } 
+        }
       }
     }
 
     if (!f.delete()) {
       log.error("Unable to remove " + f.getName() + " from file system");
-    } 
+    }
   }
 
 

@@ -20,7 +20,7 @@ public class PropertyPricingPlugin extends BillingPlugin {
 
     List<BillingItem> billingItems = new ArrayList<BillingItem>();
 
-    if (!this.hasValidData(sess, request, samples)) {
+    if (!this.hasValidData(sess, request, samples) || propertyEntries == null) {
       return billingItems;
     }
 
@@ -39,7 +39,7 @@ public class PropertyPricingPlugin extends BillingPlugin {
         // See if there is a property entry for this property
         for (Iterator pi = propertyEntries.iterator(); pi.hasNext();) {
           PropertyEntry pe = (PropertyEntry)pi.next();
-          Property prop = (Property) sess.load( Property.class, pe.getIdProperty() );
+          Property prop = sess.load( Property.class, pe.getIdProperty() );
 
           if ( prop!=null && prop.getIdPriceCategory()!=null && prop.getIdPriceCategory().equals(priceCategory.getIdPriceCategory()) ) {
             if ( pe.getValue().equalsIgnoreCase( "Y" )) {
@@ -63,7 +63,7 @@ public class PropertyPricingPlugin extends BillingPlugin {
             // See if there is a property entry for this property
             for (Iterator pi = propertyEntries.iterator(); pi.hasNext();) {
               PropertyEntry pe = (PropertyEntry)pi.next();
-              Property prop = (Property) sess.load( Property.class, pe.getIdProperty() );
+              Property prop = sess.load( Property.class, pe.getIdProperty() );
 
               // this property entry is for a property that uses the price category
               if ( prop!=null && prop.getIdPriceCategory()!=null && prop.getIdPriceCategory().equals(priceCategory.getIdPriceCategory()) && pe.getOptions()!=null ) {

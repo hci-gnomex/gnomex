@@ -362,10 +362,10 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
       Statement stmt = null;
       ResultSet rs = null;
       Session sess = HibernateGuestSession.currentGuestSession(uid);
-      
-    	SessionImpl sessionImpl = (SessionImpl) sess;   	  
-        Connection con =  sessionImpl.connection();  
-      
+
+    	SessionImpl sessionImpl = (SessionImpl) sess;
+        Connection con =  sessionImpl.connection();
+
       stmt = con.createStatement();
 
       StringBuffer buf = new StringBuffer("SELECT PersonID " + "FROM Administration.dbo.Associate WHERE peopleSoftID = '" + peopleSoftID + "'\n");
@@ -982,7 +982,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     Statement stmt = null;
     ResultSet rs = null;
     Session sess = HibernateGuestSession.currentGuestSession(this.getUsername());
-	SessionImpl sessionImpl = (SessionImpl) sess;   	  
+	SessionImpl sessionImpl = (SessionImpl) sess;
     Connection con =  sessionImpl.connection();   //HibernateUtil.getConnection(sess);
     stmt = con.createStatement();
 
@@ -1078,6 +1078,32 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
       }
     }
     return idsToSkip;
+  }
+
+  public boolean canArchive(DetailObject object) throws UnknownPermissionException{
+    boolean canArchive = false;
+
+    if(object instanceof Request){
+      Request req = (Request) object;
+
+      // Super Admins
+      if (hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
+        canArchive = true;
+      }
+      // Admins - Can only update requests from core facility user manages
+      else if (hasPermission(SecurityAdvisor.CAN_WRITE_ANY_OBJECT)) {
+        canArchive = isCoreFacilityIManage(req.getIdCoreFacility());
+      }
+      // University GNomEx users
+      else if (hasPermission(SecurityAdvisor.CAN_PARTICIPATE_IN_GROUPS)) {
+        // Lab manager
+        if (isGroupIManage(req.getIdLab())) {
+          canArchive = true;
+        }
+      }
+    }
+
+    return canArchive;
   }
 
   public boolean canUpdate(DetailObject object) throws UnknownPermissionException {

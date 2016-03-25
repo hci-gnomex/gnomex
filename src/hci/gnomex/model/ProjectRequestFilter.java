@@ -79,7 +79,7 @@ public class ProjectRequestFilter extends DetailObject {
         ccNumber != null ||
         createDateFrom != null ||
         (allExperiments != null && allExperiments.equalsIgnoreCase("Y")) ||
-        (publicExperimentsInOtherGroups != null && publicExperimentsInOtherGroups.equalsIgnoreCase("Y")) ||                
+        (publicExperimentsInOtherGroups != null && publicExperimentsInOtherGroups.equalsIgnoreCase("Y")) ||
         (lastWeek != null && lastWeek.equalsIgnoreCase("Y")) ||
         (lastMonth != null && lastMonth.equalsIgnoreCase("Y")) ||
         (lastThreeMonths != null && lastThreeMonths.equalsIgnoreCase("Y")) ||
@@ -104,9 +104,9 @@ public class ProjectRequestFilter extends DetailObject {
         (experimentDesignCodes != null && experimentDesignCodes.size() > 0) ||
         (experimentFactorCodes != null && experimentFactorCodes.size() > 0)) {
       hasLimitingCriteria = true;
-    } 
+    }
 
-    // Require limiting criteria for admins since they are not scoped by labs 
+    // Require limiting criteria for admins since they are not scoped by labs
     // automatically
     if (secAdvisor.hasPermission(secAdvisor.CAN_ACCESS_ANY_OBJECT) || secAdvisor.hasPermission(secAdvisor.CAN_SUBMIT_FOR_OTHER_CORES)) {
       return hasLimitingCriteria;
@@ -150,7 +150,7 @@ public class ProjectRequestFilter extends DetailObject {
     queryBuf.append(" LEFT JOIN           req.samples as sample ");
     queryBuf.append(" LEFT JOIN           req.collaborators as collab ");
 
-    if (!secAdvisor.hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES) 
+    if (!secAdvisor.hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)
         && (secAdvisor.hasPermission(SecurityAdvisor.CAN_ACCESS_ANY_OBJECT) || secAdvisor.hasPermission(SecurityAdvisor.CAN_SUBMIT_FOR_OTHER_CORES))) {
       // Admins must do security limit by lab core facility.
       queryBuf.append(" LEFT JOIN           projectLab.coreFacilities as labFacilities ");
@@ -215,7 +215,7 @@ public class ProjectRequestFilter extends DetailObject {
   }
 
   private boolean hasSlideProductCriteria() {
-    if ((idOrganism != null && !searchOrganismOnSlideProduct.equals("") && searchOrganismOnSlideProduct.equalsIgnoreCase("Y")) || 
+    if ((idOrganism != null && !searchOrganismOnSlideProduct.equals("") && searchOrganismOnSlideProduct.equalsIgnoreCase("Y")) ||
         idSlideProduct != null) {
       return true;
     }
@@ -224,17 +224,17 @@ public class ProjectRequestFilter extends DetailObject {
 
 
   private void addProjectCriteria() {
-    // Search by lab 
+    // Search by lab
     if (idLab != null){
       this.addWhereOrAnd();
       queryBuf.append(" project.idLab =");
       queryBuf.append(idLab);
-    } 
+    }
 
     if ((projectDescriptionText1 != null && !projectDescriptionText1.equals("")) ||
         (projectDescriptionText2 != null && !projectDescriptionText2.equals("")) ||
         (projectDescriptionText3 != null && !projectDescriptionText3.equals("")) ||
-        (projectDescriptionText4 != null && !projectDescriptionText4.equals(""))){ 
+        (projectDescriptionText4 != null && !projectDescriptionText4.equals(""))){
 
       this.addWhereOrAnd();
       queryBuf.append("(");
@@ -253,49 +253,49 @@ public class ProjectRequestFilter extends DetailObject {
       if (projectDescriptionText2 != null && !projectDescriptionText2.equals("")){
         if (textCriteriaAdded) {
           if (matchAnyProjectDescriptionText.equals("Y")) {
-            this.addWhereOrOr();          
+            this.addWhereOrOr();
           } else {
             this.addWhereOrAnd();
-          }          
+          }
         }
         queryBuf.append(" project.description like ");
         queryBuf.append("'%");
         queryBuf.append(projectDescriptionText2);
         queryBuf.append("%'");
         textCriteriaAdded = true;
-      } 
+      }
 
       //    Search by project description text3
       if (projectDescriptionText3 != null && !projectDescriptionText3.equals("")){
         if (textCriteriaAdded) {
           if (matchAnyProjectDescriptionText.equals("Y")) {
-            this.addWhereOrOr();          
+            this.addWhereOrOr();
           } else {
             this.addWhereOrAnd();
-          }          
+          }
         }
         queryBuf.append(" project.description like ");
         queryBuf.append("'%");
         queryBuf.append(projectDescriptionText3);
         queryBuf.append("%'");
         textCriteriaAdded = true;
-      } 
+      }
 
       //    Search by project description text4
       if (projectDescriptionText4 != null && !projectDescriptionText4.equals("")){
         if (textCriteriaAdded) {
           if (matchAnyProjectDescriptionText.equals("Y")) {
-            this.addWhereOrOr();          
+            this.addWhereOrOr();
           } else {
             this.addWhereOrAnd();
-          }          
+          }
         }
         queryBuf.append(" project.description like ");
         queryBuf.append("'%");
         queryBuf.append(projectDescriptionText4);
         queryBuf.append("%'");
         textCriteriaAdded = true;
-      } 
+      }
 
       queryBuf.append(")");
     }
@@ -310,7 +310,7 @@ public class ProjectRequestFilter extends DetailObject {
         queryBuf.append(" '" + code + "'");
         if (i.hasNext()) {
           queryBuf.append(", ");
-        }        
+        }
       }
       queryBuf.append(")");
     }
@@ -324,7 +324,7 @@ public class ProjectRequestFilter extends DetailObject {
         queryBuf.append(" '" + code + "'");
         if (i.hasNext()) {
           queryBuf.append(", ");
-        }        
+        }
       }
       queryBuf.append(")");
     }
@@ -356,50 +356,50 @@ public class ProjectRequestFilter extends DetailObject {
       queryBuf.append(idAppUser);
       queryBuf.append(" ) ");
     }
-    //  Search by idRequest 
+    //  Search by idRequest
     if (idRequest != null){
       this.addWhereOrAnd();
       queryBuf.append(" req.idRequest = ");
       queryBuf.append(idRequest);
-    } 
-    //  Search by idCoreFacility 
+    }
+    //  Search by idCoreFacility
     if (idCoreFacility != null){
       this.addWhereOrAnd();
       queryBuf.append(" req.idCoreFacility = ");
       queryBuf.append(idCoreFacility);
     }
-    //  Search by Project 
+    //  Search by Project
     if (idProject != null){
       this.addWhereOrAnd();
       queryBuf.append(" req.idProject = ");
       queryBuf.append(idProject);
-    } 
-    //  Search by RequestCategory 
+    }
+    //  Search by RequestCategory
     if (codeRequestCategory != null && !codeRequestCategory.equals("")){
       this.addWhereOrAnd();
       queryBuf.append(" req.codeRequestCategory = '");
       queryBuf.append(codeRequestCategory);
       queryBuf.append("'");
     }
-    //  Search by  Application 
+    //  Search by  Application
     if (codeApplication != null && !codeApplication.equals("")){
       this.addWhereOrAnd();
       queryBuf.append(" req.codeApplication = '");
       queryBuf.append(codeApplication);
       queryBuf.append("'");
-    } 
+    }
     //  External experiments
     if (showExternalExperiments != null && showExternalExperiments.equals("N")){
       this.addWhereOrAnd();
       queryBuf.append(" req.isExternal != 'Y'");
-    } 
+    }
 
     //  External experiments (only)
     if (isExternalOnly != null && isExternalOnly.equals("Y")){
       this.addWhereOrAnd();
       queryBuf.append(" req.isExternal = 'Y'");
-    } 
-    //  Search by create date from 
+    }
+    //  Search by create date from
     if (createDateFrom != null){
       this.addWhereOrAnd();
       if(secAdvisor.isGuest()){ // use when a request became public instead of create date
@@ -411,9 +411,9 @@ public class ProjectRequestFilter extends DetailObject {
         queryBuf.append(this.formatDate(createDateFrom, this.DATE_OUTPUT_SQL));
         queryBuf.append("'");
       }
-    } 
-    //  Search by create date from 
-    if (createDateTo != null){  
+    }
+    //  Search by create date from
+    if (createDateTo != null){
       createDateTo.setTime(createDateTo.getTime() + 24*60*60*1000);
       this.addWhereOrAnd();
       if(secAdvisor.isGuest()) { // use when a request became public instead of create date
@@ -425,7 +425,7 @@ public class ProjectRequestFilter extends DetailObject {
         queryBuf.append(this.formatDate(createDateTo, this.DATE_OUTPUT_SQL));
         queryBuf.append("'");
       }
-    } 
+    }
     // Search for requests submitted in last week
     if (lastWeek.equals("Y")) {
 
@@ -489,7 +489,7 @@ public class ProjectRequestFilter extends DetailObject {
       }
       queryBuf.append(this.formatDate(lastYear, this.DATE_OUTPUT_SQL));
       queryBuf.append("'");
-    }    
+    }
 
     // Search for Solexa requests
     if (isNextGenSeq.equals("Y")) {
@@ -502,12 +502,12 @@ public class ProjectRequestFilter extends DetailObject {
         RequestCategory requestCategory = (RequestCategory)i.next();
         if (requestCategory.isNextGenSeqRequestCategory()) {
           if (count > 0) {
-            queryBuf.append(", ");            
+            queryBuf.append(", ");
           }
 
           queryBuf.append("'");
           queryBuf.append(requestCategory.getCodeRequestCategory());
-          queryBuf.append("'");    
+          queryBuf.append("'");
           count++;
         }
 
@@ -572,16 +572,20 @@ public class ProjectRequestFilter extends DetailObject {
       queryBuf.append(" req.codeRequestCategory = '");
       queryBuf.append(RequestCategory.ISCAN_REQUEST_CATEGORY);
       queryBuf.append("'");
-    }   
+    }
+
+    this.addWhereOrAnd();
+    queryBuf.append(" req.archived is null ");
 
     // Close paren for showing empty folders or
     if (showEmptyProjectFolders.equals("Y")) {
       queryBuf.append(" ) )");
     }
+
   }
 
   private void addSlideProductCriteria() {
-    //  Search by idSlideProduct 
+    //  Search by idSlideProduct
     if (idSlideProduct != null){
       this.addWhereOrAnd();
       queryBuf.append(" sp.idSlideProduct = ");
@@ -593,7 +597,7 @@ public class ProjectRequestFilter extends DetailObject {
       this.addWhereOrAnd();
       queryBuf.append(" sp.idOrganism = ");
       queryBuf.append(idOrganism);
-    } 
+    }
   }
 
   private void addSampleCriteria() {
@@ -603,7 +607,7 @@ public class ProjectRequestFilter extends DetailObject {
       this.addWhereOrAnd();
       queryBuf.append(" sample.idOrganism =");
       queryBuf.append(idOrganism);
-    } 
+    }
 
     //  Search by ccNumber (of sample)
     if (ccNumber != null && !ccNumber.equalsIgnoreCase("")){
@@ -611,7 +615,7 @@ public class ProjectRequestFilter extends DetailObject {
       queryBuf.append(" sample.ccNumber = '");
       queryBuf.append(ccNumber);
       queryBuf.append("'");
-    } 
+    }
   }
 
 
@@ -1098,7 +1102,7 @@ public class ProjectRequestFilter extends DetailObject {
 
   public void setCcNumber( String ccNumber ) {
     this.ccNumber = ccNumber;
-  }  
+  }
 
   public Date getCreateDateFrom() {
     return createDateFrom;

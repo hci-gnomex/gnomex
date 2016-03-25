@@ -815,14 +815,12 @@
 			<url-pattern>/LinkDataTrackFile.gx</url-pattern>
 			<url-pattern>/MovePriceCategory.gx</url-pattern>
 			<url-pattern>/OrganizeExperimentUploadFiles.gx</url-pattern>
-			<url-pattern>/ReassignBillingAccount.gx</url-pattern>
 			<url-pattern>/ShowAnalysisDownloadForm.gx</url-pattern>
 			<url-pattern>/ShowBillingGLInterface.gx</url-pattern>
 			<url-pattern>/ShowBillingInvoiceForm.gx</url-pattern>
 			<url-pattern>/ShowBillingMonthendReport.gx</url-pattern>
 			<url-pattern>/ShowBillingTotalByLabReport.gx</url-pattern>
 			<url-pattern>/ShowRequestDownloadForm.gx</url-pattern>
-			<url-pattern>/SplitBillingAccounts.gx</url-pattern>
 			<url-pattern>/UploadDataTrackFileServlet.gx</url-pattern>
 			<url-pattern>/UploadSequenceFileServlet.gx</url-pattern>
 			<url-pattern>/UploadAnalysisFileServlet.gx</url-pattern>
