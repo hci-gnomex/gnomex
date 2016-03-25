@@ -118,11 +118,11 @@
 			import mx.managers.DragManager;
 			import mx.rpc.events.ResultEvent;
 			
-			import views.renderers.WellContainer;
 			import views.renderers.LinkButtonDateRangeMenu;
+			import views.renderers.WellContainer;
+			import views.util.DateSetEvent;
 			import views.util.DirtyNote;
 			import views.util.IconUtility;
-			import views.util.DateSetEvent;
 
 			
 			// Reaction type
@@ -480,13 +480,22 @@
 				
 				// Status
 				if ( currentState.substr( 0, 3 ) != "new" ) {
-					for each ( var obj3:Object in statusComboBox.dataProvider ) {
-						if ( obj3.@codeInstrumentRunStatus == run.codeInstrumentRunStatus ) {
-							statusComboBox.selectedItem = obj3;
-							break;
+					if(run.codeInstrumentRunStatus != ''){
+						for each ( var obj3:Object in statusComboBox.dataProvider ) {
+							if ( obj3.@codeInstrumentRunStatus == run.codeInstrumentRunStatus ) {
+								statusComboBox.selectedItem = obj3;
+								break;
+							}
 						}
-						statusComboBox.selectedIndex = -1;
+					} else{
+						for each ( var obj5:Object in statusComboBox.dataProvider ) {
+							if ( obj5.@codeInstrumentRunStatus == "PENDING" ) {
+								statusComboBox.selectedItem = obj5;
+								break;
+							}
+						}
 					}
+						
 				} else if ( statusComboBox.selectedIndex == -1 ) {
 					for each ( var obj4:Object in statusComboBox.dataProvider ) {
 						if ( obj4.@codeInstrumentRunStatus == "PENDING" ) {
@@ -1434,7 +1443,7 @@
 				}
 				
 				if ( !checkFormComplete()) {
-					Alert.show( "Please fill in a name and select a seal type for this run", "Missing Information" );
+					Alert.show( "Please make sure you have provided a name, a seal type, and a status for this run", "Missing Information" );
 					return;
 				}
 				if ( currentState.substr( 0, 3 ) != "new" && !hasPlates ) {
@@ -2330,6 +2339,17 @@
 				allCheckbox.selected = false;
 				refreshRunList();
 			}
+			
+//			private function getPendingIndex():int{
+//				for(var i:int = 0; i < statusComboBox.dataProvider.length; i++){
+//					if(statusComboBox.dataProvider.getItemAt(i).@value == 'Pending'){
+//						return i;
+//					}
+//					
+//				}
+//				
+//				return -1;
+//			}
 			
 			//---------
 			// Icons
@@ -3270,11 +3290,10 @@
 								<mx:Label text="Status" fontWeight="normal"  styleName="formLabel"/>
 								<mx:Spacer width="100%" height="100%" />
 								<mx:ComboBox id="statusComboBox"
-											 selectedIndex="-1"
 											 prompt="- Select Status -"
 											 dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.InstrumentRunStatus').DictionaryEntry}"
 											 labelField="@instrumentRunStatus"
-											 toolTip="Select status"
+											 toolTip="Select status" selectedIndex="-1"
 											 change="{statusComboChange()}"
 											 width="140" />
 								
