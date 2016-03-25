@@ -103,6 +103,10 @@
 						<mx:LinkButton id="contactCoreButton" click="{showContactCoreWindow()}"
 									   label="Contact Core" textDecoration="underline" textAlign="left" toolTip="Email Core Regarding this Experiment"
 									   icon="@Embed('../../assets/email_go.png')" visible="{!parentApplication.isGuest}"/>
+					
+						<mx:LinkButton  label="Archive" id="archiveExperimentButton"  icon="@Embed(source='../../assets/icon_download.gif')"
+									click="detail.promptToArchiveExperiment()" disabledIcon="@Embed(source='../../assets/icon_download_disable.png')"
+									toolTip="Archive experiment" enabled="{(parentApplication.isAdminState || parentApplication.isGroupIManage(detail.selectedExperiment.@idLab)) &amp;&amp; detail.selectedExperiment.@codeRequestStatus == 'COMPLETE'}" includeInLayout="{(parentApplication.isAdminState || parentApplication.isGroupIManage(detail.selectedExperiment.@idLab)) &amp;&amp; detail.selectedExperiment.@codeRequestStatus == 'COMPLETE'}" visible="{(parentApplication.isAdminState || parentApplication.isGroupIManage(detail.selectedExperiment.@idLab)) &amp;&amp; detail.selectedExperiment.@codeRequestStatus == 'COMPLETE'}" textDecoration="underline"/>
 				</mx:HBox>
 			</mx:HBox>
 			

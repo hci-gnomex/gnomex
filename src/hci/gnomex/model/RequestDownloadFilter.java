@@ -11,8 +11,8 @@ import java.util.Iterator;
 import java.util.List;
 
 public class RequestDownloadFilter extends DetailObject {
-  
-  
+
+
   // Criteria
   private String                requestNumber;
   private Integer               idRequest;
@@ -32,9 +32,9 @@ public class RequestDownloadFilter extends DetailObject {
   private String                isSolexa = "N";
   private String                isBioanalyzer = "N";
   private String                allExperiments;
-  
-  
-  
+
+
+
   public String getAllExperiments() {
     return allExperiments;
   }
@@ -50,15 +50,15 @@ public class RequestDownloadFilter extends DetailObject {
   private boolean               addWhere = true;
   private SecurityAdvisor       secAdvisor;
   private DictionaryHelper      dictionaryHelper;
-  
-  
+
+
   public StringBuffer getQualityControlResultQuery(SecurityAdvisor secAdvisor, DictionaryHelper dh) {
     this.secAdvisor = secAdvisor;
     this.dictionaryHelper = dh;
     queryBuf = new StringBuffer();
     addWhere = true;
-    
-    queryBuf.append(" SELECT distinct req.createDate, req.number, req.codeRequestCategory, "); 
+
+    queryBuf.append(" SELECT distinct req.createDate, req.number, req.codeRequestCategory, ");
     queryBuf.append("        req.codeApplication, req.idAppUser, ");
     queryBuf.append("        '', '', ");
     queryBuf.append("        '', '', ");
@@ -72,22 +72,22 @@ public class RequestDownloadFilter extends DetailObject {
     queryBuf.append("        reqOwner.firstName, reqOwner.lastName, ");
     queryBuf.append("        max(s.seqPrepByCore), req.idCoreFacility ");
     getQualityControlResultQueryBody(queryBuf);
-    
-    
+
+
     queryBuf.append("        group by req.createDate, req.number, req.codeRequestCategory, req.codeApplication, req.idAppUser, reqOwner.firstName, reqOwner.lastName, req.idLab, req.idRequest, req.idCoreFacility ");
-    
+
     return queryBuf;
-    
+
   }
-  
-  
+
+
   public StringBuffer getMicroarrayResultQuery(SecurityAdvisor secAdvisor, DictionaryHelper dh) {
     this.secAdvisor = secAdvisor;
     this.dictionaryHelper = dh;
     queryBuf = new StringBuffer();
     addWhere = true;
-    
-    queryBuf.append(" SELECT req.createDate, req.number, req.codeRequestCategory, "); 
+
+    queryBuf.append(" SELECT req.createDate, req.number, req.codeRequestCategory, ");
     queryBuf.append("        req.codeApplication, req.idAppUser, ");
     queryBuf.append("        hyb.number, hyb.hybDate, ");
     queryBuf.append("        hyb.extractionDate, hyb.hybFailed, ");
@@ -101,13 +101,13 @@ public class RequestDownloadFilter extends DetailObject {
     queryBuf.append("        reqOwner.firstName, reqOwner.lastName, ");
     queryBuf.append("        '', req.idCoreFacility");
     getMicroarrayResultQueryBody(queryBuf);
-    
+
     return queryBuf;
-    
+
   }
-  
+
   public void getMicroarrayResultQueryBody(StringBuffer queryBuf) {
-    
+
     queryBuf.append(" FROM           Request as req ");
     queryBuf.append(" LEFT JOIN      req.requestCategory as reqCat");
     queryBuf.append(" LEFT JOIN      reqCat.categoryType as reqType");
@@ -124,15 +124,15 @@ public class RequestDownloadFilter extends DetailObject {
     addHybCriteria();
     addExcludeClinicResearchCriteria();
     addSecurityCriteria();
-    
-    
-    
-    
-  
+
+
+
+
+
   }
-  
+
   public void getQualityControlResultQueryBody(StringBuffer queryBuf) {
-     
+
     queryBuf.append(" FROM           Request as req ");
     queryBuf.append(" LEFT JOIN      req.requestCategory as reqCat");
     queryBuf.append(" LEFT JOIN      reqCat.categoryType as reqType");
@@ -140,22 +140,22 @@ public class RequestDownloadFilter extends DetailObject {
     queryBuf.append(" LEFT JOIN      req.collaborators as collab ");
     queryBuf.append(" LEFT JOIN      req.samples as s ");
 
-    
+
     addRequestCriteria();
     addQualityControlCriteria();
     // Note that this also include clinic research experiments.  Filtered in the controller.
     addSecurityCriteria();
 
-    
-  
+
+
   }
   public StringBuffer getSolexaResultQuery(SecurityAdvisor secAdvisor, DictionaryHelper dh) {
     this.secAdvisor = secAdvisor;
     this.dictionaryHelper = dh;
     queryBuf = new StringBuffer();
     addWhere = true;
-    
-    queryBuf.append(" SELECT req.createDate, req.number, req.codeRequestCategory, "); 
+
+    queryBuf.append(" SELECT req.createDate, req.number, req.codeRequestCategory, ");
     queryBuf.append("        req.codeApplication, req.idAppUser, ");
     queryBuf.append("        '', '', ");
     queryBuf.append("        '', '', ");
@@ -169,12 +169,12 @@ public class RequestDownloadFilter extends DetailObject {
     queryBuf.append("        reqOwner.firstName, reqOwner.lastName, ");
     queryBuf.append("        '', req.idCoreFacility " );
     getSolexaResultQueryBody(queryBuf);
-    
+
     return queryBuf;
-    
+
   }
   public void getSolexaResultQueryBody(StringBuffer queryBuf) {
-    
+
     queryBuf.append(" FROM           Request as req ");
     queryBuf.append(" LEFT JOIN      req.requestCategory as reqCat");
     queryBuf.append(" LEFT JOIN      reqCat.categoryType as reqType");
@@ -187,28 +187,28 @@ public class RequestDownloadFilter extends DetailObject {
     addExcludeClinicResearchCriteria();
     addSecurityCriteria();
   }
-  
-  
+
+
   public StringBuffer getSolexaLaneStatusQuery(SecurityAdvisor secAdvisor, DictionaryHelper dh) {
     this.secAdvisor = secAdvisor;
     this.dictionaryHelper = dh;
     queryBuf = new StringBuffer();
     addWhere = true;
-    
+
     queryBuf.append(" SELECT DISTINCT req.idRequest, ");
     queryBuf.append("        s.idSample, ");
     queryBuf.append("        s.number, ");
     queryBuf.append("        max(ch.firstCycleDate), ");
     queryBuf.append("        max(ch.firstCycleFailed), ");
     queryBuf.append("        max(ch.lastCycleDate), ");
-    queryBuf.append("        max(ch.lastCycleFailed) "); 
+    queryBuf.append("        max(ch.lastCycleFailed) ");
     getSolexaLaneStatusQueryBody(queryBuf);
-    
+
     return queryBuf;
-    
+
   }
   public void getSolexaLaneStatusQueryBody(StringBuffer queryBuf) {
-    
+
     queryBuf.append(" FROM           Request as req ");
     queryBuf.append(" LEFT JOIN      req.requestCategory as reqCat");
     queryBuf.append(" LEFT JOIN      reqCat.categoryType as reqType");
@@ -224,7 +224,7 @@ public class RequestDownloadFilter extends DetailObject {
     addSecurityCriteria();
 
     queryBuf.append("        group by req.idRequest, s.idSample, s.number, req.idCoreFacility ");
-    
+
   }
 
   public StringBuffer getSolexaFlowCellQuery(SecurityAdvisor secAdvisor, DictionaryHelper dh) {
@@ -232,18 +232,18 @@ public class RequestDownloadFilter extends DetailObject {
     this.dictionaryHelper = dh;
     queryBuf = new StringBuffer();
     addWhere = true;
-    
+
     queryBuf.append(" SELECT DISTINCT req.number, ");
     queryBuf.append("                 fc.number, ");
     queryBuf.append("                 fc.createDate, ");
     queryBuf.append("                 req.idCoreFacility ");
     getSolexaFlowCellQueryBody(queryBuf);
-    
+
     return queryBuf;
-    
+
   }
   public void getSolexaFlowCellQueryBody(StringBuffer queryBuf) {
-    
+
     queryBuf.append(" FROM           Request as req ");
     queryBuf.append(" LEFT JOIN      req.requestCategory as reqCat");
     queryBuf.append(" LEFT JOIN      reqCat.categoryType as reqType");
@@ -259,9 +259,9 @@ public class RequestDownloadFilter extends DetailObject {
 
     queryBuf.append("        group by req.number, fc.number, fc.createDate, req.idCoreFacility ");
     queryBuf.append("        order by req.number, fc.number  ");
-    
+
   }
-  
+
   public boolean hasCriteria() {
     if ((requestNumber != null && !requestNumber.equals("")) ||
         idRequest != null ||
@@ -270,7 +270,7 @@ public class RequestDownloadFilter extends DetailObject {
         idAppUser != null ||
         createDateFrom != null ||
         createDateTo != null ||
-        (publicExperimentsInOtherGroups != null && publicExperimentsInOtherGroups.equalsIgnoreCase("Y")) ||                
+        (publicExperimentsInOtherGroups != null && publicExperimentsInOtherGroups.equalsIgnoreCase("Y")) ||
         (idRequests != null && idRequests.size() > 0) ||
         (isMicroarray != null && isMicroarray.equalsIgnoreCase("Y")) ||
         (isSolexa != null && isSolexa.equalsIgnoreCase("Y")) ||
@@ -285,50 +285,50 @@ public class RequestDownloadFilter extends DetailObject {
       return false;
     }
   }
-  
-  
-  
+
+
+
 
   private void addRequestCriteria() {
-    // Search by request number 
+    // Search by request number
     if (requestNumber != null && !requestNumber.equals("")){
       this.addWhereOrAnd();
       queryBuf.append(" req.number like '");
       queryBuf.append(requestNumber);
       queryBuf.append("%'");
-    } 
-    // Search by idRequest 
+    }
+    // Search by idRequest
     if (idRequest != null){
       this.addWhereOrAnd();
       queryBuf.append(" req.idRequest =");
       queryBuf.append(idRequest);
-    } 
-    // Search by lab 
+    }
+    // Search by lab
     if (idLab != null){
       this.addWhereOrAnd();
       queryBuf.append(" req.idLab =");
       queryBuf.append(idLab);
-    } 
-    // Search by project 
+    }
+    // Search by project
     if (idProject != null){
       this.addWhereOrAnd();
       queryBuf.append(" req.idProject =");
       queryBuf.append(idProject);
-    } 
-    // Search by user 
+    }
+    // Search by user
     if (idAppUser != null){
       this.addWhereOrAnd();
       queryBuf.append(" req.idAppUser = ");
       queryBuf.append(idAppUser);
-    } 
-    //  Search by create date from 
+    }
+    //  Search by create date from
     if (createDateFrom != null){
       this.addWhereOrAnd();
       queryBuf.append(" req.createDate >= '");
       queryBuf.append(this.formatDate(createDateFrom, this.DATE_OUTPUT_SQL));
       queryBuf.append("'");
-    } 
-    //  Search by create date from 
+    }
+    //  Search by create date from
     if (createDateTo != null){
       createDateTo.setTime(createDateTo.getTime() + 24*60*60*1000);
       this.addWhereOrAnd();
@@ -353,33 +353,33 @@ public class RequestDownloadFilter extends DetailObject {
     if (lastYear != null && lastYear.equalsIgnoreCase("Y")) {
       Calendar end = Calendar.getInstance();
       end.add(Calendar.YEAR, -1);
-      
+
       this.addWhereOrAnd();
       queryBuf.append(" req.createDate >= '");
       queryBuf.append(this.formatDate(end.getTime(), this.DATE_OUTPUT_SQL));
-      queryBuf.append("'");      
-    } 
+      queryBuf.append("'");
+    }
     // Search requests made in last month
     else if (lastMonth != null && lastMonth.equalsIgnoreCase("Y")) {
         Calendar end = Calendar.getInstance();
         end.add(Calendar.MONTH, -1);
-        
+
         this.addWhereOrAnd();
         queryBuf.append(" req.createDate >= '");
         queryBuf.append(this.formatDate(end.getTime(), this.DATE_OUTPUT_SQL));
-        queryBuf.append("'");      
+        queryBuf.append("'");
     }
     // Search requests made in last week
     else if (lastWeek != null && lastWeek.equalsIgnoreCase("Y")) {
         Calendar end = Calendar.getInstance();
         end.add(Calendar.DAY_OF_YEAR, -7);
-        
+
         this.addWhereOrAnd();
         queryBuf.append(" req.createDate >= '");
         queryBuf.append(this.formatDate(end.getTime(), this.DATE_OUTPUT_SQL));
-        queryBuf.append("'");      
-    } 
-    
+        queryBuf.append("'");
+    }
+
     // Search for Solexa requests
     if (isSolexa.equals("Y")) {
       this.addWhereOrAnd();
@@ -413,24 +413,27 @@ public class RequestDownloadFilter extends DetailObject {
       queryBuf.append(RequestCategory.AGILIENT_MICROARRAY_REQUEST_CATEGORY);
       queryBuf.append("') ");
 
-    }    
+    }
 
-    
+    this.addWhereOrAnd();
+    queryBuf.append(" req.archived is null ");
+
+
   }
-  
+
   private void addHybCriteria() {
-    
+
     //  Search by isComplete
     if (isComplete != null && isComplete.equalsIgnoreCase("Y")){
       this.addWhereOrAnd();
       queryBuf.append(" hyb.extractionDate != null");
-    }   
-    
+    }
+
     //  Search by isNotComplete
     if (isNotComplete != null && isNotComplete.equalsIgnoreCase("Y")){
       this.addWhereOrAnd();
       queryBuf.append(" hyb.extractionDate is null");
-    }   
+    }
   }
 
   private void addSolexaCriteria() {
@@ -439,22 +442,22 @@ public class RequestDownloadFilter extends DetailObject {
   }
 
   private void addQualityControlCriteria() {
-    
+
     //  Search by isComplete
     if (isComplete != null && isComplete.equalsIgnoreCase("Y")){
       this.addWhereOrAnd();
       queryBuf.append(" s.qualDate != null");
-    }   
-    
+    }
+
     //  Search by isNotComplete
     if (isNotComplete != null && isNotComplete.equalsIgnoreCase("Y")){
       this.addWhereOrAnd();
       queryBuf.append(" s.qualDate is null");
-    }   
-    
+    }
+
   }
- 
-  
+
+
   private void addSecurityCriteria() {
     if (this.allExperiments != null && this.allExperiments.equals("Y")) {
       boolean scopeToGroup = false;
@@ -466,16 +469,16 @@ public class RequestDownloadFilter extends DetailObject {
       addWhere = secAdvisor.buildSecurityCriteria(queryBuf, "req", "collab", addWhere, scopeToGroup, true);
     }
 
-    
+
   }
-  
+
   private void addExcludeClinicResearchCriteria() {
     if (secAdvisor.appendExcludeClinicResearchCriteria(queryBuf, addWhere, dictionaryHelper, "req")) {
       addWhere = false;
     }
   }
-    
-  
+
+
   protected boolean addWhereOrAnd() {
     if (addWhere) {
       queryBuf.append(" WHERE ");
@@ -500,210 +503,210 @@ public class RequestDownloadFilter extends DetailObject {
     return idLab;
   }
 
-  
+
   public Integer getIdUser() {
     return idAppUser;
   }
 
-  
+
   public String getRequestNumber() {
     return requestNumber;
   }
 
-  
+
   public void setIdLab(Integer idLab) {
     this.idLab = idLab;
   }
 
-  
+
   public void setIdUser(Integer idAppUser) {
     this.idAppUser = idAppUser;
   }
 
-  
+
   public void setRequestNumber(String requestNumber) {
     this.requestNumber = requestNumber;
   }
 
-  
+
   public Date getCreateDateFrom() {
     return createDateFrom;
   }
 
 
-  
+
   public void setCreateDateFrom(Date createDateFrom) {
     this.createDateFrom = createDateFrom;
   }
 
-  
+
   public Date getCreateDateTo() {
     return createDateTo;
   }
 
-  
+
   public void setCreateDateTo(Date createDateTo) {
     this.createDateTo = createDateTo;
   }
 
- 
-  
+
+
   public Integer getIdAppUser() {
     return idAppUser;
   }
 
-  
+
   public void setIdAppUser(Integer idAppUser) {
     this.idAppUser = idAppUser;
   }
 
 
-  
+
   public List getIdRequests() {
     return idRequests;
   }
 
 
-  
+
   public void setIdRequests(List idRequests) {
     this.idRequests = idRequests;
   }
 
 
 
-  
+
   public String getIsComplete() {
     return isComplete;
   }
 
 
-  
+
   public void setIsComplete(String isComplete) {
     this.isComplete = isComplete;
   }
 
 
-  
+
   public String getIsNotComplete() {
     return isNotComplete;
   }
 
 
-  
+
   public void setIsNotComplete(String isNotComplete) {
     this.isNotComplete = isNotComplete;
   }
 
 
-  
+
   public Integer getIdProject() {
     return idProject;
   }
 
 
-  
+
   public void setIdProject(Integer idProject) {
     this.idProject = idProject;
   }
 
 
-  
+
   public String getPublicExperimentsInOtherGroups() {
     return publicExperimentsInOtherGroups;
   }
 
 
-  
+
   public void setPublicExperimentsInOtherGroups(
       String publicExperimentsInOtherGroups) {
     this.publicExperimentsInOtherGroups = publicExperimentsInOtherGroups;
   }
 
 
-  
+
   public String getLastWeek() {
     return lastWeek;
   }
 
 
-  
+
   public void setLastWeek(String lastWeek) {
     this.lastWeek = lastWeek;
   }
 
 
-  
+
   public String getLastMonth() {
     return lastMonth;
   }
 
 
-  
+
   public void setLastMonth(String lastMonth) {
     this.lastMonth = lastMonth;
   }
 
 
-  
+
   public String getLastYear() {
     return lastYear;
   }
 
 
-  
+
   public void setLastYear(String lastYear) {
     this.lastYear = lastYear;
   }
 
 
-  
+
   public String getIsMicroarray() {
     return isMicroarray;
   }
 
 
-  
+
   public void setIsMicroarray(String isMicroarray) {
     this.isMicroarray = isMicroarray;
   }
 
 
-  
+
   public String getIsSolexa() {
     return isSolexa;
   }
 
 
-  
+
   public void setIsSolexa(String isSolexa) {
     this.isSolexa = isSolexa;
   }
 
 
-  
+
   public String getIsBioanalyzer() {
     return isBioanalyzer;
   }
 
 
-  
+
   public void setIsBioanalyzer(String isBioanalyzer) {
     this.isBioanalyzer = isBioanalyzer;
   }
 
 
-  
+
   public Integer getIdRequest() {
     return idRequest;
   }
 
 
-  
+
   public void setIdRequest(Integer idRequest) {
     this.idRequest = idRequest;
   }
 
 
-  
-  
+
+
 }

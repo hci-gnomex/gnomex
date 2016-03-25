@@ -290,12 +290,12 @@
             
 		<![CDATA[
 		import com.earthbrowser.ebutils.MacMouseWheelHandler;
-
+		
 		import hci.flex.dictionary.DictionaryEditor;
 		import hci.flex.dictionary.DictionaryEvent;
 		import hci.flex.renderers.RendererFactory;
 		import hci.flex.util.DictionaryManager;
-
+		
 		import mx.collections.ArrayCollection;
 		import mx.collections.Sort;
 		import mx.collections.XMLListCollection;
@@ -315,7 +315,7 @@
 		import mx.rpc.events.FaultEvent;
 		import mx.rpc.events.ResultEvent;
 		import mx.utils.StringUtil;
-
+		
 		import views.admin.BillingAccountFieldsConfigurationWindow;
 		import views.admin.GenomeIndexEvent;
 		import views.admin.PropertyEvent;
@@ -2308,6 +2308,15 @@
 				return new XMLListCollection();
 			} else {
 				return new XMLListCollection(createSecurityAdvisor.lastResult.groupsToManage.Lab);
+			}
+		}
+			
+		public function isGroupIManage(idLab:int):Boolean{
+			var theLab:Object = createSecurityAdvisor.lastResult.groupsToManage.Lab.(@idLab == idLab.toString());		
+			if(theLab.length() > 0){
+				return true;
+			} else{
+				return false;
 			}
 		}
 

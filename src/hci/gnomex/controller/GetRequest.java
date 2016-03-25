@@ -133,7 +133,10 @@ public class GetRequest extends GNomExCommand implements Serializable {
         if (!newRequest) {
           if (!this.getSecAdvisor().canRead(request)) {
             this.addInvalidField("perm", "Insufficient permission to access this request");
+          } else if(request.getArchived() != null && request.getArchived().equals("Y")){
+            this.addInvalidField("Request is archived", "This request has been archived.  If you need access to this request please contact GNomEx support.");
           }
+
         }
 
         if (this.isValid()) {
@@ -193,7 +196,7 @@ public class GetRequest extends GNomExCommand implements Serializable {
 
           Element requestNode = request.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
           requestNode.setAttribute("canUpdateVisibility", this.getSecAdvisor().canUpdateVisibility(request.getIdLab(), request.getIdAppUser()) ? "Y" : "N");
-          
+
           BillingTemplate billingTemplate = BillingTemplateQueryManager.retrieveBillingTemplate(sess, request);
           if (billingTemplate != null) {
         	  requestNode.setAttribute("idBillingTemplate", billingTemplate.getIdBillingTemplate().toString());

@@ -11,8 +11,8 @@ import java.util.Iterator;
 import java.util.List;
 
 public class RequestProgressFilter extends DetailObject {
-  
-  
+
+
   // Criteria
   protected String                requestNumber;
   protected Integer               idAppUser;
@@ -34,21 +34,21 @@ public class RequestProgressFilter extends DetailObject {
   private String                  isBioanalyzer = "N";
   private String                  isNextGenSeq = "N";
   private String                  allExperiments;
-  
+
   private String                  isCapSeq = "N";
   private String                  isMitSeq = "N";
   private String                  isFragAnal = "N";
   private String                  isCherryPick = "N";
-  
+
   private String                  isExternalOnly = "N";
-  
-  
+
+
   protected StringBuffer          queryBuf;
   protected boolean              addWhere = true;
   protected SecurityAdvisor       secAdvisor;
   protected DictionaryHelper      dictionaryHelper;
 
-  
+
   public boolean hasCriteria() {
     if ((requestNumber != null && !requestNumber.equals("")) ||
         idAppUser != null ||
@@ -56,7 +56,7 @@ public class RequestProgressFilter extends DetailObject {
         idProject != null ||
         createDateFrom != null ||
         createDateTo != null ||
-        (publicExperimentsInOtherGroups != null && publicExperimentsInOtherGroups.equalsIgnoreCase("Y")) ||        
+        (publicExperimentsInOtherGroups != null && publicExperimentsInOtherGroups.equalsIgnoreCase("Y")) ||
         (isComplete != null && isComplete.equalsIgnoreCase("Y")) ||
         (isNotComplete != null && isNotComplete.equalsIgnoreCase("Y")) ||
         (isMicroarray != null && isMicroarray.equalsIgnoreCase("Y")) ||
@@ -77,15 +77,15 @@ public class RequestProgressFilter extends DetailObject {
       return false;
     }
   }
-  
-  
+
+
   public StringBuffer getQualityControlQuery(SecurityAdvisor secAdvisor, DictionaryHelper dictionaryHelper) {
     this.secAdvisor = secAdvisor;
     this.dictionaryHelper = dictionaryHelper;
     queryBuf = new StringBuffer();
     addWhere = true;
-    
-    queryBuf.append(" SELECT req.createDate, req.number, req.codeRequestCategory, "); 
+
+    queryBuf.append(" SELECT req.createDate, req.number, req.codeRequestCategory, ");
     queryBuf.append("        req.codeApplication, req.idAppUser, ");
     queryBuf.append("        '', '', ");
     queryBuf.append("        '', '', ");
@@ -95,19 +95,19 @@ public class RequestProgressFilter extends DetailObject {
     queryBuf.append("        '', req.idRequest, ");
     queryBuf.append("        reqOwner.firstName, reqOwner.lastName");
     getQualityControlQueryBody(queryBuf);
-    
+
     return queryBuf;
-    
+
   }
-  
-  
+
+
   public StringBuffer getMicroarrayQuery(SecurityAdvisor secAdvisor, DictionaryHelper dictionaryHelper) {
     this.secAdvisor = secAdvisor;
     this.dictionaryHelper = dictionaryHelper;
     queryBuf = new StringBuffer();
     addWhere = true;
-    
-    queryBuf.append(" SELECT req.createDate, req.number, req.codeRequestCategory, "); 
+
+    queryBuf.append(" SELECT req.createDate, req.number, req.codeRequestCategory, ");
     queryBuf.append("        req.codeApplication, req.idAppUser, ");
     queryBuf.append("        hyb.number, hyb.hybDate, ");
     queryBuf.append("        hyb.extractionDate, hyb.hybFailed, ");
@@ -117,13 +117,13 @@ public class RequestProgressFilter extends DetailObject {
     queryBuf.append("        hyb.hasResults, req.idRequest, ");
     queryBuf.append("        reqOwner.firstName, reqOwner.lastName");
     getMicroarrayQueryBody(queryBuf);
-    
+
     return queryBuf;
-    
+
   }
-  
+
   private void getMicroarrayQueryBody(StringBuffer queryBuf) {
-    
+
     queryBuf.append(" FROM           Request as req ");
     queryBuf.append(" JOIN           req.hybridizations as hyb ");
     queryBuf.append(" JOIN           hyb.labeledSampleChannel1 as ls1 ");
@@ -132,113 +132,113 @@ public class RequestProgressFilter extends DetailObject {
     queryBuf.append(" LEFT JOIN      req.collaborators as collab ");
     queryBuf.append(" LEFT JOIN      hyb.labeledSampleChannel2 as ls2 ");
     queryBuf.append(" LEFT JOIN      ls2.sample as s2 ");
-    
+
     addRequestCriteria();
     addHybCriteria();
     addSecurityCriteria();
-    
-    
+
+
     this.addWhereOrAnd();
     queryBuf.append(" req.codeRequestCategory != '");
     queryBuf.append(RequestCategory.QUALITY_CONTROL_REQUEST_CATEGORY);
     queryBuf.append("'");
-    
+
     queryBuf.append(" order by req.createDate desc, req.number desc , hyb.number asc");
-  
+
   }
-  
+
   private void getQualityControlQueryBody(StringBuffer queryBuf) {
-     
+
     queryBuf.append(" FROM           Request as req ");
     queryBuf.append(" LEFT JOIN      req.samples as s ");
     queryBuf.append(" LEFT JOIN      req.appUser as reqOwner ");
     queryBuf.append(" LEFT JOIN      req.collaborators as collab ");
 
-    
+
     addRequestCriteria();
     addQualityControlCriteria();
     addSecurityCriteria();
 
-    
+
     this.addWhereOrAnd();
     queryBuf.append(" req.codeRequestCategory = '");
     queryBuf.append(RequestCategory.QUALITY_CONTROL_REQUEST_CATEGORY);
     queryBuf.append("'");
 
     queryBuf.append(" order by req.createDate desc, req.number desc , s.number asc");
-  
+
   }
-  
-  
-  
+
+
+
 
   protected void addRequestCriteria() {
-    // Search by request number 
+    // Search by request number
     if (requestNumber != null && !requestNumber.equals("")){
       this.addWhereOrAnd();
       queryBuf.append(" req.number like '");
       queryBuf.append(requestNumber);
       queryBuf.append("%'");
-    } 
-    // Search by lab 
+    }
+    // Search by lab
     if (idLab != null){
       this.addWhereOrAnd();
       queryBuf.append(" req.idLab =");
       queryBuf.append(idLab);
-    } 
-    // Search by project 
+    }
+    // Search by project
     if (idProject != null){
       this.addWhereOrAnd();
       queryBuf.append(" req.idProject =");
       queryBuf.append(idProject);
-    } 
-    // Search by user 
+    }
+    // Search by user
     if (idAppUser != null){
       this.addWhereOrAnd();
       queryBuf.append(" req.idAppUser = ");
       queryBuf.append(idAppUser);
-    } 
-    //  Search by create date from 
+    }
+    //  Search by create date from
     if (createDateFrom != null){
       this.addWhereOrAnd();
       queryBuf.append(" req.createDate >= '");
       queryBuf.append(this.formatDate(createDateFrom, this.DATE_OUTPUT_SQL));
       queryBuf.append("'");
-    } 
-    //  Search by create date to 
+    }
+    //  Search by create date to
     if (createDateTo != null){
       createDateTo.setTime(createDateTo.getTime() + 24*60*60*1000);
       this.addWhereOrAnd();
       queryBuf.append(" req.createDate <= '");
       queryBuf.append(this.formatDate(createDateTo, this.DATE_OUTPUT_SQL) + " 12:00pm");
       queryBuf.append("'");
-    } 
-    
+    }
+
     //  External experiments (only)
     if (isExternalOnly != null && isExternalOnly.equals("Y")){
       this.addWhereOrAnd();
       queryBuf.append(" req.isExternal = 'Y'");
-    } 
+    }
 
     // Search by request date last year
     if (lastYear != null && lastYear.equalsIgnoreCase("Y")) {
       Calendar end = Calendar.getInstance();
       end.add(Calendar.YEAR, -1);
-      
+
       this.addWhereOrAnd();
       queryBuf.append(" req.createDate >= '");
       queryBuf.append(this.formatDate(end.getTime(), this.DATE_OUTPUT_SQL));
-      queryBuf.append("'");      
-    } 
+      queryBuf.append("'");
+    }
     // Search by request date last month
     else if (lastMonth != null && lastMonth.equalsIgnoreCase("Y")) {
         Calendar end = Calendar.getInstance();
         end.add(Calendar.MONTH, -1);
-        
+
         this.addWhereOrAnd();
         queryBuf.append(" req.createDate >= '");
         queryBuf.append(this.formatDate(end.getTime(), this.DATE_OUTPUT_SQL));
-        queryBuf.append("'");      
+        queryBuf.append("'");
     }
     // Search for requests submitted in last 3 months
     else if (lastThreeMonths.equals("Y")) {
@@ -246,7 +246,7 @@ public class RequestProgressFilter extends DetailObject {
       Calendar cal = Calendar.getInstance();
       cal.add(Calendar.MONTH, -3);
       java.sql.Date last3Month = new java.sql.Date(cal.getTimeInMillis());
-      
+
       this.addWhereOrAnd();
       queryBuf.append(" req.createDate >= '");
       queryBuf.append(this.formatDate(last3Month, this.DATE_OUTPUT_SQL));
@@ -256,13 +256,13 @@ public class RequestProgressFilter extends DetailObject {
     else if (lastWeek != null && lastWeek.equalsIgnoreCase("Y")) {
         Calendar end = Calendar.getInstance();
         end.add(Calendar.DAY_OF_YEAR, -7);
-        
+
         this.addWhereOrAnd();
         queryBuf.append(" req.createDate >= '");
         queryBuf.append(this.formatDate(end.getTime(), this.DATE_OUTPUT_SQL));
-        queryBuf.append("'");      
+        queryBuf.append("'");
     }
-  
+
     if (isBioanalyzer.equals("Y")) {
       // Search for bioanalyzer requests
       this.addWhereOrAnd();
@@ -296,24 +296,24 @@ public class RequestProgressFilter extends DetailObject {
       // Search for Solexa requests
       this.addWhereOrAnd();
       queryBuf.append(" req.codeRequestCategory IN (");
-      
+
       List requestCategories = dictionaryHelper.getRequestCategoryList();
       int count = 0;
       for (Iterator i = requestCategories.iterator(); i.hasNext();) {
         RequestCategory requestCategory = (RequestCategory)i.next();
         if (requestCategory.isNextGenSeqRequestCategory()) {
           if (count > 0) {
-            queryBuf.append(", ");            
+            queryBuf.append(", ");
           }
-          
+
           queryBuf.append("'");
           queryBuf.append(requestCategory.getCodeRequestCategory());
-          queryBuf.append("'");    
+          queryBuf.append("'");
           count++;
         }
 
       }
-      
+
       queryBuf.append(") ");
     }  else if (isCapSeq.equals("Y")) {
       // Search for capillary sequencing requests
@@ -339,41 +339,44 @@ public class RequestProgressFilter extends DetailObject {
       queryBuf.append(" req.codeRequestCategory = '");
       queryBuf.append(RequestCategory.CHERRY_PICKING_REQUEST_CATEGORY);
       queryBuf.append("'");
-    }   
+    }
+
+    this.addWhereOrAnd();
+    queryBuf.append(" req.archived is null ");
   }
- 
+
   private void addHybCriteria() {
-    
+
     //  Search by isComplete
     if (isComplete != null && isComplete.equalsIgnoreCase("Y")){
       this.addWhereOrAnd();
       queryBuf.append(" hyb.extractionDate != null");
-    }   
-    
+    }
+
     //  Search by isNotComplete
     if (isNotComplete != null && isNotComplete.equalsIgnoreCase("Y")){
       this.addWhereOrAnd();
       queryBuf.append(" hyb.extractionDate is null");
-    }   
+    }
   }
 
   private void addQualityControlCriteria() {
-    
+
     //  Search by isComplete
     if (isComplete != null && isComplete.equalsIgnoreCase("Y")){
       this.addWhereOrAnd();
       queryBuf.append(" s.qualDate != null");
-    }  
-    
+    }
+
     // Search by isNotComplete
     if (isNotComplete != null && isNotComplete.equalsIgnoreCase("Y")){
       this.addWhereOrAnd();
       queryBuf.append(" s.qualDate is null");
-    }   
-    
+    }
+
   }
-  
-  
+
+
 
   protected void addSecurityCriteria() {
 
@@ -386,12 +389,12 @@ public class RequestProgressFilter extends DetailObject {
       boolean scopeToGroup = true;
       addWhere = secAdvisor.buildSecurityCriteria(queryBuf, "req", "collab", addWhere, scopeToGroup, true);
     }
-    
+
     // Always exclude clinic research experiments.
     secAdvisor.appendExcludeClinicResearchCriteria(queryBuf, addWhere, dictionaryHelper, "req");
   }
-    
-  
+
+
   protected boolean addWhereOrAnd() {
     if (addWhere) {
       queryBuf.append(" WHERE ");
@@ -402,199 +405,199 @@ public class RequestProgressFilter extends DetailObject {
     return addWhere;
   }
 
-  
+
   public Integer getIdLab() {
     return idLab;
   }
 
-  
+
   public Integer getIdUser() {
     return idAppUser;
   }
 
-  
+
   public String getRequestNumber() {
     return requestNumber;
   }
 
-  
+
   public void setIdLab(Integer idLab) {
     this.idLab = idLab;
   }
 
-  
+
   public void setIdUser(Integer idAppUser) {
     this.idAppUser = idAppUser;
   }
 
-  
+
   public void setRequestNumber(String requestNumber) {
     this.requestNumber = requestNumber;
   }
 
-  
+
   public Date getCreateDateFrom() {
     return createDateFrom;
   }
 
 
-  
+
   public void setCreateDateFrom(Date createDateFrom) {
     this.createDateFrom = createDateFrom;
   }
 
-  
+
   public Date getCreateDateTo() {
     return createDateTo;
   }
 
-  
+
   public void setCreateDateTo(Date createDateTo) {
     this.createDateTo = createDateTo;
   }
 
-  
+
   public Integer getIdAppUser() {
     return idAppUser;
   }
 
-  
+
   public void setIdAppUser(Integer idAppUser) {
     this.idAppUser = idAppUser;
   }
 
 
-  
+
   public String getIsComplete() {
     return isComplete;
   }
 
 
-  
+
   public void setIsComplete(String isComplete) {
     this.isComplete = isComplete;
   }
 
 
-  
+
   public String getIsNotComplete() {
     return isNotComplete;
   }
 
 
-  
+
   public void setIsNotComplete(String isNotComplete) {
     this.isNotComplete = isNotComplete;
   }
 
 
-  
 
 
-  
+
+
   public Integer getIdProject() {
     return idProject;
   }
 
 
-  
+
   public void setIdProject(Integer idProject) {
     this.idProject = idProject;
   }
 
 
-  
+
   public String getPublicExperimentsInOtherGroups() {
     return publicExperimentsInOtherGroups;
   }
 
 
-  
+
   public void setPublicExperimentsInOtherGroups(
       String publicExperimentsInOtherGroups) {
     this.publicExperimentsInOtherGroups = publicExperimentsInOtherGroups;
   }
 
 
-  
+
   public String getLastWeek() {
     return lastWeek;
   }
 
 
-  
+
   public void setLastWeek(String lastWeek) {
     this.lastWeek = lastWeek;
   }
 
 
-  
+
   public String getLastMonth() {
     return lastMonth;
   }
 
 
-  
+
   public void setLastThreeMonths(String lastThreeMonths) {
     this.lastThreeMonths = lastThreeMonths;
   }
 
 
-  
+
   public String getLastThreeMonths() {
     return lastThreeMonths;
   }
 
 
-  
+
   public void setLastMonth(String lastMonth) {
     this.lastMonth = lastMonth;
   }
 
 
-  
+
   public String getLastYear() {
     return lastYear;
   }
 
 
-  
+
   public void setLastYear(String lastYear) {
     this.lastYear = lastYear;
   }
 
 
-  
+
   public String getIsMicroarray() {
     return isMicroarray;
   }
 
 
-  
+
   public void setIsMicroarray(String isMicroarray) {
     this.isMicroarray = isMicroarray;
   }
 
 
-  
+
   public String getIsSolexa() {
     return isSolexa;
   }
 
 
-  
+
   public void setIsSolexa(String isSolexa) {
     this.isSolexa = isSolexa;
   }
 
 
-  
+
   public String getIsBioanalyzer() {
     return isBioanalyzer;
   }
 
 
-  
+
   public void setIsBioanalyzer(String isBioanalyzer) {
     this.isBioanalyzer = isBioanalyzer;
   }
@@ -620,7 +623,7 @@ public class RequestProgressFilter extends DetailObject {
   }
 
 
-  
+
   public String getIsCapSeq() {
     return isCapSeq;
   }

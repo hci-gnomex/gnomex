@@ -197,7 +197,7 @@ public class BillingItemFilter extends DetailObject {
     addBillingItemCriteria();
 
     addSecurityCriteria("po");
-    
+
     return queryBuf;
 
 
@@ -213,7 +213,7 @@ public class BillingItemFilter extends DetailObject {
 
     return queryBuf;
 
-  }  
+  }
 
   public StringBuffer getDiskUsageBillingItemQuery() {
     addWhere = true;
@@ -293,7 +293,7 @@ public class BillingItemFilter extends DetailObject {
         }
       }
       queryBuf.append(") ");
-    } 
+    }
 
     queryBuf.append(" order by req.number, bi.idLab, bi.idBillingAccount, bi.idBillingItem");
 
@@ -373,7 +373,7 @@ public class BillingItemFilter extends DetailObject {
     queryBuf.append(" JOIN        bi.lab as lab ");
 
     return queryBuf;
-  }   
+  }
 
   public StringBuffer getCoreCommentsQuery() {
     addWhere = true;
@@ -417,7 +417,7 @@ public class BillingItemFilter extends DetailObject {
 
   private void addRequestCriteria() {
 
-    // Search by lab 
+    // Search by lab
     if (idLab != null){
       this.addWhereOrAnd();
       queryBuf.append(" bi.idLab =");
@@ -429,23 +429,23 @@ public class BillingItemFilter extends DetailObject {
       queryBuf.append(" req.idCoreFacility =");
       queryBuf.append(idCoreFacility);
     }
-    // Search by billing account 
+    // Search by billing account
     if (idBillingAccount != null){
       this.addWhereOrAnd();
       queryBuf.append(" req.idBillingAccount = ");
       queryBuf.append(idBillingAccount);
-    } 
-    // Search by request number 
-    if (requestNumber != null && 
+    }
+    // Search by request number
+    if (requestNumber != null &&
         !requestNumber.equals("")){
       this.addWhereOrAnd();
 
       String requestNumberBase = Request.getBaseRequestNumber(requestNumber);
       queryBuf.append(" (req.number like '" + requestNumberBase + "[0-9]' OR req.number = '" + requestNumberBase + "' OR req.number like '" + requestNumberBase + "R[0-9]' OR req.number = '" + requestNumberBase + "R') ");
-    }     
+    }
 
-    // Search by invoice number 
-    if (invoiceLookupNumber != null && 
+    // Search by invoice number
+    if (invoiceLookupNumber != null &&
         !invoiceLookupNumber.equals("")){
       this.addWhereOrAnd();
       queryBuf.append(" (inv.invoiceNumber like '%" + invoiceLookupNumber + "%') ");
@@ -455,13 +455,16 @@ public class BillingItemFilter extends DetailObject {
       this.addWhereOrAnd();
       queryBuf.append( " req.codeRequestStatus != 'NEW'" );
     }
+
+    this.addWhereOrAnd();
+    queryBuf.append(" req.archived is null ");
   }
 
 
 
   private void addDiskUsageCriteria() {
 
-    // Search by lab 
+    // Search by lab
     if (idLab != null){
       this.addWhereOrAnd();
       queryBuf.append(" bi.idLab =");
@@ -476,21 +479,21 @@ public class BillingItemFilter extends DetailObject {
       queryBuf.append(idCoreFacility);
     }
 
-    // Search by billing account 
+    // Search by billing account
     if (idBillingAccount != null){
       this.addWhereOrAnd();
       queryBuf.append(" dsk.idBillingAccount = ");
       queryBuf.append(idBillingAccount);
-    } 
+    }
     // Search by request number Note that search by request number excludes all disk usage rows.
-    if (requestNumber != null && 
+    if (requestNumber != null &&
         !requestNumber.equals("")){
       this.addWhereOrAnd();
       queryBuf.append("1 = 2");
-    }     
+    }
 
-    // Search by invoice number 
-    if (invoiceLookupNumber != null && 
+    // Search by invoice number
+    if (invoiceLookupNumber != null &&
         !invoiceLookupNumber.equals("")){
       this.addWhereOrAnd();
       queryBuf.append(" (inv.invoiceNumber like '%" + invoiceLookupNumber + "%') ");
@@ -499,7 +502,7 @@ public class BillingItemFilter extends DetailObject {
 
   private void addProductOrderCriteria() {
 
-    // Search by lab 
+    // Search by lab
     if (idLab != null){
       this.addWhereOrAnd();
       queryBuf.append(" bi.idLab =");
@@ -511,22 +514,22 @@ public class BillingItemFilter extends DetailObject {
       queryBuf.append(" po.idCoreFacility =");
       queryBuf.append(idCoreFacility);
     }
-    // Search by billing account 
+    // Search by billing account
     if (idBillingAccount != null){
       this.addWhereOrAnd();
       queryBuf.append(" po.idBillingAccount = ");
       queryBuf.append(idBillingAccount);
-    } 
-    
+    }
+
     // Search by request number Note that search by request number excludes all product order rows.
-    if (requestNumber != null && 
+    if (requestNumber != null &&
         !requestNumber.equals("")){
       this.addWhereOrAnd();
       queryBuf.append("1 = 2");
-    }     
+    }
 
-    // Search by invoice number 
-    if (invoiceLookupNumber != null && 
+    // Search by invoice number
+    if (invoiceLookupNumber != null &&
         !invoiceLookupNumber.equals("")){
       this.addWhereOrAnd();
       queryBuf.append(" (inv.invoiceNumber like '%" + invoiceLookupNumber + "%') ");
@@ -536,22 +539,22 @@ public class BillingItemFilter extends DetailObject {
   private void addBillingItemCriteria() {
 
 
-    // Search by billing period 
+    // Search by billing period
     if (idBillingPeriod != null){
       this.addWhereOrAnd();
       queryBuf.append(" bi.idBillingPeriod =");
       queryBuf.append(idBillingPeriod);
-    } 
+    }
 
 
-  }  
+  }
 
   private void addCommentsCriteria() {
 
     this.addWhereOrAnd();
     queryBuf.append(" req.corePrepInstructions != '' ");
 
-  } 
+  }
 
   protected boolean addWhereOrAnd() {
     if (addWhere) {

@@ -84,6 +84,18 @@
 		method="POST"
 		useProxy="false">
    </mx:HTTPService>
+	
+	<mx:HTTPService  
+		id="archiveRequest" 
+		url="ArchiveRequest.gx"
+		destination="archiveRequest"
+		resultFormat="e4x"
+		showBusyCursor="true"
+		result="onArchiveRequest(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to archive request', event)"
+		method="POST"
+		useProxy="false">
+	</mx:HTTPService>
    
    <mx:HTTPService  
     id="getProject" 
@@ -1299,6 +1311,21 @@
 			params.idRequest = selectedExperiment.@idRequest;
 			params.codeRequestStatus = 'SUBMITTED'
 			submitRequest.send(params);
+		}
+			
+		public function archiveExperiment():void {
+			var params:Object = new Object();
+			params.idRequest = selectedExperiment.@idRequest;
+			archiveRequest.send(params);
+		}
+			
+		private function onArchiveRequest(event:ResultEvent):void{
+			if(archiveRequest.lastResult.name() == "SUCCESS"){
+				this.refreshExperiments();
+			} else{
+				Alert.show(archiveRequest.lastResult..ACTMESSAGE.@TEXT);
+			}
+			
 		}
 	    
 	    private function onDeleteRequest(event:ResultEvent): void {

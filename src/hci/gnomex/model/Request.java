@@ -61,7 +61,7 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
   private Date            lastModifyDate;
   private String          isArrayINFORequest;
   private String          codeVisibility;
-  private String          isExternal;  
+  private String          isExternal;
   private Integer         idInstitution;
   private String          name;
   private String          description;
@@ -98,7 +98,8 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
   private String          includeBisulfideConversion;
   private String          includeQubitConcentration;
   private String          adminNotes;
-  private Integer		  idProduct;
+  private Integer		      idProduct;
+  private String          archived;
 
   //Billing fields
   private Set             billingItems;
@@ -115,11 +116,11 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
   public void setTopics(Set topics) {
     this.topics = topics;
   }
-  
+
   public Integer getIdProduct() {
 	return idProduct;
   }
-  
+
   public void setIdProduct(Integer idProduct) {
 	this.idProduct = idProduct;
   }
@@ -999,7 +1000,7 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
   public void setPropertyEntries(Set propertyEntries) {
     this.propertyEntries = propertyEntries;
   }
-  
+
   public Date getPrivacyExpirationDate() {
     return privacyExpirationDate;
   }
@@ -1448,6 +1449,12 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
 @Override
 public Integer getIdProductOrder() {
 	return null;
+}
+public String getArchived() {
+  return archived;
+}
+public void setArchived(String archived) {
+  this.archived = archived;
 }
 @Override
 public Integer getAcceptingBalanceAccountId(Session sess) {
