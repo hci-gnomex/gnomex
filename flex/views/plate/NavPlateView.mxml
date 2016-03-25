@@ -618,10 +618,20 @@
 				var url:URLRequest = new URLRequest('DownloadABIRunFileServlet.gx' +
 					'?idInstrumentRun=' + run.idRun + '&codeReactionType=' + reactionState);
 				navigateToURL( url, '_blank' );
-				setDirty();
-				loadRunById(run.idRun);
-				Alert.show( "The .plt file has been created and the status has been updated to running." );
+			
+				Alert.show("After the .plt file has been saved press OK. The status has been updated to running.",
+					"Confirmation",
+					Alert.OK, this,
+					onCreatePLTPromptToContinue);
 			}
+			
+			private function onCreatePLTPromptToContinue(event:CloseEvent):void {
+				if (event.detail==Alert.OK) {
+					setDirty();
+					loadRunById(run.idRun);
+				}
+			}	
+			
 			
 			// Create the sample Sheet file
 			private function createSampleSheet():void {

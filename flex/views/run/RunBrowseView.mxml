@@ -234,9 +234,18 @@
 					'?idInstrumentRun=' + idRun);
 				navigateToURL(url, '_blank');
 				
-				parentView.runningCheckbox.dispatchEvent(new MouseEvent(MouseEvent.CLICK));
-				Alert.show("The .plt file has been created and the status has been updated to running. Please refresh list.");
+				Alert.show("After the .plt file has been saved press OK. The status has been updated to running. Please refresh list.",
+					"Confirmation",
+					Alert.OK, this,
+					onCreatePLTPromptToContinue);
 			}
+			
+			private function onCreatePLTPromptToContinue(event:CloseEvent):void {
+				if (event.detail==Alert.OK) {
+					parentView.runningCheckbox.dispatchEvent(new MouseEvent(MouseEvent.CLICK));
+				}
+			}	
+
 			
 			private function showEmailWindow():void{
 				var emailWindow:EmailWindowForInstrumentRuns = EmailWindowForInstrumentRuns(PopUpManager.createPopUp(this, EmailWindowForInstrumentRuns, true));
