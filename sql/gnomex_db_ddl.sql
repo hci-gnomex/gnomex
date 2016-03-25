@@ -1863,6 +1863,7 @@ CREATE TABLE gnomex.Request (
   includeQubitConcentration CHAR(1) NULL,
   adminNotes VARCHAR(5000) NULL,
   idProduct INT(10) NULL,
+  archived CHAR(1) NULL,
   PRIMARY KEY (idRequest),
   CONSTRAINT FK_Request_Project FOREIGN KEY FK_Request_Project (idProject)
     REFERENCES gnomex.Project (idProject)
