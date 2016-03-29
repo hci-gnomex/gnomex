@@ -317,7 +317,7 @@ public class GetAnalysis extends GNomExCommand implements Serializable {
       Set organismRestrictions = property.getOrganisms();
       if(organismRestrictions != null && organismRestrictions.size() > 0) {
         Integer idOrganism = analysis.getIdOrganism();
-        if(organismRestrictions != null) {
+        if(organismRestrictions != null && idOrganism != null) {
           boolean organismFound = false;
           for(Iterator i = organismRestrictions.iterator(); i.hasNext();) {
             Organism thisOrganism = (Organism) i.next();
