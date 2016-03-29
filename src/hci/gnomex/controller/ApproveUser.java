@@ -2,6 +2,7 @@ package hci.gnomex.controller;
 
 import hci.gnomex.constants.Constants;
 import hci.gnomex.model.AppUser;
+import hci.gnomex.model.Lab;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
@@ -11,6 +12,7 @@ import hci.gnomex.utility.PropertyDictionaryHelper;
 
 import java.io.IOException;
 import java.util.Date;
+import java.util.HashSet;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
@@ -23,12 +25,20 @@ import org.hibernate.Session;
 
 public class ApproveUser extends HttpServlet {
 
+  // new user parameters
   private String  guid       = "";
   private String  idAppUser  = "";
   private AppUser au;
   private String  message    = "";
   private Boolean deleteUser = false;
   private String  serverName;
+
+  // new lab parameters
+  private String requestedLabFirstName = "";
+  private String requestedLabName = "";
+  private String department = "";
+  private String labEmail = "";
+  private String labPhone = "";
 
   protected void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
     serverName = req.getServerName();
@@ -44,6 +54,22 @@ public class ApproveUser extends HttpServlet {
       deleteUser = false;
       if (request.getParameter("deleteUser") != null && !request.getParameter("deleteUser").equals("") && request.getParameter("deleteUser").equals("Y")) {
         deleteUser = true;
+      }
+
+      if(request.getParameter("requestedLabFirstName") != null && !request.getParameter("requestedLabFirstName").equals("")){
+        requestedLabFirstName = request.getParameter("requestedLabFirstName");
+      }
+
+      if(request.getParameter("requestedLabName") != null && !request.getParameter("requestedLabName").equals("")){
+        requestedLabName = request.getParameter("requestedLabName");
+      }
+
+      if(request.getParameter("contactEmail") != null && !request.getParameter("contactEmail").equals("")){
+        labEmail = request.getParameter("contactEmail");
+      }
+
+      if(request.getParameter("contactPhone") != null && !request.getParameter("contactPhone").equals("")){
+        labPhone = request.getParameter("contactPhone");
       }
 
       PropertyDictionaryHelper pdh = PropertyDictionaryHelper.getInstance(sess);
@@ -72,19 +98,34 @@ public class ApproveUser extends HttpServlet {
         au.setIsActive("Y");
         au.setGuid(null);
         au.setGuidExpiration(null);
-        sess.save(au);
-        sess.flush();
+
+        // if we have a lab name, email, and phone then we have a new lab (these fields are required)
+        if(!requestedLabName.equals("") && !labEmail.equals("") && !labPhone.equals("")){
+          Lab newLab = new Lab();
+          newLab.setFirstName(requestedLabFirstName);
+          newLab.setLastName(requestedLabName);
+          newLab.setDepartment(department);
+          newLab.setContactEmail(labEmail);
+          newLab.setContactPhone(labPhone);
+          sess.save(newLab);
+
+          HashSet labSet = new HashSet();
+          labSet.add(newLab);
+          au.setLabs(labSet);
+        }
 
         String url = request.getRequestURL().substring(0, request.getRequestURL().indexOf("ApproveUser.gx"));
         String gnomexURL = "<a href='" + url + "'>Click here</a> to login.";
 
-        String body = "Welcome to GNomEx.  Your user account has been activated.<br><br>" + gnomexURL + "<br><br> **Please note if you requested the creation of a new lab please wait until you receive notification that you have been added to that lab before trying to submit an experiment.**";
+        String body = "Welcome to GNomEx.  Your user account has been activated<br><br>" + gnomexURL + "<br><br>";
 
         MailUtilHelper helper = new MailUtilHelper(au.getEmail(), doNotReplyEmail, "Your GNomEx account is now active", body, null, true, dictionaryHelper, serverName);
         helper.setRecipientAppUser(au);
         MailUtil.validateAndSendEmail(helper);
 
         message = "User successfully activated.  The user will be notified that their account is now active";
+        sess.save(au);
+        sess.flush();
       } else {
         message = "The link you clicked on has expired.  You will have to activate the user through the GNomEx app.";
         au.setGuid(null);
