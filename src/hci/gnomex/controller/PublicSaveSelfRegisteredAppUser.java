@@ -46,6 +46,7 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
   private PropertyDictionaryHelper propertyHelper = null;
   private String coreFacilityEmail = null;
   private String requestedLabName = "";
+  private String requestedLabFirstName = "";
   private Integer requestedLabId = null;
   private Lab requestedLab = null;
   private StringBuffer requestURL;
@@ -94,7 +95,8 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
       appUserScreen.setDepartment("");
     } else {
       existingLab = false;
-      requestedLabName = request.getParameter("newLab");
+      requestedLabName = request.getParameter("newLabLastName");
+      requestedLabFirstName = request.getParameter("newLabFirstName");
       department = request.getParameter("department");
       contactEmail = request.getParameter("contactEmail");
       contactPhone = request.getParameter("contactPhone");
@@ -321,10 +323,10 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
       }
     } else {
       if (isAdmin) {
-        body.append("</td></tr><tr style=\"color:red\"><td>Lab (New. Please add to GNomEx.):</td><td>" + this.getNonNullString(requestedLabName));
-        body.append("</td></tr><tr style=\"color:red\"><td>Department:</td><td>" + this.getNonNullString(appUser.getDepartment()));
-        body.append("</td></tr><tr style=\"color:red\"><td>PI Email:</td><td>" + this.getNonNullString(contactEmail));
-        body.append("</td></tr><tr style=\"color:red\"><td>PI Phone:</td><td>" + this.getNonNullString(contactPhone));
+        body.append("</td></tr><tr><td>Lab:</td><td>" + this.getNonNullString(requestedLabName));
+        body.append("</td></tr><tr><td>Department:</td><td>" + this.getNonNullString(appUser.getDepartment()));
+        body.append("</td></tr><tr><td>PI Email:</td><td>" + this.getNonNullString(contactEmail));
+        body.append("</td></tr><tr><td>PI Phone:</td><td>" + this.getNonNullString(contactPhone));
       } else {
         body.append("</td></tr><tr><td>Lab (New. Please add to GNomEx.):</td><td>" + this.getNonNullString(requestedLabName));
         body.append("</td></tr><tr><td>Department:</td><td>" + this.getNonNullString(appUser.getDepartment()));
@@ -363,9 +365,6 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
 
     StringBuffer intro = new StringBuffer();
     intro.append("Thank you for signing up for a GNomEx account.  We will send you an email once your user account has been activated.<br><br>");
-    if (!existingLab) {
-      intro.append("**Please note that you have requested a new lab in GNomEx.  You will not be able to submit experiments until your lab is verified and approved by the core facility manager.  You will be notified when you have been added to the lab.**.<br><br>");
-    }
 
     if (appUser.getEmail().equals("bademail@bad.com")) {
       throw new AddressException("'bademail@bad.com' not allowed");
@@ -453,27 +452,35 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
       ccAddress += propertyHelper.getProperty(PropertyDictionary.GNOMEX_SUPPORT_EMAIL);
     }
 
-    // Get approve and delete URLs
+    // Get approve and delete URLs.  Have to create a url with extra parameters when requesting a new lab
     String uuidStr = appUser.getGuid();
-    String approveURL = url + "/" + Constants.APPROVE_USER_SERVLET + "?guid=" + uuidStr + "&idAppUser=" + appUser.getIdAppUser().intValue();
+    String approveURL = "";
+    if(existingLab){
+      approveURL = url + "/" + Constants.APPROVE_USER_SERVLET + "?guid=" + uuidStr + "&idAppUser=" + appUser.getIdAppUser().intValue();
+    } else{
+      approveURL = url + "/" + Constants.APPROVE_USER_SERVLET + "?guid=" + uuidStr + "&idAppUser=" + appUser.getIdAppUser().intValue() + "&requestedLabName=" + this.requestedLabName + "&department=" + department + "&contactEmail=" + contactEmail + "&contactPhone=" + contactPhone + "&requestedLabFirstName=" + requestedLabFirstName ;
+    }
+
     String deleteURL = url + "/" + Constants.APPROVE_USER_SERVLET + "?guid=" + uuidStr + "&idAppUser=" + appUser.getIdAppUser().intValue() + "&deleteUser=Y";
     // url = url + Constants.LAUNCH_APP_JSP + "?idAppUser=" + appUser.getIdAppUser().intValue() + "&launchWindow=UserDetail&idCore=" + facility.getIdCoreFacility().toString();
     StringBuffer introForAdmin = new StringBuffer();
 
     // Intro to Lab PI/Admin
     String greeting = "";
-    String intro = "";
+    StringBuffer intro = new StringBuffer();
     if (requestedLab != null) {
       greeting = "Dear " + requestedLab.getName(false, false, false) + ",<br><br>";
-      intro = "The following person has signed up for a GNomEx user account and would like to be added to your lab group.  The user account has been created but not activated. Please approve or deny their request.<br><br>";
+      intro.append("The following person has signed up for a GNomEx user account and would like to be added to your lab group.  The user account has been created but not activated. Please approve or deny their request.<br><br>");
+      intro.append("<a href='" + approveURL + "'>Approve</a> the account.  GNomEx will automatically send an email to notify the user that his/her user account has been activated.<br><br>");
+      intro.append("<a href='" + deleteURL + "'>Deny</a> and delete the pending user.  GNomEx will automatically send an email to notify the user that they have been denied an account with GNomEx.<br><br>");
     } else {
-      intro = "The following person has signed up for a GNomEx user account and has requested a new lab.  The user account has been created but not activated. Please approve or deny their request.<br><br>";
+      intro.append("The following person has signed up for a GNomEx user account and has requested a new lab.  The user account has been created but not activated. Please approve or deny their request.<br><br>");
+      intro.append("<a href='" + approveURL + "'>Approve</a> the account and the new lab.  GNomEx will automatically create the lab listed below and send an email to notify the user that his/her user account has been activated<br><br>");
+      intro.append("<a href='" + deleteURL + "'>Deny</a> and delete the pending user and requested new lab.  GNomEx will automatically send an email to notify the user that they have been denied an account with GNomEx.<br><br>");
     }
 
     introForAdmin.append(greeting);
     introForAdmin.append(intro);
-    introForAdmin.append("<a href='" + approveURL + "'>Click here</a> to activate the account.  GNomEx will automatically send an email to notify the user that his/her user account has been activated.<br><br>");
-    introForAdmin.append("<a href='" + deleteURL + "'>Click here</a> to deny and delete the pending user.  GNomEx will automatically send an email to notify the user that they have been denied an account with GNomEx.<br><br>");
 
     introForAdmin.append("<small>(These links will expire in 3 days.)</small><br><br>");
 
