@@ -457,7 +457,7 @@ public class BillingItemFilter extends DetailObject {
     }
 
     this.addWhereOrAnd();
-    queryBuf.append(" req.archived is null ");
+    queryBuf.append(" (req.archived is null or req.archived = 'N') ");
   }
 
 

@@ -263,7 +263,7 @@ public class RequestFilter extends DetailObject {
     // don't return requests that are archived
     // the default for that column is null.  When it is archived we set the column to 'Y'
     this.addWhereOrAnd();
-    queryBuf.append(" req.archived is null ");
+    queryBuf.append(" (req.archived is null or req.archived = 'N') ");
   }
 
   private void addWellCriteria() {
