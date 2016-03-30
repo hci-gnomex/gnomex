@@ -575,7 +575,7 @@ public class ProjectRequestFilter extends DetailObject {
     }
 
     this.addWhereOrAnd();
-    queryBuf.append(" req.archived is null ");
+    queryBuf.append(" (req.archived is null or req.archived = 'N') ");
 
     // Close paren for showing empty folders or
     if (showEmptyProjectFolders.equals("Y")) {

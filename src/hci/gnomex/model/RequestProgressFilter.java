@@ -342,7 +342,7 @@ public class RequestProgressFilter extends DetailObject {
     }
 
     this.addWhereOrAnd();
-    queryBuf.append(" req.archived is null ");
+    queryBuf.append(" (req.archived is null or req.archived = 'N') ");
   }
 
   private void addHybCriteria() {

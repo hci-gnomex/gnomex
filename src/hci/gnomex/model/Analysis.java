@@ -279,7 +279,7 @@ public class Analysis extends HibernateDetailObject implements VisibilityInterfa
 
   public void setSubmitter(AppUser submitter) {
     this.submitter = submitter;
-  }  
+  }
 
   public String getOwnerName() {
     if (appUser != null) {

@@ -55,9 +55,9 @@ import org.jdom.output.XMLOutputter;
 
 
 public class GetAnalysis extends GNomExCommand implements Serializable {
-  
+
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetAnalysis.class);
-  
+
   private Integer idAnalysis;
   private String  analysisNumber;
   private String  showUploads = "N";
@@ -65,22 +65,22 @@ public class GetAnalysis extends GNomExCommand implements Serializable {
   private String  baseDir;
   private String  baseDirDataTrack;
 
-  
+
   public void validate() {
   }
-  
+
   public void loadCommand(HttpServletRequest request, HttpSession session) {
 
     if (request.getParameter("idAnalysis") != null) {
       idAnalysis = new Integer(request.getParameter("idAnalysis"));
-    }     
+    }
     if (request.getParameter("analysisNumber") != null && !request.getParameter("analysisNumber").equals("")) {
       analysisNumber = request.getParameter("analysisNumber");
-    } 
+    }
     if (request.getParameter("showUploads") != null && !request.getParameter("showUploads").equals("")) {
       showUploads = request.getParameter("showUploads");
-    } 
-    
+    }
+
     if (idAnalysis == null && analysisNumber == null) {
       this.addInvalidField("idAnalysis or analysisNumber", "Either idAnalysis or analysisNumber must be provided");
     }
@@ -88,33 +88,33 @@ public class GetAnalysis extends GNomExCommand implements Serializable {
   }
 
   public Command execute() throws RollBackCommandException {
-    
+
 	long startTime = System.currentTimeMillis();
 	String reqNumber = "";
-	
+
     try {
 
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
-      
+
       DictionaryHelper dh = DictionaryHelper.getInstance(sess);
       baseDir = PropertyDictionaryHelper.getInstance(sess).getAnalysisDirectory(serverName);
       baseDirDataTrack = PropertyDictionaryHelper.getInstance(sess).getDataTrackDirectory(serverName);
-      
+
       Analysis a = null;
       if (idAnalysis != null && idAnalysis.intValue() == 0) {
         a = new Analysis();
         a.setIdAnalysis(new Integer(0));
       } else if (idAnalysis != null){
-        a = (Analysis)sess.get(Analysis.class, idAnalysis);
+        a = sess.get(Analysis.class, idAnalysis);
         Hibernate.initialize(a.getAnalysisGroups());
-        
+
       }else {
         a = GetAnalysis.getAnalysisFromAnalysisNumber(sess, analysisNumber);
         if(a != null) {
           Hibernate.initialize(a.getAnalysisGroups());
         }
       }
-      
+
       if (a == null) {
         this.addInvalidField("missingAnalysis", "Cannot find analysis idAnalysis=" + idAnalysis + " analysisNumber=" + analysisNumber);
       } else {
@@ -122,22 +122,22 @@ public class GetAnalysis extends GNomExCommand implements Serializable {
           this.addInvalidField("permissionerror", "Insufficient permissions to access this analysis Group.");
         } else {
           this.getSecAdvisor().flagPermissions(a);
-          
-        }         
+
+        }
       }
-      
+
       if (isValid())  {
     	  reqNumber = a.getNumber();
-        
+
         // If user can write analysis, show collaborators.
         if (this.getSecAdvisor().canUpdate(a)) {
           Hibernate.initialize(a.getCollaborators());
         } else {
           a.excludeMethodFromXML("getCollaborators");
         }
-        
+
         Hibernate.initialize(a.getTopics());
-        
+
         if(a.getTopics() != null) {
           Iterator<?> it = a.getTopics().iterator();
           while(it.hasNext()) {
@@ -149,14 +149,28 @@ public class GetAnalysis extends GNomExCommand implements Serializable {
             t.excludeMethodFromXML("getAppUser");
             t.excludeMethodFromXML("getLab");
           }
-          
+
         }
-        
+
+        a.excludeMethodFromXML("getExperimentItems"); //we will add this manually below.  This is needed to deal with archived requests
+
         Document doc = new Document(new Element("OpenAnalysisList"));
         Element aNode = a.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
-        
-        
-        
+
+        Element experimentItems = new Element("experimentItems");
+        for(Iterator i = a.getExperimentItems().iterator(); i.hasNext();){
+          AnalysisExperimentItem aei = (AnalysisExperimentItem) i.next();
+          Request r = sess.load(Request.class, aei.getIdRequest());
+
+          if(r.getArchived() == null || !r.getArchived().equals("Y")){
+            experimentItems.addContent(aei.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement());
+          }
+        }
+
+        aNode.addContent(experimentItems);
+
+
+
         // Hash the know analysis files
         Map knownAnalysisFileMap = new HashMap(5000);
         for(Iterator i = a.getFiles().iterator(); i.hasNext();) {
@@ -164,11 +178,11 @@ public class GetAnalysis extends GNomExCommand implements Serializable {
           knownAnalysisFileMap.put(af.getQualifiedFileName(), af);
         }
 
-        
+
         // Now add in the files from the upload staging area
         Element filesNode = new Element("ExpandedAnalysisFileList");
         aNode.addContent(filesNode);
-        
+
         Map analysisMap = new TreeMap();
         Map directoryMap = new TreeMap();
         Map fileMap = new HashMap(5000);
@@ -183,13 +197,13 @@ public class GetAnalysis extends GNomExCommand implements Serializable {
           for(Iterator i1 = directoryKeys.iterator(); i1.hasNext();) {
 
             String directoryKey = (String)i1.next();
-            
+
             String[] dirTokens = directoryKey.split("-");
 
-            String directoryName = ""; 
+            String directoryName = "";
             if (dirTokens.length > 1) {
               directoryName = dirTokens[1];
-            } 
+            }
 
             // Show files uploads that are in the staging area.
             if (showUploads.equals("Y")) {
@@ -202,32 +216,32 @@ public class GetAnalysis extends GNomExCommand implements Serializable {
           }
         }
 
-        
+
 
         // Add properties
         Element pNode = getProperties(dh, a);
         aNode.addContent(pNode);
 
         doc.getRootElement().addContent(aNode);
-        
+
         // Append related nodes
         this.appendRelatedNodes(this.getSecAdvisor(), sess, a, aNode);
-        
+
         XMLOutputter out = new org.jdom.output.XMLOutputter();
         this.xmlResult = out.outputString(doc);
       }
-    
+
       if (isValid()) {
         setResponsePage(this.SUCCESS_JSP);
       } else {
         setResponsePage(this.ERROR_JSP);
       }
-    
+
     }catch (UnknownPermissionException e){
       log.error("An exception has occurred in GetAnalysis ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
-        
+
     }catch (NamingException e){
       log.error("An exception has occurred in GetAnalysis ", e);
       e.printStackTrace();
@@ -246,31 +260,31 @@ public class GetAnalysis extends GNomExCommand implements Serializable {
       throw new RollBackCommandException(e.getMessage());
     } finally {
       try {
-        this.getSecAdvisor().closeReadOnlyHibernateSession();        
+        this.getSecAdvisor().closeReadOnlyHibernateSession();
       } catch(Exception e) {
-        
+
       }
     }
-    
+
     String dinfo = "GetAnalysis (" + this.getUsername() + " - " + reqNumber + "), ";
     Util.showTime (startTime,dinfo);
-    
+
     return this;
   }
-  
+
   public static Analysis getAnalysisFromAnalysisNumber(Session sess, String  analysisNumber) {
     Analysis analysis = null;
     analysisNumber = analysisNumber.replaceAll("#", "");
     StringBuffer buf = new StringBuffer("SELECT a from Analysis as a where a.number = '" + analysisNumber.toUpperCase() + "'");
     List analyses = sess.createQuery(buf.toString()).list();
     if (analyses.size() > 0) {
-      analysis = (Analysis)analyses.get(0);      
+      analysis = (Analysis)analyses.get(0);
     }
     return analysis;
   }
-  
+
   public static void appendDataTrackNodes(SecurityAdvisor secAdvisor, Session sess, Analysis a, Element aNode) throws UnknownPermissionException {
-   
+
     StringBuffer queryBuf = new StringBuffer();
     queryBuf.append("SELECT DISTINCT dt FROM DataTrack dt ");
     queryBuf.append("JOIN dt.dataTrackFiles dtf ");
@@ -278,13 +292,13 @@ public class GetAnalysis extends GNomExCommand implements Serializable {
     queryBuf.append("WHERE af.idAnalysis=:id");
     Query q = sess.createQuery(queryBuf.toString());
     q.setParameter("id", a.getIdAnalysis());
-    
-    List dataTracks = (List)q.list();
+
+    List dataTracks = q.list();
     aNode.setAttribute("dataTrackCount", Integer.valueOf(dataTracks.size()).toString());
 
     for (Iterator i = dataTracks.iterator(); i.hasNext();) {
       DataTrack dt         = (DataTrack)i.next();
-      
+
       Element dtNode = new Element("DataTrack");
       aNode.addContent(dtNode);
       dtNode.setAttribute("idDataTrack", dt.getIdDataTrack().toString());
@@ -296,7 +310,7 @@ public class GetAnalysis extends GNomExCommand implements Serializable {
       dtNode.setAttribute("codeVisibility", dt.getCodeVisibility() != null ? dt.getCodeVisibility() : "");
     }
   }
-  
+
   /**
    *  Adds custom properties to the xml document.
    *
@@ -317,7 +331,7 @@ public class GetAnalysis extends GNomExCommand implements Serializable {
       Set organismRestrictions = property.getOrganisms();
       if(organismRestrictions != null && organismRestrictions.size() > 0) {
         Integer idOrganism = analysis.getIdOrganism();
-        if(organismRestrictions != null) {
+        if(organismRestrictions != null && idOrganism != null) {
           boolean organismFound = false;
           for(Iterator i = organismRestrictions.iterator(); i.hasNext();) {
             Organism thisOrganism = (Organism) i.next();
@@ -327,13 +341,13 @@ public class GetAnalysis extends GNomExCommand implements Serializable {
             }
           }
           if(!organismFound) {
-            // If the organism has been specified but is not on the "restrict by" list 
-            // then don't show the annotation. 
+            // If the organism has been specified but is not on the "restrict by" list
+            // then don't show the annotation.
             continue;
           }
         } else {
           // If the organism has not been specified but a "restrict by" list exists
-          // then don't show the annotation. 
+          // then don't show the annotation.
           continue;
         }
       }
@@ -352,18 +366,18 @@ public class GetAnalysis extends GNomExCommand implements Serializable {
             }
           }
           if(!atFound) {
-            // If the analysis type has been specified but is not on the "restrict by" list 
-            // then don't show the annotation. 
+            // If the analysis type has been specified but is not on the "restrict by" list
+            // then don't show the annotation.
             continue;
           }
         } else {
           // If the analysis type has not been specified but a "restrict by" list exists
-          // then don't show the annotation. 
+          // then don't show the annotation.
           continue;
         }
       }
 
-      // Find the analysis data corresponding to this property (if present) 
+      // Find the analysis data corresponding to this property (if present)
       PropertyEntry ap = null;
       for(Iterator i = analysis.getPropertyEntries().iterator(); i.hasNext();) {
         PropertyEntry propertyEntry = (PropertyEntry)i.next();
@@ -377,11 +391,11 @@ public class GetAnalysis extends GNomExCommand implements Serializable {
       if (ap == null && property.getIsActive().equals("N")) {
         continue;
       }
-      
+
       Element propNode = new Element("PropertyEntry");
       propertiesNode.addContent(propNode);
 
-      propNode.setAttribute("idPropertyEntry", ap != null ? ap.getIdPropertyEntry().toString() : "");  
+      propNode.setAttribute("idPropertyEntry", ap != null ? ap.getIdPropertyEntry().toString() : "");
       propNode.setAttribute("name", property.getName());
       propNode.setAttribute("value", ap != null && ap.getValue() != null ? ap.getValue() : "");
       propNode.setAttribute("codePropertyType", property.getCodePropertyType());
@@ -431,10 +445,10 @@ public class GetAnalysis extends GNomExCommand implements Serializable {
           optionNode.setAttribute("selected", isSelected ? "Y" : "N");
         }
       }
-    }      
+    }
     return propertiesNode;
   }
-  
+
   /**
    *  The callback method allowing you to manipulate the HttpServletRequest
    *  prior to forwarding to the response JSP. This can be used to put the
@@ -447,11 +461,11 @@ public class GetAnalysis extends GNomExCommand implements Serializable {
   public HttpServletRequest setRequestState(HttpServletRequest request) {
     // load any result objects into request attributes, keyed by the useBean id in the jsp
     request.setAttribute("xmlResult",this.xmlResult);
-    
+
     // Garbage collect
     this.xmlResult = null;
     System.gc();
-    
+
     return request;
   }
 
@@ -467,7 +481,7 @@ public class GetAnalysis extends GNomExCommand implements Serializable {
     response.setHeader("Cache-Control", "max-age=0, must-revalidate");
     return response;
   }
-  
+
   /*
    * Append related experiments, data tracks, and topics.
    */
@@ -477,9 +491,9 @@ public class GetAnalysis extends GNomExCommand implements Serializable {
     relatedNode.setAttribute("label", "Related Items");
     node.addContent(relatedNode);
 
-    
+
     // Hash experiments, and linked sequence lanes and hybs
-    TreeMap<Integer, Element> requestNodeMap = new TreeMap<Integer, Element>();  
+    TreeMap<Integer, Element> requestNodeMap = new TreeMap<Integer, Element>();
     TreeMap<Integer, TreeSet<SequenceLane>> laneMap = new TreeMap<Integer, TreeSet<SequenceLane>>();
     TreeMap<Integer, TreeSet<Hybridization>> hybMap = new TreeMap<Integer, TreeSet<Hybridization>>();
     TreeMap<Integer, TreeSet<Sample>> sampleMap = new TreeMap<Integer, TreeSet<Sample>>();
@@ -487,39 +501,48 @@ public class GetAnalysis extends GNomExCommand implements Serializable {
       Request request = null;
       if (x.getSequenceLane() != null) {
         request = x.getSequenceLane().getRequest();
-        TreeSet<SequenceLane> lanes = laneMap.get(request.getIdRequest());
-        if (lanes == null) {
-          lanes = new TreeSet<SequenceLane>(new SequenceLaneNumberComparator());
-          laneMap.put(request.getIdRequest(), lanes);
+
+        if(request.getArchived() == null || !request.getArchived().equals("Y")){
+          TreeSet<SequenceLane> lanes = laneMap.get(request.getIdRequest());
+          if (lanes == null) {
+            lanes = new TreeSet<SequenceLane>(new SequenceLaneNumberComparator());
+            laneMap.put(request.getIdRequest(), lanes);
+          }
+          lanes.add(x.getSequenceLane());
         }
-        lanes.add(x.getSequenceLane());
       } else if( x.getHybridization() != null) {
         request = x.getHybridization().getLabeledSampleChannel1().getRequest();
-        TreeSet<Hybridization> hybs = hybMap.get(request.getIdRequest());
-        if (hybs == null) {
-          hybs = new TreeSet<Hybridization>(new HybNumberComparator());
-          hybMap.put(request.getIdRequest(), hybs);
+        if(request.getArchived() == null || !request.getArchived().equals("Y")){
+          TreeSet<Hybridization> hybs = hybMap.get(request.getIdRequest());
+          if (hybs == null) {
+            hybs = new TreeSet<Hybridization>(new HybNumberComparator());
+            hybMap.put(request.getIdRequest(), hybs);
+          }
+          hybs.add(x.getHybridization());
         }
-        hybs.add(x.getHybridization());
       } else if (x.getSample() != null) {
-    	  request = x.getSample().getRequest();
-    	  TreeSet<Sample> samples = sampleMap.get(request.getIdRequest());
-    	  if (samples == null) {
-    		  samples = new TreeSet<Sample>(new SampleComparator());
-    		  sampleMap.put(request.getIdRequest(), samples);
-    	  }
-    	  samples.add(x.getSample());
+        request = x.getSample().getRequest();
+        if(request.getArchived() == null || !request.getArchived().equals("Y")){
+          TreeSet<Sample> samples = sampleMap.get(request.getIdRequest());
+          if (samples == null) {
+            samples = new TreeSet<Sample>(new SampleComparator());
+            sampleMap.put(request.getIdRequest(), samples);
+          }
+          samples.add(x.getSample());
+        }
       }
-      
-      Element requestNode = requestNodeMap.get(request.getIdRequest());
-      if (requestNode == null) {
-        requestNode = request.appendBasicXML(secAdvisor, relatedNode);
-        requestNodeMap.put(request.getIdRequest(), requestNode);
+
+      if(request.getArchived() == null || !request.getArchived().equals("Y")){
+        Element requestNode = requestNodeMap.get(request.getIdRequest());
+        if (requestNode == null) {
+          requestNode = request.appendBasicXML(secAdvisor, relatedNode);
+          requestNodeMap.put(request.getIdRequest(), requestNode);
+        }
       }
-      
+
     }
-    
-    
+
+
     // Append experiments, and seq lanes that connect to analysis or hybs that connect to analysis
     for (Integer idRequest : requestNodeMap.keySet()) {
       Element requestNode = requestNodeMap.get(idRequest);
@@ -529,7 +552,7 @@ public class GetAnalysis extends GNomExCommand implements Serializable {
           laneNode.setAttribute("idSequenceLane", lane.getIdSequenceLane().toString());
           laneNode.setAttribute("label", "Seq Lane " + lane.getNumber());
           laneNode.setAttribute("number", lane.getNumber());
-          requestNode.addContent(laneNode);          
+          requestNode.addContent(laneNode);
         }
       } else if (hybMap.containsKey(idRequest)) {
         for (Hybridization hyb : hybMap.get(idRequest)) {
@@ -537,7 +560,7 @@ public class GetAnalysis extends GNomExCommand implements Serializable {
           hybNode.setAttribute("idHybridization", hyb.getIdHybridization().toString());
           hybNode.setAttribute("label", "Hyb " + hyb.getNumber());
           hybNode.setAttribute("number", hyb.getNumber());
-          requestNode.addContent(hybNode);      
+          requestNode.addContent(hybNode);
         }
       } else if (sampleMap.containsKey(idRequest)) {
     	  for (Sample sample : sampleMap.get(idRequest)) {
@@ -549,13 +572,13 @@ public class GetAnalysis extends GNomExCommand implements Serializable {
     	  }
       }
     }
-    
+
     // Append data tracks
     if (analysis.getFiles().size() > 0) {
       GetAnalysis.appendDataTrackNodes(secAdvisor, sess, analysis, relatedNode);
     }
 
-    // Append the parent topics (and the contents of the topic) XML 
+    // Append the parent topics (and the contents of the topic) XML
     Element relatedTopicNode = new Element("relatedTopics");
     relatedTopicNode.setAttribute("label", "Related Topics");
     node.addContent(relatedTopicNode);

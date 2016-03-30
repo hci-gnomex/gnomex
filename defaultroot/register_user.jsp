@@ -100,9 +100,14 @@ if (labDropdown == null) {
   labDropdown = "";
 }
 
-String newLab = (String) ((request.getParameter("newLab") != null)?request.getParameter("newLab"):"");
-if (newLab == null) {
-  newLab = "";
+String newLabFirstName = (String) ((request.getParameter("newLabFirstName") != null)?request.getParameter("newLabFirstName"):"");
+if (newLabFirstName == null) {
+  newLabFirstName = "";
+}
+
+String newLabLastName = (String) ((request.getParameter("newLabLastName") != null)?request.getParameter("newLabLastName"):"");
+if (newLabLastName == null) {
+  newLabLastName = "";
 }
 
 String department = (String) ((request.getParameter("department") != null)?request.getParameter("department"):"");
@@ -242,8 +247,11 @@ try {
       </div>
        
       <div id="newLabDiv" style="display:none;">   
-        <div class="col1"><div class="right">*Lab Name</div></div>
-        <div class="col2"><input type="text" class="textWide"  name="newLab" value="<%=newLab%>" onkeypress="return checkAlphaNumeric(event)"/></div>
+        <div class="col1"><div class="right">Lab First Name</div></div>
+        <div class="col2"><input type="text" class="textWide"  name="newLabFirstName" value="<%=newLabFirstName%>" onkeypress="return checkAlphaNumeric(event)"/></div>
+        
+        <div class="col1"><div class="right">*Lab Last Name</div></div>
+        <div class="col2"><input type="text" class="textWide"  name="newLabLastName" value="<%=newLabLastName%>" onkeypress="return checkAlphaNumeric(event)"/></div>
 
         <div class="col1"><div class="right">Department</div></div>
         <div class="col2"><input type="text" class="textWide"  name="department" value="<%=department%>"/></div>

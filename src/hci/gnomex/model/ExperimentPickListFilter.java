@@ -9,31 +9,31 @@ import java.util.Iterator;
 import java.util.List;
 
 public class ExperimentPickListFilter extends DetailObject {
-  
-  
+
+
   // Criteria
   private Integer               idLab;
-  
-  
-  
+
+
+
   private StringBuffer          queryBuf;
   private boolean              addWhere = true;
   private SecurityAdvisor       secAdvisor;
   private DictionaryHelper      dictionaryHelper;
-  
-  
-  
+
+
+
   public StringBuffer getMicroarrayQuery(SecurityAdvisor secAdvisor, DictionaryHelper dh) {
     this.secAdvisor = secAdvisor;
     this.dictionaryHelper = dh;
     queryBuf = new StringBuffer();
     addWhere = true;
-    
+
     queryBuf.append(" SELECT project.name, ");
     queryBuf.append("        req.idRequest, ");
     queryBuf.append("        req.createDate, ");
     queryBuf.append("        req.number, ");
-    queryBuf.append("        req.codeRequestCategory, "); 
+    queryBuf.append("        req.codeRequestCategory, ");
     queryBuf.append("        req.codeApplication, ");
     queryBuf.append("        slideProduct.name, ");
     queryBuf.append("        slideProduct.isSlideSet, ");
@@ -53,15 +53,15 @@ public class ExperimentPickListFilter extends DetailObject {
     queryBuf.append("        slideDesign.name, ");
     queryBuf.append("        req.name ");
     getMicroarrayQueryBody(queryBuf);
-    
+
     queryBuf.append(" ORDER BY project.name, req.number, hyb.number ");
-    
+
     return queryBuf;
-    
+
   }
-  
+
   public void getMicroarrayQueryBody(StringBuffer queryBuf) {
-    
+
     queryBuf.append(" FROM           Project as project ");
     queryBuf.append(" JOIN           project.requests as req ");
     queryBuf.append(" JOIN           req.slideProduct as slideProduct ");
@@ -79,9 +79,9 @@ public class ExperimentPickListFilter extends DetailObject {
     addHybCriteria();
     this.appendExcludeClinicResearchCriteria();
     addSecurityCriteria();
-  
+
   }
-  
+
 
   public StringBuffer getNextGenSeqQuery(SecurityAdvisor secAdvisor, DictionaryHelper dictionaryHelper) {
     this.secAdvisor = secAdvisor;
@@ -93,7 +93,7 @@ public class ExperimentPickListFilter extends DetailObject {
     queryBuf.append("        req.idRequest, ");
     queryBuf.append("        req.createDate, ");
     queryBuf.append("        req.number, ");
-    queryBuf.append("        req.codeRequestCategory, "); 
+    queryBuf.append("        req.codeRequestCategory, ");
     queryBuf.append("        '', ");
     queryBuf.append("        '', ");
     queryBuf.append("        '', ");
@@ -116,14 +116,14 @@ public class ExperimentPickListFilter extends DetailObject {
     queryBuf.append("        lane.idNumberSequencingCyclesAllowed ");
 
     getNextGenSeqQueryBody(queryBuf);
-    
+
     queryBuf.append(" ORDER BY project.name, req.number, lane.number ");
 
     return queryBuf;
-    
+
   }
   public void getNextGenSeqQueryBody(StringBuffer queryBuf) {
-    
+
     queryBuf.append(" FROM           Project as project ");
     queryBuf.append(" JOIN           project.requests as req ");
     queryBuf.append(" JOIN           req.sequenceLanes as lane ");
@@ -135,24 +135,24 @@ public class ExperimentPickListFilter extends DetailObject {
 
 
     addRequestCriteria();
-    
-  
+
+
     addLaneCriteria();
     this.appendExcludeClinicResearchCriteria();
     addSecurityCriteria();
   }
-  
+
   public StringBuffer getSampleQuery(SecurityAdvisor secAdvisor, DictionaryHelper dictionaryHelper) {
 	  this.secAdvisor = secAdvisor;
 	  this.dictionaryHelper = dictionaryHelper;
 	  queryBuf = new StringBuffer();
 	  addWhere = true;
-	  
+
 	  queryBuf.append(" SELECT 			project.name, ");
 	  queryBuf.append("        			req.idRequest, ");
 	  queryBuf.append("       	 		req.createDate, ");
 	  queryBuf.append("        			req.number, ");
-	  queryBuf.append("        			req.codeRequestCategory, "); 
+	  queryBuf.append("        			req.codeRequestCategory, ");
 	  queryBuf.append("        			req.codeApplication, ");
 	  queryBuf.append("        			'', ");
 	  queryBuf.append("        			'', ");
@@ -174,14 +174,14 @@ public class ExperimentPickListFilter extends DetailObject {
 	  queryBuf.append("        			'', ");
 	  queryBuf.append("        			'', ");
 	  queryBuf.append("       	 		s.idSample ");
-	  
+
 	  getSampleQueryBody(queryBuf);
-	  
+
 	  queryBuf.append(" ORDER BY project.name, req.number, s.number ");
-	  
+
 	  return queryBuf;
   }
-  
+
   public void getSampleQueryBody(StringBuffer queryBuf) {
 	  queryBuf.append(" FROM 			Project as project ");
 	  queryBuf.append(" JOIN 			project.requests as req ");
@@ -189,19 +189,19 @@ public class ExperimentPickListFilter extends DetailObject {
 	  queryBuf.append(" JOIN 			req.samples as s ");
 	  queryBuf.append(" LEFT JOIN      	req.collaborators as collab ");
 	  queryBuf.append(" LEFT JOIN      	req.appUser as reqOwner ");
-	  
+
 	  addRequestCriteria();
-	  
+
 	  addSampleCriteria();
-	  
+
 	  addSecurityCriteria();
   }
-  
+
   private void addSampleCriteria() {
 	  this.addWhereOrAnd();
 	  queryBuf.append(" reqCat.associatedWithAnalysis = 'Y' ");
   }
-  
+
   public boolean hasCriteria() {
     if (idLab != null) {
       return true;
@@ -209,69 +209,72 @@ public class ExperimentPickListFilter extends DetailObject {
       return false;
     }
   }
-  
-  
-  
+
+
+
 
   private void addRequestCriteria() {
 
-    // Search by lab 
+    // Search by lab
     if (idLab != null){
       this.addWhereOrAnd();
       queryBuf.append(" req.idLab =");
       queryBuf.append(idLab);
-    } 
-    
-   
-    
-  }
-  
+    }
 
-  
+    this.addWhereOrAnd();
+    queryBuf.append(" (req.archived is null or req.archived = 'N') ");
+
+
+
+  }
+
+
+
   private void addHybCriteria() {
-    
+
   }
 
   private void addLaneCriteria() {
     this.addWhereOrAnd();
     queryBuf.append(" req.codeRequestCategory in (");
-    
+
     List requestCategories = dictionaryHelper.getRequestCategoryList();
     int count = 0;
     for (Iterator i = requestCategories.iterator(); i.hasNext();) {
       RequestCategory requestCategory = (RequestCategory)i.next();
       if (requestCategory.isNextGenSeqRequestCategory()) {
         if (count > 0) {
-          queryBuf.append(", ");            
+          queryBuf.append(", ");
         }
-        
+
         queryBuf.append("'");
         queryBuf.append(requestCategory.getCodeRequestCategory());
-        queryBuf.append("'");    
+        queryBuf.append("'");
         count++;
       }
-      
+
     }
-    
+
     queryBuf.append(") ");
 
     //TODO - need to filter by lane complete date
   }
 
- 
-  
+
+
   private void addSecurityCriteria() {
     secAdvisor.buildSecurityCriteria(queryBuf, "req", "collab", addWhere, false, true);
   }
-    
-  
+
+
   private void appendExcludeClinicResearchCriteria() {
     if (secAdvisor.appendExcludeClinicResearchCriteria(queryBuf, addWhere, dictionaryHelper, "req")) {
       addWhere = false;
     }
   }
 
-  
+
   protected boolean addWhereOrAnd() {
     if (addWhere) {
       queryBuf.append(" WHERE ");
@@ -296,16 +299,16 @@ public class ExperimentPickListFilter extends DetailObject {
     return idLab;
   }
 
-  
+
   public void setIdLab(Integer idLab) {
     this.idLab = idLab;
   }
-  
-  
 
-  
- 
 
-  
-  
+
+
+
+
+
+
 }
