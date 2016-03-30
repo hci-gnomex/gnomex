@@ -1,4 +1,4 @@
-<project name="gnomex" default="all-tomcat" basedir="./">
+<project name="gnomex" default="all" basedir="./">
 
   	<!-- ============================================== -->
 	<!--                                                -->
@@ -41,18 +41,18 @@
 	
 	<!-- ============================================== -->
 	<!--                                                -->
-	<!-- All (tomcat)                                   -->
+	<!-- All                                            -->
 	<!--                                                -->
 	<!-- ============================================== -->
-	<target name="all-tomcat" depends="init">
+	<target name="all" depends="init">
 		<antcall target="clean" />
-		<antcall target="compile-tomcat" />
-		<antcall target="jar-tomcat" />
+		<antcall target="compile" />
+		<antcall target="jar" />
 		<antcall target="clientjar"/>
     <antcall target="realmjar"/>
 		<antcall target="flex"/>
-		<antcall target="war-tomcat" />
-		<antcall target="deploy-tomcat" />
+		<antcall target="war" />
+		<antcall target="deploy" />
 	</target>
 
 	<!-- ============================================== -->
@@ -62,8 +62,8 @@
 	<!-- ============================================== -->
 	<target name="all-gnomexlite" depends="init">
 		<antcall target="clean" />
-		<antcall target="compile-tomcat" />
-		<antcall target="jar-tomcat" />
+		<antcall target="compile" />
+		<antcall target="jar" />
 		<antcall target="clientjar"/>
     <antcall target="realmjar"/>
 		<antcall target="war-gnomexlite" />
@@ -72,13 +72,13 @@
 	
 	<!-- ============================================== -->
 	<!--                                                -->
-	<!-- All (opensource tomcat)                               -->
+	<!-- All (opensource)                               -->
 	<!--                                                -->
 	<!-- ============================================== -->
-	<target name="all-opensource-tomcat" depends="init">
+	<target name="all-opensource" depends="init">
 		<antcall target="clean" />
-		<antcall target="build-opensource-tomcat" />
-		<antcall target="deploy-tomcat" />
+		<antcall target="build-opensource" />
+		<antcall target="deploy" />
 	</target>
 
 	<!-- ============================================== -->
@@ -162,13 +162,13 @@
 	
 	<!-- ============================================== -->
 	<!--                                                -->
-	<!-- Compile  (tomcat)                              -->
+	<!-- Compile                                        -->
 	<!--                                                -->
 	<!-- ============================================== -->
-	<target name="compile-tomcat" depends="init">
+	<target name="compile" depends="init">
 		<echo>+ ===================================================== +</echo>
 		<echo>+                                                       +</echo>
-		<echo>+  Compiling (tomcat)                                   +</echo>
+		<echo>+  Compiling                                            +</echo>
 		<echo>+                                                       +</echo>
 		<echo>+ ===================================================== +</echo>
 
@@ -188,13 +188,13 @@
 	
 	<!-- ============================================== -->
 	<!--                                                -->
-	<!-- Jar  (tomcat)                                  -->
+	<!-- Jar                                            -->
 	<!--                                                -->
 	<!-- ============================================== -->
-	<target name="jar-tomcat" depends="init, compile-tomcat">
+	<target name="jar" depends="init, compile">
 		<echo>+ ===================================================== +</echo>
 		<echo>+                                                       +</echo>
-		<echo>+  Building jar files  (tomcat)                         +</echo>
+		<echo>+  Building jar files                                   +</echo>
 		<echo>+                                                       +</echo>
 		<echo>+ ===================================================== +</echo>
 		<delete>
@@ -302,7 +302,7 @@
 	<!-- Realm Jar                                     -->
 	<!--                                                -->
 	<!-- ============================================== -->
-	<target name="realmjar" depends="init, compile-tomcat">
+	<target name="realmjar" depends="init, compile">
 		<echo>+ ===================================================== +</echo>
 		<echo>+                                                       +</echo>
 		<echo>+  Building realm jar file                              +</echo>
@@ -431,13 +431,13 @@
 
 	<!-- ============================================== -->
 	<!--                                                -->
-	<!-- War  (tomcat)                                  -->
+	<!-- War                                            -->
 	<!--                                                -->
 	<!-- ============================================== -->
-	<target name="war-tomcat" depends="init, jar-tomcat, -copylib">
+	<target name="war" depends="init, jar, -copylib">
 		<echo>+ ===================================================== +</echo>
 		<echo>+                                                       +</echo>
-		<echo>+  Building war files  (tomcat)                         +</echo>
+		<echo>+  Building war files                                   +</echo>
 		<echo>+                                                       +</echo>
 		<echo>+ ===================================================== +</echo>
 		<delete>
@@ -521,7 +521,7 @@
 	<!-- War  (GNomExLite)                                  -->
 	<!--                                                -->
 	<!-- ============================================== -->
-	<target name="war-gnomexlite" depends="init, jar-tomcat, -copylib">
+	<target name="war-gnomexlite" depends="init, jar, -copylib">
 		<echo>+ ===================================================== +</echo>
 		<echo>+                                                       +</echo>
 		<echo>+  Building war file (gnomexlite)                       +</echo>
@@ -666,13 +666,13 @@
 
 	<!-- ============================================== -->
 	<!--                                                -->
-	<!-- deploy  (tomcat)                               -->
+	<!-- deploy                                         -->
 	<!--                                                -->
 	<!-- ============================================== -->
-	<target name="deploy-tomcat" depends="init">
+	<target name="deploy" depends="init">
 		<echo>+ ===================================================== +</echo>
 		<echo>+                                                       +</echo>
-		<echo>+  Deploying (tomcat)                                   +</echo>
+		<echo>+  Deploying                                            +</echo>
 		<echo>+                                                       +</echo>
 		<echo>+ ===================================================== +</echo>
 		<copy file="${dist.dir}/${war.name}" todir="${tomcat.dir}/webapps"/>		
@@ -702,7 +702,7 @@
 	<!-- distribute to genoviz                          -->
 	<!--                                                -->
 	<!-- ============================================== -->
-	<target name="distribute-to-genoviz" depends="init, jar-tomcat, realmjar">
+	<target name="distribute-to-genoviz" depends="init, jar, realmjar">
 		<echo>+ ===================================================== +</echo>
 		<echo>+                                                       +</echo>
 		<echo>+  Distributing jars to genoviz project                 +</echo>
@@ -785,13 +785,13 @@
 	
 	<!-- ============================================== -->
 	<!--                                                -->
-	<!-- build opensource tomcat                        -->
+	<!-- build opensource                               -->
 	<!--                                                -->
 	<!-- ============================================== -->
-	<target name="build-opensource-tomcat" depends="init, -prebuild-opensource">
+	<target name="build-opensource" depends="init, -prebuild-opensource">
 		<echo>+ ===================================================== +</echo>
 		<echo>+                                                       +</echo>
-		<echo>+   build opensource (tomcat)                           +</echo>
+		<echo>+   build opensource                                    +</echo>
 		<echo>+                                                       +</echo>
 		<echo>+ ===================================================== +</echo>
 		<!-- By default, gnomex will run unsecure (http: instead of https).
@@ -816,7 +816,7 @@
     </subant>
 		
 		<!-- Build war, this time allowing http (nonsecure) connections -->
-		<subant target="war-tomcat">
+		<subant target="war">
 		    <property name="opensource" value="true"/>
 			<property name="dist.dir" value="${dist.dir}"/>
 			<property name="webroot.dir" value="${basedir}/defaultroot"/>
@@ -852,7 +852,7 @@
 		</replaceregexp>
 
 		<!-- Build war again, this time allowing https (secure) connections -->
-		<subant target="war-tomcat">
+		<subant target="war">
 		    <property name="opensource" value="true"/>
 		    <property name="dist.dir" value="${dist.dir}/secure"/>
 			<property name="webroot.dir" value="${basedir}/defaultroot"/>
@@ -942,13 +942,13 @@
 
 	<!-- ============================================== -->
 	<!--                                                -->
-	<!-- release-opensource-tomcat                      -->
+	<!-- release-opensource                      -->
 	<!--                                                -->
 	<!-- ============================================== -->
-	<target name="release-opensource-tomcat" depends="init,check-for-tomcat,build-opensource-gnomexlite,build-opensource-tomcat" if="tomcat.present">
+	<target name="release-opensource" depends="init,check-for,build-opensource-gnomexlite,build-opensource" if="tomcat.present">
 		<echo>+ ===================================================== +</echo>
 		<echo>+                                                       +</echo>
-		<echo>+  release open source (tomcat) gnomex and gnomexlite   +</echo>
+		<echo>+  release open source gnomex and gnomexlite            +</echo>
 		<echo>+                                                       +</echo>
 		<echo>+ ===================================================== +</echo>
 
@@ -1017,10 +1017,10 @@
 
 	<!-- ============================================== -->
 	<!--                                                -->
-	<!-- check-for-tomcat                               -->
+	<!-- check-for                               -->
 	<!--                                                -->
 	<!-- ============================================== -->
-	<target name="check-for-tomcat">
+	<target name="check-for">
 	    <available file="${tomcat.dir}"  type="dir" property="tomcat.present"/>
 	</target>
 

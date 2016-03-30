@@ -12,8 +12,6 @@ package hci.gnomex.utility;
  * 6/10/03    K. Henrie        Change for hibernate 2.0
  */
 
-import hci.gnomex.controller.GNomExFrontController;
-
 import java.sql.CallableStatement;
 import java.sql.SQLException;
 
@@ -24,54 +22,46 @@ import org.hibernate.Session;
 
 public class HibernateGuestSession {
 
-  public static final ThreadLocal guestSession = new ThreadLocal();
+	public static final ThreadLocal guestSession = new ThreadLocal();
 
-  public static final String GUEST_SESSION_FACTORY_JNDI_NAME = "sessions/GNOMEX_GUEST_FACTORY";
+	public static final String GUEST_SESSION_FACTORY_JNDI_NAME = "sessions/GNOMEX_GUEST_FACTORY";
 
+	public static Session currentGuestSession(String username) throws NamingException, HibernateException, SQLException {
+		Session s = (Session) guestSession.get();
+		if (s == null || !s.isOpen()) {
+			s = HibernateGuestUtil.getSessionFactory().openSession();
+			guestSession.set(s);
+		}
 
-    
-  public static Session currentGuestSession(String username) throws NamingException, HibernateException, SQLException {
-    Session s = (Session) guestSession.get();
-    if (s == null || !s.isOpen()) {
-      
-      if (GNomExFrontController.isTomcat()) {
-        s = HibernateGuestUtil.getSessionFactory().openSession();
-      } 
-      guestSession.set(s);
-    }
+		HibernateSession.setAppName(s, username);
 
-    HibernateSession.setAppName(s, username);
-    
+		return s;
+	}
 
-    return s;
-  }
+	public static Session currentGuestSession() throws NamingException, HibernateException, SQLException {
+		Session s = (Session) guestSession.get();
+		if (s == null) {
+			throw new HibernateException("This method can only be invoked if a session already exists in the thread of execution");
+		}
+		return s;
+	}
 
-  public static Session currentGuestSession() throws NamingException, HibernateException, SQLException {
-    Session s = (Session) guestSession.get();
-    if (s == null) {
-      throw new HibernateException("This method can only be invoked if a session already exists in the thread of execution");
-    }
-    return s;
-  }
+	public static void closeGuestSession() throws HibernateException, SQLException {
+		Session s = (Session) guestSession.get();
 
+		CallableStatement stmt;
+		try {
+			HibernateSession.setAppName(s, null);
 
-  public static void closeGuestSession() throws HibernateException, SQLException {
-    Session s = (Session) guestSession.get();
+		} finally {
+			if (s != null) {
+				s.close();
+			}
+			guestSession.set(null);
+		}
+	}
 
-    CallableStatement stmt;
-    try {
-      HibernateSession.setAppName(s, null);
-
-    }
-    finally {
-      if (s != null) {
-        s.close();
-      }
-      guestSession.set(null);
-    }
-  }
-  
-  public static boolean hasCurrentGuestSession () {
-    return (guestSession.get() != null);
-  }
+	public static boolean hasCurrentGuestSession() {
+		return (guestSession.get() != null);
+	}
 }

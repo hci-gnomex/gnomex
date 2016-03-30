@@ -16,60 +16,57 @@ import org.hibernate.Session;
 
 public class ConfirmEmail extends HttpServlet {
 
-  private String guid = "";
-  private String idAppUser = "";
-  private String message = "";
+	private String guid = "";
+	private String idAppUser = "";
+	private String message = "";
 
+	protected void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
+		doPost(req, res);
+	}
 
-  protected void doGet( HttpServletRequest req, HttpServletResponse res ) throws ServletException, IOException {
-    doPost(req, res);
-  }
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
+		try {
 
-  protected void doPost( HttpServletRequest request, HttpServletResponse response ) throws ServletException, IOException {
+			Session sess = HibernateSession.currentSession("confirmEmailServlet");
+			guid = (String) ((request.getParameter("guid") != null) ? request.getParameter("guid") : "");
+			idAppUser = (String) ((request.getParameter("idAppUser") != null) ? request.getParameter("idAppUser") : "");
 
-    try {
+			AppUser au = (AppUser) sess.createQuery("Select au from AppUser au where au.idAppUser = '" + idAppUser + "'").uniqueResult();
 
-      Session sess =  HibernateSession.currentSession("confirmEmailServlet");
-      guid = ( String ) ( ( request.getParameter( "guid" ) != null ) ? request.getParameter( "guid" ) : "" );
-      idAppUser = ( String ) ( ( request.getParameter( "idAppUser" ) != null ) ? request.getParameter( "idAppUser" ) : "" );
+			message = "";
 
-      AppUser au = ( AppUser ) sess.createQuery( "Select au from AppUser au where au.idAppUser = '" + idAppUser + "'" ).uniqueResult();
+			if (au == null) {
+				message = "This user does not exist.";
+			} else if (au.getConfirmEmailGuid() != null && au.getConfirmEmailGuid().equals(guid)) { // guid matches
+				au.setConfirmEmailGuid(null);
+				sess.save(au);
+				message = "Thanks for verifying your email address!";
+			} else if (au.getConfirmEmailGuid() == null && au.getEmail() != null) {
+				message = "Your email has already been verified.  Thanks!";
+			} else {
+				message = "The link has expired.  Your email address has been removed from Gnomex.  Please update your account with your preferred contact email address at your earliest convenience.  Thanks!";
+			}
 
-      message = "";
+			sess.flush();
 
-      if(au == null) {
-        message = "This user does not exist.";
-      } else if(au.getConfirmEmailGuid() != null && au.getConfirmEmailGuid().equals(guid)) { //guid matches
-        au.setConfirmEmailGuid(null);
-        sess.save(au);
-        message = "Thanks for verifying your email address!";
-      } else if(au.getConfirmEmailGuid() == null && au.getEmail() != null) {
-        message = "Your email has already been verified.  Thanks!";
-      } else {
-        message = "The link has expired.  Your email address has been removed from Gnomex.  Please update your account with your preferred contact email address at your earliest convenience.  Thanks!";
-      }
+		} catch (Exception e) {
+			message = "There was an issue verifying your email address.  Please contact GNomEx support.  Thanks!";
+			e.printStackTrace();
 
-      sess.flush();
+		} finally {
+			try {
+				HibernateSession.closeSession();
+				String url = "/confirm_email.jsp"; // relative url for display jsp page
+				ServletContext sc = getServletContext();
+				RequestDispatcher rd = sc.getRequestDispatcher(url);
+				request.setAttribute("message", message);
+				rd.forward(request, response);
+			} catch (Exception e) {
+				System.err.println("ConfirmEmail warning - cannot close hibernate session");
+			}
 
-    }catch(Exception e) {
-      message = "There was an issue verifying your email address.  Please contact GNomEx support.  Thanks!";
-      e.printStackTrace();
+		}
 
-    }finally {
-      try {
-        HibernateSession.closeSession();
-        HibernateSession.closeTomcatSession();
-        String url= "/confirm_email.jsp"; //relative url for display jsp page
-        ServletContext sc = getServletContext();
-        RequestDispatcher rd = sc.getRequestDispatcher(url);
-        request.setAttribute("message",message);
-        rd.forward(request, response);
-      }catch(Exception e) {
-        System.err.println("ConfirmEmail warning - cannot close hibernate session");
-      }
-
-    }
-
-  }
+	}
 }
