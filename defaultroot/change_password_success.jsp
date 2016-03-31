@@ -1,4 +1,4 @@
-<%@ page import="hci.gnomex.utility.HibernateGuestSession" %>
+<%@ page import="hci.gnomex.utility.HibernateSession" %>
 <html>
 
 <head>

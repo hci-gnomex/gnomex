@@ -36,9 +36,7 @@ import hci.gnomex.model.Topic;
 import hci.gnomex.model.UserPermissionKind;
 import hci.gnomex.model.Visibility;
 import hci.gnomex.utility.DictionaryHelper;
-import hci.gnomex.utility.HibernateGuestSession;
 import hci.gnomex.utility.HibernateSession;
-//import hci.gnomex.utility.HibernateUtil;
 import hci.gnomex.utility.LabComparator;
 import hci.gnomex.utility.PropertyDictionaryHelper;
 import hci.gnomex.utility.Util;
@@ -322,7 +320,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
 		if (isGNomExUniversityUser) {
 			String canAccessBSTXString = pdh.getProperty(PropertyDictionary.CAN_ACCESS_BSTX);
 			if (canAccessBSTXString != null && canAccessBSTXString.equals("Y")) {
-				BSTpersonId = getBSTpersonId(uid);
+				BSTpersonId = getBSTpersonId(sess, uid);
 				if (BSTpersonId != null) {
 					canAccessBSTX = true;
 				}
@@ -355,14 +353,14 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
 		return securityAdvisor;
 	}
 
-	private static String getBSTpersonId(String uid) {
+	private static String getBSTpersonId(Session sess, String uid) {
 		String pId = null;
 		String peopleSoftID = "0" + uid.substring(1);
 		try {
 
 			Statement stmt = null;
 			ResultSet rs = null;
-			Session sess = HibernateGuestSession.currentGuestSession(uid);
+			// Session sess = HibernateSession.currentReadOnlySession(uid);
 
 			SessionImpl sessionImpl = (SessionImpl) sess;
 			Connection con = sessionImpl.connection();
@@ -978,29 +976,50 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
 		return canRead;
 	}
 
-	private Map<String, boolean[]> canReadSamples(List<String> ccNumbers) throws NamingException, SQLException {
+	private Map<String, boolean[]> canReadSamples(List<String> ccNumbers) {
 		Map<String, boolean[]> secMap = new HashMap<String, boolean[]>();
 
 		Statement stmt = null;
 		ResultSet rs = null;
-		Session sess = HibernateGuestSession.currentGuestSession(this.getUsername());
-		SessionImpl sessionImpl = (SessionImpl) sess;
-		Connection con = sessionImpl.connection(); // HibernateUtil.getConnection(sess);
-		stmt = con.createStatement();
+		Session sess = null;
+		boolean needToCloseSession = false;
 
-		StringBuffer buf = buildSampleQuery(ccNumbers);
-		System.out.println("[canReadSamples] query: " + buf.toString());
-		rs = stmt.executeQuery(buf.toString());
-		while (rs.next()) {
-			String ccNumber = rs.getString("col_0_0_");
-			boolean[] perm = new boolean[3];
-			perm[0] = rs.getBoolean("col_3_0_");
-			perm[1] = rs.getBoolean("col_2_0_");
-			perm[2] = rs.getBoolean("col_1_0_");
-			secMap.put(ccNumber, perm);
+		try {
+			// do we already have a session?
+			if (HibernateSession.hasCurrentSession()) {
+				sess = HibernateSession.currentSession(this.getUsername());
+			} else {
+				// get a temporary read only session
+				sess = HibernateSession.currentReadOnlySession(this.getUsername());
+				needToCloseSession = true;
+			}
+
+			SessionImpl sessionImpl = (SessionImpl) sess;
+			Connection con = sessionImpl.connection();
+			stmt = con.createStatement();
+
+			StringBuffer buf = buildSampleQuery(ccNumbers);
+			System.out.println("[canReadSamples] query: " + buf.toString());
+			rs = stmt.executeQuery(buf.toString());
+			while (rs.next()) {
+				String ccNumber = rs.getString("col_0_0_");
+				boolean[] perm = new boolean[3];
+				perm[0] = rs.getBoolean("col_3_0_");
+				perm[1] = rs.getBoolean("col_2_0_");
+				perm[2] = rs.getBoolean("col_1_0_");
+				secMap.put(ccNumber, perm);
+			}
+			rs.close();
+			stmt.close();
+		} catch (Exception e) {
+		} finally {
+			if (needToCloseSession) {
+				try {
+					HibernateSession.closeSession();
+				} catch (Exception e) {
+				}
+			}
 		}
-		rs.close();
-		stmt.close();
 
 		return secMap;
 	}
@@ -3414,13 +3433,13 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
 
 	public Session getReadOnlyHibernateSession(String userName) throws Exception {
 		Session sess = null;
-		sess = HibernateGuestSession.currentGuestSession(userName);
+		sess = HibernateSession.currentReadOnlySession(userName);
 		isReadOnlySession = true;
 		return sess;
 	}
 
 	public void closeReadOnlyHibernateSession() throws Exception {
-		HibernateGuestSession.closeGuestSession();
+		HibernateSession.closeSession();
 		isReadOnlySession = false;
 	}
 
@@ -3428,7 +3447,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
 		Session sess = null;
 
 		if (this.isGuest()) {
-			sess = HibernateGuestSession.currentGuestSession(userName);
+			sess = HibernateSession.currentReadOnlySession(userName);
 			isReadOnlySession = true;
 		} else {
 			sess = HibernateSession.currentSession(userName);
@@ -3444,11 +3463,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
 	}
 
 	public void closeHibernateSession() throws Exception {
-		if (this.isReadOnlySession) {
-			HibernateGuestSession.closeGuestSession();
-		} else {
-			HibernateSession.closeSession();
-		}
+		HibernateSession.closeSession();
 		this.isReadOnlySession = false;
 	}
 

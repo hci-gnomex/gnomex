@@ -12,7 +12,6 @@ import hci.framework.control.RollBackCommandException;
 import hci.gnomex.constants.Constants;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.GNomExRollbackException;
-import hci.gnomex.utility.HibernateGuestSession;
 import hci.gnomex.utility.HibernateSession;
 
 import java.io.File;
@@ -258,7 +257,6 @@ public class GNomExFrontController extends HttpServlet {
 			} finally {
 				try {
 					HibernateSession.closeSession();
-					HibernateGuestSession.closeGuestSession();
 				} catch (Exception ex) {
 					log.error("GNomExFrontController: Error closing hibernate session", ex);
 				}

@@ -1,4 +1,4 @@
-<%@ page import="hci.gnomex.utility.HibernateGuestSession"%>
+<%@ page import="hci.gnomex.utility.HibernateSession"%>
 <%@ page import="org.hibernate.Session"%>
 <%@ page import="hci.gnomex.controller.GNomExFrontController"%>
 <%@ page import="hci.gnomex.model.CoreFacility"%>
@@ -26,7 +26,7 @@
       Session sess = null;
 
       try {
-        sess = HibernateGuestSession.currentGuestSession( "guest" );
+        sess = HibernateSession.currentReadOnlySession( "guest" );
         
         po = ( ProductOrder ) sess.createQuery( "from ProductOrder po where po.uuid = '" + uuid + "'" ).uniqueResult();
 
@@ -41,7 +41,7 @@
         message = "Error retrieving form for experiment.";
       } finally {
         try {
-          HibernateGuestSession.closeGuestSession();
+          HibernateSession.closeSession();
         } catch( Exception e ) {
         }
       }%>

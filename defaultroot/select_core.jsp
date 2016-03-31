@@ -1,4 +1,4 @@
-<%@ page import="hci.gnomex.utility.HibernateGuestSession" %>
+<%@ page import="hci.gnomex.utility.HibernateSession" %>
 <%@ page import="org.hibernate.Session" %>
 <%@ page import="hci.gnomex.model.CoreFacility" %>
 <%@ page import="hci.gnomex.model.PropertyDictionary" %>
@@ -34,7 +34,7 @@ GNomExFrontController.setWebContextPath(webContextPath);
 String siteLogo = "";
 Session sess = null;
 try {
-  sess = HibernateGuestSession.currentGuestSession("guest");
+  sess = HibernateSession.currentReadOnlySession("guest");
   PropertyDictionary propUniversityUserAuth = (PropertyDictionary)sess.createQuery("from PropertyDictionary p where p.propertyName='" + PropertyDictionary.UNIVERSITY_USER_AUTHENTICATION + "'").uniqueResult();
    
   
@@ -67,7 +67,7 @@ try {
   message = "Cannot obtain property " + PropertyDictionary.UNIVERSITY_USER_AUTHENTICATION + " " + e.toString() + " sess=" + sess;
 } finally {
   try {
-	  HibernateGuestSession.closeGuestSession();
+	  HibernateSession.closeSession();
   } catch (Exception e) {
   }  
 }

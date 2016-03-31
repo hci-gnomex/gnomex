@@ -31,6 +31,7 @@ public class HibernateSession {
 
 	private static final ThreadLocal session = new ThreadLocal();
 	private static final ThreadLocal transaction = new ThreadLocal();
+	private static final ThreadLocal readOnly = new ThreadLocal();
 
 	public static final String SESSION_FACTORY_JNDI_NAME = "sessions/GNOMEX_FACTORY";
 
@@ -42,10 +43,25 @@ public class HibernateSession {
 			Transaction tx = s.beginTransaction();
 			transaction.set(tx);
 			session.set(s);
+			readOnly.set(false);
 		}
 
 		setAppName(s, username);
+		return s;
+	}
 
+	public static Session currentReadOnlySession(String username) throws NamingException, HibernateException, SQLException {
+		Session s = (Session) session.get();
+		if (s == null || !s.isOpen()) {
+			s = HibernateUtil.getSessionFactory().openSession();
+
+			Transaction tx = s.beginTransaction();
+			transaction.set(tx);
+			session.set(s);
+			readOnly.set(true);
+		}
+
+		setAppName(s, username);
 		return s;
 	}
 
@@ -80,6 +96,25 @@ public class HibernateSession {
 		// tx will be null if transaction already rolled back.
 		Session s = (Session) session.get();
 		if (s == null) {
+			return;
+		}
+
+		Boolean isReadOnly = (Boolean) readOnly.get();
+
+		// if this is a read only session then evict all loaded instances and cancel all pending saves, updates and deletions.
+		if (isReadOnly) {
+			s.clear();
+
+			session.set(null);
+			transaction.set(null);
+			readOnly.set(false);
+
+			try {
+				setAppName(s, null);
+			} catch (Exception e) {
+			}
+
+			s.close();
 			return;
 		}
 
@@ -126,6 +161,7 @@ public class HibernateSession {
 			}
 			session.set(null);
 			transaction.set(null);
+			transaction.set(false);
 		}
 	}
 
