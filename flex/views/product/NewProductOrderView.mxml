@@ -44,6 +44,18 @@
 		useProxy="false">
 	</mx:HTTPService>
 	
+	<mx:HTTPService  
+		id="getAuthorizedBillingAccounts" 
+		url="GetAuthorizedBillingAccounts.gx"
+		destination="getAuthorizedBillingAccounts"
+		resultFormat="e4x"
+		showBusyCursor="true"
+		result="onGetAuthorizedBillingAccounts(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to get authorized billing accounts', event)"
+		method="POST"
+		useProxy="false">
+	</mx:HTTPService>
+	
 	
 	<mx:Script>
 		<![CDATA[
@@ -54,6 +66,7 @@
 			import mx.managers.PopUpManager;
 			import mx.rpc.events.ResultEvent;
 			
+			import views.billing.BillingTemplateWindow;
 			import views.experiment.ChooseWorkAuthorizationTypeWindow;
 			
 			public var idCoreFacility:String = null;
@@ -63,6 +76,12 @@
 			
 			[Bindable]
 			public var lab:Object;
+			
+			[Bindable]
+			private var showSplitBillingLink:Boolean = false;
+			
+			[Bindable]
+			public var selectedBillingTemplate:Object = null;
 			
 			private var idAppUser:Object = null;
 			private var isLoaded:Boolean = false;
@@ -99,6 +118,9 @@
 				} else{
 					isLoaded = true;
 				}
+				
+				// TODO
+				//this.checkForOtherAccounts();
 			}
 			
 			private function hideFields():void{
@@ -255,28 +277,28 @@
 				var isComplete:Boolean = true;
 				var atLeastOneProductOrder:Boolean = false;
 				
-				if(labCombo.selectedIndex == -1 || billingAccountCombo.selectedIndex == -1){
+				if (labCombo.selectedIndex == -1 || (billingAccountCombo.selectedIndex == -1 && this.selectedBillingTemplate == null)) {
 					isComplete = false;
 				}
 				
-				if(this.currentState == 'AdminState' && appUserCombo.selectedIndex == -1){
+				if (this.currentState == 'AdminState' && appUserCombo.selectedIndex == -1) {
 					isComplete = false;
 				}
 				
-				if(!iAgree.selected){
+				if (!iAgree.selected) {
 					isComplete = false;
 				}
 				
-				for each(var product:XML in productList){
+				for each (var product:XML in productList) {
 					if(product.@isSelected == 'Y' && product.@quantity != '0'){
 						atLeastOneProductOrder = true;
 						break;
 					}
 				}
 				
-				if(isComplete && atLeastOneProductOrder){
+				if (isComplete && atLeastOneProductOrder) {
 					saveButton.enabled = true;
-				} else{
+				} else {
 					saveButton.enabled = false;
 				}
 				
@@ -293,7 +315,11 @@
 				this.saveButton.enabled = false;
 				var params:Object = new Object();
 				params.productListXMLString = "<productList>" + productList.toXMLString() + "</productList>";
-				params.idBillingAccount = billingAccountCombo.selectedItem.@idBillingAccount;
+				if (billingAccountCombo.selectedItem != null) {
+					params.idBillingAccount = billingAccountCombo.selectedItem.@idBillingAccount;
+				} else if (selectedBillingTemplate != null) {
+					params.billingTemplate = (new XMLList(this.selectedBillingTemplate)).toXMLString();
+				}
 				params.idAppUser = idAppUser;
 				params.idLab = labCombo.selectedItem.@idLab;
 				params.idCoreFacility = idCoreFacility;
@@ -305,7 +331,7 @@
 			
 			private function refreshBillingAccounts():void {
 				billingAccounts.refresh();
-				if (billingAccounts.length == 1) {
+				if (billingAccounts.length == 1 && !showSplitBillingLink) {
 					this.billingAccountCombo.selectedIndex = 0;	        	
 				} 
 			}
@@ -364,7 +390,61 @@
 				}
 			}
 			
+			private function checkForOtherAccounts():void {
+				if (parentApplication.isAdminState || parentApplication.isBillingAdminState || parentApplication.isSuperAdmin) {
+					showSplitBillingLink = true;
+				} else {
+					showSplitBillingLink = false;
+					
+					var params:Object = new Object();
+					getAuthorizedBillingAccounts.send(params);
+				}
+			}
 			
+			private function onGetAuthorizedBillingAccounts(event:ResultEvent):void {
+				if (getAuthorizedBillingAccounts.lastResult.name() == "AuthorizedBillingAccounts") {
+					if (getAuthorizedBillingAccounts.lastResult.@hasAuthorizedAccounts == "Y" && userHasAuthorizedAccountsOutsideLab(getAuthorizedBillingAccounts.lastResult)) {
+						showSplitBillingLink = true;
+					}
+				} else {
+					Alert.show("Could not retrieve authorized billing accounts.", "Error", Alert.OK, this);
+				}
+			}
+			
+			private function userHasAuthorizedAccountsOutsideLab(authorizedAccounts:Object):Boolean {
+				if (labCombo != null && labCombo.selectedItem != null && labCombo.selectedItem.hasOwnProperty("@idLab") && labCombo.selectedItem.@idLab != "" && authorizedAccounts != null) {
+					for each (var lab:Object in authorizedAccounts..Lab) {
+						if (lab.hasOwnProperty("@idLab") && lab.@idLab != labCombo.selectedItem.@idLab) {
+							return true;
+						}
+					}
+				}
+				
+				return false;
+			}
+			
+			private function showSplitBillingWindow():void {
+				if (!showSplitBillingLink) {
+					return;
+				}
+				
+				var splitWindow:BillingTemplateWindow = BillingTemplateWindow(mx.managers.PopUpManager.createPopUp(this, BillingTemplateWindow, true));
+				splitWindow.performSetup(true, this);
+				mx.managers.PopUpManager.centerPopUp(splitWindow); 
+				splitWindow.setFocus();
+			}
+			
+			public function makeBillingTemplateSelection():void {
+				this.billingAccountCombo.selectedItem = null;
+				this.billingAccountCombo.selectedIndex = -1;
+				checkSetupCompleteness();
+			}
+			
+			public function makeBillingAccountSelection():void {
+				this.selectedBillingTemplate = null;
+				checkSetupCompleteness();
+				productList.refresh();
+			}
 			
 		]]>
 	</mx:Script>
@@ -395,7 +475,7 @@
 				<util:ContextHelp context1="experimentBillingAccount" context2="{}" showEdit="{parentApplication.isAdminState}" title="Billing Account Help"
 								  labelPlacement="left" id="text1" width="200" label="(3) Select a billing account."/>
 				<mx:HBox verticalAlign="middle" id="hbox3" horizontalGap="1" paddingBottom="0" paddingTop="0">
-					<mx:ComboBox labelField="@accountNameAndNumber" width="380" id="billingAccountCombo" prompt="Select an account..." change="checkSetupCompleteness(); productList.refresh();" selectedIndex="-1" close="checkSetupCompleteness(); productList.refresh();">
+					<mx:ComboBox labelField="@accountNameAndNumber" width="380" id="billingAccountCombo" prompt="Select an account..." change="makeBillingAccountSelection();" selectedIndex="-1" close="checkSetupCompleteness(); productList.refresh();">
 						<mx:dataProvider>{billingAccounts}</mx:dataProvider>
 					</mx:ComboBox>
 					<mx:VBox height="100%" verticalGap="0" paddingBottom="0" paddingTop="0" paddingLeft="0" paddingRight="4" id="vbox3" width="425">
@@ -405,6 +485,9 @@
 						<mx:HBox horizontalGap="2" width="100%" paddingTop="0" paddingBottom="0" id="hbox4">
 							<mx:LinkButton  label="Submit Work Authorization"  styleName="formLinkButton" id="workAuthLink1" fontSize="10" paddingTop="0" textAlign="left" paddingLeft="0"> 
 								<mx:click>showNewWorkAuthForm()</mx:click>
+							</mx:LinkButton>
+							<mx:LinkButton  label="Split Billing"  styleName="formLinkButton" id="splitBillingLink1" fontSize="10" paddingTop="0" textAlign="left" paddingLeft="0" visible="{showSplitBillingLink}" includeInLayout="{showSplitBillingLink}"> 
+								<mx:click>showSplitBillingWindow()</mx:click>
 							</mx:LinkButton>
 						</mx:HBox>
 					</mx:VBox>
@@ -458,7 +541,7 @@
 		</mx:VBox>
 		<mx:ControlBar width="100%" paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0" horizontalGap="1" verticalAlign="middle">
 			<mx:HBox verticalGap="0" id="iAgreeHBox" visible="{billingAccountCombo.selectedIndex > -1}" paddingLeft="20">
-				<mx:CheckBox label="As the Principal Investigator or authorized personnel of the account listed above I authorize the Core Facility to charge the account for the products selected." 
+				<mx:CheckBox label="As the Principal Investigator or authorized personnel of the account(s) listed above I authorize the Core Facility to charge the account for the products selected." 
 							 enabled="true" fontSize="11" id="iAgree"  
 							 color="#307B0B" width="100%" fontWeight="bold" textAlign="left" letterSpacing=".5" 
 							 textIndent="0" labelPlacement="right" paddingLeft="0" paddingRight="0" leading="0" 

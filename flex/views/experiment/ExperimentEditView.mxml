@@ -3388,9 +3388,26 @@
 					}
 				} else {
 					
-					var accountName:String = isAmendState() ? request.@accountNumberDisplay : setupView.selectedBillingAccount.@accountNumberDisplay;
+					var accountName:String = "";
+					if (isAmendState()) {
+						accountName = request.@accountNumberDisplay;
+					} else if (setupView.selectedBillingAccount != null) {
+						accountName = setupView.selectedBillingAccount.@accountNumberDisplay;
+					} else if (setupView.selectedBillingTemplate != null) {
+						var template:XML = new XML(setupView.selectedBillingTemplate);
+						var items:XMLListCollection = new XMLListCollection(template.BillingTemplateItem);
+						var firstAccount:Boolean = true;
+						for each (var item:XML in items) {
+							if (firstAccount) {
+								accountName = item.@accountNumberDisplay;
+								firstAccount = false;
+							} else {
+								accountName += ", " + item.@accountNumberDisplay;
+							}
+						}
+					}
 					
-					agreeCheckbox.label = "I authorize all charges to be billed to account: " + accountName;
+					agreeCheckbox.label = "I authorize all charges to be billed to account(s): " + accountName;
 					
 					// This is a new experiment request. Get the estimated
 					// charnges for this request.
@@ -3422,6 +3439,12 @@
 						}
 						
 						this.confirmView.setBillingGridRowCount(billingItems.length());
+						
+						if (this.setupView != null && this.setupView.selectedBillingTemplate != null) {
+							this.confirmView.showAccountColumn = true;
+						} else {
+							this.confirmView.showAccountColumn = false;
+						}
 					} else {
 						readyToSubmit = false;
 					}
@@ -3523,7 +3546,12 @@
 					// from the setup tab
 					request.@idLab = setupView.labCombo.selectedItem.@idLab;
 					if (request.@isExternal == 'N') {
-						request.@idBillingAccount = setupView.selectedBillingAccount.@idBillingAccount;
+						if (setupView.selectedBillingAccount != null) {
+							request.@idBillingAccount = setupView.selectedBillingAccount.@idBillingAccount;
+						} else if (setupView.selectedBillingTemplate != null) {
+							request.billingTemplate = <billingTemplate></billingTemplate>;
+							request.billingTemplate.appendChild(new XMLList(setupView.selectedBillingTemplate));
+						}
 					}
 					request.@idProject = setupView.projectCombo.selectedItem.@idProject;
 					if (currentState == 'QCState' && this.sampleSetupView.applicationHasChipTypes()) {

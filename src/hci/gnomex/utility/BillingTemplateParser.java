@@ -34,15 +34,15 @@ public class BillingTemplateParser {
 			billingTemplate = new BillingTemplate();
 		} else {
 			billingTemplate = sess.load(BillingTemplate.class, idBillingTemplate);
+			
+			// Populate fields
+			String fullTargetClassName = QueryManager.convertToFullTargetClassName(billingTemplateNode.getAttributeValue("targetClassName"));
+			if (!QueryManager.isValidTargetClass(billingTemplateNode.getAttributeValue("targetClassIdentifier"), fullTargetClassName, sess)) {
+				throw new ParserException("The specified target class identifier and class name are not valid");
+			}
+			billingTemplate.setTargetClassIdentifier(Integer.parseInt(billingTemplateNode.getAttributeValue("targetClassIdentifier")));
+			billingTemplate.setTargetClassName(fullTargetClassName);
 		}
-		
-		// Populate fields
-		String fullTargetClassName = QueryManager.convertToFullTargetClassName(billingTemplateNode.getAttributeValue("targetClassName"));
-		if (!QueryManager.isValidTargetClass(billingTemplateNode.getAttributeValue("targetClassIdentifier"), fullTargetClassName, sess)) {
-			throw new ParserException("The specified target class identifier and class name are not valid");
-		}
-		billingTemplate.setTargetClassIdentifier(Integer.parseInt(billingTemplateNode.getAttributeValue("targetClassIdentifier")));
-		billingTemplate.setTargetClassName(fullTargetClassName);
 	}
 	
 

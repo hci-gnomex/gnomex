@@ -221,9 +221,20 @@ public class GetRequest extends GNomExCommand implements Serializable {
           }
 
           String accountNumberDisplay = "";
-
           if (request.getBillingAccount() != null) {
             accountNumberDisplay = request.getBillingAccount().getAccountNumberDisplay();
+          } else if (billingTemplate != null) {
+        	  Hibernate.initialize(billingTemplate.getItems());
+        	  boolean firstAccount = true;
+        	  for (BillingTemplateItem item : billingTemplate.getItems()) {
+        		  BillingAccount account = sess.load(BillingAccount.class, item.getIdBillingAccount());
+        		  if (firstAccount) {
+        			  accountNumberDisplay = account.getAccountNumberDisplay();
+        			  firstAccount = false;
+        		  } else {
+        			  accountNumberDisplay += ", " + account.getAccountNumberDisplay();
+        		  }
+        	  }
           }
           requestNode.setAttribute("accountNumberDisplay", accountNumberDisplay);
 

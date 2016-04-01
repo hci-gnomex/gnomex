@@ -304,6 +304,7 @@
 			import views.util.GNomExStringUtil;
 			import views.util.PromptXMLListCollection;
 			import views.util.SelectAuthorizedBillingAccountWindow;
+			import views.billing.BillingTemplateWindow;
 			
 			[Bindable]
 			private var requestCategory:Object;
@@ -332,6 +333,9 @@
 			
 			[Bindable]
 			public var selectedBillingAccount:Object = null;
+			
+			[Bindable]
+			public var selectedBillingTemplate:Object = null;
 			
 			[Bindable]
 			private var showAccessAuthorizedAccountsLink:Boolean = false;
@@ -435,8 +439,8 @@
 				this.accountBox.includeInLayout = visible;
 				this.workAuthLink1.label = parentApplication.getCoreFacilityProperty(getRequestCategory().@idCoreFacility, parentApplication.PROPERTY_REQUEST_WORK_AUTH_LINK_TEXT);
 				this.accessAuthorizedBillingAccountLink.label = parentApplication.getCoreFacilityProperty(getRequestCategory().@idCoreFacility, parentApplication.PROPERTY_ACCESS_AUTH_ACCOUNT_LINK_TEXT);
-				if (this.selectedBillingAccount == null || this.selectedBillingAccount.@accountNameAndNumber == '') {
-					visible = false || !parentApplication.submitInternalExperiment();
+				if (this.selectedBillingTemplate == null && (this.selectedBillingAccount == null || this.selectedBillingAccount.@accountNameAndNumber == '')) {
+					visible = !parentApplication.submitInternalExperiment();
 				}
 				this.projectHBox.visible = visible;
 				this.projectHBox.includeInLayout = visible;
@@ -816,7 +820,7 @@
 						//Clinical Sequenome won't have the coreFacility set in experimentEdit view.
 							if (!parentApplication.requireExperimentDescriptionAndName(this.requestCategory.@idCoreFacility, this.getRequestCategory().@codeRequestCategory)
 								|| (this.experimentName.text != "" && this.overallDescript.text != "")) { 
-								if (this.selectedBillingAccount != null) {
+								if (this.selectedBillingAccount != null || this.selectedBillingTemplate != null) {
 									isComplete = true;
 								}
 							}
@@ -1360,8 +1364,27 @@
 				PopUpManager.centerPopUp(pickOtherBillingAccountWindow);
 			}
 			
+			private function showSplitBillingWindow():void {
+				if (!showAccessAuthorizedAccountsLink) {
+					return;
+				}
+				
+				var splitWindow:BillingTemplateWindow = BillingTemplateWindow(mx.managers.PopUpManager.createPopUp(this, BillingTemplateWindow, true));
+				splitWindow.performSetup(true, this);
+				mx.managers.PopUpManager.centerPopUp(splitWindow); 
+				splitWindow.setFocus();
+			}
+			
 			public function makeBillingAccountSelection():void {
+				this.selectedBillingTemplate = null;
 				updateBillingAccount();
+				checkSetupCompleteness();
+				setVisibility();
+			}
+			
+			public function makeBillingTemplateSelection():void {
+				this.selectedBillingAccount = null;
+				this.billingAccountCombo.selectedItem = null;
 				checkSetupCompleteness();
 				setVisibility();
 			}
@@ -1545,6 +1568,7 @@
 						
 						<mx:HBox horizontalGap="2" width="100%" paddingTop="0" paddingBottom="0" id="accessAuthorizedBillingAccountHBox" visible="{showAccessAuthorizedAccountsLink}" includeInLayout="{showAccessAuthorizedAccountsLink}" >
 							<mx:LinkButton  label="Show Other Billing Accounts"  styleName="formLinkButton" id="accessAuthorizedBillingAccountLink" fontSize="10" paddingTop="0" textAlign="left" paddingLeft="0" click="showAccessAuthorizedBillingAccounts()" />
+							<mx:LinkButton  label="Split Billing"  styleName="formLinkButton" id="splitBillingLink" fontSize="10" paddingTop="0" textAlign="left" paddingLeft="0" click="showSplitBillingWindow()" />
 						</mx:HBox>
 					</mx:VBox>
 				</mx:HBox>

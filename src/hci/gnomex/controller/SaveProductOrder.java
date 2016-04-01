@@ -71,6 +71,8 @@ public class SaveProductOrder extends GNomExCommand implements Serializable {
 	private Integer idCoreFacility;
 	private Document productDoc;
 	private String codeProductOrderStatus;
+	private String billingTemplateXMLString;
+	private Document billingTemplateDoc;
 
 	private ProductPlugin productPlugin = new ProductPlugin();
 
@@ -86,10 +88,23 @@ public class SaveProductOrder extends GNomExCommand implements Serializable {
 		}
 
 		serverName = request.getServerName();
+		
 		if (request.getParameter("idBillingAccount") != null && !request.getParameter("idBillingAccount").equals("")) {
 			idBillingAccount = Integer.parseInt(request.getParameter("idBillingAccount"));
-		} else {
-			this.addInvalidField("idBillingAccount", "Missing idBillingAccount");
+		} else if (request.getParameter("billingTemplate") != null && !request.getParameter("billingTemplate").equals("")) {
+			billingTemplateXMLString = request.getParameter("billingTemplate");
+			StringReader reader = new StringReader(billingTemplateXMLString);
+			try {
+				SAXBuilder sax = new SAXBuilder();
+				billingTemplateDoc = sax.build(reader);
+			} catch (JDOMException je) {
+				log.error("Cannot parse billingTemplateXMLString", je);
+				this.addInvalidField("billingTemplateXMLString", "Invalid billingTemplate xml");
+			}
+		}
+		
+		if (idBillingAccount == null && billingTemplateXMLString == null) {
+			this.addInvalidField("Billing Information", "Missing either idBillingAccount or billingTemplate");
 		}
 
 		if (request.getParameter("idAppUser") != null && !request.getParameter("idAppUser").equals("")) {

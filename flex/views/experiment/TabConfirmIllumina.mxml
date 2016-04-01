@@ -183,7 +183,7 @@
 					<mx:Label text="Experiment Details" styleName="confirmHeaderLabel" />
 					<mx:Text  id="submitterName" />
 					<mx:Text text="{parentDocument.isAmendState() ? parentDocument.labCombo.selectedItem.@name : parentDocument.setupView.labCombo.selectedItem.@name}" id="text2"/>
-					<mx:Text text="{parentDocument.isAmendState() ? parentDocument.request.@billingAccountName : parentDocument.setupView.selectedBillingAccount.@accountName + '(' + parentDocument.isAmendState() ? parentDocument.request.@billingAccountNumber : parentDocument.setupView.selectedBillingAccount.@accountNumber + ')'}"/>
+					<mx:Text text="{parentDocument.isAmendState() ? parentDocument.request.@billingAccountName : this.getSelectedBillingAccountName() + '(' + parentDocument.isAmendState() ? parentDocument.request.@billingAccountNumber : this.getSelectedBillingAccountNumber() + ')'}"/>
 					<mx:Text text="{parentDocument.requestCategoryName}" id="requestKindLabel"/>
 					<mx:Text text="{parentDocument.applicationName}" id="appLabel"/>
 					<mx:Text text="" id="seqLaneTypeLabel" />
@@ -208,6 +208,13 @@
 								 sortableColumns="false" fontSize="11"  borderStyle="none" >
 						<mx:rowCount>{parentDocument.createBillingItems.lastResult..BillingItem.length() + 1}</mx:rowCount>
 						<mx:columns>
+							<mx:DataGridColumn	headerText="Account" dataField="@accountName" editable="false" width="150" visible="{this.showAccountColumn}">
+								<mx:itemRenderer>
+									<mx:Component>
+										<mx:Text text="{data.@accountName}" styleName="{data.@other == 'Y' ?'other':'normal'}" />
+									</mx:Component>
+								</mx:itemRenderer>
+							</mx:DataGridColumn>
 							<mx:DataGridColumn  headerText="Price Category" dataField="@category" editable="false" width="200">
 								<mx:itemRenderer>
 									<mx:Component>

@@ -82,7 +82,7 @@ public class BillingTemplate extends HibernateDetailObject implements DetailObje
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((this.idBillingTemplate == null) ? super.hashCode() : this.idBillingTemplate.hashCode());
+		result = prime * result + ((this.getIdBillingTemplate() == null) ? super.hashCode() : this.getIdBillingTemplate().hashCode());
 		return result;
 	}
 	@Override
@@ -94,10 +94,10 @@ public class BillingTemplate extends HibernateDetailObject implements DetailObje
 		if (!(obj instanceof BillingTemplate))
 			return false;
 		BillingTemplate other = (BillingTemplate) obj;
-		if (this.idBillingTemplate == null) {
-			if (other.idBillingTemplate != null)
+		if (this.getIdBillingTemplate() == null) {
+			if (other.getIdBillingTemplate() != null)
 				return false;
-		} else if (!this.idBillingTemplate.equals(other.idBillingTemplate))
+		} else if (!this.getIdBillingTemplate().equals(other.getIdBillingTemplate()))
 			return false;
 		return true;
 	}

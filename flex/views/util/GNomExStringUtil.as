@@ -160,6 +160,24 @@ package views.util
 			return str;
 		}
 		
+		// Unescapes any XML special characters
+		public static function unescapeXMLSpecialChars( s:String ):String {
+			var pattern:RegExp;
+			var str:String = s;
+			pattern = /&amp;/g;
+			str = str.replace(pattern, "&");
+			pattern = /&lt;/g;
+			str = str.replace(pattern, "<");
+			pattern = /&gt;/g;
+			str = str.replace(pattern, ">");
+			pattern = /&apos;/g;
+			str = str.replace(pattern, "'");
+			pattern = /&quot;/g;
+			str = str.replace(pattern, "\"");
+			
+			return str;
+		}
+		
 		// Maps a unicode string to an ascii string.  It also replaces all non-printable ascii characters (including cr/lf) with ?.
 		public static function unicodeToAscii( str:String ):String {
 			if(str == null || str.length == 0) {
