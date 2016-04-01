@@ -363,7 +363,7 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
           if (priceCategory.getPluginClassName() != null) {
             try {
               plugin = (BillingPlugin)Class.forName(priceCategory.getPluginClassName()).newInstance();
-              if ( priceCategory.getPluginClassName().toLowerCase().indexOf( "discount" ) != -1 ) {
+              if ( priceCategory.getPluginClassName().toLowerCase().contains( "discount" ) ) {
                 isDiscount = true;
               }
             } catch(Exception e) {

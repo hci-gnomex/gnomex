@@ -260,7 +260,7 @@ public class ChangeRequestStatus extends GNomExCommand implements Serializable {
       assays.add(idAssay.toString());
     }
 
-    SaveRequest.createBillingItems(sess, req, null, billingPeriod, dictionaryHelper, req.getSamples(), null, null, null, sampleAssays, req.getBillingTemplate(sess));
+    SaveRequest.createBillingItems(sess, req, null, billingPeriod, dictionaryHelper, req.getSamples(), null, null, null, sampleAssays, null, null, req.getPropertyEntries(), req.getBillingTemplate(sess));
     sess.flush();
 
   }
