@@ -325,6 +325,7 @@ angular.module("experiment")
                 function lookupExperiment(exprid) {
                     //console.log("[lookupExperiment] ** before getRequest ** exprid: " + exprid);
                     var promise = RequestService.getRequest(exprid);
+                    $scope.showProgressBar = true;
 
                     promise.then(
                             function (payload) {
@@ -383,43 +384,45 @@ angular.module("experiment")
 
                 function mapLookup(requestNumber) {
                     var exprid = requestNumber;
-                    if (requestNumber == null || requestNumber == "") {
-                        //console.log("[mapLookup] 1 returning exprid: " + exprid);
-                        return exprid;
-                    }
-
-                    var spos = -1;
-                    var epos = -1;
-                    for (var i = 0; i < requestNumber.length; i++) {
-                        var char = requestNumber.charAt(i);
-                        if (char <= "9") {
-                            if (spos == -1) {
-                                spos = i;
-                            }
-                            continue;
-                        }
-                        if (spos == -1) {
-                            continue;
-                        }
-                        epos = i;
-                        break;
-
-                    } // end of for
-
-                    // did we find anything valid?
-                    if (spos == -1) {
-                        //console.log("[mapLookup] 2 returning exprid: " + exprid);
-                        return exprid;		// nope
-                    }
-
-                    if (epos == -1) {
-                        exprid = requestNumber.substring(spos);
-                    } else {
-                        exprid = requestNumber.substring(spos, epos);
-                    }
-
-                    //console.log("[mapLookup] 3 returning exprid: " + exprid + " requestNumber: " + requestNumber + " spos: " + spos + " epos: " + epos);
+                    //if (requestNumber == null || requestNumber == "") {
+                    //    //console.log("[mapLookup] 1 returning exprid: " + exprid);
+                    //    return exprid;
+                    //}
+                    //
+                    //var spos = -1;
+                    //var epos = -1;
+                    //for (var i = 0; i < requestNumber.length; i++) {
+                    //    var char = requestNumber.charAt(i);
+                    //    if (char <= "9") {
+                    //        if (spos == -1) {
+                    //            spos = i;
+                    //        }
+                    //        continue;
+                    //    }
+                    //    if (spos == -1) {
+                    //        continue;
+                    //    }
+                    //    epos = i;
+                    //    break;
+                    //
+                    //} // end of for
+                    //
+                    //// did we find anything valid?
+                    //if (spos == -1) {
+                    //    //console.log("[mapLookup] 2 returning exprid: " + exprid);
+                    //    return exprid;		// nope
+                    //}
+                    //
+                    //if (epos == -1) {
+                    //    exprid = requestNumber.substring(spos);
+                    //} else {
+                    //    exprid = requestNumber.substring(spos, epos);
+                    //}
+                    //
+                    ////console.log("[mapLookup] 3 returning exprid: " + exprid + " requestNumber: " + requestNumber + " spos: " + spos + " epos: " + epos);
                     return exprid;
+
+
 
                 }
                 ; // end of mapLookup
