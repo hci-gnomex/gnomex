@@ -2,6 +2,7 @@ package hci.gnomex.controller;
 
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
+import hci.framework.model.FieldFormatter;
 import hci.framework.utilities.XMLReflectException;
 import hci.gnomex.model.BillingAccount;
 import hci.gnomex.model.CoreFacility;
@@ -271,7 +272,6 @@ public class GetAuthorizedBillingAccounts extends GNomExCommand implements Seria
 		return (BillingAccount) sess.load(BillingAccount.class, idBillingAccount);
 	}
 	
-	@SuppressWarnings("static-access")
 	private StringBuffer queryForCommonBillingAccountCriteria(boolean ignoreIdCoreFacility, boolean addWhere) {
 		StringBuffer queryBuff = new StringBuffer();
 		boolean useWhere = addWhere;
@@ -286,7 +286,7 @@ public class GetAuthorizedBillingAccounts extends GNomExCommand implements Seria
 			queryBuff.append(" ba.isApproved = \'Y\' ");
 		}
 		
-		String today = this.formatDate(new Date(System.currentTimeMillis()), this.DATE_OUTPUT_SQL);
+		String today = this.formatDate(new Date(System.currentTimeMillis()), FieldFormatter.DATE_OUTPUT_SQL);
 		
 		if (includeOnlyStartedAccounts) {
 			useWhere = addWhereOrAnd(queryBuff, useWhere);
