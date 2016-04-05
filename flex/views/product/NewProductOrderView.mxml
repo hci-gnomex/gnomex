@@ -429,7 +429,7 @@
 				}
 				
 				var splitWindow:BillingTemplateWindow = BillingTemplateWindow(mx.managers.PopUpManager.createPopUp(this, BillingTemplateWindow, true));
-				splitWindow.performSetup(true, this);
+				splitWindow.performSetup(true, this, idCoreFacility);
 				mx.managers.PopUpManager.centerPopUp(splitWindow); 
 				splitWindow.setFocus();
 			}

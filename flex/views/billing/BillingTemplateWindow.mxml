@@ -59,10 +59,10 @@
 			import mx.managers.PopUpManager;
 			import mx.rpc.events.ResultEvent;
 			
-			import views.renderers.CheckBoxRenderer;
-			import views.util.GNomExStringUtil;
 			import views.experiment.TabSetupView;
 			import views.product.NewProductOrderView;
+			import views.renderers.CheckBoxRenderer;
+			import views.util.GNomExStringUtil;
 			
 			[Bindable]
 			private var billingAccounts:XMLListCollection;
@@ -84,9 +84,21 @@
 			
 			private var parentView:Object;
 			
-			public function performSetup(savingNewTemplateMode:Boolean, parentView:Object = null):void {
+			public var idCoreFacility:String = null;
+			
+			public function performSetup(savingNewTemplateMode:Boolean, parentView:Object = null, idCoreFacility:String = null):void {
 				if ( this.order != null ) {
 					this.title = "Reassign/split billing for " + order.@label;  
+				}
+				
+				if (idCoreFacility != null && idCoreFacility != "") {
+					this.idCoreFacility = idCoreFacility;
+				} else {
+					this.idCoreFacility = null;
+				}
+				
+				if (this.idCoreFacility == null && this.order != null && this.order.hasOwnProperty("@idCoreFacility") && this.order.@idCoreFacility != "") {
+					this.idCoreFacility = this.order.@idCoreFacility;
 				}
 				
 				this.savingNewTemplateMode = savingNewTemplateMode;
@@ -162,6 +174,9 @@
 				var params:Object = new Object();
 				if (showInactiveAccountsCheckBox.selected) {
 					params.includeOnlyUnexpiredAccounts = "false";
+				}
+				if (this.idCoreFacility != null) {
+					params.idCoreFacility = this.idCoreFacility;
 				}
 				
 				getAuthorizedBillingAccounts.send(params);
@@ -326,11 +341,18 @@
 			}
 			
 			private function filterBillingAccounts(item:Object):Boolean {
+				if (this.idCoreFacility != null && item.hasOwnProperty("@idCoreFacility") && item.@idCoreFacility != "") {
+					if (this.idCoreFacility != item.@idCoreFacility) {
+						return false;
+					}
+				}
+				
 				for each (var alreadyAddedBillingAccount:Object in billingTemplateItems) {
 					if (alreadyAddedBillingAccount.@idBillingAccount == item.@idBillingAccount) {
 						return false;
 					}
 				}
+				
 				return true;
 			}
 			
