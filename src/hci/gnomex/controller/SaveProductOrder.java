@@ -21,6 +21,7 @@ import hci.gnomex.model.ProductOrderFile;
 import hci.gnomex.model.ProductOrderStatus;
 import hci.gnomex.model.ProductType;
 import hci.gnomex.model.PropertyDictionary;
+import hci.gnomex.utility.BillingTemplateParser;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.MailUtil;
@@ -63,21 +64,21 @@ public class SaveProductOrder extends GNomExCommand implements Serializable {
 
 	private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(SaveProductOrder.class);
 
-	private String productListXMLString;
-	private Integer idBillingAccount;
-	private Integer idAppUser;
-	private Integer idLab;
-	private BillingPeriod billingPeriod;
-	private Integer idCoreFacility;
-	private Document productDoc;
-	private String codeProductOrderStatus;
-	private String billingTemplateXMLString;
-	private Document billingTemplateDoc;
+	private String 			productListXMLString;
+	private Integer 		idBillingAccount;
+	private Integer 		idAppUser;
+	private Integer 		idLab;
+	private BillingPeriod 	billingPeriod;
+	private Integer 		idCoreFacility;
+	private Document 		productDoc;
+	private String 			codeProductOrderStatus;
+	private String 			billingTemplateXMLString;
+	private Document 		billingTemplateDoc;
 
-	private ProductPlugin productPlugin = new ProductPlugin();
+	private ProductPlugin 	productPlugin = new ProductPlugin();
 
-	private String appURL;
-	private String serverName;
+	private String 			appURL;
+	private String 			serverName;
 
 	public void loadCommand(HttpServletRequest request, HttpSession sess) {
 
@@ -192,15 +193,39 @@ public class SaveProductOrder extends GNomExCommand implements Serializable {
 						sess.save(po);
 						po.setProductOrderNumber(getNextPONumber(po, sess));
 						sess.save(po);
+						
+						// Set up billing template
+						BillingTemplate billingTemplate;
+						if (idBillingAccount != null) {
+							billingTemplate = new BillingTemplate();
+							billingTemplate.setOrder(po);
+							billingTemplate.updateSingleBillingAccount(idBillingAccount);
+							sess.save(billingTemplate);
+							for (BillingTemplateItem item : billingTemplate.getItems()) {
+								item.setIdBillingTemplate(billingTemplate.getIdBillingTemplate());
+								sess.save(item);
+							}
+							sess.flush();
+						} else {
+							BillingTemplateParser btParser = new BillingTemplateParser(billingTemplateDoc.getRootElement());
+							btParser.parse(sess);
+							billingTemplate = btParser.getBillingTemplate();
+							billingTemplate.setOrder(po);
+							sess.save(billingTemplate);
+							sess.flush();
 
-						// Set up billing template for product order
-						BillingTemplate billingTemplate = new BillingTemplate();
-						initializeBillingTemplate(po, billingTemplate);
-						sess.save(billingTemplate);
-						for (BillingTemplateItem item : billingTemplate.getItems()) {
-							item.setIdBillingTemplate(billingTemplate.getIdBillingTemplate());
-							sess.save(item);
+							// Get new template items from parser and save to billing template
+							TreeSet<BillingTemplateItem> btiSet = btParser.getBillingTemplateItems();
+							for (BillingTemplateItem newlyCreatedItem : btiSet) {
+								newlyCreatedItem.setIdBillingTemplate(billingTemplate.getIdBillingTemplate());
+								billingTemplate.getItems().add(newlyCreatedItem);
+								sess.save(newlyCreatedItem);
+							}
+							sess.flush();
 						}
+						
+						po.setIdBillingAccount(billingTemplate.getAcceptingBalanceItem().getIdBillingAccount());
+						sess.save(po);
 
 						for (Element n : products) {
 							if (n.getAttributeValue("isSelected").equals("Y") && n.getAttributeValue("quantity") != null
@@ -232,8 +257,7 @@ public class SaveProductOrder extends GNomExCommand implements Serializable {
 						poNode.setAttribute("productOrderNumber", po.getProductOrderNumber() != null ? po.getProductOrderNumber() : "");
 						outputDoc.getRootElement().addContent(poNode);
 
-						List<BillingItem> billingItems = productPlugin.constructBillingItems(sess, billingPeriod, priceCategory, po, productLineItems,
-								billingTemplate);
+						List<BillingItem> billingItems = productPlugin.constructBillingItems(sess, billingPeriod, priceCategory, po, productLineItems, billingTemplate);
 
 						for (MasterBillingItem masterBillingItem : billingTemplate.getMasterBillingItems()) {
 							sess.save(masterBillingItem);
@@ -370,11 +394,11 @@ public class SaveProductOrder extends GNomExCommand implements Serializable {
 		}
 		body.append("Product Order #: \t\t" + po.getProductOrderNumber() + "\n");
 		body.append("Products Ordered: \t\t" + products.toString() + "\n");
-		body.append("Product Type: \t\t" + pt.getDisplay() + "\n");
+		body.append("Product Type: \t\t\t" + pt.getDisplay() + "\n");
 		body.append("Submit Date: \t\t\t" + po.getSubmitDate() + "\n");
-		body.append("Submitted By: \t\t" + po.getSubmitter().getDisplayName() + "\n");
+		body.append("Submitted By: \t\t\t" + po.getSubmitter().getDisplayName() + "\n");
 		body.append("Lab: \t\t\t\t" + po.getLab().getName(false, true) + "\n");
-		body.append("Billing Acct: \t\t" + ba.getAccountNameAndNumber() + "\n");
+		body.append("Billing Acct: \t\t\t" + ba.getAccountNameAndNumber() + "\n");
 		body.append(noAppUserEmailMsg);
 
 		MailUtilHelper mailHelper = new MailUtilHelper(toAddress, fromAddress, subject, body.toString(), null, false, dictionaryHelper, serverName);
@@ -420,13 +444,7 @@ public class SaveProductOrder extends GNomExCommand implements Serializable {
 		po.setUuid(UUID.randomUUID().toString()); // Probably only need to set this if going to use purchasing system...
 		po.setIdAppUser(idAppUser);
 		po.setIdCoreFacility(idCoreFacility);
-		po.setIdBillingAccount(idBillingAccount);
 		po.setIdLab(idLab);
-	}
-
-	private void initializeBillingTemplate(ProductOrder po, BillingTemplate billingTemplate) {
-		billingTemplate.setOrder(po);
-		billingTemplate.updateSingleBillingAccount(idBillingAccount);
 	}
 
 	private void initializeProductLineItem(ProductLineItem pi, Integer idProductOrder, Element n, BigDecimal unitPrice) {
