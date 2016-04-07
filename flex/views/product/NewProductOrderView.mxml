@@ -466,7 +466,7 @@
 										  labelField="@name" 
 										  prompt="Select a lab..."
 										  width="380"
-										  close="getMembersOfLab(); checkSetupCompleteness();" 
+										  close="getMembersOfLab(); checkSetupCompleteness(); checkForOtherAccounts();" 
 										  id="labCombo">
 				</renderers:FilterComboBox>
 				
