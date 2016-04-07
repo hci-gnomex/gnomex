@@ -125,7 +125,7 @@ public class GetAuthorizedBillingAccounts extends GNomExCommand implements Seria
 			// Non-admins
 			else {
 				
-				// Add all billing accounts with no specified "users" for all labs the user is a member of
+				// Add all billing accounts with no specified "users" for all labs the user is a member/manager of
 				List<Integer> billingAccountsForUsersLabs = (List<Integer>) sess.createQuery(generateQueryForLabBillingAccountsWithNoUsers().toString()).list();
 				for (Iterator<Integer> iter = billingAccountsForUsersLabs.iterator(); iter.hasNext();) {
 					allAuthorizedBillingAccounts.add(parseBillingAccountQueryRow(iter.next(), sess));
@@ -231,9 +231,10 @@ public class GetAuthorizedBillingAccounts extends GNomExCommand implements Seria
 		queryBuff.append(" FROM BillingAccount AS ba ");
 		queryBuff.append(" JOIN ba.lab AS l ");
 		queryBuff.append(" JOIN l.members AS m ");
+		queryBuff.append(" JOIN l.managers AS man ");
 		
 		// Criteria
-		queryBuff.append(" WHERE m.idAppUser = " + idAppUser.toString() + " ");
+		queryBuff.append(" WHERE (m.idAppUser = " + idAppUser.toString() + " OR man.idAppUser = " + idAppUser.toString() + ") ");
 		queryBuff.append(queryForCommonBillingAccountCriteria(false, false));
 		if (includeOnlyActiveLabs) {
 			queryBuff.append(" AND l.isActive = \'Y\' ");
@@ -265,7 +266,7 @@ public class GetAuthorizedBillingAccounts extends GNomExCommand implements Seria
 	}
 	
 	private StringBuffer queryForRequiredBillingAccountColumns() {
-		return new StringBuffer(" SELECT ba.idBillingAccount ");
+		return new StringBuffer(" SELECT DISTINCT ba.idBillingAccount ");
 	}
 	
 	private BillingAccount parseBillingAccountQueryRow(Integer idBillingAccount, Session sess) {
