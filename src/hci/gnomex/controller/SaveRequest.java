@@ -674,7 +674,49 @@ public class SaveRequest extends GNomExCommand implements Serializable {
             //
             // Save properties
             //
+
+            // i need a copy of all of the old values of the property entries before they are changed in the saveRequestProperties call
+            HashMap <Integer, String[]> oldPE = new HashMap<Integer, String[]>();
+            if(requestParser.getRequest().getCodeRequestStatus() != null && !requestParser.getRequest().getCodeRequestStatus().equals("NEW")) {
+              for (Iterator i = requestParser.getRequest().getPropertyEntries().iterator(); i.hasNext(); ) {
+                PropertyEntry pe = (PropertyEntry) i.next();
+                oldPE.put(pe.getIdPropertyEntry(), new String[]{pe.getValue(), String.valueOf(pe.getProperty().getIdPriceCategory())});
+              }
+            }
+
             Set propertyEntries = this.saveRequestProperties(propertiesXML, sess, requestParser);
+
+            // if it isn't a new request and property entries have been added or removed
+            String requestPropertyBillingMessage = "";
+            if(requestParser.getRequest().getCodeRequestStatus() != null && !requestParser.getRequest().getCodeRequestStatus().equals("NEW")){
+
+                for(Iterator i = propertyEntries.iterator(); i.hasNext();){
+                  PropertyEntry pe = (PropertyEntry) i.next();
+                  String [] oldValue = oldPE.get(pe.getIdPropertyEntry());
+                  // if the old value doesn't match the new value it has changed.  Check if this property is associated with a price
+                  // if it is then warn admin that billing needs to change.  If old value is null then a new property was added
+                  if(oldValue == null || oldValue[0] == null || (oldValue[0] != null && !oldValue[0].equals(pe.getValue()))){
+                    Property p = sess.load(Property.class, pe.getIdProperty());
+                    if(p.getIdPriceCategory() != null && !p.getIdPriceCategory().equals("")){
+                      requestPropertyBillingMessage = "The request properties have been changed you will need to update the billing for this request to reflect these changes.";
+                      break;
+                    }
+                  }
+
+                  oldPE.remove(pe.getIdPropertyEntry());
+
+                }
+
+              // stuff was deleted so check if those deleted had price categories
+              if(requestPropertyBillingMessage.length() == 0 && oldPE.size() > 0){
+                for(Iterator<String[]> i = oldPE.values().iterator(); i.hasNext();){
+                  String [] peValues = i.next();
+                  if(peValues[1] != null && !peValues[1].equals("null") && !peValues[1].equals(""))
+                    requestPropertyBillingMessage = "The request properties have been changed you will need to update the billing for this request to reflect these changes.";
+                    break;
+                }
+              }
+            }
 
             sess.save(requestParser.getRequest());
             sess.flush();
@@ -783,9 +825,12 @@ public class SaveRequest extends GNomExCommand implements Serializable {
                 samplesAdded.addAll(requestParser.getRequest().getSamples());
               }
 
-              createBillingItems(sess, requestParser.getRequest(), requestParser.getAmendState(), billingPeriod, dictionaryHelper, samplesAdded, labeledSamplesAdded, hybsAdded, sequenceLanesAdded, requestParser.getSampleAssays(), null, BillingStatus.PENDING, propertyEntries, billingTemplate);
+              createBillingItems(sess, requestParser.getRequest(), requestParser.getAmendState(), billingPeriod, dictionaryHelper, samplesAdded, labeledSamplesAdded, hybsAdded, sequenceLanesAdded, requestParser.getSampleAssays(), null, BillingStatus.PENDING, propertyEntries, billingTemplate, false, false);
 
               sess.flush();
+            } else if(!pdh.getCoreFacilityRequestCategoryProperty(requestParser.getRequest().getIdCoreFacility(), requestParser.getRequest().getCodeRequestCategory(), PropertyDictionary.NEW_REQUEST_SAVE_BEFORE_SUBMIT).equals("Y")){
+              // if not save then submit but bill during workflow, then create the request properties
+              createBillingItems(sess, requestParser.getRequest(), requestParser.getAmendState(), billingPeriod, dictionaryHelper, samplesAdded, labeledSamplesAdded, hybsAdded, sequenceLanesAdded, requestParser.getSampleAssays(), null, BillingStatus.PENDING, propertyEntries, billingTemplate, true, false);
             }
 
             // If the lab on the request was changed, reassign the lab on the
@@ -803,7 +848,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 
             String emailErrorMessage = sendEmails(sess);
 
-            this.xmlResult = "<SUCCESS idRequest=\"" + requestParser.getRequest().getIdRequest() + "\" requestNumber=\"" + requestParser.getRequest().getNumber() + "\" deleteSampleCount=\"" + this.samplesDeleted.size() + "\" deleteHybCount=\"" + this.hybsDeleted.size() + "\" deleteLaneCount=\"" + this.sequenceLanesDeleted.size() + "\" billingAccountMessage = \"" + billingAccountMessage + "\" emailErrorMessage = \"" + emailErrorMessage + "\"/>";
+            this.xmlResult = "<SUCCESS idRequest=\"" + requestParser.getRequest().getIdRequest() + "\" requestNumber=\"" + requestParser.getRequest().getNumber() + "\" deleteSampleCount=\"" + this.samplesDeleted.size() + "\" deleteHybCount=\"" + this.hybsDeleted.size() + "\" deleteLaneCount=\"" + this.sequenceLanesDeleted.size() + "\" billingAccountMessage = \"" + billingAccountMessage + "\" emailErrorMessage = \"" + emailErrorMessage + "\" requestPropertyBillingMessage = \"" + requestPropertyBillingMessage + "\"/>";
 
           }
 
@@ -2246,15 +2291,15 @@ public class SaveRequest extends GNomExCommand implements Serializable {
     return sequenceLane;
   }
 
-  public static void createBillingItems(Session sess, Request request, String amendState, BillingPeriod billingPeriod, DictionaryHelper dh, Set<Sample> samples, Set<LabeledSample> labeledSamples, Set<Hybridization> hybs, Set<SequenceLane> lanes, Map<String, ArrayList<String>> sampleToAssaysMap, String codeStepNext, String billingStatus, BillingTemplate billingTemplate) throws Exception {
-    createBillingItems(sess, request, amendState, billingPeriod, dh, samples, labeledSamples, hybs, lanes, sampleToAssaysMap, codeStepNext, billingStatus, null, billingTemplate);
+  public static void createBillingItems(Session sess, Request request, String amendState, BillingPeriod billingPeriod, DictionaryHelper dh, Set<Sample> samples, Set<LabeledSample> labeledSamples, Set<Hybridization> hybs, Set<SequenceLane> lanes, Map<String, ArrayList<String>> sampleToAssaysMap, String codeStepNext, String billingStatus, BillingTemplate billingTemplate, Boolean requestPropertiesOnly, Boolean comingFromWorkflow) throws Exception {
+    createBillingItems(sess, request, amendState, billingPeriod, dh, samples, labeledSamples, hybs, lanes, sampleToAssaysMap, codeStepNext, billingStatus, null, billingTemplate, requestPropertiesOnly, comingFromWorkflow);
   }
 
-  public static void createBillingItems(Session sess, Request request, String amendState, BillingPeriod billingPeriod, DictionaryHelper dh, Set<Sample> samples, Set<LabeledSample> labeledSamples, Set<Hybridization> hybs, Set<SequenceLane> lanes, Map<String, ArrayList<String>> sampleToAssaysMap, BillingTemplate billingTemplate) throws Exception {
-    createBillingItems(sess, request, amendState, billingPeriod, dh, samples, labeledSamples, hybs, lanes, sampleToAssaysMap, null, BillingStatus.PENDING, null, billingTemplate);
+  public static void createBillingItems(Session sess, Request request, String amendState, BillingPeriod billingPeriod, DictionaryHelper dh, Set<Sample> samples, Set<LabeledSample> labeledSamples, Set<Hybridization> hybs, Set<SequenceLane> lanes, Map<String, ArrayList<String>> sampleToAssaysMap, BillingTemplate billingTemplate, Boolean requestPropertiesOnly, Boolean comingFromWorkflow) throws Exception {
+    createBillingItems(sess, request, amendState, billingPeriod, dh, samples, labeledSamples, hybs, lanes, sampleToAssaysMap, null, BillingStatus.PENDING, null, billingTemplate, requestPropertiesOnly, comingFromWorkflow);
   }
 
-  public static void createBillingItems(Session sess, Request request, String amendState, BillingPeriod billingPeriod, DictionaryHelper dh, Set<Sample> samples, Set<LabeledSample> labeledSamples, Set<Hybridization> hybs, Set<SequenceLane> lanes, Map<String, ArrayList<String>> sampleToAssaysMap, String codeStepNext, String billingStatus, Set<PropertyEntry> propertyEntries, BillingTemplate billingTemplate) throws Exception {
+  public static void createBillingItems(Session sess, Request request, String amendState, BillingPeriod billingPeriod, DictionaryHelper dh, Set<Sample> samples, Set<LabeledSample> labeledSamples, Set<Hybridization> hybs, Set<SequenceLane> lanes, Map<String, ArrayList<String>> sampleToAssaysMap, String codeStepNext, String billingStatus, Set<PropertyEntry> propertyEntries, BillingTemplate billingTemplate, Boolean requestPropertiesOnly, Boolean comingFromWorkflow) throws Exception {
 
     List billingItems = new ArrayList<BillingItem>();
     List discountBillingItems = new ArrayList<BillingItem>();
@@ -2282,6 +2327,18 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       for (Iterator i1 = priceSheet.getPriceCategories().iterator(); i1.hasNext();) {
         PriceSheetPriceCategory priceCategoryX = (PriceSheetPriceCategory) i1.next();
         PriceCategory priceCategory = priceCategoryX.getPriceCategory();
+
+        // we want to only create request property billing items at submit when we have a bill during workflow
+        if(requestPropertiesOnly && (!priceCategory.getPluginClassName().equals("hci.gnomex.billing.PropertyPricingPlugin") && !priceCategory.getPluginClassName().equals("hci.gnomex.billing.PropertyPricingNotBySamplePlugin"))){
+          continue;
+        }
+
+        // if this is being called from a workflow servlet then skip the creation of request property billing items
+        // because we already created them at submit time.
+        if(comingFromWorkflow && (priceCategory.getPluginClassName().equals("hci.gnomex.billing.PropertyPricingPlugin") || priceCategory.getPluginClassName().equals("hci.gnomex.billing.PropertyPricingNotBySamplePlugin"))){
+          continue;
+        }
+
 
         // Ignore inactive price categories
         if (priceCategory.getIsActive() != null && priceCategory.getIsActive().equals("N")) {

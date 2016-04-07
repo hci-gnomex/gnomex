@@ -455,6 +455,7 @@
 				if(convertIlluminaButton != null){
 					this.convertIlluminaButton.label = getLabel();
 				}
+
 			}
 			
 			private function enableTabs(enable:Boolean):void {
@@ -2542,6 +2543,12 @@
 				if (theTab.contains(sampleSetupView)) {
 					sampleSetupView.setExternalNoteVisibility();
 				}
+
+				if(theTab.contains(this.propertiesView) && this.isEditState()){
+					if(!parentApplication.isAdminState && this.request.@codeRequestStatus != 'NEW'){
+						this.propertiesView.editable = false;
+					}
+				}
 				
 				if (this.linkToTopicBar != null) {
 					this.linkToTopicBar.refreshForDisplay();
@@ -4080,6 +4087,10 @@
 			private function onSaveExistingRequest(event:ResultEvent):void {
 				if (saveExistingRequest.lastResult.name() == "SUCCESS") {
 					updateDirtyNote(false);
+
+					if(saveExistingRequest.lastResult.@requestPropertyBillingMessage != ''){
+						Alert.show(saveExistingRequest.lastResult.@requestPropertyBillingMessage, "Warning");
+					}
 					
 					// For cap seq, warn if editing a submitted request so that billing is adjusted accordingly.
 					if (this.isCapSeqState() ){ 
