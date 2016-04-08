@@ -90,6 +90,7 @@ import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.FileDescriptorUploadParser;
 import hci.gnomex.utility.FreeMarkerConfiguration;
+import hci.gnomex.utility.GNomExRollbackException;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.HybNumberComparator;
 import hci.gnomex.utility.MailUtil;
@@ -268,7 +269,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 
   }
 
-  public Command execute() throws RollBackCommandException {
+  public Command execute() throws GNomExRollbackException {
 
     Session sess = null;
     String billingAccountMessage = "";
@@ -281,580 +282,562 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       requestParser.parse(sess);
 
       if (this.isValid()) {
-        // If this request uses products, create ledger entries
-        // If there is a problem, don't save request
-        boolean errorEncounteredWithProducts = false;
-        String productErrorMessage = "";
-        if (ProductUtil.determineIfRequestUsesProducts(requestParser.getRequest())) {
-          String statusToUseProducts = ProductUtil.determineStatusToUseProducts(sess, requestParser.getRequest());
-          if (statusToUseProducts != null && !statusToUseProducts.trim().equals("")) {
-            try {
-              if (ProductUtil.updateLedgerOnRequestStatusChange(sess, requestParser.getRequest(), requestParser.getPreviousCodeRequestStatus(), requestParser.getRequest().getCodeRequestStatus())) {
-                sess.flush();
+        // Get the current billing period
+        billingPeriod = dictionaryHelper.getCurrentBillingPeriod();
+        if (billingPeriod == null && requestXMLString.contains("isExternal=\"N\"")) {
+          throw new Exception("Cannot find current billing period to create billing items");
+        }
+
+        Lab lab = sess.load(Lab.class, requestParser.getRequest().getIdLab());
+        if (!lab.validateVisibilityInLab(requestParser.getRequest())) {
+          this.addInvalidField("Institution", "You must choose an institution when visibility is set to Institute");
+        }
+
+        // The following code makes sure any ccNumbers that have been entered
+        // actually exist
+        PropertyDictionaryHelper propertyHelper = PropertyDictionaryHelper.getInstance(sess);
+        if (propertyHelper.getProperty(PropertyDictionary.BST_LINKAGE_SUPPORTED) != null && propertyHelper.getProperty(PropertyDictionary.BST_LINKAGE_SUPPORTED).equals("Y")) {
+          validateCCNumbers();
+        }
+
+        if (requestParser.isNewRequest()) {
+          Lab l = sess.load(Lab.class, requestParser.getRequest().getIdLab());
+          if (!this.getSecAdvisor().isGroupIAmMemberOrManagerOf(requestParser.getRequest().getIdLab()) && !this.getSecAdvisor().isLabICanSubmitTo(l) && !this.getSecAdvisor().isGroupICollaborateWith(l.getIdLab())) {
+            this.addInvalidField("PermissionLab", "Insufficient permissions to submit the request for this lab.");
+          }
+        } else {
+          if (!this.getSecAdvisor().canUpdate(requestParser.getRequest())) {
+            this.addInvalidField("PermissionAddRequest", "Insufficient permissions to edit the request.");
+          }
+        }
+
+        // If the default visibility is Institute level, make sure that the institution set for the
+        // Request is an institution the lab is associated with. If not, set the default visibility
+        // to Member level.
+        if (requestParser.isNewRequest()) {
+          boolean foundInstitution = false;
+          if (requestParser.getRequest().getCodeVisibility().equals(Visibility.VISIBLE_TO_INSTITUTION_MEMBERS)) {
+            for (Institution inst : (Set<Institution>) lab.getInstitutions()) {
+              if (requestParser.getRequest().getIdInstitution() != null && requestParser.getRequest().getIdInstitution().equals(inst.getIdInstitution())) {
+                foundInstitution = true;
+                break;
               }
-            } catch (ProductException e) {
-              errorEncounteredWithProducts = true;
-              productErrorMessage = e.getMessage();
-              log.error("Unable to create ProductLedger for request. " + e.getMessage());
+            }
+            if (!foundInstitution) {
+              requestParser.getRequest().setCodeVisibility(Visibility.VISIBLE_TO_GROUP_MEMBERS);
+              requestParser.getRequest().setIdInstitution(null);
             }
           }
         }
 
-        if (!errorEncounteredWithProducts) {
-          // Get the current billing period
-          billingPeriod = dictionaryHelper.getCurrentBillingPeriod();
-          if (billingPeriod == null && requestXMLString.contains("isExternal=\"N\"")) {
-            throw new Exception("Cannot find current billing period to create billing items");
+        if (this.isValid()) {
+          List labels = sess.createQuery("SELECT label from Label label").list();
+          for (Iterator i = labels.iterator(); i.hasNext();) {
+            Label l = (Label) i.next();
+            labelMap.put(l.getLabel(), l.getIdLabel());
           }
 
-          Lab lab = sess.load(Lab.class, requestParser.getRequest().getIdLab());
-          if (!lab.validateVisibilityInLab(requestParser.getRequest())) {
-            this.addInvalidField("Institution", "You must choose an institution when visibility is set to Institute");
+          // save request
+          originalRequestNumber = saveRequest(sess, requestParser, description);
+          sendNotification(requestParser.getRequest(), sess, requestParser.isNewRequest() ? Notification.NEW_STATE : Notification.EXISTING_STATE, Notification.SOURCE_TYPE_ADMIN, Notification.TYPE_REQUEST);
+          sendNotification(requestParser.getRequest(), sess, requestParser.isNewRequest() ? Notification.NEW_STATE : Notification.EXISTING_STATE, Notification.SOURCE_TYPE_USER, Notification.TYPE_REQUEST);
+          
+          // If this request uses products, create ledger entries
+          if (ProductUtil.updateLedgerOnRequestStatusChange(sess, requestParser.getRequest(), requestParser.getPreviousCodeRequestStatus(), requestParser.getRequest().getCodeRequestStatus())) {
+              sess.flush();
           }
 
-          // The following code makes sure any ccNumbers that have been entered
-          // actually exist
-          PropertyDictionaryHelper propertyHelper = PropertyDictionaryHelper.getInstance(sess);
-          if (propertyHelper.getProperty(PropertyDictionary.BST_LINKAGE_SUPPORTED) != null && propertyHelper.getProperty(PropertyDictionary.BST_LINKAGE_SUPPORTED).equals("Y")) {
-            validateCCNumbers();
-          }
+          // Save billing template
+          BillingTemplate billingTemplate = requestParser.getBillingTemplate();
+          if ( billingTemplate != null ) {
 
-          if (requestParser.isNewRequest()) {
-            Lab l = sess.load(Lab.class, requestParser.getRequest().getIdLab());
-            if (!this.getSecAdvisor().isGroupIAmMemberOrManagerOf(requestParser.getRequest().getIdLab()) && !this.getSecAdvisor().isLabICanSubmitTo(l) && !this.getSecAdvisor().isGroupICollaborateWith(l.getIdLab())) {
-              this.addInvalidField("PermissionLab", "Insufficient permissions to submit the request for this lab.");
+            if (requestParser.isNewRequest()) {
+              billingTemplate.setOrder(requestParser.getRequest());
             }
-          } else {
-            if (!this.getSecAdvisor().canUpdate(requestParser.getRequest())) {
-              this.addInvalidField("PermissionAddRequest", "Insufficient permissions to edit the request.");
-            }
-          }
+            sess.save( billingTemplate );
+            sess.flush();
 
-          // If the default visibility is Institute level, make sure that the institution set for the
-          // Request is an institution the lab is associated with. If not, set the default visibility
-          // to Member level.
-          if (requestParser.isNewRequest()) {
-            boolean foundInstitution = false;
-            if (requestParser.getRequest().getCodeVisibility().equals(Visibility.VISIBLE_TO_INSTITUTION_MEMBERS)) {
-              for (Institution inst : (Set<Institution>) lab.getInstitutions()) {
-                if (requestParser.getRequest().getIdInstitution() != null && requestParser.getRequest().getIdInstitution().equals(inst.getIdInstitution())) {
-                  foundInstitution = true;
-                  break;
-                }
+            // Delete old billing template items if any
+            Set<BillingTemplateItem> oldBtiSet = new TreeSet<BillingTemplateItem>();
+            oldBtiSet.addAll( billingTemplate.getItems() );
+            for (BillingTemplateItem billingTemplateItemToDelete : oldBtiSet) {
+              BillingTemplateItem persistentBTI = sess.load( BillingTemplateItem.class, billingTemplateItemToDelete.getIdBillingTemplateItem() );
+              sess.delete(persistentBTI);
+            }
+            sess.flush();
+            billingTemplate.getItems().clear();
+
+            // Save new billing template items
+            Set<BillingTemplateItem> btiSet = requestParser.getBillingTemplateItems();
+            for (BillingTemplateItem newlyCreatedItem : btiSet) {
+              if ( newlyCreatedItem.isAcceptingBalance() ){
+                requestParser.getRequest().setIdBillingAccount( newlyCreatedItem.getIdBillingAccount() );
               }
-              if (!foundInstitution) {
-                requestParser.getRequest().setCodeVisibility(Visibility.VISIBLE_TO_GROUP_MEMBERS);
-                requestParser.getRequest().setIdInstitution(null);
-              }
+              newlyCreatedItem.setIdBillingTemplate(billingTemplate.getIdBillingTemplate());
+              billingTemplate.getItems().add(newlyCreatedItem);
+              sess.save( newlyCreatedItem );
             }
-          }
-
-          if (this.isValid()) {
-            List labels = sess.createQuery("SELECT label from Label label").list();
-            for (Iterator i = labels.iterator(); i.hasNext();) {
-              Label l = (Label) i.next();
-              labelMap.put(l.getLabel(), l.getIdLabel());
-            }
-
-            // save request
-            originalRequestNumber = saveRequest(sess, requestParser, description);
-            sendNotification(requestParser.getRequest(), sess, requestParser.isNewRequest() ? Notification.NEW_STATE : Notification.EXISTING_STATE, Notification.SOURCE_TYPE_ADMIN, Notification.TYPE_REQUEST);
-            sendNotification(requestParser.getRequest(), sess, requestParser.isNewRequest() ? Notification.NEW_STATE : Notification.EXISTING_STATE, Notification.SOURCE_TYPE_USER, Notification.TYPE_REQUEST);
-
-            // Save billing template
-            BillingTemplate billingTemplate = requestParser.getBillingTemplate();
-            if ( billingTemplate != null ) {
-
-              if (requestParser.isNewRequest()) {
-                billingTemplate.setOrder(requestParser.getRequest());
+            sess.flush();
+            if (!requestParser.isNewRequest() && requestParser.isReassignBillingAccount()) {
+              // Delete existing billing items
+              Set<BillingItem> oldBillingItems = billingTemplate.getBillingItems(sess);
+              for (BillingItem billingItemToDelete : oldBillingItems) {
+                sess.delete(billingItemToDelete);
               }
-              sess.save( billingTemplate );
               sess.flush();
 
-              // Delete old billing template items if any
-              Set<BillingTemplateItem> oldBtiSet = new TreeSet<BillingTemplateItem>();
-              oldBtiSet.addAll( billingTemplate.getItems() );
-              for (BillingTemplateItem billingTemplateItemToDelete : oldBtiSet) {
-                BillingTemplateItem persistentBTI = sess.load( BillingTemplateItem.class, billingTemplateItemToDelete.getIdBillingTemplateItem() );
-                sess.delete(persistentBTI);
-              }
-              sess.flush();
-              billingTemplate.getItems().clear();
-
-              // Save new billing template items
-              Set<BillingTemplateItem> btiSet = requestParser.getBillingTemplateItems();
-              for (BillingTemplateItem newlyCreatedItem : btiSet) {
-                if ( newlyCreatedItem.isAcceptingBalance() ){
-                  requestParser.getRequest().setIdBillingAccount( newlyCreatedItem.getIdBillingAccount() );
-                }
-                newlyCreatedItem.setIdBillingTemplate(billingTemplate.getIdBillingTemplate());
-                billingTemplate.getItems().add(newlyCreatedItem);
-                sess.save( newlyCreatedItem );
-              }
-              sess.flush();
-              if (!requestParser.isNewRequest() && requestParser.isReassignBillingAccount()) {
-                // Delete existing billing items
-                Set<BillingItem> oldBillingItems = billingTemplate.getBillingItems(sess);
-                for (BillingItem billingItemToDelete : oldBillingItems) {
-                  sess.delete(billingItemToDelete);
-                }
-                sess.flush();
-
-                // Save new billing items
-                Set<BillingItem> newBillingItems = billingTemplate.recreateBillingItems(sess);
-                for (BillingItem newlyCreatedBillingItem : newBillingItems) {
-                  sess.save(newlyCreatedBillingItem);
-                }
-                sess.flush();
-              }
-            }
-
-            // Remove files from file system
-            if (filesToRemoveParser != null) {
-              for (Iterator i = filesToRemoveParser.parseFilesToRemove().iterator(); i.hasNext();) {
-                String fileName = (String) i.next();
-                File f = new File(fileName);
-
-                // Remove references of file in TransferLog
-                String queryBuf = "SELECT tl from TransferLog tl where tl.idRequest = " + requestParser.getRequest().getIdRequest() + " AND tl.fileName like '%" + new File(fileName).getName() + "'";
-                List transferLogs = sess.createQuery(queryBuf).list();
-                // Go ahead and delete the transfer log if there is just one row.
-                // If there are multiple transfer log rows for this filename, just
-                // bypass deleting the transfer log since it is not possible
-                // to tell which entry should be deleted.
-                if (transferLogs.size() == 1) {
-                  TransferLog transferLog = (TransferLog) transferLogs.get(0);
-                  sess.delete(transferLog);
-                }
-
-                if (f.isDirectory()) {
-                  deleteDir(f, fileName);
-                }
-
-                if (f.exists()) {
-                  boolean success = f.delete();
-                  if (!success) {
-                    // File was not successfully deleted
-                    throw new Exception("Unable to delete file " + fileName);
-                  }
-                }
-
+              // Save new billing items
+              Set<BillingItem> newBillingItems = billingTemplate.recreateBillingItems(sess);
+              for (BillingItem newlyCreatedBillingItem : newBillingItems) {
+                sess.save(newlyCreatedBillingItem);
               }
               sess.flush();
             }
+          }
 
-            // Figure out which samples will be deleted
-            if (!requestParser.isNewRequest() && !requestParser.isAmendRequest()) {
+          // Remove files from file system
+          if (filesToRemoveParser != null) {
+            for (Iterator i = filesToRemoveParser.parseFilesToRemove().iterator(); i.hasNext();) {
+              String fileName = (String) i.next();
+              File f = new File(fileName);
 
-              for (Iterator i = requestParser.getRequest().getSamples().iterator(); i.hasNext();) {
-                Sample sample = (Sample) i.next();
-                boolean found = false;
-                for (Iterator i1 = requestParser.getSampleIds().iterator(); i1.hasNext();) {
-                  String idSampleString = (String) i1.next();
-                  if (idSampleString != null && !idSampleString.equals("") && !idSampleString.startsWith("Sample")) {
-                    if (Integer.valueOf(idSampleString).equals(sample.getIdSample())) {
-                      found = true;
-                      break;
-                    }
+              // Remove references of file in TransferLog
+              String queryBuf = "SELECT tl from TransferLog tl where tl.idRequest = " + requestParser.getRequest().getIdRequest() + " AND tl.fileName like '%" + new File(fileName).getName() + "'";
+              List transferLogs = sess.createQuery(queryBuf).list();
+              // Go ahead and delete the transfer log if there is just one row.
+              // If there are multiple transfer log rows for this filename, just
+              // bypass deleting the transfer log since it is not possible
+              // to tell which entry should be deleted.
+              if (transferLogs.size() == 1) {
+                TransferLog transferLog = (TransferLog) transferLogs.get(0);
+                sess.delete(transferLog);
+              }
+
+              if (f.isDirectory()) {
+                deleteDir(f, fileName);
+              }
+
+              if (f.exists()) {
+                boolean success = f.delete();
+                if (!success) {
+                  // File was not successfully deleted
+                  throw new Exception("Unable to delete file " + fileName);
+                }
+              }
+
+            }
+            sess.flush();
+          }
+
+          // Figure out which samples will be deleted
+          if (!requestParser.isNewRequest() && !requestParser.isAmendRequest()) {
+
+            for (Iterator i = requestParser.getRequest().getSamples().iterator(); i.hasNext();) {
+              Sample sample = (Sample) i.next();
+              boolean found = false;
+              for (Iterator i1 = requestParser.getSampleIds().iterator(); i1.hasNext();) {
+                String idSampleString = (String) i1.next();
+                if (idSampleString != null && !idSampleString.equals("") && !idSampleString.startsWith("Sample")) {
+                  if (Integer.valueOf(idSampleString).equals(sample.getIdSample())) {
+                    found = true;
+                    break;
                   }
                 }
-                if (!found) {
-                  this.samplesDeleted.add(sample);
-                }
+              }
+              if (!found) {
+                this.samplesDeleted.add(sample);
               }
             }
+          }
 
-            // Save the samples
-            saveSamples(sess);
-            requestParser.getRequest().setSamples(samples);
+          // Save the samples
+          saveSamples(sess);
+          requestParser.getRequest().setSamples(samples);
 
-            // If we are editing a request, figure out which hybs will be deleted
-            if (!requestParser.isNewRequest() && !requestParser.isAmendRequest()) {
+          // If we are editing a request, figure out which hybs will be deleted
+          if (!requestParser.isNewRequest() && !requestParser.isAmendRequest()) {
 
-              for (Iterator i = requestParser.getRequest().getHybridizations().iterator(); i.hasNext();) {
-                Hybridization hyb = (Hybridization) i.next();
-                boolean found = false;
-                for (Iterator i1 = requestParser.getHybInfos().iterator(); i1.hasNext();) {
-                  HybInfo hybInfo = (HybInfo) i1.next();
-                  if (hybInfo.getIdHybridization() != null && !hybInfo.getIdHybridization().equals("") && !hybInfo.getIdHybridization().startsWith("Hyb")) {
-                    if (Integer.valueOf(hybInfo.getIdHybridization()).equals(hyb.getIdHybridization())) {
-                      found = true;
-                      break;
-                    }
+            for (Iterator i = requestParser.getRequest().getHybridizations().iterator(); i.hasNext();) {
+              Hybridization hyb = (Hybridization) i.next();
+              boolean found = false;
+              for (Iterator i1 = requestParser.getHybInfos().iterator(); i1.hasNext();) {
+                HybInfo hybInfo = (HybInfo) i1.next();
+                if (hybInfo.getIdHybridization() != null && !hybInfo.getIdHybridization().equals("") && !hybInfo.getIdHybridization().startsWith("Hyb")) {
+                  if (Integer.valueOf(hybInfo.getIdHybridization()).equals(hyb.getIdHybridization())) {
+                    found = true;
+                    break;
                   }
                 }
-                if (!found) {
-                  this.hybsDeleted.add(hyb);
+              }
+              if (!found) {
+                this.hybsDeleted.add(hyb);
+              }
+            }
+          }
+          // Only admins should be deleting hybs
+          if (this.hybsDeleted.size() > 0) {
+            if (!this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_WRITE_ANY_OBJECT)) {
+              throw new RollBackCommandException("Insufficient permission to delete hybs.");
+            }
+          }
+
+          // Initialize sample channel 1 and 1 map if we are editting a request.
+          // This will allow us to keep track of brand new labeled samples
+          // vs. existing labeled samples when hybs are added to a request.
+          if (!requestParser.isNewRequest() && !requestParser.isAmendRequest()) {
+
+            for (Iterator i = requestParser.getRequest().getHybridizations().iterator(); i.hasNext();) {
+              Hybridization hyb = (Hybridization) i.next();
+              if (hyb.getIdLabeledSampleChannel1() != null) {
+                this.channel1SampleMap.put(hyb.getIdSampleChannel1(), hyb.getIdLabeledSampleChannel1());
+              }
+              if (hyb.getIdLabeledSampleChannel2() != null) {
+                this.channel2SampleMap.put(hyb.getIdSampleChannel2(), hyb.getIdLabeledSampleChannel2());
+              }
+            }
+          }
+
+          // save hybs
+          if (!requestParser.isNewRequest()) {
+            requestParser.getRequest().getHybridizations().size();
+          }
+          if (!requestParser.getHybInfos().isEmpty()) {
+            int hybCount = 1;
+            int newHybCount = 0;
+            for (Iterator i = requestParser.getHybInfos().iterator(); i.hasNext();) {
+              RequestParser.HybInfo hybInfo = (RequestParser.HybInfo) i.next();
+              boolean isNewHyb = requestParser.isNewRequest() || hybInfo.getIdHybridization() == null || hybInfo.getIdHybridization().startsWith("Hyb");
+              if (isNewHyb) {
+                newHybCount++;
+              }
+              saveHyb(hybInfo, sess, hybCount);
+              hybCount++;
+            }
+            if (requestParser.isNewRequest()) {
+              requestParser.getRequest().setHybridizations(hybs);
+            } else if (newHybCount > 0) {
+              requestParser.getRequest().getHybridizations().addAll(hybs);
+
+            }
+          }
+
+          // Create Hyb work items if QC->Microarray request
+          StringBuffer buf = new StringBuffer();
+          if (requestParser.getAmendState().equals(Constants.AMEND_QC_TO_MICROARRAY)) {
+            for (Iterator i = requestParser.getSampleIds().iterator(); i.hasNext();) {
+              String idSampleString = (String) i.next();
+              boolean isNewSample = requestParser.isNewRequest() || idSampleString == null || idSampleString.equals("") || idSampleString.startsWith("Sample");
+              Sample sample = (Sample) requestParser.getSampleMap().get(idSampleString);
+
+              // Create work items for labeling step if experiment modified
+              if (!requestParser.isExternalExperiment() && !isNewSample) {
+                buf = new StringBuffer();
+                buf.append("SELECT  ls ");
+                buf.append(" from LabeledSample ls ");
+                buf.append(" WHERE  ls.idSample =  " + sample.getIdSample());
+
+                List labeledSamples = sess.createQuery(buf.toString()).list();
+                for (Iterator i1 = labeledSamples.iterator(); i1.hasNext();) {
+                  LabeledSample ls = (LabeledSample) i1.next();
+
+                  WorkItem wi = new WorkItem();
+                  wi.setIdRequest(sample.getIdRequest());
+                  wi.setIdCoreFacility(sample.getRequest().getIdCoreFacility());
+                  wi.setCodeStepNext(Step.LABELING_STEP);
+                  wi.setLabeledSample(ls);
+                  wi.setCreateDate(new java.sql.Date(System.currentTimeMillis()));
+
+                  sess.save(wi);
                 }
+
               }
             }
-            // Only admins should be deleting hybs
-            if (this.hybsDeleted.size() > 0) {
-              if (!this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_WRITE_ANY_OBJECT)) {
-                throw new RollBackCommandException("Insufficient permission to delete hybs.");
-              }
-            }
+          }
 
-            // Initialize sample channel 1 and 1 map if we are editting a request.
-            // This will allow us to keep track of brand new labeled samples
-            // vs. existing labeled samples when hybs are added to a request.
-            if (!requestParser.isNewRequest() && !requestParser.isAmendRequest()) {
+          // save sequence lanes
+          RequestCategory requestCategory = dictionaryHelper.getRequestCategoryObject(requestParser.getRequest().getCodeRequestCategory());
+          Map existingLanesSaved = saveSequenceLanes(this.getSecAdvisor(), requestParser, sess, requestCategory, idSampleMap, sequenceLanes, sequenceLanesAdded);
 
-              for (Iterator i = requestParser.getRequest().getHybridizations().iterator(); i.hasNext();) {
-                Hybridization hyb = (Hybridization) i.next();
-                if (hyb.getIdLabeledSampleChannel1() != null) {
-                  this.channel1SampleMap.put(hyb.getIdSampleChannel1(), hyb.getIdLabeledSampleChannel1());
+          // Delete sequence lanes (edit request only)
+          ArrayList samplesNotToDelete = new ArrayList();
+          if (!requestParser.isAmendRequest()) {
+            for (Iterator i = requestParser.getRequest().getSequenceLanes().iterator(); i.hasNext();) {
+              SequenceLane lane = (SequenceLane) i.next();
+              if (!existingLanesSaved.containsKey(lane.getIdSequenceLane())) {
+                boolean canDeleteLane = true;
+
+                if (!this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_WRITE_ANY_OBJECT) && !requestParser.isExternalExperiment()) {
+                  this.addInvalidField("deleteLanePermissionError1", "Insufficient permissions to delete sequence lane\n");
+                  canDeleteLane = false;
                 }
-                if (hyb.getIdLabeledSampleChannel2() != null) {
-                  this.channel2SampleMap.put(hyb.getIdSampleChannel2(), hyb.getIdLabeledSampleChannel2());
-                }
-              }
-            }
 
-            // save hybs
-            if (!requestParser.isNewRequest()) {
-              requestParser.getRequest().getHybridizations().size();
-            }
-            if (!requestParser.getHybInfos().isEmpty()) {
-              int hybCount = 1;
-              int newHybCount = 0;
-              for (Iterator i = requestParser.getHybInfos().iterator(); i.hasNext();) {
-                RequestParser.HybInfo hybInfo = (RequestParser.HybInfo) i.next();
-                boolean isNewHyb = requestParser.isNewRequest() || hybInfo.getIdHybridization() == null || hybInfo.getIdHybridization().startsWith("Hyb");
-                if (isNewHyb) {
-                  newHybCount++;
-                }
-                saveHyb(hybInfo, sess, hybCount);
-                hybCount++;
-              }
-              if (requestParser.isNewRequest()) {
-                requestParser.getRequest().setHybridizations(hybs);
-              } else if (newHybCount > 0) {
-                requestParser.getRequest().getHybridizations().addAll(hybs);
-
-              }
-            }
-
-            // Create Hyb work items if QC->Microarray request
-            StringBuffer buf = new StringBuffer();
-            if (requestParser.getAmendState().equals(Constants.AMEND_QC_TO_MICROARRAY)) {
-              for (Iterator i = requestParser.getSampleIds().iterator(); i.hasNext();) {
-                String idSampleString = (String) i.next();
-                boolean isNewSample = requestParser.isNewRequest() || idSampleString == null || idSampleString.equals("") || idSampleString.startsWith("Sample");
-                Sample sample = (Sample) requestParser.getSampleMap().get(idSampleString);
-
-                // Create work items for labeling step if experiment modified
-                if (!requestParser.isExternalExperiment() && !isNewSample) {
-                  buf = new StringBuffer();
-                  buf.append("SELECT  ls ");
-                  buf.append(" from LabeledSample ls ");
-                  buf.append(" WHERE  ls.idSample =  " + sample.getIdSample());
-
-                  List labeledSamples = sess.createQuery(buf.toString()).list();
-                  for (Iterator i1 = labeledSamples.iterator(); i1.hasNext();) {
-                    LabeledSample ls = (LabeledSample) i1.next();
-
-                    WorkItem wi = new WorkItem();
-                    wi.setIdRequest(sample.getIdRequest());
-                    wi.setIdCoreFacility(sample.getRequest().getIdCoreFacility());
-                    wi.setCodeStepNext(Step.LABELING_STEP);
-                    wi.setLabeledSample(ls);
-                    wi.setCreateDate(new java.sql.Date(System.currentTimeMillis()));
-
-                    sess.save(wi);
-                  }
+                buf = new StringBuffer("SELECT x.idSequenceLane from AnalysisExperimentItem x where x.idSequenceLane = " + lane.getIdSequenceLane());
+                List analysis = sess.createQuery(buf.toString()).list();
+                if (analysis != null && analysis.size() > 0) {
+                  canDeleteLane = false;
+                  this.addInvalidField("deleteLaneError1", "Cannot delete lane " + lane.getNumber() + " because it is associated with existing analysis in GNomEx.  Please sever link before attempting delete\n");
 
                 }
-              }
-            }
-
-            // save sequence lanes
-            RequestCategory requestCategory = dictionaryHelper.getRequestCategoryObject(requestParser.getRequest().getCodeRequestCategory());
-            Map existingLanesSaved = saveSequenceLanes(this.getSecAdvisor(), requestParser, sess, requestCategory, idSampleMap, sequenceLanes, sequenceLanesAdded);
-
-            // Delete sequence lanes (edit request only)
-            ArrayList samplesNotToDelete = new ArrayList();
-            if (!requestParser.isAmendRequest()) {
-              for (Iterator i = requestParser.getRequest().getSequenceLanes().iterator(); i.hasNext();) {
-                SequenceLane lane = (SequenceLane) i.next();
-                if (!existingLanesSaved.containsKey(lane.getIdSequenceLane())) {
-                  boolean canDeleteLane = true;
-
-                  if (!this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_WRITE_ANY_OBJECT) && !requestParser.isExternalExperiment()) {
-                    this.addInvalidField("deleteLanePermissionError1", "Insufficient permissions to delete sequence lane\n");
+                if (lane.getFlowCellChannel() != null) {
+                  canDeleteLane = false;
+                  this.addInvalidField("deleteLaneError2", "Cannot delete lane " + lane.getNumber() + " because it is loaded on a flow cell.  Please delete flow cell channel before attempting delete\n");
+                }
+                if (lane.getFlowCellChannel() != null) {
+                  buf = new StringBuffer("SELECT ch.idFlowCellChannel from WorkItem wi join wi.flowCellChannel ch where ch.idFlowCellChannel = " + lane.getIdFlowCellChannel());
+                  List workItems = sess.createQuery(buf.toString()).list();
+                  if (workItems != null && workItems.size() > 0) {
                     canDeleteLane = false;
+                    this.addInvalidField("deleteLaneError3", "Cannot delete lane " + lane.getNumber() + " because it is loaded on a flow cell that is on the seq run worklist.  Please delete flow cell channel and work item before attempting delete\n");
                   }
 
-                  buf = new StringBuffer("SELECT x.idSequenceLane from AnalysisExperimentItem x where x.idSequenceLane = " + lane.getIdSequenceLane());
-                  List analysis = sess.createQuery(buf.toString()).list();
-                  if (analysis != null && analysis.size() > 0) {
-                    canDeleteLane = false;
-                    this.addInvalidField("deleteLaneError1", "Cannot delete lane " + lane.getNumber() + " because it is associated with existing analysis in GNomEx.  Please sever link before attempting delete\n");
+                }
 
-                  }
-                  if (lane.getFlowCellChannel() != null) {
-                    canDeleteLane = false;
-                    this.addInvalidField("deleteLaneError2", "Cannot delete lane " + lane.getNumber() + " because it is loaded on a flow cell.  Please delete flow cell channel before attempting delete\n");
-                  }
-                  if (lane.getFlowCellChannel() != null) {
-                    buf = new StringBuffer("SELECT ch.idFlowCellChannel from WorkItem wi join wi.flowCellChannel ch where ch.idFlowCellChannel = " + lane.getIdFlowCellChannel());
-                    List workItems = sess.createQuery(buf.toString()).list();
-                    if (workItems != null && workItems.size() > 0) {
-                      canDeleteLane = false;
-                      this.addInvalidField("deleteLaneError3", "Cannot delete lane " + lane.getNumber() + " because it is loaded on a flow cell that is on the seq run worklist.  Please delete flow cell channel and work item before attempting delete\n");
-                    }
-
-                  }
-
-                  if (canDeleteLane) {
-                    sequenceLanesDeleted.add(lane);
-                    sess.delete(lane);
-                  } else {
-                    /*
-                     * If it is a sample we can't delete because of linked data
-                     * we need to add the idSample back to the list of idSamples
-                     * and we need to add the sample to the sample map, this way
-                     * the samples idRequest won't be set to null in the
-                     * following code starting on line 558
-                     */
-                    if (!requestParser.getSampleIds().contains(lane.getIdSample())) {
-                      Sample s = sess.load(Sample.class, lane.getIdSample());
-                      samplesNotToDelete.add(s);
-                      for (Iterator it = samplesDeleted.iterator(); it.hasNext();) {
-                        Sample sd = (Sample) it.next();
-                        if (sd.getIdSample() == s.getIdSample()) {
-                          samplesDeleted.remove(s);
-                          break;
-                        }
+                if (canDeleteLane) {
+                  sequenceLanesDeleted.add(lane);
+                  sess.delete(lane);
+                } else {
+                  /*
+                   * If it is a sample we can't delete because of linked data
+                   * we need to add the idSample back to the list of idSamples
+                   * and we need to add the sample to the sample map, this way
+                   * the samples idRequest won't be set to null in the
+                   * following code starting on line 558
+                   */
+                  if (!requestParser.getSampleIds().contains(lane.getIdSample())) {
+                    Sample s = sess.load(Sample.class, lane.getIdSample());
+                    samplesNotToDelete.add(s);
+                    for (Iterator it = samplesDeleted.iterator(); it.hasNext();) {
+                      Sample sd = (Sample) it.next();
+                      if (sd.getIdSample() == s.getIdSample()) {
+                        samplesDeleted.remove(s);
+                        break;
                       }
                     }
                   }
-
-                }
-              }
-
-            }
-
-            // Add the samples we can't delete back to the sample set on the
-            // request
-            for (Iterator i = samplesNotToDelete.iterator(); i.hasNext();) {
-              Sample s = (Sample) i.next();
-              requestParser.getRequest().getSamples().add(s);
-            }
-
-            // Only admins should be deleting samples unless dna sequencing then
-            // based on status.
-            if (this.samplesDeleted.size() > 0) {
-              if (!this.getSecAdvisor().canDeleteSample(requestParser.getRequest())) {
-                this.addInvalidField("deleteSamplePermission", "Only admins can delete samples from the experiment.  Please contact " + propertyHelper.getProperty(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_BUGS) + ".");
-                throw new RollBackCommandException("Insufficient permission to delete samples.");
-              } else {
-
-                // delete wells for deleted samples
-                deleteWellsForDeletedSamples(sess);
-
-                for (Iterator i = samplesDeleted.iterator(); i.hasNext();) {
-                  Sample s = (Sample) i.next();
-                  sess.delete(s);
                 }
 
               }
             }
-
-            // Set the seq lib treatments
-            Set seqLibTreatments = new TreeSet();
-            for (Iterator i = requestParser.getSeqLibTreatmentMap().keySet().iterator(); i.hasNext();) {
-              String key = (String) i.next();
-              Integer idSeqLibTreatment = Integer.parseInt(key);
-              SeqLibTreatment slt = dictionaryHelper.getSeqLibTreatment(idSeqLibTreatment);
-              seqLibTreatments.add(slt);
-            }
-            this.requestParser.getRequest().setSeqLibTreatments(seqLibTreatments);
-
-            //
-            // Save properties
-            //
-
-            // i need a copy of all of the old values of the property entries before they are changed in the saveRequestProperties call
-            HashMap <Integer, String[]> oldPE = new HashMap<Integer, String[]>();
-            if(requestParser.getRequest().getCodeRequestStatus() != null && !requestParser.getRequest().getCodeRequestStatus().equals("NEW")) {
-              for (Iterator i = requestParser.getRequest().getPropertyEntries().iterator(); i.hasNext(); ) {
-                PropertyEntry pe = (PropertyEntry) i.next();
-                oldPE.put(pe.getIdPropertyEntry(), new String[]{pe.getValue(), String.valueOf(pe.getProperty().getIdPriceCategory())});
-              }
-            }
-
-            Set propertyEntries = this.saveRequestProperties(propertiesXML, sess, requestParser);
-
-            // if it isn't a new request and property entries have been added or removed
-            String requestPropertyBillingMessage = "";
-            if(requestParser.getRequest().getCodeRequestStatus() != null && !requestParser.getRequest().getCodeRequestStatus().equals("NEW")){
-
-                for(Iterator i = propertyEntries.iterator(); i.hasNext();){
-                  PropertyEntry pe = (PropertyEntry) i.next();
-                  String [] oldValue = oldPE.get(pe.getIdPropertyEntry());
-                  // if the old value doesn't match the new value it has changed.  Check if this property is associated with a price
-                  // if it is then warn admin that billing needs to change.  If old value is null then a new property was added
-                  if(oldValue == null || oldValue[0] == null || (oldValue[0] != null && !oldValue[0].equals(pe.getValue()))){
-                    Property p = sess.load(Property.class, pe.getIdProperty());
-                    if(p.getIdPriceCategory() != null && !p.getIdPriceCategory().equals("")){
-                      requestPropertyBillingMessage = "The request properties have been changed you will need to update the billing for this request to reflect these changes.";
-                      break;
-                    }
-                  }
-
-                  oldPE.remove(pe.getIdPropertyEntry());
-
-                }
-
-              // stuff was deleted so check if those deleted had price categories
-              if(requestPropertyBillingMessage.length() == 0 && oldPE.size() > 0){
-                for(Iterator<String[]> i = oldPE.values().iterator(); i.hasNext();){
-                  String [] peValues = i.next();
-                  if(peValues[1] != null && !peValues[1].equals("null") && !peValues[1].equals(""))
-                    requestPropertyBillingMessage = "The request properties have been changed you will need to update the billing for this request to reflect these changes.";
-                    break;
-                }
-              }
-            }
-
-            sess.save(requestParser.getRequest());
-            sess.flush();
-
-            // Delete any collaborators that were removed
-            for (Iterator i1 = requestParser.getRequest().getCollaborators().iterator(); i1.hasNext();) {
-              ExperimentCollaborator ec = (ExperimentCollaborator) i1.next();
-              if (!requestParser.getCollaboratorUploadMap().containsKey(ec.getIdAppUser())) {
-                sess.delete(ec);
-              }
-            }
-
-            // Add/update collaborators
-            for (Iterator i = requestParser.getCollaboratorUpdateMap().keySet().iterator(); i.hasNext();) {
-              String key = (String) i.next();
-              Integer idAppUser = Integer.parseInt(key);
-              String canUploadData = (String) requestParser.getCollaboratorUploadMap().get(key);
-              String canUpdate = (String) requestParser.getCollaboratorUpdateMap().get(key);
-
-              // TODO (performance): Would be better if app user was cached.
-              ExperimentCollaborator collaborator = (ExperimentCollaborator) sess.createQuery("SELECT ec from ExperimentCollaborator ec where idRequest = " + requestParser.getRequest().getIdRequest() + " and idAppUser = " + idAppUser).uniqueResult();
-
-              // If the collaborator doesn't exist, create it.
-              if (collaborator == null) {
-                collaborator = new ExperimentCollaborator();
-                collaborator.setIdAppUser(idAppUser);
-                collaborator.setIdRequest(requestParser.getRequest().getIdRequest());
-                collaborator.setCanUploadData(canUploadData);
-                collaborator.setCanUpdate(canUpdate);
-                sess.save(collaborator);
-              } else {
-                // If the collaborator does exist, just update the upload permission flag.
-                collaborator.setCanUploadData(canUploadData);
-                collaborator.setCanUpdate(canUpdate);
-              }
-            }
-            sess.flush();
-
-            // Bump up the revision number on the request if services have been added
-            // or services have been removed
-            if (!requestParser.isNewRequest() && (requestParser.isAmendRequest() || !samplesAdded.isEmpty() || !labeledSamplesAdded.isEmpty() || !hybsAdded.isEmpty() || !sequenceLanesAdded.isEmpty() || !sequenceLanesDeleted.isEmpty())) {
-              originalRequestNumber = requestParser.getRequest().getNumber();
-              int revNumber = 1;
-              // If services are being added to the request,
-              // add a revision number to the end of the request
-              String[] tokens = requestParser.getRequest().getNumber().split("R");
-              if (tokens.length > 1) {
-                if (tokens[1] != null && !tokens[1].equals("")) {
-                  Integer oldRevNumber = Integer.valueOf(tokens[1]);
-                  revNumber = oldRevNumber.intValue() + 1;
-                }
-                originalRequestNumber = tokens[0] + "R";
-              }
-              requestParser.getRequest().setNumber(originalRequestNumber + revNumber);
-              sess.flush();
-            }
-
-            billingAccountMessage = "";
-
-            // We will create billing items if this is not an external experiment.
-            // For new experiments, don't create billing items for DNA Seq Core experiments as these get
-            // created when the status is changed to submitted.
-            // For existing experiments, create billing items (for new charges) for all experiment
-            // types except fragment analysis and mit seq as these are plate based and should not be altered.
-            boolean createBillingItems = false;
-            if (!requestParser.isExternalExperiment()) {
-              if (requestParser.isNewRequest() && !pdh.getCoreFacilityRequestCategoryProperty(requestParser.getRequest().getIdCoreFacility(), requestParser.getRequest().getCodeRequestCategory(), PropertyDictionary.NEW_REQUEST_SAVE_BEFORE_SUBMIT).equals("Y")) {
-                // if we are to create billing items during workflow we don't want to create them here...
-                String prop = propertyHelper.getCoreFacilityRequestCategoryProperty(requestCategory.getIdCoreFacility(), requestCategory.getCodeRequestCategory(), PropertyDictionary.BILLING_DURING_WORKFLOW);
-                if (prop == null || !prop.equals("Y")) {
-                  createBillingItems = true;
-                }
-              } else if (!requestParser.isNewRequest() && !requestParser.getRequest().getCodeRequestCategory().equals(RequestCategory.FRAGMENT_ANALYSIS_REQUEST_CATEGORY) && !requestParser.getRequest().getCodeRequestCategory().equals(RequestCategory.MITOCHONDRIAL_DLOOP_SEQ_REQUEST_CATEGORY)) {
-
-                // For dna seq facility orders, warn the admin to adjust billing if samples have been added.
-                // (We don't automatically adjust billing items because of tiered pricing issues.)
-                if (RequestCategory.isDNASeqCoreRequestCategory(requestParser.getRequest().getCodeRequestCategory())) {
-                  if (requestParser.getRequest().getBillingItemList(sess) != null && !requestParser.getRequest().getBillingItemList(sess).isEmpty()) {
-                    if (hasNewSample) {
-                      billingAccountMessage = "Request " + requestParser.getRequest().getNumber() + " has been saved.\n\nSamples have been added, please adjust billing accordingly.";
-                    }
-                  }
-                }
-              }
-            }
-            billing_items_if: if (createBillingItems || requestParser.isReassignBillingAccount()) {
-              sess.refresh(requestParser.getRequest());
-
-              if (!requestParser.getRequest().getBillingItemList(sess).isEmpty()) {
-                Iterator ibill = requestParser.getRequest().getBillingItemList(sess).iterator();
-                BillingItem bill = (BillingItem) ibill.next();
-                hci.gnomex.model.BillingAccount firstBillingAccount = bill.getBillingAccount();
-                while (ibill.hasNext()) {
-                  bill = (BillingItem) ibill.next();
-                  if (firstBillingAccount != bill.getBillingAccount()) {
-                    billingAccountMessage = "There are multiple billing accounts associated with this request. The accounts have not been changed. Please use the Admininstrator Billing Screen to assign new accounts.";
-                    break billing_items_if;
-                  }
-                }
-              }
-
-              // Create the billing items
-              // We need to include the samples even though they were not added
-              // b/c we need to perform lib prep on them.
-              if (requestParser.getAmendState().equals(Constants.AMEND_QC_TO_SEQ)) {
-                samplesAdded.addAll(requestParser.getRequest().getSamples());
-              }
-
-              createBillingItems(sess, requestParser.getRequest(), requestParser.getAmendState(), billingPeriod, dictionaryHelper, samplesAdded, labeledSamplesAdded, hybsAdded, sequenceLanesAdded, requestParser.getSampleAssays(), null, BillingStatus.PENDING, propertyEntries, billingTemplate, false, false);
-
-              sess.flush();
-            } else if(!pdh.getCoreFacilityRequestCategoryProperty(requestParser.getRequest().getIdCoreFacility(), requestParser.getRequest().getCodeRequestCategory(), PropertyDictionary.NEW_REQUEST_SAVE_BEFORE_SUBMIT).equals("Y")){
-              // if not save then submit but bill during workflow, then create the request properties
-              createBillingItems(sess, requestParser.getRequest(), requestParser.getAmendState(), billingPeriod, dictionaryHelper, samplesAdded, labeledSamplesAdded, hybsAdded, sequenceLanesAdded, requestParser.getSampleAssays(), null, BillingStatus.PENDING, propertyEntries, billingTemplate, true, false);
-            }
-
-            // If the lab on the request was changed, reassign the lab on the
-            // transfer logs for this request
-            reassignLabForTransferLog(sess);
-            sess.flush();
-
-            // Create file server data directories for request based off of code request category
-            if (!requestParser.isExternalExperiment() && RequestCategory.isIlluminaRequestCategory(requestParser.getRequest().getCodeRequestCategory())) {
-              this.createResultDirectories(requestParser.getRequest(), "Sample QC", PropertyDictionaryHelper.getInstance(sess).getExperimentDirectory(serverName, requestParser.getRequest().getIdCoreFacility()));
-              this.createResultDirectories(requestParser.getRequest(), "Library QC", PropertyDictionaryHelper.getInstance(sess).getExperimentDirectory(serverName, requestParser.getRequest().getIdCoreFacility()));
-            } else if (!requestParser.isExternalExperiment() && (RequestCategory.isMicroarrayRequestCategory(requestParser.getRequest().getCodeRequestCategory()) || requestParser.getRequest().getCodeRequestCategory().equals(RequestCategoryType.TYPE_QC))) {
-              this.createResultDirectories(requestParser.getRequest(), "Sample QC", PropertyDictionaryHelper.getInstance(sess).getExperimentDirectory(serverName, requestParser.getRequest().getIdCoreFacility()));
-            }
-
-            String emailErrorMessage = sendEmails(sess);
-
-            this.xmlResult = "<SUCCESS idRequest=\"" + requestParser.getRequest().getIdRequest() + "\" requestNumber=\"" + requestParser.getRequest().getNumber() + "\" deleteSampleCount=\"" + this.samplesDeleted.size() + "\" deleteHybCount=\"" + this.hybsDeleted.size() + "\" deleteLaneCount=\"" + this.sequenceLanesDeleted.size() + "\" billingAccountMessage = \"" + billingAccountMessage + "\" emailErrorMessage = \"" + emailErrorMessage + "\" requestPropertyBillingMessage = \"" + requestPropertyBillingMessage + "\"/>";
 
           }
 
-        } else {
-          this.xmlResult = "<FAILURE message=\"PRODUCT ERROR: " + productErrorMessage + "\"/>";
+          // Add the samples we can't delete back to the sample set on the
+          // request
+          for (Iterator i = samplesNotToDelete.iterator(); i.hasNext();) {
+            Sample s = (Sample) i.next();
+            requestParser.getRequest().getSamples().add(s);
+          }
+
+          // Only admins should be deleting samples unless dna sequencing then
+          // based on status.
+          if (this.samplesDeleted.size() > 0) {
+            if (!this.getSecAdvisor().canDeleteSample(requestParser.getRequest())) {
+              this.addInvalidField("deleteSamplePermission", "Only admins can delete samples from the experiment.  Please contact " + propertyHelper.getProperty(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_BUGS) + ".");
+              throw new RollBackCommandException("Insufficient permission to delete samples.");
+            } else {
+
+              // delete wells for deleted samples
+              deleteWellsForDeletedSamples(sess);
+
+              for (Iterator i = samplesDeleted.iterator(); i.hasNext();) {
+                Sample s = (Sample) i.next();
+                sess.delete(s);
+              }
+
+            }
+          }
+
+          // Set the seq lib treatments
+          Set seqLibTreatments = new TreeSet();
+          for (Iterator i = requestParser.getSeqLibTreatmentMap().keySet().iterator(); i.hasNext();) {
+            String key = (String) i.next();
+            Integer idSeqLibTreatment = Integer.parseInt(key);
+            SeqLibTreatment slt = dictionaryHelper.getSeqLibTreatment(idSeqLibTreatment);
+            seqLibTreatments.add(slt);
+          }
+          this.requestParser.getRequest().setSeqLibTreatments(seqLibTreatments);
+
+          //
+          // Save properties
+          //
+
+          // i need a copy of all of the old values of the property entries before they are changed in the saveRequestProperties call
+          HashMap <Integer, String[]> oldPE = new HashMap<Integer, String[]>();
+          if(requestParser.getRequest().getCodeRequestStatus() != null && !requestParser.getRequest().getCodeRequestStatus().equals("NEW")) {
+            for (Iterator i = requestParser.getRequest().getPropertyEntries().iterator(); i.hasNext(); ) {
+              PropertyEntry pe = (PropertyEntry) i.next();
+              oldPE.put(pe.getIdPropertyEntry(), new String[]{pe.getValue(), String.valueOf(pe.getProperty().getIdPriceCategory())});
+            }
+          }
+
+          Set propertyEntries = this.saveRequestProperties(propertiesXML, sess, requestParser);
+
+          // if it isn't a new request and property entries have been added or removed
+          String requestPropertyBillingMessage = "";
+          if(requestParser.getRequest().getCodeRequestStatus() != null && !requestParser.getRequest().getCodeRequestStatus().equals("NEW")){
+
+              for(Iterator i = propertyEntries.iterator(); i.hasNext();){
+                PropertyEntry pe = (PropertyEntry) i.next();
+                String [] oldValue = oldPE.get(pe.getIdPropertyEntry());
+                // if the old value doesn't match the new value it has changed.  Check if this property is associated with a price
+                // if it is then warn admin that billing needs to change.  If old value is null then a new property was added
+                if(oldValue == null || oldValue[0] == null || (oldValue[0] != null && !oldValue[0].equals(pe.getValue()))){
+                  Property p = sess.load(Property.class, pe.getIdProperty());
+                  if(p.getIdPriceCategory() != null && !p.getIdPriceCategory().equals("")){
+                    requestPropertyBillingMessage = "The request properties have been changed you will need to update the billing for this request to reflect these changes.";
+                    break;
+                  }
+                }
+
+                oldPE.remove(pe.getIdPropertyEntry());
+
+              }
+
+            // stuff was deleted so check if those deleted had price categories
+            if(requestPropertyBillingMessage.length() == 0 && oldPE.size() > 0){
+              for(Iterator<String[]> i = oldPE.values().iterator(); i.hasNext();){
+                String [] peValues = i.next();
+                if(peValues[1] != null && !peValues[1].equals("null") && !peValues[1].equals(""))
+                  requestPropertyBillingMessage = "The request properties have been changed you will need to update the billing for this request to reflect these changes.";
+                  break;
+              }
+            }
+          }
+
+          sess.save(requestParser.getRequest());
+          sess.flush();
+
+          // Delete any collaborators that were removed
+          for (Iterator i1 = requestParser.getRequest().getCollaborators().iterator(); i1.hasNext();) {
+            ExperimentCollaborator ec = (ExperimentCollaborator) i1.next();
+            if (!requestParser.getCollaboratorUploadMap().containsKey(ec.getIdAppUser())) {
+              sess.delete(ec);
+            }
+          }
+
+          // Add/update collaborators
+          for (Iterator i = requestParser.getCollaboratorUpdateMap().keySet().iterator(); i.hasNext();) {
+            String key = (String) i.next();
+            Integer idAppUser = Integer.parseInt(key);
+            String canUploadData = (String) requestParser.getCollaboratorUploadMap().get(key);
+            String canUpdate = (String) requestParser.getCollaboratorUpdateMap().get(key);
+
+            // TODO (performance): Would be better if app user was cached.
+            ExperimentCollaborator collaborator = (ExperimentCollaborator) sess.createQuery("SELECT ec from ExperimentCollaborator ec where idRequest = " + requestParser.getRequest().getIdRequest() + " and idAppUser = " + idAppUser).uniqueResult();
+
+            // If the collaborator doesn't exist, create it.
+            if (collaborator == null) {
+              collaborator = new ExperimentCollaborator();
+              collaborator.setIdAppUser(idAppUser);
+              collaborator.setIdRequest(requestParser.getRequest().getIdRequest());
+              collaborator.setCanUploadData(canUploadData);
+              collaborator.setCanUpdate(canUpdate);
+              sess.save(collaborator);
+            } else {
+              // If the collaborator does exist, just update the upload permission flag.
+              collaborator.setCanUploadData(canUploadData);
+              collaborator.setCanUpdate(canUpdate);
+            }
+          }
+          sess.flush();
+
+          // Bump up the revision number on the request if services have been added
+          // or services have been removed
+          if (!requestParser.isNewRequest() && (requestParser.isAmendRequest() || !samplesAdded.isEmpty() || !labeledSamplesAdded.isEmpty() || !hybsAdded.isEmpty() || !sequenceLanesAdded.isEmpty() || !sequenceLanesDeleted.isEmpty())) {
+            originalRequestNumber = requestParser.getRequest().getNumber();
+            int revNumber = 1;
+            // If services are being added to the request,
+            // add a revision number to the end of the request
+            String[] tokens = requestParser.getRequest().getNumber().split("R");
+            if (tokens.length > 1) {
+              if (tokens[1] != null && !tokens[1].equals("")) {
+                Integer oldRevNumber = Integer.valueOf(tokens[1]);
+                revNumber = oldRevNumber.intValue() + 1;
+              }
+              originalRequestNumber = tokens[0] + "R";
+            }
+            requestParser.getRequest().setNumber(originalRequestNumber + revNumber);
+            sess.flush();
+          }
+
+          billingAccountMessage = "";
+
+          // We will create billing items if this is not an external experiment.
+          // For new experiments, don't create billing items for DNA Seq Core experiments as these get
+          // created when the status is changed to submitted.
+          // For existing experiments, create billing items (for new charges) for all experiment
+          // types except fragment analysis and mit seq as these are plate based and should not be altered.
+          boolean createBillingItems = false;
+          if (!requestParser.isExternalExperiment()) {
+            if (requestParser.isNewRequest() && !pdh.getCoreFacilityRequestCategoryProperty(requestParser.getRequest().getIdCoreFacility(), requestParser.getRequest().getCodeRequestCategory(), PropertyDictionary.NEW_REQUEST_SAVE_BEFORE_SUBMIT).equals("Y")) {
+              // if we are to create billing items during workflow we don't want to create them here...
+              String prop = propertyHelper.getCoreFacilityRequestCategoryProperty(requestCategory.getIdCoreFacility(), requestCategory.getCodeRequestCategory(), PropertyDictionary.BILLING_DURING_WORKFLOW);
+              if (prop == null || !prop.equals("Y")) {
+                createBillingItems = true;
+              }
+            } else if (!requestParser.isNewRequest() && !requestParser.getRequest().getCodeRequestCategory().equals(RequestCategory.FRAGMENT_ANALYSIS_REQUEST_CATEGORY) && !requestParser.getRequest().getCodeRequestCategory().equals(RequestCategory.MITOCHONDRIAL_DLOOP_SEQ_REQUEST_CATEGORY)) {
+
+              // For dna seq facility orders, warn the admin to adjust billing if samples have been added.
+              // (We don't automatically adjust billing items because of tiered pricing issues.)
+              if (RequestCategory.isDNASeqCoreRequestCategory(requestParser.getRequest().getCodeRequestCategory())) {
+                if (requestParser.getRequest().getBillingItemList(sess) != null && !requestParser.getRequest().getBillingItemList(sess).isEmpty()) {
+                  if (hasNewSample) {
+                    billingAccountMessage = "Request " + requestParser.getRequest().getNumber() + " has been saved.\n\nSamples have been added, please adjust billing accordingly.";
+                  }
+                }
+              }
+            }
+          }
+          billing_items_if: if (createBillingItems || requestParser.isReassignBillingAccount()) {
+            sess.refresh(requestParser.getRequest());
+
+            if (!requestParser.getRequest().getBillingItemList(sess).isEmpty()) {
+              Iterator ibill = requestParser.getRequest().getBillingItemList(sess).iterator();
+              BillingItem bill = (BillingItem) ibill.next();
+              hci.gnomex.model.BillingAccount firstBillingAccount = bill.getBillingAccount();
+              while (ibill.hasNext()) {
+                bill = (BillingItem) ibill.next();
+                if (firstBillingAccount != bill.getBillingAccount()) {
+                  billingAccountMessage = "There are multiple billing accounts associated with this request. The accounts have not been changed. Please use the Admininstrator Billing Screen to assign new accounts.";
+                  break billing_items_if;
+                }
+              }
+            }
+
+            // Create the billing items
+            // We need to include the samples even though they were not added
+            // b/c we need to perform lib prep on them.
+            if (requestParser.getAmendState().equals(Constants.AMEND_QC_TO_SEQ)) {
+              samplesAdded.addAll(requestParser.getRequest().getSamples());
+            }
+
+            createBillingItems(sess, requestParser.getRequest(), requestParser.getAmendState(), billingPeriod, dictionaryHelper, samplesAdded, labeledSamplesAdded, hybsAdded, sequenceLanesAdded, requestParser.getSampleAssays(), null, BillingStatus.PENDING, propertyEntries, billingTemplate, false, false);
+
+            sess.flush();
+          } else if(!pdh.getCoreFacilityRequestCategoryProperty(requestParser.getRequest().getIdCoreFacility(), requestParser.getRequest().getCodeRequestCategory(), PropertyDictionary.NEW_REQUEST_SAVE_BEFORE_SUBMIT).equals("Y")){
+            // if not save then submit but bill during workflow, then create the request properties
+            createBillingItems(sess, requestParser.getRequest(), requestParser.getAmendState(), billingPeriod, dictionaryHelper, samplesAdded, labeledSamplesAdded, hybsAdded, sequenceLanesAdded, requestParser.getSampleAssays(), null, BillingStatus.PENDING, propertyEntries, billingTemplate, true, false);
+          }
+
+          // If the lab on the request was changed, reassign the lab on the
+          // transfer logs for this request
+          reassignLabForTransferLog(sess);
+          sess.flush();
+
+          // Create file server data directories for request based off of code request category
+          if (!requestParser.isExternalExperiment() && RequestCategory.isIlluminaRequestCategory(requestParser.getRequest().getCodeRequestCategory())) {
+            this.createResultDirectories(requestParser.getRequest(), "Sample QC", PropertyDictionaryHelper.getInstance(sess).getExperimentDirectory(serverName, requestParser.getRequest().getIdCoreFacility()));
+            this.createResultDirectories(requestParser.getRequest(), "Library QC", PropertyDictionaryHelper.getInstance(sess).getExperimentDirectory(serverName, requestParser.getRequest().getIdCoreFacility()));
+          } else if (!requestParser.isExternalExperiment() && (RequestCategory.isMicroarrayRequestCategory(requestParser.getRequest().getCodeRequestCategory()) || requestParser.getRequest().getCodeRequestCategory().equals(RequestCategoryType.TYPE_QC))) {
+            this.createResultDirectories(requestParser.getRequest(), "Sample QC", PropertyDictionaryHelper.getInstance(sess).getExperimentDirectory(serverName, requestParser.getRequest().getIdCoreFacility()));
+          }
+
+          String emailErrorMessage = sendEmails(sess);
+
+          this.xmlResult = "<SUCCESS idRequest=\"" + requestParser.getRequest().getIdRequest() + "\" requestNumber=\"" + requestParser.getRequest().getNumber() + "\" deleteSampleCount=\"" + this.samplesDeleted.size() + "\" deleteHybCount=\"" + this.hybsDeleted.size() + "\" deleteLaneCount=\"" + this.sequenceLanesDeleted.size() + "\" billingAccountMessage = \"" + billingAccountMessage + "\" emailErrorMessage = \"" + emailErrorMessage + "\" requestPropertyBillingMessage = \"" + requestPropertyBillingMessage + "\"/>";
+
         }
+
       }
 
       if (isValid()) {
@@ -863,10 +846,15 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         setResponsePage(this.ERROR_JSP);
       }
 
+    } catch (ProductException e) {
+      log.error("An exception has occurred in SaveRequest ", e);
+      log.error("Unable to create ProductLedger for request. " + e.getMessage());
+      e.printStackTrace();
+      throw new GNomExRollbackException(e.getMessage(), true, e.getMessage());
     } catch (Exception e) {
       log.error("An exception has occurred in SaveRequest ", e);
       e.printStackTrace();
-      throw new RollBackCommandException(e.toString());
+      throw new GNomExRollbackException(e.getMessage(), true, "An error occurred saving the request.");
     } finally {
       try {
 
