@@ -230,8 +230,8 @@ public class GetAuthorizedBillingAccounts extends GNomExCommand implements Seria
 		// Body
 		queryBuff.append(" FROM BillingAccount AS ba ");
 		queryBuff.append(" JOIN ba.lab AS l ");
-		queryBuff.append(" JOIN l.members AS m ");
-		queryBuff.append(" JOIN l.managers AS man ");
+		queryBuff.append(" LEFT OUTER JOIN l.members AS m ");
+		queryBuff.append(" LEFT OUTER JOIN l.managers AS man ");
 		
 		// Criteria
 		queryBuff.append(" WHERE (m.idAppUser = " + idAppUser.toString() + " OR man.idAppUser = " + idAppUser.toString() + ") ");
