@@ -132,7 +132,7 @@
 					if (savingNewTemplateMode) {
 						saveImpl();
 					} else {
-						Alert.show( "This will recreate all billing items for " + order.@display + ". The new billing items will be 'Pending' and any notes on existing billing items will be lost.  Would you still like to proceed?" ,
+						Alert.show( "This will recreate all billing items for " + order.@label + ". The new billing items will be 'Pending' and any notes on existing billing items will be lost.  Would you still like to proceed?" ,
 							"",
 							(Alert.YES | Alert.NO), this, 
 							onPromptToRefresh,						
