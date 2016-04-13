@@ -430,7 +430,7 @@ public class SaveProductOrder extends GNomExCommand implements Serializable {
 				}
 			}
 		}
-		if (poNumber.length() == 0) {
+		if (poNumber==null || poNumber.length() == 0) {
 			poNumber = po.getIdProductOrder().toString();
 		}
 
