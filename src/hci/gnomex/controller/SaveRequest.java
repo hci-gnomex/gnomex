@@ -662,8 +662,9 @@ public class SaveRequest extends GNomExCommand implements Serializable {
           //
 
           // i need a copy of all of the old values of the property entries before they are changed in the saveRequestProperties call
+          // this will be null on saving a new request
           HashMap <Integer, String[]> oldPE = new HashMap<Integer, String[]>();
-          if(requestParser.getRequest().getCodeRequestStatus() != null && !requestParser.getRequest().getCodeRequestStatus().equals("NEW")) {
+          if(requestParser.getRequest().getCodeRequestStatus() != null && !requestParser.getRequest().getCodeRequestStatus().equals("NEW") && requestParser.getRequest().getPropertyEntries() != null) {
             for (Iterator i = requestParser.getRequest().getPropertyEntries().iterator(); i.hasNext(); ) {
               PropertyEntry pe = (PropertyEntry) i.next();
               oldPE.put(pe.getIdPropertyEntry(), new String[]{pe.getValue(), String.valueOf(pe.getProperty().getIdPriceCategory())});
