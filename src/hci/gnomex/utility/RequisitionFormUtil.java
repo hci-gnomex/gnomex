@@ -167,7 +167,8 @@ public class RequisitionFormUtil {
     setField(form, "Vendor Name and Address", "Illumina");
     setField(form, "Vendor Name and Address 2", "5200 Illumina Way");
     setField(form, "Vendor Name and Address 3", "San Diego, CA 92122 USA");
-    // Chip information
+
+    // Product line item information
     Integer totalQuantity = 0;
     BigDecimal grandTotal = new BigDecimal(BigInteger.ZERO, 2);
     Integer count = 0;
@@ -182,7 +183,7 @@ public class RequisitionFormUtil {
         BigDecimal estimatedCost = new BigDecimal( BigInteger.ZERO, 2 ) ;
         estimatedCost = lineItem.getUnitPrice().multiply(new BigDecimal(lineItem.getQty()));
         setField(form, "Estimated Unit Price["+count+"]", lineItem.getUnitPrice().toString());
-        grandTotal.add(estimatedCost);
+        grandTotal = grandTotal.add(estimatedCost);
       }
       count++;
     }

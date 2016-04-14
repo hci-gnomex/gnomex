@@ -34,6 +34,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.io.StringReader;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.SQLException;
@@ -346,13 +347,6 @@ public class SaveProductOrder extends GNomExCommand implements Serializable {
 		PropertyDictionaryHelper pdh = PropertyDictionaryHelper.getInstance(sess);
 		CoreFacility cf = sess.load(CoreFacility.class, po.getIdCoreFacility());
 
-		// we have to load these from the id's b/c the po is currently loaded in this session and
-		// therefore a sess.get() or sess.load() won't return a new po with these fields initialized,
-		// it will just return the current po object that is recorded in this session which is just a bare bones version
-		// since we haven't gone back to the DB yet.
-		// AppUser au = sess.load(AppUser.class, po.getIdAppUser());
-		// Lab l = sess.load(Lab.class, po.getIdLab());
-
 		String subject = "";
 		if (orderStatus.equals(ProductOrderStatus.NEW)) {
 			subject = "Product Order " + po.getProductOrderNumber() + " has been submitted.";
@@ -369,14 +363,6 @@ public class SaveProductOrder extends GNomExCommand implements Serializable {
 		BillingAccount ba = sess.load(BillingAccount.class, po.getAcceptingBalanceAccountId(sess));
 		ProductType pt = sess.load(ProductType.class, po.getIdProductType());
 
-		StringBuffer products = new StringBuffer();
-		for (Iterator i = po.getProductLineItems().iterator(); i.hasNext();) {
-			ProductLineItem pli = (ProductLineItem) i.next();
-			Product p = sess.load(Product.class, pli.getIdProduct());
-			products.append(p.getDisplay() + "(Qty: " + pli.getQty() + "), ");
-		}
-		products.replace(products.lastIndexOf(","), products.lastIndexOf(",") + 1, "");
-
 		if (!MailUtil.isValidEmail(contactEmailAppUser)) {
 			noAppUserEmailMsg = "The user who submitted this product order did not receive a copy of this confirmation because they do not have a valid email on file.\n";
 		}
@@ -387,25 +373,55 @@ public class SaveProductOrder extends GNomExCommand implements Serializable {
 		}
 
 		StringBuffer body = new StringBuffer();
+        body.append("  <STYLE TYPE=\"text/css\">" +
+                "TD{font-family: Arial; font-size: 9pt;}" +
+                "</STYLE><FONT face=\"arial\" size=\"9pt\">");
 		if (orderStatus.equals(ProductOrderStatus.NEW)) {
-			body.append("Product Order " + po.getProductOrderNumber() + " has been submitted to the " + cf.getFacilityName() + ".\n\n");
+			body.append("Product Order " + po.getProductOrderNumber() + " has been submitted to the " + cf.getFacilityName() + ".<br>");
 		} else if (orderStatus.equals(ProductOrderStatus.COMPLETED)) {
-			body.append("Product Order " + po.getProductOrderNumber() + " has been completed and the products are ready for your use.\n\n");
+			body.append("Product Order " + po.getProductOrderNumber() + " has been completed and the products are ready for your use.<br>");
 		}
-		body.append("Product Order #: \t\t" + po.getProductOrderNumber() + "\n");
-		body.append("Products Ordered: \t\t" + products.toString() + "\n");
-		body.append("Product Type: \t\t\t" + pt.getDisplay() + "\n");
-		body.append("Submit Date: \t\t\t" + po.getSubmitDate() + "\n");
-		body.append("Submitted By: \t\t\t" + po.getSubmitter().getDisplayName() + "\n");
-		body.append("Lab: \t\t\t\t" + po.getLab().getName(false, true) + "\n");
-		body.append("Billing Acct: \t\t\t" + ba.getAccountNameAndNumber() + "\n");
-		body.append(noAppUserEmailMsg);
 
-		MailUtilHelper mailHelper = new MailUtilHelper(toAddress, fromAddress, subject, body.toString(), null, false, dictionaryHelper, serverName);
+        body.append("<br><table border='0' width='400'>");
+		body.append("<tr><td>Submit Date:</td><td>" + po.getSubmitDate() + "</td></tr>");
+		body.append("<tr><td>Submitted By:</td><td>" + po.getSubmitter().getDisplayName() + "</td></tr>");
+		body.append("<tr><td>Lab:</td><td>" + po.getLab().getName(false, true) + "</td></tr>");
+		body.append("<tr><td>Billing Acct:</td><td>" + ba.getAccountNameAndNumber() + "</td></tr>");
+		body.append("<tr><td>Product Type:</td><td>" + pt.getDisplay() + "</td></tr>");
+		body.append("</table><br>Products Ordered:<br>");
+
+        body.append(getProductLineItemTable(po, sess));
+
+		body.append("<br><br><FONT COLOR=\"#ff0000\">" + noAppUserEmailMsg + "</FONT></FONT>");
+
+		MailUtilHelper mailHelper = new MailUtilHelper(toAddress, fromAddress, subject, body.toString(), null, true, dictionaryHelper, serverName);
 
 		MailUtil.validateAndSendEmail(mailHelper);
 
 	}
+
+    private static StringBuffer getProductLineItemTable(ProductOrder po, Session sess) {
+        StringBuffer productTableString = new StringBuffer();
+        productTableString.append("<table border='0' width = '300'>");
+        productTableString.append("<tr><th>Name</th><th>Qty</th><th>Cost</th></tr>");
+
+        BigDecimal grandTotal = new BigDecimal(BigInteger.ZERO, 2);
+        for (Iterator i = po.getProductLineItems().iterator(); i.hasNext();) {
+            ProductLineItem pli = (ProductLineItem) i.next();
+            Product p = sess.load(Product.class, pli.getIdProduct());
+            BigDecimal estimatedCost = new BigDecimal( BigInteger.ZERO, 2 ) ;
+            estimatedCost = pli.getUnitPrice().multiply(new BigDecimal(pli.getQty()));
+            grandTotal = grandTotal.add(estimatedCost);
+
+            productTableString.append("<tr><td>" + p.getDisplay() + "</td><td align=\"center\">" + pli.getQty() + "</td><td align=\"right\">$" + estimatedCost + "</td></tr>");
+        }
+
+
+        productTableString.append("</table>");
+        productTableString.append("<br>Grand Total:  $" + grandTotal);
+
+        return productTableString;
+    }
 
 	public static String getNextPONumber(ProductOrder po, Session sess) throws SQLException {
 		String poNumber = "";
