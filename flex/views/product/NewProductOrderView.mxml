@@ -172,11 +172,6 @@
 				if (item.@isApproved == 'N') {
 					return false;
 				}
-				//				
-				//				var cat:Object = null;
-				//				if (cat == null || cat.@idCoreFacility.toString() == '') {
-				//					return false;
-				//				}
 				if (idAppUser == null || idAppUser.toString() == '') {
 					return false;
 				}
@@ -197,6 +192,21 @@
 						}
 					}
 					if (!found) {
+						return false;
+					}
+				}
+
+				/*Check if collaborator can submit to billing account*/
+				if(getAuthorizedBillingAccounts.lastResult != null){
+					var isAuthorized:Boolean = false;
+
+					for each(var ba:XML in getAuthorizedBillingAccounts.lastResult..BillingAccount){
+						if(item.@idBillingAccount == ba.@idBillingAccount){
+							isAuthorized = true;
+						}
+					}
+
+					if(!isAuthorized){
 						return false;
 					}
 				}
@@ -274,6 +284,7 @@
 			}
 			
 			private function checkSetupCompleteness():void{
+
 				var isComplete:Boolean = true;
 				var atLeastOneProductOrder:Boolean = false;
 				
@@ -349,24 +360,24 @@
 				productRepeater.dataProvider = productList;
 				
 			}
-			
+
 			private function updateQuantity(event:Event):void{
 				var quantity:TextInput = TextInput(event.currentTarget);
 				var data:Object = event.currentTarget.getRepeaterItem();
-				
+
 				data.@quantity = quantity.text != '' ? ( isNaN(Number( quantity.text )) ? '0' : quantity.text) : '0';
-				
-				if (data.@quantity == '0' ) {
+
+				if (quantity.text == ''|| quantity.text == '0'  || isNaN(Number( quantity.text )) ) {
 					data.@isSelected = 'N';
 				} else {
 					data.@isSelected = 'Y';
 				}
+
 				productRepeater.dataProvider = productList;
-				
+
 				updateGrandTotal();
-				
 			}
-			
+
 			private function updateGrandTotal():void{
 				var grandTotalValue:int = 0;
 				for each(var product:XML in productList){
@@ -497,12 +508,12 @@
 			<mx:Spacer height="5%" />
 			
 			<mx:HBox width="100%" visible="{billingAccountCombo.selectedIndex > -1 || this.selectedBillingTemplate != null}" id="headerBox" horizontalGap="0">
-				<mx:Label text="Product" textDecoration="underline" width="195"/>
+				<mx:Label text="Product" textDecoration="underline" width="215"/>
 				<mx:Label text="Quantity" textDecoration="underline" width="125"/>
 				<mx:Label text="Price" textDecoration="underline" width="80" textAlign="right"/>
 				<mx:Spacer width="80" />
 				<mx:Label text="Total" textDecoration="underline"  width="100" textAlign="right"/>
-				<mx:Label text="Current Product Count" textDecoration="underline" width="250" id="text4" textAlign="center"
+				<mx:Label text="Current Lab Inventory" textDecoration="underline" width="250" id="text4" textAlign="center"
 						  toolTip="Your lab currently has this number of products in their inventory."/>
 			</mx:HBox>
 			
@@ -510,14 +521,14 @@
 				<mx:Repeater id="productRepeater" dataProvider="{productList}" >
 					<mx:HBox width="100%" horizontalGap="0">
 						<mx:CheckBox id="productCheckBox" 
-									 label="{productRepeater.currentItem.@name}" 
-									 selected="{productRepeater.currentItem.@isSelected == 'Y'}" 
+									 label="{productRepeater.currentItem.@name + ' (Order Qty: ' + productRepeater.currentItem.@orderQty + ')'}"
+									 selected="{productRepeater.currentItem.@isSelected == 'Y'}"
 									 change="{selectProduct(event);}" 
-									 width="195"/>
+									 width="215"/>
 						<mx:HBox width="125" horizontalAlign="left" paddingLeft="5" horizontalGap="0">
 							<mx:TextInput id="productQuantity" 
-										  text="{productRepeater.currentItem.@quantity}" 
-										  change="{updateQuantity(event); checkSetupCompleteness()}"  
+										  text="{productRepeater.currentItem.@quantity}"
+										  change="{updateQuantity(event); checkSetupCompleteness()}"
 										  width="42"/>
 							<mx:Spacer width="10" />
 							<mx:Text text=" x " id="text3"/>
@@ -533,7 +544,7 @@
 				</mx:Repeater>
 			</mx:VBox>
 			
-			<mx:HBox width="580" visible="{billingAccountCombo.selectedIndex > -1 || this.selectedBillingTemplate != null}" id="totalBox" horizontalAlign="right" horizontalGap="0">
+			<mx:HBox width="595" visible="{billingAccountCombo.selectedIndex > -1 || this.selectedBillingTemplate != null}" id="totalBox" horizontalAlign="right" horizontalGap="0">
 				<mx:Label text="Grand Total: " fontWeight="bold"/>
 				<mx:Label id="grandTotalLabel" text="$0" fontWeight="bold" textAlign="right" width="70"/>
 			</mx:HBox>

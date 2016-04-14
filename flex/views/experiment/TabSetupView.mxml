@@ -2,7 +2,7 @@
 <mx:Canvas label="Setup"
 		   width="100%" height="100%"
 		   xmlns:views="*.views"  horizontalScrollPolicy="off" show="{this.verticalScrollPosition = 0}"
-		   xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:renderers="views.renderers.*" xmlns:util="views.util.*" xmlns:util1="util.*" xmlns:topic="views.topics.*">
+		   xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:renderers="views.renderers.*" xmlns:util="views.util.*" xmlns:topic="views.topics.*">
 	<mx:states>
 		<mx:State name="AdminState">
 			<mx:AddChild relativeTo="{labAndInstructionBox}" position="after">
