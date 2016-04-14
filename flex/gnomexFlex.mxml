@@ -1155,6 +1155,7 @@
 		public var PROPERTY_SHOW_METRIX_DASHBOARD:String = "show_metrix_dashboard";
 		public var PROPERTY_SHOW_ACTIVITY_DASHBOARD:String = "show_activity_dashboard";
 		public var PROPERTY_SHOW_CORE_INFO_BOX:String = "show_core_info_box";
+		public var PROPERTY_SHOW_TITLE_BOX:String = "show_title_box";
 		public var PROPERTY_INTERNAL_PRICE_LABEL:String = "internal_price_label";
 		public var PROPERTY_EXTERNAL_ACADEMIC_PRICE_LABEL:String = "external_academic_price_label";
 		public var PROPERTY_EXTERNAL_COMMERCIAL_PRICE_LABEL:String = "external_commercial_price_label";
