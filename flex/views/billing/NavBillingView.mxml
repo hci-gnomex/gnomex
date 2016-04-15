@@ -763,11 +763,6 @@
 					var message:String = getBillingRequestList.lastResult.ERROR.@message;
 					Alert.show(message);
 				}
-				
-				if(glInterfaceSelected == true){
-					this.showBillingGLInterface()
-					glInterfaceSelected = false;
-				}
 			}
 			
 			private function onGetBillingItemList(event:ResultEvent):void {
@@ -784,7 +779,7 @@
 				} else {
 					var message:String = getBillingItemList.lastResult.ERROR.@message;
 					Alert.show(message);
-				}			
+				}
 			}
 		
 			private function showFilterOptions():void{
@@ -913,7 +908,12 @@
 				} else {
 					var message:String = getBillingInvoiceList.lastResult.ERROR.@message;
 					Alert.show(message);
-				}			
+				}
+
+				if(glInterfaceSelected == true){
+					this.showBillingGLInterface();
+					glInterfaceSelected = false;
+				}
 			} 
 			
 			private function jumpTo(status:String):void {
@@ -1102,8 +1102,7 @@
 				var request:XML = null;
 				var lab:XML = null;
 				
-				if (selectedItem.name() == "Status" && 
-					selectedItem.@status == 'PENDING') {
+				if (selectedItem.name() == "Status" && selectedItem.@status == 'PENDING') {
 					for each(request in selectedItem..Request) {					
 						billingItemsDisplayed.addAll(new XMLListCollection(billingItems.source.(@requestNumber == request.@requestNumber && @idBillingAccount == request.@idBillingAccount)));
 					}
@@ -1124,7 +1123,7 @@
 				}  
 				
 				var invoicePrice:Number = new Number(0);
-				
+
 				if (lastSelectedBillingPeriod != null) {
 					for each ( var bi:Object in billingItemsDisplayed.source..BillingItem ) {
 						if(lastSelectedBillingPeriod.@value == bi.@idBillingPeriod){
