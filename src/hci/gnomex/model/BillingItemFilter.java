@@ -299,6 +299,50 @@ public class BillingItemFilter extends DetailObject {
 
     return queryBuf;
   }
+  
+  public StringBuffer getRelatedBillingItemQueryForProductOrders(Set<Integer> idProductOrders) {
+	  	addWhere = true;
+	    queryBuf = new StringBuffer();
+
+	    queryBuf.append(" SELECT DISTINCT ");
+	    queryBuf.append("        bi.codeBillingStatus, ");
+	    queryBuf.append("        po.productOrderNumber, ");
+	    queryBuf.append("        po.idProductOrder, ");
+	    queryBuf.append("        po.idLab, ");
+	    queryBuf.append("        po.idCoreFacility, ");
+	    queryBuf.append("        lab.lastName, ");
+	    queryBuf.append("        lab.firstName, ");
+	    queryBuf.append("        bi, ");
+	    queryBuf.append("        lab.isExternalPricing, ");
+	    queryBuf.append("        lab.isExternalPricingCommercial ");
+
+	    queryBuf.append(" FROM        ProductLineItem as pli ");
+	    queryBuf.append(" JOIN        pli.productOrder as po ");
+	    queryBuf.append(" JOIN        po.billingItems as bi ");
+	    queryBuf.append(" LEFT JOIN   bi.invoice as inv ");
+	    queryBuf.append(" JOIN        bi.billingAccount as ba ");
+	    queryBuf.append(" JOIN        bi.lab as lab ");
+
+	    // Get all billing items in a different billing period for the
+	    // product orders of the billing items obtained in the main query and
+	    // split billing items in same period
+	    if (idProductOrders != null && idProductOrders.size() > 0) {
+	      this.addWhereOrAnd();
+	      queryBuf.append(" po.idProductOrder in (");
+	      for(Iterator<Integer> i = idProductOrders.iterator(); i.hasNext();) {
+	        Integer idProductOrder = i.next();
+	        queryBuf.append(idProductOrder.toString());
+	        if (i.hasNext()) {
+	          queryBuf.append(", ");
+	        }
+	      }
+	      queryBuf.append(") ");
+	    }
+
+	    queryBuf.append(" order by po.idProductOrder, bi.idLab, bi.idBillingAccount, bi.idBillingItem");
+
+	    return queryBuf;
+  }
 
   public StringBuffer getBillingInvoiceQuery() {
     addWhere = true;
