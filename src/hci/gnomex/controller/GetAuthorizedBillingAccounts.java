@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
@@ -94,7 +95,7 @@ public class GetAuthorizedBillingAccounts extends GNomExCommand implements Seria
 				idAppUser = this.getSecAdvisor().getAppUser().getIdAppUser();
 			}
 			
-			ArrayList<BillingAccount> allAuthorizedBillingAccounts = new ArrayList<BillingAccount>();
+			HashSet<BillingAccount> allAuthorizedBillingAccounts = new HashSet<BillingAccount>();
 			
 			// Super admins
 			if (this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
@@ -125,9 +126,15 @@ public class GetAuthorizedBillingAccounts extends GNomExCommand implements Seria
 			// Non-admins
 			else {
 				
-				// Add all billing accounts with no specified "users" for all labs the user is a member/manager of
+				// Add all billing accounts with no specified "users" for all labs the user is a member of
 				List<Integer> billingAccountsForUsersLabs = (List<Integer>) sess.createQuery(generateQueryForLabBillingAccountsWithNoUsers().toString()).list();
 				for (Iterator<Integer> iter = billingAccountsForUsersLabs.iterator(); iter.hasNext();) {
+					allAuthorizedBillingAccounts.add(parseBillingAccountQueryRow(iter.next(), sess));
+				}
+				
+				// Add all billing accounts for labs the user is a manager of
+				List<Integer> billingAccountsForManagedLabs = (List<Integer>) sess.createQuery(generateQueryForManagedLabsBillingAccounts().toString()).list();
+				for (Iterator<Integer> iter = billingAccountsForManagedLabs.iterator(); iter.hasNext();) {
 					allAuthorizedBillingAccounts.add(parseBillingAccountQueryRow(iter.next(), sess));
 				}
 				
@@ -139,7 +146,7 @@ public class GetAuthorizedBillingAccounts extends GNomExCommand implements Seria
 				
 			}
 			
-			HashMap<Integer, ArrayList<BillingAccount>> billingAccountsByLab = organizeAccountsByLab(allAuthorizedBillingAccounts);
+			Map<Integer, Set<BillingAccount>> billingAccountsByLab = organizeAccountsByLab(allAuthorizedBillingAccounts);
 			
 			Document doc = generateXMLDocument(billingAccountsByLab, sess);
 			
@@ -167,7 +174,7 @@ public class GetAuthorizedBillingAccounts extends GNomExCommand implements Seria
 		return this;
 	}
 	
-	private Document generateXMLDocument(HashMap<Integer, ArrayList<BillingAccount>> billingAccountsByLab, Session sess) throws XMLReflectException {
+	private Document generateXMLDocument(Map<Integer, Set<BillingAccount>> billingAccountsByLab, Session sess) throws XMLReflectException {
 		Element root = new Element("AuthorizedBillingAccounts");
 		root.setAttribute("idAppUser", idAppUser.toString());
 		root.setAttribute("hasAuthorizedAccounts", billingAccountsByLab.isEmpty() ? "N" : "Y");
@@ -176,7 +183,7 @@ public class GetAuthorizedBillingAccounts extends GNomExCommand implements Seria
 		
 		for (Integer idLab : billingAccountsByLab.keySet()) {
 			Lab lab = (Lab) sess.load(Lab.class, idLab);
-			ArrayList<BillingAccount> accounts = billingAccountsByLab.get(idLab);
+			Set<BillingAccount> accounts = billingAccountsByLab.get(idLab);
 			
 			Element labNode = new Element("Lab");
 			labNode.setAttribute("name", lab.getFormattedLabName(false));
@@ -195,8 +202,8 @@ public class GetAuthorizedBillingAccounts extends GNomExCommand implements Seria
 		return doc;
 	}
 	
-	private HashMap<Integer, ArrayList<BillingAccount>> organizeAccountsByLab(List<BillingAccount> allAccounts) {
-		HashMap<Integer, ArrayList<BillingAccount>> labToAccountsMap = new HashMap<Integer, ArrayList<BillingAccount>>();
+	private Map<Integer, Set<BillingAccount>> organizeAccountsByLab(Set<BillingAccount> allAccounts) {
+		HashMap<Integer, Set<BillingAccount>> labToAccountsMap = new HashMap<Integer, Set<BillingAccount>>();
 		
 		for (BillingAccount account : allAccounts) {
 			Integer idLab = account.getIdLab();
@@ -208,7 +215,7 @@ public class GetAuthorizedBillingAccounts extends GNomExCommand implements Seria
 			if (labToAccountsMap.containsKey(idLab)) {
 				labToAccountsMap.get(idLab).add(account);
 			} else {
-				ArrayList<BillingAccount> accountsForThisLab = new ArrayList<BillingAccount>();
+				Set<BillingAccount> accountsForThisLab = new HashSet<BillingAccount>();
 				accountsForThisLab.add(account);
 				labToAccountsMap.put(idLab, accountsForThisLab);
 			}
@@ -231,15 +238,39 @@ public class GetAuthorizedBillingAccounts extends GNomExCommand implements Seria
 		queryBuff.append(" FROM BillingAccount AS ba ");
 		queryBuff.append(" JOIN ba.lab AS l ");
 		queryBuff.append(" LEFT OUTER JOIN l.members AS m ");
-		queryBuff.append(" LEFT OUTER JOIN l.managers AS man ");
 		
 		// Criteria
-		queryBuff.append(" WHERE (m.idAppUser = " + idAppUser.toString() + " OR man.idAppUser = " + idAppUser.toString() + ") ");
+		queryBuff.append(" WHERE m.idAppUser = " + idAppUser.toString() + " ");
 		queryBuff.append(queryForCommonBillingAccountCriteria(false, false));
 		if (includeOnlyActiveLabs) {
 			queryBuff.append(" AND l.isActive = \'Y\' ");
 		}
 		queryBuff.append(" AND ba.idBillingAccount NOT IN (" + generateSubQueryForAllIdBillingAccountsWithUsers().toString() + ") ");
+		
+		return queryBuff;
+	}
+	
+	/**
+	 * Returns the query for selecting all billing accounts for all
+	 * labs the selected user is a manager of.
+	 */
+	private StringBuffer generateQueryForManagedLabsBillingAccounts() {
+		StringBuffer queryBuff = new StringBuffer();
+		
+		// Desired columns
+		queryBuff.append(queryForRequiredBillingAccountColumns());
+		
+		// Body
+		queryBuff.append(" FROM BillingAccount AS ba ");
+		queryBuff.append(" JOIN ba.lab AS l ");
+		queryBuff.append(" LEFT OUTER JOIN l.managers AS m ");
+		
+		// Criteria
+		queryBuff.append(" WHERE m.idAppUser = " + idAppUser.toString() + " ");
+		queryBuff.append(queryForCommonBillingAccountCriteria(false, false));
+		if (includeOnlyActiveLabs) {
+			queryBuff.append(" AND l.isActive = \'Y\' ");
+		}
 		
 		return queryBuff;
 	}
