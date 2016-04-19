@@ -2318,13 +2318,13 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         PriceCategory priceCategory = priceCategoryX.getPriceCategory();
 
         // we want to only create request property billing items at submit when we have a bill during workflow
-        if(requestPropertiesOnly && (!priceCategory.getPluginClassName().equals("hci.gnomex.billing.PropertyPricingPlugin") && !priceCategory.getPluginClassName().equals("hci.gnomex.billing.PropertyPricingNotBySamplePlugin"))){
+        if(requestPropertiesOnly && (priceCategory.getPluginClassName() != null && !priceCategory.getPluginClassName().equals("hci.gnomex.billing.PropertyPricingPlugin") && !priceCategory.getPluginClassName().equals("hci.gnomex.billing.PropertyPricingNotBySamplePlugin"))){
           continue;
         }
 
         // if this is being called from a workflow servlet then skip the creation of request property billing items
         // because we already created them at submit time.
-        if(comingFromWorkflow && (priceCategory.getPluginClassName().equals("hci.gnomex.billing.PropertyPricingPlugin") || priceCategory.getPluginClassName().equals("hci.gnomex.billing.PropertyPricingNotBySamplePlugin"))){
+        if(comingFromWorkflow && (priceCategory.getPluginClassName() != null && priceCategory.getPluginClassName().equals("hci.gnomex.billing.PropertyPricingPlugin") || priceCategory.getPluginClassName().equals("hci.gnomex.billing.PropertyPricingNotBySamplePlugin"))){
           continue;
         }
 
