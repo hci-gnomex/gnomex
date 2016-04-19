@@ -169,7 +169,7 @@ bt.targetClassName = 'hci.gnomex.model.Request' AND
 bi.idRequest IS NOT NULL AND bi.idMasterBillingItem IS NULL;
 ---------------------------------------------------------------------------------
 
--- PRODUCTORDERS:
+-- PRODUCT ORDERS:
 -- Insert BillingTemplate for each ProductOrder that has a BillingItem
 INSERT INTO BillingTemplate (targetClassIdentifier, targetClassName )
 SELECT DISTINCT bi.idProductOrder, 'hci.gnomex.model.ProductOrder'
