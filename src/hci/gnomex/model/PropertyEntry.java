@@ -138,5 +138,5 @@ public class PropertyEntry extends HibernateDetailObject {
     
     return v;
   }
-  
+
 }

@@ -449,49 +449,8 @@ public class GetRequest extends GNomExCommand implements Serializable {
             peNode.setAttribute("isActive", prop.getIsActive() != null ? prop.getIsActive() : "Y");
             peNode.setAttribute("idCoreFacility", prop.getIdCoreFacility() != null ? prop.getIdCoreFacility().toString() : "");
 
-            if (entry != null && entry.getValues() != null && entry.getValues().size() > 0) {
-              for (Iterator i1 = entry.getValues().iterator(); i1.hasNext();) {
-                PropertyEntryValue av = (PropertyEntryValue) i1.next();
-                Element valueNode = new Element("PropertyEntryValue");
-                peNode.addContent(valueNode);
-                valueNode.setAttribute("idPropertyEntryValue", av.getIdPropertyEntryValue().toString());
-                valueNode.setAttribute("value", av.getValue() != null ? av.getValue() : "");
-                valueNode.setAttribute("url", av.getUrl() != null ? av.getUrl() : "");
-                valueNode.setAttribute("urlDisplay", av.getUrlDisplay() != null ? av.getUrlDisplay() : "");
-                valueNode.setAttribute("urlAlias", av.getUrlAlias() != null ? av.getUrlAlias() : "");
-              }
-            }
-            if (prop.getCodePropertyType().equals(PropertyType.URL)) {
-              // Add an empty value for URL
-              Element emptyNode = new Element("PropertyEntryValue");
-              peNode.addContent(emptyNode);
-              emptyNode.setAttribute("idPropertyEntryValue", "");
-              emptyNode.setAttribute("url", "Enter URL here...");
-              emptyNode.setAttribute("urlAlias", "Enter alias here...");
-              emptyNode.setAttribute("urlDisplay", "");
-              emptyNode.setAttribute("value", "");
-            }
+            Property.appendEntryContentXML(prop,entry,peNode);
 
-            if (prop.getOptions() != null && prop.getOptions().size() > 0) {
-              for (Iterator i1 = prop.getOptions().iterator(); i1.hasNext();) {
-                PropertyOption option = (PropertyOption) i1.next();
-                Element optionNode = new Element("PropertyOption");
-                peNode.addContent(optionNode);
-                optionNode.setAttribute("idPropertyOption", option.getIdPropertyOption().toString());
-                optionNode.setAttribute("name", option.getOption());
-                boolean isSelected = false;
-                if (entry != null && entry.getOptions() != null) {
-                  for (Iterator i2 = entry.getOptions().iterator(); i2.hasNext();) {
-                    PropertyOption optionSelected = (PropertyOption) i2.next();
-                    if (optionSelected.getIdPropertyOption().equals(option.getIdPropertyOption())) {
-                      isSelected = true;
-                      break;
-                    }
-                  }
-                }
-                optionNode.setAttribute("selected", isSelected ? "Y" : "N");
-              }
-            }
 
             rpParentNode.addContent(peNode);
 
