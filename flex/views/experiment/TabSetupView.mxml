@@ -491,48 +491,13 @@
 					getNewProject.send();
 				}		
 			}
+
 			private function filterBillingAccount(item:Object):Boolean {
 				if (item.hasOwnProperty("@overrideFilter") && item.@overrideFilter == "Y") {
 					return true;
 				}
-				
-				if (item.@isActive == 'N') {
-					return false;
-				}
-				
-				if (item.@isApproved == 'N') {
-					return false;
-				}
-				
-				var cat:Object = getRequestCategory();
-				if (cat == null || cat.@idCoreFacility.toString() == '') {
-					return false;
-				}
-				if (idAppUser == null || idAppUser.toString() == '') {
-					return false;
-				}
-				
-				if (item.@idCoreFacility != '') {
-					if (item.@idCoreFacility.toString() != cat.@idCoreFacility.toString()) {
-						return false;
-					} 
-				}
-				
-				if (item.@acctUsers != '' && !(parentApplication.isAdminState || parentApplication.isBillingAdminState || parentApplication.isSuperAdmin)) {
-					var ids:Array = item.@acctUsers.toString().split(",");
-					var found:Boolean = false;
-					for each(var id:String in ids) {
-						if (id == idAppUser.toString()) {
-							found = true;
-							break;
-						}
-					}
-					if (!found) {
-						return false;
-					}
-				}
-				
-				/*Check if collaborator can submit to billing account*/
+
+				// Check if user is an authorized user for the account
 				if(getAuthorizedBillingAccounts.lastResult != null){
 					var isAuthorized:Boolean = false;
 					
@@ -549,6 +514,7 @@
 				
 				return true;
 			}
+
 			private function showEditProjectWindow():void {
 				selectedIdProject = this.projectCombo.selectedItem.@idProject;
 				var params:Object = new Object();
@@ -1432,6 +1398,7 @@
 					if (getAuthorizedBillingAccounts.lastResult.@hasAuthorizedAccounts == "Y" && userHasAuthorizedAccountsOutsideLab(getAuthorizedBillingAccounts.lastResult)) {
 						showAccessAuthorizedAccountsLink = true;
 					}
+					billingAccounts.refresh();
 				} else {
 					Alert.show("Could not retrieve authorized billing accounts.", "Error", Alert.OK, this);
 				}
