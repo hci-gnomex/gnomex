@@ -1008,7 +1008,9 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       } finally {
         try {
           if (sessGuest != null) {
-            this.getSecAdvisor().closeReadOnlyHibernateSession();
+            //dont close the session b/c the same one is being used during save request
+            //sessGuest.close();
+            //this.getSecAdvisor().closeReadOnlyHibernateSession();
           }
         } catch (Exception e) {
         }

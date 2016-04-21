@@ -440,7 +440,7 @@
 			private function filterPropertiesByUser(item:Object):Boolean {
 				// Get property with children (organisms, platforms, appusers).
 				var property:XML = parentApplication.getSampleProperty(item.@idProperty);
-				if(item.@idProperty == "-1" || property == null) {
+				if(parentDocument == null || item.@idProperty == "-1" || property == null) {
 					return true;
 				}
 
