@@ -2673,14 +2673,12 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
                     queryBuf.append(" ( ");
                 }
                 appendCoreFacilityCriteria(queryBuf, classShortName);
+                // Check if the user is also a member of any groups
+                if(this.getAllMyGroups().size() > 0) {
+                    appendAdminMemberCriteria(queryBuf, collabClassShortName, classShortName);
+                    queryBuf.append(" ) ");
+                }
             }
-
-            // Check if the user is also a member of any groups
-            if(this.getAllMyGroups().size() > 0) {
-                appendAdminMemberCriteria(queryBuf, collabClassShortName, classShortName);
-                queryBuf.append(" ) ");
-            }
-
 
         } else if (hasPermission(SecurityAdvisor.CAN_PARTICIPATE_IN_GROUPS)) {
 
