@@ -347,6 +347,7 @@ public class GetRequest extends GNomExCommand implements Serializable {
               continue;
             }
 
+
             // Note that requestCategory is null for new experiments as this is called before they select the request category.
             // for sequenom and iscan types we only include properties that explicitly apply to the request category.
             boolean autoSelect = false;
@@ -360,7 +361,8 @@ public class GetRequest extends GNomExCommand implements Serializable {
                 PropertyPlatformApplication pa = (PropertyPlatformApplication) i1.next();
                 if (pa.getCodeRequestCategory().equals(request.getCodeRequestCategory()) && (pa.getApplication() == null || pa.getApplication().getCodeApplication().equals(request.getCodeApplication()))) {
                   include = true;
-                  if (requestCategory.getType().equals(RequestCategoryType.TYPE_ISCAN)) {
+                  if (requestCategory.getType().equals(RequestCategoryType.TYPE_ISCAN) || requestCategory.getType().equals(RequestCategoryType.TYPE_CAP_SEQ)
+                          || requestCategory.getType().equals(RequestCategoryType.TYPE_FRAGMENT_ANALYSIS)) {
                     autoSelect = true;
                   } else if (requestCategory.getType().equals(RequestCategoryType.TYPE_ISOLATION) || requestCategory.getType().equals(RequestCategoryType.TYPE_SEQUENOM) || requestCategory.getType().equals(RequestCategoryType.TYPE_CLINICAL_SEQUENOM)) {
                     autoSelect = !newRequest;

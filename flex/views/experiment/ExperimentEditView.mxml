@@ -20,7 +20,7 @@
 		method="POST"
 		useProxy="false">
 		<mx:request>
-			<idRequest>0</idRequest>    	
+			<idRequest>0</idRequest>
 		</mx:request>
 	</mx:HTTPService>
 	

@@ -23,7 +23,7 @@ package views.util
 			if (reqCategory != null) {
 				if (( property.@forRequest != null && property.@forRequest == 'Y' ) ||
 						property.descendants("PropertyPlatformApplication").length() > 0 || 
-						reqCategory.@type == 'ISCAN') {
+						reqCategory.@type == 'ISCAN' || reqCategory.@type == 'CAPSEQ' || reqCategory.@type == 'FRAGANAL') {
 					filterByPlatformApplication = true;	
 				}
 			}			
