@@ -393,7 +393,7 @@
 					if (getAuthorizedBillingAccounts.lastResult.@hasAuthorizedAccounts == "Y" && userHasAuthorizedAccountsOutsideLab(getAuthorizedBillingAccounts.lastResult)) {
 						showSplitBillingLink = true;
 					}
-					billingAccounts.refresh();
+					refreshBillingAccounts();
 				} else {
 					Alert.show("Could not retrieve authorized billing accounts.", "Error", Alert.OK, this);
 				}

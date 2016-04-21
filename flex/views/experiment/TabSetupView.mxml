@@ -497,6 +497,16 @@
 					return true;
 				}
 
+				var cat:Object = getRequestCategory();
+				if (cat == null || cat.@idCoreFacility.toString() == '') {
+					return false;
+				}
+				if (item.@idCoreFacility != '') {
+					if (item.@idCoreFacility.toString() != cat.@idCoreFacility.toString()) {
+						return false;
+					}
+				}
+
 				// Check if user is an authorized user for the account
 				if(getAuthorizedBillingAccounts.lastResult != null){
 					var isAuthorized:Boolean = false;
@@ -1398,7 +1408,7 @@
 					if (getAuthorizedBillingAccounts.lastResult.@hasAuthorizedAccounts == "Y" && userHasAuthorizedAccountsOutsideLab(getAuthorizedBillingAccounts.lastResult)) {
 						showAccessAuthorizedAccountsLink = true;
 					}
-					billingAccounts.refresh();
+					refreshBillingAccounts();
 				} else {
 					Alert.show("Could not retrieve authorized billing accounts.", "Error", Alert.OK, this);
 				}
