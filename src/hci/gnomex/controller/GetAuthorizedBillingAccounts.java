@@ -12,7 +12,6 @@ import hci.gnomex.utility.GNomExRollbackException;
 
 import java.io.Serializable;
 import java.sql.Date;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -181,6 +180,9 @@ public class GetAuthorizedBillingAccounts extends GNomExCommand implements Seria
 		
 		Document doc = new Document(root);
 		
+		boolean hasAccountWithinCore = false;
+		boolean hasAccountsWithinCore = false;
+		
 		for (Integer idLab : billingAccountsByLab.keySet()) {
 			Lab lab = (Lab) sess.load(Lab.class, idLab);
 			Set<BillingAccount> accounts = billingAccountsByLab.get(idLab);
@@ -193,8 +195,18 @@ public class GetAuthorizedBillingAccounts extends GNomExCommand implements Seria
 			for (BillingAccount acct : accounts) {
 				Element accountNode = acct.toXMLDocument(null, GNomExCommand.DATE_OUTPUT_SQL).getRootElement();
 				
+				if (idCoreFacility != null && acct.getIdCoreFacility().equals(idCoreFacility)) {
+				    if (hasAccountWithinCore) {
+				        hasAccountsWithinCore = true;
+				    } else {
+				        hasAccountWithinCore = true;
+				    }
+				}
+				
 				labNode.addContent(accountNode);
 			}
+			
+			doc.getRootElement().setAttribute("hasAccountsWithinCore", hasAccountsWithinCore ? "Y" : "N");
 			
 			doc.getRootElement().addContent(labNode);
 		}

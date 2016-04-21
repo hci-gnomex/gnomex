@@ -384,13 +384,16 @@
 					showSplitBillingLink = false;
 					
 					var params:Object = new Object();
+					if (idCoreFacility != null && idCoreFacility != "") {
+						params.idCoreFacility = idCoreFacility;
+					}
 					getAuthorizedBillingAccounts.send(params);
 				}
 			}
 			
 			private function onGetAuthorizedBillingAccounts(event:ResultEvent):void {
 				if (getAuthorizedBillingAccounts.lastResult.name() == "AuthorizedBillingAccounts") {
-					if (getAuthorizedBillingAccounts.lastResult.@hasAuthorizedAccounts == "Y" && userHasAuthorizedAccountsOutsideLab(getAuthorizedBillingAccounts.lastResult)) {
+					if (getAuthorizedBillingAccounts.lastResult.@hasAccountsWithinCore == "Y" && userHasAuthorizedAccountsOutsideLab(getAuthorizedBillingAccounts.lastResult)) {
 						showSplitBillingLink = true;
 					}
 					refreshBillingAccounts();
