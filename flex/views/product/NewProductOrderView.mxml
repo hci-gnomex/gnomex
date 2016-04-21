@@ -165,38 +165,14 @@
 			}
 			
 			private function filterBillingAccount(item:Object):Boolean {
-				if (item.@isActive == 'N') {
-					return false;
-				}
-				
-				if (item.@isApproved == 'N') {
-					return false;
-				}
-				if (idAppUser == null || idAppUser.toString() == '') {
-					return false;
-				}
-				
+
 				if (item.@idCoreFacility != '') {
 					if (item.@idCoreFacility != idCoreFacility) {
-						return false;
-					} 
-				}
-				
-				if (item.@acctUsers != '') {
-					var ids:Array = item.@acctUsers.toString().split(",");
-					var found:Boolean = false;
-					for each(var id:String in ids) {
-						if (id == idAppUser.toString()) {
-							found = true;
-							break;
-						}
-					}
-					if (!found) {
 						return false;
 					}
 				}
 
-				/*Check if collaborator can submit to billing account*/
+				// Check if user is an authorized user for the account
 				if(getAuthorizedBillingAccounts.lastResult != null){
 					var isAuthorized:Boolean = false;
 
@@ -417,6 +393,7 @@
 					if (getAuthorizedBillingAccounts.lastResult.@hasAuthorizedAccounts == "Y" && userHasAuthorizedAccountsOutsideLab(getAuthorizedBillingAccounts.lastResult)) {
 						showSplitBillingLink = true;
 					}
+					refreshBillingAccounts();
 				} else {
 					Alert.show("Could not retrieve authorized billing accounts.", "Error", Alert.OK, this);
 				}

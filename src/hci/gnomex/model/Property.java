@@ -11,6 +11,7 @@ import org.hibernate.Session;
 
 import hci.dictionary.model.DictionaryEntry;
 import hci.gnomex.controller.DeletePriceCategory;
+import org.jdom.Element;
 
 public class Property extends DictionaryEntry
 implements Serializable, OntologyEntry, DictionaryEntryUserOwned {
@@ -36,6 +37,7 @@ implements Serializable, OntologyEntry, DictionaryEntryUserOwned {
   private Set     appUsers             = new TreeSet();
   private Set     platformApplications = new TreeSet();
   private Set     analysisTypes        = new TreeSet();
+
 
 
   public Set getAnalysisTypes() {
@@ -366,6 +368,53 @@ implements Serializable, OntologyEntry, DictionaryEntryUserOwned {
       return true;
     } else {
       return false;
+    }
+  }
+
+  public static void appendEntryContentXML(Property property, PropertyEntry pe, Element propNode) {
+
+    if (pe != null && pe.getValues() != null && pe.getValues().size() > 0) {
+      for (Iterator i1 = pe.getValues().iterator(); i1.hasNext(); ) {
+        PropertyEntryValue av = (PropertyEntryValue) i1.next();
+        Element valueNode = new Element("PropertyEntryValue");
+        propNode.addContent(valueNode);
+        valueNode.setAttribute("idPropertyEntryValue", av.getIdPropertyEntryValue().toString());
+        valueNode.setAttribute("value", av.getValue() != null ? av.getValue() : "");
+        valueNode.setAttribute("url", av.getUrl() != null ? av.getUrl() : "");
+        valueNode.setAttribute("urlDisplay", av.getUrlDisplay() != null ? av.getUrlDisplay() : "");
+        valueNode.setAttribute("urlAlias", av.getUrlAlias() != null ? av.getUrlAlias() : "");
+      }
+    }
+    if (property.getCodePropertyType().equals(PropertyType.URL)) {
+      // Add an empty value for URL
+      Element emptyNode = new Element("PropertyEntryValue");
+      propNode.addContent(emptyNode);
+      emptyNode.setAttribute("idPropertyEntryValue", "");
+      emptyNode.setAttribute("url", "Enter URL here...");
+      emptyNode.setAttribute("urlAlias", "Enter alias here...");
+      emptyNode.setAttribute("urlDisplay", "");
+      emptyNode.setAttribute("value", "");
+    }
+
+    if (property.getOptions() != null && property.getOptions().size() > 0) {
+      for (Iterator i1 = property.getOptions().iterator(); i1.hasNext(); ) {
+        PropertyOption option = (PropertyOption) i1.next();
+        Element optionNode = new Element("PropertyOption");
+        propNode.addContent(optionNode);
+        optionNode.setAttribute("idPropertyOption", option.getIdPropertyOption().toString());
+        optionNode.setAttribute("name", option.getOption());
+        boolean isSelected = false;
+        if (pe != null && pe.getOptions() != null) {
+          for (Iterator i2 = pe.getOptions().iterator(); i2.hasNext(); ) {
+            PropertyOption optionSelected = (PropertyOption) i2.next();
+            if (optionSelected.getIdPropertyOption().equals(option.getIdPropertyOption())) {
+              isSelected = true;
+              break;
+            }
+          }
+        }
+        optionNode.setAttribute("selected", isSelected ? "Y" : "N");
+      }
     }
   }
 
