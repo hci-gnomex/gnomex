@@ -1258,10 +1258,16 @@
 			var message:String = "Reassign experiment " + dragRequest.@requestNumber +
 				" to project " + dropProject.@projectName + "?";
 			var requestCategory:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory',dragRequest.@codeRequestCategory);
-			changePrompt.init(this, message, dragRequest.@idLab, dropProject.@idLab, dragRequest.@idAppUser, dragRequest.@idBillingAccount, dragRequest.@isExternal, requestCategory.@idCoreFacility);			
+			
+			var requestHasMultipleAccounts:Boolean = false;
+			if (dragRequest != null && dragRequest.hasOwnProperty("@hasMultipleAccounts") && dragRequest.@hasMultipleAccounts == "Y") {
+				requestHasMultipleAccounts = true;
+			}
+			
+			changePrompt.init(this, message, dragRequest.@idLab, dropProject.@idLab, dragRequest.@idAppUser, !requestHasMultipleAccounts ? dragRequest.@idBillingAccount : null, dragRequest.@isExternal, requestCategory.@idCoreFacility, requestHasMultipleAccounts);			
 		}
 		
-		public function onPromptToReassignProject(result:String, idOwner:String, idBillingAccount:String):void {
+		public function onPromptToReassignProject(result:String, idOwner:String, idBillingAccount:String, forceNoChangeBilling:Boolean = false):void {
             if (result=="Yes") {
 	            selectedProject = dropProject;
 	            selectedIdProject = dropProject.@idProject;
@@ -1272,8 +1278,11 @@
 				params.idProject = dropProject.@idProject;
 				params.idAppUser = idOwner;
 				params.isExternal = dragRequest.@isExternal;
-				if (dragRequest.@isExternal == null || dragRequest.@isExternal != "Y") {
+				if (!forceNoChangeBilling && (dragRequest.@isExternal == null || dragRequest.@isExternal != "Y")) {
 					params.idBillingAccount = idBillingAccount;
+				}
+				if (forceNoChangeBilling) {
+					params.forceNoChangeBilling = "true";
 				}
 				
            		saveRequestProject.send(params);

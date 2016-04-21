@@ -207,6 +207,7 @@
 			import mx.validators.NumberValidator;
 			import mx.validators.ValidationResult;
 			
+			import views.billing.BillingTemplateWindow;
 			import views.order.NavOrderView;
 			import views.topics.NavTopicsView;
 			import views.util.AnnotationUtility;
@@ -376,6 +377,10 @@
 			// Variables to hold parameters for showExperiment after experiment is submitted.
 			private var theRequestNumber:String;
 			private var showPromptToUpload:Boolean;
+			
+			private var accountAcceptingBalanceOnRequest:Object = null;
+			private var showEditBillingTemplateOption:Boolean = false;
+			public var editedBillingTemplate:String = null;
 			
 			private function init():void {
 				// If this is the first time this instance
@@ -889,12 +894,14 @@
 				request = null;
 				initializeSubmitForm();
 				parentApplication.theViews.selectedIndex = 0;
+				this.updateBillingAccountInfo();
 				
 			}
 			
 			public function startNewRequest():void {
 				request = null;
 				this.setupSubmitForm();
+				this.updateBillingAccountInfo();
 			}
 			
 			private function setupSubmitForm():void {
@@ -2163,6 +2170,7 @@
 				} 
 				
 				request = clonedRequest;
+				this.updateBillingAccountInfo();
 				
 				request.@idRequest = "0";
 				request.@number = "";
@@ -2317,6 +2325,7 @@
 			public function setupEditForm(theRequest:Object):void {
 				request = theRequest;
 				setupTheEditForm();
+				this.updateBillingAccountInfo();
 			}
 			
 			private function setupTheEditForm():void {
@@ -2638,6 +2647,7 @@
 					addDescriptionFieldToAnnotations(getNewRequest.lastResult..Request.(@idRequest = '0').PropertyEntries);			
 				}			
 				request = getNewRequest.lastResult..Request.(@idRequest = '0');
+				this.updateBillingAccountInfo();
 				request.@idSubmitter = setupView.idAppUser;
 				if(parentApplication.hasPermission("canSubmitForOtherCores")){
 					request.@idSubmitter = parentApplication.idAppUser
@@ -3785,31 +3795,41 @@
 				}			
 			}
 			
-			private function updateBillingAccount():void{
-				if (requestEditBillingAccountCombo.selectedItem != null) {
-					var found:Boolean = false;
-					for each(var ba:XML in billingAccounts){
-						if(ba.@idBillingAccount == request.@idBillingAccount){
-							found = true;
-							break;
-						}
-					}
-					
-					if (found && requestEditBillingAccountCombo.selectedItem.@idBillingAccount == '') {
-						warnToSelectNewBillingAccount = true;
-						Alert.show("Would you like to keep the billing account " + request.billingItems.BillingLab.@accountName + "?", "Notice", Alert.YES | Alert.NO, this, changeIdBillingAccount);
-					} else if (!found && filteredBillingAccounts.length <= 1 && requestEditBillingAccountCombo.selectedItem.@idBillingAccount == '') {
-						warnToSelectNewBillingAccount = true;
-						Alert.show("The current lab has no billing accounts. Would you like to keep the billing account " + request.billingItems.BillingLab.@accountName + " from the " + request.billingItems.BillingLab.@labName + "?", "Notice", Alert.YES | Alert.NO, this, changeIdBillingAccount);
-					} else if (!found && requestEditBillingAccountCombo.selectedItem.@idBillingAccount != '') {
-						Alert.show("Would you like to keep the billing account " + request.billingItems.BillingLab.@accountName + " from the " + request.billingItems.BillingLab.@labName + "?", "Notice", Alert.YES | Alert.NO, this, changeIdBillingAccount);
-					} else if(!found && requestEditBillingAccountCombo.selectedItem.@idBillingAccount == '') {
-						warnToSelectNewBillingAccount = true;
-						Alert.show("Would you like to keep the billing account " + request.billingItems.BillingLab.@accountName + " from the " + request.billingItems.BillingLab.@labName + "?", "Notice", Alert.YES | Alert.NO, this, changeIdBillingAccount);
-					} else {
-						request.@idBillingAccount = requestEditBillingAccountCombo.selectedItem.@idBillingAccount;
+			private function updateBillingAccount():void {
+				if (this.showEditBillingTemplateOption) {
+					if (this.editedBillingTemplate != null) {
+						request.replace("BillingTemplate", new XMLList(this.editedBillingTemplate));
+						request.@idBillingAccount = "";
+						request.@idBillingTemplate = "";
 						billingAccountAlreadyUpdated = true;
 						saveRequest();
+					}
+				} else {
+					if (requestEditBillingAccountCombo.selectedItem != null) {
+						var found:Boolean = false;
+						for each(var ba2:XML in billingAccounts){
+							if(ba2.@idBillingAccount == this.accountAcceptingBalanceOnRequest.@idBillingAccount){
+								found = true;
+								break;
+							}
+						}
+						
+						if (found && requestEditBillingAccountCombo.selectedItem.@idBillingAccount == '') {
+							warnToSelectNewBillingAccount = true;
+							Alert.show("Would you like to keep the billing account " + this.retrieveBillingAccountNames(false) + "?", "Notice", Alert.YES | Alert.NO, this, changeIdBillingAccount);
+						} else if (!found && filteredBillingAccounts.length <= 1 && requestEditBillingAccountCombo.selectedItem.@idBillingAccount == '') {
+							warnToSelectNewBillingAccount = true;
+							Alert.show("The current lab has no billing accounts. Would you like to keep the billing account " + this.retrieveBillingAccountNames(true) + "?", "Notice", Alert.YES | Alert.NO, this, changeIdBillingAccount);
+						} else if (!found && requestEditBillingAccountCombo.selectedItem.@idBillingAccount != '') {
+							Alert.show("Would you like to keep the billing account " + this.retrieveBillingAccountNames(true) + "?", "Notice", Alert.YES | Alert.NO, this, changeIdBillingAccount);
+						} else if(!found && requestEditBillingAccountCombo.selectedItem.@idBillingAccount == '') {
+							warnToSelectNewBillingAccount = true;
+							Alert.show("Would you like to keep the billing account " + this.retrieveBillingAccountNames(true) + "?", "Notice", Alert.YES | Alert.NO, this, changeIdBillingAccount);
+						} else {
+							request.@idBillingAccount = requestEditBillingAccountCombo.selectedItem.@idBillingAccount;
+							billingAccountAlreadyUpdated = true;
+							saveRequest();
+						}
 					}
 				}
 			}
@@ -4158,6 +4178,7 @@
 					addDescriptionFieldToAnnotations(getRequest.lastResult.Request.(@idRequest = request.@idRequest).PropertyEntries);			
 				}	
 				request = getRequest.lastResult.Request.(@idRequest = request.@idRequest);
+				this.updateBillingAccountInfo();
 				
 				// this refreshes the request from the db.
 				if (parentDocument is NavOrderView) {
@@ -4459,7 +4480,7 @@
 					filteredBillingAccounts.refresh();
 					var found:Boolean = false;
 					for each(var ba:Object in filteredBillingAccounts) {
-						if (ba.@idBillingAccount == request.@idBillingAccount) {
+						if (this.accountAcceptingBalanceOnRequest != null && ba.@idBillingAccount == this.accountAcceptingBalanceOnRequest.@idBillingAccount) {
 							found = true;
 							requestEditBillingAccountCombo.selectedItem = ba;
 							break;
@@ -4953,6 +4974,7 @@
 			
 			public function setupAmendForm(theRequest:Object):void {
 				request = theRequest;
+				this.updateBillingAccountInfo();
 				
 				setAmendTitle();
 				
@@ -5505,7 +5527,7 @@
 					return true;
 				}
 				
-				if (request.@idBillingAccount == item.@idBillingAccount) {
+				if (this.accountAcceptingBalanceOnRequest != null && this.accountAcceptingBalanceOnRequest.@idBillingAccount == item.@idBillingAccount) {
 					return true;
 				}
 				
@@ -5657,7 +5679,7 @@
 				return false;
 			}
 			
-			private function updateDirtyNote(isDirty:Boolean):void {
+			public function updateDirtyNote(isDirty:Boolean):void {
 				if (isDirty && !this.isDirty) {
 					this.isDirty = true;
 					this.dirty.setDirty();
@@ -5798,6 +5820,109 @@
 				}
 				
 				checkAmendSetupCompleteness();
+			}
+			
+			private function retrieveBillingAccountNames(includeLab:Boolean = false):String {
+				var names:String = "";
+				if (request != null && request.BillingTemplate != null) {
+					var first:Boolean = true;
+					for each (var item:Object in request.BillingTemplate..BillingTemplateItem) {
+						if (first) {
+							names += item.@accountName;
+							first = false;
+						} else {
+							names += ", " + item.@accountName;
+						}
+						if (includeLab) {
+							names += " (" + item.@labName + ")";
+						}
+					}
+				}
+				return names;
+			}
+			
+			private function updateCurrentAccountLabel():void {
+				if (this.accountLabel != null) {
+					this.accountLabel.text = this.retrieveBillingAccountNames(true);
+				}
+			}
+			
+			private function updateAccountAcceptingBalanceOnRequest():void {
+				if (request != null && request.BillingTemplate != null) {
+					for each (var item:Object in request.BillingTemplate..BillingTemplateItem) {
+						if (item.hasOwnProperty("@acceptBalance") && item.@acceptBalance == "true") {
+							this.accountAcceptingBalanceOnRequest = item;
+							return;
+						}
+					}
+				} else {
+					this.accountAcceptingBalanceOnRequest = null;
+				}
+			}
+			
+			private function updateShowEditBillingTemplateOption():void {
+				this.showEditBillingTemplateOption = false;
+				if (request != null && request.BillingTemplate != null) {
+					var templateItems:XMLList = new XMLList(request.BillingTemplate..BillingTemplateItem);
+					if (templateItems.length() > 1) {
+						this.showEditBillingTemplateOption = true;
+					}
+				}
+			}
+			
+			private function showEditBillingOption():void {
+				var showEditOptions:Boolean = this.request.@isExternal != 'Y';
+				
+				if (this.showEditBillingTemplateOption) {
+					if (this.accountComboLabel != null) {
+						this.accountComboLabel.visible = false;
+						this.accountComboLabel.includeInLayout = false;
+					}
+					if (this.requestEditBillingAccountCombo != null) {
+						this.requestEditBillingAccountCombo.visible = false;
+						this.requestEditBillingAccountCombo.includeInLayout = false;
+					}
+					
+					if (this.editBillingTemplateLink != null) {
+						this.editBillingTemplateLink.visible = showEditOptions;
+						this.editBillingTemplateLink.includeInLayout = showEditOptions;
+					}
+				} else {
+					if (this.editBillingTemplateLink != null) {
+						this.editBillingTemplateLink.visible = false;
+						this.editBillingTemplateLink.includeInLayout = false;
+					}
+					
+					if (this.accountComboLabel != null) {
+						this.accountComboLabel.visible = showEditOptions;
+						this.accountComboLabel.includeInLayout = showEditOptions;
+					}
+					if (this.requestEditBillingAccountCombo != null) {
+						this.requestEditBillingAccountCombo.visible = showEditOptions;
+						this.requestEditBillingAccountCombo.includeInLayout = showEditOptions;
+					}
+				}
+			}
+			
+			private function updateBillingAccountInfo():void {
+				this.updateCurrentAccountLabel();
+				this.updateAccountAcceptingBalanceOnRequest();
+				this.updateShowEditBillingTemplateOption();
+				this.showEditBillingOption();
+				this.editedBillingTemplate = null;
+			}
+			
+			private function showEditBillingTemplateWindow():void {
+				if (!showEditBillingTemplateOption) {
+					return;
+				}
+				
+				var editBillingTemplateWindow:BillingTemplateWindow = BillingTemplateWindow(mx.managers.PopUpManager.createPopUp(this, BillingTemplateWindow, true));
+				editBillingTemplateWindow.order = request;
+				editBillingTemplateWindow.performSetup(true, this);
+				editBillingTemplateWindow.loadBillingTemplate(parseInt(new String(request.@idRequest)), "Request");
+				mx.managers.PopUpManager.centerPopUp(editBillingTemplateWindow); 
+				editBillingTemplateWindow.setFocus();
 			}
 			
 		]]>
@@ -6076,7 +6201,7 @@
 				<mx:Canvas label="Billing" width="100%" height="100%" id="billingTab">
 					<mx:VBox width="100%" height="100%" verticalGap="4"  paddingBottom="4" paddingTop="4" paddingRight="4" paddingLeft="4" id="billingContainer" >
 						<mx:HBox verticalGap="0" width="100%" horizontalGap="2" verticalAlign="middle">
-							<mx:Label text="Account"  
+							<mx:Label text="Account" id="accountComboLabel"  
 									  visible="{this.request.@isExternal != 'Y'}"
 									  styleName="formLabel"/>
 							<mx:ComboBox id="requestEditBillingAccountCombo"
@@ -6086,10 +6211,11 @@
 										 visible="{this.request.@isExternal != 'Y'}"
 										 width="400"
 										 enabled="{(parentApplication.hasPermission('canWriteAnyObject') || parentDocument.selectedExperiment.@canUpdate == 'Y') ? true : false}"/>
+							<mx:LinkButton  label="Edit Billing Template"  styleName="formLinkButton" id="editBillingTemplateLink" fontSize="10" paddingTop="0" textAlign="left" paddingLeft="0" click="showEditBillingTemplateWindow()" />
 							<mx:Label text="Current Account:"  
 									  visible="{this.request.@isExternal != 'Y'}"
 									  styleName="formLabel"/>
-							<mx:Text visible="{this.request.@isExternal != 'Y'}" text="{request.billingItems.BillingLab.@accountName + ' (' + request.billingItems.BillingLab.@labName + ')'}" />
+							<mx:Text id="accountLabel" visible="{this.request.@isExternal != 'Y'}" />
 						</mx:HBox>
 						<mx:AdvancedDataGrid height="100%" width="100%" id="billingADConfirmGrid"  
 											 displayItemsExpanded="true"  

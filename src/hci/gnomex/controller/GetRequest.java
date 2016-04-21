@@ -199,6 +199,7 @@ public class GetRequest extends GNomExCommand implements Serializable {
 
           BillingTemplate billingTemplate = BillingTemplateQueryManager.retrieveBillingTemplate(sess, request);
           if (billingTemplate != null) {
+        	  Hibernate.initialize(billingTemplate.getItems());
         	  requestNode.setAttribute("idBillingTemplate", billingTemplate.getIdBillingTemplate().toString());
           }
 
@@ -224,7 +225,6 @@ public class GetRequest extends GNomExCommand implements Serializable {
           if (request.getBillingAccount() != null) {
             accountNumberDisplay = request.getBillingAccount().getAccountNumberDisplay();
           } else if (billingTemplate != null) {
-        	  Hibernate.initialize(billingTemplate.getItems());
         	  boolean firstAccount = true;
         	  for (BillingTemplateItem item : billingTemplate.getItems()) {
         		  BillingAccount account = sess.load(BillingAccount.class, item.getIdBillingAccount());
@@ -237,6 +237,10 @@ public class GetRequest extends GNomExCommand implements Serializable {
         	  }
           }
           requestNode.setAttribute("accountNumberDisplay", accountNumberDisplay);
+          
+          if (billingTemplate != null) {
+        	  requestNode.addContent(billingTemplate.toXML(sess, null));
+          }
 
           if (user != null) {
             requestNode.setAttribute("email", user.getEmail() != null ? user.getEmail() : "");

@@ -2,6 +2,7 @@ package hci.gnomex.controller;
 
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
+import hci.gnomex.model.BillingTemplate;
 import hci.gnomex.model.Lab;
 import hci.gnomex.model.ProjectRequestFilter;
 import hci.gnomex.model.PropertyDictionary;
@@ -10,6 +11,7 @@ import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.Step;
 import hci.gnomex.model.Visibility;
 import hci.gnomex.model.WorkItem;
+import hci.gnomex.utility.BillingTemplateQueryManager;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.PropertyDictionaryHelper;
 
@@ -204,14 +206,14 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
             addProjectNode(row);
             if (idRequest.intValue() != -2) {
               addRequestCategoryNode(row);
-              addRequestNode(row, analysisNames, dictionaryHelper);                   
+              addRequestNode(row, analysisNames, dictionaryHelper, sess);                   
               addSampleNode(row);            
             }
           } else if (idProject.intValue() != prevIdProject.intValue()) {
             addProjectNode(row);
             if (idRequest.intValue() != -2) {
               addRequestCategoryNode(row);
-              addRequestNode(row, analysisNames, dictionaryHelper);          
+              addRequestNode(row, analysisNames, dictionaryHelper, sess);          
               addSampleNode(row);
             }
           } else if (filter.getShowCategory().equals("Y") &&
@@ -219,12 +221,12 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
               !codeApplication.equals(prevCodeApplication)) {
             if (idRequest.intValue() != -2) {
               addRequestCategoryNode(row);
-              addRequestNode(row, analysisNames, dictionaryHelper);          
+              addRequestNode(row, analysisNames, dictionaryHelper, sess);          
               addSampleNode(row);
             }
           } else if (idRequest.intValue() != prevIdRequest.intValue()) {
             if (idRequest.intValue() != -2) {
-              addRequestNode(row, analysisNames, dictionaryHelper);          
+              addRequestNode(row, analysisNames, dictionaryHelper, sess);          
               addSampleNode(row);
             }
           } else {
@@ -358,7 +360,7 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
     }
   }
 
-  private void addRequestNode(Object[] row, StringBuffer analysisNames, DictionaryHelper dictionaryHelper) {
+  private void addRequestNode(Object[] row, StringBuffer analysisNames, DictionaryHelper dictionaryHelper, Session sess) {
     experimentCount++;
     String labName = Lab.formatLabNameFirstLast((String)row[18], (String)row[17]);
     String projectLabName = Lab.formatLabNameFirstLast((String)row[21], (String)row[20]);
@@ -366,6 +368,19 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
 
     String codeRequestCategory =  row[15] == null ? "" : ((String)row[15]).toString();
     RequestCategory requestCategory = dictionaryHelper.getRequestCategoryObject(codeRequestCategory);
+    
+    boolean hasMultipleAccounts = false;
+    Request request = null;
+    if (row[4] != null) {
+        request = sess.load(Request.class, (Integer) row[4]);
+    }
+    BillingTemplate billingTemplate = null;
+    if (request != null) {
+        billingTemplate = BillingTemplateQueryManager.retrieveBillingTemplate(sess, request);
+    }
+    if (billingTemplate != null && billingTemplate.getItems() != null && billingTemplate.getItems().size() > 1) {
+        hasMultipleAccounts = true;
+    }
 
     requestNode = new Element("Request");
     requestNode.setAttribute("idRequest",              row[4] == null ? ""  : ((Integer)row[4]).toString());
@@ -396,6 +411,7 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
     requestNode.setAttribute("idInstitution",          row[31] == null ? "" : ((Integer)row[31]).toString());
     requestNode.setAttribute("hasQcWorkItems",         hasQcWorkItems == true ? "Y" : "N");
     requestNode.setAttribute("idSubmitter",            row[32] == null ? "" : ((Integer)row[32]).toString());
+    requestNode.setAttribute("hasMultipleAccounts",    hasMultipleAccounts ? "Y" : "N");
 
     if (requestNode.getAttributeValue("codeVisibility").equals(Visibility.VISIBLE_TO_PUBLIC)) {
       requestNode.setAttribute("requestPublicNote",          "(Public) ");

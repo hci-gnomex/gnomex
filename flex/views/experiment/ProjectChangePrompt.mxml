@@ -39,19 +39,23 @@
 	private var changeBilling:Boolean;
 		
 	[Bindable]
+	private var promptToManuallyChangeBilling:Boolean = false;
+		
+	[Bindable]
 	private var appUsersForLab:XMLListCollection;
 	private var appUserSort:Sort;
 		
 	private var navExperimentView:NavExperimentView;
 		
 		
-	public	function init(navExperimentView:NavExperimentView, message:String, oldIdLab:String, idLab:String, currentOwnerId:String, idBillingAccount:String, isExternal:String, idCoreFacility:String):void {
+	public	function init(navExperimentView:NavExperimentView, message:String, oldIdLab:String, idLab:String, currentOwnerId:String, idBillingAccount:String, isExternal:String, idCoreFacility:String, promptToManuallyChangeBilling:Boolean = false):void {
 		this.navExperimentView = navExperimentView;
 		this.message.text = message;
 		this.idLab = idLab;
 		this.currentOwnerId = currentOwnerId;
 		this.idBillingAccount = idBillingAccount;
 		this.idCoreFacility = idCoreFacility;
+		this.promptToManuallyChangeBilling = promptToManuallyChangeBilling;
 		if (isExternal != null && isExternal == "Y") {
 			// External requests don't have billing accounts
 			changeBilling = false;
@@ -62,6 +66,9 @@
 			} else {
 				changeBilling = false;
 			}
+		}
+		if (this.promptToManuallyChangeBilling) {
+			changeBilling = false;
 		}
 		
 		var params:Object = new Object();
@@ -78,7 +85,7 @@
 			billingAccounts.addItemAt(emptyNode, 0);
 			requestEditBillingAccountCombo.selectedItem = null;
 			for each(var ba:Object in billingAccounts) {
-				if (ba.@idBillingAccount == idBillingAccount) {
+				if (idBillingAccount != null && ba.@idBillingAccount == idBillingAccount) {
 					requestEditBillingAccountCombo.selectedItem = ba;
 					break;
 				}
@@ -133,7 +140,7 @@
 			} 
 			
 		}
-		navExperimentView.onPromptToReassignProject(closeStatus, ownerCombo.selectedItem.@idAppUser, requestEditBillingAccountCombo.selectedItem.@idBillingAccount);
+		navExperimentView.onPromptToReassignProject(closeStatus, ownerCombo.selectedItem.@idAppUser, requestEditBillingAccountCombo.selectedItem != null ? requestEditBillingAccountCombo.selectedItem.@idBillingAccount : null, promptToManuallyChangeBilling);
 		PopUpManager.removePopUp(this);		
 	}
 		
@@ -154,7 +161,10 @@
 			<mx:ComboBox id="requestEditBillingAccountCombo"
 						 labelField="@accountName" width="409"
 						 dataProvider="{billingAccounts}" />
-		</mx:HBox>		
+		</mx:HBox>
+		<mx:HBox width="100%" visible="{promptToManuallyChangeBilling}" includeInLayout="{promptToManuallyChangeBilling}">
+			<mx:Label text="This request is associated with multiple billing accounts, please adjust billing."/>
+		</mx:HBox>
     </mx:VBox>
 
 	<mx:ControlBar horizontalAlign="right" height="29">

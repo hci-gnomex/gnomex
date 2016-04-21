@@ -349,6 +349,8 @@
 			public function init():void {
 				checkSecurity();
 				setVisibility();
+				this.selectedBillingAccount = null;
+				this.selectedBillingTemplate = null;
 			}
 			
 			public function checkSecurity():void {

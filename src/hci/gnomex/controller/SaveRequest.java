@@ -87,6 +87,7 @@ import hci.gnomex.model.TreatmentEntry;
 import hci.gnomex.model.Visibility;
 import hci.gnomex.model.WorkItem;
 import hci.gnomex.security.SecurityAdvisor;
+import hci.gnomex.utility.BillingTemplateQueryManager;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.FileDescriptorUploadParser;
 import hci.gnomex.utility.FreeMarkerConfiguration;
@@ -349,6 +350,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 
           // Save billing template
           BillingTemplate billingTemplate = requestParser.getBillingTemplate();
+          BillingTemplate oldBillingTemplate = BillingTemplateQueryManager.retrieveBillingTemplate(sess, requestParser.getRequest());
           if ( billingTemplate != null ) {
 
             if (requestParser.isNewRequest()) {
@@ -366,6 +368,18 @@ public class SaveRequest extends GNomExCommand implements Serializable {
             }
             sess.flush();
             billingTemplate.getItems().clear();
+            
+            if (oldBillingTemplate != null && !requestParser.isNewRequest() && requestParser.isReassignBillingAccount()) {
+                // Delete old billing template items if any
+                Set<BillingTemplateItem> oldBtiSet2 = new TreeSet<BillingTemplateItem>();
+                oldBtiSet2.addAll( oldBillingTemplate.getItems() );
+                for (BillingTemplateItem billingTemplateItemToDelete : oldBtiSet2) {
+                  BillingTemplateItem persistentBTI = sess.load( BillingTemplateItem.class, billingTemplateItemToDelete.getIdBillingTemplateItem() );
+                  sess.delete(persistentBTI);
+                }
+                sess.flush();
+                oldBillingTemplate.getItems().clear();
+            }
 
             // Save new billing template items
             Set<BillingTemplateItem> btiSet = requestParser.getBillingTemplateItems();
@@ -379,12 +393,34 @@ public class SaveRequest extends GNomExCommand implements Serializable {
             }
             sess.flush();
             if (!requestParser.isNewRequest() && requestParser.isReassignBillingAccount()) {
+              // Transfer master billing items
+              if (oldBillingTemplate != null && !billingTemplate.getIdBillingTemplate().equals(oldBillingTemplate.getIdBillingTemplate())) {
+                  Set<MasterBillingItem> masterBillingItems = new HashSet<MasterBillingItem>();
+                  masterBillingItems.addAll(oldBillingTemplate.getMasterBillingItems());
+                  for (MasterBillingItem master : masterBillingItems) {
+                      master.setIdBillingTemplate(billingTemplate.getIdBillingTemplate());
+                      billingTemplate.getMasterBillingItems().add(master);
+                      sess.save(master);
+                  }
+                  sess.flush();
+                  oldBillingTemplate.getMasterBillingItems().clear();
+              }
+                
               // Delete existing billing items
               Set<BillingItem> oldBillingItems = billingTemplate.getBillingItems(sess);
               for (BillingItem billingItemToDelete : oldBillingItems) {
                 sess.delete(billingItemToDelete);
               }
               sess.flush();
+              
+              // Delete existing billing items
+              if (oldBillingTemplate != null) {
+                  Set<BillingItem> oldBillingItems2 = oldBillingTemplate.getBillingItems(sess);
+                  for (BillingItem billingItemToDelete : oldBillingItems2) {
+                    sess.delete(billingItemToDelete);
+                  }
+                  sess.flush();
+              }
 
               // Save new billing items
               Set<BillingItem> newBillingItems = billingTemplate.recreateBillingItems(sess);
@@ -392,6 +428,13 @@ public class SaveRequest extends GNomExCommand implements Serializable {
                 sess.save(newlyCreatedBillingItem);
               }
               sess.flush();
+              
+              if (oldBillingTemplate != null && !billingTemplate.getIdBillingTemplate().equals(oldBillingTemplate.getIdBillingTemplate())) {
+                  BillingTemplate persistentBT = sess.load(BillingTemplate.class, oldBillingTemplate.getIdBillingTemplate());
+                  oldBillingTemplate = null;
+                  sess.delete(persistentBT);
+                  sess.flush();
+              }
             }
           }
 
@@ -789,21 +832,8 @@ public class SaveRequest extends GNomExCommand implements Serializable {
               }
             }
           }
-          billing_items_if: if (createBillingItems || requestParser.isReassignBillingAccount()) {
+          if (createBillingItems || requestParser.isReassignBillingAccount()) {
             sess.refresh(requestParser.getRequest());
-
-            if (!requestParser.getRequest().getBillingItemList(sess).isEmpty()) {
-              Iterator ibill = requestParser.getRequest().getBillingItemList(sess).iterator();
-              BillingItem bill = (BillingItem) ibill.next();
-              hci.gnomex.model.BillingAccount firstBillingAccount = bill.getBillingAccount();
-              while (ibill.hasNext()) {
-                bill = (BillingItem) ibill.next();
-                if (firstBillingAccount != bill.getBillingAccount()) {
-                  billingAccountMessage = "There are multiple billing accounts associated with this request. The accounts have not been changed. Please use the Admininstrator Billing Screen to assign new accounts.";
-                  break billing_items_if;
-                }
-              }
-            }
 
             // Create the billing items
             // We need to include the samples even though they were not added

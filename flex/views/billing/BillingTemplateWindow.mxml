@@ -59,6 +59,7 @@
 			import mx.managers.PopUpManager;
 			import mx.rpc.events.ResultEvent;
 			
+			import views.experiment.ExperimentEditView;
 			import views.experiment.TabSetupView;
 			import views.product.NewProductOrderView;
 			import views.renderers.CheckBoxRenderer;
@@ -224,6 +225,10 @@
 						} else if (parentView is NewProductOrderView) {
 							(parentView as NewProductOrderView).selectedBillingTemplate = billingTemplateXML;
 							(parentView as NewProductOrderView).makeBillingTemplateSelection();
+							this.close();
+						} else if (parentView is ExperimentEditView) {
+							(parentView as ExperimentEditView).editedBillingTemplate = billingTemplateXML;
+							(parentView as ExperimentEditView).updateDirtyNote(true);
 							this.close();
 						}
 					}
