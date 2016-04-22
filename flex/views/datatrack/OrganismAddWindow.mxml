@@ -14,6 +14,7 @@
       id="addOrganism" 
       url="SaveOrganism.gx"
       resultFormat="e4x"
+	  showBusyCursor="true"
       result="onAddOrganism(event)"
       fault="parentApplication.onFailHttpRequest('Failed to add organism', event)"
       method="POST"

@@ -60,8 +60,6 @@
 					mx.controls.Alert.show(getRequestDownloadList.lastResult..ACTMESSAGE.@TEXT);
 					return;
 				} else {
-//					parentApplication.lastGetRequestDownloadListidRequest = getRequestDownloadList.lastResult.Request.@idRequest;
-//					parentApplication.lastGetRequestDownloadListrequestNumber = getRequestDownloadList.lastResult.Request.@requestNumber;
 					
 					callLater( function():void {
 						if ( downloadList.length > 0 ){
@@ -568,6 +566,13 @@
 					   label="HTTP Download" 
 					   disabledIcon="@Embed('../../assets/download_disable.png')"
 					   icon="@Embed(source='../../assets/download_large.png')"/>	   
+			<mx:Button id="createSoftLinks" 
+					   enabled="{filesToDownload.length>0}"
+					   click="downloadView.createSoftLinks(filesToDownload.source..FileDescriptor.(@type != 'dir'))" 
+					   icon="@Embed('../../assets/download.png')" 
+					   disabledIcon="@Embed('../../assets/download_disable.png')"
+					   toolTip="Create soft links to selected files"
+					   label="Create Soft Links"/>
 			<mx:Button label="Cancel" enabled="true" click="{PopUpManager.removePopUp(this)}" visible="true" toolTip="Close window"/>	      	
 		</mx:HBox>  
 	</mx:ControlBar>
