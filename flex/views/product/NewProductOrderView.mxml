@@ -393,7 +393,7 @@
 			
 			private function onGetAuthorizedBillingAccounts(event:ResultEvent):void {
 				if (getAuthorizedBillingAccounts.lastResult.name() == "AuthorizedBillingAccounts") {
-					if (getAuthorizedBillingAccounts.lastResult.@hasAccountsWithinCore == "Y" && userHasAuthorizedAccountsOutsideLab(getAuthorizedBillingAccounts.lastResult)) {
+					if (getAuthorizedBillingAccounts.lastResult.@hasAccountsWithinCore == "Y") {
 						showSplitBillingLink = true;
 					}
 					refreshBillingAccounts();
@@ -402,7 +402,7 @@
 				}
 			}
 			
-			private function userHasAuthorizedAccountsOutsideLab(authorizedAccounts:Object):Boolean {
+			/*private function userHasAuthorizedAccountsOutsideLab(authorizedAccounts:Object):Boolean {
 				if (labCombo != null && labCombo.selectedItem != null && labCombo.selectedItem.hasOwnProperty("@idLab") && labCombo.selectedItem.@idLab != "" && authorizedAccounts != null) {
 					for each (var lab:Object in authorizedAccounts..Lab) {
 						if (lab.hasOwnProperty("@idLab") && lab.@idLab != labCombo.selectedItem.@idLab) {
@@ -412,7 +412,7 @@
 				}
 				
 				return false;
-			}
+			}*/
 			
 			private function showSplitBillingWindow():void {
 				if (!showSplitBillingLink) {
