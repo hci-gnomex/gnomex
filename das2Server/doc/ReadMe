@@ -1,0 +1,22 @@
+Directions for making changes to the GNomEx version of the DAS/2 Server (04/21/2016)
+
+The src directory contains all the source (decompiled) from das2server.jar and genometry.jar
+
+The binary directory contains a tar file of the current running DAS2DB webapp.
+
+If you need to change something:
+
+1) Edit the source
+
+2) Compile using the .jar files in lib
+
+3) Update the .class files in the existing das2server.jar (or genometry.jar)
+
+4) Replace the jar files in DAS2DB.tar with your new ones
+
+Direct questions to GNomEx.Support@hci.utah.edu
+
+
+
+
+
