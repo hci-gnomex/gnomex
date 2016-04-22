@@ -7,3 +7,6 @@ CALL ExecuteIfTableExists('gnomex','Request_Audit','ALTER TABLE Request_Audit AD
 --  Add properties for site title
 INSERT INTO PropertyDictionary (propertyName, propertyValue, propertyDescription, forServerOnly )
 VALUES ('show_title_box', 'N', 'Show site title and welcome message on home page', 'N' );
+
+INSERT INTO PropertyDictionary (propertyName, propertyValue, propertyDescription, forServerOnly )
+VALUES ('directory_bioinformatics_scratch','/bioScratch','Where experiment soft links are created','N');
