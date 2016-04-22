@@ -47,6 +47,31 @@ public class BillingAccount extends HibernateDetailObject {
   private Integer    idApprover;
   private Lab		 lab;
 
+  @Override
+  public int hashCode() {
+	final int prime = 31;
+	int result = 1;
+	result = prime * result + ((this.getIdBillingAccount() == null) ? super.hashCode() : this.getIdBillingAccount().hashCode());
+	return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+	if (this == obj)
+		return true;
+	if (obj == null)
+		return false;
+	if (!(obj instanceof BillingAccount))
+		return false;
+	BillingAccount other = (BillingAccount) obj;
+	if (this.getIdBillingAccount() == null) {
+		if (other.getIdBillingAccount() != null)
+			return false;
+	} else if (!this.getIdBillingAccount().equals(other.getIdBillingAccount()))
+		return false;
+	return true;
+  }
+
   public byte [] getPurchaseOrderForm() {
     return purchaseOrderForm;
   }

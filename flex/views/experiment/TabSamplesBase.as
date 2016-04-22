@@ -334,7 +334,7 @@ import mx.controls.TextInput;
 				return;
 			}
 			
-			if ( parentDocument.isIScanState() ) {
+			if ( parentDocument.isIScanState() || parentDocument.isCapSeqState() || parentDocument.isFragAnalState() ) {
 				propertyNode.@isSelected = 'true';
 			}
 			
@@ -423,10 +423,10 @@ import mx.controls.TextInput;
 		protected function init():void {
 			if (parentDocument != null) {
 				parentDocument.propertyEntries.refresh();
+				rebuildSamplesGrid();
 				showHideColumns();
 				showHideCCNumberBox();
 				initButtons();
-				rebuildSamplesGrid();
 				initializeBarcoding();
 				initializeSampleTypes();
 			}

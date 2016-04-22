@@ -11,6 +11,7 @@ import hci.gnomex.model.BillingItem;
 import hci.gnomex.model.BillingPeriod;
 import hci.gnomex.model.BillingStatus;
 import hci.gnomex.model.BillingTemplate;
+import hci.gnomex.model.BillingTemplateItem;
 import hci.gnomex.model.Hybridization;
 import hci.gnomex.model.Lab;
 import hci.gnomex.model.Label;
@@ -184,6 +185,10 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
         requestParser.parse(sess);
         request = requestParser.getRequest();
         billingTemplate = requestParser.getBillingTemplate();
+        Set<BillingTemplateItem> btiSet = requestParser.getBillingTemplateItems();
+        for (BillingTemplateItem newlyCreatedItem : btiSet) {
+        	billingTemplate.getItems().add(newlyCreatedItem);
+        }
 
         // Clear session here so we don't get caught with an auto-flush later on.
         sess.clear();
@@ -363,7 +368,7 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
           if (priceCategory.getPluginClassName() != null) {
             try {
               plugin = (BillingPlugin)Class.forName(priceCategory.getPluginClassName()).newInstance();
-              if ( priceCategory.getPluginClassName().toLowerCase().indexOf( "discount" ) != -1 ) {
+              if ( priceCategory.getPluginClassName().toLowerCase().contains( "discount" ) ) {
                 isDiscount = true;
               }
             } catch(Exception e) {
@@ -406,6 +411,12 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
       for(Iterator i = billingItems.iterator(); i.hasNext();) {
         BillingItem bi = (BillingItem)i.next();
         Element billingItemNode = bi.toXMLDocument(null, this.DATE_OUTPUT_SQL).getRootElement();
+        if (bi.getIdBillingAccount() != null) {
+        	BillingAccount account = sess.load(BillingAccount.class, bi.getIdBillingAccount());
+        	if (account != null && account.getAccountName() != null) {
+        		billingItemNode.setAttribute("accountName", account.getAccountName());
+        	}
+        }
         if (bi.getInvoicePrice() != null) {
           grandInvoicePrice = grandInvoicePrice.add(bi.getInvoicePrice());
           billingItemNode.setAttribute("invoicePrice", nf.format(bi.getInvoicePrice().doubleValue()));
@@ -417,6 +428,12 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
       for(Iterator i = discountBillingItems.iterator(); i.hasNext();) {
         BillingItem bi = (BillingItem)i.next();
         Element billingItemNode = bi.toXMLDocument(null, this.DATE_OUTPUT_SQL).getRootElement();
+        if (bi.getIdBillingAccount() != null) {
+        	BillingAccount account = sess.load(BillingAccount.class, bi.getIdBillingAccount());
+        	if (account != null && account.getAccountName() != null) {
+        		billingItemNode.setAttribute("accountName", account.getAccountName());
+        	}
+        }
         if (bi.getUnitPrice() != null) {
           BigDecimal invoicePrice = bi.getUnitPrice().multiply( grandInvoicePrice );
           bi.setUnitPrice( invoicePrice );

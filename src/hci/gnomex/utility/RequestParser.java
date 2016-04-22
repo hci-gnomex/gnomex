@@ -298,16 +298,16 @@ public class RequestParser implements Serializable {
     if (n.getAttributeValue("idBillingAccount") != null && !n.getAttributeValue("idBillingAccount").equals("")) {
       Integer newIdBillingAccount = new Integer(n.getAttributeValue("idBillingAccount"));
       request.setIdBillingAccount(newIdBillingAccount);
+      billingTemplate = BillingTemplateQueryManager.retrieveBillingTemplate(sess, request);
       // If the billing account has been changed, we need to know so that any billing items can be revised as well.
       if (!isNewRequest && !this.isExternalExperiment()) {
-        if (request.getAcceptingBalanceAccountId(sess) == null || !request.getAcceptingBalanceAccountId(sess).equals(newIdBillingAccount)) {
+        if (request.getAcceptingBalanceAccountId(sess) == null || !request.getAcceptingBalanceAccountId(sess).equals(newIdBillingAccount) || (billingTemplate != null && billingTemplate.getItems().size() > 1)) {
           reassignBillingAccount = true;
           if (!this.secAdvisor.hasPermission(SecurityAdvisor.CAN_ACCESS_ANY_OBJECT) && !ensureNonAdminCanAccessBillingAccount(newIdBillingAccount, sess)) {
             throw new Exception("User cannot access selected billing account.");
           }
         }
       }
-      billingTemplate = BillingTemplateQueryManager.retrieveBillingTemplate(sess, request);
       if (billingTemplate == null) {
         billingTemplate = new BillingTemplate(request);
       }
@@ -326,12 +326,12 @@ public class RequestParser implements Serializable {
         }
       }
       billingTemplate.setOrder(request);
-    } else if (n.getChild("BillingTemplate") != null) {
-      BillingTemplateParser btParser = new BillingTemplateParser( n.getChild("BillingTemplate") );
-      btParser.parse( sess );
+    } else if (n.getChild("BillingTemplate") != null || (n.getChild("billingTemplate") != null && n.getChild("billingTemplate").getChild("BillingTemplate") != null)) {
+      Element billingTemplateNode = n.getChild("BillingTemplate") != null ? n.getChild("BillingTemplate") : n.getChild("billingTemplate").getChild("BillingTemplate");
+      BillingTemplateParser btParser = new BillingTemplateParser(billingTemplateNode);
+      btParser.parse(sess);
       billingTemplate = btParser.getBillingTemplate();
       billingTemplateItems = btParser.getBillingTemplateItems();
-      billingTemplate.setItems( btParser.getBillingTemplateItems() );
       if (!isNewRequest && !this.isExternalExperiment()) {
         BillingTemplate oldTemplate = BillingTemplateQueryManager.retrieveBillingTemplate(sess, request);
         if (oldTemplate == null || !oldTemplate.equals(billingTemplate)) {

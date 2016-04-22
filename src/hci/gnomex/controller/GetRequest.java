@@ -199,6 +199,7 @@ public class GetRequest extends GNomExCommand implements Serializable {
 
           BillingTemplate billingTemplate = BillingTemplateQueryManager.retrieveBillingTemplate(sess, request);
           if (billingTemplate != null) {
+        	  Hibernate.initialize(billingTemplate.getItems());
         	  requestNode.setAttribute("idBillingTemplate", billingTemplate.getIdBillingTemplate().toString());
           }
 
@@ -221,11 +222,25 @@ public class GetRequest extends GNomExCommand implements Serializable {
           }
 
           String accountNumberDisplay = "";
-
           if (request.getBillingAccount() != null) {
             accountNumberDisplay = request.getBillingAccount().getAccountNumberDisplay();
+          } else if (billingTemplate != null) {
+        	  boolean firstAccount = true;
+        	  for (BillingTemplateItem item : billingTemplate.getItems()) {
+        		  BillingAccount account = sess.load(BillingAccount.class, item.getIdBillingAccount());
+        		  if (firstAccount) {
+        			  accountNumberDisplay = account.getAccountNumberDisplay();
+        			  firstAccount = false;
+        		  } else {
+        			  accountNumberDisplay += ", " + account.getAccountNumberDisplay();
+        		  }
+        	  }
           }
           requestNode.setAttribute("accountNumberDisplay", accountNumberDisplay);
+          
+          if (billingTemplate != null) {
+        	  requestNode.addContent(billingTemplate.toXML(sess, null));
+          }
 
           if (user != null) {
             requestNode.setAttribute("email", user.getEmail() != null ? user.getEmail() : "");
@@ -332,6 +347,7 @@ public class GetRequest extends GNomExCommand implements Serializable {
               continue;
             }
 
+
             // Note that requestCategory is null for new experiments as this is called before they select the request category.
             // for sequenom and iscan types we only include properties that explicitly apply to the request category.
             boolean autoSelect = false;
@@ -345,7 +361,8 @@ public class GetRequest extends GNomExCommand implements Serializable {
                 PropertyPlatformApplication pa = (PropertyPlatformApplication) i1.next();
                 if (pa.getCodeRequestCategory().equals(request.getCodeRequestCategory()) && (pa.getApplication() == null || pa.getApplication().getCodeApplication().equals(request.getCodeApplication()))) {
                   include = true;
-                  if (requestCategory.getType().equals(RequestCategoryType.TYPE_ISCAN)) {
+                  if (requestCategory.getType().equals(RequestCategoryType.TYPE_ISCAN) || requestCategory.getType().equals(RequestCategoryType.TYPE_CAP_SEQ)
+                          || requestCategory.getType().equals(RequestCategoryType.TYPE_FRAGMENT_ANALYSIS)) {
                     autoSelect = true;
                   } else if (requestCategory.getType().equals(RequestCategoryType.TYPE_ISOLATION) || requestCategory.getType().equals(RequestCategoryType.TYPE_SEQUENOM) || requestCategory.getType().equals(RequestCategoryType.TYPE_CLINICAL_SEQUENOM)) {
                     autoSelect = !newRequest;
@@ -438,49 +455,8 @@ public class GetRequest extends GNomExCommand implements Serializable {
             peNode.setAttribute("isActive", prop.getIsActive() != null ? prop.getIsActive() : "Y");
             peNode.setAttribute("idCoreFacility", prop.getIdCoreFacility() != null ? prop.getIdCoreFacility().toString() : "");
 
-            if (entry != null && entry.getValues() != null && entry.getValues().size() > 0) {
-              for (Iterator i1 = entry.getValues().iterator(); i1.hasNext();) {
-                PropertyEntryValue av = (PropertyEntryValue) i1.next();
-                Element valueNode = new Element("PropertyEntryValue");
-                peNode.addContent(valueNode);
-                valueNode.setAttribute("idPropertyEntryValue", av.getIdPropertyEntryValue().toString());
-                valueNode.setAttribute("value", av.getValue() != null ? av.getValue() : "");
-                valueNode.setAttribute("url", av.getUrl() != null ? av.getUrl() : "");
-                valueNode.setAttribute("urlDisplay", av.getUrlDisplay() != null ? av.getUrlDisplay() : "");
-                valueNode.setAttribute("urlAlias", av.getUrlAlias() != null ? av.getUrlAlias() : "");
-              }
-            }
-            if (prop.getCodePropertyType().equals(PropertyType.URL)) {
-              // Add an empty value for URL
-              Element emptyNode = new Element("PropertyEntryValue");
-              peNode.addContent(emptyNode);
-              emptyNode.setAttribute("idPropertyEntryValue", "");
-              emptyNode.setAttribute("url", "Enter URL here...");
-              emptyNode.setAttribute("urlAlias", "Enter alias here...");
-              emptyNode.setAttribute("urlDisplay", "");
-              emptyNode.setAttribute("value", "");
-            }
+            Property.appendEntryContentXML(prop,entry,peNode);
 
-            if (prop.getOptions() != null && prop.getOptions().size() > 0) {
-              for (Iterator i1 = prop.getOptions().iterator(); i1.hasNext();) {
-                PropertyOption option = (PropertyOption) i1.next();
-                Element optionNode = new Element("PropertyOption");
-                peNode.addContent(optionNode);
-                optionNode.setAttribute("idPropertyOption", option.getIdPropertyOption().toString());
-                optionNode.setAttribute("name", option.getOption());
-                boolean isSelected = false;
-                if (entry != null && entry.getOptions() != null) {
-                  for (Iterator i2 = entry.getOptions().iterator(); i2.hasNext();) {
-                    PropertyOption optionSelected = (PropertyOption) i2.next();
-                    if (optionSelected.getIdPropertyOption().equals(option.getIdPropertyOption())) {
-                      isSelected = true;
-                      break;
-                    }
-                  }
-                }
-                optionNode.setAttribute("selected", isSelected ? "Y" : "N");
-              }
-            }
 
             rpParentNode.addContent(peNode);
 

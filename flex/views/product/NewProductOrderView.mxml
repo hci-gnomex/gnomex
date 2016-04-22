@@ -44,6 +44,18 @@
 		useProxy="false">
 	</mx:HTTPService>
 	
+	<mx:HTTPService  
+		id="getAuthorizedBillingAccounts" 
+		url="GetAuthorizedBillingAccounts.gx"
+		destination="getAuthorizedBillingAccounts"
+		resultFormat="e4x"
+		showBusyCursor="true"
+		result="onGetAuthorizedBillingAccounts(event)"
+		fault="parentApplication.onFailHttpRequest('Failed to get authorized billing accounts', event)"
+		method="POST"
+		useProxy="false">
+	</mx:HTTPService>
+	
 	
 	<mx:Script>
 		<![CDATA[
@@ -54,6 +66,7 @@
 			import mx.managers.PopUpManager;
 			import mx.rpc.events.ResultEvent;
 			
+			import views.billing.BillingTemplateWindow;
 			import views.experiment.ChooseWorkAuthorizationTypeWindow;
 			
 			public var idCoreFacility:String = null;
@@ -63,6 +76,12 @@
 			
 			[Bindable]
 			public var lab:Object;
+			
+			[Bindable]
+			private var showSplitBillingLink:Boolean = false;
+			
+			[Bindable]
+			public var selectedBillingTemplate:Object = null;
 			
 			private var idAppUser:Object = null;
 			private var isLoaded:Boolean = false;
@@ -99,6 +118,9 @@
 				} else{
 					isLoaded = true;
 				}
+				
+				this.selectedBillingTemplate = null;
+				this.checkForOtherAccounts();
 			}
 			
 			private function hideFields():void{
@@ -143,38 +165,24 @@
 			}
 			
 			private function filterBillingAccount(item:Object):Boolean {
-				if (item.@isActive == 'N') {
-					return false;
-				}
-				
-				if (item.@isApproved == 'N') {
-					return false;
-				}
-				//				
-				//				var cat:Object = null;
-				//				if (cat == null || cat.@idCoreFacility.toString() == '') {
-				//					return false;
-				//				}
-				if (idAppUser == null || idAppUser.toString() == '') {
-					return false;
-				}
-				
+
 				if (item.@idCoreFacility != '') {
 					if (item.@idCoreFacility != idCoreFacility) {
 						return false;
-					} 
+					}
 				}
-				
-				if (item.@acctUsers != '') {
-					var ids:Array = item.@acctUsers.toString().split(",");
-					var found:Boolean = false;
-					for each(var id:String in ids) {
-						if (id == idAppUser.toString()) {
-							found = true;
-							break;
+
+				// Check if user is an authorized user for the account
+				if(getAuthorizedBillingAccounts.lastResult != null){
+					var isAuthorized:Boolean = false;
+
+					for each(var ba:XML in getAuthorizedBillingAccounts.lastResult..BillingAccount){
+						if(item.@idBillingAccount == ba.@idBillingAccount){
+							isAuthorized = true;
 						}
 					}
-					if (!found) {
+
+					if(!isAuthorized){
 						return false;
 					}
 				}
@@ -252,31 +260,32 @@
 			}
 			
 			private function checkSetupCompleteness():void{
+
 				var isComplete:Boolean = true;
 				var atLeastOneProductOrder:Boolean = false;
 				
-				if(labCombo.selectedIndex == -1 || billingAccountCombo.selectedIndex == -1){
+				if (labCombo.selectedIndex == -1 || (billingAccountCombo.selectedIndex == -1 && this.selectedBillingTemplate == null)) {
 					isComplete = false;
 				}
 				
-				if(this.currentState == 'AdminState' && appUserCombo.selectedIndex == -1){
+				if (this.currentState == 'AdminState' && appUserCombo.selectedIndex == -1) {
 					isComplete = false;
 				}
 				
-				if(!iAgree.selected){
+				if (!iAgree.selected) {
 					isComplete = false;
 				}
 				
-				for each(var product:XML in productList){
+				for each (var product:XML in productList) {
 					if(product.@isSelected == 'Y' && product.@quantity != '0'){
 						atLeastOneProductOrder = true;
 						break;
 					}
 				}
 				
-				if(isComplete && atLeastOneProductOrder){
+				if (isComplete && atLeastOneProductOrder) {
 					saveButton.enabled = true;
-				} else{
+				} else {
 					saveButton.enabled = false;
 				}
 				
@@ -293,7 +302,11 @@
 				this.saveButton.enabled = false;
 				var params:Object = new Object();
 				params.productListXMLString = "<productList>" + productList.toXMLString() + "</productList>";
-				params.idBillingAccount = billingAccountCombo.selectedItem.@idBillingAccount;
+				if (billingAccountCombo.selectedItem != null) {
+					params.idBillingAccount = billingAccountCombo.selectedItem.@idBillingAccount;
+				} else if (selectedBillingTemplate != null) {
+					params.billingTemplate = (new XMLList(this.selectedBillingTemplate)).toXMLString();
+				}
 				params.idAppUser = idAppUser;
 				params.idLab = labCombo.selectedItem.@idLab;
 				params.idCoreFacility = idCoreFacility;
@@ -305,7 +318,7 @@
 			
 			private function refreshBillingAccounts():void {
 				billingAccounts.refresh();
-				if (billingAccounts.length == 1) {
+				if (billingAccounts.length == 1 && !showSplitBillingLink) {
 					this.billingAccountCombo.selectedIndex = 0;	        	
 				} 
 			}
@@ -323,24 +336,24 @@
 				productRepeater.dataProvider = productList;
 				
 			}
-			
+
 			private function updateQuantity(event:Event):void{
 				var quantity:TextInput = TextInput(event.currentTarget);
 				var data:Object = event.currentTarget.getRepeaterItem();
-				
+
 				data.@quantity = quantity.text != '' ? ( isNaN(Number( quantity.text )) ? '0' : quantity.text) : '0';
-				
-				if (data.@quantity == '0' ) {
+
+				if (quantity.text == ''|| quantity.text == '0'  || isNaN(Number( quantity.text )) ) {
 					data.@isSelected = 'N';
 				} else {
 					data.@isSelected = 'Y';
 				}
+
 				productRepeater.dataProvider = productList;
-				
+
 				updateGrandTotal();
-				
 			}
-			
+
 			private function updateGrandTotal():void{
 				var grandTotalValue:int = 0;
 				for each(var product:XML in productList){
@@ -364,7 +377,65 @@
 				}
 			}
 			
+			private function checkForOtherAccounts():void {
+				if (parentApplication.isAdminState || parentApplication.isBillingAdminState || parentApplication.isSuperAdmin) {
+					showSplitBillingLink = true;
+				} else {
+					showSplitBillingLink = false;
+					
+					var params:Object = new Object();
+					if (idCoreFacility != null && idCoreFacility != "") {
+						params.idCoreFacility = idCoreFacility;
+					}
+					getAuthorizedBillingAccounts.send(params);
+				}
+			}
 			
+			private function onGetAuthorizedBillingAccounts(event:ResultEvent):void {
+				if (getAuthorizedBillingAccounts.lastResult.name() == "AuthorizedBillingAccounts") {
+					if (getAuthorizedBillingAccounts.lastResult.@hasAccountsWithinCore == "Y" && userHasAuthorizedAccountsOutsideLab(getAuthorizedBillingAccounts.lastResult)) {
+						showSplitBillingLink = true;
+					}
+					refreshBillingAccounts();
+				} else {
+					Alert.show("Could not retrieve authorized billing accounts.", "Error", Alert.OK, this);
+				}
+			}
+			
+			private function userHasAuthorizedAccountsOutsideLab(authorizedAccounts:Object):Boolean {
+				if (labCombo != null && labCombo.selectedItem != null && labCombo.selectedItem.hasOwnProperty("@idLab") && labCombo.selectedItem.@idLab != "" && authorizedAccounts != null) {
+					for each (var lab:Object in authorizedAccounts..Lab) {
+						if (lab.hasOwnProperty("@idLab") && lab.@idLab != labCombo.selectedItem.@idLab) {
+							return true;
+						}
+					}
+				}
+				
+				return false;
+			}
+			
+			private function showSplitBillingWindow():void {
+				if (!showSplitBillingLink) {
+					return;
+				}
+				
+				var splitWindow:BillingTemplateWindow = BillingTemplateWindow(mx.managers.PopUpManager.createPopUp(this, BillingTemplateWindow, true));
+				splitWindow.performSetup(true, this, idCoreFacility);
+				mx.managers.PopUpManager.centerPopUp(splitWindow); 
+				splitWindow.setFocus();
+			}
+			
+			public function makeBillingTemplateSelection():void {
+				this.billingAccountCombo.selectedItem = null;
+				this.billingAccountCombo.selectedIndex = -1;
+				checkSetupCompleteness();
+			}
+			
+			public function makeBillingAccountSelection():void {
+				this.selectedBillingTemplate = null;
+				checkSetupCompleteness();
+				productList.refresh();
+			}
 			
 		]]>
 	</mx:Script>
@@ -386,7 +457,7 @@
 										  labelField="@name" 
 										  prompt="Select a lab..."
 										  width="380"
-										  close="getMembersOfLab(); checkSetupCompleteness();" 
+										  close="getMembersOfLab(); checkSetupCompleteness(); checkForOtherAccounts();" 
 										  id="labCombo">
 				</renderers:FilterComboBox>
 				
@@ -395,7 +466,7 @@
 				<util:ContextHelp context1="experimentBillingAccount" context2="{}" showEdit="{parentApplication.isAdminState}" title="Billing Account Help"
 								  labelPlacement="left" id="text1" width="200" label="(3) Select a billing account."/>
 				<mx:HBox verticalAlign="middle" id="hbox3" horizontalGap="1" paddingBottom="0" paddingTop="0">
-					<mx:ComboBox labelField="@accountNameAndNumber" width="380" id="billingAccountCombo" prompt="Select an account..." change="checkSetupCompleteness(); productList.refresh();" selectedIndex="-1" close="checkSetupCompleteness(); productList.refresh();">
+					<mx:ComboBox labelField="@accountNameAndNumber" width="380" id="billingAccountCombo" prompt="Select an account..." change="makeBillingAccountSelection();" selectedIndex="-1" close="checkSetupCompleteness(); productList.refresh();">
 						<mx:dataProvider>{billingAccounts}</mx:dataProvider>
 					</mx:ComboBox>
 					<mx:VBox height="100%" verticalGap="0" paddingBottom="0" paddingTop="0" paddingLeft="0" paddingRight="4" id="vbox3" width="425">
@@ -406,6 +477,9 @@
 							<mx:LinkButton  label="Submit Work Authorization"  styleName="formLinkButton" id="workAuthLink1" fontSize="10" paddingTop="0" textAlign="left" paddingLeft="0"> 
 								<mx:click>showNewWorkAuthForm()</mx:click>
 							</mx:LinkButton>
+							<mx:LinkButton  label="Split Billing"  styleName="formLinkButton" id="splitBillingLink1" fontSize="10" paddingTop="0" textAlign="left" paddingLeft="0" visible="{showSplitBillingLink}" includeInLayout="{showSplitBillingLink}"> 
+								<mx:click>showSplitBillingWindow()</mx:click>
+							</mx:LinkButton>
 						</mx:HBox>
 					</mx:VBox>
 				</mx:HBox>
@@ -413,28 +487,28 @@
 			
 			<mx:Spacer height="5%" />
 			
-			<mx:HBox width="100%" visible="{billingAccountCombo.selectedIndex > -1}" id="headerBox" horizontalGap="0">
-				<mx:Label text="Product" textDecoration="underline" width="195"/>
+			<mx:HBox width="100%" visible="{billingAccountCombo.selectedIndex > -1 || this.selectedBillingTemplate != null}" id="headerBox" horizontalGap="0">
+				<mx:Label text="Product" textDecoration="underline" width="215"/>
 				<mx:Label text="Quantity" textDecoration="underline" width="125"/>
 				<mx:Label text="Price" textDecoration="underline" width="80" textAlign="right"/>
 				<mx:Spacer width="80" />
 				<mx:Label text="Total" textDecoration="underline"  width="100" textAlign="right"/>
-				<mx:Label text="Current Product Count" textDecoration="underline" width="250" id="text4" textAlign="center"
+				<mx:Label text="Current Lab Inventory" textDecoration="underline" width="250" id="text4" textAlign="center"
 						  toolTip="Your lab currently has this number of products in their inventory."/>
 			</mx:HBox>
 			
-			<mx:VBox width="100%" id="repeaterBox" visible="{billingAccountCombo.selectedIndex > -1}">
+			<mx:VBox width="100%" id="repeaterBox" visible="{billingAccountCombo.selectedIndex > -1 || this.selectedBillingTemplate != null}">
 				<mx:Repeater id="productRepeater" dataProvider="{productList}" >
 					<mx:HBox width="100%" horizontalGap="0">
 						<mx:CheckBox id="productCheckBox" 
-									 label="{productRepeater.currentItem.@name}" 
-									 selected="{productRepeater.currentItem.@isSelected == 'Y'}" 
+									 label="{productRepeater.currentItem.@name + ' (Order Qty: ' + productRepeater.currentItem.@orderQty + ')'}"
+									 selected="{productRepeater.currentItem.@isSelected == 'Y'}"
 									 change="{selectProduct(event);}" 
-									 width="195"/>
+									 width="215"/>
 						<mx:HBox width="125" horizontalAlign="left" paddingLeft="5" horizontalGap="0">
 							<mx:TextInput id="productQuantity" 
-										  text="{productRepeater.currentItem.@quantity}" 
-										  change="{updateQuantity(event); checkSetupCompleteness()}"  
+										  text="{productRepeater.currentItem.@quantity}"
+										  change="{updateQuantity(event); checkSetupCompleteness()}"
 										  width="42"/>
 							<mx:Spacer width="10" />
 							<mx:Text text=" x " id="text3"/>
@@ -450,15 +524,15 @@
 				</mx:Repeater>
 			</mx:VBox>
 			
-			<mx:HBox width="580" visible="{billingAccountCombo.selectedIndex > -1}" id="totalBox" horizontalAlign="right" horizontalGap="0">
+			<mx:HBox width="595" visible="{billingAccountCombo.selectedIndex > -1 || this.selectedBillingTemplate != null}" id="totalBox" horizontalAlign="right" horizontalGap="0">
 				<mx:Label text="Grand Total: " fontWeight="bold"/>
 				<mx:Label id="grandTotalLabel" text="$0" fontWeight="bold" textAlign="right" width="70"/>
 			</mx:HBox>
 			
 		</mx:VBox>
 		<mx:ControlBar width="100%" paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0" horizontalGap="1" verticalAlign="middle">
-			<mx:HBox verticalGap="0" id="iAgreeHBox" visible="{billingAccountCombo.selectedIndex > -1}" paddingLeft="20">
-				<mx:CheckBox label="As the Principal Investigator or authorized personnel of the account listed above I authorize the Core Facility to charge the account for the products selected." 
+			<mx:HBox verticalGap="0" id="iAgreeHBox" visible="{billingAccountCombo.selectedIndex > -1 || this.selectedBillingTemplate != null}" paddingLeft="20">
+				<mx:CheckBox label="As the Principal Investigator or authorized personnel of the account(s) listed above I authorize the Core Facility to charge the account for the products selected." 
 							 enabled="true" fontSize="11" id="iAgree"  
 							 color="#307B0B" width="100%" fontWeight="bold" textAlign="left" letterSpacing=".5" 
 							 textIndent="0" labelPlacement="right" paddingLeft="0" paddingRight="0" leading="0" 

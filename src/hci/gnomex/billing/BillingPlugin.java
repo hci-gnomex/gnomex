@@ -188,10 +188,12 @@ public abstract class BillingPlugin {
         Set<BillingItem> newlyCreatedBillingItems = SaveBillingTemplate.createBillingItemsForMaster(sess, master, template);
 
         for (BillingItem billingItem : newlyCreatedBillingItems) {
-        	billingItem.setCodeBillingStatus(billingStatus);
-            if (!billingStatus.equals(BillingStatus.NEW) && !billingStatus.equals(BillingStatus.PENDING)) {
-            	billingItem.setCompleteDate(new java.sql.Date(System.currentTimeMillis()));
-            }
+        	if (billingStatus != null) {
+        		billingItem.setCodeBillingStatus(billingStatus);
+                if (!billingStatus.equals(BillingStatus.NEW) && !billingStatus.equals(BillingStatus.PENDING)) {
+                	billingItem.setCompleteDate(new java.sql.Date(System.currentTimeMillis()));
+                }
+        	}
             if (notes != null) {
             	billingItem.setNotes(notes);
             }

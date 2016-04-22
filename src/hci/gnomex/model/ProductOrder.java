@@ -432,8 +432,8 @@ public class ProductOrder extends DetailObject implements Serializable, Order {
       emailBodyForLab.append("</td></tr></table>");
     }
 
-    emailBody.append("<br>Grand Total:  " + grandTotal);
-    emailBodyForLab.append("<br>Grand Total:  " + grandTotal);
+    emailBody.append("<br>Grand Total:  $" + grandTotal);
+    emailBodyForLab.append("<br>Grand Total:  $" + grandTotal);
 
     emailBodyForLab.append("<br><br><b><FONT COLOR=\"#ff0000\">Please sign the attached requisition form and send it to the purchasing department.</FONT></b>");
 

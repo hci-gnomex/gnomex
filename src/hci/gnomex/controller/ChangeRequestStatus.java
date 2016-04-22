@@ -138,14 +138,23 @@ public class ChangeRequestStatus extends GNomExCommand implements Serializable {
             }
           }
 
-          // If this is a DNA Seq core request, we need to create the billing
+          // If this was a save before submit request and now we are submitting then create billing
           // items and send confirmation email
           // when the status changes to submitted
-          if ((codeRequestStatus.equals(RequestStatus.SUBMITTED) || codeRequestStatus.equals(RequestStatus.PROCESSING)) && pdh.getCoreFacilityRequestCategoryProperty(req.getIdCoreFacility(), req.getCodeRequestCategory(), PropertyDictionary.NEW_REQUEST_SAVE_BEFORE_SUBMIT).equals("Y")) {
+          if ((codeRequestStatus.equals(RequestStatus.SUBMITTED) || codeRequestStatus.equals(RequestStatus.PROCESSING)) && pdh.getCoreFacilityRequestCategoryProperty(req.getIdCoreFacility(), req.getCodeRequestCategory(), PropertyDictionary.NEW_REQUEST_SAVE_BEFORE_SUBMIT).equals("Y")
+                  && (pdh.getCoreFacilityRequestCategoryProperty(req.getIdCoreFacility(), req.getCodeRequestCategory(), PropertyDictionary.BILLING_DURING_WORKFLOW) == null ||
+                  pdh.getCoreFacilityRequestCategoryProperty(req.getIdCoreFacility(), req.getCodeRequestCategory(), PropertyDictionary.BILLING_DURING_WORKFLOW).equals("N"))) {
             if (req.getBillingItemList(sess) == null || req.getBillingItemList(sess).isEmpty()) {
-              createBillingItems(sess, req);
+              // if we don't bill during workflow create all billing items including request property entry items
+              createBillingItems(sess, req, false, false);
               sess.flush();
             }
+          } else if ((codeRequestStatus.equals(RequestStatus.SUBMITTED) || codeRequestStatus.equals(RequestStatus.PROCESSING)) && pdh.getCoreFacilityRequestCategoryProperty(req.getIdCoreFacility(), req.getCodeRequestCategory(), PropertyDictionary.NEW_REQUEST_SAVE_BEFORE_SUBMIT).equals("Y")
+                  && (pdh.getCoreFacilityRequestCategoryProperty(req.getIdCoreFacility(), req.getCodeRequestCategory(), PropertyDictionary.BILLING_DURING_WORKFLOW) != null &&
+                  pdh.getCoreFacilityRequestCategoryProperty(req.getIdCoreFacility(), req.getCodeRequestCategory(), PropertyDictionary.BILLING_DURING_WORKFLOW).equals("Y"))) {
+            // if we do bill during workflow then only bill for request property entry items
+            createBillingItems(sess, req, true, false);
+
           }
 
           // COMPLETE
@@ -217,7 +226,7 @@ public class ChangeRequestStatus extends GNomExCommand implements Serializable {
     return this;
   }
 
-  private void createBillingItems(Session sess, Request req) throws Exception {
+  private void createBillingItems(Session sess, Request req, Boolean requestPropertiesOnly, Boolean comingFromWorkflow) throws Exception {
 
     DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess);
 
@@ -260,7 +269,7 @@ public class ChangeRequestStatus extends GNomExCommand implements Serializable {
       assays.add(idAssay.toString());
     }
 
-    SaveRequest.createBillingItems(sess, req, null, billingPeriod, dictionaryHelper, req.getSamples(), null, null, null, sampleAssays, req.getBillingTemplate(sess));
+    SaveRequest.createBillingItems(sess, req, null, billingPeriod, dictionaryHelper, req.getSamples(), null, null, null, sampleAssays, null, BillingStatus.PENDING, req.getPropertyEntries(), req.getBillingTemplate(sess), requestPropertiesOnly, comingFromWorkflow);
     sess.flush();
 
   }

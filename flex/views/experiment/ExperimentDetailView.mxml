@@ -1410,7 +1410,7 @@
 					}    				
 				}
 				
-				if (!isCapSeqState() && !isMitSeqState() && !isFragAnalState() && !isCherryPickState()) {
+				if (!isMitSeqState() && !isCherryPickState()) {
 					for each(annotation in this.selectedExperiment.PropertyEntries.PropertyEntry) {
 
 						if(annotation.@idProperty == "-1") {
@@ -1494,7 +1494,7 @@
 							}
 						}
 						
-						if(this.isIsolationState() || this.isIScanState()){
+						if(this.isIsolationState() || this.isIScanState() || this.isCapSeqState() || this.isFragAnalState() ){
 							newColumns.push(newCol);
 						}
 						

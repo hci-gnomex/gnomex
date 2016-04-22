@@ -222,6 +222,9 @@ public abstract class RequestPDFFormatterBase {
 			
 			// Property description
 			Property property = entry.getProperty();
+
+
+
 			if (property.getDescription() != null && !property.getDescription().trim().equals("")) {
 				Paragraph description = new Paragraph();
 				description.setIndentationLeft(PROPERTY_DESCRIPTION_INDENT);
@@ -421,6 +424,7 @@ public abstract class RequestPDFFormatterBase {
 		
 		for (Iterator iter = dictionaryHelper.getPropertyList().iterator(); iter.hasNext();) {
 			Property prop = (Property) iter.next();
+
 			
 			if (prop.getForRequest() == null || !prop.getForRequest().equals("Y")) {
 				continue;

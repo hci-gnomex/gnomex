@@ -267,7 +267,7 @@ public class SaveWorkItemSolexaPipeline extends GNomExCommand implements Seriali
         Set<SequenceLane> laneSet = sequenceLanesCompletedMap.get(auto.getRequest().getIdRequest());
         if (laneSet != null) {
         	BillingTemplate billingTemplate = BillingTemplateQueryManager.retrieveBillingTemplate(sess, auto.getRequest());
-            SaveRequest.createBillingItems(sess, auto.getRequest(), null, billingPeriod, dictionaryHelper, null, null, null, laneSet, null, auto.getCodeStep(), BillingStatus.COMPLETED, billingTemplate);
+            SaveRequest.createBillingItems(sess, auto.getRequest(), null, billingPeriod, dictionaryHelper, null, null, null, laneSet, null, auto.getCodeStep(), BillingStatus.COMPLETED, billingTemplate, false, true);
         }
       }
     }

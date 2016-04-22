@@ -50,7 +50,7 @@ public class BillingItem extends HibernateDetailObject {
   public int hashCode() {
 	final int prime = 31;
 	int result = 1;
-	result = prime * result + ((this.idBillingItem == null) ? super.hashCode() : this.idBillingItem.hashCode());
+	result = prime * result + ((this.getIdBillingItem() == null) ? super.hashCode() : this.getIdBillingItem().hashCode());
 	return result;
   }
 
@@ -63,10 +63,10 @@ public class BillingItem extends HibernateDetailObject {
 	if (!(obj instanceof BillingItem))
 		return false;
 	BillingItem other = (BillingItem) obj;
-	if (this.idBillingItem == null) {
-		if (other.idBillingItem != null)
+	if (this.getIdBillingItem() == null) {
+		if (other.getIdBillingItem() != null)
 			return false;
-	} else if (!this.idBillingItem.equals(other.idBillingItem))
+	} else if (!this.getIdBillingItem().equals(other.getIdBillingItem()))
 		return false;
 	return true;
   }

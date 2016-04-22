@@ -1,6 +1,5 @@
 package views.experiment
 {
-	
 	import hci.flex.controls.ComboBox;
 	import hci.flex.controls.DropdownLabel;
 	
@@ -16,6 +15,7 @@ package views.experiment
 	import mx.formatters.NumberBaseRoundType;
 	import mx.formatters.NumberFormatter;
 	
+	import views.experiment.TabSetupView;
 	import views.renderers.CheckBoxRenderer;
 	import views.renderers.MultiselectRenderer;
 	import views.renderers.URLRenderer;
@@ -26,6 +26,8 @@ package views.experiment
 	public class TabConfirmBase extends Canvas
 	{
 		public var sampleConcentrationFormatter:NumberFormatter;
+		
+		public var showAccountColumn:Boolean = false;
 		
 		public static function getConfirmTab(existingTab:TabConfirmBase, requestCategoryType:Object):TabConfirmBase {
 			if (requestCategoryType.@codeRequestCategoryType == 'GENERIC') {
@@ -421,6 +423,56 @@ package views.experiment
 			} else {
 				return "";
 			}
+		}
+		
+		public function getSelectedBillingAccountName():String {
+			var accountName:String = "";
+			
+			if (parentDocument != null && parentDocument.setupView != null && parentDocument.setupView is TabSetupView) {
+				var setupView:TabSetupView = parentDocument.setupView as TabSetupView;
+				if (setupView.selectedBillingAccount != null) {
+					accountName = setupView.selectedBillingAccount.@accountName;
+				} else if (setupView.selectedBillingTemplate != null) {
+					var template:XML = new XML(setupView.selectedBillingTemplate);
+					var items:XMLListCollection = new XMLListCollection(template.BillingTemplateItem);
+					var firstAccount:Boolean = true;
+					for each (var item:XML in items) {
+						if (firstAccount) {
+							accountName = item.@accountName;
+							firstAccount = false;
+						} else {
+							accountName += ", " + item.@accountName;
+						}
+					}
+				}
+			}
+			
+			return accountName;
+		}
+		
+		public function getSelectedBillingAccountNumber():String {
+			var accountNumber:String = "";
+			
+			if (parentDocument != null && parentDocument.setupView != null && parentDocument.setupView is TabSetupView) {
+				var setupView:TabSetupView = parentDocument.setupView as TabSetupView;
+				if (setupView.selectedBillingAccount != null) {
+					accountNumber = setupView.selectedBillingAccount.@accountNumber;
+				} else if (setupView.selectedBillingTemplate != null) {
+					var template:XML = new XML(setupView.selectedBillingTemplate);
+					var items:XMLListCollection = new XMLListCollection(template.BillingTemplateItem);
+					var firstAccount:Boolean = true;
+					for each (var item:XML in items) {
+						if (firstAccount) {
+							accountNumber = item.@accountNumber;
+							firstAccount = false;
+						} else {
+							accountNumber += ", " + item.@accountNumber;
+						}
+					}
+				}
+			}
+			
+			return accountNumber;
 		}
 		
 	}

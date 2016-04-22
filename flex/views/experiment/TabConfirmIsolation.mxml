@@ -183,8 +183,8 @@
 				</mx:VBox>
 				<mx:VBox height="100%" verticalGap="0" id="vbox2" width="240" horizontalScrollPolicy="off">
 					<mx:Label text="Billing Account" styleName="formLabel" height="16"/>
-					<mx:Text text="{parentDocument.isAmendState() ? parentDocument.request.@billingAccountName : parentDocument.setupView.selectedBillingAccount.@accountName}" width="250"/>
-					<mx:Text text="{parentDocument.isAmendState() ? parentDocument.request.@billingAccountNumber : parentDocument.setupView.selectedBillingAccount.@accountNumber}" width="250"/>
+					<mx:Text text="{parentDocument.isAmendState() ? parentDocument.request.@billingAccountName : this.getSelectedBillingAccountName()}" width="250"/>
+					<mx:Text text="{parentDocument.isAmendState() ? parentDocument.request.@billingAccountNumber : this.getSelectedBillingAccountNumber()}" width="250"/>
 				</mx:VBox>
 				<mx:TextArea styleName="instructionBox" width="284" wordWrap="true" id="textarea1" height="50" editable="false">
 					<mx:htmlText><![CDATA[1.  Please confirm the information below. Click the<br>     Back button or a tab to modify the request.<br>2. Click save button.]]></mx:htmlText>
@@ -207,6 +207,13 @@
 								 sortableColumns="false" fontSize="11" borderStyle="none" >
 						<mx:rowCount>{parentDocument.createBillingItems.lastResult..BillingItem.length() + 1}</mx:rowCount>
 						<mx:columns>
+							<mx:DataGridColumn	headerText="Account" dataField="@accountName" editable="false" width="150" visible="{this.showAccountColumn}">
+								<mx:itemRenderer>
+									<mx:Component>
+										<mx:Text text="{data.@accountName}" styleName="{data.@other == 'Y' ?'other':'normal'}" />
+									</mx:Component>
+								</mx:itemRenderer>
+							</mx:DataGridColumn>
 							<mx:DataGridColumn  headerText="Price Category" dataField="@category" editable="false" width="200">
 								<mx:itemRenderer>
 									<mx:Component>

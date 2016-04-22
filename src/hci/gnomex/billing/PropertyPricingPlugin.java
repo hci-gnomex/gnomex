@@ -20,7 +20,7 @@ public class PropertyPricingPlugin extends BillingPlugin {
 
     List<BillingItem> billingItems = new ArrayList<BillingItem>();
 
-    if (!this.hasValidData(sess, request, samples) || propertyEntries == null) {
+    if (!this.hasValidData(sess, request, samples)) {
       return billingItems;
     }
 

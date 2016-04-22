@@ -2,7 +2,7 @@
 <mx:Canvas label="Setup"
 		   width="100%" height="100%"
 		   xmlns:views="*.views"  horizontalScrollPolicy="off" show="{this.verticalScrollPosition = 0}"
-		   xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:renderers="views.renderers.*" xmlns:util="views.util.*" xmlns:util1="util.*" xmlns:topic="views.topics.*">
+		   xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:renderers="views.renderers.*" xmlns:util="views.util.*" xmlns:topic="views.topics.*">
 	<mx:states>
 		<mx:State name="AdminState">
 			<mx:AddChild relativeTo="{labAndInstructionBox}" position="after">
@@ -304,6 +304,7 @@
 			import views.util.GNomExStringUtil;
 			import views.util.PromptXMLListCollection;
 			import views.util.SelectAuthorizedBillingAccountWindow;
+			import views.billing.BillingTemplateWindow;
 			
 			[Bindable]
 			private var requestCategory:Object;
@@ -334,6 +335,9 @@
 			public var selectedBillingAccount:Object = null;
 			
 			[Bindable]
+			public var selectedBillingTemplate:Object = null;
+			
+			[Bindable]
 			private var showAccessAuthorizedAccountsLink:Boolean = false;
 			
 			private var idAppUserLookup:Object = null;
@@ -345,6 +349,8 @@
 			public function init():void {
 				checkSecurity();
 				setVisibility();
+				this.selectedBillingAccount = null;
+				this.selectedBillingTemplate = null;
 			}
 			
 			public function checkSecurity():void {
@@ -435,8 +441,8 @@
 				this.accountBox.includeInLayout = visible;
 				this.workAuthLink1.label = parentApplication.getCoreFacilityProperty(getRequestCategory().@idCoreFacility, parentApplication.PROPERTY_REQUEST_WORK_AUTH_LINK_TEXT);
 				this.accessAuthorizedBillingAccountLink.label = parentApplication.getCoreFacilityProperty(getRequestCategory().@idCoreFacility, parentApplication.PROPERTY_ACCESS_AUTH_ACCOUNT_LINK_TEXT);
-				if (this.selectedBillingAccount == null || this.selectedBillingAccount.@accountNameAndNumber == '') {
-					visible = false || !parentApplication.submitInternalExperiment();
+				if (this.selectedBillingTemplate == null && (this.selectedBillingAccount == null || this.selectedBillingAccount.@accountNameAndNumber == '')) {
+					visible = !parentApplication.submitInternalExperiment();
 				}
 				this.projectHBox.visible = visible;
 				this.projectHBox.includeInLayout = visible;
@@ -487,48 +493,23 @@
 					getNewProject.send();
 				}		
 			}
+
 			private function filterBillingAccount(item:Object):Boolean {
 				if (item.hasOwnProperty("@overrideFilter") && item.@overrideFilter == "Y") {
 					return true;
 				}
-				
-				if (item.@isActive == 'N') {
-					return false;
-				}
-				
-				if (item.@isApproved == 'N') {
-					return false;
-				}
-				
+
 				var cat:Object = getRequestCategory();
 				if (cat == null || cat.@idCoreFacility.toString() == '') {
 					return false;
 				}
-				if (idAppUser == null || idAppUser.toString() == '') {
-					return false;
-				}
-				
 				if (item.@idCoreFacility != '') {
 					if (item.@idCoreFacility.toString() != cat.@idCoreFacility.toString()) {
 						return false;
-					} 
-				}
-				
-				if (item.@acctUsers != '' && !(parentApplication.isAdminState || parentApplication.isBillingAdminState || parentApplication.isSuperAdmin)) {
-					var ids:Array = item.@acctUsers.toString().split(",");
-					var found:Boolean = false;
-					for each(var id:String in ids) {
-						if (id == idAppUser.toString()) {
-							found = true;
-							break;
-						}
-					}
-					if (!found) {
-						return false;
 					}
 				}
-				
-				/*Check if collaborator can submit to billing account*/
+
+				// Check if user is an authorized user for the account
 				if(getAuthorizedBillingAccounts.lastResult != null){
 					var isAuthorized:Boolean = false;
 					
@@ -545,6 +526,7 @@
 				
 				return true;
 			}
+
 			private function showEditProjectWindow():void {
 				selectedIdProject = this.projectCombo.selectedItem.@idProject;
 				var params:Object = new Object();
@@ -651,7 +633,7 @@
 					parentDocument.filteredProjectList.refresh();       	
 				}
 				
-				if (getAuthorizedBillingAccounts.lastResult != null && getAuthorizedBillingAccounts.lastResult.@hasAuthorizedAccounts == "Y" && userHasAuthorizedAccountsOutsideLab(getAuthorizedBillingAccounts.lastResult)) {
+				if (getAuthorizedBillingAccounts.lastResult != null && getAuthorizedBillingAccounts.lastResult.@hasAccountsWithinCore == "Y" && userHasAuthorizedAccountsOutsideLab(getAuthorizedBillingAccounts.lastResult)) {
 					showAccessAuthorizedAccountsLink = true;
 				}
 				
@@ -816,7 +798,7 @@
 						//Clinical Sequenome won't have the coreFacility set in experimentEdit view.
 							if (!parentApplication.requireExperimentDescriptionAndName(this.requestCategory.@idCoreFacility, this.getRequestCategory().@codeRequestCategory)
 								|| (this.experimentName.text != "" && this.overallDescript.text != "")) { 
-								if (this.selectedBillingAccount != null) {
+								if (this.selectedBillingAccount != null || this.selectedBillingTemplate != null) {
 									isComplete = true;
 								}
 							}
@@ -1360,8 +1342,27 @@
 				PopUpManager.centerPopUp(pickOtherBillingAccountWindow);
 			}
 			
+			private function showSplitBillingWindow():void {
+				if (!showAccessAuthorizedAccountsLink) {
+					return;
+				}
+				
+				var splitWindow:BillingTemplateWindow = BillingTemplateWindow(mx.managers.PopUpManager.createPopUp(this, BillingTemplateWindow, true));
+				splitWindow.performSetup(true, this, getIdCoreFacility());
+				mx.managers.PopUpManager.centerPopUp(splitWindow); 
+				splitWindow.setFocus();
+			}
+			
 			public function makeBillingAccountSelection():void {
+				this.selectedBillingTemplate = null;
 				updateBillingAccount();
+				checkSetupCompleteness();
+				setVisibility();
+			}
+			
+			public function makeBillingTemplateSelection():void {
+				this.selectedBillingAccount = null;
+				this.billingAccountCombo.selectedItem = null;
 				checkSetupCompleteness();
 				setVisibility();
 			}
@@ -1406,9 +1407,10 @@
 			
 			private function onGetAuthorizedBillingAccounts(event:ResultEvent):void {
 				if (getAuthorizedBillingAccounts.lastResult.name() == "AuthorizedBillingAccounts") {
-					if (getAuthorizedBillingAccounts.lastResult.@hasAuthorizedAccounts == "Y" && userHasAuthorizedAccountsOutsideLab(getAuthorizedBillingAccounts.lastResult)) {
+					if (getAuthorizedBillingAccounts.lastResult.@hasAccountsWithinCore == "Y" && userHasAuthorizedAccountsOutsideLab(getAuthorizedBillingAccounts.lastResult)) {
 						showAccessAuthorizedAccountsLink = true;
 					}
+					refreshBillingAccounts();
 				} else {
 					Alert.show("Could not retrieve authorized billing accounts.", "Error", Alert.OK, this);
 				}
@@ -1545,6 +1547,7 @@
 						
 						<mx:HBox horizontalGap="2" width="100%" paddingTop="0" paddingBottom="0" id="accessAuthorizedBillingAccountHBox" visible="{showAccessAuthorizedAccountsLink}" includeInLayout="{showAccessAuthorizedAccountsLink}" >
 							<mx:LinkButton  label="Show Other Billing Accounts"  styleName="formLinkButton" id="accessAuthorizedBillingAccountLink" fontSize="10" paddingTop="0" textAlign="left" paddingLeft="0" click="showAccessAuthorizedBillingAccounts()" />
+							<mx:LinkButton  label="Split Billing"  styleName="formLinkButton" id="splitBillingLink" fontSize="10" paddingTop="0" textAlign="left" paddingLeft="0" click="showSplitBillingWindow()" />
 						</mx:HBox>
 					</mx:VBox>
 				</mx:HBox>

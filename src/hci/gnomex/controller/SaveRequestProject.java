@@ -35,6 +35,7 @@ public class SaveRequestProject extends GNomExCommand implements Serializable {
   private Integer    idAppUser;
   private Integer    idBillingAccount;
   private String     isExternal;
+  private Boolean    forceNoChangeBilling;
 
   
   
@@ -72,6 +73,12 @@ public class SaveRequestProject extends GNomExCommand implements Serializable {
     if (request.getParameter("idBillingAccount") != null && !request.getParameter("idBillingAccount").equals("")) {
       idBillingAccount = new Integer(request.getParameter("idBillingAccount"));
     }
+    
+    if (request.getParameter("forceNoChangeBilling") != null && request.getParameter("forceNoChangeBilling").equalsIgnoreCase("true")) {
+        forceNoChangeBilling = true;
+    } else {
+        forceNoChangeBilling = false;
+    }
 
     
   }
@@ -92,7 +99,7 @@ public class SaveRequestProject extends GNomExCommand implements Serializable {
       
       Boolean changeBilling = true;
       if (this.isValid()) {
-        if (this.isExternal.equals("Y") || request.getIdLab().equals(project.getIdLab())) {
+        if (forceNoChangeBilling || this.isExternal.equals("Y") || request.getIdLab().equals(project.getIdLab())) {
           changeBilling = false;
         } else {
           if (idBillingAccount == null) {

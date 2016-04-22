@@ -382,6 +382,32 @@ public class GetBillingItemList extends GNomExCommand implements Serializable {
       StringBuffer productOrderBuf = billingItemFilter.getProductOrderBillingItemQuery();
       log.info("Query: " + productOrderBuf.toString());
       List productOrderBillingItems = (List)sess.createQuery(productOrderBuf.toString()).list();
+      
+      // Get related charges
+      HashMap otherBillingItemMapForProductOrders = new HashMap();
+      if (this.showOtherBillingItems.equals("Y")) {
+        HashMap<Integer, Object> idProductOrderMap = new HashMap<Integer, Object>();
+        for(Iterator i = productOrderBillingItems.iterator(); i.hasNext();) {
+          Object[] row = (Object[])i.next();
+          
+          Integer idProductOrder           = (Integer)row[2];
+          idProductOrderMap.put(idProductOrder, null);
+        }
+        buf = billingItemFilter.getRelatedBillingItemQueryForProductOrders(idProductOrderMap.keySet());
+        List relatedBillingItems = (List)sess.createQuery(buf.toString()).list();
+        // Has "other" billing items by idProductOrder
+        for(Iterator i = relatedBillingItems.iterator(); i.hasNext();) {
+          Object[] row = (Object[])i.next();
+          Integer idProductOrder           = (Integer)row[2];
+          List theRows = (List)otherBillingItemMapForProductOrders.get(idProductOrder);
+          if (theRows == null) {
+            theRows = new ArrayList();
+            otherBillingItemMapForProductOrders.put(idProductOrder, theRows);
+          }
+          theRows.add(row);
+        }      
+      }
+      
       for(Iterator i = productOrderBillingItems.iterator(); i.hasNext();) {
         Object[] row = (Object[])i.next();
 
@@ -401,6 +427,29 @@ public class GetBillingItemList extends GNomExCommand implements Serializable {
         if (!prevIdProductOrder.equals(idProductOrder) || 
             !prevIdLab.equals(billingItem.getIdLab()) ||
             !prevIdBillingAccount.equals(billingItem.getIdBillingAccount())) {
+        	
+        	// Before creating a new request node, attach all of the "other" billing
+            // items from another billing period
+            if (requestNode != null) {
+              List otherBillingItemRows = (List)otherBillingItemMapForProductOrders.get(prevIdProductOrder);
+              if (otherBillingItemRows != null) {
+                for(Iterator i1 = otherBillingItemRows.iterator(); i1.hasNext();) {
+                  Object[] otherRow = (Object[])i1.next();
+                  BillingItem otherBillingItem = (BillingItem)otherRow[7];
+                  
+                  // Only include if this billing item belongs to a different billing account/period,
+                  // otherwise some items will be duplicated (because other billing items
+                  // includes "split" items in same billing period)
+                  if (!otherBillingItem.getIdBillingAccount().equals(prevIdBillingAccount) || !otherBillingItem.getIdBillingPeriod().equals(prevIdBillingPeriod)) {
+                  	otherBillingItem.setCurrentCodeBillingStatus(otherBillingItem.getCodeBillingStatus());
+                      Element otherBillingItemNode = otherBillingItem.toXMLDocument(null, this.DATE_OUTPUT_SQL).getRootElement();
+                      otherBillingItemNode.setAttribute("other", "Y");
+                      otherBillingItemNode.setAttribute("isDirty","N");
+                      requestNode.addContent(otherBillingItemNode);
+                  }
+                }
+              }
+            }
 
           // Create the new request node
           requestNode = new Element("Request");
@@ -455,6 +504,29 @@ public class GetBillingItemList extends GNomExCommand implements Serializable {
         prevIdLab = billingItem.getIdLab();
         prevIdBillingAccount = billingItem.getIdBillingAccount();
         prevIdBillingPeriod = billingItem.getIdBillingPeriod();
+      }
+      
+      // Before creating a new request node, attach all of the "other" billing
+      // items from another billing period
+      if (requestNode != null) {
+        List otherBillingItemRows = (List)otherBillingItemMapForProductOrders.get(prevIdProductOrder);
+        if (otherBillingItemRows != null) {
+          for(Iterator i1 = otherBillingItemRows.iterator(); i1.hasNext();) {
+            Object[] otherRow = (Object[])i1.next();
+            BillingItem otherBillingItem = (BillingItem)otherRow[7];
+            
+            // Only include if this billing item belongs to a different billing account/period,
+            // otherwise some items will be duplicated (because other billing items
+            // includes "split" items in same billing period)
+            if (!otherBillingItem.getIdBillingAccount().equals(prevIdBillingAccount) || !otherBillingItem.getIdBillingPeriod().equals(prevIdBillingPeriod)) {
+            	otherBillingItem.setCurrentCodeBillingStatus(otherBillingItem.getCodeBillingStatus());
+                Element otherBillingItemNode = otherBillingItem.toXMLDocument(null, this.DATE_OUTPUT_SQL).getRootElement();
+                otherBillingItemNode.setAttribute("other", "Y");
+                otherBillingItemNode.setAttribute("isDirty","N");
+                requestNode.addContent(otherBillingItemNode);
+            }
+          }
+        }
       }
 
 

@@ -15,9 +15,6 @@ import hci.gnomex.model.Hybridization;
 import hci.gnomex.model.Organism;
 import hci.gnomex.model.Property;
 import hci.gnomex.model.PropertyEntry;
-import hci.gnomex.model.PropertyEntryValue;
-import hci.gnomex.model.PropertyOption;
-import hci.gnomex.model.PropertyType;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.Sample;
 import hci.gnomex.model.SequenceLane;
@@ -402,49 +399,7 @@ public class GetAnalysis extends GNomExCommand implements Serializable {
       propNode.setAttribute("idProperty", property.getIdProperty().toString());
       propNode.setAttribute("isRequired", property.getIsRequired());
 
-      if (ap != null && ap.getValues() != null && ap.getValues().size() > 0) {
-        for (Iterator i1 = ap.getValues().iterator(); i1.hasNext();) {
-          PropertyEntryValue av = (PropertyEntryValue)i1.next();
-          Element valueNode = new Element("PropertyEntryValue");
-          propNode.addContent(valueNode);
-          valueNode.setAttribute("idPropertyEntryValue", av.getIdPropertyEntryValue().toString());
-          valueNode.setAttribute("value", av.getValue() != null ? av.getValue() : "");
-          valueNode.setAttribute("url", av.getUrl() != null ? av.getUrl() : "");
-          valueNode.setAttribute("urlDisplay", av.getUrlDisplay() != null ? av.getUrlDisplay() : "");
-          valueNode.setAttribute("urlAlias", av.getUrlAlias() != null ? av.getUrlAlias() : "");
-        }
-      }
-      if (property.getCodePropertyType().equals(PropertyType.URL)) {
-        // Add an empty value for URL
-        Element emptyNode = new Element("PropertyEntryValue");
-        propNode.addContent(emptyNode);
-        emptyNode.setAttribute("idPropertyEntryValue", "");
-        emptyNode.setAttribute("url", "Enter URL here...");
-        emptyNode.setAttribute("urlAlias", "Enter alias here...");
-        emptyNode.setAttribute("urlDisplay", "");
-        emptyNode.setAttribute("value", "");
-      }
-
-      if (property.getOptions() != null && property.getOptions().size() > 0) {
-        for (Iterator i1 = property.getOptions().iterator(); i1.hasNext();) {
-          PropertyOption option = (PropertyOption)i1.next();
-          Element optionNode = new Element("PropertyOption");
-          propNode.addContent(optionNode);
-          optionNode.setAttribute("idPropertyOption", option.getIdPropertyOption().toString());
-          optionNode.setAttribute("name", option.getOption());
-          boolean isSelected = false;
-          if (ap != null && ap.getOptions() != null) {
-            for (Iterator i2 = ap.getOptions().iterator(); i2.hasNext();) {
-              PropertyOption optionSelected = (PropertyOption)i2.next();
-              if (optionSelected.getIdPropertyOption().equals(option.getIdPropertyOption())) {
-                isSelected = true;
-                break;
-              }
-            }
-          }
-          optionNode.setAttribute("selected", isSelected ? "Y" : "N");
-        }
-      }
+      Property.appendEntryContentXML(property, ap, propNode);
     }
     return propertiesNode;
   }

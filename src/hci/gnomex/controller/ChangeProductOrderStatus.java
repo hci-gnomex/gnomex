@@ -2,9 +2,7 @@ package hci.gnomex.controller;
 
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
-import hci.gnomex.model.ProductLineItem;
-import hci.gnomex.model.ProductOrder;
-import hci.gnomex.model.ProductOrderStatus;
+import hci.gnomex.model.*;
 import hci.gnomex.utility.ProductUtil;
 
 import java.io.Serializable;
@@ -146,16 +144,35 @@ public class ChangeProductOrderStatus extends GNomExCommand implements Serializa
   }
 
   public boolean updateBillingStatus(ProductLineItem pli, ProductOrder po, String oldCodePOStatus, String newPOStatus, Session sess) {
+    BillingItem billingItem = null;
+    Product product = pli.getProduct();
+    int idPrice = product.getIdPrice();
 
-    if ((oldCodePOStatus == null || !oldCodePOStatus.equals(ProductOrderStatus.COMPLETED)) && newPOStatus.equals(ProductOrderStatus.COMPLETED)) {
+    // Find the billing item(s) that corresponds to the line item
+    for (BillingItem bi : (Set<BillingItem>) po.getBillingItemList(sess)) {
+      if(bi.getIdPrice().equals(idPrice)) {
+        billingItem = bi;
 
+        // Update billing item to complete -- only if it is pending, not already approved
+        if ((oldCodePOStatus == null || !oldCodePOStatus.equals(ProductOrderStatus.COMPLETED)) && newPOStatus.equals(ProductOrderStatus.COMPLETED)) {
+          if (billingItem.getCodeBillingStatus().equals(BillingStatus.PENDING)) {
+            billingItem.setCodeBillingStatus(BillingStatus.COMPLETED);
+            billingItem.setCompleteDate(new java.sql.Date(System.currentTimeMillis()));
+          }
+        }
+        // Revert to pending -- only if it is completed but not approved
+        else if ((oldCodePOStatus != null && oldCodePOStatus.equals(ProductOrderStatus.COMPLETED)) && !newPOStatus.equals(ProductOrderStatus.COMPLETED)) {
+          if (billingItem.getCodeBillingStatus().equals(BillingStatus.COMPLETED)) {
+            billingItem.setCodeBillingStatus(BillingStatus.PENDING);
+            billingItem.setCompleteDate(null);
+          }
+        }
+      }
     }
-    // Check for old status is completed and new status is not.
-    // If so, remove items in ledger
-    else if ((oldCodePOStatus != null && oldCodePOStatus.equals(ProductOrderStatus.COMPLETED)) && !newPOStatus.equals(ProductOrderStatus.COMPLETED)) {
 
-    } else {
-
+    // No billing item found
+    if (billingItem == null) {
+      return false;
     }
     return true;
   }
