@@ -1205,9 +1205,9 @@
 
 			if (currentState != null && (currentState == 'CapSeqState' || currentState == 'FragAnalState')) {
 				// Make all annotation columns invisible
-				for each(var col:AdvancedDataGridColumn in this.samplesGrid.columns) {
-					if (col is views.util.AnnotationAdvancedDataGridColumn) {
-						col.visible = true;
+				for each(var col2:AdvancedDataGridColumn in this.samplesGrid.columns) {
+					if (col2 is views.util.AnnotationAdvancedDataGridColumn) {
+						col2.visible = true;
 					}
 
 
