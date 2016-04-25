@@ -96,54 +96,45 @@ public class GetAuthorizedBillingAccounts extends GNomExCommand implements Seria
 			
 			HashSet<BillingAccount> allAuthorizedBillingAccounts = new HashSet<BillingAccount>();
 			
-			// Super admins
-			if (this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
-				
-				// Add all billing accounts
-				List<Integer> billingAccounts = (List<Integer>) sess.createQuery(generateQueryForAllBillingAccounts(null).toString()).list();
-				for (Iterator<Integer> iter = billingAccounts.iterator(); iter.hasNext();) {
-					allAuthorizedBillingAccounts.add(parseBillingAccountQueryRow(iter.next(), sess));
-				}
-				
-			}
-			// Admins
-			else if (this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_WRITE_ANY_OBJECT)) {
-				
-				Set<Integer> myCoreFacilities = new HashSet<Integer>();
-				for (Iterator iter = this.getSecAdvisor().getCoreFacilitiesIManage().iterator(); iter.hasNext();) {
-					CoreFacility coreFacility = (CoreFacility) iter.next();
-					myCoreFacilities.add(coreFacility.getIdCoreFacility());
-				}
-				
-				// Add all billing accounts from the appropriate cores
-				List<Integer> billingAccounts = (List<Integer>) sess.createQuery(generateQueryForAllBillingAccounts(myCoreFacilities).toString()).list();
-				for (Iterator<Integer> iter = billingAccounts.iterator(); iter.hasNext();) {
-					allAuthorizedBillingAccounts.add(parseBillingAccountQueryRow(iter.next(), sess));
-				}
-				
-			}
-			// Non-admins
-			else {
-				
-				// Add all billing accounts with no specified "users" for all labs the user is a member of
-				List<Integer> billingAccountsForUsersLabs = (List<Integer>) sess.createQuery(generateQueryForLabBillingAccountsWithNoUsers().toString()).list();
-				for (Iterator<Integer> iter = billingAccountsForUsersLabs.iterator(); iter.hasNext();) {
-					allAuthorizedBillingAccounts.add(parseBillingAccountQueryRow(iter.next(), sess));
-				}
-				
-				// Add all billing accounts for labs the user is a manager of
-				List<Integer> billingAccountsForManagedLabs = (List<Integer>) sess.createQuery(generateQueryForManagedLabsBillingAccounts().toString()).list();
-				for (Iterator<Integer> iter = billingAccountsForManagedLabs.iterator(); iter.hasNext();) {
-					allAuthorizedBillingAccounts.add(parseBillingAccountQueryRow(iter.next(), sess));
-				}
-				
-				// Add all billing accounts for which the user is listed as a "user" on
-				List<Integer> billingAccountsUserIsAuthorizedFor = (List<Integer>) sess.createQuery(generateQueryForBillingAccountsWithUsers().toString()).list();
-				for (Iterator<Integer> iter = billingAccountsUserIsAuthorizedFor.iterator(); iter.hasNext();) {
-					allAuthorizedBillingAccounts.add(parseBillingAccountQueryRow(iter.next(), sess));
-				}
-				
-			}
+			// Admin / Super Admin
+            if (this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES) || this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_WRITE_ANY_OBJECT)) {
+                
+                Set<Integer> myCoreFacilities = new HashSet<Integer>();
+                
+                if (this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
+                    List<Integer> allIdCoreFacilities = (List<Integer>) sess.createQuery(" SELECT DISTINCT cf.idCoreFacility FROM CoreFacility as cf ").list();
+                    myCoreFacilities.addAll(allIdCoreFacilities);
+                } else {
+                    for (Iterator iter = this.getSecAdvisor().getCoreFacilitiesIManage().iterator(); iter.hasNext();) {
+                        CoreFacility coreFacility = (CoreFacility) iter.next();
+                        myCoreFacilities.add(coreFacility.getIdCoreFacility());
+                    }
+                }
+                
+                // Add all billing accounts from the appropriate cores
+                List<Integer> billingAccounts = (List<Integer>) sess.createQuery(generateQueryForAllBillingAccounts(myCoreFacilities).toString()).list();
+                for (Iterator<Integer> iter = billingAccounts.iterator(); iter.hasNext();) {
+                    allAuthorizedBillingAccounts.add(parseBillingAccountQueryRow(iter.next(), sess));
+                }
+            }
+            
+            // Add all billing accounts with no specified "users" for all labs the user is a member of
+            List<Integer> billingAccountsForUsersLabs = (List<Integer>) sess.createQuery(generateQueryForLabBillingAccountsWithNoUsers().toString()).list();
+            for (Iterator<Integer> iter = billingAccountsForUsersLabs.iterator(); iter.hasNext();) {
+                allAuthorizedBillingAccounts.add(parseBillingAccountQueryRow(iter.next(), sess));
+            }
+            
+            // Add all billing accounts for labs the user is a manager of
+            List<Integer> billingAccountsForManagedLabs = (List<Integer>) sess.createQuery(generateQueryForManagedLabsBillingAccounts().toString()).list();
+            for (Iterator<Integer> iter = billingAccountsForManagedLabs.iterator(); iter.hasNext();) {
+                allAuthorizedBillingAccounts.add(parseBillingAccountQueryRow(iter.next(), sess));
+            }
+            
+            // Add all billing accounts for which the user is listed as a "user" on
+            List<Integer> billingAccountsUserIsAuthorizedFor = (List<Integer>) sess.createQuery(generateQueryForBillingAccountsWithUsers().toString()).list();
+            for (Iterator<Integer> iter = billingAccountsUserIsAuthorizedFor.iterator(); iter.hasNext();) {
+                allAuthorizedBillingAccounts.add(parseBillingAccountQueryRow(iter.next(), sess));
+            }
 			
 			Map<Integer, Set<BillingAccount>> billingAccountsByLab = organizeAccountsByLab(allAuthorizedBillingAccounts);
 			
@@ -250,6 +241,7 @@ public class GetAuthorizedBillingAccounts extends GNomExCommand implements Seria
 		queryBuff.append(" FROM BillingAccount AS ba ");
 		queryBuff.append(" JOIN ba.lab AS l ");
 		queryBuff.append(" JOIN l.members AS m ");
+		queryBuff.append(" JOIN l.coreFacilities AS cf ");
 		
 		// Criteria
 		queryBuff.append(" WHERE m.idAppUser = " + idAppUser.toString() + " ");
@@ -276,6 +268,7 @@ public class GetAuthorizedBillingAccounts extends GNomExCommand implements Seria
 		queryBuff.append(" FROM BillingAccount AS ba ");
 		queryBuff.append(" JOIN ba.lab AS l ");
 		queryBuff.append(" JOIN l.managers AS m ");
+		queryBuff.append(" JOIN l.coreFacilities AS cf ");
 		
 		// Criteria
 		queryBuff.append(" WHERE m.idAppUser = " + idAppUser.toString() + " ");
@@ -299,7 +292,9 @@ public class GetAuthorizedBillingAccounts extends GNomExCommand implements Seria
 		
 		// Body
 		queryBuff.append(" FROM BillingAccount AS ba ");
+		queryBuff.append(" JOIN ba.lab AS l ");
 		queryBuff.append(" JOIN ba.users AS u ");
+		queryBuff.append(" JOIN l.coreFacilities AS cf ");
 		
 		// Criteria
 		queryBuff.append(" WHERE u.idAppUser = " + idAppUser.toString() + " ");
@@ -322,7 +317,7 @@ public class GetAuthorizedBillingAccounts extends GNomExCommand implements Seria
 		
 		if (!ignoreIdCoreFacility && idCoreFacility != null) {
 			useWhere = addWhereOrAnd(queryBuff, useWhere);
-			queryBuff.append(" ba.idCoreFacility = " + idCoreFacility.toString() + " ");
+			queryBuff.append(" ba.idCoreFacility = " + idCoreFacility.toString() + " AND ba.idCoreFacility = cf.idCoreFacility ");
 		}
 		
 		if (includeOnlyApprovedAccounts) {
@@ -370,25 +365,25 @@ public class GetAuthorizedBillingAccounts extends GNomExCommand implements Seria
 		
 		// Body
 		queryBuff.append(" FROM BillingAccount AS ba ");
+		queryBuff.append(" JOIN ba.lab AS l ");
+		queryBuff.append(" JOIN l.coreFacilities AS cf ");
 		
 		// Criteria
-		boolean addWhere = true;
-		if (idCoreFacilities != null && idCoreFacilities.size() > 0) {
-			queryBuff.append(" WHERE ba.idCoreFacility IN (");
-			boolean firstParameter = true;
-			for (Integer idCoreFacility : idCoreFacilities) {
-				if (firstParameter) {
-					queryBuff.append(idCoreFacility.toString());
-					firstParameter = false;
-				} else {
-					queryBuff.append(", " + idCoreFacility.toString());
-				}
-			}
-			queryBuff.append(") ");
-			addWhere = false;
-		}
+		StringBuffer coreFacilitiesBuff = new StringBuffer("(");
+        boolean firstParameter = true;
+        for (Integer idCoreFacility : idCoreFacilities) {
+            if (firstParameter) {
+                coreFacilitiesBuff.append(idCoreFacility.toString());
+                firstParameter = false;
+            } else {
+                coreFacilitiesBuff.append(", " + idCoreFacility.toString());
+            }
+        }
+        coreFacilitiesBuff.append(")");
+        
+        queryBuff.append(" WHERE ba.idCoreFacility IN " + coreFacilitiesBuff.toString() + " AND ba.idCoreFacility = cf.idCoreFacility ");
 		
-		queryBuff.append(queryForCommonBillingAccountCriteria(true, addWhere));
+		queryBuff.append(queryForCommonBillingAccountCriteria(true, false));
 		
 		return queryBuff;
 	}
