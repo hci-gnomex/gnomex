@@ -511,20 +511,60 @@
 
 				// Check if user is an authorized user for the account
 				if(getAuthorizedBillingAccounts.lastResult != null){
-					var isAuthorized:Boolean = false;
-					
+
 					for each(var ba:XML in getAuthorizedBillingAccounts.lastResult..BillingAccount){
 						if(item.@idBillingAccount == ba.@idBillingAccount){
-							isAuthorized = true;
+							return true;
 						}
 					}
-					
-					if(!isAuthorized){
-						return false;
-					}
+
 				}
 				
-				return true;
+				return false;
+			}
+
+			private function filterLabs(item:Object):Boolean {
+				if (item.hasOwnProperty("@overrideFilter") && item.@overrideFilter == "Y") {
+					return true;
+				}
+
+				var cat:Object = getRequestCategory();
+				if (cat == null || cat.@idCoreFacility.toString() == '') {
+					return false;
+				}
+
+                var keep:Boolean = false;
+                // Check that the lab is associated with the core
+                for each(var core:XML in item..CoreFacility) {
+                    if (core.@idCoreFacility == cat.@idCoreFacility.toString() && item.@canSubmitRequests == 'Y') {
+                        keep = true;
+                        break;
+                    }
+                }
+                if (!keep) {
+                    return false;
+                }
+                keep = false;
+                if (parentApplication.hasPermission('canSubmitForOtherCores')) {
+                    for each(var coreFac:XML in parentApplication.coreFacilitiesICanSubmitTo) {
+                        for each(var labCF:XML in item..CoreFacility) {
+                            if (cat.@idCoreFacility == coreFac.@idCoreFacility && labCF.@idCoreFacility == cat.@idCoreFacility) {
+                                keep = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+                // Check user is not an admin for that core, they must be a member of the lab
+                if(parentApplication.isCoreFacilityIManage(cat.@idCoreFacility)){
+                    keep = true;
+                } else {
+                    if (item.@isMyLab!=null && item.@isMyLab=="Y"){
+                       keep = true;
+                    }
+                }
+
+				return keep;
 			}
 
 			private function showEditProjectWindow():void {
@@ -636,7 +676,6 @@
 				if (getAuthorizedBillingAccounts.lastResult != null && getAuthorizedBillingAccounts.lastResult.@hasAccountsWithinCore == "Y") {
 					showAccessAuthorizedAccountsLink = true;
 				}
-				
 				selectDefaultUserProject();
 				
 				setNameDescriptionLabels();
@@ -676,6 +715,10 @@
 				} 
 				setVisibility();
 			}
+
+            private function refreshLabList():void {
+                filteredLabList.refresh();
+            }
 			
 			private function selectDefaultUserProject():void {
 				if (parentDocument == null) {
@@ -1370,6 +1413,11 @@
 			private function checkForOtherAccounts():void {
 				if (parentApplication.isAdminState || parentApplication.isBillingAdminState || parentApplication.isSuperAdmin) {
 					showAccessAuthorizedAccountsLink = true;
+                    var params:Object = new Object();
+                    if (idCoreFacility != null) {
+                        params.idCoreFacility = idCoreFacility;
+                    }
+                    getAuthorizedBillingAccounts.send(params);
 				} else if (idAppUser != null && idAppUser != '') {
 					
 					var idCoreFacility:String = getIdCoreFacility();
@@ -1442,6 +1490,7 @@
 			
 		]]>
 	</mx:Script>
+	<mx:XMLListCollection id="filteredLabList"  source="{parentDocument.filteredLabList.source}"  filterFunction="filterLabs"/>
 	<mx:XMLListCollection id="billingAccounts"  source="{lab.approvedBillingAccounts.BillingAccount}"  filterFunction="filterBillingAccount"/>
 	
 	<mx:XMLListCollection id="appUsers"   source="{getLab.lastResult..Lab.activeSubmitters.AppUser}"/>
@@ -1485,7 +1534,7 @@
 			<util:ContextHelp context1="experimentType" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Service Category Help"
 							  labelPlacement="left" id="label11" width="200" label="(1) Select a service category."/>
 			<mx:VBox id="requestTypeBox" horizontalGap="8" verticalGap="0" styleName="requiredBox" paddingLeft="2" paddingTop="1" paddingRight="4" paddingBottom="0" width="610" verticalAlign="bottom">
-				<mx:RadioButtonGroup id="requestTypeGroup" change="{refreshBillingAccounts()}" />
+				<mx:RadioButtonGroup id="requestTypeGroup" change="{refreshBillingAccounts();refreshLabList()}" />
 				<mx:Repeater id="requestCategoryRepeater" dataProvider="{requestCategories}">
 					<mx:HBox  paddingRight="2" paddingBottom="0" paddingTop="0" width="100%" verticalAlign="middle">
 						<mx:HBox horizontalAlign="center" paddingBottom="0" paddingTop="0">
@@ -1513,7 +1562,7 @@
 				<mx:HBox horizontalGap="0" verticalAlign="top" id="selectLabBox">
 					<util:ContextHelp context1="experimentLab" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Lab Help"
 									  labelPlacement="left" id="label12" width="200" label="(2) Verify your lab group."/>
-					<renderers:FilterComboBox dataProvider="{parentDocument.filteredLabList}" 
+					<renderers:FilterComboBox dataProvider="{filteredLabList}"
 											  labelField="@name" 
 											  prompt="Select a lab..."
 											  width="380"

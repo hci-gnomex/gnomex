@@ -1,27 +1,22 @@
 package hci.gnomex.controller;
 
-import hci.dictionary.utility.DictionaryManager;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.CoreFacility;
 import hci.gnomex.model.Lab;
 import hci.gnomex.model.UserPermissionKind;
-
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.output.XMLOutputter;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 public class GetCoreFacilityLabList extends GNomExCommand implements Serializable {
   private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetCoreFacilityLabList.class);
@@ -53,13 +48,8 @@ public class GetCoreFacilityLabList extends GNomExCommand implements Serializabl
         }
 
       }
-      StringBuffer buf = new StringBuffer();
-      buf.append(" SELECT distinct lab from Lab as lab ");
-      buf.append(" JOIN lab.coreFacilities as cf ");
-      buf.append(" WHERE cf.idCoreFacility IN (:ids) ");
-      buf.append(" ORDER BY lab.lastName ");
-      Query q = sess.createQuery(buf.toString());
-      q.setParameterList("ids", idCoreFacility);
+
+      Query q = getQueryForCores(sess, idCoreFacility);
 
       List l = q.list();
 
@@ -93,6 +83,23 @@ public class GetCoreFacilityLabList extends GNomExCommand implements Serializabl
     }
 
     return this;
+  }
+
+  private static Query getQueryForCores(Session sess, List coreIds){
+    StringBuffer buf = new StringBuffer();
+    buf.append(" SELECT distinct lab from Lab as lab ");
+    buf.append(" JOIN lab.coreFacilities as cf ");
+    buf.append(" WHERE cf.idCoreFacility IN (:ids) ");
+    buf.append(" ORDER BY lab.lastName ");
+    Query q = sess.createQuery(buf.toString());
+    q.setParameterList("ids", coreIds);
+    return q;
+  }
+
+  public static List getLabListForCore(Session sess, List coreIds){
+    Query q = getQueryForCores(sess, coreIds);
+    List l = q.list();
+    return l;
   }
 
   @Override

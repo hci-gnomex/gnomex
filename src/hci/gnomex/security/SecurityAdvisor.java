@@ -5,62 +5,23 @@ import hci.dictionary.model.NullDictionaryEntry;
 import hci.framework.model.DetailObject;
 import hci.framework.security.UnknownPermissionException;
 import hci.gnomex.constants.Constants;
+import hci.gnomex.controller.GetCoreFacilityLabList;
 import hci.gnomex.lucene.GlobalIndexHelper;
-import hci.gnomex.model.Analysis;
-import hci.gnomex.model.AnalysisCollaborator;
-import hci.gnomex.model.AnalysisGroup;
-import hci.gnomex.model.AppUser;
-import hci.gnomex.model.AppUserLite;
-import hci.gnomex.model.CoreFacility;
-import hci.gnomex.model.DataTrack;
-import hci.gnomex.model.DataTrackFolder;
-import hci.gnomex.model.DictionaryEntryUserOwned;
-import hci.gnomex.model.ExperimentCollaborator;
-import hci.gnomex.model.FAQ;
-import hci.gnomex.model.FlowCell;
-import hci.gnomex.model.Institution;
-import hci.gnomex.model.Lab;
-import hci.gnomex.model.NewsItem;
-import hci.gnomex.model.PlateType;
-import hci.gnomex.model.PlateWell;
-import hci.gnomex.model.ProductOrder;
-import hci.gnomex.model.Project;
-import hci.gnomex.model.Property;
-import hci.gnomex.model.PropertyDictionary;
-import hci.gnomex.model.Request;
-import hci.gnomex.model.RequestCategory;
-import hci.gnomex.model.RequestStatus;
-import hci.gnomex.model.Sample;
-import hci.gnomex.model.SlideProduct;
-import hci.gnomex.model.Topic;
-import hci.gnomex.model.UserPermissionKind;
-import hci.gnomex.model.Visibility;
-import hci.gnomex.utility.DictionaryHelper;
-import hci.gnomex.utility.HibernateSession;
-import hci.gnomex.utility.LabComparator;
-import hci.gnomex.utility.PropertyDictionaryHelper;
-import hci.gnomex.utility.Util;
+import hci.gnomex.model.*;
+import hci.gnomex.utility.*;
+import org.hibernate.Hibernate;
+import org.hibernate.Query;
+import org.hibernate.Session;
+import org.hibernate.internal.SessionImpl;
 
+import javax.naming.NamingException;
 import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
-
-import javax.naming.NamingException;
-
-import org.hibernate.Hibernate;
-import org.hibernate.Query;
-import org.hibernate.Session;
-import org.hibernate.internal.SessionImpl;
+import java.util.*;
 
 public class SecurityAdvisor extends DetailObject implements Serializable, hci.framework.security.SecurityAdvisor {
     // Security advisor session variable
@@ -170,7 +131,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     }
 
     /*
-	 * public boolean isAdmin() { return this.hasPermission(CAN_ACCESS_ANY_OBJECT); }
+     * public boolean isAdmin() { return this.hasPermission(CAN_ACCESS_ANY_OBJECT); }
 	 */
     public boolean isGuest() {
         return isGuest;
@@ -328,7 +289,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
         }
 
         HashMap<Integer, Integer> submitMap = new HashMap<Integer, Integer>();
-        for (Iterator i = CoreFacility.getActiveCoreFacilities(sess).iterator(); i.hasNext();) {
+        for (Iterator i = CoreFacility.getActiveCoreFacilities(sess).iterator(); i.hasNext(); ) {
             DictionaryEntry de = (DictionaryEntry) i.next();
 
             if (de == null) {
@@ -417,7 +378,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
                 if (!canRead) {
                     // First, check to see if the user is a specified as a collaborator
                     // on this request.
-                    for (Iterator i = req.getCollaborators().iterator(); i.hasNext();) {
+                    for (Iterator i = req.getCollaborators().iterator(); i.hasNext(); ) {
                         ExperimentCollaborator collaborator = (ExperimentCollaborator) i.next();
                         if (isLoggedInUser(collaborator.getIdAppUser())) {
                             canRead = true;
@@ -437,19 +398,19 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
                         // Request has owner visibility
                         if (req.getCodeVisibility().equals(Visibility.VISIBLE_TO_OWNER)) {
                             // Is owner of request or manager of lab's request
-                            if (isOwner(req.getIdAppUser()) || isGroupIManage(req.getIdLab())) {
+                            if (isOwner(req.getIdAppUser()) || isGroupIManage(req.getLab())) {
                                 canRead = true;
                             }
                         }
                         // Request has membership visibility
                         else if (req.getCodeVisibility().equals(Visibility.VISIBLE_TO_GROUP_MEMBERS)) {
-                            if (isGroupIAmMemberOf(req.getIdLab()) || isGroupIManage(req.getIdLab())) {
+                            if (isGroupIAmMemberOf(req.getIdLab()) || isGroupIManage(req.getLab())) {
                                 canRead = true;
                             }
                         }
                         // Request has membership + collaborator visibility
                         else if (req.getCodeVisibility().equals(Visibility.VISIBLE_TO_GROUP_MEMBERS_AND_COLLABORATORS)) {
-                            if (isGroupIAmMemberOf(req.getIdLab()) || isGroupIManage(req.getIdLab()) || isGroupICollaborateWith(req.getIdLab())) {
+                            if (isGroupIAmMemberOf(req.getIdLab()) || isGroupIManage(req.getLab()) || isGroupICollaborateWith(req.getIdLab())) {
                                 canRead = true;
                             }
                         }
@@ -478,7 +439,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
             }
 
 			/*
-			 * If visibility checks failed then do a final check to make sure that this isn't a request that a collaborator submitted and is trying to view We
+             * If visibility checks failed then do a final check to make sure that this isn't a request that a collaborator submitted and is trying to view We
 			 * don't handle collaborators in above cases b/c it would give them access to all requests from the lab they collaborate with
 			 */
             if (!canRead) {
@@ -505,7 +466,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
                 // First check to see if user is listed as a collaborator on this
                 // specific
                 // analysis
-                for (Iterator i = a.getCollaborators().iterator(); i.hasNext();) {
+                for (Iterator i = a.getCollaborators().iterator(); i.hasNext(); ) {
                     AnalysisCollaborator collaborator = (AnalysisCollaborator) i.next();
                     if (this.isLoggedInUser(collaborator.getIdAppUser())) {
                         canRead = true;
@@ -519,19 +480,19 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
                     // Analysis has owner visibility
                     if (a.getCodeVisibility().equals(Visibility.VISIBLE_TO_OWNER)) {
                         // Is owner of analysis or manager of lab's analysis
-                        if (isOwner(a.getIdAppUser()) || isGroupIManage(a.getIdLab())) {
+                        if (isOwner(a.getIdAppUser()) || isGroupIManage(a.getLab())) {
                             canRead = true;
                         }
                     }
                     // Analysis has membership visibility
                     else if (a.getCodeVisibility().equals(Visibility.VISIBLE_TO_GROUP_MEMBERS)) {
-                        if (isGroupIAmMemberOf(a.getIdLab()) || isGroupIManage(a.getIdLab())) {
+                        if (isGroupIAmMemberOf(a.getIdLab()) || isGroupIManage(a.getLab())) {
                             canRead = true;
                         }
                     }
                     // Analysis has membership + collaborator visiblity
                     else if (a.getCodeVisibility().equals(Visibility.VISIBLE_TO_GROUP_MEMBERS_AND_COLLABORATORS)) {
-                        if (isGroupIAmMemberOf(a.getIdLab()) || isGroupIManage(a.getIdLab()) || isGroupICollaborateWith(a.getIdLab())) {
+                        if (isGroupIAmMemberOf(a.getIdLab()) || isGroupIManage(a.getLab()) || isGroupICollaborateWith(a.getIdLab())) {
                             canRead = true;
                         }
                     }
@@ -574,7 +535,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
                 // First check to see if user is listed as a collaborator on this
                 // specific
                 // data track
-                for (Iterator i = dt.getCollaborators().iterator(); i.hasNext();) {
+                for (Iterator i = dt.getCollaborators().iterator(); i.hasNext(); ) {
                     AppUser collaborator = (AppUser) i.next();
                     if (this.isLoggedInUser(collaborator.getIdAppUser())) {
                         canRead = true;
@@ -588,19 +549,19 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
                     // DataTrack has owner visibility
                     if (dt.getCodeVisibility().equals(Visibility.VISIBLE_TO_OWNER)) {
                         // Is owner of data track or manager of lab's data track
-                        if (isOwner(dt.getIdAppUser()) || isGroupIManage(dt.getIdLab())) {
+                        if (isOwner(dt.getIdAppUser()) || isGroupIManage(dt.getLab())) {
                             canRead = true;
                         }
                     }
                     // DataTrack has membership visibility
                     else if (dt.getCodeVisibility().equals(Visibility.VISIBLE_TO_GROUP_MEMBERS)) {
-                        if (isGroupIAmMemberOf(dt.getIdLab()) || isGroupIManage(dt.getIdLab())) {
+                        if (isGroupIAmMemberOf(dt.getIdLab()) || isGroupIManage(dt.getLab())) {
                             canRead = true;
                         }
                     }
                     // DataTrack has membership + collaborator visiblity
                     else if (dt.getCodeVisibility().equals(Visibility.VISIBLE_TO_GROUP_MEMBERS_AND_COLLABORATORS)) {
-                        if (isGroupIAmMemberOf(dt.getIdLab()) || isGroupIManage(dt.getIdLab()) || isGroupICollaborateWith(dt.getIdLab())) {
+                        if (isGroupIAmMemberOf(dt.getIdLab()) || isGroupIManage(dt.getLab()) || isGroupICollaborateWith(dt.getIdLab())) {
                             canRead = true;
                         }
                     }
@@ -647,7 +608,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
                 Project proj = (Project) object;
                 // Projects can be read if user is member of project's lab, collaborator
                 // of project's lab, or manager of project's lab
-                if (isGroupIAmMemberOf(proj.getIdLab()) || isGroupIManage(proj.getIdLab()) || isGroupICollaborateWith(proj.getIdLab())) {
+                if (isGroupIAmMemberOf(proj.getIdLab()) || isGroupIManage(proj.getLab()) || isGroupICollaborateWith(proj.getIdLab())) {
                     canRead = true;
                 } else {
                     if (proj.hasPublicRequest()) {
@@ -678,7 +639,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
             // GNomEx Users
             else if (hasPermission(CAN_PARTICIPATE_IN_GROUPS)) {
                 AnalysisGroup ag = (AnalysisGroup) object;
-                if (isGroupIAmMemberOf(ag.getIdLab()) || isGroupIManage(ag.getIdLab()) || isGroupICollaborateWith(ag.getIdLab())) {
+                if (isGroupIAmMemberOf(ag.getIdLab()) || isGroupIManage(ag.getLab()) || isGroupICollaborateWith(ag.getIdLab())) {
                     canRead = true;
                 } else {
                     if (ag.hasPublicAnalysis()) {
@@ -708,7 +669,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
             // GNomEx Users
             else if (hasPermission(CAN_PARTICIPATE_IN_GROUPS)) {
                 DataTrackFolder dtf = (DataTrackFolder) object;
-                if (isGroupIAmMemberOf(dtf.getIdLab()) || isGroupIManage(dtf.getIdLab()) || isGroupICollaborateWith(dtf.getIdLab())) {
+                if (isGroupIAmMemberOf(dtf.getIdLab()) || isGroupIManage(dtf.getLab()) || isGroupICollaborateWith(dtf.getIdLab())) {
                     canRead = true;
                 } else {
                     if (dtf.hasPublicDataTracks()) {
@@ -801,19 +762,19 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
                     // DataTrack has owner visibility
                     if (t.getCodeVisibility().equals(Visibility.VISIBLE_TO_OWNER)) {
                         // Is owner of data track or manager of lab's data track
-                        if (isOwner(t.getIdAppUser()) || isGroupIManage(t.getIdLab())) {
+                        if (isOwner(t.getIdAppUser()) || isGroupIManage(t.getLab())) {
                             canRead = true;
                         }
                     }
                     // Topic has membership visibility
                     else if (t.getCodeVisibility().equals(Visibility.VISIBLE_TO_GROUP_MEMBERS)) {
-                        if (isGroupIAmMemberOf(t.getIdLab()) || isGroupIManage(t.getIdLab())) {
+                        if (isGroupIAmMemberOf(t.getIdLab()) || isGroupIManage(t.getLab())) {
                             canRead = true;
                         }
                     }
                     // Topic has membership + collaborator visiblity
                     else if (t.getCodeVisibility().equals(Visibility.VISIBLE_TO_GROUP_MEMBERS_AND_COLLABORATORS)) {
-                        if (isGroupIAmMemberOf(t.getIdLab()) || isGroupIManage(t.getIdLab()) || isGroupICollaborateWith(t.getIdLab())) {
+                        if (isGroupIAmMemberOf(t.getIdLab()) || isGroupIManage(t.getLab()) || isGroupICollaborateWith(t.getIdLab())) {
                             canRead = true;
                         }
                     }
@@ -884,7 +845,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
                         // Only show properties with core facility user can see.
                         Boolean found = false;
                         if (this.getCoreFacilitiesIManage() != null) {
-                            for (Iterator facilityIter = this.getCoreFacilitiesIManage().iterator(); facilityIter.hasNext();) {
+                            for (Iterator facilityIter = this.getCoreFacilitiesIManage().iterator(); facilityIter.hasNext(); ) {
                                 CoreFacility facility = (CoreFacility) facilityIter.next();
                                 if (facility.getIdCoreFacility().equals(prop1.getIdCoreFacility())) {
                                     found = true;
@@ -894,7 +855,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
                         // ?? Should we allow normal users to see properties specific
                         // to a core facility?
                         if (this.getCoreFacilitiesForMyLab() != null) {
-                            for (Iterator facilityIter = this.getCoreFacilitiesForMyLab().iterator(); facilityIter.hasNext();) {
+                            for (Iterator facilityIter = this.getCoreFacilitiesForMyLab().iterator(); facilityIter.hasNext(); ) {
                                 CoreFacility facility = (CoreFacility) facilityIter.next();
                                 if (facility.getIdCoreFacility().equals(prop1.getIdCoreFacility())) {
                                     found = true;
@@ -1126,7 +1087,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
             // University GNomEx users
             else if (hasPermission(SecurityAdvisor.CAN_PARTICIPATE_IN_GROUPS)) {
                 // Lab manager
-                if (isGroupIManage(req.getIdLab())) {
+                if (isGroupIManage(req.getLab())) {
                     canArchive = true;
                 }
             }
@@ -1155,7 +1116,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
 
                 if (!canUpdate) {
                     // Lab manager
-                    if (isGroupIManage(req.getIdLab())) {
+                    if (isGroupIManage(req.getLab())) {
                         canUpdate = true;
                     }
                     // Owner of request
@@ -1187,7 +1148,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
                 Analysis a = (Analysis) object;
 
                 // Lab manager
-                if (isGroupIManage(a.getIdLab())) {
+                if (isGroupIManage(a.getLab())) {
                     canUpdate = true;
                 }
                 // Owner of analysis
@@ -1214,7 +1175,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
                 DataTrack dt = (DataTrack) object;
 
                 // Lab manager
-                if (isGroupIManage(dt.getIdLab())) {
+                if (isGroupIManage(dt.getLab())) {
                     canUpdate = true;
                 }
                 // Owner of analysis
@@ -1241,7 +1202,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
             else if (hasPermission(CAN_PARTICIPATE_IN_GROUPS)) {
                 Project proj = (Project) object;
                 // Lab members or managers
-                if (isGroupIAmMemberOf(proj.getIdLab()) || isGroupIManage(proj.getIdLab())) {
+                if (isGroupIAmMemberOf(proj.getIdLab()) || isGroupIManage(proj.getLab())) {
                     canUpdate = true;
                 }
             }
@@ -1259,7 +1220,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
             else if (hasPermission(CAN_PARTICIPATE_IN_GROUPS)) {
                 AnalysisGroup ag = (AnalysisGroup) object;
                 // Lab members or managers
-                if (isGroupIAmMemberOf(ag.getIdLab()) || isGroupIManage(ag.getIdLab())) {
+                if (isGroupIAmMemberOf(ag.getIdLab()) || isGroupIManage(ag.getLab())) {
                     canUpdate = true;
                 }
                 // Owner of analysis group
@@ -1280,7 +1241,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
             else if (hasPermission(CAN_PARTICIPATE_IN_GROUPS)) {
                 DataTrackFolder dtf = (DataTrackFolder) object;
                 // Lab members or managers
-                if (isGroupIAmMemberOf(dtf.getIdLab()) || isGroupIManage(dtf.getIdLab())) {
+                if (isGroupIAmMemberOf(dtf.getIdLab()) || isGroupIManage(dtf.getLab())) {
                     canUpdate = true;
                 }
             }
@@ -1335,7 +1296,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
                 Topic t = (Topic) object;
 
                 // Lab manager
-                if (isGroupIManage(t.getIdLab())) {
+                if (isGroupIManage(t.getLab())) {
                     canUpdate = true;
                 }
                 // Owner of topic
@@ -1364,7 +1325,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
             // University GNomEx users
             else if (hasPermission(SecurityAdvisor.CAN_PARTICIPATE_IN_GROUPS)) {
                 // Lab manager
-                if (isGroupIManage(prodOrder.getIdLab())) {
+                if (isGroupIManage(prodOrder.getLab())) {
                     canUpdate = true;
                 }
                 // Owner of request
@@ -1437,7 +1398,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
                     canUpdate = isCoreFacilityIManage(req.getIdCoreFacility());
                     if (!canUpdate) {
                         // Lab manager
-                        if (isGroupIManage(req.getIdLab())) {
+                        if (isGroupIManage(req.getLab())) {
                             canUpdate = true;
                         }
                         // Owner of request
@@ -1463,7 +1424,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
                 else if (hasPermission(CAN_PARTICIPATE_IN_GROUPS)) {
                     Analysis analysis = (Analysis) object;
                     // Lab manager
-                    if (isGroupIManage(analysis.getIdLab())) {
+                    if (isGroupIManage(analysis.getLab())) {
                         canUpdate = true;
                     }
                     // Owner of analysis
@@ -1488,7 +1449,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
                 else if (hasPermission(CAN_PARTICIPATE_IN_GROUPS)) {
                     Lab lab = (Lab) object;
                     // Lab manager
-                    if (isGroupIManage(lab.getIdLab())) {
+                    if (isGroupIManage(lab)) {
                         canUpdate = true;
                     } // else if(hasPermission(SecurityAdvisor.CAN_SUBMIT_FOR_OTHER_CORES)
                     // && this.isLabICanSubmitTo((Lab)object)) {
@@ -1574,7 +1535,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
                 canUpload = true;
             }
             // Admins - Can only update requests from core facility user manages
-            else if (hasPermission(CAN_WRITE_ANY_OBJECT)||hasPermission(CAN_PARTICIPATE_IN_GROUPS)) {
+            else if (hasPermission(CAN_WRITE_ANY_OBJECT) || hasPermission(CAN_PARTICIPATE_IN_GROUPS)) {
                 canUpload = isCoreFacilityIManage(req.getIdCoreFacility()) || (canUpdate(req) &&
                         !isCollaboratorUpdater(req)) || isCollaboratorUploader(req);
             }
@@ -1621,13 +1582,13 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
             }
             // Lab manager or owner can delete experiment if the samples
             // have not proceeded in the workflow
-            else if (isGroupIManage(r.getIdLab()) || (isGroupIAmMemberOf(r.getIdLab()) && isOwner(r.getIdAppUser()))) {
+            else if (isGroupIManage(r.getLab()) || (isGroupIAmMemberOf(r.getIdLab()) && isOwner(r.getIdAppUser()))) {
                 if (pdh.getCoreFacilityRequestCategoryProperty(r.getIdCoreFacility(), r.getCodeRequestCategory(),
                         PropertyDictionary.NEW_REQUEST_SAVE_BEFORE_SUBMIT).equals("Y")) {
                     canDelete = r.getCodeRequestStatus().equals(RequestStatus.NEW);
                 } else {
                     int deleteSampleCount = 0;
-                    for (Iterator i = r.getSamples().iterator(); i.hasNext();) {
+                    for (Iterator i = r.getSamples().iterator(); i.hasNext(); ) {
                         Sample s = (Sample) i.next();
                         if (s.getCanChangeSampleInfo().equals("Y")) {
                             deleteSampleCount++;
@@ -1640,10 +1601,10 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
                 canDelete = true;
             }
             if (canDelete && r.isDNASeqExperiment().equals("Y") && !r.getCodeRequestCategory().equals(RequestCategory.CHERRY_PICKING_REQUEST_CATEGORY)) {
-                for (Iterator i = r.getSamples().iterator(); i.hasNext();) {
+                for (Iterator i = r.getSamples().iterator(); i.hasNext(); ) {
                     Sample s = (Sample) i.next();
                     if (s.getWells() != null) {
-                        for (Iterator i1 = s.getWells().iterator(); i1.hasNext();) {
+                        for (Iterator i1 = s.getWells().iterator(); i1.hasNext(); ) {
                             PlateWell w = (PlateWell) i1.next();
                             if (w.getPlate() != null && w.getPlate().getCodePlateType().equals(PlateType.REACTION_PLATE_TYPE)) {
                                 canDelete = false;
@@ -1664,7 +1625,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
                 canDelete = true;
             }
             // Lab manager
-            else if (isGroupIManage(a.getIdLab())) {
+            else if (isGroupIManage(a.getLab())) {
                 canDelete = true;
             }
             // Analysis owner
@@ -1684,7 +1645,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
                 canDelete = true;
             }
             // Lab manager
-            else if (isGroupIManage(proj.getIdLab())) {
+            else if (isGroupIManage(proj.getLab())) {
                 canDelete = true;
             }
             // Project owner
@@ -1703,7 +1664,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
                 canDelete = true;
             }
             // Lab manager
-            else if (isGroupIManage(ag.getIdLab())) {
+            else if (isGroupIManage(ag.getLab())) {
                 canDelete = true;
             }
             // Analysis group owner
@@ -1756,7 +1717,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
                 canDelete = true;
             }
             // Lab manager
-            else if (isGroupIManage(t.getIdLab())) {
+            else if (isGroupIManage(t.getLab())) {
                 canDelete = true;
             }
             // Analysis group owner
@@ -1783,7 +1744,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
             // certain status
             else if (hasPermission(SecurityAdvisor.CAN_PARTICIPATE_IN_GROUPS)) {
                 // Lab manager
-                if (isGroupIManage(prodOrder.getIdLab())) {
+                if (isGroupIManage(prodOrder.getLab())) {
                     canDelete = true;
                 }
                 // Owner of request
@@ -1850,7 +1811,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
         // First, check to see if the user is a specified as a collaborator
         // on this request.
         boolean canUpload = false;
-        for (Iterator i = req.getCollaborators().iterator(); i.hasNext();) {
+        for (Iterator i = req.getCollaborators().iterator(); i.hasNext(); ) {
             ExperimentCollaborator collaborator = (ExperimentCollaborator) i.next();
             if (isLoggedInUser(collaborator.getIdAppUser())) {
                 if (collaborator.getCanUploadData() != null && collaborator.getCanUploadData().equals("Y")) {
@@ -1866,7 +1827,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
         // First, check to see if the user is a specified as a collaborator
         // on this request.
         boolean canUpdate = false;
-        for (Iterator i = req.getCollaborators().iterator(); i.hasNext();) {
+        for (Iterator i = req.getCollaborators().iterator(); i.hasNext(); ) {
             ExperimentCollaborator collaborator = (ExperimentCollaborator) i.next();
             if (isLoggedInUser(collaborator.getIdAppUser())) {
                 if (collaborator.getCanUpdate() != null && collaborator.getCanUpdate().equals("Y")) {
@@ -1882,7 +1843,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
         // First, check to see if the user is a specified as a collaborator
         // on this object.
         boolean canUpload = false;
-        for (Iterator i = analysis.getCollaborators().iterator(); i.hasNext();) {
+        for (Iterator i = analysis.getCollaborators().iterator(); i.hasNext(); ) {
             AnalysisCollaborator collaborator = (AnalysisCollaborator) i.next();
             if (isLoggedInUser(collaborator.getIdAppUser())) {
                 if (collaborator.getCanUploadData() != null && collaborator.getCanUploadData().equals("Y")) {
@@ -1898,7 +1859,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
         // First, check to see if the user is a specified as a collaborator
         // on this object.
         boolean canUpdate = false;
-        for (Iterator i = analysis.getCollaborators().iterator(); i.hasNext();) {
+        for (Iterator i = analysis.getCollaborators().iterator(); i.hasNext(); ) {
             AnalysisCollaborator collaborator = (AnalysisCollaborator) i.next();
             if (isLoggedInUser(collaborator.getIdAppUser())) {
                 if (collaborator.getCanUpdate() != null && collaborator.getCanUpdate().equals("Y")) {
@@ -1944,7 +1905,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
                 globalPermissionMap.put(new Permission(CAN_MANAGE_DNA_SEQ_CORE), null);
             } else if (appUser.getCodeUserPermissionKind().equals(UserPermissionKind.ADMIN_PERMISSION_KIND)) {
                 if (appUser.getManagingCoreFacilities() != null) {
-                    for (Iterator i = appUser.getManagingCoreFacilities().iterator(); i.hasNext();) {
+                    for (Iterator i = appUser.getManagingCoreFacilities().iterator(); i.hasNext(); ) {
                         CoreFacility coreFacility = (CoreFacility) i.next();
                         if (specifiedIdCoreFacility == null || coreFacility.getIdCoreFacility().equals(specifiedIdCoreFacility)) {
                             if (coreFacility.getFacilityName().equals(CoreFacility.CORE_FACILITY_DNA_SEQ)) {
@@ -1960,7 +1921,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
                 globalPermissionMap.put(new Permission(CAN_MANAGE_GENOMICS_CORE), null);
             } else if (appUser.getCodeUserPermissionKind().equals(UserPermissionKind.ADMIN_PERMISSION_KIND)) {
                 if (appUser.getManagingCoreFacilities() != null) {
-                    for (Iterator i = appUser.getManagingCoreFacilities().iterator(); i.hasNext();) {
+                    for (Iterator i = appUser.getManagingCoreFacilities().iterator(); i.hasNext(); ) {
                         CoreFacility coreFacility = (CoreFacility) i.next();
                         if (specifiedIdCoreFacility == null || coreFacility.getIdCoreFacility().equals(specifiedIdCoreFacility)) {
                             if (coreFacility.getFacilityName().equals(CoreFacility.CORE_FACILITY_GENOMICS)) {
@@ -1975,7 +1936,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
             if (appUser.getCodeUserPermissionKind().equals(UserPermissionKind.BILLING_PERMISSION_KIND)
                     || appUser.getCodeUserPermissionKind().equals(UserPermissionKind.GROUP_PERMISSION_KIND)
                     || appUser.getCodeUserPermissionKind().equals(UserPermissionKind.ADMIN_PERMISSION_KIND)) {
-                for (Iterator coreIt = appUser.getCoreFacilitiesICanSubmitTo().iterator(); coreIt.hasNext();) {
+                for (Iterator coreIt = appUser.getCoreFacilitiesICanSubmitTo().iterator(); coreIt.hasNext(); ) {
                     CoreFacility cf = (CoreFacility) coreIt.next();
                     if (coreAllowsGlobalSubmission(cf.getIdCoreFacility())) {
                         globalPermissionMap.put(new Permission(CAN_SUBMIT_FOR_OTHER_CORES), null);
@@ -2224,7 +2185,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     public Set getInstitutionsIAmMemberOf() {
         TreeSet institutions = new TreeSet();
         if (hasPermission(CAN_PARTICIPATE_IN_GROUPS)) {
-            for (Iterator i = this.getGroupsIAmMemberOrManagerOf().iterator(); i.hasNext();) {
+            for (Iterator i = this.getGroupsIAmMemberOrManagerOf().iterator(); i.hasNext(); ) {
                 Lab l = (Lab) i.next();
                 institutions.addAll(l.getInstitutions());
             }
@@ -2250,7 +2211,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     public List getGroupsToManage() {
 
         List labs = new ArrayList();
-        for (Iterator i = getGroupsIManage().iterator(); i.hasNext();) {
+        for (Iterator i = getGroupsIManage().iterator(); i.hasNext(); ) {
             Lab lab = (Lab) i.next();
 
             lab.excludeMethodFromXML("getBillingAccounts");
@@ -2288,7 +2249,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     public boolean isCoreFacilityIManage(Integer idCoreFacility) {
         boolean isMyCoreFacility = false;
         if (hasPermission(CAN_ACCESS_ANY_OBJECT)) {
-            for (Iterator i = this.getCoreFacilitiesIManage().iterator(); i.hasNext();) {
+            for (Iterator i = this.getCoreFacilitiesIManage().iterator(); i.hasNext(); ) {
                 CoreFacility coreFacility = (CoreFacility) i.next();
                 if (coreFacility.getIdCoreFacility().equals(idCoreFacility)) {
                     isMyCoreFacility = true;
@@ -2302,7 +2263,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     public boolean isCoreFacilityICanSubmitTo(Integer idCoreFacility) {
         boolean isCoreICanSubmitTo = false;
         if (this.coreAllowsGlobalSubmission(idCoreFacility)) {
-            for (Iterator i = appUser.getCoreFacilitiesICanSubmitTo().iterator(); i.hasNext();) {
+            for (Iterator i = appUser.getCoreFacilitiesICanSubmitTo().iterator(); i.hasNext(); ) {
                 CoreFacility coreFacility = (CoreFacility) i.next();
                 if (coreFacility.getIdCoreFacility().equals(idCoreFacility)) {
                     isCoreICanSubmitTo = true;
@@ -2323,7 +2284,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
         }
 
         boolean isLabICanSubmitTo = false;
-        for (Iterator i = l.getCoreFacilities().iterator(); i.hasNext();) {
+        for (Iterator i = l.getCoreFacilities().iterator(); i.hasNext(); ) {
             CoreFacility coreFacility = (CoreFacility) i.next();
             if (isCoreFacilityICanSubmitTo(coreFacility.getIdCoreFacility())) {
                 isLabICanSubmitTo = true;
@@ -2335,7 +2296,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
 
     public boolean isCoreFacilityForMyLab(Integer idCoreFacility) {
         boolean isMyCoreFacility = false;
-        for (Iterator i = this.getCoreFacilitiesForMyLab().iterator(); i.hasNext();) {
+        for (Iterator i = this.getCoreFacilitiesForMyLab().iterator(); i.hasNext(); ) {
             CoreFacility coreFacility = (CoreFacility) i.next();
             if (coreFacility.getIdCoreFacility().equals(idCoreFacility)) {
                 isMyCoreFacility = true;
@@ -2353,7 +2314,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
         } else if (hasPermission(CAN_PARTICIPATE_IN_GROUPS)) {
 
             if (idInstitution != null) {
-                for (Iterator i = this.getInstitutionsIAmMemberOf().iterator(); i.hasNext();) {
+                for (Iterator i = this.getInstitutionsIAmMemberOf().iterator(); i.hasNext(); ) {
                     Institution institution = (Institution) i.next();
                     if (institution.getIdInstitution().equals(idInstitution)) {
                         isMyInstitution = true;
@@ -2369,20 +2330,20 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     public boolean isGroupIAmMemberOf(Integer idLab) {
         boolean isMyLab = false;
 
-        if (hasPermission(CAN_WRITE_ANY_OBJECT)) {
-            isMyLab = true;
-        } else if (hasPermission(CAN_PARTICIPATE_IN_GROUPS)) {
+//        if (hasPermission(CAN_WRITE_ANY_OBJECT)) {
+//            isMyLab = true;
+//        } else if (hasPermission(CAN_PARTICIPATE_IN_GROUPS)) {
 
-            if (idLab != null) {
-                for (Iterator i = filterLabSetByCoreFacility(this.getAppUser().getLabs()).iterator(); i.hasNext();) {
-                    Lab lab = (Lab) i.next();
-                    if (lab.getIdLab().equals(idLab)) {
-                        isMyLab = true;
-                        break;
-                    }
+        if (idLab != null) {
+            for (Iterator i = filterLabSetByCoreFacility(this.getAppUser().getLabs()).iterator(); i.hasNext(); ) {
+                Lab lab = (Lab) i.next();
+                if (lab.getIdLab().equals(idLab)) {
+                    isMyLab = true;
+                    break;
                 }
             }
         }
+//        }
 
         return isMyLab;
     }
@@ -2395,17 +2356,12 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     public boolean isGroupICollaborateWith(Integer idLab) {
         boolean isMyLab = false;
 
-        if (hasPermission(CAN_ACCESS_ANY_OBJECT)) {
-            isMyLab = true;
-        } else if (hasPermission(CAN_PARTICIPATE_IN_GROUPS)) {
-
-            if (idLab != null) {
-                for (Iterator i = filterLabSetByCoreFacility(this.getAppUser().getCollaboratingLabs()).iterator(); i.hasNext();) {
-                    Lab lab = (Lab) i.next();
-                    if (lab.getIdLab().equals(idLab)) {
-                        isMyLab = true;
-                        break;
-                    }
+        if (idLab != null) {
+            for (Iterator i = filterLabSetByCoreFacility(this.getAppUser().getCollaboratingLabs()).iterator(); i.hasNext(); ) {
+                Lab lab = (Lab) i.next();
+                if (lab.getIdLab().equals(idLab)) {
+                    isMyLab = true;
+                    break;
                 }
             }
         }
@@ -2413,7 +2369,16 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
         return isMyLab;
     }
 
-    public boolean isGroupIdManager(Lab theLab) {
+    public boolean isGroupIManage(Lab theLab) {
+        if (hasPermission(CAN_WRITE_ANY_OBJECT)) {
+            for (Iterator i = theLab.getCoreFacilities().iterator(); i.hasNext(); ) {
+                CoreFacility coreFacility = (CoreFacility) i.next();
+                if (isCoreFacilityIManage(coreFacility.getIdCoreFacility())) {
+                    return true;
+                }
+            }
+        }
+
         return isGroupIManage(theLab.getIdLab());
     }
 
@@ -2421,16 +2386,38 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
         boolean isMyLab = false;
 
         if (hasPermission(CAN_WRITE_ANY_OBJECT)) {
-            isMyLab = true;
+            List idCoreFacility = new ArrayList();
+            for (Iterator i = this.getCoreFacilitiesIManage().iterator(); i.hasNext(); ) {
+                CoreFacility cf = (CoreFacility) i.next();
+                idCoreFacility.add(cf.getIdCoreFacility());
+            }
+            try {
+                List labList = GetCoreFacilityLabList.getLabListForCore(this.getHibernateSession(this.getUsername()),
+                        idCoreFacility);
+                for (Iterator i = labList.iterator(); i.hasNext(); ) {
+                    Lab lab = (Lab) i.next();
+                    if (lab.getIdLab().equals(idLab)) {
+                        isMyLab = true;
+                        break;
+                    }
+                }
+            } catch (Exception e) {
+                for (Iterator i = filterLabSetByCoreFacility(this.getAppUser().getManagingLabs()).iterator(); i.hasNext(); ) {
+                    Lab lab = (Lab) i.next();
+                    if (lab.getIdLab().equals(idLab)) {
+                        isMyLab = true;
+                        break;
+                    }
+                }
+            }
         } else if (hasPermission(CAN_PARTICIPATE_IN_GROUPS)) {
-            for (Iterator i = filterLabSetByCoreFacility(this.getAppUser().getManagingLabs()).iterator(); i.hasNext();) {
+            for (Iterator i = filterLabSetByCoreFacility(this.getAppUser().getManagingLabs()).iterator(); i.hasNext(); ) {
                 Lab lab = (Lab) i.next();
                 if (lab.getIdLab().equals(idLab)) {
                     isMyLab = true;
                     break;
                 }
             }
-
         }
 
         return isMyLab;
@@ -2522,7 +2509,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
             queryBuf.append(" ( ");
 
             // Check if the user is also a member of any groups
-            if(this.getAllMyGroups().size() > 0) {
+            if (this.getAllMyGroups().size() > 0) {
                 queryBuf.append(" ( ");
             }
 
@@ -2547,7 +2534,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
             queryBuf.append(" ) ");
 
             // Check if the user is also a member of any groups
-            if(this.getAllMyGroups().size() > 0) {
+            if (this.getAllMyGroups().size() > 0) {
                 appendAdminMemberCriteria(queryBuf, collabClassShortName, classShortName);
                 queryBuf.append(" ) ");
             }
@@ -2616,7 +2603,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
             }
 
 			/*
-			 * If a user is the submitter they should be able to view the experiment This case should only be hit if a collaborator submits the experiment
+             * If a user is the submitter they should be able to view the experiment This case should only be hit if a collaborator submits the experiment
 			 */
             queryBuf.append(!criteriaAdded ? "WHERE " : " OR ");
             queryBuf.append(" ( ");
@@ -2669,12 +2656,12 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
                 queryBuf.append(isFirstCriteria ? "WHERE " : " AND ");
                 isFirstCriteria = false;
                 // Check if the user is also a member of any groups
-                if(this.getAllMyGroups().size() > 0) {
+                if (this.getAllMyGroups().size() > 0) {
                     queryBuf.append(" ( ");
                 }
                 appendCoreFacilityCriteria(queryBuf, classShortName);
                 // Check if the user is also a member of any groups
-                if(this.getAllMyGroups().size() > 0) {
+                if (this.getAllMyGroups().size() > 0) {
                     appendAdminMemberCriteria(queryBuf, collabClassShortName, classShortName);
                     queryBuf.append(" ) ");
                 }
@@ -2756,9 +2743,9 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
         return isFirstCriteria;
     }
 
-    private boolean appendAdminMemberCriteria(StringBuffer queryBuf, String collabClassShortName, String classShortName ) {
+    private boolean appendAdminMemberCriteria(StringBuffer queryBuf, String collabClassShortName, String classShortName) {
         // Check if the user is also a member of any groups
-        if(this.getAllMyGroups().size() > 0) {
+        if (this.getAllMyGroups().size() > 0) {
 
             queryBuf.append(" OR ");
 
@@ -2835,7 +2822,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
             this.addWhereOrAnd(queryBuf, addWhereOrAnd);
             queryBuf.append(classShortName);
             queryBuf.append(".idLab not in ( ");
-            for (Iterator i = labs.iterator(); i.hasNext();) {
+            for (Iterator i = labs.iterator(); i.hasNext(); ) {
                 Lab theLab = (Lab) i.next();
                 queryBuf.append(theLab.getIdLab());
                 if (i.hasNext()) {
@@ -2885,7 +2872,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
             // req.idLab in labs I manage(....)
             queryBuf.append(classShortName);
             queryBuf.append(".idLab in ( ");
-            for (Iterator i = mgrLabs.iterator(); i.hasNext();) {
+            for (Iterator i = mgrLabs.iterator(); i.hasNext(); ) {
                 Lab theLab = (Lab) i.next();
                 queryBuf.append(theLab.getIdLab());
                 if (i.hasNext()) {
@@ -2921,7 +2908,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
         // req.idLab in (....)
         queryBuf.append(classShortName);
         queryBuf.append(".idLab in ( ");
-        for (Iterator i = labs.iterator(); i.hasNext();) {
+        for (Iterator i = labs.iterator(); i.hasNext(); ) {
             Lab theLab = (Lab) i.next();
             queryBuf.append(theLab.getIdLab());
             if (i.hasNext()) {
@@ -2951,7 +2938,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
         // req.idCoreFacility in (....)
         queryBuf.append(classShortName);
         queryBuf.append(".idCoreFacility in ( ");
-        for (Iterator i = this.getCoreFacilitiesIManage().iterator(); i.hasNext();) {
+        for (Iterator i = this.getCoreFacilitiesIManage().iterator(); i.hasNext(); ) {
             CoreFacility coreFacility = (CoreFacility) i.next();
             queryBuf.append(coreFacility.getIdCoreFacility());
             if (i.hasNext()) {
@@ -2975,7 +2962,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
         // req.idCoreFacility in (....)
         queryBuf.append(classShortName);
         queryBuf.append(".idCoreFacility in ( ");
-        for (Iterator i = this.getCoreFacilitiesICanSubmitTo().iterator(); i.hasNext();) {
+        for (Iterator i = this.getCoreFacilitiesICanSubmitTo().iterator(); i.hasNext(); ) {
             CoreFacility coreFacility = (CoreFacility) i.next();
             queryBuf.append(coreFacility.getIdCoreFacility());
             if (i.hasNext()) {
@@ -3016,7 +3003,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
         // req.idLab in (....)
         queryBuf.append(classShortName);
         queryBuf.append(".idInstitution in ( ");
-        for (Iterator i = institutions.iterator(); i.hasNext();) {
+        for (Iterator i = institutions.iterator(); i.hasNext(); ) {
             Institution theInstitution = (Institution) i.next();
             queryBuf.append(theInstitution.getIdInstitution());
             if (i.hasNext()) {
@@ -3046,7 +3033,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
         queryBuf.append(" ( ");
         queryBuf.append(classShortName);
         queryBuf.append(".idLab in ( ");
-        for (Iterator i = labs.iterator(); i.hasNext();) {
+        for (Iterator i = labs.iterator(); i.hasNext(); ) {
             Lab theLab = (Lab) i.next();
             queryBuf.append(theLab.getIdLab());
             if (i.hasNext()) {
@@ -3079,7 +3066,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
         if (!labs.isEmpty()) {
             queryBuf.append(classShortName);
             queryBuf.append(".idLab in ( ");
-            for (Iterator i = labs.iterator(); i.hasNext();) {
+            for (Iterator i = labs.iterator(); i.hasNext(); ) {
                 Lab theLab = (Lab) i.next();
                 queryBuf.append(theLab.getIdLab());
                 if (i.hasNext()) {
@@ -3105,7 +3092,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
 
                 queryBuf.append(classShortName);
                 queryBuf.append(".idLab in ( ");
-                for (Iterator i = labs.iterator(); i.hasNext();) {
+                for (Iterator i = labs.iterator(); i.hasNext(); ) {
                     Lab theLab = (Lab) i.next();
                     queryBuf.append(theLab.getIdLab());
                     if (i.hasNext()) {
@@ -3307,7 +3294,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
             // req.idLab in (....)
             searchText.append(labField);
             searchText.append(":(");
-            for (Iterator i = mgrLabs.iterator(); i.hasNext();) {
+            for (Iterator i = mgrLabs.iterator(); i.hasNext(); ) {
                 Lab theLab = (Lab) i.next();
                 searchText.append(theLab.getIdLab());
                 if (i.hasNext()) {
@@ -3354,7 +3341,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
         // req.idLab in (....)
         searchText.append(labField);
         searchText.append(":(");
-        for (Iterator i = labs.iterator(); i.hasNext();) {
+        for (Iterator i = labs.iterator(); i.hasNext(); ) {
             Lab theLab = (Lab) i.next();
             searchText.append(theLab.getIdLab());
             if (i.hasNext()) {
@@ -3382,7 +3369,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
         searchText.append(" ( ");
         searchText.append(labField);
         searchText.append(":(");
-        for (Iterator i = labs.iterator(); i.hasNext();) {
+        for (Iterator i = labs.iterator(); i.hasNext(); ) {
             Lab theLab = (Lab) i.next();
             searchText.append(theLab.getIdLab());
             if (i.hasNext()) {
@@ -3412,7 +3399,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
         // req.idLab in (....)
         searchText.append(institutionField);
         searchText.append(":(");
-        for (Iterator i = institutions.iterator(); i.hasNext();) {
+        for (Iterator i = institutions.iterator(); i.hasNext(); ) {
             Institution theInstitution = (Institution) i.next();
             searchText.append(theInstitution.getIdInstitution());
             if (i.hasNext()) {
@@ -3441,7 +3428,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
         // req.idLab in (....)
         searchText.append(labField);
         searchText.append(":(");
-        for (Iterator i = getAllMyGroups().iterator(); i.hasNext();) {
+        for (Iterator i = getAllMyGroups().iterator(); i.hasNext(); ) {
             Lab theLab = (Lab) i.next();
             searchText.append(theLab.getIdLab());
             if (i.hasNext()) {
@@ -3463,7 +3450,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
             if (!labs.isEmpty()) {
                 searchText.append(labField);
                 searchText.append(":(");
-                for (Iterator i = labs.iterator(); i.hasNext();) {
+                for (Iterator i = labs.iterator(); i.hasNext(); ) {
                     Lab theLab = (Lab) i.next();
                     searchText.append(theLab.getIdLab());
                     if (i.hasNext()) {
@@ -3563,7 +3550,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
 
         TreeSet coreFacilities = new TreeSet();
         if (hasPermission(CAN_PARTICIPATE_IN_GROUPS)) {
-            for (Iterator i = this.getAllMyGroups().iterator(); i.hasNext();) {
+            for (Iterator i = this.getAllMyGroups().iterator(); i.hasNext(); ) {
                 Lab l = (Lab) i.next();
                 coreFacilities.addAll(l.getCoreFacilities());
             }
@@ -3575,7 +3562,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     public Set getCoreFacilitiesICanSubmitTo() {
         if (appUser != null && appUser.getCoreFacilitiesICanSubmitTo() != null) {
             TreeSet cores = new TreeSet();
-            for (Iterator i = appUser.getCoreFacilitiesICanSubmitTo().iterator(); i.hasNext();) {
+            for (Iterator i = appUser.getCoreFacilitiesICanSubmitTo().iterator(); i.hasNext(); ) {
                 CoreFacility cf = (CoreFacility) i.next();
                 if (this.coreAllowsGlobalSubmission(cf.getIdCoreFacility())) {
                     cores.add(cf);
@@ -3601,7 +3588,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
             queryBuf.append(" " + reqShortName + ".codeRequestCategory not in (");
 
             int count = 0;
-            for (Iterator i = requestCategories.iterator(); i.hasNext();) {
+            for (Iterator i = requestCategories.iterator(); i.hasNext(); ) {
                 RequestCategory requestCategory = (RequestCategory) i.next();
                 if (requestCategory.getIsClinicalResearch() != null && requestCategory.getIsClinicalResearch().equals("Y")) {
                     if (count > 0) {

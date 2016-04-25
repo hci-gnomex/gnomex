@@ -1,33 +1,22 @@
 package hci.gnomex.controller;
 
-import java.io.Serializable;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
-import javax.naming.NamingException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-
-import org.hibernate.Session;
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.output.XMLOutputter;
-
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.model.DetailObject;
 import hci.framework.utilities.Annotations;
 import hci.framework.utilities.XMLReflectException;
-import hci.gnomex.model.CoreFacility;
-import hci.gnomex.model.Institution;
-import hci.gnomex.model.InternalAccountFieldsConfiguration;
-import hci.gnomex.model.Lab;
-import hci.gnomex.model.LabFilter;
-import hci.gnomex.security.SecurityAdvisor;
+import hci.gnomex.model.*;
+import org.hibernate.Session;
+import org.jdom.Document;
+import org.jdom.Element;
+import org.jdom.output.XMLOutputter;
+
+import javax.naming.NamingException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import java.io.Serializable;
+import java.sql.SQLException;
+import java.util.*;
 
 
 public class GetLabList extends GNomExCommand implements Serializable {
@@ -229,15 +218,14 @@ public class GetLabList extends GNomExCommand implements Serializable {
       lab.canGuestSubmit(false);
     }
 
-    if (this.getSecAdvisor().isGroupIManage(lab.getIdLab())) {
+    if (this.getSecAdvisor().isGroupIManage(lab)) {
       lab.canManage(true);
     } else {
       lab.canManage(false);
     }
 
-    if (this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_ACCESS_ANY_OBJECT) ||
-        this.getSecAdvisor().isGroupICollaborateWith(lab.getIdLab()) ||
-        this.getSecAdvisor().isGroupIAmMemberOrManagerOf(lab.getIdLab())) {
+    if (this.getSecAdvisor().isGroupICollaborateWith(lab.getIdLab()) ||
+        this.getSecAdvisor().isGroupIAmMemberOf(lab.getIdLab())) {
       lab.isMyLab(true);
     } else {
       lab.isMyLab(false);
@@ -263,6 +251,7 @@ public class GetLabList extends GNomExCommand implements Serializable {
     Element coreFacilitiesNode = new Element("coreFacilities");
     for(CoreFacility cf:coreFacilities) {
       Element cfNode = cf.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL, null, Annotations.IGNORE).getRootElement();
+//      cfNode
       coreFacilitiesNode.addContent(cfNode);
     }
     labNode.addContent(coreFacilitiesNode);
