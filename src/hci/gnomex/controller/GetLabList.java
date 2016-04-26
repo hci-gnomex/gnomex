@@ -6,6 +6,7 @@ import hci.framework.model.DetailObject;
 import hci.framework.utilities.Annotations;
 import hci.framework.utilities.XMLReflectException;
 import hci.gnomex.model.*;
+import hci.gnomex.security.SecurityAdvisor;
 import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -142,7 +143,9 @@ public class GetLabList extends GNomExCommand implements Serializable {
             updateLists(inst, cf, institutions, coreFacilities);
           }
           if (prevLab == null || !prevLab.getIdLab().equals(lab.getIdLab()) || !i.hasNext()) {
-            if (prevLab != null && (prevLab.getIsMyLab().equals("Y") || otherLabMap.containsKey(prevLab.getIdLab())
+            if (prevLab != null && (this.getSecAdvisor().hasPermission(SecurityAdvisor
+                    .CAN_ADMINISTER_ALL_CORE_FACILITIES) || this.getSecAdvisor().hasPermission(SecurityAdvisor
+                    .CAN_ACCESS_ANY_OBJECT) || prevLab.getIsMyLab().equals("Y") || otherLabMap.containsKey(prevLab.getIdLab())
                 || activeLabMap.containsKey(prevLab.getIdLab()) || labsToSubmitOnBehalfOf.containsKey(prevLab.getIdLab())
                 ||collaboratingLabs.containsKey(prevLab.getIdLab()))) {
               processLab(doc, prevLab, institutions, coreFacilities);
@@ -251,7 +254,6 @@ public class GetLabList extends GNomExCommand implements Serializable {
     Element coreFacilitiesNode = new Element("coreFacilities");
     for(CoreFacility cf:coreFacilities) {
       Element cfNode = cf.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL, null, Annotations.IGNORE).getRootElement();
-//      cfNode
       coreFacilitiesNode.addContent(cfNode);
     }
     labNode.addContent(coreFacilitiesNode);

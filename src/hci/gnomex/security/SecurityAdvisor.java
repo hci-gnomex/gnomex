@@ -2247,6 +2247,9 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     }
 
     public boolean isCoreFacilityIManage(Integer idCoreFacility) {
+        if (hasPermission(CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
+            return true;
+        }
         boolean isMyCoreFacility = false;
         if (hasPermission(CAN_ACCESS_ANY_OBJECT)) {
             for (Iterator i = this.getCoreFacilitiesIManage().iterator(); i.hasNext(); ) {
@@ -2385,7 +2388,9 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     public boolean isGroupIManage(Integer idLab) {
         boolean isMyLab = false;
 
-        if (hasPermission(CAN_WRITE_ANY_OBJECT)) {
+        if (hasPermission(CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
+            return true;
+        } else if (hasPermission(CAN_WRITE_ANY_OBJECT)) {
             List idCoreFacility = new ArrayList();
             for (Iterator i = this.getCoreFacilitiesIManage().iterator(); i.hasNext(); ) {
                 CoreFacility cf = (CoreFacility) i.next();

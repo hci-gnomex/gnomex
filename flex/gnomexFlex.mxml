@@ -2378,6 +2378,9 @@
 		}
 
 		public function isCoreFacilityIManage(idCoreFacility:String):Boolean {
+			if (isSuperAdmin) {
+				return true;
+			}
 			var isMyCoreFacility:Boolean = false;
 
 			for each (var facility:XML in coreFacilitiesICanManage) {
