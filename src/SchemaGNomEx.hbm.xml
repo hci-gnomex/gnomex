@@ -390,7 +390,7 @@
   			<key column="idBillingTemplate" />
   			<one-to-many class="hci.gnomex.model.BillingTemplateItem" />
   		</set>
-  		<set name="masterBillingItems" table="MasterBillingItem" lazy="true" cascade="none" order-by="idMasterBillingItem">
+  		<set name="masterBillingItems" table="MasterBillingItem" lazy="false" cascade="none" order-by="idMasterBillingItem">
   			<key column="idBillingTemplate" />
   			<one-to-many class="hci.gnomex.model.MasterBillingItem" />
   		</set>
