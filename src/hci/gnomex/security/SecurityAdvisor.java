@@ -2373,6 +2373,12 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     }
 
     public boolean isGroupIManage(Lab theLab) {
+        if(theLab==null){
+            return false;
+        }
+        if (hasPermission(CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
+            return true;
+        }
         if (hasPermission(CAN_WRITE_ANY_OBJECT)) {
             for (Iterator i = theLab.getCoreFacilities().iterator(); i.hasNext(); ) {
                 CoreFacility coreFacility = (CoreFacility) i.next();
