@@ -192,6 +192,15 @@
 				params.whereami = "3";
 				getRequestDownloadList.send(params);
 				
+				// this shouldn't be here, we need to put it where it really belongs...
+				var params1:Object = new Object();
+				params1.idRequest = request.@idRequest;
+				params1.whereami = "4b";				
+				if(parentView.downloadView != null){
+					parentView.downloadView.getRequestDownloadList.send(params1);
+				}
+				
+				
 			}
 			
 			private function onGetExperimentUploadURL(event:ResultEvent):void {
@@ -444,7 +453,7 @@
 
 					var params:Object = new Object();
 					params.idRequest = request.@idRequest;
-					params.idLab = request.@idLab;
+//					params.idLab = request.@idLab;
 					params.whereami = "4a";				
 					if(parentView.downloadView != null){
 						parentView.downloadView.getRequestDownloadList.send(params);
@@ -1133,7 +1142,7 @@
 			private function closeMe():void{
 				var params:Object = new Object();
 				params.idRequest = request.@idRequest;
-				params.idLab = request.@idLab;
+//				params.idLab = request.@idLab;
 				params.whereami = "4";				
 				if(parentView.downloadView != null){
 						parentView.downloadView.getRequestDownloadList.send(params);
