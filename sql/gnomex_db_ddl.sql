@@ -723,8 +723,8 @@ ENGINE = INNODB;
 DROP TABLE IF EXISTS gnomex.PriceCriteria;
 CREATE TABLE gnomex.PriceCriteria (
   idPriceCriteria INT(10) NOT NULL AUTO_INCREMENT,
-  filter1 VARCHAR(10) NULL,
-  filter2 VARCHAR(10) NULL,
+  filter1 VARCHAR(20) NULL,
+  filter2 VARCHAR(20) NULL,
   idPrice INT(10) NULL,
   PRIMARY KEY (idPriceCriteria),
   CONSTRAINT FK_PriceCriteria_Price FOREIGN KEY FK_PriceCriteria_Price (idPrice)
@@ -739,7 +739,7 @@ ENGINE = INNODB;
 DROP TABLE IF EXISTS gnomex.ProductType;
 CREATE TABLE gnomex.ProductType (
   idProductType INT(10) NOT NULL AUTO_INCREMENT,
-  description VARCHAR(5000) NOT NULL,
+  description VARCHAR(500) NOT NULL,
   idCoreFacility INT(10) NOT NULL,
   idVendor INT(10) NULL,
   idPriceCategory INT(10) NULL,
@@ -2307,7 +2307,7 @@ CREATE TABLE gnomex.PropertyEntry (
   idPropertyEntry INT(10) NOT NULL AUTO_INCREMENT,
   idProperty int(10) NULL,
   idSample INT(10) NULL,
-  valueString VARCHAR(200) NULL,
+  valueString VARCHAR(2000) NULL,
   otherLabel VARCHAR(100) NULL,
   idDataTrack INT(10) NULL,
   idAnalysis INT(10) NULL,
