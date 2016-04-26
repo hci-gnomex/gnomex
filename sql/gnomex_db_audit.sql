@@ -20044,6 +20044,7 @@ CREATE TABLE IF NOT EXISTS `Request_Audit` (
  ,`adminNotes`  varchar(5000)  NULL DEFAULT NULL
  ,`idProduct`  int(10)  NULL DEFAULT NULL
  ,`codeIsolationPrepType`  varchar(15)  NULL DEFAULT NULL
+ ,`archived`  char(1)  NULL DEFAULT NULL
 ) ENGINE=InnoDB
 $$
 
@@ -20103,7 +20104,8 @@ INSERT INTO Request_Audit
   , includeQubitConcentration
   , adminNotes
   , idProduct
-  , codeIsolationPrepType )
+  , codeIsolationPrepType
+  , archived )
   SELECT
   'No Context'
   , 'L'
@@ -20156,6 +20158,7 @@ INSERT INTO Request_Audit
   , adminNotes
   , idProduct
   , codeIsolationPrepType
+  , archived
   FROM Request
   WHERE NOT EXISTS(SELECT * FROM Request_Audit)
 $$
@@ -20218,7 +20221,8 @@ BEGIN
   , includeQubitConcentration
   , adminNotes
   , idProduct
-  , codeIsolationPrepType )
+  , codeIsolationPrepType
+  , archived )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
@@ -20270,7 +20274,8 @@ BEGIN
   , NEW.includeQubitConcentration
   , NEW.adminNotes
   , NEW.idProduct
-  , NEW.codeIsolationPrepType );
+  , NEW.codeIsolationPrepType
+  , NEW.archived );
 END;
 $$
 
@@ -20328,7 +20333,8 @@ BEGIN
   , includeQubitConcentration
   , adminNotes
   , idProduct
-  , codeIsolationPrepType )
+  , codeIsolationPrepType
+  , archived )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
@@ -20380,7 +20386,8 @@ BEGIN
   , NEW.includeQubitConcentration
   , NEW.adminNotes
   , NEW.idProduct
-  , NEW.codeIsolationPrepType );
+  , NEW.codeIsolationPrepType
+  , NEW.archived );
 END;
 $$
 
@@ -20438,7 +20445,8 @@ BEGIN
   , includeQubitConcentration
   , adminNotes
   , idProduct
-  , codeIsolationPrepType )
+  , codeIsolationPrepType
+  , archived )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
@@ -20490,7 +20498,8 @@ BEGIN
   , OLD.includeQubitConcentration
   , OLD.adminNotes
   , OLD.idProduct
-  , OLD.codeIsolationPrepType );
+  , OLD.codeIsolationPrepType
+  , OLD.archived );
 END;
 $$
 
