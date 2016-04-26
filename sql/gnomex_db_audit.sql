@@ -285,12 +285,6 @@ DROP TRIGGER IF EXISTS TrAU_DiskUsageByMonth_FER
 $$
 DROP TRIGGER IF EXISTS TrAD_DiskUsageByMonth_FER
 $$
-DROP TRIGGER IF EXISTS TrAI_DNAPrepType_FER
-$$
-DROP TRIGGER IF EXISTS TrAU_DNAPrepType_FER
-$$
-DROP TRIGGER IF EXISTS TrAD_DNAPrepType_FER
-$$
 DROP TRIGGER IF EXISTS TrAI_ExperimentDesign_FER
 $$
 DROP TRIGGER IF EXISTS TrAU_ExperimentDesign_FER
@@ -806,12 +800,6 @@ $$
 DROP TRIGGER IF EXISTS TrAU_RequestToTopic_FER
 $$
 DROP TRIGGER IF EXISTS TrAD_RequestToTopic_FER
-$$
-DROP TRIGGER IF EXISTS TrAI_RNAPrepType_FER
-$$
-DROP TRIGGER IF EXISTS TrAU_RNAPrepType_FER
-$$
-DROP TRIGGER IF EXISTS TrAD_RNAPrepType_FER
 $$
 DROP TRIGGER IF EXISTS TrAI_Sample_FER
 $$
@@ -7873,117 +7861,6 @@ BEGIN
   , OLD.idBillingPeriod
   , OLD.idBillingAccount
   , OLD.idCoreFacility );
-END;
-$$
-
-
---
--- Audit Table For DNAPrepType 
---
-
-CREATE TABLE IF NOT EXISTS `DNAPrepType_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
- ,`codeDNAPrepType`  varchar(10)  NULL DEFAULT NULL
- ,`dnaPrepType`  varchar(100)  NULL DEFAULT NULL
- ,`isActive`  char(1)  NULL DEFAULT NULL
-) ENGINE=InnoDB
-$$
-
-
---
--- Initial audit table rows for DNAPrepType 
---
-
-INSERT INTO DNAPrepType_Audit
-  ( AuditAppuser
-  , AuditOperation
-  , AuditSystemUser
-  , AuditOperationDate
-  , codeDNAPrepType
-  , dnaPrepType
-  , isActive )
-  SELECT
-  'No Context'
-  , 'L'
-  , USER()
-  , NOW()
-  , codeDNAPrepType
-  , dnaPrepType
-  , isActive
-  FROM DNAPrepType
-  WHERE NOT EXISTS(SELECT * FROM DNAPrepType_Audit)
-$$
-
---
--- Audit Triggers For DNAPrepType 
---
-
-
-CREATE TRIGGER TrAI_DNAPrepType_FER AFTER INSERT ON DNAPrepType FOR EACH ROW
-BEGIN
-  INSERT INTO DNAPrepType_Audit
-  ( AuditAppuser
-  , AuditOperation
-  , AuditSystemUser
-  , AuditOperationDate
-  , codeDNAPrepType
-  , dnaPrepType
-  , isActive )
-  VALUES
-  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
-  , 'I'
-  , USER()
-  , NOW()
-  , NEW.codeDNAPrepType
-  , NEW.dnaPrepType
-  , NEW.isActive );
-END;
-$$
-
-
-CREATE TRIGGER TrAU_DNAPrepType_FER AFTER UPDATE ON DNAPrepType FOR EACH ROW
-BEGIN
-  INSERT INTO DNAPrepType_Audit
-  ( AuditAppuser
-  , AuditOperation
-  , AuditSystemUser
-  , AuditOperationDate
-  , codeDNAPrepType
-  , dnaPrepType
-  , isActive )
-  VALUES
-  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
-  , 'U'
-  , USER()
-  , NOW()
-  , NEW.codeDNAPrepType
-  , NEW.dnaPrepType
-  , NEW.isActive );
-END;
-$$
-
-
-CREATE TRIGGER TrAD_DNAPrepType_FER AFTER DELETE ON DNAPrepType FOR EACH ROW
-BEGIN
-  INSERT INTO DNAPrepType_Audit
-  ( AuditAppuser
-  , AuditOperation
-  , AuditSystemUser
-  , AuditOperationDate
-  , codeDNAPrepType
-  , dnaPrepType
-  , isActive )
-  VALUES
-  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
-  , 'D'
-  , USER()
-  , NOW()
-  , OLD.codeDNAPrepType
-  , OLD.dnaPrepType
-  , OLD.isActive );
 END;
 $$
 
@@ -20500,117 +20377,6 @@ BEGIN
   , OLD.idProduct
   , OLD.codeIsolationPrepType
   , OLD.archived );
-END;
-$$
-
-
---
--- Audit Table For RNAPrepType 
---
-
-CREATE TABLE IF NOT EXISTS `RNAPrepType_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
- ,`codeRNAPrepType`  varchar(10)  NULL DEFAULT NULL
- ,`rnaPrepType`  varchar(100)  NULL DEFAULT NULL
- ,`isActive`  char(1)  NULL DEFAULT NULL
-) ENGINE=InnoDB
-$$
-
-
---
--- Initial audit table rows for RNAPrepType 
---
-
-INSERT INTO RNAPrepType_Audit
-  ( AuditAppuser
-  , AuditOperation
-  , AuditSystemUser
-  , AuditOperationDate
-  , codeRNAPrepType
-  , rnaPrepType
-  , isActive )
-  SELECT
-  'No Context'
-  , 'L'
-  , USER()
-  , NOW()
-  , codeRNAPrepType
-  , rnaPrepType
-  , isActive
-  FROM RNAPrepType
-  WHERE NOT EXISTS(SELECT * FROM RNAPrepType_Audit)
-$$
-
---
--- Audit Triggers For RNAPrepType 
---
-
-
-CREATE TRIGGER TrAI_RNAPrepType_FER AFTER INSERT ON RNAPrepType FOR EACH ROW
-BEGIN
-  INSERT INTO RNAPrepType_Audit
-  ( AuditAppuser
-  , AuditOperation
-  , AuditSystemUser
-  , AuditOperationDate
-  , codeRNAPrepType
-  , rnaPrepType
-  , isActive )
-  VALUES
-  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
-  , 'I'
-  , USER()
-  , NOW()
-  , NEW.codeRNAPrepType
-  , NEW.rnaPrepType
-  , NEW.isActive );
-END;
-$$
-
-
-CREATE TRIGGER TrAU_RNAPrepType_FER AFTER UPDATE ON RNAPrepType FOR EACH ROW
-BEGIN
-  INSERT INTO RNAPrepType_Audit
-  ( AuditAppuser
-  , AuditOperation
-  , AuditSystemUser
-  , AuditOperationDate
-  , codeRNAPrepType
-  , rnaPrepType
-  , isActive )
-  VALUES
-  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
-  , 'U'
-  , USER()
-  , NOW()
-  , NEW.codeRNAPrepType
-  , NEW.rnaPrepType
-  , NEW.isActive );
-END;
-$$
-
-
-CREATE TRIGGER TrAD_RNAPrepType_FER AFTER DELETE ON RNAPrepType FOR EACH ROW
-BEGIN
-  INSERT INTO RNAPrepType_Audit
-  ( AuditAppuser
-  , AuditOperation
-  , AuditSystemUser
-  , AuditOperationDate
-  , codeRNAPrepType
-  , rnaPrepType
-  , isActive )
-  VALUES
-  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
-  , 'D'
-  , USER()
-  , NOW()
-  , OLD.codeRNAPrepType
-  , OLD.rnaPrepType
-  , OLD.isActive );
 END;
 $$
 

@@ -10,3 +10,9 @@ VALUES ('show_title_box', 'N', 'Show site title and welcome message on home page
 
 INSERT INTO PropertyDictionary (propertyName, propertyValue, propertyDescription, forServerOnly )
 VALUES ('directory_bioinformatics_scratch','/bioScratch','Where experiment soft links are created','N');
+
+
+DROP TABLE IF EXISTS gnomex.DNAPrepType;
+DROP TABLE IF EXISTS gnomex.DNAPrepType_Audit;
+DROP TABLE IF EXISTS gnomex.RNAPrepType;
+DROP TABLE IF EXISTS gnomex.RNAPrepType_Audit;
