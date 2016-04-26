@@ -2356,7 +2356,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 
         // if this is being called from a workflow servlet then skip the creation of request property billing items
         // because we already created them at submit time.
-        if(comingFromWorkflow && (priceCategory.getPluginClassName() != null && priceCategory.getPluginClassName().equals("hci.gnomex.billing.PropertyPricingPlugin") || priceCategory.getPluginClassName().equals("hci.gnomex.billing.PropertyPricingNotBySamplePlugin"))){
+        if(comingFromWorkflow && (priceCategory.getPluginClassName() != null && (priceCategory.getPluginClassName().equals("hci.gnomex.billing.PropertyPricingPlugin") || priceCategory.getPluginClassName().equals("hci.gnomex.billing.PropertyPricingNotBySamplePlugin")))){
           continue;
         }
 
