@@ -192,15 +192,6 @@
 				params.whereami = "3";
 				getRequestDownloadList.send(params);
 				
-				// this shouldn't be here, we need to put it where it really belongs...
-				var params1:Object = new Object();
-				params1.idRequest = request.@idRequest;
-				params1.whereami = "4b";				
-				if(parentView.downloadView != null){
-					parentView.downloadView.getRequestDownloadList.send(params1);
-				}
-				
-				
 			}
 			
 			private function onGetExperimentUploadURL(event:ResultEvent):void {
