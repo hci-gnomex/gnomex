@@ -527,7 +527,12 @@
 				if (item.hasOwnProperty("@overrideFilter") && item.@overrideFilter == "Y") {
 					return true;
 				}
-
+				if (!parentApplication.isInternalExperimentSubmission) {
+					if ( item.@isMyLab=="Y" || item.@canSubmitRequests=="Y" || item.@canManage=="Y" ){
+						return true;
+					}
+					return false;
+				}
 				var cat:Object = getRequestCategory();
 				if (cat == null || cat.@idCoreFacility.toString() == '') {
 					return false;

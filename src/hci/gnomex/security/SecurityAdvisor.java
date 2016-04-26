@@ -2333,11 +2333,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     public boolean isGroupIAmMemberOf(Integer idLab) {
         boolean isMyLab = false;
 
-//        if (hasPermission(CAN_WRITE_ANY_OBJECT)) {
-//            isMyLab = true;
-//        } else if (hasPermission(CAN_PARTICIPATE_IN_GROUPS)) {
-
-        if (idLab != null) {
+        if (idLab != null && this.getAppUser().getLabs()!=null) {
             for (Iterator i = filterLabSetByCoreFacility(this.getAppUser().getLabs()).iterator(); i.hasNext(); ) {
                 Lab lab = (Lab) i.next();
                 if (lab.getIdLab().equals(idLab)) {
@@ -2346,7 +2342,6 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
                 }
             }
         }
-//        }
 
         return isMyLab;
     }

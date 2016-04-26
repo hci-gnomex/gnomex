@@ -231,7 +231,9 @@
 		}
 
 		private function changeStatus_handler():void{
-			if(toggleBar.selectedIndex==0 && isLabSelected == true){
+			if (parentApplication.coreFacilitiesICanManage == null || parentApplication.coreFacilitiesICanManage.length() == 0) {
+				Alert.show("You do not have sufficient permissions to change status for product orders.", "Insufficient permissions");
+			} else if(toggleBar.selectedIndex==0 && isLabSelected == true){
 				Alert.show("You have selected an entire Lab, do you want to change the status of all orders in that lab?",
 						"Warning",(Alert.YES | Alert.NO), this, changeStatus_impl, parentApplication.iconError);
 			} else{
@@ -543,7 +545,8 @@
 		<mx:ControlBar horizontalAlign="left" width="100%" paddingTop="0" paddingBottom="2">
 
 			<mx:Label id="nSelectedOrders" text="{browseView.selectedOrders.length + ' selected'}" visible="{toggleBar.selectedIndex==1}" includeInLayout="{toggleBar.selectedIndex==1}"/>
-
+			<mx:HBox includeInLayout="{parentApplication.coreFacilitiesICanManage.length() > 0}"
+					 visible="{parentApplication.coreFacilitiesICanManage.length() > 0}">
 			<mx:ComboBox id = "statusComboBox"
 						 prompt="- Change Status -"
 						 dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ProductOrderStatus').DictionaryEntry}"
@@ -562,6 +565,7 @@
 						   click="{promptToDelete()}"
 						   disabledIcon="@Embed('../../assets/delete_disable.png')"
 						   enabled="{ (toggleBar.selectedIndex==0 &amp;&amp; atLeastOneSelection) || (toggleBar.selectedIndex==1 &amp;&amp; browseView.selectedOrders.length > 0 ) }"/>
+		</mx:HBox>
 			<mx:Spacer width="100%"/>
 			<mx:Label text="{'(' + browseView.orderList.length + ' line items)'}" visible="{toggleBar.selectedIndex==1}" includeInLayout="{toggleBar.selectedIndex==1}" fontWeight = "normal" textAlign = "right"  fontStyle="italic"/>
 		</mx:ControlBar>
