@@ -351,7 +351,31 @@ public class SaveRequest extends GNomExCommand implements Serializable {
           // Save billing template
           BillingTemplate billingTemplate = requestParser.getBillingTemplate();
           BillingTemplate oldBillingTemplate = BillingTemplateQueryManager.retrieveBillingTemplate(sess, requestParser.getRequest());
-          if ( billingTemplate != null ) {
+          
+          // If the request has any approved billing items, prevent billing template modification
+          boolean allowBillingTemplateModification = true;
+          if (billingTemplate != null) {
+              Set<BillingItem> oldBillingItems = billingTemplate.getBillingItems(sess);
+              for (BillingItem billingItem : oldBillingItems) {
+                if (!billingItem.getCodeBillingStatus().equals(BillingStatus.PENDING) && !billingItem.getCodeBillingStatus().equals(BillingStatus.COMPLETED)) {
+                    billingAccountMessage = "Billing was not adjusted because approved billing items cannot be reassigned.";
+                    allowBillingTemplateModification = false;
+                    break;
+                }
+              }
+          }
+          if (oldBillingTemplate != null) {
+              Set<BillingItem> oldBillingItems2 = oldBillingTemplate.getBillingItems(sess);
+              for (BillingItem billingItem : oldBillingItems2) {
+                  if (!billingItem.getCodeBillingStatus().equals(BillingStatus.PENDING) && !billingItem.getCodeBillingStatus().equals(BillingStatus.COMPLETED)) {
+                      billingAccountMessage = "Billing was not adjusted because approved billing items cannot be reassigned.";
+                      allowBillingTemplateModification = false;
+                      break;
+                  }
+              }
+          }
+          
+          if (allowBillingTemplateModification && billingTemplate != null) {
 
             if (requestParser.isNewRequest()) {
               billingTemplate.setOrder(requestParser.getRequest());
@@ -417,7 +441,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
               if (oldBillingTemplate != null) {
                   Set<BillingItem> oldBillingItems2 = oldBillingTemplate.getBillingItems(sess);
                   for (BillingItem billingItemToDelete : oldBillingItems2) {
-                    sess.delete(billingItemToDelete);
+                      sess.delete(billingItemToDelete);
                   }
                   sess.flush();
               }
@@ -436,6 +460,10 @@ public class SaveRequest extends GNomExCommand implements Serializable {
                   sess.flush();
               }
             }
+          }
+          
+          if (!allowBillingTemplateModification) {
+              billingTemplate = oldBillingTemplate;
           }
 
           // Remove files from file system
@@ -804,8 +832,6 @@ public class SaveRequest extends GNomExCommand implements Serializable {
             sess.flush();
           }
 
-          billingAccountMessage = "";
-
           // We will create billing items if this is not an external experiment.
           // For new experiments, don't create billing items for DNA Seq Core experiments as these get
           // created when the status is changed to submitted.
@@ -826,7 +852,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
               if (RequestCategory.isDNASeqCoreRequestCategory(requestParser.getRequest().getCodeRequestCategory())) {
                 if (requestParser.getRequest().getBillingItemList(sess) != null && !requestParser.getRequest().getBillingItemList(sess).isEmpty()) {
                   if (hasNewSample) {
-                    billingAccountMessage = "Request " + requestParser.getRequest().getNumber() + " has been saved.\n\nSamples have been added, please adjust billing accordingly.";
+                    billingAccountMessage += billingAccountMessage.length() > 0 ? " " : "" + "Request " + requestParser.getRequest().getNumber() + " has been saved.\n\nSamples have been added, please adjust billing accordingly.";
                   }
                 }
               }
@@ -877,6 +903,10 @@ public class SaveRequest extends GNomExCommand implements Serializable {
         setResponsePage(this.ERROR_JSP);
       }
 
+    } catch (GNomExRollbackException e) {
+      log.error("An exception has occurred in SaveRequest ", e);
+      e.printStackTrace();
+      throw e;
     } catch (ProductException e) {
       log.error("An exception has occurred in SaveRequest ", e);
       log.error("Unable to create ProductLedger for request. " + e.getMessage());
