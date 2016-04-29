@@ -901,7 +901,6 @@
 			public function startNewRequest():void {
 				request = null;
 				this.setupSubmitForm();
-				this.updateBillingAccountInfo();
 			}
 			
 			private function setupSubmitForm():void {
@@ -910,6 +909,8 @@
 					buttonStack.selectedIndex = 0;
 					requestIcon = '';
 					requestCategoryName = '';
+				} else{
+					this.updateBillingAccountInfo();
 				}
 			}
 			
@@ -2667,7 +2668,7 @@
 					this.theTab.getTabAt( theTab.getChildIndex( propertiesView ) ).visible = true;
 					this.theTab.getTabAt( theTab.getChildIndex( propertiesView ) ).includeInLayout = true;
 				}
-				
+
 				initializeSubmitForm();		
 				
 				if (theRequestNumber != null) {
