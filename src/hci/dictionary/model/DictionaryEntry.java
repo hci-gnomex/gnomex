@@ -1,7 +1,7 @@
 package hci.dictionary.model;
 
 import hci.framework.utilities.XMLReflectException;
-import hci.hibernate3utils.HibernateDetailObject;
+import hci.hibernate5utils.HibernateDetailObject;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;

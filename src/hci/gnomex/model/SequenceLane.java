@@ -5,7 +5,7 @@ import hci.framework.utilities.XMLReflectException;
 import hci.gnomex.constants.Constants;
 import hci.gnomex.utility.MultiplexLaneComparator;
 import hci.gnomex.utility.SequenceLaneNumberComparator;
-import hci.hibernate3utils.HibernateDetailObject;
+import hci.hibernate5utils.HibernateDetailObject;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;

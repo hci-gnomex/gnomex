@@ -9,7 +9,7 @@ import org.jdom.Element;
 
 import hci.gnomex.utility.DetailObject;
 import hci.gnomex.utility.XMLTools;
-import hci.hibernate3utils.HibernateDetailObject;
+import hci.hibernate5utils.HibernateDetailObject;
 
 @SuppressWarnings("serial")
 public class BillingTemplateItem extends HibernateDetailObject implements Comparable<BillingTemplateItem>, DetailObject {

@@ -5,7 +5,7 @@ import hci.dictionary.model.NullDictionaryEntry;
 import hci.framework.security.SecurityAdvisor;
 import hci.framework.security.UnknownPermissionException;
 import hci.framework.utilities.XMLReflectException;
-import hci.hibernate3utils.HibernateDetailObject;
+import hci.hibernate5utils.HibernateDetailObject;
 
 import java.io.InputStream;
 import java.io.ObjectStreamException;

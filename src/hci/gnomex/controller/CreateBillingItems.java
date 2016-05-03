@@ -30,11 +30,7 @@ import hci.gnomex.model.Sample;
 import hci.gnomex.model.SequenceLane;
 import hci.gnomex.model.SlideProduct;
 import hci.gnomex.security.SecurityAdvisor;
-import hci.gnomex.utility.BillingTemplateQueryManager;
-import hci.gnomex.utility.DictionaryHelper;
-import hci.gnomex.utility.PlateWellComparator;
-import hci.gnomex.utility.PropertyEntryComparator;
-import hci.gnomex.utility.RequestParser;
+import hci.gnomex.utility.*;
 
 import java.io.Serializable;
 import java.io.StringReader;
@@ -169,6 +165,7 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
       if (idRequest != null) {
         request = (Request)sess.get(Request.class, idRequest);
         billingTemplate = BillingTemplateQueryManager.retrieveBillingTemplate(sess, request);
+
 
         // Only admins can create billing items for existing requests
         if (!this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_MANAGE_BILLING)) {

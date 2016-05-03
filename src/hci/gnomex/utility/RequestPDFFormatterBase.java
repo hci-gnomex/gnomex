@@ -425,7 +425,7 @@ public abstract class RequestPDFFormatterBase {
 		for (Iterator iter = dictionaryHelper.getPropertyList().iterator(); iter.hasNext();) {
 			Property prop = (Property) iter.next();
 
-			
+
 			if (prop.getForRequest() == null || !prop.getForRequest().equals("Y")) {
 				continue;
 			}

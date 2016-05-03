@@ -1,7 +1,7 @@
 package hci.gnomex.model;
 
 import hci.gnomex.utility.PropertyDictionaryHelper;
-import hci.hibernate3utils.HibernateDetailObject;
+import hci.hibernate5utils.HibernateDetailObject;
 
 import java.io.Serializable;
 import java.util.ArrayList;
