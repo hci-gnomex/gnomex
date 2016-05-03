@@ -183,17 +183,7 @@
                 }
             }
 
-            // Check if user is an authorized user for the account
-            if (getAuthorizedBillingAccounts.lastResult != null) {
-
-                for each(var ba:XML in getAuthorizedBillingAccounts.lastResult..BillingAccount) {
-                    if (item.@idBillingAccount == ba.@idBillingAccount) {
-                        return true;
-                    }
-                }
-
-            }
-            return false;
+            return true;
         }
 
         private function getMembersOfLab():void {
@@ -443,7 +433,7 @@
 
     <mx:XMLListCollection id="productList"/>
     <mx:XMLListCollection id="appUsers"   source="{getLab.lastResult..Lab.activeSubmitters.AppUser}"/>
-    <mx:XMLListCollection id="billingAccounts"  source="{getLab.lastResult..Lab.approvedBillingAccounts.BillingAccount}"  filterFunction="filterBillingAccount"/>
+    <mx:XMLListCollection id="billingAccounts"  source="{getLab.lastResult..Lab.authorizedBillingAccounts.BillingAccount}"  filterFunction="filterBillingAccount"/>
     <mx:XMLListCollection id="productTypeList" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.ProductType').DictionaryEntry.(@value != '')}" />
     <mx:XMLListCollection id="filteredLabList" filterFunction="filterLabList" source="{parentApplication.submitRequestLabList.source}"/>
 

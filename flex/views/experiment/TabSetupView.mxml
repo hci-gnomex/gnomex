@@ -508,19 +508,8 @@
 						return false;
 					}
 				}
-
-				// Check if user is an authorized user for the account
-				if(getAuthorizedBillingAccounts.lastResult != null){
-
-					for each(var ba:XML in getAuthorizedBillingAccounts.lastResult..BillingAccount){
-						if(item.@idBillingAccount == ba.@idBillingAccount){
-							return true;
-						}
-					}
-
-				}
 				
-				return false;
+				return true;
 			}
 
 			private function filterLabs(item:Object):Boolean {
@@ -1430,13 +1419,13 @@
 						showAccessAuthorizedAccountsLink = false;
 						updateAuthAccountsParams(null, null);
 						
-						var params:Object = new Object();
-						params.idAppUser = idAppUser;
+						var params2:Object = new Object();
+						params2.idAppUser = idAppUser;
 						if (idCoreFacility != null) {
-							params.idCoreFacility = idCoreFacility;
+							params2.idCoreFacility = idCoreFacility;
 						}
 						
-						getAuthorizedBillingAccounts.send(params);
+						getAuthorizedBillingAccounts.send(params2);
 						
 						updateAuthAccountsParams(idAppUser, idCoreFacility);
 					}
@@ -1496,7 +1485,7 @@
 		]]>
 	</mx:Script>
 	<mx:XMLListCollection id="filteredLabList"  source="{parentDocument.filteredLabList.source}"  filterFunction="filterLabs"/>
-	<mx:XMLListCollection id="billingAccounts"  source="{lab.approvedBillingAccounts.BillingAccount}"  filterFunction="filterBillingAccount"/>
+	<mx:XMLListCollection id="billingAccounts"  source="{lab.authorizedBillingAccounts.BillingAccount}"  filterFunction="filterBillingAccount"/>
 	
 	<mx:XMLListCollection id="appUsers"   source="{getLab.lastResult..Lab.activeSubmitters.AppUser}"/>
 	
