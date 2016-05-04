@@ -96,7 +96,7 @@ public class GetCoreFacilityLabList extends GNomExCommand implements Serializabl
     return q;
   }
 
-  public static List getLabListForCore(Session sess, List coreIds){
+  public static List getLabListForCores(Session sess, List coreIds){
     Query q = getQueryForCores(sess, coreIds);
     List l = q.list();
     return l;

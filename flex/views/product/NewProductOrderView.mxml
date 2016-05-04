@@ -167,7 +167,7 @@
             if(parentApplication.isCoreFacilityIManage(idCoreFacility)){
                 keep = true;
             } else {
-                if (item.@isMyLab!=null && item.@isMyLab=="Y"){
+                if (item.@isMyLab=="Y" || item.@canSubmitRequests=="Y" || item.@canManage=="Y" ){
                     keep = true;
                 }
             }
