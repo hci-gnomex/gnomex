@@ -3,7 +3,7 @@ package hci.gnomex.model;
 import hci.framework.security.UnknownPermissionException;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
-import hci.hibernate3utils.HibernateDetailObject;
+import hci.hibernate5utils.HibernateDetailObject;
 
 import java.sql.Date;
 import java.text.SimpleDateFormat;

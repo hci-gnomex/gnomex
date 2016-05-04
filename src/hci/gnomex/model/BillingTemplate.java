@@ -15,7 +15,7 @@ import hci.gnomex.utility.DetailObject;
 import hci.gnomex.utility.Order;
 import hci.gnomex.utility.QueryManager;
 import hci.gnomex.utility.XMLTools;
-import hci.hibernate3utils.HibernateDetailObject;
+import hci.hibernate5utils.HibernateDetailObject;
 
 @SuppressWarnings("serial")
 public class BillingTemplate extends HibernateDetailObject implements DetailObject {

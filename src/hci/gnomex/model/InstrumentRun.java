@@ -1,6 +1,6 @@
 package hci.gnomex.model;
 
-import hci.hibernate3utils.HibernateDetailObject;
+import hci.hibernate5utils.HibernateDetailObject;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;

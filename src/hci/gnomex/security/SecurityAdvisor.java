@@ -95,6 +95,8 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
 
     private static PropertyDictionaryHelper pdh;
 
+    private List labsForCoresIManage;
+
     public String getLoginDateTime() {
         return loginDateTime;
     }
@@ -114,6 +116,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
         this.coreFacilitiesAllowingGlobalSubmission = submitMap;
 
         setGlobalPermissions();
+        getLabListForCores();
         validate();
     }
 
@@ -128,6 +131,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
         this.specifiedIdCoreFacility = idCoreFacility;
         this.coreFacilitiesAllowingGlobalSubmission = new HashMap<Integer, Integer>();
         setGlobalPermissions();
+        getLabListForCores();
     }
 
     /*
@@ -308,7 +312,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
                 BSTpersonId, idCoreFacility, submitMap);
         // Make sure we have a valid state.
         securityAdvisor.validate();
-        // Initialize institutions (lazy loading causing invalid object
+        // Initialize institutions (lazy loading causing invalid object)
         securityAdvisor.getInstitutionsIAmMemberOf();
 
         return securityAdvisor;
@@ -1882,13 +1886,29 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
         return getAppUser() != null && getAppUser().getIsActive() != null && getAppUser().getIsActive().equalsIgnoreCase("Y");
     }
 
+    private void getLabListForCores() {
+        try {
+            if (this.hasPermission(CAN_ACCESS_ANY_OBJECT)){
+                // Get all core facilities the user manages
+                List idCoreFacility = new ArrayList();
+                for (Iterator i = this.getCoreFacilitiesIManage().iterator(); i.hasNext(); ) {
+                    CoreFacility cf = (CoreFacility) i.next();
+                    idCoreFacility.add(cf.getIdCoreFacility());
+                }
+                // Get all labs for the core facilities the user manages
+                labsForCoresIManage = GetCoreFacilityLabList.getLabListForCores(this.getHibernateSession(this.getUsername()),
+                        idCoreFacility);
+            }
+        } catch (Exception e){
+        }
+    }
+
     private void setGlobalPermissions() {
         globalPermissionMap = new HashMap();
 
         if (isGuest || appUser.getCodeUserPermissionKind() == null) {
             return;
         }
-
         if (isActiveUser()) {
             // Can administer all core facilities (Super user)
             if (appUser.getCodeUserPermissionKind().equals(UserPermissionKind.SUPER_ADMIN_PERMISSION_KIND)) {
@@ -2391,33 +2411,11 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
 
         if (hasPermission(CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
             return true;
-        } else if (hasPermission(CAN_WRITE_ANY_OBJECT)) {
-            List idCoreFacility = new ArrayList();
-            for (Iterator i = this.getCoreFacilitiesIManage().iterator(); i.hasNext(); ) {
-                CoreFacility cf = (CoreFacility) i.next();
-                idCoreFacility.add(cf.getIdCoreFacility());
-            }
-            try {
-                List labList = GetCoreFacilityLabList.getLabListForCore(this.getHibernateSession(this.getUsername()),
-                        idCoreFacility);
-                for (Iterator i = labList.iterator(); i.hasNext(); ) {
-                    Lab lab = (Lab) i.next();
-                    if (lab.getIdLab().equals(idLab)) {
-                        isMyLab = true;
-                        break;
-                    }
-                }
-            } catch (Exception e) {
-                for (Iterator i = filterLabSetByCoreFacility(this.getAppUser().getManagingLabs()).iterator(); i.hasNext(); ) {
-                    Lab lab = (Lab) i.next();
-                    if (lab.getIdLab().equals(idLab)) {
-                        isMyLab = true;
-                        break;
-                    }
-                }
-            }
-        } else if (hasPermission(CAN_PARTICIPATE_IN_GROUPS)) {
-            for (Iterator i = filterLabSetByCoreFacility(this.getAppUser().getManagingLabs()).iterator(); i.hasNext(); ) {
+        }
+
+        // If the lab is in a core they manage, they can also manage the lab
+        if (labsForCoresIManage != null && labsForCoresIManage.size() > 0) {
+            for (Iterator i = labsForCoresIManage.iterator(); i.hasNext(); ) {
                 Lab lab = (Lab) i.next();
                 if (lab.getIdLab().equals(idLab)) {
                     isMyLab = true;
@@ -2425,8 +2423,20 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
                 }
             }
         }
+        // If lab is not in their core, check to see if they are explicitly set as a manager for the lab
+        isMyLab = isMyLab || idLabIsInManagingLabs(idLab);
 
         return isMyLab;
+    }
+
+    private boolean idLabIsInManagingLabs(int idLab){
+        for (Iterator i = filterLabSetByCoreFacility(this.getAppUser().getManagingLabs()).iterator(); i.hasNext(); ) {
+            Lab lab = (Lab) i.next();
+            if (lab.getIdLab().equals(idLab)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public boolean isOwner(Integer idAppUserOfObject) {
@@ -2651,11 +2661,8 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     public boolean buildSecurityCriteria(StringBuffer queryBuf, String classShortName, String collabClassShortName, boolean isFirstCriteria,
                                          boolean scopeToGroup, boolean hasCoreFacility, boolean checkSubmitter, boolean includeVisCrit) {
         if (hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
-
-            // GNomex super admin is not restricted (much)
-
+            // GNomex super admin is not restricted
         } else if (hasPermission(SecurityAdvisor.CAN_ACCESS_ANY_OBJECT)) {
-
 
             if (hasCoreFacility) {
                 // GNomex admin is restricted to objects for their core facility
@@ -2674,7 +2681,6 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
             }
 
         } else if (hasPermission(SecurityAdvisor.CAN_PARTICIPATE_IN_GROUPS)) {
-
             // GNomex user can access public objects, objects he is listed as
             // a collaborator or objects matching visibility
             queryBuf.append(isFirstCriteria ? "WHERE " : " AND ");

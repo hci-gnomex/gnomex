@@ -3,7 +3,7 @@ package hci.gnomex.model;
 
 
 import hci.gnomex.constants.Constants;
-import hci.hibernate3utils.HibernateDetailObject;
+import hci.hibernate5utils.HibernateDetailObject;
 
 import java.math.BigDecimal;
 import java.sql.Date;
