@@ -28,6 +28,7 @@ import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.BillingTemplateParser;
 import hci.gnomex.utility.GNomExRollbackException;
 import hci.gnomex.utility.HibernateSession;
+import hci.gnomex.utility.Order;
 import hci.gnomex.utility.ParserException;
 
 @SuppressWarnings("serial")
@@ -116,6 +117,14 @@ public class SaveBillingTemplate extends GNomExCommand implements Serializable {
 					sess.save(newlyCreatedBillingItem);
 				}
 				sess.flush();
+				
+				// Update idBillingAccount for order
+				Order order = billingTemplate.retrieveOrder(sess);
+				if (order != null) {
+				    order.setIdBillingAccount(billingTemplate.getAcceptingBalanceItem().getIdBillingAccount());
+				    sess.save(order);
+				    sess.flush();
+				}
 
 				this.xmlResult = "<SUCCESS/>";
 			}

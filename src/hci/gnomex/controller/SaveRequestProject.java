@@ -4,7 +4,6 @@ import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.*;
 import hci.gnomex.utility.BillingTemplateQueryManager;
-import hci.gnomex.utility.GNomExRollbackException;
 import hci.gnomex.utility.HibernateSession;
 
 import java.io.Serializable;

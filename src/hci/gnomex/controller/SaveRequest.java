@@ -380,7 +380,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
             if (requestParser.isNewRequest()) {
               billingTemplate.setOrder(requestParser.getRequest());
             }
-            sess.save( billingTemplate );
+            sess.save(billingTemplate);
             sess.flush();
 
             // Delete old billing template items if any
@@ -460,6 +460,8 @@ public class SaveRequest extends GNomExCommand implements Serializable {
                   sess.flush();
               }
             }
+            
+            requestParser.getRequest().setIdBillingAccount(billingTemplate.getAcceptingBalanceItem().getIdBillingAccount());
           }
           
           if (!allowBillingTemplateModification) {

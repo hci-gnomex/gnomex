@@ -39,5 +39,7 @@ public interface Order {
 	public Integer getIdProductOrder();
 	
 	public Integer getAcceptingBalanceAccountId(Session sess);
+	
+	public void setIdBillingAccount(Integer idBillingAccount);
 
 }

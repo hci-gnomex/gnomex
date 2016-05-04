@@ -13,6 +13,7 @@ import hci.gnomex.controller.SaveBillingTemplate;
 import hci.gnomex.utility.BillingItemQueryManager;
 import hci.gnomex.utility.DetailObject;
 import hci.gnomex.utility.Order;
+import hci.gnomex.utility.QueryManager;
 import hci.gnomex.utility.XMLTools;
 import hci.hibernate3utils.HibernateDetailObject;
 
@@ -76,6 +77,10 @@ public class BillingTemplate extends HibernateDetailObject implements DetailObje
 		}
 		
 		return accounts;
+	}
+	
+	public Order retrieveOrder(Session sess) {
+	    return QueryManager.retrieveTargetClass(this.getTargetClassIdentifier(), this.getTargetClassName(), sess);
 	}
 	
 	@Override
