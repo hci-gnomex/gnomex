@@ -73,7 +73,16 @@ public class SaveBillingTemplate extends GNomExCommand implements Serializable {
 				BillingTemplateParser btParser = new BillingTemplateParser(billingTemplateDoc.getRootElement());
 				btParser.parse( sess );
 				BillingTemplate billingTemplate = btParser.getBillingTemplate();
-				sess.save( billingTemplate );
+				
+				// If the template has any approved billing items, prevent modification
+				Set<BillingItem> oldBillingItems = billingTemplate.getBillingItems(sess);
+				for (BillingItem billingItem : oldBillingItems) {
+                    if (!billingItem.getCodeBillingStatus().equals(BillingStatus.PENDING) && !billingItem.getCodeBillingStatus().equals(BillingStatus.COMPLETED)) {
+                        throw new GNomExRollbackException("Cannot delete approved billing items", true, "Approved billing items cannot be reassigned.");
+                    }
+                }
+				
+				sess.save(billingTemplate);
 				sess.flush();
 
 				// Delete old billing template items if any
@@ -96,7 +105,6 @@ public class SaveBillingTemplate extends GNomExCommand implements Serializable {
 				sess.flush();
 
 				// Delete existing billing items
-				Set<BillingItem> oldBillingItems = billingTemplate.getBillingItems(sess);
 				for (BillingItem billingItemToDelete : oldBillingItems) {
 					sess.delete(billingItemToDelete);
 				}
@@ -118,6 +126,10 @@ public class SaveBillingTemplate extends GNomExCommand implements Serializable {
 				setResponsePage(this.ERROR_JSP);
 			}
 
+		} catch (GNomExRollbackException e) {
+		    log.error("An exception has occurred in SaveBillingTemplate ", e);
+            e.printStackTrace();
+            throw e;
 		} catch (Exception e) {
 			log.error("An exception has occurred in SaveBillingTemplate ", e);
 			e.printStackTrace();

@@ -148,6 +148,8 @@ public class GetLab extends GNomExCommand implements Serializable {
         this.appendBillingAccounts(theLab.getInternalBillingAccounts(), "internalBillingAccounts", labNode, theLab);
         this.appendBillingAccounts(theLab.getPOBillingAccounts(), "pOBillingAccounts", labNode, theLab);
         this.appendBillingAccounts(theLab.getCreditCardBillingAccounts(), "creditCardBillingAccounts", labNode, theLab);
+        List<BillingAccount> authorizedBillingAccounts = new ArrayList<BillingAccount>(GetAuthorizedBillingAccounts.retrieveAuthorizedBillingAccounts(sess, this.getSecAdvisor(), this.getSecAdvisor().getAppUser().getIdAppUser(), theLab.getIdLab(), null, true, true, true, true));
+        this.appendBillingAccounts(authorizedBillingAccounts, "authorizedBillingAccounts", labNode, theLab);
         this.appendProductCount(labNode, productQuantity);
 
         doc.getRootElement().addContent(labNode);
@@ -195,6 +197,8 @@ public class GetLab extends GNomExCommand implements Serializable {
         }
         this.appendSubmitters(labNode, theLab);
         this.appendBillingAccounts(theLab.getApprovedBillingAccounts(), "approvedBillingAccounts", labNode, theLab);
+        List<BillingAccount> authorizedBillingAccounts = new ArrayList<BillingAccount>(GetAuthorizedBillingAccounts.retrieveAuthorizedBillingAccounts(sess, this.getSecAdvisor(), this.getSecAdvisor().getAppUser().getIdAppUser(), theLab.getIdLab(), null, true, true, true, true));
+        this.appendBillingAccounts(authorizedBillingAccounts, "authorizedBillingAccounts", labNode, theLab);
         this.appendProductCount(labNode, productQuantity);
         doc.getRootElement().addContent(labNode);
 

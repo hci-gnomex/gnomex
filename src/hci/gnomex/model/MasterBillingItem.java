@@ -3,7 +3,7 @@ package hci.gnomex.model;
 import java.math.BigDecimal;
 import java.util.Set;
 
-import hci.hibernate3utils.HibernateDetailObject;
+import hci.hibernate5utils.HibernateDetailObject;
 
 @SuppressWarnings("serial")
 public class MasterBillingItem extends HibernateDetailObject {

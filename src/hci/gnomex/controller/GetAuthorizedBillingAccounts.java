@@ -2,7 +2,6 @@ package hci.gnomex.controller;
 
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
-import hci.framework.model.FieldFormatter;
 import hci.framework.utilities.XMLReflectException;
 import hci.gnomex.model.BillingAccount;
 import hci.gnomex.model.CoreFacility;
@@ -33,13 +32,13 @@ public class GetAuthorizedBillingAccounts extends GNomExCommand implements Seria
 	// The static field for logging in Log4J
 	private static org.apache.log4j.Logger 	log = org.apache.log4j.Logger.getLogger(GetAuthorizedBillingAccounts.class);
 	
-	private Integer 						idAppUser;
-	private Integer							idCoreFacility;
+	private Integer 			    idAppUser;
+	private Integer					idCoreFacility;
 	
-	private Boolean							includeOnlyApprovedAccounts = true;
-	private Boolean							includeOnlyActiveLabs = true;
-	private Boolean							includeOnlyUnexpiredAccounts = true;
-	private Boolean							includeOnlyStartedAccounts = true;
+	private Boolean					includeOnlyApprovedAccounts = true;
+	private Boolean					includeOnlyActiveLabs = true;
+	private Boolean					includeOnlyUnexpiredAccounts = true;
+	private Boolean					includeOnlyStartedAccounts = true;
 	
 	@Override
 	public void validate() {
@@ -83,7 +82,6 @@ public class GetAuthorizedBillingAccounts extends GNomExCommand implements Seria
 		}
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	public Command execute() throws RollBackCommandException {
 		try {
@@ -94,47 +92,7 @@ public class GetAuthorizedBillingAccounts extends GNomExCommand implements Seria
 				idAppUser = this.getSecAdvisor().getAppUser().getIdAppUser();
 			}
 			
-			HashSet<BillingAccount> allAuthorizedBillingAccounts = new HashSet<BillingAccount>();
-			
-			// Admin / Super Admin
-            if (this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES) || this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_WRITE_ANY_OBJECT)) {
-                
-                Set<Integer> myCoreFacilities = new HashSet<Integer>();
-                
-                if (this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
-                    List<Integer> allIdCoreFacilities = (List<Integer>) sess.createQuery(" SELECT DISTINCT cf.idCoreFacility FROM CoreFacility as cf ").list();
-                    myCoreFacilities.addAll(allIdCoreFacilities);
-                } else {
-                    for (Iterator iter = this.getSecAdvisor().getCoreFacilitiesIManage().iterator(); iter.hasNext();) {
-                        CoreFacility coreFacility = (CoreFacility) iter.next();
-                        myCoreFacilities.add(coreFacility.getIdCoreFacility());
-                    }
-                }
-                
-                // Add all billing accounts from the appropriate cores
-                List<Integer> billingAccounts = (List<Integer>) sess.createQuery(generateQueryForAllBillingAccounts(myCoreFacilities).toString()).list();
-                for (Iterator<Integer> iter = billingAccounts.iterator(); iter.hasNext();) {
-                    allAuthorizedBillingAccounts.add(parseBillingAccountQueryRow(iter.next(), sess));
-                }
-            }
-            
-            // Add all billing accounts with no specified "users" for all labs the user is a member of
-            List<Integer> billingAccountsForUsersLabs = (List<Integer>) sess.createQuery(generateQueryForLabBillingAccountsWithNoUsers().toString()).list();
-            for (Iterator<Integer> iter = billingAccountsForUsersLabs.iterator(); iter.hasNext();) {
-                allAuthorizedBillingAccounts.add(parseBillingAccountQueryRow(iter.next(), sess));
-            }
-            
-            // Add all billing accounts for labs the user is a manager of
-            List<Integer> billingAccountsForManagedLabs = (List<Integer>) sess.createQuery(generateQueryForManagedLabsBillingAccounts().toString()).list();
-            for (Iterator<Integer> iter = billingAccountsForManagedLabs.iterator(); iter.hasNext();) {
-                allAuthorizedBillingAccounts.add(parseBillingAccountQueryRow(iter.next(), sess));
-            }
-            
-            // Add all billing accounts for which the user is listed as a "user" on
-            List<Integer> billingAccountsUserIsAuthorizedFor = (List<Integer>) sess.createQuery(generateQueryForBillingAccountsWithUsers().toString()).list();
-            for (Iterator<Integer> iter = billingAccountsUserIsAuthorizedFor.iterator(); iter.hasNext();) {
-                allAuthorizedBillingAccounts.add(parseBillingAccountQueryRow(iter.next(), sess));
-            }
+			Set<BillingAccount> allAuthorizedBillingAccounts = retrieveAuthorizedBillingAccounts(sess, this.getSecAdvisor(), idAppUser, null, idCoreFacility, includeOnlyApprovedAccounts, includeOnlyActiveLabs, includeOnlyUnexpiredAccounts, includeOnlyStartedAccounts);
 			
 			Map<Integer, Set<BillingAccount>> billingAccountsByLab = organizeAccountsByLab(allAuthorizedBillingAccounts);
 			
@@ -162,6 +120,53 @@ public class GetAuthorizedBillingAccounts extends GNomExCommand implements Seria
 		}
 		
 		return this;
+	}
+	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+    public static Set<BillingAccount> retrieveAuthorizedBillingAccounts(Session sess, SecurityAdvisor secAdvisor, Integer idAppUser, Integer idLab, Integer idCoreFacility, boolean includeOnlyApprovedAccounts, boolean includeOnlyActiveLabs, boolean includeOnlyUnexpiredAccounts, boolean includeOnlyStartedAccounts) {
+	    Set<BillingAccount> allAuthorizedBillingAccounts = new HashSet<BillingAccount>();
+	    
+	    // Admin / Super Admin
+        if (secAdvisor.hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES) || secAdvisor.hasPermission(SecurityAdvisor.CAN_WRITE_ANY_OBJECT)) {
+            
+            Set<Integer> myCoreFacilities = new HashSet<Integer>();
+            
+            if (secAdvisor.hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
+                List<Integer> allIdCoreFacilities = (List<Integer>) sess.createQuery(" SELECT DISTINCT cf.idCoreFacility FROM CoreFacility as cf ").list();
+                myCoreFacilities.addAll(allIdCoreFacilities);
+            } else {
+                for (Iterator iter = secAdvisor.getCoreFacilitiesIManage().iterator(); iter.hasNext();) {
+                    CoreFacility coreFacility = (CoreFacility) iter.next();
+                    myCoreFacilities.add(coreFacility.getIdCoreFacility());
+                }
+            }
+            
+            // Add all billing accounts from the appropriate cores
+            List<Integer> billingAccounts = (List<Integer>) sess.createQuery(generateQueryForAllBillingAccounts(myCoreFacilities, idLab, idCoreFacility, includeOnlyApprovedAccounts, includeOnlyStartedAccounts, includeOnlyUnexpiredAccounts).toString()).list();
+            for (Iterator<Integer> iter = billingAccounts.iterator(); iter.hasNext();) {
+                allAuthorizedBillingAccounts.add(parseBillingAccountQueryRow(iter.next(), sess));
+            }
+        }
+        
+        // Add all billing accounts with no specified "users" for all labs the user is a member of
+        List<Integer> billingAccountsForUsersLabs = (List<Integer>) sess.createQuery(generateQueryForLabBillingAccountsWithNoUsers(idAppUser, includeOnlyActiveLabs, idLab, idCoreFacility, includeOnlyApprovedAccounts, includeOnlyStartedAccounts, includeOnlyUnexpiredAccounts).toString()).list();
+        for (Iterator<Integer> iter = billingAccountsForUsersLabs.iterator(); iter.hasNext();) {
+            allAuthorizedBillingAccounts.add(parseBillingAccountQueryRow(iter.next(), sess));
+        }
+        
+        // Add all billing accounts for labs the user is a manager of
+        List<Integer> billingAccountsForManagedLabs = (List<Integer>) sess.createQuery(generateQueryForManagedLabsBillingAccounts(idAppUser, includeOnlyActiveLabs, idLab, idCoreFacility, includeOnlyApprovedAccounts, includeOnlyStartedAccounts, includeOnlyUnexpiredAccounts).toString()).list();
+        for (Iterator<Integer> iter = billingAccountsForManagedLabs.iterator(); iter.hasNext();) {
+            allAuthorizedBillingAccounts.add(parseBillingAccountQueryRow(iter.next(), sess));
+        }
+        
+        // Add all billing accounts for which the user is listed as a "user" on
+        List<Integer> billingAccountsUserIsAuthorizedFor = (List<Integer>) sess.createQuery(generateQueryForBillingAccountsWithUsers(idAppUser, idLab, idCoreFacility, includeOnlyApprovedAccounts, includeOnlyStartedAccounts, includeOnlyUnexpiredAccounts).toString()).list();
+        for (Iterator<Integer> iter = billingAccountsUserIsAuthorizedFor.iterator(); iter.hasNext();) {
+            allAuthorizedBillingAccounts.add(parseBillingAccountQueryRow(iter.next(), sess));
+        }
+        
+        return allAuthorizedBillingAccounts;
 	}
 	
 	private Document generateXMLDocument(Map<Integer, Set<BillingAccount>> billingAccountsByLab, Session sess) throws XMLReflectException {
@@ -231,7 +236,7 @@ public class GetAuthorizedBillingAccounts extends GNomExCommand implements Seria
 	 * Returns the query for selecting all billing accounts with no specified users for all
 	 * labs the selected user is a member of.
 	 */
-	private StringBuffer generateQueryForLabBillingAccountsWithNoUsers() {
+	private static StringBuffer generateQueryForLabBillingAccountsWithNoUsers(Integer idAppUser, boolean includeOnlyActiveLabs, Integer idLab, Integer idCoreFacility, boolean includeOnlyApprovedAccounts, boolean includeOnlyStartedAccounts, boolean includeOnlyUnexpiredAccounts) {
 		StringBuffer queryBuff = new StringBuffer();
 		
 		// Desired columns
@@ -245,7 +250,7 @@ public class GetAuthorizedBillingAccounts extends GNomExCommand implements Seria
 		
 		// Criteria
 		queryBuff.append(" WHERE m.idAppUser = " + idAppUser.toString() + " ");
-		queryBuff.append(queryForCommonBillingAccountCriteria(false, false));
+		queryBuff.append(queryForCommonBillingAccountCriteria(false, false, idLab, idCoreFacility, includeOnlyApprovedAccounts, includeOnlyStartedAccounts, includeOnlyUnexpiredAccounts));
 		if (includeOnlyActiveLabs) {
 			queryBuff.append(" AND l.isActive = \'Y\' ");
 		}
@@ -258,7 +263,7 @@ public class GetAuthorizedBillingAccounts extends GNomExCommand implements Seria
 	 * Returns the query for selecting all billing accounts for all
 	 * labs the selected user is a manager of.
 	 */
-	private StringBuffer generateQueryForManagedLabsBillingAccounts() {
+	private static StringBuffer generateQueryForManagedLabsBillingAccounts(Integer idAppUser, boolean includeOnlyActiveLabs, Integer idLab, Integer idCoreFacility, boolean includeOnlyApprovedAccounts, boolean includeOnlyStartedAccounts, boolean includeOnlyUnexpiredAccounts) {
 		StringBuffer queryBuff = new StringBuffer();
 		
 		// Desired columns
@@ -272,7 +277,7 @@ public class GetAuthorizedBillingAccounts extends GNomExCommand implements Seria
 		
 		// Criteria
 		queryBuff.append(" WHERE m.idAppUser = " + idAppUser.toString() + " ");
-		queryBuff.append(queryForCommonBillingAccountCriteria(false, false));
+		queryBuff.append(queryForCommonBillingAccountCriteria(false, false, idLab, idCoreFacility, includeOnlyApprovedAccounts, includeOnlyStartedAccounts, includeOnlyUnexpiredAccounts));
 		if (includeOnlyActiveLabs) {
 			queryBuff.append(" AND l.isActive = \'Y\' ");
 		}
@@ -284,7 +289,7 @@ public class GetAuthorizedBillingAccounts extends GNomExCommand implements Seria
 	 * Returns the query for selecting all billing accounts the selected user is authorized
 	 * as a "user" on.
 	 */
-	private StringBuffer generateQueryForBillingAccountsWithUsers() {
+	private static StringBuffer generateQueryForBillingAccountsWithUsers(Integer idAppUser, Integer idLab, Integer idCoreFacility, boolean includeOnlyApprovedAccounts, boolean includeOnlyStartedAccounts, boolean includeOnlyUnexpiredAccounts) {
 		StringBuffer queryBuff = new StringBuffer();
 		
 		// Desired columns
@@ -298,20 +303,20 @@ public class GetAuthorizedBillingAccounts extends GNomExCommand implements Seria
 		
 		// Criteria
 		queryBuff.append(" WHERE u.idAppUser = " + idAppUser.toString() + " ");
-		queryBuff.append(queryForCommonBillingAccountCriteria(false, false));
+		queryBuff.append(queryForCommonBillingAccountCriteria(false, false, idLab, idCoreFacility, includeOnlyApprovedAccounts, includeOnlyStartedAccounts, includeOnlyUnexpiredAccounts));
 		
 		return queryBuff;
 	}
 	
-	private StringBuffer queryForRequiredBillingAccountColumns() {
+	private static StringBuffer queryForRequiredBillingAccountColumns() {
 		return new StringBuffer(" SELECT DISTINCT ba.idBillingAccount ");
 	}
 	
-	private BillingAccount parseBillingAccountQueryRow(Integer idBillingAccount, Session sess) {
+	private static BillingAccount parseBillingAccountQueryRow(Integer idBillingAccount, Session sess) {
 		return (BillingAccount) sess.load(BillingAccount.class, idBillingAccount);
 	}
 	
-	private StringBuffer queryForCommonBillingAccountCriteria(boolean ignoreIdCoreFacility, boolean addWhere) {
+	private static StringBuffer queryForCommonBillingAccountCriteria(boolean ignoreIdCoreFacility, boolean addWhere, Integer idLab, Integer idCoreFacility, boolean includeOnlyApprovedAccounts, boolean includeOnlyStartedAccounts, boolean includeOnlyUnexpiredAccounts) {
 		StringBuffer queryBuff = new StringBuffer();
 		boolean useWhere = addWhere;
 		
@@ -320,12 +325,17 @@ public class GetAuthorizedBillingAccounts extends GNomExCommand implements Seria
 			queryBuff.append(" ba.idCoreFacility = " + idCoreFacility.toString() + " AND ba.idCoreFacility = cf.idCoreFacility ");
 		}
 		
+		if (idLab != null) {
+            useWhere = addWhereOrAnd(queryBuff, useWhere);
+            queryBuff.append(" ba.idLab = " + idLab.toString() + " ");
+        }
+		
 		if (includeOnlyApprovedAccounts) {
 			useWhere = addWhereOrAnd(queryBuff, useWhere);
 			queryBuff.append(" ba.isApproved = \'Y\' ");
 		}
 		
-		String today = this.formatDate(new Date(System.currentTimeMillis()), FieldFormatter.DATE_OUTPUT_SQL);
+		String today = new Date(System.currentTimeMillis()).toString();
 		
 		if (includeOnlyStartedAccounts) {
 			useWhere = addWhereOrAnd(queryBuff, useWhere);
@@ -334,13 +344,13 @@ public class GetAuthorizedBillingAccounts extends GNomExCommand implements Seria
 		
 		if (includeOnlyUnexpiredAccounts) {
 			useWhere = addWhereOrAnd(queryBuff, useWhere);
-			queryBuff.append(" (ba. expirationDate IS NULL OR ba.expirationDate > \'" + today + "\') ");
+			queryBuff.append(" (ba.expirationDate IS NULL OR ba.expirationDate > \'" + today + "\') ");
 		}
 		
 		return queryBuff;
 	}
 	
-	private boolean addWhereOrAnd(StringBuffer queryBuff, boolean addWhere) {
+	private static boolean addWhereOrAnd(StringBuffer queryBuff, boolean addWhere) {
 		if (addWhere) {
 			queryBuff.append(" WHERE ");
 		} else {
@@ -353,11 +363,11 @@ public class GetAuthorizedBillingAccounts extends GNomExCommand implements Seria
 	 * Returns the query for selecting the id's of all billing accounts that have at least one authorized
 	 * "user" associated with them.
 	 */
-	private StringBuffer generateSubQueryForAllIdBillingAccountsWithUsers() {
+	private static StringBuffer generateSubQueryForAllIdBillingAccountsWithUsers() {
 		return new StringBuffer(" SELECT DISTINCT ba.idBillingAccount FROM BillingAccount AS ba JOIN ba.users AS u ");
 	}
 	
-	private StringBuffer generateQueryForAllBillingAccounts(Set<Integer> idCoreFacilities) {
+	private static StringBuffer generateQueryForAllBillingAccounts(Set<Integer> idCoreFacilities, Integer idLab, Integer idCoreFacility, boolean includeOnlyApprovedAccounts, boolean includeOnlyStartedAccounts, boolean includeOnlyUnexpiredAccounts) {
 		StringBuffer queryBuff = new StringBuffer();
 		
 		// Desired columns
@@ -371,19 +381,19 @@ public class GetAuthorizedBillingAccounts extends GNomExCommand implements Seria
 		// Criteria
 		StringBuffer coreFacilitiesBuff = new StringBuffer("(");
         boolean firstParameter = true;
-        for (Integer idCoreFacility : idCoreFacilities) {
+        for (Integer idCore : idCoreFacilities) {
             if (firstParameter) {
-                coreFacilitiesBuff.append(idCoreFacility.toString());
+                coreFacilitiesBuff.append(idCore.toString());
                 firstParameter = false;
             } else {
-                coreFacilitiesBuff.append(", " + idCoreFacility.toString());
+                coreFacilitiesBuff.append(", " + idCore.toString());
             }
         }
         coreFacilitiesBuff.append(")");
         
         queryBuff.append(" WHERE ba.idCoreFacility IN " + coreFacilitiesBuff.toString() + " AND ba.idCoreFacility = cf.idCoreFacility ");
 		
-		queryBuff.append(queryForCommonBillingAccountCriteria(true, false));
+		queryBuff.append(queryForCommonBillingAccountCriteria(true, false, idLab, idCoreFacility, includeOnlyApprovedAccounts, includeOnlyStartedAccounts, includeOnlyUnexpiredAccounts));
 		
 		return queryBuff;
 	}

@@ -85,13 +85,6 @@ public class HibernateSession {
 		}
 	}
 
-	/*
-	 * public static void closeSession() throws HibernateException, SQLException { // Ignore this close if tomcat. Close (and commit) will happen from
-	 * GnomExFrontController if (!GNomExFrontController.isTomcat()) { closeSessionForReal(); } }
-	 * 
-	 * public static void closeTomcatSession() throws HibernateException, SQLException { // Only does something if tomcat. Only called from
-	 * GNomExFrontController if (GNomExFrontController.isTomcat()) { closeSessionForReal(); } }
-	 */
 	public static void closeSession() throws HibernateException, SQLException {
 		// tx will be null if transaction already rolled back.
 		Session s = (Session) session.get();
@@ -161,7 +154,7 @@ public class HibernateSession {
 			}
 			session.set(null);
 			transaction.set(null);
-			transaction.set(false);
+			readOnly.set(false);
 		}
 	}
 
@@ -177,10 +170,11 @@ public class HibernateSession {
 				stmt = con.prepareCall("{ call master.dbo.setAppUser(?) }");
 				stmt.setString(1, username);
 				stmt.executeUpdate();
+				stmt.close();
 			} else {
 				Statement stmt = con.createStatement();
 				stmt.executeUpdate("set @username='" + username + "';");
-
+				stmt.close();
 			}
 		}
 	}

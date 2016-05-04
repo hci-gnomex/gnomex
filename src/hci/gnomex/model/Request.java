@@ -10,7 +10,7 @@ import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.Order;
 import hci.gnomex.utility.ProductException;
 import hci.gnomex.utility.ProductUtil;
-import hci.hibernate3utils.HibernateDetailObject;
+import hci.hibernate5utils.HibernateDetailObject;
 
 import java.sql.Date;
 import java.text.DateFormat;

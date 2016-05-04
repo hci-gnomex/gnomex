@@ -12,12 +12,15 @@ import java.io.StringReader;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.jdbc.Work;
 import org.jdom.Document;
@@ -67,7 +70,6 @@ public class SaveAppUserPublic extends GNomExCommand implements Serializable {
 
 	public Command execute() throws RollBackCommandException {
 		Session sess = null;
-
 		try {
 			sess = HibernateSession.currentSession(this.getUsername());
 			passwordEncrypter = new EncryptionUtility();
@@ -75,9 +77,12 @@ public class SaveAppUserPublic extends GNomExCommand implements Serializable {
 			AppUser appUser = sess.load(AppUser.class, appUserScreen.getIdAppUser());
 			if (SaveAppUser.emailAlreadyExists(sess, appUserScreen.getEmail(), appUserScreen.getIdAppUser())) {
 				this.addInvalidField("invalid email", "The email address " + appUserScreen.getEmail() + " is already in use.");
-			} else {
-				initializeAppUser(appUser);
+			} else if (isDuplicateUserName(sess)){
+				this.addInvalidField("Duplicate login/uNID", "That login/uNID is already in use.");
+			} else if(initializeAppUser(appUser)) {
 				sess.save(appUser);
+			} else{
+				this.addInvalidField("","Please make sure you have specified a valid login or uNID(u followed by 7 digits).  If you have specified a login then please make sure to provide a password");
 			}
 
 			if (this.isValid()) {
@@ -111,7 +116,41 @@ public class SaveAppUserPublic extends GNomExCommand implements Serializable {
 		return this;
 	}
 
-	private void initializeAppUser(AppUser appUser) {
+	private boolean isDuplicateUserName(Session sess){
+
+		int idAppUser = appUserScreen.getIdAppUser();
+		List<Integer> l = new ArrayList<Integer>();
+		if(appUserScreen.getuNID() != null && !appUserScreen.getuNID().trim().equals("")){
+			Query q = sess.createQuery("SELECT idAppUser from AppUser where uNID = :uNID");
+			q.setString("uNID", appUserScreen.getuNID());
+			l = q.list();
+
+		} else if(appUserScreen.getUserNameExternal() != null && !appUserScreen.getUserNameExternal().trim().equals("")){
+			Query q = sess.createQuery("SELECT idAppUser from AppUser where userNameExternal = :userNameExternal");
+			q.setString("userNameExternal", appUserScreen.getUserNameExternal());
+			l = q.list();
+		}
+
+		//if greater than one then it is duplicate and don't allow
+		//if zero then it is fresh and can be used.
+		//if it is 1 then check to see if it belongs to current user
+		if(l.size() == 0){
+			return false;
+		} else if(l.size() == 1){
+			int x = l.get(0);
+			//if they match then it is the owners and it is not duplicate
+			//it it is not the owners then the name can't be used.
+			if(x == idAppUser){
+				return false;
+			} else{
+				return true;
+			}
+		} else {
+			return true;
+		}
+	}
+
+	private boolean initializeAppUser(AppUser appUser) {
 		appUser.setFirstName(appUserScreen.getFirstName());
 		appUser.setLastName(appUserScreen.getLastName());
 		appUser.setInstitute(appUserScreen.getInstitute());
@@ -120,16 +159,24 @@ public class SaveAppUserPublic extends GNomExCommand implements Serializable {
 		appUser.setPhone(appUserScreen.getPhone());
 		appUser.setUcscUrl(appUserScreen.getUcscUrl());
 
-		if (appUser.getuNID() != null && !appUser.getuNID().trim().equals("")) {
-			appUser.setUserNameExternal(null);
-			appUser.setPasswordExternal(null);
-
-		} else {
-			if (appUserScreen.getUserNameExternal() != null && !appUserScreen.getUserNameExternal().trim().equals("")) {
-				appUser.setuNID(null);
+		if (appUserScreen.getuNID() != null && !appUserScreen.getuNID().trim().equals("")) {
+			if(appUserScreen.getuNID().startsWith("u") && appUserScreen.getuNID().length() == 8){
+				appUser.setUserNameExternal(null);
+				appUser.setPasswordExternal(null);
+				appUser.setuNID(appUserScreen.getuNID());
+				return true;
+			} else{
+				return false;
 			}
-			if (appUserScreen.getPasswordExternal() != null && !appUserScreen.getPasswordExternal().equals("")
-					&& !appUserScreen.getPasswordExternal().equals(AppUser.MASKED_PASSWORD)) {
+
+
+		} else if (appUserScreen.getUserNameExternal() != null && !appUserScreen.getUserNameExternal().trim().equals("")
+				&& appUserScreen.getPasswordExternal() != null && !appUserScreen.getPasswordExternal().equals("")) {
+				appUser.setuNID(null);
+				appUser.setUserNameExternal(appUserScreen.getUserNameExternal());
+
+			// only update password if they have updated it
+			if (!appUserScreen.getPasswordExternal().equals(AppUser.MASKED_PASSWORD)) {
 				String salt = passwordEncrypter.createSalt();
 				String encryptedPassword = passwordEncrypter.createPassword(appUserScreen.getPasswordExternal(), salt);
 				appUser.setSalt(salt);
@@ -137,9 +184,14 @@ public class SaveAppUserPublic extends GNomExCommand implements Serializable {
 
 			}
 
+			return true;
+
+		} else{
+			return false;
 		}
 
 	}
+
 
 	class MyWork implements Work {
 		private Element root;

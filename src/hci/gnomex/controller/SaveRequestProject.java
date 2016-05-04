@@ -4,6 +4,7 @@ import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.*;
 import hci.gnomex.utility.BillingTemplateQueryManager;
+import hci.gnomex.utility.GNomExRollbackException;
 import hci.gnomex.utility.HibernateSession;
 
 import java.io.Serializable;
@@ -131,12 +132,27 @@ public class SaveRequestProject extends GNomExCommand implements Serializable {
         request.setIdProject(idProject);       
         request.setIdLab(project.getIdLab());
         request.setIdAppUser(idAppUser);
+        
+        boolean approvedBillingItemsPresent = false;
         if (changeBilling) {
+            // Ensure there are no approved billing items
+            Set<BillingItem> oldBillingItems = request.getBillingItemList(sess);
+            for (BillingItem billingItem : oldBillingItems) {
+                if (!billingItem.getCodeBillingStatus().equals(BillingStatus.PENDING) && !billingItem.getCodeBillingStatus().equals(BillingStatus.COMPLETED)) {
+                    approvedBillingItemsPresent = true;
+                    billingAccountMessage = "Billing was not reassigned because some billing items are already approved.";
+                    break;
+                }
+            }
+        }
+        
+        if (changeBilling && !approvedBillingItemsPresent) {
 
           request.setIdBillingAccount(idBillingAccount);
           BillingTemplate billingTemplate = BillingTemplateQueryManager.retrieveBillingTemplate(sess, request);
           if (billingTemplate == null) {
             billingTemplate = new BillingTemplate(request);
+            sess.save(billingTemplate);
           }
           // Delete old billing template items if any
           Set<BillingTemplateItem> oldBtiSet = new TreeSet<BillingTemplateItem>();
@@ -156,35 +172,22 @@ public class SaveRequestProject extends GNomExCommand implements Serializable {
           sess.save(item);
 
           sess.flush();
+          
+          // Delete existing billing items
+          Set<BillingItem> oldBillingItems = billingTemplate.getBillingItems(sess);
+          for (BillingItem billingItemToDelete : oldBillingItems) {
+              sess.delete(billingItemToDelete);
+          }
+          sess.flush();
 
-          // Change the account on the billing items.
-          int reassignCount =  0;
-          int unassignedCount = 0;
-          for(Iterator ib = request.getBillingItemList(sess).iterator(); ib.hasNext();) {
-            BillingItem bi = (BillingItem)ib.next();
-            if (bi.getCodeBillingStatus().equals(BillingStatus.PENDING) || bi.getCodeBillingStatus().equals(BillingStatus.COMPLETED)) {
-              bi.setIdBillingAccount(request.getAcceptingBalanceAccountId(sess));
-              bi.resetInvoiceForBillingItem(sess);
-              BillingAccount billingAccount = sess.load(BillingAccount.class, bi.getIdBillingAccount());
-              if (billingAccount != null) {
-                bi.setIdLab(billingAccount.getLab().getIdLab());
-              }
-              reassignCount++;
-            } else  {
-              unassignedCount++;
-            }
+          // Save new billing items
+          Set<BillingItem> newBillingItems = billingTemplate.recreateBillingItems(sess);
+          for (BillingItem newlyCreatedBillingItem : newBillingItems) {
+              sess.save(newlyCreatedBillingItem);
           }
-          if (unassignedCount > 0) {
-            billingAccountMessage = "WARNING: The billing account could not be reassigned for " + unassignedCount + " approved billing items.  Please reassign in the Billing screen.";
-          } 
-          if (billingAccountMessage.length() > 0) {
-            billingAccountMessage += "\n\n(The billing account has been reassigned for  " + reassignCount + " billing item(s).)";
-          } else {
-            billingAccountMessage = "The billing account has been reassigned for " + reassignCount + " billing item(s).";
-          }
-          if (reassignCount > 0) {
-            sess.flush();
-          }
+          sess.flush();
+          
+          billingAccountMessage = "Billing was successfully reassigned.";
         }
         
         sess.save(request);

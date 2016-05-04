@@ -11,7 +11,7 @@ import com.oreilly.servlet.multipart.Part;
 
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.HibernateSession;
-import hci.hibernate3utils.HibernateDetailObject;
+import hci.hibernate5utils.HibernateDetailObject;
 
 public class VisitLog extends HibernateDetailObject {
   
