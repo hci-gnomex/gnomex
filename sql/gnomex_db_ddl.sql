@@ -783,6 +783,7 @@ CREATE TABLE gnomex.Product (
   isActive CHAR(1) NULL,
   batchSamplesByUseQuantity CHAR(1) NULL,
   billThroughGnomex CHAR(1) NULL,
+  description VARCHAR(500) NULL,
   PRIMARY KEY (idProduct),
   CONSTRAINT FK_Product_Price FOREIGN KEY FK_Product_Price (idPrice)
     REFERENCES gnomex.Price (idPrice)

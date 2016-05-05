@@ -17,6 +17,7 @@ public class Product extends DictionaryEntry implements Serializable {
   private String      isActive;
   private String      batchSamplesByUseQuantity;
   private String      billThroughGnomex;
+  private String      description;
 
   public String getDisplay() {
     String display = this.getNonNullString(name);
@@ -118,5 +119,13 @@ public class Product extends DictionaryEntry implements Serializable {
   public void setBillThroughGnomex(String billThroughGnomex) {
     this.billThroughGnomex = billThroughGnomex;
   }
+
+public String getDescription() {
+    return this.description;
+}
+
+public void setDescription(String description) {
+    this.description = description;
+}
 
 }

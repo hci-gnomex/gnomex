@@ -2199,6 +2199,7 @@
     <property name="isActive" column="isActive" type="string"/>
     <property name="batchSamplesByUseQuantity" column="batchSamplesByUseQuantity" type="string"/>
     <property name="billThroughGnomex" column="billThroughGnomex" type="string"/>
+    <property name="description" column="description" type="string"/>
   </class> 
   
   <!-- hci.gnomex.model.ProductLedger -->
