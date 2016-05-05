@@ -8,10 +8,12 @@
 <%@ page import="hci.gnomex.model.Analysis" %>
 <%@ page import="hci.gnomex.controller.GetDataTrack" %>
 <%@ page import="hci.gnomex.model.DataTrack" %>
-<%@ page import="hci.gnomex.utility.TopicQuery" %>
 <%@ page import="hci.gnomex.model.Topic" %>
+<%@ page import="hci.gnomex.utility.TopicQuery" %>
+<%@ page import="hci.gnomex.utility.JspHelper" %>
 <%@ page import="java.util.List" %>
 <%@ page import="hci.gnomex.model.Visibility" %>
+<%@ page import="hci.gnomex.utility.PropertyDictionaryHelper" %>
 
 <html>
 
@@ -22,7 +24,9 @@
 
 <%
 String message = (String) ((request.getAttribute("message") != null)?request.getAttribute("message"):"");
-
+String errFlag = (String)((request.getParameter("err") != null)?request.getParameter("err"):"N");
+Integer idCoreFacility = JspHelper.getIdCoreFacility(request);
+String idCoreParm = idCoreFacility == null?"":("?idCore=" + idCoreFacility.toString());
 
 // We can't obtain a hibernate session unless webcontextpath is initialized.  See HibernateSession.
 String webContextPath = getServletConfig().getServletContext().getRealPath("/");
@@ -43,20 +47,15 @@ try {
   }  
 
   // Get site specific log
-  PropertyDictionary propSiteLogo = (PropertyDictionary)sess.createQuery("from PropertyDictionary p where p.propertyName='" + PropertyDictionary.SITE_LOGO + "'").uniqueResult();
-  if (propSiteLogo != null && !propSiteLogo.getPropertyValue().equals("")) {
-    siteLogo = "./" + propSiteLogo.getPropertyValue();
-  }  else {
-    siteLogo = "./assets/gnomex_logo.png";
-  } 
- 
+  siteLogo = PropertyDictionaryHelper.getSiteLogo(sess, idCoreFacility);
+  
   // Determine if user sign up screen is enabled
   PropertyDictionary disableUserSignup = (PropertyDictionary)sess.createQuery("from PropertyDictionary p where p.propertyName='" + PropertyDictionary.DISABLE_USER_SIGNUP + "'").uniqueResult();
   if (disableUserSignup != null && disableUserSignup.getPropertyValue().equals("Y")) {
     showUserSignup = false;
   } 
-	
-  // Determine if guest access is allowed
+ 
+   // Determine if guest access is allowed
   PropertyDictionary noGuestAccess = (PropertyDictionary)sess.createQuery("from PropertyDictionary p where p.propertyName='" + PropertyDictionary.NO_GUEST_ACCESS + "'").uniqueResult();
   if (noGuestAccess == null) {
     allowGuest = true;
@@ -70,9 +69,9 @@ try {
     if(experiment != null && experiment.getCodeVisibility().equals(Visibility.VISIBLE_TO_PUBLIC)) {
         // If public experiment then skip login screen and launch directly as guest user
 %>
-	<script type="text/javascript">
-		window.location = "gnomexGuestFlex.jsp?requestNumber=<%=requestNumber%>";
-	</script>
+  <script type="text/javascript">
+    window.location = "gnomexGuestFlex.jsp?requestNumber=<%=requestNumber%>";
+  </script>
 <% 
     } else {
       itemNotPublic = true;
@@ -81,18 +80,18 @@ try {
   } else {
     String analysisNumber = (String) ((request.getParameter("analysisNumber") != null)?request.getParameter("analysisNumber"):"");
     if(analysisNumber.length() > 0) {
-   	  Analysis analysis = GetAnalysis.getAnalysisFromAnalysisNumber(sess, analysisNumber);
+      Analysis analysis = GetAnalysis.getAnalysisFromAnalysisNumber(sess, analysisNumber);
       if(analysis != null && analysis.getCodeVisibility().equals(Visibility.VISIBLE_TO_PUBLIC)) {
         // If public analysis then skip login screen and launch directly as guest user
 %>
-	    <script type="text/javascript">
-		  window.location = "gnomexGuestFlex.jsp?analysisNumber=<%=analysisNumber%>";
-	    </script>
+      <script type="text/javascript">
+      window.location = "gnomexGuestFlex.jsp?analysisNumber=<%=analysisNumber%>";
+      </script>
 <% 
       }  else {
         itemNotPublic = true;
         itemType = "Analysis";
-      } 		   		
+      }           
     } else {
       String dataTrackNumber = (String) ((request.getParameter("dataTrackNumber") != null)?request.getParameter("dataTrackNumber"):"");
       if(dataTrackNumber.length() > 0) {
@@ -100,9 +99,9 @@ try {
         if(dt != null && dt.getCodeVisibility().equals(Visibility.VISIBLE_TO_PUBLIC)) {
           // If public data track then skip login screen and launch directly as guest user
 %>
-	      <script type="text/javascript">
-		    window.location = "gnomexGuestFlex.jsp?dataTrackNumber=<%=dataTrackNumber%>";
-	      </script>
+        <script type="text/javascript">
+        window.location = "gnomexGuestFlex.jsp?dataTrackNumber=<%=dataTrackNumber%>";
+        </script>
 <% 
         } else {
           itemNotPublic = true;
@@ -115,9 +114,9 @@ try {
           if(t != null && t.getCodeVisibility().equals(Visibility.VISIBLE_TO_PUBLIC)) {
             // If public topic then skip login screen and launch directly as guest user
 %>
-	        <script type="text/javascript">
-		      window.location = "gnomexGuestFlex.jsp?topicNumber=<%=topicNumber%>";
-	        </script>
+          <script type="text/javascript">
+          window.location = "gnomexGuestFlex.jsp?topicNumber=<%=topicNumber%>";
+          </script>
 <% 
           } else {
             itemNotPublic = true;
@@ -131,7 +130,7 @@ try {
   message = "Cannot obtain property " + PropertyDictionary.UNIVERSITY_USER_AUTHENTICATION + " " + e.toString() + " sess=" + sess;
 } finally {
   try {
-	  HibernateSession.closeSession();
+    HibernateSession.closeSession();
   } catch (Exception e) {
   }  
 }
@@ -143,28 +142,28 @@ try {
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
 
-	<link rel="stylesheet" href="css/login.css" type="text/css" />
+  <link rel="stylesheet" href="css/login.css" type="text/css" />
 
 <style type="text/css"> 
 
 .header-bar {
-	float: top;
-	width: 800px;
-	height: 50px;
-	padding-bottom: 10px;
-	margin-bottom: 10px;
-	background: transparent url(<%=siteLogo%> no-repeat;}
+  float: top;
+  width: 800px;
+  height: 50px;
+  padding-bottom: 10px;
+  margin-bottom: 10px;
+  background: transparent url(<%=siteLogo%> no-repeat;}
 
 </style> 
 
-	<title>Sign in to GNomEx</title>
-	
-	<script type="text/javascript">
-		function setFocus()
-		{
-     		theform.username.focus();
-		}
-	</script>
+  <title>Sign in to GNomEx</title>
+  
+  <script type="text/javascript">
+    function setFocus()
+    {
+        theform.username.focus();
+    }
+  </script>
 </head>
 
 
@@ -176,14 +175,8 @@ try {
        <div class="leftMenu">
             <img src="<%=siteLogo%>"/>
        </div>
-       <div class="rightMenu" >    
-          <a href="reset_password.jsp">Reset password</a>
-          <%if( showUserSignup ) {%>
-           |    <a href="select_core.jsp">Sign up for an account</a>
-          <%}%> 
-      </div>
     </div>
-    <form id="theform" method="POST"  >
+    <form id="theform" method="POST" action="j_security_check<%=idCoreParm%>"  >
 
   <div class="box">
   
@@ -221,17 +214,30 @@ The <%= itemType %> you are linking to does not have public visibility. Please s
        if ( allowGuest ) {
        %>
       <div class="bottomPanel">
-        <div class="col1Wide"><note class="inline"><i>For guest access to public data</i></note></div>
-        <div class="buttonPanelShort"><a href="gnomexGuestFlex.jsp" class="buttonLarge">Sign in as guest</a></div>
+<!--         <div class="col1Wide"><note class="inline"><i>For guest access to public data</i></note></div> -->
+        <!-- Note that guest ignores idCore parameter -- guest just sees all public objects. -->
+        <div class="buttonPanelShort"><a href="gnomexGuestFlex.jsp" class="button">Guest Login</a></div>
+        <div class="buttonPanelShort"><a href="reset_password.jsp<%=idCoreParm%>" class="button">Reset Password</a></div>
+        <%if(showUserSignup) {%>
+           <div class="buttonPanelShort"><a href="select_core.jsp<%=idCoreParm%>" class="button">New Account</a></div>
+        <%}%> 
       </div>
       <%
-      }
+      } else{
       %>
+      <div class="bottomPanel" >          
+          <div class="buttonPanelShort"><a href="reset_password.jsp<%=idCoreParm%>">Reset password</a></div>
+        <%if(showUserSignup) {%>
+           <div class="buttonPanelShort"><a href="select_core.jsp<%=idCoreParm%>">New Account</a></div>
+        <%}%> 
+      </div>
+      <%} %>
 
     </div>
-
        
     </form>
-
+<% if (errFlag.equals("Y")) { %>
+  <div id="error" class="message"> <strong>User name or password you entered is incorrect.  Please try again.</strong></div>
+<% } %>
 </body>
 </html>
