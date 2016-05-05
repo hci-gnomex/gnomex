@@ -56,5 +56,6 @@
 	<classpathentry kind="lib" path="libEnv/jandex-2.0.0.CR1.jar"/>
 	<classpathentry kind="lib" path="libEnv/jboss-logging-3.3.0.Final.jar"/>
 	<classpathentry kind="lib" path="lib/metrixClient-1.4.jar"/>
+	<classpathentry kind="lib" path="libEnv/hci-hibernate5-utils-1.0.jar"/>
 	<classpathentry kind="output" path="build-eclipse"/>
 </classpath>
