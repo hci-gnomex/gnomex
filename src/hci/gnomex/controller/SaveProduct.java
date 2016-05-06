@@ -167,6 +167,7 @@ public class SaveProduct extends GNomExCommand implements Serializable {
     product.setIdPrice( productScreen.getIdPrice() );
     product.setOrderQty( productScreen.getOrderQty() );
     product.setUseQty( productScreen.getUseQty() );
+    product.setDescription(productScreen.getDescription());
     product.setCatalogNumber( productScreen.getCatalogNumber() );
     product.setIsActive( productScreen.getIsActive() );
     product.setBatchSamplesByUseQuantity(

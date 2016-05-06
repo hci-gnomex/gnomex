@@ -490,28 +490,33 @@
 
             <mx:VBox width="100%" id="repeaterBox" visible="{billingAccountCombo.selectedIndex > -1 || this.selectedBillingTemplate != null}">
                 <mx:Repeater id="productRepeater" dataProvider="{productList}" >
-                    <mx:HBox width="100%" horizontalGap="0">
-                        <mx:CheckBox id="productCheckBox"
-                                     label="{productRepeater.currentItem.@name + ' (Order Qty: ' + productRepeater.currentItem.@orderQty + ')'}"
-                                     selected="{productRepeater.currentItem.@isSelected == 'Y'}"
-                                     change="{selectProduct(event);}"
-                                     width="215"/>
-                        <mx:HBox width="125" horizontalAlign="left" paddingLeft="5" horizontalGap="0">
-                            <mx:TextInput id="productQuantity"
-                                          text="{productRepeater.currentItem.@quantity}"
-                                          change="{updateQuantity(event); checkSetupCompleteness()}"
-                                          width="42"/>
-                            <mx:Spacer width="10" />
-                            <mx:Text text=" x " id="text3"/>
-                        </mx:HBox>
-                        <mx:Label id="priceLabel" text="{'$' + getUnitPrice(productRepeater.currentItem)}" width="80" textAlign="right"/>
-                        <mx:Spacer width="10" />
-                        <mx:Text text=" = " width="70" id="text2"/>
-                        <mx:Label id="productTotal" width="100" text="{'$' + String(int(productRepeater.currentItem.@quantity) * int(getUnitPrice(productRepeater.currentItem)))}" textAlign="right" />
-                        <mx:Label id="productCount" textAlign="center"  width="250"
-                                  color="{productRepeater.currentItem.@currentProductCount != '0' ? 0x197319 : 0x000000}"
-                                  text="{productRepeater.currentItem.@currentProductCount}" />
-                    </mx:HBox>
+                    <mx:VBox width="100%" verticalGap="0">
+						<mx:HBox width="100%" horizontalGap="0">
+							<mx:CheckBox id="productCheckBox"
+										 label="{productRepeater.currentItem.@name + ' (Order Qty: ' + productRepeater.currentItem.@orderQty + ')'}"
+										 selected="{productRepeater.currentItem.@isSelected == 'Y'}"
+										 change="{selectProduct(event);}"
+										 width="215"/>
+							<mx:HBox width="125" horizontalAlign="left" paddingLeft="5" horizontalGap="0">
+								<mx:TextInput id="productQuantity"
+											  text="{productRepeater.currentItem.@quantity}"
+											  change="{updateQuantity(event); checkSetupCompleteness()}"
+											  width="42"/>
+								<mx:Spacer width="10" />
+								<mx:Text text=" x " id="text3"/>
+							</mx:HBox>
+							<mx:Label id="priceLabel" text="{'$' + getUnitPrice(productRepeater.currentItem)}" width="80" textAlign="right"/>
+							<mx:Spacer width="10" />
+							<mx:Text text=" = " width="70" id="text2"/>
+							<mx:Label id="productTotal" width="100" text="{'$' + String(int(productRepeater.currentItem.@quantity) * int(getUnitPrice(productRepeater.currentItem)))}" textAlign="right" />
+							<mx:Label id="productCount" textAlign="center"  width="250"
+									  color="{productRepeater.currentItem.@currentProductCount != '0' ? 0x197319 : 0x000000}"
+									  text="{productRepeater.currentItem.@currentProductCount}" />
+						</mx:HBox>
+						<mx:HBox width="100%" horizontalGap="0" includeInLayout="{productRepeater.currentItem.@description != ''}" visible="{productRepeater.currentItem.@description != ''}">
+							<mx:Label id="descriptionLabel" text="{productRepeater.currentItem.@description}" textAlign="left" paddingLeft="19"/>
+						</mx:HBox>
+					</mx:VBox>
                 </mx:Repeater>
             </mx:VBox>
 

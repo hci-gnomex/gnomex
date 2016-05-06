@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
-				width="840" height="400" 
+				width="840" height="450" 
 				 creationComplete="{init()}"
 				 xmlns:util="views.util.*" 
 				 showCloseButton="true" close="{closeWindow()}"
@@ -154,7 +154,8 @@
 				" idProductType=''" + 
 				" idPrice=''" + 
 				" orderQty=''" + 
-				" useQty=''" + 
+				" useQty=''" +
+				" description=''" +
 				" catalogNumber=''" +
 				" batchSamplesByUseQuantity='N'" +
 				" billThroughGnomex='Y'" +
@@ -215,7 +216,8 @@
 		params.name = productName.text;
 		params.isActive = this.isActive.selected ? "Y" : "N";
 		params.orderQty = orderQty.text;
-		params.useQty = useQty.text; 
+		params.useQty = useQty.text;
+		params.description = description.text;
 		params.catalogNumber = catalogNumber.text;
 		params.idProductType = productTypeCombo.selectedItem.@idProductType;
 		params.idPrice = productList.selectedItem.@idPrice;
@@ -352,7 +354,11 @@
 			 <mx:HBox width="100%" verticalGap="0" verticalAlign="middle">
 				 <mx:Text text="Use Quantity"  width="100" styleName="formLabel"/>
 				 <mx:TextInput text="{productList.selectedItem.@useQty}" change="{setDirty()}" width="100%" id="useQty"  maxChars="100"/>
-			 </mx:HBox>	
+			 </mx:HBox>
+			 <mx:HBox width="100%" verticalGap="0" verticalAlign="middle">
+				 <mx:Text text="Description"  width="100" styleName="formLabel"/>
+				 <mx:TextInput text="{productList.selectedItem.@description}" change="{setDirty()}" width="100%" height="50" id="description"  maxChars="500"/>
+			 </mx:HBox>
 			 <mx:HBox width="100%" verticalGap="0" verticalAlign="middle">
 				 <mx:CheckBox id="batchSamplesByUseQuantityCheckbox" label="Batch Samples by Use Quantity" click="dirty.setDirty()" 
 							  selected="{productList.selectedItem.@batchSamplesByUseQuantity == 'Y'}" />
