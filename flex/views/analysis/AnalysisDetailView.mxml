@@ -285,7 +285,7 @@
 			}
 						
 			public function setFileCount():void {
-				rowCountMessage = filesView.getAnalysisDownloadList.lastResult..AnalysisFileDescriptor.(@type != 'dir').length() + " file(s).";    	
+				rowCountMessage = filesView.getAnalysisDownloadList.lastResult..FileDescriptor.(@type != 'dir').length() + " file(s).";
 			}
 			
 						

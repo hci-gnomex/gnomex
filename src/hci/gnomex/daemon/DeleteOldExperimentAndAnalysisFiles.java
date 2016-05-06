@@ -911,11 +911,11 @@ public class DeleteOldExperimentAndAnalysisFiles {
     emailAnalysisMap = new HashMap<String, Map<String, String>>();
     analysisFileMap = new HashMap<String, List<AnalysisFileInfo>>();
 
-    this.baseAnalysisDirectory = ph.getAnalysisDirectory(serverName);
+    this.baseAnalysisDirectory = ph.getDirectory(serverName, null, ph.getProperty(PropertyDictionaryHelper.PROPERTY_ANALYSIS_DIRECTORY));
     if (!baseAnalysisDirectory.endsWith("/") && !baseAnalysisDirectory.endsWith("\\")) {
       baseAnalysisDirectory += "/";
     }
-    this.baseExperimentDirectory = ph.getExperimentDirectory(serverName, facility.getIdCoreFacility());
+    this.baseExperimentDirectory = ph.getDirectory(serverName, facility.getIdCoreFacility(), ph.getProperty(PropertyDictionaryHelper.PROPERTY_EXPERIMENT_DIRECTORY));
     if (!baseExperimentDirectory.endsWith("/") && !baseExperimentDirectory.endsWith("\\")) {
       baseExperimentDirectory += "/";
     }

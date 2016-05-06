@@ -64,8 +64,8 @@
 						}
 					});
 				}  	 
-				numFiles.text = getAnalysisDownloadList.lastResult..AnalysisFileDescriptor.(@type!='dir').length() != 1 ? 
-					getAnalysisDownloadList.lastResult..AnalysisFileDescriptor.(@type!='dir').length() + ' file(s)' : '1 file' ;
+				numFiles.text = getAnalysisDownloadList.lastResult..FileDescriptor.(@type!='dir').length() != 1 ?
+					getAnalysisDownloadList.lastResult..FileDescriptor.(@type!='dir').length() + ' file(s)' : '1 file' ;
 			}
 			
 			
@@ -76,11 +76,11 @@
 				}
 				
 				var selectedDownloadSize:Number = 0;
-				if ( filesToDownload.source..AnalysisFileDescriptor.(@type != 'dir').length() == 0 ) {
+				if ( filesToDownload.source..FileDescriptor.(@type != 'dir').length() == 0 ) {
 					downloadSize.text = "";
 				}
 				
-				for each(var file:Object in filesToDownload.source..AnalysisFileDescriptor.(@type != 'dir') ) {
+				for each(var file:Object in filesToDownload.source..FileDescriptor.(@type != 'dir') ) {
 					var size:Number = FileUtil.getEstimatedCompressedSize(file);
 					selectedDownloadSize += size;
 				}
@@ -89,7 +89,7 @@
 												
 			private function removeAllFiles():void {
 				filesToDownload.removeAll();
-				numFilesToDownload.text = filesToDownload.source..AnalysisFileDescriptor.(@type!='dir').length() + ' file(s)';
+				numFilesToDownload.text = filesToDownload.source..FileDescriptor.(@type!='dir').length() + ' file(s)';
 				downloadSize.text = "";
 			}
 			
@@ -111,7 +111,7 @@
 						recurseRemoveParentFolder(parent, filesToDownload, downloadTree);
 					}
 				}
-				numFilesToDownload.text = filesToDownload.source..AnalysisFileDescriptor.(@type!='dir').length() + ' file(s)';
+				numFilesToDownload.text = filesToDownload.source..FileDescriptor.(@type!='dir').length() + ' file(s)';
 			}
 			
 			// This will remove empty parent folders of the given folder
@@ -159,7 +159,7 @@
 				for(var i:int = 0; i < draggedItems.length; i++) {
 					var dragItem:XML = XML(draggedItems[i]);
 					
-					if (dragItem.name() == "AnalysisFileDescriptor") {
+					if (dragItem.name() == "FileDescriptor") {
 						
 						var analysis:XML = getAnalysisDownloadList.lastResult..Analysis[0];
 						if ( analysis == null ){
@@ -169,13 +169,13 @@
 						var aNode:XML = createANode(analysis);
 						var fileNode:XML;
 						
-						if (dragItem.name() == "AnalysisFileDescriptor" ){
+						if (dragItem.name() == "FileDescriptor" ){
 							var inFolder:Boolean = false;
 							
 														
-							for each ( var folder:XML in analysis.AnalysisFileDescriptor.(@type == 'dir') ) {
+							for each ( var folder:XML in analysis.FileDescriptor.(@type == 'dir') ) {
 								
-								if ( folder.descendants("AnalysisFileDescriptor").(@fileName == dragItem.@fileName).length() > 0 ) {
+								if ( folder.descendants("FileDescriptor").(@fileName == dragItem.@fileName).length() > 0 ) {
 									fileNode = createAnalysisFileNode(folder);
 									recurseAddChildrenFolders(dragItem,fileNode,folder);
 									inFolder = true;
@@ -194,7 +194,7 @@
 						} 
 						
 						addNodeToList(fileNode, aNode, filesToDownload);	
-						numFilesToDownload.text = filesToDownload.source..AnalysisFileDescriptor.(@type!='dir').length() + ' file(s)';
+						numFilesToDownload.text = filesToDownload.source..FileDescriptor.(@type!='dir').length() + ' file(s)';
 						
 						filesToDownload.refresh();
 						
@@ -214,7 +214,7 @@
 			}
 			
 			private function createAnalysisFileNode(item:XML):XML {
-				var node:XML = <AnalysisFileDescriptor/>;
+				var node:XML = <FileDescriptor/>;
 				node.@idAnalysis = item.@idAnalysis;
 				node.@analysisNumber = item.@number;
 				node.@number = item.@number;
@@ -237,14 +237,14 @@
 				} else {
 					filesList.source += analysis;
 				}
-				if ( node.name() == 'AnalysisFileDescriptor' && node.@type != 'dir' ){ 
-					if ( filesList.source.AnalysisFileDescriptor.(@type != 'dir' && @fileName == node.@fileName).length() == 0 ){
+				if ( node.name() == 'FileDescriptor' && node.@type != 'dir' ){
+					if ( filesList.source.FileDescriptor.(@type != 'dir' && @fileName == node.@fileName).length() == 0 ){
 						analysis.appendChild(node);
 					}
 					return;
-				} else if ( node.name() == 'AnalysisFileDescriptor' && node.@type == 'dir' ) {
-					if ( filesList.source..AnalysisFileDescriptor.(@type == 'dir' && @fileName == node.@fileName).length() > 0 ) {
-						recurseCheckFolder( node, filesList.source..AnalysisFileDescriptor.(@type == 'dir' && @fileName == node.@fileName)[0] );
+				} else if ( node.name() == 'FileDescriptor' && node.@type == 'dir' ) {
+					if ( filesList.source..FileDescriptor.(@type == 'dir' && @fileName == node.@fileName).length() > 0 ) {
+						recurseCheckFolder( node, filesList.source..FileDescriptor.(@type == 'dir' && @fileName == node.@fileName)[0] );
 					} else {
 						analysis.appendChild(node);
 					}
@@ -286,13 +286,13 @@
 			private function recurseAddChildrenFolders( childItem:XML, parentNode:XML, folder:XML ):void {
 				
 				for each ( var child:XML in folder.children() ) {
-					if ( child.name() == "AnalysisFileDescriptor" && child.@fileName == childItem.@fileName ) {
+					if ( child.name() == "FileDescriptor" && child.@fileName == childItem.@fileName ) {
 						
 						var childNode:XML = createAnalysisFileNode(child);
 						parentNode.appendChild( childNode );
 						recurseAddChildren(child, childNode);
 						return;
-					} else if ( child.descendants("AnalysisFileDescriptor").(@fileName == childItem.@fileName).length() > 0 ) {
+					} else if ( child.descendants("FileDescriptor").(@fileName == childItem.@fileName).length() > 0 ) {
 						
 						var childFolder:XML = createAnalysisFileNode(child);
 						parentNode.appendChild( childFolder );
@@ -331,7 +331,7 @@
 							recurseRemoveParentFolder(parent, filesToDownload, downloadTree);
 						}
 					}
-					numFilesToDownload.text = filesToDownload.source..AnalysisFileDescriptor.(@type!='dir').length() + ' file(s)';
+					numFilesToDownload.text = filesToDownload.source..FileDescriptor.(@type!='dir').length() + ' file(s)';
 					
 					filesTree.selectedItem = null;
 				} 
@@ -514,7 +514,7 @@
 
 			<mx:Button id="downloadExpandedFilesButton" 
 					   enabled="{filesToDownload.length>0}"
-					   click="downloadView.downloadExpandedFiles(filesToDownload.source..AnalysisFileDescriptor.(@type != 'dir'))" 
+					   click="downloadView.downloadExpandedFiles(filesToDownload.source..FileDescriptor.(@type != 'dir'))"
 					   icon="@Embed('../../assets/download.png')" 
 					   disabledIcon="@Embed('../../assets/download_disable.png')"
 					   toolTip="Download selected files"
@@ -522,7 +522,7 @@
 			<mx:Button visible="{parentApplication.isFDTSupported ? true : false}" id="fdtCommandLine" 
 					   includeInLayout="{parentApplication.isFDTSupported ? true : false}" 
 					   enabled="{filesToDownload.length>0}"
-					   click="downloadView.showCommandLineInstructions = true; downloadView.downloadFilesUsingFDT(filesToDownload.source..AnalysisFileDescriptor.(@type != 'dir'))" 
+					   click="downloadView.showCommandLineInstructions = true; downloadView.downloadFilesUsingFDT(filesToDownload.source..FileDescriptor.(@type != 'dir'))"
 					   label="FDT Command Line"  
 					   toolTip="Download large files using FDT"
 					   disabledIcon="@Embed('../../assets/download_disable.png')"
@@ -530,7 +530,7 @@
 			<mx:Button visible="{parentApplication.isFDTSupported ? true : false}" id="fdtDownload" 
 					   includeInLayout="{parentApplication.isFDTSupported ? true : false}" 
 					   enabled="{filesToDownload.length>0}"
-					   click="downloadView.downloadFilesUsingFDT(filesToDownload.source..AnalysisFileDescriptor.(@type != 'dir'))" 
+					   click="downloadView.downloadFilesUsingFDT(filesToDownload.source..FileDescriptor.(@type != 'dir'))"
 					   label="FDT Download"  
 					   toolTip="Download large files using FDT"
 					   disabledIcon="@Embed('../../assets/download_disable.png')"
@@ -538,7 +538,7 @@
 			<mx:Button visible="{parentApplication.isFDTSupported ? false : true}" 
 					   includeInLayout="{parentApplication.isFDTSupported ? false : true}" 
 					   enabled="{filesToDownload.length>0}"
-					   click="downloadView.showAlternateDownloadPage(filesToDownload.source..AnalysisFileDescriptor.(@type != 'dir'))" 
+					   click="downloadView.showAlternateDownloadPage(filesToDownload.source..FileDescriptor.(@type != 'dir'))"
 					   toolTip="Alternate download page for large files"
 					   label="HTTP Download" 
 					   disabledIcon="@Embed('../../assets/download_disable.png')"

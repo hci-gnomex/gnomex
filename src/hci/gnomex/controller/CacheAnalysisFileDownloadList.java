@@ -61,7 +61,7 @@ public class CacheAnalysisFileDownloadList extends GNomExCommand implements Seri
 
     // Get the files XML string
     if (request.getParameter("fileDescriptorXMLString") != null && !request.getParameter("fileDescriptorXMLString").equals("")) {
-      String fileDescriptorXMLString = "<AnalysisFileDescriptorList>" + request.getParameter("fileDescriptorXMLString") + "</AnalysisFileDescriptorList>";
+      String fileDescriptorXMLString = "<FileDescriptorList>" + request.getParameter("fileDescriptorXMLString") + "</FileDescriptorList>";
       
       StringReader reader = new StringReader(fileDescriptorXMLString);
       try {

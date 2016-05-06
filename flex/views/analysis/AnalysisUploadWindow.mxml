@@ -238,7 +238,7 @@
 		        var count:int = 0;
 				if (downloadTree != null) {
 		          	downloadTree.expandItem(downloadList.getItemAt(0),true); 
-					for each(var a:Object in getAnalysisDownloadList.lastResult..AnalysisFileDescriptor) {
+					for each(var a:Object in getAnalysisDownloadList.lastResult..FileDescriptor) {
 		    	        downloadTree.expandItem(a,true);
 		        	    count++;
 		            	if (count>=maxFiles){
@@ -251,7 +251,7 @@
 			private function collapseDownloadTree():void {
 				if (downloadTree != null) {
 					downloadTree.expandItem(downloadList.getItemAt(0),true); 
-					for each(var a:Object in getAnalysisDownloadList.lastResult..AnalysisFileDescriptor) {
+					for each(var a:Object in getAnalysisDownloadList.lastResult..FileDescriptor) {
 						downloadTree.expandItem(a,false);
 						
 					}
@@ -318,7 +318,7 @@
 						if (childNode.@dirty == 'Y') {
 							keep = true;
 						} else {
-							var dirtyNodes:XMLList = childNode..AnalysisFileDescriptor.(@dirty == 'Y');
+							var dirtyNodes:XMLList = childNode..FileDescriptor.(@dirty == 'Y');
 							if (dirtyNodes.length() > 0) {
 								keep = true;
 							}
@@ -327,7 +327,7 @@
 						keep = true;
 					}
 					if (keep) {
-						var childNodeShallow:XML = new XML("<AnalysisFileDescriptor/>");
+						var childNodeShallow:XML = new XML("<FileDescriptor/>");
 						shallowCopy(childNode, childNodeShallow);
 						nodeShallow.appendChild(childNodeShallow);
 					}
@@ -349,7 +349,7 @@
 				} 
 				var folder:XML;
 				
-				folder = new XML("<AnalysisFileDescriptor isNew='Y' " +
+				folder = new XML("<FileDescriptor isNew='Y' " +
 					"dirty='Y' " + 
 					"key='X-X-" + GNomExStringUtil.makeXMLSafe(folderName) + "' " +
 					"displayName='" + GNomExStringUtil.makeXMLSafe(folderName) + "' " +
@@ -477,7 +477,7 @@
 		        refreshUploadFiles();
 		        var params:Object = new Object();
 		        params.idAnalysis = idAnalysis.toString();
-		        var fileNode:XML = new XML("<AnalysisFileDescriptor type='dir' displayName='" + this.analysisNumber + "/upload_staging'>" + uploadedFiles.toXMLString() + "</AnalysisFileDescriptor>");
+		        var fileNode:XML = new XML("<FileDescriptor type='dir' displayName='" + this.analysisNumber + "/upload_staging'>" + uploadedFiles.toXMLString() + "</FileDescriptor>");
 		        params.filesXMLString = fileNode.toXMLString();
 		        
 		        organizeAnalysisUploadFiles.send(params);
@@ -508,7 +508,7 @@
 				}
 				
 				dropFolderNode = dropNode;
-				if (dropNode.name() == "AnalysisFileDescriptor" && dropNode.@type != "dir" ) {
+				if (dropNode.name() == "FileDescriptor" && dropNode.@type != "dir" ) {
 						dropFolderNode = dropNode.parent();
 						siblingDropNode = dropNode;
 					
@@ -538,9 +538,9 @@
 				}
 				for(var i:int = 0; i < draggedItems.length; i++) {
 					var dragItem:XML = XML(draggedItems[i]);
-					if (dragItem.name() == "AnalysisFileDescriptor") {
+					if (dragItem.name() == "FileDescriptor") {
 						
-						var fileNode:XML = new XML("<AnalysisFileDescriptor " +
+						var fileNode:XML = new XML("<FileDescriptor " +
 							" dirty='Y' " +
 							" displayName='" +  GNomExStringUtil.makeXMLSafe(dragItem.@displayName) + "'" + 
 							" fileName='" +  GNomExStringUtil.makeXMLSafe(dragItem.@fileName) + "'" + 
@@ -616,7 +616,7 @@
 		        downloadTree.selectedIndex = r;
 		        var dropNode:XML = downloadTree.selectedItem as XML;
 		        var dropFolderNode:XML = dropNode;
-		        if (dropNode.name() == "AnalysisFileDescriptor" && dropNode.@type != "dir" ) {
+		        if (dropNode.name() == "FileDescriptor" && dropNode.@type != "dir" ) {
 		          dropFolderNode = dropNode.parent();
 		        } 
 		        if (dropFolderNode != null) {
@@ -702,7 +702,7 @@
 	
 	<mx:XMLListCollection id="downloadList" source="{getAnalysisDownloadList.lastResult..Analysis}"/> <!--.Analysis on exp-->
 	<mx:XMLListCollection id="files"/>
-	<mx:XMLListCollection id="uploadedFiles" source="{getAnalysis.lastResult..AnalysisUpload.AnalysisFileDescriptor}"/>
+	<mx:XMLListCollection id="uploadedFiles" source="{getAnalysis.lastResult..AnalysisUpload.FileDescriptor}"/>
 	<mx:XMLListCollection id="filesToRemove"/>
 	
 	<mx:Canvas width="100%" height="100%">

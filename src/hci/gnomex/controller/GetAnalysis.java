@@ -94,8 +94,8 @@ public class GetAnalysis extends GNomExCommand implements Serializable {
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
 
       DictionaryHelper dh = DictionaryHelper.getInstance(sess);
-      baseDir = PropertyDictionaryHelper.getInstance(sess).getAnalysisDirectory(serverName);
-      baseDirDataTrack = PropertyDictionaryHelper.getInstance(sess).getDataTrackDirectory(serverName);
+      baseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, null, PropertyDictionaryHelper.PROPERTY_ANALYSIS_DIRECTORY);
+      baseDirDataTrack = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, null, PropertyDictionaryHelper.PROPERTY_DATATRACK_DIRECTORY);
 
       Analysis a = null;
       if (idAnalysis != null && idAnalysis.intValue() == 0) {
@@ -208,7 +208,7 @@ public class GetAnalysis extends GNomExCommand implements Serializable {
               filesNode.addContent(analysisUploadNode);
               String key = a.getKey(Constants.UPLOAD_STAGING_DIR);
               Map<Integer, Integer> dataTrackMap = GetAnalysisDownloadList.getDataTrackMap(sess, idAnalysis);
-              GetAnalysisDownloadList.addExpandedFileNodes(false,baseDir, aNode, analysisUploadNode, analysisNumber, key, dh, knownAnalysisFileMap, fileMap, dataTrackMap, sess);
+              GetAnalysisDownloadList.addExpandedFileNodes(false,baseDir, aNode, analysisUploadNode, analysisNumber, key, dh, knownAnalysisFileMap, fileMap, dataTrackMap, sess, a);
             }
           }
         }

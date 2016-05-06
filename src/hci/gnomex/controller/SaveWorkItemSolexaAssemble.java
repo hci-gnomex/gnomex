@@ -352,7 +352,7 @@ public class SaveWorkItemSolexaAssemble extends GNomExCommand implements Seriali
             
             sess.flush();
             
-            this.createFlowCellDirectory(flowCell, PropertyDictionaryHelper.getInstance(sess).getFlowCellDirectory(serverName));
+            this.createFlowCellDirectory(flowCell, PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, null, PropertyDictionaryHelper.PROPERTY_FLOWCELL_DIRECTORY));
             
             
           }

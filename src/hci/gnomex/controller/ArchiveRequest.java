@@ -69,7 +69,7 @@ public class ArchiveRequest extends GNomExCommand implements Serializable {
       reqToArchive.setArchived("Y");
 
       //Delete files from filesystem
-      String baseDir = PropertyDictionaryHelper.getInstance(sess).getExperimentDirectory(serverName, reqToArchive.getIdCoreFacility());
+      String baseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, reqToArchive.getIdCoreFacility(), PropertyDictionaryHelper.PROPERTY_EXPERIMENT_DIRECTORY);
       SimpleDateFormat formatter = new SimpleDateFormat("yyyy");
       String createYear = formatter.format(reqToArchive.getCreateDate());
       if (!baseDir.endsWith("/") && !baseDir.endsWith("\\")) {

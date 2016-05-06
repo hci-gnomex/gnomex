@@ -289,7 +289,7 @@ public class SaveProductOrder extends GNomExCommand implements Serializable {
 									System.out.println(msg);
 								} else {
 									// Save requisition form as ProductOrderFile and send vendor email
-									String baseDir = PropertyDictionaryHelper.getInstance(sess).getProductOrderDirectory(serverName, po.getIdCoreFacility())
+									String baseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, po.getIdCoreFacility(), PropertyDictionaryHelper.PROPERTY_PRODUCT_ORDER_DIRECTORY)
 											+ po.getCreateYear() + "/" + po.getIdProductOrder();
 									String qualDir = "/" + Constants.REQUISITION_DIR;
 									ProductOrderFile poFile = new ProductOrderFile();

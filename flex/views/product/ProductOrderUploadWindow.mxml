@@ -118,7 +118,7 @@
 			
 			private var linkedSampleFiles:XMLListCollection = new XMLListCollection();
 			
-			private var FILE_DESCRIPTOR_NAME:String = "ProductOrderFileDescriptor";
+			private var FILE_DESCRIPTOR_NAME:String = "FileDescriptor";
 			
 			public function init(productOrder:Object):void {
 				this.idProductOrder = productOrder.@idProductOrder;
@@ -432,11 +432,11 @@
 			public function addDownloadFolder(folderName:String):void {
 				
 				var parent:XML = XML(downloadTree.selectedItem);
-				if (this.downloadTree.selectedItem.@type != 'dir' && parent.name() != "ProductOrder" && parent.name() != "ProductOrderFileDescriptor") {
+				if (this.downloadTree.selectedItem.@type != 'dir' && parent.name() != "ProductOrder" && parent.name() != "FileDescriptor") {
 					parent = XML(downloadTree.selectedItem).parent();
 				} 
 				
-				var folder:XML = new XML("<ProductOrderFileDescriptor isNew='Y' " +
+				var folder:XML = new XML("<FileDescriptor isNew='Y' " +
 					"key='X\tX\tX\t" + GNomExStringUtil.makeXMLSafe(folderName) + "' " +
 					"displayName='" + GNomExStringUtil.makeXMLSafe(folderName) + "' " +
 					"type='dir'" +
@@ -565,14 +565,14 @@
 						if (dragItem.name() == this.FILE_DESCRIPTOR_NAME || dragItem.name() == "ProductOrderDownload") {
 							var fileNode:XML;
 							if (dragItem.name() == this.FILE_DESCRIPTOR_NAME ){
-								fileNode = new XML("<ProductOrderFileDescriptor " +
+								fileNode = new XML("<FileDescriptor " +
 									" displayName='" +  GNomExStringUtil.makeXMLSafe(dragItem.@displayName) + "'" + 
 									" fileName='" +  GNomExStringUtil.makeXMLSafe(dragItem.@fileName) + "'" + 
 									" type='" + dragItem.@type + "'" +
 									" directoryName='" + GNomExStringUtil.makeXMLSafe(dragItem.@directoryName) + "'/>");
 							}
 							if (dragItem.name() == "ProductOrderDownload" ){
-								fileNode = new XML("<ProductOrderFileDescriptor " +
+								fileNode = new XML("<FileDescriptor " +
 									" displayName='" +  GNomExStringUtil.makeXMLSafe(dragItem.@itemNumber) + "'" + 
 									" fileName='" +  GNomExStringUtil.makeXMLSafe(dragItem.@fileName) + "'" + 
 									" type='dir'" +
@@ -804,7 +804,7 @@
 	
 	<mx:XMLListCollection id="files"/>
 	<mx:XMLListCollection id="filesToMove"/>
-	<mx:XMLListCollection id="uploadedFiles" source="{getProductOrder.lastResult..ProductOrderUpload.ProductOrderFileDescriptor}"/>
+	<mx:XMLListCollection id="uploadedFiles" source="{getProductOrder.lastResult..ProductOrderUpload.FileDescriptor}"/>
 	<mx:XMLListCollection id="downloadList" source="{getProductOrderDownloadList.lastResult..ProductOrder}"/>
 	<mx:XMLListCollection id="filesToRemove"/>
 	<mx:XMLListCollection id="filesToUnlink"/>

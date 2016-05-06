@@ -111,7 +111,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
 
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
       DictionaryHelper dh = DictionaryHelper.getInstance(sess);
-      baseDirFlowCell = PropertyDictionaryHelper.getInstance(sess).getFlowCellDirectory(serverName);
+      baseDirFlowCell = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, null, PropertyDictionaryHelper.PROPERTY_FLOWCELL_DIRECTORY);
 
       List slideDesigns = sess.createQuery("SELECT sd from SlideDesign sd ").list();
       for (Iterator i = slideDesigns.iterator(); i.hasNext();) {
@@ -172,7 +172,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
         String baseKey = createYear + Constants.DOWNLOAD_KEY_SEPARATOR + sortDate + Constants.DOWNLOAD_KEY_SEPARATOR + requestNumber;
 
         // Now read the request directory to identify all its subdirectories
-        String baseDir = PropertyDictionaryHelper.getInstance(sess).getExperimentDirectory(serverName, idCoreFacility);
+        String baseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, idCoreFacility, PropertyDictionaryHelper.PROPERTY_EXPERIMENT_DIRECTORY);
         Set folders = this.getRequestDownloadFolders(baseDir, requestNumberBase, yearFormat.format((java.util.Date) row[0]), codeRequestCategory);
         this.hashFolders(folders, rowMap, dh, baseKey, row);
       }
@@ -236,7 +236,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
         String baseKey = createYear + Constants.DOWNLOAD_KEY_SEPARATOR + sortDate + Constants.DOWNLOAD_KEY_SEPARATOR + requestNumber;
 
         // Now read the request directory to identify all its subdirectories
-        String baseDir = PropertyDictionaryHelper.getInstance(sess).getExperimentDirectory(serverName, idCoreFacility);
+        String baseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, idCoreFacility, PropertyDictionaryHelper.PROPERTY_EXPERIMENT_DIRECTORY);
         Set folders = this.getRequestDownloadFolders(baseDir, requestNumberBase, yearFormat.format((java.util.Date) row[0]), codeRequestCategory);
         if (folders.isEmpty()) {
           // If we didn't add any row map entries (because there are no subdirectories under
@@ -324,7 +324,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
 
           // Show files under the root experiment directory
           String createDateString = this.formatDate((java.util.Date) row[0]);
-          String baseDir = PropertyDictionaryHelper.getInstance(sess).getExperimentDirectory(serverName, idCoreFacility);
+          String baseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, idCoreFacility, PropertyDictionaryHelper.PROPERTY_EXPERIMENT_DIRECTORY);
           addRootFileNodes(baseDir, requestNode, requestNumber, createDateString, null, sess);
 
           // Show the files (and directories) under upload staging. Show these under request node.
@@ -370,7 +370,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
           n.setAttribute("canDelete", isMicroarrayRequest ? "N" : "Y"); // User can't delete or rename hyb folders
           n.setAttribute("canRename", isMicroarrayRequest ? "N" : "Y");
 
-          String baseDir = PropertyDictionaryHelper.getInstance(sess).getExperimentDirectory(serverName, idCoreFacility);
+          String baseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, idCoreFacility, PropertyDictionaryHelper.PROPERTY_EXPERIMENT_DIRECTORY);
           String directoryName = baseDir + createYear + File.separator + Request.getBaseRequestNumber(requestNumber) + File.separator + resultDir;
           n.setAttribute("fileName", directoryName);
 
@@ -743,6 +743,8 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
     String dirTokens[] = createDate.split("/");
     String createYear  = dirTokens[2];
 
+    Request request = (Request)sess.load(Request.class, Integer.parseInt(requestNode.getAttributeValue("idRequest")));
+
     String directoryName = baseDir + File.separator + createYear + File.separator + Request.getBaseRequestNumber(requestNumber) + 
     (subDirectory != null ? File.separator + Constants.UPLOAD_STAGING_DIR : "");
     File fd = new File(directoryName);
@@ -776,6 +778,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
         fdNode.setAttribute("canDelete", "Y");
         fdNode.setAttribute("canRename", "Y");
         fdNode.setAttribute("linkedSampleNumber",  getLinkedSampleNumber(sess, fileName.substring(fileName.indexOf(Request.getBaseRequestNumber(requestNumber)))));
+        fdNode.setAttribute("viewURL", fdesc.getViewURL(request));
 
         requestNode.addContent(fdNode);
         requestNode.setAttribute("isEmpty", "N");

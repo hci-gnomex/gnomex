@@ -114,7 +114,7 @@ public class DeleteRequest extends GNomExCommand implements Serializable {
 
       if (req!=null) {
 
-        baseDir = PropertyDictionaryHelper.getInstance(sess).getExperimentDirectory(serverName, req.getIdCoreFacility());
+        baseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, req.getIdCoreFacility(), PropertyDictionaryHelper.PROPERTY_EXPERIMENT_DIRECTORY);
 
         if (this.getSecAdvisor().canDelete(req)) {
 

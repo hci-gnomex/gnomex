@@ -64,7 +64,7 @@ public class AnalysisFileDescriptorUploadParser extends DetailObject implements 
     }
     
     
-    for(Iterator i1 = folderNode.getChildren("AnalysisFileDescriptor").iterator(); i1.hasNext();) {
+    for(Iterator i1 = folderNode.getChildren("FileDescriptor").iterator(); i1.hasNext();) {
       Element childFileNode = (Element)i1.next();
       String fileName = childFileNode.getAttributeValue("fileName");
       String displayName = childFileNode.getAttributeValue("displayName");
@@ -113,7 +113,7 @@ public class AnalysisFileDescriptorUploadParser extends DetailObject implements 
     }
     
     
-    for(Iterator i = folderNode.getChildren("AnalysisFileDescriptor").iterator(); i.hasNext();) {
+    for(Iterator i = folderNode.getChildren("FileDescriptor").iterator(); i.hasNext();) {
       Element childFolderNode = (Element)i.next();
       recurseDirectories(childFolderNode, qualifiedDir);
     }

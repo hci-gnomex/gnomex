@@ -94,7 +94,7 @@ public class SaveDataTrack extends GNomExCommand implements Serializable {
 
     try {
       Session sess = HibernateSession.currentSession(this.getUsername());
-      baseDir = PropertyDictionaryHelper.getInstance(sess).getDataTrackDirectory(serverName);
+      baseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, null, PropertyDictionaryHelper.PROPERTY_DATATRACK_DIRECTORY);
 
       this.initializeDataTrack(sess);      
 

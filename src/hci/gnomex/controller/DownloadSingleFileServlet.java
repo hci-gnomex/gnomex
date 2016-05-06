@@ -172,7 +172,7 @@ public class DownloadSingleFileServlet extends HttpServlet {
         Session sess = secAdvisor.getHibernateSession(req.getUserPrincipal() != null ? req.getUserPrincipal().getName() : "guest");
 
 
-        baseDirFlowCell = PropertyDictionaryHelper.getInstance(sess).getFlowCellDirectory(req.getServerName());
+        baseDirFlowCell = PropertyDictionaryHelper.getInstance(sess).getDirectory(req.getServerName(), null, PropertyDictionaryHelper.PROPERTY_FLOWCELL_DIRECTORY);
 
 
 
@@ -204,7 +204,7 @@ public class DownloadSingleFileServlet extends HttpServlet {
           throw new Exception("Insufficient permissions to read experiment " + experiment.getNumber() + ".  Bypassing download.");
         }
 
-        baseDir = PropertyDictionaryHelper.getInstance(sess).getExperimentDirectory(req.getServerName(), experiment.getIdCoreFacility());
+        baseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(req.getServerName(), experiment.getIdCoreFacility(), PropertyDictionaryHelper.PROPERTY_EXPERIMENT_DIRECTORY);
 
         // Now get the files that exist on the file server for this experiment
         Map requestMap = new TreeMap();

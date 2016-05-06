@@ -151,7 +151,7 @@ public class UploadQuoteInfoServlet extends HttpServlet {
 				SimpleDateFormat formatter = new SimpleDateFormat("yyyy");
 				String createYear = formatter.format(productOrder.getSubmitDate());
 
-				String baseDir = PropertyDictionaryHelper.getInstance(sess).getProductOrderDirectory(req.getServerName(), productOrder.getIdCoreFacility());
+				String baseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(req.getServerName(), productOrder.getIdCoreFacility(), PropertyDictionaryHelper.PROPERTY_PRODUCT_ORDER_DIRECTORY);
 				baseDir += "/" + createYear;
 				if (!new File(baseDir).exists()) {
 					boolean success = (new File(baseDir)).mkdir();
@@ -204,9 +204,7 @@ public class UploadQuoteInfoServlet extends HttpServlet {
 							body.addElement("P");
 							body.addCDATA("File '" + fileName + "' successfully uploaded (" + sizeFormatter.format(size) + " bytes).");
 
-							String baseDirectory = PropertyDictionaryHelper.getInstance(sess).getProductOrderDirectory(serverName,
-									productOrder.getIdCoreFacility())
-									+ productOrder.getCreateYear() + "/" + productOrder.getIdProductOrder();
+							String baseDirectory = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, productOrder.getIdCoreFacility(), PropertyDictionaryHelper.PROPERTY_PRODUCT_ORDER_DIRECTORY) + productOrder.getCreateYear() + "/" + productOrder.getIdProductOrder();
 							String qualDir = "/" + Constants.MATERIAL_QUOTE_DIR;
 							ProductOrderFile poFile = new ProductOrderFile();
 							poFile.setIdProductOrder(productOrder.getIdProductOrder());

@@ -170,7 +170,7 @@
 			}
 			
 			private function expandAllNodes():void {
-				for each (var item3:Object in getProductOrderDownloadList.lastResult..ProductOrderFileDescriptor.(@type == "dir")) {
+				for each (var item3:Object in getProductOrderDownloadList.lastResult..FileDescriptor.(@type == "dir")) {
 					downloadTree.expandItem(item3, false);
 				}
 			}
@@ -216,7 +216,7 @@
 			}
 			
 			public function setFileCount():void {
-				rowCountMessage = getProductOrderDownloadList.lastResult..ProductOrderFileDescriptor.(@type != 'dir').length() + " file(s)";    	
+				rowCountMessage = getProductOrderDownloadList.lastResult..FileDescriptor.(@type != 'dir').length() + " file(s)";
 			}
 			
 			
@@ -294,7 +294,7 @@
 					pos++;
 					for each(var rd:Object in r.RequestDownload) {
 						pos++;
-						for each(var fd:Object in rd.ProductOrderFileDescriptor) {
+						for each(var fd:Object in rd.FileDescriptor) {
 							pos++;
 						}
 					}
@@ -512,7 +512,7 @@
 			</mx:dataProvider>						  
 			<mx:columns>
 				<mx:AdvancedDataGridColumn dataField="@displayName"  labelFunction="getDownloadName"  headerText="Folder or File" width="250"/> 
-				<!--<mx:AdvancedDataGridColumn dataField="@viewURL" headerText="" width="25" itemRenderer="views.renderers.LinkButtonViewFile"/>-->
+				<mx:AdvancedDataGridColumn dataField="@viewURL" headerText="" width="25" itemRenderer="views.renderers.LinkButtonViewFile"/>
 				<mx:AdvancedDataGridColumn dataField="@info" headerText="Info" width="80"/>
 <!--				<mx:AdvancedDataGridColumn dataField="@linkedSampleNumber" headerText="Linked Sample" width="100"/>-->
 				<mx:AdvancedDataGridColumn dataField="@fileSizeText"  headerText="Size" width="40" textAlign="right" /> 

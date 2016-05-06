@@ -64,7 +64,7 @@ public class ProductOrderFileDescriptorUploadParser extends DetailObject impleme
     }
     
     
-    for(Iterator i1 = folderNode.getChildren("ProductOrderFileDescriptor").iterator(); i1.hasNext();) {
+    for(Iterator i1 = folderNode.getChildren("FileDescriptor").iterator(); i1.hasNext();) {
       Element childFileNode = (Element)i1.next();
       String fileName = childFileNode.getAttributeValue("fileName");
       String displayName = childFileNode.getAttributeValue("displayName");
@@ -113,7 +113,7 @@ public class ProductOrderFileDescriptorUploadParser extends DetailObject impleme
     }
     
     
-    for(Iterator i = folderNode.getChildren("ProductOrderFileDescriptor").iterator(); i.hasNext();) {
+    for(Iterator i = folderNode.getChildren("FileDescriptor").iterator(); i.hasNext();) {
       Element childFolderNode = (Element)i.next();
       recurseDirectories(childFolderNode, qualifiedDir);
     }

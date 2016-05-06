@@ -20,18 +20,18 @@ public class PropertyDictionaryHelper implements Serializable {
 
   private static final String PROPERTY_PRODUCTION_SERVER = "production_server";
 
-  private static final String PROPERTY_EXPERIMENT_DIRECTORY = "directory_experiment";
-  private static final String PROPERTY_ANALYSIS_DIRECTORY = "directory_analysis";
-  private static final String PROPERTY_DATATRACK_DIRECTORY = "directory_datatrack";
-  private static final String PROPERTY_FLOWCELL_DIRECTORY = "directory_flowcell";
-  private static final String PROPERTY_INSTRUMENT_RUN_DIRECTORY = "directory_instrument_run";
+  public static final String PROPERTY_EXPERIMENT_DIRECTORY = "directory_experiment";
+  public static final String PROPERTY_ANALYSIS_DIRECTORY = "directory_analysis";
+  public static final String PROPERTY_DATATRACK_DIRECTORY = "directory_datatrack";
+  public static final String PROPERTY_FLOWCELL_DIRECTORY = "directory_flowcell";
+  public static final String PROPERTY_INSTRUMENT_RUN_DIRECTORY = "directory_instrument_run";
   private static final String PROPERTY_FDT_DIRECTORY_GNOMEX = "fdt_directory_gnomex";
   private static final String PROPERTY_FDT_DIRECTORY = "fdt_directory";
   private static final String PROPERTY_FDT_CLIENT_CODEBASE = "fdt_client_codebase";
   private static final String PROPERTY_FDT_SERVER_NAME = "fdt_server_name";
   private static final String PROPERTY_FILE_FDT_FILE_DAEMON_TASK_DIR = "fdt_file_daemon_task_dir";
   private static final String PROPERTY_FDT_JAR_LOCATION = "fdt_jar_location";
-  private static final String PROPERTY_PRODUCT_ORDER_DIRECTORY = "directory_product_order";
+  public static final String PROPERTY_PRODUCT_ORDER_DIRECTORY = "directory_product_order";
 
   public PropertyDictionaryHelper() {
   }
@@ -245,81 +245,22 @@ public class PropertyDictionaryHelper implements Serializable {
     return property;
   }
 
-  public String getAnalysisDirectory(String serverName) {
-    // First try to get property that is qualified by server name.
-    // If that isn't found then get the property without any qualification.
-    String property = "";
-    String propertyName = PROPERTY_ANALYSIS_DIRECTORY + "_" + serverName;
-    property = this.getProperty(propertyName);
-    if (property == null || property.equals("")) {
-      propertyName = PROPERTY_ANALYSIS_DIRECTORY;
-      property = this.getProperty(propertyName);
-    }
-    // Make sure the property ends with a directory separator
-    if (property != null && !property.equals("")) {
-      if (!property.endsWith("/") && !property.endsWith("\\")) {
-        property = property + "/";
-      }
-    }
 
-    return property;
-  }
-
-  public String getDataTrackDirectory(String serverName) {
-    // First try to get property that is qualified by server name.
-    // If that isn't found then get the property without any qualification.
-    String property = "";
-    String propertyName = PROPERTY_DATATRACK_DIRECTORY + "_" + serverName;
-    property = this.getProperty(propertyName);
-    if (property == null || property.equals("")) {
-      propertyName = PROPERTY_DATATRACK_DIRECTORY;
-      property = this.getProperty(propertyName);
-    }
-    // Make sure the property ends with a directory separator
-    if (property != null && !property.equals("")) {
-      if (!property.endsWith("/") && !property.endsWith("\\")) {
-        property = property + "/";
-      }
-    }
-
-    return property;
-  }
-
-  public String getFlowCellDirectory(String serverName) {
-    // First try to get property that is qualified by server name.
-    // If that isn't found then get the property without any qualification.
-    String property = "";
-    String propertyName = PROPERTY_FLOWCELL_DIRECTORY + "_" + serverName;
-    property = this.getProperty(propertyName);
-    if (property == null || property.equals("")) {
-      propertyName = PROPERTY_FLOWCELL_DIRECTORY;
-      property = this.getProperty(propertyName);
-    }
-    // Make sure the property ends with a directory separator
-    if (property != null && !property.equals("")) {
-      if (!property.endsWith("/") && !property.endsWith("\\")) {
-        property = property + "/";
-      }
-    }
-
-    return property;
-  }
-
-  public String getExperimentDirectory(String serverName, Integer idCoreFacility) {
+  public String getDirectory(String serverName, Integer idCoreFacility, String directoryProperty) {
     // First try to get property that is qualified by server name
     // and core facility. if not found, if not found, try by
     // property name (not qualified) and id core facility. last,
     // try by just plain property name.
     String property = "";
-    property = this.getCoreFacilityProperty(idCoreFacility, PROPERTY_EXPERIMENT_DIRECTORY + "_" + serverName);
+    property = this.getCoreFacilityProperty(idCoreFacility, directoryProperty + "_" + serverName);
     if (property == null || property.equals("")) {
-      property = this.getCoreFacilityProperty(idCoreFacility, PROPERTY_EXPERIMENT_DIRECTORY);
+      property = this.getCoreFacilityProperty(idCoreFacility, directoryProperty);
     }
     if (property == null || property.equals("")) {
-      property = this.getProperty(PROPERTY_EXPERIMENT_DIRECTORY + "_" + serverName);
+      property = this.getProperty(directoryProperty + "_" + serverName);
     }
     if (property == null || property.equals("")) {
-      property = this.getProperty(PROPERTY_EXPERIMENT_DIRECTORY);
+      property = this.getProperty(directoryProperty);
     }
 
     // Make sure the property ends with a directory separator
@@ -332,115 +273,8 @@ public class PropertyDictionaryHelper implements Serializable {
     return addFileSepIfNec(property);
   }
 
-  public String getProductOrderDirectory(String serverName, Integer idCoreFacility) {
-    // First try to get property that is qualified by server name
-    // and core facility. if not found, if not found, try by
-    // property name (not qualified) and id core facility. last,
-    // try by just plain property name.
-    String property = "";
-    property = this.getCoreFacilityProperty(idCoreFacility, PROPERTY_PRODUCT_ORDER_DIRECTORY + "_" + serverName);
-    if (property == null || property.equals("")) {
-      property = this.getCoreFacilityProperty(idCoreFacility, PROPERTY_PRODUCT_ORDER_DIRECTORY);
-    }
-    if (property == null || property.equals("")) {
-      property = this.getProperty(PROPERTY_PRODUCT_ORDER_DIRECTORY + "_" + serverName);
-    }
-    if (property == null || property.equals("")) {
-      property = this.getProperty(PROPERTY_PRODUCT_ORDER_DIRECTORY);
-    }
-
-    // Make sure the property ends with a directory separator
-    if (property != null && !property.equals("")) {
-      if (!property.endsWith("/") && !property.endsWith("\\")) {
-        property = property + "/";
-      }
-    }
-
-    return addFileSepIfNec(property);
-  }
-
-  public String getInstrumentRunDirectory(String serverName, Integer idCoreFacility) {
-    // First try to get property that is qualified by server name
-    // and core facility. if not found, if not found, try by
-    // property name (not qualified) and id core facility. last,
-    // try by just plain property name.
-    String property = "";
-    property = this.getCoreFacilityProperty(idCoreFacility, PROPERTY_INSTRUMENT_RUN_DIRECTORY + "_" + serverName);
-    if (property == null || property.equals("")) {
-      property = this.getCoreFacilityProperty(idCoreFacility, PROPERTY_INSTRUMENT_RUN_DIRECTORY);
-    }
-    if (property == null || property.equals("")) {
-      property = this.getProperty(PROPERTY_INSTRUMENT_RUN_DIRECTORY + "_" + serverName);
-    }
-    if (property == null || property.equals("")) {
-      property = this.getProperty(PROPERTY_INSTRUMENT_RUN_DIRECTORY);
-    }
-
-    // Make sure the property ends with a directory separator
-    if (property != null && !property.equals("")) {
-      if (!property.endsWith("/") && !property.endsWith("\\")) {
-        property = property + "/";
-      }
-    }
-
-    return addFileSepIfNec(property);
-  }
 
   public static String parseZipEntryName(String baseDir, String fileName) {
-    String zipEntryName = "";
-    String baseDirLastPart = "";
-
-    String baseDirCanonicalPath = "";
-    try {
-      baseDirCanonicalPath = new File(baseDir).getCanonicalPath();
-    } catch (IOException e) {
-      throw new RuntimeException("Cannot instantiate file for analysis dir" + baseDir);
-    }
-
-    // Change all file separators to forward slash
-    String theFileName = fileName.replaceAll("\\\\", "/");
-    baseDirCanonicalPath = baseDirCanonicalPath.replaceAll("\\\\", "/");
-
-    String tokens[] = baseDirCanonicalPath.split("/");
-    if (tokens == null || tokens.length == 0) {
-      throw new RuntimeException("Cannot parse directory into expected last file part " + baseDirCanonicalPath);
-    }
-    baseDirLastPart = tokens[tokens.length - 1];
-
-    // Strip off the leading part of the path, up through the year subdirectory,
-    // to leave only the path that starts with the request number subdirectory.
-    tokens = theFileName.split(baseDirLastPart, 2);
-    if (tokens == null || tokens.length < 2) {
-      throw new RuntimeException("Cannot parse file into expected parts " + theFileName);
-    }
-    String lastFilePart = tokens[tokens.length - 1];
-
-    // Now loop through the remaining file parts, leaving off year and
-    // concatenating everything else.
-    tokens = lastFilePart.split("/");
-    if (tokens == null || tokens.length < 2) {
-      throw new RuntimeException("Cannot parse file into expected parts for year and number " + lastFilePart);
-    }
-    int x = 0;
-    String yearPart = "";
-    for (x = 0; x < tokens.length; x++) {
-      if (tokens[x].equals("")) {
-        continue;
-      }
-      if (yearPart.equals("")) {
-        yearPart = tokens[x];
-      } else {
-        if (zipEntryName.length() > 0) {
-          zipEntryName += "/";
-        }
-        zipEntryName += tokens[x];
-      }
-    }
-
-    return zipEntryName;
-  }
-
-  public static String parseAnalysisZipEntryName(String baseDir, String fileName) {
     String zipEntryName = "";
     String baseDirLastPart = "";
 
@@ -498,8 +332,8 @@ public class PropertyDictionaryHelper implements Serializable {
     String mainFolderName = "";
     String baseDirLastPart = "";
 
-    String experimentDirectory = this.getExperimentDirectory(serverName, idCoreFacility);
-    String flowCellDirectory = this.getFlowCellDirectory(serverName);
+    String experimentDirectory = this.getDirectory(serverName, idCoreFacility, this.getProperty(PROPERTY_EXPERIMENT_DIRECTORY));
+    String flowCellDirectory = this.getDirectory(serverName, null, this.getProperty(PROPERTY_FLOWCELL_DIRECTORY));
 
     try {
       experimentDirectory = new File(experimentDirectory).getCanonicalPath();

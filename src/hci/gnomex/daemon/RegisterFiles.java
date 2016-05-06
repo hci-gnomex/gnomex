@@ -14,7 +14,7 @@ import hci.gnomex.model.ExperimentFile;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.SampleExperimentFile;
-import hci.gnomex.utility.AnalysisFileDescriptor;
+import hci.gnomex.utility.FileDescriptor;
 import hci.gnomex.utility.BatchDataSource;
 import hci.gnomex.utility.BatchMailer;
 import hci.gnomex.utility.DictionaryHelper;
@@ -270,8 +270,8 @@ public class RegisterFiles extends TimerTask {
 
 	private void initialize() throws Exception {
 		PropertyDictionaryHelper ph = PropertyDictionaryHelper.getInstance(sess);
-		baseFlowCellDir = ph.getFlowCellDirectory(serverName);
-		baseAnalysisDir = ph.getAnalysisDirectory(serverName);
+		baseFlowCellDir = ph.getDirectory(serverName, null, ph.getProperty(PropertyDictionaryHelper.PROPERTY_FLOWCELL_DIRECTORY));
+		baseAnalysisDir = ph.getDirectory(serverName, null, ph.getProperty(PropertyDictionaryHelper.PROPERTY_ANALYSIS_DIRECTORY));
 		flowCellDirFlag = ph.getProperty(PropertyDictionary.FLOWCELL_DIRECTORY_FLAG);
 
 		gnomexSupportEmail = ph.getQualifiedProperty(PropertyDictionary.GNOMEX_SUPPORT_EMAIL, serverName);
@@ -360,7 +360,7 @@ public class RegisterFiles extends TimerTask {
 			// Now compare to the experiment files already registered in the db
 			TreeSet newExperimentFiles = new TreeSet(new ExperimentFileComparator());
 			if (request.getFiles() != null) {
-				String baseExperimentDir = PropertyDictionaryHelper.getInstance(sess).getExperimentDirectory(serverName, request.getIdCoreFacility());
+				String baseExperimentDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, request.getIdCoreFacility(), PropertyDictionaryHelper.PROPERTY_EXPERIMENT_DIRECTORY);
 				String directoryName = baseExperimentDir + Request.getCreateYear(request.getCreateDate()) + "/"
 						+ Request.getBaseRequestNumber(request.getNumber());
 				directoryName.replace("\\", "/");
@@ -514,7 +514,7 @@ public class RegisterFiles extends TimerTask {
 			Map fileMap = hashFiles(analysis);
 			for (Iterator i1 = fileMap.keySet().iterator(); i1.hasNext();) {
 				String fileName = (String) i1.next();
-				AnalysisFileDescriptor fd = (AnalysisFileDescriptor) fileMap.get(fileName);
+				FileDescriptor fd = (FileDescriptor) fileMap.get(fileName);
 				if (analysisWarnings) {
 					System.out.println(getCurrentDateString() + ":" + fileName + " " + fd.getFileSizeText());
 				}
@@ -530,7 +530,7 @@ public class RegisterFiles extends TimerTask {
 					directoryName += af.getQualifiedFilePath() + "/";
 				}
 				String qualifiedFileName = directoryName + af.getFileName();
-				AnalysisFileDescriptor fd = (AnalysisFileDescriptor) fileMap.get(qualifiedFileName);
+				FileDescriptor fd = (FileDescriptor) fileMap.get(qualifiedFileName);
 
 				// If we don't find the file on the file system, delete it from the db.
 				if (fd == null) {
@@ -630,7 +630,7 @@ public class RegisterFiles extends TimerTask {
 			// Now add AnalysisFiles to the db for any files on the file system not found in the db.
 			for (Iterator i3 = fileMap.keySet().iterator(); i3.hasNext();) {
 				String fileName = (String) i3.next();
-				AnalysisFileDescriptor fd = (AnalysisFileDescriptor) fileMap.get(fileName);
+				FileDescriptor fd = (FileDescriptor) fileMap.get(fileName);
 				if (!fd.isFound()) {
 					AnalysisFile af = new AnalysisFile();
 					af.setIdAnalysis(analysis.getIdAnalysis());
@@ -683,7 +683,7 @@ public class RegisterFiles extends TimerTask {
 		}
 	}
 
-	private java.sql.Date getEffectiveAnalysisFileCreateDate(AnalysisFileDescriptor fd, java.util.Date analysisCreateDate) {
+	private java.sql.Date getEffectiveAnalysisFileCreateDate(FileDescriptor fd, java.util.Date analysisCreateDate) {
 		java.sql.Date createDate = new java.sql.Date(runDate.getTime().getTime());
 
 		return createDate;
@@ -754,7 +754,7 @@ public class RegisterFiles extends TimerTask {
 		HashMap fileMap = new HashMap(5000);
 		String baseRequestNumber = Request.getBaseRequestNumber(requestNumber);
 
-		String baseExperimentDir = PropertyDictionaryHelper.getInstance(sess).getExperimentDirectory(serverName, idCoreFacility);
+		String baseExperimentDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, idCoreFacility, PropertyDictionaryHelper.PROPERTY_EXPERIMENT_DIRECTORY);
 		String directoryName = baseExperimentDir + Request.getCreateYear(createDate) + "/" + baseRequestNumber;
 		directoryName.replace("\\", "/");
 
@@ -802,7 +802,7 @@ public class RegisterFiles extends TimerTask {
 		return fileMap;
 	}
 
-	private static void recurseHashFiles(FileDescriptor fd, Map fileMap) throws XMLReflectException {
+	public static void recurseHashFiles(FileDescriptor fd, Map fileMap) throws XMLReflectException {
 		if (new File(fd.getFileName()).isDirectory()) {
 			for (Iterator i = fd.getChildren().iterator(); i.hasNext();) {
 				FileDescriptor childFd = (FileDescriptor) i.next();
@@ -810,20 +810,9 @@ public class RegisterFiles extends TimerTask {
 			}
 
 		} else {
-			fileMap.put(fd.getZipEntryName().replace("\\", "/"), fd);
+			fileMap.put(fd.getZipEntryName().replaceAll("\\\\", "/"), fd);
 		}
 
-	}
-
-	public static void recurseHashFiles(AnalysisFileDescriptor fd, Map fileMap) throws XMLReflectException {
-		if (new File(fd.getFileName()).isDirectory()) {
-			for (Iterator i = fd.getChildren().iterator(); i.hasNext();) {
-				AnalysisFileDescriptor childFd = (AnalysisFileDescriptor) i.next();
-				recurseHashFiles(childFd, fileMap);
-			}
-		} else {
-			fileMap.put(fd.getZipEntryName(), fd);
-		}
 	}
 
 	private HashMap hashFiles(Analysis analysis) throws Exception {
@@ -848,7 +837,7 @@ public class RegisterFiles extends TimerTask {
 
 				// Hash all of the files for this experiment
 				for (Iterator i3 = theFiles.iterator(); i3.hasNext();) {
-					AnalysisFileDescriptor fd = (AnalysisFileDescriptor) i3.next();
+					FileDescriptor fd = (FileDescriptor) i3.next();
 					recurseHashFiles(fd, fileMap);
 				}
 			}

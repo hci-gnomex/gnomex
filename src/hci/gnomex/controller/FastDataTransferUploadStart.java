@@ -103,7 +103,7 @@ public class FastDataTransferUploadStart extends GNomExCommand implements Serial
         }
         if (this.isValid()) {
           createYear = yearFormatter.format(analysis.getCreateDate());
-          String baseDir = PropertyDictionaryHelper.getInstance(sess).getAnalysisDirectory(serverName);
+          String baseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, null, PropertyDictionaryHelper.PROPERTY_ANALYSIS_DIRECTORY);
           targetDir = baseDir + createYear + File.separator + analysis.getNumber() + File.separator + Constants.UPLOAD_STAGING_DIR;
           targetNumber = analysis.getNumber();
           
@@ -127,7 +127,7 @@ public class FastDataTransferUploadStart extends GNomExCommand implements Serial
         }
         if (this.isValid()) {
           createYear = yearFormatter.format(experiment.getCreateDate());
-          String baseDir = PropertyDictionaryHelper.getInstance(sess).getExperimentDirectory(serverName, experiment.getIdCoreFacility());
+          String baseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, experiment.getIdCoreFacility(), PropertyDictionaryHelper.PROPERTY_EXPERIMENT_DIRECTORY);
           targetDir = baseDir + createYear + File.separator + Request.getBaseRequestNumber(experiment.getNumber()) + File.separator + Constants.UPLOAD_STAGING_DIR;
           targetNumber = Request.getBaseRequestNumber(experiment.getNumber());
         }
@@ -138,7 +138,7 @@ public class FastDataTransferUploadStart extends GNomExCommand implements Serial
           this.addInvalidField("insufficient permissions", "insufficient permissions to upload data track files");
         }
         if (this.isValid()) {
-          String baseDir = PropertyDictionaryHelper.getInstance(sess).getDataTrackDirectory(serverName);
+          String baseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, null, PropertyDictionaryHelper.PROPERTY_DATATRACK_DIRECTORY);
           targetDir = baseDir + File.separator + dataTrack.getFileName() + File.separator + Constants.UPLOAD_STAGING_DIR;
           targetNumber = dataTrack.getNumber();
         }
@@ -147,7 +147,7 @@ public class FastDataTransferUploadStart extends GNomExCommand implements Serial
         po = (ProductOrder)sess.get(ProductOrder.class, idProductOrder);
         if (this.isValid()) {
           createYear = yearFormatter.format(po.getSubmitDate());
-          String baseDir = PropertyDictionaryHelper.getInstance(sess).getProductOrderDirectory(serverName, po.getIdCoreFacility());
+          String baseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, po.getIdCoreFacility(), PropertyDictionaryHelper.PROPERTY_PRODUCT_ORDER_DIRECTORY);
           targetDir = baseDir + createYear + File.separator + po.getProductOrderNumber() + File.separator + Constants.UPLOAD_STAGING_DIR;
           targetNumber = po.getProductOrderNumber();
         }

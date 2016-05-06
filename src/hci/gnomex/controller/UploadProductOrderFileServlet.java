@@ -148,7 +148,7 @@ public class UploadProductOrderFileServlet extends HttpServlet {
 				SimpleDateFormat formatter = new SimpleDateFormat("yyyy");
 				String createYear = formatter.format(productOrder.getSubmitDate());
 
-				String baseDir = PropertyDictionaryHelper.getInstance(sess).getProductOrderDirectory(req.getServerName(), productOrder.getIdCoreFacility());
+				String baseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(req.getServerName(), productOrder.getIdCoreFacility(), PropertyDictionaryHelper.PROPERTY_PRODUCT_ORDER_DIRECTORY);
 
 				if (baseDir.endsWith("/")) {
 					baseDir += createYear;

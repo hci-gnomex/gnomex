@@ -160,7 +160,7 @@ public class UploadExperimentFileServlet extends HttpServlet {
 					SimpleDateFormat formatter = new SimpleDateFormat("yyyy");
 					String createYear = formatter.format(request.getCreateDate());
 
-					String baseDir = PropertyDictionaryHelper.getInstance(sess).getExperimentDirectory(req.getServerName(), request.getIdCoreFacility());
+					String baseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(req.getServerName(), request.getIdCoreFacility(), PropertyDictionaryHelper.PROPERTY_EXPERIMENT_DIRECTORY);
 					baseDir += "/" + createYear;
 					if (!new File(baseDir).exists()) {
 						boolean success = (new File(baseDir)).mkdir();

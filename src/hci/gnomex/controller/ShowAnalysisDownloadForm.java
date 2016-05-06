@@ -6,7 +6,7 @@ import hci.framework.security.UnknownPermissionException;
 import hci.gnomex.constants.Constants;
 import hci.gnomex.model.Analysis;
 import hci.gnomex.security.SecurityAdvisor;
-import hci.gnomex.utility.AnalysisFileDescriptor;
+import hci.gnomex.utility.FileDescriptor;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.PropertyDictionaryHelper;
 
@@ -92,7 +92,7 @@ public class ShowAnalysisDownloadForm extends GNomExCommand implements Serializa
 				if (secAdvisor.canRead(analysis)) {
 
 					// Format an HTML page with links to download the files
-					String baseDir = PropertyDictionaryHelper.getInstance(sess).getAnalysisDirectory(serverName);
+					String baseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, null, PropertyDictionaryHelper.PROPERTY_ANALYSIS_DIRECTORY);
 					Document doc = formatDownloadHTML(analysis, secAdvisor, baseDir, baseURL, emailAddress);
 
 					XMLOutputter out = new org.jdom.output.XMLOutputter();
@@ -265,13 +265,13 @@ public class ShowAnalysisDownloadForm extends GNomExCommand implements Serializa
 		// GetExpandedAnalysisFileList.getFileNamesToDownload(baseDir, analysis.getKey(), analysisNumbers, analysisMap, directoryMap);
 		//
 		// // Find the file matching the fileName passed in as a parameter
-		// AnalysisFileDescriptor analysisFd = null;
+		// FileDescriptor analysisFd = null;
 		// List directoryKeys = (List)analysisMap.get(analysis.getNumber());
 		// for(Iterator i1 = directoryKeys.iterator(); i1.hasNext();) {
 		// String directoryKey = (String)i1.next();
 		// List theFiles = (List)directoryMap.get(directoryKey);
 		// for(Iterator i2 = theFiles.iterator(); i2.hasNext();) {
-		// AnalysisFileDescriptor fd = (AnalysisFileDescriptor)i2.next();
+		// FileDescriptor fd = (FileDescriptor)i2.next();
 		// AnalysisFile af = (AnalysisFile)knownAnalysisFileMap.get(fd.getDisplayName());
 		// if (af != null) {
 		// fd.setComments(af.getComments());
@@ -299,7 +299,7 @@ public class ShowAnalysisDownloadForm extends GNomExCommand implements Serializa
 		caption.addContent(folder);
 		tableNode.addContent(caption);
 
-		AnalysisFileDescriptor analysisFd = null;
+		FileDescriptor analysisFd = null;
 		List directoryKeys = (List) analysisMap.get(analysisNumber);
 		if (directoryKeys != null) {
 			for (Iterator i1 = directoryKeys.iterator(); i1.hasNext();) {
@@ -307,7 +307,7 @@ public class ShowAnalysisDownloadForm extends GNomExCommand implements Serializa
 				String dirTokens[] = directoryKey.split("-");
 				List theFiles = (List) directoryMap.get(directoryKey);
 				for (Iterator i2 = theFiles.iterator(); i2.hasNext();) {
-					AnalysisFileDescriptor fd = (AnalysisFileDescriptor) i2.next();
+					FileDescriptor fd = (FileDescriptor) i2.next();
 					fd.setQualifiedFilePath(dirTokens[0]);
 
 					recurseAddFileRow(baseURL, tableNode, fd, idAnalysis, emailAddress);
@@ -338,7 +338,7 @@ public class ShowAnalysisDownloadForm extends GNomExCommand implements Serializa
 				// For each file in the directory
 				boolean firstFileInDir = true;
 				for (Iterator i2 = theFiles.iterator(); i2.hasNext();) {
-					AnalysisFileDescriptor fd = (AnalysisFileDescriptor) i2.next();
+					FileDescriptor fd = (FileDescriptor) i2.next();
 					fd.setQualifiedFilePath(dirTokens[0]);
 
 					if (fd.getType() != null && !fd.getType().equals("dir")) {
@@ -357,10 +357,10 @@ public class ShowAnalysisDownloadForm extends GNomExCommand implements Serializa
 		}
 	}
 
-	private static void recurseAddFileRow(String baseURL, Element tableNode, AnalysisFileDescriptor fd, Integer idAnalysis, String emailAddress) {
+	private static void recurseAddFileRow(String baseURL, Element tableNode, FileDescriptor fd, Integer idAnalysis, String emailAddress) {
 		if (fd.getChildren() != null && fd.getChildren().size() > 0) {
 			for (Iterator i = fd.getChildren().iterator(); i.hasNext();) {
-				AnalysisFileDescriptor childFd = (AnalysisFileDescriptor) i.next();
+				FileDescriptor childFd = (FileDescriptor) i.next();
 				recurseAddFileRow(baseURL, tableNode, childFd, idAnalysis, emailAddress);
 			}
 		} else {

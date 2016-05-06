@@ -19,6 +19,7 @@ public class Constants {
   public static final String   DOWNLOAD_SINGLE_FILE_SERVLET                   = "DownloadSingleFileServlet.gx";
   public static final String   DOWNLOAD_ANALYSIS_SINGLE_FILE_SERVLET          = "DownloadAnalysisSingleFileServlet.gx";
   public static final String   DOWNLOAD_CHROMATOGRAM_FILE_SERVLET             = "DownloadChromatogramFileServlet.gx";
+  public static final String   DOWNLOAD_PRODUCT_ORDER_SINGLE_FILE_SERVLET     = "DownloadProductOrderSingleFileServlet.gx";
 
   public static final boolean  REQUIRE_SECURE_REMOTE           = true;
 

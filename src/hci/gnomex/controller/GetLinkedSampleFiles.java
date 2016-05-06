@@ -67,7 +67,7 @@ public class GetLinkedSampleFiles extends GNomExCommand implements Serializable 
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
       Request request = (Request) sess.load(Request.class, this.idRequest);
 
-      String baseExperimentDir   = PropertyDictionaryHelper.getInstance(sess).getExperimentDirectory(serverName, request.getIdCoreFacility());
+      String baseExperimentDir   = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, request.getIdCoreFacility(), PropertyDictionaryHelper.PROPERTY_EXPERIMENT_DIRECTORY);
       String directoryName = baseExperimentDir + Request.getCreateYear(request.getCreateDate()) + "/";
       directoryName.replace("\\", "/");
 

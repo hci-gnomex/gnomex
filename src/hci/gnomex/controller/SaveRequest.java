@@ -885,10 +885,11 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 
           // Create file server data directories for request based off of code request category
           if (!requestParser.isExternalExperiment() && RequestCategory.isIlluminaRequestCategory(requestParser.getRequest().getCodeRequestCategory())) {
-            this.createResultDirectories(requestParser.getRequest(), "Sample QC", PropertyDictionaryHelper.getInstance(sess).getExperimentDirectory(serverName, requestParser.getRequest().getIdCoreFacility()));
-            this.createResultDirectories(requestParser.getRequest(), "Library QC", PropertyDictionaryHelper.getInstance(sess).getExperimentDirectory(serverName, requestParser.getRequest().getIdCoreFacility()));
+
+            this.createResultDirectories(requestParser.getRequest(), "Sample QC", PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, requestParser.getRequest().getIdCoreFacility(), PropertyDictionaryHelper.PROPERTY_EXPERIMENT_DIRECTORY));
+            this.createResultDirectories(requestParser.getRequest(), "Library QC", PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, requestParser.getRequest().getIdCoreFacility(), PropertyDictionaryHelper.PROPERTY_EXPERIMENT_DIRECTORY));
           } else if (!requestParser.isExternalExperiment() && (RequestCategory.isMicroarrayRequestCategory(requestParser.getRequest().getCodeRequestCategory()) || requestParser.getRequest().getCodeRequestCategory().equals(RequestCategoryType.TYPE_QC))) {
-            this.createResultDirectories(requestParser.getRequest(), "Sample QC", PropertyDictionaryHelper.getInstance(sess).getExperimentDirectory(serverName, requestParser.getRequest().getIdCoreFacility()));
+            this.createResultDirectories(requestParser.getRequest(), "Sample QC", PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, requestParser.getRequest().getIdCoreFacility(), PropertyDictionaryHelper.PROPERTY_EXPERIMENT_DIRECTORY));
           }
 
           String emailErrorMessage = sendEmails(sess);
@@ -2716,7 +2717,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
   private void createResultDirectories(Request req, String qcDirectory, String microarrayDir) {
 
     String createYear = this.formatDate(req.getCreateDate(), this.DATE_OUTPUT_ALTIO).substring(0, 4);
-    String rootDir = microarrayDir + File.separator + createYear;
+    String rootDir = microarrayDir + "/" + createYear;
 
     boolean success = false;
     if (!new File(rootDir).exists()) {

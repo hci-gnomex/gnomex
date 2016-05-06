@@ -90,7 +90,7 @@ public class ShowRequestDownloadForm extends GNomExCommand implements Serializab
 
 			if (this.isValid()) {
 				// Format an HTML page with links to download the files
-				String baseDirFlowCell = PropertyDictionaryHelper.getInstance(sess).getFlowCellDirectory(serverName);
+				String baseDirFlowCell = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, null, PropertyDictionaryHelper.PROPERTY_FLOWCELL_DIRECTORY);
 				Document doc = formatDownloadHTML(sess, secAdvisor, experiments, serverName, baseDirFlowCell, baseURL);
 
 				XMLOutputter out = new org.jdom.output.XMLOutputter();
@@ -206,7 +206,7 @@ public class ShowRequestDownloadForm extends GNomExCommand implements Serializab
 		for (Iterator ie = experiments.iterator(); ie.hasNext();) {
 			Request experiment = (Request) ie.next();
 
-			String baseDir = PropertyDictionaryHelper.getInstance(sess).getExperimentDirectory(serverName, experiment.getIdCoreFacility());
+			String baseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, experiment.getIdCoreFacility(), PropertyDictionaryHelper.PROPERTY_EXPERIMENT_DIRECTORY);
 
 			// Make sure the user can read the experiment
 			if (!secAdvisor.canRead(experiment)) {

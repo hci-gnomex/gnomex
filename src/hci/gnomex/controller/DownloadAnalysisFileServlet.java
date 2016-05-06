@@ -5,7 +5,7 @@ import hci.gnomex.model.Analysis;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.TransferLog;
 import hci.gnomex.security.SecurityAdvisor;
-import hci.gnomex.utility.AnalysisFileDescriptor;
+import hci.gnomex.utility.FileDescriptor;
 import hci.gnomex.utility.AnalysisFileDescriptorParser;
 import hci.gnomex.utility.ArchiveHelper;
 import hci.gnomex.utility.DictionaryHelper;
@@ -159,7 +159,7 @@ public class DownloadAnalysisFileServlet extends HttpServlet {
           // For each file to be downloaded for the analysis
           for (Iterator i1 = fileDescriptors.iterator(); i1.hasNext();) {
 
-            AnalysisFileDescriptor fd = (AnalysisFileDescriptor) i1.next();
+            FileDescriptor fd = (FileDescriptor) i1.next();
             
             // Ignore file descriptors that represent directories.  We just
             // will zip up actual files.

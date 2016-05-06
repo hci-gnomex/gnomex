@@ -588,7 +588,7 @@
 			private function onGetAnalysisAfterUpload(event:ResultEvent):void {
 				analysis.files = getAnalysisAfterUpload.lastResult..Analysis.(@idAnalysis == analysis.@idAnalysis).files;
 				analysis.ExpandedAnalysisFileList = getAnalysisAfterUpload.lastResult..Analysis.(@idAnalysis == analysis.@idAnalysis).ExpandedAnalysisFileList;
-				files.source = analysis..AnalysisFileDescriptor;
+				files.source = analysis..FileDescriptor;
 				if(uploadWindow != null) {
 					uploadWindow.refreshFiles();
 				}
@@ -740,7 +740,7 @@
 			}
 			
 			public function setFileCount():void {
-				rowCountMessage = filesView.getAnalysisDownloadList.lastResult..AnalysisFileDescriptor.(@type != 'dir').length() + " file(s).";    	
+				rowCountMessage = filesView.getAnalysisDownloadList.lastResult..FileDescriptor.(@type != 'dir').length() + " file(s).";
 			}
 			
 			
@@ -1083,7 +1083,7 @@
 	<mx:XMLListCollection  id="hybs"           /> 
 	<mx:XMLListCollection  id="lanes"         />
 	<mx:XMLListCollection  id="samples" />
-	<mx:XMLListCollection  id="files"          source="{analysis..AnalysisFileDescriptor}"/>
+	<mx:XMLListCollection  id="files"          source="{analysis..FileDescriptor}"/>
 	<mx:XMLListCollection id="collaborators" source="{analysis.collaborators.AnalysisCollaborator}"/>
 	<mx:XMLListCollection id="genomeBuilds" source="{analysis.genomeBuilds.GenomeBuild}"/>
 	<mx:XMLListCollection id="properties" source="{analysis.AnalysisProperties.PropertyEntry}"/>

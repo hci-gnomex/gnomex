@@ -42,7 +42,7 @@ public class AnalysisFileParser extends DetailObject implements Serializable {
   
   private void recurseDirectories(Element folderNode, String parentDir, Session sess) {
     
-    for(Iterator i1 = folderNode.getChildren("AnalysisFileDescriptor").iterator(); i1.hasNext();) {
+    for(Iterator i1 = folderNode.getChildren("FileDescriptor").iterator(); i1.hasNext();) {
       Element fileNode = (Element)i1.next();
             
       String idAnalysisFileString = fileNode.getAttributeValue("idAnalysisFileString");
@@ -58,7 +58,7 @@ public class AnalysisFileParser extends DetailObject implements Serializable {
   
   private void recurseDeleteDirectories(Element folderNode, String parentDir, Session sess) {
     
-    for(Iterator i1 = folderNode.getChildren("AnalysisFileDescriptor").iterator(); i1.hasNext();) {
+    for(Iterator i1 = folderNode.getChildren("FileDescriptor").iterator(); i1.hasNext();) {
       Element fileNode = (Element)i1.next();
 
       String idAnalysisFileString = fileNode.getAttributeValue("idAnalysisFileString");

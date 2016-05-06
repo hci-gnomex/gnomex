@@ -59,7 +59,7 @@ public class GetDownloadEstimatedSize extends GNomExCommand implements Serializa
     try {
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
       DictionaryHelper dh = DictionaryHelper.getInstance(sess);
-      baseDirFlowCell = PropertyDictionaryHelper.getInstance(sess).getFlowCellDirectory(serverName);
+      baseDirFlowCell = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, null, PropertyDictionaryHelper.PROPERTY_FLOWCELL_DIRECTORY);
       
       
       Map fileNameMap = new HashMap();      
@@ -105,7 +105,7 @@ private long getFileNamesToDownload(Session sess, String serverName, String base
       flowCellIndicator = tokens[5];
     }
     
-    String baseDir = PropertyDictionaryHelper.getInstance(sess).getExperimentDirectory(serverName, idCoreFacility);
+    String baseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, idCoreFacility, PropertyDictionaryHelper.PROPERTY_EXPERIMENT_DIRECTORY);
 
     
     String directoryName = "";

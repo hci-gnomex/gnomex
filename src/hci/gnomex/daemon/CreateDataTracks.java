@@ -393,8 +393,8 @@ public class CreateDataTracks {
 		tx = sess.beginTransaction();
 		try {
 			PropertyDictionaryHelper propertyHelper = PropertyDictionaryHelper.getInstance(sess);
-			baseDirDataTrack = propertyHelper.getDataTrackDirectory(serverName);
-			baseDirAnalysis = propertyHelper.getAnalysisDirectory(serverName);
+			baseDirDataTrack = propertyHelper.getDirectory(serverName, null, propertyHelper.getProperty(PropertyDictionaryHelper.PROPERTY_DATATRACK_DIRECTORY));
+			baseDirAnalysis = propertyHelper.getDirectory(serverName, null, propertyHelper.getProperty(PropertyDictionaryHelper.PROPERTY_ANALYSIS_DIRECTORY));
 
 			analysisFile = (AnalysisFile)sess.load(AnalysisFile.class, idAnalysisFile);
 			Analysis analysis = (Analysis)sess.load(Analysis.class, analysisFile.getIdAnalysis());

@@ -62,7 +62,7 @@ public class MakeGeneURL extends GNomExCommand implements Serializable {
       }
       
       geneiobioviewerURL = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.GENE_IOBIO_VIEWER_URL);
-      baseDir = PropertyDictionaryHelper.getInstance(sess).getDataTrackDirectory(serverName);
+      baseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, null, PropertyDictionaryHelper.PROPERTY_DATATRACK_DIRECTORY);
       dataTrackFileServerWebContext = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.DATATRACK_FILESERVER_WEB_CONTEXT);
       baseURL = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.DATATRACK_FILESERVER_URL);
       

@@ -5,7 +5,7 @@ import hci.gnomex.model.ProductOrder;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.TransferLog;
 import hci.gnomex.security.SecurityAdvisor;
-import hci.gnomex.utility.ProductOrderFileDescriptor;
+import hci.gnomex.utility.FileDescriptor;
 import hci.gnomex.utility.ProductOrderFileDescriptorParser;
 import hci.gnomex.utility.ArchiveHelper;
 import hci.gnomex.utility.DictionaryHelper;
@@ -159,7 +159,7 @@ public class DownloadProductOrderFileServlet extends HttpServlet {
           // For each file to be downloaded for the productOrder
           for (Iterator i1 = fileDescriptors.iterator(); i1.hasNext();) {
 
-            ProductOrderFileDescriptor fd = (ProductOrderFileDescriptor) i1.next();
+            FileDescriptor fd = (FileDescriptor) i1.next();
             
             // Ignore file descriptors that represent directories.  We just
             // will zip up actual files.
@@ -184,7 +184,7 @@ public class DownloadProductOrderFileServlet extends HttpServlet {
             // Since we use the request number to determine if user has permission to read the data, match sure
             // it matches the request number of the directory.  If it doesn't bypass the download
             // for this file.
-            if (!idProductOrder.equalsIgnoreCase(String.valueOf(fd.getIdProductOrder()))) {
+            if (!idProductOrder.equalsIgnoreCase(String.valueOf(fd.getId()))) {
               log.error("ProductOrder id does not match directory for attempted download on " + fd.getFileName() + " for user " + req.getUserPrincipal().getName() + ".  Bypassing download." );
               continue;
             }

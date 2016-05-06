@@ -59,7 +59,7 @@ public class DeleteAnalysis extends GNomExCommand implements Serializable {
 
       Session sess = HibernateSession.currentSession(this.getUsername());
       DictionaryHelper dh = DictionaryHelper.getInstance(sess);
-      baseDir = PropertyDictionaryHelper.getInstance(sess).getAnalysisDirectory(serverName);
+      baseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, null, PropertyDictionaryHelper.PROPERTY_ANALYSIS_DIRECTORY);
       Analysis analysis = (Analysis)sess.load(Analysis.class, idAnalysis);
       Hibernate.initialize(analysis.getAnalysisGroups());
       analysis.setAnalysisGroups(null);

@@ -60,7 +60,7 @@ public class UploadSequenceFileServlet extends HttpServlet {
 		try {
 			sess = HibernateSession.currentSession(req.getUserPrincipal().getName());
 
-			baseDir = PropertyDictionaryHelper.getInstance(sess).getDataTrackDirectory(serverName);
+			baseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, null, PropertyDictionaryHelper.PROPERTY_DATATRACK_DIRECTORY);
 
 			// Get the dictionary helper
 			DictionaryHelper dh = DictionaryHelper.getInstance(sess);

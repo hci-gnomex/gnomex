@@ -150,6 +150,13 @@
 		</servlet-class>
 	</servlet>
 
+	<servlet>
+		<servlet-name>DownloadProductOrderSingleFileServlet</servlet-name>
+		<servlet-class>
+			hci.gnomex.controller.DownloadProductOrderSingleFileServlet
+		</servlet-class>
+	</servlet>
+
 
 	<servlet>
 		<servlet-name>DownloadDataTrackFileServlet</servlet-name>
@@ -458,6 +465,11 @@
 	<servlet-mapping>
 		<servlet-name>DownloadProductOrderFileServlet</servlet-name>
 		<url-pattern>/DownloadProductOrderFileServlet.gx</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>DownloadProductOrderSingleFileServlet</servlet-name>
+		<url-pattern>/DownloadProductOrderSingleFileServlet.gx</url-pattern>
 	</servlet-mapping>
 
 	<servlet-mapping>

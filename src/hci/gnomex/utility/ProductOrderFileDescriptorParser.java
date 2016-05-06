@@ -30,10 +30,10 @@ public class ProductOrderFileDescriptorParser extends DetailObject implements Se
     Element root = this.doc.getRootElement();
     
     
-    for(Iterator i = root.getChildren("ProductOrderFileDescriptor").iterator(); i.hasNext();) {
+    for(Iterator i = root.getChildren("FileDescriptor").iterator(); i.hasNext();) {
       Element node = (Element)i.next();      
       String idProductOrder = node.getAttributeValue("idProductOrder");
-      ProductOrderFileDescriptor fd = initializeFileDescriptor(node);
+      FileDescriptor fd = initializeFileDescriptor(node);
       
       List fileDescriptors = (List)fileDescriptorMap.get(idProductOrder);
       if (fileDescriptors == null) {
@@ -49,13 +49,13 @@ public class ProductOrderFileDescriptorParser extends DetailObject implements Se
    
   }
   
-  private void getChildrenFileDescriptors(Element parentNode, ProductOrderFileDescriptor parentFileDescriptor) {
+  private void getChildrenFileDescriptors(Element parentNode, FileDescriptor parentFileDescriptor) {
 
     if (parentNode.getChildren("children") != null && parentNode.getChildren("children").size() > 0) {
-      for(Iterator i = parentNode.getChild("children").getChildren("ProductOrderFileDescriptor").iterator(); i.hasNext();) {
+      for(Iterator i = parentNode.getChild("children").getChildren("FileDescriptor").iterator(); i.hasNext();) {
         Element node = (Element)i.next();      
         String idProductOrder = node.getAttributeValue("idProductOrder");
-        ProductOrderFileDescriptor fd = initializeFileDescriptor(node);
+        FileDescriptor fd = initializeFileDescriptor(node);
         
         List fileDescriptors = (List)fileDescriptorMap.get(idProductOrder);
         if (fileDescriptors == null) {
@@ -73,14 +73,14 @@ public class ProductOrderFileDescriptorParser extends DetailObject implements Se
     
   }
   
-  protected ProductOrderFileDescriptor initializeFileDescriptor(Element n){
-    ProductOrderFileDescriptor fd = new ProductOrderFileDescriptor();
+  protected FileDescriptor initializeFileDescriptor(Element n){
+    FileDescriptor fd = new FileDescriptor();
     
     fd.setFileName(n.getAttributeValue("fileName"));
     fd.setZipEntryName(n.getAttributeValue("zipEntryName"));
     fd.setType(n.getAttributeValue("type"));
-    fd.setProductOrderNumber(n.getAttributeValue("productOrderNumber"));
-    fd.setIdProductOrder(Integer.valueOf(n.getAttributeValue("idProductOrder")));
+    fd.setNumber(n.getAttributeValue("productOrderNumber"));
+    fd.setId(Integer.valueOf(n.getAttributeValue("idProductOrder")));
     if(n.getAttributeValue("fileSize").length() > 0) {
         long fileSize = Long.parseLong(n.getAttributeValue("fileSize"));
         fd.setFileSize(fileSize);    	

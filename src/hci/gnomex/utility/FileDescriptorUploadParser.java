@@ -83,7 +83,7 @@ public class FileDescriptorUploadParser extends DetailObject implements Serializ
     for(Iterator i1 = folderNode.getChildren("FileDescriptor").iterator(); i1.hasNext();) {
       Element fileNode = (Element)i1.next();
       //Check to see if we need to rename anything
-      String fileName = fileNode.getAttributeValue("fileName");
+      String fileName = fileNode.getAttributeValue("fileName").replaceAll("\\\\", "/");
       String displayName = fileNode.getAttributeValue("displayName");
       String newFileName = fileName.replace(fileName.substring(fileName.lastIndexOf("/") + 1), displayName);
       if(!newFileName.equals(fileName) && !fileName.equals("")){

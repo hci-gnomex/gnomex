@@ -88,8 +88,8 @@ public class DownloadDataTrackFileServlet extends HttpServlet {
 			sess = HibernateSession.currentReadOnlySession(req.getUserPrincipal() != null ? req.getUserPrincipal().getName() : "guest");
 
 			DictionaryHelper dh = DictionaryHelper.getInstance(sess);
-			baseDir = PropertyDictionaryHelper.getInstance(sess).getDataTrackDirectory(serverName);
-			analysisBaseDir = PropertyDictionaryHelper.getInstance(sess).getAnalysisDirectory(serverName);
+			baseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, null, PropertyDictionaryHelper.PROPERTY_DATATRACK_DIRECTORY);
+			analysisBaseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, null, PropertyDictionaryHelper.PROPERTY_ANALYSIS_DIRECTORY);
 
 			// Get security advisor
 			secAdvisor = (SecurityAdvisor) req.getSession().getAttribute(SecurityAdvisor.SECURITY_ADVISOR_SESSION_KEY);

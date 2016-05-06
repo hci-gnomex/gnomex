@@ -571,17 +571,17 @@ angular.module("analysis")
 				aBranchTop.comment = "";
 
 				// if the FileDescriptor has a FileDescriptor then this is a directory
-				if (angular.isDefined($scope.xmlFiles.Analysis.AnalysisFileDescriptor)) {
+				if (angular.isDefined($scope.xmlFiles.Analysis.FileDescriptor)) {
 
 					// make sure it's an array
 					var theFileDescriptors = [];
 
-					if (!angular.isArray($scope.xmlFiles.Analysis.AnalysisFileDescriptor)) {
-						theFileDescriptors.push($scope.xmlFiles.Analysis.AnalysisFileDescriptor);
+					if (!angular.isArray($scope.xmlFiles.Analysis.FileDescriptor)) {
+						theFileDescriptors.push($scope.xmlFiles.Analysis.FileDescriptor);
 					}
 					else {
-						for (var i=0; i<$scope.xmlFiles.Analysis.AnalysisFileDescriptor.length; i++) {
-							theFileDescriptors.push($scope.xmlFiles.Analysis.AnalysisFileDescriptor[i]);
+						for (var i=0; i<$scope.xmlFiles.Analysis.FileDescriptor.length; i++) {
+							theFileDescriptors.push($scope.xmlFiles.Analysis.FileDescriptor[i]);
 						}
 					}
 					//console.log("[parseFiles] Analysis theFileDescriptors.length: " + theFileDescriptors.length);
@@ -600,17 +600,17 @@ angular.module("analysis")
 						aBranchFile.modified = theFileDescriptors[i].lastModifyDate;
 
 						// if this FileDescriptor has a FileDescriptor then this is a directory
-						if (angular.isDefined(theFileDescriptors[i].AnalysisFileDescriptor) ) {
+						if (angular.isDefined(theFileDescriptors[i].FileDescriptor) ) {
 
 							// make sure it's an array
 							var theFileDescriptors1 = [];
 
-							if (!angular.isArray(theFileDescriptors[i].AnalysisFileDescriptor)) {
-								theFileDescriptors1.push(theFileDescriptors[i].AnalysisFileDescriptor);
+							if (!angular.isArray(theFileDescriptors[i].FileDescriptor)) {
+								theFileDescriptors1.push(theFileDescriptors[i].FileDescriptor);
 							}
 							else {
-								for (var i1=0; i1<theFileDescriptors[i].AnalysisFileDescriptor.length; i1++) {
-									theFileDescriptors1.push(theFileDescriptors[i].AnalysisFileDescriptor[i1]);
+								for (var i1=0; i1<theFileDescriptors[i].FileDescriptor.length; i1++) {
+									theFileDescriptors1.push(theFileDescriptors[i].FileDescriptor[i1]);
 								}
 							}
 							//console.log("[parseFiles] Analysis theFileDescriptors1.length: " + theFileDescriptors1.length);
@@ -629,17 +629,17 @@ angular.module("analysis")
 								aBranchFile1.modified = theFileDescriptors1[i1].lastModifyDate;
 
 								// if this FileDescriptor1 has a FileDescriptor then this is a directory
-								if (angular.isDefined(theFileDescriptors1[i1].AnalysisFileDescriptor) ) {
+								if (angular.isDefined(theFileDescriptors1[i1].FileDescriptor) ) {
 
 									// make sure it's an array
 									var theFileDescriptors2 = [];
 
-									if (!angular.isArray(theFileDescriptors1[i1].AnalysisFileDescriptor)) {
-										theFileDescriptors2.push(theFileDescriptors1[i1].AnalysisFileDescriptor);
+									if (!angular.isArray(theFileDescriptors1[i1].FileDescriptor)) {
+										theFileDescriptors2.push(theFileDescriptors1[i1].FileDescriptor);
 									}
 									else {
-										for (var i2=0; i2<theFileDescriptors1[i1].AnalysisFileDescriptor.length; i2++) {
-											theFileDescriptors2.push(theFileDescriptors1[i1].AnalysisFileDescriptor[i2]);
+										for (var i2=0; i2<theFileDescriptors1[i1].FileDescriptor.length; i2++) {
+											theFileDescriptors2.push(theFileDescriptors1[i1].FileDescriptor[i2]);
 										}
 									}
 									//console.log("[parseFiles] Analysis theFileDescriptors2.length: " + theFileDescriptors2.length);
@@ -658,31 +658,31 @@ angular.module("analysis")
 										aBranchFile2.modified = theFileDescriptors2[i2].lastModifyDate;
 
 										// if this FileDescriptor1 has a FileDescriptor then this is a directory
-										if (angular.isDefined(theFileDescriptors2[i2].AnalysisFileDescriptor) ) {
+										if (angular.isDefined(theFileDescriptors2[i2].FileDescriptor) ) {
 											// ********** skip for now *************
 
-										} // end of if theFileDescriptors2[i2].AnalysisFileDescriptor defined
+										} // end of if theFileDescriptors2[i2].FileDescriptor defined
 
 										// save as a child of previous level
 										aBranchFile1.children.push(aBranchFile2);
 
 									} // end of for theFileDescriptors2.length
 
-								} // end of if theFileDescriptors1[i1].AnalysisFileDescriptor defined
+								} // end of if theFileDescriptors1[i1].FileDescriptor defined
 
 								// save as a child of previous level
 								aBranchFile.children.push(aBranchFile1);
 
 							} // end of for theFileDescriptors1.length
 
-						} // end of if theFileDescriptors[i].AnalysisFileDescriptor defined
+						} // end of if theFileDescriptors[i].FileDescriptor defined
 
 						// save it
 						aBranchTop.children.push(aBranchFile);
 
 					} // end of for theFileDescriptors.length
 
-				} // end of if $scope.xmlFiles.Analysis.AnalysisFileDescriptor is defined
+				} // end of if $scope.xmlFiles.Analysis.FileDescriptor is defined
 
 				$scope.atree_data.push(aBranchTop);
 

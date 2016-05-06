@@ -10,7 +10,7 @@ import hci.gnomex.model.Analysis;
 import hci.gnomex.model.AnalysisFile;
 import hci.gnomex.model.AnalysisGroupFilter;
 import hci.gnomex.security.SecurityAdvisor;
-import hci.gnomex.utility.AnalysisFileDescriptor;
+import hci.gnomex.utility.FileDescriptor;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.PropertyDictionaryHelper;
@@ -105,7 +105,7 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
       Session sess = HibernateSession.currentSession(this.getUsername());
 
       DictionaryHelper dh = DictionaryHelper.getInstance(sess);
-      baseDir = PropertyDictionaryHelper.getInstance(sess).getAnalysisDirectory(serverName);
+      baseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, null, PropertyDictionaryHelper.PROPERTY_ANALYSIS_DIRECTORY);
 
       Analysis a = null;
       if (idAnalysis != null && idAnalysis.intValue() == 0) {
@@ -200,19 +200,19 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
             // Show files uploads that are in the staging area.
             if (includeUploadStagingDir.equals("Y")) {
               String key = a.getKey(Constants.UPLOAD_STAGING_DIR);
-              addExpandedFileNodes(autoCreate,baseDir, aNode, aNode, analysisNumber, key, dh, knownAnalysisFileMap, fileMap, dataTrackMap, sess);
+              addExpandedFileNodes(autoCreate,baseDir, aNode, aNode, analysisNumber, key, dh, knownAnalysisFileMap, fileMap, dataTrackMap, sess, a);
             } else {
               // This will add the uploaded files to the file map so if they are not displayed, 
               // they will not be displayed because they are in the DB.
               String key = a.getKey(Constants.UPLOAD_STAGING_DIR);
               Element dummyNode = new Element("dummy");
-              addExpandedFileNodes(autoCreate,baseDir, aNode, dummyNode, analysisNumber, key, dh, knownAnalysisFileMap, fileMap, dataTrackMap, sess);
+              addExpandedFileNodes(autoCreate,baseDir, aNode, dummyNode, analysisNumber, key, dh, knownAnalysisFileMap, fileMap, dataTrackMap, sess, a);
             }
 
             List   theFiles     = (List)directoryMap.get(directoryKey);
             // For each file in the directory
             for (Iterator i2 = theFiles.iterator(); i2.hasNext();) {
-              AnalysisFileDescriptor fd = (AnalysisFileDescriptor) i2.next();
+              FileDescriptor fd = (FileDescriptor) i2.next();
               
               AnalysisFile af = (AnalysisFile)knownAnalysisFileMap.get(fd.getQualifiedFileName());
               
@@ -220,14 +220,14 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
                 continue;
               }
               
-              Element fdNode = new Element("AnalysisFileDescriptor");
+              Element fdNode = new Element("FileDescriptor");
               
               if (af != null) {
                 
                 fd.setUploadDate(af.getUploadDate());
-                fd.setIdAnalysisFileString(af.getIdAnalysisFile().toString());
+                fd.setIdFileString(af.getIdAnalysisFile().toString());
                 fd.setComments(af.getComments());
-                fd.setIdAnalysis(a.getIdAnalysis());
+                fd.setId(a.getIdAnalysis());
               } else {
                 // if this is a data track type file add the analysisFile to the database so we don't have to have the front end
                 // call SaveAnalysisFiles with a potentially huge XML request
@@ -244,13 +244,13 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
                 	
                 	knownAnalysisFileMap.put(af.getQualifiedFileName(),af);
                 	
-                	fd.setIdAnalysisFileString(af.getIdAnalysisFile().toString());
-                	fd.setIdAnalysis(a.getIdAnalysis());
+                	fd.setIdFileString(af.getIdAnalysisFile().toString());
+                	fd.setId(a.getIdAnalysis());
                 	                
                 } else {
                 	// just pretend
-                    fd.setIdAnalysisFileString("AnalysisFile-" + fd.getFilePathName());
-                    fd.setIdAnalysis(a.getIdAnalysis());                	               	
+                    fd.setIdFileString("AnalysisFile-" + fd.getQualifiedFileName());
+                    fd.setId(a.getIdAnalysis());
                 }
                 
               }
@@ -276,8 +276,8 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
               fdNode.setAttribute("comments", comments);
               fdNode.setAttribute("lastModifyDate", fd.getLastModifyDate() != null ? fd.getLastModifyDate().toString() : "");
               fdNode.setAttribute("zipEntryName", fd.getZipEntryName() != null ? fd.getZipEntryName() : "");
-              fdNode.setAttribute("number", fd.getAnalysisNumber() != null ? fd.getAnalysisNumber() : "");
-              fdNode.setAttribute("idAnalysisFileString", fd.getIdAnalysisFileString());
+              fdNode.setAttribute("number", fd.getNumber() != null ? fd.getNumber() : "");
+              fdNode.setAttribute("idAnalysisFileString", fd.getIdFileString());
               fdNode.setAttribute("idLab", a.getIdLab() != null ? a.getIdLab().toString() : "");
               fdNode.setAttribute("isSelected", "N");
               fdNode.setAttribute("state", "unchecked");
@@ -290,9 +290,9 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
               fdNode.setAttribute("GENEIOBIOViewer", fd.getIsGENELinkAllowed()); 
               
               
-              fdNode.setAttribute("viewURL", fd.getViewURL());
-              if ( StringUtils.isNumeric( fd.getIdAnalysisFileString()  )){
-                if (dataTrackMap.containsKey(Integer.valueOf(fd.getIdAnalysisFileString()))) {
+              fdNode.setAttribute("viewURL", fd.getViewURL(a));
+              if ( StringUtils.isNumeric( fd.getIdFileString()  )){
+                if (dataTrackMap.containsKey(Integer.valueOf(fd.getIdFileString()))) {
                   fdNode.setAttribute("hasDataTrack", "Y");
                 } else {
                   fdNode.setAttribute("hasDataTrack", "N");
@@ -302,7 +302,7 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
               }
               
               aNode.addContent(fdNode);
-              recurseAddChildren(autoCreate,fdNode, fd, fileMap, knownAnalysisFileMap, dataTrackMap, sess);
+              recurseAddChildren(autoCreate,fdNode, fd, fileMap, knownAnalysisFileMap, dataTrackMap, sess, a);
               
               fileMap.put(fd.getQualifiedFileName(), null);
             }
@@ -323,7 +323,7 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
           // will be in the file map and therefore will not be re-added.
           
           if (!fileMap.containsKey(af.getQualifiedFileName())) {
-            AnalysisFileDescriptor fd = new AnalysisFileDescriptor();
+            FileDescriptor fd = new FileDescriptor();
 
             fd.setDisplayName(af.getFileName());
             fd.setFileName(af.getFullPathName());
@@ -416,7 +416,7 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
       Map knownAnalysisFileMap,
       Map fileMap,
       Map<Integer, Integer> dataTrackMap,
-      Session sess) throws XMLReflectException {
+      Session sess, Analysis a) throws XMLReflectException {
     //
     // Get expanded file list
     //
@@ -447,7 +447,7 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
       // For each file in the directory
       if (theFiles != null && theFiles.size() > 0) {
         for (Iterator i2 = theFiles.iterator(); i2.hasNext();) {
-          AnalysisFileDescriptor fd = (AnalysisFileDescriptor) i2.next();
+          FileDescriptor fd = (FileDescriptor) i2.next();
           fd.setQualifiedFilePath(directoryName);
           
           AnalysisFile af = (AnalysisFile)knownAnalysisFileMap.get(fd.getQualifiedFileName());
@@ -455,7 +455,7 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
           
           if (af != null) {
             fd.setUploadDate(af.getUploadDate());
-            fd.setIdAnalysisFileString(af.getIdAnalysisFile().toString());
+            fd.setIdFileString(af.getIdAnalysisFile().toString());
             fd.setComments(af.getComments());
           } else {
               if (fd.getIsSupportedDataTrack().equals("Y")  && autocreate) {
@@ -463,7 +463,7 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
               	af.setBaseFilePath(fd.getBaseFilePath());
               	af.setQualifiedFilePath(fd.getQualifiedFilePath());
               	af.setFileName(fd.getDisplayName());              
-              	af.setIdAnalysis(fd.getIdAnalysis());
+              	af.setIdAnalysis(fd.getId());
               	af.setFileSize(new BigDecimal (fd.getFileSize()));
               	
               	sess.save(af);
@@ -471,18 +471,18 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
               	
               	knownAnalysisFileMap.put(af.getQualifiedFileName(),af);
               	
-              	fd.setIdAnalysisFileString(af.getIdAnalysisFile().toString());
-              	fd.setIdAnalysis(af.getIdAnalysis());
+              	fd.setIdFileString(af.getIdAnalysisFile().toString());
+              	fd.setId(af.getIdAnalysis());
               	                
               } else {
               	// just pretend
-                  fd.setIdAnalysisFileString("AnalysisFile-" + fd.getFilePathName());              	               	
+                  fd.setIdFileString("AnalysisFile-" + fd.getQualifiedFileName());
               }
           }
           
           fd.setQualifiedFilePath(directoryName);
           fd.setBaseFilePath(baseDir + createYear + File.separator + analysisNumber);
-          fd.setIdAnalysis(analysisNode.getAttributeValue("idAnalysis") != null ? Integer.valueOf(analysisNode.getAttributeValue("idAnalysis")) : null);
+          fd.setId(analysisNode.getAttributeValue("idAnalysis") != null ? Integer.valueOf(analysisNode.getAttributeValue("idAnalysis")) : null);
           String idLab = analysisNode.getAttributeValue("idLab");
           fd.setIdLab(idLab == null || idLab.equals("") ? null : Integer.valueOf(idLab));
           fd.excludeMethodFromXML("getChildren");
@@ -499,10 +499,10 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
           fdNode.setAttribute("URLLinkAllowed", fd.getIsURLLinkAllowed());   
           fdNode.setAttribute("GENEIOBIOViewer", fd.getIsGENELinkAllowed()); 
           
-          fdNode.setAttribute("viewURL", fd.getViewURL()!=null?fd.getViewURL():"");
+          fdNode.setAttribute("viewURL", fd.getViewURL(a)!=null?fd.getViewURL(a):"");
 
-          if ( StringUtils.isNumeric( fd.getIdAnalysisFileString()  )){
-              if (dataTrackMap.containsKey(Integer.valueOf(fd.getIdAnalysisFileString()))) {
+          if ( StringUtils.isNumeric( fd.getIdFileString()  )){
+              if (dataTrackMap.containsKey(Integer.valueOf(fd.getIdFileString()))) {
                 fdNode.setAttribute("hasDataTrack", "Y");
               } else {
                 fdNode.setAttribute("hasDataTrack", "N");
@@ -524,7 +524,7 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
             fdNode.setAttribute("hasDataTrack", "N");
           }
 */          
-          recurseAddChildren(autocreate,fdNode, fd, fileMap, knownAnalysisFileMap, dataTrackMap, sess);
+          recurseAddChildren(autocreate,fdNode, fd, fileMap, knownAnalysisFileMap, dataTrackMap, sess, a);
           
           analysisDownloadNode.addContent(fdNode);
           analysisDownloadNode.setAttribute("isEmpty", "N");
@@ -560,7 +560,7 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
     return dataTrackMap;
   }
   
-  private static void recurseAddChildren(boolean autocreate,Element fdNode, AnalysisFileDescriptor fd, Map fileMap, Map knownFilesMap, Map<Integer, Integer> dataTrackMap, Session sess) throws XMLReflectException {
+  private static void recurseAddChildren(boolean autocreate,Element fdNode, FileDescriptor fd, Map fileMap, Map knownFilesMap, Map<Integer, Integer> dataTrackMap, Session sess, Analysis a) throws XMLReflectException {
     if (fd.getChildren() == null || fd.getChildren().size() == 0) {
       if ( fd.getType() != null && fd.getType().equals("dir") ) {
         fdNode.setAttribute("isEmpty", "Y");
@@ -573,9 +573,9 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
     
     for(Iterator i = fd.getChildren().iterator(); i.hasNext();) {
       
-      AnalysisFileDescriptor childFd = (AnalysisFileDescriptor)i.next();
+      FileDescriptor childFd = (FileDescriptor)i.next();
       
-      childFd.setIdAnalysis(fd.getIdAnalysis());
+      childFd.setId(fd.getId());
       childFd.setQualifiedFilePath(fd.getQualifiedFilePath() != null && fd.getQualifiedFilePath().length() > 0 ? fd.getQualifiedFilePath() + File.separator + fd.getDisplayName() : fd.getDisplayName());
       childFd.setBaseFilePath(fd.getBaseFilePath());
       childFd.setIdLab(fd.getIdLab());
@@ -588,10 +588,10 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
         } else {
           fdNode.setAttribute("comments","");
         }
-        childFd.setIdAnalysisFileString(af.getIdAnalysisFile().toString());
+        childFd.setIdFileString(af.getIdAnalysisFile().toString());
         childFd.setUploadDate(af.getUploadDate());
         childFd.setComments(af.getComments());
-        childFd.setIdAnalysis(af.getIdAnalysis());
+        childFd.setId(af.getIdAnalysis());
       } else {
     	  if (childFd.getIsSupportedDataTrack().equals("Y") && autocreate) {
     		// create an AnalysisFile
@@ -600,7 +600,7 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
           	af.setQualifiedFilePath(childFd.getQualifiedFilePath() != null ? childFd.getQualifiedFilePath() : "");
           	af.setFileName(childFd.getDisplayName());
         
-          	af.setIdAnalysis(childFd.getIdAnalysis());
+          	af.setIdAnalysis(childFd.getId());
           	af.setFileSize(new BigDecimal (fd.getFileSize()));
           	
           	sess.save(af);
@@ -609,17 +609,17 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
           	// it is now known
           	knownFilesMap.put(af.getQualifiedFileName(),af);
           	
-          	childFd.setIdAnalysisFileString(af.getIdAnalysisFile().toString());
+          	childFd.setIdFileString(af.getIdAnalysisFile().toString());
     	  } else {
-    		  childFd.setIdAnalysisFileString("AnalysisFile-" + childFd.getFilePathName());
-    		  childFd.setIdAnalysis(fd.getIdAnalysis());
+    		  childFd.setIdFileString("AnalysisFile-" + childFd.getQualifiedFileName());
+    		  childFd.setId(fd.getId());
     	  }
       }
       
       childFd.excludeMethodFromXML("getChildren");
 
-      Element childFdNode = new Element("AnalysisFileDescriptor");
-      childFdNode.setAttribute("idAnalysis", childFd.getIdAnalysis() != null ? childFd.getIdAnalysis().toString() : "");
+      Element childFdNode = new Element("FileDescriptor");
+      childFdNode.setAttribute("idAnalysis", childFd.getId() != null ? childFd.getId().toString() : "");
       childFdNode.setAttribute("dirty", "N");
       childFdNode.setAttribute("type", childFd.getType() != null ? childFd.getType() : "");
       childFdNode.setAttribute("displayName", childFd.getDisplayName() != null ? childFd.getDisplayName() : "");
@@ -627,7 +627,7 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
       childFdNode.setAttribute("fileSizeText", childFd.getFileSizeText() != null ? childFd.getFileSizeText() : "");
       childFdNode.setAttribute("childFileSize", Long.valueOf(childFd.getChildFileSize()).toString() );
       childFdNode.setAttribute("fileName", childFd.getFileName() != null ? childFd.getFileName() : "");
-      childFdNode.setAttribute("filePathName", childFd.getFilePathName() != null ? childFd.getFilePathName() : "");
+      childFdNode.setAttribute("filePathName", childFd.getQualifiedFileName() != null ? childFd.getQualifiedFileName() : "");
       childFdNode.setAttribute("qualifiedFileName", childFd.getQualifiedFileName() != null ? childFd.getQualifiedFileName() : "");
       childFdNode.setAttribute("qualifiedFilePath", childFd.getQualifiedFilePath() != null ? childFd.getQualifiedFilePath() : "");
       childFdNode.setAttribute("baseFilePath", childFd.getBaseFilePath() != null ? childFd.getBaseFilePath() : "");
@@ -637,7 +637,7 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
       childFdNode.setAttribute("zipEntryName", childFd.getZipEntryName() != null ? childFd.getZipEntryName() : "");
       childFdNode.setAttribute("number", childFd.getNumber() != null ? childFd.getNumber() : "");
       childFdNode.setAttribute("analysisNumber", childFd.getNumber() != null ? childFd.getNumber() : "");
-      childFdNode.setAttribute("idAnalysisFileString", childFd.getIdAnalysisFileString() != null ? childFd.getIdAnalysisFileString() : "");
+      childFdNode.setAttribute("idAnalysisFileString", childFd.getIdFileString() != null ? childFd.getIdFileString() : "");
       childFdNode.setAttribute("idLab", childFd.getIdLab() != null ? childFd.getIdLab().toString() : "");
       
       childFdNode.setAttribute("isSupportedDataTrack", childFd.getIsSupportedDataTrack());
@@ -649,13 +649,13 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
       childFdNode.setAttribute("GENEIOBIOViewer", childFd.getIsGENELinkAllowed()); 
       
       
-      childFdNode.setAttribute("viewURL", childFd.getViewURL() != null ? childFd.getViewURL() : "");
+      childFdNode.setAttribute("viewURL", childFd.getViewURL(a) != null ? childFd.getViewURL(a) : "");
 
       childFdNode.setAttribute("isSelected", "N");
       childFdNode.setAttribute("state", "unchecked");
 
-      if ( StringUtils.isNumeric( childFd.getIdAnalysisFileString()  )){
-        if (dataTrackMap.containsKey(Integer.valueOf(childFd.getIdAnalysisFileString()))) {
+      if ( StringUtils.isNumeric( childFd.getIdFileString()  )){
+        if (dataTrackMap.containsKey(Integer.valueOf(childFd.getIdFileString()))) {
           childFdNode.setAttribute("hasDataTrack", "Y");
         } else {
           childFdNode.setAttribute("hasDataTrack", "N");
@@ -667,7 +667,7 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
       fdNode.addContent(childFdNode);
       fileMap.put(childFd.getQualifiedFileName(), null);
       if (childFd.getChildren() != null && childFd.getChildren().size() > 0) {
-        recurseAddChildren(autocreate,childFdNode, childFd, fileMap, knownFilesMap, dataTrackMap, sess);
+        recurseAddChildren(autocreate,childFdNode, childFd, fileMap, knownFilesMap, dataTrackMap, sess, a);
       } else {
         if ( childFd.getType() != null && childFd.getType().equals("dir") ) {
           childFdNode.setAttribute("isEmpty", "Y");

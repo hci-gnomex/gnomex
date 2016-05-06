@@ -1,8 +1,13 @@
 package hci.gnomex.utility;
 
+import hci.framework.model.*;
 import hci.framework.model.DetailObject;
 import hci.gnomex.constants.Constants;
+import hci.gnomex.model.Analysis;
+import hci.gnomex.model.ProductOrder;
 import hci.gnomex.model.PropertyDictionary;
+import hci.gnomex.model.Request;
+import org.hibernate.Session;
 
 import java.io.File;
 import java.io.Serializable;
@@ -11,16 +16,16 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
-import org.hibernate.Session;
-
+/**
+ * Created by u0395021 on 5/4/2016.
+ */
 public class FileDescriptor extends DetailObject implements Serializable {
-
 	private static final double KB = Math.pow(2, 10);
 	private static final double MB = Math.pow(2, 20);
 	private static final double GB = Math.pow(2, 30);
 
 	private String displayName;
-	private String requestNumber;
+	private String number; //this is the object number (ie: analysis number, product order number, request number)
 	private long fileSize;
 	private String fileName;
 	private Date lastModifyDate;
@@ -30,46 +35,76 @@ public class FileDescriptor extends DetailObject implements Serializable {
 	private String flowCellIndicator;
 	private String absolutePath;
 	private String simpleName;
-	private List children = new ArrayList();
+	private String qualifiedFilePath;
+	private Integer idLab;
 
+	private String idFileString; // this is a string that contains the id of the object file (analysisFile, experimentFIle, productOrderFile)
+
+	private String comments;
+	private Integer id;
+	private Date uploadDate;
+
+	private String baseFilePath;
+	private List children = new ArrayList();
 	private boolean found = false;
 
-	public FileDescriptor() {
+
+	public FileDescriptor(){
+
 	}
 
-	public FileDescriptor(String requestNumber, String displayName, File file, String zipEntryName) {
-		this.requestNumber = requestNumber;
-		this.displayName = displayName;
-		this.absolutePath = file.getAbsolutePath();
-		this.simpleName = file.getName();
+	public FileDescriptor(String number, String displayName, File file, String baseDir){
+		this.setNumber(number);
+		this.setDisplayName(displayName);
+		this.setFileSize(file.length());
+		this.setLastModifyDate(new Date(file.lastModified()));
+		this.setAbsolutePath(file.getAbsolutePath());
+		this.setSimpleName(file.getName());
 
-		this.fileSize = file.length();
-		this.lastModifyDate = new Date(file.lastModified());
 		try {
-			this.fileName = file.getCanonicalPath();
-			this.fileName = this.fileName.replaceAll("\\\\", "/");
+			if (Util.isSymlink(file)) {
+				this.setFileName(file.getPath());
+			} else {
+				this.setFileName(file.getCanonicalPath());
+			}
 		} catch (Exception e) {
 			System.err.println("IO Exception occurred when trying to get absolute path for file " + file.toString());
-			this.fileName = file.getAbsolutePath().replaceAll("\\", "/");
+			this.setFileName(file.getAbsolutePath().replace("\\", "/"));
 		}
-		this.zipEntryName = zipEntryName;
+		//this.setZipEntryName(PropertyDictionaryHelper.parseZipEntryName(baseDir, this.getFileName()));
+		if(new File(baseDir).isAbsolute()){
+			this.setZipEntryName(PropertyDictionaryHelper.parseZipEntryName(baseDir, this.getFileName()));
+		} else{
+			this.setZipEntryName(baseDir);
+		}
 
 		String ext = "";
-		String[] fileParts = file.getName().split("\\.");
-		if (fileParts != null && fileParts.length >= 2) {
-			ext = fileParts[fileParts.length - 1];
+
+		// first scan DataTrack types, some are xxx.vcf.gz or xxx.vcf.gz.tbi
+		// Nix
+		for (String t : Constants.DATATRACK_FILE_EXTENSIONS) {
+			if (this.getFileName().toLowerCase().endsWith(t)) {
+				ext = t.substring(1);
+				// watch out for .bam.bai
+				if (ext.equals("bam.bai"))
+					ext = "bai";
+				break;
+			}
 		}
-		type = ext;
+		// any found? if not then do as before
+		if (ext.equals("")) {
+			String[] fileParts = file.getName().split("\\.");
+			if (fileParts != null && fileParts.length >= 2) {
+				ext = fileParts[fileParts.length - 1];
+			}
+		}
+
+		this.setType(ext);
+
 
 	}
 
-	public String getDisplayName() {
-		return displayName;
-	}
 
-	public void setDisplayName(String displayName) {
-		this.displayName = displayName;
-	}
 
 	public String getFileSizeText() {
 
@@ -92,6 +127,16 @@ public class FileDescriptor extends DetailObject implements Serializable {
 		return sizeTxt;
 
 	}
+
+
+	public String getDisplayName() {
+		return displayName;
+	}
+
+	public void setDisplayName(String displayName) {
+		this.displayName = displayName;
+	}
+
 
 	public long getChildFileSize() {
 
@@ -136,16 +181,12 @@ public class FileDescriptor extends DetailObject implements Serializable {
 		return zipEntryName;
 	}
 
-	public String getRequestNumber() {
-		return requestNumber;
-	}
-
 	public String getNumber() {
-		return getRequestNumber();
+		return number;
 	}
 
-	public void setRequestNumber(String requestNumber) {
-		this.requestNumber = requestNumber;
+	public void setNumber(String number) {
+		this.number = number;
 	}
 
 	public void setFileSize(long fileSize) {
@@ -216,7 +257,7 @@ public class FileDescriptor extends DetailObject implements Serializable {
 		return (this.type != null && this.type.equals("dir"));
 	}
 
-	public String getViewURL() {
+	public String getViewURL(Object obj) {
 		String viewURL = "";
 		String dirParm = this.getDirectoryName() != null && !this.getDirectoryName().equals("") ? "&dir=" + this.getDirectoryName() : "";
 		dirParm.replace("/", "&#47;");
@@ -231,15 +272,26 @@ public class FileDescriptor extends DetailObject implements Serializable {
 			if (found) {
 				Double maxSize = Math.pow(2, 20) * 50;
 				try {
-					maxSize = Math.pow(2, 20)
-							* Double.parseDouble(PropertyDictionaryHelper.getInstance(null).getProperty(PropertyDictionary.FILE_MAX_VIEWABLE_SIZE));
+					maxSize = Math.pow(2, 20) * Double.parseDouble(PropertyDictionaryHelper.getInstance(null).getProperty(PropertyDictionary.FILE_MAX_VIEWABLE_SIZE));
 				} catch (Exception ex) {
 				}
 
 				if (this.fileSize < maxSize) { // Only allow viewing for files under specified max MB
 					String vfilename = this.getDisplayName();
 					vfilename = Util.encodeName(vfilename);
-					viewURL = Constants.DOWNLOAD_SINGLE_FILE_SERVLET + "?requestNumber=" + requestNumber + "&fileName=" + vfilename + "&view=Y" + dirParm;
+
+					if(obj instanceof Request){
+						Request r = (Request) obj;
+						viewURL = Constants.DOWNLOAD_SINGLE_FILE_SERVLET + "?idRequest=" + r.getIdRequest() + "&fileName=" + vfilename + "&view=Y" + dirParm;
+					} else if(obj instanceof Analysis){
+						Analysis a = (Analysis) obj;
+						viewURL = Constants.DOWNLOAD_ANALYSIS_SINGLE_FILE_SERVLET + "?idAnalysis=" + a.getIdAnalysis() + "&fileName=" + vfilename + "&view=Y" + dirParm;
+					} else if(obj instanceof ProductOrder){
+						ProductOrder po = (ProductOrder) obj;
+						viewURL = Constants.DOWNLOAD_PRODUCT_ORDER_SINGLE_FILE_SERVLET + "?idProductOrder=" + po.getIdProductOrder() + "&fileName=" + vfilename + "&view=Y" + dirParm;
+					}
+
+
 				}
 			}
 		}
@@ -257,4 +309,194 @@ public class FileDescriptor extends DetailObject implements Serializable {
 	public void registerMethodsToExcludeFromXML() {
 		this.excludeMethodFromXML("getCreateDate");
 	}
+
+	public String getAbsolutePath() {
+		return absolutePath;
+	}
+
+	public void setAbsolutePath(String absolutePath) {
+		this.absolutePath = absolutePath;
+	}
+
+	public String getSimpleName() {
+		return simpleName;
+	}
+
+	public void setSimpleName(String simpleName) {
+		this.simpleName = simpleName;
+	}
+
+	public String getQualifiedFilePath() {
+		return qualifiedFilePath;
+	}
+
+	public void setQualifiedFilePath(String qualifiedFilePath) {
+		this.qualifiedFilePath = qualifiedFilePath;
+	}
+
+	public String getBaseFilePath() {
+		return baseFilePath;
+	}
+
+	public void setBaseFilePath(String baseFilePath) {
+		this.baseFilePath = baseFilePath;
+	}
+
+	public String getQualifiedFileName() {
+		String fullPathName = "";
+
+		if (qualifiedFilePath != null && qualifiedFilePath.length() != 0) {
+			fullPathName += getQualifiedFilePath() + "/";
+		}
+		fullPathName += getDisplayName();
+
+		return fullPathName;
+	}
+
+	public String getDirectoryNumber(int fileDirectoryLength) {
+		String number = "";
+		if (fileName != null && !fileName.equals("")) {
+			// Get the directory name starting after the year
+			String relativePath = fileName.substring(fileDirectoryLength + 5);
+			String tokens[] = relativePath.split("/", 2);
+			if (tokens == null || tokens.length == 1) {
+				tokens = relativePath.split("/", 2);
+			}
+			if (tokens.length == 2) {
+				number = tokens[0];
+			}
+		}
+		return number;
+	}
+
+	public Integer getIdLab() {
+		return idLab;
+	}
+
+	public void setIdLab(Integer idLab) {
+		this.idLab = idLab;
+	}
+
+	public String getComments() {
+		return comments;
+	}
+
+	public void setComments(String comments) {
+		this.comments = comments;
+	}
+
+	public Integer getId() {
+		return id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
+
+	public Date getUploadDate() {
+		return uploadDate;
+	}
+
+	public void setUploadDate(Date uploadDate) {
+		this.uploadDate = uploadDate;
+	}
+
+	public String getIdFileString() {
+		return idFileString;
+	}
+
+	public void setIdFileString(String idFileString) {
+		this.idFileString = idFileString;
+	}
+
+	// The methods below will most likely only be used for FileDescriptors.
+	public String getIsUCSCViewerAllowed() {
+		boolean found = false;
+		if (this.getType() != null) {
+			String extension = "." + this.getType();
+			for (int x = 0; x < Constants.FILE_EXTENSIONS_FOR_UCSC_LINKS_NO_INDEX.length; x++) {
+				if (extension.equalsIgnoreCase(Constants.FILE_EXTENSIONS_FOR_UCSC_LINKS_NO_INDEX[x])) {
+					found = true;
+					break;
+				}
+			}
+
+		}
+		return (found ? "Y" : "N");
+	}
+
+	public String getIsIGVViewerAllowed() {
+		boolean found = false;
+		if (this.getType() != null) {
+			String extension = "." + this.getType();
+			for (int x = 0; x < Constants.FILE_EXTENSIONS_FOR_IGV_LINKS_NO_INDEX.length; x++) {
+				if (extension.equalsIgnoreCase(Constants.FILE_EXTENSIONS_FOR_IGV_LINKS_NO_INDEX[x])) {
+					found = true;
+					break;
+				}
+			}
+
+		}
+		return (found ? "Y" : "N");
+	}
+
+	public String getIsBAMIOBIOViewerAllowed() {
+		boolean found = false;
+		if (this.getType() != null) {
+			String extension = "." + this.getType();
+			for (int x = 0; x < Constants.FILE_EXTENSIONS_FOR_BAMIOBIO_LINKS_NO_INDEX.length; x++) {
+				if (extension.equalsIgnoreCase(Constants.FILE_EXTENSIONS_FOR_BAMIOBIO_LINKS_NO_INDEX[x])) {
+					found = true;
+					break;
+				}
+			}
+
+		}
+		return (found ? "Y" : "N");
+	}
+
+	public String getIsURLLinkAllowed() {
+		boolean found = false;
+		if (this.getType() != null) {
+			String extension = "." + this.getType();
+			for (int x = 0; x < Constants.DATATRACK_FILE_EXTENSIONS_NO_INDEX.length; x++) {
+				if (extension.equalsIgnoreCase(Constants.DATATRACK_FILE_EXTENSIONS_NO_INDEX[x])) {
+					found = true;
+					break;
+				}
+			}
+
+		}
+		return (found ? "Y" : "N");
+	}
+
+	public String getIsGENELinkAllowed() {
+		boolean found = false;
+		if (this.getType() != null) {
+			String extension = "." + this.getType();
+
+			if (extension.equalsIgnoreCase(Constants.TRIO_FILE_EXTENSION)) {
+				found = true;
+			}
+		}
+
+		return (found ? "Y" : "N");
+	}
+
+	public String getIsSupportedDataTrack() {
+		boolean found = false;
+		if (this.getType() != null) {
+			String extension = "." + this.getType();
+			for (int x = 0; x < Constants.DATATRACK_FILE_EXTENSIONS.length; x++) {
+				if (extension.equalsIgnoreCase(Constants.DATATRACK_FILE_EXTENSIONS[x])) {
+					found = true;
+					break;
+				}
+			}
+
+		}
+		return (found ? "Y" : "N");
+	}
+
+
 }

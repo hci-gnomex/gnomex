@@ -84,7 +84,7 @@ public class UploadDownloadHelper {
         String flowCellNumber = resultDirectory;
         
       } else {
-        String baseDir = PropertyDictionaryHelper.getInstance(sess).getExperimentDirectory(serverName, idCoreFacility);
+        String baseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, idCoreFacility, PropertyDictionaryHelper.PROPERTY_EXPERIMENT_DIRECTORY);
         directoryName = baseDir + "/" + createYear + "/" + requestNumberBase + "/" + resultDirectory;
         theBaseDir = baseDir;
         fullBaseDir = baseDir + "/" + createYear + "/" + requestNumberBase + "/";

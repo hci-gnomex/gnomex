@@ -124,7 +124,7 @@ public class SaveChromatogramFromFile extends GNomExCommand implements Serializa
       
       if ( well.getIsControl().equals( "Y" ) || well.getIdRequest() == null) {
         // Control
-        baseDir = PropertyDictionaryHelper.getInstance(sess).getInstrumentRunDirectory(serverName, this.idCoreFacility);
+        baseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, this.idCoreFacility, PropertyDictionaryHelper.PROPERTY_INSTRUMENT_RUN_DIRECTORY);
         destDir = baseDir + "/" + well.getPlate().getInstrumentRun().getCreateYear() + "/" + well.getPlate().getInstrumentRun().getIdInstrumentRun();
       } else {
         // Non-controls / Chromat belongs to a request
@@ -132,7 +132,7 @@ public class SaveChromatogramFromFile extends GNomExCommand implements Serializa
         if ( request == null ) {
           throw new Exception("The request associated with the plate well does not exist.");
         }
-        baseDir = PropertyDictionaryHelper.getInstance(sess).getExperimentDirectory(serverName, request.getIdCoreFacility());
+        baseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, request.getIdCoreFacility(), PropertyDictionaryHelper.PROPERTY_EXPERIMENT_DIRECTORY);
         destDir = baseDir + "/" + request.getCreateYear() + "/" + Request.getBaseRequestNumber(request.getNumber());
       }
       // Check for or create a new destination directory

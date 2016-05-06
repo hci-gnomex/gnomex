@@ -4,7 +4,7 @@ import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.utilities.XMLReflectException;
 import hci.gnomex.model.Analysis;
-import hci.gnomex.utility.AnalysisFileDescriptor;
+import hci.gnomex.utility.FileDescriptor;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.PropertyDictionaryHelper;
 import hci.gnomex.utility.Util;
@@ -58,7 +58,7 @@ public class GetExpandedAnalysisFileList extends GNomExCommand implements Serial
 
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
       DictionaryHelper dh = DictionaryHelper.getInstance(sess);
-      baseDir = PropertyDictionaryHelper.getInstance(sess).getAnalysisDirectory(serverName);
+      baseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, null, PropertyDictionaryHelper.PROPERTY_ANALYSIS_DIRECTORY);
 
       Map analysisMap = new TreeMap();
       Map directoryMap = new TreeMap();
@@ -108,7 +108,7 @@ public class GetExpandedAnalysisFileList extends GNomExCommand implements Serial
           // For each file in the directory
           boolean firstFileInDir = true;
           for (Iterator i2 = theFiles.iterator(); i2.hasNext();) {
-            AnalysisFileDescriptor fd = (AnalysisFileDescriptor) i2.next();
+            FileDescriptor fd = (FileDescriptor) i2.next();
             fd.setQualifiedFilePath(directoryKey);
 
             // Use attribute to get "control break" on request number and directory name
@@ -240,7 +240,7 @@ public class GetExpandedAnalysisFileList extends GNomExCommand implements Serial
         }
 
         if (f1.isDirectory()) {
-          AnalysisFileDescriptor dirFileDescriptor = new AnalysisFileDescriptor(analysisNumber, f1.getName(), f1, baseDir);
+          FileDescriptor dirFileDescriptor = new FileDescriptor(analysisNumber, f1.getName(), f1, baseDir);
           dirFileDescriptor.setType("dir");
           dirFileDescriptor.setQualifiedFilePath(subDirName!=null ? subDirName : "");
           theFiles.add(dirFileDescriptor);
@@ -251,7 +251,7 @@ public class GetExpandedAnalysisFileList extends GNomExCommand implements Serial
             include = false;
           } 
           if (include) {
-            AnalysisFileDescriptor fileDescriptor = new AnalysisFileDescriptor(analysisNumber, displayName, f1, baseDir);
+            FileDescriptor fileDescriptor = new FileDescriptor(analysisNumber, displayName, f1, baseDir);
             fileDescriptor.setQualifiedFilePath(subDirName!=null ? subDirName : "");
             theFiles.add(fileDescriptor);
           }

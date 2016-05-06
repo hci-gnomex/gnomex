@@ -29,10 +29,10 @@ public class AnalysisFileDescriptorParser extends DetailObject implements Serial
 
     Element root = this.doc.getRootElement();
 
-    for(Iterator i = root.getChildren("AnalysisFileDescriptor").iterator(); i.hasNext();) {
+    for(Iterator i = root.getChildren("FileDescriptor").iterator(); i.hasNext();) {
       Element node = (Element)i.next();      
       String analysisNumber = node.getAttributeValue("number");
-      AnalysisFileDescriptor fd = initializeFileDescriptor(node);
+      FileDescriptor fd = initializeFileDescriptor(node);
 
       List fileDescriptors = (List)fileDescriptorMap.get(analysisNumber);
       if (fileDescriptors == null) {
@@ -47,13 +47,13 @@ public class AnalysisFileDescriptorParser extends DetailObject implements Serial
 
   }
 
-  private void getChildrenFileDescriptors(Element parentNode, AnalysisFileDescriptor parentFileDescriptor) {
+  private void getChildrenFileDescriptors(Element parentNode, FileDescriptor parentFileDescriptor) {
 
     if (parentNode.getChildren("children") != null && parentNode.getChildren("children").size() > 0) {
-      for(Iterator i = parentNode.getChild("children").getChildren("AnalysisFileDescriptor").iterator(); i.hasNext();) {
+      for(Iterator i = parentNode.getChild("children").getChildren("FileDescriptor").iterator(); i.hasNext();) {
         Element node = (Element)i.next();      
         String analysisNumber = node.getAttributeValue("number");
-        AnalysisFileDescriptor fd = initializeFileDescriptor(node);
+        FileDescriptor fd = initializeFileDescriptor(node);
 
         List fileDescriptors = (List)fileDescriptorMap.get(analysisNumber);
         if (fileDescriptors == null) {
@@ -71,10 +71,10 @@ public class AnalysisFileDescriptorParser extends DetailObject implements Serial
   }
 
 
-  protected AnalysisFileDescriptor initializeFileDescriptor(Element n){
-    AnalysisFileDescriptor fd = new AnalysisFileDescriptor();
+  protected FileDescriptor initializeFileDescriptor(Element n){
+    FileDescriptor fd = new FileDescriptor();
 
-    fd.setIdAnalysis(n.getAttributeValue("idAnalysis") != null ? Integer.valueOf(n.getAttributeValue("idAnalysis")) : null);
+    fd.setId(n.getAttributeValue("idAnalysis") != null ? Integer.valueOf(n.getAttributeValue("idAnalysis")) : null);
     fd.setFileName(n.getAttributeValue("fileName"));
     fd.setQualifiedFilePath(n.getAttributeValue("qualifiedFilePath"));
     fd.setBaseFilePath(n.getAttributeValue("baseFilePath"));
@@ -84,7 +84,7 @@ public class AnalysisFileDescriptorParser extends DetailObject implements Serial
       long fileSize = Long.parseLong(n.getAttributeValue("fileSize"));
       fd.setFileSize(fileSize);    	
     }
-    fd.setAnalysisNumber(n.getAttributeValue("number"));
+    fd.setNumber(n.getAttributeValue("number"));
 
     return fd;
 

@@ -113,8 +113,8 @@ public class LinkDataTrackFile extends GNomExCommand implements Serializable {
       sess = HibernateSession.currentSession(this.getUsername());
 
       PropertyDictionaryHelper propertyHelper = PropertyDictionaryHelper.getInstance(sess);
-      baseDirDataTrack = propertyHelper.getDataTrackDirectory(serverName);
-      baseDirAnalysis = propertyHelper.getAnalysisDirectory(serverName);
+      baseDirDataTrack = propertyHelper.getDirectory(serverName, null, propertyHelper.getProperty(PropertyDictionaryHelper.PROPERTY_DATATRACK_DIRECTORY));
+      baseDirAnalysis = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, null, PropertyDictionaryHelper.PROPERTY_ANALYSIS_DIRECTORY);
 
       analysisFile = (AnalysisFile)sess.load(AnalysisFile.class, idAnalysisFile);
 

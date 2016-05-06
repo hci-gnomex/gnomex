@@ -978,7 +978,7 @@
 		
 		// Disallow operation if non-datatrack files dragged over
 		for each(var di:Object in ds.dataForFormat("treeDataGridItems") as Array) {
-			if (di.name() == "AnalysisFileDescriptor") {
+			if (di.name() == "FileDescriptor") {
 				if (di.@isSupportedDataTrack == 'N') {
 					Alert.show("Only supported file types can be distributed as a Data Track.  Look for this icon next to Analysis file.",
 					   "Unsupported file extension", Alert.OK, null, null, parentApplication.iconDataTrack);
@@ -995,9 +995,9 @@
 		dragParams = new ArrayCollection();
 		for each(var dragItem:Object in ds.dataForFormat("treeDataGridItems") as Array) {
 			var params:Object = new Object();
-			if (dragItem.name() == "AnalysisFileDescriptor") {
+			if (dragItem.name() == "FileDescriptor") {
 				if (dragItem.@isSupportedDataTrack == 'Y') {
-					params.name = "AnalysisFileDescriptor";
+					params.name = "FileDescriptor";
 					params.fileName = dragItem.@displayName;
 					params.type = dragItem.@type;
 					params.idAnalysis = dragItem.@idAnalysis;

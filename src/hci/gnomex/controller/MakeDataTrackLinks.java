@@ -81,8 +81,8 @@ public class MakeDataTrackLinks extends GNomExCommand implements Serializable {
       
    
       Session sess = HibernateSession.currentSession(this.getSecAdvisor().getUsername());
-      baseDir = PropertyDictionaryHelper.getInstance(sess).getDataTrackDirectory(serverName);
-      analysisBaseDir = PropertyDictionaryHelper.getInstance(sess).getAnalysisDirectory(serverName);
+      baseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, null, PropertyDictionaryHelper.PROPERTY_DATATRACK_DIRECTORY);
+      analysisBaseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, null, PropertyDictionaryHelper.PROPERTY_ANALYSIS_DIRECTORY);
       dataTrackFileServerURL = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.DATATRACK_FILESERVER_URL);
       bamiobioviewerURL = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.BAM_IOBIO_VIEWER_URL);
       vcfiobioviewerURL = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.VCF_IOBIO_VIEWER_URL);

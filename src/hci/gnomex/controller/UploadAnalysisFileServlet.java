@@ -165,7 +165,7 @@ public class UploadAnalysisFileServlet extends HttpServlet {
 					SimpleDateFormat formatter = new SimpleDateFormat("yyyy");
 					String createYear = formatter.format(analysis.getCreateDate());
 
-					String baseDir = PropertyDictionaryHelper.getInstance(sess).getAnalysisDirectory(req.getServerName());
+					String baseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(req.getServerName(), null, PropertyDictionaryHelper.PROPERTY_ANALYSIS_DIRECTORY);
 					if (!baseDir.endsWith("/") && !baseDir.endsWith("\\")) {
 						baseDir += "/";
 					}

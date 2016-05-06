@@ -48,7 +48,7 @@ public class DeleteDataTrack extends GNomExCommand implements Serializable {
   public Command execute() throws RollBackCommandException {
     Session sess = null;
     DataTrack dataTrack = null;
-    baseDir = PropertyDictionaryHelper.getInstance(sess).getDataTrackDirectory(serverName);
+    baseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, null, PropertyDictionaryHelper.PROPERTY_DATATRACK_DIRECTORY);
     
     try {
       sess = HibernateSession.currentSession(this.getUsername());

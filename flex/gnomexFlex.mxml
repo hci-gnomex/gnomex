@@ -3620,7 +3620,7 @@
 				} else {
 					return null;
 				}
-			} else if (item.name() == "AnalysisFileDescriptor") {
+			} else if (item.name() == "FileDescriptor") {
 				if (item.hasOwnProperty("@type") && item.@type == "dir") {
 					if (item.hasOwnProperty("@isEmpty") && item.@isEmpty == "Y") {
 						return iconFolderDisabled;
@@ -3632,7 +3632,7 @@
 				} else {
 					return null;
 				}
-			} else if (item.name() == "ProductOrderFileDescriptor") {
+			} else if (item.name() == "FileDescriptor") {
 				if (item.hasOwnProperty("@type") && item.@type == "dir") {
 					if (item.hasOwnProperty("@isEmpty") && item.@isEmpty == "Y") {
 						return iconFolderDisabled;

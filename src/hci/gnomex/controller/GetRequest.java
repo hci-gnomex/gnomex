@@ -142,7 +142,7 @@ public class GetRequest extends GNomExCommand implements Serializable {
         if (this.isValid()) {
 
           reqNumber = request.getNumber();
-          baseDir = PropertyDictionaryHelper.getInstance(sess).getExperimentDirectory(serverName, request.getIdCoreFacility());
+          baseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, request.getIdCoreFacility(), PropertyDictionaryHelper.PROPERTY_EXPERIMENT_DIRECTORY);
 
           Hibernate.initialize(request.getSamples());
           Hibernate.initialize(request.getHybridizations());

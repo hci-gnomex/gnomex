@@ -103,7 +103,7 @@ public class OrganizeProductOrderUploadFiles extends GNomExCommand implements Se
 
         ProductOrder productOrder = (ProductOrder)sess.load(ProductOrder.class, idProductOrder);
 
-        String baseDir = PropertyDictionaryHelper.getInstance(sess).getProductOrderDirectory(serverName, productOrder.getIdCoreFacility());
+        String baseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, productOrder.getIdCoreFacility(), PropertyDictionaryHelper.PROPERTY_PRODUCT_ORDER_DIRECTORY);
         baseDir += productOrder.getCreateYear() ;
 
          

@@ -263,7 +263,7 @@
 			}
 			
 			public function setFileCount():void {
-				rowCountMessage = getAnalysisDownloadList.lastResult..AnalysisFileDescriptor.(@type != 'dir').length() + " file(s)";    	
+				rowCountMessage = getAnalysisDownloadList.lastResult..FileDescriptor.(@type != 'dir').length() + " file(s)";
 			}
 			
 			public function downloadFilesUsingFDT(selectedFiles:XMLList):void {
@@ -450,7 +450,7 @@
 					pos++;
 					for each(var ad:Object in a.AnalysisDownload) {
 						pos++;
-						for each(var fd:Object in ad.AnalysisFileDescriptor) {
+						for each(var fd:Object in ad.FileDescriptor) {
 							pos++;
 						}
 					}
@@ -530,7 +530,7 @@
 			
 			private function dataTrackFileSelected():Boolean {
 				var hasDataTrack:Boolean = false;
-				for each(var f:Object in getAnalysisDownloadList.lastResult..AnalysisFileDescriptor.(@isSelected == "true")){		
+				for each(var f:Object in getAnalysisDownloadList.lastResult..FileDescriptor.(@isSelected == "true")){
 					if (f.@hasDataTrack == 'Y') {
 						hasDataTrack = true;
 						break
@@ -565,7 +565,7 @@
 						if (childNode.@dirty == 'Y') {
 							keep = true;
 						} else {
-							var dirtyNodes:XMLList = childNode..AnalysisFileDescriptor.(@dirty == 'Y');
+							var dirtyNodes:XMLList = childNode..FileDescriptor.(@dirty == 'Y');
 							if (dirtyNodes.length() > 0) {
 								keep = true;
 							}
@@ -574,7 +574,7 @@
 						keep = true;
 					}
 					if (keep) {
-						var childNodeShallow:XML = new XML("<AnalysisFileDescriptor/>");
+						var childNodeShallow:XML = new XML("<FileDescriptor/>");
 						shallowCopy(childNode, childNodeShallow);
 						nodeShallow.appendChild(childNodeShallow);
 					}
@@ -589,7 +589,7 @@
 						if (childNode.@isSupportedDataTrack == 'Y') {
 							keep = true;
 						} else {
-							var dirtyNodes:XMLList = childNode..AnalysisFileDescriptor.(@isSupportedDataTrack == 'Y');
+							var dirtyNodes:XMLList = childNode..FileDescriptor.(@isSupportedDataTrack == 'Y');
 							if (dirtyNodes.length() > 0) {
 								keep = true;
 							}
@@ -598,7 +598,7 @@
 						keep = true;
 					}
 					if (keep) {
-						var childNodeShallow:XML = new XML("<AnalysisFileDescriptor/>");
+						var childNodeShallow:XML = new XML("<FileDescriptor/>");
 						shallowCopy(childNode, childNodeShallow);
 						nodeShallow.appendChild(childNodeShallow);
 					}
@@ -615,7 +615,7 @@
 			
 			public function hasUnregisteredFiles():Boolean {
 				var hasUnregisteredFile:Boolean = false;
-				for each(var a:Object in getAnalysisDownloadList.lastResult..AnalysisFileDescriptor) {
+				for each(var a:Object in getAnalysisDownloadList.lastResult..FileDescriptor) {
 					if (a.@type != "dir") {
 						if (a.@idAnalysisFileString.toString().indexOf("AnalysisFile") == 0) {
 							hasUnregisteredFile = true;
@@ -628,7 +628,7 @@
 			
 			public function hasUnregisteredDataTrackFiles():Boolean {
 				var hasUnregisteredFile:Boolean = false;
-				for each(var a:Object in getAnalysisDownloadList.lastResult..AnalysisFileDescriptor) {
+				for each(var a:Object in getAnalysisDownloadList.lastResult..FileDescriptor) {
 					if (a.@type != "dir" && a.@isSupportedDataTrack == "Y") {
 						if (a.@idAnalysisFileString.toString().indexOf("AnalysisFile") == 0) {
 							hasUnregisteredFile = true;

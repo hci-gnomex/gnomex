@@ -47,7 +47,7 @@ public class RequisitionFormUtil {
     SimpleDateFormat formatter = new SimpleDateFormat("yyyy");
     String createYear = formatter.format(po.getSubmitDate());
 
-    String baseDir = PropertyDictionaryHelper.getInstance(sess).getProductOrderDirectory(serverName, po.getIdCoreFacility());
+    String baseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, po.getIdCoreFacility(), PropertyDictionaryHelper.PROPERTY_PRODUCT_ORDER_DIRECTORY);
     baseDir +=  "/" + createYear;
     if (!new File(baseDir).exists()) {
       boolean success = (new File(baseDir)).mkdir();

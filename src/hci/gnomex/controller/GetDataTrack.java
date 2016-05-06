@@ -59,8 +59,8 @@ public class GetDataTrack extends GNomExCommand implements Serializable {
 
 
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
-      baseDir = PropertyDictionaryHelper.getInstance(sess).getDataTrackDirectory(serverName);
-      analysisBaseDir = PropertyDictionaryHelper.getInstance(sess).getAnalysisDirectory(serverName);
+      baseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, null, PropertyDictionaryHelper.PROPERTY_DATATRACK_DIRECTORY);
+      analysisBaseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, null, PropertyDictionaryHelper.PROPERTY_ANALYSIS_DIRECTORY);
 
       DataTrack dataTrack;
       if ( idDataTrack != null && !idDataTrack.equals( "" )) {
