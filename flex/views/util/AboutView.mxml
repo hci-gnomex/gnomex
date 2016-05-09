@@ -70,7 +70,7 @@
 			import mx.events.FlexMouseEvent;
 			//import views.util.FlexAppVersion;
 			
-			[Bindable]
+			//[Bindable]
 			//private var flexAppVersion:FlexAppVersion = new FlexAppVersion();
 			
 			public function init():void {
