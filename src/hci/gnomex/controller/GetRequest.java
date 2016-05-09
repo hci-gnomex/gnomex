@@ -195,7 +195,9 @@ public class GetRequest extends GNomExCommand implements Serializable {
           Document doc = new Document(new Element("OpenRequestList"));
 
           Element requestNode = request.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
-          requestNode.setAttribute("canUpdateVisibility", this.getSecAdvisor().canUpdateVisibility(request.getIdLab(), request.getIdAppUser()) ? "Y" : "N");
+          if(!newRequest) {
+            requestNode.setAttribute("canUpdateVisibility", this.getSecAdvisor().canUpdateVisibility(request.getIdLab(), request.getIdAppUser()) ? "Y" : "N");
+          }
 
           BillingTemplate billingTemplate = BillingTemplateQueryManager.retrieveBillingTemplate(sess, request);
           if (billingTemplate != null) {
