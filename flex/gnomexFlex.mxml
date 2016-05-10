@@ -356,6 +356,8 @@
 		import views.util.VerifyEmailWindow;
 		import views.workflow.FlowCellView;
 
+		import flash.utils.getTimer;
+
 
 		override protected function focusOutHandler(event:FocusEvent):void {
 			if (event.type == FocusEvent.FOCUS_OUT) {
@@ -409,6 +411,8 @@
 
 		public var uploadSampleSheetURL:String = null;
 
+
+		private var startTime:uint = 0;
 
 		[Bindable]
 		public var welcomeSplash:String = "";
@@ -1244,6 +1248,7 @@
 		public var guestEmailAddress:String = "";
 
 		private function init():void {
+			startTime = getTimer();
 			var idCoreFacility:String = Application.application.parameters.idCore;
 			var parms:Object = new Object();
 			parms.idCoreFacility = idCoreFacility;
@@ -3008,6 +3013,15 @@
 
 			if (currentState == null || currentState == "") {
 				getExperimentDesignList.send();
+				getExperimentFactorList.send();
+				getAppUserList.send();
+				getLabList.send();
+				getProjectList.send();
+				getGenomeIndexList.send();
+				getOrganismList.send();
+				getPropertyList.send();
+				getOrganismList.send();
+				getProductList.send();
 
 				showProgress(30);
 				enableApp();
@@ -3389,6 +3403,8 @@
 					var changePasswordWindow:ChangePassword = ChangePassword(PopUpManager.createPopUp(this.mainArea, ChangePassword, true));
 					PopUpManager.centerPopUp(changePasswordWindow);
 				}
+
+				trace("Total login time: " + ((getTime() - startTime) /1000)));
 
 			}
 		}
