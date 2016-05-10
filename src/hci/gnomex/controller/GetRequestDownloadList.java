@@ -642,6 +642,10 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
       childFdNode.setAttribute("canRename", isFlowCellDirectory ? "N" : "Y");
       childFdNode.setAttribute("linkedSampleNumber",  getLinkedSampleNumber(sess, childFd.getZipEntryName()));
 
+      if(!childFd.getType().equals("dir")){
+        childFdNode.setAttribute("viewURL", childFd.getViewURL(sess.load(Request.class, childFd.getId())));
+      }
+
       fdNode.addContent(childFdNode);
 
       if (childFd.getChildren() != null && childFd.getChildren().size() > 0) {

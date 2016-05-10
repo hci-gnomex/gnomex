@@ -184,9 +184,9 @@ public class GetProductOrderDownloadList extends GNomExCommand implements Serial
               fdNode.setAttribute("isSelected", "N");
               fdNode.setAttribute("state", "unchecked");
 
+              recurseAddChildren(fdNode, fd, fileMap, knownProductOrderFileMap, sess);
 
               poNode.addContent(fdNode);
-              recurseAddChildren(fdNode, fd, fileMap, knownProductOrderFileMap, sess);
 
               fileMap.put(fd.getQualifiedFileName(), null);
             }
@@ -291,6 +291,10 @@ public class GetProductOrderDownloadList extends GNomExCommand implements Serial
           fdNode.setAttribute("isSelected", "N");
           fdNode.setAttribute("state", "unchecked");
 
+          if(!fd.getType().equals("dir")){
+            fdNode.setAttribute("viewURL", fd.getViewURL(sess.load(ProductOrder.class, fd.getId())));
+          }
+
           recurseAddChildren(fdNode, fd, fileMap, knownProductOrderFileMap, sess);
 
           poDownloadNode.addContent(fdNode);
@@ -365,6 +369,10 @@ public class GetProductOrderDownloadList extends GNomExCommand implements Serial
 
       childFdNode.setAttribute("isSelected", "N");
       childFdNode.setAttribute("state", "unchecked");
+
+      if(!childFd.getType().equals("dir")){
+        childFdNode.setAttribute("viewURL", childFd.getViewURL(sess.load(ProductOrder.class, childFd.getId())));
+      }
 
       fdNode.addContent(childFdNode);
       fileMap.put(childFd.getQualifiedFileName(), null);
