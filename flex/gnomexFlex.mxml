@@ -413,6 +413,7 @@
 		public var uploadSampleSheetURL:String = null;
 
 		//----------------------------------timer vars
+		private var startTime = 0;
 
 		private var startGetLaunchProperties:uint = 0;
 
@@ -1276,6 +1277,7 @@
 		public var guestEmailAddress:String = "";
 
 		private function init():void {
+			startTime = getTimer();
 			var idCoreFacility:String = Application.application.parameters.idCore;
 			var parms:Object = new Object();
 			parms.idCoreFacility = idCoreFacility;
@@ -3454,6 +3456,8 @@
 					var changePasswordWindow:ChangePassword = ChangePassword(PopUpManager.createPopUp(this.mainArea, ChangePassword, true));
 					PopUpManager.centerPopUp(changePasswordWindow);
 				}
+
+				trace("Total login time: " + ((getTimer() - startTime) / 1000));
 
 			}
 		}
