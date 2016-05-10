@@ -357,6 +357,9 @@
 		import views.workflow.FlowCellView;
 
 
+		//Timing code
+		import flash.utils.getTimer;
+
 		override protected function focusOutHandler(event:FocusEvent):void {
 			if (event.type == FocusEvent.FOCUS_OUT) {
 				if (event.currentTarget.id == 'searchText') {
@@ -409,6 +412,35 @@
 
 		public var uploadSampleSheetURL:String = null;
 
+		//----------------------------------timer vars
+
+		private var startGetLaunchProperties:uint = 0;
+
+		private var startCreateSecAdvisor:uint = 0;
+
+		private var startDictLoad:uint = 0;
+
+		private var startGetExpDesignList:uint = 0;
+
+		private var startGetExpFactor:uint = 0;
+
+		private var startGetAppUserList:uint = 0;
+
+		private var startGetLabList:uint = 0;
+
+		private var startGetProjectList:uint = 0;
+
+		private var startGetPropertyList:uint = 0;
+
+		private var startGetOrganismList:uint = 0;
+
+		private var startGetProductList:uint = 0;
+
+		private var startGetGenomeIndexList:uint = 0;
+
+		private var startGetAccountFieldsConfiguration:uint = 0;
+
+		//---------------------------------------
 
 		[Bindable]
 		public var welcomeSplash:String = "";
@@ -1247,6 +1279,7 @@
 			var idCoreFacility:String = Application.application.parameters.idCore;
 			var parms:Object = new Object();
 			parms.idCoreFacility = idCoreFacility;
+			startGetLaunchProperties = getTimer();
 			getLaunchProperties.send(parms);
 		}
 
@@ -1259,6 +1292,7 @@
 		}
 
 		private function onGetLaunchProperties(event:ResultEvent):void {
+			trace("Total time get launch properties: " + ((getTimer() - startGetLaunchProperties) / 1000));
 			if (getLaunchProperties.lastResult.name() == 'LaunchProperties') {
 				var prop:String = getLaunchProperties.lastResult.Property.(@name == PROPERTY_UNIVERSITY_USER_AUTHENTICATION).@value;
 				if (prop == 'Y') {
@@ -2226,6 +2260,7 @@
 				getSecurityAdvisorForGuest.send(parms);
 
 			} else {
+				startCreateSecAdvisor = getTimer();
 				createSecurityAdvisor.send(parms);
 			}
 		}
@@ -2683,6 +2718,7 @@
 		}
 
 		private function onCreateSecurityAdvisor(event:ResultEvent):void {
+			trace("Total time get createSecurityAdvisor: " + ((getTimer() - startCreateSecAdvisor) / 1000));
 			if (!(createSecurityAdvisor.lastResult is XML) ||
 					createSecurityAdvisor.lastResult.name() != 'SecurityAdvisor') {
 				var msgString:String = createSecurityAdvisor.lastResult..ERROR.@message;
@@ -2708,6 +2744,7 @@
 
 			dictionaryManager = new DictionaryManager("ManageDictionaries.gx");
 			dictionaryManager.addEventListener(DictionaryEvent.DICTIONARY_LOADED, onDictionariesLoaded);
+			startDictLoad = getTimer();
 			dictionaryManager.call("load", "");
 
 		}
@@ -2741,6 +2778,7 @@
 		}
 
 		public function onDictionariesLoaded(event:Event):void {
+			trace("Total time to load dictionaries: " + ((getTimer() - startDictLoad) / 1000));
 			dictionaryHelper = new DictionaryHelper(dictionaryManager);
 
 			properties = new Object();
@@ -3007,6 +3045,7 @@
 			buildSeqLibProtocolListWithAppFilters();
 
 			if (currentState == null || currentState == "") {
+				startGetExpDesignList = getTimer();
 				getExperimentDesignList.send();
 
 				showProgress(30);
@@ -3204,6 +3243,8 @@
 		}
 
 		private function onGetExperimentDesignList(event:ResultEvent):void {
+			trace("Total time get exp design list: " + ((getTimer() - startGetExpDesignList) / 1000));
+			startGetExpFactor = getTimer();
 			getExperimentFactorList.send();
 
 			showProgress(10);
@@ -3211,6 +3252,8 @@
 		}
 
 		private function onGetExperimentFactorList(event:ResultEvent):void {
+			trace("Total time get experiment factor list: " + ((getTimer() - startGetExpFactor) / 1000));
+			startGetLabList = getTimer();
 			getLabList.send();
 			this.setupSampleSheetUpload();
 
@@ -3218,9 +3261,12 @@
 		}
 
 		private function onGetAppUserList(event:ResultEvent):void {
+			trace("Total time get app user list: " + ((getTimer() - startGetAppUserList) / 1000));
 			appUserList = new XMLListCollection(getAppUserList.lastResult.AppUser.(@isActive == 'Y'));
 			var emptyNode:XML = <AppUser displayName='' idAppUser='' name='' label=''/>;
 			promptedAppUserList = new PromptXMLListCollection(emptyNode, new XMLListCollection(getAppUserList.lastResult.AppUser.(@isActive == 'Y')));
+
+			startGetProjectList = getTimer();
 
 			getProjectList.send();
 
@@ -3229,6 +3275,8 @@
 		}
 
 		private function onGetLabList(event:ResultEvent):void {
+			trace("Total time get lab list: " + ((getTimer() - startGetLabList) / 1000));
+			startGetLabList = getTimer();
 			var emptyNode:XML = <Lab idLab='' name='' label=''/>;
 			labList = new XMLListCollection(getLabList.lastResult.Lab);
 			promptedLabList = new PromptXMLListCollection(emptyNode, new XMLListCollection(getLabList.lastResult.Lab));
@@ -3254,18 +3302,30 @@
 				promptedWorkAuthLabList = new PromptXMLListCollection(emptyNode, new XMLListCollection(getLabList.lastResult.Lab));
 			}
 
+			startGetAppUserList = getTimer();
 			getAppUserList.send();
 
 			showProgress(30);
 			enableApp();
+
+			trace("Total time spent in onGetLabList: " + ((getTimer() - startGetLabList) / 1000));
 		}
 
 		private function onGetProjectList(event:ResultEvent):void {
+			trace("Total time get project list: " + ((getTimer() - startGetProjectList) / 1000));
+			startGetGenomeIndexList = getTimer();
 			getGenomeIndexList.send();
+
+			startGetOrganismList = getTimer();
 			getOrganismList.send();
+
+			startGetPropertyList = getTimer();
 			getPropertyList.send();
+
+			startGetProductList = getTimer();
 			getProductList.send();
 
+			startGetAccountFieldsConfiguration = getTimer();
 			getAccountFieldsConfiguration.send();
 
 			showProgress(10);
@@ -3273,6 +3333,7 @@
 		}
 
 		private function onGetPropertyList(event:ResultEvent):void {
+			trace("Total time get property list: " + ((getTimer() - startGetPropertyList) / 1000));
 			propertyList = new XMLListCollection(getPropertyList.lastResult.Property);
 			this.dispatchEvent(new PropertyEvent(PropertyEvent.DATA_REFRESHED));
 
@@ -3283,11 +3344,13 @@
 		}
 
 		private function onGetGenomeIndexList(event:ResultEvent):void {
+			trace("Total time get genome index list: " + ((getTimer() - startGetGenomeIndexList) / 1000));
 			genomeIndexList = new XMLListCollection(getGenomeIndexList.lastResult.GenomeIndex);
 			this.dispatchEvent(new GenomeIndexEvent(GenomeIndexEvent.DATA_REFRESHED));
 		}
 
 		private function onGetOrganismList(event:ResultEvent):void {
+			trace("Total time get organism list: " + ((getTimer() - startGetOrganismList) / 1000));
 			organismList = new XMLListCollection(getOrganismList.lastResult.Organism);
 			das2OrganismList = new XMLListCollection();
 			activeOrganismList = new XMLListCollection();
@@ -3342,6 +3405,7 @@
 		}
 
 		private function onGetProductList(event:ResultEvent):void {
+			trace("Total time get product list: " + ((getTimer() - startGetProductList) / 1000));
 			productList = new XMLListCollection(getProductList.lastResult..Product);
 			var emptyNode:XML = <Product idProduct='' name=''/>;
 
@@ -3354,6 +3418,7 @@
 		}
 
 		private function onGetAccountFieldsConfiguration(event:ResultEvent):void {
+			trace("Total time get account fields list: " + ((getTimer() - startGetAccountFieldsConfiguration) / 1000));
 			this.internalAccountFieldsConfigurationList = new XMLListCollection(getAccountFieldsConfiguration.lastResult.InternalAccountFieldsConfigurationList.InternalAccountFieldsConfiguration);
 			this.otherAccountFieldsConfigurationList = new XMLListCollection(getAccountFieldsConfiguration.lastResult.OtherAccountFieldsConfigurationList.OtherAccountFieldsConfiguration);
 		}

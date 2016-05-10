@@ -140,25 +140,25 @@ public class SaveWorkItemSolexaPrep extends GNomExCommand implements Serializabl
                   if (lane.getIdSample().equals(sample.getIdSample()) && lane.getIdFlowCellChannel() == null) {
                     
                     // Make sure this lane isn't already queued up on the cluster gen workflow
-                    List otherWorkItems = (List)sess.createQuery("SELECT wi from WorkItem wi join wi.sequenceLane l where wi.codeStepNext = '" + Step.SEQ_CLUSTER_GEN + "' and l.idSequenceLane = " + lane.getIdSequenceLane()).list();
-                    if (otherWorkItems.size() == 0) {
+                    //List otherWorkItems = (List)sess.createQuery("SELECT wi from WorkItem wi join wi.sequenceLane l where wi.codeStepNext = '" + Step.SEQ_CLUSTER_GEN + "' and l.idSequenceLane = " + lane.getIdSequenceLane()).list();
+                    //if (otherWorkItems.size() == 0) {
                       WorkItem wi = new WorkItem();
                       wi.setIdRequest(sample.getIdRequest());
                       wi.setIdCoreFacility(sample.getRequest().getIdCoreFacility());
                       
                       String codeStepNext = "";
                       if(workItem.getCodeStepNext().equals(Step.SEQ_PREP)) {
-                        codeStepNext = Step.SEQ_CLUSTER_GEN;
+                        codeStepNext = Step.SEQ_PREP_QC;
                       } else if (workItem.getCodeStepNext().equals(Step.HISEQ_PREP)) {
-                        codeStepNext = Step.HISEQ_CLUSTER_GEN;
+                        codeStepNext = Step.HISEQ_PREP_QC;
                       } else if (workItem.getCodeStepNext().equals(Step.MISEQ_PREP)) {
-                        codeStepNext = Step.MISEQ_CLUSTER_GEN;
+                        codeStepNext = Step.MISEQ_PREP_QC;
                       }
                       wi.setCodeStepNext(codeStepNext);
                       wi.setSequenceLane(lane);
                       wi.setCreateDate(new java.sql.Date(System.currentTimeMillis()));
                       sess.save(wi);                      
-                    }
+                    //}
                     
                   }
                 }
