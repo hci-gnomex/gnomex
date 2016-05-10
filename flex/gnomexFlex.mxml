@@ -3404,7 +3404,7 @@
 					PopUpManager.centerPopUp(changePasswordWindow);
 				}
 
-				trace("Total login time: " + ((getTime() - startTime) /1000)));
+				trace("Total login time: " + ((getTimer() - startTime) /1000));
 
 			}
 		}
