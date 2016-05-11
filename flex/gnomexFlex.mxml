@@ -2715,6 +2715,22 @@
 			dictionaryManager.addEventListener(DictionaryEvent.DICTIONARY_LOADED, onDictionariesLoaded);
 			dictionaryManager.call("load", "");
 
+			if (currentState == null || currentState == "") {
+				getExperimentDesignList.send();
+				getExperimentFactorList.send();
+				getAppUserList.send();
+				getLabList.send();
+				getProjectList.send();
+				getGenomeIndexList.send();
+				getOrganismList.send();
+				getPropertyList.send();
+				getAccountFieldsConfiguration.send();
+
+				showProgress(30);
+				enableApp();
+
+			}
+
 		}
 
 		private function onGetSecurityAdvisorForGuest(event:ResultEvent):void {
@@ -2743,6 +2759,23 @@
 			dictionaryManager.call("load", "");
 
 			showProgress(30);
+
+			if (currentState == null || currentState == "") {
+				getAppUserList.send();
+				getPropertyList.send();
+				getLabList.send();
+				getProjectList.send();
+				getOrganismList.send();
+				getExperimentDesignList.send();
+				getExperimentFactorList.send();
+				this.setupSampleSheetUpload();
+				getGenomeIndexList.send();
+				getAccountFieldsConfiguration.send();
+
+				showProgress(30);
+				enableApp();
+
+			}
 		}
 
 		public function onDictionariesLoaded(event:Event):void {
@@ -3011,22 +3044,9 @@
 			// Build seq lib protocol list with app filters.
 			buildSeqLibProtocolListWithAppFilters();
 
-			if (currentState == null || currentState == "") {
-				getExperimentDesignList.send();
-				getExperimentFactorList.send();
-				getAppUserList.send();
-				getLabList.send();
-				getProjectList.send();
-				getGenomeIndexList.send();
-				getOrganismList.send();
-				getPropertyList.send();
-				getOrganismList.send();
-				getProductList.send();
+			getProductList.send();
 
-				showProgress(30);
-				enableApp();
 
-			}
 
 			if (this.getProperty(this.PROPERTY_CONFIGURABLE_BILLING_ACCOUNTS) == "Y") {
 				this.useConfigurableBillingAccounts = true;
@@ -3218,16 +3238,11 @@
 		}
 
 		private function onGetExperimentDesignList(event:ResultEvent):void {
-			getExperimentFactorList.send();
-
 			showProgress(10);
 			enableApp();
 		}
 
 		private function onGetExperimentFactorList(event:ResultEvent):void {
-			getLabList.send();
-			this.setupSampleSheetUpload();
-
 			showProgress(10);
 		}
 
@@ -3235,8 +3250,6 @@
 			appUserList = new XMLListCollection(getAppUserList.lastResult.AppUser.(@isActive == 'Y'));
 			var emptyNode:XML = <AppUser displayName='' idAppUser='' name='' label=''/>;
 			promptedAppUserList = new PromptXMLListCollection(emptyNode, new XMLListCollection(getAppUserList.lastResult.AppUser.(@isActive == 'Y')));
-
-			getProjectList.send();
 
 			showProgress(10);
 			enableApp();
@@ -3268,20 +3281,11 @@
 				promptedWorkAuthLabList = new PromptXMLListCollection(emptyNode, new XMLListCollection(getLabList.lastResult.Lab));
 			}
 
-			getAppUserList.send();
-
 			showProgress(30);
 			enableApp();
 		}
 
 		private function onGetProjectList(event:ResultEvent):void {
-			getGenomeIndexList.send();
-			getOrganismList.send();
-			getPropertyList.send();
-			getProductList.send();
-
-			getAccountFieldsConfiguration.send();
-
 			showProgress(10);
 			enableApp();
 		}
