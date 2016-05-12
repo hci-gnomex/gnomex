@@ -1,8 +1,10 @@
 package hci.gnomex.model;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -52,13 +54,33 @@ public class BillingTemplate extends HibernateDetailObject implements DetailObje
 		return BillingItemQueryManager.getBillingItemsForBillingTemplate(sess, this.idBillingTemplate);
 	}
 	
-	public Set<BillingItem> recreateBillingItems(Session sess) {
+	public Set<BillingItem> recreateBillingItems(Session sess, Map<Integer, List<Object>> additionalInfo) {
 		Set<BillingItem> createdBillingItems = new HashSet<BillingItem>();
 		// Apply new template to all master billing items
 		for (MasterBillingItem masterBillingItem : this.getMasterBillingItems()) {
-			createdBillingItems.addAll(SaveBillingTemplate.createBillingItemsForMaster(sess, masterBillingItem, this));
+			createdBillingItems.addAll(SaveBillingTemplate.createBillingItemsForMaster(sess, masterBillingItem, this, additionalInfo));
 		}
 		return createdBillingItems;
+	}
+	
+	public static Map<Integer, List<Object>> retrieveInfoForRecreatingBillingItems(BillingTemplateItem templateItemAcceptingBalance, Set<BillingItem> billingItems) {
+	    Map<Integer, List<Object>> infoMap = new HashMap<Integer, List<Object>>();
+	    
+	    if (templateItemAcceptingBalance != null && billingItems != null) {
+	        for (BillingItem billingItem : billingItems) {
+	            if (billingItem.getIdBillingAccount().equals(templateItemAcceptingBalance.getIdBillingAccount())) {
+	                List<Object> info = new ArrayList<Object>();
+	                info.add(0, billingItem.getCodeBillingStatus());
+	                info.add(1, billingItem.getCurrentCodeBillingStatus());
+	                info.add(2, billingItem.getNotes());
+	                info.add(3, billingItem.getCompleteDate());
+	                
+	                infoMap.put(billingItem.getIdMasterBillingItem(), info);
+	            }
+	        }
+	    }
+	    
+	    return infoMap;
 	}
 	
 	public void setOrder(Order order) {
