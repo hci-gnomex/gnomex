@@ -96,6 +96,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     private static PropertyDictionaryHelper pdh;
 
     private List labsForCoresIManage;
+    private Map labMapForCoresIManage;
 
     public String getLoginDateTime() {
         return loginDateTime;
@@ -1898,6 +1899,10 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
                 // Get all labs for the core facilities the user manages
                 labsForCoresIManage = GetCoreFacilityLabList.getLabListForCores(this.getHibernateSession(this.getUsername()),
                         idCoreFacility);
+                for (Iterator i = labsForCoresIManage.iterator(); i.hasNext();) {
+                    Lab lab = (Lab)i.next();
+                    labMapForCoresIManage.put(lab.getIdLab(), lab.getIdLab());
+                }
             }
         } catch (Exception e){
         }
@@ -2394,39 +2399,23 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
         if (hasPermission(CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
             return true;
         }
-        if (hasPermission(CAN_WRITE_ANY_OBJECT)) {
-            for (Iterator i = theLab.getCoreFacilities().iterator(); i.hasNext(); ) {
-                CoreFacility coreFacility = (CoreFacility) i.next();
-                if (isCoreFacilityIManage(coreFacility.getIdCoreFacility())) {
-                    return true;
-                }
-            }
-        }
 
         return isGroupIManage(theLab.getIdLab());
     }
 
     public boolean isGroupIManage(Integer idLab) {
-        boolean isMyLab = false;
-
         if (hasPermission(CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
             return true;
         }
 
+        boolean isMyLab = false;
         // If the lab is in a core they manage, they can also manage the lab
-        if (labsForCoresIManage != null && labsForCoresIManage.size() > 0) {
-            for (Iterator i = labsForCoresIManage.iterator(); i.hasNext(); ) {
-                Lab lab = (Lab) i.next();
-                if (lab.getIdLab().equals(idLab)) {
-                    isMyLab = true;
-                    break;
-                }
-            }
+        if (labMapForCoresIManage != null ) {
+            isMyLab = labMapForCoresIManage.containsKey(idLab);
         }
-        // If lab is not in their core, check to see if they are explicitly set as a manager for the lab
-        isMyLab = isMyLab || idLabIsInManagingLabs(idLab);
 
-        return isMyLab;
+        // If lab is not in their core, check to see if they are explicitly set as a manager for the lab
+        return isMyLab || idLabIsInManagingLabs(idLab) ;
     }
 
     private boolean idLabIsInManagingLabs(int idLab){

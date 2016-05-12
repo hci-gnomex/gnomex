@@ -23,7 +23,6 @@ import java.util.*;
 public class GetLabList extends GNomExCommand implements Serializable {
 
 
-
     // the static field for logging in Log4J
     private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetLabList.class);
 
@@ -118,7 +117,7 @@ public class GetLabList extends GNomExCommand implements Serializable {
 
                 }
 
-        /*Collaborating Labs*/
+                /*Collaborating Labs*/
                 Map<Integer,Integer> collaboratingLabs = new HashMap<Integer, Integer>();
                 for(Iterator i = this.getSecAdvisor().getAppUser().getCollaboratingLabs().iterator(); i.hasNext();){
                     Lab l = (Lab)i.next();
@@ -275,21 +274,16 @@ public class GetLabList extends GNomExCommand implements Serializable {
         lab.excludeMethodFromXML("getContactCountry");
         //lab.excludeMethodFromXML("getContactEmail");
         lab.excludeMethodFromXML("getContactPhone");
-
         lab.excludeMethodFromXML("getMembers");
         lab.excludeMethodFromXML("getCollaborators");
         lab.excludeMethodFromXML("getManagers");
-
         lab.excludeMethodFromXML("getBillingAccounts");
         lab.excludeMethodFromXML("getApprovedBillingAccounts");
         lab.excludeMethodFromXML("getInternalBillingAccounts");
         lab.excludeMethodFromXML("getPOBillingAccounts");
         lab.excludeMethodFromXML("getCreditCardBillingAccounts");
-
         lab.excludeMethodFromXML("getProjects");
-
         lab.excludeMethodFromXML("getIsCcsgMember");
-
         lab.excludeMethodFromXML("getInstitutions");
         lab.excludeMethodFromXML("getCoreFacilities");
         lab.excludeMethodFromXML("getDefaultIdInstitutionForLab");
