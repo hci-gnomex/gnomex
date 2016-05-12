@@ -2260,7 +2260,6 @@
 				   cascade="none" insert="false" update="false" />
     <property name="quoteNumber" column="quoteNumber" type="string"/>
     <property name="quoteReceivedDate" column="quoteReceivedDate" type="date"/>
-    <property name="uuid" column="uuid" type="string"/>
     <property name="idBillingAccount" column="idBillingAccount" type="integer"/>
     <property name="productOrderNumber" column="productOrderNumber" type="string"/>
     <set name="productLineItems" table="ProductLineItem" lazy="true" cascade="none" order-by="idProductLineItem">
@@ -2310,7 +2309,6 @@
     <property name="idCoreFacility" column="idCoreFacility" type="integer"/>
     <property name="idVendor" column="idVendor" type="integer"/>
     <property name="idPriceCategory" column="idPriceCategory" type="integer"/>
-    <property name="utilizePurchasingSystem" column="utilizePurchasingSystem" type="string"/>
   </class>  
 	
   <!-- hci.gnomex.model.PropertyDictionary -->

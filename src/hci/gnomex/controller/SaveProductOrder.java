@@ -4,54 +4,8 @@ import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.billing.ProductPlugin;
 import hci.gnomex.constants.Constants;
-import hci.gnomex.model.BillingAccount;
-import hci.gnomex.model.BillingItem;
-import hci.gnomex.model.BillingPeriod;
-import hci.gnomex.model.BillingTemplate;
-import hci.gnomex.model.BillingTemplateItem;
-import hci.gnomex.model.CoreFacility;
-import hci.gnomex.model.Lab;
-import hci.gnomex.model.MasterBillingItem;
-import hci.gnomex.model.Price;
-import hci.gnomex.model.PriceCategory;
-import hci.gnomex.model.Product;
-import hci.gnomex.model.ProductLineItem;
-import hci.gnomex.model.ProductOrder;
-import hci.gnomex.model.ProductOrderFile;
-import hci.gnomex.model.ProductOrderStatus;
-import hci.gnomex.model.ProductType;
-import hci.gnomex.model.PropertyDictionary;
-import hci.gnomex.utility.BillingTemplateParser;
-import hci.gnomex.utility.DictionaryHelper;
-import hci.gnomex.utility.HibernateSession;
-import hci.gnomex.utility.MailUtil;
-import hci.gnomex.utility.MailUtilHelper;
-import hci.gnomex.utility.PropertyDictionaryHelper;
-import hci.gnomex.utility.RequisitionFormUtil;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.Serializable;
-import java.io.StringReader;
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.sql.Connection;
-import java.sql.Date;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.UUID;
-
-import javax.mail.MessagingException;
-import javax.naming.NamingException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-
+import hci.gnomex.model.*;
+import hci.gnomex.utility.*;
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.hibernate.internal.SessionImpl;
@@ -60,6 +14,20 @@ import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.jdom.output.XMLOutputter;
+
+import javax.mail.MessagingException;
+import javax.naming.NamingException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import java.io.IOException;
+import java.io.Serializable;
+import java.io.StringReader;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.sql.Connection;
+import java.sql.Date;
+import java.sql.SQLException;
+import java.util.*;
 
 public class SaveProductOrder extends GNomExCommand implements Serializable {
 
@@ -274,42 +242,6 @@ public class SaveProductOrder extends GNomExCommand implements Serializable {
 
 						sendConfirmationEmail(sess, po, ProductOrderStatus.NEW, serverName);
 
-						boolean isHCI = lab.getContactEmail().indexOf("@hci.utah.edu") > 0;
-						// Check that the product type is set up to use the purchasing system
-						if (productType.getUtilizePurchasingSystem() != null && productType.getUtilizePurchasingSystem().equals("Y") && !isHCI
-								&& !lab.isExternalLab()) {
-							// REQUISITION FORM
-							try {
-								// Download and fill out requisition form
-								File reqFile = RequisitionFormUtil.saveReqFileFromURL(po, sess, serverName);
-								reqFile = RequisitionFormUtil.populateRequisitionForm(po, reqFile, sess);
-
-								if (reqFile == null) {
-									String msg = "Unable to download requisition form for ProductOrder " + po.getIdProductOrder() + ".";
-									System.out.println(msg);
-								} else {
-									// Save requisition form as ProductOrderFile and send vendor email
-									String baseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, po.getIdCoreFacility(), PropertyDictionaryHelper.PROPERTY_PRODUCT_ORDER_DIRECTORY)
-											+ po.getCreateYear() + "/" + po.getIdProductOrder();
-									String qualDir = "/" + Constants.REQUISITION_DIR;
-									ProductOrderFile poFile = new ProductOrderFile();
-									poFile.setIdProductOrder(po.getIdProductOrder());
-									poFile.setCreateDate(new Date(System.currentTimeMillis()));
-									poFile.setFileName(reqFile.getName());
-									poFile.setFileSize(new BigDecimal(reqFile.length()));
-									poFile.setBaseFilePath(baseDir);
-									poFile.setQualifiedFilePath(qualDir);
-									sess.save(poFile);
-
-									sendVendorEmail(sess, po, productType);
-								}
-
-							} catch (Exception e) {
-								String msg = "Unable to download requisition form for ProductOrder " + po.getIdProductOrder() + ".  " + e.toString();
-								System.out.println(msg);
-								e.printStackTrace();
-							}
-						}
 					}
 				}
 
@@ -457,7 +389,6 @@ public class SaveProductOrder extends GNomExCommand implements Serializable {
 		po.setSubmitDate(new Date(System.currentTimeMillis()));
 		po.setIdProductType(idProductType);
 		po.setQuoteNumber("");
-		po.setUuid(UUID.randomUUID().toString()); // Probably only need to set this if going to use purchasing system...
 		po.setIdAppUser(idAppUser);
 		po.setIdCoreFacility(idCoreFacility);
 		po.setIdLab(idLab);
@@ -469,69 +400,6 @@ public class SaveProductOrder extends GNomExCommand implements Serializable {
 		pi.setQty(Integer.parseInt(n.getAttributeValue("quantity")));
 		pi.setUnitPrice(unitPrice);
 		pi.setCodeProductOrderStatus(codeProductOrderStatus);
-	}
-
-	private boolean sendVendorEmail(Session sess, ProductOrder po, ProductType productType) throws NamingException, MessagingException {
-
-		DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess);
-
-		CoreFacility cf = sess.load(CoreFacility.class, idCoreFacility);
-
-		StringBuffer emailBody = new StringBuffer();
-
-		String uuidStr = po.getUuid();
-		String uploadQuoteURL = appURL + "/" + Constants.UPLOAD_QUOTE_JSP + "?orderUuid=" + uuidStr;
-
-		String productTypeString = productType.getDisplay();
-
-		emailBody.append("A request for " + productTypeString + " has been submitted from the " + cf.getFacilityName() + " core.");
-
-		emailBody.append("<br><br><table border='0' width = '600'>");
-		for (Iterator i = po.getProductLineItems().iterator(); i.hasNext();) {
-			ProductLineItem pi = (ProductLineItem) i.next();
-			Product p = sess.load(Product.class, pi.getIdProduct());
-
-			emailBody.append("<tr><td>Product Name:</td><td>" + p.getName() + "</td></tr>");
-			emailBody.append("<tr><td>Catalog Number:</td><td>" + p.getCatalogNumber() + "</td></tr>");
-
-			if (i.hasNext()) {
-				emailBody.append("</table><br><table border='0' width = '600'>");
-			}
-
-		}
-
-		emailBody.append("</table><br><br>To enter a quote number and upload a file, click <a href=\"" + uploadQuoteURL + "\">" + Constants.APP_NAME
-				+ " - Upload Quote Info</a>.");
-
-		String subject = "Request for Quote Number for " + productTypeString;
-
-		String contactEmailCoreFacility = cf.getContactEmail();
-		// TODO Should look up email address for vendor instead of property for Illumina rep.
-		String contactEmailIlluminaRep = PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(idCoreFacility,
-				PropertyDictionary.CONTACT_EMAIL_ILLUMINA_REP);
-
-		String senderEmail = contactEmailCoreFacility;
-		String contactEmail = contactEmailIlluminaRep;
-		String ccEmail = null;
-
-		if (!MailUtil.isValidEmail(contactEmail)) {
-			log.error("Invalid email address: " + contactEmail);
-		}
-
-		if (!MailUtil.isValidEmail(senderEmail)) {
-			senderEmail = DictionaryHelper.getInstance(sess).getPropertyDictionary(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
-		}
-
-		boolean sent = false;
-		try {
-			MailUtilHelper helper = new MailUtilHelper(contactEmail, ccEmail, null, senderEmail, subject, emailBody.toString(), null, true, dictionaryHelper,
-					serverName);
-			sent = MailUtil.validateAndSendEmail(helper);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		return sent;
 	}
 
 	public class ProductLineItemComparator implements Comparator, Serializable {

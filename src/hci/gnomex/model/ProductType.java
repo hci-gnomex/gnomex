@@ -1,8 +1,8 @@
 package hci.gnomex.model;
 
-import java.io.Serializable;
-
 import hci.dictionary.model.DictionaryEntry;
+
+import java.io.Serializable;
 
 
 
@@ -13,7 +13,6 @@ public class ProductType extends DictionaryEntry implements Serializable {
   private Integer  idCoreFacility;
   private Integer  idVendor;
   private Integer  idPriceCategory;
-  private String   utilizePurchasingSystem;
 
   public String getDisplay() {
     String display = this.getNonNullString(getDescription());
@@ -72,14 +71,6 @@ public class ProductType extends DictionaryEntry implements Serializable {
 
   public void setIdPriceCategory( Integer idPriceCategory ) {
     this.idPriceCategory = idPriceCategory;
-  }
-
-  public String getUtilizePurchasingSystem() {
-    return utilizePurchasingSystem;
-  }
-
-  public void setUtilizePurchasingSystem(String utilizePurchasingSystem) {
-    this.utilizePurchasingSystem = utilizePurchasingSystem;
   }
 
 }

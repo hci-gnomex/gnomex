@@ -320,13 +320,6 @@
 	</servlet>
 
 	<servlet>
-		<servlet-name>UploadQuoteInfoServlet</servlet-name>
-		<servlet-class>
-			hci.gnomex.controller.UploadQuoteInfoServlet
-		</servlet-class>
-	</servlet>
-
-	<servlet>
 		<servlet-name>ApproveUser</servlet-name>
 		<servlet-class>
 			hci.gnomex.controller.ApproveUser
@@ -589,11 +582,6 @@
 	<servlet-mapping>
 		<servlet-name>MakeDataTrackIGVLink</servlet-name>
 		<url-pattern>/MakeDataTrackIGVLink.gx</url-pattern>
-	</servlet-mapping>
-
-	<servlet-mapping>
-		<servlet-name>UploadQuoteInfoServlet</servlet-name>
-		<url-pattern>/UploadQuoteInfoServlet.gx</url-pattern>
 	</servlet-mapping>
 
 	<servlet-mapping>
