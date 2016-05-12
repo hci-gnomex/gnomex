@@ -372,7 +372,6 @@
     	<property name="idInvoice" column="idInvoice" type="integer"/>
     	<many-to-one name="invoice" column="idInvoice" class="hci.gnomex.model.Invoice" cascade="none" insert="false" update="false" />
     	<property name="idDiskUsageByMonth" column="idDiskUsageByMonth" type="integer" />
-    	<property name="tag" column="tag" type="string" />
     	<property name="idMasterBillingItem" column="idMasterBillingItem" type="integer" />
     	<property name="idProductOrder" column="idProductOrder" type="integer" />
     	<property name="idRequest" column="idRequest" type="integer" />

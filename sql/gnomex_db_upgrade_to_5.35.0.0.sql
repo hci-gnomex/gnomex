@@ -11,3 +11,7 @@ CALL ExecuteIfTableExists('gnomex', 'ProductType_Audit', 'ALTER TABLE ProductTyp
 ALTER TABLE ProductOrder
 DROP COLUMN uuid;
 CALL ExecuteIfTableExists('gnomex', 'ProductOrder_Audit', 'ALTER TABLE ProductOrder_Audit DROP COLUMN uuid');
+
+ALTER TABLE BillingItem
+DROP COLUMN tag;
+CALL ExecuteIfTableExists('gnomex', 'BillingItem_Audit', 'ALTER TABLE BillingItem_Audit DROP COLUMN tag');

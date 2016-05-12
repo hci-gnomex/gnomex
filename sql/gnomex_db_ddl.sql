@@ -543,7 +543,6 @@ CREATE TABLE gnomex.BillingItem (
   idInvoice INT(10) NULL,
   idDiskUsageByMonth INT(10) NULL,
   idProductOrder INT(10) NULL,
-  tag VARCHAR(10) NULL,
   idMasterBillingItem INT(10) NULL,
   PRIMARY KEY (idBillingItem),
   CONSTRAINT FK_BillingItem_PriceCategory FOREIGN KEY  (idPriceCategory)
