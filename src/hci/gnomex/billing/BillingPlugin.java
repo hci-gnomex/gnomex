@@ -185,7 +185,7 @@ public abstract class BillingPlugin {
         master.setBillingItems(new HashSet<BillingItem>());
         template.getMasterBillingItems().add(master);
 
-        Set<BillingItem> newlyCreatedBillingItems = SaveBillingTemplate.createBillingItemsForMaster(sess, master, template);
+        Set<BillingItem> newlyCreatedBillingItems = SaveBillingTemplate.createBillingItemsForMaster(sess, master, template, null);
 
         for (BillingItem billingItem : newlyCreatedBillingItems) {
         	if (billingStatus != null) {

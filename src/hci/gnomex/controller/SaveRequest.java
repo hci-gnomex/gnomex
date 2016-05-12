@@ -382,6 +382,13 @@ public class SaveRequest extends GNomExCommand implements Serializable {
             }
             sess.save(billingTemplate);
             sess.flush();
+            
+            Map<Integer, List<Object>> infoForRecreatingBillingItems;
+            if (oldBillingTemplate != null && !requestParser.isNewRequest() && requestParser.isReassignBillingAccount()) {
+                infoForRecreatingBillingItems = BillingTemplate.retrieveInfoForRecreatingBillingItems(oldBillingTemplate.getAcceptingBalanceItem(), oldBillingTemplate.getBillingItems(sess));
+            } else {
+                infoForRecreatingBillingItems = BillingTemplate.retrieveInfoForRecreatingBillingItems(null, null);
+            }
 
             // Delete old billing template items if any
             Set<BillingTemplateItem> oldBtiSet = new TreeSet<BillingTemplateItem>();
@@ -447,7 +454,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
               }
 
               // Save new billing items
-              Set<BillingItem> newBillingItems = billingTemplate.recreateBillingItems(sess);
+              Set<BillingItem> newBillingItems = billingTemplate.recreateBillingItems(sess, infoForRecreatingBillingItems);
               for (BillingItem newlyCreatedBillingItem : newBillingItems) {
                 sess.save(newlyCreatedBillingItem);
               }

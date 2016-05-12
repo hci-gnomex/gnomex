@@ -3,9 +3,12 @@ package hci.gnomex.controller;
 import java.io.Serializable;
 import java.io.StringReader;
 import java.math.BigDecimal;
+import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -72,7 +75,7 @@ public class SaveBillingTemplate extends GNomExCommand implements Serializable {
 				sess = HibernateSession.currentSession(this.getUsername());
 
 				BillingTemplateParser btParser = new BillingTemplateParser(billingTemplateDoc.getRootElement());
-				btParser.parse( sess );
+				btParser.parse(sess);
 				BillingTemplate billingTemplate = btParser.getBillingTemplate();
 				
 				// If the template has any approved billing items, prevent modification
@@ -85,12 +88,14 @@ public class SaveBillingTemplate extends GNomExCommand implements Serializable {
 				
 				sess.save(billingTemplate);
 				sess.flush();
+				
+				Map<Integer, List<Object>> infoForRecreatingBillingItems = BillingTemplate.retrieveInfoForRecreatingBillingItems(billingTemplate.getAcceptingBalanceItem(), oldBillingItems);
 
 				// Delete old billing template items if any
 				Set<BillingTemplateItem> oldBtiSet = new TreeSet<BillingTemplateItem>();
-				oldBtiSet.addAll( billingTemplate.getItems() );
+				oldBtiSet.addAll(billingTemplate.getItems());
 				for (BillingTemplateItem billingTemplateItemToDelete : oldBtiSet) {
-					BillingTemplateItem persistentBTI = sess.load( BillingTemplateItem.class, billingTemplateItemToDelete.getIdBillingTemplateItem() );
+					BillingTemplateItem persistentBTI = sess.load(BillingTemplateItem.class, billingTemplateItemToDelete.getIdBillingTemplateItem());
 					sess.delete(persistentBTI);
 				}
 				sess.flush();
@@ -112,7 +117,7 @@ public class SaveBillingTemplate extends GNomExCommand implements Serializable {
 				sess.flush();
 
 				// Save new billing items
-				Set<BillingItem> newBillingItems = billingTemplate.recreateBillingItems(sess);
+				Set<BillingItem> newBillingItems = billingTemplate.recreateBillingItems(sess, infoForRecreatingBillingItems);
 				for (BillingItem newlyCreatedBillingItem : newBillingItems) {
 					sess.save(newlyCreatedBillingItem);
 				}
@@ -156,7 +161,7 @@ public class SaveBillingTemplate extends GNomExCommand implements Serializable {
 		return this;
 	}
 
-	public static Set<BillingItem> createBillingItemsForMaster(Session sess, MasterBillingItem masterBillingItem, BillingTemplate template) {
+	public static Set<BillingItem> createBillingItemsForMaster(Session sess, MasterBillingItem masterBillingItem, BillingTemplate template, Map<Integer, List<Object>> additionalInfo) {
 		ArrayList<BillingTemplateItem> sortedTemplateItems = new ArrayList<BillingTemplateItem>();
 		sortedTemplateItems.addAll(template.getItems());
 		Collections.sort(sortedTemplateItems);
@@ -192,7 +197,6 @@ public class SaveBillingTemplate extends GNomExCommand implements Serializable {
 			if (!templateItem.isAcceptingBalance()) {
 				billingItem.setPercentagePrice(templateItem.getPercentSplit()!=null?templateItem.getPercentSplit():BigDecimal.valueOf(1));
 			}
-			billingItem.setCodeBillingStatus( BillingStatus.PENDING );
 			BillingAccount billingAccount = sess.load(BillingAccount.class, templateItem.getIdBillingAccount());
 			if (billingAccount != null) {
 				billingItem.setIdLab(billingAccount.getLab().getIdLab());
@@ -202,6 +206,19 @@ public class SaveBillingTemplate extends GNomExCommand implements Serializable {
 			} else if ( template.getTargetClassName().indexOf( "ProductOrder" ) >= 0 ) {
 				billingItem.setIdProductOrder( template.getTargetClassIdentifier() );
 			}
+			if (additionalInfo != null && additionalInfo.containsKey(masterBillingItem.getIdMasterBillingItem())) {
+			    List<Object> info = additionalInfo.get(masterBillingItem.getIdMasterBillingItem());
+			    billingItem.setCodeBillingStatus((String) info.get(0));
+			    billingItem.setCurrentCodeBillingStatus((String) info.get(1));
+			    billingItem.setNotes((String) info.get(2));
+			    billingItem.setCompleteDate((Date) info.get(3));
+			} else {
+			    billingItem.setCodeBillingStatus(BillingStatus.PENDING);
+			}
+	        // TODO - Fields not set
+	        /*
+	        private Integer idInvoice;
+	        */
 
 			BigDecimal percentSplit = templateItem.getPercentSplit();
 			BigDecimal dollarAmountBalance = templateItem.getDollarAmountBalance();
@@ -225,15 +242,6 @@ public class SaveBillingTemplate extends GNomExCommand implements Serializable {
 			masterBillingItem.getBillingItems().add(billingItem);
 
 			amountAccountedFor = amountAccountedFor.add(billingItem.getInvoicePrice());
-
-			// TODO - Fields not set
-			/*
-			private String         	codeBillingStatus;
-			private String         	currentCodeBillingStatus;
-			private String         	notes;
-			private Date           	completeDate;
-			private Integer        	idInvoice;
-			*/
 
 			createdBillingItems.add(billingItem);
 		}
