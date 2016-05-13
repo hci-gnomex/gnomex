@@ -345,6 +345,11 @@ public class GetAuthorizedBillingAccounts extends GNomExCommand implements Seria
 		if (includeOnlyUnexpiredAccounts) {
 			useWhere = addWhereOrAnd(queryBuff, useWhere);
 			queryBuff.append(" (ba.expirationDate IS NULL OR ba.expirationDate > \'" + today + "\') ");
+		} else {
+		    long yearInMilliseconds = (long) 1000 * (long) 60 * (long) 60 * (long) 24 * (long) 365;
+		    String oneYearAgo = new Date(System.currentTimeMillis() - yearInMilliseconds).toString();
+		    useWhere = addWhereOrAnd(queryBuff, useWhere);
+            queryBuff.append(" (ba.expirationDate IS NULL OR ba.expirationDate > \'" + oneYearAgo + "\') ");
 		}
 		
 		return queryBuff;

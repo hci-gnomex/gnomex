@@ -464,7 +464,7 @@
 		<mx:Label text="Account:" paddingLeft="4"/>
 		<mx:VBox verticalGap="0" width="100%">
 			<mx:ComboBox id="billingAccountCombo" width="345" labelField="@accountNumberDisplay" dataProvider="{billingAccounts}"/>
-			<mx:CheckBox id="showInactiveAccountsCheckBox"  click="refreshBillingAccounts()" label="Show inactive accounts" selected="false" paddingTop="0"/>			
+			<mx:CheckBox id="showInactiveAccountsCheckBox"  click="loadBillingAccounts()" label="Show inactive accounts" selected="false" paddingTop="0"/>			
 		</mx:VBox>
 		<mx:LinkButton textDecoration="underline" label="Add" 
 					   enabled="{labCombo.selectedItem != null &amp;&amp; labCombo.selectedItem.@idLab != '' &amp;&amp; billingAccountCombo.selectedItem != null &amp;&amp; billingAccountCombo.selectedItem.@idBillingAccount != ''}"
