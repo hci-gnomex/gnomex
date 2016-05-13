@@ -3007,8 +3007,8 @@
 			//if not then don't show the upload external experiment menu item.
 			//all we need is one rc that allows external so break as soon as we find it
 			for each (var rc:Object in dictionaryManager.getEntriesExcludeBlank("hci.gnomex.model.RequestCategory")) {
-				for each(var cf:Object in this.myCoreFacilities){
-					if(rc.@idCoreFacility == cf.@idCoreFacility && rc.@isActive == 'Y' && rc.@isExternal == 'Y'){
+				for each(var cf2:Object in this.myCoreFacilities){
+					if(rc.@idCoreFacility == cf2.@idCoreFacility && rc.@isActive == 'Y' && rc.@isExternal == 'Y'){
 						allowExternal = true;
 						break;
 					}
