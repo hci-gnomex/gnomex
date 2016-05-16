@@ -1341,12 +1341,13 @@ public class SaveRequest extends GNomExCommand implements Serializable {
           }
           sess.flush();
           entry.setValues(null);
+          entry.setOptions(null);
           sess.delete(entry);
         }
       }
     }
 
-    // Create sample property entries
+    // Create sample property entries and options
     for (Iterator i = sampleAnnotations.keySet().iterator(); i.hasNext();) {
 
       Integer idProperty = (Integer) i.next();
@@ -1367,7 +1368,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
       sess.save(entry);
       sess.flush();
 
-      // If the sample property type is "url", save the options.
+      // If the sample property type is "url", save the options.  If it is option or multi option, save the options as well
       if (value != null && !value.equals("") && property.getCodePropertyType().equals(PropertyType.URL)) {
         String[] valueTokens = value.split("\\|");
         for (int x = 0; x < valueTokens.length; x++) {
@@ -1377,6 +1378,21 @@ public class SaveRequest extends GNomExCommand implements Serializable {
           urlValue.setIdPropertyEntry(entry.getIdPropertyEntry());
           sess.save(urlValue);
         }
+      } else if(value != null && !value.equals("") && (property.getCodePropertyType().equals(PropertyType.OPTION) || property.getCodePropertyType().equals(PropertyType.MULTI_OPTION))){
+        String[] valueTokens = value.split(",");
+        Set <PropertyOption> entryOptions = new TreeSet<PropertyOption>();
+        for (int x = 0; x < valueTokens.length; x++) {
+          String v = valueTokens[x];
+          for(Iterator j = property.getOptions().iterator(); j.hasNext();){
+            PropertyOption option = (PropertyOption)j.next();
+            if(option.getOption().equals(v)){
+              entryOptions.add(option);
+              break;
+            }
+          }
+        }
+        entry.setOptions(entryOptions);
+        sess.save(entry);
       }
       sess.flush();
 
