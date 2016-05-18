@@ -631,7 +631,7 @@
 
 
 	<welcome-file-list>
-		<welcome-file>gnomexLite.jsp</welcome-file>
+		<welcome-file>gnomexFlex.jsp</welcome-file>
 		<welcome-file>index.html</welcome-file>
 	</welcome-file-list>
 
@@ -639,7 +639,7 @@
 
 	<security-constraint>
 		<web-resource-collection>
-			<url-pattern>/gnomexLite.jsp</url-pattern>
+			<url-pattern>/gnomexFlex.jsp</url-pattern>
 			<url-pattern>/app/app.js</url-pattern>
 			<url-pattern>/app/dashboard/dashboard.html</url-pattern>
 			<url-pattern>/app/dashboard/DashBoardcontroller.js</url-pattern>
