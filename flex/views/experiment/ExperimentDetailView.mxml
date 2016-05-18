@@ -2004,23 +2004,12 @@
 														 itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqLibProtocol').DictionaryEntry, '@display', '@value', '@idSeqLibProtocol')}"/>
 					
 					<util:AdvancedDataGridColumnWithType propertyType="OPTION" id="barcodeCol" headerText="Index Tag A"  width="75" visible="{true}" dataField="@idOligoBarcode"
-														 itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.OligoBarcode').DictionaryEntry, '@display', '@value', '@idOligoBarcode')}">
+														 itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.OligoBarcode').DictionaryEntry, '@name', '@value', '@idOligoBarcode')}">
 						<util:headerRenderer>
 							<mx:Component>
 								<mx:VBox verticalGap="0" horizontalScrollPolicy="off">
 									<mx:Label text="Index"/>
 									<mx:Label text="Tag A"/>
-								</mx:VBox>
-							</mx:Component>
-						</util:headerRenderer>
-					</util:AdvancedDataGridColumnWithType>
-					<util:AdvancedDataGridColumnWithType propertyType="OPTION" id="barcodeColB" headerText="Index Tag B"  width="75" visible="{true}" dataField="@idOligoBarcodeB"
-														 itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.OligoBarcode').DictionaryEntry, '@display', '@value', '@idOligoBarcodeB')}">
-						<util:headerRenderer>
-							<mx:Component>
-								<mx:VBox verticalGap="0" horizontalScrollPolicy="off">
-									<mx:Label text="Index"/>
-									<mx:Label text="Tag B"/>
 								</mx:VBox>
 							</mx:Component>
 						</util:headerRenderer>
@@ -2035,6 +2024,17 @@
 							</mx:Component>
 						</mx:headerRenderer>
 					</mx:AdvancedDataGridColumn>
+					<util:AdvancedDataGridColumnWithType propertyType="OPTION" id="barcodeColB" headerText="Index Tag B"  width="75" visible="{true}" dataField="@idOligoBarcodeB"
+														 itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.OligoBarcode').DictionaryEntry, '@name', '@value', '@idOligoBarcodeB')}">
+						<util:headerRenderer>
+							<mx:Component>
+								<mx:VBox verticalGap="0" horizontalScrollPolicy="off">
+									<mx:Label text="Index"/>
+									<mx:Label text="Tag B"/>
+								</mx:VBox>
+							</mx:Component>
+						</util:headerRenderer>
+					</util:AdvancedDataGridColumnWithType>
 					<mx:AdvancedDataGridColumn id="customBarcodeColB" headerText="Index Tag B" width="65" visible="true"  dataField="@barcodeSequenceB">
 						<mx:headerRenderer>
 							<mx:Component>

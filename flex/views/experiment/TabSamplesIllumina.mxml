@@ -1324,7 +1324,7 @@
 													 sortable="false" 
 													 editable="true" 
 													 rendererIsEditor="false" 
-													 itemRenderer="{views.renderers.DropdownLabel.create(barcodeList, '@display', '@value', '@idOligoBarcode', '', true, true, 0xFFFFB9)}">
+													 itemRenderer="{views.renderers.DropdownLabel.create(barcodeList, '@name', '@value', '@idOligoBarcode', '', true, true, 0xFFFFB9)}">
 					<util:itemEditor>
 						<mx:Component>
 							<renderers:FilterComboBoxOligoBarcode idSeqLibProtocol="{data.@idSeqLibProtocol}"
@@ -1348,6 +1348,19 @@
 						</mx:Component>
 					</util:headerRenderer>
 				</util:AdvancedDataGridColumnWithType>
+				<mx:AdvancedDataGridColumn id="customBarcodeColumn" headerText="Index Tag Sequence" dataField="@barcodeSequence" editable="false" visible="true"
+										   width="85"
+										   itemRenderer="mx.controls.Label"
+										   itemEditor="{views.renderers.GridColumnFillButton.create(hci.flex.controls.TextInput.create('@barcodeSequence').newInstance(), '')}" editorDataField="value">
+					<mx:headerRenderer >
+						<mx:Component>
+							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off" horizontalAlign="center" verticalAlign="middle">
+								<util:ContextHelp context1="sampleIndexTagSequenceA" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="Index Tag Sequence A Help" showEdit="{parentApplication.isAdminState}"
+												  label="Index Tag&#13;Sequence A" noIconSpaceIfNoHelp="true"/>
+							</mx:VBox>
+						</mx:Component>
+					</mx:headerRenderer>
+				</mx:AdvancedDataGridColumn>
 				<util:AdvancedDataGridColumnWithType propertyType="OPTION" 
 													 id="barcodeColumnB" 
 													 headerText="Index Tag B" 
@@ -1358,7 +1371,7 @@
 													 editable="true"
 													 editorDataField="value"
 													 rendererIsEditor="false" 
-													 itemRenderer="{views.renderers.DropdownLabel.create(barcodeList, '@display', '@value', '@idOligoBarcodeB', '', false, true)}">
+													 itemRenderer="{views.renderers.DropdownLabel.create(barcodeList, '@name', '@value', '@idOligoBarcodeB', '', false, true)}">
 					<util:itemEditor>
 						<mx:Component>
 							<renderers:FilterComboBoxOligoBarcode idSeqLibProtocol="{data.@idSeqLibProtocol}"
@@ -1382,19 +1395,7 @@
 						</mx:Component>
 					</util:headerRenderer>
 				</util:AdvancedDataGridColumnWithType>
-				<mx:AdvancedDataGridColumn id="customBarcodeColumn" headerText="Index Tag Sequence" dataField="@barcodeSequence" editable="false" visible="true"
-										   width="85"
-										   itemRenderer="mx.controls.Label"               
-										   itemEditor="{views.renderers.GridColumnFillButton.create(hci.flex.controls.TextInput.create('@barcodeSequence').newInstance(), '')}" editorDataField="value">
-					<mx:headerRenderer > 
-						<mx:Component>
-							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off" horizontalAlign="center" verticalAlign="middle"> 
-									<util:ContextHelp context1="sampleIndexTagSequenceA" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="Index Tag Sequence A Help" showEdit="{parentApplication.isAdminState}"
-													  label="Index Tag&#13;Sequence A" noIconSpaceIfNoHelp="true"/>
-							</mx:VBox> 
-						</mx:Component>
-					</mx:headerRenderer>
-				</mx:AdvancedDataGridColumn>
+
 				
 				<mx:AdvancedDataGridColumn id="customBarcodeColumnB" headerText="Index Tag Sequence B" dataField="@barcodeSequenceB" editable="false" visible="true"
 										   width="85"
