@@ -2140,9 +2140,6 @@
 		}
 
 		private function getPrintableRequestForm():void{
-//			var idRequest:String = Application.application.parameters.idRequest;
-//			var amendState:String = Application.application.parameters.amendState;
-//			var comingFromEmail:String = Application.application.parameters.comingFromEmail;
 			var url:URLRequest = new URLRequest('ShowRequestForm.gx?idRequest=' + Application.application.parameters.idRequest + '&amendState=' + Application.application.parameters.amendState + '&comingFromEmail=' + Application.application.parameters.comingFromEmail);
 			navigateToURL(url, "_blank");
 		}
