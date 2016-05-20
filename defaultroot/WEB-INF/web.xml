@@ -28,29 +28,6 @@
 	</servlet>
 
 	<servlet>
-		<servlet-name>CustomCaptchaURLServlet</servlet-name>
-		<servlet-class>
-			hci.gnomex.controller.CustomCaptchaURLServlet
-		</servlet-class>
-	</servlet>
-
-	<servlet>
-		<servlet-name>Captcha</servlet-name>
-		<display-name>Captcha</display-name>
-		<servlet-class>
-			hci.gnomex.controller.CustomCaptchaServlet
-		</servlet-class>
-		<init-param>
-			<param-name>width</param-name>
-			<param-value>180</param-value>
-		</init-param>
-		<init-param>
-			<param-name>height</param-name>
-			<param-value>60</param-value>
-		</init-param>
-	</servlet>
-
-	<servlet>
 		<servlet-name>DownloadChromatogramFileServlet</servlet-name>
 		<servlet-class>
 			hci.gnomex.controller.DownloadChromatogramFileServlet
@@ -568,15 +545,6 @@
 	<servlet-mapping>
 		<servlet-name>GetPurchaseOrderForm</servlet-name>
 		<url-pattern>/GetPurchaseOrderForm.gx</url-pattern>
-	</servlet-mapping>
-
-	<servlet-mapping>
-		<servlet-name>CustomCaptchaURLServlet</servlet-name>
-		<url-pattern>/CustomCaptchaURLServlet.gx</url-pattern>
-	</servlet-mapping>
-	<servlet-mapping>
-		<servlet-name>Captcha</servlet-name>
-		<url-pattern>/Captcha.jpg</url-pattern>
 	</servlet-mapping>
 
 	<servlet-mapping>

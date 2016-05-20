@@ -335,7 +335,6 @@
 		import views.util.AnalysisProtocolsEvent;
 		import views.util.AppProgressView;
 		import views.util.BroadcastEmailWindow;
-		import views.util.CaptchaView;
 		import views.util.ContactView;
 		import views.util.ContextHelp;
 		import views.util.ContextHelpEditEnableDisableEvent;
@@ -2239,14 +2238,6 @@
 			var parms:Object = new Object();
 			parms.idCoreFacility = idCoreFacility;
 			if (isGuestMode()) {
-				/*
-				 Captcha feature removed 7.6.12. Guests can now login directly
-				 var captchaWindow:CaptchaView = new CaptchaView();
-				 PopUpManager.addPopUp(captchaWindow, mainArea, false);
-				 PopUpManager.centerPopUp(captchaWindow);
-				 captchaWindow.init();
-				 captchaWindow.phrase.setFocus();
-				 */
 				getSecurityAdvisorForGuest.send(parms);
 
 			} else {
