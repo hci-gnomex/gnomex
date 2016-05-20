@@ -290,12 +290,12 @@
             
 		<![CDATA[
 		import com.earthbrowser.ebutils.MacMouseWheelHandler;
-		
+
 		import hci.flex.dictionary.DictionaryEditor;
 		import hci.flex.dictionary.DictionaryEvent;
 		import hci.flex.renderers.RendererFactory;
 		import hci.flex.util.DictionaryManager;
-		
+
 		import mx.collections.ArrayCollection;
 		import mx.collections.Sort;
 		import mx.collections.XMLListCollection;
@@ -315,7 +315,7 @@
 		import mx.rpc.events.FaultEvent;
 		import mx.rpc.events.ResultEvent;
 		import mx.utils.StringUtil;
-		
+
 		import views.admin.BillingAccountFieldsConfigurationWindow;
 		import views.admin.GenomeIndexEvent;
 		import views.admin.PropertyEvent;
@@ -2131,6 +2131,24 @@
 			}
 		}
 
+		public function launchShowRequestForm():Boolean {
+			if (Application.application.parameters.launchWindow != null &&
+					Application.application.parameters.launchWindow == "showRequestForm") {
+				return true;
+			} else {
+				return false;
+			}
+		}
+
+		private function getPrintableRequestForm():void{
+//			var idRequest:String = Application.application.parameters.idRequest;
+//			var amendState:String = Application.application.parameters.amendState;
+//			var comingFromEmail:String = Application.application.parameters.comingFromEmail;
+			var url:URLRequest = new URLRequest('ShowRequestForm.gx?idRequest=' + Application.application.parameters.idRequest + '&amendState=' + Application.application.parameters.amendState + '&comingFromEmail=' + Application.application.parameters.comingFromEmail);
+			navigateToURL(url, "_blank");
+		}
+
+
 		public function launchCreateExperiment():Boolean {
 			var lw:String = Application.application.parameters.launchWindow;
 			var cc:String = Application.application.parameters.ccNumberList;
@@ -2317,12 +2335,12 @@
 				return new XMLListCollection(createSecurityAdvisor.lastResult.groupsToManage.Lab);
 			}
 		}
-			
-		public function isGroupIManage(idLab:int):Boolean{
-			var theLab:Object = createSecurityAdvisor.lastResult.groupsToManage.Lab.(@idLab == idLab.toString());		
-			if(theLab.length() > 0){
+
+		public function isGroupIManage(idLab:int):Boolean {
+			var theLab:Object = createSecurityAdvisor.lastResult.groupsToManage.Lab.(@idLab == idLab.toString());
+			if (theLab.length() > 0) {
 				return true;
-			} else{
+			} else {
 				return false;
 			}
 		}
@@ -2420,10 +2438,10 @@
 			if (this.isGuestMode()) {
 				hideMenusByContext(navMenu, "guest");
 			}
-			if (this.getMyCoreThatUseProducts().length<=0){
+			if (this.getMyCoreThatUseProducts().length <= 0) {
 				hideMenusByContext(navMenu, "product");
 			}
-			if(this.allowExternal == false){
+			if (this.allowExternal == false) {
 				hideMenusByContext(navMenu, "newExternalExperiment");
 			}
 
@@ -3007,13 +3025,13 @@
 			//if not then don't show the upload external experiment menu item.
 			//all we need is one rc that allows external so break as soon as we find it
 			for each (var rc:Object in dictionaryManager.getEntriesExcludeBlank("hci.gnomex.model.RequestCategory")) {
-				for each(var cf2:Object in this.myCoreFacilities){
-					if(rc.@idCoreFacility == cf2.@idCoreFacility && rc.@isActive == 'Y' && rc.@isExternal == 'Y'){
+				for each(var cf2:Object in this.myCoreFacilities) {
+					if (rc.@idCoreFacility == cf2.@idCoreFacility && rc.@isActive == 'Y' && rc.@isExternal == 'Y') {
 						allowExternal = true;
 						break;
 					}
 				}
-				if(allowExternal){
+				if (allowExternal) {
 					break;
 				}
 			}
@@ -3066,7 +3084,6 @@
 			buildSeqLibProtocolListWithAppFilters();
 
 			getProductList.send();
-
 
 
 			if (this.getProperty(this.PROPERTY_CONFIGURABLE_BILLING_ACCOUNTS) == "Y") {
@@ -3429,7 +3446,7 @@
 					PopUpManager.centerPopUp(changePasswordWindow);
 				}
 
-				trace("Total login time: " + ((getTimer() - startTime) /1000));
+				trace("Total login time: " + ((getTimer() - startTime) / 1000));
 
 			}
 		}
@@ -3477,6 +3494,8 @@
 				this.showNewExperiment(getNewExperimentCCNumbers());
 			} else if (launchProductLedgerView()) {
 				showProductLedgerView();
+			} else if (this.launchShowRequestForm()) {
+				this.getPrintableRequestForm();
 			} else {
 				if (showUsage && showUsageOnStartup) {
 					theViews.selectedChild = this.navUsageView;
