@@ -1234,9 +1234,9 @@ public class SaveRequest extends GNomExCommand implements Serializable {
               } else {
                 String codeStepNext = "";
                 if (requestCategory.getType().equals(RequestCategoryType.TYPE_HISEQ)) {
-                  codeStepNext = Step.HISEQ_PREP;
+                  codeStepNext = Step.HISEQ_PREP_QC;
                 } else if (requestCategory.getType().equals(RequestCategoryType.TYPE_MISEQ)) {
-                  codeStepNext = Step.MISEQ_PREP;
+                  codeStepNext = Step.MISEQ_PREP_QC;
                 }
                 workItem.setCodeStepNext(codeStepNext);
                 sample.setQualBypassed("Y");

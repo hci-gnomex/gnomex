@@ -140,8 +140,8 @@ public class SaveWorkItemSolexaPrep extends GNomExCommand implements Serializabl
                   if (lane.getIdSample().equals(sample.getIdSample()) && lane.getIdFlowCellChannel() == null) {
                     
                     // Make sure this lane isn't already queued up on the cluster gen workflow
-                    //List otherWorkItems = (List)sess.createQuery("SELECT wi from WorkItem wi join wi.sequenceLane l where wi.codeStepNext = '" + Step.SEQ_CLUSTER_GEN + "' and l.idSequenceLane = " + lane.getIdSequenceLane()).list();
-                    //if (otherWorkItems.size() == 0) {
+                    List otherWorkItems = (List)sess.createQuery("SELECT wi from WorkItem wi join wi.sequenceLane l where wi.codeStepNext = '" + Step.SEQ_CLUSTER_GEN + "' and l.idSequenceLane = " + lane.getIdSequenceLane()).list();
+                    if (otherWorkItems.size() == 0) {
                       WorkItem wi = new WorkItem();
                       wi.setIdRequest(sample.getIdRequest());
                       wi.setIdCoreFacility(sample.getRequest().getIdCoreFacility());
@@ -158,14 +158,14 @@ public class SaveWorkItemSolexaPrep extends GNomExCommand implements Serializabl
                       wi.setSequenceLane(lane);
                       wi.setCreateDate(new java.sql.Date(System.currentTimeMillis()));
                       sess.save(wi);                      
-                    //}
+                    }
                     
                   }
                 }
                 
                 
             }
-            
+
             if (autoCompleteMap.containsKey(request.getIdRequest())) {
               BillingItemAutoComplete auto = autoCompleteMap.get(request.getIdRequest());
               // If same request has workitems of different steps then they have to manually complete billing items.
