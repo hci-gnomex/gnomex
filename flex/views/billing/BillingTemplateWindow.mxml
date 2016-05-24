@@ -259,7 +259,7 @@
 			
 			private function setupBillingTemplateItems():void {
 				var sort:Sort = new Sort();
-				sort.fields = [new SortField("@sortOrder", true)];
+				sort.fields = [new SortField("@sortOrder", true, false, true)];
 				billingTemplateItems.sort = sort;
 				billingTemplateItems.refresh();
 			}
