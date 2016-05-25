@@ -922,7 +922,7 @@ CREATE TABLE gnomex.Chromatogram (
   idChromatogram int(10) NOT NULL AUTO_INCREMENT,
   idPlateWell int(10) NULL,
   idRequest int(10) NULL,
-  displayName varchar(200) NULL,
+  fileName varchar(200) NULL,
   readLength int(10) NULL,
   trimmedLength int NULL,
   q20 int(10) NULL,

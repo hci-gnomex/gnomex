@@ -1,19 +1,18 @@
 package hci.gnomex.model;
 
-import hci.hibernate5utils.HibernateDetailObject;
+import hci.gnomex.utility.GnomexFile;
 
 import java.util.Date;
 
 
-public class Chromatogram extends HibernateDetailObject {
-  
+public class Chromatogram extends GnomexFile {
+
   private Integer    idChromatogram;
   private Integer    idPlateWell;
   private PlateWell  plateWell;
   private Integer    idRequest;
   private Request    request;
   private String     qualifiedFilePath;
-  private String     displayName;
   private Integer    readLength;
   private Integer    trimmedLength;
   private Integer    q20;
@@ -24,7 +23,7 @@ public class Chromatogram extends HibernateDetailObject {
   private Integer    tSignalStrength;
   private Date       releaseDate;
   private Integer    idReleaser;
-  private Integer     lane;
+  private Integer    lane;
   
   
   
@@ -94,16 +93,6 @@ public class Chromatogram extends HibernateDetailObject {
   public String getQualifiedFilePath()
   {
     return qualifiedFilePath;
-  }
-
-  public String getDisplayName()
-  {
-    return displayName;
-  }
-
-  public void setDisplayName(String displayName)
-  {
-    this.displayName = displayName;
   }
 
   public Integer getReadLength()

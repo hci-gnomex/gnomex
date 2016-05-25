@@ -84,7 +84,7 @@ public class GetChromatogram extends GNomExCommand implements Serializable {
           this.addInvalidField("missingChromatogram", "Cannot find chromatogram idChromatogram=" + idChromatogram );
         }
         
-        fileName = c.getDisplayName();
+        fileName = c.getFileName();
         
       } else if ( fileName!=null ){
         
@@ -102,7 +102,7 @@ public class GetChromatogram extends GNomExCommand implements Serializable {
       idChromatogram =  c!=null ? c.getIdChromatogram():0;
 
 
-      File abiFile = new File(c.getQualifiedFilePath() + File.separator + c.getDisplayName());
+      File abiFile = new File(c.getQualifiedFilePath() + File.separator + c.getFileName());
 
 
       ChromatReadUtil chromatReader = new ChromatReadUtil(abiFile);

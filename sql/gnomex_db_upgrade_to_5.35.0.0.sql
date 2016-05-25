@@ -15,3 +15,7 @@ CALL ExecuteIfTableExists('gnomex', 'ProductOrder_Audit', 'ALTER TABLE ProductOr
 ALTER TABLE BillingItem
 DROP COLUMN tag;
 CALL ExecuteIfTableExists('gnomex', 'BillingItem_Audit', 'ALTER TABLE BillingItem_Audit DROP COLUMN tag');
+
+-- Change displayName to fileName on Chromatogram
+ALTER TABLE Chromatogram change column displayName fileName VARCHAR(200) NULL;
+call ExecuteIfTableExists('gnomex','Chromatogram_Audit','alter table Chromatogram_Audit change column displayName fileName VARCHAR(200) NULL;');

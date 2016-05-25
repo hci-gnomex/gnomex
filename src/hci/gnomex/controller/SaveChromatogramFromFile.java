@@ -175,7 +175,7 @@ public class SaveChromatogramFromFile extends GNomExCommand implements Serializa
       chromatogram.setPlateWell(well);
       chromatogram.setIdRequest(well.getIdRequest());
       chromatogram.setQualifiedFilePath(destDir);
-      chromatogram.setDisplayName(abiFile.getName());
+      chromatogram.setFileName(abiFile.getName());
       chromatogram.setReadLength(chromatReader.getChrom().getSequenceLength());
       chromatogram.setTrimmedLength(trimLength);
       chromatogram.setQ20(q20);

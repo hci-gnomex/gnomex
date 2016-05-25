@@ -5,18 +5,16 @@ import hci.gnomex.model.Chromatogram;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.ChromatReadUtil;
 import hci.gnomex.utility.HibernateSession;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.net.InetAddress;
+import org.hibernate.Session;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import org.hibernate.Session;
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.InetAddress;
 
 public class DownloadFastaFileServlet extends HttpServlet { 
 
@@ -89,7 +87,7 @@ public class DownloadFastaFileServlet extends HttpServlet {
         Session sess = secAdvisor.getHibernateSession(req.getUserPrincipal() != null ? req.getUserPrincipal().getName() : "guest");
         chromatogram = (Chromatogram)sess.load(Chromatogram.class, idChromatogram);
 
-        String chromatName = chromatogram.getDisplayName();
+        String chromatName = chromatogram.getFileName();
         
         String fastaFileName = chromatName.replace( "ab1", "fasta" );
         
@@ -101,11 +99,12 @@ public class DownloadFastaFileServlet extends HttpServlet {
         
         OutputStream out = response.getOutputStream();
 
-        File abiFile = new File(chromatogram.getQualifiedFilePath() + File.separator + chromatogram.getDisplayName());
+        File abiFile = new File(chromatogram.getQualifiedFilePath() + File.separator + chromatogram.getFileName());
         ChromatReadUtil chromatReader = new ChromatReadUtil(abiFile);
 
         String header = ">"; 
-        header += chromatogram.getPlateWell().getSampleName() != null && !chromatogram.getPlateWell().getSampleName().equals( "" ) ? chromatogram.getPlateWell().getSampleName() : chromatogram.getDisplayName();
+        header += chromatogram.getPlateWell().getSampleName() != null && !chromatogram.getPlateWell().getSampleName()
+                .equals( "" ) ? chromatogram.getPlateWell().getSampleName() : chromatogram.getFileName();
 //        String header = ">gi|" + "gi-number" + "|" + "gb" + "|" + "accession" + "|" + "Name Here";
         String seq = chromatReader.getSeq();
         

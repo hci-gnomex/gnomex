@@ -2,6 +2,7 @@ package hci.gnomex.model;
 
 
 
+import hci.gnomex.utility.GnomexFile;
 import hci.hibernate5utils.HibernateDetailObject;
 
 import java.io.File;
@@ -10,18 +11,13 @@ import java.sql.Date;
 
 
 
-public class AnalysisFile extends HibernateDetailObject {
-  
+public class AnalysisFile extends GnomexFile {
+
   private Integer        idAnalysisFile;
   private Integer        idAnalysis;
   private Analysis       analysis;
-  private String         fileName;
   private String         comments;
   private Date           uploadDate;
-  private BigDecimal     fileSize;
-  private String         qualifiedFilePath;
-  private String         baseFilePath;
-  private Date           createDate;
   
 
   public Integer getIdAnalysis() {
@@ -40,71 +36,17 @@ public class AnalysisFile extends HibernateDetailObject {
     this.analysis = analysis;
   }
 
-  
+
   public Integer getIdAnalysisFile() {
     return idAnalysisFile;
   }
 
-  
+
   public void setIdAnalysisFile(Integer idAnalysisFile) {
     this.idAnalysisFile = idAnalysisFile;
   }
 
-  
-  public String getQualifiedFilePath()
-  {
-    return qualifiedFilePath;
-  }
 
-  public void setQualifiedFilePath(String qualifiedFilePath)
-  {
-    this.qualifiedFilePath = qualifiedFilePath;
-  }
-
-  public String getBaseFilePath()
-  {
-    return baseFilePath;
-  }
-
-  public void setBaseFilePath(String baseFilePath)
-  {
-    this.baseFilePath = baseFilePath;
-  }
-
-  public String getFileName() {
-    return fileName;
-  }
-
-  
-  public void setFileName(String fileName) {
-    this.fileName = fileName;
-  }
-
-  public String getFullPathName() {
-    String fullPathName = getBaseFilePath();
-    if ( getQualifiedFilePath() != null && !getQualifiedFilePath().equals("") ) {
-      fullPathName += "/" + getQualifiedFilePath();  
-    }
-    fullPathName += "/" + getFileName();
-//    String fullPath = fullPathName.replaceAll("/", "\\\\");
-    String fullPath = fullPathName.replace("\\", "/");
-    
-//    return fullPath;
-    return fullPathName;
-  }
-  public String getQualifiedFileName() {
-    String fullPathName = "";
-    if ( getQualifiedFilePath() != null && !getQualifiedFilePath().equals("") ) {
-      fullPathName += getQualifiedFilePath() + "/";  
-    }
-    fullPathName += getFileName();
-//    String fullPath = fullPathName.replaceAll("/", "\\\\");
-//    String fullPath = fullPathName.replace("\\", "/");
-    
-//    return fullPath;
-    return fullPathName;
-  }
-  
   public String getComments() {
     return comments;
   }
@@ -129,24 +71,7 @@ public class AnalysisFile extends HibernateDetailObject {
     this.excludeMethodFromXML("getAnalysis");
   }
 
-  public BigDecimal getFileSize() {
-    return fileSize;
-  }
 
-  public void setFileSize(BigDecimal fileSize) {
-    this.fileSize = fileSize;
-  }
-
-  
-  public Date getCreateDate() {
-    return createDate;
-  }
-
-  
-  public void setCreateDate(Date createDate) {
-    this.createDate = createDate;
-  }
-  
   public Date getEffectiveCreateDate() {
     if (uploadDate == null) {
       return createDate;
@@ -159,14 +84,14 @@ public class AnalysisFile extends HibernateDetailObject {
     String filePath = "";
     if (baseFilePath == null || baseFilePath.equals("")) {
       String createYear = Analysis.getCreateYear(this.getAnalysis().getCreateDate());
-      filePath = baseDir + "/" + createYear + "/" + this.getAnalysis().getNumber();
+      filePath = baseDir + File.separator + createYear + File.separator + this.getAnalysis().getNumber();
     } else {
       filePath = baseFilePath;
     }
     if (this.getQualifiedFilePath() != null && !this.getQualifiedFilePath().equals("")) {
-      filePath += "/" + this.getQualifiedFilePath();
+      filePath += File.separator + this.getQualifiedFilePath();
     }
-    filePath +=  "/" + this.getFileName();
+    filePath +=  File.separator + this.getFileName();
     
     return new File(filePath);
   }

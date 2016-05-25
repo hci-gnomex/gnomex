@@ -216,7 +216,7 @@ public class ChromatogramParser extends DetailObject implements Serializable
     if ( idPlateWell != 0 ) {ch.setIdPlateWell( idPlateWell );}
     if ( req != null ) {ch.setIdRequest( req.getIdRequest() );}
     if ( qualifiedFilePath != null )  {ch.setQualifiedFilePath( qualifiedFilePath );}
-    if ( displayName != null ) {ch.setDisplayName( displayName );}
+    if ( displayName != null ) {ch.setFileName( displayName );}
     if ( readLength != 0 ) {ch.setReadLength( readLength );}
     if ( trimmedLength != 0 ) {ch.setTrimmedLength( trimmedLength );}
     if ( q20 != 0 )  {ch.setQ20( q20 );}

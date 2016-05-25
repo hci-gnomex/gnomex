@@ -125,11 +125,11 @@ public class DownloadChromatogramFileServlet extends HttpServlet {
         
         
         response.setContentType("application/x-download");
-        response.setHeader("Content-Disposition", "attachment;filename=" + chromatogram.getDisplayName());          
+        response.setHeader("Content-Disposition", "attachment;filename=" + chromatogram.getFileName());
         response.setHeader("Cache-Control", "max-age=0, must-revalidate");
 
 
-        String fileName = chromatogram.getQualifiedFilePath() + File.separator + chromatogram.getDisplayName();
+        String fileName = chromatogram.getQualifiedFilePath() + File.separator + chromatogram.getFileName();
         
         in = new FileInputStream(fileName);
         OutputStream out = response.getOutputStream();
