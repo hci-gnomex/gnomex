@@ -1,13 +1,8 @@
 package hci.gnomex.utility;
 
-import hci.framework.model.*;
 import hci.framework.model.DetailObject;
 import hci.gnomex.constants.Constants;
-import hci.gnomex.model.Analysis;
-import hci.gnomex.model.ProductOrder;
 import hci.gnomex.model.PropertyDictionary;
-import hci.gnomex.model.Request;
-import org.hibernate.Session;
 
 import java.io.File;
 import java.io.Serializable;
@@ -15,6 +10,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+
+import org.hibernate.Session;
 
 /**
  * Created by u0395021 on 5/4/2016.
@@ -25,7 +22,7 @@ public class FileDescriptor extends DetailObject implements Serializable {
 	private static final double GB = Math.pow(2, 30);
 
 	private String displayName;
-	private String number; //this is the object number (ie: analysis number, product order number, request number)
+	private String number; // this is the object number (ie: analysis number, product order number, request number)
 	private long fileSize;
 	private String fileName;
 	private Date lastModifyDate;
@@ -48,12 +45,11 @@ public class FileDescriptor extends DetailObject implements Serializable {
 	private List children = new ArrayList();
 	private boolean found = false;
 
-
-	public FileDescriptor(){
+	public FileDescriptor() {
 
 	}
 
-	public FileDescriptor(String number, String displayName, File file, String baseDir){
+	public FileDescriptor(String number, String displayName, File file, String baseDir) {
 		this.setNumber(number);
 		this.setDisplayName(displayName);
 		this.setFileSize(file.length());
@@ -71,10 +67,10 @@ public class FileDescriptor extends DetailObject implements Serializable {
 			System.err.println("IO Exception occurred when trying to get absolute path for file " + file.toString());
 			this.setFileName(file.getAbsolutePath().replace("\\", "/"));
 		}
-		//this.setZipEntryName(PropertyDictionaryHelper.parseZipEntryName(baseDir, this.getFileName()));
-		if(new File(baseDir).isAbsolute()){
+		// this.setZipEntryName(PropertyDictionaryHelper.parseZipEntryName(baseDir, this.getFileName()));
+		if (new File(baseDir).isAbsolute()) {
 			this.setZipEntryName(PropertyDictionaryHelper.parseZipEntryName(baseDir, this.getFileName()));
-		} else{
+		} else {
 			this.setZipEntryName(baseDir);
 		}
 
@@ -101,10 +97,7 @@ public class FileDescriptor extends DetailObject implements Serializable {
 
 		this.setType(ext);
 
-
 	}
-
-
 
 	public String getFileSizeText() {
 
@@ -128,7 +121,6 @@ public class FileDescriptor extends DetailObject implements Serializable {
 
 	}
 
-
 	public String getDisplayName() {
 		return displayName;
 	}
@@ -136,7 +128,6 @@ public class FileDescriptor extends DetailObject implements Serializable {
 	public void setDisplayName(String displayName) {
 		this.displayName = displayName;
 	}
-
 
 	public long getChildFileSize() {
 
@@ -257,7 +248,7 @@ public class FileDescriptor extends DetailObject implements Serializable {
 		return (this.type != null && this.type.equals("dir"));
 	}
 
-	public String getViewURL(Object obj) {
+	public String getViewURL(String viewType) {
 		String viewURL = "";
 		String dirParm = this.getDirectoryName() != null && !this.getDirectoryName().equals("") ? "&dir=" + this.getDirectoryName() : "";
 		dirParm.replace("/", "&#47;");
@@ -272,7 +263,8 @@ public class FileDescriptor extends DetailObject implements Serializable {
 			if (found) {
 				Double maxSize = Math.pow(2, 20) * 50;
 				try {
-					maxSize = Math.pow(2, 20) * Double.parseDouble(PropertyDictionaryHelper.getInstance(null).getProperty(PropertyDictionary.FILE_MAX_VIEWABLE_SIZE));
+					maxSize = Math.pow(2, 20)
+							* Double.parseDouble(PropertyDictionaryHelper.getInstance(null).getProperty(PropertyDictionary.FILE_MAX_VIEWABLE_SIZE));
 				} catch (Exception ex) {
 				}
 
@@ -280,17 +272,7 @@ public class FileDescriptor extends DetailObject implements Serializable {
 					String vfilename = this.getDisplayName();
 					vfilename = Util.encodeName(vfilename);
 
-					if(obj instanceof Request){
-						Request r = (Request) obj;
-						viewURL = Constants.DOWNLOAD_SINGLE_FILE_SERVLET + "?idRequest=" + r.getIdRequest() + "&fileName=" + vfilename + "&view=Y" + dirParm;
-					} else if(obj instanceof Analysis){
-						Analysis a = (Analysis) obj;
-						viewURL = Constants.DOWNLOAD_ANALYSIS_SINGLE_FILE_SERVLET + "?idAnalysis=" + a.getIdAnalysis() + "&fileName=" + vfilename + "&view=Y" + dirParm;
-					} else if(obj instanceof ProductOrder){
-						ProductOrder po = (ProductOrder) obj;
-						viewURL = Constants.DOWNLOAD_PRODUCT_ORDER_SINGLE_FILE_SERVLET + "?idProductOrder=" + po.getIdProductOrder() + "&fileName=" + vfilename + "&view=Y" + dirParm;
-					}
-
+					viewURL = viewType + "&fileName=" + vfilename + "&view=Y" + dirParm;
 
 				}
 			}
@@ -497,6 +479,5 @@ public class FileDescriptor extends DetailObject implements Serializable {
 		}
 		return (found ? "Y" : "N");
 	}
-
 
 }
