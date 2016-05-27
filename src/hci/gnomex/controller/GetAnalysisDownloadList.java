@@ -423,7 +423,7 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
 						}
 					}
 
-					String viewType = Constants.DOWNLOAD_ANALYSIS_SINGLE_FILE_SERVLET + "?idAnalysis=" + af.getIdAnalysis();
+					String viewType = Constants.DOWNLOAD_ANALYSIS_SINGLE_FILE_SERVLET + "?idAnalysis=" + fd.getId() != null ? fd.getId().toString() : "";
 
 					fd.setQualifiedFilePath(directoryName);
 					fd.setBaseFilePath(baseDir + createYear + File.separator + analysisNumber);
