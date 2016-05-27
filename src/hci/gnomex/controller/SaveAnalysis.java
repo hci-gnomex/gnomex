@@ -352,7 +352,7 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
 
 					analysis.setNumber("A" + analysis.getIdAnalysis().toString());
 					analysis.setCreateDate(new java.sql.Date(System.currentTimeMillis()));
-					sess.flush(analysis);
+					sess.flush();
 
 				} else {
 					initializeAnalysis(sess, analysis);
