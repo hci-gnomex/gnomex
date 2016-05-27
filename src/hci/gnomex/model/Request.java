@@ -98,7 +98,7 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
   private String          includeBisulfideConversion;
   private String          includeQubitConcentration;
   private String          adminNotes;
-  private Integer		      idProduct;
+  private Integer		  idProduct;
   private String          archived;
 
   //Billing fields

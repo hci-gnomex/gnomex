@@ -12,7 +12,6 @@ public class Chromatogram extends GnomexFile {
   private PlateWell  plateWell;
   private Integer    idRequest;
   private Request    request;
-  private String     qualifiedFilePath;
   private Integer    readLength;
   private Integer    trimmedLength;
   private Integer    q20;
@@ -83,16 +82,6 @@ public class Chromatogram extends GnomexFile {
   public void setRequest(Request request)
   {
     this.request = request;
-  }
-
-  public void setQualifiedFilePath(String qualifiedFilePath)
-  {
-    this.qualifiedFilePath = qualifiedFilePath;
-  }
-
-  public String getQualifiedFilePath()
-  {
-    return qualifiedFilePath;
   }
 
   public Integer getReadLength()
