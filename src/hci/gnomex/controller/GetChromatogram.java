@@ -88,7 +88,7 @@ public class GetChromatogram extends GNomExCommand implements Serializable {
         
       } else if ( fileName!=null ){
         
-        StringBuffer buf = new StringBuffer("SELECT c from Chromatogram as c where c.displayName = '" + fileName + "'");
+        StringBuffer buf = new StringBuffer("SELECT c from Chromatogram as c where c.fileName = '" + fileName + "'");
         
         List chromats = sess.createQuery(buf.toString()).list();
         if (chromats.size() > 0) {
