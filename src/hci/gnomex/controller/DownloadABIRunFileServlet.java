@@ -1,7 +1,6 @@
 package hci.gnomex.controller;
 
 import hci.framework.model.DetailObject;
-import hci.gnomex.constants.Constants;
 import hci.gnomex.model.AppUser;
 import hci.gnomex.model.InstrumentRun;
 import hci.gnomex.model.InstrumentRunStatus;
@@ -12,6 +11,7 @@ import hci.gnomex.model.Request;
 import hci.gnomex.model.RequestStatus;
 import hci.gnomex.model.SealType;
 import hci.gnomex.security.SecurityAdvisor;
+import hci.gnomex.utility.ServletUtil;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.ProductException;
 import hci.gnomex.utility.ProductUtil;
@@ -19,7 +19,6 @@ import hci.gnomex.utility.ProductUtil;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.InetAddress;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -47,32 +46,16 @@ public class DownloadABIRunFileServlet extends HttpServlet {
     
   protected void doGet(HttpServletRequest req, HttpServletResponse response)
       throws ServletException, IOException {
-    
 
-    // restrict commands to local host if request is not secure
-    if (Constants.REQUIRE_SECURE_REMOTE && !req.isSecure()) {
-      if (req.getRemoteAddr().equals(InetAddress.getLocalHost().getHostAddress())
-          || req.getRemoteAddr().equals("127.0.0.1")
-          || InetAddress.getByName(req.getRemoteAddr()).isLoopbackAddress()) {
-      }
-      else {
-        log.error("Accessing secure command over non-secure line from remote host is not allowed");
-        
-        response.setContentType("text/html");
-        response.getOutputStream().println(
-            "<html><head><title>Error</title></head>");
-        response.getOutputStream().println("<body><b>");
-        response.getOutputStream().println(
-            "Secure connection is required. Prefix your request with 'https: "
-                + "<br>");
-        response.getOutputStream().println("</body>");
-        response.getOutputStream().println("</html>");
-        return;
-      }
+    // Restrict commands to local host if request is not secure
+    if (!ServletUtil.checkSecureRequest(req, log)) {
+      ServletUtil.reportServletError(response, "Secure connection is required. Prefix your request with 'https'",
+              log, "Accessing secure command over non-secure line from remote host is not allowed.");
+      return;
     }
     
     
-    // Get the fileName parameter
+    // Get the idInstrumentRun
     if (req.getParameter("idInstrumentRun") != null && !req.getParameter("idInstrumentRun").equals("")) {
       idInstrumentRun = Integer.valueOf(req.getParameter("idInstrumentRun"));
     }

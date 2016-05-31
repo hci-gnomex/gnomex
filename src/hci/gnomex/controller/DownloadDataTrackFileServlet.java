@@ -1,20 +1,15 @@
 package hci.gnomex.controller;
 
-import hci.gnomex.constants.Constants;
 import hci.gnomex.model.DataTrack;
 import hci.gnomex.model.DataTrackFolder;
 import hci.gnomex.model.GenomeBuild;
 import hci.gnomex.security.SecurityAdvisor;
-import hci.gnomex.utility.ArchiveHelper;
-import hci.gnomex.utility.DictionaryHelper;
-import hci.gnomex.utility.HibernateSession;
-import hci.gnomex.utility.PropertyDictionaryHelper;
+import hci.gnomex.utility.*;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.InetAddress;
 import java.util.Iterator;
 import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
@@ -43,26 +38,15 @@ public class DownloadDataTrackFileServlet extends HttpServlet {
 
 	}
 
-	protected void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
+	protected void doGet(HttpServletRequest req, HttpServletResponse response) throws ServletException, IOException {
 
 		serverName = req.getServerName();
 
-		// restrict commands to local host if request is not secure
-		if (Constants.REQUIRE_SECURE_REMOTE && !req.isSecure()) {
-			if (req.getRemoteAddr().equals(InetAddress.getLocalHost().getHostAddress()) || req.getRemoteAddr().equals("127.0.0.1")
-					|| InetAddress.getByName(req.getRemoteAddr()).isLoopbackAddress()) {
-				log.debug("Requested from local host");
-			} else {
-				log.error("Accessing secure command over non-secure line from remote host is not allowed");
-
-				res.setContentType("text/html");
-				res.getOutputStream().println("<html><head><title>Error</title></head>");
-				res.getOutputStream().println("<body><b>");
-				res.getOutputStream().println("Secure connection is required. Prefix your request with 'https: " + "<br>");
-				res.getOutputStream().println("</body>");
-				res.getOutputStream().println("</html>");
-				return;
-			}
+		// Restrict commands to local host if request is not secure
+		if (!ServletUtil.checkSecureRequest(req, log)) {
+			ServletUtil.reportServletError(response, "Secure connection is required. Prefix your request with 'https'",
+					log, "Accessing secure command over non-secure line from remote host is not allowed.");
+			return;
 		}
 
 		Session sess = null;
@@ -94,18 +78,18 @@ public class DownloadDataTrackFileServlet extends HttpServlet {
 			// Get security advisor
 			secAdvisor = (SecurityAdvisor) req.getSession().getAttribute(SecurityAdvisor.SECURITY_ADVISOR_SESSION_KEY);
 
-			res.setContentType("application/x-download");
-			res.setHeader("Content-Disposition", "attachment;filename=genopub_dataTracks.zip");
-			res.setHeader("Cache-Control", "max-age=0, must-revalidate");
+			response.setContentType("application/x-download");
+			response.setHeader("Content-Disposition", "attachment;filename=genopub_dataTracks.zip");
+			response.setHeader("Cache-Control", "max-age=0, must-revalidate");
 
 			// Open the archive output stream
 			archiveHelper.setTempDir("./");
 			TarArchiveOutputStream tarOut = null;
 			ZipOutputStream zipOut = null;
 			if (archiveHelper.isZipMode()) {
-				zipOut = new ZipOutputStream(res.getOutputStream());
+				zipOut = new ZipOutputStream(response.getOutputStream());
 			} else {
-				tarOut = new TarArchiveOutputStream(res.getOutputStream());
+				tarOut = new TarArchiveOutputStream(response.getOutputStream());
 			}
 
 			long totalArchiveSize = 0;
@@ -207,7 +191,7 @@ public class DownloadDataTrackFileServlet extends HttpServlet {
 		} catch (Exception e) {
 			Logger.getLogger(this.getClass().getName()).warning(e.toString());
 			e.printStackTrace();
-			res.setStatus(99);
+			response.setStatus(99);
 		} finally {
 			if (sess != null) {
 				try {

@@ -2,6 +2,8 @@ package hci.gnomex.model;
 
 import hci.gnomex.utility.GnomexFile;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.Date;
 
 
@@ -24,7 +26,17 @@ public class Chromatogram extends GnomexFile {
   private Integer    idReleaser;
   private Integer    lane;
   
-  
+  public static void missingIdResponse(HttpServletResponse response) throws IOException {
+    response.setContentType("text/html");
+    response.getOutputStream().println(
+            "<html><head><title>Error</title></head>");
+    response.getOutputStream().println("<body><b>");
+    response.getOutputStream().println(
+            "Missing parameter:  idChromatogram required"
+                    + "<br>");
+    response.getOutputStream().println("</body>");
+    response.getOutputStream().println("</html>");
+  }
   
   public Integer getIdReleaser() {
     return idReleaser;
