@@ -36,6 +36,8 @@ public class Step extends DictionaryEntry implements Serializable {
     public static final String   MISEQ_DATA_PIPELINE       = "MISEQPIPE";
 
     public static final String   ALL_PREP                = "ALLPREP";
+    public static final String   ALL_PREP_QC             = "ALLPREPQC";
+
     private String codeStep;
     private String step;
     private String isActive;

@@ -35,6 +35,11 @@
 					this.detailViews.selectedChild = this.hiSeqViews;
 					this.hiSeqViews.selectedChild = this.workflowHiSeqPrepView;
 					callLater(onHiSeqWorklistChange);
+				} else if (codeStep == 'HSEQPREPQC') {
+					this.navBar.selectedChild = this.hiSeqTab;
+					this.detailViews.selectedChild = this.hiSeqViews;
+					this.hiSeqViews.selectedChild = this.workflowHiSeqPrepQCView;
+					callLater(onHiSeqWorklistChange);
 				} else if (codeStep == 'HSEQASSEM') {
 					this.navBar.selectedChild = this.hiSeqTab;
 					this.detailViews.selectedChild = this.hiSeqViews;
@@ -55,6 +60,11 @@
 					this.detailViews.selectedChild = this.miSeqViews;
 					this.miSeqViews.selectedChild = this.workflowMiSeqPrepView;
 					callLater(onMiSeqWorklistChange);
+				} else if (codeStep == 'MISEQPREPQC') {
+					this.navBar.selectedChild = this.miSeqTab;
+					this.detailViews.selectedChild = this.miSeqViews;
+					this.hiSeqViews.selectedChild = this.workflowMiSeqPrepQCView;
+					callLater(onHiSeqWorklistChange);
 				} else if (codeStep == 'MISEQASSEM') {
 					this.navBar.selectedChild = this.miSeqTab;
 					this.detailViews.selectedChild = this.miSeqViews;
@@ -538,6 +548,8 @@
 			
 			   <workflow:WorkflowSolexaPrepView label="Lib Prep" id="workflowHiSeqPrepView"  icon="{parentApplication.iconLibPrep}"/>
 
+			   <workflow:WorkflowSolexaPrepQCView label="Lib Prep QC" id="workflowHiSeqPrepQCView"  icon="{parentApplication.iconLibPrep}"/>
+
 			   <workflow:WorkflowSolexaAssembleView label="Flow Cell Assembly" id="workflowHiSeqAssembleView" icon="{parentApplication.iconSolexa}"/>
 			   
 			   <workflow:WorkflowSolexaFlowCellFinalizeView label="Finalize Flow Cell" id="workflowHiSeqFlowCellFinalizeView" icon="{parentApplication.iconSolexa}"/>
@@ -550,6 +562,8 @@
 			<mx:ViewStack id="miSeqViews"  visible="true" height="100%" width="100%" selectedIndex="3" creationPolicy="all" >
 				
 				<workflow:WorkflowSolexaPrepView label="Lib Prep" id="workflowMiSeqPrepView" icon="{parentApplication.iconLibPrep}"/>
+
+				<workflow:WorkflowSolexaPrepQCView label="Lib Prep QC" id="workflowMiSeqPrepQCView"  icon="{parentApplication.iconLibPrep}"/>
 				
 				<workflow:WorkflowSolexaAssembleView label="Flow Cell Assembly" id="workflowMiSeqAssembleView" icon="{parentApplication.iconSolexa}"/>
 				
