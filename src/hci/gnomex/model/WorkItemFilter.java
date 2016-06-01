@@ -158,7 +158,10 @@ public class WorkItemFilter extends DetailObject {
        this.codeStepNext.equals(Step.HISEQ_PREP) ||
        this.codeStepNext.equals(Step.MISEQ_PREP) ||
        this.codeStepNext.equals(Step.ALL_PREP) ||
-       this.codeStepNext.equals(Step.SEQ_FLOWCELL_STOCK)) {
+       this.codeStepNext.equals(Step.SEQ_FLOWCELL_STOCK) ||
+       this.codeStepNext.equals(Step.HISEQ_PREP_QC) ||
+       this.codeStepNext.equals(Step.MISEQ_PREP_QC) ||
+       this.codeStepNext.equals(Step.ALL_PREP_QC)) {
       return getQuery(this.SAMPLE_LEVEL);
     } else if (this.codeStepNext.equals(Step.LABELING_STEP)) {
       return getQuery(this.LABELED_SAMPLE_LEVEL);
@@ -496,7 +499,11 @@ public class WorkItemFilter extends DetailObject {
         queryBuf.append(" (wi.codeStepNext = '" + Step.SEQ_PREP + "' OR");
         queryBuf.append(" wi.codeStepNext = '" + Step.HISEQ_PREP + "' OR");
         queryBuf.append(" wi.codeStepNext = '" + Step.MISEQ_PREP + "')");
-      }else {
+      } else if(this.codeStepNext.equals(Step.ALL_PREP_QC)){
+        queryBuf.append(" (wi.codeStepNext = '" + Step.SEQ_PREP_QC + "' OR");
+        queryBuf.append(" wi.codeStepNext = '" + Step.HISEQ_PREP_QC + "' OR");
+        queryBuf.append(" wi.codeStepNext = '" + Step.MISEQ_PREP_QC + "')");
+      } else {
         queryBuf.append(" wi.codeStepNext = '");
         queryBuf.append(codeStepNext);
         queryBuf.append("'");

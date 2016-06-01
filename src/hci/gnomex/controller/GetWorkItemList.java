@@ -85,7 +85,10 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
             filter.getCodeStepNext().equals(Step.SEQ_PREP) ||
             filter.getCodeStepNext().equals(Step.HISEQ_PREP) ||
             filter.getCodeStepNext().equals(Step.MISEQ_PREP) ||
-            filter.getCodeStepNext().equals(Step.ALL_PREP)) {
+            filter.getCodeStepNext().equals(Step.ALL_PREP) ||
+            filter.getCodeStepNext().equals(Step.HISEQ_PREP_QC) ||
+            filter.getCodeStepNext().equals(Step.MISEQ_PREP_QC) ||
+            filter.getCodeStepNext().equals(Step.ALL_PREP_QC)    ) {
           comparator = new SampleComparator();
         } else if (filter.getCodeStepNext().equals(Step.LABELING_STEP)) {
           comparator  = new LabeledSampleComparator();
@@ -153,7 +156,10 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
               filter.getCodeStepNext().equals(Step.HISEQ_PREP) ||
               filter.getCodeStepNext().equals(Step.MISEQ_PREP) ||
               filter.getCodeStepNext().equals(Step.SEQ_FLOWCELL_STOCK) ||
-              filter.getCodeStepNext().equals(Step.ALL_PREP)) {
+              filter.getCodeStepNext().equals(Step.ALL_PREP) ||
+              filter.getCodeStepNext().equals(Step.HISEQ_PREP_QC) ||
+              filter.getCodeStepNext().equals(Step.MISEQ_PREP_QC) ||
+              filter.getCodeStepNext().equals(Step.ALL_PREP_QC)    ) {
             key = requestNumber + "," + sampleNumber;
           } else if (filter.getCodeStepNext().equals(Step.LABELING_STEP)) {
             Integer idLabel         = row[WorkItemFilter.LABELING_FAILED] == null || row[WorkItemFilter.ID_LABEL].equals("") ? null : (Integer)row[WorkItemFilter.ID_LABEL];
