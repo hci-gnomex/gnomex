@@ -28,29 +28,6 @@
 	</servlet>
 
 	<servlet>
-		<servlet-name>CustomCaptchaURLServlet</servlet-name>
-		<servlet-class>
-			hci.gnomex.controller.CustomCaptchaURLServlet
-		</servlet-class>
-	</servlet>
-
-	<servlet>
-		<servlet-name>Captcha</servlet-name>
-		<display-name>Captcha</display-name>
-		<servlet-class>
-			hci.gnomex.controller.CustomCaptchaServlet
-		</servlet-class>
-		<init-param>
-			<param-name>width</param-name>
-			<param-value>180</param-value>
-		</init-param>
-		<init-param>
-			<param-name>height</param-name>
-			<param-value>60</param-value>
-		</init-param>
-	</servlet>
-
-	<servlet>
 		<servlet-name>DownloadChromatogramFileServlet</servlet-name>
 		<servlet-class>
 			hci.gnomex.controller.DownloadChromatogramFileServlet
@@ -320,13 +297,6 @@
 	</servlet>
 
 	<servlet>
-		<servlet-name>UploadQuoteInfoServlet</servlet-name>
-		<servlet-class>
-			hci.gnomex.controller.UploadQuoteInfoServlet
-		</servlet-class>
-	</servlet>
-
-	<servlet>
 		<servlet-name>ApproveUser</servlet-name>
 		<servlet-class>
 			hci.gnomex.controller.ApproveUser
@@ -578,22 +548,8 @@
 	</servlet-mapping>
 
 	<servlet-mapping>
-		<servlet-name>CustomCaptchaURLServlet</servlet-name>
-		<url-pattern>/CustomCaptchaURLServlet.gx</url-pattern>
-	</servlet-mapping>
-	<servlet-mapping>
-		<servlet-name>Captcha</servlet-name>
-		<url-pattern>/Captcha.jpg</url-pattern>
-	</servlet-mapping>
-
-	<servlet-mapping>
 		<servlet-name>MakeDataTrackIGVLink</servlet-name>
 		<url-pattern>/MakeDataTrackIGVLink.gx</url-pattern>
-	</servlet-mapping>
-
-	<servlet-mapping>
-		<servlet-name>UploadQuoteInfoServlet</servlet-name>
-		<url-pattern>/UploadQuoteInfoServlet.gx</url-pattern>
 	</servlet-mapping>
 
 	<servlet-mapping>
@@ -643,7 +599,7 @@
 
 
 	<welcome-file-list>
-		<welcome-file>gnomexLite.jsp</welcome-file>
+		<welcome-file>gnomexFlex.jsp</welcome-file>
 		<welcome-file>index.html</welcome-file>
 	</welcome-file-list>
 
@@ -651,7 +607,7 @@
 
 	<security-constraint>
 		<web-resource-collection>
-			<url-pattern>/gnomexLite.jsp</url-pattern>
+			<url-pattern>/gnomexFlex.jsp</url-pattern>
 			<url-pattern>/app/app.js</url-pattern>
 			<url-pattern>/app/dashboard/dashboard.html</url-pattern>
 			<url-pattern>/app/dashboard/DashBoardcontroller.js</url-pattern>

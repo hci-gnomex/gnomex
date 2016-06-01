@@ -3,44 +3,17 @@ package hci.gnomex.controller;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.constants.Constants;
-import hci.gnomex.model.BillingItem;
-import hci.gnomex.model.BillingPeriod;
-import hci.gnomex.model.BillingStatus;
-import hci.gnomex.model.CoreFacility;
-import hci.gnomex.model.Lab;
-import hci.gnomex.model.PlateType;
-import hci.gnomex.model.PlateWell;
-import hci.gnomex.model.PropertyDictionary;
-import hci.gnomex.model.Request;
-import hci.gnomex.model.RequestCategory;
-import hci.gnomex.model.RequestStatus;
-import hci.gnomex.model.Sample;
-import hci.gnomex.model.WorkItem;
-import hci.gnomex.utility.DictionaryHelper;
-import hci.gnomex.utility.EmailHelper;
-import hci.gnomex.utility.HibernateSession;
-import hci.gnomex.utility.MailUtil;
-import hci.gnomex.utility.MailUtilHelper;
-import hci.gnomex.utility.ProductException;
-import hci.gnomex.utility.ProductUtil;
-import hci.gnomex.utility.PropertyDictionaryHelper;
-import hci.gnomex.utility.RequestEmailBodyFormatter;
-import hci.gnomex.utility.Util;
-
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import hci.gnomex.model.*;
+import hci.gnomex.utility.*;
+import org.hibernate.Session;
 
 import javax.mail.MessagingException;
 import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-
-import org.hibernate.Session;
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.*;
 
 public class ChangeRequestStatus extends GNomExCommand implements Serializable {
 
@@ -283,16 +256,6 @@ public class ChangeRequestStatus extends GNomExCommand implements Serializable {
     CoreFacility cf = (CoreFacility) sess.load(CoreFacility.class, req.getIdCoreFacility());
 
     introNote.append("Experiment request " + req.getNumber() + " has been submitted to the " + cf.getFacilityName() + " core.  You will receive email notification when the experiment is complete.");
-
-    //TODO: This should check that the request uses products and uses the purchasing system
-    // Special notes for iScan requests
-    if (req.getCodeRequestCategory().equals(RequestCategory.ISCAN_REQUEST_CATEGORY)) {
-      Lab lab = dictionaryHelper.getLabObject(req.getIdLab());
-      String email = lab.getContactEmail();
-      if (email.indexOf("@hci.utah.edu") > 0) {
-        introNote.append("<br><br><b><FONT COLOR=\"#ff0000\">Please note that this is an order from an internal HCI lab.  An email has not been sent to the vendor rep requesting a quote number for purchasing products and a requisition form has not been downloaded.</FONT></b>");
-      }
-    }
 
     introNote.append("<br><br>To track progress on the experiment request, click <a href=\"" + trackRequestURL + "\">" + Constants.APP_NAME + " - " + Constants.WINDOW_NAME_TRACK_REQUESTS + "</a>.");
 

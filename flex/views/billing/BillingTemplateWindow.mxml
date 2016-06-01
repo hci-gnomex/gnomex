@@ -130,20 +130,6 @@
 					Alert.show( "One account need to be marked as accepting the balance and all others need either a percent or dollar amount filled in.  Make sure this is the case and try again.",
 						"Error saving billing template");
 				} else {
-					if (savingNewTemplateMode) {
-						saveImpl();
-					} else {
-						Alert.show( "This will recreate all billing items for " + order.@label + ". The new billing items will be 'Pending' and any notes on existing billing items will be lost.  Would you still like to proceed?" ,
-							"",
-							(Alert.YES | Alert.NO), this, 
-							onPromptToRefresh,						
-							parentApplication.iconWarning);
-					}
-				}
-			}
-			
-			private function onPromptToRefresh(event:CloseEvent):void {
-				if (event.detail==Alert.YES) {
 					saveImpl();
 				}
 			}
@@ -273,7 +259,7 @@
 			
 			private function setupBillingTemplateItems():void {
 				var sort:Sort = new Sort();
-				sort.fields = [new SortField("@sortOrder", true)];
+				sort.fields = [new SortField("@sortOrder", true, false, true)];
 				billingTemplateItems.sort = sort;
 				billingTemplateItems.refresh();
 			}
@@ -478,7 +464,7 @@
 		<mx:Label text="Account:" paddingLeft="4"/>
 		<mx:VBox verticalGap="0" width="100%">
 			<mx:ComboBox id="billingAccountCombo" width="345" labelField="@accountNumberDisplay" dataProvider="{billingAccounts}"/>
-			<mx:CheckBox id="showInactiveAccountsCheckBox"  click="refreshBillingAccounts()" label="Show inactive accounts" selected="false" paddingTop="0"/>			
+			<mx:CheckBox id="showInactiveAccountsCheckBox"  click="loadBillingAccounts()" label="Show inactive accounts" selected="false" paddingTop="0"/>			
 		</mx:VBox>
 		<mx:LinkButton textDecoration="underline" label="Add" 
 					   enabled="{labCombo.selectedItem != null &amp;&amp; labCombo.selectedItem.@idLab != '' &amp;&amp; billingAccountCombo.selectedItem != null &amp;&amp; billingAccountCombo.selectedItem.@idBillingAccount != ''}"

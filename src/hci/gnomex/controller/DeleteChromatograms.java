@@ -60,7 +60,7 @@ public class DeleteChromatograms extends GNomExCommand implements Serializable {
           Integer idChromatogram = Integer.parseInt(node.getAttributeValue("idChromatogram"));
           Chromatogram ch = (Chromatogram) sess.load(Chromatogram.class, idChromatogram);
 
-          File chromatFile = new File(ch.getQualifiedFilePath() + File.separator + ch.getDisplayName());
+          File chromatFile = new File(ch.getQualifiedFilePath() + File.separator + ch.getFileName());
           chromatFile.delete();
 
           sess.delete(ch);

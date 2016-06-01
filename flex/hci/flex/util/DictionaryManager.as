@@ -1,15 +1,15 @@
 package hci.flex.util
 {
-	import hci.flex.dictionary.DictionaryEvent;
 	
+	import flash.events.Event;
+	import hci.flex.dictionary.DictionaryEvent;
 	import mx.collections.XMLListCollection;
 	import mx.controls.Alert;
 	import mx.rpc.events.FaultEvent;
 	import mx.rpc.events.ResultEvent;
 	import mx.rpc.http.mxml.HTTPService;
 
-	 
-	
+	 	
 	public class DictionaryManager
 	{
 	

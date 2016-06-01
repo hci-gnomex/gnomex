@@ -10,7 +10,6 @@ public class Constants {
 
   public static final String   LAUNCH_APP_JSP                                 = "/gnomexFlex.jsp";
   public static final String   SHOW_REQUEST_FORM                              = "/ShowRequestForm.gx";
-  public static final String   UPLOAD_QUOTE_JSP                               = "/uploadQuoteInfo.jsp";
   public static final String   APPROVE_USER_SERVLET                           = "/ApproveUser.gx";
   public static final String   APPROVE_LAB_MEMBERSHIP_SERVLET                 = "/ApproveLabMembership.gx";
   public static final String   APPROVE_BILLING_ACCOUNT_SERVLET                = "/ApproveBillingAccount.gx";

@@ -31,6 +31,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import hci.gnomex.utility.ServletUtil;
 import net.sf.json.JSON;
 import net.sf.json.xml.XMLSerializer;
 
@@ -145,17 +146,12 @@ public class GNomExFrontController extends HttpServlet {
 		String requestName = fullURI.substring((fullURI.lastIndexOf('/') + 1), fullURI.lastIndexOf('.'));
 
 		// restrict commands to local host if request is not secure
-		if (Constants.REQUIRE_SECURE_REMOTE && !request.isSecure()) {
-			if (request.getRemoteAddr().equals(InetAddress.getLocalHost().getHostAddress()) || request.getRemoteAddr().equals("127.0.0.1")
-					|| InetAddress.getByName(request.getRemoteAddr()).isLoopbackAddress()) {
-				log.debug("Requested from local host");
-			} else {
+		if (!ServletUtil.checkSecureRequest(request, log)) {
 				System.out.println(request.getRemoteAddr());
 				System.out.println(InetAddress.getLocalHost().getHostAddress());
 				log.error("Accessing secure command over non-secure line from remote host is not allowed");
 				this.forwardWithError(request, response, "Secure connection is required. Prefix your request with 'https:'");
 				return;
-			}
 		}
 
 		// now get our command class and instantiate

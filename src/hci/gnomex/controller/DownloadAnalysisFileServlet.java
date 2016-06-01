@@ -1,21 +1,15 @@
 package hci.gnomex.controller;
 
-import hci.gnomex.constants.Constants;
 import hci.gnomex.model.Analysis;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.TransferLog;
 import hci.gnomex.security.SecurityAdvisor;
-import hci.gnomex.utility.FileDescriptor;
-import hci.gnomex.utility.AnalysisFileDescriptorParser;
-import hci.gnomex.utility.ArchiveHelper;
-import hci.gnomex.utility.DictionaryHelper;
-import hci.gnomex.utility.HibernateSession;
+import hci.gnomex.utility.*;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigDecimal;
-import java.net.InetAddress;
 import java.util.Iterator;
 import java.util.List;
 import java.util.zip.ZipEntry;
@@ -54,27 +48,11 @@ public class DownloadAnalysisFileServlet extends HttpServlet {
     
     serverName = req.getServerName();
 
-    // restrict commands to local host if request is not secure
-    if (Constants.REQUIRE_SECURE_REMOTE && !req.isSecure()) {
-      if (req.getRemoteAddr().equals(InetAddress.getLocalHost().getHostAddress())
-          || req.getRemoteAddr().equals("127.0.0.1")
-          || InetAddress.getByName(req.getRemoteAddr()).isLoopbackAddress()) {
-        log.debug("Requested from local host");
-      }
-      else {
-        log.error("Accessing secure command over non-secure line from remote host is not allowed");
-        
-        response.setContentType("text/html");
-        response.getOutputStream().println(
-            "<html><head><title>Error</title></head>");
-        response.getOutputStream().println("<body><b>");
-        response.getOutputStream().println(
-            "Secure connection is required. Prefix your request with 'https: "
-                + "<br>");
-        response.getOutputStream().println("</body>");
-        response.getOutputStream().println("</html>");
-        return;
-      }
+    // Restrict commands to local host if request is not secure
+    if (!ServletUtil.checkSecureRequest(req, log)) {
+      ServletUtil.reportServletError(response, "Secure connection is required. Prefix your request with 'https'",
+              log, "Accessing secure command over non-secure line from remote host is not allowed.");
+      return;
     }
 
     //  Get cached file descriptor parser

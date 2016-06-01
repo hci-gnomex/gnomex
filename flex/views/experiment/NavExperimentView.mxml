@@ -1557,10 +1557,6 @@
 					break;
 				}
 			}
-			
-//			if (selectedExperiment.sequenceLanes.children().length() > 0 || selectedExperiment.hybridizations.children().length() > 0) {
-//				showButton = true;
-//			}
 		}
 		return showButton;
 	}

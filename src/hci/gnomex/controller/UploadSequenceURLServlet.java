@@ -4,36 +4,23 @@ import hci.gnomex.constants.Constants;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.PropertyDictionaryHelper;
-
-import java.io.IOException;
-import java.net.InetAddress;
+import hci.gnomex.utility.ServletUtil;
+import org.hibernate.Session;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import org.hibernate.Session;
+import java.io.IOException;
 
 public class UploadSequenceURLServlet extends HttpServlet {
 
 	protected void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
 
-		// restrict commands to local host if request is not secure
-		if (Constants.REQUIRE_SECURE_REMOTE && !req.isSecure()) {
-			if (req.getRemoteAddr().equals(InetAddress.getLocalHost().getHostAddress()) || req.getRemoteAddr().equals("127.0.0.1")
-					|| InetAddress.getByName(req.getRemoteAddr()).isLoopbackAddress()) {
-
-			} else {
-
-				res.setContentType("text/html");
-				res.getOutputStream().println("<html><head><title>Error</title></head>");
-				res.getOutputStream().println("<body><b>");
-				res.getOutputStream().println("Secure connection is required. Prefix your request with 'https: " + "<br>");
-				res.getOutputStream().println("</body>");
-				res.getOutputStream().println("</html>");
-				return;
-			}
+		// Restrict commands to local host if request is not secure
+		if (!ServletUtil.checkSecureRequest(req)) {
+			ServletUtil.reportServletError(res, "Secure connection is required. Prefix your request with 'https'");
+			return;
 		}
 
 		Session sess = null;

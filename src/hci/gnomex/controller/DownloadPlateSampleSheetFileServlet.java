@@ -1,16 +1,15 @@
 package hci.gnomex.controller;
 
 import hci.framework.model.DetailObject;
-import hci.gnomex.constants.Constants;
 import hci.gnomex.model.Plate;
 import hci.gnomex.model.PlateWell;
 import hci.gnomex.security.SecurityAdvisor;
+import hci.gnomex.utility.ServletUtil;
 import hci.gnomex.utility.HibernateSession;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.InetAddress;
 import java.util.Iterator;
 
 import javax.servlet.ServletException;
@@ -34,50 +33,22 @@ public class DownloadPlateSampleSheetFileServlet extends HttpServlet {
     
   protected void doGet(HttpServletRequest req, HttpServletResponse response)
       throws ServletException, IOException {
-    
 
-    // restrict commands to local host if request is not secure
-    if (Constants.REQUIRE_SECURE_REMOTE && !req.isSecure()) {
-      if (req.getRemoteAddr().equals(InetAddress.getLocalHost().getHostAddress())
-          || req.getRemoteAddr().equals("127.0.0.1")
-          || InetAddress.getByName(req.getRemoteAddr()).isLoopbackAddress()) {
-      }
-      else {
-        log.error("Accessing secure command over non-secure line from remote host is not allowed");
-        
-        response.setContentType("text/html");
-        response.getOutputStream().println(
-            "<html><head><title>Error</title></head>");
-        response.getOutputStream().println("<body><b>");
-        response.getOutputStream().println(
-            "Secure connection is required. Prefix your request with 'https: "
-                + "<br>");
-        response.getOutputStream().println("</body>");
-        response.getOutputStream().println("</html>");
-        return;
-      }
+
+    // Restrict commands to local host if request is not secure
+    if (!ServletUtil.checkSecureRequest(req, log)) {
+      ServletUtil.reportServletError(response, "Secure connection is required. Prefix your request with 'https'",
+              log, "Accessing secure command over non-secure line from remote host is not allowed.");
+      return;
     }
-    
-    
+
     // Get the fileName parameter
     if (req.getParameter("idPlate") != null && !req.getParameter("idPlate").equals("")) {
       idPlate = Integer.valueOf(req.getParameter("idPlate"));
     }
     
     if (idPlate == null) {
-      log.error("idPlate required");
-      
-      response.setContentType("text/html");
-      response.getOutputStream().println(
-          "<html><head><title>Error</title></head>");
-      response.getOutputStream().println("<body><b>");
-      response.getOutputStream().println(
-          "Missing parameter:  idPlate required"
-              + "<br>");
-      response.getOutputStream().println("</body>");
-      response.getOutputStream().println("</html>");
-      return;
-      
+      ServletUtil.reportServletError(response, "Missing parameter:  idPlate required", log);
     }
 
     InputStream in = null;

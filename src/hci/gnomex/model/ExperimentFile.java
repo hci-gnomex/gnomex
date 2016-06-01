@@ -2,6 +2,7 @@ package hci.gnomex.model;
 
 
 
+import hci.gnomex.utility.GnomexFile;
 import hci.hibernate5utils.HibernateDetailObject;
 
 import java.math.BigDecimal;
@@ -9,14 +10,11 @@ import java.sql.Date;
 
 
 
-public class ExperimentFile extends HibernateDetailObject {
-  
+public class ExperimentFile extends GnomexFile {
+
   private Integer        idExperimentFile;
   private Integer        idRequest;
   private Request        request;
-  private String         fileName;
-  private BigDecimal     fileSize;
-  private Date           createDate;
 
   public Integer getIdExperimentFile() {
     return idExperimentFile;
@@ -36,26 +34,7 @@ public class ExperimentFile extends HibernateDetailObject {
   public void setRequest(Request request) {
     this.request = request;
   }
-  public String getFileName() {
-    return fileName;
-  }
-  public void setFileName(String fileName) {
-    this.fileName = fileName;
-  }
-  public BigDecimal getFileSize() {
-    return fileSize;
-  }
-  public void setFileSize(BigDecimal fileSize) {
-    this.fileSize = fileSize;
-  }
-  public Date getCreateDate() {
-    return createDate;
-  }
-  public void setCreateDate(Date createDate) {
-    this.createDate = createDate;
-  }
 
-  
   public void registerMethodsToExcludeFromXML() {
     this.excludeMethodFromXML("getRequest");
   }

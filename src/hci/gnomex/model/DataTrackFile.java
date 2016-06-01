@@ -1,9 +1,9 @@
 package hci.gnomex.model;
 
-import hci.hibernate5utils.HibernateDetailObject;
+import hci.gnomex.utility.GnomexFile;
 
-public class DataTrackFile extends HibernateDetailObject {
-  
+public class DataTrackFile extends GnomexFile {
+
   private Integer        idDataTrackFile;
   private Integer        idAnalysisFile;
   private AnalysisFile   analysisFile;

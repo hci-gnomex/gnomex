@@ -6,20 +6,16 @@ import hci.framework.model.DetailObject;
 import hci.gnomex.security.InvalidSecurityAdvisorException;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.HibernateSession;
+import org.hibernate.Session;
+import org.jdom.Document;
+import org.jdom.output.XMLOutputter;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import java.io.Serializable;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-
-import nl.captcha.Captcha;
-
-import org.hibernate.Session;
-import org.jdom.Document;
-import org.jdom.output.XMLOutputter;
 
 /**
  *
@@ -44,10 +40,6 @@ public class CreateSecurityAdvisorForGuest extends GNomExCommand implements Seri
   private String sessionID;
   private hci.gnomex.model.VisitLog visitLog;
 
-  
-  private static final String ERROR_CAPTCHA_JSP = "/captcha.jsp";
-  
-  
 
   /**
    *  The method in which you can do any final validation and add any additional
@@ -69,9 +61,7 @@ public class CreateSecurityAdvisorForGuest extends GNomExCommand implements Seri
    */
   public void loadCommand(HttpServletRequest request, HttpSession session) {
     this.validate();
-    
-    Captcha captcha = (Captcha) session.getAttribute(Captcha.NAME);
-    String captchaPhrase = (String) request.getParameter("captchafield");
+
     launchAction  = (String) request.getParameter("launchAction");
     errorAction   = (String) request.getParameter("errorAction");
     // Guest login ignores core facility id.
@@ -82,26 +72,12 @@ public class CreateSecurityAdvisorForGuest extends GNomExCommand implements Seri
     ipAddress = GNomExCommand.getRemoteIP(request);
 
 
-
-    /*
-    Captcha check eliminated 7/6/12
-    if ( captchaPhrase == null || captchaPhrase.equals("")) {
-      this.addInvalidField("captcha", "Please enter the text that matches the image");
-    } else if ( captcha == null) {
-      this.addInvalidField("captcha", "No captcha phrase");
-    } else if (!captcha.isCorrect(captchaPhrase)) {
-      this.addInvalidField("captch", "Text does not match image.  Please try again.");
-    }
-    */
-
     // see if we have a valid form
     if (isValid()) {
       setResponsePage(this.SUCCESS_JSP);
     } else {
       if (errorAction != null && !errorAction.equals("")) {
         setResponsePage(this.errorAction);                
-      } else {
-        setResponsePage(this.ERROR_CAPTCHA_JSP);        
       }
     }
   }
@@ -174,8 +150,6 @@ public class CreateSecurityAdvisorForGuest extends GNomExCommand implements Seri
     } else {
       if (errorAction != null && !errorAction.equals("")) {
         setResponsePage(this.errorAction);                
-      } else {
-        setResponsePage(this.ERROR_CAPTCHA_JSP);        
       }
     }
     return this;

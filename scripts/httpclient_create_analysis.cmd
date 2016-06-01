@@ -1,2 +1,2 @@
 @echo off
-java -classpath ..\dist\gnomex_client.jar hci.gnomex.httpclient.CreateAnalysisMain %*
+java -classpath ..\WEB-INF\lib\gnomex_client.jar hci.gnomex.httpclient.CreateAnalysisMain %*

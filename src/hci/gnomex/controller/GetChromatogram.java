@@ -84,11 +84,11 @@ public class GetChromatogram extends GNomExCommand implements Serializable {
           this.addInvalidField("missingChromatogram", "Cannot find chromatogram idChromatogram=" + idChromatogram );
         }
         
-        fileName = c.getDisplayName();
+        fileName = c.getFileName();
         
       } else if ( fileName!=null ){
         
-        StringBuffer buf = new StringBuffer("SELECT c from Chromatogram as c where c.displayName = '" + fileName + "'");
+        StringBuffer buf = new StringBuffer("SELECT c from Chromatogram as c where c.fileName = '" + fileName + "'");
         
         List chromats = sess.createQuery(buf.toString()).list();
         if (chromats.size() > 0) {
@@ -102,7 +102,7 @@ public class GetChromatogram extends GNomExCommand implements Serializable {
       idChromatogram =  c!=null ? c.getIdChromatogram():0;
 
 
-      File abiFile = new File(c.getQualifiedFilePath() + File.separator + c.getDisplayName());
+      File abiFile = new File(c.getQualifiedFilePath() + File.separator + c.getFileName());
 
 
       ChromatReadUtil chromatReader = new ChromatReadUtil(abiFile);

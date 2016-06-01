@@ -9,6 +9,7 @@ import hci.gnomex.utility.HibernateSession;
 import java.io.Serializable;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -153,6 +154,9 @@ public class SaveRequestProject extends GNomExCommand implements Serializable {
             billingTemplate = new BillingTemplate(request);
             sess.save(billingTemplate);
           }
+          
+          Map<Integer, List<Object>> infoForRecreatingBillingItems = BillingTemplate.retrieveInfoForRecreatingBillingItems(billingTemplate.getAcceptingBalanceItem(), billingTemplate.getBillingItems(sess));
+          
           // Delete old billing template items if any
           Set<BillingTemplateItem> oldBtiSet = new TreeSet<BillingTemplateItem>();
           oldBtiSet.addAll( billingTemplate.getItems() );
@@ -180,7 +184,7 @@ public class SaveRequestProject extends GNomExCommand implements Serializable {
           sess.flush();
 
           // Save new billing items
-          Set<BillingItem> newBillingItems = billingTemplate.recreateBillingItems(sess);
+          Set<BillingItem> newBillingItems = billingTemplate.recreateBillingItems(sess, infoForRecreatingBillingItems);
           for (BillingItem newlyCreatedBillingItem : newBillingItems) {
               sess.save(newlyCreatedBillingItem);
           }

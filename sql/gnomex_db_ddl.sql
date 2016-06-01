@@ -543,7 +543,6 @@ CREATE TABLE gnomex.BillingItem (
   idInvoice INT(10) NULL,
   idDiskUsageByMonth INT(10) NULL,
   idProductOrder INT(10) NULL,
-  tag VARCHAR(10) NULL,
   idMasterBillingItem INT(10) NULL,
   PRIMARY KEY (idBillingItem),
   CONSTRAINT FK_BillingItem_PriceCategory FOREIGN KEY  (idPriceCategory)
@@ -743,7 +742,6 @@ CREATE TABLE gnomex.ProductType (
   idCoreFacility INT(10) NOT NULL,
   idVendor INT(10) NULL,
   idPriceCategory INT(10) NULL,
-  utilizePurchasingSystem  CHAR(1) NULL,
   PRIMARY KEY (idProductType),
   CONSTRAINT FK_ProductType_CoreFacility FOREIGN KEY FK_ProductType_CoreFacility (idCoreFacility)
     REFERENCES gnomex.CoreFacility (idCoreFacility)
@@ -807,7 +805,6 @@ CREATE TABLE gnomex.ProductOrder (
   idProductType INT(10) NULL,
   quoteNumber VARCHAR(50) NULL,
   quoteReceivedDate DATETIME NULL,
-  uuid VARCHAR(36) NULL,
   idBillingAccount INT(10) NULL,
   productOrderNumber VARCHAR(10) NULL,  
   PRIMARY KEY (idProductOrder),
@@ -925,7 +922,7 @@ CREATE TABLE gnomex.Chromatogram (
   idChromatogram int(10) NOT NULL AUTO_INCREMENT,
   idPlateWell int(10) NULL,
   idRequest int(10) NULL,
-  displayName varchar(200) NULL,
+  fileName varchar(200) NULL,
   readLength int(10) NULL,
   trimmedLength int NULL,
   q20 int(10) NULL,

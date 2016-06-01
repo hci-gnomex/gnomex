@@ -42,7 +42,7 @@ public class ChromatogramFilter extends DetailObject {
     queryBuf.append("        c.idPlateWell, ");
     queryBuf.append("        c.idRequest, ");
     queryBuf.append("        c.qualifiedFilePath, ");
-    queryBuf.append("        c.displayName, ");
+    queryBuf.append("        c.fileName, ");
     queryBuf.append("        c.readLength, ");
     queryBuf.append("        c.trimmedLength, ");
     queryBuf.append("        c.q20, ");

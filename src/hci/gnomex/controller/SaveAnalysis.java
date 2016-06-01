@@ -352,7 +352,7 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
 
 					analysis.setNumber("A" + analysis.getIdAnalysis().toString());
 					analysis.setCreateDate(new java.sql.Date(System.currentTimeMillis()));
-					sess.save(analysis);
+					sess.flush();
 
 				} else {
 					initializeAnalysis(sess, analysis);
@@ -547,7 +547,8 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
 
 				// Get rid of removed analysis files
 				if (analysisFileParser != null) {
-					String analysisBaseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, null, PropertyDictionaryHelper.PROPERTY_ANALYSIS_DIRECTORY);
+					String analysisBaseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, null,
+							PropertyDictionaryHelper.PROPERTY_ANALYSIS_DIRECTORY);
 
 					for (Iterator i = analysisFileParser.getAnalysisFileToDeleteMap().keySet().iterator(); i.hasNext();) {
 						String idAnalysisFileString = (String) i.next();
@@ -639,7 +640,8 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
 				sendNotification(analysis, sess, state, Notification.SOURCE_TYPE_USER, Notification.TYPE_ANALYSIS);
 
 				// Create the analysis directory
-				String baseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, null, PropertyDictionaryHelper.PROPERTY_ANALYSIS_DIRECTORY);
+				String baseDir = PropertyDictionaryHelper.getInstance(sess)
+						.getDirectory(serverName, null, PropertyDictionaryHelper.PROPERTY_ANALYSIS_DIRECTORY);
 				String analysisDir = getAnalysisDirectory(baseDir, analysis);
 				File ad = new File(analysisDir);
 				if (!ad.exists()) {

@@ -1,20 +1,17 @@
 package hci.gnomex.utility;
 
 
+import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.pdf.AcroFields;
+import com.itextpdf.text.pdf.PdfReader;
+import com.itextpdf.text.pdf.PdfStamper;
 import hci.gnomex.constants.Constants;
-import hci.gnomex.model.AppUser;
-import hci.gnomex.model.BillingAccount;
-import hci.gnomex.model.Lab;
-import hci.gnomex.model.Product;
-import hci.gnomex.model.ProductLineItem;
-import hci.gnomex.model.ProductOrder;
-import hci.gnomex.model.PropertyDictionary;
+import hci.gnomex.model.*;
+import org.apache.commons.io.FileUtils;
+import org.hibernate.Session;
+import org.xml.sax.SAXException;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.MalformedURLException;
@@ -24,15 +21,6 @@ import java.text.SimpleDateFormat;
 import java.util.Iterator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.apache.commons.io.FileUtils;
-import org.hibernate.Session;
-import org.xml.sax.SAXException;
-
-import com.itextpdf.text.DocumentException;
-import com.itextpdf.text.pdf.AcroFields;
-import com.itextpdf.text.pdf.PdfReader;
-import com.itextpdf.text.pdf.PdfStamper;
 
 /**
  * @author MBowler

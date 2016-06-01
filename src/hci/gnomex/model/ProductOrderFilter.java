@@ -191,7 +191,7 @@ public class ProductOrderFilter extends DetailObject {
     if (this.secAdvisor.hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
       return;
     } else if (idCoreFacility == null) {
-      secAdvisor.buildSecurityCriteria(queryBuf, classShortName, null, false, false, true, true, false);
+      secAdvisor.buildSecurityCriteria(queryBuf, classShortName, null, false, false, true, false, false);
     }
     return;
 

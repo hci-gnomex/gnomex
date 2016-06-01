@@ -191,7 +191,6 @@
 				fieldData["idVendor"] = (vendorCombo.selectedIndex == -1) ? ("") : (vendorCombo.selectedItem.@idVendor);
 				fieldData["idPriceCategory"] = (priceCategoryCombo.selectedIndex == -1) ? ("") : (priceCategoryCombo.selectedItem.@idPriceCategory);
 				fieldData["description"] = descriptionText.text;
-				fieldData["utilizePurchasingSystem"] = utilizePurchasingCheckBox.selected ? ("Y") : ("N");
 				fieldData["idProductType"] = previousItemId;
 				
 				return fieldData;
@@ -230,12 +229,6 @@
 					if (selectedProductType.@idProductType != null && selectedProductType.@idProductType != '') {
 						previousItemId = selectedProductType.@idProductType;
 					}
-					if (selectedProductType.@utilizePurchasingSystem != null && selectedProductType.@utilizePurchasingSystem != '') {
-						utilizePurchasingCheckBox.selected = selectedProductType.@utilizePurchasingSystem == 'Y';
-					} else {
-						utilizePurchasingCheckBox.selected = false;
-					}
-
 				}
 			}
 			
@@ -244,7 +237,6 @@
 				vendorCombo.selectedIndex = -1;
 				priceCategoryCombo.selectedIndex = -1;
 				descriptionText.text = '';
-				utilizePurchasingCheckBox.selected = false;
 				previousItemId = 0;
 			}
 			
@@ -397,11 +389,6 @@
 				
 				<mx:Label text="General - Vendor" width="100%" styleName="formLabel" paddingTop="5"/>
 				<mx:ComboBox id="vendorCombo" dataProvider="{vendors}" labelField="@display" change="{dirty.setDirty()}" width="100%" />
-
-				<mx:HBox width="100%" paddingTop="8">
-					<mx:Label text="Use Purchasing System" styleName="formLabel"/>
-					<mx:CheckBox id="utilizePurchasingCheckBox" change="{dirty.setDirty()}" />
-				</mx:HBox>
 
 				<mx:Label text="Price Category" width="100%" styleName="formLabel" paddingTop="5"/>
 				<mx:HBox width="100%">
