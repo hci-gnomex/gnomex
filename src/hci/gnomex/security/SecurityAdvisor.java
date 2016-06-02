@@ -1539,17 +1539,11 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
             if (hasPermission(CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
                 canUpload = true;
             }
-            // Admins - Can only update requests from core facility user manages
             else if (hasPermission(CAN_WRITE_ANY_OBJECT) || hasPermission(CAN_PARTICIPATE_IN_GROUPS)) {
                 canUpload = isCoreFacilityIManage(req.getIdCoreFacility()) || (canUpdate(req) &&
                         !isCollaboratorUpdater(req)) || isCollaboratorUploader(req);
             }
-            // University GNomEx users
-            else if (hasPermission(CAN_PARTICIPATE_IN_GROUPS)) {
-                // Assumes if canUpdate and isCollaboratorUpdater then
-                // CollaboraterUpdater is why they can update.
-                canUpload = (canUpdate(req) && !isCollaboratorUpdater(req)) || isCollaboratorUploader(req);
-            }
+
         }
         //
         // Analysis
@@ -1755,7 +1749,6 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
                 // Owner of request
                 else if (isGroupIAmMemberOf(prodOrder.getIdLab()) && isOwner(prodOrder.getIdAppUser())) {
                     canDelete = true;
-                    // Collaborator with update
                 }
                 // Is this a request that was submitted by user who can submit on behalf
                 // of other cores
