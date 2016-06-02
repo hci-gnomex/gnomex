@@ -1225,11 +1225,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
             else if (hasPermission(CAN_PARTICIPATE_IN_GROUPS)) {
                 AnalysisGroup ag = (AnalysisGroup) object;
                 // Lab members or managers
-                if (isGroupIAmMemberOf(ag.getIdLab()) || isGroupIManage(ag.getLab())) {
-                    canUpdate = true;
-                }
-                // Owner of analysis group
-                else if (isGroupIAmMemberOf(ag.getIdLab()) && isOwner(ag.getIdAppUser())) {
+                if (isGroupIAmMemberOrManagerOf(ag.getIdLab()) ) {
                     canUpdate = true;
                 }
             }
@@ -1246,7 +1242,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
             else if (hasPermission(CAN_PARTICIPATE_IN_GROUPS)) {
                 DataTrackFolder dtf = (DataTrackFolder) object;
                 // Lab members or managers
-                if (isGroupIAmMemberOf(dtf.getIdLab()) || isGroupIManage(dtf.getLab())) {
+                if (isGroupIAmMemberOrManagerOf(dtf.getIdLab())) {
                     canUpdate = true;
                 }
             }
