@@ -15,6 +15,7 @@ import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import hci.gnomex.model.*;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.jdom.Document;
@@ -26,21 +27,6 @@ import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.model.DetailObject;
 import hci.framework.utilities.XMLReflectException;
-import hci.gnomex.model.Application;
-import hci.gnomex.model.ApplicationTheme;
-import hci.gnomex.model.BioanalyzerChipType;
-import hci.gnomex.model.CoreFacility;
-import hci.gnomex.model.IsolationPrepType;
-import hci.gnomex.model.NumberSequencingCyclesAllowed;
-import hci.gnomex.model.Price;
-import hci.gnomex.model.PriceCriteria;
-import hci.gnomex.model.PropertyDictionary;
-import hci.gnomex.model.RequestCategory;
-import hci.gnomex.model.RequestCategoryApplication;
-import hci.gnomex.model.RequestCategoryType;
-import hci.gnomex.model.SampleType;
-import hci.gnomex.model.SampleTypeRequestCategory;
-import hci.gnomex.model.SeqLibProtocolApplication;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.PriceUtil;
@@ -55,9 +41,11 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
   private List<SampleType> sampleTypes = new ArrayList<SampleType>();
   private List <Application> applications = new ArrayList<Application>();
   private List <IsolationPrepType> prepTypes = new ArrayList<IsolationPrepType>();
+  private List <LibraryPrepQCProtocol> prepQCProtocols = new ArrayList<LibraryPrepQCProtocol>();
   private HashMap<String, Map<Integer, ?>> sampleTypeMap = new HashMap<String, Map<Integer, ?>>();
   private HashMap<String, Map<String, RequestCategoryApplication>> applicationMap = new HashMap<String, Map<String, RequestCategoryApplication>>();
   private HashMap<String, List<IsolationPrepType>> prepTypeMap = new HashMap<String, List<IsolationPrepType>>();
+  private HashMap<String, List<LibraryPrepQCProtocol>> prepQCProtocolMap = new HashMap<String, List<LibraryPrepQCProtocol>>();
   private HashMap<Integer, Map<Integer, ?>> sampleTypeXMethodMap = new HashMap<Integer, Map<Integer, ?>>();
   private HashMap<String, Map<Integer, ?>> applicationXSeqLibProtocolMap = new HashMap<String, Map<Integer, ?>>();
   private HashMap<String, List<NumberSequencingCyclesAllowed>> numberSeqCyclesAllowedMap = new HashMap<String, List<NumberSequencingCyclesAllowed>>();
@@ -255,6 +243,21 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
             listNode.addContent(iptNode);
           }
         }
+
+        listNode = new Element("prepQCProtocols");
+        node.addContent(listNode);
+        List<LibraryPrepQCProtocol> prepQcProtocolList = this.prepQCProtocolMap.get(rc.getCodeRequestCategory());
+        if (prepQcProtocolList != null) {
+          for(LibraryPrepQCProtocol lpqp : prepQcProtocolList) {
+            this.getSecAdvisor().flagPermissions(lpqp);
+            Element lpqpNode = lpqp.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
+            listNode.addContent(lpqpNode);
+          }
+        }
+
+
+
+
       }
 
       org.jdom.output.XMLOutputter out = new org.jdom.output.XMLOutputter();
@@ -402,6 +405,17 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
       }
       prepList.add(x);
       prepTypeMap.put(x.getCodeRequestCategory(), prepList);
+    }
+
+    prepQCProtocols = sess.createQuery("SELECT a from LibraryPrepQCProtocol a").list();
+    for(Iterator i = prepQCProtocols.iterator(); i.hasNext();) {
+      LibraryPrepQCProtocol x = (LibraryPrepQCProtocol)i.next();
+      List prepList = prepQCProtocolMap.get(x.getCodeRequestCategory());
+      if (prepList == null) {
+        prepList = new ArrayList<NumberSequencingCyclesAllowed>();
+      }
+      prepList.add(x);
+      prepQCProtocolMap.put(x.getCodeRequestCategory(), prepList);
     }
 
     List applicationXSeqLibProtocols = sess.createQuery("SELECT x from SeqLibProtocolApplication x").list();

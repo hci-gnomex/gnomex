@@ -81,6 +81,9 @@ public class Sample extends HibernateDetailObject {
   private BigDecimal  qubitConcentration;
   private String      groupName;
   private String      qcCodeApplication;
+  private BigDecimal  qcLibConcentration;
+  private Integer     idLibPrepQCProtocol;
+  private BigDecimal  sampleVolume;
 
   private int         sequenceLaneCount; // a non-persistent variable used for XML
 
@@ -988,5 +991,29 @@ public class Sample extends HibernateDetailObject {
     return getIdOligoBarcodeB() != null ? 
         DictionaryManager.getDisplay("hci.gnomex.model.OligoBarcode", getIdOligoBarcodeB().toString()) 
         : (getBarcodeSequenceB() != null && !getBarcodeSequenceB().equals("") ? getBarcodeSequenceB() : "");
+  }
+
+  public BigDecimal getQcLibConcentration() {
+    return qcLibConcentration;
+  }
+
+  public void setQcLibConcentration(BigDecimal qcLibConcentration) {
+    this.qcLibConcentration = qcLibConcentration;
+  }
+
+  public Integer getIdLibPrepQCProtocol() {
+    return idLibPrepQCProtocol;
+  }
+
+  public void setIdLibPrepQCProtocol(Integer idLibPrepQCProtocol) {
+    this.idLibPrepQCProtocol = idLibPrepQCProtocol;
+  }
+
+  public BigDecimal getSampleVolume() {
+    return sampleVolume;
+  }
+
+  public void setSampleVolume(BigDecimal sampleVolume) {
+    this.sampleVolume = sampleVolume;
   }
 }

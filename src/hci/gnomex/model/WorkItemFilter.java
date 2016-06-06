@@ -110,6 +110,12 @@ public class WorkItemFilter extends DetailObject {
   public static int            PREP_ID_OLIGO_BARCODE_B = 31;
   public static int            PREP_BARCODE_SEQUENCE_B = 32;
 
+  // lib prep qc specific
+  public static int            QC_ID_SAMPLE_TYPE       = 16;
+  public static int            SAMPLE_VOLUME           = 17;
+  public static int            ID_LIB_PREP_QC_PROTOCOL = 18;
+  public static int            QC_LIB_CONCENTRATION    = 19;
+
   // Flowcell stock specific
   public static int            SEQ_PREP_STOCK_LIB_VOL  = 16;
   public static int            SEQ_PREP_STOCK_EB_VOL   = 17;
@@ -363,7 +369,18 @@ public class WorkItemFilter extends DetailObject {
       queryBuf.append("    s.meanLibSizeActual, ");
       queryBuf.append("    s.idOligoBarcodeB, ");
       queryBuf.append("    s.barcodeSequenceB ");
-    }  else if (this.codeStepNext.equals(Step.SEQ_FLOWCELL_STOCK)) {
+    } else if(this.codeStepNext.equals(Step.SEQ_PREP_QC) ||
+            this.codeStepNext.equals(Step.HISEQ_PREP_QC) ||
+            this.codeStepNext.equals(Step.ALL_PREP_QC) ||
+            this.codeStepNext.equals(Step.MISEQ_PREP_QC)){
+
+      queryBuf.append("      , ");
+      queryBuf.append("    s.idSampleType, ");
+      queryBuf.append("    s.sampleVolume, ");
+      queryBuf.append("    s.idLibPrepQCProtocol, ");
+      queryBuf.append("    s.qcLibConcentration ");
+
+    } else if (this.codeStepNext.equals(Step.SEQ_FLOWCELL_STOCK)) {
       queryBuf.append("      , ");
       queryBuf.append("    s.seqPrepStockLibVol, ");
       queryBuf.append("    s.seqPrepStockEBVol, ");

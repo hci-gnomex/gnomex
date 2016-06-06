@@ -112,6 +112,10 @@ package views.renderers
 	}
 }
 
+import mx.core.IFactory;
+
+import views.renderers.ComboBoxBioanalyzerChipType;
+
 class ComboBoxBioanalyzerChipTypeFactory implements mx.core.IFactory {
 	private var properties:Object;
 	

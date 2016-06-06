@@ -1367,6 +1367,9 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 								workItem.setCodeStepNext(codeStepNext);
 								sample.setQualBypassed("Y");
 								sample.setQualDate(new java.sql.Date(System.currentTimeMillis()));
+								sample.setSeqPrepDate(new java.sql.Date(System.currentTimeMillis()));
+								sample.setSeqPrepFailed("N");
+								sample.setSeqPrepBypassed("N");
 							}
 						}
 

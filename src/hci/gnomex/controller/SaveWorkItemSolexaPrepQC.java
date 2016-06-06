@@ -28,7 +28,7 @@ public class SaveWorkItemSolexaPrepQC extends GNomExCommand implements Serializa
 
   private String                       workItemXMLString;
   private Document                     workItemDoc;
-  private WorkItemSolexaPrepParser     parser;
+  private WorkItemSolexaPrepQCParser   parser;
 
   private String                       appURL;
 
@@ -51,7 +51,7 @@ public class SaveWorkItemSolexaPrepQC extends GNomExCommand implements Serializa
       try {
         SAXBuilder sax = new SAXBuilder();
         workItemDoc = sax.build(reader);
-        parser = new WorkItemSolexaPrepParser(workItemDoc);
+        parser = new WorkItemSolexaPrepQCParser(workItemDoc);
       } catch (JDOMException je ) {
         log.error( "Cannot parse workItemXMLString", je );
         this.addInvalidField( "WorkItemXMLString", "Invalid work item xml");
@@ -61,7 +61,7 @@ public class SaveWorkItemSolexaPrepQC extends GNomExCommand implements Serializa
     try {
       appURL = this.getLaunchAppURL(request);
     } catch (Exception e) {
-      log.warn("Cannot get launch app URL in SaveWorkItemSolexaPrep", e);
+      log.warn("Cannot get launch app URL in SaveWorkItemSolexaPrepQC", e);
     }
 
     serverName = request.getServerName();

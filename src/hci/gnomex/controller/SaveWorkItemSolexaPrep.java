@@ -154,8 +154,9 @@ public class SaveWorkItemSolexaPrep extends GNomExCommand implements Serializabl
                       } else if (workItem.getCodeStepNext().equals(Step.MISEQ_PREP)) {
                         codeStepNext = Step.MISEQ_PREP_QC;
                       }
+                      wi.setSample(sample);
                       wi.setCodeStepNext(codeStepNext);
-                      wi.setSequenceLane(lane);
+                      //wi.setSequenceLane(lane);
                       wi.setCreateDate(new java.sql.Date(System.currentTimeMillis()));
                       sess.save(wi);                      
                     }

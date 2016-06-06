@@ -344,11 +344,14 @@
 					this.codeStepNext = "HSEQPREP";
 					workflowHiSeqPipelineView.initTitle();
 	        		workflowHiSeqPipelineView.getWorkList.send();
-	        	} 
+	        	} else if (hiSeqViews.selectedChild == workflowHiSeqPrepQCView) {
+					workflowHiSeqPrepQCView.codeStepNext = "HSEQPREPQC";
+					this.codeStepNext = "HSEQPREPQC";
+					workflowHiSeqPrepQCView.titleInit();
+					workflowHiSeqPrepQCView.getWorkList.send();
+				}
 				detailViews.selectedIndex = 2;  
 				detailViews.visible = true;
-				
-	
 	        }
 	
 			private function onMiSeqWorklistChange():void {
@@ -360,7 +363,6 @@
 				} else if (miSeqViews.selectedChild == workflowMiSeqAssembleView) {
 					workflowMiSeqAssembleView.codeStepNext = "MISEQASSEM";
 					this.codeStepNext = "MISEQASSEM";
-					
 					workflowMiSeqAssembleView.init(miSeqFlowCellChannels);
 					//workflowMiSeqAssembleView.getWorkList.send();
 				} else if (miSeqViews.selectedChild == workflowMiSeqFlowCellFinalizeView) {
@@ -374,7 +376,12 @@
 					this.codeStepNext = "MISEQPIPE";
 					workflowMiSeqPipelineView.initTitle();
 					workflowMiSeqPipelineView.getWorkList.send();
-				} 
+				} else if (hiSeqViews.selectedChild == workflowMiSeqPrepQCView) {
+					workflowMiSeqPrepQCView.codeStepNext = "MISEQPREPQC";
+					this.codeStepNext = "MISEQPREPQC";
+					workflowMiSeqPrepQCView.titleInit();
+					workflowMiSeqPrepQCView.getWorkList.send();
+				}
 				detailViews.selectedIndex = 3;  
 				detailViews.visible = true;
 			}   
