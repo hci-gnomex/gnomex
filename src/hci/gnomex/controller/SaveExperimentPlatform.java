@@ -240,7 +240,7 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
         saveSequencingOptions(sess, rc);
         saveApplications(sess, rc);
         saveRequestCategoryApplications(sess);
-        Boolean unableToDeletePrepQCProtocols = savePrepQCProtocols(sess);
+        Boolean unableToDeletePrepQCProtocols = savePrepQCProtocols(sess, rc);
         Boolean unableToDelete = savePrepTypes(sess);
 
 
@@ -366,7 +366,7 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
     rc.setAssociatedWithAnalysis(rcScreen.getAssociatedWithAnalysis());
   }
 
-  private Boolean savePrepQCProtocols(Session sess){
+  private Boolean savePrepQCProtocols(Session sess, RequestCategory rc){
     Boolean unableToDelete = false;
     if(prepQCProtocolsDoc == null || prepQCProtocolsDoc.getRootElement().getChildren().size() == 0){
       return unableToDelete;
@@ -383,7 +383,7 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
       if (isNew != null && isNew.equals("Y")) {
         lpqp = new LibraryPrepQCProtocol();
       } else {
-        lpqp = sess.load(LibraryPrepQCProtocol.class, node.getAttributeValue("idLibPrepQCProtocol"));
+        lpqp = sess.load(LibraryPrepQCProtocol.class, Integer.parseInt(node.getAttributeValue("idLibPrepQCProtocol")));
       }
 
       lpqp.setProtocolDisplay(node.getAttributeValue("protocolDisplay"));
@@ -393,7 +393,8 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
     }
     sess.flush();
 
-    List existingPrepTypes = sess.createQuery("SELECT x from LibraryPrepQCProtocol x").list();
+
+    List existingPrepTypes = sess.createQuery("SELECT x from LibraryPrepQCProtocol x where x.codeRequestCategory='" + rc.getCodeRequestCategory() + "'" ).list();
 
     // check if there are any associations, and if not then delete prep qc protocol
     // otherwise leave it be
