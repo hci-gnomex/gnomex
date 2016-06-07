@@ -35,6 +35,11 @@
 					this.detailViews.selectedChild = this.hiSeqViews;
 					this.hiSeqViews.selectedChild = this.workflowHiSeqPrepView;
 					callLater(onHiSeqWorklistChange);
+				} else if (codeStep == 'HSEQPREPQC') {
+					this.navBar.selectedChild = this.hiSeqTab;
+					this.detailViews.selectedChild = this.hiSeqViews;
+					this.hiSeqViews.selectedChild = this.workflowHiSeqPrepQCView;
+					callLater(onHiSeqWorklistChange);
 				} else if (codeStep == 'HSEQASSEM') {
 					this.navBar.selectedChild = this.hiSeqTab;
 					this.detailViews.selectedChild = this.hiSeqViews;
@@ -55,6 +60,11 @@
 					this.detailViews.selectedChild = this.miSeqViews;
 					this.miSeqViews.selectedChild = this.workflowMiSeqPrepView;
 					callLater(onMiSeqWorklistChange);
+				} else if (codeStep == 'MISEQPREPQC') {
+					this.navBar.selectedChild = this.miSeqTab;
+					this.detailViews.selectedChild = this.miSeqViews;
+					this.hiSeqViews.selectedChild = this.workflowMiSeqPrepQCView;
+					callLater(onHiSeqWorklistChange);
 				} else if (codeStep == 'MISEQASSEM') {
 					this.navBar.selectedChild = this.miSeqTab;
 					this.detailViews.selectedChild = this.miSeqViews;
@@ -334,11 +344,14 @@
 					this.codeStepNext = "HSEQPREP";
 					workflowHiSeqPipelineView.initTitle();
 	        		workflowHiSeqPipelineView.getWorkList.send();
-	        	} 
+	        	} else if (hiSeqViews.selectedChild == workflowHiSeqPrepQCView) {
+					workflowHiSeqPrepQCView.codeStepNext = "HSEQPREPQC";
+					this.codeStepNext = "HSEQPREPQC";
+					workflowHiSeqPrepQCView.titleInit();
+					workflowHiSeqPrepQCView.getWorkList.send();
+				}
 				detailViews.selectedIndex = 2;  
 				detailViews.visible = true;
-				
-	
 	        }
 	
 			private function onMiSeqWorklistChange():void {
@@ -350,7 +363,6 @@
 				} else if (miSeqViews.selectedChild == workflowMiSeqAssembleView) {
 					workflowMiSeqAssembleView.codeStepNext = "MISEQASSEM";
 					this.codeStepNext = "MISEQASSEM";
-					
 					workflowMiSeqAssembleView.init(miSeqFlowCellChannels);
 					//workflowMiSeqAssembleView.getWorkList.send();
 				} else if (miSeqViews.selectedChild == workflowMiSeqFlowCellFinalizeView) {
@@ -364,7 +376,12 @@
 					this.codeStepNext = "MISEQPIPE";
 					workflowMiSeqPipelineView.initTitle();
 					workflowMiSeqPipelineView.getWorkList.send();
-				} 
+				} else if (hiSeqViews.selectedChild == workflowMiSeqPrepQCView) {
+					workflowMiSeqPrepQCView.codeStepNext = "MISEQPREPQC";
+					this.codeStepNext = "MISEQPREPQC";
+					workflowMiSeqPrepQCView.titleInit();
+					workflowMiSeqPrepQCView.getWorkList.send();
+				}
 				detailViews.selectedIndex = 3;  
 				detailViews.visible = true;
 			}   
@@ -538,6 +555,8 @@
 			
 			   <workflow:WorkflowSolexaPrepView label="Lib Prep" id="workflowHiSeqPrepView"  icon="{parentApplication.iconLibPrep}"/>
 
+			   <workflow:WorkflowSolexaPrepQCView label="Lib Prep QC" id="workflowHiSeqPrepQCView"  icon="{parentApplication.iconLibPrep}"/>
+
 			   <workflow:WorkflowSolexaAssembleView label="Flow Cell Assembly" id="workflowHiSeqAssembleView" icon="{parentApplication.iconSolexa}"/>
 			   
 			   <workflow:WorkflowSolexaFlowCellFinalizeView label="Finalize Flow Cell" id="workflowHiSeqFlowCellFinalizeView" icon="{parentApplication.iconSolexa}"/>
@@ -550,6 +569,8 @@
 			<mx:ViewStack id="miSeqViews"  visible="true" height="100%" width="100%" selectedIndex="3" creationPolicy="all" >
 				
 				<workflow:WorkflowSolexaPrepView label="Lib Prep" id="workflowMiSeqPrepView" icon="{parentApplication.iconLibPrep}"/>
+
+				<workflow:WorkflowSolexaPrepQCView label="Lib Prep QC" id="workflowMiSeqPrepQCView"  icon="{parentApplication.iconLibPrep}"/>
 				
 				<workflow:WorkflowSolexaAssembleView label="Flow Cell Assembly" id="workflowMiSeqAssembleView" icon="{parentApplication.iconSolexa}"/>
 				

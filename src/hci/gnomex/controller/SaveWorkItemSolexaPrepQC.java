@@ -3,99 +3,73 @@ package hci.gnomex.controller;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.constants.Constants;
-import hci.gnomex.model.BillingPeriod;
-import hci.gnomex.model.BillingStatus;
-import hci.gnomex.model.BillingTemplate;
-import hci.gnomex.model.PropertyDictionary;
-import hci.gnomex.model.Request;
-import hci.gnomex.model.RequestStatus;
-import hci.gnomex.model.Sample;
-import hci.gnomex.model.SequenceLane;
-import hci.gnomex.model.Step;
-import hci.gnomex.model.WorkItem;
+import hci.gnomex.model.*;
 import hci.gnomex.security.SecurityAdvisor;
-import hci.gnomex.utility.BillingItemAutoComplete;
-import hci.gnomex.utility.BillingTemplateQueryManager;
-import hci.gnomex.utility.DictionaryHelper;
-import hci.gnomex.utility.HibernateSession;
-import hci.gnomex.utility.PropertyDictionaryHelper;
-import hci.gnomex.utility.SampleComparator;
-import hci.gnomex.utility.WorkItemSolexaPrepParser;
-
-import java.io.Serializable;
-import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-
+import hci.gnomex.utility.*;
 import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.jdom.output.XMLOutputter;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import java.io.Serializable;
+import java.io.StringReader;
+import java.util.*;
+
+
+public class SaveWorkItemSolexaPrepQC extends GNomExCommand implements Serializable {
 
 
 
-public class SaveWorkItemSolexaPrep extends GNomExCommand implements Serializable {
-  
- 
-  
   // the static field for logging in Log4J
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(SaveWorkItemSolexaPrep.class);
-  
+  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(SaveWorkItemSolexaPrepQC.class);
+
   private String                       workItemXMLString;
   private Document                     workItemDoc;
-  private WorkItemSolexaPrepParser     parser;
-  
+  private WorkItemSolexaPrepQCParser   parser;
+
   private String                       appURL;
-  
+
   private String                       serverName;
-  
+
   private Map                          confirmedRequestMap = new HashMap();
-  
+
   private DictionaryHelper             dictionaryHelper = null;
-  
+
   public void validate() {
   }
-  
+
   public void loadCommand(HttpServletRequest request, HttpSession session) {
-    
-    
+
+
     if (request.getParameter("workItemXMLString") != null && !request.getParameter("workItemXMLString").equals("")) {
       workItemXMLString = "<WorkItemList>" + request.getParameter("workItemXMLString") + "</WorkItemList>";
-      
+
       StringReader reader = new StringReader(workItemXMLString);
       try {
         SAXBuilder sax = new SAXBuilder();
         workItemDoc = sax.build(reader);
-        parser = new WorkItemSolexaPrepParser(workItemDoc);
+        parser = new WorkItemSolexaPrepQCParser(workItemDoc);
       } catch (JDOMException je ) {
         log.error( "Cannot parse workItemXMLString", je );
         this.addInvalidField( "WorkItemXMLString", "Invalid work item xml");
       }
     }
-    
+
     try {
-      appURL = this.getLaunchAppURL(request);      
+      appURL = this.getLaunchAppURL(request);
     } catch (Exception e) {
-      log.warn("Cannot get launch app URL in SaveWorkItemSolexaPrep", e);
+      log.warn("Cannot get launch app URL in SaveWorkItemSolexaPrepQC", e);
     }
-    
+
     serverName = request.getServerName();
-    
+
   }
 
   public Command execute() throws RollBackCommandException {
-    
+
     if (workItemXMLString != null) {
       try {
         Session sess = HibernateSession.currentSession(this.getUsername());
@@ -105,66 +79,52 @@ public class SaveWorkItemSolexaPrep extends GNomExCommand implements Serializabl
 
         if (this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_MANAGE_WORKFLOW)) {
           parser.parse(sess);
-          
+
           for(Iterator i = parser.getWorkItems().iterator(); i.hasNext();) {
             WorkItem workItem = (WorkItem)i.next();
             Sample sample = (Sample)parser.getSample(workItem.getIdWorkItem());
-            
-            // Set the barcodeSequence to the sequence of idOligoBarcodeSequence 
-            // This will allow us to rely on barcodeSequence for both the standard index tags
-            // and custom tags.
-            if (sample.getIdOligoBarcode() != null) {
-              sample.setBarcodeSequence(dh.getBarcodeSequence(sample.getIdOligoBarcode()));      
-            }
-            
-            // Do the same as above for idOligoBarcodeSequenceB (set barcodeSequenceB to the 
-            // sequence of idOligoBarcodeSequenceB)
-            if (sample.getIdOligoBarcodeB() != null) {
-              sample.setBarcodeSequenceB(dh.getBarcodeSequence(sample.getIdOligoBarcodeB()));
-            }
-            
+
             // No further processing required for On Hold or In Progress work items
             if (workItem.getStatus() == null || workItem.getStatus().equals(Constants.STATUS_ON_HOLD) || workItem.getStatus().equals(Constants.STATUS_IN_PROGRESS)) {
               continue;
-            } 
-            
+            }
+
             // If Solexa sample prep is done or bypassed for this sample, create work items for Solexa stock prep
             // for the sample
             Request request = (Request)sess.load(Request.class, workItem.getIdRequest());
-            if (sample.getSeqPrepDate() != null || 
+            if (sample.getSeqPrepDate() != null ||
                 (sample.getSeqPrepBypassed() != null && sample.getSeqPrepBypassed().equalsIgnoreCase("Y"))) {
                 // Create a cluster gen work item for every unprocessed seq lane of the sample.
                 for(Iterator i1 = request.getSequenceLanes().iterator(); i1.hasNext();) {
                   SequenceLane lane = (SequenceLane)i1.next();
-                  
+
                   if (lane.getIdSample().equals(sample.getIdSample()) && lane.getIdFlowCellChannel() == null) {
-                    
+
                     // Make sure this lane isn't already queued up on the cluster gen workflow
                     List otherWorkItems = (List)sess.createQuery("SELECT wi from WorkItem wi join wi.sequenceLane l where wi.codeStepNext = '" + Step.SEQ_CLUSTER_GEN + "' and l.idSequenceLane = " + lane.getIdSequenceLane()).list();
                     if (otherWorkItems.size() == 0) {
                       WorkItem wi = new WorkItem();
                       wi.setIdRequest(sample.getIdRequest());
                       wi.setIdCoreFacility(sample.getRequest().getIdCoreFacility());
-                      
+
                       String codeStepNext = "";
-                      if(workItem.getCodeStepNext().equals(Step.SEQ_PREP)) {
-                        codeStepNext = Step.SEQ_PREP_QC;
-                      } else if (workItem.getCodeStepNext().equals(Step.HISEQ_PREP)) {
-                        codeStepNext = Step.HISEQ_PREP_QC;
-                      } else if (workItem.getCodeStepNext().equals(Step.MISEQ_PREP)) {
-                        codeStepNext = Step.MISEQ_PREP_QC;
+                      if(workItem.getCodeStepNext().equals(Step.SEQ_PREP_QC)) {
+                        codeStepNext = Step.SEQ_CLUSTER_GEN;
+                      } else if (workItem.getCodeStepNext().equals(Step.HISEQ_PREP_QC)) {
+                        codeStepNext = Step.HISEQ_CLUSTER_GEN;
+                      } else if (workItem.getCodeStepNext().equals(Step.MISEQ_PREP_QC)) {
+                        codeStepNext = Step.MISEQ_CLUSTER_GEN;
                       }
-                      wi.setSample(sample);
                       wi.setCodeStepNext(codeStepNext);
-                      //wi.setSequenceLane(lane);
+                      wi.setSequenceLane(lane);
                       wi.setCreateDate(new java.sql.Date(System.currentTimeMillis()));
-                      sess.save(wi);                      
+                      sess.save(wi);
                     }
-                    
+
                   }
                 }
-                
-                
+
+
             }
 
             if (autoCompleteMap.containsKey(request.getIdRequest())) {
@@ -179,13 +139,13 @@ public class SaveWorkItemSolexaPrep extends GNomExCommand implements Serializabl
             }
 
             // If Solexa sample prep is done or failed for this sample, delete the work item
-            if (sample.getSeqPrepDate() != null || 
+            if (sample.getSeqPrepDate() != null ||
               (sample.getSeqPrepFailed() != null && sample.getSeqPrepFailed().equalsIgnoreCase("Y")) ||
               (sample.getSeqPrepBypassed() != null && sample.getSeqPrepBypassed().equalsIgnoreCase("Y"))) {
-            
+
               // Delete  work item
               sess.delete(workItem);
-              
+
               if (sample.getSeqPrepBypassed() == null || !sample.getSeqPrepBypassed().equalsIgnoreCase("Y")) {
                 // Save sample for later creation of billing items
                 Set<Sample> sampleSet = samplesCompletedMap.get(sample.getIdRequest());
@@ -196,7 +156,7 @@ public class SaveWorkItemSolexaPrep extends GNomExCommand implements Serializabl
                 samplesCompletedMap.put(sample.getIdRequest(), sampleSet);
               }
             }
-            
+
             // Set the completed date on the request if all lib prep failed.
             request.completeRequestIfFinished(sess);
 
@@ -205,10 +165,10 @@ public class SaveWorkItemSolexaPrep extends GNomExCommand implements Serializabl
           processBilling(sess, autoCompleteMap, samplesCompletedMap);
 
           sess.flush();
-          
+
           parser.resetIsDirty();
 
-          XMLOutputter out = new org.jdom.output.XMLOutputter();
+          XMLOutputter out = new XMLOutputter();
           this.xmlResult = out.outputString(workItemDoc);
           
           setResponsePage(this.SUCCESS_JSP);          

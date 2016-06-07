@@ -12,6 +12,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import hci.gnomex.model.*;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
@@ -22,24 +23,6 @@ import org.jdom.input.SAXBuilder;
 
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
-import hci.gnomex.model.Application;
-import hci.gnomex.model.ApplicationType;
-import hci.gnomex.model.BioanalyzerChipType;
-import hci.gnomex.model.IsolationPrepType;
-import hci.gnomex.model.NumberSequencingCyclesAllowed;
-import hci.gnomex.model.OligoBarcodeSchemeAllowed;
-import hci.gnomex.model.Price;
-import hci.gnomex.model.PriceCategory;
-import hci.gnomex.model.PriceCriteria;
-import hci.gnomex.model.PropertyDictionary;
-import hci.gnomex.model.RequestCategory;
-import hci.gnomex.model.RequestCategoryApplication;
-import hci.gnomex.model.RequestCategoryType;
-import hci.gnomex.model.SampleType;
-import hci.gnomex.model.SampleTypeRequestCategory;
-import hci.gnomex.model.SeqLibProtocol;
-import hci.gnomex.model.SeqLibProtocolApplication;
-import hci.gnomex.model.SeqRunType;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
@@ -62,6 +45,9 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
 
   private String prepTypesXMLString;
   private Document prepTypesDoc;
+
+  private String prepQCProtocolsXMLString;
+  private Document prepQCProtocolsDoc;
 
   private Document requestCategoryApplicationsDoc;
 
@@ -136,6 +122,18 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
       } catch (JDOMException je) {
         log.error("Cannot parse prepTypesXMLString", je);
         this.addInvalidField("prepTypesXMLString", "Invalid prepTypesXMLString");
+      }
+    }
+
+    if (request.getParameter("prepQCProtocolsXMLString") != null && !request.getParameter("prepQCProtocolsXMLString").equals("")) {
+      prepQCProtocolsXMLString = request.getParameter("prepQCProtocolsXMLString");
+      StringReader reader = new StringReader(prepQCProtocolsXMLString);
+      try {
+        SAXBuilder sax = new SAXBuilder();
+        prepQCProtocolsDoc = sax.build(reader);
+      } catch (JDOMException je) {
+        log.error("Cannot parse prepQCProtocolsXMLString", je);
+        this.addInvalidField("prepQCProtocolsXMLString", "Invalid prepQCProtocolsXMLString");
       }
     }
 
@@ -242,7 +240,9 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
         saveSequencingOptions(sess, rc);
         saveApplications(sess, rc);
         saveRequestCategoryApplications(sess);
+        Boolean unableToDeletePrepQCProtocols = savePrepQCProtocols(sess);
         Boolean unableToDelete = savePrepTypes(sess);
+
 
         // now check and see if we need to create a sample warning property for
         // sample batch size
@@ -271,9 +271,18 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
 
         DictionaryHelper.reload(sess);
 
+        StringBuffer unableToDeleteMsg = new StringBuffer();
+
         if (unableToDelete) {
-          this.xmlResult = "<SUCCESS codeRequestCategory=\"" + rc.getCodeRequestCategory() + "\" unableToDelete=\"Certain prep types were marked as inactive instead of deleted because there are requests that are associated with the given prep type\"/>";
-        } else {
+          unableToDeleteMsg.append("Certain prep types were marked as inactive instead of deleted because there are requests that are associated with the given prep type");
+        }
+        if(unableToDeletePrepQCProtocols){
+          unableToDeleteMsg.append("Certain Library Prep QC Protocols were unable to be deleted because they are referenced on existing samples.");
+        }
+
+        if(unableToDeleteMsg.length() > 0){
+          this.xmlResult = "<SUCCESS codeRequestCategory=\"" + rc.getCodeRequestCategory() + "\" unableToDelete=\"" + unableToDeleteMsg.toString() + "\"/>";
+        } else{
           this.xmlResult = "<SUCCESS codeRequestCategory=\"" + rc.getCodeRequestCategory() + "\"/>";
         }
 
@@ -355,6 +364,54 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
     rc.setSampleBatchSize(rcScreen.getSampleBatchSize());
     rc.setIdProductType(rcScreen.getIdProductType());
     rc.setAssociatedWithAnalysis(rcScreen.getAssociatedWithAnalysis());
+  }
+
+  private Boolean savePrepQCProtocols(Session sess){
+    Boolean unableToDelete = false;
+    if(prepQCProtocolsDoc == null || prepQCProtocolsDoc.getRootElement().getChildren().size() == 0){
+      return unableToDelete;
+    }
+
+    List prepQCProtocols = new ArrayList();
+    for (Iterator i = this.prepQCProtocolsDoc.getRootElement().getChildren().iterator(); i.hasNext();) {
+      Element node = (Element) i.next();
+      LibraryPrepQCProtocol lpqp = null;
+
+      String isNew = node.getAttributeValue("isNew");
+
+      // Save new prep type or load the existing one
+      if (isNew != null && isNew.equals("Y")) {
+        lpqp = new LibraryPrepQCProtocol();
+      } else {
+        lpqp = sess.load(LibraryPrepQCProtocol.class, node.getAttributeValue("idLibPrepQCProtocol"));
+      }
+
+      lpqp.setProtocolDisplay(node.getAttributeValue("protocolDisplay"));
+      lpqp.setCodeRequestCategory(node.getAttributeValue("codeRequestCategory"));
+      sess.save(lpqp);
+      prepQCProtocols.add(lpqp);
+    }
+    sess.flush();
+
+    List existingPrepTypes = sess.createQuery("SELECT x from LibraryPrepQCProtocol x").list();
+
+    // check if there are any associations, and if not then delete prep qc protocol
+    // otherwise leave it be
+    for(Iterator i = existingPrepTypes.iterator(); i.hasNext();){
+      LibraryPrepQCProtocol lpqp = (LibraryPrepQCProtocol) i.next();
+      if(!prepQCProtocols.contains(lpqp)){
+        List samples = sess.createQuery("Select s from Sample s where s.idLibPrepQCProtocol = " + lpqp.getIdLibPrepQCProtocol()).list();
+        if(samples.size() > 0 ){
+          unableToDelete = true;
+          continue;
+        } else{
+          sess.delete(lpqp);
+        }
+      }
+    }
+
+    sess.flush();
+    return unableToDelete;
   }
 
   private Boolean savePrepTypes(Session sess) {

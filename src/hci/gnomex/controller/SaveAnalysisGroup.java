@@ -3,6 +3,7 @@ package hci.gnomex.controller;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.AnalysisGroup;
+import hci.gnomex.model.Lab;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.RequestParser;
 
@@ -94,6 +95,7 @@ public class SaveAnalysisGroup extends GNomExCommand implements Serializable {
     
     analysisGroup.setName(RequestParser.unEscape(load.getName()));
     analysisGroup.setDescription(RequestParser.unEscapeBasic(load.getDescription()));
+    analysisGroup.setLab(sess.load(Lab.class, load.getIdLab()));
   }  
   
  

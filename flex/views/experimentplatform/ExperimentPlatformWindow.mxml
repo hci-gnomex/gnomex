@@ -150,6 +150,9 @@
 				
 				var prepTypes:XMLListCollection = new XMLListCollection(state.requestCategory.prepTypes.IsolationPrepType);
 				params.prepTypesXMLString = "<prepTypes>" + prepTypes.toXMLString() + "</prepTypes>";
+
+				var prepQCProtocols:XMLListCollection = new XMLListCollection(state.requestCategory.prepQCProtocols.LibraryPrepQCProtocol);
+				params.prepQCProtocolsXMLString = "<prepQCProtocols>" + prepQCProtocols.toXMLString() + "</prepQCProtocols>";
 				
 				if (state.isIllumina || state.isSequenom) {
 					// Illumina allows setting of app/request cateogry relationship across multiple request categories.
@@ -263,6 +266,7 @@
 						experimentTypeIllumina.init(state);
 						illuminaSeq.init(state);
 						propertyIllumina.init(state);
+						illuminaLibPrepQC.init(state);
 					} else if (state.isQC) {
 						tabStack.selectedIndex = 2;
 						experimentPlatformQC.init(state);
@@ -386,6 +390,7 @@
 							<experimentplatform:TabSampleType id="sampleTypeIllumina"/>
 							<experimentplatform:TabExperimentTypeIllumina id="experimentTypeIllumina"/>
 							<experimentplatform:TabIlluminaSeq id="illuminaSeq"/>
+							<experimentplatform:LibraryPrepQC id="illuminaLibPrepQC"/>
 							<experimentplatform:TabProperty id="propertyIllumina"/>
 						</mx:TabNavigator>
 						<mx:TabNavigator  id="theTabsQC" width="100%" height="100%" styleName="form" paddingTop="0" paddingLeft="0" paddingRight="0" paddingBottom="0" fontSize="11">
@@ -396,7 +401,7 @@
 						</mx:TabNavigator>
 					</mx:ViewStack>
 					<mx:ControlBar width="100%" horizontalAlign="right" paddingTop="0" paddingBottom="0" paddingLeft="0" paddingRight="0"
-								   visible="{this.theTabs.selectedIndex != 3 &amp;&amp; this.theTabsIllumina.selectedIndex != 4 &amp;&amp; this.theTabsQC.selectedIndex != 3}">
+								   visible="{this.theTabs.selectedIndex != 3 &amp;&amp; this.theTabsIllumina.selectedIndex != 5 &amp;&amp; this.theTabsQC.selectedIndex != 3}">
 						<util:DirtyNote id="dirty" />
 						<mx:Button id="saveButton" label="Save"
 								   click="{save()}"

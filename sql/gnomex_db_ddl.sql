@@ -1812,6 +1812,13 @@ CREATE TABLE gnomex.QualityControlStepEntry (
 )
 ENGINE = INNODB;
 
+DROP TABLE IF EXISTS gnomex.LibraryPrepQCProtocol;
+CREATE TABLE LibraryPrepQCProtocol(
+  idLibPrepQCProtocol INT(10) NOT NULL AUTO_INCREMENT,
+  protocolDisplay VARCHAR(50) NOT NULL,
+  PRIMARY KEY (idLibPrepQCProtocol)
+);
+
 DROP TABLE IF EXISTS gnomex.Request;
 CREATE TABLE gnomex.Request (
   idRequest INT(10) NOT NULL AUTO_INCREMENT,
@@ -2129,6 +2136,7 @@ CREATE TABLE gnomex.Sample (
   qubitConcentration DECIMAL(8, 3) NULL,
   groupName VARCHAR(200) NULL,
   qcCodeApplication VARCHAR(10) NULL,
+  qcLibConcentration DECIMAL(8,1) NULL,
   PRIMARY KEY (idSample),
   CONSTRAINT FK_Sample_Organism FOREIGN KEY FK_Sample_Organism (idOrganism)
     REFERENCES gnomex.Organism (idOrganism)

@@ -4289,6 +4289,7 @@
 			<menuitem label="QC" icon="iconQC" codeStepNext="QC" context="QC"  />
 			<menuitem type="separator" context="HISEQ" label="hiseqSeparator"/>
 			<menuitem label="HiSeq - Lib Prep" icon="iconLibPrep"   codeStepNext="HSEQPREP" context="HISEQ" />
+			<menuitem label="HiSeq - Lib Prep QC" icon="iconLibPrep"   codeStepNext="HSEQPREPQC" context="HISEQ" />
 			<menuitem label="HiSeq - Flow Cell Assembly" icon="iconHiSeq"  codeStepNext="HSEQASSEM" context="HISEQ"  />
 			<menuitem label="HiSeq - Finalize Flow Cell" icon="iconHiSeq" codeStepNext="HSEQFINFC" context="HISEQ" />
 			<menuitem label="HiSeq - Data Pipeline" icon="iconPipeline"  codeStepNext="HSEQPIPE" context="HISEQ"  />
@@ -4296,6 +4297,7 @@
 			<menuitem type="separator" context="MISEQ" label="miseqSeparator"/>
 			<menuitem label="Illumina MiSeq..." icon="iconMiSeq" context="MISEQ"  >
 				<menuitem label="Lib Prep" icon="iconLibPrep"  codeStepNext="MISEQPREP"  />
+				<menuitem label="Lib Prep QC" icon="iconLibPrep"   codeStepNext="MISEQPREPQC" context="MISEQ" />
 				<menuitem label="Flow Cell Assembly" icon="iconMiSeq"  codeStepNext="MISEQASSEM"  />
 				<menuitem label="Finalize Flow Cell" icon="iconMiSeq" codeStepNext="MISEQFINFC" />
 				<menuitem label="Pipeline" icon="iconPipeline"  codeStepNext="MISEQPIPE" />
@@ -4319,6 +4321,7 @@
 			<menuitem label="QC" icon="iconQC" codeStepNext="QC" context="QC"  />
 			<menuitem type="separator" context="HISEQ" label="hiseqSeparator"/>
 			<menuitem label="HiSeq - Lib Prep" icon="iconLibPrep"   codeStepNext="HSEQPREP" context="HISEQ" />
+			<menuitem label="HiSeq - Lib Prep QC" icon="iconLibPrep"   codeStepNext="HSEQPREPQC" context="HISEQ" />
 			<menuitem label="HiSeq - Flow Cell Assembly" icon="iconHiSeq"  codeStepNext="HSEQASSEM" context="HISEQ"  />
 			<menuitem label="HiSeq - Finalize Flow Cell" icon="iconHiSeq" codeStepNext="HSEQFINFC" context="HISEQ" />
 			<menuitem label="HiSeq - Data Pipeline" icon="iconPipeline"  codeStepNext="HSEQPIPE"  context="HISEQ" />
@@ -4326,6 +4329,7 @@
 			<menuitem type="separator" context="MISEQ" label="miseqSeparator"/>
 			<menuitem label="Illumina MiSeq..." icon="iconMiSeq" context="MISEQ"  >
 				<menuitem label="Lib Prep" icon="iconLibPrep"  codeStepNext="MISEQPREP"  />
+				<menuitem label="Lib Prep QC" icon="iconLibPrep"   codeStepNext="MISEQPREPQC" context="MISEQ" />
 				<menuitem label="Flow Cell Assembly" icon="iconMiSeq"  codeStepNext="MISEQASSEM"  />
 				<menuitem label="Finalize Flow Cell" icon="iconMiSeq" codeStepNext="MISEQFINFC" />
 				<menuitem label="Pipeline" icon="iconPipeline"  codeStepNext="MISEQPIPE" />
@@ -4543,6 +4547,7 @@
 			<menuitem label="QC" icon="iconQC" codeStepNext="QC" context="QC"   />
 			<menuitem type="separator" context="HISEQ" label="hiseqSeparator"/>
 			<menuitem label="HiSeq - Lib Prep" icon="iconLibPrep"   codeStepNext="HSEQPREP" context="HISEQ" />
+			<menuitem label="HiSeq - Lib Prep QC" icon="iconLibPrep"   codeStepNext="HSEQPREPQC" context="HISEQ" />
 			<menuitem label="HiSeq - Flow Cell Assembly" icon="iconHiSeq"  codeStepNext="HSEQASSEM" context="HISEQ"  />
 			<menuitem label="HiSeq - Finalize Flow Cell" icon="iconHiSeq" codeStepNext="HSEQFINFC" context="HISEQ" />
 			<menuitem label="HiSeq - Data Pipeline" icon="iconPipeline"  codeStepNext="HSEQPIPE" context="HISEQ"  />
@@ -4550,6 +4555,7 @@
 			<menuitem type="separator" context="MISEQ" label="miseqSeparator"/>
 			<menuitem label="Illumina MiSeq..." icon="iconMiSeq" context="MISEQ"  >
 				<menuitem label="Lib Prep" icon="iconLibPrep"  codeStepNext="MISEQPREP"  />
+				<menuitem label="Lib Prep QC" icon="iconLibPrep"   codeStepNext="MISEQPREPQC" context="MISEQ" />
 				<menuitem label="Flow Cell Assembly" icon="iconMiSeq"  codeStepNext="MISEQASSEM"  />
 				<menuitem label="Finalize Flow Cell" icon="iconMiSeq" codeStepNext="MISEQFINFC" />
 				<menuitem label="Pipeline" icon="iconPipeline"  codeStepNext="MISEQPIPE" />

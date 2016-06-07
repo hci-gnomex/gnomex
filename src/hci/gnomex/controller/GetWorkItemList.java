@@ -85,7 +85,10 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
             filter.getCodeStepNext().equals(Step.SEQ_PREP) ||
             filter.getCodeStepNext().equals(Step.HISEQ_PREP) ||
             filter.getCodeStepNext().equals(Step.MISEQ_PREP) ||
-            filter.getCodeStepNext().equals(Step.ALL_PREP)) {
+            filter.getCodeStepNext().equals(Step.ALL_PREP) ||
+            filter.getCodeStepNext().equals(Step.HISEQ_PREP_QC) ||
+            filter.getCodeStepNext().equals(Step.MISEQ_PREP_QC) ||
+            filter.getCodeStepNext().equals(Step.ALL_PREP_QC)    ) {
           comparator = new SampleComparator();
         } else if (filter.getCodeStepNext().equals(Step.LABELING_STEP)) {
           comparator  = new LabeledSampleComparator();
@@ -153,7 +156,10 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
               filter.getCodeStepNext().equals(Step.HISEQ_PREP) ||
               filter.getCodeStepNext().equals(Step.MISEQ_PREP) ||
               filter.getCodeStepNext().equals(Step.SEQ_FLOWCELL_STOCK) ||
-              filter.getCodeStepNext().equals(Step.ALL_PREP)) {
+              filter.getCodeStepNext().equals(Step.ALL_PREP) ||
+              filter.getCodeStepNext().equals(Step.HISEQ_PREP_QC) ||
+              filter.getCodeStepNext().equals(Step.MISEQ_PREP_QC) ||
+              filter.getCodeStepNext().equals(Step.ALL_PREP_QC)    ) {
             key = requestNumber + "," + sampleNumber;
           } else if (filter.getCodeStepNext().equals(Step.LABELING_STEP)) {
             Integer idLabel         = row[WorkItemFilter.LABELING_FAILED] == null || row[WorkItemFilter.ID_LABEL].equals("") ? null : (Integer)row[WorkItemFilter.ID_LABEL];
@@ -301,13 +307,19 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
 
           } else if (filter.getCodeStepNext().equals(Step.SCAN_EXTRACTION_STEP)) {
             fillExtraction(n, row, codeRequestCategory);
-          }  else if (filter.getCodeStepNext().equals(Step.SEQ_PREP) ||
+          } else if (filter.getCodeStepNext().equals(Step.SEQ_PREP) ||
               filter.getCodeStepNext().equals(Step.HISEQ_PREP) ||
               filter.getCodeStepNext().equals(Step.MISEQ_PREP) ||
               filter.getCodeStepNext().equals(Step.ALL_PREP)) {
             fillSeqPrep(n, row, codeRequestCategory, seqLibProtocolMap);
 
-          }   else if (filter.getCodeStepNext().equals(Step.SEQ_FLOWCELL_STOCK)) {
+          } else if (filter.getCodeStepNext().equals(Step.SEQ_PREP_QC) ||
+                  filter.getCodeStepNext().equals(Step.HISEQ_PREP_QC) ||
+                  filter.getCodeStepNext().equals(Step.MISEQ_PREP_QC) ||
+                  filter.getCodeStepNext().equals(Step.ALL_PREP_QC)) {
+            fillSeqPrepQC(n, row, codeRequestCategory);
+
+          } else if (filter.getCodeStepNext().equals(Step.SEQ_FLOWCELL_STOCK)) {
             fillFlowCellStock(n, row, codeRequestCategory);
           } else if (filter.getCodeStepNext().equals(Step.SEQ_CLUSTER_GEN) ||
               filter.getCodeStepNext().equals(Step.HISEQ_CLUSTER_GEN) ||
@@ -607,6 +619,20 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
       extractionStatus = row[WorkItemFilter.WI_STATUS] == null ? "" :  (String)row[WorkItemFilter.WI_STATUS];
     }
     n.setAttribute("extractionStatus", extractionStatus);
+  }
+
+  private void fillSeqPrepQC(Element n, Object[] row, String codeRequestCategory) {
+    Integer idSampleType = row[WorkItemFilter.QC_ID_SAMPLE_TYPE] == null ? 0 : (Integer)row[WorkItemFilter.QC_ID_SAMPLE_TYPE];
+    String sampleType = DictionaryManager.getDisplay("hci.gnomex.model.SampleType", idSampleType.toString());
+
+    Integer idLibPrepQCProtocol = row[WorkItemFilter.ID_LIB_PREP_QC_PROTOCOL] == null ? 0 : (Integer)row[WorkItemFilter.ID_LIB_PREP_QC_PROTOCOL];
+    String libPrepQCProtocol = DictionaryManager.getDisplay("hci.gnomex.model.LibraryQCPrepProtocol", idLibPrepQCProtocol.toString());
+
+    n.setAttribute("sampleType", sampleType == null ? "" : sampleType);
+    n.setAttribute("sampleVolume", row[WorkItemFilter.SAMPLE_VOLUME] == null ? "" :  ((BigDecimal)row[WorkItemFilter.SAMPLE_VOLUME]).toString());
+    n.setAttribute("qcLibConcentration", row[WorkItemFilter.QC_LIB_CONCENTRATION] == null ? "" :  ((BigDecimal)row[WorkItemFilter.QC_LIB_CONCENTRATION]).toString());
+    //n.setAttribute("libPrepQCProtocol", libPrepQCProtocol == null ? "" : libPrepQCProtocol);
+    n.setAttribute("idLibPrepQCProtocol", row[WorkItemFilter.ID_LIB_PREP_QC_PROTOCOL] == null ? "" : ((Integer)row[WorkItemFilter.ID_LIB_PREP_QC_PROTOCOL]).toString());
   }
 
   private void fillSeqPrep(Element n, Object[] row, String codeRequestCategory, HashMap<String, Integer> seqLibProtocolMap) {
