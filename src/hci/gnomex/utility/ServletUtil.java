@@ -40,10 +40,10 @@ public class ServletUtil {
         return checkSecureRequest(req);
     }
 
-    public static void reportServletError(HttpServletResponse response, String errorMessage, Logger log) throws
+    public static void reportServletError(HttpServletResponse response, String responseMessage, Logger log) throws
             IOException {
 
-        reportServletError(response, errorMessage, log, errorMessage);
+        reportServletError(response, responseMessage, log, responseMessage);
     }
 
     public static void reportServletError(HttpServletResponse response, String responseMessage)
