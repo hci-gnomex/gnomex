@@ -26,10 +26,9 @@ public class UploadPurchaseOrderURL extends HttpServlet {
 
 		try {
 
-			boolean isLocalHost = req.getServerName().equalsIgnoreCase("localhost") || req.getServerName().equals("127.0.0.1");
-
 			//
 			// COMMENTED OUT CODE:
+			// boolean isLocalHost = req.getServerName().equalsIgnoreCase("localhost") || req.getServerName().equals("127.0.0.1");
 			// String baseURL = "http"+ (isLocalHost ? "://" : "s://") + req.getServerName() + req.getContextPath();
 			//
 			// To fix upload problem (missing session in upload servlet for FireFox, Safari), encode session in URL
