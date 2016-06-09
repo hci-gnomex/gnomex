@@ -56,7 +56,6 @@ public class Constants {
 
   public static final String   UPLOAD_STAGING_DIR                             = "upload_staging";
   public static final String   MATERIAL_QUOTE_DIR                             = "material_quote";
-  public static final String   REQUISITION_DIR                                = "requisition";
   public static final String   DOWNLOAD_KEY_SEPARATOR                         = "\t";
 
   public static DecimalFormat  concentrationFormatter                         = new DecimalFormat("######.##");
