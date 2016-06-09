@@ -2018,7 +2018,16 @@
 					
 					<util:AdvancedDataGridColumnWithType propertyType="OPTION"  visible="{currentState == 'SolexaState'}" headerText="Seq Lib Protocol"  width="120" dataField="@idSeqLibProtocol"
 														 itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.SeqLibProtocol').DictionaryEntry, '@display', '@value', '@idSeqLibProtocol')}"/>
-					
+					<mx:AdvancedDataGridColumn editable="false" width="25" dataField="@seqPrepByCore">
+						<mx:headerRenderer >
+							<mx:Component>
+								<mx:VBox verticalGap="0"   horizontalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle">
+									<mx:Label text="Prepped"/>
+									<mx:Label text="by Core?"/>
+								</mx:VBox>
+							</mx:Component>
+						</mx:headerRenderer>
+					</mx:AdvancedDataGridColumn>
 					<util:AdvancedDataGridColumnWithType propertyType="OPTION" id="barcodeCol" headerText="Index Tag A"  width="75" visible="{true}" dataField="@idOligoBarcode"
 														 itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.OligoBarcode').DictionaryEntry, '@name', '@value', '@idOligoBarcode')}">
 						<util:headerRenderer>
