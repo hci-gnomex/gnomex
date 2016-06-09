@@ -1195,6 +1195,23 @@
 						</mx:Component>
 					</mx:headerRenderer>
 				</mx:AdvancedDataGridColumn>
+
+				<mx:AdvancedDataGridColumn id="sampleVolumeCol"
+										   editable="{parentApplication.hasPermission('canWriteAnyObject')}"
+										   headerText="Sample Volume" width="80"
+										   dataField="@sampleVolume"
+										   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}"
+										   editorDataField="value">
+					<mx:headerRenderer >
+						<mx:Component>
+							<mx:VBox verticalGap="0" horizontalScrollPolicy="off"  verticalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle">
+								<util:ContextHelp context1="sampleVolume" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="Sample Volume Help"
+												  showEdit="{parentApplication.isAdminState}" label="Sample Volume" noIconSpaceIfNoHelp="true"/>
+							</mx:VBox>
+						</mx:Component>
+					</mx:headerRenderer>
+				</mx:AdvancedDataGridColumn>
+
 				<mx:AdvancedDataGridColumn id="qc_260_280Column"
 										   editable="{parentApplication.hasPermission('canWriteAnyObject')}" 
 										   headerText="QC 260/280" width="80" 

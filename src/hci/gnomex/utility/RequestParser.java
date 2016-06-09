@@ -557,6 +557,14 @@ public class RequestParser implements Serializable {
     } else {
       sample.setConcentration(null);
     }
+
+    if (n.getAttributeValue("sampleVolume") != null && !n.getAttributeValue("sampleVolume").equals("")) {
+      String volume = n.getAttributeValue("sampleVolume");
+      sample.setSampleVolume(new BigDecimal(volume));
+    } else {
+      sample.setSampleVolume(null);
+    }
+
     if (n.getAttributeValue("codeConcentrationUnit") != null && !n.getAttributeValue("codeConcentrationUnit").equals("")) {
       sample.setCodeConcentrationUnit(unEscape(n.getAttributeValue("codeConcentrationUnit")));
     } else {

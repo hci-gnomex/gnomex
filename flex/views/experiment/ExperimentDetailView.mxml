@@ -1026,6 +1026,7 @@
 				if (currentState == 'ExternalSeqState') {
 					sampleTypeCol.visible = true;
 					organismCol.visible = false;
+					sampleVolumeCol.visible = false;
 					
 					this.otherOrganismCol.visible = false;
 					this.otherSamplePrepMethodCol.visible = false;
@@ -1046,6 +1047,7 @@
 				} else if (currentState == 'ExternalMicroarrayState') {
 					sampleTypeCol.visible = true;
 					organismCol.visible = false;
+					sampleVolumeCol.visible = false;
 					
 					this.otherOrganismCol.visible = false;
 					this.otherSamplePrepMethodCol.visible = false;
@@ -1068,7 +1070,8 @@
 					descriptionCol.visible = true;   
 					
 					if (currentState == 'SolexaState') {
-						concentrationCol.visible = true; 
+						concentrationCol.visible = true;
+						sampleVolumeCol.visible = true;
 						sampleTypeCol.visible = true;
 						organismCol.visible = true;
 						preppedByLabCol.visible = true;
@@ -1086,6 +1089,7 @@
 						descriptionCol.visible = false;
 						
 					} else if (currentState == 'QCState' || currentState == 'ExternalQCState') {
+						sampleVolumeCol.visible = false;
 						concentrationCol.visible = false; 
 						sampleTypeCol.visible = false;
 						organismCol.visible = false;
@@ -1103,6 +1107,7 @@
 						this.qcRINCol.visible = true;
 						this.qcStatusCol.visible = currentState == 'QCState';
 					} else if (isCapSeqState()) {
+						sampleVolumeCol.visible = false;
 						concentrationCol.visible = false; 
 						sampleTypeCol.visible = true;
 						organismCol.visible = false;
@@ -1123,6 +1128,7 @@
 						this.descriptionCol.visible = false;
 						
 					} else if (isMitSeqState()) {
+						sampleVolumeCol.visible = false;
 						concentrationCol.visible = false; 
 						sampleTypeCol.visible = false;
 						organismCol.visible = false;
@@ -1142,6 +1148,7 @@
 						redoFlagCol.visible = true;
 						
 					} else if (isFragAnalState()) {
+						sampleVolumeCol.visible = false;
 						concentrationCol.visible = false; 
 						sampleTypeCol.visible = false;
 						organismCol.visible = false;
@@ -1159,6 +1166,7 @@
 						this.qcStatusCol.visible = false;
 						reactionPlateCol.visible = true;
 					} else if (isCherryPickState()) {
+						sampleVolumeCol.visible = false;
 						concentrationCol.visible = false; 
 						sampleTypeCol.visible = false;
 						organismCol.visible = false;
@@ -1180,6 +1188,7 @@
 						reactionPlateCol.visible = true;
 						
 					} else if (isIScanState()) {
+						sampleVolumeCol.visible = false;
 						concentrationCol.visible = false; 
 						sampleTypeCol.visible = false;
 						organismCol.visible = false;
@@ -1202,6 +1211,7 @@
 						this.descriptionCol.visible = false;
 						
 					} else if (isSequenomState()) {
+						sampleVolumeCol.visible = false;
 						concentrationCol.visible = true; 
 						sampleTypeCol.visible = true;
 						organismCol.visible = false;
@@ -1220,6 +1230,7 @@
 						this.descriptionCol.visible = false;
 						
 					} else if (isClinicalSequenomState()) {
+						sampleVolumeCol.visible = false;
 						concentrationCol.visible = true; 
 						sampleTypeCol.visible = true;
 						organismCol.visible = false;
@@ -1239,6 +1250,7 @@
 						this.sampleNameColumn.visible = false;
 						
 					} else if (isIsolationState()) {
+						sampleVolumeCol.visible = false;
 						concentrationCol.visible = true; 
 						sampleTypeCol.visible = false;
 						organismCol.visible = false;
@@ -1259,6 +1271,7 @@
 						
 						//this.concentrationCol.headerText = 'NanoDrop Conc.';
 					} else if (isIonTorrentState()) {
+						sampleVolumeCol.visible = false;
 						concentrationCol.visible = true; 
 						sampleTypeCol.visible = true;
 						organismCol.visible = true;
@@ -1281,6 +1294,7 @@
 						//this.concentrationCol.headerText = 'Conc. (ng/ul)';
 						
 					}  else if (isGenericState()) {
+						sampleVolumeCol.visible = false;
 						concentrationCol.visible = false; 
 						sampleTypeCol.visible = true;
 						organismCol.visible = true;
@@ -1305,6 +1319,7 @@
 							applicationCol.visible = false;
 						}
 					}  else {
+						sampleVolumeCol.visible = false;
 						concentrationCol.visible = true; 
 						sampleTypeCol.visible = true;
 						organismCol.visible = true;
@@ -1992,6 +2007,7 @@
 					
 					
 					<mx:AdvancedDataGridColumn id="concentrationCol" headerText="{concHeader}" width="65" visible="true" labelFunction="getSampleConcentrationFormatted"/>
+					<mx:AdvancedDataGridColumn id="sampleVolumeCol" headerText="Sample Volume" width="80" visible="true" dataField="@sampleVolume"/>
 					<util:AdvancedDataGridColumnWithType propertyType="OPTION" id="concentrationUnitCol" visible="{true}"  headerText="Unit"  width="60" 
 											   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ConcentrationUnit').DictionaryEntry, '@display', '@value', '@codeConcentrationUnit')}"/>
 					

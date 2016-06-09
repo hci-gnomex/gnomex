@@ -337,6 +337,7 @@
 						</mx:AdvancedDataGridColumn>
 						
 						<mx:AdvancedDataGridColumn id="concentrationCol" visible="true" headerText="{concHeader}" width="65" dataField="@concentration" formatter="{sampleConcentrationFormatter}"/>
+						<mx:AdvancedDataGridColumn id="sampleVolumeCol" visible="true" headerText="Sample Volume" width="65" dataField="@sampleVolume"/>
 						
 						<mx:AdvancedDataGridColumn id="barcodeColumn"  headerText="Index Tag A" width="130" dataField="@idOlogiBarcode" 
 										   editorDataField="value" sortable="false" editable="false" rendererIsEditor="true" 

@@ -128,14 +128,17 @@ public class ActiveDirectory {
      */
   public boolean doesMatchUserAttribute(NamingEnumeration<SearchResult> answer, Map<String, String> ldap_user_attribute_map) {
     boolean matches = false;
-  
+    StringBuffer logString = new StringBuffer();
     try {
       // Iterate through the results, the user attributes.  Determine every user attribute
       // matches its expected value.  ANY matching attribute is sufficient
-      if (answer.hasMore()) {  
-          Attributes attrs = ((SearchResult) answer.next()).getAttributes();  
+      if (answer.hasMore()) {
+          SearchResult s = answer.next();
+          logString.append(s.getName() + "----");
+          Attributes attrs = s.getAttributes();
           for (String attributeName : ldap_user_attribute_map.keySet()) {                
             String expectedValue = ldap_user_attribute_map.get(attributeName);
+              logString.append(attrs.get(attributeName) + " ----");
             if (attrs.get(attributeName) != null && attrs.get(attributeName).contains(expectedValue)) {
               matches = true;
               break;
@@ -147,7 +150,9 @@ public class ActiveDirectory {
       System.out.println(e.toString());
       e.printStackTrace();
     }
-
+    if(!matches){
+        System.out.println("[ERROR]: No matching LDAP attributes in active directory for: " + logString.toString());
+    }
     return matches;
   }
 

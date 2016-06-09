@@ -1199,13 +1199,13 @@ public class RequestPDFFormatter extends RequestPDFFormatterBase {
 		Font tableHeaderFont = FONT_TABLE_HEADERS_NORMAL;
 		Font tableValueFont = FONT_TABLE_VALUES_NORMAL;
 		if (dnaSamples && showCCNumber) {
-			table = new PdfPTable(11);
+			table = new PdfPTable(12);
 		} else if (dnaSamples) {
-			table = new PdfPTable(10);
+			table = new PdfPTable(11);
 		} else if (showCCNumber) {
 			table = new PdfPTable(12);
 		} else {
-			table = new PdfPTable(11);
+			table = new PdfPTable(12);
 		}
 		PDFFormatterUtil.formatTable( table, TABLE_PERCENT_WIDTH_100 );
     
@@ -1217,6 +1217,7 @@ public class RequestPDFFormatter extends RequestPDFFormatterBase {
 			PDFFormatterUtil.addToTableHeader(table, HEADER_CC_NUMBER, tableHeaderFont);
 		}
 		PDFFormatterUtil.addToTableHeader(table, "Sample Conc.", tableHeaderFont);
+		PDFFormatterUtil.addToTableHeader(table, "Sample Volume", tableHeaderFont);
 		if (!dnaSamples) {
 			PDFFormatterUtil.addToTableHeader(table, HEADER_QUALITY_RIN_NUMBER, tableHeaderFont);
 		}
@@ -1243,9 +1244,15 @@ public class RequestPDFFormatter extends RequestPDFFormatterBase {
 			}
 			String ccNumber = determineCCNumber(s);
 			String sampleConc = "";
+			String sampleVolume = "";
 			if (s.getConcentration() != null) {
 				sampleConc = getFormattedSampleConcentration(s.getConcentration()) + " /";
 			}
+
+			if(s.getSampleVolume() != null){
+				sampleVolume = s.getSampleVolume().toString();
+			}
+
 			String rinNum = "";
 			String multiplexNum = "";
 			if (s.getMultiplexGroupNumber() != null && s.getMultiplexGroupNumber().intValue() > 0) {
@@ -1286,6 +1293,7 @@ public class RequestPDFFormatter extends RequestPDFFormatterBase {
 				PDFFormatterUtil.addCCNumberCell(ccNumber, table, FONT_CC_NUMBER_EMBED_SMALL, dictionaryHelper);
 			}
 			PDFFormatterUtil.addToTableValue(table, sampleConc, FONT_TABLE_VALUES_SMALL);
+			PDFFormatterUtil.addToTableValue(table, sampleVolume, FONT_TABLE_VALUES_SMALL);
 			if (!dnaSamples) {
 				PDFFormatterUtil.addToTableValue(table, rinNum, tableValueFont);
 			}
