@@ -765,7 +765,7 @@ public class Sample extends HibernateDetailObject {
 
     String step = "1";
     if (RequestCategory.isIlluminaRequestCategory(getRequest().getCodeRequestCategory())) {
-      int lastStep = this.getSeqPrepByCore() == null || this.getSeqPrepByCore().equals("Y") ? 6 : 5;
+      int lastStep = this.getSeqPrepByCore() == null || this.getSeqPrepByCore().equals("Y") ? 7 : 5;
       TreeMap<String, String> laneStatusMap = getLaneWorkflowStep(lastStep);
       TreeMap<String, String> workItemStatusMap = getWorkItemStep(lastStep);
       if (this.getSeqPrepByCore() == null || this.getSeqPrepByCore().equals("Y")) {
