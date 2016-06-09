@@ -51,16 +51,10 @@ package views.renderers
 		protected function setDataProvider():void {
 			dataProvider = new XMLListCollection();
 			var dp:XMLListCollection = XMLListCollection(dataProvider);
-			var codeApplication:String = "";
-			if (data != null) {
-				codeApplication = data.@qualCodeApplication;
-			}
-			
-			if ( parentApp != null && codeApplication != null && codeApplication != '' ){
-				
+						
+			if ( parentApp != null ){
 				this.enabled = true;
-				
-				var types:XMLListCollection= new XMLListCollection(XMLList(parentApp.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.BioanalyzerChipType').DictionaryEntry.(@value != '' && @isActive == 'Y' && @codeApplication == codeApplication)).copy());
+				var types:XMLListCollection= new XMLListCollection(XMLList(parentApp.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.BioanalyzerChipType').DictionaryEntry.(@value != '' && @isActive == 'Y')).copy());
 				dp.addAll(types);				
 			} else {
 				this.enabled = false;

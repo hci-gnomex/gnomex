@@ -343,16 +343,9 @@
 					<mx:DataGridColumn editable="false" headerText="Sample #" width="12" dataField="@sampleNumber" sortCompareFunction="sortSampleNumber"/>
 
 					<mx:DataGridColumn editable="false" headerText="Client"  width="12" dataField="@appUserName" />
-					<mx:DataGridColumn editable="false" width="25" dataField="@sampleType"
-									   headerText="Sample Type" labelFunction="getSampleType">
-					</mx:DataGridColumn>
 
-					<mx:DataGridColumn headerText="Sample Volume" width="10" dataField="@sampleVolume" editable="false">
-					</mx:DataGridColumn>
-
-					<mx:DataGridColumn headerText="Library QC Conc." width="10" dataField="@qcLibConcentration"
-									   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), 'idRequest')}" editorDataField="value">
-					</mx:DataGridColumn>
+					<mx:DataGridColumn headerText="Sample Volume" width="10" dataField="@sampleVolume"
+									   editable="false"/>
 
 					<mx:DataGridColumn visible="true"
 									   headerText="Library QC Protocol"
@@ -363,6 +356,11 @@
 									   rendererIsEditor="false"
 									   itemRenderer="{views.renderers.DropdownLabel.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.LibraryPrepQCProtocol').DictionaryEntry, '@display', '@value', '@idLibPrepQCProtocol')}"
 									   itemEditor="{views.renderers.GridColumnFillButton.create(views.renderers.ComboBoxLibraryPrepQCProtocol.getFactory(parentApplication).newInstance(), 'idRequest')}"/>
+
+					<mx:DataGridColumn headerText="Library QC Conc." width="10" dataField="@qcLibConcentration"
+									   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), 'idRequest')}" editorDataField="value">
+					</mx:DataGridColumn>
+
 
 					<mx:DataGridColumn headerText="Status"  width="20" dataField="@seqPrepQCStatus"
 									   editorDataField="value"

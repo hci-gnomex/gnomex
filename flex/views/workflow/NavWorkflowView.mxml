@@ -3,7 +3,6 @@
 	xmlns:views="views.*" 
 	xmlns:workflow="views.workflow.*"   
 	xmlns:util="views.util.*"   backgroundAlpha="0"
-	xmlns:WorkflowView="WorkflowView.*" 
 	showEffect="{parentApplication.fadeIn}" hideEffect="{parentApplication.fadeOut}" 	
     creationPolicy="all"
 	show="init()"  
