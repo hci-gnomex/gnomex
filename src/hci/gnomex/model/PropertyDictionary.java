@@ -100,7 +100,6 @@ public class PropertyDictionary extends DictionaryEntry implements Serializable 
 	public static final String SUBMIT_REQUEST_INSTRUCTIONS = "submit_request_instructions";
 	public static final String ONCOCARTA_FDF_TEMPLATE = "oncocarta_fdf_template";
 	public static final String PUBLIC_DATA_NOTICE = "public_data_notice";
-	public static final String REQUISITION_FORM_URL = "requisition_form_url";
 	public static final String HISEQ_RUN_TYPE_LABEL_STANDARD = "hiseq_run_type_label_standard";
 	public static final String HISEQ_RUN_TYPE_LABEL_CUSTOM = "hiseq_run_type_label_custom";
 	public static final String HISEQ_RUN_TYPE_CUSTOM_WARNING = "hiseq_run_type_custom_warning";
