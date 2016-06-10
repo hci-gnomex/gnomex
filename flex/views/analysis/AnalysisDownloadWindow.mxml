@@ -216,7 +216,7 @@
 			private function createAnalysisFileNode(item:XML):XML {
 				var node:XML = <FileDescriptor/>;
 				node.@idAnalysis = item.@idAnalysis;
-				node.@analysisNumber = item.@number;
+				node.@number = item.@number;
 				node.@number = item.@number;
 				node.@displayName = item.@displayName;
 				node.@fileName = item.@fileName;

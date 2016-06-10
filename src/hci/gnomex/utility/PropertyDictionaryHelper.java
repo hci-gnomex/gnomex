@@ -332,8 +332,8 @@ public class PropertyDictionaryHelper implements Serializable {
     String mainFolderName = "";
     String baseDirLastPart = "";
 
-    String experimentDirectory = this.getDirectory(serverName, idCoreFacility, this.getProperty(PROPERTY_EXPERIMENT_DIRECTORY));
-    String flowCellDirectory = this.getDirectory(serverName, null, this.getProperty(PROPERTY_FLOWCELL_DIRECTORY));
+    String experimentDirectory = this.getDirectory(serverName, idCoreFacility, PROPERTY_EXPERIMENT_DIRECTORY);
+    String flowCellDirectory = this.getDirectory(serverName, null, PROPERTY_FLOWCELL_DIRECTORY);
 
     try {
       experimentDirectory = new File(experimentDirectory).getCanonicalPath();

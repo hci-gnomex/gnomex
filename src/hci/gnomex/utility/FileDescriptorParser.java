@@ -32,7 +32,7 @@ public class FileDescriptorParser extends DetailObject implements Serializable {
     
     for(Iterator i = root.getChildren("FileDescriptor").iterator(); i.hasNext();) {
       Element node = (Element)i.next();      
-      String requestNumber = node.getAttributeValue("requestNumber");
+      String requestNumber = node.getAttributeValue("number");
       FileDescriptor fd = initializeFileDescriptor(node);
       
       List fileDescriptors = (List)fileDescriptorMap.get(requestNumber);

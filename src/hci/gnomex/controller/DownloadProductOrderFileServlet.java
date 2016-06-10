@@ -178,10 +178,10 @@ public class DownloadProductOrderFileServlet extends HttpServlet {
             // (The file name starts after the year subdirectory)
             if (archiveHelper.isZipMode()) {
               // Add ZIP entry 
-              zipOut.putNextEntry(new ZipEntry("bioinformatics-productOrder-" + archiveHelper.getArchiveEntryName()));              
+              zipOut.putNextEntry(new ZipEntry("productOrder-" + archiveHelper.getArchiveEntryName()));
             } else {
               // Add a TAR archive entry
-              TarArchiveEntry entry = new TarArchiveEntry("bioinformatics-productOrder-" + archiveHelper.getArchiveEntryName());
+              TarArchiveEntry entry = new TarArchiveEntry("productOrder-" + archiveHelper.getArchiveEntryName());
               entry.setSize(archiveHelper.getArchiveFileSize());
               tarOut.putArchiveEntry(entry);
             }
