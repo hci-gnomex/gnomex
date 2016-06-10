@@ -1197,7 +1197,7 @@
 				</mx:AdvancedDataGridColumn>
 
 				<mx:AdvancedDataGridColumn id="sampleVolumeCol"
-										   editable="{parentApplication.hasPermission('canWriteAnyObject')}"
+										   editable="{true}"
 										   headerText="Sample Volume" width="80"
 										   dataField="@sampleVolume"
 										   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}"
