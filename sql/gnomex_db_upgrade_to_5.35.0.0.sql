@@ -55,7 +55,7 @@ idLibPrepQCProtocol int AUTO_INCREMENT Primary Key,
 protocolDisplay varchar(50) not null,
 codeRequestCategory varchar(10) not null,
 constraint FK_RequestCategory_LibraryPrepQCProtocol foreign key (codeRequestCategory) references RequestCategory(codeRequestCategory)
-);
+) ENGINE = INNODB;
 
 alter table Sample add idLibPrepQCProtocol int NULL;
 alter table Sample add constraint FK_Sample_LibraryPrepQCProtocol foreign key (idLibPrepQCProtocol) references LibraryPrepQCProtocol(idLibPrepQCProtocol);
@@ -68,6 +68,7 @@ CALL ExecuteIfTableExists('gnomex','Sample_Audit','alter table Sample_Audit add 
 create table LibraryPrepQCProtocol_Audit(
 idLibPrepQCProtocol int not null,
 protocolDisplay varchar(50) not null,
+codeRequestCategory varchar(10) not null,
 AuditAppuser varchar(128) NULL,
 AuditOperation char(1) NULL,
 AuditSystemUser varchar(30) NULL,

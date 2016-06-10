@@ -471,6 +471,12 @@ DROP TRIGGER IF EXISTS TrAU_LabUser_FER
 $$
 DROP TRIGGER IF EXISTS TrAD_LabUser_FER
 $$
+DROP TRIGGER IF EXISTS TrAI_LibraryPrepQCProtocol_FER
+$$
+DROP TRIGGER IF EXISTS TrAU_LibraryPrepQCProtocol_FER
+$$
+DROP TRIGGER IF EXISTS TrAD_LibraryPrepQCProtocol_FER
+$$
 DROP TRIGGER IF EXISTS TrAI_MasterBillingItem_FER
 $$
 DROP TRIGGER IF EXISTS TrAU_MasterBillingItem_FER
@@ -4588,7 +4594,6 @@ CREATE TABLE IF NOT EXISTS `BillingItem_Audit` (
  ,`idDiskUsageByMonth`  int(10)  NULL DEFAULT NULL
  ,`idProductOrder`  int(10)  NULL DEFAULT NULL
  ,`idMasterBillingItem`  int(10)  NULL DEFAULT NULL
- ,`tag`  varchar(10)  NULL DEFAULT NULL
 ) ENGINE=InnoDB
 $$
 
@@ -4624,8 +4629,7 @@ INSERT INTO BillingItem_Audit
   , idInvoice
   , idDiskUsageByMonth
   , idProductOrder
-  , idMasterBillingItem
-  , tag )
+  , idMasterBillingItem )
   SELECT
   'No Context'
   , 'L'
@@ -4654,7 +4658,6 @@ INSERT INTO BillingItem_Audit
   , idDiskUsageByMonth
   , idProductOrder
   , idMasterBillingItem
-  , tag
   FROM BillingItem
   WHERE NOT EXISTS(SELECT * FROM BillingItem_Audit)
 $$
@@ -4693,8 +4696,7 @@ BEGIN
   , idInvoice
   , idDiskUsageByMonth
   , idProductOrder
-  , idMasterBillingItem
-  , tag )
+  , idMasterBillingItem )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
@@ -4722,8 +4724,7 @@ BEGIN
   , NEW.idInvoice
   , NEW.idDiskUsageByMonth
   , NEW.idProductOrder
-  , NEW.idMasterBillingItem
-  , NEW.tag );
+  , NEW.idMasterBillingItem );
 END;
 $$
 
@@ -4757,8 +4758,7 @@ BEGIN
   , idInvoice
   , idDiskUsageByMonth
   , idProductOrder
-  , idMasterBillingItem
-  , tag )
+  , idMasterBillingItem )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
@@ -4786,8 +4786,7 @@ BEGIN
   , NEW.idInvoice
   , NEW.idDiskUsageByMonth
   , NEW.idProductOrder
-  , NEW.idMasterBillingItem
-  , NEW.tag );
+  , NEW.idMasterBillingItem );
 END;
 $$
 
@@ -4821,8 +4820,7 @@ BEGIN
   , idInvoice
   , idDiskUsageByMonth
   , idProductOrder
-  , idMasterBillingItem
-  , tag )
+  , idMasterBillingItem )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
@@ -4850,8 +4848,7 @@ BEGIN
   , OLD.idInvoice
   , OLD.idDiskUsageByMonth
   , OLD.idProductOrder
-  , OLD.idMasterBillingItem
-  , OLD.tag );
+  , OLD.idMasterBillingItem );
 END;
 $$
 
@@ -5771,7 +5768,7 @@ CREATE TABLE IF NOT EXISTS `Chromatogram_Audit` (
  ,`idChromatogram`  int(10)  NULL DEFAULT NULL
  ,`idPlateWell`  int(10)  NULL DEFAULT NULL
  ,`idRequest`  int(10)  NULL DEFAULT NULL
- ,`displayName`  varchar(200)  NULL DEFAULT NULL
+ ,`fileName`  varchar(200)  NULL DEFAULT NULL
  ,`readLength`  int(10)  NULL DEFAULT NULL
  ,`trimmedLength`  int(11)  NULL DEFAULT NULL
  ,`q20`  int(10)  NULL DEFAULT NULL
@@ -5800,7 +5797,7 @@ INSERT INTO Chromatogram_Audit
   , idChromatogram
   , idPlateWell
   , idRequest
-  , displayName
+  , fileName
   , readLength
   , trimmedLength
   , q20
@@ -5821,7 +5818,7 @@ INSERT INTO Chromatogram_Audit
   , idChromatogram
   , idPlateWell
   , idRequest
-  , displayName
+  , fileName
   , readLength
   , trimmedLength
   , q20
@@ -5853,7 +5850,7 @@ BEGIN
   , idChromatogram
   , idPlateWell
   , idRequest
-  , displayName
+  , fileName
   , readLength
   , trimmedLength
   , q20
@@ -5874,7 +5871,7 @@ BEGIN
   , NEW.idChromatogram
   , NEW.idPlateWell
   , NEW.idRequest
-  , NEW.displayName
+  , NEW.fileName
   , NEW.readLength
   , NEW.trimmedLength
   , NEW.q20
@@ -5901,7 +5898,7 @@ BEGIN
   , idChromatogram
   , idPlateWell
   , idRequest
-  , displayName
+  , fileName
   , readLength
   , trimmedLength
   , q20
@@ -5922,7 +5919,7 @@ BEGIN
   , NEW.idChromatogram
   , NEW.idPlateWell
   , NEW.idRequest
-  , NEW.displayName
+  , NEW.fileName
   , NEW.readLength
   , NEW.trimmedLength
   , NEW.q20
@@ -5949,7 +5946,7 @@ BEGIN
   , idChromatogram
   , idPlateWell
   , idRequest
-  , displayName
+  , fileName
   , readLength
   , trimmedLength
   , q20
@@ -5970,7 +5967,7 @@ BEGIN
   , OLD.idChromatogram
   , OLD.idPlateWell
   , OLD.idRequest
-  , OLD.displayName
+  , OLD.fileName
   , OLD.readLength
   , OLD.trimmedLength
   , OLD.q20
@@ -12531,6 +12528,117 @@ $$
 
 
 --
+-- Audit Table For LibraryPrepQCProtocol 
+--
+
+CREATE TABLE IF NOT EXISTS `LibraryPrepQCProtocol_Audit` (
+  `AuditAppuser`       varchar(128) NOT NULL
+ ,`AuditOperation`     char(1)      NOT NULL
+ ,`AuditSystemUser`    varchar(30)  NOT NULL
+ ,`AuditOperationDate` datetime     NOT NULL
+ ,`idLibPrepQCProtocol`  int(11)  NULL DEFAULT NULL
+ ,`protocolDisplay`  varchar(50)  NULL DEFAULT NULL
+ ,`codeRequestCategory`  varchar(10)  NULL DEFAULT NULL
+) ENGINE=InnoDB
+$$
+
+
+--
+-- Initial audit table rows for LibraryPrepQCProtocol 
+--
+
+INSERT INTO LibraryPrepQCProtocol_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idLibPrepQCProtocol
+  , protocolDisplay
+  , codeRequestCategory )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , idLibPrepQCProtocol
+  , protocolDisplay
+  , codeRequestCategory
+  FROM LibraryPrepQCProtocol
+  WHERE NOT EXISTS(SELECT * FROM LibraryPrepQCProtocol_Audit)
+$$
+
+--
+-- Audit Triggers For LibraryPrepQCProtocol 
+--
+
+
+CREATE TRIGGER TrAI_LibraryPrepQCProtocol_FER AFTER INSERT ON LibraryPrepQCProtocol FOR EACH ROW
+BEGIN
+  INSERT INTO LibraryPrepQCProtocol_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idLibPrepQCProtocol
+  , protocolDisplay
+  , codeRequestCategory )
+  VALUES
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
+  , 'I'
+  , USER()
+  , NOW()
+  , NEW.idLibPrepQCProtocol
+  , NEW.protocolDisplay
+  , NEW.codeRequestCategory );
+END;
+$$
+
+
+CREATE TRIGGER TrAU_LibraryPrepQCProtocol_FER AFTER UPDATE ON LibraryPrepQCProtocol FOR EACH ROW
+BEGIN
+  INSERT INTO LibraryPrepQCProtocol_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idLibPrepQCProtocol
+  , protocolDisplay
+  , codeRequestCategory )
+  VALUES
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
+  , 'U'
+  , USER()
+  , NOW()
+  , NEW.idLibPrepQCProtocol
+  , NEW.protocolDisplay
+  , NEW.codeRequestCategory );
+END;
+$$
+
+
+CREATE TRIGGER TrAD_LibraryPrepQCProtocol_FER AFTER DELETE ON LibraryPrepQCProtocol FOR EACH ROW
+BEGIN
+  INSERT INTO LibraryPrepQCProtocol_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , idLibPrepQCProtocol
+  , protocolDisplay
+  , codeRequestCategory )
+  VALUES
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
+  , 'D'
+  , USER()
+  , NOW()
+  , OLD.idLibPrepQCProtocol
+  , OLD.protocolDisplay
+  , OLD.codeRequestCategory );
+END;
+$$
+
+
+--
 -- Audit Table For MasterBillingItem 
 --
 
@@ -14727,7 +14835,7 @@ CREATE TABLE IF NOT EXISTS `PriceCategoryStep_Audit` (
  ,`AuditSystemUser`    varchar(30)  NOT NULL
  ,`AuditOperationDate` datetime     NOT NULL
  ,`idPriceCategory`  int(10)  NULL DEFAULT NULL
- ,`codeStep`  varchar(10)  NULL DEFAULT NULL
+ ,`codeStep`  varchar(20)  NULL DEFAULT NULL
 ) ENGINE=InnoDB
 $$
 
@@ -16291,7 +16399,6 @@ CREATE TABLE IF NOT EXISTS `ProductOrder_Audit` (
  ,`idProductType`  int(10)  NULL DEFAULT NULL
  ,`quoteNumber`  varchar(50)  NULL DEFAULT NULL
  ,`quoteReceivedDate`  datetime  NULL DEFAULT NULL
- ,`uuid`  varchar(36)  NULL DEFAULT NULL
  ,`idBillingAccount`  int(11)  NULL DEFAULT NULL
  ,`productOrderNumber`  varchar(10)  NULL DEFAULT NULL
 ) ENGINE=InnoDB
@@ -16315,7 +16422,6 @@ INSERT INTO ProductOrder_Audit
   , idProductType
   , quoteNumber
   , quoteReceivedDate
-  , uuid
   , idBillingAccount
   , productOrderNumber )
   SELECT
@@ -16331,7 +16437,6 @@ INSERT INTO ProductOrder_Audit
   , idProductType
   , quoteNumber
   , quoteReceivedDate
-  , uuid
   , idBillingAccount
   , productOrderNumber
   FROM ProductOrder
@@ -16358,7 +16463,6 @@ BEGIN
   , idProductType
   , quoteNumber
   , quoteReceivedDate
-  , uuid
   , idBillingAccount
   , productOrderNumber )
   VALUES
@@ -16374,7 +16478,6 @@ BEGIN
   , NEW.idProductType
   , NEW.quoteNumber
   , NEW.quoteReceivedDate
-  , NEW.uuid
   , NEW.idBillingAccount
   , NEW.productOrderNumber );
 END;
@@ -16396,7 +16499,6 @@ BEGIN
   , idProductType
   , quoteNumber
   , quoteReceivedDate
-  , uuid
   , idBillingAccount
   , productOrderNumber )
   VALUES
@@ -16412,7 +16514,6 @@ BEGIN
   , NEW.idProductType
   , NEW.quoteNumber
   , NEW.quoteReceivedDate
-  , NEW.uuid
   , NEW.idBillingAccount
   , NEW.productOrderNumber );
 END;
@@ -16434,7 +16535,6 @@ BEGIN
   , idProductType
   , quoteNumber
   , quoteReceivedDate
-  , uuid
   , idBillingAccount
   , productOrderNumber )
   VALUES
@@ -16450,7 +16550,6 @@ BEGIN
   , OLD.idProductType
   , OLD.quoteNumber
   , OLD.quoteReceivedDate
-  , OLD.uuid
   , OLD.idBillingAccount
   , OLD.productOrderNumber );
 END;
@@ -16470,7 +16569,6 @@ CREATE TABLE IF NOT EXISTS `ProductType_Audit` (
  ,`idCoreFacility`  int(10)  NULL DEFAULT NULL
  ,`idVendor`  int(10)  NULL DEFAULT NULL
  ,`idPriceCategory`  int(10)  NULL DEFAULT NULL
- ,`utilizePurchasingSystem`  char(1)  NULL DEFAULT NULL
  ,`idProductType`  int(10)  NULL DEFAULT NULL
 ) ENGINE=InnoDB
 $$
@@ -16489,7 +16587,6 @@ INSERT INTO ProductType_Audit
   , idCoreFacility
   , idVendor
   , idPriceCategory
-  , utilizePurchasingSystem
   , idProductType )
   SELECT
   'No Context'
@@ -16500,7 +16597,6 @@ INSERT INTO ProductType_Audit
   , idCoreFacility
   , idVendor
   , idPriceCategory
-  , utilizePurchasingSystem
   , idProductType
   FROM ProductType
   WHERE NOT EXISTS(SELECT * FROM ProductType_Audit)
@@ -16522,7 +16618,6 @@ BEGIN
   , idCoreFacility
   , idVendor
   , idPriceCategory
-  , utilizePurchasingSystem
   , idProductType )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
@@ -16533,7 +16628,6 @@ BEGIN
   , NEW.idCoreFacility
   , NEW.idVendor
   , NEW.idPriceCategory
-  , NEW.utilizePurchasingSystem
   , NEW.idProductType );
 END;
 $$
@@ -16550,7 +16644,6 @@ BEGIN
   , idCoreFacility
   , idVendor
   , idPriceCategory
-  , utilizePurchasingSystem
   , idProductType )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
@@ -16561,7 +16654,6 @@ BEGIN
   , NEW.idCoreFacility
   , NEW.idVendor
   , NEW.idPriceCategory
-  , NEW.utilizePurchasingSystem
   , NEW.idProductType );
 END;
 $$
@@ -16578,7 +16670,6 @@ BEGIN
   , idCoreFacility
   , idVendor
   , idPriceCategory
-  , utilizePurchasingSystem
   , idProductType )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
@@ -16589,7 +16680,6 @@ BEGIN
   , OLD.idCoreFacility
   , OLD.idVendor
   , OLD.idPriceCategory
-  , OLD.utilizePurchasingSystem
   , OLD.idProductType );
 END;
 $$
@@ -16614,6 +16704,7 @@ CREATE TABLE IF NOT EXISTS `Product_Audit` (
  ,`isActive`  char(1)  NULL DEFAULT NULL
  ,`billThroughGnomex`  char(1)  NULL DEFAULT NULL
  ,`batchSamplesByUseQuantity`  char(1)  NULL DEFAULT NULL
+ ,`description`  varchar(500)  NULL DEFAULT NULL
 ) ENGINE=InnoDB
 $$
 
@@ -16636,7 +16727,8 @@ INSERT INTO Product_Audit
   , catalogNumber
   , isActive
   , billThroughGnomex
-  , batchSamplesByUseQuantity )
+  , batchSamplesByUseQuantity
+  , description )
   SELECT
   'No Context'
   , 'L'
@@ -16652,6 +16744,7 @@ INSERT INTO Product_Audit
   , isActive
   , billThroughGnomex
   , batchSamplesByUseQuantity
+  , description
   FROM Product
   WHERE NOT EXISTS(SELECT * FROM Product_Audit)
 $$
@@ -16677,7 +16770,8 @@ BEGIN
   , catalogNumber
   , isActive
   , billThroughGnomex
-  , batchSamplesByUseQuantity )
+  , batchSamplesByUseQuantity
+  , description )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
@@ -16692,7 +16786,8 @@ BEGIN
   , NEW.catalogNumber
   , NEW.isActive
   , NEW.billThroughGnomex
-  , NEW.batchSamplesByUseQuantity );
+  , NEW.batchSamplesByUseQuantity
+  , NEW.description );
 END;
 $$
 
@@ -16713,7 +16808,8 @@ BEGIN
   , catalogNumber
   , isActive
   , billThroughGnomex
-  , batchSamplesByUseQuantity )
+  , batchSamplesByUseQuantity
+  , description )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
@@ -16728,7 +16824,8 @@ BEGIN
   , NEW.catalogNumber
   , NEW.isActive
   , NEW.billThroughGnomex
-  , NEW.batchSamplesByUseQuantity );
+  , NEW.batchSamplesByUseQuantity
+  , NEW.description );
 END;
 $$
 
@@ -16749,7 +16846,8 @@ BEGIN
   , catalogNumber
   , isActive
   , billThroughGnomex
-  , batchSamplesByUseQuantity )
+  , batchSamplesByUseQuantity
+  , description )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
@@ -16764,7 +16862,8 @@ BEGIN
   , OLD.catalogNumber
   , OLD.isActive
   , OLD.billThroughGnomex
-  , OLD.batchSamplesByUseQuantity );
+  , OLD.batchSamplesByUseQuantity
+  , OLD.description );
 END;
 $$
 
@@ -21263,6 +21362,9 @@ CREATE TABLE IF NOT EXISTS `Sample_Audit` (
  ,`qubitConcentration`  decimal(8,3)  NULL DEFAULT NULL
  ,`groupName`  varchar(200)  NULL DEFAULT NULL
  ,`qcCodeApplication`  varchar(10)  NULL DEFAULT NULL
+ ,`qcLibConcentration`  decimal(8,1)  NULL DEFAULT NULL
+ ,`idLibPrepQCProtocol`  int(11)  NULL DEFAULT NULL
+ ,`sampleVolume`  decimal(8,1)  NULL DEFAULT NULL
 ) ENGINE=InnoDB
 $$
 
@@ -21326,7 +21428,10 @@ INSERT INTO Sample_Audit
   , barcodeSequenceB
   , qubitConcentration
   , groupName
-  , qcCodeApplication )
+  , qcCodeApplication
+  , qcLibConcentration
+  , idLibPrepQCProtocol
+  , sampleVolume )
   SELECT
   'No Context'
   , 'L'
@@ -21383,6 +21488,9 @@ INSERT INTO Sample_Audit
   , qubitConcentration
   , groupName
   , qcCodeApplication
+  , qcLibConcentration
+  , idLibPrepQCProtocol
+  , sampleVolume
   FROM Sample
   WHERE NOT EXISTS(SELECT * FROM Sample_Audit)
 $$
@@ -21449,7 +21557,10 @@ BEGIN
   , barcodeSequenceB
   , qubitConcentration
   , groupName
-  , qcCodeApplication )
+  , qcCodeApplication
+  , qcLibConcentration
+  , idLibPrepQCProtocol
+  , sampleVolume )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
@@ -21505,7 +21616,10 @@ BEGIN
   , NEW.barcodeSequenceB
   , NEW.qubitConcentration
   , NEW.groupName
-  , NEW.qcCodeApplication );
+  , NEW.qcCodeApplication
+  , NEW.qcLibConcentration
+  , NEW.idLibPrepQCProtocol
+  , NEW.sampleVolume );
 END;
 $$
 
@@ -21567,7 +21681,10 @@ BEGIN
   , barcodeSequenceB
   , qubitConcentration
   , groupName
-  , qcCodeApplication )
+  , qcCodeApplication
+  , qcLibConcentration
+  , idLibPrepQCProtocol
+  , sampleVolume )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
@@ -21623,7 +21740,10 @@ BEGIN
   , NEW.barcodeSequenceB
   , NEW.qubitConcentration
   , NEW.groupName
-  , NEW.qcCodeApplication );
+  , NEW.qcCodeApplication
+  , NEW.qcLibConcentration
+  , NEW.idLibPrepQCProtocol
+  , NEW.sampleVolume );
 END;
 $$
 
@@ -21685,7 +21805,10 @@ BEGIN
   , barcodeSequenceB
   , qubitConcentration
   , groupName
-  , qcCodeApplication )
+  , qcCodeApplication
+  , qcLibConcentration
+  , idLibPrepQCProtocol
+  , sampleVolume )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
@@ -21741,7 +21864,10 @@ BEGIN
   , OLD.barcodeSequenceB
   , OLD.qubitConcentration
   , OLD.groupName
-  , OLD.qcCodeApplication );
+  , OLD.qcCodeApplication
+  , OLD.qcLibConcentration
+  , OLD.idLibPrepQCProtocol
+  , OLD.sampleVolume );
 END;
 $$
 
@@ -23846,7 +23972,7 @@ CREATE TABLE IF NOT EXISTS `Step_Audit` (
  ,`AuditOperation`     char(1)      NOT NULL
  ,`AuditSystemUser`    varchar(30)  NOT NULL
  ,`AuditOperationDate` datetime     NOT NULL
- ,`codeStep`  varchar(10)  NULL DEFAULT NULL
+ ,`codeStep`  varchar(20)  NULL DEFAULT NULL
  ,`step`  varchar(50)  NULL DEFAULT NULL
  ,`isActive`  char(1)  NULL DEFAULT NULL
  ,`sortOrder`  int(10)  NULL DEFAULT NULL
@@ -24861,7 +24987,7 @@ CREATE TABLE IF NOT EXISTS `WorkItem_Audit` (
  ,`AuditSystemUser`    varchar(30)  NOT NULL
  ,`AuditOperationDate` datetime     NOT NULL
  ,`idWorkItem`  int(10)  NULL DEFAULT NULL
- ,`codeStepNext`  varchar(10)  NULL DEFAULT NULL
+ ,`codeStepNext`  varchar(20)  NULL DEFAULT NULL
  ,`idSample`  int(10)  NULL DEFAULT NULL
  ,`idLabeledSample`  int(10)  NULL DEFAULT NULL
  ,`idHybridization`  int(10)  NULL DEFAULT NULL
