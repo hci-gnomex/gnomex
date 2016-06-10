@@ -2408,10 +2408,12 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     }
 
     private boolean idLabIsInManagingLabs(int idLab){
-        for (Iterator i = filterLabSetByCoreFacility(this.getAppUser().getManagingLabs()).iterator(); i.hasNext(); ) {
-            Lab lab = (Lab) i.next();
-            if (lab.getIdLab().equals(idLab)) {
-                return true;
+        if(this.getAppUser() != null) {
+            for (Iterator i = filterLabSetByCoreFacility(this.getAppUser().getManagingLabs()).iterator(); i.hasNext(); ) {
+                Lab lab = (Lab) i.next();
+                if (lab.getIdLab().equals(idLab)) {
+                    return true;
+                }
             }
         }
         return false;
