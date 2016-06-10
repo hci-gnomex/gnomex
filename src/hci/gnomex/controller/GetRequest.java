@@ -1086,7 +1086,7 @@ public class GetRequest extends GNomExCommand implements Serializable {
         statusNode.setAttribute("numberOfSteps", "7");
       } else {
         appendStepNode(statusNode, "Submitted");
-        appendStepNode(statusNode, "Library QC");
+        appendStepNode(statusNode, "Library Prep QC");
         appendStepNode(statusNode, "Ready to Sequence");
         appendStepNode(statusNode, "Sequence in Progress");
         appendStepNode(statusNode, "Data Available");
