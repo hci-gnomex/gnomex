@@ -383,11 +383,11 @@
 				for each (var c:Object in chromats) {
 					if (c.@isSelected == 'true') {
 						var node:XML = new XML("<FileDescriptor " +
-							" fileName ='" + c.@qualifiedFilePath + "/" + c.@displayName + "'" +
-							" zipEntryName='" + c.@requestNumber + "/" + c.@displayName + "'" +
+							" fileName ='" + c.@qualifiedFilePath + "/" + c.@fileName + "'" +
+							" zipEntryName='" + c.@requestNumber + "/" + c.@fileName + "'" +
 							" type='ab1'"  +
 							" fileSize='" + c.@fileSize + "'" +
-							" requestNumber='" + c.@requestNumber + "'" + "/>");
+							" number='" + c.@requestNumber + "'" + "/>");
 						selectedFiles.addItem(node);
 					}
 				}
@@ -403,7 +403,7 @@
 							if (filesExceedingMaxMessage.length > 0) {
 								filesExceedingMaxMessage += ", ";
 							}
-							filesExceedingMaxMessage += item.@displayName;
+							filesExceedingMaxMessage += item.@fileName;
 						}
 						estimatedDownloadSize += size;
 					}
@@ -479,8 +479,8 @@
 				for each (var c:Object in chromats) {
 					if (c.@isSelected == 'true') {
 						var node:XML = new XML("<FileDescriptor " +
-							" fileName ='" + c.@qualifiedFilePath + "/" + c.@displayName + "'" +
-							" zipEntryName='" + c.@requestNumber + "/" + c.@displayName + "'" +
+							" fileName ='" + c.@qualifiedFilePath + "/" + c.@fileName + "'" +
+							" zipEntryName='" + c.@requestNumber + "/" + c.@fileName + "'" +
 							" type='ab1'"  +
 							" fileSize='" + c.@fileSize + "'" +
 							" requestNumber='" + c.@requestNumber + "'" + "/>");
@@ -722,7 +722,7 @@
 						</mx:itemRenderer>						
 					</mx:DataGridColumn>
 					
-					<mx:DataGridColumn dataField="@displayName" sortCompareFunction="sortByQuadrantAndPosition"
+					<mx:DataGridColumn dataField="@fileName" sortCompareFunction="sortByQuadrantAndPosition"
 									   headerText="File"
 									   textDecoration="underline"
 									   width="175"
