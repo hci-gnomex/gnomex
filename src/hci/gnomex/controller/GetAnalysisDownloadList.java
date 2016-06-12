@@ -254,6 +254,7 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
 
 							}
 							fd.setQualifiedFilePath(directoryName);
+							fd.setDirectoryName(directoryName);
 							fd.setBaseFilePath(getAnalysisDirectory(baseDir, a));
 							fd.setIdLab(a.getIdLab());
 
@@ -516,6 +517,7 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
 			childFd.setQualifiedFilePath(fd.getQualifiedFilePath() != null && fd.getQualifiedFilePath().length() > 0 ? fd.getQualifiedFilePath()
 					+ File.separator + fd.getDisplayName() : fd.getDisplayName());
 			childFd.setBaseFilePath(fd.getBaseFilePath());
+            childFd.setDirectoryName(childFd.getQualifiedFilePath());
 			childFd.setIdLab(fd.getIdLab());
 
 			AnalysisFile af = (AnalysisFile) knownFilesMap.get(childFd.getQualifiedFileName());
@@ -587,8 +589,9 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
 			childFdNode.setAttribute("URLLinkAllowed", childFd.getIsURLLinkAllowed());
 			childFdNode.setAttribute("GENEIOBIOViewer", childFd.getIsGENELinkAllowed());
 
-			String viewType = Constants.DOWNLOAD_ANALYSIS_SINGLE_FILE_SERVLET + "?idAnalysis=" + childFd.getId() != null ? childFd.getId().toString() : "";
-			childFdNode.setAttribute("viewURL", childFd.getViewURL(viewType) != null ? childFd.getViewURL(viewType) : "");
+			String viewType = Constants.DOWNLOAD_ANALYSIS_SINGLE_FILE_SERVLET + "?idAnalysis=" + childFd.getId().toString();
+
+            childFdNode.setAttribute("viewURL", childFd.getViewURL(viewType) != null ? childFd.getViewURL(viewType) : "");
 
 			childFdNode.setAttribute("isSelected", "N");
 			childFdNode.setAttribute("state", "unchecked");
