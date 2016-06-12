@@ -603,7 +603,12 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
 						fdNode.setAttribute("isSelected", "N");
 						fdNode.setAttribute("state", "unchecked");
 						fdNode.setAttribute("linkedSampleNumber", getLinkedSampleNumber(sess, fd.getZipEntryName()));
-						recurseAddChildren(fdNode, fd, isFlowCellDirectory, sess);
+
+						if(fd.getChildren().size() > 0) {
+							recurseAddChildren(fdNode, fd, isFlowCellDirectory, sess);
+						} else{
+							fdNode.setAttribute("viewURL", fd.getViewURL(viewType));
+						}
 
 						requestDownloadNode.addContent(fdNode);
 						requestDownloadNode.setAttribute("isEmpty", "N");

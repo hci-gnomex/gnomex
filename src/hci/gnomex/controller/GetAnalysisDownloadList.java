@@ -398,6 +398,7 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
 					if (af != null) {
 						fd.setUploadDate(af.getUploadDate());
 						fd.setIdFileString(af.getIdAnalysisFile().toString());
+						fd.setId(af.getIdAnalysis());
 						fd.setComments(af.getComments());
 						fd.setId(af.getIdAnalysis());
 					} else {
@@ -423,7 +424,9 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
 						}
 					}
 
-					String viewType = Constants.DOWNLOAD_ANALYSIS_SINGLE_FILE_SERVLET + "?idAnalysis=" + fd.getId() != null ? fd.getId().toString() : "";
+
+
+					String viewType = Constants.DOWNLOAD_ANALYSIS_SINGLE_FILE_SERVLET + "?idAnalysis=" + analysisNode.getAttributeValue("idAnalysis");
 
 					fd.setQualifiedFilePath(directoryName);
 					fd.setBaseFilePath(baseDir + createYear + File.separator + analysisNumber);
