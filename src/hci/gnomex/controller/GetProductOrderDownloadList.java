@@ -365,7 +365,7 @@ public class GetProductOrderDownloadList extends GNomExCommand implements Serial
 
 			String viewType = Constants.DOWNLOAD_PRODUCT_ORDER_SINGLE_FILE_SERVLET + "?idProductOrder=" + childFd.getId();
 			if (!childFd.getType().equals("dir")) {
-				childFdNode.setAttribute("viewURL", viewType);
+				childFdNode.setAttribute("viewURL", childFd.getViewURL(viewType));
 			}
 
 			fdNode.addContent(childFdNode);

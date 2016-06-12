@@ -87,7 +87,7 @@ public class GetChromatogramList extends GNomExCommand implements Serializable {
         Integer idPlateWell = row[1] == null ? new Integer(0) : (Integer)row[1];
         Integer idRequest = row[2] == null ? new Integer(0) : (Integer)row[2];
         String  qualifiedFilePath    = row[3] == null ? "" : (String)row[3];
-        String  displayName    = row[4] == null ? "" : (String)row[4];
+        String  fileName    = row[4] == null ? "" : (String)row[4];
         Integer readLength = row[5] == null ? new Integer(0) : (Integer)row[5];
         Integer trimmedLength = row[6] == null ? new Integer(0) : (Integer)row[6];
         Integer q20 = row[7] == null ? new Integer(0) : (Integer)row[7];
@@ -131,8 +131,8 @@ public class GetChromatogramList extends GNomExCommand implements Serializable {
           alt = !alt;
         }
         
-        abiFileName = qualifiedFilePath + File.separator + displayName;
-        File abiFile = new File(qualifiedFilePath, displayName);
+        abiFileName = qualifiedFilePath + File.separator + fileName;
+        File abiFile = new File(qualifiedFilePath, fileName);
 
         
         double q20_len;
@@ -165,7 +165,7 @@ public class GetChromatogramList extends GNomExCommand implements Serializable {
         cNode.setAttribute("idPlateWellShort", idPlateWell.toString().substring( idPlateWell.toString().length() > 6 ? idPlateWell.toString().length() - 5 : 0 ));
         cNode.setAttribute("idRequest", idRequest.toString());
         cNode.setAttribute("qualifiedFilePath", qualifiedFilePath);
-        cNode.setAttribute("displayName", displayName);
+        cNode.setAttribute("fileName", fileName);
         cNode.setAttribute("readLength", readLength.toString());
         cNode.setAttribute("trimmedLength", trimmedLength.toString());
         cNode.setAttribute("q20", q20.toString());
