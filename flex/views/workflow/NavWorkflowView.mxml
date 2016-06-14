@@ -62,8 +62,8 @@
 				} else if (codeStep == 'MISEQPREPQC') {
 					this.navBar.selectedChild = this.miSeqTab;
 					this.detailViews.selectedChild = this.miSeqViews;
-					this.hiSeqViews.selectedChild = this.workflowMiSeqPrepQCView;
-					callLater(onHiSeqWorklistChange);
+					this.miSeqViews.selectedChild = this.workflowMiSeqPrepQCView;
+					callLater(onMiSeqWorklistChange);
 				} else if (codeStep == 'MISEQASSEM') {
 					this.navBar.selectedChild = this.miSeqTab;
 					this.detailViews.selectedChild = this.miSeqViews;
@@ -375,7 +375,7 @@
 					this.codeStepNext = "MISEQPIPE";
 					workflowMiSeqPipelineView.initTitle();
 					workflowMiSeqPipelineView.getWorkList.send();
-				} else if (hiSeqViews.selectedChild == workflowMiSeqPrepQCView) {
+				} else if (miSeqViews.selectedChild == workflowMiSeqPrepQCView) {
 					workflowMiSeqPrepQCView.codeStepNext = "MISEQPREPQC";
 					this.codeStepNext = "MISEQPREPQC";
 					workflowMiSeqPrepQCView.titleInit();
