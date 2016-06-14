@@ -1879,6 +1879,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
     private void getLabListForCores() {
         try {
             if (this.hasPermission(CAN_ACCESS_ANY_OBJECT)){
+                labMapForCoresIManage = new HashMap<Integer, Integer>();
                 // Get all core facilities the user manages
                 List idCoreFacility = new ArrayList();
                 for (Iterator i = this.getCoreFacilitiesIManage().iterator(); i.hasNext(); ) {
