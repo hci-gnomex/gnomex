@@ -93,7 +93,8 @@ public class SaveChromatogramFromFile extends GNomExCommand implements Serializa
       }
       
       // Find out if we already have a chromatogram for this plate well, named the same.
-      Chromatogram chromatogram = (Chromatogram)sess.createQuery("SELECT ch from Chromatogram ch where ch.idPlateWell = " + idPlateWell + " and displayName = '" + fileName + "'").uniqueResult();
+      Chromatogram chromatogram = (Chromatogram)sess.createQuery("SELECT ch from Chromatogram ch where ch.idPlateWell" +
+              " = " + idPlateWell + " and fileName = '" + fileName + "'").uniqueResult();
       if (chromatogram == null) {
         // This is the normal case.  We didn't find a chromatogram, so we create new DB chromatogram object
         chromatogram = new Chromatogram();
