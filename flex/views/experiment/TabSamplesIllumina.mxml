@@ -1341,7 +1341,7 @@
 													 sortable="false" 
 													 editable="true" 
 													 rendererIsEditor="false" 
-													 itemRenderer="{views.renderers.DropdownLabel.create(barcodeList, '@name', '@value', '@idOligoBarcode', '', true, true, 0xFFFFB9)}">
+													 itemRenderer="{views.renderers.DropdownLabel.create(barcodeList, '@barcodeSequenceDisplay', '@value', '@idOligoBarcode', '', true, true, 0xFFFFB9)}">
 					<util:itemEditor>
 						<mx:Component>
 							<renderers:FilterComboBoxOligoBarcode idSeqLibProtocol="{data.@idSeqLibProtocol}"
@@ -1388,7 +1388,7 @@
 													 editable="true"
 													 editorDataField="value"
 													 rendererIsEditor="false" 
-													 itemRenderer="{views.renderers.DropdownLabel.create(barcodeList, '@name', '@value', '@idOligoBarcodeB', '', false, true)}">
+													 itemRenderer="{views.renderers.DropdownLabel.create(barcodeList, '@barcodeSequenceDisplay', '@value', '@idOligoBarcodeB', '', false, true)}">
 					<util:itemEditor>
 						<mx:Component>
 							<renderers:FilterComboBoxOligoBarcode idSeqLibProtocol="{data.@idSeqLibProtocol}"

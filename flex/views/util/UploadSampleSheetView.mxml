@@ -413,8 +413,12 @@
 												}
 												if(thisDataProvider != null && this.idSeqLibProtocol != null && this.idSeqLibProtocol.length > 0) {
 													for each (var dataProviderItem:XML in thisDataProvider) {
-														if(dataProviderItem.@[thisLabelField].toLowerCase() == ssColItemValue.toLowerCase() 
-															|| (col.dataField.toLocaleLowerCase().substr(0, 15) == "@idoligobarcode" && dataProviderItem.@name.toString().toLowerCase() == ssColItemValue.toLowerCase())) {
+														if(dataProviderItem.hasOwnProperty("@name")){
+															trace(dataProviderItem.@[thisLabelField].toLowerCase());
+															trace(ssColItemValue.toLowerCase());
+															trace(dataProviderItem.hasOwnProperty("@" + "name"));
+														}
+														if(dataProviderItem.hasOwnProperty("@" + thisLabelField) && dataProviderItem.@[thisLabelField].toLowerCase() == ssColItemValue.toLowerCase()) {
 															// we found a barcode that matches the name provided but is it right for specified seq lib protocol and is it for A or B index tag?
 															var isValid:Boolean = false;
 															if(col.dataField.toLocaleLowerCase() == "@idoligobarcodeb"){
