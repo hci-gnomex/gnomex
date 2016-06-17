@@ -43,6 +43,8 @@
 
 	<mx:XMLListCollection id="filteredAppList" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.Application').DictionaryEntry}" filterFunction="filterAppList" />
 
+	<mx:XMLListCollection id="filteredQcProtocolList" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BioanalyzerChipType').DictionaryEntry}" filterFunction="filterAppList" />
+
 
 	<mx:Script>
         <![CDATA[
@@ -80,6 +82,7 @@
 
 		private var worklistFilterType:String = "";
 
+		[Bindable]
 		private var coreFacilityAppMap:Dictionary;
 
 		[Bindable]
@@ -511,8 +514,8 @@
 									   editorDataField="value"
 									   sortable="false"
 									   rendererIsEditor="false"
-									   itemRenderer="{views.renderers.DropdownLabel.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BioanalyzerChipType').DictionaryEntry, '@display', '@value', '@qualCodeBioanalyzerChipType')}"
-									   itemEditor="{views.renderers.GridColumnFillButton.create(views.renderers.ComboBoxBioanalyzerChipType.getFactory(parentApplication).newInstance(), 'idRequest')}">
+									   itemRenderer="{views.renderers.DropdownLabel.create(filteredQcProtocolList.source, '@display', '@value', '@qualCodeBioanalyzerChipType')}"
+									   itemEditor="{views.renderers.GridColumnFillButton.create(views.renderers.ComboBoxBioanalyzerChipType.getFactory(parentApplication, coreFacilityAppMap, selectedIdCoreFacility).newInstance(), 'idRequest')}">
 					</mx:DataGridColumn>
 					<mx:DataGridColumn headerText="Conc. ng/uL" width="10" dataField="@qualCalcConcentration"
 									   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), 'idRequest')}" editorDataField="value">
