@@ -269,7 +269,7 @@
 		private function addNodeToList(node:XML, req:XML, filesList:XMLListCollection):void {
 			// Check to see if the request node is already present.  If not, add it.
 			if (filesList.source.(@requestNumber == req.@requestNumber).length() > 0) {
-				req = filesList.source.(@requestNumber == node.@requestNumber)[0]
+				req = filesList.source.(@requestNumber == req.@requestNumber)[0]
 			} else {
 				filesList.source += req;
 			}
