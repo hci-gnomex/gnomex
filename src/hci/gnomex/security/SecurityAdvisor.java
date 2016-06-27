@@ -1242,7 +1242,12 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
             else if (hasPermission(CAN_PARTICIPATE_IN_GROUPS)) {
                 DataTrackFolder dtf = (DataTrackFolder) object;
                 // Lab members or managers
-                if (isGroupIAmMemberOrManagerOf(dtf.getIdLab())) {
+
+                // if the idlab is null on a data track folder then that means it is public
+                // however, we won't let anyone update these folders, only admins.
+                if(dtf.getIdLab() == null){
+                    canUpdate = false;
+                } else if (isGroupIAmMemberOrManagerOf(dtf.getIdLab())) {
                     canUpdate = true;
                 }
             }
