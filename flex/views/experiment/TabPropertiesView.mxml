@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:views="views.*"  xmlns:util="views.util.*" label="Properties" enabled="true" width="100%" height="100%">
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:views="views.*"  xmlns:util="views.util.*"
+		   label="Other Details" enabled="true" width="100%" height="100%">
 	<mx:Script>
 		<![CDATA[
 			import ext.com.Consts;

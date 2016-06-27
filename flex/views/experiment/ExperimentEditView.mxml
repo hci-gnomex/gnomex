@@ -2210,6 +2210,7 @@
 					sample.@canChangeNumberSequencingCycles='Y';
 					sample.@numberSequencingLanes = '';
 					sample.@concentration = '';
+					sample.@sampleVolume = '';
 					sample.@seqPrepDate = '';
 					sample.@seqPrepLibConcentration = '';
 					sample.@seqPrepGelFragmentSizeFrom = '';

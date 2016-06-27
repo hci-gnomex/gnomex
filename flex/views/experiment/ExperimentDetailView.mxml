@@ -1688,6 +1688,15 @@
 					return "";
 				}
 			}
+
+			private function getSampleVolumeFormatted(item:Object, column:AdvancedDataGridColumn):String {
+				numberFormatter.precision = sampleConcentrationPrecision;
+				if (item.hasOwnProperty("@sampleVolume") && item.@sampleVolume != '') {
+					return numberFormatter.format(item.@sampleVolume);
+				} else {
+					return "";
+				}
+			}
 			
 			private function determineToShowProductsTab(requestCategory:Object):Boolean {
 				if (selectedExperiment != null && selectedExperiment.@isExternal != 'Y' && requestCategory != null) {
@@ -1701,7 +1710,7 @@
 			
 			private function getConcentrationHeader():void{
 				if(this.samples.length > 0){
-					concHeader += samples.getItemAt(0).@codeConcentrationUnit;
+					concHeader += "("+samples.getItemAt(0).@codeConcentrationUnit+")";
 				}
 			}
 			
@@ -2007,7 +2016,9 @@
 					
 					
 					<mx:AdvancedDataGridColumn id="concentrationCol" headerText="{concHeader}" width="65" visible="true" labelFunction="getSampleConcentrationFormatted"/>
-					<mx:AdvancedDataGridColumn id="sampleVolumeCol" headerText="Sample Volume" width="80" visible="true" dataField="@sampleVolume"/>
+					<mx:AdvancedDataGridColumn id="sampleVolumeCol" headerText="Vol. (uL)" width="80"
+											   labelFunction="getSampleVolumeFormatted"
+											   visible="true" dataField="@sampleVolume"/>
 					<util:AdvancedDataGridColumnWithType propertyType="OPTION" id="concentrationUnitCol" visible="{true}"  headerText="Unit"  width="60" 
 											   itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ConcentrationUnit').DictionaryEntry, '@display', '@value', '@codeConcentrationUnit')}"/>
 					

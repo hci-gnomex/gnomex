@@ -344,7 +344,7 @@
 
 					<mx:DataGridColumn editable="false" headerText="Client"  width="12" dataField="@appUserName" />
 
-					<mx:DataGridColumn headerText="Sample Volume" width="10" dataField="@sampleVolume"
+					<mx:DataGridColumn headerText="Vol. (uL)" width="10" dataField="@sampleVolume"
 									   editable="false"/>
 
 					<mx:DataGridColumn visible="true"

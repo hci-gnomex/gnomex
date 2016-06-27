@@ -559,7 +559,7 @@ public class RequestParser implements Serializable {
     }
 
     if (n.getAttributeValue("sampleVolume") != null && !n.getAttributeValue("sampleVolume").equals("")) {
-      String volume = n.getAttributeValue("sampleVolume");
+      String volume = n.getAttributeValue("sampleVolume").replaceAll(",", "");
       sample.setSampleVolume(new BigDecimal(volume));
     } else {
       sample.setSampleVolume(null);

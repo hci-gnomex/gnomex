@@ -1154,7 +1154,8 @@
 					</mx:headerRenderer>
 				</mx:AdvancedDataGridColumn>   
 				
-				<mx:AdvancedDataGridColumn headerText="{parentApplication.getProperty(parentApplication.PROPERTY_CUSTOM_SAMPLE_CONC_UNITS) == 'N' ? 'Conc. (ng/ul)' : 'Conc.'}" id="concentrationCol" visible="{parentApplication.isInternalExperimentSubmission}"  width="77" formatter="{sampleConcentrationFormatter}" rendererIsEditor="false"
+				<mx:AdvancedDataGridColumn
+                        headerText="{parentApplication.getProperty(parentApplication.PROPERTY_CUSTOM_SAMPLE_CONC_UNITS) == 'N' ? 'Conc. (ng/ul)' : 'Conc.'}" id="concentrationCol" visible="{parentApplication.isInternalExperimentSubmission}"  width="80" formatter="{sampleConcentrationFormatter}" rendererIsEditor="false"
 										   itemRenderer="{hci.flex.controls.Label.create('@concentration')}"                
 										   itemEditor="{views.renderers.GridColumnFillButton.create(new views.renderers.TextInputSampleConcentration(), '')}" editorDataField="value" dataField="@concentration">
 					<mx:headerRenderer > 
@@ -1197,8 +1198,9 @@
 				</mx:AdvancedDataGridColumn>
 
 				<mx:AdvancedDataGridColumn id="sampleVolumeCol"
+										   formatter="{sampleVolumeFormatter}"
 										   editable="{true}"
-										   headerText="Sample Volume" width="80"
+										   headerText="Vol. (uL)" width="80"
 										   dataField="@sampleVolume"
 										   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}"
 										   editorDataField="value">
@@ -1206,7 +1208,8 @@
 						<mx:Component>
 							<mx:VBox verticalGap="0" horizontalScrollPolicy="off"  verticalScrollPolicy="off"  horizontalAlign="center" verticalAlign="middle">
 								<util:ContextHelp context1="sampleVolume" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="Sample Volume Help"
-												  showEdit="{parentApplication.isAdminState}" label="Sample Volume" noIconSpaceIfNoHelp="true"/>
+												  showEdit="{parentApplication.isAdminState}"
+												  label="Vol. (uL)" noIconSpaceIfNoHelp="true"/>
 							</mx:VBox>
 						</mx:Component>
 					</mx:headerRenderer>
