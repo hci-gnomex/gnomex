@@ -74,7 +74,7 @@ public class AnalysisFileDescriptorParser extends DetailObject implements Serial
   protected FileDescriptor initializeFileDescriptor(Element n){
     FileDescriptor fd = new FileDescriptor();
 
-    fd.setId(n.getAttributeValue("idAnalysis") != null ? Integer.valueOf(n.getAttributeValue("idAnalysis")) : null);
+    fd.setId(n.getAttributeValue("idAnalysis") != null && !n.getAttributeValue("idAnalysis").equals("") ? Integer.valueOf(n.getAttributeValue("idAnalysis")) : null);
     fd.setFileName(n.getAttributeValue("fileName"));
     fd.setQualifiedFilePath(n.getAttributeValue("qualifiedFilePath"));
     fd.setBaseFilePath(n.getAttributeValue("baseFilePath"));
