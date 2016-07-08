@@ -68,6 +68,7 @@ public class FileDescriptorUploadParser extends DetailObject implements Serializ
     }
     else if(folderNode.getName().equals("Request")){
       directoryName = folderNode.getAttributeValue("displayName");
+      directoryName = directoryName.substring(0, directoryName.indexOf("R") + 1); //Strip any revision number off
     }
     
     if (directoryName == null) {
