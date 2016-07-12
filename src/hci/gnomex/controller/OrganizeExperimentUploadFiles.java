@@ -15,13 +15,9 @@ import java.io.File;
 import java.io.Serializable;
 import java.io.StringReader;
 import java.math.BigDecimal;
-import java.util.ArrayList;
+import java.util.*;
 import java.sql.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -240,6 +236,20 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
             String directoryName = (String) i.next();
             List fileNames = (List) parser.getFileNameMap().get(directoryName);
             String targetDirName = "";
+
+            List<String> path = Arrays.asList(directoryName.split(Pattern.quote(File.separator)));
+            directoryName = "";
+            for(Iterator<String> iter = path.iterator(); iter.hasNext();){
+              String s = iter.next();
+              if(!baseDir.contains(s)){
+                directoryName += s + File.separator;
+              }
+            }
+
+
+
+
+
 
             for (Iterator i1 = fileNames.iterator(); i1.hasNext();) {
               String fileName = (String) i1.next();

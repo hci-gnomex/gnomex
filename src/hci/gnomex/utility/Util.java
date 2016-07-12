@@ -2,6 +2,7 @@ package hci.gnomex.utility;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -160,7 +161,9 @@ public class Util {
 
 		double numsec = numMillis / 1000.0;
 
-		System.out.println(info + numsec + " seconds elapsed time.");
+		Date d = new Date(System.currentTimeMillis());
+
+		System.out.println(d.toString() + info + numsec + " seconds elapsed time.");
 
 	}
 
