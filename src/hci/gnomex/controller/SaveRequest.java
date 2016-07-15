@@ -2578,11 +2578,13 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 				PriceSheetPriceCategory priceCategoryX = (PriceSheetPriceCategory) i1.next();
 				PriceCategory priceCategory = priceCategoryX.getPriceCategory();
 
-				// we want to only create request property billing items at submit when we have a bill during workflow
+				// we want to only create request property billing items AND/OR unit charge billing items for products
+				// at submit when we have a bill during workflow
 				if (requestPropertiesOnly
 						&& (priceCategory.getPluginClassName() != null
 						&& !priceCategory.getPluginClassName().equals("hci.gnomex.billing.PropertyPricingPlugin") && !priceCategory
-						.getPluginClassName().equals("hci.gnomex.billing.PropertyPricingNotBySamplePlugin"))) {
+						.getPluginClassName().equals("hci.gnomex.billing.PropertyPricingNotBySamplePlugin") && !priceCategory
+						.getPluginClassName().equals("hci.gnomex.billing.UnitChargeAppFilterPlugin"))) {
 					continue;
 				}
 

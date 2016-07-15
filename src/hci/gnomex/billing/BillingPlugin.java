@@ -4,11 +4,10 @@ import hci.gnomex.constants.Constants;
 import hci.gnomex.controller.SaveBillingTemplate;
 import hci.gnomex.model.*;
 import hci.gnomex.utility.Order;
+import org.hibernate.Session;
 
 import java.math.BigDecimal;
 import java.util.*;
-
-import org.hibernate.Session;
 
 public abstract class BillingPlugin {
 
@@ -267,4 +266,27 @@ public abstract class BillingPlugin {
 		return price;
 	}
 
+	protected Price getPriceByApplication(PriceCategory priceCategory, Request request) {
+		// Find the price for kind of sample quality
+		Price price = null;
+		for (Iterator i1 = priceCategory.getPrices().iterator(); i1.hasNext(); ) {
+			Price p = (Price) i1.next();
+			if (p.getIsActive() != null && p.getIsActive().equals("Y")) {
+				// If the request has an application, match it to the correct price.
+				if (request.getCodeApplication() != null && !request.getCodeApplication().equals("")) {
+					for (Iterator i2 = p.getPriceCriterias().iterator(); i2.hasNext(); ) {
+						PriceCriteria criteria = (PriceCriteria) i2.next();
+						if (criteria.getFilter1().equals(request.getCodeApplication())) {
+							price = p;
+							break;
+						}
+					}
+				} else {
+					price = p;
+					break;
+				}
+			}
+		}
+		return price;
+	}
 }

@@ -1572,7 +1572,10 @@
 				<util:ContextHelp context1="experimentBillingAccount" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Billing Account Help"
 								  labelPlacement="left" id="text1" width="200" label="(3) Select a billing account."/>
 				<mx:HBox verticalAlign="top" id="hbox3" horizontalGap="1" paddingBottom="0" paddingTop="0">
-					<mx:ComboBox labelField="@accountNameAndNumber" width="380" id="billingAccountCombo" prompt=" " change="makeBillingAccountSelection()" selectedIndex="-1" close="makeBillingAccountSelection()">
+					<mx:ComboBox labelField="@accountNameAndNumber" toolTip="{data.@accountNameAndNumber}" width="380"
+								 id="billingAccountCombo"
+								 prompt=" "
+								 change="makeBillingAccountSelection()" selectedIndex="-1" close="makeBillingAccountSelection()">
 						<mx:dataProvider>{billingAccounts}</mx:dataProvider>
 					</mx:ComboBox>
 					<mx:VBox height="100%" verticalGap="0" paddingBottom="0" paddingTop="0" paddingLeft="0" paddingRight="4" id="vbox3" width="425">

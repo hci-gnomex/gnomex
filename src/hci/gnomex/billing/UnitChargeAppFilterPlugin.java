@@ -6,7 +6,7 @@ import org.hibernate.Session;
 import java.util.*;
 
 
-public class MiscPlugin extends BillingPlugin {
+public class UnitChargeAppFilterPlugin extends BillingPlugin {
 
   public List<BillingItem> constructBillingItems(Session sess, String amendState, BillingPeriod billingPeriod, PriceCategory priceCategory, Request request, 
       Set<Sample> samples, Set<LabeledSample> labeledSamples, Set<Hybridization> hybs, Set<SequenceLane> lanes, Map<String, ArrayList<String>> sampleToAssaysMap, 
@@ -18,12 +18,10 @@ public class MiscPlugin extends BillingPlugin {
     	return billingItems;
     }
     
-    qty = this.getQty(sess, request, samples);
-    
+    qty = 1;
 
     // Find the price for application
     Price price = getPriceByApplication(priceCategory, request);
-
     
     // Instantiate a BillingItem for the matched billing price
     if (price != null) {
