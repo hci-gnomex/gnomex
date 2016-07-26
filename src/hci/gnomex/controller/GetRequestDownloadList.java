@@ -332,138 +332,12 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
 
 					// Show files under the root experiment directory
 					String createDateString = this.formatDate((java.util.Date) row[0]);
-					String baseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, idCoreFacility,
-							PropertyDictionaryHelper.PROPERTY_EXPERIMENT_DIRECTORY);
+					String baseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, idCoreFacility, PropertyDictionaryHelper.PROPERTY_EXPERIMENT_DIRECTORY);
 					addRootFileNodes(baseDir, requestNode, requestNumber, createDateString, null, sess);
 
-					// Show the files (and directories) under upload staging. Show these under request node.
-					if (includeUploadStagingDir.equals("Y")) {
-						addRootFileNodes(baseDir, requestNode, requestNumber, createDateString, Constants.UPLOAD_STAGING_DIR, sess);
-					}
 
 				} // end of if first time we have seen this request number
 
-				if (resultDir.equals(this.DUMMY_DIRECTORY)) {
-					// add the files that live in the root directory
-					addExpandedFileNodes(sess, serverName, baseDirFlowCell, requestNode, requestNode, requestNumber, key, codeRequestCategory, dh, false);
-
-				} else {
-					// we are not in the root directory
-					Element n = new Element("RequestDownload");
-					n.setAttribute("key", key);
-					n.setAttribute("isSelected", "N");
-					n.setAttribute("state", "unchecked");
-					n.setAttribute("altColor", new Boolean(alt).toString());
-					n.setAttribute("showRequestNumber", !requestNumber.equals(prevRequestNumber) ? "Y" : "N");
-					n.setAttribute("idRequest", row[21].toString());
-					n.setAttribute("createDate", createDate);
-					n.setAttribute("requestNumber", (String) row[1]);
-					n.setAttribute("idRequest", idRequest.toString());
-					n.setAttribute("codeRequestCategory", row[2] == null ? "" : (String) row[2]);
-					n.setAttribute("codeApplication", row[3] == null ? "" : (String) row[3]);
-					n.setAttribute("idAppUser", row[4] == null ? "" : ((Integer) row[4]).toString());
-					n.setAttribute("itemNumber", row[5] == null ? "" : (String) row[5]);
-					n.setAttribute("hybDate", row[6] == null || row[6].equals("") ? "" : this.formatDate((java.sql.Date) row[6]));
-					n.setAttribute("extractionDate", row[7] == null || row[7].equals("") ? "" : this.formatDate((java.sql.Date) row[7]));
-					n.setAttribute("hybFailed", row[8] == null ? "" : (String) row[8]);
-					n.setAttribute("labelingDateSample1", row[9] == null || row[9].equals("") ? "" : this.formatDate((java.sql.Date) row[9]));
-					n.setAttribute("qualDateSample1", row[10] == null || row[10].equals("") ? "" : this.formatDate((java.sql.Date) row[10]));
-					n.setAttribute("numberSample1", row[11] == null ? "" : (String) row[11]);
-					n.setAttribute("nameSample1", row[12] == null ? "" : (String) row[12]);
-					n.setAttribute("labelingDateSample2", row[13] == null || row[13].equals("") ? "" : this.formatDate((java.sql.Date) row[13]));
-					n.setAttribute("qualDateSample2", row[14] == null || row[14].equals("") ? "" : this.formatDate((java.sql.Date) row[14]));
-					n.setAttribute("numberSample2", row[15] == null ? "" : (String) row[15]);
-					n.setAttribute("nameSample2", row[16] == null ? "" : (String) row[16]);
-					n.setAttribute("idLab", row[17] == null ? "" : ((Integer) row[17]).toString());
-					n.setAttribute("canDelete", isMicroarrayRequest ? "N" : "Y"); // User can't delete or rename hyb folders
-					n.setAttribute("canRename", isMicroarrayRequest ? "N" : "Y");
-
-					String baseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, idCoreFacility,
-							PropertyDictionaryHelper.PROPERTY_EXPERIMENT_DIRECTORY);
-					String directoryName = baseDir + createYear + File.separator + Request.getBaseRequestNumber(requestNumber) + File.separator + resultDir;
-					n.setAttribute("fileName", directoryName);
-
-					Integer idSlideDesign = row[20] == null || row[20].equals("") ? null : (Integer) row[20];
-
-					String sample1QualFailed = row[22] == null || row[22].equals("") ? "N" : (String) row[22];
-					String sample2QualFailed = row[23] == null || row[23].equals("") ? "N" : (String) row[23];
-					String labeledSample1LabelingFailed = row[24] == null || row[24].equals("") ? "N" : (String) row[24];
-					String labeledSample2LabelingFailed = row[25] == null || row[25].equals("") ? "N" : (String) row[25];
-					String extractionFailed = row[26] == null || row[26].equals("") ? "N" : (String) row[26];
-					String extractionBypassed = row[27] == null || row[27].equals("") ? "N" : (String) row[27];
-
-					n.setAttribute("ownerFirstName", row[28] == null ? "" : (String) row[28]);
-					n.setAttribute("ownerLastName", row[29] == null ? "" : (String) row[29]);
-					n.setAttribute("appUserName", appUserName);
-
-					String seqPrepByCore = row[30] == null || row[30].equals("") ? "N" : (String) row[30];
-
-					if (idSlideDesign == null && (hybNumber == null || hybNumber.equals(""))) {
-						n.setAttribute("results", "sample quality");
-						n.setAttribute("type", "dir");
-					} else {
-						if (idSlideDesign != null) {
-							n.setAttribute("results", (String) slideDesignMap.get(idSlideDesign));
-						} else if (isSolexaRequest) {
-							n.setAttribute("results", "");
-						} else {
-							n.setAttribute("results", "");
-						}
-					}
-
-					if (n.getAttributeValue("results").equals("bioanalyzer")) {
-						boolean hasMaxQualDate = false;
-						if (row[19] != null && !row[19].equals("")) {
-							hasMaxQualDate = true;
-						}
-						if (hasMaxQualDate) {
-							n.setAttribute("hasResults", "Y");
-						} else if (seqPrepByCore.equals("Y")) {
-							n.setAttribute("status", "not yet performed");
-							n.setAttribute("hasResults", "N");
-						} else {
-							n.setAttribute("status", "in progress");
-							n.setAttribute("hasResults", "N");
-						}
-					} else if (isSolexaRequest) {
-						n.setAttribute("hasResults", "Y");
-						n.setAttribute("status", "");
-					} else {
-						if (!n.getAttributeValue("extractionDate").equals("")) {
-							n.setAttribute("hasResults", "Y");
-						} else if (extractionBypassed.equals("Y")) {
-							n.setAttribute("status", "bypassed scan/fe");
-							n.setAttribute("hasResults", "Y");
-						} else if (extractionFailed.equals("Y")) {
-							n.setAttribute("status", "failed scan/fe");
-							n.setAttribute("hasResults", "N");
-						} else if (n.getAttributeValue("hybFailed").equals("Y")) {
-							n.setAttribute("status", "failed hyb");
-							n.setAttribute("hasResults", "N");
-						} else if (sample1QualFailed.equals("Y") || sample2QualFailed.equals("Y")) {
-							n.setAttribute("status", "failed QC");
-							n.setAttribute("hasResults", "N");
-						} else if (labeledSample1LabelingFailed.equals("Y") || labeledSample2LabelingFailed.equals("Y")) {
-							n.setAttribute("status", "failed labeling");
-							n.setAttribute("hasResults", "N");
-						} else {
-							n.setAttribute("status", "in progress");
-							n.setAttribute("hasResults", "N");
-						}
-						String sampleInfo = n.getAttributeValue("nameSample1");
-						if (!n.getAttributeValue("nameSample2").equals("")) {
-							if (sampleInfo.length() > 0) {
-								sampleInfo += ", ";
-							}
-							sampleInfo += n.getAttributeValue("nameSample2");
-						}
-						n.setAttribute("info", sampleInfo);
-					}
-
-					requestNode.addContent(n);
-
-					addExpandedFileNodes(sess, serverName, baseDirFlowCell, requestNode, n, requestNumber, key, codeRequestCategory, dh, false);
-				}
 
 				// Add directories for flow cells
 				if (isSolexaRequest) {
@@ -506,8 +380,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
 
 							requestNode.addContent(n1);
 
-							addExpandedFileNodes(sess, serverName, baseDirFlowCell, requestNode, n1, fcFolder.getRequestNumber(), fcKey, fcCodeRequestCategory,
-									dh, true);
+							addExpandedFileNodes(sess, serverName, baseDirFlowCell, requestNode, n1, fcFolder.getRequestNumber(), fcKey, fcCodeRequestCategory, dh, true);
 						}
 						// We only want to show the list of flow cells once
 						// per request.
@@ -780,7 +653,12 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
 				}
 
 				// bypass directories and soft links.
-				if (f1.isDirectory()) { // || Util.isSymlink(f1)) {
+//				if (f1.isDirectory()) { // || Util.isSymlink(f1)) {
+//					continue;
+//				}
+
+
+				if(includeUploadStagingDir.equals("N") && f1.getName().equals(Constants.UPLOAD_STAGING_DIR)){
 					continue;
 				}
 
@@ -797,9 +675,13 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
 				fdNode.setAttribute("state", "unchecked");
 				fdNode.setAttribute("canDelete", "Y");
 				fdNode.setAttribute("canRename", "Y");
-				fdNode.setAttribute("linkedSampleNumber",
-						getLinkedSampleNumber(sess, fileName.substring(fileName.indexOf(Request.getBaseRequestNumber(requestNumber)))));
+				fdNode.setAttribute("linkedSampleNumber", getLinkedSampleNumber(sess, fileName.substring(fileName.indexOf(Request.getBaseRequestNumber(requestNumber)))));
 				fdNode.setAttribute("viewURL", fdesc.getViewURL(viewType));
+
+				if(f1.isDirectory()){
+					fdNode.setAttribute("type", "dir");
+					recurseAddFiles(fdNode, f1, requestNumber);
+				}
 
 				requestNode.addContent(fdNode);
 				requestNode.setAttribute("isEmpty", "N");
@@ -808,6 +690,41 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
 
 		}
 
+	}
+
+	private void recurseAddFiles(Element fdNode, File f1, String requestNumber) throws Exception{
+		String files[] = f1.list();
+		String fullPath = f1.getAbsolutePath() + File.separator;
+
+		//don't include empty directories
+		if(f1.list() == null || f1.list().length == 0){
+			return;
+		}
+
+		//don't include upload staging dir if it wasn't requested
+		if(includeUploadStagingDir.equals("N") && f1.getName().equals(Constants.UPLOAD_STAGING_DIR)){
+			return;
+		}
+
+		for(int i = 0; i < files.length; i++){
+			File f = new File(fullPath + files[i]);
+			FileDescriptor fd = new FileDescriptor(requestNumber, f.getName(), f, f.getName());
+			fd.excludeMethodFromXML("getChildren");
+			Element fileNode = fd.toXMLDocument(null, fd.DATE_OUTPUT_ALTIO).getRootElement();
+			fileNode.setAttribute("isSelected", "N");
+			fileNode.setAttribute("state", "unchecked");
+			fileNode.setAttribute("canDelete", "Y");
+			fileNode.setAttribute("canRename", "Y");
+			//fdNode.setAttribute("linkedSampleNumber", getLinkedSampleNumber(sess, fileName.substring(fileName.indexOf(Request.getBaseRequestNumber(requestNumber)))));
+			fileNode.setAttribute("viewURL", fd.getViewURL(viewType));
+			if(f.isDirectory()) {
+				fileNode.setAttribute("type", "dir");
+				recurseAddFiles(fileNode, f, requestNumber);
+			}
+
+			fdNode.addContent(fileNode);
+
+		}
 	}
 
 	public static class FolderComparator implements Comparator, Serializable {
