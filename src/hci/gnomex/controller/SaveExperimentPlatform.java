@@ -997,7 +997,8 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
     chip.setConcentrationRange(chipNode.getAttributeValue("concentrationRange"));
     chip.setMaxSampleBufferStrength(chipNode.getAttributeValue("maxSampleBufferStrength"));
     chip.setProtocolDescription(chipNode.getAttributeValue("protocolDescription"));
-    chip.setSortOrder(!chipNode.getAttributeValue("sortOrder").trim().equals("") ? new Integer(chipNode.getAttributeValue("sortOrder")) : null);
+    if (chipNode.getAttributeValue("sortOrder") != null)
+      chip.setSortOrder(!chipNode.getAttributeValue("sortOrder").trim().equals("") ? new Integer(chipNode.getAttributeValue("sortOrder")) : null);
     if (chipNode.getAttributeValue("sampleWellsPerChip") != null) {
       try {
         Integer wells = Integer.parseInt(chipNode.getAttributeValue("sampleWellsPerChip"));
