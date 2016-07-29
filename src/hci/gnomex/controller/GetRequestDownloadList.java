@@ -680,7 +680,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
 
 				if(f1.isDirectory()){
 					fdNode.setAttribute("type", "dir");
-					recurseAddFiles(fdNode, f1, requestNumber);
+					recurseAddFiles(fdNode, f1, requestNumber, "");
 				}
 
 				requestNode.addContent(fdNode);
@@ -692,7 +692,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
 
 	}
 
-	private void recurseAddFiles(Element fdNode, File f1, String requestNumber) throws Exception{
+	private void recurseAddFiles(Element fdNode, File f1, String requestNumber, String directoryName) throws Exception{
 		String files[] = f1.list();
 		String fullPath = f1.getAbsolutePath() + File.separator;
 
@@ -706,9 +706,19 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
 			return;
 		}
 
+		if(f1.isDirectory()){
+			if(!directoryName.equals("")){
+				directoryName += "/" + f1.getName();
+			} else{
+				directoryName = f1.getName();
+			}
+
+		}
+
 		for(int i = 0; i < files.length; i++){
 			File f = new File(fullPath + files[i]);
 			FileDescriptor fd = new FileDescriptor(requestNumber, f.getName(), f, f.getName());
+			fd.setDirectoryName(directoryName);
 			fd.excludeMethodFromXML("getChildren");
 			Element fileNode = fd.toXMLDocument(null, fd.DATE_OUTPUT_ALTIO).getRootElement();
 			fileNode.setAttribute("isSelected", "N");
@@ -719,7 +729,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
 			fileNode.setAttribute("viewURL", fd.getViewURL(viewType));
 			if(f.isDirectory()) {
 				fileNode.setAttribute("type", "dir");
-				recurseAddFiles(fileNode, f, requestNumber);
+				recurseAddFiles(fileNode, f, requestNumber, directoryName);
 			}
 
 			fdNode.addContent(fileNode);
