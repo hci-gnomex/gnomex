@@ -1550,7 +1550,6 @@
 			public function refreshDownloadList():void {
 
 				if (theTab.selectedChild == filesView) {
-					theTab.selectedChild = infoTab;
 					var params:Object = new Object();
 					params.idRequest = this.selectedExperiment.@idRequest;
 					if (parentApplication.needToLoad(params) ) {				
