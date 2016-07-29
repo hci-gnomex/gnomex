@@ -415,7 +415,6 @@
 				this.addNonStandardSampleColumns();
 
 				if (theTab.selectedChild == this.filesView) {
-					this.theTab.selectedChild = this.infoTab;
 					downloadExpandedFilesButtonView.visible = true;
 					downloadExpandedFilesButtonView.includeInLayout = true;
 				} else {
