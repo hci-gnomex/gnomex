@@ -3,6 +3,10 @@
  */
 package hci.gnomex.httpclient;
 
+import hci.gnomex.utility.BatchMailer;
+import hci.gnomex.utility.MailUtil;
+import hci.gnomex.utility.MailUtilHelper;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -13,6 +17,7 @@ import java.net.URLEncoder;
 import java.nio.channels.FileChannel;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Properties;
 import java.util.TreeSet;
 
 /**
@@ -33,7 +38,9 @@ public class SaveChromatogramsFromFiles extends HttpClientBase {
 	private String currentFD;
 	private StringBuffer errors;
 	private int numerrors;
-	private boolean noemail;
+	private boolean noemail = false;
+	private String toAddress = "Tim.Maness@hci.utah.edu"; // "LabTech_Group@genetics.utah.edu";
+	private String fromAddress = "GNomExSupport@hci.utah.edu";
 
 	/**
 	 * @param args
@@ -121,9 +128,8 @@ public class SaveChromatogramsFromFiles extends HttpClientBase {
 
 		numerrors = 0;
 		errors = new StringBuffer(32768);
-		noemail = false;
 
-		errors.append("The following files did not parse and were deleted:\n\n");
+		errors.append("The following Chromatogram files did not parse and were deleted:\n\n");
 		errors.append("File\tDirectory\tAddition Information\n");
 
 		try {
@@ -174,7 +180,7 @@ public class SaveChromatogramsFromFiles extends HttpClientBase {
 
 				// send an email?
 				if (!noemail) {
-
+					sendErrorReport(toAddress, fromAddress);
 				}
 			}
 
@@ -405,4 +411,19 @@ public class SaveChromatogramsFromFiles extends HttpClientBase {
 		}
 		return success;
 	}
+
+	private void sendErrorReport(String toAddress, String fromAddress) {
+		try {
+			java.net.InetAddress localMachine = java.net.InetAddress.getLocalHost();
+			Properties mailProps = new BatchMailer().getMailProperties();
+
+			MailUtilHelper helper = new MailUtilHelper(mailProps, toAddress, null, null, fromAddress, "Register Files Error [Server: "
+					+ localMachine.getHostName() + "]", errors.toString(), null, false, null, server); // DictionaryHelper.getInstance(sess), serverName);
+			MailUtil.validateAndSendEmail(helper);
+
+		} catch (Exception e) {
+			System.err.println("SaveChromatographFiles unable to send error report.   " + e.toString());
+		}
+	}
+
 }

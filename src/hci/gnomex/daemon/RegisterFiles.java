@@ -14,7 +14,6 @@ import hci.gnomex.model.ExperimentFile;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.SampleExperimentFile;
-import hci.gnomex.utility.FileDescriptor;
 import hci.gnomex.utility.BatchDataSource;
 import hci.gnomex.utility.BatchMailer;
 import hci.gnomex.utility.DictionaryHelper;
@@ -270,8 +269,9 @@ public class RegisterFiles extends TimerTask {
 
 	private void initialize() throws Exception {
 		PropertyDictionaryHelper ph = PropertyDictionaryHelper.getInstance(sess);
-		baseFlowCellDir = ph.getDirectory(serverName, null, ph.getProperty(PropertyDictionaryHelper.PROPERTY_FLOWCELL_DIRECTORY));
-		baseAnalysisDir = ph.getDirectory(serverName, null, ph.getProperty(PropertyDictionaryHelper.PROPERTY_ANALYSIS_DIRECTORY));
+		baseFlowCellDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, null, PropertyDictionaryHelper.PROPERTY_FLOWCELL_DIRECTORY);
+		baseAnalysisDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, null, PropertyDictionaryHelper.PROPERTY_ANALYSIS_DIRECTORY);
+
 		flowCellDirFlag = ph.getProperty(PropertyDictionary.FLOWCELL_DIRECTORY_FLAG);
 
 		gnomexSupportEmail = ph.getQualifiedProperty(PropertyDictionary.GNOMEX_SUPPORT_EMAIL, serverName);
@@ -360,7 +360,8 @@ public class RegisterFiles extends TimerTask {
 			// Now compare to the experiment files already registered in the db
 			TreeSet newExperimentFiles = new TreeSet(new ExperimentFileComparator());
 			if (request.getFiles() != null) {
-				String baseExperimentDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, request.getIdCoreFacility(), PropertyDictionaryHelper.PROPERTY_EXPERIMENT_DIRECTORY);
+				String baseExperimentDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, request.getIdCoreFacility(),
+						PropertyDictionaryHelper.PROPERTY_EXPERIMENT_DIRECTORY);
 				String directoryName = baseExperimentDir + Request.getCreateYear(request.getCreateDate()) + "/"
 						+ Request.getBaseRequestNumber(request.getNumber());
 				directoryName.replace("\\", "/");
@@ -754,7 +755,8 @@ public class RegisterFiles extends TimerTask {
 		HashMap fileMap = new HashMap(5000);
 		String baseRequestNumber = Request.getBaseRequestNumber(requestNumber);
 
-		String baseExperimentDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, idCoreFacility, PropertyDictionaryHelper.PROPERTY_EXPERIMENT_DIRECTORY);
+		String baseExperimentDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, idCoreFacility,
+				PropertyDictionaryHelper.PROPERTY_EXPERIMENT_DIRECTORY);
 		String directoryName = baseExperimentDir + Request.getCreateYear(createDate) + "/" + baseRequestNumber;
 		directoryName.replace("\\", "/");
 
