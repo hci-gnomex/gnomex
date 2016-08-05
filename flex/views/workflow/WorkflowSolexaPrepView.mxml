@@ -26,6 +26,20 @@
         <codeStepNext>{codeStepNext}</codeStepNext>
     </mx:request>
     </mx:HTTPService >
+
+	<mx:HTTPService
+			id="getCoreAdmins"
+			url="GetCoreAdmins.gx"
+			resultFormat="e4x"
+			destination="getCoreAdmins"
+			showBusyCursor="true"
+			result="onGetCoreAdmins(event)"
+			fault="parentApplication.onFailHttpRequest('Unable to get core admins', event)"
+			useProxy="false">
+		<mx:request>
+			<idCoreFacility>{parentApplication.idCoreFacilityHTG}</idCoreFacility>
+		</mx:request>
+	</mx:HTTPService >
     
     <mx:HTTPService 
     id="saveWorkItem" 
@@ -43,6 +57,8 @@
     
     <mx:XMLListCollection id="workList" source="{getWorkList.lastResult.WorkItem}"/>
 
+    <mx:XMLListCollection id="coreAdmins" source="{getCoreAdmins.lastResult.Admin}"/>
+
     <mx:Sort id="barcodeSort"  compareFunction="sortBarcodes"/>
     <mx:XMLListCollection id="barcodes" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.OligoBarcode').DictionaryEntry}" sort="{barcodeSort}"/>
 
@@ -50,447 +66,488 @@
 
     <mx:Script>
         <![CDATA[
-			import hci.flex.util.DictionaryManager;
-			
-			import mx.collections.ArrayCollection;
-			import mx.collections.XMLListCollection;
-			import mx.controls.Alert;
-			import mx.events.CloseEvent;
-			import mx.events.CollectionEvent;
-			import mx.events.CollectionEventKind;
-			import mx.events.ValidationResultEvent;
-			import mx.rpc.events.FaultEvent;
-			import mx.rpc.events.ResultEvent;
-			import mx.validators.NumberValidator;
-			
-			import views.renderers.ComboBox;
-			import views.util.DictionaryHelper;
+		import hci.flex.controls.ComboBox;
+		import hci.flex.util.DictionaryManager;
 
-		[Bindable]
+        import mx.collections.ArrayCollection;
+        import mx.collections.XMLListCollection;
+        import mx.controls.Alert;
+        import mx.events.CloseEvent;
+        import mx.events.CollectionEvent;
+        import mx.events.CollectionEventKind;
+        import mx.events.ValidationResultEvent;
+        import mx.rpc.events.FaultEvent;
+        import mx.rpc.events.ResultEvent;
+        import mx.validators.NumberValidator;
+
+        import views.renderers.ComboBox;
+        import views.util.DictionaryHelper;
+
+        [Bindable]
         public var codeStepNext:String;
-                
+
         [Bindable]
         private var requestNumberCount:String;
-        
+
         [Bindable]
         private var inputNumber:String;
-        
+
         [Bindable]
         private var dirtyWorkItems:XMLListCollection;
-        
+
         [Bindable]
         private var requestNumbers:ArrayCollection;
-			
-		[Bindable]
-		private var requestCategories:XML = <Categories><RequestCategory label="HiSeq, MiSeq combined" codeStepNext="ALLPREP"/><RequestCategory label="Illumina HiSeq" codeStepNext="HSEQPREP"/><RequestCategory label="Illumina MiSeq" codeStepNext="MISEQPREP"/></Categories>;
-			
+
+        [Bindable]
+        private var requestCategories:XML = <Categories>
+            <RequestCategory label="HiSeq, MiSeq combined" codeStepNext="ALLPREP"/>
+            <RequestCategory label="Illumina HiSeq" codeStepNext="HSEQPREP"/>
+            <RequestCategory label="Illumina MiSeq" codeStepNext="MISEQPREP"/>
+        </Categories>;
+
         private function init():void {
-        	barcodes.refresh();
-			//select the index of the category combo based off of what lib prep view we are in (hiseq or miseq)
-			for(var i: int = 0; i < categoryCombo.dataProvider.length; i++){
-				if(categoryCombo.dataProvider[i].@codeStepNext == parentDocument.codeStepNext){
-					categoryCombo.selectedIndex = i;
-					break;
-				}
-			}
+            barcodes.refresh();
+            getCoreAdmins.send();
+            //select the index of the category combo based off of what lib prep view we are in (hiseq or miseq)
+            for (var i:int = 0; i < categoryCombo.dataProvider.length; i++) {
+                if (categoryCombo.dataProvider[i].@codeStepNext == parentDocument.codeStepNext) {
+                    categoryCombo.selectedIndex = i;
+                    break;
+                }
+            }
         }
 
-		public function titleInit():void {
-			if(codeStepNext == 'SEQPREP') {
-				titleLabel.text = 'Illumina GAIIx Library Prep';
-			} else if (codeStepNext == 'HSEQPREP') {
-				titleLabel.text = 'Illumina HiSeq Library Prep';
-			} else if (codeStepNext == 'MISEQPREP') {
-				titleLabel.text = 'Illumina MiSeq Library Prep';
-			}
-			
-		}  
-			
+        public function titleInit():void {
+            if (codeStepNext == 'SEQPREP') {
+                titleLabel.text = 'Illumina GAIIx Library Prep';
+            } else if (codeStepNext == 'HSEQPREP') {
+                titleLabel.text = 'Illumina HiSeq Library Prep';
+            } else if (codeStepNext == 'MISEQPREP') {
+                titleLabel.text = 'Illumina MiSeq Library Prep';
+            }
+
+        }
+
         private function refreshWorkList():void {
-        	dirty.resetDirty();
-        	getWorkList.send();
+            dirty.resetDirty();
+            getWorkList.send();
         }
- 
-		private function underlyingWorkItemDataChange(event:CollectionEvent):void {
-			if (event.kind == CollectionEventKind.RESET || event.kind == CollectionEventKind.REFRESH) {
-				// ignore refresh and resets to work list
-			} else {
-				dirty.setDirty();
-				this.workList.filterFunction = null;
-			}
-		}
-		private function getGridRowNumber(item:Object,col:int):String
-        {
-        	if (workList!= null) {
-	           var x:int = workList.getItemIndex(item) + 1;
-	           return String(x);     		
-        	} else {
-        		return "";
-        	}
-        }
-                
-        public function onEdit():void {
-        	workList.filterFunction = null;
-	    	workListGrid.selectedItem.@isDirty = "Y";
-        }
-        
-        private function validate():Boolean {
-        	var message:String = "";
-        	var dirtyItems:XMLList = getWorkList.lastResult.WorkItem.(@isDirty == 'Y');        	
-        	
-    		var nv:NumberValidator = new NumberValidator();
-	    	nv.domain = "real";
-	    	nv.minValue = "0";
-	    	nv.maxValue = "99999";
-	    	nv.precision = 3;
-	    	nv.allowNegative = false;
-	    	nv.exceedsMaxError = "exceeds max.";
-	    	nv.invalidCharError = "contains invalid characters.";
-	    	nv.negativeError = "cannot be negative.";
-	    	nv.precisionError = "has too many digits beyond the decimal point";
-	    	nv.requiredFieldError = "is required.";
-        	
-        	var item:Object = null;
-        	var vr:ValidationResultEvent  = null;
 
-	    	
-        	if (message != "") {
-	    		Alert.show(message);
-	    		return false;
-	    	} else {
-	    		return true;
-	    	}
-        	
-	   		return true;
+        private function underlyingWorkItemDataChange(event:CollectionEvent):void {
+            if (event.kind == CollectionEventKind.RESET || event.kind == CollectionEventKind.REFRESH) {
+                // ignore refresh and resets to work list
+            } else {
+                dirty.setDirty();
+                this.workList.filterFunction = null;
+            }
         }
-        
+
+        private function getGridRowNumber(item:Object, col:int):String {
+            if (workList != null) {
+                var x:int = workList.getItemIndex(item) + 1;
+                return String(x);
+            } else {
+                return "";
+            }
+        }
+
+        public function onEdit():void {
+            workList.filterFunction = null;
+            workListGrid.selectedItem.@isDirty = "Y";
+        }
+
+        private function validate():Boolean {
+            var message:String = "";
+            var dirtyItems:XMLList = getWorkList.lastResult.WorkItem.(@isDirty == 'Y');
+
+            var nv:NumberValidator = new NumberValidator();
+            nv.domain = "real";
+            nv.minValue = "0";
+            nv.maxValue = "99999";
+            nv.precision = 3;
+            nv.allowNegative = false;
+            nv.exceedsMaxError = "exceeds max.";
+            nv.invalidCharError = "contains invalid characters.";
+            nv.negativeError = "cannot be negative.";
+            nv.precisionError = "has too many digits beyond the decimal point";
+            nv.requiredFieldError = "is required.";
+
+            var item:Object = null;
+            var vr:ValidationResultEvent = null;
+
+
+            if (message != "") {
+                Alert.show(message);
+                return false;
+            } else {
+                return true;
+            }
+
+            return true;
+        }
+
         private function save():void {
-        	if (validate() == false) {
-        		return;
-        	}
-			
-        	var dirtyItems:XMLList = getWorkList.lastResult.WorkItem.(@isDirty == 'Y');        	
-        	dirtyWorkItems = new XMLListCollection(dirtyItems);
-        	saveWorkItem.send();
+            if (validate() == false) {
+                return;
+            }
+
+            var dirtyItems:XMLList = getWorkList.lastResult.WorkItem.(@isDirty == 'Y');
+            dirtyWorkItems = new XMLListCollection(dirtyItems);
+            saveWorkItem.send();
         }
-			
-		private function areAandBTagsUnique():void{
-			var dirtyItems:XMLList = getWorkList.lastResult.WorkItem.(@isDirty == 'Y');        	
-			dirtyWorkItems = new XMLListCollection(dirtyItems);
-			var sort:Sort = new Sort();
-			sort.compareFunction = this.sortSampleNumber;
-			dirtyWorkItems.sort = sort;
-			dirtyWorkItems.refresh();
-			var requestsToCheck:Object = new Object();
-			for each(var item:Object in dirtyWorkItems){
-				requestsToCheck[item.@idRequest] = item;
+
+        private function areAandBTagsUnique():void {
+            var dirtyItems:XMLList = getWorkList.lastResult.WorkItem.(@isDirty == 'Y');
+            dirtyWorkItems = new XMLListCollection(dirtyItems);
+            var sort:Sort = new Sort();
+            sort.compareFunction = this.sortSampleNumber;
+            dirtyWorkItems.sort = sort;
+            dirtyWorkItems.refresh();
+            var requestsToCheck:Object = new Object();
+            for each(var item:Object in dirtyWorkItems) {
+                requestsToCheck[item.@idRequest] = item;
+            }
+            var areUnique:Boolean = true;
+            var idRequest:String = "";
+            var requestNumber:String = "";
+            var multiplexGroupNumber:String = "";
+            var barcodes:ArrayCollection = new ArrayCollection();
+
+            for (var idRequestToCheck:String in requestsToCheck) {
+                if (!areUnique) {
+                    break;
+                }
+                idRequest = idRequestToCheck;
+                requestNumber = requestsToCheck[idRequestToCheck].@requestNumber;
+                multiplexGroupNumber = requestsToCheck[idRequestToCheck].@multiplexGroupNumber;
+                barcodes = new ArrayCollection();
+                for each(var workItem:Object in workList) {
+                    if ((idRequest == workItem.@idRequest && multiplexGroupNumber == workItem.@multiplexGroupNumber)) {
+                        addBarcodes(workItem, barcodes);
+                    } else {
+                        if (!checkBasePairs(barcodes)) {
+                            areUnique = false;
+                            break;
+                        }
+                        if (idRequest == workItem.@idRequest && multiplexGroupNumber != workItem.@multiplexGroupNumber) {
+                            barcodes = new ArrayCollection();
+                            multiplexGroupNumber = workItem.@multiplexGroupNumber;
+                            addBarcodes(workItem, barcodes);
+                        }
+                    }
+                }
+            }
+            // do check for last request...
+            if (!checkBasePairs(barcodes)) {
+                areUnique = false;
+            }
+
+            if (areUnique == false) {
+                Alert.show("Request " + requestNumber +
+                        " has samples in the same multiplex group whose barcodes do not differ by at least 3 base pairs. Continue?",
+                        "Warning", Alert.OK | Alert.CANCEL, null, areAandBTagsUniqueCloseEvent, null, Alert.CANCEL);
+            } else {
+                save();
+            }
+        }
+
+        //Helper function for areAandBTagsUnique()
+        private function addBarcodes(workItem:Object, barcodes:ArrayCollection):void {
+            var barcodeA:String = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.OligoBarcode', workItem.@idOligoBarcode).@barcodeSequence;
+            var barcodeB:String = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.OligoBarcode', workItem.@idOligoBarcodeB).@barcodeSequence;
+            var barcodeSequence:String = barcodeA + barcodeB;
+            if (barcodeSequence != null && barcodeSequence != "") {
+                barcodes.addItem(barcodeSequence);
+            }
+
+        }
+
+        private function checkBasePairs(barcodes:ArrayCollection):Boolean {
+            for (var i:int = 0; i < barcodes.length; i++) {
+                var sequenceOne:Array = String(barcodes.getItemAt(i)).split("");
+                for (var j:int = i + 1; j < barcodes.length; j++) {
+                    var sequenceTwo:Array = String(barcodes.getItemAt(j)).split("");
+                    if (!atLeastThreeUnique(sequenceOne, sequenceTwo)) {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+
+        private function atLeastThreeUnique(sequenceOne:Array, sequenceTwo:Array):Boolean {
+            var uniqueBaseCount:int = 0;
+            for (var i:int = 0; i < sequenceOne.length; i++) {
+                if (sequenceOne[i] != sequenceTwo[i]) {
+                    uniqueBaseCount++;
+                }
+            }
+
+            if (uniqueBaseCount >= 3) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        private function areAandBTagsUniqueCloseEvent(event:CloseEvent):void {
+            if (event.detail == Alert.OK) {
+                save();
+            } else {
+                return;
+            }
+
+        }
+
+        private function onGetWorkList(event:ResultEvent):void {
+            if (event.result.name() == "WorkItemList") {
+                var sort:Sort = new Sort();
+                sort.compareFunction = this.sortSampleNumber;
+                workList.sort = sort;
+                requestNumberCombo.selectedIndex = 0;
+                workList.refresh();
+                refreshRequestNumbers();
+                workList.addEventListener(CollectionEvent.COLLECTION_CHANGE, this.underlyingWorkItemDataChange);
+            } else {
+                Alert.show(event.result..ERROR.@message.toString(), "Error getting work list");
+            }
+        }
+
+        private function onGetCoreAdmins(event:ResultEvent):void{
+            if(getCoreAdmins.lastResult.name() != "AdminList"){
+                Alert.show(event.result..ERROR.@message.toString(), "Error getting core admins");
+            }
+        }
+
+        private function onSaveWorkItem(event:ResultEvent):void {
+            if (saveWorkItem.lastResult.name() == "WorkItemList" || saveWorkItem.lastResult.name() == "SUCCESS") {
+                dirty.resetDirty();
+                this.getWorkList.send();
+            } else {
+                Alert.show(saveWorkItem.lastResult..ACTMESSAGE.@TEXT);
+            }
+        }
+
+
+        private function refreshRequestNumbers():void {
+            requestNumbers = new ArrayCollection();
+
+            var blankItem:Object = new Object();
+            blankItem.data = "";
+            blankItem.label = "";
+            requestNumbers.addItem(blankItem);
+
+            for (var x:Number = 0; x < workList.length; x++) {
+                var item:Object = workList.getItemAt(x, 0);
+
+                var found:Boolean = false;
+                for (var i:Number = 0; i < requestNumbers.length; i++) {
+                    if (requestNumbers.getItemAt(i).label == item.@requestNumber) {
+                        found = true;
+                        break;
+                    }
+                }
+                if (found == false) {
+                    var newItem:Object = new Object();
+                    newItem.data = item.@requestNumber;
+                    newItem.label = item.@requestNumber;
+                    requestNumbers.addItem(newItem);
+                }
+            }
+            requestNumberCount = (requestNumbers.length - 1) + " requests in work list.";
+        }
+
+        private function filterWorkList(item:Object):Boolean {
+            var keep:Boolean = true;
+            if (requestNumberCombo.selectedItem != null && requestNumberCombo.selectedItem.label != "") {
+                keep = false;
+                if (item.@requestNumber == requestNumberCombo.selectedItem.label) {
+                    keep = true;
+                }
+            }
+            return keep;
+        }
+
+
+        private function getSeqLibProtocol(item:Object, col:DataGridColumn):String {
+            return parentApplication.dictionaryManager.getEntryDisplay("hci.gnomex.model.SeqLibProtocol", item.@idSeqLibProtocol);
+        }
+
+        public function getOligoBarcodeName(item:Object, col:DataGridColumn):String {
+            if (item.@idOligoBarcode != '') {
+                return parentApplication.dictionaryManager.getEntryDisplay("hci.gnomex.model.OligoBarcode", item.@idOligoBarcode);
+            } else {
+                return item.@barcodeSequence;
+            }
+        }
+
+        public function getOligoBarcodeNameB(item:Object, col:DataGridColumn):String {
+            if (item.@idOligoBarcodeB != '') {
+                return parentApplication.dictionaryManager.getEntryDisplay("hci.gnomex.model.OligoBarcode", item.@idOligoBarcodeB);
+            } else {
+                return item.@barcodeSequenceB;
+            }
+        }
+
+        public function isDeleteKeyA(event:KeyboardEvent, item:Object):void {
+            if (event.keyCode == Keyboard.DELETE || event.keyCode == Keyboard.BACKSPACE) {
+                item.@idOligoBarcode = "";
+                item.@barcodeSequence = "";
+            }
+        }
+
+        public function isDeleteKeyB(event:KeyboardEvent, item:Object):void {
+            if (event.keyCode == Keyboard.DELETE || event.keyCode == Keyboard.BACKSPACE) {
+                item.@idOligoBarcodeB = "";
+                item.@barcodeSequenceB = "";
+            }
+        }
+
+
+        private function getSampleType(item:Object, col:DataGridColumn):String {
+            return parentApplication.dictionaryManager.getEntryDisplay("hci.gnomex.model.SampleType", item.@idSampleType);
+        }
+
+        private function sortBarcodes(obj1:Object, obj2:Object, fields:Array = null):int {
+            if (obj1 == null && obj2 == null) {
+                return 0;
+            } else if (obj1 == null) {
+                return 1;
+            } else if (obj2 == null) {
+                return -1;
+            } else {
+                var scheme1:String = obj1.@oligoBarcodeSchemeDisplay;
+                var scheme2:String = obj2.@oligoBarcodeSchemeDisplay;
+
+                if (scheme1 < scheme2) {
+                    return -1;
+                } else if (scheme1 > scheme2) {
+                    return 1;
+                } else {
+                    var order1:int = obj1.@sortOrder;
+                    var order2:int = obj2.@sortOrder;
+
+                    if (obj1.@value == '') {
+                        return -1;
+                    } else if (obj2.@value == '') {
+                        return 1;
+                    } else {
+                        if (order1 < order2) {
+                            return -1;
+                        } else if (order1 > order2) {
+                            return 1;
+                        } else {
+                            return 0;
+                        }
+                    }
+
+                }
+
+            }
+        }
+
+        private function sortSampleNumber(item1:Object, item2:Object, fields:Array = null):int {
+            var n1:String = item1.@sampleNumber;
+            var n2:String = item2.@sampleNumber;
+
+            var parts:Array = n1.split("X");
+            var num1:String = parts[0];
+            var rem1:String = parts[1];
+            var firstChar1:String = num1.substr(0, 1);
+            if ("0123456789".indexOf(firstChar1) >= 0) {
+                firstChar1 = "0";
+            } else {
+                num1 = num1.substr(1);
+            }
+
+            parts = n2.split("X");
+            var num2:String = parts[0];
+            var rem2:String = parts[1];
+            var firstChar2:String = num2.substr(0, 1);
+            if ("0123456789".indexOf(firstChar2) >= 0) {
+                firstChar2 = "0";
+            } else {
+                num2 = num2.substr(1);
+            }
+
+            var comp:int = stringCompare(firstChar1, firstChar2);
+
+            if (comp == 0) {
+                var number1:Number = Number(num1);
+                var number2:Number = Number(num2);
+                if (number1 > number2) {
+                    comp = 1;
+                } else if (number2 > number1) {
+                    comp = -1;
+                }
+            }
+
+            if (comp == 0) {
+                var remNum1:Number = Number(rem1);
+                var remNum2:Number = Number(rem2);
+                if (remNum1 > remNum2) {
+                    comp = 1
+                } else if (remNum2 > remNum1) {
+                    comp = -1;
+                }
+            }
+
+            return comp;
+        }
+
+        private static function stringCompare(s1:String, s2:String):int {
+            if (s1 > s2) {
+                return 1;
+            } else if (s2 > s1) {
+                return -1;
+            } else {
+                return 0;
+            }
+        }
+
+        private function filterSeqLibProtocols(item:Object):Boolean {
+            if (item.@value == "") {
+                return true;
+            }
+            if (item.@codeApplicationType != 'Illumina') {
+                return false;
+            }
+            if (!parentApplication.isCoreFacilityIManage(item.@idCoreFacility)) {
+                return false;
+            }
+            return true;
+        }
+
+        public function getLoggedInAdmin():int{
+            for(var i:int = 0; i < coreAdmins.length; i++){
+                if(coreAdmins.getItemAt(i).@idAppUser == parentApplication.getIdAppUser()){
+                    return i;
+                }
+            }
+
+            return -1;
+        }
+
+		private function getDisplayName(item:Object, col:DataGridColumn):String {
+			if(item.@libPrepPerformedByID == ""){
+				return "";
 			}
-			var areUnique:Boolean = true;
-			var idRequest:String = "";
-			var requestNumber:String = "";
-			var multiplexGroupNumber:String = "";
-			var barcodes:ArrayCollection = new ArrayCollection();
-			
-			for(var idRequestToCheck:String in requestsToCheck){
-				if(!areUnique){
-					break;
+			for(var i:int = 0; i < coreAdmins.length; i++){
+				if(coreAdmins.getItemAt(i).@idAppUser == item.@libPrepPerformedByID){
+					return coreAdmins.getItemAt(i).@display;
 				}
-				idRequest = idRequestToCheck;
-				requestNumber = requestsToCheck[idRequestToCheck].@requestNumber;
-				multiplexGroupNumber = requestsToCheck[idRequestToCheck].@multiplexGroupNumber;
-				barcodes = new ArrayCollection();
-				for each(var workItem:Object in workList){
-					if((idRequest == workItem.@idRequest && multiplexGroupNumber == workItem.@multiplexGroupNumber)){
-						addBarcodes(workItem, barcodes);
-					} else{
-						if(!checkBasePairs(barcodes)){
-							areUnique = false;
-							break;
-						}
-						if(idRequest == workItem.@idRequest && multiplexGroupNumber != workItem.@multiplexGroupNumber){
-							barcodes = new ArrayCollection();
-							multiplexGroupNumber = workItem.@multiplexGroupNumber;
-							addBarcodes(workItem, barcodes);
-						}
-					}
-				}
 			}
-			// do check for last request...
-			if(!checkBasePairs(barcodes)){
-				areUnique = false;
-			}
-			
-			if(areUnique == false){
-				Alert.show("Request " + requestNumber + 
-							" has samples in the same multiplex group whose barcodes do not differ by at least 3 base pairs. Continue?", 
-							"Warning", Alert.OK | Alert.CANCEL, null, areAandBTagsUniqueCloseEvent, null, Alert.CANCEL);
-			} else{
-				save();
-			}
+
+			return parentApplication.dictionaryManager.getEntryDisplay('hci.gnomex.model.AppUserLite', item.@libPrepPerformedByID);
 		}
-			
-		//Helper function for areAandBTagsUnique()	
-		private function addBarcodes(workItem:Object, barcodes:ArrayCollection):void{
-			var barcodeA:String = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.OligoBarcode', workItem.@idOligoBarcode).@barcodeSequence;
-			var barcodeB:String = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.OligoBarcode', workItem.@idOligoBarcodeB).@barcodeSequence;
-			var barcodeSequence:String = barcodeA + barcodeB;
-			if(barcodeSequence != null && barcodeSequence != ""){
-				barcodes.addItem(barcodeSequence);
-			}
-			
-		}
-			
-		private function checkBasePairs(barcodes:ArrayCollection):Boolean{
-			for(var i:int = 0; i < barcodes.length; i++){
-				var sequenceOne:Array = String(barcodes.getItemAt(i)).split("");
-				for(var j:int = i+1; j < barcodes.length; j++){
-					var sequenceTwo:Array = String(barcodes.getItemAt(j)).split("");
-					if(!atLeastThreeUnique(sequenceOne, sequenceTwo)){
-						return false;
-					}
-				}
-			}
-			return true;
-		}
-			
-		private function atLeastThreeUnique(sequenceOne:Array, sequenceTwo:Array):Boolean{
-			var uniqueBaseCount:int = 0;
-			for(var i:int = 0; i < sequenceOne.length; i++){
-				if(sequenceOne[i] != sequenceTwo[i]){
-					uniqueBaseCount++;
-				}
-			}
-			
-			if(uniqueBaseCount >= 3){
+
+		private function isSeqPrepByCore(item:Object, col:DataGridColumn):Boolean{
+			if(item.@seqPrepByCore == "Y"){
 				return true;
 			} else{
 				return false;
 			}
 		}
-		
-		private function areAandBTagsUniqueCloseEvent(event:CloseEvent):void{
-			if(event.detail == Alert.OK){
-				save();
-			} else{
-				return;
-			}
-			
-		}
-        
-        private function onGetWorkList(event:ResultEvent):void {
-        	if (event.result.name() == "WorkItemList") {
-				var sort:Sort = new Sort();
-				sort.compareFunction = this.sortSampleNumber;
-				workList.sort = sort;
-				requestNumberCombo.selectedIndex = 0;
-				workList.refresh();
-    	    	refreshRequestNumbers();
-	        	workList.addEventListener(CollectionEvent.COLLECTION_CHANGE, this.underlyingWorkItemDataChange);
-        	} else {
-        		Alert.show(event.result..ERROR.@message.toString(), "Error getting work list");
-        	}        
-        }
-        
-        private function onSaveWorkItem(event:ResultEvent):void {
-        	if (saveWorkItem.lastResult.name() == "WorkItemList" || saveWorkItem.lastResult.name() == "SUCCESS" ) {
-        		dirty.resetDirty();
-        		this.getWorkList.send();
-        	} else {
-        		Alert.show(saveWorkItem.lastResult..ACTMESSAGE.@TEXT);
-        	}
-        }
-        
-
-        private function refreshRequestNumbers():void {
-        	requestNumbers = new ArrayCollection();
-
-			var blankItem:Object = new Object();
-			blankItem.data = "";
-			blankItem.label = "";
-        	requestNumbers.addItem(blankItem);
-        	
-        	for(var x:Number = 0; x < workList.length; x++) {
-        		var item:Object = workList.getItemAt(x, 0);
-        		
-        		var found:Boolean = false;
-        		for(var i:Number = 0; i < requestNumbers.length; i++) {
-        			if (requestNumbers.getItemAt(i).label == item.@requestNumber) {
-        				found = true;
-        				break;
-        			}
-        		}
-        		if (found == false) {
-	    			var newItem:Object = new Object();
-	    			newItem.data = item.@requestNumber;
-	    			newItem.label = item.@requestNumber;
-        			requestNumbers.addItem(newItem);
-        		}
-        	}
-        	requestNumberCount = (requestNumbers.length - 1) + " requests in work list.";
-        }
-        
-        private function filterWorkList(item:Object):Boolean {
-        	var keep:Boolean = true;
-        	if (requestNumberCombo.selectedItem != null && requestNumberCombo.selectedItem.label != "") {
-        		keep = false;
-        		if (item.@requestNumber == requestNumberCombo.selectedItem.label) {
-        			keep = true;
-        		}
-        	}        	
-        	return keep;
-        } 
-
-           
-		private function getSeqLibProtocol(item:Object,col:DataGridColumn):String
-        {
-        	return parentApplication.dictionaryManager.getEntryDisplay("hci.gnomex.model.SeqLibProtocol", item.@idSeqLibProtocol);
-        }
-		public function getOligoBarcodeName(item:Object,col:DataGridColumn):String
-        {
-        	if (item.@idOligoBarcode != '') {
-	        	return parentApplication.dictionaryManager.getEntryDisplay("hci.gnomex.model.OligoBarcode", item.@idOligoBarcode);    		
-			} else{
-				return item.@barcodeSequence;
-			}
-        }
-		public function getOligoBarcodeNameB(item:Object,col:DataGridColumn):String
-		{
-			if (item.@idOligoBarcodeB != '') {
-				return parentApplication.dictionaryManager.getEntryDisplay("hci.gnomex.model.OligoBarcode", item.@idOligoBarcodeB);
-			} else{
-				return item.@barcodeSequenceB;
-			}
-		}
-			
-		public function isDeleteKeyA(event:KeyboardEvent, item:Object):void{
-			if(event.keyCode == Keyboard.DELETE || event.keyCode == Keyboard.BACKSPACE){
-				item.@idOligoBarcode = "";
-				item.@barcodeSequence = "";
-			}
-		}
-			
-		public function isDeleteKeyB(event:KeyboardEvent, item:Object):void{
-			if(event.keyCode == Keyboard.DELETE || event.keyCode == Keyboard.BACKSPACE){
-				item.@idOligoBarcodeB = "";
-				item.@barcodeSequenceB = "";
-			}
-		}
-		
-
-		private function getSampleType(item:Object,col:DataGridColumn):String
-        {
-        	return parentApplication.dictionaryManager.getEntryDisplay("hci.gnomex.model.SampleType", item.@idSampleType);
-        }
-        
-        private function sortBarcodes(obj1:Object, obj2:Object, fields:Array=null):int {
-			if (obj1 == null && obj2 == null) {
-				return 0;
-			} else if (obj1 == null) {
-				return 1;
-			} else if (obj2 == null) {
-				return -1;
-			} else {
-				var scheme1:String = obj1.@oligoBarcodeSchemeDisplay;
-				var scheme2:String = obj2.@oligoBarcodeSchemeDisplay;
-				
-				if (scheme1 < scheme2) {
-					return -1;
-				} else if (scheme1 > scheme2) {
-					return 1;
-				} else {
-					var order1:int = obj1.@sortOrder;
-					var order2:int = obj2.@sortOrder;
-					
-					if (obj1.@value == '') {
-						return -1;
-					} else if (obj2.@value == '') {
-						return 1;
-					} else {
-						if (order1 < order2) {
-							return -1;
-						} else if (order1 > order2) {
-							return 1;
-						} else {
-							return 0;
-						}
-					}
-					
-				}
-				
-			}			
-		}			
-			
-			private function sortSampleNumber(item1:Object, item2:Object, fields:Array=null):int {
-				var n1:String  = item1.@sampleNumber;
-				var n2:String  = item2.@sampleNumber;
-				
-				var parts:Array = n1.split("X");
-				var num1:String = parts[0];
-				var rem1:String = parts[1];
-				var firstChar1:String = num1.substr(0,1);
-				if ("0123456789".indexOf(firstChar1) >= 0) {
-					firstChar1 = "0";
-				} else {
-					num1 = num1.substr(1);
-				}
-				
-				parts = n2.split("X");
-				var num2:String = parts[0];
-				var rem2:String = parts[1];
-				var firstChar2:String = num2.substr(0,1);
-				if ("0123456789".indexOf(firstChar2) >= 0) {
-					firstChar2 = "0";
-				} else {
-					num2 = num2.substr(1);
-				}
-				
-				var comp:int = stringCompare(firstChar1, firstChar2);
-				
-				if (comp == 0) {
-					var number1:Number = Number(num1);
-					var number2:Number = Number(num2);
-					if (number1 > number2) {
-						comp = 1;
-					} else if (number2 > number1) {
-						comp = -1;
-					}
-				}
-				
-				if (comp == 0) {
-					var remNum1:Number = Number(rem1);
-					var remNum2:Number = Number(rem2);
-					if (remNum1 > remNum2) {
-						comp = 1
-					} else if (remNum2 > remNum1) {
-						comp = -1;
-					}
-				}
-				
-				return comp;
-			}
-			
-			private static function stringCompare(s1:String, s2:String):int {
-				if (s1 > s2) {
-					return 1;
-				} else if (s2 > s1) {
-					return -1;
-				} else {
-					return 0;
-				}
-			}
-
-			private function filterSeqLibProtocols(item:Object):Boolean {
-				if (item.@value == "") {
-					return true;
-				}
-				if (item.@codeApplicationType != 'Illumina') {
-					return false;
-				}
-				if (!parentApplication.isCoreFacilityIManage(item.@idCoreFacility)) {
-					return false;
-				}
-				return true;
-			}
         ]]>
     </mx:Script> 
     
@@ -589,13 +646,19 @@
 									   headerWordWrap="true" wordWrap="true" dataField="@meanLibSizeActual" editable="true"
 									   editorDataField="value" rendererIsEditor="false"
 									   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), 'idRequest')}"/>-->
+
+                    <mx:DataGridColumn headerText="Performed By"  width="20" dataField="@libPrepPerformedByID" labelFunction="getDisplayName"
+                                       rendererIsEditor="false" itemRenderer="mx.controls.Label" editorDataField="value" editable="{isSeqPrepByCore}"
+                                       sortable="false" itemEditor="{views.renderers.GridColumnFillButton.create(hci.flex.controls.ComboBox.getFactory(coreAdmins.source, '@display', '@idAppUser', '@libPrepPerformedByID', true).newInstance(), 'idRequest')}">
+
+                    </mx:DataGridColumn>
 					
                 <mx:DataGridColumn headerText="Status"  width="20" dataField="@seqPrepStatus" 
 	                	editorDataField="value" 
 	                   rendererIsEditor="false"
 	                   itemRenderer="mx.controls.Label" 
 					   sortable="false"
- 	                   itemEditor="{views.renderers.GridColumnFillButton.create(views.renderers.ComboBoxWorkflowStatus.create('@seqPrepStatus').newInstance(), 'idRequest')}"/>			                
+ 	                   itemEditor="{views.renderers.GridColumnFillButton.create(views.renderers.ComboBoxWorkflowStatus.create('@seqPrepStatus').newInstance(), 'idRequest')}"/>
 	
 				</util:columns>
 		</util:DataGridAlternatingGroup>

@@ -993,8 +993,10 @@ public class DataTrackQuery implements Serializable {
 				// Prune out other group's folders that don't have
 				// any content (no authorized dataTracks in its folder
 				// or its descendent's folder).
+
 				if (!folderNode.hasChildren()) {
 					String folderIdUserGroup = folderNode.getAttributeValue("idLab");
+
 					boolean prune = true;
 					// always prune if guest user.
 					if (secAdvisor.isGuest()) {

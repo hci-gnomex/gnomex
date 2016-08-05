@@ -1162,6 +1162,7 @@
         <property name="qcLibConcentration" column="qcLibConcentration" type="big_decimal"/>
         <property name="idLibPrepQCProtocol" column="idLibPrepQCProtocol" type="integer"/>
         <property name="sampleVolume" column="sampleVolume" type="big_decimal"/>
+        <property name="libPrepPerformedByID" column="libPrepPerformedByID" type="integer"/>
         <set name="propertyEntries" table="PropertyEntry" lazy="true" cascade="delete">
             <key column="idSample"/>
             <one-to-many class="hci.gnomex.model.PropertyEntry"/>

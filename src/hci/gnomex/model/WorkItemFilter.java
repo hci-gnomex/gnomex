@@ -109,6 +109,7 @@ public class WorkItemFilter extends DetailObject {
   public static int            MEAN_LIB_SIZE_ACTUAL    = 30;
   public static int            PREP_ID_OLIGO_BARCODE_B = 31;
   public static int            PREP_BARCODE_SEQUENCE_B = 32;
+  public static int            LIB_PREP_PERFORMED_BY_ID = 33;
 
   // lib prep qc specific
   public static int            QC_ID_SAMPLE_TYPE       = 16;
@@ -368,7 +369,8 @@ public class WorkItemFilter extends DetailObject {
       queryBuf.append("    s.multiplexGroupNumber, ");
       queryBuf.append("    s.meanLibSizeActual, ");
       queryBuf.append("    s.idOligoBarcodeB, ");
-      queryBuf.append("    s.barcodeSequenceB ");
+      queryBuf.append("    s.barcodeSequenceB, ");
+      queryBuf.append("    s.libPrepPerformedByID ");
     } else if(this.codeStepNext.equals(Step.SEQ_PREP_QC) ||
             this.codeStepNext.equals(Step.HISEQ_PREP_QC) ||
             this.codeStepNext.equals(Step.ALL_PREP_QC) ||

@@ -90,8 +90,14 @@ public class WorkItemSolexaPrepParser implements Serializable {
       sample.setSeqPrepLibConcentration(new BigDecimal(n.getAttributeValue("seqPrepLibConcentration")));
     } else {
       sample.setSeqPrepLibConcentration(null);
-    }    
-    
+    }
+
+    if (n.getAttributeValue("libPrepPerformedByID") != null && !n.getAttributeValue("libPrepPerformedByID").equals("")) {
+      sample.setLibPrepPerformedByID(new Integer(n.getAttributeValue("libPrepPerformedByID")));
+    } else {
+      sample.setLibPrepPerformedByID(null);
+    }
+
     if (n.getAttributeValue("seqPrepQualCodeBioanalyzerChipType") != null && !n.getAttributeValue("seqPrepQualCodeBioanalyzerChipType").equals("")) {
       sample.setSeqPrepQualCodeBioanalyzerChipType(n.getAttributeValue("seqPrepQualCodeBioanalyzerChipType"));
     } else {
