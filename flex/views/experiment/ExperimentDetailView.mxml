@@ -198,7 +198,6 @@
 			
 			public function setupForm(selectedExperiment:Object):void {
 				this.selectedExperiment = selectedExperiment;
-				
 				sampleConcentrationPrecision = -1;
 				if (this.selectedExperiment != null && this.selectedExperiment.hasOwnProperty("@idCoreFacility")) {
 					var concentrationPrecision:Number = new Number(parentApplication.getCoreFacilityProperty(this.selectedExperiment.@idCoreFacility, parentApplication.PROPERTY_SAMPLE_CONCENTRATION_PRECISION));
@@ -418,7 +417,7 @@
 				getInstitutionName();
 				callLater(showHideColumns);
 				this.addNonStandardSampleColumns();
-				
+
 				if (theTab.selectedChild == this.filesView) {
 					downloadExpandedFilesButtonView.visible = true;
 					downloadExpandedFilesButtonView.includeInLayout = true;
@@ -1572,7 +1571,8 @@
 			} 
 			
 			public function refreshDownloadList():void {
-				if (theTab.selectedChild == filesView) {				
+
+				if (theTab.selectedChild == filesView) {
 					var params:Object = new Object();
 					params.idRequest = this.selectedExperiment.@idRequest;
 					if (parentApplication.needToLoad(params) ) {				
