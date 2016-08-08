@@ -192,6 +192,13 @@
             }
 
             var dirtyItems:XMLList = getWorkList.lastResult.WorkItem.(@isDirty == 'Y');
+			for(var i:int = 0; i < dirtyItems.length(); i++){
+				if(dirtyItems[i].@libPrepPerformedByID == ''){
+					Alert.show("Make sure all samples have a name selected in the 'Performed By' column before proceeding.", "Error");
+					return;
+				}
+			}
+
             dirtyWorkItems = new XMLListCollection(dirtyItems);
             saveWorkItem.send();
         }
