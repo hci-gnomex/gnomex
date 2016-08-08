@@ -492,11 +492,12 @@
 				var dict:Dictionary = new Dictionary();
 				for(var i:int = 0; i < samples.length; i++){
 					if(samples.getItemAt(i).@libPrepPerformedByID != ''){
-						dict[samples.getItemAt(i).@libPrepPerformedByID] = samples.getItemAt(i).@libPrepPerformedByID;
+						var id:String = samples.getItemAt(i).@libPrepPerformedByID
+						dict[id] = id;
 					}
 				}
 				for each (var value:String in dict){
-					this.libPrepCompletedBy += parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.AppUserLite').DictionaryEntry.(@idAppUser == value).@display + '\n';
+					this.libPrepCompletedBy += parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.AppUserLite').DictionaryEntry.(@value != '' && @idAppUser == value).@display + '\n';
 				}
 
 				if(libPrepCompletedBy.length > 0){
@@ -1824,6 +1825,7 @@
 						<mx:Label width="105" text="Completed"  styleName="formLabel" textAlign="left" id="label9"/>
 						<mx:Text    text="{this.selectedExperiment.@completedDate}" width="280"/>
 					</mx:HBox>
+
 					
 				</mx:VBox>
 				
@@ -1900,12 +1902,12 @@
 				</mx:VBox>
 			</mx:VBox>
 
-		</mx:VBox>
+			<mx:VBox id="libPrepCompletionBox" visible="false">
+				<mx:HBox width="100%">
+					<mx:Text text="{'Library Prep Completed by: ' + this.libPrepCompletedBy}" styleName="formLabel"  textAlign="left"/>
+				</mx:HBox>
 
-		<mx:VBox id="libPrepCompletionBox" visible="false">
-			<mx:HBox width="100%">
-				<mx:Text text="{'Library Prep Completed by: ' + this.libPrepCompletedBy}" styleName="formLabel"  textAlign="left"/>
-			</mx:HBox>
+			</mx:VBox>
 
 		</mx:VBox>
 		
