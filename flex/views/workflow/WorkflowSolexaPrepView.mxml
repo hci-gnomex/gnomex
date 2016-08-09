@@ -193,7 +193,7 @@
 
             var dirtyItems:XMLList = getWorkList.lastResult.WorkItem.(@isDirty == 'Y');
 			for(var i:int = 0; i < dirtyItems.length(); i++){
-				if(dirtyItems[i].@libPrepPerformedByID == ''){
+				if(dirtyItems[i].@idLibPrepPerformedBy == ''){
 					Alert.show("Make sure all samples have a name selected in the 'Performed By' column before proceeding.", "Error");
 					return;
 				}
@@ -536,16 +536,16 @@
         }
 
 		private function getDisplayName(item:Object, col:DataGridColumn):String {
-			if(item.@libPrepPerformedByID == ""){
+			if(item.@idLibPrepPerformedBy == ""){
 				return "";
 			}
 			for(var i:int = 0; i < coreAdmins.length; i++){
-				if(coreAdmins.getItemAt(i).@idAppUser == item.@libPrepPerformedByID){
+				if(coreAdmins.getItemAt(i).@idAppUser == item.@idLibPrepPerformedBy){
 					return coreAdmins.getItemAt(i).@display;
 				}
 			}
 
-			return parentApplication.dictionaryManager.getEntryDisplay('hci.gnomex.model.AppUserLite', item.@libPrepPerformedByID);
+			return parentApplication.dictionaryManager.getEntryDisplay('hci.gnomex.model.AppUserLite', item.@idLibPrepPerformedBy);
 		}
 
 		private function isSeqPrepByCore(item:Object, col:DataGridColumn):Boolean{
@@ -654,9 +654,9 @@
 									   editorDataField="value" rendererIsEditor="false"
 									   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), 'idRequest')}"/>-->
 
-                    <mx:DataGridColumn headerText="Performed By"  width="20" dataField="@libPrepPerformedByID" labelFunction="getDisplayName"
+                    <mx:DataGridColumn headerText="Performed By"  width="20" dataField="@idLibPrepPerformedBy" labelFunction="getDisplayName"
                                        rendererIsEditor="false" itemRenderer="mx.controls.Label" editorDataField="value" editable="{isSeqPrepByCore}"
-                                       sortable="false" itemEditor="{views.renderers.GridColumnFillButton.create(hci.flex.controls.ComboBox.getFactory(coreAdmins.source, '@display', '@idAppUser', '@libPrepPerformedByID', true).newInstance(), 'idRequest')}">
+                                       sortable="false" itemEditor="{views.renderers.GridColumnFillButton.create(hci.flex.controls.ComboBox.getFactory(coreAdmins.source, '@display', '@idAppUser', '@idLibPrepPerformedBy', true).newInstance(), 'idRequest')}">
 
                     </mx:DataGridColumn>
 					

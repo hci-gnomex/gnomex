@@ -370,7 +370,7 @@ public class WorkItemFilter extends DetailObject {
       queryBuf.append("    s.meanLibSizeActual, ");
       queryBuf.append("    s.idOligoBarcodeB, ");
       queryBuf.append("    s.barcodeSequenceB, ");
-      queryBuf.append("    s.libPrepPerformedByID ");
+      queryBuf.append("    s.idLibPrepPerformedBy ");
     } else if(this.codeStepNext.equals(Step.SEQ_PREP_QC) ||
             this.codeStepNext.equals(Step.HISEQ_PREP_QC) ||
             this.codeStepNext.equals(Step.ALL_PREP_QC) ||

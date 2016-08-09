@@ -491,8 +491,8 @@
 				libPrepCompletedBy = "";
 				var dict:Dictionary = new Dictionary();
 				for(var i:int = 0; i < samples.length; i++){
-					if(samples.getItemAt(i).@libPrepPerformedByID != ''){
-						var id:String = samples.getItemAt(i).@libPrepPerformedByID
+					if(samples.getItemAt(i).@idLibPrepPerformedBy != ''){
+						var id:String = samples.getItemAt(i).@idLibPrepPerformedBy
 						dict[id] = id;
 					}
 				}

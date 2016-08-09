@@ -304,7 +304,7 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
               filter.getCodeStepNext().equals(Step.HISEQ_PREP) ||
               filter.getCodeStepNext().equals(Step.MISEQ_PREP) ||
               filter.getCodeStepNext().equals(Step.ALL_PREP)) {
-            fillSeqPrep(n, row, codeRequestCategory, seqLibProtocolMap, sess);
+            fillSeqPrep(n, row, codeRequestCategory, seqLibProtocolMap);
 
           } else if (filter.getCodeStepNext().equals(Step.SEQ_PREP_QC) ||
                   filter.getCodeStepNext().equals(Step.HISEQ_PREP_QC) ||
@@ -628,7 +628,7 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
     n.setAttribute("idLibPrepQCProtocol", row[WorkItemFilter.ID_LIB_PREP_QC_PROTOCOL] == null ? "" : ((Integer)row[WorkItemFilter.ID_LIB_PREP_QC_PROTOCOL]).toString());
   }
 
-  private void fillSeqPrep(Element n, Object[] row, String codeRequestCategory, HashMap<String, Integer> seqLibProtocolMap, Session sess) {
+  private void fillSeqPrep(Element n, Object[] row, String codeRequestCategory, HashMap<String, Integer> seqLibProtocolMap) {
     n.setAttribute("idSeqLibProtocol",                  row[WorkItemFilter.ID_SEQ_LIB_PROTOCOL] == null ? "" :  ((Integer)row[WorkItemFilter.ID_SEQ_LIB_PROTOCOL]).toString());
     n.setAttribute("seqPrepByCore",                     row[WorkItemFilter.SEQ_PREP_BY_CORE] == null ? "" :  (String)row[WorkItemFilter.SEQ_PREP_BY_CORE]);
     n.setAttribute("seqPrepLibConcentration",           row[WorkItemFilter.SEQ_PREP_LIB_CONC] == null ? "" :  ((BigDecimal)row[WorkItemFilter.SEQ_PREP_LIB_CONC]).toString());
@@ -655,7 +655,7 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
     n.setAttribute("meanLibSizeActual",                   row[WorkItemFilter.MEAN_LIB_SIZE_ACTUAL] == null ? "" :  ((Integer)row[WorkItemFilter.MEAN_LIB_SIZE_ACTUAL]).toString());
     n.setAttribute("idOligoBarcodeB",                     row[WorkItemFilter.PREP_ID_OLIGO_BARCODE_B] == null ? "" :  ((Integer)row[WorkItemFilter.PREP_ID_OLIGO_BARCODE_B]).toString());
     n.setAttribute("barcodeSequenceB",                    row[WorkItemFilter.PREP_BARCODE_SEQUENCE_B] == null ? "" :  ((String)row[WorkItemFilter.PREP_BARCODE_SEQUENCE_B]));
-    n.setAttribute("libPrepPerformedByID",                row[WorkItemFilter.LIB_PREP_PERFORMED_BY_ID] == null ? "" :  ((Integer)row[WorkItemFilter.LIB_PREP_PERFORMED_BY_ID ]).toString());
+    n.setAttribute("idLibPrepPerformedBy",                row[WorkItemFilter.LIB_PREP_PERFORMED_BY_ID] == null ? "" :  ((Integer)row[WorkItemFilter.LIB_PREP_PERFORMED_BY_ID ]).toString());
     n.setAttribute("seqPrepByCore",                       row[WorkItemFilter.SEQ_PREP_BY_CORE] == null ? "" :  ((String)row[WorkItemFilter.SEQ_PREP_BY_CORE ]));
 
     String seqPrepStatus = "";

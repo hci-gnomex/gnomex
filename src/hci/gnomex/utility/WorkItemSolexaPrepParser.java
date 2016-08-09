@@ -92,10 +92,10 @@ public class WorkItemSolexaPrepParser implements Serializable {
       sample.setSeqPrepLibConcentration(null);
     }
 
-    if (n.getAttributeValue("libPrepPerformedByID") != null && !n.getAttributeValue("libPrepPerformedByID").equals("")) {
-      sample.setLibPrepPerformedByID(new Integer(n.getAttributeValue("libPrepPerformedByID")));
+    if (n.getAttributeValue("idLibPrepPerformedBy") != null && !n.getAttributeValue("idLibPrepPerformedBy").equals("")) {
+      sample.setIdLibPrepPerformedBy(new Integer(n.getAttributeValue("idLibPrepPerformedBy")));
     } else {
-      sample.setLibPrepPerformedByID(null);
+      sample.setIdLibPrepPerformedBy(null);
     }
 
     if (n.getAttributeValue("seqPrepQualCodeBioanalyzerChipType") != null && !n.getAttributeValue("seqPrepQualCodeBioanalyzerChipType").equals("")) {

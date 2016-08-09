@@ -84,7 +84,7 @@ public class Sample extends HibernateDetailObject {
   private BigDecimal  qcLibConcentration;
   private Integer     idLibPrepQCProtocol;
   private BigDecimal  sampleVolume;
-  private Integer     libPrepPerformedByID;
+  private Integer     idLibPrepPerformedBy;
 
   private int         sequenceLaneCount; // a non-persistent variable used for XML
 
@@ -1018,11 +1018,11 @@ public class Sample extends HibernateDetailObject {
     this.sampleVolume = sampleVolume;
   }
 
-  public Integer getLibPrepPerformedByID() {
-    return libPrepPerformedByID;
+  public Integer getIdLibPrepPerformedBy() {
+    return idLibPrepPerformedBy;
   }
 
-  public void setLibPrepPerformedByID(Integer libPrepPerformedByID) {
-    this.libPrepPerformedByID = libPrepPerformedByID;
+  public void setIdLibPrepPerformedBy(Integer idLibPrepPerformedBy) {
+    this.idLibPrepPerformedBy = idLibPrepPerformedBy;
   }
 }
