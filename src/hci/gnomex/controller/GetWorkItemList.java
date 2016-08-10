@@ -4,14 +4,7 @@ import hci.dictionary.utility.DictionaryManager;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.constants.Constants;
-import hci.gnomex.model.FlowCell;
-import hci.gnomex.model.FlowCellChannel;
-import hci.gnomex.model.Lab;
-import hci.gnomex.model.PropertyDictionary;
-import hci.gnomex.model.RequestCategory;
-import hci.gnomex.model.SequenceLane;
-import hci.gnomex.model.Step;
-import hci.gnomex.model.WorkItemFilter;
+import hci.gnomex.model.*;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.PropertyDictionaryHelper;
@@ -662,8 +655,8 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
     n.setAttribute("meanLibSizeActual",                   row[WorkItemFilter.MEAN_LIB_SIZE_ACTUAL] == null ? "" :  ((Integer)row[WorkItemFilter.MEAN_LIB_SIZE_ACTUAL]).toString());
     n.setAttribute("idOligoBarcodeB",                     row[WorkItemFilter.PREP_ID_OLIGO_BARCODE_B] == null ? "" :  ((Integer)row[WorkItemFilter.PREP_ID_OLIGO_BARCODE_B]).toString());
     n.setAttribute("barcodeSequenceB",                    row[WorkItemFilter.PREP_BARCODE_SEQUENCE_B] == null ? "" :  ((String)row[WorkItemFilter.PREP_BARCODE_SEQUENCE_B]));
-
-
+    n.setAttribute("idLibPrepPerformedBy",                row[WorkItemFilter.LIB_PREP_PERFORMED_BY_ID] == null ? "" :  ((Integer)row[WorkItemFilter.LIB_PREP_PERFORMED_BY_ID ]).toString());
+    n.setAttribute("seqPrepByCore",                       row[WorkItemFilter.SEQ_PREP_BY_CORE] == null ? "" :  ((String)row[WorkItemFilter.SEQ_PREP_BY_CORE ]));
 
     String seqPrepStatus = "";
     if (!n.getAttributeValue("seqPrepDate").equals("")) {

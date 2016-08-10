@@ -1370,6 +1370,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 								sample.setSeqPrepDate(new java.sql.Date(System.currentTimeMillis()));
 								sample.setSeqPrepFailed("N");
 								sample.setSeqPrepBypassed("N");
+								sample.setIdLibPrepPerformedBy(this.getSecAdvisor().getIdAppUser()); //set the lib prep performed id to the user who is submitting the request.
 							}
 						}
 

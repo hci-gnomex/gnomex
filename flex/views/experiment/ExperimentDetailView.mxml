@@ -22,7 +22,8 @@
 	<mx:Script>
 		<![CDATA[
 			import hci.flex.controls.DropdownLabel;
-			
+			import hci.flex.util.DictionaryManager;
+
 			import mx.collections.Grouping;
 			import mx.collections.GroupingCollection;
 			import mx.collections.GroupingField;
@@ -75,6 +76,9 @@
 			
 			[Bindable]
 			private var organismName:String = "";
+
+			[Bindable]
+			private var libPrepCompletedBy:String = "";
 
 			
 			[Bindable]
@@ -482,6 +486,26 @@
 					theTab.selectedChild = defaultTab;
 					defaultTab = null;
 				}
+
+				//only keep unique appusers who have completed lib prep
+				libPrepCompletedBy = "";
+				var dict:Dictionary = new Dictionary();
+				for(var i:int = 0; i < samples.length; i++){
+					if(samples.getItemAt(i).@idLibPrepPerformedBy != ''){
+						var id:String = samples.getItemAt(i).@idLibPrepPerformedBy
+						dict[id] = id;
+					}
+				}
+				for each (var value:String in dict){
+					this.libPrepCompletedBy += parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.AppUserLite').DictionaryEntry.(@value != '' && @idAppUser == value).@display + '\n';
+				}
+
+				if(libPrepCompletedBy.length > 0){
+					libPrepCompletionBox.visible = true;
+				} else{
+					libPrepCompletionBox.visible = false;
+				}
+
 				
 				// Workflow progress
 				callLater(setWorkflowStatus);
@@ -1801,6 +1825,7 @@
 						<mx:Label width="105" text="Completed"  styleName="formLabel" textAlign="left" id="label9"/>
 						<mx:Text    text="{this.selectedExperiment.@completedDate}" width="280"/>
 					</mx:HBox>
+
 					
 				</mx:VBox>
 				
@@ -1875,6 +1900,13 @@
 						</mx:HBox>
 					</mx:Repeater>
 				</mx:VBox>
+			</mx:VBox>
+
+			<mx:VBox id="libPrepCompletionBox" visible="false">
+				<mx:HBox width="100%">
+					<mx:Text text="{'Library Prep Completed by: ' + this.libPrepCompletedBy}" styleName="formLabel"  textAlign="left"/>
+				</mx:HBox>
+
 			</mx:VBox>
 
 		</mx:VBox>

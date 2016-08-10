@@ -912,6 +912,7 @@
 		public var userName:String = '';
 
 		public var idCoreFacilityDNASeq:Object;
+		public var idCoreFacilityHTG:Object;
 
 
 		[Bindable]
@@ -1099,7 +1100,7 @@
 		public const CODE_PRODUCT_ORDER_STATUS_NEW:String = "NEW";
 
 		public var CORE_FACILITY_DNA_SEQ:String = "DNA Sequencing";
-		public var CORE_FACILITY_GENOMICS:String = "Microarray and Genomic Analysis";
+		public var CORE_FACILITY_GENOMICS:String = "High Throughput Genomics";
 
 		public var PROPERTY_WORKAUTH_INSTRUCTIONS:String = "workauth_instructions";
 		public var PROPERTY_WORKAUTH1_URL:String = "workauth1_url";
@@ -2919,6 +2920,7 @@
 				}
 				if (cf.@facilityName == this.CORE_FACILITY_GENOMICS) {
 					coreGenomicsConfigured = true;
+					idCoreFacilityHTG = cf.@idCoreFacility
 				} else if (cf.@facilityName == this.CORE_FACILITY_DNA_SEQ) {
 					coreDNASeqConfigured = true;
 					idCoreFacilityDNASeq = cf.@idCoreFacility;
