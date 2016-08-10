@@ -399,7 +399,7 @@
         	browseTree.dataProvider.source = new XMLList(getProjectRequestList.lastResult);
 			browseTree.dataProvider.refresh();
         	callLater(expandAndReselectTree);    	
-        	
+        	this.experimentDetailView.detail.theTab.selectedIndex = 0;
 	    }
 			
 		private function onPromptToShowLabExperiments(event:CloseEvent):void {
@@ -675,9 +675,7 @@
 					browseView.refreshDownloadList();
 					browseView.refreshTrackList();
 					browseView.refreshVisibilityList();
-					
 					experimentDetailView.detail.refreshDownloadList();
-					
 				}
 				
 				experimentViews.selectedIndex=0;
@@ -1387,8 +1385,8 @@
 			
 			this.browseUserCombo.dropdown.dataProvider = appUsers;  
 	        this.browseUserCombo.selectedIndex = 0;
-			
-		}	    
+			//this.experimentDetailView.detail.theTab.selectedIndex = 0;
+		}
 
         private function sortAppUsers(obj1:Object, obj2:Object, fields:Array=null):int {
 			if (obj1 == null && obj2 == null) {
