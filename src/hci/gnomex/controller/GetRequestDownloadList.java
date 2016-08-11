@@ -680,7 +680,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
 
 				if(f1.isDirectory()){
 					fdNode.setAttribute("type", "dir");
-					recurseAddFiles(fdNode, f1, requestNumber, "");
+					recurseAddFiles(fdNode, f1, requestNumber, "", sess);
 				}
 
 				requestNode.addContent(fdNode);
@@ -692,7 +692,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
 
 	}
 
-	private void recurseAddFiles(Element fdNode, File f1, String requestNumber, String directoryName) throws Exception{
+	private void recurseAddFiles(Element fdNode, File f1, String requestNumber, String directoryName, Session sess) throws Exception{
 		String files[] = f1.list();
 		String fullPath = f1.getAbsolutePath() + File.separator;
 
@@ -725,11 +725,14 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
 			fileNode.setAttribute("state", "unchecked");
 			fileNode.setAttribute("canDelete", "Y");
 			fileNode.setAttribute("canRename", "Y");
-			//fdNode.setAttribute("linkedSampleNumber", getLinkedSampleNumber(sess, fileName.substring(fileName.indexOf(Request.getBaseRequestNumber(requestNumber)))));
+			StringBuffer fname = new StringBuffer();
+			fname.append(fullPath.substring(fullPath.indexOf(Request.getBaseRequestNumber(fd.getNumber()))).replace("\\","/"));
+			fname.append(f.getName());
+			fileNode.setAttribute("linkedSampleNumber", getLinkedSampleNumber(sess, fname.toString()));
 			fileNode.setAttribute("viewURL", fd.getViewURL(viewType));
 			if(f.isDirectory()) {
 				fileNode.setAttribute("type", "dir");
-				recurseAddFiles(fileNode, f, requestNumber, directoryName);
+				recurseAddFiles(fileNode, f, requestNumber, directoryName, sess);
 			}
 
 			fdNode.addContent(fileNode);
