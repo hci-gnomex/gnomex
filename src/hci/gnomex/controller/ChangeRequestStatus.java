@@ -81,7 +81,7 @@ public class ChangeRequestStatus extends GNomExCommand implements Serializable {
             } catch (ProductException e) {
               errorEncounteredWithProducts = true;
               productErrorMessage = e.getMessage();
-              log.error("Unable to create ProductLedger for request. " + e.getMessage());
+              log.error("Unable to create ProductLedger for request. " + e.getMessage(), e);
             }
           }
         }
@@ -154,7 +154,7 @@ public class ChangeRequestStatus extends GNomExCommand implements Serializable {
             try {
               EmailHelper.sendConfirmationEmail(sess, req, this.getSecAdvisor(), launchAppURL, appURL, serverName);
             } catch (Exception e) {
-              log.error("Unable to send confirmation email notifying submitter that request " + req.getNumber() + " is complete. " + e.toString());
+              log.error("Unable to send confirmation email notifying submitter that request " + req.getNumber() + " is complete. " + e.toString(), e);
             }
 
           }

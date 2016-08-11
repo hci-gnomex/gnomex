@@ -52,7 +52,7 @@ public class GetLaunchProperties extends GNomExCommand implements Serializable {
         idCoreFacility = null;
       }
   	} catch (Exception e) {
-  		log.error(e.getClass().toString() + ": " + e);
+  		log.error(e.getClass().toString() + ": " , e);
   		e.printStackTrace();
   	}
   }
@@ -103,29 +103,29 @@ public class GetLaunchProperties extends GNomExCommand implements Serializable {
       validate();
       
     } catch (HibernateException e) {
-      log.error(e.getClass().toString() + ": " + e);
+      log.error(e.getClass().toString() + ": " , e);
       throw new RollBackCommandException();
     } catch (NumberFormatException e) {
-      log.error(e.getClass().toString() + ": " + e);
+      log.error(e.getClass().toString() + ": " , e);
       throw new RollBackCommandException();
     } catch (NamingException e) {
-      log.error(e.getClass().toString() + ": " + e);
+      log.error(e.getClass().toString() + ": " , e);
       throw new RollBackCommandException();
     } catch (SQLException e) {
-      log.error(e.getClass().toString() + ": " + e);
+      log.error(e.getClass().toString() + ": " , e);
       throw new RollBackCommandException();
     } catch (Exception e) {
-      log.error(e.getClass().toString() + ": " + e);
+      log.error(e.getClass().toString() + ": " , e);
       throw new RollBackCommandException();    	
     }
     finally {
       try {
         HibernateSession.closeSession();
       } catch (HibernateException e) {
-        log.error(e.getClass().toString() + ": " + e);
+        log.error(e.getClass().toString() + ": " , e);
         throw new RollBackCommandException();
       } catch (SQLException e) {
-        log.error(e.getClass().toString() + ": " + e);
+        log.error(e.getClass().toString() + ": " , e);
         throw new RollBackCommandException();
       }
     }

@@ -935,7 +935,7 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
       try {
         id = Integer.parseInt(idAsString);
       } catch (NumberFormatException e) {
-        log.error("Unable to parse oligo barcode scheme " + aOrB + " for app " + node.getAttributeValue("application"));
+        log.error("Unable to parse oligo barcode scheme " + aOrB + " for app " + node.getAttributeValue("application"), e);
       }
     }
 

@@ -110,16 +110,16 @@ public class CreateSecurityAdvisor extends GNomExCommand implements Serializable
       this.addInvalidField("invalid permission", e.getMessage());
     }
     catch (HibernateException ex) {
-      log.error("Hibernate exception while trying to Create Security Advisor: "+ ex);
+      log.error("Hibernate exception while trying to Create Security Advisor: ", ex);
       this.addInvalidField("Error", "Hibernate exception while trying to Create Security Advisor: "+ ex);
     }
     catch (SQLException ex) {
-      log.error("SQL exception while trying to Create Security Advisor: "+ ex);
+      log.error("SQL exception while trying to Create Security Advisor: ",ex);
       this.addInvalidField("Error", "SQL exception while trying to Create Security Advisor: "+ ex);
     }
     catch (Exception ex) {
       ex.printStackTrace();
-      log.fatal(ex.getClass().toString() + " occurred in CreateSecurityAdvisor " + ex);
+      log.fatal(ex.getClass().toString() + " occurred in CreateSecurityAdvisor ", ex);
       this.addInvalidField("Error", ex.getClass().toString() + " occurred in CreateSecurityAdvisor " + ex);
     }
     finally {
@@ -127,7 +127,7 @@ public class CreateSecurityAdvisor extends GNomExCommand implements Serializable
         HibernateSession.closeSession();
       }
       catch (Exception ex) {
-        log.error("Exception trying to close the Hibernate session: "+ ex);
+        log.error("Exception trying to close the Hibernate session: ", ex);
       }
     }
 

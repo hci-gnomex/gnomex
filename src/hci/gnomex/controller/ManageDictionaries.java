@@ -98,7 +98,7 @@ public class ManageDictionaries extends DictionaryCommand implements Serializabl
         HibernateSession.closeSession();
       }
       catch (Exception ex) {
-        log.error("Exception trying to close the Hibernate session: "+ ex);
+        log.error("Exception trying to close the Hibernate session: "+ ex, ex);
       }
     }
     
@@ -153,7 +153,7 @@ public class ManageDictionaries extends DictionaryCommand implements Serializabl
         HibernateSession.closeSession();
       }
       catch (Exception ex) {
-        log.error("Exception trying to close the Hibernate session: "+ ex);
+        log.error("Exception trying to close the Hibernate session: "+ ex, ex);
       }
     }
 		return this;

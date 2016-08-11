@@ -116,7 +116,7 @@ public class ChangePassword extends GNomExCommand implements Serializable {
 
       this.validate();
     } catch (Exception e) {
-      log.error(e.getClass().toString() + ": " + e);
+      log.error(e.getClass().toString() + ": " , e);
       e.printStackTrace();
     }
   }
@@ -139,7 +139,7 @@ public class ChangePassword extends GNomExCommand implements Serializable {
       }
 
       if (changingPassword) {
-        checkRegHql += "and u.guid='" + guid + "'";
+        checkRegHql += " and u.guid='" + guid + "'";
       }
 
       appUser = (AppUser) sess.createQuery(checkRegHql).uniqueResult();
@@ -203,22 +203,22 @@ public class ChangePassword extends GNomExCommand implements Serializable {
       this.validate();
     } catch (HibernateException e) {
       e.printStackTrace();
-      log.error(e.getClass().toString() + ": " + e);
+      log.error(e.getClass().toString() + ": ", e);
       throw new RollBackCommandException();
     } catch (NumberFormatException e) {
-      log.error(e.getClass().toString() + ": " + e);
+      log.error(e.getClass().toString() + ": " , e);
       e.printStackTrace();
       throw new RollBackCommandException();
     } catch (NamingException e) {
-      log.error(e.getClass().toString() + ": " + e);
+      log.error(e.getClass().toString() + ": " , e);
       e.printStackTrace();
       throw new RollBackCommandException();
     } catch (SQLException e) {
-      log.error(e.getClass().toString() + ": " + e);
+      log.error(e.getClass().toString() + ": " , e);
       e.printStackTrace();
       throw new RollBackCommandException();
     } catch (Exception e) {
-      log.error(e.getClass().toString() + ": " + e);
+      log.error(e.getClass().toString() + ": " , e);
       e.printStackTrace();
       throw new RollBackCommandException();
     } finally {
@@ -226,11 +226,11 @@ public class ChangePassword extends GNomExCommand implements Serializable {
         this.validate();
         HibernateSession.closeSession();
       } catch (HibernateException e) {
-        log.error(e.getClass().toString() + ": " + e);
+        log.error(e.getClass().toString() + ": " , e);
         this.validate();
         throw new RollBackCommandException();
       } catch (SQLException e) {
-        log.error(e.getClass().toString() + ": " + e);
+        log.error(e.getClass().toString() + ": " , e);
         this.validate();
         throw new RollBackCommandException();
       }

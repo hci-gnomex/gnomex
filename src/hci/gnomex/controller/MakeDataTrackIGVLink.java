@@ -260,7 +260,7 @@ public class MakeDataTrackIGVLink extends HttpServlet {
 								bw2.close();
 							}
 						} catch (IOException ex) {
-							log.error("MakeDataTrackIGVLink -- Could not read from the Broad repository file: " + theURL);
+							log.error("MakeDataTrackIGVLink -- Could not read from the Broad repository file: " + theURL, ex);
 						}
 
 						BufferedWriter br = new BufferedWriter(new FileWriter(registry, true));

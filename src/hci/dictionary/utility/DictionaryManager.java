@@ -130,7 +130,7 @@ public final class DictionaryManager implements DictionaryActions, Serializable 
         Document doc = builder.build(is);
         registerDictionaries(doc);
       } catch (JDOMException e) {
-        log.error("Error loading dictionaries: " + e.getMessage());
+        log.error("Error loading dictionaries: ", e);
       }
     }
   }

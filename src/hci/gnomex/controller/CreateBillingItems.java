@@ -369,7 +369,7 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
                 isDiscount = true;
               }
             } catch(Exception e) {
-              log.error("Unable to instantiate billing plugin " + priceCategory.getPluginClassName());
+              log.error("Unable to instantiate billing plugin " + priceCategory.getPluginClassName(), e);
             }
             
           }

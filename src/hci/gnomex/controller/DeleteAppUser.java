@@ -136,7 +136,7 @@ public class DeleteAppUser extends GNomExCommand implements Serializable {
 			try {
 				HibernateSession.closeSession();
 			} catch (Exception e) {
-				log.error("Exception trying to close the Hibernate session: " + e);
+				log.error("Exception trying to close the Hibernate session: " , e);
 			}
 		}
 

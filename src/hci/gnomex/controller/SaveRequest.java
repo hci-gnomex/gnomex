@@ -981,7 +981,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 			throw e;
 		} catch (ProductException e) {
 			log.error("An exception has occurred in SaveRequest ", e);
-			log.error("Unable to create ProductLedger for request. " + e.getMessage());
+			log.error("Unable to create ProductLedger for request. " + e.getMessage(), e);
 			e.printStackTrace();
 			throw new GNomExRollbackException(e.getMessage(), true, e.getMessage());
 		} catch (Exception e) {
@@ -2633,7 +2633,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 							isDiscount = true;
 						}
 					} catch (Exception e) {
-						log.error("Unable to instantiate billing plugin " + priceCategory.getPluginClassName());
+						log.error("Unable to instantiate billing plugin " + priceCategory.getPluginClassName(), e);
 					}
 
 				}

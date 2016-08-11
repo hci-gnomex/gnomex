@@ -137,7 +137,7 @@ public class HibernateSession {
 					tx.commit();
 					txStat = null;
 				} catch (Exception e) {
-					log.error("Failed to commit Transaction, going to try and rollback " + e);
+					log.error("Failed to commit Transaction, going to try and rollback " + e, e);
 				}
 				try {
 					// Maybe the commit above worked and so the transaction is no longer active therefore don't try the rollback or else we will get an inactive
@@ -146,7 +146,7 @@ public class HibernateSession {
 						tx.rollback();
 					}
 				} catch (Exception e) {
-					log.error("Failed to rollback transaction " + e);
+					log.error("Failed to rollback transaction " + e, e);
 				}
 			}
 			if (s != null) {

@@ -149,7 +149,7 @@ public class ChangePasswordExternalUser extends GNomExCommand implements Seriali
         HibernateSession.closeSession();
       }
       catch (Exception ex) {
-        log.error("Exception trying to close the Hibernate session: "+ ex);
+        log.error("Exception trying to close the Hibernate session: ", ex);
       }
     }
     

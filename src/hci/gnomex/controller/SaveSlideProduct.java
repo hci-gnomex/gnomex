@@ -91,26 +91,26 @@ public class SaveSlideProduct extends GNomExCommand implements Serializable {
         setResponsePage(this.ERROR_JSP);
       }
     } catch (HibernateException e) {
-      log.error(e.getClass().toString() + ": " + e);
+      log.error(e.getClass().toString() + ": " + e, e);
       throw new RollBackCommandException();
     } catch (NamingException e) {
-      log.error(e.getClass().toString() + ": " + e);
+      log.error(e.getClass().toString() + ": " + e, e);
       throw new RollBackCommandException();
     } catch (SQLException e) {
-      log.error(e.getClass().toString() + ": " + e);
+      log.error(e.getClass().toString() + ": " + e, e);
       throw new RollBackCommandException();
     } catch (Exception e) {
-      log.error(e.getClass().toString() + ": " + e);
+      log.error(e.getClass().toString() + ": " + e, e);
       throw new RollBackCommandException();
     }
     finally {
       try {
         HibernateSession.closeSession();
       } catch (HibernateException e) {
-        log.error(e.getClass().toString() + ": " + e);
+        log.error(e.getClass().toString() + ": " + e, e);
         throw new RollBackCommandException();
       } catch (SQLException e) {
-        log.error(e.getClass().toString() + ": " + e);
+        log.error(e.getClass().toString() + ": " + e, e);
         throw new RollBackCommandException();
       }
     }

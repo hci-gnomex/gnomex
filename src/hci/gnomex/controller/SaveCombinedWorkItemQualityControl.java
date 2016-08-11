@@ -223,7 +223,7 @@ public class SaveCombinedWorkItemQualityControl extends GNomExCommand implements
                   confirmedRequestMap.put(request.getNumber(), request.getNumber());
                 } catch (Exception e) {
                   log.error("Unable to send confirmation email notifying submitter that qc on request " + request.getNumber() + 
-                      " sample quality is complete. " + e.toString());
+                      " sample quality is complete. " + e.toString(), e);
                 }
               } else {
                 log.error("Unable to send confirmation email notifying submitter that request " + request.getNumber() + 

@@ -10,10 +10,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.List;
+import java.util.*;
 
 import javax.naming.AuthenticationException;
 import javax.naming.Context;
@@ -272,7 +269,6 @@ public class GNomExLDAPRealm extends RealmBase {
 			if (ldap_domain != null && ldap_user_attribute_map != null && !ldap_user_attribute_map.isEmpty()) {
 				NamingEnumeration<SearchResult> answer = ad.searchUser(username, ldap_domain, Util.keysToArray(ldap_user_attribute_map));
 				isAuthenticated = ad.doesMatchUserAttribute(answer, ldap_user_attribute_map);
-
 			} else {
 				// If no user attributes property present, we have passed authentication at this point.
 				isAuthenticated = true;
@@ -280,6 +276,7 @@ public class GNomExLDAPRealm extends RealmBase {
 
 		} catch (Exception e) {
 			System.out.println("ERROR in checkLDAPCredentials: " + e);
+			e.printStackTrace();
 			isAuthenticated = false;
 		}
 		return isAuthenticated;

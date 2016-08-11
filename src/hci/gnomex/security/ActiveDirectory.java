@@ -27,7 +27,6 @@ package hci.gnomex.security;
 
 import java.util.Map;
 import java.util.Properties;
-import java.util.logging.Logger;
 
 import javax.naming.AuthenticationException;
 import javax.naming.Context;
@@ -39,8 +38,7 @@ import javax.naming.directory.InitialDirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
-import com.itextpdf.text.log.Level;
-import org.dom4j.Attribute;
+
 
 /**
  * Query Active Directory using Java
@@ -153,8 +151,7 @@ public class ActiveDirectory {
             e.printStackTrace();
         }
         if(!matches){
-            System.out.println("HELLO WORLD");
-            log.error("No matching LDAP attributes in active directory for: " + logString.toString());
+            log.error("No matching LDAP attributes in active directory " + logString.toString());
         }
         return matches;
     }

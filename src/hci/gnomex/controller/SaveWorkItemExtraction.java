@@ -127,7 +127,7 @@ public class SaveWorkItemExtraction extends GNomExCommand implements Serializabl
                   EmailHelper.sendConfirmationEmail(sess, request, this.getSecAdvisor(), launchAppURL, appURL, serverName);                  
                 } catch (Exception e) {
                   log.error("Unable to send confirmation email notifying submitter that request " + request.getNumber() + 
-                  " is complete. " + e.toString());
+                  " is complete. " + e.toString(), e);
                   
                 }
                 confirmedRequestMap.put(request.getNumber(), request.getNumber());

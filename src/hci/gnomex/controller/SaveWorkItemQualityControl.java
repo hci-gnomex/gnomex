@@ -166,7 +166,7 @@ public class SaveWorkItemQualityControl extends GNomExCommand implements Seriali
                   this.sendConfirmationEmail(sess, request);
                 } catch (Exception e) {
                   log.error("Unable to send confirmation email notifying submitter that qc on request " + request.getNumber() + 
-                      " is complete. " + e.toString());
+                      " is complete. " + e.toString(), e);
                 }
                 confirmedRequestMap.put(request.getNumber(), request.getNumber());
               } else {

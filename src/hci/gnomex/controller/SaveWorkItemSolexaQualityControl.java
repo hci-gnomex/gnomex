@@ -155,7 +155,7 @@ public class SaveWorkItemSolexaQualityControl extends GNomExCommand implements S
                 }catch (Exception e) {
                   log.error("Unable to send confirmation email notifying submitter that request "
                       + request.getNumber()
-                      + " has finished sample quality.  " + e.toString());
+                      + " has finished sample quality.  " + e.toString(), e);
                 }
                 
               } else {

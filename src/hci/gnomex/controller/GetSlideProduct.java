@@ -40,20 +40,20 @@ public class GetSlideProduct extends GNomExCommand implements Serializable {
         setResponsePage(this.ERROR_JSP);
       }
     } catch (HibernateException e) {
-      log.error(e.getClass().toString() + ": " + e);
+      log.error(e.getClass().toString() + ": " , e);
       throw new RollBackCommandException();
     } catch (XMLReflectException e) {
-      log.error(e.getClass().toString() + ": " + e);
+      log.error(e.getClass().toString() + ": " , e);
       throw new RollBackCommandException();
     } catch (Exception e) {
-      log.error(e.getClass().toString() + ": " + e);
+      log.error(e.getClass().toString() + ": " , e);
       throw new RollBackCommandException();
     }
     finally {
       try {
         this.getSecAdvisor().closeReadOnlyHibernateSession();
       } catch (Exception e) {
-        log.error(e.getClass().toString() + ": " + e);
+        log.error(e.getClass().toString() + ": " , e);
         throw new RollBackCommandException();
       }
     }

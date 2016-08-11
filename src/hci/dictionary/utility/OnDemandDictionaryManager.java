@@ -140,7 +140,7 @@ public final class OnDemandDictionaryManager implements DictionaryActions, Seria
         Document doc = builder.build(is);
         registerDictionaries(doc);
       } catch (JDOMException e) {
-        log.error("Error loading dictionaries: " + e.getMessage());
+        log.error("Error loading dictionaries: ", e);
       }
     }
   }

@@ -189,17 +189,17 @@ public class GetProtocol extends GNomExCommand implements Serializable {
       
       this.validate();
     } catch (HibernateException e) {
-      log.error(e.getClass().toString() + ": " + e);
+      log.error(e.getClass().toString() + ": " , e);
       throw new RollBackCommandException();
     } catch (Exception e) {
-      log.error(e.getClass().toString() + ": " + e);
+      log.error(e.getClass().toString() + ": " , e);
       throw new RollBackCommandException();
     }
     finally {
       try {
         this.getSecAdvisor().closeReadOnlyHibernateSession();
       } catch (Exception e) {
-        log.error(e.getClass().toString() + ": " + e);
+        log.error(e.getClass().toString() + ": " , e);
         throw new RollBackCommandException();
       }
     }
