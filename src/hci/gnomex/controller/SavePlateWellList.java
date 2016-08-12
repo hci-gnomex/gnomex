@@ -25,12 +25,12 @@ import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
-
+import org.apache.log4j.Logger;
 
 public class SavePlateWellList extends GNomExCommand implements Serializable {
 
   // the static field for logging in Log4J
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(SavePlateWellList.class);
+  private static Logger LOG = Logger.getLogger(SavePlateWellList.class);
 
   private String                plateWellXMLString;
   private Document              plateWellDoc;
@@ -55,7 +55,7 @@ public class SavePlateWellList extends GNomExCommand implements Serializable {
         plateWellDoc = sax.build(reader);
         parser = new PlateWellParser(plateWellDoc);
       } catch (JDOMException je ) {
-        log.error( "Cannot parse plateWellXMLString", je );
+        LOG.error( "Cannot parse plateWellXMLString", je );
         this.addInvalidField( "PlateWellXMLString", "Invalid xml");
       }
     }
@@ -66,7 +66,7 @@ public class SavePlateWellList extends GNomExCommand implements Serializable {
       launchAppURL = this.getLaunchAppURL(request);      
       appURL = this.getAppURL(request);      
     } catch (Exception e) {
-      log.warn("Cannot get launch app URL in SavePlateWellList", e);
+      LOG.warn("Cannot get launch app URL in SavePlateWellList", e);
     }
 
   }
@@ -121,7 +121,7 @@ public class SavePlateWellList extends GNomExCommand implements Serializable {
         }
 
       }catch (Exception e){
-        log.error("An exception has occurred in SavePlateWellList ", e);
+        LOG.error("An exception has occurred in SavePlateWellList ", e);
         e.printStackTrace();
         throw new RollBackCommandException(e.getMessage());
 

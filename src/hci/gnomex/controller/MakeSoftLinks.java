@@ -22,10 +22,10 @@ import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
-
+import org.apache.log4j.Logger;
 public class MakeSoftLinks extends GNomExCommand implements Serializable {
 
-	private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(MakeSoftLinks.class);
+	private static Logger LOG = Logger.getLogger(MakeSoftLinks.class);
 
 	private String serverName;
 	private String directory_bioinformatics_scratch;
@@ -51,7 +51,7 @@ public class MakeSoftLinks extends GNomExCommand implements Serializable {
 				Document doc = sax.build(reader);
 				parser = new FileDescriptorParser(doc);
 			} catch (JDOMException je) {
-				log.error("Cannot parse fileDescriptorXMLString", je);
+				LOG.error("Cannot parse fileDescriptorXMLString", je);
 				System.out.println("[MakeSoftLinks] Error: Cannot parse fileDescriptorXMLString, " + je);
 
 			}
@@ -75,7 +75,7 @@ public class MakeSoftLinks extends GNomExCommand implements Serializable {
 			setResponsePage(this.SUCCESS_JSP);
 
 		} catch (Exception e) {
-			log.error("An exception has occurred in MakeSoftLinks ", e);
+			LOG.error("An exception has occurred in MakeSoftLinks ", e);
 			e.printStackTrace(System.out);
 			throw new RollBackCommandException(e.getMessage());
 		} finally {

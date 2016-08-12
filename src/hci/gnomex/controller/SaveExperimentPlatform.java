@@ -28,11 +28,11 @@ import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.PriceUtil;
 import hci.gnomex.utility.PropertyDictionaryHelper;
-
+import org.apache.log4j.Logger;
 public class SaveExperimentPlatform extends GNomExCommand implements Serializable {
 
   // the static field for logging in Log4J
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(SaveExperimentPlatform.class);
+  private static Logger LOG = Logger.getLogger(SaveExperimentPlatform.class);
 
   private String sampleTypesXMLString;
   private Document sampleTypesDoc;
@@ -108,7 +108,7 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
         SAXBuilder sax = new SAXBuilder();
         sampleTypesDoc = sax.build(reader);
       } catch (JDOMException je) {
-        log.error("Cannot parse sampleTypesXMLString", je);
+        LOG.error("Cannot parse sampleTypesXMLString", je);
         this.addInvalidField("sampleTypesXMLString", "Invalid sampleTypesXMLString");
       }
     }
@@ -120,7 +120,7 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
         SAXBuilder sax = new SAXBuilder();
         prepTypesDoc = sax.build(reader);
       } catch (JDOMException je) {
-        log.error("Cannot parse prepTypesXMLString", je);
+        LOG.error("Cannot parse prepTypesXMLString", je);
         this.addInvalidField("prepTypesXMLString", "Invalid prepTypesXMLString");
       }
     }
@@ -132,7 +132,7 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
         SAXBuilder sax = new SAXBuilder();
         prepQCProtocolsDoc = sax.build(reader);
       } catch (JDOMException je) {
-        log.error("Cannot parse prepQCProtocolsXMLString", je);
+        LOG.error("Cannot parse prepQCProtocolsXMLString", je);
         this.addInvalidField("prepQCProtocolsXMLString", "Invalid prepQCProtocolsXMLString");
       }
     }
@@ -144,7 +144,7 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
         SAXBuilder sax = new SAXBuilder();
         applicationsDoc = sax.build(reader);
       } catch (JDOMException je) {
-        log.error("Cannot parse applicationsXMLString", je);
+        LOG.error("Cannot parse applicationsXMLString", je);
         this.addInvalidField("applicationsXMLString", "Invalid applicationsXMLString");
       }
     }
@@ -156,7 +156,7 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
         SAXBuilder sax = new SAXBuilder();
         sequencingOptionsDoc = sax.build(reader);
       } catch (JDOMException je) {
-        log.error("Cannot parse sequencingOptionsXMLString", je);
+        LOG.error("Cannot parse sequencingOptionsXMLString", je);
         this.addInvalidField("sequencingOptionsXMLString", "Invalid sequencingOptionsXMLString");
       }
 
@@ -192,7 +192,7 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
         SAXBuilder sax = new SAXBuilder();
         requestCategoryApplicationsDoc = sax.build(reader);
       } catch (JDOMException je) {
-        log.error("Cannot parse requestCategoryApplicationXMLString", je);
+        LOG.error("Cannot parse requestCategoryApplicationXMLString", je);
         this.addInvalidField("requestCategoryApplicationXMLString", "Invalid requestCategoryApplicationXMLString");
       }
     }
@@ -293,7 +293,7 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
       }
 
     } catch (Exception e) {
-      log.error("An exception has occurred in SaveExperimentPlatform ", e);
+      LOG.error("An exception has occurred in SaveExperimentPlatform ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
 
@@ -882,7 +882,7 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
 
     if (protocolMap.keySet().size() == 0) {
       if (idA != null || idB != null) {
-        log.error("Unable to save oligo barcode scheme mapping for application " + app.getApplication() + " because no SeqLibProtocol is available.");
+        LOG.error("Unable to save oligo barcode scheme mapping for application " + app.getApplication() + " because no SeqLibProtocol is available.");
         return;
       }
     }
@@ -935,7 +935,7 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
       try {
         id = Integer.parseInt(idAsString);
       } catch (NumberFormatException e) {
-        log.error("Unable to parse oligo barcode scheme " + aOrB + " for app " + node.getAttributeValue("application"), e);
+        LOG.error("Unable to parse oligo barcode scheme " + aOrB + " for app " + node.getAttributeValue("application"), e);
       }
     }
 
@@ -1127,11 +1127,11 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
         if (cat != null) {
           id = cat.getIdPriceCategory();
         } else {
-          log.error("SaveExperimentPlatform: Invalid default illumina lib prep price category name -- " + catName);
+          LOG.error("SaveExperimentPlatform: Invalid default illumina lib prep price category name -- " + catName);
           return null;
         }
       } catch (HibernateException e) {
-        log.error("SaveExperimentPlatform: Invalid default illumina lib prep price category name -- " + catName, e);
+        LOG.error("SaveExperimentPlatform: Invalid default illumina lib prep price category name -- " + catName, e);
         return null;
       }
     }
@@ -1154,11 +1154,11 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
         if (cat != null) {
           id = cat.getIdPriceCategory();
         } else {
-          log.error("SaveExperimentPlatform: Invalid default sequenom price category name -- " + catName);
+          LOG.error("SaveExperimentPlatform: Invalid default sequenom price category name -- " + catName);
           return null;
         }
       } catch (HibernateException e) {
-        log.error("SaveExperimentPlatform: Invalid default sequenom price category name -- " + catName, e);
+        LOG.error("SaveExperimentPlatform: Invalid default sequenom price category name -- " + catName, e);
         return null;
       }
     }
@@ -1178,7 +1178,7 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
     if (price == null) {
       if (defaultCategoryId == null) {
         // no default price category -- can't store new price.
-        log.error("SaveExperimentPlatform: Unable to store new lib prep price due to no default category for " + rc.getCodeRequestCategory());
+        LOG.error("SaveExperimentPlatform: Unable to store new lib prep price due to no default category for " + rc.getCodeRequestCategory());
         return;
       }
       price = new Price();
@@ -1226,7 +1226,7 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
     if (price == null) {
       if (defaultCategoryId == null) {
         // no default price category -- can't store new price.
-        log.error("SaveExperimentPlatform: Unable to store new sequenom price due to no default category for " + rc.getCodeRequestCategory());
+        LOG.error("SaveExperimentPlatform: Unable to store new sequenom price due to no default category for " + rc.getCodeRequestCategory());
         return;
       }
       price = new Price();
@@ -1273,7 +1273,7 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
     try {
       modified = PriceUtil.setPrice(attributeValue, existingPrice, price, whichPrice);
     } catch (NumberFormatException e) {
-      log.error("Unable to parse price: " + attributeValue, e);
+      LOG.error("Unable to parse price: " + attributeValue, e);
     }
 
     return modified;
@@ -1289,11 +1289,11 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
       if (cat != null) {
         id = cat.getIdPriceCategory();
       } else {
-        log.error("SaveExperimentPlatform: Unable to determine price category for request category " + rc.getCodeRequestCategory());
+        LOG.error("SaveExperimentPlatform: Unable to determine price category for request category " + rc.getCodeRequestCategory());
         return null;
       }
     } catch (HibernateException e) {
-      log.error("SaveExperimentPlatform: Unable to determine price category for request category " + rc.getCodeRequestCategory(), e);
+      LOG.error("SaveExperimentPlatform: Unable to determine price category for request category " + rc.getCodeRequestCategory(), e);
       return null;
     }
 
@@ -1312,7 +1312,7 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
     if (price == null) {
       if (defaultCategoryId == null) {
         // no default price category -- can't store new price.
-        log.error("SaveExperimentPlatform: Unable to store new lib prep price due to no default category for " + rc.getCodeRequestCategory());
+        LOG.error("SaveExperimentPlatform: Unable to store new lib prep price due to no default category for " + rc.getCodeRequestCategory());
         return;
       }
       price = new Price();
@@ -1500,11 +1500,11 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
         if (cat != null) {
           id = cat.getIdPriceCategory();
         } else {
-          log.error("SaveExperimentPlatform: Invalid default illumina seq option price category name -- " + catName);
+          LOG.error("SaveExperimentPlatform: Invalid default illumina seq option price category name -- " + catName);
           id = null;
         }
       } catch (HibernateException e) {
-        log.error("SaveExperimentPlatform: Invalid default illumina seq option price category name -- " + catName, e);
+        LOG.error("SaveExperimentPlatform: Invalid default illumina seq option price category name -- " + catName, e);
         id = null;
       }
     }
@@ -1527,11 +1527,11 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
         if (cat != null) {
           id = cat.getIdPriceCategory();
         } else {
-          log.error("SaveExperimentPlatform: Invalid default isolation prep type price category name -- " + catName);
+          LOG.error("SaveExperimentPlatform: Invalid default isolation prep type price category name -- " + catName);
           id = null;
         }
       } catch (HibernateException e) {
-        log.error("SaveExperimentPlatform: Invalid default isolation prep type price category name -- " + catName, e);
+        LOG.error("SaveExperimentPlatform: Invalid default isolation prep type price category name -- " + catName, e);
         id = null;
       }
     }
@@ -1574,7 +1574,7 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
     if (price == null) {
       if (defaultCategoryId == null) {
         // no default price category -- can't store new price.
-        log.error("SaveExperimentPlatform: Unable to store new seq option price due to no default category for " + rc.getCodeRequestCategory());
+        LOG.error("SaveExperimentPlatform: Unable to store new seq option price due to no default category for " + rc.getCodeRequestCategory());
         return;
       }
       price = new Price();

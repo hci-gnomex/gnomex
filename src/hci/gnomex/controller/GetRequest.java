@@ -40,10 +40,11 @@ import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.output.XMLOutputter;
+import org.apache.log4j.Logger;
 
 public class GetRequest extends GNomExCommand implements Serializable {
 
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetRequest.class);
+  private static Logger LOG = Logger.getLogger(GetRequest.class);
 
   private Integer idRequest;
   private String requestNumber;
@@ -1014,22 +1015,22 @@ public class GetRequest extends GNomExCommand implements Serializable {
       }
 
     } catch (UnknownPermissionException e) {
-      log.error("An exception has occurred in GetRequest ", e);
+      LOG.error("An exception has occurred in GetRequest ", e);
       throw new RollBackCommandException(e.getMessage());
     } catch (NamingException e) {
-      log.error("An exception has occurred in GetRequest ", e);
+      LOG.error("An exception has occurred in GetRequest ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
     } catch (SQLException e) {
-      log.error("An exception has occurred in GetRequest ", e);
+      LOG.error("An exception has occurred in GetRequest ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
     } catch (XMLReflectException e) {
-      log.error("An exception has occurred in GetRequest ", e);
+      LOG.error("An exception has occurred in GetRequest ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
     } catch (Exception e) {
-      log.error("An exception has occurred in GetRequest ", e);
+      LOG.error("An exception has occurred in GetRequest ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
     } finally {

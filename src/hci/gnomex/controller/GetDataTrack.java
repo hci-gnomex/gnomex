@@ -25,13 +25,13 @@ import javax.servlet.http.HttpSession;
 import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
-
+import org.apache.log4j.Logger;
 
 
 
 public class GetDataTrack extends GNomExCommand implements Serializable {
 
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetDataTrack.class);
+  private static Logger LOG = Logger.getLogger(GetDataTrack.class);
 
   private Integer idDataTrack;
   private String dataTrackNumber;
@@ -87,15 +87,15 @@ public class GetDataTrack extends GNomExCommand implements Serializable {
       }
 
     }catch (NamingException e){
-      log.error("An exception has occurred in GetDataTrack ", e);
+      LOG.error("An exception has occurred in GetDataTrack ", e);
       e.printStackTrace(System.out);
       throw new RollBackCommandException(e.getMessage());
     }catch (SQLException e) {
-      log.error("An exception has occurred in GetDataTrack ", e);
+      LOG.error("An exception has occurred in GetDataTrack ", e);
       e.printStackTrace(System.out);
       throw new RollBackCommandException(e.getMessage());
     } catch (Exception e) {
-      log.error("An exception has occurred in GetDataTrack ", e);
+      LOG.error("An exception has occurred in GetDataTrack ", e);
       e.printStackTrace(System.out);
       throw new RollBackCommandException(e.getMessage());
     } finally {

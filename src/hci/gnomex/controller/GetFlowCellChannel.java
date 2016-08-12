@@ -21,11 +21,12 @@ import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.output.XMLOutputter;
+import org.apache.log4j.Logger;
 
 
 public class GetFlowCellChannel extends GNomExCommand implements Serializable {
 
-	private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetFlowCellChannel.class);
+	private static Logger LOG = Logger.getLogger(GetFlowCellChannel.class);
 
 	// Parameter:
 	private Integer idFlowCellChannel;
@@ -69,23 +70,23 @@ public class GetFlowCellChannel extends GNomExCommand implements Serializable {
 				}
 			
 		}catch (UnknownPermissionException e){
-			log.error("An exception has occurred in GetFlowCellChannel ", e);
+			LOG.error("An exception has occurred in GetFlowCellChannel ", e);
 			e.printStackTrace();
 			throw new RollBackCommandException(e.getMessage());
 		}catch (NamingException e){
-			log.error("An exception has occurred in GetFlowCellChannel ", e);
+			LOG.error("An exception has occurred in GetFlowCellChannel ", e);
 			e.printStackTrace();
 			throw new RollBackCommandException(e.getMessage());
 		}catch (SQLException e) {
-			log.error("An exception has occurred in GetFlowCellChannel ", e);
+			LOG.error("An exception has occurred in GetFlowCellChannel ", e);
 			e.printStackTrace();
 			throw new RollBackCommandException(e.getMessage());
 		} catch (XMLReflectException e){
-			log.error("An exception has occurred in GetFlowCellChannel ", e);
+			LOG.error("An exception has occurred in GetFlowCellChannel ", e);
 			e.printStackTrace();
 			throw new RollBackCommandException(e.getMessage());
 		} catch (Exception e){
-			log.error("An exception has occurred in GetFlowCellChannel ", e);
+			LOG.error("An exception has occurred in GetFlowCellChannel ", e);
 			e.printStackTrace();
 			throw new RollBackCommandException(e.getMessage());
 		} finally {

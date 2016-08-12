@@ -16,9 +16,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-
+import org.apache.log4j.Logger;
 public class CheckSessionStatus extends HttpServlet {
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(CheckSessionStatus.class);
+  private static Logger LOG = Logger.getLogger(CheckSessionStatus.class);
 
   /**
    * Initialize global variables
@@ -65,13 +65,13 @@ public class CheckSessionStatus extends HttpServlet {
     if (!request.isRequestedSessionIdValid()) {
       xmlResult = "<data><sa exists='false' lastAccessedTime='-1' inactiveTime='-1' currentTime='-1' "
           + "sessionMaxInActiveTime='0' kiosk='true' /></data>";
-      log.debug("Session is not valid anymore");
+      LOG.debug("Session is not valid anymore");
     } else {
       HttpSession session = request.getSession();
       if (session == null || session.isNew()) {
         xmlResult = "<data><sa exists='false' lastAccessedTime='-1' inactiveTime='-1' currentTime='-1' "
             + "sessionMaxInActiveTime='0' /></data>";
-        log.debug("Session is new or not exist");
+        LOG.debug("Session is new or not exist");
       } else {
         Long slac = (Long) session.getAttribute("lastGNomExAccessTime");
         long lastTime;
@@ -79,12 +79,12 @@ public class CheckSessionStatus extends HttpServlet {
           lastTime = session.getLastAccessedTime();
         else
           lastTime = slac.longValue();
-        // log.debug("Session last accessed time: " + new Date(lastTime));
+        // LOG.debug("Session last accessed time: " + new Date(lastTime));
         xmlResult = "<data><sa exists='true' lastAccessedTime='" + lastTime + "' " + "currentTime='"
             + new Date().getTime() + "' sessionMaxInActiveTime='" + request.getSession().getMaxInactiveInterval()
             + "' " + " /></data>";
       }
-      log.debug(xmlResult);
+      LOG.debug(xmlResult);
     }
     response.setContentType("text/html");
     PrintWriter out = response.getWriter();

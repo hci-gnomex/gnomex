@@ -20,10 +20,10 @@ import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.output.XMLOutputter;
-
+import org.apache.log4j.Logger;
 public class GetProductLedgerList extends GNomExCommand implements Serializable {
 
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetProductLedgerList.class);
+  private static Logger LOG = Logger.getLogger(GetProductLedgerList.class);
 
   private Integer idLab;
   private Integer idProduct;
@@ -175,7 +175,7 @@ public class GetProductLedgerList extends GNomExCommand implements Serializable 
       setResponsePage(this.SUCCESS_JSP);
 
     }catch(Exception e) {
-      log.error("An exception has occurred in GetLabList ", e);
+      LOG.error("An exception has occurred in GetLabList ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
 

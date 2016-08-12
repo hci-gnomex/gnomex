@@ -19,7 +19,7 @@ import org.hibernate.Session;
 
 public class GetSlideProduct extends GNomExCommand implements Serializable {
 
-  private static Logger log = Logger.getLogger(GetSlideProduct.class);
+  private static Logger LOG = Logger.getLogger(GetSlideProduct.class);
   
   private SlideProductFilter filter;
   
@@ -29,7 +29,7 @@ public class GetSlideProduct extends GNomExCommand implements Serializable {
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
       
       StringBuffer buf = filter.getQuery(this.getSecAdvisor());
-      log.info("Query for GetSlideProduct: "+buf.toString());
+      LOG.info("Query for GetSlideProduct: "+buf.toString());
       SlideProduct sp = (SlideProduct) sess.createQuery(buf.toString()).uniqueResult();
       
       if (sp != null) {
@@ -39,21 +39,15 @@ public class GetSlideProduct extends GNomExCommand implements Serializable {
         this.addInvalidField("Slide Product Not Found", "No slide product for the given ID.");
         setResponsePage(this.ERROR_JSP);
       }
-    } catch (HibernateException e) {
-      log.error(e.getClass().toString() + ": " , e);
-      throw new RollBackCommandException();
-    } catch (XMLReflectException e) {
-      log.error(e.getClass().toString() + ": " , e);
-      throw new RollBackCommandException();
     } catch (Exception e) {
-      log.error(e.getClass().toString() + ": " , e);
+      LOG.error(e.getClass().toString() + ": " , e);
       throw new RollBackCommandException();
     }
     finally {
       try {
         this.getSecAdvisor().closeReadOnlyHibernateSession();
       } catch (Exception e) {
-        log.error(e.getClass().toString() + ": " , e);
+        LOG.error(e.getClass().toString() + ": " , e);
         throw new RollBackCommandException();
       }
     }

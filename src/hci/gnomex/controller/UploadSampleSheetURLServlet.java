@@ -11,11 +11,11 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-
+import org.apache.log4j.Logger;
 public class UploadSampleSheetURLServlet extends HttpServlet {
 
     // the static field for logging in Log4J
-    private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(UploadSampleSheetURLServlet.class);
+    private static Logger LOG = Logger.getLogger(UploadSampleSheetURLServlet.class);
 
     private String directoryName = "";
 
@@ -62,7 +62,7 @@ public class UploadSampleSheetURLServlet extends HttpServlet {
             res.getOutputStream().println("<UploadSampleSheetURL url='" + URL + "'/>");
 
         } catch (Exception e) {
-            log.error("An error occurred in UploadSampleSheetURLServlet", e);
+            LOG.error("An error occurred in UploadSampleSheetURLServlet", e);
         } finally {
             try {
                 if (sess != null) {

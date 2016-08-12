@@ -27,10 +27,10 @@ import org.hibernate.Query;
 import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
-
+import org.apache.log4j.Logger;
 public class ChromatogramParser extends DetailObject implements Serializable
 {
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(ChromatogramParser.class);
+  private static Logger LOG = Logger.getLogger(ChromatogramParser.class);
   
   private Document doc;
   
@@ -114,7 +114,7 @@ public class ChromatogramParser extends DetailObject implements Serializable
         try {
           EmailHelper.sendRedoEmail(sess, req, secAdvisor, launchAppURL, appURL, serverName);          
         } catch (Exception e) {
-          log.warn("Cannot send confirmation email for request " + req.getNumber());
+          LOG.warn("Cannot send confirmation email for request " + req.getNumber());
         }
     }
   }
@@ -360,7 +360,7 @@ public class ChromatogramParser extends DetailObject implements Serializable
       try {
         EmailHelper.sendConfirmationEmail(sess, req, secAdvisor, launchAppURL, appURL, serverName);          
       } catch (Exception e) {
-        log.warn("Cannot send confirmation email for request " + req.getNumber());
+        LOG.warn("Cannot send confirmation email for request " + req.getNumber());
       }
     
     }

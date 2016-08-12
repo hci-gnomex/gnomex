@@ -17,9 +17,9 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
+import org.apache.log4j.Logger;
 public class GetCoreFacilityLabList extends GNomExCommand implements Serializable {
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetCoreFacilityLabList.class);
+  private static Logger LOG = Logger.getLogger(GetCoreFacilityLabList.class);
 
   @Override
   public void loadCommand(HttpServletRequest req, HttpSession sess) {
@@ -68,7 +68,7 @@ public class GetCoreFacilityLabList extends GNomExCommand implements Serializabl
 
       setResponsePage(this.SUCCESS_JSP);
     }catch(Exception e){
-      log.error("An exception has occurred in GetCoreFacilityLabList ", e);
+      LOG.error("An exception has occurred in GetCoreFacilityLabList ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
 

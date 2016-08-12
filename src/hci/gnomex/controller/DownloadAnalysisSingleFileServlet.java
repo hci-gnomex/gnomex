@@ -30,11 +30,11 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.codec.binary.Base64;
 import org.hibernate.Session;
-
+import org.apache.log4j.Logger;
 
 public class DownloadAnalysisSingleFileServlet extends HttpServlet {
 
-    private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(DownloadAnalysisSingleFileServlet.class);
+    private static Logger LOG = Logger.getLogger(DownloadAnalysisSingleFileServlet.class);
 
     private String                          baseDir = null;
     private Integer                         idAnalysis = null;
@@ -67,9 +67,9 @@ public class DownloadAnalysisSingleFileServlet extends HttpServlet {
         analysisDir = null;
 
         // Restrict commands to local host if request is not secure
-        if (!ServletUtil.checkSecureRequest(req, log)) {
+        if (!ServletUtil.checkSecureRequest(req, LOG)) {
             ServletUtil.reportServletError(response, "Secure connection is required. Prefix your request with 'https'",
-                    log, "Accessing secure command over non-secure line from remote host is not allowed.");
+                    LOG, "Accessing secure command over non-secure line from remote host is not allowed.");
             return;
         }
 
@@ -95,7 +95,7 @@ public class DownloadAnalysisSingleFileServlet extends HttpServlet {
             view = req.getParameter("view");
         }
         if (idAnalysis == null || fileName == null) {
-            log.error("idAnalysis and fileName required");
+            LOG.error("idAnalysis and fileName required");
 
             response.setContentType("text/html");
             response.getOutputStream().println(

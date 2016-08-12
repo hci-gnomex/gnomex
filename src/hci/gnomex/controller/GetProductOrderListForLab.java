@@ -18,10 +18,10 @@ import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.ProductOrder;
 import hci.gnomex.model.ProductOrderFilter;
 import hci.gnomex.utility.DictionaryHelper;
-
+import org.apache.log4j.Logger;
 public class GetProductOrderListForLab extends GNomExCommand implements Serializable {
 
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetProductOrderListForLab.class);
+  private static Logger LOG = Logger.getLogger(GetProductOrderListForLab.class);
 
   private Integer idLab;
   private ProductOrderFilter productOrderFilter;
@@ -76,7 +76,7 @@ public class GetProductOrderListForLab extends GNomExCommand implements Serializ
       }
 
     } catch(Exception e) {
-      log.error("An exception has occurred in GetProductOrderList ", e);
+      LOG.error("An exception has occurred in GetProductOrderList ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
 

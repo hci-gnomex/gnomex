@@ -15,7 +15,7 @@ import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.jdom.output.XMLOutputter;
-
+import org.apache.log4j.Logger;
 
 
 
@@ -24,7 +24,7 @@ public class GetSelectedHybRowInfo extends GNomExCommand implements Serializable
  
   
   // the static field for logging in Log4J
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetSelectedSampleRowInfo.class);
+  private static Logger LOG = Logger.getLogger(GetSelectedSampleRowInfo.class);
   
   private String    selectedHybXMLString;
   
@@ -69,7 +69,7 @@ public class GetSelectedHybRowInfo extends GNomExCommand implements Serializable
             
 
       } catch (JDOMException je ) {
-        log.error( "Cannot parse selectedHybXMLString " + selectedHybXMLString, je );
+        LOG.error( "Cannot parse selectedHybXMLString " + selectedHybXMLString, je );
         this.addInvalidField( "HybRowXML", "Invalid select row hyb XML");
       }
 
@@ -80,7 +80,7 @@ public class GetSelectedHybRowInfo extends GNomExCommand implements Serializable
     
     setResponsePage(this.SUCCESS_JSP);
     }catch (Exception e){
-      log.error("An exception has occurred in GetSelectedHybRowInfo ", e);
+      LOG.error("An exception has occurred in GetSelectedHybRowInfo ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
         

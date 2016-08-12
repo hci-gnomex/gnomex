@@ -25,11 +25,11 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.codec.binary.Base64;
 import org.hibernate.Session;
-
+import org.apache.log4j.Logger;
 
 public class DownloadProductOrderSingleFileServlet extends HttpServlet {
 
-    private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(DownloadProductOrderSingleFileServlet.class);
+    private static Logger LOG = Logger.getLogger(DownloadProductOrderSingleFileServlet.class);
 
     private String                          baseDir = null;
     private Integer                         idProductOrder = null;
@@ -62,9 +62,9 @@ public class DownloadProductOrderSingleFileServlet extends HttpServlet {
         productOrderDir = null;
 
         // Restrict commands to local host if request is not secure
-        if (!ServletUtil.checkSecureRequest(req, log)) {
+        if (!ServletUtil.checkSecureRequest(req, LOG)) {
             ServletUtil.reportServletError(response, "Secure connection is required. Prefix your request with 'https'",
-                    log, "Accessing secure command over non-secure line from remote host is not allowed.");
+                    LOG, "Accessing secure command over non-secure line from remote host is not allowed.");
             return;
         }
 
@@ -90,7 +90,7 @@ public class DownloadProductOrderSingleFileServlet extends HttpServlet {
             view = req.getParameter("view");
         }
         if (idProductOrder == null || fileName == null) {
-            log.error("idProductOrder and fileName required");
+            LOG.error("idProductOrder and fileName required");
 
             response.setContentType("text/html");
             response.getOutputStream().println(

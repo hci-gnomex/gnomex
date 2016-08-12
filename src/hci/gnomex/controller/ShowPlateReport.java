@@ -30,10 +30,10 @@ import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.output.XMLOutputter;
-
+import org.apache.log4j.Logger;
 public class ShowPlateReport extends GNomExCommand implements Serializable {
 
-  private static org.apache.log4j.Logger log         = org.apache.log4j.Logger.getLogger( ShowPlateReport.class );
+  private static Logger LOG         = Logger.getLogger( ShowPlateReport.class );
 
   public String                          SUCCESS_JSP = "/getHTML.jsp";
 
@@ -195,22 +195,22 @@ public class ShowPlateReport extends GNomExCommand implements Serializable {
       }
 
     } catch( UnknownPermissionException e ) {
-      log.error( "An exception has occurred in ShowPlateReport ", e );
+      LOG.error( "An exception has occurred in ShowPlateReport ", e );
       e.printStackTrace();
       throw new RollBackCommandException( e.getMessage() );
 
     } catch( NamingException e ) {
-      log.error( "An exception has occurred in ShowPlateReport ", e );
+      LOG.error( "An exception has occurred in ShowPlateReport ", e );
       e.printStackTrace();
       throw new RollBackCommandException( e.getMessage() );
 
     } catch( SQLException e ) {
-      log.error( "An exception has occurred in ShowPlateReport ", e );
+      LOG.error( "An exception has occurred in ShowPlateReport ", e );
       e.printStackTrace();
       throw new RollBackCommandException( e.getMessage() );
 
     } catch( Exception e ) {
-      log.error( "An exception has occurred in ShowPlateReport ", e );
+      LOG.error( "An exception has occurred in ShowPlateReport ", e );
       e.printStackTrace();
       throw new RollBackCommandException( e.getMessage() );
     } finally {

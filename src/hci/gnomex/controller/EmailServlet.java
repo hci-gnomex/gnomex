@@ -25,10 +25,10 @@ import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
-
+import org.apache.log4j.Logger;
 public class EmailServlet extends GNomExCommand implements Serializable {
 
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(DeleteInstrumentRuns.class);
+  private static Logger LOG = Logger.getLogger(DeleteInstrumentRuns.class);
   private String subject      = "";
   private StringBuffer body   = null;
   private String format       = "html";
@@ -76,7 +76,7 @@ public class EmailServlet extends GNomExCommand implements Serializable {
         SAXBuilder sax = new SAXBuilder();
         selectedRunsDoc = sax.build(reader);     
       } catch (JDOMException je ) {
-        log.error( "Cannot parse runsSelectedXMLString", je );
+        LOG.error( "Cannot parse runsSelectedXMLString", je );
         this.addInvalidField( "runsSelectedXMLString", "Invalid runsSelectedXMLString");
       }
     }
@@ -89,7 +89,7 @@ public class EmailServlet extends GNomExCommand implements Serializable {
           SAXBuilder sax = new SAXBuilder();
           selectedPlatesDoc = sax.build(reader);     
         } catch (JDOMException je ) {
-          log.error( "Cannot parse platesSelectedXMLString", je );
+          LOG.error( "Cannot parse platesSelectedXMLString", je );
           this.addInvalidField( "platesSelectedXMLString", "Invalid platesSelectedXMLString");
         }
       } 
@@ -102,7 +102,7 @@ public class EmailServlet extends GNomExCommand implements Serializable {
         SAXBuilder sax = new SAXBuilder();
         selectedRequestsDoc = sax.build(reader);     
       } catch (JDOMException je ) {
-        log.error( "Cannot parse requestsXMLString", je );
+        LOG.error( "Cannot parse requestsXMLString", je );
         this.addInvalidField( "requestsXMLString", "Invalid requestsXMLString");
       }
     } 

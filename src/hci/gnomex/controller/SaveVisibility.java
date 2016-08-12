@@ -16,7 +16,7 @@ import org.jdom.Document;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.jdom.output.XMLOutputter;
-
+import org.apache.log4j.Logger;
 
 
 
@@ -25,7 +25,7 @@ public class SaveVisibility extends GNomExCommand implements Serializable {
  
   
   // the static field for logging in Log4J
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(SaveVisibility.class);
+  private static Logger LOG = Logger.getLogger(SaveVisibility.class);
   
   private String                       visibilityXMLString;
   private Document                     visibilityDoc;
@@ -50,7 +50,7 @@ public class SaveVisibility extends GNomExCommand implements Serializable {
         visibilityDoc = sax.build(reader);
         parser = new RequestVisibilityParser(visibilityDoc);
       } catch (JDOMException je ) {
-        log.error( "Cannot parse visibilityXMLString", je );
+        LOG.error( "Cannot parse visibilityXMLString", je );
         this.addInvalidField( "visibilityXMLString", "Invalid visibilityXMLString");
       }
     }
@@ -67,7 +67,7 @@ public class SaveVisibility extends GNomExCommand implements Serializable {
 
 
       if (visibilityXMLString != null) {
-        parser.parse(sess, this.getSecAdvisor(), log);
+        parser.parse(sess, this.getSecAdvisor(), LOG);
       }
 
       sess.flush();
@@ -83,7 +83,7 @@ public class SaveVisibility extends GNomExCommand implements Serializable {
 
       setResponsePage(this.SUCCESS_JSP);
     } catch (Exception e) {
-      log.error("An exception has occurred in SaveVisibility ", e);
+      LOG.error("An exception has occurred in SaveVisibility ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
 

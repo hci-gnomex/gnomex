@@ -17,13 +17,13 @@ import hci.gnomex.model.ProductType;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
-
+import org.apache.log4j.Logger;
 
 
 public class DeleteProduct extends GNomExCommand implements Serializable {
 
   // the static field for logging in Log4J
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(DeleteProduct.class);
+  private static Logger LOG = Logger.getLogger(DeleteProduct.class);
 
 
   private Integer      idProduct = null;
@@ -88,7 +88,7 @@ public class DeleteProduct extends GNomExCommand implements Serializable {
       }
 
     }catch (Exception e){
-      log.error("An exception has occurred in DeleteProduct ", e);
+      LOG.error("An exception has occurred in DeleteProduct ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
 

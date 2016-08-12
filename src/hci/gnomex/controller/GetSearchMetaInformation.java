@@ -29,11 +29,11 @@ import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
-
+import org.apache.log4j.Logger;
 public class GetSearchMetaInformation extends GNomExCommand implements Serializable {
 
   // the static field for logging in Log4J
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(SearchIndex.class);
+  private static Logger LOG = Logger.getLogger(SearchIndex.class);
   
   private Map<String, List<DictionaryEntry>> dictionaryMap = new HashMap<String, List<DictionaryEntry>>();
   private List<SearchListEntry> experimentSearchList = new ArrayList<SearchListEntry>();
@@ -116,12 +116,12 @@ public class GetSearchMetaInformation extends GNomExCommand implements Serializa
 
 
     }catch (UnknownPermissionException e){
-      log.error("An exception has occurred in GetSearchMetaInformation ", e);
+      LOG.error("An exception has occurred in GetSearchMetaInformation ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
         
     } catch (Exception e){
-      log.error("An exception has occurred in getSearchMetaInformation ", e);
+      LOG.error("An exception has occurred in getSearchMetaInformation ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
     } finally {

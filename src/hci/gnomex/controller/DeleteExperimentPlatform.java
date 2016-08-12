@@ -18,7 +18,7 @@ import javax.servlet.http.HttpSession;
 
 import org.hibernate.Session;
 import org.hibernate.exception.ConstraintViolationException;
-
+import org.apache.log4j.Logger;
 
 
 
@@ -27,7 +27,7 @@ public class DeleteExperimentPlatform extends GNomExCommand implements Serializa
 
 
   // the static field for logging in Log4J
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(DeleteExperimentPlatform.class);
+  private static Logger LOG = Logger.getLogger(DeleteExperimentPlatform.class);
 
 
   private String      codeRequestCategory = null;
@@ -105,14 +105,14 @@ public class DeleteExperimentPlatform extends GNomExCommand implements Serializa
         requestCategory.setIsActive("N");
         sess.flush();
       } catch(Exception e) {
-        log.error("An exception has occurred in DeleteExperimentPlatform when trying to inactivate it ", e);
+        LOG.error("An exception has occurred in DeleteExperimentPlatform when trying to inactivate it ", e);
         e.printStackTrace();
         throw new RollBackCommandException(e.getMessage());
 
       }
 
     } catch (Exception e){
-      log.error("An exception has occurred in DeleteExperimentPlatform ", e);
+      LOG.error("An exception has occurred in DeleteExperimentPlatform ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
 

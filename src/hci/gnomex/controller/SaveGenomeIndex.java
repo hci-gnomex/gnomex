@@ -14,7 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.hibernate.Session;
-
+import org.apache.log4j.Logger;
 
 
 
@@ -23,7 +23,7 @@ public class SaveGenomeIndex extends GNomExCommand implements Serializable {
  
   
   // the static field for logging in Log4J
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(SaveGenomeIndex.class);
+  private static Logger LOG = Logger.getLogger(SaveGenomeIndex.class);
 
 
   private GenomeIndex                    genomeIndexScreen;
@@ -78,7 +78,7 @@ public class SaveGenomeIndex extends GNomExCommand implements Serializable {
       }
       
     }catch (Exception e){
-      log.error("An exception has occurred in SaveGenomeIndex ", e);
+      LOG.error("An exception has occurred in SaveGenomeIndex ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
         

@@ -20,11 +20,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.hibernate.Session;
-
+import org.apache.log4j.Logger;
 
 public class SaveChromatogramFromFile extends GNomExCommand implements Serializable {
 
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(SaveChromatogramFromFile.class);
+  private static Logger LOG = Logger.getLogger(SaveChromatogramFromFile.class);
 
   private String  serverName;
   private String  fileName;
@@ -69,7 +69,7 @@ public class SaveChromatogramFromFile extends GNomExCommand implements Serializa
       launchAppURL = this.getLaunchAppURL(request);      
       appURL = this.getAppURL(request);      
     } catch (Exception e) {
-      log.warn("Cannot get launch app URL in SaveChromatogramFromFile", e);
+      LOG.warn("Cannot get launch app URL in SaveChromatogramFromFile", e);
     }
   }
 
@@ -206,7 +206,7 @@ public class SaveChromatogramFromFile extends GNomExCommand implements Serializa
       }
 
     }catch (Exception e){
-      log.error("An exception has occurred in SaveChromatogramFromFile ", e);
+      LOG.error("An exception has occurred in SaveChromatogramFromFile ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
     } finally {

@@ -32,11 +32,11 @@ import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
-
+import org.apache.log4j.Logger;
 public class SaveOrganism extends GNomExCommand implements Serializable {
 
   // the static field for logging in Log4J
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(SaveOrganism.class);
+  private static Logger LOG = Logger.getLogger(SaveOrganism.class);
 
   private String genomeBuildsXMLString;
   private Document genomeBuildsDoc;
@@ -75,7 +75,7 @@ public class SaveOrganism extends GNomExCommand implements Serializable {
         SAXBuilder sax = new SAXBuilder();
         genomeBuildsDoc = sax.build(reader);
       } catch (JDOMException je) {
-        log.error("Cannot parse genomeBuildsXMLString", je);
+        LOG.error("Cannot parse genomeBuildsXMLString", je);
         this.addInvalidField("genomeBuildsXMLString", "Invalid genomeBuildsXMLString");
       }
     }
@@ -211,7 +211,7 @@ public class SaveOrganism extends GNomExCommand implements Serializable {
       }
 
     } catch (Exception e) {
-      log.error("An exception has occurred in SaveOrganism ", e);
+      LOG.error("An exception has occurred in SaveOrganism ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
 

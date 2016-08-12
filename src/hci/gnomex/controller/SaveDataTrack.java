@@ -29,7 +29,7 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.apache.log4j.Logger;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -45,7 +45,7 @@ public class SaveDataTrack extends GNomExCommand implements Serializable {
 
 
   // the static field for logging in Log4J
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(SaveDataTrack.class);
+  private static Logger LOG = Logger.getLogger(SaveDataTrack.class);
 
   private DataTrack    load;
   private DataTrack    dataTrack;
@@ -146,7 +146,7 @@ public class SaveDataTrack extends GNomExCommand implements Serializable {
             if (fileNode.attributeValue("idDataTrackFile").equals("")) {
               File file = new File(fileNode.attributeValue("url"));
               if (!file.delete()) {
-                Logger.getLogger(this.getClass().getName()).log(Level.WARNING, "Unable remove dataTrack file " + file.getName() + " for dataTrack " + dataTrack.getName());
+                LOG.warn("Unable remove dataTrack file " + file.getName() + " for dataTrack " + dataTrack.getName());
               }
             } else {
               dataTrackFilesToRemove.put(Integer.valueOf(fileNode.attributeValue("idDataTrackFile")), Integer.valueOf(fileNode.attributeValue("idDataTrackFile")));
@@ -311,7 +311,7 @@ public class SaveDataTrack extends GNomExCommand implements Serializable {
       }
 
     }catch (Exception e){
-      log.error("An exception has occurred in SaveDataTrackFolder ", e);
+      LOG.error("An exception has occurred in SaveDataTrackFolder ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
 

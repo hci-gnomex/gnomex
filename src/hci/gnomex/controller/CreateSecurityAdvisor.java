@@ -21,7 +21,7 @@ import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.output.XMLOutputter;
-
+import org.apache.log4j.Logger;
 /**
  *
  *@author
@@ -33,7 +33,7 @@ import org.jdom.output.XMLOutputter;
 public class CreateSecurityAdvisor extends GNomExCommand implements Serializable {
 
   // the static field for logging in Log4J
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(CreateSecurityAdvisor.class);
+  private static Logger LOG = Logger.getLogger(CreateSecurityAdvisor.class);
 
   private SecurityAdvisor     secAdvisor;
   private String              launchAction;
@@ -110,16 +110,16 @@ public class CreateSecurityAdvisor extends GNomExCommand implements Serializable
       this.addInvalidField("invalid permission", e.getMessage());
     }
     catch (HibernateException ex) {
-      log.error("Hibernate exception while trying to Create Security Advisor: ", ex);
+      LOG.error("Hibernate exception while trying to Create Security Advisor: ", ex);
       this.addInvalidField("Error", "Hibernate exception while trying to Create Security Advisor: "+ ex);
     }
     catch (SQLException ex) {
-      log.error("SQL exception while trying to Create Security Advisor: ",ex);
+      LOG.error("SQL exception while trying to Create Security Advisor: ",ex);
       this.addInvalidField("Error", "SQL exception while trying to Create Security Advisor: "+ ex);
     }
     catch (Exception ex) {
       ex.printStackTrace();
-      log.fatal(ex.getClass().toString() + " occurred in CreateSecurityAdvisor ", ex);
+      LOG.fatal(ex.getClass().toString() + " occurred in CreateSecurityAdvisor ", ex);
       this.addInvalidField("Error", ex.getClass().toString() + " occurred in CreateSecurityAdvisor " + ex);
     }
     finally {
@@ -127,7 +127,7 @@ public class CreateSecurityAdvisor extends GNomExCommand implements Serializable
         HibernateSession.closeSession();
       }
       catch (Exception ex) {
-        log.error("Exception trying to close the Hibernate session: ", ex);
+        LOG.error("Exception trying to close the Hibernate session: ", ex);
       }
     }
 
@@ -173,7 +173,7 @@ public class CreateSecurityAdvisor extends GNomExCommand implements Serializable
     }
     catch (Exception ex) {
       ex.printStackTrace();
-      log.fatal(ex.getClass().toString() + " occurred in CreateSecurityAdvisor " + ex);
+      LOG.fatal(ex.getClass().toString() + " occurred in CreateSecurityAdvisor " + ex);
       throw new RollBackCommandException();
     }
     

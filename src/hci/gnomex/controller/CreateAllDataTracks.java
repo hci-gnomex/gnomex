@@ -50,7 +50,7 @@ import java.util.regex.Pattern;
 
 import org.apache.log4j.Level;
 import org.hibernate.Hibernate;
-
+import org.apache.log4j.Logger;
 /**
  * Given a list of analysis files, this routine creates data tracks for 
  * all of the appropriate files.  The data track folder structure mirrors
@@ -63,7 +63,7 @@ import org.hibernate.Hibernate;
 public class CreateAllDataTracks extends GNomExCommand implements Serializable {
    
   // the static field for logging in Log4J
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(CreateAllDataTracks.class);
+  private static Logger LOG = Logger.getLogger(CreateAllDataTracks.class);
   
   private String                baseDir;
   
@@ -249,7 +249,7 @@ public class CreateAllDataTracks extends GNomExCommand implements Serializable {
         
 	  } // end of if we had some files of interest        
    } catch (Exception e){
-      log.error("An exception has occurred in CreateAllDataTracks ", e);
+      LOG.error("An exception has occurred in CreateAllDataTracks ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());        
     } finally {

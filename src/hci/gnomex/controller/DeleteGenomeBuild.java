@@ -18,7 +18,7 @@ import javax.servlet.http.HttpSession;
 import org.hibernate.Session;
 import org.hibernate.exception.ConstraintViolationException;
 
-
+import org.apache.log4j.Logger;
 
 
 public class DeleteGenomeBuild extends GNomExCommand implements Serializable {
@@ -26,7 +26,7 @@ public class DeleteGenomeBuild extends GNomExCommand implements Serializable {
  
   
   // the static field for logging in Log4J
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(DeleteGenomeBuild.class);
+  private static Logger LOG = Logger.getLogger(DeleteGenomeBuild.class);
   
   
   private Integer      idGenomeBuild = null;
@@ -109,14 +109,14 @@ public class DeleteGenomeBuild extends GNomExCommand implements Serializable {
         genomeBuild.setIsActive("N");
         sess.flush();
       } catch(Exception e) {
-        log.error("An exception has occurred in DeleteGenomeBuild when trying to inactivate genome build ", e);
+        LOG.error("An exception has occurred in DeleteGenomeBuild when trying to inactivate genome build ", e);
         e.printStackTrace();
         throw new RollBackCommandException(e.getMessage());
         
       }
       
     } catch (Exception e){
-      log.error("An exception has occurred in DeleteGenomeBuild ", e);
+      LOG.error("An exception has occurred in DeleteGenomeBuild ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
         

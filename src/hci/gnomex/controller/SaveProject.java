@@ -25,7 +25,7 @@ import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.jdom.output.XMLOutputter;
-
+import org.apache.log4j.Logger;
 
 
 public class SaveProject extends GNomExCommand implements Serializable {
@@ -33,7 +33,7 @@ public class SaveProject extends GNomExCommand implements Serializable {
  
   
   // the static field for logging in Log4J
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(SaveProject.class);
+  private static Logger LOG = Logger.getLogger(SaveProject.class);
   
   private String     projectXMLString;
   private Document   projectDoc;
@@ -62,7 +62,7 @@ public class SaveProject extends GNomExCommand implements Serializable {
       SAXBuilder sax = new SAXBuilder();
       projectDoc = sax.build(reader);
     } catch (JDOMException je ) {
-      log.error( "Cannot parse projectXMLString", je );
+      LOG.error( "Cannot parse projectXMLString", je );
       this.addInvalidField( "RequestXMLString", "Invalid request xml");
     }
 
@@ -115,7 +115,7 @@ public class SaveProject extends GNomExCommand implements Serializable {
       }
       
     }catch (Exception e){
-      log.error("An exception has occurred in SaveRequest ", e);
+      LOG.error("An exception has occurred in SaveRequest ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
         

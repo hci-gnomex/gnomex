@@ -24,11 +24,11 @@ import org.hibernate.Query;
 import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
-
+import org.apache.log4j.Logger;
 public abstract class MultiRequestSampleSheetAbstractParser implements Serializable {
 
   // the static field for logging in Log4J
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(MultiRequestSampleSheetAbstractParser.class);
+  private static Logger LOG = Logger.getLogger(MultiRequestSampleSheetAbstractParser.class);
 
   private static final String HEADER_REQUEST_NUMBER = "Request #";
   private static final String HEADER_REQUEST_NUMBER2 = "Request Number";
@@ -207,7 +207,7 @@ public abstract class MultiRequestSampleSheetAbstractParser implements Serializa
         }
       } catch(UnknownPermissionException ex) {
         errors.add(new Error(Error.REQUEST_ERROR, "Unknown permission exception on request.", rowOrdinal, null, requestNumber, sampleNumber));
-        log.error("MultiRequestSampleSheetFileParser: Unknown permission exception", ex);
+        LOG.error("MultiRequestSampleSheetFileParser: Unknown permission exception", ex);
         rowError = true;
       }
       if (sample != null && sample.getIdSample() == null && sampleName.length() == 0) {
@@ -399,7 +399,7 @@ public abstract class MultiRequestSampleSheetAbstractParser implements Serializa
         setAnnotationValue(info, sample, value);
       }
     } catch (Exception e) {
-      log.error("MultiRequestSampleSheetFileParser -- error setting value", e);
+      LOG.error("MultiRequestSampleSheetFileParser -- error setting value", e);
     }
   }
 

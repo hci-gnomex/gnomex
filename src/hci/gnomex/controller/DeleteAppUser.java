@@ -20,11 +20,11 @@ import javax.servlet.http.HttpSession;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.internal.SessionImpl;
-
+import org.apache.log4j.Logger;
 public class DeleteAppUser extends GNomExCommand implements Serializable {
 
 	// the static field for logging in Log4J
-	private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(DeleteAppUser.class);
+	private static Logger LOG = Logger.getLogger(DeleteAppUser.class);
 
 	private Integer idAppUser = null;
 
@@ -128,7 +128,7 @@ public class DeleteAppUser extends GNomExCommand implements Serializable {
 			}
 
 		} catch (Exception e) {
-			log.error("An exception has occurred in DeleteAppUser ", e);
+			LOG.error("An exception has occurred in DeleteAppUser ", e);
 			e.printStackTrace();
 			throw new GNomExRollbackException(e.getMessage(), true, "Unable to delete app user");
 
@@ -136,7 +136,7 @@ public class DeleteAppUser extends GNomExCommand implements Serializable {
 			try {
 				HibernateSession.closeSession();
 			} catch (Exception e) {
-				log.error("Exception trying to close the Hibernate session: " , e);
+				LOG.error("Exception trying to close the Hibernate session: " , e);
 			}
 		}
 

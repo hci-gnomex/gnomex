@@ -27,13 +27,13 @@ import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
-
+import org.apache.log4j.Logger;
 
 public class DeleteFlowCell extends GNomExCommand implements Serializable {
 
 
 	// the static field for logging in Log4J
-	private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(SaveFlowCell.class);
+	private static Logger LOG = Logger.getLogger(SaveFlowCell.class);
 
 	private String						channelsXMLString;
 	private Document					channelsDoc;
@@ -113,7 +113,7 @@ public class DeleteFlowCell extends GNomExCommand implements Serializable {
 
     }
     catch (Exception e) {
-      log.error("An exception has occurred in SaveFlowCell ", e);
+      LOG.error("An exception has occurred in SaveFlowCell ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
     }

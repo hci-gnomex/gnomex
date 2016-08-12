@@ -26,7 +26,7 @@ import org.jdom.output.XMLOutputter;
 
 public class GetSlideDesign extends GNomExCommand implements Serializable {
 
-  private static Logger log = Logger.getLogger(GetSlideDesign.class);
+  private static Logger LOG = Logger.getLogger(GetSlideDesign.class);
   
   private SlideDesignFilter filter;
   
@@ -36,7 +36,7 @@ public class GetSlideDesign extends GNomExCommand implements Serializable {
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
       
       StringBuffer buf = filter.getQuery(this.getSecAdvisor());
-      log.info("Query for GetSlideDesign: "+buf.toString());
+      LOG.info("Query for GetSlideDesign: "+buf.toString());
       Object[] row = (Object[]) sess.createQuery(buf.toString()).uniqueResult();
       
       if (row[0] != null) {
@@ -68,20 +68,20 @@ public class GetSlideDesign extends GNomExCommand implements Serializable {
         setResponsePage(this.ERROR_JSP);
       }
     } catch (HibernateException e) {
-      log.error(e.getClass().toString() + ": " , e);
+      LOG.error(e.getClass().toString() + ": " , e);
       throw new RollBackCommandException();
     } catch (XMLReflectException e) {
-      log.error(e.getClass().toString() + ": " , e);
+      LOG.error(e.getClass().toString() + ": " , e);
       throw new RollBackCommandException();
     } catch (Exception e) {
-      log.error(e.getClass().toString() + ": " , e);
+      LOG.error(e.getClass().toString() + ": " , e);
       throw new RollBackCommandException();
     }
     finally {
       try {
         this.getSecAdvisor().closeReadOnlyHibernateSession();
       } catch (Exception e) {
-        log.error(e.getClass().toString() + ": " , e);
+        LOG.error(e.getClass().toString() + ": " , e);
         throw new RollBackCommandException();
       }
     }

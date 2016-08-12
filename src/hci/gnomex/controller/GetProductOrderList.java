@@ -19,10 +19,10 @@ import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.output.XMLOutputter;
-
+import org.apache.log4j.Logger;
 public class GetProductOrderList extends GNomExCommand implements Serializable {
 
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetProductOrderList.class);
+  private static Logger LOG = Logger.getLogger(GetProductOrderList.class);
 
   private ProductOrderFilter productOrderFilter;
 
@@ -43,7 +43,7 @@ public class GetProductOrderList extends GNomExCommand implements Serializable {
       Document doc = new Document(new Element("ProductOrderList"));
 
       StringBuffer buf = productOrderFilter.getProductOrderQuery();
-      log.info("Query for GetProductOrderList: " + buf.toString());
+      LOG.info("Query for GetProductOrderList: " + buf.toString());
 
       List productOrders = sess.createQuery(buf.toString()).list();
 
@@ -103,7 +103,7 @@ public class GetProductOrderList extends GNomExCommand implements Serializable {
       setResponsePage(this.SUCCESS_JSP);
 
     }catch(Exception e) {
-      log.error("An exception has occurred in GetProductOrderList ", e);
+      LOG.error("An exception has occurred in GetProductOrderList ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());  
     }finally {

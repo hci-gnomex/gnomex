@@ -25,11 +25,11 @@ import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.output.XMLOutputter;
-
+import org.apache.log4j.Logger;
 
 public class GetSlideDesignList extends GNomExCommand implements Serializable {
   
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetSlideDesignList.class);
+  private static Logger LOG = Logger.getLogger(GetSlideDesignList.class);
   
   private SlideDesignFilter filter;
   
@@ -57,7 +57,7 @@ public class GetSlideDesignList extends GNomExCommand implements Serializable {
     // in a group
     if (this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_PARTICIPATE_IN_GROUPS)) {
       StringBuffer buf = filter.getQuery(this.getSecAdvisor());
-      log.info("Query for GetSlideDesignList: " + buf.toString());
+      LOG.info("Query for GetSlideDesignList: " + buf.toString());
       List slideDesigns = (List)sess.createQuery(buf.toString()).list();
       
       for(Iterator i = slideDesigns.iterator(); i.hasNext();) {
@@ -123,19 +123,19 @@ public class GetSlideDesignList extends GNomExCommand implements Serializable {
     
     setResponsePage(this.SUCCESS_JSP);
     }catch (NamingException e){
-      log.error("An exception has occurred in GetSlideDesignList ", e);
+      LOG.error("An exception has occurred in GetSlideDesignList ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
     }catch (SQLException e) {
-      log.error("An exception has occurred in GetSlideDesignList ", e);
+      LOG.error("An exception has occurred in GetSlideDesignList ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
     } catch (XMLReflectException e){
-      log.error("An exception has occurred in GetSlideDesignList ", e);
+      LOG.error("An exception has occurred in GetSlideDesignList ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
     } catch (Exception e){
-      log.error("An exception has occurred in GetSlideDesignList ", e);
+      LOG.error("An exception has occurred in GetSlideDesignList ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
     } finally {

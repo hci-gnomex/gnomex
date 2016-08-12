@@ -27,9 +27,10 @@ import javax.sql.DataSource;
 
 import org.apache.catalina.realm.GenericPrincipal;
 import org.apache.catalina.realm.RealmBase;
+import org.apache.log4j.Logger;
 
 public class GNomExLDAPRealm extends RealmBase {
-
+	private static Logger LOG = Logger.getLogger(GNomExLDAPRealm.class);
 	private String username;
 	private String password;
 
@@ -275,8 +276,7 @@ public class GNomExLDAPRealm extends RealmBase {
 			}
 
 		} catch (Exception e) {
-			System.out.println("ERROR in checkLDAPCredentials: " + e);
-			e.printStackTrace();
+			LOG.error("ERROR in checkLDAPCredentials: ", e);
 			isAuthenticated = false;
 		}
 		return isAuthenticated;

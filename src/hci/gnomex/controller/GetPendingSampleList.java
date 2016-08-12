@@ -28,11 +28,11 @@ import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.output.XMLOutputter;
-
+import org.apache.log4j.Logger;
 
 public class GetPendingSampleList extends GNomExCommand implements Serializable {
 
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetPendingSampleList.class);
+  private static Logger LOG = Logger.getLogger(GetPendingSampleList.class);
 
   private PendingSampleFilter  filter;
   private Element              rootNode = null;
@@ -90,7 +90,7 @@ public class GetPendingSampleList extends GNomExCommand implements Serializable 
       //
       HashMap<Integer, List<Object[]>> samplesToFilter = new HashMap<Integer, List<Object[]>>(); 
       StringBuffer buf = filter.getPendingSamplesAlreadyOnPlateQuery();
-      log.info("Pending samples already on plate GetPendingSampleList: " + buf.toString());
+      LOG.info("Pending samples already on plate GetPendingSampleList: " + buf.toString());
       Query query = sess.createQuery(buf.toString());
       List pendingSamplesAlreadyOnPlate = (List)query.list();
       for (Iterator i = pendingSamplesAlreadyOnPlate.iterator(); i.hasNext();) {
@@ -111,7 +111,7 @@ public class GetPendingSampleList extends GNomExCommand implements Serializable 
       // Get the 'redo' samples. Organize by primer or assay, then request, then well
       //
       buf = filter.getRedoQuery();
-      log.info("Redo sample query for GetPendingSampleList: " + buf.toString());
+      LOG.info("Redo sample query for GetPendingSampleList: " + buf.toString());
       query = sess.createQuery(buf.toString());
       List redoResults = (List)query.list();
       requestMap = new  TreeMap<Integer, TreeMap<String, List<Object[]>>>();
@@ -126,7 +126,7 @@ public class GetPendingSampleList extends GNomExCommand implements Serializable 
       // Tubes have wells that don't belong to a source plate.
       //
       buf = filter.getPendingSamplesQuery();
-      log.info("Pending tube query for GetPendingSampleList: " + buf.toString());
+      LOG.info("Pending tube query for GetPendingSampleList: " + buf.toString());
       query = sess.createQuery(buf.toString());
       List pendingSamples = (List)query.list();
 
@@ -139,16 +139,16 @@ public class GetPendingSampleList extends GNomExCommand implements Serializable 
 
       setResponsePage(this.SUCCESS_JSP);
     }catch (NamingException e){
-      log.error("An exception has occurred in GetPendingSampleList ", e);
+      LOG.error("An exception has occurred in GetPendingSampleList ", e);
       e.printStackTrace(System.out);
       throw new RollBackCommandException(e.getMessage());
 
     }catch (SQLException e) {
-      log.error("An exception has occurred in GetPendingSampleList ", e);
+      LOG.error("An exception has occurred in GetPendingSampleList ", e);
       e.printStackTrace(System.out);
       throw new RollBackCommandException(e.getMessage());
     }catch (Exception e) {
-      log.error("An exception has occurred in GetPendingSampleList ", e);
+      LOG.error("An exception has occurred in GetPendingSampleList ", e);
       e.printStackTrace(System.out);
       throw new RollBackCommandException(e.getMessage());
     } finally {

@@ -14,10 +14,10 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
-
+import org.apache.log4j.Logger;
 public class DownloadFastaFileServlet extends HttpServlet {
 
-    private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(DownloadFastaFileServlet.class);
+    private static Logger LOG = Logger.getLogger(DownloadFastaFileServlet.class);
 
     private Chromatogram                   chromatogram;
     private Integer                        idChromatogram;
@@ -29,9 +29,9 @@ public class DownloadFastaFileServlet extends HttpServlet {
             throws ServletException, IOException {
 
         // Restrict commands to local host if request is not secure
-        if (!ServletUtil.checkSecureRequest(req, log)) {
+        if (!ServletUtil.checkSecureRequest(req, LOG)) {
             ServletUtil.reportServletError(response, "Secure connection is required. Prefix your request with 'https'",
-                    log, "Accessing secure command over non-secure line from remote host is not allowed.");
+                    LOG, "Accessing secure command over non-secure line from remote host is not allowed.");
             return;
         }
 
@@ -41,7 +41,7 @@ public class DownloadFastaFileServlet extends HttpServlet {
         }
 
         if (idChromatogram == null) {
-            log.error("idChromatogram required");
+            LOG.error("idChromatogram required");
             Chromatogram.missingIdResponse(response);
             return;
         }

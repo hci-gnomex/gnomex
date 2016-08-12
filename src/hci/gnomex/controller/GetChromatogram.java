@@ -22,11 +22,11 @@ import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.output.XMLOutputter;
-
+import org.apache.log4j.Logger;
 
 public class GetChromatogram extends GNomExCommand implements Serializable {
 
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetChromatogram.class);
+  private static Logger LOG = Logger.getLogger(GetChromatogram.class);
 
   private String  fileName = null;
   private int     idChromatogram;
@@ -285,11 +285,11 @@ public class GetChromatogram extends GNomExCommand implements Serializable {
       }
 
     }catch (UnsupportedChromatogramFormatException e){
-      log.error("An exception has occurred in ReadChromatogramFile ", e);
+      LOG.error("An exception has occurred in ReadChromatogramFile ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
     }catch (Exception e){
-      log.error("An exception has occurred in ReadChromatogramFile ", e);
+      LOG.error("An exception has occurred in ReadChromatogramFile ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
     } finally {

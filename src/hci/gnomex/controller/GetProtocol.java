@@ -27,7 +27,7 @@ import org.jdom.output.XMLOutputter;
 
 public class GetProtocol extends GNomExCommand implements Serializable {
 
-  private static Logger log = Logger.getLogger(GetProtocol.class);
+  private static Logger LOG = Logger.getLogger(GetProtocol.class);
   private Integer idProtocol;
   private String codeProtocol;
   private String protocolClassName;
@@ -189,17 +189,17 @@ public class GetProtocol extends GNomExCommand implements Serializable {
       
       this.validate();
     } catch (HibernateException e) {
-      log.error(e.getClass().toString() + ": " , e);
+      LOG.error(e.getClass().toString() + ": " , e);
       throw new RollBackCommandException();
     } catch (Exception e) {
-      log.error(e.getClass().toString() + ": " , e);
+      LOG.error(e.getClass().toString() + ": " , e);
       throw new RollBackCommandException();
     }
     finally {
       try {
         this.getSecAdvisor().closeReadOnlyHibernateSession();
       } catch (Exception e) {
-        log.error(e.getClass().toString() + ": " , e);
+        LOG.error(e.getClass().toString() + ": " , e);
         throw new RollBackCommandException();
       }
     }

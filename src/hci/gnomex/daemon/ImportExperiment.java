@@ -31,6 +31,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
@@ -127,7 +128,7 @@ public class ImportExperiment {
 		errorMessagePrefixString += " on " + new SimpleDateFormat("MM-dd-yyyy_HH:mm:ss").format(calendar.getTime()) + "\n";
 
 		try {
-			org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger("org.hibernate");
+			Logger log = Logger.getLogger("org.hibernate");
 			log.setLevel(Level.ERROR);
 
 			// Connect to the database

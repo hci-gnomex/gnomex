@@ -19,10 +19,10 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.hibernate.Session;
 import org.jdom.Element;
-
+import org.apache.log4j.Logger;
 public class DownloadPlateSampleSheetFileServlet extends HttpServlet { 
 
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(DownloadPlateSampleSheetFileServlet.class);
+  private static Logger LOG = Logger.getLogger(DownloadPlateSampleSheetFileServlet.class);
   
   private Integer                        idPlate;
   private Plate                          plate;
@@ -36,9 +36,9 @@ public class DownloadPlateSampleSheetFileServlet extends HttpServlet {
 
 
     // Restrict commands to local host if request is not secure
-    if (!ServletUtil.checkSecureRequest(req, log)) {
+    if (!ServletUtil.checkSecureRequest(req, LOG)) {
       ServletUtil.reportServletError(response, "Secure connection is required. Prefix your request with 'https'",
-              log, "Accessing secure command over non-secure line from remote host is not allowed.");
+              LOG, "Accessing secure command over non-secure line from remote host is not allowed.");
       return;
     }
 
@@ -48,7 +48,7 @@ public class DownloadPlateSampleSheetFileServlet extends HttpServlet {
     }
     
     if (idPlate == null) {
-      ServletUtil.reportServletError(response, "Missing parameter:  idPlate required", log);
+      ServletUtil.reportServletError(response, "Missing parameter:  idPlate required", LOG);
     }
 
     InputStream in = null;
@@ -177,7 +177,7 @@ public class DownloadPlateSampleSheetFileServlet extends HttpServlet {
       return plateNode;
 
     } catch( Exception e ) {
-      log.error( "An exception has occurred in CreateRunFile ", e );
+      LOG.error( "An exception has occurred in CreateRunFile ", e );
       e.printStackTrace();
       return null;
     }
@@ -206,7 +206,7 @@ public class DownloadPlateSampleSheetFileServlet extends HttpServlet {
       return wellNode;
 
     } catch( Exception e ) {
-      log.error( "An exception has occurred in DownloadPlateSampleSheet ", e );
+      LOG.error( "An exception has occurred in DownloadPlateSampleSheet ", e );
       e.printStackTrace();
       return null;
     }

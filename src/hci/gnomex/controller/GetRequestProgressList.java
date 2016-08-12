@@ -24,10 +24,10 @@ import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.output.XMLOutputter;
 
-
+import org.apache.log4j.Logger;
 public class GetRequestProgressList extends GNomExCommand implements Serializable {
   
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetRequestProgressList.class);
+  private static Logger LOG = Logger.getLogger(GetRequestProgressList.class);
   
   private RequestProgressFilter filter;
   
@@ -55,7 +55,7 @@ public class GetRequestProgressList extends GNomExCommand implements Serializabl
       DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess);
       
       StringBuffer buf = filter.getMicroarrayQuery(this.getSecAdvisor(), dictionaryHelper);
-      log.info(buf.toString());
+      LOG.info(buf.toString());
       List rows1 = (List)sess.createQuery(buf.toString()).list();
       TreeMap rowMap = new TreeMap(new HybSampleComparator());
       for(Iterator i = rows1.iterator(); i.hasNext();) {
@@ -69,7 +69,7 @@ public class GetRequestProgressList extends GNomExCommand implements Serializabl
       }
       
       buf = filter.getQualityControlQuery(this.getSecAdvisor(), dictionaryHelper);
-      log.info(buf.toString());
+      LOG.info(buf.toString());
       List rows2 = (List)sess.createQuery(buf.toString()).list();
       for(Iterator i = rows2.iterator(); i.hasNext();) {
         Object[] row = (Object[])i.next();
@@ -155,15 +155,15 @@ public class GetRequestProgressList extends GNomExCommand implements Serializabl
     
       setResponsePage(this.SUCCESS_JSP);
     }catch (NamingException e){
-      log.error("An exception has occurred in GetRequestProgressList ", e);
+      LOG.error("An exception has occurred in GetRequestProgressList ", e);
       e.printStackTrace(System.out);
       throw new RollBackCommandException(e.getMessage());
     }catch (SQLException e) {
-      log.error("An exception has occurred in GetRequestProgressList ", e);
+      LOG.error("An exception has occurred in GetRequestProgressList ", e);
       e.printStackTrace(System.out);
       throw new RollBackCommandException(e.getMessage());
     } catch (Exception e) {
-      log.error("An exception has occurred in GetRequestProgressList ", e);
+      LOG.error("An exception has occurred in GetRequestProgressList ", e);
       e.printStackTrace(System.out);
       throw new RollBackCommandException(e.getMessage());
     } finally {

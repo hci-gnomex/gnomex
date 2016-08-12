@@ -40,6 +40,7 @@ import org.hibernate.Transaction;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+import org.apache.log4j.Logger;
 
 
 public class DatasetExpirationCheckd extends TimerTask {
@@ -130,7 +131,7 @@ public class DatasetExpirationCheckd extends TimerTask {
   public void run() {
    
     try {
-      org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger("org.hibernate");
+      Logger log = Logger.getLogger("org.hibernate");
       log.setLevel(Level.ERROR);
 
       dataSource = new BatchDataSource();

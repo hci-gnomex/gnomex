@@ -25,11 +25,11 @@ import org.hibernate.Query;
 import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
-
+import org.apache.log4j.Logger;
 public class GetProductList extends GNomExCommand implements Serializable {
 
 	// the static field for logging in Log4J
-	private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetProductList.class);
+	private static Logger LOG = Logger.getLogger(GetProductList.class);
 
 	private boolean isAdmin = false;
 
@@ -118,20 +118,20 @@ public class GetProductList extends GNomExCommand implements Serializable {
 
 			setResponsePage(this.SUCCESS_JSP);
 		} catch (NamingException e) {
-			log.error("An exception has occurred in GetProductList ", e);
+			LOG.error("An exception has occurred in GetProductList ", e);
 			e.printStackTrace();
 			throw new RollBackCommandException(e.getMessage());
 
 		} catch (SQLException e) {
-			log.error("An exception has occurred in GetProductList ", e);
+			LOG.error("An exception has occurred in GetProductList ", e);
 			e.printStackTrace();
 			throw new RollBackCommandException(e.getMessage());
 		} catch (XMLReflectException e) {
-			log.error("An exception has occurred in GetProductList ", e);
+			LOG.error("An exception has occurred in GetProductList ", e);
 			e.printStackTrace();
 			throw new RollBackCommandException(e.getMessage());
 		} catch (Exception e) {
-			log.error("An exception has occurred in GetProductList ", e);
+			LOG.error("An exception has occurred in GetProductList ", e);
 			e.printStackTrace();
 			throw new RollBackCommandException(e.getMessage());
 		} finally {

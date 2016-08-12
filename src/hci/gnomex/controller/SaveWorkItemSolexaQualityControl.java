@@ -35,7 +35,7 @@ import org.jdom.Document;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.jdom.output.XMLOutputter;
-
+import org.apache.log4j.Logger;
 
 
 
@@ -44,7 +44,7 @@ public class SaveWorkItemSolexaQualityControl extends GNomExCommand implements S
  
   
   // the static field for logging in Log4J
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(SaveWorkItemSolexaQualityControl.class);
+  private static Logger LOG = Logger.getLogger(SaveWorkItemSolexaQualityControl.class);
   
   private String                       workItemXMLString;
   private Document                     workItemDoc;
@@ -74,7 +74,7 @@ public class SaveWorkItemSolexaQualityControl extends GNomExCommand implements S
         workItemDoc = sax.build(reader);
         parser = new WorkItemQualityControlParser(workItemDoc);
       } catch (JDOMException je ) {
-        log.error( "Cannot parse workItemXMLString", je );
+        LOG.error( "Cannot parse workItemXMLString", je );
         this.addInvalidField( "WorkItemXMLString", "Invalid work item xml");
       }
     }
@@ -83,7 +83,7 @@ public class SaveWorkItemSolexaQualityControl extends GNomExCommand implements S
       launchAppURL = this.getLaunchAppURL(request);    
       appURL = this.getAppURL(request);
     } catch (Exception e) {
-      log.warn("Cannot get launch app URL in SaveRequest", e);
+      LOG.warn("Cannot get launch app URL in SaveRequest", e);
     }
     
     serverName = request.getServerName();
@@ -153,13 +153,13 @@ public class SaveWorkItemSolexaQualityControl extends GNomExCommand implements S
                   confirmedRequestMap.put(request.getNumber(), request.getNumber());
                   
                 }catch (Exception e) {
-                  log.error("Unable to send confirmation email notifying submitter that request "
+                  LOG.error("Unable to send confirmation email notifying submitter that request "
                       + request.getNumber()
                       + " has finished sample quality.  " + e.toString(), e);
                 }
                 
               } else {
-                log.error("Unable to send confirmation email notifying submitter that request " + request.getNumber() + 
+                LOG.error("Unable to send confirmation email notifying submitter that request " + request.getNumber() +
                           " is complete.  Request submitter or request submitter email is blank.");
               }
             }
@@ -180,7 +180,7 @@ public class SaveWorkItemSolexaQualityControl extends GNomExCommand implements S
 
 
       }catch (Exception e){
-        log.error("An exception has occurred in SaveWorkItemSolexaQualityControl ", e);
+        LOG.error("An exception has occurred in SaveWorkItemSolexaQualityControl ", e);
         e.printStackTrace();
         throw new RollBackCommandException(e.getMessage());
           
@@ -218,7 +218,7 @@ public class SaveWorkItemSolexaQualityControl extends GNomExCommand implements S
     String emailRecipients = request.getAppUser().getEmail();
     String fromAddress = cf.getContactEmail();
     if(!MailUtil.isValidEmail(emailRecipients)){
-      log.error("Invalid email address: " + emailRecipients);
+      LOG.error("Invalid email address: " + emailRecipients);
     }
     
     RequestEmailBodyFormatter emailFormatter = new RequestEmailBodyFormatter(sess, this.getSecAdvisor(), appURL, dictionaryHelper, request, null, request.getSamples(), request.getHybridizations(), request.getSequenceLanes(),  introNote.toString());

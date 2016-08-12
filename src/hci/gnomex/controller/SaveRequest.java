@@ -109,11 +109,11 @@ import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
-
+import org.apache.log4j.Logger;
 public class SaveRequest extends GNomExCommand implements Serializable {
 
 	// the static field for logging in Log4J
-	private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(SaveRequest.class);
+	private static Logger LOG = Logger.getLogger(SaveRequest.class);
 
 	private String requestXMLString;
 	private String description;
@@ -197,7 +197,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 				filesToRemoveDoc = sax.build(reader);
 				filesToRemoveParser = new FileDescriptorUploadParser(filesToRemoveDoc);
 			} catch (JDOMException je) {
-				log.error("Cannot parse filesToRemoveXMLString", je);
+				LOG.error("Cannot parse filesToRemoveXMLString", je);
 				this.addInvalidField("FilesToRemoveXMLString", "Invalid filesToRemove xml");
 			}
 		}
@@ -219,7 +219,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 			requestDoc = sax.build(reader);
 			requestParser = new RequestParser(requestDoc, this.getSecAdvisor());
 		} catch (JDOMException je) {
-			log.error("Cannot parse requestXMLString", je);
+			LOG.error("Cannot parse requestXMLString", je);
 			this.addInvalidField("RequestXMLString", "Invalid request xml");
 		}
 
@@ -232,7 +232,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 			this.getShowRequestFormURL(request);
 			appURL = this.getAppURL(request);
 		} catch (Exception e) {
-			log.warn("Cannot get launch app URL in SaveRequest", e);
+			LOG.warn("Cannot get launch app URL in SaveRequest", e);
 		}
 
 		serverName = request.getServerName();
@@ -245,7 +245,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 				Document assaysDoc = sax.build(reader);
 				assaysParser = new SampleAssaysParser(assaysDoc);
 			} catch (JDOMException je) {
-				log.error("Cannot parse assays", je);
+				LOG.error("Cannot parse assays", je);
 				this.addInvalidField("Assays", "Invalid assays xml");
 			}
 		}
@@ -258,14 +258,14 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 				Document primersDoc = sax.build(reader);
 				primersParser = new SamplePrimersParser(primersDoc);
 			} catch (JDOMException je) {
-				log.error("Cannot parse primers", je);
+				LOG.error("Cannot parse primers", je);
 				this.addInvalidField("Primers", "Invalid primers xml");
 			}
 		}
 
 		if (!this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_SUBMIT_REQUESTS)
 				&& !this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_SUBMIT_FOR_OTHER_CORES)) {
-			log.error("Insufficient permissions to submit requests for " + this.getSecAdvisor().getUserFirstName() + " "
+			LOG.error("Insufficient permissions to submit requests for " + this.getSecAdvisor().getUserFirstName() + " "
 					+ this.getSecAdvisor().getUserLastName());
 			this.addInvalidField("PermissionError", "Insufficient permissions to submit request");
 		}
@@ -976,16 +976,16 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 			}
 
 		} catch (GNomExRollbackException e) {
-			log.error("An exception has occurred in SaveRequest ", e);
+			LOG.error("An exception has occurred in SaveRequest ", e);
 			e.printStackTrace();
 			throw e;
 		} catch (ProductException e) {
-			log.error("An exception has occurred in SaveRequest ", e);
-			log.error("Unable to create ProductLedger for request. " + e.getMessage(), e);
+			LOG.error("An exception has occurred in SaveRequest ", e);
+			LOG.error("Unable to create ProductLedger for request. " + e.getMessage(), e);
 			e.printStackTrace();
 			throw new GNomExRollbackException(e.getMessage(), true, e.getMessage());
 		} catch (Exception e) {
-			log.error("An exception has occurred in SaveRequest ", e);
+			LOG.error("An exception has occurred in SaveRequest ", e);
 			e.printStackTrace();
 			throw new GNomExRollbackException(e.getMessage(), true, "An error occurred saving the request.");
 		} finally {
@@ -1020,12 +1020,12 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 					} catch (Exception e) {
 						String msg = "Unable to send confirmation email notifying submitter that request " + requestParser.getRequest().getNumber()
 								+ " has been submitted.  " + e.toString();
-						log.error(msg);
+						LOG.error(msg);
 						message.append(msg + "\n");
 					}
 				} else {
 					String msg = ("Unable to send confirmation email notifying submitter that request " + requestParser.getRequest().getNumber() + " has been submitted.  Request submitter or request submitter email is blank.");
-					log.error(msg);
+					LOG.error(msg);
 					message.append(msg + "\n");
 				}
 			}
@@ -1064,13 +1064,13 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 					} catch (Exception e) {
 						String msg = "Unable to send estimated charges notification for request " + requestParser.getRequest().getNumber() + "  "
 								+ e.toString();
-						log.error(msg);
+						LOG.error(msg);
 						message.append(msg + "\n");
 					}
 				} else {
 					String msg = "Unable to send estimated charges notification for request " + requestParser.getRequest().getNumber()
 							+ " has been submitted.  Contact or lab manager(s) email is blank.";
-					log.error(msg);
+					LOG.error(msg);
 					message.append(msg + "\n");
 				}
 
@@ -2633,7 +2633,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 							isDiscount = true;
 						}
 					} catch (Exception e) {
-						log.error("Unable to instantiate billing plugin " + priceCategory.getPluginClassName(), e);
+						LOG.error("Unable to instantiate billing plugin " + priceCategory.getPluginClassName(), e);
 					}
 
 				}
@@ -2753,7 +2753,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 			emailRecipients = requestParser.getRequest().getAppUser().getEmail();
 		}
 		if (!emailRecipients.equals("") && !MailUtil.isValidEmail(emailRecipients)) {
-			log.error("Invalid email address " + emailRecipients);
+			LOG.error("Invalid email address " + emailRecipients);
 		}
 		if (otherRecipients != null && otherRecipients.length() > 0) {
 			if (emailRecipients.length() > 0) {
@@ -2765,7 +2765,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 		if (emailRecipients.contains(",")) {
 			for (String e : emailRecipients.split(",")) {
 				if (!MailUtil.isValidEmail(e.trim())) {
-					log.error("Invalid email address: " + e);
+					LOG.error("Invalid email address: " + e);
 				}
 			}
 		}
@@ -2852,9 +2852,9 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 				template.process(root, out);
 				emailBody = out.toString();
 			} catch (IOException ex) {
-				log.error("Unable to read template for invoice email for " + requestParser.getRequest().getNumber(), ex);
+				LOG.error("Unable to read template for invoice email for " + requestParser.getRequest().getNumber(), ex);
 			} catch (TemplateException ex) {
-				log.error("Error processing template for invoice email for " + requestParser.getRequest().getNumber(), ex);
+				LOG.error("Error processing template for invoice email for " + requestParser.getRequest().getNumber(), ex);
 			}
 		}
 
@@ -2899,7 +2899,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 		}
 
 		if (!MailUtil.isValidEmail(contactEmail)) {
-			log.error("Invalid email address: " + contactEmail);
+			LOG.error("Invalid email address: " + contactEmail);
 		}
 
 		if (!MailUtil.isValidEmail(senderEmail)) {
@@ -2962,9 +2962,9 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 				template.process(root, out);
 				emailBody = out.toString();
 			} catch (IOException ex) {
-				log.error("Unable to read template for invoice email for " + requestParser.getRequest().getNumber(), ex);
+				LOG.error("Unable to read template for invoice email for " + requestParser.getRequest().getNumber(), ex);
 			} catch (TemplateException ex) {
-				log.error("Error processing template for invoice email for " + requestParser.getRequest().getNumber(), ex);
+				LOG.error("Error processing template for invoice email for " + requestParser.getRequest().getNumber(), ex);
 			}
 		}
 
@@ -2993,7 +2993,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 		if (!new File(rootDir).exists()) {
 			success = (new File(rootDir)).mkdir();
 			if (!success) {
-				log.error("Unable to create directory " + rootDir);
+				LOG.error("Unable to create directory " + rootDir);
 			}
 		}
 
@@ -3003,7 +3003,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 		if (!new File(directoryName).exists()) {
 			success = (new File(directoryName)).mkdir();
 			if (!success) {
-				log.error("Unable to create directory " + directoryName);
+				LOG.error("Unable to create directory " + directoryName);
 			}
 		}
 
@@ -3012,7 +3012,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 		if (!new File(qcDirectoryName).exists()) {
 			success = (new File(qcDirectoryName)).mkdir();
 			if (!success) {
-				log.error("Unable to create directory " + qcDirectoryName);
+				LOG.error("Unable to create directory " + qcDirectoryName);
 			}
 		}
 
@@ -3023,7 +3023,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 				if (!new File(hybDirectoryName).exists()) {
 					success = (new File(hybDirectoryName)).mkdir();
 					if (!success) {
-						log.error("Unable to create directory " + hybDirectoryName);
+						LOG.error("Unable to create directory " + hybDirectoryName);
 					}
 				}
 			}

@@ -24,6 +24,7 @@ import hci.report.model.Column;
 import hci.report.model.ReportRow;
 import hci.report.model.ReportTray;
 import hci.report.utility.ReportCommand;
+import org.apache.log4j.Logger;
 
 import java.io.Serializable;
 import java.io.StringReader;
@@ -52,7 +53,7 @@ import org.jdom.input.SAXBuilder;
 
 public class ShowAnnotationReport extends ReportCommand implements Serializable {
 
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(ShowAnnotationReport.class);
+  private static Logger LOG = Logger.getLogger(ShowAnnotationReport.class);
 
 
   private SecurityAdvisor           secAdvisor;
@@ -308,22 +309,22 @@ public class ShowAnnotationReport extends ReportCommand implements Serializable 
       }
 
     }catch (UnknownPermissionException e){
-      log.error("An exception has occurred in ShowAnnotationReport ", e);
+      LOG.error("An exception has occurred in ShowAnnotationReport ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
 
     }catch (NamingException e){
-      log.error("An exception has occurred in ShowAnnotationReport ", e);
+      LOG.error("An exception has occurred in ShowAnnotationReport ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
 
     }catch (SQLException e) {
-      log.error("An exception has occurred in ShowAnnotationReport ", e);
+      LOG.error("An exception has occurred in ShowAnnotationReport ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
 
     } catch (Exception e) {
-      log.error("An exception has occurred in ShowAnnotationReport ", e);
+      LOG.error("An exception has occurred in ShowAnnotationReport ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
     } finally {

@@ -25,6 +25,7 @@ import java.util.TreeSet;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.log4j.Logger;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.id.Assigned;
@@ -67,7 +68,7 @@ public final class DictionaryManager implements DictionaryActions, Serializable 
   private String dictionaryXmlFile;
   private TreeMap<String, Dictionary> dictionaries;
 
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(DictionaryManager.class);
+  private static Logger LOG = Logger.getLogger(DictionaryManager.class);
   private transient ClassLoader loader;
 
   private DictionaryManager() {
@@ -130,7 +131,7 @@ public final class DictionaryManager implements DictionaryActions, Serializable 
         Document doc = builder.build(is);
         registerDictionaries(doc);
       } catch (JDOMException e) {
-        log.error("Error loading dictionaries: ", e);
+        LOG.error("Error loading dictionaries: ", e);
       }
     }
   }
@@ -149,7 +150,7 @@ public final class DictionaryManager implements DictionaryActions, Serializable 
       try {
         is = loader.getResourceAsStream(dictionaryXmlFile);
       } catch (Exception e1) {
-        log.error("Error loading stream: " + e1.getMessage(), e1);
+        LOG.error("Error loading stream: " + e1.getMessage(), e1);
       }
     }
     return is;

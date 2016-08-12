@@ -14,11 +14,11 @@ import org.hibernate.Query;
 import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
-
+import org.apache.log4j.Logger;
 public class GetExperimentPlatformSortOrderList extends GNomExCommand implements Serializable {
   
   // the static field for logging in Log4J
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetExperimentPlatformSortOrderList.class);
+  private static Logger LOG = Logger.getLogger(GetExperimentPlatformSortOrderList.class);
 
   private Integer idCoreFacility = null;
   
@@ -31,7 +31,7 @@ public class GetExperimentPlatformSortOrderList extends GNomExCommand implements
       try {
         idCoreFacility = new Integer(request.getParameter("idCoreFacility"));
       } catch(NumberFormatException ex) {
-        log.error("Invalid idCoreFacility for GetExperimentPlatformSortOrderList: " + request.getParameter("idCoreFacility"), ex);
+        LOG.error("Invalid idCoreFacility for GetExperimentPlatformSortOrderList: " + request.getParameter("idCoreFacility"), ex);
         this.addInvalidField("Missing parameters", "idCoreFacility required");
       }
     } else {
@@ -68,7 +68,7 @@ public class GetExperimentPlatformSortOrderList extends GNomExCommand implements
       this.xmlResult = out.outputString(doc);
       
     } catch (Exception e) {
-      log.error("An exception has occurred in GetExperimentPlatformSortOrderList ", e);
+      LOG.error("An exception has occurred in GetExperimentPlatformSortOrderList ", e);
       throw new RollBackCommandException(e.getMessage());
     } finally {
       try {

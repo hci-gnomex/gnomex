@@ -35,7 +35,7 @@ import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
-
+import org.apache.log4j.Logger;
 
 
 
@@ -44,7 +44,7 @@ public class SubmitWorkAuthForm extends GNomExCommand implements Serializable {
 
 
   // the static field for logging in Log4J
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(SubmitWorkAuthForm.class);
+  private static Logger LOG = Logger.getLogger(SubmitWorkAuthForm.class);
 
   private BillingAccount                 billingAccountScreen;
   private BillingAccount                 billingAccount;
@@ -82,7 +82,7 @@ public class SubmitWorkAuthForm extends GNomExCommand implements Serializable {
         coreFacilityParser = new LabCoreFacilityParser(coreFacilitiesDoc);
 
       } catch (JDOMException je ) {
-        log.error( "Cannot parse coreFacilitiesXMLString", je );
+        LOG.error( "Cannot parse coreFacilitiesXMLString", je );
         this.addInvalidField( "coreFacilitiesXMLString", "Invalid coreFacilitiesXMLString");
       }
     }
@@ -90,7 +90,7 @@ public class SubmitWorkAuthForm extends GNomExCommand implements Serializable {
     try {
       launchAppURL = this.getLaunchAppURL(request);  
     } catch (Exception e) {
-      log.warn("Cannot get launch app URL in SubmitWorkAuthForm", e);
+      LOG.warn("Cannot get launch app URL in SubmitWorkAuthForm", e);
     }
 
     serverName = request.getServerName();
@@ -170,7 +170,7 @@ public class SubmitWorkAuthForm extends GNomExCommand implements Serializable {
       }
 
     }catch (Exception e){
-      log.error("An exception has occurred in SubmitWorkAuthForm ", e);
+      LOG.error("An exception has occurred in SubmitWorkAuthForm ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
 
@@ -201,7 +201,7 @@ public class SubmitWorkAuthForm extends GNomExCommand implements Serializable {
     String submitterEmail = billingAccount.getSubmitterEmail();
     String emailRecipients = submitterEmail;
     if(!MailUtil.isValidEmail(emailRecipients)){
-      log.error(emailRecipients);
+      LOG.error(emailRecipients);
     }
 
     String facilityEmail = propertyDictionaryHelper.getCoreFacilityProperty(facility.getIdCoreFacility(), PropertyDictionary.CONTACT_EMAIL_CORE_FACILITY_WORKAUTH);
@@ -254,7 +254,7 @@ public class SubmitWorkAuthForm extends GNomExCommand implements Serializable {
     	MailUtil.validateAndSendEmail(helper);
     } catch (Exception e) {
         // DEAD CODE: Even when mail isn't sent, we don't seem to get an exception 
-        log.warn("Unable to send email notification to billing account submitter " + billingAccount.getSubmitterEmail() + " UID " + billingAccount.getSubmitterUID());
+        LOG.warn("Unable to send email notification to billing account submitter " + billingAccount.getSubmitterEmail() + " UID " + billingAccount.getSubmitterUID());
         body.append("\n\n** NOTE:  GNomEx was unable to send email to submitter " + submitterEmail + " **");
     }
 
@@ -263,7 +263,7 @@ public class SubmitWorkAuthForm extends GNomExCommand implements Serializable {
 
     if (!contactEmail.equals("")) {
       if(!MailUtil.isValidEmail(contactEmail)){
-        log.error("Invalid email " + contactEmail);
+        LOG.error("Invalid email " + contactEmail);
       }
 
       String[] emails = contactEmail.split(",");

@@ -17,9 +17,9 @@ import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.output.XMLOutputter;
-
+import org.apache.log4j.Logger;
 public class GetProductOrderDetails extends GNomExCommand {
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetProductOrderDetails.class);
+  private static Logger LOG = Logger.getLogger(GetProductOrderDetails.class);
 
   private ProductOrderFilter productOrderFilter;
 
@@ -45,7 +45,7 @@ public class GetProductOrderDetails extends GNomExCommand {
         Document doc = new Document(new Element("ProductOrderDetails"));
 
         StringBuffer buf = productOrderFilter.getProductOrderDetailsQuery();
-        log.info("Query for GetProductOrderDetails: " + buf.toString());
+        LOG.info("Query for GetProductOrderDetails: " + buf.toString());
 
         List details = sess.createQuery(buf.toString()).list();
 
@@ -77,7 +77,7 @@ public class GetProductOrderDetails extends GNomExCommand {
 
 
       } catch(Exception e) {
-        log.error("An exception has occurred in GetProductOrderList ", e);
+        LOG.error("An exception has occurred in GetProductOrderList ", e);
         e.printStackTrace();
         throw new RollBackCommandException(e.getMessage());  
       } finally {

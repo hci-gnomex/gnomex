@@ -41,10 +41,10 @@ import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.output.XMLOutputter;
-
+import org.apache.log4j.Logger;
 public class GetRequestDownloadList extends GNomExCommand implements Serializable {
 
-	private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetRequestDownloadList.class);
+	private static Logger LOG = Logger.getLogger(GetRequestDownloadList.class);
 
 	private RequestDownloadFilter filter;
 	private String includeUploadStagingDir = "Y";
@@ -121,7 +121,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
 			}
 
 			StringBuffer buf = filter.getMicroarrayResultQuery(this.getSecAdvisor(), dh);
-			log.debug("Query for GetRequestDownloadList (1): " + buf.toString());
+			LOG.debug("Query for GetRequestDownloadList (1): " + buf.toString());
 			List rows1 = sess.createQuery(buf.toString()).list();
 			TreeMap rowMap = new TreeMap(new HybSampleComparator());
 			for (Iterator i = rows1.iterator(); i.hasNext();) {
@@ -147,7 +147,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
 			}
 
 			buf = filter.getSolexaResultQuery(this.getSecAdvisor(), dh);
-			log.debug("Query for GetRequestDownloadList (2): " + buf.toString());
+			LOG.debug("Query for GetRequestDownloadList (2): " + buf.toString());
 			List rows2 = sess.createQuery(buf.toString()).list();
 
 			for (Iterator i = rows2.iterator(); i.hasNext();) {
@@ -180,7 +180,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
 			}
 
 			buf = filter.getSolexaFlowCellQuery(this.getSecAdvisor(), dh);
-			log.debug("Query for get illumina flow cell: " + buf.toString());
+			LOG.debug("Query for get illumina flow cell: " + buf.toString());
 			List flowCellRows = sess.createQuery(buf.toString()).list();
 			HashMap flowCellMap = new HashMap();
 			for (Iterator i = flowCellRows.iterator(); i.hasNext();) {
@@ -202,7 +202,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
 			}
 
 			buf = filter.getQualityControlResultQuery(this.getSecAdvisor(), dh);
-			log.debug("Query for GetRequestDownloadList (3): " + buf.toString());
+			LOG.debug("Query for GetRequestDownloadList (3): " + buf.toString());
 			List rows3 = sess.createQuery(buf.toString()).list();
 			Map<Integer, Integer> idsToSkip = this.getSecAdvisor().getBSTXSecurityIdsToExclude(sess, dh, rows3, 21, 2);
 
@@ -397,15 +397,15 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
 
 			setResponsePage(this.SUCCESS_JSP);
 		} catch (NamingException e) {
-			log.error("An exception has occurred in GetRequestDownloadList ", e);
+			LOG.error("An exception has occurred in GetRequestDownloadList ", e);
 			e.printStackTrace(System.out);
 			throw new RollBackCommandException(e.getMessage());
 		} catch (SQLException e) {
-			log.error("An exception has occurred in GetRequestDownloadList ", e);
+			LOG.error("An exception has occurred in GetRequestDownloadList ", e);
 			e.printStackTrace(System.out);
 			throw new RollBackCommandException(e.getMessage());
 		} catch (Exception e) {
-			log.error("An exception has occurred in GetRequestDownloadList ", e);
+			LOG.error("An exception has occurred in GetRequestDownloadList ", e);
 			e.printStackTrace(System.out);
 			throw new RollBackCommandException(e.getMessage());
 		} finally {

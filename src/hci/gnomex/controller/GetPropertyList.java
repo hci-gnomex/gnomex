@@ -19,11 +19,11 @@ import javax.servlet.http.HttpSession;
 import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
-
+import org.apache.log4j.Logger;
 public class GetPropertyList extends GNomExCommand implements Serializable {
 
   // the static field for logging in Log4J
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetPropertyList.class);
+  private static Logger LOG = Logger.getLogger(GetPropertyList.class);
 
   // If Y indicates only the property without optinos, organisms, etc. is to be returned.
   private String propertyOnly = "N";
@@ -77,20 +77,20 @@ public class GetPropertyList extends GNomExCommand implements Serializable {
 
       setResponsePage(this.SUCCESS_JSP);
     } catch (NamingException e) {
-      log.error("An exception has occurred in GetPropertyList ", e);
+      LOG.error("An exception has occurred in GetPropertyList ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
 
     } catch (SQLException e) {
-      log.error("An exception has occurred in GetPropertyList ", e);
+      LOG.error("An exception has occurred in GetPropertyList ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
     } catch (XMLReflectException e) {
-      log.error("An exception has occurred in GetPropertyList ", e);
+      LOG.error("An exception has occurred in GetPropertyList ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
     } catch (Exception e) {
-      log.error("An exception has occurred in GetPropertyList ", e);
+      LOG.error("An exception has occurred in GetPropertyList ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
     } finally {

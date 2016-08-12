@@ -23,13 +23,13 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
 import org.hibernate.Session;
-
+import org.apache.log4j.Logger;
 
 public class DownloadAnalysisFileServlet extends HttpServlet { 
 
 
   
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(DownloadAnalysisFileServlet.class);
+  private static Logger LOG = Logger.getLogger(DownloadAnalysisFileServlet.class);
   
   private AnalysisFileDescriptorParser parser = null;
   
@@ -49,16 +49,16 @@ public class DownloadAnalysisFileServlet extends HttpServlet {
     serverName = req.getServerName();
 
     // Restrict commands to local host if request is not secure
-    if (!ServletUtil.checkSecureRequest(req, log)) {
+    if (!ServletUtil.checkSecureRequest(req, LOG)) {
       ServletUtil.reportServletError(response, "Secure connection is required. Prefix your request with 'https'",
-              log, "Accessing secure command over non-secure line from remote host is not allowed.");
+              LOG, "Accessing secure command over non-secure line from remote host is not allowed.");
       return;
     }
 
     //  Get cached file descriptor parser
     parser = (AnalysisFileDescriptorParser) req.getSession().getAttribute(CacheAnalysisFileDownloadList.SESSION_KEY_FILE_DESCRIPTOR_PARSER);
     if (parser == null) {
-      log.error("Unable to get file descriptor parser from session");
+      LOG.error("Unable to get file descriptor parser from session");
       return;
     }
     
@@ -121,14 +121,14 @@ public class DownloadAnalysisFileServlet extends HttpServlet {
           
           // If we can't find the analysis in the database, just bypass it.
           if (analysis == null) {
-            log.error("Unable to find analysis " + analysisNumber + ".  Bypassing download for user " + req.getUserPrincipal().getName() + ".");
+            LOG.error("Unable to find analysis " + analysisNumber + ".  Bypassing download for user " + req.getUserPrincipal().getName() + ".");
             continue;
           }
           
           // Check permissions - bypass this analysis if the user 
           // does not have  permission to read it.
           if (!secAdvisor.canRead(analysis)) {  
-            log.error("Insufficient permissions to read analysis " + analysisNumber + ".  Bypassing download for user " + req.getUserPrincipal().getName() + ".");
+            LOG.error("Insufficient permissions to read analysis " + analysisNumber + ".  Bypassing download for user " + req.getUserPrincipal().getName() + ".");
             continue;
           }
           
@@ -163,7 +163,7 @@ public class DownloadAnalysisFileServlet extends HttpServlet {
             // it matches the request number of the directory.  If it doesn't bypass the download
             // for this file.
             if (!analysisNumber.equalsIgnoreCase(fd.getNumber())) {
-              log.error("Analysis number does not match directory for attempted download on " + fd.getFileName() + " for user " + req.getUserPrincipal().getName() + ".  Bypassing download." );
+              LOG.error("Analysis number does not match directory for attempted download on " + fd.getFileName() + " for user " + req.getUserPrincipal().getName() + ".  Bypassing download." );
               continue;
             }
 

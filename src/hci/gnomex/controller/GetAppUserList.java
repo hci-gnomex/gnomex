@@ -22,10 +22,10 @@ import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.output.XMLOutputter;
-
+import org.apache.log4j.Logger;
 public class GetAppUserList extends GNomExCommand implements Serializable {
 
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetAppUserList.class);
+  private static Logger LOG = Logger.getLogger(GetAppUserList.class);
 
   private AppUserFilter filter;
   private String listKind = "AppUserList";
@@ -52,7 +52,7 @@ public class GetAppUserList extends GNomExCommand implements Serializable {
       Document doc = new Document(new Element(listKind));
 
       StringBuffer buf = filter.getQuery(this.getSecAdvisor());
-      log.debug("App user query: " + buf.toString());
+      LOG.debug("App user query: " + buf.toString());
       List users = sess.createQuery(buf.toString()).list();
 
       for (Iterator i = users.iterator(); i.hasNext();) {
@@ -86,20 +86,20 @@ public class GetAppUserList extends GNomExCommand implements Serializable {
       this.xmlResult = out.outputString(doc);
       setResponsePage(this.SUCCESS_JSP);
     } catch (NamingException e) {
-      log.error("An exception has occurred in GetAppUserList ", e);
+      LOG.error("An exception has occurred in GetAppUserList ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
 
     } catch (SQLException e) {
-      log.error("An exception has occurred in GetAppUserList ", e);
+      LOG.error("An exception has occurred in GetAppUserList ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
     } catch (XMLReflectException e) {
-      log.error("An exception has occurred in GetAppUserList ", e);
+      LOG.error("An exception has occurred in GetAppUserList ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
     } catch (Exception e) {
-      log.error("An exception has occurred in GetAppUserList ", e);
+      LOG.error("An exception has occurred in GetAppUserList ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
     } finally {

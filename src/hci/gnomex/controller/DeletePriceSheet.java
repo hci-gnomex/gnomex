@@ -14,7 +14,7 @@ import javax.servlet.http.HttpSession;
 
 import org.hibernate.Hibernate;
 import org.hibernate.Session;
-
+import org.apache.log4j.Logger;
 
 
 
@@ -23,7 +23,7 @@ public class DeletePriceSheet extends GNomExCommand implements Serializable {
  
   
   // the static field for logging in Log4J
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(DeletePriceSheet.class);
+  private static Logger LOG = Logger.getLogger(DeletePriceSheet.class);
   
   
   private Integer      idPriceSheet = null;
@@ -91,7 +91,7 @@ public class DeletePriceSheet extends GNomExCommand implements Serializable {
         this.setResponsePage(this.ERROR_JSP);
       }
     }catch (Exception e){
-      log.error("An exception has occurred in DeletePriceSheet ", e);
+      LOG.error("An exception has occurred in DeletePriceSheet ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
         

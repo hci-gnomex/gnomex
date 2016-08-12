@@ -31,13 +31,13 @@ import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.jdom.output.XMLOutputter;
-
+import org.apache.log4j.Logger;
 
 
 public class SavePlate extends GNomExCommand implements Serializable {
 
   // the static field for logging in Log4J
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(SavePlate.class);
+  private static Logger LOG = Logger.getLogger(SavePlate.class);
 
   private int                   idInstrumentRun = 0;
   private int                   idPlate;
@@ -102,7 +102,7 @@ public class SavePlate extends GNomExCommand implements Serializable {
       wellParser = new PlateWellParser(wellsDoc);
     }
     catch (JDOMException je) {
-      log.error("Cannot parse wellXMLString", je);
+      LOG.error("Cannot parse wellXMLString", je);
       this.addInvalidField("wellXMLString", "Invalid wellXMLString");
     }
 
@@ -280,7 +280,7 @@ public class SavePlate extends GNomExCommand implements Serializable {
       }
 
     }catch (Exception e){
-      log.error("An exception has occurred in SavePlate ", e);
+      LOG.error("An exception has occurred in SavePlate ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
 

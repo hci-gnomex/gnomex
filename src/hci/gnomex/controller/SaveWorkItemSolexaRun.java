@@ -28,7 +28,7 @@ import org.jdom.Document;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.jdom.output.XMLOutputter;
-
+import org.apache.log4j.Logger;
 
 
 
@@ -37,7 +37,7 @@ public class SaveWorkItemSolexaRun extends GNomExCommand implements Serializable
  
   
   // the static field for logging in Log4J
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(SaveWorkItemSolexaRun.class);
+  private static Logger LOG = Logger.getLogger(SaveWorkItemSolexaRun.class);
   
   private String                       workItemXMLString;
   private Document                     workItemDoc;
@@ -68,7 +68,7 @@ public class SaveWorkItemSolexaRun extends GNomExCommand implements Serializable
         workItemDoc = sax.build(reader);
         parser = new WorkItemSolexaRunParser(workItemDoc);
       } catch (JDOMException je ) {
-        log.error( "Cannot parse workItemXMLString", je );
+        LOG.error( "Cannot parse workItemXMLString", je );
         this.addInvalidField( "WorkItemXMLString", "Invalid work item xml");
       }
     }
@@ -76,7 +76,7 @@ public class SaveWorkItemSolexaRun extends GNomExCommand implements Serializable
     try {
       appURL = this.getLaunchAppURL(request);      
     } catch (Exception e) {
-      log.warn("Cannot get launch app URL in SaveRequest", e);
+      LOG.warn("Cannot get launch app URL in SaveRequest", e);
     }
     
     serverName = request.getServerName();
@@ -160,7 +160,7 @@ public class SaveWorkItemSolexaRun extends GNomExCommand implements Serializable
         
         
       }catch (Exception e){
-        log.error("An exception has occurred in SaveWorkItemSolexaRun ", e);
+        LOG.error("An exception has occurred in SaveWorkItemSolexaRun ", e);
         e.printStackTrace();
         throw new RollBackCommandException(e.getMessage());
           

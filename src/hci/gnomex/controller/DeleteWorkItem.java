@@ -14,7 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.hibernate.Session;
-
+import org.apache.log4j.Logger;
 
 
 
@@ -23,7 +23,7 @@ public class DeleteWorkItem extends GNomExCommand implements Serializable {
  
   
   // the static field for logging in Log4J
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(DeleteWorkItem.class);
+  private static Logger LOG = Logger.getLogger(DeleteWorkItem.class);
   
   
   private List<Integer>      workItemIds = null;
@@ -72,7 +72,7 @@ public class DeleteWorkItem extends GNomExCommand implements Serializable {
         setResponsePage(this.ERROR_JSP);
       }
     }catch (Exception e){
-      log.error("An exception has occurred in DeleteWorkItem ", e);
+      LOG.error("An exception has occurred in DeleteWorkItem ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
         

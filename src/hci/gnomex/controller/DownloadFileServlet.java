@@ -24,13 +24,13 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
 import org.hibernate.Session;
-
+import org.apache.log4j.Logger;
 
 public class DownloadFileServlet extends HttpServlet {
 
 
 
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(DownloadFileServlet.class);
+  private static Logger LOG = Logger.getLogger(DownloadFileServlet.class);
 
   private FileDescriptorParser parser = null;
 
@@ -51,9 +51,9 @@ public class DownloadFileServlet extends HttpServlet {
     serverName = req.getServerName();
 
     // Restrict commands to local host if request is not secure
-    if (!ServletUtil.checkSecureRequest(req, log)) {
+    if (!ServletUtil.checkSecureRequest(req, LOG)) {
       ServletUtil.reportServletError(response, "Secure connection is required. Prefix your request with 'https'",
-              log, "Accessing secure command over non-secure line from remote host is not allowed.");
+              LOG, "Accessing secure command over non-secure line from remote host is not allowed.");
       return;
     }
 
@@ -72,7 +72,7 @@ public class DownloadFileServlet extends HttpServlet {
     //  Get cached file descriptor parser
     parser = (FileDescriptorParser) req.getSession().getAttribute(CacheFileDownloadList.SESSION_KEY_FILE_DESCRIPTOR_PARSER);
     if (parser == null) {
-      log.error("Unable to get file descriptor parser from session");
+      LOG.error("Unable to get file descriptor parser from session");
       return;
     }
 
@@ -117,14 +117,14 @@ public class DownloadFileServlet extends HttpServlet {
 
           // If we can't find the request in the database, just bypass it.
           if (request == null) {
-            log.error("Unable to find request " + requestNumber + ".  Bypassing download for user " + req.getUserPrincipal().getName() + ".");
+            LOG.error("Unable to find request " + requestNumber + ".  Bypassing download for user " + req.getUserPrincipal().getName() + ".");
             continue;
           }
 
           // Check permissions - bypass this request if the user 
           // does not have  permission to read it.
           if (!secAdvisor.canRead(request)) {
-            log.error("Insufficient permissions to read request " + requestNumber + ".  Bypassing download for user " + req.getUserPrincipal().getName() + ".");
+            LOG.error("Insufficient permissions to read request " + requestNumber + ".  Bypassing download for user " + req.getUserPrincipal().getName() + ".");
             continue;
           }
 
@@ -171,7 +171,7 @@ public class DownloadFileServlet extends HttpServlet {
 
               }
               if (!isAuthorizedDirectory) {
-                log.error("Request number " + requestNumber + " does not correspond to the directory " + fd.getMainFolderName(sess, serverName, request.getIdCoreFacility()) + " for attempted download on " + fd.getFileName() +  ".  Bypassing download." );
+                LOG.error("Request number " + requestNumber + " does not correspond to the directory " + fd.getMainFolderName(sess, serverName, request.getIdCoreFacility()) + " for attempted download on " + fd.getFileName() +  ".  Bypassing download." );
                 continue;
               }
             }

@@ -28,11 +28,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.hibernate.Session;
-
+import org.apache.log4j.Logger;
 
 public class GenerateUserAccountEmail extends GNomExCommand implements Serializable {
 
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetAnalysisGroup.class);
+  private static Logger LOG = Logger.getLogger(GetAnalysisGroup.class);
 
   private Integer idLab;
   private String  serverName;
@@ -76,7 +76,7 @@ public class GenerateUserAccountEmail extends GNomExCommand implements Serializa
 
         // Bypass labs without contact email
         if (l.getContactEmail() == null || l.getContactEmail().equals("")) {
-          log.warn("Bypassing email of user accounts to lab " + l.getName() + ". Contact email not filled in.");
+          LOG.warn("Bypassing email of user accounts to lab " + l.getName() + ". Contact email not filled in.");
           continue;
         }
 
@@ -117,7 +117,7 @@ public class GenerateUserAccountEmail extends GNomExCommand implements Serializa
 
         // Bypass labs without any user accounts
         if (managers.isEmpty() && members.isEmpty() && collaborators.isEmpty()) {
-          log.warn("Bypassing email of user accounts to lab " + labName + ". No user accounts exist for this lab.");
+          LOG.warn("Bypassing email of user accounts to lab " + labName + ". No user accounts exist for this lab.");
           continue;
         }
 
@@ -139,24 +139,24 @@ public class GenerateUserAccountEmail extends GNomExCommand implements Serializa
       }
 
     }catch (UnknownPermissionException e){
-      log.error("An exception has occurred in GenerateUserAccountEmail ", e);
+      LOG.error("An exception has occurred in GenerateUserAccountEmail ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
 
     }catch (NamingException e){
-      log.error("An exception has occurred in GenerateUserAccountEmail ", e);
+      LOG.error("An exception has occurred in GenerateUserAccountEmail ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
     }catch (SQLException e) {
-      log.error("An exception has occurred in GenerateUserAccountEmail ", e);
+      LOG.error("An exception has occurred in GenerateUserAccountEmail ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
     } catch (XMLReflectException e){
-      log.error("An exception has occurred in GenerateUserAccountEmail ", e);
+      LOG.error("An exception has occurred in GenerateUserAccountEmail ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
     } catch (Exception e){
-      log.error("An exception has occurred in GenerateUserAccountEmail ", e);
+      LOG.error("An exception has occurred in GenerateUserAccountEmail ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
     } finally {
@@ -173,7 +173,7 @@ public class GenerateUserAccountEmail extends GNomExCommand implements Serializa
   private void sendEmail(Session sess, PropertyDictionaryHelper dictionaryHelper, String sendTo, String ccTo, String emailBody, String subject, Lab lab) throws NamingException, MessagingException, IOException {
 
     if(!MailUtil.isValidEmail(sendTo)){
-      log.error("Invalid email " + sendTo);
+      LOG.error("Invalid email " + sendTo);
     }
 
     String from = "";

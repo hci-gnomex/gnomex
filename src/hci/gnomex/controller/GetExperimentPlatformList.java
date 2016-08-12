@@ -31,12 +31,12 @@ import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.PriceUtil;
 import hci.gnomex.utility.PropertyDictionaryHelper;
-
+import org.apache.log4j.Logger;
 
 public class GetExperimentPlatformList extends GNomExCommand implements Serializable {
 
   // the static field for logging in Log4J
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetExperimentPlatformList.class);
+  private static Logger LOG = Logger.getLogger(GetExperimentPlatformList.class);
 
   private List<SampleType> sampleTypes = new ArrayList<SampleType>();
   private List <Application> applications = new ArrayList<Application>();
@@ -265,20 +265,20 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
 
       setResponsePage(this.SUCCESS_JSP);
     }catch (NamingException e){
-      log.error("An exception has occurred in GetExperimentPlatformList ", e);
+      LOG.error("An exception has occurred in GetExperimentPlatformList ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
 
     }catch (SQLException e) {
-      log.error("An exception has occurred in GetExperimentPlatformList ", e);
+      LOG.error("An exception has occurred in GetExperimentPlatformList ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
     } catch (XMLReflectException e){
-      log.error("An exception has occurred in GetExperimentPlatformList ", e);
+      LOG.error("An exception has occurred in GetExperimentPlatformList ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
     } catch (Exception e) {
-      log.error("An exception has occurred in GetExperimentPlatformList ", e);
+      LOG.error("An exception has occurred in GetExperimentPlatformList ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
     } finally {

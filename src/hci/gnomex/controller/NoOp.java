@@ -7,7 +7,7 @@ import java.io.Serializable;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-
+import org.apache.log4j.Logger;
 
 /**
  *
@@ -19,7 +19,7 @@ import javax.servlet.http.HttpSession;
 
 public class NoOp extends GNomExCommand implements Serializable {
 
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(NoOp.class);
+  private static Logger LOG = Logger.getLogger(NoOp.class);
   
   public void validate() {
   }
@@ -29,7 +29,7 @@ public class NoOp extends GNomExCommand implements Serializable {
   }
 
   public Command execute() throws RollBackCommandException {
-    log.debug("executing NoOp.execute");
+    LOG.debug("executing NoOp.execute");
     this.xmlResult = "<NoOp/>";
     return this;
   }

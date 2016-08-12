@@ -36,7 +36,7 @@ import org.jdom.Document;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.jdom.output.XMLOutputter;
-
+import org.apache.log4j.Logger;
 
 
 
@@ -45,7 +45,7 @@ public class SaveWorkItemSolexaAssemble extends GNomExCommand implements Seriali
  
   
   // the static field for logging in Log4J
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(SaveWorkItemSolexaAssemble.class);
+  private static Logger LOG = Logger.getLogger(SaveWorkItemSolexaAssemble.class);
   
   private String                       codeStepNext;
   private String                       flowCellBarcode;
@@ -119,7 +119,7 @@ public class SaveWorkItemSolexaAssemble extends GNomExCommand implements Seriali
         SAXBuilder sax = new SAXBuilder();
         workItemDoc = sax.build(reader);
       } catch (JDOMException je ) {
-        log.error( "Cannot parse workItemXMLString", je );
+        LOG.error( "Cannot parse workItemXMLString", je );
         this.addInvalidField( "WorkItemXMLString", "Invalid work item xml");
       }
     }
@@ -132,7 +132,7 @@ public class SaveWorkItemSolexaAssemble extends GNomExCommand implements Seriali
         SAXBuilder sax = new SAXBuilder();
         dirtyWorkItemDoc = sax.build(dirtyReader);
       } catch (JDOMException je ) {
-        log.error( "Cannot parse dirtyWorkItemXMLString", je );
+        LOG.error( "Cannot parse dirtyWorkItemXMLString", je );
         this.addInvalidField( "DirtyWorkItemXMLString", "Invalid work item xml");
       }
 
@@ -141,14 +141,14 @@ public class SaveWorkItemSolexaAssemble extends GNomExCommand implements Seriali
     try {
       parser = new WorkItemSolexaAssembleParser(workItemDoc, dirtyWorkItemDoc);      
     } catch (Exception e) {
-      log.error( "Error occurred in WorkItemSolexaAssemberParser", e );
+      LOG.error( "Error occurred in WorkItemSolexaAssemberParser", e );
       this.addInvalidField( "ParserError", "Error occurred in WorkItemSolexaAssemberParser");      
     }
     
     try {
       appURL = this.getLaunchAppURL(request);      
     } catch (Exception e) {
-      log.warn("Cannot get launch app URL in SaveRequest", e);
+      LOG.warn("Cannot get launch app URL in SaveRequest", e);
     }
     
     serverName = request.getServerName();
@@ -382,7 +382,7 @@ public class SaveWorkItemSolexaAssemble extends GNomExCommand implements Seriali
 
 
       }catch (Exception e){
-        log.error("An exception has occurred in SaveWorkflowSolexaAssemble ", e);
+        LOG.error("An exception has occurred in SaveWorkflowSolexaAssemble ", e);
         e.printStackTrace();
         throw new RollBackCommandException(e.getMessage());
           
@@ -412,7 +412,7 @@ public class SaveWorkItemSolexaAssemble extends GNomExCommand implements Seriali
     if (!new File(rootDir).exists()) {
       success = (new File(rootDir)).mkdir();
       if (!success) {
-        log.error("Unable to create directory " + rootDir);      
+        LOG.error("Unable to create directory " + rootDir);
       }      
     }
     
@@ -420,7 +420,7 @@ public class SaveWorkItemSolexaAssemble extends GNomExCommand implements Seriali
     
     success = (new File(directoryName)).mkdir();
     if (!success) {
-      log.error("Unable to create directory " + directoryName);      
+      LOG.error("Unable to create directory " + directoryName);
     }
     
    

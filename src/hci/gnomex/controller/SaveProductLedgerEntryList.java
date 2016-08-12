@@ -17,11 +17,11 @@ import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.ProductLedger;
 import hci.gnomex.utility.GNomExRollbackException;
-
+import org.apache.log4j.Logger;
 @SuppressWarnings("serial")
 public class SaveProductLedgerEntryList extends GNomExCommand implements Serializable {
 	
-	private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(SaveProductLedgerEntryList.class);
+	private static Logger LOG = Logger.getLogger(SaveProductLedgerEntryList.class);
 	
 	Document productLedgerEntryListDoc;
 
@@ -39,7 +39,7 @@ public class SaveProductLedgerEntryList extends GNomExCommand implements Seriali
 	    	SAXBuilder sax = new SAXBuilder();
 	    	productLedgerEntryListDoc = sax.build(reader);
 	    } catch (JDOMException je) {
-	    	log.error("Cannot parse productLedgerEntryListXMLString", je);
+	    	LOG.error("Cannot parse productLedgerEntryListXMLString", je);
 	    	this.addInvalidField("ProductLedgerEntryListXMLString", "Invalid product ledger entry list xml");
 	    }
 	}
@@ -68,7 +68,7 @@ public class SaveProductLedgerEntryList extends GNomExCommand implements Seriali
 				this.setResponsePage(this.ERROR_JSP);
 			}
 		} catch (Exception e) {
-			log.error("An exception has occurred in SaveProductLedgerEntryList", e);
+			LOG.error("An exception has occurred in SaveProductLedgerEntryList", e);
 			e.printStackTrace();
 			throw new GNomExRollbackException(e.getMessage(), true, "An error occurred saving the product ledger entry list");
 		} finally {

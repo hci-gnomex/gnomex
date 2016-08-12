@@ -32,11 +32,11 @@ import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.input.SAXBuilder;
-
+import org.apache.log4j.Logger;
 public class SaveInstrumentRun extends GNomExCommand implements Serializable {
 
   // the static field for logging in Log4J
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(SaveInstrumentRun.class);
+  private static Logger LOG = Logger.getLogger(SaveInstrumentRun.class);
 
   private int                   idInstrumentRun;
   private boolean               isNew = true;
@@ -206,7 +206,7 @@ public class SaveInstrumentRun extends GNomExCommand implements Serializable {
       }
 
     }catch (Exception e){
-      log.error("An exception has occurred in SaveInstrumentRun ", e);
+      LOG.error("An exception has occurred in SaveInstrumentRun ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());  
     }finally {

@@ -9,7 +9,7 @@ import hci.gnomex.utility.PropertyDictionaryHelper;
 import java.io.File;
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.util.logging.Logger;
+import org.apache.log4j.Logger;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -20,7 +20,7 @@ import org.hibernate.Session;
 
 public class GetEstimatedDownloadDataTrackSize extends GNomExCommand implements Serializable {
   
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetEstimatedDownloadDataTrackSize.class);
+  private static Logger LOG = Logger.getLogger(GetEstimatedDownloadDataTrackSize.class);
   
   private String    keysString = null;
 
@@ -110,8 +110,7 @@ public class GetEstimatedDownloadDataTrackSize extends GNomExCommand implements 
       this.setResponsePage(SUCCESS_JSP);
 
     } catch (Exception e) {
-      Logger.getLogger(this.getClass().getName()).warning(e.toString());
-      e.printStackTrace();
+      LOG.error("Error", e);
       throw new RollBackCommandException(e.getMessage());
     } finally {
       try {

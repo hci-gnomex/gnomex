@@ -22,7 +22,7 @@ import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
-
+import org.apache.log4j.Logger;
 
 
 
@@ -31,7 +31,7 @@ public class SavePriceSheet extends GNomExCommand implements Serializable {
  
   
   // the static field for logging in Log4J
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(SavePriceSheet.class);
+  private static Logger LOG = Logger.getLogger(SavePriceSheet.class);
   
   private String                     requestCategoriesXMLString;
   private Document                   requestCategoryDoc;
@@ -65,7 +65,7 @@ public class SavePriceSheet extends GNomExCommand implements Serializable {
       requestCategoryDoc = sax.build(reader);
       requestCategoryParser = new PriceSheetCategoryParser(requestCategoryDoc);
     } catch (JDOMException je ) {
-      log.error( "Cannot parse requestCategoriesXMLString", je );
+      LOG.error( "Cannot parse requestCategoriesXMLString", je );
       this.addInvalidField( "requestCategoriesXMLString", "Invalid requestCategoriesXMLString");
     }
 
@@ -115,7 +115,7 @@ public class SavePriceSheet extends GNomExCommand implements Serializable {
       }
       
     }catch (Exception e){
-      log.error("An exception has occurred in SavePriceSheet ", e);
+      LOG.error("An exception has occurred in SavePriceSheet ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
         

@@ -20,11 +20,11 @@ import hci.gnomex.security.SecurityAdvisor;
 import hci.report.constants.ReportFormats;
 import hci.report.model.ReportTray;
 import hci.report.utility.ReportCommand;
-
+import org.apache.log4j.Logger;
 @SuppressWarnings("serial")
 public class ShowRequestForm extends ReportCommand implements Serializable {
 
-    private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(ShowRequestForm.class);
+    private static Logger LOG = Logger.getLogger(ShowRequestForm.class);
 
     public String SUCCESS_JSP = "/form_pdf.jsp";
 
@@ -131,7 +131,7 @@ public class ShowRequestForm extends ReportCommand implements Serializable {
             }
 
         } catch (Exception e) {
-            log.error("An exception has occurred in ShowRequestForm ", e);
+            LOG.error("An exception has occurred in ShowRequestForm ", e);
             e.printStackTrace();
             throw new RollBackCommandException(e.getMessage());
         } finally {

@@ -34,11 +34,11 @@ import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.output.XMLOutputter;
-
+import org.apache.log4j.Logger;
 
 public class GetBillingRequestList extends GNomExCommand implements Serializable {
 
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetBillingRequestList.class);
+  private static Logger LOG = Logger.getLogger(GetBillingRequestList.class);
 
   private static final String DELIM = "\t";
   private static final String DISK_USAGE_PREFIX = "ZZDiskUsage";
@@ -85,7 +85,7 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
       }
 
       StringBuffer buf = billingItemFilter.getBillingNewRequestQuery();
-      log.info("Query: " + buf.toString());
+      LOG.info("Query: " + buf.toString());
       List newRequests = sess.createQuery(buf.toString()).list();
 
 
@@ -183,7 +183,7 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
 
 
       buf = billingItemFilter.getBillingRequestQuery();
-      log.info("Query: " + buf.toString());
+      LOG.info("Query: " + buf.toString());
       List billingItemRequests = sess.createQuery(buf.toString()).list();
       String prevCodeBillingStatus = "NEW";
       // 
@@ -309,7 +309,7 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
 
 
       buf = billingItemFilter.getBillingDiskUsageQuery();
-      log.info("Query: " + buf.toString());
+      LOG.info("Query: " + buf.toString());
       List billingItemDiskUsage = sess.createQuery(buf.toString()).list();
       prevCodeBillingStatus = "NEW";
       // 
@@ -421,7 +421,7 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
       }
 
       buf = billingItemFilter.getBillingProductOrderQuery();
-      log.info("Query: " + buf.toString());
+      LOG.info("Query: " + buf.toString());
       List billingItemProductOrder = sess.createQuery(buf.toString()).list();
       prevCodeBillingStatus = "NEW";
       List labNames = new ArrayList();
@@ -735,15 +735,15 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
 
       setResponsePage(this.SUCCESS_JSP);
     }catch (NamingException e){
-      log.error("An exception has occurred in GetBillingRequestList ", e);
+      LOG.error("An exception has occurred in GetBillingRequestList ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());        
     }catch (SQLException e) {
-      log.error("An exception has occurred in GetBillingRequestList ", e);
+      LOG.error("An exception has occurred in GetBillingRequestList ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
     } catch (Exception e) {
-      log.error("An exception has occurred in GetBillingRequestList ", e);
+      LOG.error("An exception has occurred in GetBillingRequestList ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
     } finally {

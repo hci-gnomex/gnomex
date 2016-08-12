@@ -21,11 +21,11 @@ import org.jdom.Document;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.jdom.output.XMLOutputter;
-
+import org.apache.log4j.Logger;
 public class SaveMultiRequestSampleSheet extends GNomExCommand implements Serializable {
    
   // the static field for logging in Log4J
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(SaveMultiRequestSampleSheet.class);
+  private static Logger LOG = Logger.getLogger(SaveMultiRequestSampleSheet.class);
   
   private Document hdrDoc = null;
   private Document rowDoc = null;
@@ -42,11 +42,11 @@ public class SaveMultiRequestSampleSheet extends GNomExCommand implements Serial
         SAXBuilder sax = new SAXBuilder();
         hdrDoc = sax.build(reader);
       } catch (JDOMException je ) {
-        log.error( "SaveMultiRequestSampleSheet: Cannot parse headers", je );
+        LOG.error( "SaveMultiRequestSampleSheet: Cannot parse headers", je );
         this.addInvalidField( "Headers", "Invalid headers xml");
       }
     } else {
-      log.error("SaveMultiRequestSampleSheet: sampleSheetHeaderXMLString not specified.");
+      LOG.error("SaveMultiRequestSampleSheet: sampleSheetHeaderXMLString not specified.");
       this.addInvalidField("Headers", "Headers not specifed.");
     }
 
@@ -57,11 +57,11 @@ public class SaveMultiRequestSampleSheet extends GNomExCommand implements Serial
         SAXBuilder sax = new SAXBuilder();
         rowDoc = sax.build(reader);
       } catch (JDOMException je ) {
-        log.error( "SaveMultiRequestSampleSheet: Cannot parse rows", je );
+        LOG.error( "SaveMultiRequestSampleSheet: Cannot parse rows", je );
         this.addInvalidField( "Rows", "Invalid rows xml");
       }
     } else {
-      log.error("SaveMultiRequestSampleSheet: sampleSheetRowXMLString not specified.");
+      LOG.error("SaveMultiRequestSampleSheet: sampleSheetRowXMLString not specified.");
       this.addInvalidField("Rows", "Rows not specifed.");
     }
   }
@@ -115,7 +115,7 @@ public class SaveMultiRequestSampleSheet extends GNomExCommand implements Serial
       }
       
     } catch (Exception e){
-      log.error("An exception has occurred while saving a Multi-Request sample sheet. ", e);
+      LOG.error("An exception has occurred while saving a Multi-Request sample sheet. ", e);
       throw new RollBackCommandException(e.toString());      
     } finally {
       try {

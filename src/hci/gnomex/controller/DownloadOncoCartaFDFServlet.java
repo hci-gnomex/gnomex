@@ -18,7 +18,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.hibernate.Session;
-
+import org.apache.log4j.Logger;
 
 public class DownloadOncoCartaFDFServlet extends HttpServlet {
 
@@ -27,7 +27,7 @@ public class DownloadOncoCartaFDFServlet extends HttpServlet {
      */
     private static final long serialVersionUID = 1L;
 
-    private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(DownloadOncoCartaFDFServlet.class);
+    private static Logger LOG = Logger.getLogger(DownloadOncoCartaFDFServlet.class);
 
     private static SimpleDateFormat dateFormatter = new SimpleDateFormat("MM/dd/yyyy");
 
@@ -43,9 +43,9 @@ public class DownloadOncoCartaFDFServlet extends HttpServlet {
         serverName = req.getServerName();
 
         // Restrict commands to local host if request is not secure
-        if (!ServletUtil.checkSecureRequest(req, log)) {
+        if (!ServletUtil.checkSecureRequest(req, LOG)) {
             ServletUtil.reportServletError(response, "Accessing secure command over non-secure line from remote host is not " +
-                    "allowed. Secure connection is required. Prefix your request with 'https'", log);
+                    "allowed. Secure connection is required. Prefix your request with 'https'", LOG);
             return;
         }
 
@@ -53,7 +53,7 @@ public class DownloadOncoCartaFDFServlet extends HttpServlet {
         if (req.getParameter("idRequest") != null && !req.getParameter("idRequest").equals("")) {
             idRequest = Integer.parseInt(req.getParameter("idRequest"));
         } else {
-            ServletUtil.reportServletError(response, "idRequest required", log);
+            ServletUtil.reportServletError(response, "idRequest required", LOG);
             return;
         }
 
@@ -70,17 +70,17 @@ public class DownloadOncoCartaFDFServlet extends HttpServlet {
 
                 Request request = (Request)sess.load(Request.class, idRequest);
                 if (!secAdvisor.canRead(request) || !secAdvisor.hasPermission(SecurityAdvisor.CAN_ACCESS_ANY_OBJECT)) {
-                    ServletUtil.reportServletError(response, "Insufficient privileges", log);
+                    ServletUtil.reportServletError(response, "Insufficient privileges", LOG);
                     return;
                 }
 
                 if (request.getSamples().size() == 0) {
-                    ServletUtil.reportServletError(response, "Selected request has no samples.", log);
+                    ServletUtil.reportServletError(response, "Selected request has no samples.", LOG);
                 }
 
                 String template = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.ONCOCARTA_FDF_TEMPLATE);
                 if (template == null || template.length() == 0) {
-                    ServletUtil.reportServletError(response, "OncoCarta FDF template property not found.", log);
+                    ServletUtil.reportServletError(response, "OncoCarta FDF template property not found.", LOG);
                     return;
                 }
 

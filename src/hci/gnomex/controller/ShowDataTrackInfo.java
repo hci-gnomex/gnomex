@@ -21,10 +21,10 @@ import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.hibernate.Session;
-
+import org.apache.log4j.Logger;
 public class ShowDataTrackInfo extends GNomExCommand implements Serializable {
 
-	private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(ShowDataTrackInfo.class);
+	private static Logger LOG = Logger.getLogger(ShowDataTrackInfo.class);
 
 	public String SUCCESS_JSP = "/getHTML.jsp";
 
@@ -199,7 +199,7 @@ public class ShowDataTrackInfo extends GNomExCommand implements Serializable {
 			try {
 				HibernateSession.closeSession();
 			} catch (Exception ex) {
-				log.error("Unable to close session in ShowDataTrackInfo");
+				LOG.error("Unable to close session in ShowDataTrackInfo");
 			}
 		}
 

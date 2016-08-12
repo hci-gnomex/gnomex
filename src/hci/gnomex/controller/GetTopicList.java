@@ -13,11 +13,11 @@ import javax.servlet.http.HttpSession;
 
 import org.hibernate.Session;
 import org.jdom.Document;
-
+import org.apache.log4j.Logger;
 
 public class GetTopicList extends GNomExCommand implements Serializable {
   
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetTopicList.class);
+  private static Logger LOG = Logger.getLogger(GetTopicList.class);
   
   private TopicQuery topicQuery;
   
@@ -45,15 +45,15 @@ public class GetTopicList extends GNomExCommand implements Serializable {
       setResponsePage(this.SUCCESS_JSP);      
       
     }catch (NamingException e){
-      log.error("An exception has occurred in GetTopicList ", e);
+      LOG.error("An exception has occurred in GetTopicList ", e);
       e.printStackTrace(System.out);
       throw new RollBackCommandException(e.getMessage());
     }catch (SQLException e) {
-      log.error("An exception has occurred in GetTopicList ", e);
+      LOG.error("An exception has occurred in GetTopicList ", e);
       e.printStackTrace(System.out);
       throw new RollBackCommandException(e.getMessage());
     } catch (Exception e) {
-      log.error("An exception has occurred in GetTopicList ", e);
+      LOG.error("An exception has occurred in GetTopicList ", e);
       e.printStackTrace(System.out);
       throw new RollBackCommandException(e.getMessage());
     } finally {

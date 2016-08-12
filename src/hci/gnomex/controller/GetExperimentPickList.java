@@ -28,11 +28,12 @@ import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.output.XMLOutputter;
+import org.apache.log4j.Logger;
 
 
 public class GetExperimentPickList extends GNomExCommand implements Serializable {
   
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetExperimentPickList.class);
+  private static Logger LOG = Logger.getLogger(GetExperimentPickList.class);
   
   private ExperimentPickListFilter       filter;
   private HashMap                        slideDesignMap = new HashMap();
@@ -92,7 +93,7 @@ public class GetExperimentPickList extends GNomExCommand implements Serializable
       
     
       StringBuffer buf = filter.getMicroarrayQuery(this.getSecAdvisor(), dh);
-      log.debug("Query for GetExperimentPickList (1): " + buf.toString());
+      LOG.debug("Query for GetExperimentPickList (1): " + buf.toString());
       List rows1 = (List)sess.createQuery(buf.toString()).list();
       TreeMap rowMap = new TreeMap(new HybLaneComparator());
       for(Iterator i = rows1.iterator(); i.hasNext();) {
@@ -115,7 +116,7 @@ public class GetExperimentPickList extends GNomExCommand implements Serializable
       }
 
       buf = filter.getNextGenSeqQuery(this.getSecAdvisor(), dh);
-      log.debug("Query for GetExperimentPickList (2): " + buf.toString());
+      LOG.debug("Query for GetExperimentPickList (2): " + buf.toString());
       List rows2 = (List)sess.createQuery(buf.toString()).list();
       for(Iterator i = rows2.iterator(); i.hasNext();) {
         Object[] row = (Object[])i.next();
@@ -137,7 +138,7 @@ public class GetExperimentPickList extends GNomExCommand implements Serializable
       }
       
       buf = filter.getSampleQuery(this.getSecAdvisor(), dh);
-      log.debug("Query for GetExperimentPickList (3): " + buf.toString());
+      LOG.debug("Query for GetExperimentPickList (3): " + buf.toString());
       List rows3 = (List) sess.createQuery(buf.toString()).list();
       for (Iterator i = rows3.iterator(); i.hasNext();) {
     	  Object[] row = (Object[]) i.next();
@@ -200,15 +201,15 @@ public class GetExperimentPickList extends GNomExCommand implements Serializable
     
       setResponsePage(this.SUCCESS_JSP);
     }catch (NamingException e){
-      log.error("An exception has occurred in GetExperimentPickList ", e);
+      LOG.error("An exception has occurred in GetExperimentPickList ", e);
       e.printStackTrace(System.out);
       throw new RollBackCommandException(e.getMessage());
     }catch (SQLException e) {
-      log.error("An exception has occurred in GetExperimentPickList ", e);
+      LOG.error("An exception has occurred in GetExperimentPickList ", e);
       e.printStackTrace(System.out);
       throw new RollBackCommandException(e.getMessage());
     } catch (Exception e) {
-      log.error("An exception has occurred in GetExperimentPickList ", e);
+      LOG.error("An exception has occurred in GetExperimentPickList ", e);
       e.printStackTrace(System.out);
       throw new RollBackCommandException(e.getMessage());
     } finally {

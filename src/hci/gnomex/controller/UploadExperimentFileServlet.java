@@ -29,10 +29,10 @@ import com.oreilly.servlet.multipart.FilePart;
 import com.oreilly.servlet.multipart.MultipartParser;
 import com.oreilly.servlet.multipart.ParamPart;
 import com.oreilly.servlet.multipart.Part;
-
+import org.apache.log4j.Logger;
 public class UploadExperimentFileServlet extends HttpServlet {
 
-	private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(UploadExperimentFileServlet.class);
+	private static Logger LOG = Logger.getLogger(UploadExperimentFileServlet.class);
 
 	private Integer idRequest = null;
 	private String requestNumber = null;
@@ -255,7 +255,7 @@ public class UploadExperimentFileServlet extends HttpServlet {
 
 		} catch (Exception e) {
 			HibernateSession.rollback();
-			log.error("An exception has occurred in UploadExperimentFileServlet ", e);
+			LOG.error("An exception has occurred in UploadExperimentFileServlet ", e);
 			throw new ServletException("Unable to upload file " + fileName + " due to a server error.  Please contact GNomEx support.");
 		} finally {
 			try {

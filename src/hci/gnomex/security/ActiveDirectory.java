@@ -37,6 +37,7 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
+import org.apache.log4j.Logger;
 
 
 
@@ -50,7 +51,7 @@ import javax.naming.directory.SearchResult;
 public class ActiveDirectory {
     // Logger
     //private static final Logger LOG = Logger.getLogger(ActiveDirectory.class.getName());
-    private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(ActiveDirectory.class);
+    private static Logger LOG = Logger.getLogger(ActiveDirectory.class);
 
     //required private variables
     private Properties properties;
@@ -146,12 +147,10 @@ public class ActiveDirectory {
                 }
             }
         } catch (Exception e) {
-            System.out.println("\nUnexpected exception when iterating over user attributes");
-            System.out.println(e.toString());
-            e.printStackTrace();
+            LOG.error("Unexpected exception when iterating over user attributes", e);
         }
         if(!matches){
-            log.error("No matching LDAP attributes in active directory " + logString.toString());
+            LOG.error("No matching LDAP attributes in active directory " + logString.toString());
         }
         return matches;
     }
@@ -166,7 +165,7 @@ public class ActiveDirectory {
                 dirContext.close();
         }
         catch (NamingException e) {
-            log.error(e.getMessage());
+            LOG.error(e);
         }
     }
 

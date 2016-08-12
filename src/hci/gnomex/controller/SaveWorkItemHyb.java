@@ -22,7 +22,7 @@ import org.jdom.Document;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.jdom.output.XMLOutputter;
-
+import org.apache.log4j.Logger;
 
 
 
@@ -31,7 +31,7 @@ public class SaveWorkItemHyb extends GNomExCommand implements Serializable {
  
   
   // the static field for logging in Log4J
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(SaveWorkItemHyb.class);
+  private static Logger LOG = Logger.getLogger(SaveWorkItemHyb.class);
   
   private String                       workItemXMLString;
   private Document                     workItemDoc;
@@ -54,7 +54,7 @@ public class SaveWorkItemHyb extends GNomExCommand implements Serializable {
         workItemDoc = sax.build(reader);
         parser = new WorkItemHybParser(workItemDoc);
       } catch (JDOMException je ) {
-        log.error( "Cannot parse workItemXMLString", je );
+        LOG.error( "Cannot parse workItemXMLString", je );
         this.addInvalidField( "WorkItemXMLString", "Invalid work item xml");
       }
     }
@@ -122,7 +122,7 @@ public class SaveWorkItemHyb extends GNomExCommand implements Serializable {
 
         
       }catch (Exception e){
-        log.error("An exception has occurred in SaveWorkflowHyb ", e);
+        LOG.error("An exception has occurred in SaveWorkflowHyb ", e);
         e.printStackTrace();
         throw new RollBackCommandException(e.getMessage());
           

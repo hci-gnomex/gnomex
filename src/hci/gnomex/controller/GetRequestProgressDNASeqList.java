@@ -28,11 +28,11 @@ import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.output.XMLOutputter;
-
+import org.apache.log4j.Logger;
 
 public class GetRequestProgressDNASeqList extends GNomExCommand implements Serializable {
   
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetRequestProgressSolexaList.class);
+  private static Logger LOG = Logger.getLogger(GetRequestProgressSolexaList.class);
   
   private RequestProgressDNASeqFilter filter;
   
@@ -64,7 +64,7 @@ public class GetRequestProgressDNASeqList extends GNomExCommand implements Seria
       Document doc = new Document(new Element("RequestProgressList"));
       
       StringBuffer buf = filter.getDNASeqQuery(this.getSecAdvisor(), dictionaryHelper);
-      log.info(buf.toString());
+      LOG.info(buf.toString());
       List rows = (List)sess.createQuery(buf.toString()).list();
       TreeMap<String, RowContainer> rowMap = new TreeMap<String, RowContainer>();
       for(Iterator i = rows.iterator(); i.hasNext(); ) {
@@ -122,15 +122,15 @@ public class GetRequestProgressDNASeqList extends GNomExCommand implements Seria
     
       setResponsePage(this.SUCCESS_JSP);
     }catch (NamingException e){
-      log.error("An exception has occurred in GetRequestProgressList ", e);
+      LOG.error("An exception has occurred in GetRequestProgressList ", e);
       e.printStackTrace(System.out);
       throw new RollBackCommandException(e.getMessage());
     }catch (SQLException e) {
-      log.error("An exception has occurred in GetRequestProgressList ", e);
+      LOG.error("An exception has occurred in GetRequestProgressList ", e);
       e.printStackTrace(System.out);
       throw new RollBackCommandException(e.getMessage());
     } catch (Exception e) {
-      log.error("An exception has occurred in GetRequestProgressList ", e);
+      LOG.error("An exception has occurred in GetRequestProgressList ", e);
       e.printStackTrace(System.out);
       throw new RollBackCommandException(e.getMessage());
     } finally {

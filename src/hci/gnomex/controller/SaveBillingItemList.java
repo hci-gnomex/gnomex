@@ -37,7 +37,7 @@ import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
-
+import org.apache.log4j.Logger;
 
 
 
@@ -93,7 +93,7 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
   } 
 
   // the static field for logging in Log4J
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(SaveBillingItemList.class);
+  private static Logger LOG = Logger.getLogger(SaveBillingItemList.class);
 
   private String                       billingItemXMLString;
   private Document                     billingItemDoc;
@@ -122,7 +122,7 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
         billingItemDoc = sax.build(reader);
         parser = new BillingItemParser(billingItemDoc);
       } catch (JDOMException je ) {
-        log.error( "Cannot parse billingItemXMLString", je );
+        LOG.error( "Cannot parse billingItemXMLString", je );
         this.addInvalidField( "BillingItemXMLString", "Invalid work item xml");
       }
     }
@@ -137,7 +137,7 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
       try {
         Session sess = HibernateSession.currentSession(this.getUsername());
 
-        executionLogger = new LogLongExecutionTimes(log, PropertyDictionaryHelper.getInstance(sess), "SaveBillingItemList");
+        executionLogger = new LogLongExecutionTimes(LOG, PropertyDictionaryHelper.getInstance(sess), "SaveBillingItemList");
         LogItem li = null;
 
         if (this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_MANAGE_BILLING)) {
@@ -279,7 +279,7 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
 
         this.executionLogger.LogTimes();
       }catch (Exception e){
-        log.error("An exception has occurred in SaveBillingItem ", e);
+        LOG.error("An exception has occurred in SaveBillingItem ", e);
         e.printStackTrace();
         throw new RollBackCommandException(e.getMessage());
 
@@ -305,7 +305,7 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
         try {
           sendInvoiceEmail(sess, idBillingPeriod, lab, billingAccount, idCoreFacility, true);        
         } catch (Exception e) {
-          log.error("Unable to send invoice email to billing contact " + lab.getContactEmail() + " for lab " + lab.getName(false, true) + ".", e);
+          LOG.error("Unable to send invoice email to billing contact " + lab.getContactEmail() + " for lab " + lab.getName(false, true) + ".", e);
         }
 
       }
@@ -313,9 +313,9 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
       try {
         sendInvoiceEmail(sess, idBillingPeriod, lab, billingAccount, idCoreFacility, false);        
       } catch (Exception e) {
-        log.error("Unable to send invoice email to billing contact " + lab.getContactEmail() + " for lab " + lab.getName(false, true) + ".", e);
+        LOG.error("Unable to send invoice email to billing contact " + lab.getContactEmail() + " for lab " + lab.getName(false, true) + ".", e);
       }
-      //log.error("Unable to send invoice email to billing contact for lab " + lab.getName());      
+      //LOG.error("Unable to send invoice email to billing contact for lab " + lab.getName());
     }
   }
 
@@ -369,11 +369,11 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
     if(emailRecipients.contains(",")){
       for(String e : emailRecipients.split(",")){
         if(!MailUtil.isValidEmail(e.trim())){
-          log.error("Invalid email address " + e);
+          LOG.error("Invalid email address " + e);
         }
       }
     } else if(!MailUtil.isValidEmail(emailRecipients)){
-      log.error("Invalid email address " + emailRecipients);
+      LOG.error("Invalid email address " + emailRecipients);
     }
     this.executionLogger.endLogItem(li);
 
@@ -411,7 +411,7 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
     	
     	billingInvoice.delete();
     } catch (Exception e) {
-    	log.error("Unable to send invoice email to " + emailRecipients, e);
+    	LOG.error("Unable to send invoice email to " + emailRecipients, e);
     }
 
     // Set last email date

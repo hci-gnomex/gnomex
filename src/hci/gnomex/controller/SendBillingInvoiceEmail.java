@@ -24,6 +24,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.log4j.Logger;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.jdom.output.XMLOutputter;
@@ -31,7 +32,7 @@ import org.jdom.output.XMLOutputter;
 @SuppressWarnings("serial")
 public class SendBillingInvoiceEmail extends GNomExCommand implements Serializable {
 
-	private static org.apache.log4j.Logger 	log = org.apache.log4j.Logger.getLogger(SendBillingInvoiceEmail.class);
+	private static Logger LOG = Logger.getLogger(SendBillingInvoiceEmail.class);
 	
 	public 	String 							SUCCESS_JSP = "/getHTML.jsp";
 	
@@ -131,7 +132,7 @@ public class SendBillingInvoiceEmail extends GNomExCommand implements Serializab
 		    }
 				
 		} catch (Exception e) {
-			log.error("An exception has occurred in SendBillingInvoiceEmail ", e);
+			LOG.error("An exception has occurred in SendBillingInvoiceEmail ", e);
 			e.printStackTrace();
 			throw new RollBackCommandException(e.getMessage());
 		} finally {
@@ -168,11 +169,11 @@ public class SendBillingInvoiceEmail extends GNomExCommand implements Serializab
 		if (emailRecipients.contains(",")) {
 			for (String e : emailRecipients.split(",")) {
 				if (!MailUtil.isValidEmail(e.trim())) {
-					log.error("Invalid email address " + e);
+					LOG.error("Invalid email address " + e);
 				}
 			}
 		} else if (!MailUtil.isValidEmail(emailRecipients)) {
-			log.error("Invalid email address " + emailRecipients);
+			LOG.error("Invalid email address " + emailRecipients);
 		}
 		if (emailRecipients != null && !emailRecipients.equals("")) {
 			send = true;
@@ -209,7 +210,7 @@ public class SendBillingInvoiceEmail extends GNomExCommand implements Serializab
 					sess.flush();
 				}
 			} catch (Exception e) {
-				log.error("Unable to send invoice email to " + emailRecipients, e);
+				LOG.error("Unable to send invoice email to " + emailRecipients, e);
 				note = "Unable to email invoice to " + emailRecipients + " due to the following error: " + e.toString();
 			}
 		}

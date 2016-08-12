@@ -27,11 +27,11 @@ import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.output.XMLOutputter;
-
+import org.apache.log4j.Logger;
 public class GetInstrumentRunList extends GNomExCommand implements Serializable {
 
   // the static field for logging in Log4J
-  private static org.apache.log4j.Logger log      = org.apache.log4j.Logger.getLogger( GetInstrumentRunList.class );
+  private static Logger LOG      = Logger.getLogger( GetInstrumentRunList.class );
 
   private InstrumentRunFilter            runFilter;
   private String                         listKind = "RunList";
@@ -72,7 +72,7 @@ public class GetInstrumentRunList extends GNomExCommand implements Serializable 
               this.getUsername() );
 
           StringBuffer buf = runFilter.getQuery( this.getSecAdvisor() );
-          log.info( "Query for GetInstrumentRunList: " + buf.toString() );
+          LOG.info( "Query for GetInstrumentRunList: " + buf.toString() );
           List runs = sess.createQuery( buf.toString() ).list();
           
           Integer maxRuns = getMaxRuns(sess);
@@ -151,20 +151,20 @@ public class GetInstrumentRunList extends GNomExCommand implements Serializable 
         "Insufficient permission to view run list." );
       }
     } catch( NamingException e ) {
-      log.error( "An exception has occurred in GetRunList ", e );
+      LOG.error( "An exception has occurred in GetRunList ", e );
       e.printStackTrace();
       throw new RollBackCommandException( e.getMessage() );
 
     } catch( SQLException e ) {
-      log.error( "An exception has occurred in GetRunList ", e );
+      LOG.error( "An exception has occurred in GetRunList ", e );
       e.printStackTrace();
       throw new RollBackCommandException( e.getMessage() );
     } catch( XMLReflectException e ) {
-      log.error( "An exception has occurred in GetRunList ", e );
+      LOG.error( "An exception has occurred in GetRunList ", e );
       e.printStackTrace();
       throw new RollBackCommandException( e.getMessage() );
     } catch( Exception e ) {
-      log.error( "An exception has occurred in GetRunList ", e );
+      LOG.error( "An exception has occurred in GetRunList ", e );
       e.printStackTrace();
       throw new RollBackCommandException( e.getMessage() );
     } finally {

@@ -12,13 +12,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.hibernate.Session;
-
+import org.apache.log4j.Logger;
 
 
 
 public class CheckDataTrackPermission extends GNomExCommand implements Serializable {
   
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(CheckDataTrackPermission.class);
+  private static Logger LOG = Logger.getLogger(CheckDataTrackPermission.class);
   
   private Integer idDataTrack = null;
   
@@ -60,15 +60,15 @@ public class CheckDataTrackPermission extends GNomExCommand implements Serializa
         setResponsePage(this.ERROR_JSP);
       }
     } catch (NamingException e){
-      log.error("An exception has occurred in CheckDataTrackPermission ", e);
+      LOG.error("An exception has occurred in CheckDataTrackPermission ", e);
       e.printStackTrace(System.out);
       throw new RollBackCommandException(e.getMessage());
     } catch (SQLException e) {
-      log.error("An exception has occurred in CheckDataTrackPermission ", e);
+      LOG.error("An exception has occurred in CheckDataTrackPermission ", e);
       e.printStackTrace(System.out);
       throw new RollBackCommandException(e.getMessage());
     } catch (Exception e) {
-      log.error("An exception has occurred in CheckDataTrackPermission ", e);
+      LOG.error("An exception has occurred in CheckDataTrackPermission ", e);
       e.printStackTrace(System.out);
       throw new RollBackCommandException(e.getMessage());
     } finally {

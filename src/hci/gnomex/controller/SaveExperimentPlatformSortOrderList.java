@@ -20,11 +20,11 @@ import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
-
+import org.apache.log4j.Logger;
 public class SaveExperimentPlatformSortOrderList extends GNomExCommand implements Serializable {
   
   // the static field for logging in Log4J
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(SaveExperimentPlatformSortOrderList.class);
+  private static Logger LOG = Logger.getLogger(SaveExperimentPlatformSortOrderList.class);
 
   private Document categoriesDoc;
   
@@ -57,7 +57,7 @@ public class SaveExperimentPlatformSortOrderList extends GNomExCommand implement
         SAXBuilder sax = new SAXBuilder();
         categoriesDoc = sax.build(reader);     
       } catch (JDOMException je ) {
-        log.error( "Cannot parse requestCategoriesXMLString", je );
+        LOG.error( "Cannot parse requestCategoriesXMLString", je );
         this.addInvalidField( "requestCategoriesXMLString", "Invalid requestCategoriesXMLString");
       }
     } else {
@@ -97,7 +97,7 @@ public class SaveExperimentPlatformSortOrderList extends GNomExCommand implement
       this.xmlResult = "<SUCCESS />";
 
     }catch (Exception e){
-      log.error("An exception has occurred in SaveExperimentPlatform ", e);
+      LOG.error("An exception has occurred in SaveExperimentPlatform ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
         

@@ -21,7 +21,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.hibernate.Session;
-
+import org.apache.log4j.Logger;
 
 
 public class MoveOrCopyTopic extends GNomExCommand implements Serializable {
@@ -29,7 +29,7 @@ public class MoveOrCopyTopic extends GNomExCommand implements Serializable {
  
   
   // the static field for logging in Log4J
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(MoveOrCopyTopic.class);
+  private static Logger LOG = Logger.getLogger(MoveOrCopyTopic.class);
   
   private Integer idTopic = null;
   private Integer idParentTopicNew = null;
@@ -92,7 +92,7 @@ public class MoveOrCopyTopic extends GNomExCommand implements Serializable {
         setResponsePage(this.ERROR_JSP);
       }      
     } catch (Exception e){
-      log.error("An exception has occurred in MoveOrCopyTopic ", e);
+      LOG.error("An exception has occurred in MoveOrCopyTopic ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
         

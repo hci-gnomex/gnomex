@@ -29,10 +29,10 @@ import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.output.XMLOutputter;
-
+import org.apache.log4j.Logger;
 public class GetRequestList extends GNomExCommand implements Serializable {
 
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetRequestList.class);
+  private static Logger LOG = Logger.getLogger(GetRequestList.class);
 
   private RequestFilter requestFilter;
   private HashMap<Integer, List<Object[]>> reactionPlateMap = new HashMap<Integer, List<Object[]>>();
@@ -71,7 +71,7 @@ public class GetRequestList extends GNomExCommand implements Serializable {
 
       StringBuffer buf = requestFilter.getQuery(this.getSecAdvisor());
 
-      log.info("Query for GetRequestList: " + buf.toString());
+      LOG.info("Query for GetRequestList: " + buf.toString());
       List rows = sess.createQuery(buf.toString()).list();
 
       if (includePlateInfo) {
@@ -185,19 +185,19 @@ public class GetRequestList extends GNomExCommand implements Serializable {
 
       setResponsePage(this.SUCCESS_JSP);
     } catch (NamingException e) {
-      log.error("An exception has occurred in GetRequestList ", e);
+      LOG.error("An exception has occurred in GetRequestList ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
     } catch (SQLException e) {
-      log.error("An exception has occurred in GetRequestList ", e);
+      LOG.error("An exception has occurred in GetRequestList ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
     } catch (XMLReflectException e) {
-      log.error("An exception has occurred in GetRequestList ", e);
+      LOG.error("An exception has occurred in GetRequestList ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
     } catch (Exception e) {
-      log.error("An exception has occurred in GetRequestList ", e);
+      LOG.error("An exception has occurred in GetRequestList ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
     } finally {

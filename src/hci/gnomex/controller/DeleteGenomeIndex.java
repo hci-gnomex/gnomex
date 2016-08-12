@@ -13,7 +13,7 @@ import javax.servlet.http.HttpSession;
 
 import org.hibernate.Session;
 import org.hibernate.exception.ConstraintViolationException;
-
+import org.apache.log4j.Logger;
 
 
 
@@ -22,7 +22,7 @@ public class DeleteGenomeIndex extends GNomExCommand implements Serializable {
  
   
   // the static field for logging in Log4J
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(DeleteGenomeIndex.class);
+  private static Logger LOG = Logger.getLogger(DeleteGenomeIndex.class);
   
   
   private Integer      idGenomeIndex = null;
@@ -79,14 +79,14 @@ public class DeleteGenomeIndex extends GNomExCommand implements Serializable {
         gnIdx.setIsActive("N");
         sess.flush();
       } catch(Exception e) {
-        log.error("An exception has occurred in DeleteGenomeIndex when trying to inactivate property ", e);
+        LOG.error("An exception has occurred in DeleteGenomeIndex when trying to inactivate property ", e);
         e.printStackTrace();
         throw new RollBackCommandException(e.getMessage());
         
       }
       
     } catch (Exception e){
-      log.error("An exception has occurred in DeleteGenomeIndex ", e);
+      LOG.error("An exception has occurred in DeleteGenomeIndex ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
         

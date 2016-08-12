@@ -21,14 +21,14 @@ import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.output.XMLOutputter;
-
+import org.apache.log4j.Logger;
 
 public class GetExperimentFactorList extends GNomExCommand implements Serializable {
   
  
   
   // the static field for logging in Log4J
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetExperimentFactorList.class);
+  private static Logger LOG = Logger.getLogger(GetExperimentFactorList.class);
   
   
   public void validate() {
@@ -101,19 +101,19 @@ public class GetExperimentFactorList extends GNomExCommand implements Serializab
     
     setResponsePage(this.SUCCESS_JSP);
     }catch (NamingException e){
-      log.error("An exception has occurred in GetExperimentFactorList ", e);
+      LOG.error("An exception has occurred in GetExperimentFactorList ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
     }catch (SQLException e) {
-      log.error("An exception has occurred in GetExperimentFactorList ", e);
+      LOG.error("An exception has occurred in GetExperimentFactorList ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
     } catch (XMLReflectException e){
-      log.error("An exception has occurred in GetExperimentFactorList ", e);
+      LOG.error("An exception has occurred in GetExperimentFactorList ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
     } catch (Exception e){
-      log.error("An exception has occurred in GetExperimentFactorList ", e);
+      LOG.error("An exception has occurred in GetExperimentFactorList ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
     } finally {

@@ -19,11 +19,12 @@ import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
+import org.apache.log4j.Logger;
 
 public class DeleteChromatograms extends GNomExCommand implements Serializable {
   
   // the static field for logging in Log4J
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(DeleteChromatograms.class);
+  private static Logger LOG = Logger.getLogger(DeleteChromatograms.class);
   
   private String chromatsToDeleteXMLString;
   private Document chromatsToDeleteDoc;
@@ -40,7 +41,7 @@ public class DeleteChromatograms extends GNomExCommand implements Serializable {
         SAXBuilder sax = new SAXBuilder();
         chromatsToDeleteDoc = sax.build(reader);     
       } catch (JDOMException je ) {
-        log.error( "Cannot parse chromatsToDeleteXMLString", je );
+        LOG.error( "Cannot parse chromatsToDeleteXMLString", je );
         this.addInvalidField( "chromatsToDeleteXMLString", "Invalid chromatsToDeleteXMLString");
       }
     } 
@@ -75,7 +76,7 @@ public class DeleteChromatograms extends GNomExCommand implements Serializable {
       
       
     }catch (Exception e){
-      log.error("An exception has occurred in DeleteChromatograms ", e);
+      LOG.error("An exception has occurred in DeleteChromatograms ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
         

@@ -25,11 +25,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.hibernate.Session;
-
+import org.apache.log4j.Logger;
 
 public class FastDataTransferUploadStart extends GNomExCommand implements Serializable {
 
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(FastDataTransferUploadStart.class);
+  private static Logger LOG = Logger.getLogger(FastDataTransferUploadStart.class);
 
   private String serverName;
   
@@ -200,7 +200,7 @@ public class FastDataTransferUploadStart extends GNomExCommand implements Serial
       }
 
     } catch (Exception e){
-      log.error("An exception has occurred in FastDataTransferUploadStart", e);
+      LOG.error("An exception has occurred in FastDataTransferUploadStart", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
     } finally {

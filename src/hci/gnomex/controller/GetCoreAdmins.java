@@ -14,13 +14,13 @@ import javax.servlet.http.HttpSession;
 import java.io.Serializable;
 import java.util.Iterator;
 import java.util.List;
-
+import org.apache.log4j.Logger;
 /**
  * Created by u0395021 on 7/29/2016.
  */
 public class GetCoreAdmins extends GNomExCommand implements Serializable {
 
-    private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetRequest.class);
+    private static Logger LOG = Logger.getLogger(GetRequest.class);
 
     private Integer idCoreFacility;
 
@@ -63,7 +63,7 @@ public class GetCoreAdmins extends GNomExCommand implements Serializable {
             }
 
         }catch(Exception e){
-            log.error("An exception has occurred in GetCoreAdmins ", e);
+            LOG.error("An exception has occurred in GetCoreAdmins ", e);
             e.printStackTrace();
         } finally{
             try {

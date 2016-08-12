@@ -41,7 +41,7 @@ import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
-
+import org.apache.log4j.Logger;
 
 
 
@@ -50,7 +50,7 @@ public class DeleteRequest extends GNomExCommand implements Serializable {
 
 
   // the static field for logging in Log4J
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(DeleteRequest.class);
+  private static Logger LOG = Logger.getLogger(DeleteRequest.class);
 
   private String requestsToDeleteXMLString = null;
   private Document requestsToDeleteDoc = null;
@@ -78,7 +78,7 @@ public class DeleteRequest extends GNomExCommand implements Serializable {
         SAXBuilder sax = new SAXBuilder();
         requestsToDeleteDoc = sax.build(reader);
       } catch (JDOMException je ) {
-        log.error( "Cannot parse requestsToDeleteXMLString", je );
+        LOG.error( "Cannot parse requestsToDeleteXMLString", je );
         this.addInvalidField( "requestsToDeleteXMLString", "Invalid requestsToDeleteXMLString");
       }
     }
@@ -296,7 +296,7 @@ public class DeleteRequest extends GNomExCommand implements Serializable {
         }
       }
     }catch (Exception e){
-      log.error("An exception has occurred in DeleteRequest ", e);
+      LOG.error("An exception has occurred in DeleteRequest ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
 
@@ -316,7 +316,7 @@ public class DeleteRequest extends GNomExCommand implements Serializable {
     if(folderContents == null || folderContents.length == 0){
       if (f.exists()) {
         if (!f.delete()) {
-          log.error("Unable to remove " + f.getName() + " from file system");
+          LOG.error("Unable to remove " + f.getName() + " from file system");
         }
       }
       return;
@@ -329,13 +329,13 @@ public class DeleteRequest extends GNomExCommand implements Serializable {
       }
       else{
         if (!child.delete()) {
-          log.error("Unable to remove " + child.getName() + " from file system");
+          LOG.error("Unable to remove " + child.getName() + " from file system");
         }
       }
     }
 
     if (!f.delete()) {
-      log.error("Unable to remove " + f.getName() + " from file system");
+      LOG.error("Unable to remove " + f.getName() + " from file system");
     }
   }
 

@@ -28,11 +28,11 @@ import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
-
+import org.apache.log4j.Logger;
 public class DeletePlates extends GNomExCommand implements Serializable {
   
   // the static field for logging in Log4J
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(DeleteInstrumentRuns.class);
+  private static Logger LOG = Logger.getLogger(DeleteInstrumentRuns.class);
   
   private String platesToDeleteXMLString;
   private Document platesToDeleteDoc;
@@ -49,7 +49,7 @@ public class DeletePlates extends GNomExCommand implements Serializable {
         SAXBuilder sax = new SAXBuilder();
         platesToDeleteDoc = sax.build(reader);     
       } catch (JDOMException je ) {
-        log.error( "Cannot parse platesToDeleteXMLString", je );
+        LOG.error( "Cannot parse platesToDeleteXMLString", je );
         this.addInvalidField( "platesToDeleteXMLString", "Invalid platesToDeleteXMLString");
       }
     } 
@@ -82,7 +82,7 @@ public class DeletePlates extends GNomExCommand implements Serializable {
       
       
     }catch (Exception e){
-      log.error("An exception has occurred in DeletePlate ", e);
+      LOG.error("An exception has occurred in DeletePlate ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
         

@@ -28,9 +28,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.hibernate.Session;
-
+import org.apache.log4j.Logger;
 public class RequestLabMembership extends GNomExCommand implements Serializable {
-	private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(RequestLabMembership.class);
+	private static Logger LOG = Logger.getLogger(RequestLabMembership.class);
 
 	private List<String> idLabs;
 	private StringBuffer requestURL;

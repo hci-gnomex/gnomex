@@ -25,7 +25,7 @@ import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.output.XMLOutputter;
-
+import org.apache.log4j.Logger;
 
 
 public class AddItemToTopic extends GNomExCommand implements Serializable {
@@ -33,7 +33,7 @@ public class AddItemToTopic extends GNomExCommand implements Serializable {
  
   
   // the static field for logging in Log4J
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(AddItemToTopic.class);
+  private static Logger LOG = Logger.getLogger(AddItemToTopic.class);
   
   private Integer idRequest = null;
   private Integer idAnalysis = null;
@@ -206,7 +206,7 @@ public class AddItemToTopic extends GNomExCommand implements Serializable {
         setResponsePage(this.ERROR_JSP);
       }      
     } catch (Exception e){
-      log.error("An exception has occurred in AddItemToTopic ", e);
+      LOG.error("An exception has occurred in AddItemToTopic ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
         

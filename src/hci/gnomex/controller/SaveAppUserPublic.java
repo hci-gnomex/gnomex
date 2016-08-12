@@ -27,11 +27,11 @@ import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
-
+import org.apache.log4j.Logger;
 public class SaveAppUserPublic extends GNomExCommand implements Serializable {
 
 	// the static field for logging in Log4J
-	private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(SaveAppUserPublic.class);
+	private static Logger LOG = Logger.getLogger(SaveAppUserPublic.class);
 
 	private static String LAB_USER = "USER";
 	private static String LAB_MANAGER = "MANAGER";
@@ -62,7 +62,7 @@ public class SaveAppUserPublic extends GNomExCommand implements Serializable {
 				userNotificationLabsDoc = sax.build(reader);
 
 			} catch (JDOMException je) {
-				log.error("Cannot parse userNotificationLabsXMLString", je);
+				LOG.error("Cannot parse userNotificationLabsXMLString", je);
 				this.addInvalidField("userNotificationLabsXMLString", "Invalid userNotificationLabsXMLString");
 			}
 		}
@@ -100,7 +100,7 @@ public class SaveAppUserPublic extends GNomExCommand implements Serializable {
 			}
 
 		} catch (Exception e) {
-			log.error("An exception has occurred in SaveAppUserPublic ", e);
+			LOG.error("An exception has occurred in SaveAppUserPublic ", e);
 			e.printStackTrace();
 			throw new RollBackCommandException(e.getMessage());
 		} finally {

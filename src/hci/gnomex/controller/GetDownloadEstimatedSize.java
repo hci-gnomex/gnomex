@@ -21,11 +21,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.hibernate.Session;
-
+import org.apache.log4j.Logger;
 
 public class GetDownloadEstimatedSize extends GNomExCommand implements Serializable {
   
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetDownloadEstimatedSize.class);
+  private static Logger LOG = Logger.getLogger(GetDownloadEstimatedSize.class);
   
   private String    keysString = null;
   private String    includeTIF = "N";
@@ -73,7 +73,7 @@ public class GetDownloadEstimatedSize extends GNomExCommand implements Serializa
       }
     
     } catch (Exception e){
-      log.error("An exception has occurred in GetProject ", e);
+      LOG.error("An exception has occurred in GetProject ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
     } finally {

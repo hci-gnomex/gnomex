@@ -32,10 +32,10 @@ import org.jdom.JDOMException;
 
 import nki.objects.*;
 import nki.exceptions.*;
-
+import org.apache.log4j.Logger;
 public class MetrixServerInterface extends GNomExCommand implements Serializable {
 
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(MetrixServerInterface.class);
+  private static Logger LOG = Logger.getLogger(MetrixServerInterface.class);
 
   public void validate() {
 
@@ -112,7 +112,7 @@ public class MetrixServerInterface extends GNomExCommand implements Serializable
 
                   if(serverAnswer instanceof String){ 			// Server returned a XML String with results.
                     srvResp = (String) serverAnswer;
-                    log.info("Server replied with XML");
+                    LOG.info("Server replied with XML");
                     listen = false;
                   }
 
@@ -138,15 +138,15 @@ public class MetrixServerInterface extends GNomExCommand implements Serializable
                 }
               }
             }catch(IOException Ex){
-              //		log.error("IOException in Metrix Client.", Ex);
+              //		LOG.error("IOException in Metrix Client.", Ex);
             }
           }
         }catch(EOFException ex){
-          log.error("Server has shutdown.");
+          LOG.error("Server has shutdown.");
         }catch(NoConnectionPendingException NCPE){
-          log.error("Communication channel is not connection and no operation has been initiated.");
+          LOG.error("Communication channel is not connection and no operation has been initiated.");
         }catch(AsynchronousCloseException ACE){
-          log.error("Another client has shutdown the server. Channel communication prohibited by issueing a direct command.");
+          LOG.error("Another client has shutdown the server. Channel communication prohibited by issueing a direct command.");
         }
 
         SAXBuilder builder = new SAXBuilder();
@@ -170,16 +170,16 @@ public class MetrixServerInterface extends GNomExCommand implements Serializable
       }
       //	}	// end main isValid()
     }catch (NamingException e){
-      log.error("An exception has occurred in MetrixServerInterface ", e);
+      LOG.error("An exception has occurred in MetrixServerInterface ", e);
       //e.printStackTrace(System.out);
       throw new RollBackCommandException(e.getMessage());
 
     }catch (SQLException e) {
-      log.error("An exception has occurred in MetrixServerInterface ", e);
+      LOG.error("An exception has occurred in MetrixServerInterface ", e);
       // e.printStackTrace(System.out);
       throw new RollBackCommandException(e.getMessage());
     } catch (Exception e) {
-      log.error("An exception has occurred in MetrixServerInterface ", e);
+      LOG.error("An exception has occurred in MetrixServerInterface ", e);
       //  e.printStackTrace(System.out);
       throw new RollBackCommandException(e.getMessage());
     } finally {

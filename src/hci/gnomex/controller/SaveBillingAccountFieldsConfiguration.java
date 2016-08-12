@@ -19,14 +19,14 @@ import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
-
+import org.apache.log4j.Logger;
 
 
 
 public class SaveBillingAccountFieldsConfiguration extends GNomExCommand implements Serializable {
   
   // the static field for logging in Log4J
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(SaveBillingAccountFieldsConfiguration.class);
+  private static Logger LOG = Logger.getLogger(SaveBillingAccountFieldsConfiguration.class);
   
   private InternalBillingAccountFieldsConfigurationParser internalFieldsParser;
   private OtherBillingAccountFieldsConfigurationParser    otherFieldsParser;
@@ -47,11 +47,11 @@ public class SaveBillingAccountFieldsConfiguration extends GNomExCommand impleme
         Document doc = sax.build(internalReader);
         internalFieldsParser = new InternalBillingAccountFieldsConfigurationParser(doc);
       } catch (JDOMException je ) {
-        log.error( "Cannot parse internalFields", je );
+        LOG.error( "Cannot parse internalFields", je );
         this.addInvalidField( "internalFields", "Invalid configuration field xml");
       }
     } else {
-      log.error("internal fields xml not specified");
+      LOG.error("internal fields xml not specified");
       this.addInvalidField("internalFieldsXMLString", "Internal fields xml string not specified");
     }
     
@@ -62,18 +62,18 @@ public class SaveBillingAccountFieldsConfiguration extends GNomExCommand impleme
         Document doc = sax.build(otherReader);
         otherFieldsParser = new OtherBillingAccountFieldsConfigurationParser(doc);
       } catch (JDOMException je ) {
-        log.error( "Cannot parse otherFields", je );
+        LOG.error( "Cannot parse otherFields", je );
         this.addInvalidField( "otherFields", "Invalid configuration field xml");
       }
     } else {
-      log.error("other fields xml not specified");
+      LOG.error("other fields xml not specified");
       this.addInvalidField("otherFieldsXMLString", "Other fields xml string not specified");
     }
     
     try {
       appURL = this.getLaunchAppURL(request);      
     } catch (Exception e) {
-      log.warn("Cannot get launch app URL in SaveBillingItemList", e);
+      LOG.warn("Cannot get launch app URL in SaveBillingItemList", e);
     }
     
     serverName = request.getServerName();
@@ -98,7 +98,7 @@ public class SaveBillingAccountFieldsConfiguration extends GNomExCommand impleme
         InternalAccountFieldsConfiguration.reloadConfigurations(sess);
         OtherAccountFieldsConfiguration.reloadConfigurations(sess);
       }catch (Exception e){
-        log.error("An exception has occurred in SaveBillingItem ", e);
+        LOG.error("An exception has occurred in SaveBillingItem ", e);
         e.printStackTrace();
         throw new RollBackCommandException(e.getMessage());
           

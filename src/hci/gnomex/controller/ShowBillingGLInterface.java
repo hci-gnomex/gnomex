@@ -39,12 +39,12 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.hibernate.Session;
-
+import org.apache.log4j.Logger;
 
 
 public class ShowBillingGLInterface extends ReportCommand implements Serializable {
 
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(ShowBillingGLInterface.class);
+  private static Logger LOG = Logger.getLogger(ShowBillingGLInterface.class);
 
 
   private Integer                  idBillingPeriod;
@@ -369,22 +369,22 @@ public class ShowBillingGLInterface extends ReportCommand implements Serializabl
       }
 
     }catch (UnknownPermissionException e){
-      log.error("An exception has occurred in ShowBillingGLInterface ", e);
+      LOG.error("An exception has occurred in ShowBillingGLInterface ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
 
     }catch (NamingException e){
-      log.error("An exception has occurred in ShowBillingGLInterface ", e);
+      LOG.error("An exception has occurred in ShowBillingGLInterface ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
 
     }catch (SQLException e) {
-      log.error("An exception has occurred in ShowBillingGLInterface ", e);
+      LOG.error("An exception has occurred in ShowBillingGLInterface ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
 
     } catch (Exception e) {
-      log.error("An exception has occurred in ShowBillingGLInterface ", e);
+      LOG.error("An exception has occurred in ShowBillingGLInterface ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
     } finally {

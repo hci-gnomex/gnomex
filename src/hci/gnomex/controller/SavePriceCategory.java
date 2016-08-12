@@ -31,7 +31,7 @@ import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
-
+import org.apache.log4j.Logger;
 
 
 
@@ -40,7 +40,7 @@ public class SavePriceCategory extends GNomExCommand implements Serializable {
  
   
   // the static field for logging in Log4J
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(SavePriceCategory.class);
+  private static Logger LOG = Logger.getLogger(SavePriceCategory.class);
   
 
   private PriceCategory           priceCategoryScreen;
@@ -81,7 +81,7 @@ public class SavePriceCategory extends GNomExCommand implements Serializable {
       Document stepsDoc = sax.build(reader);
       stepParser = new PriceCategoryStepParser(stepsDoc);
     } catch (JDOMException je ) {
-      log.error( "Cannot parse stepsXMLString", je );
+      LOG.error( "Cannot parse stepsXMLString", je );
       this.addInvalidField( "stepsXMLString", "Invalid stepsXMLString");
     }
 
@@ -196,7 +196,7 @@ public Command execute() throws RollBackCommandException {
       }
       
     }catch (Exception e){
-      log.error("An exception has occurred in SavePriceCategory ", e);
+      LOG.error("An exception has occurred in SavePriceCategory ", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
         

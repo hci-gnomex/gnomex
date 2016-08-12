@@ -16,12 +16,12 @@ import javax.servlet.http.HttpSession;
 
 import org.hibernate.Hibernate;
 import org.hibernate.Session;
-
+import org.apache.log4j.Logger;
 
 public class DeleteNewsItem extends GNomExCommand implements Serializable {
   
   // the static field for logging in Log4J
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(DeleteNewsItem.class);
+  private static Logger LOG = Logger.getLogger(DeleteNewsItem.class);
   
   private Integer      idNewsItem = null;
    
@@ -60,7 +60,7 @@ public class DeleteNewsItem extends GNomExCommand implements Serializable {
         setResponsePage(this.ERROR_JSP);
       }
     }catch (Exception e){
-      log.error("An exception has occurred in DeleteNewsItem", e);
+      LOG.error("An exception has occurred in DeleteNewsItem", e);
       e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
         

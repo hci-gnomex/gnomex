@@ -51,6 +51,7 @@ import javax.mail.MessagingException;
 import javax.naming.NamingException;
 
 import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.TransactionException;
@@ -203,8 +204,8 @@ public class RegisterFiles extends TimerTask {
 		errorMessageString += " on " + new SimpleDateFormat("MM-dd-yyyy_HH:mm:ss").format(runDate.getTime()) + "\n";
 
 		try {
-			org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger("org.hibernate");
-			log.setLevel(Level.ERROR);
+			Logger LOG = Logger.getLogger("org.hibernate");
+			LOG.setLevel(Level.ERROR);
 
 			dataSource = new BatchDataSource();
 			app.connect();
