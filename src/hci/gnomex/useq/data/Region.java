@@ -150,7 +150,7 @@ public class Region implements Comparable<Region>, Serializable {
 				al.add(new Region(start-subStart, stop- subEnd));
 			}
 		}catch (Exception e){
-			e.printStackTrace();
+
 			return null;
 		}
 		if (ss.size() == 0) return null;

@@ -106,14 +106,13 @@ public class DeleteExperimentPlatform extends GNomExCommand implements Serializa
         sess.flush();
       } catch(Exception e) {
         LOG.error("An exception has occurred in DeleteExperimentPlatform when trying to inactivate it ", e);
-        e.printStackTrace();
         throw new RollBackCommandException(e.getMessage());
 
       }
 
     } catch (Exception e){
       LOG.error("An exception has occurred in DeleteExperimentPlatform ", e);
-      e.printStackTrace();
+
       throw new RollBackCommandException(e.getMessage());
 
     }finally {

@@ -157,7 +157,7 @@ public class ReportIssueFeedbackServlet extends HttpServlet {
 					} catch (Exception e) {
 						res.setStatus(STATUS_ERROR);
 						System.out.println(e.toString());
-						e.printStackTrace();
+
 						throw new ServletException("Failed to write screenshot to file.");
 
 					} finally {
@@ -230,7 +230,7 @@ public class ReportIssueFeedbackServlet extends HttpServlet {
 		} catch (Exception e) {
 			res.setStatus(STATUS_ERROR);
 			System.out.println(e.toString());
-			e.printStackTrace();
+
 			throw new ServletException("Unable to report issue due to a server error.  Please contact GNomEx support directly.");
 		} finally {
 			try {

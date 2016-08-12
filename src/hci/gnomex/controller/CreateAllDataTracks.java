@@ -250,7 +250,7 @@ public class CreateAllDataTracks extends GNomExCommand implements Serializable {
 	  } // end of if we had some files of interest        
    } catch (Exception e){
       LOG.error("An exception has occurred in CreateAllDataTracks ", e);
-      e.printStackTrace();
+      ;
       throw new RollBackCommandException(e.getMessage());        
     } finally {
       try {
@@ -441,7 +441,7 @@ public class CreateAllDataTracks extends GNomExCommand implements Serializable {
 
 		} catch (Exception e){
 			System.out.println("An exception has occurred in CreateAllDataTracks: " + e.getMessage());
-			e.printStackTrace();
+			;
 		}
 	}
 	

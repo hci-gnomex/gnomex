@@ -180,7 +180,7 @@ public class SaveWorkItemSolexaPrepQC extends GNomExCommand implements Serializa
 
       }catch (Exception e){
         LOG.error("An exception has occurred in SaveWorkItemSolexaPrep ", e);
-        e.printStackTrace();
+
         throw new RollBackCommandException(e.getMessage());
           
       }finally {

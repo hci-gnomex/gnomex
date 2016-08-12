@@ -372,7 +372,7 @@ public class CreateDataTracks {
 				sess = dataSource.connect();
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+
 			}
   			 
   			 
@@ -542,7 +542,7 @@ public class CreateDataTracks {
 		} catch (Exception e){
 			tx.rollback();
 			System.out.println("An exception has occurred in LinkDataTrackFile: " + e.getMessage());
-			e.printStackTrace();
+
 			System.exit(1);
 		}
 	}

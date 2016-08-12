@@ -86,17 +86,8 @@ public class GetDataTrack extends GNomExCommand implements Serializable {
         this.addInvalidField("Data Track does not exist", "Data Track does not exist");
       }
 
-    }catch (NamingException e){
-      LOG.error("An exception has occurred in GetDataTrack ", e);
-      e.printStackTrace(System.out);
-      throw new RollBackCommandException(e.getMessage());
-    }catch (SQLException e) {
-      LOG.error("An exception has occurred in GetDataTrack ", e);
-      e.printStackTrace(System.out);
-      throw new RollBackCommandException(e.getMessage());
     } catch (Exception e) {
       LOG.error("An exception has occurred in GetDataTrack ", e);
-      e.printStackTrace(System.out);
       throw new RollBackCommandException(e.getMessage());
     } finally {
       try {

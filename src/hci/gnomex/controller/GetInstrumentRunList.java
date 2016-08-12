@@ -152,20 +152,20 @@ public class GetInstrumentRunList extends GNomExCommand implements Serializable 
       }
     } catch( NamingException e ) {
       LOG.error( "An exception has occurred in GetRunList ", e );
-      e.printStackTrace();
+
       throw new RollBackCommandException( e.getMessage() );
 
     } catch( SQLException e ) {
       LOG.error( "An exception has occurred in GetRunList ", e );
-      e.printStackTrace();
+
       throw new RollBackCommandException( e.getMessage() );
     } catch( XMLReflectException e ) {
       LOG.error( "An exception has occurred in GetRunList ", e );
-      e.printStackTrace();
+
       throw new RollBackCommandException( e.getMessage() );
     } catch( Exception e ) {
       LOG.error( "An exception has occurred in GetRunList ", e );
-      e.printStackTrace();
+
       throw new RollBackCommandException( e.getMessage() );
     } finally {
       try {

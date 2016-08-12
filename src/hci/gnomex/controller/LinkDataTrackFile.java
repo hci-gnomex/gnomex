@@ -351,7 +351,7 @@ public class LinkDataTrackFile extends GNomExCommand implements Serializable {
       }
     } catch (Exception e){
       LOG.error("An exception has occurred in LinkDataTrackFile ", e);
-      e.printStackTrace();
+
       throw new RollBackCommandException(e.getMessage());
 
     }finally {

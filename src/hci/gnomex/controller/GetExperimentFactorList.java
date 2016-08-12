@@ -102,19 +102,19 @@ public class GetExperimentFactorList extends GNomExCommand implements Serializab
     setResponsePage(this.SUCCESS_JSP);
     }catch (NamingException e){
       LOG.error("An exception has occurred in GetExperimentFactorList ", e);
-      e.printStackTrace();
+
       throw new RollBackCommandException(e.getMessage());
     }catch (SQLException e) {
       LOG.error("An exception has occurred in GetExperimentFactorList ", e);
-      e.printStackTrace();
+
       throw new RollBackCommandException(e.getMessage());
     } catch (XMLReflectException e){
       LOG.error("An exception has occurred in GetExperimentFactorList ", e);
-      e.printStackTrace();
+
       throw new RollBackCommandException(e.getMessage());
     } catch (Exception e){
       LOG.error("An exception has occurred in GetExperimentFactorList ", e);
-      e.printStackTrace();
+
       throw new RollBackCommandException(e.getMessage());
     } finally {
       try {

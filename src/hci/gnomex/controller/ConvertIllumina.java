@@ -143,7 +143,7 @@ public class ConvertIllumina extends GNomExCommand implements Serializable {
 
 		} catch (Exception e) {
 			LOG.error("An exception has occurred in ConvertIllumina ", e);
-			e.printStackTrace(System.out);
+
 			throw new RollBackCommandException(e.getMessage());
 
 		} finally {

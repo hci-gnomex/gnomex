@@ -136,7 +136,7 @@ public class USeqUtilities {
 			}
 			else in = new BufferedReader (new FileReader (txtFile));
 		} catch (Exception e) {
-			e.printStackTrace();
+
 			safeClose(in);
 		} 
 		return in;
@@ -180,7 +180,7 @@ public class USeqUtilities {
 				}
 			}catch(IOException e){
 				System.out.println("Problem extractFiles() "+directory);
-				e.printStackTrace();
+
 				return null;
 			}
 		}
@@ -305,7 +305,7 @@ public class USeqUtilities {
 			out.close();
 		} catch (IOException e) {	
 			System.err.println("Can't zip()");
-			e.printStackTrace();
+
 			safeClose(out);
 			safeClose(in);
 			return false;
@@ -378,7 +378,7 @@ public class USeqUtilities {
 
 		} catch (Exception e) {
 			System.out.println("Problem executing -> "+stringArrayToString(command," ")+" "+e.getLocalizedMessage());
-			e.printStackTrace();
+
 			return null;
 		}
 		String[] res = new String[al.size()];
@@ -417,7 +417,7 @@ public class USeqUtilities {
 			return true;
 		} catch (IOException e) {
 			System.out.println("Problem writing String to disk!");
-			e.printStackTrace();
+
 			return false;
 		}
 	}
@@ -429,7 +429,7 @@ public class USeqUtilities {
 			full = fileDirectory.getCanonicalPath();
 		}catch (IOException e){
 			System.out.println("Problem with getFullPathtName(), "+fileDirectory);
-			e.printStackTrace();
+
 		}
 		return full;
 	}

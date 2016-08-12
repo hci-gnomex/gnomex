@@ -335,7 +335,7 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
                 oldFileToDelete.delete();
               } catch (Exception e) {
                 LOG.warn("Unable to delete " + oldFileToDelete.getAbsolutePath() + ": ");
-                e.printStackTrace();
+
               }
             } else {
               LOG.warn("Unable to delete " + oldFileToDelete.getAbsolutePath() + ": directory is not empty");
@@ -647,7 +647,7 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
 
       } catch (Exception e) {
         LOG.error("An exception has occurred in OrganizeExperimentUploadFiles ", e);
-        e.printStackTrace();
+
         throw new RollBackCommandException(e.getMessage());
 
       } finally {

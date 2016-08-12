@@ -86,7 +86,7 @@ public class SaveVisibilityAnalysis extends GNomExCommand implements Serializabl
 
     } catch (Exception e) {
       LOG.error("An exception has occurred in SaveVisibilityAnalysis ", e);
-      e.printStackTrace();
+
       throw new RollBackCommandException(e.getMessage());
 
     } finally {

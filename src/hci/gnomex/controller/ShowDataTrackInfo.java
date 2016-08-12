@@ -181,7 +181,7 @@ public class ShowDataTrackInfo extends GNomExCommand implements Serializable {
 
 		} catch (Exception e) {
 
-			e.printStackTrace();
+
 			Document doc = DocumentHelper.createDocument();
 
 			Element root = doc.addElement("HTML");

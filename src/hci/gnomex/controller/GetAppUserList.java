@@ -87,20 +87,20 @@ public class GetAppUserList extends GNomExCommand implements Serializable {
       setResponsePage(this.SUCCESS_JSP);
     } catch (NamingException e) {
       LOG.error("An exception has occurred in GetAppUserList ", e);
-      e.printStackTrace();
+
       throw new RollBackCommandException(e.getMessage());
 
     } catch (SQLException e) {
       LOG.error("An exception has occurred in GetAppUserList ", e);
-      e.printStackTrace();
+
       throw new RollBackCommandException(e.getMessage());
     } catch (XMLReflectException e) {
       LOG.error("An exception has occurred in GetAppUserList ", e);
-      e.printStackTrace();
+
       throw new RollBackCommandException(e.getMessage());
     } catch (Exception e) {
       LOG.error("An exception has occurred in GetAppUserList ", e);
-      e.printStackTrace();
+
       throw new RollBackCommandException(e.getMessage());
     } finally {
       try {

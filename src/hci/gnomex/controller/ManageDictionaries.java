@@ -92,7 +92,7 @@ public class ManageDictionaries extends DictionaryCommand implements Serializabl
         	action = request.getParameter("action");
         	}
         } catch (Exception e) {  
-        	e.printStackTrace();
+
         	} finally {
       try {
         HibernateSession.closeSession();
@@ -146,7 +146,7 @@ public class ManageDictionaries extends DictionaryCommand implements Serializabl
 			  msg = "Incomplete data. Please fill in mandatory fields.";
 			  displayMsg = msg;
 			}
-      e.printStackTrace();
+
       throw new GNomExRollbackException(msg, true, displayMsg);
     } finally {
       try {

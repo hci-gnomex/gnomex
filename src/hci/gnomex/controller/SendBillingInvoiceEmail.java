@@ -133,7 +133,7 @@ public class SendBillingInvoiceEmail extends GNomExCommand implements Serializab
 				
 		} catch (Exception e) {
 			LOG.error("An exception has occurred in SendBillingInvoiceEmail ", e);
-			e.printStackTrace();
+
 			throw new RollBackCommandException(e.getMessage());
 		} finally {
 			try {

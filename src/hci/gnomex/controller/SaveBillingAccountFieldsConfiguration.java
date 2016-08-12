@@ -99,7 +99,7 @@ public class SaveBillingAccountFieldsConfiguration extends GNomExCommand impleme
         OtherAccountFieldsConfiguration.reloadConfigurations(sess);
       }catch (Exception e){
         LOG.error("An exception has occurred in SaveBillingItem ", e);
-        e.printStackTrace();
+
         throw new RollBackCommandException(e.getMessage());
           
       }finally {

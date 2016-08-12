@@ -76,7 +76,6 @@ public class MakeSoftLinks extends GNomExCommand implements Serializable {
 
 		} catch (Exception e) {
 			LOG.error("An exception has occurred in MakeSoftLinks ", e);
-			e.printStackTrace(System.out);
 			throw new RollBackCommandException(e.getMessage());
 		} finally {
 			try {
@@ -162,7 +161,7 @@ public class MakeSoftLinks extends GNomExCommand implements Serializable {
 			Runtime.getRuntime().exec(cmd);
 			return true;
 		} catch (IOException e) {
-			e.printStackTrace();
+
 		}
 		return false;
 	}

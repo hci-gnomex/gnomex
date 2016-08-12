@@ -52,7 +52,7 @@ public class ConfirmEmail extends HttpServlet {
 
 		} catch (Exception e) {
 			message = "There was an issue verifying your email address.  Please contact GNomEx support.  Thanks!";
-			e.printStackTrace();
+			;
 
 		} finally {
 			try {

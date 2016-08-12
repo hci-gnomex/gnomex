@@ -257,18 +257,8 @@ public class GetAnalysisGroupList extends GNomExCommand implements Serializable 
 
 
       setResponsePage(this.SUCCESS_JSP);
-    }catch (NamingException e){
+    } catch (Exception e) {
       LOG.error("An exception has occurred in GetAnalysisGroupList ", e);
-      e.printStackTrace(System.out);
-      throw new RollBackCommandException(e.getMessage());
-
-    }catch (SQLException e) {
-      LOG.error("An exception has occurred in GetAnalysisGroupList ", e);
-      e.printStackTrace(System.out);
-      throw new RollBackCommandException(e.getMessage());
-    }catch (Exception e) {
-      LOG.error("An exception has occurred in GetAnalysisGroupList ", e);
-      e.printStackTrace(System.out);
       throw new RollBackCommandException(e.getMessage());
     } finally {
       try {

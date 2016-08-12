@@ -137,7 +137,7 @@ public class SaveGroupMembership extends GNomExCommand implements Serializable {
       
     }catch (Exception e){
       LOG.error("An exception has occurred in SaveLab ", e);
-      e.printStackTrace();
+
       throw new RollBackCommandException(e.getMessage());
         
     }finally {

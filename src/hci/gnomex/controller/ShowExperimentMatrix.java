@@ -291,17 +291,17 @@ public class ShowExperimentMatrix extends ReportCommand implements Serializable 
 
 		} catch (NamingException e) {
 			LOG.error("An exception has occurred in ShowExperimentMatrix ", e);
-			e.printStackTrace();
+
 			throw new RollBackCommandException(e.getMessage());
 
 		} catch (SQLException e) {
 			LOG.error("An exception has occurred in ShowExperimentMatrix ", e);
-			e.printStackTrace();
+
 			throw new RollBackCommandException(e.getMessage());
 
 		} catch (Exception e) {
 			LOG.error("An exception has occurred in ShowExperimentMatrix ", e);
-			e.printStackTrace();
+
 			throw new RollBackCommandException(e.getMessage());
 		} finally {
 			try {

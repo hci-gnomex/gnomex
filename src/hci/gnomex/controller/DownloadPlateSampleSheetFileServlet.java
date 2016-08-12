@@ -146,7 +146,7 @@ public class DownloadPlateSampleSheetFileServlet extends HttpServlet {
       response.getOutputStream().println("</body>");
       response.getOutputStream().println("</html>");
       System.out.println( "DownloadPlateSampleSheetFileServlet: An exception occurred " + e.toString());
-      e.printStackTrace();
+
     } finally {
       try {
         secAdvisor.closeHibernateSession();        
@@ -178,7 +178,7 @@ public class DownloadPlateSampleSheetFileServlet extends HttpServlet {
 
     } catch( Exception e ) {
       LOG.error( "An exception has occurred in CreateRunFile ", e );
-      e.printStackTrace();
+
       return null;
     }
   }
@@ -207,7 +207,7 @@ public class DownloadPlateSampleSheetFileServlet extends HttpServlet {
 
     } catch( Exception e ) {
       LOG.error( "An exception has occurred in DownloadPlateSampleSheet ", e );
-      e.printStackTrace();
+
       return null;
     }
   }

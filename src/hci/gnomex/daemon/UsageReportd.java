@@ -265,7 +265,7 @@ public class UsageReportd extends TimerTask {
          
     } catch (Exception e) {
       System.out.println( e.toString() );
-      e.printStackTrace();
+
     }
     
     System.exit(0);
@@ -510,7 +510,7 @@ public class UsageReportd extends TimerTask {
           myConn.close();        
         } catch (SQLException e) {
           System.out.println( e.toString() );
-          e.printStackTrace();
+
         }
       }
     }         

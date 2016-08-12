@@ -116,7 +116,7 @@ public class ApproveLabMembership extends HttpServlet {
 
 		} catch (Exception e) {
 			message = "There was an issue adding the user to your lab.  Please add the user to your lab through the GNomEx app and contact GNomEx support.  Thanks.";
-			e.printStackTrace();
+			;
 		} finally {
 			try {
 				HibernateSession.closeSession();

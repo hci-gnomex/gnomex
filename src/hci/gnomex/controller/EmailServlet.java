@@ -233,7 +233,7 @@ public class EmailServlet extends GNomExCommand implements Serializable {
      }
     }catch (Exception e) {
       System.out.println(e.toString());
-      e.printStackTrace();
+
       throw new RollBackCommandException(e.getMessage());
     }  finally {
       try {

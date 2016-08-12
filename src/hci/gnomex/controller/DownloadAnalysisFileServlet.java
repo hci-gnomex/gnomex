@@ -233,7 +233,7 @@ public class DownloadAnalysisFileServlet extends HttpServlet {
       HibernateSession.rollback();
       response.setStatus(999);
       System.out.println( "DownloadAnalyisFileServlet: An exception occurred " + e.toString());
-      e.printStackTrace();
+
     } finally {
       try {
         if (secAdvisor != null) {

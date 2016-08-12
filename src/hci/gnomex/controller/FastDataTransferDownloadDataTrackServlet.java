@@ -276,7 +276,7 @@ public class FastDataTransferDownloadDataTrackServlet extends HttpServlet {
         } catch (Exception e) {
             response.setStatus(999);
             System.out.println( "FastDataTransferDownloadDataTrackServlet: An exception occurred " + e.toString());
-            e.printStackTrace();
+
         }
 
     }

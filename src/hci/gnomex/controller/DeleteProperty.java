@@ -125,7 +125,7 @@ public class DeleteProperty extends GNomExCommand implements Serializable {
 
           } catch(Exception e) {
             LOG.error("An exception has occurred in DeleteProperty when trying to inactivate property ", e);
-            e.printStackTrace();
+
             throw new RollBackCommandException(e.getMessage());
 
           }
@@ -228,10 +228,10 @@ public class DeleteProperty extends GNomExCommand implements Serializable {
       }
     } catch (ConstraintViolationException ce) {
       LOG.error("An exception has occurred in DeleteProperty ", ce);
-      ce.printStackTrace();
+      c
     } catch (Exception e){
       LOG.error("An exception has occurred in DeleteProperty ", e);
-      e.printStackTrace();
+
       throw new RollBackCommandException(e.getMessage());
 
     }finally {

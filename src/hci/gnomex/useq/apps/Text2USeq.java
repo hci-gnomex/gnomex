@@ -155,7 +155,7 @@ public class Text2USeq {
 			File readme = ai.writeReadMeFile(workingBinarySaveDirectory);
 			files2Zip.add(readme);
 		} catch (IOException e){
-			e.printStackTrace();
+
 		}
 	}
 
@@ -188,7 +188,7 @@ public class Text2USeq {
 			}
 		} catch (Exception e){
 			System.err.println("Error slicing and writing data!");
-			e.printStackTrace();
+
 			return false;
 		}
 		return true;
@@ -603,7 +603,7 @@ public class Text2USeq {
 			return d;
 		} catch (Exception e){
 			System.out.println("Could not parse an int value from '"+tokens[endingColumnIndex]+"', malformed line -> "+line);
-			e.printStackTrace();
+
 			return null;
 		}
 
@@ -627,7 +627,7 @@ public class Text2USeq {
 			return d;
 		} catch (Exception e){
 			System.out.println("Could not parse an int or float value from malformed line -> "+line);
-			e.printStackTrace();
+
 			return null;
 		}
 	}
@@ -650,7 +650,7 @@ public class Text2USeq {
 			return d;
 		} catch (Exception e){
 			System.out.println("Could not parse an int or float value from malformed line -> "+line);
-			e.printStackTrace();
+
 			return null;
 		}
 	}
@@ -673,7 +673,7 @@ public class Text2USeq {
 			return d;
 		} catch (Exception e){
 			System.out.println("Could not parse an int or float value from malformed line -> "+line);
-			e.printStackTrace();
+
 			return null;
 		}
 	}
@@ -697,7 +697,7 @@ public class Text2USeq {
 			return d;
 		} catch (Exception e){
 			System.out.println("Could not parse an int value from '"+tokens[endingColumnIndex]+"', malformed line -> "+line);
-			e.printStackTrace();
+
 			return null;
 		}
 
@@ -721,7 +721,7 @@ public class Text2USeq {
 			return d;
 		} catch (Exception e){
 			System.out.println("Could not parse an int or float value from malformed line -> "+line);
-			e.printStackTrace();
+
 			return null;
 		}
 	}
@@ -744,7 +744,7 @@ public class Text2USeq {
 			return d;
 		} catch (Exception e){
 			System.out.println("Could not parse an int or float value from malformed line -> "+line);
-			e.printStackTrace();
+
 			return null;
 		}
 	}
@@ -767,7 +767,7 @@ public class Text2USeq {
 			return d;
 		} catch (Exception e){
 			System.out.println("Could not parse an int or float value from malformed line -> "+line);
-			e.printStackTrace();
+
 			return null;
 		}
 	}
@@ -833,7 +833,7 @@ public class Text2USeq {
 					out.println(line);
 				} catch (Exception e){
 					System.out.println("\nProblem parsing line -> "+line +" Skipping!");
-					//e.printStackTrace();
+					//
 					if (counter++ == 1000) {
 						System.out.println("Too many malformed lines.  Aborting.");
 						return null;
@@ -847,7 +847,7 @@ public class Text2USeq {
 
 			return chromFile;
 		} catch (Exception e){
-			e.printStackTrace();
+
 			return chromFile;
 		}
 	}

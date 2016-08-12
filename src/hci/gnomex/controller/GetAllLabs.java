@@ -61,7 +61,7 @@ public class GetAllLabs extends GNomExCommand implements Serializable {
       setResponsePage(this.SUCCESS_JSP);
 
     } catch (Exception e) {
-      e.printStackTrace();
+
 
     } finally {
       try {

@@ -157,7 +157,7 @@ public class FastDataTransferUploadGetJnlpServlet extends HttpServlet {
         } catch (Exception e) {
             response.setStatus(999);
             System.out.println( "FastDataTransferUploadGetJnlpServlet: An exception occurred " + e.toString());
-            e.printStackTrace();
+
         }
 
     }

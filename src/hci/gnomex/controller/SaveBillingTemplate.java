@@ -143,11 +143,11 @@ public class SaveBillingTemplate extends GNomExCommand implements Serializable {
 
 		} catch (GNomExRollbackException e) {
 		    LOG.error("An exception has occurred in SaveBillingTemplate ", e);
-            e.printStackTrace();
+
             throw e;
 		} catch (Exception e) {
 			LOG.error("An exception has occurred in SaveBillingTemplate ", e);
-			e.printStackTrace();
+
 			throw new GNomExRollbackException(e.getMessage() != null ? e.getMessage() : ERROR_MESSAGE, true, e instanceof ParserException ? ERROR_MESSAGE + ": " + e.getMessage() : ERROR_MESSAGE);
 		} finally {
 			try {

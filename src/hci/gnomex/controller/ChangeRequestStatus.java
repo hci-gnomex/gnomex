@@ -183,7 +183,7 @@ public class ChangeRequestStatus extends GNomExCommand implements Serializable {
 
     } catch (Exception e) {
       LOG.error("An exception has occurred in ChangeRequestStatus ", e);
-      e.printStackTrace();
+      ;
       throw new RollBackCommandException(e.toString());
     } finally {
       try {

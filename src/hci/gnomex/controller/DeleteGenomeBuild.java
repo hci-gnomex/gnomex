@@ -110,14 +110,14 @@ public class DeleteGenomeBuild extends GNomExCommand implements Serializable {
         sess.flush();
       } catch(Exception e) {
         LOG.error("An exception has occurred in DeleteGenomeBuild when trying to inactivate genome build ", e);
-        e.printStackTrace();
+
         throw new RollBackCommandException(e.getMessage());
         
       }
       
     } catch (Exception e){
       LOG.error("An exception has occurred in DeleteGenomeBuild ", e);
-      e.printStackTrace();
+
       throw new RollBackCommandException(e.getMessage());
         
     }finally {

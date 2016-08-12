@@ -117,7 +117,6 @@ public class ChangePassword extends GNomExCommand implements Serializable {
       this.validate();
     } catch (Exception e) {
       LOG.error(e.getClass().toString() + ": " , e);
-      e.printStackTrace();
     }
   }
 
@@ -203,7 +202,6 @@ public class ChangePassword extends GNomExCommand implements Serializable {
       this.validate();
     } catch (Exception e) {
       LOG.error(e.getClass().toString() + ": " , e);
-      e.printStackTrace();
       throw new RollBackCommandException();
     } finally {
       try {

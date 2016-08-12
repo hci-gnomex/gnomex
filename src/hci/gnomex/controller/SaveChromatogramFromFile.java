@@ -207,7 +207,7 @@ public class SaveChromatogramFromFile extends GNomExCommand implements Serializa
 
     }catch (Exception e){
       LOG.error("An exception has occurred in SaveChromatogramFromFile ", e);
-      e.printStackTrace();
+
       throw new RollBackCommandException(e.getMessage());
     } finally {
     }

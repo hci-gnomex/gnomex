@@ -117,12 +117,12 @@ public class GetSearchMetaInformation extends GNomExCommand implements Serializa
 
     }catch (UnknownPermissionException e){
       LOG.error("An exception has occurred in GetSearchMetaInformation ", e);
-      e.printStackTrace();
+
       throw new RollBackCommandException(e.getMessage());
         
     } catch (Exception e){
       LOG.error("An exception has occurred in getSearchMetaInformation ", e);
-      e.printStackTrace();
+
       throw new RollBackCommandException(e.getMessage());
     } finally {
       try {

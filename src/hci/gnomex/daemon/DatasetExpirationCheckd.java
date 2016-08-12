@@ -187,7 +187,7 @@ public class DatasetExpirationCheckd extends TimerTask {
          
     } catch (Exception e) {
       System.out.println( e.toString() );
-      e.printStackTrace();
+
     }
     
     System.exit(0);

@@ -107,7 +107,7 @@ public class GetAuthorizedBillingAccounts extends GNomExCommand implements Seria
 		} catch (Exception e) {
 			
 			LOG.error("An exception has occurred in GetAuthorizedBillingAccounts ", e);
-			e.printStackTrace();
+
 			throw new GNomExRollbackException(e.getMessage(), false, "An error occurred retrieving your authorized billing accounts");
 			
 		} finally {

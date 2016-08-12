@@ -176,7 +176,7 @@ public class PendingWorkAuthd extends TimerTask {
             myConn.close();
           } catch (SQLException e) {
             System.out.println(e.toString());
-            e.printStackTrace();
+
           }
         }
       }
@@ -185,7 +185,7 @@ public class PendingWorkAuthd extends TimerTask {
 
     } catch (Exception e) {
       System.out.println(e.toString());
-      e.printStackTrace();
+
     }
     
     System.out.println ("Exiting...");

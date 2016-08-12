@@ -78,7 +78,7 @@ public class RequestLabMembership extends GNomExCommand implements Serializable 
 			setResponsePage(this.SUCCESS_JSP);
 
 		} catch (Exception e) {
-			e.printStackTrace();
+
 		} finally {
 			try {
 				HibernateSession.closeSession();

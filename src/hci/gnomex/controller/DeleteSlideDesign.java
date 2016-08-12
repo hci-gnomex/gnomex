@@ -107,7 +107,7 @@ public class DeleteSlideDesign extends GNomExCommand implements Serializable {
       
     }catch (Exception e){
       LOG.error("An exception has occurred in DeleteSlideDesign ", e);
-      e.printStackTrace();
+
       throw new RollBackCommandException(e.getMessage());
         
     }finally {

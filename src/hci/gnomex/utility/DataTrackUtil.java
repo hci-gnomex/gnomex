@@ -62,7 +62,7 @@ public class DataTrackUtil {
 			if (out != null)
 				out.close();
 		} catch (IOException e) {
-			e.printStackTrace();
+
 			return false;
 		}
 		return true;
@@ -114,7 +114,7 @@ public class DataTrackUtil {
 			Runtime.getRuntime().exec(cmd);
 			return true;
 		} catch (IOException e) {
-			e.printStackTrace();
+
 		}
 		return false;
 	}
@@ -128,7 +128,7 @@ public class DataTrackUtil {
 			Runtime.getRuntime().exec(cmd);
 			return true;
 		} catch (IOException e) {
-			e.printStackTrace();
+
 		}
 		return false;
 	}
@@ -142,7 +142,7 @@ public class DataTrackUtil {
 			Runtime.getRuntime().exec(cmd);
 			return true;
 		} catch (IOException e) {
-			e.printStackTrace();
+
 		}
 		return false;
 	}

@@ -390,18 +390,8 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
 
 
 
-    }catch (NamingException e){
+    }catch (Exception e) {
       LOG.error("An exception has occurred in GetWorkItemList ", e);
-      e.printStackTrace(System.out);
-      throw new RollBackCommandException(e.getMessage());
-
-    }catch (SQLException e) {
-      LOG.error("An exception has occurred in GetWorkItemList ", e);
-      e.printStackTrace(System.out);
-      throw new RollBackCommandException(e.getMessage());
-    } catch (Exception e) {
-      LOG.error("An exception has occurred in GetWorkItemList ", e);
-      e.printStackTrace(System.out);
       throw new RollBackCommandException(e.getMessage());
     } finally {
       try {

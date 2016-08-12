@@ -203,7 +203,7 @@ public class SaveWorkItemSolexaPipeline extends GNomExCommand implements Seriali
               this.sendConfirmationEmail(sess, request, (Collection)requestNotifyLaneMap.get(request.getNumber()));
             } catch (Exception e) {
               this.xmlResult = "<InvalidSubmitterEmail notice=\"Unable to notify " + request.getAppUser().getFirstLastDisplayName() +" that their sequence lanes have been completed because either they have no email address listed in gnomex or their email address is malformed." + "\"" + "/>";
-              e.printStackTrace();
+
             }
           }
           setResponsePage(this.SUCCESS_JSP);
@@ -215,7 +215,7 @@ public class SaveWorkItemSolexaPipeline extends GNomExCommand implements Seriali
         
       }catch (Exception e){
         LOG.error("An exception has occurred in SaveWorkflowSolexaPipeline ", e);
-        e.printStackTrace();
+
         throw new RollBackCommandException(e.getMessage());
           
       }finally {

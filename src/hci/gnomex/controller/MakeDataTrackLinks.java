@@ -137,17 +137,8 @@ public class MakeDataTrackLinks extends GNomExCommand implements Serializable {
         this.addInvalidField("insufficient permission", "Insufficient permission to access data track");
       }
 
-    }catch (NamingException e){
-      LOG.error("An exception has occurred in MakeDataTrackUCSCLinks ", e);
-      e.printStackTrace(System.out);
-      throw new RollBackCommandException(e.getMessage());
-    }catch (SQLException e) {
-      LOG.error("An exception has occurred in MakeDataTrackUCSCLinks ", e);
-      e.printStackTrace(System.out);
-      throw new RollBackCommandException(e.getMessage());
     } catch (Exception e) {
       LOG.error("An exception has occurred in MakeDataTrackUCSCLinks ", e);
-      e.printStackTrace(System.out);
       throw new RollBackCommandException(e.getMessage());
     } finally {
       try {

@@ -307,7 +307,6 @@ public class MakeDataTrackIGVLink extends HttpServlet {
 
 		} catch (Exception e) {
 			LOG.error("An exception has occurred in MakeDataTrackIGVLinks ", e);
-			e.printStackTrace(System.out);
 			throw new RollBackCommandException(e.getMessage());
 		} finally {
 			try {
@@ -454,7 +453,7 @@ public class MakeDataTrackIGVLink extends HttpServlet {
 			return true;
 
 		} catch (IOException e) {
-			e.printStackTrace();
+
 		}
 		return false;
 	}

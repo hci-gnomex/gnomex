@@ -119,7 +119,7 @@ public class SaveAnalysisFiles extends GNomExCommand implements Serializable {
       
     }catch (Exception e){
       LOG.error("An exception has occurred in SaveAnalysisFiles ", e);
-      e.printStackTrace();
+
       throw new RollBackCommandException(e.getMessage());
         
     } finally {

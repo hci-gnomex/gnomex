@@ -150,7 +150,7 @@ public class SaveWorkItemSolexaStock extends GNomExCommand implements Serializab
 
       }catch (Exception e){
         LOG.error("An exception has occurred in SaveWorkItemSolexaPrepStock ", e);
-        e.printStackTrace();
+
         throw new RollBackCommandException(e.getMessage());
           
       }finally {

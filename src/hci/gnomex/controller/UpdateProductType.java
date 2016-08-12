@@ -63,7 +63,7 @@ public class UpdateProductType extends GNomExCommand implements Serializable {
 
     } catch (Exception e) {
       LOG.error("An exception has occurred in UpdateProductType ", e);
-      e.printStackTrace();
+
       throw new RollBackCommandException(e.getMessage());
     } finally {
       try {

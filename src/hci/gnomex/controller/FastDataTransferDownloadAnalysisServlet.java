@@ -303,7 +303,7 @@ public class FastDataTransferDownloadAnalysisServlet extends HttpServlet {
     } catch (Exception e) {
       response.setStatus(999);
       System.out.println( "FastDataTransferDownloadAnalysisServlet: An exception occurred " + e.toString());
-      e.printStackTrace();
+
     } 					
 
   }    

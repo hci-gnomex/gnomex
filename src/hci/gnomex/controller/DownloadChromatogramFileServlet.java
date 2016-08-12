@@ -145,7 +145,7 @@ public class DownloadChromatogramFileServlet extends HttpServlet {
             response.getOutputStream().println("</body>");
             response.getOutputStream().println("</html>");
             System.out.println( "DownloadChromatogramFileServlet: An exception occurred " + e.toString());
-            e.printStackTrace();
+
         } finally {
             try {
                 secAdvisor.closeHibernateSession();

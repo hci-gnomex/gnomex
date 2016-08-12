@@ -412,7 +412,7 @@ public class OrganizeProductOrderUploadFiles extends GNomExCommand implements Se
 
       }catch (Exception e){
         LOG.error("An exception has occurred in OrganizeProdutOrderUploadFiles ", e);
-        e.printStackTrace();
+
         throw new RollBackCommandException(e.getMessage());
 
       }finally {

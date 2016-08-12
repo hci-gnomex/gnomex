@@ -44,17 +44,8 @@ public class GetTopicList extends GNomExCommand implements Serializable {
     
       setResponsePage(this.SUCCESS_JSP);      
       
-    }catch (NamingException e){
+    }catch (Exception e) {
       LOG.error("An exception has occurred in GetTopicList ", e);
-      e.printStackTrace(System.out);
-      throw new RollBackCommandException(e.getMessage());
-    }catch (SQLException e) {
-      LOG.error("An exception has occurred in GetTopicList ", e);
-      e.printStackTrace(System.out);
-      throw new RollBackCommandException(e.getMessage());
-    } catch (Exception e) {
-      LOG.error("An exception has occurred in GetTopicList ", e);
-      e.printStackTrace(System.out);
       throw new RollBackCommandException(e.getMessage());
     } finally {
       try {

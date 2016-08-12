@@ -287,7 +287,7 @@ public class DownloadAnalysisSingleFileServlet extends HttpServlet {
             response.getOutputStream().println("</body>");
             response.getOutputStream().println("</html>");
             System.out.println( "DownloadAnalyisSingleFileServlet: An exception occurred " + e.toString());
-            e.printStackTrace();
+
         } finally {
             try {
                 secAdvisor.closeHibernateSession();
@@ -384,10 +384,10 @@ public class DownloadAnalysisSingleFileServlet extends HttpServlet {
 
         } catch (UnsupportedEncodingException e) {
             // TODO Auto-generated catch block
-            e.printStackTrace();
+
         } catch (IOException e) {
             // TODO Auto-generated catch block
-            e.printStackTrace();
+
         }
     }
 
@@ -514,11 +514,11 @@ public class DownloadAnalysisSingleFileServlet extends HttpServlet {
         } catch (FileNotFoundException e) {
             // TODO Auto-generated catch block
             readImageOK = false;
-            e.printStackTrace();
+
         } catch (IOException e) {
             // TODO Auto-generated catch block
             readImageOK = false;
-            e.printStackTrace();
+
         }
 
         if (!readImageOK) {

@@ -169,18 +169,8 @@ public class MetrixServerInterface extends GNomExCommand implements Serializable
         setResponsePage(this.ERROR_JSP);
       }
       //	}	// end main isValid()
-    }catch (NamingException e){
+    }catch (Exception e) {
       LOG.error("An exception has occurred in MetrixServerInterface ", e);
-      //e.printStackTrace(System.out);
-      throw new RollBackCommandException(e.getMessage());
-
-    }catch (SQLException e) {
-      LOG.error("An exception has occurred in MetrixServerInterface ", e);
-      // e.printStackTrace(System.out);
-      throw new RollBackCommandException(e.getMessage());
-    } catch (Exception e) {
-      LOG.error("An exception has occurred in MetrixServerInterface ", e);
-      //  e.printStackTrace(System.out);
       throw new RollBackCommandException(e.getMessage());
     } finally {
       try {

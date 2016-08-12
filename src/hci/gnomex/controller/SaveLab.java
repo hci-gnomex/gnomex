@@ -619,7 +619,7 @@ public class SaveLab extends GNomExCommand implements Serializable {
 
     }catch (Exception e){
       LOG.error("An exception has occurred in SaveLab ", e);
-      e.printStackTrace();
+
       throw new RollBackCommandException(e.getMessage());
 
     }finally {
@@ -660,7 +660,7 @@ public class SaveLab extends GNomExCommand implements Serializable {
     	}
     	MailUtil.validateAndSendEmail(helper);
     } catch (Exception e) {
-      e.printStackTrace();
+
     }
   }
 

@@ -79,7 +79,7 @@ public class GetBillingTemplate extends GNomExCommand implements Serializable {
 			
 		} catch (Exception e) {
 			LOG.error("An exception has occurred in GetBillingTemplate ", e);
-			e.printStackTrace();
+
 			throw new GNomExRollbackException(e.getMessage() != null ? e.getMessage() : ERROR_MESSAGE, false, ERROR_MESSAGE);
 		} finally {
 			try {

@@ -80,14 +80,14 @@ public class DeleteGenomeIndex extends GNomExCommand implements Serializable {
         sess.flush();
       } catch(Exception e) {
         LOG.error("An exception has occurred in DeleteGenomeIndex when trying to inactivate property ", e);
-        e.printStackTrace();
+
         throw new RollBackCommandException(e.getMessage());
         
       }
       
     } catch (Exception e){
       LOG.error("An exception has occurred in DeleteGenomeIndex ", e);
-      e.printStackTrace();
+
       throw new RollBackCommandException(e.getMessage());
         
     }finally {

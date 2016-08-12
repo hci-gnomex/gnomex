@@ -238,7 +238,7 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
           sendUserEmail(appUserScreen, sess);
         } catch (Exception e) {
           LOG.error("An exception occurred sending the user email ", e);
-          e.printStackTrace();
+
           this.addInvalidField("email", "Unable to send email.  Please check your email address and try again.");
         }
       }
@@ -298,7 +298,7 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
 
     } catch (Exception e) {
       LOG.error("An exception has occurred in SaveSelfRegisteredAppUser ", e);
-      e.printStackTrace();
+
       throw new RollBackCommandException(e.getMessage());
 
     } finally {

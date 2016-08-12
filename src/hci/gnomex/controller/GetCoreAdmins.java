@@ -64,7 +64,7 @@ public class GetCoreAdmins extends GNomExCommand implements Serializable {
 
         }catch(Exception e){
             LOG.error("An exception has occurred in GetCoreAdmins ", e);
-            e.printStackTrace();
+
         } finally{
             try {
                 this.getSecAdvisor().closeReadOnlyHibernateSession();

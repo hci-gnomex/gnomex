@@ -977,16 +977,16 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 
 		} catch (GNomExRollbackException e) {
 			LOG.error("An exception has occurred in SaveRequest ", e);
-			e.printStackTrace();
+
 			throw e;
 		} catch (ProductException e) {
 			LOG.error("An exception has occurred in SaveRequest ", e);
 			LOG.error("Unable to create ProductLedger for request. " + e.getMessage(), e);
-			e.printStackTrace();
+
 			throw new GNomExRollbackException(e.getMessage(), true, e.getMessage());
 		} catch (Exception e) {
 			LOG.error("An exception has occurred in SaveRequest ", e);
-			e.printStackTrace();
+
 			throw new GNomExRollbackException(e.getMessage(), true, "An error occurred saving the request.");
 		} finally {
 			try {
@@ -2712,7 +2712,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 					DictionaryHelper.getInstance(sess), serverName);
 			MailUtil.validateAndSendEmail(helper);
 		} catch (Exception e) {
-			e.printStackTrace();
+
 		}
 
 	}

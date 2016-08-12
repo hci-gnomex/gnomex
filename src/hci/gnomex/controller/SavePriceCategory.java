@@ -197,7 +197,7 @@ public Command execute() throws RollBackCommandException {
       
     }catch (Exception e){
       LOG.error("An exception has occurred in SavePriceCategory ", e);
-      e.printStackTrace();
+
       throw new RollBackCommandException(e.getMessage());
         
     }finally {

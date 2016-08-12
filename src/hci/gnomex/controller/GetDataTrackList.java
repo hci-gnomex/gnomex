@@ -45,17 +45,8 @@ public class GetDataTrackList extends GNomExCommand implements Serializable {
       this.xmlResult = out.outputString(doc);
     
       setResponsePage(this.SUCCESS_JSP);
-    }catch (NamingException e){
+    }  catch (Exception e) {
       LOG.error("An exception has occurred in GetDataTrackList ", e);
-      e.printStackTrace(System.out);
-      throw new RollBackCommandException(e.getMessage());
-    }catch (SQLException e) {
-      LOG.error("An exception has occurred in GetDataTrackList ", e);
-      e.printStackTrace(System.out);
-      throw new RollBackCommandException(e.getMessage());
-    } catch (Exception e) {
-      LOG.error("An exception has occurred in GetDataTrackList ", e);
-      e.printStackTrace(System.out);
       throw new RollBackCommandException(e.getMessage());
     } finally {
       try {

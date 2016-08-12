@@ -334,7 +334,7 @@ public class DownloadSingleFileServlet extends HttpServlet {
       response.getOutputStream().println("</body>");
       response.getOutputStream().println("</html>");
       System.out.println( "DownloadSingleFileServlet: An exception occurred " + e.toString());
-      e.printStackTrace();
+
     } finally {
       try {
         secAdvisor.closeHibernateSession();
@@ -437,10 +437,10 @@ private void outString (StringBuilder theText, int startpos, int endpos, OutputS
 				
 	} catch (UnsupportedEncodingException e) {
 		// TODO Auto-generated catch block
-		e.printStackTrace();
+
 	} catch (IOException e) {
 		// TODO Auto-generated catch block
-		e.printStackTrace();
+
 	}
 }
 
@@ -564,11 +564,11 @@ private boolean processIMG (String imgline, OutputStream out) {
 	} catch (FileNotFoundException e) {
 		// TODO Auto-generated catch block
 		readImageOK = false;
-		e.printStackTrace();
+
 	} catch (IOException e) {
 		// TODO Auto-generated catch block
 		readImageOK = false;
-		e.printStackTrace();
+
 	}
 
 	if (!readImageOK) {

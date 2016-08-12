@@ -69,7 +69,7 @@ public class SaveProductLedgerEntryList extends GNomExCommand implements Seriali
 			}
 		} catch (Exception e) {
 			LOG.error("An exception has occurred in SaveProductLedgerEntryList", e);
-			e.printStackTrace();
+
 			throw new GNomExRollbackException(e.getMessage(), true, "An error occurred saving the product ledger entry list");
 		} finally {
 			try {

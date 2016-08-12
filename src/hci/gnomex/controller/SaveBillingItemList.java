@@ -280,7 +280,7 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
         this.executionLogger.LogTimes();
       }catch (Exception e){
         LOG.error("An exception has occurred in SaveBillingItem ", e);
-        e.printStackTrace();
+
         throw new RollBackCommandException(e.getMessage());
 
       }finally {

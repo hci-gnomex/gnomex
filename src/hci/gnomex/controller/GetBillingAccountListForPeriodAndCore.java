@@ -84,15 +84,15 @@ public class GetBillingAccountListForPeriodAndCore extends GNomExCommand impleme
       setResponsePage(this.SUCCESS_JSP);
     }catch (NamingException e){
       LOG.error("An exception has occurred in GetBillingAccountListForPeriodAndCore ", e);
-      e.printStackTrace();
+
       throw new RollBackCommandException(e.getMessage());        
     }catch (SQLException e) {
       LOG.error("An exception has occurred in GetBillingAccountListForPeriodAndCore ", e);
-      e.printStackTrace();
+
       throw new RollBackCommandException(e.getMessage());
     } catch (Exception e) {
       LOG.error("An exception has occurred in GetBillingAccountListForPeriodAndCore ", e);
-      e.printStackTrace();
+
       throw new RollBackCommandException(e.getMessage());
     } finally {
       try {

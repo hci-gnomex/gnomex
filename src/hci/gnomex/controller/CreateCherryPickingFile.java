@@ -188,24 +188,8 @@ public class CreateCherryPickingFile extends ReportCommand implements Serializab
         setResponsePage(this.ERROR_JSP);
       }
     
-    }catch (UnknownPermissionException e){
+    }catch (Exception e) {
       LOG.error("An exception has occurred in CreateCherryPickingFile ", e);
-      e.printStackTrace();
-      throw new RollBackCommandException(e.getMessage());
-        
-    }catch (NamingException e){
-      LOG.error("An exception has occurred in CreateCherryPickingFile ", e);
-      e.printStackTrace();
-      throw new RollBackCommandException(e.getMessage());
-        
-    }catch (SQLException e) {
-      LOG.error("An exception has occurred in CreateCherryPickingFile ", e);
-      e.printStackTrace();
-      throw new RollBackCommandException(e.getMessage());
-      
-    } catch (Exception e) {
-      LOG.error("An exception has occurred in CreateCherryPickingFile ", e);
-      e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
     } finally {
       try {

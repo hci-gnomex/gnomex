@@ -135,7 +135,7 @@ public class BuildSearchIndex extends DetailObject {
     catch( Exception e )
     {
       System.out.println( e.toString() );
-      e.printStackTrace();
+
     }
     
     System.exit(0);

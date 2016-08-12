@@ -424,7 +424,7 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
 
       }catch (Exception e){
         LOG.error("An exception has occurred in OrganizeExperimentUploadFiles ", e);
-        e.printStackTrace();
+
         throw new RollBackCommandException(e.getMessage());
 
       }finally {

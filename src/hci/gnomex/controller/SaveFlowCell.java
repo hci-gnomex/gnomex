@@ -339,7 +339,7 @@ public class SaveFlowCell extends GNomExCommand implements Serializable {
     }
     catch (Exception e) {
       LOG.error("An exception has occurred in SaveFlowCell ", e);
-      e.printStackTrace();
+
       throw new RollBackCommandException(e.getMessage());
     }
     finally {
@@ -348,7 +348,7 @@ public class SaveFlowCell extends GNomExCommand implements Serializable {
       } 
       catch (Exception e) {
         LOG.error("An exception has occurred in SaveFlowCell ", e);
-        e.printStackTrace();
+
       }
     }
     return this;

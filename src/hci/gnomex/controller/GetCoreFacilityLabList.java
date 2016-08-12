@@ -69,7 +69,7 @@ public class GetCoreFacilityLabList extends GNomExCommand implements Serializabl
       setResponsePage(this.SUCCESS_JSP);
     }catch(Exception e){
       LOG.error("An exception has occurred in GetCoreFacilityLabList ", e);
-      e.printStackTrace();
+
       throw new RollBackCommandException(e.getMessage());
 
     }finally{

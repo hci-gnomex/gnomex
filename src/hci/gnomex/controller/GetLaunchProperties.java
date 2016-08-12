@@ -53,7 +53,7 @@ public class GetLaunchProperties extends GNomExCommand implements Serializable {
       }
   	} catch (Exception e) {
   		LOG.error(e.getClass().toString() + ": " , e);
-  		e.printStackTrace();
+
   	}
   }
 

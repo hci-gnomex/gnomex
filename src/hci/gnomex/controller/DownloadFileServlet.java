@@ -242,7 +242,7 @@ public class DownloadFileServlet extends HttpServlet {
       HibernateSession.rollback();
       response.setStatus(999);
       System.out.println( "DownloadFileServlet: An exception occurred " + e.toString());
-      e.printStackTrace();
+
     } finally {
 
       if (secAdvisor != null) {

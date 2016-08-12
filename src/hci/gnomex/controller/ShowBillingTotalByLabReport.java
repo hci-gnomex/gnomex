@@ -522,22 +522,22 @@ public class ShowBillingTotalByLabReport extends ReportCommand implements Serial
     
     }catch (UnknownPermissionException e){
       LOG.error("An exception has occurred in ShowBillingTotalByLabReport ", e);
-      e.printStackTrace();
+
       throw new RollBackCommandException(e.getMessage());
         
     }catch (NamingException e){
       LOG.error("An exception has occurred in ShowBillingTotalByLabReport ", e);
-      e.printStackTrace();
+
       throw new RollBackCommandException(e.getMessage());
         
     }catch (SQLException e) {
       LOG.error("An exception has occurred in ShowBillingTotalByLabReport ", e);
-      e.printStackTrace();
+
       throw new RollBackCommandException(e.getMessage());
       
     } catch (Exception e) {
       LOG.error("An exception has occurred in ShowBillingTotalByLabReport ", e);
-      e.printStackTrace();
+
       throw new RollBackCommandException(e.getMessage());
     } finally {
       try {

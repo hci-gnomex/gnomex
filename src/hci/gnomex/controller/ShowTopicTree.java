@@ -80,17 +80,17 @@ public class ShowTopicTree extends ReportCommand implements Serializable {
 
 		} catch (NamingException e) {
 			LOG.error("An exception has occurred in ShowTopicTree ", e);
-			e.printStackTrace();
+
 			throw new RollBackCommandException(e.getMessage());
 
 		} catch (SQLException e) {
 			LOG.error("An exception has occurred in ShowTopicTree ", e);
-			e.printStackTrace();
+
 			throw new RollBackCommandException(e.getMessage());
 
 		} catch (Exception e) {
 			LOG.error("An exception has occurred in ShowTopicTree ", e);
-			e.printStackTrace();
+
 			throw new RollBackCommandException(e.getMessage());
 		} finally {
 			try {

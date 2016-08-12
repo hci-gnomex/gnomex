@@ -103,23 +103,23 @@ public class GetProperty extends GNomExCommand implements Serializable {
 
     }catch (UnknownPermissionException e){
       LOG.error("An exception has occurred in GetProperty ", e);
-      e.printStackTrace();
+
       throw new RollBackCommandException(e.getMessage());
     }catch (NamingException e){
       LOG.error("An exception has occurred in GetProperty ", e);
-      e.printStackTrace();
+
       throw new RollBackCommandException(e.getMessage());
     }catch (SQLException e) {
       LOG.error("An exception has occurred in GetProperty ", e);
-      e.printStackTrace();
+
       throw new RollBackCommandException(e.getMessage());
     } catch (XMLReflectException e){
       LOG.error("An exception has occurred in GetProperty ", e);
-      e.printStackTrace();
+
       throw new RollBackCommandException(e.getMessage());
     } catch (Exception e){
       LOG.error("An exception has occurred in GetProperty ", e);
-      e.printStackTrace();
+
       throw new RollBackCommandException(e.getMessage());
     } finally {
       try {

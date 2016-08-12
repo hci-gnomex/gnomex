@@ -81,7 +81,7 @@ public class GetSelectedHybRowInfo extends GNomExCommand implements Serializable
     setResponsePage(this.SUCCESS_JSP);
     }catch (Exception e){
       LOG.error("An exception has occurred in GetSelectedHybRowInfo ", e);
-      e.printStackTrace();
+
       throw new RollBackCommandException(e.getMessage());
         
     }

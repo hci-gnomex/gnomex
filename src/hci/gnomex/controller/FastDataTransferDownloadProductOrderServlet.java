@@ -301,7 +301,7 @@ public class FastDataTransferDownloadProductOrderServlet extends HttpServlet {
         } catch (Exception e) {
             response.setStatus(999);
             System.out.println( "FastDataTransferDownloadProductOrderServlet: An exception occurred " + e.toString());
-            e.printStackTrace();
+
         }
 
     }

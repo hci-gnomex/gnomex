@@ -181,7 +181,7 @@ public class SaveWorkItemSolexaQualityControl extends GNomExCommand implements S
 
       }catch (Exception e){
         LOG.error("An exception has occurred in SaveWorkItemSolexaQualityControl ", e);
-        e.printStackTrace();
+
         throw new RollBackCommandException(e.getMessage());
           
       }finally {

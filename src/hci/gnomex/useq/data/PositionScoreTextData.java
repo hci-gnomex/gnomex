@@ -174,7 +174,7 @@ public class PositionScoreTextData extends USeqData{
 				}
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+
 			binaryFile = null;
 		} finally {
 			USeqUtilities.safeClose(workingDOS);
@@ -253,7 +253,7 @@ public class PositionScoreTextData extends USeqData{
 			//close ZipEntry but not streams!
 			out.closeEntry();
 		} catch (IOException e) {
-			e.printStackTrace();
+
 			USeqUtilities.safeClose(out);
 			USeqUtilities.safeClose(dos);
 		} 
@@ -326,7 +326,7 @@ public class PositionScoreTextData extends USeqData{
 				throw new IOException ("Incorrect file type for creating a PositionScoreText[] -> '"+fileType+"' in "+binaryFile +"\n");
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
+
 			USeqUtilities.safeClose(dis);
 		}
 	}

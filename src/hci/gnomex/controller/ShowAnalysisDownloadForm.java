@@ -115,22 +115,22 @@ public class ShowAnalysisDownloadForm extends GNomExCommand implements Serializa
 
 		} catch (UnknownPermissionException e) {
 			LOG.error("An exception has occurred in ShowAnalysisDownloadForm ", e);
-			e.printStackTrace();
+
 			throw new RollBackCommandException(e.getMessage());
 
 		} catch (NamingException e) {
 			LOG.error("An exception has occurred in ShowAnalysisDownloadForm ", e);
-			e.printStackTrace();
+
 			throw new RollBackCommandException(e.getMessage());
 
 		} catch (SQLException e) {
 			LOG.error("An exception has occurred in ShowAnalysisDownloadForm ", e);
-			e.printStackTrace();
+
 			throw new RollBackCommandException(e.getMessage());
 
 		} catch (Exception e) {
 			LOG.error("An exception has occurred in ShowAnalysisDownloadForm ", e);
-			e.printStackTrace();
+
 			throw new RollBackCommandException(e.getMessage());
 		} finally {
 			try {

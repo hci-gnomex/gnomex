@@ -77,7 +77,7 @@ public class GetProductOrderListForLab extends GNomExCommand implements Serializ
 
     } catch(Exception e) {
       LOG.error("An exception has occurred in GetProductOrderList ", e);
-      e.printStackTrace();
+
       throw new RollBackCommandException(e.getMessage());
 
     } finally {

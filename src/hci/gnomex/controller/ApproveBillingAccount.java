@@ -62,7 +62,7 @@ public class ApproveBillingAccount extends HttpServlet {
 
 		} catch (Exception e) {
 			message = "There was an issue activating the billing account.  Please activate through the GNomEx app and contact GNomEx support.  Thanks.";
-			e.printStackTrace();
+			;
 		} finally {
 			try {
 				HibernateSession.closeSession();

@@ -113,7 +113,7 @@ public class DownloadFastaFileServlet extends HttpServlet {
             response.getOutputStream().println("</body>");
             response.getOutputStream().println("</html>");
             System.out.println( "DownloadFastaFileServlet: An exception occurred " + e.toString());
-            e.printStackTrace();
+
         } finally {
             try {
                 secAdvisor.closeHibernateSession();

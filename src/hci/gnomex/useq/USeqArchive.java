@@ -89,7 +89,7 @@ public class USeqArchive {
 			else return null;
 
 		} catch (IOException e) {
-			e.printStackTrace();
+
 			USeqUtilities.safeClose(bis);
 			return null;
 		}
@@ -162,7 +162,7 @@ public class USeqArchive {
 				dos.close();
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
+
 			USeqUtilities.safeClose(out);
 			USeqUtilities.safeClose(outputStream);
 			USeqUtilities.safeClose(bis);
@@ -254,7 +254,7 @@ public class USeqArchive {
 				throw new IOException ("Unknown USeq data type, '"+binaryDataType+"', for slicing data from  -> '"+sliceInfo.getSliceName()+"\n");
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
+
 			USeqUtilities.safeClose(bis);
 			return null;
 		} 
@@ -310,7 +310,7 @@ public class USeqArchive {
 				throw new IOException ("Unknown USeq data type, '"+dataType+"', for slicing data from  -> '"+sliceInfo.getSliceName()+"\n");
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
+
 			USeqUtilities.safeClose(out);
 			USeqUtilities.safeClose(bis);
 		} finally {
@@ -348,7 +348,7 @@ public class USeqArchive {
 				is.close();
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
+
 		} finally {
 			USeqUtilities.safeClose(out);
 			USeqUtilities.safeClose(is);
@@ -419,7 +419,7 @@ public class USeqArchive {
 				chromStrandRegions.put(chromName, dr);
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+
 		}
 		finally {
 			USeqUtilities.safeClose(is);

@@ -82,7 +82,7 @@ public class GetSelectedSampleRowInfo extends GNomExCommand implements Serializa
     setResponsePage(this.SUCCESS_JSP);
     }catch (Exception e){
       LOG.error("An exception has occurred in GetSelectedLabRowInfo ", e);
-      e.printStackTrace();
+
       throw new RollBackCommandException(e.getMessage());
         
     }

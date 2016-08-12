@@ -286,11 +286,11 @@ public class GetChromatogram extends GNomExCommand implements Serializable {
 
     }catch (UnsupportedChromatogramFormatException e){
       LOG.error("An exception has occurred in ReadChromatogramFile ", e);
-      e.printStackTrace();
+
       throw new RollBackCommandException(e.getMessage());
     }catch (Exception e){
       LOG.error("An exception has occurred in ReadChromatogramFile ", e);
-      e.printStackTrace();
+
       throw new RollBackCommandException(e.getMessage());
     } finally {
     }

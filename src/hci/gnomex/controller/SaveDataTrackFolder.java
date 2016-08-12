@@ -80,7 +80,7 @@ public class SaveDataTrackFolder extends GNomExCommand implements Serializable {
 
     }catch (Exception e){
       LOG.error("An exception has occurred in SaveDataTrackFolder ", e);
-      e.printStackTrace();
+
       throw new RollBackCommandException(e.getMessage());
 
     }finally {

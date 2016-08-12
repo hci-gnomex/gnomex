@@ -95,7 +95,7 @@ public class SaveRequestSlideProduct extends GNomExCommand implements Serializab
       }
     }catch (Exception e){
       LOG.error("An exception has occurred in SaveRequest ", e);
-      e.printStackTrace();
+
       throw new RollBackCommandException(e.getMessage());
         
     }finally {

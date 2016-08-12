@@ -259,7 +259,7 @@ public class SaveProductOrder extends GNomExCommand implements Serializable {
 
 		} catch (Exception e) {
 			LOG.error("An exception has occurred while emailing in SaveRequest ", e);
-			e.printStackTrace();
+
 			throw new RollBackCommandException(e.toString());
 		} finally {
 			try {

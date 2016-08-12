@@ -142,7 +142,7 @@ public class ApproveUser extends HttpServlet {
 
 		} catch (Exception e) {
 			message = "There was an issue activating the user.  Please activate through the GNomEx app and contact GNomEx support.  Thanks.";
-			e.printStackTrace();
+			;
 		} finally {
 			try {
 				HibernateSession.closeSession();

@@ -108,14 +108,14 @@ public class DeleteOrganism extends GNomExCommand implements Serializable {
         sess.flush();
       } catch(Exception e) {
         LOG.error("An exception has occurred in DeleteOrganism when trying to inactivate organism ", e);
-        e.printStackTrace();
+
         throw new RollBackCommandException(e.getMessage());
         
       }
       
     } catch (Exception e){
       LOG.error("An exception has occurred in DeleteOrganism ", e);
-      e.printStackTrace();
+
       throw new RollBackCommandException(e.getMessage());
         
     }finally {

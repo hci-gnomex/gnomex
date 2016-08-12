@@ -84,7 +84,7 @@ public class DeletePrice extends GNomExCommand implements Serializable {
       }
     }catch (Exception e){
       LOG.error("An exception has occurred in DeletePrice ", e);
-      e.printStackTrace();
+
       throw new RollBackCommandException(e.getMessage());
         
     }finally {

@@ -86,18 +86,8 @@ private static Logger LOG = Logger.getLogger(GetNewsItem.class);
         setResponsePage(this.ERROR_JSP);
       }*/
     //	}
-    }catch (NamingException e){
-      LOG.error("An exception has occurred in GetNewsItem ", e);
-      e.printStackTrace(System.out);
-      throw new RollBackCommandException(e.getMessage());
-        
-    }catch (SQLException e) {
-      LOG.error("An exception has occurred in GetNewsItem ", e);
-      e.printStackTrace(System.out);
-      throw new RollBackCommandException(e.getMessage());
     } catch (Exception e) {
       LOG.error("An exception has occurred in GetNewsItem ", e);
-      e.printStackTrace(System.out);
       throw new RollBackCommandException(e.getMessage());
     } finally {
       try {

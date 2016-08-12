@@ -128,7 +128,7 @@ public class SaveTransferLog extends GNomExCommand implements Serializable {
       
     }catch (Exception e){
       LOG.error("An exception has occurred in SaveTransferLog ", e);
-      e.printStackTrace();
+
       throw new RollBackCommandException(e.getMessage());
         
     }finally {

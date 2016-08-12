@@ -250,7 +250,7 @@ public class SaveCombinedWorkItemQualityControl extends GNomExCommand implements
 
       }catch (Exception e){
         LOG.error("An exception has occurred in SaveWorkflowQualityControl ", e);
-        e.printStackTrace();
+
         throw new RollBackCommandException(e.getMessage());
 
       }finally {

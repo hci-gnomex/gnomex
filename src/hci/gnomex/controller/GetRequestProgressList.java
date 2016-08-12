@@ -154,17 +154,8 @@ public class GetRequestProgressList extends GNomExCommand implements Serializabl
       this.xmlResult = out.outputString(doc);
     
       setResponsePage(this.SUCCESS_JSP);
-    }catch (NamingException e){
-      LOG.error("An exception has occurred in GetRequestProgressList ", e);
-      e.printStackTrace(System.out);
-      throw new RollBackCommandException(e.getMessage());
-    }catch (SQLException e) {
-      LOG.error("An exception has occurred in GetRequestProgressList ", e);
-      e.printStackTrace(System.out);
-      throw new RollBackCommandException(e.getMessage());
     } catch (Exception e) {
       LOG.error("An exception has occurred in GetRequestProgressList ", e);
-      e.printStackTrace(System.out);
       throw new RollBackCommandException(e.getMessage());
     } finally {
       try {
