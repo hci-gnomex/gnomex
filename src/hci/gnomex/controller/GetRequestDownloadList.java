@@ -732,7 +732,6 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
 			fileNode.setAttribute("state", "unchecked");
 			fileNode.setAttribute("canDelete", "Y");
 			fileNode.setAttribute("canRename", "Y");
-			String fname = this.getPathForZipFileName(f, requestNumber);
 
 			fileNode.setAttribute("linkedSampleNumber", getLinkedSampleNumber(sess, fd.getZipEntryName()));
 			fileNode.setAttribute("viewURL", fd.getViewURL(viewType));
