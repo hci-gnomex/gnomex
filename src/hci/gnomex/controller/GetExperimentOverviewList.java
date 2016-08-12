@@ -134,7 +134,7 @@ private static Logger LOG = Logger.getLogger(GetExperimentOverviewList.class);
       try {
         this.getSecAdvisor().closeReadOnlyHibernateSession();        
       } catch(Exception e) {
-        
+          LOG.error("An exception has occurred in GetExperimentOverviewList ", e);
       }
     }
     

@@ -128,9 +128,9 @@ public class MakeDataTrackUCSCLinks extends GNomExCommand implements Serializabl
 		} finally {
 			try {
 				this.getSecAdvisor().closeHibernateSession();        
-			} catch(Exception e) {
-
-			}
+			} catch(Exception e){
+        LOG.error("Error", e);
+      }
 		}
 
 		return this;

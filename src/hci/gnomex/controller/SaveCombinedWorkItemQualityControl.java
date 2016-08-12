@@ -256,9 +256,9 @@ public class SaveCombinedWorkItemQualityControl extends GNomExCommand implements
       }finally {
         try {
           HibernateSession.closeSession();        
-        } catch(Exception e) {
-
-        }
+        } catch(Exception e){
+        LOG.error("Error", e);
+      }
       }
 
     } else {

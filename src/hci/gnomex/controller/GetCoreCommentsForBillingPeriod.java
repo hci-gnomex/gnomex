@@ -118,7 +118,7 @@ public class GetCoreCommentsForBillingPeriod extends GNomExCommand implements Se
       try {
         secAdvisor.closeReadOnlyHibernateSession();    
       } catch(Exception e) {
-
+        LOG.error("An exception has occurred in GetCoreCommentsForBillingPeriod ", e);
       }
     }
 

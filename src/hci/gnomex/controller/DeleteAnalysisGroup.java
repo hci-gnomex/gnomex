@@ -87,14 +87,13 @@ public class DeleteAnalysisGroup extends GNomExCommand implements Serializable {
       }
     }catch (Exception e){
       LOG.error("An exception has occurred in DeleteAnalysisGroup ", e);
-      ;
       throw new RollBackCommandException(e.getMessage());
         
     }finally {
       try {
         HibernateSession.closeSession();        
       } catch(Exception e) {
-        
+        LOG.error("An exception has occurred in DeleteAnalysisGroup ", e);
       }
     }
     

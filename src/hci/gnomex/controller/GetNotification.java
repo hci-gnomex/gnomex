@@ -223,8 +223,8 @@ private static Logger LOG = Logger.getLogger(GetNotification.class);
     } finally {
       try {
         this.getSecAdvisor().closeReadOnlyHibernateSession();        
-      } catch(Exception e) {
-
+      } catch(Exception e){
+        LOG.error("Error", e);
       }
     }
     

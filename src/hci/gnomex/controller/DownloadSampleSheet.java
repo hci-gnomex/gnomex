@@ -130,30 +130,14 @@ public class DownloadSampleSheet extends ReportCommand implements Serializable {
         setResponsePage(this.ERROR_JSP);
       }
     
-    }catch (UnknownPermissionException e){
+    }catch (Exception e) {
       LOG.error("An exception has occurred in DownloadSampleSheet ", e);
-
-      throw new RollBackCommandException(e.getMessage());
-        
-    }catch (NamingException e){
-      LOG.error("An exception has occurred in DownloadSampleSheet ", e);
-
-      throw new RollBackCommandException(e.getMessage());
-        
-    }catch (SQLException e) {
-      LOG.error("An exception has occurred in DownloadSampleSheet ", e);
-
-      throw new RollBackCommandException(e.getMessage());
-      
-    } catch (Exception e) {
-      LOG.error("An exception has occurred in DownloadSampleSheet ", e);
-
       throw new RollBackCommandException(e.getMessage());
     } finally {
       try {
         secAdvisor.closeReadOnlyHibernateSession();    
       } catch(Exception e) {
-        
+        LOG.error("An exception has occurred in DownloadSampleSheet ", e);
       }
     }
     

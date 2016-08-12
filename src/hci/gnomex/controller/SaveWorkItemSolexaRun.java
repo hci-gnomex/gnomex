@@ -167,9 +167,9 @@ public class SaveWorkItemSolexaRun extends GNomExCommand implements Serializable
       }finally {
         try {
           HibernateSession.closeSession();        
-        } catch(Exception e) {
-          
-        }
+        } catch(Exception e){
+        LOG.error("Error", e);
+      }
       }
       
     } else {

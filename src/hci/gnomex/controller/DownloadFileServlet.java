@@ -236,12 +236,13 @@ public class DownloadFileServlet extends HttpServlet {
 
       } else {
         response.setStatus(999);
-        System.out.println( "DownloadFileServlet: You must have a SecurityAdvisor in order to run this command.");
+
+        LOG.warn( "DownloadFileServlet: You must have a SecurityAdvisor in order to run this command.");
       }
     } catch (Exception e) {
       HibernateSession.rollback();
       response.setStatus(999);
-      System.out.println( "DownloadFileServlet: An exception occurred " + e.toString());
+      LOG.error( "DownloadFileServlet: An exception occurred " + e.toString(), e);
 
     } finally {
 
@@ -249,6 +250,7 @@ public class DownloadFileServlet extends HttpServlet {
         try {
           secAdvisor.closeHibernateSession();
         } catch(Exception e){
+          LOG.error("Error DownloadFileServlet", e);
         }
       }
       // clear out session variable

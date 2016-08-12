@@ -228,7 +228,6 @@ public class DeleteProperty extends GNomExCommand implements Serializable {
       }
     } catch (ConstraintViolationException ce) {
       LOG.error("An exception has occurred in DeleteProperty ", ce);
-      c
     } catch (Exception e){
       LOG.error("An exception has occurred in DeleteProperty ", e);
 
@@ -238,7 +237,7 @@ public class DeleteProperty extends GNomExCommand implements Serializable {
       try {
         HibernateSession.closeSession();
       } catch(Exception e) {
-
+        LOG.error("An exception has occurred in DeleteProperty ", e);
       }
     }
 

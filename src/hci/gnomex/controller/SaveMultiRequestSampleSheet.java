@@ -123,8 +123,8 @@ public class SaveMultiRequestSampleSheet extends GNomExCommand implements Serial
         if (sess != null) {
           HibernateSession.closeSession();
         }
-      } catch(Exception e) {
-        
+      } catch(Exception e){
+        LOG.error("Error", e);
       }
     }
 

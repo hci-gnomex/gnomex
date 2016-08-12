@@ -264,20 +264,7 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
       this.xmlResult = out.outputString(doc);
 
       setResponsePage(this.SUCCESS_JSP);
-    }catch (NamingException e){
-      LOG.error("An exception has occurred in GetExperimentPlatformList ", e);
-
-      throw new RollBackCommandException(e.getMessage());
-
-    }catch (SQLException e) {
-      LOG.error("An exception has occurred in GetExperimentPlatformList ", e);
-
-      throw new RollBackCommandException(e.getMessage());
-    } catch (XMLReflectException e){
-      LOG.error("An exception has occurred in GetExperimentPlatformList ", e);
-
-      throw new RollBackCommandException(e.getMessage());
-    } catch (Exception e) {
+    }catch (Exception e) {
       LOG.error("An exception has occurred in GetExperimentPlatformList ", e);
 
       throw new RollBackCommandException(e.getMessage());
@@ -285,7 +272,7 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
       try {
         this.getSecAdvisor().closeReadOnlyHibernateSession();
       } catch(Exception e) {
-
+        LOG.error("An exception has occurred in GetExperimentPlatformList ", e);
       }
     }
 

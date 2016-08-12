@@ -74,8 +74,9 @@ public class SaveProductLedgerEntryList extends GNomExCommand implements Seriali
 		} finally {
 			try {
 				this.getSecAdvisor().closeHibernateSession();        
-			} catch(Exception e) {
-			}
+			} catch(Exception e){
+        LOG.error("Error", e);
+      }
 		}
 		
 		return this;

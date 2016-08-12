@@ -228,8 +228,8 @@ public class ShowBillingMonthendReportUMergeFormat extends ReportCommand impleme
     } finally {
       try {
         secAdvisor.closeReadOnlyHibernateSession();    
-      } catch(Exception e) {
-        
+      } catch(Exception e){
+        LOG.error("Error", e);
       }
     }
     

@@ -105,9 +105,9 @@ public class SaveBillingAccountFieldsConfiguration extends GNomExCommand impleme
       }finally {
         try {
           HibernateSession.closeSession();        
-        } catch(Exception e) {
-          
-        }
+        } catch(Exception e){
+        LOG.error("Error", e);
+      }
       }
       this.xmlResult = "<SUCCESS/>";
       setResponsePage(this.SUCCESS_JSP);

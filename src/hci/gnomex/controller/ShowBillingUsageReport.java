@@ -185,8 +185,8 @@ public class ShowBillingUsageReport extends ReportCommand implements Serializabl
     } finally {
       try {
         secAdvisor.closeReadOnlyHibernateSession();    
-      } catch(Exception e) {
-        
+      } catch(Exception e){
+        LOG.error("Error", e);
       }
     }
     

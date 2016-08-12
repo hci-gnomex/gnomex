@@ -98,7 +98,7 @@ public class GetBillingAccountListForPeriodAndCore extends GNomExCommand impleme
       try {
         this.getSecAdvisor().closeReadOnlyHibernateSession();        
       } catch(Exception e) {
-        
+        LOG.error("An exception has occurred in GetBillingAccountListForPeriodAndCore ", e);
       }
     }
       

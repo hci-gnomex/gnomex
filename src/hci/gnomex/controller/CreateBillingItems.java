@@ -489,28 +489,14 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
       // We don't want to save anything;
       sess.clear();
 
-    }catch (NamingException e){
+    }catch (Exception e) {
       LOG.error("An exception has occurred in CreateBillingItems ", e);
-      ;
-      throw new RollBackCommandException(e.getMessage());
-
-    }catch (SQLException e) {
-      LOG.error("An exception has occurred in CreateBillingItems ", e);
-      ;
-      throw new RollBackCommandException(e.getMessage());
-    } catch (XMLReflectException e){
-      LOG.error("An exception has occurred in CreateBillingItems ", e);
-      ;
-      throw new RollBackCommandException(e.getMessage());
-    } catch (Exception e) {
-      LOG.error("An exception has occurred in CreateBillingItems ", e);
-      ;
       throw new RollBackCommandException(e.getMessage());
     } finally {
       try {
         this.getSecAdvisor().closeReadOnlyHibernateSession();
       } catch(Exception e) {
-
+        LOG.error("An exception has occurred in CreateBillingItems ", e);
       }
     }
 

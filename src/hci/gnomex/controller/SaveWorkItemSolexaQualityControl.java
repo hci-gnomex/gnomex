@@ -187,9 +187,9 @@ public class SaveWorkItemSolexaQualityControl extends GNomExCommand implements S
       }finally {
         try {
           HibernateSession.closeSession();        
-        } catch(Exception e) {
-          
-        }
+        } catch(Exception e){
+        LOG.error("Error", e);
+      }
       }
       
     } else {

@@ -203,8 +203,8 @@ public Command execute() throws RollBackCommandException {
     }finally {
       try {
         HibernateSession.closeSession();        
-      } catch(Exception e) {
-        
+      } catch(Exception e){
+        LOG.error("Error", e);
       }
     }
     

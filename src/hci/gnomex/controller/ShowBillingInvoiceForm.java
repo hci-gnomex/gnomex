@@ -251,9 +251,9 @@ public class ShowBillingInvoiceForm extends ReportCommand implements Serializabl
 		} finally {
 			try {
 				secAdvisor.closeHibernateSession();    
-			} catch(Exception e) {
-				
-		    }
+			} catch(Exception e){
+        LOG.error("Error", e);
+      }
 		}
 		
 		return this;

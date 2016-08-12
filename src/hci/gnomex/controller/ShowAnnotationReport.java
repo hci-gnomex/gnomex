@@ -330,8 +330,8 @@ public class ShowAnnotationReport extends ReportCommand implements Serializable 
     } finally {
       try {
         secAdvisor.closeReadOnlyHibernateSession();    
-      } catch(Exception e) {
-
+      } catch(Exception e){
+        LOG.error("Error", e);
       }
     }
 

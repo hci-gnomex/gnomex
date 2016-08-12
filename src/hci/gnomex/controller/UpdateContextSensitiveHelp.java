@@ -105,8 +105,8 @@ public class UpdateContextSensitiveHelp  extends GNomExCommand implements Serial
     }finally {
       try {
         HibernateSession.closeSession();        
-      } catch(Exception e) {
-        
+      } catch(Exception e){
+        LOG.error("Error", e);
       }
     }
     

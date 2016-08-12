@@ -98,15 +98,7 @@ public class GetBillingInvoiceList extends GNomExCommand implements Serializable
     this.xmlResult = out.outputString(doc);
 
     setResponsePage(this.SUCCESS_JSP);
-    }catch (NamingException e){
-      LOG.error("An exception has occurred in GetBillingInvoiceList ", e);
-
-      throw new RollBackCommandException(e.getMessage());        
-    }catch (SQLException e) {
-      LOG.error("An exception has occurred in GetBillingInvoiceList ", e);
-
-      throw new RollBackCommandException(e.getMessage());
-    } catch (Exception e) {
+    }catch (Exception e) {
       LOG.error("An exception has occurred in GetBillingInvoiceList ", e);
 
       throw new RollBackCommandException(e.getMessage());
@@ -114,7 +106,7 @@ public class GetBillingInvoiceList extends GNomExCommand implements Serializable
       try {
         this.getSecAdvisor().closeReadOnlyHibernateSession();        
       } catch(Exception e) {
-        
+        LOG.error("An exception has occurred in GetBillingInvoiceList ", e);
       }
     }
     

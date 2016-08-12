@@ -67,7 +67,7 @@ public class CheckDataTrackPermission extends GNomExCommand implements Serializa
       try {
         this.getSecAdvisor().closeReadOnlyHibernateSession();        
       } catch(Exception e) {
-        
+        LOG.error("An exception has occurred in CheckDataTrackPermission ", e);
       }
     }
     

@@ -542,8 +542,8 @@ public class ShowBillingTotalByLabReport extends ReportCommand implements Serial
     } finally {
       try {
         secAdvisor.closeReadOnlyHibernateSession();    
-      } catch(Exception e) {
-        
+      } catch(Exception e){
+        LOG.error("Error", e);
       }
     }
     

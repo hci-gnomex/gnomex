@@ -100,20 +100,7 @@ public class GetExperimentDesignList extends GNomExCommand implements Serializab
     this.xmlResult = out.outputString(doc);
     
     setResponsePage(this.SUCCESS_JSP);
-    }catch (NamingException e){
-      LOG.error("An exception has occurred in GetExperimentDesignList ", e);
-
-      throw new RollBackCommandException(e.getMessage());
-        
-    }catch (SQLException e) {
-      LOG.error("An exception has occurred in GetExperimentDesignList ", e);
-
-      throw new RollBackCommandException(e.getMessage());
-    } catch (XMLReflectException e){
-      LOG.error("An exception has occurred in GetExperimentDesignList ", e);
-
-      throw new RollBackCommandException(e.getMessage());
-    } catch (Exception e){
+    }catch (Exception e){
       LOG.error("An exception has occurred in GetExperimentDesignList ", e);
 
       throw new RollBackCommandException(e.getMessage());
@@ -121,7 +108,7 @@ public class GetExperimentDesignList extends GNomExCommand implements Serializab
       try {
         this.getSecAdvisor().closeReadOnlyHibernateSession();        
       } catch(Exception e) {
-        
+        LOG.error("An exception has occurred in GetExperimentDesignList ", e);
       }
     }
     

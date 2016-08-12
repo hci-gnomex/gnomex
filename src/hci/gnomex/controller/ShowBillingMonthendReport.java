@@ -284,8 +284,8 @@ public class ShowBillingMonthendReport extends ReportCommand implements Serializ
     } finally {
       try {
         secAdvisor.closeReadOnlyHibernateSession();    
-      } catch(Exception e) {
-        
+      } catch(Exception e){
+        LOG.error("Error", e);
       }
     }
     

@@ -207,14 +207,13 @@ public class AddItemToTopic extends GNomExCommand implements Serializable {
       }      
     } catch (Exception e){
       LOG.error("An exception has occurred in AddItemToTopic ", e);
-      ;
       throw new RollBackCommandException(e.getMessage());
         
     } finally {
       try {
         HibernateSession.closeSession();        
-      } catch(Exception e) {
-        
+      } catch(Exception e){
+        LOG.error("Error", e);
       }
     }
     

@@ -103,8 +103,8 @@ public class GetPriceCategory extends GNomExCommand implements Serializable {
     } finally {
       try {
         this.getSecAdvisor().closeReadOnlyHibernateSession();        
-      } catch(Exception e) {
-        
+      } catch(Exception e){
+        LOG.error("Error", e);
       }
     }
     

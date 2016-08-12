@@ -160,8 +160,8 @@ public class GetRequestProgressList extends GNomExCommand implements Serializabl
     } finally {
       try {
         this.getSecAdvisor().closeReadOnlyHibernateSession();        
-      } catch(Exception e) {
-        
+      } catch(Exception e){
+        LOG.error("Error", e);
       }
     }
     

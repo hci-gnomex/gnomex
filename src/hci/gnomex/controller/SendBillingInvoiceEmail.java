@@ -138,8 +138,9 @@ public class SendBillingInvoiceEmail extends GNomExCommand implements Serializab
 		} finally {
 			try {
 				secAdvisor.closeHibernateSession();    
-			} catch(Exception e) {
-			}
+			} catch(Exception e){
+        LOG.error("Error", e);
+      }
 		}
 			
 		return this;

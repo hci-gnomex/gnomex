@@ -92,8 +92,8 @@ private static Logger LOG = Logger.getLogger(GetNewsItem.class);
     } finally {
       try {
         this.getSecAdvisor().closeReadOnlyHibernateSession();        
-      } catch(Exception e) {
-        
+      } catch(Exception e){
+        LOG.error("Error", e);
       }
     }
     

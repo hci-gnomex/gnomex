@@ -127,8 +127,8 @@ public class GetSearchMetaInformation extends GNomExCommand implements Serializa
     } finally {
       try {
         this.getSecAdvisor().closeReadOnlyHibernateSession();        
-      } catch(Exception e) {
-        
+      } catch(Exception e){
+        LOG.error("Error", e);
       }
     }
     

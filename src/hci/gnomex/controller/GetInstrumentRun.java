@@ -152,28 +152,14 @@ public class GetInstrumentRun extends GNomExCommand implements Serializable {
         this.addInvalidField( "Insufficient permissions",
         "Insufficient permission to view run." );
       }
-    }catch (NamingException e){
+    }catch (Exception e) {
       LOG.error("An exception has occurred in GetInstrumentRun ", e);
-
-      throw new RollBackCommandException(e.getMessage());
-
-    }catch (SQLException e) {
-      LOG.error("An exception has occurred in GetInstrumentRun ", e);
-
-      throw new RollBackCommandException(e.getMessage());
-    } catch (XMLReflectException e){
-      LOG.error("An exception has occurred in GetInstrumentRun ", e);
-
-      throw new RollBackCommandException(e.getMessage());
-    } catch (Exception e) {
-      LOG.error("An exception has occurred in GetInstrumentRun ", e);
-
       throw new RollBackCommandException(e.getMessage());
     } finally {
       try {
         this.getSecAdvisor().closeReadOnlyHibernateSession();        
       } catch(Exception e) {
-
+        LOG.error("An exception has occurred in GetInstrumentRun ", e);
       }
     }
 

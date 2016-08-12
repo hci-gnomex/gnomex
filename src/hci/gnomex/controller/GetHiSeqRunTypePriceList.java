@@ -91,22 +91,7 @@ public class GetHiSeqRunTypePriceList extends GNomExCommand implements Serializa
 
       setResponsePage(this.SUCCESS_JSP);
 
-    }catch (UnknownPermissionException e){
-      LOG.error("An exception has occurred in HiSeqRunTypePriceList ", e);
-
-      throw new RollBackCommandException(e.getMessage());
-
-    }catch (NamingException e){
-      LOG.error("An exception has occurred in HiSeqRunTypePriceList ", e);
-
-      throw new RollBackCommandException(e.getMessage());
-
-    }catch (SQLException e) {
-      LOG.error("An exception has occurred in HiSeqRunTypePriceList ", e);
-
-      throw new RollBackCommandException(e.getMessage());
-
-    } catch (Exception e) {
+    }catch (Exception e) {
       LOG.error("An exception has occurred in HiSeqRunTypePriceList ", e);
 
       throw new RollBackCommandException(e.getMessage());
@@ -114,7 +99,7 @@ public class GetHiSeqRunTypePriceList extends GNomExCommand implements Serializa
       try {
         secAdvisor.closeReadOnlyHibernateSession();    
       } catch(Exception e) {
-
+        LOG.error("An exception has occurred in HiSeqRunTypePriceList ", e);
       }
     }
 

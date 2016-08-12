@@ -227,12 +227,12 @@ public class DownloadProductOrderFileServlet extends HttpServlet {
 
       } else {
         response.setStatus(999);
-        System.out.println( "DownloadAnalyisFileServlet: You must have a SecurityAdvisor in order to run this command.");
+        LOG.warn( "DownloadAnalyisFileServlet: You must have a SecurityAdvisor in order to run this command.");
       }
     } catch (Exception e) {
       HibernateSession.rollback();
       response.setStatus(999);
-      System.out.println( "DownloadAnalyisFileServlet: An exception occurred " + e.toString());
+      LOG.error( "DownloadAnalyisFileServlet: An exception occurred " + e.toString(), e);
 
     } finally {
       try {
@@ -240,6 +240,7 @@ public class DownloadProductOrderFileServlet extends HttpServlet {
           secAdvisor.closeHibernateSession();        
         }
       }catch(Exception e) {
+        LOG.error("DownloadAnalyisFileServlet Error", e);
       }
       // clear out session variable
       req.getSession().setAttribute(CacheProductOrderFileDownloadList.SESSION_KEY_FILE_DESCRIPTOR_PARSER, null);
