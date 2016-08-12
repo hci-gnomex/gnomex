@@ -154,7 +154,7 @@ public class ApproveUser extends HttpServlet {
 
 				rd.forward(request, response);
 			} catch (Exception e1) {
-				System.out.println("ApproveUser warning - cannot close hibernate session");
+				LOG.error("ApproveUser warning - cannot close hibernate session", e1);
 			}
 		}
 	}

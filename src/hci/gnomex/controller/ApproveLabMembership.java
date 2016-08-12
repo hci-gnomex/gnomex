@@ -129,7 +129,7 @@ public class ApproveLabMembership extends HttpServlet {
 
 				rd.forward(request, response);
 			} catch (Exception e1) {
-				System.out.println("ApproveLabMembership warning - cannot close hibernate session");
+				LOG.error("ApproveLabMembership warning - cannot close hibernate session", e1);
 			}
 		}
 	}

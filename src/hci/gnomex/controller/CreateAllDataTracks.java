@@ -172,8 +172,6 @@ public class CreateAllDataTracks extends GNomExCommand implements Serializable {
     	  /*************************************
     	   * Create Subfolder structure
     	   **************************************/
-//    	  System.out.println("Locating the root directory");
-    	  // find the root folder
     	  DataTrackFolder rootFolder = gb.getRootDataTrackFolder();
     	      
 		  if (rootFolder == null) {
@@ -189,18 +187,17 @@ public class CreateAllDataTracks extends GNomExCommand implements Serializable {
     	  toCreate.add(labName);
     	  toCreate.add(analysisName);
     	      	  
-//    	  System.out.println("Creating directories");
+
     	  
     	  // Create Directories if they don't already exist
     	  Integer parentId = rootFolder.getIdDataTrackFolder();
     	  boolean isNew = false;
     	  for (String dir: toCreate) {
     		  if (!isNew) { // If we might find an existing folder
-//    			  System.out.println("\tTesting if new");
+
     			  boolean exists = false;
     			  for (DataTrackFolder dtf: existingFolders) {
         			  if (dtf.getName().equals(dir)) {
-//        				  System.out.println("\tNope, this directory exists " + dir);
         				  exists = true;
         				  
         				  // get the folders it contains and check the next one
@@ -211,13 +208,12 @@ public class CreateAllDataTracks extends GNomExCommand implements Serializable {
         		  } // end of for
         		 
         		  if (!exists) {
-//        			  System.out.println("\tDirectory didn't exist, lets create it " + dir);
+
         			  parentId = this.createDataTrackFolder(dir, parentId);
         			  isNew = true;
         		  }
         		  
     		  } else { // We are in new folder territory.
-//    			  System.out.println("\tNew territory, creating " + dir);
     			  parentId = this.createDataTrackFolder(dir, parentId);
     			  isNew = true;
     		  }    		  
@@ -229,17 +225,14 @@ public class CreateAllDataTracks extends GNomExCommand implements Serializable {
 	   **************************************/	  
 	  //Create directory and datatracks for each type
       if (bamFiles.size() > 0 ) {
-//	  	 System.out.println("Creating bam");
     	 this.createDataTrackDriver("bam", parentId, bamFiles);
       }
       
       if (covFiles.size() > 0){
-//	  	 System.out.println("Creating useq");
     	 this.createDataTrackDriver("useq",parentId,covFiles);
       }
       
       if (vcfFiles.size() > 0) {
-//	  	 System.out.println("Creating vcf");
     	 this.createDataTrackDriver("vcf",parentId,vcfFiles);
       }
 	            
@@ -266,8 +259,6 @@ public class CreateAllDataTracks extends GNomExCommand implements Serializable {
 	 * Create enclosing folder
 	 ****************************/
 	private void createDataTrackDriver(String folderName, Integer parentId, ArrayList<AnalysisFile> filesToLink) {
-
-//		System.out.println ("[createDataTrackDriver] folderName: " + folderName + " parentId: " + parentId + " fileToLink.size(): " + filesToLink.size() + " existing.size(): " + existing.size());
 		
 		// get the existing data track folders
 		DataTrackFolder parentFolder = DataTrackFolder.class.cast(sess.load(DataTrackFolder.class, parentId));
@@ -282,7 +273,6 @@ public class CreateAllDataTracks extends GNomExCommand implements Serializable {
 				  if (dtf.getName().equals(folderName)) {
 					  exists = true;
 					  subId = dtf.getIdDataTrackFolder();
-//					  System.out.println ("[createDataTrackDriver] exists subId: " + subId + " dtf.getName(): " + dtf.getName());
 					  break;
 			      }
 			  } // end of for
@@ -290,11 +280,9 @@ public class CreateAllDataTracks extends GNomExCommand implements Serializable {
 		  
 		  if (!exists) {
 			 subId = this.createDataTrackFolder(folderName,parentId);
-//			 System.out.println ("[createDataTrackDriver] did not exist, new subId: " + subId);
 		  }
 		 
 		  for (AnalysisFile af: filesToLink) {
-//			  System.out.println ("[createDataTrackDriver] calling createDataTracks analysisfile: " + af.getFileName() + " idAnalysisFile: " + af.getIdAnalysisFile() + " subId: " + subId);
 			  this.createDataTrack(af.getIdAnalysisFile(),subId);
 		  }
 
@@ -304,7 +292,6 @@ public class CreateAllDataTracks extends GNomExCommand implements Serializable {
 	 * Stolen from linkDataTrackFiles. 
 	 *********************************/
 	private void createDataTrack(Integer idAnalysisFile, Integer idDataTrackFolder) {
-//		System.out.println ("[createDataTracks] ** starting ** idAnalysisFile: " + idAnalysisFile + " idDataTrackFolder: " + idDataTrackFolder);
 		DataTrack dataTrack = null;
 		AnalysisFile analysisFile = null;
 		      
@@ -316,8 +303,7 @@ public class CreateAllDataTracks extends GNomExCommand implements Serializable {
 			analysisFile = (AnalysisFile)sess.load(AnalysisFile.class, idAnalysisFile);
 			Analysis analysis = (Analysis)sess.load(Analysis.class, analysisFile.getIdAnalysis());
 
-			dataTrack = new DataTrack();			
-//			System.out.println ("[createDataTracks] data track name: " + analysisFile.getAnalysis().getNumber() + "_" + analysisFile.getFileName() );
+			dataTrack = new DataTrack();
 		
 			dataTrack.setName(analysisFile.getAnalysis().getNumber() + "_" + analysisFile.getFileName());
 			dataTrack.setIdLab(idLab);
@@ -366,8 +352,7 @@ public class CreateAllDataTracks extends GNomExCommand implements Serializable {
 			dataTrack.setIsLoaded("N");
 
 			sess.save(dataTrack);
-			
-//			System.out.println ("[createDataTracks] data track filename: " + "DT" + dataTrack.getIdDataTrack());
+
 			dataTrack.setFileName("DT" + dataTrack.getIdDataTrack());
 			sess.flush();
 
@@ -375,7 +360,6 @@ public class CreateAllDataTracks extends GNomExCommand implements Serializable {
 			DataTrackFile dtFile = new DataTrackFile();
 			dtFile.setIdAnalysisFile(idAnalysisFile);
 			dtFile.setIdDataTrack(dataTrack.getIdDataTrack());
-//			System.out.println ("[createDataTracks] create datatrackfile, id: " + dataTrack.getIdDataTrack());
 			sess.save(dtFile);
 			sess.flush();
 
@@ -413,7 +397,6 @@ public class CreateAllDataTracks extends GNomExCommand implements Serializable {
 				DataTrackFile dtFileOther = new DataTrackFile();
 				dtFileOther.setIdAnalysisFile(idAnalysisFileOther);
 				dtFileOther.setIdDataTrack(dataTrack.getIdDataTrack());
-//				System.out.println ("[createDataTracks] create datatrackfile other, id: " +idAnalysisFileOther);
 				sess.save(dtFileOther);
 				sess.flush();
 			}
@@ -431,16 +414,13 @@ public class CreateAllDataTracks extends GNomExCommand implements Serializable {
             		newDataTracks.add(a);
             	}
             }
-            
-//            System.out.println ("[createDataTracks] before newDataTracks.size(): " + newDataTracks.size());
+
             newDataTracks.add(dataTrack);
-//			System.out.println ("[createDataTracks] after newDataTracks.size(): " + newDataTracks.size());
             folderNew.setDataTracks(newDataTracks);
             sess.flush();			
 
 		} catch (Exception e){
-			System.out.println("An exception has occurred in CreateAllDataTracks: " + e.getMessage());
-			;
+			LOG.error("An exception has occurred in CreateAllDataTracks: " + e.getMessage(), e);
 		}
 	}
 	
@@ -450,7 +430,6 @@ public class CreateAllDataTracks extends GNomExCommand implements Serializable {
 	 *********************************************/
 	
 	private Integer createDataTrackFolder(String folderName, Integer idParentDataTrackFolder) {
-//		System.out.println ("[createDataTrackFolders] ** starting ** folderName: " + folderName);
 		
 	    DataTrackFolder dataTrackFolder = new DataTrackFolder();
 		
@@ -478,12 +457,9 @@ public class CreateAllDataTracks extends GNomExCommand implements Serializable {
 		  sess.save(dataTrackFolder);
 		  sess.flush();
 	  }	  catch (Exception ex) {
-		  System.out.println("Could not save datatrackfolder: " + ex.getMessage());
-		  ex.getStackTrace();
-
+		  LOG.error("Could not save datatrackfolder: " + ex.getMessage(),ex);
 	  }
-	  
-//	System.out.println ("[createDataTrackFolders] ** leaving ** idDataTrackFolder: " + dataTrackFolder.getIdDataTrackFolder());  
+
     return dataTrackFolder.getIdDataTrackFolder();
 	}  
 	
@@ -508,9 +484,6 @@ public class CreateAllDataTracks extends GNomExCommand implements Serializable {
 	}
 
 	  public static int getidDataTrack(int idAnalysisFile, Session sess) {
-//		  System.out.println ("[getidDataTrack] ** starting ** idAnalysisFile: " + idAnalysisFile);
-		  
-
 		  int idDataTrack = -1;
 		  
 		    StringBuffer buf = new StringBuffer("SELECT idDataTrack from DataTrackFile where idAnalysisFile = " + idAnalysisFile);
@@ -519,8 +492,7 @@ public class CreateAllDataTracks extends GNomExCommand implements Serializable {
 		    if (results.size() > 0) {
 		      idDataTrack = (Integer)results.get(0);
 		    }
-		    
-//		    System.out.println ("[getidDataTrack] ** leaving ** idDataTrack: " + idDataTrack);
+
 		    return idDataTrack;
 		  }
 	

@@ -12,10 +12,12 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.log4j.Logger;
 import org.hibernate.Session;
 
 public class ConfirmEmail extends HttpServlet {
 
+	private static Logger LOG = Logger.getLogger(ConfirmEmail.class);
 	private String guid = "";
 	private String idAppUser = "";
 	private String message = "";
@@ -52,8 +54,7 @@ public class ConfirmEmail extends HttpServlet {
 
 		} catch (Exception e) {
 			message = "There was an issue verifying your email address.  Please contact GNomEx support.  Thanks!";
-			;
-
+			LOG.error(message, e);
 		} finally {
 			try {
 				HibernateSession.closeSession();
@@ -63,7 +64,7 @@ public class ConfirmEmail extends HttpServlet {
 				request.setAttribute("message", message);
 				rd.forward(request, response);
 			} catch (Exception e) {
-				System.err.println("ConfirmEmail warning - cannot close hibernate session");
+				LOG.error("ConfirmEmail warning - cannot close hibernate session", e);
 			}
 
 		}
