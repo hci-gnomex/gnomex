@@ -30,261 +30,54 @@
 		
 <mx:Script>
 	<![CDATA[
-		import hci.flex.controls.CheckBox;
-		
 		import mx.collections.ArrayCollection;
 		import mx.controls.Alert;
-		import mx.controls.DateField;
 		import mx.events.CloseEvent;
 		import mx.managers.PopUpManager;
 		import mx.rpc.events.ResultEvent;
 		
 		import views.product.ProductTypeEditWindow;
-		import views.util.DirtyNote;
-		
-	private var idProduct:Object = null;
-	private	var tempArray:Array;	
-	
-	private function setDirty():void {
-		if (saveButton.enabled) {
-			dirty.setDirty();
-		}
-	}
-		
-	private function closeWindow():void {
-		parentApplication.dictionaryManager.reload();
-		
-		PopUpManager.removePopUp(this);
-	}
-	
-	private function init():void {
-		products = new XMLListCollection();
-		for each(var c:XML in parentApplication.productList) {
-			products.addItem(c.copy());
-		}
-		products.filterFunction = filterProducts;
-		products.refresh();
-		parentApplication.removeEventListener(ProductEvent.DATA_REFRESHED,
-			onProductRefreshed);		                                  
-		parentApplication.addEventListener(ProductEvent.DATA_REFRESHED,   
-			onProductRefreshed);
-	}
-		
-	private function initValues():void {
-		
-		for each (var pt:Object in parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ProductType').DictionaryEntry) {
-			if (pt.@idProductType == productList.selectedItem.@idProductType) {
-				productTypeCombo.selectedItem = pt;
-			}
-		}
-		
-	}	
-		
-	private function onProductRefreshed(event:Event):void{
-		products = new XMLListCollection();
-		for each(var c:XML in parentApplication.productList) {
-			products.addItem(c.copy());
-		}
-		products.filterFunction = filterProducts;
-		products.refresh();
-		reselectProduct();
-		dirty.resetDirty();
-	}
-		
-	public function selectProduct(idProduct:Object):void {
-		this.idProduct = idProduct;
-		reselectProduct();
-	}
-		
-	private function reselectProduct():void {
-		var found:Boolean = false;
-		if (idProduct != null) {
-			for each(var o:Object in products) {
-				if (o.@idProduct == idProduct) {
-					productList.selectedItem = o;
-					productList.scrollToIndex(productList.selectedIndex);
-					found = true;
-					break;
-				}
-			}
-		}
-		if (found) {
-			theViews.selectedIndex = 1;
-			onSelectProduct();
-		} else {
-			theViews.selectedIndex = 0;
-		}
-	}
-		
-	private function onSelectProduct():void {
-		if (productList.selectedItem != null) {
-			theViews.selectedIndex = 1;
-			
-			if(productList.selectedItem.@name == "Enter name here.."){
-				
-			} else{
-				theViews.selectedIndex = 1;
 
-				dirty.resetDirty();
-			
- 				var theDate:String = "";
-				tempArray = new Array();
-			
-							
-			}
-			initValues();
-		}
-	}
-		
+		private var idProduct:Object = null;
+		private	var tempArray:Array;
 
-	private function addProduct():void {
-		var newNodeNecessary:Boolean = true
-		if (products.length > 0) {
-			var potentiallyAlreadyEmptyNode:Object = products.getItemAt(0);
-			if (potentiallyAlreadyEmptyNode.@idProduct == '' && potentiallyAlreadyEmptyNode.@name == '') {
-				newNodeNecessary = false;
-			}
-		}
-		
-		if (newNodeNecessary) {
-			var newProduct:XML = new XML("<Product " +
-				" idProduct=''" +
-				" name=''" +
-				" isActive='Y'" +
-				" idProductType=''" + 
-				" idPrice=''" + 
-				" orderQty=''" + 
-				" useQty=''" +
-				" description=''" +
-				" catalogNumber=''" +
-				" batchSamplesByUseQuantity='N'" +
-				" billThroughGnomex='Y'" +
-				" />");
-			
-			products.addItemAt(newProduct, 0);
-			productList.selectedItem = newProduct;
-		} else {
-			productList.selectedIndex = 0;
-		}
-		
-		productList.scrollToIndex(productList.selectedIndex);
-		idProduct = "";
-		
-		setDirty();
-		
-		onSelectProduct();
-	}
-		
-	private function removeProduct():void {
-		if (productList.selectedItem == null) {
-			return;
-		}
-		idProduct = "";
-		
-		Alert.show( "Are you sure you want to delete this Product?",
-			"Warning",
-			(Alert.YES | Alert.CANCEL), this, 
-			onPromptDeleteProduct,						
-			parentApplication.iconWarning);
-	}
-	
-	private function onPromptDeleteProduct(event:CloseEvent):void {
-		if (event.detail==Alert.YES) {
-			var params:Object = new Object();
-			params.idProduct = productList.selectedItem.@idProduct;
-			deleteProduct.send(params);
-		}
-	}		
-	
-	private function onDeleteProduct(event:ResultEvent): void {
-		if (deleteProduct.lastResult.name() == "SUCCESS") {
-			Alert.show(deleteProduct.lastResult.@message);
-			parentApplication.getProductList.send();
-		} else {
-			mx.controls.Alert.show(deleteProduct.lastResult..ACTMESSAGE.@TEXT);
-		}
-	}
-		
-		
-	private function save():void {
-		if (productList.selectedItem == null) {
-			return;
-		}
-		
-		var params:Object = new Object();
-		params.idProduct = productList.selectedItem.@idProduct;
-		params.name = productName.text;
-		params.isActive = this.isActive.selected ? "Y" : "N";
-		params.orderQty = orderQty.text;
-		params.useQty = useQty.text;
-		params.description = description.text;
-		params.catalogNumber = catalogNumber.text;
-		params.idProductType = productTypeCombo.selectedItem.@idProductType;
-		params.idPrice = productList.selectedItem.@idPrice;
-		params.unitPriceInternal = priceInternalText.text;
-		params.unitPriceExternalAcademic = priceExternalAcademicText.text;
-		params.unitPriceExternalCommercial = priceExternalCommercialText.text;
-		params.batchSamplesByUseQuantity = batchSamplesByUseQuantityCheckbox.selected ? "Y" : "N";
-		params.billThroughGnomex = billThroughGnomexCheckBox.selected ? "Y" : "N";
-		
-		saveProduct.send(params);
-		
-	}
-		
-	private function onSaveProduct(event:ResultEvent): void {
-		if (saveProduct.lastResult.name() == "SUCCESS") {
-			idProduct = saveProduct.lastResult.@idProduct;
-
-			parentApplication.getProductList.send();
-		} else {
-			mx.controls.Alert.show(saveProduct.lastResult..ACTMESSAGE.@TEXT);
-		}
-
-		
-	}
-		
-		private function checkToSave():void{
-			if(productName.text == "" )
-			{
-				Alert.show("Product needs a name.",
-					"MISSING FIELDS");
-			} else if(productTypeCombo.selectedItem == null )
-			{
-				Alert.show("Product needs a product type.",
-					"MISSING FIELDS");
-			}  else {
-				save();
-			}
-			
-		}
-		
-		
-		private function onCheckToSave(event:CloseEvent):void{
-			if(event.detail == Alert.YES)
-				save();
-		}
-		
 		private function showEditWindow():void {
 			var productTypeEditWindow:ProductTypeEditWindow = ProductTypeEditWindow(PopUpManager.createPopUp(this, ProductTypeEditWindow, true));
 			PopUpManager.centerPopUp(productTypeEditWindow);
 		}
-		
-		private function filterProducts(item:Object):Boolean {
-			if (item.@idProduct == '' && item.@name == '' && item.@isActive == 'Y') {
-				return true;
+
+		private function closeWindow():void {
+			parentApplication.dictionaryManager.reload();
+			PopUpManager.removePopUp(this);
+		}
+
+		private function init():void {
+			products = new XMLListCollection();
+			for each(var c:XML in parentApplication.productList) {
+				products.addItem(c.copy());
 			}
-			
-			if (item.@idProductType != null && item.@idProductType != '') {
-				for each (var productType:Object in filteredProductTypes) {
-					if (productType.@value == item.@idProductType) {
-						return true;
-					}
+			products.filterFunction = filterProducts;
+			products.refresh();
+			parentApplication.removeEventListener(ProductEvent.DATA_REFRESHED,
+					onProductRefreshed);
+			parentApplication.addEventListener(ProductEvent.DATA_REFRESHED,
+					onProductRefreshed);
+		}
+
+		private function initValues():void {
+			for each (var pt:Object in parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ProductType').DictionaryEntry) {
+				if (pt.@idProductType == productList.selectedItem.@idProductType) {
+					productTypeCombo.selectedItem = pt;
 				}
 			}
-			
-			return false;
 		}
-		
+
+		private function setDirty():void {
+			if (saveButton.enabled) {
+				dirty.setDirty();
+			}
+		}
+
 		private function filterProductTypes(item:Object):Boolean {
 			if (item.@value != null && item.@value != '') {
 				if (parentApplication.coreFacilitiesICanManage != null) {
@@ -295,10 +88,187 @@
 					}
 				}
 			}
-			
 			return false;
 		}
-		
+
+		private function filterProducts(item:Object):Boolean {
+			if (item.@idProduct == '' && item.@name == '' && item.@isActive == 'Y') {
+				return true;
+			}
+			if (item.@idProductType != null && item.@idProductType != '') {
+				for each (var productType:Object in filteredProductTypes) {
+					if (productType.@value == item.@idProductType) {
+						return true;
+					}
+				}
+			}
+			return false;
+		}
+
+		private function reselectProduct():void {
+			var found:Boolean = false;
+			if (idProduct != null) {
+				for each(var o:Object in products) {
+					if (o.@idProduct == idProduct) {
+						productList.selectedItem = o;
+						productList.scrollToIndex(productList.selectedIndex);
+						found = true;
+						break;
+					}
+				}
+			}
+			if (found) {
+				theViews.selectedIndex = 1;
+				onSelectProduct();
+			} else {
+				theViews.selectedIndex = 0;
+			}
+		}
+
+		private function onProductRefreshed(event:Event):void{
+			products = new XMLListCollection();
+			for each(var c:XML in parentApplication.productList) {
+				products.addItem(c.copy());
+			}
+			products.filterFunction = filterProducts;
+			products.refresh();
+			reselectProduct();
+			dirty.resetDirty();
+		}
+
+		private function onSelectProduct():void {
+			if (productList.selectedItem != null) {
+				theViews.selectedIndex = 1;
+				if(productList.selectedItem.@name == "Enter name here.."){
+				} else{
+					theViews.selectedIndex = 1;
+					dirty.resetDirty();
+					var theDate:String = "";
+					tempArray = new Array();
+				}
+				initValues();
+			}
+		}
+
+		public function selectProduct(idProduct:Object):void {
+			this.idProduct = idProduct;
+			reselectProduct();
+		}
+
+		private function addProduct():void {
+			var newNodeNecessary:Boolean = true;
+			if (products.length > 0) {
+				var potentiallyAlreadyEmptyNode:Object = products.getItemAt(0);
+				if (potentiallyAlreadyEmptyNode.@idProduct == '' && potentiallyAlreadyEmptyNode.@name == '') {
+					newNodeNecessary = false;
+				}
+			}
+			if (newNodeNecessary) {
+				var newProduct:XML = new XML("<Product " +
+						" idProduct=''" +
+						" name=''" +
+						" isActive='Y'" +
+						" idProductType=''" +
+						" idPrice=''" +
+						" orderQty=''" +
+						" useQty=''" +
+						" description=''" +
+						" catalogNumber=''" +
+						" batchSamplesByUseQuantity='N'" +
+						" billThroughGnomex='Y'" +
+						" />");
+
+				products.addItemAt(newProduct, 0);
+				productList.selectedItem = newProduct;
+			} else {
+				productList.selectedIndex = 0;
+			}
+			productList.scrollToIndex(productList.selectedIndex);
+			idProduct = "";
+			setDirty();
+			onSelectProduct();
+		}
+
+		private function checkToSave():void{
+			if(productName.text == "" )
+			{
+				Alert.show("Product needs a name.",
+						"MISSING FIELDS");
+			} else if(productTypeCombo.selectedItem == null )
+			{
+				Alert.show("Product needs a product type.",
+						"MISSING FIELDS");
+			}  else {
+				save();
+			}
+
+		}
+
+		private function onCheckToSave(event:CloseEvent):void{
+			if(event.detail == Alert.YES)
+				save();
+		}
+
+		private function save():void {
+			if (productList.selectedItem == null) {
+				return;
+			}
+			var params:Object = new Object();
+			params.idProduct = productList.selectedItem.@idProduct;
+			params.name = productName.text;
+			params.isActive = this.isActive.selected ? "Y" : "N";
+			params.orderQty = orderQty.text;
+			params.useQty = useQty.text;
+			params.description = description.text;
+			params.catalogNumber = catalogNumber.text;
+			params.idProductType = productTypeCombo.selectedItem.@idProductType;
+			params.idPrice = productList.selectedItem.@idPrice;
+			params.unitPriceInternal = priceInternalText.text;
+			params.unitPriceExternalAcademic = priceExternalAcademicText.text;
+			params.unitPriceExternalCommercial = priceExternalCommercialText.text;
+			params.batchSamplesByUseQuantity = batchSamplesByUseQuantityCheckbox.selected ? "Y" : "N";
+			params.billThroughGnomex = billThroughGnomexCheckBox.selected ? "Y" : "N";
+			saveProduct.send(params);
+		}
+
+		private function onSaveProduct(event:ResultEvent): void {
+			if (saveProduct.lastResult.name() == "SUCCESS") {
+				idProduct = saveProduct.lastResult.@idProduct;
+				parentApplication.getProductList.send();
+			} else {
+				mx.controls.Alert.show(saveProduct.lastResult..ACTMESSAGE.@TEXT);
+			}
+		}
+
+		private function removeProduct():void {
+			if (productList.selectedItem == null) {
+				return;
+			}
+			idProduct = "";
+			Alert.show( "Are you sure you want to delete this Product?",
+					"Warning",
+					(Alert.YES | Alert.CANCEL), this,
+					onPromptDeleteProduct,
+					parentApplication.iconWarning);
+		}
+
+		private function onPromptDeleteProduct(event:CloseEvent):void {
+			if (event.detail==Alert.YES) {
+				var params:Object = new Object();
+				params.idProduct = productList.selectedItem.@idProduct;
+				deleteProduct.send(params);
+			}
+		}
+
+		private function onDeleteProduct(event:ResultEvent): void {
+			if (deleteProduct.lastResult.name() == "SUCCESS") {
+				Alert.show(deleteProduct.lastResult.@message);
+				parentApplication.getProductList.send();
+			} else {
+				mx.controls.Alert.show(deleteProduct.lastResult..ACTMESSAGE.@TEXT);
+			}
+		}
+
 	]]>
 </mx:Script>
 	
