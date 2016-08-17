@@ -664,8 +664,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
 
 				// Hide that the files are in the upload staging directory. Show them in the root experiment directory instead.
 				// It's FileDescriptor that does the hiding
-				String zipEntryName = Request.getBaseRequestNumber(requestNumber) + "/" + f1.getName();
-
+				String zipEntryName = getPathForZipFileName(f1, requestNumber );
 				FileDescriptor fdesc = new FileDescriptor(requestNumber, f1.getName(), f1, zipEntryName);
 				fdesc.setDirectoryName("");
 				fdesc.excludeMethodFromXML("getChildren");
@@ -680,7 +679,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
 
 				if(f1.isDirectory()){
 					fdNode.setAttribute("type", "dir");
-					recurseAddFiles(fdNode, f1, requestNumber, "");
+					recurseAddFiles(fdNode, f1, requestNumber, "", sess);
 				}
 
 				requestNode.addContent(fdNode);
@@ -692,7 +691,14 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
 
 	}
 
-	private void recurseAddFiles(Element fdNode, File f1, String requestNumber, String directoryName) throws Exception{
+	private String getPathForZipFileName(File f, String requestNumber) {
+		StringBuffer fname = new StringBuffer();
+		fname.append(f.getAbsolutePath().substring(f.getAbsolutePath().indexOf(Request.getBaseRequestNumber(requestNumber))).replace("\\","/"));
+		//fname.append(f.getName());
+		return fname.toString();
+	}
+
+	private void recurseAddFiles(Element fdNode, File f1, String requestNumber, String directoryName, Session sess) throws Exception{
 		String files[] = f1.list();
 		String fullPath = f1.getAbsolutePath() + File.separator;
 
@@ -717,7 +723,8 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
 
 		for(int i = 0; i < files.length; i++){
 			File f = new File(fullPath + files[i]);
-			FileDescriptor fd = new FileDescriptor(requestNumber, f.getName(), f, f.getName());
+			String fName = this.getPathForZipFileName(f, requestNumber);
+			FileDescriptor fd = new FileDescriptor(requestNumber, f.getName(), f, fName);
 			fd.setDirectoryName(directoryName);
 			fd.excludeMethodFromXML("getChildren");
 			Element fileNode = fd.toXMLDocument(null, fd.DATE_OUTPUT_ALTIO).getRootElement();
@@ -725,11 +732,12 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
 			fileNode.setAttribute("state", "unchecked");
 			fileNode.setAttribute("canDelete", "Y");
 			fileNode.setAttribute("canRename", "Y");
-			//fdNode.setAttribute("linkedSampleNumber", getLinkedSampleNumber(sess, fileName.substring(fileName.indexOf(Request.getBaseRequestNumber(requestNumber)))));
+
+			fileNode.setAttribute("linkedSampleNumber", getLinkedSampleNumber(sess, fd.getZipEntryName()));
 			fileNode.setAttribute("viewURL", fd.getViewURL(viewType));
 			if(f.isDirectory()) {
 				fileNode.setAttribute("type", "dir");
-				recurseAddFiles(fileNode, f, requestNumber, directoryName);
+				recurseAddFiles(fileNode, f, requestNumber, directoryName, sess);
 			}
 
 			fdNode.addContent(fileNode);
