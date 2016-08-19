@@ -215,10 +215,6 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
 
 							AnalysisFile af = (AnalysisFile) knownAnalysisFileMap.get(fd.getQualifiedFileName());
 
-							if (fd != null && fd.getDisplayName().equals(Constants.UPLOAD_STAGING_DIR)) {
-								continue;
-							}
-
 							Element fdNode = new Element("FileDescriptor");
 
 							if (af != null) {
@@ -381,7 +377,7 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
 			List theFiles = (List) directoryMap.get(directoryKey);
 
 			// For each file in the directory
-			if (theFiles != null && theFiles.size() > 0) {
+			if (theFiles != null && theFiles.size() > 0 && !directoryName.equals( Constants.UPLOAD_STAGING_DIR)) {
 				for (Iterator i2 = theFiles.iterator(); i2.hasNext();) {
 					FileDescriptor fd = (FileDescriptor) i2.next();
 					fd.setQualifiedFilePath(directoryName);
