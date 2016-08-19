@@ -26,7 +26,7 @@ import javax.servlet.http.HttpSession;
 import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
-
+import org.apache.log4j.Logger;
 public class GetPricingList extends GNomExCommand implements Serializable {
 
   private String showInactive = "N";
@@ -35,7 +35,7 @@ public class GetPricingList extends GNomExCommand implements Serializable {
   private String idCoreFacility = "";
 
   // the static field for logging in Log4J
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetPricingList.class);
+  private static Logger LOG = Logger.getLogger(GetPricingList.class);
 
   public void validate() {
   }
@@ -179,21 +179,21 @@ public class GetPricingList extends GNomExCommand implements Serializable {
         this.addInvalidField("insufficient permission", "Insufficient permission to access pricing");
       }
     } catch (NamingException e) {
-      log.error("An exception has occurred in GetPricingList ", e);
-      e.printStackTrace();
+      LOG.error("An exception has occurred in GetPricingList ", e);
+
       throw new RollBackCommandException(e.getMessage());
 
     } catch (SQLException e) {
-      log.error("An exception has occurred in GetPricingList ", e);
-      e.printStackTrace();
+      LOG.error("An exception has occurred in GetPricingList ", e);
+
       throw new RollBackCommandException(e.getMessage());
     } catch (XMLReflectException e) {
-      log.error("An exception has occurred in GetPricingList ", e);
-      e.printStackTrace();
+      LOG.error("An exception has occurred in GetPricingList ", e);
+
       throw new RollBackCommandException(e.getMessage());
     } catch (Exception e) {
-      log.error("An exception has occurred in GetPricingList ", e);
-      e.printStackTrace();
+      LOG.error("An exception has occurred in GetPricingList ", e);
+
       throw new RollBackCommandException(e.getMessage());
     } finally {
       try {

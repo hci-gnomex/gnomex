@@ -21,11 +21,11 @@ import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
-
+import org.apache.log4j.Logger;
 public class SaveFAQ extends GNomExCommand implements Serializable {
 
   // the static field for logging in Log4J
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(SaveFAQ.class);
+  private static Logger LOG = Logger.getLogger(SaveFAQ.class);
   private static final long serialVersionUID = 42L;
 
   private FAQ		FAQ;
@@ -48,7 +48,7 @@ public class SaveFAQ extends GNomExCommand implements Serializable {
         SAXBuilder sax = new SAXBuilder();
         faqDoc = sax.build(reader);
       } catch (JDOMException je) {
-        log.error("Cannot parse faqXMLString", je);
+        LOG.error("Cannot parse faqXMLString", je);
         this.addInvalidField("faqXMLString",
         "Invalid faqXMLString");
       }
@@ -137,8 +137,8 @@ public class SaveFAQ extends GNomExCommand implements Serializable {
       }
 
     }catch (Exception e){
-      log.error("An exception has occurred in SaveFAQ ", e);
-      e.printStackTrace();
+      LOG.error("An exception has occurred in SaveFAQ ", e);
+
       throw new RollBackCommandException(e.getMessage());
 
     }finally {

@@ -15,11 +15,11 @@ import javax.servlet.http.HttpSession;
 
 import org.hibernate.Session;
 import org.jdom.Document;
-
-
+import org.apache.log4j.Logger;
+import org.apache.log4j.Logger;
 public class GetDataTrackList extends GNomExCommand implements Serializable {
   
-  private static org.apache.log4j.Logger 	log = org.apache.log4j.Logger.getLogger(GetDataTrackList.class);
+  private static Logger 	LOG = Logger.getLogger(GetDataTrackList.class);
   
   private static final int     				MAX_DATATRACK_COUNT_DEFAULT = 200; 
   
@@ -45,23 +45,14 @@ public class GetDataTrackList extends GNomExCommand implements Serializable {
       this.xmlResult = out.outputString(doc);
     
       setResponsePage(this.SUCCESS_JSP);
-    }catch (NamingException e){
-      log.error("An exception has occurred in GetDataTrackList ", e);
-      e.printStackTrace(System.out);
-      throw new RollBackCommandException(e.getMessage());
-    }catch (SQLException e) {
-      log.error("An exception has occurred in GetDataTrackList ", e);
-      e.printStackTrace(System.out);
-      throw new RollBackCommandException(e.getMessage());
-    } catch (Exception e) {
-      log.error("An exception has occurred in GetDataTrackList ", e);
-      e.printStackTrace(System.out);
+    }  catch (Exception e) {
+      LOG.error("An exception has occurred in GetDataTrackList ", e);
       throw new RollBackCommandException(e.getMessage());
     } finally {
       try {
         this.getSecAdvisor().closeReadOnlyHibernateSession();        
       } catch(Exception e) {
-        
+          LOG.error("An exception has occurred in GetDataTrackList ", e);
       }
     }
     

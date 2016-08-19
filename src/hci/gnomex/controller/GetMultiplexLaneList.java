@@ -31,14 +31,14 @@ import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.jdom.output.XMLOutputter;
-
+import org.apache.log4j.Logger;
 
 public class GetMultiplexLaneList extends GNomExCommand implements Serializable {
   
  
   
   // the static field for logging in Log4J
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetMultiplexLaneList.class);
+  private static Logger LOG = Logger.getLogger(GetMultiplexLaneList.class);
   
 
   private String           requestXMLString;
@@ -61,7 +61,7 @@ public class GetMultiplexLaneList extends GNomExCommand implements Serializable 
         requestDoc = sax.build(reader);
         requestParser = new RequestParser(requestDoc, this.getSecAdvisor());
       } catch (JDOMException je ) {
-        log.error( "Cannot parse requestXMLString", je );
+        LOG.error( "Cannot parse requestXMLString", je );
         this.addInvalidField( "RequestXMLString", "Invalid request xml");
       }
     }
@@ -179,27 +179,27 @@ public class GetMultiplexLaneList extends GNomExCommand implements Serializable 
       sess.clear();
 
     }catch (NamingException e){
-      log.error("An exception has occurred in GetMultiplexLaneList ", e);
-      e.printStackTrace();
+      LOG.error("An exception has occurred in GetMultiplexLaneList ", e);
+
       throw new RollBackCommandException(e.getMessage());
         
     }catch (SQLException e) {
-      log.error("An exception has occurred in GetMultiplexLaneList ", e);
-      e.printStackTrace();
+      LOG.error("An exception has occurred in GetMultiplexLaneList ", e);
+
       throw new RollBackCommandException(e.getMessage());
     } catch (XMLReflectException e){
-      log.error("An exception has occurred in GetMultiplexLaneList ", e);
-      e.printStackTrace();
+      LOG.error("An exception has occurred in GetMultiplexLaneList ", e);
+
       throw new RollBackCommandException(e.getMessage());
     } catch (Exception e) {
-      log.error("An exception has occurred in GetMultiplexLaneList ", e);
-      e.printStackTrace();
+      LOG.error("An exception has occurred in GetMultiplexLaneList ", e);
+
       throw new RollBackCommandException(e.getMessage());
     } finally {
       try {
         this.getSecAdvisor().closeReadOnlyHibernateSession();        
-      } catch(Exception e) {
-        
+      } catch(Exception e){
+        LOG.error("Error", e);
       }
     }
 

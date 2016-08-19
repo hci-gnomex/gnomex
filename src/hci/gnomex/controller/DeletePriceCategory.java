@@ -18,7 +18,7 @@ import hci.gnomex.model.PriceSheet;
 import hci.gnomex.model.PriceSheetPriceCategory;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.HibernateSession;
-
+import org.apache.log4j.Logger;
 
 
 
@@ -27,7 +27,7 @@ public class DeletePriceCategory extends GNomExCommand implements Serializable {
 
 
   // the static field for logging in Log4J
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(DeletePriceCategory.class);
+  private static Logger LOG = Logger.getLogger(DeletePriceCategory.class);
 
 
   private Integer      idPriceCategory = null;
@@ -142,15 +142,15 @@ public class DeletePriceCategory extends GNomExCommand implements Serializable {
         this.setResponsePage(this.ERROR_JSP);
       }
     }catch (Exception e){
-      log.error("An exception has occurred in DeletePriceCategory ", e);
-      e.printStackTrace();
+      LOG.error("An exception has occurred in DeletePriceCategory ", e);
+
       throw new RollBackCommandException(e.getMessage());
 
     }finally {
       try {
         HibernateSession.closeSession();
       } catch(Exception e) {
-
+        LOG.error("An exception has occurred in DeletePriceCategory ", e);
       }
     }
 

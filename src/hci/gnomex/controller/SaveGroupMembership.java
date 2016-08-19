@@ -21,7 +21,7 @@ import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
-
+import org.apache.log4j.Logger;
 
 
 
@@ -30,7 +30,7 @@ public class SaveGroupMembership extends GNomExCommand implements Serializable {
  
   
   // the static field for logging in Log4J
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(SaveGroupMembership.class);
+  private static Logger LOG = Logger.getLogger(SaveGroupMembership.class);
   
   private String                membersXMLString;
   private Document              membersDoc;
@@ -64,7 +64,7 @@ public class SaveGroupMembership extends GNomExCommand implements Serializable {
       membersDoc = sax.build(reader);
       labMemberParser = new LabMemberParser(membersDoc);
     } catch (JDOMException je ) {
-      log.error( "Cannot parse membersXMLString", je );
+      LOG.error( "Cannot parse membersXMLString", je );
       this.addInvalidField( "membersXMLString", "Invalid membersXMLString");
     }
     
@@ -78,7 +78,7 @@ public class SaveGroupMembership extends GNomExCommand implements Serializable {
       collaboratorsDoc = sax.build(reader);
       collaboratorParser = new LabMemberParser(collaboratorsDoc);
     } catch (JDOMException je ) {
-      log.error( "Cannot parse collaboratorsXMLString", je );
+      LOG.error( "Cannot parse collaboratorsXMLString", je );
       this.addInvalidField( "collaboratorsXMLString", "Invalid collaboratorsXMLString");
     }
    
@@ -136,15 +136,15 @@ public class SaveGroupMembership extends GNomExCommand implements Serializable {
       }
       
     }catch (Exception e){
-      log.error("An exception has occurred in SaveLab ", e);
-      e.printStackTrace();
+      LOG.error("An exception has occurred in SaveLab ", e);
+
       throw new RollBackCommandException(e.getMessage());
         
     }finally {
       try {
         HibernateSession.closeSession();        
-      } catch(Exception e) {
-        
+      } catch(Exception e){
+        LOG.error("Error", e);
       }
     }
     

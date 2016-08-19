@@ -17,9 +17,9 @@ import javax.sql.DataSource;
 import org.apache.tomcat.jdbc.pool.DataSourceFactory;
 import org.apache.tomcat.jdbc.pool.PoolConfiguration;
 import org.apache.tomcat.jdbc.pool.XADataSource;
-
+import org.apache.log4j.Logger;
 public class EncryptedDataSourceFactory extends DataSourceFactory {       
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(EncryptedDataSourceFactory.class);
+  private static Logger LOG = Logger.getLogger(EncryptedDataSourceFactory.class);
   
   private static TomcatCatalinaProperties catalinaProperties = null;
   
@@ -40,7 +40,7 @@ public class EncryptedDataSourceFactory extends DataSourceFactory {
       }
       
       if (catalinaProperties.getTomcatPropertyToken(TomcatCatalinaProperties.GNOMEX_AES_KEY) == null) {
-        log.error("Unable to get key property in EncryptedDataSourceFactory class");
+        LOG.error("Unable to get key property in EncryptedDataSourceFactory class");
       }
       
       // Here we decrypt our password.         
@@ -54,7 +54,7 @@ public class EncryptedDataSourceFactory extends DataSourceFactory {
       dataSource = XA ? new XADataSource(poolProperties) : new org.apache.tomcat.jdbc.pool.DataSource(poolProperties);         
       dataSource.createPool();         
     } catch(Exception e) {
-      log.fatal("Error instantiating EncryptedDataSourceFactory class.", e);             
+      LOG.fatal("Error instantiating EncryptedDataSourceFactory class.", e);
       throw new RuntimeException(e);         
     }     
     return dataSource;     

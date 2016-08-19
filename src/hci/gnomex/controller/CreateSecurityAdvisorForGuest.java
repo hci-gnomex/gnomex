@@ -16,7 +16,7 @@ import java.io.Serializable;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
-
+import org.apache.log4j.Logger;
 /**
  *
  *@author
@@ -28,7 +28,7 @@ import java.util.jar.Manifest;
 public class CreateSecurityAdvisorForGuest extends GNomExCommand implements Serializable {
 
   // the static field for logging in Log4J
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(CreateSecurityAdvisorForGuest.class);
+  private static Logger LOG = Logger.getLogger(CreateSecurityAdvisorForGuest.class);
 
   private SecurityAdvisor     secAdvisor;
   private String              launchAction;
@@ -137,7 +137,7 @@ public class CreateSecurityAdvisorForGuest extends GNomExCommand implements Seri
     }
     catch (Exception ex) {
       ex.printStackTrace();
-      log.fatal(ex.getClass().toString() + " occurred in CreateSecurityAdvisorForGuest " + ex);
+      LOG.fatal(ex.getClass().toString() + " occurred in CreateSecurityAdvisorForGuest " + ex);
       throw new RollBackCommandException();
     }
     

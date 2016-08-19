@@ -18,9 +18,9 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import org.hibernate.Session;
-
+import org.apache.log4j.Logger;
 public class UploadDownloadHelper {
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(UploadDownloadHelper.class);
+  private static Logger LOG = Logger.getLogger(UploadDownloadHelper.class);
 
   public static void writeDownloadInfoFile(String baseDir, String emailAddress, SecurityAdvisor secAdvisor, HttpServletRequest req) {
     if (!baseDir.endsWith(File.separator)) {
@@ -29,7 +29,7 @@ public class UploadDownloadHelper {
     File info = new File(baseDir + Constants.FDT_DOWNLOAD_INFO_FILE_NAME);
     try {
       if (!info.createNewFile()) {
-        log.error("Unable to create info file for FDT transfer.");
+        LOG.error("Unable to create info file for FDT transfer.");
       } else {
         FileWriter fw = new FileWriter(info);
         PrintWriter pw = new PrintWriter(fw);
@@ -40,7 +40,7 @@ public class UploadDownloadHelper {
         pw.close();
       }
     } catch(IOException ex) {
-      log.error("Unable to write info file for FDT Transfer", ex);
+      LOG.error("Unable to write info file for FDT Transfer", ex);
     }
 
   }

@@ -17,7 +17,7 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
-
+import org.apache.log4j.Logger;
 
 public class FastDataTransferDownloadProductOrderServlet extends HttpServlet {
 
@@ -26,7 +26,7 @@ public class FastDataTransferDownloadProductOrderServlet extends HttpServlet {
      */
     private static final long serialVersionUID = 1L;
 
-    private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(FastDataTransferDownloadProductOrderServlet.class);
+    private static Logger LOG = Logger.getLogger(FastDataTransferDownloadProductOrderServlet.class);
 
     private ProductOrderFileDescriptorParser parser = null;
 
@@ -57,9 +57,9 @@ public class FastDataTransferDownloadProductOrderServlet extends HttpServlet {
         }
 
         // Restrict commands to local host if request is not secure
-        if (!ServletUtil.checkSecureRequest(req, log)) {
+        if (!ServletUtil.checkSecureRequest(req, LOG)) {
             ServletUtil.reportServletError(response, "Secure connection is required. Prefix your request with 'https'",
-                    log, "Accessing secure command over non-secure line from remote host is not allowed.");
+                    LOG, "Accessing secure command over non-secure line from remote host is not allowed.");
             return;
         }
 
@@ -92,7 +92,7 @@ public class FastDataTransferDownloadProductOrderServlet extends HttpServlet {
                 String fdtSupported = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.FDT_SUPPORTED);
                 if (fdtSupported == null || !fdtSupported.equals("Y")) {
                     ServletUtil.reportServletError(response, "GNomEx is not configured to support FDT.  Please contact GNomEx support to set " +
-                            "appropriate property.", log);
+                            "appropriate property.", LOG);
                     return;
                 }
 
@@ -117,14 +117,14 @@ public class FastDataTransferDownloadProductOrderServlet extends HttpServlet {
 
                     // If we can't find the productOrder in the database, just bypass it.
                     if (productOrder == null) {
-                        log.error("Unable to find productOrder " + productOrderNumber + ".  Bypassing fdt download for user " + req.getUserPrincipal().getName() + ".");
+                        LOG.error("Unable to find productOrder " + productOrderNumber + ".  Bypassing fdt download for user " + req.getUserPrincipal().getName() + ".");
                         continue;
                     }
 
                     // Check permissions - bypass this productOrder if the user
                     // does not have  permission to read it.
                     if (!secAdvisor.canRead(productOrder)) {
-                        log.error("Insufficient permissions to read productOrder " + productOrderNumber + ".  Bypassing fdt download for user " + req.getUserPrincipal().getName() + ".");
+                        LOG.error("Insufficient permissions to read productOrder " + productOrderNumber + ".  Bypassing fdt download for user " + req.getUserPrincipal().getName() + ".");
                         continue;
                     }
 
@@ -147,7 +147,7 @@ public class FastDataTransferDownloadProductOrderServlet extends HttpServlet {
                         // for this file.
                         productOrderNumberBase = fd.getNumber();
                         if (!productOrderNumber.equalsIgnoreCase(productOrderNumberBase)) {
-                            log.error("ProductOrder number does not match directory for attempted download on " + fd.getFileName() + " for user " + req.getUserPrincipal().getName() + ".  Bypassing fdt download." );
+                            LOG.error("ProductOrder number does not match directory for attempted download on " + fd.getFileName() + " for user " + req.getUserPrincipal().getName() + ".  Bypassing fdt download." );
                             continue;
                         }
 
@@ -291,7 +291,7 @@ public class FastDataTransferDownloadProductOrderServlet extends HttpServlet {
                     out.flush();
 
                 } catch (IOException e) {
-                    log.error( "Unable to get response output stream.", e );
+                    LOG.error( "Unable to get response output stream.", e );
                 }
 
             } else {
@@ -301,7 +301,7 @@ public class FastDataTransferDownloadProductOrderServlet extends HttpServlet {
         } catch (Exception e) {
             response.setStatus(999);
             System.out.println( "FastDataTransferDownloadProductOrderServlet: An exception occurred " + e.toString());
-            e.printStackTrace();
+
         }
 
     }

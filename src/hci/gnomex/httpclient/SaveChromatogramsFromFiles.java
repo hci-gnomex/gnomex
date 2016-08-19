@@ -185,7 +185,7 @@ public class SaveChromatogramsFromFiles extends HttpClientBase {
 			}
 
 		} catch (Exception e) {
-			e.printStackTrace();
+
 			System.out.println(e.toString());
 			throw new Exception(e.toString());
 		}

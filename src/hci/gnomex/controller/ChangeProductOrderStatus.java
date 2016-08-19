@@ -13,6 +13,7 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.apache.log4j.Logger;
 import org.hibernate.Hibernate;
 import org.hibernate.Session;
 import org.jdom.Document;
@@ -20,8 +21,9 @@ import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 
+
 public class ChangeProductOrderStatus extends GNomExCommand implements Serializable {
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(SaveProductOrder.class);
+  private static Logger LOG = Logger.getLogger(SaveProductOrder.class);
 
   private String selectedOrdersXMLString;
   private String selectedlineItemsXMLString;
@@ -41,7 +43,7 @@ public class ChangeProductOrderStatus extends GNomExCommand implements Serializa
         SAXBuilder sax = new SAXBuilder();
         orderDoc = sax.build(reader);
       } catch (JDOMException je) {
-        log.error("Cannot parse selectedOrdersXMLString", je);
+        LOG.error("Cannot parse selectedOrdersXMLString", je);
         this.addInvalidField("selectedOrdersXMLString", "Invalid selectedOrders xml");
       }
 
@@ -52,7 +54,7 @@ public class ChangeProductOrderStatus extends GNomExCommand implements Serializa
         SAXBuilder sax = new SAXBuilder();
         lineItemDoc = sax.build(reader);
       } catch (JDOMException je) {
-        log.error("Cannot parse selectedlineItemsXMLString", je);
+        LOG.error("Cannot parse selectedlineItemsXMLString", je);
         this.addInvalidField("selectedlineItemsXMLString", "Invalid selectedlineItems xml");
       }
     } else {
@@ -131,8 +133,8 @@ public class ChangeProductOrderStatus extends GNomExCommand implements Serializa
         this.setResponsePage(this.ERROR_JSP);
       }
     } catch (Exception e) {
-      log.error("An exception has occurred in ChangeProductOrderStatus ", e);
-      e.printStackTrace();
+      LOG.error("An exception has occurred in ChangeProductOrderStatus ", e);
+      ;
       throw new RollBackCommandException(e.getMessage());
     } finally {
       try {

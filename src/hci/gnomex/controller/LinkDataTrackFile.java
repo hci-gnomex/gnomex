@@ -41,7 +41,7 @@ import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.output.XMLOutputter;
-
+import org.apache.log4j.Logger;
 
 
 public class LinkDataTrackFile extends GNomExCommand implements Serializable {
@@ -49,7 +49,7 @@ public class LinkDataTrackFile extends GNomExCommand implements Serializable {
 
 
   // the static field for logging in Log4J
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(LinkDataTrackFile.class);
+  private static Logger LOG = Logger.getLogger(LinkDataTrackFile.class);
 
 
   private Integer idDataTrack = null;
@@ -350,15 +350,15 @@ public class LinkDataTrackFile extends GNomExCommand implements Serializable {
         setResponsePage(this.ERROR_JSP);
       }
     } catch (Exception e){
-      log.error("An exception has occurred in LinkDataTrackFile ", e);
-      e.printStackTrace();
+      LOG.error("An exception has occurred in LinkDataTrackFile ", e);
+
       throw new RollBackCommandException(e.getMessage());
 
     }finally {
       try {
         HibernateSession.closeSession();        
-      } catch(Exception e) {
-
+      } catch(Exception e){
+        LOG.error("Error", e);
       }
     }
 

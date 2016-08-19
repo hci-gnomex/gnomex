@@ -34,11 +34,11 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.hibernate.Session;
-
+import org.apache.log4j.Logger;
 
 public class ShowBillingMonthendReportUMergeFormat extends ReportCommand implements Serializable {
   
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(ShowBillingMonthendReportUMergeFormat.class);
+  private static Logger LOG = Logger.getLogger(ShowBillingMonthendReportUMergeFormat.class);
   
   
   private Integer          idCoreFacility;
@@ -207,29 +207,29 @@ public class ShowBillingMonthendReportUMergeFormat extends ReportCommand impleme
       }
     
     }catch (UnknownPermissionException e){
-      log.error("An exception has occurred in ShowBillingMonthendReport ", e);
-      e.printStackTrace();
+      LOG.error("An exception has occurred in ShowBillingMonthendReport ", e);
+
       throw new RollBackCommandException(e.getMessage());
         
     }catch (NamingException e){
-      log.error("An exception has occurred in ShowBillingMonthendReport ", e);
-      e.printStackTrace();
+      LOG.error("An exception has occurred in ShowBillingMonthendReport ", e);
+
       throw new RollBackCommandException(e.getMessage());
         
     }catch (SQLException e) {
-      log.error("An exception has occurred in ShowBillingMonthendReport ", e);
-      e.printStackTrace();
+      LOG.error("An exception has occurred in ShowBillingMonthendReport ", e);
+
       throw new RollBackCommandException(e.getMessage());
       
     } catch (Exception e) {
-      log.error("An exception has occurred in ShowBillingMonthendReport ", e);
-      e.printStackTrace();
+      LOG.error("An exception has occurred in ShowBillingMonthendReport ", e);
+
       throw new RollBackCommandException(e.getMessage());
     } finally {
       try {
         secAdvisor.closeReadOnlyHibernateSession();    
-      } catch(Exception e) {
-        
+      } catch(Exception e){
+        LOG.error("Error", e);
       }
     }
     

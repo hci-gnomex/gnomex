@@ -10,11 +10,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.hibernate.Session;
-
+import org.apache.log4j.Logger;
 public class MultiRequestSampleSheetFileParser extends MultiRequestSampleSheetAbstractParser {
   
   // the static field for logging in Log4J
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(MultiRequestSampleSheetFileParser.class);
+  private static Logger LOG = Logger.getLogger(MultiRequestSampleSheetFileParser.class);
 
   private String filePath = null;
   private String header = null;

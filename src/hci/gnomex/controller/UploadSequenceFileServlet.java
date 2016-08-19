@@ -174,7 +174,7 @@ public class UploadSequenceFileServlet extends HttpServlet {
 		} catch (Exception e) {
 			HibernateSession.rollback();
 			Logger.getLogger(this.getClass().getName()).warning(e.getMessage());
-			e.printStackTrace();
+
 			sess.flush();
 			res.addHeader("message", e.getMessage());
 			Document doc = DocumentHelper.createDocument();

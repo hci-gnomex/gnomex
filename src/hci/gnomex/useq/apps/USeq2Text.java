@@ -72,7 +72,7 @@ public class USeq2Text {
 		}
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+
 		}
 		System.out.println("\nDone!");
 	}
@@ -151,7 +151,7 @@ public class USeq2Text {
 			out.close();
 		} catch (IOException e) {
 			System.err.println("\nError, could not process binary archive!");
-			e.printStackTrace();
+
 		}
 	}
 
@@ -270,7 +270,7 @@ public class USeq2Text {
 		} catch (IOException e) {
 			System.err.println("\nError, could not process your binary archive!");
 			outputTextFile.delete();
-			e.printStackTrace();
+
 		}
 	}
 	public void writeBedGraph(ZipFile zf, Enumeration<ZipEntry> e, PrintWriter out, String strand) throws IOException {

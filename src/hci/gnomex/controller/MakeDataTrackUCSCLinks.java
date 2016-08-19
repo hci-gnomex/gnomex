@@ -29,13 +29,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.hibernate.Session;
-
+import org.apache.log4j.Logger;
 
 
 
 public class MakeDataTrackUCSCLinks extends GNomExCommand implements Serializable {
 
-	private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(MakeDataTrackUCSCLinks.class);
+	private static Logger LOG = Logger.getLogger(MakeDataTrackUCSCLinks.class);
 
 	private Integer idDataTrack;
 	private String baseURL;
@@ -122,24 +122,15 @@ public class MakeDataTrackUCSCLinks extends GNomExCommand implements Serializabl
 				this.addInvalidField("insufficient permission", "Insufficient permission to access data track");
 			}
 
-		}catch (NamingException e){
-			log.error("An exception has occurred in MakeDataTrackUCSCLinks ", e);
-			e.printStackTrace(System.out);
-			throw new RollBackCommandException(e.getMessage());
-		}catch (SQLException e) {
-			log.error("An exception has occurred in MakeDataTrackUCSCLinks ", e);
-			e.printStackTrace(System.out);
-			throw new RollBackCommandException(e.getMessage());
-		} catch (Exception e) {
-			log.error("An exception has occurred in MakeDataTrackUCSCLinks ", e);
-			e.printStackTrace(System.out);
+		}catch (Exception e) {
+			LOG.error("An exception has occurred in MakeDataTrackUCSCLinks ", e);
 			throw new RollBackCommandException(e.getMessage());
 		} finally {
 			try {
 				this.getSecAdvisor().closeHibernateSession();        
-			} catch(Exception e) {
-
-			}
+			} catch(Exception e){
+        LOG.error("Error", e);
+      }
 		}
 
 		return this;

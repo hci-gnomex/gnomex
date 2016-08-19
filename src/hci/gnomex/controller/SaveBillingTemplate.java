@@ -33,11 +33,12 @@ import hci.gnomex.utility.GNomExRollbackException;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.Order;
 import hci.gnomex.utility.ParserException;
+import org.apache.log4j.Logger;
 
 @SuppressWarnings("serial")
 public class SaveBillingTemplate extends GNomExCommand implements Serializable {
 
-	private static org.apache.log4j.Logger 	log = org.apache.log4j.Logger.getLogger(SaveBillingTemplate.class);
+	private static Logger 	LOG = Logger.getLogger(SaveBillingTemplate.class);
 
 	private static final String 			ERROR_MESSAGE = "An error occurred while saving the billing template";
 
@@ -52,7 +53,7 @@ public class SaveBillingTemplate extends GNomExCommand implements Serializable {
 				SAXBuilder sax = new SAXBuilder();
 				billingTemplateDoc = sax.build(reader);
 			} catch (Exception e) {
-				log.error("Cannot parse billingTemplateXMLString", e);
+				LOG.error("Cannot parse billingTemplateXMLString", e);
 				this.addInvalidField("billingTemplateXMLString", "Cannot parse billingTemplateXMLString");
 			}
 		} else {
@@ -60,7 +61,7 @@ public class SaveBillingTemplate extends GNomExCommand implements Serializable {
 		}
 
 		if (!getSecAdvisor().hasPermission(SecurityAdvisor.CAN_SUBMIT_REQUESTS) && !getSecAdvisor().hasPermission(SecurityAdvisor.CAN_SUBMIT_FOR_OTHER_CORES) && !getSecAdvisor().hasPermission(SecurityAdvisor.CAN_MANAGE_BILLING)) {
-			log.error("Insufficient permissions to save billing template for " + this.getSecAdvisor().getUserFirstName() + " " + this.getSecAdvisor().getUserLastName());
+			LOG.error("Insufficient permissions to save billing template for " + this.getSecAdvisor().getUserFirstName() + " " + this.getSecAdvisor().getUserLastName());
 			this.addInvalidField("PermissionError", "Insufficient permissions to save billing template");
 		}
 	}
@@ -141,12 +142,12 @@ public class SaveBillingTemplate extends GNomExCommand implements Serializable {
 			}
 
 		} catch (GNomExRollbackException e) {
-		    log.error("An exception has occurred in SaveBillingTemplate ", e);
-            e.printStackTrace();
+		    LOG.error("An exception has occurred in SaveBillingTemplate ", e);
+
             throw e;
 		} catch (Exception e) {
-			log.error("An exception has occurred in SaveBillingTemplate ", e);
-			e.printStackTrace();
+			LOG.error("An exception has occurred in SaveBillingTemplate ", e);
+
 			throw new GNomExRollbackException(e.getMessage() != null ? e.getMessage() : ERROR_MESSAGE, true, e instanceof ParserException ? ERROR_MESSAGE + ": " + e.getMessage() : ERROR_MESSAGE);
 		} finally {
 			try {

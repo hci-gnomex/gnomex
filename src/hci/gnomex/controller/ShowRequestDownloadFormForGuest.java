@@ -19,10 +19,10 @@ import javax.servlet.http.HttpSession;
 import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.output.XMLOutputter;
-
+import org.apache.log4j.Logger;
 public class ShowRequestDownloadFormForGuest extends GNomExCommand implements Serializable {
 
-	private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(ShowRequestDownloadFormForGuest.class);
+	private static Logger LOG = Logger.getLogger(ShowRequestDownloadFormForGuest.class);
 
 	public String SUCCESS_JSP = "/getHTML.jsp";
 
@@ -97,23 +97,23 @@ public class ShowRequestDownloadFormForGuest extends GNomExCommand implements Se
 			}
 
 		} catch (UnknownPermissionException e) {
-			log.error("An exception has occurred in ShowRequestDownloadFormForGuest ", e);
-			e.printStackTrace();
+			LOG.error("An exception has occurred in ShowRequestDownloadFormForGuest ", e);
+
 			throw new RollBackCommandException(e.getMessage());
 
 		} catch (NamingException e) {
-			log.error("An exception has occurred in ShowRequestDownloadFormForGuest ", e);
-			e.printStackTrace();
+			LOG.error("An exception has occurred in ShowRequestDownloadFormForGuest ", e);
+
 			throw new RollBackCommandException(e.getMessage());
 
 		} catch (SQLException e) {
-			log.error("An exception has occurred in ShowRequestDownloadFormForGuest ", e);
-			e.printStackTrace();
+			LOG.error("An exception has occurred in ShowRequestDownloadFormForGuest ", e);
+
 			throw new RollBackCommandException(e.getMessage());
 
 		} catch (Exception e) {
-			log.error("An exception has occurred in ShowRequestDownloadFormForGuest ", e);
-			e.printStackTrace();
+			LOG.error("An exception has occurred in ShowRequestDownloadFormForGuest ", e);
+
 			throw new RollBackCommandException(e.getMessage());
 		} finally {
 			try {

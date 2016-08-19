@@ -40,6 +40,7 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
 import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.internal.SessionImpl;
 import org.xml.sax.EntityResolver;
@@ -150,8 +151,8 @@ public class UsageReportd extends TimerTask {
     fFormat = new FieldFormatter();
     
     try {
-      org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger("org.hibernate");
-      log.setLevel(Level.ERROR);
+      Logger LOG = Logger.getLogger("org.hibernate");
+      LOG.setLevel(Level.ERROR);
 
       dataSource = new BatchDataSource(orionPath, schemaPath);
       app.connect();
@@ -264,7 +265,7 @@ public class UsageReportd extends TimerTask {
          
     } catch (Exception e) {
       System.out.println( e.toString() );
-      e.printStackTrace();
+
     }
     
     System.exit(0);
@@ -509,7 +510,7 @@ public class UsageReportd extends TimerTask {
           myConn.close();        
         } catch (SQLException e) {
           System.out.println( e.toString() );
-          e.printStackTrace();
+
         }
       }
     }         

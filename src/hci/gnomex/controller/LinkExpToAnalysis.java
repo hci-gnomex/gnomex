@@ -19,10 +19,10 @@ import javax.servlet.http.HttpSession;
 
 import org.hibernate.Query;
 import org.hibernate.Session;
-
+import org.apache.log4j.Logger;
 public class LinkExpToAnalysis extends GNomExCommand implements Serializable {
 
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetRequestList.class);
+  private static Logger LOG = Logger.getLogger(GetRequestList.class);
 
   private Integer idRequest;
   private Integer idAnalysis;
@@ -102,14 +102,14 @@ public class LinkExpToAnalysis extends GNomExCommand implements Serializable {
 
     } catch (Exception e) {
 
-      log.error("An exception has occurred in LinkExpToAnalysis ", e);
-      e.printStackTrace();
+      LOG.error("An exception has occurred in LinkExpToAnalysis ", e);
+
       throw new GNomExRollbackException(e.getMessage(), true, "Unable to link analysis to experiment");
     } finally {
       try {
         HibernateSession.closeSession();
       } catch (Exception e) {
-        log.error("Exception trying to close the Hibernate session: " + e);
+        LOG.error("Exception trying to close the Hibernate session: ",e);
       }
     }
 

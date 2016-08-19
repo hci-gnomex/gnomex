@@ -21,10 +21,10 @@ import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.output.XMLOutputter;
-
+import org.apache.log4j.Logger;
 public class GetLaunchProperties extends GNomExCommand implements Serializable {
 
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetLaunchProperties.class);
+  private static Logger LOG = Logger.getLogger(GetLaunchProperties.class);
   
   private String scheme;
   private String serverName;
@@ -52,8 +52,8 @@ public class GetLaunchProperties extends GNomExCommand implements Serializable {
         idCoreFacility = null;
       }
   	} catch (Exception e) {
-  		log.error(e.getClass().toString() + ": " + e);
-  		e.printStackTrace();
+  		LOG.error(e.getClass().toString() + ": " , e);
+
   	}
   }
 
@@ -103,29 +103,29 @@ public class GetLaunchProperties extends GNomExCommand implements Serializable {
       validate();
       
     } catch (HibernateException e) {
-      log.error(e.getClass().toString() + ": " + e);
+      LOG.error(e.getClass().toString() + ": " , e);
       throw new RollBackCommandException();
     } catch (NumberFormatException e) {
-      log.error(e.getClass().toString() + ": " + e);
+      LOG.error(e.getClass().toString() + ": " , e);
       throw new RollBackCommandException();
     } catch (NamingException e) {
-      log.error(e.getClass().toString() + ": " + e);
+      LOG.error(e.getClass().toString() + ": " , e);
       throw new RollBackCommandException();
     } catch (SQLException e) {
-      log.error(e.getClass().toString() + ": " + e);
+      LOG.error(e.getClass().toString() + ": " , e);
       throw new RollBackCommandException();
     } catch (Exception e) {
-      log.error(e.getClass().toString() + ": " + e);
+      LOG.error(e.getClass().toString() + ": " , e);
       throw new RollBackCommandException();    	
     }
     finally {
       try {
         HibernateSession.closeSession();
       } catch (HibernateException e) {
-        log.error(e.getClass().toString() + ": " + e);
+        LOG.error(e.getClass().toString() + ": " , e);
         throw new RollBackCommandException();
       } catch (SQLException e) {
-        log.error(e.getClass().toString() + ": " + e);
+        LOG.error(e.getClass().toString() + ": " , e);
         throw new RollBackCommandException();
       }
     }

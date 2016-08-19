@@ -25,10 +25,10 @@ import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.output.XMLOutputter;
-
+import org.apache.log4j.Logger;
 public class GetProductOrder extends GNomExCommand implements Serializable {
 
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetProductOrder.class);
+  private static Logger LOG = Logger.getLogger(GetProductOrder.class);
 
   private Integer idProductOrder;
   private Integer productOrderNumber;
@@ -68,7 +68,7 @@ public class GetProductOrder extends GNomExCommand implements Serializable {
             po = (ProductOrder) sess.createQuery("FROM ProductOrder po WHERE po.productOrderNumber = \'" + productOrderNumber + "\'").uniqueResult();
           }
         } catch (Exception e) {
-          log.error(e.getMessage());
+          LOG.error(e.getMessage());
           po = null;
         }
 
@@ -160,8 +160,8 @@ public class GetProductOrder extends GNomExCommand implements Serializable {
       }
 
     } catch (Exception e) {
-      log.error("An exception has occurred in GetProductOrder ", e);
-      e.printStackTrace();
+      LOG.error("An exception has occurred in GetProductOrder ", e);
+
       throw new RollBackCommandException(e.getMessage());
     } finally {
       try {

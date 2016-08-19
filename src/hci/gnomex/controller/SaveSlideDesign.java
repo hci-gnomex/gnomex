@@ -28,7 +28,7 @@ import org.jdom.Document;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 
-
+import org.apache.log4j.Logger;
 
 
 public class SaveSlideDesign extends GNomExCommand implements Serializable {
@@ -36,7 +36,7 @@ public class SaveSlideDesign extends GNomExCommand implements Serializable {
  
   
   // the static field for logging in Log4J
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(SaveSlideDesign.class);
+  private static Logger LOG = Logger.getLogger(SaveSlideDesign.class);
   
   private boolean     isNewSlideProduct = false;
   
@@ -94,7 +94,7 @@ public class SaveSlideDesign extends GNomExCommand implements Serializable {
         mcDoc = sax.build(reader);
         applicationParser = new ApplicationParser(mcDoc);
       } catch (JDOMException je ) {
-        log.error( "Cannot parse applicationXMLString", je );
+        LOG.error( "Cannot parse applicationXMLString", je );
         this.addInvalidField( "applicationXMLString", "Invalid applicationXMLString");
       }
     }
@@ -108,7 +108,7 @@ public class SaveSlideDesign extends GNomExCommand implements Serializable {
         acDoc = sax.build(reader);
         acParser = new ArrayCoordinateParser(acDoc);
       } catch (JDOMException je ) {
-        log.error( "Cannot parse arrayCoordinateXMLString", je );
+        LOG.error( "Cannot parse arrayCoordinateXMLString", je );
         this.addInvalidField( "arrayCoordinateXMLString", "Invalid arrayCoordinateXMLString");
       }
     }
@@ -275,15 +275,15 @@ public class SaveSlideDesign extends GNomExCommand implements Serializable {
         setResponsePage(this.ERROR_JSP);
       }
     }catch (Exception e){
-      log.error("An exception has occurred in SaveSlideDesign ", e);
-      e.printStackTrace();
+      LOG.error("An exception has occurred in SaveSlideDesign ", e);
+
       throw new RollBackCommandException(e.getMessage());
         
     }finally {
       try {
         HibernateSession.closeSession();        
-      } catch(Exception e) {
-        
+      } catch(Exception e){
+        LOG.error("Error", e);
       }
     }
     

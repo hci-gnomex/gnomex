@@ -20,10 +20,10 @@ import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.output.XMLOutputter;
-
+import org.apache.log4j.Logger;
 public class GetBillingAccountListForPeriodAndCore extends GNomExCommand implements Serializable {
   
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetBillingAccountListForPeriodAndCore.class);
+  private static Logger LOG = Logger.getLogger(GetBillingAccountListForPeriodAndCore.class);
   
   private Integer idBillingPeriod;
   private Integer idCoreFacility;
@@ -83,22 +83,22 @@ public class GetBillingAccountListForPeriodAndCore extends GNomExCommand impleme
 
       setResponsePage(this.SUCCESS_JSP);
     }catch (NamingException e){
-      log.error("An exception has occurred in GetBillingAccountListForPeriodAndCore ", e);
-      e.printStackTrace();
+      LOG.error("An exception has occurred in GetBillingAccountListForPeriodAndCore ", e);
+
       throw new RollBackCommandException(e.getMessage());        
     }catch (SQLException e) {
-      log.error("An exception has occurred in GetBillingAccountListForPeriodAndCore ", e);
-      e.printStackTrace();
+      LOG.error("An exception has occurred in GetBillingAccountListForPeriodAndCore ", e);
+
       throw new RollBackCommandException(e.getMessage());
     } catch (Exception e) {
-      log.error("An exception has occurred in GetBillingAccountListForPeriodAndCore ", e);
-      e.printStackTrace();
+      LOG.error("An exception has occurred in GetBillingAccountListForPeriodAndCore ", e);
+
       throw new RollBackCommandException(e.getMessage());
     } finally {
       try {
         this.getSecAdvisor().closeReadOnlyHibernateSession();        
       } catch(Exception e) {
-        
+        LOG.error("An exception has occurred in GetBillingAccountListForPeriodAndCore ", e);
       }
     }
       

@@ -21,7 +21,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Iterator;
 import java.util.UUID;
-
+import org.apache.log4j.Logger;
 
 public class FastDataTransferDownloadDataTrackServlet extends HttpServlet {
 
@@ -30,7 +30,7 @@ public class FastDataTransferDownloadDataTrackServlet extends HttpServlet {
      */
     private static final long serialVersionUID = 1L;
 
-    private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(FastDataTransferDownloadDataTrackServlet.class);
+    private static Logger LOG = Logger.getLogger(FastDataTransferDownloadDataTrackServlet.class);
 
     private String keys = "";
 
@@ -53,9 +53,9 @@ public class FastDataTransferDownloadDataTrackServlet extends HttpServlet {
         String downloadDateText = "datatrack_download_" + new SimpleDateFormat("yyyy-MM-dd").format(System.currentTimeMillis());
 
         // Restrict commands to local host if request is not secure
-        if (!ServletUtil.checkSecureRequest(req, log)) {
+        if (!ServletUtil.checkSecureRequest(req, LOG)) {
             ServletUtil.reportServletError(response, "Secure connection is required. Prefix your request with 'https'",
-                    log, "Accessing secure command over non-secure line from remote host is not allowed.");
+                    LOG, "Accessing secure command over non-secure line from remote host is not allowed.");
             return;
         }
 
@@ -90,7 +90,7 @@ public class FastDataTransferDownloadDataTrackServlet extends HttpServlet {
                 String fdtSupported = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.FDT_SUPPORTED);
                 if (fdtSupported == null || !fdtSupported.equals("Y")) {
                     ServletUtil.reportServletError(response, "GNomEx is not configured to support FDT.  Please contact GNomEx support to set " +
-                            "appropriate property", log);
+                            "appropriate property", LOG);
                     return;
                 }
 
@@ -148,7 +148,7 @@ public class FastDataTransferDownloadDataTrackServlet extends HttpServlet {
                     DataTrack dataTrack = DataTrack.class.cast(sess.load(DataTrack.class, idDataTrack));
 
                     if (!secAdvisor.canRead(dataTrack)) {
-                        log.error("Insufficient permission to read/download dataTrack.");
+                        LOG.error("Insufficient permission to read/download dataTrack.");
                         continue;
                     }
 
@@ -266,7 +266,7 @@ public class FastDataTransferDownloadDataTrackServlet extends HttpServlet {
                     out.flush();
 
                 } catch (IOException e) {
-                    log.error( "Unable to get response output stream.", e );
+                    LOG.error( "Unable to get response output stream.", e );
                 }
 
             } else {
@@ -276,7 +276,7 @@ public class FastDataTransferDownloadDataTrackServlet extends HttpServlet {
         } catch (Exception e) {
             response.setStatus(999);
             System.out.println( "FastDataTransferDownloadDataTrackServlet: An exception occurred " + e.toString());
-            e.printStackTrace();
+
         }
 
     }

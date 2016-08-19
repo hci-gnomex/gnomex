@@ -51,7 +51,7 @@ import org.hibernate.exception.ConstraintViolationException;
 import org.jdom.Document;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
-
+import org.apache.log4j.Logger;
 
 
 
@@ -60,7 +60,7 @@ public class SaveLab extends GNomExCommand implements Serializable {
 
 
   // the static field for logging in Log4J
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(SaveLab.class);
+  private static Logger LOG = Logger.getLogger(SaveLab.class);
 
   private String                         institutionsXMLString;
   private Document                       institutionsDoc;
@@ -120,7 +120,7 @@ public class SaveLab extends GNomExCommand implements Serializable {
       institutionsDoc = sax.build(reader);
       labInstitutionParser = new LabInstitutionParser(institutionsDoc);
     } catch (JDOMException je ) {
-      log.error( "Cannot parse institutionsXMLString", je );
+      LOG.error( "Cannot parse institutionsXMLString", je );
       this.addInvalidField( "institutionsXMLString", "Invalid institutionsXMLString");
     }
 
@@ -135,7 +135,7 @@ public class SaveLab extends GNomExCommand implements Serializable {
       membersDoc = sax.build(reader);
       labMemberParser = new LabMemberParser(membersDoc);
     } catch (JDOMException je ) {
-      log.error( "Cannot parse membersXMLString", je );
+      LOG.error( "Cannot parse membersXMLString", je );
       this.addInvalidField( "membersXMLString", "Invalid membersXMLString");
     }
 
@@ -149,7 +149,7 @@ public class SaveLab extends GNomExCommand implements Serializable {
       collaboratorsDoc = sax.build(reader);
       collaboratorParser = new LabMemberParser(collaboratorsDoc);
     } catch (JDOMException je ) {
-      log.error( "Cannot parse collaboratorsXMLString", je );
+      LOG.error( "Cannot parse collaboratorsXMLString", je );
       this.addInvalidField( "collaboratorsXMLString", "Invalid collaboratorsXMLString");
     }
 
@@ -164,7 +164,7 @@ public class SaveLab extends GNomExCommand implements Serializable {
       managersDoc = sax.build(reader);
       managerParser = new LabMemberParser(managersDoc);
     } catch (JDOMException je ) {
-      log.error( "Cannot parse managersXMLString", je );
+      LOG.error( "Cannot parse managersXMLString", je );
       this.addInvalidField( "managersXMLString", "Invalid managersXMLString");
     }
 
@@ -180,7 +180,7 @@ public class SaveLab extends GNomExCommand implements Serializable {
       accountParser = new BillingAccountParser(accountsDoc);
 
     } catch (JDOMException je ) {
-      log.error( "Cannot parse accountsXMLString", je );
+      LOG.error( "Cannot parse accountsXMLString", je );
       this.addInvalidField( "accountsXMLString", "Invalid accountsXMLString");
     }
 
@@ -195,7 +195,7 @@ public class SaveLab extends GNomExCommand implements Serializable {
         coreFacilityParser = new LabCoreFacilityParser(coreFacilitiesDoc);
 
       } catch (JDOMException je ) {
-        log.error( "Cannot parse coreFacilitiesXMLString", je );
+        LOG.error( "Cannot parse coreFacilitiesXMLString", je );
         this.addInvalidField( "coreFacilitiesXMLString", "Invalid coreFacilitiesXMLString");
       }
     }
@@ -203,7 +203,7 @@ public class SaveLab extends GNomExCommand implements Serializable {
     try {
       launchAppURL = this.getLaunchAppURL(request);  
     } catch (Exception e) {
-      log.warn("Cannot get launch app URL in SaveLab", e);
+      LOG.warn("Cannot get launch app URL in SaveLab", e);
     }
 
     serverName = request.getServerName();
@@ -618,15 +618,15 @@ public class SaveLab extends GNomExCommand implements Serializable {
       }
 
     }catch (Exception e){
-      log.error("An exception has occurred in SaveLab ", e);
-      e.printStackTrace();
+      LOG.error("An exception has occurred in SaveLab ", e);
+
       throw new RollBackCommandException(e.getMessage());
 
     }finally {
       try {
         HibernateSession.closeSession();        
-      } catch(Exception e) {
-
+      } catch(Exception e){
+        LOG.error("Error", e);
       }
     }
 
@@ -642,7 +642,7 @@ public class SaveLab extends GNomExCommand implements Serializable {
     body.append(gnomexURL);
 
     if(!MailUtil.isValidEmail(email)){
-      log.error("Invalid Email Address " + email);
+      LOG.error("Invalid Email Address " + email);
     }
 
     try {
@@ -660,7 +660,7 @@ public class SaveLab extends GNomExCommand implements Serializable {
     	}
     	MailUtil.validateAndSendEmail(helper);
     } catch (Exception e) {
-      e.printStackTrace();
+
     }
   }
 
@@ -725,7 +725,7 @@ public class SaveLab extends GNomExCommand implements Serializable {
 
     String emailRecipients = PIEmail;
     if(!MailUtil.isValidEmail(PIEmail)){
-      log.error("Invalid Email: " + PIEmail);
+      LOG.error("Invalid Email: " + PIEmail);
     }
 
     submitterNote.append("The following billing account " +

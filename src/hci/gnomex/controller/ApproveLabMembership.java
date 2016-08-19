@@ -22,9 +22,11 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.log4j.Logger;
 import org.hibernate.Session;
 
 public class ApproveLabMembership extends HttpServlet {
+	private static Logger LOG = Logger.getLogger(ApproveLabMembership.class);
 
 	private String idLab = "";
 	private String idAppUser = "";
@@ -116,7 +118,7 @@ public class ApproveLabMembership extends HttpServlet {
 
 		} catch (Exception e) {
 			message = "There was an issue adding the user to your lab.  Please add the user to your lab through the GNomEx app and contact GNomEx support.  Thanks.";
-			e.printStackTrace();
+			LOG.error(message, e);
 		} finally {
 			try {
 				HibernateSession.closeSession();
@@ -127,7 +129,7 @@ public class ApproveLabMembership extends HttpServlet {
 
 				rd.forward(request, response);
 			} catch (Exception e1) {
-				System.out.println("ApproveLabMembership warning - cannot close hibernate session");
+				LOG.error("ApproveLabMembership warning - cannot close hibernate session", e1);
 			}
 		}
 	}

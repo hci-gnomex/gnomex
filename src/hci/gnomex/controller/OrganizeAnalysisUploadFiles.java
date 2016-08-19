@@ -28,7 +28,7 @@ import org.jdom.Document;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.jdom.output.XMLOutputter;
-
+import org.apache.log4j.Logger;
 
 
 
@@ -37,7 +37,7 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
 
 
   // the static field for logging in Log4J
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(OrganizeAnalysisUploadFiles.class);
+  private static Logger LOG = Logger.getLogger(OrganizeAnalysisUploadFiles.class);
 
   private Integer                      idAnalysis;
   private String                       filesXMLString;
@@ -71,7 +71,7 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
         filesDoc = sax.build(reader);
         parser = new AnalysisFileDescriptorUploadParser(filesDoc);
       } catch (JDOMException je ) {
-        log.error( "Cannot parse filesXMLString", je );
+        LOG.error( "Cannot parse filesXMLString", je );
         this.addInvalidField( "FilesLXMLString", "Invalid files xml");
       }
     }
@@ -85,7 +85,7 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
         filesToRemoveDoc = sax.build(reader);
         filesToRemoveParser = new AnalysisFileDescriptorUploadParser(filesToRemoveDoc);
       } catch (JDOMException je ) {
-        log.error( "Cannot parse filesToRemoveXMLString", je );
+        LOG.error( "Cannot parse filesToRemoveXMLString", je );
         this.addInvalidField( "FilesToRemoveXMLString", "Invalid filesToRemove xml");
       }
     }
@@ -423,8 +423,8 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
 
 
       }catch (Exception e){
-        log.error("An exception has occurred in OrganizeExperimentUploadFiles ", e);
-        e.printStackTrace();
+        LOG.error("An exception has occurred in OrganizeExperimentUploadFiles ", e);
+
         throw new RollBackCommandException(e.getMessage());
 
       }finally {
@@ -432,9 +432,9 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
           if (sess != null) {
             this.getSecAdvisor().closeHibernateSession();
           }
-        } catch(Exception e) {
-
-        }
+        } catch(Exception e){
+        LOG.error("Error", e);
+      }
       }
 
     } else {

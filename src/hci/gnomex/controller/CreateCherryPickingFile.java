@@ -31,11 +31,11 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.hibernate.Session;
-
+import org.apache.log4j.Logger;
 
 public class CreateCherryPickingFile extends ReportCommand implements Serializable {
   
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(CreateCherryPickingFile.class);
+  private static Logger LOG = Logger.getLogger(CreateCherryPickingFile.class);
   
   
   private Integer          idRequest;
@@ -188,30 +188,14 @@ public class CreateCherryPickingFile extends ReportCommand implements Serializab
         setResponsePage(this.ERROR_JSP);
       }
     
-    }catch (UnknownPermissionException e){
-      log.error("An exception has occurred in CreateCherryPickingFile ", e);
-      e.printStackTrace();
-      throw new RollBackCommandException(e.getMessage());
-        
-    }catch (NamingException e){
-      log.error("An exception has occurred in CreateCherryPickingFile ", e);
-      e.printStackTrace();
-      throw new RollBackCommandException(e.getMessage());
-        
-    }catch (SQLException e) {
-      log.error("An exception has occurred in CreateCherryPickingFile ", e);
-      e.printStackTrace();
-      throw new RollBackCommandException(e.getMessage());
-      
-    } catch (Exception e) {
-      log.error("An exception has occurred in CreateCherryPickingFile ", e);
-      e.printStackTrace();
+    }catch (Exception e) {
+      LOG.error("An exception has occurred in CreateCherryPickingFile ", e);
       throw new RollBackCommandException(e.getMessage());
     } finally {
       try {
         secAdvisor.closeReadOnlyHibernateSession();    
       } catch(Exception e) {
-        
+        LOG.error("An exception has occurred in CreateCherryPickingFile ", e);
       }
     }
     

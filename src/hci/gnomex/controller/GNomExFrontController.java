@@ -34,9 +34,9 @@ import javax.servlet.http.HttpSession;
 import hci.gnomex.utility.ServletUtil;
 import net.sf.json.JSON;
 import net.sf.json.xml.XMLSerializer;
-
+import org.apache.log4j.Logger;
 public class GNomExFrontController extends HttpServlet {
-	private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GNomExFrontController.class);
+	private static Logger LOG = Logger.getLogger(GNomExFrontController.class);
 
 	private static String webContextPath;
 	private static Session mailSession;
@@ -146,10 +146,10 @@ public class GNomExFrontController extends HttpServlet {
 		String requestName = fullURI.substring((fullURI.lastIndexOf('/') + 1), fullURI.lastIndexOf('.'));
 
 		// restrict commands to local host if request is not secure
-		if (!ServletUtil.checkSecureRequest(request, log)) {
+		if (!ServletUtil.checkSecureRequest(request, LOG)) {
 				System.out.println(request.getRemoteAddr());
 				System.out.println(InetAddress.getLocalHost().getHostAddress());
-				log.error("Accessing secure command over non-secure line from remote host is not allowed");
+				LOG.error("Accessing secure command over non-secure line from remote host is not allowed");
 				this.forwardWithError(request, response, "Secure connection is required. Prefix your request with 'https:'");
 				return;
 		}
@@ -166,15 +166,15 @@ public class GNomExFrontController extends HttpServlet {
 			}
 
 		} catch (ClassNotFoundException cnfe) {
-			log.error("Command " + requestName + ".class not found");
+			LOG.error("Command " + requestName + ".class not found");
 			this.forwardWithError(request, response);
 			return;
 		} catch (IllegalAccessException ias) {
-			log.error("IllegalAccessException while getting command " + requestName);
+			LOG.error("IllegalAccessException while getting command " + requestName);
 			this.forwardWithError(request, response);
 			return;
 		} catch (InstantiationException ie) {
-			log.error("Unable to instantiate command " + requestName);
+			LOG.error("Unable to instantiate command " + requestName);
 			this.forwardWithError(request, response);
 			return;
 		}
@@ -200,12 +200,12 @@ public class GNomExFrontController extends HttpServlet {
 		}
 		// if command still valid, call the loadCommand method
 		if (commandInstance.isValid()) {
-			log.debug("Calling loadCommand on " + commandClass);
+			LOG.debug("Calling loadCommand on " + commandClass);
 			commandInstance.loadCommand(request, session);
 		}
 		// see if it is valid, if so call execute
 		if (commandInstance.isValid()) {
-			log.debug("Forwarding " + commandClass + " to the request processor for execution");
+			LOG.debug("Forwarding " + commandClass + " to the request processor for execution");
 			try {
 				commandInstance.execute();
 			} catch (Exception e) {
@@ -239,9 +239,9 @@ public class GNomExFrontController extends HttpServlet {
 				if (msg != null) {
 					this.forwardWithError(request, response, msg);
 				} else {
-					log.error(e.getClass().getName() + " while executing command " + commandClass);
-					log.error("The stacktrace for the error:");
-					log.error(e.getMessage(), e);
+					LOG.error(e.getClass().getName() + " while executing command " + commandClass);
+					LOG.error("The stacktrace for the error:");
+					LOG.error(e.getMessage(), e);
 
 					if (e instanceof GNomExRollbackException && ((GNomExRollbackException) e).getDisplayFriendlyMessage() != null) {
 						this.forwardWithError(request, response, ((GNomExRollbackException) e).getDisplayFriendlyMessage());
@@ -254,18 +254,18 @@ public class GNomExFrontController extends HttpServlet {
 				try {
 					HibernateSession.closeSession();
 				} catch (Exception ex) {
-					log.error("GNomExFrontController: Error closing hibernate session", ex);
+					LOG.error("GNomExFrontController: Error closing hibernate session", ex);
 				}
 			}
 		}
 		// now set the request state, response state, and session state
-		log.debug("Calling setRequestState on " + commandClass);
+		LOG.debug("Calling setRequestState on " + commandClass);
 		commandInstance.setRequestState(request);
 
-		log.debug("Calling setResponseState on " + commandClass);
+		LOG.debug("Calling setResponseState on " + commandClass);
 		commandInstance.setResponseState(response);
 
-		log.debug("Calling setSessionState on " + commandClass);
+		LOG.debug("Calling setSessionState on " + commandClass);
 		commandInstance.setSessionState(session);
 
 		// if GNomExLite, convert it to JSON and give it back
@@ -340,24 +340,24 @@ public class GNomExFrontController extends HttpServlet {
 	}
 
 	private void forwardPage(HttpServletRequest request, HttpServletResponse response, String url) {
-		log.debug("Forwarding response to " + url);
+		LOG.debug("Forwarding response to " + url);
 		try {
 			getServletContext().getRequestDispatcher(url).forward(request, response);
 		} catch (Exception e) {
-			log.error(e.getClass().getName() + " while attempting to forward to " + url);
-			log.error("The stacktrace for the error:");
-			log.error(e.getMessage());
+			LOG.error(e.getClass().getName() + " while attempting to forward to " + url);
+			LOG.error("The stacktrace for the error:");
+			LOG.error(e.getMessage());
 		}
 	}
 
 	private void sendRedirect(HttpServletResponse response, String url) {
-		log.debug("Redirecting response to " + url);
+		LOG.debug("Redirecting response to " + url);
 		try {
 			response.sendRedirect(url);
 		} catch (Exception e) {
-			log.error(e.getClass().getName() + " while attempting to redirect to " + url);
-			log.error("The stacktrace for the error:");
-			log.error(e.getMessage());
+			LOG.error(e.getClass().getName() + " while attempting to redirect to " + url);
+			LOG.error("The stacktrace for the error:");
+			LOG.error(e.getMessage());
 		}
 	}
 

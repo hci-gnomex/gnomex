@@ -40,6 +40,7 @@ import org.hibernate.internal.SessionImpl;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+import org.apache.log4j.Logger;
 
 public class PendingWorkAuthd extends TimerTask {
 
@@ -134,7 +135,7 @@ public class PendingWorkAuthd extends TimerTask {
     }
 
     try {
-      org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger("org.hibernate");
+      Logger log = Logger.getLogger("org.hibernate");
       log.setLevel(Level.ERROR);
 
       dataSource = new BatchDataSource(orionPath, schemaPath);
@@ -175,7 +176,7 @@ public class PendingWorkAuthd extends TimerTask {
             myConn.close();
           } catch (SQLException e) {
             System.out.println(e.toString());
-            e.printStackTrace();
+
           }
         }
       }
@@ -184,7 +185,7 @@ public class PendingWorkAuthd extends TimerTask {
 
     } catch (Exception e) {
       System.out.println(e.toString());
-      e.printStackTrace();
+
     }
     
     System.out.println ("Exiting...");

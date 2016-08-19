@@ -65,7 +65,7 @@ public class BatchMailer  {
         }
       } catch (JDOMException e) {
         System.out.println( e.toString() );
-        e.printStackTrace();
+
       }
     } else {
       // Check for context.xml if we are running under apache tomcat
@@ -97,7 +97,7 @@ public class BatchMailer  {
           }
         } catch (JDOMException e) {
           System.out.println( e.toString() );
-          e.printStackTrace();
+
         }      
       }
       

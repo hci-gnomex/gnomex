@@ -15,10 +15,10 @@ import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.output.XMLOutputter;
-
+import org.apache.log4j.Logger;
 public class GetAllLabs extends GNomExCommand implements Serializable {
   // the static field for logging in Log4J
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetLabList.class);
+  private static Logger LOG = Logger.getLogger(GetLabList.class);
 
   @Override
   public void loadCommand(HttpServletRequest request, HttpSession sess) {
@@ -61,7 +61,7 @@ public class GetAllLabs extends GNomExCommand implements Serializable {
       setResponsePage(this.SUCCESS_JSP);
 
     } catch (Exception e) {
-      e.printStackTrace();
+
 
     } finally {
       try {

@@ -19,11 +19,11 @@ import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
-
+import org.apache.log4j.Logger;
 public class SaveInstitution extends GNomExCommand implements Serializable {
 
   // the static field for logging in Log4J
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger
+  private static Logger LOG = org.apache.log4j.Logger
   .getLogger(SaveInstitution.class);
 
   private String                         institutionsXMLString;
@@ -42,7 +42,7 @@ public class SaveInstitution extends GNomExCommand implements Serializable {
         SAXBuilder sax = new SAXBuilder();
         institutionsDoc = sax.build(reader);
       } catch (JDOMException je) {
-        log.error("Cannot parse institutionsXMLString", je);
+        LOG.error("Cannot parse institutionsXMLString", je);
         this.addInvalidField("institutionsXMLString",
         "Invalid institutionsXMLString");
       }
@@ -149,8 +149,8 @@ public class SaveInstitution extends GNomExCommand implements Serializable {
         setResponsePage(this.ERROR_JSP);
       }
     } catch (Exception e) {
-      log.error("An exception has occurred in SaveInstitution ", e);
-      e.printStackTrace();
+      LOG.error("An exception has occurred in SaveInstitution ", e);
+
       throw new RollBackCommandException(e.getMessage());
     } finally {
       try {

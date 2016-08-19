@@ -15,7 +15,7 @@ import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.jdom.output.XMLOutputter;
-
+import org.apache.log4j.Logger;
 
 
 
@@ -24,7 +24,7 @@ public class GetSelectedSampleRowInfo extends GNomExCommand implements Serializa
  
   
   // the static field for logging in Log4J
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetSelectedSampleRowInfo.class);
+  private static Logger LOG = Logger.getLogger(GetSelectedSampleRowInfo.class);
   
   private String    selectedSampleXMLString;
   
@@ -70,7 +70,7 @@ public class GetSelectedSampleRowInfo extends GNomExCommand implements Serializa
             
 
       } catch (JDOMException je ) {
-        log.error( "Cannot parse selectedSampleXMLString " + selectedSampleXMLString, je );
+        LOG.error( "Cannot parse selectedSampleXMLString " + selectedSampleXMLString, je );
         this.addInvalidField( "SampleRowXML", "Invalidselect row sample XML");
       }
 
@@ -81,8 +81,8 @@ public class GetSelectedSampleRowInfo extends GNomExCommand implements Serializa
     
     setResponsePage(this.SUCCESS_JSP);
     }catch (Exception e){
-      log.error("An exception has occurred in GetSelectedLabRowInfo ", e);
-      e.printStackTrace();
+      LOG.error("An exception has occurred in GetSelectedLabRowInfo ", e);
+
       throw new RollBackCommandException(e.getMessage());
         
     }

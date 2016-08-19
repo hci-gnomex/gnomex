@@ -45,7 +45,7 @@ public class USeq2UCSCBig extends Thread{
 			if (verbose) System.out.println("\nDone!\n");
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+
 		}
 
 	}
@@ -75,7 +75,7 @@ public class USeq2UCSCBig extends Thread{
 			else return convertRegionData();
 
 		} catch (Exception e){
-			e.printStackTrace();
+
 		}
 		return null;
 
@@ -86,7 +86,7 @@ public class USeq2UCSCBig extends Thread{
 			convert();
 		} catch (Exception e) {
 			System.err.println("\nERROR: failed to convert useq file to big file!\n");
-			e.printStackTrace();
+
 		}
 	}
 

@@ -17,7 +17,7 @@ import javax.servlet.http.HttpSession;
 import org.hibernate.Session;
 import org.hibernate.exception.ConstraintViolationException;
 import org.jdom.Element;
-
+import org.apache.log4j.Logger;
 
 
 
@@ -26,7 +26,7 @@ public class DeleteOrganism extends GNomExCommand implements Serializable {
  
   
   // the static field for logging in Log4J
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(DeleteOrganism.class);
+  private static Logger LOG = Logger.getLogger(DeleteOrganism.class);
   
   
   private Integer      idOrganism = null;
@@ -107,22 +107,22 @@ public class DeleteOrganism extends GNomExCommand implements Serializable {
         organism.setIsActive("N");
         sess.flush();
       } catch(Exception e) {
-        log.error("An exception has occurred in DeleteOrganism when trying to inactivate organism ", e);
-        e.printStackTrace();
+        LOG.error("An exception has occurred in DeleteOrganism when trying to inactivate organism ", e);
+
         throw new RollBackCommandException(e.getMessage());
         
       }
       
     } catch (Exception e){
-      log.error("An exception has occurred in DeleteOrganism ", e);
-      e.printStackTrace();
+      LOG.error("An exception has occurred in DeleteOrganism ", e);
+
       throw new RollBackCommandException(e.getMessage());
         
     }finally {
       try {
         HibernateSession.closeSession();        
       } catch(Exception e) {
-        
+        LOG.error("An exception has occurred in DeleteOrganism ", e);
       }
     }
     

@@ -14,13 +14,13 @@ import javax.servlet.http.HttpSession;
 
 import org.hibernate.Session;
 import org.jdom.Document;
-
+import org.apache.log4j.Logger;
 
 
 
 public class GetGenomeBuild extends GNomExCommand implements Serializable {
   
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetGenomeBuild.class);
+  private static Logger LOG = Logger.getLogger(GetGenomeBuild.class);
   
   private Integer idGenomeBuild;
   private String serverName;
@@ -55,23 +55,14 @@ public class GetGenomeBuild extends GNomExCommand implements Serializable {
       setResponsePage(this.SUCCESS_JSP);
       
 
-    }catch (NamingException e){
-      log.error("An exception has occurred in GetGenomeBuild ", e);
-      e.printStackTrace(System.out);
-      throw new RollBackCommandException(e.getMessage());
-    }catch (SQLException e) {
-      log.error("An exception has occurred in GetGenomeBuild ", e);
-      e.printStackTrace(System.out);
-      throw new RollBackCommandException(e.getMessage());
-    } catch (Exception e) {
-      log.error("An exception has occurred in GetGenomeBuild ", e);
-      e.printStackTrace(System.out);
+    }catch (Exception e) {
+      LOG.error("An exception has occurred in GetGenomeBuild ", e);
       throw new RollBackCommandException(e.getMessage());
     } finally {
       try {
         this.getSecAdvisor().closeReadOnlyHibernateSession();        
       } catch(Exception e) {
-        
+        LOG.error("An exception has occurred in GetGenomeBuild ", e);
       }
     }
     

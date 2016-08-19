@@ -211,10 +211,10 @@ public class UploadSampleSheetFileServlet extends HttpServlet {
 			responseOut.println(xmlOut.outputString(doc));
 
 		} catch (ServletException e) {
-			e.printStackTrace();
+
 			throw new ServletException(e.getMessage());
 		} catch (org.jdom.IllegalDataException e) {
-			e.printStackTrace();
+
 			PrintWriter responseOut = res.getWriter();
 			res.setHeader("Cache-Control", "cache, must-revalidate, proxy-revalidate, s-maxage=0, max-age=0");
 			res.setHeader("Pragma", "public");
@@ -223,7 +223,7 @@ public class UploadSampleSheetFileServlet extends HttpServlet {
 			responseOut.println("<ERROR message=\"Illegal data\"/>");
 		} catch (Exception e) {
 			res.setStatus(ERROR_UPLOAD_MISC);
-			e.printStackTrace();
+
 			throw new ServletException("Unable to upload file " + fileName + " due to a server error.\n\n" + e.toString()
 					+ "\n\nPlease contact GNomEx support.");
 		} finally {

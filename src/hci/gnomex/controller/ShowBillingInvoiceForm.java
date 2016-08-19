@@ -35,6 +35,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.log4j.Logger;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import com.itextpdf.text.Document;
@@ -49,7 +50,7 @@ public class ShowBillingInvoiceForm extends ReportCommand implements Serializabl
 	public static final String      		DISK_USAGE_NUMBER_PREFIX 		= "ZZZZDiskUsage"; // Leading Z's to make it sort last
 	public static final String     			PRODUCT_ORDER_NUMBER_PREFIX 	= "ZZZZProductOrder"; // Leading Z's to make it sort last
 	
-	private static org.apache.log4j.Logger 	log = org.apache.log4j.Logger.getLogger(ShowBillingInvoiceForm.class);
+	private static Logger 	LOG = Logger.getLogger(ShowBillingInvoiceForm.class);
 	
 	public String 							SUCCESS_JSP = "/form_pdf.jsp";
 	
@@ -244,15 +245,15 @@ public class ShowBillingInvoiceForm extends ReportCommand implements Serializabl
 		    }
 			
 		} catch (Exception e) {
-		    log.error("An exception has occurred in ShowBillingInvoiceForm ", e);
-		    e.printStackTrace();
+		    LOG.error("An exception has occurred in ShowBillingInvoiceForm ", e);
+
 		    throw new RollBackCommandException(e.getMessage());
 		} finally {
 			try {
 				secAdvisor.closeHibernateSession();    
-			} catch(Exception e) {
-				
-		    }
+			} catch(Exception e){
+        LOG.error("Error", e);
+      }
 		}
 		
 		return this;

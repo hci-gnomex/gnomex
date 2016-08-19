@@ -16,12 +16,12 @@ import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
-
+import org.apache.log4j.Logger;
 
 public class SaveChromatogramList extends GNomExCommand implements Serializable {
   
   // the static field for logging in Log4J
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(SaveChromatogramList.class);
+  private static Logger LOG = Logger.getLogger(SaveChromatogramList.class);
   
   private String                       chromatogramXMLString;
   private Document                     chromatogramDoc;
@@ -46,7 +46,7 @@ public class SaveChromatogramList extends GNomExCommand implements Serializable 
         chromatogramDoc = sax.build(reader);
         parser = new ChromatogramParser(chromatogramDoc);
       } catch (JDOMException je ) {
-        log.error( "Cannot parse chromatogramXMLString", je );
+        LOG.error( "Cannot parse chromatogramXMLString", je );
         this.addInvalidField( "ChromatogramXMLString", "Invalid xml");
       }
     }
@@ -58,7 +58,7 @@ public class SaveChromatogramList extends GNomExCommand implements Serializable 
       launchAppURL = this.getLaunchAppURL(request);      
       appURL = this.getAppURL(request);      
     } catch (Exception e) {
-      log.warn("Cannot get launch app URL in SaveChromatogramList", e);
+      LOG.warn("Cannot get launch app URL in SaveChromatogramList", e);
     }
 
 
@@ -87,16 +87,16 @@ public class SaveChromatogramList extends GNomExCommand implements Serializable 
         }
         
       }catch (Exception e){
-        log.error("An exception has occurred in SaveChromatogramList ", e);
-        e.printStackTrace();
+        LOG.error("An exception has occurred in SaveChromatogramList ", e);
+
         throw new RollBackCommandException(e.getMessage());
 
       }finally {
         try {
           HibernateSession.closeSession();        
-        } catch(Exception e) {
-
-        }
+        } catch(Exception e){
+        LOG.error("Error", e);
+      }
       }
       
     } else {

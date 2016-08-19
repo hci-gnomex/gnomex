@@ -72,7 +72,7 @@ public class Wig2USeq {
 			}
 		} catch (Exception e){
 			System.out.println("\nProblem parsing "+ workingWigFile.getName()+"! Skipping.\n");
-			e.printStackTrace();
+
 		}
 	}
 
@@ -102,7 +102,7 @@ public class Wig2USeq {
 			File readme = ai.writeReadMeFile(saveDirectory);
 			files2Zip.add(0,readme);
 		} catch (IOException e){
-			e.printStackTrace();
+
 		}
 	}
 
