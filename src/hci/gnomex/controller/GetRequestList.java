@@ -40,6 +40,7 @@ public class GetRequestList extends GNomExCommand implements Serializable {
 
   private Boolean includePlateInfo = true;
   private Boolean linkToAnalysisExpsOnly = false;
+  private Boolean ignoreMaxRequestLimit = false;
 
   private String message = "";
   private static final int DEFAULT_MAX_REQUESTS_COUNT = 100;
@@ -59,6 +60,9 @@ public class GetRequestList extends GNomExCommand implements Serializable {
 
     if (request.getParameter("linkToAnalysisExpsOnly") != null && !request.getParameter("linkToAnalysisExpsOnly").equals("")) {
       linkToAnalysisExpsOnly = request.getParameter("linkToAnalysisExpsOnly").equals("Y") ? true : false;
+    }
+    if (request.getParameter("ignoreMaxRequestLimit") != null && !request.getParameter("ignoreMaxRequestLimit").equals("")) {
+      ignoreMaxRequestLimit = request.getParameter("ignoreMaxRequestLimit").equals("Y") ? true : false;
     }
   }
 
@@ -213,12 +217,18 @@ public class GetRequestList extends GNomExCommand implements Serializable {
 
   private Integer getMaxRequests(Session sess) {
     Integer maxRequests = DEFAULT_MAX_REQUESTS_COUNT;
-    String prop = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.EXPERIMENT_VIEW_LIMIT);
-    if (prop != null && prop.length() > 0) {
-      try {
-        maxRequests = Integer.parseInt(prop);
-      } catch (NumberFormatException e) {
+
+    if (!ignoreMaxRequestLimit) {
+      String prop = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.EXPERIMENT_VIEW_LIMIT);
+      if (prop != null && prop.length() > 0) {
+        try {
+          maxRequests = Integer.parseInt(prop);
+        } catch (NumberFormatException e) {
+        }
       }
+    }
+    else {
+      maxRequests = 2000000;
     }
     return maxRequests;
   }

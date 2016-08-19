@@ -44,8 +44,9 @@
 			public function init():void{
 				var params:Object = new Object();
 				params.includePlateInfo = 'N';
-				params.linkToAnalysisExpsOnly = 'Y';
+				params.linkToAnalysisExpsOnly = 'N';
 				params.idLab = this.idLab;
+				params.ignoreMaxRequestLimit = 'Y';
 				getRequestList.send(params);
 				labCombo.selectedIndex = this.getSelectedLabIndex();
 			}
