@@ -269,7 +269,7 @@ public class FileDescriptor extends DetailObject implements Serializable {
 				}
 
 				if (this.fileSize < maxSize) { // Only allow viewing for files under specified max MB
-					String vfilename = this.getDisplayName();
+					String vfilename = this.getFileName();
 					vfilename = Util.encodeName(vfilename);
 
 					viewURL = viewType + "&fileName=" + vfilename + "&view=Y" + dirParm;
