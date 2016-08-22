@@ -2,6 +2,7 @@
 package hci.gnomex.controller;
 
 import hci.framework.control.Command;
+import hci.framework.control.RollBackCommandException;
 import hci.gnomex.constants.Constants;
 import hci.gnomex.model.Analysis;
 import hci.gnomex.model.DataTrack;
@@ -13,9 +14,11 @@ import hci.gnomex.model.Request;
 import hci.gnomex.model.RequestCategory;
 import hci.gnomex.model.Topic;
 import hci.gnomex.security.SecurityAdvisor;
+import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.PropertyDictionaryHelper;
 
 import java.io.Serializable;
+import java.io.StringReader;
 import java.util.List;
 import java.util.Iterator;
 
@@ -23,7 +26,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.log4j.Logger;
 import org.hibernate.Session;
+import org.jdom.Document;
+import org.jdom.JDOMException;
+import org.jdom.input.SAXBuilder;
 
 /**
  *
@@ -46,6 +53,26 @@ public abstract class GNomExCommand extends Command implements Serializable {
 
   /**  Constructor for the Command object */
   public GNomExCommand() {
+  }
+
+  public abstract Command executeCommand() throws Exception;
+
+  protected abstract Logger getLogger();
+
+  @Override
+  public Command execute() throws RollBackCommandException {
+    try {
+      return executeCommand();
+    } catch (Exception e){
+      getLogger().error("An exception has occurred in " + this.getBaseClassName(), e);
+      throw new RollBackCommandException(e.getMessage());
+    } finally {
+      try {
+        HibernateSession.closeSession();
+      } catch(Exception e){
+        getLogger().error("Error", e);
+      }
+    }
   }
 
   protected void setRowCommands(HttpServletRequest request) {
@@ -209,5 +236,100 @@ public abstract class GNomExCommand extends Command implements Serializable {
     sess.flush();
   }
 
+  protected String getStringParameter(HttpServletRequest request, String name, Boolean required) {
+    String value = request.getParameter(name);
+    if (value != null) {
+      value = value.trim();
+      if (required && value.isEmpty()) {
+        this.addInvalidField(name, "Required field " + name + " is blank");
+      }
+    } else {
+      if (required) {
+        this.addInvalidField(name, "Required field " + name + " is missing");
+      }
+    }
+    return value;
+  }
+
+  protected String getRequiredStringParameter(HttpServletRequest request, String name) {
+    return getStringParameter(request, name, true);
+  }
+
+  protected String getOptionalStringParameter(HttpServletRequest request, String name) {
+    return getStringParameter(request, name, false);
+  }
+
+  protected Integer getIntegerParameter(HttpServletRequest request, String name, Boolean required) {
+    String value = request.getParameter(name);
+    if (value != null && !value.isEmpty()) {
+      try {
+        return Integer.valueOf(value);
+      } catch (NumberFormatException e) {
+        String message = "Can't convert field " + name + "='" + value + "' to Integer";
+        getLogger().error(message, e);
+        this.addInvalidField(name, message);
+        return null;
+      }
+    } else {
+      if (required) {
+        this.addInvalidField(name, "Missing required field " + name);
+      }
+    }
+    return null;
+  }
+
+  protected Integer getRequiredIntegerParameter(HttpServletRequest request, String name) {
+    return getIntegerParameter(request, name, true);
+  }
+
+  protected Integer getOptionalIntegerParameter(HttpServletRequest request, String name) {
+    return getIntegerParameter(request, name, false);
+  }
+
+  protected Document getXmlDocumentParameter(HttpServletRequest request, String name, Boolean required) {
+    String xmlString = getOptionalStringParameter(request, name);
+    if (xmlString != null && !xmlString.isEmpty()) {
+      try {
+        return new SAXBuilder().build(new StringReader(xmlString));
+      } catch (JDOMException e ) {
+        getLogger().error( "Cannot parse " + name, e );
+        this.addInvalidField(name, "Invalid " + name);
+        return null;
+      }
+    } else {
+      if (required) {
+        this.addInvalidField(name, "Missing required XML field " + name);
+      }
+      return null;
+    }
+  }
+
+  protected Document getRequiredXmlDocumentParameter(HttpServletRequest request, String name) {
+    return getXmlDocumentParameter(request, name, true);
+  }
+
+  protected Document getOptionalXmlDocumentParameter(HttpServletRequest request, String name) {
+    return getXmlDocumentParameter(request, name, false);
+  }
+
+  protected Boolean getBooleanParameter(HttpServletRequest request, String name, Boolean required) {
+    String value = request.getParameter(name);
+    if (value != null && !value.isEmpty()) {
+      return (value != null && value.equalsIgnoreCase("Y"));
+    } else {
+      if (required) {
+        this.addInvalidField(name, "Missing field " + name);
+      }
+      return null;
+    }
+  }
+
+  protected Boolean getRequiredBooleanParameter(HttpServletRequest request, String name) {
+    return getBooleanParameter(request, name, true);
+  }
+
+  protected Boolean getOptionalBooleanParameter(HttpServletRequest request, String name) {
+    return getBooleanParameter(request, name, false);
+  }
 
 }

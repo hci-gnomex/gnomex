@@ -36,7 +36,7 @@ public class MoveDataTrack extends GNomExCommand implements Serializable {
   private Integer idGenomeBuild = null;
   private Integer idDataTrackFolder = null;
   private Integer idDataTrackFolderOld = null;
-  private String  isMove = null;
+  private Boolean isMove = null;
  
   
   
@@ -44,33 +44,19 @@ public class MoveDataTrack extends GNomExCommand implements Serializable {
   }
   
   public void loadCommand(HttpServletRequest request, HttpSession session) {
-    
-   if (request.getParameter("idDataTrack") != null && !request.getParameter("idDataTrack").equals("")) {
-     idDataTrack = new Integer(request.getParameter("idDataTrack"));
-   } else {
-     this.addInvalidField("idDataTrack", "idDataTrack is required.");
-   }
-   if (request.getParameter("idGenomeBuild") != null && !request.getParameter("idGenomeBuild").equals("")) {
-     idGenomeBuild = new Integer(request.getParameter("idGenomeBuild"));
-   } else {
-     this.addInvalidField("idGenomeBuild", "idGenomeBuild is required.");
-   }
-   if (request.getParameter("idDataTrackFolder") != null && !request.getParameter("idDataTrackFolder").equals("")) {
-     idDataTrackFolder = new Integer(request.getParameter("idDataTrackFolder"));
-   }
-
-   if (request.getParameter("idDataTrackFolderOld") != null && !request.getParameter("idDataTrackFolderOld").equals("")) {
-     idDataTrackFolderOld = new Integer(request.getParameter("idDataTrackFolderOld"));
-   }
-   
-   if (request.getParameter("isMove") != null && !request.getParameter("isMove").equals("")) {
-     isMove = request.getParameter("isMove");
-   } else {
-     this.addInvalidField("isMove", "isMove is required.");
-   }
+    idDataTrack = getRequiredIntegerParameter(request, "idDataTrack");
+    idGenomeBuild = getRequiredIntegerParameter(request, "idGenomeBuild");
+    idDataTrackFolder = getOptionalIntegerParameter(request, "idDataTrackFolder");
+    idDataTrackFolderOld = getOptionalIntegerParameter(request, "idDataTrackFolderOld");
+    isMove = getRequiredBooleanParameter(request, "isMove");
   }
 
-  public Command execute() throws RollBackCommandException {
+  @Override
+  protected Logger getLogger() {
+    return LOG;
+  }
+
+  public Command executeCommand() throws RollBackCommandException {
     Session sess = null;
     DataTrack dataTrack = null;
     
@@ -82,7 +68,7 @@ public class MoveDataTrack extends GNomExCommand implements Serializable {
       GenomeBuild genomeBuild = GenomeBuild.class.cast(sess.load(GenomeBuild.class, idGenomeBuild));
 
       // Make sure the user can write this dataTrack 
-      if (isMove.equals("Y")) {
+      if (isMove) {
         if (!this.getSecAdvisor().canUpdate(dataTrack)) {
           addInvalidField("writep", "Insufficient permision to move dataTrack.");
         }
@@ -145,7 +131,7 @@ public class MoveDataTrack extends GNomExCommand implements Serializable {
     
           // If this is a move instead of a copy,
           // get the dataTrack folder this dataTrack should be removed from.
-          if (isMove.equals("Y")) {
+          if (isMove) {
             DataTrackFolder dataTrackFolderOld = null;
             if (idDataTrackFolderOld == null) {
               // If this is a root dataTrack, find the default root dataTrack

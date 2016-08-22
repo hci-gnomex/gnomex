@@ -62,24 +62,14 @@ public class SaveLab extends GNomExCommand implements Serializable {
   // the static field for logging in Log4J
   private static Logger LOG = Logger.getLogger(SaveLab.class);
 
-  private String                         institutionsXMLString;
-  private Document                       institutionsDoc;
   private LabInstitutionParser           labInstitutionParser;
 
-  private String                         membersXMLString;
-  private Document                       membersDoc;
   private LabMemberParser                labMemberParser;
 
-  private String                         collaboratorsXMLString;
-  private Document                       collaboratorsDoc;
   private LabMemberParser                collaboratorParser;
 
-  private String                         managersXMLString;
-  private Document                       managersDoc;
   private LabMemberParser                managerParser;
 
-  private String                         accountsXMLString;
-  private Document                       accountsDoc;
   private BillingAccountParser           accountParser;
 
   private LabCoreFacilityParser             coreFacilityParser;
@@ -109,95 +99,15 @@ public class SaveLab extends GNomExCommand implements Serializable {
       }
     }
 
+    labInstitutionParser = new LabInstitutionParser(getRequiredXmlDocumentParameter(request, "institutionsXMLString"));
+    labMemberParser = new LabMemberParser(getRequiredXmlDocumentParameter(request, "membersXMLString"));
+    collaboratorParser = new LabMemberParser(getRequiredXmlDocumentParameter(request, "collaboratorsXMLString"));
+    managerParser = new LabMemberParser(getRequiredXmlDocumentParameter(request, "managersXMLString"));
+    accountParser = new BillingAccountParser(getRequiredXmlDocumentParameter(request, "accountsXMLString"));
 
-    if (request.getParameter("institutionsXMLString") != null && !request.getParameter("institutionsXMLString").equals("")) {
-      institutionsXMLString = request.getParameter("institutionsXMLString");
-    }
-
-    StringReader reader = new StringReader(institutionsXMLString);
-    try {
-      SAXBuilder sax = new SAXBuilder();
-      institutionsDoc = sax.build(reader);
-      labInstitutionParser = new LabInstitutionParser(institutionsDoc);
-    } catch (JDOMException je ) {
-      LOG.error( "Cannot parse institutionsXMLString", je );
-      this.addInvalidField( "institutionsXMLString", "Invalid institutionsXMLString");
-    }
-
-
-    if (request.getParameter("membersXMLString") != null && !request.getParameter("membersXMLString").equals("")) {
-      membersXMLString = request.getParameter("membersXMLString");
-    }
-
-    reader = new StringReader(membersXMLString);
-    try {
-      SAXBuilder sax = new SAXBuilder();
-      membersDoc = sax.build(reader);
-      labMemberParser = new LabMemberParser(membersDoc);
-    } catch (JDOMException je ) {
-      LOG.error( "Cannot parse membersXMLString", je );
-      this.addInvalidField( "membersXMLString", "Invalid membersXMLString");
-    }
-
-    if (request.getParameter("collaboratorsXMLString") != null && !request.getParameter("collaboratorsXMLString").equals("")) {
-      collaboratorsXMLString = request.getParameter("collaboratorsXMLString");
-    }
-
-    reader = new StringReader(collaboratorsXMLString);
-    try {
-      SAXBuilder sax = new SAXBuilder();
-      collaboratorsDoc = sax.build(reader);
-      collaboratorParser = new LabMemberParser(collaboratorsDoc);
-    } catch (JDOMException je ) {
-      LOG.error( "Cannot parse collaboratorsXMLString", je );
-      this.addInvalidField( "collaboratorsXMLString", "Invalid collaboratorsXMLString");
-    }
-
-
-    if (request.getParameter("managersXMLString") != null && !request.getParameter("managersXMLString").equals("")) {
-      managersXMLString = request.getParameter("managersXMLString");
-    }
-
-    reader = new StringReader(managersXMLString);
-    try {
-      SAXBuilder sax = new SAXBuilder();
-      managersDoc = sax.build(reader);
-      managerParser = new LabMemberParser(managersDoc);
-    } catch (JDOMException je ) {
-      LOG.error( "Cannot parse managersXMLString", je );
-      this.addInvalidField( "managersXMLString", "Invalid managersXMLString");
-    }
-
-
-    if (request.getParameter("accountsXMLString") != null && !request.getParameter("accountsXMLString").equals("")) {
-      accountsXMLString = request.getParameter("accountsXMLString");
-    }
-
-    reader = new StringReader(accountsXMLString);
-    try {
-      SAXBuilder sax = new SAXBuilder();
-      accountsDoc = sax.build(reader);
-      accountParser = new BillingAccountParser(accountsDoc);
-
-    } catch (JDOMException je ) {
-      LOG.error( "Cannot parse accountsXMLString", je );
-      this.addInvalidField( "accountsXMLString", "Invalid accountsXMLString");
-    }
-
-    String coreFacilitiesXMLString = "";
-    if (request.getParameter("coreFacilitiesXMLString") != null && !request.getParameter("coreFacilitiesXMLString").equals("")) {
-      coreFacilitiesXMLString = request.getParameter("coreFacilitiesXMLString");
-
-      reader = new StringReader(coreFacilitiesXMLString);
-      try {
-        SAXBuilder sax = new SAXBuilder();
-        Document coreFacilitiesDoc = sax.build(reader);
-        coreFacilityParser = new LabCoreFacilityParser(coreFacilitiesDoc);
-
-      } catch (JDOMException je ) {
-        LOG.error( "Cannot parse coreFacilitiesXMLString", je );
-        this.addInvalidField( "coreFacilitiesXMLString", "Invalid coreFacilitiesXMLString");
-      }
+    Document coreFacilitiesXmlDocument = getOptionalXmlDocumentParameter(request, "coreFacilitiesXMLString");
+    if (coreFacilitiesXmlDocument != null) {
+      coreFacilityParser = new LabCoreFacilityParser(coreFacilitiesXmlDocument);
     }
 
     try {
@@ -210,9 +120,14 @@ public class SaveLab extends GNomExCommand implements Serializable {
 
   }
 
-  public Command execute() throws RollBackCommandException {
+  @Override
+  protected Logger getLogger() {
+    return LOG;
+  }
 
-    try {
+  @Override
+  public Command executeCommand() throws Exception {
+
       Session sess = HibernateSession.currentSession(this.getUsername());
 
       StringBuffer buf = new StringBuffer();
@@ -616,19 +531,6 @@ public class SaveLab extends GNomExCommand implements Serializable {
       } else {
         setResponsePage(this.ERROR_JSP);
       }
-
-    }catch (Exception e){
-      LOG.error("An exception has occurred in SaveLab ", e);
-
-      throw new RollBackCommandException(e.getMessage());
-
-    }finally {
-      try {
-        HibernateSession.closeSession();        
-      } catch(Exception e){
-        LOG.error("Error", e);
-      }
-    }
 
     return this;
   }
