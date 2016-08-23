@@ -345,6 +345,22 @@ public class RequestParser implements Serializable {
       request.setDescription(n.getAttributeValue("description"));
     }
 
+    if (n.getAttributeValue("reagent") != null && !n.getAttributeValue("reagent").equals("")) {
+      request.setReagent(n.getAttributeValue("reagent"));
+    }
+    if (n.getAttributeValue("elutionBuffer") != null && !n.getAttributeValue("elutionBuffer").equals("")) {
+      request.setElutionBuffer(n.getAttributeValue("elutionBuffer"));
+    }
+    if (n.getAttributeValue("usedDnase") != null && !n.getAttributeValue("usedDnase").equals("")) {
+      request.setUsedDnase(n.getAttributeValue("usedDnase"));
+    }
+    if (n.getAttributeValue("usedRnase") != null && !n.getAttributeValue("usedRnase").equals("")) {
+      request.setUsedRnase(n.getAttributeValue("usedRnase"));
+    }
+    if (n.getAttributeValue("keepSamples") != null && !n.getAttributeValue("keepSamples").equals("")) {
+      request.setKeepSamples(n.getAttributeValue("keepSamples"));
+    }
+
     if (n.getAttributeValue("captureLibDesignId") != null && !n.getAttributeValue("captureLibDesignId").equals(""))
       request.setCaptureLibDesignId(n.getAttributeValue("captureLibDesignId"));
 

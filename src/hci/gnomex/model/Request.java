@@ -101,6 +101,12 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
   private Integer		  idProduct;
   private String          archived;
 
+  private String          reagent;
+  private String          elutionBuffer;
+  private String          usedDnase;
+  private String          usedRnase;
+  private String          keepSamples;
+
   //Billing fields
   private Set             billingItems;
 
@@ -1400,6 +1406,46 @@ public class Request extends HibernateDetailObject implements VisibilityInterfac
 
   public void setNumPrePooledTubes(Integer numPrePooledTubes) {
     this.numPrePooledTubes = numPrePooledTubes;
+  }
+
+  public String getReagent() {
+    return reagent;
+  }
+
+  public void setReagent(String reagent) {
+    this.reagent = reagent;
+  }
+
+  public String getElutionBuffer() {
+    return elutionBuffer;
+  }
+
+  public void setElutionBuffer(String elutionBuffer) {
+    this.elutionBuffer = elutionBuffer;
+  }
+
+  public String getUsedDnase() {
+    return usedDnase;
+  }
+
+  public void setUsedDnase(String usedDnase) {
+    this.usedDnase = usedDnase;
+  }
+
+  public String getUsedRnase() {
+    return usedRnase;
+  }
+
+  public void setUsedRnase(String usedRnase) {
+    this.usedRnase = usedRnase;
+  }
+
+  public String getKeepSamples() {
+    return keepSamples;
+  }
+
+  public void setKeepSamples(String keepSamples) {
+    this.keepSamples = keepSamples;
   }
 
   public String getSeqPrepByCore() {
