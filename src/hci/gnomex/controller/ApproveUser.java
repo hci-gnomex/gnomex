@@ -21,9 +21,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.hibernate.Session;
+import org.apache.log4j.Logger;
 
 public class ApproveUser extends HttpServlet {
-
+	public static Logger LOG = Logger.getLogger(ApproveUser.class);
 	// new user parameters
 	private String guid = "";
 	private String idAppUser = "";
@@ -142,7 +143,7 @@ public class ApproveUser extends HttpServlet {
 
 		} catch (Exception e) {
 			message = "There was an issue activating the user.  Please activate through the GNomEx app and contact GNomEx support.  Thanks.";
-			e.printStackTrace();
+			LOG.error(message, e);
 		} finally {
 			try {
 				HibernateSession.closeSession();
@@ -153,7 +154,7 @@ public class ApproveUser extends HttpServlet {
 
 				rd.forward(request, response);
 			} catch (Exception e1) {
-				System.out.println("ApproveUser warning - cannot close hibernate session");
+				LOG.error("ApproveUser warning - cannot close hibernate session", e1);
 			}
 		}
 	}

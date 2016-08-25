@@ -18,10 +18,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.hibernate.Session;
-
+import org.apache.log4j.Logger;
 public class ApproveBillingAccount extends HttpServlet {
 
-	private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(SaveLab.class);
+	private static Logger LOG = Logger.getLogger(SaveLab.class);
 	private String idBillingAccount = "";
 	private BillingAccount ba;
 	private String message = "";
@@ -62,7 +62,7 @@ public class ApproveBillingAccount extends HttpServlet {
 
 		} catch (Exception e) {
 			message = "There was an issue activating the billing account.  Please activate through the GNomEx app and contact GNomEx support.  Thanks.";
-			e.printStackTrace();
+			LOG.error(message, e);
 		} finally {
 			try {
 				HibernateSession.closeSession();

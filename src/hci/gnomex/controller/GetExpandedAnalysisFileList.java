@@ -28,11 +28,11 @@ import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.output.XMLOutputter;
-
+import org.apache.log4j.Logger;
 
 public class GetExpandedAnalysisFileList extends GNomExCommand implements Serializable {
 
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetExpandedAnalysisFileList.class);
+  private static Logger LOG = Logger.getLogger(GetExpandedAnalysisFileList.class);
 
 
   private String    keysString;
@@ -86,14 +86,14 @@ public class GetExpandedAnalysisFileList extends GNomExCommand implements Serial
 
         // If we can't find the analysis in the database, just bypass it.
         if (analysis == null) {
-          log.error("Unable to find analysis " + analysisNumber + ".  Bypassing download for user " + this.getUsername() + ".");
+          LOG.error("Unable to find analysis " + analysisNumber + ".  Bypassing download for user " + this.getUsername() + ".");
           continue;
         }
 
         // Check permissions - bypass this analysis if the user 
         // does not have  permission to read it.
         if (!this.getSecAdvisor().canRead(analysis)) {  
-          log.error("Insufficient permissions to read analysis " + analysisNumber + ".  Bypassing download for user " + this.getUsername() + ".");
+          LOG.error("Insufficient permissions to read analysis " + analysisNumber + ".  Bypassing download for user " + this.getUsername() + ".");
           continue;
         }
 
@@ -141,26 +141,26 @@ public class GetExpandedAnalysisFileList extends GNomExCommand implements Serial
 
       setResponsePage(this.SUCCESS_JSP);
     }catch (NamingException e){
-      log.error("An exception has occurred in GetExpandedAnalysisFileList ", e);
-      e.printStackTrace();
+      LOG.error("An exception has occurred in GetExpandedAnalysisFileList ", e);
+
       throw new RollBackCommandException(e.getMessage());
     }catch (SQLException e) {
-      log.error("An exception has occurred in GetExpandedAnalysisFileList ", e);
-      e.printStackTrace();
+      LOG.error("An exception has occurred in GetExpandedAnalysisFileList ", e);
+
       throw new RollBackCommandException(e.getMessage());
     } catch (XMLReflectException e){
-      log.error("An exception has occurred in GetExpandedAnalysisFileList ", e);
-      e.printStackTrace();
+      LOG.error("An exception has occurred in GetExpandedAnalysisFileList ", e);
+
       throw new RollBackCommandException(e.getMessage());
     } catch (Exception e){
-      log.error("An exception has occurred in GetExpandedAnalysisFileList ", e);
-      e.printStackTrace();
+      LOG.error("An exception has occurred in GetExpandedAnalysisFileList ", e);
+
       throw new RollBackCommandException(e.getMessage());
     } finally {
       try {
         this.getSecAdvisor().closeReadOnlyHibernateSession();        
       } catch(Exception e) {
-
+        LOG.error("An exception has occurred in GetExpandedAnalysisFileList ", e);
       }
     }
 

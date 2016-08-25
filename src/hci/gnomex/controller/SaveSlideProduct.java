@@ -30,7 +30,7 @@ import org.jdom.input.SAXBuilder;
 
 public class SaveSlideProduct extends GNomExCommand implements Serializable {
 
-  private static Logger log = Logger.getLogger(SaveSlideProduct.class);
+  private static Logger LOG = Logger.getLogger(SaveSlideProduct.class);
   
   private SlideProduct slideProductScreen;
   
@@ -91,26 +91,26 @@ public class SaveSlideProduct extends GNomExCommand implements Serializable {
         setResponsePage(this.ERROR_JSP);
       }
     } catch (HibernateException e) {
-      log.error(e.getClass().toString() + ": " + e);
+      LOG.error(e.getClass().toString() + ": " + e, e);
       throw new RollBackCommandException();
     } catch (NamingException e) {
-      log.error(e.getClass().toString() + ": " + e);
+      LOG.error(e.getClass().toString() + ": " + e, e);
       throw new RollBackCommandException();
     } catch (SQLException e) {
-      log.error(e.getClass().toString() + ": " + e);
+      LOG.error(e.getClass().toString() + ": " + e, e);
       throw new RollBackCommandException();
     } catch (Exception e) {
-      log.error(e.getClass().toString() + ": " + e);
+      LOG.error(e.getClass().toString() + ": " + e, e);
       throw new RollBackCommandException();
     }
     finally {
       try {
         HibernateSession.closeSession();
       } catch (HibernateException e) {
-        log.error(e.getClass().toString() + ": " + e);
+        LOG.error(e.getClass().toString() + ": " + e, e);
         throw new RollBackCommandException();
       } catch (SQLException e) {
-        log.error(e.getClass().toString() + ": " + e);
+        LOG.error(e.getClass().toString() + ": " + e, e);
         throw new RollBackCommandException();
       }
     }
@@ -132,7 +132,7 @@ public class SaveSlideProduct extends GNomExCommand implements Serializable {
         mcDoc = sax.build(reader);
         applicationParser = new ApplicationParser(mcDoc);
       } catch (JDOMException je ) {
-        log.error( "Cannot parse microarrayCategoryXMLString", je );
+        LOG.error( "Cannot parse microarrayCategoryXMLString", je );
         this.addInvalidField( "microarrayCategoryXMLString", "Invalid microarrayCategoryXMLString");
       }
     }

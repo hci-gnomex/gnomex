@@ -31,11 +31,11 @@ import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.output.XMLOutputter;
-
+import org.apache.log4j.Logger;
 
 public class GetWorkItemList extends GNomExCommand implements Serializable {
 
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetWorkItemList.class);
+  private static Logger LOG = Logger.getLogger(GetWorkItemList.class);
 
   private WorkItemFilter filter;
 
@@ -118,7 +118,7 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
 
         TreeMap allRows = new TreeMap(comparator);
         StringBuffer queryBuf = filter.getQuery(this.getSecAdvisor());
-        log.info("GetWorkItemList query: " + queryBuf.toString());
+        LOG.info("GetWorkItemList query: " + queryBuf.toString());
         List rows = sess.createQuery(queryBuf.toString()).list();
 
         Map<Integer, Integer> idsToSkip = this.getSecAdvisor().getBSTXSecurityIdsToExclude(sess, dh, rows, 0, 3);
@@ -390,24 +390,14 @@ public class GetWorkItemList extends GNomExCommand implements Serializable {
 
 
 
-    }catch (NamingException e){
-      log.error("An exception has occurred in GetWorkItemList ", e);
-      e.printStackTrace(System.out);
-      throw new RollBackCommandException(e.getMessage());
-
-    }catch (SQLException e) {
-      log.error("An exception has occurred in GetWorkItemList ", e);
-      e.printStackTrace(System.out);
-      throw new RollBackCommandException(e.getMessage());
-    } catch (Exception e) {
-      log.error("An exception has occurred in GetWorkItemList ", e);
-      e.printStackTrace(System.out);
+    }catch (Exception e) {
+      LOG.error("An exception has occurred in GetWorkItemList ", e);
       throw new RollBackCommandException(e.getMessage());
     } finally {
       try {
         this.getSecAdvisor().closeReadOnlyHibernateSession();
-      } catch(Exception e) {
-
+      } catch(Exception e){
+        LOG.error("Error", e);
       }
     }
 

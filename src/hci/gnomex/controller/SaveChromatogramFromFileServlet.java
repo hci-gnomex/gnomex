@@ -1,7 +1,7 @@
 package hci.gnomex.controller;
-
+import org.apache.log4j.Logger;
 public class SaveChromatogramFromFileServlet extends HttpClientServletBase {
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(SaveChromatogramFromFileServlet.class);
+  private static Logger LOG = Logger.getLogger(SaveChromatogramFromFileServlet.class);
 
   protected String getNameOfServlet() {
     return "SaveChromatogramFromFileServlet";
@@ -12,6 +12,6 @@ public class SaveChromatogramFromFileServlet extends HttpClientServletBase {
   }
   
   protected void logError(String msg, Exception ex) {
-    log.error(msg, ex);
+    LOG.error(msg, ex);
   }
 }

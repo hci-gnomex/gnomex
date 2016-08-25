@@ -36,7 +36,7 @@ import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.jdom.output.XMLOutputter;
-
+import org.apache.log4j.Logger;
 /**
  * Utility class responsible for managing cached Hibernate-mapped dictionary
  * classes.
@@ -79,7 +79,7 @@ public final class OnDemandDictionaryManager implements DictionaryActions, Seria
   @SuppressWarnings("unused")
   private String dictionaryXmlFile;
   private TreeMap<String, Dictionary> dictionaries;
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(DictionaryManager.class);
+  private static Logger LOG = Logger.getLogger(DictionaryManager.class);
   private transient ClassLoader loader;
   private boolean includeNullEntry = false;
 
@@ -140,7 +140,7 @@ public final class OnDemandDictionaryManager implements DictionaryActions, Seria
         Document doc = builder.build(is);
         registerDictionaries(doc);
       } catch (JDOMException e) {
-        log.error("Error loading dictionaries: " + e.getMessage());
+        LOG.error("Error loading dictionaries: ", e);
       }
     }
   }
@@ -161,7 +161,7 @@ public final class OnDemandDictionaryManager implements DictionaryActions, Seria
       try {
         is = loader.getResourceAsStream(dictionaryXmlFile);
       } catch (Exception e1) {
-        log.error("Error loading stream: " + e1.getMessage(), e1);
+        LOG.error("Error loading stream: " + e1.getMessage(), e1);
       }
     }
     return is;

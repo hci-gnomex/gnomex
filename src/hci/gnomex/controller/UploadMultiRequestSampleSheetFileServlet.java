@@ -25,7 +25,7 @@ import com.oreilly.servlet.multipart.FilePart;
 import com.oreilly.servlet.multipart.MultipartParser;
 import com.oreilly.servlet.multipart.ParamPart;
 import com.oreilly.servlet.multipart.Part;
-
+import org.apache.log4j.Logger;
 public class UploadMultiRequestSampleSheetFileServlet extends HttpServlet {
 
 	/**
@@ -34,7 +34,7 @@ public class UploadMultiRequestSampleSheetFileServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
 	// the static field for logging in Log4J
-	private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(UploadMultiRequestSampleSheetFileServlet.class);
+	private static Logger LOG = Logger.getLogger(UploadMultiRequestSampleSheetFileServlet.class);
 
 	private String directoryName = "";
 
@@ -83,13 +83,13 @@ public class UploadMultiRequestSampleSheetFileServlet extends HttpServlet {
 			if (secAdvisor == null) {
 				System.out.println("UploadMultiRequestSampleSheetFileServlet: Error - Unable to find or create security advisor.");
 				res.setStatus(ERROR_SECURITY_EXCEPTION);
-				log.error("UploadMultiRequestSampleSheetFileServlet: Unable to upload sample sheet file.  Servlet unable to obtain security information. Please contact GNomEx support.");
+				LOG.error("UploadMultiRequestSampleSheetFileServlet: Unable to upload sample sheet file.  Servlet unable to obtain security information. Please contact GNomEx support.");
 				throw new ServletException("Unable to upload sample sheet file.  Servlet unable to obtain security information. Please contact GNomEx support.");
 			}
 
 			// Only admins can import multiple requests
 			if (!secAdvisor.hasPermission(SecurityAdvisor.CAN_WRITE_ANY_OBJECT)) {
-				log.error("UploadMultiRequestSampleSheetFileServlet: Only admins can import multi-request spread sheets.");
+				LOG.error("UploadMultiRequestSampleSheetFileServlet: Only admins can import multi-request spread sheets.");
 				throw new ServletException("Only admins can import multi-request spread sheets");
 			}
 
@@ -102,7 +102,7 @@ public class UploadMultiRequestSampleSheetFileServlet extends HttpServlet {
 			directoryName = PropertyDictionaryHelper.getInstance(sess).getQualifiedProperty(PropertyDictionary.TEMP_DIRECTORY, req.getServerName());
 			if (directoryName == null || directoryName.equals("")) {
 				res.setStatus(this.ERROR_MISSING_TEMP_DIRECTORY_PROPERTY);
-				log.error("UploadMultiRequestSampleSheetFileServlet: Unable to upload sample sheet. Missing GNomEx property for temp_directory.  Please add using 'Manage Dictionaries'.");
+				LOG.error("UploadMultiRequestSampleSheetFileServlet: Unable to upload sample sheet. Missing GNomEx property for temp_directory.  Please add using 'Manage Dictionaries'.");
 				throw new ServletException(
 						"Unable to upload sample sheet. Missing GNomEx property for temp_directory.  Please add using 'Manage Dictionaries'.");
 			}
@@ -114,18 +114,18 @@ public class UploadMultiRequestSampleSheetFileServlet extends HttpServlet {
 			if (!dir.exists()) {
 				if (!dir.mkdir()) {
 					res.setStatus(this.ERROR_INVALID_TEMP_DIRECTORY);
-					log.error("UploadMultiRequestSampleSheetFileServlet:Unable to upload sample sheet.  Cannot create temp directory " + directoryName);
+					LOG.error("UploadMultiRequestSampleSheetFileServlet:Unable to upload sample sheet.  Cannot create temp directory " + directoryName);
 					throw new ServletException("Unable to upload sample sheet.  Cannot create temp directory " + directoryName);
 				}
 			}
 			if (!dir.canRead()) {
 				res.setStatus(this.ERROR_INVALID_TEMP_DIRECTORY);
-				log.error("UploadMultiRequestSampleSheetFileServlet:Unable to upload sample sheet.  Cannot read temp directory " + directoryName);
+				LOG.error("UploadMultiRequestSampleSheetFileServlet:Unable to upload sample sheet.  Cannot read temp directory " + directoryName);
 				throw new ServletException("Unable to upload sample sheet.  Cannot read temp directory " + directoryName);
 			}
 			if (!dir.canWrite()) {
 				res.setStatus(this.ERROR_INVALID_TEMP_DIRECTORY);
-				log.error("UploadMultiRequestSampleSheetFileServlet:Unable to upload sample sheet.  Cannot write to temp directory " + directoryName);
+				LOG.error("UploadMultiRequestSampleSheetFileServlet:Unable to upload sample sheet.  Cannot write to temp directory " + directoryName);
 				throw new ServletException("Unable to upload sample sheet.  Cannot write to temp directory " + directoryName);
 			}
 
@@ -178,20 +178,20 @@ public class UploadMultiRequestSampleSheetFileServlet extends HttpServlet {
 
 		} catch (ServletException e) {
 			unexpectedError(e, res);
-			log.error("Error in UploadMultiRequestSampleSheetFileServlet: ", e);
+			LOG.error("Error in UploadMultiRequestSampleSheetFileServlet: ", e);
 		} catch (org.jdom.IllegalDataException e) {
 			unexpectedError(e, res);
 		} catch (Exception e) {
 			res.setStatus(ERROR_UPLOAD_MISC);
 			unexpectedError(e, res);
-			log.error("Error in UploadMultiRequestSampleSheetFileServlet: ", e);
+			LOG.error("Error in UploadMultiRequestSampleSheetFileServlet: ", e);
 			throw new ServletException("Unable to upload file " + fileName + " due to a server error.\n\n" + e.toString()
 					+ "\n\nPlease contact GNomEx support.");
 		} finally {
 			try {
 				HibernateSession.closeSession();
 			} catch (Exception e1) {
-				log.error("UploadSampleSheetFileServlet warning - cannot close hibernate session", e1);
+				LOG.error("UploadSampleSheetFileServlet warning - cannot close hibernate session", e1);
 			}
 
 			// Delete the file when finished
@@ -202,7 +202,7 @@ public class UploadMultiRequestSampleSheetFileServlet extends HttpServlet {
 
 	private void unexpectedError(Exception e, HttpServletResponse res) {
 		try {
-			log.error("Error in UploadMultiRequestSampleSheetFileServlet: ", e);
+			LOG.error("Error in UploadMultiRequestSampleSheetFileServlet: ", e);
 			PrintWriter responseOut = res.getWriter();
 			res.setHeader("Cache-Control", "cache, must-revalidate, proxy-revalidate, s-maxage=0, max-age=0");
 			res.setHeader("Pragma", "public");
@@ -210,7 +210,7 @@ public class UploadMultiRequestSampleSheetFileServlet extends HttpServlet {
 			res.setContentType("application/xml");
 			responseOut.println("<ERROR message=\"Illegal data\"/>");
 		} catch (IOException ioe) {
-			log.error("UploadMultiRequestSampleSheetParser unable to build response:", ioe);
+			LOG.error("UploadMultiRequestSampleSheetParser unable to build response:", ioe);
 		}
 	}
 }

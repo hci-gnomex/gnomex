@@ -14,11 +14,11 @@ import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.Price;
 import hci.gnomex.model.Product;
 import hci.gnomex.security.SecurityAdvisor;
-
+import org.apache.log4j.Logger;
 @SuppressWarnings("serial")
 public class UpdateProductType extends GNomExCommand implements Serializable {
 
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(UpdateProductType.class);
+  private static Logger LOG = Logger.getLogger(UpdateProductType.class);
 
   private Integer				idProductType;
   private Integer				idPriceCategory;
@@ -62,8 +62,8 @@ public class UpdateProductType extends GNomExCommand implements Serializable {
       }
 
     } catch (Exception e) {
-      log.error("An exception has occurred in UpdateProductType ", e);
-      e.printStackTrace();
+      LOG.error("An exception has occurred in UpdateProductType ", e);
+
       throw new RollBackCommandException(e.getMessage());
     } finally {
       try {

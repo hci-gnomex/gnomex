@@ -29,6 +29,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.hibernate.Hibernate;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
@@ -163,7 +164,7 @@ public class CreateDataTracks {
 	      /**************************************
 		  * Connect to GNomEx and Pull analysis Record
 		  **************************************/
-	      org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger("org.hibernate");
+	      Logger log = Logger.getLogger("org.hibernate");
 	      log.setLevel(Level.ERROR);
 	     
 	      System.out.println("Attempting to connect");
@@ -371,7 +372,7 @@ public class CreateDataTracks {
 				sess = dataSource.connect();
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+
 			}
   			 
   			 
@@ -541,7 +542,7 @@ public class CreateDataTracks {
 		} catch (Exception e){
 			tx.rollback();
 			System.out.println("An exception has occurred in LinkDataTrackFile: " + e.getMessage());
-			e.printStackTrace();
+
 			System.exit(1);
 		}
 	}

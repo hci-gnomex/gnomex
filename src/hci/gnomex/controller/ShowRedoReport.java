@@ -26,10 +26,10 @@ import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.output.XMLOutputter;
-
+import org.apache.log4j.Logger;
 public class ShowRedoReport extends GNomExCommand implements Serializable {
 
-  private static org.apache.log4j.Logger log         = org.apache.log4j.Logger.getLogger( ShowRedoReport.class );
+  private static Logger LOG         = Logger.getLogger( ShowRedoReport.class );
 
   public String                          SUCCESS_JSP = "/getHTML.jsp";
 
@@ -147,23 +147,23 @@ public class ShowRedoReport extends GNomExCommand implements Serializable {
       }
 
     } catch( UnknownPermissionException e ) {
-      log.error( "An exception has occurred in ShowRedoReport ", e );
-      e.printStackTrace();
+      LOG.error( "An exception has occurred in ShowRedoReport ", e );
+
       throw new RollBackCommandException( e.getMessage() );
 
     } catch( NamingException e ) {
-      log.error( "An exception has occurred in ShowRedoReport ", e );
-      e.printStackTrace();
+      LOG.error( "An exception has occurred in ShowRedoReport ", e );
+
       throw new RollBackCommandException( e.getMessage() );
 
     } catch( SQLException e ) {
-      log.error( "An exception has occurred in ShowRedoReport ", e );
-      e.printStackTrace();
+      LOG.error( "An exception has occurred in ShowRedoReport ", e );
+
       throw new RollBackCommandException( e.getMessage() );
 
     } catch( Exception e ) {
-      log.error( "An exception has occurred in ShowRedoReport ", e );
-      e.printStackTrace();
+      LOG.error( "An exception has occurred in ShowRedoReport ", e );
+
       throw new RollBackCommandException( e.getMessage() );
     } finally {
       try {

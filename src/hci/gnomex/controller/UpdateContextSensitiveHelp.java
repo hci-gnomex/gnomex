@@ -21,12 +21,12 @@ import hci.gnomex.model.RequestCategory;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
-
+import org.apache.log4j.Logger;
 // will need to change this to extend hci framework command if need to use in other projects.
 public class UpdateContextSensitiveHelp  extends GNomExCommand implements Serializable {
 
   // the static field for logging in Log4J
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(UpdateContextSensitiveHelp.class);
+  private static Logger LOG = Logger.getLogger(UpdateContextSensitiveHelp.class);
   
   private String idContextSensitiveHelpString;
   private String context1;
@@ -99,14 +99,14 @@ public class UpdateContextSensitiveHelp  extends GNomExCommand implements Serial
       }
       
     }catch (Exception e){
-      log.error("An exception has occurred in UpdateContextSensitiveHelp ", e);
+      LOG.error("An exception has occurred in UpdateContextSensitiveHelp ", e);
       throw new RollBackCommandException(e.getMessage());
         
     }finally {
       try {
         HibernateSession.closeSession();        
-      } catch(Exception e) {
-        
+      } catch(Exception e){
+        LOG.error("Error", e);
       }
     }
     

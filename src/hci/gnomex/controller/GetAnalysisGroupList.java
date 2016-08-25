@@ -25,11 +25,11 @@ import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.output.XMLOutputter;
-
+import org.apache.log4j.Logger;
 
 public class GetAnalysisGroupList extends GNomExCommand implements Serializable {
 
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetAnalysisGroupList.class);
+  private static Logger LOG = Logger.getLogger(GetAnalysisGroupList.class);
 
   private static final int     MAX_ANALYSIS_COUNT_DEFAULT = 1000;
 
@@ -101,7 +101,7 @@ public class GetAnalysisGroupList extends GNomExCommand implements Serializable 
         if(labsWithAnalysesIsASubsetOfAllLabsInQuery) { // queryBuf is guaranteed to not be empty & allLabsInQueryResults is guaranteed to not be empty
 
           StringBuffer queryBuf = filter.getAllLabsInQuery(this.getSecAdvisor());
-          log.info("Query for GetAnalysisGroupList - GetAllLabsInQuery: " + queryBuf.toString());
+          LOG.info("Query for GetAnalysisGroupList - GetAllLabsInQuery: " + queryBuf.toString());
           List allLabsInQueryResults = (List)sess.createQuery(queryBuf.toString()).list();
           ArrayList<Object[]> allLabsInQuery = new ArrayList<Object[]>();
           for(Iterator i = allLabsInQueryResults.iterator(); i.hasNext();) {
@@ -111,7 +111,7 @@ public class GetAnalysisGroupList extends GNomExCommand implements Serializable 
 
           HashMap<Integer, ArrayList<Object[]>> labsWithAnalyses = new HashMap<Integer, ArrayList<Object[]>>();      
           StringBuffer buf = filter.getQuery(this.getSecAdvisor());
-          log.info("Query for GetAnalysisGroupList: " + buf.toString());
+          LOG.info("Query for GetAnalysisGroupList: " + buf.toString());
           results = (List)sess.createQuery(buf.toString()).list();
 
           //build HashMap of Labs to their Analyses for Labs with one or more Analyses
@@ -188,7 +188,7 @@ public class GetAnalysisGroupList extends GNomExCommand implements Serializable 
           Integer prevIdAnalysis       = new Integer(-1);
 
           StringBuffer buf = filter.getQuery(this.getSecAdvisor());
-          log.info("Query for GetAnalysisGroupList: " + buf.toString());
+          LOG.info("Query for GetAnalysisGroupList: " + buf.toString());
           results = (List)sess.createQuery(buf.toString()).list();
 
           for(Iterator i = results.iterator(); i.hasNext();) {
@@ -257,24 +257,14 @@ public class GetAnalysisGroupList extends GNomExCommand implements Serializable 
 
 
       setResponsePage(this.SUCCESS_JSP);
-    }catch (NamingException e){
-      log.error("An exception has occurred in GetAnalysisGroupList ", e);
-      e.printStackTrace(System.out);
-      throw new RollBackCommandException(e.getMessage());
-
-    }catch (SQLException e) {
-      log.error("An exception has occurred in GetAnalysisGroupList ", e);
-      e.printStackTrace(System.out);
-      throw new RollBackCommandException(e.getMessage());
-    }catch (Exception e) {
-      log.error("An exception has occurred in GetAnalysisGroupList ", e);
-      e.printStackTrace(System.out);
+    } catch (Exception e) {
+      LOG.error("An exception has occurred in GetAnalysisGroupList ", e);
       throw new RollBackCommandException(e.getMessage());
     } finally {
       try {
         this.getSecAdvisor().closeReadOnlyHibernateSession();        
       } catch(Exception e) {
-
+        LOG.error("An exception has occurred in GetAnalysisGroupList ", e);
       }
     }
 

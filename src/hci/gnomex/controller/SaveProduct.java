@@ -21,11 +21,11 @@ import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.PriceUtil;
-
+import org.apache.log4j.Logger;
 public class SaveProduct extends GNomExCommand implements Serializable {
 
   // the static field for logging in Log4J
-  private static org.apache.log4j.Logger log          = org.apache.log4j.Logger.getLogger(
+  private static Logger LOG          = Logger.getLogger(
       SaveProduct.class );
 
   private Product                        productScreen;
@@ -57,7 +57,7 @@ public class SaveProduct extends GNomExCommand implements Serializable {
         unitPriceInternal = new BigDecimal(
             request.getParameter( "unitPriceInternal" ) );
       } catch( NumberFormatException e ) {
-        log.error( "Unable to parse internal price: "
+        LOG.error( "Unable to parse internal price: "
             + request.getParameter( "unitPriceInternal" ), e );
       }
     } else {
@@ -70,7 +70,7 @@ public class SaveProduct extends GNomExCommand implements Serializable {
         unitPriceExternalAcademic = new BigDecimal(
             request.getParameter( "unitPriceExternalAcademic" ) );
       } catch( NumberFormatException e ) {
-        log.error( "Unable to parse internal price: "
+        LOG.error( "Unable to parse internal price: "
             + request.getParameter( "unitPriceExternalAcademic" ), e );
       }
     } else {
@@ -84,7 +84,7 @@ public class SaveProduct extends GNomExCommand implements Serializable {
         unitPriceExternalCommercial = new BigDecimal(
             request.getParameter( "unitPriceExternalCommercial" ) );
       } catch( NumberFormatException e ) {
-        log.error( "Unable to parse internal price: "
+        LOG.error( "Unable to parse internal price: "
             + request.getParameter( "unitPriceExternalCommercial" ), e );
       }
     } else {
@@ -144,8 +144,8 @@ public class SaveProduct extends GNomExCommand implements Serializable {
       }
 
     } catch( Exception e ) {
-      log.error( "An exception has occurred in SaveProduct ", e );
-      e.printStackTrace();
+      LOG.error( "An exception has occurred in SaveProduct ", e );
+
       throw new RollBackCommandException( e.getMessage() );
 
     } finally {
@@ -188,7 +188,7 @@ public class SaveProduct extends GNomExCommand implements Serializable {
 
     if( pt.getIdPriceCategory() == null ) {
       // no price category -- can't store new price.
-      log.error(
+      LOG.error(
           "SaveProduct: Unable to store new product price due to no price category for ProductType:"
               + pt.getIdProductType() );
       return;

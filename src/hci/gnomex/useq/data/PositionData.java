@@ -201,7 +201,7 @@ public class PositionData extends USeqData implements Comparable <PositionData>{
 				}
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+
 			binaryFile = null;
 		} finally {
 			USeqUtilities.safeClose(workingDOS);
@@ -270,7 +270,7 @@ public class PositionData extends USeqData implements Comparable <PositionData>{
 			//close ZipEntry but not streams!
 			out.closeEntry();
 		} catch (IOException e) {
-			e.printStackTrace();
+
 			USeqUtilities.safeClose(out);
 			USeqUtilities.safeClose(dos);
 		} 
@@ -311,7 +311,7 @@ public class PositionData extends USeqData implements Comparable <PositionData>{
 				throw new IOException ("Incorrect file type for creating a Position[] -> '"+fileType+"' in "+binaryFile +"\n");
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
+
 			USeqUtilities.safeClose(dis);
 		}
 	}

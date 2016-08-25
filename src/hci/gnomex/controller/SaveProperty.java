@@ -45,11 +45,11 @@ import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.PriceUtil;
 import hci.gnomex.utility.PropertyDictionaryHelper;
-
+import org.apache.log4j.Logger;
 public class SaveProperty extends GNomExCommand implements Serializable {
 
   // the static field for logging in Log4J
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger( SaveProperty.class );
+  private static Logger LOG = Logger.getLogger( SaveProperty.class );
 
   private String                         optionsXMLString;
   private Document                       optionsDoc;
@@ -116,7 +116,7 @@ public class SaveProperty extends GNomExCommand implements Serializable {
         optionsDoc = sax.build( reader );
         checkOptions();
       } catch( JDOMException je ) {
-        log.error( "Cannot parse optionsXMLString", je );
+        LOG.error( "Cannot parse optionsXMLString", je );
         this.addInvalidField( "optionsXMLString", "Invalid optionsXMLString" );
       }
     }
@@ -129,7 +129,7 @@ public class SaveProperty extends GNomExCommand implements Serializable {
         SAXBuilder sax = new SAXBuilder();
         organismsDoc = sax.build( reader );
       } catch( JDOMException je ) {
-        log.error( "Cannot parse organismsXMLString", je );
+        LOG.error( "Cannot parse organismsXMLString", je );
         this.addInvalidField( "organismsXMLString",
             "Invalid organismsXMLString" );
       }
@@ -143,7 +143,7 @@ public class SaveProperty extends GNomExCommand implements Serializable {
         SAXBuilder sax = new SAXBuilder();
         appUsersDoc = sax.build( reader );
       } catch( JDOMException je ) {
-        log.error( "Cannot parse appUsersXMLString", je );
+        LOG.error( "Cannot parse appUsersXMLString", je );
         this.addInvalidField( "appUsersXMLString",
             "Invalid appUsersXMLString" );
       }
@@ -157,7 +157,7 @@ public class SaveProperty extends GNomExCommand implements Serializable {
         SAXBuilder sax = new SAXBuilder();
         platformsDoc = sax.build( reader );
       } catch( JDOMException je ) {
-        log.error( "Cannot parse platformsXMLString", je );
+        LOG.error( "Cannot parse platformsXMLString", je );
         this.addInvalidField( "platformsXMLString",
             "Invalid platformsXMLString" );
       }
@@ -171,7 +171,7 @@ public class SaveProperty extends GNomExCommand implements Serializable {
         SAXBuilder sax = new SAXBuilder();
         analysisTypesDoc = sax.build( reader );
       } catch( JDOMException je ) {
-        log.error( "Cannot parse analysisTypesXMLString", je );
+        LOG.error( "Cannot parse analysisTypesXMLString", je );
         this.addInvalidField( "analysisTypesXMLString",
             "Invalid analysisTypesXMLString" );
       }
@@ -568,8 +568,8 @@ public class SaveProperty extends GNomExCommand implements Serializable {
         setResponsePage( this.ERROR_JSP );
       }
     } catch( Exception e ) {
-      log.error( "An exception has occurred in SaveProperty ", e );
-      e.printStackTrace();
+      LOG.error( "An exception has occurred in SaveProperty ", e );
+
       throw new RollBackCommandException( e.getMessage() );
 
     } finally {
@@ -828,7 +828,7 @@ public class SaveProperty extends GNomExCommand implements Serializable {
     try {
       modified = PriceUtil.setPrice( attributeValue, existingPrice, price, whichPrice );
     } catch( NumberFormatException e ) {
-      log.error( "Unable to parse price: " + attributeValue, e );
+      LOG.error( "Unable to parse price: " + attributeValue, e );
     }
 
     return modified;

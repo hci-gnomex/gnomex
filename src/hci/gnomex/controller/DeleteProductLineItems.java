@@ -23,7 +23,7 @@ import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
-
+import org.apache.log4j.Logger;
 
 
 
@@ -32,7 +32,7 @@ public class DeleteProductLineItems extends GNomExCommand implements Serializabl
 
 
   // the static field for logging in Log4J
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(DeleteProductLineItems.class);
+  private static Logger LOG = Logger.getLogger(DeleteProductLineItems.class);
 
   private String productOrdersToDeleteXMLString;
   private Document productOrdersToDeleteDoc;
@@ -52,7 +52,7 @@ public class DeleteProductLineItems extends GNomExCommand implements Serializabl
         SAXBuilder sax = new SAXBuilder();
         productOrdersToDeleteDoc = sax.build(reader);     
       } catch (JDOMException je ) {
-        log.error( "Cannot parse productOrdersToDeleteXMLString", je );
+        LOG.error( "Cannot parse productOrdersToDeleteXMLString", je );
         this.addInvalidField( "productOrdersToDeleteXMLString", "Invalid productOrdersToDeleteXMLString");
       }
     } else if (request.getParameter("productLineItemsToDeleteXMLString") != null && !request.getParameter("productLineItemsToDeleteXMLString").equals("")) {
@@ -62,7 +62,7 @@ public class DeleteProductLineItems extends GNomExCommand implements Serializabl
         SAXBuilder sax = new SAXBuilder();
         productLineItemsToDeleteDoc = sax.build(reader);     
       } catch (JDOMException je ) {
-        log.error( "Cannot parse productLineItemsToDeleteXMLString", je );
+        LOG.error( "Cannot parse productLineItemsToDeleteXMLString", je );
         this.addInvalidField( "productLineItemsToDeleteXMLString", "Invalid productLineItemsToDeleteXMLString");
       }
     } else {
@@ -142,15 +142,15 @@ public class DeleteProductLineItems extends GNomExCommand implements Serializabl
 
 
     }catch (Exception e){
-      log.error("An exception has occurred in DeleteProductOrders ", e);
-      e.printStackTrace();
+      LOG.error("An exception has occurred in DeleteProductOrders ", e);
+
       throw new RollBackCommandException(e.getMessage());
 
     }finally {
       try {
         HibernateSession.closeSession();        
       } catch(Exception e) {
-
+        LOG.error("An exception has occurred in DeleteProductOrders ", e);
       }
     }
 

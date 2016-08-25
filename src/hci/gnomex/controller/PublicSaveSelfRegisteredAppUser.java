@@ -36,11 +36,11 @@ import javax.servlet.http.HttpSession;
 import org.apache.commons.validator.routines.EmailValidator;
 import org.hibernate.Query;
 import org.hibernate.Session;
-
+import org.apache.log4j.Logger;
 public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Serializable {
 
   // the static field for logging in Log4J
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(PublicSaveSelfRegisteredAppUser.class);
+  private static Logger LOG = Logger.getLogger(PublicSaveSelfRegisteredAppUser.class);
 
   private AppUser appUserScreen;
   private PropertyDictionaryHelper propertyHelper = null;
@@ -237,8 +237,8 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
         try {
           sendUserEmail(appUserScreen, sess);
         } catch (Exception e) {
-          log.error("An exception occurred sending the user email ", e);
-          e.printStackTrace();
+          LOG.error("An exception occurred sending the user email ", e);
+
           this.addInvalidField("email", "Unable to send email.  Please check your email address and try again.");
         }
       }
@@ -297,8 +297,8 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
       }
 
     } catch (Exception e) {
-      log.error("An exception has occurred in SaveSelfRegisteredAppUser ", e);
-      e.printStackTrace();
+      LOG.error("An exception has occurred in SaveSelfRegisteredAppUser ", e);
+
       throw new RollBackCommandException(e.getMessage());
 
     } finally {
@@ -371,7 +371,7 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
     }
 
     if (!MailUtil.isValidEmail(appUser.getEmail())) {
-      log.error("Invalid Email Address " + appUser.getEmail());
+      LOG.error("Invalid Email Address " + appUser.getEmail());
     }
 
     MailUtilHelper helper = new MailUtilHelper(appUser.getEmail(), coreFacilityEmail, "Your GNomEx user account has been created", intro.toString() + getEmailBody(appUser, false, sess), null, true, dictionaryHelper, serverName);

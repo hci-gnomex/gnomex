@@ -20,11 +20,11 @@ import hci.gnomex.security.SecurityAdvisor;
 import hci.report.constants.ReportFormats;
 import hci.report.model.ReportTray;
 import hci.report.utility.ReportCommand;
-
+import org.apache.log4j.Logger;
 @SuppressWarnings("serial")
 public class ShowRequestForm extends ReportCommand implements Serializable {
 
-    private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(ShowRequestForm.class);
+    private static Logger LOG = Logger.getLogger(ShowRequestForm.class);
 
     public String SUCCESS_JSP = "/form_pdf.jsp";
 
@@ -131,15 +131,15 @@ public class ShowRequestForm extends ReportCommand implements Serializable {
             }
 
         } catch (Exception e) {
-            log.error("An exception has occurred in ShowRequestForm ", e);
-            e.printStackTrace();
+            LOG.error("An exception has occurred in ShowRequestForm ", e);
+
             throw new RollBackCommandException(e.getMessage());
         } finally {
             try {
                 secAdvisor.closeReadOnlyHibernateSession();
-            } catch(Exception e) {
-
-            }
+            } catch(Exception e){
+        LOG.error("Error", e);
+      }
         }
 
         return this;
@@ -175,7 +175,7 @@ public class ShowRequestForm extends ReportCommand implements Serializable {
             MailUtilHelper helper = new MailUtilHelper(toAddress, ccAddress, null, fromAddress, subject, emailBody.toString(), null, true, DictionaryHelper.getInstance(sess), serverName);
             MailUtil.validateAndSendEmail(helper);
         } catch(Exception e){
-            e.printStackTrace();
+
         }
 
     }

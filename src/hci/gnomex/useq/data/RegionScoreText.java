@@ -51,7 +51,7 @@ public class RegionScoreText extends RegionScore{
 		}
 		catch (Exception e){
 			System.out.println("\nBad binary file "+binaryFile);
-			e.printStackTrace();
+
 			return null;
 		} finally {
 			if (dis != null) {

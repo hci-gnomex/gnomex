@@ -29,11 +29,11 @@ import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.jdom.output.XMLOutputter;
-
+import org.apache.log4j.Logger;
 public class OrganizeExperimentUploadFiles extends GNomExCommand implements Serializable {
 
   // the static field for logging in Log4J
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(OrganizeExperimentUploadFiles.class);
+  private static Logger LOG = Logger.getLogger(OrganizeExperimentUploadFiles.class);
 
   private Integer idRequest;
   private String filesXMLString;
@@ -75,7 +75,7 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
         filesDoc = sax.build(reader);
         parser = new FileDescriptorUploadParser(filesDoc);
       } catch (JDOMException je) {
-        log.error("Cannot parse filesXMLString", je);
+        LOG.error("Cannot parse filesXMLString", je);
         this.addInvalidField("FilesLXMLString", "Invalid files xml");
       }
     }
@@ -88,7 +88,7 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
         SAXBuilder sax = new SAXBuilder();
         experimentFileDoc = sax.build(reader);
       } catch (JDOMException je) {
-        log.error("Cannot parse experimentFileXMLString", je);
+        LOG.error("Cannot parse experimentFileXMLString", je);
         this.addInvalidField("experimentFileXMLString", "Invalid experimentFileXMLString xml");
       }
     }
@@ -102,7 +102,7 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
         filesToRemoveDoc = sax.build(reader);
         filesToRemoveParser = new FileDescriptorUploadParser(filesToRemoveDoc);
       } catch (JDOMException je) {
-        log.error("Cannot parse filesToRemoveXMLString", je);
+        LOG.error("Cannot parse filesToRemoveXMLString", je);
         this.addInvalidField("FilesToRemoveXMLString", "Invalid filesToRemove xml");
       }
     }
@@ -115,7 +115,7 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
         SAXBuilder sax = new SAXBuilder();
         filesToUnlinkDoc = sax.build(reader);
       } catch (JDOMException je) {
-        log.error("Cannot parse filesToUnlinkXMLString", je);
+        LOG.error("Cannot parse filesToUnlinkXMLString", je);
         this.addInvalidField("FilesToUnlinkXMLString", "Invalid filesToUnlink xml");
       }
     }
@@ -128,7 +128,7 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
         SAXBuilder sax = new SAXBuilder();
         linkedSampleFileDoc = sax.build(reader);
       } catch (JDOMException je) {
-        log.error("Cannot parse linkedSampleFileXMLString", je);
+        LOG.error("Cannot parse linkedSampleFileXMLString", je);
         this.addInvalidField("linkedSampleFileXMLString", "Invalid linkedSampleFiles xml");
       }
     }
@@ -334,11 +334,11 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
               try {
                 oldFileToDelete.delete();
               } catch (Exception e) {
-                log.warn("Unable to delete " + oldFileToDelete.getAbsolutePath() + ": ");
-                e.printStackTrace();
+                LOG.warn("Unable to delete " + oldFileToDelete.getAbsolutePath() + ": ");
+
               }
             } else {
-              log.warn("Unable to delete " + oldFileToDelete.getAbsolutePath() + ": directory is not empty");
+              LOG.warn("Unable to delete " + oldFileToDelete.getAbsolutePath() + ": directory is not empty");
             }
 
           }
@@ -646,8 +646,8 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
         }
 
       } catch (Exception e) {
-        log.error("An exception has occurred in OrganizeExperimentUploadFiles ", e);
-        e.printStackTrace();
+        LOG.error("An exception has occurred in OrganizeExperimentUploadFiles ", e);
+
         throw new RollBackCommandException(e.getMessage());
 
       } finally {

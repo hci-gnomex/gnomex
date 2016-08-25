@@ -57,7 +57,7 @@ public class PDFFormatterUtil {
 			image.scaleAbsolute(width, height);
 			image.setAlignment(Element.ALIGN_CENTER);
 		} catch (Exception e) {
-		    e.printStackTrace();
+
 		    image = null;
 		} 
 		
@@ -192,7 +192,7 @@ public class PDFFormatterUtil {
 				plainText = document.getText(0, document.getLength());
 			} catch (Exception e) {
 				plainText = "";
-				e.printStackTrace();
+
 			}
 		}
 		return plainText;

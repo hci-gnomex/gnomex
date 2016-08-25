@@ -57,14 +57,14 @@ import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.jdom.output.XMLOutputter;
-
+import org.apache.log4j.Logger;
 
 public class CreateBillingItems extends GNomExCommand implements Serializable {
   
  
   
   // the static field for logging in Log4J
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(CreateBillingItems.class);
+  private static Logger LOG = Logger.getLogger(CreateBillingItems.class);
 
   private Integer          idRequest;
   private Integer          idBillingPeriod;
@@ -93,7 +93,7 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
         requestDoc = sax.build(reader);
         requestParser = new RequestParser(requestDoc, this.getSecAdvisor());
       } catch (JDOMException je ) {
-        log.error( "Cannot parse requestXMLString", je );
+        LOG.error( "Cannot parse requestXMLString", je );
         this.addInvalidField( "RequestXMLString", "Invalid request xml");
       }
     }
@@ -369,7 +369,7 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
                 isDiscount = true;
               }
             } catch(Exception e) {
-              log.error("Unable to instantiate billing plugin " + priceCategory.getPluginClassName());
+              LOG.error("Unable to instantiate billing plugin " + priceCategory.getPluginClassName(), e);
             }
             
           }
@@ -489,28 +489,14 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
       // We don't want to save anything;
       sess.clear();
 
-    }catch (NamingException e){
-      log.error("An exception has occurred in CreateBillingItems ", e);
-      e.printStackTrace();
-      throw new RollBackCommandException(e.getMessage());
-
-    }catch (SQLException e) {
-      log.error("An exception has occurred in CreateBillingItems ", e);
-      e.printStackTrace();
-      throw new RollBackCommandException(e.getMessage());
-    } catch (XMLReflectException e){
-      log.error("An exception has occurred in CreateBillingItems ", e);
-      e.printStackTrace();
-      throw new RollBackCommandException(e.getMessage());
-    } catch (Exception e) {
-      log.error("An exception has occurred in CreateBillingItems ", e);
-      e.printStackTrace();
+    }catch (Exception e) {
+      LOG.error("An exception has occurred in CreateBillingItems ", e);
       throw new RollBackCommandException(e.getMessage());
     } finally {
       try {
         this.getSecAdvisor().closeReadOnlyHibernateSession();
       } catch(Exception e) {
-
+        LOG.error("An exception has occurred in CreateBillingItems ", e);
       }
     }
 

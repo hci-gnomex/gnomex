@@ -51,7 +51,7 @@ import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.jdom.output.XMLOutputter;
 
-
+import org.apache.log4j.Logger;
 
 
 public class SaveWorkItemSolexaPipeline extends GNomExCommand implements Serializable {
@@ -59,7 +59,7 @@ public class SaveWorkItemSolexaPipeline extends GNomExCommand implements Seriali
  
   
   // the static field for logging in Log4J
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(SaveWorkItemSolexaPipeline.class);
+  private static Logger LOG = Logger.getLogger(SaveWorkItemSolexaPipeline.class);
   
   private String                       workItemXMLString;
   private Document                     workItemDoc;
@@ -92,7 +92,7 @@ public class SaveWorkItemSolexaPipeline extends GNomExCommand implements Seriali
         workItemDoc = sax.build(reader);
         parser = new WorkItemSolexaPipelineParser(workItemDoc);
       } catch (JDOMException je ) {
-        log.error( "Cannot parse workItemXMLString", je );
+        LOG.error( "Cannot parse workItemXMLString", je );
         this.addInvalidField( "WorkItemXMLString", "Invalid work item xml");
       }
     }
@@ -101,7 +101,7 @@ public class SaveWorkItemSolexaPipeline extends GNomExCommand implements Seriali
       launchAppURL = this.getLaunchAppURL(request);      
       appURL = this.getAppURL(request);      
     } catch (Exception e) {
-      log.warn("Cannot get launch app URL in SaveRequest", e);
+      LOG.warn("Cannot get launch app URL in SaveRequest", e);
     }
     
     serverName = request.getServerName();
@@ -203,7 +203,7 @@ public class SaveWorkItemSolexaPipeline extends GNomExCommand implements Seriali
               this.sendConfirmationEmail(sess, request, (Collection)requestNotifyLaneMap.get(request.getNumber()));
             } catch (Exception e) {
               this.xmlResult = "<InvalidSubmitterEmail notice=\"Unable to notify " + request.getAppUser().getFirstLastDisplayName() +" that their sequence lanes have been completed because either they have no email address listed in gnomex or their email address is malformed." + "\"" + "/>";
-              e.printStackTrace();
+
             }
           }
           setResponsePage(this.SUCCESS_JSP);
@@ -214,16 +214,16 @@ public class SaveWorkItemSolexaPipeline extends GNomExCommand implements Seriali
         
         
       }catch (Exception e){
-        log.error("An exception has occurred in SaveWorkflowSolexaPipeline ", e);
-        e.printStackTrace();
+        LOG.error("An exception has occurred in SaveWorkflowSolexaPipeline ", e);
+
         throw new RollBackCommandException(e.getMessage());
           
       }finally {
         try {
           HibernateSession.closeSession();        
-        } catch(Exception e) {
-          
-        }
+        } catch(Exception e){
+        LOG.error("Error", e);
+      }
       }
       
     } else {
@@ -423,7 +423,7 @@ public class SaveWorkItemSolexaPipeline extends GNomExCommand implements Seriali
     String fromAddress = cf.getContactEmail();
     
     if(!MailUtil.isValidEmail(emailRecipients)){
-      log.error("Invalid email: " + emailRecipients + " for submitter " + request.getAppUser().getFirstLastDisplayName());
+      LOG.error("Invalid email: " + emailRecipients + " for submitter " + request.getAppUser().getFirstLastDisplayName());
     }
     
     if(!MailUtil.isValidEmail(fromAddress)){

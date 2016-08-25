@@ -28,10 +28,10 @@ import java.sql.Connection;
 import java.sql.Date;
 import java.sql.SQLException;
 import java.util.*;
-
+import org.apache.log4j.Logger;
 public class SaveProductOrder extends GNomExCommand implements Serializable {
 
-	private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(SaveProductOrder.class);
+	private static Logger LOG = Logger.getLogger(SaveProductOrder.class);
 
 	private String 			productListXMLString;
 	private Integer 		idBillingAccount;
@@ -54,7 +54,7 @@ public class SaveProductOrder extends GNomExCommand implements Serializable {
 		try {
 			appURL = this.getAppURL(request);
 		} catch (Exception e) {
-			log.warn("Cannot get launch app URL in SaveProductOrder", e);
+			LOG.warn("Cannot get launch app URL in SaveProductOrder", e);
 		}
 
 		serverName = request.getServerName();
@@ -68,7 +68,7 @@ public class SaveProductOrder extends GNomExCommand implements Serializable {
 				SAXBuilder sax = new SAXBuilder();
 				billingTemplateDoc = sax.build(reader);
 			} catch (JDOMException je) {
-				log.error("Cannot parse billingTemplateXMLString", je);
+				LOG.error("Cannot parse billingTemplateXMLString", je);
 				this.addInvalidField("billingTemplateXMLString", "Invalid billingTemplate xml");
 			}
 		}
@@ -112,7 +112,7 @@ public class SaveProductOrder extends GNomExCommand implements Serializable {
 			SAXBuilder sax = new SAXBuilder();
 			productDoc = sax.build(reader);
 		} catch (JDOMException je) {
-			log.error("Cannot parse producListXMLString", je);
+			LOG.error("Cannot parse producListXMLString", je);
 			this.addInvalidField("productListXMLString", "Invalid producList xml");
 		}
 
@@ -258,8 +258,8 @@ public class SaveProductOrder extends GNomExCommand implements Serializable {
 			}
 
 		} catch (Exception e) {
-			log.error("An exception has occurred while emailing in SaveRequest ", e);
-			e.printStackTrace();
+			LOG.error("An exception has occurred while emailing in SaveRequest ", e);
+
 			throw new RollBackCommandException(e.toString());
 		} finally {
 			try {

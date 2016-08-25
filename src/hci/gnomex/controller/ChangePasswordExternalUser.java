@@ -13,7 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.hibernate.Session;
-
+import org.apache.log4j.Logger;
 /**
  *
  *@author
@@ -25,7 +25,7 @@ import org.hibernate.Session;
 public class ChangePasswordExternalUser extends GNomExCommand implements Serializable {
 
   // the static field for logging in Log4J
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(ChangePasswordExternalUser.class);
+  private static Logger LOG = Logger.getLogger(ChangePasswordExternalUser.class);
 
   private String    userName;
   private String    password;
@@ -141,7 +141,7 @@ public class ChangePasswordExternalUser extends GNomExCommand implements Seriali
     }
     catch (Exception ex) {
       ex.printStackTrace();
-      log.fatal(ex.getClass().toString() + " occurred in ChangePasswordExternalUser " + ex);
+      LOG.fatal(ex.getClass().toString() + " occurred in ChangePasswordExternalUser " + ex);
       throw new RollBackCommandException();
     }
     finally {
@@ -149,7 +149,7 @@ public class ChangePasswordExternalUser extends GNomExCommand implements Seriali
         HibernateSession.closeSession();
       }
       catch (Exception ex) {
-        log.error("Exception trying to close the Hibernate session: "+ ex);
+        LOG.error("Exception trying to close the Hibernate session: ", ex);
       }
     }
     

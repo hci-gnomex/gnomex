@@ -1,7 +1,7 @@
 package hci.gnomex.controller;
-
+import org.apache.log4j.Logger;
 public class FastDataTransferUploadStartServlet extends HttpClientServletBase {
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(FastDataTransferUploadStartServlet.class);
+  private static Logger LOG = Logger.getLogger(FastDataTransferUploadStartServlet.class);
 
   @Override
   protected String getNameOfServlet() {
@@ -15,7 +15,7 @@ public class FastDataTransferUploadStartServlet extends HttpClientServletBase {
 
   @Override
   protected void logError(String msg, Exception ex) {
-    log.error(msg, ex);
+    LOG.error(msg, ex);
   }
   
 }

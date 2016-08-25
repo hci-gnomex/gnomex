@@ -15,7 +15,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.hibernate.Session;
-
+import org.apache.log4j.Logger;
 
 
 
@@ -25,7 +25,7 @@ public class SaveDataTrackFolder extends GNomExCommand implements Serializable {
 
 
   // the static field for logging in Log4J
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(SaveDataTrackFolder.class);
+  private static Logger LOG = Logger.getLogger(SaveDataTrackFolder.class);
 
   private DataTrackFolder    load;
   private Integer            idParentDataTrackFolder;
@@ -79,15 +79,15 @@ public class SaveDataTrackFolder extends GNomExCommand implements Serializable {
       }
 
     }catch (Exception e){
-      log.error("An exception has occurred in SaveDataTrackFolder ", e);
-      e.printStackTrace();
+      LOG.error("An exception has occurred in SaveDataTrackFolder ", e);
+
       throw new RollBackCommandException(e.getMessage());
 
     }finally {
       try {
         HibernateSession.closeSession();
-      } catch(Exception e) {
-
+      } catch(Exception e){
+        LOG.error("Error", e);
       }
     }
 

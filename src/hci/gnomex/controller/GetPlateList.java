@@ -24,12 +24,12 @@ import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.output.XMLOutputter;
-
+import org.apache.log4j.Logger;
 
 public class GetPlateList extends GNomExCommand implements Serializable {
 
   // the static field for logging in Log4J
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetPlateList.class);
+  private static Logger LOG = Logger.getLogger(GetPlateList.class);
 
   private PlateFilter          plateFilter;
   private String               listKind = "PlateList";
@@ -67,7 +67,7 @@ public class GetPlateList extends GNomExCommand implements Serializable {
           Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
 
           StringBuffer buf = plateFilter.getQuery(this.getSecAdvisor());
-          log.info("Query for GetPlateList: " + buf.toString());
+          LOG.info("Query for GetPlateList: " + buf.toString());
           List plates = sess.createQuery(buf.toString()).list();
           
           Integer maxPlates = getMaxPlates(sess);
@@ -131,27 +131,27 @@ public class GetPlateList extends GNomExCommand implements Serializable {
         "Insufficient permission to view plate list." );
       }
     }catch (NamingException e){
-      log.error("An exception has occurred in GetPlateList ", e);
-      e.printStackTrace();
+      LOG.error("An exception has occurred in GetPlateList ", e);
+
       throw new RollBackCommandException(e.getMessage());
 
     }catch (SQLException e) {
-      log.error("An exception has occurred in GetPlateList ", e);
-      e.printStackTrace();
+      LOG.error("An exception has occurred in GetPlateList ", e);
+
       throw new RollBackCommandException(e.getMessage());
     } catch (XMLReflectException e){
-      log.error("An exception has occurred in GetPlateList ", e);
-      e.printStackTrace();
+      LOG.error("An exception has occurred in GetPlateList ", e);
+
       throw new RollBackCommandException(e.getMessage());
     } catch (Exception e){
-      log.error("An exception has occurred in GetPlateList ", e);
-      e.printStackTrace();
+      LOG.error("An exception has occurred in GetPlateList ", e);
+
       throw new RollBackCommandException(e.getMessage());
     } finally {
       try {
         this.getSecAdvisor().closeReadOnlyHibernateSession();        
-      } catch(Exception e) {
-
+      } catch(Exception e){
+        LOG.error("Error", e);
       }
     }
 

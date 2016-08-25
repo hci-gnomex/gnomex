@@ -26,11 +26,11 @@ import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.output.XMLOutputter;
-
+import org.apache.log4j.Logger;
 
 public class GetSlideProductList extends GNomExCommand implements Serializable {
   
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetSlideProductList.class);
+  private static Logger LOG = Logger.getLogger(GetSlideProductList.class);
   
   private SlideProductFilter filter;
   
@@ -60,7 +60,7 @@ public class GetSlideProductList extends GNomExCommand implements Serializable {
     
     if (this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_PARTICIPATE_IN_GROUPS)) {
       buf = filter.getQuery(this.getSecAdvisor());
-      log.info("Query for GetSlideProductList: " + buf.toString());
+      LOG.info("Query for GetSlideProductList: " + buf.toString());
       slideProducts = (List)sess.createQuery(buf.toString()).list();
     } else {
       slideProducts = new ArrayList();
@@ -78,7 +78,7 @@ public class GetSlideProductList extends GNomExCommand implements Serializable {
     buf.append("JOIN   r.slideProduct as sp ");
     buf.append("WHERE  r.codeVisibility = '" + Visibility.VISIBLE_TO_PUBLIC + "'");
 
-    log.info("Query for GetSlideProductList: " + buf.toString());
+    LOG.info("Query for GetSlideProductList: " + buf.toString());
     List publicSlideProducts = (List)sess.createQuery(buf.toString()).list();
 
     // Indicate that this slides have public experiments on them
@@ -113,26 +113,26 @@ public class GetSlideProductList extends GNomExCommand implements Serializable {
     
     setResponsePage(this.SUCCESS_JSP);
     }catch (NamingException e){
-      log.error("An exception has occurred in GetSlideProductList ", e);
-      e.printStackTrace();
+      LOG.error("An exception has occurred in GetSlideProductList ", e);
+
       throw new RollBackCommandException(e.getMessage());
     }catch (SQLException e) {
-      log.error("An exception has occurred in GetSlideProductList ", e);
-      e.printStackTrace();
+      LOG.error("An exception has occurred in GetSlideProductList ", e);
+
       throw new RollBackCommandException(e.getMessage());
     } catch (XMLReflectException e){
-      log.error("An exception has occurred in GetSlideProductList ", e);
-      e.printStackTrace();
+      LOG.error("An exception has occurred in GetSlideProductList ", e);
+
       throw new RollBackCommandException(e.getMessage());
     } catch (Exception e){
-      log.error("An exception has occurred in GetSlideProductList ", e);
-      e.printStackTrace();
+      LOG.error("An exception has occurred in GetSlideProductList ", e);
+
       throw new RollBackCommandException(e.getMessage());
     } finally {
       try {
         this.getSecAdvisor().closeReadOnlyHibernateSession();        
-      } catch(Exception e) {
-        
+      } catch(Exception e){
+        LOG.error("Error", e);
       }
     }
     

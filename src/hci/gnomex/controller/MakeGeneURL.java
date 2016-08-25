@@ -19,11 +19,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.hibernate.Session;
-
+import org.apache.log4j.Logger;
 
 public class MakeGeneURL extends GNomExCommand implements Serializable {
   
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(MakeDataTrackLinks.class);
+  private static Logger LOG = Logger.getLogger(MakeDataTrackLinks.class);
   
   private String serverName;
   private String triopath;
@@ -73,23 +73,14 @@ public class MakeGeneURL extends GNomExCommand implements Serializable {
       this.xmlResult = "<SUCCESS urlsToLink=\"" +  urlsToLink.get(0) + "\"" + "/>"; 
       setResponsePage(this.SUCCESS_JSP);
       
-    }catch (NamingException e){
-      log.error("An exception has occurred in MakeGeneURL ", e);
-      e.printStackTrace(System.out);
-      throw new RollBackCommandException(e.getMessage());
-    }catch (SQLException e) {
-      log.error("An exception has occurred in MakeGeneURL ", e);
-      e.printStackTrace(System.out);
-      throw new RollBackCommandException(e.getMessage());
-    } catch (Exception e) {
-      log.error("An exception has occurred in MakeGeneURL ", e);
-      e.printStackTrace(System.out);
+    }catch (Exception e) {
+      LOG.error("An exception has occurred in MakeGeneURL ", e);
       throw new RollBackCommandException(e.getMessage());
     } finally {
       try {
         HibernateSession.closeSession();        
-      } catch(Exception e) {
-        
+      } catch(Exception e){
+        LOG.error("Error", e);
       }
     }
     

@@ -24,12 +24,12 @@ import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.output.XMLOutputter;
-
+import org.apache.log4j.Logger;
 
 public class GetNotification extends GNomExCommand implements Serializable {
   
   
-private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetNotification.class);
+private static Logger LOG = Logger.getLogger(GetNotification.class);
   
   private NotificationFilter filter;
   private Integer workflowCoreFacility = null;
@@ -217,24 +217,14 @@ private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(G
             setResponsePage(this.ERROR_JSP);
          }
 	//	}
-    }catch (NamingException e){
-      log.error("An exception has occurred in GetNotification ", e);
-      e.printStackTrace(System.out);
-      throw new RollBackCommandException(e.getMessage());
-        
-    }catch (SQLException e) {
-      log.error("An exception has occurred in GetNotification ", e);
-      e.printStackTrace(System.out);
-      throw new RollBackCommandException(e.getMessage());
-    } catch (Exception e) {
-      log.error("An exception has occurred in GetNotification ", e);
-      e.printStackTrace(System.out);
+    }catch (Exception e) {
+      LOG.error("An exception has occurred in GetNotification ", e);
       throw new RollBackCommandException(e.getMessage());
     } finally {
       try {
         this.getSecAdvisor().closeReadOnlyHibernateSession();        
-      } catch(Exception e) {
-
+      } catch(Exception e){
+        LOG.error("Error", e);
       }
     }
     

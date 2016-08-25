@@ -23,7 +23,7 @@ import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
-
+import org.apache.log4j.Logger;
 
 public class SaveSimpleSlide extends GNomExCommand implements Serializable {
 
@@ -39,7 +39,7 @@ public class SaveSimpleSlide extends GNomExCommand implements Serializable {
 
 
 	// the static field for logging in Log4J
-	private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(SaveSimpleSlide.class);
+	private static Logger LOG = Logger.getLogger(SaveSimpleSlide.class);
 
 
 	public void validate() {}
@@ -67,7 +67,7 @@ public class SaveSimpleSlide extends GNomExCommand implements Serializable {
         mcDoc = sax.build(reader);
         applicationParser = new ApplicationParser(mcDoc);
       } catch (JDOMException je ) {
-        log.error( "Cannot parse applicationXMLString", je );
+        LOG.error( "Cannot parse applicationXMLString", je );
         this.addInvalidField( "applicationXMLString", "Invalid applicationXMLString");
       }
     }
@@ -126,8 +126,8 @@ public class SaveSimpleSlide extends GNomExCommand implements Serializable {
    }
 
    catch (Exception e) {
-     log.error("An exception has occurred in SaveSimpleSlide ", e);
-     e.printStackTrace();
+     LOG.error("An exception has occurred in SaveSimpleSlide ", e);
+
      throw new RollBackCommandException(e.getMessage());
    } finally {
      try {

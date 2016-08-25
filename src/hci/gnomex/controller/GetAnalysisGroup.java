@@ -18,11 +18,11 @@ import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.output.XMLOutputter;
-
+import org.apache.log4j.Logger;
 
 public class GetAnalysisGroup extends GNomExCommand implements Serializable {
   
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetAnalysisGroup.class);
+  private static Logger LOG = Logger.getLogger(GetAnalysisGroup.class);
   
   private Integer idAnalysisGroup;
 
@@ -75,32 +75,15 @@ public class GetAnalysisGroup extends GNomExCommand implements Serializable {
         setResponsePage(this.ERROR_JSP);
       }
     
-    }catch (UnknownPermissionException e){
-      log.error("An exception has occurred in GetAnalysisGroup ", e);
-      e.printStackTrace();
-      throw new RollBackCommandException(e.getMessage());
-        
-    }catch (NamingException e){
-      log.error("An exception has occurred in GetAnalysisGroup ", e);
-      e.printStackTrace();
-      throw new RollBackCommandException(e.getMessage());
-    }catch (SQLException e) {
-      log.error("An exception has occurred in GetAnalysisGroup ", e);
-      e.printStackTrace();
-      throw new RollBackCommandException(e.getMessage());
-    } catch (XMLReflectException e){
-      log.error("An exception has occurred in GetAnalysisGroup ", e);
-      e.printStackTrace();
-      throw new RollBackCommandException(e.getMessage());
-    } catch (Exception e){
-      log.error("An exception has occurred in GetAnalysisGroup ", e);
-      e.printStackTrace();
+    }catch (Exception e){
+      LOG.error("An exception has occurred in GetAnalysisGroup ", e);
+
       throw new RollBackCommandException(e.getMessage());
     } finally {
       try {
         this.getSecAdvisor().closeReadOnlyHibernateSession();        
       } catch(Exception e) {
-        
+        LOG.error("An exception has occurred in GetAnalysisGroup ", e);
       }
     }
     

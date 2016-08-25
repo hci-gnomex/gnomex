@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Iterator;
-import java.util.logging.Logger;
+import org.apache.log4j.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -26,7 +26,7 @@ import org.hibernate.Session;
 
 public class DownloadDataTrackFileServlet extends HttpServlet {
 
-	private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(DownloadDataTrackFileServlet.class);
+	private static Logger LOG = Logger.getLogger(DownloadDataTrackFileServlet.class);
 
 	private SecurityAdvisor secAdvisor;
 
@@ -43,9 +43,9 @@ public class DownloadDataTrackFileServlet extends HttpServlet {
 		serverName = req.getServerName();
 
 		// Restrict commands to local host if request is not secure
-		if (!ServletUtil.checkSecureRequest(req, log)) {
+		if (!ServletUtil.checkSecureRequest(req, LOG)) {
 			ServletUtil.reportServletError(response, "Secure connection is required. Prefix your request with 'https'",
-					log, "Accessing secure command over non-secure line from remote host is not allowed.");
+					LOG, "Accessing secure command over non-secure line from remote host is not allowed.");
 			return;
 		}
 
@@ -189,15 +189,14 @@ public class DownloadDataTrackFileServlet extends HttpServlet {
 			}
 
 		} catch (Exception e) {
-			Logger.getLogger(this.getClass().getName()).warning(e.toString());
-			e.printStackTrace();
+			LOG.error("Error", e);
 			response.setStatus(99);
 		} finally {
 			if (sess != null) {
 				try {
 					HibernateSession.closeSession();
 				} catch (Exception e) {
-					log.error("Unable to close sesion in DownloadDataTrackFileServlet", e);
+					LOG.error("Unable to close sesion in DownloadDataTrackFileServlet", e);
 				}
 			}
 		}

@@ -22,6 +22,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import org.apache.log4j.Logger;
 
 public class SecurityAdvisor extends DetailObject implements Serializable, hci.framework.security.SecurityAdvisor {
     // Security advisor session variable
@@ -29,7 +30,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
 
     private static final String RESTRICTED = "(restricted)";
 
-    private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(SecurityAdvisor.class);
+    private static Logger LOG = Logger.getLogger(SecurityAdvisor.class);
 
     public static final int PROFILE_OBJECT_VISIBILITY = 1;
     public static final int PROFILE_GROUP_MEMBERSHIP = 2;
@@ -343,7 +344,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
             rs.close();
             stmt.close();
         } catch (Exception ex) {
-            log.error("Error querying associate table.", ex);
+            LOG.error("Error querying associate table.", ex);
             System.out.println("Error querying associate table. " + ex);
         }
 
@@ -924,7 +925,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
                 canRead = canReadAllCCNumbers(ccNumbers);
             }
         } catch (Exception ex) {
-            log.error("Error getting BSTX security settings to check ccNumbers", ex);
+            LOG.error("Error getting BSTX security settings to check ccNumbers", ex);
             canRead = false;
         }
 

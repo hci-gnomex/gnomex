@@ -20,7 +20,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.hibernate.Session;
-
+import org.apache.log4j.Logger;
 
 
 public class DeleteTopic extends GNomExCommand implements Serializable {
@@ -28,7 +28,7 @@ public class DeleteTopic extends GNomExCommand implements Serializable {
  
   
   // the static field for logging in Log4J
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(DeleteTopic.class);
+  private static Logger LOG = Logger.getLogger(DeleteTopic.class);
   
   
   private Integer      idTopic = null;
@@ -119,15 +119,15 @@ public class DeleteTopic extends GNomExCommand implements Serializable {
         setResponsePage(this.ERROR_JSP);
       }
     } catch (Exception e){
-      log.error("An exception has occurred in DeleteTopic ", e);
-      e.printStackTrace();
+      LOG.error("An exception has occurred in DeleteTopic ", e);
+
       throw new RollBackCommandException(e.getMessage());
         
     }finally {
       try {
         HibernateSession.closeSession();        
       } catch(Exception e) {
-        
+        LOG.error("An exception has occurred in DeleteTopic ", e);
       }
     }
     

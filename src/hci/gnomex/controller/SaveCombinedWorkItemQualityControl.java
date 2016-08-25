@@ -50,7 +50,7 @@ import org.jdom.Document;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.jdom.output.XMLOutputter;
-
+import org.apache.log4j.Logger;
 
 
 
@@ -59,7 +59,7 @@ public class SaveCombinedWorkItemQualityControl extends GNomExCommand implements
 
 
   // the static field for logging in Log4J
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(SaveCombinedWorkItemQualityControl.class);
+  private static Logger LOG = Logger.getLogger(SaveCombinedWorkItemQualityControl.class);
 
   private String                       workItemXMLString;
   private Document                     workItemDoc;
@@ -89,7 +89,7 @@ public class SaveCombinedWorkItemQualityControl extends GNomExCommand implements
         workItemDoc = sax.build(reader);
         parser = new WorkItemQualityControlParser(workItemDoc);
       } catch (JDOMException je ) {
-        log.error( "Cannot parse workItemXMLString", je );
+        LOG.error( "Cannot parse workItemXMLString", je );
         this.addInvalidField( "WorkItemXMLString", "Invalid work item xml");
       }
     }
@@ -98,7 +98,7 @@ public class SaveCombinedWorkItemQualityControl extends GNomExCommand implements
       launchAppURL = this.getLaunchAppURL(request);     
       appURL = this.getAppURL(request);
     } catch (Exception e) {
-      log.warn("Cannot get launch app URL in SaveRequest", e);
+      LOG.warn("Cannot get launch app URL in SaveRequest", e);
     }
 
     serverName = request.getServerName();
@@ -222,11 +222,11 @@ public class SaveCombinedWorkItemQualityControl extends GNomExCommand implements
                   this.sendConfirmationEmail(sess, request, isStepQualityControl);
                   confirmedRequestMap.put(request.getNumber(), request.getNumber());
                 } catch (Exception e) {
-                  log.error("Unable to send confirmation email notifying submitter that qc on request " + request.getNumber() + 
-                      " sample quality is complete. " + e.toString());
+                  LOG.error("Unable to send confirmation email notifying submitter that qc on request " + request.getNumber() +
+                      " sample quality is complete. " + e.toString(), e);
                 }
               } else {
-                log.error("Unable to send confirmation email notifying submitter that request " + request.getNumber() + 
+                LOG.error("Unable to send confirmation email notifying submitter that request " + request.getNumber() +
                 " sample quality is complete.  Request submitter or request submitter email is blank.");
               }
             }
@@ -249,16 +249,16 @@ public class SaveCombinedWorkItemQualityControl extends GNomExCommand implements
 
 
       }catch (Exception e){
-        log.error("An exception has occurred in SaveWorkflowQualityControl ", e);
-        e.printStackTrace();
+        LOG.error("An exception has occurred in SaveWorkflowQualityControl ", e);
+
         throw new RollBackCommandException(e.getMessage());
 
       }finally {
         try {
           HibernateSession.closeSession();        
-        } catch(Exception e) {
-
-        }
+        } catch(Exception e){
+        LOG.error("Error", e);
+      }
       }
 
     } else {
@@ -340,7 +340,7 @@ public class SaveCombinedWorkItemQualityControl extends GNomExCommand implements
     RequestEmailBodyFormatter emailFormatter = new RequestEmailBodyFormatter(sess, this.getSecAdvisor(), appURL, dictionaryHelper, request, null, request.getSamples(), request.getHybridizations(), request.getSequenceLanes(),  introNote.toString());
     
     if(!MailUtil.isValidEmail(emailRecipients)){
-      log.error("Invalid email address: " + emailRecipients);
+      LOG.error("Invalid email address: " + emailRecipients);
     }
     if(!MailUtil.isValidEmail(fromAddress)){
       fromAddress = DictionaryHelper.getInstance(sess).getPropertyDictionary(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);

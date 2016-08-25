@@ -21,7 +21,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.hibernate.Session;
-
+import org.apache.log4j.Logger;
 
 
 
@@ -30,7 +30,7 @@ public class SaveTransferLog extends GNomExCommand implements Serializable {
  
   
   // the static field for logging in Log4J
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(SaveTransferLog.class);
+  private static Logger LOG = Logger.getLogger(SaveTransferLog.class);
 
   private String      serverName;
   private String      number;
@@ -127,15 +127,15 @@ public class SaveTransferLog extends GNomExCommand implements Serializable {
       }
       
     }catch (Exception e){
-      log.error("An exception has occurred in SaveTransferLog ", e);
-      e.printStackTrace();
+      LOG.error("An exception has occurred in SaveTransferLog ", e);
+
       throw new RollBackCommandException(e.getMessage());
         
     }finally {
       try {
         HibernateSession.closeSession();        
-      } catch(Exception e) {
-        
+      } catch(Exception e){
+        LOG.error("Error", e);
       }
     }
     

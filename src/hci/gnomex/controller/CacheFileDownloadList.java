@@ -15,7 +15,7 @@ import javax.servlet.http.HttpSession;
 import org.jdom.Document;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
-
+import org.apache.log4j.Logger;
 /**
  *
  *@author
@@ -27,7 +27,7 @@ import org.jdom.input.SAXBuilder;
 public class CacheFileDownloadList extends GNomExCommand implements Serializable {
 
   // the static field for logging in Log4J
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(CacheFileDownloadList.class);
+  private static Logger LOG = Logger.getLogger(CacheFileDownloadList.class);
   
   public String SUCCESS_JSP = "/getXML.jsp";
   
@@ -69,7 +69,7 @@ public class CacheFileDownloadList extends GNomExCommand implements Serializable
         Document doc = sax.build(reader);
         parser = new FileDescriptorParser(doc);
       } catch (JDOMException je ) {
-        log.error( "Cannot parse fileDescriptorXMLString", je );
+        LOG.error( "Cannot parse fileDescriptorXMLString", je );
       
       }
     }

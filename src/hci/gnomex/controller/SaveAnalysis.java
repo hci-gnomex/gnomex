@@ -56,11 +56,11 @@ import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
-
+import org.apache.log4j.Logger;
 public class SaveAnalysis extends GNomExCommand implements Serializable {
 
 	// the static field for logging in Log4J
-	private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(SaveLab.class);
+	private static Logger LOG = Logger.getLogger(SaveLab.class);
 
 	private String baseDir;
 
@@ -141,7 +141,7 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
 				analysisGroupsDoc = sax.build(reader);
 				analysisGroupParser = new AnalysisGroupParser(analysisGroupsDoc);
 			} catch (JDOMException je) {
-				log.error("Cannot parse analysisGroupsXMLString", je);
+				LOG.error("Cannot parse analysisGroupsXMLString", je);
 				this.addInvalidField("analysisGroupsXMLString", "Invalid analysisGroupsXMLString");
 			}
 		}
@@ -156,7 +156,7 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
 
 				analysisFileParser = new AnalysisFileParser(analysisFilesDoc, null);
 			} catch (JDOMException je) {
-				log.error("Cannot parse analysisFilesXMLString", je);
+				LOG.error("Cannot parse analysisFilesXMLString", je);
 				this.addInvalidField("analysisFilesXMLString", "Invalid analysisFilesXMLString");
 			}
 		}
@@ -169,7 +169,7 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
 				hybsDoc = sax.build(reader);
 				hybParser = new AnalysisHybParser(hybsDoc);
 			} catch (JDOMException je) {
-				log.error("Cannot parse hybsXMLString", je);
+				LOG.error("Cannot parse hybsXMLString", je);
 				this.addInvalidField("hybsXMLString", "Invalid hybsXMLString");
 			}
 		}
@@ -187,7 +187,7 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
 				lanesDoc = sax.build(reader);
 				laneParser = new AnalysisLaneParser(lanesDoc);
 			} catch (JDOMException je) {
-				log.error("Cannot parse lanesXMLString", je);
+				LOG.error("Cannot parse lanesXMLString", je);
 				this.addInvalidField("lanesXMLString", "Invalid lanesXMLString");
 			}
 		}
@@ -200,7 +200,7 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
 				samplesDoc = sax.build(reader);
 				sampleParser = new AnalysisSampleParser(samplesDoc);
 			} catch (JDOMException je) {
-				log.error("Cannot parse samplesXMLString", je);
+				LOG.error("Cannot parse samplesXMLString", je);
 				this.addInvalidField("samplesXMLString", "Invalid samplesXMLString");
 			}
 		}
@@ -213,7 +213,7 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
 				collaboratorsDoc = sax.build(reader);
 				collaboratorParser = new AnalysisCollaboratorParser(collaboratorsDoc);
 			} catch (JDOMException je) {
-				log.error("Cannot parse collaboratorsXMLString", je);
+				LOG.error("Cannot parse collaboratorsXMLString", je);
 				this.addInvalidField("collaboratorsXMLString", "Invalid collaboratorsXMLString");
 			}
 		}
@@ -226,7 +226,7 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
 				genomeBuildsDoc = sax.build(reader);
 				genomeBuildParser = new AnalysisGenomeBuildParser(genomeBuildsDoc);
 			} catch (JDOMException je) {
-				log.error("Cannot parse genomeBuildsXMLString", je);
+				LOG.error("Cannot parse genomeBuildsXMLString", je);
 				this.addInvalidField("genomeBuildsXMLString", "Invalid genomeBuildsXMLString");
 			}
 		}
@@ -659,8 +659,8 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
 			}
 
 		} catch (Exception e) {
-			log.error("An exception has occurred in SaveAnalysis ", e);
-			e.printStackTrace();
+			LOG.error("An exception has occurred in SaveAnalysis ", e);
+
 			throw new RollBackCommandException(e.getMessage());
 
 		} finally {
@@ -953,7 +953,7 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
 
 		File f = new File(fileName);
 		if (!f.delete()) {
-			log.error("Unable to remove " + analysisFile.getFileName() + " from file system for analysis " + analysis.getNumber());
+			LOG.error("Unable to remove " + analysisFile.getFileName() + " from file system for analysis " + analysis.getNumber());
 		}
 
 	}
@@ -962,7 +962,7 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
 		String dirName = getAnalysisDirectory(baseDir, analysis);
 		File f = new File(dirName);
 		if (!f.delete()) {
-			log.error("Unable to remove " + dirName + " from file system for analysis " + analysis.getNumber());
+			LOG.error("Unable to remove " + dirName + " from file system for analysis " + analysis.getNumber());
 		}
 
 	}

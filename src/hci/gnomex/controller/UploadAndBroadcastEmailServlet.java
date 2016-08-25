@@ -243,7 +243,7 @@ public class UploadAndBroadcastEmailServlet extends HttpServlet {
 		} catch (Exception e) {
 			res.setStatus(STATUS_ERROR);
 			System.out.println(e.toString());
-			e.printStackTrace();
+
 			throw new ServletException("Unable to send broadcast email due to a server error.  Please contact GNomEx support.");
 		} finally {
 			try {

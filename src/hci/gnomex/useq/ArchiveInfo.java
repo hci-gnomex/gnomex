@@ -114,7 +114,7 @@ public class ArchiveInfo {
 			br = new BufferedReader(isr);
 			loadTextArchiveReadMeFile(br);
 		} catch (Exception e) {
-			e.printStackTrace();
+
 			USeqUtilities.safeClose(br);
 			USeqUtilities.safeClose(isr);
 		} finally {
@@ -138,7 +138,7 @@ public class ArchiveInfo {
 			is =  zf.getInputStream(ze);
 			ai = new ArchiveInfo(is, closeStream);
 		} catch (Exception e) {
-			e.printStackTrace();
+
 		} finally {
 			if (closeStream) USeqUtilities.safeClose(is);
 		}
@@ -169,7 +169,7 @@ public class ArchiveInfo {
 			}
 			return readme;
 		} catch (IOException e){
-			e.printStackTrace();
+
 			return null;
 		} finally {
 			USeqUtilities.safeClose(out);
@@ -209,7 +209,7 @@ public class ArchiveInfo {
 				}
 			}
 		} catch (IOException e) {
-			e.printStackTrace();			
+
 			USeqUtilities.safeClose(in);
 		}
 	}
@@ -223,7 +223,7 @@ public class ArchiveInfo {
 			br = new BufferedReader (fr);
 			loadTextArchiveReadMeFile (br);
 		} catch (FileNotFoundException e) {
-			e.printStackTrace();
+
 		} finally {
 			USeqUtilities.safeClose(fr);
 			USeqUtilities.safeClose(br);

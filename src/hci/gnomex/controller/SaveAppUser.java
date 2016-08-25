@@ -35,11 +35,11 @@ import org.hibernate.Query;
 import org.hibernate.Session;
 import org.jdom.Element;
 import org.jdom.input.SAXBuilder;
-
+import org.apache.log4j.Logger;
 public class SaveAppUser extends GNomExCommand implements Serializable {
 
   // the static field for logging in Log4J
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(SaveAppUser.class);
+  private static Logger LOG = Logger.getLogger(SaveAppUser.class);
 
   private AppUser appUserScreen;
   private boolean isNewAppUser = false;
@@ -60,7 +60,7 @@ public class SaveAppUser extends GNomExCommand implements Serializable {
     try {
       url = this.getLaunchAppURL(request);
     } catch (Exception e) {
-      log.warn("Cannot get launch app URL in SaveAppUser", e);
+      LOG.warn("Cannot get launch app URL in SaveAppUser", e);
     }
     if (request.getParameter("isWebForm") != null && !request.getParameter("isWebForm").equals("")) {
       isWebForm = request.getParameter("isWebForm");
@@ -97,7 +97,7 @@ public class SaveAppUser extends GNomExCommand implements Serializable {
           managingCoreFacilityIds.add(chk);
         }
       } catch (Exception je) {
-        log.error("Cannot parse managingCoreFacilitiesString", je);
+        LOG.error("Cannot parse managingCoreFacilitiesString", je);
         this.addInvalidField("managingCoreFacilitiesString", "Invalid search xml");
       }
     }
@@ -121,7 +121,7 @@ public class SaveAppUser extends GNomExCommand implements Serializable {
           coreFacilityIdsICanSubmitTo.add(chk);
         }
       } catch (Exception je) {
-        log.error("Cannot parse coreFacilitiesICanSubmitToString", je);
+        LOG.error("Cannot parse coreFacilitiesICanSubmitToString", je);
         this.addInvalidField("coreFacilitiesICanSubmitToString", "Invalid search xml");
       }
     }
@@ -357,8 +357,8 @@ public class SaveAppUser extends GNomExCommand implements Serializable {
         }
       }
     } catch (Exception e) {
-      log.error("An exception has occurred in SaveAppUser ", e);
-      e.printStackTrace();
+      LOG.error("An exception has occurred in SaveAppUser ", e);
+
       throw new RollBackCommandException(e.getMessage());
 
     } finally {

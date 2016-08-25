@@ -23,11 +23,11 @@ import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.output.XMLOutputter;
-
+import org.apache.log4j.Logger;
 
 public class GetRequestProgressSolexaList extends GNomExCommand implements Serializable {
   
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetRequestProgressSolexaList.class);
+  private static Logger LOG = Logger.getLogger(GetRequestProgressSolexaList.class);
   
   private RequestProgressSolexaFilter filter;
   
@@ -55,7 +55,7 @@ public class GetRequestProgressSolexaList extends GNomExCommand implements Seria
       DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess);
       
       StringBuffer buf = filter.getSolexaQuery(this.getSecAdvisor(), dictionaryHelper);
-      log.info(buf.toString());
+      LOG.info(buf.toString());
       List rows1 = (List)sess.createQuery(buf.toString()).list();
       TreeMap rowMap = new TreeMap(new SampleComparator());
       for(Iterator i = rows1.iterator(); i.hasNext();) {
@@ -74,7 +74,7 @@ public class GetRequestProgressSolexaList extends GNomExCommand implements Seria
       
       // Get sequenced lane count by sample
       buf = filter.getSolexaLaneSeqStatusQuery(this.getSecAdvisor(), dictionaryHelper);
-      log.info(buf.toString());
+      LOG.info(buf.toString());
       List sequencedLaneRows = (List)sess.createQuery(buf.toString()).list();
       HashMap laneSeqStatusMap = new HashMap();
       for(Iterator i = sequencedLaneRows.iterator(); i.hasNext();) {
@@ -89,7 +89,7 @@ public class GetRequestProgressSolexaList extends GNomExCommand implements Seria
       
       // Get processed (gone through pipeline) lane count by sample
       buf = filter.getSolexaLanePipelineStatusQuery(this.getSecAdvisor());
-      log.info(buf.toString());
+      LOG.info(buf.toString());
       List processedLanes = (List)sess.createQuery(buf.toString()).list();
       HashMap lanePipelineStatusMap = new HashMap();
       for(Iterator i = processedLanes.iterator(); i.hasNext();) {
@@ -104,7 +104,7 @@ public class GetRequestProgressSolexaList extends GNomExCommand implements Seria
 
       // Get requested lane count by sample
       buf = filter.getSolexaLaneStatusQuery(this.getSecAdvisor(), dictionaryHelper);
-      log.info(buf.toString());
+      LOG.info(buf.toString());
       List laneRows = (List)sess.createQuery(buf.toString()).list();
       HashMap laneStatusMap = new HashMap();
       for(Iterator i = laneRows.iterator(); i.hasNext();) {
@@ -202,23 +202,14 @@ public class GetRequestProgressSolexaList extends GNomExCommand implements Seria
       this.xmlResult = out.outputString(doc);
     
       setResponsePage(this.SUCCESS_JSP);
-    }catch (NamingException e){
-      log.error("An exception has occurred in GetRequestProgressList ", e);
-      e.printStackTrace(System.out);
-      throw new RollBackCommandException(e.getMessage());
-    }catch (SQLException e) {
-      log.error("An exception has occurred in GetRequestProgressList ", e);
-      e.printStackTrace(System.out);
-      throw new RollBackCommandException(e.getMessage());
     } catch (Exception e) {
-      log.error("An exception has occurred in GetRequestProgressList ", e);
-      e.printStackTrace(System.out);
+      LOG.error("An exception has occurred in GetRequestProgressList ", e);
       throw new RollBackCommandException(e.getMessage());
     } finally {
       try {
         this.getSecAdvisor().closeReadOnlyHibernateSession();        
-      } catch(Exception e) {
-        
+      } catch(Exception e){
+        LOG.error("Error", e);
       }
     }
     

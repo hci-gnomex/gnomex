@@ -33,6 +33,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import org.apache.log4j.Logger;
 
 import org.apache.log4j.Level;
 import org.hibernate.Query;
@@ -141,8 +142,8 @@ public class ComputeMonthlyDiskUsage {
     errorMessagePrefixString += " on " + new SimpleDateFormat("MM-dd-yyyy_HH:mm:ss").format(calendar.getTime()) + "\n";
 
     try {
-      org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger("org.hibernate");
-      log.setLevel(Level.ERROR);
+      Logger LOG = Logger.getLogger("org.hibernate");
+      LOG.setLevel(Level.ERROR);
 
       dataSource = new BatchDataSource();
       app.connect();

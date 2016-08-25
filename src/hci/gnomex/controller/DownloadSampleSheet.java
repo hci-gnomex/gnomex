@@ -38,11 +38,11 @@ import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
-
+import org.apache.log4j.Logger;
 
 public class DownloadSampleSheet extends ReportCommand implements Serializable {
   
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(DownloadSampleSheet.class);
+  private static Logger LOG = Logger.getLogger(DownloadSampleSheet.class);
   
   
   private SecurityAdvisor               secAdvisor;
@@ -67,7 +67,7 @@ public class DownloadSampleSheet extends ReportCommand implements Serializable {
       Document doc = sax.build(reader);
       parser = new SampleSheetColumnNamesParser(doc);
     } catch (JDOMException je ) {
-      log.error( "Cannot parse names", je );
+      LOG.error( "Cannot parse names", je );
       this.addInvalidField( "names", "Invalid sample name xml");
     }
 
@@ -78,7 +78,7 @@ public class DownloadSampleSheet extends ReportCommand implements Serializable {
       Document doc = sax.build(requestReader);
       requestParser = new RequestParser(doc, secAdvisor, true);
     } catch (JDOMException je ) {
-      log.error( "Cannot parse requestXMLString", je );
+      LOG.error( "Cannot parse requestXMLString", je );
       this.addInvalidField( "requestXMLString", "Invalid request xml");
     }
 
@@ -130,30 +130,14 @@ public class DownloadSampleSheet extends ReportCommand implements Serializable {
         setResponsePage(this.ERROR_JSP);
       }
     
-    }catch (UnknownPermissionException e){
-      log.error("An exception has occurred in DownloadSampleSheet ", e);
-      e.printStackTrace();
-      throw new RollBackCommandException(e.getMessage());
-        
-    }catch (NamingException e){
-      log.error("An exception has occurred in DownloadSampleSheet ", e);
-      e.printStackTrace();
-      throw new RollBackCommandException(e.getMessage());
-        
-    }catch (SQLException e) {
-      log.error("An exception has occurred in DownloadSampleSheet ", e);
-      e.printStackTrace();
-      throw new RollBackCommandException(e.getMessage());
-      
-    } catch (Exception e) {
-      log.error("An exception has occurred in DownloadSampleSheet ", e);
-      e.printStackTrace();
+    }catch (Exception e) {
+      LOG.error("An exception has occurred in DownloadSampleSheet ", e);
       throw new RollBackCommandException(e.getMessage());
     } finally {
       try {
         secAdvisor.closeReadOnlyHibernateSession();    
       } catch(Exception e) {
-        
+        LOG.error("An exception has occurred in DownloadSampleSheet ", e);
       }
     }
     
