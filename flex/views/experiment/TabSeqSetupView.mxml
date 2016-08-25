@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Canvas label="Library Prep" 
+<mx:Canvas label="Library Prep"
 	xmlns:mx="http://www.adobe.com/2006/mxml"
 	xmlns:util="views.util.*" 
 	 width="100%" height="100%" show="init()"  >
@@ -113,7 +113,7 @@
 				preparedAppList.addItem(item.copy());
 			}
 			
-			if(parentDocument.sampleSetupView.samplesAlreadyPreppedCheckbox.selected){
+			if(this.samplesToBePreppedCheckbox.selected){
 				preparedAppList.sort = this.applicationSorterAlphabet;
 				preparedAppList.refresh();
 			}
@@ -207,7 +207,6 @@
 			}
 			
 			propagateSeqLibProtocol();
-			
 			this.checkSeqAppSetupCompleteness();
 		}
 	
@@ -217,15 +216,34 @@
 			for each (var sample:Object in parentDocument.samples) {
 				sample.@idSeqLibProtocol = id;
 			}
-		}		
+		}
+		/*	Determine the completeness of the PrePooledSamples
+		 *	If "Do you want the Core Facility to perform library preparation on the samples?" = N
+		 *  If "How are the samples pooled?" = Y
+		 *  Make sure that the prePooledNumTubes is a number greater than 0
+		 * */
+		private function checkPrePooledSamplesCompleteness():Boolean {
+			 var isComplete:Boolean = false;
+			 if (this.seqPrepRadioGroup != null && this.seqPrepRadioGroup.selectedValue == 'N') {
+				 if (this.prePooledSamplesRadioGroup.selectedValue == 'Y') {
+					 if (this.prePooledNumTubes.text != null && this.prePooledNumTubes.text != '' && Number(this.prePooledNumTubes.text) > 0) {
+						 isComplete = true;
+					 }
+				 } else if (this.prePooledSamplesRadioGroup.selection != null) {
+					isComplete = true;
+				 }
+			 } else {
+			 	isComplete = true;
+			 }
+			 return isComplete;
+		}
 
 		public function checkSeqAppSetupCompleteness():Boolean {
 			var isComplete:Boolean = false;
 			if (parentDocument.isEditState() && parentDocument.request.@captureLibDesignId != "") {
 				isComplete = true;
 			} else if (parentDocument.isSolexaState() || parentDocument.isSolexaAmendState() || parentDocument.isAmendState() || parentDocument.isNanoStringState()) {
-				if (this.radioGroupSeqApp.selectedValue != null && this.radioGroupSeqApp.selectedValue != '') {
-					
+				if (this.radioGroupSeqApp.selectedValue != null && this.radioGroupSeqApp.selectedValue != '' && this.checkPrePooledSamplesCompleteness()) {
 					if (libraryDesign.visible) {
 						
 						// If the capture design lib id is visible, it is required, so
@@ -359,6 +377,56 @@
 			loadedPriceIdLab = selectedPriceIdLab;
 			loadedPriceCodeRequestCategory = selectedPriceCodeRequestCategory;
 		}
+		/*	onClick of "Do you want the Core Facility to perform library preparation on the samples?"
+		 *
+		 * */
+		private function pickSeqPrepState():void {
+
+			if (seqPrepRadioGroup.selectedValue ==  null || seqPrepRadioGroup.selectedValue == 'Y') {
+				this.labelApplication.label="(2) Select a sequencing experiment type."
+				this.prePooledSamplesRadioGroup.selection = null;
+				this.prePooledNumTubes.text = "";
+				if (parentDocument.isAmendState()) {
+					parentDocument.sampleSetupView.currentState = 'SolexaAmendState';
+				} else if (currentState != 'MDMiSeqState') {
+					parentDocument.sampleSetupView.currentState = 'SolexaSetupState';
+				}
+			} else {
+				this.labelApplication.label="(3) Select a sequencing experiment type."
+				if (parentDocument.isAmendState()) {
+					parentDocument.sampleSetupView.currentState = 'SolexaAmendPreppedState';
+				} else if (currentState != 'MDMiSeqState') {
+					parentDocument.sampleSetupView.currentState = 'SolexaSetupPreppedState';
+				}
+			}
+
+			this.propagateSeqPrepByCore();
+			propagateSeqLibProtocol();
+			clearBarcodingFields();
+			parentDocument.seqLibProtocolList.refresh();
+			checkSeqAppSetupCompleteness();
+			parentDocument.samplesView.showHideColumns();
+		}
+
+		public function propagateSeqPrepByCore():void {
+			for each (var sample:Object in parentDocument.samples) {
+				sample.@seqPrepByCore = (currentState == 'SolexaSetupState' || (seqPrepRadioGroup.selectedValue !=  null && seqPrepRadioGroup.selectedValue == 'Y')  ? 'Y' : 'N');
+			}
+		}
+		private function clearBarcodingFields():void {
+			if (parentDocument.isEditState() || parentDocument.isAmendState()) {
+				return;
+			}
+			if (currentState == 'MDMiSeqState') {
+				return;
+			}
+			for each(var s:Object in parentDocument.samples) {
+				s.@idOligoBarocode = '';
+				s.@multiplexGroupNumber = '';
+				s.@barcodeSequence = '';
+			}
+		}
+
 	]]>
 </mx:Script>
 	
@@ -366,10 +434,47 @@
   <mx:Sort id="applicationSorterAlphabet" compareFunction="sortApplicationsAlphabetically"/>
 
   <mx:XMLListCollection id="seqLibTreatments" source="{parentDocument.request.SeqLibTreatmentEntries.SeqLibTreatment}"/>
-  <mx:Canvas width="100%" height="100%">
-    <mx:VBox id="topBox" width="100%" height="100%" verticalGap="0" horizontalScrollPolicy="off">
+	<mx:VBox id="topBox" horizontalScrollPolicy="off" verticalScrollPolicy="off">
+
+		<mx:VBox paddingBottom="0" paddingTop="0" verticalGap="10">
+			<mx:HBox id="isPreppedContainer" width="100%" horizontalGap="0">
+				<util:ContextHelp context1="sampleDetailsLibPrep" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Sample Library Preparation Help"
+								  label="(1) Do you want the Core Facility to perform library preparation on the samples?" labelPlacement="left" id="text1" width="305"/>
+				<mx:VBox width="100%" verticalGap="0" paddingLeft="2">
+					<mx:RadioButtonGroup id="seqPrepRadioGroup"/>
+					<mx:HBox id="hbox2" width="100%">
+						<mx:RadioButton id="samplesToBePreppedCheckbox"  value="Y" groupName="seqPrepRadioGroup"  label="Yes, please prep library" selected="true" click="{pickSeqPrepState()}">
+						</mx:RadioButton>
+					</mx:HBox>
+
+					<mx:HBox >
+						<mx:RadioButton id="samplesAlreadyPreppedCheckbox"  value="N" groupName="seqPrepRadioGroup" label="No, library has already been prepped "
+										click="{pickSeqPrepState()}">
+						</mx:RadioButton>
+					</mx:HBox>
+				</mx:VBox>
+			</mx:HBox>
+			<mx:HBox horizontalGap="0" paddingBottom="0" paddingTop="0" id="prePooledSamplesHBox" visible="{samplesAlreadyPreppedCheckbox.selected}" includeInLayout="{samplesAlreadyPreppedCheckbox.selected}">
+				<util:ContextHelp context1="sampleDetailsSamplePooling" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Sample Pooling Help"
+								  label="(2) How are the samples pooled?" labelPlacement="left" id="samplePoolingLabel" width="305"/>
+				<mx:VBox width="100%" verticalGap="0" paddingLeft="0">
+					<mx:RadioButtonGroup id="prePooledSamplesRadioGroup"/>
+					<mx:RadioButton id="prePooledNot" value="N" groupName="prePooledSamplesRadioGroup" label="Each library will be submitted in a separate microfuge tube."
+									click="{parentDocument.request.@hasPrePooledLibraries='N';prePooledNumTubes.text='';parentDocument.request.@numPrePooledTubes='';checkSeqAppSetupCompleteness()}"/>
+					<mx:HBox paddingLeft="0">
+						<mx:RadioButton paddingTop="0" paddingBottom="0" id="prePooled" value="Y" groupName="prePooledSamplesRadioGroup" label="Libraries will be pre-pooled prior to drop off at the core facility and will be submitted in "
+										click="{parentDocument.request.@hasPrePooledLibraries='Y';checkSeqAppSetupCompleteness()}"/>
+						<mx:TextInput id="prePooledNumTubes" width="25" restrict="0-9" maxChars="2" enabled="{prePooled.selected}"
+									  change="{parentDocument.request.@numPrePooledTubes = prePooledNumTubes.text;this.checkSeqAppSetupCompleteness()}"/>
+						<mx:Label text="(number) separate microfuge tubes."/>
+					</mx:HBox>
+				</mx:VBox>
+			</mx:HBox>
+		</mx:VBox>
+
+    <mx:VBox id="seqBox" width="100%" height="100%" verticalGap="0" horizontalScrollPolicy="off">
 		<util:ContextHelp context1="seqSetupApplication" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Experiment Type Help"
-						  label="Select a sequencing experiment type." labelPlacement="left" id="labelApplication" width="400" paddingTop="10" paddingBottom="10"/>
+						  label= "(2) Select a sequencing experiment type." labelPlacement="left" id="labelApplication" width="400" paddingTop="10" paddingBottom="10"/>
 		<mx:HBox width="100%" paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0" horizontalScrollPolicy="off">
 			<mx:RadioButtonGroup id="radioGroupApplicationTheme"/>
 			<mx:Repeater id="applicationThemeRepeater" dataProvider="{themeList}">
@@ -408,6 +513,6 @@
 			</mx:VBox>
 		</mx:HBox>
 	</mx:VBox>
-	
- </mx:Canvas>
+
+	</mx:VBox>
 </mx:Canvas>
