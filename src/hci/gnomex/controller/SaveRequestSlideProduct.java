@@ -15,7 +15,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.hibernate.Session;
-
+import org.apache.log4j.Logger;
 
 
 
@@ -24,7 +24,7 @@ public class SaveRequestSlideProduct extends GNomExCommand implements Serializab
  
   
   // the static field for logging in Log4J
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(SaveRequest.class);
+  private static Logger LOG = Logger.getLogger(SaveRequest.class);
   
 
   
@@ -94,15 +94,15 @@ public class SaveRequestSlideProduct extends GNomExCommand implements Serializab
         setResponsePage(this.ERROR_JSP);
       }
     }catch (Exception e){
-      log.error("An exception has occurred in SaveRequest ", e);
-      e.printStackTrace();
+      LOG.error("An exception has occurred in SaveRequest ", e);
+
       throw new RollBackCommandException(e.getMessage());
         
     }finally {
       try {
         HibernateSession.closeSession();        
-      } catch(Exception e) {
-        
+      } catch(Exception e){
+        LOG.error("Error", e);
       }
     }
     

@@ -22,7 +22,7 @@ import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.HibernateSession;
 
-
+import org.apache.log4j.Logger;
 
 
 public class DeleteProperty extends GNomExCommand implements Serializable {
@@ -30,7 +30,7 @@ public class DeleteProperty extends GNomExCommand implements Serializable {
 
 
   // the static field for logging in Log4J
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(DeleteProperty.class);
+  private static Logger LOG = Logger.getLogger(DeleteProperty.class);
 
 
   private Integer      idProperty = null;
@@ -124,8 +124,8 @@ public class DeleteProperty extends GNomExCommand implements Serializable {
             return this;
 
           } catch(Exception e) {
-            log.error("An exception has occurred in DeleteProperty when trying to inactivate property ", e);
-            e.printStackTrace();
+            LOG.error("An exception has occurred in DeleteProperty when trying to inactivate property ", e);
+
             throw new RollBackCommandException(e.getMessage());
 
           }
@@ -227,18 +227,17 @@ public class DeleteProperty extends GNomExCommand implements Serializable {
         setResponsePage(this.ERROR_JSP);
       }
     } catch (ConstraintViolationException ce) {
-      log.error("An exception has occurred in DeleteProperty ", ce);
-      ce.printStackTrace();
+      LOG.error("An exception has occurred in DeleteProperty ", ce);
     } catch (Exception e){
-      log.error("An exception has occurred in DeleteProperty ", e);
-      e.printStackTrace();
+      LOG.error("An exception has occurred in DeleteProperty ", e);
+
       throw new RollBackCommandException(e.getMessage());
 
     }finally {
       try {
         HibernateSession.closeSession();
       } catch(Exception e) {
-
+        LOG.error("An exception has occurred in DeleteProperty ", e);
       }
     }
 

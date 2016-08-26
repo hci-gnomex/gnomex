@@ -27,7 +27,7 @@ import org.jdom.Document;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.jdom.output.XMLOutputter;
-
+import org.apache.log4j.Logger;
 
 
 
@@ -36,7 +36,7 @@ public class SaveWorkItemExtraction extends GNomExCommand implements Serializabl
  
   
   // the static field for logging in Log4J
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(SaveWorkItemExtraction.class);
+  private static Logger LOG = Logger.getLogger(SaveWorkItemExtraction.class);
   
   private String                       workItemXMLString;
   private Document                     workItemDoc;
@@ -68,7 +68,7 @@ public class SaveWorkItemExtraction extends GNomExCommand implements Serializabl
         workItemDoc = sax.build(reader);
         parser = new WorkItemExtractionParser(workItemDoc);
       } catch (JDOMException je ) {
-        log.error( "Cannot parse workItemXMLString", je );
+        LOG.error( "Cannot parse workItemXMLString", je );
         this.addInvalidField( "WorkItemXMLString", "Invalid work item xml");
       }
     }
@@ -77,7 +77,7 @@ public class SaveWorkItemExtraction extends GNomExCommand implements Serializabl
       launchAppURL = this.getLaunchAppURL(request);      
       appURL = this.getAppURL(request);      
     } catch (Exception e) {
-      log.warn("Cannot get launch app URL in SaveWorkItemExtraction", e);
+      LOG.warn("Cannot get launch app URL in SaveWorkItemExtraction", e);
     }
     
     serverName = request.getServerName();
@@ -126,14 +126,14 @@ public class SaveWorkItemExtraction extends GNomExCommand implements Serializabl
                 try {
                   EmailHelper.sendConfirmationEmail(sess, request, this.getSecAdvisor(), launchAppURL, appURL, serverName);                  
                 } catch (Exception e) {
-                  log.error("Unable to send confirmation email notifying submitter that request " + request.getNumber() + 
-                  " is complete. " + e.toString());
+                  LOG.error("Unable to send confirmation email notifying submitter that request " + request.getNumber() +
+                  " is complete. " + e.toString(), e);
                   
                 }
                 confirmedRequestMap.put(request.getNumber(), request.getNumber());
               }
               else {
-                log.error("Unable to send confirmation email notifying submitter that request " + request.getNumber() + 
+                LOG.error("Unable to send confirmation email notifying submitter that request " + request.getNumber() +
                           " is complete.  Request submitter or request submitter email is blank.");
               }
             }
@@ -155,16 +155,16 @@ public class SaveWorkItemExtraction extends GNomExCommand implements Serializabl
         
         
       }catch (Exception e){
-        log.error("An exception has occurred in SaveWorkflowExtraction ", e);
-        e.printStackTrace();
+        LOG.error("An exception has occurred in SaveWorkflowExtraction ", e);
+
         throw new RollBackCommandException(e.getMessage());
           
       }finally {
         try {
           HibernateSession.closeSession();        
-        } catch(Exception e) {
-          
-        }
+        } catch(Exception e){
+        LOG.error("Error", e);
+      }
       }
       
     } else {

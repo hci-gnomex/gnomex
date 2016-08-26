@@ -22,12 +22,12 @@ import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.output.XMLOutputter;
-
+import org.apache.log4j.Logger;
 
 
 public class GetHiSeqRunTypePriceList extends GNomExCommand implements Serializable {
 
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetHiSeqRunTypePriceList.class);
+  private static Logger LOG = Logger.getLogger(GetHiSeqRunTypePriceList.class);
   
   private Integer idLab;
   private String codeRequestCategory;
@@ -91,30 +91,15 @@ public class GetHiSeqRunTypePriceList extends GNomExCommand implements Serializa
 
       setResponsePage(this.SUCCESS_JSP);
 
-    }catch (UnknownPermissionException e){
-      log.error("An exception has occurred in HiSeqRunTypePriceList ", e);
-      e.printStackTrace();
-      throw new RollBackCommandException(e.getMessage());
+    }catch (Exception e) {
+      LOG.error("An exception has occurred in HiSeqRunTypePriceList ", e);
 
-    }catch (NamingException e){
-      log.error("An exception has occurred in HiSeqRunTypePriceList ", e);
-      e.printStackTrace();
-      throw new RollBackCommandException(e.getMessage());
-
-    }catch (SQLException e) {
-      log.error("An exception has occurred in HiSeqRunTypePriceList ", e);
-      e.printStackTrace();
-      throw new RollBackCommandException(e.getMessage());
-
-    } catch (Exception e) {
-      log.error("An exception has occurred in HiSeqRunTypePriceList ", e);
-      e.printStackTrace();
       throw new RollBackCommandException(e.getMessage());
     } finally {
       try {
         secAdvisor.closeReadOnlyHibernateSession();    
       } catch(Exception e) {
-
+        LOG.error("An exception has occurred in HiSeqRunTypePriceList ", e);
       }
     }
 

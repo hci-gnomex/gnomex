@@ -20,11 +20,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.hibernate.Session;
-
+import org.apache.log4j.Logger;
 
 public class VerifyDas2Refresh extends GNomExCommand implements Serializable {
   
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(VerifyDas2Refresh.class);
+  private static Logger LOG = Logger.getLogger(VerifyDas2Refresh.class);
   
   private String serverName;
   private String analysisBaseDir;
@@ -137,23 +137,14 @@ public class VerifyDas2Refresh extends GNomExCommand implements Serializable {
       } 
       this.xmlResult = "<SUCCESS message=\"" + confirmMessage.toString() + "\"/>";
       setResponsePage(this.SUCCESS_JSP);
-    }catch (NamingException e){
-      log.error("An exception has occurred in VerifyDas2Refresh ", e);
-      e.printStackTrace(System.out);
-      throw new RollBackCommandException(e.getMessage());
-    }catch (SQLException e) {
-      log.error("An exception has occurred in VerifyDas2Refresh ", e);
-      e.printStackTrace(System.out);
-      throw new RollBackCommandException(e.getMessage());
-    } catch (Exception e) {
-      log.error("An exception has occurred in VerifyDas2Refresh ", e);
-      e.printStackTrace(System.out);
+    }catch (Exception e) {
+      LOG.error("An exception has occurred in VerifyDas2Refresh ", e);
       throw new RollBackCommandException(e.getMessage());
     } finally {
       try {
         this.getSecAdvisor().closeReadOnlyHibernateSession();        
-      } catch(Exception e) {
-        
+      } catch(Exception e){
+        LOG.error("Error", e);
       }
     }
     

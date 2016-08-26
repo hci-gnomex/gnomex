@@ -13,7 +13,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-
+import org.apache.log4j.Logger;
 
 public class FastDataTransferUploadGetJnlpServlet extends HttpServlet {
 
@@ -22,7 +22,7 @@ public class FastDataTransferUploadGetJnlpServlet extends HttpServlet {
      */
     private static final long serialVersionUID = 1L;
 
-    private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(FastDataTransferUploadGetJnlpServlet.class);
+    private static Logger LOG = Logger.getLogger(FastDataTransferUploadGetJnlpServlet.class);
 
     private String serverName = "";
 
@@ -38,7 +38,7 @@ public class FastDataTransferUploadGetJnlpServlet extends HttpServlet {
 
         String uuid = (String) req.getParameter("uuid");
         if (uuid == null) {
-            ServletUtil.reportServletError(response, "Missing UUID parameter.", log);
+            ServletUtil.reportServletError(response, "Missing UUID parameter.", LOG);
             return;
         }
 
@@ -48,9 +48,9 @@ public class FastDataTransferUploadGetJnlpServlet extends HttpServlet {
         }
 
         // Restrict commands to local host if request is not secure
-        if (!ServletUtil.checkSecureRequest(req, log)) {
+        if (!ServletUtil.checkSecureRequest(req, LOG)) {
             ServletUtil.reportServletError(response, "Secure connection is required. Prefix your request with 'https'",
-                    log, "Accessing secure command over non-secure line from remote host is not allowed.");
+                    LOG, "Accessing secure command over non-secure line from remote host is not allowed.");
             return;
         }
 
@@ -76,7 +76,7 @@ public class FastDataTransferUploadGetJnlpServlet extends HttpServlet {
                 String fdtSupported = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.FDT_SUPPORTED);
                 if (fdtSupported == null || !fdtSupported.equals("Y")) {
                     ServletUtil.reportServletError(response, "GNomEx is not configured to support FDT.  Please contact GNomEx support to set " +
-                            "appropriate property.", log);
+                            "appropriate property.", LOG);
                     return;
                 }
 
@@ -147,7 +147,7 @@ public class FastDataTransferUploadGetJnlpServlet extends HttpServlet {
                     out.flush();
 
                 } catch (IOException e) {
-                    log.error( "Unable to get response output stream.", e );
+                    LOG.error( "Unable to get response output stream.", e );
                 }
 
             } else {
@@ -157,7 +157,7 @@ public class FastDataTransferUploadGetJnlpServlet extends HttpServlet {
         } catch (Exception e) {
             response.setStatus(999);
             System.out.println( "FastDataTransferUploadGetJnlpServlet: An exception occurred " + e.toString());
-            e.printStackTrace();
+
         }
 
     }

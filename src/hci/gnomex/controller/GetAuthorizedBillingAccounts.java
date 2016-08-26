@@ -25,12 +25,13 @@ import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.output.XMLOutputter;
+import org.apache.log4j.Logger;
 
 @SuppressWarnings("serial")
 public class GetAuthorizedBillingAccounts extends GNomExCommand implements Serializable {
 	
 	// The static field for logging in Log4J
-	private static org.apache.log4j.Logger 	log = org.apache.log4j.Logger.getLogger(GetAuthorizedBillingAccounts.class);
+	private static Logger 	LOG = Logger.getLogger(GetAuthorizedBillingAccounts.class);
 	
 	private Integer 			    idAppUser;
 	private Integer					idCoreFacility;
@@ -105,8 +106,8 @@ public class GetAuthorizedBillingAccounts extends GNomExCommand implements Seria
 			
 		} catch (Exception e) {
 			
-			log.error("An exception has occurred in GetAuthorizedBillingAccounts ", e);
-			e.printStackTrace();
+			LOG.error("An exception has occurred in GetAuthorizedBillingAccounts ", e);
+
 			throw new GNomExRollbackException(e.getMessage(), false, "An error occurred retrieving your authorized billing accounts");
 			
 		} finally {
@@ -114,7 +115,7 @@ public class GetAuthorizedBillingAccounts extends GNomExCommand implements Seria
 			try {
 				this.getSecAdvisor().closeReadOnlyHibernateSession();
 			} catch (Exception e) {
-				log.error("An exception has occurred in GetAuthorizedBillingAccounts while closing the session ", e);
+				LOG.error("An exception has occurred in GetAuthorizedBillingAccounts while closing the session ", e);
 			}
 			
 		}

@@ -30,10 +30,10 @@ import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.output.XMLOutputter;
-
+import org.apache.log4j.Logger;
 public class GetProductOrderDownloadList extends GNomExCommand implements Serializable {
 
-	private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetProductOrderDownloadList.class);
+	private static Logger LOG = Logger.getLogger(GetProductOrderDownloadList.class);
 	private Integer idProductOrder;
 	private String serverName;
 	private String baseDir;
@@ -204,10 +204,8 @@ public class GetProductOrderDownloadList extends GNomExCommand implements Serial
 			}
 
 		} catch (Exception e) {
-			log.error("An exception has occurred in GetProductOrderDownloadList ", e);
-			e.printStackTrace(System.out);
+			LOG.error("An exception has occurred in GetProductOrderDownloadList ", e);
 			throw new RollBackCommandException(e.getMessage());
-
 		} finally {
 			try {
 				this.getSecAdvisor().closeReadOnlyHibernateSession();

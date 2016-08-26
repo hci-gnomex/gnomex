@@ -24,7 +24,7 @@ import org.apache.log4j.Logger;
  */
 public class KeepHttpSession extends GNomExCommand implements Serializable {
 
-  static Logger log = Logger.getLogger(KeepHttpSession.class);
+  static Logger LOG = Logger.getLogger(KeepHttpSession.class);
   private String keepSession;
   
   /**
@@ -39,7 +39,7 @@ public class KeepHttpSession extends GNomExCommand implements Serializable {
    *              Description of the Exception
    */
   public Command execute() throws RollBackCommandException {
-    // log.debug("Executing execute method in " + this.getClass().getName());
+    // LOG.debug("Executing execute method in " + this.getClass().getName());
     
     return this;
   }
@@ -59,8 +59,8 @@ public class KeepHttpSession extends GNomExCommand implements Serializable {
   public void loadCommand(HttpServletRequest request, HttpSession session) {
     this.keepSession = request.getParameter("keepSession");
     String whoAndWhy = request.getParameter("whoAndWhy");
-    log.debug("keepSession: " + keepSession);
-    log.debug("whoAndWhy: " + whoAndWhy);
+    LOG.debug("keepSession: " + keepSession);
+    LOG.debug("whoAndWhy: " + whoAndWhy);
     if (this.keepSession == null || !this.keepSession.equalsIgnoreCase("true")){
       session.invalidate();
     }else{
@@ -79,7 +79,7 @@ public class KeepHttpSession extends GNomExCommand implements Serializable {
    * @return Description of the Return Value
    */
   public HttpServletRequest setRequestState(HttpServletRequest request) {
-    // log.debug("Executing setRequestState method in " +
+    // LOG.debug("Executing setRequestState method in " +
     // this.getClass().getName());
     request.setAttribute("xmlResult", this.xmlResult);
     return request;
@@ -97,7 +97,7 @@ public class KeepHttpSession extends GNomExCommand implements Serializable {
    * @return The processed HttpSession
    */
   public HttpSession setSessionState(HttpSession session) {
-    // log.debug("Executing setSessionState method in " +
+    // LOG.debug("Executing setSessionState method in " +
     // this.getClass().getName());
 
     return session;
@@ -109,7 +109,7 @@ public class KeepHttpSession extends GNomExCommand implements Serializable {
    * the loadCommand prior to setting the response jsp
    */
   public void validate() {
-    // log.debug("Executing validate method in " + this.getClass().getName());
+    // LOG.debug("Executing validate method in " + this.getClass().getName());
   }
 
 }

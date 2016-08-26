@@ -14,11 +14,11 @@ import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.*;
-
+import org.apache.log4j.Logger;
 public class ChangeRequestStatus extends GNomExCommand implements Serializable {
 
   // the static field for logging in Log4J
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(ChangeRequestStatus.class);
+  private static Logger LOG = Logger.getLogger(ChangeRequestStatus.class);
 
   private String                         codeRequestStatus = null;
   private Integer                        idRequest         = 0;
@@ -35,7 +35,7 @@ public class ChangeRequestStatus extends GNomExCommand implements Serializable {
       launchAppURL = this.getLaunchAppURL(request);
       appURL = this.getAppURL(request);
     } catch (Exception e) {
-      log.warn("Cannot get launch app URL in SaveRequest", e);
+      LOG.warn("Cannot get launch app URL in SaveRequest", e);
     }
     serverName = request.getServerName();
 
@@ -81,7 +81,7 @@ public class ChangeRequestStatus extends GNomExCommand implements Serializable {
             } catch (ProductException e) {
               errorEncounteredWithProducts = true;
               productErrorMessage = e.getMessage();
-              log.error("Unable to create ProductLedger for request. " + e.getMessage());
+              LOG.error("Unable to create ProductLedger for request. " + e.getMessage(), e);
             }
           }
         }
@@ -102,11 +102,11 @@ public class ChangeRequestStatus extends GNomExCommand implements Serializable {
                   sendConfirmationEmail(sess, req, otherRecipients);
                 } catch (Exception e) {
                   String msg = "Unable to send confirmation email notifying submitter that request " + req.getNumber() + " has been submitted.  " + e.toString();
-                  log.error(msg);
+                  LOG.error(msg);
                 }
               } else {
                 String msg = ("Unable to send confirmation email notifying submitter that request " + req.getNumber() + " has been submitted.  Request submitter or request submitter email is blank.");
-                log.error(msg);
+                LOG.error(msg);
               }
             }
           }
@@ -154,7 +154,7 @@ public class ChangeRequestStatus extends GNomExCommand implements Serializable {
             try {
               EmailHelper.sendConfirmationEmail(sess, req, this.getSecAdvisor(), launchAppURL, appURL, serverName);
             } catch (Exception e) {
-              log.error("Unable to send confirmation email notifying submitter that request " + req.getNumber() + " is complete. " + e.toString());
+              LOG.error("Unable to send confirmation email notifying submitter that request " + req.getNumber() + " is complete. " + e.toString(), e);
             }
 
           }
@@ -182,8 +182,8 @@ public class ChangeRequestStatus extends GNomExCommand implements Serializable {
       }
 
     } catch (Exception e) {
-      log.error("An exception has occurred in ChangeRequestStatus ", e);
-      e.printStackTrace();
+      LOG.error("An exception has occurred in ChangeRequestStatus ", e);
+      ;
       throw new RollBackCommandException(e.toString());
     } finally {
       try {
@@ -270,7 +270,7 @@ public class ChangeRequestStatus extends GNomExCommand implements Serializable {
     }
 
     if (!MailUtil.isValidEmail(emailRecipients)) {
-      log.error("Invalid email address " + emailRecipients);
+      LOG.error("Invalid email address " + emailRecipients);
     }
 
     if (otherRecipients != null && otherRecipients.length() > 0) {
@@ -282,7 +282,7 @@ public class ChangeRequestStatus extends GNomExCommand implements Serializable {
 
     for (String e : emailRecipients.split(",")) {
       if (!MailUtil.isValidEmail(e.trim())) {
-        log.error("Invalid email address " + e);
+        LOG.error("Invalid email address " + e);
       }
     }
 

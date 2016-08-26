@@ -4,19 +4,20 @@ import hci.gnomex.model.PropertyDictionary;
 
 import java.util.ArrayList;
 import java.util.Date;
+import org.apache.log4j.Logger;
 
 public class LogLongExecutionTimes {
-  private org.apache.log4j.Logger log;
+  private Logger log;
   private long millisecondCutOff;
   private boolean doLog;
   private String descriptionPrefix;
   private ArrayList<LogItem> logItems = new ArrayList<LogItem>();
   
-  public LogLongExecutionTimes(org.apache.log4j.Logger log, long millisecondCutOff, boolean doLog, String descriptionPrefix) {
+  public LogLongExecutionTimes(Logger log, long millisecondCutOff, boolean doLog, String descriptionPrefix) {
     init(log, millisecondCutOff, doLog, descriptionPrefix);
   }
   
-  public LogLongExecutionTimes(org.apache.log4j.Logger log, PropertyDictionaryHelper dh, String descriptionPrefix) {
+  public LogLongExecutionTimes(Logger log, PropertyDictionaryHelper dh, String descriptionPrefix) {
     String enabled = dh.getProperty(PropertyDictionary.PERFORMANCE_LOG_ENABLED);
     long cutOff = 300000; // default to 5 minutes
     String cutOffString = dh.getProperty(PropertyDictionary.PERFORMANCE_LOG_CUTOFF_MILLISECONDS);
@@ -29,7 +30,7 @@ public class LogLongExecutionTimes {
     init(log, cutOff, enabled != null && enabled.toUpperCase().equals("Y"), descriptionPrefix);
   }
   
-  private void init(org.apache.log4j.Logger log, long millisecondCutOff, boolean doLog, String descriptionPrefix) {
+  private void init(Logger log, long millisecondCutOff, boolean doLog, String descriptionPrefix) {
     this.log = log;
     this.millisecondCutOff = millisecondCutOff;
     this.doLog = doLog;

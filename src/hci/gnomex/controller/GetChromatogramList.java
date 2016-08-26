@@ -26,12 +26,12 @@ import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.output.XMLOutputter;
-
+import org.apache.log4j.Logger;
 
 public class GetChromatogramList extends GNomExCommand implements Serializable {
 
   // the static field for logging in Log4J
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetChromatogramList.class);
+  private static Logger LOG = Logger.getLogger(GetChromatogramList.class);
 
   private ChromatogramFilter          chromFilter;
   private String                      listKind = "ChromatogramList";
@@ -68,7 +68,7 @@ public class GetChromatogramList extends GNomExCommand implements Serializable {
       Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
       
       StringBuffer buf = chromFilter.getQuery(this.getSecAdvisor());
-      log.info("Query for GetChromatogramList: " + buf.toString());
+      LOG.info("Query for GetChromatogramList: " + buf.toString());
       List chromats = sess.createQuery(buf.toString()).list();
 
       boolean alt = false;
@@ -214,28 +214,14 @@ public class GetChromatogramList extends GNomExCommand implements Serializable {
       this.xmlResult = out.outputString(doc);
 
       setResponsePage(this.SUCCESS_JSP);
-    }catch (NamingException e){
-      log.error("An exception has occurred in GetRunList ", e);
-      e.printStackTrace();
-      throw new RollBackCommandException(e.getMessage());
-
-    }catch (SQLException e) {
-      log.error("An exception has occurred in GetRunList ", e);
-      e.printStackTrace();
-      throw new RollBackCommandException(e.getMessage());
-    } catch (XMLReflectException e){
-      log.error("An exception has occurred in GetRunList ", e);
-      e.printStackTrace();
-      throw new RollBackCommandException(e.getMessage());
-    } catch (Exception e){
-      log.error("An exception has occurred in GetRunList ", e);
-      e.printStackTrace();
+    }catch (Exception e){
+      LOG.error("An exception has occurred in GetRunList ", e);
       throw new RollBackCommandException(e.getMessage());
     } finally {
       try {
         this.getSecAdvisor().closeReadOnlyHibernateSession();        
       } catch(Exception e) {
-
+        LOG.error("An exception has occurred in GetRunList ", e);
       }
     }
 

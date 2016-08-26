@@ -14,9 +14,9 @@ import javax.servlet.http.HttpSession;
 
 import org.hibernate.Query;
 import org.hibernate.Session;
-
+import org.apache.log4j.Logger;
 public class UpdateAppUserEmail extends GNomExCommand implements Serializable {
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(UpdateAppUserEmail.class);
+  private static Logger LOG = Logger.getLogger(UpdateAppUserEmail.class);
 
   private Integer idAppUser;
   private String email = "";

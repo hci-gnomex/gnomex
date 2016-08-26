@@ -30,10 +30,10 @@ import com.oreilly.servlet.multipart.FilePart;
 import com.oreilly.servlet.multipart.MultipartParser;
 import com.oreilly.servlet.multipart.ParamPart;
 import com.oreilly.servlet.multipart.Part;
-
+import org.apache.log4j.Logger;
 public class UploadProductOrderFileServlet extends HttpServlet {
 
-	private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(UploadProductOrderFileServlet.class);
+	private static Logger LOG = Logger.getLogger(UploadProductOrderFileServlet.class);
 
 	private Integer idProductOrder = null;
 	private String productOrderNumber = null;
@@ -264,7 +264,7 @@ public class UploadProductOrderFileServlet extends HttpServlet {
 
 		} catch (Exception e) {
 			HibernateSession.rollback();
-			log.error("An exception has occurred in UploadProductOrderFileServlet ", e);
+			LOG.error("An exception has occurred in UploadProductOrderFileServlet ", e);
 			throw new ServletException("Unable to upload file " + fileName + " due to a server error.  Please contact GNomEx support.");
 		} finally {
 			try {

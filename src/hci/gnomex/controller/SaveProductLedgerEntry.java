@@ -10,10 +10,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.hibernate.Session;
-
+import org.apache.log4j.Logger;
 @SuppressWarnings("serial")
 public class SaveProductLedgerEntry extends GNomExCommand implements Serializable {
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(SaveProductLedgerEntry.class);
+  private static Logger LOG = Logger.getLogger(SaveProductLedgerEntry.class);
 
   private Integer 	idLab;
   private Integer 	idProduct;
@@ -84,15 +84,15 @@ public class SaveProductLedgerEntry extends GNomExCommand implements Serializabl
       }
 
     }catch(Exception e) {
-      log.error("An exception has occurred in SaveProductLedgerEntry ", e);
-      e.printStackTrace();
+      LOG.error("An exception has occurred in SaveProductLedgerEntry ", e);
+
       throw new RollBackCommandException(e.getMessage());  
 
     }finally {
       try {
         this.getSecAdvisor().closeHibernateSession();        
-      } catch(Exception e) {
-
+      } catch(Exception e){
+        LOG.error("Error", e);
       }
     }
     return this;

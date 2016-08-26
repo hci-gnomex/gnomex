@@ -22,10 +22,10 @@ import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
-
+import org.apache.log4j.Logger;
 public class MoveAnalysis extends GNomExCommand implements Serializable {
 
-	private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(SaveLab.class);
+	private static Logger LOG = Logger.getLogger(SaveLab.class);
 
 	private Integer idLab;
 	// private Integer idAppUser;
@@ -59,7 +59,7 @@ public class MoveAnalysis extends GNomExCommand implements Serializable {
 				analysisGroupsDoc = sax.build(reader);
 				analysisGroupParser = new AnalysisGroupParser(analysisGroupsDoc);
 			} catch (JDOMException je) {
-				log.error("Cannot parse analysisGroupsXMLString", je);
+				LOG.error("Cannot parse analysisGroupsXMLString", je);
 				this.addInvalidField("analysisGroupsXMLString", "Invalid analysisGroupsXMLString");
 			}
 		}
@@ -126,8 +126,8 @@ public class MoveAnalysis extends GNomExCommand implements Serializable {
 				setResponsePage(this.SUCCESS_JSP);
 			}
 		} catch (Exception e) {
-			log.error("An exception has occurred in MoveAnalysis ", e);
-			e.printStackTrace();
+			LOG.error("An exception has occurred in MoveAnalysis ", e);
+
 			throw new RollBackCommandException(e.getMessage());
 
 		} finally {

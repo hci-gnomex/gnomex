@@ -18,11 +18,11 @@ import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.output.XMLOutputter;
-
+import org.apache.log4j.Logger;
 
 public class GetProjectList extends GNomExCommand implements Serializable {
   
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetProjectList.class);
+  private static Logger LOG = Logger.getLogger(GetProjectList.class);
   
   private ProjectFilter projectFilter;
   
@@ -44,7 +44,7 @@ public class GetProjectList extends GNomExCommand implements Serializable {
     Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
     
     StringBuffer buf = projectFilter.getQuery(this.getSecAdvisor());
-    log.info("Query for GetProjectList: " + buf.toString());
+    LOG.info("Query for GetProjectList: " + buf.toString());
     List projects = (List)sess.createQuery(buf.toString()).list();
     
     Document doc = new Document(new Element("ProjectList"));
@@ -73,22 +73,22 @@ public class GetProjectList extends GNomExCommand implements Serializable {
     
     setResponsePage(this.SUCCESS_JSP);
     }catch (NamingException e){
-      log.error("An exception has occurred in GetProjectList ", e);
-      e.printStackTrace();
+      LOG.error("An exception has occurred in GetProjectList ", e);
+
       throw new RollBackCommandException(e.getMessage());        
     }catch (SQLException e) {
-      log.error("An exception has occurred in GetProjectList ", e);
-      e.printStackTrace();
+      LOG.error("An exception has occurred in GetProjectList ", e);
+
       throw new RollBackCommandException(e.getMessage());
     } catch (Exception e) {
-      log.error("An exception has occurred in GetProjectList ", e);
-      e.printStackTrace();
+      LOG.error("An exception has occurred in GetProjectList ", e);
+
       throw new RollBackCommandException(e.getMessage());
     } finally {
       try {
         this.getSecAdvisor().closeReadOnlyHibernateSession();        
-      } catch(Exception e) {
-        
+      } catch(Exception e){
+        LOG.error("Error", e);
       }
     }
     

@@ -18,7 +18,7 @@ import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
-
+import org.apache.log4j.Logger;
 
 
 /**
@@ -35,7 +35,7 @@ public class SaveAnalysisFiles extends GNomExCommand implements Serializable {
  
   
   // the static field for logging in Log4J
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(SaveLab.class);
+  private static Logger LOG = Logger.getLogger(SaveLab.class);
   
   private String                baseDir;
   
@@ -70,7 +70,7 @@ public class SaveAnalysisFiles extends GNomExCommand implements Serializable {
 
         analysisFileParser = new AnalysisFileParser(analysisFilesDoc, null);
       } catch (JDOMException je ) {
-        log.error( "Cannot parse analysisFilesXMLString", je );
+        LOG.error( "Cannot parse analysisFilesXMLString", je );
         this.addInvalidField( "analysisFilesXMLString", "Invalid analysisFilesXMLString");
       }
     }
@@ -118,15 +118,15 @@ public class SaveAnalysisFiles extends GNomExCommand implements Serializable {
       }
       
     }catch (Exception e){
-      log.error("An exception has occurred in SaveAnalysisFiles ", e);
-      e.printStackTrace();
+      LOG.error("An exception has occurred in SaveAnalysisFiles ", e);
+
       throw new RollBackCommandException(e.getMessage());
         
     } finally {
       try {
         HibernateSession.closeSession();        
-      } catch(Exception e) {
-        
+      } catch(Exception e){
+        LOG.error("Error", e);
       }
     }
     

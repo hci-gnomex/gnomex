@@ -21,7 +21,7 @@ import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.output.XMLOutputter;
-
+import org.apache.log4j.Logger;
 
 
 public class MoveDataTrack extends GNomExCommand implements Serializable {
@@ -29,7 +29,7 @@ public class MoveDataTrack extends GNomExCommand implements Serializable {
  
   
   // the static field for logging in Log4J
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(MoveDataTrack.class);
+  private static Logger LOG = Logger.getLogger(MoveDataTrack.class);
   
   
   private Integer idDataTrack = null;
@@ -218,15 +218,15 @@ public class MoveDataTrack extends GNomExCommand implements Serializable {
         setResponsePage(this.ERROR_JSP);
       }
     } catch (Exception e){
-      log.error("An exception has occurred in MoveDataTrack ", e);
-      e.printStackTrace();
+      LOG.error("An exception has occurred in MoveDataTrack ", e);
+
       throw new RollBackCommandException(e.getMessage());
         
     }finally {
       try {
         HibernateSession.closeSession();        
-      } catch(Exception e) {
-        
+      } catch(Exception e){
+        LOG.error("Error", e);
       }
     }
     

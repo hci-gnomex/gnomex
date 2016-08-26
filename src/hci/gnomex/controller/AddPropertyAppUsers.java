@@ -22,7 +22,8 @@ import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
-
+import org.apache.log4j.Logger;
+import org.apache.log4j.Logger;
 
 
 
@@ -32,7 +33,7 @@ public class AddPropertyAppUsers extends GNomExCommand implements Serializable {
   private Document appUsersDoc;
   
   // the static field for logging in Log4J
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(AddPropertyAppUsers.class);
+  private static Logger LOG = Logger.getLogger(AddPropertyAppUsers.class);
   
   public void validate() {
   }
@@ -43,7 +44,7 @@ public class AddPropertyAppUsers extends GNomExCommand implements Serializable {
       idProperty = Integer.parseInt(request.getParameter("idProperty"));
     } catch(Exception ex) {
       addInvalidField("idProperty", "Invalid idProperty string" + (request.getParameter("idProperty") == null ? "NULL" : request.getParameter("idProperty")));
-      log.error("AddPropertyAppUsers: Invalid idProperty string" + (request.getParameter("idProperty") == null ? "NULL" : request.getParameter("idProperty")), ex);
+      LOG.error("AddPropertyAppUsers: Invalid idProperty string" + (request.getParameter("idProperty") == null ? "NULL" : request.getParameter("idProperty")), ex);
     }
     
     String appUsersXMLString = request.getParameter("appUsersXMLString");
@@ -53,7 +54,7 @@ public class AddPropertyAppUsers extends GNomExCommand implements Serializable {
       appUsersDoc = sax.build(reader);
     } catch(Exception ex) {
       addInvalidField("idProperty", "Invalid appUsers string" + (appUsersXMLString == null ? "NULL" : appUsersXMLString));
-      log.error("AddPropertyAppUsers: Invalid appUsers string" + (appUsersXMLString == null ? "NULL" : appUsersXMLString), ex);
+      LOG.error("AddPropertyAppUsers: Invalid appUsers string" + (appUsersXMLString == null ? "NULL" : appUsersXMLString), ex);
     }    
   }
 
@@ -103,14 +104,14 @@ public class AddPropertyAppUsers extends GNomExCommand implements Serializable {
         setResponsePage(this.ERROR_JSP);
       }
     }catch (Exception e){
-      log.error("An exception has occurred in AddPropertyAppUsers ", e);
+      LOG.error("An exception has occurred in AddPropertyAppUsers ", e);
       throw new RollBackCommandException(e.getMessage());
         
     }finally {
       try {
         HibernateSession.closeSession();        
       } catch(Exception e) {
-        
+        LOG.error("An exception has occurred in AddPropertyAppUsers", e);
       }
     }
     

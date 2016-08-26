@@ -25,7 +25,7 @@ import org.hibernate.id.IdentifierGenerator;
 
 public class Hibernate3xUIDGenerator implements IdentifierGenerator, Serializable {
 
-  private static final Log log = LogFactory.getLog(Hibernate3xUIDGenerator.class);
+  private static final Log LOG = LogFactory.getLog(Hibernate3xUIDGenerator.class);
   private String table;
 
   public Hibernate3xUIDGenerator(String table) {
@@ -50,7 +50,7 @@ public class Hibernate3xUIDGenerator implements IdentifierGenerator, Serializabl
 
       id = stmt.getInt(2);
 
-      log.debug("Sequence ID generated: " + id);
+      LOG.debug("Sequence ID generated: " + id);
       return new Integer(id);
     }
     catch (SQLException sqle) {

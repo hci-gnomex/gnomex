@@ -23,11 +23,11 @@ import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.output.XMLOutputter;
-
+import org.apache.log4j.Logger;
 
 public class GetBillingInvoiceList extends GNomExCommand implements Serializable {
   
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetBillingInvoiceList.class);
+  private static Logger LOG = Logger.getLogger(GetBillingInvoiceList.class);
   
   private BillingItemFilter billingItemFilter;
   
@@ -72,7 +72,7 @@ public class GetBillingInvoiceList extends GNomExCommand implements Serializable
     TreeMap<Integer, Invoice> invoiceMap = new TreeMap<Integer, Invoice>();
     
     StringBuffer buf = billingItemFilter.getBillingInvoiceQuery();
-    log.info("Query: " + buf.toString());
+    LOG.info("Query: " + buf.toString());
     List invoices = sess.createQuery(buf.toString()).list();
     for(Iterator i = invoices.iterator(); i.hasNext();) {
       Invoice invoice = (Invoice)i.next();
@@ -80,7 +80,7 @@ public class GetBillingInvoiceList extends GNomExCommand implements Serializable
     }
     
     buf = billingItemFilter.getDiskUsageInvoiceQuery();
-    log.info("Query: " + buf.toString());
+    LOG.info("Query: " + buf.toString());
     invoices = sess.createQuery(buf.toString()).list();
     for(Iterator i = invoices.iterator(); i.hasNext();) {
       Invoice invoice = (Invoice)i.next();
@@ -98,23 +98,15 @@ public class GetBillingInvoiceList extends GNomExCommand implements Serializable
     this.xmlResult = out.outputString(doc);
 
     setResponsePage(this.SUCCESS_JSP);
-    }catch (NamingException e){
-      log.error("An exception has occurred in GetBillingInvoiceList ", e);
-      e.printStackTrace();
-      throw new RollBackCommandException(e.getMessage());        
-    }catch (SQLException e) {
-      log.error("An exception has occurred in GetBillingInvoiceList ", e);
-      e.printStackTrace();
-      throw new RollBackCommandException(e.getMessage());
-    } catch (Exception e) {
-      log.error("An exception has occurred in GetBillingInvoiceList ", e);
-      e.printStackTrace();
+    }catch (Exception e) {
+      LOG.error("An exception has occurred in GetBillingInvoiceList ", e);
+
       throw new RollBackCommandException(e.getMessage());
     } finally {
       try {
         this.getSecAdvisor().closeReadOnlyHibernateSession();        
       } catch(Exception e) {
-        
+        LOG.error("An exception has occurred in GetBillingInvoiceList ", e);
       }
     }
     

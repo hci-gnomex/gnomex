@@ -29,10 +29,10 @@ import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.output.XMLOutputter;
-
+import org.apache.log4j.Logger;
 public class GetRequestList extends GNomExCommand implements Serializable {
 
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetRequestList.class);
+  private static Logger LOG = Logger.getLogger(GetRequestList.class);
 
   private RequestFilter requestFilter;
   private HashMap<Integer, List<Object[]>> reactionPlateMap = new HashMap<Integer, List<Object[]>>();
@@ -40,6 +40,7 @@ public class GetRequestList extends GNomExCommand implements Serializable {
 
   private Boolean includePlateInfo = true;
   private Boolean linkToAnalysisExpsOnly = false;
+  private Boolean ignoreMaxRequestLimit = false;
 
   private String message = "";
   private static final int DEFAULT_MAX_REQUESTS_COUNT = 100;
@@ -60,6 +61,9 @@ public class GetRequestList extends GNomExCommand implements Serializable {
     if (request.getParameter("linkToAnalysisExpsOnly") != null && !request.getParameter("linkToAnalysisExpsOnly").equals("")) {
       linkToAnalysisExpsOnly = request.getParameter("linkToAnalysisExpsOnly").equals("Y") ? true : false;
     }
+    if (request.getParameter("ignoreMaxRequestLimit") != null && !request.getParameter("ignoreMaxRequestLimit").equals("")) {
+      ignoreMaxRequestLimit = request.getParameter("ignoreMaxRequestLimit").equals("Y") ? true : false;
+    }
   }
 
   public Command execute() throws RollBackCommandException {
@@ -71,7 +75,7 @@ public class GetRequestList extends GNomExCommand implements Serializable {
 
       StringBuffer buf = requestFilter.getQuery(this.getSecAdvisor());
 
-      log.info("Query for GetRequestList: " + buf.toString());
+      LOG.info("Query for GetRequestList: " + buf.toString());
       List rows = sess.createQuery(buf.toString()).list();
 
       if (includePlateInfo) {
@@ -185,20 +189,20 @@ public class GetRequestList extends GNomExCommand implements Serializable {
 
       setResponsePage(this.SUCCESS_JSP);
     } catch (NamingException e) {
-      log.error("An exception has occurred in GetRequestList ", e);
-      e.printStackTrace();
+      LOG.error("An exception has occurred in GetRequestList ", e);
+
       throw new RollBackCommandException(e.getMessage());
     } catch (SQLException e) {
-      log.error("An exception has occurred in GetRequestList ", e);
-      e.printStackTrace();
+      LOG.error("An exception has occurred in GetRequestList ", e);
+
       throw new RollBackCommandException(e.getMessage());
     } catch (XMLReflectException e) {
-      log.error("An exception has occurred in GetRequestList ", e);
-      e.printStackTrace();
+      LOG.error("An exception has occurred in GetRequestList ", e);
+
       throw new RollBackCommandException(e.getMessage());
     } catch (Exception e) {
-      log.error("An exception has occurred in GetRequestList ", e);
-      e.printStackTrace();
+      LOG.error("An exception has occurred in GetRequestList ", e);
+
       throw new RollBackCommandException(e.getMessage());
     } finally {
       try {
@@ -213,12 +217,18 @@ public class GetRequestList extends GNomExCommand implements Serializable {
 
   private Integer getMaxRequests(Session sess) {
     Integer maxRequests = DEFAULT_MAX_REQUESTS_COUNT;
-    String prop = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.EXPERIMENT_VIEW_LIMIT);
-    if (prop != null && prop.length() > 0) {
-      try {
-        maxRequests = Integer.parseInt(prop);
-      } catch (NumberFormatException e) {
+
+    if (!ignoreMaxRequestLimit) {
+      String prop = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.EXPERIMENT_VIEW_LIMIT);
+      if (prop != null && prop.length() > 0) {
+        try {
+          maxRequests = Integer.parseInt(prop);
+        } catch (NumberFormatException e) {
+        }
       }
+    }
+    else {
+      maxRequests = 2000000;
     }
     return maxRequests;
   }

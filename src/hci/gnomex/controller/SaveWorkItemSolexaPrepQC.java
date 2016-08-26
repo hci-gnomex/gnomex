@@ -17,14 +17,14 @@ import javax.servlet.http.HttpSession;
 import java.io.Serializable;
 import java.io.StringReader;
 import java.util.*;
-
+import org.apache.log4j.Logger;
 
 public class SaveWorkItemSolexaPrepQC extends GNomExCommand implements Serializable {
 
 
 
   // the static field for logging in Log4J
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(SaveWorkItemSolexaPrepQC.class);
+  private static Logger LOG = Logger.getLogger(SaveWorkItemSolexaPrepQC.class);
 
   private String                       workItemXMLString;
   private Document                     workItemDoc;
@@ -53,7 +53,7 @@ public class SaveWorkItemSolexaPrepQC extends GNomExCommand implements Serializa
         workItemDoc = sax.build(reader);
         parser = new WorkItemSolexaPrepQCParser(workItemDoc);
       } catch (JDOMException je ) {
-        log.error( "Cannot parse workItemXMLString", je );
+        LOG.error( "Cannot parse workItemXMLString", je );
         this.addInvalidField( "WorkItemXMLString", "Invalid work item xml");
       }
     }
@@ -61,7 +61,7 @@ public class SaveWorkItemSolexaPrepQC extends GNomExCommand implements Serializa
     try {
       appURL = this.getLaunchAppURL(request);
     } catch (Exception e) {
-      log.warn("Cannot get launch app URL in SaveWorkItemSolexaPrepQC", e);
+      LOG.warn("Cannot get launch app URL in SaveWorkItemSolexaPrepQC", e);
     }
 
     serverName = request.getServerName();
@@ -179,16 +179,16 @@ public class SaveWorkItemSolexaPrepQC extends GNomExCommand implements Serializa
 
 
       }catch (Exception e){
-        log.error("An exception has occurred in SaveWorkItemSolexaPrep ", e);
-        e.printStackTrace();
+        LOG.error("An exception has occurred in SaveWorkItemSolexaPrep ", e);
+
         throw new RollBackCommandException(e.getMessage());
           
       }finally {
         try {
           HibernateSession.closeSession();        
-        } catch(Exception e) {
-          
-        }
+        } catch(Exception e){
+        LOG.error("Error", e);
+      }
       }
       
     } else {

@@ -53,11 +53,11 @@ import org.apache.lucene.search.Searcher;
 import org.hibernate.Session;
 import org.jdom.Element;
 import org.jdom.input.SAXBuilder;
-
+import org.apache.log4j.Logger;
 
 public class SearchIndex extends GNomExCommand implements Serializable {
   // the static field for logging in Log4J
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(SearchIndex.class);
+  private static Logger LOG = Logger.getLogger(SearchIndex.class);
 
   private boolean isExperimentOnlySearch = false;
   private boolean isAnalysisOnlySearch = false;
@@ -199,7 +199,7 @@ public class SearchIndex extends GNomExCommand implements Serializable {
         globalFilter.setIdLabList(searchListParser.getIdLabList());
         globalFilter.setIdOrganismList(searchListParser.getIdOrganismList());
       } catch (Exception je ) {
-        log.error( "Cannot parse searchXMLString", je );
+        LOG.error( "Cannot parse searchXMLString", je );
         this.addInvalidField( "searchXMLString", "Invalid search xml");
       }
     }
@@ -235,7 +235,7 @@ public class SearchIndex extends GNomExCommand implements Serializable {
         String globalSecuritySearchText = this.buildGlobalSecuritySearch();
 
         if (globalSearchText != null && globalSearchText.trim().length() > 0) {
-          log.debug("Lucene global search: " + globalSearchText);
+          LOG.debug("Lucene global search: " + globalSearchText);
           QueryParser myQueryParser = new QueryParser("text", new StandardAnalyzer());
           myQueryParser.setAllowLeadingWildcard(true);
           Query query = myQueryParser.parse(globalSearchText);          
@@ -281,7 +281,7 @@ public class SearchIndex extends GNomExCommand implements Serializable {
 
 
         if (searchText != null && searchText.trim().length() > 0) {
-          log.debug("Lucene search: " + searchText);
+          LOG.debug("Lucene search: " + searchText);
           QueryParser myQueryParser = new QueryParser("text", new StandardAnalyzer());
           myQueryParser.setAllowLeadingWildcard(true);
           Query query = myQueryParser.parse(searchText);
@@ -326,7 +326,7 @@ public class SearchIndex extends GNomExCommand implements Serializable {
         String protocolSearchText = protocolFilter.getSearchText().toString();
 
         if (protocolSearchText != null && protocolSearchText.trim().length() > 0) {
-          log.debug("Lucene protocol search: " + protocolSearchText);
+          LOG.debug("Lucene protocol search: " + protocolSearchText);
           QueryParser myQueryParser = new QueryParser("text", new StandardAnalyzer());
           myQueryParser.setAllowLeadingWildcard(true);
           Query query = myQueryParser.parse(protocolSearchText);          
@@ -355,7 +355,7 @@ public class SearchIndex extends GNomExCommand implements Serializable {
         String dataTrackSecuritySearchText = this.buildDataTrackSecuritySearch();
 
         if (dataTrackSearchText != null && dataTrackSearchText.trim().length() > 0) {
-          log.debug("Lucene data track search: " + dataTrackSearchText);
+          LOG.debug("Lucene data track search: " + dataTrackSearchText);
           QueryParser myQueryParser = new QueryParser("text", new StandardAnalyzer());
           myQueryParser.setAllowLeadingWildcard(true);
           Query query = myQueryParser.parse(dataTrackSearchText);          
@@ -402,7 +402,7 @@ public class SearchIndex extends GNomExCommand implements Serializable {
         String analysisSecuritySearchText = this.buildAnalysisSecuritySearch();
 
         if (analysisSearchText != null && analysisSearchText.trim().length() > 0) {
-          log.debug("Lucene analysis search: " + analysisSearchText);
+          LOG.debug("Lucene analysis search: " + analysisSearchText);
           QueryParser myQueryParser = new QueryParser("text", new StandardAnalyzer());
           myQueryParser.setAllowLeadingWildcard(true);
           Query query = myQueryParser.parse(analysisSearchText);          
@@ -447,7 +447,7 @@ public class SearchIndex extends GNomExCommand implements Serializable {
         String topicSecuritySearchText = this.buildTopicSecuritySearch();
 
         if (topicSearchText != null && topicSearchText.trim().length() > 0) {
-          log.debug("Lucene topic search: " + topicSearchText);
+          LOG.debug("Lucene topic search: " + topicSearchText);
           QueryParser myQueryParser = new QueryParser("text", new StandardAnalyzer());
           myQueryParser.setAllowLeadingWildcard(true);
           Query query = myQueryParser.parse(topicSearchText);          
@@ -486,31 +486,31 @@ public class SearchIndex extends GNomExCommand implements Serializable {
       this.xmlResult = out.outputString(xmlDoc);
 
     }catch (UnknownPermissionException e){
-      log.error("An exception has occurred in SearchIndex ", e);
-      e.printStackTrace();
+      LOG.error("An exception has occurred in SearchIndex ", e);
+
       throw new RollBackCommandException(e.getMessage());
 
     }catch (NamingException e){
-      log.error("An exception has occurred in SearchIndex ", e);
+      LOG.error("An exception has occurred in SearchIndex ", e);
       throw new RollBackCommandException(e.getMessage());
 
     }catch (SQLException e) {
-      log.error("An exception has occurred in SearchIndex ", e);
-      e.printStackTrace();
+      LOG.error("An exception has occurred in SearchIndex ", e);
+
       throw new RollBackCommandException(e.getMessage());
     } catch (XMLReflectException e){
-      log.error("An exception has occurred in SearchIndex ", e);
-      e.printStackTrace();
+      LOG.error("An exception has occurred in SearchIndex ", e);
+
       throw new RollBackCommandException(e.getMessage());
     } catch (Exception e){
-      log.error("An exception has occurred in SearchIndex ", e);
-      e.printStackTrace();
+      LOG.error("An exception has occurred in SearchIndex ", e);
+
       throw new RollBackCommandException(e.getMessage());
     } finally {
       try {
         this.getSecAdvisor().closeReadOnlyHibernateSession();        
-      } catch(Exception e) {
-
+      } catch(Exception e){
+        LOG.error("Error", e);
       }
     }
 
@@ -1643,7 +1643,7 @@ public class SearchIndex extends GNomExCommand implements Serializable {
 
 
     if (addedFilter) {
-      log.debug("Security filter: " + searchText.toString());
+      LOG.debug("Security filter: " + searchText.toString());
       return searchText.toString();           
     } else {
       return null;
@@ -1676,7 +1676,7 @@ public class SearchIndex extends GNomExCommand implements Serializable {
 
 
     if (addedFilter) {
-      log.debug("Security filter: " + searchText.toString());
+      LOG.debug("Security filter: " + searchText.toString());
       return searchText.toString();           
     } else {
       return null;
@@ -1708,7 +1708,7 @@ public class SearchIndex extends GNomExCommand implements Serializable {
 
 
     if (addedFilter) {
-      log.debug("Security filter: " + searchText.toString());
+      LOG.debug("Security filter: " + searchText.toString());
       return searchText.toString();           
     } else {
       return null;
@@ -1740,7 +1740,7 @@ public class SearchIndex extends GNomExCommand implements Serializable {
 
 
     if (addedFilter) {
-      log.debug("Security filter: " + searchText.toString());
+      LOG.debug("Security filter: " + searchText.toString());
       return searchText.toString();           
     } else {
       return null;
@@ -1772,7 +1772,7 @@ public class SearchIndex extends GNomExCommand implements Serializable {
 
 
     if (addedFilter) {
-      log.debug("Security filter: " + searchText.toString());
+      LOG.debug("Security filter: " + searchText.toString());
       return searchText.toString();           
     } else {
       return null;
@@ -1783,7 +1783,7 @@ public class SearchIndex extends GNomExCommand implements Serializable {
 
     QueryWrapperFilter filter = null;
     if (searchText != null) {
-      log.debug("Security filter: " + searchText.toString());
+      LOG.debug("Security filter: " + searchText.toString());
       QueryParser myQueryParser = new QueryParser("text", new StandardAnalyzer());
       myQueryParser.setAllowLeadingWildcard(true);
       Query securityQuery = myQueryParser.parse(searchText.toString());          
@@ -1796,7 +1796,7 @@ public class SearchIndex extends GNomExCommand implements Serializable {
 
   private void showExperimentHits(Hits hits, String searchText) throws Exception {
 
-    if (log.getEffectiveLevel().equals(Level.DEBUG)) {
+    if (LOG.getEffectiveLevel().equals(Level.DEBUG)) {
       // Examine the Hits object to see if there were any matches
       int hitCount = hits.length();
       if (hitCount == 0) {
@@ -1826,7 +1826,7 @@ public class SearchIndex extends GNomExCommand implements Serializable {
 
   private void showAnalysisHits(Hits hits, String searchText) throws Exception {
 
-    if (log.getEffectiveLevel().equals(Level.DEBUG)) {
+    if (LOG.getEffectiveLevel().equals(Level.DEBUG)) {
       // Examine the Hits object to see if there were any matches
       int hitCount = hits.length();
       if (hitCount == 0) {
@@ -1855,7 +1855,7 @@ public class SearchIndex extends GNomExCommand implements Serializable {
 
   private void showDataTrackHits(Hits hits, String searchText) throws Exception {
 
-    if (log.getEffectiveLevel().equals(Level.DEBUG)) {
+    if (LOG.getEffectiveLevel().equals(Level.DEBUG)) {
       // Examine the Hits object to see if there were any matches
       int hitCount = hits.length();
       if (hitCount == 0) {
@@ -1884,7 +1884,7 @@ public class SearchIndex extends GNomExCommand implements Serializable {
 
   private void showTopicHits(Hits hits, String searchText) throws Exception {
 
-    if (log.getEffectiveLevel().equals(Level.DEBUG)) {
+    if (LOG.getEffectiveLevel().equals(Level.DEBUG)) {
       // Examine the Hits object to see if there were any matches
       int hitCount = hits.length();
       if (hitCount == 0) {

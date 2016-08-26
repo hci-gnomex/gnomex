@@ -25,9 +25,9 @@ import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.resource.transaction.spi.TransactionStatus;
-
+import org.apache.log4j.Logger;
 public class HibernateSession {
-	private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(HibernateSession.class);
+	private static Logger LOG = Logger.getLogger(HibernateSession.class);
 
 	private static final ThreadLocal session = new ThreadLocal();
 	private static final ThreadLocal transaction = new ThreadLocal();
@@ -137,7 +137,7 @@ public class HibernateSession {
 					tx.commit();
 					txStat = null;
 				} catch (Exception e) {
-					log.error("Failed to commit Transaction, going to try and rollback " + e);
+					LOG.error("Failed to commit Transaction, going to try and rollback " + e, e);
 				}
 				try {
 					// Maybe the commit above worked and so the transaction is no longer active therefore don't try the rollback or else we will get an inactive
@@ -146,7 +146,7 @@ public class HibernateSession {
 						tx.rollback();
 					}
 				} catch (Exception e) {
-					log.error("Failed to rollback transaction " + e);
+					LOG.error("Failed to rollback transaction " + e, e);
 				}
 			}
 			if (s != null) {

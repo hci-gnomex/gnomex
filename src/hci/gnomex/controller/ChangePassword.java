@@ -28,10 +28,10 @@ import javax.servlet.http.HttpSession;
 
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
-
+import org.apache.log4j.Logger;
 public class ChangePassword extends GNomExCommand implements Serializable {
 
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(ChangePassword.class);
+  private static Logger LOG = Logger.getLogger(ChangePassword.class);
 
   public String SUCCESS_JSP = "/getXML.jsp";
   // public String ERROR_JSP = "/message.jsp";
@@ -116,8 +116,7 @@ public class ChangePassword extends GNomExCommand implements Serializable {
 
       this.validate();
     } catch (Exception e) {
-      log.error(e.getClass().toString() + ": " + e);
-      e.printStackTrace();
+      LOG.error(e.getClass().toString() + ": " , e);
     }
   }
 
@@ -139,7 +138,7 @@ public class ChangePassword extends GNomExCommand implements Serializable {
       }
 
       if (changingPassword) {
-        checkRegHql += "and u.guid='" + guid + "'";
+        checkRegHql += " and u.guid='" + guid + "'";
       }
 
       appUser = (AppUser) sess.createQuery(checkRegHql).uniqueResult();
@@ -201,36 +200,19 @@ public class ChangePassword extends GNomExCommand implements Serializable {
         }
       }
       this.validate();
-    } catch (HibernateException e) {
-      e.printStackTrace();
-      log.error(e.getClass().toString() + ": " + e);
-      throw new RollBackCommandException();
-    } catch (NumberFormatException e) {
-      log.error(e.getClass().toString() + ": " + e);
-      e.printStackTrace();
-      throw new RollBackCommandException();
-    } catch (NamingException e) {
-      log.error(e.getClass().toString() + ": " + e);
-      e.printStackTrace();
-      throw new RollBackCommandException();
-    } catch (SQLException e) {
-      log.error(e.getClass().toString() + ": " + e);
-      e.printStackTrace();
-      throw new RollBackCommandException();
     } catch (Exception e) {
-      log.error(e.getClass().toString() + ": " + e);
-      e.printStackTrace();
+      LOG.error(e.getClass().toString() + ": " , e);
       throw new RollBackCommandException();
     } finally {
       try {
         this.validate();
         HibernateSession.closeSession();
       } catch (HibernateException e) {
-        log.error(e.getClass().toString() + ": " + e);
+        LOG.error(e.getClass().toString() + ": " , e);
         this.validate();
         throw new RollBackCommandException();
       } catch (SQLException e) {
-        log.error(e.getClass().toString() + ": " + e);
+        LOG.error(e.getClass().toString() + ": " , e);
         this.validate();
         throw new RollBackCommandException();
       }

@@ -22,7 +22,7 @@ import javax.servlet.http.HttpSession;
 import org.hibernate.Hibernate;
 import org.hibernate.Session;
 
-
+import org.apache.log4j.Logger;
 
 
 public class DeleteAnalysis extends GNomExCommand implements Serializable {
@@ -30,7 +30,7 @@ public class DeleteAnalysis extends GNomExCommand implements Serializable {
  
   
   // the static field for logging in Log4J
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(DeleteAnalysis.class);
+  private static Logger LOG = Logger.getLogger(DeleteAnalysis.class);
   
   
   private Integer      idAnalysis = null;
@@ -119,15 +119,15 @@ public class DeleteAnalysis extends GNomExCommand implements Serializable {
         setResponsePage(this.ERROR_JSP);
       }
     }catch (Exception e){
-      log.error("An exception has occurred in DeleteAnalysis ", e);
-      e.printStackTrace();
+      LOG.error("An exception has occurred in DeleteAnalysis ", e);
+
       throw new RollBackCommandException(e.getMessage());
         
     }finally {
       try {
         HibernateSession.closeSession();        
       } catch(Exception e) {
-        
+        LOG.error("An exception has occurred in DeleteAnalysis ", e);
       }
     }
     
@@ -143,7 +143,7 @@ public class DeleteAnalysis extends GNomExCommand implements Serializable {
     
     if(folderContents.length == 0){
       if (!f.delete()) {
-        log.error("Unable to remove " + f.getName() + " from file system");
+        LOG.error("Unable to remove " + f.getName() + " from file system");
       } 
       return;
     }
@@ -155,13 +155,13 @@ public class DeleteAnalysis extends GNomExCommand implements Serializable {
       }
       else{
         if (!child.delete()) {
-          log.error("Unable to remove " + child.getName() + " from file system");
+          LOG.error("Unable to remove " + child.getName() + " from file system");
         } 
       }
     }
     
     if (!f.delete()) {
-      log.error("Unable to remove " + f.getName() + " from file system");
+      LOG.error("Unable to remove " + f.getName() + " from file system");
     } 
   }
   

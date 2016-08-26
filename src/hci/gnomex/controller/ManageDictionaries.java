@@ -20,7 +20,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.hibernate.Session;
-
+import org.apache.log4j.Logger;
 /**
  *
  *@author
@@ -38,7 +38,7 @@ import org.hibernate.Session;
 public class ManageDictionaries extends DictionaryCommand implements Serializable {
 
   // the static field for logging in Log4J
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(ManageDictionaries.class);
+  private static Logger LOG = Logger.getLogger(ManageDictionaries.class);
   
   public static boolean isLoaded = false;
 
@@ -64,12 +64,12 @@ public class ManageDictionaries extends DictionaryCommand implements Serializabl
   }
 
   public void validate() {
-    log.debug("Executing validate method in " + this.getClass().getName());
+    LOG.debug("Executing validate method in " + this.getClass().getName());
 
   }
 
   public void loadCommand(HttpServletRequest request, HttpSession session) {
-    log.debug("Executing loadCommand method in " + this.getClass().getName());
+    LOG.debug("Executing loadCommand method in " + this.getClass().getName());
     
     try {
     	Session sess = HibernateSession.currentSession(this.username);
@@ -92,13 +92,13 @@ public class ManageDictionaries extends DictionaryCommand implements Serializabl
         	action = request.getParameter("action");
         	}
         } catch (Exception e) {  
-        	e.printStackTrace();
+
         	} finally {
       try {
         HibernateSession.closeSession();
       }
       catch (Exception ex) {
-        log.error("Exception trying to close the Hibernate session: "+ ex);
+        LOG.error("Exception trying to close the Hibernate session: "+ ex, ex);
       }
     }
     
@@ -117,7 +117,7 @@ public class ManageDictionaries extends DictionaryCommand implements Serializabl
   }
 
   public Command execute() throws GNomExRollbackException {
-    log.debug("Executing execute method in " + this.getClass().getName());
+    LOG.debug("Executing execute method in " + this.getClass().getName());
    
     try {
     	manager.executeCommand(this, HibernateSession.currentSession(this.username), this.getSecurityAdvisor(), true);
@@ -146,14 +146,14 @@ public class ManageDictionaries extends DictionaryCommand implements Serializabl
 			  msg = "Incomplete data. Please fill in mandatory fields.";
 			  displayMsg = msg;
 			}
-      e.printStackTrace();
+
       throw new GNomExRollbackException(msg, true, displayMsg);
     } finally {
       try {
         HibernateSession.closeSession();
       }
       catch (Exception ex) {
-        log.error("Exception trying to close the Hibernate session: "+ ex);
+        LOG.error("Exception trying to close the Hibernate session: "+ ex, ex);
       }
     }
 		return this;
@@ -166,14 +166,14 @@ public class ManageDictionaries extends DictionaryCommand implements Serializabl
   }
 
   public HttpServletResponse setResponseState(HttpServletResponse response) {
-    log.debug("Executing setResponseState method in " + this.getClass().getName());
+    LOG.debug("Executing setResponseState method in " + this.getClass().getName());
     response.setHeader("Cache-Control", "max-age=0, must-revalidate");
     return response;
   }
 
 
   public HttpSession setSessionState(HttpSession session) {
-    log.debug("Executing setSessionState method in " + this.getClass().getName());
+    LOG.debug("Executing setSessionState method in " + this.getClass().getName());
 
     return session;
   } 

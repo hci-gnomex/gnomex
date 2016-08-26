@@ -33,11 +33,11 @@ import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.output.XMLOutputter;
-
+import org.apache.log4j.Logger;
 
 public class GetProjectRequestList extends GNomExCommand implements Serializable {
 
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetProjectRequestList.class);
+  private static Logger LOG = Logger.getLogger(GetProjectRequestList.class);
 
   private ProjectRequestFilter filter;
   private Element              rootNode = null;
@@ -129,13 +129,13 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
 
         String message = "";
         StringBuffer buf = filter.getQuery(this.getSecAdvisor(), dictionaryHelper);
-        log.info("Query for GetProjectRequestList: " + buf.toString());
+        LOG.info("Query for GetProjectRequestList: " + buf.toString());
         Query query = sess.createQuery(buf.toString());
         results = (List)query.list();
 
 
         buf = filter.getAnalysisExperimentQuery(this.getSecAdvisor());
-        log.info("Query for GetProjectRequestList: " + buf.toString());
+        LOG.info("Query for GetProjectRequestList: " + buf.toString());
         List analysisResults = (List)sess.createQuery(buf.toString()).list();
         HashMap analysisMap = new HashMap();
         for(Iterator i = analysisResults.iterator(); i.hasNext();) {
@@ -274,24 +274,14 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
 
 
       setResponsePage(this.SUCCESS_JSP);
-    }catch (NamingException e){
-      log.error("An exception has occurred in GetRequestList ", e);
-      e.printStackTrace(System.out);
-      throw new RollBackCommandException(e.getMessage());
-
-    }catch (SQLException e) {
-      log.error("An exception has occurred in GetRequestList ", e);
-      e.printStackTrace(System.out);
-      throw new RollBackCommandException(e.getMessage());
     }catch (Exception e) {
-      log.error("An exception has occurred in GetRequestList ", e);
-      e.printStackTrace(System.out);
+      LOG.error("An exception has occurred in GetRequestList ", e);
       throw new RollBackCommandException(e.getMessage());
     } finally {
       try {
         this.getSecAdvisor().closeReadOnlyHibernateSession();        
-      } catch(Exception e) {
-
+      } catch(Exception e){
+        LOG.error("Error", e);
       }
     }
 

@@ -50,9 +50,9 @@ public class ChromatTrimUtil extends DetailObject implements Serializable {
 
 
     } catch (UnsupportedChromatogramFormatException e){
-      e.printStackTrace();
+
     } catch (IOException e) {
-      e.printStackTrace();
+
     }
   }
   
@@ -158,7 +158,7 @@ public class ChromatTrimUtil extends DetailObject implements Serializable {
     }
     catch (IOException e) {
       
-      e.printStackTrace();
+
       return new int[0];
     }
   }

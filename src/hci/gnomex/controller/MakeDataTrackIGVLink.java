@@ -36,7 +36,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.hibernate.Query;
 import org.hibernate.Session;
-
+import org.apache.log4j.Logger;
 /**
  * Edited 1/15/2013 Mosbruger
  * 
@@ -45,7 +45,7 @@ import org.hibernate.Session;
  */
 public class MakeDataTrackIGVLink extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-	private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(MakeDataTrackIGVLink.class);
+	private static Logger LOG = Logger.getLogger(MakeDataTrackIGVLink.class);
 	private String dataTrackFileServerWebContext;
 	private String baseURL;
 	private String baseDir;
@@ -63,7 +63,7 @@ public class MakeDataTrackIGVLink extends HttpServlet {
 	}
 
 	protected void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
-		log.error("Post not implemented");
+		LOG.error("Post not implemented");
 	}
 
 	protected void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
@@ -88,7 +88,7 @@ public class MakeDataTrackIGVLink extends HttpServlet {
 			execute(res);
 		} catch (Exception ex) {
 			HibernateSession.rollback();
-			log.error("MakeDataTrackIGVLink -- Unhandled exception", ex);
+			LOG.error("MakeDataTrackIGVLink -- Unhandled exception", ex);
 		} finally {
 			if (sess != null) {
 				try {
@@ -221,7 +221,7 @@ public class MakeDataTrackIGVLink extends HttpServlet {
 				for (DataTrackFolder folder : dataTrackFolders) {
 					if (folder.getIdParentDataTrackFolder() == null) {
 						if (found) {
-							log.error("MakeDataTrackIGVLink -- Found two parental folders???? " + gb.getGenomeBuildName());
+							LOG.error("MakeDataTrackIGVLink -- Found two parental folders???? " + gb.getGenomeBuildName());
 						} else {
 							rootFolder = folder;
 							found = true;
@@ -229,7 +229,7 @@ public class MakeDataTrackIGVLink extends HttpServlet {
 					}
 				}
 				if (!found) {
-					log.error("MakeDataTrackIGVLink -- Found no parental folders???? " + gb.getGenomeBuildName());
+					LOG.error("MakeDataTrackIGVLink -- Found no parental folders???? " + gb.getGenomeBuildName());
 				} else {
 
 					// Create data repository
@@ -260,7 +260,7 @@ public class MakeDataTrackIGVLink extends HttpServlet {
 								bw2.close();
 							}
 						} catch (IOException ex) {
-							log.error("MakeDataTrackIGVLink -- Could not read from the Broad repository file: " + theURL);
+							LOG.error("MakeDataTrackIGVLink -- Could not read from the Broad repository file: " + theURL, ex);
 						}
 
 						BufferedWriter br = new BufferedWriter(new FileWriter(registry, true));
@@ -302,12 +302,11 @@ public class MakeDataTrackIGVLink extends HttpServlet {
 					throw new Exception("Could not create IGV Links");
 				}
 			} else {
-				log.error("MakeDataTrackIGVLink -- No data tracks associated with this user!");
+				LOG.error("MakeDataTrackIGVLink -- No data tracks associated with this user!");
 			}
 
 		} catch (Exception e) {
-			log.error("An exception has occurred in MakeDataTrackIGVLinks ", e);
-			e.printStackTrace(System.out);
+			LOG.error("An exception has occurred in MakeDataTrackIGVLinks ", e);
 			throw new RollBackCommandException(e.getMessage());
 		} finally {
 			try {
@@ -454,7 +453,7 @@ public class MakeDataTrackIGVLink extends HttpServlet {
 			return true;
 
 		} catch (IOException e) {
-			e.printStackTrace();
+
 		}
 		return false;
 	}

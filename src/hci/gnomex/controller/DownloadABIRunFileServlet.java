@@ -31,10 +31,10 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.hibernate.Session;
 import org.jdom.Element;
-
+import org.apache.log4j.Logger;
 public class DownloadABIRunFileServlet extends HttpServlet { 
 
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(DownloadABIRunFileServlet.class);
+  private static Logger LOG = Logger.getLogger(DownloadABIRunFileServlet.class);
   
   private Integer                        idInstrumentRun;
   private InstrumentRun                  ir;
@@ -48,9 +48,9 @@ public class DownloadABIRunFileServlet extends HttpServlet {
       throws ServletException, IOException {
 
     // Restrict commands to local host if request is not secure
-    if (!ServletUtil.checkSecureRequest(req, log)) {
+    if (!ServletUtil.checkSecureRequest(req, LOG)) {
       ServletUtil.reportServletError(response, "Secure connection is required. Prefix your request with 'https'",
-              log, "Accessing secure command over non-secure line from remote host is not allowed.");
+              LOG, "Accessing secure command over non-secure line from remote host is not allowed.");
       return;
     }
     
@@ -61,7 +61,7 @@ public class DownloadABIRunFileServlet extends HttpServlet {
     }
     
     if (idInstrumentRun == null) {
-      log.error("idInstrumentRun required");
+      LOG.error("idInstrumentRun required");
       
       response.setContentType("text/html");
       response.getOutputStream().println(
@@ -284,7 +284,7 @@ public class DownloadABIRunFileServlet extends HttpServlet {
       response.getOutputStream().println("</body>");
       response.getOutputStream().println("</html>");
       System.out.println( "DownloadABIRunFileServlet: An exception occurred " + e.toString());
-      e.printStackTrace();
+
     } finally {
       try {
         secAdvisor.closeHibernateSession();        
@@ -324,8 +324,8 @@ public class DownloadABIRunFileServlet extends HttpServlet {
       return irNode;
 
     } catch( Exception e ) {
-      log.error( "An exception has occurred in CreateRunFile ", e );
-      e.printStackTrace();
+      LOG.error( "An exception has occurred in CreateRunFile ", e );
+
       return null;
     }
   }
@@ -367,8 +367,8 @@ public class DownloadABIRunFileServlet extends HttpServlet {
       return wellNode;
 
     } catch( Exception e ) {
-      log.error( "An exception has occurred in CreateRunFile ", e );
-      e.printStackTrace();
+      LOG.error( "An exception has occurred in CreateRunFile ", e );
+
       return null;
     }
   }

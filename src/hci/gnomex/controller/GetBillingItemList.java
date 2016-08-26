@@ -30,11 +30,11 @@ import hci.gnomex.model.ProductOrder;
 import hci.gnomex.model.RequestCategory;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
-
+import org.apache.log4j.Logger;
 
 public class GetBillingItemList extends GNomExCommand implements Serializable {
 
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetBillingItemList.class);
+  private static Logger LOG = Logger.getLogger(GetBillingItemList.class);
 
   private BillingItemFilter billingItemFilter;
   private String            showOtherBillingItems = "";
@@ -70,7 +70,7 @@ public class GetBillingItemList extends GNomExCommand implements Serializable {
       Document doc = new Document(new Element("BillingItemList"));
 
       StringBuffer buf = billingItemFilter.getBillingNewRequestQuery();
-      log.info("Query: " + buf.toString());
+      LOG.info("Query: " + buf.toString());
       List newRequests = sess.createQuery(buf.toString()).list();
 
       // Query all requests that don't have any billing items.
@@ -130,7 +130,7 @@ public class GetBillingItemList extends GNomExCommand implements Serializable {
       }
 
       buf = billingItemFilter.getBillingItemQuery();
-      log.info("Query: " + buf.toString());
+      LOG.info("Query: " + buf.toString());
       List billingItems = (List)sess.createQuery(buf.toString()).list();
 
       // When filtering by billing period,
@@ -302,7 +302,7 @@ public class GetBillingItemList extends GNomExCommand implements Serializable {
       prevIdBillingPeriod = new Integer(-1);
       // add any disk usage nodes
       StringBuffer diskUsageBuf = billingItemFilter.getDiskUsageBillingItemQuery();
-      log.info("Query: " + diskUsageBuf.toString());
+      LOG.info("Query: " + diskUsageBuf.toString());
       List diskUsageBillingItems = (List)sess.createQuery(diskUsageBuf.toString()).list();
       for(Iterator i = diskUsageBillingItems.iterator(); i.hasNext();) {
         Object[] row = (Object[])i.next();
@@ -380,7 +380,7 @@ public class GetBillingItemList extends GNomExCommand implements Serializable {
       prevIdBillingPeriod = new Integer(-1);
       // add any product order nodes
       StringBuffer productOrderBuf = billingItemFilter.getProductOrderBillingItemQuery();
-      log.info("Query: " + productOrderBuf.toString());
+      LOG.info("Query: " + productOrderBuf.toString());
       List productOrderBillingItems = (List)sess.createQuery(productOrderBuf.toString()).list();
       
       // Get related charges
@@ -534,23 +534,15 @@ public class GetBillingItemList extends GNomExCommand implements Serializable {
       this.xmlResult = out.outputString(doc);
 
       setResponsePage(this.SUCCESS_JSP);
-    }catch (NamingException e){
-      log.error("An exception has occurred in GetBillingItemList ", e);
-      e.printStackTrace();
-      throw new RollBackCommandException(e.getMessage());        
-    }catch (SQLException e) {
-      log.error("An exception has occurred in GetBillingItemList ", e);
-      e.printStackTrace();
-      throw new RollBackCommandException(e.getMessage());
     } catch (Exception e) {
-      log.error("An exception has occurred in GetBillingItemList ", e);
-      e.printStackTrace();
+      LOG.error("An exception has occurred in GetBillingItemList ", e);
+
       throw new RollBackCommandException(e.getMessage());
     } finally {
       try {
         this.getSecAdvisor().closeReadOnlyHibernateSession();        
       } catch(Exception e) {
-
+        LOG.error("An exception has occurred in GetBillingItemList ", e);
       }
     }
 

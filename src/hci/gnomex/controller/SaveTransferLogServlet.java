@@ -1,7 +1,7 @@
 package hci.gnomex.controller;
-
+import org.apache.log4j.Logger;
 public class SaveTransferLogServlet extends HttpClientServletBase {
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(SaveTransferLogServlet.class);
+  private static Logger LOG = Logger.getLogger(SaveTransferLogServlet.class);
   
   protected String getNameOfServlet() {
     return "SaveTransferLogServlet";
@@ -12,6 +12,6 @@ public class SaveTransferLogServlet extends HttpClientServletBase {
   }
 
   protected void logError(String msg, Exception ex) {
-    log.error(msg, ex);
+    LOG.error(msg, ex);
   }
 }

@@ -287,7 +287,7 @@ public class UploadDataTrackFileServlet extends HttpServlet {
 		} catch (Exception e) {
 			HibernateSession.rollback();
 			Logger.getLogger(this.getClass().getName()).warning(e.getMessage());
-			e.printStackTrace();
+
 			sess.flush();
 			res.addHeader("message", e.getMessage());
 			Document doc = DocumentHelper.createDocument();
@@ -548,13 +548,13 @@ public class UploadDataTrackFileServlet extends HttpServlet {
 			}
 
 		} catch (Exception e) {
-			e.printStackTrace();
+
 		} finally {
 			if (in != null)
 				try {
 					in.close();
 				} catch (IOException e) {
-					e.printStackTrace();
+
 				}
 		}
 		return null;

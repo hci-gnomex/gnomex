@@ -66,7 +66,7 @@ public class UploadSequenceURLServlet extends HttpServlet {
 
 		} catch (Exception e) {
 			System.out.println("An error has occured in UploadSequenceURLServlet - " + e.toString());
-			e.printStackTrace();
+
 		} finally {
 			if (sess != null) {
 				try {

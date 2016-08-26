@@ -208,7 +208,7 @@ public class RegionScoreData extends USeqData{
 				}
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+
 			binaryFile = null;
 		} finally {
 			USeqUtilities.safeClose(workingDOS);
@@ -370,7 +370,7 @@ public class RegionScoreData extends USeqData{
 			//close ZipEntry but not streams!
 			out.closeEntry();
 		} catch (IOException e) {
-			e.printStackTrace();
+
 			USeqUtilities.safeClose(out);
 			USeqUtilities.safeClose(dos);
 		} 
@@ -438,7 +438,7 @@ public class RegionScoreData extends USeqData{
 				throw new IOException ("Incorrect file type for creating a RegionScore[] -> '"+fileType+"' in "+binaryFile +"\n");
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
+
 			USeqUtilities.safeClose(dis);
 		}
 	}

@@ -23,13 +23,13 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
 import org.hibernate.Session;
-
+import org.apache.log4j.Logger;
 
 public class DownloadProductOrderFileServlet extends HttpServlet { 
 
 
   
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(DownloadProductOrderFileServlet.class);
+  private static Logger LOG = Logger.getLogger(DownloadProductOrderFileServlet.class);
   
   private ProductOrderFileDescriptorParser parser = null;
   
@@ -49,16 +49,16 @@ public class DownloadProductOrderFileServlet extends HttpServlet {
     serverName = req.getServerName();
 
     // Restrict commands to local host if request is not secure
-    if (!ServletUtil.checkSecureRequest(req, log)) {
+    if (!ServletUtil.checkSecureRequest(req, LOG)) {
       ServletUtil.reportServletError(response, "Secure connection is required. Prefix your request with 'https'",
-              log, "Accessing secure command over non-secure line from remote host is not allowed.");
+              LOG, "Accessing secure command over non-secure line from remote host is not allowed.");
       return;
     }
 
     //  Get cached file descriptor parser
     parser = (ProductOrderFileDescriptorParser) req.getSession().getAttribute(CacheProductOrderFileDownloadList.SESSION_KEY_FILE_DESCRIPTOR_PARSER);
     if (parser == null) {
-      log.error("Unable to get file descriptor parser from session");
+      LOG.error("Unable to get file descriptor parser from session");
       return;
     }
     
@@ -121,14 +121,14 @@ public class DownloadProductOrderFileServlet extends HttpServlet {
           
           // If we can't find the productOrder in the database, just bypass it.
           if (productOrder == null) {
-            log.error("Unable to find productOrder " + idProductOrder + ".  Bypassing download for user " + req.getUserPrincipal().getName() + ".");
+            LOG.error("Unable to find productOrder " + idProductOrder + ".  Bypassing download for user " + req.getUserPrincipal().getName() + ".");
             continue;
           }
           
           // Check permissions - bypass this productOrder if the user 
           // does not have  permission to read it.
           if (!secAdvisor.canRead(productOrder)) {  
-            log.error("Insufficient permissions to read productOrder " + idProductOrder + ".  Bypassing download for user " + req.getUserPrincipal().getName() + ".");
+            LOG.error("Insufficient permissions to read productOrder " + idProductOrder + ".  Bypassing download for user " + req.getUserPrincipal().getName() + ".");
             continue;
           }
           
@@ -163,7 +163,7 @@ public class DownloadProductOrderFileServlet extends HttpServlet {
             // it matches the request number of the directory.  If it doesn't bypass the download
             // for this file.
             if (!idProductOrder.equalsIgnoreCase(String.valueOf(fd.getId()))) {
-              log.error("ProductOrder id does not match directory for attempted download on " + fd.getFileName() + " for user " + req.getUserPrincipal().getName() + ".  Bypassing download." );
+              LOG.error("ProductOrder id does not match directory for attempted download on " + fd.getFileName() + " for user " + req.getUserPrincipal().getName() + ".  Bypassing download." );
               continue;
             }
 
@@ -227,19 +227,20 @@ public class DownloadProductOrderFileServlet extends HttpServlet {
 
       } else {
         response.setStatus(999);
-        System.out.println( "DownloadAnalyisFileServlet: You must have a SecurityAdvisor in order to run this command.");
+        LOG.warn( "DownloadAnalyisFileServlet: You must have a SecurityAdvisor in order to run this command.");
       }
     } catch (Exception e) {
       HibernateSession.rollback();
       response.setStatus(999);
-      System.out.println( "DownloadAnalyisFileServlet: An exception occurred " + e.toString());
-      e.printStackTrace();
+      LOG.error( "DownloadAnalyisFileServlet: An exception occurred " + e.toString(), e);
+
     } finally {
       try {
         if (secAdvisor != null) {
           secAdvisor.closeHibernateSession();        
         }
       }catch(Exception e) {
+        LOG.error("DownloadAnalyisFileServlet Error", e);
       }
       // clear out session variable
       req.getSession().setAttribute(CacheProductOrderFileDownloadList.SESSION_KEY_FILE_DESCRIPTOR_PARSER, null);

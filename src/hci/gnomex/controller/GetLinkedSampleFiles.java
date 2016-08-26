@@ -37,11 +37,11 @@ import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.output.XMLOutputter;
-
+import org.apache.log4j.Logger;
 
 public class GetLinkedSampleFiles extends GNomExCommand implements Serializable {
 
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetLinkedSampleFiles.class);
+  private static Logger LOG = Logger.getLogger(GetLinkedSampleFiles.class);
 
   private Integer                        idRequest;
   private StringBuffer                   queryBuf = new StringBuffer();
@@ -202,23 +202,14 @@ public class GetLinkedSampleFiles extends GNomExCommand implements Serializable 
 
       setResponsePage(this.SUCCESS_JSP);
 
-    }catch (NamingException e){
-      log.error("An exception has occurred in GetLinkedSampleFiles ", e);
-      e.printStackTrace(System.out);
-      throw new RollBackCommandException(e.getMessage());
-    }catch (SQLException e) {
-      log.error("An exception has occurred in GetLinkedSampleFiles ", e);
-      e.printStackTrace(System.out);
-      throw new RollBackCommandException(e.getMessage());
     } catch (Exception e) {
-      log.error("An exception has occurred in GetLinkedSampleFiles ", e);
-      e.printStackTrace(System.out);
+      LOG.error("An exception has occurred in GetLinkedSampleFiles ", e);
       throw new RollBackCommandException(e.getMessage());
     } finally {
       try {
         this.getSecAdvisor().closeReadOnlyHibernateSession();        
-      } catch(Exception e) {
-
+      } catch(Exception e){
+        LOG.error("Error", e);
       }
     }
 

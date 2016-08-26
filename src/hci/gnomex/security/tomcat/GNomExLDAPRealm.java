@@ -10,10 +10,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.List;
+import java.util.*;
 
 import javax.naming.AuthenticationException;
 import javax.naming.Context;
@@ -30,9 +27,10 @@ import javax.sql.DataSource;
 
 import org.apache.catalina.realm.GenericPrincipal;
 import org.apache.catalina.realm.RealmBase;
+import org.apache.log4j.Logger;
 
 public class GNomExLDAPRealm extends RealmBase {
-
+	private static Logger LOG = Logger.getLogger(GNomExLDAPRealm.class);
 	private String username;
 	private String password;
 
@@ -272,14 +270,13 @@ public class GNomExLDAPRealm extends RealmBase {
 			if (ldap_domain != null && ldap_user_attribute_map != null && !ldap_user_attribute_map.isEmpty()) {
 				NamingEnumeration<SearchResult> answer = ad.searchUser(username, ldap_domain, Util.keysToArray(ldap_user_attribute_map));
 				isAuthenticated = ad.doesMatchUserAttribute(answer, ldap_user_attribute_map);
-
 			} else {
 				// If no user attributes property present, we have passed authentication at this point.
 				isAuthenticated = true;
 			}
 
 		} catch (Exception e) {
-			System.out.println("ERROR in checkLDAPCredentials: " + e);
+			LOG.error("ERROR in checkLDAPCredentials: ", e);
 			isAuthenticated = false;
 		}
 		return isAuthenticated;
@@ -344,7 +341,7 @@ public class GNomExLDAPRealm extends RealmBase {
 			// wrong password
 			return false;
 		} catch (Exception e) {
-			e.printStackTrace();
+
 			return false;
 		}
 	}

@@ -18,7 +18,7 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.apache.log4j.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -35,7 +35,7 @@ import org.hibernate.Session;
 public class SaveGenomeBuild extends GNomExCommand implements Serializable {
 
   // the static field for logging in Log4J
-  private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(SaveGenomeBuild.class);
+  private static Logger LOG = Logger.getLogger(SaveGenomeBuild.class);
   
 
   private GenomeBuild                    gbScreen;
@@ -175,7 +175,7 @@ public class SaveGenomeBuild extends GNomExCommand implements Serializable {
             Element fileNode = (Element)i.next();
             File file = new File(fileNode.attributeValue("url"));
             if (!file.delete()) {
-              Logger.getLogger(this.getClass().getName()).log(Level.WARNING, "Unable to delete sequence file " + file.getName() + " for genome build " + gb.getDas2Name());
+              LOG.warn("Unable to delete sequence file " + file.getName() + " for genome build " + gb.getDas2Name());
             }
           }            
         }
@@ -206,15 +206,15 @@ public class SaveGenomeBuild extends GNomExCommand implements Serializable {
       }
       
     }catch (Exception e){
-      log.error("An exception has occurred in SaveGenomeBuild ", e);
-      e.printStackTrace();
+      LOG.error("An exception has occurred in SaveGenomeBuild ", e);
+
       throw new RollBackCommandException(e.getMessage());
         
     }finally {
       try {
         HibernateSession.closeSession();        
-      } catch(Exception e) {
-        
+      } catch(Exception e){
+        LOG.error("Error", e);
       }
     }
     

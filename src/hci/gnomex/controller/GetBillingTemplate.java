@@ -15,11 +15,12 @@ import hci.gnomex.model.BillingTemplate;
 import hci.gnomex.utility.BillingTemplateQueryManager;
 import hci.gnomex.utility.GNomExRollbackException;
 import hci.gnomex.utility.QueryManager;
+import org.apache.log4j.Logger;
 
 @SuppressWarnings("serial")
 public class GetBillingTemplate extends GNomExCommand implements Serializable {
 	
-	private static org.apache.log4j.Logger 	log = org.apache.log4j.Logger.getLogger(GetBillingTemplate.class);
+	private static Logger LOG = Logger.getLogger(GetBillingTemplate.class);
 	
 	private static final String 			ERROR_MESSAGE = "An error occurred while retrieving the billing template";
 	
@@ -77,8 +78,8 @@ public class GetBillingTemplate extends GNomExCommand implements Serializable {
 			}
 			
 		} catch (Exception e) {
-			log.error("An exception has occurred in GetBillingTemplate ", e);
-			e.printStackTrace();
+			LOG.error("An exception has occurred in GetBillingTemplate ", e);
+
 			throw new GNomExRollbackException(e.getMessage() != null ? e.getMessage() : ERROR_MESSAGE, false, ERROR_MESSAGE);
 		} finally {
 			try {

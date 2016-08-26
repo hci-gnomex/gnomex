@@ -42,10 +42,10 @@ import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.output.XMLOutputter;
-
+import org.apache.log4j.Logger;
 public class GetAnalysisDownloadList extends GNomExCommand implements Serializable {
 
-	private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GetAnalysisDownloadList.class);
+	private static Logger LOG = Logger.getLogger(GetAnalysisDownloadList.class);
 
 	private AnalysisGroupFilter filter;
 	private String includeUploadStagingDir = "Y";
@@ -215,10 +215,6 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
 
 							AnalysisFile af = (AnalysisFile) knownAnalysisFileMap.get(fd.getQualifiedFileName());
 
-							if (fd != null && fd.getDisplayName().equals(Constants.UPLOAD_STAGING_DIR)) {
-								continue;
-							}
-
 							Element fdNode = new Element("FileDescriptor");
 
 							if (af != null) {
@@ -320,17 +316,9 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
 				setResponsePage(this.ERROR_JSP);
 			}
 
-		} catch (NamingException e) {
-			log.error("An exception has occurred in GetAnalysisDownloadList ", e);
-			e.printStackTrace(System.out);
-			throw new RollBackCommandException(e.getMessage());
-		} catch (SQLException e) {
-			log.error("An exception has occurred in GetAnalysisDownloadList ", e);
-			e.printStackTrace(System.out);
-			throw new RollBackCommandException(e.getMessage());
 		} catch (Exception e) {
-			log.error("An exception has occurred in GetAnalysisDownloadList ", e);
-			e.printStackTrace(System.out);
+			LOG.error("An exception has occurred in GetAnalysisDownloadList ", e);
+
 			throw new RollBackCommandException(e.getMessage());
 		} finally {
 			try {
@@ -389,7 +377,7 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
 			List theFiles = (List) directoryMap.get(directoryKey);
 
 			// For each file in the directory
-			if (theFiles != null && theFiles.size() > 0) {
+			if (theFiles != null && theFiles.size() > 0 && !directoryName.equals( Constants.UPLOAD_STAGING_DIR)) {
 				for (Iterator i2 = theFiles.iterator(); i2.hasNext();) {
 					FileDescriptor fd = (FileDescriptor) i2.next();
 					fd.setQualifiedFilePath(directoryName);

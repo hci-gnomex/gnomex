@@ -66,7 +66,7 @@ public abstract class HttpClientBase {
       sc.init(null, trustAllCerts, new java.security.SecureRandom());  
       HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());  
     } catch (Exception e) {  
-      e.printStackTrace();  
+
       System.exit(1);  
     }  
 
@@ -163,13 +163,13 @@ public abstract class HttpClientBase {
       callServletImpl();
 
     } catch (MalformedURLException e) {
-      e.printStackTrace();
+
       System.err.println(e.toString());
     } catch (IOException e) {
-      e.printStackTrace();
+
       System.err.println(e.toString());
     } catch (Exception e) {
-      e.printStackTrace();
+
       System.err.println(e.toString());
     }
   }

@@ -49,7 +49,7 @@ public class USeqData {
 			workingDIS = new DataInputStream( new BufferedInputStream(workingFIS ));
 			read(workingDIS);
 		} catch (Exception e) {
-			e.printStackTrace();
+
 		} finally {
 			USeqUtilities.safeClose(workingFIS);
 			USeqUtilities.safeClose(workingDIS);

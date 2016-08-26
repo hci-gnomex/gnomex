@@ -14,11 +14,12 @@ import hci.gnomex.model.BillingAccount;
 import hci.gnomex.model.CoreFacility;
 import hci.gnomex.model.Lab;
 import hci.gnomex.model.PropertyDictionary;
+import org.apache.log4j.Logger;
 
 public class BillingAccountUtil {
 	
 	// The static field for logging in Log4J
-	private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(BillingAccountUtil.class);
+	private static Logger LOG = Logger.getLogger(BillingAccountUtil.class);
 	
 	private static void sendApprovedBillingAccountEmail(Session sess, String serverName, String launchAppURL, BillingAccount billingAccount, Lab lab, AppUser approver, String approverEmail) throws AddressException, NamingException, MessagingException, IOException {
 		PropertyDictionaryHelper dictionaryHelper = PropertyDictionaryHelper.getInstance(sess);
@@ -33,7 +34,7 @@ public class BillingAccountUtil {
 
 	    String emailRecipients = submitterEmail;
 	    if (!MailUtil.isValidEmail(submitterEmail)) {
-	    	log.error("Invalid Email: " + submitterEmail);
+	    	LOG.error("Invalid Email: " + submitterEmail);
 	    }
 
 	    submitterNote.append("The following billing account " +

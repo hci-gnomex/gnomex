@@ -1,45 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
-				width="840" height="450" 
-				 creationComplete="{init()}"
-				 xmlns:util="views.util.*" 
-				 showCloseButton="true" close="{closeWindow()}"
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml"
+				width="840" height="450"
+				creationComplete="{init()}"
+				xmlns:util="views.util.*"
+				showCloseButton="true" close="{closeWindow()}"
 				title="Products">
-	
-<mx:HTTPService  
-		id="saveProduct" 
-		url="SaveProduct.gx"
-		resultFormat="e4x"
-		showBusyCursor="true"
-		result="onSaveProduct(event)"
-		fault="parentApplication.onFailHttpRequest('Failed to save Product', event)"
-		method="POST" 
-		useProxy="false">
-</mx:HTTPService>
-	
-<mx:HTTPService  
-		id="deleteProduct" 
-		url="DeleteProduct.gx"
-		resultFormat="e4x"
-		showBusyCursor="true"
-		result="onDeleteProduct(event)"
-		fault="parentApplication.onFailHttpRequest('Failed to delete Product', event)"
-		method="POST" 
-		useProxy="false">
-</mx:HTTPService>
-		
-<mx:Script>
-	<![CDATA[
+
+	<mx:HTTPService
+			id="saveProduct"
+			url="SaveProduct.gx"
+			resultFormat="e4x"
+			showBusyCursor="true"
+			result="onSaveProduct(event)"
+			fault="parentApplication.onFailHttpRequest('Failed to save Product', event)"
+			method="POST"
+			useProxy="false">
+	</mx:HTTPService>
+
+	<mx:HTTPService
+			id="deleteProduct"
+			url="DeleteProduct.gx"
+			resultFormat="e4x"
+			showBusyCursor="true"
+			result="onDeleteProduct(event)"
+			fault="parentApplication.onFailHttpRequest('Failed to delete Product', event)"
+			method="POST"
+			useProxy="false">
+	</mx:HTTPService>
+
+	<mx:Script>
+   <![CDATA[
 		import mx.collections.ArrayCollection;
 		import mx.controls.Alert;
 		import mx.events.CloseEvent;
 		import mx.managers.PopUpManager;
 		import mx.rpc.events.ResultEvent;
-		
+
 		import views.product.ProductTypeEditWindow;
 
-		private var idProduct:Object = null;
-		private	var tempArray:Array;
+		/**
+		 * Saves the product ID of the recently created or modified product.
+		 * This allows the product to be found and reselected after reloading the product tree from the database.
+		 * A new (unsaved) product will have an ID of ""
+		 */
+		private var idProduct:String = null;
 
 		private function showEditWindow():void {
 			var productTypeEditWindow:ProductTypeEditWindow = ProductTypeEditWindow(PopUpManager.createPopUp(this, ProductTypeEditWindow, true));
@@ -52,12 +56,7 @@
 		}
 
 		private function init():void {
-			products = new XMLListCollection();
-			for each(var c:XML in parentApplication.productList) {
-				products.addItem(c.copy());
-			}
-			products.filterFunction = filterProducts;
-			products.refresh();
+			loadProducts();
 			parentApplication.removeEventListener(ProductEvent.DATA_REFRESHED,
 					onProductRefreshed);
 			parentApplication.addEventListener(ProductEvent.DATA_REFRESHED,
@@ -65,8 +64,8 @@
 		}
 
 		private function initValues():void {
-			for each (var pt:Object in parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.ProductType').DictionaryEntry) {
-				if (pt.@idProductType == productList.selectedItem.@idProductType) {
+			for each (var pt:Object in parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.ProductType').DictionaryEntry) {
+				if (pt.@idProductType == productTree.selectedItem.@idProductType) {
 					productTypeCombo.selectedItem = pt;
 				}
 			}
@@ -76,6 +75,101 @@
 			if (saveButton.enabled) {
 				dirty.setDirty();
 			}
+		}
+
+		private function showProductPanel():void {
+			theViews.selectedIndex = 1;
+		}
+
+		private function hideProductPanel():void {
+			theViews.selectedIndex = 0;
+		}
+
+		private function getProductTypeById(id:String):XML {
+			for each(var readonly:XML in filteredProductTypes) {
+				if (readonly.@idProductType == id) {
+					var productType:XML = readonly.copy();
+					productType.setName("ProductType");
+					return productType;
+				}
+			}
+			return null;
+		}
+
+		private function pruneChild(parent:XML, childName:String):void {
+			while (parent.child(childName).length() > 0) {
+				delete parent.child(childName)[0];
+			}
+		}
+
+		/**
+		 * Gets a list of product types whose nodes are currently expanded in the tree view
+		 * @return An array of String objects matching the product type IDs of the expanded nodes
+		 */
+		private function getExpandedProductTypes():Array {
+			var productTypes:Array = new Array();
+			if (productTreeData == null) {
+				return productTypes;
+			}
+			for each (var productType:XML in productTreeData.child("ProductType")) {
+				if (productTree.isItemOpen(productType)) {
+					productTypes.push(String(productType.@idProductType));
+				}
+			}
+			return productTypes;
+		}
+
+		/**
+		 * Expands all product type nodes in the tree view that match the IDs in the supplied array
+		 * @param productTypes An array of String objects matching the product type IDs of the nodes to expand
+		 */
+		private function expandProductTypes(productTypes:Array):void {
+			for each (var productType:XML in productTreeData.child("ProductType")) {
+				if (productTypes.indexOf(String(productType.@idProductType)) >= 0) {
+					productTree.expandItem(productType, true);
+				}
+			}
+		}
+
+		private function relinkProductTree(newData:XML):void {
+			productTreeData = newData.copy();
+			productTree.invalidateList();
+			productTree.invalidateDisplayList();
+			productTree.validateDisplayList();
+			productTree.validateNow();
+		}
+
+		/**
+		 * Constructs productTreeData XML from products, grouping by product type
+		 * Removes nested <ProductType> from <Product> tags in products from dictionary
+		 * <root>
+		 *     <Product>       *this lone <Product> tag will only be added later when adding a new product
+		 *     <ProductType>   *multiple
+		 *         <Product/>  *multiple
+		 *     </ProductType>
+		 * </root>
+		 * This method makes sure that expanded product type nodes are expanded after the new list is created.
+		 */
+		private function refreshProductTreeData():void {
+			var expandedProductTypes:Array = getExpandedProductTypes();
+			var newProductTreeData = new XML("<root/>");
+			for each(var readonly:XML in products) {
+				var product:XML = readonly.copy();
+				pruneChild(product, "productType");
+				var productType:XML = null;
+				for each(var item:XML in newProductTreeData.child("ProductType")) {
+					if (item.@idProductType == product.@idProductType) {
+						productType = item;
+					}
+				}
+				if (productType == null) {
+					productType = getProductTypeById(product.@idProductType);
+					newProductTreeData.appendChild(productType);
+				}
+				productType.appendChild(product);
+			}
+			relinkProductTree(newProductTreeData);
+			expandProductTypes(expandedProductTypes);
 		}
 
 		private function filterProductTypes(item:Object):Boolean {
@@ -92,9 +186,6 @@
 		}
 
 		private function filterProducts(item:Object):Boolean {
-			if (item.@idProduct == '' && item.@name == '' && item.@isActive == 'Y') {
-				return true;
-			}
 			if (item.@idProductType != null && item.@idProductType != '') {
 				for each (var productType:Object in filteredProductTypes) {
 					if (productType.@value == item.@idProductType) {
@@ -105,66 +196,146 @@
 			return false;
 		}
 
-		private function reselectProduct():void {
-			var found:Boolean = false;
-			if (idProduct != null) {
-				for each(var o:Object in products) {
-					if (o.@idProduct == idProduct) {
-						productList.selectedItem = o;
-						productList.scrollToIndex(productList.selectedIndex);
-						found = true;
-						break;
-					}
-				}
-			}
-			if (found) {
-				theViews.selectedIndex = 1;
-				onSelectProduct();
-			} else {
-				theViews.selectedIndex = 0;
-			}
-		}
-
-		private function onProductRefreshed(event:Event):void{
+		private function loadProducts():void {
 			products = new XMLListCollection();
 			for each(var c:XML in parentApplication.productList) {
 				products.addItem(c.copy());
 			}
 			products.filterFunction = filterProducts;
 			products.refresh();
-			reselectProduct();
-			dirty.resetDirty();
+			refreshProductTreeData();
 		}
 
-		private function onSelectProduct():void {
-			if (productList.selectedItem != null) {
-				theViews.selectedIndex = 1;
-				if(productList.selectedItem.@name == "Enter name here.."){
-				} else{
-					theViews.selectedIndex = 1;
-					dirty.resetDirty();
-					var theDate:String = "";
-					tempArray = new Array();
+		/**
+		 * Searches the product tree for a product with matching product ID
+		 * @return The matching product or null if not found
+		 */
+		private function findProductInTree(id:String):XML {
+			var productType:XML;
+			var product:XML;
+			if (id == "") {
+				// a new (unsaved) product will be under the root node
+				for each (product in productTreeData.child("Product")) {
+					if (product.@idProduct == id) {
+						return product;
+					}
 				}
+			} else {
+				// all other products are under their product type
+				for each (productType in productTreeData.child("ProductType")) {
+					for each (product in productType.child("Product")) {
+						if (product.@idProduct == id) {
+							return product;
+						}
+					}
+				}
+			}
+			return null;
+		}
+
+		/**
+		 * Selects the product matching "idProduct" from productTree after it has been refreshed.
+		 * Expands the applicable product type if necessary.
+		 */
+		private function reselectProduct():void {
+			var productType:XML;
+			var product:XML;
+			var match:XML = null;
+			if (idProduct == "") {
+				// a new (unsaved) product will be under the root node
+				if (productTreeData.child("Product").length() > 0) {
+					setDirty();
+					match = productTreeData.child("Product")[0];
+				}
+			} else {
+				// all other products are under their product type
+				for each (productType in productTreeData.child("ProductType")) {
+					for each (product in productType.child("Product")) {
+						if (product.@idProduct == idProduct) {
+							dirty.resetDirty();
+							productTree.expandItem(productType, true);
+							match = product;
+						}
+					}
+				}
+			}
+			if (match != null) {
+				showProductPanel();
+				productTree.scrollToIndex(productTree.getItemIndex(match));
+				productTree.selectedIndex = productTree.getItemIndex(match);
 				initValues();
+			} else {
+				hideProductPanel();
 			}
+			idProduct = null;
 		}
 
-		public function selectProduct(idProduct:Object):void {
-			this.idProduct = idProduct;
+		/**
+		 * Called automatically when "parentApplication.productList" is refreshed
+		 * @param event
+		 */
+		private function onProductRefreshed(event:Event):void {
+			loadProducts();
 			reselectProduct();
 		}
 
-		private function addProduct():void {
-			var newNodeNecessary:Boolean = true;
-			if (products.length > 0) {
-				var potentiallyAlreadyEmptyNode:Object = products.getItemAt(0);
-				if (potentiallyAlreadyEmptyNode.@idProduct == '' && potentiallyAlreadyEmptyNode.@name == '') {
-					newNodeNecessary = false;
-				}
+		private function getProductTreeLabel(item:Object):String {
+			if (item.name() == "Product") {
+				return item.@name;
 			}
-			if (newNodeNecessary) {
-				var newProduct:XML = new XML("<Product " +
+			if (item.name() == "ProductType") {
+				return item.@description;
+			}
+			return "";
+		}
+
+		/**
+		 * Expands or collapses the product type tree node after the user clicks it
+		 */
+		private function onClickItem():void {
+			if (productTree.selectedItem != null && productTree.selectedItem.name() == "ProductType") {
+				productTree.expandItem(productTree.selectedItem, !productTree.isItemOpen(productTree.selectedItem));
+			}
+		}
+
+		/**
+		 * When the user clicks a tree node, show or hide the product panel accordingly
+		 */
+		private function onChangeProductTree():void {
+			dirty.resetDirty();
+			if (productTree.selectedItem == null) {
+				hideProductPanel();
+				return;
+			}
+			if (productTree.selectedItem.name() == "ProductType") {
+				hideProductPanel();
+				return;
+			}
+			if (productTree.selectedItem.name() == "Product") {
+				showProductPanel();
+				initValues();
+				if (productTree.selectedItem.@idProduct == "") {
+					setDirty();
+				}
+				return;
+			}
+			hideProductPanel();
+		}
+
+		/**
+		 * Called when the user clicks "Add Product".
+		 * Adds a <Product> tag to productTree representing the new product (if there isn't one already)
+		 * This tag is placed as the first tag directly under <root> (not under a product type).
+		 * If a product type or product was selected, set the new product's product type to match.
+		 * Sets "idProduct" to ""
+		 */
+		private function addProduct():void {
+			var newProduct:XML = null;
+			if (productTreeData.child("Product").length() > 0) {
+				newProduct = productTreeData.child("Product")[0];
+			}
+			if (newProduct == null) {
+				newProduct = new XML("<Product " +
 						" idProduct=''" +
 						" name=''" +
 						" isActive='Y'" +
@@ -176,45 +347,39 @@
 						" catalogNumber=''" +
 						" batchSamplesByUseQuantity='N'" +
 						" billThroughGnomex='Y'" +
+						" canDelete='Y'" +
 						" />");
-
-				products.addItemAt(newProduct, 0);
-				productList.selectedItem = newProduct;
-			} else {
-				productList.selectedIndex = 0;
+				productTreeData.prependChild(newProduct);
 			}
-			productList.scrollToIndex(productList.selectedIndex);
+			if (productTree.selectedItem != null) {
+				newProduct.@idProductType = productTree.selectedItem.@idProductType;
+			}
 			idProduct = "";
-			setDirty();
-			onSelectProduct();
+			//                                            refreshProductTree();
+			reselectProduct();
 		}
 
-		private function checkToSave():void{
-			if(productName.text == "" )
-			{
+		private function checkToSave():void {
+			if (productName.text == "") {
 				Alert.show("Product needs a name.",
 						"MISSING FIELDS");
-			} else if(productTypeCombo.selectedItem == null )
-			{
+			} else if (productTypeCombo.selectedItem == null) {
 				Alert.show("Product needs a product type.",
 						"MISSING FIELDS");
-			}  else {
+			} else {
 				save();
 			}
-
 		}
 
-		private function onCheckToSave(event:CloseEvent):void{
-			if(event.detail == Alert.YES)
-				save();
-		}
-
+		/**
+		 * Saves the currently selected product to the database.
+		 */
 		private function save():void {
-			if (productList.selectedItem == null) {
+			if (productTree.selectedItem == null || productTree.selectedItem.name() != "Product") {
 				return;
 			}
 			var params:Object = new Object();
-			params.idProduct = productList.selectedItem.@idProduct;
+			params.idProduct = productTree.selectedItem.@idProduct;
 			params.name = productName.text;
 			params.isActive = this.isActive.selected ? "Y" : "N";
 			params.orderQty = orderQty.text;
@@ -222,7 +387,8 @@
 			params.description = description.text;
 			params.catalogNumber = catalogNumber.text;
 			params.idProductType = productTypeCombo.selectedItem.@idProductType;
-			params.idPrice = productList.selectedItem.@idPrice;
+			// Why is idPrice taken from ProductTree?
+			params.idPrice = productTree.selectedItem.@idPrice;
 			params.unitPriceInternal = priceInternalText.text;
 			params.unitPriceExternalAcademic = priceExternalAcademicText.text;
 			params.unitPriceExternalCommercial = priceExternalCommercialText.text;
@@ -231,7 +397,12 @@
 			saveProduct.send(params);
 		}
 
-		private function onSaveProduct(event:ResultEvent): void {
+		/**
+		 * Called when the "saveProduct" action has completed
+		 * Reloads the list of products
+		 * @param event
+		 */
+		private function onSaveProduct(event:ResultEvent):void {
 			if (saveProduct.lastResult.name() == "SUCCESS") {
 				idProduct = saveProduct.lastResult.@idProduct;
 				parentApplication.getProductList.send();
@@ -240,139 +411,160 @@
 			}
 		}
 
+		/**
+		 * Called when the user clicks "Remove Product".
+		 * If the user has selected the new (blank) product before it has been saved, this just removes the tree node
+		 */
 		private function removeProduct():void {
-			if (productList.selectedItem == null) {
-				return;
+			if (productTree.selectedItem != null && productTree.selectedItem.name() == "Product") {
+				idProduct = null;
+				if (productTree.selectedItem.@idProduct == "") {
+					refreshProductTreeData();
+					hideProductPanel();
+					return;
+				}
+				Alert.show("Are you sure you want to delete this Product?",
+						"Warning",
+						(Alert.YES | Alert.CANCEL), this,
+						onPromptDeleteProduct,
+						parentApplication.iconWarning);
 			}
-			idProduct = "";
-			Alert.show( "Are you sure you want to delete this Product?",
-					"Warning",
-					(Alert.YES | Alert.CANCEL), this,
-					onPromptDeleteProduct,
-					parentApplication.iconWarning);
 		}
 
 		private function onPromptDeleteProduct(event:CloseEvent):void {
-			if (event.detail==Alert.YES) {
+			if (event.detail == Alert.YES) {
 				var params:Object = new Object();
-				params.idProduct = productList.selectedItem.@idProduct;
+				params.idProduct = productTree.selectedItem.@idProduct;
 				deleteProduct.send(params);
 			}
 		}
 
-		private function onDeleteProduct(event:ResultEvent): void {
+		/**
+		 * Called when the "deleteProduct" action has completed.
+		 * Reloads the list of products
+		 * @param event
+		 */
+		private function onDeleteProduct(event:ResultEvent):void {
 			if (deleteProduct.lastResult.name() == "SUCCESS") {
 				Alert.show(deleteProduct.lastResult.@message);
+				dirty.resetDirty();
 				parentApplication.getProductList.send();
 			} else {
 				mx.controls.Alert.show(deleteProduct.lastResult..ACTMESSAGE.@TEXT);
 			}
 		}
+		]]>
+                </mx:Script>
 
-	]]>
-</mx:Script>
-	
-<mx:XMLListCollection id="products"/>
-<mx:XMLListCollection id="filteredProductTypes" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.ProductType').DictionaryEntry}" filterFunction="filterProductTypes" />
-	
+	<mx:XMLListCollection id="products"/>
+	<mx:XML id="productTreeData"/>
+	<mx:XMLListCollection id="filteredProductTypes" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.ProductType').DictionaryEntry}" filterFunction="filterProductTypes" />
+
 	<mx:StringValidator required="true" source="{productName}" property="text" maxLength="100" requiredFieldError="Product must have a name."/>
-	<mx:CurrencyFormatter id="dollarFormatter" currencySymbol="$" precision="2" decimalSeparatorTo="." thousandsSeparatorTo="," useThousandsSeparator="true"/> 
-	
-	
-<mx:VBox width="100%" height="100%" verticalGap="0">
-	
-	<mx:HBox width="100%" backgroundSize="100%" verticalAlign="middle">
-		<mx:LinkButton label="Add Product" styleName="linkMenuButton" click="addProduct()"  disabledIcon="@Embed(source='../../assets/page_add_disable.png')" icon="@Embed(source='../../assets/page_add.png')" fontSize="11"/>
-		<mx:LinkButton label="Remove Product" styleName="linkMenuButton" click="removeProduct()" enabled="{productList.selectedItem != null &amp;&amp; productList.selectedItem.@canDelete == 'Y'}"   disabledIcon="@Embed(source='../../assets/page_delete_disable.png')" icon="@Embed(source='../../assets/page_delete.png')" fontSize="11"/>
-	</mx:HBox>
-	
-<mx:HDividedBox height="100%" width="100%" horizontalGap="6" >
-  <mx:VBox height="100%" width="200" styleName="panelBox">
-		<mx:List id="productList" width="100%" height="100%" labelField="@name" dataProvider="{products}" 
-				 itemClick="{onSelectProduct()}">
-		</mx:List>
-  </mx:VBox>	
-  <mx:ViewStack id="theViews"  width="100%" height="100%" creationPolicy="all">
-	<mx:VBox width="100%" height="100%" verticalGap="0" styleName="panelBox" paddingLeft="4" paddingTop="4" paddingRight="4" paddingBottom="0"/>		
-	<mx:VBox width="100%" height="100%" verticalGap="1" styleName="panelBox" paddingLeft="4" paddingTop="4" paddingRight="4" paddingBottom="0">		
-		 <mx:VBox width="100%" height="100%" styleName="form" paddingTop="4" paddingBottom="4" paddingRight="4" paddingLeft="4" verticalGap="6">			 
-			 <mx:HBox width="100%" verticalGap="0" verticalAlign="middle">
-			  <mx:Label text="Name"  width="100"  styleName="formLabel"/>
-			  <mx:TextInput  text="{productList.selectedItem.@name}" change="{setDirty()}" width="100%" id="productName"  maxChars="200" />
-			  
-			   <mx:CheckBox label="Active" id="isActive"  click="setDirty()"  width="75">
-			    <mx:selected>{productList.selectedItem.@isActive == 'Y' ? true : false}</mx:selected>
-			   </mx:CheckBox>
-			 
-			 </mx:HBox>		 
-			 <mx:HBox width="100%" verticalGap="0" verticalAlign="middle">
-				 <mx:Text text="Product Type"  width="100" styleName="formLabel"/>
-				 <mx:ComboBox dataProvider="{filteredProductTypes}" id="productTypeCombo"
-							  width="100%" labelField="@description"  change="setDirty()" />
-				 <mx:LinkButton id="productTypeEditButton" label="Edit..." click="showEditWindow()" textDecoration="underline" color="#0000FF"  
-								visible="{parentApplication.isAdminState || parentApplication.isSuperAdmin}" includeInLayout="{parentApplication.isAdminState || parentApplication.isSuperAdmin}" />
-			 </mx:HBox>
-			 <mx:HBox width="100%" verticalGap="0" verticalAlign="middle">
-			  <mx:Text text="Catalog Number" width="100" styleName="formLabel"/>
-			  <mx:TextInput text="{productList.selectedItem.@catalogNumber}" 
-			  		  change="{setDirty()}" width="100%" id="catalogNumber" maxChars="100"/>
-			 </mx:HBox>
-			 <mx:HBox width="100%" verticalGap="0" verticalAlign="middle">
-				 <mx:Text text="Order Quantity"  width="100" styleName="formLabel"/>
-				 <mx:TextInput text="{productList.selectedItem.@orderQty}" change="{setDirty()}" width="100%" id="orderQty"  maxChars="100"/>
-			 </mx:HBox>	
-			 <mx:HBox width="100%" verticalGap="0" verticalAlign="middle">
-				 <mx:Text text="Use Quantity"  width="100" styleName="formLabel"/>
-				 <mx:TextInput text="{productList.selectedItem.@useQty}" change="{setDirty()}" width="100%" id="useQty"  maxChars="100"/>
-			 </mx:HBox>
-			 <mx:HBox width="100%" verticalGap="0" verticalAlign="middle">
-				 <mx:Text text="Description"  width="100" styleName="formLabel"/>
-				 <mx:TextInput text="{productList.selectedItem.@description}" change="{setDirty()}" width="100%" height="50" id="description"  maxChars="500"/>
-			 </mx:HBox>
-			 <mx:HBox width="100%" verticalGap="0" verticalAlign="middle">
-				 <mx:CheckBox id="batchSamplesByUseQuantityCheckbox" label="Batch Samples by Use Quantity" click="dirty.setDirty()" 
-							  selected="{productList.selectedItem.@batchSamplesByUseQuantity == 'Y'}" />
-				 
-				 <mx:CheckBox id="billThroughGnomexCheckBox" label="Use GNomEx for Billing?" click="dirty.setDirty()" 
-							  selected="{productList.selectedItem.@billThroughGnomex == 'Y'}" />
-			 </mx:HBox>
-			 <mx:HBox width="100%" verticalGap="0" verticalAlign="top">
-				 <mx:Text text="Pricing" width="80" styleName="formLabel"/>
-			 	<mx:VBox width="100%" paddingTop="0" verticalGap="2">
-			 		<mx:HBox width="100%" horizontalGap="0" verticalAlign="middle" paddingTop="0">
-			 			<mx:Label text="$" paddingRight="0" textAlign="right" width="20" />
-			 			<mx:TextInput width="250" id="priceInternalText" text="{productList.selectedItem.@unitPriceInternal == '' ? '0.00' : productList.selectedItem.@unitPriceInternal}" restrict="0-9." paddingLeft="0" change="setDirty()" />
-			 			<mx:Spacer width="5" />
-			 			<mx:Label id="priceInternalLabel" text="Internal Pricing" />
-			 		</mx:HBox>
-			 		<mx:HBox width="100%" horizontalGap="0" verticalAlign="middle" paddingTop="0">
-			 			<mx:Label text="$" paddingRight="0" textAlign="right" width="20" />
-			 			<mx:TextInput width="250" id="priceExternalAcademicText" text="{productList.selectedItem.@unitPriceExternalAcademic == '' ? '0.00' : productList.selectedItem.@unitPriceExternalAcademic}" restrict="0-9." paddingLeft="0" change="setDirty()" />
-			 			<mx:Spacer width="5" />
-			 			<mx:Label id="priceExternalAcademicLabel" text="External Academic Pricing" />
-			 		</mx:HBox>
-			 		<mx:HBox width="100%" horizontalGap="0" verticalAlign="middle" paddingTop="0">
-			 			<mx:Label text="$" paddingRight="0" textAlign="right" width="20" />
-			 			<mx:TextInput width="250" id="priceExternalCommercialText" text="{productList.selectedItem.@unitPriceExternalCommercial == '' ? '0.00' : productList.selectedItem.@unitPriceExternalCommercial}" restrict="0-9." paddingLeft="0" change="setDirty()" />
-			 			<mx:Spacer width="5" />
-			 			<mx:Label id="priceExternalCommercialLabel" text="External Commercial Pricing" />
-					</mx:HBox>
-			 	</mx:VBox>
-			 </mx:HBox>	
-		</mx:VBox>
-		<mx:ControlBar width="100%" horizontalAlign="right"  paddingTop="0" paddingRight="0" paddingLeft="0" paddingBottom="0">
-			<util:DirtyNote id="dirty" />
-			<mx:Button id="saveButton" label="Save"  enabled="true"
-					   icon="@Embed('../../assets/action_save.gif')" click="checkToSave()" disabledIcon="@Embed(source='../../assets/save_disable.png')">
-			</mx:Button>
-			<mx:Button label="Close"  click="{closeWindow()}"/>
-			
-		</mx:ControlBar>
-	</mx:VBox>
-  </mx:ViewStack>
+	<mx:CurrencyFormatter id="dollarFormatter" currencySymbol="$" precision="2" decimalSeparatorTo="." thousandsSeparatorTo="," useThousandsSeparator="true"/>
 
-	
-</mx:HDividedBox>
-</mx:VBox>
-	
+
+	<mx:VBox width="100%" height="100%" verticalGap="0">
+
+		<mx:HBox width="100%" backgroundSize="100%" verticalAlign="middle">
+			<mx:LinkButton label="Add Product" styleName="linkMenuButton" click="addProduct()"  disabledIcon="@Embed(source='../../assets/page_add_disable.png')" icon="@Embed(source='../../assets/page_add.png')" fontSize="11"/>
+			<mx:LinkButton label="Remove Product" styleName="linkMenuButton" click="removeProduct()" enabled="{productTree.selectedItem != null &amp;&amp; productTree.selectedItem.name() == 'Product' &amp;&amp; productTree.selectedItem.@canDelete == 'Y'}" disabledIcon="@Embed(source='../../assets/page_delete_disable.png')" icon="@Embed(source='../../assets/page_delete.png')" fontSize="11"/>
+		</mx:HBox>
+
+		<mx:HDividedBox height="100%" width="100%" horizontalGap="6" >
+			<mx:VBox height="100%" width="200" styleName="panelBox">
+				<mx:Tree id="productTree"
+						 width="100%" height="100%"
+						 dataProvider="{productTreeData}"
+						 showRoot="false"
+						 change="onChangeProductTree();"
+						 itemClick="onClickItem();"
+						 doubleClickEnabled="false"
+						 labelFunction="getProductTreeLabel"
+						 iconFunction="parentApplication.getTreeIcon" backgroundAlpha="1" dropShadowEnabled="true" borderStyle="none">
+				</mx:Tree>
+			</mx:VBox>
+			<mx:ViewStack id="theViews"  width="100%" height="100%" creationPolicy="all">
+				<mx:VBox width="100%" height="100%" verticalGap="0" styleName="panelBox" paddingLeft="4" paddingTop="4" paddingRight="4" paddingBottom="0"/>
+				<mx:VBox width="100%" height="100%" verticalGap="1" styleName="panelBox" paddingLeft="4" paddingTop="4" paddingRight="4" paddingBottom="0">
+					<mx:VBox width="100%" height="100%" styleName="form" paddingTop="4" paddingBottom="4" paddingRight="4" paddingLeft="4" verticalGap="6">
+						<mx:HBox width="100%" verticalGap="0" verticalAlign="middle">
+							<mx:Label text="Name"  width="100"  styleName="formLabel"/>
+							<mx:TextInput  text="{productTree.selectedItem.@name}" change="{setDirty()}" width="100%" id="productName"  maxChars="200" />
+
+							<mx:CheckBox label="Active" id="isActive"  click="setDirty()"  width="75">
+								<mx:selected>{productTree.selectedItem.@isActive == 'Y'}</mx:selected>
+							</mx:CheckBox>
+
+						</mx:HBox>
+						<mx:HBox width="100%" verticalGap="0" verticalAlign="middle">
+							<mx:Text text="Product Type"  width="100" styleName="formLabel"/>
+							<mx:ComboBox dataProvider="{filteredProductTypes}" id="productTypeCombo"
+										 width="100%" labelField="@description"  change="setDirty()" />
+							<mx:LinkButton id="productTypeEditButton" label="Edit..." click="showEditWindow()" textDecoration="underline" color="#0000FF"
+										   visible="{parentApplication.isAdminState || parentApplication.isSuperAdmin}" includeInLayout="{parentApplication.isAdminState || parentApplication.isSuperAdmin}" />
+						</mx:HBox>
+						<mx:HBox width="100%" verticalGap="0" verticalAlign="middle">
+							<mx:Text text="Catalog Number" width="100" styleName="formLabel"/>
+							<mx:TextInput text="{productTree.selectedItem.@catalogNumber}"
+										  change="{setDirty()}" width="100%" id="catalogNumber" maxChars="100"/>
+						</mx:HBox>
+						<mx:HBox width="100%" verticalGap="0" verticalAlign="middle">
+							<mx:Text text="Order Quantity"  width="100" styleName="formLabel"/>
+							<mx:TextInput text="{productTree.selectedItem.@orderQty}" change="{setDirty()}" width="100%" id="orderQty"  maxChars="100"/>
+						</mx:HBox>
+						<mx:HBox width="100%" verticalGap="0" verticalAlign="middle">
+							<mx:Text text="Use Quantity"  width="100" styleName="formLabel"/>
+							<mx:TextInput text="{productTree.selectedItem.@useQty}" change="{setDirty()}" width="100%" id="useQty"  maxChars="100"/>
+						</mx:HBox>
+						<mx:HBox width="100%" verticalGap="0" verticalAlign="middle">
+							<mx:Text text="Description"  width="100" styleName="formLabel"/>
+							<mx:TextInput text="{productTree.selectedItem.@description}" change="{setDirty()}" width="100%" height="50" id="description"  maxChars="500"/>
+						</mx:HBox>
+						<mx:HBox width="100%" verticalGap="0" verticalAlign="middle">
+							<mx:CheckBox id="batchSamplesByUseQuantityCheckbox" label="Batch Samples by Use Quantity" click="dirty.setDirty()"
+										 selected="{productTree.selectedItem.@batchSamplesByUseQuantity == 'Y'}" />
+
+							<mx:CheckBox id="billThroughGnomexCheckBox" label="Use GNomEx for Billing?" click="dirty.setDirty()"
+										 selected="{productTree.selectedItem.@billThroughGnomex == 'Y'}" />
+						</mx:HBox>
+						<mx:HBox width="100%" verticalGap="0" verticalAlign="top">
+							<mx:Text text="Pricing" width="80" styleName="formLabel"/>
+							<mx:VBox width="100%" paddingTop="0" verticalGap="2">
+								<mx:HBox width="100%" horizontalGap="0" verticalAlign="middle" paddingTop="0">
+									<mx:Label text="$" paddingRight="0" textAlign="right" width="20" />
+									<mx:TextInput width="250" id="priceInternalText" text="{productTree.selectedItem.@unitPriceInternal == '' ? '0.00' : productTree.selectedItem.@unitPriceInternal}" restrict="0-9." paddingLeft="0" change="setDirty()" />
+									<mx:Spacer width="5" />
+									<mx:Label id="priceInternalLabel" text="Internal Pricing" />
+								</mx:HBox>
+								<mx:HBox width="100%" horizontalGap="0" verticalAlign="middle" paddingTop="0">
+									<mx:Label text="$" paddingRight="0" textAlign="right" width="20" />
+									<mx:TextInput width="250" id="priceExternalAcademicText" text="{productTree.selectedItem.@unitPriceExternalAcademic == '' ? '0.00' : productTree.selectedItem.@unitPriceExternalAcademic}" restrict="0-9." paddingLeft="0" change="setDirty()" />
+									<mx:Spacer width="5" />
+									<mx:Label id="priceExternalAcademicLabel" text="External Academic Pricing" />
+								</mx:HBox>
+								<mx:HBox width="100%" horizontalGap="0" verticalAlign="middle" paddingTop="0">
+									<mx:Label text="$" paddingRight="0" textAlign="right" width="20" />
+									<mx:TextInput width="250" id="priceExternalCommercialText" text="{productTree.selectedItem.@unitPriceExternalCommercial == '' ? '0.00' : productTree.selectedItem.@unitPriceExternalCommercial}" restrict="0-9." paddingLeft="0" change="setDirty()" />
+									<mx:Spacer width="5" />
+									<mx:Label id="priceExternalCommercialLabel" text="External Commercial Pricing" />
+								</mx:HBox>
+							</mx:VBox>
+						</mx:HBox>
+					</mx:VBox>
+					<mx:ControlBar width="100%" horizontalAlign="right"  paddingTop="0" paddingRight="0" paddingLeft="0" paddingBottom="0">
+						<util:DirtyNote id="dirty" />
+						<mx:Button id="saveButton" label="Save"  enabled="true"
+								   icon="@Embed('../../assets/action_save.gif')" click="checkToSave()" disabledIcon="@Embed(source='../../assets/save_disable.png')">
+						</mx:Button>
+						<mx:Button label="Close"  click="{closeWindow()}"/>
+
+					</mx:ControlBar>
+				</mx:VBox>
+			</mx:ViewStack>
+
+
+		</mx:HDividedBox>
+	</mx:VBox>
+
 </mx:TitleWindow>

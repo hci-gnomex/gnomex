@@ -38,9 +38,9 @@ public class ChromatReadUtil extends DetailObject implements Serializable {
     
 
     } catch (UnsupportedChromatogramFormatException e){
-      e.printStackTrace();
+
     } catch (IOException e) {
-      e.printStackTrace();
+
     }
   }
   
@@ -62,7 +62,7 @@ public class ChromatReadUtil extends DetailObject implements Serializable {
       return data;
     }
     catch (IOException e) {
-      e.printStackTrace();
+
       return new int[0];
     }
   }
@@ -99,7 +99,7 @@ public class ChromatReadUtil extends DetailObject implements Serializable {
       return data;
     }
     catch (IOException e) {
-      e.printStackTrace();
+
       return new int[0];
     }
   }
@@ -126,7 +126,7 @@ public class ChromatReadUtil extends DetailObject implements Serializable {
       return sb.toString();
     }
     catch (IOException e) {
-      e.printStackTrace();
+
       return "";
     }
   }
@@ -149,7 +149,7 @@ public class ChromatReadUtil extends DetailObject implements Serializable {
       return new String(data);
     }
     catch (IOException e) {
-      e.printStackTrace();
+
       return "";
     }
   }
@@ -172,7 +172,7 @@ public class ChromatReadUtil extends DetailObject implements Serializable {
       return data;
     }
     catch (IOException e) {
-      e.printStackTrace();
+
       return new int[0];
     }
   }
@@ -208,7 +208,7 @@ public class ChromatReadUtil extends DetailObject implements Serializable {
       return   Long.toString(r1.dataRecord >>> 16);
     }
     catch (IOException e) {
-      e.printStackTrace();
+
       return "";
     }
   }
@@ -221,7 +221,7 @@ public class ChromatReadUtil extends DetailObject implements Serializable {
       return   Long.toString(r1.dataRecord >>> 16);
     }
     catch (IOException e) {
-      e.printStackTrace();
+
       return "";
     }
   }
@@ -234,7 +234,7 @@ public class ChromatReadUtil extends DetailObject implements Serializable {
       return   Long.toString(r1.dataRecord >>> 16);
     }
     catch (IOException e) {
-      e.printStackTrace();
+
       return "";
     }
   }
@@ -247,7 +247,7 @@ public class ChromatReadUtil extends DetailObject implements Serializable {
       return   Long.toString(r1.dataRecord >>> 16);
     }
     catch (IOException e) {
-      e.printStackTrace();
+
       return "";
     }
   }
@@ -261,7 +261,7 @@ public class ChromatReadUtil extends DetailObject implements Serializable {
       return   String.valueOf(spac);
     }
     catch (IOException e) {
-      e.printStackTrace();
+
       return "";
     }
   }
@@ -276,7 +276,7 @@ public class ChromatReadUtil extends DetailObject implements Serializable {
                Long.toString((r1.dataRecord) & 0xff);
     }
     catch (IOException e) {
-      e.printStackTrace();
+
       return "";
     }
   }
@@ -291,7 +291,7 @@ public class ChromatReadUtil extends DetailObject implements Serializable {
                Long.toString((r1.dataRecord) & 0xff);
     }
     catch (IOException e) {
-      e.printStackTrace();
+
       return "";
     }
   }
@@ -306,7 +306,7 @@ public class ChromatReadUtil extends DetailObject implements Serializable {
                Long.toString((r1.dataRecord >>> 8) & 0xff);
     }
     catch (IOException e) {
-      e.printStackTrace();
+
       return "";
     }
   }
@@ -321,7 +321,7 @@ public class ChromatReadUtil extends DetailObject implements Serializable {
                Long.toString((r1.dataRecord >>> 8) & 0xff);
     }
     catch (IOException e) {
-      e.printStackTrace();
+
       return "";
     }
   }
@@ -337,7 +337,7 @@ public class ChromatReadUtil extends DetailObject implements Serializable {
             
     }
     catch (IOException e) {
-      e.printStackTrace();
+
       return "";
     }
   }
@@ -352,7 +352,7 @@ public class ChromatReadUtil extends DetailObject implements Serializable {
             
     }
     catch (IOException e) {
-      e.printStackTrace();
+
       return "";
     }
   }
@@ -367,7 +367,7 @@ public class ChromatReadUtil extends DetailObject implements Serializable {
             
     }
     catch (IOException e) {
-      e.printStackTrace();
+
       return "";
     }
   }
@@ -382,7 +382,7 @@ public class ChromatReadUtil extends DetailObject implements Serializable {
             
     }
     catch (IOException e) {
-      e.printStackTrace();
+
       return "";
     }
   }
@@ -405,7 +405,7 @@ public class ChromatReadUtil extends DetailObject implements Serializable {
       return at;
     }
     catch (Exception e) {
-      e.printStackTrace();
+
       return "";
     }
   }
@@ -419,7 +419,7 @@ public class ChromatReadUtil extends DetailObject implements Serializable {
       return ct;
     }
     catch (Exception e) {
-      e.printStackTrace();
+
       return "";
     }
   }
@@ -433,7 +433,7 @@ public class ChromatReadUtil extends DetailObject implements Serializable {
       return gt;
     }
     catch (Exception e) {
-      e.printStackTrace();
+
       return "";
     }
   }
@@ -447,7 +447,7 @@ public class ChromatReadUtil extends DetailObject implements Serializable {
       return tt;
     }
     catch (Exception e) {
-      e.printStackTrace();
+
       return "";
     }
   }
