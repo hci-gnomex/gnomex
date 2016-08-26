@@ -113,10 +113,10 @@
 				preparedAppList.addItem(item.copy());
 			}
 			
-			if(parentDocument.sampleSetupView.samplesAlreadyPreppedCheckbox.selected){
-				preparedAppList.sort = this.applicationSorterAlphabet;
-				preparedAppList.refresh();
-			}
+//			if(this.samplesAlreadyPreppedCheckbox.selected){
+//				preparedAppList.sort = this.applicationSorterAlphabet;
+//				preparedAppList.refresh();
+//			}
 			
 			themeList = new XMLListCollection();
 			for each(var theme:Object in themeMap) {

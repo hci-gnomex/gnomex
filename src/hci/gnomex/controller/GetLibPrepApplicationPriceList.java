@@ -32,8 +32,6 @@ public class GetLibPrepApplicationPriceList extends GNomExCommand implements Ser
   private Integer idLab;
   private String codeRequestCategory;
 
-  private SecurityAdvisor          secAdvisor;
-
   public void loadCommand(HttpServletRequest request, HttpSession session) {
     
     if (request.getParameter("idLab") != null && !request.getParameter("idLab").equals("")) {
@@ -91,28 +89,12 @@ public class GetLibPrepApplicationPriceList extends GNomExCommand implements Ser
 
       setResponsePage(this.SUCCESS_JSP);
 
-    }catch (UnknownPermissionException e){
-      LOG.error("An exception has occurred in GetLibPrepApplicationPrice ", e);
-
-      throw new RollBackCommandException(e.getMessage());
-
-    }catch (NamingException e){
-      LOG.error("An exception has occurred in GetLibPrepApplicationPrice ", e);
-
-      throw new RollBackCommandException(e.getMessage());
-
-    }catch (SQLException e) {
-      LOG.error("An exception has occurred in GetLibPrepApplicationPrice ", e);
-
-      throw new RollBackCommandException(e.getMessage());
-
     } catch (Exception e) {
       LOG.error("An exception has occurred in GetLibPrepApplicationPrice ", e);
-
       throw new RollBackCommandException(e.getMessage());
     } finally {
       try {
-        secAdvisor.closeReadOnlyHibernateSession();    
+        this.getSecAdvisor().closeReadOnlyHibernateSession();
       } catch(Exception e){
         LOG.error("Error", e);
       }

@@ -32,8 +32,6 @@ public class GetHiSeqRunTypePriceList extends GNomExCommand implements Serializa
   private Integer idLab;
   private String codeRequestCategory;
 
-  private SecurityAdvisor          secAdvisor;
-
   public void loadCommand(HttpServletRequest request, HttpSession session) {
     
     if (request.getParameter("idLab") != null && !request.getParameter("idLab").equals("")) {
@@ -97,7 +95,7 @@ public class GetHiSeqRunTypePriceList extends GNomExCommand implements Serializa
       throw new RollBackCommandException(e.getMessage());
     } finally {
       try {
-        secAdvisor.closeReadOnlyHibernateSession();    
+        this.getSecAdvisor().closeReadOnlyHibernateSession();
       } catch(Exception e) {
         LOG.error("An exception has occurred in HiSeqRunTypePriceList ", e);
       }

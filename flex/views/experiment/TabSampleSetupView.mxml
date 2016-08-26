@@ -390,7 +390,9 @@
 						if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' &&
 							this.sampleTypeRadioGroup.selectedValue &&
 							hasOrganism() &&
-							this.otherSamplePrepMethod.text.length > 0) {
+							this.otherSamplePrepMethod.text.length > 0 && reagentInput.text != '' &&
+                            elutionBufferInput.text != '' && (this.dnaseCheckBox.selected || this.rnaseCheckBox.selected) &&
+                            retrieveSamplesRadioGroup.selectedValue != null) {
 							
 							isComplete = true;
 						}
@@ -800,6 +802,26 @@
 				getSampleType();
 				
 				propagateSampleType();
+
+                if(sampleType != null){
+                    if(sampleType.@codeNucleotideType == 'DNA'){
+                        rnaseBox.includeInLayout = true;
+                        rnaseBox.visible = true;
+                        dnaseBox.includeInLayout = false;
+                        dnaseBox.visible = false;
+                    } else if(sampleType.@codeNucleotideType == 'RNA'){
+                        dnaseBox.includeInLayout = true;
+                        dnaseBox.visible = true;
+                        rnaseBox.includeInLayout = false;
+                        rnaseBox.visible = false;
+                    } else{
+						dnaseBox.includeInLayout = false;
+						dnaseBox.visible = false;
+						rnaseBox.includeInLayout = false;
+						rnaseBox.visible = false;
+					}
+                }
+
 				parentDocument.samplesView.initializeSamplesGrid();
 				
 				if (parentDocument.isSequenomState() || parentDocument.isClinicalSequenomState()) {
@@ -863,7 +885,7 @@
 				if (parentDocument.isMicroarrayState()) {
 					parentDocument.hybSetupView.checkForSlideProductWarning();
 				}
-				
+
 				propagateSampleOrganism();
 				parentDocument.samplesView.initializeSamplesGrid();
 				
@@ -1551,30 +1573,30 @@
 				</mx:TextInput>
 			</mx:HBox>
 			<mx:HBox horizontalGap="0" id="samplePurificationContainer" paddingRight="4" verticalAlign="top">
-				<mx:Label text="(4) Please provide details on Sample Purification methods:" width="340"/>
+				<mx:Text text="(4) Please provide details on Sample Purification methods:" width="300"/>
 				<mx:VBox verticalAlign="middle">
 					<mx:HBox>
 						<mx:Label text="(a) Specify the kit or reagents used for purification of the samples you will be submitting"/>
-						<mx:TextInput id="reagentInput" focusOut="{propagateReagent()}" />
+						<mx:TextInput id="reagentInput" focusOut="{propagateReagent(); this.checkSampleSetupCompleteness();}" />
 					</mx:HBox>
 					<mx:HBox>
 						<mx:Label text="(b) Specify the Elution Buffer used for purification of the samples you will be submitting"/>
-						<mx:TextInput id="elutionBufferInput" focusOut="{propagateElutionBuffer()}" />
+						<mx:TextInput id="elutionBufferInput" focusOut="{propagateElutionBuffer(); this.checkSampleSetupCompleteness();}" />
 					</mx:HBox>
-					<mx:HBox>
-						<mx:Label text="(c) Click if RNA samples were treated with DNase"/>
-						<mx:CheckBox id="dnaseCheckBox" click="{propagateDnase()}"/>
+					<mx:HBox id="dnaseBox" includeInLayout="false" visible="false">
+						<mx:Label text="(c) Click if RNA samples were treated with DNase" id="dnaseLabel"/>
+						<mx:CheckBox id="dnaseCheckBox" click="{propagateDnase()}" change="{this.checkSampleSetupCompleteness()}"/>
 					</mx:HBox>
-					<mx:HBox>
-						<mx:Label text="(d) Click if DNA samples were treated with RNase"/>
-						<mx:CheckBox id="rnaseCheckBox" click="{propagateRnase()}"/>
+					<mx:HBox id="rnaseBox" includeInLayout="false" visible="false">
+						<mx:Label text="(c) Click if DNA samples were treated with RNase" id="rnaseLabel"/>
+						<mx:CheckBox id="rnaseCheckBox" click="{propagateRnase()}" change="{this.checkSampleSetupCompleteness()}"/>
 					</mx:HBox>
 				</mx:VBox>
 			</mx:HBox>
-			<mx:HBox>
-				<mx:Text text="(5) Would you like to retrieve leftover sample from the core facility following completion of the work?" width="340"/>
+			<mx:HBox horizontalGap="0" id="leftOverSampleContainer" paddingRight="4" verticalAlign="top">
+				<mx:Text text="(5) Would you like to retrieve leftover sample from the core facility following completion of the work?" width="300"/>
 				<mx:VBox>
-					<mx:RadioButtonGroup id="retrieveSamplesRadioGroup" change="{propagateKeepSamples()}"/>
+					<mx:RadioButtonGroup id="retrieveSamplesRadioGroup" change="{propagateKeepSamples(); this.checkSampleSetupCompleteness()}"/>
 					<mx:RadioButton groupName="retrieveSamplesRadioGroup" value="Y" label="Yes (leftover samples will be retained for 90 days)" id="keep"/>
 					<mx:RadioButton groupName="retrieveSamplesRadioGroup" value="N" label="No (leftover samples will be discarded)" id="dontKeep"/>
 				</mx:VBox>
@@ -1605,6 +1627,9 @@
 		<mx:State name="QCSetupState">
 			<mx:SetProperty target="{sampleOrganismContainer}" name="visible" value="false"/>
 			<mx:SetProperty target="{sampleOrganismContainer}" name="includeInLayout" value="false"/>
+			<mx:RemoveChild target="{samplePurificationContainer}"/>
+			<mx:RemoveChild target="{leftOverSampleContainer}"/>
+			<mx:SetProperty target="{label2}" name="label" value="(4) Specify the nucleic acid extraction method. (required)."/>
 			<mx:AddChild  relativeTo="{sampleSetupContainer}">
 				<mx:VBox id="bioanalyzerContainer" visible="true" width="100%" height="100%">
 					<mx:VBox width="100%" horizontalGap="0" id="chipTypeVBox">
@@ -1644,7 +1669,7 @@
 			<mx:SetProperty target="{label5}" name="label" value="(2) How many samples will be sequenced in this experiment order?"/>
 			<mx:SetProperty target="{label8}" name="label" value="(3) Which category best describes your samples?"/>
 			<mx:SetProperty target="{label2}" name="label">
-				<mx:value>(4) Specify the nucleic acid extraction method. (required)</mx:value>
+				<mx:value>(6) Specify the nucleic acid extraction method. (required)</mx:value>
 			</mx:SetProperty>
 			<mx:SetProperty target="{label5}" name="width" value="340"/>
 			<mx:SetProperty target="{label2}" name="width" value="340"/>
@@ -1664,7 +1689,7 @@
 											 click="{pickQCApp(event)}"/>
 						</mx:Repeater>
 					</mx:VBox>
-					
+
 				</mx:HBox>
 			</mx:AddChild>			
 		</mx:State>
@@ -1673,7 +1698,7 @@
 			<mx:SetStyle target="{numberOfSamples}" name="backgroundColor"/>
 			<mx:SetProperty target="{label5}" name="width" value="305"/>
 			<mx:SetProperty target="{label8}" name="width" value="305"/>
-			<mx:RemoveChild target="{samplePrepContainer}"/>
+<!--			<mx:RemoveChild target="{samplePrepContainer}"/>-->
 			<!--<mx:AddChild relativeTo="{isPreppedContainer}" position="before" target="{samplePrepContainer}"/>-->
 			<mx:SetProperty target="{label2}" name="width" value="305"/>
 			<mx:SetProperty target="{label7}" name="width" value="305"/>			
@@ -1710,6 +1735,8 @@
 			<mx:SetProperty target="{sampleOrganismContainer}" name="includeInLayout" value="false"/>
 			<mx:SetProperty target="{samplePrepContainer}" name="visible" value="false"/>
 			<mx:SetProperty target="{samplePrepContainer}" name="includeInLayout" value="false"/>
+			<mx:RemoveChild target="{samplePurificationContainer}"/>
+			<mx:RemoveChild target="{leftOverSampleContainer}"/>
 			<mx:AddChild relativeTo="{sampleTypeHBox}" position="before">
 				<mx:HBox width="100%" horizontalGap="0">
 					<util:ContextHelp context1="sampleDetailsSampleContainer" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Container Help"
@@ -1755,6 +1782,8 @@
 			<mx:SetProperty target="{samplePrepContainer}" name="includeInLayout" value="false"/>
 			<mx:SetProperty target="{sampleTypeHBox}" name="visible" value="false"/>
 			<mx:SetProperty target="{sampleTypeHBox}" name="includeInLayout" value="false"/>
+			<mx:RemoveChild target="{samplePurificationContainer}"/>
+			<mx:RemoveChild target="{leftOverSampleContainer}"/>
 			<mx:AddChild relativeTo="{sampleTypeHBox}" position="before">
 				<mx:VBox width="100%" horizontalGap="0">
 					<util:ContextHelp context1="sampleDetailsAssays" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Sample Assays Help"
@@ -1854,6 +1883,8 @@
 			<mx:SetProperty target="{samplePrepContainer}" name="includeInLayout" value="false"/>
 			<mx:SetProperty target="{sampleTypeHBox}" name="visible" value="false"/>
 			<mx:SetProperty target="{sampleTypeHBox}" name="includeInLayout" value="false"/>
+			<mx:RemoveChild target="{samplePurificationContainer}"/>
+			<mx:RemoveChild target="{leftOverSampleContainer}"/>
 			<mx:AddChild relativeTo="{sampleTypeHBox}" position="before">
 				<mx:VBox width="100%" horizontalGap="0">
 					<util:ContextHelp context1="sampleDetailsPrimers" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Sample Primers Help"
@@ -1914,6 +1945,8 @@
 			<mx:SetProperty target="{sampleTypeHBox}" name="includeInLayout" value="false"/>
 			<mx:SetProperty target="{hbox3}" name="visible" value="false"/>
 			<mx:SetProperty target="{hbox3}" name="includeInLayout" value="false"/>
+			<mx:RemoveChild target="{samplePurificationContainer}"/>
+			<mx:RemoveChild target="{leftOverSampleContainer}"/>
 			<mx:AddChild relativeTo="{sampleTypeHBox}" position="before">
 				<mx:HBox width="100%" horizontalGap="0">
 					<util:ContextHelp context1="sampleDetailsDestinationWells" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Sample Destination Wells Help"
@@ -2008,6 +2041,8 @@
 			<mx:SetProperty target="{sampleOrganismContainer}" name="includeInLayout" value="false"/>
 			<mx:SetProperty target="{samplePrepContainer}" name="visible" value="false"/>
 			<mx:SetProperty target="{samplePrepContainer}" name="includeInLayout" value="false"/>
+			<mx:RemoveChild target="{samplePurificationContainer}"/>
+			<mx:RemoveChild target="{leftOverSampleContainer}"/>
 			<mx:RemoveChild target="{hbox3}"/>
 			<mx:AddChild relativeTo="{sampleTypeHBox}" position="before" target="{hbox3}"/>
 			<mx:AddChild relativeTo="{sampleTypeHBox}" position="before">
@@ -2097,6 +2132,8 @@
 			<mx:SetProperty target="{sampleOrganismContainer}" name="includeInLayout" value="false"/>
 			<mx:SetProperty target="{samplePrepContainer}" name="visible" value="false"/>
 			<mx:SetProperty target="{samplePrepContainer}" name="includeInLayout" value="false"/>
+            <mx:RemoveChild target="{samplePurificationContainer}"/>
+            <mx:RemoveChild target="{leftOverSampleContainer}"/>
 			<mx:AddChild relativeTo="{sampleSetupContainer}" position="lastChild">
 				<mx:HBox width="100%" horizontalGap="0" id="hbox7">
 					<util:ContextHelp context1="SampleDetailsSequenomSeqApplication" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Experiment Type Help"
@@ -2229,7 +2266,7 @@
 			</mx:AddChild>
 			<mx:RemoveChild target="{sampleTypeHBox}"/>
 		    <mx:AddChild relativeTo="{bisulfideConversionBox}" position="before" target="{sampleTypeHBox}"/>
-			<mx:SetProperty target="{label8}" name="label" value="      Which category best describes your samples?"/>
+			<mx:SetProperty target="{label8}" name="label" value="(2) Which category best describes your samples?"/>
 <!--			<mx:AddChild relativeTo="{hbox3}" position="lastChild">
 				<mx:HBox width="100%" id="hbox9">
 					<mx:Text id="sampleCountWarning" fontStyle="italic" fontSize="10"  textAlign="left" width="100%" color="green"/>
@@ -2258,10 +2295,16 @@
 			<mx:SetProperty target="{label8}" name="width" value="340"/>
 			<mx:SetProperty target="{label7}" name="width" value="340"/>
 			<mx:SetProperty target="{label2}" name="width" value="340"/>
+			<mx:SetProperty target="{label2}" name="width" value="340"/>
+			<mx:SetProperty target="{label2}" name="label" value="(4) Specify the nucleic acid extraction method.(required)" />
+			<mx:RemoveChild target="{samplePurificationContainer}"/>
+			<mx:RemoveChild target="{leftOverSampleContainer}"/>
 		</mx:State>
 		<mx:State name="GenericState">
 			<mx:SetProperty target="{samplePrepContainer}" name="includeInLayout" value="false"/>
 			<mx:SetProperty target="{samplePrepContainer}" name="visible" value="false"/>
+			<mx:RemoveChild target="{samplePurificationContainer}"/>
+			<mx:RemoveChild target="{leftOverSampleContainer}"/>
 			<mx:AddChild relativeTo="{sampleSetupContainer}" position="lastChild">
 				<mx:HBox id="appListBox" width="100%" horizontalGap="0" visible="{parentDocument.filteredAppList.length&gt;0}" includeInLayout="{parentDocument.filteredAppList.length&gt;0}">
 					<util:ContextHelp context1="SampleDetailsApplication" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Experiment Type Help"
@@ -2293,6 +2336,9 @@
 			<mx:SetProperty target="{samplePrepContainer}" name="includeInLayout" value="true"/>
 			<mx:SetProperty target="{samplePrepContainer}" name="visible" value="true"/>
 			<mx:SetProperty target="{labelApplication}" name="label" value="(5) Select an experiment type."/>
+			<mx:SetProperty target="{label2}" name="label" value="(4) Specify the nucleic acid extraction method.(required)" />
+			<mx:RemoveChild target="{samplePurificationContainer}"/>
+			<mx:RemoveChild target="{leftOverSampleContainer}"/>
 		</mx:State>
 	</mx:states>
 	
