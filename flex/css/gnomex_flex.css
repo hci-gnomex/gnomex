@@ -594,7 +594,7 @@ TextArea {
 .instructionBox
 {
 	backgroundColor: #FFFEC3;
-	fontSize: 9;
+	fontSize: 12;
 	backgroundAlpha: 0.8;
 	borderStyle: solid;
 	cornerRadius: 4;

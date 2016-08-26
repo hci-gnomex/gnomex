@@ -8,150 +8,153 @@
 	
 	<mx:Script>	
 		<![CDATA[
-			import hci.flex.controls.ComboBox;
-			import hci.flex.controls.DropdownLabel;
-			
-			import mx.collections.Grouping;
-			import mx.collections.GroupingCollection;
-			import mx.collections.GroupingField;
-			import mx.controls.AdvancedDataGrid;
-			import mx.core.mx_internal;
-			
-			import views.util.AnnotationDataGridColumn;
-			
-			[Bindable]
-			private var longDescriptionRowCount:int = 0;
+		import hci.flex.controls.ComboBox;
+		import hci.flex.controls.DropdownLabel;
 
-			[Bindable]
-			private var concHeader:String = "Conc. ";
-			
-			override public function setupView():void {
-				this.parentDocument.samplesView.initializeBarcoding();
-				parentDocument.getEstimatedBilling();
-				
-				submitterName.text = parentDocument.getSubmitterName();
-				
-				this.ccNumber.visible = parentDocument.samplesView.getShowCCNumber(); 
-				
-				longDescriptionRowCount = 0;
-				for each (var s:Object in parentDocument.samples) {
-					if (s.@description.toString().length > 30) {
-						var count:Number = s.@description.toString().length / 30;
-						longDescriptionRowCount += Math.round(count);
-					}
-				}
-				
-				this.experimentName.text = parentDocument.request.@name;
-				this.expDescriptArea.htmlText = parentDocument.saveDescription;
-				this.expDescriptArea.validateNow();
-				this.expDescriptArea.height = this.expDescriptArea.textHeight + this.expDescriptArea..mx_internal::getTextField().getLineMetrics(0).height;  
-				this.seqNotes.text = parentDocument.request.@corePrepInstructions != null ? parentDocument.request.@corePrepInstructions : '';
-				this.seqNotes.validateNow();
-				this.seqNotes.height = this.seqNotes.textHeight + this.seqNotes..mx_internal::getTextField().getLineMetrics(0).height; 
-				
-				// Edit buttons shown
-				
-				if(parentApplication.getRequestCategoryProperty(parentDocument.request.@idCoreFacility, parentDocument.request.@codeRequestCategory, parentApplication.PROPERTY_NEW_REQUEST_SAVE_BEFORE_SUBMIT) == 'Y'){
-					this.parentDocument.submitButton.label = 'Save';
-					this.parentDocument.submitButton.enabled = true;
-					this.parentDocument.agreeBox.visible = false;
-					this.parentDocument.agreeBox.includeInLayout = false;
-					this.parentDocument.agreeCheckbox.selected = true;
-					
-				} else{
-					this.parentDocument.submitButton.label = 'Submit';
-					this.parentDocument.submitButton.enabled = false;
-					this.parentDocument.agreeBox.visible = true;
-					this.parentDocument.agreeBox.includeInLayout = true;
-					this.parentDocument.agreeCheckbox.selected = false;
-				}
-				
-				this.requestPropBox.includeInLayout = parentApplication.getCoreFacilityProperty(parentDocument.request.@idCoreFacility, parentApplication.PROPERTY_REQUEST_PROPS_ON_CONFIRM_TAB) == 'Y';
-				this.requestPropBox.visible = parentApplication.getCoreFacilityProperty(parentDocument.request.@idCoreFacility, parentApplication.PROPERTY_REQUEST_PROPS_ON_CONFIRM_TAB) == 'Y';
+		import mx.collections.Grouping;
+		import mx.collections.GroupingCollection;
+		import mx.collections.GroupingField;
+		import mx.controls.AdvancedDataGrid;
+		import mx.core.mx_internal;
 
-				
-				concHeader = "Conc. ";
-				
-				this.confirmContainer.validateNow();
-			} 
-			
-			override public function showHideColumns():void {
-				this.filteredSamples.removeAll();
-				for each(var sample:Object in parentDocument.samples) {
-					if (sample.@name != null && sample.@name != '') {
-						this.filteredSamples.addItem(sample);
-					}
-				}
-				this.label1.text = 'Samples (' + filteredSamples.length + ')';
-				
-				this.getConcentrationHeader();
+		import views.util.AnnotationDataGridColumn;
 
-				// Edit buttons shown
-				if(!parentApplication.isInternalExperimentSubmission){
-					this.parentDocument.submitButton.label = 'Save';
-					this.parentDocument.submitButton.enabled = true;
-					this.parentDocument.agreeCheckbox.selected = true;
-					this.parentDocument.agreeBox.includeInLayout = false;
-					this.parentDocument.agreeBox.visible = false;
-				} else if(parentApplication.getRequestCategoryProperty(parentDocument.request.@idCoreFacility, parentDocument.request.@codeRequestCategory, parentApplication.PROPERTY_NEW_REQUEST_SAVE_BEFORE_SUBMIT) == 'Y'){
-					this.parentDocument.submitButton.label = 'Save';
-					this.parentDocument.submitButton.enabled = true;
-					this.parentDocument.agreeBox.visible = false;
-					this.parentDocument.agreeBox.includeInLayout = false;
-					this.parentDocument.agreeCheckbox.selected = true;
-				} else{
-					this.parentDocument.submitButton.label = 'Submit';
-					this.parentDocument.submitButton.enabled = false;
-					this.parentDocument.agreeBox.visible = true;
-					this.parentDocument.agreeBox.includeInLayout = true;
-					this.parentDocument.agreeCheckbox.selected = false;
+		[Bindable]
+		private var longDescriptionRowCount:int = 0;
+
+		[Bindable]
+		private var concHeader:String = "Conc. ";
+
+		override public function setupView():void {
+			this.parentDocument.samplesView.initializeBarcoding();
+			parentDocument.getEstimatedBilling();
+
+			submitterName.text = parentDocument.getSubmitterName();
+
+			this.ccNumber.visible = parentDocument.samplesView.getShowCCNumber();
+
+			longDescriptionRowCount = 0;
+			for each (var s:Object in parentDocument.samples) {
+				if (s.@description.toString().length > 30) {
+					var count:Number = s.@description.toString().length / 30;
+					longDescriptionRowCount += Math.round(count);
 				}
 			}
-			
-			override public function getSamplesGrid():Object {
-				return this.samplesGridConfirm;
+
+			this.experimentName.text = parentDocument.request.@name;
+			this.expDescriptArea.htmlText = parentDocument.saveDescription;
+			this.expDescriptArea.validateNow();
+			this.expDescriptArea.height = this.expDescriptArea.textHeight + this.expDescriptArea..mx_internal::getTextField().getLineMetrics(0).height;
+			this.seqNotes.text = parentDocument.request.@corePrepInstructions != null ? parentDocument.request.@corePrepInstructions : '';
+			this.seqNotes.validateNow();
+			this.seqNotes.height = this.seqNotes.textHeight + this.seqNotes..mx_internal::getTextField().getLineMetrics(0).height;
+
+			// Edit buttons shown
+
+			if (parentApplication.getRequestCategoryProperty(parentDocument.request.@idCoreFacility, parentDocument.request.@codeRequestCategory, parentApplication.PROPERTY_NEW_REQUEST_SAVE_BEFORE_SUBMIT) == 'Y') {
+				this.parentDocument.submitButton.label = 'Save';
+				this.parentDocument.submitButton.enabled = true;
+				this.parentDocument.agreeBox.visible = false;
+				this.parentDocument.agreeBox.includeInLayout = false;
+				this.parentDocument.agreeCheckbox.selected = true;
+
+			} else {
+				this.parentDocument.submitButton.label = 'Submit';
+				this.parentDocument.submitButton.enabled = false;
+				this.parentDocument.agreeBox.visible = true;
+				this.parentDocument.agreeBox.includeInLayout = true;
+				this.parentDocument.agreeCheckbox.selected = false;
 			}
-			
-			override public function getBillingGrid():Object {
-				return this.billingConfirmGrid;
-			}
-						
-			public function getSamplesConfirmGridRowNumber(item:Object,col:int):String
-			{
-				if (filteredSamples!= null) {
-					var x:int = filteredSamples.getItemIndex(item) + 1;
-					return String(x);     		
-				} else {
-					return "";
+
+			this.requestPropBox.includeInLayout = parentApplication.getCoreFacilityProperty(parentDocument.request.@idCoreFacility, parentApplication.PROPERTY_REQUEST_PROPS_ON_CONFIRM_TAB) == 'Y';
+			this.requestPropBox.visible = parentApplication.getCoreFacilityProperty(parentDocument.request.@idCoreFacility, parentApplication.PROPERTY_REQUEST_PROPS_ON_CONFIRM_TAB) == 'Y';
+
+
+			concHeader = "Conc. ";
+
+			this.confirmContainer.validateNow();
+		}
+
+		override public function showHideColumns():void {
+			this.filteredSamples.removeAll();
+			for each(var sample:Object in parentDocument.samples) {
+				if (sample.@name != null && sample.@name != '') {
+					this.filteredSamples.addItem(sample);
 				}
 			}
-			override public function updateBatchWarning():void{
-				var warning:String = this.getSampleBatchWarning();
-				
-				if(warning == ""){
-					sampleBatchWarningBox.includeInLayout = false;
-					this.batchWarning.text = "";
-				} else{
-					sampleBatchWarningBox.includeInLayout = true;
-					this.batchWarning.text = this.getSampleBatchWarning();	
-				}
+			this.label1.text = 'Samples (' + filteredSamples.length + ')';
+
+			this.getConcentrationHeader();
+
+			// Edit buttons shown
+			if (!parentApplication.isInternalExperimentSubmission) {
+				this.parentDocument.submitButton.label = 'Save';
+				this.parentDocument.submitButton.enabled = true;
+				this.parentDocument.agreeCheckbox.selected = true;
+				this.parentDocument.agreeBox.includeInLayout = false;
+				this.parentDocument.agreeBox.visible = false;
+			} else if (parentApplication.getRequestCategoryProperty(parentDocument.request.@idCoreFacility, parentDocument.request.@codeRequestCategory, parentApplication.PROPERTY_NEW_REQUEST_SAVE_BEFORE_SUBMIT) == 'Y') {
+				this.parentDocument.submitButton.label = 'Save';
+				this.parentDocument.submitButton.enabled = true;
+				this.parentDocument.agreeBox.visible = false;
+				this.parentDocument.agreeBox.includeInLayout = false;
+				this.parentDocument.agreeCheckbox.selected = true;
+			} else {
+				this.parentDocument.submitButton.label = 'Submit';
+				this.parentDocument.submitButton.enabled = false;
+				this.parentDocument.agreeBox.visible = true;
+				this.parentDocument.agreeBox.includeInLayout = true;
+				this.parentDocument.agreeCheckbox.selected = false;
 			}
-			
-			private function getConcentrationHeader():void{
-				if(this.filteredSamples.length > 0){
-					concHeader += filteredSamples.getItemAt(0).@codeConcentrationUnit;
-				}
+		}
+
+		override public function getSamplesGrid():Object {
+			return this.samplesGridConfirm;
+		}
+
+		override public function getBillingGrid():Object {
+			return this.billingConfirmGrid;
+		}
+
+		override public function getInstructionsBox():TextArea {
+			return this.textarea1;
+		}
+
+		public function getSamplesConfirmGridRowNumber(item:Object, col:int):String {
+			if (filteredSamples != null) {
+				var x:int = filteredSamples.getItemIndex(item) + 1;
+				return String(x);
+			} else {
+				return "";
 			}
-			
-			public function filterRequestProperties(prop:Object):Boolean{
-				if(parentDocument != null && prop.@value != "" && prop.@idCoreFacility == parentDocument.request.@idCoreFacility){
-					return true;
-				} else{
-					return false;
-				}
-				
+		}
+
+		override public function updateBatchWarning():void {
+			var warning:String = this.getSampleBatchWarning();
+
+			if (warning == "") {
+				sampleBatchWarningBox.includeInLayout = false;
+				this.batchWarning.text = "";
+			} else {
+				sampleBatchWarningBox.includeInLayout = true;
+				this.batchWarning.text = this.getSampleBatchWarning();
 			}
-			
+		}
+
+		private function getConcentrationHeader():void {
+			if (this.filteredSamples.length > 0) {
+				concHeader += filteredSamples.getItemAt(0).@codeConcentrationUnit;
+			}
+		}
+
+		public function filterRequestProperties(prop:Object):Boolean {
+			if (parentDocument != null && prop.@value != "" && prop.@idCoreFacility == parentDocument.request.@idCoreFacility) {
+				return true;
+			} else {
+				return false;
+			}
+
+		}
 		]]>
 		
 	</mx:Script>
@@ -162,6 +165,7 @@
 	
 	<mx:VBox id="confirmHeaderContainer"  width="100%" backgroundAlpha="0.0" verticalGap="0" paddingRight="25"  >
 		<mx:VBox   width="100%"  backgroundAlpha="0.0" verticalGap="0" paddingBottom="5" paddingLeft="5" paddingTop="0" id="confirmContainer" >
+			<mx:TextArea styleName="instructionBox" width="310" wordWrap="true" id="textarea1" editable="false" creationComplete="updateInstructionBoxSaveButton()" />
 			<mx:HBox width="100%" horizontalGap="4">
 				<mx:VBox height="100%" verticalGap="0" width="160" horizontalScrollPolicy="off">
 					<mx:Label text="Experiment" textDecoration="none" height="16" styleName="formLabel" />
@@ -186,9 +190,6 @@
 					<mx:Text text="{parentDocument.isAmendState() ? parentDocument.request.@billingAccountName : this.getSelectedBillingAccountName()}" width="250"/>
 					<mx:Text text="{parentDocument.isAmendState() ? parentDocument.request.@billingAccountNumber : this.getSelectedBillingAccountNumber()}" width="250"/>
 				</mx:VBox>
-				<mx:TextArea styleName="instructionBox" width="284" wordWrap="true" id="textarea1" height="50" editable="false">
-					<mx:htmlText><![CDATA[1.  Please confirm the information below. Click the<br>     Back button or a tab to modify the request.<br>2. Click save button.]]></mx:htmlText>
-				</mx:TextArea>
 			</mx:HBox>
 			
 			<mx:VBox width="100%" verticalGap="0" id="billingContainer">
