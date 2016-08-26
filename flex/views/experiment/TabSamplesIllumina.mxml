@@ -10,154 +10,155 @@
 	
 	<mx:Script>
 		<![CDATA[
-			import ext.com.Consts;
-			
-			import hci.flex.controls.DropdownLabel;
-			import hci.flex.controls.Label;
-			
-			import mx.collections.ArrayCollection;
-			import mx.collections.IHierarchicalCollectionView;
-			import mx.collections.SortField;
-			import mx.collections.XMLListCollection;
-			import mx.controls.AdvancedDataGrid;
-			import mx.controls.Alert;
-			import mx.controls.TextInput;
-			import mx.controls.ToolTip;
-			import mx.events.CloseEvent;
-			import mx.events.CollectionEvent;
-			import mx.events.CollectionEventKind;
-			import mx.events.DragEvent;
-			import mx.events.FlexEvent;
-			import mx.events.PropertyChangeEvent;
-			import mx.managers.DragManager;
-			import mx.managers.PopUpManager;
-			import mx.rpc.events.ResultEvent;
-			import mx.utils.ObjectUtil;
-			import mx.utils.StringUtil;
-			
-			import views.renderers.CheckBoxRenderer;
-			import views.renderers.ComboBox;
-			import views.renderers.ComboBoxWorkflowStatus;
-			import views.renderers.GridColumnFillButton;
-			import views.renderers.MultiselectRenderer;
-			import views.renderers.TextInputSeqPrepByCore;
-			import views.renderers.URLRenderer;
-			import views.util.AdvancedDataGridColumnWithType;
-			import views.util.AnnotationAdvancedDataGridColumn;
-			import views.util.CopySampleSheetColumnView;
-			import views.util.DictionaryHelper;
-			import views.util.SampleConcentrationValidator;
-			import views.util.SampleQCValidator;
-			import views.util.UploadSampleSheetInstructionsView;
-			import views.util.UploadSampleSheetView;
-			
-			
-			public  var DEFAULT_CONTROL_NAME:String	  = "Control";
-			
-			[Bindable]
-			private var isExternal:Boolean = false;
-			
-			private var uploadFR:FileReference;
-			private var uploadSampleSheetURL:String;
-			private var docTypes:FileFilter;
-			private var hasColumnNames:Boolean; 
-			private var	sampleSheetXML:XML;
-			
-			private var instructionsToolTipText:String = "";
-			
-			override protected function initButtons():void {
-				if (parentDocument.isEditState()) {
-					
+		import ext.com.Consts;
+
+		import hci.flex.controls.DropdownLabel;
+		import hci.flex.controls.Label;
+
+		import mx.collections.ArrayCollection;
+		import mx.collections.IHierarchicalCollectionView;
+		import mx.collections.SortField;
+		import mx.collections.XMLListCollection;
+		import mx.controls.AdvancedDataGrid;
+		import mx.controls.Alert;
+		import mx.controls.TextInput;
+		import mx.controls.ToolTip;
+		import mx.events.CloseEvent;
+		import mx.events.CollectionEvent;
+		import mx.events.CollectionEventKind;
+		import mx.events.DragEvent;
+		import mx.events.FlexEvent;
+		import mx.events.PropertyChangeEvent;
+		import mx.managers.DragManager;
+		import mx.managers.PopUpManager;
+		import mx.rpc.events.ResultEvent;
+		import mx.utils.ObjectUtil;
+		import mx.utils.StringUtil;
+
+		import views.renderers.CheckBoxRenderer;
+		import views.renderers.ComboBox;
+		import views.renderers.ComboBoxWorkflowStatus;
+		import views.renderers.GridColumnFillButton;
+		import views.renderers.MultiselectRenderer;
+		import views.renderers.TextInputSeqPrepByCore;
+		import views.renderers.URLRenderer;
+		import views.util.AdvancedDataGridColumnWithType;
+		import views.util.AnnotationAdvancedDataGridColumn;
+		import views.util.CopySampleSheetColumnView;
+		import views.util.DictionaryHelper;
+		import views.util.SampleConcentrationValidator;
+		import views.util.SampleQCValidator;
+		import views.util.UploadSampleSheetInstructionsView;
+		import views.util.UploadSampleSheetView;
+
+
+		public var DEFAULT_CONTROL_NAME:String = "Control";
+
+		[Bindable]
+		private var isExternal:Boolean = false;
+
+		private var uploadFR:FileReference;
+		private var uploadSampleSheetURL:String;
+		private var docTypes:FileFilter;
+		private var hasColumnNames:Boolean;
+		private var sampleSheetXML:XML;
+
+		private var instructionsToolTipText:String = "";
+
+		override protected function initButtons():void {
+			if (parentDocument.isEditState()) {
+
+				this.downloadButton.visible = true;
+				this.downloadButton.includeInLayout = true;
+				this.uploadHintLink.visible = true;
+				this.uploadHintLink.includeInLayout = true;
+
+			} else {
+				if (parentApplication.submitInternalExperiment()) {
 					this.downloadButton.visible = true;
 					this.downloadButton.includeInLayout = true;
 					this.uploadHintLink.visible = true;
 					this.uploadHintLink.includeInLayout = true;
-					
 				} else {
-					if (parentApplication.submitInternalExperiment()) {
-						this.downloadButton.visible = true;
-						this.downloadButton.includeInLayout = true;
-						this.uploadHintLink.visible = true;
-						this.uploadHintLink.includeInLayout = true;
-					} else {
-						this.downloadButton.visible = true;
-						this.downloadButton.includeInLayout = true;
-						this.uploadHintLink.visible = true;
-						this.uploadHintLink.includeInLayout = true;
-					}
+					this.downloadButton.visible = true;
+					this.downloadButton.includeInLayout = true;
+					this.uploadHintLink.visible = true;
+					this.uploadHintLink.includeInLayout = true;
 				}
-				
-				parentDocument.samples.removeEventListener(CollectionEvent.COLLECTION_CHANGE, this.onSampleChanged);
-				parentDocument.samples.addEventListener(CollectionEvent.COLLECTION_CHANGE, this.onSampleChanged);
-				
-				setGridColors();
-				
-			}
-			
-			override public function getSamplesGrid():AdvancedDataGrid {
-				return AdvancedDataGrid(this.samplesGrid);
-			}
-			
-			override public function getCCNumberBox():HBox {
-				return this.ccNumberContainer;
 			}
 
-			override public function getShowCCNumberCheckbox():CheckBox {
-				return this.showCCNumberCheckbox;
+			parentDocument.samples.removeEventListener(CollectionEvent.COLLECTION_CHANGE, this.onSampleChanged);
+			parentDocument.samples.addEventListener(CollectionEvent.COLLECTION_CHANGE, this.onSampleChanged);
+
+			setGridColors();
+
+		}
+
+		override public function getSamplesGrid():AdvancedDataGrid {
+			return AdvancedDataGrid(this.samplesGrid);
+		}
+
+		override public function getCCNumberBox():HBox {
+			return this.ccNumberContainer;
+		}
+
+		override public function getShowCCNumberCheckbox():CheckBox {
+			return this.showCCNumberCheckbox;
+		}
+
+		override public function getButtonsContainer():HBox {
+			return this.buttonsContainer;
+		}
+
+		override public function addSample():Boolean {
+			var emptyNode:XML = null;
+			var isValid:Boolean = true;
+
+			emptyNode = this.getEmptyNode();
+
+			if (emptyNode != null) {
+				parentDocument.samples.addItem(emptyNode);
 			}
-			
-			override public function getButtonsContainer():HBox {
-				return this.buttonsContainer;
-			}
-					
-			override public function addSample():Boolean {
-				var emptyNode:XML = null;
-				var isValid:Boolean = true;
-				
-				emptyNode = this.getEmptyNode();
-				
-				if (emptyNode != null) {
-					parentDocument.samples.addItem(emptyNode);
-				}
-				
-				return isValid;
-			}
-			
-			private function getEmptyNode():XML {
-				var emptyNode:XML = null;
-				var isValid:Boolean = true;
-				var prepInstructions:String = parentApplication.submitInternalExperiment() && !parentDocument.isEditState() ? parentDocument.notesView.noteToSeq.text.replace(/\"/g, "&quot;") : '';
-				prepInstructions = prepInstructions.replace("'", "&apos;");
-				prepInstructions = prepInstructions.replace("<", "&lt;");
-				prepInstructions = prepInstructions.replace(">", "&gt;");
-				prepInstructions = prepInstructions.replace("&", "&amp;");
-				
-				var idSampleType:String = parentApplication.submitInternalExperiment() && !parentDocument.isEditState() ? 
-					parentDocument.sampleSetupView.sampleTypeRadioGroup.selectedValue : 
+
+			return isValid;
+		}
+
+		private function getEmptyNode():XML {
+			var emptyNode:XML = null;
+			var isValid:Boolean = true;
+			var prepInstructions:String = parentApplication.submitInternalExperiment() && !parentDocument.isEditState() ? parentDocument.notesView.noteToSeq.text.replace(/\"/g, "&quot;") : '';
+			prepInstructions = prepInstructions.replace("'", "&apos;");
+			prepInstructions = prepInstructions.replace("<", "&lt;");
+			prepInstructions = prepInstructions.replace(">", "&gt;");
+			prepInstructions = prepInstructions.replace("&", "&amp;");
+
+			var idSampleType:String = parentApplication.submitInternalExperiment() && !parentDocument.isEditState() ?
+					parentDocument.sampleSetupView.sampleTypeRadioGroup.selectedValue :
 					(parentDocument.request.@idSampleTypeDefault != null ? parentDocument.request.@idSampleTypeDefault : '');
-				var otherSamplePrepMethod:String	= parentApplication.submitInternalExperiment() && !parentDocument.isEditState()  ? 
-					parentDocument.sampleSetupView.otherSamplePrepMethod.text.replace(/\"/g, "&quot;") : '';				
-				var idOrganism:String	= parentApplication.submitInternalExperiment() && !parentDocument.isEditState()  ? 
+			var otherSamplePrepMethod:String = parentApplication.submitInternalExperiment() && !parentDocument.isEditState() ?
+					parentDocument.sampleSetupView.otherSamplePrepMethod.text.replace(/\"/g, "&quot;") : '';
+			var idOrganism:String = parentApplication.submitInternalExperiment() && !parentDocument.isEditState() ?
 					parentDocument.sampleSetupView.sampleOrganismCombo.selectedItem.@value :
-					(parentDocument.request.@idOrganismSampleDefault != null ? parentDocument.request.@idOrganismSampleDefault : '');;				
-				var otherOrganism:String =  parentApplication.submitInternalExperiment() && !parentDocument.isEditState()  ? 
+					(parentDocument.request.@idOrganismSampleDefault != null ? parentDocument.request.@idOrganismSampleDefault : '');
+			;
+			var otherOrganism:String = parentApplication.submitInternalExperiment() && !parentDocument.isEditState() ?
 					parentDocument.sampleSetupView.otherOrganism.text.replace(/\"/g, "&quot;") : '';
-				var idNumberSequencingCycles:String	= parentApplication.submitInternalExperiment() && !parentDocument.isEditState()  ? 
+			var idNumberSequencingCycles:String = parentApplication.submitInternalExperiment() && !parentDocument.isEditState() ?
 					parentDocument.seqSetup1View.getIdNumberSequencingCyclesSelected() : '';
-				var idSeqRunType:String	= parentApplication.submitInternalExperiment() && !parentDocument.isEditState()  ? 
-					parentDocument.seqSetup1View.getIdSeqRunTypeSelected() : '';			
-				var idNumberSequencingCyclesAllowed:String	= parentApplication.submitInternalExperiment() && !parentDocument.isEditState()  ? 
+			var idSeqRunType:String = parentApplication.submitInternalExperiment() && !parentDocument.isEditState() ?
+					parentDocument.seqSetup1View.getIdSeqRunTypeSelected() : '';
+			var idNumberSequencingCyclesAllowed:String = parentApplication.submitInternalExperiment() && !parentDocument.isEditState() ?
 					parentDocument.seqSetup1View.getIdNumberSequencingCyclesAllowedSelected() : '';
-				var numberSequencingLanes:String	= parentDocument.request.@isRapidMode == 'Y' ? '2' : '1';
-					
-				var protocol:XML = parentApplication.dictionaryHelper.getProtocolFromApplication(parentDocument.codeApplication);
-				var idSeqLibProtocol:String = protocol != null ? protocol.@idSeqLibProtocol.toString() : "";
-				
-				if (parentDocument.isSolexaState()) {
-					if (parentDocument.sampleSetupView.currentState == 'SolexaSetupPreppedState' || 
+			var numberSequencingLanes:String = parentDocument.request.@isRapidMode == 'Y' ? '2' : '1';
+
+			var protocol:XML = parentApplication.dictionaryHelper.getProtocolFromApplication(parentDocument.codeApplication);
+			var idSeqLibProtocol:String = protocol != null ? protocol.@idSeqLibProtocol.toString() : "";
+
+			if (parentDocument.isSolexaState()) {
+				if (parentDocument.sampleSetupView.currentState == 'SolexaSetupPreppedState' ||
 						parentDocument.sampleSetupView.currentState == 'SolexaAmendPreppedState') {
-						
-						emptyNode = new XML("<Sample " +
+
+					emptyNode = new XML("<Sample " +
 							" idSample='" + "Sample" + getNextSampleId() + "'" +
 							" name='' description='' " +
 							" canChangeSampleName='Y'" +
@@ -165,39 +166,39 @@
 							" canChangeSampleDropOffLocation='Y'" +
 							" canChangeSampleConcentration='Y'" +
 							" canChangeSampleSource='Y'" +
-							" canChangeNumberSequencingLanes='Y'" +  
+							" canChangeNumberSequencingLanes='Y'" +
 							" canChangeNumberSequencingCycles='Y'" +
-							" concentration=''" + 
+							" concentration=''" +
 							" label=''" +
-							" idNumberSequencingCycles='" + idNumberSequencingCycles + "'" +				
-							" idNumberSequencingCyclesAllowed='" + idNumberSequencingCyclesAllowed + "'" +				
-							" idSeqRunType='" + idSeqRunType + "'" +				
+							" idNumberSequencingCycles='" + idNumberSequencingCycles + "'" +
+							" idNumberSequencingCyclesAllowed='" + idNumberSequencingCyclesAllowed + "'" +
+							" idSeqRunType='" + idSeqRunType + "'" +
 							" numberSequencingLanes='" + numberSequencingLanes + "'" +
-							" codeConcentrationUnit='ng/ul'" + 
+							" codeConcentrationUnit='ng/ul'" +
 							" idSampleType='" + idSampleType + "'" +
 							" seqPrepByCore = 'N'" +
 							" idOligoBarcode = ''" +
 							" barcodeSequence = ''" +
 							" idOligoBarcodeB = ''" +
 							" barcodeSequenceB = ''" +
-							" otherSamplePrepMethod=\"" + otherSamplePrepMethod + "\"" +				
-							" idSeqLibProtocol='" + idSeqLibProtocol + "'" +				
-							" prepInstructions=\"" + (prepInstructions) + "\"" +				
-							" idOrganism='"  + idOrganism + "'" +				
-							" otherOrganism=\"" + otherOrganism + "\"" +				
-							" treatment=''"   +				
+							" otherSamplePrepMethod=\"" + otherSamplePrepMethod + "\"" +
+							" idSeqLibProtocol='" + idSeqLibProtocol + "'" +
+							" prepInstructions=\"" + (prepInstructions) + "\"" +
+							" idOrganism='" + idOrganism + "'" +
+							" otherOrganism=\"" + otherOrganism + "\"" +
+							" treatment=''" +
 							"/>");
-						
-					} else {
-						emptyNode = new XML("<Sample " +
+
+				} else {
+					emptyNode = new XML("<Sample " +
 							" idSample='" + "Sample" + getNextSampleId() + "'" +
 							" name='' description='' " +
 							" canChangeSampleName='Y'" +
 							" canChangeSampleType='Y'" +
 							" canChangeSampleConcentration='Y'" +
 							" canChangeSampleSource='Y'" +
-							" canChangeNumberSequencingCycles='Y'" + 
-							" canChangeNumberSequencingLanes='Y'" + 
+							" canChangeNumberSequencingCycles='Y'" +
+							" canChangeNumberSequencingLanes='Y'" +
 							" concentration=''" +
 							" label=''" +
 							" idOligoBarcode = ''" +
@@ -206,816 +207,824 @@
 							" barcodeSequenceB = ''" +
 							" idNumberSequencingCycles='" + idNumberSequencingCycles + "'" +
 							" idNumberSequencingCyclesAllowed='" + idNumberSequencingCyclesAllowed + "'" +
-							" idSeqRunType='" +	idSeqRunType + "'" +				
+							" idSeqRunType='" + idSeqRunType + "'" +
 							" numberSequencingLanes='1'" +
-							" codeConcentrationUnit='ng/ul'" + 
+							" codeConcentrationUnit='ng/ul'" +
 							" idSampleType='" + idSampleType + "'" +
-							" otherSamplePrepMethod=\"" + otherSamplePrepMethod + "\"" +				
-							" idSeqLibProtocol='" + idSeqLibProtocol + "'" +	
+							" otherSamplePrepMethod=\"" + otherSamplePrepMethod + "\"" +
+							" idSeqLibProtocol='" + idSeqLibProtocol + "'" +
 							" seqPrepByCore = 'Y'" +
-							" idOrganism='"  + idOrganism + "'" +				
-							" otherOrganism=\"" + otherOrganism + "\"" +				
-							" treatment=''"  +				
+							" idOrganism='" + idOrganism + "'" +
+							" otherOrganism=\"" + otherOrganism + "\"" +
+							" treatment=''" +
 							"/>");
-						
-					}
-				} else {
-					var xmlString:String = "<Sample " +
+
+				}
+			} else {
+				var xmlString:String = "<Sample " +
 						" idSample='" + "Sample" + getNextSampleId() + "'" +
 						" name='' description='' " +
 						" cy3='false'" +
-						" cy5='false'" +			    
+						" cy5='false'" +
 						" canChangeSampleName='Y'" +
 						" canChangeSampleType='Y'" +
 						" canChangeSampleConcentration='Y'" +
 						" canChangeSampleSource='Y'" +
 						" canChangeNumberSequencingCycles='Y'" +
-						" canChangeNumberSequencingLanes='Y'" + 
-						" concentration=''" + 
-						" idOligoBarcode = ''" +				
+						" canChangeNumberSequencingLanes='Y'" +
+						" concentration=''" +
+						" idOligoBarcode = ''" +
 						" barcodeSequence = ''" +
 						" idOligoBarcodeB = ''" +
 						" barcodeSequenceB = ''" +
-						" codeConcentrationUnit='ng/ul'" + 
+						" codeConcentrationUnit='ng/ul'" +
 						" idSampleType='" + idSampleType + "'" +
-						" otherSamplePrepMethod=\"" + otherSamplePrepMethod + "\"" +				
-						" idOrganism='"  + idOrganism + "'" +				
-						" otherOrganism='" + otherOrganism + "'" 	+
-						" idSeqLibProtocol='" + idSeqLibProtocol + "'" +	
+						" otherSamplePrepMethod=\"" + otherSamplePrepMethod + "\"" +
+						" idOrganism='" + idOrganism + "'" +
+						" otherOrganism='" + otherOrganism + "'" +
+						" idSeqLibProtocol='" + idSeqLibProtocol + "'" +
 						"/>"
-					emptyNode = new XML(xmlString);
-				}
-				
-				
-				return emptyNode;
+				emptyNode = new XML(xmlString);
 			}
-			
-			override protected function checkDeleteValidity(sample:Object):Boolean {
-				var isValid:Boolean = true;
-				for each(var lane:Object in parentDocument.getLanes(sample, -1)) {
-					if (sample.@idSample.indexOf("Sample") >= 0 || isExternal) {
-						parentDocument.lanes.removeItemAt(parentDocument.lanes.getItemIndex(lane));
-					} else {
-						Alert.show("Please remove sequence lanes for sample " + sample.@name + " before attempting to delete sample.");
-						isValid = false;
-						break;
-					}
-				}
-				
-				return isValid;
-			}
-			
-			override protected function uploadComplete(event:Event):void {
-				propagateIndexTagSequence();
-				super.uploadComplete(event);
-			}
-			
-			private function propagateIndexTagSequence():void {
-				for each(var s:XML in samplesGrid.dataProvider) {
-					var bc:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.OligoBarcode', s.@idOligoBarcode);
-					s.@barcodeSequence = bc != null ? bc.@barcodeSequence : "";
-					bc = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.OligoBarcode', s.@idOligoBarcodeB);
-					s.@barcodeSequenceB = bc != null ? bc.@barcodeSequence : "";
-				}
-			}
-			
-			private function deleteTheSample():void {
-				var idx:int = samplesGrid.selectedIndex;
-				deleteSample();
-				checkSamplesCompleteness();
-				samplesGrid.selectedIndex = idx;
-			}
-			
-			private function promptToDeleteSample():void{
-				if(samplesGrid.selectedItem != null){
-					Alert.show("Are you sure you wish to delete the selected sample?", "", (Alert.YES | Alert.NO), null, onPromptToDeleteSample, null, Alert.NO);
-				}
-			}
-			
-			private function onPromptToDeleteSample(event:CloseEvent):void{
-				if(event.detail == Alert.YES){
-					deleteTheSample();
-				}
-			}
-			
-			override protected function onPromptToClearAllSamples(event:CloseEvent):void {
-				if (event.detail==Alert.YES) {
-					parentDocument.samples.removeAll();
-					if ( !parentDocument.isEditState() ){
-						this.initializeSamplesGrid();
-					} else {
-						this.samplesGrid.addRow();
-					}
-					
-					checkSamplesCompleteness();
-					this.initializeBarcoding();
-				}
-			}	
-			
-			override public function initializeSamplesGrid():void {
-				if (parentDocument.requestToClone != null) {
-					return;
-				}
-				
-				var numberOfSamples:Number = 0;
-				var numberOfSamplesToAdd:Number = 0;
-				
-				if (parentApplication.submitInternalExperiment()) {
-					if (!parentDocument.sampleSetupView.checkSampleSetupCompleteness()) {
-						return;
-					}
-					numberOfSamples = new Number(parentDocument.sampleSetupView.numberOfSamples.text);
-					if (this.isEditState || parentDocument.isAmendState()) {
-						numberOfSamples = parentDocument.samples.length > 0 ? new Number(parentDocument.samples.length) : 1;
-					} 
+
+
+			return emptyNode;
+		}
+
+		override protected function checkDeleteValidity(sample:Object):Boolean {
+			var isValid:Boolean = true;
+			for each(var lane:Object in parentDocument.getLanes(sample, -1)) {
+				if (sample.@idSample.indexOf("Sample") >= 0 || isExternal) {
+					parentDocument.lanes.removeItemAt(parentDocument.lanes.getItemIndex(lane));
 				} else {
-					numberOfSamples = 1;
-				}
-				if (parentDocument.samples.length <= numberOfSamples) {
-					numberOfSamplesToAdd = numberOfSamples - parentDocument.samples.length;
-					for(var x:int = 0; x < numberOfSamplesToAdd; x++) {
-						addSample();
-					}
-				} else {
-					while (parentDocument.samples.length > numberOfSamples) {
-						parentDocument.samples.removeItemAt(parentDocument.samples.length - 1);
-					}
+					Alert.show("Please remove sequence lanes for sample " + sample.@name + " before attempting to delete sample.");
+					isValid = false;
+					break;
 				}
 			}
-			
-			override public function checkSamplesCompleteness():void {
-				parentDocument.userWarningsSamples = "";
-				
-				
-				var numberOfAdditionalLanes:int = 0;
-				if (parentDocument.currentState == 'SolexaLaneAmendState' || parentDocument.sampleSetupView.currentState == "SolexaAmendState" || parentDocument.sampleSetupView.currentState == 'SolexaSetupState') {
-					for each(var s2:Object in parentDocument.samples) {
-						if (isEntered(s2, "@numberSequencingLanes")) {
-							numberOfAdditionalLanes += int(s2.@numberSequencingLanes);
-						}
-					}
-				}
-				
-				if(numberOfAdditionalLanes == 0 && additionalNumberSequencingLanesCol.visible){
-					parentDocument.userWarningsSamples += "At least one sample must have at least one additional lane";
-				}
-				
-				if(numberOfAdditionalLanes == 0 && numberSequencingLanesCol.visible && (parentDocument.sampleSetupView.currentState == 'SolexaAmendState' || parentDocument.currentState == 'SolexaLaneAmendState')){
-					parentDocument.userWarningsSamples += "At least one sample must have at least one additional lane";
-				}
-				
-				var completeCount:int = 0;
-				var nameCompleteCount:int = 0;
-				for each(var sample:Object in parentDocument.samples) {
-					if (currentState != null && currentState.indexOf('SolexaSamples') >= 0) {
-						
-						if (parentDocument.currentState == 'SolexaLaneAmendState') {
-							if (isEntered(sample, "@name") &&
-								isEntered(sample, "@concentration") &&
-								isEntered(sample, "@idSampleType") &&
-								isEntered(sample, "@idOrganism") &&
-								isEntered(sample, "@idSeqRunType") &&
-								isEntered(sample, "@idNumberSequencingCycles") &&
-								isEntered(sample, "@idNumberSequencingCyclesAllowed") &&
-								reqdAnnotationsEntered(sample)&& 
-								numberOfAdditionalLanes > 0) {
-								
-								completeCount++;
-							}
-						} else if (parentApplication.submitInternalExperiment() && 
-							!parentDocument.isEditState() &&
-							parentDocument.sampleSetupView.currentState == "SolexaSetupState" || 
-							parentDocument.sampleSetupView.currentState == "SolexaAmendState") {
-							if (isEntered(sample, "@name") &&
-								isEntered(sample, "@concentration") &&
-								isEntered(sample, "@idSampleType") &&
-								isEntered(sample, "@idOrganism") &&
-								isEntered(sample, "@idSeqRunType") &&
-								isEntered(sample, "@idNumberSequencingCycles") &&
-								isEntered(sample, "@idNumberSequencingCyclesAllowed") &&
-								isEntered(sample, "@multiplexGroupNumber") &&
-								reqdAnnotationsEntered(sample) &&  
-								(isEntered(sample, "@numberSequencingLanes") && numberOfAdditionalLanes > 0)) {
-								
-								
-								completeCount++;
-								
-								
-							}
-							
-							
-						} else if (!parentApplication.submitInternalExperiment() && parentDocument.isSolexaState()) {
-							if (isEntered(sample, "@name") &&
-								reqdAnnotationsEntered(sample) &&  
-								isEntered(sample, "@idOrganism")) {
-								
-								completeCount++;
-							}
-						} else {
-							if (isEntered(sample, "@name") &&
-								isEntered(sample, "@idSampleType") &&	        		
-								isEntered(sample, "@idSeqLibProtocol") &&	        		
-								isEntered(sample, "@concentration") &&
-								isEntered(sample, "@idOrganism") &&
-								isEntered(sample, "@idSeqRunType") &&
-								isEntered(sample, "@multiplexGroupNumber") &&
-								reqdAnnotationsEntered(sample) &&  
-								isEntered(sample, "@idNumberSequencingCycles") &&  
-								isEntered(sample, "@idNumberSequencingCyclesAllowed")) {
-								
-								
-								if (!parentDocument.isEditState()) {
-									if (sample.@numberSequencingLanes != '') {
-										if (parentDocument.showSampleCustomBarcodes()) {
-											if (isEntered( sample, "@barcodeSequence")) {
-												completeCount++;      			    		
-											}
-										} else if (parentDocument.showSampleBarcodes()) {
-											if (isEntered( sample, "@idOligoBarcode")) {
-												completeCount++;      			    		
-											}
-										} else {
-											completeCount++;
-										}
-									}		
-								} else {
-									completeCount++;
-								}
-								
-							}
-							
-						}
-						
-					}	
-				}
-				
-				
-				var isComplete:Boolean = false;
-				if (parentDocument.samples.length > 0 && completeCount == parentDocument.samples.length) {
-					isComplete = true;
-				} else if (parentDocument.isEditState()) {
-					isComplete = true;
-				}
-				
-				// Make sure that sample concentration is valid
-				var cw:String = SampleConcentrationValidator.instance.validateSampleConcentration(parentDocument.samples);
-				if (cw != "") {
-					parentDocument.userWarningsSamples += cw;
-					isComplete = false;
-				}
-				
-				// Make sure that sample QC is valid
-				var qcWarning:String = SampleQCValidator.instance.validateSampleQC(parentDocument.samples);
-				if (qcWarning != "") {
-					parentDocument.userWarningsSamples += qcWarning;
-					isComplete = false;
+
+			return isValid;
+		}
+
+		override protected function uploadComplete(event:Event):void {
+			propagateIndexTagSequence();
+			super.uploadComplete(event);
+		}
+
+		private function propagateIndexTagSequence():void {
+			for each(var s:XML in samplesGrid.dataProvider) {
+				var bc:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.OligoBarcode', s.@idOligoBarcode);
+				s.@barcodeSequence = bc != null ? bc.@barcodeSequence : "";
+				bc = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.OligoBarcode', s.@idOligoBarcodeB);
+				s.@barcodeSequenceB = bc != null ? bc.@barcodeSequence : "";
+			}
+		}
+
+		private function deleteTheSample():void {
+			var idx:int = samplesGrid.selectedIndex;
+			deleteSample();
+			checkSamplesCompleteness();
+			samplesGrid.selectedIndex = idx;
+		}
+
+		private function promptToDeleteSample():void {
+			if (samplesGrid.selectedItem != null) {
+				Alert.show("Are you sure you wish to delete the selected sample?", "", (Alert.YES | Alert.NO), null, onPromptToDeleteSample, null, Alert.NO);
+			}
+		}
+
+		private function onPromptToDeleteSample(event:CloseEvent):void {
+			if (event.detail == Alert.YES) {
+				deleteTheSample();
+			}
+		}
+
+		override protected function onPromptToClearAllSamples(event:CloseEvent):void {
+			if (event.detail == Alert.YES) {
+				parentDocument.samples.removeAll();
+				if (!parentDocument.isEditState()) {
+					this.initializeSamplesGrid();
+				} else {
+					this.samplesGrid.addRow();
 				}
 
-				// Make sure lane #'s are grouped
-				if (isComplete && !areLaneNumbersSequential()) {
-					parentDocument.userWarningsSamples += "All samples in the same lane must be grouped together.";
-					isComplete = false;
-				}
-				
-				// Make sure the sample index tags are unique
-				if (isComplete) {
-					if (!areIndexTagsUnique()) {
-						parentDocument.userWarningsSamples += "WARNING: Two or more samples in the same multiplex group do not differ by at least 3 base pairs."; 
-					}
-				}
-				
-				if (isComplete){
-					if (!areAandBTagsUnique()){
-						parentDocument.userWarningsSamples += "WARNING: Some samples are using the same index tag for both index tag A and index tag B.";
-					}
-				}
-				
-				// If this is a Solexa request and the sample setup is complete,
-				// create the sequencing lanes based on the number of lanes 
-				// entered for each sample. parentdocument.SeqExternalEditState handle blank numberseqlanes.
-				var isExternalEditState:Boolean = (parentDocument.currentState == 'SeqExternalEditState');
-				if (isComplete && currentState != null && (currentState =='SolexaSamplesState' || isExternalEditState)) {
-					var isValidNumberSeqLanes:Boolean = true;
-					if (!isExternalEditState) {
-						for each (var s:Object in parentDocument.samples) {
-							if (s.@numberSequencingLanes > 100) {
-								callLater(showMaxLaneError, [s.@numberSequencingLanes]);
-								parentDocument.userWarningsSamples += "Number of lanes to sequence '" + s.@numberSeqLanes + "' exceed max.  ";
-								isValidNumberSeqLanes = false;
-								break;
-							}
-						}
-					}
-					if (isValidNumberSeqLanes) {
-						var lanesAdded:Boolean = false;
-						for each (var theSample:Object in parentDocument.samples) {
-							var numberLanesForSample:int = parentDocument.getLaneCount(theSample);
-							var numLanes:int = 1;
-							if (!isExternalEditState) {
-								numLanes = theSample.@numberSequencingLanes;
-							}
-							if (numberLanesForSample < numLanes) {
-								var numberLanesToAdd:int = numLanes - numberLanesForSample;
-								for (var x:Number = 0; x < numberLanesToAdd; x++) {
-									addSequencingLaneForSample(theSample);
-									lanesAdded = true;
-								}
-							} else if (numberLanesForSample > numLanes) {
-								var numberLanesToRemove:int = numberLanesForSample - numLanes;
-								for each(var lane:Object in parentDocument.getLanes(theSample, numberLanesToRemove)) {
-									parentDocument.lanes.removeItemAt(parentDocument.lanes.getItemIndex(lane));
-								}
-							}
-							
-						}
-						
-						if (lanesAdded) {
-							parentDocument.lanes.refresh();
-						}
-					}
-				}
-				
-				if (!parentDocument.isEditState()) {
-					if (parentDocument.theTab.contains(parentDocument.visibilityView)) {
-						parentDocument.visibilityView.enabled = isComplete;
-					} else if (parentDocument.theTab.contains(parentDocument.confirmView)) {
-						parentDocument.confirmView.enabled = isComplete;
-					}
-					parentDocument.bioinformaticsView.enabled = isComplete;
-				}        	
-				parentDocument.enableNextButtons();
-				
-				callLater(postSamplesCompleteness, [isComplete]);
-				
-				
+				checkSamplesCompleteness();
+				this.initializeBarcoding();
 			}
-			
-			private function onSampleChanged(event:CollectionEvent):void {
-				if (parentDocument == null) {
-					event.currentTarget.removeEventListener(CollectionEvent.COLLECTION_CHANGE, this.onSampleChanged);
-				} else {
-					if (event.kind == CollectionEventKind.UPDATE) {
-						var groupNumberChanged:Boolean = false;
-						for each (var item:PropertyChangeEvent in event.items) {
-							if (item.property == "@multiplexGroupNumber" && item.oldValue != item.newValue) {
-								groupNumberChanged = true;
-								break;
-							}
-						}
-						
-						if (groupNumberChanged && !parentDocument.isEditState()) {
-							setGridColors();
-						}
+		}
+
+		override public function initializeSamplesGrid():void {
+			if (parentDocument.requestToClone != null) {
+				return;
+			}
+
+			var numberOfSamples:Number = 0;
+			var numberOfSamplesToAdd:Number = 0;
+
+			if (parentApplication.submitInternalExperiment()) {
+				if (!parentDocument.sampleSetupView.checkSampleSetupCompleteness()) {
+					return;
+				}
+				numberOfSamples = new Number(parentDocument.sampleSetupView.numberOfSamples.text);
+				if (this.isEditState || parentDocument.isAmendState()) {
+					numberOfSamples = parentDocument.samples.length > 0 ? new Number(parentDocument.samples.length) : 1;
+				}
+			} else {
+				numberOfSamples = 1;
+			}
+			if (parentDocument.samples.length <= numberOfSamples) {
+				numberOfSamplesToAdd = numberOfSamples - parentDocument.samples.length;
+				for (var x:int = 0; x < numberOfSamplesToAdd; x++) {
+					addSample();
+				}
+			} else {
+				while (parentDocument.samples.length > numberOfSamples) {
+					parentDocument.samples.removeItemAt(parentDocument.samples.length - 1);
+				}
+			}
+		}
+
+		override public function checkSamplesCompleteness():void {
+			parentDocument.userWarningsSamples = "";
+
+
+			var numberOfAdditionalLanes:int = 0;
+			if (parentDocument.currentState == 'SolexaLaneAmendState' || parentDocument.sampleSetupView.currentState == "SolexaAmendState" || parentDocument.sampleSetupView.currentState == 'SolexaSetupState') {
+				for each(var s2:Object in parentDocument.samples) {
+					if (isEntered(s2, "@numberSequencingLanes")) {
+						numberOfAdditionalLanes += int(s2.@numberSequencingLanes);
 					}
 				}
 			}
-			
-			private function setGridColors():void {
-				var numsUsed:Object = new Object();
-				var prevSample:Object = null;
-				var colors:Array = ["0xFFFFFF","0xEEEEE0"];
-				var redColor:String = "0xF90F0F";
-				var colorIdx:int = 1;
-				if (parentDocument != null && parentDocument.samples != null) {
-					for each (var theSample:Object in parentDocument.samples) {
-						theSample.@customColor = colors[colorIdx];
-						if (prevSample == null || prevSample.@multiplexGroupNumber != theSample.@multiplexGroupNumber) {
-							if (numsUsed[theSample.@multiplexGroupNumber] != null) {
-								theSample.@customColor = redColor;
+
+			if (numberOfAdditionalLanes == 0 && additionalNumberSequencingLanesCol.visible) {
+				parentDocument.userWarningsSamples += "At least one sample must have at least one additional lane";
+			}
+
+			if (numberOfAdditionalLanes == 0 && numberSequencingLanesCol.visible && (parentDocument.sampleSetupView.currentState == 'SolexaAmendState' || parentDocument.currentState == 'SolexaLaneAmendState')) {
+				parentDocument.userWarningsSamples += "At least one sample must have at least one additional lane";
+			}
+
+			var completeCount:int = 0;
+			var nameCompleteCount:int = 0;
+			for each(var sample:Object in parentDocument.samples) {
+				if (currentState != null && currentState.indexOf('SolexaSamples') >= 0) {
+
+					if (parentDocument.currentState == 'SolexaLaneAmendState') {
+						if (isEntered(sample, "@name") &&
+								isEntered(sample, "@concentration") &&
+								isEntered(sample, "@idSampleType") &&
+								isEntered(sample, "@idOrganism") &&
+								isEntered(sample, "@idSeqRunType") &&
+								isEntered(sample, "@idNumberSequencingCycles") &&
+								isEntered(sample, "@idNumberSequencingCyclesAllowed") &&
+								reqdAnnotationsEntered(sample) &&
+								numberOfAdditionalLanes > 0) {
+
+							completeCount++;
+						}
+					} else if (parentApplication.submitInternalExperiment() && !parentDocument.isEditState() &&
+							parentDocument.sampleSetupView.currentState == "SolexaSetupState" ||
+							parentDocument.sampleSetupView.currentState == "SolexaAmendState") {
+						if (isEntered(sample, "@name") &&
+								isEntered(sample, "@concentration") &&
+								isEntered(sample, "@idSampleType") &&
+								isEntered(sample, "@idOrganism") &&
+								isEntered(sample, "@idSeqRunType") &&
+								isEntered(sample, "@idNumberSequencingCycles") &&
+								isEntered(sample, "@idNumberSequencingCyclesAllowed") &&
+								isEntered(sample, "@multiplexGroupNumber") &&
+								reqdAnnotationsEntered(sample) &&
+								(isEntered(sample, "@numberSequencingLanes") && numberOfAdditionalLanes > 0)) {
+
+
+							completeCount++;
+
+
+						}
+
+
+					} else if (!parentApplication.submitInternalExperiment() && parentDocument.isSolexaState()) {
+						if (isEntered(sample, "@name") &&
+								reqdAnnotationsEntered(sample) &&
+								isEntered(sample, "@idOrganism")) {
+
+							completeCount++;
+						}
+					} else {
+						if (isEntered(sample, "@name") &&
+								isEntered(sample, "@idSampleType") &&
+								isEntered(sample, "@idSeqLibProtocol") &&
+								isEntered(sample, "@concentration") &&
+								isEntered(sample, "@idOrganism") &&
+								isEntered(sample, "@idSeqRunType") &&
+								isEntered(sample, "@multiplexGroupNumber") &&
+								reqdAnnotationsEntered(sample) &&
+								isEntered(sample, "@idNumberSequencingCycles") &&
+								isEntered(sample, "@idNumberSequencingCyclesAllowed")) {
+
+
+							if (!parentDocument.isEditState()) {
+								if (sample.@numberSequencingLanes != '') {
+									if (parentDocument.showSampleCustomBarcodes()) {
+										if (isEntered(sample, "@barcodeSequence")) {
+											completeCount++;
+										}
+									} else if (parentDocument.showSampleBarcodes()) {
+										if (isEntered(sample, "@idOligoBarcode")) {
+											completeCount++;
+										}
+									} else {
+										completeCount++;
+									}
+								}
 							} else {
-								numsUsed[theSample.@multiplexGroupNumber] = true;
-								colorIdx++;
-								if (colorIdx > 1) colorIdx = 0;
-								theSample.@customColor = colors[colorIdx];
+								completeCount++;
+							}
+
+						}
+
+					}
+
+				}
+			}
+
+
+			var isComplete:Boolean = false;
+			if (parentDocument.samples.length > 0 && completeCount == parentDocument.samples.length) {
+				isComplete = true;
+			} else if (parentDocument.isEditState()) {
+				isComplete = true;
+			}
+
+			// Make sure that sample concentration is valid
+			var cw:String = SampleConcentrationValidator.instance.validateSampleConcentration(parentDocument.samples);
+			if (cw != "") {
+				parentDocument.userWarningsSamples += cw;
+				isComplete = false;
+			}
+
+			// Make sure that sample QC is valid
+			var qcWarning:String = SampleQCValidator.instance.validateSampleQC(parentDocument.samples);
+			if (qcWarning != "") {
+				parentDocument.userWarningsSamples += qcWarning;
+				isComplete = false;
+			}
+
+			// Make sure lane #'s are grouped
+			if (isComplete && !areLaneNumbersSequential()) {
+				parentDocument.userWarningsSamples += "All samples in the same lane must be grouped together.";
+				isComplete = false;
+			}
+
+			// Make sure the sample index tags are unique
+			if (isComplete) {
+				if (!areIndexTagsUnique()) {
+					parentDocument.userWarningsSamples += "WARNING: Two or more samples in the same multiplex group do not differ by at least 3 base pairs.";
+				}
+			}
+
+			if (isComplete) {
+				if (!areAandBTagsUnique()) {
+					parentDocument.userWarningsSamples += "WARNING: Some samples are using the same index tag for both index tag A and index tag B.";
+				}
+			}
+
+			// If this is a Solexa request and the sample setup is complete,
+			// create the sequencing lanes based on the number of lanes
+			// entered for each sample. parentdocument.SeqExternalEditState handle blank numberseqlanes.
+			var isExternalEditState:Boolean = (parentDocument.currentState == 'SeqExternalEditState');
+			if (isComplete && currentState != null && (currentState == 'SolexaSamplesState' || isExternalEditState)) {
+				var isValidNumberSeqLanes:Boolean = true;
+				if (!isExternalEditState) {
+					for each (var s:Object in parentDocument.samples) {
+						if (s.@numberSequencingLanes > 100) {
+							callLater(showMaxLaneError, [s.@numberSequencingLanes]);
+							parentDocument.userWarningsSamples += "Number of lanes to sequence '" + s.@numberSeqLanes + "' exceed max.  ";
+							isValidNumberSeqLanes = false;
+							break;
+						}
+					}
+				}
+				if (isValidNumberSeqLanes) {
+					var lanesAdded:Boolean = false;
+					for each (var theSample:Object in parentDocument.samples) {
+						var numberLanesForSample:int = parentDocument.getLaneCount(theSample);
+						var numLanes:int = 1;
+						if (!isExternalEditState) {
+							numLanes = theSample.@numberSequencingLanes;
+						}
+						if (numberLanesForSample < numLanes) {
+							var numberLanesToAdd:int = numLanes - numberLanesForSample;
+							for (var x:Number = 0; x < numberLanesToAdd; x++) {
+								addSequencingLaneForSample(theSample);
+								lanesAdded = true;
+							}
+						} else if (numberLanesForSample > numLanes) {
+							var numberLanesToRemove:int = numberLanesForSample - numLanes;
+							for each(var lane:Object in parentDocument.getLanes(theSample, numberLanesToRemove)) {
+								parentDocument.lanes.removeItemAt(parentDocument.lanes.getItemIndex(lane));
 							}
 						}
-						prevSample = theSample;
+
+					}
+
+					if (lanesAdded) {
+						parentDocument.lanes.refresh();
 					}
 				}
 			}
-			
-			private function areLaneNumbersSequential():Boolean {
-				if (!parentApplication.submitInternalExperiment()) {
-					return true;
+
+			if (!parentDocument.isEditState()) {
+				if (parentDocument.theTab.contains(parentDocument.visibilityView)) {
+					parentDocument.visibilityView.enabled = isComplete;
+				} else if (parentDocument.theTab.contains(parentDocument.confirmView)) {
+					parentDocument.confirmView.enabled = isComplete;
 				}
-				var numsUsed:Object = new Object();
-				var prevSample:Object = null;
+				parentDocument.bioinformaticsView.enabled = isComplete;
+			}
+			parentDocument.enableNextButtons();
+
+			callLater(postSamplesCompleteness, [isComplete]);
+
+
+		}
+
+		private function onSampleChanged(event:CollectionEvent):void {
+			if (parentDocument == null) {
+				event.currentTarget.removeEventListener(CollectionEvent.COLLECTION_CHANGE, this.onSampleChanged);
+			} else {
+				if (event.kind == CollectionEventKind.UPDATE) {
+					var groupNumberChanged:Boolean = false;
+					for each (var item:PropertyChangeEvent in event.items) {
+						if (item.property == "@multiplexGroupNumber" && item.oldValue != item.newValue) {
+							groupNumberChanged = true;
+							break;
+						}
+					}
+
+					if (groupNumberChanged && !parentDocument.isEditState()) {
+						setGridColors();
+					}
+				}
+			}
+		}
+
+		private function setGridColors():void {
+			var numsUsed:Object = new Object();
+			var prevSample:Object = null;
+			var colors:Array = ["0xFFFFFF", "0xEEEEE0"];
+			var redColor:String = "0xF90F0F";
+			var colorIdx:int = 1;
+			if (parentDocument != null && parentDocument.samples != null) {
 				for each (var theSample:Object in parentDocument.samples) {
+					theSample.@customColor = colors[colorIdx];
 					if (prevSample == null || prevSample.@multiplexGroupNumber != theSample.@multiplexGroupNumber) {
 						if (numsUsed[theSample.@multiplexGroupNumber] != null) {
-							return false;
+							theSample.@customColor = redColor;
 						} else {
 							numsUsed[theSample.@multiplexGroupNumber] = true;
+							colorIdx++;
+							if (colorIdx > 1) colorIdx = 0;
+							theSample.@customColor = colors[colorIdx];
 						}
 					}
 					prevSample = theSample;
 				}
+			}
+		}
+
+		private function areLaneNumbersSequential():Boolean {
+			if (!parentApplication.submitInternalExperiment()) {
 				return true;
 			}
-			
-			private function showMaxLaneError(numberSeqLanes:String):void {
-				Alert.show("Number of lanes to sequence " + numberSeqLanes + " exceeds max.");
-			}
-			
-			
-			private function postSamplesCompleteness(isComplete:Boolean):void {
-				
-				if (!isComplete && !parentDocument.isEditState()) {
-					if (parentDocument.theTab.contains(parentDocument.visibilityView)) {
-						parentDocument.visibilityView.enabled = false;					
-					}
-					if (parentDocument.theTab.contains(parentDocument.confirmView)) {
-						parentDocument.confirmView.enabled = false;					
+			var numsUsed:Object = new Object();
+			var prevSample:Object = null;
+			for each (var theSample:Object in parentDocument.samples) {
+				if (prevSample == null || prevSample.@multiplexGroupNumber != theSample.@multiplexGroupNumber) {
+					if (numsUsed[theSample.@multiplexGroupNumber] != null) {
+						return false;
+					} else {
+						numsUsed[theSample.@multiplexGroupNumber] = true;
 					}
 				}
-				
+				prevSample = theSample;
 			}
-			
-			private function addSequencingLaneForSample(sample:Object):void {
-				var lanePlus:int = parseInt(sample.@multiplexGroupNumber) + 100000;
-				var laneStr:String = lanePlus.toString().substr(1);
-				
-				var emptyNode:XML = new XML("<SequenceLane " +
+			return true;
+		}
+
+		private function showMaxLaneError(numberSeqLanes:String):void {
+			Alert.show("Number of lanes to sequence " + numberSeqLanes + " exceeds max.");
+		}
+
+
+		private function postSamplesCompleteness(isComplete:Boolean):void {
+
+			if (!isComplete && !parentDocument.isEditState()) {
+				if (parentDocument.theTab.contains(parentDocument.visibilityView)) {
+					parentDocument.visibilityView.enabled = false;
+				}
+				if (parentDocument.theTab.contains(parentDocument.confirmView)) {
+					parentDocument.confirmView.enabled = false;
+				}
+			}
+
+		}
+
+		private function addSequencingLaneForSample(sample:Object):void {
+			var lanePlus:int = parseInt(sample.@multiplexGroupNumber) + 100000;
+			var laneStr:String = lanePlus.toString().substr(1);
+
+			var emptyNode:XML = new XML("<SequenceLane " +
 					" idSequenceLane='" + "SequenceLane" + laneStr + "'" +
-					" notes='' " + 
+					" notes='' " +
 					" idSeqRunType='" + sample.@idSeqRunType + "'" +
 					" idNumberSequencingCycles='" + sample.@idNumberSequencingCycles + "'" +
 					" idNumberSequencingCyclesAllowed='" + sample.@idNumberSequencingCyclesAllowed + "'" +
 					" idSample='" + sample.@idSample + "'" +
 					" idGenomeBuildAlignTo='" + parentDocument.request.@idGenomeBuildAlignTo + "'" +
 					"/>");
-				
-				parentDocument.lanes.addItem(emptyNode);
+
+			parentDocument.lanes.addItem(emptyNode);
+		}
+
+		override public function propagateNumberSequencingCycles(theSample:Object):void {
+			if (parentApplication.submitInternalExperiment() && currentState != null && currentState.indexOf('SolexaSamples') >= 0) {
+				for each(var lane:Object in parentDocument.getLanes(theSample, -1)) {
+					lane.@idNumberSequencingCycles = theSample.@idNumberSequencingCycles;
+					lane.@idNumberSequencingCyclesAllowed = theSample.@idNumberSequencingCyclesAllowed;
+				}
 			}
-			
-			override public function propagateNumberSequencingCycles(theSample:Object):void {
-				if (parentApplication.submitInternalExperiment() && currentState != null && currentState.indexOf('SolexaSamples') >= 0) {
-					for each(var lane:Object in parentDocument.getLanes(theSample, -1)) {
-						lane.@idNumberSequencingCycles = theSample.@idNumberSequencingCycles;
-						lane.@idNumberSequencingCyclesAllowed = theSample.@idNumberSequencingCyclesAllowed;
-					}
+		}
+
+		override public function initializeBarcoding():void {
+			if (parentDocument.isSolexaState()) {
+
+
+				if (barcodeList == null || this.barcodeList.length() == 0) {
+					barcodes.refresh();
+					barcodeList = new XMLList(barcodes.toXMLString());
 				}
-			}		
-			
-			override public function initializeBarcoding():void {
-				if (parentDocument.isSolexaState()) {
-					
-					
-					if (barcodeList == null || this.barcodeList.length() == 0) {
-						barcodes.refresh();
-						barcodeList = new XMLList(barcodes.toXMLString());
-					}
-					
-					propagateBarcode();
-				}
-				
-				setSamplesGridDataProvider();
-				
-				this.barcodeColumn.visible = parentDocument.showSampleBarcodes();
-				this.barcodeColumn.editable = !parentDocument.isEditState() || parentApplication.hasPermission('canWriteAnyObject');
-				this.barcodeColumnB.visible = parentDocument.showSampleBarcodesB();
-				this.barcodeColumnB.editable = !parentDocument.isEditState() || parentApplication.hasPermission('canWriteAnyObject');
-				this.customBarcodeColumn.visible = parentDocument.showSampleCustomBarcodes();
-				this.customBarcodeColumnB.visible = parentDocument.showSampleCustomBarcodes();
-				
-				this.samplesGrid.validateNow();
-				callLater(this.checkSamplesCompleteness);
-				
-			}
-			
-			override public function propagateBarcode():void {
-				if (parentDocument != null && parentDocument.currentState != "SolexaLaneAmendState" && !parentDocument.isEditState()) {
-					var lastMultiplexGroupNumber:String = '';
-					for each (var sample:Object in parentDocument.samples) {
-						if (sample.@multiplexGroupNumber == null || sample.@multiplexGroupNumber.toString().length == 0) {
-							sample.@multiplexGroupNumber = lastMultiplexGroupNumber;
-						} else {
-							lastMultiplexGroupNumber = sample.@multiplexGroupNumber;
-						}
-						if (parentDocument.request.@isRapidMode == 'Y') {
-							sample.@numberSequencingLanes = '2';
-						}
-					} 
-				}
+
+				propagateBarcode();
 			}
 
-			private function setSamplesGridDataProvider():void {
-				this.samplesGrid.validateNow(); // Make sure columns on samples grid are created
-				this.samplesGrid.sortableColumns = false;
-				this.samplesGrid.dataProvider = parentDocument.samples;
-				
-				this.samplesGrid.dragMoveEnabled = false;
-				this.samplesGrid.dropEnabled = false;
-				this.samplesGrid.dragEnabled = false;
-			}
-			
-			override public function showHideColumns():void {
-				isExternal = (parentDocument.isEditState() && parentDocument.request.@isExternal == 'Y') || (!parentDocument.isEditState() && !parentApplication.isInternalExperimentSubmission);
-				isEditState = parentDocument.isEditState();
-				var hideSampleTypeOnExternalExperiment:Boolean = false;
-				if (isExternal && parentApplication.getProperty(parentApplication.PROPERTY_HIDE_SAMPLETYPE_ON_EXTERNAL_EXPERIMENT) == "Y") {
-					hideSampleTypeOnExternalExperiment = true;
-				}
-				
-				this.multiplexGroupNumberEditColumn.visible = parentDocument.isSolexaState() && parentDocument.request.@isRapidMode != 'Y' && !isExternal;
-				if ((parentDocument.isSolexaState() && parentDocument.isEditState() && parentApplication.isAdminState)
-					|| (parentDocument.isSolexaState() && !isEditState)) {
-					this.multiplexGroupNumberEditColumn.editable = multiplexGroupNumberEditColumn.visible;
-				} else {
-					multiplexGroupNumberEditColumn.editable = false;
-				}
-				
-				showHideCCNumberBox();
-				setButtonVisibility(!parentDocument.isAmendState());
-				samplesGrid.rowOperationsAllowed = true;
-				samplesGrid.insertRowEnabled = false;
-				
-				// Don't allow sample editing on edit unless user is admin or experiment is external or experiment is non-submitted dna sq experiment.
-				if (isEditState && !parentApplication.isAdminState && !isExternal) {
-					setButtonVisibility(false);
-					samplesGrid.rowOperationsAllowed = false;
-				} 
-				
-				
-				// Edit columns shown
-				
-				existingNumberSequencingLanesCol.visible = false;
-				additionalNumberSequencingLanesCol.visible = false;
-				this.sampleTypeCol.visible = !hideSampleTypeOnExternalExperiment;
-				
-				seqPrepStatus.visible = isEditState && !isExternal;
-				
-				this.qc_260_280Column.visible = false;
-				this.sampleNameCol.visible = true;
-				
-				sampleNumberCol.visible = parentDocument.isEditState() || parentDocument.isAmendState();
-				
-				this.concentrationCol.visible = !isExternal;
-				this.otherOrganismCol.visible = false;
-				this.sampleOrganismColumn.visible = !isExternal;
-				this.otherSamplePrepMethodCol.visible = !isExternal;
-				this.seqLibProtocolCol.visible = false;
-				
-				this.descriptionColumn.visible = (parentDocument.request.@hasSampleDescription == "Y");
-				
-				if (currentState != null && currentState.indexOf('SolexaSamples') >= 0 ) {
-					numberSequencingLanesCol.visible = !parentDocument.isEditState() && !parentDocument.isAmendState() && !isExternal && parentDocument.request.@isRapidMode != 'Y';
-					numberSequencingLanesCol.editable = true;
-					this.qual260_230Col.visible = false;
-					
-					meanLibSizeActual.visible = parentDocument.request.@idRequest != 0 && parentDocument.isEditState() && !isExternal;
-					
-					if (parentDocument.currentState == "SolexaLaneAmendState") {
-						numberSequencingLanesCol.editable = false;
-						additionalNumberSequencingLanesCol.visible = true;
-						existingNumberSequencingLanesCol.visible = true;
-					} else if (parentDocument.currentState == "SolexaBaseAmendState") {
-						numberSequencingLanesCol.editable = false;
-						numberSequencingLanesCol.visible = parentDocument.request.@isRapidMode != 'Y';
-						numberSequencingLanesCol.editable = true;
-					}
-					
-					if (parentDocument.isEditState() ||
-						parentDocument.sampleSetupView.currentState == "SolexaSetupPreppedState" ||
-						parentDocument.sampleSetupView.currentState == "SolexaAmendPreppedState" ) {
-						seqLibProtocolCol.visible = !isExternal;
+			setSamplesGridDataProvider();
+
+			this.barcodeColumn.visible = parentDocument.showSampleBarcodes();
+			this.barcodeColumn.editable = !parentDocument.isEditState() || parentApplication.hasPermission('canWriteAnyObject');
+			this.barcodeColumnB.visible = parentDocument.showSampleBarcodesB();
+			this.barcodeColumnB.editable = !parentDocument.isEditState() || parentApplication.hasPermission('canWriteAnyObject');
+			this.customBarcodeColumn.visible = parentDocument.showSampleCustomBarcodes();
+			this.customBarcodeColumnB.visible = parentDocument.showSampleCustomBarcodes();
+
+			this.samplesGrid.validateNow();
+			callLater(this.checkSamplesCompleteness);
+
+		}
+
+		override public function propagateBarcode():void {
+			if (parentDocument != null && parentDocument.currentState != "SolexaLaneAmendState" && !parentDocument.isEditState()) {
+				var lastMultiplexGroupNumber:String = '';
+				for each (var sample:Object in parentDocument.samples) {
+					if (sample.@multiplexGroupNumber == null || sample.@multiplexGroupNumber.toString().length == 0) {
+						sample.@multiplexGroupNumber = lastMultiplexGroupNumber;
 					} else {
-						seqLibProtocolCol.visible = false;
+						lastMultiplexGroupNumber = sample.@multiplexGroupNumber;
 					}
-
-					sampleOrganismColumn.editable = !isExternal;
-				}
-				
-				if (!parentDocument.isEditState()) {
-					if (parentDocument.theTab.contains(parentDocument.confirmView)) {
-						parentDocument.confirmView.showHideColumns();									
+					if (parentDocument.request.@isRapidMode == 'Y') {
+						sample.@numberSequencingLanes = '2';
 					}
 				}
 			}
+		}
 
-			private function areAandBTagsUnique():Boolean{
-				var isValid:Boolean = true;
-				var barcodeField:String = "";
-				var barcodeFieldB:String = "";
-				if (parentDocument.showSampleCustomBarcodes()) {
-					barcodeField = "@barcodeSequence";
-					barcodeFieldB = "@barcodeSequenceB";
-				} else if (parentDocument.showSampleBarcodes()) {
-					barcodeField = "@idOligoBarcode";
-					barcodeFieldB = "@idOligoBarcodeB";
+		private function setSamplesGridDataProvider():void {
+			this.samplesGrid.validateNow(); // Make sure columns on samples grid are created
+			this.samplesGrid.sortableColumns = false;
+			this.samplesGrid.dataProvider = parentDocument.samples;
+
+			this.samplesGrid.dragMoveEnabled = false;
+			this.samplesGrid.dropEnabled = false;
+			this.samplesGrid.dragEnabled = false;
+		}
+
+		override public function showHideColumns():void {
+			isExternal = (parentDocument.isEditState() && parentDocument.request.@isExternal == 'Y') || (!parentDocument.isEditState() && !parentApplication.isInternalExperimentSubmission);
+			isEditState = parentDocument.isEditState();
+			var hideSampleTypeOnExternalExperiment:Boolean = false;
+			if (isExternal && parentApplication.getProperty(parentApplication.PROPERTY_HIDE_SAMPLETYPE_ON_EXTERNAL_EXPERIMENT) == "Y") {
+				hideSampleTypeOnExternalExperiment = true;
+			}
+
+			this.multiplexGroupNumberEditColumn.visible = parentDocument.isSolexaState() && parentDocument.request.@isRapidMode != 'Y' && !isExternal;
+			if ((parentDocument.isSolexaState() && parentDocument.isEditState() && parentApplication.isAdminState)
+					|| (parentDocument.isSolexaState() && !isEditState)) {
+				this.multiplexGroupNumberEditColumn.editable = multiplexGroupNumberEditColumn.visible;
+			} else {
+				multiplexGroupNumberEditColumn.editable = false;
+			}
+
+			showHideCCNumberBox();
+			setButtonVisibility(!parentDocument.isAmendState());
+			samplesGrid.rowOperationsAllowed = true;
+			samplesGrid.insertRowEnabled = false;
+
+			// Don't allow sample editing on edit unless user is admin or experiment is external or experiment is non-submitted dna sq experiment.
+			if (isEditState && !parentApplication.isAdminState && !isExternal) {
+				setButtonVisibility(false);
+				samplesGrid.rowOperationsAllowed = false;
+			}
+
+
+			// Edit columns shown
+
+			existingNumberSequencingLanesCol.visible = false;
+			additionalNumberSequencingLanesCol.visible = false;
+			this.sampleTypeCol.visible = !hideSampleTypeOnExternalExperiment;
+
+			seqPrepStatus.visible = isEditState && !isExternal;
+
+			this.qc_260_280Column.visible = false;
+			this.sampleNameCol.visible = true;
+
+			sampleNumberCol.visible = parentDocument.isEditState() || parentDocument.isAmendState();
+
+			this.concentrationCol.visible = !isExternal;
+			this.otherOrganismCol.visible = false;
+			this.sampleOrganismColumn.visible = !isExternal;
+			this.otherSamplePrepMethodCol.visible = !isExternal;
+			this.seqLibProtocolCol.visible = false;
+
+			this.descriptionColumn.visible = (parentDocument.request.@hasSampleDescription == "Y");
+
+			if (currentState != null && currentState.indexOf('SolexaSamples') >= 0) {
+				numberSequencingLanesCol.visible = !parentDocument.isEditState() && !parentDocument.isAmendState() && !isExternal && parentDocument.request.@isRapidMode != 'Y';
+				numberSequencingLanesCol.editable = true;
+				this.qual260_230Col.visible = false;
+
+				meanLibSizeActual.visible = parentDocument.request.@idRequest != 0 && parentDocument.isEditState() && !isExternal;
+
+				if (parentDocument.currentState == "SolexaLaneAmendState") {
+					numberSequencingLanesCol.editable = false;
+					additionalNumberSequencingLanesCol.visible = true;
+					existingNumberSequencingLanesCol.visible = true;
+				} else if (parentDocument.currentState == "SolexaBaseAmendState") {
+					numberSequencingLanesCol.editable = false;
+					numberSequencingLanesCol.visible = parentDocument.request.@isRapidMode != 'Y';
+					numberSequencingLanesCol.editable = true;
+				}
+
+				if (parentDocument.isEditState() ||
+						parentDocument.sampleSetupView.currentState == "SolexaSetupPreppedState" ||
+						parentDocument.sampleSetupView.currentState == "SolexaAmendPreppedState") {
+					seqLibProtocolCol.visible = !isExternal;
 				} else {
-					return isValid;
+					seqLibProtocolCol.visible = false;
 				}
-				
-				for each(var s:Object in parentDocument.samples) {
-					if(s[barcodeField] != "" && s[barcodeFieldB] != ""){
-						if(s[barcodeField] == s[barcodeFieldB]){
-							isValid = false;
-							break;
-						}
-					}
+
+				sampleOrganismColumn.editable = !isExternal;
+			}
+
+			if (!parentDocument.isEditState()) {
+				if (parentDocument.theTab.contains(parentDocument.confirmView)) {
+					parentDocument.confirmView.showHideColumns();
 				}
-				
+			}
+		}
+
+		private function areAandBTagsUnique():Boolean {
+			var isValid:Boolean = true;
+			var barcodeField:String = "";
+			var barcodeFieldB:String = "";
+			if (parentDocument.showSampleCustomBarcodes()) {
+				barcodeField = "@barcodeSequence";
+				barcodeFieldB = "@barcodeSequenceB";
+			} else if (parentDocument.showSampleBarcodes()) {
+				barcodeField = "@idOligoBarcode";
+				barcodeFieldB = "@idOligoBarcodeB";
+			} else {
 				return isValid;
-				
 			}
-			
-			override public function areIndexTagsUnique():Boolean {
-				var barcodeField:String = "";
-				var barcodeFieldB:String = "";
-				if (parentDocument.showSampleCustomBarcodes()) {
-					barcodeField = "@barcodeSequence";
-					barcodeFieldB = "@barcodeSequenceB";
-				} else if (parentDocument.showSampleBarcodes()) {
-					barcodeField = "@idOligoBarcode";
-					barcodeFieldB = "@idOligoBarcodeB";
-				} else {
-					return true;
-				}
-				
-				var sampleMap:Object = new Object();
-				for each(var s:Object in parentDocument.samples) {
-					var samplesForIndexGroup:XMLListCollection = sampleMap[s.@multiplexGroupNumber];
-					if (samplesForIndexGroup == null) {
-						samplesForIndexGroup = new XMLListCollection();
-					}
-					samplesForIndexGroup.addItem(s);
-					sampleMap[s.@multiplexGroupNumber] = samplesForIndexGroup;
-				}
-				
-				
-				for (var multiplexGroupNumber:Object in sampleMap) {
-					var barcodes:ArrayCollection = new ArrayCollection();
-					var samplesInGroup:XMLListCollection = sampleMap[multiplexGroupNumber];
-					for each(var s1:Object in samplesInGroup) {
-						var barcode:Object = s1[barcodeField];
-						barcode += s1[barcodeFieldB];
-						if(barcode != null && barcode != ""){
-							barcodes.addItem(barcode);
-						}
-					}
-					
-					for(var i:int = 0; i < barcodes.length; i++){
-						var sequenceOne:Array = String(barcodes.getItemAt(i)).split("");
-						for(var j:int = i+1; j < barcodes.length; j++){
-							var sequenceTwo:Array = String(barcodes.getItemAt(j)).split("");
-							if(!atLeastThreeUnique(sequenceOne, sequenceTwo)){
-								return false;
-							}
-						}
+
+			for each(var s:Object in parentDocument.samples) {
+				if (s[barcodeField] != "" && s[barcodeFieldB] != "") {
+					if (s[barcodeField] == s[barcodeFieldB]) {
+						isValid = false;
+						break;
 					}
 				}
+			}
+
+			return isValid;
+
+		}
+
+		override public function areIndexTagsUnique():Boolean {
+			var barcodeField:String = "";
+			var barcodeFieldB:String = "";
+			if (parentDocument.showSampleCustomBarcodes()) {
+				barcodeField = "@barcodeSequence";
+				barcodeFieldB = "@barcodeSequenceB";
+			} else if (parentDocument.showSampleBarcodes()) {
+				barcodeField = "@idOligoBarcode";
+				barcodeFieldB = "@idOligoBarcodeB";
+			} else {
 				return true;
 			}
-			
-			private function atLeastThreeUnique(sequenceOne:Array, sequenceTwo:Array):Boolean{
-				if (sequenceOne.length > 3 && sequenceTwo.length > 3) {
-					var uniqueBaseCount:int = 0;
-					for(var i:int = 0; i < sequenceOne.length; i++){
-						if(sequenceOne[i] != sequenceTwo[i]){
-							uniqueBaseCount++;
+
+			var sampleMap:Object = new Object();
+			for each(var s:Object in parentDocument.samples) {
+				var samplesForIndexGroup:XMLListCollection = sampleMap[s.@multiplexGroupNumber];
+				if (samplesForIndexGroup == null) {
+					samplesForIndexGroup = new XMLListCollection();
+				}
+				samplesForIndexGroup.addItem(s);
+				sampleMap[s.@multiplexGroupNumber] = samplesForIndexGroup;
+			}
+
+
+			for (var multiplexGroupNumber:Object in sampleMap) {
+				var barcodes:ArrayCollection = new ArrayCollection();
+				var samplesInGroup:XMLListCollection = sampleMap[multiplexGroupNumber];
+				for each(var s1:Object in samplesInGroup) {
+					var barcode:Object = s1[barcodeField];
+					barcode += s1[barcodeFieldB];
+					if (barcode != null && barcode != "") {
+						barcodes.addItem(barcode);
+					}
+				}
+
+				for (var i:int = 0; i < barcodes.length; i++) {
+					var sequenceOne:Array = String(barcodes.getItemAt(i)).split("");
+					for (var j:int = i + 1; j < barcodes.length; j++) {
+						var sequenceTwo:Array = String(barcodes.getItemAt(j)).split("");
+						if (!atLeastThreeUnique(sequenceOne, sequenceTwo)) {
+							return false;
 						}
 					}
-					
-					if(uniqueBaseCount >= 3){
-						return true;
-					} else{
-						return false;
-					}
-				} else {
-					return true;
 				}
 			}
-			
-			private function onDragDropSample(event:DragEvent) : void
-			{
-				var dropNode:Object = null;
-				if (idx > 0) {
-					idx--;
+			return true;
+		}
+
+		private function atLeastThreeUnique(sequenceOne:Array, sequenceTwo:Array):Boolean {
+			if (sequenceOne.length > 3 && sequenceTwo.length > 3) {
+				var uniqueBaseCount:int = 0;
+				for (var i:int = 0; i < sequenceOne.length; i++) {
+					if (sequenceOne[i] != sequenceTwo[i]) {
+						uniqueBaseCount++;
+					}
 				}
-				var idx:int = samplesGrid.calculateDropIndex(event);
-				var renderer:Object = samplesGrid.indexToItemRenderer(idx); 
-				if (renderer != null) {
-					dropNode = renderer.data; 
-				}
-				
-				if (dropNode == null) {
-					event.preventDefault();
-					return;
-				}
-				
-				var draggedFormat:String = event.dragSource.formats[0];
-				var draggedItems:Array = event.dragSource.dataForFormat(draggedFormat) as Array;	
-				if (draggedItems != null) {
-					for(var i:int = 0; i < draggedItems.length; i++) {
-						var dragItem:XML = XML(draggedItems[i]);
-						dragItem.@multiplexGroupNumber = dropNode.@multiplexGroupNumber;
-					}	 
+
+				if (uniqueBaseCount >= 3) {
+					return true;
 				} else {
-					event.preventDefault();
+					return false;
 				}
-			}		
-			
-			private function sortBarcodes(obj1:Object, obj2:Object, fields:Array=null):int {
-				if (obj1 == null && obj2 == null) {
-					return 0;
-				} else if (obj1 == null) {
-					return 1;
-				} else if (obj2 == null) {
+			} else {
+				return true;
+			}
+		}
+
+		private function onDragDropSample(event:DragEvent):void {
+			var dropNode:Object = null;
+			if (idx > 0) {
+				idx--;
+			}
+			var idx:int = samplesGrid.calculateDropIndex(event);
+			var renderer:Object = samplesGrid.indexToItemRenderer(idx);
+			if (renderer != null) {
+				dropNode = renderer.data;
+			}
+
+			if (dropNode == null) {
+				event.preventDefault();
+				return;
+			}
+
+			var draggedFormat:String = event.dragSource.formats[0];
+			var draggedItems:Array = event.dragSource.dataForFormat(draggedFormat) as Array;
+			if (draggedItems != null) {
+				for (var i:int = 0; i < draggedItems.length; i++) {
+					var dragItem:XML = XML(draggedItems[i]);
+					dragItem.@multiplexGroupNumber = dropNode.@multiplexGroupNumber;
+				}
+			} else {
+				event.preventDefault();
+			}
+		}
+
+		private function sortBarcodes(obj1:Object, obj2:Object, fields:Array = null):int {
+			if (obj1 == null && obj2 == null) {
+				return 0;
+			} else if (obj1 == null) {
+				return 1;
+			} else if (obj2 == null) {
+				return -1;
+			} else {
+				var scheme1:String = obj1.@oligoBarcodeSchemeDisplay;
+				var scheme2:String = obj2.@oligoBarcodeSchemeDisplay;
+
+				if (scheme1 < scheme2) {
 					return -1;
+				} else if (scheme1 > scheme2) {
+					return 1;
 				} else {
-					var scheme1:String = obj1.@oligoBarcodeSchemeDisplay;
-					var scheme2:String = obj2.@oligoBarcodeSchemeDisplay;
-					
-					if (scheme1 < scheme2) {
+					var order1:int = obj1.@sortOrder;
+					var order2:int = obj2.@sortOrder;
+
+					if (obj1.@value == '') {
 						return -1;
-					} else if (scheme1 > scheme2) {
-						return 1; 
+					} else if (obj2.@value == '') {
+						return 1;
 					} else {
-						var order1:int = obj1.@sortOrder;
-						var order2:int = obj2.@sortOrder;
-						
-						if (obj1.@value == '') {
+						if (order1 < order2) {
 							return -1;
-						} else if (obj2.@value == '') {
+						} else if (order1 > order2) {
 							return 1;
 						} else {
-							if (order1 < order2) {
-								return -1;
-							} else if (order1 > order2) {
-								return 1;
-							} else {
-								return 0;
-							}
+							return 0;
 						}
-						
 					}
-					
-				}			
-			}
-			
-			public function getIndexTagName(item:Object):String
-			{
-				if (item.@idOligoBarcode != '') {
-					return parentApplication.dictionaryManager.getEntryDisplay("hci.gnomex.model.OligoBarcode", item.@idOligoBarcode);    		
-				} else {
-					return '';
+
 				}
+
 			}
-			public function getIndexTagNameB(item:Object):String
-			{
-				if (item.@idOligoBarcodeB != '') {
-					return parentApplication.dictionaryManager.getEntryDisplay("hci.gnomex.model.OligoBarcode", item.@idOligoBarcodeB);    		
-				} else {
-					return '';
-				}
+		}
+
+		public function getIndexTagName(item:Object):String {
+			if (item.@idOligoBarcode != '') {
+				return parentApplication.dictionaryManager.getEntryDisplay("hci.gnomex.model.OligoBarcode", item.@idOligoBarcode);
+			} else {
+				return '';
 			}
-			
-			public function textChange(item:String):void {
-				var txt:String = item;
-				if(txt.length == 30) {
-					Alert.show("Maximum allowed limit is 30 characters");					
-				}
+		}
+
+		public function getIndexTagNameB(item:Object):String {
+			if (item.@idOligoBarcodeB != '') {
+				return parentApplication.dictionaryManager.getEntryDisplay("hci.gnomex.model.OligoBarcode", item.@idOligoBarcodeB);
+			} else {
+				return '';
 			}
-			
-			private function numberSequencingLanesColTip(item:Object):String{
-				return "This is the number of times (1 or greater) that you want to sequence this sample.";
+		}
+
+		public function textChange(item:String):void {
+			var txt:String = item;
+			if (txt.length == 30) {
+				Alert.show("Maximum allowed limit is 30 characters");
 			}
-					
-			private function defaultToZero(item:Object, column:AdvancedDataGridColumn):String{
-				if(item[column.dataField] == ''){
-					item[column.dataField] = '0';
-					return item[column.dataField];
-				} else{
-					return item[column.dataField];
-				}
-				
+		}
+
+		private function numberSequencingLanesColTip(item:Object):String {
+			return "This is the number of times (1 or greater) that you want to sequence this sample.";
+		}
+
+		private function defaultToZero(item:Object, column:AdvancedDataGridColumn):String {
+			if (item[column.dataField] == '') {
+				item[column.dataField] = '0';
+				return item[column.dataField];
+			} else {
+				return item[column.dataField];
 			}
-			
-			private function instructionLink(event:TextEvent):void {
-				if (event.text == 'downloadSampleSheet') {
-					downloadSampleSheet();
-				} else if (event.text == 'uploadInstructions') {
-					PopUpManager.centerPopUp(PopUpManager.createPopUp(this, UploadSampleSheetInstructionsView, true));
-				}
+
+		}
+
+		private function instructionLink(event:TextEvent):void {
+			if (event.text == 'downloadSampleSheet') {
+				downloadSampleSheet();
+			} else if (event.text == 'uploadInstructions') {
+				PopUpManager.centerPopUp(PopUpManager.createPopUp(this, UploadSampleSheetInstructionsView, true));
 			}
-			
-			public function changeConcentrationUnit(selectedUnit:String):void{
-				for each(var s:XML in samplesGrid.dataProvider) {
-					s.@codeConcentrationUnit = selectedUnit;
-					
-				}
+		}
+
+		public function changeConcentrationUnit(selectedUnit:String):void {
+			for each(var s:XML in samplesGrid.dataProvider) {
+				s.@codeConcentrationUnit = selectedUnit;
+
 			}
-			
+		}
+
 		]]>
 	</mx:Script>	
 	<mx:Sort id="barcodeSort"  compareFunction="sortBarcodes"/>
 	<mx:XMLListCollection id="barcodes" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.OligoBarcode').DictionaryEntry}" sort="{barcodeSort}"/>
 	<mx:XMLList id="barcodeList"/>
-	
+
 	<mx:VBox width="100%" height="100%" verticalGap="1" paddingBottom="2" paddingLeft="4" paddingRight="4" paddingTop="2">
-	
-		
+
+		<mx:VBox verticalGap="5">
+			<mx:TextArea styleName="instructionBox" width="1230" wordWrap="true" id="textarea1" height="120" editable="false" verticalScrollPolicy="off" fontSize="11">
+				<mx:htmlText><![CDATA[1.  Assign a multiplex group number for each sample in the table below. Samples that are to be sequenced in the same lane should be assigned the same multiplex group number.
+2.  Provide a name for each sample.
+3.  Provide the concentration for each sample.
+4.  Type the volume (ul) that will be provided for each sample.
+5.  Specify the number of sequence lanes required for each multiplex group.  (once multiplex groups are selected, make gnomex so that the user can only enter one number per multiplex group and not a number for each sample).
+6.  Optional: Annotate the samples using the characteristics that you selectied from the Annotations tab.
+7.  Optional: Edit other fields as appropriate.]]></mx:htmlText>
+			</mx:TextArea>
+		</mx:VBox>
+
 		<mx:HBox width="100%" horizontalGap="1" paddingTop="4" paddingBottom="0" verticalAlign="middle">
 			<mx:HBox verticalAlign="middle" 
 					 horizontalGap="0"
