@@ -6,169 +6,172 @@
 					show="init()" xmlns:exp="views.experiment.*" xmlns:util="views.util.*"> 
 	<mx:Script>	
 		<![CDATA[
-			import hci.flex.controls.ComboBox;
-			import hci.flex.controls.DropdownLabel;
-			
-			import mx.collections.Grouping;
-			import mx.collections.GroupingCollection;
-			import mx.collections.GroupingField;
-			
-			import views.util.AnnotationDataGridColumn;
-			
-			[Bindable]
-			private var longDescriptionRowCount:int = 0;
-			
-			[Bindable]
-			private var concHeader:String = "Conc. ";
-			
-			override public function setupView():void {
-				this.parentDocument.samplesView.initializeBarcoding();
-				parentDocument.getEstimatedBilling();
-				parentDocument.getMultiplexLanes();
+		import hci.flex.controls.ComboBox;
+		import hci.flex.controls.DropdownLabel;
 
-				submitterName.text = parentDocument.getSubmitterName();
-				this.clientPrepLib.visible = false;
-				this.clientPrepLib.includeInLayout = false;
-				for each (var s1:Object in parentDocument.samples) {
-					var nsca:Object = parentApplication.dictionaryManager.getEntries('hci.gnomex.model.NumberSequencingCyclesAllowed').(@value == s1.@idNumberSequencingCyclesAllowed);
-					this.seqLaneTypeLabel.text = nsca.@display.toString();
-					
-					if (s1.@seqPrepByCore == 'N') {
-						this.clientPrepLib.visible = true;
-						this.clientPrepLib.includeInLayout = true;
-						
-						this.clientPrepLib.text = "Library Prepared By Client"
-						if (parentDocument.request.@hasPrePooledLibraries == 'Y' && parentDocument.request.@numPrePooledTubes != null && parentDocument.request.@numPrePooledTubes != '') {
-							this.clientPrepLib.text += ", " + parentDocument.request.@numPrePooledTubes.toString() + " Pre-Pooled Tubes";
-						}
-					}
-					break;
-				}
+		import mx.collections.Grouping;
+		import mx.collections.GroupingCollection;
+		import mx.collections.GroupingField;
 
-				longDescriptionRowCount = 0;
-				for each (var s:Object in parentDocument.samples) {
-					if (s.@description.toString().length > 30) {
-						var count:Number = s.@description.toString().length / 30;
-						longDescriptionRowCount += Math.round(count);
+		import views.util.AnnotationDataGridColumn;
+
+		[Bindable]
+		private var longDescriptionRowCount:int = 0;
+
+		[Bindable]
+		private var concHeader:String = "Conc. ";
+
+		override public function setupView():void {
+			this.parentDocument.samplesView.initializeBarcoding();
+			parentDocument.getEstimatedBilling();
+			parentDocument.getMultiplexLanes();
+
+			submitterName.text = parentDocument.getSubmitterName();
+			this.clientPrepLib.visible = false;
+			this.clientPrepLib.includeInLayout = false;
+			for each (var s1:Object in parentDocument.samples) {
+				var nsca:Object = parentApplication.dictionaryManager.getEntries('hci.gnomex.model.NumberSequencingCyclesAllowed').(@value == s1.@idNumberSequencingCyclesAllowed);
+				this.seqLaneTypeLabel.text = nsca.@display.toString();
+
+				if (s1.@seqPrepByCore == 'N') {
+					this.clientPrepLib.visible = true;
+					this.clientPrepLib.includeInLayout = true;
+
+					this.clientPrepLib.text = "Library Prepared By Client";
+					if (parentDocument.request.@hasPrePooledLibraries == 'Y' && parentDocument.request.@numPrePooledTubes != null && parentDocument.request.@numPrePooledTubes != '') {
+						this.clientPrepLib.text += ", " + parentDocument.request.@numPrePooledTubes.toString() + " Pre-Pooled Tubes";
 					}
 				}
-				
-				concHeader = "Conc. ";
-				
-				this.requestPropBox.includeInLayout = parentApplication.getCoreFacilityProperty(parentDocument.request.@idCoreFacility, parentApplication.PROPERTY_REQUEST_PROPS_ON_CONFIRM_TAB) == 'Y';
-				this.requestPropBox.visible = parentApplication.getCoreFacilityProperty(parentDocument.request.@idCoreFacility, parentApplication.PROPERTY_REQUEST_PROPS_ON_CONFIRM_TAB) == 'Y';
-
-					
-				this.confirmContainer.validateNow();
-				
-			} 
-			
-			override public function showHideColumns():void {
-				this.filteredSamples.removeAll();
-				for each(var sample:XML in parentDocument.samples) {
-					if (sample.@name != null && sample.@name != '') {
-						this.filteredSamples.addItem(sample.copy());
-					}
-				}
-				
-				this.samplesGridConfirm.invalidateSize();
-				this.getConcentrationHeader();
-				
-				// Edit buttons shown
-				if(!parentApplication.isInternalExperimentSubmission){
-					this.parentDocument.submitButton.label = 'Save';
-					this.parentDocument.submitButton.enabled = true;
-					this.parentDocument.agreeCheckbox.selected = true;
-					this.parentDocument.agreeBox.includeInLayout = false;
-					this.parentDocument.agreeBox.visible = false;
-				} else if(parentApplication.getRequestCategoryProperty(parentDocument.request.@idCoreFacility, parentDocument.request.@codeRequestCategory, parentApplication.PROPERTY_NEW_REQUEST_SAVE_BEFORE_SUBMIT) == 'Y'){
-					this.parentDocument.submitButton.label = 'Save';
-					this.parentDocument.submitButton.enabled = true;
-					this.parentDocument.agreeBox.visible = false;
-					this.parentDocument.agreeBox.includeInLayout = false;
-					this.parentDocument.agreeCheckbox.selected = true;
-				} else{
-					this.parentDocument.submitButton.label = 'Submit';
-					this.parentDocument.submitButton.enabled = false;
-					this.parentDocument.agreeBox.visible = true;
-					this.parentDocument.agreeBox.includeInLayout = true;
-					this.parentDocument.agreeCheckbox.selected = false;
-				}
-				// Edit columns shown
-				this.sampleTypeColumn.visible = true;
-				this.sampleNameColumn.visible = true;
-				
-				concentrationCol.visible = parentApplication.isInternalExperimentSubmission;
-
-				sampleOrganismConfirmColumn.visible = true;
-				
-				this.barcodeColumn.visible = parentDocument.showSampleBarcodes();
-				this.barcodeColumnB.visible = parentDocument.showSampleBarcodesB();
-				this.customBarcodeColumn.visible = parentDocument.showSampleCustomBarcodes();
-				
-				this.sampleRowNumberCol.visible = true;
-
-				// externals never show organism column, mulitplex group number or number sequencing lanes in sample
-				if (parentDocument.request!=null && parentDocument.request.@isExternal == "Y") {
-					this.sampleOrganismConfirmColumn.visible = false;
-					this.multiplexGroupNumberColumn.visible = false;
-					this.numberSequencingLanes.visible = false;
-				}
-			}
-			
-			
-			public function getSamplesConfirmGridRowNumber(item:Object,col:int):String
-			{
-				if (filteredSamples!= null) {
-					var x:int = filteredSamples.getItemIndex(item) + 1;
-					return "X" + String(x);     		
-				} else {
-					return "";
-				}
-			}
-			
-			override public function setBarcodeColVisibility(visibility:Boolean):void {
-				this.barcodeColumn.visible = false;
-			}
-			
-			
-			override public function setChannel2ColVisibility(visibility:Boolean):void {
-			}
-			
-			override public function getSamplesGrid():Object {
-				return this.samplesGridConfirm;
+				break;
 			}
 
-			override public function getBillingGrid():Object {
-				return this.billingConfirmGrid;
-			}
-			override public function updateBatchWarning():void{
-				var warning:String = this.getSampleBatchWarning();
-				
-				if(warning == ""){
-					sampleBatchWarningBox.includeInLayout = false;
-					this.batchWarning.text = "";
-				} else{
-					sampleBatchWarningBox.includeInLayout = true;
-					this.batchWarning.text = this.getSampleBatchWarning();	
+			longDescriptionRowCount = 0;
+			for each (var s:Object in parentDocument.samples) {
+				if (s.@description.toString().length > 30) {
+					var count:Number = s.@description.toString().length / 30;
+					longDescriptionRowCount += Math.round(count);
 				}
 			}
-			
-			private function getConcentrationHeader():void{
-				if(this.filteredSamples.length > 0){
-					concHeader += "(" + filteredSamples.getItemAt(0).@codeConcentrationUnit + ")";
+
+			concHeader = "Conc. ";
+
+			this.requestPropBox.includeInLayout = parentApplication.getCoreFacilityProperty(parentDocument.request.@idCoreFacility, parentApplication.PROPERTY_REQUEST_PROPS_ON_CONFIRM_TAB) == 'Y';
+			this.requestPropBox.visible = parentApplication.getCoreFacilityProperty(parentDocument.request.@idCoreFacility, parentApplication.PROPERTY_REQUEST_PROPS_ON_CONFIRM_TAB) == 'Y';
+
+
+			this.confirmContainer.validateNow();
+
+		}
+
+		override public function showHideColumns():void {
+			this.filteredSamples.removeAll();
+			for each(var sample:XML in parentDocument.samples) {
+				if (sample.@name != null && sample.@name != '') {
+					this.filteredSamples.addItem(sample.copy());
 				}
 			}
-			
-			public function filterRequestProperties(prop:Object):Boolean{
-				if(parentDocument != null && prop.@value != "" && prop.@idCoreFacility == parentDocument.request.@idCoreFacility){
-					return true;
-				} else{
-					return false;
-				}
-				
+
+			this.samplesGridConfirm.invalidateSize();
+			this.getConcentrationHeader();
+
+			// Edit buttons shown
+			if (!parentApplication.isInternalExperimentSubmission) {
+				this.parentDocument.submitButton.label = 'Save';
+				this.parentDocument.submitButton.enabled = true;
+				this.parentDocument.agreeCheckbox.selected = true;
+				this.parentDocument.agreeBox.includeInLayout = false;
+				this.parentDocument.agreeBox.visible = false;
+			} else if (parentApplication.getRequestCategoryProperty(parentDocument.request.@idCoreFacility, parentDocument.request.@codeRequestCategory, parentApplication.PROPERTY_NEW_REQUEST_SAVE_BEFORE_SUBMIT) == 'Y') {
+				this.parentDocument.submitButton.label = 'Save';
+				this.parentDocument.submitButton.enabled = true;
+				this.parentDocument.agreeBox.visible = false;
+				this.parentDocument.agreeBox.includeInLayout = false;
+				this.parentDocument.agreeCheckbox.selected = true;
+			} else {
+				this.parentDocument.submitButton.label = 'Submit';
+				this.parentDocument.submitButton.enabled = false;
+				this.parentDocument.agreeBox.visible = true;
+				this.parentDocument.agreeBox.includeInLayout = true;
+				this.parentDocument.agreeCheckbox.selected = false;
 			}
-			
+			// Edit columns shown
+			this.sampleTypeColumn.visible = true;
+			this.sampleNameColumn.visible = true;
+
+			concentrationCol.visible = parentApplication.isInternalExperimentSubmission;
+
+			sampleOrganismConfirmColumn.visible = true;
+
+			this.barcodeColumn.visible = parentDocument.showSampleBarcodes();
+			this.barcodeColumnB.visible = parentDocument.showSampleBarcodesB();
+			this.customBarcodeColumn.visible = parentDocument.showSampleCustomBarcodes();
+
+			this.sampleRowNumberCol.visible = true;
+
+			// externals never show organism column, mulitplex group number or number sequencing lanes in sample
+			if (parentDocument.request != null && parentDocument.request.@isExternal == "Y") {
+				this.sampleOrganismConfirmColumn.visible = false;
+				this.multiplexGroupNumberColumn.visible = false;
+				this.numberSequencingLanes.visible = false;
+			}
+		}
+
+
+		public function getSamplesConfirmGridRowNumber(item:Object, col:int):String {
+			if (filteredSamples != null) {
+				var x:int = filteredSamples.getItemIndex(item) + 1;
+				return "X" + String(x);
+			} else {
+				return "";
+			}
+		}
+
+		override public function setBarcodeColVisibility(visibility:Boolean):void {
+			this.barcodeColumn.visible = false;
+		}
+
+
+		override public function setChannel2ColVisibility(visibility:Boolean):void {
+		}
+
+		override public function getSamplesGrid():Object {
+			return this.samplesGridConfirm;
+		}
+
+		override public function getBillingGrid():Object {
+			return this.billingConfirmGrid;
+		}
+
+		override public function getInstructionsBox():TextArea {
+			return this.textarea1;
+		}
+
+		override public function updateBatchWarning():void {
+			var warning:String = this.getSampleBatchWarning();
+
+			if (warning == "") {
+				sampleBatchWarningBox.includeInLayout = false;
+				this.batchWarning.text = "";
+			} else {
+				sampleBatchWarningBox.includeInLayout = true;
+				this.batchWarning.text = this.getSampleBatchWarning();
+			}
+		}
+
+		private function getConcentrationHeader():void {
+			if (this.filteredSamples.length > 0) {
+				concHeader += "(" + filteredSamples.getItemAt(0).@codeConcentrationUnit + ")";
+			}
+		}
+
+		public function filterRequestProperties(prop:Object):Boolean {
+			if (parentDocument != null && prop.@value != "" && prop.@idCoreFacility == parentDocument.request.@idCoreFacility) {
+				return true;
+			} else {
+				return false;
+			}
+
+		}
 		]]>
 		
 	</mx:Script>
@@ -178,6 +181,7 @@
 	
 	<mx:VBox id="confirmHeaderContainer"  width="100%" backgroundAlpha="0.0" verticalGap="0" paddingRight="25"  >
 		<mx:VBox   width="100%"  backgroundAlpha="0.0" verticalGap="0" paddingBottom="5" paddingLeft="5" paddingTop="0" id="confirmContainer" >
+			<mx:TextArea styleName="instructionBox" width="310" wordWrap="true" id="textarea1" editable="false" creationComplete="updateInstructionBoxCharges();" />
 			<mx:HBox width="100%" horizontalGap="4">
 				<mx:VBox height="100%" verticalGap="0" width="500" horizontalScrollPolicy="off">
 					<mx:Label text="Experiment Details" styleName="confirmHeaderLabel" />
@@ -189,9 +193,6 @@
 					<mx:Text text="" id="seqLaneTypeLabel" />
 					<mx:Text text="Library Prepared By Client" id="clientPrepLib" visible="false" includeInLayout="false" />
 				</mx:VBox>
-				<mx:TextArea styleName="instructionBox" width="284" wordWrap="true" id="textarea1" height="100" editable="false">
-					<mx:htmlText><![CDATA[1.  Please confirm the information below. Click the<br>     Back button or a tab to modify the request.<br>2.  Agree to estimated charges by clicking the <br>    "I authorize" checkbox.<br>3.  Approve the work request by clicking the Submit<br>    button.]]></mx:htmlText>
-				</mx:TextArea>
 			</mx:HBox>
 			<mx:VBox width="100%" verticalGap="0" id="billingContainer">
 				<mx:HBox width="100%" id="chargesHeaderBox">
@@ -386,16 +387,9 @@
 			</mx:AddChild>
 			<mx:SetStyle target="{chargesHeaderBox}" name="verticalAlign" value="bottom"/>
 		</mx:State>
-		<mx:State name="ExternalExperimentState">
-			<mx:SetProperty target="{textarea1}" name="htmlText">
-				<mx:value><![CDATA[1.  Please confirm that all information has been<br>     correctly entered. Modifications can be made by<br>     clicking the Back button or by clicking on a tab.<br>2.  Submit the experiment information by<br>      clicking the Submit button.]]></mx:value>
-			</mx:SetProperty>
+		<mx:State name="ExternalExperimentState" enterState="updateInstructionBoxRegular();">
 			<mx:RemoveChild target="{billingContainer}"/>
-			
 		</mx:State>
-		<mx:State name="DNASeqCoreState">
-			<mx:SetProperty target="{textarea1}" name="htmlText" value="1.  Please confirm the information below. Click the&lt;br&gt;     Back button or a tab to modify the request.&lt;br&gt;2. Click save button."/>
-			<mx:SetProperty target="{textarea1}" name="height" value="50"/>
-		</mx:State>
+		<mx:State name="DNASeqCoreState" enterState="updateInstructionBoxSaveButton();" />
 	</exp:states>
 </exp:TabConfirmBase>
