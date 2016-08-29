@@ -1110,6 +1110,17 @@
 					this.userWarningStack.selectedChild = this.userWarningsBoxSampleSetup;
 				} else if (this.isMicroarrayState() && theTab.selectedChild == this.hybSetupView) {
 					this.userWarningStack.selectedChild = this.userWarningsBoxHybSetup;
+				} else if (theTab.selectedChild == this.seqSetupView) {
+					if (this.sampleSetupView.currentState == "MDMiSeqState") {
+						seqSetupView.text1.width = 340;
+						seqSetupView.samplePoolingLabel.width = 340;
+						seqSetupView.samplesToBePreppedCheckbox.selected = false;
+					}else if( this.currentState == "NanoStringState") {
+						seqSetupView.isPreppedContainer.visible = false;
+						seqSetupView.isPreppedContainer.includeInLayout = false;
+						seqSetupView.prePooledSamplesHBox.visible = false;
+						seqSetupView.prePooledSamplesHBox.includeInLayout = false;
+					}
 				} else {
 					this.userWarningStack.selectedIndex = 0;
 				}
