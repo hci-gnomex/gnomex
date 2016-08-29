@@ -140,7 +140,6 @@
 			var idOrganism:String = parentApplication.submitInternalExperiment() && !parentDocument.isEditState() ?
 					parentDocument.sampleSetupView.sampleOrganismCombo.selectedItem.@value :
 					(parentDocument.request.@idOrganismSampleDefault != null ? parentDocument.request.@idOrganismSampleDefault : '');
-			;
 			var otherOrganism:String = parentApplication.submitInternalExperiment() && !parentDocument.isEditState() ?
 					parentDocument.sampleSetupView.otherOrganism.text.replace(/\"/g, "&quot;") : '';
 			var idNumberSequencingCycles:String = parentApplication.submitInternalExperiment() && !parentDocument.isEditState() ?
@@ -1019,7 +1018,7 @@
 2.  Provide a name for each sample.
 3.  Provide the concentration for each sample.
 4.  Type the volume (ul) that will be provided for each sample.
-5.  Specify the number of sequence lanes required for each multiplex group.  (once multiplex groups are selected, make gnomex so that the user can only enter one number per multiplex group and not a number for each sample).
+5.  Specify the number of sequence lanes required for each multiplex group.
 6.  Optional: Annotate the samples using the characteristics that you selectied from the Annotations tab.
 7.  Optional: Edit other fields as appropriate.]]></mx:htmlText>
 			</mx:TextArea>
