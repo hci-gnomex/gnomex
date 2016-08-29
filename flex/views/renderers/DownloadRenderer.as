@@ -6,9 +6,9 @@ package views.renderers
 	import mx.controls.advancedDataGridClasses.AdvancedDataGridGroupItemRenderer;
 
 
-public class ExperimentDownloadRenderer extends AdvancedDataGridGroupItemRenderer {
+public class DownloadRenderer extends AdvancedDataGridGroupItemRenderer {
 
-	public function ExperimentDownloadRenderer() {
+	public function DownloadRenderer() {
 		super();
 		this.addEventListener(MouseEvent.CLICK, clickLink);
 	}
