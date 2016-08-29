@@ -104,9 +104,14 @@
 		}
 
 
-		private function toggleSampleAnnotationCheck(event:ListEvent):void {
-			parentDocument.dirty.setDirty();
-			sampleAnnotationGrid.dataProvider = filteredProperties;
+		private function toggleAnnotation(event:ListEvent, dataGrid:DataGrid):void {
+			if (event.columnIndex > 0) {
+				if (dataGrid.dataProvider[event.rowIndex].@isSelected == "true") {
+					dataGrid.dataProvider[event.rowIndex].@isSelected = "false";
+				} else {
+					dataGrid.dataProvider[event.rowIndex].@isSelected = "true";
+				}
+			}
 			updateSelectedProperties();
 		}
 
@@ -236,30 +241,16 @@
 
 		}
 
-		public function createToolTip(event:ListEvent):void {
+		public function createToolTip(event:ListEvent, dataGrid:DataGrid):void {
 			createAnnotationList();
 			var description:String = "";
 			for each (var temp:XML in properties) {
-				if (temp.@name == sampleAnnotationGrid.dataProvider[event.rowIndex].@name) {
+				if (temp.@name == dataGrid.dataProvider[event.rowIndex].@name) {
 					description = temp.@description;
 					break;
 				}
 			}
-			sampleAnnotationGrid.toolTip = description;
-
-		}
-
-		public function createSelectedToolTip(event:ListEvent):void {
-			createAnnotationList();
-			var description:String = "";
-			for each (var temp:XML in properties) {
-				if (temp.@name == selectedAnnotationGrid.dataProvider[event.rowIndex].@name) {
-					description = temp.@description;
-					break;
-				}
-			}
-			sampleAnnotationGrid.toolTip = description;
-
+			dataGrid.toolTip = description;
 		}
 
 		/*
@@ -296,10 +287,6 @@
 			for each(var sc:XML in parentApplication.propertyList) {
 				properties.addItem(sc.copy());
 			}
-		}
-
-		public function deleteToolTip(obj:Object):void {
-			sampleAnnotationGrid.toolTip = null;
 		}
 
 		private function addNewAnnotation():void {
@@ -497,7 +484,6 @@
 				}
 			}
 		}
-
 		]]>
 	</mx:Script>
 
@@ -508,86 +494,97 @@
 	<mx:XMLListCollection id="properties"/>
 	
 	<mx:VBox width="100%" height="100%">
-		<mx:HBox width="100%" height="100%" horizontalGap="0">
-			<mx:VBox height="100%" verticalGap="1">
-				<mx:HBox width="680">
-					<util:ContextHelp context1="annotationTabHelp" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Annotation Help"
-									  label="(1) Check sample characteristics" labelPlacement="left" id="text1" width="100%"/>
-				</mx:HBox>
-				<mx:HBox width="100%" height="100%">
-					<mx:VBox width="50%" height="100%" verticalGap="0">
-						<mx:DataGrid id="sampleAnnotationGrid" height="100%"
-									 dataProvider="{filteredProperties}"
-									 change="updateSelectedProperties();"
-									 showHeaders="false" headerHeight="20" variableRowHeight="true" width="100%" itemClick="toggleSampleAnnotationCheck(event)" rowHeight="20" itemRollOver="createToolTip(event)" itemRollOut="deleteToolTip(event)" >
-							<mx:columns>
-								<mx:DataGridColumn headerText=" "
-												   width="20"
-												   editable="true"
-												   dataField="@isSelected"
-												   editorDataField="selected"
-												   itemRenderer="views.renderers.CheckBoxIsSelectedProperty">
-								</mx:DataGridColumn>
-								<mx:DataGridColumn
-										headerText="Sample annotations"
-										editable="false"
-										editorDataField="selected"
-										dataField="@name" >
-									<mx:itemRenderer>
-										<mx:Component>
-											<mx:HBox horizontalScrollPolicy="off">
-												<mx:Label text="{data.@name}" fontWeight="{data.hasOwnProperty('@isRequired') &amp;&amp; data.@isRequired == 'true' ? 'bold' : 'normal'}">
-												</mx:Label>
-												<mx:TextInput id="scOtherLabel" fontSize="9"
-															  text="{data.@otherLabel}"
-															  focusIn="{parentDocument.ignoreToggle = true}"
-															  focusOut="{parentDocument.ignoreToggle = false}"
-															  change="{parentDocument.ignoreToggle = true;data.@otherLabel = scOtherLabel.text;parentDocument.changeOtherHeaderLabelAndToggle(data)}"
-															  width="{data.@name == 'Other' ? 130 : 0}"
-															  height="{data.@name == 'Other' ? 20 : 0}"
-															  visible="{data.@name == 'Other' ? true : false}"
-															  editable="{data.@name == 'Other' ? true : false}">
-												</mx:TextInput>
-											</mx:HBox>
-										</mx:Component>
-									</mx:itemRenderer>
-								</mx:DataGridColumn>
-							</mx:columns>
-						</mx:DataGrid>
-					</mx:VBox>
-					<mx:Spacer width="80" />
-					<mx:VBox width="50%" height="100%" verticalGap="0">
-						<mx:Label text="Selected characteristics" />
-						<mx:DataGrid id="selectedAnnotationGrid"
-									 height="100%"
-									 dataProvider="{selectedProperties}"
-									 change="updateSelectedProperties();"
-									 showHeaders="false" headerHeight="20" variableRowHeight="true" width="100%" rowHeight="20" itemRollOver="createSelectedToolTip(event)" itemRollOut="deleteToolTip(event)" >
-							<mx:columns>
-								<mx:DataGridColumn headerText=" "
-												   width="20"
-												   editable="true"
-												   dataField="@isSelected"
-												   editorDataField="selected"
-												   itemRenderer="views.renderers.CheckBoxIsSelectedProperty">
-								</mx:DataGridColumn>
-								<mx:DataGridColumn
-										headerText="Sample annotations"
-										editable="false"
-										editorDataField="selected"
-										dataField="@name" >
-									<mx:itemRenderer>
-										<mx:Component>
-											<mx:HBox horizontalScrollPolicy="off">
-												<mx:Label text="{data.@name}" fontWeight="{data.hasOwnProperty('@isRequired') &amp;&amp; data.@isRequired == 'true' ? 'bold' : 'normal'}" />
-											</mx:HBox>
-										</mx:Component>
-									</mx:itemRenderer>
-								</mx:DataGridColumn>
-							</mx:columns>
-						</mx:DataGrid>
-					</mx:VBox>
-				</mx:HBox>
+		<mx:HBox width="100%" height="100%">
+			<mx:VBox width="340" height="100%">
+				<util:ContextHelp context1="annotationTabHelp" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Annotation Help"
+								  label="(1) Check sample characteristics" labelPlacement="left" id="text1" width="100%"/>
+				<mx:DataGrid id="sampleAnnotationGrid"
+							 width="100%"
+							 height="100%"
+							 showHeaders="false"
+							 headerHeight="20"
+							 rowHeight="20"
+							 variableRowHeight="true"
+							 dataProvider="{filteredProperties}"
+							 change="updateSelectedProperties();"
+							 itemClick="toggleAnnotation(event, sampleAnnotationGrid)"
+							 itemRollOver="createToolTip(event, sampleAnnotationGrid)"
+							 itemRollOut="sampleAnnotationGrid.toolTip = null;" >
+					<mx:columns>
+						<mx:DataGridColumn
+								headerText=" "
+								width="20"
+								editable="false"
+								dataField="@isSelected"
+								editorDataField="selected"
+								itemRenderer="views.renderers.CheckBoxIsSelectedProperty">
+						</mx:DataGridColumn>
+						<mx:DataGridColumn
+								headerText="Sample annotations"
+								editable="true"
+								editorDataField="selected"
+								dataField="@name" >
+							<mx:itemRenderer>
+								<mx:Component>
+									<mx:HBox horizontalScrollPolicy="off">
+										<mx:Label text="{data.@name}" fontWeight="{data.hasOwnProperty('@isRequired') &amp;&amp; data.@isRequired == 'true' ? 'bold' : 'normal'}">
+										</mx:Label>
+										<mx:TextInput id="scOtherLabel" fontSize="9"
+													  text="{data.@otherLabel}"
+													  focusIn="{parentDocument.ignoreToggle = true}"
+													  focusOut="{parentDocument.ignoreToggle = false}"
+													  change="{parentDocument.ignoreToggle = true;data.@otherLabel = scOtherLabel.text;parentDocument.changeOtherHeaderLabelAndToggle(data)}"
+													  width="{data.@name == 'Other' ? 130 : 0}"
+													  height="{data.@name == 'Other' ? 20 : 0}"
+													  visible="{data.@name == 'Other' ? true : false}"
+													  editable="{data.@name == 'Other' ? true : false}">
+										</mx:TextInput>
+									</mx:HBox>
+								</mx:Component>
+							</mx:itemRenderer>
+						</mx:DataGridColumn>
+					</mx:columns>
+				</mx:DataGrid>
+			</mx:VBox>
+			<mx:Spacer width="70" />
+			<mx:VBox width="340" height="100%">
+				<mx:Label text="Selected characteristics" />
+				<mx:DataGrid id="selectedAnnotationGrid"
+							 width="100%"
+							 height="100%"
+							 showHeaders="false"
+							 headerHeight="20"
+							 rowHeight="20"
+							 variableRowHeight="true"
+							 dataProvider="{selectedProperties}"
+							 change="updateSelectedProperties();"
+							 itemClick="toggleAnnotation(event, selectedAnnotationGrid)"
+							 itemRollOver="createToolTip(event, selectedAnnotationGrid)"
+							 itemRollOut="selectedAnnotationGrid.toolTip = null;" >
+					<mx:columns>
+						<mx:DataGridColumn
+								headerText=" "
+								width="20"
+								editable="false"
+								dataField="@isSelected"
+								editorDataField="selected"
+								itemRenderer="views.renderers.CheckBoxIsSelectedProperty">
+						</mx:DataGridColumn>
+						<mx:DataGridColumn
+								headerText="Sample annotations"
+								editable="true"
+								editorDataField="selected"
+								dataField="@name" >
+							<mx:itemRenderer>
+								<mx:Component>
+									<mx:HBox horizontalScrollPolicy="off">
+										<mx:Label text="{data.@name}" fontWeight="{data.hasOwnProperty('@isRequired') &amp;&amp; data.@isRequired == 'true' ? 'bold' : 'normal'}" />
+									</mx:HBox>
+								</mx:Component>
+							</mx:itemRenderer>
+						</mx:DataGridColumn>
+					</mx:columns>
+				</mx:DataGrid>
 			</mx:VBox>
 		</mx:HBox>
 		
