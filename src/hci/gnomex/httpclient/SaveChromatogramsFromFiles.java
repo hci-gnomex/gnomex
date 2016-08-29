@@ -39,7 +39,7 @@ public class SaveChromatogramsFromFiles extends HttpClientBase {
 	private StringBuffer errors;
 	private int numerrors;
 	private boolean noemail = false;
-	private String toAddress = "gnomex.support@hci.utah.edu"; // "LabTech_Group@genetics.utah.edu";
+	private String toAddress = "gnomex.support@hci.utah.edu;LabTech_Group@genetics.utah.edu"; // "LabTech_Group@genetics.utah.edu";
 	private String fromAddress = "GNomEx.Support@hci.utah.edu";
 
 	/**
