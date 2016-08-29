@@ -2199,9 +2199,6 @@
 			<mx:SetProperty target="{label8}" name="width" value="340"/>
 			<mx:SetProperty target="{label7}" name="width" value="340"/>
 			<mx:SetProperty target="{label2}" name="width" value="340"/>
-			<mx:SetProperty target="{parentDocument.seqSetupView.text1}" name="width" value="340"/>
-			<mx:SetProperty target="{parentDocument.seqSetupView.samplePoolingLabel}" name="width" value="340"/>
-			<mx:SetProperty target="{parentDocument.seqSetupView.samplesToBePreppedCheckbox}" name="selected" value="false"/>
 		</mx:State>
 		<mx:State name="GenericState">
 			<mx:SetProperty target="{samplePrepContainer}" name="includeInLayout" value="false"/>
@@ -2234,12 +2231,6 @@
 			</mx:AddChild>
 		</mx:State>
 		<mx:State name="NanoStringState" basedOn="MDMiSeqState">
-
-			<mx:SetProperty target="{parentDocument.seqSetupView.isPreppedContainer}" name="visible" value="false"/>
-			<mx:SetProperty target="{parentDocument.seqSetupView.isPreppedContainer}" name="includeInLayout" value="false"/>
-			<mx:SetProperty target="{parentDocument.seqSetupView.prePooledSamplesHBox}" name="includeInLayout" value="false"/>
-			<mx:SetProperty target="{parentDocument.seqSetupView.prePooledSamplesHBox}" name="visible" value="false"/>
-
 		</mx:State>
 		<mx:State name="DigitalPCRState" basedOn="GenericState">
 			<mx:SetProperty target="{samplePrepContainer}" name="includeInLayout" value="true"/>
