@@ -197,11 +197,6 @@
 					sample.@codeBioanalyzerChipType = codeChipType;
 				}
 			}
-			public function propagateSeqPrepByCore():void {
-				for each (var sample:Object in parentDocument.samples) {
-					sample.@seqPrepByCore = (currentState == 'SolexaSetupState' || (seqPrepRadioGroup.selectedValue !=  null && seqPrepRadioGroup.selectedValue == 'Y')  ? 'Y' : 'N');
-				}
-			}
 			private function propagateSampleSource():void {
 				for each (var sample:Object in parentDocument.samples) {
 					if (this.sampleSourceCombo.selectedItem != null && 
@@ -230,17 +225,6 @@
 				callLater(parentDocument.samplesView.checkSamplesCompleteness);
 				
 			}
-			private function propagateSeqLibProtocol():void {
-				for each (var sample:Object in parentDocument.samples) {
-					if (currentState == 'SolexaSetupPreppedState' || currentState == 'SolexaAmendPreppedState' || (seqPrepRadioGroup.selectedValue !=  null && seqPrepRadioGroup.selectedValue == 'N') ) {
-						sample.@seqPrepByCore = "N";
-					} else {
-						sample.@seqPrepByCore = "Y";
-					}
-				}
-				
-				callLater(parentDocument.samplesView.checkSamplesCompleteness);
-			}		
 			public function propagateSampleOrganism():void {
 				for each (var sample:Object in parentDocument.samples) {
 					if (sampleOrganismCombo.selectedItem != null) {
@@ -346,7 +330,7 @@
 						this.sampleTypeRadioGroup.selectedValue &&
 						otherSamplePrepMethod.text.length > 0) {
 						
-						isComplete = checkPrePooledSamplesCompleteness();
+						isComplete = true;
 					}
 				} else if (parentDocument.isSolexaState()) {
 					if ( this.currentState == 'MDMiSeqState' ) {
@@ -354,7 +338,7 @@
 							this.sampleTypeRadioGroup.selectedValue &&
 							hasOrganism() && this.otherSamplePrepMethod.text.length > 0) {
 							
-							isComplete = checkPrePooledSamplesCompleteness();
+							isComplete = true;
 							parentDocument.seqLibProtocolList.refresh();
 						}					
 					} else {
@@ -363,7 +347,7 @@
 							hasOrganism() &&
 							this.otherSamplePrepMethod.text.length > 0) {
 							
-							isComplete = checkPrePooledSamplesCompleteness();
+							isComplete = true
 						}
 					}
 					
@@ -633,23 +617,7 @@
 				sampleSizeWarning.text += " " + sampleBatchWarning;
 			}
 			
-			private function checkPrePooledSamplesCompleteness():Boolean {
-				var isComplete:Boolean = false;
-				if (this.seqPrepRadioGroup != null && this.seqPrepRadioGroup.selectedValue == 'N') {
-					if (this.prePooledSamplesRadioGroup.selectedValue == 'Y') {
-						if (this.prePooledNumTubes.text != null && this.prePooledNumTubes.text != '' && Number(this.prePooledNumTubes.text) > 0) {
-							isComplete = true;
-						}
-					} else if (this.prePooledSamplesRadioGroup.selection != null) {
-						isComplete = true;
-					}
-				} else {
-					isComplete = true;
-				}
-				
-				return isComplete;
-			}
-			
+
 			private function hasOrganism():Boolean {
 				if (this.sampleOrganismCombo.selectedItem != null && this.sampleOrganismCombo.selectedItem.@display == 'Other' && this.otherOrganism.text != '') {
 					return true;
@@ -865,45 +833,6 @@
 					//selectDefaultGenomeBuild();			
 				}
 				
-			}
-			
-			private function clearBarcodingFields():void {
-				if (parentDocument.isEditState() || parentDocument.isAmendState()) {
-					return;
-				}
-				if (currentState == 'MDMiSeqState') {
-					return;
-				}
-				for each(var s:Object in parentDocument.samples) {
-					s.@idOligoBarocode = '';
-					s.@multiplexGroupNumber = '';
-					s.@barcodeSequence = '';
-				}
-			}
-			
-			
-			private function pickSeqPrepState():void {
-				if (seqPrepRadioGroup.selectedValue ==  null || seqPrepRadioGroup.selectedValue == 'Y') {
-					this.prePooledSamplesRadioGroup.selection = null;
-					this.prePooledNumTubes.text = "";
-					if (parentDocument.isAmendState()) {
-						currentState = 'SolexaAmendState';
-					} else if (currentState != 'MDMiSeqState') {
-						currentState = 'SolexaSetupState';
-					}
-				} else {
-					if (parentDocument.isAmendState()) {
-						currentState = 'SolexaAmendPreppedState';				
-					} else if (currentState != 'MDMiSeqState') {
-						currentState = 'SolexaSetupPreppedState';
-					}
-				}
-				this.propagateSeqPrepByCore();
-				propagateSeqLibProtocol();
-				clearBarcodingFields();
-				parentDocument.seqLibProtocolList.refresh();
-				checkSampleSetupCompleteness();
-				parentDocument.samplesView.showHideColumns();
 			}
 			
 			private function pickContainerType():void {
@@ -1653,51 +1582,10 @@
 			</mx:AddChild>			
 		</mx:State>
 		<mx:State name="SolexaSetupState">
-			<mx:AddChild relativeTo="{sampleOrganismContainer}" position="after">
-				
-				<mx:VBox paddingBottom="0" paddingTop="0">
-					<mx:HBox id="isPreppedContainer" width="100%" horizontalGap="0">
-						<util:ContextHelp context1="sampleDetailsLibPrep" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Sample Library Preparation Help"
-										  label="(5) Do you want the Core Facility to perform library preparation on the samples?" labelPlacement="left" id="text1" width="305"/>
-						<mx:VBox width="100%" verticalGap="0" paddingLeft="2">
-							<mx:RadioButtonGroup id="seqPrepRadioGroup"/>
-							<mx:HBox id="hbox2" width="100%">
-								<mx:RadioButton id="samplesToBePreppedCheckbox"  value="Y" groupName="seqPrepRadioGroup"  label="Yes, please prep library" selected="true" click="{pickSeqPrepState()}">
-								</mx:RadioButton>									    	
-							</mx:HBox>
-							
-							<mx:HBox >
-								<mx:RadioButton id="samplesAlreadyPreppedCheckbox"  value="N" groupName="seqPrepRadioGroup" label="No, library has already been prepped "
-												click="{pickSeqPrepState()}">
-								</mx:RadioButton>							
-							</mx:HBox>				
-						</mx:VBox>
-					</mx:HBox>
-					<mx:HBox horizontalGap="0" paddingBottom="0" paddingTop="0" id="prePooledSamplesHBox" visible="{samplesAlreadyPreppedCheckbox.selected}" includeInLayout="{samplesAlreadyPreppedCheckbox.selected}">
-						<util:ContextHelp context1="sampleDetailsSamplePooling" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Sample Pooling Help"
-										  label="(6) How are the samples pooled?" labelPlacement="left" id="samplePoolingLabel" width="305"/>
-						<mx:VBox width="100%" verticalGap="0" paddingLeft="0">
-							<mx:RadioButtonGroup id="prePooledSamplesRadioGroup"/>
-							<mx:RadioButton id="prePooledNot" value="N" groupName="prePooledSamplesRadioGroup" label="Each library will be submitted in a separate microfuge tube."
-											click="{parentDocument.request.@hasPrePooledLibraries='N';prePooledNumTubes.text='';parentDocument.request.@numPrePooledTubes='';this.checkSampleSetupCompleteness()}"/>
-							<mx:HBox paddingLeft="0">
-								<mx:RadioButton paddingTop="0" paddingBottom="0" id="prePooled" value="Y" groupName="prePooledSamplesRadioGroup" label="Libraries will be pre-pooled prior to drop off at the core facility and will be submitted in "
-												click="{parentDocument.request.@hasPrePooledLibraries='Y';this.checkSampleSetupCompleteness()}"/>
-								<mx:TextInput id="prePooledNumTubes" width="25" restrict="0-9" maxChars="2" enabled="{prePooled.selected}" 
-											  change="{parentDocument.request.@numPrePooledTubes = prePooledNumTubes.text;this.checkSampleSetupCompleteness()}"/>
-								<mx:Label text="(number) separate microfuge tubes."/>
-							</mx:HBox>
-						</mx:VBox>
-					</mx:HBox>
-				</mx:VBox>
-			</mx:AddChild>
-			
 			<mx:SetStyle target="{sampleSetupContainer}" name="verticalGap" value="14"/>
 			<mx:SetStyle target="{numberOfSamples}" name="backgroundColor"/>
 			<mx:SetProperty target="{label5}" name="width" value="305"/>
 			<mx:SetProperty target="{label8}" name="width" value="305"/>
-			<mx:RemoveChild target="{samplePrepContainer}"/>
-			<mx:AddChild relativeTo="{isPreppedContainer}" position="before" target="{samplePrepContainer}"/>
 			<mx:SetProperty target="{label2}" name="width" value="305"/>
 			<mx:SetProperty target="{label7}" name="width" value="305"/>			
 		</mx:State>
@@ -1721,9 +1609,6 @@
 				<mx:value>(2) Which organism is the source for these samples?</mx:value>
 			</mx:SetProperty>
 			<mx:SetProperty target="{label2}" name="label" value="(3) Specify the nucleic acid extraction method. (required)."/>
-			<mx:SetProperty target="{text1}" name="label">
-				<mx:value>(4) Do you want the Core Facility to perform library preparation on the samples?</mx:value>
-			</mx:SetProperty>
 			<mx:SetStyle target="{sampleSetupContainer}" name="paddingTop" value="38"/>
 			<mx:SetStyle target="{sampleSetupContainer}" name="verticalGap" value="20"/>
 			<mx:SetStyle target="{sampleOrganismContainer}" name="paddingTop" value="4"/>
@@ -2284,9 +2169,6 @@
 			<mx:SetProperty target="{label8}" name="width" value="340"/>
 			<mx:SetProperty target="{label7}" name="width" value="340"/>
 			<mx:SetProperty target="{label2}" name="width" value="340"/>
-			<mx:SetProperty target="{text1}" name="width" value="340"/>
-			<mx:SetProperty target="{samplePoolingLabel}" name="width" value="340"/>
-			<mx:SetProperty target="{samplesToBePreppedCheckbox}" name="selected" value="false"/>
 		</mx:State>
 		<mx:State name="GenericState">
 			<mx:SetProperty target="{samplePrepContainer}" name="includeInLayout" value="false"/>
@@ -2319,10 +2201,6 @@
 			</mx:AddChild>
 		</mx:State>
 		<mx:State name="NanoStringState" basedOn="MDMiSeqState">
-			<mx:SetProperty target="{isPreppedContainer}" name="visible" value="false"/>
-			<mx:SetProperty target="{isPreppedContainer}" name="includeInLayout" value="false"/>
-			<mx:SetProperty target="{prePooledSamplesHBox}" name="includeInLayout" value="false"/>
-			<mx:SetProperty target="{prePooledSamplesHBox}" name="visible" value="false"/>
 		</mx:State>
 		<mx:State name="DigitalPCRState" basedOn="GenericState">
 			<mx:SetProperty target="{samplePrepContainer}" name="includeInLayout" value="true"/>
