@@ -138,10 +138,6 @@ public class GetProductOrderDownloadList extends GNomExCommand implements Serial
 
 							ProductOrderFile pof = (ProductOrderFile) knownProductOrderFileMap.get(fd.getQualifiedFileName());
 
-							if (fd != null && fd.getDisplayName().equals(Constants.UPLOAD_STAGING_DIR)) {
-								continue;
-							}
-
 							Element fdNode = new Element("FileDescriptor");
 
 							if (pof != null) {
@@ -254,7 +250,7 @@ public class GetProductOrderDownloadList extends GNomExCommand implements Serial
 			List theFiles = (List) directoryMap.get(directoryKey);
 
 			// For each file in the directory
-			if (theFiles != null && theFiles.size() > 0) {
+			if (theFiles != null && theFiles.size() > 0 && !directoryName.equals( Constants.UPLOAD_STAGING_DIR)) {
 				for (Iterator i2 = theFiles.iterator(); i2.hasNext();) {
 					FileDescriptor fd = (FileDescriptor) i2.next();
 					fd.setQualifiedFilePath(directoryName);
@@ -321,6 +317,7 @@ public class GetProductOrderDownloadList extends GNomExCommand implements Serial
 			childFd.setQualifiedFilePath(fd.getQualifiedFilePath() != null && fd.getQualifiedFilePath().length() > 0 ? fd.getQualifiedFilePath()
 					+ File.separator + fd.getDisplayName() : fd.getDisplayName());
 			childFd.setBaseFilePath(fd.getBaseFilePath());
+			childFd.setDirectoryName(childFd.getQualifiedFilePath());
 			childFd.setIdLab(fd.getIdLab());
 
 			ProductOrderFile pof = (ProductOrderFile) knownFilesMap.get(childFd.getQualifiedFileName());
@@ -362,9 +359,9 @@ public class GetProductOrderDownloadList extends GNomExCommand implements Serial
 			childFdNode.setAttribute("state", "unchecked");
 
 			String viewType = Constants.DOWNLOAD_PRODUCT_ORDER_SINGLE_FILE_SERVLET + "?idProductOrder=" + childFd.getId();
-			if (!childFd.getType().equals("dir")) {
+//			if (!childFd.getType().equals("dir")) {
 				childFdNode.setAttribute("viewURL", childFd.getViewURL(viewType));
-			}
+//			}
 
 			fdNode.addContent(childFdNode);
 			fileMap.put(childFd.getQualifiedFileName(), null);
