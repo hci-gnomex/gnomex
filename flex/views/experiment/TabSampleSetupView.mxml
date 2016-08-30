@@ -226,11 +226,6 @@
 					sample.@codeBioanalyzerChipType = codeChipType;
 				}
 			}
-			public function propagateSeqPrepByCore():void {
-				for each (var sample:Object in parentDocument.samples) {
-					sample.@seqPrepByCore = (currentState == 'SolexaSetupState'  ? 'Y' : 'N');
-				}
-			}
 			private function propagateSampleSource():void {
 				for each (var sample:Object in parentDocument.samples) {
 					if (this.sampleSourceCombo.selectedItem != null && 
@@ -259,17 +254,6 @@
 				callLater(parentDocument.samplesView.checkSamplesCompleteness);
 				
 			}
-			private function propagateSeqLibProtocol():void {
-				for each (var sample:Object in parentDocument.samples) {
-					if (currentState == 'SolexaSetupPreppedState' || currentState == 'SolexaAmendPreppedState') {
-						sample.@seqPrepByCore = "N";
-					} else {
-						sample.@seqPrepByCore = "Y";
-					}
-				}
-				
-				callLater(parentDocument.samplesView.checkSamplesCompleteness);
-			}		
 			public function propagateSampleOrganism():void {
 				for each (var sample:Object in parentDocument.samples) {
 					if (sampleOrganismCombo.selectedItem != null) {
@@ -664,6 +648,7 @@
 				sampleSizeWarning.text += " " + sampleBatchWarning;
 			}
 			
+
 			private function hasOrganism():Boolean {
 				if (this.sampleOrganismCombo.selectedItem != null && this.sampleOrganismCombo.selectedItem.@display == 'Other' && this.otherOrganism.text != '') {
 					return true;
@@ -899,20 +884,6 @@
 					//selectDefaultGenomeBuild();			
 				}
 				
-			}
-			
-			private function clearBarcodingFields():void {
-				if (parentDocument.isEditState() || parentDocument.isAmendState()) {
-					return;
-				}
-				if (currentState == 'MDMiSeqState') {
-					return;
-				}
-				for each(var s:Object in parentDocument.samples) {
-					s.@idOligoBarocode = '';
-					s.@multiplexGroupNumber = '';
-					s.@barcodeSequence = '';
-				}
 			}
 			
 			private function pickContainerType():void {

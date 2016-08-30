@@ -981,11 +981,11 @@
 					sampleSetupView.sampleOrganismCombo.selectedIndex = -1;
 					sampleSetupView.enabled = false;
 					sampleSetupView.otherSamplePrepMethod.text = "";
-					sampleSetupView.seqPrepRadioGroup.selectedValue = 'Y';
-					sampleSetupView.prePooledSamplesRadioGroup.selectedValue = 'N';
+					seqSetupView.seqPrepRadioGroup.selectedValue = 'Y';
+					seqSetupView.prePooledSamplesRadioGroup.selectedValue = 'N';
 					
-					if(sampleSetupView.prePooledNumTubes != null){
-						sampleSetupView.prePooledNumTubes.text = '';
+					if(seqSetupView.prePooledNumTubes != null){
+						seqSetupView.prePooledNumTubes.text = '';
 					}
 					
 					if ( sampleSetupView.iScanNumSourcePlates != null ) {
@@ -1110,6 +1110,17 @@
 					this.userWarningStack.selectedChild = this.userWarningsBoxSampleSetup;
 				} else if (this.isMicroarrayState() && theTab.selectedChild == this.hybSetupView) {
 					this.userWarningStack.selectedChild = this.userWarningsBoxHybSetup;
+				} else if (theTab.selectedChild == this.seqSetupView) {
+					if (this.sampleSetupView.currentState == "MDMiSeqState") {
+						seqSetupView.text1.width = 340;
+						seqSetupView.samplePoolingLabel.width = 340;
+						seqSetupView.samplesToBePreppedCheckbox.selected = false;
+					}else if( this.currentState == "NanoStringState") {
+						seqSetupView.isPreppedContainer.visible = false;
+						seqSetupView.isPreppedContainer.includeInLayout = false;
+						seqSetupView.prePooledSamplesHBox.visible = false;
+						seqSetupView.prePooledSamplesHBox.includeInLayout = false;
+					}
 				} else {
 					this.userWarningStack.selectedIndex = 0;
 				}
@@ -1209,7 +1220,7 @@
 					filteredAppList.refresh();		
 					
 					if (parentApplication.submitInternalExperiment()) {
-						this.sampleSetupView.samplesToBePreppedCheckbox.selected = true;
+						this.seqSetupView.samplesToBePreppedCheckbox.selected = true;
 					}
 					for each (var sample:Object in samples) {
 						sample.@seqPrepByCore = 'Y';
@@ -5246,7 +5257,7 @@
 					} else if (this.isEditState()) {
 						show = true;
 					} else if (sampleSetupView.currentState == "SolexaSetupPreppedState" ||
-						(sampleSetupView.currentState == "MDMiSeqState" && sampleSetupView.seqPrepRadioGroup.selectedValue !=  null  && sampleSetupView.seqPrepRadioGroup.selectedValue ==  "N") ) {
+						(sampleSetupView.currentState == "MDMiSeqState" && seqSetupView.seqPrepRadioGroup.selectedValue !=  null  && seqSetupView.seqPrepRadioGroup.selectedValue ==  "N") ) {
 						show = true;
 					} 	
 				}
@@ -5268,7 +5279,7 @@
 					} else if (this.isEditState()) {
 						show = true;
 					} else if (sampleSetupView.currentState == "SolexaSetupPreppedState" ||
-						(sampleSetupView.currentState == "MDMiSeqState" && sampleSetupView.seqPrepRadioGroup.selectedValue !=  null  && sampleSetupView.seqPrepRadioGroup.selectedValue ==  "N")) {
+						(sampleSetupView.currentState == "MDMiSeqState" && seqSetupView.seqPrepRadioGroup.selectedValue !=  null  && seqSetupView.seqPrepRadioGroup.selectedValue ==  "N")) {
 						show = true;
 					} 	
 				}

@@ -10,7 +10,8 @@ package views.experiment
 	import mx.containers.Canvas;
 	import mx.controls.AdvancedDataGrid;
 	import mx.controls.DataGrid;
-	import mx.controls.advancedDataGridClasses.AdvancedDataGridColumn;
+import mx.controls.TextArea;
+import mx.controls.advancedDataGridClasses.AdvancedDataGridColumn;
 	import mx.controls.dataGridClasses.DataGridColumn;
 	import mx.formatters.NumberBaseRoundType;
 	import mx.formatters.NumberFormatter;
@@ -474,6 +475,51 @@ package views.experiment
 			
 			return accountNumber;
 		}
-		
+
+		public function getInstructionsBox():TextArea {
+			return null;
+		}
+
+		private function appendMessage(message:String, line:String):String {
+			var output:String = message;
+			if (output != "") {
+				output += "<br/>";
+			}
+			output += line;
+			return output;
+		}
+
+		public function updateInstructionBoxRegular(): void {
+			var message:String = "";
+			message = appendMessage (message, "1.  Please confirm that all information has been");
+			message = appendMessage (message, "     correctly entered. Modifications can be made by");
+			message = appendMessage (message, "     clicking the Back button or by clicking on a tab.");
+			message = appendMessage (message, "2.  Submit the experiment information by");
+			message = appendMessage (message, "     clicking the Submit button.");
+			getInstructionsBox().htmlText = message;
+			getInstructionsBox().height = 100;
+		}
+
+		public function updateInstructionBoxCharges(): void {
+			var message:String = "";
+			message = appendMessage (message, "1.  Please confirm the information below. Click the");
+			message = appendMessage (message, "     Back button or a tab to modify the request.");
+			message = appendMessage (message, "2.  Agree to estimated charges by clicking the");
+			message = appendMessage (message, "     \"I authorize\" checkbox.");
+			message = appendMessage (message, "3.  Approve the work request by clicking the");
+			message = appendMessage (message, "     Submit button.");
+			getInstructionsBox().htmlText = message;
+			getInstructionsBox().height = 120;
+		}
+
+		public function updateInstructionBoxSaveButton(): void {
+			var message:String = "";
+			message = appendMessage (message, "1.  Please confirm the information below. Click the");
+			message = appendMessage (message, "     Back button or a tab to modify the request.");
+			message = appendMessage (message, "2.  Click save button.");
+			getInstructionsBox().htmlText = message;
+			getInstructionsBox().height = 60;
+		}
+
 	}
 }
