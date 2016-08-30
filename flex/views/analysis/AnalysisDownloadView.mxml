@@ -701,24 +701,49 @@
 			}
 
 			/************************************************************************
-			 * Read trio definition file and build the URL to start gene.iobio.io
+			 * Read .ped file and build the URL to start gene.iobio.io if we can
 			 *
 			 */
 			public function createGENELinks(txt:String):void {
 				
 				//send to server
 				var params:Object = new Object();
+				params.idAnalysis = getAnalysisDownloadList.lastResult.Analysis.@idAnalysis
 				params.fileName = txt;
+				params.VCFInfo = getAnalysisDownloadList.lastResult.VCFInfo;
+				params.BAMInfo = getAnalysisDownloadList.lastResult.BAMInfo;		
 				
 				makeGENELinks.send(params);
 			}
 			
 			//response from server
 			private function onMakeGENELinks(event:ResultEvent):void {
+
+				var what:String = makeGENELinks.lastResult.PEDFile.PEDEntry.toString();
+				//Alert.show(what,"Name");
 				
 				if (makeGENELinks.lastResult.name() == "SUCCESS") {					
 					navigateToURL(new URLRequest(makeGENELinks.lastResult.@urlsToLink),"GENE");					
 				}
+				
+				else {
+					// we couldn't build the URL, could be several reasons
+					// invoke ManagePedFiles and let the user correct the problem
+					var managePedFileWindow:ManagePedFileWindow = ManagePedFileWindow(PopUpManager.createPopUp(this, ManagePedFileWindow, true));
+					managePedFileWindow.idLab = parentDocument.selectedIdLab;
+					managePedFileWindow.idAnalysis = parentDocument.selectedIdAnalysis;
+					managePedFileWindow.parentWindow = this;
+					
+					managePedFileWindow.vcfInfo = makeGENELinks.lastResult.VCFInfo;
+					managePedFileWindow.bamInfo = makeGENELinks.lastResult.BAMInfo;
+					managePedFileWindow.pedInfo = makeGENELinks.lastResult.PEDInfo;
+					managePedFileWindow.pedFile = makeGENELinks.lastResult.PEDFile.PEDEntry;
+					managePedFileWindow.reason = makeGENELinks.lastResult.PEDAction;
+				
+					managePedFileWindow.init();
+					PopUpManager.centerPopUp(managePedFileWindow);
+				}
+				
 			}
 			
 			/************************************************************************

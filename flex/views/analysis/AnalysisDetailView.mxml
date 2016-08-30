@@ -510,6 +510,25 @@
 				linkToExpWindow.parentWindow = this;
 				PopUpManager.centerPopUp(linkToExpWindow);
 			}
+
+			private function showManagePedFileWindow():void{
+				theTab.selectedChild = this.filesView;
+/*				
+				var managePedFileWindow:ManagePedFileWindow = ManagePedFileWindow(PopUpManager.createPopUp(this, ManagePedFileWindow, true));
+				managePedFileWindow.idLab = parentDocument.selectedIdLab;
+				managePedFileWindow.idAnalysis = parentDocument.selectedIdAnalysis;
+				managePedFileWindow.parentWindow = this;
+
+				var vcfInfo:Object = filesView.getAnalysisDownloadList.lastResult.VCFInfo[0];
+				var bamInfo:Object = filesView.getAnalysisDownloadList.lastResult.BAMInfo[0];
+				var pedInfo:Object = filesView.getAnalysisDownloadList.lastResult.PEDInfo[0];
+				var pedFile:Object = null;
+				var reason:Object = null;
+				managePedFileWindow.init(vcfInfo,bamInfo,pedInfo,pedFile,reason);
+									
+				PopUpManager.centerPopUp(managePedFileWindow);
+*/				
+			}
 			
 		]]>
 	</mx:Script>
@@ -564,6 +583,14 @@
 							   visible="{!isGuest &amp;&amp; parentDocument.selectedAnalysis.@canRead == 'Y' &amp;&amp; parentApplication.dataTrackSupported}"
 							   includeInLayout="{!isGuest &amp;&amp; parentDocument.selectedAnalysis.@canRead == 'Y'  &amp;&amp; parentApplication.dataTrackSupported}"
 							   textAlign="left" paddingLeft="2" paddingRight="0">    	        
+				</mx:LinkButton>		
+				<mx:LinkButton id="pedButton" label="Manage Ped File" 
+							   click="showManagePedFileWindow()" 
+							   icon="@Embed(source='../../assets/chart_organisation.png')" 
+							   textDecoration="underline" 
+							   visible="{!isGuest &amp;&amp; parentDocument.selectedAnalysis.@canRead == 'Y' &amp;&amp; parentApplication.dataTrackSupported &amp;&amp; !isCollaborator}"
+							   includeInLayout="{!isGuest &amp;&amp; parentDocument.selectedAnalysis.@canRead == 'Y'  &amp;&amp; parentApplication.dataTrackSupported &amp;&amp; !isCollaborator}"
+							   textAlign="left" paddingLeft="2" paddingRight="0" >    	        
 				</mx:LinkButton>		
 				<mx:LinkButton label="Share web link" click="{showLinks();}" icon="@Embed(source='../../assets/globe_link.png')" id="shareWebLink" 
 							   textDecoration="underline" textAlign="left" paddingLeft="2" paddingRight="0"/>
