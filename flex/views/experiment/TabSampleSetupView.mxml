@@ -375,7 +375,7 @@
 							this.sampleTypeRadioGroup.selectedValue &&
 							hasOrganism() &&
 							this.otherSamplePrepMethod.text.length > 0 && reagentInput.text != '' &&
-                            elutionBufferInput.text != '' && (this.dnaseCheckBox.selected || this.rnaseCheckBox.selected) &&
+                            elutionBufferInput.text != '' &&
                             retrieveSamplesRadioGroup.selectedValue != null) {
 							
 							isComplete = true;

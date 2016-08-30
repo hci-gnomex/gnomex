@@ -981,6 +981,10 @@
 					sampleSetupView.sampleOrganismCombo.selectedIndex = -1;
 					sampleSetupView.enabled = false;
 					sampleSetupView.otherSamplePrepMethod.text = "";
+					sampleSetupView.retrieveSamplesRadioGroup.selection = null;
+					sampleSetupView.retrieveSamplesRadioGroup.selectedValue = null;
+					sampleSetupView.reagentInput.text = '';
+					sampleSetupView.elutionBufferInput.text = '';
 					seqSetupView.seqPrepRadioGroup.selectedValue = 'Y';
 					seqSetupView.prePooledSamplesRadioGroup.selectedValue = 'N';
 					
