@@ -1909,6 +1909,26 @@
 
 			</mx:VBox>
 
+			<mx:VBox id="samplePurificationBox" width="100%" paddingLeft="4" visible="{this.selectedExperiment.@idCoreFacility == parentApplication.idCoreFacilityHTG}" includeInLayout="{this.selectedExperiment.@idCoreFacility == parentApplication.idCoreFacilityHTG}">
+				<mx:HBox includeInLayout="{this.selectedExperiment.@reagent != ''}" visible="{this.selectedExperiment.@reagent != ''}">
+					<mx:Label text="Sample Reagent"  width="105" styleName="formLabel" textAlign="left" id="sampleReagentLabel"/>
+					<mx:Text text="{this.selectedExperiment.@reagent}"/>
+				</mx:HBox>
+				<mx:HBox includeInLayout="{this.selectedExperiment.@elutionBuffer != ''}" visible="{this.selectedExperiment.@elutionBuffer != ''}">
+					<mx:Label text="Elution Buffer"  width="105" styleName="formLabel" textAlign="left" id="sampleElutionLabel"/>
+					<mx:Text text="{this.selectedExperiment.@elutionBuffer}"/>
+				</mx:HBox>
+				<mx:HBox includeInLayout="{this.selectedExperiment.@usedDnase == 'Y'}" visible="{this.selectedExperiment.@usedDnase == 'Y'}">
+					<mx:Label text="Samples were treated with DNase"  width="125" styleName="formLabel" textAlign="left" id="usedDnaseLabel"/>
+				</mx:HBox>
+				<mx:HBox includeInLayout="{this.selectedExperiment.@usedRnase == 'Y'}" visible="{this.selectedExperiment.@usedRnase == 'Y'}">
+					<mx:Label text="Samples were treated with RNase"  width="170" styleName="formLabel" textAlign="left" id="usedRnaseLabel"/>
+				</mx:HBox>
+				<mx:HBox includeInLayout="{this.selectedExperiment.@keepSamples != ''}" visible="{this.selectedExperiment.@keepSamples != ''}">
+					<mx:Label width="190" text="{this.selectedExperiment.@keepSamples == 'Y' ? 'Lab has requested to pick up samples' : 'Lab has declined to pick up samples'}" styleName="formLabel" textAlign="left" id="keepSamplesLabel"/>
+				</mx:HBox>
+			</mx:VBox>
+
 		</mx:VBox>
 		
 		<mx:VBox id="notesTab" label="Description" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4" verticalGap="0">

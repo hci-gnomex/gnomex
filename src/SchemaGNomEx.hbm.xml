@@ -1030,6 +1030,11 @@
         <property name="adminNotes" column="adminNotes" type="string"/>
         <property name="idProduct" column="idProduct" type="integer"/>
         <property name="archived" column="archived" type="string"/>
+        <property name="reagent" column="reagent" type="string"/>
+        <property name="elutionBuffer" column="elutionBuffer" type="string"/>
+        <property name="usedDnase" column="usedDnase" type="string"/>
+        <property name="usedRnase" column="usedRnase" type="string"/>
+        <property name="keepSamples" column="keepSamples" type="string"/>
         <set name="samples" table="Sample" lazy="true" cascade="delete"
              sort="hci.gnomex.utility.SampleNumberComparator">
             <key column="idRequest"/>
