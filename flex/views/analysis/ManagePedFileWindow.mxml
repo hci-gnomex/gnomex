@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:renderers="views.renderers.*" title="Manage Ped File" creationComplete="init()" showCloseButton="true" close="{PopUpManager.removePopUp(this)}" horizontalScrollPolicy="off" verticalScrollPolicy="off">
+	
+	<mx:HTTPService 
+		id="managePedFileSave" 
+		url="ManagePedFile.gx"
+		resultFormat="e4x"
+		result="onManagePedFileSave(event)"
+		showBusyCursor="true"
+		fault="parentApplication.onFailHttpRequest('Unable to save ped file', event)"
+		method="POST"
+		useProxy="false">
+	</mx:HTTPService >
+	
+	
+	<mx:Script>
+		<![CDATA[
+			
+			import mx.collections.XMLListCollection;
+			import mx.controls.Alert;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.ResultEvent;
+			
+			[Bindable]
+			private var experimentToLink:Object = null;
+			
+			public var idAnalysis:Object = null;
+			
+			public var idLab:Object = null;
+			
+			public var parentWindow:Object = null;
+			
+			public var vcfInfo:XMLList = null;
+			public var bamInfo:XMLList = null;
+			[Bindable]
+			public var pedInfo:XMLList = null;
+			[Bindable]
+			public var pedFile:XMLList = null;
+			public var reason:XMLList = null;
+	
+			public function init():void{
+
+				this.noVcfMessage.visible = false;
+				this.noVcfMessage.includeInLayout = false;
+				
+				Alert.show(pedFile.toString(),"in init");
+				
+				orderList.refresh();
+				
+				if(orderList.length == 0){
+					this.noVcfMessage.visible = true;
+					this.noVcfMessage.includeInLayout = true;
+				}				
+
+				labCombo.selectedIndex = this.getSelectedLabIndex();
+			}
+			
+/*			
+			private function onGetRequestList(event:ResultEvent):void{
+				if ( getRequestList.lastResult.name() == "RequestList"){
+					orderList.refresh();
+					
+					if(orderList.length == 0){
+						this.noVcfMessage.visible = true;
+						this.noVcfMessage.includeInLayout = true;
+					} else{
+						this.noVcfMessage.visible = false;
+						this.noVcfMessage.includeInLayout = false;
+					}
+				} else{
+					Alert.show( event.result..ERROR.@message.toString(), "Error getting orders" );
+				}
+			}
+*/			
+			private function savePedFile():void{
+				var params:Object = new Object();
+				params.idAnalysis = "3630";
+				params.action = "save";
+				params.PEDInfoXMLString = pedInfo.toXMLString();
+				params.PEDFileXMLString = pedFile.toXMLString();				
+				managePedFileSave.send(params);
+				
+			}
+			
+			private function onManagePedFileSave(event:ResultEvent):void{
+				if(managePedFileSave.lastResult.name() == "SUCCESS"){
+					Alert.show("Ped file saved. Select proband and press Launch.");
+				} else{
+					Alert.show( event.result..ERROR.@message.toString(), "Error saving ped file." );
+				}
+			}
+			
+			private function getSelectedLabIndex():int{
+				for(var i:int = 0; i < userLabs.length; i++){
+					var lab:Object = userLabs.getItemAt(i);
+					if(lab.@idLab == this.idLab){
+						return i;
+					}
+				}			
+				return -1;			
+			}
+			
+			private function filterResults():void{
+				var params:Object = new Object();
+				//search by lab
+				if(labCombo.selectedItem != null && labCombo.selectedItem.@idLab != ""){
+					params.idLab = labCombo.selectedItem.@idLab;
+					params.includePlateInfo = 'N';
+				}
+				//search by request number
+				if(expSearch.length > 0){
+					params.number = expSearch.text;
+				}
+				//only bring back experiments that are able to be linked
+				params.linkToAnalysisExpsOnly = 'Y';
+				
+				//getRequestList.send(params);
+				
+			}
+			
+		]]>
+	</mx:Script>
+	
+	<mx:XMLListCollection id="orderList" source="{pedFile}"/>
+	<mx:XMLListCollection id="requestCategories" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry.(@isActive == 'Y' &amp;&amp; @value != '')}"/>
+	<mx:XMLListCollection id="userLabs" source="{parentApplication.submitRequestLabList.source}"/>
+	
+	
+	<mx:HBox>
+		<mx:Label text="Search by request number: "/>
+		<mx:TextInput id="expSearch" change="filterResults()" enabled="{this.orderList.length > 0 || expSearch.text.length > 0}"/>
+		
+		<mx:Spacer width="25" />
+		
+		<mx:Label text="Filter by Lab: "/>
+		<renderers:FilterComboBox id="labCombo" width="250" close="filterResults()" dataProvider="{this.userLabs}" labelField="@name"/>
+	</mx:HBox>
+	
+	<mx:Text id="noVcfMessage" text="There are no VCF.gz files in this analysis" visible="false" includeInLayout="false"/>
+	
+	<mx:DataGrid id="requestGrid" width="100%" dataProvider="{this.orderList.source}" sortableColumns="true" itemClick="{experimentToLink = requestGrid.selectedItem}" allowMultipleSelection="false">
+		
+		<mx:columns>
+			<mx:DataGridColumn dataField="@sample_id" headerText="Sample_Id"/>
+			<mx:DataGridColumn dataField="@paternal_id" headerText="Paternal_Id"/>
+			<mx:DataGridColumn dataField="@maternal_id" headerText="Maternal_Id"/>
+			<mx:DataGridColumn dataField="@bam" headerText="Bam"/>
+			<mx:DataGridColumn dataField="@vcf" headerText="Vcf"/>
+		</mx:columns>
+		
+	</mx:DataGrid>
+	
+	<mx:ControlBar width="451" horizontalAlign="right">
+		<mx:Button label="Save" id="saveButton" click="savePedFile()" icon="@Embed(source='../../assets/icon_link.gif')" 
+				   enabled="true" 
+				   disabledIcon="@Embed(source='../../assets/icon_link_disable.gif')"/>
+		<mx:Button label="Cancel" click="{mx.managers.PopUpManager.removePopUp(this)}"/>
+	</mx:ControlBar>
+	
+
+</mx:TitleWindow>
