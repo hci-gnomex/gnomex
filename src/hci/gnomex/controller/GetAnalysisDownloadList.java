@@ -65,22 +65,10 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
 		HashMap errors = this.loadDetailObject(request, filter);
 		this.addInvalidFields(errors);
 
-		if (request.getParameter("includeUploadStagingDir") != null && !request.getParameter("includeUploadStagingDir").equals("")) {
-			includeUploadStagingDir = request.getParameter("includeUploadStagingDir");
-		}
-
-		if (request.getParameter("idAnalysis") != null) {
-			idAnalysis = new Integer(request.getParameter("idAnalysis"));
-		}
-
-		autoCreate = false;
-		if (request.getParameter("autoCreate") != null && request.getParameter("autoCreate").equals("Y")) {
-			autoCreate = true;
-		}
-
-		if (request.getParameter("analysisNumber") != null && !request.getParameter("analysisNumber").equals("")) {
-			analysisNumber = request.getParameter("analysisNumber");
-		}
+		includeUploadStagingDir = getOptionalStringParameter(request, "includeUploadStagingDir");
+		idAnalysis = getOptionalIntegerParameter(request, "idAnalysis");
+		autoCreate = getOptionalBooleanParameter(request, "autoCreate");
+		analysisNumber = getOptionalStringParameter(request, "analysisNumber");
 		if (idAnalysis == null && analysisNumber == null) {
 			this.addInvalidField("idAnalysis or analysisNumber", "Either idAnalysis or analysisNumber must be provided");
 		}
@@ -93,12 +81,16 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
 
 	}
 
-	public Command execute() throws RollBackCommandException {
+	@Override
+	protected Logger getLogger() {
+		return LOG;
+	}
+
+	@Override
+	public Command executeCommand() throws Exception {
 
 		long startTime = System.currentTimeMillis();
 		String reqNumber = "";
-
-		try {
 
 			Session sess = HibernateSession.currentSession(this.getUsername());
 
@@ -315,18 +307,6 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
 			} else {
 				setResponsePage(this.ERROR_JSP);
 			}
-
-		} catch (Exception e) {
-			LOG.error("An exception has occurred in GetAnalysisDownloadList ", e);
-
-			throw new RollBackCommandException(e.getMessage());
-		} finally {
-			try {
-				this.getSecAdvisor().closeHibernateSession();
-			} catch (Exception e) {
-
-			}
-		}
 
 		String dinfo = "GetAnalysisDownloadList (" + this.getUsername() + " - " + reqNumber + "), ";
 		Util.showTime(startTime, dinfo);
