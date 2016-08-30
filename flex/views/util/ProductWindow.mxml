@@ -152,7 +152,7 @@
 		 */
 		private function refreshProductTreeData():void {
 			var expandedProductTypes:Array = getExpandedProductTypes();
-			var newProductTreeData = new XML("<root/>");
+			var newProductTreeData:XML = new XML("<root/>");
 			for each(var readonly:XML in products) {
 				var product:XML = readonly.copy();
 				pruneChild(product, "productType");
@@ -355,7 +355,6 @@
 				newProduct.@idProductType = productTree.selectedItem.@idProductType;
 			}
 			idProduct = "";
-			//                                            refreshProductTree();
 			reselectProduct();
 		}
 
