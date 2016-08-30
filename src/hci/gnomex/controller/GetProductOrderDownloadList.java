@@ -359,9 +359,9 @@ public class GetProductOrderDownloadList extends GNomExCommand implements Serial
 			childFdNode.setAttribute("state", "unchecked");
 
 			String viewType = Constants.DOWNLOAD_PRODUCT_ORDER_SINGLE_FILE_SERVLET + "?idProductOrder=" + childFd.getId();
-//			if (!childFd.getType().equals("dir")) {
+			if (!childFd.getType().equals("dir")) {
 				childFdNode.setAttribute("viewURL", childFd.getViewURL(viewType));
-//			}
+			}
 
 			fdNode.addContent(childFdNode);
 			fileMap.put(childFd.getQualifiedFileName(), null);
