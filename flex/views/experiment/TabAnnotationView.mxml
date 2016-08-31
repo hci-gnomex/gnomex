@@ -1,28 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Canvas label="Annotations"  xmlns:mx="http://www.adobe.com/2006/mxml" 
+<mx:Canvas label="Annotations"  xmlns:mx="http://www.adobe.com/2006/mxml"
 		   xmlns:util="views.util.*" show="{this.init()}"
 		   width="100%" height="100%" enabled="false">
-	
-	<mx:HTTPService  
-		id="saveProperty" 
-		url="SaveProperty.gx"
-		resultFormat="e4x"
-		showBusyCursor="true"
-		result="onSaveProperty(event)"
-		fault="parentApplication.onFailHttpRequest('Failed to save annotation', event)"
-		method="POST" 
-		useProxy="false">
+
+	<mx:HTTPService
+			id="saveProperty"
+			url="SaveProperty.gx"
+			resultFormat="e4x"
+			showBusyCursor="true"
+			result="onSaveProperty(event)"
+			fault="parentApplication.onFailHttpRequest('Failed to save annotation', event)"
+			method="POST"
+			useProxy="false">
 	</mx:HTTPService>
-	
-	<mx:HTTPService  
-		id="addPropertyAppUsers" 
-		url="AddPropertyAppUsers.gx"
-		resultFormat="e4x"
-		showBusyCursor="true"
-		result="onAddPropertyAppUsers(event)"
-		fault="parentApplication.onFailHttpRequest('Failed to add AppUsers to Property', event)"
-		method="POST" 
-		useProxy="false">
+
+	<mx:HTTPService
+			id="addPropertyAppUsers"
+			url="AddPropertyAppUsers.gx"
+			resultFormat="e4x"
+			showBusyCursor="true"
+			result="onAddPropertyAppUsers(event)"
+			fault="parentApplication.onFailHttpRequest('Failed to add AppUsers to Property', event)"
+			method="POST"
+			useProxy="false">
 	</mx:HTTPService>
 
 	<mx:states>
@@ -103,17 +103,6 @@
 			}
 		}
 
-
-		private function toggleAnnotation(event:ListEvent, dataGrid:DataGrid):void {
-			if (event.columnIndex > 0) {
-				if (dataGrid.dataProvider[event.rowIndex].@isSelected == "true") {
-					dataGrid.dataProvider[event.rowIndex].@isSelected = "false";
-				} else {
-					dataGrid.dataProvider[event.rowIndex].@isSelected = "true";
-				}
-			}
-			updateSelectedProperties();
-		}
 
 		//
 		// Configure properties
@@ -472,6 +461,36 @@
 			return keep;
 		}
 
+		private function toggleProperty(event:ListEvent, dataGrid:DataGrid):void {
+			if (event.columnIndex > 0) {
+				if (dataGrid.dataProvider[event.rowIndex].@isSelected == "true") {
+					dataGrid.dataProvider[event.rowIndex].@isSelected = "false";
+				} else {
+					dataGrid.dataProvider[event.rowIndex].@isSelected = "true";
+				}
+			}
+		}
+
+		private function toggleFilteredAnnotation(event:ListEvent):void {
+			toggleProperty(event, sampleAnnotationGrid);
+			updateSelectedProperties();
+		}
+
+		private function toggleSelectedAnnotation(event:ListEvent):void {
+			toggleProperty(event, selectedAnnotationGrid);
+			propagateSelectedProperty(event);
+		}
+
+		private function propagateSelectedProperty(event:ListEvent):void {
+			var selectedProperty:Object = selectedAnnotationGrid.dataProvider[event.rowIndex];
+			for each (var filteredProperty:Object in filteredProperties) {
+				if (filteredProperty.@idProperty == selectedProperty.@idProperty) {
+					filteredProperty.@isSelected = selectedProperty.@isSelected;
+				}
+			}
+			updateSelectedProperties();
+		}
+
 		private function updateSelectedProperties():void {
 			callLater(updateSelectedPropertiesDelayed);
 		}
@@ -480,7 +499,7 @@
 			selectedProperties = new XMLListCollection();
 			for each (var property:Object in filteredProperties) {
 				if (property.@isSelected == "true") {
-					selectedProperties.addItem(property);
+					selectedProperties.addItem(property.copy());
 				}
 			}
 		}
@@ -492,7 +511,7 @@
 	<mx:Sort id="sortFilteredProperties" compareFunction="AnnotationUtility.sortProperties" unique="true"/>
 
 	<mx:XMLListCollection id="properties"/>
-	
+
 	<mx:VBox width="100%" height="100%">
 		<mx:HBox width="100%" height="100%">
 			<mx:VBox width="340" height="100%">
@@ -507,7 +526,7 @@
 							 variableRowHeight="true"
 							 dataProvider="{filteredProperties}"
 							 change="updateSelectedProperties();"
-							 itemClick="toggleAnnotation(event, sampleAnnotationGrid)"
+							 itemClick="toggleFilteredAnnotation(event)"
 							 itemRollOver="createToolTip(event, sampleAnnotationGrid)"
 							 itemRollOut="sampleAnnotationGrid.toolTip = null;" >
 					<mx:columns>
@@ -557,8 +576,8 @@
 							 rowHeight="20"
 							 variableRowHeight="true"
 							 dataProvider="{selectedProperties}"
-							 change="updateSelectedProperties();"
-							 itemClick="toggleAnnotation(event, selectedAnnotationGrid)"
+							 change="propagateSelectedProperty(event);"
+							 itemClick="toggleSelectedAnnotation(event)"
 							 itemRollOver="createToolTip(event, selectedAnnotationGrid)"
 							 itemRollOut="selectedAnnotationGrid.toolTip = null;" >
 					<mx:columns>
@@ -587,19 +606,19 @@
 				</mx:DataGrid>
 			</mx:VBox>
 		</mx:HBox>
-		
+
 		<mx:HBox width="100%">
 			<mx:TextInput id="newAnnotationName" text="{PropertyWindow.NAME_FIELD_DEFAULT}" width="250"
-					 focusIn="{newAnnotationName.text == PropertyWindow.NAME_FIELD_DEFAULT ? newAnnotationName.text = '' : newAnnotationName.text = newAnnotationName.text}"
-					 focusOut="{newAnnotationName.text == '' ? newAnnotationName.text = PropertyWindow.NAME_FIELD_DEFAULT : newAnnotationName.text = newAnnotationName.text}"/>
+						  focusIn="{newAnnotationName.text == PropertyWindow.NAME_FIELD_DEFAULT ? newAnnotationName.text = '' : newAnnotationName.text = newAnnotationName.text}"
+						  focusOut="{newAnnotationName.text == '' ? newAnnotationName.text = PropertyWindow.NAME_FIELD_DEFAULT : newAnnotationName.text = newAnnotationName.text}"/>
 			<mx:Button id="newAnnotationNameButton" click="addNewAnnotation()" label="Add Annotation"/>
 			<util:ContextHelp context1="annotationTabAddHelp" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Add Annotation Help"
 							  label="" labelPlacement="left" id="annotationTabAddHelp"/>
 			<mx:Spacer width="40"/>
-			<mx:LinkButton label="Edit annotations ..." textDecoration="underline" styleName="blueLinkButton" click="editPropertyDictionary()" id="editSampleAnnotationButton">		  	
-			</mx:LinkButton>						
+			<mx:LinkButton label="Edit annotations ..." textDecoration="underline" styleName="blueLinkButton" click="editPropertyDictionary()" id="editSampleAnnotationButton">
+			</mx:LinkButton>
 		</mx:HBox>
-		
+
 	</mx:VBox>
-	
+
 </mx:Canvas>
