@@ -2301,6 +2301,7 @@
 				</mx:HBox>
 			</mx:AddChild>
 		</mx:State>
+        <mx:State name="NanoStringState" basedOn="MDMiSeqState"/> <!-- need this empty state because other tabs depend on it being here to make logic decisions !-->
 		<mx:State name="DigitalPCRState" basedOn="GenericState">
 			<mx:SetProperty target="{samplePrepContainer}" name="includeInLayout" value="true"/>
 			<mx:SetProperty target="{samplePrepContainer}" name="visible" value="true"/>
