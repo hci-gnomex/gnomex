@@ -628,7 +628,7 @@
 				<mx:HierarchicalData source="{downloadList}"/>
 			</mx:dataProvider>						  
 			<mx:columns>
-				<mx:AdvancedDataGridColumn dataField="@displayName" headerText="Folder or File" width="250" itemRenderer="views.renderers.ExperimentDownloadRenderer"/>
+				<mx:AdvancedDataGridColumn dataField="@displayName" headerText="Folder or File" width="250" itemRenderer="views.renderers.DownloadRenderer"/>
 				<mx:AdvancedDataGridColumn dataField="@info" headerText="User" width="80"/>
 				<mx:AdvancedDataGridColumn dataField="@linkedSampleNumber" headerText="Linked Sample" width="100"/>
 				<mx:AdvancedDataGridColumn dataField="@fileSizeText"  headerText="Size" width="40" textAlign="right" /> 
