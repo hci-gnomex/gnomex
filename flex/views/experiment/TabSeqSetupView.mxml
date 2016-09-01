@@ -383,19 +383,19 @@
 		private function pickSeqPrepState():void {
 
 			if (seqPrepRadioGroup.selectedValue ==  null || seqPrepRadioGroup.selectedValue == 'Y') {
-				this.labelApplication.label="(2) Select a sequencing experiment type."
+				this.labelApplication.label="(2) Select a sequencing experiment type.";
 				this.prePooledSamplesRadioGroup.selection = null;
 				this.prePooledNumTubes.text = "";
 				if (parentDocument.isAmendState()) {
 					parentDocument.sampleSetupView.currentState = 'SolexaAmendState';
-				} else if (currentState != 'MDMiSeqState') {
+				} else if (parentDocument.sampleSetupView.currentState != 'MDMiSeqState') {
 					parentDocument.sampleSetupView.currentState = 'SolexaSetupState';
 				}
 			} else {
-				this.labelApplication.label="(3) Select a sequencing experiment type."
+				this.labelApplication.label="(3) Select a sequencing experiment type.";
 				if (parentDocument.isAmendState()) {
 					parentDocument.sampleSetupView.currentState = 'SolexaAmendPreppedState';
-				} else if (currentState != 'MDMiSeqState') {
+				} else if (parentDocument.sampleSetupView.currentState != 'MDMiSeqState') {
 					parentDocument.sampleSetupView.currentState = 'SolexaSetupPreppedState';
 				}
 			}
@@ -443,16 +443,16 @@
 				<mx:VBox width="100%" verticalGap="0" paddingLeft="2">
 					<mx:RadioButtonGroup id="seqPrepRadioGroup"/>
 					<mx:HBox id="hbox2" width="100%">
-						<mx:RadioButton id="samplesToBePreppedCheckbox"  value="Y" groupName="seqPrepRadioGroup"  label="Yes, please prep library" selected="true" click="{pickSeqPrepState()}">
+						<mx:RadioButton id="samplesToBePreppedCheckbox"  value="Y" groupName="seqPrepRadioGroup"  label="Yes, please prep library" selected="false" click="{pickSeqPrepState()}">
 						</mx:RadioButton>
 					</mx:HBox>
 
 					<mx:HBox >
-						<mx:RadioButton id="samplesAlreadyPreppedCheckbox"  value="N" groupName="seqPrepRadioGroup" label="No, library has already been prepped "
+						<mx:RadioButton id="samplesAlreadyPreppedCheckbox"  value="Y" groupName="seqPrepRadioGroup" label="No, library has already been prepped "
 										click="{pickSeqPrepState()}">
 						</mx:RadioButton>
 					</mx:HBox>
-				</mx:VBox>
+		</mx:VBox>
 			</mx:HBox>
 			<mx:HBox horizontalGap="0" paddingBottom="0" paddingTop="0" id="prePooledSamplesHBox" visible="{samplesAlreadyPreppedCheckbox.selected}" includeInLayout="{samplesAlreadyPreppedCheckbox.selected}">
 				<util:ContextHelp context1="sampleDetailsSamplePooling" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Sample Pooling Help"

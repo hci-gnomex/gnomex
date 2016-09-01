@@ -189,7 +189,7 @@
 	<mx:Script>
 		<![CDATA[
 			import hci.flex.controls.DropdownLabel;
-			
+
 			import mx.collections.ArrayCollection;
 			import mx.controls.Alert;
 			import mx.core.Container;
@@ -206,7 +206,7 @@
 			import mx.utils.StringUtil;
 			import mx.validators.NumberValidator;
 			import mx.validators.ValidationResult;
-			
+
 			import views.billing.BillingTemplateWindow;
 			import views.order.NavOrderView;
 			import views.topics.NavTopicsView;
@@ -217,68 +217,68 @@
 			import views.util.RequestStatusComparator;
 			import views.util.SampleConcentrationValidator;
 			import views.util.SampleQCValidator;
-			
+
 			[Embed(source='../../assets/page.png')]
 			[Bindable]
 			public var viewIcon:Class;
-			
+
 			[Embed(source='../../assets/arrow_left.png')]
 			[Bindable]
 			public var leftArrowIcon:Class;
-			
+
 			[Bindable]
 			private var requestIcon:String = '';
-			
+
 			[Bindable]
 			private var errorMessage:String = "";
 			[Bindable]
 			private var warningMessage:String = "";
-			
-			
+
+
 			[Bindable]
 			public var selectedIdSlideProduct:Object;
-			
+
 			[Bindable]
 			public var coreFacility:Object = null;
-			
+
 			[Bindable]
 			private var submittedIdRequest:String;
 			[Bindable]
 			private var submittedRequestNumber:String;
-			
+
 			[Bindable]
 			public var coreFacilityName:String = "";
-			
+
 			[Bindable]
 			public var requestType:String = "";
-			
+
 			private var externalIdRequest:String;
 			private var externalRequestNumber:String;
-			
+
 			[Bindable]
 			public var requestCategoryName:String;
-			
+
 			[Bindable]
 			public var applicationName:String;
-			
+
 			public var codeApplication:String;
-			
+
 			[Bindable]
 			public var seqLibTreatmentsDisplay:String = "";
-			
+
 			[Bindable]
 			public var request:Object;
-			
+
 			public var saveDescription:String = "";
-			
+
 			[Bindable]
 			public var requestCategory:Object;
-			
+
 			[Bindable]
 			public var lab:Object;
-			
+
 			private var existingLanes:XMLList = null;
-			
+
 			[Bindable]
 			public var seqLibProtocolList:XMLListCollection;
 			[Bindable]
@@ -310,87 +310,87 @@
 			[Bindable]
 			private var possibleRequestSubmitters:XMLListCollection;
 			private var appUserSort:Sort;
-			
-			
-			
+
+
+
 			private var dictionarySorter:Sort;
 			private var sampleTypeSorter:Sort;
 			private var filteredAppListSorter:Sort;
-			
+
 			[Bindable]
 			private var selectedFileList:XMLListCollection;
-			
+
 			[Bindable]
 			private var experimentCategoryName:String;
 			[Bindable]
 			private var billingAccountName:String;
-			
+
 			[Bindable]
 			public var requestToClone:Object;
-			
+
 			[Bindable]
 			public var userWarningsSamples:String = "";
 			[Bindable]
 			public var userWarningsSampleSetup:String = "";
 			[Bindable]
 			public var userWarningsHybSetup:String = "";
-			
+
 			[Bindable]
 			public var showCCNumberColumn:Boolean = true;
-			
+
 			[Bindable]
-			private var requestApplication:Object = null;	
-			
+			private var requestApplication:Object = null;
+
 			[Bindable]
 			private var tabIndexToRestore:int = -1;
-			
+
 			private var isInitialized:Boolean = false;
-			
+
 			private var lastSelectedApplication:Object = null;
-			
+
 			private var prePooledChanged:Boolean = false;
-			
+
 			public var numCapSeqPlates:int = 0;
-			
+
 			public var numIScanPlates:int = 0;
-			
+
 			public var defaultCodeRequestCategory:String = null;
-			
+
 			public var defaultRequestCategory:Object = null;
-			
+
 			public var ccNumberList:Array = null;
-			
+
 			public var defaultTab:Container = null;
-			
+
 			private var billingAccountAlreadyUpdated:Boolean = false;
-			
+
 			private var genomeBuildOrganism:String = "";
-			
+
 			[Bindable]
 			private var labList:XMLListCollection = null;
-			
+
 			[Bindable]
 			private var isDirty:Boolean = false;
-			
+
 			private var warnToSelectNewBillingAccount:Boolean;
-			
+
 			// Variables to hold parameters for showExperiment after experiment is submitted.
 			private var theRequestNumber:String;
 			private var showPromptToUpload:Boolean;
-			
+
 			private var accountAcceptingBalanceOnRequest:Object = null;
 			private var showEditBillingTemplateOption:Boolean = false;
 			public var editedBillingTemplate:String = null;
-			
+
 			private function init():void {
 				// If this is the first time this instance
 				// has been shown, perform 1-time-only
 				// initialization
 				if (!isInitialized) {
-					
+
 					// Init url for sample sheet upload
 					parentApplication.setupSampleSheetUpload();
-					
+
 					// Set the base state
 					if (this.id == "amendRequestView") {
 						this.currentState = 'AmendState';
@@ -405,35 +405,35 @@
 						this.currentState = "";
 						this.theTab.removeChild(downloadView);
 					}
-					
+
 					this.checkSecurity();
 					this.setupDataListeners();
-					
-					
+
+
 					isInitialized = true;
 				}
-				
+
 				this.initializeData();
 				// Force the setting of request category name to reset
 				// the state if we are toggling between register external
 				// experiment and submit internal experiment.
-				if (!isEditState() && !isAmendState()) { 
-					if (!parentApplication.isInternalExperimentSubmission) {	
-						
-					} 
+				if (!isEditState() && !isAmendState()) {
+					if (!parentApplication.isInternalExperimentSubmission) {
+
+					}
 				}
-				
+
 				// Always perform checkSecurity on setupView
 				if (this.theTab.contains(setupView)) {
 					setupView.init();
 				}
-				
+
 				// Always perform checkSecurity on annotationView
 				if (this.theTab.contains(annotationView)) {
 					annotationView.checkSecurity();
 				}
-				
-				
+
+
 				if (parentApplication.theViews.selectedChild == this) {
 					this.setupSubmitForm();
 				} else if (this.id == "experimentEditView" && request != null) {
@@ -441,19 +441,19 @@
 					//  Grab the request application so that we know if we need to include avg Insert size or capLib fields
 					//  in the layout.
 					requestApplication = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Application', request.@codeApplication);
-				}	
-				
+				}
+
 				if (defaultTab == null) {
 					this.theTab.selectedIndex = 0;
 				} else {
 					this.theTab.selectedChild = defaultTab;
-					
+
 					if(this.theTab.selectedChild is TabLanesView){
 						lanesView.init();
 					}
 					defaultTab = null;
 				}
-				
+
 				if (this.isAmendState()) {
 					refreshAmendSetup();
 				}
@@ -462,7 +462,7 @@
 				}
 
 			}
-			
+
 			private function enableTabs(enable:Boolean):void {
 				for(var tabIdx:int = 0; tabIdx < theTab.numChildren; tabIdx++) {
 					var x:DisplayObject = theTab.getChildAt(tabIdx);
@@ -471,11 +471,11 @@
 					}
 				}
 			}
-			
+
 			public function instantiateTabs(codeRequestCategory:String, isEditState:Boolean, isAmendState:Boolean):void {
 				var requestCategory:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory',codeRequestCategory);
 				var requestCategoryType:Object = parentApplication.dictionaryManager.getEntry("hci.gnomex.model.RequestCategoryType", requestCategory.@type);
-				
+
 				for(var tabIdx:int = 0; tabIdx < theTab.numChildren; tabIdx++) {
 					if (theTab.getChildAt(tabIdx) == this.samplesView) {
 						var newSamplesView:TabSamplesBase = TabSamplesBase.getSamplesTab(samplesView, requestCategory, requestCategoryType, isEditState, isAmendState);
@@ -496,21 +496,21 @@
 						confirmView.setupSampleConcentrationFormatter(requestCategory);
 					}
 				}
-				
+
 				theTab.selectedIndex = 0;
 			}
-			
+
 			private function leave():void {
 				if (parentApplication.theViews.selectedChild == this) {
-					
+
 				} else if (this.id == "experimentEditView" && request != null) {
 					this.theTab.selectedChild = this.samplesView;
-				}	
+				}
 			}
-			
+
 			public function checkDirty():void {
 			}
-			
+
 			public function initializeData():void {
 				var dictionarySorter:Sort = new Sort();
 				dictionarySorter.compareFunction = this.sortDictionaryEntries;
@@ -518,38 +518,38 @@
 				if(request != null) {
 					codeApplication = request.@codeApplication;
 				}
-				
+
 				seqLibProtocolList = new XMLListCollection(parentApplication.dictionaryManager.getEntries('hci.gnomex.model.SeqLibProtocol'));
 				seqLibProtocolList.sort = dictionarySorter;
 				seqLibProtocolList.refresh();
-				
+
 				sampleSourceList = new XMLListCollection(parentApplication.dictionaryManager.getEntries('hci.gnomex.model.SampleSource'));
 				sampleSourceList.sort = dictionarySorter;
 				sampleSourceList.refresh();
-				
+
 				filteredSampleTypeList = new XMLListCollection(parentApplication.dictionaryManager.getEntries('hci.gnomex.model.SampleType'));
 				filteredSampleTypeListRna = new XMLListCollection(parentApplication.dictionaryManager.getEntries('hci.gnomex.model.SampleType'));
 				filteredSampleTypeListDna = new XMLListCollection(parentApplication.dictionaryManager.getEntries('hci.gnomex.model.SampleType'));
 				sampleTypeSorter = new Sort();
-				sampleTypeSorter.compareFunction = this.sortSampleTypes;	
+				sampleTypeSorter.compareFunction = this.sortSampleTypes;
 				filteredSampleTypeList.sort = sampleTypeSorter;
-				filteredSampleTypeListRna.sort = sampleTypeSorter;     	
+				filteredSampleTypeListRna.sort = sampleTypeSorter;
 				filteredSampleTypeListDna.sort = sampleTypeSorter;
 				filteredSampleTypeList.refresh();
 				filteredSampleTypeListRna.refresh();
 				filteredSampleTypeListDna.refresh();
-				
+
 				filteredSampleDropOffLocationList = new XMLListCollection(parentApplication.dictionaryManager.getEntries('hci.gnomex.model.SampleDropOffLocation'));
-				filteredSampleDropOffLocationList.sort = dictionarySorter;     	
+				filteredSampleDropOffLocationList.sort = dictionarySorter;
 				filteredSampleDropOffLocationList.refresh();
-				
+
 				filteredGenomeBuildList = new XMLListCollection(parentApplication.dictionaryManager.getEntries('hci.gnomex.model.GenomeBuildLite'));
-				
+
 				filteredMicroarrayAppList = new XMLListCollection(parentApplication.dictionaryManager.getEntries('hci.gnomex.model.Application'));
-				
+
 				filteredAppList = new XMLListCollection(parentApplication.dictionaryManager.getEntries('hci.gnomex.model.Application'));
 				/*
-				// We use this technique xml.copy() to prevent duplication of applications 
+				// We use this technique xml.copy() to prevent duplication of applications
 				// that somehow happens when we add services, then submit request or vice versa
 				filteredAppList           = new XMLListCollection();
 				for each(var i:Object in parentApplication.dictionaryManager.getEntries('hci.gnomex.model.Application')) {
@@ -563,18 +563,18 @@
 				} else {
 					filteredAppListSorter.compareFunction = this.sortApplication;
 				}
-				
+
 				filteredAppList.sort = filteredAppListSorter;
-				
+
 				filteredProjectList = new XMLListCollection(parentApplication.getProjectList.lastResult.Project);
 				filteredProjectList.filterFunction = filterProject;
-				
+
 				initFilters();
-				
+
 				if (theTab.contains(this.annotationView)) {
 					this.propertyEntries.refresh();
 				}
-				
+
 				this.requestProperties.refresh();
 				if (this.requestProperties.length < 1) {
 					this.theTab.getTabAt( theTab.getChildIndex( propertiesView ) ).visible = false;
@@ -583,46 +583,46 @@
 					this.theTab.getTabAt( theTab.getChildIndex( propertiesView ) ).visible = true;
 					this.theTab.getTabAt( theTab.getChildIndex( propertiesView ) ).includeInLayout = true;
 				}
-				
+
 				this.filteredLabList.refresh();
 			}
-			
+
 			public function refreshFilteredProjects():void{
 				parentApplication.getProjectList.send();
 				filteredProjectList = new XMLListCollection(parentApplication.getProjectList.lastResult.Project);
-				filteredProjectList.filterFunction = filterProject;	
+				filteredProjectList.filterFunction = filterProject;
 				filteredProjectList.refresh();
 			}
-			
+
 			private function initFilters():void {
 				this.filteredProjectList.filterFunction = this.filterProject;
 				this.filteredProjectList.refresh();
-				
-				
+
+
 				seqLibProtocolList.filterFunction = filterSeqLibProtocol;
 				seqLibProtocolList.refresh();
-				
+
 				filteredGenomeBuildList.filterFunction = filterGenomeBuild;
 				filteredGenomeBuildList.refresh();
-				
+
 				filteredMicroarrayAppList.filterFunction = filterMicroarrayApplication;
 				filteredMicroarrayAppList.refresh();
-				
+
 				filteredAppList.filterFunction = filterApplication;
 				filteredAppList.refresh();
-				
+
 				filteredSampleTypeList.filterFunction = filterAllSampleType;
 				filteredSampleTypeList.refresh();
 				filteredSampleTypeListRna.filterFunction = filterSampleTypeRna;
 				filteredSampleTypeListRna.refresh();
 				filteredSampleTypeListDna.filterFunction = filterSampleTypeDna;
 				filteredSampleTypeListDna.refresh();
-				
+
 				filteredSampleDropOffLocationList.filterFunction = filterSampleDropOffLocation;
 				filteredSampleDropOffLocationList.refresh();
-				
+
 			}
-			
+
 			public function isSolexaState():Boolean {
 				if (currentState == 'SolexaBaseState' ||
 					currentState == 'SolexaBaseExternalState' ||
@@ -630,22 +630,22 @@
 					currentState == 'SeqExternalEditState' ||
 					currentState == 'SolexaBaseAmendState' ||
 					currentState == 'SolexaLaneAmendState') {
-					return true;    	
+					return true;
 				} else {
 					return false;
 				}
 			}
-			
+
 			public function isQCState():Boolean {
 				if (currentState == 'QCState' ||
 					currentState == 'QCExternalState' ||
 					currentState == 'QCEditState') {
-					return true;    	
+					return true;
 				} else {
 					return false;
 				}
 			}
-			
+
 			public function isGenericState():Boolean {
 				if (currentState == 'GenericState' || currentState == 'GenericEditState' || currentState == 'GenericExternalState') {
 					return true;
@@ -653,7 +653,7 @@
 					return false;
 				}
 			}
-			
+
 			public function isCapSeqState():Boolean {
 				if (currentState == 'CapSeqState' || currentState == 'CapSeqAmendState' || currentState == 'CapSeqEditState') {
 					return true;
@@ -661,7 +661,7 @@
 					return false;
 				}
 			}
-			
+
 			public function isFragAnalState():Boolean {
 				if (currentState == 'FragAnalState' || currentState == 'FragAnalEditState') {
 					return true;
@@ -669,7 +669,7 @@
 					return false;
 				}
 			}
-			
+
 			public function isMitSeqState():Boolean {
 				if (currentState == 'MitSeqState' || currentState == 'MitSeqEditState') {
 					return true;
@@ -677,7 +677,7 @@
 					return false;
 				}
 			}
-			
+
 			public function isCherryPickState():Boolean {
 				if (currentState == 'CherryPickState' || currentState == 'CherryPickEditState') {
 					return true;
@@ -685,7 +685,7 @@
 					return false;
 				}
 			}
-			
+
 			public function isIScanState():Boolean {
 				if (currentState == 'IScanState' || currentState == 'IScanEditState') {
 					return true;
@@ -693,7 +693,7 @@
 					return false;
 				}
 			}
-			
+
 			public function isSequenomState():Boolean {
 				if (currentState == 'SequenomState' || currentState == 'SequenomEditState') {
 					return true;
@@ -722,22 +722,22 @@
 					return false;
 				}
 			}
-			
+
 			public function isSequencingState():Boolean {
 				return isCapSeqState() || isFragAnalState() || isMitSeqState() || isCherryPickState() || isIScanState();
 			}
-			
+
 			public function isMicroarrayState():Boolean {
 				if (currentState == 'MicroarrayState' ||
-					currentState == 'MicroarrayExternalState' || 
-					currentState == 'MicroarrayEditState' || 
-					currentState == 'MicroarrayAmendState') { 
-					return true;    	
+					currentState == 'MicroarrayExternalState' ||
+					currentState == 'MicroarrayEditState' ||
+					currentState == 'MicroarrayAmendState') {
+					return true;
 				} else {
 					return false;
 				}
 			}
-			
+
 			public function isEditState():Boolean {
 				if (currentState == 'EditState' ||
 					currentState == 'GenericEditState' ||
@@ -754,7 +754,7 @@
 					currentState == 'IsolationEditState' ||
 					currentState == 'ClinicalSequenomEditState' ||
 					currentState == 'NanoStringEditState') {
-					return true;    	
+					return true;
 				} else {
 					return false;
 				}
@@ -762,7 +762,7 @@
 			public function isSolexaEditState():Boolean {
 				if (currentState == 'SolexaEditState' ||
 					currentState == 'SeqExternalEditState') {
-					return true;    	
+					return true;
 				} else {
 					return false;
 				}
@@ -774,7 +774,7 @@
 					var idOrganism:Object = null;
 					if (request.hasOwnProperty("@idOrganismSampleDefault") && request.@idOrganismSampleDefault != '') {
 						idOrganism = request.@idOrganismSampleDefault;
-					} else {  
+					} else {
 						for each(var sample:Object in request.samples.Sample) {
 							if (sample.hasOwnProperty("@idOrganism") && sample.@idOrganism != '') {
 								idOrganism = sample.@idOrganism;
@@ -792,11 +792,11 @@
 					return null;
 				}
 			}
-			
+
 			private function getRequestCategoryName():void {
 				var requestCategory:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', this.request.@codeRequestCategory);
 				if (requestCategory is XMLList) {
-					requestCategoryName = requestCategory[0].@display.toString();				
+					requestCategoryName = requestCategory[0].@display.toString();
 				} else {
 					requestCategoryName = requestCategory.@display.toString();
 				}
@@ -804,7 +804,7 @@
 			private function getExperimentCategoryName():void {
 				var experimentCategory:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Application', this.request.@codeApplication);
 				if (experimentCategory is XMLList) {
-					experimentCategoryName = experimentCategory[0].@display.toString();				
+					experimentCategoryName = experimentCategory[0].@display.toString();
 				} else {
 					experimentCategoryName = experimentCategory.@display.toString();
 				}
@@ -820,7 +820,7 @@
 				//						billingAccount = ba;
 				//						break;
 				//					}
-				//						
+				//
 				//				}
 				//			}
 				//			if (billingAccount != null) {
@@ -830,14 +830,14 @@
 					billingAccountName = this.request.@billingAccountName;
 				}
 			}
-			
-			
+
+
 			public function checkSecurity():void {
 				if (theTab.contains(setupView)) {
 					setupView.checkSecurity();
 				}
 			}
-			
+
 			public function isRequestPending():Boolean {
 				if (this.setupView == null || request == null) {
 					return false;
@@ -851,58 +851,58 @@
 					return false;
 				}
 			}
-			
+
 			private function promptToCancelRequest():void {
 				if (isRequestPending()) {
 					Alert.show( "The request has not been saved.  Are you sure you want to quit?",
 						"Warning",
-						(Alert.YES | Alert.NO), this, 
-						onPromptToCancelRequest,						
+						(Alert.YES | Alert.NO), this,
+						onPromptToCancelRequest,
 						parentApplication.iconWarning);
 				} else {
 					cancelRequest();
 				}
-				
+
 			}
-			
+
 			private function onPromptToCancelRequest(event:CloseEvent):void {
 				if (event.detail==Alert.YES) {
 					cancelRequest();
 				}
 			}
-			
+
 			private function promptToCancelPriorRequest():void {
 				if (isRequestPending()) {
 					Alert.show( "The request you have entered has not been saved.  Do you want to start over?",
 						"Warning",
-						(Alert.YES | Alert.NO), this, 
-						onPromptToCancelPriorRequest,						
+						(Alert.YES | Alert.NO), this,
+						onPromptToCancelPriorRequest,
 						parentApplication.iconWarning);
 				}
-				
+
 			}
-			
+
 			private function onPromptToCancelPriorRequest(event:CloseEvent):void {
 				if (event.detail==Alert.YES) {
 					initializeSubmitForm();
 				}
 			}
-			
-			
+
+
 			public function cancelRequest():void {
-				
+
 				request = null;
 				initializeSubmitForm();
 				parentApplication.theViews.selectedIndex = 0;
 				this.updateBillingAccountInfo();
-				
+
 			}
-			
+
 			public function startNewRequest():void {
 				request = null;
 				this.setupSubmitForm();
 			}
-			
+
 			private function setupSubmitForm():void {
 				if (request == null) {
 					getNewRequest.send();
@@ -913,9 +913,9 @@
 					this.updateBillingAccountInfo();
 				}
 			}
-			
-			private function initializeSubmitForm():void {	
-				
+
+			private function initializeSubmitForm():void {
+
 				if (isAmendState() ){
 					if (amendSetupView == null) {
 						return;
@@ -923,7 +923,7 @@
 					if (!this.contains(amendSetupView)) {
 						return;
 					}
-					
+
 				} else {
 					if (setupView == null) {
 						return;
@@ -932,46 +932,46 @@
 						return;
 					}
 				}
-				
+
 				if (this.isAmendState()) {
 					theTab.selectedChild = amendSetupView;
 					hideProductsTab();
 				} else {
 					setupView.enabled = true;
 					theTab.selectedChild = setupView;
-					
+
 				}
-				
+
 				requestToClone = null;
 				submittedIdRequest = null;
 				submittedRequestNumber = null;
-				
+
 				this.filteredLabList.refresh();
-				
+
 				setupView.selectDefaultLab();
 				setupView.projectCombo.selectedIndex = -1;
 				if ( setupView.appUserCombo != null ){
 					setupView.appUserCombo.selectedIndex = -1;
 				}
-				
+
 				setupView.requestTypeGroup.selection = null;
 				this.filteredAppList.refresh();
-				
+
 				samplesView.enabled = false;
-				
+
 				if(theTab.contains(seqSetupView)){
 					seqSetupView.radioGroupSeqApp.selection = null;
 					seqSetupView.radioGroupApplicationTheme.selection = null;
 				}
-				
+
 				if(theTab.contains(seqSetup1View)){
 					seqSetup1View.numberSequencingCyclesRadioGroup.selection = null;
 				}
-				
+
 				if (theTab.contains(hybsView)) {
 					hybsView.enabled = false;
 				}
-				
+
 				if (theTab.contains(sampleSetupView)) {
 					sampleSetupView.numberOfSamples.text = '';
 					if (this.samples != null && this.samples.length > 0) {
@@ -983,49 +983,49 @@
 					sampleSetupView.otherSamplePrepMethod.text = "";
 					seqSetupView.seqPrepRadioGroup.selectedValue = 'Y';
 					seqSetupView.prePooledSamplesRadioGroup.selectedValue = 'N';
-					
+
 					if(seqSetupView.prePooledNumTubes != null){
 						seqSetupView.prePooledNumTubes.text = '';
 					}
-					
+
 					if ( sampleSetupView.iScanNumSourcePlates != null ) {
 						sampleSetupView.iScanNumSourcePlates.text = '';
 						sampleSetupView.onIScanNumSourcePlatesChanged();
 					}
-					
+
 					if (theTab.contains(annotationView)) {
-						annotationView.enabled = false;								
+						annotationView.enabled = false;
 					}
 					if (isSolexaState()) {
 						seqSetupView.enabled = false;
 						bioinformaticsView.enabled = false;
 					}
 				}
-				
+
 				if (theTab.contains(hybSetupView)) {
 					hybSetupView.label = "Hyb setup";
 					hybSetupView.numberOfHybsContainer.visible = true;
 					hybSetupView.slideSourceContainer.visible = true;
-					
+
 					hybSetupView.organismCombo.selectedIndex = -1;
 					hybSetupView.slideProductCombo.selectedIndex = -1;
 					hybSetupView.numberOfHybs.text = '';
 					hybSetupView.unselectSlideSources();
-					
+
 					hybSetupView.organismCombo.enabled = true;
 					hybSetupView.slideProductCombo.enabled = true;
 					hybSetupView.isCatalogRadio.enabled = true;
 					hybSetupView.isCustomRadio.enabled = true;
-					
+
 					hybSetupView.enabled = false;
-					
-				}	
-				
+
+				}
+
 				if (theTab.contains(productsView)) {
 					productsView.reset();
 					productsView.enabled = false;
 				}
-				
+
 				if (theTab.contains(confirmView)) {
 					confirmView.enabled = false;
 					if (confirmButtonStack != null) {
@@ -1033,36 +1033,36 @@
 						cancelButton.label = "Cancel";
 					}
 				}
-				
-				if (theTab.contains(notesView)) {				
+
+				if (theTab.contains(notesView)) {
 					notesView.currentState = "NewExperimentState";
 					// Make experiment name, description req'd if external experiment
-					if (!isEditState() && !isAmendState()) { 
-						if (!parentApplication.isInternalExperimentSubmission) {	
+					if (!isEditState() && !isAmendState()) {
+						if (!parentApplication.isInternalExperimentSubmission) {
 							notesView.currentState = "ExternalExperimentState";
-						} 
+						}
 					}
 				}
-				
+
 				// disable tabs we missed above.
 				enableTabs(false);
 				setupView.enabled = true;
 			}
-			
+
 			private function nextTab():void {
 				theTab.selectedIndex++;
 				while (!theTab.getTabAt(theTab.selectedIndex).visible) {
 					theTab.selectedIndex++;
 				}
 			}
-			
+
 			private function previousTab():void {
 				theTab.selectedIndex--;
 				while (!theTab.getTabAt(theTab.selectedIndex).visible && theTab.selectedIndex > 0) {
 					theTab.selectedIndex--;
 				}
 			}
-			
+
 			public function enableNextButtons():void {
 				if (theTab.selectedIndex < theTab.getChildren().length - 1) {
 					confirmButtonStack.selectedIndex = 0;
@@ -1100,7 +1100,7 @@
 				} else {
 					backButton.enabled = false;
 				}
-				
+
 				if (theTab.selectedChild == this.samplesView) {
 					if (!nextButton.enabled && userWarningsSamples == '') {
 						userWarningsSamples = 'When all required fields are entered, tap outside of grid cell to continue to next tab';
@@ -1109,18 +1109,18 @@
 				} else if (!this.isEditState() && theTab.selectedChild == this.sampleSetupView) {
 					this.userWarningStack.selectedChild = this.userWarningsBoxSampleSetup;
 				} else if (this.isMicroarrayState() && theTab.selectedChild == this.hybSetupView) {
-					this.userWarningStack.selectedChild = this.userWarningsBoxHybSetup;
+					this.userWarningStack.selectedChild = this.userWarningsBoxHybSetup
 				} else if (theTab.selectedChild == this.seqSetupView) {
 					if (this.sampleSetupView.currentState == "MDMiSeqState") {
 						seqSetupView.text1.width = 340;
 						seqSetupView.samplePoolingLabel.width = 340;
-						seqSetupView.samplesToBePreppedCheckbox.selected = false;
 					}else if( this.currentState == "NanoStringState") {
 						seqSetupView.isPreppedContainer.visible = false;
 						seqSetupView.isPreppedContainer.includeInLayout = false;
 						seqSetupView.prePooledSamplesHBox.visible = false;
 						seqSetupView.prePooledSamplesHBox.includeInLayout = false;
 					}
+
 				} else {
 					this.userWarningStack.selectedIndex = 0;
 				}
@@ -1133,17 +1133,17 @@
 					} else {
 						nextButton.enabled = true;
 					}
-					
+
 				}
 			}
-			
+
 			public function applicationSelected(experimentApplication:String):void {
 				codeApplication = experimentApplication;
 				request.@codeApplication = experimentApplication;
 				if (theTab.contains(annotationView) && request != null) {
 					annotationView.onPropertyRefreshed(null);
 				}
-				
+
 				this.requestProperties.refresh();
 				if (this.requestProperties.length < 1) {
 					this.theTab.getTabAt( theTab.getChildIndex( propertiesView ) ).visible = false;
@@ -1151,28 +1151,28 @@
 				} else {
 					this.theTab.getTabAt( theTab.getChildIndex( propertiesView ) ).visible = true;
 					this.theTab.getTabAt( theTab.getChildIndex( propertiesView ) ).includeInLayout = true;
-				} 
-			}		
-			
+				}
+			}
+
 			public function setRequestCategoryName():void {
 				requestCategory = getRequestCategory();
-				
+
 				if (requestCategory == null || request == null) {
 					return;
 				}
-				
+
 				this.propertyEntries = new XMLListCollection(request.PropertyEntries.PropertyEntry);
 				this.propertyEntries.sort = propertySorter;
 				this.propertyEntries.filterFunction = filterPropertyEntry;
 				this.propertyEntries.refresh();
-				
+
 				instantiateTabs(requestCategory.@codeRequestCategory, false, this.isAmendState());
 				setTabsVisible();
-				
+
 				requestIcon = requestCategory.@icon;
 				requestCategoryName = requestCategory.@display.toString();
 				requestType = requestCategory.@type;
-				
+
 				applicationName = '';
 				codeApplication = '';
 				request.@applicationNotes = '';
@@ -1181,11 +1181,11 @@
 				request.@coreToExtractDNA = 'N';
 				request.@includeBisulfideConversion = 'N';
 				request.@includeQubitConcentration = 'N';
-				
+
 				if (theTab.contains(confirmView)) {
-					this.confirmView.setBarcodeColVisibility(false);        					
+					this.confirmView.setBarcodeColVisibility(false);
 				}
-				
+
 				if (theTab.contains(sampleSetupView)) {
 					if ( sampleSetupView.radioGroupQCApp != null ){
 						sampleSetupView.radioGroupQCApp.selectedValue = null;
@@ -1194,18 +1194,18 @@
 						sampleSetupView.bioanalyzerChipTypeGrid.selectedItem = null;
 						samplesView.initializeSamplesGrid();
 						// propagate selected chip type to samples
-						sampleSetupView.propagateChipType();   
-					} 
+						sampleSetupView.propagateChipType();
+					}
 				}
-				
+
 				if (theTab.contains(setupView)) {
 					if (this.setupView.requestTypeGroup.selectedValue != null && this.setupView.requestTypeGroup.selectedValue != '' ) {
 						this.setupView.requestTypeBox.styleName = "normalBox";
 					} else {
 						this.setupView.requestTypeBox.styleName = "requiredBox";
-					} 				
-				}			
-				
+					}
+				}
+
 				if (requestCategory.@isIlluminaType == 'Y') {
 					this.currentState = parentApplication.submitInternalExperiment() ? 'SolexaBaseState' : 'SolexaBaseExternalState';
 					if ( requestCategory.@codeRequestCategory == 'MDMISEQ' ) {
@@ -1213,12 +1213,12 @@
 					} else if (parentApplication.submitInternalExperiment()) {
 						this.sampleSetupView.currentState = 'SolexaSetupState';
 					}
-					
+
 					this.samplesView.currentState = 'SolexaSamplesState';
-					
+
 					filteredAppList.filterFunction = filterApplication;
-					filteredAppList.refresh();		
-					
+					filteredAppList.refresh();
+
 					if (parentApplication.submitInternalExperiment()) {
 						this.seqSetupView.samplesToBePreppedCheckbox.selected = true;
 					}
@@ -1227,77 +1227,77 @@
 						sample.@numberSequencingLanes = '1';
 						sample.@label = '';
 					}
-					this.samplesView.showHideColumns();		
+					this.samplesView.showHideColumns();
 					this.samplesView.checkSamplesCompleteness();
-					
+
 				} else if (requestCategory.@type == parentApplication.TYPE_QC) {
 					this.currentState = parentApplication.submitInternalExperiment() ? 'QCState' : 'QCExternalState';
 					if (parentApplication.submitInternalExperiment()) {
 						this.sampleSetupView.initQC();
 					}
-					
-					this.samplesView.currentState = 'QCSamplesState';				
-					this.samplesView.showHideColumns();						
-					this.samplesView.checkSamplesCompleteness();	
-					
+
+					this.samplesView.currentState = 'QCSamplesState';
+					this.samplesView.showHideColumns();
+					this.samplesView.checkSamplesCompleteness();
+
 					filteredAppList.filterFunction = filterApplication;
 					filteredAppList.refresh();
 					if (parentApplication.submitInternalExperiment()) {
 						this.sampleSetupView.qcAppRepeater.invalidateDisplayList();
 						this.sampleSetupView.qcAppRepeater..validateNow();
 					}
-					
-					
-					
+
+
+
 				} else if (requestCategory.@type == parentApplication.TYPE_GENERIC) {
 					this.currentState = parentApplication.submitInternalExperiment() ? "GenericState" : 'GenericExternalState';
-					
+
 					if ( requestCategory.@codeRequestCategory == "DDPCR" ) {
-						this.sampleSetupView.currentState = 'DigitalPCRState';	
+						this.sampleSetupView.currentState = 'DigitalPCRState';
 					} else {
 						this.sampleSetupView.currentState = 'GenericState';
 					}
-					
-					this.samplesView.showHideColumns();						
-					this.samplesView.checkSamplesCompleteness();	
-					
+
+					this.samplesView.showHideColumns();
+					this.samplesView.checkSamplesCompleteness();
+
 					filteredAppList.filterFunction = filterApplication;
 					filteredAppList.refresh();
-					
+
 				} else if (requestCategory.@type == parentApplication.TYPE_CAP_SEQ) {
 					this.currentState = "CapSeqState";
 					this.sampleSetupView.currentState = 'CapSeqState';
-					
-					this.samplesView.currentState = 'CapSeqState';				
-					this.samplesView.showHideColumns();						
-					this.samplesView.checkSamplesCompleteness();	
-					
+
+					this.samplesView.currentState = 'CapSeqState';
+					this.samplesView.showHideColumns();
+					this.samplesView.checkSamplesCompleteness();
+
 					filteredAppList.filterFunction = filterApplication;
 					filteredAppList.refresh();
-					
+
 				} else if (requestCategory.@type == parentApplication.TYPE_FRAG_ANAL) {
 					this.currentState = "FragAnalState";
 					this.sampleSetupView.currentState = 'FragAnalState';
-					
-					this.samplesView.currentState = 'FragAnalState';				
-					this.samplesView.showHideColumns();						
-					this.samplesView.checkSamplesCompleteness();	
-					
+
+					this.samplesView.currentState = 'FragAnalState';
+					this.samplesView.showHideColumns();
+					this.samplesView.checkSamplesCompleteness();
+
 					filteredAppList.filterFunction = filterApplication;
 					filteredAppList.refresh();
-					
+
 				} else if (requestCategory.@type == parentApplication.TYPE_MIT_SEQ) {
 					this.currentState = "MitSeqState";
 					this.sampleSetupView.currentState = 'MitSeqState';
 					this.sampleSetupView.setPrimerDefaults();
-					
-					this.samplesView.currentState = 'MitSeqState';				
-					this.samplesView.showHideColumns();						
-					this.samplesView.checkSamplesCompleteness();	
-					
+
+					this.samplesView.currentState = 'MitSeqState';
+					this.samplesView.showHideColumns();
+					this.samplesView.checkSamplesCompleteness();
+
 					filteredAppList.filterFunction = filterApplication;
 					filteredAppList.refresh();
-					
+
 				} else if (requestCategory.@type == parentApplication.TYPE_CHERRY_PICK) {
 					this.currentState = "CherryPickState";
 					this.sampleSetupView.currentState = 'CherryPickState';
@@ -1316,101 +1316,101 @@
 					this.sampleSetupView.cherryPlate11Name.text = "Plate 11";
 					this.sampleSetupView.cherryPlate12Name.text = "Plate 12";
 					this.sampleSetupView.onCherryNumSourcePlatesChanged();
-					this.samplesView.currentState = 'CherryPickState';				
-					this.samplesView.showHideColumns();						
-					this.samplesView.checkSamplesCompleteness();	
-					
+					this.samplesView.currentState = 'CherryPickState';
+					this.samplesView.showHideColumns();
+					this.samplesView.checkSamplesCompleteness();
+
 					filteredAppList.filterFunction = filterApplication;
 					filteredAppList.refresh();
-					
+
 				} else if (requestCategory.@type == parentApplication.TYPE_ISCAN) {
 					this.currentState = "IScanState";
 					this.sampleSetupView.currentState = 'IScanState';
-					this.samplesView.currentState = 'IScanState';				
-					this.samplesView.showHideColumns();						
-					this.samplesView.checkSamplesCompleteness();	
-					
+					this.samplesView.currentState = 'IScanState';
+					this.samplesView.showHideColumns();
+					this.samplesView.checkSamplesCompleteness();
+
 					this.theTab.getTabAt( theTab.getChildIndex( annotationView ) ).visible = false;
 					this.theTab.getTabAt( theTab.getChildIndex( annotationView ) ).includeInLayout = false;
-					
+
 					filteredAppList.filterFunction = filterApplication;
 					filteredAppList.refresh();
-					
-					
+
+
 				} else if (requestCategory.@type == parentApplication.TYPE_SEQUENOM) {
 					this.currentState = "SequenomState";
-					this.sampleSetupView.currentState = 'SequenomState';		
-					this.samplesView.showHideColumns();						
-					this.samplesView.checkSamplesCompleteness();	
-					
+					this.sampleSetupView.currentState = 'SequenomState';
+					this.samplesView.showHideColumns();
+					this.samplesView.checkSamplesCompleteness();
+
 					this.sampleSetupView.sequenomPanelContainer.visible = false;
 					this.sampleSetupView.sequenomPanelContainer.includeInLayout = false;
-					
+
 					filteredAppList.filterFunction = filterApplication;
 					filteredAppList.refresh();
-					
+
 				} else if (requestCategory.@type == parentApplication.TYPE_ISOLATION) {
-					
+
 					this.currentState = "IsolationState";
-					this.sampleSetupView.currentState = 'IsolationState';		
-					this.samplesView.showHideColumns();						
-					this.samplesView.checkSamplesCompleteness();	
-					
+					this.sampleSetupView.currentState = 'IsolationState';
+					this.samplesView.showHideColumns();
+					this.samplesView.checkSamplesCompleteness();
+
 					filteredAppList.filterFunction = filterApplication;
 					filteredAppList.refresh();
-					
+
 				} else if (requestCategory.@type == parentApplication.TYPE_NANOSTRING) {
-					
+
 					this.currentState = "NanoStringState";
-					this.sampleSetupView.currentState = 'NanoStringState';		
-					this.samplesView.showHideColumns();						
-					this.samplesView.checkSamplesCompleteness();	
-					
+					this.sampleSetupView.currentState = 'NanoStringState';
+					this.samplesView.showHideColumns();
+					this.samplesView.checkSamplesCompleteness();
+
 					filteredAppList.filterFunction = filterApplication;
 					filteredAppList.refresh();
-					
+
 				} else if (requestCategory.@type == parentApplication.TYPE_CLINICAL_SEQUENOM) {
 					this.currentState = "ClinicalSequenomState";
 					this.sampleSetupView.currentState = 'ClinicalSequenomState';
-					this.samplesView.currentState = 'ClinicalSequenomState';				
-					this.samplesView.showHideColumns();						
-					this.samplesView.checkSamplesCompleteness();	
-					
+					this.samplesView.currentState = 'ClinicalSequenomState';
+					this.samplesView.showHideColumns();
+					this.samplesView.checkSamplesCompleteness();
+
 					this.theTab.getTabAt( theTab.getChildIndex( annotationView ) ).visible = false;
 					this.theTab.getTabAt( theTab.getChildIndex( annotationView ) ).includeInLayout = false;
-					
+
 					this.theTab.getTabAt( theTab.getChildIndex( samplesView ) ).visible = false;
 					this.theTab.getTabAt( theTab.getChildIndex( samplesView ) ).includeInLayout = false;
-					
+
 					filteredAppList.filterFunction = filterApplication;
 					filteredAppList.refresh();
-					
+
 					var application:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Application',filteredAppList[0].@codeApplication);
 					applicationName = application.@display.toString();
 					codeApplication = application.@codeApplication;
-					
+
 				} else if (requestCategory.@type == parentApplication.TYPE_MICROARRAY) {
-					
+
 					this.currentState = parentApplication.submitInternalExperiment() ? 'MicroarrayState' : 'MicroarrayExternalState';
 					if (parentApplication.submitInternalExperiment()) {
 						this.sampleSetupView.currentState = '';
 						this.sampleSetupView.organismValidator.validate();
 					}
-					
-					
+
+
 					this.samplesView.currentState = 'MicroarraySamplesState';
-					this.samplesView.showHideColumns();		
+					this.samplesView.showHideColumns();
 					if (parentApplication.submitInternalExperiment()) {
 						this.hybSetupView.currentState = "SetupState";
-						
+
 						this.hybSetupView.slideProductCombo.selectedIndex = 0;
 						this.hybSetupView.checkForSlideProductWarning();
 						this.hybSetupView.numberOfHybsValidator.validate();
 					}
 					this.hybsView.currentState = '';
-					
-					
-					
+
+
+
 					// Hide/Show the channel 2 sample column
 					if (requestCategory.@numberOfChannels == "2") {
 						this.samplesView.currentState = 'MicroarraySamplesState';
@@ -1426,24 +1426,24 @@
 							s.@label = 'cy3';
 						}
 					}
-					
+
 					filteredAppList.filterFunction = filterApplication;
 					filteredAppList.refresh();
-					
+
 					filteredMicroarrayAppList.filterFunction = filterMicroarrayApplication;
 					filteredMicroarrayAppList.refresh();
 					if (parentApplication.submitInternalExperiment()) {
-						
+
 						this.hybSetupView.microarrayAppRepeater.invalidateDisplayList();
 						this.hybSetupView.microarrayAppRepeater.validateNow();
-						
+
 						this.hybSetupView.microarrayAppRadioGroup.selectedValue = null;
 					}
-					
-					
-					
-					this.samplesView.checkSamplesCompleteness();	
-					
+
+
+
+					this.samplesView.checkSamplesCompleteness();
+
 					if (this.getSlideProductList.lastResult == null || filteredSlideProductList == null) {
 						getSlideProductList.send();
 					} else {
@@ -1452,13 +1452,13 @@
 					if (this.getSlideDesignList.lastResult == null) {
 						getSlideDesignList.send();
 					}
-					
+
 				}
 				if (parentApplication.submitInternalExperiment()) {
 					this.sampleSetupView.numberOfSamplesValidator.validate();
 					this.sampleSetupView.sampleTypeValidator.validate();
 				}
-				
+
 				if (theTab.contains(productsView)) {
 					if (determineIfProductsNeeded()) {
 						showProductsTab(true);
@@ -1466,23 +1466,23 @@
 						hideProductsTab();
 					}
 				}
-				
+
 				filteredSampleTypeList.refresh();
 				filteredSampleTypeListRna.refresh();
 				filteredSampleTypeListDna.refresh();
 				filteredSampleDropOffLocationList.refresh();
 				seqLibProtocolList.refresh();
-				
+
 				if (parentApplication.submitInternalExperiment()) {
 					sampleSetupView.sampleOrganismCombo.selectedIndex = 0;
 					callLater(pickDefaultOrganism);
 				}
-				
-				
+
+
 				if (theTab.contains(annotationView) && request != null) {
 					annotationView.onPropertyRefreshed(null);
 				}
-				
+
 				this.requestProperties.refresh();
 				if (this.requestProperties.length < 1) {
 					this.theTab.getTabAt( theTab.getChildIndex( propertiesView ) ).visible = false;
@@ -1490,29 +1490,29 @@
 				} else {
 					this.theTab.getTabAt( theTab.getChildIndex( propertiesView ) ).visible = true;
 					this.theTab.getTabAt( theTab.getChildIndex( propertiesView ) ).includeInLayout = true;
-				} 
-				
+				}
+
 				if (theTab.contains(notesView)) {
 					notesView.setExternalNoteVisibility();
 				}
 				if (theTab.contains(sampleSetupView)) {
 					sampleSetupView.setExternalNoteVisibility();
 				}
-				
+
 				loadPriceLists(getIdLab());
 				this.setupView.checkSecurity();
 			}
-			
+
 			public function labSelected(lab:Object):void {
 				loadPriceLists(lab.@idLab.toString());
 			}
-			
+
 			public function filterIsolationTypeList(extractionType:String):void{
 				isolationTypeList = new XMLListCollection(parentApplication.dictionaryManager.getEntriesExcludeBlank('hci.gnomex.model.IsolationPrepType').(@isActive != 'N' && @type == extractionType));
 				isolationTypeList.sort = dictionarySorter;
 				isolationTypeList.refresh();
 			}
-			
+
 			private function loadPriceLists(idLab:String):void {
 				requestCategory = this.getRequestCategory();
 				if (requestCategory != null && requestCategory.@codeRequestCategory != null && idLab != null) {
@@ -1527,14 +1527,14 @@
 					}
 				}
 			}
-			
+
 			private function setTabsVisible():void {
 				for (var tabIdx:int = 0; tabIdx < theTab.getChildren().length; tabIdx++) {
 					theTab.getTabAt(tabIdx).visible = true;
 					theTab.getTabAt(tabIdx).includeInLayout = true;
 				}
 			}
-			
+
 			private function pickDefaultOrganism():void {
 				// Select the default organism on sample setup if the request category specifies one
 				var requestCategory:Object = getRequestCategory();
@@ -1542,17 +1542,17 @@
 					var organism:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.OrganismLite',requestCategory.@idOrganism);
 					if (organism is XMLList) {
 						sampleSetupView.sampleOrganismCombo.selectedItem = organism[0];
-						
+
 					} else {
 						sampleSetupView.sampleOrganismCombo.selectedItem = organism;
 					}
 				} else {
 					sampleSetupView.sampleOrganismCombo.selectedIndex = -1;
 				}
-				
-				
+
+
 			}
-			
+
 			public function getWellNameByColumn(item:Object,col:int):String
 			{
 				var wellName:String = "";
@@ -1566,12 +1566,12 @@
 				}
 				return wellName;
 			}
-			
+
 			public function getHybsGridRowNumber(item:Object,col:int):String
 			{
 				if (hybs!= null) {
 					var x:int = hybs.getItemIndex(item) + 1;
-					return String(x);     		
+					return String(x);
 				} else {
 					return "";
 				}
@@ -1584,10 +1584,10 @@
 						if (sample.@idSample == item.@idSampleChannel1) {
 							sampleName = sample.@name;
 							break;
-						} 
+						}
 					}
-				} 
-				return sampleName; 
+				}
+				return sampleName;
 			}
 			public function getSampleChannel2Name(item:Object,col:int):String
 			{
@@ -1599,7 +1599,7 @@
 							break;
 						}
 					}
-				} 
+				}
 				return sampleName;
 			}
 			public function getSampleChannel1Number(item:Object,col:int):String
@@ -1612,7 +1612,7 @@
 							break;
 						}
 					}
-				} 
+				}
 				return sampleNumber;
 			}
 			public function getSampleChannel2Number(item:Object,col:int):String
@@ -1625,15 +1625,15 @@
 							break;
 						}
 					}
-				} 
+				}
 				return sampleNumber;
-			}        
-			
+			}
+
 			public function getLanesGridRowNumber(item:Object,col:int):String
 			{
 				if (lanes!= null) {
 					var x:int = lanes.getItemIndex(item) + 1;
-					return String(x);     		
+					return String(x);
 				} else {
 					return "";
 				}
@@ -1652,19 +1652,19 @@
 				}
 				return sampleName;
 			}
-			
-			
+
+
 			public function filterProject(item:Object):Boolean {
 				var keep:Boolean = false;
-				
+
 				if (this.isAmendState()) {
 					return false;
 				}
-				
+
 				if (this.theTab == null || !this.theTab.contains(setupView)) {
 					return false;
 				}
-				
+
 				if (item.@idProject == '') {
 					keep = true;
 				} else if (setupView.labCombo.selectedItem != null) {
@@ -1674,16 +1674,16 @@
 				}
 				return keep;
 			}
-			
+
 			private function filterPropertyEntry(sce:Object):Boolean {
 				// get property with children (organisms, platforms, appusers)
 				var property:XML = parentApplication.getSampleProperty(sce.@idProperty);
 				if(sce.@idProperty == "-1" || property == null) {
-					return true;	// Special case for "Description" field which is not a "real" property 
+					return true;	// Special case for "Description" field which is not a "real" property
 				}
 				return filterPropertyEntryWithFullProperty(property, sce);
 			}
-			
+
 			/*
 			* property is the property with all child elements.  sce is the property with the isSelected attribute.
 			*/
@@ -1698,10 +1698,10 @@
 						keep = true;
 					}
 				}
-				
+
 				return keep;
 			}
-			
+
 			private function isIlluminaAmendRequestType():Boolean {
 				var codeRequestCategory:String = getAmendRequestCategory();
 				if (codeRequestCategory != '') {
@@ -1714,21 +1714,21 @@
 				} else {
 					return false;
 				}
-				
+
 			}
-			
-			
+
+
 			private function getAmendRequestType():String {
 				var codeRequestCategory:String = getAmendRequestCategory();
 				if (codeRequestCategory != '') {
 					var requestCategory:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', codeRequestCategory);
-					return requestCategory.@type.toString();				
+					return requestCategory.@type.toString();
 				} else {
 					return '';
 				}
-				
+
 			}
-			
+
 			private function getAmendRequestCategory():String {
 				if (this.radioGroupAmendType.selectedValue != null && this.radioGroupAmendType.selectedValue != '') {
 					if (this.radioGroupAmendType.selectedValue.toString().indexOf("QC-TO-") == 0) {
@@ -1756,44 +1756,44 @@
 					return false;
 				}
 			}
-			
+
 			private function highlightAmendRequestCategory():void {
 				var i:int = 0;
 //				for (i = 0; i < radioAmendRequestCategory1.length; i++) {
-//					radioAmendRequestCategory1[i].setStyle("fontWeight", radioAmendRequestCategory1[i].selected    == true ?  "bold" : "normal");	
+//					radioAmendRequestCategory1[i].setStyle("fontWeight", radioAmendRequestCategory1[i].selected    == true ?  "bold" : "normal");
 //				}
 				for (i = 0; i < radioAmendRequestCategory2.length; i++) {
-					radioAmendRequestCategory2[i].setStyle("fontWeight", radioAmendRequestCategory2[i].selected    == true ?  "bold" : "normal");	
+					radioAmendRequestCategory2[i].setStyle("fontWeight", radioAmendRequestCategory2[i].selected    == true ?  "bold" : "normal");
 				}
-				
+
 			}
-			
-			
-			public function getRequestCategory():Object {			
+
+
+			public function getRequestCategory():Object {
 				requestCategory = null;
 				if (this.isAmendState()) {
-					requestCategory = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', getAmendRequestCategory());				
+					requestCategory = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', getAmendRequestCategory());
 				} else if (!isEditState()) {
 					requestCategory = setupView.getRequestCategory();
 				} else {
 					requestCategory = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', request.@codeRequestCategory);
 				}
-				return requestCategory;			
+				return requestCategory;
 			}
-			
+
 			private function filterSampleType(item:Object, codeNucleotideType:String):Boolean {
 				if (item.@value == "") {
 					return false;
 				}
-				
+
 				if (!isEditState() && item.@isActive == 'N') {
-					return false;	
+					return false;
 				}
-				
+
 				if ( codeNucleotideType != null && item.@codeNucleotideType != codeNucleotideType) {
 					return false;
 				}
-				
+
 				var doesMatchRequestCategory:Boolean = false;
 				var requestCategory:Object = this.getRequestCategory();
 				var theRequestCategories:XMLList = parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.SampleTypeRequestCategory').DictionaryEntry.(@value != '' && @idSampleType == item.@value.toString());
@@ -1803,45 +1803,45 @@
 						break;
 					}
 				}
-				
+
 				return doesMatchRequestCategory;
-			}  
-			
+			}
+
 			private function filterAllSampleType(item:Object):Boolean {
 				return filterSampleType(item, null);
 			}
-			
+
 			private function filterSampleTypeRna(item:Object):Boolean {
 				return filterSampleType(item, 'RNA');
 			}
-			
+
 			private function filterSampleTypeDna(item:Object):Boolean {
 				return filterSampleType(item, 'DNA');
 			}
-			
+
 			private function filterSampleDropOffLocation(item:Object):Boolean {
 				if (item.@value == "") {
 					return true;
 				}
-				
-				
+
+
 				if (item.@isActive == 'N') {
 					return false;
 				}
-				
+
 				return true;
-			}  
-			
+			}
+
 			private function filterSeqLibProtocol(item:Object):Boolean {
 				if (item.@value == "") {
 					return true;
 				}
-				
+
 				if (!isEditState() && item.@isActive == 'N') {
-					return false;	
+					return false;
 				}
-				
-				
+
+
 				var doesMatchApplication:Boolean = true;
 				if (this.isSolexaState()) {
 					var codeApplication:Object = this.seqSetupView.radioGroupSeqApp.selectedValue;
@@ -1856,20 +1856,20 @@
 						}
 					}
 				}
-				
-				return doesMatchApplication; 
-			}  
-			
+
+				return doesMatchApplication;
+			}
+
 			private function filterApplication(item:Object):Boolean {
 				var codeRequestCategory:String = this.getRequestCategory().@codeRequestCategory;
 				if (item.@value == "") {
 					return false;
-				} 
+				}
 				if (isEditState() && item.@value == request.@codeApplication) {
 					return true;
 				}
 				if (!isEditState() && item.@isActive == 'N') {
-					return false;	
+					return false;
 				}
 				var doesMatchRequestCategory:Boolean = false;
 				var theApplications:XMLList = parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.RequestCategoryApplication').DictionaryEntry.(@value != '' && @codeApplication == item.@value.toString());
@@ -1879,7 +1879,7 @@
 						break;
 					}
 				}
-				
+
 				var doesMatchSeqPrepByCore:Boolean = false;
 				if (doesMatchRequestCategory) {
 					if (this.samples.length == 0 || this.getRequestCategory().@isIlluminaType != 'Y' || !parentApplication.isInternalExperimentSubmission) {
@@ -1894,20 +1894,20 @@
 					}
 				}
 				return doesMatchRequestCategory && doesMatchSeqPrepByCore;
-			}  
-			
+			}
+
 			private function filterMicroarrayApplication(item:Object):Boolean {
 				var codeRequestCategory:String = this.getRequestCategory().@codeRequestCategory;
-				
+
 				if (codeRequestCategory == null || codeRequestCategory == "" || codeRequestCategory == "SOLEXA" || codeRequestCategory == 'HISEQ' || codeRequestCategory == 'MISEQ') {
 					codeRequestCategory = "AGIL";
 				}
 				if (item.@value == "") {
 					return false;
-				} 
-				
+				}
+
 				if (!isEditState() && item.@isActive == 'N') {
-					return false;	
+					return false;
 				}
 				var doesMatchRequestCategory:Boolean = false;
 				var theApplications:XMLList = parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.RequestCategoryApplication').DictionaryEntry.(@value != '' && @codeApplication == item.@value.toString());
@@ -1917,11 +1917,11 @@
 						break;
 					}
 				}
-				
-				
+
+
 				return doesMatchRequestCategory;
 			}
-			
+
 			public function getFilteredGenomeBuildList(idOrganism:String):XMLListCollection{
 				var genomeList:XMLListCollection = new XMLListCollection(parentApplication.dictionaryManager.getEntries('hci.gnomex.model.GenomeBuildLite'));
 				genomeBuildOrganism = idOrganism;
@@ -1929,15 +1929,15 @@
 				genomeList.refresh();
 				return genomeList;
 			}
-			
+
 			public function getSampleOrganisms():XMLListCollection {
 				var sampleOrgs:XMLListCollection = new XMLListCollection();
 				var organismDict:Object = new Object();
-				
-				
+
+
 				var samples:XMLListCollection = new XMLListCollection(this.samples.copy());
 				//If we are in new experiment submit state we need to grab the organisms off of the samples
-				
+
 				for each(var seq:XML in this.lanes){
 					for each(var smp:XML in samples){
 						if(seq.@idSample == smp.@idSample){
@@ -1949,16 +1949,16 @@
 				for each(var seq1:XML in this.lanes){
 					organismDict[seq1.@idOrganism] = seq1;
 				}
-				
+
 				for each(var value:XML in organismDict){
 					sampleOrgs.addItem(value);
 				}
-				
-				
+
+
 				return sampleOrgs;
-				
+
 			}
-			
+
 			private function filterBySampleOrganism(item:Object):Boolean{
 				if (item.@value == "") {
 					return true;
@@ -1966,14 +1966,14 @@
 				if (item.@isActive == 'N') {
 					return false;
 				}
-				
+
 				if(item.@idOrganism == genomeBuildOrganism){
 					return true;
 				} else{
 					return false;
 				}
 			}
-			
+
 			private function filterGenomeBuild(item:Object):Boolean {
 				if (item.@value == "") {
 					return true;
@@ -1981,7 +1981,7 @@
 				if (isEditState()) {
 					return true;
 				}
-				
+
 				if (item.@isActive == 'N') {
 					return false;
 				}
@@ -1993,56 +1993,56 @@
 						}
 					}
 				} else {
-					if (sampleSetupView.sampleOrganismCombo.selectedItem != null && 
+					if (sampleSetupView.sampleOrganismCombo.selectedItem != null &&
 						sampleSetupView.sampleOrganismCombo.selectedItem.@value != null  &&
 						sampleSetupView.sampleOrganismCombo.selectedItem.@value != "") {
 						if (item.@idOrganism.toString() == sampleSetupView.sampleOrganismCombo.selectedItem.@value.toString()) {
 							doesMatch = true;
 						}
 					}
-					
+
 				}
 				return doesMatch;
 			}
-			
+
 			private function filterNumberSequencingCyclesAllowed(item:Object):Boolean {
 				if (isEditState()) {
 					return true;
 				}
-				
+
 				if (item.@value == "") {
 					return false;
-				} 
-				
+				}
+
 				var codeRequestCategory:String = this.getRequestCategory().@codeRequestCategory;
 				var doesMatch:Boolean = false;
 				if (item.@codeRequestCategory.toString() == codeRequestCategory) {
 					doesMatch = true;
 				}
-				
+
 				return doesMatch;
-			}  
-			
+			}
+
 			public function filterSlideProduct(item:Object):Boolean {
 				if (item.@idSlideProduct == null || item.@idSlideProduct == "") {
 					return true;
 				}
-				
+
 				if (!isEditState() && item.@isActive == 'N') {
-					return false;	
+					return false;
 				}
-				
+
 				if (this.theTab == null) {
 					return false;
 				}
-				
+
 				// Internal experiments should always have a hybsetup tab
 				if (parentApplication.submitInternalExperiment()) {
 					if (!this.theTab.contains(hybSetupView)) {
 						return false;
-					} 
+					}
 				}
-				
+
 				var doesMatchRequestCategoryVendor:Boolean = true;
 				if (!isEditState()) {
 					var requestCategory:Object = getRequestCategory();
@@ -2054,14 +2054,14 @@
 					doesMatchRequestCategoryVendor = false;
 					var rCategory:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', request.@codeRequestCategory);
 					if (item.@idVendor == rCategory.@idVendor) {
-						doesMatchRequestCategoryVendor = true;        			
+						doesMatchRequestCategoryVendor = true;
 					}
-				}       	
-				
+				}
+
 				var doesMatchOrganism:Boolean = true;
 				// Only match organism for internal experiments
 				if (parentApplication.submitInternalExperiment()) {
-					if (hybSetupView.organismCombo.selectedItem != null && 
+					if (hybSetupView.organismCombo.selectedItem != null &&
 						hybSetupView.organismCombo.selectedItem.@value != null  &&
 						hybSetupView.organismCombo.selectedItem.@value != "") {
 						if (item.@idOrganism == hybSetupView.organismCombo.selectedItem.@idOrganism) {
@@ -2071,7 +2071,7 @@
 						}
 					}
 				}
-				
+
 				var doesMatchExperimentCategory:Boolean = true;
 				var applicationsForSlideProduct:XMLList  =  null;
 				var x:Number = 0;
@@ -2087,7 +2087,7 @@
 								break;
 							}
 						}
-					}				
+					}
 				} else {
 					if (setupView.currentState.indexOf("AdminExternal") == 0 &&
 						setupView.radioGroupAppAdmin.selectedValue != null &&
@@ -2111,11 +2111,11 @@
 								break;
 							}
 						}
-					}	
-					
+					}
+
 				}
-				
-				
+
+
 				var doesMatchGroup:Boolean = true;
 				// Only filter by custom slides if this is an internal experiment
 				if (parentApplication.submitInternalExperiment()) {
@@ -2134,10 +2134,10 @@
 						}
 					}
 				}
-				
+
 				return doesMatchRequestCategoryVendor && doesMatchOrganism && doesMatchExperimentCategory && doesMatchGroup;
 			}
-			
+
 			public function setIdLab():void {
 				if (theTab.contains(productsView) && theTab.getTabAt(theTab.getChildIndex(productsView)).visible) {
 					this.productsView.refreshForLab();
@@ -2150,12 +2150,12 @@
 					productsView.enabled = true;
 				}
 			}
-			
+
 			public function getIdLab():String {
 				var idLab:String = null;
 				if (this.isAmendState() || this.isEditState()) {
 					if  (request != null && request.hasOwnProperty("@idLab")) {
-						idLab = request.@idLab;    			
+						idLab = request.@idLab;
 					}
 				} else {
 					if (setupView.labCombo.selectedItem != null) {
@@ -2163,27 +2163,27 @@
 					}
 				}
 				return idLab;
-			}	
-			
+			}
+
 			public function cloneRequest(requestToClone:Object):void {
 				this.requestToClone = requestToClone;
 				getRequestToClone.send();
 			}
-			
+
 			private function onGetRequestToClone(event:ResultEvent):void {
 				existingLanes = null;
-				
+
 				var clonedRequest:Object = getRequestToClone.lastResult..Request.(@idRequest == requestToClone.@idRequest);
 				if (!isMicroarrayState()) {
-					clonedRequest.replace("hybridizations", <hybridizations></hybridizations>); 	
-				} 
+					clonedRequest.replace("hybridizations", <hybridizations></hybridizations>);
+				}
 				if (!isSolexaState()) {
-					clonedRequest.replace("sequenceLanes", <sequenceLanes></sequenceLanes>); 	
-				} 
-				
+					clonedRequest.replace("sequenceLanes", <sequenceLanes></sequenceLanes>);
+				}
+
 				request = clonedRequest;
 				this.updateBillingAccountInfo();
-				
+
 				request.@idRequest = "0";
 				request.@number = "";
 				request.@idLab = setupView.labCombo.selectedItem.@idLab;
@@ -2194,20 +2194,20 @@
 				request.@idAppUser = setupView.idAppUser;
 				request.@idProject = setupView.projectCombo.selectedItem.@idProject;
 				request.@codeRequestCategory = setupView.requestTypeGroup.selectedValue;
-				
+
 				var requestCategory:Object = getRequestCategory();
-				
+
 				// Clear out workflow fields from sample and hyb
 				for each(var sample:Object in samples) {
 					sample.@qualDate = '';
 					sample.@qualCompleted = 'N';
 					sample.@qualFailed = 'N';
-					sample.@qualBypassed="N"; 
-					sample.@qual260nmTo230nmRatio=""; 
-					sample.@qual260nmTo280nmRatio=""; 
-					sample.@qual28sTo18sRibosomalRatio=""; 
-					sample.@qualAverageFragmentLength=""; 
-					sample.@qualRINNumber=""; 
+					sample.@qualBypassed="N";
+					sample.@qual260nmTo230nmRatio="";
+					sample.@qual260nmTo280nmRatio="";
+					sample.@qual28sTo18sRibosomalRatio="";
+					sample.@qualAverageFragmentLength="";
+					sample.@qualRINNumber="";
 					sample.@qualCalcConcentration="";
 					sample.@qualStatus = "";
 					sample.@treatment = "";
@@ -2217,7 +2217,7 @@
 					sample.@canChangeSampleConcentration='Y';
 					sample.@canChangeSampleSource='Y';
 					sample.@canChangeNumberSequencingLanes='Y';
-					sample.@canChangeNumberSequencingLanes='Y'; 
+					sample.@canChangeNumberSequencingLanes='Y';
 					sample.@canChangeNumberSequencingCycles='Y';
 					sample.@numberSequencingLanes = '';
 					sample.@concentration = '';
@@ -2229,22 +2229,22 @@
 					sample.@seqPrepStockLibVol = '';
 					sample.@seqPrepStockEBVol = '';
 					sample.@seqPrepStockEBVol = '';
-					sample.@qualFragmentSizeFrom =""; 
+					sample.@qualFragmentSizeFrom ="";
 					sample.@qualFragmentSizeTo="";
-					sample.@seqPrepQualCodeBioanalyzerChipType=""; 
+					sample.@seqPrepQualCodeBioanalyzerChipType="";
 					sample.@seqPrepStockDate="";
-					
-					
-					
+
+
+
 					if (isQCState()) {
 						sample.@idOrganism = '';
 					}
-					
+
 					if (!isQCState()) {
 						sample.@codeBioanalyzerChipType = '';
 						sample.@codeConcentrationUnit = '';
 					}
-					
+
 					if (sampleSetupView.currentState == 'SolexaSetupPreppedState') {
 						sample.@isAlreadyPrepped = 'Y';
 					} else  {
@@ -2252,61 +2252,61 @@
 						sample.@idSeqLibProtocol = '';
 					}
 				}
-				
-				
+
+
 				for each(var hyb:Object in hybs) {
 					// If this is a 1 channel kind if request, clear out channel2 of the cloned request
 					if (requestCategory.@numberOfChannels != "2") {
 						hyb.@idSampleChannel2 = "0";
 					}
-					hyb.@idArrayCoordinate="" 
+					hyb.@idArrayCoordinate=""
 					hyb.@idScanProtocol="";
 					hyb.@extractionDate="";
-					hyb.@extractionFailed=""; 
+					hyb.@extractionFailed="";
 					hyb.@extractionBypassed="";
 					hyb.@hybFailed="";
 					hyb.@hybBypassed="";
 					hyb.@idSlide = "";
 					hyb.@idFeatureExtractionProtocol="";
-					hyb.@hybDate; 
+					hyb.@hybDate;
 					hyb.@idLabeledSampleChannel1="";
 					hyb.@idLabeledSampleChannel2=""
 					hyb.@slideNumber="";
 					hyb.@slide="";
-					hyb.@hasResults=""; 
+					hyb.@hasResults="";
 					hyb.@slideBarcode="";
-					hyb.@hybCompleted="N"; 
+					hyb.@hybCompleted="N";
 					hyb.@extractionCompleted="N";
 					hyb.@arrayCoordinate="";
-					hyb.@idLabelingProtocolChannel1=""; 
+					hyb.@idLabelingProtocolChannel1="";
 					hyb.@idLabelingProtocolChannel2="";
-					hyb.@idScanProtocolChannel1=""; 
+					hyb.@idScanProtocolChannel1="";
 					hyb.@idScanProtocolChannel2="";
-					hyb.@idHybProtocolChannel1=""; 
+					hyb.@idHybProtocolChannel1="";
 					hyb.@idHybProtocolChannel2="";
-					hyb.@idFeatureExtractionProtocolChannel1=""; 
+					hyb.@idFeatureExtractionProtocolChannel1="";
 					hyb.@idFeatureExtractionProtocolChannel2="";
 					hyb.@labelingYieldChannel1="";
-					hyb.@codeLabelingReactionSizeChannel1="STD"; 
-					hyb.@labelingYieldChannel2=""; 
-					hyb.@numberOfReactionsChannel2="" 
-					hyb.@codeLabelingReactionSizeChannel2="STD"; 
-					hyb.@labelingFailedChannel1="N"; 
-					hyb.@labelingFailedChannel2="N"; 
-					hyb.@labelingCompleteChannel1="N"; 
-					hyb.@labelingCompleteChannel2="N"; 
-					hyb.@labelingStatusChannel1=""; 
-					hyb.@labelingStatusChannel2=""; 
-					hyb.@arrayCoordinateName=""; 
-					hyb.@hybStatus=""; 
+					hyb.@codeLabelingReactionSizeChannel1="STD";
+					hyb.@labelingYieldChannel2="";
+					hyb.@numberOfReactionsChannel2=""
+					hyb.@codeLabelingReactionSizeChannel2="STD";
+					hyb.@labelingFailedChannel1="N";
+					hyb.@labelingFailedChannel2="N";
+					hyb.@labelingCompleteChannel1="N";
+					hyb.@labelingCompleteChannel2="N";
+					hyb.@labelingStatusChannel1="";
+					hyb.@labelingStatusChannel2="";
+					hyb.@arrayCoordinateName="";
+					hyb.@hybStatus="";
 					hyb.@extractionStatus="";
 					hyb.@canChangeSampleDesignations='Y';
 					hyb.@canChangeSlideSource='Y';
 					hyb.@canChangeSlideDesign='Y';
 				}
-				
-				
-				
+
+
+
 				// Make sure we render the annotation tab because
 				// otherwise we won't activate the renderer code that
 				// hides/shows the sample annotation columns in the samples
@@ -2314,68 +2314,68 @@
 				if (theTab.contains(annotationView)) {
 					theTab.selectedChild = this.annotationView;
 				}
-				
+
 				callLater(initializeControls);
 				callLater(assignSlideNumbers);
-				
-				
+
+
 				callLater(sampleSetupView.checkSampleSetupCompleteness);
 				callLater(samplesView.checkSamplesCompleteness);
 				callLater(hybSetupView.checkHybSetupCompleteness);
 				callLater(hybsView.checkHybsCompleteness);
-				
-				
+
+
 			}
-			
+
 			private function assignSlideNumbers():void {
 				if (parentApplication.submitInternalExperiment()) {
-					hybsView.assignSlideNumbers(hybSetupView.slideProductCombo);								
+					hybsView.assignSlideNumbers(hybSetupView.slideProductCombo);
 				} else {
-					hybsView.assignSlideNumbers(setupView.slideProductCombo);								
+					hybsView.assignSlideNumbers(setupView.slideProductCombo);
 				}
 			}
-			
+
 			public function setupEditForm(theRequest:Object):void {
 				request = theRequest;
 				setupTheEditForm();
 				this.updateBillingAccountInfo();
 			}
-			
+
 			private function setupTheEditForm():void {
 				currentState = '';
 				samplesView.currentState = '';
-				
+
 				setTabsVisible();
-				
+
 				var requestCategory:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory',request.@codeRequestCategory);
 				requestCategoryName = requestCategory.@display.toString();
 				requestIcon = requestCategory.@icon;
 				requestType = requestCategory.@type;
-				
+
 				this.instantiateTabs(requestCategory.@codeRequestCategory, true, false);
-				
+
 				buttonStack.selectedIndex = 1;
-				
-				var prevSelectedTab:Container = theTab.selectedChild;			
-				
+
+				var prevSelectedTab:Container = theTab.selectedChild;
+
 				annotationView.enabled = true;
 				samplesView.enabled = request.@canUpdateSamples == "Y";
 				notesView.enabled = true;
 				notesView.currentState = "EditState";
-				
+
 				parentApplication.isInternalExperimentSubmission = request.@isExternal == "N";
-				
+
 				// Make sure we render the annotation tab because
 				// otherwise we won't activate the renderer code that
 				// hides/shows the sample annotation columns in the samples
 				// grid
 				if (theTab.contains(annotationView)) {
 					theTab.selectedChild = this.annotationView;
-				} 
-				
-				var canChangeSlide:Boolean = false;			
+				}
+
+				var canChangeSlide:Boolean = false;
 				if (parentApplication.hasPermission("canWriteAnyObject")) {
-					canChangeSlide = true;		
+					canChangeSlide = true;
 				} else {
 					for each(var hyb:Object in hybs) {
 						if (hyb.@canChangeSlideDesign == "Y") {
@@ -2384,43 +2384,43 @@
 						}
 					}
 				}
-				
+
 				if (requestCategory.@isIlluminaType == 'Y') {
 					currentState = request.@isExternal == 'Y' ? 'SeqExternalEditState' : 'SolexaEditState';
-					
-					this.annotationView.checkSecurity();			
-					if (parentApplication.hasPermission("canWriteAnyObject")) { 
-						samplesView.currentState = 'SolexaSamplesAdminState';						
+
+					this.annotationView.checkSecurity();
+					if (parentApplication.hasPermission("canWriteAnyObject")) {
+						samplesView.currentState = 'SolexaSamplesAdminState';
 					} else {
-						samplesView.currentState = 'SolexaSamplesEditState';					
+						samplesView.currentState = 'SolexaSamplesEditState';
 					}
 					samplesView.showHideColumns();
-					
+
 					// Comment out since seq lib treatments are not in use for now
-					//this.seqSetupView.currentState = "EditState";  
-					
+					//this.seqSetupView.currentState = "EditState";
+
 					if(request.@isExternal != 'Y') {
 						if (parentApplication.hasPermission("canWriteAnyObject")) {
 							lanesView.currentState = 'LanesAdminState';
 						} else if (request.@isExternal == 'Y') {
-							lanesView.currentState = 'LanesAdminState';						
+							lanesView.currentState = 'LanesAdminState';
 						} else {
 							lanesView.currentState = '';
-						} 					
+						}
 					}
-					
+
 					this.propertyEntries.refresh();
-					
-					
+
+
 				} else if (requestCategory.@type == parentApplication.TYPE_QC) {
 					currentState = 'QCEditState';
 					if (parentApplication.hasPermission("canWriteAnyObject")) {
-						samplesView.currentState = 'QCSamplesAdminState';						
+						samplesView.currentState = 'QCSamplesAdminState';
 					} else {
-						samplesView.currentState = 'QCSamplesEditState';					
+						samplesView.currentState = 'QCSamplesEditState';
 					}
-					samplesView.showHideColumns(); 
-					
+					samplesView.showHideColumns();
+
 				} else if (requestCategory.@type == parentApplication.TYPE_GENERIC) {
 					this.currentState = "GenericEditState";
 					if (theTab.contains(sampleSetupView)) {
@@ -2431,38 +2431,38 @@
 					if (theTab.contains(sampleSetupView)) {
 						this.sampleSetupView.currentState = 'CapSeqState';
 					}
-					this.samplesView.currentState = 'CapSeqState';				
-					this.samplesView.showHideColumns();				
+					this.samplesView.currentState = 'CapSeqState';
+					this.samplesView.showHideColumns();
 					if (this.samplesView.hasPlates()) {
 						this.samplesView.fillPlates();
 					}
-					
+
 				} else if (requestCategory.@type == parentApplication.TYPE_MIT_SEQ) {
 					this.currentState = "MitSeqEditState";
 					if (theTab.contains(sampleSetupView)) {
 						this.sampleSetupView.currentState = 'MitSeqState';
 					}
-					this.samplesView.currentState = 'MitSeqState';				
-					this.samplesView.showHideColumns();				
-					
+					this.samplesView.currentState = 'MitSeqState';
+					this.samplesView.showHideColumns();
+
 				} else if (requestCategory.@type == parentApplication.TYPE_FRAG_ANAL) {
 					this.currentState = "FragAnalEditState";
 					if (theTab.contains(sampleSetupView)) {
 						this.sampleSetupView.currentState = 'FragAnalState';
 					}
-					this.samplesView.currentState = 'FragAnalState';				
-					this.samplesView.showHideColumns();				
-					
+					this.samplesView.currentState = 'FragAnalState';
+					this.samplesView.showHideColumns();
+
 				} else if (requestCategory.@type == parentApplication.TYPE_CHERRY_PICK) {
 					this.currentState = "CherryPickEditState";
 					if (theTab.contains(sampleSetupView)) {
 						this.sampleSetupView.currentState = 'CherryPickState';
 					}
-					this.samplesView.currentState = 'CherryPickState';				
+					this.samplesView.currentState = 'CherryPickState';
 					var numDestinationWells:int = Number(this.request.@numDestinationWells.toString());
 					cherryPlateList = this.request.cherryPlateList.Plate;
 					samplesView.prepareCherryPickingSamplesForEdit(numDestinationWells);
-					this.samplesView.showHideColumns();	
+					this.samplesView.showHideColumns();
 				} else if (requestCategory.@type == parentApplication.TYPE_ISCAN) {
 					this.experimentCategoryName = '';
 					this.currentState = "IScanEditState";
@@ -2471,62 +2471,62 @@
 					if (theTab.contains(sampleSetupView)) {
 						this.sampleSetupView.currentState = "IsolationState";
 					}
-					
+
 				} else if (requestCategory.@type == parentApplication.TYPE_SEQUENOM) {
 					this.currentState = "SequenomEditState";
 					if (theTab.contains(sampleSetupView)) {
 						this.sampleSetupView.currentState = "SequenomState";
 					}
-					
+
 				} else if (requestCategory.@type == parentApplication.TYPE_CLINICAL_SEQUENOM) {
 					this.currentState = "ClinicalSequenomEditState";
 					if (theTab.contains(sampleSetupView)) {
 						this.sampleSetupView.currentState = "ClinicalSequenomState";
 					}
 					this.samplesView.currentState = 'ClinicalSequenomState';
-					
+
 				}  else if(requestCategory.@type == parentApplication.TYPE_MICROARRAY) {
-					
-					
+
+
 					currentState = 'MicroarrayEditState';
 					if(this.filteredMicroarrayAppList != null) {
 						this.filteredMicroarrayAppList.refresh();
 					}
-					
+
 					this.hybSetupView.currentState = 'EditState';
-					this.annotationView.checkSecurity();			
+					this.annotationView.checkSecurity();
 					if (parentApplication.hasPermission("canWriteAnyObject")) {
-						samplesView.currentState = 'MicroarraySamplesAdminState';	
-						hybsView.currentState = 'HybsAdminState';	
+						samplesView.currentState = 'MicroarraySamplesAdminState';
+						hybsView.currentState = 'HybsAdminState';
 					} else {
-						samplesView.currentState = 'MicroarraySamplesEditState';					
-						hybsView.currentState = 'HybsEditState';				
+						samplesView.currentState = 'MicroarraySamplesEditState';
+						hybsView.currentState = 'HybsEditState';
 					}
 					samplesView.showHideColumns();
-					
-					
+
+
 					hybSetupView.organismCombo.enabled = canChangeSlide;
 					hybSetupView.slideProductCombo.enabled = canChangeSlide;
 					hybSetupView.isCatalogRadio.enabled = canChangeSlide;
 					hybSetupView.isCustomRadio.enabled = canChangeSlide;
-					
-					
+
+
 					hybSetupView.label = "Slide";
 					hybSetupView.numberOfHybsContainer.visible = false;
 					hybSetupView.slideSourceContainer.visible = false;
 					this.propertyEntries.refresh();
-					
+
 				} else if (requestCategory.@type == parentApplication.TYPE_NANOSTRING) {
 					this.currentState = "NanoStringEditState";
 					if (theTab.contains(sampleSetupView)) {
 						this.sampleSetupView.currentState = "NanoStringState";
 					}
 				}
-				
+
 				this.initializeData();
-				
+
 				if (theTab.contains(visibilityView)) {
-					this.visibilityView.currentState = "EditState";	
+					this.visibilityView.currentState = "EditState";
 					if( requestCategory.@isOwnerOnly=='Y' ) {
 						theTab.removeChild(visibilityView);
 					} else if (request.@canUpdateVisibility == 'Y') {
@@ -2535,30 +2535,30 @@
 						this.visibilityView.enabled = false;
 					}
 				} else {
-					if ( requestCategory.@isOwnerOnly!='Y' && requestCategory.@type == 'SEQUENOM' ) { 
+					if ( requestCategory.@isOwnerOnly!='Y' && requestCategory.@type == 'SEQUENOM' ) {
 						theTab.addChild(visibilityView);
-					} 
+					}
 				}
-				
+
 				this.getRequestCategoryName();
-				this.getBillingAccountName(); 
+				this.getBillingAccountName();
 				this.getExperimentCategoryName();
-				
+
 				if (parentDocument is NavOrderView) {
 					this.navBackButton.visible = true;
 					this.navBackButton.includeInLayout = true;
-					
-					
+
+
 				} else {
 					this.linkbutton2.label = "View";
 					this.linkbutton2.setStyle('icon',this.viewIcon);
-					
+
 					this.navBackButton.visible = false;
 					this.navBackButton.includeInLayout = false;
-					
-					
+
+
 				}
-				
+
 				if (theTab.contains(notesView)) {
 					notesView.setExternalNoteVisibility();
 				}
@@ -2571,23 +2571,23 @@
 						this.propertiesView.editable = false;
 					}
 				}
-				
+
 				if (this.linkToTopicBar != null) {
 					this.linkToTopicBar.refreshForDisplay();
 				}
-				
+
 				// Need to refresh download list here; otherwise last selected experiment's
 				// files shown rather than current selection.
-				this.refreshDownloadList();				
-				
+				this.refreshDownloadList();
+
 				this.filteredLabList.refresh();
-				
+
 				this.filteredSampleTypeList.refresh();
-				
+
 				postSetupEditForm();
-				
+
 			}
-			
+
 			private function postSetupEditForm():void {
 				// Only show billing tab if it is is not an external experiment
 				if (this.request.@isExternal == 'Y') {
@@ -2599,7 +2599,7 @@
 						theTab.addChild(billingTab);
 					}
 				}
-				
+
 				if (determineIfProductsNeeded()) {
 					var allowEditing:Boolean = false;
 					var statusToUseProducts:String = parentApplication.getRequestCategoryProperty(request.@idCoreFacility, request.@codeRequestCategory, parentApplication.PROPERTY_STATUS_TO_USE_PRODUCTS);
@@ -2616,49 +2616,49 @@
 				} else {
 					hideProductsTab();
 				}
-				
+
 				initializeControls();
-				
+
 				if (this.isMicroarrayState() && this.request.@isExternal != 'Y') {
-					assignSlideNumbers();	
+					assignSlideNumbers();
 				}
 				samplesView.checkSamplesCompleteness();
 				if (this.isMicroarrayState() && this.request.@isExternal != 'Y') {
 					hybSetupView.checkHybSetupCompleteness();
 					hybsView.checkHybsCompleteness();
 				}
-				
+
 				this.restoreTabIndex();
 				updateDirtyNote(false);
 			}
-			
+
 			public function removeDataListeners():void {
 				hybs.removeEventListener(CollectionEvent.COLLECTION_CHANGE, underlyingHybDataChange);
-				samples.removeEventListener( CollectionEvent.COLLECTION_CHANGE, underlyingSampleDataChange);			
-				lanes.removeEventListener( CollectionEvent.COLLECTION_CHANGE, underlyingLaneDataChange);			
-				
+				samples.removeEventListener( CollectionEvent.COLLECTION_CHANGE, underlyingSampleDataChange);
+				lanes.removeEventListener( CollectionEvent.COLLECTION_CHANGE, underlyingLaneDataChange);
+
 			}
-			
+
 			public function setupDataListeners():void {
 				hybs.addEventListener(CollectionEvent.COLLECTION_CHANGE, underlyingHybDataChange);
-				samples.addEventListener( CollectionEvent.COLLECTION_CHANGE, underlyingSampleDataChange);			
+				samples.addEventListener( CollectionEvent.COLLECTION_CHANGE, underlyingSampleDataChange);
 				lanes.addEventListener( CollectionEvent.COLLECTION_CHANGE, underlyingLaneDataChange);
 				dirty.addEventListener(DirtyEvent.NOW_DIRTY, handleDirtyEvent);
 				dirty.addEventListener(DirtyEvent.NOW_CLEAN, handleDirtyEvent);
 			}
-			
+
 			private function addDescriptionFieldToAnnotations(sc:XMLList):void {
 				var scXML:XML = sc[0];
-				var descNode:XML = <PropertyEntry idProperty="-1" name="Description" otherLabel="" isSelected="false" isActive="Y"/>;		
+				var descNode:XML = <PropertyEntry idProperty="-1" name="Description" otherLabel="" isSelected="false" isActive="Y"/>;
 				scXML.appendChild(descNode);
 				this.propertyEntries.refresh();
 			}
-			
+
 			private function onGetNewRequest(event:ResultEvent):void {
 				existingLanes = null;
 				if(!parentApplication.isInternalExperimentSubmission) {
-					addDescriptionFieldToAnnotations(getNewRequest.lastResult..Request.(@idRequest = '0').PropertyEntries);			
-				}			
+					addDescriptionFieldToAnnotations(getNewRequest.lastResult..Request.(@idRequest = '0').PropertyEntries);
+				}
 				request = getNewRequest.lastResult..Request.(@idRequest = '0');
 				this.updateBillingAccountInfo();
 				request.@idSubmitter = setupView.idAppUser;
@@ -2666,12 +2666,12 @@
 					request.@idSubmitter = parentApplication.idAppUser
 				}
 				request.@idAppUser = setupView.idAppUser;
-				
+
 				if (theTab.contains(this.annotationView)) {
 					this.propertyEntries.refresh();
 					this.annotationView.checkSecurity();
-				} 
-				
+				}
+
 				this.requestProperties.refresh();
 				if (this.requestProperties.length < 1) {
 					this.theTab.getTabAt( theTab.getChildIndex( propertiesView ) ).visible = false;
@@ -2681,24 +2681,24 @@
 					this.theTab.getTabAt( theTab.getChildIndex( propertiesView ) ).includeInLayout = true;
 				}
 
-				initializeSubmitForm();		
-				
+				initializeSubmitForm();
+
 				if (theRequestNumber != null) {
 					parentApplication.showExperiment(theRequestNumber, showPromptToUpload);
 					theRequestNumber = null;
 					showPromptToUpload = false;
 				}
 			}
-			
+
 			private function refreshLab():void {
 				if (requestEditLabCombo.selectedItem != null && requestEditLabCombo.selectedItem.@idLab != '') {
-					
+
 					var params:Object = new Object();
 					params.idLab = requestEditLabCombo.selectedItem.@idLab;
 					getLab.send(params);
 				}
 			}
-			
+
 			// We have to make sure that the slide product list and slide design list
 			// is initialized for the edit form before we can initialize its controls.
 			// This is now necessary because the getting of the slide product and slide
@@ -2710,31 +2710,31 @@
 						// If we already have the slide product and slide design list, initialize controls
 						initializeControlsImpl();
 					} else {
-						
+
 						if (this.getSlideProductList.lastResult == null || filteredSlideProductList == null) {
 							// We don't have the slide design list so run the query.
 							// The result handler will detect if it is time to call
 							// initializeControlsImpl.
 							getSlideProductList.send();
 						} else {
-							// We do have the slide product list so  refresh it. 
+							// We do have the slide product list so  refresh it.
 							this.checkToInitializeEditControls();
 						}
-						
+
 						if (this.getSlideDesignList.lastResult == null) {
 							// We don't have the slide design list so run the query.
 							// The result handler will detect if it is time to call
 							// initializeControlsImpl.
 							getSlideDesignList.send();
 						}
-					} 
+					}
 				} else {
 					initializeControlsImpl();
 				}
 			}
-			
+
 			private function initializeControlsImpl():void {
-				
+
 				if (isEditState()) {
 					labList = new XMLListCollection();
 					var selectedItem:Object = null;
@@ -2768,11 +2768,11 @@
 						}
 					}
 				}
-				
+
 				if (theTab.contains(sampleSetupView)) {
 					sampleSetupView.numberOfSamples.text = new String(request.samples.Sample.length());
 					sampleSetupView.sampleTypeRadioGroup.selectedValue = request.@idSampleTypeDefault;
-					
+
 					if (currentState == 'QCState') {
 						for each(var chipType:Object in sampleSetupView.bioanalyzerChipTypeGrid.dataProvider) {
 							if (chipType.@codeBioanalyzerChipType == request.@codeBioanalyzerChipType) {
@@ -2781,39 +2781,39 @@
 							}
 						}
 					}
-					
-					
+
+
 					if (this.isIScanState() ) {
-						
+
 						this.sampleSetupView.currentState = 'IScanState';
 						this.samplesView.currentState = 'IScanState';
 						this.sampleSetupView.updateIScanPlateList(this.request.iScanPlateList.Plate);
 						this.theTab.getTabAt( theTab.getChildIndex( annotationView ) ).visible = false;
 						this.theTab.getTabAt( theTab.getChildIndex( annotationView ) ).includeInLayout = false;
-						
+
 						sampleSetupView.numberOfSamples.text = new String(request.samples.Sample.(@name!='').length());
 						this.propertyEntries.refresh();
 						this.annotationView.checkSecurity();
-						this.samplesView.showHideColumns();		
-						this.samplesView.initializeSamplesGrid(); 
+						this.samplesView.showHideColumns();
+						this.samplesView.initializeSamplesGrid();
 					}
-					
+
 				}
-				
+
 				if ( this.theTab.contains(samplesView) && this.isSequencingState() ) {
 					samplesView.setShowCCNumber(false);
 				}
 				if (this.isSequenomState() || this.isClinicalSequenomState() ) {
-					
+
 					if ( this.request.@containerType == "PLATE"){
 						this.sampleSetupView.updateIScanPlateList(this.request.iScanPlateList.Plate);
 					}
-					
+
 					if(!this.isEditState()){
 						this.theTab.getTabAt( theTab.getChildIndex( annotationView ) ).visible = false;
 						this.theTab.getTabAt( theTab.getChildIndex( annotationView ) ).includeInLayout = false;
 					}
-					
+
 					for each(var app:Object in sampleSetupView.seqAppRepeater.dataProvider) {
 						if (app.@value == request.@codeApplication) {
 							sampleSetupView.radioGroupSeqApp.selectedValue = app;
@@ -2823,57 +2823,57 @@
 					this.sampleSetupView.bisulfideConversionCheckBox.selected = request.@includeBisulfideConversion == 'Y' ? true : false;
 					if (this.isSequenomState() ){
 						this.sampleSetupView.sequenomApplicationDesc.text = request.@applicationNotes;
-					} 
-					
+					}
+
 					sampleSetupView.numberOfSamples.text = new String(request.samples.Sample.(@name!='').length());
 					this.propertyEntries.refresh();
 					this.annotationView.checkSecurity();
-					this.samplesView.showHideColumns();		
-					this.samplesView.initializeSamplesGrid(); 
+					this.samplesView.showHideColumns();
+					this.samplesView.initializeSamplesGrid();
 				}
-				
+
 				if (this.isIsolationState() && !this.isEditState()) {
-					
+
 					this.theTab.getTabAt( theTab.getChildIndex( annotationView ) ).visible = false;
 					this.theTab.getTabAt( theTab.getChildIndex( annotationView ) ).includeInLayout = false;
-					
+
 				}
-				
+
 				if (isMicroarrayState() || this.isSolexaState()) {
 					if (theTab.contains(sampleSetupView)) {
 						if (request.@idOrganismSampleDefault != '') {
-							sampleSetupView.sampleOrganismCombo.selectedItem = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.OrganismLite', request.@idOrganismSampleDefault);											
+							sampleSetupView.sampleOrganismCombo.selectedItem = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.OrganismLite', request.@idOrganismSampleDefault);
 						}
 					}
 				}
-				
+
 				if (isMicroarrayState()) {
 					selectedIdSlideProduct = request.@idSlideProduct;
 					hybSetupView.numberOfHybs.text = new String(request.hybridizations.Hybridization.length());
 					var theSlideProduct:Object = this.getSlideProductList.lastResult.SlideProduct.(@idSlideProduct == request.@idSlideProduct);
 					// Organism combo not set up yet so can't initialize the Combo.  Done in init on TabHybSetupview
 					hybSetupView.organismCombo.selectedIndex = -1;
-					
+
 					var application:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Application', request.@codeApplication);
 					if(hybSetupView.microarrayAppRadioGroup.numRadioButtons > 0) {
-						hybSetupView.microarrayAppRadioGroup.selectedValue = application[0].@value;					
+						hybSetupView.microarrayAppRadioGroup.selectedValue = application[0].@value;
 					} else {
 						lastSelectedApplication = application[0].@value;
 					}
-					
+
 					hybSetupView.initializeSlideProductCombo();
 					hybSetupView.slideProductValidator.validate();
-					
+
 					// TODO:  Is this okay to remove????  Don't know which slide product combo
 					// we are using since it could be from external (setup view) or internal
 					// (hyb setup view) experiment submissions.
 					// Leave out for now assuming that slide product combo change event
 					// takes care of necessary initialization.
 					//initializeSlideDesigns();
-					
+
 					hybSetupView.selectDefaultSlideSource();
-					
-				}			
+
+				}
 				if (isEditState() && theTab.contains(visibilityView)) {
 					visibilityView.init(); // Set institution combo, etc.
 					if (request.@canUpdateVisibility != 'Y') {
@@ -2882,52 +2882,52 @@
 						this.visibilityView.enabled = true;
 					}
 				}
-				
-				
+
+
 				if (this.isAmendState() && theTab.contains(amendSetupView)) {
 					theTab.selectedChild = this.amendSetupView;
 				} else if (theTab.contains(setupView)) {
-					theTab.selectedChild = this.setupView;			
+					theTab.selectedChild = this.setupView;
 				} else {
 					theTab.selectedChild = this.samplesView;
-					samplesView.initializeBarcoding();	
-					
+					samplesView.initializeBarcoding();
+
 				}
-				
+
 			}
-			
-			
+
+
 			public function initializeSlideDesigns(slideProductCombo:mx.controls.ComboBox):void {
-				var slideDesign:Object = hybsView.getDefaultSlideDesign(slideProductCombo);								
+				var slideDesign:Object = hybsView.getDefaultSlideDesign(slideProductCombo);
 				if (slideDesign != null) {
 					for each (var hyb:Object in hybs) {
 						hyb.@idSlideDesign = slideDesign.@idSlideDesign;
 					}
 				}
 			}
-			
-			
+
+
 			private function validateRequest(action:String):void {
 				errorMessage = '';
 				warningMessage = '';
-				
+
 				if (request.@onReactionPlate == 'Y') {
 					warningMessage = "Samples from this order are already on a reaction plate.\n\n";
 				}
-				
+
 				// Validate institution
 				if (this.theTab.contains(visibilityView) && visibilityView != null && visibilityView.enabled) {
 					if (visibilityView.visibilityRadioGroup.selectedValue != null && visibilityView.visibilityRadioGroup.selectedValue != '') {
-						
+
 						if (visibilityView.visibilityRadioGroup.selectedValue == 'INST') {
-							if (visibilityView.institutionCombo.selectedItem == null || !visibilityView.institutionCombo.selectedItem.hasOwnProperty("@idInstitution") 
+							if (visibilityView.institutionCombo.selectedItem == null || !visibilityView.institutionCombo.selectedItem.hasOwnProperty("@idInstitution")
 								|| visibilityView.institutionCombo.selectedItem.@idInstitution == '') {
 								errorMessage += "You must select an Institution for institution visibility.  Please select an institution or change to a different visiblity level.\n\n";
-							}					
+							}
 						}
-					} 
+					}
 				}
-				
+
 				if (isCapSeqState()) {
 					var minSamplesString:String = parentApplication.getProperty(parentApplication.PROPERTY_MIN_SAMPLES_ALLOWED_FOR_PLATE_SUBMISSION);
 					var minSamplesAllowedForPlate:int = 32;
@@ -2943,7 +2943,7 @@
 						for(var idx:int = 0; idx < this.numCapSeqPlates; idx++) {
 							var lastSample:int = ((idx + 1) * 96) - 1;
 							var firstSample:int = idx * 96;
-							
+
 							var controlSample:Object = null;
 							if (samples.length > lastSample) {
 								controlSample = samples.getItemAt(lastSample);
@@ -2952,7 +2952,7 @@
 								warningMessage += "If you replace the control and the run fails, the results cannot be verified and we will not repeat the run.\n\n";
 								addedControlSampleWarning = true;
 							}
-							
+
 							var numSamplesOnPlate:int = 0;
 							if (samples.length > firstSample) {
 								for (var idx2:int = firstSample; idx2 <= lastSample && idx2 < samples.length; idx2++) {
@@ -2981,7 +2981,7 @@
 							}
 						}
 					}
-				}				
+				}
 				// Make sure lab and billing account filled in
 				if (isEditState()) {
 					if (requestEditLabCombo.selectedItem == null || requestEditLabCombo.selectedItem.@idLab == '') {
@@ -2992,38 +2992,38 @@
 					}
 					if (ownerCombo.selectedItem == null || ownerCombo.selectedItem.@idAppUser == '') {
 						errorMessage += "Owner must be specified.\n\n";
-					} 
+					}
 					if (this.isSolexaEditState()) {
 						if (this.requestApplicationComboBox.selectedItem == null || this.requestApplicationComboBox.selectedItem.@value == '') {
 							errorMessage += "Experiment Type must be specified.\n\n";
 						}
 					}
-					
+
 				}
-				
-				if(currentState == 'SolexaEditState'){		
+
+				if(currentState == 'SolexaEditState'){
 					for each (var samp1:Object in samples){
 						if(samp1.@multiplexGroupNumber == null || samp1.@multiplexGroupNumber == '' || !samp1.hasOwnProperty("@multiplexGroupNumber")){
 							errorMessage += "Please fill in missing multiplex group numbers.\n\n";
 							break;
 						}
 					}
-					
+
 					if(!this.samplesView.areIndexTagsUnique()){
 						warningMessage += "Two or more samples in the same multiplex group do not differ by at least 3 base pairs.\n\n";
 					}
 				}
-				
+
 				var cw:String = SampleConcentrationValidator.instance.validateSampleConcentration(samples);
 				if (cw != "") {
 					errorMessage += cw + "\n\n";
 				}
-				
+
 				var qcWarning:String = SampleQCValidator.instance.validateSampleQC(samples);
 				if (qcWarning != "") {
 					errorMessage += qcWarning + "\n\n";
 				}
-				
+
 				// Check for duplicate sampleNames / wells
 				var sampleNames:Dictionary = new Dictionary();
 				var sourceWells:Dictionary = new Dictionary();
@@ -3075,7 +3075,7 @@
 					if (!isEditState()) {
 						errorMessage += 'Please provide unique sample names.';
 					}
-					errorMessage += '\n\n';					
+					errorMessage += '\n\n';
 				}
 				var dupSourceWells:String = '';
 				for (var keysw:Object in sourceWells) {
@@ -3091,15 +3091,15 @@
 					if (!isEditState()) {
 						warningMessage += 'Please provide unique source wells.';
 					}
-					warningMessage += '\n\n';					
+					warningMessage += '\n\n';
 				}
-				
+
 				if (sparsePlate) {
 					errorMessage += "Empty wells can only exist at the end of the plate.\n\n";
 				}
-				
+
 				// If this is a new request or the request is being changed on
-				// the edit screen, warn if all samples are not used on at least 
+				// the edit screen, warn if all samples are not used on at least
 				// one hyb or seq lane
 				if (!isAmendState()) {
 					var allSamplesUsed:Boolean = true;
@@ -3116,33 +3116,33 @@
 								useCount = getChannelCount(sample);
 								target = "hybridization";
 							}
-							
+
 							if (useCount == 0) {
 								allSamplesUsed = false;
 								if (unusedSampleList != '') {
-									unusedSampleList += ', ';							
+									unusedSampleList += ', ';
 								}
 								unusedSampleList += sample.@name;
 								unusedSampleCount++;
-								
+
 							}
 						}
 						if (unusedSampleCount > 0) {
 							if (unusedSampleCount == 1) {
-								warningMessage += 'The sample ' + unusedSampleList + 
+								warningMessage += 'The sample ' + unusedSampleList +
 									' is not used on any ' + target + 's.  ';
-								warningMessage += '\n\n';					
+								warningMessage += '\n\n';
 							} else {
-								warningMessage += 'The samples  (' + unusedSampleList + 
+								warningMessage += 'The samples  (' + unusedSampleList +
 									')  are not used on any ' + target + 's.  ';
-								warningMessage += '\n\n';					
+								warningMessage += '\n\n';
 							}
 						}
-					}	
-					
+					}
+
 				}
-				
-				// Warn if some of the arrays (on a multi-array slide) are not used.	
+
+				// Warn if some of the arrays (on a multi-array slide) are not used.
 				if (isMicroarrayState() && parentApplication.submitInternalExperiment()) {
 					if (hybSetupView.slideProductCombo.selectedItem == null) {
 						warningMessage += "No slide selected.\n";
@@ -3152,9 +3152,9 @@
 								"'.\n ";
 						}
 					}
-					
+
 				}
-				
+
 				// Warn if A and B index tags are identical
 				var barcodeField:String = "";
 				var barcodeFieldB:String = "";
@@ -3165,7 +3165,7 @@
 					barcodeField = "@idOligoBarcode";
 					barcodeFieldB = "@idOligoBarcodeB";
 				}
-				
+
 				if(barcodeField != "" && barcodeFieldB != ""){
 					for each(var samp:Object in this.samples) {
 						if(samp[barcodeField] != "" && samp[barcodeFieldB] != ""){
@@ -3176,7 +3176,7 @@
 						}
 					}
 				}
-				
+
 				// Ensure experiment has description if appropriate
 				if (isEditState() && parentApplication.submitInternalExperiment()) {
 					if (coreFacility != null && requestCategory != null && parentApplication.requireExperimentDescriptionAndName(coreFacility.@idCoreFacility, requestCategory.@codeRequestCategory)) {
@@ -3200,19 +3200,19 @@
 						}
 					}
 				}
-				
+
 				if (productsView != null && theTab.contains(productsView) && theTab.getTabAt(theTab.getChildIndex(productsView)).visible) {
 					productsView.refreshForSamples();
 					productsView.updateFields();
-					
+
 					if(parentApplication.getRequestCategoryProperty(request.@idCoreFacility, request.@codeRequestCategory, parentApplication.PROPERTY_NEW_REQUEST_SAVE_BEFORE_SUBMIT) != 'Y'){
 						errorMessage += productsView.getErrors(action);
 						warningMessage += productsView.getWarnings(action);
 					}
-					
+
 				}
 			}
-			
+
 			private function getChannelCount(sample:Object):int {
 				var count:int = 0;
 				if (hybs!= null) {
@@ -3222,7 +3222,7 @@
 							count++;
 						}
 					}
-				} 								
+				}
 				return count;
 			}
 			public function getLaneCount(sample:Object):int {
@@ -3233,7 +3233,7 @@
 							count++;
 						}
 					}
-				} 								
+				}
 				return count;
 			}
 			public function getLanes(sample:Object, numberOfLanes:int):ArrayCollection {
@@ -3247,13 +3247,13 @@
 							}
 						}
 					}
-				} 								
+				}
 				return theLanes;
 			}
-			
+
 			private function validateAndSubmitRequest():void {
 				this.submitButton.enabled = false;
-				
+
 				var action:String = "submit";
 				var actionDisplayed:String = "submit";
 				if (this.submitButton != null && this.submitButton.label != null && this.submitButton.label != "") {
@@ -3262,7 +3262,7 @@
 						actionDisplayed = "save";
 					}
 				}
-				
+
 				// Only submit request if it is valid
 				validateRequest(action);
 				errorMessage += propertiesView.requiredAnnotationsEntered();
@@ -3277,7 +3277,7 @@
 				}
 				submitRequest();
 			}
-			
+
 			private function validateAndSaveRequest():void {
 				this.submitButton.enabled = false;
 				validateRequest("save");
@@ -3285,36 +3285,36 @@
 				if (errorMessage != '') {
 					this.submitButton.enabled = true;
 					Alert.show(errorMessage);
-					return; 
+					return;
 				} else if (warningMessage != '') {
 					promptToSaveRequest();
 					return;
-					
+
 				} else {
-					saveRequest();				
+					saveRequest();
 				}
 			}
-			
-			
-			
-			
-			private function submitRequest():void { 
-				
+
+
+
+
+			private function submitRequest():void {
+
 				initializeRequestXML();
-				
+
 				var params:Object = new Object();
 				params.requestXMLString = request.toXMLString();
 				params.description = saveDescription;	// Description sent separately to avoid XML encoding problems
-				
+
 				if (!isAmendState()) {
-					params.idProject = setupView.projectCombo.selectedItem.@idProject;				
+					params.idProject = setupView.projectCombo.selectedItem.@idProject;
 				}
-				
+
 				// Chosen Assays
 				if (isFragAnalState()) {
 					params.assaysXMLString = this.selectedAssaysCollection;
 				}
-				
+
 				// Chosen Assays
 				if (isMitSeqState()) {
 					var primers:XMLListCollection = new XMLListCollection();
@@ -3324,14 +3324,14 @@
 					addPrimer(primers, "4", sampleSetupView.primer4Combo.selectedItem);
 					addPrimer(primers, "5", sampleSetupView.primer5Combo.selectedItem);
 					addPrimer(primers, "6", sampleSetupView.primer6Combo.selectedItem);
-					
+
 					params.primersXMLString = primers.toXMLString();
 				}
-				
+
 				var exceeds500:Boolean = false;
-				
+
 				if(agreeCheckbox.visible) {
-					
+
 					try {
 						var invoicePrice:String = createBillingItems.lastResult.Request.@invoicePrice;
 						invoicePrice = invoicePrice.replace("$", "");
@@ -3340,46 +3340,46 @@
 						if(myFloat > 500.0) {
 							exceeds500 = true;
 						}
-						
+
 					}
 					catch (err:Error) {
 						// Just ignore the check if there is a conversion error
 						exceeds500 = false;
-					}				
-					
+					}
+
 				}
-				
+
 				if(exceeds500) {
 					params.invoicePrice = createBillingItems.lastResult.Request.@invoicePrice;
-				}		
-				
+				}
+
 				if ( this.theTab.contains( this.propertiesView )  ){
 					// Annotations
 					propertiesView.initializePropertiesFromComponents();
 					params.propertiesXML = "<requestProperties>" + propertiesView.propertiesToSave.toXMLString() + "</requestProperties>";
-					
+
 				}
-				
-				saveNewRequest.send(params);			
-				
+
+				saveNewRequest.send(params);
+
 			}
-			
+
 			private function addPrimer(primers:XMLListCollection, number:String, item:Object):void {
 				if (item != null) {
 					var primerXML:XML = new XML("<Primer number='" + number + "' name='" + item.@display + "' id='" + item.@value + "'/>");
 					primers.addItem(primerXML);
 				}
 			}
-			
+
 			public function getAssayDataField(x:int):String {
 				var fld:String = "@hasAssay";
 				var assay:Object = assayCollection.getItemAt(x);
 				fld += assay.@display;
 				return fld;
 			}
-			
+
 			public function getMultiplexLanes():void {
-				if(this.isSolexaState() && parentApplication.isInternalExperimentSubmission) { 
+				if(this.isSolexaState() && parentApplication.isInternalExperimentSubmission) {
 					//this.bioinformaticsView.propagateGenomeBuild();
 					initializeRequestXML();
 					var params:Object = new Object();
@@ -3389,26 +3389,26 @@
 			}
 			private function onGetMultiplexLaneList(event:ResultEvent):void {
 				var readyToSubmit:Boolean = true;
-				if (getMultiplexLaneList.lastResult.name() != "MultiplexLaneList") { 
+				if (getMultiplexLaneList.lastResult.name() != "MultiplexLaneList") {
 					Alert.show(getMultiplexLaneList.lastResult..ACTMESSAGE.@TEXT, "Unable to get multiplex lane info");
 					readyToSubmit = false;
 				}
-				
+
 				if (request.@isExternal == 'Y') {
 					this.submitButton.enabled = readyToSubmit;
 				} else {
-					agreeCheckbox.visible = readyToSubmit;				
+					agreeCheckbox.visible = readyToSubmit;
 				}
 			}
-			
-			
+
+
 			public function getEstimatedBilling():void {
 				initializeRequestXML();
 				agreeCheckbox.visible = false;
 				agreeCheckbox.label = "";
 				agreeCheckbox.selected = false;
 				submitButton.enabled = false;
-				
+
 				if (request.@isExternal == 'Y') {
 					// This is an external experiment submission.  Don't
 					// attempt to get estimated charges.
@@ -3417,7 +3417,7 @@
 						this.confirmView.currentState = "ExternalExperimentState";
 					}
 				} else {
-					
+
 					var accountName:String = "";
 					if (isAmendState()) {
 						accountName = request.@accountNumberDisplay;
@@ -3436,40 +3436,40 @@
 							}
 						}
 					}
-					
+
 					agreeCheckbox.label = "I authorize all charges to be billed to account(s): " + accountName;
-					
+
 					// This is a new experiment request. Get the estimated
 					// charnges for this request.
 					var params:Object = new Object();
 					params.requestXMLString = request.toXMLString();
-					
+
 					if ( this.theTab.contains( this.propertiesView )  ){
 						// Annotations
 						propertiesView.initializePropertiesFromComponents();
 						params.propertiesXML = "<requestProperties>" + propertiesView.propertiesToSave.toXMLString() + "</requestProperties>";
-						
+
 					}
-					
+
 					createBillingItems.send(params);
 				}
-				
+
 			}
-			
+
 			private function onCreateBillingItems(event:ResultEvent):void {
 				var readyToSubmit:Boolean = true;
-				if (createBillingItems.lastResult.name() == "NewBilling") { 
+				if (createBillingItems.lastResult.name() == "NewBilling") {
 					if (theTab.contains(this.confirmView)) {
 						var billingItems:XMLList = createBillingItems.lastResult..BillingItem;
-						
-						if (isSequencingState() && !isIScanState()) { 
+
+						if (isSequencingState() && !isIScanState()) {
 							this.confirmView.currentState = "DNASeqCoreState";
 						} else {
 							this.confirmView.currentState = "";
 						}
-						
+
 						this.confirmView.setBillingGridRowCount(billingItems.length());
-						
+
 						if (this.setupView != null && this.setupView.selectedBillingTemplate != null) {
 							this.confirmView.showAccountColumn = true;
 						} else {
@@ -3484,9 +3484,9 @@
 				}
 				//this.submitButton.enabled = readyToSubmit;
 				agreeCheckbox.visible = readyToSubmit;
-				
+
 			}
-			
+
 			public function isExternalExperimentSubmission():Boolean {
 				if (!this.isEditState() && !this.isAmendState()) {
 					if (this.setupView.currentState == "ExternalExperimentState" ||
@@ -3499,14 +3499,14 @@
 					}
 				} else {
 					return false;
-				}			
+				}
 			}
-			
-			
+
+
 			public function getSubmitterName():String {
 				if ((this.currentState == "MicroarrayAmendState" || currentState == "SolexaBaseAmendState") && (!parentApplication.isAdminState)) {
 					// If a non-admin user is converting a QC request
-					// to a microarray or sequencing request, make the user the 
+					// to a microarray or sequencing request, make the user the
 					//  submitter of
 					// the request, as he/she may be amending a request
 					// originally submitted by someone else.
@@ -3515,9 +3515,9 @@
 					return setupView.getAppUserName();
 				} else {
 					return request.@submitterName.toString();
-				} 
+				}
 			}
-			
+
 			public function getIdAppUserSubmitter():Object {
 				var idAppUserSubmitter:Object = null;
 				if (this.isEditState()) {
@@ -3529,19 +3529,19 @@
 				} else {
 					idAppUserSubmitter = request.@idSubmitter;
 				}
-				
+
 				return idAppUserSubmitter;
 			}
-			
+
 			public function getIdAppUserOwner():Object {
 				var idAppUserOwner:Object = null;
 				if ((this.currentState == "MicroarrayAmendState" || currentState == "SolexaBaseAmendState") && (!parentApplication.isAdminState)) {
 					// If a non-admin user is converting a QC request
-					// to a microarray or sequencing request, make the user the 
+					// to a microarray or sequencing request, make the user the
 					//  submitter of
 					// the request, as he/she may be amending a request
 					// originally submitted by someone else.
-					idAppUserOwner = parentApplication.getIdAppUser();				
+					idAppUserOwner = parentApplication.getIdAppUser();
 				} else if (!this.isAmendState() && !this.isEditState()) {
 					idAppUserOwner = this.setupView.idAppUser;
 				} else if (this.isEditState() && ownerCombo!=null && ownerCombo.selectedItem!=null) {
@@ -3551,15 +3551,15 @@
 				}
 				return idAppUserOwner;
 			}
-			
-			
-			private function initializeRequestXML():void {			
+
+
+			private function initializeRequestXML():void {
 				// Determine if this is an external experiment submission
 				request.@isExternal = isExternalExperimentSubmission() ? "Y" : "N";
-				
+
 				request.@codeRequestCategory = getRequestCategory().@codeRequestCategory.toString();
 				request.@idCoreFacility = getRequestCategory().@idCoreFacility;
-				
+
 				if (!this.isEditState()) {
 					request.@idSubmitter = this.getIdAppUserOwner();
 					if(parentApplication.hasPermission("canSubmitForOtherCores")){
@@ -3567,11 +3567,11 @@
 					}
 					request.@idAppUser = this.getIdAppUserOwner();
 				}
-				
-				
-				
+
+
+
 				if (!this.isAmendState()) {
-					
+
 					// If we are submitting a new request, grab the lab, billing, project
 					// from the setup tab
 					request.@idLab = setupView.labCombo.selectedItem.@idLab;
@@ -3590,12 +3590,12 @@
 						request.@codeBioanalyzerChipType = '';
 					}
 				}
-				
+
 				if (theTab.contains(sampleSetupView)) {
 					if (sampleSetupView.contains(sampleSetupView.sampleTypeHBox) && sampleSetupView.sampleTypeRadioGroup.selectedValue != null) {
 						request.@idSampleTypeDefault = sampleSetupView.sampleTypeRadioGroup.selectedValue;
 					}
-					
+
 					if (this.isCapSeqState()) {
 						request.@idSampleDropOffLocation = parentApplication.submitInternalExperiment() ? sampleSetupView.sampleDropOffLocationCombo.selectedItem.@value : '';
 					}
@@ -3604,7 +3604,7 @@
 							if (doff.@display == 'Core Lab') {
 								request.@idSampleDropOffLocation = doff.@value;
 							}
-						}	
+						}
 					}
 					if (this.isSequenomState()) {
 						request.@applicationNotes = sampleSetupView.sequenomApplicationDesc.text;
@@ -3621,55 +3621,55 @@
 					}
 					if (currentState != 'QCState' && !isSequencingState() && !isSequenomState() && !isClinicalSequenomState() && currentState != 'SolexaLaneAmendState' && !isIsolationState()) {
 						request.@idOrganismSampleDefault = sampleSetupView.sampleOrganismCombo.selectedItem.@value;
-					}						
+					}
 				}
-				
-				
+
+
 				if (currentState == 'MicroarrayState' || currentState == 'MicroarrayExternalState' || currentState == 'MicroarrayAmendState') {
 					if (parentApplication.submitInternalExperiment()) {
 						request.@idSlideProduct = hybSetupView.slideProductCombo.selectedItem.@idSlideProduct;
-						request.@codeApplication = hybSetupView.microarrayAppRadioGroup.selectedValue;							
+						request.@codeApplication = hybSetupView.microarrayAppRadioGroup.selectedValue;
 					} else {
 						request.@idSlideProduct = setupView.getSlideProductCombo().selectedItem.@idSlideProduct;
-						request.@codeApplication = setupView.getApp();				
+						request.@codeApplication = setupView.getApp();
 					}
 				} else if (this.isSolexaState()) {
 					if (parentApplication.submitInternalExperiment()) {
 						if (this.currentState == "SolexaLaneAmendState") {
-							// if we are adding lanes, just keep the same codeApplication on the request						
+							// if we are adding lanes, just keep the same codeApplication on the request
 						} else {
-							request.@codeApplication = seqSetupView.radioGroupSeqApp.selectedValue;				
+							request.@codeApplication = seqSetupView.radioGroupSeqApp.selectedValue;
 						}
 					} else {
-						request.@codeApplication = setupView.getApp();								
+						request.@codeApplication = setupView.getApp();
 					}
 				} else if (this.isQCState()) {
 					if (parentApplication.submitInternalExperiment()) {
-						request.@codeApplication = sampleSetupView.radioGroupQCApp.selectedValue;					
+						request.@codeApplication = sampleSetupView.radioGroupQCApp.selectedValue;
 					} else {
-						request.@codeApplication = setupView.getApp();						
+						request.@codeApplication = setupView.getApp();
 					}
 				} else if (this.isNanoStringState()) {
 					if (parentApplication.submitInternalExperiment()) {
-						request.@codeApplication = seqSetupView.radioGroupSeqApp.selectedValue;				
-					}	
-				} 
+						request.@codeApplication = seqSetupView.radioGroupSeqApp.selectedValue;
+					}
+				}
 				if (this.isIScanState()) {
-					request.@codeApplication = "";	
+					request.@codeApplication = "";
 					request.@codeBioanalyzerChipType = "";
 				}
-				
-				
+
+
 				var requestCategory:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', request.@codeRequestCategory);
-				
-				request.replace("samples", <samples></samples>); 
+
+				request.replace("samples", <samples></samples>);
 				for each(var sample:Object in samples) {
 					if ( (this.isSequencingState() || this.isSequenomState()) && (!sample.hasOwnProperty("@name") || sample.@name == null || sample.@name == '')) {
 						continue;
 					}
 					request.samples.appendChild(sample);
 				}
-				request.replace("hybridizations", <hybridizations></hybridizations>); 
+				request.replace("hybridizations", <hybridizations></hybridizations>);
 				if (currentState == 'MicroarrayState' || currentState == 'MicroarrayExternalState' || currentState == 'MicroarrayAmendState') {
 					for each(var hyb:Object in hybs) {
 						if (requestCategory.@numberOfChannels != "2") {
@@ -3680,12 +3680,12 @@
 				} else {
 					request.@idSlideProduct = '';
 				}
-				
-				
-				
+
+
+
 				// Add back the existing lanes if we are adding lanes
 				// to an existing experiment request
-				request.replace("sequenceLanes", <sequenceLanes></sequenceLanes>); 
+				request.replace("sequenceLanes", <sequenceLanes></sequenceLanes>);
 				if (this.currentState == "SolexaLaneAmendState") {
 					// If for some reason, we don't have any existing lanes/
 					// there is a problem with the state of the data.  Just
@@ -3695,7 +3695,7 @@
 						Alert.show("Inconsistent state.  No existing lanes present on experiment.  Aborting submit.");
 						return;
 					}
-					for each(var l:Object in existingLanes) { 
+					for each(var l:Object in existingLanes) {
 						request.sequenceLanes.appendChild(l);
 					}
 				}
@@ -3703,16 +3703,16 @@
 					for each(var lane:Object in lanes) {
 						request.sequenceLanes.appendChild(lane);
 					}
-				}			
-				request.replace("SeqLibTreatmentEntries", <SeqLibTreatmentEntries></SeqLibTreatmentEntries>); 
+				}
+				request.replace("SeqLibTreatmentEntries", <SeqLibTreatmentEntries></SeqLibTreatmentEntries>);
 				if (isSolexaState()) {
 					for each(var seqLibTreatment:Object in this.seqSetupView.seqLibTreatments) {
 						if (seqLibTreatment.@isSelected == "true") {
 							request.SeqLibTreatmentEntries.appendChild(seqLibTreatment);
 						}
 					}
-				}			
-				
+				}
+
 				// Visibility
 				if (theTab.contains(this.visibilityView)) {
 					request.@codeVisibility = visibilityView.visibilityRadioGroup.selectedValue;
@@ -3720,12 +3720,12 @@
 						request.@idInstitution = visibilityView.institutionCombo.selectedItem.@idInstitution;
 					}
 					request.@privacyExpirationDate = visibilityView.privacyExpirationPicker.text;
-					
+
 				} else {
 					// If we don't have a visiblity tab, the request XML is already
 					// initialized with the defaults from GetRequest
 				}
-				
+
 				// Collaborators
 				if (request.toString().indexOf("<collaborators") >= 0) {
 					request.replace("collaborators", <collaborators></collaborators>);
@@ -3736,26 +3736,26 @@
 				for each(var collaborator:Object in visibilityView.getCollaborators()) {
 					request.collaborators.appendChild(collaborator);
 				}
-				
+
 				// We need special field that tells us the way the
 				// request is being amended
 				if (this.isAmendState()) {
 					request.@amendState = currentState.toString();
 					saveDescription = GNomExStringUtil.cleanRichTextHTML(request.@description);
 				}
-				
+
 				updateRequestProducts();
 			}
-			
-			
+
+
 			private function saveRequest():void {
 				if(!billingAccountAlreadyUpdated && this.request.@isExternal == 'N'){
-					updateBillingAccount();	
+					updateBillingAccount();
 				} else{
 					updateRequestProperties();
-					
+
 					updateRequestProducts();
-					
+
 					var params:Object = new Object();
 					params.requestXMLString = request.toXMLString();
 					params.idProject = request.@idProject;
@@ -3766,12 +3766,12 @@
 					if (this.isFragAnalState()) {
 						params.assaysXMLString = this.selectedAssaysCollection;
 					}
-					
+
 					if ( this.theTab.contains( this.propertiesView ) ){
 						// Annotations
 						propertiesView.initializePropertiesFromComponents();
 						params.propertiesXML = "<requestProperties>" + propertiesView.propertiesToSave.toXMLString() + "</requestProperties>";
-						
+
 					}
 					if(this.lanesView != null && this.theTab.contains(this.lanesView)){
 						for each(var lane:XML in request.sequenceLanes.SequenceLane){
@@ -3779,14 +3779,14 @@
 								Alert.show("You specified a Sample Concentration pM for a sequence lane that is not currently associated with a Flow Cell Channel.  Please finalize flow cell in workflow first.");
 								return;
 							}
-							
+
 							if(lane.@flowCellChannelSampleConcentrationpM != "" && validator.validate(lane.@flowCellChannelSampleConcentrationpM).results != null){
 								Alert.show("You have entered invalid data in the sample conc. pM field.  Please use numbers only");
 								return;
 							}
 						}
 					}
-					
+
 					//If the pre-pooled value was changed check if billing is already complete and warn admin that they will have to update billing on their own
 					if(prePooledChanged){
 						for each(var bi:XML in request.billingItems..BillingItem){
@@ -3795,19 +3795,19 @@
 								break;
 							}
 						}
-						
-						
+
+
 					}
-					
-					
+
+
 					saveExistingRequest.send(params);
-					
+
 					billingAccountAlreadyUpdated = false;
 					prePooledChanged = false;
-					
-				}			
+
+				}
 			}
-			
+
 			private function updateBillingAccount():void {
 				if (this.showEditBillingTemplateOption) {
 					if (this.editedBillingTemplate != null) {
@@ -3826,7 +3826,7 @@
 								break;
 							}
 						}
-						
+
 						if (found && requestEditBillingAccountCombo.selectedItem.@idBillingAccount == '') {
 							warnToSelectNewBillingAccount = true;
 							Alert.show("Would you like to keep the billing account " + this.retrieveBillingAccountNames(false) + "?", "Notice", Alert.YES | Alert.NO, this, changeIdBillingAccount);
@@ -3846,62 +3846,62 @@
 					}
 				}
 			}
-			
+
 			private function updateRequestProperties():void {
-				
+
 				var application:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Application', request.@codeApplication);
 				if(hybSetupView.microarrayAppRadioGroup.numRadioButtons > 0) {
-					hybSetupView.microarrayAppRadioGroup.selectedValue = application[0].@value;					
+					hybSetupView.microarrayAppRadioGroup.selectedValue = application[0].@value;
 				} else {
 					lastSelectedApplication = application[0].@value;
 				}
-				
+
 				if (this.isMicroarrayState()) {
 					request.@idSlideProduct = hybSetupView.slideProductCombo.selectedItem.@idSlideProduct;
 					if(hybSetupView.microarrayAppRadioGroup.numRadioButtons > 0) {
-						request.@codeApplication = hybSetupView.microarrayAppRadioGroup.selectedValue;				
+						request.@codeApplication = hybSetupView.microarrayAppRadioGroup.selectedValue;
 					} else {
 						request.@codeApplication = lastSelectedApplication;
-					}				
-					
-				} 			
-				
+					}
+
+				}
+
 				if (this.isCapSeqState()) {
-					request.@idSampleDropOffLocation = this.sampleDropOffLocationCombo.selectedItem.@value; 
+					request.@idSampleDropOffLocation = this.sampleDropOffLocationCombo.selectedItem.@value;
 				}
 				if (this.isIScanState()) {
 					request.@codeApplication = "";
 					request.@codeBioanalyzerChipType = "";
 				}
-				request.replace("samples", <samples></samples>); 
+				request.replace("samples", <samples></samples>);
 				for each(var sample:Object in samples) {
 					if ( this.samplesView.hasPlates() && (!sample.hasOwnProperty("@name") || sample.@name == null || sample.@name == '')) {
 						continue;
 					}
 					request.samples.appendChild(sample);
 				}
-				request.replace("hybridizations", <hybridizations></hybridizations>); 
+				request.replace("hybridizations", <hybridizations></hybridizations>);
 				if (isMicroarrayState()) {
 					for each(var hyb:Object in hybs) {
 						request.hybridizations.appendChild(hyb);
 					}
 				}
-				request.replace("sequenceLanes", <sequenceLanes></sequenceLanes>); 
+				request.replace("sequenceLanes", <sequenceLanes></sequenceLanes>);
 				if (isSolexaState()) {
 					for each(var lane:Object in lanes) {
 						request.sequenceLanes.appendChild(lane);
 					}
 				}
-				
-				request.replace("SeqLibTreatmentEntries", <SeqLibTreatmentEntries></SeqLibTreatmentEntries>); 
+
+				request.replace("SeqLibTreatmentEntries", <SeqLibTreatmentEntries></SeqLibTreatmentEntries>);
 				if (isSolexaState()) {
 					for each(var seqLibTreatment:Object in this.seqSetupView.seqLibTreatments) {
 						if (seqLibTreatment.@isSelected == "true") {
 							request.SeqLibTreatmentEntries.appendChild(seqLibTreatment);
 						}
 					}
-				}		
-				
+				}
+
 				// Visibility
 				request.@codeVisibility = visibilityView.visibilityRadioGroup.selectedValue;
 				if (this.request.@codeVisibility != null && this.request.@codeVisibility == 'INST') {
@@ -3909,7 +3909,7 @@
 					// that the user has selected the visibility tab.  Otherwise, just leave
 					// the institution to is previously set value.
 					if (visibilityView.institutionCombo != null && visibilityView.institutionCombo.selectedItem != null) {
-						request.@idInstitution = visibilityView.institutionCombo.selectedItem.@idInstitution;					
+						request.@idInstitution = visibilityView.institutionCombo.selectedItem.@idInstitution;
 					}
 					else if(parentApplication.getProperty(parentApplication.PROPERTY_ID_DEFAULT_INSTITUTION) != null){
 						request.@idInstitution = parentApplication.getProperty(parentApplication.PROPERTY_ID_DEFAULT_INSTITUTION);
@@ -3918,23 +3918,23 @@
 						request.@idInstitution = "";
 					}
 				}
-				
+
 				// Collaborators
 				if(visibilityView != null && visibilityView.enabled){
 					request.replace("collaborators", <collaborators></collaborators>);
 					for each(var collaborator:Object in visibilityView.getCollaborators()) {
 						request.collaborators.appendChild(collaborator);
-					}					
-				}				
+					}
+				}
 				request.@privacyExpirationDate = visibilityView.privacyExpirationPicker.text;
-				
+
 				request.@idAppUser = ownerCombo.selectedItem.@idAppUser;
 				request.@idSubmitter = submitterCombo.selectedItem.@idAppUser;
-				
+
 				request.@idLab = requestEditLabCombo.selectedItem.@idLab;
 				request.@idProject = requestEditProjectCombo.selectedItem.@idProject;
 				request.@name = notesView.experimentName.text;
-				
+
 				//Add new annotations to Sample that have not had data added to them in samples grid.
 				if(request.samples.Sample.length() > 0){
 					for each(var prop:XML in this.propertyEntries){
@@ -3944,7 +3944,7 @@
 					}
 				}
 			}
-			
+
 			private function updateRequestProducts():void {
 				var idProductString:String = "";
 				if (productsView != null && theTab.contains(productsView) && productsView.getSelectedProduct() != null) {
@@ -3952,7 +3952,7 @@
 				}
 				request.@idProduct = idProductString;
 			}
-			
+
 			private function changeIdBillingAccount(event:CloseEvent):void {
 				var proceed:Boolean = false;
 				if (event.detail == Alert.NO && !warnToSelectNewBillingAccount) {
@@ -3969,7 +3969,7 @@
 					saveRequest();
 				}
 			}
-			
+
 			public function getAnnotationView():TabAnnotationView {
 				if (theTab.contains(annotationView)) {
 					return annotationView;
@@ -3977,16 +3977,16 @@
 					return null;
 				}
 			}
-			
+
 			public function promptToSubmitRequest(action:String = "submit"):void {
-				Alert.show( warningMessage + "\n\nDo you want to " + action + " the request anyway?", 
-					"Warning", 
-					(Alert.YES | Alert.NO), this, 
+				Alert.show( warningMessage + "\n\nDo you want to " + action + " the request anyway?",
+					"Warning",
+					(Alert.YES | Alert.NO), this,
 					onPromptSubmitRequest,
 					parentApplication.iconWarning);
-				
+
 			}
-			
+
 			private function onPromptSubmitRequest(event:CloseEvent):void {
 				if (event.detail==Alert.YES) {
 					warningMessage = '';
@@ -3995,16 +3995,16 @@
 					this.submitButton.enabled = true;
 				}
 			}
-			
+
 			public function promptToSaveRequest():void {
-				Alert.show( warningMessage + "\n\nDo you want to save the request anyway?", 
-					"Warning", 
-					(Alert.YES | Alert.NO), this, 
+				Alert.show( warningMessage + "\n\nDo you want to save the request anyway?",
+					"Warning",
+					(Alert.YES | Alert.NO), this,
 					onPromptSaveRequest,
 					parentApplication.iconWarning);
-				
+
 			}
-			
+
 			private function onPromptSaveRequest(event:CloseEvent):void {
 				if (event.detail==Alert.YES) {
 					warningMessage = '';
@@ -4013,46 +4013,46 @@
 					this.submitButton.enabled = true;
 				}
 			}
-			
+
 			private function onSaveNewRequest(event:ResultEvent):void {
 				if (saveNewRequest.lastResult.name() == "SUCCESS") {
 					submittedIdRequest = saveNewRequest.lastResult.@idRequest;
 					submittedRequestNumber = saveNewRequest.lastResult.@requestNumber;
 					coreFacilityName = parentApplication.getCoreFacilityName(submittedIdRequest);
-					
+
 					linkTopics();
-					
+
 					confirmButtonStack.selectedIndex = 2;
-					
+
 					this.cancelButton.label = "Close";
-					
+
 					nextButton.enabled = false;
 					backButton.enabled = false;
-					
+
 					if (theTab.contains(setupView)) {
-						setupView.enabled = false;				
+						setupView.enabled = false;
 					}
-					
+
 					if (theTab.contains(seqSetup1View)) {
-						seqSetup1View.enabled = false;				
+						seqSetup1View.enabled = false;
 					}
 					if (theTab.contains(sampleSetupView)) {
-						sampleSetupView.enabled = false;				
+						sampleSetupView.enabled = false;
 					}
 					if (theTab.contains(annotationView)) {
 						annotationView.enabled = false;
 					}
 					samplesView.enabled = false;
-					
+
 					if (this.isSolexaState()) {
 						if (theTab.contains(seqSetupView)) {
-							this.seqSetupView.enabled = false;					
+							this.seqSetupView.enabled = false;
 						}
 						if (theTab.contains(bioinformaticsView)) {
 							bioinformaticsView.enabled = false;
 						}
 					}
-					
+
 					if (this.isSolexaEditState()) {
 						lanesView.enabled = false;
 					} else {
@@ -4061,24 +4061,24 @@
 						}
 						if (theTab.contains(hybsView)) {
 							hybsView.enabled = false;
-						}					
-					} 
-					
+						}
+					}
+
 					var message:String = '';
-					var title:String = ""; 
+					var title:String = "";
 					if (this.isAmendState()) {
-						message = 'Experiment request #  ' + submittedRequestNumber + ' has been submitted, adding services to the existing experiment request.\nPlease print off the request form and deliver it to the ' + coreFacilityName + '.';	
-						title = "Services added to Request";			
+						message = 'Experiment request #  ' + submittedRequestNumber + ' has been submitted, adding services to the existing experiment request.\nPlease print off the request form and deliver it to the ' + coreFacilityName + '.';
+						title = "Services added to Request";
 					} else {
 						if (this.isExternalExperimentSubmission()) {
 							message += 'Experiment #  ' + submittedRequestNumber + ' has been registered in the GNomEx repository.';
-							title = "Experiment Registered";			
-							
+							title = "Experiment Registered";
+
 						} else {
-							message = 'Request #  ' + submittedRequestNumber + '\n' + 
+							message = 'Request #  ' + submittedRequestNumber + '\n' +
 								parentApplication.getRequestCategoryProperty(getRequestCategory().@idCoreFacility, getRequestCategory().@codeRequestCategory, parentApplication.PROPERTY_SUBMIT_REQUEST_INSTRUCTIONS);
 							if (this.isSequencingState()) {
-								title = "Experiment request saved";		
+								title = "Experiment request saved";
 							} else {
 								title = "Request Submitted";
 							}
@@ -4091,8 +4091,8 @@
 					Alert.show(saveNewRequest.lastResult..ACTMESSAGE.@TEXT);
 				}
 			}
-			
-			
+
+
 			private function onNotifySubmitRequest(event:CloseEvent):void {
 				if (event.detail==Alert.OK) {
 					showPromptToUpload = false;
@@ -4108,15 +4108,15 @@
 					// Just close the window when the request has been submitted
 					// and show the submitted experiment in the Experiments view.
 					theRequestNumber = this.submittedRequestNumber;
-					getNewRequest.send();  
-					
-					
+					getNewRequest.send();
+
+
 				} else {
-					
+
 				}
-				
+
 			}
-			
+
 			private function onSaveExistingRequest(event:ResultEvent):void {
 				if (saveExistingRequest.lastResult.name() == "SUCCESS") {
 					updateDirtyNote(false);
@@ -4124,14 +4124,14 @@
 					if(saveExistingRequest.lastResult.@requestPropertyBillingMessage != ''){
 						Alert.show(saveExistingRequest.lastResult.@requestPropertyBillingMessage, "Warning");
 					}
-					
+
 					// For cap seq, warn if editing a submitted request so that billing is adjusted accordingly.
-					if (this.isCapSeqState() ){ 
+					if (this.isCapSeqState() ){
 						// If samples have been removed:
 						if( saveExistingRequest.lastResult.@deleteSampleCount > 0 ) {
 							if (parentApplication.hasPermission("canWriteAnyObject")) {
-								Alert.show("Request " + saveExistingRequest.lastResult.@requestNumber + " has been saved.\n\nSome samples have been deleted, please adjust billing accordingly.", 
-									"Warning");				
+								Alert.show("Request " + saveExistingRequest.lastResult.@requestNumber + " has been saved.\n\nSome samples have been deleted, please adjust billing accordingly.",
+									"Warning");
 							}
 						} else {
 							// If samples have been added, we get the message from saveExistingRequest.
@@ -4144,99 +4144,99 @@
 						if (saveExistingRequest.lastResult.@billingAccountMessage != '') {
 							Alert.show(saveExistingRequest.lastResult.@billingAccountMessage, "Warning");
 						}
-						
+
 						// Warn if billing should be adjusted to take into account
 						// delete hybs or lanes
 						if (saveExistingRequest.lastResult.@deleteSampleCount > 0 ||
-							saveExistingRequest.lastResult.@deleteHybCount > 0 || 
+							saveExistingRequest.lastResult.@deleteHybCount > 0 ||
 							saveExistingRequest.lastResult.@deleteLaneCount > 0) {
 							if (parentApplication.hasPermission("canWriteAnyObject")) {
-								
+
 								var deleteTarget:String = "";
 								if (saveExistingRequest.lastResult.@deleteSampleCount > 0) {
 									deleteTarget += "Samples";
-								} 
+								}
 								if (saveExistingRequest.lastResult.@deleteHybCount > 0) {
 									if (deleteTarget.length > 0) {
-										deleteTarget += " and ";								
+										deleteTarget += " and ";
 									}
 									deleteTarget += "Hybs";
-								} 
+								}
 								if (saveExistingRequest.lastResult.@deleteLaneCount > 0) {
 									if (deleteTarget.length > 0) {
-										deleteTarget += " and ";								
+										deleteTarget += " and ";
 									}
 									deleteTarget += "Sequence Lanes";
-								} 					
-								
-								Alert.show("Request " + saveExistingRequest.lastResult.@requestNumber + " has been saved.  Some " + deleteTarget + " have been deleted, so please adjust billing accordingly.", 
-									"Warning");				
+								}
+
+								Alert.show("Request " + saveExistingRequest.lastResult.@requestNumber + " has been saved.  Some " + deleteTarget + " have been deleted, so please adjust billing accordingly.",
+									"Warning");
 							}
 						}
 					}
-					
+
 					var parms:Object = new Object();
 					parms.idRequest = request.@idRequest;
 					getRequest.send(parms);
-					
+
 				} else if (saveExistingRequest.lastResult.name() == "FAILURE" && saveExistingRequest.lastResult.hasOwnProperty("@message")) {
 					Alert.show(saveExistingRequest.lastResult.@message);
 				} else {
 					Alert.show(saveExistingRequest.lastResult..ACTMESSAGE.@TEXT);
 				}
 			}
-			
+
 			private function onGetRequest(event:ResultEvent):void {
 				if(!parentApplication.isInternalExperimentSubmission) {
-					addDescriptionFieldToAnnotations(getRequest.lastResult.Request.(@idRequest = request.@idRequest).PropertyEntries);			
-				}	
+					addDescriptionFieldToAnnotations(getRequest.lastResult.Request.(@idRequest = request.@idRequest).PropertyEntries);
+				}
 				request = getRequest.lastResult.Request.(@idRequest = request.@idRequest);
 				this.updateBillingAccountInfo();
-				
+
 				// this refreshes the request from the db.
 				if (parentDocument is NavOrderView) {
 					this.tabIndexToRestore = this.theTab.selectedIndex;
 					parentDocument.browseView.getList();
 					parentDocument.switchToOrderDetailView();
 				} else if (parentDocument is NavTopicsView) {
-					parentApplication.navTopicsView.experimentDetailView.detail.refreshSavedExperiment(request.@idRequest);	
+					parentApplication.navTopicsView.experimentDetailView.detail.refreshSavedExperiment(request.@idRequest);
 					parentApplication.navTopicsView.experimentViews.selectedChild = parentApplication.navTopicsView.experimentDetailView;
 				}
-				else {	
+				else {
 					parentApplication.navExperimentView.refreshExperiments();
 					parentApplication.navExperimentView.experimentDetailView.detail.refreshSavedExperiment(request.@idRequest);
 				}
 			}
-			
+
 			private function restoreTabIndex():void {
 				if (this.tabIndexToRestore >= 0) {
 					this.theTab.selectedIndex = tabIndexToRestore;
 					tabIndexToRestore = -1;
 				}
 			}
-			
+
 			private function showPrintableRequestForm():void {
 				var url:URLRequest = new URLRequest('ShowRequestForm.gx?idRequest=' + submittedIdRequest + '&amendState=' + this.currentState);
-				navigateToURL(url, '_blank');	
+				navigateToURL(url, '_blank');
 			}
-			
-			
+
+
 			private function underlyingHybDataChange(event:CollectionEvent):void {
 				if (event.kind == CollectionEventKind.RESET || event.kind == CollectionEventKind.REFRESH) {
-					// ignore refresh and resets 
+					// ignore refresh and resets
 					return;
 				}
 				updateDirtyNote(true);
 			}
-			
-			
+
+
 			private function underlyingSampleDataChange(event:CollectionEvent):void {
 				var ignore:int = 0;
 				if (event.kind == CollectionEventKind.RESET || event.kind == CollectionEventKind.REFRESH) {
-					// ignore refresh and resets 
+					// ignore refresh and resets
 					return;
 				}
-				
+
 				for each(var e:Object in event.items) {
 					if (e is PropertyChangeEvent) {
 						var pe:PropertyChangeEvent = PropertyChangeEvent(e);
@@ -4244,31 +4244,31 @@
 							ignore++;
 						}
 						if (pe.property == "@idOrganism") {
-							samples.removeEventListener(CollectionEvent.COLLECTION_CHANGE, underlyingSampleDataChange);			
-							samples.addEventListener( CollectionEvent.COLLECTION_CHANGE, underlyingSampleDataChange);			
+							samples.removeEventListener(CollectionEvent.COLLECTION_CHANGE, underlyingSampleDataChange);
+							samples.addEventListener( CollectionEvent.COLLECTION_CHANGE, underlyingSampleDataChange);
 						}else if (pe.property == "@idNumberSequencingCycles") {
-							samples.removeEventListener(CollectionEvent.COLLECTION_CHANGE, underlyingSampleDataChange);			
+							samples.removeEventListener(CollectionEvent.COLLECTION_CHANGE, underlyingSampleDataChange);
 							samplesView.propagateNumberSequencingCycles(pe.source);
-							samples.addEventListener( CollectionEvent.COLLECTION_CHANGE, underlyingSampleDataChange);			
-						}         	
+							samples.addEventListener( CollectionEvent.COLLECTION_CHANGE, underlyingSampleDataChange);
+						}
 					}
 				}
 				// Ignore change events on @channel1Count, @channel2Count
 				if (ignore == event.items.length) {
-					
+
 				} else {
 					updateDirtyNote(true);
-					
+
 				}
 			}
 			private function underlyingLaneDataChange(event:CollectionEvent):void {
 				if (event.kind == CollectionEventKind.RESET || event.kind == CollectionEventKind.REFRESH) {
-					// ignore refresh and resets 
+					// ignore refresh and resets
 					return;
 				}
 				updateDirtyNote(true);
 			}
-			
+
 			private function sortDictionaryEntries(obj1:Object, obj2:Object, fields:Array=null):int {
 				if (obj1 == null && obj2 == null) {
 					return 0;
@@ -4279,7 +4279,7 @@
 				} else {
 					var display1:String = obj1.@display;
 					var display2:String = obj2.@display;
-					
+
 					if (display1.indexOf('Other') > -1) {
 						return 1;
 					} else if (display2.indexOf('Other') > -1) {
@@ -4292,11 +4292,11 @@
 						} else {
 							return 0;
 						}
-					}			
-					
+					}
+
 				}
 			}
-			
+
 			private function sortSampleTypes(obj1:Object, obj2:Object, fields:Array=null):int {
 				if (obj1 == null && obj2 == null) {
 					return 0;
@@ -4307,7 +4307,7 @@
 				} else {
 					var order1:int = obj1.@sortOrder;
 					var order2:int = obj2.@sortOrder;
-					
+
 					if (obj1.@value == '') {
 						return -1;
 					} else if (obj2.@value == '') {
@@ -4321,8 +4321,8 @@
 							return 0;
 						}
 					}
-				}			
-			}			
+				}
+			}
 			private function sortLanes(obj1:Object, obj2:Object, fields:Array=null):int {
 				if (obj1 == null && obj2 == null) {
 					return 0;
@@ -4333,7 +4333,7 @@
 				} else {
 					var sampleId1:String =  obj1.@idSample.toString();
 					var sampleId2:String =  obj2.@idSample.toString();
-					
+
 					if (sampleId1 == '') {
 						return -1;
 					} else if (sampleId2 == '') {
@@ -4355,7 +4355,7 @@
 						} else {
 							int2 = parseInt(sampleId2);
 						}
-						
+
 						if (isNew1 && !isNew2) {
 							return 1;
 						} else if (!isNew1 && isNew2) {
@@ -4392,9 +4392,9 @@
 							}
 						}
 					}
-				}			
-			}			
-			
+				}
+			}
+
 			// Sort application by sortOrder field
 			private function sortApplication(obj1:Object, obj2:Object, fields:Array=null):int {
 				if (obj1 == null && obj2 == null) {
@@ -4408,7 +4408,7 @@
 					var order2:int = obj2.@sortOrder;
 					var disp1:String = obj1.@display;
 					var disp2:String = obj2.@display;
-					
+
 					if (obj1.@value == '') {
 						return -1;
 					} else if (obj2.@value == '') {
@@ -4428,9 +4428,9 @@
 							}
 						}
 					}
-				}			
-			}			
-			
+				}
+			}
+
 			// Sort application ignoring the sortOrder field
 			private function sortApplicationNoSortOrder(obj1:Object, obj2:Object, fields:Array=null):int {
 				if (obj1 == null && obj2 == null) {
@@ -4442,7 +4442,7 @@
 				} else {
 					var disp1:String = (obj1.@display).toLowerCase();
 					var disp2:String = (obj2.@display).toLowerCase();
-					
+
 					if (disp1 < disp2) {
 						return -1;
 					} else if (disp1 > disp2) {
@@ -4450,22 +4450,22 @@
 					} else {
 						return 0;
 					}
-				}			
-			}			
-			
+				}
+			}
+
 			private function backToNavOrder():void {
 				if (parentDocument is NavOrderView) {
 					parentDocument.experimentViews.selectedChild = parentDocument.browseView;
-				} 
+				}
 			}
-			
+
 			private function showViewWindow():void {
 				parentDocument.experimentViews.selectedChild = parentDocument.experimentDetailView;
 				chooseViewTabs();
 				parentDocument.experimentDetailView.detail.setupForm(this.request);
 				parentDocument.experimentDetailView.titleLabel.text = (this.request.@isExternal == 'Y' ? 'External Experiment ' :  'Experiment ')+ this.request.@number;
 			}
-			
+
 			private function chooseViewTabs():void {
 				chooseViewTab(infoTab, parentDocument.experimentDetailView.detail.infoTab);
 				chooseViewTab(notesView, parentDocument.experimentDetailView.detail.notesTab);
@@ -4474,17 +4474,17 @@
 				chooseViewTab(bioinformaticsView, parentDocument.experimentDetailView.detail.bioinformaticsTab);
 				chooseViewTab(downloadView, parentDocument.experimentDetailView.detail.filesView);
 			}
-			
+
 			private function chooseViewTab(selectedTab:Object, parentTab:Container):void {
 				if (theTab.selectedChild == selectedTab && parentDocument.experimentDetailView.detail.theTab.contains(parentTab)) {
 					parentDocument.experimentDetailView.detail.defaultTab = parentTab;
 				}
 			}
-			
+
 			private function onGetLab(event:ResultEvent):void {
 				if (getLab.lastResult.name() == "OpenLabList") {
 					var lab:Object = getLab.lastResult..Lab.(@idLab == requestEditLabCombo.selectedItem.@idLab);
-					
+
 					billingAccounts = new XMLListCollection(lab.billingAccounts.BillingAccount);
 					filteredBillingAccounts = new XMLListCollection(lab.approvedBillingAccounts.BillingAccount);
 					var emptyBillingAccount:XML = <BillingAccount idBillingAccount='' accountName='' />
@@ -4502,7 +4502,7 @@
 					if (!found) {
 						requestEditBillingAccountCombo.selectedItem = filteredBillingAccounts[0];
 					}
-					
+
 					requestEditProjectCombo.selectedItem = null;
 					projects = new XMLListCollection(getLab.lastResult..Lab.projects.Project);
 					for each(var p:Object in projects) {
@@ -4519,7 +4519,7 @@
 					} else {
 						requestEditProjectCombo.enabled = true;
 					}
-					
+
 					if (this.isSolexaEditState()) {
 						this.requestApplicationComboBox.selectedItem = null;
 						for each(var p1:Object in filteredAppList) {
@@ -4529,7 +4529,7 @@
 							}
 						}
 					}
-					
+
 					if (request.hasOwnProperty("@isExternal") && request.@isExternal == "Y") {
 						for each(var organism:Object in parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OrganismLite').DictionaryEntry) {
 							if (organism.@value == request.@idOrganism) {
@@ -4538,7 +4538,7 @@
 							}
 						}
 					}
-					
+
 					// set up Owner Combo
 					possibleRequestOwners = createAppUsersForLab(lab);
 					addCurrentRequestOwnerToList();
@@ -4554,7 +4554,7 @@
 						}
 					}
 					ownerCombo.enabled = true;
-					
+
 					// set up Submitter Combo
 					possibleRequestSubmitters = createSubmittersForLab(lab);
 					addCurrentRequestSubmitterToList();
@@ -4568,10 +4568,10 @@
 						}
 					}
 					//submitterCombo.enabled = true;
-				}			
-				
+				}
+
 			}
-			
+
 			private function createAppUsersForLab(lab:Object):XMLListCollection {
 				var emptyNode:XML = <AppUser idAppUser='' displayName=''/>;
 				var list:XMLListCollection = new XMLListCollection(lab.members.AppUser);
@@ -4584,13 +4584,13 @@
 						}
 					}
 					if (!mgrInLabList) {
-						list.addItem(mgr);				
+						list.addItem(mgr);
 					}
 				}
 				list.addItemAt(emptyNode, 0);
 				return list;
 			}
-			
+
 			private function createSubmittersForLab(lab:Object):XMLListCollection {
 				var list:XMLListCollection = new XMLListCollection(createAppUsersForLab(lab).copy());
 				for each (var submitter:Object in request.submitterFromOtherCores.AppUser) {
@@ -4602,12 +4602,12 @@
 						}
 					}
 					if (!submitterInLabList) {
-						list.addItem(submitter);				
+						list.addItem(submitter);
 					}
 				}
 				return list;
 			}
-			
+
 			private function addCurrentRequestOwnerToList():void {
 				var isNecessary:Boolean = true;
 				for each(var owner:Object in possibleRequestOwners) {
@@ -4624,7 +4624,7 @@
 					possibleRequestOwners.addItem(node);
 				}
 			}
-			
+
 			private function addCurrentRequestSubmitterToList():void {
 				var isNecessary:Boolean = true;
 				for each(var submitter:Object in possibleRequestSubmitters) {
@@ -4639,30 +4639,30 @@
 						"idAppUser='" + GNomExStringUtil.makeXMLSafe(currentRequestSubmitter.@idAppUser) + "' " +
 						"displayName='" + GNomExStringUtil.makeXMLSafe(currentRequestSubmitter.@display) + "' />");
 					possibleRequestSubmitters.addItem(node);
-				}	
-			}	
-			
+				}
+			}
+
 			private function onGetSlideDesignList(event:ResultEvent):void {
 				var emptyNode:XML = <SlideDesign idSlideDesign='' name=''/>;
 				slideDesignList = new PromptXMLListCollection(emptyNode, new XMLListCollection(getSlideDesignList.lastResult.SlideDesign));
-				
+
 				checkToInitializeEditControls();
 				checkToPerformPostAmendSetup();
 			}
-			
+
 			private function onGetSlideProductList(event:ResultEvent):void {
 				var emptyNode:XML = <SlideProduct idSlideProduct='' name='' label=''/>;
-				
+
 				filteredSlideProductList = new XMLListCollection(getSlideProductList.lastResult.SlideProduct);
 				filteredSlideProductList.addItemAt(emptyNode, 0);
-				
+
 				filteredSlideProductList.filterFunction = filterSlideProduct;
 				filteredSlideProductList.refresh();
-				
+
 				checkToInitializeEditControls();
 				checkToPerformPostAmendSetup();
-			}		
-			
+			}
+
 			private function checkToInitializeEditControls():void {
 				if (isMicroarrayState() && this.isEditState()) {
 					if (getSlideProductList.lastResult != null && this.getSlideDesignList.lastResult != null) {
@@ -4670,7 +4670,7 @@
 					}
 				}
 			}
-			
+
 			private function checkToPerformPostAmendSetup():void {
 				if (currentState == "MicroarrayAmendState") {
 					if (getSlideProductList.lastResult != null && this.getSlideDesignList.lastResult != null) {
@@ -4678,8 +4678,8 @@
 					}
 				}
 			}
-			
-			
+
+
 			private function setAmendState():void {
 				if (this.radioGroupAmendType.selectedValue != null && this.radioGroupAmendType.selectedValue != "") {
 					if (this.radioGroupAmendType.selectedValue.toString().indexOf("ADD-LANES-") == 0) {
@@ -4690,7 +4690,7 @@
 						this.currentState = "SolexaBaseAmendState";
 						setAmendTitle();
 					} else if (this.radioGroupAmendType.selectedValue.toString().indexOf("QC-TO-") == 0 && this.getAmendRequestType() == parentApplication.TYPE_MICROARRAY) {
-						this.currentState = "MicroarrayAmendState"; 
+						this.currentState = "MicroarrayAmendState";
 						setAmendTitle();
 					} else if (this.radioGroupAmendType.selectedValue.toString().indexOf("QC-TO-") == 0 && this.getAmendRequestType() == parentApplication.TYPE_CAP_SEQ) {
 						this.currentState = "CapSeqAmendState";
@@ -4698,17 +4698,17 @@
 					}
 				}
 			}
-			
-			
-			
+
+
+
 			private function getCandidateAmendExperiments():void {
 				browseTree.selectedItem = null;
 				checkAmendSetupCompleteness();
-				
-				if (this.radioGroupAmendType.selectedValue != null && 
+
+				if (this.radioGroupAmendType.selectedValue != null &&
 					this.radioGroupAmendType.selectedValue != "" &&
 					this.labCombo.selectedIndex >= 0) {
-					
+
 					var params:Object = new Object();
 					params.idLab = labCombo.selectedItem.@idLab;
 					params.showSamples = "N";
@@ -4718,14 +4718,14 @@
 					params.publicExperimentsInOtherGroups = 'N';
 					params.isBioanalyzer = isRequestToAmendQC() ? 'Y' : 'N';
 					params.isSolexa = isRequestToAmendIllumina() ? 'Y' : 'N';
-					
+
 					// Limit by the kind of illumina request if we are adding lanes
 					if (this.isRequestToAmendIllumina()) {
 						params.codeRequestCategory = this.getAmendRequestCategory();
 					}
-					
-					if (lastWeekCheckbox.selected) { 
-						params.lastWeek = 'Y'; 
+
+					if (lastWeekCheckbox.selected) {
+						params.lastWeek = 'Y';
 					} else if (lastMonthCheckbox.selected) {
 						params.lastMonth = 'Y';
 					} else if (lastThreeMonthsCheckbox.selected) {
@@ -4733,30 +4733,30 @@
 					} else if (lastYearCheckbox.selected) {
 						params.lastYear = 'Y';
 					}
-					
+
 					// For normal users, scope to only show user's own experiments.
 					// Lab managers can amend anyone's experiment.  (Admins are
 					// considered manager on all labs, so they can also
-					// amend any experiment.				
+					// amend any experiment.
 					if (appUserCombo.selectedItem != null && appUserCombo.selectedItem.@idAppUser != '') {
-						params.idAppUser = appUserCombo.selectedItem.@idAppUser;				
-					}					
-					
+						params.idAppUser = appUserCombo.selectedItem.@idAppUser;
+					}
+
 					this.getCandidateProjectRequestList.send(params);
-					
+
 				} else {
 					browseTree.visible = false;
 					this.checkAmendSetupCompleteness();
 				}
 			}
-			
+
 			private function onGetCandidateProjectRequestList(event:ResultEvent): void {
 				if (this.getCandidateProjectRequestList.lastResult.name() != "ProjectRequestList") {
 					Alert.show(getCandidateProjectRequestList.lastResult..ACTMESSAGE.@TEXT);
 					this.browseTree.visible = false;
 					return;
 				}
-				
+
 				if (getCandidateProjectRequestList.lastResult.Lab.length() == 0) {
 					this.browseTree.visible = false;
 					var filter:String = "";
@@ -4785,10 +4785,10 @@
 					this.browseTree.visible = true;
 					callLater(expandTree);
 				}
-			}	
-			
+			}
+
 			private function expandTree():void {
-				
+
 				browseTree.expandItem(getCandidateProjectRequestList.lastResult, true);
 				for each(var project:Object in getCandidateProjectRequestList.lastResult..Project) {
 					browseTree.expandItem(project, true);
@@ -4800,8 +4800,8 @@
 				browseTree.validateNow();
 				browseTreeContainer.validateNow();
 				this.setAmendTitle();
-			}        		    
-			
+			}
+
 			public function getTreeLabel(item:Object):String {
 				if (item.name() == "Request") {
 					return item.@displayName;
@@ -4809,7 +4809,7 @@
 					return item.@label;
 				}
 			}
-			
+
 			private function toggleDateCheckboxes(checkBoxNumber:int):void {
 				if (checkBoxNumber == 1) {
 					this.lastMonthCheckbox.selected = false;
@@ -4821,27 +4821,27 @@
 					this.lastYearCheckbox.selected  = false;
 				} else if (checkBoxNumber == 3) {
 					this.lastWeekCheckbox.selected  = false;
-					this.lastMonthCheckbox.selected = false; 
+					this.lastMonthCheckbox.selected = false;
 					this.lastYearCheckbox.selected  = false;
 				}  else if (checkBoxNumber == 4) {
 					this.lastWeekCheckbox.selected  = false;
-					this.lastMonthCheckbox.selected = false; 
+					this.lastMonthCheckbox.selected = false;
 					this.lastThreeMonthsCheckbox.selected = false;
-				}   
-			} 	
-			
+				}
+			}
+
 			public function isAmendState():Boolean {
 				if (currentState == "AmendState" ||
 					currentState == "MicroarrayAmendState" ||
 					currentState == "SolexaBaseAmendState" ||
 					currentState == "SolexaLaneAmendState" ||
 					currentState == "CapSeqAmendState") {
-					return true;    	
+					return true;
 				} else {
 					return false;
 				}
-			}	
-			
+			}
+
 			public function isSolexaAmendState():Boolean {
 				if (currentState == "SolexaBaseAmendState" ||
 					currentState == "SolexaLaneAmendState") {
@@ -4857,7 +4857,7 @@
 					return false;
 				}
 			}
-			
+
 			private function checkAmendSetupCompleteness():void {
 				var isComplete:Boolean = false;
 				if (this.browseTree.selectedItem != null && this.browseTree.selectedItem.name() == "Request") {
@@ -4871,12 +4871,12 @@
 						isComplete = true;
 					}
 				}
-				
+
 				if (isComplete) {
 					this.getRequestToAmend.send();
 				}
-				
-				
+
+
 				if (currentState == "SolexaBaseAmendState") {
 					sampleSetupView.enabled = isComplete;
 				} else if (currentState == "SolexaLaneAmendState") {
@@ -4885,20 +4885,20 @@
 					sampleSetupView.enabled = isComplete;
 					if (theTab.contains(this.annotationView)) {
 						annotationView.enabled = isComplete;
-					}        			
+					}
 				} else {
 					// capillary sequencing -- never happens
 					seqSetup1View.enabled = isComplete;
 				}
-				
+
 				enableNextButtons();
-				
-				
+
+
 				callLater(postAmendSetupCompleteness, [isComplete]);
-				
-				
+
+
 			}
-			
+
 			private function postAmendSetupCompleteness(isComplete:Boolean):void {
 				if (!isComplete) {
 					if (currentState == "SolexaBaseAmendState") {
@@ -4912,10 +4912,10 @@
 					this.samplesView.enabled = false;
 					if (this.theTab.contains(this.hybSetupView)) {
 						this.hybSetupView.enabled = false;
-					} 
+					}
 					if (this.theTab.contains(this.hybsView)) {
 						this.hybsView.enabled = false;
-					} 
+					}
 					this.confirmView.enabled = false;
 				} else {
 					if (currentState == "SolexaBaseAmendState") {
@@ -4926,26 +4926,26 @@
 					} else if (currentState == "MicroarrayAmendState") {
 						this.sampleSetupView.checkSampleSetupCompleteness();
 					}
-					
-					
+
+
 					this.samplesView.checkSamplesCompleteness();
 					this.hybSetupView.checkHybSetupCompleteness();
 					this.hybsView.checkHybsCompleteness();
 				}
-				
+
 			}
-			
+
 			private function onGetRequestToAmend(event:ResultEvent):void {
-				
+
 				var request:Object = getRequestToAmend.lastResult..Request.(@idRequest == browseTree.selectedItem.@idRequest)[0];
 				existingLanes = request.sequenceLanes.SequenceLane;
-				
+
 				setupAmendForm(request);
-				
+
 				if (theTab.contains(this.annotationView)) {
 					this.propertyEntries.refresh();
-				} 
-				
+				}
+
 				this.requestProperties.refresh();
 				if (this.requestProperties.length < 1) {
 					this.theTab.getTabAt( theTab.getChildIndex( propertiesView ) ).visible = false;
@@ -4953,9 +4953,9 @@
 				} else {
 					this.theTab.getTabAt( theTab.getChildIndex( propertiesView ) ).visible = true;
 					this.theTab.getTabAt( theTab.getChildIndex( propertiesView ) ).includeInLayout = true;
-				} 
+				}
 			}
-			
+
 			private function setAmendTitle():void {
 				titleLabel.text = getAmendTitleText();
 				var codeRequestCategory:String = getAmendRequestCategory();
@@ -4964,15 +4964,15 @@
 					this.requestIcon = requestCategory.@icon;
 				}
 			}
-			
+
 			private function getAmendTitleText():String {
 				var text:String = "";
 				if (this.currentState == "SolexaBaseAmendState" ) {
-					text = "Adding Illumina sequencing services to Sample Quality Experiment ";		
+					text = "Adding Illumina sequencing services to Sample Quality Experiment ";
 				} else if (this.currentState == "MicroarrayAmendState") {
-					text = "Adding Microarray services to Sample Quality Experiment ";	
+					text = "Adding Microarray services to Sample Quality Experiment ";
 				} else if (this.currentState == "SolexaLaneAmendState") {
-					text = "Adding Illumina sequence lanes to Experiment ";			
+					text = "Adding Illumina sequence lanes to Experiment ";
 				} else if (this.currentState == "CapSeqAmendState") {
 					text = "Adding Capillary Sequencing services to Experiment ";
 				} else {
@@ -4980,92 +4980,92 @@
 				}
 				if (this.browseTree.selectedItem != null && this.browseTree.selectedItem.name() == "Request") {
 					text += this.browseTree.selectedItem.@requestNumber;
-				}			
-				
+				}
+
 				return text;
 			}
-			
+
 			public function setupAmendForm(theRequest:Object):void {
 				request = theRequest;
 				this.updateBillingAccountInfo();
-				
+
 				setAmendTitle();
-				
+
 				var requestCategory:Object = getRequestCategory();
 				requestCategoryName = requestCategory.@display.toString();
-				
+
 				var prevSelectedTab:Container = theTab.selectedChild;
-				
+
 				this.instantiateTabs(requestCategory.@codeRequestCategory, false, true);
-				
+
 				theTab.selectedChild = prevSelectedTab;
-				
+
 				samplesView.currentState = '';
 				var application:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Application',request.@codeApplication);
 				applicationName = application.@display.toString();
 				codeApplication = application.@codeApplication;
-				
+
 				if (!this.isCapSeqState() && !this.isFragAnalState() && !this.isMitSeqState() && !this.isCherryPickState()) {
-					this.annotationView.checkSecurity();		
+					this.annotationView.checkSecurity();
 				}
 				if (this.isSolexaAmendState()) {
 					this.samplesView.currentState = "SolexaSamplesState";
-				} else if (this.isMicroarayAmendState()) {				
+				} else if (this.isMicroarayAmendState()) {
 					this.sampleSetupView.currentState = "MicroarrayAmendState";
 					this.hybSetupView.currentState = "SetupState";
 				} else if (this.isCapSeqState()) {
 					this.sampleSetupView.currentState = "CapSeqState";
 					this.samplesView.currentState = "CapSeqState";
 				}
-				
-				
+
+
 				callLater(postSetupAmendForm);
-				
+
 			}
-			
+
 			private function postSetupAmendForm():void {
 				if (currentState == "MicroarrayAmendState") {
 					if (this.getSlideProductList.lastResult != null && filteredSlideProductList != null) {
 						// If we already have the slide product and slide design list, initialize controls
 						postSetupAmendFormImpl();
 					} else {
-						
+
 						if (this.getSlideProductList.lastResult == null || filteredSlideProductList == null) {
 							// We don't have the slide design list so run the query.
 							// The result handler will detect if it is time to call
 							// initializeControlsImpl.
 							getSlideProductList.send();
 						} else {
-							// We do have the slide product list so  refresh it. 
-							this.checkToPerformPostAmendSetup();  
+							// We do have the slide product list so  refresh it.
+							this.checkToPerformPostAmendSetup();
 						}
-						
+
 						if (this.getSlideDesignList.lastResult == null) {
 							// We don't have the slide design list so run the query.
 							// The result handler will detect if it is time to call
 							// initializeControlsImpl.
 							getSlideDesignList.send();
 						}
-					} 
+					}
 				} else {
 					postSetupAmendFormImpl();
 				}
 			}
-			
+
 			private function postSetupAmendFormImpl():void {
 				// Set the codeRequestCategory
 				request.@codeRequestCategory = this.getAmendRequestCategory();
-				
+
 				this.samplesView.showHideColumns();
-				
+
 				if (isSolexaAmendState()) {
 					this.filteredGenomeBuildList.refresh();
-					
-					
+
+
 					// Get rid of the existing lanes.  User will specify
 					// additional lanes
 					lanes.removeAll();
-					
+
 					// Propagate the entries on sample setup that
 					// may have been selected from prev amend request
 					if (theTab.contains(seqSetup1View)) {
@@ -5073,58 +5073,58 @@
 						this.seqSetup1View.propagateNumberSequencingCycles();
 					}
 					//this.bioinformaticsView.propagateGenomeBuild();
-					
-					
+
+
 				}
-				
+
 				if (currentState == "MicroarrayAmendState" || currentState == "SolexaBaseAmendState" || this.isCapSeqState()) {
 					// We are converting a QC request to a microarray or illumina
 					// sequencing request.
 					filteredSampleTypeList.refresh();
 					filteredSampleTypeListRna.refresh();
 					filteredSampleTypeListDna.refresh();
-					
+
 					// Set the default sample type on the request based on the first sample listed
 					var idSampleTypeDefault:String = request.samples.Sample[0].@idSampleType.toString();
 					request.@idSampleTypeDefault = idSampleTypeDefault;
-				} 
-				
-				// Default the samples and sample setup for QC->SEQ 
+				}
+
+				// Default the samples and sample setup for QC->SEQ
 				if (currentState == "SolexaBaseAmendState" || this.isCapSeqState()) {
 					// Initialize @seqPrepByCore to 'Y'
 					for each(var s:Object in request.samples.Sample) {
 						s.@seqPrepByCore = "Y";
 					}
-					
+
 					// Default the sample type on sample setup
 					sampleSetupView.sampleTypeRadioGroup.selectedValue = request.@idSampleTypeDefault;
-					
+
 					// Reset the organism on the sample if it was previously selected
 					sampleSetupView.sampleOrganismCombo.selectedIndex = 0;
 					sampleSetupView.propagateSampleOrganism();
 				}
-				
-				
+
+
 				if (currentState == "MicroarrayAmendState") {
 					// Get rid of the hybs from previous amend
 					hybs.removeAll();
-					
+
 					// Filter the slide product list
 					this.filteredSlideProductList.refresh();
-					
-					
-					
+
+
+
 					// Filter the microarray app list
 					this.filteredMicroarrayAppList.refresh();
-					
+
 					// Default the sample type and nucleic acid extraction
 					// dropdowns on sample setup
 					sampleSetupView.sampleTypeRadioGroup.selectedValue = request.@idSampleTypeDefault;
-					
+
 					// Reset the organism on the sample if it was previously selected
 					sampleSetupView.sampleOrganismCombo.selectedIndex = 0;
 					sampleSetupView.propagateSampleOrganism();
-					
+
 					// Hide/Show the channel 2 sample column
 					var requestCategory:Object = this.getRequestCategory();
 					if (requestCategory.@numberOfChannels == "2") {
@@ -5141,50 +5141,50 @@
 							s1.@label = 'cy3';
 						}
 					}
-					
-					
+
+
 					// Reset the hyb setup view
 					hybSetupView.organismCombo.selectedIndex = -1;
 					hybSetupView.slideProductCombo.selectedIndex = -1;
 					hybSetupView.numberOfHybs.text = '';
 					hybSetupView.unselectSlideSources();
-					
-					
+
+
 					hybSetupView.organismCombo.enabled = true;
 					hybSetupView.slideProductCombo.enabled = true;
 					hybSetupView.isCatalogRadio.enabled = true;
 					hybSetupView.isCustomRadio.enabled = true;
-					
-					
+
+
 				}
-				
-				
+
+
 				updateDirtyNote(false);
 			}
-			
-			
-			
-			private function onGetLabForAddingServices(event:ResultEvent):void {			
+
+
+
+			private function onGetLabForAddingServices(event:ResultEvent):void {
 				lab = getLabForAddingServices.lastResult..Lab.(@idLab == labCombo.selectedItem.@idLab);
-				
-				
+
+
 				if (parentApplication.hasPermission('canWriteAnyObject')) {
 					this.appUserCombo.selectedIndex = 0;
 				} else {
 					for each(var u:Object in appUsers) {
 						if (u.@idAppUser == parentApplication.getIdAppUser()) {
 							this.appUserCombo.selectedItem = u;
-							break;    			
+							break;
 						}
 					}
 				}
 				this.getCandidateAmendExperiments();
-				
-				
+
+
 				this.qcAmendRequestCategories.refresh();
 				this.addLanesAmendRequestCategories.refresh();
 			}
-			
+
 			private function sortAppUsers(obj1:Object, obj2:Object, fields:Array=null):int {
 				if (obj1 == null && obj2 == null) {
 					return 0;
@@ -5195,7 +5195,7 @@
 				} else {
 					var display1:String = obj1.@displayName;
 					var display2:String = obj2.@displayName;
-					
+
 					if (display1 < display2) {
 						return -1;
 					} else if (display1 > display2) {
@@ -5203,19 +5203,19 @@
 					} else {
 						return 0;
 					}
-					
+
 				}
 			}
-			
+
 			public static function showExperimentUploadWindow(parent:DisplayObject, request:Object, experimentEditView:ExperimentEditView, experimentDownloadView:ExperimentDownloadView):void {
 				var uploadWindow:ExperimentUploadWindow = ExperimentUploadWindow(PopUpManager.createPopUp(parent, ExperimentUploadWindow, true));
 				experimentEditView.downloadView = experimentDownloadView;
 				uploadWindow.parentView = experimentEditView;
 				PopUpManager.centerPopUp(uploadWindow);
 				uploadWindow.init(request);
-				
+
 			}
-			
+
 			public static function showExperimentOrganizeWindow(parent:DisplayObject, request:Object, experimentEditView:ExperimentEditView, experimentDownloadView:ExperimentDownloadView):void {
 				var uploadWindow:ExperimentUploadWindow = ExperimentUploadWindow(PopUpManager.createPopUp(parent, ExperimentUploadWindow, true));
 				experimentEditView.downloadView = experimentDownloadView;
@@ -5224,7 +5224,7 @@
 				uploadWindow.init(request);
 				uploadWindow.theTab.selectedIndex = 1;
 			}
-			
+
 			public static function showLinkSamplesWindow(parent:DisplayObject, request:Object, experimentEditView:ExperimentEditView, experimentDownloadView:ExperimentDownloadView):void {
 				var uploadWindow:ExperimentUploadWindow = ExperimentUploadWindow(PopUpManager.createPopUp(parent, ExperimentUploadWindow, true));
 				experimentEditView.downloadView = experimentDownloadView;
@@ -5233,15 +5233,15 @@
 				uploadWindow.init(request);
 				uploadWindow.theTab.selectedIndex = 2;
 			}
-			
-			
+
+
 			public static function showExperimentUploadFDTWindow(parent:DisplayObject, request:Object):void {
 				var uploadWindow:ExperimentUploadWindow = ExperimentUploadWindow(PopUpManager.createPopUp(parent, ExperimentUploadWindow, true));
 				PopUpManager.centerPopUp(uploadWindow);
 				uploadWindow.init(request);
 				uploadWindow.uploadFilesStack.selectedIndex = 1;
 			}
-			
+
 			public function showSampleBarcodes():Boolean {
 				var show:Boolean = false;
 				if (this.isSolexaState()) {
@@ -5249,7 +5249,7 @@
 						for each(var s:Object in samples) {
 							if (s.@idOligoBarcode != '') {
 								show = true;
-								break;		
+								break;
 							}
 						}
 					} else if (!parentApplication.submitInternalExperiment()) {
@@ -5259,11 +5259,11 @@
 					} else if (sampleSetupView.currentState == "SolexaSetupPreppedState" ||
 						(sampleSetupView.currentState == "MDMiSeqState" && seqSetupView.seqPrepRadioGroup.selectedValue !=  null  && seqSetupView.seqPrepRadioGroup.selectedValue ==  "N") ) {
 						show = true;
-					} 	
+					}
 				}
 				return show;
 			}
-			
+
 			public function showSampleBarcodesB():Boolean {
 				var show:Boolean = false;
 				if (this.isSolexaState()) {
@@ -5271,7 +5271,7 @@
 						for each(var s:Object in samples) {
 							if (s.@idOligoBarcodeB != '') {
 								show = true;
-								break;		
+								break;
 							}
 						}
 					} else if (!parentApplication.submitInternalExperiment()) {
@@ -5281,11 +5281,11 @@
 					} else if (sampleSetupView.currentState == "SolexaSetupPreppedState" ||
 						(sampleSetupView.currentState == "MDMiSeqState" && seqSetupView.seqPrepRadioGroup.selectedValue !=  null  && seqSetupView.seqPrepRadioGroup.selectedValue ==  "N")) {
 						show = true;
-					} 	
+					}
 				}
 				return show;
 			}
-			
+
 			public function showSampleCustomBarcodes():Boolean {
 				var show:Boolean = false;
 				if (this.isSolexaState()) {
@@ -5293,7 +5293,7 @@
 						for each(var s:Object in samples) {
 							if (s.@barcodeSequence != '' && s.@idOligoBarcode == '') {
 								show = true;
-								break;		
+								break;
 							}
 						}
 					} else if (!parentApplication.submitInternalExperiment()) {
@@ -5302,12 +5302,12 @@
 						show = true;
 					} else if (sampleSetupView.currentState == "SolexaSetupPreppedState") {
 						show = true;
-					}	
+					}
 				}
 				return show;
 			}
-			
-			
+
+
 			public function showSampleMultiplexGroup():Boolean {
 				var show:Boolean = false;
 				if (this.isSolexaState()) {
@@ -5315,7 +5315,7 @@
 						for each(var s:Object in samples) {
 							if (s.@multiplexGroupNumber != '') {
 								show = true;
-								break;		
+								break;
 							}
 						}
 					} else if (isEditState()) {
@@ -5324,11 +5324,11 @@
 						show = false;
 					} else {
 						show = true;
-					}	
+					}
 				}
 				return show;
 			}
-			
+
 			public function showPlateGroup():Boolean {
 				var show:Boolean = false;
 				if (this.isCapSeqState() || this.isIScanState() || this.isSequenomState() || this.isClinicalSequenomState()) {
@@ -5340,16 +5340,16 @@
 						show = false;
 					}
 				}
-				
+
 				return show;
 			}
-			
+
 			protected function agreeCheckbox_clickHandler(event:MouseEvent):void {
 				this.submitButton.enabled = agreeCheckbox.selected;
 			}
-			
+
 			public function filterList():void {	}
-			
+
 			private function getBrowseParameters():Object {
 				var params:Object = new Object();
 				if (parentDocument.selectedIdProject != null) {
@@ -5359,12 +5359,12 @@
 					params.idRequest = parentDocument.selectedIdRequest;
 				}
 				params.idLab = parentDocument.selectedIdLab;
-				
+
 				if(parentDocument is NavTopicsView) {
 					return params;
 				}
-				
-				
+
+
 				if (parentDocument.currentState == 'AdminState' && parentDocument.allExperimentsCheckbox.selected) {
 					params.allExperiments = 'Y';
 				} else {
@@ -5378,7 +5378,7 @@
 					} else if (parentDocument.currentState != "GuestState")  {
 						if (parentDocument.myExperimentsCheckbox.selected) {
 							params.idAppUser = parentApplication.getIdAppUser();
-						}				
+						}
 						if (parentDocument.userAllExperimentsCheckbox.selected) {
 							params.allExperiments = 'Y';
 						}
@@ -5394,13 +5394,13 @@
 						if ( parentDocument.requestCategoryRadioGroup != null && parentDocument.requestCategoryRadioGroup.selectedValue != null && parentDocument.requestCategoryRadioGroup.selectedValue != ''){
 							params.codeRequestCategory = parentDocument.requestCategoryRadioGroup.selectedValue;
 						}
-					}					
-					
+					}
+
 				}
-				
-				return params;					
+
+				return params;
 			}
-			
+
 			public function getBrowseParametersOrderView():Object {
 				var params:Object = new Object();
 				params.idRequest = request.@idRequest;
@@ -5409,28 +5409,28 @@
 				params.isMicroarray  = "N";
 				params.isNextGenSeq  = "N";
 				params.isBioanalyzer = "N";
-				
-				
-				return params;					
+
+
+				return params;
 			}
-			
-			
+
+
 			public function reloadDownloadList():void {
 				// Getting the download list is slow since we now show an expanded file
 				// view by default.  Only show downloads at request or project level.
 				if (parentDocument is NavOrderView) {
 					if (parentApplication.needToLoad(getBrowseParametersOrderView()) ) {
 						downloadView.getRequestDownloadList.send(getBrowseParametersOrderView());
-					} 
+					}
 
 					downloadView.browseParameters = getBrowseParametersOrderView();
 					downloadView.browseMessage = "";
 				} else {
-					if (parentDocument.selectedIdProject != null || 
+					if (parentDocument.selectedIdProject != null ||
 						parentDocument.selectedIdRequest != null) {
 						if (parentApplication.needToLoad(getBrowseParameters()) ) {
 							downloadView.getRequestDownloadList.send(getBrowseParameters());
-						} 
+						}
 
 						downloadView.browseParameters = getBrowseParameters();
 						downloadView.browseMessage = "";
@@ -5441,7 +5441,7 @@
 					}
 				}
 			}
-			
+
 			public function refreshDownloadList():void {
 				if (theTab.selectedChild == downloadView) {
 //					// Getting the download list is slow since we now show an expanded file
@@ -5450,22 +5450,22 @@
 //					theTab.selectedChild = downloadView;
 				}
 			}
-			
+
 			public function refreshDownloadListForExperiment():void {
 				var params:Object = new Object();
 				params.requestNumber = parentDocument.selectedExperiment.@number;
-				params.whereami = "5";				
+				params.whereami = "5";
 				if (parentApplication.needToLoad(params) ) {
 					downloadView.getRequestDownloadList.send(params);
-				} 
+				}
 
 				downloadView.browseParameters = params;
 			}
-			
+
 			private function propagateDesign():void {
-				this.request.@captureLibDesignId = designText.text;	
+				this.request.@captureLibDesignId = designText.text;
 			}
-			
+
 			public function isAssaySelected(assay:Object):Boolean {
 				for each (var sel:Object in this.selectedAssaysCollection) {
 					if (sel.@name == assay.@name) {
@@ -5474,7 +5474,7 @@
 				}
 				return false;
 			}
-			
+
 			private function pickOrganism():void {
 				if (this.sampleOrganismCombo != null && this.sampleOrganismCombo.selectedItem != null) {
 					request.@idOrganism =  this.sampleOrganismCombo.selectedItem.@value;
@@ -5484,8 +5484,8 @@
 					request.@otherOrganism = "";
 					this.otherOrganism.text = "";
 				}
-			} 
-			
+			}
+
 			private function pickApplication():void {
 				if (this.requestApplicationComboBox != null && this.requestApplicationComboBox.selectedItem != null) {
 					request.@codeApplication =  this.requestApplicationComboBox.selectedItem.@value;
@@ -5499,11 +5499,11 @@
 					request.@codeApplication = "";
 				}
 			}
-			
-			
+
+
 			private function filterLabList(item:Object):Boolean {
 				var keep:Boolean = false;
-				
+
 				if(parentApplication.hasPermission('canSubmitForOtherCores') && coreFacility != null && parentApplication.coreFacilitiesICanSubmitTo.contains(coreFacility)){
 					for each(var coreFac:XML in parentApplication.coreFacilitiesICanSubmitTo){
 						for each(var labCF:XML in item..CoreFacility){
@@ -5534,30 +5534,30 @@
 				}
 				return keep;
 			}
-			
+
 			private function filterBillingAccounts(item:Object):Boolean {
 				if (item.@idBillingAccount == '' && item.@accountName == '') {
 					return true;
 				}
-				
+
 				if (this.accountAcceptingBalanceOnRequest != null && this.accountAcceptingBalanceOnRequest.@idBillingAccount == item.@idBillingAccount) {
 					return true;
 				}
-				
+
 				for each(var acct:Object in request..BillingItem) {
 					if (acct.@idBillingAccount == item.@idBillingAccount) {
 						return true;
 					}
 				}
-				
+
 				if (item.@isActive == 'N') {
 					return false;
 				}
-				
+
 				if (item.@isApproved == 'N') {
 					return false;
 				}
-				
+
 				var idAppUser:Object = parentApplication.getIdAppUser();
 				if (idAppUser != null && idAppUser.toString() != '' && item.@acctUsers != '') {
 					var ids:Array = item.@acctUsers.toString().split(",");
@@ -5572,7 +5572,7 @@
 						return false;
 					}
 				}
-				
+
 				var temp:String = flash.utils.getQualifiedClassName(parentDocument);
 				if(temp  == 'views.order::NavOrderView') {
 					if(item.@idCoreFacility == parentDocument.selectedRequest.@idCoreFacility)
@@ -5586,7 +5586,7 @@
 						return false;
 				}
 			}
-			
+
 			public function setDefaultRequestCategory(codeDefaultRequestCategory:String, ccNumberList:Array):void {
 				this.defaultCodeRequestCategory = codeDefaultRequestCategory;
 				this.ccNumberList = ccNumberList;
@@ -5596,19 +5596,19 @@
 					this.defaultRequestCategory = null;
 				}
 			}
-			
+
 			private function filterQCAmendRequestCategory(item:Object):Boolean {
-				//parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry.(@isActive == 'Y' &amp;&amp; @value != '' &amp;&amp; @isInternal == 'Y' &amp;&amp; ( @type == parentApplication.TYPE_MICROARRAY ||  @isIlluminaType == 'Y')) 
+				//parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry.(@isActive == 'Y' &amp;&amp; @value != '' &amp;&amp; @isInternal == 'Y' &amp;&amp; ( @type == parentApplication.TYPE_MICROARRAY ||  @isIlluminaType == 'Y'))
 				var keep:Boolean = filterRequestCategoryByCore(item);
 				if (keep && (parentApplication.isAdminState || parentApplication.isSuperAdmin) && parentApplication.coreFacilitiesICanManage.length() >= 1) {
 					keep = filterRequestCategoryByCoreForAdmins(item);
-				} 
+				}
 				if (item.@type != parentApplication.TYPE_MICROARRAY && item.@isIlluminaType != 'Y') {
 					keep = false;
 				}
 				return keep;
 			}
-			
+
 			private function filterAddLanesAmendRequestCategory(item:Object):Boolean {
 				//parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry.(@isActive == 'Y' &amp;&amp; @value != '' &amp;&amp; @isInternal == 'Y' &amp;&amp; @isIlluminaType == 'Y')				var keep:Boolean = false;
 				var keep:Boolean = filterRequestCategoryByCore(item);
@@ -5620,7 +5620,7 @@
 				}
 				return keep;
 			}
-			
+
 			private function filterRequestCategoryByCore(item:Object):Boolean {
 				var keep:Boolean = false;
 				if (item.@isActive == 'Y' && item.@value != '' && item.@isInternal == 'Y') {
@@ -5633,7 +5633,7 @@
 							// filter by the lab's core facility
 							for each(var cf:Object in lab..CoreFacility) {
 								if (cf.@idCoreFacility == item.@idCoreFacility) {
-									if ( parentApplication.getCoreFacilityProperty(item.@idCoreFacility, parentApplication.PROPERTY_ALLOW_ADD_SEQUENCING_SERVICES) == null || 
+									if ( parentApplication.getCoreFacilityProperty(item.@idCoreFacility, parentApplication.PROPERTY_ALLOW_ADD_SEQUENCING_SERVICES) == null ||
 										parentApplication.getCoreFacilityProperty(item.@idCoreFacility, parentApplication.PROPERTY_ALLOW_ADD_SEQUENCING_SERVICES) != 'N' ) {
 										keep = true;
 									}
@@ -5644,9 +5644,9 @@
 					}
 				}
 				return keep;
-				
+
 			}
-			
+
 			private function filterRequestCategoryByCoreForAdmins(item:Object):Boolean {
 				var keep:Boolean = false;
 				for each (var cf:Object in parentApplication.coreFacilitiesICanManage) {
@@ -5657,7 +5657,7 @@
 				}
 				return keep;
 			}
-			
+
 			private function getTitle(currentState:String, requestCategoryName:String, coreFacility:Object):String {
 				var title:String  = "";
 				var catName:String = requestCategoryName != '' && requestCategoryName != null ? " " + requestCategoryName : '';
@@ -5681,17 +5681,17 @@
 				}
 				return title;
 			}
-			
+
 			private function determineIfProductsNeeded():Boolean {
 				if (parentApplication.submitInternalExperiment() && requestCategory != null) {
 					if (requestCategory.@idProductType != null && requestCategory.@idProductType != '') {
 						return true;
 					}
 				}
-				
+
 				return false;
 			}
-			
+
 			public function updateDirtyNote(isDirty:Boolean):void {
 				if (isDirty && !this.isDirty) {
 					this.isDirty = true;
@@ -5701,7 +5701,7 @@
 					this.dirty.resetDirty();
 				}
 			}
-			
+
 			private function handleDirtyEvent(event:DirtyEvent):void {
 				if (event.type == DirtyEvent.NOW_DIRTY) {
 					updateDirtyNote(true);
@@ -5709,7 +5709,7 @@
 					updateDirtyNote(false);
 				}
 			}
-			
+
 			private function showProductsTab(allowEditing:Boolean):void {
 				if (theTab.contains(productsView) && productsView != null) {
 					productsView.allowEdits(allowEditing);
@@ -5724,7 +5724,7 @@
 					}
 				}
 			}
-			
+
 			private function hideProductsTab():void {
 				if (theTab.contains(productsView) && productsView != null) {
 					productsView.reset();
@@ -5734,7 +5734,7 @@
 					theTab.getTabAt( theTab.getChildIndex( productsView ) ).includeInLayout = false;
 				}
 			}
-			
+
 			private function hasPrePooledLibraries():void{
 				if(this.hasPrePooledLibrariesCheck.selected){
 					this.request.@hasPrePooledLibraries = "Y";
@@ -5744,33 +5744,33 @@
 				}
 				prePooledChanged = true;
 			}
-			
+
 			private function propagateNumTubes():void{
 				request.@numPrePooledTubes = this.numPrePooledTubesText.text;
 				prePooledChanged = true;
 			}
-			
+
 			private function linkTopics():void {
 				if (isExternalExperimentSubmission()) {
-					
+
 					if ((this.setupView.currentState == "AdminExternalExperimentState"  ||
 						 this.setupView.currentState == "AdminExternalMicroarrayState") &&
 						 setupView.linkToTopicBarAdmin != null) {
-						
+
 						setupView.linkToTopicBarAdmin.linkTopics(submittedIdRequest);
-						
-						
+
+
 					} else if ((this.setupView.currentState == "ExternalExperimentState"  ||
 								this.setupView.currentState == "ExternalMicroarrayState") &&
 								setupView.linkToTopicBar != null) {
-						
+
 						setupView.linkToTopicBar.linkTopics(submittedIdRequest);
-						
+
 					}
-					
+
 				}
 			}
-			
+
 			private function getLabel():String{
 				if(request == null){
 					return "";
@@ -5783,17 +5783,17 @@
 					return "";
 				}
 			}
-			
+
 			private function showConversionWindow():void{
 				var convertWindow:ConvertIlluminaWindow = new ConvertIlluminaWindow();
 				convertWindow.request = this.request;
-				
+
 				if(request.@codeRequestCategory == parentApplication.TYPE_HISEQ){
 					convertWindow.convertToCategory = parentApplication.TYPE_MISEQ;
 				} else if(request.@codeRequestCategory == parentApplication.TYPE_MISEQ){
 					convertWindow.convertToCategory = parentApplication.TYPE_HISEQ;
 				}
-				
+
 				PopUpManager.addPopUp(convertWindow,this, true)
 				this.setFocus();
 				//PopUpManager.centerPopUp(convertWindow);
@@ -5804,37 +5804,37 @@
 				});
 				convertWindow.init();
 			}
-			
+
 			public function refreshAmendSetup():void {
 				theTab.selectedChild = amendSetupView;
-				
+
 				if (labCombo != null) {
 					labCombo.selectedIndex = -1;
 					labCombo.selectedItem = null;
 					lab = null;
 				}
-				
+
 				if (appUserCombo != null) {
 					appUserCombo.selectedIndex = -1;
 					appUserCombo.selectedItem = null;
 				}
-				
+
 				if (radioGroupAmendType != null && radioGroupAmendType.selection != null) {
 					radioGroupAmendType.selectedValue = null;
 					radioGroupAmendType.selection.selected = false;
 					radioGroupAmendType.selection = null;
 					highlightAmendRequestCategory();
 				}
-				
+
 				if (browseTree != null) {
 					browseTree.visible = false;
 					browseTree.selectedIndex = -1;
 					browseTree.selectedItem = null;
 				}
-				
+
 				checkAmendSetupCompleteness();
 			}
-			
+
 			private function retrieveBillingAccountNames(includeLab:Boolean = false):String {
 				var names:String = "";
 				if (request != null && request.BillingTemplate != null) {
@@ -5853,13 +5853,13 @@
 				}
 				return names;
 			}
-			
+
 			private function updateCurrentAccountLabel():void {
 				if (this.accountLabel != null) {
 					this.accountLabel.text = this.retrieveBillingAccountNames(true);
 				}
 			}
-			
+
 			private function updateAccountAcceptingBalanceOnRequest():void {
 				if (request != null && request.BillingTemplate != null) {
 					for each (var item:Object in request.BillingTemplate..BillingTemplateItem) {
@@ -5872,7 +5872,7 @@
 					this.accountAcceptingBalanceOnRequest = null;
 				}
 			}
-			
+
 			private function updateShowEditBillingTemplateOption():void {
 				this.showEditBillingTemplateOption = false;
 				if (request != null && request.BillingTemplate != null) {
@@ -5882,10 +5882,10 @@
 					}
 				}
 			}
-			
+
 			private function showEditBillingOption():void {
 				var showEditOptions:Boolean = this.request.@isExternal != 'Y';
-				
+
 				if (this.showEditBillingTemplateOption) {
 					if (this.accountComboLabel != null) {
 						this.accountComboLabel.visible = false;
@@ -5895,7 +5895,7 @@
 						this.requestEditBillingAccountCombo.visible = false;
 						this.requestEditBillingAccountCombo.includeInLayout = false;
 					}
-					
+
 					if (this.editBillingTemplateLink != null) {
 						this.editBillingTemplateLink.visible = showEditOptions;
 						this.editBillingTemplateLink.includeInLayout = showEditOptions;
@@ -5905,7 +5905,7 @@
 						this.editBillingTemplateLink.visible = false;
 						this.editBillingTemplateLink.includeInLayout = false;
 					}
-					
+
 					if (this.accountComboLabel != null) {
 						this.accountComboLabel.visible = showEditOptions;
 						this.accountComboLabel.includeInLayout = showEditOptions;
@@ -5916,7 +5916,7 @@
 					}
 				}
 			}
-			
+
 			private function updateBillingAccountInfo():void {
 				this.updateCurrentAccountLabel();
 				this.updateAccountAcceptingBalanceOnRequest();
@@ -5924,20 +5924,20 @@
 				this.showEditBillingOption();
 				this.editedBillingTemplate = null;
 			}
-			
+
 			private function showEditBillingTemplateWindow():void {
 				if (!showEditBillingTemplateOption) {
 					return;
 				}
-				
+
 				var editBillingTemplateWindow:BillingTemplateWindow = BillingTemplateWindow(mx.managers.PopUpManager.createPopUp(this, BillingTemplateWindow, true));
 				editBillingTemplateWindow.order = request;
 				editBillingTemplateWindow.performSetup(true, this);
 				editBillingTemplateWindow.loadBillingTemplate(parseInt(new String(request.@idRequest)), "Request");
-				mx.managers.PopUpManager.centerPopUp(editBillingTemplateWindow); 
+				mx.managers.PopUpManager.centerPopUp(editBillingTemplateWindow);
 				editBillingTemplateWindow.setFocus();
 			}
-			
+
 		]]>
 	</mx:Script>
 	<mx:NumberValidator id="validator"  
