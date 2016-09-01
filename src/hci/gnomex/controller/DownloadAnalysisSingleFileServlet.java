@@ -80,6 +80,7 @@ public class DownloadAnalysisSingleFileServlet extends HttpServlet {
         // Get the fileName parameter
         if (req.getParameter("fileName") != null && !req.getParameter("fileName").equals("")) {
             fileName = req.getParameter("fileName");
+            fileName = fileName.replaceAll("\\\\", "/");
         }
         // Get the email address parameter
         if (req.getParameter("emailAddress") != null && !req.getParameter("emailAddress").equals("")) {
@@ -311,7 +312,7 @@ public class DownloadAnalysisSingleFileServlet extends HttpServlet {
         }
         theDirectory = theDirectory.replace("\\", "/");
 
-        if (fdFileName.endsWith(fileName) && dir.equals(theDirectory)) {
+        if (fdFileName.equals(fileName)) {
             return fd;
         } else if (fd.getChildren() != null && fd.getChildren().size() > 0) {
             for(Iterator i = fd.getChildren().iterator(); i.hasNext();) {

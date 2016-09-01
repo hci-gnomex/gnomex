@@ -353,8 +353,7 @@ public class DownloadSingleFileServlet extends HttpServlet {
     // Change all backslash to forward slash for comparison
     String fdFileName = fd.getFileName().replaceAll("\\\\", "/");
 
-
-    if (fdFileName.endsWith(fileName) && (dir.equals(theDirectory) || (dir.length() == 0 && theDirectory.equals("upload_staging")))) {
+    if (fdFileName.equals(fileName) || (dir.length() == 0 && theDirectory.equals("upload_staging"))) {
       return fd;
     } else if (fd.getChildren() != null && fd.getChildren().size() > 0) {
       for(Iterator i = fd.getChildren().iterator(); i.hasNext();) {
