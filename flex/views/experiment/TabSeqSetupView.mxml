@@ -66,6 +66,8 @@
 
 		private var currencyFormatter:CurrencyFormatter = new CurrencyFormatter();
 
+		private var previousSampleSetupState:String = "";
+
 		public function init():void {
 			checkSecurity();
 			
@@ -88,54 +90,59 @@
 //				&& seqPrepByCoreInitted == localPrepByCore && idLabInitted == parentDocument.getIdLab()) {
 //				return;
 //			}
-			
-			this.codeRequestCategoryInitted = parentDocument.getRequestCategory().@codeRequestCategory;
-			this.seqPrepByCoreInitted = localPrepByCore;
-			this.idLabInitted = parentDocument.getIdLab();
-			
-			parentDocument.filteredAppList.refresh();
-			
-			// Map the apps by theme
-			this.applicationThemeRepeater.dataProvider = null;
-			this.applicationRepeater.dataProvider = null;
-			var themeMap:Array = new Array();
-			preparedAppList = new XMLListCollection();
-			for each(var item:Object in parentDocument.filteredAppList) {
-				var de:XMLList = parentApplication.dictionaryManager.getEntry("hci.gnomex.model.ApplicationTheme", item.@idApplicationTheme);
-				if (de.length() >= 1) {
-					themeMap[item.@idApplicationTheme.toString()] = de[0];
-				}
-				if (priceMap != null && priceMap[item.@codeApplication.toString()] != null && localPrepByCore == 'Y') {
-					item.@price = priceMap[item.@codeApplication.toString()];
-				} else {
-					item.@price = "";
-				}
-				preparedAppList.addItem(item.copy());
-			}
-			
-			if(this.samplesToBePreppedCheckbox.selected){
-				preparedAppList.sort = this.applicationSorterAlphabet;
-				preparedAppList.refresh();
-			}
-			
-			themeList = new XMLListCollection();
-			for each(var theme:Object in themeMap) {
-				themeList.addItem(theme);
-			}
-			
-			themeList.sort = this.applicationSorter;	
-			themeList.refresh();
-			this.applicationThemeRepeater.dataProvider = themeList;
-			themeList.refresh();
-			this.applicationRepeater.dataProvider = preparedAppList;
-			preparedAppList.refresh();
-			this.chosenThemeLabel.text = "";
-			libraryDesign.visible = false;
-			libraryDesign.includeInLayout = false;
 
-			seqAppBox.styleName="normalBox";
-			
-			checkSeqAppSetupCompleteness();
+			// Only initialize the categories and answers for the "Select an sequencing experiment type" question
+			// if the state of the "Sample Details" tab (SampleSetupView) has changed.
+			if (parentDocument.sampleSetupView.currentState != previousSampleSetupState) {
+				previousSampleSetupState = parentDocument.sampleSetupView.currentState;
+				this.codeRequestCategoryInitted = parentDocument.getRequestCategory().@codeRequestCategory;
+				this.seqPrepByCoreInitted = localPrepByCore;
+				this.idLabInitted = parentDocument.getIdLab();
+
+				parentDocument.filteredAppList.refresh();
+
+				// Map the apps by theme
+				this.applicationThemeRepeater.dataProvider = null;
+				this.applicationRepeater.dataProvider = null;
+				var themeMap:Array = new Array();
+				preparedAppList = new XMLListCollection();
+				for each(var item:Object in parentDocument.filteredAppList) {
+					var de:XMLList = parentApplication.dictionaryManager.getEntry("hci.gnomex.model.ApplicationTheme", item.@idApplicationTheme);
+					if (de.length() >= 1) {
+						themeMap[item.@idApplicationTheme.toString()] = de[0];
+					}
+					if (priceMap != null && priceMap[item.@codeApplication.toString()] != null && localPrepByCore == 'Y') {
+						item.@price = priceMap[item.@codeApplication.toString()];
+					} else {
+						item.@price = "";
+					}
+					preparedAppList.addItem(item.copy());
+				}
+
+				if(this.samplesToBePreppedCheckbox.selected){
+					preparedAppList.sort = this.applicationSorterAlphabet;
+					preparedAppList.refresh();
+				}
+
+				themeList = new XMLListCollection();
+				for each(var theme:Object in themeMap) {
+					themeList.addItem(theme);
+				}
+
+				themeList.sort = this.applicationSorter;
+				themeList.refresh();
+				this.applicationThemeRepeater.dataProvider = themeList;
+				themeList.refresh();
+				this.applicationRepeater.dataProvider = preparedAppList;
+				preparedAppList.refresh();
+				this.chosenThemeLabel.text = "";
+				libraryDesign.visible = false;
+				libraryDesign.includeInLayout = false;
+
+				seqAppBox.styleName="normalBox";
+
+				checkSeqAppSetupCompleteness();
+			}
 		}
 		
 		private function sortApplicationsOnOrder(obj1:Object, obj2:Object, fields:Array = null):int{
