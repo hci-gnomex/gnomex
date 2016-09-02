@@ -84,6 +84,7 @@ public class DownloadProductOrderSingleFileServlet extends HttpServlet {
         // Get the dir parameter
         if (req.getParameter("dir") != null && !req.getParameter("dir").equals("")) {
             dir = req.getParameter("dir");
+            dir.replace("\\", "/");
         }
         // Get the view flag
         if (req.getParameter("view") != null && !req.getParameter("view").equals("")) {
@@ -299,11 +300,7 @@ public class DownloadProductOrderSingleFileServlet extends HttpServlet {
 
     private FileDescriptor recurseGetMatchingFileDescriptor(FileDescriptor fd, String fileName, String theDirectory) {
         // Change all backslash to forward slash for comparison
-        //String fdFileName = fd.getFileName().replaceAll("\\\\", "/");
-//        if ( dir != null ) {
-//            dir = dir.replace("\\", "/");
-//        }
-        // theDirectory = theDirectory.replace("\\", "/");
+         theDirectory = theDirectory.replace("\\", "/");
 
         if (fd.getFileName().endsWith(fileName) && dir.equals(theDirectory)) {
             return fd;

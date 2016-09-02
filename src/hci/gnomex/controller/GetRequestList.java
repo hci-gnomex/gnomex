@@ -228,7 +228,7 @@ public class GetRequestList extends GNomExCommand implements Serializable {
       }
     }
     else {
-      maxRequests = 2000000;
+      maxRequests = Integer.MAX_VALUE;
     }
     return maxRequests;
   }
