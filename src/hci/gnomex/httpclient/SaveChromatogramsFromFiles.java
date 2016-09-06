@@ -40,7 +40,7 @@ private StringBuffer errors;
 private int numerrors;
 private boolean noemail = false;
 private String toAddress = "Tim.Maness@hci.utah.edu;LabTech_Group@genetics.utah.edu";
-private String fromAddress = "GNomExSupport@hci.utah.edu";
+private String fromAddress = "gnomex.support@hci.utah.edu";
 
 /**
  * @param args
