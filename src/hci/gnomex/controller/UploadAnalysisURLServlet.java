@@ -5,6 +5,7 @@ import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.PropertyDictionaryHelper;
 import hci.gnomex.utility.ServletUtil;
+import org.apache.log4j.Logger;
 import org.hibernate.Session;
 
 import javax.servlet.ServletException;
@@ -20,6 +21,8 @@ public class UploadAnalysisURLServlet extends HttpServlet {
 
 	private Analysis analysis;
 	private String fileName;
+
+	private static final Logger LOG = Logger.getLogger(UploadAnalysisURLServlet.class);
 
 	protected void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
 
@@ -63,12 +66,13 @@ public class UploadAnalysisURLServlet extends HttpServlet {
 			res.getOutputStream().println("<UploadAnalysisURL url='" + URL + "'/>");
 
 		} catch (Exception e) {
-			System.out.println("An error has occured in UploadAnalysisURLServlet - " + e.toString());
+			LOG.error("An exception has occurred in UploadAnalysisURLServlet ", e);
 		} finally {
 			if (sess != null) {
 				try {
 					HibernateSession.closeSession();
 				} catch (Exception e) {
+					LOG.error("An exception has occurred in UploadAnalysisURLServlet ", e);
 				}
 			}
 		}

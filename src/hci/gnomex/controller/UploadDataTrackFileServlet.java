@@ -29,7 +29,6 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -49,6 +48,7 @@ import com.oreilly.servlet.multipart.FilePart;
 import com.oreilly.servlet.multipart.MultipartParser;
 import com.oreilly.servlet.multipart.ParamPart;
 import com.oreilly.servlet.multipart.Part;
+import org.apache.log4j.Logger;
 
 public class UploadDataTrackFileServlet extends HttpServlet {
 
@@ -63,6 +63,8 @@ public class UploadDataTrackFileServlet extends HttpServlet {
 
 	// fields for bulkUploading
 	private static final Pattern BULK_UPLOAD_LINE_SPLITTER = Pattern.compile("([^\\t]+)\\t([^\\t]+)\\t([^\\t]+)\\t(.+)", Pattern.DOTALL);
+
+	private static Logger LOG = Logger.getLogger(UploadDataTrackFileServlet.class);
 
 	protected void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
 	}
@@ -219,8 +221,7 @@ public class UploadDataTrackFileServlet extends HttpServlet {
 						uploadBulkDataTracks(sess, tempBulkUploadFile, dataTrack, ag, res);
 						if (tempBulkUploadFile.exists()) {
 							if (!tempBulkUploadFile.delete()) {
-								Logger.getLogger(this.getClass().getName()).log(Level.WARNING,
-										"Unable to delete file " + tempBulkUploadFile.getName() + " during bulk upload.");
+								LOG.warn("Unable to delete file " + tempBulkUploadFile.getName() + " during bulk upload.");
 							}
 							break;
 						}
@@ -250,7 +251,7 @@ public class UploadDataTrackFileServlet extends HttpServlet {
 						// check size of text files
 						if (DataTrackUtil.tooManyLines(file)) {
 							if (!file.delete()) {
-								Logger.getLogger(this.getClass().getName()).log(Level.WARNING, "Unable to delete file " + file.getName() + ".");
+								LOG.warn("Unable to delete file " + file.getName() + ".");
 							}
 							throw new Exception("Aborting upload, text formatted dataTrack file '" + dataTrack.getName()
 									+ " exceeds the maximum allowed size (" + Constants.MAXIMUM_NUMBER_TEXT_FILE_LINES
@@ -267,6 +268,7 @@ public class UploadDataTrackFileServlet extends HttpServlet {
 									throw new Exception("Errors found with bam file -> " + fileName + ". Aborting upload. " + error);
 								}
 							} catch (Exception e) {
+								LOG.error("Error in UploadDataTrackFileServlet", e);
 								throw new Exception("Bypassing upload of BAM file " + file.getName() + ". Unexpected error encountered " + e.toString());
 							}
 						}
@@ -285,8 +287,8 @@ public class UploadDataTrackFileServlet extends HttpServlet {
 			writer.write(doc);
 
 		} catch (Exception e) {
+			LOG.error("Error in UploadDataTrackFileServlet", e);
 			HibernateSession.rollback();
-			Logger.getLogger(this.getClass().getName()).warning(e.getMessage());
 
 			sess.flush();
 			res.addHeader("message", e.getMessage());
@@ -303,6 +305,7 @@ public class UploadDataTrackFileServlet extends HttpServlet {
 				try {
 					HibernateSession.closeSession();
 				} catch (Exception e) {
+					LOG.error("Error in UploadDataTrackFileServlet", e);
 				}
 			}
 			res.setHeader("Cache-Control", "max-age=0, must-revalidate");
@@ -453,12 +456,14 @@ public class UploadDataTrackFileServlet extends HttpServlet {
 			}
 
 		} catch (Exception e) {
+			LOG.error("Error in UploadDataTrackFileServlet", e);
 			throw e;
 		} finally {
 			if (in != null)
 				try {
 					in.close();
 				} catch (IOException e) {
+					LOG.error("Error in UploadDataTrackFileServlet", e);
 					throw e;
 				}
 		}
@@ -548,13 +553,14 @@ public class UploadDataTrackFileServlet extends HttpServlet {
 			}
 
 		} catch (Exception e) {
+			LOG.error("Error in UploadDataTrackFileServlet", e);
 
 		} finally {
 			if (in != null)
 				try {
 					in.close();
 				} catch (IOException e) {
-
+					LOG.error("Error in UploadDataTrackFileServlet", e);
 				}
 		}
 		return null;

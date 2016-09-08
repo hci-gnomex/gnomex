@@ -91,6 +91,7 @@ public class SaveVisibility extends GNomExCommand implements Serializable {
       try {
         HibernateSession.closeSession();
       } catch (Exception e) {
+        LOG.error("An exception has occurred in SaveVisibility ", e);
 
       }
     }

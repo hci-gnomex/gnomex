@@ -324,6 +324,7 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
 			try {
 				this.getSecAdvisor().closeHibernateSession();
 			} catch (Exception e) {
+				LOG.error("Error in getAnalysisDownloadList", e);
 
 			}
 		}

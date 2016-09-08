@@ -12,9 +12,11 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.log4j.Logger;
 import org.hibernate.Session;
 
 public class GetPurchaseOrderForm extends HttpServlet {
+	private static Logger LOG = Logger.getLogger(GetPurchaseOrderForm.class);
 	private Integer idBillingAccount;
 
 	protected void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
@@ -76,13 +78,14 @@ public class GetPurchaseOrderForm extends HttpServlet {
 
 			return;
 		} catch (Exception e) {
+			LOG.error("Error in get purchase order form", e);
 			HibernateSession.rollback();
 
 		} finally {
 			try {
 				HibernateSession.closeSession();
 			} catch (Exception e) {
-
+				LOG.error("Error in get purchase order form", e);
 			}
 		}
 	}

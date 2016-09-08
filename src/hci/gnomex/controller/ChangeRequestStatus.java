@@ -183,7 +183,6 @@ public class ChangeRequestStatus extends GNomExCommand implements Serializable {
 
     } catch (Exception e) {
       LOG.error("An exception has occurred in ChangeRequestStatus ", e);
-      ;
       throw new RollBackCommandException(e.toString());
     } finally {
       try {
@@ -192,6 +191,7 @@ public class ChangeRequestStatus extends GNomExCommand implements Serializable {
           HibernateSession.closeSession();
         }
       } catch (Exception e) {
+        LOG.error("Error in ChangeRequestStatus: ", e);
 
       }
     }

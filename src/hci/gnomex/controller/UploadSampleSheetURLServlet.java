@@ -69,6 +69,7 @@ public class UploadSampleSheetURLServlet extends HttpServlet {
                     HibernateSession.closeSession();
                 }
             } catch (Exception e) {
+                LOG.error("An error occurred in UploadSampleSheetURLServlet", e);
             }
         }
     }

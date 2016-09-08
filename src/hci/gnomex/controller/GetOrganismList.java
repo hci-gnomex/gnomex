@@ -96,7 +96,7 @@ public class GetOrganismList extends GNomExCommand implements Serializable {
       try {
         this.getSecAdvisor().closeReadOnlyHibernateSession();
       } catch (Exception e) {
-
+        LOG.error("An exception has occurred in GetOrganismList ", e);
       }
     }
 

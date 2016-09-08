@@ -403,7 +403,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
 			try {
 				this.getSecAdvisor().closeReadOnlyHibernateSession();
 			} catch (Exception e) {
-
+				LOG.error("Error in getRequestDownloadList", e);
 			}
 		}
 
@@ -772,6 +772,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
 						sortc1 = new Integer(tokens[1]);
 						sortb1 = tokens[0];
 					} catch (Exception e) {
+						LOG.error("Error in getRequestDownloadList", e);
 						sortc1 = new Integer(0);
 						sortb1 = key1;
 					}
@@ -787,6 +788,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
 						sortb2 = tokens[0];
 
 					} catch (Exception e) {
+						LOG.error("Error in getRequestDownloadList", e);
 						sortc2 = new Integer(2);
 						sortb2 = key2;
 
@@ -855,6 +857,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
 					try {
 						new Integer(number1);
 					} catch (Exception e) {
+						LOG.error("Error in getRequestDownloadList", e);
 						number1 = "1";
 					}
 				} else {
@@ -881,6 +884,7 @@ public class GetRequestDownloadList extends GNomExCommand implements Serializabl
 					try {
 						new Integer(number2);
 					} catch (Exception e) {
+						LOG.error("Error in getRequestDownloadList", e);
 						number2 = "1";
 					}
 				} else {

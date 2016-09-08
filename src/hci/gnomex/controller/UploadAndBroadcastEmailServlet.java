@@ -22,6 +22,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.log4j.Logger;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
@@ -43,6 +44,7 @@ public class UploadAndBroadcastEmailServlet extends HttpServlet {
 	private String serverName;
 
 	private static final int STATUS_ERROR = 999;
+	private static final Logger LOG = Logger.getLogger(UploadAndBroadcastEmailServlet.class);
 
 	protected void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
 		doPost(req, res);
@@ -241,15 +243,15 @@ public class UploadAndBroadcastEmailServlet extends HttpServlet {
 			res.setStatus(HttpServletResponse.SC_ACCEPTED);
 
 		} catch (Exception e) {
+			LOG.error("An exception has occurred in UploadAndBroadcastEmailServlet ", e);
 			res.setStatus(STATUS_ERROR);
-			System.out.println(e.toString());
 
 			throw new ServletException("Unable to send broadcast email due to a server error.  Please contact GNomEx support.");
 		} finally {
 			try {
 				HibernateSession.closeSession();
 			} catch (Exception e1) {
-				System.out.println("UploadAndBroadcaseEmailServlet warning - cannot close hibernate session");
+				LOG.error("An exception has occurred in UploadAndBroadcastEmailServlet ", e1);
 			}
 		}
 

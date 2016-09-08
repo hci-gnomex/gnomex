@@ -995,7 +995,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 					HibernateSession.closeSession();
 				}
 			} catch (Exception e) {
-
+				LOG.error("An exception has occurred in SaveRequest ", e);
 			}
 		}
 
@@ -1020,7 +1020,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 					} catch (Exception e) {
 						String msg = "Unable to send confirmation email notifying submitter that request " + requestParser.getRequest().getNumber()
 								+ " has been submitted.  " + e.toString();
-						LOG.error(msg);
+						LOG.error(msg, e);
 						message.append(msg + "\n");
 					}
 				} else {
@@ -1064,7 +1064,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 					} catch (Exception e) {
 						String msg = "Unable to send estimated charges notification for request " + requestParser.getRequest().getNumber() + "  "
 								+ e.toString();
-						LOG.error(msg);
+						LOG.error(msg, e);
 						message.append(msg + "\n");
 					}
 				} else {
@@ -1149,7 +1149,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 				}
 
 			} catch (Exception e) {
-
+				LOG.error("An exception has occurred in SaveRequest ", e);
 			} finally {
 				try {
 					if (sessGuest != null) {
@@ -1158,6 +1158,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 						// this.getSecAdvisor().closeReadOnlyHibernateSession();
 					}
 				} catch (Exception e) {
+					LOG.error("An exception has occurred in SaveRequest ", e);
 				}
 			}
 
@@ -2712,7 +2713,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 					DictionaryHelper.getInstance(sess), serverName);
 			MailUtil.validateAndSendEmail(helper);
 		} catch (Exception e) {
-
+			LOG.error("An exception has occurred in SaveRequest ", e);
 		}
 
 	}

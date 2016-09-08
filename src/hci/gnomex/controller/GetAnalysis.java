@@ -253,6 +253,7 @@ public class GetAnalysis extends GNomExCommand implements Serializable {
 			try {
 				this.getSecAdvisor().closeReadOnlyHibernateSession();
 			} catch (Exception e) {
+				LOG.error("Error in getAnalysis", e);
 
 			}
 		}

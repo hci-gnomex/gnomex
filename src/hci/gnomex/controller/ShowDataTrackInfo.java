@@ -180,7 +180,7 @@ public class ShowDataTrackInfo extends GNomExCommand implements Serializable {
 			this.xmlResult = doc.asXML();
 
 		} catch (Exception e) {
-
+			LOG.error("An exception has occurred in ShowDataTrackInfo ", e);
 
 			Document doc = DocumentHelper.createDocument();
 
