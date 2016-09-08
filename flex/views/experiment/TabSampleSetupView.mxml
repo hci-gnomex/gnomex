@@ -1459,8 +1459,8 @@
 						lowerThanMinError="This field is required."
 						property="selectedIndex"
 						minValue="1" />
-	<mx:StringValidator	id="samplePrepValidator" 
-						source="{this.otherSamplePrepMethod}" 
+	<mx:StringValidator	id="samplePrepValidator"
+						source="{this.otherSamplePrepMethod}"
 						property="text"
 						required ="true"
 						/>
@@ -1546,13 +1546,13 @@
 			<mx:HBox horizontalGap="0" id="samplePurificationContainer" paddingRight="4" verticalAlign="top">
 				<mx:Text text="(4) Please provide details on Sample Purification methods:" width="300"/>
 				<mx:VBox verticalAlign="middle">
-					<mx:HBox>
+					<mx:HBox styleName="requiredBox" id="reagentBox">
 						<mx:Label text="(a) Specify the kit or reagents used for purification of the samples you will be submitting"/>
-						<mx:TextInput id="reagentInput" focusOut="{propagateReagent(); this.checkSampleSetupCompleteness();}" />
+						<mx:TextInput id="reagentInput" focusOut="{propagateReagent(); this.checkSampleSetupCompleteness(); reagentInput.text.length > 0 ? reagentBox.styleName = 'normalBox' : reagentBox.styleName='requiredBox'}" />
 					</mx:HBox>
-					<mx:HBox>
+					<mx:HBox styleName="requiredBox" id="elutionBox">
 						<mx:Label text="(b) Specify the Elution Buffer used for purification of the samples you will be submitting"/>
-						<mx:TextInput id="elutionBufferInput" focusOut="{propagateElutionBuffer(); this.checkSampleSetupCompleteness();}" />
+						<mx:TextInput id="elutionBufferInput" focusOut="{propagateElutionBuffer(); this.checkSampleSetupCompleteness(); elutionBufferInput.text.length > 0 ? elutionBox.styleName = 'normalBox' : elutionBox.styleName='requiredBox'}" />
 					</mx:HBox>
 					<mx:HBox id="dnaseBox" includeInLayout="false" visible="false">
 						<mx:Label text="(c) Click if RNA samples were treated with DNase" id="dnaseLabel"/>
@@ -1566,18 +1566,20 @@
 			</mx:HBox>
 			<mx:HBox horizontalGap="0" id="leftOverSampleContainer" paddingRight="4" verticalAlign="top">
 				<mx:Text text="(5) Would you like to retrieve leftover sample from the core facility following completion of the work?" width="300"/>
-				<mx:VBox>
-					<mx:RadioButtonGroup id="retrieveSamplesRadioGroup" change="{propagateKeepSamples(); this.checkSampleSetupCompleteness()}"/>
+				<mx:VBox styleName="requiredBox" id="retrieveSamplesBox">
+					<mx:RadioButtonGroup id="retrieveSamplesRadioGroup" change="{propagateKeepSamples(); this.checkSampleSetupCompleteness(); retrieveSamplesRadioGroup.selectedValue != null ? retrieveSamplesBox.styleName = 'normalBox' : retrieveSamplesBox.styleName = 'requiredBox' }"/>
 					<mx:RadioButton groupName="retrieveSamplesRadioGroup" value="Y" label="Yes (leftover samples will be retained for 90 days)" id="keep"/>
 					<mx:RadioButton groupName="retrieveSamplesRadioGroup" value="N" label="No (leftover samples will be discarded)" id="dontKeep"/>
 				</mx:VBox>
 			</mx:HBox>
 			<mx:HBox horizontalGap="0" id="samplePrepContainer" paddingRight="4" verticalAlign="middle">
 				<util:ContextHelp context1="sampleDetailsNucleicAcidExtraction" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Nucleic Acid Extraction Help"
-								  label="(6) Specify the nucleic acid extraction method. (required)." labelPlacement="left" id="label2" width="350"/>
-				<mx:TextInput width="300" id="otherSamplePrepMethod"
-							  change="{propagateOtherSamplePrepMethod();checkSampleSetupCompleteness();parentDocument.samplesView.initializeSamplesGrid();}"
-							  maxChars="50"/>
+								  label="(6) Specify the nucleic acid extraction method." labelPlacement="left" id="label2" width="350"/>
+				<mx:HBox styleName="requiredBox">
+					<mx:TextInput width="300" id="otherSamplePrepMethod"
+								  change="{propagateOtherSamplePrepMethod();checkSampleSetupCompleteness();parentDocument.samplesView.initializeSamplesGrid();}"
+								  maxChars="50"/>
+				</mx:HBox>
 			</mx:HBox>
 		</mx:VBox>
 		<mx:Spacer height="10" />
