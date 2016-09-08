@@ -130,7 +130,7 @@
 				
 				var params:Object = new Object();
 				params.idAnalysis = analysis.@idAnalysis;
-				params.includeUploadStagingDir = 'Y';
+				params.includeUploadStagingDir = 'N';
 				params.autoCreate = 'Y';
 				
 				if (parentApplication.needToLoadAnalysis(params)) {
@@ -158,7 +158,7 @@
 			private function refreshDownloadView(e:CloseEvent):void {
 				var params:Object = new Object();
 				params.idAnalysis = analysis.@idAnalysis;
-				params.includeUploadStagingDir = 'Y';
+				params.includeUploadStagingDir = 'N';
 				params.autoCreate = 'Y';
 				if (parentApplication.needToLoadAnalysis(params)) {				
 					filesView.getAnalysisDownloadList.send(params);

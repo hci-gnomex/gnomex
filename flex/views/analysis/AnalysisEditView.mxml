@@ -255,7 +255,7 @@
 				
 				var params:Object = new Object();
 				params.idAnalysis = analysis.@idAnalysis;
-				params.includeUploadStagingDir = 'Y';
+				params.includeUploadStagingDir = 'N';
 				if (parentApplication.needToLoadAnalysis(params)) {				
 					filesView.getAnalysisDownloadList.send(params);
 				}
@@ -276,7 +276,7 @@
 			public function refreshDownloadView(e:CloseEvent):void {
 				var params:Object = new Object();
 				params.idAnalysis = analysis.@idAnalysis;
-				params.includeUploadStagingDir = 'Y';
+				params.includeUploadStagingDir = 'N';
 				if (parentApplication.needToLoadAnalysis(params)) {				
 					filesView.getAnalysisDownloadList.send(params);
 				}
@@ -577,7 +577,7 @@
 				analysis = getAnalysis.lastResult.Analysis.(@idAnalysis == analysis.@idAnalysis);
 				var params:Object = new Object();
 				params.idAnalysis = analysis.@idAnalysis;
-				params.includeUploadStagingDir = 'Y';
+				params.includeUploadStagingDir = 'N';
 				if (parentApplication.needToLoadAnalysis(params)) {
 				filesView.getAnalysisDownloadList.send(params);
 				}

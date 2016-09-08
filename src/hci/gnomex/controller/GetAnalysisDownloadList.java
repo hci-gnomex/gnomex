@@ -48,7 +48,7 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
 	private static Logger LOG = Logger.getLogger(GetAnalysisDownloadList.class);
 
 	private AnalysisGroupFilter filter;
-	private String includeUploadStagingDir = "Y";
+	private String includeUploadStagingDir = "N";
 
 	private String serverName;
 	private String baseDir;
@@ -377,7 +377,7 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
 			List theFiles = (List) directoryMap.get(directoryKey);
 
 			// For each file in the directory
-			if (theFiles != null && theFiles.size() > 0 && !directoryName.equals( Constants.UPLOAD_STAGING_DIR)) {
+			if (theFiles != null && theFiles.size() > 0 ) {
 				for (Iterator i2 = theFiles.iterator(); i2.hasNext();) {
 					FileDescriptor fd = (FileDescriptor) i2.next();
 					fd.setQualifiedFilePath(directoryName);

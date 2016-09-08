@@ -240,7 +240,7 @@
 		          	downloadTree.expandItem(downloadList.getItemAt(0),true); 
 					for each(var a:Object in getAnalysisDownloadList.lastResult..FileDescriptor) {
 		    	        downloadTree.expandItem(a,true);
-		        	    count++;
+						count++;
 		            	if (count>=maxFiles){
 		              	break;
           		 		}
