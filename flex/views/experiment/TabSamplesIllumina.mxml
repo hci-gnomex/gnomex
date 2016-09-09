@@ -790,6 +790,10 @@
 					parentDocument.confirmView.showHideColumns();
 				}
 			}
+			if (isExternal) {
+				textarea1.setVisible(false);
+				textarea1.includeInLayout = false;
+			}
 		}
 
 		private function areAandBTagsUnique():Boolean {
@@ -1003,7 +1007,6 @@
 
 			}
 		}
-
 		]]>
 	</mx:Script>	
 	<mx:Sort id="barcodeSort"  compareFunction="sortBarcodes"/>
@@ -1012,7 +1015,7 @@
 
 	<mx:VBox width="100%" height="100%" verticalGap="1" paddingBottom="2" paddingLeft="4" paddingRight="4" paddingTop="2">
 
-		<mx:VBox verticalGap="5">
+		<mx:VBox>
 			<mx:TextArea styleName="instructionBox" width="1230" wordWrap="true" id="textarea1" height="120" editable="false" verticalScrollPolicy="off" fontSize="11">
 				<mx:htmlText><![CDATA[1.  Assign a multiplex group number for each sample in the table below. Samples that are to be sequenced in the same lane should be assigned the same multiplex group number.
 2.  Provide a name for each sample.
