@@ -131,6 +131,7 @@
 				var params:Object = new Object();
 				params.idAnalysis = analysis.@idAnalysis;
 				params.includeUploadStagingDir = 'N';
+
 				params.autoCreate = 'Y';
 				
 				if (parentApplication.needToLoadAnalysis(params)) {

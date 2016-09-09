@@ -520,7 +520,7 @@
 			public function refreshDownloadView(e:CloseEvent):void {
 				var params:Object = new Object();
 				params.idAnalysis = e.detail;
-				params.includeUploadStagingDir = 'N';
+				params.includeUploadStagingDir = 'N'; 
 				params.autoCreate = 'Y';
 //				if (parentApplication.needToLoadAnalysis(params)) {				
 				getAnalysisDownloadList.send(params);

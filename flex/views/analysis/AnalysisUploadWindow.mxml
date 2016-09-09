@@ -121,6 +121,7 @@
 				var params:Object = new Object();
 				params.idAnalysis = idAnalysis.toString();
 				params.includeUploadStagingDir = 'N';
+				params.skipUploadStagingDirFiles = 'Y';
 				getAnalysisDownloadList.send(params);
         
         		refreshUploadFiles();
@@ -136,6 +137,7 @@
 				var params:Object = new Object();
 				params.idAnalysis = idAnalysis.toString(); 
 				params.includeUploadStagingDir = 'N';
+				params.skipUploadStagingDirFiles = 'Y';
 				getAnalysisDownloadList.send(params);
         
 			}

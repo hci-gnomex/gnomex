@@ -49,6 +49,7 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
 
 	private AnalysisGroupFilter filter;
 	private String includeUploadStagingDir = "N";
+	private String skipUploadStagingDirFiles = "N";
 
 	private String serverName;
 	private String baseDir;
@@ -67,6 +68,10 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
 
 		if (request.getParameter("includeUploadStagingDir") != null && !request.getParameter("includeUploadStagingDir").equals("")) {
 			includeUploadStagingDir = request.getParameter("includeUploadStagingDir");
+		}
+
+		if (request.getParameter("skipUploadStagingDirFiles") != null && !request.getParameter("skipUploadStagingDirFiles").equals("")) {
+			skipUploadStagingDirFiles = request.getParameter("skipUploadStagingDirFiles");
 		}
 
 		if (request.getParameter("idAnalysis") != null) {
@@ -192,7 +197,6 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
 						if (dirTokens.length > 1) {
 							directoryName = dirTokens[1];
 						}
-
 						viewType = Constants.DOWNLOAD_ANALYSIS_SINGLE_FILE_SERVLET + "?idAnalysis=" + a.getIdAnalysis();
 
 						// Show files uploads that are in the staging area.
@@ -209,11 +213,16 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
 						}
 
 						List theFiles = (List) directoryMap.get(directoryKey);
+
 						// For each file in the directory
 						for (Iterator i2 = theFiles.iterator(); i2.hasNext();) {
 							FileDescriptor fd = (FileDescriptor) i2.next();
 
 							AnalysisFile af = (AnalysisFile) knownAnalysisFileMap.get(fd.getQualifiedFileName());
+
+							if (fd.getDisplayName().equals(Constants.UPLOAD_STAGING_DIR) && skipUploadStagingDirFiles.equals("Y")){
+								continue;
+							}
 
 							Element fdNode = new Element("FileDescriptor");
 
@@ -377,7 +386,7 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
 			List theFiles = (List) directoryMap.get(directoryKey);
 
 			// For each file in the directory
-			if (theFiles != null && theFiles.size() > 0 ) {
+			if (theFiles != null && theFiles.size() > 0) {
 				for (Iterator i2 = theFiles.iterator(); i2.hasNext();) {
 					FileDescriptor fd = (FileDescriptor) i2.next();
 					fd.setQualifiedFilePath(directoryName);
@@ -447,7 +456,6 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
 					} else {
 						fdNode.setAttribute("hasDataTrack", "N");
 					}
-
 					recurseAddChildren(autocreate, fdNode, fd, fileMap, knownAnalysisFileMap, dataTrackMap, sess);
 
 					analysisDownloadNode.addContent(fdNode);
@@ -494,11 +502,11 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
 		} else if (fd.getChildren() == null || fd.getChildren().size() > 0) {
 			if (fd.getType() != null && fd.getType().equals("dir")) {
 				fdNode.setAttribute("isEmpty", "N");
+
 			}
 		}
 
 		for (Iterator i = fd.getChildren().iterator(); i.hasNext();) {
-
 			FileDescriptor childFd = (FileDescriptor) i.next();
 
 			childFd.setId(fd.getId());

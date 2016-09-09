@@ -430,8 +430,8 @@
 			public function showDownloadWindow():void {
 				var params:Object = new Object();
 				params.idProductOrder = productOrder.@idProductOrder;
-				params.includeUploadStagingDir = 'Y';
-				
+				params.includeUploadStagingDir = 'N';
+				params.skipUploadStagingDirFiles = 'Y';
 				downloadWindow = ProductOrderDownloadWindow(PopUpManager.createPopUp(parentApplication.theBody, ProductOrderDownloadWindow, true));
 				downloadWindow.downloadView = this;
 				downloadWindow.browseParameters = params;
