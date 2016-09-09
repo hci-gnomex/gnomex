@@ -239,7 +239,7 @@ public class EmailServlet extends GNomExCommand implements Serializable {
       try {
         HibernateSession.closeSession();        
       } catch (Exception e1) {
-        LOG.error("Error in emailServlet", e);
+        LOG.error("Error in emailServlet", e1);
       }
     }
     return this;

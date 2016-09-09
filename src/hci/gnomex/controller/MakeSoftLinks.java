@@ -161,6 +161,7 @@ public class MakeSoftLinks extends GNomExCommand implements Serializable {
 			Runtime.getRuntime().exec(cmd);
 			return true;
 		} catch (IOException e) {
+			LOG.error("Error in MakeSoftLinks", e);
 
 		}
 		return false;

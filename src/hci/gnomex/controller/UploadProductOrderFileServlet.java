@@ -270,7 +270,7 @@ public class UploadProductOrderFileServlet extends HttpServlet {
 			try {
 				HibernateSession.closeSession();
 			} catch (Exception e1) {
-				LOG.error("An exception has occurred in UploadProductOrderFileServlet ", e);
+				LOG.error("An exception has occurred in UploadProductOrderFileServlet ", e1);
 			}
 		}
 

@@ -263,7 +263,7 @@ public class UploadDataTrackFileServlet extends HttpServlet {
 								String error = DataTrackUtil.checkBamFile(file);
 								if (error != null) {
 									if (!file.delete()) {
-										Logger.getLogger(this.getClass().getName()).log(Level.WARNING, "Unable to delete file " + file.getName() + ".");
+										LOG.warn("Unable to delete file " + file.getName() + ".");
 									}
 									throw new Exception("Errors found with bam file -> " + fileName + ". Aborting upload. " + error);
 								}

@@ -139,6 +139,7 @@ public class ChangeProductOrderStatus extends GNomExCommand implements Serializa
       try {
         this.getSecAdvisor().closeHibernateSession();
       } catch (Exception e) {
+        LOG.error("Error in ChangeProductOrderStatus", e);
       }
     }
     return this;

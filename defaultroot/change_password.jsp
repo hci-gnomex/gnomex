@@ -7,6 +7,7 @@
 <%@ page import="hci.gnomex.utility.PropertyDictionaryHelper" %>
 <%@ page import="hci.gnomex.model.AppUser" %>
 <%@ page import="java.sql.Timestamp" %>;
+<%@ page import="org.apache.log4j.Logger" %>;
 <html>
 
 <head>
@@ -22,6 +23,7 @@
 </head>
 
 <%
+Logger LOG = Logger.getLogger("change_password.jsp");
 String message = (String) ((request.getAttribute("message") != null)?request.getAttribute("message"):"");
 Integer coreToPassThru = JspHelper.getIdCoreFacility(request);
 String idCoreParm = coreToPassThru == null?"":("?idCore=" + coreToPassThru.toString());
@@ -74,11 +76,13 @@ if(ts.after(au.getGuidExpiration())){
 }
    
 } catch (Exception e){
+    LOG.error("Error in change_password.jsp", e);
   message = "Cannot obtain property " + PropertyDictionary.UNIVERSITY_USER_AUTHENTICATION + " " + e.toString() + " sess=" + sess;
 } finally {
   try {
 	  HibernateSession.closeSession();
   } catch (Exception e) {
+      LOG.error("Error in change_password.jsp", e);
   }  
 }
 

@@ -65,7 +65,7 @@ public class SaveNotification extends GNomExCommand implements Serializable {
       try {
         HibernateSession.closeSession();        
       } catch(Exception e) {
-    	  System.out.println("Exception in SaveNotification : " + e);
+    	  LOG.error("Error in SaveNotification", e);
       }
     }
     

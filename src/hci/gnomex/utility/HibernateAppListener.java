@@ -1,6 +1,6 @@
 package hci.gnomex.utility;
 
-import java.util.logging.Logger;
+import org.apache.log4j.Logger;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
@@ -14,7 +14,7 @@ public class HibernateAppListener implements ServletContextListener {
 			Class.forName("hci.gnomex.utility.HibernateUtil").newInstance();
 			Logger.getLogger(this.getClass().getName()).info("HibernateUtil created.");
 		} catch (Exception e) {
-			Logger.getLogger(this.getClass().getName()).severe("FAILED HibernateAppListener.contextInitialize()");
+			Logger.getLogger(this.getClass().getName()).info("FAILED HibernateAppListener.contextInitialize()");
 		}
 	}
 
