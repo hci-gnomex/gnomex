@@ -269,13 +269,6 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
         // Default to Lab permission kind
         appUser.setCodeUserPermissionKind(UserPermissionKind.GROUP_PERMISSION_KIND);
 
-        // Set lab if selected
-        if (existingLab) {
-          HashSet labSet = new HashSet();
-          labSet.add(this.requestedLab);
-          appUser.setLabs(labSet);
-        }
-
         Timestamp ts = new Timestamp(System.currentTimeMillis() + PublicSaveSelfRegisteredAppUser.APPROVE_USER_EXPIRATION_TIME);
         appUser.setGuid((UUID.randomUUID().toString()));
         appUser.setGuidExpiration(ts);
@@ -456,7 +449,7 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
     String uuidStr = appUser.getGuid();
     String approveURL = "";
     if(existingLab){
-      approveURL = url + "/" + Constants.APPROVE_USER_SERVLET + "?guid=" + uuidStr + "&idAppUser=" + appUser.getIdAppUser().intValue();
+      approveURL = url + "/" + Constants.APPROVE_USER_SERVLET + "?guid=" + uuidStr + "&idAppUser=" + appUser.getIdAppUser().intValue() + "&requestedLabId=" + this.requestedLabId;
     } else{
       approveURL = url + "/" + Constants.APPROVE_USER_SERVLET + "?guid=" + uuidStr + "&idAppUser=" + appUser.getIdAppUser().intValue() + "&requestedLabName=" + this.requestedLabName + "&department=" + department + "&contactEmail=" + contactEmail + "&contactPhone=" + contactPhone + "&requestedLabFirstName=" + requestedLabFirstName ;
     }
