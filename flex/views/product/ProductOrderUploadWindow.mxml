@@ -133,6 +133,8 @@
 				var params:Object = new Object();
 				params.idProductOrder = idProductOrder;
 				params.includeUploadStagingDir = 'N';
+				params.skipUploadStagingDirFiles = 'Y';
+
 				getProductOrderDownloadList.send(params);
 				refreshUploadFiles();
 				this.addEventListener("refreshUploadFiles", onUploadFinished);
@@ -154,6 +156,8 @@
 				var params:Object = new Object();
 				params.idProductOrder = idProductOrder;
 				params.includeUploadStagingDir = 'N';
+				params.skipUploadStagingDirFiles = 'Y';
+
 				getProductOrderDownloadList.send(params);
 				
 			}
