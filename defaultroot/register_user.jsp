@@ -7,6 +7,7 @@
 <%@ page import="java.util.List" %>
 <%@ page import="hci.gnomex.utility.JspHelper" %>
 <%@ page import="hci.gnomex.utility.PropertyDictionaryHelper" %>
+<%@ page import="org.apache.log4j.Logger" %>
 <html>
 
 <head>
@@ -65,7 +66,7 @@
   }
 
 <%
-
+Logger LOG = Logger.getLogger("register_user.jsp");
 String idFacility = (String) ((request.getParameter("idFacility") != null)?request.getParameter("idFacility"):"");
 Integer coreToPassThru = JspHelper.getIdCoreFacility(request);
 String idCoreParm = coreToPassThru == null?"":("?idCore=" + coreToPassThru.toString());
@@ -171,11 +172,13 @@ try {
   labs = sess.createQuery("from Lab l where l.isActive = 'Y' order by l.lastName, l.firstName").list();
     
 } catch (Exception e){
+    LOG.error("Error in register_user.jsp", e);
   message = "Cannot obtain property " + PropertyDictionary.UNIVERSITY_USER_AUTHENTICATION + " " + e.toString() + " sess=" + sess;
 } finally {
   try {
     HibernateSession.closeSession();
   } catch (Exception e) {
+      LOG.error("Error in register_user.jsp", e);
   }  
 }
 

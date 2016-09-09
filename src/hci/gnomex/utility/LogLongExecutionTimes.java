@@ -7,14 +7,14 @@ import java.util.Date;
 import org.apache.log4j.Logger;
 
 public class LogLongExecutionTimes {
-  private Logger log;
+  private final static Logger LOG = Logger.getLogger(LogLongExecutionTimes.class);
   private long millisecondCutOff;
   private boolean doLog;
   private String descriptionPrefix;
   private ArrayList<LogItem> logItems = new ArrayList<LogItem>();
   
-  public LogLongExecutionTimes(Logger log, long millisecondCutOff, boolean doLog, String descriptionPrefix) {
-    init(log, millisecondCutOff, doLog, descriptionPrefix);
+  public LogLongExecutionTimes(long millisecondCutOff, boolean doLog, String descriptionPrefix) {
+    init(millisecondCutOff, doLog, descriptionPrefix);
   }
   
   public LogLongExecutionTimes(Logger log, PropertyDictionaryHelper dh, String descriptionPrefix) {
@@ -25,13 +25,13 @@ public class LogLongExecutionTimes {
       try {
         cutOff = Long.parseLong(cutOffString);
       } catch(Exception e) {
+        LOG.error("Error in LogLongExecutionTimes", e);
       }
     }
-    init(log, cutOff, enabled != null && enabled.toUpperCase().equals("Y"), descriptionPrefix);
+    init(cutOff, enabled != null && enabled.toUpperCase().equals("Y"), descriptionPrefix);
   }
   
-  private void init(Logger log, long millisecondCutOff, boolean doLog, String descriptionPrefix) {
-    this.log = log;
+  private void init(long millisecondCutOff, boolean doLog, String descriptionPrefix) {
     this.millisecondCutOff = millisecondCutOff;
     this.doLog = doLog;
     this.descriptionPrefix = descriptionPrefix;
@@ -94,7 +94,7 @@ public class LogLongExecutionTimes {
         } else {
           buf.append(i.getEndTime().toString());
         }
-        log.warn(buf.toString());
+        LOG.warn(buf.toString());
       }
     }
   }

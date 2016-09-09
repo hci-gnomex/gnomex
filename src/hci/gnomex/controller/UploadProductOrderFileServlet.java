@@ -270,7 +270,7 @@ public class UploadProductOrderFileServlet extends HttpServlet {
 			try {
 				HibernateSession.closeSession();
 			} catch (Exception e1) {
-				System.out.println("UploadProductOrderFileServlet warning - cannot close hibernate session");
+				LOG.error("An exception has occurred in UploadProductOrderFileServlet ", e1);
 			}
 		}
 

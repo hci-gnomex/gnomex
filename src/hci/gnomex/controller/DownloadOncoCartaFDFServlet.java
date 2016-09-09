@@ -96,8 +96,7 @@ public class DownloadOncoCartaFDFServlet extends HttpServlet {
             }
         } catch (Exception e) {
             response.setStatus(999);
-            System.out.println( "DownloadOncoCartaFDF: An exception occurred " + e.toString());
-
+            LOG.error("DownloadOncoCartaFDF: An exception occurred ", e);
         }
 
     }

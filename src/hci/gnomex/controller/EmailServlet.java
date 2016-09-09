@@ -232,14 +232,14 @@ public class EmailServlet extends GNomExCommand implements Serializable {
       }
      }
     }catch (Exception e) {
-      System.out.println(e.toString());
+      LOG.error("Error in emailServlet", e);
 
       throw new RollBackCommandException(e.getMessage());
     }  finally {
       try {
         HibernateSession.closeSession();        
       } catch (Exception e1) {
-        System.out.println("EmailServlet warning - cannot close hibernate session");
+        LOG.error("Error in emailServlet", e1);
       }
     }
     return this;

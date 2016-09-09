@@ -17,6 +17,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -42,6 +43,7 @@ public class UploadSampleSheetFileServlet extends HttpServlet {
 	private static final int ERROR_INVALID_TEMP_DIRECTORY = 901;
 	private static final int ERROR_SECURITY_EXCEPTION = 902;
 	private static final int ERROR_UPLOAD_MISC = 903;
+	private static final Logger LOG = Logger.getLogger(UploadSampleSheetFileServlet.class);
 
 	protected void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
 	}
@@ -222,6 +224,7 @@ public class UploadSampleSheetFileServlet extends HttpServlet {
 			res.setContentType("application/xml");
 			responseOut.println("<ERROR message=\"Illegal data\"/>");
 		} catch (Exception e) {
+			LOG.error("An error has occured in UploadSampleSheetFileServlet - " + e.toString(), e);
 			res.setStatus(ERROR_UPLOAD_MISC);
 
 			throw new ServletException("Unable to upload file " + fileName + " due to a server error.\n\n" + e.toString()
@@ -230,7 +233,7 @@ public class UploadSampleSheetFileServlet extends HttpServlet {
 			try {
 				HibernateSession.closeSession();
 			} catch (Exception e1) {
-				System.out.println("UploadSampleSheetFileServlet warning - cannot close hibernate session");
+				LOG.error("An error has occured in UploadSampleSheetFileServlet - " + e1.toString(), e1);
 			}
 		}
 

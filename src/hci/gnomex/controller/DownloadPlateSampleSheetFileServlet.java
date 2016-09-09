@@ -135,6 +135,7 @@ public class DownloadPlateSampleSheetFileServlet extends HttpServlet {
         System.out.println( "DownloadPlateSampleSheetFileServlet: You must have a SecurityAdvisor in order to run this command.");
       }
     } catch (Exception e) {
+        LOG.error("DownloadPlateSampleSheetFileServlet: An exception occurred ", e);
       HibernateSession.rollback();
       response.setContentType("text/html");
       response.getOutputStream().println(
@@ -145,13 +146,12 @@ public class DownloadPlateSampleSheetFileServlet extends HttpServlet {
               + "<br>");
       response.getOutputStream().println("</body>");
       response.getOutputStream().println("</html>");
-      System.out.println( "DownloadPlateSampleSheetFileServlet: An exception occurred " + e.toString());
 
     } finally {
       try {
         secAdvisor.closeHibernateSession();        
       } catch (Exception e) {
-        
+          LOG.error("DownloadPlateSampleSheetFileServlet: An exception occurred ", e);
       }
      
     }

@@ -273,6 +273,7 @@ public class DownloadABIRunFileServlet extends HttpServlet {
         System.out.println( "DownloadABIRunFileServlet: You must have a SecurityAdvisor in order to run this command.");
       }
     } catch (Exception e) {
+      LOG.error("Exception in DownloadABIRunFileServlet: ", e);
       HibernateSession.rollback();
       response.setContentType("text/html");
       response.getOutputStream().println(
@@ -283,13 +284,12 @@ public class DownloadABIRunFileServlet extends HttpServlet {
               + "<br>");
       response.getOutputStream().println("</body>");
       response.getOutputStream().println("</html>");
-      System.out.println( "DownloadABIRunFileServlet: An exception occurred " + e.toString());
 
     } finally {
       try {
         secAdvisor.closeHibernateSession();        
       } catch (Exception e) {
-        
+        LOG.error("Exception in DownloadABIRunFileServlet: ", e);
       }
       
      

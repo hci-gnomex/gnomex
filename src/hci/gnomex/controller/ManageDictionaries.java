@@ -92,7 +92,7 @@ public class ManageDictionaries extends DictionaryCommand implements Serializabl
         	action = request.getParameter("action");
         	}
         } catch (Exception e) {  
-
+            LOG.error("Error in ManageDictionaries", e);
         	} finally {
       try {
         HibernateSession.closeSession();
@@ -128,6 +128,7 @@ public class ManageDictionaries extends DictionaryCommand implements Serializabl
     	isLoaded = true;
 
     } catch (Exception e) {
+        LOG.error("Error in manageDictionaries", e);
 			String msg = e.getMessage();
 			String displayMsg = null;
 			if (e.getCause() != null && e.getCause() instanceof SQLException) {

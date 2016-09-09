@@ -656,7 +656,7 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
             this.getSecAdvisor().closeHibernateSession();
           }
         } catch (Exception e) {
-
+          LOG.error("An exception has occurred in OrganizeExperimentUploadFiles ", e);
         }
       }
 

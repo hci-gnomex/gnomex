@@ -105,6 +105,7 @@ public class HibernateSession {
 			try {
 				setAppName(s, null);
 			} catch (Exception e) {
+				LOG.error("Error in HibernateSession", e);
 			}
 
 			s.close();
@@ -119,6 +120,7 @@ public class HibernateSession {
 			try {
 				setAppName(s, null);
 			} catch (Exception e) {
+				LOG.error("Error in ChromatogramParser", e);
 			}
 
 			s.close();

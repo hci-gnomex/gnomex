@@ -312,6 +312,7 @@ public class MakeDataTrackIGVLink extends HttpServlet {
 			try {
 				secAdvisor.closeHibernateSession();
 			} catch (Exception e) {
+				LOG.error("An exception has occurred in MakeDataTrackIGVLinks ", e);
 			}
 		}
 	}
@@ -428,6 +429,7 @@ public class MakeDataTrackIGVLink extends HttpServlet {
 			}
 
 		} catch (Exception e) {
+			LOG.error("Error in MakeDataTrackIGVLink", e);
 			throw e;
 		}
 
@@ -453,7 +455,7 @@ public class MakeDataTrackIGVLink extends HttpServlet {
 			return true;
 
 		} catch (IOException e) {
-
+			LOG.error("Error in MakeDataTrackIGVLink", e);
 		}
 		return false;
 	}

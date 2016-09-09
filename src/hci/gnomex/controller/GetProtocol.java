@@ -210,18 +210,21 @@ public class GetProtocol extends GNomExCommand implements Serializable {
     try {
       o.canRead(this.getSecAdvisor().canRead(o));
     } catch (UnknownPermissionException e) {
+      LOG.error(e.getClass().toString() + ": " , e);
       o.canRead(false);
     }
 
     try {
       o.canUpdate(this.getSecAdvisor().canUpdate(o));
     } catch (UnknownPermissionException e) {
+      LOG.error(e.getClass().toString() + ": " , e);
       o.canUpdate(false);
     }
 
     try {
       o.canDelete(this.getSecAdvisor().canDelete(o));
     } catch (UnknownPermissionException e) {
+      LOG.error(e.getClass().toString() + ": " , e);
       o.canDelete(false);
     }
 

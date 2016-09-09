@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
 	layout="vertical" title="Send Email to all GNomEx Users" 
-	width="806" height="430"
+	width="906" height="430"
 	xmlns:util="views.util.*" 
 	initialize="init()"
 	defaultButton="{saveButton}" showCloseButton="true" 

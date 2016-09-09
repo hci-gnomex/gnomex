@@ -57,7 +57,6 @@ public class PDFFormatterUtil {
 			image.scaleAbsolute(width, height);
 			image.setAlignment(Element.ALIGN_CENTER);
 		} catch (Exception e) {
-
 		    image = null;
 		} 
 		

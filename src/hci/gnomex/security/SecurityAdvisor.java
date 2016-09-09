@@ -981,11 +981,13 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
             rs.close();
             stmt.close();
         } catch (Exception e) {
+            LOG.error("Error in SecurityAdvisor", e);
         } finally {
             if (needToCloseSession) {
                 try {
                     HibernateSession.closeSession();
                 } catch (Exception e) {
+                    LOG.error("Error in SecurityAdvisor", e);
                 }
             }
         }
@@ -1901,6 +1903,7 @@ public class SecurityAdvisor extends DetailObject implements Serializable, hci.f
                 }
             }
         } catch (Exception e){
+            LOG.error("Error in SecurityAdvisor", e);
         }
     }
 

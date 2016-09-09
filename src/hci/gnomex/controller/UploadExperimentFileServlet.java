@@ -261,7 +261,7 @@ public class UploadExperimentFileServlet extends HttpServlet {
 			try {
 				HibernateSession.closeSession();
 			} catch (Exception e1) {
-				System.out.println("UploadExperimentFileServlet warning - cannot close hibernate session");
+				LOG.error("An exception has occurred in UploadExperimentFileServlet ", e1);
 			}
 		}
 

@@ -323,6 +323,7 @@ public class DownloadSingleFileServlet extends HttpServlet {
         System.out.println( "DownloadSingleFileServlet: You must have a SecurityAdvisor in order to run this command.");
       }
     } catch (Exception e) {
+        LOG.error("DownloadSingleFileServlet: An exception occurred ", e);
       HibernateSession.rollback();
       response.setContentType("text/html");
       response.getOutputStream().println(
@@ -333,13 +334,13 @@ public class DownloadSingleFileServlet extends HttpServlet {
               + "<br>");
       response.getOutputStream().println("</body>");
       response.getOutputStream().println("</html>");
-      System.out.println( "DownloadSingleFileServlet: An exception occurred " + e.toString());
+
 
     } finally {
       try {
         secAdvisor.closeHibernateSession();
       } catch (Exception e) {
-
+          LOG.error("DownloadSingleFileServlet: An exception occurred ", e);
       }
 
       if (in != null) {

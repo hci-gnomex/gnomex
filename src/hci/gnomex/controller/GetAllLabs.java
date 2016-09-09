@@ -61,13 +61,13 @@ public class GetAllLabs extends GNomExCommand implements Serializable {
       setResponsePage(this.SUCCESS_JSP);
 
     } catch (Exception e) {
-
+      LOG.error("Error in get all labs", e);
 
     } finally {
       try {
         this.getSecAdvisor().closeReadOnlyHibernateSession();
       } catch (Exception e) {
-
+        LOG.error("Error in get all labs", e);
       }
     }
     return this;

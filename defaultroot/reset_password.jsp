@@ -4,6 +4,7 @@
 <%@ page import="hci.gnomex.controller.GNomExFrontController" %>
 <%@ page import="hci.gnomex.utility.JspHelper" %>
 <%@ page import="hci.gnomex.utility.PropertyDictionaryHelper" %>
+<%@ page import="org.apache.log4j.Logger" %>;
 <html>
 
 <head>
@@ -45,6 +46,7 @@
 
 
 <%
+    Logger LOG = Logger.getLogger("reset_password.jsp");
 String message = (String) ((request.getAttribute("message") != null)?request.getAttribute("message"):"");
 Integer coreToPassThru = JspHelper.getIdCoreFacility(request);
 String idCoreParm = coreToPassThru == null?"":("?idCore=" + coreToPassThru.toString());
@@ -74,11 +76,13 @@ try {
   siteLogo = PropertyDictionaryHelper.getSiteLogo(sess, coreToPassThru);
   
 } catch (Exception e){
+    LOG.error("Error in reset_password.jsp", e);
   message = "Cannot obtain property " + PropertyDictionary.UNIVERSITY_USER_AUTHENTICATION + " " + e.toString() + " sess=" + sess;
 } finally {
   try {
 	  HibernateSession.closeSession();
   } catch (Exception e) {
+      LOG.error("Error in reset_password.jsp", e);
   }  
 }
 

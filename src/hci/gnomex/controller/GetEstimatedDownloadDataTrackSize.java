@@ -116,6 +116,7 @@ public class GetEstimatedDownloadDataTrackSize extends GNomExCommand implements 
       try {
         this.getSecAdvisor().closeReadOnlyHibernateSession();
       } catch (Exception e) {
+        LOG.error("Error", e);
       }
     }
     return this;

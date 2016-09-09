@@ -114,6 +114,7 @@ public class ChromatogramParser extends DetailObject implements Serializable
         try {
           EmailHelper.sendRedoEmail(sess, req, secAdvisor, launchAppURL, appURL, serverName);          
         } catch (Exception e) {
+          LOG.error("Error in ChromatogramParser", e);
           LOG.warn("Cannot send confirmation email for request " + req.getNumber());
         }
     }
@@ -360,6 +361,7 @@ public class ChromatogramParser extends DetailObject implements Serializable
       try {
         EmailHelper.sendConfirmationEmail(sess, req, secAdvisor, launchAppURL, appURL, serverName);          
       } catch (Exception e) {
+        LOG.error("Error in ChromatogramParser", e);
         LOG.warn("Cannot send confirmation email for request " + req.getNumber());
       }
     

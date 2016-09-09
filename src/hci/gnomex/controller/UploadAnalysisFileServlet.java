@@ -23,6 +23,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.log4j.Logger;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
@@ -41,6 +42,8 @@ public class UploadAnalysisFileServlet extends HttpServlet {
 
 	private Analysis analysis;
 	private String fileName;
+
+	private static final Logger LOG = Logger.getLogger(UploadAnalysisFileServlet.class);
 
 	protected void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
 	}
@@ -289,16 +292,14 @@ public class UploadAnalysisFileServlet extends HttpServlet {
 			}
 
 		} catch (Exception e) {
+			LOG.error("An exception has occurred in UploadAnalysisFileServlet ", e);
 			HibernateSession.rollback();
-			System.out.println("UploadAnalysisFileServlet - unable to upload file " + fileName + " for analysis idAnalysis=" + idAnalysis);
-			System.out.println(e.toString());
-
 			throw new ServletException("Unable to upload file " + fileName + " due to a server error.  Please contact GNomEx support.");
 		} finally {
 			try {
 				HibernateSession.closeSession();
 			} catch (Exception e1) {
-				System.out.println("UploadAnalysisFileServlet warning - cannot close hibernate session");
+				LOG.error("An exception has occurred in UploadAnalysisFileServlet ", e1);
 			}
 		}
 

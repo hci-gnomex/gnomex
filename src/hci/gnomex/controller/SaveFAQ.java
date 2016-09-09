@@ -145,7 +145,7 @@ public class SaveFAQ extends GNomExCommand implements Serializable {
       try {
         HibernateSession.closeSession();        
       } catch(Exception e) {
-        System.out.println("EXCEPTION! : " + e);
+        LOG.error("Error in SaveFAQ", e);
       }
     }
 

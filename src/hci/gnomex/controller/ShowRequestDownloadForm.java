@@ -132,7 +132,7 @@ public class ShowRequestDownloadForm extends GNomExCommand implements Serializab
 					HibernateSession.closeSession();
 				}
 			} catch (Exception e) {
-
+				LOG.error("An exception has occurred in ShowRequestDownloadForm ", e);
 			}
 		}
 
