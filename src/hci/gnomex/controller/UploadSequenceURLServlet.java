@@ -5,6 +5,7 @@ import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.PropertyDictionaryHelper;
 import hci.gnomex.utility.ServletUtil;
+import org.apache.log4j.Logger;
 import org.hibernate.Session;
 
 import javax.servlet.ServletException;
@@ -14,7 +15,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 public class UploadSequenceURLServlet extends HttpServlet {
-
+	private static Logger LOG = Logger.getLogger(UploadSequenceURLServlet.class);
 	protected void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
 
 		// Restrict commands to local host if request is not secure
@@ -65,13 +66,14 @@ public class UploadSequenceURLServlet extends HttpServlet {
 			res.getOutputStream().println("<UploadURL url='" + URL + "'" + " fileExtensions='" + fileExtensions.toString() + "'" + "/>");
 
 		} catch (Exception e) {
-			System.out.println("An error has occured in UploadSequenceURLServlet - " + e.toString());
+			LOG.error("Error in UploadSequenceURLServlet", e);
 
 		} finally {
 			if (sess != null) {
 				try {
 					HibernateSession.closeSession();
 				} catch (Exception e) {
+					LOG.error("Error in UploadSequenceURLServlet", e);
 				}
 			}
 		}
