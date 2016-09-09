@@ -357,7 +357,7 @@
 				if (downloadTree != null && downloadList.length > 0) {
 					downloadTree.expandItem(downloadList.getItemAt(0),true); 
 					for each(var a:Object in getProductOrderDownloadList.lastResult..ProductOrder.FileDescriptor) {
-						//downloadTree.expandItem(a,true);
+						downloadTree.expandItem(a,true);
 						count++;
 						if (count>=maxFiles){
 							break;
