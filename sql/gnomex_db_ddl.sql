@@ -1816,6 +1816,7 @@ DROP TABLE IF EXISTS gnomex.LibraryPrepQCProtocol;
 CREATE TABLE LibraryPrepQCProtocol(
   idLibPrepQCProtocol INT(10) NOT NULL AUTO_INCREMENT,
   protocolDisplay VARCHAR(50) NOT NULL,
+  codeRequestCategory VARCHAR(10) NOT NULL,
   PRIMARY KEY (idLibPrepQCProtocol)
 );
 
@@ -2088,6 +2089,7 @@ CREATE TABLE gnomex.RequestSeqLibTreatment (
 )
 ENGINE = INNODB;
 
+
 DROP TABLE IF EXISTS gnomex.Sample;
 CREATE TABLE gnomex.Sample (
   idSample INT(10) NOT NULL AUTO_INCREMENT,
@@ -2142,6 +2144,8 @@ CREATE TABLE gnomex.Sample (
   groupName VARCHAR(200) NULL,
   qcCodeApplication VARCHAR(10) NULL,
   qcLibConcentration DECIMAL(8,1) NULL,
+  idLibPrepQCProtocol INT(10) NULL,
+  sampleVolume DECIMAL(8,1) NULL,
   idLibPrepPerformedBy INT(10) NULL,
   PRIMARY KEY (idSample),
   CONSTRAINT FK_Sample_Organism FOREIGN KEY FK_Sample_Organism (idOrganism)
@@ -2174,10 +2178,6 @@ CREATE TABLE gnomex.Sample (
     ON UPDATE NO ACTION,
   CONSTRAINT FK_Sample_Request FOREIGN KEY FK_Sample_Request (idRequest)
     REFERENCES gnomex.Request (idRequest)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT FK_Sample_AppUser FOREIGN KEY FK_Sample_AppUser (idAppUser)
-    REFERENCES gnomex.AppUser (idAppUser)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
 )
