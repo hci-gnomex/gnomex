@@ -454,10 +454,6 @@
 
 		private function updateApplicationOptions():void{
 			parentDocument.filteredAppList.refresh();
-			callLater(doWork);
-		}
-
-		private function doWork():void{
 			preparedAppList = new XMLListCollection();
 			var themeMap:Array = new Array();
 			themeList = new XMLListCollection();
@@ -492,7 +488,6 @@
 			this.chosenThemeLabel.text = "";
 			libraryDesign.visible = false;
 			libraryDesign.includeInLayout = false;
-
 		}
 
 		public function propagateSeqPrepByCore():void {
