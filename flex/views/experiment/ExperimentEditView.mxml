@@ -1875,15 +1875,19 @@
 
 				var doesMatchSeqPrepByCore:Boolean = false;
 				if (doesMatchRequestCategory) {
-					if (this.samples.length == 0 || this.getRequestCategory().@isIlluminaType != 'Y' || !parentApplication.isInternalExperimentSubmission) {
+					if (this.getRequestCategory().@isIlluminaType != 'Y' || !parentApplication.isInternalExperimentSubmission) {
 						doesMatchSeqPrepByCore = true;
 					} else {
-						for each (var sample:Object in samples) {
-							if ((sample.@seqPrepByCore == "Y" && item.@onlyForLabPrepped == "N") || sample.@seqPrepByCore == "N") {
-								doesMatchSeqPrepByCore = true;
-								break;
-							}
+						var newExperiment:Boolean = theTab.contains(seqSetupView);
+						var seqPrepByCore:Boolean;
+						if (newExperiment) {
+							// use the answer to the library prep question
+							seqPrepByCore = (seqSetupView.seqPrepRadioGroup.selectedValue == "Y");
+						} else {
+							// use the "seqPrepByCore" flag in the sample data
+							seqPrepByCore = (samples.length > 0 && samples[0].@seqPrepByCore == "Y");
 						}
+						doesMatchSeqPrepByCore = (item.@onlyForLabPrepped == "N" || !seqPrepByCore);
 					}
 				}
 				return doesMatchRequestCategory && doesMatchSeqPrepByCore;
