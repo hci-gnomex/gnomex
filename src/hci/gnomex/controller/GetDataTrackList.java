@@ -67,6 +67,7 @@ public class GetDataTrackList extends GNomExCommand implements Serializable {
 	    	  maxDataTracks = Integer.parseInt(prop);
 	      }
 	      catch(NumberFormatException e) {
+              LOG.error("An exception has occurred in GetDataTrackList ", e);
 	      }    
 	    }
 	    return maxDataTracks;

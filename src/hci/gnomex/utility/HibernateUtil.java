@@ -2,18 +2,22 @@ package hci.gnomex.utility;
 
 import java.sql.Connection;
 
+import org.apache.commons.logging.Log;
+import org.hibernate.Hibernate;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.MetadataSources;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.internal.SessionImpl;
 import org.hibernate.service.ServiceRegistry;
+import org.apache.log4j.Logger;
 
 
 
 public class HibernateUtil { 
 
     private static final SessionFactory sessionFactory;
+    private static final Logger LOG = Logger.getLogger(HibernateUtil.class);
 
     static {
         try {
@@ -54,7 +58,7 @@ public class HibernateUtil {
     catch (Exception e) {
         // The registry would be destroyed by the SessionFactory, but we had trouble building the SessionFactory
         // so destroy it manually.
-    	System.out.println ("\n[configureSessionFactory] ERROR: " + e + "\n");
+        LOG.error("Error in ChromatogramParser", e);
         StandardServiceRegistryBuilder.destroy( registry );
     }
 

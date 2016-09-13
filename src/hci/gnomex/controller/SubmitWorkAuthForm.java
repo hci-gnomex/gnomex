@@ -254,7 +254,7 @@ public class SubmitWorkAuthForm extends GNomExCommand implements Serializable {
     	MailUtil.validateAndSendEmail(helper);
     } catch (Exception e) {
         // DEAD CODE: Even when mail isn't sent, we don't seem to get an exception 
-        LOG.warn("Unable to send email notification to billing account submitter " + billingAccount.getSubmitterEmail() + " UID " + billingAccount.getSubmitterUID());
+        LOG.warn("Unable to send email notification to billing account submitter " + billingAccount.getSubmitterEmail() + " UID " + billingAccount.getSubmitterUID(), e);
         body.append("\n\n** NOTE:  GNomEx was unable to send email to submitter " + submitterEmail + " **");
     }
 

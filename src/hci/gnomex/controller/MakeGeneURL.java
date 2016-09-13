@@ -435,7 +435,7 @@ public class MakeGeneURL extends GNomExCommand implements Serializable {
 			  dir.mkdir();
 	  }
 	  catch (Exception e) {
-		  System.out.println ("[MakeGeneURL] Error in setupDirectories: " + e);		  
+	  	LOG.error("[MakeGeneURL] Error in setupDirectories: ", e);
 	  }
 	  
 	  return dir;

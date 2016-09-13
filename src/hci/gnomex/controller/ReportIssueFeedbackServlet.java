@@ -24,6 +24,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.log4j.Logger;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
@@ -50,6 +51,7 @@ public class ReportIssueFeedbackServlet extends HttpServlet {
 	private String serverName;
 
 	private static final int STATUS_ERROR = 999;
+	private static final Logger LOG = Logger.getLogger(ReportIssueFeedbackServlet.class);
 
 	protected void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
 		doPost(req, res);
@@ -155,8 +157,8 @@ public class ReportIssueFeedbackServlet extends HttpServlet {
 						outputfile = new File(absolutePath);
 
 					} catch (Exception e) {
+						LOG.error("Error in ReportIssueFeedbackServlet", e);
 						res.setStatus(STATUS_ERROR);
-						System.out.println(e.toString());
 
 						throw new ServletException("Failed to write screenshot to file.");
 
@@ -228,15 +230,16 @@ public class ReportIssueFeedbackServlet extends HttpServlet {
 			res.setStatus(HttpServletResponse.SC_ACCEPTED);
 
 		} catch (Exception e) {
+			LOG.error("Error in ReportIssueFeedback", e);
 			res.setStatus(STATUS_ERROR);
-			System.out.println(e.toString());
+
 
 			throw new ServletException("Unable to report issue due to a server error.  Please contact GNomEx support directly.");
 		} finally {
 			try {
 				HibernateSession.closeSession();
 			} catch (Exception e1) {
-				System.out.println("ReportIssueServlet warning - cannot close hibernate session");
+				LOG.error("Error in ReportIssueFeedback", e1);
 			}
 		}
 

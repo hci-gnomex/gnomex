@@ -341,7 +341,7 @@ public class GNomExLDAPRealm extends RealmBase {
 			// wrong password
 			return false;
 		} catch (Exception e) {
-
+			LOG.error("Error in dnomexLDAPRealm", e);
 			return false;
 		}
 	}

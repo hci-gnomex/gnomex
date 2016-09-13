@@ -102,6 +102,7 @@ public class DownloadFastaFileServlet extends HttpServlet {
                 System.out.println( "DownloadFastaFileServlet: You must have a SecurityAdvisor in order to run this command.");
             }
         } catch (Exception e) {
+            LOG.error("Error in DownloadFastaFileServlet", e);
             HibernateSession.rollback();
             response.setContentType("text/html");
             response.getOutputStream().println(
@@ -112,12 +113,13 @@ public class DownloadFastaFileServlet extends HttpServlet {
                             + "<br>");
             response.getOutputStream().println("</body>");
             response.getOutputStream().println("</html>");
-            System.out.println( "DownloadFastaFileServlet: An exception occurred " + e.toString());
+
 
         } finally {
             try {
                 secAdvisor.closeHibernateSession();
             } catch (Exception e) {
+                LOG.error("Error in DownloadFastaFileServlet", e);
 
             }
 

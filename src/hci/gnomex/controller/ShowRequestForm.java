@@ -175,6 +175,7 @@ public class ShowRequestForm extends ReportCommand implements Serializable {
             MailUtilHelper helper = new MailUtilHelper(toAddress, ccAddress, null, fromAddress, subject, emailBody.toString(), null, true, DictionaryHelper.getInstance(sess), serverName);
             MailUtil.validateAndSendEmail(helper);
         } catch(Exception e){
+            LOG.error("Error in ShowRequestForm", e);
 
         }
 

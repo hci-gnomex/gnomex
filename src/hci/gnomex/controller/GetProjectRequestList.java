@@ -296,6 +296,7 @@ public class GetProjectRequestList extends GNomExCommand implements Serializable
         maxExperiments = Integer.parseInt(prop);
       }
       catch(NumberFormatException e) {
+        LOG.error("Error in GetProjectRequestList", e);
       }    
     }
     return maxExperiments;

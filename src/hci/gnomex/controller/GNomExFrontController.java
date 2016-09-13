@@ -61,10 +61,12 @@ public class GNomExFrontController extends HttpServlet {
 			Context ec = (Context) new InitialContext();
 			mailSession = (Session) ec.lookup(Constants.MAIL_SESSION);
 		} catch (Exception e) {
+			LOG.error("Error in gnomexFrontController", e);
 			try {
 				Context ec = (Context) new InitialContext().lookup("java:comp/env");
 				mailSession = (Session) ec.lookup(Constants.MAIL_SESSION);
 			} catch (Exception me) {
+				LOG.error("Error in gnomexFrontController", e);
 				System.out.println("cannot get mail session " + me.toString());
 			}
 		}
@@ -209,6 +211,7 @@ public class GNomExFrontController extends HttpServlet {
 			try {
 				commandInstance.execute();
 			} catch (Exception e) {
+				LOG.error("Error in gnomex front controller:", e);
 				HibernateSession.rollback();
 				String msg = null;
 				if (e.getCause() != null && e.getCause() instanceof EJBException) {
@@ -346,7 +349,7 @@ public class GNomExFrontController extends HttpServlet {
 		} catch (Exception e) {
 			LOG.error(e.getClass().getName() + " while attempting to forward to " + url);
 			LOG.error("The stacktrace for the error:");
-			LOG.error(e.getMessage());
+			LOG.error(e.getMessage(), e);
 		}
 	}
 
@@ -357,7 +360,7 @@ public class GNomExFrontController extends HttpServlet {
 		} catch (Exception e) {
 			LOG.error(e.getClass().getName() + " while attempting to redirect to " + url);
 			LOG.error("The stacktrace for the error:");
-			LOG.error(e.getMessage());
+			LOG.error(e.getMessage(), e);
 		}
 	}
 

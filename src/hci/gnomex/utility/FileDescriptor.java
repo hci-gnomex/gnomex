@@ -12,6 +12,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.hibernate.Session;
+import org.apache.log4j.Logger;
 
 /**
  * Created by u0395021 on 5/4/2016.
@@ -20,6 +21,8 @@ public class FileDescriptor extends DetailObject implements Serializable {
 	private static final double KB = Math.pow(2, 10);
 	private static final double MB = Math.pow(2, 20);
 	private static final double GB = Math.pow(2, 30);
+
+	private static final Logger LOG = Logger.getLogger(FileDescriptor.class);
 
 	private String displayName;
 	private String number; // this is the object number (ie: analysis number, product order number, request number)
@@ -64,7 +67,7 @@ public class FileDescriptor extends DetailObject implements Serializable {
 				this.setFileName(file.getCanonicalPath());
 			}
 		} catch (Exception e) {
-			System.err.println("IO Exception occurred when trying to get absolute path for file " + file.toString());
+			LOG.error("Error in FileDescriptor", e);
 			this.setFileName(file.getAbsolutePath().replace("\\", "/"));
 		}
 		// this.setZipEntryName(PropertyDictionaryHelper.parseZipEntryName(baseDir, this.getFileName()));

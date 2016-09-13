@@ -82,7 +82,7 @@ public class SaveNewsItem extends GNomExCommand implements Serializable {
       try {
         HibernateSession.closeSession();        
       } catch(Exception e) {
-    	  System.out.println("EXCEPTION! : " + e);
+    	  LOG.error("Error in SaveNewsItem", e);
       }
     }
     

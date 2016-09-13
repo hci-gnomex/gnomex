@@ -4,6 +4,7 @@ import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.PropertyDictionaryHelper;
 import hci.gnomex.utility.ServletUtil;
+import org.apache.log4j.Logger;
 import org.hibernate.Session;
 
 import javax.servlet.ServletException;
@@ -13,7 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 public class UploadPurchaseOrderURL extends HttpServlet {
-
+	private static Logger LOG = Logger.getLogger(UploadPurchaseOrderURL.class);
 	protected void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
 
 		// Restrict commands to local host if request is not secure
@@ -55,12 +56,13 @@ public class UploadPurchaseOrderURL extends HttpServlet {
 			res.getOutputStream().println("<UploadPurchaseOrderURL url='" + URL + "'/>");
 
 		} catch (Exception e) {
-			System.out.println("An error has occured in UploadPurchaseOrderURL - " + e.toString());
+			LOG.error("An error has occured in UploadPurchaseOrderURL - " + e.toString(), e);
 		} finally {
 			if (sess != null) {
 				try {
 					HibernateSession.closeSession();
 				} catch (Exception e) {
+					LOG.error("An error has occured in UploadPurchaseOrderURL - " + e.toString(), e);
 				}
 			}
 		}

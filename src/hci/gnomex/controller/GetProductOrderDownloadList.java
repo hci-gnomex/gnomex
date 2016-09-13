@@ -38,7 +38,8 @@ public class GetProductOrderDownloadList extends GNomExCommand implements Serial
 	private String serverName;
 	private String baseDir;
 
-	private String includeUploadStagingDir = "Y";
+	private String includeUploadStagingDir = "N";
+	private String skipUploadStagingDirFiles = "N";
 
 	@Override
 	public void loadCommand(HttpServletRequest req, HttpSession sess) {
@@ -50,6 +51,9 @@ public class GetProductOrderDownloadList extends GNomExCommand implements Serial
 
 		if (req.getParameter("includeUploadStagingDir") != null && !req.getParameter("includeUploadStagingDir").equals("")) {
 			includeUploadStagingDir = req.getParameter("includeUploadStagingDir");
+		}
+		if (req.getParameter("skipUploadStagingDirFiles") != null && !req.getParameter("skipUploadStagingDirFiles").equals("")) {
+			skipUploadStagingDirFiles = req.getParameter("skipUploadStagingDirFiles");
 		}
 
 		serverName = req.getServerName();
@@ -118,7 +122,6 @@ public class GetProductOrderDownloadList extends GNomExCommand implements Serial
 						if (dirTokens.length > 1) {
 							directoryName = dirTokens[1];
 						}
-
 						// Show files uploads that are in the staging area.
 						if (includeUploadStagingDir.equals("Y")) {
 							String key = po.getKey(Constants.UPLOAD_STAGING_DIR);
@@ -135,6 +138,9 @@ public class GetProductOrderDownloadList extends GNomExCommand implements Serial
 						// For each file in the directory
 						for (Iterator i2 = theFiles.iterator(); i2.hasNext();) {
 							FileDescriptor fd = (FileDescriptor) i2.next();
+							if (fd.getDisplayName().equals(Constants.UPLOAD_STAGING_DIR) && skipUploadStagingDirFiles.equals("Y")){
+								continue;
+							}
 
 							ProductOrderFile pof = (ProductOrderFile) knownProductOrderFileMap.get(fd.getQualifiedFileName());
 
@@ -206,7 +212,7 @@ public class GetProductOrderDownloadList extends GNomExCommand implements Serial
 			try {
 				this.getSecAdvisor().closeReadOnlyHibernateSession();
 			} catch (Exception e) {
-
+				LOG.error("An exception has occurred in GetProductOrderDownloadList ", e);
 			}
 
 		}
@@ -250,7 +256,7 @@ public class GetProductOrderDownloadList extends GNomExCommand implements Serial
 			List theFiles = (List) directoryMap.get(directoryKey);
 
 			// For each file in the directory
-			if (theFiles != null && theFiles.size() > 0 && !directoryName.equals( Constants.UPLOAD_STAGING_DIR)) {
+			if (theFiles != null && theFiles.size() > 0) {
 				for (Iterator i2 = theFiles.iterator(); i2.hasNext();) {
 					FileDescriptor fd = (FileDescriptor) i2.next();
 					fd.setQualifiedFilePath(directoryName);

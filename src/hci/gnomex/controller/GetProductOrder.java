@@ -68,7 +68,7 @@ public class GetProductOrder extends GNomExCommand implements Serializable {
             po = (ProductOrder) sess.createQuery("FROM ProductOrder po WHERE po.productOrderNumber = \'" + productOrderNumber + "\'").uniqueResult();
           }
         } catch (Exception e) {
-          LOG.error(e.getMessage());
+          LOG.error(e.getMessage(), e);
           po = null;
         }
 
@@ -167,7 +167,7 @@ public class GetProductOrder extends GNomExCommand implements Serializable {
       try {
         this.getSecAdvisor().closeReadOnlyHibernateSession();
       } catch (Exception e) {
-
+        LOG.error("An exception has occurred in GetProductOrder ", e);
       }
 
     }

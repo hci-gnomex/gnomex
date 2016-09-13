@@ -14,6 +14,7 @@
 <%@ page import="java.util.List" %>
 <%@ page import="hci.gnomex.model.Visibility" %>
 <%@ page import="hci.gnomex.utility.PropertyDictionaryHelper" %>
+<%@ page import="org.apache.log4j.Logger" %>;
 
 <html>
 
@@ -23,6 +24,7 @@
 
 
 <%
+    Logger LOG = Logger.getLogger("login.jsp");
 String message = (String) ((request.getAttribute("message") != null)?request.getAttribute("message"):"");
 String errFlag = (String)((request.getParameter("err") != null)?request.getParameter("err"):"N");
 Integer idCoreFacility = JspHelper.getIdCoreFacility(request);
@@ -127,11 +129,13 @@ try {
     }      
   }  
  } catch (Exception e){
+              LOG.error("Error in login.jsp", e);
   message = "Cannot obtain property " + PropertyDictionary.UNIVERSITY_USER_AUTHENTICATION + " " + e.toString() + " sess=" + sess;
 } finally {
   try {
     HibernateSession.closeSession();
   } catch (Exception e) {
+      LOG.error("Error in login.jsp", e);
   }  
 }
 

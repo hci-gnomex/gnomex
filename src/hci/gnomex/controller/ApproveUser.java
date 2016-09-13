@@ -39,6 +39,7 @@ public class ApproveUser extends HttpServlet {
 	private String department = "";
 	private String labEmail = "";
 	private String labPhone = "";
+	private Integer requestedLabId;
 
 	protected void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
 		serverName = req.getServerName();
@@ -58,6 +59,10 @@ public class ApproveUser extends HttpServlet {
 
 			if (request.getParameter("requestedLabFirstName") != null && !request.getParameter("requestedLabFirstName").equals("")) {
 				requestedLabFirstName = request.getParameter("requestedLabFirstName");
+			}
+
+			if (request.getParameter("requestedLabId") != null && !request.getParameter("requestedLabId").equals("")) {
+				requestedLabId = Integer.parseInt(request.getParameter("requestedLabId"));
 			}
 
 			if (request.getParameter("requestedLabName") != null && !request.getParameter("requestedLabName").equals("")) {
@@ -105,20 +110,24 @@ public class ApproveUser extends HttpServlet {
 				au.setGuid(null);
 				au.setGuidExpiration(null);
 
+				Lab theLab = null;
 				// if we have a lab name, email, and phone then we have a new lab (these fields are required)
 				if (!requestedLabName.equals("") && !labEmail.equals("") && !labPhone.equals("")) {
-					Lab newLab = new Lab();
-					newLab.setFirstName(requestedLabFirstName);
-					newLab.setLastName(requestedLabName);
-					newLab.setDepartment(department);
-					newLab.setContactEmail(labEmail);
-					newLab.setContactPhone(labPhone);
-					sess.save(newLab);
+					theLab = new Lab();
+					theLab.setFirstName(requestedLabFirstName);
+					theLab.setLastName(requestedLabName);
+					theLab.setDepartment(department);
+					theLab.setContactEmail(labEmail);
+					theLab.setContactPhone(labPhone);
+					sess.save(theLab);
 
-					HashSet labSet = new HashSet();
-					labSet.add(newLab);
-					au.setLabs(labSet);
+				} else if(requestedLabId != null){
+					theLab = sess.load(Lab.class, requestedLabId);
 				}
+
+				HashSet labSet = new HashSet();
+				labSet.add(theLab);
+				au.setLabs(labSet);
 
 				String url = request.getRequestURL().substring(0, request.getRequestURL().indexOf("ApproveUser.gx"));
 				String gnomexURL = "<a href='" + url + "'>Click here</a> to login.";

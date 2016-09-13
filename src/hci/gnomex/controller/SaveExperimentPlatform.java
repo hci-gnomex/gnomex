@@ -301,7 +301,7 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
       try {
         HibernateSession.closeSession();
       } catch (Exception e) {
-
+        LOG.error("An exception has occurred in SaveExperimentPlatform ", e);
       }
     }
 
@@ -1610,6 +1610,7 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
           lastNumber = number;
         }
       } catch (Exception e) {
+        LOG.error("Error in SaveExperimentPlatform", e);
       }
     }
     return lastNumber + 1;
@@ -1627,6 +1628,7 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
           lastNumber = number;
         }
       } catch (Exception e) {
+        LOG.error("Error in SaveExperimentPlatform", e);
       }
     }
     lastNumber = lastNumber + 10000001;
@@ -1645,6 +1647,7 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
           lastNumber = number;
         }
       } catch (Exception e) {
+        LOG.error("Error in SaveExperimentPlatform", e);
       }
     }
     return lastNumber + 1;

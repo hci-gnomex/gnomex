@@ -7,6 +7,7 @@
 <%@ page import="java.util.List" %>
 <%@ page import="hci.gnomex.utility.JspHelper" %>
 <%@ page import="hci.gnomex.utility.PropertyDictionaryHelper" %>
+<%@ page import="org.apache.log4j.Logger" %>;
 <html>
 
 <head>
@@ -18,7 +19,7 @@
 
 
 <%
-
+  Logger LOG = Logger.getLogger("select_core.jsp");
 Integer idCoreFacility = JspHelper.getIdCoreFacility(request);
 String idCoreParm = idCoreFacility == null?"":("?idCore=" + idCoreFacility.toString());
 String href = "";
@@ -64,11 +65,13 @@ try {
   }
   
 } catch (Exception e){
+    LOG.error("Error in select_core.jsp", e);
   message = "Cannot obtain property " + PropertyDictionary.UNIVERSITY_USER_AUTHENTICATION + " " + e.toString() + " sess=" + sess;
 } finally {
   try {
 	  HibernateSession.closeSession();
   } catch (Exception e) {
+    LOG.error("Error in select_core.jsp", e);
   }  
 }
 

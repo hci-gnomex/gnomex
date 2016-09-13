@@ -4,6 +4,7 @@ import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.PropertyDictionaryHelper;
 import hci.gnomex.utility.ServletUtil;
+import org.apache.log4j.Logger;
 import org.hibernate.Session;
 
 import javax.servlet.ServletException;
@@ -13,6 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 public class ReportIssueFeedbackServletGetURL extends HttpServlet {
+	private static final Logger LOG = Logger.getLogger(ReportIssueFeedbackServletGetURL.class);
 
 	protected void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
 
@@ -57,12 +59,13 @@ public class ReportIssueFeedbackServletGetURL extends HttpServlet {
 			res.getOutputStream().println("<ReportIssueServlet url='" + URL + "'/>");
 
 		} catch (Exception e) {
-			System.out.println("An error has occured in ReportIssueServletGetURL - " + e.toString());
+			LOG.error("An error has occured in ReportIssueServletGetURL - ");
 		} finally {
 			if (sess != null) {
 				try {
 					HibernateSession.closeSession();
 				} catch (Exception e) {
+					LOG.error("An error has occured in ReportIssueServletGetURL - ");
 				}
 			}
 		}

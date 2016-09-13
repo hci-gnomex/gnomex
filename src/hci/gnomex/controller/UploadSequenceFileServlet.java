@@ -9,7 +9,6 @@ import hci.gnomex.utility.PropertyDictionaryHelper;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.logging.Logger;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -22,6 +21,7 @@ import org.dom4j.Element;
 import org.dom4j.io.OutputFormat;
 import org.dom4j.io.XMLWriter;
 import org.hibernate.Session;
+import org.apache.log4j.Logger;
 
 import com.oreilly.servlet.multipart.FilePart;
 import com.oreilly.servlet.multipart.MultipartParser;
@@ -29,7 +29,7 @@ import com.oreilly.servlet.multipart.ParamPart;
 import com.oreilly.servlet.multipart.Part;
 
 public class UploadSequenceFileServlet extends HttpServlet {
-
+	private static Logger LOG = Logger.getLogger(UploadSampleSheetURLServlet.class);
 	private String fileName = null;
 	private StringBuffer bypassedFiles = new StringBuffer();
 	private File tempBulkUploadFile = null;
@@ -172,8 +172,8 @@ public class UploadSequenceFileServlet extends HttpServlet {
 			writer.write(doc);
 
 		} catch (Exception e) {
+			LOG.error("An error occurred in UploadSequenceFileServlet", e);
 			HibernateSession.rollback();
-			Logger.getLogger(this.getClass().getName()).warning(e.getMessage());
 
 			sess.flush();
 			res.addHeader("message", e.getMessage());
@@ -190,6 +190,7 @@ public class UploadSequenceFileServlet extends HttpServlet {
 				try {
 					HibernateSession.closeSession();
 				} catch (Exception e) {
+					LOG.error("An error occurred in UploadSequenceFileServlet", e);
 				}
 			}
 			res.setHeader("Cache-Control", "max-age=0, must-revalidate");

@@ -102,7 +102,7 @@ public class ChangeRequestStatus extends GNomExCommand implements Serializable {
                   sendConfirmationEmail(sess, req, otherRecipients);
                 } catch (Exception e) {
                   String msg = "Unable to send confirmation email notifying submitter that request " + req.getNumber() + " has been submitted.  " + e.toString();
-                  LOG.error(msg);
+                  LOG.error(msg, e);
                 }
               } else {
                 String msg = ("Unable to send confirmation email notifying submitter that request " + req.getNumber() + " has been submitted.  Request submitter or request submitter email is blank.");
@@ -183,7 +183,6 @@ public class ChangeRequestStatus extends GNomExCommand implements Serializable {
 
     } catch (Exception e) {
       LOG.error("An exception has occurred in ChangeRequestStatus ", e);
-      ;
       throw new RollBackCommandException(e.toString());
     } finally {
       try {
@@ -192,6 +191,7 @@ public class ChangeRequestStatus extends GNomExCommand implements Serializable {
           HibernateSession.closeSession();
         }
       } catch (Exception e) {
+        LOG.error("Error in ChangeRequestStatus: ", e);
 
       }
     }
