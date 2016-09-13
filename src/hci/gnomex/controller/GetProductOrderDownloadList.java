@@ -343,7 +343,12 @@ public class GetProductOrderDownloadList extends GNomExCommand implements Serial
 			childFdNode.setAttribute("idProductOrder", childFd.getId() != null ? childFd.getId().toString() : "");
 			childFdNode.setAttribute("dirty", "N");
 			childFdNode.setAttribute("type", childFd.getType() != null ? childFd.getType() : "");
-			childFdNode.setAttribute("displayName", childFd.getDisplayName() != null ? childFd.getDisplayName() : "");
+			String displayName = childFd.getDisplayName();
+			if(displayName.contains("/")) {
+				displayName = displayName.substring(displayName.lastIndexOf("/")+1, displayName.length());
+			}
+
+			childFdNode.setAttribute("displayName", displayName != null ? displayName : "");
 			childFdNode.setAttribute("fileSize", Long.valueOf(childFd.getFileSize()).toString());
 			childFdNode.setAttribute("fileSizeText", childFd.getFileSizeText() != null ? childFd.getFileSizeText() : "");
 			childFdNode.setAttribute("childFileSize", Long.valueOf(childFd.getChildFileSize()).toString());
