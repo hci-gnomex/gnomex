@@ -352,7 +352,7 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
 			baseDir += "/";
 		}
 
-		String directoryName = baseDir + createYear + File.separator + analysis.getNumber();
+		String directoryName = baseDir + createYear + "/" + analysis.getNumber();
 		return directoryName;
 	}
 
@@ -381,7 +381,7 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
 			String[] dirTokens = directoryKey.split("-");
 			String directoryName = dirTokens[1];
 			if (dirTokens.length > 2) {
-				directoryName += File.separator + dirTokens[2];
+				directoryName += "/" + dirTokens[2];
 			}
 
 			List theFiles = (List) directoryMap.get(directoryKey);
@@ -428,7 +428,7 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
 					String viewType = Constants.DOWNLOAD_ANALYSIS_SINGLE_FILE_SERVLET + "?idAnalysis=" + analysisNode.getAttributeValue("idAnalysis");
 
 					fd.setQualifiedFilePath(directoryName);
-					fd.setBaseFilePath(baseDir + createYear + File.separator + analysisNumber);
+					fd.setBaseFilePath(baseDir + createYear + "/" + analysisNumber);
 					fd.setId(analysisNode.getAttributeValue("idAnalysis") != null ? Integer.valueOf(analysisNode.getAttributeValue("idAnalysis")) : null);
 					String idLab = analysisNode.getAttributeValue("idLab");
 					fd.setIdLab(idLab == null || idLab.equals("") ? null : Integer.valueOf(idLab));
@@ -512,7 +512,7 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
 
 			childFd.setId(fd.getId());
 			childFd.setQualifiedFilePath(fd.getQualifiedFilePath() != null && fd.getQualifiedFilePath().length() > 0 ? fd.getQualifiedFilePath()
-					+ File.separator + fd.getDisplayName() : fd.getDisplayName());
+					+ "/" + fd.getDisplayName() : fd.getDisplayName());
 			childFd.setBaseFilePath(fd.getBaseFilePath());
             childFd.setDirectoryName(childFd.getQualifiedFilePath());
 			childFd.setIdLab(fd.getIdLab());
@@ -560,7 +560,12 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
 			childFdNode.setAttribute("idAnalysis", childFd.getId() != null ? childFd.getId().toString() : "");
 			childFdNode.setAttribute("dirty", "N");
 			childFdNode.setAttribute("type", childFd.getType() != null ? childFd.getType() : "");
-			childFdNode.setAttribute("displayName", childFd.getDisplayName() != null ? childFd.getDisplayName() : "");
+			String displayName = childFd.getDisplayName();
+			if(displayName.contains("/")) {
+				displayName = displayName.substring(displayName.lastIndexOf("/")+1, displayName.length());
+			}
+
+			childFdNode.setAttribute("displayName", displayName != null ? displayName : "");
 			childFdNode.setAttribute("fileSize", Long.valueOf(childFd.getFileSize()).toString());
 			childFdNode.setAttribute("fileSizeText", childFd.getFileSizeText() != null ? childFd.getFileSizeText() : "");
 			childFdNode.setAttribute("childFileSize", Long.valueOf(childFd.getChildFileSize()).toString());
@@ -618,13 +623,13 @@ public class GetAnalysisDownloadList extends GNomExCommand implements Serializab
 	public static Set getAnalysisDownloadFolders(String baseDir, String analysisNumber, String createYear) {
 
 		TreeSet folders = new TreeSet<String>();
-		String directoryName = baseDir + createYear + File.separator + analysisNumber;
+		String directoryName = baseDir + createYear + "/" + analysisNumber;
 		File fd = new File(directoryName);
 
 		if (fd.isDirectory()) {
 			String[] fileList = fd.list();
 			for (int x = 0; x < fileList.length; x++) {
-				String fileName = directoryName + File.separator + fileList[x];
+				String fileName = directoryName + "/" + fileList[x];
 				File f1 = new File(fileName);
 				if (f1.isDirectory()) {
 					folders.add(fileList[x]);

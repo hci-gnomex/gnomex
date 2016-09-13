@@ -273,14 +273,14 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
               sess.flush();
 
               sourceFile = sourceFile.getCanonicalFile();
-              String targetDirName = baseDir + File.separator + analysis.getNumber() + File.separator + qualifiedFilePath;
+              String targetDirName = baseDir + "/" + analysis.getNumber() + "/" + qualifiedFilePath;
               File targetDir = new File(targetDirName);
               targetDir = targetDir.getCanonicalFile();
 
               if (!targetDir.exists()) {
                 boolean success = targetDir.mkdirs();
                 if (!success) {
-                  throw new Exception("Unable to create directory " + targetDir.getCanonicalPath());                    
+                  throw new Exception("Unable to create directory " + targetDir.getCanonicalPath());
                 }
               }
 
@@ -294,6 +294,9 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
               }
 
               File destFile = new File(targetDir, sourceFile.getName());
+              if (!destFile.exists() && sourceFile.isDirectory()) {
+                destFile.mkdirs();
+              }
               boolean success = sourceFile.renameTo(destFile);
 
               // If the rename didn't work, check to see if the destination file was created, if so
