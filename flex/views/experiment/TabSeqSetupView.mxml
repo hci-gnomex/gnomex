@@ -95,7 +95,7 @@
 				previousCodeRequestCategory = codeRequestCategory;
 				reloadApplications();
 			}
-			}
+		}
 
 		private function reloadApplications():void {
 			var done:Boolean = parentDocument.filteredAppList.refresh();
