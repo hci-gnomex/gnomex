@@ -25,20 +25,11 @@
 <mx:Script>
 	<![CDATA[
 		
-		import hci.flex.controls.CheckBox;
-		
 		import mx.collections.ArrayCollection;
-		import mx.collections.Sort;
 		import mx.collections.XMLListCollection;
-		import mx.controls.Alert;
-		import mx.controls.RadioButton;
-		import mx.controls.Spacer;
-		import mx.events.ListEvent;
 		import mx.formatters.CurrencyFormatter;
 		import mx.rpc.events.ResultEvent;
 		
-		import views.renderers.CheckBoxIsSelectedChipType;
-	
 		private var validNumberOfSamples:Boolean = true;
 		private var validConcentration:Boolean = true;
 		private var application:Object = null;
