@@ -98,7 +98,7 @@
 		}
 
 		private function reloadApplications():void {
-			var done:Boolean = parentDocument.filteredAppList.refresh();
+			vparentDocument.filteredAppList.refresh();
 
 			// Map the apps by theme
 			this.applicationThemeRepeater.dataProvider = null;
