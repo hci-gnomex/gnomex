@@ -250,7 +250,7 @@ public class GetProductOrderDownloadList extends GNomExCommand implements Serial
 			String[] dirTokens = directoryKey.split("-");
 			String directoryName = dirTokens[1];
 			if (dirTokens.length > 2) {
-				directoryName += File.separator + dirTokens[2];
+				directoryName += "/" + dirTokens[2];
 			}
 
 			List theFiles = (List) directoryMap.get(directoryKey);
@@ -271,7 +271,7 @@ public class GetProductOrderDownloadList extends GNomExCommand implements Serial
 					}
 
 					fd.setQualifiedFilePath(directoryName);
-					fd.setBaseFilePath(baseDir + createYear + File.separator + productOrderNumber);
+					fd.setBaseFilePath(baseDir + createYear + "/" + productOrderNumber);
 					fd.setId(poNode.getAttributeValue("idProductOrder") != null ? Integer.valueOf(poNode.getAttributeValue("idProductOrder")) : null);
 					fd.setNumber(poNode.getAttributeValue("productOrderNumber") != null ? poNode.getAttributeValue("productOrderNumber") : null);
 					String idLab = poNode.getAttributeValue("idLab");
@@ -321,7 +321,7 @@ public class GetProductOrderDownloadList extends GNomExCommand implements Serial
 
 			childFd.setId(fd.getId());
 			childFd.setQualifiedFilePath(fd.getQualifiedFilePath() != null && fd.getQualifiedFilePath().length() > 0 ? fd.getQualifiedFilePath()
-					+ File.separator + fd.getDisplayName() : fd.getDisplayName());
+					+ "/" + fd.getDisplayName() : fd.getDisplayName());
 			childFd.setBaseFilePath(fd.getBaseFilePath());
 			childFd.setDirectoryName(childFd.getQualifiedFilePath());
 			childFd.setIdLab(fd.getIdLab());
@@ -394,7 +394,7 @@ public class GetProductOrderDownloadList extends GNomExCommand implements Serial
 			baseDir += "/";
 		}
 
-		String directoryName = baseDir + createYear + File.separator + po.getIdProductOrder();
+		String directoryName = baseDir + createYear + "/" + po.getIdProductOrder();
 		return directoryName;
 	}
 
