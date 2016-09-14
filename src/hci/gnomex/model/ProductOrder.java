@@ -195,15 +195,15 @@ public class ProductOrder extends DetailObject implements Serializable, Order {
     String createDay = tokens[1];
     String createYear = tokens[2];
     String sortDate = createYear + createMonth + createDay;
-    String key = createYear + "-" + sortDate + "-" + this.getIdProductOrder();
+    String key = createYear + "-" + sortDate + "-" + this.getProductOrderNumber();
     return key;
   }
 
   public String getKey(String resultsDir) {
-    return ProductOrder.getKey(this.getIdProductOrder(), this.getSubmitDate(), resultsDir);
+    return ProductOrder.getKey(Integer.valueOf(this.getProductOrderNumber()), this.getSubmitDate(), resultsDir);
   }
 
-  public static String getKey(Integer idProductOrder,
+  public static String getKey(Integer productOrderNumber,
       java.sql.Date theCreateDate, String resultsDir) {
     if (theCreateDate == null) {
       return "";
@@ -215,7 +215,7 @@ public class ProductOrder extends DetailObject implements Serializable, Order {
       String createDay = tokens[1];
       String createYear = tokens[2];
       String sortDate = createYear + createMonth + createDay;
-      String key = createYear + "-" + sortDate + "-" + idProductOrder + "-"
+      String key = createYear + "-" + sortDate + "-" + productOrderNumber + "-"
           + resultsDir;
       return key;
     }
