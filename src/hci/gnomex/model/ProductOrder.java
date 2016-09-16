@@ -189,34 +189,23 @@ public class ProductOrder extends DetailObject implements Serializable, Order {
 
   /* Used for file system retrieval of files */
   public String getKey() {
-    String createDate = this.formatDate(this.getSubmitDate());
-    String tokens[] = createDate.split("/");
-    String createMonth = tokens[0];
-    String createDay = tokens[1];
-    String createYear = tokens[2];
-    String sortDate = createYear + createMonth + createDay;
-    String key = createYear + "-" + sortDate + "-" + this.getIdProductOrder();
-    return key;
-  }
+    return getKey(Integer.valueOf(this.getProductOrderNumber()), this.getSubmitDate(), null);  }
 
   public String getKey(String resultsDir) {
-    return ProductOrder.getKey(this.getIdProductOrder(), this.getSubmitDate(), resultsDir);
+    return ProductOrder.getKey(Integer.valueOf(this.getProductOrderNumber()), this.getSubmitDate(), resultsDir);
   }
 
-  public static String getKey(Integer idProductOrder,
+  public static String getKey(Integer productOrderNumber,
       java.sql.Date theCreateDate, String resultsDir) {
     if (theCreateDate == null) {
       return "";
     } else {
-      String createDate = new SimpleDateFormat("MM/dd/yyyy")
-          .format(theCreateDate);
-      String tokens[] = createDate.split("/");
-      String createMonth = tokens[0];
-      String createDay = tokens[1];
-      String createYear = tokens[2];
-      String sortDate = createYear + createMonth + createDay;
-      String key = createYear + "-" + sortDate + "-" + idProductOrder + "-"
-          + resultsDir;
+      String createYear = getCreateYear(theCreateDate);
+      String sortDate = new SimpleDateFormat("yyyyMMdd").format(theCreateDate);
+      String key = createYear + "-" + sortDate + "-" + productOrderNumber;
+      if (resultsDir != null) {
+        key += "-" + resultsDir;
+      }
       return key;
     }
   }
@@ -287,10 +276,7 @@ public class ProductOrder extends DetailObject implements Serializable, Order {
     if (theCreateDate == null) {
       return "";
     } else {
-      String createDate  = new SimpleDateFormat("MM/dd/yyyy").format(theCreateDate);
-      String tokens[] = createDate.split("/");
-      String createYear  = tokens[2];
-      return createYear;
+      return new SimpleDateFormat("yyyy").format(theCreateDate);
     }
   }
 
