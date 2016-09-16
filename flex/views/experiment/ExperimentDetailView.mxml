@@ -506,12 +506,95 @@
 					libPrepCompletionBox.visible = false;
 				}
 
-				
+				placeSpecialQcColumns();
+
 				// Workflow progress
 				callLater(setWorkflowStatus);
-				
+
 			}
-			
+
+			private function getColumnIndexFromField(field:String):int {
+				for (var i:int; i < samplesGridConfirm.columns.length; i++) {
+					if (samplesGridConfirm.columns[i].dataField == field) {
+						return i;
+					}
+				}
+				return -1;
+			}
+
+			private function getColumnIndexFromFieldPassed(cols:Array, field:String):int {
+				for (var i:int; i < cols.length; i++) {
+					if (cols[i].dataField == field) {
+						return i;
+					}
+				}
+				return -1;
+			}
+
+			private function getFieldBefore(field:String):String {
+				var beforeCol:int = getColumnIndexFromField(field) - 1;
+				if (beforeCol >= 0) {
+					return samplesGridConfirm.columns[beforeCol].dataField;
+				} else {
+					return "";
+				}
+			}
+
+			private function moveColumn(moveField:String, otherField:String, before:Boolean):void {
+				var moveFromColumn:int = getColumnIndexFromField(moveField);
+				if (moveFromColumn < 0) {
+					return;   // field to move not found
+				}
+				var columnsCopy:Array = samplesGridConfirm.columns;
+				var column:AdvancedDataGridColumn = columnsCopy.removeAt(moveFromColumn);
+				var moveToColumn:int;
+				var otherColumn:int = getColumnIndexFromFieldPassed(columnsCopy, otherField);   // field may have shifted with removal
+				if (otherColumn >= 0) {
+					if (before) {
+						moveToColumn = otherColumn;
+					} else {
+						moveToColumn = otherColumn + 1;
+					}
+				} else {
+					moveToColumn = moveFromColumn;   // other field not found, put the field in its original location
+				}
+				columnsCopy.insertAt(moveToColumn, column);
+				samplesGridConfirm.columns = columnsCopy;
+				samplesGridConfirm.validateNow();
+			}
+
+			private function moveColumnBefore(moveField:String, otherField:String):void {
+				moveColumn(moveField, otherField, true);
+			}
+
+			private function moveColumnAfter(moveField:String, otherField:String):void {
+				moveColumn(moveField, otherField, false);
+			}
+
+			private function isIlluminaType():Boolean {
+				var requestCategory:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', this.selectedExperiment.@codeRequestCategory);
+				return (requestCategory.@isIlluminaType == 'Y');
+			}
+
+			private var qcFieldsInitialized:Boolean = false;
+			private var qualCalcConcentrationWasAfter:String = "";
+			private var qualRINNumberWasAfter:String = "";
+
+			private function placeSpecialQcColumns():void {
+				if (!qcFieldsInitialized) {
+					qualCalcConcentrationWasAfter = getFieldBefore("@qualCalcConcentration");
+					qualRINNumberWasAfter = getFieldBefore("@qualRINNumber");
+					qcFieldsInitialized = true;
+				}
+				if (isIlluminaType()) {
+					moveColumnBefore("@qualCalcConcentration", "@idSeqLibProtocol");
+					moveColumnBefore("@qualRINNumber", "@idSeqLibProtocol");
+				} else {
+					moveColumnAfter("@qualRINNumber", qualRINNumberWasAfter);
+					moveColumnAfter("@qualCalcConcentration", qualCalcConcentrationWasAfter);
+				}
+			}
+
 			private function shouldShowMMBox():Boolean {
 				if ( libDesignAndInsertBox.visible ){
 					return true;
