@@ -506,99 +506,94 @@
 					libPrepCompletionBox.visible = false;
 				}
 
-				placeSpecialQcColumns();
+				placeSpecialQualColumns();
 
 				// Workflow progress
 				callLater(setWorkflowStatus);
 
 			}
 
-			private function getColumnIndexFromField(field:String):int {
-				for (var i:int; i < samplesGridConfirm.columns.length; i++) {
-					if (samplesGridConfirm.columns[i].dataField == field) {
-						return i;
-					}
-				}
-				return -1;
-			}
+			private var qualFieldsInitialized:Boolean = false;
+			private var qualCalcConcentrationWasBefore:String;
+			private var qualRINNumberWasBefore:String;
 
-			private function getColumnIndexFromFieldPassed(cols:Array, field:String):int {
-				for (var i:int; i < cols.length; i++) {
-					if (cols[i].dataField == field) {
-						return i;
-					}
+			/**
+			 *  Move the "QC Concentration" and "QC RIN" columns before "Seq Lib Protocol" for High Throughput Genomics
+			 *  Otherwise return these columns to their original positions (tracked by qualXxxxxWasBefore fields)
+			 */
+			private function placeSpecialQualColumns():void {
+				if (!qualFieldsInitialized) {
+					qualCalcConcentrationWasBefore = getFieldAfter("@qualCalcConcentration");
+					qualRINNumberWasBefore = getFieldAfter("@qualRINNumber");
+					qualFieldsInitialized = true;
 				}
-				return -1;
-			}
-
-			private function getFieldBefore(field:String):String {
-				var beforeCol:int = getColumnIndexFromField(field) - 1;
-				if (beforeCol >= 0) {
-					return samplesGridConfirm.columns[beforeCol].dataField;
+				if (isHighThroughputGenomics()) {
+					moveColumnBefore("@qualCalcConcentration", "@idSeqLibProtocol");
+					moveColumnBefore("@qualRINNumber", "@idSeqLibProtocol");
 				} else {
-					return "";
+					moveColumnBefore("@qualRINNumber", qualRINNumberWasBefore);
+					moveColumnBefore("@qualCalcConcentration", qualCalcConcentrationWasBefore);
 				}
 			}
 
-			private function moveColumn(moveField:String, otherField:String, before:Boolean):void {
+			private function isHighThroughputGenomics():Boolean {
+				return (this.selectedExperiment.@idCoreFacility == parentApplication.idCoreFacilityHTG);
+			}
+
+			private const MISSING_INDEX:int = -1;
+			private const MISSING_FIELD:String = "MISSING_FIELD";
+			private const LAST_FIELD:String = "LAST_FIELD";
+
+			private function getFieldAfter(field:String):String {
+				var column:int = getColumnIndexFromField(field);
+				if (column == MISSING_INDEX) {
+					return MISSING_FIELD;
+				}
+				if (column == samplesGridConfirm.columns.length - 1) {
+					return LAST_FIELD;
+				}
+				return samplesGridConfirm.columns[column + 1].dataField;
+			}
+
+			private function moveColumnBefore(moveField:String, otherField:String):void {
 				var moveFromColumn:int = getColumnIndexFromField(moveField);
-				if (moveFromColumn < 0) {
-					return;   // field to move not found
+				if (moveFromColumn == MISSING_INDEX) {
+					return;
 				}
 				var columnsCopy:Array = samplesGridConfirm.columns;
 				var column:AdvancedDataGridColumn = columnsCopy.removeAt(moveFromColumn);
 				var moveToColumn:int;
-				var otherColumn:int = getColumnIndexFromFieldPassed(columnsCopy, otherField);   // field may have shifted with removal
-				if (otherColumn >= 0) {
-					if (before) {
-						moveToColumn = otherColumn;
-					} else {
-						moveToColumn = otherColumn + 1;
-					}
+				var otherColumn:int = getColumnIndexFromFieldInArray(columnsCopy, otherField);
+				if (otherColumn != MISSING_INDEX) {
+					moveToColumn = otherColumn;
 				} else {
-					moveToColumn = moveFromColumn;   // other field not found, put the field in its original location
+					moveToColumn = moveFromColumn;
 				}
 				columnsCopy.insertAt(moveToColumn, column);
 				samplesGridConfirm.columns = columnsCopy;
 				samplesGridConfirm.validateNow();
 			}
 
-			private function moveColumnBefore(moveField:String, otherField:String):void {
-				moveColumn(moveField, otherField, true);
+			private function getColumnIndexFromField(field:String):int {
+				return getColumnIndexFromFieldInArray(samplesGridConfirm.columns, field);
 			}
 
-			private function moveColumnAfter(moveField:String, otherField:String):void {
-				moveColumn(moveField, otherField, false);
-			}
-
-			private function isIlluminaType():Boolean {
-				var requestCategory:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', this.selectedExperiment.@codeRequestCategory);
-				return (requestCategory.@isIlluminaType == 'Y');
-			}
-
-			private var qcFieldsInitialized:Boolean = false;
-			private var qualCalcConcentrationWasAfter:String = "";
-			private var qualRINNumberWasAfter:String = "";
-
-			private function placeSpecialQcColumns():void {
-				if (!qcFieldsInitialized) {
-					qualCalcConcentrationWasAfter = getFieldBefore("@qualCalcConcentration");
-					qualRINNumberWasAfter = getFieldBefore("@qualRINNumber");
-					qcFieldsInitialized = true;
+			private function getColumnIndexFromFieldInArray(cols:Array, field:String):int {
+				if (field == LAST_FIELD) {
+					return cols.length;
 				}
-				if (isIlluminaType()) {
-					moveColumnBefore("@qualCalcConcentration", "@idSeqLibProtocol");
-					moveColumnBefore("@qualRINNumber", "@idSeqLibProtocol");
-				} else {
-					moveColumnAfter("@qualRINNumber", qualRINNumberWasAfter);
-					moveColumnAfter("@qualCalcConcentration", qualCalcConcentrationWasAfter);
+				for (var i:int; i < cols.length; i++) {
+					if (cols[i].dataField == field) {
+						return i;
+					}
 				}
+				return MISSING_INDEX;
 			}
 
 			private function shouldShowMMBox():Boolean {
 				if ( libDesignAndInsertBox.visible ){
 					return true;
-				} 
+				}
 				if ( this.selectedExperiment.@codeIsolationPrepType != null && this.selectedExperiment.@codeIsolationPrepType!='' ) {
 					return true;
 				}
@@ -607,7 +602,7 @@
 				}
 				return false;
 			}
-			
+
 			private function setWorkflowStatus():void {
 				// Reset the progress bar labels
 				for each(var stepLabelElement:Object in this.stepLabel) {
@@ -627,7 +622,7 @@
 				workflowProgressBox.visible = x > 0 ? true : false;
 				workflowProgressBox.includeInLayout = x > 0 ? true : false;
 			}
-			
+
 			public function initializeBarcoding():void {
 				var showSampleMultiplexGroup:Boolean = false;
 				var showSampleBarcode:Boolean = false;
@@ -655,9 +650,9 @@
 						showSampleCustomBarcodeB = true;
 					}
 				}
-				
+
 				if (showPlates) {
-					
+
 					this.samplesGridConfirm.dataProvider = null;
 					sampleGroupingCollection = new GroupingCollection();
 					sampleGroupingCollection.source = this.samples;
@@ -667,20 +662,20 @@
 					groupCapSeq.fields = [gfCapSeq];
 					gfCapSeq.compareFunction = plateSampleCompareFunction;
 					sampleGroupingCollection.grouping  = groupCapSeq;
-					sampleGroupingCollection.refresh(); 
+					sampleGroupingCollection.refresh();
 					this.samplesGridConfirm.dataProvider = sampleGroupingCollection;
-					
+
 					this.samplesGridConfirm.dragMoveEnabled = false;
 					this.samplesGridConfirm.dropEnabled = false;
 					this.samplesGridConfirm.dragEnabled = false;
-					
-					
+
+
 					this.switchFirstSampleGridColumns(this.plateNameCol, this.multiplexGroupNumberColumn);
 					this.plateNameCol.visible = true;
 					this.multiplexGroupNumberColumn.visible = false;
-					
+
 				} else if (showSampleMultiplexGroup) {
-					
+
 					this.samplesGridConfirm.dataProvider = null;
 					sampleGroupingCollection = new GroupingCollection();
 					sampleGroupingCollection.source = this.samples;
@@ -692,35 +687,35 @@
 					sampleGroupingCollection.grouping  = group;
 					sampleGroupingCollection.refresh();
 					this.samplesGridConfirm.dataProvider = sampleGroupingCollection;
-					
+
 					this.multiplexGroupNumberColumn.visible = true;
 					switchFirstSampleGridColumns(this.multiplexGroupNumberColumn, this.plateNameCol);
 					this.plateNameCol.visible = false;
-					
+
 				} else {
-					
+
 					sampleGroupingCollection = null;
 					this.samplesGridConfirm.dataProvider = this.samples;
-					
+
 					this.multiplexGroupNumberColumn.visible = false;
-					
+
 				}
-				
+
 				this.barcodeCol.visible = showSampleBarcode;
 				this.customBarcodeCol.visible = showSampleCustomBarcode;
 				this.customBarcodeColB.visible = showSampleCustomBarcodeB;
 				this.barcodeColB.visible = showSampleBarcodeB;
-				
+
 				if (currentState == "SolexaState") {
 					this.laneBarcodeCol.visible = showSampleBarcode;
 					this.laneBarcodeColB.visible = showSampleBarcode;
 					this.laneCustomBarcodeCol.visible = showSampleCustomBarcode;
 					this.laneCustomBarcodeColB.visible = showSampleCustomBarcode;
 				}
-				
+
 				this.samplesGridConfirm.validateNow();
 			}
-			
+
 			private function switchFirstSampleGridColumns (col1:AdvancedDataGridColumn, col2:AdvancedDataGridColumn):void {
 				var columns:Array = [];
 				columns[0] = col1;
@@ -730,7 +725,7 @@
 				}
 				this.samplesGridConfirm.columns = columns;
 			}
-			
+
 			private function sampleCompareFunction(a:XML, b:XML):int
 			{
 				var aPersistFlag:Number = 0;
@@ -741,7 +736,7 @@
 				} else {
 					aPosition = a.@idSample;
 				}
-				
+
 				var bPersistFlag:Number = 0;
 				var bPosition:Number = 0;
 				if (b.@idSample.toString().indexOf("Sample") > -1) {
@@ -750,14 +745,14 @@
 				} else {
 					bPosition = b.@idSample;
 				}
-				
+
 				if (aPersistFlag == bPersistFlag) {
-					return ObjectUtil.numericCompare(aPosition, bPosition);				
+					return ObjectUtil.numericCompare(aPosition, bPosition);
 				} else {
 					return ObjectUtil.numericCompare(aPersistFlag, bPersistFlag);
 				}
-			}		
-			
+			}
+
 			private function plateSampleCompareFunction(a:XML, b:XML):int
 			{
 				if (a.hasOwnProperty("@plateName") && a.hasOwnProperty("@wellName") && b.hasOwnProperty("@plateName") && b.hasOwnProperty("@wellName")) {
@@ -780,7 +775,7 @@
 					} else {
 						aPosition = a.@idSample;
 					}
-					
+
 					var bPersistFlag:Number = 0;
 					var bPosition:Number = 0;
 					if (b.@idSample.toString().indexOf("Sample") > -1) {
@@ -789,15 +784,15 @@
 					} else {
 						bPosition = b.@idSample;
 					}
-					
+
 					if (aPersistFlag == bPersistFlag) {
-						return ObjectUtil.numericCompare(aPosition, bPosition);				
+						return ObjectUtil.numericCompare(aPosition, bPosition);
 					} else {
 						return ObjectUtil.numericCompare(aPersistFlag, bPersistFlag);
 					}
 				}
 			}
-			
+
 			private function showCy3LabelCols(isVisible:Boolean):void {
 				labelCol1.visible = isVisible;
 				labelCol2.visible = isVisible;
@@ -805,7 +800,7 @@
 				labelCol4.visible = isVisible;
 				labelCol5.visible = isVisible;
 			}
-			
+
 			private function showCy5LabelCols(isVisible:Boolean):void {
 				labelCol6.visible = isVisible;
 				labelCol7.visible = isVisible;
@@ -813,7 +808,7 @@
 				labelCol9.visible = isVisible;
 				labelCol10.visible = isVisible;
 			}
-			
+
 			private function getChannel1SampleName(item:Object, col:int):String {
 				var de:XMLList = item.labeledSampleChannel1.LabeledSample.sample.Sample;
 				if (de.length() == 1) {
@@ -850,8 +845,8 @@
 			{
 				var x:int = hybsGridConfirm.dataProvider.getItemIndex(item) + 1;
 				return String(x);
-			} 
-			
+			}
+
 			private function getRequestCategoryVariables():void {
 				var requestCategory:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', this.selectedExperiment.@codeRequestCategory);
 				if (requestCategory is XMLList) {
@@ -862,7 +857,7 @@
 						isClinicalResearch = 'N'
 					}
 				} else {
-					requestCategoryName = requestCategory.@display.toString();		
+					requestCategoryName = requestCategory.@display.toString();
 					if (requestCategory.@isClinicalResearch != null) {
 						isClinicalResearch = requestCategory.@isClinicalResearch.toString();
 					} else {
@@ -870,7 +865,7 @@
 					}
 				}
 			}
-			
+
 			private function getExperimentCategoryName():void {
 				experimentCategoryName = "";
 				if (this.selectedExperiment.protocols.Protocol.length() <= 0 || !this.headerBox.visible) {
@@ -885,7 +880,7 @@
 					}
 				}
 			}
-			
+
 			private function getSeqLibTreatments():void {
 				seqLibTreatments = "";
 				for each(var item:Object in this.selectedExperiment.seqLibTreatments.SeqLibTreatment) {
@@ -899,52 +894,52 @@
 				if (selectedExperiment.hasOwnProperty("@codeVisibility")) {
 					var visibility:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Visibility', this.selectedExperiment.@codeVisibility);
 					if (visibility is XMLList) {
-						visibilityName = visibility[0].@display.toString();			
+						visibilityName = visibility[0].@display.toString();
 					} else {
 						visibilityName = visibility.@display.toString();
 					}
 				}
 			}
-			
+
 			private function getInstitutionName():void {
 				if (selectedExperiment.hasOwnProperty("@idInstitution")) {
 					var institution:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Institution', this.selectedExperiment.@idInstitution);
 					if (institution is XMLList) {
-						institutionName = institution[0].@display.toString();			
+						institutionName = institution[0].@display.toString();
 					} else {
 						institutionName = institution.@display.toString();
 					}
 				}
 			}
-			
+
 			public function showDownloads():void {
 				this.theTab.selectedChild = this.filesView;
 				downloadExpandedFilesButtonView.visible = true;
 				downloadExpandedFilesButtonView.includeInLayout = true;
 			}
-			
+
 			public function promptToDeleteExperiment():void {
 				var warningMessage:String = "Delete experiment " + this.selectedExperiment.@number + "?";
-				
+
 				var billingItems:XMLList = this.selectedExperiment.billingItems.BillingItem;
 				if ( billingItems.length() > 0) {
 					warningMessage += "\n\nWARNING: This will also delete " + billingItems.length() + " billing item(s) associated with this experiment.\n\n";
 				}
-				
+
 				var statusToUseProducts:String = parentApplication.getRequestCategoryProperty(selectedExperiment.@idCoreFacility, selectedExperiment.@codeRequestCategory, parentApplication.PROPERTY_STATUS_TO_USE_PRODUCTS);
 				if (statusToUseProducts != null && statusToUseProducts != "" && selectedExperiment.hasOwnProperty("@codeRequestStatus") && selectedExperiment.@codeRequestStatus != "") {
 					var comp:RequestStatusComparator = new RequestStatusComparator();
 					if (comp.compare(selectedExperiment.@codeRequestStatus, statusToUseProducts) >= 0) {
 						warningMessage += "\n\nWARNING: This experiment may have used products. If the products were not actually consumed, please revert the status of the experiment to an earlier status or manually return the products to the lab before deleting.\n\n";
 					}
-				} 
-				
-				Alert.show(warningMessage, 
-					"Confirm", 
-					(Alert.YES | Alert.NO), this, 
-					onPromptToDeleteExperiment);
+				}
+
+				Alert.show(warningMessage,
+						"Confirm",
+						(Alert.YES | Alert.NO), this,
+						onPromptToDeleteExperiment);
 			}
-			
+
 			private function onPromptToDeleteExperiment(event:CloseEvent):void {
 				if (event.detail==Alert.YES) {
 					deleteExperiment();
@@ -953,7 +948,7 @@
 			private function deleteExperiment():void {
 				parentDocument.parentDocument.deleteExperiment();
 			}
-			
+
 			public function promptToSubmitExperiment():void {
 				if(this.productsView.enabled){
 					var error:String = this.productsView.getErrors("submit");
@@ -962,12 +957,12 @@
 						return;
 					}
 				}
-				Alert.show("Submit experiment " + this.selectedExperiment.@number + "?  After submission only facility personnel will be able to make changes.", 
-					"Confirm", 
-					(Alert.YES | Alert.NO), this, 
-					onPromptToSubmitExperiment);
+				Alert.show("Submit experiment " + this.selectedExperiment.@number + "?  After submission only facility personnel will be able to make changes.",
+						"Confirm",
+						(Alert.YES | Alert.NO), this,
+						onPromptToSubmitExperiment);
 			}
-			
+
 			private function onPromptToSubmitExperiment(event:CloseEvent):void {
 				if (event.detail==Alert.YES) {
 					submitExperiment();
@@ -976,81 +971,81 @@
 			private function submitExperiment():void {
 				parentDocument.parentDocument.submitExperiment();
 			}
-			
+
 			public function promptToArchiveExperiment():void{
-				Alert.show("Archive experiment " + this.selectedExperiment.@number + "?  Archiving an experiment will delete all files on disk associated with this experiment and it will no longer appear in browse experiment lists.  However, GNomEx will retain a record of the experiment/sample details if you wish to restore them at a later date.", 
-					"Confirm", 
-					(Alert.YES | Alert.NO), this, 
-					onPromptToArchiveExperiment);
-				
+				Alert.show("Archive experiment " + this.selectedExperiment.@number + "?  Archiving an experiment will delete all files on disk associated with this experiment and it will no longer appear in browse experiment lists.  However, GNomEx will retain a record of the experiment/sample details if you wish to restore them at a later date.",
+						"Confirm",
+						(Alert.YES | Alert.NO), this,
+						onPromptToArchiveExperiment);
+
 			}
-			
+
 			private function onPromptToArchiveExperiment(event:CloseEvent):void{
 				if (event.detail==Alert.YES) {
 					parentDocument.parentDocument.archiveExperiment();
 				}
 			}
-			
+
 			public function showPrintableRequestForm():void {
 				var url:URLRequest = new URLRequest('ShowRequestForm.gx?idRequest=' + this.selectedExperiment.@idRequest);
-				navigateToURL(url, '_blank');			
+				navigateToURL(url, '_blank');
 			}
-			
+
 			public function checkForFileView():void {
 				if(theTab.contains(this.filesView)) {
-					theTab.selectedChild = filesView;	
+					theTab.selectedChild = filesView;
 					callLater(filesView.showDownloadWindow);
 				}
-			}	
-			
+			}
+
 			public function showEditExperimentWindow():void {
 				parentDocument.parentDocument.experimentEditView.instantiateTabs(this.selectedExperiment.@codeRequestCategory, true, false);
 				parentDocument.parentDocument.experimentEditView.coreFacility = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.CoreFacility', this.selectedExperiment.@idCoreFacility);
-				
+
 				parentDocument.parentDocument.experimentEditView.request = this.selectedExperiment;
 				parentDocument.parentDocument.experimentEditView.coreFacility = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.CoreFacility', this.selectedExperiment.@idCoreFacility);
 				parentDocument.parentDocument.experimentEditView.samplesView.setShowCCNumber(this.selectedExperiment.@hasCCNumber == 'Y');
 				parentDocument.parentDocument.experimentEditView.selectedAssaysCollection = this.assays;
 				parentDocument.parentDocument.experimentEditView.saveDescription = GNomExStringUtil.cleanRichTextHTML(this.overallDescript.htmlText);
-				
+
 				parentDocument.parentDocument.experimentViews.selectedChild = parentDocument.parentDocument.experimentEditView;
 				if (parentDocument.parentDocument.experimentEditView.theTab.contains(parentDocument.parentDocument.experimentEditView.annotationView)) {
 					parentDocument.parentDocument.experimentEditView.annotationView.onPropertyRefreshed(null);
 					parentDocument.parentDocument.experimentEditView.annotationView.checkSecurity();
-				} 
-				
+				}
+
 				if (this.isCherryPickState()) {
 					var numDestinationWells:int = Number(this.selectedExperiment.@numDestinationWells.toString());
 					parentDocument.parentDocument.experimentEditView.cherryPlateList = this.selectedExperiment.cherryPlateList.Plate;
 					parentDocument.parentDocument.experimentEditView.samplesView.prepareCherryPickingSamplesForEdit(numDestinationWells);
 				}
-				
+
 				if (this.isIScanState() || (this.isSequenomState() && this.selectedExperiment.@containerType == "PLATE") ) {
 					parentDocument.parentDocument.experimentEditView.numIScanPlates = countPlates();
 				}
-				
+
 				var editTitle:String = (this.selectedExperiment.@isExternal == 'Y' ? 'Edit External Experiment ' :  'Edit Experiment ') + this.selectedExperiment.@number;
-				
+
 				parentDocument.parentDocument.experimentEditView.removeDataListeners();
 				parentDocument.parentDocument.experimentEditView.initializeData();
 
 				// ********************************************************************************
 				parentApplication.lastGetRequestDownloadListidRequest = "";
 				parentApplication.lastGetRequestDownloadListrequestNumber = "";
-				
+
 				parentDocument.parentDocument.experimentEditView.setupEditForm(this.selectedExperiment);
 				parentDocument.parentDocument.experimentEditView.titleLabel.text = editTitle;
-				
+
 				if (parentDocument.parentDocument.experimentEditView.samplesView.hasPlates() && !parentDocument.parentDocument.experimentEditView.isIScanState()
-					&& !parentDocument.parentDocument.experimentEditView.isSequenomState() ) {
+						&& !parentDocument.parentDocument.experimentEditView.isSequenomState() ) {
 					parentDocument.parentDocument.experimentEditView.numCapSeqPlates = countPlates();
 				}
-				
+
 				chooseEditTabs();
 				callLater(parentDocument.parentDocument.experimentEditView.setupDataListeners);
-				
+
 			}
-			
+
 			private function chooseEditTabs():void {
 				chooseEditTab(infoTab, parentDocument.parentDocument.experimentEditView.infoTab);
 				chooseEditTab(notesTab, parentDocument.parentDocument.experimentEditView.notesView);
@@ -1059,13 +1054,13 @@
 				chooseEditTab(bioinformaticsTab, parentDocument.parentDocument.experimentEditView.bioinformaticsView);
 				chooseEditTab(filesView, parentDocument.parentDocument.experimentEditView.downloadView);
 			}
-			
+
 			private function chooseEditTab(selectedTab:Object, parentTab:Container):void {
 				if (theTab.selectedChild == selectedTab && parentDocument.parentDocument.experimentEditView.theTab.contains(parentTab)) {
 					parentDocument.parentDocument.experimentEditView.defaultTab = parentTab;
 				}
 			}
-			
+
 			private function countPlates():int {
 				var prevPlate:String = "xxxx";
 				var numPlates:int = 0;
@@ -1075,24 +1070,24 @@
 					}
 					prevPlate = s.@plateName;
 				}
-				
+
 				return numPlates;
 			}
-			
+
 			public function refreshSavedExperiment(idRequest:Object):void {
 				parentDocument.parentDocument.selectedIdRequest = idRequest;
 				var parms:Object = new Object();
 				parms.idRequest = parentDocument.parentDocument.selectedIdRequest;
 				parentDocument.parentDocument.getRequest.send(parms);
-				
+
 			}
-			
+
 			public function getLanesGridRowNumber(item:Object,col:int):String
 			{
 				var x:int = this.lanesConfirmGrid.dataProvider.getItemIndex(item) + 1;
-				return String(x);     		
+				return String(x);
 			}
-			
+
 			private function showHideColumns():void {
 				descriptionCol.visible = (this.selectedExperiment.@hasSampleDescription=="Y");
 				this.cherryDestinationWellCol.visible = false;
@@ -1104,12 +1099,12 @@
 				redoFlagCol.visible = false;
 				this.sampleNameColumn.visible = true;
 				qubitConcentrationCol.visible = (this.selectedExperiment.@includeQubitConcentration=="Y");
-				
+
 				this.getConcentrationHeader();
 				// can't do this in state stuff because of external stuff below.
 				this.noteToCoreFacilityBox.visible = true;
 				this.noteToCoreFacilityBox.includeInLayout = true;
-				
+
 				// hide bio and core notes for external experiments unless populated.
 				if (this.selectedExperiment.@isExternal == "Y") {
 					if (this.noteToCoreFacilityBox.visible) {
@@ -1119,7 +1114,7 @@
 						}
 					}
 				}
-				
+
 				// Make description bigger if possible
 				if (!this.noteToCoreFacilityBox.visible) {
 					this.bioAndCoreNoteVBox.visible = false;
@@ -1128,15 +1123,15 @@
 					this.bioAndCoreNoteVBox.visible = true;
 					this.bioAndCoreNoteVBox.includeInLayout = true;
 				}
-				
+
 				if (currentState == 'ExternalSeqState') {
 					sampleTypeCol.visible = true;
 					organismCol.visible = false;
 					sampleVolumeCol.visible = false;
-					
+
 					this.otherOrganismCol.visible = false;
 					this.otherSamplePrepMethodCol.visible = false;
-					concentrationCol.visible = false; 
+					concentrationCol.visible = false;
 					preppedByLabCol.visible = false;
 					chipTypeCol.visible = false;
 					concentrationUnitCol.visible = false;
@@ -1149,18 +1144,18 @@
 					this.qcConcCol.visible = false;
 					this.qcRINCol.visible = false;
 					this.qcStatusCol.visible = false;
-					
+
 				} else if (currentState == 'ExternalMicroarrayState') {
 					sampleTypeCol.visible = true;
 					organismCol.visible = false;
 					sampleVolumeCol.visible = false;
-					
+
 					this.otherOrganismCol.visible = false;
 					this.otherSamplePrepMethodCol.visible = false;
-					concentrationCol.visible = false; 
+					concentrationCol.visible = false;
 					preppedByLabCol.visible = false;
 					chipTypeCol.visible = false;
-					concentrationUnitCol.visible = false;        		
+					concentrationUnitCol.visible = false;
 					barcodeCol.visible = false;
 					plateNameCol.visible = false;
 					wellNameCol.visible = false;
@@ -1170,11 +1165,11 @@
 					this.qcConcCol.visible = false;
 					this.qcRINCol.visible = false;
 					this.qcStatusCol.visible = false;
-					
+
 				} else {
-					
-					descriptionCol.visible = true;   
-					
+
+					descriptionCol.visible = true;
+
 					if (currentState == 'SolexaState') {
 						concentrationCol.visible = true;
 						sampleVolumeCol.visible = true;
@@ -1193,10 +1188,10 @@
 						this.qcRINCol.visible = true;
 						this.qcStatusCol.visible = true;
 						descriptionCol.visible = false;
-						
+
 					} else if (currentState == 'QCState' || currentState == 'ExternalQCState') {
 						sampleVolumeCol.visible = false;
-						concentrationCol.visible = false; 
+						concentrationCol.visible = false;
 						sampleTypeCol.visible = false;
 						organismCol.visible = false;
 						preppedByLabCol.visible = false;
@@ -1214,7 +1209,7 @@
 						this.qcStatusCol.visible = currentState == 'QCState';
 					} else if (isCapSeqState()) {
 						sampleVolumeCol.visible = false;
-						concentrationCol.visible = false; 
+						concentrationCol.visible = false;
 						sampleTypeCol.visible = true;
 						organismCol.visible = false;
 						preppedByLabCol.visible = false;
@@ -1232,10 +1227,10 @@
 						reactionPlateCol.visible = true;
 						redoFlagCol.visible = true;
 						this.descriptionCol.visible = false;
-						
+
 					} else if (isMitSeqState()) {
 						sampleVolumeCol.visible = false;
-						concentrationCol.visible = false; 
+						concentrationCol.visible = false;
 						sampleTypeCol.visible = false;
 						organismCol.visible = false;
 						preppedByLabCol.visible = false;
@@ -1252,10 +1247,10 @@
 						this.qcStatusCol.visible = false;
 						reactionPlateCol.visible = true;
 						redoFlagCol.visible = true;
-						
+
 					} else if (isFragAnalState()) {
 						sampleVolumeCol.visible = false;
-						concentrationCol.visible = false; 
+						concentrationCol.visible = false;
 						sampleTypeCol.visible = false;
 						organismCol.visible = false;
 						preppedByLabCol.visible = false;
@@ -1273,7 +1268,7 @@
 						reactionPlateCol.visible = true;
 					} else if (isCherryPickState()) {
 						sampleVolumeCol.visible = false;
-						concentrationCol.visible = false; 
+						concentrationCol.visible = false;
 						sampleTypeCol.visible = false;
 						organismCol.visible = false;
 						preppedByLabCol.visible = false;
@@ -1292,10 +1287,10 @@
 						this.cherrySourcePlateCol.visible = true;
 						this.cherrySourceWellCol.visible = true;
 						reactionPlateCol.visible = true;
-						
+
 					} else if (isIScanState()) {
 						sampleVolumeCol.visible = false;
-						concentrationCol.visible = false; 
+						concentrationCol.visible = false;
 						sampleTypeCol.visible = false;
 						organismCol.visible = false;
 						preppedByLabCol.visible = false;
@@ -1315,10 +1310,10 @@
 						this.cherrySourceWellCol.visible = false;
 						reactionPlateCol.visible = false;
 						this.descriptionCol.visible = false;
-						
+
 					} else if (isSequenomState()) {
 						sampleVolumeCol.visible = false;
-						concentrationCol.visible = true; 
+						concentrationCol.visible = true;
 						sampleTypeCol.visible = true;
 						organismCol.visible = false;
 						preppedByLabCol.visible = false;
@@ -1334,10 +1329,10 @@
 						this.qcRINCol.visible = false;
 						this.qcStatusCol.visible = false;
 						this.descriptionCol.visible = false;
-						
+
 					} else if (isClinicalSequenomState()) {
 						sampleVolumeCol.visible = false;
-						concentrationCol.visible = true; 
+						concentrationCol.visible = true;
 						sampleTypeCol.visible = true;
 						organismCol.visible = false;
 						preppedByLabCol.visible = false;
@@ -1354,10 +1349,10 @@
 						this.qcStatusCol.visible = false;
 						this.descriptionCol.visible = false;
 						this.sampleNameColumn.visible = false;
-						
+
 					} else if (isIsolationState()) {
 						sampleVolumeCol.visible = false;
-						concentrationCol.visible = true; 
+						concentrationCol.visible = true;
 						sampleTypeCol.visible = false;
 						organismCol.visible = false;
 						preppedByLabCol.visible = false;
@@ -1374,11 +1369,11 @@
 						this.qcStatusCol.visible = false;
 						this.descriptionCol.visible = false;
 						this.sampleSourceCol.visible = true;
-						
+
 						//this.concentrationCol.headerText = 'NanoDrop Conc.';
 					} else if (isIonTorrentState()) {
 						sampleVolumeCol.visible = false;
-						concentrationCol.visible = true; 
+						concentrationCol.visible = true;
 						sampleTypeCol.visible = true;
 						organismCol.visible = true;
 						preppedByLabCol.visible = false;
@@ -1396,12 +1391,12 @@
 						this.descriptionCol.visible = false;
 						this.sampleSourceCol.visible = false;
 						applicationCol.visible = true;
-						
+
 						//this.concentrationCol.headerText = 'Conc. (ng/ul)';
-						
+
 					}  else if (isGenericState()) {
 						sampleVolumeCol.visible = false;
-						concentrationCol.visible = false; 
+						concentrationCol.visible = false;
 						sampleTypeCol.visible = true;
 						organismCol.visible = true;
 						preppedByLabCol.visible = false;
@@ -1420,19 +1415,19 @@
 						this.sampleSourceCol.visible = false;
 						applicationCol.visible = true;
 						if ( this.selectedExperiment.@codeRequestCategory == 'DDPCR' ){
-							concentrationCol.visible = true; 
+							concentrationCol.visible = true;
 							otherSamplePrepMethodCol.visible = true;
 							applicationCol.visible = false;
 						}
 					}  else {
 						sampleVolumeCol.visible = false;
-						concentrationCol.visible = true; 
+						concentrationCol.visible = true;
 						sampleTypeCol.visible = true;
 						organismCol.visible = true;
 						preppedByLabCol.visible = false;
 						otherSamplePrepMethodCol.visible = true;
 						chipTypeCol.visible = false;
-						concentrationUnitCol.visible = false;        		
+						concentrationUnitCol.visible = false;
 						plateNameCol.visible = false;
 						wellNameCol.visible = false;
 						isControlCol.visible = false;
@@ -1443,15 +1438,15 @@
 						this.qcStatusCol.visible = true;
 					}
 				}
-				
+
 				this.initializeBarcoding();
 				otherOrganismCol.visible = false;
 			}
-			
+
 			public function showRelatedAnalysis():void {
 				parentApplication.showAnalysisForExperiment(this.selectedExperiment);
 			}
-			
+
 			private function onDoubleClickRelatedAnalysis():void {
 				var selectedItem:Object = this.relatedAnalysisTree.selectedItem;
 				showRelatedObject(selectedItem);
@@ -1460,7 +1455,7 @@
 				var selectedItem:Object = this.relatedTopicsTree.selectedItem;
 				showRelatedObject(selectedItem);
 			}
-			
+
 			private function showRelatedObject(selectedItem:Object):void {
 				if (selectedItem.name() == "Analysis") {
 					parentApplication.showAnalysisForNumber(selectedItem.@number);
@@ -1470,355 +1465,355 @@
 					parentApplication.showTopicForNumber(selectedItem.@idTopic);
 				} else if (selectedItem.name() == "Request" && selectedExperiment.@idRequest != selectedItem.@idRequest) {
 					parentApplication.showExperimentById(selectedItem.@idRequest);
-				}			
+				}
 			}
-			
+
 			// Get all options (include inactive)
 			public function getPropertyOptions(idProperty:String):XMLList {
 				return parentApplication.getPropertyOptions(idProperty, true);
 			}
-			
+
 			private function addAssayColumns():void {
 				var columns:Array = samplesGridConfirm.columns;
 				var newColumns:Array = new Array();
-				
+
 				// remove any existing assay columns
 				var colRemoved:Boolean = false;
 				for each(var remCol:AdvancedDataGridColumn in columns) {
 					if (remCol.dataField == null || remCol.dataField.substr(0, 9) != "@hasAssay") {
 						newColumns.push(remCol);
-					} else {
-						colRemoved = true;
-					}
-				}
-				if (colRemoved) {
-					samplesGridConfirm.columns = newColumns;
-					samplesGridConfirm.validateNow();
-				}
-				
-				if (isFragAnalState()) {
-					columns = samplesGridConfirm.columns;
-					newColumns = new Array();
-					for each(var addCol:AdvancedDataGridColumn in columns) {
-						if (addCol.dataField == "@description") {
-							for each (var assay:Object in assays) {
-								var newCol:AdvancedDataGridColumn = new AdvancedDataGridColumn();
-								newCol.dataField  = "@hasAssay" + assay.@name;
-								newCol.headerText = assay.@name;
-								newCol.visible    = true;
-								newCol.width	  = 40;
-								newColumns.push(newCol);
-							}
-						}
-						newColumns.push(addCol);
-					}
-					samplesGridConfirm.columns = newColumns;
-					samplesGridConfirm.validateNow();
-				}
-			}
-			
-			public function addNonStandardSampleColumns():void {
-				var annotation:Object;
-				var col:AdvancedDataGridColumn;
-				var exists:Boolean = false;
-				
-				addAssayColumns();
-				
-				// Make all annotation columns not visible
-				for each(col in samplesGridConfirm.columns) {
-					if (col.dataField != null && col.dataField.substr(0, 6) == "@ANNOT") {
-						col.visible    = false;       				
-					}    				
-				}
-				
-				if (!isMitSeqState() && !isCherryPickState()) {
-					for each(annotation in this.selectedExperiment.PropertyEntries.PropertyEntry) {
+                    } else {
+                        colRemoved = true;
+                    }
+                }
+                if (colRemoved) {
+                    samplesGridConfirm.columns = newColumns;
+                    samplesGridConfirm.validateNow();
+                }
 
-						if(annotation.@idProperty == "-1") {
-							continue;
-						}
-						
-						var property:XML = parentApplication.getSampleProperty(annotation.@idProperty);
-						if ( property == null ) {
-							continue;
-						}
-						var headerName:String = "";
-						if (property.@name == "Other" && annotation.@otherLabel != "" ) {
-							headerName = annotation.@otherLabel;
-							annotation.@isSelected = "true";
-						} else {
-							headerName = annotation.@name;
-						}
-						
-						// Note we don't specify application because that is taken care of in the back end (GetRequest).
-						var isApplicable:Boolean = AnnotationUtility.isApplicableProperty(parentApplication.getSampleProperty(annotation.@idProperty),
-							parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory',this.selectedExperiment.@codeRequestCategory),
-							this.selectedExperiment.@idOrganism, this.selectedExperiment.@codeApplication);
-						
-						exists = false;
-						
-						for each(col in samplesGridConfirm.columns) {
-							if (col.dataField == ("@ANNOT" + annotation.@idProperty)) {
-								exists = true;
-								col.visible    = annotation.@isSelected == "true" && isApplicable ? true : false;       				
-								col.headerText = headerName;
-								break;
-							}    				
-						}
-						
-						// We already have this column.  Just set the header and visible and move on.
-						var newCol:AdvancedDataGridToolTipColumn = new AdvancedDataGridToolTipColumn();
-						if (exists) {
-							newCol = AdvancedDataGridToolTipColumn(col);
-						} else {
-							newCol.dataField  = "@ANNOT" + annotation.@idProperty;
-							newCol.headerText = headerName;
-							newCol.visible    = (annotation.@isSelected == "true" && isApplicable ? true : false);
-							newCol.headerWordWrap = true;
-							if (property.@description != null && property.@description.toString() != "") {
-								newCol.headerToolTip = property.@description
-							} else {
-								newCol.headerToolTip = property.@name;
-							}
+                if (isFragAnalState()) {
+                    columns = samplesGridConfirm.columns;
+                    newColumns = new Array();
+                    for each(var addCol:AdvancedDataGridColumn in columns) {
+                        if (addCol.dataField == "@description") {
+                            for each (var assay:Object in assays) {
+                                var newCol:AdvancedDataGridColumn = new AdvancedDataGridColumn();
+                                newCol.dataField  = "@hasAssay" + assay.@name;
+                                newCol.headerText = assay.@name;
+                                newCol.visible    = true;
+                                newCol.width	  = 40;
+                                newColumns.push(newCol);
+                            }
+                        }
+                        newColumns.push(addCol);
+                    }
+                    samplesGridConfirm.columns = newColumns;
+                    samplesGridConfirm.validateNow();
+                }
+            }
 
-							if (property.@codePropertyType == 'MOPTION') {
-								newCol.itemRenderer =  MultiselectRenderer.create(false);
-							} else if (property.@codePropertyType == 'URL') {
-								newCol.itemRenderer = URLRenderer.create(false);
-							} else if (property.@codePropertyType == 'CHECK') {
-								// checkbox is just normal label renderer
-							} else if (property.@codePropertyType == 'OPTION') {             
-								newCol.itemRenderer = views.renderers.DropdownLabel.create(
-									parentApplication.getPropertyOptions(annotation.@idProperty), 
-									'@option', 
-									'@idPropertyOption', 
-									"@ANNOT" + annotation.@idProperty,
-									'',
-									false);                
-							} else{
-								newCol.wordWrap = true;
-							}
-						}						
-						
-						// Place the new column right after the description column
-						var columns:Array = samplesGridConfirm.columns;
-						var newColumns:Array = new Array();
-						for each(var column:AdvancedDataGridColumn in columns) {
-							if((currentState == 'SolexaState' || currentState == 'MicroarrayState' || currentState == 'QCState' 
-								|| currentState == null || isNanoStringState() || this.isSequenomState() || this.isIonTorrentState() || currentState == 'ExternalMicroarrayState'
-								|| currentState == 'ExternalSeqState' || currentState == 'ExternalQCState') && column.dataField == "@idSampleType"){
-									newColumns.push(newCol);
-							}
-							
-							if (column != newCol) {
-								newColumns.push(column);
-							}
-						}
-						
-						if(this.isIsolationState() || this.isIScanState() || this.isCapSeqState() || this.isFragAnalState() ){
-							newColumns.push(newCol);
-						}
-						
-						samplesGridConfirm.columns = newColumns;
-						
-						samplesGridConfirm.validateNow();
-					} 
-				}   		
-			}
-			
-			private function showProtocol(idProtocol:Object, protocolClassName:String):void {
-				var params:Object = new Object();
-				params.id = idProtocol;
-				params.protocolClassName = protocolClassName;
-				getProtocol.send(params);
-			}
-			
-			private function showAdapters(protocolClassName:String, fivePrime:String, threePrime:String):void {
-				var adapterWindow:AdapterWindow = AdapterWindow(PopUpManager.createPopUp(DisplayObject(this.parentDocument), AdapterWindow, false));
-				PopUpManager.centerPopUp(adapterWindow);
-				adapterWindow.title = protocolClassName;
-				adapterWindow.adapterTextArea.text = "Read 1 Adapter:\n " + threePrime + "\n\n" + "Read 2 Adapter:\n " + fivePrime;
-			}
-			
-			private function onGetProtocol(event:ResultEvent): void { 
-				if (getProtocol.lastResult.name() != "Protocol") {
-					mx.controls.Alert.show(getProtocol.lastResult..ACTMESSAGE.@TEXT);
-					return;
-				}
-				var protocolWindow:ProtocolWindow = ProtocolWindow(PopUpManager.createPopUp(DisplayObject(this.parentDocument), ProtocolWindow, false));
-				PopUpManager.centerPopUp(protocolWindow);
-				protocolWindow.init(getProtocol.lastResult);
-			}
-			
-			public function getLaneTreeIcon(item:Object):Class {
-				return null; 
-			} 
-			
-			public function refreshDownloadList():void {
+            public function addNonStandardSampleColumns():void {
+                var annotation:Object;
+                var col:AdvancedDataGridColumn;
+                var exists:Boolean = false;
 
-				if (theTab.selectedChild == filesView) {
-					var params:Object = new Object();
-					params.idRequest = this.selectedExperiment.@idRequest;
-					if (parentApplication.needToLoad(params) ) {				
-						var oldId:String = parentApplication.lastGetRequestDownloadListidRequest;
-						var newId:String = parentApplication.lastGetRequestDownloadListrequestNumber;
-						if (oldId == null) oldId = "crap";
-						if (newId == null) newId = "crap";
-						params.whereami = "1" + "/" + oldId + "/" + newId;
+                addAssayColumns();
 
-						filesView.getRequestDownloadList.send(params);
-					} 
+                // Make all annotation columns not visible
+                for each(col in samplesGridConfirm.columns) {
+                    if (col.dataField != null && col.dataField.substr(0, 6) == "@ANNOT") {
+                        col.visible    = false;
+                    }
+                }
 
-					filesView.browseParameters = params;
-				}
-			}
-			
-			public function filterList():void{		}
-			
-			protected function tabChangeHandler(event:IndexChangedEvent):void
-			{
-				refreshDownloadList();
-			}
-			
-			[Bindable]
-			private var selectedFileList:XMLListCollection;
-			
-			public function isControlLabelFunction(item:Object, column:AdvancedDataGridColumn):String
-			{
-				if (item is XML) {
-					if (item.@isControl == "N") {
-						return "";
-					} else {
-						return item.@isControl;
-					}
-				} else {
-					return "";
-				}
-			}
-			
-			public function groupNameLabelFunction(item:Object, column:AdvancedDataGridColumn):String
-			{
-				if (item is XML) {
-					return "";
-				} else {
-					return item.groupLabel;
-				}
-			}
-			
-			public function navigateToURLLink(ccNumber:String):void {
-				
-				if ( ccNumber == null ) {
-					return;
-				}
-				
-				var url:String = parentApplication.getProperty(parentApplication.PROPERTY_GNOMEX_LINKAGE_BST_URL) + "#ccNumber=" + ccNumber;
-				
-				navigateToURL( new URLRequest(url), '_blank' );
-			}
-			
-			private function showCollaboratorWindow():void {
-				var collaboratorWindow:CollaboratorWindow = CollaboratorWindow(PopUpManager.createPopUp(parentApplication.theBody, CollaboratorWindow, true));
-				PopUpManager.centerPopUp(collaboratorWindow);
-				collaboratorWindow.init("Collaborators for Experiment " + selectedExperiment.@number, 
-					collaborators, 
-					selectedExperiment);
-				
-			}
-			
-			private function filterPropertyEntry(sce:Object):Boolean {
-				var keep:Boolean = false;
-				
-				var property:XML = parentApplication.getSampleProperty(sce.@idProperty);
-				if(sce.@idProperty == "-1" || property == null) {
-					return true;	// Special case for "Description" field which is not a "real" property 
-				}
-				var requestCategory:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory',this.selectedExperiment.@codeRequestCategory);
-				if (AnnotationUtility.isApplicableProperty(property, requestCategory, this.selectedExperiment.@idOrganism, selectedExperiment.@codeApplication)) {
-					if (sce.@isSelected == 'true' || property.@isActive != 'N') {
-						keep = true;
-					}
-				}
-				
-				return keep;
-			}
-			
-			private function downloadSampleSheet():void{
-				var fieldList:XMLListCollection = this.getFieldList();
-				var showUrl:URLRequest = new URLRequest('DownloadSampleSheet.gx');
-				var uv:URLVariables = new URLVariables();
-				showUrl.contentType = "application/x-www-form-urlencoded";
-				var names:String = "<NameList>"
-				for each (var node : XML in fieldList){
-					names += node.toXMLString();
-				}
-								
-				names += "</NameList>";
-				uv.names = names;
-				uv.requestXMLString = this.selectedExperiment.toXMLString();
-				showUrl.data = uv;
-				showUrl.method = URLRequestMethod.POST;
-				navigateToURL(showUrl, '_blank');
-			}
-			
-			private function getFieldList():XMLListCollection {
-				
-				var fieldList:XMLListCollection = new XMLListCollection();
-				// Build the contents of the columns selection list
-				var grid:CopyPasteSampleGrid = samplesGridConfirm;
-				for each(var col:AdvancedDataGridColumn in grid.columns) {
-					if(col.visible == false || col.headerText == ""){
-						continue;
-					}
-					if (col.dataField != null && col.dataField == '@codeConcentrationUnit') {
-						continue;
-					}
+                if (!isMitSeqState() && !isCherryPickState()) {
+                    for each(annotation in this.selectedExperiment.PropertyEntries.PropertyEntry) {
 
-					var fieldType:String = "TEXT";
-					if(col is AdvancedDataGridColumnWithType) {
-						fieldType = AdvancedDataGridColumnWithType(col).propertyType;
-					}
-					
-						var emptyNode:XML = new XML("<FieldItem " +
-							" dataField='" + col.dataField + "' fieldText='" + col.headerText +
-							"' fieldType='" + fieldType + "' selectedSSColumn='0'/>");
-						fieldList.addItem(emptyNode);
-				}					
-				
-				return fieldList;
-			}
-			
-			private function getSampleConcentrationFormatted(item:Object, column:AdvancedDataGridColumn):String {
-				numberFormatter.precision = sampleConcentrationPrecision;
-				if (item.hasOwnProperty("@concentration") && item.@concentration != '') {
-					return numberFormatter.format(item.@concentration);
-				} else {
-					return "";
-				}
-			}
+                        if(annotation.@idProperty == "-1") {
+                            continue;
+                        }
 
-			private function getSampleVolumeFormatted(item:Object, column:AdvancedDataGridColumn):String {
-				numberFormatter.precision = sampleConcentrationPrecision;
-				if (item.hasOwnProperty("@sampleVolume") && item.@sampleVolume != '') {
-					return numberFormatter.format(item.@sampleVolume);
-				} else {
-					return "";
-				}
-			}
-			
-			private function determineToShowProductsTab(requestCategory:Object):Boolean {
-				if (selectedExperiment != null && selectedExperiment.@isExternal != 'Y' && requestCategory != null) {
-					if (requestCategory.@idProductType != null && requestCategory.@idProductType != '') {
-						return true;
-					}
-				}
-				
-				return false;
-			}
-			
-			private function getConcentrationHeader():void{
-				if(this.samples.length > 0){
-					concHeader += "("+samples.getItemAt(0).@codeConcentrationUnit+")";
-				}
+                        var property:XML = parentApplication.getSampleProperty(annotation.@idProperty);
+                        if ( property == null ) {
+                            continue;
+                        }
+                        var headerName:String = "";
+                        if (property.@name == "Other" && annotation.@otherLabel != "" ) {
+                            headerName = annotation.@otherLabel;
+                            annotation.@isSelected = "true";
+                        } else {
+                            headerName = annotation.@name;
+                        }
+
+                        // Note we don't specify application because that is taken care of in the back end (GetRequest).
+                        var isApplicable:Boolean = AnnotationUtility.isApplicableProperty(parentApplication.getSampleProperty(annotation.@idProperty),
+                                parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory',this.selectedExperiment.@codeRequestCategory),
+                                this.selectedExperiment.@idOrganism, this.selectedExperiment.@codeApplication);
+
+                        exists = false;
+
+                        for each(col in samplesGridConfirm.columns) {
+                            if (col.dataField == ("@ANNOT" + annotation.@idProperty)) {
+                                exists = true;
+                                col.visible    = annotation.@isSelected == "true" && isApplicable ? true : false;
+                                col.headerText = headerName;
+                                break;
+                            }
+                        }
+
+                        // We already have this column.  Just set the header and visible and move on.
+                        var newCol:AdvancedDataGridToolTipColumn = new AdvancedDataGridToolTipColumn();
+                        if (exists) {
+                            newCol = AdvancedDataGridToolTipColumn(col);
+                        } else {
+                            newCol.dataField  = "@ANNOT" + annotation.@idProperty;
+                            newCol.headerText = headerName;
+                            newCol.visible    = (annotation.@isSelected == "true" && isApplicable ? true : false);
+                            newCol.headerWordWrap = true;
+                            if (property.@description != null && property.@description.toString() != "") {
+                                newCol.headerToolTip = property.@description
+                            } else {
+                                newCol.headerToolTip = property.@name;
+                            }
+
+                            if (property.@codePropertyType == 'MOPTION') {
+                                newCol.itemRenderer =  MultiselectRenderer.create(false);
+                            } else if (property.@codePropertyType == 'URL') {
+                                newCol.itemRenderer = URLRenderer.create(false);
+                            } else if (property.@codePropertyType == 'CHECK') {
+                                // checkbox is just normal label renderer
+                            } else if (property.@codePropertyType == 'OPTION') {
+                                newCol.itemRenderer = views.renderers.DropdownLabel.create(
+                                        parentApplication.getPropertyOptions(annotation.@idProperty),
+                                        '@option',
+                                        '@idPropertyOption',
+                                        "@ANNOT" + annotation.@idProperty,
+                                        '',
+                                        false);
+                            } else{
+                                newCol.wordWrap = true;
+                            }
+                        }
+
+                        // Place the new column right after the description column
+                        var columns:Array = samplesGridConfirm.columns;
+                        var newColumns:Array = new Array();
+                        for each(var column:AdvancedDataGridColumn in columns) {
+                            if((currentState == 'SolexaState' || currentState == 'MicroarrayState' || currentState == 'QCState'
+                                    || currentState == null || isNanoStringState() || this.isSequenomState() || this.isIonTorrentState() || currentState == 'ExternalMicroarrayState'
+                                    || currentState == 'ExternalSeqState' || currentState == 'ExternalQCState') && column.dataField == "@idSampleType"){
+                                newColumns.push(newCol);
+                            }
+
+                            if (column != newCol) {
+                                newColumns.push(column);
+                            }
+                        }
+
+                        if(this.isIsolationState() || this.isIScanState() || this.isCapSeqState() || this.isFragAnalState() ){
+                            newColumns.push(newCol);
+                        }
+
+                        samplesGridConfirm.columns = newColumns;
+
+                        samplesGridConfirm.validateNow();
+                    }
+                }
+            }
+
+            private function showProtocol(idProtocol:Object, protocolClassName:String):void {
+                var params:Object = new Object();
+                params.id = idProtocol;
+                params.protocolClassName = protocolClassName;
+                getProtocol.send(params);
+            }
+
+            private function showAdapters(protocolClassName:String, fivePrime:String, threePrime:String):void {
+                var adapterWindow:AdapterWindow = AdapterWindow(PopUpManager.createPopUp(DisplayObject(this.parentDocument), AdapterWindow, false));
+                PopUpManager.centerPopUp(adapterWindow);
+                adapterWindow.title = protocolClassName;
+                adapterWindow.adapterTextArea.text = "Read 1 Adapter:\n " + threePrime + "\n\n" + "Read 2 Adapter:\n " + fivePrime;
+            }
+
+            private function onGetProtocol(event:ResultEvent): void {
+                if (getProtocol.lastResult.name() != "Protocol") {
+                    mx.controls.Alert.show(getProtocol.lastResult..ACTMESSAGE.@TEXT);
+                    return;
+                }
+                var protocolWindow:ProtocolWindow = ProtocolWindow(PopUpManager.createPopUp(DisplayObject(this.parentDocument), ProtocolWindow, false));
+                PopUpManager.centerPopUp(protocolWindow);
+                protocolWindow.init(getProtocol.lastResult);
+            }
+
+            public function getLaneTreeIcon(item:Object):Class {
+                return null;
+            }
+
+            public function refreshDownloadList():void {
+
+                if (theTab.selectedChild == filesView) {
+                    var params:Object = new Object();
+                    params.idRequest = this.selectedExperiment.@idRequest;
+                    if (parentApplication.needToLoad(params) ) {
+                        var oldId:String = parentApplication.lastGetRequestDownloadListidRequest;
+                        var newId:String = parentApplication.lastGetRequestDownloadListrequestNumber;
+                        if (oldId == null) oldId = "crap";
+                        if (newId == null) newId = "crap";
+                        params.whereami = "1" + "/" + oldId + "/" + newId;
+
+                        filesView.getRequestDownloadList.send(params);
+                    }
+
+                    filesView.browseParameters = params;
+                }
+            }
+
+            public function filterList():void{		}
+
+            protected function tabChangeHandler(event:IndexChangedEvent):void
+            {
+                refreshDownloadList();
+            }
+
+            [Bindable]
+            private var selectedFileList:XMLListCollection;
+
+            public function isControlLabelFunction(item:Object, column:AdvancedDataGridColumn):String
+            {
+                if (item is XML) {
+                    if (item.@isControl == "N") {
+                        return "";
+                    } else {
+                        return item.@isControl;
+                    }
+                } else {
+                    return "";
+                }
+            }
+
+            public function groupNameLabelFunction(item:Object, column:AdvancedDataGridColumn):String
+            {
+                if (item is XML) {
+                    return "";
+                } else {
+                    return item.groupLabel;
+                }
+            }
+
+            public function navigateToURLLink(ccNumber:String):void {
+
+                if ( ccNumber == null ) {
+                    return;
+                }
+
+                var url:String = parentApplication.getProperty(parentApplication.PROPERTY_GNOMEX_LINKAGE_BST_URL) + "#ccNumber=" + ccNumber;
+
+                navigateToURL( new URLRequest(url), '_blank' );
+            }
+
+            private function showCollaboratorWindow():void {
+                var collaboratorWindow:CollaboratorWindow = CollaboratorWindow(PopUpManager.createPopUp(parentApplication.theBody, CollaboratorWindow, true));
+                PopUpManager.centerPopUp(collaboratorWindow);
+                collaboratorWindow.init("Collaborators for Experiment " + selectedExperiment.@number,
+                        collaborators,
+                        selectedExperiment);
+
+            }
+
+            private function filterPropertyEntry(sce:Object):Boolean {
+                var keep:Boolean = false;
+
+                var property:XML = parentApplication.getSampleProperty(sce.@idProperty);
+                if(sce.@idProperty == "-1" || property == null) {
+                    return true;	// Special case for "Description" field which is not a "real" property
+                }
+                var requestCategory:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory',this.selectedExperiment.@codeRequestCategory);
+                if (AnnotationUtility.isApplicableProperty(property, requestCategory, this.selectedExperiment.@idOrganism, selectedExperiment.@codeApplication)) {
+                    if (sce.@isSelected == 'true' || property.@isActive != 'N') {
+                        keep = true;
+                    }
+                }
+
+                return keep;
+            }
+
+            private function downloadSampleSheet():void{
+                var fieldList:XMLListCollection = this.getFieldList();
+                var showUrl:URLRequest = new URLRequest('DownloadSampleSheet.gx');
+                var uv:URLVariables = new URLVariables();
+                showUrl.contentType = "application/x-www-form-urlencoded";
+                var names:String = "<NameList>"
+                for each (var node : XML in fieldList){
+                    names += node.toXMLString();
+                }
+
+                names += "</NameList>";
+                uv.names = names;
+                uv.requestXMLString = this.selectedExperiment.toXMLString();
+                showUrl.data = uv;
+                showUrl.method = URLRequestMethod.POST;
+                navigateToURL(showUrl, '_blank');
+            }
+
+            private function getFieldList():XMLListCollection {
+
+                var fieldList:XMLListCollection = new XMLListCollection();
+                // Build the contents of the columns selection list
+                var grid:CopyPasteSampleGrid = samplesGridConfirm;
+                for each(var col:AdvancedDataGridColumn in grid.columns) {
+                    if(col.visible == false || col.headerText == ""){
+                        continue;
+                    }
+                    if (col.dataField != null && col.dataField == '@codeConcentrationUnit') {
+                        continue;
+                    }
+
+                    var fieldType:String = "TEXT";
+                    if(col is AdvancedDataGridColumnWithType) {
+                        fieldType = AdvancedDataGridColumnWithType(col).propertyType;
+                    }
+
+                    var emptyNode:XML = new XML("<FieldItem " +
+                            " dataField='" + col.dataField + "' fieldText='" + col.headerText +
+                            "' fieldType='" + fieldType + "' selectedSSColumn='0'/>");
+                    fieldList.addItem(emptyNode);
+                }
+
+                return fieldList;
+            }
+
+            private function getSampleConcentrationFormatted(item:Object, column:AdvancedDataGridColumn):String {
+                numberFormatter.precision = sampleConcentrationPrecision;
+                if (item.hasOwnProperty("@concentration") && item.@concentration != '') {
+                    return numberFormatter.format(item.@concentration);
+                } else {
+                    return "";
+                }
+            }
+
+            private function getSampleVolumeFormatted(item:Object, column:AdvancedDataGridColumn):String {
+                numberFormatter.precision = sampleConcentrationPrecision;
+                if (item.hasOwnProperty("@sampleVolume") && item.@sampleVolume != '') {
+                    return numberFormatter.format(item.@sampleVolume);
+                } else {
+                    return "";
+                }
+            }
+
+            private function determineToShowProductsTab(requestCategory:Object):Boolean {
+                if (selectedExperiment != null && selectedExperiment.@isExternal != 'Y' && requestCategory != null) {
+                    if (requestCategory.@idProductType != null && requestCategory.@idProductType != '') {
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+
+            private function getConcentrationHeader():void{
+                if(this.samples.length > 0){
+                    concHeader += "("+samples.getItemAt(0).@codeConcentrationUnit+")";
+                }
 			}
 			
 		]]>
