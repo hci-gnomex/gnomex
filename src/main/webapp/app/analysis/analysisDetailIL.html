@@ -1,0 +1,34 @@
+        <!-- Analysis Detail form (tabs)  -->
+		<div class="col-lg-10" >
+
+			<div class=" panel panel-default">
+
+				<div class="panel-heading"><h5>Analysis {{analysisSelected.number}}</h5></div>
+
+				<div class="panel-body" style="padding-top: 10px;">
+
+					<tabset>
+					   <tab heading="Info">
+					   		<ng:include src="'app/analysis/analysisDetailInfoIL.html'"></ng:include>
+					   </tab>
+
+					   <tab heading="Description">
+					   		<ng:include src="'app/analysis/analysisDetailDescriptionIL.html'"></ng:include>
+					   </tab>
+
+					   <tab heading="Experiments" >
+					   		<ng:include src="'app/analysis/analysisDetailSequenceLanesIL.html'"></ng:include>
+					   </tab>
+
+					   <tab heading="Related Data" >
+					   		<ng:include src="'app/analysis/analysisDetailFiles.html'"></ng:include>
+					   </tab>
+
+					   <tab heading="Files" >
+					   		<ng:include src="'app/analysis/analysisDetailFiles.html'"></ng:include>
+					   </tab>
+					</tabset>
+				</div>
+			</div>
+
+		</div>

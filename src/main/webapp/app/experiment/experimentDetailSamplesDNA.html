@@ -1,0 +1,33 @@
+<div class="container-fluid" style="padding-top: 10px">
+	<div class="row">
+			<table class="table table-bordered table-striped table-hover">
+			    <thead>
+			        <tr>
+			            <th width="10%">ID</th>
+			            <th width="15%">Sample Name</th>
+			            <th width="10%">Unit</th>
+			            <th width="15%">Nucl. acid extraction meth.</th>
+			            <th width="10%">Assay</th>
+			            <th width="10%">QC conc. (ng/uL)</th>
+			            <th width="10%">QC 260/230</th>
+			            <th width="10%">QC RIN</th>
+			            <th width="10%">Description</th>
+			        </tr>
+			    </thead>
+			    <tbody>
+			        <tr>     <!--  ng-repeat="expr in experiments">   -->
+			            <td>{{selectedSample.id}}</td>
+			            <td>{{selectedSample.name}}</td>
+			            <td>{{selectedSample.unit}}</td>
+			            <td>{{selectedSample.naem}}</td>
+			            <td>{{selectedSample.assay}}</td>
+			            <td>{{selectedSample.qcc}}</td>
+			            <td>{{selectedSample.qc2}}</td>
+			            <td>{{selectedSample.qcr}}</td>
+			            <td>{{selectedSample.description}}</td>
+			          	</td>
+			        </tr>
+			    </tbody>
+			</table>
+	</div> <!-- end row -->
+</div> <!--  end container -->

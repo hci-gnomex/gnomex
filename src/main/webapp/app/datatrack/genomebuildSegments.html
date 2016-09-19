@@ -1,0 +1,18 @@
+<!-- Form to display Genome Build Segments -->
+
+<div class="container-fluid" style="padding-top: 10px">
+	<div class="row">
+		<table class="table table-bordered table-striped table-hover">
+			<thead>
+			        <tr>
+			        	<th ng-repeat="field in selectedSegmentLabels">{{field}}</th>
+			        </tr>
+			</thead>
+			<tbody>
+			        <tr ng-repeat="row in selectedSegments">
+			            	<td ng-repeat="field in selectedSegmentLabels">{{ row[field] }}</td>
+        			</tr>
+        		</tbody>
+		</table>
+	</div> <!-- end row -->
+</div> <!--  end container -->

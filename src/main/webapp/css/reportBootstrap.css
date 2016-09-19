@@ -1,0 +1,30 @@
+.accordion-heading .accordion-toggle:after {
+	/* symbol for "opening" panels */
+	font-family: 'Glyphicons Halflings';  /* essential for enabling glyphicon */
+	content: "\e114";    /* adjust as needed, taken from bootstrap.css */
+	float: left;        /* adjust as needed */
+	color: grey;         /* adjust as needed */
+}
+.accordion-heading .accordion-toggle.collapsed:after {
+	/* symbol for "collapsed" panels */
+	content: "\e080";    /* adjust as needed, taken from bootstrap.css */
+}
+
+.container-fluid {
+	margin:0px;
+	padding:0px;
+}
+
+.accordion-inner {
+	margin-left:20px;
+}
+
+.description {
+	margin:0px;
+	padding:0px;
+}
+
+P {
+	line-height: 1.0em;
+	margin:0px;
+}

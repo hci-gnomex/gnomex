@@ -1,0 +1,58 @@
+        <!-- Topic Detail Form  -->
+		<div class="col-lg-10" >
+
+			<div class=" panel panel-default">
+
+				<div class="panel-heading"><h5>Topic {{topicSelected.label}}</h5></div>
+
+				<div class="panel-body" style="padding-top: 10px;">
+
+<style>
+label.bi {
+    font-style: italic !important;
+    color: blue;
+    width: 5%;
+	}
+input.wide {
+	width: 80%;
+	}
+</style>
+
+<div class="container-fluid" style="padding-top: 10px">
+	<div class="row">
+		<label for="name" class="bi">Name:</label>
+		<input type="text" id="name" ng-model="$parent.topicSelected.name" readonly class="wide">
+		<br>
+
+		<label for="lab" class="bi">Lab:</label>
+		<input type="text" id="lab" ng-model="$parent.topicSelected.lab" readonly class="wide">
+		<br>
+
+		<label for="owner" class="bi">Owner:</label>
+		<input type="text" id="owner" ng-model="$parent.topicSelected.owner" readonly class="wide">
+		<br>
+
+  		<label for="description" class="bi">Description:</label>
+		<textarea id="description"  cols=196 rows=10 ng-model="$parent.topicSelected.description" readonly></textarea>
+	    <br>
+
+		<label for="visibility" class="bi">Visibility:</label>
+		<input type="text" id="visibility" ng-model="$parent.topicSelected.codeVisibility" readonly class="wide">
+		<br>
+
+		<label for="createdby" class="bi">Created by:</label>
+		<input type="text" id="createdby" ng-model="$parent.topicSelected.createdBy" readonly class="wide">
+		<br>
+
+		<label for="createDate" class="bi">Created on:</label>
+		<input type="text" id="createDate" ng-model="$parent.topicSelected.createDate" readonly class="wide">
+
+	</div> <!-- end row -->
+</div> <!--  end container -->
+
+
+
+				</div>
+			</div>
+
+		</div>
