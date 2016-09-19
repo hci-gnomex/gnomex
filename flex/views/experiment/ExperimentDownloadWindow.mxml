@@ -174,15 +174,16 @@
 
 			for (var i:int = 0; i < draggedItems.length; i++) {
 				var dragItem:XML = XML(draggedItems[i]);
+				var req:XML = null
 
 				if (dragItem.name() == "FileDescriptor" || dragItem.name() == "RequestDownload") {
 
 					if (dragItem.name() == "FileDescriptor") {
-						var req:XML = getRequestDownloadList.lastResult.Request.(@requestNumber == dragItem.@number)[0];
+						req = getRequestDownloadList.lastResult.Request.(@requestNumber == dragItem.@number)[0];
 					}
 
 					if (dragItem.name() == "RequestDownload") {
-						var req:XML = getRequestDownloadList.lastResult.Request.(@requestNumber == dragItem.@requestNumber)[0];
+						req = getRequestDownloadList.lastResult.Request.(@requestNumber == dragItem.@requestNumber)[0];
 					}
 					if (req == null) {
 						return;

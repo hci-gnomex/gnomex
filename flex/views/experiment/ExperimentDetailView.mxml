@@ -496,8 +496,8 @@
 						dict[id] = id;
 					}
 				}
-				for each (var value:String in dict){
-					this.libPrepCompletedBy += parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.AppUserLite').DictionaryEntry.(@value != '' && @idAppUser == value).@display + '\n';
+				for each (var dValue:String in dict){
+					this.libPrepCompletedBy += parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.AppUserLite').DictionaryEntry.(@value != '' && @idAppUser == dValue).@display + '\n';
 				}
 
 				if(libPrepCompletedBy.length > 0){
