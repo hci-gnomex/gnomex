@@ -476,8 +476,8 @@
 			 <classes dir="${lib.dir}"              includes="persistence.xml"/> 
 			 <classes dir="${lib.dir}"              includes="*.tomcat.cfg.xml"/> 
 			 <classes dir="${lib.dir}"              includes="*.properties"/> 
-		     <classes dir="${src.dir}"			    includes="Dictionaries.xml"/>
-		     <classes dir="${src.dir}"			    includes="SchemaGNomEx.hbm.xml" />
+		     <classes dir="${rsrc.dir}"			    includes="hci/gnomex/Dictionaries.xml"/>
+		     <classes dir="${rsrc.dir}"			    includes="SchemaGNomEx.hbm.xml" />
              <classes dir="${dist.dir}/tomcat"     includes="*.*" />
 		     <fileset dir="${webroot.dir}">
 				<include name="**/*.*" />
