@@ -154,10 +154,11 @@ public class GetPricingList extends GNomExCommand implements Serializable {
                       if (priceCat.getDictionaryClassNameFilter1() != null && !priceCat.getDictionaryClassNameFilter1().equals("")) {
                         label = DictionaryManager.getDisplay(priceCat.getDictionaryClassNameFilter1(), priceCriteria.getFilter1());
                       }
-                      if (priceCat.getDictionaryClassNameFilter1() != null && !priceCat.getDictionaryClassNameFilter1().equals("")) {
+                      if (priceCat.getDictionaryClassNameFilter2() != null && !priceCat.getDictionaryClassNameFilter2().equals("")) {
                         label += " " + DictionaryManager.getDisplay(priceCat.getDictionaryClassNameFilter2(), priceCriteria.getFilter2());
                       }
-                      priceCriteriaNode.setAttribute("display", label);
+                      if (label != null)
+                        priceCriteriaNode.setAttribute("display", label);
                       priceNode.addContent(priceCriteriaNode);
                     }
 
@@ -197,7 +198,7 @@ public class GetPricingList extends GNomExCommand implements Serializable {
       throw new RollBackCommandException(e.getMessage());
     } finally {
       try {
-        //closeReadOnlyHibernateSession;
+        this.getSecAdvisor().closeReadOnlyHibernateSession();
       } catch (Exception e) {
         LOG.error("An exception has occurred in GetPricingList ", e);
       }
