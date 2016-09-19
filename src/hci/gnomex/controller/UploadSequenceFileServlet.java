@@ -188,7 +188,7 @@ public class UploadSequenceFileServlet extends HttpServlet {
 				tempBulkUploadFile.delete();
 			if (sess != null) {
 				try {
-					HibernateSession.closeSession();
+					//closeHibernateSession;
 				} catch (Exception e) {
 					LOG.error("An error occurred in UploadSequenceFileServlet", e);
 				}

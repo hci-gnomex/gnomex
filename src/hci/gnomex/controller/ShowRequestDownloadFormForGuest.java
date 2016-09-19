@@ -118,7 +118,7 @@ public class ShowRequestDownloadFormForGuest extends GNomExCommand implements Se
 		} finally {
 			try {
 				if (sess != null) {
-					HibernateSession.closeSession();
+					//closeHibernateSession;
 				}
 			} catch (Exception e) {
 				LOG.error("An exception has occurred in ShowRequestDownloadFormForGuest ", e);

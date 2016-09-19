@@ -71,7 +71,7 @@ public class UploadSequenceURLServlet extends HttpServlet {
 		} finally {
 			if (sess != null) {
 				try {
-					HibernateSession.closeSession();
+					//closeHibernateSession;
 				} catch (Exception e) {
 					LOG.error("Error in UploadSequenceURLServlet", e);
 				}

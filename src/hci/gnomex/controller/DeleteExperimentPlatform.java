@@ -117,7 +117,7 @@ public class DeleteExperimentPlatform extends GNomExCommand implements Serializa
 
     }finally {
       try {
-        HibernateSession.closeSession();        
+        //closeHibernateSession;        
       } catch(Exception e) {
         LOG.error("An exception has occurred in DeleteExperimentPlatform ", e);
       }

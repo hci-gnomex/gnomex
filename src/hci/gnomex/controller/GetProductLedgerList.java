@@ -181,7 +181,7 @@ public class GetProductLedgerList extends GNomExCommand implements Serializable 
 
     }finally {
       try {
-        this.getSecAdvisor().closeReadOnlyHibernateSession();        
+        //closeReadOnlyHibernateSession;        
       } catch(Exception e){
         LOG.error("Error", e);
       }

@@ -27,7 +27,7 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import org.hibernate.Query;
+import org.hibernate.query.Query;
 import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -211,7 +211,7 @@ public class SaveInstrumentRun extends GNomExCommand implements Serializable {
       throw new RollBackCommandException(e.getMessage());  
     }finally {
       try {
-        HibernateSession.closeSession();        
+        //closeHibernateSession;        
       } catch(Exception e){
         LOG.error("Error", e);
       }

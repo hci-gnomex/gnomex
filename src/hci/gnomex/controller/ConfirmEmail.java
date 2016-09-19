@@ -57,7 +57,7 @@ public class ConfirmEmail extends HttpServlet {
 			LOG.error(message, e);
 		} finally {
 			try {
-				HibernateSession.closeSession();
+				//closeHibernateSession;
 				String url = "/confirm_email.jsp"; // relative url for display jsp page
 				ServletContext sc = getServletContext();
 				RequestDispatcher rd = sc.getRequestDispatcher(url);

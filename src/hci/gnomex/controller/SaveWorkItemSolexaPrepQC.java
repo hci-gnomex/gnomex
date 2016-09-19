@@ -185,7 +185,7 @@ public class SaveWorkItemSolexaPrepQC extends GNomExCommand implements Serializa
           
       }finally {
         try {
-          HibernateSession.closeSession();        
+          //closeHibernateSession;        
         } catch(Exception e){
         LOG.error("Error", e);
       }

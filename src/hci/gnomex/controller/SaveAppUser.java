@@ -31,7 +31,7 @@ import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import org.hibernate.Query;
+import org.hibernate.query.Query;
 import org.hibernate.Session;
 import org.jdom.Element;
 import org.jdom.input.SAXBuilder;
@@ -363,7 +363,7 @@ public class SaveAppUser extends GNomExCommand implements Serializable {
 
     } finally {
       try {
-        HibernateSession.closeSession();
+        //closeHibernateSession;
       } catch (Exception e) {
         LOG.error("An exception has occurred in SaveAppUser ", e);
       }

@@ -7,7 +7,7 @@ import hci.gnomex.model.Request;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.hibernate.Query;
+import org.hibernate.query.Query;
 import org.hibernate.Session;
 
 /*

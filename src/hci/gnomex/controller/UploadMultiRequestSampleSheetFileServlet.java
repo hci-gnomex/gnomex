@@ -189,7 +189,7 @@ public class UploadMultiRequestSampleSheetFileServlet extends HttpServlet {
 					+ "\n\nPlease contact GNomEx support.");
 		} finally {
 			try {
-				HibernateSession.closeSession();
+				//closeHibernateSession;
 			} catch (Exception e1) {
 				LOG.error("UploadSampleSheetFileServlet warning - cannot close hibernate session", e1);
 			}

@@ -17,7 +17,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import org.hibernate.Query;
+import org.hibernate.query.Query;
 import org.hibernate.Session;
 import org.apache.log4j.Logger;
 public class LinkExpToAnalysis extends GNomExCommand implements Serializable {
@@ -107,7 +107,7 @@ public class LinkExpToAnalysis extends GNomExCommand implements Serializable {
       throw new GNomExRollbackException(e.getMessage(), true, "Unable to link analysis to experiment");
     } finally {
       try {
-        HibernateSession.closeSession();
+        //closeHibernateSession;
       } catch (Exception e) {
         LOG.error("Exception trying to close the Hibernate session: ",e);
       }

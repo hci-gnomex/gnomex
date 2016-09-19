@@ -124,7 +124,7 @@ public class CreateSecurityAdvisor extends GNomExCommand implements Serializable
     }
     finally {
       try {
-        HibernateSession.closeSession();
+        //closeHibernateSession;
       }
       catch (Exception ex) {
         LOG.error("Exception trying to close the Hibernate session: ", ex);

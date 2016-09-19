@@ -34,7 +34,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.hibernate.Query;
+import org.hibernate.query.Query;
 import org.hibernate.Session;
 import org.apache.log4j.Logger;
 /**
@@ -92,7 +92,7 @@ public class MakeDataTrackIGVLink extends HttpServlet {
 		} finally {
 			if (sess != null) {
 				try {
-					HibernateSession.closeSession();
+					//closeHibernateSession;
 				} catch (Exception ex1) {
 				}
 			}

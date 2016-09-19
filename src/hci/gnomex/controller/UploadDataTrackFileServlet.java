@@ -303,7 +303,7 @@ public class UploadDataTrackFileServlet extends HttpServlet {
 				tempBulkUploadFile.delete();
 			if (sess != null) {
 				try {
-					HibernateSession.closeSession();
+					//closeHibernateSession;
 				} catch (Exception e) {
 					LOG.error("Error in UploadDataTrackFileServlet", e);
 				}

@@ -95,7 +95,7 @@ public class ManageDictionaries extends DictionaryCommand implements Serializabl
             LOG.error("Error in ManageDictionaries", e);
         	} finally {
       try {
-        HibernateSession.closeSession();
+        //closeHibernateSession;
       }
       catch (Exception ex) {
         LOG.error("Exception trying to close the Hibernate session: "+ ex, ex);
@@ -151,7 +151,7 @@ public class ManageDictionaries extends DictionaryCommand implements Serializabl
       throw new GNomExRollbackException(msg, true, displayMsg);
     } finally {
       try {
-        HibernateSession.closeSession();
+        //closeHibernateSession;
       }
       catch (Exception ex) {
         LOG.error("Exception trying to close the Hibernate session: "+ ex, ex);

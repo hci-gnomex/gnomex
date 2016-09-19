@@ -113,7 +113,7 @@ public class GetAuthorizedBillingAccounts extends GNomExCommand implements Seria
 		} finally {
 			
 			try {
-				this.getSecAdvisor().closeReadOnlyHibernateSession();
+				//closeReadOnlyHibernateSession;
 			} catch (Exception e) {
 				LOG.error("An exception has occurred in GetAuthorizedBillingAccounts while closing the session ", e);
 			}

@@ -128,7 +128,7 @@ public class SaveWorkItemHyb extends GNomExCommand implements Serializable {
           
       }finally {
         try {
-          HibernateSession.closeSession();        
+          //closeHibernateSession;        
         } catch(Exception e){
         LOG.error("Error", e);
       }

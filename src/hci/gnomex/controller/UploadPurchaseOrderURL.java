@@ -60,7 +60,7 @@ public class UploadPurchaseOrderURL extends HttpServlet {
 		} finally {
 			if (sess != null) {
 				try {
-					HibernateSession.closeSession();
+					//closeHibernateSession;
 				} catch (Exception e) {
 					LOG.error("An error has occured in UploadPurchaseOrderURL - " + e.toString(), e);
 				}

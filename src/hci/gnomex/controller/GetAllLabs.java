@@ -65,7 +65,7 @@ public class GetAllLabs extends GNomExCommand implements Serializable {
 
     } finally {
       try {
-        this.getSecAdvisor().closeReadOnlyHibernateSession();
+        //closeReadOnlyHibernateSession;
       } catch (Exception e) {
         LOG.error("Error in get all labs", e);
       }

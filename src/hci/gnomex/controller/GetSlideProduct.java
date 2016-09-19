@@ -45,7 +45,7 @@ public class GetSlideProduct extends GNomExCommand implements Serializable {
     }
     finally {
       try {
-        this.getSecAdvisor().closeReadOnlyHibernateSession();
+        //closeReadOnlyHibernateSession;
       } catch (Exception e) {
         LOG.error(e.getClass().toString() + ": " , e);
         throw new RollBackCommandException();

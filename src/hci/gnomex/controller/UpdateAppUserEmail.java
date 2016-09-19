@@ -12,7 +12,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import org.hibernate.Query;
+import org.hibernate.query.Query;
 import org.hibernate.Session;
 import org.apache.log4j.Logger;
 public class UpdateAppUserEmail extends GNomExCommand implements Serializable {
@@ -76,7 +76,7 @@ public class UpdateAppUserEmail extends GNomExCommand implements Serializable {
       LOG.error("An exception has occurred in UpdateAppUserEmail ", e);
     } finally {
       try {
-        HibernateSession.closeSession();
+        //closeHibernateSession;
       } catch (Exception e) {
         LOG.error("An exception has occurred in UpdateAppUserEmail ", e);
       }

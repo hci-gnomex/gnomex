@@ -83,7 +83,7 @@ public class GetPurchaseOrderForm extends HttpServlet {
 
 		} finally {
 			try {
-				HibernateSession.closeSession();
+				//closeHibernateSession;
 			} catch (Exception e) {
 				LOG.error("Error in get purchase order form", e);
 			}

@@ -63,7 +63,7 @@ private static final Logger LOG = Logger.getLogger(UploadProductOrderURLServlet.
 		} finally {
 			if (sess != null) {
 				try {
-					HibernateSession.closeSession();
+					//closeHibernateSession;
 				} catch (Exception e) {
 					LOG.error("An exception has occurred in UploadProductOrderURLServlet ", e);
 				}

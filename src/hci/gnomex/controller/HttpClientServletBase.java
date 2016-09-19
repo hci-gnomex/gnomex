@@ -72,7 +72,7 @@ public abstract class HttpClientServletBase extends HttpServlet {
 		} finally {
 			if (sess != null) {
 				try {
-					HibernateSession.closeSession();
+					//closeHibernateSession;
 				} catch (Exception ex1) {
 				}
 			}

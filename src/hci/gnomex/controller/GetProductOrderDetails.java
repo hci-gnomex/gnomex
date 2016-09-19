@@ -82,7 +82,7 @@ public class GetProductOrderDetails extends GNomExCommand {
         throw new RollBackCommandException(e.getMessage());  
       } finally {
         try {
-          this.getSecAdvisor().closeReadOnlyHibernateSession();        
+          //closeReadOnlyHibernateSession;        
         } catch(Exception e){
         LOG.error("Error", e);
       }

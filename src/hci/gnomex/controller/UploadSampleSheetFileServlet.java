@@ -231,7 +231,7 @@ public class UploadSampleSheetFileServlet extends HttpServlet {
 					+ "\n\nPlease contact GNomEx support.");
 		} finally {
 			try {
-				HibernateSession.closeSession();
+				//closeHibernateSession;
 			} catch (Exception e1) {
 				LOG.error("An error has occured in UploadSampleSheetFileServlet - " + e1.toString(), e1);
 			}
