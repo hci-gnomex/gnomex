@@ -16,7 +16,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import hci.gnomex.model.*;
-import org.hibernate.Query;
+import org.hibernate.query.Query;
 import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -270,7 +270,7 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
       throw new RollBackCommandException(e.getMessage());
     } finally {
       try {
-        this.getSecAdvisor().closeReadOnlyHibernateSession();
+        //closeReadOnlyHibernateSession;
       } catch(Exception e) {
         LOG.error("An exception has occurred in GetExperimentPlatformList ", e);
       }

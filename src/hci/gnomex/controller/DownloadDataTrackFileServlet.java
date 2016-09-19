@@ -194,7 +194,7 @@ public class DownloadDataTrackFileServlet extends HttpServlet {
 		} finally {
 			if (sess != null) {
 				try {
-					HibernateSession.closeSession();
+					//closeHibernateSession;
 				} catch (Exception e) {
 					LOG.error("Unable to close sesion in DownloadDataTrackFileServlet", e);
 				}

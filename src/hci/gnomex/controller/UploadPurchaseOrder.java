@@ -111,7 +111,7 @@ public class UploadPurchaseOrder extends HttpServlet {
 			throw new ServletException("Unable to upload purchase order file.  Please contact gnomex support.");
 		} finally {
 			try {
-				HibernateSession.closeSession();
+				//closeHibernateSession;
 			} catch (Exception e) {
 				LOG.error("Unable to close hibernate session in UploadPurcahseOrder", e);
 			}

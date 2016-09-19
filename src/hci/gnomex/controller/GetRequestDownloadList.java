@@ -35,7 +35,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
-import org.hibernate.Query;
+import org.hibernate.query.Query;
 import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -414,7 +414,7 @@ public Command execute() throws RollBackCommandException {
 		throw new RollBackCommandException(e.getMessage());
 	} finally {
 		try {
-			this.getSecAdvisor().closeReadOnlyHibernateSession();
+			//closeReadOnlyHibernateSession;
 		} catch (Exception e) {
 			LOG.error("Error in getRequestDownloadList", e);
 		}

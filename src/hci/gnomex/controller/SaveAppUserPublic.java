@@ -20,7 +20,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import org.hibernate.Query;
+import org.hibernate.query.Query;
 import org.hibernate.Session;
 import org.hibernate.jdbc.Work;
 import org.jdom.Document;
@@ -106,7 +106,7 @@ public class SaveAppUserPublic extends GNomExCommand implements Serializable {
 		} finally {
 			try {
 				if (sess != null) {
-					HibernateSession.closeSession();
+					//closeHibernateSession;
 				}
 			} catch (Exception e) {
 				LOG.error("An exception has occurred in SaveAppUserPublic ", e);

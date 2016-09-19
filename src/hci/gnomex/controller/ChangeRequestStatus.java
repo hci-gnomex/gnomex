@@ -188,7 +188,7 @@ public class ChangeRequestStatus extends GNomExCommand implements Serializable {
       try {
 
         if (sess != null) {
-          HibernateSession.closeSession();
+          //closeHibernateSession;
         }
       } catch (Exception e) {
         LOG.error("Error in ChangeRequestStatus: ", e);

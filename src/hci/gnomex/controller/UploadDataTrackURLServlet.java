@@ -71,7 +71,7 @@ private static final Logger LOG = Logger.getLogger(UploadDataTrackURLServlet.cla
 		} finally {
 			if (sess != null) {
 				try {
-					HibernateSession.closeSession();
+					//closeHibernateSession;
 				} catch (Exception e) {
 					LOG.error("Error in UploadDataTrackFileServlet", e);
 				}

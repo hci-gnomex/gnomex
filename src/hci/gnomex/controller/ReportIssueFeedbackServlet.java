@@ -237,7 +237,7 @@ public class ReportIssueFeedbackServlet extends HttpServlet {
 			throw new ServletException("Unable to report issue due to a server error.  Please contact GNomEx support directly.");
 		} finally {
 			try {
-				HibernateSession.closeSession();
+				//closeHibernateSession;
 			} catch (Exception e1) {
 				LOG.error("Error in ReportIssueFeedback", e1);
 			}

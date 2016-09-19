@@ -169,7 +169,7 @@ public class GetInstrumentRunList extends GNomExCommand implements Serializable 
       throw new RollBackCommandException( e.getMessage() );
     } finally {
       try {
-        this.getSecAdvisor().closeReadOnlyHibernateSession();
+        //closeReadOnlyHibernateSession;
       } catch( Exception e ) {
 
       }

@@ -62,7 +62,7 @@ private static Logger LOG = Logger.getLogger(UploadExperimentURLServlet.class);
 		} finally {
 			if (sess != null) {
 				try {
-					HibernateSession.closeSession();
+					//closeHibernateSession;
 				} catch (Exception e) {
 					LOG.error("An exception has occurred in UploadExperimentURLServlet ", e);
 				}

@@ -63,7 +63,7 @@ public class ReportIssueFeedbackServletGetURL extends HttpServlet {
 		} finally {
 			if (sess != null) {
 				try {
-					HibernateSession.closeSession();
+					//closeHibernateSession;
 				} catch (Exception e) {
 					LOG.error("An error has occured in ReportIssueServletGetURL - ");
 				}

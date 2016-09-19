@@ -11,69 +11,90 @@ import java.sql.Types;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.HibernateException;
 import org.hibernate.engine.spi.SessionImplementor;
+import org.hibernate.engine.spi.SharedSessionContractImplementor;
 import org.hibernate.id.IdentifierGenerator;
 
 /**
- * <p>Title: </p>
- * <p>Description: </p>
- * <p>Copyright: Copyright (c) 2003</p>
- * <p>Company: HCI - Informatics</p>
+ * <p>
+ * Title:
+ * </p>
+ * <p>
+ * Description:
+ * </p>
+ * <p>
+ * Copyright: Copyright (c) 2003
+ * </p>
+ * <p>
+ * Company: HCI - Informatics
+ * </p>
+ * 
  * @author Kirt Henrie
  * @version 1.0
  */
 
 public class Hibernate3xUIDGenerator implements IdentifierGenerator, Serializable {
 
-  private static final Log LOG = LogFactory.getLog(Hibernate3xUIDGenerator.class);
-  private String table;
+private static final Log LOG = LogFactory.getLog(Hibernate3xUIDGenerator.class);
+private String table;
 
-  public Hibernate3xUIDGenerator(String table) {
-    this.table = table;
-  }
-  public Hibernate3xUIDGenerator() {
-  }
-  public Serializable generate(SessionImplementor session, Object obj) throws org.hibernate.HibernateException {
-    ResultSet rs = null;
-    CallableStatement stmt = null;
-    int id;
+public Hibernate3xUIDGenerator(String table) {
+	this.table = table;
+}
 
-    try {
-      stmt = session.connection().prepareCall("{ call dbo.pr_GetNextKey(?, ?, ?) }");
+public Hibernate3xUIDGenerator() {
+}
 
-      stmt.setString(1, table);
-      stmt.setInt(2, 0);
-      stmt.setInt(3, 0);
-      stmt.registerOutParameter(2, Types.INTEGER);
+public Serializable generate(SessionImplementor session, Object obj) throws org.hibernate.HibernateException {
+	ResultSet rs = null;
+	CallableStatement stmt = null;
+	int id;
 
-      stmt.executeUpdate();
+	try {
+		stmt = session.connection().prepareCall("{ call dbo.pr_GetNextKey(?, ?, ?) }");
 
-      id = stmt.getInt(2);
+		stmt.setString(1, table);
+		stmt.setInt(2, 0);
+		stmt.setInt(3, 0);
+		stmt.registerOutParameter(2, Types.INTEGER);
 
-      LOG.debug("Sequence ID generated: " + id);
-      return new Integer(id);
-    }
-    catch (SQLException sqle) {
-            throw new RuntimeException( "Cannot get next id " + sqle.toString());
-    }
-    finally {
-      try {
-            stmt.close();
-      } catch (SQLException sqle) {
-        throw new RuntimeException( "Cannot close statement " + sqle.toString());
-      }
-    }
-  }
-  private void writeObject(ObjectOutputStream oos) throws IOException {
-    oos.defaultWriteObject();
-  }
-  private void readObject(ObjectInputStream ois) throws ClassNotFoundException, IOException {
-    ois.defaultReadObject();
-  }
-  public String getTable() {
-    return table;
-  }
-  public void setTable(String table) {
-    this.table = table;
-  }
+		stmt.executeUpdate();
+
+		id = stmt.getInt(2);
+
+		LOG.debug("Sequence ID generated: " + id);
+		return new Integer(id);
+	} catch (SQLException sqle) {
+		throw new RuntimeException("Cannot get next id " + sqle.toString());
+	} finally {
+		try {
+			stmt.close();
+		} catch (SQLException sqle) {
+			throw new RuntimeException("Cannot close statement " + sqle.toString());
+		}
+	}
+}
+
+private void writeObject(ObjectOutputStream oos) throws IOException {
+	oos.defaultWriteObject();
+}
+
+private void readObject(ObjectInputStream ois) throws ClassNotFoundException, IOException {
+	ois.defaultReadObject();
+}
+
+public String getTable() {
+	return table;
+}
+
+public void setTable(String table) {
+	this.table = table;
+}
+
+@Override
+public Serializable generate(SharedSessionContractImplementor arg0, Object arg1) throws HibernateException {
+	// TODO Auto-generated method stub
+	return null;
+}
 }

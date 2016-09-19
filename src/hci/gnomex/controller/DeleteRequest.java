@@ -35,7 +35,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.hibernate.Hibernate;
-import org.hibernate.Query;
+import org.hibernate.query.Query;
 import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -145,7 +145,7 @@ public class DeleteRequest extends GNomExCommand implements Serializable {
           if ( analysisHash.size() > 0 ) {
             this.addInvalidField("Related data", "There are " + analysisHash.size() + " analyses" + (dataTrackCount > 0 ? " and " + dataTrackCount + " data tracks" : "")  +  " associated with this request. Please delete these and try again.");
             setResponsePage(this.ERROR_JSP);
-            HibernateSession.closeSession();
+            //closeHibernateSession;
             return;
           }
 
@@ -302,7 +302,7 @@ public class DeleteRequest extends GNomExCommand implements Serializable {
 
     }finally {
       try {
-        HibernateSession.closeSession();
+        //closeHibernateSession;
       } catch(Exception e) {
         LOG.error("An exception has occurred in DeleteRequest ", e);
       }

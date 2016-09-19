@@ -210,7 +210,7 @@ public class GetProductOrderDownloadList extends GNomExCommand implements Serial
 			throw new RollBackCommandException(e.getMessage());
 		} finally {
 			try {
-				this.getSecAdvisor().closeReadOnlyHibernateSession();
+				//closeReadOnlyHibernateSession;
 			} catch (Exception e) {
 				LOG.error("An exception has occurred in GetProductOrderDownloadList ", e);
 			}

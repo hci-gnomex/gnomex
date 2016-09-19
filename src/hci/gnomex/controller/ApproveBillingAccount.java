@@ -65,7 +65,7 @@ public class ApproveBillingAccount extends HttpServlet {
 			LOG.error(message, e);
 		} finally {
 			try {
-				HibernateSession.closeSession();
+				//closeHibernateSession;
 				String url = "/approve_billing_account.jsp"; // relative url for display jsp page
 				ServletContext sc = getServletContext();
 				RequestDispatcher rd = sc.getRequestDispatcher(url);

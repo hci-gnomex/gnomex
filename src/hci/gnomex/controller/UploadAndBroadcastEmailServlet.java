@@ -26,7 +26,7 @@ import org.apache.log4j.Logger;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
-import org.hibernate.Query;
+import org.hibernate.query.Query;
 import org.hibernate.Session;
 
 import com.oreilly.servlet.multipart.FilePart;
@@ -249,7 +249,7 @@ public class UploadAndBroadcastEmailServlet extends HttpServlet {
 			throw new ServletException("Unable to send broadcast email due to a server error.  Please contact GNomEx support.");
 		} finally {
 			try {
-				HibernateSession.closeSession();
+				//closeHibernateSession;
 			} catch (Exception e1) {
 				LOG.error("An exception has occurred in UploadAndBroadcastEmailServlet ", e1);
 			}

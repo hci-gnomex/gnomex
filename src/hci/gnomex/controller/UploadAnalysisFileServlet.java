@@ -297,7 +297,7 @@ public class UploadAnalysisFileServlet extends HttpServlet {
 			throw new ServletException("Unable to upload file " + fileName + " due to a server error.  Please contact GNomEx support.");
 		} finally {
 			try {
-				HibernateSession.closeSession();
+				//closeHibernateSession;
 			} catch (Exception e1) {
 				LOG.error("An exception has occurred in UploadAnalysisFileServlet ", e1);
 			}
