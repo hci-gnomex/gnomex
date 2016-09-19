@@ -18,4 +18,3 @@ CALL ExecuteIfTableExists('gnomex','Request_Audit','alter table Request_Audit ad
 CALL ExecuteIfTableExists('gnomex','Request_Audit','alter table Request_Audit add column usedDnase char(1) null');
 CALL ExecuteIfTableExists('gnomex','Request_Audit','alter table Request_Audit add column usedRnase char(1) null');
 CALL ExecuteIfTableExists('gnomex','Request_Audit','alter table Request_Audit add column keepSamples char(1) null');
-

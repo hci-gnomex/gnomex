@@ -293,6 +293,10 @@ public class OrganizeProductOrderUploadFiles extends GNomExCommand implements Se
               }
 
               File destFile = new File(targetDir, sourceFile.getName());
+              if (!destFile.exists() && sourceFile.isDirectory()) {
+                destFile.mkdirs();
+              }
+
               boolean success = sourceFile.renameTo(destFile);
 
               // If the rename didn't work, check to see if the destination file was created, if so

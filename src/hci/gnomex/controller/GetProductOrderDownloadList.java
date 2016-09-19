@@ -257,8 +257,13 @@ public static void addExpandedFileNodes(String baseDir, Element poNode, Element 
 			true);
 	List directoryKeys = (List) productOrderMap.get(productOrderNumber);
 
-	String[] tokens = key.split("-");
-	String createYear = tokens[0];
+		for (Iterator i1 = directoryKeys.iterator(); i1.hasNext();) {
+			String directoryKey = (String) i1.next();
+			String[] dirTokens = directoryKey.split("-");
+			String directoryName = dirTokens[1];
+			if (dirTokens.length > 2) {
+				directoryName += "/" + dirTokens[2];
+			}
 
 	for (Iterator i1 = directoryKeys.iterator(); i1.hasNext();) {
 		String directoryKey = (String) i1.next();
@@ -278,12 +283,13 @@ public static void addExpandedFileNodes(String baseDir, Element poNode, Element 
 
 				ProductOrderFile pof = (ProductOrderFile) knownProductOrderFileMap.get(fd.getQualifiedFileName());
 
-				if (pof != null) {
-					fd.setUploadDate(pof.getCreateDate());
-					fd.setIdFileString(pof.getIdProductOrderFile().toString());
-				} else {
-					fd.setIdFileString("ProductOrderFile-" + fd.getQualifiedFileName());
-				}
+					fd.setQualifiedFilePath(directoryName);
+					fd.setBaseFilePath(baseDir + createYear + "/" + productOrderNumber);
+					fd.setId(poNode.getAttributeValue("idProductOrder") != null ? Integer.valueOf(poNode.getAttributeValue("idProductOrder")) : null);
+					fd.setNumber(poNode.getAttributeValue("productOrderNumber") != null ? poNode.getAttributeValue("productOrderNumber") : null);
+					String idLab = poNode.getAttributeValue("idLab");
+					fd.setIdLab(idLab == null || idLab.equals("") ? null : Integer.valueOf(idLab));
+					fd.excludeMethodFromXML("getChildren");
 
 				fd.setQualifiedFilePath(directoryName);
 				fd.setBaseFilePath(baseDir + createYear + "/" + productOrderNumber);
@@ -354,7 +360,11 @@ private static void recurseAddChildren(Element fdNode, FileDescriptor fd, Map fi
 		} else {
 			childFd.setIdFileString("ProductOrderFile-" + childFd.getQualifiedFileName());
 			childFd.setId(fd.getId());
-		}
+			childFd.setQualifiedFilePath(fd.getQualifiedFilePath() != null && fd.getQualifiedFilePath().length() > 0 ? fd.getQualifiedFilePath()
+					+ "/" + fd.getDisplayName() : fd.getDisplayName());
+			childFd.setBaseFilePath(fd.getBaseFilePath());
+			childFd.setDirectoryName(childFd.getQualifiedFilePath());
+			childFd.setIdLab(fd.getIdLab());
 
 		childFd.excludeMethodFromXML("getChildren");
 
@@ -391,8 +401,32 @@ private static void recurseAddChildren(Element fdNode, FileDescriptor fd, Map fi
 				childFd.getIdFileString() != null ? childFd.getIdFileString() : "");
 		childFdNode.setAttribute("idLab", childFd.getIdLab() != null ? childFd.getIdLab().toString() : "");
 
-		childFdNode.setAttribute("isSelected", "N");
-		childFdNode.setAttribute("state", "unchecked");
+			Element childFdNode = new Element("FileDescriptor");
+			childFdNode.setAttribute("idProductOrder", childFd.getId() != null ? childFd.getId().toString() : "");
+			childFdNode.setAttribute("dirty", "N");
+			childFdNode.setAttribute("type", childFd.getType() != null ? childFd.getType() : "");
+			String displayName = childFd.getDisplayName();
+			if(displayName.contains("/")) {
+				displayName = displayName.substring(displayName.lastIndexOf("/")+1, displayName.length());
+			}
+
+			childFdNode.setAttribute("displayName", displayName != null ? displayName : "");
+			childFdNode.setAttribute("fileSize", Long.valueOf(childFd.getFileSize()).toString());
+			childFdNode.setAttribute("fileSizeText", childFd.getFileSizeText() != null ? childFd.getFileSizeText() : "");
+			childFdNode.setAttribute("childFileSize", Long.valueOf(childFd.getChildFileSize()).toString());
+			childFdNode.setAttribute("fileName", childFd.getFileName() != null ? childFd.getFileName() : "");
+			childFdNode.setAttribute("filePathName", childFd.getQualifiedFilePath() != null ? childFd.getQualifiedFilePath() : "");
+			childFdNode.setAttribute("qualifiedFileName", childFd.getQualifiedFileName() != null ? childFd.getQualifiedFileName() : "");
+			childFdNode.setAttribute("qualifiedFilePath", childFd.getQualifiedFilePath() != null ? childFd.getQualifiedFilePath() : "");
+			childFdNode.setAttribute("baseFilePath", childFd.getBaseFilePath() != null ? childFd.getBaseFilePath() : "");
+			childFdNode.setAttribute("comments", childFd.getComments() != null ? childFd.getComments() : "");
+			childFdNode.setAttribute("lastModifyDateDisplay", childFd.getLastModifyDateDisplay() != null ? childFd.getLastModifyDateDisplay() : "");
+			childFdNode.setAttribute("uploadDate", childFd.getUploadDate() != null ? childFd.formatDate(childFd.getUploadDate(), DATE_OUTPUT_SQL) : "");
+			childFdNode.setAttribute("zipEntryName", childFd.getZipEntryName() != null ? childFd.getZipEntryName() : "");
+			childFdNode.setAttribute("number", childFd.getNumber() != null ? childFd.getNumber() : "");
+			childFdNode.setAttribute("productOrderNumber", childFd.getNumber() != null ? childFd.getNumber() : "");
+			childFdNode.setAttribute("idProductOrderFileString", childFd.getIdFileString() != null ? childFd.getIdFileString() : "");
+			childFdNode.setAttribute("idLab", childFd.getIdLab() != null ? childFd.getIdLab().toString() : "");
 
 		String viewType = Constants.DOWNLOAD_PRODUCT_ORDER_SINGLE_FILE_SERVLET + "?idProductOrder=" + childFd.getId();
 		if (!childFd.getType().equals("dir")) {
@@ -415,8 +449,12 @@ private String getProductOrderDirectory(String baseDir, ProductOrder po) {
 	SimpleDateFormat formatter = new SimpleDateFormat("yyyy");
 	String createYear = formatter.format(po.getSubmitDate());
 
-	if (!baseDir.endsWith("/") && !baseDir.endsWith("\\")) {
-		baseDir += "/";
+		if (!baseDir.endsWith("/") && !baseDir.endsWith("\\")) {
+			baseDir += "/";
+		}
+
+		String directoryName = baseDir + createYear + "/" + po.getIdProductOrder();
+		return directoryName;
 	}
 
 	String directoryName = baseDir + createYear + "/" + po.getIdProductOrder();
