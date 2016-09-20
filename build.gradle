@@ -1,0 +1,33 @@
+buildscript {
+    repositories {
+      maven {
+        credentials {
+          username = repo_user
+          password = repo_password
+        }
+        url repo_resolve_url 
+      }
+      maven { url 'http://repo.spring.io/plugins-release' }
+    }
+    dependencies {
+      classpath 'org.springframework.build.gradle:propdeps-plugin:0.0.7'
+      classpath 'org.jfrog.buildinfo:build-info-extractor-gradle:3.0.1'
+      classpath 'hci:hci-conventions:+'
+    }
+}
+
+apply plugin: 'hci-conventions'
+
+// Change group and version where appropriate
+// For a webapp group should be 'hci-apps', for a library is should
+// simply be: 'hci'
+group = 'hci-apps'   // Defines Group ID
+version = '2.0' // Defines Version
+
+dependencies {
+  compile fileTree(dir: 'lib', include: '*.jar')
+  providedCompile fileTree(dir: "${intelliJHome}/gnomex_wildfly/gnomex/lib", include: '*.jar')
+  providedCompile fileTree(dir: "${intelliJHome}/gnomex_wildfly/gnomex/libEnv", include: '*.jar')
+  providedCompile fileTree(dir: "${tomcatDir}", include: "*.jar")
+  providedCompile fileTree(dir: "${tomcatDir}/lib", include: "*.jar")
+}
