@@ -267,8 +267,7 @@ public void execute(HttpServletResponse res) throws RollBackCommandException {
 							bw2.close();
 						}
 					} catch (IOException ex) {
-						LOG.error("MakeDataTrackIGVLink -- Could not read from the Broad repository file: " + theURL,
-								ex);
+						LOG.error("MakeDataTrackIGVLink -- Could not read from the Broad repository file: " + theURL);
 					}
 
 					BufferedWriter br = new BufferedWriter(new FileWriter(registry, true));
@@ -316,12 +315,6 @@ public void execute(HttpServletResponse res) throws RollBackCommandException {
 	} catch (Exception e) {
 		LOG.error("An exception has occurred in MakeDataTrackIGVLinks ", e);
 		throw new RollBackCommandException(e.getMessage());
-	} finally {
-		try {
-			secAdvisor.closeHibernateSession();
-		} catch (Exception e) {
-			LOG.error("An exception has occurred in MakeDataTrackIGVLinks ", e);
-		}
 	}
 }
 
