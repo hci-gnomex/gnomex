@@ -1338,7 +1338,43 @@
 										   width="140" dataField="@otherOrganism"
 										   visible="false"
 										   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" 
-										   editorDataField="value"/> 
+										   editorDataField="value"/>
+
+				<mx:AdvancedDataGridColumn visible="{!isExternal &amp;&amp; isEditState}"
+										   editable="{parentApplication.hasPermission('canWriteAnyObject')}"
+										   headerText="QC Conc. ng/uL"
+										   width="80"
+										   dataField="@qualCalcConcentration"
+										   id="qualCalcConcCol"
+										   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}"
+										   editorDataField="value">
+					<mx:headerRenderer >
+						<mx:Component>
+							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off" verticalScrollPolicy="off" horizontalAlign="center" verticalAlign="middle">
+								<util:ContextHelp context1="sampleQCConc" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="QC Conc. Help" showEdit="{parentApplication.isAdminState}"
+												  label="QC Conc.&#13;(ng/uL)" noIconSpaceIfNoHelp="true"/>
+							</mx:VBox>
+						</mx:Component>
+					</mx:headerRenderer>
+				</mx:AdvancedDataGridColumn>
+
+				<mx:AdvancedDataGridColumn visible="{!isExternal &amp;&amp; isEditState}"
+										   editable="{parentApplication.hasPermission('canWriteAnyObject')}"
+										   headerText="QC RIN"
+										   width="70"
+										   dataField="@qualRINNumber"
+										   id="qualRINCol"
+										   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}"
+										   editorDataField="value">
+					<mx:headerRenderer >
+						<mx:Component>
+							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off" verticalScrollPolicy="off" horizontalAlign="center" verticalAlign="middle">
+								<util:ContextHelp context1="sampleQualRINCol" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="QC RIN Help" showEdit="{parentApplication.isAdminState}"
+												  label="QC RIN" noIconSpaceIfNoHelp="true"/>
+							</mx:VBox>
+						</mx:Component>
+					</mx:headerRenderer>
+				</mx:AdvancedDataGridColumn>
 
 				<util:AdvancedDataGridColumnWithType id="seqLibProtocolCol" propertyType="OPTION" headerText="Seq Lib Protocol" visible="{true}"  width="180" dataField="@idSeqLibProtocol" 
 										   		   	 editorDataField="value" sortable="false" editable="{isEditState}" rendererIsEditor="false"
@@ -1455,23 +1491,6 @@
 				</mx:AdvancedDataGridColumn>
 				
 				
-				<mx:AdvancedDataGridColumn visible="{!isExternal &amp;&amp; isEditState}" 
-										   editable="{parentApplication.hasPermission('canWriteAnyObject')}" 
-										   headerText="QC Conc. ng/uL" 
-										   width="80" 
-										   dataField="@qualCalcConcentration" 
-										   id="qualCalcConcCol" 
-										   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" 
-										   editorDataField="value">
-					<mx:headerRenderer > 
-						<mx:Component>
-							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off" verticalScrollPolicy="off" horizontalAlign="center" verticalAlign="middle"> 
-								<util:ContextHelp context1="sampleQCConc" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="QC Conc. Help" showEdit="{parentApplication.isAdminState}"
-												  label="QC Conc.&#13;(ng/uL)" noIconSpaceIfNoHelp="true"/>
-							</mx:VBox> 
-						</mx:Component>
-					</mx:headerRenderer>
-				</mx:AdvancedDataGridColumn>
 				<mx:AdvancedDataGridColumn id="meanLibSizeActual" visible="false" headerText="Actual Ave Lib Size" width="90" dataField="@meanLibSizeActual" editable="true">
 					<mx:headerRenderer > 
 						<mx:Component>
@@ -1499,24 +1518,7 @@
 						</mx:Component>
 					</mx:headerRenderer>
 				</mx:AdvancedDataGridColumn>
-				<mx:AdvancedDataGridColumn visible="{!isExternal &amp;&amp; isEditState}" 
-										   editable="{parentApplication.hasPermission('canWriteAnyObject')}" 
-										   headerText="QC RIN" 
-										   width="70" 
-										   dataField="@qualRINNumber" 
-										   id="qualRINCol" 
-										   itemEditor="{views.renderers.GridColumnFillButton.create(new mx.controls.TextInput(), '')}" 
-										   editorDataField="value">
-					<mx:headerRenderer > 
-						<mx:Component>
-							<mx:VBox verticalGap="0"   horizontalScrollPolicy="off" verticalScrollPolicy="off" horizontalAlign="center" verticalAlign="middle"> 
-								<util:ContextHelp context1="sampleQualRINCol" context2="{outerDocument.parentDocument.coreFacility.@idCoreFacility}" title="QC RIN Help" showEdit="{parentApplication.isAdminState}"
-												  label="QC RIN" noIconSpaceIfNoHelp="true"/>
-							</mx:VBox> 
-						</mx:Component>
-					</mx:headerRenderer>
-				</mx:AdvancedDataGridColumn>
-				<mx:AdvancedDataGridColumn visible="{!isExternal &amp;&amp; isEditState}" 
+				<mx:AdvancedDataGridColumn visible="{!isExternal &amp;&amp; isEditState}"
 										   editable="{parentApplication.hasPermission('canWriteAnyObject')}" 
 										   headerText="QC Frag size (from)" 
 										   width="87" 
