@@ -135,13 +135,14 @@
 		public var rowCountMessage:String = new String();
 
 		[Bindable]
-		private var possibleCollaborators:XMLListCollection;
+		private var currentCollaborators:XMLListCollection;
 		[Bindable]
 		private var possibleInstitutions:PromptXMLListCollection;
 		[Bindable]
 		public var selectedExperiment:Object;
 		[Bindable]
 		public var analysis:Object;
+
 		private var execValidateAndSaveAnalysis:Boolean = false;
 
 		[Bindable]
@@ -165,6 +166,10 @@
 		private var pasteCommand:Boolean = false;
 
 		private var uploadWindow:AnalysisUploadWindow = null;
+
+		private var possibleCollaborators:XMLListCollection;
+
+		private var allowedCollaborators:XMLListCollection;
 
 		private function onCloseWindow():void {
 			if (dirty.isDirty()) {
@@ -235,7 +240,6 @@
 			//privacyExpirationPicker.text = analysis.@privacyExpirationDate;
 			setDefaultPrivacyExpirationDate();
 			setPrivacyExpirationPickerEditable();
-			checkIfVisibilityRadioGroupEnabled();
 
 
 			this.notCollaborator();
@@ -876,10 +880,11 @@
 						" idAppUser=''" +
 						" displayName=''" +
 						"/>");
-				possibleCollaborators = new XMLListCollection(getLab.lastResult..Lab.(@idLab == analysis.@idLab).possibleCollaborators.AppUser.(@isActive == 'Y'));
+				possibleCollaborators = new XMLListCollection(getLab.lastResult..Lab.(@idLab == analysis.@idLab).possibleCollaboratorsWithoutOwner.AppUser.(@isActive == 'Y'));
+				allowedCollaborators = new XMLListCollection(getLab.lastResult..Lab.(@idLab == analysis.@idLab).allowedCollaborators.AppUser.(@isActive == 'Y'));
 				possibleCollaborators.addItemAt(emptyNode, 0);
+				allowedCollaborators.addItemAt(emptyNode, 0);
 				possibleInstitutions = new PromptXMLListCollection(emptyNode, new XMLListCollection(getLab.lastResult..Lab.(@idLab == analysis.@idLab).institutions.Institution.(@isActive == 'Y')));
-
 				this.radioInstitutionVisibility.enabled = this.possibleInstitutions.length > 1;
 				if (analysis.@idInstitution != null && analysis.@idInstitution != '') {
 					for each(var inst:Object in possibleInstitutions) {
@@ -953,18 +958,26 @@
 			if (analysis.@canUpdateVisibility != 'Y') {
 				this.visibilityTab.enabled = false;
 			}
+			checkIfVisibilityRadioGroupEnabled();
 		}
 
 		public function checkIfVisibilityRadioGroupEnabled():void {
-			if (this.visibilityRadioGroup.selectedValue!='OWNER') {
-				this.collaboratorVBox.visible = false;
-				this.collaboratorVBox.includeInLayout = false;
-			}
-			else if(this.collaboratorVBox.visible == false) {
-				this.collaboratorVBox.visible = true;
-				this.collaboratorVBox.includeInLayout = true;
-			}
+			if (getLab.lastResult != null) {
 
+				if (visibilityRadioGroup.selectedValue == 'OWNER') {
+					this.currentCollaborators = this.possibleCollaborators;
+					collaboratorVBox.visible = true;
+					collaboratorVBox.includeInLayout = true;
+				}
+				else if (visibilityRadioGroup.selectedValue == 'MEM') {
+					currentCollaborators = this.allowedCollaborators;
+					collaboratorVBox.visible = true;
+					collaboratorVBox.includeInLayout = true;
+				} else {
+					collaboratorVBox.visible = false;
+					collaboratorVBox.includeInLayout = false;
+				}
+			}
 		}
 
 		private function sortAppUsers(obj1:Object, obj2:Object, fields:Array = null):int {
@@ -1465,7 +1478,7 @@
 			
 			<mx:Text text="{(parentApplication.isPrivacyExpirationSupported ? '(3)' : '(2)') + ' Specify other individual collaborators allowed access to this analysis'}" width="300" height="30" id="selectCollaboratorsLabel" />
 			<mx:HBox horizontalAlign="left" horizontalGap="6" paddingBottom="4">
-				<renderers:FilterComboBox dataProvider="{possibleCollaborators.source}" 
+				<renderers:FilterComboBox dataProvider="{currentCollaborators.source}"
 										  labelField="@displayName" 
 										  prompt="Collaborator to add..."
 										  width="270"  
