@@ -168,7 +168,6 @@ public class SaveGenomeBuild extends GNomExCommand implements Serializable {
               Integer idSegment = IntegerValidator.getInstance().validate(segmentNode.attributeValue("idSegment"));
               String name = segmentNode.attributeValue("name").trim();
               Integer length = IntegerValidator.getInstance().validate(segmentNode.attributeValue("length"));
-              // should we keep this?  ----->  len = len.replace(",", "");
               Integer sortOrder = IntegerValidator.getInstance().validate(segmentNode.attributeValue("sortOrder"));
 
               Segment segment;
