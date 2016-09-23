@@ -125,7 +125,6 @@
 		for each (var objName:Object in names) {
 			if (objName is String) {
 				var name:String = String(objName);
-				Alert.show("objName = '" + objName + ", name = '" + name + "'");
 				if (name != "") {
 					if (!containsStringIgnoreCase(uniqueNames, name)) {
 						uniqueNames.push(name);
