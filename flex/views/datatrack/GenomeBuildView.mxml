@@ -109,8 +109,46 @@
 		return (validator.validate(value).type == ValidationResultEvent.VALID);
 	}
 
+	private function containsStringIgnoreCase(values:Array, valueToFind:String):Boolean {
+		for each (var value:Object in values) {
+			if (value is String && String(value).toUpperCase() == valueToFind.toUpperCase()) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private function validateUniqueSegmentNames(names:Array):void {
+		var uniqueNames:Array = new Array();
+		var duplicatedNames:Array = new Array();
+		var outputNames:String = "";
+		for each (var objName:Object in names) {
+			if (objName is String) {
+				var name:String = String(objName);
+				Alert.show("objName = '" + objName + ", name = '" + name + "'");
+				if (name != "") {
+					if (!containsStringIgnoreCase(uniqueNames, name)) {
+						uniqueNames.push(name);
+					} else {
+						if (!containsStringIgnoreCase(duplicatedNames, name)) {
+							duplicatedNames.push(name);
+							if (outputNames != "") {
+								outputNames += ", ";
+							}
+							outputNames += "'" + name + "'";
+						}
+					}
+				}
+			}
+		}
+		if (duplicatedNames.length > 0) {
+			appendError("Segment names " + outputNames + " are duplicated (must be unique).");
+		}
+	}
+
 	// name required, length+sortOrder must be positive integer
 	private function validateSegments():void {
+		var names:Array = new Array();
 		for each (var segment:Object in segments) {
 			segment.@name = StringUtil.trim(segment.@name.toString());
 			segment.@length = StringUtil.trim(segment.@length.toString());
@@ -124,7 +162,9 @@
 			if (!isPositiveInteger(segment.@sortOrder)) {
 				appendError("Segment order '" + segment.@sortOrder + "' is invalid.");
 			}
+			names.push(segment.@name);
 		}
+		validateUniqueSegmentNames(names);
 	}
 
 	private function saveGenomeBuild():void {

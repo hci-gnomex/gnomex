@@ -13,10 +13,7 @@ import hci.gnomex.utility.HibernateSession;
 import java.io.File;
 import java.io.Serializable;
 import java.io.StringReader;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
 import org.apache.commons.validator.routines.IntegerValidator;
 import org.apache.log4j.Logger;
@@ -86,12 +83,46 @@ public class SaveGenomeBuild extends GNomExCommand implements Serializable {
     return (intValue != null && intValue > 0);
   }
 
+  private boolean containsStringIgnoreCase(List<String> values, String valueToFind) {
+    for (String value : values) {
+      if (value.equalsIgnoreCase(valueToFind)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private void validateUniqueSegmentNames(List<String> names) {
+    List<String> uniqueNames = new ArrayList<String>();
+    List<String> duplicatedNames = new ArrayList<String>();
+    String outputNames = "";
+    for (String name : names) {
+      if (!name.isEmpty()) {
+        if (!containsStringIgnoreCase(uniqueNames, name)) {
+          uniqueNames.add(name);
+        } else {
+          if (!containsStringIgnoreCase(duplicatedNames, name)) {
+            duplicatedNames.add(name);
+            if (!outputNames.isEmpty()) {
+              outputNames += ", ";
+            }
+            outputNames += "'" + name + "'";
+          }
+        }
+      }
+    }
+    if (duplicatedNames.size() > 0) {
+      addInvalidField("duplicateSegmentNames", "Segment names " + outputNames + " are duplicated (must be unique)");
+    }
+  }
+
   private void validateSegments() {
     try {
       if (segmentsXML != null) {
         StringReader reader = new StringReader(segmentsXML);
         SAXReader sax = new SAXReader();
         Document segmentsDoc = sax.read(reader);
+        List<String> names = new ArrayList<String>();
         int count = 0;
         for (Iterator<?> iterSegment = segmentsDoc.getRootElement().elementIterator(); iterSegment.hasNext(); ) {
           count++;
@@ -108,7 +139,9 @@ public class SaveGenomeBuild extends GNomExCommand implements Serializable {
           if (!isPositiveInteger(sortOrder)) {
             addInvalidField("segment_" + count + "_order", "Segment order '" + sortOrder + "' is invalid");
           }
+          names.add(name.trim());
         }
+        validateUniqueSegmentNames(names);
       }
     } catch (DocumentException e) {
       addInvalidField("segmentsXML", "Unable to process segments");
