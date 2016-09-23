@@ -658,7 +658,7 @@
 		}
 
 		private function switchFirstSampleGridColumns(col1:AdvancedDataGridColumn, col2:AdvancedDataGridColumn):void {
-			var columns:Array = [];
+			var columns:Array = new Array();
 			columns[0] = col1;
 			columns[1] = col2;
 			for (var i:int = 2; i < this.samplesGridConfirm.columns.length; i++) {
@@ -1011,7 +1011,7 @@
 
 		public function refreshSavedExperiment(idRequest:Object):void {
 			parentDocument.parentDocument.selectedIdRequest = idRequest;
-			var parms:Object = {};
+			var parms:Object = new Object();
 			parms.idRequest = parentDocument.parentDocument.selectedIdRequest;
 			parentDocument.parentDocument.getRequest.send(parms);
 
@@ -1131,7 +1131,7 @@
 					preppedByLabCol.visible = false;
 					otherSamplePrepMethodCol.visible = true;
 					var application:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.Application', this.selectedExperiment.@codeApplication);
-					chipTypeCol.visible = (!!(application != null && application.@hasChipTypes == 'Y'));
+					chipTypeCol.visible = (application != null && application.@hasChipTypes == 'Y');
 					concentrationUnitCol.visible = true;
 					plateNameCol.visible = false;
 					wellNameCol.visible = false;
@@ -1410,7 +1410,7 @@
 
 		private function addAssayColumns():void {
 			var columns:Array = samplesGridConfirm.columns;
-			var newColumns:Array = [];
+			var newColumns:Array = new Array();
 
 			// remove any existing assay columns
 			var colRemoved:Boolean = false;
@@ -1428,7 +1428,7 @@
 
 			if (isFragAnalState()) {
 				columns = samplesGridConfirm.columns;
-				newColumns = [];
+				newColumns = new Array();
 				for each(var addCol:AdvancedDataGridColumn in columns) {
 					if (addCol.dataField == "@description") {
 						for each (var assay:Object in assays) {
@@ -1532,7 +1532,7 @@
 
 					// Place the new column right after the description column
 					var columns:Array = samplesGridConfirm.columns;
-					var newColumns:Array = [];
+					var newColumns:Array = new Array();
 					for each(var column:AdvancedDataGridColumn in columns) {
 						if ((currentState == 'SolexaState' || currentState == 'MicroarrayState' || currentState == 'QCState'
 								|| currentState == null || isNanoStringState() || this.isSequenomState() || this.isIonTorrentState() || currentState == 'ExternalMicroarrayState'
@@ -1557,7 +1557,7 @@
 		}
 
 		private function showProtocol(idProtocol:Object, protocolClassName:String):void {
-			var params:Object = {};
+			var params:Object = new Object();
 			params.id = idProtocol;
 			params.protocolClassName = protocolClassName;
 			getProtocol.send(params);
@@ -1587,7 +1587,7 @@
 		public function refreshDownloadList():void {
 
 			if (theTab.selectedChild == filesView) {
-				var params:Object = {};
+				var params:Object = new Object();
 				params.idRequest = this.selectedExperiment.@idRequest;
 				if (parentApplication.needToLoad(params)) {
 					var oldId:String = parentApplication.lastGetRequestDownloadListidRequest;
