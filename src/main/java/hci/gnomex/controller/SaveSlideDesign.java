@@ -93,7 +93,7 @@ public class SaveSlideDesign extends GNomExCommand implements Serializable {
         SAXBuilder sax = new SAXBuilder();
         mcDoc = sax.build(reader);
         applicationParser = new ApplicationParser(mcDoc);
-      } catch (JDOMException je ) {
+      } catch (Exception je ) {
         LOG.error( "Cannot parse applicationXMLString", je );
         this.addInvalidField( "applicationXMLString", "Invalid applicationXMLString");
       }
@@ -107,7 +107,7 @@ public class SaveSlideDesign extends GNomExCommand implements Serializable {
         SAXBuilder sax = new SAXBuilder();
         acDoc = sax.build(reader);
         acParser = new ArrayCoordinateParser(acDoc);
-      } catch (JDOMException je ) {
+      } catch (Exception je ) {
         LOG.error( "Cannot parse arrayCoordinateXMLString", je );
         this.addInvalidField( "arrayCoordinateXMLString", "Invalid arrayCoordinateXMLString");
       }

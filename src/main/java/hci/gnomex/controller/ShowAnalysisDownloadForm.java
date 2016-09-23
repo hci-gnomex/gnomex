@@ -96,7 +96,7 @@ public class ShowAnalysisDownloadForm extends GNomExCommand implements Serializa
 					Document doc = formatDownloadHTML(analysis, secAdvisor, baseDir, baseURL, emailAddress);
 
 					XMLOutputter out = new org.jdom.output.XMLOutputter();
-					out.setOmitEncoding(true);
+					out.getFormat().setOmitEncoding(true);
 					this.xmlResult = out.outputString(doc);
 					this.xmlResult = this.xmlResult.replaceAll("&amp;", "&");
 					this.xmlResult = this.xmlResult.replaceAll("�", "&micro");

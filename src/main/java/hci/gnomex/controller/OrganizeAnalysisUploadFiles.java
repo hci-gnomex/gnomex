@@ -70,7 +70,7 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
         SAXBuilder sax = new SAXBuilder();
         filesDoc = sax.build(reader);
         parser = new AnalysisFileDescriptorUploadParser(filesDoc);
-      } catch (JDOMException je ) {
+      } catch (Exception je ) {
         LOG.error( "Cannot parse filesXMLString", je );
         this.addInvalidField( "FilesLXMLString", "Invalid files xml");
       }
@@ -84,7 +84,7 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
         SAXBuilder sax = new SAXBuilder();
         filesToRemoveDoc = sax.build(reader);
         filesToRemoveParser = new AnalysisFileDescriptorUploadParser(filesToRemoveDoc);
-      } catch (JDOMException je ) {
+      } catch (Exception je ) {
         LOG.error( "Cannot parse filesToRemoveXMLString", je );
         this.addInvalidField( "FilesToRemoveXMLString", "Invalid filesToRemove xml");
       }

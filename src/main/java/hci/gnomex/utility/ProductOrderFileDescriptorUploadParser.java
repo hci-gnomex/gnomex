@@ -136,7 +136,7 @@ public class ProductOrderFileDescriptorUploadParser extends DetailObject impleme
  
       childrenToMoveMap.put(fileName, contents);
       
-      if(e.hasChildren()){
+      if(e.getChildren().size() > 0){
         renameDirectoryChildren(e, newFileName);
       }
     }

@@ -68,7 +68,7 @@ public class CacheFileDownloadList extends GNomExCommand implements Serializable
         SAXBuilder sax = new SAXBuilder();
         Document doc = sax.build(reader);
         parser = new FileDescriptorParser(doc);
-      } catch (JDOMException je ) {
+      } catch (Exception je ) {
         LOG.error( "Cannot parse fileDescriptorXMLString", je );
       
       }

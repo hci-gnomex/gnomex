@@ -480,7 +480,7 @@ public class DataTrackQuery implements Serializable {
 					// If selection criteria was applied to query, prune out nodes that don't
 					// have any content
 					if (this.hasDataTrackCriteria()) {
-						if (!genomeBuildNode.hasChildren()) {
+						if (genomeBuildNode.getChildren().size() == 0) {
 							organismNode.removeContent(genomeBuildNode);
 						}
 					}
@@ -492,7 +492,7 @@ public class DataTrackQuery implements Serializable {
 			// If selection criteria was applied to query, prune out nodes that don't
 			// have any content
 			if (this.hasDataTrackCriteria()) {
-				if (!organismNode.hasChildren()) {
+				if (organismNode.getChildren().size() == 0) {
 					root.removeContent(organismNode);
 				}
 			}
@@ -994,7 +994,7 @@ public class DataTrackQuery implements Serializable {
 				// any content (no authorized dataTracks in its folder
 				// or its descendent's folder).
 
-				if (!folderNode.hasChildren()) {
+				if (folderNode.getChildren().size() == 0) {
 					String folderIdUserGroup = folderNode.getAttributeValue("idLab");
 
 					boolean prune = true;

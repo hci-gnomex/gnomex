@@ -92,7 +92,7 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
         SAXBuilder sax = new SAXBuilder();
         requestDoc = sax.build(reader);
         requestParser = new RequestParser(requestDoc, this.getSecAdvisor());
-      } catch (JDOMException je ) {
+      } catch (Exception je ) {
         LOG.error( "Cannot parse requestXMLString", je );
         this.addInvalidField( "RequestXMLString", "Invalid request xml");
       }
@@ -509,7 +509,7 @@ public class CreateBillingItems extends GNomExCommand implements Serializable {
     return this;
   }
 
-  private Set saveRequestProperties(Session sess, RequestParser requestParser) throws org.jdom.JDOMException {
+  private Set saveRequestProperties(Session sess, RequestParser requestParser) throws Exception {
     Set<PropertyEntry> propertyEntries = new TreeSet<PropertyEntry>(new PropertyEntryComparator());
     // Delete properties
     if (propertiesXML != null && !propertiesXML.equals("")) {

@@ -250,7 +250,7 @@ public class SendBillingInvoiceEmail extends GNomExCommand implements Serializab
 		}
 
 		XMLOutputter out = new org.jdom.output.XMLOutputter();
-		out.setOmitEncoding(true);
+		out.getFormat().setOmitEncoding(true);
 		this.xmlResult = out.outputString(doc);
 	}
 	

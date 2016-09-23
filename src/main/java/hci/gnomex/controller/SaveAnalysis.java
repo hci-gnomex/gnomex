@@ -140,7 +140,7 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
 				SAXBuilder sax = new SAXBuilder();
 				analysisGroupsDoc = sax.build(reader);
 				analysisGroupParser = new AnalysisGroupParser(analysisGroupsDoc);
-			} catch (JDOMException je) {
+			} catch (Exception je) {
 				LOG.error("Cannot parse analysisGroupsXMLString", je);
 				this.addInvalidField("analysisGroupsXMLString", "Invalid analysisGroupsXMLString");
 			}
@@ -155,7 +155,7 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
 				analysisFilesDoc = sax.build(reader);
 
 				analysisFileParser = new AnalysisFileParser(analysisFilesDoc, null);
-			} catch (JDOMException je) {
+			} catch (Exception je) {
 				LOG.error("Cannot parse analysisFilesXMLString", je);
 				this.addInvalidField("analysisFilesXMLString", "Invalid analysisFilesXMLString");
 			}
@@ -168,7 +168,7 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
 				SAXBuilder sax = new SAXBuilder();
 				hybsDoc = sax.build(reader);
 				hybParser = new AnalysisHybParser(hybsDoc);
-			} catch (JDOMException je) {
+			} catch (Exception je) {
 				LOG.error("Cannot parse hybsXMLString", je);
 				this.addInvalidField("hybsXMLString", "Invalid hybsXMLString");
 			}
@@ -186,7 +186,7 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
 				SAXBuilder sax = new SAXBuilder();
 				lanesDoc = sax.build(reader);
 				laneParser = new AnalysisLaneParser(lanesDoc);
-			} catch (JDOMException je) {
+			} catch (Exception je) {
 				LOG.error("Cannot parse lanesXMLString", je);
 				this.addInvalidField("lanesXMLString", "Invalid lanesXMLString");
 			}
@@ -199,7 +199,7 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
 				SAXBuilder sax = new SAXBuilder();
 				samplesDoc = sax.build(reader);
 				sampleParser = new AnalysisSampleParser(samplesDoc);
-			} catch (JDOMException je) {
+			} catch (Exception je) {
 				LOG.error("Cannot parse samplesXMLString", je);
 				this.addInvalidField("samplesXMLString", "Invalid samplesXMLString");
 			}
@@ -212,7 +212,7 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
 				SAXBuilder sax = new SAXBuilder();
 				collaboratorsDoc = sax.build(reader);
 				collaboratorParser = new AnalysisCollaboratorParser(collaboratorsDoc);
-			} catch (JDOMException je) {
+			} catch (Exception je) {
 				LOG.error("Cannot parse collaboratorsXMLString", je);
 				this.addInvalidField("collaboratorsXMLString", "Invalid collaboratorsXMLString");
 			}
@@ -225,7 +225,7 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
 				SAXBuilder sax = new SAXBuilder();
 				genomeBuildsDoc = sax.build(reader);
 				genomeBuildParser = new AnalysisGenomeBuildParser(genomeBuildsDoc);
-			} catch (JDOMException je) {
+			} catch (Exception je) {
 				LOG.error("Cannot parse genomeBuildsXMLString", je);
 				this.addInvalidField("genomeBuildsXMLString", "Invalid genomeBuildsXMLString");
 			}
@@ -979,7 +979,7 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
 		}
 	}
 
-	private void saveAnalysisProperties(Session sess, Analysis analysis) throws org.jdom.JDOMException {
+	private void saveAnalysisProperties(Session sess, Analysis analysis) throws Exception {
 		// Delete analysis properties
 		if (propertiesXML != null && !propertiesXML.equals("")) {
 			StringReader reader = new StringReader(propertiesXML);

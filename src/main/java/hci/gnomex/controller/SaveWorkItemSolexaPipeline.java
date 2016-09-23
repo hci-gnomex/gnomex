@@ -91,7 +91,7 @@ public class SaveWorkItemSolexaPipeline extends GNomExCommand implements Seriali
         SAXBuilder sax = new SAXBuilder();
         workItemDoc = sax.build(reader);
         parser = new WorkItemSolexaPipelineParser(workItemDoc);
-      } catch (JDOMException je ) {
+      } catch (Exception je ) {
         LOG.error( "Cannot parse workItemXMLString", je );
         this.addInvalidField( "WorkItemXMLString", "Invalid work item xml");
       }

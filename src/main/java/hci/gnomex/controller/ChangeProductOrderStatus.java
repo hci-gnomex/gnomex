@@ -42,7 +42,7 @@ public class ChangeProductOrderStatus extends GNomExCommand implements Serializa
       try {
         SAXBuilder sax = new SAXBuilder();
         orderDoc = sax.build(reader);
-      } catch (JDOMException je) {
+      } catch (Exception je) {
         LOG.error("Cannot parse selectedOrdersXMLString", je);
         this.addInvalidField("selectedOrdersXMLString", "Invalid selectedOrders xml");
       }
@@ -53,7 +53,7 @@ public class ChangeProductOrderStatus extends GNomExCommand implements Serializa
       try {
         SAXBuilder sax = new SAXBuilder();
         lineItemDoc = sax.build(reader);
-      } catch (JDOMException je) {
+      } catch (Exception je) {
         LOG.error("Cannot parse selectedlineItemsXMLString", je);
         this.addInvalidField("selectedlineItemsXMLString", "Invalid selectedlineItems xml");
       }

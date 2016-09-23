@@ -145,7 +145,7 @@ public class UnlinkDataTrack extends GNomExCommand implements Serializable {
         root.setAttribute("numberRemainingDataTrackFolders", Integer.valueOf(folderCount).toString());
         root.setAttribute("remainingDataTrackFolders", remainingDataTrackFolders.toString());
         XMLOutputter out = new org.jdom.output.XMLOutputter();
-        out.setOmitEncoding(true);
+        out.getFormat().setOmitEncoding(true);
         this.xmlResult = out.outputString(doc);
         this.setResponsePage(SUCCESS_JSP);
 

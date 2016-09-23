@@ -121,7 +121,7 @@ public class SaveBillingItemList extends GNomExCommand implements Serializable {
         SAXBuilder sax = new SAXBuilder();
         billingItemDoc = sax.build(reader);
         parser = new BillingItemParser(billingItemDoc);
-      } catch (JDOMException je ) {
+      } catch (Exception je ) {
         LOG.error( "Cannot parse billingItemXMLString", je );
         this.addInvalidField( "BillingItemXMLString", "Invalid work item xml");
       }

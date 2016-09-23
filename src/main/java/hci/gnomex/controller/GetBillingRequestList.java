@@ -681,7 +681,7 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
         for(Iterator i1 = labNodeMap.keySet().iterator(); i1.hasNext();) {
           String key = (String)i1.next();
           Element labNode = (Element)labNodeMap.get(key);
-          if (labNode.hasChildren()) {
+          if (labNode.getChildren().size() > 0) {
             status.addContent(labNode);
           }
         }
@@ -695,7 +695,7 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
         for(Iterator i1 = labNodeMap.keySet().iterator(); i1.hasNext();) {
           String key = (String)i1.next();
           Element labNode = (Element)labNodeMap.get(key);
-          if (labNode.hasChildren()) {
+          if (labNode.getChildren().size() > 0) {
             status.addContent(labNode);
           }
         }      
@@ -709,7 +709,7 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
         for(Iterator i1 = labNodeMap.keySet().iterator(); i1.hasNext();) {
           String key = (String)i1.next();
           Element labNode = (Element)labNodeMap.get(key);
-          if (labNode.hasChildren()) {
+          if (labNode.getChildren().size() > 0) {
             status.addContent(labNode);
           }
         }      
@@ -723,7 +723,7 @@ public class GetBillingRequestList extends GNomExCommand implements Serializable
         for(Iterator i1 = labNodeMap.keySet().iterator(); i1.hasNext();) {
           String key = (String)i1.next();
           Element labNode = (Element)labNodeMap.get(key);
-          if (labNode.hasChildren()) {
+          if (labNode.getChildren().size() > 0) {
             status.addContent(labNode);
           }
         }      

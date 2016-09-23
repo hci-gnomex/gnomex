@@ -74,7 +74,7 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
         SAXBuilder sax = new SAXBuilder();
         filesDoc = sax.build(reader);
         parser = new FileDescriptorUploadParser(filesDoc);
-      } catch (JDOMException je) {
+      } catch (Exception je) {
         LOG.error("Cannot parse filesXMLString", je);
         this.addInvalidField("FilesLXMLString", "Invalid files xml");
       }
@@ -87,7 +87,7 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
       try {
         SAXBuilder sax = new SAXBuilder();
         experimentFileDoc = sax.build(reader);
-      } catch (JDOMException je) {
+      } catch (Exception je) {
         LOG.error("Cannot parse experimentFileXMLString", je);
         this.addInvalidField("experimentFileXMLString", "Invalid experimentFileXMLString xml");
       }
@@ -101,7 +101,7 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
         SAXBuilder sax = new SAXBuilder();
         filesToRemoveDoc = sax.build(reader);
         filesToRemoveParser = new FileDescriptorUploadParser(filesToRemoveDoc);
-      } catch (JDOMException je) {
+      } catch (Exception je) {
         LOG.error("Cannot parse filesToRemoveXMLString", je);
         this.addInvalidField("FilesToRemoveXMLString", "Invalid filesToRemove xml");
       }
@@ -114,7 +114,7 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
       try {
         SAXBuilder sax = new SAXBuilder();
         filesToUnlinkDoc = sax.build(reader);
-      } catch (JDOMException je) {
+      } catch (Exception je) {
         LOG.error("Cannot parse filesToUnlinkXMLString", je);
         this.addInvalidField("FilesToUnlinkXMLString", "Invalid filesToUnlink xml");
       }
@@ -127,7 +127,7 @@ public class OrganizeExperimentUploadFiles extends GNomExCommand implements Seri
       try {
         SAXBuilder sax = new SAXBuilder();
         linkedSampleFileDoc = sax.build(reader);
-      } catch (JDOMException je) {
+      } catch (Exception je) {
         LOG.error("Cannot parse linkedSampleFileXMLString", je);
         this.addInvalidField("linkedSampleFileXMLString", "Invalid linkedSampleFiles xml");
       }

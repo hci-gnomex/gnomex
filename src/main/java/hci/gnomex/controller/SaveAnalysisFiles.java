@@ -69,7 +69,7 @@ public class SaveAnalysisFiles extends GNomExCommand implements Serializable {
         analysisFilesDoc = sax.build(reader);
 
         analysisFileParser = new AnalysisFileParser(analysisFilesDoc, null);
-      } catch (JDOMException je ) {
+      } catch (Exception je ) {
         LOG.error( "Cannot parse analysisFilesXMLString", je );
         this.addInvalidField( "analysisFilesXMLString", "Invalid analysisFilesXMLString");
       }

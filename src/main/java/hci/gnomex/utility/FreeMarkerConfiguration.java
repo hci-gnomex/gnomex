@@ -8,7 +8,7 @@ public class FreeMarkerConfiguration {
   private Configuration configuration;
   
   private FreeMarkerConfiguration() {
-    configuration = new Configuration(Configuration.VERSION_2_3_22);
+    configuration = new Configuration();
     configuration.setDefaultEncoding("UTF-8");
     configuration.setTemplateExceptionHandler(TemplateExceptionHandler.RETHROW_HANDLER);
   }

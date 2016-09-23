@@ -48,7 +48,7 @@ public class DeletePlates extends GNomExCommand implements Serializable {
       try {
         SAXBuilder sax = new SAXBuilder();
         platesToDeleteDoc = sax.build(reader);     
-      } catch (JDOMException je ) {
+      } catch (Exception je ) {
         LOG.error( "Cannot parse platesToDeleteXMLString", je );
         this.addInvalidField( "platesToDeleteXMLString", "Invalid platesToDeleteXMLString");
       }

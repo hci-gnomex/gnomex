@@ -40,7 +40,7 @@ public class DeleteChromatograms extends GNomExCommand implements Serializable {
       try {
         SAXBuilder sax = new SAXBuilder();
         chromatsToDeleteDoc = sax.build(reader);     
-      } catch (JDOMException je ) {
+      } catch (Exception je ) {
         LOG.error( "Cannot parse chromatsToDeleteXMLString", je );
         this.addInvalidField( "chromatsToDeleteXMLString", "Invalid chromatsToDeleteXMLString");
       }
@@ -70,7 +70,7 @@ public class DeleteChromatograms extends GNomExCommand implements Serializable {
         setResponsePage(this.SUCCESS_JSP);
  
       } else {
-        this.addInvalidField("Insufficient permissions", "Insufficient permission to edit dictionareis.");
+        this.addInvalidField("Insufficient permissions", "Insufficient permission to edit dictionaries.");
         setResponsePage(this.ERROR_JSP);
       }
       

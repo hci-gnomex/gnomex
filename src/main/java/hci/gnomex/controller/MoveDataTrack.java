@@ -208,7 +208,7 @@ public class MoveDataTrack extends GNomExCommand implements Serializable {
           root.setAttribute("idGenomeBuild", idGenomeBuild.toString());
           root.setAttribute("idDataTrackFolder", idDataTrackFolder != null ? idDataTrackFolder.toString() : "");
           XMLOutputter out = new org.jdom.output.XMLOutputter();
-          out.setOmitEncoding(true);
+          out.getFormat().setOmitEncoding(true);
           this.xmlResult = out.outputString(doc);
           this.setResponsePage(SUCCESS_JSP);
         } else {

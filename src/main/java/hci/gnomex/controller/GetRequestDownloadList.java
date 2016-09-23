@@ -495,7 +495,7 @@ public static void addExpandedFileNodes(Session sess, String serverName, String 
 				}
 
 			} else {
-				if (!requestDownloadNode.hasChildren()) {
+				if (requestDownloadNode.getChildren().size() == 0) {
 					requestDownloadNode.setAttribute("isEmpty", "Y");
 				}
 			}

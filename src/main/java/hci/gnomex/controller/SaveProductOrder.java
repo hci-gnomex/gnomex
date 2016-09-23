@@ -67,7 +67,7 @@ public class SaveProductOrder extends GNomExCommand implements Serializable {
 			try {
 				SAXBuilder sax = new SAXBuilder();
 				billingTemplateDoc = sax.build(reader);
-			} catch (JDOMException je) {
+			} catch (Exception je) {
 				LOG.error("Cannot parse billingTemplateXMLString", je);
 				this.addInvalidField("billingTemplateXMLString", "Invalid billingTemplate xml");
 			}
@@ -111,7 +111,7 @@ public class SaveProductOrder extends GNomExCommand implements Serializable {
 		try {
 			SAXBuilder sax = new SAXBuilder();
 			productDoc = sax.build(reader);
-		} catch (JDOMException je) {
+		} catch (Exception je) {
 			LOG.error("Cannot parse producListXMLString", je);
 			this.addInvalidField("productListXMLString", "Invalid producList xml");
 		}
@@ -248,7 +248,7 @@ public class SaveProductOrder extends GNomExCommand implements Serializable {
 				sess.flush();
 
 				XMLOutputter out = new org.jdom.output.XMLOutputter();
-				out.setOmitEncoding(true);
+				out.getFormat().setOmitEncoding(true);
 				this.xmlResult = out.outputString(outputDoc);
 				this.setResponsePage(SUCCESS_JSP);
 

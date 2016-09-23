@@ -41,7 +41,7 @@ public class SaveMultiRequestSampleSheet extends GNomExCommand implements Serial
       try {
         SAXBuilder sax = new SAXBuilder();
         hdrDoc = sax.build(reader);
-      } catch (JDOMException je ) {
+      } catch (Exception je ) {
         LOG.error( "SaveMultiRequestSampleSheet: Cannot parse headers", je );
         this.addInvalidField( "Headers", "Invalid headers xml");
       }
@@ -56,7 +56,7 @@ public class SaveMultiRequestSampleSheet extends GNomExCommand implements Serial
       try {
         SAXBuilder sax = new SAXBuilder();
         rowDoc = sax.build(reader);
-      } catch (JDOMException je ) {
+      } catch (Exception je ) {
         LOG.error( "SaveMultiRequestSampleSheet: Cannot parse rows", je );
         this.addInvalidField( "Rows", "Invalid rows xml");
       }

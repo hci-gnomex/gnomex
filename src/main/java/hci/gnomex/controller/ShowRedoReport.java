@@ -122,7 +122,7 @@ public class ShowRedoReport extends GNomExCommand implements Serializable {
 
           
           XMLOutputter out = new org.jdom.output.XMLOutputter();
-          out.setOmitEncoding( true );
+          out.getFormat().setOmitEncoding( true );
           this.xmlResult = out.outputString( doc );
           this.xmlResult = this.xmlResult.replaceAll( "&amp;", "&" );
           this.xmlResult = this.xmlResult.replaceAll( "�", "&micro" );

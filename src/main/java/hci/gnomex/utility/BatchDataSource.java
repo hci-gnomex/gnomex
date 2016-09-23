@@ -111,7 +111,7 @@ public class BatchDataSource extends DetailObject {
         
         org.jdom.Document doc = builder.build(xmlFile);
         this.registerDataSources(doc);
-      } catch (JDOMException e) {
+      } catch (Exception e) {
       }
     }
   }
@@ -144,7 +144,7 @@ public class BatchDataSource extends DetailObject {
         
         org.jdom.Document doc = builder.build(xmlFile);
         this.registerTomcatDataSources(doc);
-      } catch (JDOMException e) {
+      } catch (Exception e) {
       }
     }
   }

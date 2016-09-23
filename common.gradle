@@ -1,0 +1,11 @@
+version = 5.36
+ext {
+    buildNum = 0
+    warName = "${rootProject.name}.war"
+    jarName = "${rootProject.name}.jar"
+    clientJarName = "${rootProject.name}_client.jar"
+    realmJarName = "${rootProject.name}_realm.jar"
+    def nowDate = new Date();
+    formattedDate = nowDate.format('MMM-dd-yyyy HH:MM')
+    javaManifest = System.getProperty('java.version') + ' (' + System.getProperty('java.vendor') + ')'
+}

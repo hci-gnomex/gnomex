@@ -49,7 +49,7 @@ public class SaveVisibility extends GNomExCommand implements Serializable {
         SAXBuilder sax = new SAXBuilder();
         visibilityDoc = sax.build(reader);
         parser = new RequestVisibilityParser(visibilityDoc);
-      } catch (JDOMException je ) {
+      } catch (Exception je ) {
         LOG.error( "Cannot parse visibilityXMLString", je );
         this.addInvalidField( "visibilityXMLString", "Invalid visibilityXMLString");
       }

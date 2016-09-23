@@ -363,7 +363,7 @@ public class GetLab extends GNomExCommand implements Serializable {
         userIds += user.getIdAppUser().toString();
       }
       node.setAttribute("acctUsers", userIds);
-      node.setChildren(users);
+      node.setContent(users);
       accountsNode.addContent(node);
     }
   }

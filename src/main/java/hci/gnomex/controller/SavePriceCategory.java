@@ -80,7 +80,7 @@ public class SavePriceCategory extends GNomExCommand implements Serializable {
       SAXBuilder sax = new SAXBuilder();
       Document stepsDoc = sax.build(reader);
       stepParser = new PriceCategoryStepParser(stepsDoc);
-    } catch (JDOMException je ) {
+    } catch (Exception je ) {
       LOG.error( "Cannot parse stepsXMLString", je );
       this.addInvalidField( "stepsXMLString", "Invalid stepsXMLString");
     }

@@ -107,7 +107,7 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
       try {
         SAXBuilder sax = new SAXBuilder();
         sampleTypesDoc = sax.build(reader);
-      } catch (JDOMException je) {
+      } catch (Exception je) {
         LOG.error("Cannot parse sampleTypesXMLString", je);
         this.addInvalidField("sampleTypesXMLString", "Invalid sampleTypesXMLString");
       }
@@ -119,7 +119,7 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
       try {
         SAXBuilder sax = new SAXBuilder();
         prepTypesDoc = sax.build(reader);
-      } catch (JDOMException je) {
+      } catch (Exception je) {
         LOG.error("Cannot parse prepTypesXMLString", je);
         this.addInvalidField("prepTypesXMLString", "Invalid prepTypesXMLString");
       }
@@ -131,7 +131,7 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
       try {
         SAXBuilder sax = new SAXBuilder();
         prepQCProtocolsDoc = sax.build(reader);
-      } catch (JDOMException je) {
+      } catch (Exception je) {
         LOG.error("Cannot parse prepQCProtocolsXMLString", je);
         this.addInvalidField("prepQCProtocolsXMLString", "Invalid prepQCProtocolsXMLString");
       }
@@ -143,7 +143,7 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
       try {
         SAXBuilder sax = new SAXBuilder();
         applicationsDoc = sax.build(reader);
-      } catch (JDOMException je) {
+      } catch (Exception je) {
         LOG.error("Cannot parse applicationsXMLString", je);
         this.addInvalidField("applicationsXMLString", "Invalid applicationsXMLString");
       }
@@ -155,7 +155,7 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
       try {
         SAXBuilder sax = new SAXBuilder();
         sequencingOptionsDoc = sax.build(reader);
-      } catch (JDOMException je) {
+      } catch (Exception je) {
         LOG.error("Cannot parse sequencingOptionsXMLString", je);
         this.addInvalidField("sequencingOptionsXMLString", "Invalid sequencingOptionsXMLString");
       }
@@ -191,7 +191,7 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
       try {
         SAXBuilder sax = new SAXBuilder();
         requestCategoryApplicationsDoc = sax.build(reader);
-      } catch (JDOMException je) {
+      } catch (Exception je) {
         LOG.error("Cannot parse requestCategoryApplicationXMLString", je);
         this.addInvalidField("requestCategoryApplicationXMLString", "Invalid requestCategoryApplicationXMLString");
       }

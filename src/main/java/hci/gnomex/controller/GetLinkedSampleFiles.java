@@ -124,7 +124,7 @@ public class GetLinkedSampleFiles extends GNomExCommand implements Serializable 
           sefNode.setAttribute("readID", "2");
           seqRunNumberNode.addContent(sefNode);
         }
-        if(seqRunNumberNode.hasChildren()) {
+        if(seqRunNumberNode.getChildren().size() > 0) {
           sampleNode.addContent(seqRunNumberNode);
         }
 
@@ -164,7 +164,7 @@ public class GetLinkedSampleFiles extends GNomExCommand implements Serializable 
         for(int j = 1; j < group.length; j++) {
           Element e1 = new Element("SampleGroup");
           e1.setAttribute("displayName", group[j]);
-          if(e.hasChildren()) {
+          if(e.getChildren().size() > 0) {
             Element child = (Element)(e.getChildren().get(e.getChildren().size() - 1));
             child.addContent(e1);
           } else {
@@ -226,7 +226,7 @@ public class GetLinkedSampleFiles extends GNomExCommand implements Serializable 
       if(groupChild.getName().equals("SampleGroup") && groupChild.getAttributeValue("displayName").equals(restingNode)) {
         groupChild.addContent(sample);
         return;
-      } else if(groupChild.getName().equals("SampleGroup") && groupChild.hasChildren()) {
+      } else if(groupChild.getName().equals("SampleGroup") && groupChild.getChildren().size() > 0) {
         recurseAddChildren(restingNode, groupChild, sample);
       }
     }

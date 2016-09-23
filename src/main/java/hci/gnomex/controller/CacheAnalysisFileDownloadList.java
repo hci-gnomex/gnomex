@@ -68,7 +68,7 @@ public class CacheAnalysisFileDownloadList extends GNomExCommand implements Seri
         SAXBuilder sax = new SAXBuilder();
         Document doc = sax.build(reader);
         parser = new AnalysisFileDescriptorParser(doc);
-      } catch (JDOMException je ) {
+      } catch (Exception je ) {
         LOG.error( "Cannot parse fileDescriptorXMLString", je );
       
       }

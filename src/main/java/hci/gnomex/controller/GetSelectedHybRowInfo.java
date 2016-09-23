@@ -68,7 +68,7 @@ public class GetSelectedHybRowInfo extends GNomExCommand implements Serializable
         }
             
 
-      } catch (JDOMException je ) {
+      } catch (Exception je ) {
         LOG.error( "Cannot parse selectedHybXMLString " + selectedHybXMLString, je );
         this.addInvalidField( "HybRowXML", "Invalid select row hyb XML");
       }

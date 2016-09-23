@@ -64,7 +64,7 @@ public class SaveWorkItemSolexaStock extends GNomExCommand implements Serializab
         SAXBuilder sax = new SAXBuilder();
         workItemDoc = sax.build(reader);
         parser = new WorkItemSolexaStockParser(workItemDoc);
-      } catch (JDOMException je ) {
+      } catch (Exception je ) {
         LOG.error( "Cannot parse workItemXMLString", je );
         this.addInvalidField( "WorkItemXMLString", "Invalid work item xml");
       }

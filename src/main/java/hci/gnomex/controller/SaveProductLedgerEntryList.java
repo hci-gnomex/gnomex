@@ -38,7 +38,7 @@ public class SaveProductLedgerEntryList extends GNomExCommand implements Seriali
 	    try {
 	    	SAXBuilder sax = new SAXBuilder();
 	    	productLedgerEntryListDoc = sax.build(reader);
-	    } catch (JDOMException je) {
+	    } catch (Exception je) {
 	    	LOG.error("Cannot parse productLedgerEntryListXMLString", je);
 	    	this.addInvalidField("ProductLedgerEntryListXMLString", "Invalid product ledger entry list xml");
 	    }

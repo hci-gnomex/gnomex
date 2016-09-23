@@ -63,7 +63,7 @@ public class BatchMailer  {
             }
           } 
         }
-      } catch (JDOMException e) {
+      } catch (Exception e) {
         System.out.println( e.toString() );
 
       }
@@ -95,7 +95,7 @@ public class BatchMailer  {
             }
             
           }
-        } catch (JDOMException e) {
+        } catch (Exception e) {
           System.out.println( e.toString() );
 
         }      

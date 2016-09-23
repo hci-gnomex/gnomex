@@ -60,7 +60,7 @@ public class GetMultiplexLaneList extends GNomExCommand implements Serializable 
         SAXBuilder sax = new SAXBuilder();
         requestDoc = sax.build(reader);
         requestParser = new RequestParser(requestDoc, this.getSecAdvisor());
-      } catch (JDOMException je ) {
+      } catch (Exception je ) {
         LOG.error( "Cannot parse requestXMLString", je );
         this.addInvalidField( "RequestXMLString", "Invalid request xml");
       }

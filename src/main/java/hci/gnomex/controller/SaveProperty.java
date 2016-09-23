@@ -115,7 +115,7 @@ public class SaveProperty extends GNomExCommand implements Serializable {
         SAXBuilder sax = new SAXBuilder();
         optionsDoc = sax.build( reader );
         checkOptions();
-      } catch( JDOMException je ) {
+      } catch(Exception je ) {
         LOG.error( "Cannot parse optionsXMLString", je );
         this.addInvalidField( "optionsXMLString", "Invalid optionsXMLString" );
       }
@@ -128,7 +128,7 @@ public class SaveProperty extends GNomExCommand implements Serializable {
       try {
         SAXBuilder sax = new SAXBuilder();
         organismsDoc = sax.build( reader );
-      } catch( JDOMException je ) {
+      } catch(Exception je ) {
         LOG.error( "Cannot parse organismsXMLString", je );
         this.addInvalidField( "organismsXMLString",
             "Invalid organismsXMLString" );
@@ -142,7 +142,7 @@ public class SaveProperty extends GNomExCommand implements Serializable {
       try {
         SAXBuilder sax = new SAXBuilder();
         appUsersDoc = sax.build( reader );
-      } catch( JDOMException je ) {
+      } catch(Exception je ) {
         LOG.error( "Cannot parse appUsersXMLString", je );
         this.addInvalidField( "appUsersXMLString",
             "Invalid appUsersXMLString" );
@@ -156,7 +156,7 @@ public class SaveProperty extends GNomExCommand implements Serializable {
       try {
         SAXBuilder sax = new SAXBuilder();
         platformsDoc = sax.build( reader );
-      } catch( JDOMException je ) {
+      } catch(Exception je ) {
         LOG.error( "Cannot parse platformsXMLString", je );
         this.addInvalidField( "platformsXMLString",
             "Invalid platformsXMLString" );
@@ -170,7 +170,7 @@ public class SaveProperty extends GNomExCommand implements Serializable {
       try {
         SAXBuilder sax = new SAXBuilder();
         analysisTypesDoc = sax.build( reader );
-      } catch( JDOMException je ) {
+      } catch(Exception je ) {
         LOG.error( "Cannot parse analysisTypesXMLString", je );
         this.addInvalidField( "analysisTypesXMLString",
             "Invalid analysisTypesXMLString" );

@@ -63,7 +63,7 @@ public class SaveGroupMembership extends GNomExCommand implements Serializable {
       SAXBuilder sax = new SAXBuilder();
       membersDoc = sax.build(reader);
       labMemberParser = new LabMemberParser(membersDoc);
-    } catch (JDOMException je ) {
+    } catch (Exception je ) {
       LOG.error( "Cannot parse membersXMLString", je );
       this.addInvalidField( "membersXMLString", "Invalid membersXMLString");
     }
@@ -77,7 +77,7 @@ public class SaveGroupMembership extends GNomExCommand implements Serializable {
       SAXBuilder sax = new SAXBuilder();
       collaboratorsDoc = sax.build(reader);
       collaboratorParser = new LabMemberParser(collaboratorsDoc);
-    } catch (JDOMException je ) {
+    } catch (Exception je ) {
       LOG.error( "Cannot parse collaboratorsXMLString", je );
       this.addInvalidField( "collaboratorsXMLString", "Invalid collaboratorsXMLString");
     }

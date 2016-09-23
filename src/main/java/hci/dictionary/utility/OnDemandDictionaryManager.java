@@ -139,7 +139,7 @@ public final class OnDemandDictionaryManager implements DictionaryActions, Seria
         InputStream is = getInputStream(dictionaryXmlFile, loader);
         Document doc = builder.build(is);
         registerDictionaries(doc);
-      } catch (JDOMException e) {
+      } catch (Exception e) {
         LOG.error("Error loading dictionaries: ", e);
       }
     }

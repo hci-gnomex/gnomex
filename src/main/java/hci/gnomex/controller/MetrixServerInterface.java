@@ -154,7 +154,7 @@ public class MetrixServerInterface extends GNomExCommand implements Serializable
 
         try{
           doc = builder.build(new StringReader(srvResp)); 
-        }catch(JDOMException JEx){
+        }catch(Exception JEx){
           System.out.println("Error in SAXBuilder " + JEx);
         }
 

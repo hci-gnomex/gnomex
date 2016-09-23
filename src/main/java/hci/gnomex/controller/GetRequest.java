@@ -697,7 +697,7 @@ public class GetRequest extends GNomExCommand implements Serializable {
               }
               // Sort samples by plate and well
               ArrayList sampleArray = new ArrayList(samples);
-              requestNode.getChild("samples").setContent(null);
+              requestNode.getChild("samples").setContent(new ArrayList());
               Collections.sort(sampleArray, new PlateAndWellComparator());
               requestNode.getChild("samples").setContent(sampleArray);
             } else {
@@ -924,7 +924,7 @@ public class GetRequest extends GNomExCommand implements Serializable {
               }
               // Sort samples by plate and well
               ArrayList sampleArray = new ArrayList(samples);
-              requestNode.getChild("samples").setContent(null);
+              requestNode.getChild("samples").setContent(new ArrayList());
               Collections.sort(sampleArray, new PlateAndWellComparator());
               requestNode.getChild("samples").setContent(sampleArray);
 

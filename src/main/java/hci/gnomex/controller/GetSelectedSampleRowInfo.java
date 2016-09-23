@@ -69,7 +69,7 @@ public class GetSelectedSampleRowInfo extends GNomExCommand implements Serializa
         }
             
 
-      } catch (JDOMException je ) {
+      } catch (Exception je ) {
         LOG.error( "Cannot parse selectedSampleXMLString " + selectedSampleXMLString, je );
         this.addInvalidField( "SampleRowXML", "Invalidselect row sample XML");
       }

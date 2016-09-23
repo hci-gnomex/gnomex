@@ -69,7 +69,7 @@ public class OrganizeProductOrderUploadFiles extends GNomExCommand implements Se
         SAXBuilder sax = new SAXBuilder();
         filesDoc = sax.build(reader);
         parser = new ProductOrderFileDescriptorUploadParser(filesDoc);
-      } catch (JDOMException je ) {
+      } catch (Exception je ) {
         LOG.error( "Cannot parse filesXMLString", je );
         this.addInvalidField( "FilesLXMLString", "Invalid files xml");
       }
@@ -83,7 +83,7 @@ public class OrganizeProductOrderUploadFiles extends GNomExCommand implements Se
         SAXBuilder sax = new SAXBuilder();
         filesToRemoveDoc = sax.build(reader);
         filesToRemoveParser = new ProductOrderFileDescriptorUploadParser(filesToRemoveDoc);
-      } catch (JDOMException je ) {
+      } catch (Exception je ) {
         LOG.error( "Cannot parse filesToRemoveXMLString", je );
         this.addInvalidField( "FilesToRemoveXMLString", "Invalid filesToRemove xml");
       }

@@ -51,7 +51,7 @@ public class DeleteProductLineItems extends GNomExCommand implements Serializabl
       try {
         SAXBuilder sax = new SAXBuilder();
         productOrdersToDeleteDoc = sax.build(reader);     
-      } catch (JDOMException je ) {
+      } catch (Exception je ) {
         LOG.error( "Cannot parse productOrdersToDeleteXMLString", je );
         this.addInvalidField( "productOrdersToDeleteXMLString", "Invalid productOrdersToDeleteXMLString");
       }
@@ -61,7 +61,7 @@ public class DeleteProductLineItems extends GNomExCommand implements Serializabl
       try {
         SAXBuilder sax = new SAXBuilder();
         productLineItemsToDeleteDoc = sax.build(reader);     
-      } catch (JDOMException je ) {
+      } catch (Exception je ) {
         LOG.error( "Cannot parse productLineItemsToDeleteXMLString", je );
         this.addInvalidField( "productLineItemsToDeleteXMLString", "Invalid productLineItemsToDeleteXMLString");
       }

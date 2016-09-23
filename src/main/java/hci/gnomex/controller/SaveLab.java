@@ -119,7 +119,7 @@ public class SaveLab extends GNomExCommand implements Serializable {
       SAXBuilder sax = new SAXBuilder();
       institutionsDoc = sax.build(reader);
       labInstitutionParser = new LabInstitutionParser(institutionsDoc);
-    } catch (JDOMException je ) {
+    } catch (Exception je ) {
       LOG.error( "Cannot parse institutionsXMLString", je );
       this.addInvalidField( "institutionsXMLString", "Invalid institutionsXMLString");
     }
@@ -134,7 +134,7 @@ public class SaveLab extends GNomExCommand implements Serializable {
       SAXBuilder sax = new SAXBuilder();
       membersDoc = sax.build(reader);
       labMemberParser = new LabMemberParser(membersDoc);
-    } catch (JDOMException je ) {
+    } catch (Exception je ) {
       LOG.error( "Cannot parse membersXMLString", je );
       this.addInvalidField( "membersXMLString", "Invalid membersXMLString");
     }
@@ -148,7 +148,7 @@ public class SaveLab extends GNomExCommand implements Serializable {
       SAXBuilder sax = new SAXBuilder();
       collaboratorsDoc = sax.build(reader);
       collaboratorParser = new LabMemberParser(collaboratorsDoc);
-    } catch (JDOMException je ) {
+    } catch (Exception je ) {
       LOG.error( "Cannot parse collaboratorsXMLString", je );
       this.addInvalidField( "collaboratorsXMLString", "Invalid collaboratorsXMLString");
     }
@@ -163,7 +163,7 @@ public class SaveLab extends GNomExCommand implements Serializable {
       SAXBuilder sax = new SAXBuilder();
       managersDoc = sax.build(reader);
       managerParser = new LabMemberParser(managersDoc);
-    } catch (JDOMException je ) {
+    } catch (Exception je ) {
       LOG.error( "Cannot parse managersXMLString", je );
       this.addInvalidField( "managersXMLString", "Invalid managersXMLString");
     }
@@ -179,7 +179,7 @@ public class SaveLab extends GNomExCommand implements Serializable {
       accountsDoc = sax.build(reader);
       accountParser = new BillingAccountParser(accountsDoc);
 
-    } catch (JDOMException je ) {
+    } catch (Exception je ) {
       LOG.error( "Cannot parse accountsXMLString", je );
       this.addInvalidField( "accountsXMLString", "Invalid accountsXMLString");
     }
@@ -194,7 +194,7 @@ public class SaveLab extends GNomExCommand implements Serializable {
         Document coreFacilitiesDoc = sax.build(reader);
         coreFacilityParser = new LabCoreFacilityParser(coreFacilitiesDoc);
 
-      } catch (JDOMException je ) {
+      } catch (Exception je ) {
         LOG.error( "Cannot parse coreFacilitiesXMLString", je );
         this.addInvalidField( "coreFacilitiesXMLString", "Invalid coreFacilitiesXMLString");
       }

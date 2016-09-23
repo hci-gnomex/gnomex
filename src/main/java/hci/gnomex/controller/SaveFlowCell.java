@@ -85,7 +85,7 @@ public class SaveFlowCell extends GNomExCommand implements Serializable {
       channelsDoc = sax.build(reader);
       channelParser = new FlowCellChannelParser(channelsDoc);
     }
-    catch (JDOMException je) {
+    catch (Exception je) {
       LOG.error("Cannot parse channelsXMLString", je);
       this.addInvalidField("channelsXMLString", "Invalid channelsXMLString");
     }

@@ -47,7 +47,7 @@ public class SaveVisibilityAnalysis extends GNomExCommand implements Serializabl
         SAXBuilder sax = new SAXBuilder();
         visibilityDoc = sax.build(reader);
         parser = new AnalysisVisibilityParser(visibilityDoc);
-      } catch (JDOMException je ) {
+      } catch (Exception je ) {
         LOG.error( "Cannot parse visibilityXMLString", je );
         this.addInvalidField( "visibilityXMLString", "Invalid visibilityXMLString");
       }

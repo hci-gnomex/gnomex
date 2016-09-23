@@ -68,7 +68,7 @@ public class CacheProductOrderFileDownloadList extends GNomExCommand implements 
         SAXBuilder sax = new SAXBuilder();
         Document doc = sax.build(reader);
         parser = new ProductOrderFileDescriptorParser(doc);
-      } catch (JDOMException je ) {
+      } catch (Exception je ) {
         LOG.error( "Cannot parse fileDescriptorXMLString", je );
       
       }

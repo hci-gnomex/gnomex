@@ -73,7 +73,7 @@ public class SaveWorkItemSolexaQualityControl extends GNomExCommand implements S
         SAXBuilder sax = new SAXBuilder();
         workItemDoc = sax.build(reader);
         parser = new WorkItemQualityControlParser(workItemDoc);
-      } catch (JDOMException je ) {
+      } catch (Exception je ) {
         LOG.error( "Cannot parse workItemXMLString", je );
         this.addInvalidField( "WorkItemXMLString", "Invalid work item xml");
       }

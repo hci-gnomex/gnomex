@@ -131,7 +131,7 @@ public class SaveSlideProduct extends GNomExCommand implements Serializable {
         SAXBuilder sax = new SAXBuilder();
         mcDoc = sax.build(reader);
         applicationParser = new ApplicationParser(mcDoc);
-      } catch (JDOMException je ) {
+      } catch (Exception je ) {
         LOG.error( "Cannot parse microarrayCategoryXMLString", je );
         this.addInvalidField( "microarrayCategoryXMLString", "Invalid microarrayCategoryXMLString");
       }

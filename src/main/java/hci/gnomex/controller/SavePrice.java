@@ -64,7 +64,7 @@ public class SavePrice extends GNomExCommand implements Serializable {
       SAXBuilder sax = new SAXBuilder();
       criteriaDoc = sax.build(reader);
       criteriaParser = new PriceCriteriaParser(criteriaDoc);
-    } catch (JDOMException je ) {
+    } catch (Exception je ) {
       LOG.error( "Cannot parse priceCriteriasXMLString", je );
       this.addInvalidField( "priceCriteriasXMLString", "Invalid priceCriteriasXMLString");
     }

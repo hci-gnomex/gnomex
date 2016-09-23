@@ -81,7 +81,7 @@ public class SubmitWorkAuthForm extends GNomExCommand implements Serializable {
         Document coreFacilitiesDoc = sax.build(reader);
         coreFacilityParser = new LabCoreFacilityParser(coreFacilitiesDoc);
 
-      } catch (JDOMException je ) {
+      } catch (Exception je ) {
         LOG.error( "Cannot parse coreFacilitiesXMLString", je );
         this.addInvalidField( "coreFacilitiesXMLString", "Invalid coreFacilitiesXMLString");
       }

@@ -46,7 +46,7 @@ public class SaveBillingAccountFieldsConfiguration extends GNomExCommand impleme
         SAXBuilder sax = new SAXBuilder();
         Document doc = sax.build(internalReader);
         internalFieldsParser = new InternalBillingAccountFieldsConfigurationParser(doc);
-      } catch (JDOMException je ) {
+      } catch (Exception je ) {
         LOG.error( "Cannot parse internalFields", je );
         this.addInvalidField( "internalFields", "Invalid configuration field xml");
       }
@@ -61,7 +61,7 @@ public class SaveBillingAccountFieldsConfiguration extends GNomExCommand impleme
         SAXBuilder sax = new SAXBuilder();
         Document doc = sax.build(otherReader);
         otherFieldsParser = new OtherBillingAccountFieldsConfigurationParser(doc);
-      } catch (JDOMException je ) {
+      } catch (Exception je ) {
         LOG.error( "Cannot parse otherFields", je );
         this.addInvalidField( "otherFields", "Invalid configuration field xml");
       }

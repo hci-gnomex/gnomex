@@ -74,7 +74,7 @@ public class SaveOrganism extends GNomExCommand implements Serializable {
       try {
         SAXBuilder sax = new SAXBuilder();
         genomeBuildsDoc = sax.build(reader);
-      } catch (JDOMException je) {
+      } catch (Exception je) {
         LOG.error("Cannot parse genomeBuildsXMLString", je);
         this.addInvalidField("genomeBuildsXMLString", "Invalid genomeBuildsXMLString");
       }

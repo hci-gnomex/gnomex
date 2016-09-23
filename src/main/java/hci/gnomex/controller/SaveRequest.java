@@ -196,7 +196,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 				SAXBuilder sax = new SAXBuilder();
 				filesToRemoveDoc = sax.build(reader);
 				filesToRemoveParser = new FileDescriptorUploadParser(filesToRemoveDoc);
-			} catch (JDOMException je) {
+			} catch (Exception je) {
 				LOG.error("Cannot parse filesToRemoveXMLString", je);
 				this.addInvalidField("FilesToRemoveXMLString", "Invalid filesToRemove xml");
 			}
@@ -218,7 +218,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 			SAXBuilder sax = new SAXBuilder();
 			requestDoc = sax.build(reader);
 			requestParser = new RequestParser(requestDoc, this.getSecAdvisor());
-		} catch (JDOMException je) {
+		} catch (Exception je) {
 			LOG.error("Cannot parse requestXMLString", je);
 			this.addInvalidField("RequestXMLString", "Invalid request xml");
 		}
@@ -244,7 +244,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 				SAXBuilder sax = new SAXBuilder();
 				Document assaysDoc = sax.build(reader);
 				assaysParser = new SampleAssaysParser(assaysDoc);
-			} catch (JDOMException je) {
+			} catch (Exception je) {
 				LOG.error("Cannot parse assays", je);
 				this.addInvalidField("Assays", "Invalid assays xml");
 			}
@@ -257,7 +257,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 				SAXBuilder sax = new SAXBuilder();
 				Document primersDoc = sax.build(reader);
 				primersParser = new SamplePrimersParser(primersDoc);
-			} catch (JDOMException je) {
+			} catch (Exception je) {
 				LOG.error("Cannot parse primers", je);
 				this.addInvalidField("Primers", "Invalid primers xml");
 			}
@@ -3083,11 +3083,11 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 
 	}
 
-	private Set saveRequestProperties(String propertiesXML, Session sess, RequestParser requestParser) throws org.jdom.JDOMException {
+	private Set saveRequestProperties(String propertiesXML, Session sess, RequestParser requestParser) throws Exception {
 		return saveRequestProperties(propertiesXML, sess, requestParser, true);
 	}
 
-	public static Set saveRequestProperties(String propertiesXML, Session sess, RequestParser requestParser, boolean saveToDB) throws org.jdom.JDOMException {
+	public static Set saveRequestProperties(String propertiesXML, Session sess, RequestParser requestParser, boolean saveToDB) throws Exception {
 		Set<PropertyEntry> propertyEntries = new TreeSet<PropertyEntry>(new PropertyEntryComparator());
 		// Delete properties
 		if (propertiesXML != null && !propertiesXML.equals("")) {

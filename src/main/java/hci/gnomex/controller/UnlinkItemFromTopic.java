@@ -120,7 +120,7 @@ public class UnlinkItemFromTopic extends GNomExCommand implements Serializable {
         root.setAttribute("idDataTrack", idDataTrack==null?"":idDataTrack.toString());
         root.setAttribute("idTopic", idTopic==null?"":idTopic.toString());
         XMLOutputter out = new org.jdom.output.XMLOutputter();
-        out.setOmitEncoding(true);
+        out.getFormat().setOmitEncoding(true);
         this.xmlResult = out.outputString(doc);
         this.setResponsePage(SUCCESS_JSP);
       } else {

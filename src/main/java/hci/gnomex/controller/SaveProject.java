@@ -61,7 +61,7 @@ public class SaveProject extends GNomExCommand implements Serializable {
     try {
       SAXBuilder sax = new SAXBuilder();
       projectDoc = sax.build(reader);
-    } catch (JDOMException je ) {
+    } catch (Exception je ) {
       LOG.error( "Cannot parse projectXMLString", je );
       this.addInvalidField( "RequestXMLString", "Invalid request xml");
     }

@@ -83,7 +83,7 @@ public class ShowRequestDownloadFormForGuest extends GNomExCommand implements Se
 				Document doc = ShowRequestDownloadForm.formatDownloadHTML(sess, secAdvisor, experiments, serverName, baseDirFlowCell, baseURL);
 
 				XMLOutputter out = new org.jdom.output.XMLOutputter();
-				out.setOmitEncoding(true);
+				out.getFormat().setOmitEncoding(true);
 				this.xmlResult = out.outputString(doc);
 				this.xmlResult = this.xmlResult.replaceAll("&amp;", "&");
 				this.xmlResult = this.xmlResult.replaceAll("�", "&micro");

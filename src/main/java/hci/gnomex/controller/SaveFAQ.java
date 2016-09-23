@@ -47,7 +47,7 @@ public class SaveFAQ extends GNomExCommand implements Serializable {
       try {
         SAXBuilder sax = new SAXBuilder();
         faqDoc = sax.build(reader);
-      } catch (JDOMException je) {
+      } catch (Exception je) {
         LOG.error("Cannot parse faqXMLString", je);
         this.addInvalidField("faqXMLString",
         "Invalid faqXMLString");

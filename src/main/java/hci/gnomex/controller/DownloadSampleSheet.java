@@ -66,7 +66,7 @@ public class DownloadSampleSheet extends ReportCommand implements Serializable {
       SAXBuilder sax = new SAXBuilder();
       Document doc = sax.build(reader);
       parser = new SampleSheetColumnNamesParser(doc);
-    } catch (JDOMException je ) {
+    } catch (Exception je ) {
       LOG.error( "Cannot parse names", je );
       this.addInvalidField( "names", "Invalid sample name xml");
     }
@@ -77,7 +77,7 @@ public class DownloadSampleSheet extends ReportCommand implements Serializable {
       SAXBuilder sax = new SAXBuilder();
       Document doc = sax.build(requestReader);
       requestParser = new RequestParser(doc, secAdvisor, true);
-    } catch (JDOMException je ) {
+    } catch (Exception je ) {
       LOG.error( "Cannot parse requestXMLString", je );
       this.addInvalidField( "requestXMLString", "Invalid request xml");
     }

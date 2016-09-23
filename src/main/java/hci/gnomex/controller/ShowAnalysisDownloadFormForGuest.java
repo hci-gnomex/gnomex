@@ -87,7 +87,7 @@ public class ShowAnalysisDownloadFormForGuest extends GNomExCommand implements S
 					Document doc = ShowAnalysisDownloadForm.formatDownloadHTML(analysis, secAdvisor, baseDir, baseURL, emailAddress);
 
 					XMLOutputter out = new org.jdom.output.XMLOutputter();
-					out.setOmitEncoding(true);
+					out.getFormat().setOmitEncoding(true);
 					this.xmlResult = out.outputString(doc);
 					this.xmlResult = this.xmlResult.replaceAll("&amp;", "&");
 					this.xmlResult = this.xmlResult.replaceAll("�", "&micro");
