@@ -468,7 +468,7 @@
 				qualRINNumberWasBefore = getFieldAfter("@qualRINNumber");
 				qualFieldsInitialized = true;
 			}
-			if (isHighThroughputGenomics()) {
+			if (isIlluminaType()) {
 				moveColumnBefore("@qualCalcConcentration", "@idSeqLibProtocol");
 				moveColumnBefore("@qualRINNumber", "@idSeqLibProtocol");
 			} else {
@@ -477,8 +477,9 @@
 			}
 		}
 
-		private function isHighThroughputGenomics():Boolean {
-			return (this.selectedExperiment.@idCoreFacility == parentApplication.idCoreFacilityHTG);
+		private function isIlluminaType():Boolean {
+			var requestCategory:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', this.selectedExperiment.@codeRequestCategory);
+			return (requestCategory.@isIlluminaType == 'Y');
 		}
 
 		private const MISSING_INDEX:int = -1;
