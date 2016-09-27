@@ -108,6 +108,7 @@
 
 		import mx.collections.Sort;
 		import mx.controls.Alert;
+		import mx.controls.ComboBox;
 		import mx.controls.listClasses.ListBase;
 		import mx.core.DragSource;
 		import mx.core.UIComponent;
@@ -119,6 +120,7 @@
 		import mx.managers.DragManager;
 		import mx.managers.PopUpManager;
 		import mx.rpc.events.ResultEvent;
+
 
 		import views.experiment.ExperimentDetailWindow;
 		import views.protocol.ProtocolEditWindow;
@@ -166,10 +168,12 @@
 		private var pasteCommand:Boolean = false;
 
 		private var uploadWindow:AnalysisUploadWindow = null;
-
 		private var possibleCollaborators:XMLListCollection;
 
-		private var allowedCollaborators:XMLListCollection;
+		private var membersCollaborators:XMLListCollection;
+
+		private var possibleCbox:ComboBox;
+		private var membersCbox:ComboBox;
 
 		private function onCloseWindow():void {
 			if (dirty.isDirty()) {
@@ -848,13 +852,55 @@
 					" canUpdate='N' " +
 					"/>");
 			this.collaborators.addItem(node);
+			//removeFromCurrentCollaborators(node);
+			this.collaboratorCombo.dataProvider.removeItemAt(collaboratorCombo.selectedIndex);
+		}
+
+		private function containsCollaborator(list:XMLListCollection, node:Object):Boolean {
+			var pCollaborators:XMLListCollection = new XMLListCollection(getLab.lastResult..Lab.(@idLab == analysis.@idLab).possibleCollaboratorsWithoutOwner.AppUser.(@isActive == 'Y'));
+			var membersCollaborators:XMLListCollection = new XMLListCollection(getLab.lastResult..Lab.(@idLab == analysis.@idLab).membersCollaborators.AppUser.(@isActive == 'Y'));
+
+			for each (var item:XML in list) {
+				if (node.@idAppUser == item.@idAppUser) {
+					return true;
+					break;
+				}
+			}
+			return false;
 		}
 
 		private function removeCollaborator():void {
 			dirty.setDirty();
 			if (collaboratorGrid.selectedIndex != -1) {
+				var pCollaborators:XMLListCollection = new XMLListCollection(getLab.lastResult..Lab.(@idLab == analysis.@idLab).possibleCollaboratorsWithoutOwner.AppUser.(@isActive == 'Y'));
+				var mCollaborators:XMLListCollection = new XMLListCollection(getLab.lastResult..Lab.(@idLab == analysis.@idLab).membersCollaborators.AppUser.(@isActive == 'Y'));
+
+				//if collorators contains removed item add to
+				if(containsCollaborator(pCollaborators,
+								collaboratorGrid.selectedItem)) {
+					possibleCollaborators.addItem(collaboratorGrid.selectedItem);
+				}
+				if(containsCollaborator(mCollaborators,
+								collaboratorGrid.selectedItem)) {
+					possibleCollaborators.addItem(collaboratorGrid.selectedItem);
+				}
+				checkIfVisibilityRadioGroupEnabled();
 				collaborators.removeItemAt(collaboratorGrid.selectedIndex);
 			}
+		}
+
+		private function removeFromCurrentCollaborators(node:XML):void {
+			var removeItem:XML;
+			var index:int = 0;
+			for each (var item:XML in this.currentCollaborators) {
+				if (node.@idAppUser == item.@idAppUser) {
+					removeItem = item;
+					break;
+				}
+				index++;
+			}
+			if (index < currentCollaborators.length)
+				currentCollaborators.removeItemAt(index);
 		}
 
 		private function addGenomeBuild():void {
@@ -873,6 +919,22 @@
 			}
 		}
 
+		private function syncCollaborators(list:XMLListCollection) {
+			var removeItem:XML;
+			var index:int = 0;
+
+			for each (var gitem:XML in collaborators) {
+				index =  0;
+				for each (var ccitem:XML in list) {
+					if (gitem.@idAppUser == ccitem.@idAppUser) {
+						list.removeItemAt(index);
+						break;
+					}
+					index++;
+				}
+
+			}
+		}
 
 		private function onGetLab(event:ResultEvent):void {
 			if (getLab.lastResult.name() == "OpenLabList") {
@@ -881,9 +943,11 @@
 						" displayName=''" +
 						"/>");
 				possibleCollaborators = new XMLListCollection(getLab.lastResult..Lab.(@idLab == analysis.@idLab).possibleCollaboratorsWithoutOwner.AppUser.(@isActive == 'Y'));
-				allowedCollaborators = new XMLListCollection(getLab.lastResult..Lab.(@idLab == analysis.@idLab).allowedCollaborators.AppUser.(@isActive == 'Y'));
+				membersCollaborators = new XMLListCollection(getLab.lastResult..Lab.(@idLab == analysis.@idLab).membersCollaborators.AppUser.(@isActive == 'Y'));
+				syncCollaborators(possibleCollaborators);
+				syncCollaborators(membersCollaborators);
 				possibleCollaborators.addItemAt(emptyNode, 0);
-				allowedCollaborators.addItemAt(emptyNode, 0);
+				membersCollaborators.addItemAt(emptyNode, 0);
 				possibleInstitutions = new PromptXMLListCollection(emptyNode, new XMLListCollection(getLab.lastResult..Lab.(@idLab == analysis.@idLab).institutions.Institution.(@isActive == 'Y')));
 				this.radioInstitutionVisibility.enabled = this.possibleInstitutions.length > 1;
 				if (analysis.@idInstitution != null && analysis.@idInstitution != '') {
@@ -970,7 +1034,7 @@
 					collaboratorVBox.includeInLayout = true;
 				}
 				else if (visibilityRadioGroup.selectedValue == 'MEM') {
-					currentCollaborators = this.allowedCollaborators;
+					currentCollaborators = this.membersCollaborators;
 					collaboratorVBox.visible = true;
 					collaboratorVBox.includeInLayout = true;
 				} else {
@@ -1484,7 +1548,7 @@
 										  width="270"  
 										  id="collaboratorCombo">
 				</renderers:FilterComboBox>
-				<mx:Button 
+				<mx:Button
 					enabled="{collaboratorCombo.selectedItem != null &amp;&amp; collaboratorCombo.selectedIndex > 0 ? true : false}" 
 					icon="@Embed(source='../../assets/add.png')" 
 					disabledIcon="@Embed(source='../../assets/add_disable.png')"

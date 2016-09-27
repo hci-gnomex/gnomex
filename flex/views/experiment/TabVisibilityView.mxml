@@ -53,7 +53,7 @@
 	[Bindable]
 	private var possibleInstitutions:PromptXMLListCollection;
 
-	private var allowedCollaborators:XMLListCollection;
+	private var membersCollaborators:XMLListCollection;
 
 	private var possibleCollaborators:XMLListCollection;
 
@@ -99,8 +99,8 @@
 			collaboratorGrid.dataProvider = null;
 			possibleCollaborators = new XMLListCollection(lab.possibleCollaboratorsWithoutOwner.AppUser.(@isActive == 'Y'));
 			possibleCollaborators = this.getCollaboratorsList(possibleCollaborators);
-			allowedCollaborators = new XMLListCollection(lab.allowedCollaborators.AppUser.(@isActive == 'Y'));
-			allowedCollaborators = this.getCollaboratorsList(allowedCollaborators);
+			membersCollaborators = new XMLListCollection(lab.membersCollaborators.AppUser.(@isActive == 'Y'));
+			membersCollaborators = this.getCollaboratorsList(membersCollaborators);
 			possibleInstitutions = new PromptXMLListCollection(emptyNode, new XMLListCollection(getLab.lastResult..Lab.(@idLab == idLab).institutions.Institution.(@isActive == 'Y')));
 
 			if (this.idInstitution != null && this.idInstitution != '') {
@@ -169,7 +169,7 @@
 				collaboratorVBox.includeInLayout = true;
 			}
 			else if (visibilityRadioGroup.selectedValue == 'MEM') {
-				collaborators = this.allowedCollaborators;
+				collaborators = this.membersCollaborators;
 				collaboratorVBox.visible = true;
 				collaboratorVBox.includeInLayout = true;
 			} else {
