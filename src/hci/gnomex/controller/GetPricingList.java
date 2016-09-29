@@ -196,12 +196,6 @@ public class GetPricingList extends GNomExCommand implements Serializable {
       LOG.error("An exception has occurred in GetPricingList ", e);
 
       throw new RollBackCommandException(e.getMessage());
-    } finally {
-      try {
-        this.getSecAdvisor().closeReadOnlyHibernateSession();
-      } catch (Exception e) {
-        LOG.error("An exception has occurred in GetPricingList ", e);
-      }
     }
 
     if (isValid()) {
