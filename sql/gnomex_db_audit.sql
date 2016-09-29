@@ -285,6 +285,18 @@ DROP TRIGGER IF EXISTS TrAU_DiskUsageByMonth_FER
 $$
 DROP TRIGGER IF EXISTS TrAD_DiskUsageByMonth_FER
 $$
+DROP TRIGGER IF EXISTS TrAI_DNASeqIScanRequestNumber_FER
+$$
+DROP TRIGGER IF EXISTS TrAU_DNASeqIScanRequestNumber_FER
+$$
+DROP TRIGGER IF EXISTS TrAD_DNASeqIScanRequestNumber_FER
+$$
+DROP TRIGGER IF EXISTS TrAI_DNASeqRequestNumber_FER
+$$
+DROP TRIGGER IF EXISTS TrAU_DNASeqRequestNumber_FER
+$$
+DROP TRIGGER IF EXISTS TrAD_DNASeqRequestNumber_FER
+$$
 DROP TRIGGER IF EXISTS TrAI_ExperimentDesign_FER
 $$
 DROP TRIGGER IF EXISTS TrAU_ExperimentDesign_FER
@@ -525,6 +537,12 @@ DROP TRIGGER IF EXISTS TrAU_NumberSequencingCyclesAllowed_FER
 $$
 DROP TRIGGER IF EXISTS TrAD_NumberSequencingCyclesAllowed_FER
 $$
+DROP TRIGGER IF EXISTS TrAI_OBSA_FER
+$$
+DROP TRIGGER IF EXISTS TrAU_OBSA_FER
+$$
+DROP TRIGGER IF EXISTS TrAD_OBSA_FER
+$$
 DROP TRIGGER IF EXISTS TrAI_OligoBarcode_FER
 $$
 DROP TRIGGER IF EXISTS TrAU_OligoBarcode_FER
@@ -548,6 +566,24 @@ $$
 DROP TRIGGER IF EXISTS TrAU_Organism_FER
 $$
 DROP TRIGGER IF EXISTS TrAD_Organism_FER
+$$
+DROP TRIGGER IF EXISTS TrAI_origPropertyEntry_FER
+$$
+DROP TRIGGER IF EXISTS TrAU_origPropertyEntry_FER
+$$
+DROP TRIGGER IF EXISTS TrAD_origPropertyEntry_FER
+$$
+DROP TRIGGER IF EXISTS TrAI_origPropertyEntryOption_FER
+$$
+DROP TRIGGER IF EXISTS TrAU_origPropertyEntryOption_FER
+$$
+DROP TRIGGER IF EXISTS TrAD_origPropertyEntryOption_FER
+$$
+DROP TRIGGER IF EXISTS TrAI_origPropertyOption_FER
+$$
+DROP TRIGGER IF EXISTS TrAU_origPropertyOption_FER
+$$
+DROP TRIGGER IF EXISTS TrAD_origPropertyOption_FER
 $$
 DROP TRIGGER IF EXISTS TrAI_OtherAccountFieldsConfiguration_FER
 $$
@@ -969,6 +1005,12 @@ DROP TRIGGER IF EXISTS TrAU_SubmissionInstruction_FER
 $$
 DROP TRIGGER IF EXISTS TrAD_SubmissionInstruction_FER
 $$
+DROP TRIGGER IF EXISTS TrAI_tempaf_FER
+$$
+DROP TRIGGER IF EXISTS TrAU_tempaf_FER
+$$
+DROP TRIGGER IF EXISTS TrAD_tempaf_FER
+$$
 DROP TRIGGER IF EXISTS TrAI_Topic_FER
 $$
 DROP TRIGGER IF EXISTS TrAU_Topic_FER
@@ -980,6 +1022,12 @@ $$
 DROP TRIGGER IF EXISTS TrAU_TreatmentEntry_FER
 $$
 DROP TRIGGER IF EXISTS TrAD_TreatmentEntry_FER
+$$
+DROP TRIGGER IF EXISTS TrAI_UGP_FER
+$$
+DROP TRIGGER IF EXISTS TrAU_UGP_FER
+$$
+DROP TRIGGER IF EXISTS TrAD_UGP_FER
 $$
 DROP TRIGGER IF EXISTS TrAI_UnloadDataTrack_FER
 $$
@@ -1018,15 +1066,16 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `AlignmentPlatform_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idAlignmentPlatform`  int(10)  NULL DEFAULT NULL
  ,`alignmentPlatformName`  varchar(120)  NULL DEFAULT NULL
  ,`webServiceName`  varchar(120)  NULL DEFAULT NULL
  ,`isActive`  char(1)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -1039,6 +1088,7 @@ INSERT INTO AlignmentPlatform_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idAlignmentPlatform
   , alignmentPlatformName
   , webServiceName
@@ -1048,6 +1098,7 @@ INSERT INTO AlignmentPlatform_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idAlignmentPlatform
   , alignmentPlatformName
   , webServiceName
@@ -1068,6 +1119,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idAlignmentPlatform
   , alignmentPlatformName
   , webServiceName
@@ -1077,6 +1129,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idAlignmentPlatform
   , NEW.alignmentPlatformName
   , NEW.webServiceName
@@ -1092,6 +1145,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idAlignmentPlatform
   , alignmentPlatformName
   , webServiceName
@@ -1101,6 +1155,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idAlignmentPlatform
   , NEW.alignmentPlatformName
   , NEW.webServiceName
@@ -1116,6 +1171,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idAlignmentPlatform
   , alignmentPlatformName
   , webServiceName
@@ -1125,6 +1181,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idAlignmentPlatform
   , OLD.alignmentPlatformName
   , OLD.webServiceName
@@ -1138,13 +1195,14 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `AlignmentProfileGenomeIndex_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idAlignmentProfile`  int(10)  NULL DEFAULT NULL
  ,`idGenomeIndex`  int(10)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -1157,6 +1215,7 @@ INSERT INTO AlignmentProfileGenomeIndex_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idAlignmentProfile
   , idGenomeIndex )
   SELECT
@@ -1164,6 +1223,7 @@ INSERT INTO AlignmentProfileGenomeIndex_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idAlignmentProfile
   , idGenomeIndex
   FROM AlignmentProfileGenomeIndex
@@ -1182,6 +1242,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idAlignmentProfile
   , idGenomeIndex )
   VALUES
@@ -1189,6 +1250,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idAlignmentProfile
   , NEW.idGenomeIndex );
 END;
@@ -1202,6 +1264,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idAlignmentProfile
   , idGenomeIndex )
   VALUES
@@ -1209,6 +1272,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idAlignmentProfile
   , NEW.idGenomeIndex );
 END;
@@ -1222,6 +1286,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idAlignmentProfile
   , idGenomeIndex )
   VALUES
@@ -1229,6 +1294,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idAlignmentProfile
   , OLD.idGenomeIndex );
 END;
@@ -1240,10 +1306,11 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `AlignmentProfile_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idAlignmentProfile`  int(10)  NULL DEFAULT NULL
  ,`alignmentProfileName`  varchar(120)  NULL DEFAULT NULL
  ,`description`  varchar(10000)  NULL DEFAULT NULL
@@ -1251,7 +1318,7 @@ CREATE TABLE IF NOT EXISTS `AlignmentProfile_Audit` (
  ,`isActive`  char(1)  NULL DEFAULT NULL
  ,`idAlignmentPlatform`  int(10)  NULL DEFAULT NULL
  ,`idSeqRunType`  int(10)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -1264,6 +1331,7 @@ INSERT INTO AlignmentProfile_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idAlignmentProfile
   , alignmentProfileName
   , description
@@ -1276,6 +1344,7 @@ INSERT INTO AlignmentProfile_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idAlignmentProfile
   , alignmentProfileName
   , description
@@ -1299,6 +1368,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idAlignmentProfile
   , alignmentProfileName
   , description
@@ -1311,6 +1381,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idAlignmentProfile
   , NEW.alignmentProfileName
   , NEW.description
@@ -1329,6 +1400,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idAlignmentProfile
   , alignmentProfileName
   , description
@@ -1341,6 +1413,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idAlignmentProfile
   , NEW.alignmentProfileName
   , NEW.description
@@ -1359,6 +1432,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idAlignmentProfile
   , alignmentProfileName
   , description
@@ -1371,6 +1445,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idAlignmentProfile
   , OLD.alignmentProfileName
   , OLD.description
@@ -1387,15 +1462,16 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `AnalysisCollaborator_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idAnalysis`  int(10)  NULL DEFAULT NULL
  ,`idAppUser`  int(10)  NULL DEFAULT NULL
  ,`canUploadData`  char(1)  NULL DEFAULT NULL
  ,`canUpdate`  char(1)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -1408,6 +1484,7 @@ INSERT INTO AnalysisCollaborator_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idAnalysis
   , idAppUser
   , canUploadData
@@ -1417,6 +1494,7 @@ INSERT INTO AnalysisCollaborator_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idAnalysis
   , idAppUser
   , canUploadData
@@ -1437,6 +1515,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idAnalysis
   , idAppUser
   , canUploadData
@@ -1446,6 +1525,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idAnalysis
   , NEW.idAppUser
   , NEW.canUploadData
@@ -1461,6 +1541,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idAnalysis
   , idAppUser
   , canUploadData
@@ -1470,6 +1551,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idAnalysis
   , NEW.idAppUser
   , NEW.canUploadData
@@ -1485,6 +1567,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idAnalysis
   , idAppUser
   , canUploadData
@@ -1494,6 +1577,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idAnalysis
   , OLD.idAppUser
   , OLD.canUploadData
@@ -1507,10 +1591,11 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `AnalysisExperimentItem_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idAnalysisExperimentItem`  int(10)  NULL DEFAULT NULL
  ,`idSequenceLane`  int(10)  NULL DEFAULT NULL
  ,`idHybridization`  int(10)  NULL DEFAULT NULL
@@ -1518,7 +1603,7 @@ CREATE TABLE IF NOT EXISTS `AnalysisExperimentItem_Audit` (
  ,`idAnalysis`  int(10)  NULL DEFAULT NULL
  ,`idRequest`  int(10)  NULL DEFAULT NULL
  ,`idSample`  int(10)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -1531,6 +1616,7 @@ INSERT INTO AnalysisExperimentItem_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idAnalysisExperimentItem
   , idSequenceLane
   , idHybridization
@@ -1543,6 +1629,7 @@ INSERT INTO AnalysisExperimentItem_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idAnalysisExperimentItem
   , idSequenceLane
   , idHybridization
@@ -1566,6 +1653,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idAnalysisExperimentItem
   , idSequenceLane
   , idHybridization
@@ -1578,6 +1666,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idAnalysisExperimentItem
   , NEW.idSequenceLane
   , NEW.idHybridization
@@ -1596,6 +1685,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idAnalysisExperimentItem
   , idSequenceLane
   , idHybridization
@@ -1608,6 +1698,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idAnalysisExperimentItem
   , NEW.idSequenceLane
   , NEW.idHybridization
@@ -1626,6 +1717,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idAnalysisExperimentItem
   , idSequenceLane
   , idHybridization
@@ -1638,6 +1730,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idAnalysisExperimentItem
   , OLD.idSequenceLane
   , OLD.idHybridization
@@ -1654,20 +1747,21 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `AnalysisFile_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idAnalysisFile`  int(10)  NULL DEFAULT NULL
  ,`fileName`  varchar(2000)  NULL DEFAULT NULL
- ,`fileSize`  decimal(14,0)  NULL DEFAULT NULL
  ,`comments`  varchar(2000)  NULL DEFAULT NULL
  ,`uploadDate`  datetime  NULL DEFAULT NULL
  ,`idAnalysis`  int(10)  NULL DEFAULT NULL
- ,`qualifiedFilePath`  varchar(300)  NULL DEFAULT NULL
- ,`baseFilePath`  varchar(300)  NULL DEFAULT NULL
+ ,`fileSize`  decimal(14,0)  NULL DEFAULT NULL
+ ,`qualifiedFilePath`  varchar(2000)  NULL DEFAULT NULL
+ ,`baseFilePath`  varchar(2000)  NULL DEFAULT NULL
  ,`createDate`  date  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -1680,12 +1774,13 @@ INSERT INTO AnalysisFile_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idAnalysisFile
   , fileName
-  , fileSize
   , comments
   , uploadDate
   , idAnalysis
+  , fileSize
   , qualifiedFilePath
   , baseFilePath
   , createDate )
@@ -1694,12 +1789,13 @@ INSERT INTO AnalysisFile_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idAnalysisFile
   , fileName
-  , fileSize
   , comments
   , uploadDate
   , idAnalysis
+  , fileSize
   , qualifiedFilePath
   , baseFilePath
   , createDate
@@ -1719,12 +1815,13 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idAnalysisFile
   , fileName
-  , fileSize
   , comments
   , uploadDate
   , idAnalysis
+  , fileSize
   , qualifiedFilePath
   , baseFilePath
   , createDate )
@@ -1733,12 +1830,13 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idAnalysisFile
   , NEW.fileName
-  , NEW.fileSize
   , NEW.comments
   , NEW.uploadDate
   , NEW.idAnalysis
+  , NEW.fileSize
   , NEW.qualifiedFilePath
   , NEW.baseFilePath
   , NEW.createDate );
@@ -1753,12 +1851,13 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idAnalysisFile
   , fileName
-  , fileSize
   , comments
   , uploadDate
   , idAnalysis
+  , fileSize
   , qualifiedFilePath
   , baseFilePath
   , createDate )
@@ -1767,12 +1866,13 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idAnalysisFile
   , NEW.fileName
-  , NEW.fileSize
   , NEW.comments
   , NEW.uploadDate
   , NEW.idAnalysis
+  , NEW.fileSize
   , NEW.qualifiedFilePath
   , NEW.baseFilePath
   , NEW.createDate );
@@ -1787,12 +1887,13 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idAnalysisFile
   , fileName
-  , fileSize
   , comments
   , uploadDate
   , idAnalysis
+  , fileSize
   , qualifiedFilePath
   , baseFilePath
   , createDate )
@@ -1801,12 +1902,13 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idAnalysisFile
   , OLD.fileName
-  , OLD.fileSize
   , OLD.comments
   , OLD.uploadDate
   , OLD.idAnalysis
+  , OLD.fileSize
   , OLD.qualifiedFilePath
   , OLD.baseFilePath
   , OLD.createDate );
@@ -1815,29 +1917,31 @@ $$
 
 
 --
--- Audit Table For AnalysisGenomeBuild 
+-- Audit Table For AnalysisGenomebuild 
 --
 
-CREATE TABLE IF NOT EXISTS `AnalysisGenomeBuild_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+CREATE TABLE IF NOT EXISTS `AnalysisGenomebuild_Audit` (
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idAnalysis`  int(10)  NULL DEFAULT NULL
  ,`idGenomeBuild`  int(10)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
 --
--- Initial audit table rows for AnalysisGenomeBuild 
+-- Initial audit table rows for AnalysisGenomebuild 
 --
 
-INSERT INTO AnalysisGenomeBuild_Audit
+INSERT INTO AnalysisGenomebuild_Audit
   ( AuditAppuser
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idAnalysis
   , idGenomeBuild )
   SELECT
@@ -1845,24 +1949,26 @@ INSERT INTO AnalysisGenomeBuild_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idAnalysis
   , idGenomeBuild
-  FROM AnalysisGenomeBuild
-  WHERE NOT EXISTS(SELECT * FROM AnalysisGenomeBuild_Audit)
+  FROM AnalysisGenomebuild
+  WHERE NOT EXISTS(SELECT * FROM AnalysisGenomebuild_Audit)
 $$
 
 --
--- Audit Triggers For AnalysisGenomeBuild 
+-- Audit Triggers For AnalysisGenomebuild 
 --
 
 
-CREATE TRIGGER TrAI_AnalysisGenomeBuild_FER AFTER INSERT ON AnalysisGenomeBuild FOR EACH ROW
+CREATE TRIGGER TrAI_AnalysisGenomebuild_FER AFTER INSERT ON AnalysisGenomebuild FOR EACH ROW
 BEGIN
-  INSERT INTO AnalysisGenomeBuild_Audit
+  INSERT INTO AnalysisGenomebuild_Audit
   ( AuditAppuser
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idAnalysis
   , idGenomeBuild )
   VALUES
@@ -1870,19 +1976,21 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idAnalysis
   , NEW.idGenomeBuild );
 END;
 $$
 
 
-CREATE TRIGGER TrAU_AnalysisGenomeBuild_FER AFTER UPDATE ON AnalysisGenomeBuild FOR EACH ROW
+CREATE TRIGGER TrAU_AnalysisGenomebuild_FER AFTER UPDATE ON AnalysisGenomebuild FOR EACH ROW
 BEGIN
-  INSERT INTO AnalysisGenomeBuild_Audit
+  INSERT INTO AnalysisGenomebuild_Audit
   ( AuditAppuser
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idAnalysis
   , idGenomeBuild )
   VALUES
@@ -1890,19 +1998,21 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idAnalysis
   , NEW.idGenomeBuild );
 END;
 $$
 
 
-CREATE TRIGGER TrAD_AnalysisGenomeBuild_FER AFTER DELETE ON AnalysisGenomeBuild FOR EACH ROW
+CREATE TRIGGER TrAD_AnalysisGenomebuild_FER AFTER DELETE ON AnalysisGenomebuild FOR EACH ROW
 BEGIN
-  INSERT INTO AnalysisGenomeBuild_Audit
+  INSERT INTO AnalysisGenomebuild_Audit
   ( AuditAppuser
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idAnalysis
   , idGenomeBuild )
   VALUES
@@ -1910,6 +2020,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idAnalysis
   , OLD.idGenomeBuild );
 END;
@@ -1917,29 +2028,31 @@ $$
 
 
 --
--- Audit Table For AnalysisGroupItem 
+-- Audit Table For AnalysisGroupitem 
 --
 
-CREATE TABLE IF NOT EXISTS `AnalysisGroupItem_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+CREATE TABLE IF NOT EXISTS `AnalysisGroupitem_Audit` (
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idAnalysisGroup`  int(10)  NULL DEFAULT NULL
  ,`idAnalysis`  int(10)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
 --
--- Initial audit table rows for AnalysisGroupItem 
+-- Initial audit table rows for AnalysisGroupitem 
 --
 
-INSERT INTO AnalysisGroupItem_Audit
+INSERT INTO AnalysisGroupitem_Audit
   ( AuditAppuser
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idAnalysisGroup
   , idAnalysis )
   SELECT
@@ -1947,24 +2060,26 @@ INSERT INTO AnalysisGroupItem_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idAnalysisGroup
   , idAnalysis
-  FROM AnalysisGroupItem
-  WHERE NOT EXISTS(SELECT * FROM AnalysisGroupItem_Audit)
+  FROM AnalysisGroupitem
+  WHERE NOT EXISTS(SELECT * FROM AnalysisGroupitem_Audit)
 $$
 
 --
--- Audit Triggers For AnalysisGroupItem 
+-- Audit Triggers For AnalysisGroupitem 
 --
 
 
-CREATE TRIGGER TrAI_AnalysisGroupItem_FER AFTER INSERT ON AnalysisGroupItem FOR EACH ROW
+CREATE TRIGGER TrAI_AnalysisGroupitem_FER AFTER INSERT ON AnalysisGroupitem FOR EACH ROW
 BEGIN
-  INSERT INTO AnalysisGroupItem_Audit
+  INSERT INTO AnalysisGroupitem_Audit
   ( AuditAppuser
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idAnalysisGroup
   , idAnalysis )
   VALUES
@@ -1972,19 +2087,21 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idAnalysisGroup
   , NEW.idAnalysis );
 END;
 $$
 
 
-CREATE TRIGGER TrAU_AnalysisGroupItem_FER AFTER UPDATE ON AnalysisGroupItem FOR EACH ROW
+CREATE TRIGGER TrAU_AnalysisGroupitem_FER AFTER UPDATE ON AnalysisGroupitem FOR EACH ROW
 BEGIN
-  INSERT INTO AnalysisGroupItem_Audit
+  INSERT INTO AnalysisGroupitem_Audit
   ( AuditAppuser
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idAnalysisGroup
   , idAnalysis )
   VALUES
@@ -1992,19 +2109,21 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idAnalysisGroup
   , NEW.idAnalysis );
 END;
 $$
 
 
-CREATE TRIGGER TrAD_AnalysisGroupItem_FER AFTER DELETE ON AnalysisGroupItem FOR EACH ROW
+CREATE TRIGGER TrAD_AnalysisGroupitem_FER AFTER DELETE ON AnalysisGroupitem FOR EACH ROW
 BEGIN
-  INSERT INTO AnalysisGroupItem_Audit
+  INSERT INTO AnalysisGroupitem_Audit
   ( AuditAppuser
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idAnalysisGroup
   , idAnalysis )
   VALUES
@@ -2012,6 +2131,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idAnalysisGroup
   , OLD.idAnalysis );
 END;
@@ -2023,17 +2143,18 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `AnalysisGroup_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idAnalysisGroup`  int(10)  NULL DEFAULT NULL
  ,`name`  varchar(500)  NULL DEFAULT NULL
  ,`description`  longtext  NULL DEFAULT NULL
  ,`idLab`  int(10)  NULL DEFAULT NULL
  ,`codeVisibility`  varchar(10)  NULL DEFAULT NULL
  ,`idAppUser`  int(10)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -2046,6 +2167,7 @@ INSERT INTO AnalysisGroup_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idAnalysisGroup
   , name
   , description
@@ -2057,6 +2179,7 @@ INSERT INTO AnalysisGroup_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idAnalysisGroup
   , name
   , description
@@ -2079,6 +2202,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idAnalysisGroup
   , name
   , description
@@ -2090,6 +2214,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idAnalysisGroup
   , NEW.name
   , NEW.description
@@ -2107,6 +2232,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idAnalysisGroup
   , name
   , description
@@ -2118,6 +2244,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idAnalysisGroup
   , NEW.name
   , NEW.description
@@ -2135,6 +2262,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idAnalysisGroup
   , name
   , description
@@ -2146,6 +2274,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idAnalysisGroup
   , OLD.name
   , OLD.description
@@ -2161,10 +2290,11 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `AnalysisProtocol_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idAnalysisProtocol`  int(10)  NULL DEFAULT NULL
  ,`analysisProtocol`  varchar(200)  NULL DEFAULT NULL
  ,`description`  longtext  NULL DEFAULT NULL
@@ -2172,7 +2302,7 @@ CREATE TABLE IF NOT EXISTS `AnalysisProtocol_Audit` (
  ,`idAnalysisType`  int(10)  NULL DEFAULT NULL
  ,`isActive`  char(1)  NULL DEFAULT NULL
  ,`idAppUser`  int(10)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -2185,6 +2315,7 @@ INSERT INTO AnalysisProtocol_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idAnalysisProtocol
   , analysisProtocol
   , description
@@ -2197,6 +2328,7 @@ INSERT INTO AnalysisProtocol_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idAnalysisProtocol
   , analysisProtocol
   , description
@@ -2220,6 +2352,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idAnalysisProtocol
   , analysisProtocol
   , description
@@ -2232,6 +2365,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idAnalysisProtocol
   , NEW.analysisProtocol
   , NEW.description
@@ -2250,6 +2384,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idAnalysisProtocol
   , analysisProtocol
   , description
@@ -2262,6 +2397,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idAnalysisProtocol
   , NEW.analysisProtocol
   , NEW.description
@@ -2280,6 +2416,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idAnalysisProtocol
   , analysisProtocol
   , description
@@ -2292,6 +2429,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idAnalysisProtocol
   , OLD.analysisProtocol
   , OLD.description
@@ -2308,13 +2446,14 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `AnalysisToTopic_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idTopic`  int(10)  NULL DEFAULT NULL
  ,`idAnalysis`  int(10)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -2327,6 +2466,7 @@ INSERT INTO AnalysisToTopic_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idTopic
   , idAnalysis )
   SELECT
@@ -2334,6 +2474,7 @@ INSERT INTO AnalysisToTopic_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idTopic
   , idAnalysis
   FROM AnalysisToTopic
@@ -2352,6 +2493,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idTopic
   , idAnalysis )
   VALUES
@@ -2359,6 +2501,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idTopic
   , NEW.idAnalysis );
 END;
@@ -2372,6 +2515,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idTopic
   , idAnalysis )
   VALUES
@@ -2379,6 +2523,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idTopic
   , NEW.idAnalysis );
 END;
@@ -2392,6 +2537,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idTopic
   , idAnalysis )
   VALUES
@@ -2399,6 +2545,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idTopic
   , OLD.idAnalysis );
 END;
@@ -2410,15 +2557,16 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `AnalysisType_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idAnalysisType`  int(10)  NULL DEFAULT NULL
  ,`analysisType`  varchar(200)  NULL DEFAULT NULL
  ,`isActive`  char(1)  NULL DEFAULT NULL
  ,`idAppUser`  int(10)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -2431,6 +2579,7 @@ INSERT INTO AnalysisType_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idAnalysisType
   , analysisType
   , isActive
@@ -2440,6 +2589,7 @@ INSERT INTO AnalysisType_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idAnalysisType
   , analysisType
   , isActive
@@ -2460,6 +2610,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idAnalysisType
   , analysisType
   , isActive
@@ -2469,6 +2620,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idAnalysisType
   , NEW.analysisType
   , NEW.isActive
@@ -2484,6 +2636,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idAnalysisType
   , analysisType
   , isActive
@@ -2493,6 +2646,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idAnalysisType
   , NEW.analysisType
   , NEW.isActive
@@ -2508,6 +2662,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idAnalysisType
   , analysisType
   , isActive
@@ -2517,6 +2672,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idAnalysisType
   , OLD.analysisType
   , OLD.isActive
@@ -2530,10 +2686,11 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `Analysis_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idAnalysis`  int(10)  NULL DEFAULT NULL
  ,`number`  varchar(10)  NULL DEFAULT NULL
  ,`name`  varchar(200)  NULL DEFAULT NULL
@@ -2542,14 +2699,15 @@ CREATE TABLE IF NOT EXISTS `Analysis_Audit` (
  ,`idAnalysisType`  int(10)  NULL DEFAULT NULL
  ,`idAnalysisProtocol`  int(10)  NULL DEFAULT NULL
  ,`idOrganism`  int(10)  NULL DEFAULT NULL
+ ,`idGenomeBuild`  int(10)  NULL DEFAULT NULL
  ,`codeVisibility`  varchar(10)  NULL DEFAULT NULL
  ,`createDate`  datetime  NULL DEFAULT NULL
  ,`idAppUser`  int(10)  NULL DEFAULT NULL
  ,`idInstitution`  int(10)  NULL DEFAULT NULL
- ,`idCoreFacility`  int(10)  NULL DEFAULT NULL
  ,`privacyExpirationDate`  datetime  NULL DEFAULT NULL
+ ,`idCoreFacility`  int(10)  NULL DEFAULT NULL
  ,`idSubmitter`  int(10)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -2562,6 +2720,7 @@ INSERT INTO Analysis_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idAnalysis
   , number
   , name
@@ -2570,18 +2729,20 @@ INSERT INTO Analysis_Audit
   , idAnalysisType
   , idAnalysisProtocol
   , idOrganism
+  , idGenomeBuild
   , codeVisibility
   , createDate
   , idAppUser
   , idInstitution
-  , idCoreFacility
   , privacyExpirationDate
+  , idCoreFacility
   , idSubmitter )
   SELECT
   'No Context'
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idAnalysis
   , number
   , name
@@ -2590,12 +2751,13 @@ INSERT INTO Analysis_Audit
   , idAnalysisType
   , idAnalysisProtocol
   , idOrganism
+  , idGenomeBuild
   , codeVisibility
   , createDate
   , idAppUser
   , idInstitution
-  , idCoreFacility
   , privacyExpirationDate
+  , idCoreFacility
   , idSubmitter
   FROM Analysis
   WHERE NOT EXISTS(SELECT * FROM Analysis_Audit)
@@ -2613,6 +2775,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idAnalysis
   , number
   , name
@@ -2621,18 +2784,20 @@ BEGIN
   , idAnalysisType
   , idAnalysisProtocol
   , idOrganism
+  , idGenomeBuild
   , codeVisibility
   , createDate
   , idAppUser
   , idInstitution
-  , idCoreFacility
   , privacyExpirationDate
+  , idCoreFacility
   , idSubmitter )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idAnalysis
   , NEW.number
   , NEW.name
@@ -2641,12 +2806,13 @@ BEGIN
   , NEW.idAnalysisType
   , NEW.idAnalysisProtocol
   , NEW.idOrganism
+  , NEW.idGenomeBuild
   , NEW.codeVisibility
   , NEW.createDate
   , NEW.idAppUser
   , NEW.idInstitution
-  , NEW.idCoreFacility
   , NEW.privacyExpirationDate
+  , NEW.idCoreFacility
   , NEW.idSubmitter );
 END;
 $$
@@ -2659,6 +2825,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idAnalysis
   , number
   , name
@@ -2667,18 +2834,20 @@ BEGIN
   , idAnalysisType
   , idAnalysisProtocol
   , idOrganism
+  , idGenomeBuild
   , codeVisibility
   , createDate
   , idAppUser
   , idInstitution
-  , idCoreFacility
   , privacyExpirationDate
+  , idCoreFacility
   , idSubmitter )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idAnalysis
   , NEW.number
   , NEW.name
@@ -2687,12 +2856,13 @@ BEGIN
   , NEW.idAnalysisType
   , NEW.idAnalysisProtocol
   , NEW.idOrganism
+  , NEW.idGenomeBuild
   , NEW.codeVisibility
   , NEW.createDate
   , NEW.idAppUser
   , NEW.idInstitution
-  , NEW.idCoreFacility
   , NEW.privacyExpirationDate
+  , NEW.idCoreFacility
   , NEW.idSubmitter );
 END;
 $$
@@ -2705,6 +2875,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idAnalysis
   , number
   , name
@@ -2713,18 +2884,20 @@ BEGIN
   , idAnalysisType
   , idAnalysisProtocol
   , idOrganism
+  , idGenomeBuild
   , codeVisibility
   , createDate
   , idAppUser
   , idInstitution
-  , idCoreFacility
   , privacyExpirationDate
+  , idCoreFacility
   , idSubmitter )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idAnalysis
   , OLD.number
   , OLD.name
@@ -2733,12 +2906,13 @@ BEGIN
   , OLD.idAnalysisType
   , OLD.idAnalysisProtocol
   , OLD.idOrganism
+  , OLD.idGenomeBuild
   , OLD.codeVisibility
   , OLD.createDate
   , OLD.idAppUser
   , OLD.idInstitution
-  , OLD.idCoreFacility
   , OLD.privacyExpirationDate
+  , OLD.idCoreFacility
   , OLD.idSubmitter );
 END;
 $$
@@ -2749,10 +2923,11 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `AnnotationReportField_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idAnnotationReportField`  int(10)  NULL DEFAULT NULL
  ,`source`  varchar(50)  NULL DEFAULT NULL
  ,`fieldName`  varchar(50)  NULL DEFAULT NULL
@@ -2760,7 +2935,7 @@ CREATE TABLE IF NOT EXISTS `AnnotationReportField_Audit` (
  ,`isCustom`  char(1)  NULL DEFAULT NULL
  ,`sortOrder`  int(10)  NULL DEFAULT NULL
  ,`dictionaryLookUpTable`  varchar(100)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -2773,6 +2948,7 @@ INSERT INTO AnnotationReportField_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idAnnotationReportField
   , source
   , fieldName
@@ -2785,6 +2961,7 @@ INSERT INTO AnnotationReportField_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idAnnotationReportField
   , source
   , fieldName
@@ -2808,6 +2985,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idAnnotationReportField
   , source
   , fieldName
@@ -2820,6 +2998,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idAnnotationReportField
   , NEW.source
   , NEW.fieldName
@@ -2838,6 +3017,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idAnnotationReportField
   , source
   , fieldName
@@ -2850,6 +3030,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idAnnotationReportField
   , NEW.source
   , NEW.fieldName
@@ -2868,6 +3049,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idAnnotationReportField
   , source
   , fieldName
@@ -2880,6 +3062,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idAnnotationReportField
   , OLD.source
   , OLD.fieldName
@@ -2896,15 +3079,16 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `ApplicationTheme_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idApplicationTheme`  int(10)  NULL DEFAULT NULL
  ,`applicationTheme`  varchar(200)  NULL DEFAULT NULL
  ,`isActive`  char(1)  NULL DEFAULT NULL
  ,`sortOrder`  int(10)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -2917,6 +3101,7 @@ INSERT INTO ApplicationTheme_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idApplicationTheme
   , applicationTheme
   , isActive
@@ -2926,6 +3111,7 @@ INSERT INTO ApplicationTheme_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idApplicationTheme
   , applicationTheme
   , isActive
@@ -2946,6 +3132,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idApplicationTheme
   , applicationTheme
   , isActive
@@ -2955,6 +3142,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idApplicationTheme
   , NEW.applicationTheme
   , NEW.isActive
@@ -2970,6 +3158,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idApplicationTheme
   , applicationTheme
   , isActive
@@ -2979,6 +3168,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idApplicationTheme
   , NEW.applicationTheme
   , NEW.isActive
@@ -2994,6 +3184,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idApplicationTheme
   , applicationTheme
   , isActive
@@ -3003,6 +3194,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idApplicationTheme
   , OLD.applicationTheme
   , OLD.isActive
@@ -3016,13 +3208,14 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `ApplicationType_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`codeApplicationType`  varchar(10)  NULL DEFAULT NULL
  ,`applicationType`  varchar(100)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -3035,6 +3228,7 @@ INSERT INTO ApplicationType_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeApplicationType
   , applicationType )
   SELECT
@@ -3042,6 +3236,7 @@ INSERT INTO ApplicationType_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , codeApplicationType
   , applicationType
   FROM ApplicationType
@@ -3060,6 +3255,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeApplicationType
   , applicationType )
   VALUES
@@ -3067,6 +3263,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.codeApplicationType
   , NEW.applicationType );
 END;
@@ -3080,6 +3277,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeApplicationType
   , applicationType )
   VALUES
@@ -3087,6 +3285,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.codeApplicationType
   , NEW.applicationType );
 END;
@@ -3100,6 +3299,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeApplicationType
   , applicationType )
   VALUES
@@ -3107,6 +3307,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.codeApplicationType
   , OLD.applicationType );
 END;
@@ -3118,10 +3319,11 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `Application_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`codeApplication`  varchar(10)  NULL DEFAULT NULL
  ,`application`  varchar(100)  NULL DEFAULT NULL
  ,`isActive`  char(1)  NULL DEFAULT NULL
@@ -3132,12 +3334,12 @@ CREATE TABLE IF NOT EXISTS `Application_Audit` (
  ,`hasCaptureLibDesign`  char(1)  NULL DEFAULT NULL
  ,`coreSteps`  varchar(5000)  NULL DEFAULT NULL
  ,`coreStepsNoLibPrep`  varchar(5000)  NULL DEFAULT NULL
- ,`codeApplicationType`  varchar(10)  NULL DEFAULT NULL
  ,`onlyForLabPrepped`  char(1)  NULL DEFAULT NULL
+ ,`codeApplicationType`  varchar(10)  NULL DEFAULT NULL
  ,`samplesPerBatch`  int(10)  NULL DEFAULT NULL
  ,`idCoreFacility`  int(10)  NULL DEFAULT NULL
  ,`hasChipTypes`  char(1)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -3150,6 +3352,7 @@ INSERT INTO Application_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeApplication
   , application
   , isActive
@@ -3160,8 +3363,8 @@ INSERT INTO Application_Audit
   , hasCaptureLibDesign
   , coreSteps
   , coreStepsNoLibPrep
-  , codeApplicationType
   , onlyForLabPrepped
+  , codeApplicationType
   , samplesPerBatch
   , idCoreFacility
   , hasChipTypes )
@@ -3170,6 +3373,7 @@ INSERT INTO Application_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , codeApplication
   , application
   , isActive
@@ -3180,8 +3384,8 @@ INSERT INTO Application_Audit
   , hasCaptureLibDesign
   , coreSteps
   , coreStepsNoLibPrep
-  , codeApplicationType
   , onlyForLabPrepped
+  , codeApplicationType
   , samplesPerBatch
   , idCoreFacility
   , hasChipTypes
@@ -3201,6 +3405,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeApplication
   , application
   , isActive
@@ -3211,8 +3416,8 @@ BEGIN
   , hasCaptureLibDesign
   , coreSteps
   , coreStepsNoLibPrep
-  , codeApplicationType
   , onlyForLabPrepped
+  , codeApplicationType
   , samplesPerBatch
   , idCoreFacility
   , hasChipTypes )
@@ -3221,6 +3426,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.codeApplication
   , NEW.application
   , NEW.isActive
@@ -3231,8 +3437,8 @@ BEGIN
   , NEW.hasCaptureLibDesign
   , NEW.coreSteps
   , NEW.coreStepsNoLibPrep
-  , NEW.codeApplicationType
   , NEW.onlyForLabPrepped
+  , NEW.codeApplicationType
   , NEW.samplesPerBatch
   , NEW.idCoreFacility
   , NEW.hasChipTypes );
@@ -3247,6 +3453,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeApplication
   , application
   , isActive
@@ -3257,8 +3464,8 @@ BEGIN
   , hasCaptureLibDesign
   , coreSteps
   , coreStepsNoLibPrep
-  , codeApplicationType
   , onlyForLabPrepped
+  , codeApplicationType
   , samplesPerBatch
   , idCoreFacility
   , hasChipTypes )
@@ -3267,6 +3474,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.codeApplication
   , NEW.application
   , NEW.isActive
@@ -3277,8 +3485,8 @@ BEGIN
   , NEW.hasCaptureLibDesign
   , NEW.coreSteps
   , NEW.coreStepsNoLibPrep
-  , NEW.codeApplicationType
   , NEW.onlyForLabPrepped
+  , NEW.codeApplicationType
   , NEW.samplesPerBatch
   , NEW.idCoreFacility
   , NEW.hasChipTypes );
@@ -3293,6 +3501,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeApplication
   , application
   , isActive
@@ -3303,8 +3512,8 @@ BEGIN
   , hasCaptureLibDesign
   , coreSteps
   , coreStepsNoLibPrep
-  , codeApplicationType
   , onlyForLabPrepped
+  , codeApplicationType
   , samplesPerBatch
   , idCoreFacility
   , hasChipTypes )
@@ -3313,6 +3522,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.codeApplication
   , OLD.application
   , OLD.isActive
@@ -3323,8 +3533,8 @@ BEGIN
   , OLD.hasCaptureLibDesign
   , OLD.coreSteps
   , OLD.coreStepsNoLibPrep
-  , OLD.codeApplicationType
   , OLD.onlyForLabPrepped
+  , OLD.codeApplicationType
   , OLD.samplesPerBatch
   , OLD.idCoreFacility
   , OLD.hasChipTypes );
@@ -3337,10 +3547,11 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `AppUser_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idAppUser`  int(10)  NULL DEFAULT NULL
  ,`lastName`  varchar(200)  NULL DEFAULT NULL
  ,`firstName`  varchar(200)  NULL DEFAULT NULL
@@ -3360,7 +3571,7 @@ CREATE TABLE IF NOT EXISTS `AppUser_Audit` (
  ,`guidExpiration`  datetime  NULL DEFAULT NULL
  ,`passwordExpired`  char(1)  NULL DEFAULT NULL
  ,`confirmEmailGuid`  varchar(100)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -3373,6 +3584,7 @@ INSERT INTO AppUser_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idAppUser
   , lastName
   , firstName
@@ -3397,6 +3609,7 @@ INSERT INTO AppUser_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idAppUser
   , lastName
   , firstName
@@ -3432,6 +3645,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idAppUser
   , lastName
   , firstName
@@ -3456,6 +3670,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idAppUser
   , NEW.lastName
   , NEW.firstName
@@ -3486,6 +3701,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idAppUser
   , lastName
   , firstName
@@ -3510,6 +3726,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idAppUser
   , NEW.lastName
   , NEW.firstName
@@ -3540,6 +3757,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idAppUser
   , lastName
   , firstName
@@ -3564,6 +3782,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idAppUser
   , OLD.lastName
   , OLD.firstName
@@ -3592,16 +3811,17 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `ArrayCoordinate_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idArrayCoordinate`  int(10)  NULL DEFAULT NULL
  ,`name`  varchar(50)  NULL DEFAULT NULL
  ,`x`  int(10)  NULL DEFAULT NULL
  ,`y`  int(10)  NULL DEFAULT NULL
  ,`idSlideDesign`  int(10)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -3614,6 +3834,7 @@ INSERT INTO ArrayCoordinate_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idArrayCoordinate
   , name
   , x
@@ -3624,6 +3845,7 @@ INSERT INTO ArrayCoordinate_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idArrayCoordinate
   , name
   , x
@@ -3645,6 +3867,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idArrayCoordinate
   , name
   , x
@@ -3655,6 +3878,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idArrayCoordinate
   , NEW.name
   , NEW.x
@@ -3671,6 +3895,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idArrayCoordinate
   , name
   , x
@@ -3681,6 +3906,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idArrayCoordinate
   , NEW.name
   , NEW.x
@@ -3697,6 +3923,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idArrayCoordinate
   , name
   , x
@@ -3707,6 +3934,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idArrayCoordinate
   , OLD.name
   , OLD.x
@@ -3721,15 +3949,16 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `ArrayDesign_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idArrayDesign`  int(10)  NULL DEFAULT NULL
  ,`name`  varchar(200)  NULL DEFAULT NULL
  ,`accessionNumberUArrayExpress`  varchar(100)  NULL DEFAULT NULL
  ,`idArrayCoordinate`  int(10)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -3742,6 +3971,7 @@ INSERT INTO ArrayDesign_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idArrayDesign
   , name
   , accessionNumberUArrayExpress
@@ -3751,6 +3981,7 @@ INSERT INTO ArrayDesign_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idArrayDesign
   , name
   , accessionNumberUArrayExpress
@@ -3771,6 +4002,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idArrayDesign
   , name
   , accessionNumberUArrayExpress
@@ -3780,6 +4012,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idArrayDesign
   , NEW.name
   , NEW.accessionNumberUArrayExpress
@@ -3795,6 +4028,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idArrayDesign
   , name
   , accessionNumberUArrayExpress
@@ -3804,6 +4038,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idArrayDesign
   , NEW.name
   , NEW.accessionNumberUArrayExpress
@@ -3819,6 +4054,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idArrayDesign
   , name
   , accessionNumberUArrayExpress
@@ -3828,6 +4064,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idArrayDesign
   , OLD.name
   , OLD.accessionNumberUArrayExpress
@@ -3841,15 +4078,16 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `Assay_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idAssay`  int(10)  NULL DEFAULT NULL
  ,`name`  varchar(50)  NULL DEFAULT NULL
  ,`description`  varchar(200)  NULL DEFAULT NULL
  ,`isActive`  char(1)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -3862,6 +4100,7 @@ INSERT INTO Assay_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idAssay
   , name
   , description
@@ -3871,6 +4110,7 @@ INSERT INTO Assay_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idAssay
   , name
   , description
@@ -3891,6 +4131,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idAssay
   , name
   , description
@@ -3900,6 +4141,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idAssay
   , NEW.name
   , NEW.description
@@ -3915,6 +4157,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idAssay
   , name
   , description
@@ -3924,6 +4167,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idAssay
   , NEW.name
   , NEW.description
@@ -3939,6 +4183,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idAssay
   , name
   , description
@@ -3948,6 +4193,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idAssay
   , OLD.name
   , OLD.description
@@ -3961,13 +4207,14 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `BillingAccountUser_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idBillingAccount`  int(10)  NULL DEFAULT NULL
  ,`idAppUser`  int(10)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -3980,6 +4227,7 @@ INSERT INTO BillingAccountUser_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idBillingAccount
   , idAppUser )
   SELECT
@@ -3987,6 +4235,7 @@ INSERT INTO BillingAccountUser_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idBillingAccount
   , idAppUser
   FROM BillingAccountUser
@@ -4005,6 +4254,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idBillingAccount
   , idAppUser )
   VALUES
@@ -4012,6 +4262,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idBillingAccount
   , NEW.idAppUser );
 END;
@@ -4025,6 +4276,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idBillingAccount
   , idAppUser )
   VALUES
@@ -4032,6 +4284,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idBillingAccount
   , NEW.idAppUser );
 END;
@@ -4045,6 +4298,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idBillingAccount
   , idAppUser )
   VALUES
@@ -4052,6 +4306,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idBillingAccount
   , OLD.idAppUser );
 END;
@@ -4063,10 +4318,11 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `BillingAccount_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idBillingAccount`  int(10)  NULL DEFAULT NULL
  ,`accountName`  varchar(200)  NULL DEFAULT NULL
  ,`accountNumber`  varchar(100)  NULL DEFAULT NULL
@@ -4081,10 +4337,7 @@ CREATE TABLE IF NOT EXISTS `BillingAccount_Audit` (
  ,`accountNumberAu`  varchar(10)  NULL DEFAULT NULL
  ,`accountNumberYear`  varchar(10)  NULL DEFAULT NULL
  ,`idFundingAgency`  int(10)  NULL DEFAULT NULL
- ,`idCreditCardCompany`  int(10)  NULL DEFAULT NULL
  ,`isPO`  char(1)  NULL DEFAULT NULL
- ,`isCreditCard`  char(1)  NULL DEFAULT NULL
- ,`zipCode`  varchar(20)  NULL DEFAULT NULL
  ,`isApproved`  char(1)  NULL DEFAULT NULL
  ,`approvedDate`  datetime  NULL DEFAULT NULL
  ,`createDate`  datetime  NULL DEFAULT NULL
@@ -4100,9 +4353,12 @@ CREATE TABLE IF NOT EXISTS `BillingAccount_Audit` (
  ,`custom1`  varchar(50)  NULL DEFAULT NULL
  ,`custom2`  varchar(50)  NULL DEFAULT NULL
  ,`custom3`  varchar(50)  NULL DEFAULT NULL
+ ,`isCreditCard`  char(1)  NULL DEFAULT NULL
+ ,`idCreditCardCompany`  int(10)  NULL DEFAULT NULL
+ ,`zipCode`  varchar(20)  NULL DEFAULT NULL
  ,`approverEmail`  varchar(200)  NULL DEFAULT NULL
  ,`idApprover`  int(10)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -4115,6 +4371,7 @@ INSERT INTO BillingAccount_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idBillingAccount
   , accountName
   , accountNumber
@@ -4129,10 +4386,7 @@ INSERT INTO BillingAccount_Audit
   , accountNumberAu
   , accountNumberYear
   , idFundingAgency
-  , idCreditCardCompany
   , isPO
-  , isCreditCard
-  , zipCode
   , isApproved
   , approvedDate
   , createDate
@@ -4148,6 +4402,9 @@ INSERT INTO BillingAccount_Audit
   , custom1
   , custom2
   , custom3
+  , isCreditCard
+  , idCreditCardCompany
+  , zipCode
   , approverEmail
   , idApprover )
   SELECT
@@ -4155,6 +4412,7 @@ INSERT INTO BillingAccount_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idBillingAccount
   , accountName
   , accountNumber
@@ -4169,10 +4427,7 @@ INSERT INTO BillingAccount_Audit
   , accountNumberAu
   , accountNumberYear
   , idFundingAgency
-  , idCreditCardCompany
   , isPO
-  , isCreditCard
-  , zipCode
   , isApproved
   , approvedDate
   , createDate
@@ -4188,6 +4443,9 @@ INSERT INTO BillingAccount_Audit
   , custom1
   , custom2
   , custom3
+  , isCreditCard
+  , idCreditCardCompany
+  , zipCode
   , approverEmail
   , idApprover
   FROM BillingAccount
@@ -4206,6 +4464,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idBillingAccount
   , accountName
   , accountNumber
@@ -4220,10 +4479,7 @@ BEGIN
   , accountNumberAu
   , accountNumberYear
   , idFundingAgency
-  , idCreditCardCompany
   , isPO
-  , isCreditCard
-  , zipCode
   , isApproved
   , approvedDate
   , createDate
@@ -4239,6 +4495,9 @@ BEGIN
   , custom1
   , custom2
   , custom3
+  , isCreditCard
+  , idCreditCardCompany
+  , zipCode
   , approverEmail
   , idApprover )
   VALUES
@@ -4246,6 +4505,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idBillingAccount
   , NEW.accountName
   , NEW.accountNumber
@@ -4260,10 +4520,7 @@ BEGIN
   , NEW.accountNumberAu
   , NEW.accountNumberYear
   , NEW.idFundingAgency
-  , NEW.idCreditCardCompany
   , NEW.isPO
-  , NEW.isCreditCard
-  , NEW.zipCode
   , NEW.isApproved
   , NEW.approvedDate
   , NEW.createDate
@@ -4279,6 +4536,9 @@ BEGIN
   , NEW.custom1
   , NEW.custom2
   , NEW.custom3
+  , NEW.isCreditCard
+  , NEW.idCreditCardCompany
+  , NEW.zipCode
   , NEW.approverEmail
   , NEW.idApprover );
 END;
@@ -4292,6 +4552,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idBillingAccount
   , accountName
   , accountNumber
@@ -4306,10 +4567,7 @@ BEGIN
   , accountNumberAu
   , accountNumberYear
   , idFundingAgency
-  , idCreditCardCompany
   , isPO
-  , isCreditCard
-  , zipCode
   , isApproved
   , approvedDate
   , createDate
@@ -4325,6 +4583,9 @@ BEGIN
   , custom1
   , custom2
   , custom3
+  , isCreditCard
+  , idCreditCardCompany
+  , zipCode
   , approverEmail
   , idApprover )
   VALUES
@@ -4332,6 +4593,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idBillingAccount
   , NEW.accountName
   , NEW.accountNumber
@@ -4346,10 +4608,7 @@ BEGIN
   , NEW.accountNumberAu
   , NEW.accountNumberYear
   , NEW.idFundingAgency
-  , NEW.idCreditCardCompany
   , NEW.isPO
-  , NEW.isCreditCard
-  , NEW.zipCode
   , NEW.isApproved
   , NEW.approvedDate
   , NEW.createDate
@@ -4365,6 +4624,9 @@ BEGIN
   , NEW.custom1
   , NEW.custom2
   , NEW.custom3
+  , NEW.isCreditCard
+  , NEW.idCreditCardCompany
+  , NEW.zipCode
   , NEW.approverEmail
   , NEW.idApprover );
 END;
@@ -4378,6 +4640,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idBillingAccount
   , accountName
   , accountNumber
@@ -4392,10 +4655,7 @@ BEGIN
   , accountNumberAu
   , accountNumberYear
   , idFundingAgency
-  , idCreditCardCompany
   , isPO
-  , isCreditCard
-  , zipCode
   , isApproved
   , approvedDate
   , createDate
@@ -4411,6 +4671,9 @@ BEGIN
   , custom1
   , custom2
   , custom3
+  , isCreditCard
+  , idCreditCardCompany
+  , zipCode
   , approverEmail
   , idApprover )
   VALUES
@@ -4418,6 +4681,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idBillingAccount
   , OLD.accountName
   , OLD.accountNumber
@@ -4432,10 +4696,7 @@ BEGIN
   , OLD.accountNumberAu
   , OLD.accountNumberYear
   , OLD.idFundingAgency
-  , OLD.idCreditCardCompany
   , OLD.isPO
-  , OLD.isCreditCard
-  , OLD.zipCode
   , OLD.isApproved
   , OLD.approvedDate
   , OLD.createDate
@@ -4451,6 +4712,9 @@ BEGIN
   , OLD.custom1
   , OLD.custom2
   , OLD.custom3
+  , OLD.isCreditCard
+  , OLD.idCreditCardCompany
+  , OLD.zipCode
   , OLD.approverEmail
   , OLD.idApprover );
 END;
@@ -4462,14 +4726,15 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `BillingChargeKind_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`codeBillingChargeKind`  varchar(10)  NULL DEFAULT NULL
  ,`billingChargeKind`  varchar(100)  NULL DEFAULT NULL
  ,`isActive`  char(1)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -4482,6 +4747,7 @@ INSERT INTO BillingChargeKind_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeBillingChargeKind
   , billingChargeKind
   , isActive )
@@ -4490,6 +4756,7 @@ INSERT INTO BillingChargeKind_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , codeBillingChargeKind
   , billingChargeKind
   , isActive
@@ -4509,6 +4776,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeBillingChargeKind
   , billingChargeKind
   , isActive )
@@ -4517,6 +4785,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.codeBillingChargeKind
   , NEW.billingChargeKind
   , NEW.isActive );
@@ -4531,6 +4800,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeBillingChargeKind
   , billingChargeKind
   , isActive )
@@ -4539,6 +4809,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.codeBillingChargeKind
   , NEW.billingChargeKind
   , NEW.isActive );
@@ -4553,6 +4824,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeBillingChargeKind
   , billingChargeKind
   , isActive )
@@ -4561,6 +4833,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.codeBillingChargeKind
   , OLD.billingChargeKind
   , OLD.isActive );
@@ -4573,34 +4846,36 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `BillingItem_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idBillingItem`  int(10)  NULL DEFAULT NULL
  ,`codeBillingChargeKind`  varchar(10)  NULL DEFAULT NULL
  ,`category`  varchar(200)  NULL DEFAULT NULL
  ,`description`  varchar(500)  NULL DEFAULT NULL
  ,`qty`  int(10)  NULL DEFAULT NULL
  ,`unitPrice`  decimal(7,2)  NULL DEFAULT NULL
- ,`invoicePrice`  decimal(9,2)  NULL DEFAULT NULL
+ ,`totalPrice`  decimal(9,2)  NULL DEFAULT NULL
  ,`idBillingPeriod`  int(10)  NULL DEFAULT NULL
  ,`codeBillingStatus`  varchar(10)  NULL DEFAULT NULL
- ,`idPriceCategory`  int(10)  NULL DEFAULT NULL
- ,`idPrice`  int(10)  NULL DEFAULT NULL
  ,`idRequest`  int(10)  NULL DEFAULT NULL
  ,`idBillingAccount`  int(10)  NULL DEFAULT NULL
  ,`percentagePrice`  decimal(4,3)  NULL DEFAULT NULL
  ,`notes`  varchar(500)  NULL DEFAULT NULL
  ,`idLab`  int(10)  NULL DEFAULT NULL
+ ,`idPrice`  int(10)  NULL DEFAULT NULL
+ ,`idPriceCategory`  int(10)  NULL DEFAULT NULL
  ,`completeDate`  datetime  NULL DEFAULT NULL
- ,`splitType`  char(1)  NULL DEFAULT NULL
+ ,`invoicePrice`  decimal(9,2)  NULL DEFAULT NULL
  ,`idCoreFacility`  int(10)  NULL DEFAULT NULL
+ ,`splitType`  char(1)  NULL DEFAULT NULL
  ,`idInvoice`  int(10)  NULL DEFAULT NULL
  ,`idDiskUsageByMonth`  int(10)  NULL DEFAULT NULL
  ,`idProductOrder`  int(10)  NULL DEFAULT NULL
  ,`idMasterBillingItem`  int(10)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -4613,25 +4888,27 @@ INSERT INTO BillingItem_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idBillingItem
   , codeBillingChargeKind
   , category
   , description
   , qty
   , unitPrice
-  , invoicePrice
+  , totalPrice
   , idBillingPeriod
   , codeBillingStatus
-  , idPriceCategory
-  , idPrice
   , idRequest
   , idBillingAccount
   , percentagePrice
   , notes
   , idLab
+  , idPrice
+  , idPriceCategory
   , completeDate
-  , splitType
+  , invoicePrice
   , idCoreFacility
+  , splitType
   , idInvoice
   , idDiskUsageByMonth
   , idProductOrder
@@ -4641,25 +4918,27 @@ INSERT INTO BillingItem_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idBillingItem
   , codeBillingChargeKind
   , category
   , description
   , qty
   , unitPrice
-  , invoicePrice
+  , totalPrice
   , idBillingPeriod
   , codeBillingStatus
-  , idPriceCategory
-  , idPrice
   , idRequest
   , idBillingAccount
   , percentagePrice
   , notes
   , idLab
+  , idPrice
+  , idPriceCategory
   , completeDate
-  , splitType
+  , invoicePrice
   , idCoreFacility
+  , splitType
   , idInvoice
   , idDiskUsageByMonth
   , idProductOrder
@@ -4680,25 +4959,27 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idBillingItem
   , codeBillingChargeKind
   , category
   , description
   , qty
   , unitPrice
-  , invoicePrice
+  , totalPrice
   , idBillingPeriod
   , codeBillingStatus
-  , idPriceCategory
-  , idPrice
   , idRequest
   , idBillingAccount
   , percentagePrice
   , notes
   , idLab
+  , idPrice
+  , idPriceCategory
   , completeDate
-  , splitType
+  , invoicePrice
   , idCoreFacility
+  , splitType
   , idInvoice
   , idDiskUsageByMonth
   , idProductOrder
@@ -4708,25 +4989,27 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idBillingItem
   , NEW.codeBillingChargeKind
   , NEW.category
   , NEW.description
   , NEW.qty
   , NEW.unitPrice
-  , NEW.invoicePrice
+  , NEW.totalPrice
   , NEW.idBillingPeriod
   , NEW.codeBillingStatus
-  , NEW.idPriceCategory
-  , NEW.idPrice
   , NEW.idRequest
   , NEW.idBillingAccount
   , NEW.percentagePrice
   , NEW.notes
   , NEW.idLab
+  , NEW.idPrice
+  , NEW.idPriceCategory
   , NEW.completeDate
-  , NEW.splitType
+  , NEW.invoicePrice
   , NEW.idCoreFacility
+  , NEW.splitType
   , NEW.idInvoice
   , NEW.idDiskUsageByMonth
   , NEW.idProductOrder
@@ -4742,25 +5025,27 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idBillingItem
   , codeBillingChargeKind
   , category
   , description
   , qty
   , unitPrice
-  , invoicePrice
+  , totalPrice
   , idBillingPeriod
   , codeBillingStatus
-  , idPriceCategory
-  , idPrice
   , idRequest
   , idBillingAccount
   , percentagePrice
   , notes
   , idLab
+  , idPrice
+  , idPriceCategory
   , completeDate
-  , splitType
+  , invoicePrice
   , idCoreFacility
+  , splitType
   , idInvoice
   , idDiskUsageByMonth
   , idProductOrder
@@ -4770,25 +5055,27 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idBillingItem
   , NEW.codeBillingChargeKind
   , NEW.category
   , NEW.description
   , NEW.qty
   , NEW.unitPrice
-  , NEW.invoicePrice
+  , NEW.totalPrice
   , NEW.idBillingPeriod
   , NEW.codeBillingStatus
-  , NEW.idPriceCategory
-  , NEW.idPrice
   , NEW.idRequest
   , NEW.idBillingAccount
   , NEW.percentagePrice
   , NEW.notes
   , NEW.idLab
+  , NEW.idPrice
+  , NEW.idPriceCategory
   , NEW.completeDate
-  , NEW.splitType
+  , NEW.invoicePrice
   , NEW.idCoreFacility
+  , NEW.splitType
   , NEW.idInvoice
   , NEW.idDiskUsageByMonth
   , NEW.idProductOrder
@@ -4804,25 +5091,27 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idBillingItem
   , codeBillingChargeKind
   , category
   , description
   , qty
   , unitPrice
-  , invoicePrice
+  , totalPrice
   , idBillingPeriod
   , codeBillingStatus
-  , idPriceCategory
-  , idPrice
   , idRequest
   , idBillingAccount
   , percentagePrice
   , notes
   , idLab
+  , idPrice
+  , idPriceCategory
   , completeDate
-  , splitType
+  , invoicePrice
   , idCoreFacility
+  , splitType
   , idInvoice
   , idDiskUsageByMonth
   , idProductOrder
@@ -4832,25 +5121,27 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idBillingItem
   , OLD.codeBillingChargeKind
   , OLD.category
   , OLD.description
   , OLD.qty
   , OLD.unitPrice
-  , OLD.invoicePrice
+  , OLD.totalPrice
   , OLD.idBillingPeriod
   , OLD.codeBillingStatus
-  , OLD.idPriceCategory
-  , OLD.idPrice
   , OLD.idRequest
   , OLD.idBillingAccount
   , OLD.percentagePrice
   , OLD.notes
   , OLD.idLab
+  , OLD.idPrice
+  , OLD.idPriceCategory
   , OLD.completeDate
-  , OLD.splitType
+  , OLD.invoicePrice
   , OLD.idCoreFacility
+  , OLD.splitType
   , OLD.idInvoice
   , OLD.idDiskUsageByMonth
   , OLD.idProductOrder
@@ -4860,32 +5151,34 @@ $$
 
 
 --
--- Audit Table For BillingPeriod 
+-- Audit Table For Billingperiod 
 --
 
-CREATE TABLE IF NOT EXISTS `BillingPeriod_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+CREATE TABLE IF NOT EXISTS `Billingperiod_Audit` (
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idBillingPeriod`  int(10)  NULL DEFAULT NULL
  ,`billingPeriod`  varchar(50)  NULL DEFAULT NULL
  ,`startDate`  datetime  NULL DEFAULT NULL
  ,`endDate`  datetime  NULL DEFAULT NULL
  ,`isActive`  char(1)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
 --
--- Initial audit table rows for BillingPeriod 
+-- Initial audit table rows for Billingperiod 
 --
 
-INSERT INTO BillingPeriod_Audit
+INSERT INTO Billingperiod_Audit
   ( AuditAppuser
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idBillingPeriod
   , billingPeriod
   , startDate
@@ -4896,27 +5189,29 @@ INSERT INTO BillingPeriod_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idBillingPeriod
   , billingPeriod
   , startDate
   , endDate
   , isActive
-  FROM BillingPeriod
-  WHERE NOT EXISTS(SELECT * FROM BillingPeriod_Audit)
+  FROM Billingperiod
+  WHERE NOT EXISTS(SELECT * FROM Billingperiod_Audit)
 $$
 
 --
--- Audit Triggers For BillingPeriod 
+-- Audit Triggers For Billingperiod 
 --
 
 
-CREATE TRIGGER TrAI_BillingPeriod_FER AFTER INSERT ON BillingPeriod FOR EACH ROW
+CREATE TRIGGER TrAI_Billingperiod_FER AFTER INSERT ON Billingperiod FOR EACH ROW
 BEGIN
-  INSERT INTO BillingPeriod_Audit
+  INSERT INTO Billingperiod_Audit
   ( AuditAppuser
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idBillingPeriod
   , billingPeriod
   , startDate
@@ -4927,6 +5222,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idBillingPeriod
   , NEW.billingPeriod
   , NEW.startDate
@@ -4936,13 +5232,14 @@ END;
 $$
 
 
-CREATE TRIGGER TrAU_BillingPeriod_FER AFTER UPDATE ON BillingPeriod FOR EACH ROW
+CREATE TRIGGER TrAU_Billingperiod_FER AFTER UPDATE ON Billingperiod FOR EACH ROW
 BEGIN
-  INSERT INTO BillingPeriod_Audit
+  INSERT INTO Billingperiod_Audit
   ( AuditAppuser
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idBillingPeriod
   , billingPeriod
   , startDate
@@ -4953,6 +5250,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idBillingPeriod
   , NEW.billingPeriod
   , NEW.startDate
@@ -4962,13 +5260,14 @@ END;
 $$
 
 
-CREATE TRIGGER TrAD_BillingPeriod_FER AFTER DELETE ON BillingPeriod FOR EACH ROW
+CREATE TRIGGER TrAD_Billingperiod_FER AFTER DELETE ON Billingperiod FOR EACH ROW
 BEGIN
-  INSERT INTO BillingPeriod_Audit
+  INSERT INTO Billingperiod_Audit
   ( AuditAppuser
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idBillingPeriod
   , billingPeriod
   , startDate
@@ -4979,6 +5278,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idBillingPeriod
   , OLD.billingPeriod
   , OLD.startDate
@@ -4993,14 +5293,15 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `BillingSlideProductClass_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idBillingSlideProductClass`  int(10)  NULL DEFAULT NULL
  ,`billingSlideProductClass`  varchar(200)  NULL DEFAULT NULL
  ,`isActive`  char(1)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -5013,6 +5314,7 @@ INSERT INTO BillingSlideProductClass_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idBillingSlideProductClass
   , billingSlideProductClass
   , isActive )
@@ -5021,6 +5323,7 @@ INSERT INTO BillingSlideProductClass_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idBillingSlideProductClass
   , billingSlideProductClass
   , isActive
@@ -5040,6 +5343,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idBillingSlideProductClass
   , billingSlideProductClass
   , isActive )
@@ -5048,6 +5352,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idBillingSlideProductClass
   , NEW.billingSlideProductClass
   , NEW.isActive );
@@ -5062,6 +5367,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idBillingSlideProductClass
   , billingSlideProductClass
   , isActive )
@@ -5070,6 +5376,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idBillingSlideProductClass
   , NEW.billingSlideProductClass
   , NEW.isActive );
@@ -5084,6 +5391,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idBillingSlideProductClass
   , billingSlideProductClass
   , isActive )
@@ -5092,6 +5400,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idBillingSlideProductClass
   , OLD.billingSlideProductClass
   , OLD.isActive );
@@ -5104,14 +5413,15 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `BillingSlideServiceClass_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idBillingSlideServiceClass`  int(10)  NULL DEFAULT NULL
  ,`billingSlideServiceClass`  varchar(200)  NULL DEFAULT NULL
  ,`isActive`  char(1)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -5124,6 +5434,7 @@ INSERT INTO BillingSlideServiceClass_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idBillingSlideServiceClass
   , billingSlideServiceClass
   , isActive )
@@ -5132,6 +5443,7 @@ INSERT INTO BillingSlideServiceClass_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idBillingSlideServiceClass
   , billingSlideServiceClass
   , isActive
@@ -5151,6 +5463,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idBillingSlideServiceClass
   , billingSlideServiceClass
   , isActive )
@@ -5159,6 +5472,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idBillingSlideServiceClass
   , NEW.billingSlideServiceClass
   , NEW.isActive );
@@ -5173,6 +5487,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idBillingSlideServiceClass
   , billingSlideServiceClass
   , isActive )
@@ -5181,6 +5496,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idBillingSlideServiceClass
   , NEW.billingSlideServiceClass
   , NEW.isActive );
@@ -5195,6 +5511,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idBillingSlideServiceClass
   , billingSlideServiceClass
   , isActive )
@@ -5203,6 +5520,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idBillingSlideServiceClass
   , OLD.billingSlideServiceClass
   , OLD.isActive );
@@ -5215,14 +5533,15 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `BillingStatus_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`codeBillingStatus`  varchar(10)  NULL DEFAULT NULL
  ,`billingStatus`  varchar(50)  NULL DEFAULT NULL
  ,`isActive`  char(1)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -5235,6 +5554,7 @@ INSERT INTO BillingStatus_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeBillingStatus
   , billingStatus
   , isActive )
@@ -5243,6 +5563,7 @@ INSERT INTO BillingStatus_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , codeBillingStatus
   , billingStatus
   , isActive
@@ -5262,6 +5583,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeBillingStatus
   , billingStatus
   , isActive )
@@ -5270,6 +5592,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.codeBillingStatus
   , NEW.billingStatus
   , NEW.isActive );
@@ -5284,6 +5607,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeBillingStatus
   , billingStatus
   , isActive )
@@ -5292,6 +5616,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.codeBillingStatus
   , NEW.billingStatus
   , NEW.isActive );
@@ -5306,6 +5631,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeBillingStatus
   , billingStatus
   , isActive )
@@ -5314,6 +5640,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.codeBillingStatus
   , OLD.billingStatus
   , OLD.isActive );
@@ -5326,10 +5653,11 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `BillingTemplateItem_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idBillingTemplateItem`  int(10)  NULL DEFAULT NULL
  ,`idBillingTemplate`  int(10)  NULL DEFAULT NULL
  ,`idBillingAccount`  int(10)  NULL DEFAULT NULL
@@ -5337,7 +5665,7 @@ CREATE TABLE IF NOT EXISTS `BillingTemplateItem_Audit` (
  ,`dollarAmount`  decimal(7,2)  NULL DEFAULT NULL
  ,`dollarAmountBalance`  decimal(7,2)  NULL DEFAULT NULL
  ,`sortOrder`  int(10)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -5350,6 +5678,7 @@ INSERT INTO BillingTemplateItem_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idBillingTemplateItem
   , idBillingTemplate
   , idBillingAccount
@@ -5362,6 +5691,7 @@ INSERT INTO BillingTemplateItem_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idBillingTemplateItem
   , idBillingTemplate
   , idBillingAccount
@@ -5385,6 +5715,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idBillingTemplateItem
   , idBillingTemplate
   , idBillingAccount
@@ -5397,6 +5728,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idBillingTemplateItem
   , NEW.idBillingTemplate
   , NEW.idBillingAccount
@@ -5415,6 +5747,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idBillingTemplateItem
   , idBillingTemplate
   , idBillingAccount
@@ -5427,6 +5760,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idBillingTemplateItem
   , NEW.idBillingTemplate
   , NEW.idBillingAccount
@@ -5445,6 +5779,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idBillingTemplateItem
   , idBillingTemplate
   , idBillingAccount
@@ -5457,6 +5792,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idBillingTemplateItem
   , OLD.idBillingTemplate
   , OLD.idBillingAccount
@@ -5473,14 +5809,15 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `BillingTemplate_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idBillingTemplate`  int(10)  NULL DEFAULT NULL
  ,`targetClassIdentifier`  int(10)  NULL DEFAULT NULL
  ,`targetClassName`  varchar(100)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -5493,6 +5830,7 @@ INSERT INTO BillingTemplate_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idBillingTemplate
   , targetClassIdentifier
   , targetClassName )
@@ -5501,6 +5839,7 @@ INSERT INTO BillingTemplate_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idBillingTemplate
   , targetClassIdentifier
   , targetClassName
@@ -5520,6 +5859,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idBillingTemplate
   , targetClassIdentifier
   , targetClassName )
@@ -5528,6 +5868,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idBillingTemplate
   , NEW.targetClassIdentifier
   , NEW.targetClassName );
@@ -5542,6 +5883,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idBillingTemplate
   , targetClassIdentifier
   , targetClassName )
@@ -5550,6 +5892,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idBillingTemplate
   , NEW.targetClassIdentifier
   , NEW.targetClassName );
@@ -5564,6 +5907,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idBillingTemplate
   , targetClassIdentifier
   , targetClassName )
@@ -5572,6 +5916,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idBillingTemplate
   , OLD.targetClassIdentifier
   , OLD.targetClassName );
@@ -5584,10 +5929,11 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `BioanalyzerChipType_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`codeBioanalyzerChipType`  varchar(10)  NULL DEFAULT NULL
  ,`bioanalyzerChipType`  varchar(100)  NULL DEFAULT NULL
  ,`concentrationRange`  varchar(50)  NULL DEFAULT NULL
@@ -5598,8 +5944,8 @@ CREATE TABLE IF NOT EXISTS `BioanalyzerChipType_Audit` (
  ,`codeConcentrationUnit`  varchar(10)  NULL DEFAULT NULL
  ,`codeApplication`  varchar(10)  NULL DEFAULT NULL
  ,`protocolDescription`  longtext  NULL DEFAULT NULL
- ,`sortOrder`  int(10)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+ ,`sortOrder`  int(11)  NULL DEFAULT NULL
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -5612,6 +5958,7 @@ INSERT INTO BioanalyzerChipType_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeBioanalyzerChipType
   , bioanalyzerChipType
   , concentrationRange
@@ -5628,6 +5975,7 @@ INSERT INTO BioanalyzerChipType_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , codeBioanalyzerChipType
   , bioanalyzerChipType
   , concentrationRange
@@ -5655,6 +6003,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeBioanalyzerChipType
   , bioanalyzerChipType
   , concentrationRange
@@ -5671,6 +6020,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.codeBioanalyzerChipType
   , NEW.bioanalyzerChipType
   , NEW.concentrationRange
@@ -5693,6 +6043,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeBioanalyzerChipType
   , bioanalyzerChipType
   , concentrationRange
@@ -5709,6 +6060,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.codeBioanalyzerChipType
   , NEW.bioanalyzerChipType
   , NEW.concentrationRange
@@ -5731,6 +6083,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeBioanalyzerChipType
   , bioanalyzerChipType
   , concentrationRange
@@ -5747,6 +6100,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.codeBioanalyzerChipType
   , OLD.bioanalyzerChipType
   , OLD.concentrationRange
@@ -5767,10 +6121,11 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `Chromatogram_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idChromatogram`  int(10)  NULL DEFAULT NULL
  ,`idPlateWell`  int(10)  NULL DEFAULT NULL
  ,`idRequest`  int(10)  NULL DEFAULT NULL
@@ -5787,7 +6142,7 @@ CREATE TABLE IF NOT EXISTS `Chromatogram_Audit` (
  ,`qualifiedFilePath`  varchar(500)  NULL DEFAULT NULL
  ,`idReleaser`  int(10)  NULL DEFAULT NULL
  ,`lane`  int(10)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -5800,6 +6155,7 @@ INSERT INTO Chromatogram_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idChromatogram
   , idPlateWell
   , idRequest
@@ -5821,6 +6177,7 @@ INSERT INTO Chromatogram_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idChromatogram
   , idPlateWell
   , idRequest
@@ -5853,6 +6210,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idChromatogram
   , idPlateWell
   , idRequest
@@ -5874,6 +6232,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idChromatogram
   , NEW.idPlateWell
   , NEW.idRequest
@@ -5901,6 +6260,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idChromatogram
   , idPlateWell
   , idRequest
@@ -5922,6 +6282,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idChromatogram
   , NEW.idPlateWell
   , NEW.idRequest
@@ -5949,6 +6310,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idChromatogram
   , idPlateWell
   , idRequest
@@ -5970,6 +6332,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idChromatogram
   , OLD.idPlateWell
   , OLD.idRequest
@@ -5995,16 +6358,17 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `ConcentrationUnit_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`codeConcentrationUnit`  varchar(10)  NULL DEFAULT NULL
  ,`concentrationUnit`  varchar(50)  NULL DEFAULT NULL
  ,`mageOntologyCode`  varchar(50)  NULL DEFAULT NULL
  ,`mageOntologyDefinition`  varchar(5000)  NULL DEFAULT NULL
  ,`isActive`  char(1)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -6017,6 +6381,7 @@ INSERT INTO ConcentrationUnit_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeConcentrationUnit
   , concentrationUnit
   , mageOntologyCode
@@ -6027,6 +6392,7 @@ INSERT INTO ConcentrationUnit_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , codeConcentrationUnit
   , concentrationUnit
   , mageOntologyCode
@@ -6048,6 +6414,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeConcentrationUnit
   , concentrationUnit
   , mageOntologyCode
@@ -6058,6 +6425,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.codeConcentrationUnit
   , NEW.concentrationUnit
   , NEW.mageOntologyCode
@@ -6074,6 +6442,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeConcentrationUnit
   , concentrationUnit
   , mageOntologyCode
@@ -6084,6 +6453,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.codeConcentrationUnit
   , NEW.concentrationUnit
   , NEW.mageOntologyCode
@@ -6100,6 +6470,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeConcentrationUnit
   , concentrationUnit
   , mageOntologyCode
@@ -6110,6 +6481,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.codeConcentrationUnit
   , OLD.concentrationUnit
   , OLD.mageOntologyCode
@@ -6124,17 +6496,18 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `ContextSensitiveHelp_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idContextSensitiveHelp`  int(10)  NULL DEFAULT NULL
  ,`context1`  varchar(100)  NULL DEFAULT NULL
  ,`context2`  varchar(100)  NULL DEFAULT NULL
  ,`context3`  varchar(100)  NULL DEFAULT NULL
  ,`helpText`  varchar(10000)  NULL DEFAULT NULL
  ,`toolTipText`  varchar(10000)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -6147,6 +6520,7 @@ INSERT INTO ContextSensitiveHelp_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idContextSensitiveHelp
   , context1
   , context2
@@ -6158,6 +6532,7 @@ INSERT INTO ContextSensitiveHelp_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idContextSensitiveHelp
   , context1
   , context2
@@ -6180,6 +6555,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idContextSensitiveHelp
   , context1
   , context2
@@ -6191,6 +6567,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idContextSensitiveHelp
   , NEW.context1
   , NEW.context2
@@ -6208,6 +6585,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idContextSensitiveHelp
   , context1
   , context2
@@ -6219,6 +6597,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idContextSensitiveHelp
   , NEW.context1
   , NEW.context2
@@ -6236,6 +6615,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idContextSensitiveHelp
   , context1
   , context2
@@ -6247,6 +6627,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idContextSensitiveHelp
   , OLD.context1
   , OLD.context2
@@ -6262,13 +6643,14 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `CoreFacilityLab_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idCoreFacility`  int(10)  NULL DEFAULT NULL
  ,`idLab`  int(10)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -6281,6 +6663,7 @@ INSERT INTO CoreFacilityLab_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idCoreFacility
   , idLab )
   SELECT
@@ -6288,6 +6671,7 @@ INSERT INTO CoreFacilityLab_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idCoreFacility
   , idLab
   FROM CoreFacilityLab
@@ -6306,6 +6690,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idCoreFacility
   , idLab )
   VALUES
@@ -6313,6 +6698,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idCoreFacility
   , NEW.idLab );
 END;
@@ -6326,6 +6712,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idCoreFacility
   , idLab )
   VALUES
@@ -6333,6 +6720,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idCoreFacility
   , NEW.idLab );
 END;
@@ -6346,6 +6734,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idCoreFacility
   , idLab )
   VALUES
@@ -6353,6 +6742,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idCoreFacility
   , OLD.idLab );
 END;
@@ -6364,13 +6754,14 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `CoreFacilityManager_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idCoreFacility`  int(10)  NULL DEFAULT NULL
  ,`idAppUser`  int(10)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -6383,6 +6774,7 @@ INSERT INTO CoreFacilityManager_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idCoreFacility
   , idAppUser )
   SELECT
@@ -6390,6 +6782,7 @@ INSERT INTO CoreFacilityManager_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idCoreFacility
   , idAppUser
   FROM CoreFacilityManager
@@ -6408,6 +6801,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idCoreFacility
   , idAppUser )
   VALUES
@@ -6415,6 +6809,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idCoreFacility
   , NEW.idAppUser );
 END;
@@ -6428,6 +6823,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idCoreFacility
   , idAppUser )
   VALUES
@@ -6435,6 +6831,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idCoreFacility
   , NEW.idAppUser );
 END;
@@ -6448,6 +6845,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idCoreFacility
   , idAppUser )
   VALUES
@@ -6455,6 +6853,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idCoreFacility
   , OLD.idAppUser );
 END;
@@ -6466,13 +6865,14 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `CoreFacilitySubmitter_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idCoreFacility`  int(10)  NULL DEFAULT NULL
  ,`idAppUser`  int(10)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -6485,6 +6885,7 @@ INSERT INTO CoreFacilitySubmitter_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idCoreFacility
   , idAppUser )
   SELECT
@@ -6492,6 +6893,7 @@ INSERT INTO CoreFacilitySubmitter_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idCoreFacility
   , idAppUser
   FROM CoreFacilitySubmitter
@@ -6510,6 +6912,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idCoreFacility
   , idAppUser )
   VALUES
@@ -6517,6 +6920,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idCoreFacility
   , NEW.idAppUser );
 END;
@@ -6530,6 +6934,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idCoreFacility
   , idAppUser )
   VALUES
@@ -6537,6 +6942,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idCoreFacility
   , NEW.idAppUser );
 END;
@@ -6550,6 +6956,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idCoreFacility
   , idAppUser )
   VALUES
@@ -6557,6 +6964,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idCoreFacility
   , OLD.idAppUser );
 END;
@@ -6568,26 +6976,27 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `CoreFacility_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idCoreFacility`  int(10)  NULL DEFAULT NULL
  ,`facilityName`  varchar(200)  NULL DEFAULT NULL
  ,`isActive`  char(1)  NULL DEFAULT NULL
  ,`showProjectAnnotations`  char(1)  NULL DEFAULT NULL
- ,`description`  varchar(10000)  NULL DEFAULT NULL
  ,`acceptOnlineWorkAuth`  char(1)  NULL DEFAULT NULL
+ ,`description`  varchar(10000)  NULL DEFAULT NULL
+ ,`labPhone`  varchar(200)  NULL DEFAULT NULL
+ ,`contactRoom`  varchar(200)  NULL DEFAULT NULL
+ ,`labRoom`  varchar(200)  NULL DEFAULT NULL
  ,`shortDescription`  varchar(1000)  NULL DEFAULT NULL
  ,`contactName`  varchar(200)  NULL DEFAULT NULL
  ,`contactEmail`  varchar(200)  NULL DEFAULT NULL
  ,`contactPhone`  varchar(200)  NULL DEFAULT NULL
  ,`sortOrder`  int(10)  NULL DEFAULT NULL
  ,`contactImage`  varchar(200)  NULL DEFAULT NULL
- ,`labPhone`  varchar(200)  NULL DEFAULT NULL
- ,`contactRoom`  varchar(200)  NULL DEFAULT NULL
- ,`labRoom`  varchar(200)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -6600,41 +7009,43 @@ INSERT INTO CoreFacility_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idCoreFacility
   , facilityName
   , isActive
   , showProjectAnnotations
-  , description
   , acceptOnlineWorkAuth
+  , description
+  , labPhone
+  , contactRoom
+  , labRoom
   , shortDescription
   , contactName
   , contactEmail
   , contactPhone
   , sortOrder
-  , contactImage
-  , labPhone
-  , contactRoom
-  , labRoom )
+  , contactImage )
   SELECT
   'No Context'
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idCoreFacility
   , facilityName
   , isActive
   , showProjectAnnotations
-  , description
   , acceptOnlineWorkAuth
+  , description
+  , labPhone
+  , contactRoom
+  , labRoom
   , shortDescription
   , contactName
   , contactEmail
   , contactPhone
   , sortOrder
   , contactImage
-  , labPhone
-  , contactRoom
-  , labRoom
   FROM CoreFacility
   WHERE NOT EXISTS(SELECT * FROM CoreFacility_Audit)
 $$
@@ -6651,41 +7062,43 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idCoreFacility
   , facilityName
   , isActive
   , showProjectAnnotations
-  , description
   , acceptOnlineWorkAuth
+  , description
+  , labPhone
+  , contactRoom
+  , labRoom
   , shortDescription
   , contactName
   , contactEmail
   , contactPhone
   , sortOrder
-  , contactImage
-  , labPhone
-  , contactRoom
-  , labRoom )
+  , contactImage )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idCoreFacility
   , NEW.facilityName
   , NEW.isActive
   , NEW.showProjectAnnotations
-  , NEW.description
   , NEW.acceptOnlineWorkAuth
+  , NEW.description
+  , NEW.labPhone
+  , NEW.contactRoom
+  , NEW.labRoom
   , NEW.shortDescription
   , NEW.contactName
   , NEW.contactEmail
   , NEW.contactPhone
   , NEW.sortOrder
-  , NEW.contactImage
-  , NEW.labPhone
-  , NEW.contactRoom
-  , NEW.labRoom );
+  , NEW.contactImage );
 END;
 $$
 
@@ -6697,41 +7110,43 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idCoreFacility
   , facilityName
   , isActive
   , showProjectAnnotations
-  , description
   , acceptOnlineWorkAuth
+  , description
+  , labPhone
+  , contactRoom
+  , labRoom
   , shortDescription
   , contactName
   , contactEmail
   , contactPhone
   , sortOrder
-  , contactImage
-  , labPhone
-  , contactRoom
-  , labRoom )
+  , contactImage )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idCoreFacility
   , NEW.facilityName
   , NEW.isActive
   , NEW.showProjectAnnotations
-  , NEW.description
   , NEW.acceptOnlineWorkAuth
+  , NEW.description
+  , NEW.labPhone
+  , NEW.contactRoom
+  , NEW.labRoom
   , NEW.shortDescription
   , NEW.contactName
   , NEW.contactEmail
   , NEW.contactPhone
   , NEW.sortOrder
-  , NEW.contactImage
-  , NEW.labPhone
-  , NEW.contactRoom
-  , NEW.labRoom );
+  , NEW.contactImage );
 END;
 $$
 
@@ -6743,41 +7158,43 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idCoreFacility
   , facilityName
   , isActive
   , showProjectAnnotations
-  , description
   , acceptOnlineWorkAuth
+  , description
+  , labPhone
+  , contactRoom
+  , labRoom
   , shortDescription
   , contactName
   , contactEmail
   , contactPhone
   , sortOrder
-  , contactImage
-  , labPhone
-  , contactRoom
-  , labRoom )
+  , contactImage )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idCoreFacility
   , OLD.facilityName
   , OLD.isActive
   , OLD.showProjectAnnotations
-  , OLD.description
   , OLD.acceptOnlineWorkAuth
+  , OLD.description
+  , OLD.labPhone
+  , OLD.contactRoom
+  , OLD.labRoom
   , OLD.shortDescription
   , OLD.contactName
   , OLD.contactEmail
   , OLD.contactPhone
   , OLD.sortOrder
-  , OLD.contactImage
-  , OLD.labPhone
-  , OLD.contactRoom
-  , OLD.labRoom );
+  , OLD.contactImage );
 END;
 $$
 
@@ -6787,15 +7204,16 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `CreditCardCompany_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idCreditCardCompany`  int(10)  NULL DEFAULT NULL
  ,`name`  varchar(100)  NULL DEFAULT NULL
  ,`isActive`  varchar(1)  NULL DEFAULT NULL
  ,`sortOrder`  int(10)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -6808,6 +7226,7 @@ INSERT INTO CreditCardCompany_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idCreditCardCompany
   , name
   , isActive
@@ -6817,6 +7236,7 @@ INSERT INTO CreditCardCompany_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idCreditCardCompany
   , name
   , isActive
@@ -6837,6 +7257,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idCreditCardCompany
   , name
   , isActive
@@ -6846,6 +7267,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idCreditCardCompany
   , NEW.name
   , NEW.isActive
@@ -6861,6 +7283,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idCreditCardCompany
   , name
   , isActive
@@ -6870,6 +7293,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idCreditCardCompany
   , NEW.name
   , NEW.isActive
@@ -6885,6 +7309,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idCreditCardCompany
   , name
   , isActive
@@ -6894,6 +7319,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idCreditCardCompany
   , OLD.name
   , OLD.isActive
@@ -6907,13 +7333,14 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `DataTrackCollaborator_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idDataTrack`  int(10)  NULL DEFAULT NULL
  ,`idAppUser`  int(10)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -6926,6 +7353,7 @@ INSERT INTO DataTrackCollaborator_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idDataTrack
   , idAppUser )
   SELECT
@@ -6933,6 +7361,7 @@ INSERT INTO DataTrackCollaborator_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idDataTrack
   , idAppUser
   FROM DataTrackCollaborator
@@ -6951,6 +7380,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idDataTrack
   , idAppUser )
   VALUES
@@ -6958,6 +7388,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idDataTrack
   , NEW.idAppUser );
 END;
@@ -6971,6 +7402,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idDataTrack
   , idAppUser )
   VALUES
@@ -6978,6 +7410,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idDataTrack
   , NEW.idAppUser );
 END;
@@ -6991,6 +7424,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idDataTrack
   , idAppUser )
   VALUES
@@ -6998,6 +7432,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idDataTrack
   , OLD.idAppUser );
 END;
@@ -7009,14 +7444,15 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `DataTrackFile_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idDataTrackFile`  int(10)  NULL DEFAULT NULL
  ,`idAnalysisFile`  int(10)  NULL DEFAULT NULL
  ,`idDataTrack`  int(10)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -7029,6 +7465,7 @@ INSERT INTO DataTrackFile_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idDataTrackFile
   , idAnalysisFile
   , idDataTrack )
@@ -7037,6 +7474,7 @@ INSERT INTO DataTrackFile_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idDataTrackFile
   , idAnalysisFile
   , idDataTrack
@@ -7056,6 +7494,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idDataTrackFile
   , idAnalysisFile
   , idDataTrack )
@@ -7064,6 +7503,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idDataTrackFile
   , NEW.idAnalysisFile
   , NEW.idDataTrack );
@@ -7078,6 +7518,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idDataTrackFile
   , idAnalysisFile
   , idDataTrack )
@@ -7086,6 +7527,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idDataTrackFile
   , NEW.idAnalysisFile
   , NEW.idDataTrack );
@@ -7100,6 +7542,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idDataTrackFile
   , idAnalysisFile
   , idDataTrack )
@@ -7108,6 +7551,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idDataTrackFile
   , OLD.idAnalysisFile
   , OLD.idDataTrack );
@@ -7120,10 +7564,11 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `DataTrackFolder_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idDataTrackFolder`  int(10)  NULL DEFAULT NULL
  ,`name`  varchar(2000)  NULL DEFAULT NULL
  ,`description`  varchar(10000)  NULL DEFAULT NULL
@@ -7132,7 +7577,7 @@ CREATE TABLE IF NOT EXISTS `DataTrackFolder_Audit` (
  ,`idLab`  int(10)  NULL DEFAULT NULL
  ,`createdBy`  varchar(200)  NULL DEFAULT NULL
  ,`createDate`  datetime  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -7145,6 +7590,7 @@ INSERT INTO DataTrackFolder_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idDataTrackFolder
   , name
   , description
@@ -7158,6 +7604,7 @@ INSERT INTO DataTrackFolder_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idDataTrackFolder
   , name
   , description
@@ -7182,6 +7629,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idDataTrackFolder
   , name
   , description
@@ -7195,6 +7643,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idDataTrackFolder
   , NEW.name
   , NEW.description
@@ -7214,6 +7663,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idDataTrackFolder
   , name
   , description
@@ -7227,6 +7677,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idDataTrackFolder
   , NEW.name
   , NEW.description
@@ -7246,6 +7697,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idDataTrackFolder
   , name
   , description
@@ -7259,6 +7711,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idDataTrackFolder
   , OLD.name
   , OLD.description
@@ -7276,13 +7729,14 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `DataTrackToFolder_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idDataTrack`  int(10)  NULL DEFAULT NULL
  ,`idDataTrackFolder`  int(10)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -7295,6 +7749,7 @@ INSERT INTO DataTrackToFolder_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idDataTrack
   , idDataTrackFolder )
   SELECT
@@ -7302,6 +7757,7 @@ INSERT INTO DataTrackToFolder_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idDataTrack
   , idDataTrackFolder
   FROM DataTrackToFolder
@@ -7320,6 +7776,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idDataTrack
   , idDataTrackFolder )
   VALUES
@@ -7327,6 +7784,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idDataTrack
   , NEW.idDataTrackFolder );
 END;
@@ -7340,6 +7798,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idDataTrack
   , idDataTrackFolder )
   VALUES
@@ -7347,6 +7806,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idDataTrack
   , NEW.idDataTrackFolder );
 END;
@@ -7360,6 +7820,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idDataTrack
   , idDataTrackFolder )
   VALUES
@@ -7367,6 +7828,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idDataTrack
   , OLD.idDataTrackFolder );
 END;
@@ -7378,13 +7840,14 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `DataTrackToTopic_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idTopic`  int(10)  NULL DEFAULT NULL
  ,`idDataTrack`  int(10)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -7397,6 +7860,7 @@ INSERT INTO DataTrackToTopic_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idTopic
   , idDataTrack )
   SELECT
@@ -7404,6 +7868,7 @@ INSERT INTO DataTrackToTopic_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idTopic
   , idDataTrack
   FROM DataTrackToTopic
@@ -7422,6 +7887,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idTopic
   , idDataTrack )
   VALUES
@@ -7429,6 +7895,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idTopic
   , NEW.idDataTrack );
 END;
@@ -7442,6 +7909,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idTopic
   , idDataTrack )
   VALUES
@@ -7449,6 +7917,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idTopic
   , NEW.idDataTrack );
 END;
@@ -7462,6 +7931,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idTopic
   , idDataTrack )
   VALUES
@@ -7469,6 +7939,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idTopic
   , OLD.idDataTrack );
 END;
@@ -7480,10 +7951,11 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `DataTrack_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idDataTrack`  int(10)  NULL DEFAULT NULL
  ,`name`  varchar(2000)  NULL DEFAULT NULL
  ,`description`  varchar(10000)  NULL DEFAULT NULL
@@ -7498,7 +7970,7 @@ CREATE TABLE IF NOT EXISTS `DataTrack_Audit` (
  ,`isLoaded`  char(1)  NULL DEFAULT NULL
  ,`idInstitution`  int(10)  NULL DEFAULT NULL
  ,`dataPath`  varchar(500)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -7511,6 +7983,7 @@ INSERT INTO DataTrack_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idDataTrack
   , name
   , description
@@ -7530,6 +8003,7 @@ INSERT INTO DataTrack_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idDataTrack
   , name
   , description
@@ -7560,6 +8034,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idDataTrack
   , name
   , description
@@ -7579,6 +8054,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idDataTrack
   , NEW.name
   , NEW.description
@@ -7604,6 +8080,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idDataTrack
   , name
   , description
@@ -7623,6 +8100,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idDataTrack
   , NEW.name
   , NEW.description
@@ -7648,6 +8126,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idDataTrack
   , name
   , description
@@ -7667,6 +8146,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idDataTrack
   , OLD.name
   , OLD.description
@@ -7690,10 +8170,11 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `DiskUsageByMonth_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idDiskUsageByMonth`  int(10)  NULL DEFAULT NULL
  ,`idLab`  int(10)  NULL DEFAULT NULL
  ,`asOfDate`  datetime  NULL DEFAULT NULL
@@ -7705,7 +8186,7 @@ CREATE TABLE IF NOT EXISTS `DiskUsageByMonth_Audit` (
  ,`idBillingPeriod`  int(10)  NULL DEFAULT NULL
  ,`idBillingAccount`  int(10)  NULL DEFAULT NULL
  ,`idCoreFacility`  int(10)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -7718,6 +8199,7 @@ INSERT INTO DiskUsageByMonth_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idDiskUsageByMonth
   , idLab
   , asOfDate
@@ -7734,6 +8216,7 @@ INSERT INTO DiskUsageByMonth_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idDiskUsageByMonth
   , idLab
   , asOfDate
@@ -7761,6 +8244,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idDiskUsageByMonth
   , idLab
   , asOfDate
@@ -7777,6 +8261,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idDiskUsageByMonth
   , NEW.idLab
   , NEW.asOfDate
@@ -7799,6 +8284,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idDiskUsageByMonth
   , idLab
   , asOfDate
@@ -7815,6 +8301,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idDiskUsageByMonth
   , NEW.idLab
   , NEW.asOfDate
@@ -7837,6 +8324,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idDiskUsageByMonth
   , idLab
   , asOfDate
@@ -7853,6 +8341,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idDiskUsageByMonth
   , OLD.idLab
   , OLD.asOfDate
@@ -7869,20 +8358,132 @@ $$
 
 
 --
+-- Audit Table For DnaseqRequestNumber 
+--
+
+CREATE TABLE IF NOT EXISTS `DnaseqRequestNumber_Audit` (
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
+ ,`number`  int(10)  NULL DEFAULT NULL
+ ,`dummy`  char(1)  NULL DEFAULT NULL
+) ENGINE=INNODB DEFAULT CHARSET=latin1
+$$
+
+
+--
+-- Initial audit table rows for DnaseqRequestNumber 
+--
+
+INSERT INTO DnaseqRequestNumber_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , AuditEditedByPersonID
+  , number
+  , dummy )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , 0
+  , number
+  , dummy
+  FROM DnaseqRequestNumber
+  WHERE NOT EXISTS(SELECT * FROM DnaseqRequestNumber_Audit)
+$$
+
+--
+-- Audit Triggers For DnaseqRequestNumber 
+--
+
+
+CREATE TRIGGER TrAI_DnaseqRequestNumber_FER AFTER INSERT ON DnaseqRequestNumber FOR EACH ROW
+BEGIN
+  INSERT INTO DnaseqRequestNumber_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , AuditEditedByPersonID
+  , number
+  , dummy )
+  VALUES
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
+  , 'I'
+  , USER()
+  , NOW()
+  , 0
+  , NEW.number
+  , NEW.dummy );
+END;
+$$
+
+
+CREATE TRIGGER TrAU_DnaseqRequestNumber_FER AFTER UPDATE ON DnaseqRequestNumber FOR EACH ROW
+BEGIN
+  INSERT INTO DnaseqRequestNumber_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , AuditEditedByPersonID
+  , number
+  , dummy )
+  VALUES
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
+  , 'U'
+  , USER()
+  , NOW()
+  , 0
+  , NEW.number
+  , NEW.dummy );
+END;
+$$
+
+
+CREATE TRIGGER TrAD_DnaseqRequestNumber_FER AFTER DELETE ON DnaseqRequestNumber FOR EACH ROW
+BEGIN
+  INSERT INTO DnaseqRequestNumber_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , AuditEditedByPersonID
+  , number
+  , dummy )
+  VALUES
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
+  , 'D'
+  , USER()
+  , NOW()
+  , 0
+  , OLD.number
+  , OLD.dummy );
+END;
+$$
+
+
+--
 -- Audit Table For ExperimentDesignEntry 
 --
 
 CREATE TABLE IF NOT EXISTS `ExperimentDesignEntry_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idExperimentDesignEntry`  int(10)  NULL DEFAULT NULL
  ,`codeExperimentDesign`  varchar(10)  NULL DEFAULT NULL
  ,`idProject`  int(10)  NULL DEFAULT NULL
  ,`valueString`  varchar(100)  NULL DEFAULT NULL
  ,`otherLabel`  varchar(100)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -7895,6 +8496,7 @@ INSERT INTO ExperimentDesignEntry_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idExperimentDesignEntry
   , codeExperimentDesign
   , idProject
@@ -7905,6 +8507,7 @@ INSERT INTO ExperimentDesignEntry_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idExperimentDesignEntry
   , codeExperimentDesign
   , idProject
@@ -7926,6 +8529,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idExperimentDesignEntry
   , codeExperimentDesign
   , idProject
@@ -7936,6 +8540,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idExperimentDesignEntry
   , NEW.codeExperimentDesign
   , NEW.idProject
@@ -7952,6 +8557,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idExperimentDesignEntry
   , codeExperimentDesign
   , idProject
@@ -7962,6 +8568,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idExperimentDesignEntry
   , NEW.codeExperimentDesign
   , NEW.idProject
@@ -7978,6 +8585,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idExperimentDesignEntry
   , codeExperimentDesign
   , idProject
@@ -7988,6 +8596,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idExperimentDesignEntry
   , OLD.codeExperimentDesign
   , OLD.idProject
@@ -8002,17 +8611,18 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `ExperimentDesign_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`codeExperimentDesign`  varchar(10)  NULL DEFAULT NULL
  ,`experimentDesign`  varchar(50)  NULL DEFAULT NULL
  ,`mageOntologyCode`  varchar(50)  NULL DEFAULT NULL
  ,`mageOntologyDefinition`  varchar(5000)  NULL DEFAULT NULL
  ,`isActive`  char(1)  NULL DEFAULT NULL
  ,`idAppUser`  int(10)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -8025,6 +8635,7 @@ INSERT INTO ExperimentDesign_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeExperimentDesign
   , experimentDesign
   , mageOntologyCode
@@ -8036,6 +8647,7 @@ INSERT INTO ExperimentDesign_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , codeExperimentDesign
   , experimentDesign
   , mageOntologyCode
@@ -8058,6 +8670,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeExperimentDesign
   , experimentDesign
   , mageOntologyCode
@@ -8069,6 +8682,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.codeExperimentDesign
   , NEW.experimentDesign
   , NEW.mageOntologyCode
@@ -8086,6 +8700,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeExperimentDesign
   , experimentDesign
   , mageOntologyCode
@@ -8097,6 +8712,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.codeExperimentDesign
   , NEW.experimentDesign
   , NEW.mageOntologyCode
@@ -8114,6 +8730,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeExperimentDesign
   , experimentDesign
   , mageOntologyCode
@@ -8125,6 +8742,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.codeExperimentDesign
   , OLD.experimentDesign
   , OLD.mageOntologyCode
@@ -8140,16 +8758,17 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `ExperimentFactorEntry_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idExperimentFactorEntry`  int(10)  NULL DEFAULT NULL
  ,`codeExperimentFactor`  varchar(10)  NULL DEFAULT NULL
  ,`idProject`  int(10)  NULL DEFAULT NULL
  ,`valueString`  varchar(100)  NULL DEFAULT NULL
  ,`otherLabel`  varchar(100)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -8162,6 +8781,7 @@ INSERT INTO ExperimentFactorEntry_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idExperimentFactorEntry
   , codeExperimentFactor
   , idProject
@@ -8172,6 +8792,7 @@ INSERT INTO ExperimentFactorEntry_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idExperimentFactorEntry
   , codeExperimentFactor
   , idProject
@@ -8193,6 +8814,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idExperimentFactorEntry
   , codeExperimentFactor
   , idProject
@@ -8203,6 +8825,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idExperimentFactorEntry
   , NEW.codeExperimentFactor
   , NEW.idProject
@@ -8219,6 +8842,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idExperimentFactorEntry
   , codeExperimentFactor
   , idProject
@@ -8229,6 +8853,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idExperimentFactorEntry
   , NEW.codeExperimentFactor
   , NEW.idProject
@@ -8245,6 +8870,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idExperimentFactorEntry
   , codeExperimentFactor
   , idProject
@@ -8255,6 +8881,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idExperimentFactorEntry
   , OLD.codeExperimentFactor
   , OLD.idProject
@@ -8269,17 +8896,18 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `ExperimentFactor_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`codeExperimentFactor`  varchar(10)  NULL DEFAULT NULL
  ,`experimentFactor`  varchar(50)  NULL DEFAULT NULL
  ,`mageOntologyCode`  varchar(50)  NULL DEFAULT NULL
  ,`mageOntologyDefinition`  varchar(5000)  NULL DEFAULT NULL
  ,`isActive`  char(1)  NULL DEFAULT NULL
  ,`idAppUser`  int(10)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -8292,6 +8920,7 @@ INSERT INTO ExperimentFactor_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeExperimentFactor
   , experimentFactor
   , mageOntologyCode
@@ -8303,6 +8932,7 @@ INSERT INTO ExperimentFactor_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , codeExperimentFactor
   , experimentFactor
   , mageOntologyCode
@@ -8325,6 +8955,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeExperimentFactor
   , experimentFactor
   , mageOntologyCode
@@ -8336,6 +8967,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.codeExperimentFactor
   , NEW.experimentFactor
   , NEW.mageOntologyCode
@@ -8353,6 +8985,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeExperimentFactor
   , experimentFactor
   , mageOntologyCode
@@ -8364,6 +8997,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.codeExperimentFactor
   , NEW.experimentFactor
   , NEW.mageOntologyCode
@@ -8381,6 +9015,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeExperimentFactor
   , experimentFactor
   , mageOntologyCode
@@ -8392,6 +9027,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.codeExperimentFactor
   , OLD.experimentFactor
   , OLD.mageOntologyCode
@@ -8407,16 +9043,17 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `ExperimentFile_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idExperimentFile`  int(10)  NULL DEFAULT NULL
  ,`fileName`  varchar(2000)  NULL DEFAULT NULL
  ,`fileSize`  decimal(14,0)  NULL DEFAULT NULL
  ,`idRequest`  int(10)  NULL DEFAULT NULL
  ,`createDate`  date  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -8429,6 +9066,7 @@ INSERT INTO ExperimentFile_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idExperimentFile
   , fileName
   , fileSize
@@ -8439,6 +9077,7 @@ INSERT INTO ExperimentFile_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idExperimentFile
   , fileName
   , fileSize
@@ -8460,6 +9099,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idExperimentFile
   , fileName
   , fileSize
@@ -8470,6 +9110,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idExperimentFile
   , NEW.fileName
   , NEW.fileSize
@@ -8486,6 +9127,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idExperimentFile
   , fileName
   , fileSize
@@ -8496,6 +9138,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idExperimentFile
   , NEW.fileName
   , NEW.fileSize
@@ -8512,6 +9155,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idExperimentFile
   , fileName
   , fileSize
@@ -8522,6 +9166,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idExperimentFile
   , OLD.fileName
   , OLD.fileSize
@@ -8532,31 +9177,33 @@ $$
 
 
 --
--- Audit Table For FAQ 
+-- Audit Table For Faq 
 --
 
-CREATE TABLE IF NOT EXISTS `FAQ_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+CREATE TABLE IF NOT EXISTS `Faq_Audit` (
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idFAQ`  int(10)  NULL DEFAULT NULL
  ,`title`  varchar(300)  NULL DEFAULT NULL
  ,`url`  varchar(500)  NULL DEFAULT NULL
  ,`idCoreFacility`  int(10)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
 --
--- Initial audit table rows for FAQ 
+-- Initial audit table rows for Faq 
 --
 
-INSERT INTO FAQ_Audit
+INSERT INTO Faq_Audit
   ( AuditAppuser
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idFAQ
   , title
   , url
@@ -8566,26 +9213,28 @@ INSERT INTO FAQ_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idFAQ
   , title
   , url
   , idCoreFacility
-  FROM FAQ
-  WHERE NOT EXISTS(SELECT * FROM FAQ_Audit)
+  FROM Faq
+  WHERE NOT EXISTS(SELECT * FROM Faq_Audit)
 $$
 
 --
--- Audit Triggers For FAQ 
+-- Audit Triggers For Faq 
 --
 
 
-CREATE TRIGGER TrAI_FAQ_FER AFTER INSERT ON FAQ FOR EACH ROW
+CREATE TRIGGER TrAI_Faq_FER AFTER INSERT ON Faq FOR EACH ROW
 BEGIN
-  INSERT INTO FAQ_Audit
+  INSERT INTO Faq_Audit
   ( AuditAppuser
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idFAQ
   , title
   , url
@@ -8595,6 +9244,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idFAQ
   , NEW.title
   , NEW.url
@@ -8603,13 +9253,14 @@ END;
 $$
 
 
-CREATE TRIGGER TrAU_FAQ_FER AFTER UPDATE ON FAQ FOR EACH ROW
+CREATE TRIGGER TrAU_Faq_FER AFTER UPDATE ON Faq FOR EACH ROW
 BEGIN
-  INSERT INTO FAQ_Audit
+  INSERT INTO Faq_Audit
   ( AuditAppuser
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idFAQ
   , title
   , url
@@ -8619,6 +9270,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idFAQ
   , NEW.title
   , NEW.url
@@ -8627,13 +9279,14 @@ END;
 $$
 
 
-CREATE TRIGGER TrAD_FAQ_FER AFTER DELETE ON FAQ FOR EACH ROW
+CREATE TRIGGER TrAD_Faq_FER AFTER DELETE ON Faq FOR EACH ROW
 BEGIN
-  INSERT INTO FAQ_Audit
+  INSERT INTO Faq_Audit
   ( AuditAppuser
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idFAQ
   , title
   , url
@@ -8643,6 +9296,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idFAQ
   , OLD.title
   , OLD.url
@@ -8656,17 +9310,18 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `FeatureExtractionProtocol_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idFeatureExtractionProtocol`  int(10)  NULL DEFAULT NULL
  ,`featureExtractionProtocol`  varchar(200)  NULL DEFAULT NULL
  ,`codeRequestCategory`  varchar(10)  NULL DEFAULT NULL
  ,`description`  longtext  NULL DEFAULT NULL
  ,`url`  varchar(500)  NULL DEFAULT NULL
  ,`isActive`  char(1)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -8679,6 +9334,7 @@ INSERT INTO FeatureExtractionProtocol_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idFeatureExtractionProtocol
   , featureExtractionProtocol
   , codeRequestCategory
@@ -8690,6 +9346,7 @@ INSERT INTO FeatureExtractionProtocol_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idFeatureExtractionProtocol
   , featureExtractionProtocol
   , codeRequestCategory
@@ -8712,6 +9369,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idFeatureExtractionProtocol
   , featureExtractionProtocol
   , codeRequestCategory
@@ -8723,6 +9381,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idFeatureExtractionProtocol
   , NEW.featureExtractionProtocol
   , NEW.codeRequestCategory
@@ -8740,6 +9399,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idFeatureExtractionProtocol
   , featureExtractionProtocol
   , codeRequestCategory
@@ -8751,6 +9411,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idFeatureExtractionProtocol
   , NEW.featureExtractionProtocol
   , NEW.codeRequestCategory
@@ -8768,6 +9429,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idFeatureExtractionProtocol
   , featureExtractionProtocol
   , codeRequestCategory
@@ -8779,6 +9441,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idFeatureExtractionProtocol
   , OLD.featureExtractionProtocol
   , OLD.codeRequestCategory
@@ -8794,14 +9457,14 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `FlowCellChannel_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idFlowCellChannel`  int(10)  NULL DEFAULT NULL
  ,`idFlowCell`  int(10)  NULL DEFAULT NULL
  ,`number`  int(10)  NULL DEFAULT NULL
- ,`idSequenceLane`  int(10)  NULL DEFAULT NULL
  ,`idSequencingControl`  int(10)  NULL DEFAULT NULL
  ,`numberSequencingCyclesActual`  int(10)  NULL DEFAULT NULL
  ,`clustersPerTile`  int(10)  NULL DEFAULT NULL
@@ -8822,7 +9485,7 @@ CREATE TABLE IF NOT EXISTS `FlowCellChannel_Audit` (
  ,`read2ClustersPassedFilterM`  int(10)  NULL DEFAULT NULL
  ,`q30Gb`  decimal(4,1)  NULL DEFAULT NULL
  ,`q30Percent`  decimal(4,3)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -8835,10 +9498,10 @@ INSERT INTO FlowCellChannel_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idFlowCellChannel
   , idFlowCell
   , number
-  , idSequenceLane
   , idSequencingControl
   , numberSequencingCyclesActual
   , clustersPerTile
@@ -8864,10 +9527,10 @@ INSERT INTO FlowCellChannel_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idFlowCellChannel
   , idFlowCell
   , number
-  , idSequenceLane
   , idSequencingControl
   , numberSequencingCyclesActual
   , clustersPerTile
@@ -8904,10 +9567,10 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idFlowCellChannel
   , idFlowCell
   , number
-  , idSequenceLane
   , idSequencingControl
   , numberSequencingCyclesActual
   , clustersPerTile
@@ -8933,10 +9596,10 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idFlowCellChannel
   , NEW.idFlowCell
   , NEW.number
-  , NEW.idSequenceLane
   , NEW.idSequencingControl
   , NEW.numberSequencingCyclesActual
   , NEW.clustersPerTile
@@ -8968,10 +9631,10 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idFlowCellChannel
   , idFlowCell
   , number
-  , idSequenceLane
   , idSequencingControl
   , numberSequencingCyclesActual
   , clustersPerTile
@@ -8997,10 +9660,10 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idFlowCellChannel
   , NEW.idFlowCell
   , NEW.number
-  , NEW.idSequenceLane
   , NEW.idSequencingControl
   , NEW.numberSequencingCyclesActual
   , NEW.clustersPerTile
@@ -9032,10 +9695,10 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idFlowCellChannel
   , idFlowCell
   , number
-  , idSequenceLane
   , idSequencingControl
   , numberSequencingCyclesActual
   , clustersPerTile
@@ -9061,10 +9724,10 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idFlowCellChannel
   , OLD.idFlowCell
   , OLD.number
-  , OLD.idSequenceLane
   , OLD.idSequencingControl
   , OLD.numberSequencingCyclesActual
   , OLD.clustersPerTile
@@ -9094,10 +9757,11 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `FlowCell_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idFlowCell`  int(10)  NULL DEFAULT NULL
  ,`idNumberSequencingCycles`  int(10)  NULL DEFAULT NULL
  ,`idSeqRunType`  int(10)  NULL DEFAULT NULL
@@ -9106,12 +9770,13 @@ CREATE TABLE IF NOT EXISTS `FlowCell_Audit` (
  ,`notes`  varchar(200)  NULL DEFAULT NULL
  ,`barcode`  varchar(100)  NULL DEFAULT NULL
  ,`codeSequencingPlatform`  varchar(10)  NULL DEFAULT NULL
- ,`idCoreFacility`  int(10)  NULL DEFAULT NULL
- ,`idNumberSequencingCyclesAllowed`  int(10)  NULL DEFAULT NULL
  ,`runNumber`  int(10)  NULL DEFAULT NULL
  ,`idInstrument`  int(10)  NULL DEFAULT NULL
  ,`side`  char(1)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+ ,`numberSequencingCyclesActual`  int(10)  NULL DEFAULT NULL
+ ,`idCoreFacility`  int(10)  NULL DEFAULT NULL
+ ,`idNumberSequencingCyclesAllowed`  int(10)  NULL DEFAULT NULL
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -9124,6 +9789,7 @@ INSERT INTO FlowCell_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idFlowCell
   , idNumberSequencingCycles
   , idSeqRunType
@@ -9132,16 +9798,18 @@ INSERT INTO FlowCell_Audit
   , notes
   , barcode
   , codeSequencingPlatform
-  , idCoreFacility
-  , idNumberSequencingCyclesAllowed
   , runNumber
   , idInstrument
-  , side )
+  , side
+  , numberSequencingCyclesActual
+  , idCoreFacility
+  , idNumberSequencingCyclesAllowed )
   SELECT
   'No Context'
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idFlowCell
   , idNumberSequencingCycles
   , idSeqRunType
@@ -9150,11 +9818,12 @@ INSERT INTO FlowCell_Audit
   , notes
   , barcode
   , codeSequencingPlatform
-  , idCoreFacility
-  , idNumberSequencingCyclesAllowed
   , runNumber
   , idInstrument
   , side
+  , numberSequencingCyclesActual
+  , idCoreFacility
+  , idNumberSequencingCyclesAllowed
   FROM FlowCell
   WHERE NOT EXISTS(SELECT * FROM FlowCell_Audit)
 $$
@@ -9171,6 +9840,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idFlowCell
   , idNumberSequencingCycles
   , idSeqRunType
@@ -9179,16 +9849,18 @@ BEGIN
   , notes
   , barcode
   , codeSequencingPlatform
-  , idCoreFacility
-  , idNumberSequencingCyclesAllowed
   , runNumber
   , idInstrument
-  , side )
+  , side
+  , numberSequencingCyclesActual
+  , idCoreFacility
+  , idNumberSequencingCyclesAllowed )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idFlowCell
   , NEW.idNumberSequencingCycles
   , NEW.idSeqRunType
@@ -9197,11 +9869,12 @@ BEGIN
   , NEW.notes
   , NEW.barcode
   , NEW.codeSequencingPlatform
-  , NEW.idCoreFacility
-  , NEW.idNumberSequencingCyclesAllowed
   , NEW.runNumber
   , NEW.idInstrument
-  , NEW.side );
+  , NEW.side
+  , NEW.numberSequencingCyclesActual
+  , NEW.idCoreFacility
+  , NEW.idNumberSequencingCyclesAllowed );
 END;
 $$
 
@@ -9213,6 +9886,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idFlowCell
   , idNumberSequencingCycles
   , idSeqRunType
@@ -9221,16 +9895,18 @@ BEGIN
   , notes
   , barcode
   , codeSequencingPlatform
-  , idCoreFacility
-  , idNumberSequencingCyclesAllowed
   , runNumber
   , idInstrument
-  , side )
+  , side
+  , numberSequencingCyclesActual
+  , idCoreFacility
+  , idNumberSequencingCyclesAllowed )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idFlowCell
   , NEW.idNumberSequencingCycles
   , NEW.idSeqRunType
@@ -9239,11 +9915,12 @@ BEGIN
   , NEW.notes
   , NEW.barcode
   , NEW.codeSequencingPlatform
-  , NEW.idCoreFacility
-  , NEW.idNumberSequencingCyclesAllowed
   , NEW.runNumber
   , NEW.idInstrument
-  , NEW.side );
+  , NEW.side
+  , NEW.numberSequencingCyclesActual
+  , NEW.idCoreFacility
+  , NEW.idNumberSequencingCyclesAllowed );
 END;
 $$
 
@@ -9255,6 +9932,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idFlowCell
   , idNumberSequencingCycles
   , idSeqRunType
@@ -9263,16 +9941,18 @@ BEGIN
   , notes
   , barcode
   , codeSequencingPlatform
-  , idCoreFacility
-  , idNumberSequencingCyclesAllowed
   , runNumber
   , idInstrument
-  , side )
+  , side
+  , numberSequencingCyclesActual
+  , idCoreFacility
+  , idNumberSequencingCyclesAllowed )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idFlowCell
   , OLD.idNumberSequencingCycles
   , OLD.idSeqRunType
@@ -9281,11 +9961,12 @@ BEGIN
   , OLD.notes
   , OLD.barcode
   , OLD.codeSequencingPlatform
-  , OLD.idCoreFacility
-  , OLD.idNumberSequencingCyclesAllowed
   , OLD.runNumber
   , OLD.idInstrument
-  , OLD.side );
+  , OLD.side
+  , OLD.numberSequencingCyclesActual
+  , OLD.idCoreFacility
+  , OLD.idNumberSequencingCyclesAllowed );
 END;
 $$
 
@@ -9295,15 +9976,16 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `FundingAgency_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idFundingAgency`  int(10)  NULL DEFAULT NULL
  ,`fundingAgency`  varchar(200)  NULL DEFAULT NULL
  ,`isPeerReviewedFunding`  char(1)  NULL DEFAULT NULL
  ,`isActive`  char(1)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -9316,6 +9998,7 @@ INSERT INTO FundingAgency_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idFundingAgency
   , fundingAgency
   , isPeerReviewedFunding
@@ -9325,6 +10008,7 @@ INSERT INTO FundingAgency_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idFundingAgency
   , fundingAgency
   , isPeerReviewedFunding
@@ -9345,6 +10029,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idFundingAgency
   , fundingAgency
   , isPeerReviewedFunding
@@ -9354,6 +10039,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idFundingAgency
   , NEW.fundingAgency
   , NEW.isPeerReviewedFunding
@@ -9369,6 +10055,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idFundingAgency
   , fundingAgency
   , isPeerReviewedFunding
@@ -9378,6 +10065,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idFundingAgency
   , NEW.fundingAgency
   , NEW.isPeerReviewedFunding
@@ -9393,6 +10081,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idFundingAgency
   , fundingAgency
   , isPeerReviewedFunding
@@ -9402,6 +10091,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idFundingAgency
   , OLD.fundingAgency
   , OLD.isPeerReviewedFunding
@@ -9415,14 +10105,15 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `GenomeBuildAlias_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idGenomeBuildAlias`  int(10)  NULL DEFAULT NULL
  ,`alias`  varchar(100)  NULL DEFAULT NULL
  ,`idGenomeBuild`  int(10)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -9435,6 +10126,7 @@ INSERT INTO GenomeBuildAlias_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idGenomeBuildAlias
   , alias
   , idGenomeBuild )
@@ -9443,6 +10135,7 @@ INSERT INTO GenomeBuildAlias_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idGenomeBuildAlias
   , alias
   , idGenomeBuild
@@ -9462,6 +10155,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idGenomeBuildAlias
   , alias
   , idGenomeBuild )
@@ -9470,6 +10164,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idGenomeBuildAlias
   , NEW.alias
   , NEW.idGenomeBuild );
@@ -9484,6 +10179,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idGenomeBuildAlias
   , alias
   , idGenomeBuild )
@@ -9492,6 +10188,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idGenomeBuildAlias
   , NEW.alias
   , NEW.idGenomeBuild );
@@ -9506,6 +10203,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idGenomeBuildAlias
   , alias
   , idGenomeBuild )
@@ -9514,6 +10212,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idGenomeBuildAlias
   , OLD.alias
   , OLD.idGenomeBuild );
@@ -9526,17 +10225,17 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `GenomeBuild_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idGenomeBuild`  int(10)  NULL DEFAULT NULL
  ,`genomeBuildName`  varchar(500)  NULL DEFAULT NULL
  ,`idOrganism`  int(10)  NULL DEFAULT NULL
  ,`isActive`  char(1)  NULL DEFAULT NULL
  ,`isLatestBuild`  char(1)  NULL DEFAULT NULL
  ,`idAppUser`  int(10)  NULL DEFAULT NULL
- ,`das2Name`  varchar(200)  NULL DEFAULT NULL
  ,`buildDate`  datetime  NULL DEFAULT NULL
  ,`coordURI`  varchar(2000)  NULL DEFAULT NULL
  ,`coordVersion`  varchar(50)  NULL DEFAULT NULL
@@ -9544,9 +10243,10 @@ CREATE TABLE IF NOT EXISTS `GenomeBuild_Audit` (
  ,`coordTestRange`  varchar(100)  NULL DEFAULT NULL
  ,`coordAuthority`  varchar(50)  NULL DEFAULT NULL
  ,`ucscName`  varchar(100)  NULL DEFAULT NULL
- ,`igvName`  varchar(50)  NULL DEFAULT NULL
  ,`dataPath`  varchar(500)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+ ,`das2Name`  varchar(200)  NULL DEFAULT NULL
+ ,`igvName`  varchar(50)  NULL DEFAULT NULL
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -9559,13 +10259,13 @@ INSERT INTO GenomeBuild_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idGenomeBuild
   , genomeBuildName
   , idOrganism
   , isActive
   , isLatestBuild
   , idAppUser
-  , das2Name
   , buildDate
   , coordURI
   , coordVersion
@@ -9573,20 +10273,21 @@ INSERT INTO GenomeBuild_Audit
   , coordTestRange
   , coordAuthority
   , ucscName
-  , igvName
-  , dataPath )
+  , dataPath
+  , das2Name
+  , igvName )
   SELECT
   'No Context'
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idGenomeBuild
   , genomeBuildName
   , idOrganism
   , isActive
   , isLatestBuild
   , idAppUser
-  , das2Name
   , buildDate
   , coordURI
   , coordVersion
@@ -9594,8 +10295,9 @@ INSERT INTO GenomeBuild_Audit
   , coordTestRange
   , coordAuthority
   , ucscName
-  , igvName
   , dataPath
+  , das2Name
+  , igvName
   FROM GenomeBuild
   WHERE NOT EXISTS(SELECT * FROM GenomeBuild_Audit)
 $$
@@ -9612,13 +10314,13 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idGenomeBuild
   , genomeBuildName
   , idOrganism
   , isActive
   , isLatestBuild
   , idAppUser
-  , das2Name
   , buildDate
   , coordURI
   , coordVersion
@@ -9626,20 +10328,21 @@ BEGIN
   , coordTestRange
   , coordAuthority
   , ucscName
-  , igvName
-  , dataPath )
+  , dataPath
+  , das2Name
+  , igvName )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idGenomeBuild
   , NEW.genomeBuildName
   , NEW.idOrganism
   , NEW.isActive
   , NEW.isLatestBuild
   , NEW.idAppUser
-  , NEW.das2Name
   , NEW.buildDate
   , NEW.coordURI
   , NEW.coordVersion
@@ -9647,8 +10350,9 @@ BEGIN
   , NEW.coordTestRange
   , NEW.coordAuthority
   , NEW.ucscName
-  , NEW.igvName
-  , NEW.dataPath );
+  , NEW.dataPath
+  , NEW.das2Name
+  , NEW.igvName );
 END;
 $$
 
@@ -9660,13 +10364,13 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idGenomeBuild
   , genomeBuildName
   , idOrganism
   , isActive
   , isLatestBuild
   , idAppUser
-  , das2Name
   , buildDate
   , coordURI
   , coordVersion
@@ -9674,20 +10378,21 @@ BEGIN
   , coordTestRange
   , coordAuthority
   , ucscName
-  , igvName
-  , dataPath )
+  , dataPath
+  , das2Name
+  , igvName )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idGenomeBuild
   , NEW.genomeBuildName
   , NEW.idOrganism
   , NEW.isActive
   , NEW.isLatestBuild
   , NEW.idAppUser
-  , NEW.das2Name
   , NEW.buildDate
   , NEW.coordURI
   , NEW.coordVersion
@@ -9695,8 +10400,9 @@ BEGIN
   , NEW.coordTestRange
   , NEW.coordAuthority
   , NEW.ucscName
-  , NEW.igvName
-  , NEW.dataPath );
+  , NEW.dataPath
+  , NEW.das2Name
+  , NEW.igvName );
 END;
 $$
 
@@ -9708,13 +10414,13 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idGenomeBuild
   , genomeBuildName
   , idOrganism
   , isActive
   , isLatestBuild
   , idAppUser
-  , das2Name
   , buildDate
   , coordURI
   , coordVersion
@@ -9722,20 +10428,21 @@ BEGIN
   , coordTestRange
   , coordAuthority
   , ucscName
-  , igvName
-  , dataPath )
+  , dataPath
+  , das2Name
+  , igvName )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idGenomeBuild
   , OLD.genomeBuildName
   , OLD.idOrganism
   , OLD.isActive
   , OLD.isLatestBuild
   , OLD.idAppUser
-  , OLD.das2Name
   , OLD.buildDate
   , OLD.coordURI
   , OLD.coordVersion
@@ -9743,8 +10450,9 @@ BEGIN
   , OLD.coordTestRange
   , OLD.coordAuthority
   , OLD.ucscName
-  , OLD.igvName
-  , OLD.dataPath );
+  , OLD.dataPath
+  , OLD.das2Name
+  , OLD.igvName );
 END;
 $$
 
@@ -9754,16 +10462,17 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `GenomeIndex_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idGenomeIndex`  int(10)  NULL DEFAULT NULL
  ,`genomeIndexName`  varchar(120)  NULL DEFAULT NULL
  ,`webServiceName`  varchar(120)  NULL DEFAULT NULL
  ,`isActive`  char(1)  NULL DEFAULT NULL
  ,`idOrganism`  int(10)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -9776,6 +10485,7 @@ INSERT INTO GenomeIndex_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idGenomeIndex
   , genomeIndexName
   , webServiceName
@@ -9786,6 +10496,7 @@ INSERT INTO GenomeIndex_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idGenomeIndex
   , genomeIndexName
   , webServiceName
@@ -9807,6 +10518,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idGenomeIndex
   , genomeIndexName
   , webServiceName
@@ -9817,6 +10529,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idGenomeIndex
   , NEW.genomeIndexName
   , NEW.webServiceName
@@ -9833,6 +10546,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idGenomeIndex
   , genomeIndexName
   , webServiceName
@@ -9843,6 +10557,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idGenomeIndex
   , NEW.genomeIndexName
   , NEW.webServiceName
@@ -9859,6 +10574,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idGenomeIndex
   , genomeIndexName
   , webServiceName
@@ -9869,6 +10585,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idGenomeIndex
   , OLD.genomeIndexName
   , OLD.webServiceName
@@ -9883,17 +10600,18 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `HybProtocol_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idHybProtocol`  int(10)  NULL DEFAULT NULL
  ,`hybProtocol`  varchar(200)  NULL DEFAULT NULL
  ,`codeRequestCategory`  varchar(10)  NULL DEFAULT NULL
  ,`description`  longtext  NULL DEFAULT NULL
  ,`url`  varchar(500)  NULL DEFAULT NULL
  ,`isActive`  char(1)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -9906,6 +10624,7 @@ INSERT INTO HybProtocol_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idHybProtocol
   , hybProtocol
   , codeRequestCategory
@@ -9917,6 +10636,7 @@ INSERT INTO HybProtocol_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idHybProtocol
   , hybProtocol
   , codeRequestCategory
@@ -9939,6 +10659,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idHybProtocol
   , hybProtocol
   , codeRequestCategory
@@ -9950,6 +10671,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idHybProtocol
   , NEW.hybProtocol
   , NEW.codeRequestCategory
@@ -9967,6 +10689,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idHybProtocol
   , hybProtocol
   , codeRequestCategory
@@ -9978,6 +10701,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idHybProtocol
   , NEW.hybProtocol
   , NEW.codeRequestCategory
@@ -9995,6 +10719,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idHybProtocol
   , hybProtocol
   , codeRequestCategory
@@ -10006,6 +10731,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idHybProtocol
   , OLD.hybProtocol
   , OLD.codeRequestCategory
@@ -10021,10 +10747,11 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `Hybridization_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idHybridization`  int(10)  NULL DEFAULT NULL
  ,`number`  varchar(100)  NULL DEFAULT NULL
  ,`notes`  varchar(2000)  NULL DEFAULT NULL
@@ -10046,7 +10773,7 @@ CREATE TABLE IF NOT EXISTS `Hybridization_Audit` (
  ,`extractionBypassed`  char(1)  NULL DEFAULT NULL
  ,`hasResults`  char(1)  NULL DEFAULT NULL
  ,`createDate`  datetime  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -10059,6 +10786,7 @@ INSERT INTO Hybridization_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idHybridization
   , number
   , notes
@@ -10085,6 +10813,7 @@ INSERT INTO Hybridization_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idHybridization
   , number
   , notes
@@ -10122,6 +10851,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idHybridization
   , number
   , notes
@@ -10148,6 +10878,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idHybridization
   , NEW.number
   , NEW.notes
@@ -10180,6 +10911,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idHybridization
   , number
   , notes
@@ -10206,6 +10938,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idHybridization
   , NEW.number
   , NEW.notes
@@ -10238,6 +10971,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idHybridization
   , number
   , notes
@@ -10264,6 +10998,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idHybridization
   , OLD.number
   , OLD.notes
@@ -10294,13 +11029,14 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `InstitutionLab_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idInstitution`  int(10)  NULL DEFAULT NULL
  ,`idLab`  int(10)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -10313,6 +11049,7 @@ INSERT INTO InstitutionLab_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idInstitution
   , idLab )
   SELECT
@@ -10320,6 +11057,7 @@ INSERT INTO InstitutionLab_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idInstitution
   , idLab
   FROM InstitutionLab
@@ -10338,6 +11076,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idInstitution
   , idLab )
   VALUES
@@ -10345,6 +11084,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idInstitution
   , NEW.idLab );
 END;
@@ -10358,6 +11098,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idInstitution
   , idLab )
   VALUES
@@ -10365,6 +11106,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idInstitution
   , NEW.idLab );
 END;
@@ -10378,6 +11120,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idInstitution
   , idLab )
   VALUES
@@ -10385,6 +11128,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idInstitution
   , OLD.idLab );
 END;
@@ -10396,16 +11140,17 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `Institution_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idInstitution`  int(10)  NULL DEFAULT NULL
  ,`institution`  varchar(200)  NULL DEFAULT NULL
  ,`description`  varchar(500)  NULL DEFAULT NULL
  ,`isActive`  char(1)  NULL DEFAULT NULL
  ,`isDefault`  char(1)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -10418,6 +11163,7 @@ INSERT INTO Institution_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idInstitution
   , institution
   , description
@@ -10428,6 +11174,7 @@ INSERT INTO Institution_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idInstitution
   , institution
   , description
@@ -10449,6 +11196,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idInstitution
   , institution
   , description
@@ -10459,6 +11207,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idInstitution
   , NEW.institution
   , NEW.description
@@ -10475,6 +11224,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idInstitution
   , institution
   , description
@@ -10485,6 +11235,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idInstitution
   , NEW.institution
   , NEW.description
@@ -10501,6 +11252,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idInstitution
   , institution
   , description
@@ -10511,6 +11263,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idInstitution
   , OLD.institution
   , OLD.description
@@ -10525,14 +11278,15 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `InstrumentRunStatus_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`codeInstrumentRunStatus`  varchar(10)  NULL DEFAULT NULL
  ,`instrumentRunStatus`  varchar(50)  NULL DEFAULT NULL
  ,`isActive`  char(1)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -10545,6 +11299,7 @@ INSERT INTO InstrumentRunStatus_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeInstrumentRunStatus
   , instrumentRunStatus
   , isActive )
@@ -10553,6 +11308,7 @@ INSERT INTO InstrumentRunStatus_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , codeInstrumentRunStatus
   , instrumentRunStatus
   , isActive
@@ -10572,6 +11328,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeInstrumentRunStatus
   , instrumentRunStatus
   , isActive )
@@ -10580,6 +11337,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.codeInstrumentRunStatus
   , NEW.instrumentRunStatus
   , NEW.isActive );
@@ -10594,6 +11352,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeInstrumentRunStatus
   , instrumentRunStatus
   , isActive )
@@ -10602,6 +11361,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.codeInstrumentRunStatus
   , NEW.instrumentRunStatus
   , NEW.isActive );
@@ -10616,6 +11376,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeInstrumentRunStatus
   , instrumentRunStatus
   , isActive )
@@ -10624,6 +11385,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.codeInstrumentRunStatus
   , OLD.instrumentRunStatus
   , OLD.isActive );
@@ -10636,10 +11398,11 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `InstrumentRun_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idInstrumentRun`  int(10)  NULL DEFAULT NULL
  ,`runDate`  datetime  NULL DEFAULT NULL
  ,`createDate`  datetime  NULL DEFAULT NULL
@@ -10649,7 +11412,7 @@ CREATE TABLE IF NOT EXISTS `InstrumentRun_Audit` (
  ,`codeReactionType`  varchar(10)  NULL DEFAULT NULL
  ,`creator`  varchar(50)  NULL DEFAULT NULL
  ,`codeSealType`  varchar(10)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -10662,6 +11425,7 @@ INSERT INTO InstrumentRun_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idInstrumentRun
   , runDate
   , createDate
@@ -10676,6 +11440,7 @@ INSERT INTO InstrumentRun_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idInstrumentRun
   , runDate
   , createDate
@@ -10701,6 +11466,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idInstrumentRun
   , runDate
   , createDate
@@ -10715,6 +11481,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idInstrumentRun
   , NEW.runDate
   , NEW.createDate
@@ -10735,6 +11502,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idInstrumentRun
   , runDate
   , createDate
@@ -10749,6 +11517,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idInstrumentRun
   , NEW.runDate
   , NEW.createDate
@@ -10769,6 +11538,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idInstrumentRun
   , runDate
   , createDate
@@ -10783,6 +11553,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idInstrumentRun
   , OLD.runDate
   , OLD.createDate
@@ -10801,14 +11572,15 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `Instrument_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idInstrument`  int(10)  NULL DEFAULT NULL
  ,`instrument`  varchar(50)  NULL DEFAULT NULL
  ,`isActive`  char(1)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -10821,6 +11593,7 @@ INSERT INTO Instrument_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idInstrument
   , instrument
   , isActive )
@@ -10829,6 +11602,7 @@ INSERT INTO Instrument_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idInstrument
   , instrument
   , isActive
@@ -10848,6 +11622,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idInstrument
   , instrument
   , isActive )
@@ -10856,6 +11631,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idInstrument
   , NEW.instrument
   , NEW.isActive );
@@ -10870,6 +11646,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idInstrument
   , instrument
   , isActive )
@@ -10878,6 +11655,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idInstrument
   , NEW.instrument
   , NEW.isActive );
@@ -10892,6 +11670,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idInstrument
   , instrument
   , isActive )
@@ -10900,6 +11679,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idInstrument
   , OLD.instrument
   , OLD.isActive );
@@ -10912,10 +11692,11 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `InternalAccountFieldsConfiguration_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idInternalAccountFieldsConfiguration`  int(10)  NULL DEFAULT NULL
  ,`fieldName`  varchar(50)  NULL DEFAULT NULL
  ,`include`  char(1)  NULL DEFAULT NULL
@@ -10925,7 +11706,7 @@ CREATE TABLE IF NOT EXISTS `InternalAccountFieldsConfiguration_Audit` (
  ,`isNumber`  char(1)  NULL DEFAULT NULL
  ,`minLength`  int(10)  NULL DEFAULT NULL
  ,`maxLength`  int(10)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -10938,6 +11719,7 @@ INSERT INTO InternalAccountFieldsConfiguration_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idInternalAccountFieldsConfiguration
   , fieldName
   , include
@@ -10952,6 +11734,7 @@ INSERT INTO InternalAccountFieldsConfiguration_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idInternalAccountFieldsConfiguration
   , fieldName
   , include
@@ -10977,6 +11760,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idInternalAccountFieldsConfiguration
   , fieldName
   , include
@@ -10991,6 +11775,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idInternalAccountFieldsConfiguration
   , NEW.fieldName
   , NEW.include
@@ -11011,6 +11796,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idInternalAccountFieldsConfiguration
   , fieldName
   , include
@@ -11025,6 +11811,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idInternalAccountFieldsConfiguration
   , NEW.fieldName
   , NEW.include
@@ -11045,6 +11832,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idInternalAccountFieldsConfiguration
   , fieldName
   , include
@@ -11059,6 +11847,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idInternalAccountFieldsConfiguration
   , OLD.fieldName
   , OLD.include
@@ -11077,17 +11866,18 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `Invoice_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idInvoice`  int(10)  NULL DEFAULT NULL
  ,`idCoreFacility`  int(10)  NULL DEFAULT NULL
  ,`idBillingPeriod`  int(10)  NULL DEFAULT NULL
  ,`idBillingAccount`  int(10)  NULL DEFAULT NULL
  ,`invoiceNumber`  varchar(50)  NULL DEFAULT NULL
  ,`lastEmailDate`  datetime  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -11100,6 +11890,7 @@ INSERT INTO Invoice_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idInvoice
   , idCoreFacility
   , idBillingPeriod
@@ -11111,6 +11902,7 @@ INSERT INTO Invoice_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idInvoice
   , idCoreFacility
   , idBillingPeriod
@@ -11133,6 +11925,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idInvoice
   , idCoreFacility
   , idBillingPeriod
@@ -11144,6 +11937,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idInvoice
   , NEW.idCoreFacility
   , NEW.idBillingPeriod
@@ -11161,6 +11955,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idInvoice
   , idCoreFacility
   , idBillingPeriod
@@ -11172,6 +11967,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idInvoice
   , NEW.idCoreFacility
   , NEW.idBillingPeriod
@@ -11189,6 +11985,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idInvoice
   , idCoreFacility
   , idBillingPeriod
@@ -11200,6 +11997,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idInvoice
   , OLD.idCoreFacility
   , OLD.idBillingPeriod
@@ -11215,16 +12013,17 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `IsolationPrepType_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`codeIsolationPrepType`  varchar(15)  NULL DEFAULT NULL
  ,`isolationPrepType`  varchar(100)  NULL DEFAULT NULL
  ,`type`  varchar(10)  NULL DEFAULT NULL
  ,`isActive`  char(1)  NULL DEFAULT NULL
  ,`codeRequestCategory`  varchar(50)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -11237,6 +12036,7 @@ INSERT INTO IsolationPrepType_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeIsolationPrepType
   , isolationPrepType
   , type
@@ -11247,6 +12047,7 @@ INSERT INTO IsolationPrepType_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , codeIsolationPrepType
   , isolationPrepType
   , type
@@ -11268,6 +12069,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeIsolationPrepType
   , isolationPrepType
   , type
@@ -11278,6 +12080,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.codeIsolationPrepType
   , NEW.isolationPrepType
   , NEW.type
@@ -11294,6 +12097,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeIsolationPrepType
   , isolationPrepType
   , type
@@ -11304,6 +12108,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.codeIsolationPrepType
   , NEW.isolationPrepType
   , NEW.type
@@ -11320,6 +12125,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeIsolationPrepType
   , isolationPrepType
   , type
@@ -11330,6 +12136,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.codeIsolationPrepType
   , OLD.isolationPrepType
   , OLD.type
@@ -11344,14 +12151,15 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `LabCollaborator_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idLab`  int(10)  NULL DEFAULT NULL
  ,`idAppUser`  int(10)  NULL DEFAULT NULL
  ,`sendUploadAlert`  char(1)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -11364,6 +12172,7 @@ INSERT INTO LabCollaborator_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idLab
   , idAppUser
   , sendUploadAlert )
@@ -11372,6 +12181,7 @@ INSERT INTO LabCollaborator_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idLab
   , idAppUser
   , sendUploadAlert
@@ -11391,6 +12201,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idLab
   , idAppUser
   , sendUploadAlert )
@@ -11399,6 +12210,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idLab
   , NEW.idAppUser
   , NEW.sendUploadAlert );
@@ -11413,6 +12225,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idLab
   , idAppUser
   , sendUploadAlert )
@@ -11421,6 +12234,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idLab
   , NEW.idAppUser
   , NEW.sendUploadAlert );
@@ -11435,6 +12249,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idLab
   , idAppUser
   , sendUploadAlert )
@@ -11443,6 +12258,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idLab
   , OLD.idAppUser
   , OLD.sendUploadAlert );
@@ -11455,10 +12271,11 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `LabeledSample_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idLabeledSample`  int(10)  NULL DEFAULT NULL
  ,`labelingYield`  decimal(8,2)  NULL DEFAULT NULL
  ,`idSample`  int(10)  NULL DEFAULT NULL
@@ -11470,7 +12287,7 @@ CREATE TABLE IF NOT EXISTS `LabeledSample_Audit` (
  ,`labelingFailed`  char(1)  NULL DEFAULT NULL
  ,`labelingBypassed`  char(1)  NULL DEFAULT NULL
  ,`idRequest`  int(10)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -11483,6 +12300,7 @@ INSERT INTO LabeledSample_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idLabeledSample
   , labelingYield
   , idSample
@@ -11499,6 +12317,7 @@ INSERT INTO LabeledSample_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idLabeledSample
   , labelingYield
   , idSample
@@ -11526,6 +12345,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idLabeledSample
   , labelingYield
   , idSample
@@ -11542,6 +12362,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idLabeledSample
   , NEW.labelingYield
   , NEW.idSample
@@ -11564,6 +12385,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idLabeledSample
   , labelingYield
   , idSample
@@ -11580,6 +12402,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idLabeledSample
   , NEW.labelingYield
   , NEW.idSample
@@ -11602,6 +12425,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idLabeledSample
   , labelingYield
   , idSample
@@ -11618,6 +12442,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idLabeledSample
   , OLD.labelingYield
   , OLD.idSample
@@ -11638,17 +12463,18 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `LabelingProtocol_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idLabelingProtocol`  int(10)  NULL DEFAULT NULL
  ,`labelingProtocol`  varchar(200)  NULL DEFAULT NULL
  ,`codeRequestCategory`  varchar(10)  NULL DEFAULT NULL
  ,`description`  longtext  NULL DEFAULT NULL
  ,`url`  varchar(500)  NULL DEFAULT NULL
  ,`isActive`  char(1)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -11661,6 +12487,7 @@ INSERT INTO LabelingProtocol_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idLabelingProtocol
   , labelingProtocol
   , codeRequestCategory
@@ -11672,6 +12499,7 @@ INSERT INTO LabelingProtocol_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idLabelingProtocol
   , labelingProtocol
   , codeRequestCategory
@@ -11694,6 +12522,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idLabelingProtocol
   , labelingProtocol
   , codeRequestCategory
@@ -11705,6 +12534,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idLabelingProtocol
   , NEW.labelingProtocol
   , NEW.codeRequestCategory
@@ -11722,6 +12552,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idLabelingProtocol
   , labelingProtocol
   , codeRequestCategory
@@ -11733,6 +12564,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idLabelingProtocol
   , NEW.labelingProtocol
   , NEW.codeRequestCategory
@@ -11750,6 +12582,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idLabelingProtocol
   , labelingProtocol
   , codeRequestCategory
@@ -11761,6 +12594,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idLabelingProtocol
   , OLD.labelingProtocol
   , OLD.codeRequestCategory
@@ -11776,15 +12610,16 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `LabelingReactionSize_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`codeLabelingReactionSize`  varchar(20)  NULL DEFAULT NULL
  ,`labelingReactionSize`  varchar(100)  NULL DEFAULT NULL
  ,`isActive`  char(1)  NULL DEFAULT NULL
  ,`sortOrder`  int(10)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -11797,6 +12632,7 @@ INSERT INTO LabelingReactionSize_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeLabelingReactionSize
   , labelingReactionSize
   , isActive
@@ -11806,6 +12642,7 @@ INSERT INTO LabelingReactionSize_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , codeLabelingReactionSize
   , labelingReactionSize
   , isActive
@@ -11826,6 +12663,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeLabelingReactionSize
   , labelingReactionSize
   , isActive
@@ -11835,6 +12673,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.codeLabelingReactionSize
   , NEW.labelingReactionSize
   , NEW.isActive
@@ -11850,6 +12689,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeLabelingReactionSize
   , labelingReactionSize
   , isActive
@@ -11859,6 +12699,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.codeLabelingReactionSize
   , NEW.labelingReactionSize
   , NEW.isActive
@@ -11874,6 +12715,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeLabelingReactionSize
   , labelingReactionSize
   , isActive
@@ -11883,6 +12725,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.codeLabelingReactionSize
   , OLD.labelingReactionSize
   , OLD.isActive
@@ -11896,14 +12739,15 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `Label_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idLabel`  int(10)  NULL DEFAULT NULL
  ,`label`  varchar(50)  NULL DEFAULT NULL
  ,`isActive`  char(1)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -11916,6 +12760,7 @@ INSERT INTO Label_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idLabel
   , label
   , isActive )
@@ -11924,6 +12769,7 @@ INSERT INTO Label_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idLabel
   , label
   , isActive
@@ -11943,6 +12789,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idLabel
   , label
   , isActive )
@@ -11951,6 +12798,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idLabel
   , NEW.label
   , NEW.isActive );
@@ -11965,6 +12813,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idLabel
   , label
   , isActive )
@@ -11973,6 +12822,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idLabel
   , NEW.label
   , NEW.isActive );
@@ -11987,6 +12837,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idLabel
   , label
   , isActive )
@@ -11995,6 +12846,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idLabel
   , OLD.label
   , OLD.isActive );
@@ -12007,14 +12859,15 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `LabManager_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idLab`  int(10)  NULL DEFAULT NULL
  ,`idAppUser`  int(10)  NULL DEFAULT NULL
  ,`sendUploadAlert`  char(1)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -12027,6 +12880,7 @@ INSERT INTO LabManager_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idLab
   , idAppUser
   , sendUploadAlert )
@@ -12035,6 +12889,7 @@ INSERT INTO LabManager_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idLab
   , idAppUser
   , sendUploadAlert
@@ -12054,6 +12909,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idLab
   , idAppUser
   , sendUploadAlert )
@@ -12062,6 +12918,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idLab
   , NEW.idAppUser
   , NEW.sendUploadAlert );
@@ -12076,6 +12933,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idLab
   , idAppUser
   , sendUploadAlert )
@@ -12084,6 +12942,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idLab
   , NEW.idAppUser
   , NEW.sendUploadAlert );
@@ -12098,6 +12957,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idLab
   , idAppUser
   , sendUploadAlert )
@@ -12106,6 +12966,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idLab
   , OLD.idAppUser
   , OLD.sendUploadAlert );
@@ -12118,16 +12979,17 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `LabUser_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idLab`  int(10)  NULL DEFAULT NULL
  ,`idAppUser`  int(10)  NULL DEFAULT NULL
  ,`sortOrder`  int(10)  NULL DEFAULT NULL
  ,`isActive`  char(1)  NULL DEFAULT NULL
  ,`sendUploadAlert`  char(1)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -12140,6 +13002,7 @@ INSERT INTO LabUser_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idLab
   , idAppUser
   , sortOrder
@@ -12150,6 +13013,7 @@ INSERT INTO LabUser_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idLab
   , idAppUser
   , sortOrder
@@ -12171,6 +13035,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idLab
   , idAppUser
   , sortOrder
@@ -12181,6 +13046,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idLab
   , NEW.idAppUser
   , NEW.sortOrder
@@ -12197,6 +13063,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idLab
   , idAppUser
   , sortOrder
@@ -12207,6 +13074,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idLab
   , NEW.idAppUser
   , NEW.sortOrder
@@ -12223,6 +13091,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idLab
   , idAppUser
   , sortOrder
@@ -12233,6 +13102,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idLab
   , OLD.idAppUser
   , OLD.sortOrder
@@ -12247,14 +13117,13 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `Lab_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idLab`  int(10)  NULL DEFAULT NULL
- ,`name`  varchar(200)  NULL DEFAULT NULL
  ,`department`  varchar(200)  NULL DEFAULT NULL
- ,`notes`  varchar(500)  NULL DEFAULT NULL
  ,`contactName`  varchar(200)  NULL DEFAULT NULL
  ,`contactAddress`  varchar(200)  NULL DEFAULT NULL
  ,`contactCodeState`  varchar(10)  NULL DEFAULT NULL
@@ -12265,16 +13134,16 @@ CREATE TABLE IF NOT EXISTS `Lab_Audit` (
  ,`isCCSGMember`  char(1)  NULL DEFAULT NULL
  ,`firstName`  varchar(200)  NULL DEFAULT NULL
  ,`lastName`  varchar(200)  NULL DEFAULT NULL
- ,`isExternalPricing`  varchar(1)  NULL DEFAULT NULL
- ,`isExternalPricingCommercial`  char(1)  NULL DEFAULT NULL
+ ,`isExternalPricing`  char(1)  NULL DEFAULT NULL
  ,`isActive`  varchar(1)  NULL DEFAULT NULL
  ,`excludeUsage`  char(1)  NULL DEFAULT NULL
+ ,`isExternalPricingCommercial`  char(1)  NULL DEFAULT NULL
  ,`billingContactEmail`  varchar(200)  NULL DEFAULT NULL
  ,`version`  bigint(20)  NULL DEFAULT NULL
- ,`contactAddress2`  varchar(200)  NULL DEFAULT NULL
  ,`contactCountry`  varchar(200)  NULL DEFAULT NULL
+ ,`contactAddress2`  varchar(200)  NULL DEFAULT NULL
  ,`billingContactPhone`  varchar(50)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -12287,10 +13156,9 @@ INSERT INTO Lab_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idLab
-  , name
   , department
-  , notes
   , contactName
   , contactAddress
   , contactCodeState
@@ -12302,23 +13170,22 @@ INSERT INTO Lab_Audit
   , firstName
   , lastName
   , isExternalPricing
-  , isExternalPricingCommercial
   , isActive
   , excludeUsage
+  , isExternalPricingCommercial
   , billingContactEmail
   , version
-  , contactAddress2
   , contactCountry
+  , contactAddress2
   , billingContactPhone )
   SELECT
   'No Context'
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idLab
-  , name
   , department
-  , notes
   , contactName
   , contactAddress
   , contactCodeState
@@ -12330,13 +13197,13 @@ INSERT INTO Lab_Audit
   , firstName
   , lastName
   , isExternalPricing
-  , isExternalPricingCommercial
   , isActive
   , excludeUsage
+  , isExternalPricingCommercial
   , billingContactEmail
   , version
-  , contactAddress2
   , contactCountry
+  , contactAddress2
   , billingContactPhone
   FROM Lab
   WHERE NOT EXISTS(SELECT * FROM Lab_Audit)
@@ -12354,10 +13221,9 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idLab
-  , name
   , department
-  , notes
   , contactName
   , contactAddress
   , contactCodeState
@@ -12369,23 +13235,22 @@ BEGIN
   , firstName
   , lastName
   , isExternalPricing
-  , isExternalPricingCommercial
   , isActive
   , excludeUsage
+  , isExternalPricingCommercial
   , billingContactEmail
   , version
-  , contactAddress2
   , contactCountry
+  , contactAddress2
   , billingContactPhone )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idLab
-  , NEW.name
   , NEW.department
-  , NEW.notes
   , NEW.contactName
   , NEW.contactAddress
   , NEW.contactCodeState
@@ -12397,13 +13262,13 @@ BEGIN
   , NEW.firstName
   , NEW.lastName
   , NEW.isExternalPricing
-  , NEW.isExternalPricingCommercial
   , NEW.isActive
   , NEW.excludeUsage
+  , NEW.isExternalPricingCommercial
   , NEW.billingContactEmail
   , NEW.version
-  , NEW.contactAddress2
   , NEW.contactCountry
+  , NEW.contactAddress2
   , NEW.billingContactPhone );
 END;
 $$
@@ -12416,10 +13281,9 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idLab
-  , name
   , department
-  , notes
   , contactName
   , contactAddress
   , contactCodeState
@@ -12431,23 +13295,22 @@ BEGIN
   , firstName
   , lastName
   , isExternalPricing
-  , isExternalPricingCommercial
   , isActive
   , excludeUsage
+  , isExternalPricingCommercial
   , billingContactEmail
   , version
-  , contactAddress2
   , contactCountry
+  , contactAddress2
   , billingContactPhone )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idLab
-  , NEW.name
   , NEW.department
-  , NEW.notes
   , NEW.contactName
   , NEW.contactAddress
   , NEW.contactCodeState
@@ -12459,13 +13322,13 @@ BEGIN
   , NEW.firstName
   , NEW.lastName
   , NEW.isExternalPricing
-  , NEW.isExternalPricingCommercial
   , NEW.isActive
   , NEW.excludeUsage
+  , NEW.isExternalPricingCommercial
   , NEW.billingContactEmail
   , NEW.version
-  , NEW.contactAddress2
   , NEW.contactCountry
+  , NEW.contactAddress2
   , NEW.billingContactPhone );
 END;
 $$
@@ -12478,10 +13341,9 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idLab
-  , name
   , department
-  , notes
   , contactName
   , contactAddress
   , contactCodeState
@@ -12493,23 +13355,22 @@ BEGIN
   , firstName
   , lastName
   , isExternalPricing
-  , isExternalPricingCommercial
   , isActive
   , excludeUsage
+  , isExternalPricingCommercial
   , billingContactEmail
   , version
-  , contactAddress2
   , contactCountry
+  , contactAddress2
   , billingContactPhone )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idLab
-  , OLD.name
   , OLD.department
-  , OLD.notes
   , OLD.contactName
   , OLD.contactAddress
   , OLD.contactCodeState
@@ -12521,13 +13382,13 @@ BEGIN
   , OLD.firstName
   , OLD.lastName
   , OLD.isExternalPricing
-  , OLD.isExternalPricingCommercial
   , OLD.isActive
   , OLD.excludeUsage
+  , OLD.isExternalPricingCommercial
   , OLD.billingContactEmail
   , OLD.version
-  , OLD.contactAddress2
   , OLD.contactCountry
+  , OLD.contactAddress2
   , OLD.billingContactPhone );
 END;
 $$
@@ -12538,14 +13399,15 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `LibraryPrepQCProtocol_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
- ,`idLibPrepQCProtocol`  int(10)  NULL DEFAULT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
+ ,`idLibPrepQCProtocol`  int(11)  NULL DEFAULT NULL
  ,`protocolDisplay`  varchar(50)  NULL DEFAULT NULL
  ,`codeRequestCategory`  varchar(10)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -12558,6 +13420,7 @@ INSERT INTO LibraryPrepQCProtocol_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idLibPrepQCProtocol
   , protocolDisplay
   , codeRequestCategory )
@@ -12566,6 +13429,7 @@ INSERT INTO LibraryPrepQCProtocol_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idLibPrepQCProtocol
   , protocolDisplay
   , codeRequestCategory
@@ -12585,6 +13449,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idLibPrepQCProtocol
   , protocolDisplay
   , codeRequestCategory )
@@ -12593,6 +13458,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idLibPrepQCProtocol
   , NEW.protocolDisplay
   , NEW.codeRequestCategory );
@@ -12607,6 +13473,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idLibPrepQCProtocol
   , protocolDisplay
   , codeRequestCategory )
@@ -12615,6 +13482,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idLibPrepQCProtocol
   , NEW.protocolDisplay
   , NEW.codeRequestCategory );
@@ -12629,6 +13497,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idLibPrepQCProtocol
   , protocolDisplay
   , codeRequestCategory )
@@ -12637,6 +13506,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idLibPrepQCProtocol
   , OLD.protocolDisplay
   , OLD.codeRequestCategory );
@@ -12649,10 +13519,11 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `MasterBillingItem_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idMasterBillingItem`  int(10)  NULL DEFAULT NULL
  ,`idBillingTemplate`  int(10)  NULL DEFAULT NULL
  ,`codeBillingChargeKind`  varchar(10)  NULL DEFAULT NULL
@@ -12665,7 +13536,7 @@ CREATE TABLE IF NOT EXISTS `MasterBillingItem_Audit` (
  ,`idPrice`  int(10)  NULL DEFAULT NULL
  ,`idPriceCategory`  int(10)  NULL DEFAULT NULL
  ,`idCoreFacility`  int(10)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -12678,6 +13549,7 @@ INSERT INTO MasterBillingItem_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idMasterBillingItem
   , idBillingTemplate
   , codeBillingChargeKind
@@ -12695,6 +13567,7 @@ INSERT INTO MasterBillingItem_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idMasterBillingItem
   , idBillingTemplate
   , codeBillingChargeKind
@@ -12723,6 +13596,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idMasterBillingItem
   , idBillingTemplate
   , codeBillingChargeKind
@@ -12740,6 +13614,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idMasterBillingItem
   , NEW.idBillingTemplate
   , NEW.codeBillingChargeKind
@@ -12763,6 +13638,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idMasterBillingItem
   , idBillingTemplate
   , codeBillingChargeKind
@@ -12780,6 +13656,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idMasterBillingItem
   , NEW.idBillingTemplate
   , NEW.codeBillingChargeKind
@@ -12803,6 +13680,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idMasterBillingItem
   , idBillingTemplate
   , codeBillingChargeKind
@@ -12820,6 +13698,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idMasterBillingItem
   , OLD.idBillingTemplate
   , OLD.codeBillingChargeKind
@@ -12841,15 +13720,16 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `MetrixObject_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`id`  int(10)  NULL DEFAULT NULL
  ,`run_id`  varchar(512)  NULL DEFAULT NULL
  ,`object_value`  varbinary(8000)  NULL DEFAULT NULL
  ,`state`  int(10)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -12862,6 +13742,7 @@ INSERT INTO MetrixObject_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , id
   , run_id
   , object_value
@@ -12871,6 +13752,7 @@ INSERT INTO MetrixObject_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , id
   , run_id
   , object_value
@@ -12891,6 +13773,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , id
   , run_id
   , object_value
@@ -12900,6 +13783,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.id
   , NEW.run_id
   , NEW.object_value
@@ -12915,6 +13799,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , id
   , run_id
   , object_value
@@ -12924,6 +13809,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.id
   , NEW.run_id
   , NEW.object_value
@@ -12939,6 +13825,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , id
   , run_id
   , object_value
@@ -12948,6 +13835,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.id
   , OLD.run_id
   , OLD.object_value
@@ -12961,17 +13849,18 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `NewsItem_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idNewsItem`  int(10)  NULL DEFAULT NULL
  ,`idSubmitter`  int(10)  NULL DEFAULT NULL
  ,`idCoreFacility`  int(10)  NULL DEFAULT NULL
  ,`title`  varchar(200)  NULL DEFAULT NULL
  ,`message`  varchar(4000)  NULL DEFAULT NULL
  ,`date`  datetime  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -12984,6 +13873,7 @@ INSERT INTO NewsItem_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idNewsItem
   , idSubmitter
   , idCoreFacility
@@ -12995,6 +13885,7 @@ INSERT INTO NewsItem_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idNewsItem
   , idSubmitter
   , idCoreFacility
@@ -13017,6 +13908,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idNewsItem
   , idSubmitter
   , idCoreFacility
@@ -13028,6 +13920,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idNewsItem
   , NEW.idSubmitter
   , NEW.idCoreFacility
@@ -13045,6 +13938,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idNewsItem
   , idSubmitter
   , idCoreFacility
@@ -13056,6 +13950,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idNewsItem
   , NEW.idSubmitter
   , NEW.idCoreFacility
@@ -13073,6 +13968,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idNewsItem
   , idSubmitter
   , idCoreFacility
@@ -13084,6 +13980,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idNewsItem
   , OLD.idSubmitter
   , OLD.idCoreFacility
@@ -13099,10 +13996,11 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `Notification_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idNotification`  int(10)  NULL DEFAULT NULL
  ,`idUserTarget`  int(10)  NULL DEFAULT NULL
  ,`idLabTarget`  int(10)  NULL DEFAULT NULL
@@ -13110,11 +14008,11 @@ CREATE TABLE IF NOT EXISTS `Notification_Audit` (
  ,`message`  varchar(250)  NULL DEFAULT NULL
  ,`date`  datetime  NULL DEFAULT NULL
  ,`expID`  varchar(25)  NULL DEFAULT NULL
- ,`type`  varchar(25)  NULL DEFAULT NULL
  ,`fullNameUser`  varchar(100)  NULL DEFAULT NULL
+ ,`type`  varchar(25)  NULL DEFAULT NULL
  ,`imageSource`  varchar(50)  NULL DEFAULT NULL
  ,`idCoreFacility`  int(10)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -13127,6 +14025,7 @@ INSERT INTO Notification_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idNotification
   , idUserTarget
   , idLabTarget
@@ -13134,8 +14033,8 @@ INSERT INTO Notification_Audit
   , message
   , date
   , expID
-  , type
   , fullNameUser
+  , type
   , imageSource
   , idCoreFacility )
   SELECT
@@ -13143,6 +14042,7 @@ INSERT INTO Notification_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idNotification
   , idUserTarget
   , idLabTarget
@@ -13150,8 +14050,8 @@ INSERT INTO Notification_Audit
   , message
   , date
   , expID
-  , type
   , fullNameUser
+  , type
   , imageSource
   , idCoreFacility
   FROM Notification
@@ -13170,6 +14070,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idNotification
   , idUserTarget
   , idLabTarget
@@ -13177,8 +14078,8 @@ BEGIN
   , message
   , date
   , expID
-  , type
   , fullNameUser
+  , type
   , imageSource
   , idCoreFacility )
   VALUES
@@ -13186,6 +14087,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idNotification
   , NEW.idUserTarget
   , NEW.idLabTarget
@@ -13193,8 +14095,8 @@ BEGIN
   , NEW.message
   , NEW.date
   , NEW.expID
-  , NEW.type
   , NEW.fullNameUser
+  , NEW.type
   , NEW.imageSource
   , NEW.idCoreFacility );
 END;
@@ -13208,6 +14110,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idNotification
   , idUserTarget
   , idLabTarget
@@ -13215,8 +14118,8 @@ BEGIN
   , message
   , date
   , expID
-  , type
   , fullNameUser
+  , type
   , imageSource
   , idCoreFacility )
   VALUES
@@ -13224,6 +14127,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idNotification
   , NEW.idUserTarget
   , NEW.idLabTarget
@@ -13231,8 +14135,8 @@ BEGIN
   , NEW.message
   , NEW.date
   , NEW.expID
-  , NEW.type
   , NEW.fullNameUser
+  , NEW.type
   , NEW.imageSource
   , NEW.idCoreFacility );
 END;
@@ -13246,6 +14150,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idNotification
   , idUserTarget
   , idLabTarget
@@ -13253,8 +14158,8 @@ BEGIN
   , message
   , date
   , expID
-  , type
   , fullNameUser
+  , type
   , imageSource
   , idCoreFacility )
   VALUES
@@ -13262,6 +14167,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idNotification
   , OLD.idUserTarget
   , OLD.idLabTarget
@@ -13269,8 +14175,8 @@ BEGIN
   , OLD.message
   , OLD.date
   , OLD.expID
-  , OLD.type
   , OLD.fullNameUser
+  , OLD.type
   , OLD.imageSource
   , OLD.idCoreFacility );
 END;
@@ -13282,12 +14188,13 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `NucleotideType_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`codeNucleotideType`  varchar(50)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -13300,12 +14207,14 @@ INSERT INTO NucleotideType_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeNucleotideType )
   SELECT
   'No Context'
   , 'L'
   , USER()
   , NOW()
+  , 0
   , codeNucleotideType
   FROM NucleotideType
   WHERE NOT EXISTS(SELECT * FROM NucleotideType_Audit)
@@ -13323,12 +14232,14 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeNucleotideType )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.codeNucleotideType );
 END;
 $$
@@ -13341,12 +14252,14 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeNucleotideType )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.codeNucleotideType );
 END;
 $$
@@ -13359,12 +14272,14 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeNucleotideType )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.codeNucleotideType );
 END;
 $$
@@ -13375,20 +14290,22 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `NumberSequencingCyclesAllowed_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idNumberSequencingCyclesAllowed`  int(10)  NULL DEFAULT NULL
  ,`idNumberSequencingCycles`  int(10)  NULL DEFAULT NULL
  ,`codeRequestCategory`  varchar(10)  NULL DEFAULT NULL
  ,`idSeqRunType`  int(10)  NULL DEFAULT NULL
  ,`name`  varchar(100)  NULL DEFAULT NULL
+ ,`notes`  varchar(500)  NULL DEFAULT NULL
  ,`isCustom`  char(1)  NULL DEFAULT NULL
  ,`sortOrder`  int(10)  NULL DEFAULT NULL
  ,`isActive`  char(1)  NULL DEFAULT NULL
  ,`protocolDescription`  longtext  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -13401,11 +14318,13 @@ INSERT INTO NumberSequencingCyclesAllowed_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idNumberSequencingCyclesAllowed
   , idNumberSequencingCycles
   , codeRequestCategory
   , idSeqRunType
   , name
+  , notes
   , isCustom
   , sortOrder
   , isActive
@@ -13415,11 +14334,13 @@ INSERT INTO NumberSequencingCyclesAllowed_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idNumberSequencingCyclesAllowed
   , idNumberSequencingCycles
   , codeRequestCategory
   , idSeqRunType
   , name
+  , notes
   , isCustom
   , sortOrder
   , isActive
@@ -13440,11 +14361,13 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idNumberSequencingCyclesAllowed
   , idNumberSequencingCycles
   , codeRequestCategory
   , idSeqRunType
   , name
+  , notes
   , isCustom
   , sortOrder
   , isActive
@@ -13454,11 +14377,13 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idNumberSequencingCyclesAllowed
   , NEW.idNumberSequencingCycles
   , NEW.codeRequestCategory
   , NEW.idSeqRunType
   , NEW.name
+  , NEW.notes
   , NEW.isCustom
   , NEW.sortOrder
   , NEW.isActive
@@ -13474,11 +14399,13 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idNumberSequencingCyclesAllowed
   , idNumberSequencingCycles
   , codeRequestCategory
   , idSeqRunType
   , name
+  , notes
   , isCustom
   , sortOrder
   , isActive
@@ -13488,11 +14415,13 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idNumberSequencingCyclesAllowed
   , NEW.idNumberSequencingCycles
   , NEW.codeRequestCategory
   , NEW.idSeqRunType
   , NEW.name
+  , NEW.notes
   , NEW.isCustom
   , NEW.sortOrder
   , NEW.isActive
@@ -13508,11 +14437,13 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idNumberSequencingCyclesAllowed
   , idNumberSequencingCycles
   , codeRequestCategory
   , idSeqRunType
   , name
+  , notes
   , isCustom
   , sortOrder
   , isActive
@@ -13522,11 +14453,13 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idNumberSequencingCyclesAllowed
   , OLD.idNumberSequencingCycles
   , OLD.codeRequestCategory
   , OLD.idSeqRunType
   , OLD.name
+  , OLD.notes
   , OLD.isCustom
   , OLD.sortOrder
   , OLD.isActive
@@ -13540,16 +14473,16 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `NumberSequencingCycles_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idNumberSequencingCycles`  int(10)  NULL DEFAULT NULL
  ,`numberSequencingCycles`  int(10)  NULL DEFAULT NULL
  ,`isActive`  char(1)  NULL DEFAULT NULL
- ,`sortOrder`  int(10)  NULL DEFAULT NULL
  ,`notes`  varchar(500)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -13562,20 +14495,20 @@ INSERT INTO NumberSequencingCycles_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idNumberSequencingCycles
   , numberSequencingCycles
   , isActive
-  , sortOrder
   , notes )
   SELECT
   'No Context'
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idNumberSequencingCycles
   , numberSequencingCycles
   , isActive
-  , sortOrder
   , notes
   FROM NumberSequencingCycles
   WHERE NOT EXISTS(SELECT * FROM NumberSequencingCycles_Audit)
@@ -13593,20 +14526,20 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idNumberSequencingCycles
   , numberSequencingCycles
   , isActive
-  , sortOrder
   , notes )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idNumberSequencingCycles
   , NEW.numberSequencingCycles
   , NEW.isActive
-  , NEW.sortOrder
   , NEW.notes );
 END;
 $$
@@ -13619,20 +14552,20 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idNumberSequencingCycles
   , numberSequencingCycles
   , isActive
-  , sortOrder
   , notes )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idNumberSequencingCycles
   , NEW.numberSequencingCycles
   , NEW.isActive
-  , NEW.sortOrder
   , NEW.notes );
 END;
 $$
@@ -13645,20 +14578,20 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idNumberSequencingCycles
   , numberSequencingCycles
   , isActive
-  , sortOrder
   , notes )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idNumberSequencingCycles
   , OLD.numberSequencingCycles
   , OLD.isActive
-  , OLD.sortOrder
   , OLD.notes );
 END;
 $$
@@ -13669,15 +14602,16 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `OligoBarcodeSchemeAllowed_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idOligoBarcodeSchemeAllowed`  int(10)  NULL DEFAULT NULL
  ,`idOligoBarcodeScheme`  int(10)  NULL DEFAULT NULL
  ,`idSeqLibProtocol`  int(10)  NULL DEFAULT NULL
  ,`isIndexGroupB`  char(1)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -13690,6 +14624,7 @@ INSERT INTO OligoBarcodeSchemeAllowed_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idOligoBarcodeSchemeAllowed
   , idOligoBarcodeScheme
   , idSeqLibProtocol
@@ -13699,6 +14634,7 @@ INSERT INTO OligoBarcodeSchemeAllowed_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idOligoBarcodeSchemeAllowed
   , idOligoBarcodeScheme
   , idSeqLibProtocol
@@ -13719,6 +14655,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idOligoBarcodeSchemeAllowed
   , idOligoBarcodeScheme
   , idSeqLibProtocol
@@ -13728,6 +14665,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idOligoBarcodeSchemeAllowed
   , NEW.idOligoBarcodeScheme
   , NEW.idSeqLibProtocol
@@ -13743,6 +14681,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idOligoBarcodeSchemeAllowed
   , idOligoBarcodeScheme
   , idSeqLibProtocol
@@ -13752,6 +14691,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idOligoBarcodeSchemeAllowed
   , NEW.idOligoBarcodeScheme
   , NEW.idSeqLibProtocol
@@ -13767,6 +14707,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idOligoBarcodeSchemeAllowed
   , idOligoBarcodeScheme
   , idSeqLibProtocol
@@ -13776,6 +14717,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idOligoBarcodeSchemeAllowed
   , OLD.idOligoBarcodeScheme
   , OLD.idSeqLibProtocol
@@ -13789,15 +14731,16 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `OligoBarcodeScheme_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idOligoBarcodeScheme`  int(10)  NULL DEFAULT NULL
  ,`oligoBarcodeScheme`  varchar(200)  NULL DEFAULT NULL
  ,`description`  varchar(2000)  NULL DEFAULT NULL
  ,`isActive`  char(1)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -13810,6 +14753,7 @@ INSERT INTO OligoBarcodeScheme_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idOligoBarcodeScheme
   , oligoBarcodeScheme
   , description
@@ -13819,6 +14763,7 @@ INSERT INTO OligoBarcodeScheme_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idOligoBarcodeScheme
   , oligoBarcodeScheme
   , description
@@ -13839,6 +14784,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idOligoBarcodeScheme
   , oligoBarcodeScheme
   , description
@@ -13848,6 +14794,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idOligoBarcodeScheme
   , NEW.oligoBarcodeScheme
   , NEW.description
@@ -13863,6 +14810,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idOligoBarcodeScheme
   , oligoBarcodeScheme
   , description
@@ -13872,6 +14820,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idOligoBarcodeScheme
   , NEW.oligoBarcodeScheme
   , NEW.description
@@ -13887,6 +14836,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idOligoBarcodeScheme
   , oligoBarcodeScheme
   , description
@@ -13896,6 +14846,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idOligoBarcodeScheme
   , OLD.oligoBarcodeScheme
   , OLD.description
@@ -13909,17 +14860,18 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `OligoBarcode_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idOligoBarcode`  int(10)  NULL DEFAULT NULL
- ,`name`  varchar(50)  NULL DEFAULT NULL
  ,`barcodeSequence`  varchar(20)  NULL DEFAULT NULL
+ ,`isActive`  char(1)  NULL DEFAULT NULL
  ,`idOligoBarcodeScheme`  int(10)  NULL DEFAULT NULL
  ,`sortOrder`  int(10)  NULL DEFAULT NULL
- ,`isActive`  char(1)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+ ,`name`  varchar(50)  NULL DEFAULT NULL
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -13932,23 +14884,25 @@ INSERT INTO OligoBarcode_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idOligoBarcode
-  , name
   , barcodeSequence
+  , isActive
   , idOligoBarcodeScheme
   , sortOrder
-  , isActive )
+  , name )
   SELECT
   'No Context'
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idOligoBarcode
-  , name
   , barcodeSequence
+  , isActive
   , idOligoBarcodeScheme
   , sortOrder
-  , isActive
+  , name
   FROM OligoBarcode
   WHERE NOT EXISTS(SELECT * FROM OligoBarcode_Audit)
 $$
@@ -13965,23 +14919,25 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idOligoBarcode
-  , name
   , barcodeSequence
+  , isActive
   , idOligoBarcodeScheme
   , sortOrder
-  , isActive )
+  , name )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idOligoBarcode
-  , NEW.name
   , NEW.barcodeSequence
+  , NEW.isActive
   , NEW.idOligoBarcodeScheme
   , NEW.sortOrder
-  , NEW.isActive );
+  , NEW.name );
 END;
 $$
 
@@ -13993,23 +14949,25 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idOligoBarcode
-  , name
   , barcodeSequence
+  , isActive
   , idOligoBarcodeScheme
   , sortOrder
-  , isActive )
+  , name )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idOligoBarcode
-  , NEW.name
   , NEW.barcodeSequence
+  , NEW.isActive
   , NEW.idOligoBarcodeScheme
   , NEW.sortOrder
-  , NEW.isActive );
+  , NEW.name );
 END;
 $$
 
@@ -14021,23 +14979,25 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idOligoBarcode
-  , name
   , barcodeSequence
+  , isActive
   , idOligoBarcodeScheme
   , sortOrder
-  , isActive )
+  , name )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idOligoBarcode
-  , OLD.name
   , OLD.barcodeSequence
+  , OLD.isActive
   , OLD.idOligoBarcodeScheme
   , OLD.sortOrder
-  , OLD.isActive );
+  , OLD.name );
 END;
 $$
 
@@ -14047,10 +15007,11 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `Organism_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idOrganism`  int(10)  NULL DEFAULT NULL
  ,`organism`  varchar(50)  NULL DEFAULT NULL
  ,`abbreviation`  varchar(10)  NULL DEFAULT NULL
@@ -14062,7 +15023,7 @@ CREATE TABLE IF NOT EXISTS `Organism_Audit` (
  ,`sortOrder`  int(10) unsigned  NULL DEFAULT NULL
  ,`binomialName`  varchar(200)  NULL DEFAULT NULL
  ,`NCBITaxID`  varchar(45)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -14075,6 +15036,7 @@ INSERT INTO Organism_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idOrganism
   , organism
   , abbreviation
@@ -14091,6 +15053,7 @@ INSERT INTO Organism_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idOrganism
   , organism
   , abbreviation
@@ -14118,6 +15081,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idOrganism
   , organism
   , abbreviation
@@ -14134,6 +15098,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idOrganism
   , NEW.organism
   , NEW.abbreviation
@@ -14156,6 +15121,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idOrganism
   , organism
   , abbreviation
@@ -14172,6 +15138,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idOrganism
   , NEW.organism
   , NEW.abbreviation
@@ -14194,6 +15161,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idOrganism
   , organism
   , abbreviation
@@ -14210,6 +15178,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idOrganism
   , OLD.organism
   , OLD.abbreviation
@@ -14230,15 +15199,16 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `OtherAccountFieldsConfiguration_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idOtherAccountFieldsConfiguration`  int(10)  NULL DEFAULT NULL
  ,`fieldName`  varchar(50)  NULL DEFAULT NULL
  ,`include`  char(1)  NULL DEFAULT NULL
  ,`isRequired`  char(1)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -14251,6 +15221,7 @@ INSERT INTO OtherAccountFieldsConfiguration_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idOtherAccountFieldsConfiguration
   , fieldName
   , include
@@ -14260,6 +15231,7 @@ INSERT INTO OtherAccountFieldsConfiguration_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idOtherAccountFieldsConfiguration
   , fieldName
   , include
@@ -14280,6 +15252,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idOtherAccountFieldsConfiguration
   , fieldName
   , include
@@ -14289,6 +15262,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idOtherAccountFieldsConfiguration
   , NEW.fieldName
   , NEW.include
@@ -14304,6 +15278,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idOtherAccountFieldsConfiguration
   , fieldName
   , include
@@ -14313,6 +15288,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idOtherAccountFieldsConfiguration
   , NEW.fieldName
   , NEW.include
@@ -14328,6 +15304,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idOtherAccountFieldsConfiguration
   , fieldName
   , include
@@ -14337,6 +15314,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idOtherAccountFieldsConfiguration
   , OLD.fieldName
   , OLD.include
@@ -14350,14 +15328,15 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `PlateType_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`codePlateType`  varchar(10)  NULL DEFAULT NULL
  ,`plateTypeDescription`  varchar(50)  NULL DEFAULT NULL
  ,`isActive`  char(1)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -14370,6 +15349,7 @@ INSERT INTO PlateType_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codePlateType
   , plateTypeDescription
   , isActive )
@@ -14378,6 +15358,7 @@ INSERT INTO PlateType_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , codePlateType
   , plateTypeDescription
   , isActive
@@ -14397,6 +15378,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codePlateType
   , plateTypeDescription
   , isActive )
@@ -14405,6 +15387,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.codePlateType
   , NEW.plateTypeDescription
   , NEW.isActive );
@@ -14419,6 +15402,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codePlateType
   , plateTypeDescription
   , isActive )
@@ -14427,6 +15411,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.codePlateType
   , NEW.plateTypeDescription
   , NEW.isActive );
@@ -14441,6 +15426,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codePlateType
   , plateTypeDescription
   , isActive )
@@ -14449,6 +15435,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.codePlateType
   , OLD.plateTypeDescription
   , OLD.isActive );
@@ -14461,10 +15448,11 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `PlateWell_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idPlateWell`  int(10)  NULL DEFAULT NULL
  ,`row`  varchar(50)  NULL DEFAULT NULL
  ,`col`  int(10)  NULL DEFAULT NULL
@@ -14478,7 +15466,7 @@ CREATE TABLE IF NOT EXISTS `PlateWell_Audit` (
  ,`isControl`  char(1)  NULL DEFAULT NULL
  ,`idAssay`  int(10)  NULL DEFAULT NULL
  ,`idPrimer`  int(10)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -14491,6 +15479,7 @@ INSERT INTO PlateWell_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idPlateWell
   , row
   , col
@@ -14509,6 +15498,7 @@ INSERT INTO PlateWell_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idPlateWell
   , row
   , col
@@ -14538,6 +15528,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idPlateWell
   , row
   , col
@@ -14556,6 +15547,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idPlateWell
   , NEW.row
   , NEW.col
@@ -14580,6 +15572,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idPlateWell
   , row
   , col
@@ -14598,6 +15591,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idPlateWell
   , NEW.row
   , NEW.col
@@ -14622,6 +15616,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idPlateWell
   , row
   , col
@@ -14640,6 +15635,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idPlateWell
   , OLD.row
   , OLD.col
@@ -14662,10 +15658,11 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `Plate_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idPlate`  int(10)  NULL DEFAULT NULL
  ,`idInstrumentRun`  int(10)  NULL DEFAULT NULL
  ,`codePlateType`  varchar(10)  NULL DEFAULT NULL
@@ -14676,7 +15673,7 @@ CREATE TABLE IF NOT EXISTS `Plate_Audit` (
  ,`codeReactionType`  varchar(10)  NULL DEFAULT NULL
  ,`creator`  varchar(50)  NULL DEFAULT NULL
  ,`codeSealType`  varchar(10)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -14689,6 +15686,7 @@ INSERT INTO Plate_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idPlate
   , idInstrumentRun
   , codePlateType
@@ -14704,6 +15702,7 @@ INSERT INTO Plate_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idPlate
   , idInstrumentRun
   , codePlateType
@@ -14730,6 +15729,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idPlate
   , idInstrumentRun
   , codePlateType
@@ -14745,6 +15745,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idPlate
   , NEW.idInstrumentRun
   , NEW.codePlateType
@@ -14766,6 +15767,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idPlate
   , idInstrumentRun
   , codePlateType
@@ -14781,6 +15783,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idPlate
   , NEW.idInstrumentRun
   , NEW.codePlateType
@@ -14802,6 +15805,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idPlate
   , idInstrumentRun
   , codePlateType
@@ -14817,6 +15821,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idPlate
   , OLD.idInstrumentRun
   , OLD.codePlateType
@@ -14836,13 +15841,14 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `PriceCategoryStep_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idPriceCategory`  int(10)  NULL DEFAULT NULL
- ,`codeStep`  varchar(10)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+ ,`codeStep`  varchar(20)  NULL DEFAULT NULL
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -14855,6 +15861,7 @@ INSERT INTO PriceCategoryStep_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idPriceCategory
   , codeStep )
   SELECT
@@ -14862,6 +15869,7 @@ INSERT INTO PriceCategoryStep_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idPriceCategory
   , codeStep
   FROM PriceCategoryStep
@@ -14880,6 +15888,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idPriceCategory
   , codeStep )
   VALUES
@@ -14887,6 +15896,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idPriceCategory
   , NEW.codeStep );
 END;
@@ -14900,6 +15910,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idPriceCategory
   , codeStep )
   VALUES
@@ -14907,6 +15918,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idPriceCategory
   , NEW.codeStep );
 END;
@@ -14920,6 +15932,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idPriceCategory
   , codeStep )
   VALUES
@@ -14927,6 +15940,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idPriceCategory
   , OLD.codeStep );
 END;
@@ -14938,10 +15952,11 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `PriceCategory_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idPriceCategory`  int(10)  NULL DEFAULT NULL
  ,`name`  varchar(200)  NULL DEFAULT NULL
  ,`description`  varchar(5000)  NULL DEFAULT NULL
@@ -14950,7 +15965,7 @@ CREATE TABLE IF NOT EXISTS `PriceCategory_Audit` (
  ,`dictionaryClassNameFilter1`  varchar(500)  NULL DEFAULT NULL
  ,`dictionaryClassNameFilter2`  varchar(500)  NULL DEFAULT NULL
  ,`isActive`  char(1)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -14963,6 +15978,7 @@ INSERT INTO PriceCategory_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idPriceCategory
   , name
   , description
@@ -14976,6 +15992,7 @@ INSERT INTO PriceCategory_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idPriceCategory
   , name
   , description
@@ -15000,6 +16017,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idPriceCategory
   , name
   , description
@@ -15013,6 +16031,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idPriceCategory
   , NEW.name
   , NEW.description
@@ -15032,6 +16051,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idPriceCategory
   , name
   , description
@@ -15045,6 +16065,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idPriceCategory
   , NEW.name
   , NEW.description
@@ -15064,6 +16085,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idPriceCategory
   , name
   , description
@@ -15077,6 +16099,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idPriceCategory
   , OLD.name
   , OLD.description
@@ -15094,15 +16117,16 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `PriceCriteria_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idPriceCriteria`  int(10)  NULL DEFAULT NULL
  ,`filter1`  varchar(20)  NULL DEFAULT NULL
  ,`filter2`  varchar(20)  NULL DEFAULT NULL
  ,`idPrice`  int(10)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -15115,6 +16139,7 @@ INSERT INTO PriceCriteria_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idPriceCriteria
   , filter1
   , filter2
@@ -15124,6 +16149,7 @@ INSERT INTO PriceCriteria_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idPriceCriteria
   , filter1
   , filter2
@@ -15144,6 +16170,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idPriceCriteria
   , filter1
   , filter2
@@ -15153,6 +16180,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idPriceCriteria
   , NEW.filter1
   , NEW.filter2
@@ -15168,6 +16196,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idPriceCriteria
   , filter1
   , filter2
@@ -15177,6 +16206,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idPriceCriteria
   , NEW.filter1
   , NEW.filter2
@@ -15192,6 +16222,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idPriceCriteria
   , filter1
   , filter2
@@ -15201,6 +16232,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idPriceCriteria
   , OLD.filter1
   , OLD.filter2
@@ -15214,14 +16246,15 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `PriceSheetPriceCategory_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idPriceSheet`  int(10)  NULL DEFAULT NULL
  ,`idPriceCategory`  int(10)  NULL DEFAULT NULL
  ,`sortOrder`  int(10)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -15234,6 +16267,7 @@ INSERT INTO PriceSheetPriceCategory_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idPriceSheet
   , idPriceCategory
   , sortOrder )
@@ -15242,6 +16276,7 @@ INSERT INTO PriceSheetPriceCategory_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idPriceSheet
   , idPriceCategory
   , sortOrder
@@ -15261,6 +16296,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idPriceSheet
   , idPriceCategory
   , sortOrder )
@@ -15269,6 +16305,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idPriceSheet
   , NEW.idPriceCategory
   , NEW.sortOrder );
@@ -15283,6 +16320,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idPriceSheet
   , idPriceCategory
   , sortOrder )
@@ -15291,6 +16329,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idPriceSheet
   , NEW.idPriceCategory
   , NEW.sortOrder );
@@ -15305,6 +16344,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idPriceSheet
   , idPriceCategory
   , sortOrder )
@@ -15313,6 +16353,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idPriceSheet
   , OLD.idPriceCategory
   , OLD.sortOrder );
@@ -15325,13 +16366,14 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `PriceSheetRequestCategory_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idPriceSheet`  int(10)  NULL DEFAULT NULL
  ,`codeRequestCategory`  varchar(10)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -15344,6 +16386,7 @@ INSERT INTO PriceSheetRequestCategory_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idPriceSheet
   , codeRequestCategory )
   SELECT
@@ -15351,6 +16394,7 @@ INSERT INTO PriceSheetRequestCategory_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idPriceSheet
   , codeRequestCategory
   FROM PriceSheetRequestCategory
@@ -15369,6 +16413,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idPriceSheet
   , codeRequestCategory )
   VALUES
@@ -15376,6 +16421,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idPriceSheet
   , NEW.codeRequestCategory );
 END;
@@ -15389,6 +16435,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idPriceSheet
   , codeRequestCategory )
   VALUES
@@ -15396,6 +16443,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idPriceSheet
   , NEW.codeRequestCategory );
 END;
@@ -15409,6 +16457,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idPriceSheet
   , codeRequestCategory )
   VALUES
@@ -15416,6 +16465,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idPriceSheet
   , OLD.codeRequestCategory );
 END;
@@ -15427,15 +16477,16 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `PriceSheet_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idPriceSheet`  int(10)  NULL DEFAULT NULL
  ,`name`  varchar(200)  NULL DEFAULT NULL
  ,`description`  varchar(500)  NULL DEFAULT NULL
  ,`isActive`  char(1)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -15448,6 +16499,7 @@ INSERT INTO PriceSheet_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idPriceSheet
   , name
   , description
@@ -15457,6 +16509,7 @@ INSERT INTO PriceSheet_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idPriceSheet
   , name
   , description
@@ -15477,6 +16530,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idPriceSheet
   , name
   , description
@@ -15486,6 +16540,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idPriceSheet
   , NEW.name
   , NEW.description
@@ -15501,6 +16556,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idPriceSheet
   , name
   , description
@@ -15510,6 +16566,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idPriceSheet
   , NEW.name
   , NEW.description
@@ -15525,6 +16582,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idPriceSheet
   , name
   , description
@@ -15534,6 +16592,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idPriceSheet
   , OLD.name
   , OLD.description
@@ -15547,10 +16606,11 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `Price_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idPrice`  int(10)  NULL DEFAULT NULL
  ,`name`  varchar(200)  NULL DEFAULT NULL
  ,`description`  varchar(500)  NULL DEFAULT NULL
@@ -15559,7 +16619,7 @@ CREATE TABLE IF NOT EXISTS `Price_Audit` (
  ,`unitPriceExternalCommercial`  decimal(7,2)  NULL DEFAULT NULL
  ,`idPriceCategory`  int(10)  NULL DEFAULT NULL
  ,`isActive`  char(1)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -15572,6 +16632,7 @@ INSERT INTO Price_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idPrice
   , name
   , description
@@ -15585,6 +16646,7 @@ INSERT INTO Price_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idPrice
   , name
   , description
@@ -15609,6 +16671,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idPrice
   , name
   , description
@@ -15622,6 +16685,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idPrice
   , NEW.name
   , NEW.description
@@ -15641,6 +16705,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idPrice
   , name
   , description
@@ -15654,6 +16719,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idPrice
   , NEW.name
   , NEW.description
@@ -15673,6 +16739,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idPrice
   , name
   , description
@@ -15686,6 +16753,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idPrice
   , OLD.name
   , OLD.description
@@ -15703,16 +16771,17 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `Primer_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idPrimer`  int(10)  NULL DEFAULT NULL
  ,`name`  varchar(50)  NULL DEFAULT NULL
  ,`description`  varchar(200)  NULL DEFAULT NULL
  ,`sequence`  varchar(2000)  NULL DEFAULT NULL
  ,`isActive`  char(1)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -15725,6 +16794,7 @@ INSERT INTO Primer_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idPrimer
   , name
   , description
@@ -15735,6 +16805,7 @@ INSERT INTO Primer_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idPrimer
   , name
   , description
@@ -15756,6 +16827,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idPrimer
   , name
   , description
@@ -15766,6 +16838,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idPrimer
   , NEW.name
   , NEW.description
@@ -15782,6 +16855,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idPrimer
   , name
   , description
@@ -15792,6 +16866,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idPrimer
   , NEW.name
   , NEW.description
@@ -15808,6 +16883,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idPrimer
   , name
   , description
@@ -15818,6 +16894,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idPrimer
   , OLD.name
   , OLD.description
@@ -15832,20 +16909,21 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `ProductLedger_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idProductLedger`  int(10)  NULL DEFAULT NULL
  ,`idLab`  int(10)  NULL DEFAULT NULL
  ,`idProduct`  int(10)  NULL DEFAULT NULL
  ,`qty`  int(10)  NULL DEFAULT NULL
  ,`comment`  varchar(5000)  NULL DEFAULT NULL
- ,`timeStame`  datetime  NULL DEFAULT NULL
+ ,`timeStamp`  datetime  NULL DEFAULT NULL
  ,`idProductOrder`  int(10)  NULL DEFAULT NULL
  ,`idRequest`  int(10)  NULL DEFAULT NULL
  ,`notes`  varchar(5000)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -15858,12 +16936,13 @@ INSERT INTO ProductLedger_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idProductLedger
   , idLab
   , idProduct
   , qty
   , comment
-  , timeStame
+  , timeStamp
   , idProductOrder
   , idRequest
   , notes )
@@ -15872,12 +16951,13 @@ INSERT INTO ProductLedger_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idProductLedger
   , idLab
   , idProduct
   , qty
   , comment
-  , timeStame
+  , timeStamp
   , idProductOrder
   , idRequest
   , notes
@@ -15897,12 +16977,13 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idProductLedger
   , idLab
   , idProduct
   , qty
   , comment
-  , timeStame
+  , timeStamp
   , idProductOrder
   , idRequest
   , notes )
@@ -15911,12 +16992,13 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idProductLedger
   , NEW.idLab
   , NEW.idProduct
   , NEW.qty
   , NEW.comment
-  , NEW.timeStame
+  , NEW.timeStamp
   , NEW.idProductOrder
   , NEW.idRequest
   , NEW.notes );
@@ -15931,12 +17013,13 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idProductLedger
   , idLab
   , idProduct
   , qty
   , comment
-  , timeStame
+  , timeStamp
   , idProductOrder
   , idRequest
   , notes )
@@ -15945,12 +17028,13 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idProductLedger
   , NEW.idLab
   , NEW.idProduct
   , NEW.qty
   , NEW.comment
-  , NEW.timeStame
+  , NEW.timeStamp
   , NEW.idProductOrder
   , NEW.idRequest
   , NEW.notes );
@@ -15965,12 +17049,13 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idProductLedger
   , idLab
   , idProduct
   , qty
   , comment
-  , timeStame
+  , timeStamp
   , idProductOrder
   , idRequest
   , notes )
@@ -15979,12 +17064,13 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idProductLedger
   , OLD.idLab
   , OLD.idProduct
   , OLD.qty
   , OLD.comment
-  , OLD.timeStame
+  , OLD.timeStamp
   , OLD.idProductOrder
   , OLD.idRequest
   , OLD.notes );
@@ -15997,17 +17083,18 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `ProductLineItem_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idProductLineItem`  int(10)  NULL DEFAULT NULL
  ,`idProductOrder`  int(10)  NULL DEFAULT NULL
  ,`idProduct`  int(10)  NULL DEFAULT NULL
  ,`qty`  int(10)  NULL DEFAULT NULL
  ,`unitPrice`  decimal(7,2)  NULL DEFAULT NULL
  ,`codeProductOrderStatus`  varchar(10)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -16020,6 +17107,7 @@ INSERT INTO ProductLineItem_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idProductLineItem
   , idProductOrder
   , idProduct
@@ -16031,6 +17119,7 @@ INSERT INTO ProductLineItem_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idProductLineItem
   , idProductOrder
   , idProduct
@@ -16053,6 +17142,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idProductLineItem
   , idProductOrder
   , idProduct
@@ -16064,6 +17154,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idProductLineItem
   , NEW.idProductOrder
   , NEW.idProduct
@@ -16081,6 +17172,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idProductLineItem
   , idProductOrder
   , idProduct
@@ -16092,6 +17184,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idProductLineItem
   , NEW.idProductOrder
   , NEW.idProduct
@@ -16109,6 +17202,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idProductLineItem
   , idProductOrder
   , idProduct
@@ -16120,6 +17214,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idProductLineItem
   , OLD.idProductOrder
   , OLD.idProduct
@@ -16135,10 +17230,11 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `ProductOrderFile_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idProductOrderFile`  int(10)  NULL DEFAULT NULL
  ,`idProductOrder`  int(10)  NULL DEFAULT NULL
  ,`fileName`  varchar(2000)  NULL DEFAULT NULL
@@ -16146,7 +17242,7 @@ CREATE TABLE IF NOT EXISTS `ProductOrderFile_Audit` (
  ,`createDate`  date  NULL DEFAULT NULL
  ,`baseFilePath`  varchar(300)  NULL DEFAULT NULL
  ,`qualifiedFilePath`  varchar(300)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -16159,6 +17255,7 @@ INSERT INTO ProductOrderFile_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idProductOrderFile
   , idProductOrder
   , fileName
@@ -16171,6 +17268,7 @@ INSERT INTO ProductOrderFile_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idProductOrderFile
   , idProductOrder
   , fileName
@@ -16194,6 +17292,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idProductOrderFile
   , idProductOrder
   , fileName
@@ -16206,6 +17305,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idProductOrderFile
   , NEW.idProductOrder
   , NEW.fileName
@@ -16224,6 +17324,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idProductOrderFile
   , idProductOrder
   , fileName
@@ -16236,6 +17337,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idProductOrderFile
   , NEW.idProductOrder
   , NEW.fileName
@@ -16254,6 +17356,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idProductOrderFile
   , idProductOrder
   , fileName
@@ -16266,6 +17369,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idProductOrderFile
   , OLD.idProductOrder
   , OLD.fileName
@@ -16282,14 +17386,15 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `ProductOrderStatus_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`codeProductOrderStatus`  varchar(10)  NULL DEFAULT NULL
  ,`productOrderStatus`  varchar(50)  NULL DEFAULT NULL
  ,`isActive`  char(1)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -16302,6 +17407,7 @@ INSERT INTO ProductOrderStatus_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeProductOrderStatus
   , productOrderStatus
   , isActive )
@@ -16310,6 +17416,7 @@ INSERT INTO ProductOrderStatus_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , codeProductOrderStatus
   , productOrderStatus
   , isActive
@@ -16329,6 +17436,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeProductOrderStatus
   , productOrderStatus
   , isActive )
@@ -16337,6 +17445,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.codeProductOrderStatus
   , NEW.productOrderStatus
   , NEW.isActive );
@@ -16351,6 +17460,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeProductOrderStatus
   , productOrderStatus
   , isActive )
@@ -16359,6 +17469,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.codeProductOrderStatus
   , NEW.productOrderStatus
   , NEW.isActive );
@@ -16373,6 +17484,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeProductOrderStatus
   , productOrderStatus
   , isActive )
@@ -16381,6 +17493,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.codeProductOrderStatus
   , OLD.productOrderStatus
   , OLD.isActive );
@@ -16393,10 +17506,11 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `ProductOrder_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idProductOrder`  int(10)  NULL DEFAULT NULL
  ,`idAppUser`  int(10)  NULL DEFAULT NULL
  ,`idLab`  int(10)  NULL DEFAULT NULL
@@ -16407,7 +17521,7 @@ CREATE TABLE IF NOT EXISTS `ProductOrder_Audit` (
  ,`quoteReceivedDate`  datetime  NULL DEFAULT NULL
  ,`idBillingAccount`  int(10)  NULL DEFAULT NULL
  ,`productOrderNumber`  varchar(10)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -16420,6 +17534,7 @@ INSERT INTO ProductOrder_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idProductOrder
   , idAppUser
   , idLab
@@ -16435,6 +17550,7 @@ INSERT INTO ProductOrder_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idProductOrder
   , idAppUser
   , idLab
@@ -16461,6 +17577,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idProductOrder
   , idAppUser
   , idLab
@@ -16476,6 +17593,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idProductOrder
   , NEW.idAppUser
   , NEW.idLab
@@ -16497,6 +17615,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idProductOrder
   , idAppUser
   , idLab
@@ -16512,6 +17631,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idProductOrder
   , NEW.idAppUser
   , NEW.idLab
@@ -16533,6 +17653,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idProductOrder
   , idAppUser
   , idLab
@@ -16548,6 +17669,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idProductOrder
   , OLD.idAppUser
   , OLD.idLab
@@ -16567,16 +17689,17 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `ProductType_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
- ,`idProductType`  int(10)  NULL DEFAULT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`description`  varchar(500)  NULL DEFAULT NULL
  ,`idCoreFacility`  int(10)  NULL DEFAULT NULL
  ,`idVendor`  int(10)  NULL DEFAULT NULL
  ,`idPriceCategory`  int(10)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+ ,`idProductType`  int(10)  NULL DEFAULT NULL
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -16589,21 +17712,23 @@ INSERT INTO ProductType_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
-  , idProductType
+  , AuditEditedByPersonID
   , description
   , idCoreFacility
   , idVendor
-  , idPriceCategory )
+  , idPriceCategory
+  , idProductType )
   SELECT
   'No Context'
   , 'L'
   , USER()
   , NOW()
-  , idProductType
+  , 0
   , description
   , idCoreFacility
   , idVendor
   , idPriceCategory
+  , idProductType
   FROM ProductType
   WHERE NOT EXISTS(SELECT * FROM ProductType_Audit)
 $$
@@ -16620,21 +17745,23 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
-  , idProductType
+  , AuditEditedByPersonID
   , description
   , idCoreFacility
   , idVendor
-  , idPriceCategory )
+  , idPriceCategory
+  , idProductType )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
   , USER()
   , NOW()
-  , NEW.idProductType
+  , 0
   , NEW.description
   , NEW.idCoreFacility
   , NEW.idVendor
-  , NEW.idPriceCategory );
+  , NEW.idPriceCategory
+  , NEW.idProductType );
 END;
 $$
 
@@ -16646,21 +17773,23 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
-  , idProductType
+  , AuditEditedByPersonID
   , description
   , idCoreFacility
   , idVendor
-  , idPriceCategory )
+  , idPriceCategory
+  , idProductType )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
   , USER()
   , NOW()
-  , NEW.idProductType
+  , 0
   , NEW.description
   , NEW.idCoreFacility
   , NEW.idVendor
-  , NEW.idPriceCategory );
+  , NEW.idPriceCategory
+  , NEW.idProductType );
 END;
 $$
 
@@ -16672,21 +17801,23 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
-  , idProductType
+  , AuditEditedByPersonID
   , description
   , idCoreFacility
   , idVendor
-  , idPriceCategory )
+  , idPriceCategory
+  , idProductType )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
   , USER()
   , NOW()
-  , OLD.idProductType
+  , 0
   , OLD.description
   , OLD.idCoreFacility
   , OLD.idVendor
-  , OLD.idPriceCategory );
+  , OLD.idPriceCategory
+  , OLD.idProductType );
 END;
 $$
 
@@ -16696,10 +17827,11 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `Product_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idProduct`  int(10)  NULL DEFAULT NULL
  ,`name`  varchar(200)  NULL DEFAULT NULL
  ,`idProductType`  int(10)  NULL DEFAULT NULL
@@ -16711,7 +17843,7 @@ CREATE TABLE IF NOT EXISTS `Product_Audit` (
  ,`batchSamplesByUseQuantity`  char(1)  NULL DEFAULT NULL
  ,`billThroughGnomex`  char(1)  NULL DEFAULT NULL
  ,`description`  varchar(500)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -16724,6 +17856,7 @@ INSERT INTO Product_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idProduct
   , name
   , idProductType
@@ -16740,6 +17873,7 @@ INSERT INTO Product_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idProduct
   , name
   , idProductType
@@ -16767,6 +17901,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idProduct
   , name
   , idProductType
@@ -16783,6 +17918,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idProduct
   , NEW.name
   , NEW.idProductType
@@ -16805,6 +17941,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idProduct
   , name
   , idProductType
@@ -16821,6 +17958,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idProduct
   , NEW.name
   , NEW.idProductType
@@ -16843,6 +17981,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idProduct
   , name
   , idProductType
@@ -16859,6 +17998,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idProduct
   , OLD.name
   , OLD.idProductType
@@ -16879,10 +18019,11 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `Project_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idProject`  int(10)  NULL DEFAULT NULL
  ,`name`  varchar(200)  NULL DEFAULT NULL
  ,`description`  varchar(4000)  NULL DEFAULT NULL
@@ -16890,7 +18031,7 @@ CREATE TABLE IF NOT EXISTS `Project_Audit` (
  ,`idLab`  int(10)  NULL DEFAULT NULL
  ,`idAppUser`  int(10)  NULL DEFAULT NULL
  ,`codeVisibility`  varchar(10)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -16903,6 +18044,7 @@ INSERT INTO Project_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idProject
   , name
   , description
@@ -16915,6 +18057,7 @@ INSERT INTO Project_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idProject
   , name
   , description
@@ -16938,6 +18081,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idProject
   , name
   , description
@@ -16950,6 +18094,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idProject
   , NEW.name
   , NEW.description
@@ -16968,6 +18113,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idProject
   , name
   , description
@@ -16980,6 +18126,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idProject
   , NEW.name
   , NEW.description
@@ -16998,6 +18145,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idProject
   , name
   , description
@@ -17010,6 +18158,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idProject
   , OLD.name
   , OLD.description
@@ -17026,13 +18175,14 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `PropertyAnalysisType_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idProperty`  int(10)  NULL DEFAULT NULL
  ,`idAnalysisType`  int(10)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -17045,6 +18195,7 @@ INSERT INTO PropertyAnalysisType_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idProperty
   , idAnalysisType )
   SELECT
@@ -17052,6 +18203,7 @@ INSERT INTO PropertyAnalysisType_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idProperty
   , idAnalysisType
   FROM PropertyAnalysisType
@@ -17070,6 +18222,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idProperty
   , idAnalysisType )
   VALUES
@@ -17077,6 +18230,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idProperty
   , NEW.idAnalysisType );
 END;
@@ -17090,6 +18244,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idProperty
   , idAnalysisType )
   VALUES
@@ -17097,6 +18252,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idProperty
   , NEW.idAnalysisType );
 END;
@@ -17110,6 +18266,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idProperty
   , idAnalysisType )
   VALUES
@@ -17117,6 +18274,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idProperty
   , OLD.idAnalysisType );
 END;
@@ -17128,13 +18286,14 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `PropertyAppUser_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idProperty`  int(10)  NULL DEFAULT NULL
  ,`idAppUser`  int(10)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -17147,6 +18306,7 @@ INSERT INTO PropertyAppUser_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idProperty
   , idAppUser )
   SELECT
@@ -17154,6 +18314,7 @@ INSERT INTO PropertyAppUser_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idProperty
   , idAppUser
   FROM PropertyAppUser
@@ -17172,6 +18333,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idProperty
   , idAppUser )
   VALUES
@@ -17179,6 +18341,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idProperty
   , NEW.idAppUser );
 END;
@@ -17192,6 +18355,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idProperty
   , idAppUser )
   VALUES
@@ -17199,6 +18363,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idProperty
   , NEW.idAppUser );
 END;
@@ -17212,6 +18377,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idProperty
   , idAppUser )
   VALUES
@@ -17219,6 +18385,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idProperty
   , OLD.idAppUser );
 END;
@@ -17230,10 +18397,11 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `PropertyDictionary_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idPropertyDictionary`  int(10)  NULL DEFAULT NULL
  ,`propertyName`  varchar(200)  NULL DEFAULT NULL
  ,`propertyValue`  varchar(2000)  NULL DEFAULT NULL
@@ -17241,7 +18409,7 @@ CREATE TABLE IF NOT EXISTS `PropertyDictionary_Audit` (
  ,`forServerOnly`  char(1)  NULL DEFAULT NULL
  ,`idCoreFacility`  int(10)  NULL DEFAULT NULL
  ,`codeRequestCategory`  varchar(10)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -17254,6 +18422,7 @@ INSERT INTO PropertyDictionary_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idPropertyDictionary
   , propertyName
   , propertyValue
@@ -17266,6 +18435,7 @@ INSERT INTO PropertyDictionary_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idPropertyDictionary
   , propertyName
   , propertyValue
@@ -17289,6 +18459,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idPropertyDictionary
   , propertyName
   , propertyValue
@@ -17301,6 +18472,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idPropertyDictionary
   , NEW.propertyName
   , NEW.propertyValue
@@ -17319,6 +18491,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idPropertyDictionary
   , propertyName
   , propertyValue
@@ -17331,6 +18504,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idPropertyDictionary
   , NEW.propertyName
   , NEW.propertyValue
@@ -17349,6 +18523,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idPropertyDictionary
   , propertyName
   , propertyValue
@@ -17361,6 +18536,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idPropertyDictionary
   , OLD.propertyName
   , OLD.propertyValue
@@ -17377,13 +18553,14 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `PropertyEntryOption_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idPropertyEntry`  int(10)  NULL DEFAULT NULL
  ,`idPropertyOption`  int(10)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -17396,6 +18573,7 @@ INSERT INTO PropertyEntryOption_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idPropertyEntry
   , idPropertyOption )
   SELECT
@@ -17403,6 +18581,7 @@ INSERT INTO PropertyEntryOption_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idPropertyEntry
   , idPropertyOption
   FROM PropertyEntryOption
@@ -17421,6 +18600,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idPropertyEntry
   , idPropertyOption )
   VALUES
@@ -17428,6 +18608,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idPropertyEntry
   , NEW.idPropertyOption );
 END;
@@ -17441,6 +18622,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idPropertyEntry
   , idPropertyOption )
   VALUES
@@ -17448,6 +18630,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idPropertyEntry
   , NEW.idPropertyOption );
 END;
@@ -17461,6 +18644,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idPropertyEntry
   , idPropertyOption )
   VALUES
@@ -17468,6 +18652,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idPropertyEntry
   , OLD.idPropertyOption );
 END;
@@ -17479,14 +18664,15 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `PropertyEntryValue_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idPropertyEntryValue`  int(10) unsigned  NULL DEFAULT NULL
  ,`value`  varchar(200)  NULL DEFAULT NULL
  ,`idPropertyEntry`  int(10)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -17499,6 +18685,7 @@ INSERT INTO PropertyEntryValue_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idPropertyEntryValue
   , value
   , idPropertyEntry )
@@ -17507,6 +18694,7 @@ INSERT INTO PropertyEntryValue_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idPropertyEntryValue
   , value
   , idPropertyEntry
@@ -17526,6 +18714,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idPropertyEntryValue
   , value
   , idPropertyEntry )
@@ -17534,6 +18723,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idPropertyEntryValue
   , NEW.value
   , NEW.idPropertyEntry );
@@ -17548,6 +18738,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idPropertyEntryValue
   , value
   , idPropertyEntry )
@@ -17556,6 +18747,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idPropertyEntryValue
   , NEW.value
   , NEW.idPropertyEntry );
@@ -17570,6 +18762,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idPropertyEntryValue
   , value
   , idPropertyEntry )
@@ -17578,6 +18771,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idPropertyEntryValue
   , OLD.value
   , OLD.idPropertyEntry );
@@ -17590,19 +18784,20 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `PropertyEntry_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idPropertyEntry`  int(10)  NULL DEFAULT NULL
- ,`idProperty`  int(10)  NULL DEFAULT NULL
  ,`idSample`  int(10)  NULL DEFAULT NULL
  ,`valueString`  varchar(2000)  NULL DEFAULT NULL
  ,`otherLabel`  varchar(100)  NULL DEFAULT NULL
+ ,`idProperty`  int(10)  NULL DEFAULT NULL
  ,`idDataTrack`  int(10)  NULL DEFAULT NULL
  ,`idAnalysis`  int(10)  NULL DEFAULT NULL
- ,`idRequest`  int(10)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+ ,`idRequest`  int(11)  NULL DEFAULT NULL
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -17615,11 +18810,12 @@ INSERT INTO PropertyEntry_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idPropertyEntry
-  , idProperty
   , idSample
   , valueString
   , otherLabel
+  , idProperty
   , idDataTrack
   , idAnalysis
   , idRequest )
@@ -17628,11 +18824,12 @@ INSERT INTO PropertyEntry_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idPropertyEntry
-  , idProperty
   , idSample
   , valueString
   , otherLabel
+  , idProperty
   , idDataTrack
   , idAnalysis
   , idRequest
@@ -17652,11 +18849,12 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idPropertyEntry
-  , idProperty
   , idSample
   , valueString
   , otherLabel
+  , idProperty
   , idDataTrack
   , idAnalysis
   , idRequest )
@@ -17665,11 +18863,12 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idPropertyEntry
-  , NEW.idProperty
   , NEW.idSample
   , NEW.valueString
   , NEW.otherLabel
+  , NEW.idProperty
   , NEW.idDataTrack
   , NEW.idAnalysis
   , NEW.idRequest );
@@ -17684,11 +18883,12 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idPropertyEntry
-  , idProperty
   , idSample
   , valueString
   , otherLabel
+  , idProperty
   , idDataTrack
   , idAnalysis
   , idRequest )
@@ -17697,11 +18897,12 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idPropertyEntry
-  , NEW.idProperty
   , NEW.idSample
   , NEW.valueString
   , NEW.otherLabel
+  , NEW.idProperty
   , NEW.idDataTrack
   , NEW.idAnalysis
   , NEW.idRequest );
@@ -17716,11 +18917,12 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idPropertyEntry
-  , idProperty
   , idSample
   , valueString
   , otherLabel
+  , idProperty
   , idDataTrack
   , idAnalysis
   , idRequest )
@@ -17729,11 +18931,12 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idPropertyEntry
-  , OLD.idProperty
   , OLD.idSample
   , OLD.valueString
   , OLD.otherLabel
+  , OLD.idProperty
   , OLD.idDataTrack
   , OLD.idAnalysis
   , OLD.idRequest );
@@ -17746,16 +18949,17 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `PropertyOption_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idPropertyOption`  int(10)  NULL DEFAULT NULL
  ,`value`  varchar(200)  NULL DEFAULT NULL
  ,`idProperty`  int(10)  NULL DEFAULT NULL
  ,`sortOrder`  int(10)  NULL DEFAULT NULL
  ,`isActive`  char(1)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -17768,6 +18972,7 @@ INSERT INTO PropertyOption_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idPropertyOption
   , value
   , idProperty
@@ -17778,6 +18983,7 @@ INSERT INTO PropertyOption_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idPropertyOption
   , value
   , idProperty
@@ -17799,6 +19005,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idPropertyOption
   , value
   , idProperty
@@ -17809,6 +19016,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idPropertyOption
   , NEW.value
   , NEW.idProperty
@@ -17825,6 +19033,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idPropertyOption
   , value
   , idProperty
@@ -17835,6 +19044,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idPropertyOption
   , NEW.value
   , NEW.idProperty
@@ -17851,6 +19061,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idPropertyOption
   , value
   , idProperty
@@ -17861,6 +19072,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idPropertyOption
   , OLD.value
   , OLD.idProperty
@@ -17875,13 +19087,14 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `PropertyOrganism_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idProperty`  int(10)  NULL DEFAULT NULL
  ,`idOrganism`  int(10)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -17894,6 +19107,7 @@ INSERT INTO PropertyOrganism_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idProperty
   , idOrganism )
   SELECT
@@ -17901,6 +19115,7 @@ INSERT INTO PropertyOrganism_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idProperty
   , idOrganism
   FROM PropertyOrganism
@@ -17919,6 +19134,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idProperty
   , idOrganism )
   VALUES
@@ -17926,6 +19142,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idProperty
   , NEW.idOrganism );
 END;
@@ -17939,6 +19156,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idProperty
   , idOrganism )
   VALUES
@@ -17946,6 +19164,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idProperty
   , NEW.idOrganism );
 END;
@@ -17959,6 +19178,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idProperty
   , idOrganism )
   VALUES
@@ -17966,6 +19186,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idProperty
   , OLD.idOrganism );
 END;
@@ -17977,15 +19198,16 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `PropertyPlatformApplication_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idPlatformApplication`  int(10)  NULL DEFAULT NULL
  ,`idProperty`  int(10)  NULL DEFAULT NULL
  ,`codeRequestCategory`  varchar(10)  NULL DEFAULT NULL
  ,`codeApplication`  varchar(10)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -17998,6 +19220,7 @@ INSERT INTO PropertyPlatformApplication_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idPlatformApplication
   , idProperty
   , codeRequestCategory
@@ -18007,6 +19230,7 @@ INSERT INTO PropertyPlatformApplication_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idPlatformApplication
   , idProperty
   , codeRequestCategory
@@ -18027,6 +19251,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idPlatformApplication
   , idProperty
   , codeRequestCategory
@@ -18036,6 +19261,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idPlatformApplication
   , NEW.idProperty
   , NEW.codeRequestCategory
@@ -18051,6 +19277,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idPlatformApplication
   , idProperty
   , codeRequestCategory
@@ -18060,6 +19287,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idPlatformApplication
   , NEW.idProperty
   , NEW.codeRequestCategory
@@ -18075,6 +19303,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idPlatformApplication
   , idProperty
   , codeRequestCategory
@@ -18084,6 +19313,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idPlatformApplication
   , OLD.idProperty
   , OLD.codeRequestCategory
@@ -18097,14 +19327,15 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `PropertyType_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`codePropertyType`  varchar(10)  NULL DEFAULT NULL
  ,`name`  varchar(200)  NULL DEFAULT NULL
  ,`isActive`  char(1)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -18117,6 +19348,7 @@ INSERT INTO PropertyType_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codePropertyType
   , name
   , isActive )
@@ -18125,6 +19357,7 @@ INSERT INTO PropertyType_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , codePropertyType
   , name
   , isActive
@@ -18144,6 +19377,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codePropertyType
   , name
   , isActive )
@@ -18152,6 +19386,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.codePropertyType
   , NEW.name
   , NEW.isActive );
@@ -18166,6 +19401,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codePropertyType
   , name
   , isActive )
@@ -18174,6 +19410,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.codePropertyType
   , NEW.name
   , NEW.isActive );
@@ -18188,6 +19425,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codePropertyType
   , name
   , isActive )
@@ -18196,6 +19434,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.codePropertyType
   , OLD.name
   , OLD.isActive );
@@ -18208,27 +19447,28 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `Property_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
- ,`idProperty`  int(10)  NULL DEFAULT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`name`  varchar(50)  NULL DEFAULT NULL
- ,`description`  varchar(2000)  NULL DEFAULT NULL
  ,`mageOntologyCode`  varchar(50)  NULL DEFAULT NULL
  ,`mageOntologyDefinition`  varchar(5000)  NULL DEFAULT NULL
  ,`isActive`  char(1)  NULL DEFAULT NULL
  ,`idAppUser`  int(10)  NULL DEFAULT NULL
+ ,`codePropertyType`  varchar(10)  NULL DEFAULT NULL
+ ,`description`  varchar(2000)  NULL DEFAULT NULL
+ ,`idProperty`  int(10)  NULL DEFAULT NULL
  ,`isRequired`  char(1)  NULL DEFAULT NULL
  ,`forSample`  char(1)  NULL DEFAULT NULL
- ,`forAnalysis`  char(1)  NULL DEFAULT NULL
  ,`forDataTrack`  char(1)  NULL DEFAULT NULL
- ,`codePropertyType`  varchar(10)  NULL DEFAULT NULL
+ ,`forAnalysis`  char(1)  NULL DEFAULT NULL
  ,`sortOrder`  int(10)  NULL DEFAULT NULL
  ,`idCoreFacility`  int(10)  NULL DEFAULT NULL
  ,`forRequest`  char(1)  NULL DEFAULT NULL
- ,`idPriceCategory`  int(10)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+ ,`idPriceCategory`  int(11)  NULL DEFAULT NULL
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -18241,18 +19481,19 @@ INSERT INTO Property_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
-  , idProperty
+  , AuditEditedByPersonID
   , name
-  , description
   , mageOntologyCode
   , mageOntologyDefinition
   , isActive
   , idAppUser
+  , codePropertyType
+  , description
+  , idProperty
   , isRequired
   , forSample
-  , forAnalysis
   , forDataTrack
-  , codePropertyType
+  , forAnalysis
   , sortOrder
   , idCoreFacility
   , forRequest
@@ -18262,18 +19503,19 @@ INSERT INTO Property_Audit
   , 'L'
   , USER()
   , NOW()
-  , idProperty
+  , 0
   , name
-  , description
   , mageOntologyCode
   , mageOntologyDefinition
   , isActive
   , idAppUser
+  , codePropertyType
+  , description
+  , idProperty
   , isRequired
   , forSample
-  , forAnalysis
   , forDataTrack
-  , codePropertyType
+  , forAnalysis
   , sortOrder
   , idCoreFacility
   , forRequest
@@ -18294,18 +19536,19 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
-  , idProperty
+  , AuditEditedByPersonID
   , name
-  , description
   , mageOntologyCode
   , mageOntologyDefinition
   , isActive
   , idAppUser
+  , codePropertyType
+  , description
+  , idProperty
   , isRequired
   , forSample
-  , forAnalysis
   , forDataTrack
-  , codePropertyType
+  , forAnalysis
   , sortOrder
   , idCoreFacility
   , forRequest
@@ -18315,18 +19558,19 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
-  , NEW.idProperty
+  , 0
   , NEW.name
-  , NEW.description
   , NEW.mageOntologyCode
   , NEW.mageOntologyDefinition
   , NEW.isActive
   , NEW.idAppUser
+  , NEW.codePropertyType
+  , NEW.description
+  , NEW.idProperty
   , NEW.isRequired
   , NEW.forSample
-  , NEW.forAnalysis
   , NEW.forDataTrack
-  , NEW.codePropertyType
+  , NEW.forAnalysis
   , NEW.sortOrder
   , NEW.idCoreFacility
   , NEW.forRequest
@@ -18342,18 +19586,19 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
-  , idProperty
+  , AuditEditedByPersonID
   , name
-  , description
   , mageOntologyCode
   , mageOntologyDefinition
   , isActive
   , idAppUser
+  , codePropertyType
+  , description
+  , idProperty
   , isRequired
   , forSample
-  , forAnalysis
   , forDataTrack
-  , codePropertyType
+  , forAnalysis
   , sortOrder
   , idCoreFacility
   , forRequest
@@ -18363,18 +19608,19 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
-  , NEW.idProperty
+  , 0
   , NEW.name
-  , NEW.description
   , NEW.mageOntologyCode
   , NEW.mageOntologyDefinition
   , NEW.isActive
   , NEW.idAppUser
+  , NEW.codePropertyType
+  , NEW.description
+  , NEW.idProperty
   , NEW.isRequired
   , NEW.forSample
-  , NEW.forAnalysis
   , NEW.forDataTrack
-  , NEW.codePropertyType
+  , NEW.forAnalysis
   , NEW.sortOrder
   , NEW.idCoreFacility
   , NEW.forRequest
@@ -18390,18 +19636,19 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
-  , idProperty
+  , AuditEditedByPersonID
   , name
-  , description
   , mageOntologyCode
   , mageOntologyDefinition
   , isActive
   , idAppUser
+  , codePropertyType
+  , description
+  , idProperty
   , isRequired
   , forSample
-  , forAnalysis
   , forDataTrack
-  , codePropertyType
+  , forAnalysis
   , sortOrder
   , idCoreFacility
   , forRequest
@@ -18411,18 +19658,19 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
-  , OLD.idProperty
+  , 0
   , OLD.name
-  , OLD.description
   , OLD.mageOntologyCode
   , OLD.mageOntologyDefinition
   , OLD.isActive
   , OLD.idAppUser
+  , OLD.codePropertyType
+  , OLD.description
+  , OLD.idProperty
   , OLD.isRequired
   , OLD.forSample
-  , OLD.forAnalysis
   , OLD.forDataTrack
-  , OLD.codePropertyType
+  , OLD.forAnalysis
   , OLD.sortOrder
   , OLD.idCoreFacility
   , OLD.forRequest
@@ -18436,14 +19684,15 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `ProtocolType_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`codeProtocolType`  varchar(10)  NULL DEFAULT NULL
  ,`protocolType`  varchar(50)  NULL DEFAULT NULL
  ,`isActive`  char(1)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -18456,6 +19705,7 @@ INSERT INTO ProtocolType_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeProtocolType
   , protocolType
   , isActive )
@@ -18464,6 +19714,7 @@ INSERT INTO ProtocolType_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , codeProtocolType
   , protocolType
   , isActive
@@ -18483,6 +19734,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeProtocolType
   , protocolType
   , isActive )
@@ -18491,6 +19743,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.codeProtocolType
   , NEW.protocolType
   , NEW.isActive );
@@ -18505,6 +19758,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeProtocolType
   , protocolType
   , isActive )
@@ -18513,6 +19767,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.codeProtocolType
   , NEW.protocolType
   , NEW.isActive );
@@ -18527,6 +19782,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeProtocolType
   , protocolType
   , isActive )
@@ -18535,6 +19791,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.codeProtocolType
   , OLD.protocolType
   , OLD.isActive );
@@ -18547,16 +19804,17 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `QualityControlStepEntry_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idQualityControlStepEntry`  int(10)  NULL DEFAULT NULL
  ,`codeQualityControlStep`  varchar(10)  NULL DEFAULT NULL
  ,`idProject`  int(10)  NULL DEFAULT NULL
  ,`valueString`  varchar(100)  NULL DEFAULT NULL
  ,`otherLabel`  varchar(100)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -18569,6 +19827,7 @@ INSERT INTO QualityControlStepEntry_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idQualityControlStepEntry
   , codeQualityControlStep
   , idProject
@@ -18579,6 +19838,7 @@ INSERT INTO QualityControlStepEntry_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idQualityControlStepEntry
   , codeQualityControlStep
   , idProject
@@ -18600,6 +19860,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idQualityControlStepEntry
   , codeQualityControlStep
   , idProject
@@ -18610,6 +19871,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idQualityControlStepEntry
   , NEW.codeQualityControlStep
   , NEW.idProject
@@ -18626,6 +19888,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idQualityControlStepEntry
   , codeQualityControlStep
   , idProject
@@ -18636,6 +19899,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idQualityControlStepEntry
   , NEW.codeQualityControlStep
   , NEW.idProject
@@ -18652,6 +19916,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idQualityControlStepEntry
   , codeQualityControlStep
   , idProject
@@ -18662,6 +19927,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idQualityControlStepEntry
   , OLD.codeQualityControlStep
   , OLD.idProject
@@ -18676,16 +19942,17 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `QualityControlStep_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`codeQualityControlStep`  varchar(10)  NULL DEFAULT NULL
  ,`qualityControlStep`  varchar(50)  NULL DEFAULT NULL
  ,`mageOntologyCode`  varchar(50)  NULL DEFAULT NULL
  ,`mageOntologyDefinition`  varchar(5000)  NULL DEFAULT NULL
  ,`isActive`  char(1)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -18698,6 +19965,7 @@ INSERT INTO QualityControlStep_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeQualityControlStep
   , qualityControlStep
   , mageOntologyCode
@@ -18708,6 +19976,7 @@ INSERT INTO QualityControlStep_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , codeQualityControlStep
   , qualityControlStep
   , mageOntologyCode
@@ -18729,6 +19998,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeQualityControlStep
   , qualityControlStep
   , mageOntologyCode
@@ -18739,6 +20009,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.codeQualityControlStep
   , NEW.qualityControlStep
   , NEW.mageOntologyCode
@@ -18755,6 +20026,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeQualityControlStep
   , qualityControlStep
   , mageOntologyCode
@@ -18765,6 +20037,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.codeQualityControlStep
   , NEW.qualityControlStep
   , NEW.mageOntologyCode
@@ -18781,6 +20054,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeQualityControlStep
   , qualityControlStep
   , mageOntologyCode
@@ -18791,6 +20065,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.codeQualityControlStep
   , OLD.qualityControlStep
   , OLD.mageOntologyCode
@@ -18805,14 +20080,15 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `ReactionType_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`codeReactionType`  varchar(10)  NULL DEFAULT NULL
  ,`reactionType`  varchar(50)  NULL DEFAULT NULL
  ,`isActive`  char(1)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -18825,6 +20101,7 @@ INSERT INTO ReactionType_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeReactionType
   , reactionType
   , isActive )
@@ -18833,6 +20110,7 @@ INSERT INTO ReactionType_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , codeReactionType
   , reactionType
   , isActive
@@ -18852,6 +20130,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeReactionType
   , reactionType
   , isActive )
@@ -18860,6 +20139,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.codeReactionType
   , NEW.reactionType
   , NEW.isActive );
@@ -18874,6 +20154,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeReactionType
   , reactionType
   , isActive )
@@ -18882,6 +20163,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.codeReactionType
   , NEW.reactionType
   , NEW.isActive );
@@ -18896,6 +20178,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeReactionType
   , reactionType
   , isActive )
@@ -18904,6 +20187,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.codeReactionType
   , OLD.reactionType
   , OLD.isActive );
@@ -18916,17 +20200,18 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `RequestCategoryApplication_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`codeRequestCategory`  varchar(10)  NULL DEFAULT NULL
  ,`codeApplication`  varchar(10)  NULL DEFAULT NULL
  ,`idLabelingProtocolDefault`  int(10)  NULL DEFAULT NULL
  ,`idHybProtocolDefault`  int(10)  NULL DEFAULT NULL
  ,`idScanProtocolDefault`  int(10)  NULL DEFAULT NULL
  ,`idFeatureExtractionProtocolDefault`  int(10)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -18939,6 +20224,7 @@ INSERT INTO RequestCategoryApplication_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeRequestCategory
   , codeApplication
   , idLabelingProtocolDefault
@@ -18950,6 +20236,7 @@ INSERT INTO RequestCategoryApplication_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , codeRequestCategory
   , codeApplication
   , idLabelingProtocolDefault
@@ -18972,6 +20259,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeRequestCategory
   , codeApplication
   , idLabelingProtocolDefault
@@ -18983,6 +20271,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.codeRequestCategory
   , NEW.codeApplication
   , NEW.idLabelingProtocolDefault
@@ -19000,6 +20289,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeRequestCategory
   , codeApplication
   , idLabelingProtocolDefault
@@ -19011,6 +20301,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.codeRequestCategory
   , NEW.codeApplication
   , NEW.idLabelingProtocolDefault
@@ -19028,6 +20319,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeRequestCategory
   , codeApplication
   , idLabelingProtocolDefault
@@ -19039,6 +20331,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.codeRequestCategory
   , OLD.codeApplication
   , OLD.idLabelingProtocolDefault
@@ -19054,16 +20347,17 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `RequestCategoryType_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`codeRequestCategoryType`  varchar(10)  NULL DEFAULT NULL
  ,`description`  varchar(50)  NULL DEFAULT NULL
  ,`defaultIcon`  varchar(100)  NULL DEFAULT NULL
  ,`isIllumina`  char(1)  NULL DEFAULT NULL
  ,`hasChannels`  char(1)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -19076,6 +20370,7 @@ INSERT INTO RequestCategoryType_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeRequestCategoryType
   , description
   , defaultIcon
@@ -19086,6 +20381,7 @@ INSERT INTO RequestCategoryType_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , codeRequestCategoryType
   , description
   , defaultIcon
@@ -19107,6 +20403,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeRequestCategoryType
   , description
   , defaultIcon
@@ -19117,6 +20414,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.codeRequestCategoryType
   , NEW.description
   , NEW.defaultIcon
@@ -19133,6 +20431,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeRequestCategoryType
   , description
   , defaultIcon
@@ -19143,6 +20442,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.codeRequestCategoryType
   , NEW.description
   , NEW.defaultIcon
@@ -19159,6 +20459,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeRequestCategoryType
   , description
   , defaultIcon
@@ -19169,6 +20470,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.codeRequestCategoryType
   , OLD.description
   , OLD.defaultIcon
@@ -19183,10 +20485,11 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `RequestCategory_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`codeRequestCategory`  varchar(10)  NULL DEFAULT NULL
  ,`requestCategory`  varchar(50)  NULL DEFAULT NULL
  ,`idVendor`  int(10)  NULL DEFAULT NULL
@@ -19197,16 +20500,16 @@ CREATE TABLE IF NOT EXISTS `RequestCategory_Audit` (
  ,`type`  varchar(10)  NULL DEFAULT NULL
  ,`sortOrder`  int(10)  NULL DEFAULT NULL
  ,`idOrganism`  int(10)  NULL DEFAULT NULL
- ,`idCoreFacility`  int(10)  NULL DEFAULT NULL
  ,`isInternal`  char(1)  NULL DEFAULT NULL
  ,`isExternal`  char(1)  NULL DEFAULT NULL
+ ,`idCoreFacility`  int(10)  NULL DEFAULT NULL
  ,`refrainFromAutoDelete`  char(1)  NULL DEFAULT NULL
  ,`isClinicalResearch`  char(1)  NULL DEFAULT NULL
  ,`isOwnerOnly`  char(1)  NULL DEFAULT NULL
- ,`sampleBatchSize`  int(10)  NULL DEFAULT NULL
+ ,`sampleBatchSize`  int(11)  NULL DEFAULT NULL
  ,`idProductType`  int(10)  NULL DEFAULT NULL
  ,`associatedWithAnalysis`  char(1)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -19219,6 +20522,7 @@ INSERT INTO RequestCategory_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeRequestCategory
   , requestCategory
   , idVendor
@@ -19229,9 +20533,9 @@ INSERT INTO RequestCategory_Audit
   , type
   , sortOrder
   , idOrganism
-  , idCoreFacility
   , isInternal
   , isExternal
+  , idCoreFacility
   , refrainFromAutoDelete
   , isClinicalResearch
   , isOwnerOnly
@@ -19243,6 +20547,7 @@ INSERT INTO RequestCategory_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , codeRequestCategory
   , requestCategory
   , idVendor
@@ -19253,9 +20558,9 @@ INSERT INTO RequestCategory_Audit
   , type
   , sortOrder
   , idOrganism
-  , idCoreFacility
   , isInternal
   , isExternal
+  , idCoreFacility
   , refrainFromAutoDelete
   , isClinicalResearch
   , isOwnerOnly
@@ -19278,6 +20583,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeRequestCategory
   , requestCategory
   , idVendor
@@ -19288,9 +20594,9 @@ BEGIN
   , type
   , sortOrder
   , idOrganism
-  , idCoreFacility
   , isInternal
   , isExternal
+  , idCoreFacility
   , refrainFromAutoDelete
   , isClinicalResearch
   , isOwnerOnly
@@ -19302,6 +20608,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.codeRequestCategory
   , NEW.requestCategory
   , NEW.idVendor
@@ -19312,9 +20619,9 @@ BEGIN
   , NEW.type
   , NEW.sortOrder
   , NEW.idOrganism
-  , NEW.idCoreFacility
   , NEW.isInternal
   , NEW.isExternal
+  , NEW.idCoreFacility
   , NEW.refrainFromAutoDelete
   , NEW.isClinicalResearch
   , NEW.isOwnerOnly
@@ -19332,6 +20639,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeRequestCategory
   , requestCategory
   , idVendor
@@ -19342,9 +20650,9 @@ BEGIN
   , type
   , sortOrder
   , idOrganism
-  , idCoreFacility
   , isInternal
   , isExternal
+  , idCoreFacility
   , refrainFromAutoDelete
   , isClinicalResearch
   , isOwnerOnly
@@ -19356,6 +20664,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.codeRequestCategory
   , NEW.requestCategory
   , NEW.idVendor
@@ -19366,9 +20675,9 @@ BEGIN
   , NEW.type
   , NEW.sortOrder
   , NEW.idOrganism
-  , NEW.idCoreFacility
   , NEW.isInternal
   , NEW.isExternal
+  , NEW.idCoreFacility
   , NEW.refrainFromAutoDelete
   , NEW.isClinicalResearch
   , NEW.isOwnerOnly
@@ -19386,6 +20695,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeRequestCategory
   , requestCategory
   , idVendor
@@ -19396,9 +20706,9 @@ BEGIN
   , type
   , sortOrder
   , idOrganism
-  , idCoreFacility
   , isInternal
   , isExternal
+  , idCoreFacility
   , refrainFromAutoDelete
   , isClinicalResearch
   , isOwnerOnly
@@ -19410,6 +20720,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.codeRequestCategory
   , OLD.requestCategory
   , OLD.idVendor
@@ -19420,9 +20731,9 @@ BEGIN
   , OLD.type
   , OLD.sortOrder
   , OLD.idOrganism
-  , OLD.idCoreFacility
   , OLD.isInternal
   , OLD.isExternal
+  , OLD.idCoreFacility
   , OLD.refrainFromAutoDelete
   , OLD.isClinicalResearch
   , OLD.isOwnerOnly
@@ -19438,15 +20749,16 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `RequestCollaborator_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idRequest`  int(10)  NULL DEFAULT NULL
  ,`idAppUser`  int(10)  NULL DEFAULT NULL
  ,`canUploadData`  char(1)  NULL DEFAULT NULL
  ,`canUpdate`  char(1)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -19459,6 +20771,7 @@ INSERT INTO RequestCollaborator_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idRequest
   , idAppUser
   , canUploadData
@@ -19468,6 +20781,7 @@ INSERT INTO RequestCollaborator_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idRequest
   , idAppUser
   , canUploadData
@@ -19488,6 +20802,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idRequest
   , idAppUser
   , canUploadData
@@ -19497,6 +20812,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idRequest
   , NEW.idAppUser
   , NEW.canUploadData
@@ -19512,6 +20828,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idRequest
   , idAppUser
   , canUploadData
@@ -19521,6 +20838,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idRequest
   , NEW.idAppUser
   , NEW.canUploadData
@@ -19536,6 +20854,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idRequest
   , idAppUser
   , canUploadData
@@ -19545,6 +20864,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idRequest
   , OLD.idAppUser
   , OLD.canUploadData
@@ -19558,13 +20878,14 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `RequestHybridization_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idRequest`  int(10)  NULL DEFAULT NULL
  ,`idHybridization`  int(10)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -19577,6 +20898,7 @@ INSERT INTO RequestHybridization_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idRequest
   , idHybridization )
   SELECT
@@ -19584,6 +20906,7 @@ INSERT INTO RequestHybridization_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idRequest
   , idHybridization
   FROM RequestHybridization
@@ -19602,6 +20925,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idRequest
   , idHybridization )
   VALUES
@@ -19609,6 +20933,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idRequest
   , NEW.idHybridization );
 END;
@@ -19622,6 +20947,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idRequest
   , idHybridization )
   VALUES
@@ -19629,6 +20955,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idRequest
   , NEW.idHybridization );
 END;
@@ -19642,6 +20969,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idRequest
   , idHybridization )
   VALUES
@@ -19649,6 +20977,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idRequest
   , OLD.idHybridization );
 END;
@@ -19660,13 +20989,14 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `RequestSeqLibTreatment_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idRequest`  int(10)  NULL DEFAULT NULL
  ,`idSeqLibTreatment`  int(10)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -19679,6 +21009,7 @@ INSERT INTO RequestSeqLibTreatment_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idRequest
   , idSeqLibTreatment )
   SELECT
@@ -19686,6 +21017,7 @@ INSERT INTO RequestSeqLibTreatment_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idRequest
   , idSeqLibTreatment
   FROM RequestSeqLibTreatment
@@ -19704,6 +21036,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idRequest
   , idSeqLibTreatment )
   VALUES
@@ -19711,6 +21044,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idRequest
   , NEW.idSeqLibTreatment );
 END;
@@ -19724,6 +21058,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idRequest
   , idSeqLibTreatment )
   VALUES
@@ -19731,6 +21066,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idRequest
   , NEW.idSeqLibTreatment );
 END;
@@ -19744,6 +21080,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idRequest
   , idSeqLibTreatment )
   VALUES
@@ -19751,6 +21088,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idRequest
   , OLD.idSeqLibTreatment );
 END;
@@ -19762,14 +21100,15 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `RequestStatus_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`codeRequestStatus`  varchar(10)  NULL DEFAULT NULL
  ,`requestStatus`  varchar(50)  NULL DEFAULT NULL
  ,`isActive`  char(1)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -19782,6 +21121,7 @@ INSERT INTO RequestStatus_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeRequestStatus
   , requestStatus
   , isActive )
@@ -19790,6 +21130,7 @@ INSERT INTO RequestStatus_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , codeRequestStatus
   , requestStatus
   , isActive
@@ -19809,6 +21150,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeRequestStatus
   , requestStatus
   , isActive )
@@ -19817,6 +21159,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.codeRequestStatus
   , NEW.requestStatus
   , NEW.isActive );
@@ -19831,6 +21174,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeRequestStatus
   , requestStatus
   , isActive )
@@ -19839,6 +21183,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.codeRequestStatus
   , NEW.requestStatus
   , NEW.isActive );
@@ -19853,6 +21198,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeRequestStatus
   , requestStatus
   , isActive )
@@ -19861,6 +21207,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.codeRequestStatus
   , OLD.requestStatus
   , OLD.isActive );
@@ -19873,13 +21220,14 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `RequestToTopic_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idTopic`  int(10)  NULL DEFAULT NULL
  ,`idRequest`  int(10)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -19892,6 +21240,7 @@ INSERT INTO RequestToTopic_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idTopic
   , idRequest )
   SELECT
@@ -19899,6 +21248,7 @@ INSERT INTO RequestToTopic_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idTopic
   , idRequest
   FROM RequestToTopic
@@ -19917,6 +21267,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idTopic
   , idRequest )
   VALUES
@@ -19924,6 +21275,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idTopic
   , NEW.idRequest );
 END;
@@ -19937,6 +21289,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idTopic
   , idRequest )
   VALUES
@@ -19944,6 +21297,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idTopic
   , NEW.idRequest );
 END;
@@ -19957,6 +21311,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idTopic
   , idRequest )
   VALUES
@@ -19964,6 +21319,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idTopic
   , OLD.idRequest );
 END;
@@ -19975,10 +21331,11 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `Request_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idRequest`  int(10)  NULL DEFAULT NULL
  ,`number`  varchar(50)  NULL DEFAULT NULL
  ,`createDate`  datetime  NULL DEFAULT NULL
@@ -20003,10 +21360,10 @@ CREATE TABLE IF NOT EXISTS `Request_Audit` (
  ,`lastModifyDate`  datetime  NULL DEFAULT NULL
  ,`isExternal`  char(1)  NULL DEFAULT NULL
  ,`idInstitution`  int(10)  NULL DEFAULT NULL
- ,`idCoreFacility`  int(10)  NULL DEFAULT NULL
  ,`name`  varchar(200)  NULL DEFAULT NULL
  ,`privacyExpirationDate`  datetime  NULL DEFAULT NULL
  ,`description`  varchar(5000)  NULL DEFAULT NULL
+ ,`idCoreFacility`  int(10)  NULL DEFAULT NULL
  ,`corePrepInstructions`  varchar(5000)  NULL DEFAULT NULL
  ,`analysisInstructions`  varchar(5000)  NULL DEFAULT NULL
  ,`captureLibDesignId`  varchar(200)  NULL DEFAULT NULL
@@ -20018,7 +21375,7 @@ CREATE TABLE IF NOT EXISTS `Request_Audit` (
  ,`coreToExtractDNA`  char(1)  NULL DEFAULT NULL
  ,`applicationNotes`  varchar(5000)  NULL DEFAULT NULL
  ,`processingDate`  datetime  NULL DEFAULT NULL
- ,`codeIsolationPrepType`  varchar(15)  NULL DEFAULT NULL
+ ,`meanLibSizeActual`  int(10)  NULL DEFAULT NULL
  ,`bioinformaticsAssist`  char(1)  NULL DEFAULT NULL
  ,`hasPrePooledLibraries`  char(1)  NULL DEFAULT NULL
  ,`numPrePooledTubes`  int(10)  NULL DEFAULT NULL
@@ -20026,13 +21383,14 @@ CREATE TABLE IF NOT EXISTS `Request_Audit` (
  ,`includeQubitConcentration`  char(1)  NULL DEFAULT NULL
  ,`adminNotes`  varchar(5000)  NULL DEFAULT NULL
  ,`idProduct`  int(10)  NULL DEFAULT NULL
+ ,`codeIsolationPrepType`  varchar(15)  NULL DEFAULT NULL
  ,`archived`  char(1)  NULL DEFAULT NULL
  ,`reagent`  varchar(50)  NULL DEFAULT NULL
  ,`elutionBuffer`  varchar(50)  NULL DEFAULT NULL
  ,`usedDnase`  char(1)  NULL DEFAULT NULL
  ,`usedRnase`  char(1)  NULL DEFAULT NULL
  ,`keepSamples`  char(1)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -20045,6 +21403,7 @@ INSERT INTO Request_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idRequest
   , number
   , createDate
@@ -20069,10 +21428,10 @@ INSERT INTO Request_Audit
   , lastModifyDate
   , isExternal
   , idInstitution
-  , idCoreFacility
   , name
   , privacyExpirationDate
   , description
+  , idCoreFacility
   , corePrepInstructions
   , analysisInstructions
   , captureLibDesignId
@@ -20084,7 +21443,7 @@ INSERT INTO Request_Audit
   , coreToExtractDNA
   , applicationNotes
   , processingDate
-  , codeIsolationPrepType
+  , meanLibSizeActual
   , bioinformaticsAssist
   , hasPrePooledLibraries
   , numPrePooledTubes
@@ -20092,6 +21451,7 @@ INSERT INTO Request_Audit
   , includeQubitConcentration
   , adminNotes
   , idProduct
+  , codeIsolationPrepType
   , archived
   , reagent
   , elutionBuffer
@@ -20103,6 +21463,7 @@ INSERT INTO Request_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idRequest
   , number
   , createDate
@@ -20127,10 +21488,10 @@ INSERT INTO Request_Audit
   , lastModifyDate
   , isExternal
   , idInstitution
-  , idCoreFacility
   , name
   , privacyExpirationDate
   , description
+  , idCoreFacility
   , corePrepInstructions
   , analysisInstructions
   , captureLibDesignId
@@ -20142,7 +21503,7 @@ INSERT INTO Request_Audit
   , coreToExtractDNA
   , applicationNotes
   , processingDate
-  , codeIsolationPrepType
+  , meanLibSizeActual
   , bioinformaticsAssist
   , hasPrePooledLibraries
   , numPrePooledTubes
@@ -20150,6 +21511,7 @@ INSERT INTO Request_Audit
   , includeQubitConcentration
   , adminNotes
   , idProduct
+  , codeIsolationPrepType
   , archived
   , reagent
   , elutionBuffer
@@ -20172,6 +21534,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idRequest
   , number
   , createDate
@@ -20196,10 +21559,10 @@ BEGIN
   , lastModifyDate
   , isExternal
   , idInstitution
-  , idCoreFacility
   , name
   , privacyExpirationDate
   , description
+  , idCoreFacility
   , corePrepInstructions
   , analysisInstructions
   , captureLibDesignId
@@ -20211,7 +21574,7 @@ BEGIN
   , coreToExtractDNA
   , applicationNotes
   , processingDate
-  , codeIsolationPrepType
+  , meanLibSizeActual
   , bioinformaticsAssist
   , hasPrePooledLibraries
   , numPrePooledTubes
@@ -20219,6 +21582,7 @@ BEGIN
   , includeQubitConcentration
   , adminNotes
   , idProduct
+  , codeIsolationPrepType
   , archived
   , reagent
   , elutionBuffer
@@ -20230,6 +21594,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idRequest
   , NEW.number
   , NEW.createDate
@@ -20254,10 +21619,10 @@ BEGIN
   , NEW.lastModifyDate
   , NEW.isExternal
   , NEW.idInstitution
-  , NEW.idCoreFacility
   , NEW.name
   , NEW.privacyExpirationDate
   , NEW.description
+  , NEW.idCoreFacility
   , NEW.corePrepInstructions
   , NEW.analysisInstructions
   , NEW.captureLibDesignId
@@ -20269,7 +21634,7 @@ BEGIN
   , NEW.coreToExtractDNA
   , NEW.applicationNotes
   , NEW.processingDate
-  , NEW.codeIsolationPrepType
+  , NEW.meanLibSizeActual
   , NEW.bioinformaticsAssist
   , NEW.hasPrePooledLibraries
   , NEW.numPrePooledTubes
@@ -20277,6 +21642,7 @@ BEGIN
   , NEW.includeQubitConcentration
   , NEW.adminNotes
   , NEW.idProduct
+  , NEW.codeIsolationPrepType
   , NEW.archived
   , NEW.reagent
   , NEW.elutionBuffer
@@ -20294,6 +21660,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idRequest
   , number
   , createDate
@@ -20318,10 +21685,10 @@ BEGIN
   , lastModifyDate
   , isExternal
   , idInstitution
-  , idCoreFacility
   , name
   , privacyExpirationDate
   , description
+  , idCoreFacility
   , corePrepInstructions
   , analysisInstructions
   , captureLibDesignId
@@ -20333,7 +21700,7 @@ BEGIN
   , coreToExtractDNA
   , applicationNotes
   , processingDate
-  , codeIsolationPrepType
+  , meanLibSizeActual
   , bioinformaticsAssist
   , hasPrePooledLibraries
   , numPrePooledTubes
@@ -20341,6 +21708,7 @@ BEGIN
   , includeQubitConcentration
   , adminNotes
   , idProduct
+  , codeIsolationPrepType
   , archived
   , reagent
   , elutionBuffer
@@ -20352,6 +21720,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idRequest
   , NEW.number
   , NEW.createDate
@@ -20376,10 +21745,10 @@ BEGIN
   , NEW.lastModifyDate
   , NEW.isExternal
   , NEW.idInstitution
-  , NEW.idCoreFacility
   , NEW.name
   , NEW.privacyExpirationDate
   , NEW.description
+  , NEW.idCoreFacility
   , NEW.corePrepInstructions
   , NEW.analysisInstructions
   , NEW.captureLibDesignId
@@ -20391,7 +21760,7 @@ BEGIN
   , NEW.coreToExtractDNA
   , NEW.applicationNotes
   , NEW.processingDate
-  , NEW.codeIsolationPrepType
+  , NEW.meanLibSizeActual
   , NEW.bioinformaticsAssist
   , NEW.hasPrePooledLibraries
   , NEW.numPrePooledTubes
@@ -20399,6 +21768,7 @@ BEGIN
   , NEW.includeQubitConcentration
   , NEW.adminNotes
   , NEW.idProduct
+  , NEW.codeIsolationPrepType
   , NEW.archived
   , NEW.reagent
   , NEW.elutionBuffer
@@ -20416,6 +21786,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idRequest
   , number
   , createDate
@@ -20440,10 +21811,10 @@ BEGIN
   , lastModifyDate
   , isExternal
   , idInstitution
-  , idCoreFacility
   , name
   , privacyExpirationDate
   , description
+  , idCoreFacility
   , corePrepInstructions
   , analysisInstructions
   , captureLibDesignId
@@ -20455,7 +21826,7 @@ BEGIN
   , coreToExtractDNA
   , applicationNotes
   , processingDate
-  , codeIsolationPrepType
+  , meanLibSizeActual
   , bioinformaticsAssist
   , hasPrePooledLibraries
   , numPrePooledTubes
@@ -20463,6 +21834,7 @@ BEGIN
   , includeQubitConcentration
   , adminNotes
   , idProduct
+  , codeIsolationPrepType
   , archived
   , reagent
   , elutionBuffer
@@ -20474,6 +21846,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idRequest
   , OLD.number
   , OLD.createDate
@@ -20498,10 +21871,10 @@ BEGIN
   , OLD.lastModifyDate
   , OLD.isExternal
   , OLD.idInstitution
-  , OLD.idCoreFacility
   , OLD.name
   , OLD.privacyExpirationDate
   , OLD.description
+  , OLD.idCoreFacility
   , OLD.corePrepInstructions
   , OLD.analysisInstructions
   , OLD.captureLibDesignId
@@ -20513,7 +21886,7 @@ BEGIN
   , OLD.coreToExtractDNA
   , OLD.applicationNotes
   , OLD.processingDate
-  , OLD.codeIsolationPrepType
+  , OLD.meanLibSizeActual
   , OLD.bioinformaticsAssist
   , OLD.hasPrePooledLibraries
   , OLD.numPrePooledTubes
@@ -20521,6 +21894,7 @@ BEGIN
   , OLD.includeQubitConcentration
   , OLD.adminNotes
   , OLD.idProduct
+  , OLD.codeIsolationPrepType
   , OLD.archived
   , OLD.reagent
   , OLD.elutionBuffer
@@ -20532,30 +21906,32 @@ $$
 
 
 --
--- Audit Table For SampleDropOffLocation 
+-- Audit Table For Sampledropofflocation 
 --
 
-CREATE TABLE IF NOT EXISTS `SampleDropOffLocation_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+CREATE TABLE IF NOT EXISTS `Sampledropofflocation_Audit` (
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idSampleDropOffLocation`  int(10)  NULL DEFAULT NULL
  ,`sampleDropOffLocation`  varchar(200)  NULL DEFAULT NULL
  ,`isActive`  char(1)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
 --
--- Initial audit table rows for SampleDropOffLocation 
+-- Initial audit table rows for Sampledropofflocation 
 --
 
-INSERT INTO SampleDropOffLocation_Audit
+INSERT INTO Sampledropofflocation_Audit
   ( AuditAppuser
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idSampleDropOffLocation
   , sampleDropOffLocation
   , isActive )
@@ -20564,25 +21940,27 @@ INSERT INTO SampleDropOffLocation_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idSampleDropOffLocation
   , sampleDropOffLocation
   , isActive
-  FROM SampleDropOffLocation
-  WHERE NOT EXISTS(SELECT * FROM SampleDropOffLocation_Audit)
+  FROM Sampledropofflocation
+  WHERE NOT EXISTS(SELECT * FROM Sampledropofflocation_Audit)
 $$
 
 --
--- Audit Triggers For SampleDropOffLocation 
+-- Audit Triggers For Sampledropofflocation 
 --
 
 
-CREATE TRIGGER TrAI_SampleDropOffLocation_FER AFTER INSERT ON SampleDropOffLocation FOR EACH ROW
+CREATE TRIGGER TrAI_Sampledropofflocation_FER AFTER INSERT ON Sampledropofflocation FOR EACH ROW
 BEGIN
-  INSERT INTO SampleDropOffLocation_Audit
+  INSERT INTO Sampledropofflocation_Audit
   ( AuditAppuser
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idSampleDropOffLocation
   , sampleDropOffLocation
   , isActive )
@@ -20591,6 +21969,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idSampleDropOffLocation
   , NEW.sampleDropOffLocation
   , NEW.isActive );
@@ -20598,13 +21977,14 @@ END;
 $$
 
 
-CREATE TRIGGER TrAU_SampleDropOffLocation_FER AFTER UPDATE ON SampleDropOffLocation FOR EACH ROW
+CREATE TRIGGER TrAU_Sampledropofflocation_FER AFTER UPDATE ON Sampledropofflocation FOR EACH ROW
 BEGIN
-  INSERT INTO SampleDropOffLocation_Audit
+  INSERT INTO Sampledropofflocation_Audit
   ( AuditAppuser
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idSampleDropOffLocation
   , sampleDropOffLocation
   , isActive )
@@ -20613,6 +21993,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idSampleDropOffLocation
   , NEW.sampleDropOffLocation
   , NEW.isActive );
@@ -20620,13 +22001,14 @@ END;
 $$
 
 
-CREATE TRIGGER TrAD_SampleDropOffLocation_FER AFTER DELETE ON SampleDropOffLocation FOR EACH ROW
+CREATE TRIGGER TrAD_Sampledropofflocation_FER AFTER DELETE ON Sampledropofflocation FOR EACH ROW
 BEGIN
-  INSERT INTO SampleDropOffLocation_Audit
+  INSERT INTO Sampledropofflocation_Audit
   ( AuditAppuser
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idSampleDropOffLocation
   , sampleDropOffLocation
   , isActive )
@@ -20635,6 +22017,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idSampleDropOffLocation
   , OLD.sampleDropOffLocation
   , OLD.isActive );
@@ -20643,32 +22026,34 @@ $$
 
 
 --
--- Audit Table For SampleExperimentFile 
+-- Audit Table For Sampleexperimentfile 
 --
 
-CREATE TABLE IF NOT EXISTS `SampleExperimentFile_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+CREATE TABLE IF NOT EXISTS `Sampleexperimentfile_Audit` (
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idSampleExperimentFile`  int(10)  NULL DEFAULT NULL
  ,`idSample`  int(10)  NULL DEFAULT NULL
  ,`idExpFileRead1`  int(10)  NULL DEFAULT NULL
  ,`idExpFileRead2`  int(10)  NULL DEFAULT NULL
  ,`seqRunNumber`  int(10)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
 --
--- Initial audit table rows for SampleExperimentFile 
+-- Initial audit table rows for Sampleexperimentfile 
 --
 
-INSERT INTO SampleExperimentFile_Audit
+INSERT INTO Sampleexperimentfile_Audit
   ( AuditAppuser
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idSampleExperimentFile
   , idSample
   , idExpFileRead1
@@ -20679,27 +22064,29 @@ INSERT INTO SampleExperimentFile_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idSampleExperimentFile
   , idSample
   , idExpFileRead1
   , idExpFileRead2
   , seqRunNumber
-  FROM SampleExperimentFile
-  WHERE NOT EXISTS(SELECT * FROM SampleExperimentFile_Audit)
+  FROM Sampleexperimentfile
+  WHERE NOT EXISTS(SELECT * FROM Sampleexperimentfile_Audit)
 $$
 
 --
--- Audit Triggers For SampleExperimentFile 
+-- Audit Triggers For Sampleexperimentfile 
 --
 
 
-CREATE TRIGGER TrAI_SampleExperimentFile_FER AFTER INSERT ON SampleExperimentFile FOR EACH ROW
+CREATE TRIGGER TrAI_Sampleexperimentfile_FER AFTER INSERT ON Sampleexperimentfile FOR EACH ROW
 BEGIN
-  INSERT INTO SampleExperimentFile_Audit
+  INSERT INTO Sampleexperimentfile_Audit
   ( AuditAppuser
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idSampleExperimentFile
   , idSample
   , idExpFileRead1
@@ -20710,6 +22097,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idSampleExperimentFile
   , NEW.idSample
   , NEW.idExpFileRead1
@@ -20719,13 +22107,14 @@ END;
 $$
 
 
-CREATE TRIGGER TrAU_SampleExperimentFile_FER AFTER UPDATE ON SampleExperimentFile FOR EACH ROW
+CREATE TRIGGER TrAU_Sampleexperimentfile_FER AFTER UPDATE ON Sampleexperimentfile FOR EACH ROW
 BEGIN
-  INSERT INTO SampleExperimentFile_Audit
+  INSERT INTO Sampleexperimentfile_Audit
   ( AuditAppuser
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idSampleExperimentFile
   , idSample
   , idExpFileRead1
@@ -20736,6 +22125,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idSampleExperimentFile
   , NEW.idSample
   , NEW.idExpFileRead1
@@ -20745,13 +22135,14 @@ END;
 $$
 
 
-CREATE TRIGGER TrAD_SampleExperimentFile_FER AFTER DELETE ON SampleExperimentFile FOR EACH ROW
+CREATE TRIGGER TrAD_Sampleexperimentfile_FER AFTER DELETE ON Sampleexperimentfile FOR EACH ROW
 BEGIN
-  INSERT INTO SampleExperimentFile_Audit
+  INSERT INTO Sampleexperimentfile_Audit
   ( AuditAppuser
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idSampleExperimentFile
   , idSample
   , idExpFileRead1
@@ -20762,6 +22153,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idSampleExperimentFile
   , OLD.idSample
   , OLD.idExpFileRead1
@@ -20772,29 +22164,31 @@ $$
 
 
 --
--- Audit Table For SampleFileType 
+-- Audit Table For Samplefiletype 
 --
 
-CREATE TABLE IF NOT EXISTS `SampleFileType_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+CREATE TABLE IF NOT EXISTS `Samplefiletype_Audit` (
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`codeSampleFileType`  varchar(10)  NULL DEFAULT NULL
  ,`description`  varchar(200)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
 --
--- Initial audit table rows for SampleFileType 
+-- Initial audit table rows for Samplefiletype 
 --
 
-INSERT INTO SampleFileType_Audit
+INSERT INTO Samplefiletype_Audit
   ( AuditAppuser
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeSampleFileType
   , description )
   SELECT
@@ -20802,24 +22196,26 @@ INSERT INTO SampleFileType_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , codeSampleFileType
   , description
-  FROM SampleFileType
-  WHERE NOT EXISTS(SELECT * FROM SampleFileType_Audit)
+  FROM Samplefiletype
+  WHERE NOT EXISTS(SELECT * FROM Samplefiletype_Audit)
 $$
 
 --
--- Audit Triggers For SampleFileType 
+-- Audit Triggers For Samplefiletype 
 --
 
 
-CREATE TRIGGER TrAI_SampleFileType_FER AFTER INSERT ON SampleFileType FOR EACH ROW
+CREATE TRIGGER TrAI_Samplefiletype_FER AFTER INSERT ON Samplefiletype FOR EACH ROW
 BEGIN
-  INSERT INTO SampleFileType_Audit
+  INSERT INTO Samplefiletype_Audit
   ( AuditAppuser
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeSampleFileType
   , description )
   VALUES
@@ -20827,19 +22223,21 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.codeSampleFileType
   , NEW.description );
 END;
 $$
 
 
-CREATE TRIGGER TrAU_SampleFileType_FER AFTER UPDATE ON SampleFileType FOR EACH ROW
+CREATE TRIGGER TrAU_Samplefiletype_FER AFTER UPDATE ON Samplefiletype FOR EACH ROW
 BEGIN
-  INSERT INTO SampleFileType_Audit
+  INSERT INTO Samplefiletype_Audit
   ( AuditAppuser
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeSampleFileType
   , description )
   VALUES
@@ -20847,19 +22245,21 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.codeSampleFileType
   , NEW.description );
 END;
 $$
 
 
-CREATE TRIGGER TrAD_SampleFileType_FER AFTER DELETE ON SampleFileType FOR EACH ROW
+CREATE TRIGGER TrAD_Samplefiletype_FER AFTER DELETE ON Samplefiletype FOR EACH ROW
 BEGIN
-  INSERT INTO SampleFileType_Audit
+  INSERT INTO Samplefiletype_Audit
   ( AuditAppuser
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeSampleFileType
   , description )
   VALUES
@@ -20867,6 +22267,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.codeSampleFileType
   , OLD.description );
 END;
@@ -20874,30 +22275,32 @@ $$
 
 
 --
--- Audit Table For SamplePrepMethod 
+-- Audit Table For Sampleprepmethod 
 --
 
-CREATE TABLE IF NOT EXISTS `SamplePrepMethod_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+CREATE TABLE IF NOT EXISTS `Sampleprepmethod_Audit` (
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idSamplePrepMethod`  int(10)  NULL DEFAULT NULL
  ,`samplePrepMethod`  varchar(50)  NULL DEFAULT NULL
  ,`isActive`  char(1)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
 --
--- Initial audit table rows for SamplePrepMethod 
+-- Initial audit table rows for Sampleprepmethod 
 --
 
-INSERT INTO SamplePrepMethod_Audit
+INSERT INTO Sampleprepmethod_Audit
   ( AuditAppuser
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idSamplePrepMethod
   , samplePrepMethod
   , isActive )
@@ -20906,25 +22309,27 @@ INSERT INTO SamplePrepMethod_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idSamplePrepMethod
   , samplePrepMethod
   , isActive
-  FROM SamplePrepMethod
-  WHERE NOT EXISTS(SELECT * FROM SamplePrepMethod_Audit)
+  FROM Sampleprepmethod
+  WHERE NOT EXISTS(SELECT * FROM Sampleprepmethod_Audit)
 $$
 
 --
--- Audit Triggers For SamplePrepMethod 
+-- Audit Triggers For Sampleprepmethod 
 --
 
 
-CREATE TRIGGER TrAI_SamplePrepMethod_FER AFTER INSERT ON SamplePrepMethod FOR EACH ROW
+CREATE TRIGGER TrAI_Sampleprepmethod_FER AFTER INSERT ON Sampleprepmethod FOR EACH ROW
 BEGIN
-  INSERT INTO SamplePrepMethod_Audit
+  INSERT INTO Sampleprepmethod_Audit
   ( AuditAppuser
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idSamplePrepMethod
   , samplePrepMethod
   , isActive )
@@ -20933,6 +22338,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idSamplePrepMethod
   , NEW.samplePrepMethod
   , NEW.isActive );
@@ -20940,13 +22346,14 @@ END;
 $$
 
 
-CREATE TRIGGER TrAU_SamplePrepMethod_FER AFTER UPDATE ON SamplePrepMethod FOR EACH ROW
+CREATE TRIGGER TrAU_Sampleprepmethod_FER AFTER UPDATE ON Sampleprepmethod FOR EACH ROW
 BEGIN
-  INSERT INTO SamplePrepMethod_Audit
+  INSERT INTO Sampleprepmethod_Audit
   ( AuditAppuser
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idSamplePrepMethod
   , samplePrepMethod
   , isActive )
@@ -20955,6 +22362,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idSamplePrepMethod
   , NEW.samplePrepMethod
   , NEW.isActive );
@@ -20962,13 +22370,14 @@ END;
 $$
 
 
-CREATE TRIGGER TrAD_SamplePrepMethod_FER AFTER DELETE ON SamplePrepMethod FOR EACH ROW
+CREATE TRIGGER TrAD_Sampleprepmethod_FER AFTER DELETE ON Sampleprepmethod FOR EACH ROW
 BEGIN
-  INSERT INTO SamplePrepMethod_Audit
+  INSERT INTO Sampleprepmethod_Audit
   ( AuditAppuser
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idSamplePrepMethod
   , samplePrepMethod
   , isActive )
@@ -20977,6 +22386,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idSamplePrepMethod
   , OLD.samplePrepMethod
   , OLD.isActive );
@@ -20985,30 +22395,32 @@ $$
 
 
 --
--- Audit Table For SampleSource 
+-- Audit Table For Samplesource 
 --
 
-CREATE TABLE IF NOT EXISTS `SampleSource_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+CREATE TABLE IF NOT EXISTS `Samplesource_Audit` (
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idSampleSource`  int(10)  NULL DEFAULT NULL
  ,`sampleSource`  varchar(50)  NULL DEFAULT NULL
  ,`isActive`  char(1)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
 --
--- Initial audit table rows for SampleSource 
+-- Initial audit table rows for Samplesource 
 --
 
-INSERT INTO SampleSource_Audit
+INSERT INTO Samplesource_Audit
   ( AuditAppuser
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idSampleSource
   , sampleSource
   , isActive )
@@ -21017,25 +22429,27 @@ INSERT INTO SampleSource_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idSampleSource
   , sampleSource
   , isActive
-  FROM SampleSource
-  WHERE NOT EXISTS(SELECT * FROM SampleSource_Audit)
+  FROM Samplesource
+  WHERE NOT EXISTS(SELECT * FROM Samplesource_Audit)
 $$
 
 --
--- Audit Triggers For SampleSource 
+-- Audit Triggers For Samplesource 
 --
 
 
-CREATE TRIGGER TrAI_SampleSource_FER AFTER INSERT ON SampleSource FOR EACH ROW
+CREATE TRIGGER TrAI_Samplesource_FER AFTER INSERT ON Samplesource FOR EACH ROW
 BEGIN
-  INSERT INTO SampleSource_Audit
+  INSERT INTO Samplesource_Audit
   ( AuditAppuser
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idSampleSource
   , sampleSource
   , isActive )
@@ -21044,6 +22458,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idSampleSource
   , NEW.sampleSource
   , NEW.isActive );
@@ -21051,13 +22466,14 @@ END;
 $$
 
 
-CREATE TRIGGER TrAU_SampleSource_FER AFTER UPDATE ON SampleSource FOR EACH ROW
+CREATE TRIGGER TrAU_Samplesource_FER AFTER UPDATE ON Samplesource FOR EACH ROW
 BEGIN
-  INSERT INTO SampleSource_Audit
+  INSERT INTO Samplesource_Audit
   ( AuditAppuser
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idSampleSource
   , sampleSource
   , isActive )
@@ -21066,6 +22482,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idSampleSource
   , NEW.sampleSource
   , NEW.isActive );
@@ -21073,13 +22490,14 @@ END;
 $$
 
 
-CREATE TRIGGER TrAD_SampleSource_FER AFTER DELETE ON SampleSource FOR EACH ROW
+CREATE TRIGGER TrAD_Samplesource_FER AFTER DELETE ON Samplesource FOR EACH ROW
 BEGIN
-  INSERT INTO SampleSource_Audit
+  INSERT INTO Samplesource_Audit
   ( AuditAppuser
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idSampleSource
   , sampleSource
   , isActive )
@@ -21088,6 +22506,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idSampleSource
   , OLD.sampleSource
   , OLD.isActive );
@@ -21100,14 +22519,15 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `SampleTypeRequestCategory_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idSampleTypeRequestCategory`  int(10)  NULL DEFAULT NULL
  ,`idSampleType`  int(10)  NULL DEFAULT NULL
  ,`codeRequestCategory`  varchar(10)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -21120,6 +22540,7 @@ INSERT INTO SampleTypeRequestCategory_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idSampleTypeRequestCategory
   , idSampleType
   , codeRequestCategory )
@@ -21128,6 +22549,7 @@ INSERT INTO SampleTypeRequestCategory_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idSampleTypeRequestCategory
   , idSampleType
   , codeRequestCategory
@@ -21147,6 +22569,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idSampleTypeRequestCategory
   , idSampleType
   , codeRequestCategory )
@@ -21155,6 +22578,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idSampleTypeRequestCategory
   , NEW.idSampleType
   , NEW.codeRequestCategory );
@@ -21169,6 +22593,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idSampleTypeRequestCategory
   , idSampleType
   , codeRequestCategory )
@@ -21177,6 +22602,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idSampleTypeRequestCategory
   , NEW.idSampleType
   , NEW.codeRequestCategory );
@@ -21191,6 +22617,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idSampleTypeRequestCategory
   , idSampleType
   , codeRequestCategory )
@@ -21199,6 +22626,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idSampleTypeRequestCategory
   , OLD.idSampleType
   , OLD.codeRequestCategory );
@@ -21211,10 +22639,11 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `SampleType_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idSampleType`  int(10)  NULL DEFAULT NULL
  ,`sampleType`  varchar(50)  NULL DEFAULT NULL
  ,`sortOrder`  int(10)  NULL DEFAULT NULL
@@ -21222,7 +22651,7 @@ CREATE TABLE IF NOT EXISTS `SampleType_Audit` (
  ,`codeNucleotideType`  varchar(50)  NULL DEFAULT NULL
  ,`notes`  varchar(5000)  NULL DEFAULT NULL
  ,`idCoreFacility`  int(10)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -21235,6 +22664,7 @@ INSERT INTO SampleType_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idSampleType
   , sampleType
   , sortOrder
@@ -21247,6 +22677,7 @@ INSERT INTO SampleType_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idSampleType
   , sampleType
   , sortOrder
@@ -21270,6 +22701,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idSampleType
   , sampleType
   , sortOrder
@@ -21282,6 +22714,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idSampleType
   , NEW.sampleType
   , NEW.sortOrder
@@ -21300,6 +22733,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idSampleType
   , sampleType
   , sortOrder
@@ -21312,6 +22746,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idSampleType
   , NEW.sampleType
   , NEW.sortOrder
@@ -21330,6 +22765,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idSampleType
   , sampleType
   , sortOrder
@@ -21342,6 +22778,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idSampleType
   , OLD.sampleType
   , OLD.sortOrder
@@ -21358,10 +22795,11 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `Sample_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idSample`  int(10)  NULL DEFAULT NULL
  ,`number`  varchar(100)  NULL DEFAULT NULL
  ,`name`  varchar(200)  NULL DEFAULT NULL
@@ -21370,13 +22808,9 @@ CREATE TABLE IF NOT EXISTS `Sample_Audit` (
  ,`codeConcentrationUnit`  varchar(10)  NULL DEFAULT NULL
  ,`idSampleType`  int(10)  NULL DEFAULT NULL
  ,`idOrganism`  int(10)  NULL DEFAULT NULL
- ,`otherOrganism`  varchar(100)  NULL DEFAULT NULL
  ,`idSampleSource`  int(10)  NULL DEFAULT NULL
  ,`idSamplePrepMethod`  int(10)  NULL DEFAULT NULL
- ,`otherSamplePrepMethod`  varchar(300)  NULL DEFAULT NULL
- ,`idSeqLibProtocol`  int(10)  NULL DEFAULT NULL
  ,`codeBioanalyzerChipType`  varchar(10)  NULL DEFAULT NULL
- ,`idOligoBarcode`  int(10)  NULL DEFAULT NULL
  ,`qualDate`  datetime  NULL DEFAULT NULL
  ,`qualFailed`  char(1)  NULL DEFAULT NULL
  ,`qualBypassed`  char(1)  NULL DEFAULT NULL
@@ -21403,10 +22837,14 @@ CREATE TABLE IF NOT EXISTS `Sample_Audit` (
  ,`seqPrepStockDate`  datetime  NULL DEFAULT NULL
  ,`seqPrepStockFailed`  char(1)  NULL DEFAULT NULL
  ,`seqPrepStockBypassed`  char(1)  NULL DEFAULT NULL
+ ,`idOligoBarcode`  int(10)  NULL DEFAULT NULL
+ ,`idSeqLibProtocol`  int(10)  NULL DEFAULT NULL
  ,`prepInstructions`  varchar(2000)  NULL DEFAULT NULL
  ,`ccNumber`  varchar(20)  NULL DEFAULT NULL
+ ,`otherSamplePrepMethod`  varchar(300)  NULL DEFAULT NULL
  ,`multiplexGroupNumber`  int(10)  NULL DEFAULT NULL
  ,`barcodeSequence`  varchar(20)  NULL DEFAULT NULL
+ ,`otherOrganism`  varchar(100)  NULL DEFAULT NULL
  ,`meanLibSizeActual`  int(10)  NULL DEFAULT NULL
  ,`idOligoBarcodeB`  int(10)  NULL DEFAULT NULL
  ,`barcodeSequenceB`  varchar(20)  NULL DEFAULT NULL
@@ -21414,10 +22852,10 @@ CREATE TABLE IF NOT EXISTS `Sample_Audit` (
  ,`groupName`  varchar(200)  NULL DEFAULT NULL
  ,`qcCodeApplication`  varchar(10)  NULL DEFAULT NULL
  ,`qcLibConcentration`  decimal(8,1)  NULL DEFAULT NULL
- ,`idLibPrepQCProtocol`  int(10)  NULL DEFAULT NULL
+ ,`idLibPrepQCProtocol`  int(11)  NULL DEFAULT NULL
  ,`sampleVolume`  decimal(8,1)  NULL DEFAULT NULL
  ,`idLibPrepPerformedBy`  int(10)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -21430,6 +22868,7 @@ INSERT INTO Sample_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idSample
   , number
   , name
@@ -21438,13 +22877,9 @@ INSERT INTO Sample_Audit
   , codeConcentrationUnit
   , idSampleType
   , idOrganism
-  , otherOrganism
   , idSampleSource
   , idSamplePrepMethod
-  , otherSamplePrepMethod
-  , idSeqLibProtocol
   , codeBioanalyzerChipType
-  , idOligoBarcode
   , qualDate
   , qualFailed
   , qualBypassed
@@ -21471,10 +22906,14 @@ INSERT INTO Sample_Audit
   , seqPrepStockDate
   , seqPrepStockFailed
   , seqPrepStockBypassed
+  , idOligoBarcode
+  , idSeqLibProtocol
   , prepInstructions
   , ccNumber
+  , otherSamplePrepMethod
   , multiplexGroupNumber
   , barcodeSequence
+  , otherOrganism
   , meanLibSizeActual
   , idOligoBarcodeB
   , barcodeSequenceB
@@ -21490,6 +22929,7 @@ INSERT INTO Sample_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idSample
   , number
   , name
@@ -21498,13 +22938,9 @@ INSERT INTO Sample_Audit
   , codeConcentrationUnit
   , idSampleType
   , idOrganism
-  , otherOrganism
   , idSampleSource
   , idSamplePrepMethod
-  , otherSamplePrepMethod
-  , idSeqLibProtocol
   , codeBioanalyzerChipType
-  , idOligoBarcode
   , qualDate
   , qualFailed
   , qualBypassed
@@ -21531,10 +22967,14 @@ INSERT INTO Sample_Audit
   , seqPrepStockDate
   , seqPrepStockFailed
   , seqPrepStockBypassed
+  , idOligoBarcode
+  , idSeqLibProtocol
   , prepInstructions
   , ccNumber
+  , otherSamplePrepMethod
   , multiplexGroupNumber
   , barcodeSequence
+  , otherOrganism
   , meanLibSizeActual
   , idOligoBarcodeB
   , barcodeSequenceB
@@ -21561,6 +23001,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idSample
   , number
   , name
@@ -21569,13 +23010,9 @@ BEGIN
   , codeConcentrationUnit
   , idSampleType
   , idOrganism
-  , otherOrganism
   , idSampleSource
   , idSamplePrepMethod
-  , otherSamplePrepMethod
-  , idSeqLibProtocol
   , codeBioanalyzerChipType
-  , idOligoBarcode
   , qualDate
   , qualFailed
   , qualBypassed
@@ -21602,10 +23039,14 @@ BEGIN
   , seqPrepStockDate
   , seqPrepStockFailed
   , seqPrepStockBypassed
+  , idOligoBarcode
+  , idSeqLibProtocol
   , prepInstructions
   , ccNumber
+  , otherSamplePrepMethod
   , multiplexGroupNumber
   , barcodeSequence
+  , otherOrganism
   , meanLibSizeActual
   , idOligoBarcodeB
   , barcodeSequenceB
@@ -21621,6 +23062,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idSample
   , NEW.number
   , NEW.name
@@ -21629,13 +23071,9 @@ BEGIN
   , NEW.codeConcentrationUnit
   , NEW.idSampleType
   , NEW.idOrganism
-  , NEW.otherOrganism
   , NEW.idSampleSource
   , NEW.idSamplePrepMethod
-  , NEW.otherSamplePrepMethod
-  , NEW.idSeqLibProtocol
   , NEW.codeBioanalyzerChipType
-  , NEW.idOligoBarcode
   , NEW.qualDate
   , NEW.qualFailed
   , NEW.qualBypassed
@@ -21662,10 +23100,14 @@ BEGIN
   , NEW.seqPrepStockDate
   , NEW.seqPrepStockFailed
   , NEW.seqPrepStockBypassed
+  , NEW.idOligoBarcode
+  , NEW.idSeqLibProtocol
   , NEW.prepInstructions
   , NEW.ccNumber
+  , NEW.otherSamplePrepMethod
   , NEW.multiplexGroupNumber
   , NEW.barcodeSequence
+  , NEW.otherOrganism
   , NEW.meanLibSizeActual
   , NEW.idOligoBarcodeB
   , NEW.barcodeSequenceB
@@ -21687,6 +23129,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idSample
   , number
   , name
@@ -21695,13 +23138,9 @@ BEGIN
   , codeConcentrationUnit
   , idSampleType
   , idOrganism
-  , otherOrganism
   , idSampleSource
   , idSamplePrepMethod
-  , otherSamplePrepMethod
-  , idSeqLibProtocol
   , codeBioanalyzerChipType
-  , idOligoBarcode
   , qualDate
   , qualFailed
   , qualBypassed
@@ -21728,10 +23167,14 @@ BEGIN
   , seqPrepStockDate
   , seqPrepStockFailed
   , seqPrepStockBypassed
+  , idOligoBarcode
+  , idSeqLibProtocol
   , prepInstructions
   , ccNumber
+  , otherSamplePrepMethod
   , multiplexGroupNumber
   , barcodeSequence
+  , otherOrganism
   , meanLibSizeActual
   , idOligoBarcodeB
   , barcodeSequenceB
@@ -21747,6 +23190,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idSample
   , NEW.number
   , NEW.name
@@ -21755,13 +23199,9 @@ BEGIN
   , NEW.codeConcentrationUnit
   , NEW.idSampleType
   , NEW.idOrganism
-  , NEW.otherOrganism
   , NEW.idSampleSource
   , NEW.idSamplePrepMethod
-  , NEW.otherSamplePrepMethod
-  , NEW.idSeqLibProtocol
   , NEW.codeBioanalyzerChipType
-  , NEW.idOligoBarcode
   , NEW.qualDate
   , NEW.qualFailed
   , NEW.qualBypassed
@@ -21788,10 +23228,14 @@ BEGIN
   , NEW.seqPrepStockDate
   , NEW.seqPrepStockFailed
   , NEW.seqPrepStockBypassed
+  , NEW.idOligoBarcode
+  , NEW.idSeqLibProtocol
   , NEW.prepInstructions
   , NEW.ccNumber
+  , NEW.otherSamplePrepMethod
   , NEW.multiplexGroupNumber
   , NEW.barcodeSequence
+  , NEW.otherOrganism
   , NEW.meanLibSizeActual
   , NEW.idOligoBarcodeB
   , NEW.barcodeSequenceB
@@ -21813,6 +23257,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idSample
   , number
   , name
@@ -21821,13 +23266,9 @@ BEGIN
   , codeConcentrationUnit
   , idSampleType
   , idOrganism
-  , otherOrganism
   , idSampleSource
   , idSamplePrepMethod
-  , otherSamplePrepMethod
-  , idSeqLibProtocol
   , codeBioanalyzerChipType
-  , idOligoBarcode
   , qualDate
   , qualFailed
   , qualBypassed
@@ -21854,10 +23295,14 @@ BEGIN
   , seqPrepStockDate
   , seqPrepStockFailed
   , seqPrepStockBypassed
+  , idOligoBarcode
+  , idSeqLibProtocol
   , prepInstructions
   , ccNumber
+  , otherSamplePrepMethod
   , multiplexGroupNumber
   , barcodeSequence
+  , otherOrganism
   , meanLibSizeActual
   , idOligoBarcodeB
   , barcodeSequenceB
@@ -21873,6 +23318,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idSample
   , OLD.number
   , OLD.name
@@ -21881,13 +23327,9 @@ BEGIN
   , OLD.codeConcentrationUnit
   , OLD.idSampleType
   , OLD.idOrganism
-  , OLD.otherOrganism
   , OLD.idSampleSource
   , OLD.idSamplePrepMethod
-  , OLD.otherSamplePrepMethod
-  , OLD.idSeqLibProtocol
   , OLD.codeBioanalyzerChipType
-  , OLD.idOligoBarcode
   , OLD.qualDate
   , OLD.qualFailed
   , OLD.qualBypassed
@@ -21914,10 +23356,14 @@ BEGIN
   , OLD.seqPrepStockDate
   , OLD.seqPrepStockFailed
   , OLD.seqPrepStockBypassed
+  , OLD.idOligoBarcode
+  , OLD.idSeqLibProtocol
   , OLD.prepInstructions
   , OLD.ccNumber
+  , OLD.otherSamplePrepMethod
   , OLD.multiplexGroupNumber
   , OLD.barcodeSequence
+  , OLD.otherOrganism
   , OLD.meanLibSizeActual
   , OLD.idOligoBarcodeB
   , OLD.barcodeSequenceB
@@ -21937,17 +23383,18 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `ScanProtocol_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idScanProtocol`  int(10)  NULL DEFAULT NULL
  ,`scanProtocol`  varchar(200)  NULL DEFAULT NULL
  ,`description`  longtext  NULL DEFAULT NULL
  ,`codeRequestCategory`  varchar(10)  NULL DEFAULT NULL
  ,`url`  varchar(500)  NULL DEFAULT NULL
  ,`isActive`  char(1)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -21960,6 +23407,7 @@ INSERT INTO ScanProtocol_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idScanProtocol
   , scanProtocol
   , description
@@ -21971,6 +23419,7 @@ INSERT INTO ScanProtocol_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idScanProtocol
   , scanProtocol
   , description
@@ -21993,6 +23442,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idScanProtocol
   , scanProtocol
   , description
@@ -22004,6 +23454,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idScanProtocol
   , NEW.scanProtocol
   , NEW.description
@@ -22021,6 +23472,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idScanProtocol
   , scanProtocol
   , description
@@ -22032,6 +23484,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idScanProtocol
   , NEW.scanProtocol
   , NEW.description
@@ -22049,6 +23502,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idScanProtocol
   , scanProtocol
   , description
@@ -22060,6 +23514,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idScanProtocol
   , OLD.scanProtocol
   , OLD.description
@@ -22075,14 +23530,15 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `SealType_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`codeSealType`  varchar(10)  NULL DEFAULT NULL
  ,`sealType`  varchar(50)  NULL DEFAULT NULL
  ,`isActive`  char(1)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -22095,6 +23551,7 @@ INSERT INTO SealType_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeSealType
   , sealType
   , isActive )
@@ -22103,6 +23560,7 @@ INSERT INTO SealType_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , codeSealType
   , sealType
   , isActive
@@ -22122,6 +23580,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeSealType
   , sealType
   , isActive )
@@ -22130,6 +23589,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.codeSealType
   , NEW.sealType
   , NEW.isActive );
@@ -22144,6 +23604,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeSealType
   , sealType
   , isActive )
@@ -22152,6 +23613,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.codeSealType
   , NEW.sealType
   , NEW.isActive );
@@ -22166,6 +23628,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeSealType
   , sealType
   , isActive )
@@ -22174,6 +23637,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.codeSealType
   , OLD.sealType
   , OLD.isActive );
@@ -22186,16 +23650,17 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `Segment_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idSegment`  int(10)  NULL DEFAULT NULL
  ,`length`  int(10) unsigned  NULL DEFAULT NULL
  ,`name`  varchar(100)  NULL DEFAULT NULL
  ,`idGenomeBuild`  int(10)  NULL DEFAULT NULL
  ,`sortOrder`  int(10) unsigned  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -22208,6 +23673,7 @@ INSERT INTO Segment_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idSegment
   , length
   , name
@@ -22218,6 +23684,7 @@ INSERT INTO Segment_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idSegment
   , length
   , name
@@ -22239,6 +23706,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idSegment
   , length
   , name
@@ -22249,6 +23717,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idSegment
   , NEW.length
   , NEW.name
@@ -22265,6 +23734,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idSegment
   , length
   , name
@@ -22275,6 +23745,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idSegment
   , NEW.length
   , NEW.name
@@ -22291,6 +23762,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idSegment
   , length
   , name
@@ -22301,6 +23773,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idSegment
   , OLD.length
   , OLD.name
@@ -22315,13 +23788,14 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `SeqLibProtocolApplication_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idSeqLibProtocol`  int(10)  NULL DEFAULT NULL
  ,`codeApplication`  varchar(10)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -22334,6 +23808,7 @@ INSERT INTO SeqLibProtocolApplication_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idSeqLibProtocol
   , codeApplication )
   SELECT
@@ -22341,6 +23816,7 @@ INSERT INTO SeqLibProtocolApplication_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idSeqLibProtocol
   , codeApplication
   FROM SeqLibProtocolApplication
@@ -22359,6 +23835,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idSeqLibProtocol
   , codeApplication )
   VALUES
@@ -22366,6 +23843,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idSeqLibProtocol
   , NEW.codeApplication );
 END;
@@ -22379,6 +23857,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idSeqLibProtocol
   , codeApplication )
   VALUES
@@ -22386,6 +23865,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idSeqLibProtocol
   , NEW.codeApplication );
 END;
@@ -22399,6 +23879,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idSeqLibProtocol
   , codeApplication )
   VALUES
@@ -22406,6 +23887,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idSeqLibProtocol
   , OLD.codeApplication );
 END;
@@ -22417,10 +23899,11 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `SeqLibProtocol_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idSeqLibProtocol`  int(10)  NULL DEFAULT NULL
  ,`seqLibProtocol`  varchar(200)  NULL DEFAULT NULL
  ,`description`  longtext  NULL DEFAULT NULL
@@ -22428,7 +23911,7 @@ CREATE TABLE IF NOT EXISTS `SeqLibProtocol_Audit` (
  ,`isActive`  char(1)  NULL DEFAULT NULL
  ,`adapterSequenceRead1`  varchar(500)  NULL DEFAULT NULL
  ,`adapterSequenceRead2`  varchar(500)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -22441,6 +23924,7 @@ INSERT INTO SeqLibProtocol_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idSeqLibProtocol
   , seqLibProtocol
   , description
@@ -22453,6 +23937,7 @@ INSERT INTO SeqLibProtocol_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idSeqLibProtocol
   , seqLibProtocol
   , description
@@ -22476,6 +23961,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idSeqLibProtocol
   , seqLibProtocol
   , description
@@ -22488,6 +23974,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idSeqLibProtocol
   , NEW.seqLibProtocol
   , NEW.description
@@ -22506,6 +23993,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idSeqLibProtocol
   , seqLibProtocol
   , description
@@ -22518,6 +24006,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idSeqLibProtocol
   , NEW.seqLibProtocol
   , NEW.description
@@ -22536,6 +24025,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idSeqLibProtocol
   , seqLibProtocol
   , description
@@ -22548,6 +24038,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idSeqLibProtocol
   , OLD.seqLibProtocol
   , OLD.description
@@ -22564,14 +24055,15 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `SeqLibTreatment_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idSeqLibTreatment`  int(10)  NULL DEFAULT NULL
  ,`seqLibTreatment`  varchar(200)  NULL DEFAULT NULL
  ,`isActive`  char(1)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -22584,6 +24076,7 @@ INSERT INTO SeqLibTreatment_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idSeqLibTreatment
   , seqLibTreatment
   , isActive )
@@ -22592,6 +24085,7 @@ INSERT INTO SeqLibTreatment_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idSeqLibTreatment
   , seqLibTreatment
   , isActive
@@ -22611,6 +24105,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idSeqLibTreatment
   , seqLibTreatment
   , isActive )
@@ -22619,6 +24114,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idSeqLibTreatment
   , NEW.seqLibTreatment
   , NEW.isActive );
@@ -22633,6 +24129,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idSeqLibTreatment
   , seqLibTreatment
   , isActive )
@@ -22641,6 +24138,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idSeqLibTreatment
   , NEW.seqLibTreatment
   , NEW.isActive );
@@ -22655,6 +24153,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idSeqLibTreatment
   , seqLibTreatment
   , isActive )
@@ -22663,6 +24162,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idSeqLibTreatment
   , OLD.seqLibTreatment
   , OLD.isActive );
@@ -22675,15 +24175,16 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `SeqRunType_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idSeqRunType`  int(10)  NULL DEFAULT NULL
  ,`seqRunType`  varchar(200)  NULL DEFAULT NULL
  ,`isActive`  char(1)  NULL DEFAULT NULL
  ,`sortOrder`  int(10)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -22696,6 +24197,7 @@ INSERT INTO SeqRunType_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idSeqRunType
   , seqRunType
   , isActive
@@ -22705,6 +24207,7 @@ INSERT INTO SeqRunType_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idSeqRunType
   , seqRunType
   , isActive
@@ -22725,6 +24228,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idSeqRunType
   , seqRunType
   , isActive
@@ -22734,6 +24238,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idSeqRunType
   , NEW.seqRunType
   , NEW.isActive
@@ -22749,6 +24254,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idSeqRunType
   , seqRunType
   , isActive
@@ -22758,6 +24264,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idSeqRunType
   , NEW.seqRunType
   , NEW.isActive
@@ -22773,6 +24280,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idSeqRunType
   , seqRunType
   , isActive
@@ -22782,6 +24290,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idSeqRunType
   , OLD.seqRunType
   , OLD.isActive
@@ -22795,10 +24304,11 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `SequenceLane_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idSequenceLane`  int(10)  NULL DEFAULT NULL
  ,`number`  varchar(100)  NULL DEFAULT NULL
  ,`createDate`  datetime  NULL DEFAULT NULL
@@ -22812,7 +24322,7 @@ CREATE TABLE IF NOT EXISTS `SequenceLane_Audit` (
  ,`readCount`  int(10)  NULL DEFAULT NULL
  ,`pipelineVersion`  varchar(10)  NULL DEFAULT NULL
  ,`idNumberSequencingCyclesAllowed`  int(10)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -22825,6 +24335,7 @@ INSERT INTO SequenceLane_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idSequenceLane
   , number
   , createDate
@@ -22843,6 +24354,7 @@ INSERT INTO SequenceLane_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idSequenceLane
   , number
   , createDate
@@ -22872,6 +24384,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idSequenceLane
   , number
   , createDate
@@ -22890,6 +24403,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idSequenceLane
   , NEW.number
   , NEW.createDate
@@ -22914,6 +24428,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idSequenceLane
   , number
   , createDate
@@ -22932,6 +24447,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idSequenceLane
   , NEW.number
   , NEW.createDate
@@ -22956,6 +24472,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idSequenceLane
   , number
   , createDate
@@ -22974,6 +24491,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idSequenceLane
   , OLD.number
   , OLD.createDate
@@ -22996,15 +24514,16 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `SequencingControl_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idSequencingControl`  int(10)  NULL DEFAULT NULL
  ,`sequencingControl`  varchar(100)  NULL DEFAULT NULL
  ,`isActive`  char(1)  NULL DEFAULT NULL
  ,`idAppUser`  int(10)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -23017,6 +24536,7 @@ INSERT INTO SequencingControl_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idSequencingControl
   , sequencingControl
   , isActive
@@ -23026,6 +24546,7 @@ INSERT INTO SequencingControl_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idSequencingControl
   , sequencingControl
   , isActive
@@ -23046,6 +24567,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idSequencingControl
   , sequencingControl
   , isActive
@@ -23055,6 +24577,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idSequencingControl
   , NEW.sequencingControl
   , NEW.isActive
@@ -23070,6 +24593,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idSequencingControl
   , sequencingControl
   , isActive
@@ -23079,6 +24603,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idSequencingControl
   , NEW.sequencingControl
   , NEW.isActive
@@ -23094,6 +24619,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idSequencingControl
   , sequencingControl
   , isActive
@@ -23103,6 +24629,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idSequencingControl
   , OLD.sequencingControl
   , OLD.isActive
@@ -23116,14 +24643,15 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `SequencingPlatform_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`codeSequencingPlatform`  varchar(10)  NULL DEFAULT NULL
  ,`sequencingPlatform`  varchar(100)  NULL DEFAULT NULL
  ,`isActive`  char(1)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -23136,6 +24664,7 @@ INSERT INTO SequencingPlatform_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeSequencingPlatform
   , sequencingPlatform
   , isActive )
@@ -23144,6 +24673,7 @@ INSERT INTO SequencingPlatform_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , codeSequencingPlatform
   , sequencingPlatform
   , isActive
@@ -23163,6 +24693,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeSequencingPlatform
   , sequencingPlatform
   , isActive )
@@ -23171,6 +24702,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.codeSequencingPlatform
   , NEW.sequencingPlatform
   , NEW.isActive );
@@ -23185,6 +24717,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeSequencingPlatform
   , sequencingPlatform
   , isActive )
@@ -23193,6 +24726,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.codeSequencingPlatform
   , NEW.sequencingPlatform
   , NEW.isActive );
@@ -23207,6 +24741,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeSequencingPlatform
   , sequencingPlatform
   , isActive )
@@ -23215,6 +24750,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.codeSequencingPlatform
   , OLD.sequencingPlatform
   , OLD.isActive );
@@ -23227,17 +24763,18 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `SlideDesign_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idSlideDesign`  int(10)  NULL DEFAULT NULL
  ,`name`  varchar(500)  NULL DEFAULT NULL
  ,`slideDesignProtocolName`  varchar(100)  NULL DEFAULT NULL
  ,`idSlideProduct`  int(10)  NULL DEFAULT NULL
  ,`accessionNumberArrayExpress`  varchar(200)  NULL DEFAULT NULL
  ,`isActive`  char(1)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -23250,6 +24787,7 @@ INSERT INTO SlideDesign_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idSlideDesign
   , name
   , slideDesignProtocolName
@@ -23261,6 +24799,7 @@ INSERT INTO SlideDesign_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idSlideDesign
   , name
   , slideDesignProtocolName
@@ -23283,6 +24822,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idSlideDesign
   , name
   , slideDesignProtocolName
@@ -23294,6 +24834,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idSlideDesign
   , NEW.name
   , NEW.slideDesignProtocolName
@@ -23311,6 +24852,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idSlideDesign
   , name
   , slideDesignProtocolName
@@ -23322,6 +24864,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idSlideDesign
   , NEW.name
   , NEW.slideDesignProtocolName
@@ -23339,6 +24882,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idSlideDesign
   , name
   , slideDesignProtocolName
@@ -23350,6 +24894,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idSlideDesign
   , OLD.name
   , OLD.slideDesignProtocolName
@@ -23365,13 +24910,14 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `SlideProductApplication_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idSlideProduct`  int(10)  NULL DEFAULT NULL
  ,`codeApplication`  varchar(10)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -23384,6 +24930,7 @@ INSERT INTO SlideProductApplication_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idSlideProduct
   , codeApplication )
   SELECT
@@ -23391,6 +24938,7 @@ INSERT INTO SlideProductApplication_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idSlideProduct
   , codeApplication
   FROM SlideProductApplication
@@ -23409,6 +24957,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idSlideProduct
   , codeApplication )
   VALUES
@@ -23416,6 +24965,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idSlideProduct
   , NEW.codeApplication );
 END;
@@ -23429,6 +24979,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idSlideProduct
   , codeApplication )
   VALUES
@@ -23436,6 +24987,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idSlideProduct
   , NEW.codeApplication );
 END;
@@ -23449,6 +25001,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idSlideProduct
   , codeApplication )
   VALUES
@@ -23456,6 +25009,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idSlideProduct
   , OLD.codeApplication );
 END;
@@ -23467,16 +25021,16 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `SlideProduct_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idSlideProduct`  int(10)  NULL DEFAULT NULL
  ,`name`  varchar(500)  NULL DEFAULT NULL
  ,`catalogNumber`  varchar(100)  NULL DEFAULT NULL
  ,`isCustom`  char(1)  NULL DEFAULT NULL
  ,`idLab`  int(10)  NULL DEFAULT NULL
- ,`codeApplication`  varchar(10)  NULL DEFAULT NULL
  ,`idVendor`  int(10)  NULL DEFAULT NULL
  ,`idOrganism`  int(10)  NULL DEFAULT NULL
  ,`arraysPerSlide`  int(10)  NULL DEFAULT NULL
@@ -23485,7 +25039,7 @@ CREATE TABLE IF NOT EXISTS `SlideProduct_Audit` (
  ,`isActive`  char(1)  NULL DEFAULT NULL
  ,`idBillingSlideProductClass`  int(10)  NULL DEFAULT NULL
  ,`idBillingSlideServiceClass`  int(10)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -23498,12 +25052,12 @@ INSERT INTO SlideProduct_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idSlideProduct
   , name
   , catalogNumber
   , isCustom
   , idLab
-  , codeApplication
   , idVendor
   , idOrganism
   , arraysPerSlide
@@ -23517,12 +25071,12 @@ INSERT INTO SlideProduct_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idSlideProduct
   , name
   , catalogNumber
   , isCustom
   , idLab
-  , codeApplication
   , idVendor
   , idOrganism
   , arraysPerSlide
@@ -23547,12 +25101,12 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idSlideProduct
   , name
   , catalogNumber
   , isCustom
   , idLab
-  , codeApplication
   , idVendor
   , idOrganism
   , arraysPerSlide
@@ -23566,12 +25120,12 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idSlideProduct
   , NEW.name
   , NEW.catalogNumber
   , NEW.isCustom
   , NEW.idLab
-  , NEW.codeApplication
   , NEW.idVendor
   , NEW.idOrganism
   , NEW.arraysPerSlide
@@ -23591,12 +25145,12 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idSlideProduct
   , name
   , catalogNumber
   , isCustom
   , idLab
-  , codeApplication
   , idVendor
   , idOrganism
   , arraysPerSlide
@@ -23610,12 +25164,12 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idSlideProduct
   , NEW.name
   , NEW.catalogNumber
   , NEW.isCustom
   , NEW.idLab
-  , NEW.codeApplication
   , NEW.idVendor
   , NEW.idOrganism
   , NEW.arraysPerSlide
@@ -23635,12 +25189,12 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idSlideProduct
   , name
   , catalogNumber
   , isCustom
   , idLab
-  , codeApplication
   , idVendor
   , idOrganism
   , arraysPerSlide
@@ -23654,12 +25208,12 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idSlideProduct
   , OLD.name
   , OLD.catalogNumber
   , OLD.isCustom
   , OLD.idLab
-  , OLD.codeApplication
   , OLD.idVendor
   , OLD.idOrganism
   , OLD.arraysPerSlide
@@ -23677,15 +25231,16 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `SlideSource_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`codeSlideSource`  varchar(10)  NULL DEFAULT NULL
  ,`slideSource`  varchar(100)  NULL DEFAULT NULL
  ,`isActive`  char(1)  NULL DEFAULT NULL
  ,`sortOrder`  int(10)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -23698,6 +25253,7 @@ INSERT INTO SlideSource_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeSlideSource
   , slideSource
   , isActive
@@ -23707,6 +25263,7 @@ INSERT INTO SlideSource_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , codeSlideSource
   , slideSource
   , isActive
@@ -23727,6 +25284,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeSlideSource
   , slideSource
   , isActive
@@ -23736,6 +25294,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.codeSlideSource
   , NEW.slideSource
   , NEW.isActive
@@ -23751,6 +25310,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeSlideSource
   , slideSource
   , isActive
@@ -23760,6 +25320,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.codeSlideSource
   , NEW.slideSource
   , NEW.isActive
@@ -23775,6 +25336,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeSlideSource
   , slideSource
   , isActive
@@ -23784,6 +25346,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.codeSlideSource
   , OLD.slideSource
   , OLD.isActive
@@ -23797,15 +25360,16 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `Slide_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idSlide`  int(10)  NULL DEFAULT NULL
  ,`barcode`  varchar(100)  NULL DEFAULT NULL
  ,`idSlideDesign`  int(10)  NULL DEFAULT NULL
  ,`slideName`  varchar(200)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -23818,6 +25382,7 @@ INSERT INTO Slide_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idSlide
   , barcode
   , idSlideDesign
@@ -23827,6 +25392,7 @@ INSERT INTO Slide_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idSlide
   , barcode
   , idSlideDesign
@@ -23847,6 +25413,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idSlide
   , barcode
   , idSlideDesign
@@ -23856,6 +25423,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idSlide
   , NEW.barcode
   , NEW.idSlideDesign
@@ -23871,6 +25439,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idSlide
   , barcode
   , idSlideDesign
@@ -23880,6 +25449,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idSlide
   , NEW.barcode
   , NEW.idSlideDesign
@@ -23895,6 +25465,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idSlide
   , barcode
   , idSlideDesign
@@ -23904,6 +25475,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idSlide
   , OLD.barcode
   , OLD.idSlideDesign
@@ -23917,14 +25489,15 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `State_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`codeState`  varchar(10)  NULL DEFAULT NULL
  ,`state`  varchar(50)  NULL DEFAULT NULL
  ,`isActive`  char(1)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -23937,6 +25510,7 @@ INSERT INTO State_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeState
   , state
   , isActive )
@@ -23945,6 +25519,7 @@ INSERT INTO State_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , codeState
   , state
   , isActive
@@ -23964,6 +25539,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeState
   , state
   , isActive )
@@ -23972,6 +25548,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.codeState
   , NEW.state
   , NEW.isActive );
@@ -23986,6 +25563,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeState
   , state
   , isActive )
@@ -23994,6 +25572,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.codeState
   , NEW.state
   , NEW.isActive );
@@ -24008,6 +25587,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeState
   , state
   , isActive )
@@ -24016,6 +25596,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.codeState
   , OLD.state
   , OLD.isActive );
@@ -24028,15 +25609,16 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `Step_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
- ,`codeStep`  varchar(10)  NULL DEFAULT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
+ ,`codeStep`  varchar(20)  NULL DEFAULT NULL
  ,`step`  varchar(50)  NULL DEFAULT NULL
  ,`isActive`  char(1)  NULL DEFAULT NULL
  ,`sortOrder`  int(10)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -24049,6 +25631,7 @@ INSERT INTO Step_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeStep
   , step
   , isActive
@@ -24058,6 +25641,7 @@ INSERT INTO Step_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , codeStep
   , step
   , isActive
@@ -24078,6 +25662,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeStep
   , step
   , isActive
@@ -24087,6 +25672,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.codeStep
   , NEW.step
   , NEW.isActive
@@ -24102,6 +25688,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeStep
   , step
   , isActive
@@ -24111,6 +25698,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.codeStep
   , NEW.step
   , NEW.isActive
@@ -24126,6 +25714,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeStep
   , step
   , isActive
@@ -24135,6 +25724,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.codeStep
   , OLD.step
   , OLD.isActive
@@ -24148,10 +25738,11 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `SubmissionInstruction_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idSubmissionInstruction`  int(10)  NULL DEFAULT NULL
  ,`description`  varchar(200)  NULL DEFAULT NULL
  ,`url`  varchar(2000)  NULL DEFAULT NULL
@@ -24159,7 +25750,7 @@ CREATE TABLE IF NOT EXISTS `SubmissionInstruction_Audit` (
  ,`codeApplication`  varchar(10)  NULL DEFAULT NULL
  ,`codeBioanalyzerChipType`  varchar(10)  NULL DEFAULT NULL
  ,`idBillingSlideServiceClass`  int(10)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -24172,6 +25763,7 @@ INSERT INTO SubmissionInstruction_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idSubmissionInstruction
   , description
   , url
@@ -24184,6 +25776,7 @@ INSERT INTO SubmissionInstruction_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idSubmissionInstruction
   , description
   , url
@@ -24207,6 +25800,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idSubmissionInstruction
   , description
   , url
@@ -24219,6 +25813,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idSubmissionInstruction
   , NEW.description
   , NEW.url
@@ -24237,6 +25832,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idSubmissionInstruction
   , description
   , url
@@ -24249,6 +25845,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idSubmissionInstruction
   , NEW.description
   , NEW.url
@@ -24267,6 +25864,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idSubmissionInstruction
   , description
   , url
@@ -24279,6 +25877,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idSubmissionInstruction
   , OLD.description
   , OLD.url
@@ -24295,10 +25894,11 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `Topic_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idTopic`  int(10)  NULL DEFAULT NULL
  ,`name`  varchar(2000)  NULL DEFAULT NULL
  ,`description`  varchar(10000)  NULL DEFAULT NULL
@@ -24309,7 +25909,7 @@ CREATE TABLE IF NOT EXISTS `Topic_Audit` (
  ,`idAppUser`  int(10)  NULL DEFAULT NULL
  ,`codeVisibility`  varchar(10)  NULL DEFAULT NULL
  ,`idInstitution`  int(10)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -24322,6 +25922,7 @@ INSERT INTO Topic_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idTopic
   , name
   , description
@@ -24337,6 +25938,7 @@ INSERT INTO Topic_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idTopic
   , name
   , description
@@ -24363,6 +25965,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idTopic
   , name
   , description
@@ -24378,6 +25981,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idTopic
   , NEW.name
   , NEW.description
@@ -24399,6 +26003,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idTopic
   , name
   , description
@@ -24414,6 +26019,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idTopic
   , NEW.name
   , NEW.description
@@ -24435,6 +26041,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idTopic
   , name
   , description
@@ -24450,6 +26057,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idTopic
   , OLD.name
   , OLD.description
@@ -24469,15 +26077,16 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `TreatmentEntry_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idTreatmentEntry`  int(10)  NULL DEFAULT NULL
  ,`treatment`  varchar(2000)  NULL DEFAULT NULL
  ,`idSample`  int(10)  NULL DEFAULT NULL
  ,`otherLabel`  varchar(100)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -24490,6 +26099,7 @@ INSERT INTO TreatmentEntry_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idTreatmentEntry
   , treatment
   , idSample
@@ -24499,6 +26109,7 @@ INSERT INTO TreatmentEntry_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idTreatmentEntry
   , treatment
   , idSample
@@ -24519,6 +26130,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idTreatmentEntry
   , treatment
   , idSample
@@ -24528,6 +26140,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idTreatmentEntry
   , NEW.treatment
   , NEW.idSample
@@ -24543,6 +26156,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idTreatmentEntry
   , treatment
   , idSample
@@ -24552,6 +26166,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idTreatmentEntry
   , NEW.treatment
   , NEW.idSample
@@ -24567,6 +26182,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idTreatmentEntry
   , treatment
   , idSample
@@ -24576,6 +26192,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idTreatmentEntry
   , OLD.treatment
   , OLD.idSample
@@ -24589,15 +26206,16 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `UnloadDataTrack_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idUnloadDataTrack`  int(10)  NULL DEFAULT NULL
  ,`typeName`  varchar(2000)  NULL DEFAULT NULL
  ,`idAppUser`  int(10)  NULL DEFAULT NULL
  ,`idGenomeBuild`  int(10)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -24610,6 +26228,7 @@ INSERT INTO UnloadDataTrack_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idUnloadDataTrack
   , typeName
   , idAppUser
@@ -24619,6 +26238,7 @@ INSERT INTO UnloadDataTrack_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idUnloadDataTrack
   , typeName
   , idAppUser
@@ -24639,6 +26259,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idUnloadDataTrack
   , typeName
   , idAppUser
@@ -24648,6 +26269,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idUnloadDataTrack
   , NEW.typeName
   , NEW.idAppUser
@@ -24663,6 +26285,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idUnloadDataTrack
   , typeName
   , idAppUser
@@ -24672,6 +26295,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idUnloadDataTrack
   , NEW.typeName
   , NEW.idAppUser
@@ -24687,6 +26311,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idUnloadDataTrack
   , typeName
   , idAppUser
@@ -24696,6 +26321,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idUnloadDataTrack
   , OLD.typeName
   , OLD.idAppUser
@@ -24709,14 +26335,15 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `UserPermissionKind_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`codeUserPermissionKind`  varchar(10)  NULL DEFAULT NULL
  ,`userPermissionKind`  varchar(50)  NULL DEFAULT NULL
  ,`isActive`  char(1)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -24729,6 +26356,7 @@ INSERT INTO UserPermissionKind_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeUserPermissionKind
   , userPermissionKind
   , isActive )
@@ -24737,6 +26365,7 @@ INSERT INTO UserPermissionKind_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , codeUserPermissionKind
   , userPermissionKind
   , isActive
@@ -24756,6 +26385,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeUserPermissionKind
   , userPermissionKind
   , isActive )
@@ -24764,6 +26394,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.codeUserPermissionKind
   , NEW.userPermissionKind
   , NEW.isActive );
@@ -24778,6 +26409,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeUserPermissionKind
   , userPermissionKind
   , isActive )
@@ -24786,6 +26418,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.codeUserPermissionKind
   , NEW.userPermissionKind
   , NEW.isActive );
@@ -24800,6 +26433,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeUserPermissionKind
   , userPermissionKind
   , isActive )
@@ -24808,6 +26442,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.codeUserPermissionKind
   , OLD.userPermissionKind
   , OLD.isActive );
@@ -24820,15 +26455,16 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `Vendor_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idVendor`  int(10)  NULL DEFAULT NULL
  ,`vendorName`  varchar(100)  NULL DEFAULT NULL
  ,`description`  varchar(100)  NULL DEFAULT NULL
  ,`isActive`  char(1)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -24841,6 +26477,7 @@ INSERT INTO Vendor_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idVendor
   , vendorName
   , description
@@ -24850,6 +26487,7 @@ INSERT INTO Vendor_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idVendor
   , vendorName
   , description
@@ -24870,6 +26508,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idVendor
   , vendorName
   , description
@@ -24879,6 +26518,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idVendor
   , NEW.vendorName
   , NEW.description
@@ -24894,6 +26534,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idVendor
   , vendorName
   , description
@@ -24903,6 +26544,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idVendor
   , NEW.vendorName
   , NEW.description
@@ -24918,6 +26560,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idVendor
   , vendorName
   , description
@@ -24927,6 +26570,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idVendor
   , OLD.vendorName
   , OLD.description
@@ -24940,13 +26584,14 @@ $$
 --
 
 CREATE TABLE IF NOT EXISTS `Visibility_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`codeVisibility`  varchar(10)  NULL DEFAULT NULL
  ,`visibility`  varchar(100)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
@@ -24959,6 +26604,7 @@ INSERT INTO Visibility_Audit
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeVisibility
   , visibility )
   SELECT
@@ -24966,6 +26612,7 @@ INSERT INTO Visibility_Audit
   , 'L'
   , USER()
   , NOW()
+  , 0
   , codeVisibility
   , visibility
   FROM Visibility
@@ -24984,6 +26631,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeVisibility
   , visibility )
   VALUES
@@ -24991,6 +26639,7 @@ BEGIN
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.codeVisibility
   , NEW.visibility );
 END;
@@ -25004,6 +26653,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeVisibility
   , visibility )
   VALUES
@@ -25011,6 +26661,7 @@ BEGIN
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.codeVisibility
   , NEW.visibility );
 END;
@@ -25024,6 +26675,7 @@ BEGIN
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , codeVisibility
   , visibility )
   VALUES
@@ -25031,6 +26683,7 @@ BEGIN
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.codeVisibility
   , OLD.visibility );
 END;
@@ -25038,16 +26691,17 @@ $$
 
 
 --
--- Audit Table For WorkItem 
+-- Audit Table For Workitem 
 --
 
-CREATE TABLE IF NOT EXISTS `WorkItem_Audit` (
-  `AuditAppuser`       varchar(128) NOT NULL
- ,`AuditOperation`     char(1)      NOT NULL
- ,`AuditSystemUser`    varchar(30)  NOT NULL
- ,`AuditOperationDate` datetime     NOT NULL
+CREATE TABLE IF NOT EXISTS `Workitem_Audit` (
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
  ,`idWorkItem`  int(10)  NULL DEFAULT NULL
- ,`codeStepNext`  varchar(10)  NULL DEFAULT NULL
+ ,`codeStepNext`  varchar(20)  NULL DEFAULT NULL
  ,`idSample`  int(10)  NULL DEFAULT NULL
  ,`idLabeledSample`  int(10)  NULL DEFAULT NULL
  ,`idHybridization`  int(10)  NULL DEFAULT NULL
@@ -25055,21 +26709,22 @@ CREATE TABLE IF NOT EXISTS `WorkItem_Audit` (
  ,`createDate`  datetime  NULL DEFAULT NULL
  ,`idSequenceLane`  int(10)  NULL DEFAULT NULL
  ,`idFlowCellChannel`  int(10)  NULL DEFAULT NULL
- ,`idCoreFacility`  int(10)  NULL DEFAULT NULL
  ,`status`  varchar(50)  NULL DEFAULT NULL
-) ENGINE=InnoDB
+ ,`idCoreFacility`  int(10)  NULL DEFAULT NULL
+) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
 
 --
--- Initial audit table rows for WorkItem 
+-- Initial audit table rows for Workitem 
 --
 
-INSERT INTO WorkItem_Audit
+INSERT INTO Workitem_Audit
   ( AuditAppuser
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idWorkItem
   , codeStepNext
   , idSample
@@ -25079,13 +26734,14 @@ INSERT INTO WorkItem_Audit
   , createDate
   , idSequenceLane
   , idFlowCellChannel
-  , idCoreFacility
-  , status )
+  , status
+  , idCoreFacility )
   SELECT
   'No Context'
   , 'L'
   , USER()
   , NOW()
+  , 0
   , idWorkItem
   , codeStepNext
   , idSample
@@ -25095,24 +26751,25 @@ INSERT INTO WorkItem_Audit
   , createDate
   , idSequenceLane
   , idFlowCellChannel
-  , idCoreFacility
   , status
-  FROM WorkItem
-  WHERE NOT EXISTS(SELECT * FROM WorkItem_Audit)
+  , idCoreFacility
+  FROM Workitem
+  WHERE NOT EXISTS(SELECT * FROM Workitem_Audit)
 $$
 
 --
--- Audit Triggers For WorkItem 
+-- Audit Triggers For Workitem 
 --
 
 
-CREATE TRIGGER TrAI_WorkItem_FER AFTER INSERT ON WorkItem FOR EACH ROW
+CREATE TRIGGER TrAI_Workitem_FER AFTER INSERT ON Workitem FOR EACH ROW
 BEGIN
-  INSERT INTO WorkItem_Audit
+  INSERT INTO Workitem_Audit
   ( AuditAppuser
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idWorkItem
   , codeStepNext
   , idSample
@@ -25122,13 +26779,14 @@ BEGIN
   , createDate
   , idSequenceLane
   , idFlowCellChannel
-  , idCoreFacility
-  , status )
+  , status
+  , idCoreFacility )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
   , USER()
   , NOW()
+  , 0
   , NEW.idWorkItem
   , NEW.codeStepNext
   , NEW.idSample
@@ -25138,19 +26796,20 @@ BEGIN
   , NEW.createDate
   , NEW.idSequenceLane
   , NEW.idFlowCellChannel
-  , NEW.idCoreFacility
-  , NEW.status );
+  , NEW.status
+  , NEW.idCoreFacility );
 END;
 $$
 
 
-CREATE TRIGGER TrAU_WorkItem_FER AFTER UPDATE ON WorkItem FOR EACH ROW
+CREATE TRIGGER TrAU_Workitem_FER AFTER UPDATE ON Workitem FOR EACH ROW
 BEGIN
-  INSERT INTO WorkItem_Audit
+  INSERT INTO Workitem_Audit
   ( AuditAppuser
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idWorkItem
   , codeStepNext
   , idSample
@@ -25160,13 +26819,14 @@ BEGIN
   , createDate
   , idSequenceLane
   , idFlowCellChannel
-  , idCoreFacility
-  , status )
+  , status
+  , idCoreFacility )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
   , USER()
   , NOW()
+  , 0
   , NEW.idWorkItem
   , NEW.codeStepNext
   , NEW.idSample
@@ -25176,19 +26836,20 @@ BEGIN
   , NEW.createDate
   , NEW.idSequenceLane
   , NEW.idFlowCellChannel
-  , NEW.idCoreFacility
-  , NEW.status );
+  , NEW.status
+  , NEW.idCoreFacility );
 END;
 $$
 
 
-CREATE TRIGGER TrAD_WorkItem_FER AFTER DELETE ON WorkItem FOR EACH ROW
+CREATE TRIGGER TrAD_Workitem_FER AFTER DELETE ON Workitem FOR EACH ROW
 BEGIN
-  INSERT INTO WorkItem_Audit
+  INSERT INTO Workitem_Audit
   ( AuditAppuser
   , AuditOperation
   , AuditSystemUser
   , AuditOperationDate
+  , AuditEditedByPersonID
   , idWorkItem
   , codeStepNext
   , idSample
@@ -25198,13 +26859,14 @@ BEGIN
   , createDate
   , idSequenceLane
   , idFlowCellChannel
-  , idCoreFacility
-  , status )
+  , status
+  , idCoreFacility )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
   , USER()
   , NOW()
+  , 0
   , OLD.idWorkItem
   , OLD.codeStepNext
   , OLD.idSample
@@ -25214,7 +26876,7 @@ BEGIN
   , OLD.createDate
   , OLD.idSequenceLane
   , OLD.idFlowCellChannel
-  , OLD.idCoreFacility
-  , OLD.status );
+  , OLD.status
+  , OLD.idCoreFacility );
 END;
 $$

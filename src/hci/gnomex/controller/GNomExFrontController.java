@@ -58,20 +58,12 @@ public void init(ServletConfig config) throws ServletException {
 	// are we really GNomExLite?
 	GNomExLite = areWeLite();
 
-	// First try to get the mail session using the Orion lookup.
-	// If that fails, try the lookup based on JNDI for Apache Tomcat
+	// Get the mail session
 	try {
-		Context ec = (Context) new InitialContext();
+		Context ec = (Context) new InitialContext().lookup("java:comp/env");
 		mailSession = (Session) ec.lookup(Constants.MAIL_SESSION);
-	} catch (Exception e) {
-		LOG.error("Error in gnomexFrontController", e);
-		try {
-			Context ec = (Context) new InitialContext().lookup("java:comp/env");
-			mailSession = (Session) ec.lookup(Constants.MAIL_SESSION);
-		} catch (Exception me) {
-			LOG.error("Error in gnomexFrontController", e);
-			System.out.println("cannot get mail session " + me.toString());
-		}
+	} catch (Exception me) {
+		LOG.error("Error in gnomexFrontController cannot get mail session: ", me);
 	}
 
 	initLog4j();

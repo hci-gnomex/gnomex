@@ -92,10 +92,11 @@ while ( $tCur->fetch() ) {
   print MYOUTFILE "-- Audit Table For $tabName \n";
   print MYOUTFILE "--\n";
   print MYOUTFILE "\nCREATE TABLE IF NOT EXISTS \`".$tabName."_Audit\` (";
-  print MYOUTFILE "\n  \`AuditAppuser\`       varchar(128) NOT NULL";
-  print MYOUTFILE "\n ,\`AuditOperation\`     char(1)      NOT NULL";
-  print MYOUTFILE "\n ,\`AuditSystemUser\`    varchar(30)  NOT NULL";
-  print MYOUTFILE "\n ,\`AuditOperationDate\` datetime     NOT NULL";
+  print MYOUTFILE "\n  \`AuditAppuser\`       varchar(128) NULL";
+  print MYOUTFILE "\n ,\`AuditOperation\`     char(1)      NULL";
+  print MYOUTFILE "\n ,\`AuditSystemUser\`    varchar(30)  NULL";
+  print MYOUTFILE "\n ,\`AuditOperationDate\` datetime     NULL";
+  print MYOUTFILE "\n ,\`AuditEditedByPersonID\` int(10)   NULL";
 
   #
   # Prepare string buffers for CREATE TRIGGER commands.
@@ -104,50 +105,61 @@ while ( $tCur->fetch() ) {
             "\n  ( AuditAppuser".
             "\n  , AuditOperation".
             "\n  , AuditSystemUser".
-            "\n  , AuditOperationDate";
+            "\n  , AuditOperationDate".
+            "\n  , AuditEditedByPersonID";
   $tAIbuf = "CREATE TRIGGER TrAI_".$tabName."_FER AFTER INSERT ON $tabName FOR EACH ROW".
             "\nBEGIN".
             "\n  INSERT INTO ".$tabName."_Audit".
             "\n  ( AuditAppuser".
             "\n  , AuditOperation".
             "\n  , AuditSystemUser".
-            "\n  , AuditOperationDate";
+            "\n  , AuditOperationDate".
+            "\n  , AuditEditedByPersonID";            
   $tAUbuf = "CREATE TRIGGER TrAU_".$tabName."_FER AFTER UPDATE ON $tabName FOR EACH ROW".
             "\nBEGIN".
             "\n  INSERT INTO ".$tabName."_Audit".
             "\n  ( AuditAppuser".
             "\n  , AuditOperation".
             "\n  , AuditSystemUser".
-            "\n  , AuditOperationDate";
+            "\n  , AuditOperationDate".
+            "\n  , AuditEditedByPersonID";
   $tADbuf = "CREATE TRIGGER TrAD_".$tabName."_FER AFTER DELETE ON $tabName FOR EACH ROW".
             "\nBEGIN".
             "\n  INSERT INTO ".$tabName."_Audit".
             "\n  ( AuditAppuser".
             "\n  , AuditOperation".
             "\n  , AuditSystemUser".
-            "\n  , AuditOperationDate";
-
+            "\n  , AuditOperationDate".
+            "\n  , AuditEditedByPersonID";
+            
   $lIvalbuf = "\n  SELECT".
                "\n  'No Context'".
                "\n  , 'L'".
                "\n  , USER()".
-               "\n  , NOW()";
+               "\n  , NOW()".
+               "\n  , 0";
+               
   $tAIvalBuf = "\n  VALUES".
                "\n  ( CASE WHEN \@userName IS NULL THEN 'No Context' else \@userName end".
                "\n  , 'I'".
                "\n  , USER()".
-               "\n  , NOW()";
+               "\n  , NOW()".
+               "\n  , 0";
+               
   $tAUvalBuf = "\n  VALUES".
                "\n  ( CASE WHEN \@userName IS NULL THEN 'No Context' else \@userName end".
                "\n  , 'U'".
                "\n  , USER()".
-               "\n  , NOW()";
+               "\n  , NOW()".
+               "\n  , 0";
+               
   $tADvalBuf = "\n  VALUES".
                "\n  ( CASE WHEN \@userName IS NULL THEN 'No Context' else \@userName end".
                "\n  , 'D'".
                "\n  , USER()".
-               "\n  , NOW()";
-
+               "\n  , NOW()".
+               "\n  , 0";
+               
   #
   # Prepare column cursor for current table.
   #
@@ -188,7 +200,7 @@ while ( $tCur->fetch() ) {
   #
   # Finish CREATE TABLE command.
   #
-  print MYOUTFILE "\n) ENGINE=InnoDB\n";
+  print MYOUTFILE "\n) ENGINE=INNODB DEFAULT CHARSET=latin1\n";
   print MYOUTFILE "\$\$\n";
 
   #
