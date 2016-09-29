@@ -41,412 +41,463 @@
 		useProxy="false"
 		showBusyCursor="true">
 	</mx:HTTPService>
-	
+
 	<mx:Script>
 		<![CDATA[
-			import hci.flex.controls.Label;
-			
-			import mx.collections.Sort;
-			import mx.collections.SortField;
-			import mx.collections.XMLListCollection;
-			import mx.controls.Alert;
-			import mx.controls.TextInput;
-			import mx.events.CloseEvent;
-			import mx.events.DataGridEvent;
-			import mx.formatters.CurrencyFormatter;
-			import mx.formatters.NumberBaseRoundType;
-			import mx.formatters.NumberFormatter;
-			import mx.managers.PopUpManager;
-			import mx.rpc.events.ResultEvent;
-			
-			import views.experiment.ExperimentEditView;
-			import views.experiment.TabSetupView;
-			import views.product.NewProductOrderView;
-			import views.renderers.CheckBoxRenderer;
-			import views.util.GNomExStringUtil;
-			
-			[Bindable]
-			private var billingAccounts:XMLListCollection;
-			
-			[Bindable]
-			private var labs:XMLListCollection;
-			
-			[Bindable]
-			private var billingTemplateItems:XMLListCollection;
-			
-			private var currencyFormatter:CurrencyFormatter = new CurrencyFormatter();
-			private var percentageFormatter:NumberFormatter = new NumberFormatter();
-			
-			private var billingTemplate:XML;
-			[Bindable]
-			public var order:Object;
-			
-			private var savingNewTemplateMode:Boolean;
-			
-			private var parentView:Object;
-			
-			public var idCoreFacility:String = null;
-			
-			public function performSetup(savingNewTemplateMode:Boolean, parentView:Object = null, idCoreFacility:String = null):void {
-				if ( this.order != null ) {
-					this.title = "Reassign/split billing for " + order.@label;  
-				}
-				
-				if (idCoreFacility != null && idCoreFacility != "") {
-					this.idCoreFacility = idCoreFacility;
-				} else {
-					this.idCoreFacility = null;
-				}
-				
-				if (this.idCoreFacility == null && this.order != null && this.order.hasOwnProperty("@idCoreFacility") && this.order.@idCoreFacility != "") {
-					this.idCoreFacility = this.order.@idCoreFacility;
-				}
-				
-				this.savingNewTemplateMode = savingNewTemplateMode;
-				this.parentView = parentView;
-				
-				currencyFormatter.currencySymbol = "$";
-				currencyFormatter.precision = 2;
-				currencyFormatter.useThousandsSeparator;
-				
-				percentageFormatter.precision = 1;
-				percentageFormatter.rounding = NumberBaseRoundType.NEAREST;
-				
-				billingTemplate = null;
-				loadBillingAccounts();
-				radioSplitPct.selected = true;
-				splitTypeChange(true);
-				
-				billingTemplateItems = new XMLListCollection();
-				setupBillingTemplateItems();
+		import hci.flex.controls.Label;
+
+		import mx.collections.Sort;
+		import mx.collections.SortField;
+		import mx.collections.XMLListCollection;
+		import mx.controls.Alert;
+		import mx.controls.TextInput;
+		import mx.events.CloseEvent;
+		import mx.events.DataGridEvent;
+		import mx.formatters.CurrencyFormatter;
+		import mx.formatters.NumberBaseRoundType;
+		import mx.formatters.NumberFormatter;
+		import mx.managers.PopUpManager;
+		import mx.rpc.events.ResultEvent;
+
+		import views.experiment.ExperimentEditView;
+		import views.experiment.TabSetupView;
+		import views.product.NewProductOrderView;
+		import views.util.GNomExStringUtil;
+
+		[Bindable]
+		private var billingAccounts:XMLListCollection;
+
+		[Bindable]
+		private var labs:XMLListCollection;
+
+		[Bindable]
+		private var billingTemplateItems:XMLListCollection;
+
+		private var currencyFormatter:CurrencyFormatter = new CurrencyFormatter();
+		private var percentageFormatter:NumberFormatter = new NumberFormatter();
+
+		private var billingTemplate:XML;
+		[Bindable]
+		public var order:Object;
+
+		private var savingNewTemplateMode:Boolean;
+
+		private var parentView:Object;
+
+		public var idCoreFacility:String = null;
+
+		public function performSetup(savingNewTemplateMode:Boolean, parentView:Object = null, idCoreFacility:String = null):void {
+			if (this.order != null) {
+				this.title = "Reassign/split billing for " + order.@label;
 			}
-			
-			public function close():void {
-				PopUpManager.removePopUp(this);
+
+			if (idCoreFacility != null && idCoreFacility != "") {
+				this.idCoreFacility = idCoreFacility;
+			} else {
+				this.idCoreFacility = null;
 			}
-			
-			public function save():void {
-				if (!checkOkayToSave()) {
-					Alert.show( "One account need to be marked as accepting the balance and all others need either a percent or dollar amount filled in.  Make sure this is the case and try again.",
-						"Error saving billing template");
-				} else {
-					saveImpl();
-				}
+
+			if (this.idCoreFacility == null && this.order != null && this.order.hasOwnProperty("@idCoreFacility") && this.order.@idCoreFacility != "") {
+				this.idCoreFacility = this.order.@idCoreFacility;
 			}
-			
-			private function checkOkayToSave():Boolean {
-				var oneAcceptBalance:Boolean = false;
-				var allAccountsAssigned:Boolean = true;
+
+			this.savingNewTemplateMode = savingNewTemplateMode;
+			this.parentView = parentView;
+
+			currencyFormatter.currencySymbol = "$";
+			currencyFormatter.precision = 2;
+			currencyFormatter.useThousandsSeparator;
+
+			percentageFormatter.precision = 1;
+			percentageFormatter.rounding = NumberBaseRoundType.NEAREST;
+
+			billingTemplate = null;
+			loadBillingAccounts();
+			radioSplitPct.selected = true;
+			splitTypeChange(true);
+
+			billingTemplateItems = new XMLListCollection();
+			setupBillingTemplateItems();
+		}
+
+		public function close():void {
+			if (billingTemplateItems.length != 0) {
 				if (percentageColumn.visible) {
-					for each (var entry:XML in billingTemplateItems) {
-						if (entry.@acceptBalance == "true") {
-							oneAcceptBalance = !oneAcceptBalance;
-						} else if ( entry.@percentSplit == "" ) {
-							allAccountsAssigned = false;
+					var remainingItem:XML;
+					var total:Number = 0;
+					var index:int = 0;
+					var ctr:int = 0;
+					for each (var item:XML in billingTemplateItems) {
+						if (item.@percentSplit == "") {
+							index = ctr;
+							remainingItem = item;
 						}
-					}
-				} else {
-					for each (var entry1:XML in billingTemplateItems) {
-						if (entry1.@acceptBalance == "true") {
-							oneAcceptBalance = !oneAcceptBalance;
-						} else if ( entry1.@dollarAmount == "" ) {
-							allAccountsAssigned = false;
+						else {
+							total += Number(((String)(item.@percentSplit)).replace("%", ""));
 						}
+						ctr++;
+
+					}
+					if (remainingItem != null) {
+						remainingItem.@percentSplit = (100.0 - total).toFixed(1) + "%";
+						billingTemplateItems.removeItemAt(index);
+						billingTemplateItems.addItem(remainingItem);
 					}
 				}
-				return oneAcceptBalance && allAccountsAssigned;
+				this.dispatchEvent(new CloseEvent("billingTemplateWindowSave", false, false));
+
 			}
-			
-			private function loadBillingAccounts():void {
-				var params:Object = new Object();
-				if (showInactiveAccountsCheckBox.selected) {
-					params.includeOnlyUnexpiredAccounts = "false";
-				}
-				if (this.idCoreFacility != null) {
-					params.idCoreFacility = this.idCoreFacility;
-				}
-				
-				getAuthorizedBillingAccounts.send(params);
+
+			PopUpManager.removePopUp(this);
+		}
+
+		public function save():void {
+			if (!checkOkayToSave()) {
+				Alert.show("One account need to be marked as accepting the balance and all others need either a percent or dollar amount filled in.  Make sure this is the case and try again.",
+						"Error saving billing template");
 			}
-			
-			private function onGetAuthorizedBillingAccounts(event:ResultEvent):void {
-				if (getAuthorizedBillingAccounts.lastResult.name() == "AuthorizedBillingAccounts") {
-					labs = new XMLListCollection(getAuthorizedBillingAccounts.lastResult..Lab);
-					var sort:Sort = new Sort();
-					sort.fields = [new SortField("@name", true)];
-					labs.sort = sort;
-					labs.refresh();
-				} else {
-					labs = new XMLListCollection();
-					Alert.show("Could not retrieve authorized billing accounts.", "Error", Alert.OK, this);
-				}
-				
-				refreshBillingAccounts();
+			else if (!checkPercent()) {
+				Alert.show("Total billing percentage exceeds 100%.")
 			}
-			
-			private function saveImpl():void {				
-				var idBillingTemplate:String = !savingNewTemplateMode ? billingTemplate.@idBillingTemplate : "0";
-				var targetClassIdentifier:String = !savingNewTemplateMode ? billingTemplate.@targetClassIdentifier : "";
-				var targetClassName:String = !savingNewTemplateMode ? billingTemplate.@targetClassName : "";
-				var usingPercentSplit:String = radioSplitPct.selected ? "true" : "false";
-				
-				var billingTemplateXML:String =
+			else {
+				saveImpl();
+			}
+		}
+
+		private function checkPercent():Boolean {
+			var total:Number = 0;
+			var percentOK:Boolean = true;
+			if (percentageColumn.visible) {
+				for each (var entry:XML in billingTemplateItems) {
+					if (entry.@percentSplit != "") {
+						total += Number(((String)(entry.@percentSplit)).replace("%", ""));
+					}
+				}
+			}
+			if (total > 100) {
+				percentOK = false;
+			}
+
+			return percentOK;
+		}
+
+		private function checkOkayToSave():Boolean {
+			var oneAcceptBalance:Boolean = false;
+			var allAccountsAssigned:Boolean = true;
+			if (percentageColumn.visible) {
+				for each (var entry:XML in billingTemplateItems) {
+					if (entry.@acceptBalance == "true") {
+						oneAcceptBalance = !oneAcceptBalance;
+					} else if (entry.@percentSplit == "") {
+						allAccountsAssigned = false;
+					}
+				}
+			} else {
+				for each (var entry1:XML in billingTemplateItems) {
+					if (entry1.@acceptBalance == "true") {
+						oneAcceptBalance = !oneAcceptBalance;
+					} else if (entry1.@dollarAmount == "") {
+						allAccountsAssigned = false;
+					}
+				}
+			}
+			return oneAcceptBalance && allAccountsAssigned;
+		}
+
+		private function loadBillingAccounts():void {
+			var params:Object = new Object();
+			if (showInactiveAccountsCheckBox.selected) {
+				params.includeOnlyUnexpiredAccounts = "false";
+			}
+			if (this.idCoreFacility != null) {
+				params.idCoreFacility = this.idCoreFacility;
+			}
+
+			getAuthorizedBillingAccounts.send(params);
+		}
+
+		private function onGetAuthorizedBillingAccounts(event:ResultEvent):void {
+			if (getAuthorizedBillingAccounts.lastResult.name() == "AuthorizedBillingAccounts") {
+				labs = new XMLListCollection(getAuthorizedBillingAccounts.lastResult..Lab);
+				var sort:Sort = new Sort();
+				sort.fields = [new SortField("@name", true)];
+				labs.sort = sort;
+				labs.refresh();
+			} else {
+				labs = new XMLListCollection();
+				Alert.show("Could not retrieve authorized billing accounts.", "Error", Alert.OK, this);
+			}
+
+			refreshBillingAccounts();
+		}
+
+		private function saveImpl():void {
+			var idBillingTemplate:String = !savingNewTemplateMode ? billingTemplate.@idBillingTemplate : "0";
+			var targetClassIdentifier:String = !savingNewTemplateMode ? billingTemplate.@targetClassIdentifier : "";
+			var targetClassName:String = !savingNewTemplateMode ? billingTemplate.@targetClassName : "";
+			var usingPercentSplit:String = radioSplitPct.selected ? "true" : "false";
+
+			var billingTemplateXML:String =
 					"<BillingTemplate " +
 					" idBillingTemplate='" + idBillingTemplate + "'" +
 					" targetClassIdentifier='" + targetClassIdentifier + "'" +
 					" targetClassName='" + targetClassName + "'" +
 					" usingPercentSplit='" + usingPercentSplit + "'" +
 					" >";
-				for each (var item:XML in billingTemplateItems) {
-					billingTemplateXML += item.toXMLString();
-				}
-				billingTemplateXML += "</BillingTemplate>";
-				
-				if (savingNewTemplateMode) {
-					if (parentView != null) {
-						if (parentView is TabSetupView) {
-							(parentView as TabSetupView).selectedBillingTemplate = billingTemplateXML;
-							(parentView as TabSetupView).makeBillingTemplateSelection();
-							this.close();
-						} else if (parentView is NewProductOrderView) {
-							(parentView as NewProductOrderView).selectedBillingTemplate = billingTemplateXML;
-							(parentView as NewProductOrderView).makeBillingTemplateSelection();
-							this.close();
-						} else if (parentView is ExperimentEditView) {
-							(parentView as ExperimentEditView).editedBillingTemplate = billingTemplateXML;
-							(parentView as ExperimentEditView).updateDirtyNote(true);
-							this.close();
-						}
-					}
-				} else {
-					var params:Object = new Object();
-					params.billingTemplateXMLString = billingTemplateXML;
-					saveBillingTemplate.send(params);
-				}
+			for each (var item:XML in billingTemplateItems) {
+				billingTemplateXML += item.toXMLString();
 			}
-			
-			public function loadBillingTemplate(targetClassIdentifier:Number, targetClassName:String):void {
+			billingTemplateXML += "</BillingTemplate>";
+
+			if (savingNewTemplateMode) {
+				if (parentView != null) {
+					if (parentView is TabSetupView) {
+						(parentView as TabSetupView).selectedBillingTemplate = billingTemplateXML;
+						(parentView as TabSetupView).makeBillingTemplateSelection();
+						this.close();
+					} else if (parentView is NewProductOrderView) {
+						(parentView as NewProductOrderView).selectedBillingTemplate = billingTemplateXML;
+						(parentView as NewProductOrderView).makeBillingTemplateSelection();
+						this.close();
+					} else if (parentView is ExperimentEditView) {
+						(parentView as ExperimentEditView).editedBillingTemplate = billingTemplateXML;
+						(parentView as ExperimentEditView).updateDirtyNote(true);
+						this.close();
+					}
+				}
+			} else {
 				var params:Object = new Object();
-				params.targetClassIdentifier = targetClassIdentifier;
-				params.targetClassName = targetClassName;
-				getBillingTemplate.send(params);
+				params.billingTemplateXMLString = billingTemplateXML;
+				saveBillingTemplate.send(params);
 			}
-			
-			private function onGetBillingTemplate(event:ResultEvent):void {			
-				if (getBillingTemplate.lastResult.name() == "BillingTemplate") {
-					billingTemplate = new XML(getBillingTemplate.lastResult);
-					billingTemplateItems = new XMLListCollection(billingTemplate.BillingTemplateItem);
-					setupBillingTemplateItems();
-					for each (var entry:XML in billingTemplateItems) {
-						updateBillingAccountEntry(entry, entry.@acceptBalance == "true");
-					}
-					if (billingTemplate.@usingPercentSplit == "true") {
-						radioSplitPct.selected = true;
-						radioSplitDollar.selected = false;
-						percentageColumn.visible = true;
-						dollarColumn.visible = false;
-						updatePercentTotal();
-					} else {
-						radioSplitPct.selected = false;
-						radioSplitDollar.selected = true;
-						dollarColumn.visible = true;
-						percentageColumn.visible = false;
-					}
-				} else {
-					Alert.show(getBillingTemplate.lastResult.ERROR.@message, "Error");
+		}
+
+		public function loadBillingTemplate(targetClassIdentifier:Number, targetClassName:String):void {
+			var params:Object = new Object();
+			params.targetClassIdentifier = targetClassIdentifier;
+			params.targetClassName = targetClassName;
+			getBillingTemplate.send(params);
+		}
+
+		private function onGetBillingTemplate(event:ResultEvent):void {
+			if (getBillingTemplate.lastResult.name() == "BillingTemplate") {
+				billingTemplate = new XML(getBillingTemplate.lastResult);
+				billingTemplateItems = new XMLListCollection(billingTemplate.BillingTemplateItem);
+				setupBillingTemplateItems();
+				for each (var entry:XML in billingTemplateItems) {
+					updateBillingAccountEntry(entry, entry.@acceptBalance == "true");
 				}
-			}
-			
-			private function setupBillingTemplateItems():void {
-				var sort:Sort = new Sort();
-				sort.fields = [new SortField("@sortOrder", true, false, true)];
-				billingTemplateItems.sort = sort;
-				billingTemplateItems.refresh();
-			}
-			
-			private function onSaveBillingTemplate(event:ResultEvent):void {			
-				if (saveBillingTemplate.lastResult.name() == "SUCCESS") {
-					parentApplication.navBillingView.refresh();
-					this.close();
+				if (billingTemplate.@usingPercentSplit == "true") {
+					radioSplitPct.selected = true;
+					radioSplitDollar.selected = false;
+					percentageColumn.visible = true;
+					dollarColumn.visible = false;
+					updatePercentTotal();
 				} else {
-					Alert.show(saveBillingTemplate.lastResult.ERROR.@message, "Error");
+					radioSplitPct.selected = false;
+					radioSplitDollar.selected = true;
+					dollarColumn.visible = true;
+					percentageColumn.visible = false;
 				}
+			} else {
+				Alert.show(getBillingTemplate.lastResult.ERROR.@message, "Error");
 			}
-			
-			private function addAccountEntry():void {
-				var newNode:XML = new XML(   
-					"<BillingTemplateItem " + 
+		}
+
+		public function getBillingTemplateItems():XMLListCollection {
+			return this.billingTemplateItems;
+		}
+
+		private function setupBillingTemplateItems():void {
+			var sort:Sort = new Sort();
+			sort.fields = [new SortField("@sortOrder", true, false, true)];
+			billingTemplateItems.sort = sort;
+			billingTemplateItems.refresh();
+		}
+
+		private function onSaveBillingTemplate(event:ResultEvent):void {
+			if (saveBillingTemplate.lastResult.name() == "SUCCESS") {
+				parentApplication.navBillingView.refresh();
+				this.close();
+			} else {
+				Alert.show(saveBillingTemplate.lastResult.ERROR.@message, "Error");
+			}
+		}
+
+		private function addAccountEntry():void {
+			var newNode:XML = new XML(
+					"<BillingTemplateItem " +
 					" idBillingAccount='" + billingAccountCombo.selectedItem.@idBillingAccount + "'" +
 					" accountName='" + GNomExStringUtil.makeXMLSafe(billingAccountCombo.selectedItem.@accountName) + "'" +
 					" accountNumber='" + GNomExStringUtil.makeXMLSafe(billingAccountCombo.selectedItem.@accountNumber) + "'" +
 					" accountNumberDisplay='" + GNomExStringUtil.makeXMLSafe(billingAccountCombo.selectedItem.@accountNumberDisplay) + "'" +
-					" idLab='"  + labCombo.selectedItem.@idLab + "'" +
+					" idLab='" + labCombo.selectedItem.@idLab + "'" +
 					" labName='" + GNomExStringUtil.makeXMLSafe(labCombo.selectedItem.@name) + "'" +
 					" percentSplit=''" +
 					" dollarAmount=''" +
 					" acceptBalance='false'" +
 					" sortOrder='" + (billingTemplateItems.length + 1).toString() + "'" +
 					" />");
-				billingTemplateItems.addItem(newNode);
+			billingTemplateItems.addItem(newNode);
+			labCombo.selectedItem = null;
+			billingAccountCombo.selectedItem = null;
+			refreshBillingAccounts(true);
+			for each (var entry:XML in billingTemplateItems) {
+				updateBillingAccountEntry(entry, entry.@acceptBalance == "true");
+			}
+		}
+
+		private function removeAccountEntry():void {
+			if (accountsGrid.selectedItem != null) {
+				billingTemplateItems.removeItemAt(billingTemplateItems.getItemIndex(accountsGrid.selectedItem));
+				updateSortOrders();
 				labCombo.selectedItem = null;
 				billingAccountCombo.selectedItem = null;
 				refreshBillingAccounts(true);
-				for each (var entry:XML in billingTemplateItems) {
-					updateBillingAccountEntry(entry, entry.@acceptBalance == "true");
-				}
 			}
-			
-			private function removeAccountEntry():void {
-				if (accountsGrid.selectedItem != null) {
-					billingTemplateItems.removeItemAt(billingTemplateItems.getItemIndex(accountsGrid.selectedItem));
-					updateSortOrders();
-					labCombo.selectedItem = null;
-					billingAccountCombo.selectedItem = null;
-					refreshBillingAccounts(true);
-				}
-			}
-			
-			private function refreshBillingAccounts(forceRefresh:Boolean = false):void {
-				if (getAuthorizedBillingAccounts.lastResult != null && labCombo.selectedItem != null && !forceRefresh) {
-					var lab:Object = labCombo.selectedItem;
-					if (order != null && order.hasOwnProperty("@idCoreFacility")) {
-						billingAccounts = new XMLListCollection(lab.BillingAccount.(@idCoreFacility == order.@idCoreFacility));
-					} else if (order != null && order.hasOwnProperty("@codeRequestCategory")) {
-						var requestCategory:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', order.@codeRequestCategory);
-						billingAccounts = new XMLListCollection(lab.BillingAccount.(@idCoreFacility == requestCategory.@idCoreFacility));
-					} else {
-						billingAccounts = new XMLListCollection(lab.BillingAccount);
-					}
+		}
+
+		private function refreshBillingAccounts(forceRefresh:Boolean = false):void {
+			if (getAuthorizedBillingAccounts.lastResult != null && labCombo.selectedItem != null && !forceRefresh) {
+				var lab:Object = labCombo.selectedItem;
+				if (order != null && order.hasOwnProperty("@idCoreFacility")) {
+					billingAccounts = new XMLListCollection(lab.BillingAccount.(@idCoreFacility == order.@idCoreFacility));
+				} else if (order != null && order.hasOwnProperty("@codeRequestCategory")) {
+					var requestCategory:Object = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.RequestCategory', order.@codeRequestCategory);
+					billingAccounts = new XMLListCollection(lab.BillingAccount.(@idCoreFacility == requestCategory.@idCoreFacility));
 				} else {
-					billingAccounts = new XMLListCollection();
+					billingAccounts = new XMLListCollection(lab.BillingAccount);
 				}
-				
-				billingAccounts.filterFunction = filterBillingAccounts;
-				billingAccounts.refresh();
-				var sort:Sort = new Sort();
-				sort.fields = [new SortField("@accountNumberDisplay", true)];
-				billingAccounts.sort = sort;
-				billingAccounts.refresh();
-				
-				billingAccountCombo.selectedIndex = -1;
+			} else {
+				billingAccounts = new XMLListCollection();
 			}
-			
-			private function filterBillingAccounts(item:Object):Boolean {
-				if (this.idCoreFacility != null && item.hasOwnProperty("@idCoreFacility") && item.@idCoreFacility != "") {
-					if (this.idCoreFacility != item.@idCoreFacility) {
-						return false;
+
+			billingAccounts.filterFunction = filterBillingAccounts;
+			billingAccounts.refresh();
+			var sort:Sort = new Sort();
+			sort.fields = [new SortField("@accountNumberDisplay", true)];
+			billingAccounts.sort = sort;
+			billingAccounts.refresh();
+
+			billingAccountCombo.selectedIndex = -1;
+		}
+
+		private function filterBillingAccounts(item:Object):Boolean {
+			if (this.idCoreFacility != null && item.hasOwnProperty("@idCoreFacility") && item.@idCoreFacility != "") {
+				if (this.idCoreFacility != item.@idCoreFacility) {
+					return false;
+				}
+			}
+
+			for each (var alreadyAddedBillingAccount:Object in billingTemplateItems) {
+				if (alreadyAddedBillingAccount.@idBillingAccount == item.@idBillingAccount) {
+					return false;
+				}
+			}
+
+			return true;
+		}
+
+		private function getLabName(item:Object, col:int):String {
+			return GNomExStringUtil.unescapeXMLSpecialChars(item.@labName);
+		}
+
+		private function getBillingAccountName(item:Object, col:int):String {
+			return GNomExStringUtil.unescapeXMLSpecialChars(item.@accountNumberDisplay);
+		}
+
+		private function splitTypeChange(splitByPercentage:Boolean):void {
+			if (splitByPercentage) {
+				percentageColumn.visible = true;
+				dollarColumn.visible = false;
+				for each (var entry:XML in billingTemplateItems) {
+					entry.@dollarAmount = "";
+				}
+				updatePercentTotal();
+			} else {
+				dollarColumn.visible = true;
+				percentageColumn.visible = false;
+				for each (var entry2:XML in billingTemplateItems) {
+					entry2.@percentSplit = "";
+				}
+			}
+		}
+
+		public function updateBillingAccountEntry(billingAccountEntry:XML, acceptingBalance:Boolean):void {
+			billingAccountEntry.@acceptBalance = acceptingBalance ? 'true' : 'false';
+			if (acceptingBalance) {
+				billingAccountEntry.@dollarAmount = "";
+				billingAccountEntry.@percentSplit = "";
+				billingAccountEntry.@sortOrder = int.MAX_VALUE;
+
+				for each (var entry:XML in billingTemplateItems) {
+					if (entry.@idBillingAccount != billingAccountEntry.@idBillingAccount) {
+						entry.@acceptBalance = 'false';
 					}
 				}
-				
-				for each (var alreadyAddedBillingAccount:Object in billingTemplateItems) {
-					if (alreadyAddedBillingAccount.@idBillingAccount == item.@idBillingAccount) {
-						return false;
+
+				updateSortOrders();
+			}
+		}
+
+		private function updateSortOrders():void {
+			for (var i:int = 0; i < billingTemplateItems.length; i++) {
+				billingTemplateItems[i].@sortOrder = i + 1;
+			}
+			billingTemplateItems.refresh();
+		}
+
+
+		protected function accountsGrid_itemEditEndHandler(event:DataGridEvent):void {
+			if (event.columnIndex == 0) {
+				var editor:TextInput = TextInput(event.currentTarget.itemEditorInstance);
+				var newSortOrder:String = editor.text;
+				var modifiedID:String = billingTemplateItems[event.rowIndex].@idBillingAccount;
+				billingTemplateItems[event.rowIndex].@sortOrder = newSortOrder;
+
+				updateSortOrders();
+
+				for (var i:int = 0; i < billingTemplateItems.length; i++) {
+					if (billingTemplateItems[i].@idBillingAccount == modifiedID) {
+						editor.text = (i + 1).toString();
+						break;
 					}
 				}
-				
-				return true;
-			}
-			
-			private function getLabName(item:Object,col:int):String {
-				return GNomExStringUtil.unescapeXMLSpecialChars(item.@labName); 
-			}
-			
-			private function getBillingAccountName(item:Object,col:int):String {
-				return GNomExStringUtil.unescapeXMLSpecialChars(item.@accountNumberDisplay);
-			}
-			
-			private function splitTypeChange(splitByPercentage:Boolean):void {
-				if (splitByPercentage) {
-					percentageColumn.visible = true;
-					dollarColumn.visible = false;
-					for each (var entry:XML in billingTemplateItems) {
-						entry.@dollarAmount = "";
-					}
+			} else if (event.columnIndex == 3 || event.columnIndex == 4) {
+				var editor2:TextInput = TextInput(event.currentTarget.itemEditorInstance);
+				var value:String = editor2.text;
+				var newValue:String;
+				if (radioSplitPct.selected) {
+					newValue = percentageFormatter.format(value) + "%";
+					billingTemplateItems[event.rowIndex].@percentSplit = newValue;
+					editor2.text = newValue;
+
 					updatePercentTotal();
 				} else {
-					dollarColumn.visible = true;
-					percentageColumn.visible = false;
-					for each (var entry2:XML in billingTemplateItems) {
-						entry2.@percentSplit = "";
-					}
+					newValue = currencyFormatter.format(value);
+					billingTemplateItems[event.rowIndex].@dollarAmount = newValue;
+					editor2.text = newValue;
 				}
 			}
-			
-			public function updateBillingAccountEntry(billingAccountEntry:XML, acceptingBalance:Boolean):void {
-				billingAccountEntry.@acceptBalance = acceptingBalance ? 'true' : 'false';
-				if (acceptingBalance) {
-					billingAccountEntry.@dollarAmount = "";
-					billingAccountEntry.@percentSplit = "";
-					billingAccountEntry.@sortOrder = int.MAX_VALUE;
-					
-					for each (var entry:XML in billingTemplateItems) {
-						if (entry.@idBillingAccount != billingAccountEntry.@idBillingAccount) {
-							entry.@acceptBalance = 'false';
-						}
-					}
-					
-					updateSortOrders();
-				}
-			}
-			
-			private function updateSortOrders():void {
-				for (var i:int = 0; i < billingTemplateItems.length; i++) {
-					billingTemplateItems[i].@sortOrder = i + 1;
-				}
-				billingTemplateItems.refresh();
-			}
+		}
 
+		private function updatePercentTotal():void {
+			var total:Number = 0;
+			for each (var entry:XML in billingTemplateItems) {
+				if (entry.@percentSplit != "") {
+					total = total + Number(((String)(entry.@percentSplit)).replace("%", ""));
+				}
+			}
+			percentTotal.text = "Total: " + percentageFormatter.format(total) + "%";
+		}
 
-			protected function accountsGrid_itemEditEndHandler(event:DataGridEvent):void {
-				if (event.columnIndex == 0) {
-					var editor:TextInput = TextInput(event.currentTarget.itemEditorInstance);
-					var newSortOrder:String = editor.text;
-					var modifiedID:String = billingTemplateItems[event.rowIndex].@idBillingAccount;
-					billingTemplateItems[event.rowIndex].@sortOrder = newSortOrder;
-					
-					updateSortOrders();
-					
-					for (var i:int = 0; i < billingTemplateItems.length; i++) {
-						if (billingTemplateItems[i].@idBillingAccount == modifiedID) {
-							editor.text = (i + 1).toString();
-							break;
-						}
-					}
-				} else if (event.columnIndex == 3 || event.columnIndex == 4) {
-					var editor2:TextInput = TextInput(event.currentTarget.itemEditorInstance);
-					var value:String = editor2.text;
-					var newValue:String;
-					if (radioSplitPct.selected) {
-						newValue = percentageFormatter.format(value) + "%";
-						billingTemplateItems[event.rowIndex].@percentSplit = newValue;
-						editor2.text = newValue;
-						
-						updatePercentTotal();
-					} else {
-						newValue = currencyFormatter.format(value);
-						billingTemplateItems[event.rowIndex].@dollarAmount = newValue;
-						editor2.text = newValue;
-					}
+		private function checkEdit(event:DataGridEvent):void {
+			if (event.columnIndex == 3 || event.columnIndex == 4) {
+				if (event.itemRenderer.data.@acceptBalance == "true") {
+					event.preventDefault();
 				}
 			}
-			
-			private function updatePercentTotal():void {
-				var total:Number = 0;
-				for each (var entry:XML in billingTemplateItems) {
-					if (entry.@percentSplit != "") {
-						total = total + Number(((String) (entry.@percentSplit)).replace("%", ""));
-					}
-				}
-				percentTotal.text = "Total: " + percentageFormatter.format(total) +"%";
-			}
-
-			private function checkEdit(event:DataGridEvent):void{
-				if ( event.columnIndex == 3 || event.columnIndex == 4  ) {
-					if ( event.itemRenderer.data.@acceptBalance == "true"){
-						event.preventDefault();
-					}
-				}
-			}
+		}
 		]]>
 	</mx:Script>
 	
