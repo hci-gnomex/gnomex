@@ -134,9 +134,6 @@
             totalBox.visible = false;
             grandTotalLabel.text = "$0";
             iAgree.selected = false;
-//            templateItemsRepeaterBox.visible = false;
-//            templateItemsRepeaterBox.includeInLayout = false;
-
         }
 
         public function refreshTemplateItems(e:CloseEvent):void {
