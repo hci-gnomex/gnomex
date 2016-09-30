@@ -3,7 +3,7 @@
 		 xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" 
 		 height="100%"  paddingTop="2"
 		 xmlns:views="views.*" initialize="overallDescript.textArea.editable=false;"
-		 xmlns:util="views.util.*" xmlns:analysis="views.analysis.*" xmlns:analysis1="analysis.*" verticalGap="2">
+		 xmlns:util="views.util.*" xmlns:analysis="views.analysis.*" xmlns:analysis1="views.analysis.*" verticalGap="2">
 	 
 	
 	<mx:HTTPService  
@@ -38,7 +38,19 @@
 		method="POST" 
 		useProxy="false">
 	</mx:HTTPService>
-	
+
+	<mx:HTTPService
+			id="managePedFileSetup"
+			url="ManagePedFile.gx"
+			resultFormat="e4x"
+			result="onManagePedFileSetup(event)"
+			showBusyCursor="true"
+			fault="parentApplication.onFailHttpRequest('Unable to create ped file', event)"
+			method="POST"
+			useProxy="false">
+	</mx:HTTPService >
+
+
 	<mx:Script>
 		<![CDATA[
 			import hci.flex.controls.CheckBox;
@@ -59,6 +71,7 @@
 			import views.util.CollaboratorWindow;
 			import views.util.FileUtil;
 			import views.util.WebLinksView;
+			import views.analysis.ManagePedFileWindow;
 			
 			[Bindable]
 			private var isGuest:Boolean = true;
@@ -511,6 +524,36 @@
 				linkToExpWindow.parentWindow = this;
 				PopUpManager.centerPopUp(linkToExpWindow);
 			}
+
+			private function showManagePedFileWindow():void{
+				theTab.selectedChild = this.filesView;
+
+				// process/augment the ped file
+				var params:Object = new Object();
+				params.idAnalysis = filesView.getAnalysisDownloadList.lastResult.Analysis.@idAnalysis;
+				params.action = "setup";
+				params.PEDInfo = filesView.getAnalysisDownloadList.lastResult.PEDInfo;
+				params.VCFInfo = filesView.getAnalysisDownloadList.lastResult.VCFInfo;
+				params.BAMInfo = filesView.getAnalysisDownloadList.lastResult.BAMInfo;
+
+				managePedFileSetup.send(params);
+			}
+
+			private function onManagePedFileSetup(event:ResultEvent):void {
+
+				if (managePedFileSetup.lastResult.name() == "ManagePedFile") {
+					var managePedFileWindow:ManagePedFileWindow = ManagePedFileWindow(PopUpManager.createPopUp(this, ManagePedFileWindow, true));
+					managePedFileWindow.idAnalysis = filesView.getAnalysisDownloadList.lastResult.Analysis.@idAnalysis;
+					managePedFileWindow.parentWindow = this;
+
+
+					managePedFileWindow.init1(this);
+					PopUpManager.centerPopUp(managePedFileWindow);
+				} else {
+					Alert.show(managePedFileSetup.lastResult..ACTMESSAGE.@TEXT);
+				}
+			}
+
 			
 		]]>
 	</mx:Script>
@@ -565,6 +608,14 @@
 							   visible="{!isGuest &amp;&amp; parentDocument.selectedAnalysis.@canRead == 'Y' &amp;&amp; parentApplication.dataTrackSupported}"
 							   includeInLayout="{!isGuest &amp;&amp; parentDocument.selectedAnalysis.@canRead == 'Y'  &amp;&amp; parentApplication.dataTrackSupported}"
 							   textAlign="left" paddingLeft="2" paddingRight="0">    	        
+				</mx:LinkButton>		
+				<mx:LinkButton id="pedButton" label="Manage Ped File" 
+							   click="showManagePedFileWindow()" 
+							   icon="@Embed(source='../../assets/chart_organisation.png')" 
+							   textDecoration="underline" 
+							   visible="{!isGuest &amp;&amp; parentDocument.selectedAnalysis.@canRead == 'Y' &amp;&amp; parentApplication.dataTrackSupported &amp;&amp; !isCollaborator}"
+							   includeInLayout="{!isGuest &amp;&amp; parentDocument.selectedAnalysis.@canRead == 'Y'  &amp;&amp; parentApplication.dataTrackSupported &amp;&amp; !isCollaborator}"
+							   textAlign="left" paddingLeft="2" paddingRight="0" >    	        
 				</mx:LinkButton>		
 				<mx:LinkButton label="Share web link" click="{showLinks();}" icon="@Embed(source='../../assets/globe_link.png')" id="shareWebLink" 
 							   textDecoration="underline" textAlign="left" paddingLeft="2" paddingRight="0"/>

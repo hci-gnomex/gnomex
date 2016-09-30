@@ -1,0 +1,350 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
+				xmlns:renderers="views.renderers.*" 
+				title="Manage Ped File" 
+				showCloseButton="true" 
+				close="{PopUpManager.removePopUp(this)}" 
+				horizontalScrollPolicy="off" 
+				verticalScrollPolicy="off">
+	
+	<mx:HTTPService 
+		id="managePedFileSave" 
+		url="ManagePedFile.gx"
+		resultFormat="e4x"
+		result="onManagePedFileSave(event)"
+		showBusyCursor="true"
+		fault="parentApplication.onFailHttpRequest('Unable to save ped file', event)"
+		method="POST"
+		useProxy="false">
+	</mx:HTTPService >
+	
+	<mx:HTTPService 
+		id="managePedFileCreate" 
+		url="ManagePedFile.gx"
+		resultFormat="e4x"
+		result="onManagePedFileCreate(event)"
+		showBusyCursor="true"
+		fault="parentApplication.onFailHttpRequest('Unable to create ped file', event)"
+		method="POST"
+		useProxy="false">
+	</mx:HTTPService >
+	
+	<mx:HTTPService 
+		id="managePedFileSetup" 
+		url="ManagePedFile.gx"
+		resultFormat="e4x"
+		result="onManagePedFileSetup(event)"
+		showBusyCursor="true"
+		fault="parentApplication.onFailHttpRequest('Unable to create ped file', event)"
+		method="POST"
+		useProxy="false">
+	</mx:HTTPService >
+	
+		<mx:HTTPService 
+		id="makeGeneURL" 
+		url="MakeGeneURL.gx"
+		resultFormat="e4x"
+		result="onMakeGeneURL(event)"
+		showBusyCursor="true"
+		fault="parentApplication.onFailHttpRequest('Unable to launch gene.iobio.io', event)"
+		method="POST"
+		useProxy="false">
+	</mx:HTTPService >
+	
+	<mx:Script>
+		<![CDATA[
+			
+			import mx.collections.XMLListCollection;
+			import mx.controls.Alert;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.ResultEvent;
+			
+			import views.analysis.AnalysisDownloadView;
+			import views.analysis.AnalysisDetailView;
+
+			
+			[Bindable]
+			private var selectedProband:Object = null;
+			
+			public var idAnalysis:Object = null;
+			
+			public var idLab:Object = null;
+			
+			[Bindable]
+			public var parentWindow:Object = null;
+			
+			[Bindable]
+			private var analysisDownloadView:AnalysisDownloadView;
+
+			[Bindable]
+			private var analysisDetailView:AnalysisDetailView;
+
+			
+			[Bindable]
+			public var vcfInfo:XMLList;
+
+			[Bindable]
+			public var bamInfo:XMLList;
+			
+			[Bindable]
+			public var pedInfo:XMLList;
+			
+			[Bindable]
+			public var pedFile:XMLList;
+			
+			[Bindable]
+			public var reason:XMLList;
+			
+			[Bindable]
+			public var theXML:XML;
+
+			[Bindable]
+			public var thereason:String;
+
+			[Bindable]
+			public var okToSave:Boolean;
+
+			[Bindable]
+			public var errorMessage:String;
+	
+			public function init(analDownView:AnalysisDownloadView):void{
+				
+				pedFile = analDownView.makeGENELinks.lastResult.PEDFile;
+				vcfInfo = analDownView.makeGENELinks.lastResult.VCFInfo;
+				bamInfo = analDownView.makeGENELinks.lastResult.BAMInfo;
+				pedInfo = analDownView.makeGENELinks.lastResult.PEDInfo;
+				reason  = analDownView.makeGENELinks.lastResult.PEDAction.ActionDescription;
+
+				analysisDownloadView = analDownView;
+
+				okToSave = false;
+
+				thereason = reason[0].@reason;
+
+				setDirections(thereason);
+			}
+
+			public function init1(analDetailView:AnalysisDetailView):void{
+
+				pedFile = analDetailView.managePedFileSetup.lastResult.PEDFile;
+				vcfInfo = analDetailView.managePedFileSetup.lastResult.VCFInfo;
+				bamInfo = analDetailView.managePedFileSetup.lastResult.BAMInfo;
+				pedInfo = analDetailView.managePedFileSetup.lastResult.PEDInfo;
+				reason  = analDetailView.managePedFileSetup.lastResult.PEDAction.ActionDescription;
+
+				analysisDetailView = analDetailView;
+
+				okToSave = false;
+
+				thereason = reason[0].@reason;
+				setDirections(thereason);
+			}
+
+			private function setDirections(thereason:String):void {
+				if(thereason.indexOf("Error") >= 0) {
+					this.errorAction.visible = true;
+					this.errorAction.includeInLayout = true;
+					errorMessage = thereason;
+					return;
+				}
+
+				if(thereason.indexOf("choose") >= 0){
+					this.launchAction.visible = true;
+					this.launchAction.includeInLayout = true;
+				}
+
+				if(thereason.indexOf("save") >= 0){
+					this.saveAction.visible = true;
+					this.saveAction.includeInLayout = true;
+					okToSave = true;
+				}
+
+				if(thereason.indexOf("parent") >= 0){
+					this.parentAction.visible = true;
+					this.parentAction.includeInLayout = true;
+					okToSave = true;
+				}
+			}
+
+			private function savePedFile():void{				
+				var params:Object = new Object();
+				params.idAnalysis = this.idAnalysis;
+				params.action = "save";
+				params.PEDInfo = pedInfo.toXMLString();
+				params.PEDFile = pedFile.toXMLString();				
+				managePedFileSave.send(params);
+			}
+			
+			private function onManagePedFileSave(event:ResultEvent):void{
+				okToSave = false;
+				this.saveAction.visible = false;
+				this.saveAction.includeInLayout = false;
+				this.parentAction.visible = false;
+				this.parentAction.includeInLayout = false;
+
+				if(managePedFileSave.lastResult.name() == "SUCCESS"){
+					Alert.show("Ped file saved. Select the sample_id of the trio proband and press Launch.");
+				} else{
+					Alert.show( event.result..ERROR.@message.toString(), "Error saving ped file." );
+				}
+			}
+
+			private function launchViewer():void{				
+				var params:Object = new Object();
+				params.idAnalysis = this.idAnalysis;
+				params.proband = selectedProband.toXMLString();
+				params.VCFInfo = vcfInfo.toXMLString();
+				params.BAMInfo = bamInfo.toXMLString();
+				params.PEDFile = pedFile.toXMLString();				
+				makeGeneURL.send(params);
+				
+			}
+			
+			private function onMakeGeneURL(event:ResultEvent):void{
+				if (makeGeneURL.lastResult.name() == "SUCCESS") {					
+					navigateToURL(new URLRequest(makeGeneURL.lastResult.@urlsToLink),"GENE");					
+				}					
+				else {
+					Alert.show( event.result..ERROR.@message.toString(), "Error launching gene.iobio.io" );
+				}
+			}
+			
+			private function onManagePedFileCreate(event:ResultEvent):void{
+				if(managePedFileCreate.lastResult.name() == "SUCCESS"){
+					Alert.show("Ped file saved. Select proband and press Launch.");
+				} else{
+					Alert.show( event.result..ERROR.@message.toString(), "Error saving ped file." );
+				}
+			}
+			
+			private function onManagePedFileSetup(event:ResultEvent):void{
+				if(managePedFileSetup.lastResult.name() == "SUCCESS"){
+					Alert.show("Ped file saved. Select proband and press Launch.");
+				} else{
+					Alert.show( event.result..ERROR.@message.toString(), "Error saving ped file." );
+				}
+			}
+			
+			
+			private function getSelectedLabIndex():int{
+				for(var i:int = 0; i < userLabs.length; i++){
+					var lab:Object = userLabs.getItemAt(i);
+					if(lab.@idLab == this.idLab){
+						return i;
+					}
+				}			
+				return -1;			
+			}
+
+			private function filterResults():void{
+				var params:Object = new Object();
+/*
+				//search by lab
+				if(labCombo.selectedItem != null && labCombo.selectedItem.@idLab != ""){
+					params.idLab = labCombo.selectedItem.@idLab;
+					params.includePlateInfo = 'N';
+				}
+*/
+				//search by request number
+				if(expSearch.length > 0){
+					params.number = expSearch.text;
+				}
+				//only bring back experiments that are able to be linked
+				params.linkToAnalysisExpsOnly = 'Y';
+				
+				//getRequestList.send(params);	
+				
+			}
+
+		]]>
+	</mx:Script>
+
+<!--
+	<mx:XML id="managepedfileXML" xmlns="" >
+		<ManagePedFile>
+			<VCFInfo>
+				<VCFPath path="2015-09-22_U41R_Autism/UGP/VCF/Complete/capture_11079R_Final_Backgrounds.vcf.gz" />
+			</VCFInfo>
+			<BAMInfo>
+				<BAMPath path="2015-09-22_U41R_Autism/UGP/Data/PolishedBams/11079X2.bam" />
+				<BAMPath path="2015-09-22_U41R_Autism/UGP/Data/PolishedBams/11079X6.bam" />
+				<BAMPath path="2015-09-22_U41R_Autism/UGP/Data/PolishedBams/11079X3.bam" />
+				<BAMPath path="2015-09-22_U41R_Autism/UGP/Data/PolishedBams/11079X4.bam" />
+				<BAMPath path="2015-09-22_U41R_Autism/UGP/Data/PolishedBams/11079X1.bam" />
+				<BAMPath path="2015-09-22_U41R_Autism/UGP/Data/PolishedBams/11079X5.bam" />
+			</BAMInfo>
+			<PEDInfo>
+				<PEDPath path="C:/temp/gnomex/analysis/2016/A3630/2015-09-22_U41R_Autism/UGP/Reports/Nant-Coon-Autism-Samples.ped" />
+			</PEDInfo>
+			<PEDFile>
+				<PEDHeader name="kindred_id" />
+				<PEDHeader name="sample_id" />
+				<PEDHeader name="paternal_id" />
+				<PEDHeader name="maternal_id" />
+				<PEDHeader name="sex" />
+				<PEDHeader name="affection_status" />
+				<PEDHeader name="project" />
+				<PEDHeader name="bam" />
+				<PEDHeader name="vcf" />
+				<PEDEntry kindred_id="10437" sample_id="11079X3" paternal_id="0" maternal_id="0" sex="2" affection_status="1" project="15-09-21_Nant-Coon-Autism" bam="c:/temp/gnomex/analysis/2016/A3630/2015-09-22_U41R_Autism/UGP/Data/PolishedBams/11079X3.bam" vcf="c:/temp/gnomex/analysis/2016/A3630/2015-09-22_U41R_Autism/UGP/VCF/Complete/capture_11079R_Final_Backgrounds.vcf.gz" />
+				<PEDEntry kindred_id="10437" sample_id="11079X2" paternal_id="0" maternal_id="0" sex="1" affection_status="1" project="15-09-21_Nant-Coon-Autism" bam="c:/temp/gnomex/analysis/2016/A3630/2015-09-22_U41R_Autism/UGP/Data/PolishedBams/11079X2.bam" vcf="c:/temp/gnomex/analysis/2016/A3630/2015-09-22_U41R_Autism/UGP/VCF/Complete/capture_11079R_Final_Backgrounds.vcf.gz" />
+				<PEDEntry kindred_id="10438" sample_id="11079X5" paternal_id="0" maternal_id="0" sex="1" affection_status="1" project="15-09-21_Nant-Coon-Autism" bam="c:/temp/gnomex/analysis/2016/A3630/2015-09-22_U41R_Autism/UGP/Data/PolishedBams/11079X5.bam" vcf="c:/temp/gnomex/analysis/2016/A3630/2015-09-22_U41R_Autism/UGP/VCF/Complete/capture_11079R_Final_Backgrounds.vcf.gz" />
+				<PEDEntry kindred_id="10437" sample_id="11079X4" paternal_id="11079X5" maternal_id="11079X6" sex="1" affection_status="2" project="15-09-21_Nant-Coon-Autism" bam="c:/temp/gnomex/analysis/2016/A3630/2015-09-22_U41R_Autism/UGP/Data/PolishedBams/11079X4.bam" vcf="c:/temp/gnomex/analysis/2016/A3630/2015-09-22_U41R_Autism/UGP/VCF/Complete/capture_11079R_Final_Backgrounds.vcf.gz" />
+				<PEDEntry kindred_id="10437" sample_id="11079X1" paternal_id="11079X2" maternal_id="11079X3" sex="2" affection_status="2" project="15-09-21_Nant-Coon-Autism" bam="c:/temp/gnomex/analysis/2016/A3630/2015-09-22_U41R_Autism/UGP/Data/PolishedBams/11079X1.bam" vcf="c:/temp/gnomex/analysis/2016/A3630/2015-09-22_U41R_Autism/UGP/VCF/Complete/capture_11079R_Final_Backgrounds.vcf.gz" />
+				<PEDEntry kindred_id="10438" sample_id="11079X6" paternal_id="0" maternal_id="0" sex="1" affection_status="2" project="15-09-21_Nant-Coon-Autism" bam="c:/temp/gnomex/analysis/2016/A3630/2015-09-22_U41R_Autism/UGP/Data/PolishedBams/11079X6.bam" vcf="c:/temp/gnomex/analysis/2016/A3630/2015-09-22_U41R_Autism/UGP/VCF/Complete/capture_11079R_Final_Backgrounds.vcf.gz" />
+			</PEDFile>
+			<PEDAction>
+				<ActionDescription reason="save choose" />
+			</PEDAction>
+		</ManagePedFile>
+	</mx:XML>
+
+-->
+	<mx:XMLListCollection id="orderList" source="{pedFile.PEDEntry}"/>
+	<mx:XMLListCollection id="requestCategories" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry.(@isActive == 'Y' &amp;&amp; @value != '')}"/>
+	<mx:XMLListCollection id="userLabs" source="{parentApplication.submitRequestLabList.source}"/>
+	
+	
+	<mx:HBox>
+		<mx:Label text="Search by sample_id: "/>
+		<mx:TextInput id="expSearch" change="filterResults()" enabled="{this.orderList.length > 0 || expSearch.text.length > 0}"/>
+<!--
+		<mx:Spacer width="25" />
+		
+		<mx:Label text="Filter by Lab: "/>
+		<renderers:FilterComboBox id="labCombo" width="250" close="filterResults()" dataProvider="{this.userLabs}" labelField="@name"/>
+-->
+	</mx:HBox>
+
+	<mx:Text id="errorAction" text="{errorMessage}"  color="#FF0000" visible="false" includeInLayout="false"/>
+
+	<mx:Text id="parentAction" text="Specify maternal and paternal ids."  color="#1D22E0" visible="false" includeInLayout="false"/>
+	
+	<mx:Text id="saveAction" text="Press Save to save the modified ped file."  color="#1D22E0" visible="false" includeInLayout="false"/>
+
+	<mx:Text id="launchAction" text="Click on the sample_id of the trio proband then press Launch."  color="#1D22E0" visible="false" includeInLayout="false"/>
+
+	<mx:DataGrid id="requestGrid" width="100%" dataProvider="{this.orderList}" editable = "true" sortableColumns="true" itemClick="{selectedProband = requestGrid.selectedItem}" allowMultipleSelection="false">
+		
+		<mx:columns>
+			<mx:DataGridColumn dataField="@sample_id" headerText="Sample_Id" editable = "false"/>
+			<mx:DataGridColumn dataField="@paternal_id" headerText="Paternal_Id"/>
+			<mx:DataGridColumn dataField="@maternal_id" headerText="Maternal_Id"/>
+			<mx:DataGridColumn dataField="@bam" headerText="Bam"/>
+			<mx:DataGridColumn dataField="@vcf" headerText="Vcf"/>
+		</mx:columns>
+		
+	</mx:DataGrid>
+	
+	<mx:ControlBar width="851" horizontalAlign="right">
+		<mx:Button label="Launch" id="launchButton" click="launchViewer()" icon="@Embed(source='../../assets/iobio.png')"
+				   enabled="{selectedProband != null}"
+				   disabledIcon="@Embed(source='../../assets/iobio_disable.png')"/>
+		<mx:Button label="Save" id="saveButton" click="savePedFile()" icon="@Embed(source='../../assets/iobio.png')"
+				   enabled="{okToSave}"
+				   disabledIcon="@Embed(source='../../assets/iobio_disable.png')"/>
+		<mx:Button label="Cancel" click="{mx.managers.PopUpManager.removePopUp(this)}"/>
+	</mx:ControlBar>
+	
+
+</mx:TitleWindow>

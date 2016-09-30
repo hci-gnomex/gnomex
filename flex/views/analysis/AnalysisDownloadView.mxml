@@ -164,6 +164,7 @@
 			import views.renderers.CheckBoxGroupedItem;
 			import views.util.FileUtil;
 			import views.util.GuestDownloadTermsWindow;
+			import views.analysis.ManagePedFileWindow;
 			
 			private var downloadWindow:AnalysisDownloadWindow;
 			
@@ -701,24 +702,40 @@
 			}
 
 			/************************************************************************
-			 * Read trio definition file and build the URL to start gene.iobio.io
+			 * Read .ped file and build the URL to start gene.iobio.io if we can
 			 *
 			 */
 			public function createGENELinks(txt:String):void {
 				
 				//send to server
 				var params:Object = new Object();
+				params.idAnalysis = getAnalysisDownloadList.lastResult.Analysis.@idAnalysis;
 				params.fileName = txt;
+				params.VCFInfo = getAnalysisDownloadList.lastResult.VCFInfo;
+				params.BAMInfo = getAnalysisDownloadList.lastResult.BAMInfo;		
 				
 				makeGENELinks.send(params);
 			}
 			
 			//response from server
 			private function onMakeGENELinks(event:ResultEvent):void {
-				
+
 				if (makeGENELinks.lastResult.name() == "SUCCESS") {					
 					navigateToURL(new URLRequest(makeGENELinks.lastResult.@urlsToLink),"GENE");					
 				}
+				
+				else {
+					// we couldn't build the URL, could be several reasons
+					// invoke ManagePedFiles and let the user correct the problem
+					var managePedFileWindow:ManagePedFileWindow = ManagePedFileWindow(PopUpManager.createPopUp(this, ManagePedFileWindow, true));
+					managePedFileWindow.idAnalysis = getAnalysisDownloadList.lastResult.Analysis.@idAnalysis;
+					managePedFileWindow.parentWindow = this;
+
+					
+					managePedFileWindow.init(this);
+					PopUpManager.centerPopUp(managePedFileWindow);
+				}
+				
 			}
 			
 			/************************************************************************
@@ -848,7 +865,7 @@
 				<mx:AdvancedDataGridColumn dataField="@displayName"  editable="false" headerText="Folder or File" width="185" itemRenderer="views.renderers.DownloadRenderer"/>
 				<mx:AdvancedDataGridColumn dataField="@fileSizeText" editable="false" headerText="Size" width="20" textAlign="right" />
 				<mx:AdvancedDataGridColumn dataField="@lastModifyDateDisplay" editable="false" headerText="Modified" width="20"/>
-				<mx:AdvancedDataGridColumn dataField="@URLLinkAllowed" headerText="URL" editable="false" width="15" minWidth="15" itemRenderer="views.renderers.LinkButtonURLLink"/>
+				<mx:AdvancedDataGridColumn dataField="@URLLinkAllowed" headerText="URL" editable="false" width="15" minWidth="15" itemRenderer="views.renderers.LinkButtonURLLink"></mx:AdvancedDataGridColumn>
 				<mx:AdvancedDataGridColumn dataField="@UCSCViewer" headerText="UCSC" editable="false" width="15" minWidth="15" itemRenderer="views.renderers.LinkButtonUCSCViewer"/>
 				<mx:AdvancedDataGridColumn dataField="@IGVViewer" headerText="IGV" editable="false" width="15" minWidth="15" itemRenderer="views.renderers.LinkButtonIGVViewer"/>
 				<mx:AdvancedDataGridColumn dataField="@BAMIOBIOViewer" headerText="IOBIO" editable="false" width="15" minWidth="15" itemRenderer="views.renderers.LinkButtonIOBIOViewer"/>
