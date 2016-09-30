@@ -8,7 +8,7 @@
 <mx:Label id="titleLabel" styleName="titleLabel" text="{'User ' + parentDocument.fullUser.@displayName}"/>
 
     <mx:HTTPService 
-    id="saveAppUser" 
+    id="saveAppUser"
     url="SaveAppUser.gx"
     showBusyCursor="true"
     resultFormat="e4x"
@@ -43,9 +43,11 @@
 			import mx.events.ValidationResultEvent;
 			import mx.rpc.events.FaultEvent;
 			import mx.rpc.events.ResultEvent;
-            
-           
-            [Bindable]
+
+			import views.util.PasswordUtil;
+
+
+			[Bindable]
 			public var managingCoreFacilitiesString:String = '';
 			
 			[Bindable]
@@ -77,8 +79,6 @@
       
 			  
             private function save():void {
-				var validated:Boolean = false;
-				
 				if (isAdminPermissionLevel.selected || isBillingPermissionLevel.selected) {
 					var atLeastOneCoreManaged:Boolean = false;
 					for (var index:int = 0; i < parentDocument.managingCoreFacilities.length; i++) {
@@ -87,38 +87,58 @@
 							break;
 						}
 					}
-					validated = atLeastOneCoreManaged;
-				} else {
-					validated = true;
+					if (!atLeastOneCoreManaged) {
+						Alert.show("The user is marked as an admin; please specify the core facility(ies) the user can manage.", "Notice", Alert.OK, this);
+						return;
+					}
 				}
-				
-				if (validated) {
-					for (var i:int = 0; i < parentDocument.managingCoreFacilities.length; i++) {
-						var facility:XML = XML(parentDocument.managingCoreFacilities.getItemAt(i));
-						if (chkCoreFacility[i].selected) {
-							facility.@selected = "Y";
-						} else {
-							facility.@selected = "N";
-						}
+				if (this.radioUniversityUser.selected) {
+					if (isActive.selected && uNID.text == "") {
+						Alert.show("Please provide a uNID");
+						return;
 					}
-					
-					for (var j:int = 0; j < parentDocument.coreFacilitiesICanSubmitTo.length; j++) {
-						var submitfacility:XML = XML(parentDocument.coreFacilitiesICanSubmitTo.getItemAt(j));
-						if (chkSubmitCoreFacility[j].selected) {
-							submitfacility.@selected = "Y";
-						} else {
-							submitfacility.@selected = "N";
-						}
+				}
+				if (this.radioExternalUser.selected) {
+					if (isActive.selected && externalUserName.text == "") {
+						Alert.show("Please provide a user name");
+						return;
 					}
-					managingCoreFacilitiesString = parentDocument.managingCoreFacilities.toXMLString();
-					coreFacilitiesICanSubmitToString = parentDocument.coreFacilitiesICanSubmitTo.toXMLString();
-					if (userWillBeInactivated && !isActive.selected) {
-						showInactivatingUserWarning();
+					if (externalUserName.text != "" && externalUserPassword.text == "") {
+						Alert.show("Please provide a password");
+						return;
+					}
+					if (externalUserPassword.text != externalUserPasswordConfirm.text) {
+						Alert.show(PasswordUtil.MATCH_ERROR_TEXT);
+						return;
+					}
+					if (externalUserPassword.text != null && !PasswordUtil.passwordMeetsRequirements(externalUserPassword.text)) {
+						Alert.show(PasswordUtil.COMPLEXITY_ERROR_TEXT);
+						return;
+					}
+				}
+				for (var i:int = 0; i < parentDocument.managingCoreFacilities.length; i++) {
+					var facility:XML = XML(parentDocument.managingCoreFacilities.getItemAt(i));
+					if (chkCoreFacility[i].selected) {
+						facility.@selected = "Y";
 					} else {
-						saveAppUser.send();
+						facility.@selected = "N";
 					}
+				}
+
+				for (var j:int = 0; j < parentDocument.coreFacilitiesICanSubmitTo.length; j++) {
+					var submitfacility:XML = XML(parentDocument.coreFacilitiesICanSubmitTo.getItemAt(j));
+					if (chkSubmitCoreFacility[j].selected) {
+						submitfacility.@selected = "Y";
+					} else {
+						submitfacility.@selected = "N";
+					}
+				}
+				managingCoreFacilitiesString = parentDocument.managingCoreFacilities.toXMLString();
+				coreFacilitiesICanSubmitToString = parentDocument.coreFacilitiesICanSubmitTo.toXMLString();
+				if (userWillBeInactivated && !isActive.selected) {
+					showInactivatingUserWarning();
 				} else {
-					Alert.show("The user is marked as an admin; please specify the core facility(ies) the user can manage.", "Notice", Alert.OK, this);
+					saveAppUser.send();
 				}
             }
 			
@@ -196,8 +216,9 @@
             	if (this.radioUniversityUser.selected) {
             		loginStack.selectedIndex = 0;
             		externalUserName.text = "";
-            		this.externalUserPassword.text = "";
-            	} else {            		
+					this.externalUserPassword.text = "";
+					this.externalUserPasswordConfirm.text = "";
+            	} else {
             		loginStack.selectedIndex = 1;
             		uNID.text = "";
             		
@@ -268,7 +289,7 @@
 			</mx:HBox>
 		  	<mx:HBox height="100%">
 		  	  <mx:HBox borderStyle="solid" borderColor="#C9D7E1" paddingBottom="2" paddingRight="2" paddingLeft="2" verticalGap="8" cornerRadius="6" paddingTop="2">
-				<mx:VBox  paddingBottom="4" paddingRight="4" paddingLeft="4" verticalGap="8" width="250">
+				<mx:VBox  paddingBottom="4" paddingRight="4" paddingLeft="4" verticalGap="8" width="400">
 					<mx:HBox verticalGap="0" visible="true" id="radioUnivOrExternalBox">
 						<mx:RadioButtonGroup id="radioGroupUserAccount"/>
 						<mx:RadioButton label="University user" groupName="radiogroup1" click="{onUserAccountChange()}" value="UNID" id="radioUniversityUser"/>
@@ -276,7 +297,7 @@
 						</mx:RadioButton>
 						
 					</mx:HBox>	
-					<mx:ViewStack id="loginStack" width="100%" height="100%">
+					<mx:ViewStack id="loginStack" width="100%" height="140">
 						<mx:HBox paddingLeft="0">	  	      
 					  	    <mx:VBox verticalGap="1" id="unidContainer" width="100">
 					  	      <mx:Label text="uNID"  styleName="formLabel"/>
@@ -284,20 +305,32 @@
 					  	      	text="{parentDocument.fullUser.@uNID}" 
 					  	       width="100" change="dirty.setDirty()"/>
 				  	     	</mx:VBox>		  	    	
-						</mx:HBox>		  	
-						<mx:HBox width="100%" >
-							<mx:VBox verticalGap="1"   id="vbox2">
-								<mx:Label text="User name"  styleName="formLabel"/>
-								<mx:TextInput id="externalUserName" 
-											  width="100" text="{parentDocument.fullUser.@userNameExternal}" change="dirty.setDirty()"/>
-							</mx:VBox>
-							<mx:VBox verticalGap="1"  >
-								<mx:Label text="Password" styleName="formLabel"/>
-								<mx:TextInput id="externalUserPassword" 
-											  text="{parentDocument.fullUser.@passwordExternalEntered}" 
-											  width="120" displayAsPassword="true"  change="dirty.setDirty()"/>
-							</mx:VBox>
 						</mx:HBox>
+						<mx:VBox width="100%" id="largerThingy">
+							<mx:HBox width="100%" >
+								<mx:VBox verticalGap="1" id="vbox2">
+									<mx:Label text="User name"  styleName="formLabel"/>
+									<mx:TextInput id="externalUserName"
+												  width="100" text="{parentDocument.fullUser.@userNameExternal}" change="dirty.setDirty()"/>
+								</mx:VBox>
+								<mx:VBox verticalGap="1">
+									<mx:Label text="Password" styleName="formLabel"/>
+									<mx:TextInput id="externalUserPassword"
+												  text="{parentDocument.fullUser.@passwordExternalEntered}"
+												  width="120" displayAsPassword="true"  change="dirty.setDirty()"/>
+								</mx:VBox>
+								<mx:VBox verticalGap="1">
+									<mx:Label text="ConfirmPassword" styleName="formLabel"/>
+									<mx:TextInput id="externalUserPasswordConfirm"
+												  text="{parentDocument.fullUser.@passwordExternalEntered}"
+												  width="120" displayAsPassword="true"  change="dirty.setDirty()"/>
+									<mx:Label text="Passwords must match" visible="{externalUserPassword.text != externalUserPasswordConfirm.text}" styleName="formLabel"/>
+								</mx:VBox>
+							</mx:HBox>
+							<mx:HBox width="100%">
+								<mx:Text width="100%" text="{PasswordUtil.REQUIREMENTS_TEXT}" />
+							</mx:HBox>
+						</mx:VBox>
 					</mx:ViewStack>
 				</mx:VBox>
 		  	    <mx:VBox paddingLeft="0" paddingBottom="0" paddingRight="0" paddingTop="0" verticalGap="0" id="permissionKindContainer">
