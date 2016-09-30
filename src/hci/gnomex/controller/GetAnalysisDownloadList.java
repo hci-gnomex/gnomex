@@ -343,12 +343,7 @@ public Command execute() throws RollBackCommandException {
 
 		throw new RollBackCommandException(e.getMessage());
 	}
-	/*
-	 * finally { try { this.getSecAdvisor().closeHibernateSession("GetAnalysisDownloadList"); } catch (Exception e) {
-	 * LOG.error("Error in getAnalysisDownloadList", e);
-	 * 
-	 * } }
-	 */
+
 	String dinfo = "GetAnalysisDownloadList (" + this.getUsername() + " - " + reqNumber + "), ";
 	Util.showTime(startTime, dinfo);
 

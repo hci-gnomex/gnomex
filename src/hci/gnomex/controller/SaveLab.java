@@ -620,9 +620,6 @@ public Command execute() throws RollBackCommandException {
 		throw new RollBackCommandException(e.getMessage());
 
 	}
-	/*
-	 * finally { try { //closeHibernateSession; } catch(Exception e){ LOG.error("Error", e); } }
-	 */
 	return this;
 }
 

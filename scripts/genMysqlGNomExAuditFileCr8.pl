@@ -6,7 +6,7 @@
 # Generate SQL script for creating audit files for GNomEx MySQL databases.
 # --------------------------------------------------------------------------------------------------
 #  Modifications
-# --------------------------------------------------------------------------------------------------
+# ------------------------------------------------------------------s--------------------------------
 
 
 use strict;
@@ -78,6 +78,7 @@ while ( $tCur->fetch() ) {
   print MYOUTFILE "\n ,\`AuditOperation\`     char(1)      NOT NULL";
   print MYOUTFILE "\n ,\`AuditSystemUser\`    varchar(30)  NOT NULL";
   print MYOUTFILE "\n ,\`AuditOperationDate\` datetime     NOT NULL";
+  print MYOUTFILE "\n ,\`AuditEditedByPersonID\` int(10)   NULL";
 
   #
   # Prepare column cursor for current table.
@@ -103,7 +104,7 @@ while ( $tCur->fetch() ) {
   #
   # Finish CREATE TABLE command.
   #
-  print MYOUTFILE "\n) ENGINE=InnoDB\n";
+  print MYOUTFILE "\n) ENGINE = INNODB DEFAULT CHARSET=latin1\n";
   print MYOUTFILE "\$\$\n";
 }
 $tCur->finish();
