@@ -5,12 +5,7 @@ import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.AppUser;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.security.EncryptionUtility;
-import hci.gnomex.utility.DictionaryHelper;
-import hci.gnomex.utility.HibernateSession;
-import hci.gnomex.utility.MailUtil;
-import hci.gnomex.utility.MailUtilHelper;
-import hci.gnomex.utility.PropertyDictionaryHelper;
-import hci.gnomex.utility.Util;
+import hci.gnomex.utility.*;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -37,7 +32,6 @@ public String ERROR_JSP = "/change_password.jsp";
 private String userName;
 private String email;
 private String newPassword;
-private String newPasswordConfirm;
 private String guid;
 private String responsePageSuccess = null;
 private String responsePageError = null;
@@ -89,16 +83,8 @@ public void loadCommand(HttpServletRequest request, HttpSession session) {
 			this.newPassword = request.getParameter("newPassword");
 		}
 
-		if (request.getParameter("newPasswordConfirm") != null
-				&& !request.getParameter("newPasswordConfirm").equals("")) {
-			this.newPasswordConfirm = request.getParameter("newPasswordConfirm");
-		}
-
-		if (newPassword != null && newPasswordConfirm != null) {
-			if (!newPassword.equals(newPasswordConfirm)) {
-				this.addInvalidField("passwords",
-						"The two passwords you have entered do not match. Please re-enter your new password.");
-			}
+		if (newPassword != null && !PasswordUtil.passwordMeetsRequirements(newPassword)) {
+			this.addInvalidField("passwords", PasswordUtil.COMPLEXITY_ERROR_TEXT);
 		}
 		if (request.getParameter("responsePageSuccess") != null
 				&& !request.getParameter("responsePageSuccess").equals("")) {
@@ -153,7 +139,7 @@ public Command execute() throws RollBackCommandException {
 			this.addInvalidField("Inactive user account", regErrorMsg);
 		} else {
 			// Change password
-			if (newPassword != null && newPasswordConfirm != null) {
+			if (newPassword != null) {
 				String salt = passwordEncrypter.createSalt();
 				String thePasswordEncrypted = passwordEncrypter.createPassword(newPassword, salt);
 				appUser.setPasswordExternal(thePasswordEncrypted);
