@@ -419,18 +419,18 @@
 		private function setVisibility():void {
 			var visible:Boolean = true;
 			if (this.requestTypeGroup.selectedValue == null) {
-				visible = false || !parentApplication.submitInternalExperiment();
+				visible = !parentApplication.submitInternalExperiment();
 			}
 			this.labAndInstructionBox.visible = visible;
 			this.labAndInstructionBox.includeInLayout = visible;
 			if (this.labCombo.selectedIndex < 0) {
-				visible = false || !parentApplication.submitInternalExperiment();
+				visible = !parentApplication.submitInternalExperiment();
 			}
 			if (appUserContainer != null && this.contains(this.appUserContainer)) {
 				appUserContainer.visible = visible;
 				appUserContainer.includeInLayout = visible;
 				if (appUserCombo.selectedItem == null || appUserCombo.selectedItem.@idAppUser == '') {
-					visible = false || !parentApplication.submitInternalExperiment();
+					visible = !parentApplication.submitInternalExperiment();
 				}
 			}
 			this.accountBox.visible = visible;
@@ -1399,10 +1399,8 @@
 			updateBillingAccount();
 			checkSetupCompleteness();
 			setVisibility();
-			if (billingAccountCombo.selectedIndex >= 0) {
-				templateItemsRepeaterBox.visible = false;
-				templateItemsRepeaterBox.includeInLayout = false;
-			}
+			templateItemsRepeaterBox.visible = false;
+			templateItemsRepeaterBox.includeInLayout = false;
 
 		}
 
@@ -1499,10 +1497,10 @@
 		private function buildSelectedBillingAccountsString():String {
 			var selectedBillingAccountsString:String = "";
 			if (splitWindow.percentageColumn.visible) {
-				selectedBillingAccountsString = templateItemsRepeater.currentItem.@accountNumberDisplay + '(' + templateItemsRepeater.currentItem.@percentSplit + ')';
+				selectedBillingAccountsString = templateItemsRepeater.currentItem.@accountNumberDisplay + ' (' + templateItemsRepeater.currentItem.@percentSplit + ')';
 			}
 			else {
-				selectedBillingAccountsString = templateItemsRepeater.currentItem.@accountNumberDisplay + '(' + templateItemsRepeater.currentItem.@dollarAmount + ')'
+				selectedBillingAccountsString = templateItemsRepeater.currentItem.@accountNumberDisplay + ' (' + templateItemsRepeater.currentItem.@dollarAmount + ')'
 			}
 			return selectedBillingAccountsString;
 		}
@@ -1553,7 +1551,7 @@
 		<mx:HBox width="100%" horizontalGap="0" id="label1" verticalAlign="top" paddingTop="2">
 			<util:ContextHelp context1="experimentType" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Service Category Help"
 							  labelPlacement="left" id="label11" width="200" label="(1) Select a service category."/>
-			<mx:VBox id="requestTypeBox" horizontalGap="8" verticalGap="0" styleName="requiredBox" paddingLeft="2" paddingTop="1" paddingRight="4" paddingBottom="0" width="610" verticalAlign="bottom">
+			<mx:VBox id="requestTypeBox" horizontalGap="8" verticalGap="0" styleName="requiredBox" paddingLeft="2" paddingTop="1" paddingRight="4" paddingBottom="0" width="610" verticalAlign="bottom" >
 				<mx:RadioButtonGroup id="requestTypeGroup" change="{refreshBillingAccounts();refreshLabList()}" />
 				<mx:Repeater id="requestCategoryRepeater" dataProvider="{requestCategories}">
 					<mx:HBox  paddingRight="2" paddingBottom="0" paddingTop="0" width="100%" verticalAlign="middle">
@@ -1565,6 +1563,7 @@
 										label="{requestCategoryRepeater.currentItem.@display}" 
 										value="{requestCategoryRepeater.currentItem.@value}" 
 										paddingBottom="0" paddingTop="0" fontSize="11"
+										creationComplete="hideTemplateItemsRepeater()"
 										click="onRequestCategoryChange();checkSetupCompleteness()"  width="206"/>							
 						<mx:Text text="{requestCategoryRepeater.currentItem.@notes}" width="100%" id="text5" fontSize="10"/>
 					</mx:HBox>
@@ -1586,7 +1585,7 @@
 											  labelField="@name" 
 											  prompt="Select a lab..."
 											  width="380"
-											  close="onLabSelected();" 
+											  close="onLabSelected();"
 											  id="labCombo">
 					</renderers:FilterComboBox>
 				</mx:HBox>
@@ -1601,7 +1600,7 @@
 					<mx:ComboBox labelField="@accountNameAndNumber" toolTip="{data.@accountNameAndNumber}" width="380"
 								 id="billingAccountCombo"
 								 prompt=" "
-								 change="makeBillingAccountSelection()" selectedIndex="-1" creationComplete="hideTemplateItemsRepeater()" close="makeBillingAccountSelection()">
+								 change="makeBillingAccountSelection()" selectedIndex="-1" close="makeBillingAccountSelection()">
 						<mx:dataProvider>{billingAccounts}</mx:dataProvider>
 					</mx:ComboBox>
 					<mx:VBox height="100%" verticalGap="0" paddingBottom="0" paddingTop="0" paddingLeft="0" paddingRight="4" id="vbox3" width="425">
@@ -1630,7 +1629,7 @@
 
 		<mx:Spacer height="5%" />
 
-		<mx:VBox width="100%" id="templateItemsRepeaterBox">
+		<mx:VBox width="100%" id="templateItemsRepeaterBox" >
 			<mx:Label text="Selected billing accounts"/>
 			<mx:Repeater id="templateItemsRepeater" dataProvider="{templateItemList}" >
 				<mx:VBox width="100%" verticalGap="0">

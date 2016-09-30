@@ -132,6 +132,8 @@
             billingAccountCombo.selectedIndex = -1;
             headerBox.visible = false;
             totalBox.visible = false;
+            templateItemsRepeaterBox.visible = false;
+            templateItemsRepeaterBox.includeInLayout = false;
             grandTotalLabel.text = "$0";
             iAgree.selected = false;
         }
@@ -453,10 +455,10 @@
         private function buildSelectedBillingAccountsString():String {
             var selectedBillingAccountsString:String = "";
             if (splitWindow.percentageColumn.visible) {
-                selectedBillingAccountsString = templateItemsRepeater.currentItem.@accountNumberDisplay + '(' + templateItemsRepeater.currentItem.@percentSplit + ')';
+                selectedBillingAccountsString = templateItemsRepeater.currentItem.@accountNumberDisplay + ' (' + templateItemsRepeater.currentItem.@percentSplit + ')';
             }
             else {
-                selectedBillingAccountsString = templateItemsRepeater.currentItem.@accountNumberDisplay + '(' + templateItemsRepeater.currentItem.@dollarAmount + ')'
+                selectedBillingAccountsString = templateItemsRepeater.currentItem.@accountNumberDisplay + ' (' + templateItemsRepeater.currentItem.@dollarAmount + ')'
             }
             return selectedBillingAccountsString;
         }
@@ -481,7 +483,7 @@
                                           labelField="@name"
                                           prompt="Select a lab..."
                                           width="380"
-                                          close="getMembersOfLab(); checkSetupCompleteness(); checkForOtherAccounts();"
+                                          close="getMembersOfLab(); checkSetupCompleteness(); checkForOtherAccounts();hideTemplateItemsRepeater()"
                                           id="labCombo">
                 </renderers:FilterComboBox>
 
@@ -490,7 +492,7 @@
                 <util:ContextHelp context1="experimentBillingAccount" context2="{}" showEdit="{parentApplication.isAdminState}" title="Billing Account Help"
                                   labelPlacement="left" id="text1" width="200" label="(3) Select a billing account."/>
                 <mx:HBox verticalAlign="middle" id="hbox3" horizontalGap="1" paddingBottom="0" paddingTop="0">
-                    <mx:ComboBox labelField="@accountNameAndNumber" width="380" id="billingAccountCombo" prompt="Select an account..." creationComplete="hideTemplateItemsRepeater();" change="makeBillingAccountSelection();" selectedIndex="-1" close="checkSetupCompleteness(); productList.refresh();">
+                    <mx:ComboBox labelField="@accountNameAndNumber" width="380" id="billingAccountCombo" prompt="Select an account..." change="makeBillingAccountSelection();hideTemplateItemsRepeater()" selectedIndex="-1" close="checkSetupCompleteness(); productList.refresh();">
                         <mx:dataProvider>{billingAccounts}</mx:dataProvider>
                     </mx:ComboBox>
                     <mx:VBox height="100%" verticalGap="0" paddingBottom="0" paddingTop="0" paddingLeft="0" paddingRight="4" id="vbox3" width="425">
