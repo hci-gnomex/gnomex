@@ -1395,12 +1395,14 @@
 		}
 
 		public function makeBillingAccountSelection():void {
+			if (billingAccountCombo.selectedIndex >= 0) {
+				templateItemsRepeaterBox.visible = false;
+				templateItemsRepeaterBox.includeInLayout = false;
+			}
 			this.selectedBillingTemplate = null;
 			updateBillingAccount();
 			checkSetupCompleteness();
 			setVisibility();
-			templateItemsRepeaterBox.visible = false;
-			templateItemsRepeaterBox.includeInLayout = false;
 
 		}
 

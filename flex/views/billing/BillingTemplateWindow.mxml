@@ -4,7 +4,7 @@
 				xmlns:util="views.util.*"
 				layout="vertical" width="820" height="300"
 				title="Billing Template" showCloseButton="true"
-				close="close()">
+				close="cancel()">
 	
 	<mx:HTTPService  
 		id="getAuthorizedBillingAccounts" 
@@ -147,7 +147,10 @@
 				this.dispatchEvent(new CloseEvent("billingTemplateWindowSave", false, false));
 
 			}
+			PopUpManager.removePopUp(this);
+		}
 
+		public function cancel():void {
 			PopUpManager.removePopUp(this);
 		}
 
@@ -583,7 +586,7 @@
 	</mx:HBox>
 	<mx:ControlBar horizontalAlign="right">
 		<mx:Button label="Save" id="saveButton" click="save()" icon="@Embed(source='../../assets/save.png')" disabledIcon="@Embed(source='../../assets/save_disable.png')"/>
-		<mx:Button label="Cancel" click="close()"/>
+		<mx:Button label="Cancel" id="cancelButton" click="cancel()"/>
 	</mx:ControlBar>
 	
 </mx:TitleWindow>
