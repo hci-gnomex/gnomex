@@ -172,6 +172,10 @@
 
 		private var membersCollaborators:XMLListCollection;
 
+		private var origPossibleCollaborators:XMLListCollection;
+
+		private var origMembersCollaborators:XMLListCollection;
+
 		private var possibleCbox:ComboBox;
 		private var membersCbox:ComboBox;
 
@@ -857,9 +861,6 @@
 		}
 
 		private function containsCollaborator(list:XMLListCollection, node:Object):Boolean {
-			var pCollaborators:XMLListCollection = new XMLListCollection(getLab.lastResult..Lab.(@idLab == analysis.@idLab).possibleCollaboratorsWithoutOwner.AppUser.(@isActive == 'Y'));
-			var membersCollaborators:XMLListCollection = new XMLListCollection(getLab.lastResult..Lab.(@idLab == analysis.@idLab).membersCollaborators.AppUser.(@isActive == 'Y'));
-
 			for each (var item:XML in list) {
 				if (node.@idAppUser == item.@idAppUser) {
 					return true;
@@ -869,22 +870,51 @@
 			return false;
 		}
 
+		private function returnCollaborator(list:XMLListCollection, node:Object):XML {
+			for each (var item:XML in list) {
+				if (node.@idAppUser == item.@idAppUser) {
+					return item;
+					break;
+				}
+			}
+			return null;
+		}
+
 		private function removeCollaborator():void {
 			dirty.setDirty();
 			if (collaboratorGrid.selectedIndex != -1) {
-				var pCollaborators:XMLListCollection = new XMLListCollection(getLab.lastResult..Lab.(@idLab == analysis.@idLab).possibleCollaboratorsWithoutOwner.AppUser.(@isActive == 'Y'));
-				var mCollaborators:XMLListCollection = new XMLListCollection(getLab.lastResult..Lab.(@idLab == analysis.@idLab).membersCollaborators.AppUser.(@isActive == 'Y'));
 
-				//if collorators contains removed item add to
-				if(containsCollaborator(pCollaborators,
-								collaboratorGrid.selectedItem)) {
-					possibleCollaborators.addItem(collaboratorGrid.selectedItem);
+				//currentCollaborators.addItem(collaboratorGrid.selectedItem);
+				if (visibilityRadioGroup.selectedValue == 'OWNER') {
+					var item:XML = returnCollaborator(origPossibleCollaborators,
+							collaboratorGrid.selectedItem);
+					if (item) {
+						currentCollaborators.addItem(item);
+						currentCollaborators.refresh();
+					}
 				}
-				if(containsCollaborator(mCollaborators,
-								collaboratorGrid.selectedItem)) {
-					possibleCollaborators.addItem(collaboratorGrid.selectedItem);
+				else if (visibilityRadioGroup.selectedValue == 'MEM'){
+					var item:XML = returnCollaborator(origMembersCollaborators,
+							collaboratorGrid.selectedItem);
+					if (item) {
+						currentCollaborators.addItem(item);
+						currentCollaborators.refresh();
+					}
+
 				}
-				checkIfVisibilityRadioGroupEnabled();
+//				//if collorators contains removed item add to
+				if(item ) {
+
+				}
+				else {
+
+				}
+
+//				if(containsCollaborator(origMembersCollaborators,
+//								collaboratorGrid.selectedItem)) {
+//					membersCollaborators.addItem(collaboratorGrid.selectedItem);
+//				}
+//				//checkIfVisibilityRadioGroupEnabled();
 				collaborators.removeItemAt(collaboratorGrid.selectedIndex);
 			}
 		}
@@ -944,6 +974,8 @@
 						"/>");
 				possibleCollaborators = new XMLListCollection(getLab.lastResult..Lab.(@idLab == analysis.@idLab).possibleCollaboratorsWithoutOwner.AppUser.(@isActive == 'Y'));
 				membersCollaborators = new XMLListCollection(getLab.lastResult..Lab.(@idLab == analysis.@idLab).membersCollaborators.AppUser.(@isActive == 'Y'));
+				origPossibleCollaborators = new XMLListCollection(getLab.lastResult..Lab.(@idLab == analysis.@idLab).possibleCollaboratorsWithoutOwner.AppUser.(@isActive == 'Y'));
+				origMembersCollaborators = new XMLListCollection(getLab.lastResult..Lab.(@idLab == analysis.@idLab).membersCollaborators.AppUser.(@isActive == 'Y'));
 				syncCollaborators(possibleCollaborators);
 				syncCollaborators(membersCollaborators);
 				possibleCollaborators.addItemAt(emptyNode, 0);
