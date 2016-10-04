@@ -6,7 +6,7 @@
 <%@ page import="hci.gnomex.utility.PropertyDictionaryHelper" %>
 <%@ page import="org.apache.log4j.Logger" %>
 <%@ page import="hci.gnomex.controller.ChangePassword" %>
-;
+
 <html>
 
 <head>

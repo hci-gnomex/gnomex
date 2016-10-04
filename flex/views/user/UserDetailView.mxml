@@ -306,7 +306,7 @@
 					  	       width="100" change="dirty.setDirty()"/>
 				  	     	</mx:VBox>		  	    	
 						</mx:HBox>
-						<mx:VBox width="100%" id="largerThingy">
+						<mx:VBox width="100%">
 							<mx:HBox width="100%" >
 								<mx:VBox verticalGap="1" id="vbox2">
 									<mx:Label text="User name"  styleName="formLabel"/>
