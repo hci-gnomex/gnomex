@@ -3,9 +3,14 @@ package hci.gnomex.utility;
 public class PasswordUtil {
 
     public static final String REQUIREMENTS_TEXT =
-            "Passwords must be 8-25 characters long, contain no spaces" + "\n" +
-            "or slashes, and contain three or more of the following:" + "\n" +
-            "lowercase letter, uppercase letter, digit, or symbol.";
+            "Passwords must be 8-25 characters long, contain no spaces\n" +
+                    "or slashes, and contain three or more of the following:\n" +
+                    "lowercase letter, uppercase letter, digit, or symbol.";
+
+    public static final String REQUIREMENTS_TEXT_HTML =
+            "Passwords must be 8-25 characters long, contain no spaces<br/>" +
+                    "or slashes, and contain three or more of the following:<br/>" +
+                    "lowercase letter, uppercase letter, digit, or symbol.";
 
     public static final String COMPLEXITY_ERROR_TEXT = "The password you provided does not meet complexity requirements.";
 

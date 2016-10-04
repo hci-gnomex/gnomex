@@ -295,12 +295,6 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
 
       throw new RollBackCommandException(e.getMessage());
 
-    } finally {
-      try {
-        //closeHibernateSession;
-      } catch (Exception e) {
-        LOG.error("An exception has occurred in SaveSelfRegisteredAppUser ", e);
-      }
     }
 
     return this;

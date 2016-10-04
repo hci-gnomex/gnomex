@@ -4,7 +4,9 @@
 <%@ page import="hci.gnomex.controller.GNomExFrontController" %>
 <%@ page import="hci.gnomex.utility.JspHelper" %>
 <%@ page import="hci.gnomex.utility.PropertyDictionaryHelper" %>
-<%@ page import="org.apache.log4j.Logger" %>;
+<%@ page import="org.apache.log4j.Logger" %>
+<%@ page import="hci.gnomex.controller.ChangePassword" %>
+;
 <html>
 
 <head>
@@ -138,6 +140,7 @@ If you have registered using your uNID (u00000000), your password is tied to the
 <div class="message"><strong><%= message %></strong></div>
     <input type="hidden" name="responsePageSuccess" value="/reset_password_success.jsp<%=idCoreParm%>"/>
     <input type="hidden" name="responsePageError" value="/reset_password.jsp<%=idCoreParm%>"/>
+    <input type="hidden" name="action" value="<%=ChangePassword.ACTION_REQUEST_PASSWORD_RESET%>"/>
     <input type="hidden" name="idCoreParm" value="<%=idCoreParm%>"/>
   </form>
 
