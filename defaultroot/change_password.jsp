@@ -8,7 +8,7 @@
 <%@ page import="org.apache.log4j.Logger" %>
 <%@ page import="hci.gnomex.controller.ChangePassword" %>
 <%@ page import="hci.gnomex.utility.*" %>
-;
+
 <html>
 
 <head>
@@ -17,7 +17,7 @@
 	<title>Change GNomEx Password</title>
 	<script type="text/javascript">
 		function setFocus()
-        {
+		{
      		theform.username.focus();
 		}
         function validateAndSubmit() {
@@ -71,8 +71,8 @@ siteLogo = PropertyDictionaryHelper.getSiteLogo(sess, coreToPassThru);
 //d.getAppUser(request);
 
 //Check if user is able to change password
-guid = (String) ((request.getParameter("guid") != null)?request.getParameter("guid"):"");
-userName = (String) ((request.getParameter("userName") != null)?request.getParameter("userName"):"");
+guid = (request.getParameter("guid") != null) ? request.getParameter("guid") : "";
+userName = (request.getParameter("userName") != null) ? request.getParameter("userName") : "";
 String loginPage = request.getScheme() + "://" + request.getServerName() + "/gnomex";
 
 if(guid == null || guid.equals("")){
