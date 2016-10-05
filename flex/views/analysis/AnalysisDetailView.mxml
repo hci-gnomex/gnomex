@@ -545,9 +545,14 @@
 					var managePedFileWindow:ManagePedFileWindow = ManagePedFileWindow(PopUpManager.createPopUp(this, ManagePedFileWindow, true));
 					managePedFileWindow.idAnalysis = filesView.getAnalysisDownloadList.lastResult.Analysis.@idAnalysis;
 					managePedFileWindow.parentWindow = this;
+					managePedFileWindow.pedFile = managePedFileSetup.lastResult.PEDFile;
+					managePedFileWindow.vcfInfo = managePedFileSetup.lastResult.VCFInfo;
+					managePedFileWindow.bamInfo = managePedFileSetup.lastResult.BAMInfo;
+					managePedFileWindow.pedInfo = managePedFileSetup.lastResult.PEDInfo;
+					managePedFileWindow.reason = managePedFileSetup.lastResult.PEDAction.ActionDescription;
 
 
-					managePedFileWindow.init1(this);
+					managePedFileWindow.init();
 					PopUpManager.centerPopUp(managePedFileWindow);
 				} else {
 					Alert.show(managePedFileSetup.lastResult..ACTMESSAGE.@TEXT);

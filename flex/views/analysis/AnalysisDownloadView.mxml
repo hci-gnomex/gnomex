@@ -730,9 +730,13 @@
 					var managePedFileWindow:ManagePedFileWindow = ManagePedFileWindow(PopUpManager.createPopUp(this, ManagePedFileWindow, true));
 					managePedFileWindow.idAnalysis = getAnalysisDownloadList.lastResult.Analysis.@idAnalysis;
 					managePedFileWindow.parentWindow = this;
+					managePedFileWindow.pedFile = makeGENELinks.lastResult.PEDFile;
+					managePedFileWindow.vcfInfo = makeGENELinks.lastResult.VCFInfo;
+					managePedFileWindow.bamInfo = makeGENELinks.lastResult.BAMInfo;
+					managePedFileWindow.pedInfo = makeGENELinks.lastResult.PEDInfo;
+					managePedFileWindow.reason = makeGENELinks.lastResult.PEDAction.ActionDescription;
 
-					
-					managePedFileWindow.init(this);
+					managePedFileWindow.init();
 					PopUpManager.centerPopUp(managePedFileWindow);
 				}
 				

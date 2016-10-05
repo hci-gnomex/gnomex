@@ -50,6 +50,8 @@ private String theProband = null;
 private String VCFInfoXMLString = null;
 private String BAMInfoXMLString = null;
 private String PEDFileXMLString = null;
+    private String PEDInfoXMLString = null;
+    private String analysisDirectory = null;
 
 public void validate() {
 }
@@ -125,7 +127,7 @@ public Command execute() throws RollBackCommandException {
 		ArrayList<String> bamList = new ArrayList<String>();
 
 		Analysis a = (Analysis) sess.get(Analysis.class, idAnalysis);
-		String analysisDirectory = GetAnalysisDownloadList.getAnalysisDirectory(baseDir, a);
+		analysisDirectory = GetAnalysisDownloadList.getAnalysisDirectory(baseDir, a);
 
 		String[] theProbands = null;
 
@@ -210,7 +212,7 @@ public Command execute() throws RollBackCommandException {
 				this.xmlResult = "<SUCCESS urlsToLink=\"" + urlsToLink.get(0) + "\"" + "/>";
 			} else {
 				// build the xml needed for the UI to call ManagePedFile
-				Document ManagePedFile = buildManagePedFileXML(pedpath, VCFInfoXMLString, BAMInfoXMLString, headerMap,
+				Document ManagePedFile = buildManagePedFileXML(pedpath, PEDInfoXMLString, VCFInfoXMLString, BAMInfoXMLString, headerMap,
 						peopleMap, status);
 
 				XMLOutputter out = new org.jdom.output.XMLOutputter();
@@ -279,7 +281,8 @@ public String setupPedFileFromXML(String PEDFileXMLString, Map<Integer, String> 
 
 			String columnName = node.getAttributeValue("name");
             if (columnName == null) {
-                return "ped file has incorrect format.";
+                status = "Error: ped file has incorrect format.";
+                return status;
             }
 
 			if (columnName.toLowerCase().equals("sample_id")) {
@@ -316,6 +319,7 @@ public String setupPedFileFromXML(String PEDFileXMLString, Map<Integer, String> 
 	} catch (JDOMException je) {
 		log.error("Cannot parse PEDFileXMLString", je);
 		this.addInvalidField("MakeGeneURL", "Invalid PEDFileXMLString");
+        status = "Error: Unable to parse ped file XML.";
 	}
 
 	return status;
@@ -346,7 +350,7 @@ public static String setupPedFile(String pedpath, Map<Integer, String> headerMap
 
 			if (!sawHeader) {
 				if (!line.startsWith("#")) {
-					status = "Header line missing.";
+					status = "Error: Header line missing in ped file.";
 					break;
 				}
 				sawHeader = true;
@@ -386,7 +390,7 @@ public static String setupPedFile(String pedpath, Map<Integer, String> headerMap
 				sampleId = mapColumn("sample_id", headerMap);
 				if (sampleId == -1) {
 					// no sample_id is fatal
-					status = "No sample id's found";
+					status = "Error: No sample id's found in ped file.";
 					break;
 				}
 
@@ -416,7 +420,7 @@ public static String setupPedFile(String pedpath, Map<Integer, String> headerMap
 
 		br.close();
 	} catch (IOException e) {
-		status = e.toString();
+		status = "Error: Unable to read ped file.";
 	}
 
 	System.out.println("[setupPedFile] returning status: " + status);
@@ -444,6 +448,16 @@ public static String augmentPedFile(Map<Integer, String> headerMap, Map<String, 
 		Map<String, String> vcfMap, ArrayList<String> bamList) {
 
     String status = null;
+
+    if (vcfMap.size() == 0) {
+        status = "Error: No .vcf.gz files found in analysis.";
+        return status;
+    }
+
+    if (bamList.size() == 0) {
+        status = "Error: No .bam files found in analysis.";
+        return status;
+    }
 
 	// column numbers
 	int BAM = mapColumn("bam", headerMap);
@@ -487,7 +501,7 @@ public static String augmentPedFile(Map<Integer, String> headerMap, Map<String, 
 	System.out.println("[augmentPedFile] numsaw: " + numsaw + " numvcf: " + numvcf + " numbam: " + numbam
 			+ " numboth: " + numboth);
 
-    if (numbam == 0 || numvcf == 0 || numboth == 0) {
+    if (numboth == 0) {
         status = "Error: no overlapping bam and vcf files.";
     }
 
@@ -675,6 +689,10 @@ public static boolean hasBAMVCF(int BAM, int VCF, String sampleId, Map<String, S
 
 public static void vcfInfoParser(String VCFInfoXMLString, String analysisDirectory, Map<String, String> vcfMap) {
 
+    if (VCFInfoXMLString == null || VCFInfoXMLString.equals("")) {
+        return;
+    }
+
 	StringReader reader = new StringReader(VCFInfoXMLString);
 	try {
 		SAXBuilder sax = new SAXBuilder();
@@ -682,14 +700,30 @@ public static void vcfInfoParser(String VCFInfoXMLString, String analysisDirecto
 
 		Element root = doc.getRootElement();
 
+        // prefer vcf.gz files in /VCF/Complete/
 		for (Iterator i = root.getChildren("VCFPath").iterator(); i.hasNext();) {
 			Element node = (Element) i.next();
 
-			String pathName = analysisDirectory + "/" + node.getAttributeValue("path");
+//			String pathName = analysisDirectory + "/" + node.getAttributeValue("path");
+            String pathName = node.getAttributeValue("path");
             pathName = pathName.replace("\\","/");
 
-			addVCFIds(pathName, vcfMap);
+            if (pathName.contains("/VCF/Complete/")) {
+                addVCFIds(pathName, analysisDirectory, vcfMap);
+            }
 		}
+
+        // now do everyone else
+        for (Iterator i = root.getChildren("VCFPath").iterator(); i.hasNext();) {
+            Element node = (Element) i.next();
+
+            String pathName = node.getAttributeValue("path");
+            pathName = pathName.replace("\\","/");
+
+            if (!pathName.contains("/VCF/Complete/")) {
+                addVCFIds(pathName, analysisDirectory, vcfMap);
+            }
+        }
 
 	} catch (JDOMException je) {
 		log.error("MakeGeneURL Cannot parse VCFInfoXMLString", je);
@@ -698,7 +732,11 @@ public static void vcfInfoParser(String VCFInfoXMLString, String analysisDirecto
 
 public static void bamInfoParser(String BAMInfoXMLString, String analysisDirectory, ArrayList<String> bamList) {
 
-	StringReader reader = new StringReader(BAMInfoXMLString);
+    if (BAMInfoXMLString == null || BAMInfoXMLString.equals("")) {
+        return;
+    }
+
+    StringReader reader = new StringReader(BAMInfoXMLString);
 	try {
 		SAXBuilder sax = new SAXBuilder();
 		Document doc = sax.build(reader);
@@ -708,7 +746,8 @@ public static void bamInfoParser(String BAMInfoXMLString, String analysisDirecto
 		for (Iterator i = root.getChildren("BAMPath").iterator(); i.hasNext();) {
 			Element node = (Element) i.next();
 
-			String pathName = analysisDirectory + "/" + node.getAttributeValue("path");
+//			String pathName = analysisDirectory + "/" + node.getAttributeValue("path");
+            String pathName = node.getAttributeValue("path");
             pathName = pathName.replace("\\","/");
 
 			bamList.add(pathName);
@@ -719,14 +758,18 @@ public static void bamInfoParser(String BAMInfoXMLString, String analysisDirecto
 	}
 }
 
-public static void addVCFIds(String VCFpathName, Map<String, String> vcfMap) {
+public static void addVCFIds(String VCFpathName, String analysisDirectory, Map<String, String> vcfMap) {
 
 	// System.out.println("[addVCFIds] VCFpathName: " + VCFpathName);
+
+    if (VCFpathName == null) {
+        return;
+    }
 
     VCFpathName = VCFpathName.replace("\\","/");
 
 	// if windows we have to fix the path
-    String VCFpathName1 = VCFpathName;
+    String VCFpathName1 = analysisDirectory + "/" + VCFpathName;
 	if (!File.separator.equals("/")) {
 		VCFpathName1 = VCFpathName1.replace("/", "\\");
 		// System.out.println("[addVCFIds] VCFpathName: " + VCFpathName);
@@ -765,8 +808,12 @@ public static void addVCFIds(String VCFpathName, Map<String, String> vcfMap) {
 	for (int ii = 0; ii < pieces.length; ii++) {
 		if (sawFormat) {
 			numids++;
-			vcfMap.put(pieces[ii], VCFpathName);
-			// System.out.println("[addVCFIds] ii: " + ii + " pieces[ii]: " + pieces[ii]);
+
+            // only add it if it's not present
+            if (vcfMap.get(pieces[ii]) == null) {
+                vcfMap.put(pieces[ii], VCFpathName);
+                // System.out.println("[addVCFIds] ii: " + ii + " pieces[ii]: " + pieces[ii]);
+            }
 			continue;
 		}
 
@@ -779,7 +826,7 @@ public static void addVCFIds(String VCFpathName, Map<String, String> vcfMap) {
 
 }
 
-public static Document buildManagePedFileXML(String pedpath, String VCFInfoXMLString, String BAMInfoXMLString,
+public static Document buildManagePedFileXML(String pedpath, String PEDInfoXMLString, String VCFInfoXMLString, String BAMInfoXMLString,
 		Map<Integer, String> headerMap, Map<String, String[]> peopleMap, String status) {
 	Document ManagePedFile = null;
 
@@ -791,53 +838,88 @@ public static Document buildManagePedFileXML(String pedpath, String VCFInfoXMLSt
 	Element pedFile = new Element("PEDFile");
 	Element pedAction = new Element("PEDAction");
 
-	StringReader reader = new StringReader(VCFInfoXMLString);
-	try {
-		SAXBuilder sax = new SAXBuilder();
-		Document doc = sax.build(reader);
-		Element root = doc.getRootElement();
+    int numPedFiles = 0;
 
-		if (!root.getChildren("VCFPath").isEmpty()) {
-			Element vcfPath = new Element("VCFPath");
-			for (Iterator i = root.getChildren("VCFPath").iterator(); i.hasNext();) {
-				Element node = (Element) i.next();
-				Element node1 = ((Element) node.clone()).detach();
+    StringReader reader = null;
 
-				vcfInfo.addContent(node1);
-			}
-			// vcfInfo.addContent(vcfPath);
-		}
+    if (PEDInfoXMLString != null) {
+        reader = new StringReader(PEDInfoXMLString);
+        try {
+            SAXBuilder sax = new SAXBuilder();
+            Document doc = sax.build(reader);
+            Element root = doc.getRootElement();
 
-	} catch (JDOMException je) {
-		log.error("MakeGeneURL Cannot parse VCFInfoXMLString", je);
-	}
+            if (!root.getChildren("PEDPath").isEmpty()) {
+                Element vcfPath = new Element("PEDPath");
+                for (Iterator i = root.getChildren("PEDPath").iterator(); i.hasNext(); ) {
+                    Element node = (Element) i.next();
+                    Element node1 = ((Element) node.clone()).detach();
 
-	reader = new StringReader(BAMInfoXMLString);
-	try {
-		SAXBuilder sax = new SAXBuilder();
-		Document doc = sax.build(reader);
-		Element root = doc.getRootElement();
+                    pedInfo.addContent(node1);
+                    numPedFiles++;
+                }
+            }
 
-		if (!root.getChildren("BAMPath").isEmpty()) {
-			Element bamPath = new Element("BAMPath");
-			for (Iterator i = root.getChildren("BAMPath").iterator(); i.hasNext();) {
-				Element node = (Element) i.next();
-				Element node1 = ((Element) node.clone()).detach();
+        } catch (JDOMException je) {
+            log.error("MakeGeneURL Cannot parse PEDInfoXMLString", je);
+        }
+    }
 
-				bamInfo.addContent(node1);
-			}
-			// bamInfo.addContent(bamPath);
-		}
 
-	} catch (JDOMException je) {
-		log.error("MakeGeneURL Cannot parse BAMInfoXMLString", je);
-	}
+    if (VCFInfoXMLString != null) {
+        reader = new StringReader(VCFInfoXMLString);
+        try {
+            SAXBuilder sax = new SAXBuilder();
+            Document doc = sax.build(reader);
+            Element root = doc.getRootElement();
 
-	Element piPath = new Element("PEDPath");
-	piPath.setAttribute("path", pedpath);
-	pedInfo.addContent(piPath);
+            if (!root.getChildren("VCFPath").isEmpty()) {
+                Element vcfPath = new Element("VCFPath");
+                for (Iterator i = root.getChildren("VCFPath").iterator(); i.hasNext(); ) {
+                    Element node = (Element) i.next();
+                    Element node1 = ((Element) node.clone()).detach();
+
+                    vcfInfo.addContent(node1);
+                }
+            }
+
+        } catch (JDOMException je) {
+            log.error("MakeGeneURL Cannot parse VCFInfoXMLString", je);
+        }
+    }
+
+    if (BAMInfoXMLString != null) {
+        reader = new StringReader(BAMInfoXMLString);
+        try {
+            SAXBuilder sax = new SAXBuilder();
+            Document doc = sax.build(reader);
+            Element root = doc.getRootElement();
+
+            if (!root.getChildren("BAMPath").isEmpty()) {
+                Element bamPath = new Element("BAMPath");
+                for (Iterator i = root.getChildren("BAMPath").iterator(); i.hasNext(); ) {
+                    Element node = (Element) i.next();
+                    Element node1 = ((Element) node.clone()).detach();
+
+                    bamInfo.addContent(node1);
+                }
+            }
+
+        } catch (JDOMException je) {
+            log.error("MakeGeneURL Cannot parse BAMInfoXMLString", je);
+        }
+    }
+
+    if (pedpath != null && (PEDInfoXMLString == null || numPedFiles == 0)) {
+        Element piPath = new Element("PEDPath");
+        pedpath = pedpath.replace("\\","/");
+        piPath.setAttribute("path", pedpath);
+        pedInfo.addContent(piPath);
+    }
 
 	Element paDescription = new Element("ActionDescription");
+
+    // this shouldn't happen, but just in case...
     if (status == null) {
         status = "choose";
     }
@@ -1126,11 +1208,19 @@ private String[] parseSample(String sample) {
 	return result;
 }
 
-private String makeURLLink(String pathName) {
-	// System.out.println ("[makeURLLink] pathName: " + pathName);
+private String makeURLLink(String pathName1) {
+	// System.out.println ("[makeURLLink] pathName1: " + pathName1);
 
 	String theLink = "";
 	ArrayList<String> urlsToLoad = new ArrayList<String>();
+
+    String pathName = pathName1;
+    String cpath = pathName.replace("\\","/").toLowerCase();
+    String canaldir = analysisDirectory.replace("\\","/").toLowerCase();
+
+    if (!cpath.startsWith(canaldir)) {
+        pathName = analysisDirectory + "/" + pathName;
+    }
 
 	// the file we want to link to
 	File[] filesToLink = new File[2];

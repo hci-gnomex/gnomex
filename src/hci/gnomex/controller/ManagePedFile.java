@@ -50,6 +50,7 @@ private String BAMInfoXMLString;
 private String VCFInfoXMLString;
 private String action = null;
 private String theProband = null;
+    private int currentFile;
 
 private Document pedFileDoc;
 private Document pedInfoDoc;
@@ -64,12 +65,19 @@ public void loadCommand(HttpServletRequest request, HttpSession session) {
 	if (request.getParameter("idAnalysis") != null && !request.getParameter("idAnalysis").equals("")) {
 		idAnalysis = new Integer(request.getParameter("idAnalysis"));
 	}
+	System.out.println("[ManagePedFile] idAnalysis: " + idAnalysis);
 
 	action = null;
 	if (request.getParameter("action") != null && !request.getParameter("action").equals("")) {
 		action = request.getParameter("action");
-		System.out.println("[ManagePedFile] action: " + action);
 	}
+	System.out.println("[ManagePedFile] action: " + action);
+
+    currentFile = 0;
+    if (request.getParameter("fileOffset") != null && !request.getParameter("fileOffset").equals("")) {
+        currentFile = new Integer(request.getParameter("fileOffset"));
+    }
+	System.out.println ("[ManagePedFile] currentFile: " + currentFile);
 
 	theProband = null;
 	if (request.getParameter("proband") != null && !request.getParameter("proband").equals("")) {
@@ -143,7 +151,7 @@ public Command execute() throws RollBackCommandException {
 
 		// save the ped file renaming the old one to .bak
 		if (action != null && action.equals("save")) {
-			String pedpath = getPedFilePathname(PEDInfoXMLString, analysisDirectory);
+			String pedpath = getPedFilePathname(currentFile, PEDInfoXMLString, analysisDirectory);
 
 			String status = savePedFile(pedpath, PEDFileXMLString);
 			if (status == null) {
@@ -168,16 +176,18 @@ public Command execute() throws RollBackCommandException {
             if (PEDInfoXMLString == null) {
                 action = "create";
             } else {
-                String pedpath = getPedFilePathname(PEDInfoXMLString, analysisDirectory);
+                String pedpath = getPedFilePathname(currentFile, PEDInfoXMLString, analysisDirectory);
                 if (pedpath == null) {
                     action = "create";
                 }
             }
         }
 
+        System.out.println("[ManagePedFile] (2) action: " + action);
+
 		// action = setup; read the pedfile and augment it if needed then return the XML
 		if (action != null && action.equals("setup")) {
-			String pedpath = getPedFilePathname(PEDInfoXMLString, analysisDirectory);
+			String pedpath = getPedFilePathname(currentFile, PEDInfoXMLString, analysisDirectory);
 
 			String status = MakeGeneURL.setupPedFile(pedpath, headerMap, peopleMap);
 			System.out.println("[ManagePedFile] after setupPedFile status: " + status);
@@ -192,18 +202,23 @@ public Command execute() throws RollBackCommandException {
 				System.out.println("[ManagePedFile] bamList.size: " + bamList.size());
 
 				// add bam and vcf information to everyone we can
-				MakeGeneURL.augmentPedFile(headerMap, peopleMap, vcfMap, bamList);
-				status = "save";
+				status = MakeGeneURL.augmentPedFile(headerMap, peopleMap, vcfMap, bamList);
+                if (status == null) {
+                    status = "save";
 
-				// are there any trio's?
-				theProbands = MakeGeneURL.findTrio(headerMap, peopleMap);
-				if (theProbands != null) {
-					status = "save choose";
-					System.out.println("[ManagePedFile] theProbands[0]: " + theProbands[0] + "theProbands.length: "
-							+ theProbands.length);
-				}
+                    // are there any trio's?
+                    theProbands = MakeGeneURL.findTrio(headerMap, peopleMap);
+                    if (theProbands != null) {
+                        status = "save choose";
+                        System.out.println("[ManagePedFile] theProbands[0]: " + theProbands[0] + "theProbands.length: "
+                                + theProbands.length);
+                    }
+                    else {
+                        status = "parent save choose";
+                    }
+                }
 
-			} else {
+			} else if (status == null) {
                 // are there any trio's?
                 theProbands = MakeGeneURL.findTrio(headerMap, peopleMap);
                 if (theProbands != null) {
@@ -213,13 +228,12 @@ public Command execute() throws RollBackCommandException {
                 } else {
                     status = "parent save choose";
                 }
-
-                System.out.println ("[ManagePedFile] final status: " + status);
-
             }
 
+            System.out.println ("[ManagePedFile] final status: " + status);
+
 			// build the xml needed for the UI to call ManagePedFile
-			Document ManagePedFile = MakeGeneURL.buildManagePedFileXML(pedpath, VCFInfoXMLString, BAMInfoXMLString,
+			Document ManagePedFile = MakeGeneURL.buildManagePedFileXML(pedpath, PEDInfoXMLString, VCFInfoXMLString, BAMInfoXMLString,
 					headerMap, peopleMap, status);
 
 			XMLOutputter out = new org.jdom.output.XMLOutputter();
@@ -245,11 +259,12 @@ public Command execute() throws RollBackCommandException {
 			System.out.println("[ManagePedFile] bamList.size: " + bamList.size());
 
 			// create whatever ped file we can from the bam and vcf information
-			createPedFile(headerMap, peopleMap, vcfMap, bamList);
-			String status = "save";
-
+			String status = createPedFile(headerMap, peopleMap, vcfMap, bamList);
+			if (status == null) {
+                status = "save";
+            }
 			// build the xml needed for the UI to call ManagePedFile
-			Document ManagePedFile = MakeGeneURL.buildManagePedFileXML(pedpath, VCFInfoXMLString, BAMInfoXMLString,
+			Document ManagePedFile = MakeGeneURL.buildManagePedFileXML(pedpath, PEDInfoXMLString, VCFInfoXMLString, BAMInfoXMLString,
 					headerMap, peopleMap, status);
 
 			XMLOutputter out = new org.jdom.output.XMLOutputter();
@@ -274,10 +289,22 @@ public Command execute() throws RollBackCommandException {
 	return this;
 }
 
-private void createPedFile(Map<Integer, String> headerMap, Map<String, String[]> peopleMap, Map<String, String> vcfMap,
+private String createPedFile(Map<Integer, String> headerMap, Map<String, String[]> peopleMap, Map<String, String> vcfMap,
 		ArrayList<String> bamList) {
 	String[] columnNames = { "kindred_id", "sample_id", "paternal_id", "maternal_id", "sex", "affection_status", "bam",
 			"vcf" };
+
+    String status = null;
+
+    if (vcfMap.size() == 0) {
+        status = "Error: No .vcf.gz files found in analysis.";
+        return status;
+    }
+
+    if (bamList.size() == 0) {
+        status = "Error: No .bam files found in analysis.";
+        return status;
+    }
 
 	// build headerMap
 	int numcol = 0;
@@ -287,6 +314,7 @@ private void createPedFile(Map<Integer, String> headerMap, Map<String, String[]>
 	}
 
 	// add every sample_id we got from the vcf.gz header as person if they have a bam file
+    int numoverlap = 0;
 	for (Map.Entry<String, String> entry : vcfMap.entrySet()) {
 		String key = entry.getKey();
 		String value = entry.getValue();
@@ -297,9 +325,16 @@ private void createPedFile(Map<Integer, String> headerMap, Map<String, String[]>
 			// add the person
 			String[] pedentry = makePedEntry(key, bamfile, value);
 			peopleMap.put(key, pedentry);
+            numoverlap++;
 		}
 	} // end of for
 
+    // any overlap?
+    if (numoverlap == 0) {
+        status = "Error: no overlapping bam and vcf files.";
+    }
+
+    return status;
 }
 
 private String[] makePedEntry(String sample_id, String bamfile, String vcffile) {
@@ -328,7 +363,7 @@ private String makePedFilePathname(int idAnalysis, String analysisDirectory) {
 	return pedpath;
 }
 
-private String getPedFilePathname(String PEDInfoXMLString, String analysisDirectory) {
+private String getPedFilePathname(int currentFile, String PEDInfoXMLString, String analysisDirectory) {
 
 	System.out.println("[getPedFilePathname] PEDInfoXMLString: " + PEDInfoXMLString + " analysisDirectory: "
 			+ analysisDirectory);
@@ -345,8 +380,14 @@ private String getPedFilePathname(String PEDInfoXMLString, String analysisDirect
 
 		Element root = doc.getRootElement();
 
+        int numFiles = -1;
 		for (Iterator i = root.getChildren("PEDPath").iterator(); i.hasNext();) {
 			Element node = (Element) i.next();
+            numFiles++;
+
+            if (numFiles != currentFile) {
+                continue;
+            }
 
 			String path = node.getAttributeValue("path");
 			pedpath = path;
