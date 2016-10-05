@@ -13,6 +13,7 @@ import hci.gnomex.constants.Constants;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.GNomExRollbackException;
 import hci.gnomex.utility.HibernateSession;
+import hci.gnomex.utility.ParserException;
 import hci.gnomex.utility.ServletUtil;
 
 import java.io.File;
@@ -248,8 +249,15 @@ public void doPost(HttpServletRequest request, HttpServletResponse response) thr
 				if (e instanceof GNomExRollbackException
 						&& ((GNomExRollbackException) e).getDisplayFriendlyMessage() != null) {
 					this.forwardWithError(request, response, ((GNomExRollbackException) e).getDisplayFriendlyMessage());
-				} else {
-					this.forwardWithError(request, response);
+				}
+				else {
+					String exMsg = null;
+					if(e.getMessage().indexOf(':') != -1) {
+						exMsg = e.getMessage().substring(e.getMessage().indexOf(':') + 1);
+					}
+					else
+						exMsg = e.getMessage();
+					this.forwardWithError(request, response, exMsg);
 				}
 			}
 			return;
