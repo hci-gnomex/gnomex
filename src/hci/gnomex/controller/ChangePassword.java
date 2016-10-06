@@ -120,6 +120,7 @@ public Command execute() throws RollBackCommandException {
 				requestPasswordReset(sess);
 			} else {
 				addInvalidField("action", "An error occurred processing your request");
+				LOG.error("Request parameter 'action' had an unexpected value: '" + action + "'");
 				responsePageError = "/";
 			}
 		}
