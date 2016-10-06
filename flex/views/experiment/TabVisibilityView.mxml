@@ -98,9 +98,7 @@
 			var lab:Object = getLab.lastResult..Lab.(@idLab == idLab);
 			collaboratorGrid.dataProvider = null;
 			possibleCollaborators = new XMLListCollection(lab.possibleCollaboratorsWithoutOwner.AppUser.(@isActive == 'Y'));
-			possibleCollaborators = this.getCollaboratorsList(possibleCollaborators);
 			membersCollaborators = new XMLListCollection(lab.membersCollaborators.AppUser.(@isActive == 'Y'));
-			membersCollaborators = this.getCollaboratorsList(membersCollaborators);
 			possibleInstitutions = new PromptXMLListCollection(emptyNode, new XMLListCollection(getLab.lastResult..Lab.(@idLab == idLab).institutions.Institution.(@isActive == 'Y')));
 
 			if (this.idInstitution != null && this.idInstitution != '') {
@@ -128,11 +126,62 @@
 					this.institutionCombo.selectedIndex = 0;
 				}
 			}
-			checkIfVisibilityRadioGroupEnabled();
 
+			collaborators = new XMLListCollection();
+			for each (var old:XML in possibleCollaborators) {
+				var o:XML = old.copy();
+				o.@canView = "N";
+				o.@canUpdate = "N";
+				o.@canUploadData = "N";
+				for each (var o1:XML in parentDocument.request.collaborators.ExperimentCollaborator) {
+					if (o1.@idAppUser == o.@idAppUser) {
+						o.@canView = "Y";
+						o.@canUpdate = o1.@canUpdate;
+						o.@canUploadData = o1.@canUploadData;
+						break;
+					}
+				}
+				collaborators.addItem(o);
+			}
 			collaboratorGrid.dataProvider = collaborators;
+			initializeCollaborators();
 			collaboratorGrid.validateNow();
 			checkVisibilitySetupCompleteness();
+			checkIfVisibilityRadioGroupEnabled();
+		}
+	}
+
+	/**
+	 * Initialize possibleCollaborators (OWNER) and membersCollaborators(All Members) to collaborators returned
+	 * from parentDocument.request.collaborators.ExperimentCollaborator.
+     */
+	public function initializeCollaborators():void {
+		var ctr:int;
+		for each (var c:XML in collaborators) {
+			ctr = 0;
+			for each (var p:XML in possibleCollaborators) {
+				if (p.@idAppUser == c.@idAppUser) {
+					p.@canView = c.@canView;
+					p.@canUpdate = c.@canUpdate;
+					p.@canUploadData = c.@canUploadData;
+					possibleCollaborators.removeItemAt(ctr);
+					possibleCollaborators.addItem(p);
+					break;
+				}
+				ctr++;
+			}
+			ctr = 0;
+			for each (var m:XML in membersCollaborators) {
+				if (m.@idAppUser == c.@idAppUser) {
+					m.@canView = c.@canView;
+					m.@canUpdate = c.@canUpdate;
+					m.@canUploadData = c.@canUploadData;
+					membersCollaborators.removeItemAt(ctr);
+					membersCollaborators.addItem(m);
+					break;
+				}
+				ctr++;
+			}
 		}
 	}
 
@@ -155,21 +204,26 @@
 		if (this.currentState != "EditState") {
 			parentDocument.confirmView.enabled = isComplete;
 		}
-
+		parentDocument.enableNextButtons();
 		return isComplete;
 
 	}
 
+	/**
+	 * Enable and synchronized the correct collaborators for the visibilityRadioGroup
+     */
 	public function checkIfVisibilityRadioGroupEnabled():void {
 		if (getLab.lastResult != null) {
 
 			if (visibilityRadioGroup.selectedValue == 'OWNER') {
 				collaborators = this.possibleCollaborators;
+				syncCollaborators(membersCollaborators, possibleCollaborators);
 				collaboratorVBox.visible = true;
 				collaboratorVBox.includeInLayout = true;
 			}
 			else if (visibilityRadioGroup.selectedValue == 'MEM') {
 				collaborators = this.membersCollaborators;
+				syncCollaborators(possibleCollaborators, membersCollaborators);
 				collaboratorVBox.visible = true;
 				collaboratorVBox.includeInLayout = true;
 			} else {
@@ -177,8 +231,32 @@
 				collaboratorVBox.includeInLayout = false;
 			}
 		}
+
 	}
 
+
+	/**
+	 * Synchronize possibleCollaborators to memberCollaborators.
+	 * @param syncOn The XMLListCollection that will be synchedOn.
+	 * @param current The XMLListCollection that will be synchronized.
+     */
+	public function syncCollaborators(syncOn:XMLListCollection, current:XMLListCollection):void {
+		//Go through each member if they are selected update possible
+		for each (var s:XML in syncOn) {
+			var ctr:int = 0;
+			for each (var c:XML in current) {
+				if (c.@idAppUser == s.@idAppUser && (c.@canView != s.@canView || c.@canUpdate != s.@canUpdate || c.@canUploadData != s.@canUploadData)) {
+					c.@canView = s.@canView;
+					c.@canUpdate = s.@canUpdate;
+					c.@canUploadData = s.@canUploadData;
+					current.removeItemAt(ctr);
+					current.addItem(c);
+					break;
+				}
+				ctr++;
+			}
+		}
+	}
 
 	public function getCollaborators():XMLListCollection {
 		var list:XMLListCollection = new XMLListCollection();
@@ -191,26 +269,6 @@
 				c1.@canUploadData = c.hasOwnProperty("@canUploadData") ? c.@canUploadData : "N";
 				list.addItem(c1);
 			}
-		}
-		return list;
-	}
-
-	public function getCollaboratorsList(collabs:XMLListCollection):XMLListCollection {
-		var list:XMLListCollection = new XMLListCollection();
-		for each (var old:XML in collabs) {
-			var o:XML = old.copy();
-			o.@canView = "N";
-			o.@canUpdate = "N";
-			o.@canUploadData = "N";
-			for each (var o1:XML in parentDocument.request.collaborators.ExperimentCollaborator) {
-				if (o1.@idAppUser == o.@idAppUser) {
-					o.@canView = "Y";
-					o.@canUpdate = o1.@canUpdate;
-					o.@canUploadData = o1.@canUploadData;
-					break;
-				}
-			}
-			list.addItem(o);
 		}
 		return list;
 	}
@@ -275,10 +333,10 @@
 				<mx:HBox horizontalGap="0">
 					<mx:VBox verticalGap="2" width="140" paddingBottom="1">
 						<mx:RadioButton value="OWNER" label="Owner" groupName="visibilityRadioGroup"  
-										click="checkVisibilitySetupCompleteness();checkIfVisibilityRadioGroupEnabled();parentDocument.dirty.setDirty();setDefaultPrivacyExpirationDate();setPrivacyExpirationPickerEditable();"
+										click="checkVisibilitySetupCompleteness();parentDocument.dirty.setDirty();checkIfVisibilityRadioGroupEnabled();setDefaultPrivacyExpirationDate();setPrivacyExpirationPickerEditable();"
 										toolTip="Visible to the submitter and the lab PI" paddingTop="0" paddingBottom="0"/>
 						<mx:RadioButton value="MEM" selected="true" label="All Lab Members" groupName="visibilityRadioGroup"  
-										click="checkVisibilitySetupCompleteness();checkIfVisibilityRadioGroupEnabled();parentDocument.dirty.setDirty();setDefaultPrivacyExpirationDate();setPrivacyExpirationPickerEditable();"
+										click="checkVisibilitySetupCompleteness();parentDocument.dirty.setDirty();checkIfVisibilityRadioGroupEnabled();setDefaultPrivacyExpirationDate();setPrivacyExpirationPickerEditable();"
 										toolTip="Visibile to all members of the lab group" paddingBottom="0" paddingTop="0"/>
 					</mx:VBox>
 					<mx:VBox verticalGap="0" height="100%" width="209" verticalAlign="bottom">						
@@ -286,7 +344,7 @@
 				</mx:HBox>				
 				<mx:HBox horizontalGap="0" verticalAlign="middle" visible="{this.possibleInstitutions.length > 1}" includeInLayout="{this.possibleInstitutions.length > 1}">
 					<mx:RadioButton value="INST" selected="true" label="Institution" groupName="visibilityRadioGroup"  
-									click="checkVisibilitySetupCompleteness();checkIfVisibilityRadioGroupEnabled();parentDocument.dirty.setDirty();setDefaultPrivacyExpirationDate();setPrivacyExpirationPickerEditable();"
+									click="checkVisibilitySetupCompleteness();parentDocument.dirty.setDirty();checkIfVisibilityRadioGroupEnabled();setDefaultPrivacyExpirationDate();setPrivacyExpirationPickerEditable();"
 									id="radioInstitutionVisibility" enabled="{this.possibleInstitutions.length > 1}" toolTip="Visible to all lab groups that are part of institution" paddingTop="0"/>
 					<mx:ComboBox width="210" dataProvider="{this.possibleInstitutions}" id="institutionCombo" labelField="@display" selectedIndex="{visibilityRadioGroup.selectedValue != 'INST' ? 0 : institutionCombo.selectedIndex}" enabled="{this.possibleInstitutions.length > 1 &amp;&amp; radioInstitutionVisibility.enabled &amp;&amp; visibilityRadioGroup.selectedValue == 'INST'}"  editable="false" change="checkVisibilitySetupCompleteness()" fontSize="11">			       	
 					</mx:ComboBox>	
@@ -296,7 +354,7 @@
 				</mx:HBox>
 				<mx:HBox horizontalGap="0" verticalAlign="middle" visible="{parentApplication.isPublicVisibility}" includeInLayout="{parentApplication.isPublicVisibility}">
 					<mx:RadioButton value="PUBLIC" label="Public Access" groupName="visibilityRadioGroup"  
-									click="checkVisibilitySetupCompleteness();checkIfVisibilityRadioGroupEnabled();parentDocument.dirty.setDirty();setDefaultPrivacyExpirationDate();setPrivacyExpirationPickerEditable();"
+									click="checkVisibilitySetupCompleteness();parentDocument.dirty.setDirty();checkIfVisibilityRadioGroupEnabled();setDefaultPrivacyExpirationDate();setPrivacyExpirationPickerEditable();"
 									toolTip="Visible to everyone" paddingTop="0" paddingBottom="0"/>					
 				</mx:HBox>
 		   	</mx:VBox>		   
