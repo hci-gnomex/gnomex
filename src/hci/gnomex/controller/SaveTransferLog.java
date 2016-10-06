@@ -183,7 +183,7 @@ public class SaveTransferLog extends GNomExCommand implements Serializable {
     filePartMap.put("baseFilePath", baseFilePath);
     
     // Get the info file.
-    File info = new File (fdt_directory + uuid + File.separator + Constants.FDT_DOWNLOAD_INFO_FILE_NAME);
+    File info = new File (fdt_directory + uuid + Constants.FILE_SEPARATOR + Constants.FDT_DOWNLOAD_INFO_FILE_NAME);
     if (info.exists()) {
       FileReader fr = new FileReader(info);
       BufferedReader br = new BufferedReader(fr);

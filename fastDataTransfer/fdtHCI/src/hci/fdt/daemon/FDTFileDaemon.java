@@ -34,7 +34,7 @@ public class FDTFileDaemon {
 
     try {
       // Default task file path/name
-      taskFileDirectory = new java.io.File(".").getCanonicalPath() + File.separator + "tasks";
+      taskFileDirectory = new java.io.File(".").getCanonicalPath() + Constants.FILE_SEPARATOR + "tasks";
       for (int i = 0; i < args.length; i++) {
         if (args[i].equals("-sleepSeconds")) {
           sleepInterval = Integer.valueOf(args[++i])*1000;
@@ -232,7 +232,7 @@ public class FDTFileDaemon {
         continue;
       }
       
-      String targetFileName = targetDir + File.separator + f.getName();
+      String targetFileName = targetDir + Constants.FILE_SEPARATOR + f.getName();
       
       // If this is a directory then don't move. Make a recursive call to moveFiles.
       // If files exist within the source directory, the target directory will be 
@@ -248,7 +248,7 @@ public class FDTFileDaemon {
           }
         }
         */ 
-        moveFiles(sourceDir + File.separator + f.getName(), targetFileName, false);
+        moveFiles(sourceDir + Constants.FILE_SEPARATOR + f.getName(), targetFileName, false);
         continue;
       }
       
@@ -256,9 +256,9 @@ public class FDTFileDaemon {
       if(!isTopLevel) {
         // If within a recursive call then remove UPLOAD_STAGING_DIR from the target path
         // so that the files move directly to the target location, bypassing UPLOAD_STAGING_DIR 
-        String regex = Matcher.quoteReplacement(File.separator + UPLOAD_STAGING_DIR);
+        String regex = Matcher.quoteReplacement(Constants.FILE_SEPARATOR + UPLOAD_STAGING_DIR);
         targetDir = targetDir.replaceFirst(regex, "");
-        targetFileName = targetDir + File.separator + f.getName();
+        targetFileName = targetDir + Constants.FILE_SEPARATOR + f.getName();
 
         // Create the target directory and any req'd parent directories if the don't exist.
         if (!new File(targetDir).exists()) {

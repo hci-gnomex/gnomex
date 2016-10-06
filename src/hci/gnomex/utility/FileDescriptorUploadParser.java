@@ -75,7 +75,7 @@ public class FileDescriptorUploadParser extends DetailObject implements Serializ
       return;
     }
 
-    String qualifiedDir = parentDir != null ? parentDir  + File.separator + directoryName : directoryName;
+    String qualifiedDir = parentDir != null ? parentDir  + Constants.FILE_SEPARATOR + directoryName : directoryName;
     if (folderNode.getAttributeValue("isNew") != null && folderNode.getAttributeValue("isNew").equals("Y")) {
       newDirectoryNames.add(qualifiedDir);
     }

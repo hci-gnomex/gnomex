@@ -104,7 +104,7 @@ public class FastDataTransferUploadStart extends GNomExCommand implements Serial
         if (this.isValid()) {
           createYear = yearFormatter.format(analysis.getCreateDate());
           String baseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, null, PropertyDictionaryHelper.PROPERTY_ANALYSIS_DIRECTORY);
-          targetDir = baseDir + createYear + File.separator + analysis.getNumber() + File.separator + Constants.UPLOAD_STAGING_DIR;
+          targetDir = baseDir + createYear + Constants.FILE_SEPARATOR + analysis.getNumber() + Constants.FILE_SEPARATOR + Constants.UPLOAD_STAGING_DIR;
           targetNumber = analysis.getNumber();
           
           
@@ -128,7 +128,7 @@ public class FastDataTransferUploadStart extends GNomExCommand implements Serial
         if (this.isValid()) {
           createYear = yearFormatter.format(experiment.getCreateDate());
           String baseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, experiment.getIdCoreFacility(), PropertyDictionaryHelper.PROPERTY_EXPERIMENT_DIRECTORY);
-          targetDir = baseDir + createYear + File.separator + Request.getBaseRequestNumber(experiment.getNumber()) + File.separator + Constants.UPLOAD_STAGING_DIR;
+          targetDir = baseDir + createYear + Constants.FILE_SEPARATOR + Request.getBaseRequestNumber(experiment.getNumber()) + Constants.FILE_SEPARATOR + Constants.UPLOAD_STAGING_DIR;
           targetNumber = Request.getBaseRequestNumber(experiment.getNumber());
         }
       } else if (idDataTrack != null) {
@@ -139,7 +139,7 @@ public class FastDataTransferUploadStart extends GNomExCommand implements Serial
         }
         if (this.isValid()) {
           String baseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, null, PropertyDictionaryHelper.PROPERTY_DATATRACK_DIRECTORY);
-          targetDir = baseDir + File.separator + dataTrack.getFileName() + File.separator + Constants.UPLOAD_STAGING_DIR;
+          targetDir = baseDir + Constants.FILE_SEPARATOR + dataTrack.getFileName() + Constants.FILE_SEPARATOR + Constants.UPLOAD_STAGING_DIR;
           targetNumber = dataTrack.getNumber();
         }
       } else if (idProductOrder != null) {
@@ -148,7 +148,7 @@ public class FastDataTransferUploadStart extends GNomExCommand implements Serial
         if (this.isValid()) {
           createYear = yearFormatter.format(po.getSubmitDate());
           String baseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, po.getIdCoreFacility(), PropertyDictionaryHelper.PROPERTY_PRODUCT_ORDER_DIRECTORY);
-          targetDir = baseDir + createYear + File.separator + po.getProductOrderNumber() + File.separator + Constants.UPLOAD_STAGING_DIR;
+          targetDir = baseDir + createYear + Constants.FILE_SEPARATOR + po.getProductOrderNumber() + Constants.FILE_SEPARATOR + Constants.UPLOAD_STAGING_DIR;
           targetNumber = po.getProductOrderNumber();
         }
       }
@@ -174,20 +174,20 @@ public class FastDataTransferUploadStart extends GNomExCommand implements Serial
         changeOwnershipAndPermissions(sess, softlinks_dir_gnomex);
       
         // Add on either request or analysis number to softlinks_dir
-        softlinks_dir_gnomex  += File.separator + targetNumber;
+        softlinks_dir_gnomex  += Constants.FILE_SEPARATOR + targetNumber;
         makeDirectory(softlinks_dir_gnomex);
         changeOwnershipAndPermissions(sess, softlinks_dir_gnomex);
         
         // The softlinks_dir is the place where the files will be uploaded to.  This is the directory referenced
         // by the FDT server which may be running on a different server than gnomex.
         String softlinks_dir = PropertyDictionaryHelper.getInstance(sess).GetFDTDirectory(serverName) + uuidStr;  
-        softlinks_dir  += File.separator + targetNumber;
+        softlinks_dir  += Constants.FILE_SEPARATOR + targetNumber;
         
         // Set task for moving files when uploaded
         String taskFileDir = PropertyDictionaryHelper.getInstance(sess).getFDTFileDaemonTaskDir(serverName); 
         addTask(taskFileDir, softlinks_dir, targetDir);                
 
-        this.xmlResult = "<FDTUploadUuid uuid='" + uuidStr + File.separator + targetNumber + "'/>";
+        this.xmlResult = "<FDTUploadUuid uuid='" + uuidStr + Constants.FILE_SEPARATOR + targetNumber + "'/>";
         
       }
       

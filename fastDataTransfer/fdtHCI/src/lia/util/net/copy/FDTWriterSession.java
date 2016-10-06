@@ -281,7 +281,7 @@ public class FDTWriterSession extends FDTSession implements FileBlockConsumer {
 
         boolean shouldReplace = false;
         final char remoteCharSeparator = ((String) controlChannel.remoteConf.get("file.separator")).charAt(0);
-        if (File.separatorChar == '/') {
+        if (Constants.FILE_SEPARATOR_CHAR== '/') {
             if (remoteCharSeparator == '\\') {
                 shouldReplace = true;
             }

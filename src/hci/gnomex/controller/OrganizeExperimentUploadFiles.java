@@ -2,6 +2,7 @@ package hci.gnomex.controller;
 
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
+import hci.gnomex.constants.Constants;
 import hci.gnomex.model.ExperimentFile;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.Sample;
@@ -164,7 +165,7 @@ public Command execute() throws RollBackCommandException {
 			String baseRequestNumber = Request.getBaseRequestNumber(request.getNumber());
 			String baseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName,
 					request.getIdCoreFacility(), PropertyDictionaryHelper.PROPERTY_EXPERIMENT_DIRECTORY);
-			baseDir += request.getCreateYear() + File.separator + Request.getBaseRequestNumber(request.getNumber());
+			baseDir += request.getCreateYear() + Constants.FILE_SEPARATOR + Request.getBaseRequestNumber(request.getNumber());
 
 			if (this.getSecAdvisor().canUploadData(request)) {
 
@@ -173,7 +174,7 @@ public Command execute() throws RollBackCommandException {
 				// Add new directories to the file system
 				for (Iterator i = parser.getNewDirectoryNames().iterator(); i.hasNext();) {
 					String directoryName = (String) i.next();
-					File dir = new File(baseDir + File.separator + directoryName);
+					File dir = new File(baseDir + Constants.FILE_SEPARATOR + directoryName);
 					if (!dir.exists()) {
 						boolean success = dir.mkdirs();
 						if (!success) {
@@ -228,8 +229,8 @@ public Command execute() throws RollBackCommandException {
 				for (Iterator i = parser.getFoldersToRenameMap().keySet().iterator(); i.hasNext();) {
 					String folder = (String) i.next();
 					String newFolder = (String) parser.getFoldersToRenameMap().get(folder);
-					File f1 = new File(baseDir + File.separator + folder);
-					File f2 = new File(baseDir + File.separator + newFolder);
+					File f1 = new File(baseDir + Constants.FILE_SEPARATOR + folder);
+					File f2 = new File(baseDir + Constants.FILE_SEPARATOR + newFolder);
 					f2.mkdir();
 					for (Iterator j = parser.getFileNameMap().keySet().iterator(); j.hasNext();) {
 						String directory = (String) j.next();
@@ -272,7 +273,7 @@ public Command execute() throws RollBackCommandException {
 								|| baseDir.contains(directoryName.subSequence(0, directoryName.length() - 1))) {
 							targetDirName = baseDir + File.separator;
 						} else {
-							targetDirName = baseDir + File.separator + directoryName;
+							targetDirName = baseDir + Constants.FILE_SEPARATOR + directoryName;
 						}
 						File targetDir = new File(targetDirName);
 
@@ -715,13 +716,13 @@ private void recurseAddSamples(Element child, Map<String, List<Element>> sampleG
 
 public void deleteDir(File f, String fileName) throws Exception {
 	for (String file : f.list()) {
-		File child = new File(fileName + File.separator + file);
+		File child = new File(fileName + Constants.FILE_SEPARATOR + file);
 		if (child.isDirectory()) {
 			deleteDir(child, child.getCanonicalPath());
-		} else if (!(new File(fileName + File.separator + file).delete())) {
-			throw new Exception("Unable to delete file " + fileName + File.separator + file);
+		} else if (!(new File(fileName + Constants.FILE_SEPARATOR + file).delete())) {
+			throw new Exception("Unable to delete file " + fileName + Constants.FILE_SEPARATOR + file);
 		} else {
-			filesToRemoveParser.parseFilesToRemove().remove(fileName + File.separator + file);
+			filesToRemoveParser.parseFilesToRemove().remove(fileName + Constants.FILE_SEPARATOR + file);
 			directoryFilesToUnlink.add(fileName + "/" + file);
 		}
 

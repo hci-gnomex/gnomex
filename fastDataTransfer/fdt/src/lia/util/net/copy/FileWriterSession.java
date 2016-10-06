@@ -66,7 +66,7 @@ public class FileWriterSession extends FileSession {
                 tmpF = parent.getAbsolutePath();
             }
 
-            final String fName = tmpF + File.separator + "." + file.getName();
+            final String fName = tmpF + Constants.FILE_SEPARATOR + "." + file.getName();
             
             this.tmpCopyFile =  fcp.getFile((noTmp)?file.getAbsolutePath():fName);
 

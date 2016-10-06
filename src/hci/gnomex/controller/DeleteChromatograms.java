@@ -2,6 +2,7 @@ package hci.gnomex.controller;
 
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
+import hci.gnomex.constants.Constants;
 import hci.gnomex.model.Chromatogram;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.HibernateSession;
@@ -61,7 +62,7 @@ public class DeleteChromatograms extends GNomExCommand implements Serializable {
           Integer idChromatogram = Integer.parseInt(node.getAttributeValue("idChromatogram"));
           Chromatogram ch = (Chromatogram) sess.load(Chromatogram.class, idChromatogram);
 
-          File chromatFile = new File(ch.getQualifiedFilePath() + File.separator + ch.getFileName());
+          File chromatFile = new File(ch.getQualifiedFilePath() + Constants.FILE_SEPARATOR + ch.getFileName());
           chromatFile.delete();
 
           sess.delete(ch);

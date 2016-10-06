@@ -1,5 +1,6 @@
 package hci.gnomex.controller;
 
+import hci.gnomex.constants.Constants;
 import hci.gnomex.model.Chromatogram;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.ChromatReadUtil;
@@ -71,7 +72,7 @@ public class DownloadFastaFileServlet extends HttpServlet {
 
                 OutputStream out = response.getOutputStream();
 
-                File abiFile = new File(chromatogram.getQualifiedFilePath() + File.separator + chromatogram.getFileName());
+                File abiFile = new File(chromatogram.getQualifiedFilePath() + Constants.FILE_SEPARATOR + chromatogram.getFileName());
                 ChromatReadUtil chromatReader = new ChromatReadUtil(abiFile);
 
                 String header = ">";

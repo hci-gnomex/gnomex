@@ -21,6 +21,7 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 import javax.naming.NamingException;
 
+import hci.gnomex.constants.Constants;
 import org.apache.commons.validator.routines.EmailValidator;
 
 public class MailUtil {
@@ -161,7 +162,7 @@ public class MailUtil {
 			return;
 		}
 		for (int x = 0; x < fileList.length; x++) {
-			String fileName = file.getCanonicalPath() + File.separator + fileList[x];
+			String fileName = file.getCanonicalPath() + Constants.FILE_SEPARATOR + fileList[x];
 			File f1 = new File(fileName);
 			recurseAddAttachment( multipart, f1 );
 		}

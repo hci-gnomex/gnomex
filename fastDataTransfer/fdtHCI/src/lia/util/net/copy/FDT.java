@@ -79,7 +79,7 @@ public class FDT {
         FileInputStream fis = null;
         File confFile = null;
         try {
-            confFile = new File(System.getProperty("user.home") + File.separator + ".fdt" + File.separator + "fdt.properties");
+            confFile = new File(System.getProperty("user.home") + Constants.FILE_SEPARATOR + ".fdt" + Constants.FILE_SEPARATOR + "fdt.properties");
             if (level.indexOf("FINE") >= 0) {
                 logger.log("Using local properties file: " + confFile);
             }

@@ -110,7 +110,7 @@ public Command execute() throws RollBackCommandException {
 				// Add new directories to the file system
 				for (Iterator i = parser.getNewDirectoryNames().iterator(); i.hasNext();) {
 					String directoryName = (String) i.next();
-					File dir = new File(baseDir + File.separator + directoryName);
+					File dir = new File(baseDir + Constants.FILE_SEPARATOR + directoryName);
 					if (!dir.exists()) {
 						boolean success = dir.mkdirs();
 						if (!success) {
@@ -188,7 +188,7 @@ public Command execute() throws RollBackCommandException {
 						qualifiedFilePath = pathTokens[1];
 					}
 					for (int i2 = 2; i2 < pathTokens.length; i2++) {
-						qualifiedFilePath += File.separator + pathTokens[i2];
+						qualifiedFilePath += Constants.FILE_SEPARATOR + pathTokens[i2];
 					}
 
 					List fileNames = (List) parser.getFileNameMap().get(directoryName);
@@ -208,12 +208,12 @@ public Command execute() throws RollBackCommandException {
 						if (lastIndex != -1) {
 							baseFileName = fileName.substring(lastIndex);
 						}
-						Boolean duplicateUpload = fileNames.contains(baseDir + "\\" + analysis.getNumber() + "\\"
+						Boolean duplicateUpload = fileNames.contains(baseDir + "/" + analysis.getNumber() + "/"
 								+ Constants.UPLOAD_STAGING_DIR + baseFileName);
 						String mostRecentFile = "";
 						if (duplicateUpload) {
-							mostRecentFile = (String) fileNames.get(fileNames.indexOf(baseDir + "\\"
-									+ analysis.getNumber() + "\\" + Constants.UPLOAD_STAGING_DIR + baseFileName));
+							mostRecentFile = (String) fileNames.get(fileNames.indexOf(baseDir + "/"
+									+ analysis.getNumber() + "/" + Constants.UPLOAD_STAGING_DIR + baseFileName));
 						}
 
 						// Change qualifiedFilePath if the file is registered in the db
@@ -232,7 +232,7 @@ public Command execute() throws RollBackCommandException {
 									af.setCreateDate(new java.sql.Date(System.currentTimeMillis()));
 									af.setIdAnalysis(Integer.valueOf(idAnalysis));
 									af.setFileName(new File(fileName).getName());
-									af.setBaseFilePath(baseDir + File.separator + analysis.getNumber());
+									af.setBaseFilePath(baseDir + Constants.FILE_SEPARATOR + analysis.getNumber());
 								}
 
 								if (duplicateUpload) {
@@ -403,8 +403,8 @@ public Command execute() throws RollBackCommandException {
 
 				for (Iterator i = ghostFiles.iterator(); i.hasNext();) {
 					AnalysisFile af = (AnalysisFile) i.next();
-					String filePath = af.getBaseFilePath() + File.separator + af.getQualifiedFilePath()
-							+ File.separator + af.getFileName();
+					String filePath = af.getBaseFilePath() + Constants.FILE_SEPARATOR + af.getQualifiedFilePath()
+							+ Constants.FILE_SEPARATOR + af.getFileName();
 
 					if (!new File(filePath).exists()) {
 						analysis.getFiles().remove(af);

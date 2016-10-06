@@ -3008,7 +3008,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 			}
 		}
 
-		String qcDirectoryName = directoryName + File.separator + qcDirectory;
+		String qcDirectoryName = directoryName + Constants.FILE_SEPARATOR + qcDirectory;
 
 		if (!new File(qcDirectoryName).exists()) {
 			success = (new File(qcDirectoryName)).mkdir();
@@ -3064,13 +3064,13 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 
 	public void deleteDir(File f, String fileName) throws Exception {
 		for (String file : f.list()) {
-			File child = new File(fileName + File.separator + file);
+			File child = new File(fileName + Constants.FILE_SEPARATOR + file);
 			if (child.isDirectory()) {
 				deleteDir(child, child.getCanonicalPath());
-			} else if (!(new File(fileName + File.separator + file).delete())) {
-				throw new Exception("Unable to delete file " + fileName + File.separator + file);
+			} else if (!(new File(fileName + Constants.FILE_SEPARATOR + file).delete())) {
+				throw new Exception("Unable to delete file " + fileName + Constants.FILE_SEPARATOR + file);
 			} else {
-				filesToRemoveParser.parseFilesToRemove().remove(fileName + File.separator + file);
+				filesToRemoveParser.parseFilesToRemove().remove(fileName + Constants.FILE_SEPARATOR + file);
 			}
 
 		}
