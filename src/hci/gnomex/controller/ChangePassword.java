@@ -236,9 +236,8 @@ public void sendConfirmationEmail(AppUser appUser, String guid) throws NamingExc
 			content.append("Your user name is: " + appUser.getUserNameExternal() + "<br><br>");
 		}
 
-		content.append("A change of password has been requested for the gnomex account associated with this email.<br>");
-		content.append("Please follow this link to change your password <a href=\"" + appURL + "\">" + appURL
-				+ "</a><br>");
+		content.append("A change of password has been requested for the gnomex account associated with this email.<br/>");
+		content.append("Please follow <a href=\"" + appURL + "\">this link</a> to change your password.<br/>");
 		content.append("This link will expire in 30 minutes.");
 	}
 
