@@ -142,7 +142,8 @@
 						Alert.show(PasswordUtil.MATCH_ERROR_TEXT);
 						return;
 					}
-					if(!PasswordUtil.passwordMeetsRequirements(externalUserPassword.text)) {
+					if(externalUserPassword.text != publicUser.@passwordExternalEntered
+							&& !PasswordUtil.passwordMeetsRequirements(externalUserPassword.text)) {
 						Alert.show(PasswordUtil.COMPLEXITY_ERROR_TEXT);
 						return;
 					}

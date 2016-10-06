@@ -111,7 +111,9 @@
 						Alert.show(PasswordUtil.MATCH_ERROR_TEXT);
 						return;
 					}
-					if (externalUserPassword.text != null && !PasswordUtil.passwordMeetsRequirements(externalUserPassword.text)) {
+					if (externalUserPassword.text != parentDocument.fullUser.@passwordExternalEntered
+							&& externalUserPassword.text != ""
+							&& !PasswordUtil.passwordMeetsRequirements(externalUserPassword.text)) {
 						Alert.show(PasswordUtil.COMPLEXITY_ERROR_TEXT);
 						return;
 					}
@@ -147,7 +149,7 @@
 				if (	(parentDocument.membershipLabs != null && parentDocument.membershipLabs.length > 0) || 
 						(parentDocument.collaboratingLabs != null && parentDocument.collaboratingLabs.length > 0) ||
 						(parentDocument.managingLabs != null && parentDocument.managingLabs.length > 0)					) {
-					message = "Inactivating this user will remove them from the following lab(s):"
+					message = "Inactivating this user will remove them from the following lab(s):";
 					if (parentDocument.membershipLabs != null) {
 						for each (var lab1:Object in parentDocument.membershipLabs) {
 							message += "\n" + lab1.@name + " as a member";
