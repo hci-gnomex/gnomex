@@ -8,7 +8,7 @@ package ch.ethz.ssh2;
  * @see Connection#setProxyData(ProxyData)
  * 
  * @author Christian Plattner, plattner@inf.ethz.ch
- * @version $Id: HTTPProxyData.java,v 1.1 2012-10-29 22:29:48 HCI\rcundick Exp $
+ * @version $Id: HTTPProxyData.java,v 1.2 2006/08/02 12:05:00 cplattne Exp $
  */
 
 public class HTTPProxyData implements ProxyData

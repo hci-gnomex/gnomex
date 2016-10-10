@@ -1,5 +1,5 @@
 /*
- * $Id: SelectionHandler.java,v 1.1 2012-10-29 22:30:17 HCI\rcundick Exp $
+ * $Id$
  */
 package lia.util.net.copy.transport.internal;
 

@@ -1,15 +1,16 @@
 /*
- * $Id: SocketWriterTask.java,v 1.1 2012-10-29 22:29:43 HCI\rcundick Exp $
+ * $Id$
  */
 package lia.util.net.copy.transport;
 
-import gui.Log;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import lia.util.net.common.Config;
 import lia.util.net.common.DirectByteBufferPool;
@@ -26,9 +27,10 @@ import lia.util.net.copy.transport.internal.FDTSelectionKey;
  */
 public class SocketWriterTask extends SocketTask {
 
-    private static final Log logger = Log.getLoggerInstance();
+    /** Logger used by this class */
+    private static final Logger logger = Logger.getLogger(SocketWriterTask.class.getName());
 
-    volatile FDTSelectionKey fdtSelectionKey;
+    private final AtomicReference<FDTSelectionKey> fdtSelectionKeyRef = new AtomicReference<FDTSelectionKey>(null);
 
     // private static final int MSS_SIZE = 16 * 1024 * 1024;
     private static final int BUFF_LEN_SIZE = Config.NETWORK_BUFF_LEN_SIZE;
@@ -37,12 +39,11 @@ public class SocketWriterTask extends SocketTask {
 
     // private static final int RETRY_IO_COUNT = Config.getInstance().getRetryIOCount();
 
-    private TCPSessionWriter master;
+    private final TCPSessionWriter master;
 
-    private FileBlockProducer fileBlockProducer;
+    private final FileBlockProducer fileBlockProducer;
 
     private final boolean isNetTest;
-
 
     SocketWriterTask(BlockingQueue<FDTSelectionKey> readyChannelsQueue, FileBlockProducer fileBlockProducer, TCPSessionWriter master) {
         super(readyChannelsQueue);
@@ -53,25 +54,18 @@ public class SocketWriterTask extends SocketTask {
 
     private long writeToChannel(SocketChannel sc, ByteBuffer[] buffsToWrite) throws IOException {
         final ByteBuffer[] bToWrite = buffsToWrite;
-        for(int i=0;i<bToWrite.length;i++){
-            /*try {
-                ByteBuffer buff = bToWrite[i].duplicate();
-                bToWrite[i] = encryptStream.encryptData(buff);
-
-            } catch (Exception ex) {
-                logger.logError(ex);
-            }*/
-            if (isNetTest) {
-                for (final ByteBuffer b : bToWrite) {
-                    b.position(0);
-                    b.limit(b.capacity());
-                }
+        if (isNetTest) {
+            for (final ByteBuffer b : bToWrite) {
+                b.position(0);
+                b.limit(b.capacity());
             }
         }
+
         return sc.write(bToWrite);
     }
 
     private long writeData() throws IOException, InterruptedException {
+        final FDTSelectionKey fdtSelectionKey = fdtSelectionKeyRef.get();
         final FDTWriterKeyAttachement attach = (FDTWriterKeyAttachement) fdtSelectionKey.attachment();
         final boolean connectCookieSent = attach.connectCookieSent.get();
 
@@ -85,7 +79,7 @@ public class SocketWriterTask extends SocketTask {
             bufferSize = mss;
         }
 
-        final boolean logFinest = logger.isLoggable(Level.FINEST);
+        final boolean logFinest = logger.isLoggable(Level.FINEST); 
         if (logFinest) {
             logger.log(Level.FINEST, "Using MSS: " + bufferSize + " for socket channel: " + sc);
         }
@@ -120,7 +114,6 @@ public class SocketWriterTask extends SocketTask {
                     if (hh == null || bb == null) {
                         // not enough buffer space - return what we coudl not get
                         if (bb != null) {
-                            
                             dbPool.put(bb);
                         }
 
@@ -143,10 +136,8 @@ public class SocketWriterTask extends SocketTask {
 
                     bb.position(0);
                     bb.limit(bb.capacity());
-
                     hh.position(0);
                     hh.limit(hh.capacity());
-                    //attach.setBuffers(hh, bb);
                     attach.setBuffers(hh, bb);
 
                 } else {
@@ -175,7 +166,6 @@ public class SocketWriterTask extends SocketTask {
                         if (!bRet) {
                             attach.recycleBuffers();
                             if (fb != null && fb.buff != null) {
-                               // dbPool.put(fb.buff);
                                 dbPool.put(fb.buff);
                                 fb = null;
                             }
@@ -240,12 +230,6 @@ public class SocketWriterTask extends SocketTask {
                 }
             }
 
-            /*try {
-                attach.setPayload(encryptStream.encryptData(attach.payload()));
-            } catch (Exception ex) {
-                Logger.getLogger(SocketWriterTask.class.getName()).log(Level.SEVERE, null, ex);
-            }*/
-            
             while ((count = writeToChannel(sc, attach.asArray())) > 0) {
                 if (isNetTest) {
                     fdtSelectionKey.opCount = 0;
@@ -253,6 +237,7 @@ public class SocketWriterTask extends SocketTask {
                     master.addAndGetTotalBytes(count);
                     continue;
                 }
+
                 attach.payload().limit(attach.payloadSize);
 
                 fdtSelectionKey.opCount = 0;
@@ -301,8 +286,6 @@ public class SocketWriterTask extends SocketTask {
                             if (!bRet) {
                                 attach.recycleBuffers();
                                 if (fb != null && fb.buff != null) {
-                                    
-                                    //dbPool.put(fb.buff);
                                     dbPool.put(fb.buff);
                                     fb = null;
                                 }
@@ -366,21 +349,22 @@ public class SocketWriterTask extends SocketTask {
 
     private void recycleBuffers() {
         try {
+            final FDTSelectionKey fdtSelectionKey = fdtSelectionKeyRef.getAndSet(null);
+ 
             if (fdtSelectionKey != null) {
                 FDTWriterKeyAttachement attach = (FDTWriterKeyAttachement) fdtSelectionKey.attachment();
                 if (attach != null) {
                     attach.recycleBuffers();
                 }
-                fdtSelectionKey = null;
             }
         } catch (Throwable t1) {
             logger.log(Level.WARNING, " Got exception trying to recover the buffers and returning them to pool", t1);
         }
     }
 
-    @Override
     public void internalClose() {
         try {
+            final FDTSelectionKey fdtSelectionKey = fdtSelectionKeyRef.getAndSet(null);
             if (fdtSelectionKey != null) {
                 fdtSelectionKey.cancel();
                 FDTWriterKeyAttachement attach = (FDTWriterKeyAttachement) fdtSelectionKey.attachment();
@@ -404,25 +388,27 @@ public class SocketWriterTask extends SocketTask {
 
             recycleBuffers();
         } catch (Throwable t1) {
-            logger.logError("\n\n\n\n\\n ========================= \n\n\n");
-            logger.logError(t1);
-            logger.logError("\n\n\n\n\\n ========================= \n\n\n");
-            }
+            System.err.println("\n\n\n\n\\n ========================= \n\n\n");
+            t1.printStackTrace();
+            System.err.println("\n\n\n\n\\n ========================= \n\n\n");
+        }
     }
 
     public void run() {
 
         try {
             for (;;) {
-                fdtSelectionKey = null;
-                FDTSelectionKey iFDTSelectionKey = null;// small speed-up; avoid a volatile R/W
-                while ((iFDTSelectionKey = readyChannelsQueue.poll(2, TimeUnit.SECONDS)) == null) {
+                fdtSelectionKeyRef.set(null);
+                FDTSelectionKey iSel = null;
+                while (iSel == null) {
+                    fdtSelectionKeyRef.getAndSet(readyChannelsQueue.poll(2, TimeUnit.SECONDS));
+                    iSel = fdtSelectionKeyRef.get();
                     if (isClosed()) {
                         break;
                     }
                 }
 
-                fdtSelectionKey = iFDTSelectionKey;
+                final FDTSelectionKey fdtSelectionKey = iSel;
 
                 if (isClosed())
                     break;
@@ -431,17 +417,20 @@ public class SocketWriterTask extends SocketTask {
                     logger.log(Level.FINEST, " writeDate for SK: " + Utils.toStringSelectionKey(fdtSelectionKey) + " SQSize : " + readyChannelsQueue.size() + " SelQueue: " + readyChannelsQueue);
                 }
 
-                if (writeData() < 0) {
+                if (writeData() < 0 || master.isClosed()) {
                     return;
                 }
             }
         } catch (Throwable t) {
+            final FDTSelectionKey fdtSelectionKey = fdtSelectionKeyRef.get();
             master.workerDown(fdtSelectionKey, t);
             close("SocketWriterTask got exception ", t);
         } finally {
+            final FDTSelectionKey fdtSelectionKey = fdtSelectionKeyRef.getAndSet(null);
+
             try {
                 if (fdtSelectionKey != null) {
-                    FDTKeyAttachement attach = fdtSelectionKey.attachment();
+                    final FDTKeyAttachement attach = fdtSelectionKey.attachment();
                     if (attach != null) {
                         attach.recycleBuffers();
                     }

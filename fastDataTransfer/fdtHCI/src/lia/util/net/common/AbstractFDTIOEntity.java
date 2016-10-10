@@ -1,5 +1,5 @@
 /*
- * $Id: AbstractFDTIOEntity.java,v 1.1 2012-10-29 22:29:44 HCI\rcundick Exp $
+ * $Id$
  */
 package lia.util.net.common;
 

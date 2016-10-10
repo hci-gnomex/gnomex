@@ -1,12 +1,12 @@
 /*
- * $Id: AbstractFDTCloseable.java,v 1.1 2012-10-29 22:29:44 HCI\rcundick Exp $
+ * $Id$
  */
 package lia.util.net.common;
 
-import gui.Log;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -18,7 +18,8 @@ import java.util.logging.Level;
  */
 public abstract class AbstractFDTCloseable implements FDTCloseable {
 
-    private static final Log logger = Log.getLoggerInstance();
+    /** Logger used by this class */
+    private static final Logger logger = Logger.getLogger(AbstractFDTCloseable.class.getName());
     
     /**
      * The lock can be used by subclasses to synchronize the access to
@@ -42,8 +43,8 @@ public abstract class AbstractFDTCloseable implements FDTCloseable {
         } catch (Throwable t) {
             //If smth fails here ... FDT cannot continue
             //The only case can be if the class cannot be loaded or OOM is thrown ...
-            logger.log("\n\n ERROR: Cannot instantiate AsynchronousCloseThread !! \n\n");
-            logger.log(t.getMessage());
+            System.err.println("\n\n Cannot instantiate AsynchronousCloseThread !! \n\n");
+            t.printStackTrace();
             throw new RuntimeException("Cannot instantiate AsynchronousCloseThread", t);
         }
 

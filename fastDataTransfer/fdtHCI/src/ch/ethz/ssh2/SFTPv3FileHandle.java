@@ -5,7 +5,7 @@ package ch.ethz.ssh2;
  * A <code>SFTPv3FileHandle</code>.
  * 
  * @author Christian Plattner, plattner@inf.ethz.ch
- * @version $Id: SFTPv3FileHandle.java,v 1.1 2012-10-29 22:29:50 HCI\rcundick Exp $
+ * @version $Id: SFTPv3FileHandle.java,v 1.2 2006/09/11 09:05:11 cplattne Exp $
  */
 
 public class SFTPv3FileHandle

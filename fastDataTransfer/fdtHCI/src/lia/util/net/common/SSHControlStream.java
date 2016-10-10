@@ -1,5 +1,5 @@
 /*
- * $Id: SSHControlStream.java,v 1.1 2012-10-29 22:29:44 HCI\rcundick Exp $
+ * $Id$
  */
 package lia.util.net.common;
 
@@ -13,13 +13,13 @@ import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import ch.ethz.ssh2.Connection;
 import ch.ethz.ssh2.InteractiveCallback;
 import ch.ethz.ssh2.Session;
 import ch.ethz.ssh2.StreamGobbler;
 import ch.ethz.ssh2.util.PasswordReader;
-import gui.Log;
 
 /**
  * 
@@ -28,16 +28,21 @@ import gui.Log;
  */
 public class SSHControlStream implements ControlStream {
 
-    private static final Log logger = Log.getLoggerInstance();
-
+    private static final Logger logger = Logger.getLogger(SSHControlStream.class.getName());
     static final String knownHostPath = System.getProperty("user.home") + "/.ssh/known_hosts";
     static final String idDSAPath = System.getProperty("user.home") + "/.ssh/id_dsa.fdt";
     static final String idRSAPath = System.getProperty("user.home") + "/.ssh/id_rsa.fdt";
+    
+    // configuration parameters
+    private final String hostname;
+    private final String username;
+    private final int port;
+    
     /**
      * the SSH connection & session
      */
-    private final Connection conn;
-    private final Session sess;
+    private Connection conn;
+    private Session sess;
     private String cmd;
 
     /**
@@ -52,7 +57,7 @@ public class SSHControlStream implements ControlStream {
      * @throws IOException
      *             in case of failure
      */
-    public SSHControlStream(String hostname, String username) throws IOException {
+    public SSHControlStream(String hostname, String username) {
         this(hostname, username, 22);
     }
 
@@ -68,7 +73,13 @@ public class SSHControlStream implements ControlStream {
      * @throws IOException
      *             in case of failure
      */
-    public SSHControlStream(String hostname, String username, int port) throws IOException {
+    public SSHControlStream(String hostname, String username, int port) {
+    	this.hostname = hostname;
+    	this.username = username;
+    	this.port = port;
+    }
+    
+    public void connect() throws IOException {
         this.conn = new Connection(hostname, port);
         conn.connect();
 
@@ -345,8 +356,7 @@ public class SSHControlStream implements ControlStream {
                     }
                 }
             } catch (IOException e) {
-                logger.logError("Cannot write remote log:" + logFile);
-                //System.err.println("Cannot write remote log:" + logFile);
+                System.err.println("Cannot write remote log:" + logFile);
                 try {
                     if (out != null) {
                         out.close();
@@ -448,9 +458,9 @@ public class SSHControlStream implements ControlStream {
             if (line == null) {
                 break;
             }
-            logger.log(line);
+            System.out.println(line);
         }
-        logger.logError("ExitCode:" + cs.getExitCode());
+        System.out.println("ExitCode:" + cs.getExitCode());
         cs.close();
     }
 }

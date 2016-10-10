@@ -6,7 +6,7 @@ import java.io.IOException;
  * MessageHandler.
  * 
  * @author Christian Plattner, plattner@inf.ethz.ch
- * @version $Id: MessageHandler.java,v 1.1 2012-10-29 22:29:46 HCI\rcundick Exp $
+ * @version $Id: MessageHandler.java,v 1.1 2005/05/26 14:53:29 cplattne Exp $
  */
 public interface MessageHandler
 {

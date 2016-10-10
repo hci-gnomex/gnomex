@@ -6,7 +6,7 @@ package ch.ethz.ssh2;
  * underlying socket of a connection is closed. 
  * 
  * @author Christian Plattner, plattner@inf.ethz.ch
- * @version $Id: ConnectionMonitor.java,v 1.1 2012-10-29 22:29:48 HCI\rcundick Exp $
+ * @version $Id: ConnectionMonitor.java,v 1.3 2006/08/11 17:44:37 cplattne Exp $
  */
 
 public interface ConnectionMonitor

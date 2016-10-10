@@ -19,7 +19,7 @@ import java.io.OutputStream;
  * actually mapping every request to a distinct {@link Session}.
  * 
  * @author Christian Plattner, plattner@inf.ethz.ch
- * @version $Id: SCPClient.java,v 1.1 2012-10-29 22:29:50 HCI\rcundick Exp $
+ * @version $Id: SCPClient.java,v 1.11 2006/08/02 11:57:12 cplattne Exp $
  */
 
 public class SCPClient

@@ -8,7 +8,7 @@ package ch.ethz.ssh2.crypto.digest;
  * (http://www.itl.nist.gov/fipspubs/fip180-1.htm)
  * 
  * @author Christian Plattner, plattner@inf.ethz.ch
- * @version $Id: SHA1.java,v 1.1 2012-10-29 22:30:16 HCI\rcundick Exp $
+ * @version $Id: SHA1.java,v 1.4 2006/02/02 09:11:03 cplattne Exp $
  */
 public final class SHA1 implements Digest
 {

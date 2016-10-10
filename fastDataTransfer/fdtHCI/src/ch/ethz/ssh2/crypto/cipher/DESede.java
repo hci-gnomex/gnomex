@@ -31,7 +31,7 @@ package ch.ethz.ssh2.crypto.cipher;
  * DESede.
  * 
  * @author See comments in the source file
- * @version $Id: DESede.java,v 1.1 2012-10-29 22:30:01 HCI\rcundick Exp $ethz.ch
+ * @version $Id: DESede.java,v 1.3 2005/08/11 12:47:27 cplattne Exp $ethz.ch
  * 
  */
 public class DESede extends DES

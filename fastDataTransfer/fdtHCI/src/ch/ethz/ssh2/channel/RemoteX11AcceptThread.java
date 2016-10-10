@@ -12,7 +12,7 @@ import ch.ethz.ssh2.log.Logger;
  * RemoteX11AcceptThread.
  * 
  * @author Christian Plattner, plattner@inf.ethz.ch
- * @version $Id: RemoteX11AcceptThread.java,v 1.1 2012-10-29 22:29:58 HCI\rcundick Exp $
+ * @version $Id: RemoteX11AcceptThread.java,v 1.5 2006/02/14 15:17:37 cplattne Exp $
  */
 public class RemoteX11AcceptThread extends Thread
 {

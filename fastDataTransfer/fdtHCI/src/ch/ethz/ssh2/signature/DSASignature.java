@@ -6,7 +6,7 @@ import java.math.BigInteger;
  * DSASignature.
  * 
  * @author Christian Plattner, plattner@inf.ethz.ch
- * @version $Id: DSASignature.java,v 1.1 2012-10-29 22:30:11 HCI\rcundick Exp $
+ * @version $Id: DSASignature.java,v 1.1 2005/05/26 14:53:30 cplattne Exp $
  */
 public class DSASignature
 {

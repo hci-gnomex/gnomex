@@ -1,5 +1,5 @@
 /*
- * $Id: NetMatcher.java,v 1.1 2012-10-29 22:29:44 HCI\rcundick Exp $
+ * $Id$
  */
 
 /***********************************************************************
@@ -27,7 +27,6 @@
  */
 package lia.util.net.common;
 
-import gui.Log;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -37,8 +36,6 @@ public class NetMatcher {
 
     private ArrayList<InetNetwork> networks;
 
-    private static Log logger = Log.getLoggerInstance();
-
     public void initInetNetworks(final Collection<String> nets) {
         networks = new ArrayList<InetNetwork>();
         for (final String netName : nets)
@@ -46,7 +43,7 @@ public class NetMatcher {
                 InetNetwork net = InetNetwork.getFromString(netName);
                 if (!networks.contains(net)) networks.add(net);
             } catch (java.net.UnknownHostException uhe) {
-                logger.logError("Cannot resolve address: ", uhe);
+                log("Cannot resolve address: " + uhe.getMessage());
             }
         networks.trimToSize();
     }
@@ -58,7 +55,7 @@ public class NetMatcher {
                 InetNetwork net = InetNetwork.getFromString(nets[i]);
                 if (!networks.contains(net)) networks.add(net);
             } catch (java.net.UnknownHostException uhe) {
-                logger.logError("Cannot resolve address: ", uhe);
+                log("Cannot resolve address: " + uhe.getMessage());
             }
         networks.trimToSize();
     }
@@ -69,13 +66,13 @@ public class NetMatcher {
         try {
             ip = InetAddress.getByName(hostIP);
         } catch (java.net.UnknownHostException uhe) {
-            logger.logError("Cannot resolve address for " + hostIP + ": ", uhe);
+            log("Cannot resolve address for " + hostIP + ": " + uhe.getMessage());
         }
 
         boolean sameNet = false;
 
-        if (ip != null) for (Iterator iter = networks.iterator(); (!sameNet) && iter.hasNext();) {
-            InetNetwork network = (InetNetwork) iter.next();
+        if (ip != null) for (Iterator<InetNetwork> iter = networks.iterator(); (!sameNet) && iter.hasNext();) {
+            InetNetwork network = iter.next();
             sameNet = network.contains(ip);
         }
         return sameNet;
@@ -84,8 +81,8 @@ public class NetMatcher {
     public boolean matchInetNetwork(final InetAddress ip) {
         boolean sameNet = false;
 
-        for (Iterator iter = networks.iterator(); (!sameNet) && iter.hasNext();) {
-            InetNetwork network = (InetNetwork) iter.next();
+        for (Iterator<InetNetwork> iter = networks.iterator(); (!sameNet) && iter.hasNext();) {
+            InetNetwork network = iter.next();
             sameNet = network.contains(ip);
         }
         return sameNet;
@@ -162,7 +159,7 @@ class InetNetwork {
     public static final InetAddress maskIP(final byte[] ip, final byte[] mask) {
         try {
             return getByAddress(new byte[] { (byte) (mask[0] & ip[0]), (byte) (mask[1] & ip[1]), (byte) (mask[2] & ip[2]), (byte) (mask[3] & ip[3])});
-        } catch (final Exception _) {
+        } catch (final Exception ignored) {
         }
         return null;
     }
@@ -233,6 +230,7 @@ class InetNetwork {
     public static void main(String[] args) {
         NetMatcher nm = new NetMatcher();
         nm.initInetNetworks(new String[] { "192.168.0.0/24"});
+        System.out.println(nm.matchInetNetwork("192.168.0.2"));
 
     }
 }

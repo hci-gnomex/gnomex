@@ -55,7 +55,7 @@ import ch.ethz.ssh2.sftp.Packet;
  * {@link #setCharset(String)}.
  * 
  * @author Christian Plattner, plattner@inf.ethz.ch
- * @version $Id: SFTPv3Client.java,v 1.1 2012-10-29 22:29:51 HCI\rcundick Exp $
+ * @version $Id: SFTPv3Client.java,v 1.9 2006/09/20 12:51:37 cplattne Exp $
  */
 public class SFTPv3Client
 {

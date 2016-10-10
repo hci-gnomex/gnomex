@@ -6,7 +6,7 @@ import java.io.IOException;
  * PacketChannelOpenFailure.
  * 
  * @author Christian Plattner, plattner@inf.ethz.ch
- * @version $Id: PacketChannelOpenFailure.java,v 1.1 2012-10-29 22:29:35 HCI\rcundick Exp $
+ * @version $Id: PacketChannelOpenFailure.java,v 1.1 2005/12/05 17:13:27 cplattne Exp $
  */
 public class PacketChannelOpenFailure
 {

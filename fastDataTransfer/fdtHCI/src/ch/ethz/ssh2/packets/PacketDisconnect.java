@@ -5,7 +5,7 @@ import java.io.IOException;
  * PacketDisconnect.
  * 
  * @author Christian Plattner, plattner@inf.ethz.ch
- * @version $Id: PacketDisconnect.java,v 1.1 2012-10-29 22:29:36 HCI\rcundick Exp $
+ * @version $Id: PacketDisconnect.java,v 1.3 2005/08/29 14:24:58 cplattne Exp $
  */
 public class PacketDisconnect
 {

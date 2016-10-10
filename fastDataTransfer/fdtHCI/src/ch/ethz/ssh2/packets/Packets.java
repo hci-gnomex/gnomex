@@ -5,7 +5,7 @@ package ch.ethz.ssh2.packets;
  * Packets.
  * 
  * @author Christian Plattner, plattner@inf.ethz.ch
- * @version $Id: Packets.java,v 1.1 2012-10-29 22:29:35 HCI\rcundick Exp $
+ * @version $Id: Packets.java,v 1.6 2006/09/20 12:51:37 cplattne Exp $
  */
 public class Packets
 {

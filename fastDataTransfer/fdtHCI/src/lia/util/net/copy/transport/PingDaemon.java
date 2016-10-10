@@ -1,9 +1,8 @@
 /*
- * $Id: PingDaemon.java,v 1.1 2012-10-29 22:29:43 HCI\rcundick Exp $
+ * $Id$
  */
 package lia.util.net.copy.transport;
 
-import gui.Log;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
@@ -11,6 +10,7 @@ import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import lia.util.net.common.Utils;
 
@@ -23,7 +23,7 @@ import lia.util.net.common.Utils;
  */
 public class PingDaemon {
 
-    private static final Log logger = Log.getLoggerInstance();
+    private static final Logger logger = Logger.getLogger("lia.util.net.copy.transport.PingDaemon");
     
     private long pingDelay;
     private TimeUnit pingDelayTimeUnit;
@@ -51,7 +51,6 @@ public class PingDaemon {
             this.setDaemon(true);
         }
         
-        @Override
         public void run() {
             
             for(;;) {
@@ -72,9 +71,8 @@ public class PingDaemon {
                     final int version = header.getInt();
                     final int payloadSize = header.getInt();
                     final long seq = header.getLong();
-
-                    logger.log("Read from client: [ SEQ: " + seq + " type: " + type + " version: " + version + " payloadSize: " + payloadSize + " ]");
-                    //System.out.println("Read from client: [ SEQ: " + seq + " type: " + type + " version: " + version + " payloadSize: " + payloadSize + " ]");
+                    
+                    System.out.println("Read from client: [ SEQ: " + seq + " type: " + type + " version: " + version + " payloadSize: " + payloadSize + " ]");
                     
                     if(payload == null || payload.capacity() != payloadSize) {
                         payload = ByteBuffer.allocateDirect(payloadSize);
@@ -100,8 +98,9 @@ public class PingDaemon {
                     logger.log(Level.WARNING, "Got exception ", t);
                 }
             }//end for
-            logger.log("Server exits!");
-            }
+            
+            System.out.println("Server exits!");
+        }
     }
     
     private final class PingerTask implements Runnable {
@@ -118,7 +117,7 @@ public class PingDaemon {
                 payload.flip();
                 
                 final long sTime = System.nanoTime();
-                logger.log("written: "+ sc.write(toSend));
+                System.out.println(" Written: " + sc.write(toSend));
                 
                 header.clear();
                 payload.clear();
@@ -126,7 +125,7 @@ public class PingDaemon {
                 sc.read(toSend);
                 final long finishTime = System.nanoTime();
                 
-                logger.log(" DT = " + (finishTime - sTime)/(1000D*1000D) + " ms");
+                System.out.println(" DT = " + (finishTime - sTime)/(1000D*1000D) + " ms");
             }catch(Throwable t) {
                 logger.log(Level.WARNING, "Got exception", t);
             }
@@ -207,16 +206,15 @@ public class PingDaemon {
                     SocketChannel sc = ssc.accept();
                     new PingDaemon(sc);
                 }catch(Throwable t) {
-                    logger.logError(t);
-                    }
+                    t.printStackTrace();
+                }
             } else if(args.length == 2) {
                 InetAddress  ia = InetAddress.getByName(args[0]);
                 final int port = Integer.parseInt(args[1]);
                 new PingDaemon(ia, port);
             }
         }catch(Throwable t) {
-            logger.logError(t);
-            //t.printStackTrace();
+            t.printStackTrace();
             System.exit(1);
         }
 

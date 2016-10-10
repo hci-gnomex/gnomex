@@ -11,7 +11,7 @@ import ch.ethz.ssh2.log.Logger;
  * DhExchange.
  * 
  * @author Christian Plattner, plattner@inf.ethz.ch
- * @version $Id: DhExchange.java,v 1.1 2012-10-29 22:30:23 HCI\rcundick Exp $
+ * @version $Id: DhExchange.java,v 1.5 2006/02/14 19:43:15 cplattne Exp $
  */
 public class DhExchange
 {

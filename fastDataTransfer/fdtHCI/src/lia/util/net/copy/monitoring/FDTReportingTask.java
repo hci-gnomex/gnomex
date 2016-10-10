@@ -1,13 +1,13 @@
 /*
- * $Id: FDTReportingTask.java,v 1.1 2012-10-29 22:29:53 HCI\rcundick Exp $
+ * $Id$
  */
 package lia.util.net.copy.monitoring;
 
-import gui.Log;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import lia.util.net.common.Utils;
 import lia.util.net.copy.FDTSession;
@@ -22,8 +22,8 @@ import lia.util.net.copy.transport.TCPTransportProvider;
  *
  */
 public abstract class FDTReportingTask implements Runnable {
-
-    private static Log logger = Log.getLoggerInstance();
+    
+    private static final Logger logger = Logger.getLogger("lia.util.net.copy.monitoring.FDTReportingTask");
     
     public abstract void finishFDTSession(final FDTSession fdtSession);
     public abstract void startFDTSession(final FDTSession fdtSession);

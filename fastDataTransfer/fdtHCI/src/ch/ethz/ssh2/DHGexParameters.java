@@ -11,7 +11,7 @@ package ch.ethz.ssh2;
  * 
  * @see Connection#setDHGexParameters(DHGexParameters)
  * @author Christian Plattner, plattner@inf.ethz.ch
- * @version $Id: DHGexParameters.java,v 1.1 2012-10-29 22:29:52 HCI\rcundick Exp $
+ * @version $Id: DHGexParameters.java,v 1.3 2006/09/20 12:51:37 cplattne Exp $
  */
 
 public class DHGexParameters

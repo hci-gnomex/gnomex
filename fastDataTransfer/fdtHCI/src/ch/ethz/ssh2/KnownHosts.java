@@ -38,7 +38,7 @@ import ch.ethz.ssh2.signature.RSASHA1Verify;
  * <code>KnownHosts</code> for your whole application.
  * 
  * @author Christian Plattner, plattner@inf.ethz.ch
- * @version $Id: KnownHosts.java,v 1.1 2012-10-29 22:29:52 HCI\rcundick Exp $
+ * @version $Id: KnownHosts.java,v 1.5 2006/07/30 21:59:29 cplattne Exp $
  */
 
 public class KnownHosts

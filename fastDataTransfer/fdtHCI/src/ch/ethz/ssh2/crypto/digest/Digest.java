@@ -5,7 +5,7 @@ package ch.ethz.ssh2.crypto.digest;
  * Digest.
  * 
  * @author Christian Plattner, plattner@inf.ethz.ch
- * @version $Id: Digest.java,v 1.1 2012-10-29 22:30:16 HCI\rcundick Exp $
+ * @version $Id: Digest.java,v 1.2 2005/08/11 12:47:29 cplattne Exp $
  */
 public interface Digest
 {

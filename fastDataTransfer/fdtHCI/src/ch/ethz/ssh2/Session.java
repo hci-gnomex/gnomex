@@ -17,7 +17,7 @@ import ch.ethz.ssh2.channel.X11ServerData;
  * a session. However, multiple sessions can be active simultaneously.
  * 
  * @author Christian Plattner, plattner@inf.ethz.ch
- * @version $Id: Session.java,v 1.1 2012-10-29 22:29:49 HCI\rcundick Exp $
+ * @version $Id: Session.java,v 1.9 2006/02/14 19:43:16 cplattne Exp $
  */
 public class Session
 {

@@ -11,7 +11,7 @@ import ch.ethz.ssh2.crypto.digest.HashForSSH2Types;
  * DhGroupExchange.
  * 
  * @author Christian Plattner, plattner@inf.ethz.ch
- * @version $Id: DhGroupExchange.java,v 1.1 2012-10-29 22:30:23 HCI\rcundick Exp $
+ * @version $Id: DhGroupExchange.java,v 1.6 2006/09/20 12:51:37 cplattne Exp $
  */
 public class DhGroupExchange
 {

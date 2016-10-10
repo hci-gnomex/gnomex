@@ -8,7 +8,7 @@ package ch.ethz.ssh2;
  * @see Session#waitForCondition(int, long)
  *
  * @author Christian Plattner, plattner@inf.ethz.ch
- * @version $Id: ChannelCondition.java,v 1.1 2012-10-29 22:29:49 HCI\rcundick Exp $
+ * @version $Id: ChannelCondition.java,v 1.6 2006/08/11 12:24:00 cplattne Exp $
  */
 
 public abstract interface ChannelCondition

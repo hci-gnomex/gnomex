@@ -1,12 +1,12 @@
 /*
- * $Id: MassStorage.java,v 1.1 2012-10-29 22:29:44 HCI\rcundick Exp $
+ * $Id$
  */
 package lia.util.net.common;
 
-import gui.Log;
 import java.io.FileInputStream;
 import java.util.Properties;
 
+import java.util.logging.Logger;
 import java.util.logging.Level;
 
 /**
@@ -14,7 +14,7 @@ import java.util.logging.Level;
  */
 public class MassStorage {
 
-    private static final Log logger = Log.getLoggerInstance();
+    private static final Logger logger = Logger.getLogger(MassStorage.class.getName());
 
     private String siteStorageID;// cit-se.ultralight.org
 
@@ -131,7 +131,7 @@ public class MassStorage {
 
         // print out read attributes
         if (this.verbose > 0) {
-            logger.log("Storage access configured with\n" + "siteStorageID = " + this.siteStorageID + "\n" + "storageRoot = " + this.storageRoot + "\n" + "storageAccessCmd = " + this.storageAccessCmd + "\n"
+            System.out.println("Storage access configured with\n" + "siteStorageID = " + this.siteStorageID + "\n" + "storageRoot = " + this.storageRoot + "\n" + "storageAccessCmd = " + this.storageAccessCmd + "\n"
                     + "storageCmdOptions = " + this.storageCmdOptions + "\n" + "storageAccessPoint = " + this.storageAccessPoint + "\n" + "localFilePrefix = " + this.localFilePrefix + "\n" + "localFileDir = "
                     + this.localFileDir + "\n" + "nThreads = " + this.nThreads);
         }

@@ -1,9 +1,8 @@
 /*
- * $Id: FDTSelectionKey.java,v 1.1 2012-10-29 22:30:17 HCI\rcundick Exp $
+ * $Id$
  */
 package lia.util.net.copy.transport.internal;
 
-import gui.Log;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
@@ -24,15 +23,13 @@ public class FDTSelectionKey {
 
     private static final SelectionManager selectionManager = SelectionManager.getInstance();
 
-    private static Log logger = Log.getLoggerInstance();
-
     protected final Selector selector;
 
     protected final SelectionTask selectionTask;
 
-    protected SocketChannel channel;
+    protected final SocketChannel channel;
 
-    SelectionKey selectionKey;
+    volatile SelectionKey selectionKey;
 
     final SelectionHandler handler;
 
@@ -46,7 +43,7 @@ public class FDTSelectionKey {
 
     protected final UUID fdtSessionID;
 
-    public volatile int opCount;
+    public int opCount;
 
     private volatile FDTKeyAttachement attachment;
 
@@ -118,12 +115,12 @@ public class FDTSelectionKey {
                 try {
                     handler.canceled(this);
                 } catch (Throwable t) {
-                    logger.logError(t);
-                    //t.printStackTrace();
+                    t.printStackTrace();
                 }
             }
 
             // Is it even possible ... only if the registration failed in the first place !!
+            final SelectionKey selectionKey = this.selectionKey;
             if (selectionKey != null) {
                 try {
                     selectionKey.cancel();
@@ -194,7 +191,6 @@ public class FDTSelectionKey {
         return selector;
     }
 
-    @Override
     public String toString() {
         return Utils.toStringSelectionKey(this);
     }

@@ -7,7 +7,7 @@ import java.math.BigInteger;
  * HashForSSH2Types.
  * 
  * @author Christian Plattner, plattner@inf.ethz.ch
- * @version $Id: HashForSSH2Types.java,v 1.1 2012-10-29 22:30:17 HCI\rcundick Exp $
+ * @version $Id: HashForSSH2Types.java,v 1.3 2005/08/12 23:37:18 cplattne Exp $
  */
 public class HashForSSH2Types
 {

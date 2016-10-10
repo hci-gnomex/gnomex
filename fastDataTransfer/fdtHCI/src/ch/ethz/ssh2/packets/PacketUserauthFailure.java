@@ -7,7 +7,7 @@ import java.io.IOException;
  * PacketUserauthBanner.
  * 
  * @author Christian Plattner, plattner@inf.ethz.ch
- * @version $Id: PacketUserauthFailure.java,v 1.1 2012-10-29 22:29:35 HCI\rcundick Exp $
+ * @version $Id: PacketUserauthFailure.java,v 1.3 2005/08/24 17:54:09 cplattne Exp $
  */
 public class PacketUserauthFailure
 {

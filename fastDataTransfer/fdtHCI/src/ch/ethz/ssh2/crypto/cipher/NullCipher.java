@@ -4,7 +4,7 @@ package ch.ethz.ssh2.crypto.cipher;
  * NullCipher.
  * 
  * @author Christian Plattner, plattner@inf.ethz.ch
- * @version $Id: NullCipher.java,v 1.1 2012-10-29 22:30:01 HCI\rcundick Exp $
+ * @version $Id: NullCipher.java,v 1.3 2005/12/07 10:25:48 cplattne Exp $
  */
 public class NullCipher implements BlockCipher
 {

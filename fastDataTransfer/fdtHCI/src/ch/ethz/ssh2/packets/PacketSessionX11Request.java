@@ -5,7 +5,7 @@ package ch.ethz.ssh2.packets;
  * PacketSessionX11Request.
  * 
  * @author Christian Plattner, plattner@inf.ethz.ch
- * @version $Id: PacketSessionX11Request.java,v 1.1 2012-10-29 22:29:35 HCI\rcundick Exp $
+ * @version $Id: PacketSessionX11Request.java,v 1.2 2005/12/05 17:13:27 cplattne Exp $
  */
 public class PacketSessionX11Request
 {
