@@ -22,6 +22,7 @@
 	<mx:Script>
 		<![CDATA[
 		import hci.flex.controls.DropdownLabel;
+			import hci.flex.util.DictionaryManager;
 
 		import mx.collections.Grouping;
 		import mx.collections.GroupingCollection;
@@ -1111,7 +1112,12 @@
 					sampleTypeCol.visible = true;
 					organismCol.visible = true;
 					preppedByLabCol.visible = true;
-					otherSamplePrepMethodCol.visible = true;
+						if(this.selectedExperiment.@idCoreFacility == parentApplication.idCoreFacilityHTG){
+							otherSamplePrepMethodCol.visible = false;
+						} else {
+							otherSamplePrepMethodCol.visible = true;
+						}
+
 					chipTypeCol.visible = false;
 					concentrationUnitCol.visible = false;
 					plateNameCol.visible = false;
