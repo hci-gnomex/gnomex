@@ -327,7 +327,6 @@
 		import views.experiment.ProjectDetailWindow;
 		import views.experimentplatform.ExperimentPlatformWindow;
 		import views.login.ChangePassword;
-		import views.login.ManagePasswords;
 		import views.search.NavSearchView;
 		import views.user.EditBillingAcctWindow;
 		import views.user.UserPublicView;
@@ -1352,21 +1351,6 @@
 
 		}
 
-		public function showChangePasswordBeforeLogin():void {
-			var managePasswordWindow:ManagePasswords = ManagePasswords(PopUpManager.createPopUp(this.mainArea, ManagePasswords, true));
-			PopUpManager.centerPopUp(managePasswordWindow);
-			managePasswordWindow.init(null);
-
-		}
-
-
-		public function showChangePasswordAfterLogin():void {
-			var managePasswordWindow:ManagePasswords = ManagePasswords(PopUpManager.createPopUp(this.mainArea, ManagePasswords, true));
-			PopUpManager.centerPopUp(managePasswordWindow);
-			managePasswordWindow.init(this.isExternalUser ? 'Y' : 'N');
-
-		}
-
 		private function lookupExperiment():void {
 			var number:String = requestNumber.text;
 			number = number.toUpperCase();
@@ -2305,21 +2289,14 @@
 		}
 
 		public function hasPermission(permission:String):Boolean {
-			var hasPermission:Boolean = false;
-			var thePermission:Object = null;
 			if (isGuestMode()) {
-				hasPermission = false;
+				return false;
 			} else {
-				thePermission = createSecurityAdvisor.lastResult.globalPermissions.Permission.(@name == permission);
-				if (thePermission.length() > 0) {
-					hasPermission = true;
-				}
+				return createSecurityAdvisor.lastResult.globalPermissions.Permission.(@name == permission).length() > 0;
 			}
-
-			return hasPermission;
 		}
 
-		public function getGroupsToManage():Object {
+		public function getGroupsToManage():XMLListCollection {
 			if (isGuestMode()) {
 				return new XMLListCollection();
 			} else {
@@ -2328,26 +2305,11 @@
 		}
 
 		public function isGroupIManage(idLab:int):Boolean {
-			var theLab:Object = createSecurityAdvisor.lastResult.groupsToManage.Lab.(@idLab == idLab.toString());
-			if (theLab.length() > 0) {
-				return true;
-			} else {
-				return false;
-			}
+			return getGroupsToManage().(@idLab == idLab.toString()).length > 0;
 		}
 
 		public function hasGroupsToManage():Boolean {
-			var groupsToManage:XMLList = null;
-			if (isGuestMode()) {
-				groupsToManage = new XMLList();
-			} else {
-				groupsToManage = createSecurityAdvisor.lastResult.groupsToManage.Lab;
-			}
-			if (groupsToManage.length() > 0) {
-				return true;
-			} else {
-				return false;
-			}
+			return getGroupsToManage().length > 0;
 		}
 
 
@@ -2612,7 +2574,7 @@
 					}
 				}
 			}
-			for (var key:Object in hideMenus) {
+			for (var key:String in hideMenus) {
 				if (!showMenus.hasOwnProperty(key)) {
 					for (var i:int = 0; i < navMenu.length(); i++) {
 						if (navMenu[i].@label == key) {
