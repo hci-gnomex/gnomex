@@ -544,7 +544,7 @@ public final class Utils {
                         }
                     }
 
-                    if ((idx + 1 < args[i].length()) && args[i].charAt(idx + 1) == File.separatorChar) {
+                    if ((idx + 1 < args[i].length()) && args[i].charAt(idx + 1) == Constants.FILE_SEPARATOR_CHAR) {
                         if (sshUsers.size() > 0) {
                             // I am the destination directory
                             rHM.put("destinationDir", args[i]);

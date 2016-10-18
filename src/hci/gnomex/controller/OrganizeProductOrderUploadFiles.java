@@ -200,18 +200,18 @@ public Command execute() throws RollBackCommandException {
 					}
 					int lastIndex = fileName.lastIndexOf("\\");
 					if (lastIndex == -1) {
-						lastIndex = fileName.lastIndexOf("/");
+						lastIndex = fileName.lastIndexOf(Constants.FILE_SEPARATOR);
 					}
 					String baseFileName = fileName;
 					if (lastIndex != -1) {
 						baseFileName = fileName.substring(lastIndex);
 					}
-					Boolean duplicateUpload = fileNames.contains(baseDir + "/" + productOrder.getProductOrderNumber()
-							+ "/" + Constants.UPLOAD_STAGING_DIR + baseFileName);
+					Boolean duplicateUpload = fileNames.contains(baseDir + Constants.FILE_SEPARATOR + productOrder.getProductOrderNumber()
+							+ Constants.FILE_SEPARATOR + Constants.UPLOAD_STAGING_DIR + baseFileName);
 					String mostRecentFile = "";
 					if (duplicateUpload) {
-						mostRecentFile = (String) fileNames.get(fileNames.indexOf(baseDir + "/"
-								+ productOrder.getProductOrderNumber() + "/" + Constants.UPLOAD_STAGING_DIR
+						mostRecentFile = (String) fileNames.get(fileNames.indexOf(baseDir + Constants.FILE_SEPARATOR
+								+ productOrder.getProductOrderNumber() + Constants.FILE_SEPARATOR + Constants.UPLOAD_STAGING_DIR
 								+ baseFileName));
 					}
 
@@ -282,7 +282,7 @@ public Command execute() throws RollBackCommandException {
 					// Don't try to move if the file is in the same directory
 					String td = targetDir.getAbsolutePath();
 					String sd = sourceFile.getAbsolutePath();
-					sd = sd.substring(0, sd.lastIndexOf(File.separator));
+					sd = sd.substring(0, sd.lastIndexOf(Constants.FILE_SEPARATOR));
 
 					if (td.equals(sd)) {
 						continue;
@@ -397,7 +397,7 @@ public Command execute() throws RollBackCommandException {
 
 			for (Iterator i = ghostFiles.iterator(); i.hasNext();) {
 				ProductOrderFile pof = (ProductOrderFile) i.next();
-				String filePath = pof.getBaseFilePath() + Constants.FILE_SEPARATOR + pof.getQualifiedFilePath() + File.separator
+				String filePath = pof.getBaseFilePath() + Constants.FILE_SEPARATOR + pof.getQualifiedFilePath() + Constants.FILE_SEPARATOR
 						+ pof.getFileName();
 
 				if (!new File(filePath).exists()) {

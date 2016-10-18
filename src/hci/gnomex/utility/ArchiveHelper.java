@@ -10,6 +10,7 @@ import java.io.OutputStream;
 import java.util.zip.GZIPOutputStream;
 
 import com.Ostermiller.util.CircularByteBuffer;
+import hci.gnomex.constants.Constants;
 
 
 public class ArchiveHelper {
@@ -124,8 +125,8 @@ public class ArchiveHelper {
     if (this.tempDir == null || this.tempDir.equals("")) {
       this.tempDir = "";
     } else {
-      if (!this.tempDir.endsWith(File.separator)) {
-        this.tempDir += File.separator;
+      if (!this.tempDir.endsWith(Constants.FILE_SEPARATOR)) {
+        this.tempDir += Constants.FILE_SEPARATOR;
       }
     }
 

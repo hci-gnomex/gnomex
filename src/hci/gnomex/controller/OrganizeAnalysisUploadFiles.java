@@ -202,18 +202,18 @@ public Command execute() throws RollBackCommandException {
 						}
 						int lastIndex = fileName.lastIndexOf("\\");
 						if (lastIndex == -1) {
-							lastIndex = fileName.lastIndexOf("/");
+							lastIndex = fileName.lastIndexOf(Constants.FILE_SEPARATOR);
 						}
 						String baseFileName = fileName;
 						if (lastIndex != -1) {
 							baseFileName = fileName.substring(lastIndex);
 						}
-						Boolean duplicateUpload = fileNames.contains(baseDir + "/" + analysis.getNumber() + "/"
+						Boolean duplicateUpload = fileNames.contains(baseDir + Constants.FILE_SEPARATOR + analysis.getNumber() + Constants.FILE_SEPARATOR
 								+ Constants.UPLOAD_STAGING_DIR + baseFileName);
 						String mostRecentFile = "";
 						if (duplicateUpload) {
-							mostRecentFile = (String) fileNames.get(fileNames.indexOf(baseDir + "/"
-									+ analysis.getNumber() + "/" + Constants.UPLOAD_STAGING_DIR + baseFileName));
+							mostRecentFile = (String) fileNames.get(fileNames.indexOf(baseDir + Constants.FILE_SEPARATOR
+									+ analysis.getNumber() + Constants.FILE_SEPARATOR + Constants.UPLOAD_STAGING_DIR + baseFileName));
 						}
 
 						// Change qualifiedFilePath if the file is registered in the db
@@ -282,7 +282,7 @@ public Command execute() throws RollBackCommandException {
 						// Don't try to move if the file is in the same directory
 						String td = targetDir.getAbsolutePath();
 						String sd = sourceFile.getAbsolutePath();
-						sd = sd.substring(0, sd.lastIndexOf(File.separator));
+						sd = sd.substring(0, sd.lastIndexOf(Constants.FILE_SEPARATOR));
 
 						if (td.equals(sd)) {
 							continue;

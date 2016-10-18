@@ -148,7 +148,7 @@ public class PartitionMap {
 	 */
 	public static int getPartitionFromCache(String fileName) {
 		String dirPath;
-		int lastIndex = fileName.lastIndexOf(File.separatorChar);
+		int lastIndex = fileName.lastIndexOf(Constants.FILE_SEPARATOR_CHAR);
 		if ( lastIndex!=-1 )
 			dirPath=fileName.substring(0, lastIndex);
 		else

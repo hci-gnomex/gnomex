@@ -118,8 +118,8 @@ public class ArchiveHelper
         if (this.tempDir == null || this.tempDir.equals("")) {
             this.tempDir = "";
         }
-        else if (!this.tempDir.endsWith(File.separator)) {
-            this.tempDir += File.separator;
+        else if (!this.tempDir.endsWith(Constants.FILE_SEPARAT0R)) {
+            this.tempDir += Constants.FILE_SEPARATOR;
         }
     }
     

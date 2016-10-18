@@ -1,5 +1,6 @@
 package hci.gnomex.utility;
 
+import hci.gnomex.constants.Constants;
 import hci.gnomex.model.PropertyDictionary;
 
 import java.io.File;
@@ -415,7 +416,7 @@ public class PropertyDictionaryHelper implements Serializable {
 
     // And then see if there is a separator at the end of the string
     if (tempStr.charAt(tempStr.length() - 1) != '/') {
-      inputPath = inputPath + File.separator;
+      inputPath = inputPath + Constants.FILE_SEPARATOR;
     }
 
     return inputPath;

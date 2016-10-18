@@ -649,7 +649,7 @@ private void addRootFileNodes(String baseDir, Element requestNode, String reques
 	String dirTokens[] = createDate.split("/");
 	String createYear = dirTokens[2];
 
-	String directoryName = baseDir + Constants.FILE_SEPARATOR + createYear + File.separator
+	String directoryName = baseDir + Constants.FILE_SEPARATOR + createYear + Constants.FILE_SEPARATOR
 			+ Request.getBaseRequestNumber(requestNumber)
 			+ (subDirectory != null ? Constants.FILE_SEPARATOR + Constants.UPLOAD_STAGING_DIR : "");
 	File fd = new File(directoryName);
@@ -717,7 +717,7 @@ private String getPathForZipFileName(File f, String requestNumber) {
 private void recurseAddFiles(Element fdNode, File f1, String requestNumber, String directoryName, Session sess)
 		throws Exception {
 	String files[] = f1.list();
-	String fullPath = f1.getAbsolutePath() + File.separator;
+	String fullPath = f1.getAbsolutePath() + Constants.FILE_SEPARATOR;
 
 	// don't include empty directories
 	if (f1.list() == null || f1.list().length == 0) {

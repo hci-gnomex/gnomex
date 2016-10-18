@@ -234,7 +234,7 @@ public Command execute() throws RollBackCommandException {
 					f2.mkdir();
 					for (Iterator j = parser.getFileNameMap().keySet().iterator(); j.hasNext();) {
 						String directory = (String) j.next();
-						if (directory.contains(folder + File.separator)) {
+						if (directory.contains(folder + Constants.FILE_SEPARATOR)) {
 							parser.getFileNameMap().remove(directory);
 							j = parser.getFileNameMap().keySet().iterator();
 						}
@@ -255,12 +255,12 @@ public Command execute() throws RollBackCommandException {
 					List fileNames = (List) parser.getFileNameMap().get(directoryName);
 					String targetDirName = "";
 
-					List<String> path = Arrays.asList(directoryName.split(Pattern.quote(File.separator)));
+					List<String> path = Arrays.asList(directoryName.split(Pattern.quote(Constants.FILE_SEPARATOR)));
 					directoryName = "";
 					for (Iterator<String> iter = path.iterator(); iter.hasNext();) {
 						String s = iter.next();
 						if (!baseDir.contains(s)) {
-							directoryName += s + File.separator;
+							directoryName += s + Constants.FILE_SEPARATOR;
 						}
 					}
 
@@ -271,7 +271,7 @@ public Command execute() throws RollBackCommandException {
 
 						if (baseDir.contains(directoryName)
 								|| baseDir.contains(directoryName.subSequence(0, directoryName.length() - 1))) {
-							targetDirName = baseDir + File.separator;
+							targetDirName = baseDir + Constants.FILE_SEPARATOR;
 						} else {
 							targetDirName = baseDir + Constants.FILE_SEPARATOR + directoryName;
 						}
@@ -288,7 +288,7 @@ public Command execute() throws RollBackCommandException {
 
 						String td = targetDir.getAbsolutePath();
 						String sd = sourceFile.getAbsolutePath();
-						sd = sd.substring(0, sd.lastIndexOf(File.separator));
+						sd = sd.substring(0, sd.lastIndexOf(Constants.FILE_SEPARATOR));
 						oldFileToDelete = new File(sd);
 
 						if (td.equals(sd)) {

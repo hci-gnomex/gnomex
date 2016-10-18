@@ -32,7 +32,7 @@ public abstract class GnomexFile extends HibernateDetailObject {
     public String getQualifiedFileName() {
         String fullPathName = "";
         if ( getQualifiedFilePath() != null && !getQualifiedFilePath().equals("") ) {
-            fullPathName += getQualifiedFilePath() + File.separator;
+            fullPathName += getQualifiedFilePath() + Constants.FILE_SEPARATOR;
         }
         fullPathName += getFileName();
         return fullPathName;
