@@ -4,7 +4,7 @@ package ch.ethz.ssh2.crypto.cipher;
  * BlockCipher.
  * 
  * @author Christian Plattner, plattner@inf.ethz.ch
- * @version $Id: BlockCipher.java,v 1.1 2012-10-29 22:30:02 HCI\rcundick Exp $
+ * @version $Id: BlockCipher.java,v 1.1 2005/05/26 14:53:27 cplattne Exp $
  */
 public interface BlockCipher
 {

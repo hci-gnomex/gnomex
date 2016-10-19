@@ -13,7 +13,7 @@ import java.net.Socket;
  * if both threads have finished forwarding (EOF).
  * 
  * @author Christian Plattner, plattner@inf.ethz.ch
- * @version $Id: StreamForwarder.java,v 1.1 2012-10-29 22:29:57 HCI\rcundick Exp $
+ * @version $Id: StreamForwarder.java,v 1.2 2006/02/13 21:19:25 cplattne Exp $
  */
 public class StreamForwarder extends Thread
 {

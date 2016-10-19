@@ -7,7 +7,7 @@ import java.io.OutputStream;
  * ChannelOutputStream.
  * 
  * @author Christian Plattner, plattner@inf.ethz.ch
- * @version $Id: ChannelOutputStream.java,v 1.1 2012-10-29 22:29:58 HCI\rcundick Exp $
+ * @version $Id: ChannelOutputStream.java,v 1.3 2005/08/11 12:47:30 cplattne Exp $
  */
 public final class ChannelOutputStream extends OutputStream
 {

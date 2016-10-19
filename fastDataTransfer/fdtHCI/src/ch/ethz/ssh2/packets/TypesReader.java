@@ -10,7 +10,7 @@ import ch.ethz.ssh2.util.Tokenizer;
  * TypesReader.
  * 
  * @author Christian Plattner, plattner@inf.ethz.ch
- * @version $Id: TypesReader.java,v 1.1 2012-10-29 22:29:36 HCI\rcundick Exp $
+ * @version $Id: TypesReader.java,v 1.6 2006/08/31 20:04:29 cplattne Exp $
  */
 public class TypesReader
 {

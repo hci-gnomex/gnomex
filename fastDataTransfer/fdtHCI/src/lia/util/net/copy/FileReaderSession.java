@@ -1,10 +1,8 @@
 /*
- * $Id: FileReaderSession.java,v 1.1 2012-10-29 22:29:38 HCI\rcundick Exp $
+ * $Id$
  */
 package lia.util.net.copy;
 
-import gui.FdtMain;
-import gui.ShowMessageDialog;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
 import java.util.UUID;
@@ -13,48 +11,54 @@ import lia.util.net.common.FileChannelProvider;
 
 /**
  * Wrapper class over a current file which is being read
- * 
+ *
  * @author ramiro
  */
 public class FileReaderSession extends FileSession {
 
     @Override
     public String toString() {
-        return "FileReaderSession [file=" + file + ", partitionID=" + partitionID + ", sessionID=" + sessionID + ", sessionSize=" + sessionSize + "]";
+        return "FileReaderSession [file=" + file + ", partitionID=" + partitionID + ", sessionID=" + sessionID
+                + ", sessionSize=" + sessionSize + "]";
     }
 
-    public FileReaderSession(String fileName, FDTSession fdtSession, boolean isLoop, FileChannelProvider fileChannelProvider) throws IOException {
+    public FileReaderSession(String fileName, FDTSession fdtSession, boolean isLoop,
+            FileChannelProvider fileChannelProvider) throws IOException {
         this(UUID.randomUUID(), fdtSession, fileName, isLoop, fileChannelProvider);
     }
 
-    public FileReaderSession(UUID uid, FDTSession fdtSession, String fileName, boolean isLoop, FileChannelProvider fileChannelProvider) throws IOException {
+    public FileReaderSession(UUID uid, FDTSession fdtSession, String fileName, boolean isLoop,
+            FileChannelProvider fileChannelProvider) throws IOException {
         super(uid, fdtSession, fileName, isLoop, fileChannelProvider);
 
         this.fileName = file.getAbsolutePath();
         this.file = this.fileChannelProvider.getFile(fileName);
-		
-		if (!file.exists()) {
-                    if(!FdtMain.isIsServerMode())
-                     ShowMessageDialog.showErrorDialog("No such file" + fileName, "Error");
-            throw new IOException("No such file: " + fileName);
 
+        if (!fileName.startsWith(FileSession.DEV_ZERO_FILENAME) && !file.exists()) {
+            throw new IOException("No such file: " + fileName);
         }
 
         sessionSize = file.length();
 
-        if (fileName.startsWith(FileSession.DEV_ZERO_FILENAME)) {
+        if (fileName.startsWith(FileSession.DEV_ZERO_FILENAME) || isLoop) {
             this.sessionSize = -1;
             return;
         }
 
-        if (!file.isFile()) {
-            ShowMessageDialog.showErrorDialog("The specified name [ " + fileName + " ] is not a file!", "Error");
+        final boolean bNoChk = Boolean.getBoolean("DO_NOT_CHECK_FILE");
+        if (bNoChk) {
+            this.sessionSize = -1;
+            return;
+        }
+
+        if (!isLoop && !file.isFile()) {
             throw new IOException("The specified name [ " + fileName + " ] is not a file!");
         }
-        
+
         this.partitionID = this.fileChannelProvider.getPartitionID(this.file);
     }
 
+    @Override
     public FileChannel getChannel() throws Exception {
 
         synchronized (closeLock) {
@@ -63,7 +67,7 @@ public class FileReaderSession extends FileSession {
                     throw new IOException("FileReaderSession closed!");
                 }
             } else {
-                if(this.fileChannel != null) {
+                if (this.fileChannel != null) {
                     return this.fileChannel;
                 }
             }
@@ -80,6 +84,7 @@ public class FileReaderSession extends FileSession {
     }
 
     // this is always called with closeLock taken !
+    @Override
     protected void internalClose() {
         super.internalClose();
         if (isLoop) {

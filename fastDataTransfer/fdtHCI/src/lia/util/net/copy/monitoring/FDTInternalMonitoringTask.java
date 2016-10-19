@@ -1,5 +1,5 @@
 /*
- * $Id: FDTInternalMonitoringTask.java,v 1.1 2012-10-29 22:29:53 HCI\rcundick Exp $
+ * $Id$
  */
 package lia.util.net.copy.monitoring;
 
@@ -147,7 +147,7 @@ public class FDTInternalMonitoringTask implements Runnable {
         sb.append(" PartitionIDs: ").append(writersMap.size());
         for (final Map.Entry<Integer, List<DiskWriterTask>> entry : writersMap.entrySet()) {
             final Integer partitionID = entry.getKey();
-            sb.append(" [ partitionID: ").append(partitionID).append(" workers: ").append(writersMap.get(entry.getValue().size())).append(" qSize: ").append(diskWriterManager.getQueueSize(partitionID)).append(" ] ");
+            sb.append(" [ partitionID: ").append(partitionID).append(" workers: ").append(writersMap.get(entry.getValue().size())).append(" qSize: ").append(diskWriterManager.getQueueSize(partitionID.intValue())).append(" ] ");
         }
         sb.append(EOL);
         sb.append(" Disk Writer Sessions: ").append(fdt_wdisk_ses_count).append(" Disk Reader Sessions: ").append(fdt_rdisk_ses_count);
@@ -197,11 +197,11 @@ public class FDTInternalMonitoringTask implements Runnable {
                     hmWriters.put(id, wacMap);
                 }
 
-                WriterAccountingContors wac = wacMap.get(writerTask.writerID());
+                WriterAccountingContors wac = wacMap.get(Integer.valueOf(writerTask.writerID()));
 
                 if (wac == null) {
                     wac = new WriterAccountingContors(writerTask.getCountersRLock());
-                    wacMap.put(writerTask.writerID(), wac);
+                    wacMap.put(Integer.valueOf(writerTask.writerID()), wac);
                     init = true;
                 }
 

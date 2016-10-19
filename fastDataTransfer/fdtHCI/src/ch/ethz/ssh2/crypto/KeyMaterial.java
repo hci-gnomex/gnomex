@@ -10,7 +10,7 @@ import ch.ethz.ssh2.crypto.digest.HashForSSH2Types;
  * Establishes key material for iv/key/mac (both directions).
  * 
  * @author Christian Plattner, plattner@inf.ethz.ch
- * @version $Id: KeyMaterial.java,v 1.1 2012-10-29 22:29:34 HCI\rcundick Exp $
+ * @version $Id: KeyMaterial.java,v 1.2 2005/12/05 17:13:27 cplattne Exp $
  */
 public class KeyMaterial
 {

@@ -8,7 +8,7 @@ package ch.ethz.ssh2.log;
  * hooked in.
  * 
  * @author Christian Plattner, plattner@inf.ethz.ch
- * @version $Id: Logger.java,v 1.1 2012-10-29 22:29:59 HCI\rcundick Exp $
+ * @version $Id: Logger.java,v 1.7 2005/12/07 13:14:24 cplattne Exp $
  */
 
 public class Logger
@@ -42,7 +42,6 @@ public class Logger
 			synchronized (this)
 			{
 				System.err.println(now + " : " + className + ": " + message);
-                            
 				// or send it to log4j or whatever...
 			}
 		}

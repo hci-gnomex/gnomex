@@ -32,7 +32,7 @@ import ch.ethz.ssh2.transport.TransportManager;
  * AuthenticationManager.
  * 
  * @author Christian Plattner, plattner@inf.ethz.ch
- * @version $Id: AuthenticationManager.java,v 1.1 2012-10-29 22:30:23 HCI\rcundick Exp $
+ * @version $Id: AuthenticationManager.java,v 1.14 2006/07/30 21:59:29 cplattne Exp $
  */
 public class AuthenticationManager implements MessageHandler
 {

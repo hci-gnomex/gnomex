@@ -1,9 +1,8 @@
 /*
- * $Id: TCPSessionWriter.java,v 1.1 2012-10-29 22:29:43 HCI\rcundick Exp $
+ * $Id$
  */
 package lia.util.net.copy.transport;
 
-import gui.Log;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.nio.channels.SelectionKey;
@@ -11,6 +10,7 @@ import java.nio.channels.SocketChannel;
 import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import lia.util.net.common.Config;
 import lia.util.net.common.Utils;
@@ -25,11 +25,9 @@ import lia.util.net.copy.transport.internal.SelectionManager;
  * @author ramiro
  */
 public class TCPSessionWriter extends TCPTransportProvider {
-
-    private static final Log logger = Log.getLoggerInstance();
-
+    
+    private static final Logger logger = Logger.getLogger("lia.util.net.copy.transport.TCPSessionWriter");
     private static final SelectionManager selectionManager = SelectionManager.getInstance();
-
     private static final Config config = Config.getInstance();
 
     public TCPSessionWriter(FDTReaderSession fdtSession) throws Exception {
@@ -42,7 +40,6 @@ public class TCPSessionWriter extends TCPTransportProvider {
         super(fdtSession, endPointAddress, port, numberOfStreams, new PriorityBlockingQueue<FDTSelectionKey>(10, new FDTWriterKeyAttachementComparator()));
     }
     
-    @Override
     public void notifyAvailableBytes(final long available) {
         speedLimitLock.lock();
         try {
@@ -102,7 +99,6 @@ public class TCPSessionWriter extends TCPTransportProvider {
         return retMSS;
     }
     
-    @Override
     public void addWorkerStream(SocketChannel sc, boolean sentCookie) throws Exception {
         synchronized(this.closeLock) {
             super.addWorkerStream(sc, sentCookie);
@@ -137,11 +133,9 @@ public class TCPSessionWriter extends TCPTransportProvider {
         }
     }
     
-    @Override
     public void startTransport(final boolean sendCookie) throws Exception {
         super.startTransport(sendCookie);
         if(!config.isBlocking()) {
-            
             for(int i =0; i <= Utils.availableProcessors()*2; i++) {
                 executor.submit(new SocketWriterTask(selectionQueue, (FDTReaderSession)fdtSession, this));
             }
@@ -152,6 +146,9 @@ public class TCPSessionWriter extends TCPTransportProvider {
     //TODO - can we recover if downCause != null
     //     - implement a timeout retry ? ... for the moment it just finishes the entire session
     //     - this behaviour should be changed when dynamic creation of workers will be added
+    /**
+     * @param fdtSelectionKey  
+     */
     public void workerDown(FDTSelectionKey fdtSelectionKey, Throwable downCause) {
         //smth gone wrong ... or maybe the session finished already
         //I do not know if it should take other action ... for the moment the session will go down
@@ -166,7 +163,9 @@ public class TCPSessionWriter extends TCPTransportProvider {
         if(fdtSession != null) {
             try {
                 ((FDTReaderSession)fdtSession).transportWorkerDown();
-            }catch(Throwable ignore){}
+            }catch(Throwable ignore){
+                //really don't care
+            }
         }
     }
 

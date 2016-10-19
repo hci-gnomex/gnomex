@@ -5,7 +5,7 @@ package ch.ethz.ssh2.channel;
  * X11ServerData. Data regarding an x11 forwarding target.
  *
  * @author Christian Plattner, plattner@inf.ethz.ch
- * @version $Id: X11ServerData.java,v 1.1 2012-10-29 22:29:58 HCI\rcundick Exp $
+ * @version $Id: X11ServerData.java,v 1.2 2005/08/29 14:26:21 cplattne Exp $
  * 
  */
 public class X11ServerData

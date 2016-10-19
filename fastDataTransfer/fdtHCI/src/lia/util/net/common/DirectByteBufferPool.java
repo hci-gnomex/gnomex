@@ -1,11 +1,11 @@
 /*
- * $Id: DirectByteBufferPool.java,v 1.1 2012-10-29 22:29:44 HCI\rcundick Exp $
+ * $Id$
  */
 package lia.util.net.common;
 
-import gui.Log;
 import java.lang.management.ManagementFactory;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.management.ObjectName;
 
@@ -20,7 +20,8 @@ import lia.util.net.copy.monitoring.jmx.DBPoolJMX;
  */
 public class DirectByteBufferPool extends AbstractBPool{
 
-    private static final Log logger = Log.getLoggerInstance();
+    /** Logger used by this class */
+    private static final transient Logger logger = Logger.getLogger(DirectByteBufferPool.class.getName());
     ;
     //the list of ByteBuffer-s
     private static DirectByteBufferPool _theInstance;

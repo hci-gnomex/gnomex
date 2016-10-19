@@ -1,5 +1,5 @@
 /*
- * $Id: ApMonReportingTask.java,v 1.1 2012-10-29 22:29:53 HCI\rcundick Exp $
+ * $Id$
  */
 package lia.util.net.copy.monitoring;
 
@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import lia.util.net.common.Config;
 import lia.util.net.common.Utils;
@@ -14,7 +15,6 @@ import lia.util.net.copy.FDTReaderSession;
 import lia.util.net.copy.FDTSession;
 import lia.util.net.copy.FDTWriterSession;
 import apmon.ApMon;
-import gui.Log;
 
 /**
  * 
@@ -26,7 +26,7 @@ import gui.Log;
  */
 public class ApMonReportingTask extends FDTReportingTask {
 
-    private static Log Logger = Log.getLoggerInstance();
+    private static final Logger logger = Logger.getLogger("lia.util.net.copy.monitoring.ApMonReportingTask");
     
     private static final ApMon apMon;
     
@@ -37,7 +37,7 @@ public class ApMonReportingTask extends FDTReportingTask {
             apMonInstace = Utils.getApMon();
             System.out.println("ApMonReportingTask started!");
         } catch(Throwable t) {
-            Logger.log(Level.WARNING, "Got exception getting apmon instance",t);
+            logger.log(Level.WARNING, "Got exception getting apmon instance",t);
         }
         
         apMon = apMonInstace;
@@ -95,14 +95,14 @@ public class ApMonReportingTask extends FDTReportingTask {
                         apMonClusterName = "Writers";
 
                     } else {
-                        Logger.log(Level.WARNING, "[ERROR] FDT Session is not an \"instanceof\" FDTWriterSession or FDTReaderSession!!!");
+                        logger.log(Level.WARNING, "[ERROR] FDT Session is not an \"instanceof\" FDTWriterSession or FDTReaderSession!!!");
                         return;
                     }
                     
                     if(paramsToSend.size() > 0) {
                         
-                        if(Logger.isLoggable(Level.FINE)) {
-                            Logger.log(Level.FINE, " Sending to ApMonReportingTask :- " + apMonClusterName + " Params: " + paramsToSend);
+                        if(logger.isLoggable(Level.FINE)) {
+                            logger.log(Level.FINE, " Sending to ApMonReportingTask :- " + apMonClusterName + " Params: " + paramsToSend);
                         }
                         for(Map.Entry<String, HashMap<String, Double>> entry: paramsToSend.entrySet()) {
                             HashMap<String, Double> hToSend = entry.getValue();
@@ -128,14 +128,14 @@ public class ApMonReportingTask extends FDTReportingTask {
                     }
 
                 } else {
-                    Logger.log(Level.WARNING, "[ERROR] FDTSessionMonitoringTask is null in finishFDTSession(fdtSession)!!!");
+                    logger.log(Level.WARNING, "[ERROR] FDTSessionMonitoringTask is null in finishFDTSession(fdtSession)!!!");
                 }
 
             }catch(Throwable t) {
-                Logger.log(Level.WARNING, "Got expcetion notifying last params for " + fdtSession.sessionID(), t);
+                logger.log(Level.WARNING, "Got expcetion notifying last params for " + fdtSession.sessionID(), t);
             }
         } else {
-            Logger.log(Level.WARNING, "[ERROR] FDT Session is null in finishFDTSession(fdtSession)!!!");
+            logger.log(Level.WARNING, "[ERROR] FDT Session is null in finishFDTSession(fdtSession)!!!");
         }
     }
     
@@ -147,9 +147,9 @@ public class ApMonReportingTask extends FDTReportingTask {
         publisStartFinishParams(fdtSession);
     }
 
-    private static void sendParams(final HashMap<String, HashMap<String, Double>> paramsToSend, final String clusterName) throws Exception {
-        if(Logger.isLoggable(Level.FINE)) {
-            Logger.log(Level.FINE, " Sending to ApMonReportingTask :- ClusterName: " + clusterName + " Params: " + paramsToSend);
+    private static final void sendParams(final HashMap<String, HashMap<String, Double>> paramsToSend, final String clusterName) throws Exception {
+        if(logger.isLoggable(Level.FINE)) {
+            logger.log(Level.FINE, " Sending to ApMonReportingTask :- ClusterName: " + clusterName + " Params: " + paramsToSend);
         }
         
         if(paramsToSend.size() > 0) {
@@ -181,8 +181,8 @@ public class ApMonReportingTask extends FDTReportingTask {
     public void run() {
         try {
             
-            if(Logger.isLoggable(Level.FINEST))  {
-                Logger.log(Level.FINEST, "ApMonReportingTask entering run()");
+            if(logger.isLoggable(Level.FINEST))  {
+                logger.log(Level.FINEST, "ApMonReportingTask entering run()");
             }
             
             HashMap<String, HashMap<String, Double>> paramsToSend = getReaderParams();
@@ -260,7 +260,7 @@ public class ApMonReportingTask extends FDTReportingTask {
 //            lisaMon.sendServerParameters(key, fdtLisaParams);
             
         }catch(Throwable t) {
-            Logger.log(Level.INFO, " LISAReportingTask got exception:", t);
+            logger.log(Level.INFO, " LISAReportingTask got exception:", t);
         }
 
     }

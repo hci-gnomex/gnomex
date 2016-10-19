@@ -12,7 +12,7 @@ import ch.ethz.ssh2.channel.LocalAcceptThread;
  * to the remote SSH-2 server).
  * 
  * @author Christian Plattner, plattner@inf.ethz.ch
- * @version $Id: LocalPortForwarder.java,v 1.1 2012-10-29 22:29:49 HCI\rcundick Exp $
+ * @version $Id: LocalPortForwarder.java,v 1.5 2006/02/14 19:43:16 cplattne Exp $
  */
 public class LocalPortForwarder
 {

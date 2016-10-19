@@ -1,13 +1,13 @@
 /*
- * $Id: TCPSessionReader.java,v 1.1 2012-10-29 22:29:43 HCI\rcundick Exp $
+ * $Id$
  */
 package lia.util.net.copy.transport;
 
-import gui.Log;
 import java.net.InetAddress;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import lia.util.net.common.Config;
 import lia.util.net.common.Utils;
@@ -27,12 +27,9 @@ import lia.util.net.copy.transport.internal.SelectionManager;
  */
 public class TCPSessionReader extends TCPTransportProvider {
 
-    private static final Log logger = Log.getLoggerInstance();
-
+    private static final Logger logger = Logger.getLogger(TCPSessionReader.class.getName());
     private static final SelectionManager selectionManager = SelectionManager.getInstance();
-
     private static final Config config = Config.getInstance();
-
     private FileBlockConsumer fileBlockConsumer;
     
     public TCPSessionReader(FDTSession fdtSession, FileBlockConsumer fileBlockConsumer) throws Exception {
@@ -52,7 +49,6 @@ public class TCPSessionReader extends TCPTransportProvider {
 
     
     
-    @Override
     public void addWorkerStream(SocketChannel sc, boolean sentCookie) throws Exception {
         synchronized(this.closeLock) {
             super.addWorkerStream(sc, sentCookie);
@@ -87,6 +83,10 @@ public class TCPSessionReader extends TCPTransportProvider {
     //TODO - can we recover if downCause != null
     //     - implement a timeout retry ? ... for the moment it just finishes the entire session
     //     - this behavior should be changed when dynamic creation of workers will be added
+    /**
+     * @param fdtSelectionKey  
+     * @param downCause 
+     */
     public void workerDown(FDTSelectionKey fdtSelectionKey, Throwable downCause) {
         //smth gone wrong ... or maybe the session finished already
         //I do not know if it should take other action ... for the moment the session will go down
@@ -98,7 +98,6 @@ public class TCPSessionReader extends TCPTransportProvider {
 //        close(downCause);
     }
 
-    @Override
     public void startTransport(boolean sendCookie) throws Exception {
         super.startTransport(sendCookie);
         synchronized(this.closeLock) {

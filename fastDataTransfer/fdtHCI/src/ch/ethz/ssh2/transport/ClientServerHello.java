@@ -11,7 +11,7 @@ import ch.ethz.ssh2.Connection;
  * ClientServerHello.
  * 
  * @author Christian Plattner, plattner@inf.ethz.ch
- * @version $Id: ClientServerHello.java,v 1.1 2012-10-29 22:29:47 HCI\rcundick Exp $
+ * @version $Id: ClientServerHello.java,v 1.8 2006/08/02 11:57:12 cplattne Exp $
  */
 public class ClientServerHello
 {

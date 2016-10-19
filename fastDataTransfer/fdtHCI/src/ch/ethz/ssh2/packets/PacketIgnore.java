@@ -7,7 +7,7 @@ import java.io.IOException;
  * PacketIgnore.
  * 
  * @author Christian Plattner, plattner@inf.ethz.ch
- * @version $Id: PacketIgnore.java,v 1.1 2012-10-29 22:29:36 HCI\rcundick Exp $
+ * @version $Id: PacketIgnore.java,v 1.2 2005/08/24 17:54:09 cplattne Exp $
  */
 public class PacketIgnore
 {

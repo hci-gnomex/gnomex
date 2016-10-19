@@ -31,7 +31,7 @@ package ch.ethz.ssh2.crypto.cipher;
  * DES.
  * 
  * @author See comments in the source file
- * @version $Id: DES.java,v 1.1 2012-10-29 22:30:01 HCI\rcundick Exp $ethz.ch
+ * @version $Id: DES.java,v 1.3 2005/12/05 17:13:27 cplattne Exp $ethz.ch
  * 
  */
 public class DES implements BlockCipher

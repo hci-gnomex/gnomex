@@ -1,9 +1,8 @@
 /*
- * $Id: SocketTask.java,v 1.1 2012-10-29 22:29:43 HCI\rcundick Exp $
+ * $Id$
  */
 package lia.util.net.copy.transport;
 
-import gui.Log;
 import java.util.concurrent.BlockingQueue;
 
 import lia.util.net.common.AbstractFDTIOEntity;
@@ -21,8 +20,6 @@ public abstract class SocketTask extends AbstractFDTIOEntity implements Runnable
 //    protected final static DirectByteBufferPool payloadPool = DirectByteBufferPool.getInstance();
 //    protected final static HeaderBufferPool headersPool = HeaderBufferPool.getInstance();
     protected static final boolean isBlocking =  Config.getInstance().isBlocking();
-
-    private static Log logger = Log.getLoggerInstance();
 
     protected final BlockingQueue<FDTSelectionKey> readyChannelsQueue;
 
@@ -43,7 +40,7 @@ public abstract class SocketTask extends AbstractFDTIOEntity implements Runnable
                 }
             }
         }catch(Throwable t) {
-            logger.logError(t);
+            t.printStackTrace();
         }
     }
 }

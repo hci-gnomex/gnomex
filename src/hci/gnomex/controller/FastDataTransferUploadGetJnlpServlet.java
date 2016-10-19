@@ -57,20 +57,13 @@ public class FastDataTransferUploadGetJnlpServlet extends HttpServlet {
 
         try {
 
-
-
-
             // Get security advisor
             SecurityAdvisor secAdvisor = (SecurityAdvisor) req.getSession().getAttribute(SecurityAdvisor.SECURITY_ADVISOR_SESSION_KEY);
 
             if (secAdvisor != null) {
 
                 Session sess = secAdvisor.getReadOnlyHibernateSession(req.getUserPrincipal() != null ? req.getUserPrincipal().getName() : "guest");
-
-
-
                 DictionaryHelper dh = DictionaryHelper.getInstance(sess);
-
 
                 // Make sure the system is configured to run FDT
                 String fdtSupported = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.FDT_SUPPORTED);

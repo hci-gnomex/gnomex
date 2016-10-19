@@ -5,7 +5,7 @@ package ch.ethz.ssh2;
  * A <code>SFTPv3DirectoryEntry</code> as returned by {@link SFTPv3Client#ls(String)}.
  * 
  * @author Christian Plattner, plattner@inf.ethz.ch
- * @version $Id: SFTPv3DirectoryEntry.java,v 1.1 2012-10-29 22:29:52 HCI\rcundick Exp $
+ * @version $Id: SFTPv3DirectoryEntry.java,v 1.2 2006/08/18 22:26:35 cplattne Exp $
  */
 
 public class SFTPv3DirectoryEntry

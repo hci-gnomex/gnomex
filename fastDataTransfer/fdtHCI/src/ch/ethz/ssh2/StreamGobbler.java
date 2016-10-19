@@ -29,7 +29,7 @@ import java.io.InputStream;
  * see http://www.javaworld.com/javaworld/jw-12-2000/jw-1229-traps.html.
  * 
  * @author Christian Plattner, plattner@inf.ethz.ch
- * @version $Id: StreamGobbler.java,v 1.1 2012-10-29 22:29:48 HCI\rcundick Exp $
+ * @version $Id: StreamGobbler.java,v 1.4 2006/02/14 19:43:16 cplattne Exp $
  */
 
 public class StreamGobbler extends InputStream

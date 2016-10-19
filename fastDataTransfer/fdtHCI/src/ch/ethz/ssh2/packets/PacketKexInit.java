@@ -11,7 +11,7 @@ import ch.ethz.ssh2.transport.KexParameters;
  * PacketKexInit.
  * 
  * @author Christian Plattner, plattner@inf.ethz.ch
- * @version $Id: PacketKexInit.java,v 1.1 2012-10-29 22:29:36 HCI\rcundick Exp $
+ * @version $Id: PacketKexInit.java,v 1.4 2006/02/14 19:43:15 cplattne Exp $
  */
 public class PacketKexInit
 {

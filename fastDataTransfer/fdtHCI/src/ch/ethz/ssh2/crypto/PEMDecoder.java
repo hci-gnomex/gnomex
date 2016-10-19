@@ -19,7 +19,7 @@ import ch.ethz.ssh2.signature.RSAPrivateKey;
  * PEM Support.
  * 
  * @author Christian Plattner, plattner@inf.ethz.ch
- * @version $Id: PEMDecoder.java,v 1.1 2012-10-29 22:29:34 HCI\rcundick Exp $
+ * @version $Id: PEMDecoder.java,v 1.7 2006/02/02 09:11:03 cplattne Exp $
  */
 public class PEMDecoder
 {

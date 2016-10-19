@@ -6,7 +6,7 @@ package ch.ethz.ssh2;
  * server host keys.
  * 
  * @author Christian Plattner, plattner@inf.ethz.ch
- * @version $Id: ServerHostKeyVerifier.java,v 1.1 2012-10-29 22:29:49 HCI\rcundick Exp $
+ * @version $Id: ServerHostKeyVerifier.java,v 1.4 2006/02/14 19:43:16 cplattne Exp $
  */
 
 public interface ServerHostKeyVerifier

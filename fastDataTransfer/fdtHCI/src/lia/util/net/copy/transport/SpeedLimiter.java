@@ -1,5 +1,5 @@
 /*
- * $Id: SpeedLimiter.java,v 1.1 2012-10-29 22:29:43 HCI\rcundick Exp $
+ * $Id$
  *
  * Created on December 14, 2006, 10:17 AM
  */

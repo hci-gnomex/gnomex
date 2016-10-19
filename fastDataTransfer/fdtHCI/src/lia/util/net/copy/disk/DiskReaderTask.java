@@ -1,28 +1,21 @@
 /*
- * $Id: DiskReaderTask.java,v 1.1 2012-10-29 22:30:18 HCI\rcundick Exp $
+ * $Id$
  */
 package lia.util.net.copy.disk;
 
-import gui.FdtMain;
-import gui.GUIFileStatus;
-import gui.Log;
-
-import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.security.MessageDigest;
-import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import lia.util.net.common.Config;
+import lia.util.net.common.DirectByteBufferPool;
 import lia.util.net.common.Utils;
-import lia.util.net.copy.FDT;
 import lia.util.net.copy.FDTReaderSession;
 import lia.util.net.copy.FileBlock;
 import lia.util.net.copy.FileSession;
@@ -35,10 +28,8 @@ import lia.util.net.copy.FileSession;
  *
  */
 public class DiskReaderTask extends GenericDiskTask {
-
-    private static final Log logger = Log.getLoggerInstance();
-
-    private static GUIFileStatus guiFileStatus = null;
+    
+    private static final Logger logger = Logger.getLogger(DiskReaderTask.class.getName());
     
     private static final DiskReaderManager diskReaderManager = DiskReaderManager.getInstance();
     
@@ -51,7 +42,6 @@ public class DiskReaderTask extends GenericDiskTask {
     private int addedFBS = 0;
     
     private final FDTReaderSession fdtSession;
-
     
     /**
      *
@@ -95,41 +85,16 @@ public class DiskReaderTask extends GenericDiskTask {
         }
     }
     
-    private void logToAppLogger(FileSession fileSession) {
-      if (FDT.config.getAppLogger() != null && !FDT.config.getAppLogger().equals("")) {
-        try {
-          SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.SSS a");
-          Process process = Runtime.getRuntime().exec( new String[] { "/bin/sh", FDT.config.getAppLogger(), 
-              "-fileName", fileSession.getFile().getAbsolutePath(), 
-              "-type", "download",
-              "-method", "fdt", 
-              "-startDateTime", df.format(new java.util.Date(fileSession.startTimeMillis)),
-              "-endDateTime",  df.format(new java.util.Date(System.currentTimeMillis())),
-              "-fileSize", Long.valueOf(fileSession.getFile().length()).toString()
-              });    
-          process.waitFor();
-          process.destroy();
-        } catch(Exception e) {
-          logger.log(Level.WARNING, " \n\n\n Cannot write to app logger " + FDT.config.getAppLogger() + " Cause: ", e);
-        }
-      }
-    }
-
-    
     public void run() {
         
         
         String cName = Thread.currentThread().getName();
         
         Thread.currentThread().setName(myName);
-        logger.log("Inside diskreadertask.run()");
-        if(logger.isLoggable(Level.FINE))
-        {
+        if(logger.isLoggable(Level.FINE)) {
             logger.log(Level.FINE,  myName + " started" );
         }
-
-        if(!FdtMain.isIsServerMode())
-            guiFileStatus = GUIFileStatus.getGUIFileStatusInstance();
+        
         Throwable downCause = null;
         ByteBuffer buff = null;
         FileBlock fileBlock = null;
@@ -137,141 +102,90 @@ public class DiskReaderTask extends GenericDiskTask {
         
         FileSession currentFileSession = null;
         FileChannel cuurentFileChannel = null;
-        long startTime = System.nanoTime();
-        long lastTimeCalled = startTime;
-        long duration;
-        long lastTransferredBytes =0;
-        long rate =0;
+        final DirectByteBufferPool bufferPool = DiskReaderTask.bufferPool;
+        final boolean computeMD5 = this.computeMD5;
+        final FDTReaderSession fdtSession = this.fdtSession;
+        if(fdtSession == null) {
+            logger.log(Level.WARNING, "\n\n FDT Session is null in DiskReaderTask !! Will stop reader task\n\n");
+        }
         
         try {
-            if(fdtSession == null)
-            {
-                logger.log(Level.WARNING, " FDT Session is null in DiskReaderTask !!");
-            }
-           
-            while(!fdtSession.isClosed())
-            {
-
-                for(final FileSession fileSession: fileSessions)
-                {
-
+            while(!fdtSession.isClosed()) {
+                for(final FileSession fileSession: fileSessions) {
                     currentFileSession = fileSession;
                     
                     if(fileSession.isClosed()) {
                         fdtSession.finishFileSession(fileSession.sessionID(), null);
-
-
-
-                        if(!FdtMain.isIsServerMode())
-                        {
-                            guiFileStatus.setEndTime(fileSession.sessionID().toString(), System.nanoTime());
-                            guiFileStatus.updatePercentCompleted(fileSession.sessionID().toString(), fileSession.sessionSize(), fileSession.sessionSize());
-                        }
-                        
-                        // If there is an app logger, log the file session info
-                        if (FdtMain.isIsServerMode()) {
-                          logToAppLogger(fileSession);
-                        }
                         continue;
                     }
                     
-                    if(logger.isLoggable(Level.FINE))
-                    {
+                    if(logger.isLoggable(Level.FINE)) {
                         logger.log(Level.FINE, " [ FileReaderTask ] for FileSession (" + fileSession.sessionID() + ") " + fileSession.fileName() + " started");
                     }
-
-                    //
-                    // Plug-in point for application transfer logging
-                    //
-
-                    if(!FdtMain.isIsServerMode())                      
-                        guiFileStatus.setStartTime(fileSession.sessionID().toString(), System.nanoTime());
-
+                    
                     downCause = null;
                     
-                    final FileChannel fileChannel = fileSession.getChannel();
+                    final FileChannel fileChannel = (fileSession.isZero())?null:fileSession.getChannel();
                     cuurentFileChannel = fileChannel;
                     
-                    if(fileChannel != null) {
+                    if(fileChannel != null || fileSession.isZero()) {
                         if(computeMD5) {
                             md5Sum.reset();
                         }
 
-                        
-                        cPosition = fileChannel.position();
-                        for(;;)
-                        {
+                        cPosition = (fileSession.isZero())?0:fileChannel.position();
+
+                        for(;;) {
+                            
+                            
                             //try to get a new buffer from the pool
                             buff = null;
                             fileBlock = null;
 
-                            while(buff == null)
-                            {
-                                if(fdtSession.isClosed())
-                                {
+                            while(buff == null) {
+                                if(fdtSession.isClosed()) {
                                     return;
                                 }
                                 buff = bufferPool.poll(2, TimeUnit.SECONDS);
                             }
                             
-                            if(fileSession.isZero())
-                            {
+                            if(fileSession.isZero()) {
                                 //Just play with the buffer markers ... do not even touch /dev/zero
                                 readBytes = buff.capacity();
                                 buff.position(0);
                                 buff.limit(buff.capacity());
-                            } 
-                            else
-                            {
+                            } else {
                                 readBytes = fileChannel.read(buff);
-                                
-                                //buff = encryptStream.encryptData(buff);
-
-                                StringBuilder sb = new StringBuilder(1024);
-                                sb.append(" [ DiskReaderTask ] FileReaderSession ").append(fileSession.sessionID()).append(": ").append(fileSession.fileName());
-                                sb.append(" fdtSession: ").append(fdtSession.sessionID()).append(" read: ").append(readBytes);
-                                    
+                                if(logger.isLoggable(Level.FINEST)) {
+                                    StringBuilder sb = new StringBuilder(1024);
+                                    sb.append(" [ DiskReaderTask ] FileReaderSession ").append(fileSession.sessionID()).append(": ").append(fileSession.fileName());
+                                    sb.append(" fdtSession: ").append(fdtSession.sessionID()).append(" read: ").append(readBytes);
+                                    logger.log(Level.FINEST, sb.toString());
+                                }
                             }
                             
-                            if(readBytes == -1)
-                            {//EOF
-                                if(fileSession.cProcessedBytes.get() == fileSession.sessionSize())
-                                {
+                            if(readBytes == -1) {//EOF
+                                if(fileSession.cProcessedBytes.get() == fileSession.sessionSize()) {
                                     fdtSession.finishFileSession(fileSession.sessionID(), null);
-                                    // If there is an app logger, log the file session info
-                                    if (FdtMain.isIsServerMode()) {
-                                      logToAppLogger(fileSession);
-                                    }
-
-                                    if(!FdtMain.isIsServerMode())
-                                    {
-                                        guiFileStatus.setEndTime(fileSession.sessionID().toString(), System.nanoTime());
-                                        guiFileStatus.updatePercentCompleted(fileSession.sessionID().toString(), fileSession.sessionSize(), fileSession.sessionSize());
-                                    }
-                                } 
-                                else
-                                {
-                                    if(!fdtSession.loop())
-                                    {
+                                } else {
+                                    if(!fdtSession.loop()) {
                                         StringBuilder sbEx = new StringBuilder();
                                         sbEx.append("FileSession: ( ").append(fileSession.sessionID()).append(" ): ").append(fileSession.fileName());
                                         sbEx.append(" total length: ").append(fileSession.sessionSize()).append(" != total read until EOF: ").append(fileSession.cProcessedBytes.get());
                                         fdtSession.finishFileSession(fileSession.sessionID(), new IOException(sbEx.toString()));
-                                    } 
-                                    else
-                                    {
+                                    } else {
                                         fileChannel.position(0);
                                     }
                                 }
-
                                 bufferPool.put(buff);
                                 buff = null;
                                 fileBlock = null;
-                                if(computeMD5)
-                                {
+                                if(computeMD5) {
                                     byte[] md5ByteArray = md5Sum.digest();
+                                    if(logger.isLoggable(Level.FINEST)) {
                                         logger.log(Level.FINEST, Utils.md5ToString(md5ByteArray) + "   --->  " + fileSession.fileName()
                                         );
+                                    }
                                     fdtSession.setMD5Sum(fileSession.sessionID(), md5ByteArray);
                                 }
                                 break;
@@ -290,31 +204,6 @@ public class DiskReaderTask extends GenericDiskTask {
                             
                             fdtSession.addAndGetTotalBytes(readBytes);
                             fdtSession.addAndGetUtilBytes(readBytes);
-
-                            if(!FdtMain.isIsServerMode())
-                            {
-                                duration = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - lastTimeCalled);
-
-                                if(duration >2000)
-                                {
-                                    rate =  (long) ((fdtSession.getTotalBytes() - lastTransferredBytes) * 1000D / duration);
-                                    long remainingSeconds = 0;
-                                    if(rate>0)
-                                    remainingSeconds = (fdtSession.getSize() - fdtSession.getTotalBytes())/rate ;
-
-                                    guiFileStatus.setTransferRate(rate);
-
-                                    guiFileStatus.setETA(Utils.getETA((long) remainingSeconds));
-                                    
-                                    lastTransferredBytes = fdtSession.getTotalBytes();
-
-                                    lastTimeCalled = System.nanoTime();
-                                }
-
-
-                                
-                            }
-
                             
                             if(!fileSession.isZero()) {
                                 buff.flip();
@@ -322,22 +211,10 @@ public class DiskReaderTask extends GenericDiskTask {
                             
                             fileBlock = FileBlock.getInstance(fdtSession.sessionID(), fileSession.sessionID(), cPosition, buff);
                             cPosition += readBytes;
-                            if(!FdtMain.isIsServerMode())
-                                guiFileStatus.updatePercentCompleted(fileSession.sessionID().toString(), cPosition, fileSession.sessionSize());
-
+                            
                             if(!fdtSession.isClosed()) {
                                 while(!fdtSession.fileBlockQueue.offer(fileBlock, 2, TimeUnit.SECONDS)) {
                                     if(fdtSession.isClosed()) {
-                                        // If there is an app logger, log the file session info
-                                        if (FdtMain.isIsServerMode()) {
-                                          logToAppLogger(fileSession);
-                                        }
-
-                                        if(!FdtMain.isIsServerMode())
-                                        {
-                                            guiFileStatus.setEndTime(fileSession.sessionID().toString(), System.nanoTime());
-                                            guiFileStatus.updatePercentCompleted(fileSession.sessionID().toString(), fileSession.sessionSize(), fileSession.sessionSize());
-                                        }
                                         return;
                                     }
                                 }
@@ -350,15 +227,6 @@ public class DiskReaderTask extends GenericDiskTask {
                                         bufferPool.put(fileBlock.buff);
                                         buff = null;
                                         fileBlock = null;
-                                        // If there is an app logger, log the file session info
-                                        if (FdtMain.isIsServerMode()) {
-                                          logToAppLogger(fileSession);
-                                        }
-                                        if(!FdtMain.isIsServerMode())
-                                        {
-                                            guiFileStatus.setEndTime(fileSession.sessionID().toString(), System.nanoTime());
-                                            guiFileStatus.updatePercentCompleted(fileSession.sessionID().toString(), fileSession.sessionSize(), fileSession.sessionSize());
-                                        }
                                     }
                                     return;
                                 }catch(Throwable t1) {
@@ -388,14 +256,16 @@ public class DiskReaderTask extends GenericDiskTask {
             }//for
             
         } catch(IOException ioe) {
-            if(!isFinished.getAndSet(true) && !fdtSession.isClosed()) {//most likely a normal error
-                logger.log(Level.INFO, " [ HANDLED ] Got I/O Exception reading FileSession (" + currentFileSession.sessionID() + ") / "  + currentFileSession.fileName(), ioe);
-                return;
-            }
-            logger.logError(ioe);
             //check for down
             if(isFinished.get() || fdtSession.isClosed()) {//most likely a normal error
                 logger.log(Level.FINEST, " [ HANDLED ] Got I/O Exception reading FileSession (" + currentFileSession.sessionID() + ") "  + currentFileSession.fileName(), ioe);
+                return;
+            }
+            
+            if(!isFinished.getAndSet(true) && !fdtSession.isClosed()) {//most likely a normal error
+                logger.log(Level.INFO, " [ HANDLED ] Got I/O Exception reading FileSession (" + currentFileSession.sessionID() + ") / "  + currentFileSession.fileName(), ioe);
+                downCause = ioe;
+                fdtSession.finishFileSession(currentFileSession.sessionID(), downCause);
                 return;
             }
             
@@ -462,5 +332,4 @@ public class DiskReaderTask extends GenericDiskTask {
         }
         
     }//run()
-    
 }

@@ -1,10 +1,8 @@
 /*
- * $Id: JIperfServer.java,v 1.1 2012-10-29 22:30:11 HCI\rcundick Exp $
+ * $Id$
  */
 package lia.util.net.jiperf;
 
-import gui.GUILogger;
-import gui.Log;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.nio.ByteBuffer;
@@ -15,6 +13,7 @@ import java.nio.channels.SocketChannel;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.concurrent.ExecutorService;
+import java.util.logging.Logger;
 
 /**
  * 
@@ -26,7 +25,8 @@ import java.util.concurrent.ExecutorService;
  */
 public class JIperfServer {
 
-        private static final Log logger = Log.getLoggerInstance();
+	/** Logger used by this class */
+	private static final transient Logger logger = Logger.getLogger(JIperfServer.class.getName());
 
 	ServerSocketChannel ssc;
 

@@ -171,6 +171,8 @@
     <echo>+      instructons and PFX file at x:\Informatics\dev\Shared\ssl\certificates\codesigning                                  +</echo>
     <echo>+                                                                                                                          +</echo>
     -->
+    
+    <!--
 		<echo>+  Please answer password prompt                                                                                           +</echo>
     <input message="enter PFX password(in Password_Pal):" addproperty="jar.sign.password" />
     <signjar jar="${dist.dir}/${client.jar.name}" 
@@ -181,7 +183,7 @@
     	tsaurl="http://timestamp.comodoca.com/rfc3161"
     	storetype="pkcs12">
     </signjar>
-
+-->
 		<jar jarfile="${dist.dir}/${filedaemon.jar.name}" basedir="${build.class.dir}" excludes="**">
     		  
         	<fileset dir="${basedir}">

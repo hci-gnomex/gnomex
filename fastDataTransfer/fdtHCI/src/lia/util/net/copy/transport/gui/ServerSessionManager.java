@@ -1,9 +1,8 @@
 /*
- * $Id: ServerSessionManager.java,v 1.1 2012-10-29 22:29:59 HCI\rcundick Exp $
+ * $Id$
  */
 package lia.util.net.copy.transport.gui;
 
-import gui.Log;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -21,11 +20,13 @@ import java.util.Map;
 import java.util.Vector;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.swing.filechooser.FileSystemView;
 
 import lia.util.net.common.AbstractFDTCloseable;
 import lia.util.net.common.Config;
+import lia.util.net.copy.transport.ControlChannel;
 import lia.util.net.copy.transport.CtrlMsg;
 import lia.util.net.copy.transport.FDTProcolException;
 
@@ -69,10 +70,7 @@ public class ServerSessionManager extends AbstractFDTCloseable implements Runnab
     public final int localPort;
     private ObjectOutputStream oos = null;
     private ObjectInputStream ois = null;
-    //private static final Logger logger = Logger.getLogger(ControlChannel.class.getName());
-
-    private static final Log logger = Log.getLoggerInstance();
-
+    private static final Logger logger = Logger.getLogger(ControlChannel.class.getName());
     private ConcurrentLinkedQueue<Object> qToSend = new ConcurrentLinkedQueue<Object>();
 
 	public ServerSessionManager(Socket s) throws Exception {
@@ -113,7 +111,7 @@ public class ServerSessionManager extends AbstractFDTCloseable implements Runnab
 		} catch (Exception e) { }
 	}
 	
-	private String getRoot(String dir) {
+	private final String getRoot(String dir) {
 		if (roots.containsKey(dir)) return dir;
 		for (Map.Entry<String, File> entry : roots.entrySet()) {
 			if (entry.getValue().getAbsolutePath().equals(dir)) return entry.getKey();
@@ -236,7 +234,7 @@ public class ServerSessionManager extends AbstractFDTCloseable implements Runnab
 		}
 	}
 	
-	/** Message coming from the other end of the connection... */
+	/** Message comming from the other end of the connection... */
 	public void process(Object o) throws Exception {
 		if (!(o instanceof CtrlMsg)) return;
 		CtrlMsg msg = (CtrlMsg)o;
@@ -447,7 +445,7 @@ public class ServerSessionManager extends AbstractFDTCloseable implements Runnab
     
     private final HashMap<String, String> h = new HashMap<String, String>();
     
-    private HashMap<String, String> formShortNames() {
+    private final HashMap<String, String> formShortNames() {
     	h.clear();
     	String roots[] = getRoots();
     	if (roots == null) return h;
@@ -457,7 +455,7 @@ public class ServerSessionManager extends AbstractFDTCloseable implements Runnab
     	return h;
     }
     
-    private String freeSpace() {
+    private final String freeSpace() {
 		if (currentFile == null) return null;
 		try {
 			long space = currentFile.getFreeSpace();
@@ -467,7 +465,7 @@ public class ServerSessionManager extends AbstractFDTCloseable implements Runnab
 		return null;
 	}
 	
-	private String parseSize(long space) {
+	private final String parseSize(long space) {
 		if (space > 1024l) {
 			space = space / 1024l;
 			if (space > 1024l) {

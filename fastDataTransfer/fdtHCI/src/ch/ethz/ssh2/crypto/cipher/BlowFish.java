@@ -33,7 +33,7 @@ package ch.ethz.ssh2.crypto.cipher;
  * Cryptography and implement a simplified cryptography interface.
  * 
  * @author See comments in the source file
- * @version $Id: BlowFish.java,v 1.1 2012-10-29 22:30:02 HCI\rcundick Exp $
+ * @version $Id: BlowFish.java,v 1.3 2005/12/05 17:13:27 cplattne Exp $
  */
 public class BlowFish implements BlockCipher
 {

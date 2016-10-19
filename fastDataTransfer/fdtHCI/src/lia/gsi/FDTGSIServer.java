@@ -1,5 +1,5 @@
 /*
- * $Id: FDTGSIServer.java,v 1.1 2012-10-29 22:30:23 HCI\rcundick Exp $
+ * $Id$
  */
 package lia.gsi;
 
@@ -53,8 +53,8 @@ public class FDTGSIServer extends GSIServer {
             ct = new ControlChannel(parent, client, peerSubject, fdtSessionManager);
             fdtSessionManager.addFDTClientSession(ct);
         } catch (Throwable t) {
-            logger.log(Level.WARNING, "[ FDTGSIServer ] Cannot instantiate ControlChannel for client: " + client, t);
             ct = null;
+            throw new IllegalStateException("[ FDTGSIServer ] Cannot instantiate ControlChannel for client: " + client, t);
         }
 
         if (ct != null) {

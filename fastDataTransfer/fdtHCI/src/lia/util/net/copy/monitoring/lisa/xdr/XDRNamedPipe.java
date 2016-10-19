@@ -1,7 +1,7 @@
 /*
  * Created on Jun 20, 2006
  * 
- * $Id: XDRNamedPipe.java,v 1.1 2012-10-29 22:29:47 HCI\rcundick Exp $
+ * $Id$
  */
 package lia.util.net.copy.monitoring.lisa.xdr;
 

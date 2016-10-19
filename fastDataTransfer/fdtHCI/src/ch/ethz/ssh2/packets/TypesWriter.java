@@ -8,7 +8,7 @@ import java.math.BigInteger;
  * TypesWriter.
  * 
  * @author Christian Plattner, plattner@inf.ethz.ch
- * @version $Id: TypesWriter.java,v 1.1 2012-10-29 22:29:35 HCI\rcundick Exp $
+ * @version $Id: TypesWriter.java,v 1.6 2006/08/31 20:04:29 cplattne Exp $
  */
 public class TypesWriter
 {
