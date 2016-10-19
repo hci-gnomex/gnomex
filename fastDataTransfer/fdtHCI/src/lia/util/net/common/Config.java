@@ -180,7 +180,7 @@ public class Config {
       //look to see if it matches one of the restricted directories
       for (File rtd : restrictedTransferDirectories){
         //Match it
-        Pattern pat = Pattern.compile(rtd.getPath()+Constants.FILE_SEPARATOR_CHAR+".+");
+        Pattern pat = Pattern.compile(rtd.getPath()+File.separatorChar+".+");
         if (pat.matcher(path).matches()) return true;
       }
       return false;

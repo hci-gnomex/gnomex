@@ -78,7 +78,7 @@ public class ServerSessionManager extends AbstractFDTCloseable implements Runnab
 		this.currentDir = currentFile.getAbsolutePath();
 		osName = System.getProperty("os.name");
 		userDir = System.getProperty("user.home");
-		fileSeparator = Constants.FILE_SEPARATOR;
+		fileSeparator = System.getProperty("file.separator");
 		update();
         try {
             this.controlSocket = s;
@@ -221,7 +221,7 @@ public class ServerSessionManager extends AbstractFDTCloseable implements Runnab
 		try {
 			int i=0; 
 			while (true) {
-				File f = new File(currentDir+fileSeparator+"fdt"+i);
+				File f = new File(currentDir+System.getProperty("file.separator")+"fdt"+i);
 				if (f.exists()) continue;
 				f.createNewFile();
 				canWrite = f.exists();
