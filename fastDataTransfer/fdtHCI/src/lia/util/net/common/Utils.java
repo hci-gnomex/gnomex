@@ -508,56 +508,6 @@ public final class Utils {
             } else if (args[i].indexOf(":") >= 0) {
                 int idx = args[i].indexOf(":");
 
-                // /////////////
-                // handle windows stupid FS naming
-                // ////////////
-                if (Constants.FILE_SEPARATOR_CHAR== '\\') {// "Windowns" baby!
-
-                    if (idx + 1 == args[i].length()) {
-                        // ////////////
-                        // tricky scp-like command from windows
-                        //
-                        // java -jar fdt.jar C:\x n:
-                        //
-                        // where n may be a remote machine, and C:\x a file
-                        //
-                        // check that we have a single letter before ':'
-                        // ///////////////
-
-                        if (idx - 1 == 0) {
-
-                            // test if it is a File
-                            if (new File(args[i].charAt(0) + ":").exists()) {
-                                // stupid driver letter; got you
-                                if (sshUsers.size() > 0) {
-                                    // I am the destination directory
-                                    rHM.put("destinationDir", args[i]);
-                                    rHM.put("-d", rHM.get("destinationDir"));
-                                    break;
-                                }
-
-                                lParams.add(args[i]);
-                                continue;
-                            }
-                        }
-                    }
-
-                    if ((idx + 1 < args[i].length()) && args[i].charAt(idx + 1) == Constants.FILE_SEPARATOR_CHAR) {
-                        if (sshUsers.size() > 0) {
-                            // I am the destination directory
-                            rHM.put("destinationDir", args[i]);
-                            rHM.put("-d", rHM.get("destinationDir"));
-                            break;
-                        }
-
-                        lParams.add(args[i]);
-                        continue;
-                    }
-                }
-
-                // /////////////
-                // END handle windows stupid FS naming
-                // ////////////
 
                 // SSH mode
 
