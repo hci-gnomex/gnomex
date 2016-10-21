@@ -3,8 +3,6 @@ package hci.gnomex.controller;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.model.DetailObject;
-import hci.framework.security.UnknownPermissionException;
-import hci.framework.utilities.XMLReflectException;
 import hci.gnomex.model.AppUser;
 import hci.gnomex.model.BillingAccount;
 import hci.gnomex.model.InternalAccountFieldsConfiguration;
@@ -14,7 +12,6 @@ import hci.gnomex.utility.AppUserNameComparator;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -23,24 +20,20 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.apache.log4j.Logger;
 import org.hibernate.Hibernate;
 import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.output.XMLOutputter;
-import org.apache.log4j.Logger;
 
 public class GetLab extends GNomExCommand implements Serializable {
 
-
-
   // the static field for logging in Log4J
   private static Logger LOG = Logger.getLogger(GetLab.class);
-
 
   private Lab        lab;
   private Boolean    isForWorkAuth = false;
@@ -70,8 +63,7 @@ public class GetLab extends GNomExCommand implements Serializable {
 
     try {
 
-
-      Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
+		Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername(), "GetLab");
 
       Lab theLab = (Lab)sess.get(Lab.class, lab.getIdLab());
 
@@ -80,15 +72,19 @@ public class GetLab extends GNomExCommand implements Serializable {
 
       // We want the billing accounts to show up if the user is authorized to submit
       // requests for this lab
-      if (this.getSecAdvisor().isGroupIAmMemberOrManagerOf(theLab.getIdLab()) || this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_ADMINISTER_USERS)) {
+
+		if (this.getSecAdvisor().isGroupIAmMemberOrManagerOf(theLab.getIdLab())
+				|| this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_ADMINISTER_USERS)) {
+			if (theLab.getBillingAccounts() != null) {
         Hibernate.initialize(theLab.getBillingAccounts());
       }
+		}
 
       // We want the list of institutions to show up for the lab
-      if (this.getSecAdvisor().isGroupIAmMemberOrManagerOf(theLab.getIdLab()) || this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_ADMINISTER_USERS)) {
+		if (this.getSecAdvisor().isGroupIAmMemberOrManagerOf(theLab.getIdLab())
+				|| this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_ADMINISTER_USERS)) {
         Hibernate.initialize(theLab.getInstitutions());
       }
-
 
       theLab.excludeMethodFromXML("getIsMyLab");
       theLab.excludeMethodFromXML("getCanSubmitRequests");
@@ -99,11 +95,13 @@ public class GetLab extends GNomExCommand implements Serializable {
       Hibernate.initialize(theLab.getCoreFacilities());
 
       //Get product qty counts and append to lab node below
-      StringBuffer buf1 = new StringBuffer("SELECT pl.idProduct, SUM(pl.qty) from ProductLedger as pl where idLab = " + lab.getIdLab() + " group by pl.idProduct");
+		StringBuffer buf1 = new StringBuffer("SELECT pl.idProduct, SUM(pl.qty) from ProductLedger as pl where idLab = "
+				+ lab.getIdLab() + " group by pl.idProduct");
       List productQuantity = sess.createQuery(buf1.toString()).list();
 
-      if (this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_ADMINISTER_USERS) ||
-          this.getSecAdvisor().canUpdate(theLab, SecurityAdvisor.PROFILE_GROUP_MEMBERSHIP) || this.getSecAdvisor().isLabICanSubmitTo(theLab)) {
+		if (this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_ADMINISTER_USERS)
+				|| this.getSecAdvisor().canUpdate(theLab, SecurityAdvisor.PROFILE_GROUP_MEMBERSHIP)
+				|| this.getSecAdvisor().isLabICanSubmitTo(theLab)) {
 
         Hibernate.initialize(theLab.getMembers());
         Hibernate.initialize(theLab.getCollaborators());
@@ -132,7 +130,6 @@ public class GetLab extends GNomExCommand implements Serializable {
           Hibernate.initialize(ba.getUsers());
         }
 
-
         Document doc = new Document(new Element("OpenLabList"));
         theLab.excludeMethodFromXML("getApprovedBillingAccounts");  // Added explicitly below
         theLab.excludeMethodFromXML("getInternalBillingAccounts");  // Added explicitly below
@@ -147,24 +144,28 @@ public class GetLab extends GNomExCommand implements Serializable {
         this.appendBillingAccounts(theLab.getApprovedBillingAccounts(), "approvedBillingAccounts", labNode, theLab);
         this.appendBillingAccounts(theLab.getInternalBillingAccounts(), "internalBillingAccounts", labNode, theLab);
         this.appendBillingAccounts(theLab.getPOBillingAccounts(), "pOBillingAccounts", labNode, theLab);
-        this.appendBillingAccounts(theLab.getCreditCardBillingAccounts(), "creditCardBillingAccounts", labNode, theLab);
-        List<BillingAccount> authorizedBillingAccounts = new ArrayList<BillingAccount>(GetAuthorizedBillingAccounts.retrieveAuthorizedBillingAccounts(sess, this.getSecAdvisor(), this.getSecAdvisor().getAppUser().getIdAppUser(), theLab.getIdLab(), null, true, true, true, true));
+			this.appendBillingAccounts(theLab.getCreditCardBillingAccounts(), "creditCardBillingAccounts", labNode,
+					theLab);
+			List<BillingAccount> authorizedBillingAccounts = new ArrayList<BillingAccount>(
+					GetAuthorizedBillingAccounts.retrieveAuthorizedBillingAccounts(sess, this.getSecAdvisor(), this
+							.getSecAdvisor().getAppUser().getIdAppUser(), theLab.getIdLab(), null, true, true, true,
+							true));
         this.appendBillingAccounts(authorizedBillingAccounts, "authorizedBillingAccounts", labNode, theLab);
         this.appendProductCount(labNode, productQuantity);
 
         doc.getRootElement().addContent(labNode);
 
-
         XMLOutputter out = new org.jdom.output.XMLOutputter();
         this.xmlResult = out.outputString(doc);
 
-      } else if (this.getSecAdvisor().isGroupIAmMemberOf(theLab.getIdLab()) ||
-          this.getSecAdvisor().isGroupICollaborateWith(theLab.getIdLab()) ||
-          this.getSecAdvisor().isLabICanSubmitTo(theLab)) {
+		} else if (this.getSecAdvisor().isGroupIAmMemberOf(theLab.getIdLab())
+				|| this.getSecAdvisor().isGroupICollaborateWith(theLab.getIdLab())
+				|| this.getSecAdvisor().isLabICanSubmitTo(theLab)) {
 
         // For adding services to lab, lab member needs to be able to select
         // from list of other lab members.
-        if (this.getSecAdvisor().isGroupIAmMemberOf(theLab.getIdLab()) || this.getSecAdvisor().isLabICanSubmitTo(theLab)) {
+			if (this.getSecAdvisor().isGroupIAmMemberOf(theLab.getIdLab())
+					|| this.getSecAdvisor().isLabICanSubmitTo(theLab)) {
           Hibernate.initialize(theLab.getMembers());
           Hibernate.initialize(theLab.getManagers());
           blockAppUserContent(theLab.getMembers());
@@ -192,12 +193,16 @@ public class GetLab extends GNomExCommand implements Serializable {
 
         Document doc = new Document(new Element("OpenLabList"));
         Element labNode = theLab.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
-        if (this.getSecAdvisor().isGroupIAmMemberOrManagerOf(theLab.getIdLab()) || this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_ADMINISTER_USERS)) {
+			if (this.getSecAdvisor().isGroupIAmMemberOrManagerOf(theLab.getIdLab())
+					|| this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_ADMINISTER_USERS)) {
           this.appendPossibleCollaborators(labNode, theLab);
         }
         this.appendSubmitters(labNode, theLab);
         this.appendBillingAccounts(theLab.getApprovedBillingAccounts(), "approvedBillingAccounts", labNode, theLab);
-        List<BillingAccount> authorizedBillingAccounts = new ArrayList<BillingAccount>(GetAuthorizedBillingAccounts.retrieveAuthorizedBillingAccounts(sess, this.getSecAdvisor(), this.getSecAdvisor().getAppUser().getIdAppUser(), theLab.getIdLab(), null, true, true, true, true));
+			List<BillingAccount> authorizedBillingAccounts = new ArrayList<BillingAccount>(
+					GetAuthorizedBillingAccounts.retrieveAuthorizedBillingAccounts(sess, this.getSecAdvisor(), this
+							.getSecAdvisor().getAppUser().getIdAppUser(), theLab.getIdLab(), null, true, true, true,
+							true));
         this.appendBillingAccounts(authorizedBillingAccounts, "authorizedBillingAccounts", labNode, theLab);
         this.appendProductCount(labNode, productQuantity);
         doc.getRootElement().addContent(labNode);
@@ -220,7 +225,6 @@ public class GetLab extends GNomExCommand implements Serializable {
         Element labNode = theLab.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
         doc.getRootElement().addContent(labNode);
 
-
         XMLOutputter out = new org.jdom.output.XMLOutputter();
         this.xmlResult = out.outputString(doc);
       } else {
@@ -230,15 +234,11 @@ public class GetLab extends GNomExCommand implements Serializable {
     }catch (Exception e){
       LOG.error("An exception has occurred in GetLab ", e);
       throw new RollBackCommandException(e.getMessage());
-    } finally {
-      try {
-        this.getSecAdvisor().closeReadOnlyHibernateSession();
-      } catch(Exception e) {
-        LOG.error("An exception has occurred in GetLab ", e);
       }
-    }
-
-
+	/*
+	 * finally { try { this.getSecAdvisor().closeReadOnlyHibernateSession("GetLab"); } catch (Exception e) { LOG.error("An exception has occurred in GetLab ",
+	 * e); } }
+	 */
     if (isValid()) {
       setResponsePage(this.SUCCESS_JSP);
     } else {
@@ -264,7 +264,6 @@ public class GetLab extends GNomExCommand implements Serializable {
     }
 
     labNode.addContent(productCounts);
-
 
   }
 

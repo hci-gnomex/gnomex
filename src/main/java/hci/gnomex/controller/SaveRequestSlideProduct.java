@@ -100,7 +100,7 @@ public class SaveRequestSlideProduct extends GNomExCommand implements Serializab
         
     }finally {
       try {
-        HibernateSession.closeSession();        
+        //closeHibernateSession;        
       } catch(Exception e){
         LOG.error("Error", e);
       }

@@ -102,17 +102,16 @@ public class SaveSlideProduct extends GNomExCommand implements Serializable {
     } catch (Exception e) {
       LOG.error(e.getClass().toString() + ": " + e, e);
       throw new RollBackCommandException();
-    }
-    finally {
+	} finally {
       try {
-        HibernateSession.closeSession();
+			// closeHibernateSession;
       } catch (HibernateException e) {
         LOG.error(e.getClass().toString() + ": " + e, e);
         throw new RollBackCommandException();
-      } catch (SQLException e) {
-        LOG.error(e.getClass().toString() + ": " + e, e);
-        throw new RollBackCommandException();
       }
+		/*
+		 * catch (SQLException e) { LOG.error(e.getClass().toString() + ": " + e, e); throw new RollBackCommandException(); }
+		 */
     }
     return this;
   }
@@ -123,7 +122,8 @@ public class SaveSlideProduct extends GNomExCommand implements Serializable {
     HashMap errors = this.loadDetailObject(request, slideProductScreen);
     this.addInvalidFields(errors);
     
-    if (request.getParameter("microarrayCategoryXMLString") != null && !request.getParameter("microarrayCategoryXMLString").equals("")) {
+	if (request.getParameter("microarrayCategoryXMLString") != null
+			&& !request.getParameter("microarrayCategoryXMLString").equals("")) {
       microarrayCategoryXMLString = request.getParameter("microarrayCategoryXMLString");
       
       StringReader reader = new StringReader(microarrayCategoryXMLString);

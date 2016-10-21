@@ -21,19 +21,15 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import org.hibernate.Query;
+import org.apache.log4j.Logger;
 import org.hibernate.Session;
+import org.hibernate.query.Query;
 import org.jdom.Document;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.jdom.output.XMLOutputter;
-import org.apache.log4j.Logger;
-
-
 
 public class OrganizeProductOrderUploadFiles extends GNomExCommand implements Serializable {
-
-
 
   // the static field for logging in Log4J
   private static Logger LOG = Logger.getLogger(OrganizeProductOrderUploadFiles.class);
@@ -48,10 +44,8 @@ public class OrganizeProductOrderUploadFiles extends GNomExCommand implements Se
 
   private String                       serverName;
 
-
   public void validate() {
   }
-
 
   public void loadCommand(HttpServletRequest request, HttpSession session) {
 
@@ -75,8 +69,10 @@ public class OrganizeProductOrderUploadFiles extends GNomExCommand implements Se
       }
     }
 
-    if (request.getParameter("filesToRemoveXMLString") != null && !request.getParameter("filesToRemoveXMLString").equals("")) {
-      filesToRemoveXMLString = "<FilesToRemove>" + request.getParameter("filesToRemoveXMLString") +  "</FilesToRemove>";
+	if (request.getParameter("filesToRemoveXMLString") != null
+			&& !request.getParameter("filesToRemoveXMLString").equals("")) {
+		filesToRemoveXMLString = "<FilesToRemove>" + request.getParameter("filesToRemoveXMLString")
+				+ "</FilesToRemove>";
 
       StringReader reader = new StringReader(filesToRemoveXMLString);
       try {
@@ -103,10 +99,10 @@ public class OrganizeProductOrderUploadFiles extends GNomExCommand implements Se
 
         ProductOrder productOrder = (ProductOrder)sess.load(ProductOrder.class, idProductOrder);
 
-        String baseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, productOrder.getIdCoreFacility(), PropertyDictionaryHelper.PROPERTY_PRODUCT_ORDER_DIRECTORY);
+			String baseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName,
+					productOrder.getIdCoreFacility(), PropertyDictionaryHelper.PROPERTY_PRODUCT_ORDER_DIRECTORY);
         baseDir += productOrder.getCreateYear() ;
 
-         
           parser.parse();
 
           // Add new directories to the file system
@@ -135,8 +131,7 @@ public class OrganizeProductOrderUploadFiles extends GNomExCommand implements Se
 
             if(!f1.renameTo(f2)){
               throw new Exception("Error Renaming File");
-            }
-            else{
+				} else {
               // Rename the files in the DB
               if (idFileString != null) {
                 ProductOrderFile pof;
@@ -154,8 +149,7 @@ public class OrganizeProductOrderUploadFiles extends GNomExCommand implements Se
                   pof.setQualifiedFilePath(qualifiedFilePath);
                   sess.save(pof);
                   sess.flush();
-                }
-                else{
+						} else {
                   for(Iterator j = parser.getChildrenToMoveMap().keySet().iterator(); j.hasNext();){
                     String oldFileName = (String)j.next();
                     String [] afParts = (String [])parser.getChildrenToMoveMap().get(oldFileName);
@@ -171,7 +165,6 @@ public class OrganizeProductOrderUploadFiles extends GNomExCommand implements Se
 
                     sess.save(pof);
                     sess.flush();
-
 
                   }
                 }
@@ -213,12 +206,14 @@ public class OrganizeProductOrderUploadFiles extends GNomExCommand implements Se
               if (lastIndex != -1) {
                 baseFileName = fileName.substring(lastIndex);
               }
-              Boolean duplicateUpload = fileNames.contains(baseDir + "\\" + productOrder.getProductOrderNumber() + "\\" + Constants.UPLOAD_STAGING_DIR + baseFileName);
+					Boolean duplicateUpload = fileNames.contains(baseDir + "\\" + productOrder.getProductOrderNumber()
+							+ "\\" + Constants.UPLOAD_STAGING_DIR + baseFileName);
               String mostRecentFile = "";
               if(duplicateUpload){
-                mostRecentFile = (String)fileNames.get(fileNames.indexOf(baseDir + "\\" + productOrder.getProductOrderNumber() + "\\" + Constants.UPLOAD_STAGING_DIR + baseFileName));
+						mostRecentFile = (String) fileNames.get(fileNames.indexOf(baseDir + "\\"
+								+ productOrder.getProductOrderNumber() + "\\" + Constants.UPLOAD_STAGING_DIR
+								+ baseFileName));
               }
-
 
               // Change qualifiedFilePath if the file is registered in the db
               if ( parser.getFileIdMap().containsKey(fileName) ) {
@@ -229,7 +224,8 @@ public class OrganizeProductOrderUploadFiles extends GNomExCommand implements Se
                   ProductOrderFile pof = new ProductOrderFile();
                   if (!idFileString.startsWith("ProductOrderFile") && !idFileString.equals("")) {
                     pof = (ProductOrderFile)sess.load(ProductOrderFile.class, new Integer(idFileString));
-                  } else if(idFileString.startsWith("ProductOrderFile")){ //new File(baseDir + "\\" + analysis.getNumber() + baseFileName).exists()  WHY DO WE NEED THIS?  MAYBE WE DON"T
+							} else if (idFileString.startsWith("ProductOrderFile")) { // new File(baseDir + "\\" + analysis.getNumber() + baseFileName).exists()
+																						// WHY DO WE NEED THIS? MAYBE WE DON"T
                     pof = new ProductOrderFile();
                     pof.setCreateDate(new java.sql.Date(System.currentTimeMillis()));
                     pof.setCreateDate(new java.sql.Date(System.currentTimeMillis()));
@@ -257,8 +253,7 @@ public class OrganizeProductOrderUploadFiles extends GNomExCommand implements Se
                       i1.remove();
                       i1 = fileNames.iterator();
                     }
-                  }
-                  else{
+							} else {
                     if(new File(fileName).exists()){
                       pof.setFileSize(new BigDecimal(new File(fileName).length()));
                     }
@@ -272,7 +267,8 @@ public class OrganizeProductOrderUploadFiles extends GNomExCommand implements Se
               sess.flush();
 
               sourceFile = sourceFile.getCanonicalFile();
-              String targetDirName = baseDir + File.separator + productOrder.getProductOrderNumber() + File.separator + qualifiedFilePath;
+					String targetDirName = baseDir + File.separator + productOrder.getProductOrderNumber()
+							+ File.separator + qualifiedFilePath;
               File targetDir = new File(targetDirName);
               targetDir = targetDir.getCanonicalFile();
 
@@ -401,7 +397,8 @@ public class OrganizeProductOrderUploadFiles extends GNomExCommand implements Se
 
           for(Iterator i = ghostFiles.iterator(); i.hasNext();) {
             ProductOrderFile pof  = (ProductOrderFile) i.next();
-            String filePath = pof.getBaseFilePath() + File.separator + pof.getQualifiedFilePath() + File.separator + pof.getFileName();
+				String filePath = pof.getBaseFilePath() + File.separator + pof.getQualifiedFilePath() + File.separator
+						+ pof.getFileName();
 
             if(!new File(filePath).exists()) {
               productOrder.getFiles().remove(pof);
@@ -419,15 +416,7 @@ public class OrganizeProductOrderUploadFiles extends GNomExCommand implements Se
 
         throw new RollBackCommandException(e.getMessage());
 
-      }finally {
-        try {
-          if (sess != null) {
-            this.getSecAdvisor().closeHibernateSession();
           }
-        } catch(Exception e){
-        LOG.error("Error", e);
-      }
-      }
 
     } else {
       this.xmlResult = "<SUCCESS/>";
@@ -445,8 +434,7 @@ public class OrganizeProductOrderUploadFiles extends GNomExCommand implements Se
         if(!delFile.delete()){
           return false;
         }
-      }
-      else{
+		} else {
         if(!delFile.delete()){
           return false;
         }
@@ -456,7 +444,5 @@ public class OrganizeProductOrderUploadFiles extends GNomExCommand implements Se
     return true;
 
   }
-
-
 
 }

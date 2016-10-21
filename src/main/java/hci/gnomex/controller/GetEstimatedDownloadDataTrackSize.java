@@ -114,7 +114,7 @@ public class GetEstimatedDownloadDataTrackSize extends GNomExCommand implements 
       throw new RollBackCommandException(e.getMessage());
     } finally {
       try {
-        this.getSecAdvisor().closeReadOnlyHibernateSession();
+        //closeReadOnlyHibernateSession;
       } catch (Exception e) {
         LOG.error("Error", e);
       }

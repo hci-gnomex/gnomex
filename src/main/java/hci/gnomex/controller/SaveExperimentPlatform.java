@@ -14,7 +14,7 @@ import javax.servlet.http.HttpSession;
 
 import hci.gnomex.model.*;
 import org.hibernate.HibernateException;
-import org.hibernate.Query;
+import org.hibernate.query.Query;
 import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -299,7 +299,7 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
 
     } finally {
       try {
-        HibernateSession.closeSession();
+        //closeHibernateSession;
       } catch (Exception e) {
         LOG.error("An exception has occurred in SaveExperimentPlatform ", e);
       }

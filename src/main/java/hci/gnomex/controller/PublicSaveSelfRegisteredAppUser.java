@@ -34,7 +34,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.validator.routines.EmailValidator;
-import org.hibernate.Query;
+import org.hibernate.query.Query;
 import org.hibernate.Session;
 import org.apache.log4j.Logger;
 public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Serializable {
@@ -296,7 +296,7 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
 
     } finally {
       try {
-        HibernateSession.closeSession();
+        //closeHibernateSession;
       } catch (Exception e) {
         LOG.error("An exception has occurred in SaveSelfRegisteredAppUser ", e);
       }

@@ -75,7 +75,7 @@ public class GetFlowCellChannel extends GNomExCommand implements Serializable {
 			throw new RollBackCommandException(e.getMessage());
 		} finally {
 			try {
-				this.getSecAdvisor().closeReadOnlyHibernateSession();        
+				//closeReadOnlyHibernateSession;        
 			} catch(Exception e) {
 				LOG.error("An exception has occurred in GetFlowCellChannel ", e);
 			}

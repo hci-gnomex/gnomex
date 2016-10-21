@@ -18,7 +18,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -32,7 +31,6 @@ import org.hibernate.id.Assigned;
 import org.hibernate.internal.SessionImpl;
 import org.hibernate.metadata.ClassMetadata;
 import org.hibernate.persister.entity.AbstractEntityPersister;
-import org.hibernate.type.IntegerType;
 import org.jdom.Attribute;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -43,7 +41,9 @@ import org.jdom.output.XMLOutputter;
 /**
  * Utility class responsible for managing cached Hibernate-mapped dictionary classes.
  * <p>
- * This class follows the singleton idiom for Java, in that classes may not directly instantiate a DictionaryManager, but may retrieve an instance that is instantiated only once for the project. This singleton maintains a cache of the loaded dictionaries and their values, and provides the interface through which the dictionaries can be interacted with.
+ * This class follows the singleton idiom for Java, in that classes may not directly instantiate a DictionaryManager, but may retrieve an instance that is
+ * instantiated only once for the project. This singleton maintains a cache of the loaded dictionaries and their values, and provides the interface through
+ * which the dictionaries can be interacted with.
  * <p>
  * Functionality provided by the DictionaryManager includes:
  * <ul>
@@ -53,9 +53,12 @@ import org.jdom.output.XMLOutputter;
  * <br>
  * <li>Methods to return the values of an individual dictionary, or all dictionaries as XML data</li>
  * <br>
- * <li>The ability to process inserts, updates, and deletes and automatically persist changes to any dictionary class extending DictionaryEntry, as well as updating the cached values for the modified dictionary entry</li>
+ * <li>The ability to process inserts, updates, and deletes and automatically persist changes to any dictionary class extending DictionaryEntry, as well as
+ * updating the cached values for the modified dictionary entry</li>
  * <br>
- * <li>Methods which can provide the functionality for the loadCommand and execute methods of an instance of the {@link hci.dictionary.utility.DictionaryCommand} class, that wishes to make use of the DictionaryManager. These methods wrap all logic needed to retrieve the appropriate parameters from the HttpServletRequest and execute the desired action (specified by {@link hci.dictionary.utility.DictionaryActions} ).
+ * <li>Methods which can provide the functionality for the loadCommand and execute methods of an instance of the
+ * {@link hci.dictionary.utility.DictionaryCommand} class, that wishes to make use of the DictionaryManager. These methods wrap all logic needed to retrieve the
+ * appropriate parameters from the HttpServletRequest and execute the desired action (specified by {@link hci.dictionary.utility.DictionaryActions} ).
  * </ul>
  *
  * @author Cody Haroldsen
@@ -98,7 +101,8 @@ public final class DictionaryManager implements DictionaryActions, Serializable 
    *
    * @return The singleton DictionaryManager, which can then be used to interact with the cached dictionaries
    */
-  public static synchronized DictionaryManager getDictionaryManager(String dictionaryXmlFile, Session sess, Object o, boolean includeNullEntry) {
+public static synchronized DictionaryManager getDictionaryManager(String dictionaryXmlFile, Session sess, Object o,
+		boolean includeNullEntry) {
     DictionaryManager manager = null;
 
     if (managerMap.containsKey(dictionaryXmlFile)) {
@@ -196,7 +200,8 @@ public final class DictionaryManager implements DictionaryActions, Serializable 
     }
   }
 
-  private void registerDictionary(String className, String dictionaryName, HashMap<String, Filter> filters, ArrayList<Filter> filterList, boolean editable, boolean scrubEntries) {
+private void registerDictionary(String className, String dictionaryName, HashMap<String, Filter> filters,
+		ArrayList<Filter> filterList, boolean editable, boolean scrubEntries) {
     try {
       // If the parameter is actually a DictionaryEntry, register it
       if (DictionaryEntry.class.isAssignableFrom(Class.forName(className, true, loader))) {
@@ -443,7 +448,9 @@ public final class DictionaryManager implements DictionaryActions, Serializable 
   /**
    * Loads the specified command object with the parameters required to execute a given DictionaryAction, from the http request.
    * <p>
-   * A valid action (specified by {@link hci.dictionary.utility.DictionaryActions}) must be included as a parameter named 'action' in the http request. If the action parameter exists and has an appropriate value, this method will load the necessary parameters from the request into the {@link hci.dictionary.utility.DictionaryCommand}, in order to later process the command when the execute method is called.
+ * A valid action (specified by {@link hci.dictionary.utility.DictionaryActions}) must be included as a parameter named 'action' in the http request. If the
+ * action parameter exists and has an appropriate value, this method will load the necessary parameters from the request into the
+ * {@link hci.dictionary.utility.DictionaryCommand}, in order to later process the command when the execute method is called.
    * <p>
    * Valid actions are: <br>
    * <ul>
@@ -469,7 +476,8 @@ public final class DictionaryManager implements DictionaryActions, Serializable 
     // Load the necessary parameters for the requested DictionaryAction
     if (LOAD_XML.equals(command.action) || OPEN_EDITOR.equals(command.action) || LOAD_METADATA.equals(command.action)) {
       command.className = request.getParameter("className");
-    } else if (INSERT_ENTRY.equals(command.action) || UPDATE_ENTRY.equals(command.action) || DELETE_ENTRY.equals(command.action)) {
+	} else if (INSERT_ENTRY.equals(command.action) || UPDATE_ENTRY.equals(command.action)
+			|| DELETE_ENTRY.equals(command.action)) {
 
       command.className = request.getParameter("className");
       if (command.className == null || command.className.equals("")) {
@@ -478,7 +486,8 @@ public final class DictionaryManager implements DictionaryActions, Serializable 
         try {
           // Instantiate the DictionaryEntry class
           Class<?> c = Class.forName(command.className, true, loader);
-          command.dictionaryEntry = (DictionaryEntry) c.getConstructor(new Class[] {}).newInstance(new Object[] {});
+				command.dictionaryEntry = (DictionaryEntry) c.getConstructor(new Class[] {}).newInstance(
+						new Object[] {});
 
           // Load the DictionaryEntry (DetailObject) from the request
           command.loadDetailObject(request, command.dictionaryEntry);
@@ -509,7 +518,8 @@ public final class DictionaryManager implements DictionaryActions, Serializable 
    *
    * @throws HibernateException
    */
-  public void executeCommand(DictionaryCommand command, Session sess, SecurityAdvisor securityAdvisor) throws HibernateException {
+public void executeCommand(DictionaryCommand command, Session sess, SecurityAdvisor securityAdvisor)
+		throws HibernateException {
     this.executeCommand(command, sess, securityAdvisor, false);
   }
 
@@ -533,7 +543,8 @@ public final class DictionaryManager implements DictionaryActions, Serializable 
    *
    * @throws HibernateException
    */
-  public void executeCommand(DictionaryCommand command, Session sess, SecurityAdvisor securityAdvisor, boolean includeNullEntry) throws HibernateException {
+public void executeCommand(DictionaryCommand command, Session sess, SecurityAdvisor securityAdvisor,
+		boolean includeNullEntry) throws HibernateException {
     // Perform the requested DictionaryAction
     synchronized (this) {
       this.loader = command.getClass().getClassLoader();
@@ -542,7 +553,8 @@ public final class DictionaryManager implements DictionaryActions, Serializable 
       if (LOAD_XML.equals(command.action)) {
         // get the XML for a specific dictionary
         if (command.className != null && !command.className.equals("")) {
-          command.xmlResult = "<Dictionaries>" + this.getDictionaryXML(command.className, securityAdvisor) + "</Dictionaries>";
+				command.xmlResult = "<Dictionaries>" + this.getDictionaryXML(command.className, securityAdvisor)
+						+ "</Dictionaries>";
         }
         // get the XML for all dictionaries
         else {
@@ -592,7 +604,8 @@ public final class DictionaryManager implements DictionaryActions, Serializable 
             } catch (CloneNotSupportedException ex) {
             }
 
-            Object oldObj = sess.get(command.dictionaryEntry.getClass(), meta.getIdentifier(command.dictionaryEntry, (SessionImpl) sess));
+					Object oldObj = sess.get(command.dictionaryEntry.getClass(),
+							meta.getIdentifier(command.dictionaryEntry, (SessionImpl) sess));
 
             // Remove the cached dictionary entry (necessary, in case the value
             // property is actually changed,
@@ -620,7 +633,8 @@ public final class DictionaryManager implements DictionaryActions, Serializable 
 
           if (securityAdvisor.canUpdate(command.dictionaryEntry)) {
             ClassMetadata meta = sess.getSessionFactory().getClassMetadata(command.dictionaryEntry.getClass());
-            Object oldObj = sess.get(command.dictionaryEntry.getClass(), meta.getIdentifier(command.dictionaryEntry, (SessionImpl) sess));
+					Object oldObj = sess.get(command.dictionaryEntry.getClass(),
+							meta.getIdentifier(command.dictionaryEntry, (SessionImpl) sess));
 
             Dictionary dict = null;
             try {
@@ -635,10 +649,12 @@ public final class DictionaryManager implements DictionaryActions, Serializable 
               // If the above failed (constraint violation?) try setting is
               // Active = N
               try {
-                Method m = command.dictionaryEntry.getClass().getMethod("setIsActive", new Class[] { String.class });
+							Method m = command.dictionaryEntry.getClass().getMethod("setIsActive",
+									new Class[] { String.class });
 
                 sess.clear();
-                oldObj = sess.get(command.dictionaryEntry.getClass(), meta.getIdentifier(command.dictionaryEntry, (SessionImpl) sess));
+							oldObj = sess.get(command.dictionaryEntry.getClass(),
+									meta.getIdentifier(command.dictionaryEntry, (SessionImpl) sess));
 
                 // isActive exists - mark inactive
                 m.invoke(oldObj, new Object[] { "N" });
@@ -689,7 +705,8 @@ public final class DictionaryManager implements DictionaryActions, Serializable 
   }
 
   /**
-   * This Dictionary class is a private inner class of DictionaryManager, so that it is not visible to developers using the HCIDictionary.jar, since there might be some confusion about which class to extend (Dictionary or DictionaryEntry).
+ * This Dictionary class is a private inner class of DictionaryManager, so that it is not visible to developers using the HCIDictionary.jar, since there might
+ * be some confusion about which class to extend (Dictionary or DictionaryEntry).
    *
    * @author sharoldsen
    */
@@ -704,7 +721,8 @@ public final class DictionaryManager implements DictionaryActions, Serializable 
     public boolean isEditable = false;
     public boolean scrubEntries = false;
 
-    public Dictionary(String className, String displayName, HashMap<String, Filter> filters, ArrayList<Filter> filterList, boolean editable, boolean scrub) {
+public Dictionary(String className, String displayName, HashMap<String, Filter> filters, ArrayList<Filter> filterList,
+		boolean editable, boolean scrub) {
       this.className = className;
       this.displayName = displayName;
       this.filterList = filterList;
@@ -841,7 +859,8 @@ public final class DictionaryManager implements DictionaryActions, Serializable 
       }
     }
 
-    public boolean getCanWriteFilters(DictionaryEntry de, SecurityAdvisor securityAdvisor) throws UnknownPermissionException {
+public boolean getCanWriteFilters(DictionaryEntry de, SecurityAdvisor securityAdvisor)
+		throws UnknownPermissionException {
       boolean canWrite = true;
 
       if (this.getFilters() != null) {
@@ -855,7 +874,8 @@ public final class DictionaryManager implements DictionaryActions, Serializable 
             try {
               DictionaryEntry de2 = (DictionaryEntry) dict.getDictionaryEntryMap().get(fieldValueString);
               if (de2 != null) {
-                canWrite = canWrite && securityAdvisor.canUpdate(de2) && dict.getCanWriteFilters(de2, securityAdvisor);
+						canWrite = canWrite && securityAdvisor.canUpdate(de2)
+								&& dict.getCanWriteFilters(de2, securityAdvisor);
               }
             } catch (Exception e) {
             }
@@ -905,7 +925,8 @@ public final class DictionaryManager implements DictionaryActions, Serializable 
           }
           // Add space if the character is upper case followed by or preceded by
           // a lower case character
-          else if (c.toUpperCase().equals(c) && (!cPrev.toUpperCase().equals(cPrev) || (cNext != null && !cNext.toUpperCase().equals(cNext)))) {
+			else if (c.toUpperCase().equals(c)
+					&& (!cPrev.toUpperCase().equals(cPrev) || (cNext != null && !cNext.toUpperCase().equals(cNext)))) {
             display += " " + c;
           } else {
             display += c;
@@ -970,7 +991,8 @@ public final class DictionaryManager implements DictionaryActions, Serializable 
     }
 
     /**
-     * Returns this dictionary object as xml using reflection. Unlike the standard toXMLString() method in HibernateDetailObject, this does not include nodes for collections, and always uses the base class (Dictionary or DictionaryEntry, rather than a subclass) as the root node
+ * Returns this dictionary object as xml using reflection. Unlike the standard toXMLString() method in HibernateDetailObject, this does not include nodes for
+ * collections, and always uses the base class (Dictionary or DictionaryEntry, rather than a subclass) as the root node
      *
      * @return an XML string representing this dictionary
      */
@@ -1051,7 +1073,10 @@ public final class DictionaryManager implements DictionaryActions, Serializable 
             field.setAttribute("className", f.getFilterClass());
             field.setAttribute("dataField", f.getFilterField());
             field.setAttribute("dataType", "comboBox");
-            field.setAttribute("caption", parseFilterDisplay((dict != null) ? dict.getDisplayName() : this.parseDisplay(f.getFilterField())));
+				field.setAttribute(
+						"caption",
+						parseFilterDisplay((dict != null) ? dict.getDisplayName() : this.parseDisplay(f
+								.getFilterField())));
             field.setAttribute("visible", "Y");
             dictionary.addContent(field);
           }
@@ -1063,7 +1088,8 @@ public final class DictionaryManager implements DictionaryActions, Serializable 
           ClassMetadata meta = sess.getSessionFactory().getClassMetadata(Class.forName(this.className, true, loader));
           java.util.List<String> propertyNames = Arrays.asList(meta.getPropertyNames());
 
-          Object o = Class.forName(this.className, true, loader).getConstructor(new Class[] {}).newInstance(new Object[] {});
+			Object o = Class.forName(this.className, true, loader).getConstructor(new Class[] {})
+					.newInstance(new Object[] {});
           ((DictionaryEntry) o).registerMethodsToExcludeFromXML();
 
           HashMap<?, ?> controls = new HashMap<Object, Object>();
@@ -1074,16 +1100,23 @@ public final class DictionaryManager implements DictionaryActions, Serializable 
             if (m.getName().indexOf("get") != -1 && m.getParameterTypes().length == 0) {
               // we have a getter - create a field, as long as the getter isn't
               // excluded
-              if ((((DictionaryEntry) o).getExcludedMethodsMap() == null || ((DictionaryEntry) o).getExcludedMethodsMap().get(m.getName()) == null) && !m.getName().equals("getDatakey") && !m.getName().equals("getCanWrite") && !m.getName().equals("getCanRead") && !m.getName().equals("getCanUpdate") && !m.getName().equals("getCanDelete")) {
+					if ((((DictionaryEntry) o).getExcludedMethodsMap() == null || ((DictionaryEntry) o)
+							.getExcludedMethodsMap().get(m.getName()) == null)
+							&& !m.getName().equals("getDatakey")
+							&& !m.getName().equals("getCanWrite")
+							&& !m.getName().equals("getCanRead")
+							&& !m.getName().equals("getCanUpdate") && !m.getName().equals("getCanDelete")) {
 
-                String fieldName = m.getName().substring(3, 4).toLowerCase() + ((m.getName().length() > 4) ? m.getName().substring(4) : "");
+						String fieldName = m.getName().substring(3, 4).toLowerCase()
+								+ ((m.getName().length() > 4) ? m.getName().substring(4) : "");
 
                 // Handle field names that start with a capital letter
                 try {
                   Class.forName(this.className, true, loader).getDeclaredField(fieldName);
                 } catch (Exception e) {
                   try {
-                    Class.forName(this.className, true, loader).getDeclaredField(fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1));
+								Class.forName(this.className, true, loader).getDeclaredField(
+										fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1));
                     fieldName = fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1);
                   } catch (Exception ex) {
                   }
@@ -1123,7 +1156,9 @@ public final class DictionaryManager implements DictionaryActions, Serializable 
                     dictionary.addContent(field);
                   } else {
                     // Make dates datepickers
-                    if (m.getReturnType().equals(java.util.Date.class) || m.getReturnType().equals(java.sql.Date.class) || m.getReturnType().equals(java.sql.Timestamp.class)) {
+								if (m.getReturnType().equals(java.util.Date.class)
+										|| m.getReturnType().equals(java.sql.Date.class)
+										|| m.getReturnType().equals(java.sql.Timestamp.class)) {
 
                       field = new Element("Field");
                       field.setAttribute("isFilter", "N");
@@ -1156,7 +1191,8 @@ public final class DictionaryManager implements DictionaryActions, Serializable 
                         field.setAttribute("visible", "Y");
                         field.setAttribute("isIdentifier", "N");
                       } else {
-                        if (isKeyColumn(meta, fieldName) && ((AbstractEntityPersister) meta).getIdentifierGenerator() instanceof Assigned) {
+										if (isKeyColumn(meta, fieldName)
+												&& ((AbstractEntityPersister) meta).getIdentifierGenerator() instanceof Assigned) {
                           field.setAttribute("visible", "Y");
                           field.setAttribute("isIdentifier", "Y");
                         } else {
@@ -1201,7 +1237,8 @@ public final class DictionaryManager implements DictionaryActions, Serializable 
   }
 
   /**
-   * This Dictionary class is a private inner class of DictionaryManager, so that it is not visible to developers using the HCIDictionary.jar. There should be no reason that it would need to be used outside the DictionaryManager and not having it visible should just make things simpler for users of this API.
+ * This Dictionary class is a private inner class of DictionaryManager, so that it is not visible to developers using the HCIDictionary.jar. There should be no
+ * reason that it would need to be used outside the DictionaryManager and not having it visible should just make things simpler for users of this API.
    *
    * @author sharoldsen
    */

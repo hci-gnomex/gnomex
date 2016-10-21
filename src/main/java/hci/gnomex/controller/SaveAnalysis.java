@@ -51,18 +51,19 @@ import java.util.TreeSet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
-import org.apache.log4j.Logger;
+
 public class SaveAnalysis extends GNomExCommand implements Serializable {
 
 	// the static field for logging in Log4J
 	private static Logger LOG = Logger.getLogger(SaveLab.class);
 
-	private String baseDir;
+// private String baseDir;
 
 	private String analysisGroupsXMLString;
 	private Document analysisGroupsDoc;
@@ -122,7 +123,7 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
 
 	public void loadCommand(HttpServletRequest request, HttpSession session) {
 
-		baseDir = request.getServerName();
+	// baseDir = request.getServerName();
 
 		analysisScreen = new Analysis();
 		HashMap errors = this.loadDetailObject(request, analysisScreen);
@@ -133,8 +134,12 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
 
 		StringReader reader = null;
 
-		if (request.getParameter("analysisGroupsXMLString") != null && !request.getParameter("analysisGroupsXMLString").equals("")) {
+	if (request.getParameter("analysisGroupsXMLString") != null
+			&& !request.getParameter("analysisGroupsXMLString").equals("")) {
 			analysisGroupsXMLString = request.getParameter("analysisGroupsXMLString");
+
+		// System.out.println("[SaveAnalysis] analysisGroupsXMLString: " + analysisGroupsXMLString);
+
 			reader = new StringReader(analysisGroupsXMLString);
 			try {
 				SAXBuilder sax = new SAXBuilder();
@@ -146,8 +151,10 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
 			}
 		}
 
-		if (request.getParameter("analysisFilesXMLString") != null && !request.getParameter("analysisFilesXMLString").equals("")) {
+	if (request.getParameter("analysisFilesXMLString") != null
+			&& !request.getParameter("analysisFilesXMLString").equals("")) {
 			analysisFilesXMLString = request.getParameter("analysisFilesXMLString");
+		// System.out.println("[SaveAnalysis] analysisFilesXMLString: " + analysisFilesXMLString);
 
 			reader = new StringReader(analysisFilesXMLString);
 			try {
@@ -163,6 +170,9 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
 
 		if (request.getParameter("hybsXMLString") != null && !request.getParameter("hybsXMLString").equals("")) {
 			hybsXMLString = request.getParameter("hybsXMLString");
+
+		// System.out.println("[SaveAnalysis] hybsXMLString: " + hybsXMLString);
+
 			reader = new StringReader(hybsXMLString);
 			try {
 				SAXBuilder sax = new SAXBuilder();
@@ -176,11 +186,13 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
 
 		if (request.getParameter("lanesXMLString") != null && !request.getParameter("lanesXMLString").equals("")) {
 			lanesXMLString = request.getParameter("lanesXMLString");
-		} else if (request.getParameter("experimentsXMLString") != null && !request.getParameter("experimentsXMLString").equals("")) {
+	} else if (request.getParameter("experimentsXMLString") != null
+			&& !request.getParameter("experimentsXMLString").equals("")) {
 			lanesXMLString = request.getParameter("experimentsXMLString");
 		}
 
 		if (lanesXMLString != null) {
+		// System.out.println("[SaveAnalysis] lanesXMLString: " + lanesXMLString);
 			reader = new StringReader(lanesXMLString);
 			try {
 				SAXBuilder sax = new SAXBuilder();
@@ -194,6 +206,7 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
 
 		if (request.getParameter("samplesXMLString") != null && !request.getParameter("samplesXMLString").equals("")) {
 			samplesXMLString = request.getParameter("samplesXMLString");
+		// System.out.println("[SaveAnalysis] samplesXMLString: " + samplesXMLString);
 			reader = new StringReader(samplesXMLString);
 			try {
 				SAXBuilder sax = new SAXBuilder();
@@ -205,8 +218,10 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
 			}
 		}
 
-		if (request.getParameter("collaboratorsXMLString") != null && !request.getParameter("collaboratorsXMLString").equals("")) {
+	if (request.getParameter("collaboratorsXMLString") != null
+			&& !request.getParameter("collaboratorsXMLString").equals("")) {
 			collaboratorsXMLString = request.getParameter("collaboratorsXMLString");
+		// System.out.println("[SaveAnalysis] collaboratorsXMLString: " + collaboratorsXMLString);
 			reader = new StringReader(collaboratorsXMLString);
 			try {
 				SAXBuilder sax = new SAXBuilder();
@@ -218,8 +233,11 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
 			}
 		}
 
-		if (request.getParameter("genomeBuildsXMLString") != null && !request.getParameter("genomeBuildsXMLString").equals("")) {
+	if (request.getParameter("genomeBuildsXMLString") != null
+			&& !request.getParameter("genomeBuildsXMLString").equals("")) {
 			genomeBuildsXMLString = request.getParameter("genomeBuildsXMLString");
+		// System.out.println("[SaveAnalysis] genomeBuildsXMLString: " + genomeBuildsXMLString);
+
 			reader = new StringReader(genomeBuildsXMLString);
 			try {
 				SAXBuilder sax = new SAXBuilder();
@@ -231,11 +249,13 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
 			}
 		}
 
-		if (request.getParameter("newAnalysisGroupName") != null && !request.getParameter("newAnalysisGroupName").equals("")) {
+	if (request.getParameter("newAnalysisGroupName") != null
+			&& !request.getParameter("newAnalysisGroupName").equals("")) {
 			newAnalysisGroupName = request.getParameter("newAnalysisGroupName");
 			isNewAnalysisGroup = true;
 		}
-		if (request.getParameter("newAnalysisGroupDescription") != null && !request.getParameter("newAnalysisGroupDescription").equals("")) {
+	if (request.getParameter("newAnalysisGroupDescription") != null
+			&& !request.getParameter("newAnalysisGroupDescription").equals("")) {
 			newAnalysisGroupDescription = request.getParameter("newAnalysisGroupDescription");
 		}
 
@@ -268,7 +288,7 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
 	public Command execute() throws RollBackCommandException {
 
 		try {
-			Session sess = HibernateSession.currentSession(this.getUsername());
+		Session sess = HibernateSession.currentSession(this.getUsername(), "SaveAnalysis");
 
 			// If the request parameters came from a batch java program
 			// (see hci.gnomex.httpclient.CreateAnalysis), then
@@ -307,7 +327,8 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
 			}
 
 			if (!this.getSecurityAdvisor().canUpdate(analysis)) {
-				this.addInvalidField("Insufficient permissions", "Insufficient permission to save " + analysis.getNumber() + " analysis.");
+			this.addInvalidField("Insufficient permissions", "Insufficient permission to save " + analysis.getNumber()
+					+ " analysis.");
 				setResponsePage(this.ERROR_JSP);
 			}
 
@@ -381,7 +402,8 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
 						// Relate the analysis to the specified analysis groups
 						for (Iterator i = analysisGroupParser.getAnalysisGroupMap().keySet().iterator(); i.hasNext();) {
 							String idAnalysisGroupString = (String) i.next();
-							AnalysisGroup ag = (AnalysisGroup) analysisGroupParser.getAnalysisGroupMap().get(idAnalysisGroupString);
+						AnalysisGroup ag = (AnalysisGroup) analysisGroupParser.getAnalysisGroupMap().get(
+								idAnalysisGroupString);
 							analysisGroups.add(ag);
 						}
 					}
@@ -525,7 +547,8 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
 					if (analysisFileParser != null) {
 						for (Iterator i = analysisFileParser.getAnalysisFileMap().keySet().iterator(); i.hasNext();) {
 							String idAnalysisFileString = (String) i.next();
-							AnalysisFile af = (AnalysisFile) analysisFileParser.getAnalysisFileMap().get(idAnalysisFileString);
+						AnalysisFile af = (AnalysisFile) analysisFileParser.getAnalysisFileMap().get(
+								idAnalysisFileString);
 							sess.save(af);
 						}
 					}
@@ -542,7 +565,8 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
 
 				// Remove any data track files linked to analysis files
 				if (analysisFileParser != null && analysisFileParser.getAnalysisFileToDeleteMap() != null) {
-					removeDataTrackFiles(sess, this.getSecAdvisor(), analysis, analysisFileParser.getAnalysisFileToDeleteMap());
+				removeDataTrackFiles(sess, this.getSecAdvisor(), analysis,
+						analysisFileParser.getAnalysisFileToDeleteMap());
 				}
 
 				// Get rid of removed analysis files
@@ -552,7 +576,8 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
 
 					for (Iterator i = analysisFileParser.getAnalysisFileToDeleteMap().keySet().iterator(); i.hasNext();) {
 						String idAnalysisFileString = (String) i.next();
-						AnalysisFile af = (AnalysisFile) analysisFileParser.getAnalysisFileToDeleteMap().get(idAnalysisFileString);
+					AnalysisFile af = (AnalysisFile) analysisFileParser.getAnalysisFileToDeleteMap().get(
+							idAnalysisFileString);
 
 						// Only delete from db if it was already present.
 						if (!idAnalysisFileString.startsWith("AnalysisFile") && !idAnalysisFileString.equals("")) {
@@ -590,8 +615,8 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
 						// TODO (performance): Would be better if app user was
 						// cached.
 						AnalysisCollaborator collaborator = (AnalysisCollaborator) sess.createQuery(
-								"SELECT ac from AnalysisCollaborator ac where idAnalysis = " + analysis.getIdAnalysis() + " and idAppUser = " + idAppUser)
-								.uniqueResult();
+							"SELECT ac from AnalysisCollaborator ac where idAnalysis = " + analysis.getIdAnalysis()
+									+ " and idAppUser = " + idAppUser).uniqueResult();
 
 						// If the collaborator doesn't exist, create it.
 						if (collaborator == null) {
@@ -640,8 +665,8 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
 				sendNotification(analysis, sess, state, Notification.SOURCE_TYPE_USER, Notification.TYPE_ANALYSIS);
 
 				// Create the analysis directory
-				String baseDir = PropertyDictionaryHelper.getInstance(sess)
-						.getDirectory(serverName, null, PropertyDictionaryHelper.PROPERTY_ANALYSIS_DIRECTORY);
+			String baseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, null,
+					PropertyDictionaryHelper.PROPERTY_ANALYSIS_DIRECTORY);
 				String analysisDir = getAnalysisDirectory(baseDir, analysis);
 				File ad = new File(analysisDir);
 				if (!ad.exists()) {
@@ -652,26 +677,22 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
 				if (isBatchMode) {
 					filePathInfo = " filePath=\"" + analysisDir + "\"";
 				}
-				this.xmlResult = "<SUCCESS idAnalysis=\"" + analysis.getIdAnalysis() + "\"" + " idAnalysisGroup=\"" + newAnalysisGroupId + "\"" + filePathInfo
-						+ "/>";
+			this.xmlResult = "<SUCCESS idAnalysis=\"" + analysis.getIdAnalysis() + "\"" + " idAnalysisGroup=\""
+					+ newAnalysisGroupId + "\"" + filePathInfo + "/>";
 
 				setResponsePage(this.SUCCESS_JSP);
 			}
 
 		} catch (Exception e) {
 			LOG.error("An exception has occurred in SaveAnalysis ", e);
-
 			throw new RollBackCommandException(e.getMessage());
-
-		} finally {
-			try {
-				HibernateSession.closeSession();
-			} catch (Exception e) {
-				LOG.error("An exception has occurred in SaveAnalysis ", e);
-
 			}
-		}
 
+	/*
+	 * finally { try { HibernateSession.closeSession("SaveAnalysis"); } catch (Exception e) { LOG.error("An exception has occurred in SaveAnalysis ", e);
+	 * 
+	 * } }
+	 */
 		return this;
 	}
 
@@ -697,7 +718,8 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
 		}
 	}
 
-	public static String removeDataTrackFiles(Session sess, SecurityAdvisor secAd, Analysis a, Map filesToDeleteMap) throws UnknownPermissionException {
+public static String removeDataTrackFiles(Session sess, SecurityAdvisor secAd, Analysis a, Map filesToDeleteMap)
+		throws UnknownPermissionException {
 
 		// No analysis files to delete
 		if (filesToDeleteMap != null) {
@@ -859,7 +881,8 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
 				throw new RollBackCommandException("genomeBuild not provided");
 			}
 
-			StringBuffer buf = new StringBuffer("SELECT gb from GenomeBuild gb where gb.genomeBuildName like '%" + genomeBuild + "%'");
+		StringBuffer buf = new StringBuffer("SELECT gb from GenomeBuild gb where gb.genomeBuildName like '%"
+				+ genomeBuild + "%'");
 			GenomeBuild gb = (GenomeBuild) sess.createQuery(buf.toString()).uniqueResult();
 			if (gb == null) {
 				throw new RollBackCommandException("Genome build " + genomeBuild + " not found in gnomex db");
@@ -888,8 +911,8 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
 			throw new RollBackCommandException("analysis group name not provided");
 		}
 
-		StringBuffer buf = new StringBuffer("SELECT ag from AnalysisGroup ag where ag.name = '" + newAnalysisGroupName + "' and ag.idLab = "
-				+ analysisScreen.getIdLab());
+	StringBuffer buf = new StringBuffer("SELECT ag from AnalysisGroup ag where ag.name = '" + newAnalysisGroupName
+			+ "' and ag.idLab = " + analysisScreen.getIdLab());
 		List results = sess.createQuery(buf.toString()).list();
 		if (results.size() > 0) {
 			existingAnalysisGroup = (AnalysisGroup) results.get(0);
@@ -923,15 +946,16 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
 		return directoryName;
 	}
 
-	private static void removeAnalysisFileFromTransferLog(Session sess, String baseDir, Analysis analysis, AnalysisFile analysisFile) {
+private static void removeAnalysisFileFromTransferLog(Session sess, String baseDir, Analysis analysis,
+		AnalysisFile analysisFile) {
 		String fileName = analysisFile.getFileName();
 		fileName = fileName.replaceAll("'", "''"); // Replace any single quotes
 													// in file with double
 													// quotes so SQL won't fail
 
 		// Remove references of the file in TransferLog
-		String queryBuf = "SELECT tl from TransferLog tl where tl.idAnalysis = " + analysis.getIdAnalysis() + " AND tl.fileName like '%"
-				+ new File(fileName).getName() + "'";
+	String queryBuf = "SELECT tl from TransferLog tl where tl.idAnalysis = " + analysis.getIdAnalysis()
+			+ " AND tl.fileName like '%" + new File(fileName).getName() + "'";
 		List transferLogs = sess.createQuery(queryBuf).list();
 		// Go ahead and delete the transfer log if there is just one row.
 		// If there are multiple transfer log rows for this filename, just
@@ -947,14 +971,16 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
 	public static void removeAnalysisFileFromFileSystem(String baseDir, Analysis analysis, AnalysisFile analysisFile) {
 		String fileName;
 		if (analysisFile.getQualifiedFilePath() != null && !analysisFile.getQualifiedFilePath().equals("")) {
-			fileName = analysisFile.getBaseFilePath() + "/" + analysisFile.getQualifiedFilePath() + "/" + analysisFile.getFileName();
+		fileName = analysisFile.getBaseFilePath() + "/" + analysisFile.getQualifiedFilePath() + "/"
+				+ analysisFile.getFileName();
 		} else {
 			fileName = analysisFile.getBaseFilePath() + "/" + analysisFile.getFileName();
 		}
 
 		File f = new File(fileName);
 		if (!f.delete()) {
-			LOG.error("Unable to remove " + analysisFile.getFileName() + " from file system for analysis " + analysis.getNumber());
+		LOG.error("Unable to remove " + analysisFile.getFileName() + " from file system for analysis "
+				+ analysis.getNumber());
 		}
 
 	}
@@ -1073,7 +1099,8 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
 							av = new PropertyEntryValue();
 							av.setIdPropertyEntry(pe.getIdPropertyEntry());
 						} else {
-							av = PropertyEntryValue.class.cast(sess.load(PropertyEntryValue.class, Integer.valueOf(idPropertyEntryValue)));
+						av = PropertyEntryValue.class.cast(sess.load(PropertyEntryValue.class,
+								Integer.valueOf(idPropertyEntryValue)));
 						}
 						av.setValue(n.getAttributeValue("value"));
 
@@ -1092,7 +1119,8 @@ public class SaveAnalysis extends GNomExCommand implements Serializable {
 						Integer idPropertyOption = Integer.parseInt(n.getAttributeValue("idPropertyOption"));
 						String selected = n.getAttributeValue("selected");
 						if (selected != null && selected.equals("Y")) {
-							PropertyOption option = PropertyOption.class.cast(sess.load(PropertyOption.class, idPropertyOption));
+						PropertyOption option = PropertyOption.class.cast(sess.load(PropertyOption.class,
+								idPropertyOption));
 							options.add(option);
 							if (optionValue.length() > 0) {
 								optionValue += ",";

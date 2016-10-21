@@ -237,7 +237,7 @@ public class EmailServlet extends GNomExCommand implements Serializable {
       throw new RollBackCommandException(e.getMessage());
     }  finally {
       try {
-        HibernateSession.closeSession();        
+        //closeHibernateSession;        
       } catch (Exception e1) {
         LOG.error("Error in emailServlet", e1);
       }

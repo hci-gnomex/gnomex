@@ -144,7 +144,7 @@ public class GenerateUserAccountEmail extends GNomExCommand implements Serializa
       throw new RollBackCommandException(e.getMessage());
     } finally {
       try {
-        this.getSecAdvisor().closeReadOnlyHibernateSession();        
+        //closeReadOnlyHibernateSession;        
       } catch(Exception e) {
         LOG.error("An exception has occurred in GenerateUserAccountEmail ", e);
       }

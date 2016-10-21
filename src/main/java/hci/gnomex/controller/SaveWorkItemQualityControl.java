@@ -197,7 +197,7 @@ public class SaveWorkItemQualityControl extends GNomExCommand implements Seriali
 
       }finally {
         try {
-          HibernateSession.closeSession();        
+          //closeHibernateSession;        
         } catch(Exception e){
         LOG.error("Error", e);
       }

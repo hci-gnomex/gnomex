@@ -25,8 +25,8 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
-import org.hibernate.Query;
 import org.hibernate.Session;
+import org.hibernate.query.Query;
 import org.jdom.output.XMLOutputter;
 
 @SuppressWarnings("serial")
@@ -84,7 +84,8 @@ public class SendBillingInvoiceEmail extends GNomExCommand implements Serializab
 		if (request.getParameter("emailAddress") != null && !request.getParameter("emailAddress").equals("")) {
 			emailAddress = request.getParameter("emailAddress");
 		}
-		if (request.getParameter("includeBillingAccountContact") != null && request.getParameter("includeBillingAccountContact").equalsIgnoreCase("Y")) {
+	if (request.getParameter("includeBillingAccountContact") != null
+			&& request.getParameter("includeBillingAccountContact").equalsIgnoreCase("Y")) {
 			includeBillingAccountContact = true;
 		} else {
 			includeBillingAccountContact = false;
@@ -115,12 +116,14 @@ public class SendBillingInvoiceEmail extends GNomExCommand implements Serializab
 	    			TreeMap requestMap = new TreeMap();
 	                TreeMap billingItemMap = new TreeMap();
 	                TreeMap relatedBillingItemMap = new TreeMap();
-	                ShowBillingInvoiceForm.cacheBillingItemMaps(sess, secAdvisor, idBillingPeriod, idLab, idBillingAccount, idCoreFacility, billingItemMap, relatedBillingItemMap, requestMap);
+				ShowBillingInvoiceForm.cacheBillingItemMaps(sess, secAdvisor, idBillingPeriod, idLab, idBillingAccount,
+						idCoreFacility, billingItemMap, relatedBillingItemMap, requestMap);
 	    			String contactEmail = this.emailAddress;
 	                if (contactEmail == null) {
 	                	contactEmail = lab.getBillingNotificationEmail();
 	                }
-	                this.sendInvoiceEmail(sess, contactEmail, coreFacility, billingPeriod, lab, billingAccount, billingItemMap, relatedBillingItemMap, requestMap);
+				this.sendInvoiceEmail(sess, contactEmail, coreFacility, billingPeriod, lab, billingAccount,
+						billingItemMap, relatedBillingItemMap, requestMap);
 			    }
 		    	
 		    }
@@ -135,34 +138,31 @@ public class SendBillingInvoiceEmail extends GNomExCommand implements Serializab
 			LOG.error("An exception has occurred in SendBillingInvoiceEmail ", e);
 
 			throw new RollBackCommandException(e.getMessage());
-		} finally {
-			try {
-				secAdvisor.closeHibernateSession();    
-			} catch(Exception e){
-        LOG.error("Error", e);
       }
-		}
 			
 		return this;
 	}
 	
 	private void sendInvoiceEmail(	Session sess, String contactEmail, CoreFacility coreFacility,
-									BillingPeriod billingPeriod, Lab lab, BillingAccount billingAccount, 
-									Map billingItemMap, Map relatedBillingItemMap, Map requestMap) throws Exception {
+		BillingPeriod billingPeriod, Lab lab, BillingAccount billingAccount, Map billingItemMap,
+		Map relatedBillingItemMap, Map requestMap) throws Exception {
 
-		Query query = sess.createQuery("from Invoice where idCoreFacility=:idCoreFacility and idBillingPeriod=:idBillingPeriod and idBillingAccount=:idBillingAccount");
+	Query query = sess
+			.createQuery("from Invoice where idCoreFacility=:idCoreFacility and idBillingPeriod=:idBillingPeriod and idBillingAccount=:idBillingAccount");
 		query.setParameter("idCoreFacility", idCoreFacility);
 		query.setParameter("idBillingPeriod", idBillingPeriod);
 		query.setParameter("idBillingAccount", idBillingAccount);
 		Invoice invoice = (Invoice) query.uniqueResult();
-		BillingInvoiceEmailFormatter emailFormatter = new BillingInvoiceEmailFormatter(sess, coreFacility, billingPeriod, lab, billingAccount, invoice, billingItemMap, relatedBillingItemMap, requestMap);
+	BillingInvoiceEmailFormatter emailFormatter = new BillingInvoiceEmailFormatter(sess, coreFacility, billingPeriod,
+			lab, billingAccount, invoice, billingItemMap, relatedBillingItemMap, requestMap);
 		String subject = emailFormatter.getSubject();
 		String body = emailFormatter.format();
 
 		String note = "";
 		boolean send = false;
 		String emailRecipients = contactEmail;
-		if (includeBillingAccountContact && billingAccount.getLab() != null && !lab.getIdLab().equals(billingAccount.getLab().getIdLab())) {
+	if (includeBillingAccountContact && billingAccount.getLab() != null
+			&& !lab.getIdLab().equals(billingAccount.getLab().getIdLab())) {
 			emailRecipients = this.appendBillingAccountLabEmail(emailRecipients, billingAccount);
 		}
 		String ccList = emailFormatter.getCCList(sess);
@@ -192,12 +192,23 @@ public class SendBillingInvoiceEmail extends GNomExCommand implements Serializab
 			}
 			try {
 				File billingInvoice = ShowBillingInvoiceForm.makePDFBillingInvoice(
-						sess, serverName, billingPeriod, coreFacility, false, lab, new Lab[0], 
-						billingAccount, new BillingAccount[0], PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(coreFacility.getIdCoreFacility(), 
-						PropertyDictionary.CONTACT_ADDRESS_CORE_FACILITY), PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(coreFacility.getIdCoreFacility(), 
-						PropertyDictionary.CONTACT_REMIT_ADDRESS_CORE_FACILITY), billingItemMaps, relatedBillingItemMaps, requestMaps);
+					sess,
+					serverName,
+					billingPeriod,
+					coreFacility,
+					false,
+					lab,
+					new Lab[0],
+					billingAccount,
+					new BillingAccount[0],
+					PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(
+							coreFacility.getIdCoreFacility(), PropertyDictionary.CONTACT_ADDRESS_CORE_FACILITY),
+					PropertyDictionaryHelper.getInstance(sess).getCoreFacilityProperty(
+							coreFacility.getIdCoreFacility(), PropertyDictionary.CONTACT_REMIT_ADDRESS_CORE_FACILITY),
+					billingItemMaps, relatedBillingItemMaps, requestMaps);
 
-				MailUtilHelper helper = new MailUtilHelper(emailRecipients, ccList, null, fromAddress, subject, body, billingInvoice, true, dh, serverName);
+			MailUtilHelper helper = new MailUtilHelper(emailRecipients, ccList, null, fromAddress, subject, body,
+					billingInvoice, true, dh, serverName);
 				MailUtil.validateAndSendEmail(helper);
 
 				billingInvoice.delete();
@@ -246,7 +257,8 @@ public class SendBillingInvoiceEmail extends GNomExCommand implements Serializab
 			org.jdom.Element root = new org.jdom.Element("BillingInvoiceEmail");
 			doc = new org.jdom.Document(root);
 			root.setAttribute("note", note);
-			root.setAttribute("title", "Email Billing Invoice - " + lab.getName(false, true) + " " + billingAccount.getAccountName());
+		root.setAttribute("title",
+				"Email Billing Invoice - " + lab.getName(false, true) + " " + billingAccount.getAccountName());
 		}
 
 		XMLOutputter out = new org.jdom.output.XMLOutputter();
@@ -262,9 +274,11 @@ public class SendBillingInvoiceEmail extends GNomExCommand implements Serializab
 		}
 
 		Lab lab = billingAccount.getLab();
-		if (lab.getBillingContactEmail() != null && !lab.getBillingContactEmail().equals("") && allRecipients.indexOf(lab.getBillingContactEmail()) == -1) {
+	if (lab.getBillingContactEmail() != null && !lab.getBillingContactEmail().equals("")
+			&& allRecipients.indexOf(lab.getBillingContactEmail()) == -1) {
 			allRecipients.append(lab.getBillingContactEmail());
-		} else if (lab.getContactEmail() != null && !lab.getContactEmail().equals("") && allRecipients.indexOf(lab.getContactEmail()) == -1) {
+	} else if (lab.getContactEmail() != null && !lab.getContactEmail().equals("")
+			&& allRecipients.indexOf(lab.getContactEmail()) == -1) {
 			allRecipients.append(lab.getContactEmail());
 		}
 
@@ -272,9 +286,8 @@ public class SendBillingInvoiceEmail extends GNomExCommand implements Serializab
 	}
 
 	/**
-	 * The callback method called after the loadCommand, and execute methods,
-	 * this method allows you to manipulate the HttpServletResponse object prior
-	 * to forwarding to the result JSP (add a cookie, etc.)
+ * The callback method called after the loadCommand, and execute methods, this method allows you to manipulate the HttpServletResponse object prior to
+ * forwarding to the result JSP (add a cookie, etc.)
 	 *
 	 * @param request
 	 *            The HttpServletResponse for the command

@@ -4,21 +4,29 @@ import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.billing.ProductPlugin;
 import hci.gnomex.constants.Constants;
-import hci.gnomex.model.*;
-import hci.gnomex.utility.*;
-import org.hibernate.SQLQuery;
-import org.hibernate.Session;
-import org.hibernate.internal.SessionImpl;
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.JDOMException;
-import org.jdom.input.SAXBuilder;
-import org.jdom.output.XMLOutputter;
+import hci.gnomex.model.BillingAccount;
+import hci.gnomex.model.BillingItem;
+import hci.gnomex.model.BillingPeriod;
+import hci.gnomex.model.BillingTemplate;
+import hci.gnomex.model.BillingTemplateItem;
+import hci.gnomex.model.CoreFacility;
+import hci.gnomex.model.Lab;
+import hci.gnomex.model.MasterBillingItem;
+import hci.gnomex.model.Price;
+import hci.gnomex.model.PriceCategory;
+import hci.gnomex.model.Product;
+import hci.gnomex.model.ProductLineItem;
+import hci.gnomex.model.ProductOrder;
+import hci.gnomex.model.ProductOrderStatus;
+import hci.gnomex.model.ProductType;
+import hci.gnomex.model.PropertyDictionary;
+import hci.gnomex.utility.BillingTemplateParser;
+import hci.gnomex.utility.DictionaryHelper;
+import hci.gnomex.utility.HibernateSession;
+import hci.gnomex.utility.MailUtil;
+import hci.gnomex.utility.MailUtilHelper;
+import hci.gnomex.utility.PropertyDictionaryHelper;
 
-import javax.mail.MessagingException;
-import javax.naming.NamingException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.io.Serializable;
 import java.io.StringReader;
@@ -27,8 +35,29 @@ import java.math.BigInteger;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
+
+import javax.mail.MessagingException;
+import javax.naming.NamingException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
 import org.apache.log4j.Logger;
+import org.hibernate.Session;
+import org.hibernate.internal.SessionImpl;
+import org.hibernate.query.NativeQuery;
+import org.jdom.Document;
+import org.jdom.Element;
+import org.jdom.JDOMException;
+import org.jdom.input.SAXBuilder;
+import org.jdom.output.XMLOutputter;
+
 public class SaveProductOrder extends GNomExCommand implements Serializable {
 
 	private static Logger LOG = Logger.getLogger(SaveProductOrder.class);
@@ -95,13 +124,15 @@ public class SaveProductOrder extends GNomExCommand implements Serializable {
 			this.addInvalidField("idLab", "Missing idLab");
 		}
 
-		if (request.getParameter("codeProductOrderStatus") != null && !request.getParameter("codeProductOrderStatus").equals("")) {
+	if (request.getParameter("codeProductOrderStatus") != null
+			&& !request.getParameter("codeProductOrderStatus").equals("")) {
 			codeProductOrderStatus = request.getParameter("codeProductOrderStatus");
 		} else {
 			this.addInvalidField("codeProductOrderStatus", "Missing codeProductOrderStatus");
 		}
 
-		if (request.getParameter("productListXMLString") != null && !request.getParameter("productListXMLString").equals("")) {
+	if (request.getParameter("productListXMLString") != null
+			&& !request.getParameter("productListXMLString").equals("")) {
 			productListXMLString = request.getParameter("productListXMLString");
 		} else {
 			this.addInvalidField("productListXMLString", "Missing productListXMLString");
@@ -134,7 +165,8 @@ public class SaveProductOrder extends GNomExCommand implements Serializable {
 
 				for (Iterator i = productDoc.getRootElement().getChildren().iterator(); i.hasNext();) {
 					Element n = (Element) i.next();
-					if (n.getAttribute("quantity") == null || n.getAttributeValue("quantity").equals("") || n.getAttributeValue("quantity").equals("0")) {
+				if (n.getAttribute("quantity") == null || n.getAttributeValue("quantity").equals("")
+						|| n.getAttributeValue("quantity").equals("0")) {
 						continue;
 					}
 					if (!productTypes.containsKey(Integer.parseInt(n.getAttributeValue("idProductType")))) {
@@ -142,7 +174,8 @@ public class SaveProductOrder extends GNomExCommand implements Serializable {
 						products.add(n);
 						productTypes.put(Integer.parseInt(n.getAttributeValue("idProductType")), products);
 					} else {
-						ArrayList<Element> existingList = productTypes.get(Integer.parseInt(n.getAttributeValue("idProductType")));
+					ArrayList<Element> existingList = productTypes.get(Integer.parseInt(n
+							.getAttributeValue("idProductType")));
 						existingList.add(n);
 						productTypes.put(Integer.parseInt(n.getAttributeValue("idProductType")), existingList);
 					}
@@ -198,7 +231,8 @@ public class SaveProductOrder extends GNomExCommand implements Serializable {
 
 						for (Element n : products) {
 							if (n.getAttributeValue("isSelected").equals("Y") && n.getAttributeValue("quantity") != null
-									&& !n.getAttributeValue("quantity").equals("") && !n.getAttributeValue("quantity").equals("0")) {
+								&& !n.getAttributeValue("quantity").equals("")
+								&& !n.getAttributeValue("quantity").equals("0")) {
 								ProductLineItem pi = new ProductLineItem();
 								Price p = sess.load(Price.class, Integer.parseInt(n.getAttributeValue("idPrice")));
 								initializeProductLineItem(pi, po.getIdProductOrder(), n, p.getEffectiveUnitPrice(lab));
@@ -222,11 +256,14 @@ public class SaveProductOrder extends GNomExCommand implements Serializable {
 						poNode.setAttribute("submitDate", po.getSubmitDate().toString());
 						poNode.setAttribute("status", orderStatus);
 						poNode.setAttribute("idLab", idLab == null ? "" : idLab.toString());
-						poNode.setAttribute("idProductOrder", po.getIdProductOrder() != null ? po.getIdProductOrder().toString() : "");
-						poNode.setAttribute("productOrderNumber", po.getProductOrderNumber() != null ? po.getProductOrderNumber() : "");
+					poNode.setAttribute("idProductOrder", po.getIdProductOrder() != null ? po.getIdProductOrder()
+							.toString() : "");
+					poNode.setAttribute("productOrderNumber",
+							po.getProductOrderNumber() != null ? po.getProductOrderNumber() : "");
 						outputDoc.getRootElement().addContent(poNode);
 
-						List<BillingItem> billingItems = productPlugin.constructBillingItems(sess, billingPeriod, priceCategory, po, productLineItems, billingTemplate);
+					List<BillingItem> billingItems = productPlugin.constructBillingItems(sess, billingPeriod,
+							priceCategory, po, productLineItems, billingTemplate);
 
 						for (MasterBillingItem masterBillingItem : billingTemplate.getMasterBillingItems()) {
 							sess.save(masterBillingItem);
@@ -263,7 +300,7 @@ public class SaveProductOrder extends GNomExCommand implements Serializable {
 			throw new RollBackCommandException(e.toString());
 		} finally {
 			try {
-				HibernateSession.closeSession();
+			//closeHibernateSession;
 			} catch (Exception e) {
 				LOG.error("An exception has occurred while emailing in SaveRequest ", e);
 			}
@@ -272,8 +309,8 @@ public class SaveProductOrder extends GNomExCommand implements Serializable {
 		return this;
 	}
 
-	public static void sendConfirmationEmail(Session sess, ProductOrder po, String orderStatus, String serverName) throws NamingException, MessagingException,
-			IOException {
+public static void sendConfirmationEmail(Session sess, ProductOrder po, String orderStatus, String serverName)
+		throws NamingException, MessagingException, IOException {
 
 		DictionaryHelper dictionaryHelper = DictionaryHelper.getInstance(sess);
 		PropertyDictionaryHelper pdh = PropertyDictionaryHelper.getInstance(sess);
@@ -305,13 +342,14 @@ public class SaveProductOrder extends GNomExCommand implements Serializable {
 		}
 
 		StringBuffer body = new StringBuffer();
-        body.append("  <STYLE TYPE=\"text/css\">" +
-                "TD{font-family: Arial; font-size: 9pt;}" +
-                "</STYLE><FONT face=\"arial\" size=\"9pt\">");
+	body.append("  <STYLE TYPE=\"text/css\">" + "TD{font-family: Arial; font-size: 9pt;}"
+			+ "</STYLE><FONT face=\"arial\" size=\"9pt\">");
 		if (orderStatus.equals(ProductOrderStatus.NEW)) {
-			body.append("Product Order " + po.getProductOrderNumber() + " has been submitted to the " + cf.getFacilityName() + ".<br>");
+		body.append("Product Order " + po.getProductOrderNumber() + " has been submitted to the "
+				+ cf.getFacilityName() + ".<br>");
 		} else if (orderStatus.equals(ProductOrderStatus.COMPLETED)) {
-			body.append("Product Order " + po.getProductOrderNumber() + " has been completed and the products are ready for your use.<br>");
+		body.append("Product Order " + po.getProductOrderNumber()
+				+ " has been completed and the products are ready for your use.<br>");
 		}
 
         body.append("<br><table border='0' width='400'>");
@@ -326,7 +364,8 @@ public class SaveProductOrder extends GNomExCommand implements Serializable {
 
 		body.append("<br><br><FONT COLOR=\"#ff0000\">" + noAppUserEmailMsg + "</FONT></FONT>");
 
-		MailUtilHelper mailHelper = new MailUtilHelper(toAddress, fromAddress, subject, body.toString(), null, true, dictionaryHelper, serverName);
+	MailUtilHelper mailHelper = new MailUtilHelper(toAddress, fromAddress, subject, body.toString(), null, true,
+			dictionaryHelper, serverName);
 
 		MailUtil.validateAndSendEmail(mailHelper);
 
@@ -345,9 +384,9 @@ public class SaveProductOrder extends GNomExCommand implements Serializable {
             estimatedCost = pli.getUnitPrice().multiply(new BigDecimal(pli.getQty()));
             grandTotal = grandTotal.add(estimatedCost);
 
-            productTableString.append("<tr><td>" + p.getDisplay() + "</td><td align=\"center\">" + pli.getQty() + "</td><td align=\"right\">$" + estimatedCost + "</td></tr>");
+		productTableString.append("<tr><td>" + p.getDisplay() + "</td><td align=\"center\">" + pli.getQty()
+				+ "</td><td align=\"right\">$" + estimatedCost + "</td></tr>");
         }
-
 
         productTableString.append("</table>");
         productTableString.append("<br>Grand Total:  $" + grandTotal);
@@ -368,7 +407,7 @@ public class SaveProductOrder extends GNomExCommand implements Serializable {
 			} else {
 				queryString = "call " + procedure;
 			}
-			SQLQuery query = sess.createSQLQuery(queryString);
+		NativeQuery query = sess.createNativeQuery(queryString);
 			List l = query.list();
 			if (l.size() != 0) {
 				Object o = l.get(0);

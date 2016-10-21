@@ -104,7 +104,7 @@ public class SaveBillingAccountFieldsConfiguration extends GNomExCommand impleme
           
       }finally {
         try {
-          HibernateSession.closeSession();        
+          //closeHibernateSession;        
         } catch(Exception e){
         LOG.error("Error", e);
       }

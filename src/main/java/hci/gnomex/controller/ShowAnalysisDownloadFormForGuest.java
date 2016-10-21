@@ -126,7 +126,7 @@ public class ShowAnalysisDownloadFormForGuest extends GNomExCommand implements S
 		} finally {
 			try {
 				if (sess != null) {
-					HibernateSession.closeSession();
+					//closeHibernateSession;
 				}
 			} catch (Exception e) {
 				LOG.error("An exception has occurred in ShowAnalysisDownloadFormForGuest ", e);

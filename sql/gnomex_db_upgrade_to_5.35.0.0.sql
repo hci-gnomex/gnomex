@@ -53,7 +53,9 @@ CALL ExecuteIfTableExists('gnomex','Sample_Audit','alter table Sample_Audit add 
 create table LibraryPrepQCProtocol(
 idLibPrepQCProtocol int AUTO_INCREMENT Primary Key,
 protocolDisplay varchar(50) not null,
-codeRequestCategory varchar(10) not null,
+codeRequestCategory varchar(10) not null
+) ENGINE = INNODB;
+
 constraint FK_RequestCategory_LibraryPrepQCProtocol foreign key (codeRequestCategory) references RequestCategory(codeRequestCategory)
 ) ENGINE = INNODB;
 
@@ -66,12 +68,11 @@ alter table Sample add sampleVolume decimal (8,1) NULL;
 CALL ExecuteIfTableExists('gnomex','Sample_Audit','alter table Sample_Audit add sampleVolume decimal(8,1) NULL');
 
 create table LibraryPrepQCProtocol_Audit(
-idLibPrepQCProtocol int not null,
-protocolDisplay varchar(50) not null,
-codeRequestCategory varchar(10) not null,
 AuditAppuser varchar(128) NULL,
 AuditOperation char(1) NULL,
 AuditSystemUser varchar(30) NULL,
 AuditOperatioDate datetime NULL,
-AuditEditedByPersonID numeric(7, 0) NULL
+idLibPrepQCProtocol int not null,
+protocolDisplay varchar(50) not null,
+codeRequestCategory varchar(10) not null
 );

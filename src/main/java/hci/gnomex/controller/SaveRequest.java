@@ -101,8 +101,8 @@ import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import org.hibernate.Query;
-import org.hibernate.SQLQuery;
+import org.hibernate.query.Query;
+import org.hibernate.query.NativeQuery;
 import org.hibernate.Session;
 import org.hibernate.internal.SessionImpl;
 import org.jdom.Document;
@@ -992,7 +992,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 			try {
 
 				if (sess != null) {
-					HibernateSession.closeSession();
+					//closeHibernateSession;
 				}
 			} catch (Exception e) {
 				LOG.error("An exception has occurred in SaveRequest ", e);
@@ -1155,7 +1155,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 					if (sessGuest != null) {
 						// dont close the session b/c the same one is being used during save request
 						// sessGuest.close();
-						// this.getSecAdvisor().closeReadOnlyHibernateSession();
+						// //closeReadOnlyHibernateSession;
 					}
 				} catch (Exception e) {
 					LOG.error("An exception has occurred in SaveRequest ", e);
@@ -1216,7 +1216,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 				queryString = "select " + procedure + "();";
 			}
 
-			SQLQuery query = sess.createSQLQuery(queryString);
+			NativeQuery query = sess.createNativeQuery(queryString);
 			List l = query.list();
 			if (l.size() != 0) {
 				Object o = l.get(0);
@@ -1245,7 +1245,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 				} else {
 					queryString = "select " + procedure + "();";
 				}
-				SQLQuery query = sess.createSQLQuery(queryString);
+				NativeQuery query = sess.createNativeQuery(queryString);
 				List l = query.list();
 				if (l.size() != 0) {
 					Object o = l.get(0);

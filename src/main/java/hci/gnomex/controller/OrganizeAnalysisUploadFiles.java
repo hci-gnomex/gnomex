@@ -22,19 +22,15 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import org.hibernate.Query;
+import org.apache.log4j.Logger;
 import org.hibernate.Session;
+import org.hibernate.query.Query;
 import org.jdom.Document;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.jdom.output.XMLOutputter;
-import org.apache.log4j.Logger;
-
-
 
 public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serializable {
-
-
 
   // the static field for logging in Log4J
   private static Logger LOG = Logger.getLogger(OrganizeAnalysisUploadFiles.class);
@@ -49,10 +45,8 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
 
   private String                       serverName;
 
-
   public void validate() {
   }
-
 
   public void loadCommand(HttpServletRequest request, HttpSession session) {
 
@@ -76,8 +70,10 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
       }
     }
 
-    if (request.getParameter("filesToRemoveXMLString") != null && !request.getParameter("filesToRemoveXMLString").equals("")) {
-      filesToRemoveXMLString = "<FilesToRemove>" + request.getParameter("filesToRemoveXMLString") +  "</FilesToRemove>";
+	if (request.getParameter("filesToRemoveXMLString") != null
+			&& !request.getParameter("filesToRemoveXMLString").equals("")) {
+		filesToRemoveXMLString = "<FilesToRemove>" + request.getParameter("filesToRemoveXMLString")
+				+ "</FilesToRemove>";
 
       StringReader reader = new StringReader(filesToRemoveXMLString);
       try {
@@ -104,7 +100,8 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
 
         Analysis analysis = (Analysis)sess.load(Analysis.class, idAnalysis);
 
-        String baseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, null, PropertyDictionaryHelper.PROPERTY_ANALYSIS_DIRECTORY);
+			String baseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, null,
+					PropertyDictionaryHelper.PROPERTY_ANALYSIS_DIRECTORY);
         baseDir += analysis.getCreateYear() ;
 
         if (this.getSecAdvisor().canUploadData(analysis)) {
@@ -136,8 +133,7 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
 
             if(!f1.renameTo(f2)){
               throw new Exception("Error Renaming File");
-            }
-            else{
+					} else {
               // Rename the files in the DB
               if (idFileString != null) {
                 AnalysisFile af;
@@ -155,8 +151,7 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
                   af.setQualifiedFilePath(qualifiedFilePath);
                   sess.save(af);
                   sess.flush();
-                }
-                else{
+							} else {
                   for(Iterator j = parser.getChildrenToMoveMap().keySet().iterator(); j.hasNext();){
                     String oldFileName = (String)j.next();
                     String [] afParts = (String [])parser.getChildrenToMoveMap().get(oldFileName);
@@ -172,7 +167,6 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
 
                     sess.save(af);
                     sess.flush();
-
 
                   }
                 }
@@ -214,12 +208,13 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
               if (lastIndex != -1) {
                 baseFileName = fileName.substring(lastIndex);
               }
-              Boolean duplicateUpload = fileNames.contains(baseDir + "\\" + analysis.getNumber() + "\\" + Constants.UPLOAD_STAGING_DIR + baseFileName);
+						Boolean duplicateUpload = fileNames.contains(baseDir + "\\" + analysis.getNumber() + "\\"
+								+ Constants.UPLOAD_STAGING_DIR + baseFileName);
               String mostRecentFile = "";
               if(duplicateUpload){
-                mostRecentFile = (String)fileNames.get(fileNames.indexOf(baseDir + "\\" + analysis.getNumber() + "\\" + Constants.UPLOAD_STAGING_DIR + baseFileName));
+							mostRecentFile = (String) fileNames.get(fileNames.indexOf(baseDir + "\\"
+									+ analysis.getNumber() + "\\" + Constants.UPLOAD_STAGING_DIR + baseFileName));
               }
-
 
               // Change qualifiedFilePath if the file is registered in the db
               if ( parser.getFileIdMap().containsKey(fileName) ) {
@@ -230,7 +225,8 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
                   AnalysisFile af = new AnalysisFile();
                   if (!idFileString.startsWith("AnalysisFile") && !idFileString.equals("")) {
                     af = (AnalysisFile)sess.load(AnalysisFile.class, new Integer(idFileString));
-                  } else if(idFileString.startsWith("AnalysisFile")){ //new File(baseDir + "\\" + analysis.getNumber() + baseFileName).exists()  WHY DO WE NEED THIS?  MAYBE WE DON"T
+								} else if (idFileString.startsWith("AnalysisFile")) { // new File(baseDir + "\\" + analysis.getNumber() + baseFileName).exists()
+																						// WHY DO WE NEED THIS? MAYBE WE DON"T
                     af = new AnalysisFile();
                     af.setUploadDate(new java.sql.Date(System.currentTimeMillis()));
                     af.setCreateDate(new java.sql.Date(System.currentTimeMillis()));
@@ -258,8 +254,7 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
                       i1.remove();
                       i1 = fileNames.iterator();
                     }
-                  }
-                  else{
+								} else {
                     if(new File(fileName).exists()){
                       af.setFileSize(new BigDecimal(new File(fileName).length()));
                     }
@@ -309,7 +304,8 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
                         // If can't delete directory then try again after everything has been moved
                         tryLater.add(sourceFile.getAbsolutePath());
                       } else {
-                        throw new Exception("Unable to move file " + fileName + " to " + targetDirName);                        
+											throw new Exception("Unable to move file " + fileName + " to "
+													+ targetDirName);
                       }
                     }
                   }
@@ -325,7 +321,8 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
             filesToRemoveParser.parseFilesToRemove();
 
             if (filesToRemoveParser.getFilesToDeleteMap() != null) {
-              SaveAnalysis.removeDataTrackFiles(sess, this.getSecAdvisor(), analysis, filesToRemoveParser.getFilesToDeleteMap());
+						SaveAnalysis.removeDataTrackFiles(sess, this.getSecAdvisor(), analysis,
+								filesToRemoveParser.getFilesToDeleteMap());
             }
 
             for(Iterator i = filesToRemoveParser.getFilesToDeleteMap().keySet().iterator(); i.hasNext();) {
@@ -406,7 +403,8 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
 
           for(Iterator i = ghostFiles.iterator(); i.hasNext();) {
             AnalysisFile af  = (AnalysisFile) i.next();
-            String filePath = af.getBaseFilePath() + File.separator + af.getQualifiedFilePath() + File.separator + af.getFileName();
+					String filePath = af.getBaseFilePath() + File.separator + af.getQualifiedFilePath()
+							+ File.separator + af.getFileName();
 
             if(!new File(filePath).exists()) {
               analysis.getFiles().remove(af);
@@ -424,21 +422,12 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
           setResponsePage(this.ERROR_JSP);
         }
 
-
       }catch (Exception e){
         LOG.error("An exception has occurred in OrganizeExperimentUploadFiles ", e);
 
         throw new RollBackCommandException(e.getMessage());
 
-      }finally {
-        try {
-          if (sess != null) {
-            this.getSecAdvisor().closeHibernateSession();
           }
-        } catch(Exception e){
-        LOG.error("Error", e);
-      }
-      }
 
     } else {
       this.xmlResult = "<SUCCESS/>";
@@ -456,8 +445,7 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
         if(!delFile.delete()){
           return false;
         }
-      }
-      else{
+		} else {
         if(!delFile.delete()){
           return false;
         }
@@ -467,7 +455,5 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
     return true;
 
   }
-
-
 
 }

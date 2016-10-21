@@ -44,20 +44,16 @@ import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.apache.log4j.Logger;
 import org.hibernate.Hibernate;
-import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.exception.ConstraintViolationException;
+import org.hibernate.query.Query;
 import org.jdom.Document;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
-import org.apache.log4j.Logger;
-
-
 
 public class SaveLab extends GNomExCommand implements Serializable {
-
-
 
   // the static field for logging in Log4J
   private static Logger LOG = Logger.getLogger(SaveLab.class);
@@ -109,8 +105,8 @@ public class SaveLab extends GNomExCommand implements Serializable {
       }
     }
 
-
-    if (request.getParameter("institutionsXMLString") != null && !request.getParameter("institutionsXMLString").equals("")) {
+	if (request.getParameter("institutionsXMLString") != null
+			&& !request.getParameter("institutionsXMLString").equals("")) {
       institutionsXMLString = request.getParameter("institutionsXMLString");
     }
 
@@ -123,7 +119,6 @@ public class SaveLab extends GNomExCommand implements Serializable {
       LOG.error( "Cannot parse institutionsXMLString", je );
       this.addInvalidField( "institutionsXMLString", "Invalid institutionsXMLString");
     }
-
 
     if (request.getParameter("membersXMLString") != null && !request.getParameter("membersXMLString").equals("")) {
       membersXMLString = request.getParameter("membersXMLString");
@@ -139,7 +134,8 @@ public class SaveLab extends GNomExCommand implements Serializable {
       this.addInvalidField( "membersXMLString", "Invalid membersXMLString");
     }
 
-    if (request.getParameter("collaboratorsXMLString") != null && !request.getParameter("collaboratorsXMLString").equals("")) {
+	if (request.getParameter("collaboratorsXMLString") != null
+			&& !request.getParameter("collaboratorsXMLString").equals("")) {
       collaboratorsXMLString = request.getParameter("collaboratorsXMLString");
     }
 
@@ -152,7 +148,6 @@ public class SaveLab extends GNomExCommand implements Serializable {
       LOG.error( "Cannot parse collaboratorsXMLString", je );
       this.addInvalidField( "collaboratorsXMLString", "Invalid collaboratorsXMLString");
     }
-
 
     if (request.getParameter("managersXMLString") != null && !request.getParameter("managersXMLString").equals("")) {
       managersXMLString = request.getParameter("managersXMLString");
@@ -167,7 +162,6 @@ public class SaveLab extends GNomExCommand implements Serializable {
       LOG.error( "Cannot parse managersXMLString", je );
       this.addInvalidField( "managersXMLString", "Invalid managersXMLString");
     }
-
 
     if (request.getParameter("accountsXMLString") != null && !request.getParameter("accountsXMLString").equals("")) {
       accountsXMLString = request.getParameter("accountsXMLString");
@@ -185,7 +179,8 @@ public class SaveLab extends GNomExCommand implements Serializable {
     }
 
     String coreFacilitiesXMLString = "";
-    if (request.getParameter("coreFacilitiesXMLString") != null && !request.getParameter("coreFacilitiesXMLString").equals("")) {
+	if (request.getParameter("coreFacilitiesXMLString") != null
+			&& !request.getParameter("coreFacilitiesXMLString").equals("")) {
       coreFacilitiesXMLString = request.getParameter("coreFacilitiesXMLString");
 
       reader = new StringReader(coreFacilitiesXMLString);
@@ -213,7 +208,7 @@ public class SaveLab extends GNomExCommand implements Serializable {
   public Command execute() throws RollBackCommandException {
 
     try {
-      Session sess = HibernateSession.currentSession(this.getUsername());
+		Session sess = HibernateSession.currentSession(this.getUsername(), "SaveLab");
 
       StringBuffer buf = new StringBuffer();
       boolean whereAdded = false;
@@ -246,8 +241,10 @@ public class SaveLab extends GNomExCommand implements Serializable {
 
       // If there are duplicate labs, throw an error.
       if (labs.size() > 0) {
-        String labFirstName = labScreen.getFirstName() == null || labScreen.getFirstName().trim().equals("") ? "" : labScreen.getFirstName() + " ";
-        this.addInvalidField("Duplicate Lab Name", "The lab name " + labFirstName + labScreen.getLastName() + " is already in use.");
+			String labFirstName = labScreen.getFirstName() == null || labScreen.getFirstName().trim().equals("") ? ""
+					: labScreen.getFirstName() + " ";
+			this.addInvalidField("Duplicate Lab Name", "The lab name " + labFirstName + labScreen.getLastName()
+					+ " is already in use.");
         setResponsePage(this.ERROR_JSP);
       }
 
@@ -289,7 +286,8 @@ public class SaveLab extends GNomExCommand implements Serializable {
           lab = (Lab)sess.load(Lab.class, labScreen.getIdLab());
 
           if (!lab.getVersion().equals(labScreen.getVersion())) {
-            this.addInvalidField("Locking Violation", "Lab modified by another user.  Please refresh and enter your changes again.");
+					this.addInvalidField("Locking Violation",
+							"Lab modified by another user.  Please refresh and enter your changes again.");
             setResponsePage(this.ERROR_JSP);
           } else {
             // Need to initialize billing accounts; otherwise new accounts
@@ -314,7 +312,8 @@ public class SaveLab extends GNomExCommand implements Serializable {
           billingAccountsToSave.add(ba);
 
           //If the billing account isPO then change billing status of all billingItems in the account 
-          List billingItems = sess.createQuery("select bi from BillingItem bi where idBillingAccount = " + ba.getIdBillingAccount()).list();
+				List billingItems = sess.createQuery(
+						"select bi from BillingItem bi where idBillingAccount = " + ba.getIdBillingAccount()).list();
           if(ba.getIsPO().equals("Y")){
             for(Iterator bIterator = billingItems.iterator(); bIterator.hasNext();){
               BillingItem bi = (BillingItem)bIterator.next();
@@ -323,8 +322,7 @@ public class SaveLab extends GNomExCommand implements Serializable {
                 sess.save(bi);
               }
             }
-          }
-          else if(ba.getIsCreditCard().equals("Y")){
+				} else if (ba.getIsCreditCard().equals("Y")) {
             for(Iterator bIterator = billingItems.iterator(); bIterator.hasNext();){
               BillingItem bi = (BillingItem)bIterator.next();
               if(bi.getCodeBillingStatus().equals(BillingStatus.APPROVED)){
@@ -332,8 +330,7 @@ public class SaveLab extends GNomExCommand implements Serializable {
                 sess.save(bi);
               }
             }  
-          }
-          else if(ba.getIsPO().equals("N")){
+				} else if (ba.getIsPO().equals("N")) {
             for(Iterator bIterator = billingItems.iterator(); bIterator.hasNext();){
               BillingItem bi = (BillingItem)bIterator.next();
               if(bi.getCodeBillingStatus().equals(BillingStatus.APPROVED_PO)){
@@ -341,8 +338,7 @@ public class SaveLab extends GNomExCommand implements Serializable {
                 sess.save(bi);
               }
             }  
-          }
-          else if(ba.getIsCreditCard().equals("N")){
+				} else if (ba.getIsCreditCard().equals("N")) {
             for(Iterator bIterator = billingItems.iterator(); bIterator.hasNext();){
               BillingItem bi = (BillingItem)bIterator.next();
               if(bi.getCodeBillingStatus().equals(BillingStatus.APPROVED_CC)){
@@ -363,7 +359,8 @@ public class SaveLab extends GNomExCommand implements Serializable {
 
           //If this is a new PO billing account notify the PI of the lab of its creation
           //so that they can start billing against it
-          if(idBillingAccountString.startsWith("BillingAccount") && (lab.getContactEmail() != null && !lab.getContactEmail().equals(""))){
+				if (idBillingAccountString.startsWith("BillingAccount")
+						&& (lab.getContactEmail() != null && !lab.getContactEmail().equals(""))) {
             this.sendNewPOAccountEmail(sess, ba, lab); 
           }
         }
@@ -386,7 +383,9 @@ public class SaveLab extends GNomExCommand implements Serializable {
             try {
               sess.flush();
             } catch (ConstraintViolationException e) {
-              String message = "Billing account " + ba.getAccountName() + " cannot be deleted because charges are posted to this account. Instead, please set expiration date to inactivate.";
+						String message = "Billing account "
+								+ ba.getAccountName()
+								+ " cannot be deleted because charges are posted to this account. Instead, please set expiration date to inactivate.";
               this.addInvalidField("bifk", message);
               throw new RollBackCommandException(message);
             }
@@ -451,7 +450,6 @@ public class SaveLab extends GNomExCommand implements Serializable {
 
           sess.flush();
 
-
           //
           // Save lab collaborators
           //
@@ -464,8 +462,6 @@ public class SaveLab extends GNomExCommand implements Serializable {
           lab.setCollaborators(collaborators);
 
           sess.flush();
-
-
 
           //
           // Save lab managers
@@ -499,14 +495,12 @@ public class SaveLab extends GNomExCommand implements Serializable {
           if (labAssociatedIds.size() == 0) {
             labAssociatedIds.add(-1);
           }
-          String deleteProjectString = "select p from Project p " +
-          "where p.idLab is not null " +
-          "and p.idAppUser not in (:ids) " +
-          "and p.idProject not in (select d.idProject from ExperimentDesignEntry d) " +
-          "and p.idProject not in (select f.idProject from ExperimentFactorEntry f) " +
-          "and p.idProject not in (select q.idProject from QualityControlStepEntry q) " +
-          "and p.idProject not in (select r.idProject from Request r) " + 
-          "and p.idLab=:idLab ";
+				String deleteProjectString = "select p from Project p " + "where p.idLab is not null "
+						+ "and p.idAppUser not in (:ids) "
+						+ "and p.idProject not in (select d.idProject from ExperimentDesignEntry d) "
+						+ "and p.idProject not in (select f.idProject from ExperimentFactorEntry f) "
+						+ "and p.idProject not in (select q.idProject from QualityControlStepEntry q) "
+						+ "and p.idProject not in (select r.idProject from Request r) " + "and p.idLab=:idLab ";
           Query query = sess.createQuery(deleteProjectString);
           query.setParameterList("ids", labAssociatedIds);
           query.setParameter("idLab", lab.getIdLab());
@@ -545,9 +539,9 @@ public class SaveLab extends GNomExCommand implements Serializable {
           if (this.isNewLab) {
             // If a core admin (not a super admin) is adding the lab,
             // assign lab to same core facilty that the admin manages;            
-            if (!this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES) &&
-                this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_ADMINISTER_USERS) &&
-                this.getSecAdvisor().getCoreFacilitiesIManage().size() > 0) {
+					if (!this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES)
+							&& this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_ADMINISTER_USERS)
+							&& this.getSecAdvisor().getCoreFacilitiesIManage().size() > 0) {
               TreeSet facilities = new TreeSet(new CoreFacilityComparator());
               for(Iterator i = this.getSecAdvisor().getCoreFacilitiesIManage().iterator(); i.hasNext();) {
                 CoreFacility facility = (CoreFacility)i.next();
@@ -561,7 +555,8 @@ public class SaveLab extends GNomExCommand implements Serializable {
               // core facility.
               int coreFacilityCount = 0;
               CoreFacility coreFacilityDefault = null;
-              for (Iterator i = DictionaryManager.getDictionaryEntries("hci.gnomex.model.CoreFacility").iterator(); i.hasNext();) {
+						for (Iterator i = DictionaryManager.getDictionaryEntries("hci.gnomex.model.CoreFacility")
+								.iterator(); i.hasNext();) {
                 DictionaryEntry de = (DictionaryEntry)i.next();
                 if (de instanceof NullDictionaryEntry) {
                   continue;
@@ -583,12 +578,14 @@ public class SaveLab extends GNomExCommand implements Serializable {
             }
 
           } else {
-            if ((this.getSecurityAdvisor().hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES) || this.getSecAdvisor().getCoreFacilitiesIManage().size()>0) 
+					if ((this.getSecurityAdvisor().hasPermission(SecurityAdvisor.CAN_ADMINISTER_ALL_CORE_FACILITIES) || this
+							.getSecAdvisor().getCoreFacilitiesIManage().size() > 0)
                 && coreFacilityParser != null) {
               TreeSet facilities = new TreeSet(new CoreFacilityComparator());
               for(Iterator i = coreFacilityParser.getCoreFacilityMap().keySet().iterator(); i.hasNext();) {
                 Integer idCoreFacility = (Integer)i.next();
-                CoreFacility facility = (CoreFacility)coreFacilityParser.getCoreFacilityMap().get(idCoreFacility);
+							CoreFacility facility = (CoreFacility) coreFacilityParser.getCoreFacilityMap().get(
+									idCoreFacility);
                 facilities.add(facility);
               }
               lab.setCoreFacilities(facilities);
@@ -622,14 +619,7 @@ public class SaveLab extends GNomExCommand implements Serializable {
 
       throw new RollBackCommandException(e.getMessage());
 
-    }finally {
-      try {
-        HibernateSession.closeSession();        
-      } catch(Exception e){
-        LOG.error("Error", e);
       }
-    }
-
     return this;
   }
 
@@ -638,7 +628,8 @@ public class SaveLab extends GNomExCommand implements Serializable {
     String fromAddress = pdh.getProperty(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
     StringBuffer body = new StringBuffer();
     String gnomexURL =  "<a href='" + this.launchAppURL + "'>Click here</a> to login.";
-    body.append("This is to notify you that you have been added to the " + labName + " and can now start submitting experiments.<br><br>");
+	body.append("This is to notify you that you have been added to the " + labName
+			+ " and can now start submitting experiments.<br><br>");
     body.append(gnomexURL);
 
     if(!MailUtil.isValidEmail(email)){
@@ -646,15 +637,8 @@ public class SaveLab extends GNomExCommand implements Serializable {
     }
 
     try {
-    	MailUtilHelper helper = new MailUtilHelper(	
-    			email,
-    			fromAddress,
-    			"You've been added to a new GNomEx lab",
-    			body.toString(),
-    			null,
-				true, 
-				DictionaryHelper.getInstance(sess),
-				serverName 								);
+		MailUtilHelper helper = new MailUtilHelper(email, fromAddress, "You've been added to a new GNomEx lab",
+				body.toString(), null, true, DictionaryHelper.getInstance(sess), serverName);
     	if (recipient != null) {
     		helper.setRecipientAppUser(recipient);
     	}
@@ -664,7 +648,8 @@ public class SaveLab extends GNomExCommand implements Serializable {
     }
   }
 
-  private void initializeUserProjectMap(HashMap<Integer, List<Project>> userProjectMap, HashMap<Integer, AppUser> userMap, Set<AppUser> theUsers) {
+private void initializeUserProjectMap(HashMap<Integer, List<Project>> userProjectMap,
+		HashMap<Integer, AppUser> userMap, Set<AppUser> theUsers) {
     for (AppUser theUser : theUsers) {
       List<Project>userProjects = userProjectMap.get(theUser.getIdAppUser());
       if (userProjects == null) {
@@ -674,6 +659,7 @@ public class SaveLab extends GNomExCommand implements Serializable {
       }
     }
   }
+
   private void hashProjects(HashMap<Integer, List<Project>> userProjectMap, Lab lab) {
     //  for each project with idAppUser, associate it with the active members and managers of the lab
     if (lab.getProjects() != null) {
@@ -711,13 +697,14 @@ public class SaveLab extends GNomExCommand implements Serializable {
 
   }
 
-
-  private void sendNewPOAccountEmail(Session sess, BillingAccount billingAccount, Lab lab) throws NamingException, MessagingException, IOException {
+private void sendNewPOAccountEmail(Session sess, BillingAccount billingAccount, Lab lab) throws NamingException,
+		MessagingException, IOException {
     PropertyDictionaryHelper dictionaryHelper = PropertyDictionaryHelper.getInstance(sess);
 
     StringBuffer submitterNote = new StringBuffer();
     StringBuffer body = new StringBuffer();
-    String submitterSubject = "GNomEx Billing Account \'" + billingAccount.getAccountName() + "\' for " + lab.getName(false, true) + " approved"; 
+	String submitterSubject = "GNomEx Billing Account \'" + billingAccount.getAccountName() + "\' for "
+			+ lab.getName(false, true) + " approved";
 
     String PIEmail = lab.getContactEmail();
 
@@ -728,10 +715,9 @@ public class SaveLab extends GNomExCommand implements Serializable {
       LOG.error("Invalid Email: " + PIEmail);
     }
 
-    submitterNote.append("The following billing account " +
-        "has been approved." +
-        "  Lab members can now submit experiment " +
-        "requests against this account in <a href=\'" + launchAppURL + "\'>GNomEx</a>.");
+	submitterNote.append("The following billing account " + "has been approved."
+			+ "  Lab members can now submit experiment " + "requests against this account in <a href=\'" + launchAppURL
+			+ "\'>GNomEx</a>.");
 
     body.append("<br><br>");
     body.append("<table border=\'0\'>");
@@ -747,15 +733,8 @@ public class SaveLab extends GNomExCommand implements Serializable {
         from = DictionaryHelper.getInstance(sess).getPropertyDictionary(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
     }
     
-    MailUtilHelper helper = new MailUtilHelper(	
-    		emailRecipients,
-    		from,
-    		submitterSubject,
-    		submitterNote.toString() + body.toString(),
-    		null,
-			true, 
-			DictionaryHelper.getInstance(sess),
-			serverName 									);
+	MailUtilHelper helper = new MailUtilHelper(emailRecipients, from, submitterSubject, submitterNote.toString()
+			+ body.toString(), null, true, DictionaryHelper.getInstance(sess), serverName);
     MailUtil.validateAndSendEmail(helper);
 
   }

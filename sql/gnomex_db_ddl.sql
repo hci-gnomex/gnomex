@@ -481,7 +481,7 @@ DROP TABLE IF EXISTS gnomex.MasterBillingItem;
 CREATE TABLE gnomex.MasterBillingItem (
 	idMasterBillingItem INT(10) NOT NULL AUTO_INCREMENT,
 	idBillingTemplate INT(10) NOT NULL,
-	codeBillingChargeKind VARCHAR(10) NULL,
+	codeBillingChargeKind VARCHAR(10) NOT NULL,
 	category VARCHAR(200) NULL,
 	description VARCHAR(500) NULL,
 	qty INT(10) NULL,
@@ -522,7 +522,7 @@ ENGINE = INNODB;
 DROP TABLE IF EXISTS gnomex.BillingItem;
 CREATE TABLE gnomex.BillingItem (
   idBillingItem INT(10) NOT NULL AUTO_INCREMENT,
-  codeBillingChargeKind VARCHAR(10) NULL,
+  codeBillingChargeKind VARCHAR(10) NOT NULL,
   category VARCHAR(200) NULL,
   description VARCHAR(500) NULL,
   qty INT(10) NULL,
@@ -686,7 +686,7 @@ CREATE TABLE gnomex.PriceCategory (
   idPriceCategory INT(10) NOT NULL AUTO_INCREMENT,
   name VARCHAR(200) NOT NULL,
   description VARCHAR(5000) NULL,
-  codeBillingChargeKind VARCHAR(10) NULL,
+  codeBillingChargeKind VARCHAR(10) NOT NULL,
   pluginClassName VARCHAR(500) NULL,
   dictionaryClassNameFilter1 VARCHAR(500) NULL,
   dictionaryClassNameFilter2 VARCHAR(500) NULL,

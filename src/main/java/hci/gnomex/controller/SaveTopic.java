@@ -21,7 +21,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.hibernate.Hibernate;
-import org.hibernate.Query;
+import org.hibernate.query.Query;
 import org.hibernate.Session;
 import org.apache.log4j.Logger;
 
@@ -121,7 +121,7 @@ public class SaveTopic extends GNomExCommand implements Serializable {
         
     }finally {
       try {
-        HibernateSession.closeSession();        
+        //closeHibernateSession;        
       } catch(Exception e){
         LOG.error("Error", e);
       }
