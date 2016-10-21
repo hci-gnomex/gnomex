@@ -1,5 +1,6 @@
 package hci.gnomex.controller;
 
+import hci.gnomex.constants.Constants;
 import hci.gnomex.model.DataTrack;
 import hci.gnomex.model.DataTrackFolder;
 import hci.gnomex.model.GenomeBuild;
@@ -129,7 +130,7 @@ public class FastDataTransferDownloadDataTrackServlet extends HttpServlet {
                     process.waitFor();
                     process.destroy();
 
-                    softlinks_dir = softlinks_dir + "/";
+                    softlinks_dir = softlinks_dir + Constants.FILE_SEPARATOR;
                 }
 
 
@@ -185,7 +186,7 @@ public class FastDataTransferDownloadDataTrackServlet extends HttpServlet {
                             continue;
                         }
 
-                        String path = softlinks_dir + downloadDateText + "/" + dataTrackFolder.getQualifiedName() + "/" + dataTrack.getName() + "/";
+                        String path = softlinks_dir + downloadDateText + Constants.FILE_SEPARATOR + dataTrackFolder.getQualifiedName() + Constants.FILE_SEPARATOR + dataTrack.getName() + Constants.FILE_SEPARATOR;
                         String softLinksFileName = path + file.getName();
 
 
@@ -203,7 +204,7 @@ public class FastDataTransferDownloadDataTrackServlet extends HttpServlet {
                         }
 
 
-                        Process process = Runtime.getRuntime().exec( new String[] { "ln", "-s", file.getCanonicalPath(), softLinksFileName } );
+                        Process process = Runtime.getRuntime().exec( new String[] { "ln", "-s", file.getCanonicalPath().replace("\\", Constants.FILE_SEPARATOR), softLinksFileName } );
 
                         process.waitFor();
                         process.destroy();
@@ -232,7 +233,7 @@ public class FastDataTransferDownloadDataTrackServlet extends HttpServlet {
                     out.println("");
                     String fdtJarLoc = PropertyDictionaryHelper.getInstance(sess).getFDTJarLocation(req.getServerName());
                     String fdtServerName = PropertyDictionaryHelper.getInstance(sess).getFDTServerName(req.getServerName());
-                    String softLinksPath = PropertyDictionaryHelper.getInstance(sess).GetFDTDirectory(req.getServerName())+uuid.toString()+"/"+downloadDateText;
+                    String softLinksPath = PropertyDictionaryHelper.getInstance(sess).GetFDTDirectory(req.getServerName())+uuid.toString()+Constants.FILE_SEPARATOR+downloadDateText;
                     if (fdtJarLoc == null || fdtJarLoc.equals("")) {
                         fdtJarLoc = "http://monalisa.cern.ch/FDT/";
                     }

@@ -452,14 +452,14 @@ private Boolean renameFile(String oldName, String newName) {
 	Boolean success = true;
 	if (!destFile.getParentFile().exists()) {
 		if (!destFile.getParentFile().mkdirs()) {
-			printError("Unable to create directory structure on rename for " + destFile.getAbsolutePath());
+			printError("Unable to create directory structure on rename for " + destFile.getAbsolutePath().replace("\\", "/"));
 			success = false;
 		}
 	}
 	if (success) {
 		if (destFile.exists()) {
 			if (!destFile.delete()) {
-				printError("Unable to delete renameTo file: " + destFile.getAbsolutePath());
+				printError("Unable to delete renameTo file: " + destFile.getAbsolutePath().replace("\\", "/"));
 				success = false;
 			}
 		}
@@ -467,13 +467,13 @@ private Boolean renameFile(String oldName, String newName) {
 	if (success) {
 		if (!srcFile.renameTo(destFile)) {
 			success = false;
-			printError("Unable to rename file " + srcFile.getAbsolutePath() + " to " + destFile.getAbsolutePath());
+			printError("Unable to rename file " + srcFile.getAbsolutePath().replace("\\", "/") + " to " + destFile.getAbsolutePath().replace("\\", "/"));
 		} else {
 			if (srcFile.exists() && destFile.exists()) {
 				srcFile.delete();
 				if (srcFile.exists()) {
 					success = false;
-					printError("Source file still exists after rename: " + srcFile.getAbsolutePath());
+					printError("Source file still exists after rename: " + srcFile.getAbsolutePath().replace("\\", "/"));
 				}
 			}
 		}

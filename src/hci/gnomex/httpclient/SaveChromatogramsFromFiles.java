@@ -156,8 +156,8 @@ private void run() throws Exception {
 		int theIdPlateWell = idPlateWell != null ? idPlateWell.intValue() : -1;
 		for (File f : theFiles) {
 			currentFile = f;
-			int pos = f.getCanonicalPath().lastIndexOf(f.getName());
-			filePath = f.getCanonicalPath().substring(0, pos - 1);
+			int pos = f.getCanonicalPath().replace("\\", "/").lastIndexOf(f.getName());
+			filePath = f.getCanonicalPath().replace("\\", "/").substring(0, pos - 1);
 			if (debug) {
 				System.out.println(f.getName() + " " + filePath);
 			}
@@ -297,7 +297,7 @@ private String moveFile(File sourceFile, String archiveFilePath, String destDirN
 	String archiveFileName = archiveDir + Constants.FILE_SEPARATOR + sourceFile.getName();
 	boolean success = this.copyFile(sourceFile, archiveFileName);
 	if (!success) {
-		reason = "Unable to copy file " + sourceFile.getPath() + " to " + archiveFileName;
+		reason = "Unable to copy file " + sourceFile.getPath().replace("\\", "/") + " to " + archiveFileName;
 		return reason;
 	}
 
@@ -312,7 +312,7 @@ private String moveFile(File sourceFile, String archiveFilePath, String destDirN
 		try {
 			operation = "move";
 			Process process = Runtime.getRuntime().exec(
-					new String[] { "mv", sourceFile.getCanonicalPath(), destFileName });
+					new String[] { "mv", sourceFile.getCanonicalPath().replace("\\", "/"), destFileName });
 			process.waitFor();
 			process.destroy();
 

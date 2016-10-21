@@ -108,7 +108,7 @@ private String linkContents(String path, DataTrackFolder folder, int depth, Sess
 		prefix.append("\t");
 	}
 
-	path += "/" + DataTrackUtil.stripBadURLChars(folder.getName(), "_");
+	path += Constants.FILE_SEPARATOR + DataTrackUtil.stripBadURLChars(folder.getName(), "_");
 
 	// Create StringBuilder
 	StringBuilder xmlResult = new StringBuilder("");
@@ -179,7 +179,7 @@ public void execute(HttpServletResponse res) throws RollBackCommandException {
 				PropertyDictionary.DATATRACK_FILESERVER_WEB_CONTEXT);
 
 		// We have to serve files from Tomcat, so use das2 base url
-		baseURL = dataTrackFileServerURL + "/";
+		baseURL = dataTrackFileServerURL + Constants.FILE_SEPARATOR;
 
 		// If the user already has a directory, get the existing name and destroy everything beneath it. This way,
 		// existing path still work. This will be nice if we set up a cron job that automatically populates these directories
@@ -194,8 +194,8 @@ public void execute(HttpServletResponse res) throws RollBackCommandException {
 		// Create the users' data directory
 		File dir = new File(linkDir.getAbsoluteFile(), linkPath);
 		dir.mkdir();
-		String rootPath = dir.getAbsolutePath(); // Path via server
-		String htmlPath = dataTrackFileServerURL + Constants.IGV_LINK_DIR_NAME + "/" + linkPath + "/"; // Path wia web
+		String rootPath = dir.getAbsolutePath().replace("\\", Constants.FILE_SEPARATOR); // Path via server
+		String htmlPath = dataTrackFileServerURL + Constants.IGV_LINK_DIR_NAME + Constants.FILE_SEPARATOR + linkPath + Constants.FILE_SEPARATOR; // Path wia web
 
 		// Clear out links to make
 		linksToMake = new ArrayList<String[]>();
@@ -396,7 +396,7 @@ private String makeIGVLink(Session sess, DataTrack dataTrack, String directory, 
 			for (File f : filesToLink) {
 
 				File annoFile = new File(directory, DataTrackUtil.stripBadURLChars(f.getName(), "_"));
-				String annoString = annoFile.toString();
+				String annoString = annoFile.toString().replace("\\", Constants.FILE_SEPARATOR);
 
 				// We are now storing the links and creating them in a batch.
 				String[] links = { f.toString(), annoString };

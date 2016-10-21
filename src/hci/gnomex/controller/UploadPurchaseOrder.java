@@ -55,7 +55,7 @@ protected void doPost(HttpServletRequest req, HttpServletResponse res) throws Se
 			throw new ServletException(
 					"Unable to upload sample sheet. Missing GNomEx property for temp_directory.  Please add using 'Manage Dictionaries'.");
 		}
-		if (!directoryName.endsWith("/") && !directoryName.endsWith("\\")) {
+		if (!directoryName.endsWith(Constants.FILE_SEPARATOR) && !directoryName.endsWith("\\")) {
 			directoryName += Constants.FILE_SEPARATOR;
 		}
 

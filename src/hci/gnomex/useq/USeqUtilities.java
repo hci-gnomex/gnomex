@@ -166,7 +166,7 @@ public class USeqUtilities {
 			int num = fileNames.length;
 			ArrayList<File> al = new ArrayList<File>();
 			try{
-				String path = directory.getCanonicalPath();
+				String path = directory.getCanonicalPath().replace("\\", "/");
 				Pattern pat = Pattern.compile("^\\w+.*");
 				Matcher mat; 
 				for (int i=0; i< num; i++)  {
@@ -422,11 +422,11 @@ public class USeqUtilities {
 		}
 	}
 	
-	/**Gets full path text using getCanonicalPath() on a File*/
+	/**Gets full path text using getCanonicalPath().replace("\\", "/") on a File*/
 	public static String getFullPathName(File fileDirectory){
 		String full = null;
 		try {
-			full = fileDirectory.getCanonicalPath();
+			full = fileDirectory.getCanonicalPath().replace("\\", "/");
 		}catch (IOException e){
 			System.out.println("Problem with getFullPathtName(), "+fileDirectory);
 

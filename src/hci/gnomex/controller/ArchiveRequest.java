@@ -2,6 +2,7 @@ package hci.gnomex.controller;
 
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
+import hci.gnomex.constants.Constants;
 import hci.gnomex.model.BillingItem;
 import hci.gnomex.model.BillingStatus;
 import hci.gnomex.model.Request;
@@ -73,10 +74,10 @@ public class ArchiveRequest extends GNomExCommand implements Serializable {
       String baseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, reqToArchive.getIdCoreFacility(), PropertyDictionaryHelper.PROPERTY_EXPERIMENT_DIRECTORY);
       SimpleDateFormat formatter = new SimpleDateFormat("yyyy");
       String createYear = formatter.format(reqToArchive.getCreateDate());
-      if (!baseDir.endsWith("/") && !baseDir.endsWith("\\")) {
-        baseDir += "/";
+      if (!baseDir.endsWith(Constants.FILE_SEPARATOR) && !baseDir.endsWith("\\")) {
+        baseDir += Constants.FILE_SEPARATOR;
       }
-      String directoryName = baseDir + createYear + "/" + reqToArchive.getNumber().replaceFirst("R+\\d", "R");
+      String directoryName = baseDir + createYear + Constants.FILE_SEPARATOR + reqToArchive.getNumber().replaceFirst("R+\\d", "R");
 
       DeleteRequest.removeExperimentFiles(directoryName);
 

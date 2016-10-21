@@ -98,7 +98,7 @@ public class MakeSoftLinks extends GNomExCommand implements Serializable {
 		if (!dir.exists())
 			dir.mkdir();
 
-		String baseDir = dir.getPath();
+		String baseDir = dir.getPath().replace("\\", Constants.FILE_SEPARATOR);
 
 		parser.parse();
 
@@ -112,7 +112,7 @@ public class MakeSoftLinks extends GNomExCommand implements Serializable {
 			rdir.mkdir();
 		}
 
-		softLinkPath = rdir.getPath();
+		softLinkPath = rdir.getPath().replace("\\", Constants.FILE_SEPARATOR);
 
 		List fileDescriptors = parser.getFileDescriptors(requestNumber);
 
@@ -132,7 +132,7 @@ public class MakeSoftLinks extends GNomExCommand implements Serializable {
 			String linkPath = softLinkPath + Constants.FILE_SEPARATOR;
 
 			String zipFileName = fd.getZipEntryName();
-			String[] pieces = zipFileName.split("/");
+			String[] pieces = zipFileName.split(Constants.FILE_SEPARATOR);
 
 			// make any directories we need
 			int lpieces = pieces.length;

@@ -2,6 +2,7 @@ package hci.gnomex.controller;
 
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
+import hci.gnomex.constants.Constants;
 import hci.gnomex.model.AppUser;
 import hci.gnomex.model.DataTrack;
 import hci.gnomex.model.DataTrackFile;
@@ -71,7 +72,7 @@ public class SaveDataTrack extends GNomExCommand implements Serializable {
     }
 
     // Make sure that name doesn't have forward slashes (/).
-    if (load.getName().contains("/") || load.getName().contains("&")) {
+    if (load.getName().contains(Constants.FILE_SEPARATOR) || load.getName().contains("&")) {
       this.addInvalidField("namechar", "The name cannnot contain any characters / or &.");
     }
 

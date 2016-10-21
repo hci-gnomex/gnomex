@@ -2,6 +2,7 @@ package hci.gnomex.controller;
 
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
+import hci.gnomex.constants.Constants;
 import hci.gnomex.model.ExperimentPickListFilter;
 import hci.gnomex.model.NumberSequencingCyclesAllowed;
 import hci.gnomex.model.PropertyDictionary;
@@ -104,7 +105,7 @@ public class GetExperimentPickList extends GNomExCommand implements Serializable
         String hybNumber     = row[10] == null || row[10].equals("") ? "" : (String)row[10];
         
         String createDate    = this.formatDate((java.util.Date)row[2]);
-        String tokens[] = createDate.split("/");
+        String tokens[] = createDate.split(Constants.FILE_SEPARATOR);
         String createMonth = tokens[0];
         String createDay   = tokens[1];
         String createYear  = tokens[2];
@@ -126,7 +127,7 @@ public class GetExperimentPickList extends GNomExCommand implements Serializable
         String laneNumber     = row[10] == null || row[10].equals("") ? "" : (String)row[10];
         
         String createDate    = this.formatDate((java.util.Date)row[2]);
-        String tokens[] = createDate.split("/");
+        String tokens[] = createDate.split(Constants.FILE_SEPARATOR);
         String createMonth = tokens[0];
         String createDay   = tokens[1];
         String createYear  = tokens[2];
@@ -148,7 +149,7 @@ public class GetExperimentPickList extends GNomExCommand implements Serializable
           String sampleNumber  = (row[14] == null || row[14].equals("")) ? "" : (String) row[14];
           
           String createDate    = this.formatDate((java.util.Date) row[2]);
-          String tokens[]      = createDate.split("/");
+          String tokens[]      = createDate.split(Constants.FILE_SEPARATOR);
           String createMonth   = tokens[0];
           String createDay     = tokens[1];
           String createYear    = tokens[2];

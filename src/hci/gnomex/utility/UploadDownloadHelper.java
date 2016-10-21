@@ -76,18 +76,18 @@ public class UploadDownloadHelper {
       String theBaseDir;
       String fullBaseDir;
       if (flowCellIndicator.equals(flowCellDirectoryFlag)) {
-        directoryName = baseDirFlowCell  + createYear + "/" + resultDirectory;
+        directoryName = baseDirFlowCell  + createYear + Constants.FILE_SEPARATOR + resultDirectory;
         theBaseDir = baseDirFlowCell;
-        fullBaseDir = baseDirFlowCell  + createYear + "/";
+        fullBaseDir = baseDirFlowCell  + createYear + Constants.FILE_SEPARATOR;
         
         //Make sure flow cell is for this request
         String flowCellNumber = resultDirectory;
         
       } else {
         String baseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, idCoreFacility, PropertyDictionaryHelper.PROPERTY_EXPERIMENT_DIRECTORY);
-        directoryName = baseDir + "/" + createYear + "/" + requestNumberBase + "/" + resultDirectory;
+        directoryName = baseDir + Constants.FILE_SEPARATOR + createYear + Constants.FILE_SEPARATOR + requestNumberBase + Constants.FILE_SEPARATOR + resultDirectory;
         theBaseDir = baseDir;
-        fullBaseDir = baseDir + "/" + createYear + "/" + requestNumberBase + "/";
+        fullBaseDir = baseDir + Constants.FILE_SEPARATOR + createYear + Constants.FILE_SEPARATOR + requestNumberBase + Constants.FILE_SEPARATOR;
       }
       
       // We want the list to be ordered the same way as the original keys,
@@ -132,26 +132,26 @@ public class UploadDownloadHelper {
       for (int x = 0; x < fileList.length; x++) {
         File f1 = fileList[x];
         
-        String fileName = directoryName + "/" + f1.getName();
+        String fileName = directoryName + Constants.FILE_SEPARATOR + f1.getName();
         
         // Show the subdirectory in the name if we are not at the main folder level
         String displayName = "";
         if (flattenSubDirs && subDirName != null) {
-          displayName = subDirName + "/" + f1.getName();
+          displayName = subDirName + Constants.FILE_SEPARATOR + f1.getName();
         } else {
           displayName = f1.getName();        
         }
 
         String zipEntryName;
         if (flowCellIndicator.equals(flowCellDirectoryFlag)) {
-          zipEntryName = Request.getBaseRequestNumber(requestNumber) + "/" + fileName.substring(theBaseDir.length() + 5).replaceAll("\\\\", "/");
+          zipEntryName = Request.getBaseRequestNumber(requestNumber) + Constants.FILE_SEPARATOR + fileName.substring(theBaseDir.length() + 5).replaceAll("\\\\", Constants.FILE_SEPARATOR);
         } else {
           try {
-            zipEntryName = PropertyDictionaryHelper.parseZipEntryName(theBaseDir, f1.getCanonicalPath());   
+            zipEntryName = PropertyDictionaryHelper.parseZipEntryName(theBaseDir, f1.getCanonicalPath().replace("\\", Constants.FILE_SEPARATOR));
           } catch (IOException  e) {
             throw new RuntimeException("Cannot get canonical file name for " + f1.getName());
           }  
-          if (zipEntryName.startsWith("/")) {
+          if (zipEntryName.startsWith(Constants.FILE_SEPARATOR)) {
             zipEntryName = zipEntryName.substring(1);
           }
         }
@@ -165,7 +165,7 @@ public class UploadDownloadHelper {
           }
           dirFileDescriptor.setDirectoryName(dirName);
           theFiles.add(dirFileDescriptor);
-          getFileNames(theBaseDir, fullBaseDir, requestNumber, fileName, dirFileDescriptor.getChildren(), subDirName != null ? subDirName + "/" + f1.getName() : f1.getName(), flowCellIndicator, flowCellDirectoryFlag, flattenSubDirs);
+          getFileNames(theBaseDir, fullBaseDir, requestNumber, fileName, dirFileDescriptor.getChildren(), subDirName != null ? subDirName + Constants.FILE_SEPARATOR + f1.getName() : f1.getName(), flowCellIndicator, flowCellDirectoryFlag, flattenSubDirs);
         } else {
           boolean include = true;
           if (f1.getName().toLowerCase().endsWith("thumbs.db") || f1.getName().toUpperCase().startsWith(".DS_STORE") || f1.getName().startsWith("._")) {

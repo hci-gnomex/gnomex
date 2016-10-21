@@ -9,6 +9,7 @@ import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.util.Arrays;
 
+import hci.gnomex.constants.Constants;
 import org.biojava.bio.chromatogram.Chromatogram;
 import org.biojava.bio.chromatogram.ChromatogramFactory;
 import org.biojava.bio.chromatogram.UnsupportedChromatogramFormatException;
@@ -271,8 +272,8 @@ public class ChromatReadUtil extends DetailObject implements Serializable {
       ABIFParser abiParse = new ABIFParser(abiFile);
       ABIFParser.TaggedDataRecord r1=abiParse.getDataRecord("RUND", 1);
       
-      return   Long.toString((r1.dataRecord >>> 16) & 0xffff) + "/" + 
-               Long.toString((r1.dataRecord >>> 8) & 0xff) + "/" +
+      return   Long.toString((r1.dataRecord >>> 16) & 0xffff) + Constants.FILE_SEPARATOR +
+               Long.toString((r1.dataRecord >>> 8) & 0xff) + Constants.FILE_SEPARATOR +
                Long.toString((r1.dataRecord) & 0xff);
     }
     catch (IOException e) {
@@ -286,8 +287,8 @@ public class ChromatReadUtil extends DetailObject implements Serializable {
       ABIFParser abiParse = new ABIFParser(abiFile);
       ABIFParser.TaggedDataRecord r1=abiParse.getDataRecord("RUND", 2);
       
-      return   Long.toString((r1.dataRecord >>> 16) & 0xffff) + "/" + 
-               Long.toString((r1.dataRecord >>> 8) & 0xff) + "/" +
+      return   Long.toString((r1.dataRecord >>> 16) & 0xffff) + Constants.FILE_SEPARATOR +
+               Long.toString((r1.dataRecord >>> 8) & 0xff) + Constants.FILE_SEPARATOR +
                Long.toString((r1.dataRecord) & 0xff);
     }
     catch (IOException e) {

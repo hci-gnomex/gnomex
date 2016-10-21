@@ -2,6 +2,7 @@ package hci.gnomex.controller;
 
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
+import hci.gnomex.constants.Constants;
 import hci.gnomex.model.AnalysisGroupFilter;
 import hci.gnomex.model.Lab;
 import hci.gnomex.model.PropertyDictionary;
@@ -349,7 +350,7 @@ public class GetAnalysisGroupList extends GNomExCommand implements Serializable 
 
     String createDate    = this.formatDate((java.sql.Date)row[11]);
     String analysisNumber = (String)row[8];
-    String tokens[] = createDate.split("/");
+    String tokens[] = createDate.split(Constants.FILE_SEPARATOR);
     String createMonth = tokens[0];
     String createDay   = tokens[1];
     String createYear  = tokens[2];

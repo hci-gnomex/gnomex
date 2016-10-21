@@ -3,6 +3,7 @@ package hci.gnomex.controller;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.utilities.XMLReflectException;
+import hci.gnomex.constants.Constants;
 import hci.gnomex.model.Analysis;
 import hci.gnomex.utility.FileDescriptor;
 import hci.gnomex.utility.DictionaryHelper;
@@ -177,15 +178,15 @@ public class GetExpandedAnalysisFileList extends GNomExCommand implements Serial
       String analysisNumber = tokens[2];
 
       String directoryKey = analysisNumber;
-      if (!baseDir.endsWith("/") && !baseDir.endsWith("\\")) {
-        baseDir += "/";
+      if (!baseDir.endsWith(Constants.FILE_SEPARATOR) && !baseDir.endsWith("\\")) {
+        baseDir += Constants.FILE_SEPARATOR;
       }
-      String directoryName = baseDir + createYear + "/" + analysisNumber;    
+      String directoryName = baseDir + createYear + Constants.FILE_SEPARATOR + analysisNumber;
 
       if (tokens.length > 3 ) {
         String resultDir = tokens[3];
         directoryKey = analysisNumber + "-" + resultDir;
-        directoryName = baseDir +  createYear + "/" + analysisNumber + "/" + resultDir;
+        directoryName = baseDir +  createYear + Constants.FILE_SEPARATOR + analysisNumber + Constants.FILE_SEPARATOR + resultDir;
       }
 
       // We want the list to be ordered the same way as the original keys,
@@ -229,12 +230,12 @@ public class GetExpandedAnalysisFileList extends GNomExCommand implements Serial
 //          continue;
 //        }
         
-        String fileName = directoryName + "/" + f1.getName();
+        String fileName = directoryName + Constants.FILE_SEPARATOR + f1.getName();
 
         // Show the subdirectory in the name if we are not at the main folder level
         String displayName = "";
         if (flattenSubDirs && subDirName != null) {
-          displayName = subDirName + "/" + f1.getName();
+          displayName = subDirName + Constants.FILE_SEPARATOR + f1.getName();
         } else {
           displayName = f1.getName();        
         }
@@ -244,7 +245,7 @@ public class GetExpandedAnalysisFileList extends GNomExCommand implements Serial
           dirFileDescriptor.setType("dir");
           dirFileDescriptor.setQualifiedFilePath(subDirName!=null ? subDirName : "");
           theFiles.add(dirFileDescriptor);
-          getFileNames(analysisNumber, fileName, dirFileDescriptor.getChildren(), subDirName != null ? subDirName + "/" + f1.getName() : f1.getName(), baseDir, flattenSubDirs);
+          getFileNames(analysisNumber, fileName, dirFileDescriptor.getChildren(), subDirName != null ? subDirName + Constants.FILE_SEPARATOR + f1.getName() : f1.getName(), baseDir, flattenSubDirs);
         } else {
           boolean include = true;
           if (fileName.toLowerCase().endsWith("thumbs.db")) {

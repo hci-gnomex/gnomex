@@ -110,7 +110,7 @@ public class DataTrackUtil {
 		try {
 			String[] cmd1 = { "rm", "-f", link.toString() };
 			Runtime.getRuntime().exec(cmd1);
-			String[] cmd = { "ln", "-s", realFile.getCanonicalPath(), link.toString() };
+			String[] cmd = { "ln", "-s", realFile.getCanonicalPath().replace("\\", Constants.FILE_SEPARATOR), link.toString() };
 			Runtime.getRuntime().exec(cmd);
 			return true;
 		} catch (IOException e) {
@@ -124,7 +124,7 @@ public class DataTrackUtil {
 		try {
 			String[] cmd1 = { "rm", "-f", link };
 			Runtime.getRuntime().exec(cmd1);
-			String[] cmd = { "ln", "-s", realFile.getCanonicalPath(), link };
+			String[] cmd = { "ln", "-s", realFile.getCanonicalPath().replace("\\", Constants.FILE_SEPARATOR), link };
 			Runtime.getRuntime().exec(cmd);
 			return true;
 		} catch (IOException e) {
@@ -428,7 +428,7 @@ public class DataTrackUtil {
 				for (int x = 0; x < childFileNames.length; x++) {
 					for (String ext : Constants.FILE_EXTENSIONS_FOR_UCSC_LINKS) {
 						if (childFileNames[x].equals(baseFileName + ext)) {
-							String fileName = dir.getAbsolutePath() + "/" + childFileNames[x];
+							String fileName = dir.getAbsolutePath().replace("\\", Constants.FILE_SEPARATOR) + Constants.FILE_SEPARATOR + childFileNames[x];
 							File f = new File(fileName);
 							files.add(f);
 							break;

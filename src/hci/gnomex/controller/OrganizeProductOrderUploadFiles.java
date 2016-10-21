@@ -138,14 +138,14 @@ public Command execute() throws RollBackCommandException {
 						if (!idFileString.startsWith("ProductOrderFile") && !idFileString.equals("")) {
 							pof = (ProductOrderFile) sess.load(ProductOrderFile.class, new Integer(idFileString));
 							pof.setFileName(displayName);
-							pof.setBaseFilePath(f2.getCanonicalPath());
+							pof.setBaseFilePath(f2.getCanonicalPath().replace("\\", Constants.FILE_SEPARATOR));
 							pof.setQualifiedFilePath(qualifiedFilePath);
 							sess.save(pof);
 							sess.flush();
 						} else if (idFileString.startsWith("ProductOrderFile") && !f2.exists()) {
 							pof = new ProductOrderFile();
 							pof.setFileName(displayName);
-							pof.setBaseFilePath(f2.getCanonicalPath());
+							pof.setBaseFilePath(f2.getCanonicalPath().replace("\\", Constants.FILE_SEPARATOR));
 							pof.setQualifiedFilePath(qualifiedFilePath);
 							sess.save(pof);
 							sess.flush();
@@ -160,7 +160,7 @@ public Command execute() throws RollBackCommandException {
 								pof.setFileName(afParts[3]);
 								pof.setBaseFilePath(afParts[0]);
 
-								String[] filePath = afParts[0].split("/");
+								String[] filePath = afParts[0].split(Constants.FILE_SEPARATOR);
 								pof.setQualifiedFilePath(filePath[filePath.length - 2]);
 
 								sess.save(pof);
@@ -180,7 +180,7 @@ public Command execute() throws RollBackCommandException {
 				String directoryName = (String) i.next();
 
 				// Get the qualifiedFilePath (need to remove the productOrder number folder from directory name)
-				String[] pathTokens = directoryName.split("/");
+				String[] pathTokens = directoryName.split(Constants.FILE_SEPARATOR);
 				String qualifiedFilePath = "";
 				if (pathTokens.length > 1) {
 					qualifiedFilePath = pathTokens[1];
@@ -275,13 +275,13 @@ public Command execute() throws RollBackCommandException {
 					if (!targetDir.exists()) {
 						boolean success = targetDir.mkdirs();
 						if (!success) {
-							throw new Exception("Unable to create directory " + targetDir.getCanonicalPath());
+							throw new Exception("Unable to create directory " + targetDir.getCanonicalPath().replace("\\", Constants.FILE_SEPARATOR));
 						}
 					}
 
 					// Don't try to move if the file is in the same directory
-					String td = targetDir.getAbsolutePath();
-					String sd = sourceFile.getAbsolutePath();
+					String td = targetDir.getAbsolutePath().replace("\\", Constants.FILE_SEPARATOR);
+					String sd = sourceFile.getAbsolutePath().replace("\\", Constants.FILE_SEPARATOR);
 					sd = sd.substring(0, sd.lastIndexOf(Constants.FILE_SEPARATOR));
 
 					if (td.equals(sd)) {
@@ -303,7 +303,7 @@ public Command execute() throws RollBackCommandException {
 								if (!sourceFile.delete()) {
 									if (sourceFile.isDirectory()) {
 										// If can't delete directory then try again after everything has been moved
-										tryLater.add(sourceFile.getAbsolutePath());
+										tryLater.add(sourceFile.getAbsolutePath().replace("\\", Constants.FILE_SEPARATOR));
 									} else {
 										throw new Exception("Unable to move file " + fileName + " to " + targetDirName);
 									}
@@ -428,7 +428,7 @@ public Command execute() throws RollBackCommandException {
 
 private Boolean deleteDir(File childFile) throws IOException {
 	for (String f : childFile.list()) {
-		File delFile = new File(childFile.getCanonicalPath() + "/" + f);
+		File delFile = new File(childFile.getCanonicalPath().replace("\\", Constants.FILE_SEPARATOR) + Constants.FILE_SEPARATOR + f);
 		if (delFile.isDirectory()) {
 			deleteDir(delFile);
 			if (!delFile.delete()) {

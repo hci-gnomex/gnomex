@@ -198,7 +198,7 @@ public class FastDataTransferDownloadAnalysisServlet extends HttpServlet {
 
             // Get file/location of file to create symbolic link to
             String fullPath = fd.getFileName();
-            int indxFileName = fullPath.lastIndexOf("/");
+            int indxFileName = fullPath.lastIndexOf(Constants.FILE_SEPARATOR);
             int indxDirPath = fullPath.indexOf(analysisNumberBase);
 
             // Get fileName to use for the name of the softlink

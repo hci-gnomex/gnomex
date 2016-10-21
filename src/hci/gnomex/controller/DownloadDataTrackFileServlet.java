@@ -1,5 +1,6 @@
 package hci.gnomex.controller;
 
+import hci.gnomex.constants.Constants;
 import hci.gnomex.model.DataTrack;
 import hci.gnomex.model.DataTrackFolder;
 import hci.gnomex.model.GenomeBuild;
@@ -138,7 +139,7 @@ protected void doGet(HttpServletRequest req, HttpServletResponse response) throw
 				throw new Exception("Unable to find dataTrack folder " + idDataTrackFolder);
 			}
 
-			String path = dataTrackFolder.getQualifiedName() + "/" + dataTrack.getName() + "/";
+			String path = dataTrackFolder.getQualifiedName() + Constants.FILE_SEPARATOR + dataTrack.getName() + Constants.FILE_SEPARATOR;
 
 			for (File file : dataTrack.getFiles(this.baseDir, this.analysisBaseDir)) {
 				String zipEntryName = path + file.getName();
@@ -147,7 +148,7 @@ protected void doGet(HttpServletRequest req, HttpServletResponse response) throw
 				// If we are using tar, compress the file first using
 				// zip. If we are zipping the file, just open
 				// it to read.
-				InputStream in = archiveHelper.getInputStreamToArchive(file.getAbsolutePath(), zipEntryName);
+				InputStream in = archiveHelper.getInputStreamToArchive(file.getAbsolutePath().replace("\\", Constants.FILE_SEPARATOR), zipEntryName);
 
 				// Add an entry to the archive
 				// (The file name starts after the year subdirectory)

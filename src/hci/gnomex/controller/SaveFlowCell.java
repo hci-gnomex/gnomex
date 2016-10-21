@@ -5,6 +5,7 @@ import hci.dictionary.model.NullDictionaryEntry;
 import hci.dictionary.utility.DictionaryManager;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
+import hci.gnomex.constants.Constants;
 import hci.gnomex.model.FlowCell;
 import hci.gnomex.model.FlowCellChannel;
 import hci.gnomex.model.Notification;
@@ -271,7 +272,7 @@ public class SaveFlowCell extends GNomExCommand implements Serializable {
           String organism = dh.getOrganism(idOrganism);
           notes += organism;
           if(i2.hasNext()) {
-            notes += "/";
+            notes += Constants.FILE_SEPARATOR;
           }        	
         }
         if(!isFirst) {

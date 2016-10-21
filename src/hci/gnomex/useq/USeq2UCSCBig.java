@@ -113,24 +113,24 @@ public class USeq2UCSCBig extends Thread{
 
 	private ArrayList<File> convertRegionData() throws Exception{
 		String name = workingUSeqArchiveFile.getName().replace(USeqUtilities.USEQ_EXTENSION_WITH_PERIOD, "");
-		tempFile = new File (workingUSeqArchiveFile.getCanonicalPath() + ".bed");
+		tempFile = new File (workingUSeqArchiveFile.getCanonicalPath().replace("\\", "/") + ".bed");
 		tempFile.deleteOnExit();
 
 		USeq2Text.print2TextFile(workingUSeqArchiveFile, tempFile, true, true);
 
 		//sort it using unix command
-		tempFileSorted = new File (workingUSeqArchiveFile.getCanonicalPath() + ".sorted.bed");
+		tempFileSorted = new File (workingUSeqArchiveFile.getCanonicalPath().replace("\\", "/") + ".sorted.bed");
 		tempFileSorted.deleteOnExit();
-		String shell = "sort -k1,1 -k2,2n "+tempFile.getCanonicalPath()+" > "+tempFileSorted.getCanonicalPath();
+		String shell = "sort -k1,1 -k2,2n "+tempFile.getCanonicalPath().replace("\\", "/")+" > "+tempFileSorted.getCanonicalPath().replace("\\", "/");
 		USeqUtilities.executeShellScript(shell, workingUSeqArchiveFile.getParentFile());
 
 		//convert to binary
 		convertedFile = new File (workingUSeqArchiveFile.getParentFile(), name + ".bb");
 		String[] command = new String[]{
-				ucscBed2BigBed.getCanonicalPath(),
-				tempFileSorted.getCanonicalPath(),
-				chromLengths.getCanonicalPath(),
-				convertedFile.getCanonicalPath()
+				ucscBed2BigBed.getCanonicalPath().replace("\\", "/"),
+				tempFileSorted.getCanonicalPath().replace("\\", "/"),
+				chromLengths.getCanonicalPath().replace("\\", "/"),
+				convertedFile.getCanonicalPath().replace("\\", "/")
 		};
 		executeUCSCCommand(command);
 		deleteTempFiles();
@@ -164,7 +164,7 @@ public class USeq2UCSCBig extends Thread{
 		useq2Text.setPrintWigFormat(true);
 		String name = workingUSeqArchiveFile.getName().replace(USeqUtilities.USEQ_EXTENSION_WITH_PERIOD, "");
 		ArrayList<File> convertedFiles = new ArrayList<File>();
-		tempFile = new File (workingUSeqArchiveFile.getCanonicalPath() + ".wig");
+		tempFile = new File (workingUSeqArchiveFile.getCanonicalPath().replace("\\", "/") + ".wig");
 		tempFile.deleteOnExit();
 
 		//is it stranded
@@ -175,10 +175,10 @@ public class USeq2UCSCBig extends Thread{
 			//convert text to binary, wigToBigWig in.wig chrom.sizes out.bw
 			convertedFile = new File (workingUSeqArchiveFile.getParentFile(), name + "_Plus.bw");
 			String[] command = new String[]{
-					ucscWig2BigWig.getCanonicalPath(),
-					tempFile.getCanonicalPath(),
-					chromLengths.getCanonicalPath(),
-					convertedFile.getCanonicalPath()
+					ucscWig2BigWig.getCanonicalPath().replace("\\", "/"),
+					tempFile.getCanonicalPath().replace("\\", "/"),
+					chromLengths.getCanonicalPath().replace("\\", "/"),
+					convertedFile.getCanonicalPath().replace("\\", "/")
 			};
 			//execute it
 			executeUCSCCommand(command);
@@ -188,7 +188,7 @@ public class USeq2UCSCBig extends Thread{
 			useq2Text.print2WigFile(workingUSeqArchiveFile, tempFile, "-");
 			//convert text to binary, wigToBigWig in.wig chrom.sizes out.bw
 			convertedFile = new File (workingUSeqArchiveFile.getParentFile(), name + "_Minus.bw");
-			command[3] = convertedFile.getCanonicalPath();
+			command[3] = convertedFile.getCanonicalPath().replace("\\", "/");
 			//execute and save it
 			executeUCSCCommand(command);
 			convertedFiles.add(convertedFile);
@@ -200,10 +200,10 @@ public class USeq2UCSCBig extends Thread{
 			//convert text to binary, wigToBigWig in.wig chrom.sizes out.bw
 			convertedFile = new File (workingUSeqArchiveFile.getParentFile(), name + ".bw");
 			String[] command = new String[]{
-					ucscWig2BigWig.getCanonicalPath(),
-					tempFile.getCanonicalPath(),
-					chromLengths.getCanonicalPath(),
-					convertedFile.getCanonicalPath()
+					ucscWig2BigWig.getCanonicalPath().replace("\\", "/"),
+					tempFile.getCanonicalPath().replace("\\", "/"),
+					chromLengths.getCanonicalPath().replace("\\", "/"),
+					convertedFile.getCanonicalPath().replace("\\", "/")
 			};
 			//execute it
 			executeUCSCCommand(command);

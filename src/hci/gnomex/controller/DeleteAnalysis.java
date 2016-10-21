@@ -2,6 +2,7 @@ package hci.gnomex.controller;
 
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
+import hci.gnomex.constants.Constants;
 import hci.gnomex.model.Analysis;
 import hci.gnomex.model.AnalysisCollaborator;
 import hci.gnomex.model.AnalysisFile;
@@ -149,9 +150,9 @@ public class DeleteAnalysis extends GNomExCommand implements Serializable {
     }
     
     for(int i = 0; i < folderContents.length; i++){
-      File child = new File(folderName + "/" + folderContents[i]);
+      File child = new File(folderName + Constants.FILE_SEPARATOR + folderContents[i]);
       if(child.isDirectory()){
-        removeUnregisteredFiles(child.getCanonicalPath());
+        removeUnregisteredFiles(child.getCanonicalPath().replace("\\", Constants.FILE_SEPARATOR));
       }
       else{
         if (!child.delete()) {

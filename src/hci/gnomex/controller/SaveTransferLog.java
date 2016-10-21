@@ -99,7 +99,7 @@ public class SaveTransferLog extends GNomExCommand implements Serializable {
           estimatedUploadTime = r.getCompletedDate() != null ? r.getCompletedDate() : r.getCreateDate();
         }
         
-        transferLog.setFileName(number + "/" + baseFilePath);
+        transferLog.setFileName(number + Constants.FILE_SEPARATOR + baseFilePath);
         transferLog.setIdLab(idLab);
         transferLog.setIdAnalysis(idAnalysis);
         transferLog.setIdRequest(idRequest);
@@ -175,7 +175,7 @@ public class SaveTransferLog extends GNomExCommand implements Serializable {
       }
       // Rest of file parts is the base file path to log
       if (baseFilePath.length() > 0) {
-        baseFilePath += "/";
+        baseFilePath += Constants.FILE_SEPARATOR;
       }
       baseFilePath += tokens[x];
     }

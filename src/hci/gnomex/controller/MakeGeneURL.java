@@ -362,7 +362,7 @@ public class MakeGeneURL extends GNomExCommand implements Serializable {
 //  	System.out.println ("[MakeURLLink] dir.getName(): " + dir.getName());
     for (File f: filesToLink) {
       File annoFile = new File(dir, DataTrackUtil.stripBadURLChars(f.getName(), "_"));
-      String dataTrackString = annoFile.toString();
+      String dataTrackString = annoFile.toString().replace("\\", Constants.FILE_SEPARATOR);
       
 //      System.out.println ("[makeURLLink] f.getName(): " + f.getName());
 //      System.out.println ("[makeURLLink] dataTrackString: " + dataTrackString);
@@ -426,10 +426,10 @@ public class MakeGeneURL extends GNomExCommand implements Serializable {
 		  }
 	      
 		  //Create the users' data directory
-//		  System.out.println ("[setupDirectories] urlLinkDir.getAbsoluteFile(): " + urlLinkDir.getAbsoluteFile());
+//		  System.out.println ("[setupDirectories] urlLinkDir.getAbsoluteFile().replace("\\", Constants.FILE_SEPARATOR): " + urlLinkDir.getAbsoluteFile().replace("\\", Constants.FILE_SEPARATOR));
 //		  System.out.println ("[setupDirectories] linkPath: " + linkPath);
 		  dir = new File(urlLinkDir.getAbsoluteFile(),linkPath);
-//		  System.out.println ("[setupDirectories] dir.getPath(): " + dir.getPath());
+//		  System.out.println ("[setupDirectories] dir.getPath().replace("\\", Constants.FILE_SEPARATOR): " + dir.getPath().replace("\\", Constants.FILE_SEPARATOR));
 		  
 		  if (!dir.exists())
 			  dir.mkdir();

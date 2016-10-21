@@ -2,6 +2,7 @@ package hci.gnomex.controller;
 
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
+import hci.gnomex.constants.Constants;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.Request;
 import hci.gnomex.utility.DictionaryHelper;
@@ -112,10 +113,10 @@ private long getFileNamesToDownload(Session sess, String serverName, String base
     String directoryName = "";
     String theBaseDir;
     if (flowCellIndicator.equals(flowCellDirectoryFlag)) {
-      directoryName = baseDirFlowCell + createYear + "/" + resultDirectory;
+      directoryName = baseDirFlowCell + createYear + Constants.FILE_SEPARATOR + resultDirectory;
       theBaseDir = baseDirFlowCell;
     } else {
-      directoryName = baseDir + createYear + "/" + requestNumberBase + "/" + resultDirectory;
+      directoryName = baseDir + createYear + Constants.FILE_SEPARATOR + requestNumberBase + Constants.FILE_SEPARATOR + resultDirectory;
       theBaseDir = baseDir;
     }
     
@@ -135,7 +136,7 @@ private long getFileNames(String requestNumber, String directoryName, Map fileDe
   if (fd.isDirectory()) {
     String[] fileList = fd.list();
     for (int x = 0; x < fileList.length; x++) {
-      String fileName = directoryName + "/" + fileList[x];
+      String fileName = directoryName + Constants.FILE_SEPARATOR + fileList[x];
       File f1 = new File(fileName);
       if (f1.isDirectory()) {
         fileSizeTotal += getFileNames(requestNumber, fileName, fileDescriptorMap, includeAllTIFFiles, includeAllJPGFiles, flowCellIndicator, theBaseDir, flowCellDirectoryFlag);
@@ -168,14 +169,14 @@ private long getFileNames(String requestNumber, String directoryName, Map fileDe
           
           String zipEntryName;
           if (flowCellIndicator.equals(flowCellDirectoryFlag)) {
-            zipEntryName = Request.getBaseRequestNumber(requestNumber) + "/" + fileName.substring(theBaseDir.length() + 5).replaceAll("\\\\", "/");  
+            zipEntryName = Request.getBaseRequestNumber(requestNumber) + Constants.FILE_SEPARATOR + fileName.substring(theBaseDir.length() + 5).replaceAll("\\\\", Constants.FILE_SEPARATOR);
           } else {
             try {
-              zipEntryName = PropertyDictionaryHelper.parseZipEntryName(theBaseDir, f1.getCanonicalPath());  
+              zipEntryName = PropertyDictionaryHelper.parseZipEntryName(theBaseDir, f1.getCanonicalPath().replace("\\", Constants.FILE_SEPARATOR));
             } catch (IOException  e) {
               throw new RuntimeException("Cannot get canonical file name for " + f1.getName());
             }
-            if (zipEntryName.startsWith("/")) {
+            if (zipEntryName.startsWith(Constants.FILE_SEPARATOR)) {
               zipEntryName = zipEntryName.substring(1);
             }
           }

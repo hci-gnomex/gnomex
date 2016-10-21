@@ -2,6 +2,7 @@ package hci.gnomex.controller;
 
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
+import hci.gnomex.constants.Constants;
 import hci.gnomex.model.DataTrack;
 import hci.gnomex.model.DataTrackFolder;
 import hci.gnomex.model.GenomeBuild;
@@ -100,7 +101,7 @@ public class UnlinkDataTrack extends GNomExCommand implements Serializable {
         }
 
         // Create a pending unload of the dataTrack
-        String typeName = dataTrackGrouping.getQualifiedTypeName() + "/" + dataTrack.getName();
+        String typeName = dataTrackGrouping.getQualifiedTypeName() + Constants.FILE_SEPARATOR + dataTrack.getName();
         UnloadDataTrack unload = new UnloadDataTrack();
         unload.setTypeName(typeName);
         unload.setIdAppUser(this.getSecAdvisor().getIdAppUser());

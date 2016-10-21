@@ -3,6 +3,7 @@ package hci.gnomex.controller;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.framework.security.UnknownPermissionException;
+import hci.gnomex.constants.Constants;
 import hci.gnomex.model.Analysis;
 import hci.gnomex.model.AnalysisCollaborator;
 import hci.gnomex.model.AnalysisExperimentItem;
@@ -783,7 +784,7 @@ public static String removeDataTrackFiles(Session sess, SecurityAdvisor secAd, A
 		for (DataTrackFolder folder : (Set<DataTrackFolder>) dt.getFolders()) {
 			String path = folder.getQualifiedTypeName();
 			if (path.length() > 0) {
-				path += "/";
+				path += Constants.FILE_SEPARATOR;
 			}
 			String typeName = path + dt.getName();
 
@@ -938,11 +939,11 @@ public static String getAnalysisDirectory(String baseDir, Analysis analysis) {
 	SimpleDateFormat formatter = new SimpleDateFormat("yyyy");
 	String createYear = formatter.format(analysis.getCreateDate());
 
-	if (!baseDir.endsWith("/") && !baseDir.endsWith("\\")) {
-		baseDir += "/";
+	if (!baseDir.endsWith(Constants.FILE_SEPARATOR) && !baseDir.endsWith("\\")) {
+		baseDir += Constants.FILE_SEPARATOR;
 	}
 
-	String directoryName = baseDir + createYear + "/" + analysis.getNumber();
+	String directoryName = baseDir + createYear + Constants.FILE_SEPARATOR + analysis.getNumber();
 	return directoryName;
 }
 
@@ -971,10 +972,10 @@ private static void removeAnalysisFileFromTransferLog(Session sess, String baseD
 public static void removeAnalysisFileFromFileSystem(String baseDir, Analysis analysis, AnalysisFile analysisFile) {
 	String fileName;
 	if (analysisFile.getQualifiedFilePath() != null && !analysisFile.getQualifiedFilePath().equals("")) {
-		fileName = analysisFile.getBaseFilePath() + "/" + analysisFile.getQualifiedFilePath() + "/"
+		fileName = analysisFile.getBaseFilePath() + Constants.FILE_SEPARATOR + analysisFile.getQualifiedFilePath() + Constants.FILE_SEPARATOR
 				+ analysisFile.getFileName();
 	} else {
-		fileName = analysisFile.getBaseFilePath() + "/" + analysisFile.getFileName();
+		fileName = analysisFile.getBaseFilePath() + Constants.FILE_SEPARATOR + analysisFile.getFileName();
 	}
 
 	File f = new File(fileName);

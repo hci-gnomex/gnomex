@@ -1,5 +1,6 @@
 package hci.gnomex.controller;
 
+import hci.gnomex.constants.Constants;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
@@ -157,7 +158,7 @@ protected void doPost(HttpServletRequest req, HttpServletResponse res) throws Se
 					File outputfileTemp = new File(filename);
 					// File outputfileTemp = new File("ReportIssueScreenshot.png");
 					ImageIO.write(image, "png", outputfileTemp);
-					String absolutePath = outputfileTemp.getAbsolutePath();
+					String absolutePath = outputfileTemp.getAbsolutePath().replace("\\", Constants.FILE_SEPARATOR);
 					outputfile = new File(absolutePath);
 
 				} catch (Exception e) {

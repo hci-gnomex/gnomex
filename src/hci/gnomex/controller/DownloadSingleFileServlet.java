@@ -91,7 +91,7 @@ public class DownloadSingleFileServlet extends HttpServlet {
     if (req.getParameter("fileName") != null && !req.getParameter("fileName").equals("")) {
       fileName = req.getParameter("fileName");
       // Change all backslash to forward slash for comparison
-      fileName = fileName.replaceAll("\\\\", "/");
+      fileName = fileName.replaceAll("\\\\", Constants.FILE_SEPARATOR);
     }
     // Get the dir parameter
     if (req.getParameter("dir") != null && !req.getParameter("dir").equals("")) {
@@ -206,7 +206,7 @@ public class DownloadSingleFileServlet extends HttpServlet {
           FlowCell flowCell      =  (FlowCell)i.next();
 
           String theCreateDate    = flowCell.formatDate((java.sql.Date)flowCell.getCreateDate());
-          String dateTokens[] = theCreateDate.split("/");
+          String dateTokens[] = theCreateDate.split(Constants.FILE_SEPARATOR);
           String createMonth = dateTokens[0];
           String createDay   = dateTokens[1];
           String theCreateYear  = dateTokens[2];
@@ -264,7 +264,7 @@ public class DownloadSingleFileServlet extends HttpServlet {
           xferLog.setIdRequest(experiment.getIdRequest());
           xferLog.setIdLab(experiment.getIdLab());
 
-          experimentDir = experimentFd.getFileName().substring(0,experimentFd.getFileName().lastIndexOf('/')+1);
+          experimentDir = experimentFd.getFileName().substring(0,experimentFd.getFileName().lastIndexOf(Constants.FILE_SEPARATOR_CHAR)+1);
 
           in = new FileInputStream(experimentFd.getFileName());
           OutputStream out = response.getOutputStream();
@@ -352,7 +352,7 @@ public class DownloadSingleFileServlet extends HttpServlet {
 
   private FileDescriptor recurseGetMatchingFileDescriptor(FileDescriptor fd, String fileName, String theDirectory) {
     // Change all backslash to forward slash for comparison
-    String fdFileName = fd.getFileName().replaceAll("\\\\", "/");
+    String fdFileName = fd.getFileName().replaceAll("\\\\", Constants.FILE_SEPARATOR);
 
     if (fdFileName.equals(fileName) || (dir.length() == 0 && theDirectory.equals("upload_staging"))) {
       return fd;
@@ -503,7 +503,7 @@ private boolean processIMG (String imgline, OutputStream out) {
 			return processed;
 		}
 
-		localdir = imgline.substring(ipos+5,epos) + "/";
+		localdir = imgline.substring(ipos+5,epos) + Constants.FILE_SEPARATOR;
 	}
 	else if (syntaxType == 2) {
 		// <img src="UGP07_Trio_Rec_Pnt_Splice_Indel_10e4.png" alt="Run '.....' " style="width: 100%">
@@ -539,7 +539,7 @@ private boolean processIMG (String imgline, OutputStream out) {
 		}
 		
 		
-		localdir = dir + "/";
+		localdir = dir + Constants.FILE_SEPARATOR;
 		if (experimentDir.endsWith(localdir))
 		{
 			localdir = "";
