@@ -7,7 +7,7 @@ import hci.gnomex.constants.Constants;
 import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -19,10 +19,10 @@ import org.jdom.Element;
 public class FileDescriptorUploadParser extends DetailObject implements Serializable {
   
   protected Document   doc;
-  protected Map        fileNameMap = new HashMap();
+  protected Map        fileNameMap = new LinkedHashMap();
   protected List       newDirectoryNames = new ArrayList();
-  protected Map        filesToRename = new HashMap();
-  protected Map        foldersToRename = new HashMap();
+  protected Map        filesToRename = new LinkedHashMap();
+  protected Map        foldersToRename = new LinkedHashMap();
   
   public FileDescriptorUploadParser(Document doc) {
     this.doc = doc;
@@ -30,7 +30,7 @@ public class FileDescriptorUploadParser extends DetailObject implements Serializ
   }
   
   public void parse() throws Exception{
-    fileNameMap = new HashMap();
+    fileNameMap = new LinkedHashMap();
     newDirectoryNames = new ArrayList();
     
     Element root = this.doc.getRootElement();
@@ -75,7 +75,7 @@ public class FileDescriptorUploadParser extends DetailObject implements Serializ
       return;
     }
 
-    String qualifiedDir = parentDir != null ? parentDir  + Constants.FILE_SEPARATOR + directoryName : directoryName;
+    String qualifiedDir = parentDir != null ? parentDir  + File.separator + directoryName : directoryName;
     if (folderNode.getAttributeValue("isNew") != null && folderNode.getAttributeValue("isNew").equals("Y")) {
       newDirectoryNames.add(qualifiedDir);
     }
@@ -84,9 +84,9 @@ public class FileDescriptorUploadParser extends DetailObject implements Serializ
     for(Iterator i1 = folderNode.getChildren("FileDescriptor").iterator(); i1.hasNext();) {
       Element fileNode = (Element)i1.next();
       //Check to see if we need to rename anything
-      String fileName = fileNode.getAttributeValue("fileName").replaceAll("\\\\", "/");
+      String fileName = fileNode.getAttributeValue("fileName").replaceAll("\\\\", Constants.FILE_SEPARATOR);
       String displayName = fileNode.getAttributeValue("displayName");
-      String newFileName = fileName.replace(fileName.substring(fileName.lastIndexOf("/") + 1), displayName);
+      String newFileName = fileName.replace(fileName.substring(fileName.lastIndexOf(Constants.FILE_SEPARATOR) + 1), displayName);
       if(!newFileName.equals(fileName) && !fileName.equals("")){
         filesToRename.put(fileName, newFileName);
       }
@@ -101,6 +101,7 @@ public class FileDescriptorUploadParser extends DetailObject implements Serializ
       List fileNames = (List)fileNameMap.get(qualifiedDir);
       if (fileNames == null) {
         fileNames = new ArrayList();
+        qualifiedDir = qualifiedDir.replace("\\", Constants.FILE_SEPARATOR);
         fileNameMap.put(qualifiedDir, fileNames);
       }
       fileNames.add(fileName);
