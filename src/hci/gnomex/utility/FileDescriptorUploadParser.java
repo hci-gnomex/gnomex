@@ -101,6 +101,7 @@ public class FileDescriptorUploadParser extends DetailObject implements Serializ
       List fileNames = (List)fileNameMap.get(qualifiedDir);
       if (fileNames == null) {
         fileNames = new ArrayList();
+        // qualifiedDir needs to be checked for '\'
         qualifiedDir = qualifiedDir.replace("\\", Constants.FILE_SEPARATOR);
         fileNameMap.put(qualifiedDir, fileNames);
       }
