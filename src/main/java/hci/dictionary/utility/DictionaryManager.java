@@ -101,8 +101,8 @@ public final class DictionaryManager implements DictionaryActions, Serializable 
    *
    * @return The singleton DictionaryManager, which can then be used to interact with the cached dictionaries
    */
-public static synchronized DictionaryManager getDictionaryManager(String dictionaryXmlFile, Session sess, Object o,
-		boolean includeNullEntry) {
+  public static synchronized DictionaryManager getDictionaryManager(String dictionaryXmlFile, Session sess, Object o,
+                                                                    boolean includeNullEntry) {
     DictionaryManager manager = null;
 
     if (managerMap.containsKey(dictionaryXmlFile)) {
@@ -134,7 +134,7 @@ public static synchronized DictionaryManager getDictionaryManager(String diction
         InputStream is = getInputStream(dictionaryXmlFile, loader);
         Document doc = builder.build(is);
         registerDictionaries(doc);
-      } catch (Exception e) {
+      } catch (JDOMException e) {
         LOG.error("Error loading dictionaries: ", e);
       }
     }
@@ -200,8 +200,8 @@ public static synchronized DictionaryManager getDictionaryManager(String diction
     }
   }
 
-private void registerDictionary(String className, String dictionaryName, HashMap<String, Filter> filters,
-		ArrayList<Filter> filterList, boolean editable, boolean scrubEntries) {
+  private void registerDictionary(String className, String dictionaryName, HashMap<String, Filter> filters,
+                                  ArrayList<Filter> filterList, boolean editable, boolean scrubEntries) {
     try {
       // If the parameter is actually a DictionaryEntry, register it
       if (DictionaryEntry.class.isAssignableFrom(Class.forName(className, true, loader))) {
@@ -242,7 +242,7 @@ private void registerDictionary(String className, String dictionaryName, HashMap
    * Loads the DictionaryEntry values for all dictionaries registered with the DictionaryManager. Call RegisterDictionaries before executing this method.
    *
    * @param sess
-   *          The Hibernate session to which the DictionarEntry classes are mapped and which should be used to load the dictionary entries
+   *            The Hibernate session to which the DictionarEntry classes are mapped and which should be used to load the dictionary entries
    *
    * @throws HibernateException
    */
@@ -279,7 +279,7 @@ private void registerDictionary(String className, String dictionaryName, HashMap
    * &lt;/DICTIONARIES&gt;
    *
    * @param className
-   *          A String representation of the name of the dictionary Class (ex. "hci.blah.MyDictionary")
+   *            A String representation of the name of the dictionary Class (ex. "hci.blah.MyDictionary")
    * @return A String containing an XML representation of the specified dictionary
    */
   public String getDictionaryXML(String className, SecurityAdvisor securityAdvisor) {
@@ -334,7 +334,7 @@ private void registerDictionary(String className, String dictionaryName, HashMap
   public static String getDisplay(String className, String key) {
     String display = null;
     Map<Object, Object> entries = getDictionaryEntryMap(className);
-    if (entries != null) {
+    if (entries != null && key != null) {
       DictionaryEntry de = (DictionaryEntry) entries.get(key);
       if (de != null) {
         display = de.getDisplay();
@@ -403,7 +403,7 @@ private void registerDictionary(String className, String dictionaryName, HashMap
    * &lt;/DICTIONARIES&gt;
    *
    * @param includeNullEntry
-   *          is a boolean that is true if a null option is to be included in each dictionary
+   *            is a boolean that is true if a null option is to be included in each dictionary
    * @return A String containing an XML representation of all registered dictionaries
    */
   private String getAllXML(SecurityAdvisor securityAdvisor) {
@@ -448,9 +448,9 @@ private void registerDictionary(String className, String dictionaryName, HashMap
   /**
    * Loads the specified command object with the parameters required to execute a given DictionaryAction, from the http request.
    * <p>
- * A valid action (specified by {@link hci.dictionary.utility.DictionaryActions}) must be included as a parameter named 'action' in the http request. If the
- * action parameter exists and has an appropriate value, this method will load the necessary parameters from the request into the
- * {@link hci.dictionary.utility.DictionaryCommand}, in order to later process the command when the execute method is called.
+   * A valid action (specified by {@link hci.dictionary.utility.DictionaryActions}) must be included as a parameter named 'action' in the http request. If the
+   * action parameter exists and has an appropriate value, this method will load the necessary parameters from the request into the
+   * {@link hci.dictionary.utility.DictionaryCommand}, in order to later process the command when the execute method is called.
    * <p>
    * Valid actions are: <br>
    * <ul>
@@ -461,9 +461,9 @@ private void registerDictionary(String className, String dictionaryName, HashMap
    * </ul>
    *
    * @param command
-   *          A {@link hci.dictionary.utility.DictionaryCommand} in which to load required parameters, included in the request
+   *            A {@link hci.dictionary.utility.DictionaryCommand} in which to load required parameters, included in the request
    * @param request
-   *          The HttpServletRequest from which to retrieve parameters
+   *            The HttpServletRequest from which to retrieve parameters
    */
   public void loadCommand(DictionaryCommand command, HttpServletRequest request) {
     command.requestURL = request.getRequestURL().toString();
@@ -476,8 +476,8 @@ private void registerDictionary(String className, String dictionaryName, HashMap
     // Load the necessary parameters for the requested DictionaryAction
     if (LOAD_XML.equals(command.action) || OPEN_EDITOR.equals(command.action) || LOAD_METADATA.equals(command.action)) {
       command.className = request.getParameter("className");
-	} else if (INSERT_ENTRY.equals(command.action) || UPDATE_ENTRY.equals(command.action)
-			|| DELETE_ENTRY.equals(command.action)) {
+    } else if (INSERT_ENTRY.equals(command.action) || UPDATE_ENTRY.equals(command.action)
+            || DELETE_ENTRY.equals(command.action)) {
 
       command.className = request.getParameter("className");
       if (command.className == null || command.className.equals("")) {
@@ -486,8 +486,8 @@ private void registerDictionary(String className, String dictionaryName, HashMap
         try {
           // Instantiate the DictionaryEntry class
           Class<?> c = Class.forName(command.className, true, loader);
-				command.dictionaryEntry = (DictionaryEntry) c.getConstructor(new Class[] {}).newInstance(
-						new Object[] {});
+          command.dictionaryEntry = (DictionaryEntry) c.getConstructor(new Class[] {}).newInstance(
+                  new Object[] {});
 
           // Load the DictionaryEntry (DetailObject) from the request
           command.loadDetailObject(request, command.dictionaryEntry);
@@ -512,14 +512,14 @@ private void registerDictionary(String className, String dictionaryName, HashMap
    * </ul>
    *
    * @param command
-   *          A {@link hci.dictionary.utility.DictionaryCommand} object, which has been pre-loaded by the DictionaryManager's loadCommand method
+   *            A {@link hci.dictionary.utility.DictionaryCommand} object, which has been pre-loaded by the DictionaryManager's loadCommand method
    * @param sess
-   *          A Hibernate Session that can be used to persist dictionary entries
+   *            A Hibernate Session that can be used to persist dictionary entries
    *
    * @throws HibernateException
    */
-public void executeCommand(DictionaryCommand command, Session sess, SecurityAdvisor securityAdvisor)
-		throws HibernateException {
+  public void executeCommand(DictionaryCommand command, Session sess, SecurityAdvisor securityAdvisor)
+          throws HibernateException {
     this.executeCommand(command, sess, securityAdvisor, false);
   }
 
@@ -537,14 +537,14 @@ public void executeCommand(DictionaryCommand command, Session sess, SecurityAdvi
    * </ul>
    *
    * @param command
-   *          A {@link hci.dictionary.utility.DictionaryCommand} object, which has been pre-loaded by the DictionaryManager's loadCommand method
+   *            A {@link hci.dictionary.utility.DictionaryCommand} object, which has been pre-loaded by the DictionaryManager's loadCommand method
    * @param sess
-   *          A Hibernate Session that can be used to persist dictionary entries
+   *            A Hibernate Session that can be used to persist dictionary entries
    *
    * @throws HibernateException
    */
-public void executeCommand(DictionaryCommand command, Session sess, SecurityAdvisor securityAdvisor,
-		boolean includeNullEntry) throws HibernateException {
+  public void executeCommand(DictionaryCommand command, Session sess, SecurityAdvisor securityAdvisor,
+                             boolean includeNullEntry) throws HibernateException {
     // Perform the requested DictionaryAction
     synchronized (this) {
       this.loader = command.getClass().getClassLoader();
@@ -553,8 +553,8 @@ public void executeCommand(DictionaryCommand command, Session sess, SecurityAdvi
       if (LOAD_XML.equals(command.action)) {
         // get the XML for a specific dictionary
         if (command.className != null && !command.className.equals("")) {
-				command.xmlResult = "<Dictionaries>" + this.getDictionaryXML(command.className, securityAdvisor)
-						+ "</Dictionaries>";
+          command.xmlResult = "<Dictionaries>" + this.getDictionaryXML(command.className, securityAdvisor)
+                  + "</Dictionaries>";
         }
         // get the XML for all dictionaries
         else {
@@ -604,8 +604,8 @@ public void executeCommand(DictionaryCommand command, Session sess, SecurityAdvi
             } catch (CloneNotSupportedException ex) {
             }
 
-					Object oldObj = sess.get(command.dictionaryEntry.getClass(),
-							meta.getIdentifier(command.dictionaryEntry, (SessionImpl) sess));
+            Object oldObj = sess.get(command.dictionaryEntry.getClass(),
+                    meta.getIdentifier(command.dictionaryEntry, (SessionImpl) sess));
 
             // Remove the cached dictionary entry (necessary, in case the value
             // property is actually changed,
@@ -633,8 +633,8 @@ public void executeCommand(DictionaryCommand command, Session sess, SecurityAdvi
 
           if (securityAdvisor.canUpdate(command.dictionaryEntry)) {
             ClassMetadata meta = sess.getSessionFactory().getClassMetadata(command.dictionaryEntry.getClass());
-					Object oldObj = sess.get(command.dictionaryEntry.getClass(),
-							meta.getIdentifier(command.dictionaryEntry, (SessionImpl) sess));
+            Object oldObj = sess.get(command.dictionaryEntry.getClass(),
+                    meta.getIdentifier(command.dictionaryEntry, (SessionImpl) sess));
 
             Dictionary dict = null;
             try {
@@ -649,12 +649,12 @@ public void executeCommand(DictionaryCommand command, Session sess, SecurityAdvi
               // If the above failed (constraint violation?) try setting is
               // Active = N
               try {
-							Method m = command.dictionaryEntry.getClass().getMethod("setIsActive",
-									new Class[] { String.class });
+                Method m = command.dictionaryEntry.getClass().getMethod("setIsActive",
+                        new Class[] { String.class });
 
                 sess.clear();
-							oldObj = sess.get(command.dictionaryEntry.getClass(),
-									meta.getIdentifier(command.dictionaryEntry, (SessionImpl) sess));
+                oldObj = sess.get(command.dictionaryEntry.getClass(),
+                        meta.getIdentifier(command.dictionaryEntry, (SessionImpl) sess));
 
                 // isActive exists - mark inactive
                 m.invoke(oldObj, new Object[] { "N" });
@@ -705,8 +705,8 @@ public void executeCommand(DictionaryCommand command, Session sess, SecurityAdvi
   }
 
   /**
- * This Dictionary class is a private inner class of DictionaryManager, so that it is not visible to developers using the HCIDictionary.jar, since there might
- * be some confusion about which class to extend (Dictionary or DictionaryEntry).
+   * This Dictionary class is a private inner class of DictionaryManager, so that it is not visible to developers using the HCIDictionary.jar, since there might
+   * be some confusion about which class to extend (Dictionary or DictionaryEntry).
    *
    * @author sharoldsen
    */
@@ -721,8 +721,8 @@ public void executeCommand(DictionaryCommand command, Session sess, SecurityAdvi
     public boolean isEditable = false;
     public boolean scrubEntries = false;
 
-public Dictionary(String className, String displayName, HashMap<String, Filter> filters, ArrayList<Filter> filterList,
-		boolean editable, boolean scrub) {
+    public Dictionary(String className, String displayName, HashMap<String, Filter> filters, ArrayList<Filter> filterList,
+                      boolean editable, boolean scrub) {
       this.className = className;
       this.displayName = displayName;
       this.filterList = filterList;
@@ -859,8 +859,8 @@ public Dictionary(String className, String displayName, HashMap<String, Filter> 
       }
     }
 
-public boolean getCanWriteFilters(DictionaryEntry de, SecurityAdvisor securityAdvisor)
-		throws UnknownPermissionException {
+    public boolean getCanWriteFilters(DictionaryEntry de, SecurityAdvisor securityAdvisor)
+            throws UnknownPermissionException {
       boolean canWrite = true;
 
       if (this.getFilters() != null) {
@@ -874,8 +874,8 @@ public boolean getCanWriteFilters(DictionaryEntry de, SecurityAdvisor securityAd
             try {
               DictionaryEntry de2 = (DictionaryEntry) dict.getDictionaryEntryMap().get(fieldValueString);
               if (de2 != null) {
-						canWrite = canWrite && securityAdvisor.canUpdate(de2)
-								&& dict.getCanWriteFilters(de2, securityAdvisor);
+                canWrite = canWrite && securityAdvisor.canUpdate(de2)
+                        && dict.getCanWriteFilters(de2, securityAdvisor);
               }
             } catch (Exception e) {
             }
@@ -925,8 +925,8 @@ public boolean getCanWriteFilters(DictionaryEntry de, SecurityAdvisor securityAd
           }
           // Add space if the character is upper case followed by or preceded by
           // a lower case character
-			else if (c.toUpperCase().equals(c)
-					&& (!cPrev.toUpperCase().equals(cPrev) || (cNext != null && !cNext.toUpperCase().equals(cNext)))) {
+          else if (c.toUpperCase().equals(c)
+                  && (!cPrev.toUpperCase().equals(cPrev) || (cNext != null && !cNext.toUpperCase().equals(cNext)))) {
             display += " " + c;
           } else {
             display += c;
@@ -959,9 +959,9 @@ public boolean getCanWriteFilters(DictionaryEntry de, SecurityAdvisor securityAd
      * Formats a date object as a string, according to the specified format
      *
      * @param object
-     *          The date object to be formatted as a String
+     *            The date object to be formatted as a String
      * @param outputStyle
-     *          The style in which to forat the date, as specified in DetailObject
+     *            The style in which to forat the date, as specified in DetailObject
      * @return A string representing the date object, formatted as specified
      */
     protected String convertDate(Object o, int outputStyle) {
@@ -991,8 +991,8 @@ public boolean getCanWriteFilters(DictionaryEntry de, SecurityAdvisor securityAd
     }
 
     /**
- * Returns this dictionary object as xml using reflection. Unlike the standard toXMLString() method in HibernateDetailObject, this does not include nodes for
- * collections, and always uses the base class (Dictionary or DictionaryEntry, rather than a subclass) as the root node
+     * Returns this dictionary object as xml using reflection. Unlike the standard toXMLString() method in HibernateDetailObject, this does not include nodes for
+     * collections, and always uses the base class (Dictionary or DictionaryEntry, rather than a subclass) as the root node
      *
      * @return an XML string representing this dictionary
      */
@@ -1073,10 +1073,10 @@ public boolean getCanWriteFilters(DictionaryEntry de, SecurityAdvisor securityAd
             field.setAttribute("className", f.getFilterClass());
             field.setAttribute("dataField", f.getFilterField());
             field.setAttribute("dataType", "comboBox");
-				field.setAttribute(
-						"caption",
-						parseFilterDisplay((dict != null) ? dict.getDisplayName() : this.parseDisplay(f
-								.getFilterField())));
+            field.setAttribute(
+                    "caption",
+                    parseFilterDisplay((dict != null) ? dict.getDisplayName() : this.parseDisplay(f
+                            .getFilterField())));
             field.setAttribute("visible", "Y");
             dictionary.addContent(field);
           }
@@ -1088,8 +1088,8 @@ public boolean getCanWriteFilters(DictionaryEntry de, SecurityAdvisor securityAd
           ClassMetadata meta = sess.getSessionFactory().getClassMetadata(Class.forName(this.className, true, loader));
           java.util.List<String> propertyNames = Arrays.asList(meta.getPropertyNames());
 
-			Object o = Class.forName(this.className, true, loader).getConstructor(new Class[] {})
-					.newInstance(new Object[] {});
+          Object o = Class.forName(this.className, true, loader).getConstructor(new Class[] {})
+                  .newInstance(new Object[] {});
           ((DictionaryEntry) o).registerMethodsToExcludeFromXML();
 
           HashMap<?, ?> controls = new HashMap<Object, Object>();
@@ -1100,23 +1100,23 @@ public boolean getCanWriteFilters(DictionaryEntry de, SecurityAdvisor securityAd
             if (m.getName().indexOf("get") != -1 && m.getParameterTypes().length == 0) {
               // we have a getter - create a field, as long as the getter isn't
               // excluded
-					if ((((DictionaryEntry) o).getExcludedMethodsMap() == null || ((DictionaryEntry) o)
-							.getExcludedMethodsMap().get(m.getName()) == null)
-							&& !m.getName().equals("getDatakey")
-							&& !m.getName().equals("getCanWrite")
-							&& !m.getName().equals("getCanRead")
-							&& !m.getName().equals("getCanUpdate") && !m.getName().equals("getCanDelete")) {
+              if ((((DictionaryEntry) o).getExcludedMethodsMap() == null || ((DictionaryEntry) o)
+                      .getExcludedMethodsMap().get(m.getName()) == null)
+                      && !m.getName().equals("getDatakey")
+                      && !m.getName().equals("getCanWrite")
+                      && !m.getName().equals("getCanRead")
+                      && !m.getName().equals("getCanUpdate") && !m.getName().equals("getCanDelete")) {
 
-						String fieldName = m.getName().substring(3, 4).toLowerCase()
-								+ ((m.getName().length() > 4) ? m.getName().substring(4) : "");
+                String fieldName = m.getName().substring(3, 4).toLowerCase()
+                        + ((m.getName().length() > 4) ? m.getName().substring(4) : "");
 
                 // Handle field names that start with a capital letter
                 try {
                   Class.forName(this.className, true, loader).getDeclaredField(fieldName);
                 } catch (Exception e) {
                   try {
-								Class.forName(this.className, true, loader).getDeclaredField(
-										fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1));
+                    Class.forName(this.className, true, loader).getDeclaredField(
+                            fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1));
                     fieldName = fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1);
                   } catch (Exception ex) {
                   }
@@ -1156,9 +1156,9 @@ public boolean getCanWriteFilters(DictionaryEntry de, SecurityAdvisor securityAd
                     dictionary.addContent(field);
                   } else {
                     // Make dates datepickers
-								if (m.getReturnType().equals(java.util.Date.class)
-										|| m.getReturnType().equals(java.sql.Date.class)
-										|| m.getReturnType().equals(java.sql.Timestamp.class)) {
+                    if (m.getReturnType().equals(java.util.Date.class)
+                            || m.getReturnType().equals(java.sql.Date.class)
+                            || m.getReturnType().equals(java.sql.Timestamp.class)) {
 
                       field = new Element("Field");
                       field.setAttribute("isFilter", "N");
@@ -1191,8 +1191,8 @@ public boolean getCanWriteFilters(DictionaryEntry de, SecurityAdvisor securityAd
                         field.setAttribute("visible", "Y");
                         field.setAttribute("isIdentifier", "N");
                       } else {
-										if (isKeyColumn(meta, fieldName)
-												&& ((AbstractEntityPersister) meta).getIdentifierGenerator() instanceof Assigned) {
+                        if (isKeyColumn(meta, fieldName)
+                                && ((AbstractEntityPersister) meta).getIdentifierGenerator() instanceof Assigned) {
                           field.setAttribute("visible", "Y");
                           field.setAttribute("isIdentifier", "Y");
                         } else {
@@ -1237,8 +1237,8 @@ public boolean getCanWriteFilters(DictionaryEntry de, SecurityAdvisor securityAd
   }
 
   /**
- * This Dictionary class is a private inner class of DictionaryManager, so that it is not visible to developers using the HCIDictionary.jar. There should be no
- * reason that it would need to be used outside the DictionaryManager and not having it visible should just make things simpler for users of this API.
+   * This Dictionary class is a private inner class of DictionaryManager, so that it is not visible to developers using the HCIDictionary.jar. There should be no
+   * reason that it would need to be used outside the DictionaryManager and not having it visible should just make things simpler for users of this API.
    *
    * @author sharoldsen
    */
