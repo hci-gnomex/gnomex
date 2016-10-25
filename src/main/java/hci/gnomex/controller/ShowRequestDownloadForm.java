@@ -94,7 +94,7 @@ public class ShowRequestDownloadForm extends GNomExCommand implements Serializab
 				Document doc = formatDownloadHTML(sess, secAdvisor, experiments, serverName, baseDirFlowCell, baseURL);
 
 				XMLOutputter out = new org.jdom.output.XMLOutputter();
-				out.getFormat().setOmitEncoding(true);
+				out.setOmitEncoding(true);
 				this.xmlResult = out.outputString(doc);
 				this.xmlResult = this.xmlResult.replaceAll("&amp;", "&");
 				this.xmlResult = this.xmlResult.replaceAll("�", "&micro");

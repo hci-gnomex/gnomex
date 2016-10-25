@@ -207,7 +207,7 @@ public class GetRequestProgressSolexaList extends GNomExCommand implements Seria
       throw new RollBackCommandException(e.getMessage());
     } finally {
       try {
-        this.getSecAdvisor().closeReadOnlyHibernateSession();        
+        //closeReadOnlyHibernateSession;        
       } catch(Exception e){
         LOG.error("Error", e);
       }

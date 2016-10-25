@@ -197,7 +197,7 @@ public class ShowDataTrackInfo extends GNomExCommand implements Serializable {
 
 		} finally {
 			try {
-				HibernateSession.closeSession();
+				//closeHibernateSession;
 			} catch (Exception ex) {
 				LOG.error("Unable to close session in ShowDataTrackInfo");
 			}

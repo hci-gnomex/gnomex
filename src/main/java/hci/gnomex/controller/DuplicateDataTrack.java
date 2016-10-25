@@ -202,7 +202,7 @@ public class DuplicateDataTrack extends GNomExCommand implements Serializable {
         root.setAttribute("idDataTrack", dup.getIdDataTrack().toString());
         root.setAttribute("idDataTrackFolder", folder != null ? folder.getIdDataTrackFolder().toString() : "");
         XMLOutputter out = new org.jdom.output.XMLOutputter();
-        out.getFormat().setOmitEncoding(true);
+        out.setOmitEncoding(true);
         this.xmlResult = out.outputString(doc);
         this.setResponsePage(SUCCESS_JSP);
 

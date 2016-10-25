@@ -81,7 +81,7 @@ public class RequestLabMembership extends GNomExCommand implements Serializable 
 			LOG.error("Error in RequestLabMembership", e);
 		} finally {
 			try {
-				HibernateSession.closeSession();
+				//closeHibernateSession;
 			} catch (Exception e) {
 				LOG.error("Error in RequestLabMembership", e);
 			}

@@ -171,7 +171,7 @@ public class ShowPlateReport extends GNomExCommand implements Serializable {
           
 
           XMLOutputter out = new org.jdom.output.XMLOutputter();
-          out.getFormat().setOmitEncoding( true );
+          out.setOmitEncoding( true );
           this.xmlResult = out.outputString( doc );
           this.xmlResult = this.xmlResult.replaceAll( "&amp;", "&" );
           this.xmlResult = this.xmlResult.replaceAll( "�", "&micro" );

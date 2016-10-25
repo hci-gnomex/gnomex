@@ -109,7 +109,7 @@ public class AddPropertyAppUsers extends GNomExCommand implements Serializable {
         
     }finally {
       try {
-        HibernateSession.closeSession();        
+        //closeHibernateSession;        
       } catch(Exception e) {
         LOG.error("An exception has occurred in AddPropertyAppUsers", e);
       }

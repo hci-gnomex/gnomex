@@ -305,7 +305,7 @@ public class ShowExperimentMatrix extends ReportCommand implements Serializable 
 			throw new RollBackCommandException(e.getMessage());
 		} finally {
 			try {
-				HibernateSession.closeSession();
+				//closeHibernateSession;
 			} catch (Exception e) {
 				LOG.error("An exception has occurred in ShowExperimentMatrix ", e);
 			}

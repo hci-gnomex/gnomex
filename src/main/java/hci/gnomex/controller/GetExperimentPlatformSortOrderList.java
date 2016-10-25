@@ -10,7 +10,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import org.hibernate.Query;
+import org.hibernate.query.Query;
 import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -72,7 +72,7 @@ public class GetExperimentPlatformSortOrderList extends GNomExCommand implements
       throw new RollBackCommandException(e.getMessage());
     } finally {
       try {
-        this.getSecAdvisor().closeReadOnlyHibernateSession();        
+        //closeReadOnlyHibernateSession;        
       } catch(Exception e) {
         LOG.error("An exception has occurred in GetExperimentPlatformSortOrderList ", e);
       }

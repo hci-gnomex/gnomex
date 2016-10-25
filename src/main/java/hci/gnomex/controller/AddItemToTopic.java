@@ -24,7 +24,6 @@ import javax.servlet.http.HttpSession;
 import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
-import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
 import org.apache.log4j.Logger;
 
@@ -200,7 +199,7 @@ public class AddItemToTopic extends GNomExCommand implements Serializable {
         root.setAttribute("idDataTrack", idDataTrack==null?"":idDataTrack.toString());
         root.setAttribute("idTopic", idTopic==null?"":idTopic.toString());
         XMLOutputter out = new XMLOutputter();
-        out.getFormat().setOmitEncoding(true);
+        out.setOmitEncoding(true);
         this.xmlResult = out.outputString(doc);
         this.setResponsePage(SUCCESS_JSP);
       } else {

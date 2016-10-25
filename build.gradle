@@ -6,6 +6,7 @@ apply from: 'common.gradle'
 ant.importBuild 'flexBuild.xml'
 import org.apache.tools.ant.filters.*;
 
+
 repositories {
     mavenLocal()
     //mavenCentral()
@@ -22,15 +23,19 @@ dependencies {
     //have to use extremely old jdom b/c the hci framework is using a very old jdom
     compile fileTree (dir: 'libEnv', include: 'jdom.jar')
 
+
     //Realm stuff
-    //why do these have to be providedCompile.  Compile breaks tomcat startup
-    //difference between providedCompile and Compile??
     providedCompile 'org.apache.tomcat:tomcat-jdbc:9.0.0.M10'
     providedCompile 'org.apache.tomcat:tomcat-catalina:7.0.68'
     providedCompile group: 'javax.servlet', name: 'javax.servlet-api', version: '3.0.1'
     providedCompile 'log4j:log4j:1.2.12'
     providedCompile 'javax.mail:mail:1.4.7'
 
+    //xml to json stuff for gnomexlite
+    compile group: 'jline', name: 'jline', version: '0.9.94'
+    compile group: 'xom', name: 'xom', version: '1.2.5'
+
+    //
     compile group: 'org.hibernate', name: 'hibernate-core', version: '5.2.2.Final'
     compile group: 'servlets.com', name: 'cos', version: '05Nov2002'
     compile group: 'org.apache.commons', name: 'commons-compress', version: '1.1'
@@ -46,15 +51,21 @@ dependencies {
     compile group: 'org.freemarker', name: 'freemarker', version: '2.3.20'
 }
 
-//formattedDate has date format
-task gnomex_init << {
-    new File(glSaveDir).mkdirs()        // ./glsave
-    new File(glSaveDirSecure).mkdirs()  // ./glsave/secure
+def buildAliases = [
+        'gnomex_all' : ['clean', 'clean_tomcat', 'enableHTTPS', 'makeFlex', 'makeSQLServer', 'jar', 'clientJar', 'realmJar', 'flex-compile', 'copyScripts', 'war', 'gnomex_deploy'],
+        'gnomex_all_opensource' : ['clean', 'clean_tomcat', 'disableHTTPS', 'makeMySQL', 'makeFlex', 'jar', 'clientJar', 'realmJar', 'flex-compile', 'copyScripts', 'opensourceWar', 'enableHTTPS', 'opensourceSecureWar', 'moveSecureWar', 'gnomex_deploy', 'createOpenSourceZip'],
+        'gnomex_clean' : ['clean', 'clean_tomcat'],
+        'gnomex_lite_all' : ['clean', 'clean_tomcat', 'enableHTTPS', 'makeLite', 'makeSQLServer', 'jar', 'clientJar', 'realmJar', 'copyScripts', 'gnomexLiteWar', 'gnomex_deploy'],
+        'gnomex_lite_all_opensource' : ['clean', 'clean_tomcat', 'disableHTTPS', 'makeLite', 'makeMySQL', 'jar', 'clientJar', 'realmJar', 'copyScripts', 'gnomexLiteOpenSourceWar', 'enableHTTPS', 'gnomexLiteOpenSourceSecureWar', 'moveSecureWar', 'gnomex_deploy']
+]
+def expandedTaskList = []
+
+gradle.startParameter.taskNames.each {
+    expandedTaskList << (buildAliases[it] ? buildAliases[it] : it)
 }
 
-/**
- * useful for developers.  Clear out the old gnomex.war and gnomex.realm and unpacked gnomex folder if it exists
- */
+gradle.startParameter.taskNames = expandedTaskList.flatten()
+
 task clean_tomcat << {
     delete "${serverHome}/webapps/gnomex.war"
     delete "${serverHome}/lib/gnomex_realm.jar"
@@ -63,42 +74,23 @@ task clean_tomcat << {
     delete "${serverHome}/webapps/gnomexLite"
 }
 
-/**
- * build gnomex for localhost and production instances
- */
-task gnomex_all {
-    dependsOn gnomex_init, clean, 'jar', 'clientJar', 'realmJar', 'flex-compile', 'copyScripts', 'war', 'gnomex_deploy'
-
-    // run gnomex_deploy after this
+// replace string  helper function
+def replaceString(fileName, fromString, toString) {
+    def file = new File(fileName)
+    def fileText = file.text
+    fileText = fileText.replace(fromString, toString);
+    new File(fileName).write(fileText)
 }
 
-/**
- * build opensource gnomex instances
- */
-task gnomex_all_opensource {
-    dependsOn gnomex_init, clean, 'disableHTTPS', 'jar', 'clientJar', 'realmJar', 'flex-compile', 'copyScripts',
-            'opensourceWar', 'enableHTTPS', 'gnomex_deploy'
-
-      //run gnomex_deploy after this
+task moveSecureWar << {
+    copy{
+        from buildDir.getAbsolutePath() + "/libs"
+        include "*secure*"
+        into buildDir.getAbsolutePath() + "/secure";
+        rename("gnomexlite_secure.war", "gnomexlite.war");
+        rename("gnomex_secure.war", "gnomex.war");
+    }
 }
-
-task gnomex_lite_all {
-    dependsOn gnomex_init, clean, 'jar', 'clientJar', 'realmJar', 'copyScripts', 'gnomexLiteWar', 'gnomex_deploy'
-}
-
-// not working
-// TODO: need to make a secure gnomex.war for opensource users for the zip distribution
-//task gnomex_secure_opensource {
-//    dependsOn 'changeWarName', 'opensourceWar'
-//}
-
-//task changeWarName << {
-//    project.ext {
-//        warName = "gnomex_secure.war";
-//    }
-//}
-
-//run createOpenSourceZip if you want to create a zip for opensource users to download.
 
 task disableHTTPS << {
     replaceString("${baseDir}/src/main/java/hci/gnomex/constants/Constants.java",
@@ -112,12 +104,21 @@ task enableHTTPS << {
             "REQUIRE_SECURE_REMOTE = true;")
 }
 
-// replace string  helper function
-def replaceString(fileName, fromString, toString) {
-    def file = new File(fileName)
-    def fileText = file.text
-    fileText = fileText.replace(fromString, toString);
-    new File(fileName).write(fileText)
+task makeFlex <<{
+    replaceString("${webrootDir}/WEB-INF/web.xml", "gnomexLite.jsp", "gnomexFlex.jsp");
+}
+
+task makeLite << {
+    replaceString("${webrootDir}/WEB-INF/web.xml", "gnomexFlex.jsp", "gnomexLite.jsp");
+}
+
+task makeMySQL <<{
+    replaceString("${rescDir}/hibernate.tomcat.cfg.xml", "SQLServerDialect", "MySQLDialect")
+}
+
+task makeSQLServer <<{
+    replaceString("${rescDir}/hibernate.tomcat.cfg.xml", "MySQLDialect", "SQLServerDialect")
+
 }
 
 
@@ -135,7 +136,6 @@ jar {
 }
 
 task clientJar (type: Jar) {
-    dependsOn compileJava
     println buildDir.getAbsolutePath()
     from buildDir.getAbsolutePath() + "/classes/main/"
     include "hci/gnomex/httpclient/*.class"
@@ -200,8 +200,6 @@ task opensourceWar (type: War) {
         )
     }
 
-    replaceString("${webrootDir}/WEB-INF/web.xml", "gnomexLite.jsp", "gnomexFlex.jsp");
-
     //use UNIX eol convention
     from("${buildDir}/scripts") {
         include "*.sh"
@@ -218,10 +216,9 @@ task opensourceWar (type: War) {
 
     from("${baseDir}/META-INF") {
         include "context_opensource.xml"
-        into 'META-INF/context.xml'
+        into 'META-INF'
+        rename('context_opensource.xml', 'context.xml')
     }
-
-    replaceString("${rescDir}/hibernate.tomcat.cfg.xml", "SQLServerDialect", "MySQLDialect")
 
     from(rescDir) {
         include '*.*'
@@ -243,8 +240,68 @@ task opensourceWar (type: War) {
         into 'WEB-INF/classes'
     }
 
-    replaceString("${rescDir}/hibernate.tomcat.cfg.xml", "MySQLDialect", "SQLServerDialect")
+}
 
+task opensourceSecureWar (type: War) {
+    archiveName = opensourceSecureWarName
+    classpath = classpath - sourceSets.main.output
+
+    from(buildDir.getAbsolutePath()) {
+        include '*.swf'
+        include '*.html'
+        include '*.jsp'
+        include '*.js'
+        include 'assets/*.*'
+    }
+
+    exclude 'gnomexlite'
+
+    manifest {
+        attributes (
+                'Built-By': ant.properties['user.name'],
+                'Implementation-Version': "${gnomex_version}.${buildNum}    (${formattedDate})"
+        )
+    }
+
+    //use UNIX eol convention
+    from("${buildDir}/scripts") {
+        include "*.sh"
+        filter(FixCrLfFilter.class,
+                eol: FixCrLfFilter.CrLf.newInstance("lf"))
+        into 'scripts'
+    }
+
+    from(buildDir.getAbsolutePath() + "/libs"){
+        include jarName
+        include clientJarName
+        into 'WEB-INF/lib'
+    }
+
+    from("${baseDir}/META-INF") {
+        include "context_opensource.xml"
+        into 'META-INF'
+        rename('context_opensource.xml', 'context.xml')
+    }
+
+    from(rescDir) {
+        include '*.*'
+        into 'WEB-INF/classes'
+    }
+
+    from("${rescDir}/hci/gnomex") {
+        include 'Dictionaries.xml'
+        into 'WEB-INF/classes'
+    }
+
+    from(baseDir) {
+        include "UCSCExecutables/**"
+    }
+
+    from("${baseDir}/src/main/webapp"){
+        include "getXML.jsp"
+        include "getHTML.jsp"
+        into 'WEB-INF/classes'
+    }
 }
 
 war {
@@ -267,8 +324,6 @@ war {
                 'Implementation-Version': "${gnomex_version}.${buildNum}    (${formattedDate})"
         )
     }
-
-    replaceString("${webrootDir}/WEB-INF/web.xml", "gnomexLite.jsp", "gnomexFlex.jsp");
 
     from(buildDir.getAbsolutePath() + "/libs"){
         include jarName
@@ -305,15 +360,14 @@ war {
         into 'WEB-INF/classes'
     }
 
-    from("${baseDir}/src/main/webapp"){
-        include "getXML.jsp"
-        include "getHTML.jsp"
-        into buildDir.getAbsolutePath() + "/tomcat"
-    }
+//    from("${baseDir}/src/main/webapp"){
+//        include "getXML.jsp"
+//        include "getHTML.jsp"
+//        into buildDir.getAbsolutePath() + "/tomcat"
+//    }
 }
 
 task gnomexLiteWar (type: War) {
-    dependsOn jar
     archiveName = glWarName
     classpath = classpath - sourceSets.main.output
 
@@ -322,7 +376,6 @@ task gnomexLiteWar (type: War) {
         include '*.html'
         include '*.jsp'
         include '*.js'
-        include 'assets/*.*'
     }
 
     exclude 'gnomexlite'
@@ -346,6 +399,10 @@ task gnomexLiteWar (type: War) {
         into 'WEB-INF/classes'
     }
 
+    from("${baseDir}/flex"){
+        include "assets/*.*"
+    }
+
     from("${webrootDir}/gnomexlite"){
         include "GNomExLite.properties"
         into 'WEB-INF/classes'
@@ -360,8 +417,6 @@ task gnomexLiteWar (type: War) {
     from("${baseDir}/src/main/webapp/gnomexlite"){
         include "gnomexLite.jsp"
     }
-
-    replaceString("${webrootDir}/WEB-INF/web.xml", "gnomexFlex.jsp", "gnomexLite.jsp");
 
     from("${baseDir}/META-INF") {
         include "context.xml"
@@ -388,9 +443,172 @@ task gnomexLiteWar (type: War) {
     }
 }
 
+task gnomexLiteOpenSourceWar (type: War) {
+    archiveName = glWarName
+    classpath = classpath - sourceSets.main.output
+
+    from(buildDir.getAbsolutePath()) {
+        include '*.swf'
+        include '*.html'
+        include '*.jsp'
+        include '*.js'
+    }
+
+    exclude 'gnomexlite'
+
+    manifest {
+        attributes (
+                'Built-By': ant.properties['user.name'],
+                'Implementation-Version': "${gnomex_version}.${buildNum}    (${formattedDate})"
+        )
+    }
+
+    from(buildDir.getAbsolutePath() + "/libs"){
+        include jarName
+        include clientJarName
+        into 'WEB-INF/lib'
+    }
+
+    from("${baseDir}/src/main/webapp"){
+        include "getXML.jsp"
+        include "getHTML.jsp"
+        into 'WEB-INF/classes'
+    }
+
+    from("${baseDir}/flex"){
+        include "assets/*.*"
+    }
+
+    from("${webrootDir}/gnomexlite"){
+        include "GNomExLite.properties"
+        into 'WEB-INF/classes'
+    }
+
+
+    from("${baseDir}/src/main/webapp/gnomexlite"){
+        include "gnomexLite.jsp"
+        into 'WEB-INF/classes'
+    }
+
+    from("${baseDir}/src/main/webapp/gnomexlite"){
+        include "gnomexLite.jsp"
+    }
+
+    from("${baseDir}/META-INF") {
+        include "context_opensource.xml"
+        into 'META-INF'
+        rename('context_opensource.xml', 'context.xml')
+    }
+
+//    from("${baseDir}/META-INF") {
+//        include "context.xml"
+//        into 'META-INF'
+//    }
+
+    from("${baseDir}/scripts"){
+        into "scripts"
+    }
+
+    // move these files to src/main/resources file
+    from(rescDir) {
+        include '*.*'
+        into 'WEB-INF/classes'
+    }
+
+    from("${rescDir}/hci/gnomex") {
+        include 'Dictionaries.xml'
+        into 'WEB-INF/classes'
+    }
+
+    from(baseDir) {
+        include "UCSCExecutables/**"
+    }
+}
+
+task gnomexLiteOpenSourceSecureWar (type: War) {
+    archiveName = opensourcegnomexLiteSecureName
+    classpath = classpath - sourceSets.main.output
+
+    from(buildDir.getAbsolutePath()) {
+        include '*.swf'
+        include '*.html'
+        include '*.jsp'
+        include '*.js'
+    }
+
+    exclude 'gnomexlite'
+
+    manifest {
+        attributes (
+                'Built-By': ant.properties['user.name'],
+                'Implementation-Version': "${gnomex_version}.${buildNum}    (${formattedDate})"
+        )
+    }
+
+    from(buildDir.getAbsolutePath() + "/libs"){
+        include jarName
+        include clientJarName
+        into 'WEB-INF/lib'
+    }
+
+    from("${baseDir}/src/main/webapp"){
+        include "getXML.jsp"
+        include "getHTML.jsp"
+        into 'WEB-INF/classes'
+    }
+
+    from("${baseDir}/flex"){
+        include "assets/*.*"
+    }
+
+    from("${webrootDir}/gnomexlite"){
+        include "GNomExLite.properties"
+        into 'WEB-INF/classes'
+    }
+
+
+    from("${baseDir}/src/main/webapp/gnomexlite"){
+        include "gnomexLite.jsp"
+        into 'WEB-INF/classes'
+    }
+
+    from("${baseDir}/src/main/webapp/gnomexlite"){
+        include "gnomexLite.jsp"
+    }
+
+//    from("${baseDir}/META-INF") {
+//        include "context.xml"
+//        into 'META-INF'
+//    }
+
+    from("${baseDir}/META-INF") {
+        include "context_opensource.xml"
+        into 'META-INF'
+        rename('context_opensource.xml', 'context.xml')
+    }
+
+    from("${baseDir}/scripts"){
+        into "scripts"
+    }
+
+    // move these files to src/main/resources file
+    from(rescDir) {
+        include '*.*'
+        into 'WEB-INF/classes'
+    }
+
+    from("${rescDir}/hci/gnomex") {
+        include 'Dictionaries.xml'
+        into 'WEB-INF/classes'
+    }
+
+    from(baseDir) {
+        include "UCSCExecutables/**"
+    }
+}
+
 
 task createOpenSourceZip(type: Zip){
-    //dependsOn releaseOpensource
     archiveName = openSourceZipName
 
     from(baseDir){
@@ -402,9 +620,6 @@ task createOpenSourceZip(type: Zip){
 
     from(baseDir) {
         include "README_UPGRADE.txt"
-//        expand([
-//                VERSION: gnomex_version
-//        ])
         into openSourceName
     }
 
@@ -427,12 +642,12 @@ task createOpenSourceZip(type: Zip){
         include warName
         include clientJarName
         include realmJarName
+        include glWarName
         into "${openSourceName}/gnomex/build"
     }
 
-    //TODO: need to figure out how to make a secure version of gnomex (aka https)
-    from(buildDir.getAbsolutePath() + "/secure") {
-        include warName
+    from(buildDir.getAbsolutePath() + "/libs") {
+        include "*secure*"
         into "${openSourceName}/gnomex/build/secure"
     }
 
@@ -464,7 +679,3 @@ task gnomex_deploy << {
         into "${serverHome}/lib"
     }
 }
-
-//TODO gnomexlite-opensource target
-//TODO build opensource gnomexlite
-//TODO: Do we need genoviz task???

@@ -118,7 +118,7 @@ public class GetAppUserPublic extends GNomExCommand implements Serializable {
 		} finally {
 			try {
 				if (sess != null) {
-					HibernateSession.closeSession();
+					//closeHibernateSession;
 				}
 			} catch (Exception e) {
 				LOG.error("An exception has occurred in GetAppUserPublic ", e);

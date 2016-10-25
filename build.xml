@@ -23,6 +23,7 @@
        	<mkdir dir="${glsave.dir}" />
        	<mkdir dir="${glsave.dir}/secure" />
 
+		<!-- Defined in gradle dependencies block
 	    <path id="project.class.path">
 	      <fileset dir="${lib.env.dir}"             includes="*.jar" />
 	      <fileset dir="${lib.dir}" 				includes="*.jar" />
@@ -33,7 +34,7 @@
             <fileset dir="${lib.dir}" 				    includes="*.jar" />
             <fileset dir="${lib.tomcat.dir}" 		    includes="*.jar" />
         	<fileset dir="${lib.tomcat.common.dir}"     includes="*.jar" />
-        </path>		
+        </path>		-->
 		
 
 			
@@ -845,7 +846,7 @@
 
 	<!-- ============================================== -->
 	<!--                                                -->
-	<!-- build GNomExLite                               -->
+	<!-- build opensource GNomExLite                    -->
 	<!--                                                -->
 	<!-- ============================================== -->
 	<target name="build-opensource-gnomexlite" depends="init, -prebuild-opensource">

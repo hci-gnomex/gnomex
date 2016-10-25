@@ -20,7 +20,6 @@ import javax.servlet.http.HttpSession;
 
 import org.hibernate.Session;
 import org.jdom.Document;
-import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.apache.log4j.Logger;
 public class MakeSoftLinks extends GNomExCommand implements Serializable {

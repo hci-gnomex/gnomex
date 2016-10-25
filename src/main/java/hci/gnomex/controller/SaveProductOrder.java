@@ -285,7 +285,7 @@ public class SaveProductOrder extends GNomExCommand implements Serializable {
 				sess.flush();
 
 				XMLOutputter out = new org.jdom.output.XMLOutputter();
-				out.getFormat().setOmitEncoding(true);
+				out.setOmitEncoding(true);
 				this.xmlResult = out.outputString(outputDoc);
 				this.setResponsePage(SUCCESS_JSP);
 

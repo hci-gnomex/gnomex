@@ -82,7 +82,7 @@ public class GetProductOrderListForLab extends GNomExCommand implements Serializ
 
     } finally {
       try {
-        this.getSecAdvisor().closeReadOnlyHibernateSession();
+        //closeReadOnlyHibernateSession;
       } catch(Exception e){
         LOG.error("Error", e);
       }

@@ -103,7 +103,7 @@ public class GetProductLedgerEntries extends GNomExCommand implements Serializab
 
     }finally {
       try {
-        this.getSecAdvisor().closeReadOnlyHibernateSession();        
+        //closeReadOnlyHibernateSession;        
       } catch(Exception e){
         LOG.error("Error", e);
       }

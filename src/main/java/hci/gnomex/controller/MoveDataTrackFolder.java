@@ -196,7 +196,7 @@ public class MoveDataTrackFolder extends GNomExCommand implements Serializable {
         Document doc = new Document(root);
         root.setAttribute("idDataTrack", dataTrackFolder.getIdDataTrackFolder().toString());
         XMLOutputter out = new org.jdom.output.XMLOutputter();
-        out.getFormat().setOmitEncoding(true);
+        out.setOmitEncoding(true);
         this.xmlResult = out.outputString(doc);
         this.setResponsePage(SUCCESS_JSP);
 
