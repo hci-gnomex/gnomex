@@ -137,6 +137,7 @@
 		[Bindable]
 		public var rowCountMessage:String = new String();
 
+		// Current collaborators in dropdown.
 		[Bindable]
 		private var currentCollaborators:XMLListCollection;
 		[Bindable]
@@ -172,10 +173,6 @@
 		private var possibleCollaboratorsInDropdown:XMLListCollection;
 
 		private var membersCollaboratorsInDropdown:XMLListCollection;
-
-		private var origPossibleCollaborators:XMLListCollection;
-
-		private var origMembersCollaborators:XMLListCollection;
 
 		private var possibleCollaborators:XMLListCollection;
 
@@ -859,23 +856,10 @@
 					"/>");
 			this.collaborators.addItem(node);
 			this.collaboratorCombo.dataProvider.removeItemAt(collaboratorCombo.selectedIndex);
-		}
+			// Remove from dropdowns
+			removeFromCollaborators(possibleCollaboratorsInDropdown, node);
+			removeFromCollaborators(membersCollaboratorsInDropdown, node);
 
-		/**
-		 * Checks if a node is contained in the list.
-		 *
-		 * @param list The XMLListCollection to check.
-		 * @param node The node checked if contained.
-		 * @return
-		 */
-		private function containsCollaborator(list:XMLListCollection, node:Object):Boolean {
-			for each (var item:XML in list) {
-				if (node.@idAppUser == item.@idAppUser) {
-					return true;
-					break;
-				}
-			}
-			return false;
 		}
 
 		/**
@@ -894,46 +878,38 @@
 			return null;
 		}
 
+
+		/**
+		 * On a remove collaborator add the collaborator back into the dropdowns, remove the collaborator
+		 * from the grid.
+         */
 		private function removeCollaborator():void {
-			dirty.setDirty();
 			if (collaboratorGrid.selectedIndex != -1) {
-
-				//currentCollaborators.addItem(collaboratorGrid.selectedItem);
+				var item:XML = null;
+				item = returnCollaborator(possibleCollaborators, collaboratorGrid.selectedItem);
+				if (item) {
+					possibleCollaboratorsInDropdown.addItem(item);
+				}
+				item = returnCollaborator(membersCollaborators, collaboratorGrid.selectedItem);
+				if (item) {
+					membersCollaboratorsInDropdown.addItem(item);
+				}
 				if (visibilityRadioGroup.selectedValue == 'OWNER') {
-					var item:XML = returnCollaborator(origPossibleCollaborators,
-							collaboratorGrid.selectedItem);
-					if (item) {
-						removeFromCollaborators(possibleCollaboratorsInDropdown, item);
-						currentCollaborators.addItem(item);
-						currentCollaborators.refresh();
-						if (containsCollaborator(origMembersCollaborators, item)) {
-							membersCollaboratorsInDropdown.addItem(item);
-
-						}
-
-					}
+					currentCollaborators = possibleCollaboratorsInDropdown;
 				}
 				else if (visibilityRadioGroup.selectedValue == 'MEM') {
-					var item:XML = returnCollaborator(origMembersCollaborators,
-							collaboratorGrid.selectedItem);
-					if (item) {
-						removeFromCollaborators(membersCollaboratorsInDropdown, item);
-						currentCollaborators.addItem(item);
-
-						currentCollaborators.refresh();
-						if (containsCollaborator(origPossibleCollaborators, item)) {
-							possibleCollaboratorsInDropdown.addItem(item);
-
-						}
-
-					}
-
+					currentCollaborators = membersCollaboratorsInDropdown;
 				}
 				collaboratorCombo.dataProvider = currentCollaborators.source;
 				collaborators.removeItemAt(collaboratorGrid.selectedIndex);
 			}
 		}
 
+		/**
+		 * Remove the node from the list.
+		 * @param list
+         * @param node
+         */
 		private function removeFromCollaborators(list:XMLListCollection, node:XML):void {
 			var removeItem:XML;
 			var index:int = 0;
@@ -964,6 +940,10 @@
 			}
 		}
 
+		/**
+		 * Synch list to collaborators.
+		 * @param list
+         */
 		private function syncCollaborators(list:XMLListCollection) {
 			var removeItem:XML;
 			var index:int = 0;
@@ -987,17 +967,14 @@
 						" idAppUser=''" +
 						" displayName=''" +
 						"/>");
-				possibleCollaboratorsInDropdown = new XMLListCollection(getLab.lastResult..Lab.(@idLab == analysis.@idLab).possibleCollaboratorsWithoutOwner.AppUser.(@isActive == 'Y'));
-				membersCollaboratorsInDropdown = new XMLListCollection(getLab.lastResult..Lab.(@idLab == analysis.@idLab).membersCollaborators.AppUser.(@isActive == 'Y'));
-				origPossibleCollaborators = new XMLListCollection(getLab.lastResult..Lab.(@idLab == analysis.@idLab).possibleCollaboratorsWithoutOwner.AppUser.(@isActive == 'Y'));
-				origMembersCollaborators = new XMLListCollection(getLab.lastResult..Lab.(@idLab == analysis.@idLab).membersCollaborators.AppUser.(@isActive == 'Y'));
 				possibleCollaborators = new XMLListCollection(getLab.lastResult..Lab.(@idLab == analysis.@idLab).possibleCollaboratorsWithoutOwner.AppUser.(@isActive == 'Y'));
 				membersCollaborators = new XMLListCollection(getLab.lastResult..Lab.(@idLab == analysis.@idLab).membersCollaborators.AppUser.(@isActive == 'Y'));
+				possibleCollaboratorsInDropdown = new XMLListCollection(getLab.lastResult..Lab.(@idLab == analysis.@idLab).possibleCollaboratorsWithoutOwner.AppUser.(@isActive == 'Y'));
+				membersCollaboratorsInDropdown = new XMLListCollection(getLab.lastResult..Lab.(@idLab == analysis.@idLab).membersCollaborators.AppUser.(@isActive == 'Y'));
 				syncCollaborators(possibleCollaboratorsInDropdown);
 				syncCollaborators(membersCollaboratorsInDropdown);
 				possibleCollaboratorsInDropdown.addItemAt(emptyNode, 0);
 				membersCollaboratorsInDropdown.addItemAt(emptyNode, 0);
-				initializeCollaborators();
 				possibleInstitutions = new PromptXMLListCollection(emptyNode, new XMLListCollection(getLab.lastResult..Lab.(@idLab == analysis.@idLab).institutions.Institution.(@isActive == 'Y')));
 				this.radioInstitutionVisibility.enabled = this.possibleInstitutions.length > 1;
 				if (analysis.@idInstitution != null && analysis.@idInstitution != '') {
@@ -1075,96 +1052,18 @@
 			checkIfVisibilityRadioGroupEnabled();
 		}
 
-
-		public function initializeCollaborators():void {
-			var ctr:int;
-			for each (var c:XML in collaborators) {
-				ctr = 0;
-				for each (var p:XML in possibleCollaborators) {
-					if (p.@idAppUser == c.@idAppUser) {
-						p.@canView = c.@canView;
-						p.@canUpdate = c.@canUpdate;
-						p.@canUploadData = c.@canUploadData;
-						possibleCollaborators.removeItemAt(ctr);
-						possibleCollaborators.addItem(p);
-						break;
-					}
-					ctr++;
-				}
-				ctr = 0;
-				for each (var m:XML in membersCollaborators) {
-					if (m.@idAppUser == c.@idAppUser) {
-						m.@canView = c.@canView;
-						m.@canUpdate = c.@canUpdate;
-						m.@canUploadData = c.@canUploadData;
-						membersCollaborators.removeItemAt(ctr);
-						membersCollaborators.addItem(m);
-						break;
-					}
-					ctr++;
-				}
-			}
-		}
-
 		/**
-		 * Synchronize possibleCollaborators to memberCollaborators.
-		 * @param syncOn The XMLListCollection that will be synchedOn.
-		 * @param current The XMLListCollection that will be synchronized.
-		 */
-		public function synchronizeCollaborators(syncOn:XMLListCollection, current:XMLListCollection):void {
-			//Go through each member if they are selected update possible
-			for each (var s:XML in syncOn) {
-				var ctr:int = 0;
-				for each (var c:XML in current) {
-					if (c.@idAppUser == s.@idAppUser && (c.@canUpdate != s.@canUpdate || c.@canUploadData != s.@canUploadData)) {
-						c.@canView = s.@canView;
-						c.@canUpdate = s.@canUpdate;
-						c.@canUploadData = s.@canUploadData;
-						current.removeItemAt(ctr);
-						current.addItem(c);
-						break;
-					}
-					ctr++;
-				}
-			}
-		}
-
-
-		public function intersectCollaborators(orig:XMLListCollection):void {
-			var list = new XMLListCollection();
-			for each (var c in collaborators) {
-				var item:XML = returnCollaborator(orig, c);
-				if (item != null) {
-					list.addItem(item);
-				}
-			}
-			collaborators = list;
-		}
-
-		public function synchOrigCollaborators(orig:XMLListCollection, clist:XMLListCollection):void {
-			//Go through each member if they are selected update possible
-			for each (var s:XML in orig) {
-				removeFromCollaborators(clist, s);
-			}
-		}
-
+		 * Set the visibility of the collaboratorVbox. Public dont show the vbox. Set the correct dropdown.
+         */
 		public function checkIfVisibilityRadioGroupEnabled():void {
 			if (getLab.lastResult != null) {
 
 				if (visibilityRadioGroup.selectedValue == 'OWNER') {
-					syncCollaborators(possibleCollaboratorsInDropdown);
-					synchronizeCollaborators(membersCollaborators, possibleCollaborators);
-					synchOrigCollaborators(possibleCollaboratorsInDropdown, possibleCollaborators);
-					collaborators = possibleCollaborators;
 					currentCollaborators = this.possibleCollaboratorsInDropdown;
 					collaboratorVBox.visible = true;
 					collaboratorVBox.includeInLayout = true;
 				}
 				else if (visibilityRadioGroup.selectedValue == 'MEM') {
-					syncCollaborators(membersCollaboratorsInDropdown);
-					synchronizeCollaborators(possibleCollaborators, membersCollaborators);
-					synchOrigCollaborators(membersCollaboratorsInDropdown, membersCollaborators);
-					collaborators = membersCollaborators;
 					currentCollaborators = this.membersCollaboratorsInDropdown;
 					collaboratorVBox.visible = true;
 					collaboratorVBox.includeInLayout = true;

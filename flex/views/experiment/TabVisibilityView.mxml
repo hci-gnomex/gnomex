@@ -45,9 +45,6 @@
 	private var idInstitution:Object;
 
 	[Bindable]
-	private var currentCollaborators:XMLListCollection;
-
-	[Bindable]
 	private var collaborators:XMLListCollection;
 
 	[Bindable]
@@ -217,13 +214,11 @@
 
 			if (visibilityRadioGroup.selectedValue == 'OWNER') {
 				collaborators = this.possibleCollaborators;
-				syncCollaborators(membersCollaborators, possibleCollaborators);
 				collaboratorVBox.visible = true;
 				collaboratorVBox.includeInLayout = true;
 			}
 			else if (visibilityRadioGroup.selectedValue == 'MEM') {
 				collaborators = this.membersCollaborators;
-				syncCollaborators(possibleCollaborators, membersCollaborators);
 				collaboratorVBox.visible = true;
 				collaboratorVBox.includeInLayout = true;
 			} else {
@@ -232,30 +227,6 @@
 			}
 		}
 
-	}
-
-
-	/**
-	 * Synchronize possibleCollaborators to memberCollaborators.
-	 * @param syncOn The XMLListCollection that will be synchedOn.
-	 * @param current The XMLListCollection that will be synchronized.
-     */
-	public function syncCollaborators(syncOn:XMLListCollection, current:XMLListCollection):void {
-		//Go through each member if they are selected update possible
-		for each (var s:XML in syncOn) {
-			var ctr:int = 0;
-			for each (var c:XML in current) {
-				if (c.@idAppUser == s.@idAppUser && (c.@canView != s.@canView || c.@canUpdate != s.@canUpdate || c.@canUploadData != s.@canUploadData)) {
-					c.@canView = s.@canView;
-					c.@canUpdate = s.@canUpdate;
-					c.@canUploadData = s.@canUploadData;
-					current.removeItemAt(ctr);
-					current.addItem(c);
-					break;
-				}
-				ctr++;
-			}
-		}
 	}
 
 	public function getCollaborators():XMLListCollection {
