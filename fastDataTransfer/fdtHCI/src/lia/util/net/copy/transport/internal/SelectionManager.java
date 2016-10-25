@@ -1,9 +1,8 @@
 /*
- * $Id: SelectionManager.java,v 1.1 2012-10-29 22:30:17 HCI\rcundick Exp $
+ * $Id$
  */
 package lia.util.net.copy.transport.internal;
 
-import gui.Log;
 import java.io.IOException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
@@ -19,6 +18,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import lia.util.net.common.Config;
 import lia.util.net.common.Utils;
@@ -33,7 +33,7 @@ import lia.util.net.copy.transport.FDTKeyAttachement;
  */
 public class SelectionManager {
 
-    private static final Log logger = Log.getLoggerInstance();
+    private static final Logger logger = Logger.getLogger(SelectionManager.class.getName());
 
     // should be one for every Selector - handles the selection process
     final static class SelectionTask implements Runnable {
@@ -84,16 +84,14 @@ public class SelectionManager {
                     sb.append("[ SelectionManager ] [ checkRenew ] for ").append(Utils.toStringSelectionKey(fdtSelectionKey));
                     logger.log(Level.FINEST, sb.toString());
                 }
-                
+
                 final SelectionKey sk = fdtSelectionKey.selectionKey;
-                
+
                 if (!sk.isValid()) {
-                    if (fdtSelectionKey != null) {
-                        fdtSelectionKey.cancel();
-                    }
+                    fdtSelectionKey.cancel();
                     continue;
                 }
-                
+
                 sk.interestOps(fdtSelectionKey.selectionKey.interestOps() | fdtSelectionKey.interests);
             }
         }
@@ -109,8 +107,7 @@ public class SelectionManager {
             while (!l.isEmpty()) {
                 try {
                     final FDTSelectionKey fdtSelectionKey = l.remove();
-                    fdtSelectionKey.selectionKey = fdtSelectionKey.channel.register(selector, fdtSelectionKey.interests);
-                    fdtSelectionKey.selectionKey.attach(fdtSelectionKey);
+                    fdtSelectionKey.selectionKey = fdtSelectionKey.channel.register(selector, fdtSelectionKey.interests, fdtSelectionKey);
                     if (finest) {
                         StringBuilder sb = new StringBuilder();
                         sb.append("[ SelectionManager ] [ checkNew ] for ").append(Utils.toStringSelectionKey(fdtSelectionKey));
@@ -211,7 +208,7 @@ public class SelectionManager {
                         }
                     }
                 } catch (Throwable t) {
-                    logger.logError(t);
+                    t.printStackTrace();
                 }
             }// for()
         }
@@ -346,7 +343,7 @@ public class SelectionManager {
                 entry.getValue().selector.wakeup();
             }
         } catch (Throwable t) {
-            logger.logError(t);
+            t.printStackTrace();
         }
     }
 

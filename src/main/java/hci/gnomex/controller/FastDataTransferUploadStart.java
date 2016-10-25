@@ -181,11 +181,11 @@ public class FastDataTransferUploadStart extends GNomExCommand implements Serial
         // The softlinks_dir is the place where the files will be uploaded to.  This is the directory referenced
         // by the FDT server which may be running on a different server than gnomex.
         String softlinks_dir = PropertyDictionaryHelper.getInstance(sess).GetFDTDirectory(serverName) + uuidStr;  
-        softlinks_dir  += File.separator + targetNumber;
+        String softlinks_dir1  = softlinks_dir + File.separator + targetNumber;
         
-        // Set task for moving files when uploaded
-        String taskFileDir = PropertyDictionaryHelper.getInstance(sess).getFDTFileDaemonTaskDir(serverName); 
-        addTask(taskFileDir, softlinks_dir, targetDir);                
+        // Create "info" file used by FDT postProcessing routine
+//        String taskFileDir = PropertyDictionaryHelper.getInstance(sess).getFDTFileDaemonTaskDir(serverName);
+        addTask(softlinks_dir, softlinks_dir1, targetDir);
 
         this.xmlResult = "<FDTUploadUuid uuid='" + uuidStr + File.separator + targetNumber + "'/>";
         
@@ -203,12 +203,6 @@ public class FastDataTransferUploadStart extends GNomExCommand implements Serial
       LOG.error("An exception has occurred in FastDataTransferUploadStart", e);
 
       throw new RollBackCommandException(e.getMessage());
-    } finally {
-      try {
-        //closeReadOnlyHibernateSession;
-      } catch(Exception e) {
-        LOG.error("An exception has occurred in FastDataTransferUploadStart", e);
-      }
     }
 
     return this;	  
@@ -251,32 +245,33 @@ public class FastDataTransferUploadStart extends GNomExCommand implements Serial
   }
   
   private static void addTask(String taskFileDir, String sourceDir, String targetDir) { 
-    
+/*
     if (!new File(taskFileDir).exists()) {
       File dir = new File(taskFileDir);
       boolean success = dir.mkdir();
       if (!success) {
-        System.out.println("Error: unable to create task file directory.");
+        System.out.println("Error: unable to create task file directory: " + taskFileDir);
         return;      
       }
-    }   
-    
+    }
+*/
+    String taskFileName = taskFileDir + "/" + "info";
     File taskFile;
     int numTries = 10;    
     while(true) {
-      String taskFileName = taskFileDir + Long.toString(System.currentTimeMillis())+".txt";
+//      String taskFileName = taskFileDir + "/" + "info";
       taskFile = new File(taskFileName);
       if(!taskFile.exists()) {
         boolean success;
         try {
           success = taskFile.createNewFile();
           if (!success) {
-            System.out.println("Error: unable to create task file.");
+            System.out.println("Error: unable to create task file. " + taskFileName);
             return;      
           } 
           break;
         } catch (IOException e) {
-          System.out.println("Error: unable to create task file.");
+          System.out.println("Error: unable to create task file. " + taskFileName);
           return;  
         }
       }
@@ -298,7 +293,7 @@ public class FastDataTransferUploadStart extends GNomExCommand implements Serial
       pw.flush();
       pw.close();      
     } catch (IOException e) {
-      System.out.println("IOException: " + e.getMessage());
+      System.out.println("IOException: file " + taskFileName + " " + e.getMessage());
       return;
     }    
   }

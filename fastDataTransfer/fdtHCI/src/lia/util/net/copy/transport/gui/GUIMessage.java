@@ -1,5 +1,5 @@
 /*
- * $Id: GUIMessage.java,v 1.1 2012-10-29 22:30:00 HCI\rcundick Exp $
+ * $Id$
  * Created on Aug 20, 2007
  *
  * moved from lia.util.net.copy.gui

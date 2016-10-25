@@ -13,6 +13,7 @@ import hci.gnomex.constants.Constants;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.GNomExRollbackException;
 import hci.gnomex.utility.HibernateSession;
+import hci.gnomex.utility.ParserException;
 import hci.gnomex.utility.ServletUtil;
 
 import java.io.File;
@@ -57,21 +58,13 @@ public void init(ServletConfig config) throws ServletException {
 	// are we really GNomExLite?
 	GNomExLite = areWeLite();
 
-	// First try to get the mail session using the Orion lookup.
-	// If that fails, try the lookup based on JNDI for Apache Tomcat
+	// Get the mail session
 	try {
-		Context ec = (Context) new InitialContext();
-		mailSession = (Session) ec.lookup(Constants.MAIL_SESSION);
-	} catch (Exception e) {
-		LOG.error("Error in gnomexFrontController", e);
-		try {
 			Context ec = (Context) new InitialContext().lookup("java:comp/env");
 			mailSession = (Session) ec.lookup(Constants.MAIL_SESSION);
 		} catch (Exception me) {
-			LOG.error("Error in gnomexFrontController", e);
-			System.out.println("cannot get mail session " + me.toString());
+		LOG.error("Error in gnomexFrontController cannot get mail session: ", me);
 		}
-	}
 
 	initLog4j();
 }
@@ -196,12 +189,15 @@ public void doPost(HttpServletRequest request, HttpServletResponse response) thr
 																											// security
 			|| request.getParameter("action") == null || !request.getParameter("action").equals("reload"))
 			&& (!requestName.startsWith("CreateSecurityAdvisor"))
-			&& (!requestName.equals("ChangePasswordExternalUser")) && (!requestName.equals("ShowAnalysisDownloadForm"))
+			&& (!requestName.equals("ShowAnalysisDownloadForm"))
 			&& (!requestName.equals("ShowAnalysisDownloadFormForGuest"))
-			&& (!requestName.equals("ShowRequestDownloadForm")) && (!requestName.equals("ChangePassword"))
-			&& (!requestName.equals("GetLaunchProperties")) && (!requestName.equals("PublicSaveSelfRegisteredAppUser"))
+			&& (!requestName.equals("ShowRequestDownloadForm"))
+			&& (!requestName.equals("ChangePassword"))
+			&& (!requestName.equals("GetLaunchProperties"))
+			&& (!requestName.equals("PublicSaveSelfRegisteredAppUser"))
 			&& (!requestName.equals("ShowRequestDownloadFormForGuest"))
-			&& (!requestName.equals("ShowExperimentMatrix")) && (!requestName.equals("ShowTopicTree"))) {
+			&& (!requestName.equals("ShowExperimentMatrix"))
+			&& (!requestName.equals("ShowTopicTree"))) {
 
 		commandInstance.addInvalidField("SecurityAdvisor",
 				"You must create a SecurityAdvisor in order to run this command.");
@@ -256,8 +252,15 @@ public void doPost(HttpServletRequest request, HttpServletResponse response) thr
 				if (e instanceof GNomExRollbackException
 						&& ((GNomExRollbackException) e).getDisplayFriendlyMessage() != null) {
 					this.forwardWithError(request, response, ((GNomExRollbackException) e).getDisplayFriendlyMessage());
-				} else {
-					this.forwardWithError(request, response);
+				}
+				else {
+					String exMsg = null;
+					if(e.getMessage().indexOf(':') != -1) {
+						exMsg = e.getMessage().substring(e.getMessage().indexOf(':') + 1);
+			}
+					else
+						exMsg = e.getMessage();
+					this.forwardWithError(request, response, exMsg);
 				}
 			}
 			return;

@@ -7,7 +7,7 @@ import java.util.Vector;
  * BlockCipherFactory.
  * 
  * @author Christian Plattner, plattner@inf.ethz.ch
- * @version $Id: BlockCipherFactory.java,v 1.1 2012-10-29 22:30:01 HCI\rcundick Exp $
+ * @version $Id: BlockCipherFactory.java,v 1.4 2005/12/05 17:13:27 cplattne Exp $
  */
 public class BlockCipherFactory
 {

@@ -13,19 +13,16 @@ import hci.gnomex.utility.HibernateSession;
 import java.io.File;
 import java.io.Serializable;
 import java.io.StringReader;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.logging.Level;
+import java.util.*;
+
+import org.apache.commons.validator.routines.IntegerValidator;
 import org.apache.log4j.Logger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.dom4j.Document;
+import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 import org.hibernate.Session;
@@ -45,21 +42,16 @@ public class SaveGenomeBuild extends GNomExCommand implements Serializable {
   
   public void validate() {
   }
-  
+
   public void loadCommand(HttpServletRequest request, HttpSession session) {
     
     gbScreen = new GenomeBuild();
     HashMap errors = this.loadDetailObject(request, gbScreen);
     this.addInvalidFields(errors);
-    if (gbScreen.getIdGenomeBuild() == null || gbScreen.getIdGenomeBuild().intValue() == 0) {
+    if (gbScreen.getIdGenomeBuild() == null || gbScreen.getIdGenomeBuild() == 0) {
       isNewGenomeBuild = true;
     }
     
-    // Das2 name is required
-    if (gbScreen.getDas2Name() == null || gbScreen.getDas2Name().equals("")) {
-      this.addInvalidField("namer", "DAS2 Name is required");
-    }
-
     // Get segments XML string
     if (request.getParameter("segmentsXML") != null && !request.getParameter("segmentsXML").equals("")) {
       segmentsXML = request.getParameter("segmentsXML");      
@@ -68,30 +60,103 @@ public class SaveGenomeBuild extends GNomExCommand implements Serializable {
     if (request.getParameter("sequenceFilesToRemoveXML") != null && !request.getParameter("sequenceFilesToRemoveXML").equals("")) {
       sequenceFilesToRemoveXML = request.getParameter("sequenceFilesToRemoveXML");      
     }
-    
-    // Make sure that the DAS2 name has no spaces or special characters
+
     if (isValid()) {
-      if (gbScreen.getDas2Name().indexOf(" ") >= 0) {
-        addInvalidField("namespaces", "The genome build DAS2 name cannot have spaces.");
-      }
-      Pattern pattern = Pattern.compile("\\W");
-      Matcher matcher = pattern.matcher(gbScreen.getDas2Name());
-      if (matcher.find()) {
-        this.addInvalidField("specialc", "The genome build DAS2 name cannot have special characters.");
-      }      
+      validateDas2Name();
+      validateSegments();
     }
     
+  }
+
+  private void validateDas2Name() {
+    if (gbScreen.getDas2Name() == null || gbScreen.getDas2Name().equals("")) {
+      this.addInvalidField("namer", "DAS2 Name is required");
+    }
+    if (gbScreen.getDas2Name().matches(".*\\W.*")) {
+      // regex \W will match anything other than letters, digits, and underscore
+      addInvalidField("specialc", "The genome build DAS2 name cannot have spaces or special characters.");
+    }
+  }
+
+  private boolean isPositiveInteger(String value) {
+    Integer intValue = IntegerValidator.getInstance().validate(value);
+    return (intValue != null && intValue > 0);
+  }
+
+  private boolean containsStringIgnoreCase(List<String> values, String valueToFind) {
+    for (String value : values) {
+      if (value.equalsIgnoreCase(valueToFind)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private void validateUniqueSegmentNames(List<String> names) {
+    List<String> uniqueNames = new ArrayList<String>();
+    List<String> duplicatedNames = new ArrayList<String>();
+    String outputNames = "";
+    for (String name : names) {
+      if (!name.isEmpty()) {
+        if (!containsStringIgnoreCase(uniqueNames, name)) {
+          uniqueNames.add(name);
+        } else {
+          if (!containsStringIgnoreCase(duplicatedNames, name)) {
+            duplicatedNames.add(name);
+            if (!outputNames.isEmpty()) {
+              outputNames += ", ";
+            }
+            outputNames += "'" + name + "'";
+          }
+        }
+      }
+    }
+    if (duplicatedNames.size() > 0) {
+      addInvalidField("duplicateSegmentNames", "Segment names " + outputNames + " are duplicated (must be unique)");
+    }
+  }
+
+  private void validateSegments() {
+    try {
+      if (segmentsXML != null) {
+        StringReader reader = new StringReader(segmentsXML);
+        SAXReader sax = new SAXReader();
+        Document segmentsDoc = sax.read(reader);
+        List<String> names = new ArrayList<String>();
+        int count = 0;
+        for (Iterator<?> iterSegment = segmentsDoc.getRootElement().elementIterator(); iterSegment.hasNext(); ) {
+          count++;
+          Element segmentNode = (Element) iterSegment.next();
+          String name = segmentNode.attributeValue("name");
+          String length = segmentNode.attributeValue("length");
+          String sortOrder = segmentNode.attributeValue("sortOrder");
+          if (name.trim().isEmpty()) {
+            addInvalidField("segment_" + count + "_name", "Segment name is required");
+          }
+          if (!isPositiveInteger(length)) {
+            addInvalidField("segment_" + count + "_length", "Segment length '" + length + "' is invalid");
+          }
+          if (!isPositiveInteger(sortOrder)) {
+            addInvalidField("segment_" + count + "_order", "Segment order '" + sortOrder + "' is invalid");
+          }
+          names.add(name.trim());
+        }
+        validateUniqueSegmentNames(names);
+      }
+    } catch (DocumentException e) {
+      addInvalidField("segmentsXML", "Unable to process segments");
+    }
   }
 
   public Command execute() throws RollBackCommandException {
     
     try {
       Session sess = HibernateSession.currentSession(this.getUsername());
-      
+
       if (this.getSecurityAdvisor().hasPermission(SecurityAdvisor.CAN_SUBMIT_REQUESTS)) {
 
         
-        GenomeBuild gb = null;
+        GenomeBuild gb;
               
         if (isNewGenomeBuild) {
           gb = gbScreen;
@@ -101,7 +166,7 @@ public class SaveGenomeBuild extends GNomExCommand implements Serializable {
 
         } else {
           
-          gb = (GenomeBuild)sess.load(GenomeBuild.class, gbScreen.getIdGenomeBuild());
+          gb = sess.load(GenomeBuild.class, gbScreen.getIdGenomeBuild());
           
           initializeGenomeBuild(gb);
           
@@ -111,18 +176,18 @@ public class SaveGenomeBuild extends GNomExCommand implements Serializable {
             StringReader reader = new StringReader(segmentsXML);
             SAXReader sax = new SAXReader();
             Document segmentsDoc = sax.read(reader);
-            for (Iterator<?> i = gb.getSegments().iterator(); i.hasNext();) {
-              Segment segment = Segment.class.cast(i.next());
+            for (Object objSegment : gb.getSegments()) {
+              Segment segment = Segment.class.cast(objSegment);
               boolean found = false;
-              for(Iterator<?> i1 = segmentsDoc.getRootElement().elementIterator(); i1.hasNext();) {
-                Element segmentNode = (Element)i1.next();
+              for (Object objNode : segmentsDoc.getRootElement().elements()) {
+                Element segmentNode = (Element) objNode;
                 String idSegment = segmentNode.attributeValue("idSegment");
                 if (idSegment != null && !idSegment.equals("")) {
                   if (segment.getIdSegment().equals(new Integer(idSegment))) {
                     found = true;
                     break;
                   }
-                }                   
+                }
               }
               if (!found) {
                 sess.delete(segment);
@@ -133,31 +198,29 @@ public class SaveGenomeBuild extends GNomExCommand implements Serializable {
             // Add segments
             for(Iterator<?> i = segmentsDoc.getRootElement().elementIterator(); i.hasNext();) {
               Element segmentNode = (Element)i.next();
+              Integer idSegment = IntegerValidator.getInstance().validate(segmentNode.attributeValue("idSegment"));
+              String name = segmentNode.attributeValue("name").trim();
+              Integer length = IntegerValidator.getInstance().validate(segmentNode.attributeValue("length"));
+              Integer sortOrder = IntegerValidator.getInstance().validate(segmentNode.attributeValue("sortOrder"));
 
-              String idSegment = segmentNode.attributeValue("idSegment");
-              String len = segmentNode.attributeValue("length");
-              len = len.replace(",", "");
-              String sortOrder = segmentNode.attributeValue("sortOrder");
+              Segment segment;
+              if (idSegment != null) {
+                segment = Segment.class.cast(sess.load(Segment.class, idSegment));
 
-              Segment s = null;
-              if (idSegment != null && !idSegment.equals("")) {
-                s = Segment.class.cast(sess.load(Segment.class, new Integer(idSegment)));
-
-                s.setName(segmentNode.attributeValue("name"));
-                s.setLength(len != null && !len.equals("") ? new Integer(len) : null);
-                s.setSortOrder(sortOrder != null && !sortOrder.equals("") ? new Integer(sortOrder) : null);
-                s.setIdGenomeBuild(gb.getIdGenomeBuild());
-
+                segment.setName(name);
+                segment.setLength(length);
+                segment.setSortOrder(sortOrder);
+                segment.setIdGenomeBuild(gb.getIdGenomeBuild());
 
               } else {
-                s = new Segment();    
+                segment = new Segment();
 
-                s.setName(segmentNode.attributeValue("name"));
-                s.setLength(len != null && !len.equals("") ? new Integer(len) : null);
-                s.setSortOrder(sortOrder != null && !sortOrder.equals("") ? new Integer(sortOrder) : null);
-                s.setIdGenomeBuild(gb.getIdGenomeBuild());
+                segment.setName(name);
+                segment.setLength(length);
+                segment.setSortOrder(sortOrder);
+                segment.setIdGenomeBuild(gb.getIdGenomeBuild());
 
-                sess.save(s);
+                sess.save(segment);
                 sess.flush();
               }
             }            
@@ -207,15 +270,7 @@ public class SaveGenomeBuild extends GNomExCommand implements Serializable {
       
     }catch (Exception e){
       LOG.error("An exception has occurred in SaveGenomeBuild ", e);
-
       throw new RollBackCommandException(e.getMessage());
-        
-    }finally {
-      try {
-        //closeHibernateSession;        
-      } catch(Exception e){
-        LOG.error("Error", e);
-      }
     }
     
     return this;

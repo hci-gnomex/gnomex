@@ -6,7 +6,7 @@ import ch.ethz.ssh2.DHGexParameters;
  * PacketKexDhGexRequest.
  * 
  * @author Christian Plattner, plattner@inf.ethz.ch
- * @version $Id: PacketKexDhGexRequest.java,v 1.1 2012-10-29 22:29:36 HCI\rcundick Exp $
+ * @version $Id: PacketKexDhGexRequest.java,v 1.4 2005/08/24 17:54:09 cplattne Exp $
  */
 public class PacketKexDhGexRequest
 {

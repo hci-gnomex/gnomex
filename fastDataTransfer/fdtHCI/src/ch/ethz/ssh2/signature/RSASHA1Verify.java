@@ -14,7 +14,7 @@ import ch.ethz.ssh2.packets.TypesWriter;
  * RSASHA1Verify.
  * 
  * @author Christian Plattner, plattner@inf.ethz.ch
- * @version $Id: RSASHA1Verify.java,v 1.1 2012-10-29 22:30:11 HCI\rcundick Exp $
+ * @version $Id: RSASHA1Verify.java,v 1.4 2005/12/07 10:25:49 cplattne Exp $
  */
 public class RSASHA1Verify
 {

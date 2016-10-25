@@ -20,6 +20,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import hci.gnomex.utility.PasswordUtil;
 import org.hibernate.query.Query;
 import org.hibernate.Session;
 import org.hibernate.jdbc.Work;
@@ -82,7 +83,8 @@ public class SaveAppUserPublic extends GNomExCommand implements Serializable {
 			} else if(initializeAppUser(appUser)) {
 				sess.save(appUser);
 			} else{
-				this.addInvalidField("","Please make sure you have specified a valid login or uNID(u followed by 7 digits).  If you have specified a login then please make sure to provide a password");
+				this.addInvalidField("","Please make sure you have specified a valid login or uNID(u followed by 7 digits)." +
+						"If you have specified a login then please make sure to provide a password that meets complexity requirements.");
 			}
 
 			if (this.isValid()) {
@@ -177,6 +179,9 @@ public class SaveAppUserPublic extends GNomExCommand implements Serializable {
 
 			// only update password if they have updated it
 			if (!appUserScreen.getPasswordExternal().equals(AppUser.MASKED_PASSWORD)) {
+				if (!PasswordUtil.passwordMeetsRequirements(appUserScreen.getPasswordExternal())) {
+					return false;
+				}
 				String salt = passwordEncrypter.createSalt();
 				String encryptedPassword = passwordEncrypter.createPassword(appUserScreen.getPasswordExternal(), salt);
 				appUser.setSalt(salt);

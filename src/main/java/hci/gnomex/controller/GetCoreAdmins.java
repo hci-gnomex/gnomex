@@ -44,6 +44,11 @@ public class GetCoreAdmins extends GNomExCommand implements Serializable {
                 List admins = q.list();
 
                 Document doc = new Document(new Element("AdminList"));
+                // add a blank element
+                Element blank = new Element("Admin");
+                blank.setAttribute("idAppUser", "");
+                blank.setAttribute("display", "");
+                doc.getRootElement().addContent(blank);
 
                 for(Iterator<AppUser> i = admins.iterator(); i.hasNext();){
                     AppUser au = i.next();

@@ -7,7 +7,7 @@ package ch.ethz.ssh2;
  * @see HTTPProxyData
  * 
  * @author Christian Plattner, plattner@inf.ethz.ch
- * @version $Id: ProxyData.java,v 1.1 2012-10-29 22:29:49 HCI\rcundick Exp $
+ * @version $Id: ProxyData.java,v 1.3 2006/08/02 12:17:22 cplattne Exp $
  */
 
 public abstract interface ProxyData

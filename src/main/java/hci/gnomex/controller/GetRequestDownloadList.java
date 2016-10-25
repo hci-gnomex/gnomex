@@ -388,6 +388,7 @@ public Command execute() throws RollBackCommandException {
 						n1.setAttribute("status", "");
 						n1.setAttribute("canDelete", "N");
 						n1.setAttribute("canRename", "N");
+						n1.setAttribute("displayName",fcFolder.getFlowCellNumber());
 						n1.setAttribute("itemNumber", fcFolder.getFlowCellNumber());
 
 						requestNode.addContent(n1);

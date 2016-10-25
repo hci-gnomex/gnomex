@@ -9,7 +9,7 @@ import ch.ethz.ssh2.transport.KexManager;
  * CryptoWishList.
  * 
  * @author Christian Plattner, plattner@inf.ethz.ch
- * @version $Id: CryptoWishList.java,v 1.1 2012-10-29 22:29:35 HCI\rcundick Exp $
+ * @version $Id: CryptoWishList.java,v 1.3 2005/08/24 17:54:10 cplattne Exp $
  */
 public class CryptoWishList
 {

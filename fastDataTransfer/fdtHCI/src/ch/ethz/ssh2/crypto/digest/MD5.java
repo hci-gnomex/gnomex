@@ -5,7 +5,7 @@ package ch.ethz.ssh2.crypto.digest;
  * MD5. Based on the example code in RFC 1321. Optimized (...a little).
  * 
  * @author Christian Plattner, plattner@inf.ethz.ch
- * @version $Id: MD5.java,v 1.1 2012-10-29 22:30:17 HCI\rcundick Exp $
+ * @version $Id: MD5.java,v 1.2 2006/02/02 09:11:03 cplattne Exp $
  */
 
 /*

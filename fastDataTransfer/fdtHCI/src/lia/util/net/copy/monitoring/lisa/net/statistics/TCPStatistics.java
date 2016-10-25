@@ -1,5 +1,5 @@
 /*
- * $Id: TCPStatistics.java,v 1.1 2012-10-29 22:29:58 HCI\rcundick Exp $
+ * $Id$
  */
 package lia.util.net.copy.monitoring.lisa.net.statistics;
 

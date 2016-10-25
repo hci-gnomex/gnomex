@@ -8,7 +8,7 @@ import java.io.IOException;
  * Basic Base64 Support.
  * 
  * @author Christian Plattner, plattner@inf.ethz.ch
- * @version $Id: Base64.java,v 1.1 2012-10-29 22:29:35 HCI\rcundick Exp $
+ * @version $Id: Base64.java,v 1.4 2005/08/11 12:47:31 cplattne Exp $
  */
 public class Base64
 {

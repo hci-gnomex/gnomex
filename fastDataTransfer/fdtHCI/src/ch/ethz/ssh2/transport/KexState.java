@@ -12,7 +12,7 @@ import ch.ethz.ssh2.packets.PacketKexInit;
  * KexState.
  * 
  * @author Christian Plattner, plattner@inf.ethz.ch
- * @version $Id: KexState.java,v 1.1 2012-10-29 22:29:46 HCI\rcundick Exp $
+ * @version $Id: KexState.java,v 1.3 2005/06/06 12:44:23 cplattne Exp $
  */
 public class KexState
 {

@@ -5,7 +5,7 @@ package ch.ethz.ssh2.crypto.digest;
  * MAC.
  * 
  * @author Christian Plattner, plattner@inf.ethz.ch
- * @version $Id: MAC.java,v 1.1 2012-10-29 22:30:16 HCI\rcundick Exp $
+ * @version $Id: MAC.java,v 1.4 2006/02/02 09:11:03 cplattne Exp $
  */
 public final class MAC
 {

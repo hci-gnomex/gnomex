@@ -181,17 +181,8 @@
 		private function showProtocols():void {
 			this.parentApplication.theViews.selectedChild = this.parentApplication.protocolsView;
 		}
-
-
-		private function changePassword():void {
-			parentApplication.showChangePasswordAfterLogin();
-		}
-
 		private function showAdvancedSearch():void {
 			parentApplication.showSearch();
-		}
-		private function showUserPublicView():void {
-			parentApplication.showUserPublicView();
 		}
 		private function showBilling():void {
 			this.parentApplication.theViews.selectedChild = this.parentApplication.navBillingView;

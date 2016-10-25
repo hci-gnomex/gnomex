@@ -1,16 +1,15 @@
-/*
- * $Id: FDT.java,v 1.1 2012-10-29 22:29:38 HCI\rcundick Exp $
- */
 package lia.util.net.copy;
 
-import apmon.ApMon;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Vector;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.LogManager;
 
@@ -24,19 +23,18 @@ import lia.util.net.common.HeaderBufferPool;
 import lia.util.net.common.InvalidFDTParameterException;
 import lia.util.net.common.SSHControlStream;
 import lia.util.net.common.Utils;
-import lia.util.net.copy.monitoring.lisa.LISAReportingTask;
-import lia.util.net.copy.transport.FDTProcolException;
-import lia.util.net.copy.transport.internal.SelectionManager;
-import gui.Log;
-import java.util.List;
-import java.util.Vector;
-import lia.util.net.common.FDTCommandLine;
 import lia.util.net.copy.monitoring.ApMonReportingTask;
 import lia.util.net.copy.monitoring.ConsoleReportingTask;
 import lia.util.net.copy.monitoring.FDTInternalMonitoringTask;
+import lia.util.net.copy.monitoring.lisa.LISAReportingTask;
+import lia.util.net.copy.transport.FDTProcolException;
+import lia.util.net.copy.transport.internal.SelectionManager;
+import apmon.ApMon;
 
 /**
- * The main class ... Everything will start from here, more or less
+ * The "main" class ... Everything will start from here, more or less
+ * 
+ * Due to Java checks the app entry point is {@link FDTMain}
  * 
  * @author ramiro
  */
@@ -46,16 +44,14 @@ public class FDT {
 
     private static String UPDATE_URL = "http://monalisa.cern.ch/FDT/lib/";
 
-    public static final String FDT_FULL_VERSION = "0.9.17-201008311824";
+    public static final String FDT_FULL_VERSION = "0.24.0-201512041353";
 
-    String mlDestinations = "monalisa2.cern.ch:28884,monalisa2.caltech.edu:28884";
+    String mlDestinations = "monalisa2.cern.ch:28884";
 
     /** two weeks between checking for updates */
     public static final long UPDATE_PERIOD = 2 * 24 * 3600 * 1000;
 
-    public static Config config;
-
-    private static Log logger = Log.getLoggerInstance();
+    private static Config config;
 
     private static Properties localProps = new Properties();
 
@@ -79,53 +75,61 @@ public class FDT {
         FileInputStream fis = null;
         File confFile = null;
         try {
-            confFile = new File(System.getProperty("user.home") + File.separator + ".fdt" + File.separator + "fdt.properties");
+            confFile = new File(
+                    System.getProperty("user.home") + File.separator + ".fdt" + File.separator + "fdt.properties");
             if (level.indexOf("FINE") >= 0) {
-                logger.log("Using local properties file: " + confFile);
+                System.out.println("Using local properties file: " + confFile);
             }
-            if (confFile != null && confFile.exists() && confFile.canRead()) {
+            if (confFile.exists() && confFile.canRead()) {
                 fis = new FileInputStream(confFile);
                 localProps.load(fis);
             }
         } catch (Throwable t) {
             if (confFile != null) {
                 if (level.indexOf("FINE") >= 0) {
-                    logger.logError("Unable to read local configuration file " + confFile);
-
-                    logger.logError(t);
+                    System.err.println("Unable to read local configuration file " + confFile);
+                    t.printStackTrace();
                 }
             }
         } finally {
-            if (fis != null) {
-                try {
-                    fis.close();
-                } catch (Throwable ignore) {
-                }
-            }
+            Utils.closeIgnoringExceptions(fis);
         }
 
         if (level.indexOf("FINE") >= 0) {
             if (localProps.size() > 0) {
                 if (level.indexOf("FINER") >= 0) {
-                    logger.log(" LocalProperties loaded: " + localProps);
+                    System.out.println(" LocalProperties loaded: " + localProps);
                 }
             } else {
-                logger.log("No local properties defined");
+                System.out.println("No local properties defined");
             }
         }
     }
 
-    private static final void initLogger(String level) {
+    private static final void initLogger(String level, File logFile) {
         initLocalProps(level);
         Properties loggingProps = new Properties();
         loggingProps.putAll(localProps);
 
         try {
-
             if (!loggingProps.containsKey("handlers")) {
                 loggingProps.put("handlers", "java.util.logging.ConsoleHandler");
                 loggingProps.put("java.util.logging.ConsoleHandler.level", "FINEST");
                 loggingProps.put("java.util.logging.ConsoleHandler.formatter", "java.util.logging.SimpleFormatter");
+            }
+
+            if (logFile != null) {
+                if (loggingProps.contains("handlers")) {
+                    loggingProps.remove("handlers");
+                }
+
+                loggingProps.put("handlers", "java.util.logging.FileHandler");
+                loggingProps.put("java.util.logging.FileHandler.level", "FINEST");
+                loggingProps.put("java.util.logging.FileHandler.formatter", "java.util.logging.SimpleFormatter");
+                loggingProps.put("java.util.logging.FileHandler.pattern", "" + logFile);
+                loggingProps.put("java.util.logging.FileHandler.append", "true");
+
+                System.setProperty("CustomLog", "true");
             }
 
             if (!loggingProps.containsKey(".level")) {
@@ -133,7 +137,7 @@ public class FDT {
             }
 
             if (level.indexOf("FINER") >= 0) {
-                logger.log("\n Logging props: " + loggingProps);
+                System.out.println("\n Logging props: " + loggingProps);
             }
 
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -142,17 +146,15 @@ public class FDT {
             LogManager.getLogManager().readConfiguration(new ByteArrayInputStream(baos.toByteArray()));
 
         } catch (Throwable t) {
-            //System.err.println(" Got exception setting the logging level ");
-            logger.logError(" Got exception setting the logging level ");
-            logger.logError(t);
+            System.err.println(" Got exception setting the logging level ");
+            t.printStackTrace();
         }
     }
 
-     FDT() throws Exception {
-
+    FDT() throws Exception {
 
         // initialize monitoring, if requested
-       final String configApMonHosts = config.getApMonHosts();
+        final String configApMonHosts = config.getApMonHosts();
         if (configApMonHosts != null) {
             long lStart = System.currentTimeMillis();
             ApMon apmon = null;
@@ -166,7 +168,7 @@ public class FDT {
                 final String[] apMonDstTks = apMonHosts.split(",");
 
                 if (apMonDstTks == null || apMonDstTks.length == 0) {
-                    logger.logError("\n\nApMon enabled but no hosts defined! Cannot send apmon statistics\n\n");
+                    System.err.println("\n\nApMon enabled but no hosts defined! Cannot send apmon statistics\n\n");
                 } else {
                     for (String host_port : apMonDstTks) {
                         int index = -1;
@@ -184,7 +186,7 @@ public class FDT {
                             port = 28884;
                         }
                         vHosts.add(host);
-                        vPorts.add(port);
+                        vPorts.add(Integer.valueOf(port));
                     }
 
                     ApMon.setLogLevel("WARNING");
@@ -208,14 +210,14 @@ public class FDT {
                     try {
                         apmon.sendParameter(cluster_name, node_name, "FDT_version", FDT_FULL_VERSION);
                     } catch (Exception e) {
-                        logger.log("Send operation failed: ");
-                        logger.logError(e);
+                        System.out.println("Send operation failed: ");
+                        e.printStackTrace();
                     }
 
                 }
             } catch (Throwable ex) {
-                logger.log("Error initializing ApMon engine.");
-                logger.logError(ex);
+                System.err.println("Error initializing ApMon engine.");
+                ex.printStackTrace();
             } finally {
                 Utils.initApMonInstance(apmon);
             }
@@ -223,23 +225,26 @@ public class FDT {
             try {
                 if (Utils.getApMon() != null) {
                     ApMonReportingTask apmrt = new ApMonReportingTask();
-                    Utils.getMonitoringExecService().scheduleWithFixedDelay(apmrt, 1, config.getApMonReportingInterval(), TimeUnit.SECONDS);
+                    Utils.getMonitoringExecService().scheduleWithFixedDelay(apmrt, 1,
+                            config.getApMonReportingInterval(), TimeUnit.SECONDS);
                 } else {
-                    logger.logError("Cannot start ApMonReportingTask because apMon is null!");
+                    System.err.println("Cannot start ApMonReportingTask because apMon is null!");
                 }
             } catch (Throwable t) {
-                logger.logError("Cannot start ApMonReportingTask because got Exception:");
-                logger.logError(t);
+                System.err.println("Cannot start ApMonReportingTask because got Exception:");
+                t.printStackTrace();
             }
 
             long lEnd = System.currentTimeMillis();
-            logger.log("ApMon initialization took " + (lEnd - lStart) + " ms");
+            System.out.println("ApMon initialization took " + (lEnd - lStart) + " ms");
         }
 
-        Utils.getMonitoringExecService().scheduleWithFixedDelay(FDTInternalMonitoringTask.getInstance(), 1, 5, TimeUnit.SECONDS);
+        Utils.getMonitoringExecService().scheduleWithFixedDelay(FDTInternalMonitoringTask.getInstance(), 1, 5,
+                TimeUnit.SECONDS);
         final long reportingTaskDelay = config.getReportingTaskDelay();
         if (reportingTaskDelay > 0) {
-            Utils.getMonitoringExecService().scheduleWithFixedDelay(ConsoleReportingTask.getInstance(), 0, reportingTaskDelay, TimeUnit.SECONDS);
+            Utils.getMonitoringExecService().scheduleWithFixedDelay(ConsoleReportingTask.getInstance(), 0,
+                    reportingTaskDelay, TimeUnit.SECONDS);
         }
 
         if (config.getHostName() != null) { // role == client
@@ -251,23 +256,19 @@ public class FDT {
                 throw new FDTProcolException("The buffer pool cannot be alredy initialized");
             }
 
-            FDTServer theServer = null; // ( because it's the only one )
-            theServer = new FDTServer();
-
-            if (theServer != null) {
-                
-                theServer.doWork();
-            }
+            final FDTServer theServer = new FDTServer(); // ( because it's the only one )
+            theServer.doWork();
         }
 
     }
 
     private static void printHelp() {
-        logger.log(Config.getUsage());
+        System.err.println(Config.getUsage());
     }
 
     private static void printVersion() {
-        logger.log(name + " " + FDT_FULL_VERSION);
+        System.out.println(name + " " + FDT_FULL_VERSION);
+        System.out.println("Contact: support-fdt@monalisa.cern.ch");
     }
 
     private int doWork() {
@@ -289,21 +290,23 @@ public class FDT {
                             Thread.interrupted();
                         }
                     } else {
-                        if (!config.isStandAlone() && fdtSessionManager.isInited() && fdtSessionManager.sessionsNumber() == 0) {
+                        if (!config.isStandAlone() && fdtSessionManager.isInited()
+                                && fdtSessionManager.sessionsNumber() == 0) {
                             SelectionManager.getInstance().stopIt();
-                            logger.log("Server started with -S flag set and all the sessions have finished ... FDT will stop now");
+                            System.out.println(
+                                    "Server started with -S flag set and all the sessions have finished ... FDT will stop now");
                             break;
                         }
                     }
                 } catch (Throwable t) {
-                    logger.log("FDT Got exception in main loop");
-                    logger.logError(t);
+                    System.err.println("FDT Got exception in main loop");
+                    t.printStackTrace();
                 }
             }
         } finally {
             try {
-
-                logger.log(" [ " + new Date().toString() + " ] - GracefulStopper hook started ... Waiting for the cleanup to finish");
+                System.out.println(" [ " + new Date().toString()
+                        + " ] - GracefulStopper hook started ... Waiting for the cleanup to finish");
 
                 GracefulStopper stopper = new GracefulStopper();
 
@@ -318,33 +321,33 @@ public class FDT {
                         try {
                             stopper.wait();
                         } catch (Throwable t) {
-                            logger.logError(t);
+                            t.printStackTrace();
                         }
                     }
-                };
-                logger.log(" [ " + new Date().toString() + " ]  - GracefulStopper hook finished!");
+                }
+                System.out.println(" [ " + new Date().toString() + " ]  - GracefulStopper hook finished!");
             } catch (Throwable gExc) {
-                logger.logError(" [GracefulStopper] Got exception stopper");
-                logger.logError(gExc);
+                System.err.println(" [GracefulStopper] Got exception stopper");
+                gExc.printStackTrace();
             }
         }
 
         final Throwable tExit = fdtSessionManager.getLasDownCause();
         final String mExit = fdtSessionManager.getLasDownMessage();
         if (tExit != null || mExit != null) {
-            logger.logError("\n [ " + new Date().toString() + " ]  FDT Session finished with errors: ");
+            System.err.println("\n [ " + new Date().toString() + " ]  FDT Session finished with errors: ");
             if (mExit != null) {
-                logger.log(mExit + "\n");
+                System.err.println(mExit + "\n");
             }
 
             if (tExit != null) {
-                logger.log(Utils.getStackTrace(tExit) + "\n");
+                System.err.println(Utils.getStackTrace(tExit) + "\n");
             }
 
             return 1;
         }
 
-        logger.log("\n [ " + new Date().toString() + " ]  FDT Session finished OK.\n");
+        System.out.println("\n [ " + new Date().toString() + " ]  FDT Session finished OK.\n");
         return 0;
     }
 
@@ -357,144 +360,209 @@ public class FDT {
             String[] clients;
 
             final int sshPort = config.getSSHPort();
-            
+
             switch (iTransferConfiguration) {
 
-                case Config.SSH_REMOTE_SERVER_LOCAL_CLIENT_PUSH:
-                    System.err.println("[SSH Mode] SSH_REMOTE_SERVER_LOCAL_CLIENT_PUSH. Remote ssh port: " + sshPort);
-                    try {// here we can have some class-not-found exceptions if GSI libraries are not loaded
-                        sshConn = config.isGSISSHModeEnabled() ? new lia.util.net.common.GSISSHControlStream(config.getHostName(), config.getDestinationUser(), sshPort) : new SSHControlStream(config.getHostName(),
-                                                                                                                                                                                       config.getDestinationUser(), sshPort);
-                    } catch (NoClassDefFoundError t) {
-                        throw new Exception("GSI libraries not loaded. You should set CLASSPATH accordingly!");
-                    }
-                    localAddresses = config.getLocalAddresses();
-                    // append the required options to the configurable java command
-                    remoteCmd = config.getRemoteCommand() + " -p " + config.getPort() + " -silent -S -f " + localAddresses;
-                    System.err.println(" [ CONFIG ] Starting FDT server over SSH using [ " + remoteCmd + " ]");
-                    sshConn.startProgram(remoteCmd);
-                    sshConn.waitForControlMessage("READY");
-                    System.err.println(" [ CONFIG ] FDT server successfully started on [ " + config.getHostName() + " ]");
-                    break;
+            case Config.SSH_REMOTE_SERVER_LOCAL_CLIENT_PUSH:
+                System.err.println("[SSH Mode] SSH_REMOTE_SERVER_LOCAL_CLIENT_PUSH. Remote ssh port: " + sshPort);
+                try {// here we can have some class-not-found exceptions if GSI libraries are not loaded
+                    sshConn = config.isGSISSHModeEnabled() ? //
+                            new lia.util.net.common.GSISSHControlStream(config.getHostName(),
+                                    config.getDestinationUser(), sshPort)
+                            : //
+                            new SSHControlStream(config.getHostName(), config.getDestinationUser(), sshPort);
+                } catch (NoClassDefFoundError t) {
+                    throw new Exception("GSI libraries not loaded. You should set CLASSPATH accordingly!");
+                }
+                sshConn.connect();
+                localAddresses = config.getLocalAddresses();
+                // append the required options to the configurable java command
+                remoteCmd = config.getRemoteCommand() + " -p " + config.getPort() + " -noupdates -silent -S -f "
+                        + localAddresses;
+                System.err.println(" [ CONFIG ] Starting FDT server over SSH using [ " + remoteCmd + " ]");
+                sshConn.startProgram(remoteCmd);
+                sshConn.waitForControlMessage("READY");
+                System.err.println(" [ CONFIG ] FDT server successfully started on [ " + config.getHostName() + " ]");
+                break;
 
-                case Config.SSH_REMOTE_SERVER_LOCAL_CLIENT_PULL:
-                    System.err.println("[SSH Mode] SSH_REMOTE_SERVER_LOCAL_CLIENT_PULL. Remote ssh port: " + sshPort);
-                    // the host running the FDT server is the source in this case
-                    String remoteServerHost = config.getSourceHosts()[0];
-                    String remoteServerUsername = null;
-                    clients = config.getSourceUsers();
-                    if (clients != null && clients.length > 0 && clients[0] != null) {
-                        remoteServerUsername = clients[0];
-                    } else {
-                        remoteServerUsername = System.getProperty("user.name", "root");
-                    }
-                    // update the local client parameters
-                    config.setPullMode(true);
-                    config.setHostName(remoteServerHost);
+            case Config.SSH_REMOTE_SERVER_LOCAL_CLIENT_PULL:
+                System.err.println("[SSH Mode] SSH_REMOTE_SERVER_LOCAL_CLIENT_PULL. Remote ssh port: " + sshPort);
+                // the host running the FDT server is the source in this case
+                String remoteServerHost = config.getSourceHosts()[0];
+                String remoteServerUsername = null;
+                clients = config.getSourceUsers();
+                if (clients != null && clients.length > 0 && clients[0] != null) {
+                    remoteServerUsername = clients[0];
+                } else {
+                    remoteServerUsername = System.getProperty("user.name", "root");
+                }
+                // update the local client parameters
+                config.setPullMode(true);
+                config.setHostName(remoteServerHost);
 
-                    try {// here we can have some class-not-found exceptions if GSI libraries are not loaded
-                        sshConn = config.isGSISSHModeEnabled() ? new lia.util.net.common.GSISSHControlStream(remoteServerHost, remoteServerUsername, sshPort) : new SSHControlStream(remoteServerHost, remoteServerUsername, sshPort);
-                    } catch (NoClassDefFoundError t) {
-                        throw new Exception("GSI libraries not loaded. You should set CLASSPATH accordingly!");
-                    }
-                    localAddresses = config.getLocalAddresses();
-                    // append the required options to the configurable java command
-                    remoteCmd = config.getRemoteCommand() + " -p " + config.getPort() + " -silent -S -f " + localAddresses;
-                    System.err.println(" [ CONFIG ] Starting FDT server over SSH using [ " + remoteCmd + " ]");
-                    sshConn.startProgram(remoteCmd);
-                    sshConn.waitForControlMessage("READY");
-                    System.err.println(" [ CONFIG ] FDT server successfully started on [ " + remoteServerHost + " ]");
-                    break;
+                try {// here we can have some class-not-found exceptions if GSI libraries are not loaded
+                    sshConn = config.isGSISSHModeEnabled()
+                            ? new lia.util.net.common.GSISSHControlStream(remoteServerHost, remoteServerUsername,
+                                    sshPort)
+                            : new SSHControlStream(remoteServerHost, remoteServerUsername, sshPort);
+                } catch (NoClassDefFoundError t) {
+                    throw new Exception("GSI libraries not loaded. You should set CLASSPATH accordingly!");
+                }
+                sshConn.connect();
+                localAddresses = config.getLocalAddresses();
+                // append the required options to the configurable java command
+                remoteCmd = config.getRemoteCommand() + " -p " + config.getPort() + " -noupdates -silent -S -f "
+                        + localAddresses;
+                System.err.println(" [ CONFIG ] Starting FDT server over SSH using [ " + remoteCmd + " ]");
+                sshConn.startProgram(remoteCmd);
+                sshConn.waitForControlMessage("READY");
+                System.err.println(" [ CONFIG ] FDT server successfully started on [ " + remoteServerHost + " ]");
+                break;
 
-                case Config.SSH_REMOTE_SERVER_REMOTE_CLIENT_PUSH:
-                    System.err.println("[SSH Mode] SSH_REMOTE_SERVER_REMOTE_CLIENT_PUSH. Remote ssh port: " + sshPort);
-                    // the host starting the fdt client
-                    final String clientHost = config.getSourceHosts()[0];
-                    // start FDT Server
-                    try {// here we can have some class-not-found exceptions if GSI libraries are not loaded
-                        sshConn = config.isGSISSHModeEnabled() ? new lia.util.net.common.GSISSHControlStream(config.getHostName(), config.getDestinationUser(), sshPort) : new SSHControlStream(config.getHostName(),
-                                                                                                                                                                                       config.getDestinationUser(), sshPort);
-                    } catch (NoClassDefFoundError t) {
-                        throw new Exception("GSI libraries not loaded. You should set CLASSPATH accordingly!");
-                    }
-                    // append the required options to the configurable java command
-                    remoteCmd = config.getRemoteCommand() + " -p " + config.getPort() + " -silent -S -f " + clientHost;
-                    System.err.println(" [ CONFIG ] Starting remote FDT server over SSH using [ " + remoteCmd + " ]");
-                    sshConn.startProgram(remoteCmd);
-                    sshConn.waitForControlMessage("READY");
-                    System.err.println(" [ CONFIG ] FDT server successfully started on [ " + config.getHostName() + " ]");
-                    // server ok
+            case Config.SSH_REMOTE_SERVER_REMOTE_CLIENT_PUSH:
+                System.err.println("[SSH Mode] SSH_REMOTE_SERVER_REMOTE_CLIENT_PUSH. Remote ssh port: " + sshPort);
+                // the host starting the fdt client
+                final String clientHost = config.getSourceHosts()[0];
+                // start FDT Server
+                try {// here we can have some class-not-found exceptions if GSI libraries are not loaded
+                    sshConn = config.isGSISSHModeEnabled()
+                            ? new lia.util.net.common.GSISSHControlStream(config.getHostName(),
+                                    config.getDestinationUser(), sshPort)
+                            : new SSHControlStream(config.getHostName(), config.getDestinationUser(), sshPort);
+                } catch (NoClassDefFoundError t) {
+                    throw new Exception("GSI libraries not loaded. You should set CLASSPATH accordingly!");
+                }
+                // append the required options to the configurable java command
+                remoteCmd = config.getRemoteCommand() + " -p " + config.getPort() + " -noupdates -silent -S -f "
+                        + clientHost;
+                System.err.println(" [ CONFIG ] Starting remote FDT server over SSH using [ " + remoteCmd + " ]");
+                sshConn.startProgram(remoteCmd);
+                sshConn.waitForControlMessage("READY");
+                System.err.println(" [ CONFIG ] FDT server successfully started on [ " + config.getHostName() + " ]");
+                // server ok
 
-                    // start FDT client
-                    String clientUser = null;
-                    clients = config.getSourceUsers();
-                    if (clients != null && clients.length > 0 && clients[0] != null) {
-                        clientUser = clients[0];
-                    } else {
-                        clientUser = System.getProperty("user.name", "root");
-                    }
+                // start FDT client
+                String clientUser = null;
+                clients = config.getSourceUsers();
+                if (clients != null && clients.length > 0 && clients[0] != null) {
+                    clientUser = clients[0];
+                } else {
+                    clientUser = System.getProperty("user.name", "root");
+                }
 
-                    try {// here we can have some class-not-found exceptions if GSI libraries are not loaded
-                        sshConn = config.isGSISSHModeEnabled() ? new lia.util.net.common.GSISSHControlStream(clientHost, clientUser, sshPort) : new SSHControlStream(clientHost, clientUser, sshPort);
-                    } catch (NoClassDefFoundError t) {
-                        throw new Exception("GSI libraries not loaded. You should set CLASSPATH accordingly!");
+                try {// here we can have some class-not-found exceptions if GSI libraries are not loaded
+                    sshConn = config.isGSISSHModeEnabled()
+                            ? new lia.util.net.common.GSISSHControlStream(clientHost, clientUser, sshPort)
+                            : new SSHControlStream(clientHost, clientUser, sshPort);
+                } catch (NoClassDefFoundError t) {
+                    throw new Exception("GSI libraries not loaded. You should set CLASSPATH accordingly!");
+                }
+                remoteCmd = config.getRemoteCommand();
+                for (int i = 0; i < args.length; i++) {
+                    if (args[i].indexOf(':') < 0) {
+                        remoteCmd += " " + args[i];
                     }
-                    remoteCmd = config.getRemoteCommand();
-                    for (int i = 0; i < args.length; i++) {
-                        if (args[i].indexOf(':') < 0) {
-                            remoteCmd += " " + args[i];
-                        }
-                    }
-                    remoteCmd += " -c " + config.getHostName();
-                    remoteCmd += " -d " + config.getDestinationDir();
-                    String[] files = (String[]) config.getConfigMap().get("Files");
-                    remoteCmd += " " + files[0];
-                    System.err.println(" [ CONFIG ] Starting FDT client over SSH using [ " + remoteCmd + " ]");
-                    sshConn.startProgram(remoteCmd);
-                    // wait for client termination or forced exit
-                    sshConn.waitForControlMessage("DONE", true);
-                    // after the remote client finished, our 'proxy' program should also exit
-                    // maybe we should change this 'exit' with some method return code
-                    System.exit(0);
-                    break;
-                default:
-                    break;
+                }
+                remoteCmd += " -c " + config.getHostName();
+                remoteCmd += " -d " + config.getDestinationDir();
+                String[] files = (String[]) config.getConfigMap().get("Files");
+                remoteCmd += " " + files[0];
+                System.err.println(" [ CONFIG ] Starting FDT client over SSH using [ " + remoteCmd + " ]");
+                sshConn.startProgram(remoteCmd);
+                // wait for client termination or forced exit
+                sshConn.waitForControlMessage("DONE", true);
+                // after the remote client finished, our 'proxy' program should also exit
+                // maybe we should change this 'exit' with some method return code
+                System.exit(0);
+                break;
+            default:
+                break;
             }
         }
     }
 
     private static final void initManagement() throws Exception {
+        // not there yet
     }
 
     // the one and only entry point
     public static final void main(String[] args) throws Exception {
-       
+
+        // Init the logging
+
         // If the ${HOME}/.fdt/fdt.properties exists
-        String logLevel = "INFO";
+        String logLevel = null;
+        File logFile = null;
 
-       for (int i = 0; i < args.length; i++) {
-            if (args[i].equals("-v")) {
-                logLevel = "FINE";
-                break;
-            }
+        for (int i = 0; i < args.length; i++) {
+            if (logLevel == null) {
+                if (args[i].equals("-v")) {
+                    logLevel = "FINE";
+                }
 
-            if (args[i].equals("-vv")) {
-                logLevel = "FINER";
-                break;
-            }
+                if (args[i].equals("-vv")) {
+                    logLevel = "FINER";
+                }
 
-            if (args[i].equals("-vvv")) {
-                logLevel = "FINEST";
-                break;
+                if (args[i].equals("-vvv")) {
+                    logLevel = "FINEST";
+                }
+
+                if (logFile == null) {
+                    if (args[i].equals("-log")) {
+                        if (i >= args.length - 1) {
+                            throw new IllegalArgumentException("The -log parameter expects a file path");
+                        }
+
+                        final String logPathParam = args[i + 1];
+                        if (logPathParam.startsWith("-")) {
+                            throw new IllegalArgumentException(
+                                    "The -log parameter expects a file path which does not start with '-'");
+                        }
+
+                        //Java 6 still to be used for a while, will take it down next year ...
+                        final File logF = new File(logPathParam);
+                        final File logFParent = logF.getParentFile();
+                        if (logFParent != null && !logFParent.exists()) {
+                            try {
+                                final boolean mkdirsResult = logFParent.mkdirs();
+                                if (!mkdirsResult) {
+                                    throw new IllegalArgumentException("Unable to create parent dirs for log file: '"
+                                            + logFParent + "' OS syscall failed");
+                                }
+                            } catch (Throwable t) {
+                                throw new IllegalArgumentException(
+                                        "Unable to create parent dirs for log file: '" + logFParent + "' Cause:", t);
+                            }
+                        }
+
+                        if (logF.exists()) {
+                            if (!logF.canWrite()) {
+                                throw new IOException(
+                                        "The provided log file: '" + logF + "' exists but is not writable!");
+                            }
+                        } else {
+                            final boolean createFileResult = logF.createNewFile();
+                            if (!createFileResult) {
+                                throw new IOException("The provided log file: '" + logF + "' cannot be created!");
+                            }
+                        }
+
+                        //finally all looks good for now
+                        logFile = logF;
+                    }
+                }
             }
+        }
+
+        if (logLevel == null) {
+            logLevel = "INFO";
         }
 
         if (logLevel.startsWith("FIN")) {
-            logger.log(" LogLevel: " + logLevel);
+            System.out.println(" LogLevel: " + logLevel);
         }
-        initLogger(logLevel);
-        
-        logger.setLogLevel(logLevel);
+        initLogger(logLevel, logFile);
 
         Map<String, Object> argsMap = Utils.parseArguments(args, Config.SINGLE_CMDLINE_ARGS);
 
@@ -503,32 +571,36 @@ public class FDT {
                 throw new IllegalArgumentException("No destination specified");
             }
 
+            @SuppressWarnings("unchecked")
             final List<String> lParams = (List<String>) argsMap.get("LastParams");
 
-            if (argsMap.get("-nettest") == null && argsMap.get("-fl") == null && (lParams == null || lParams.size() == 0) && argsMap.get("Files") == null) {
+            if (argsMap.get("-nettest") == null && argsMap.get("-fl") == null
+                    && (lParams == null || lParams.size() == 0) && argsMap.get("Files") == null) {
                 throw new IllegalArgumentException("No source specified");
             }
         }
 
-         FDTCommandLine fdtCommandLine = new FDTCommandLine(args);
+        // FDTCommandLine fdtCommandLine = new FDTCommandLine(args);
 
-         if( fdtCommandLine.getOption("-h") != null || fdtCommandLine.getOption("-help") != null ||
-         fdtCommandLine.getOption("--help") != null ) {
-         printHelp();
-         System.exit(0);
-         } else if ( fdtCommandLine.getOption("-v")!=null || fdtCommandLine.getOption("--version")!=null ) {
-         printVersion();
-         System.exit(0);
-         }
+        // if( fdtCommandLine.getOption("-h") != null || fdtCommandLine.getOption("-help") != null ||
+        // fdtCommandLine.getOption("--help") != null ) {
+        // printHelp();
+        // System.exit(0);
+        // } else if ( fdtCommandLine.getOption("-v")!=null || fdtCommandLine.getOption("--version")!=null ) {
+        // printVersion();
+        // System.exit(0);
+        // }
 
         final boolean noLock = argsMap.get("-nolock") != null || argsMap.get("-nolocks") != null;
-        if (argsMap.get("-h") != null || argsMap.get("-H") != null || argsMap.get("-help") != null || argsMap.get("--help") != null) {
+        if (argsMap.get("-h") != null || argsMap.get("-H") != null || argsMap.get("-help") != null
+                || argsMap.get("--help") != null) {
             printHelp();
             System.exit(0);
         } else if (argsMap.get("-V") != null || argsMap.get("--version") != null || argsMap.get("-version") != null) {
             printVersion();
             System.exit(0);
-        } else if (argsMap.get("-u") != null || argsMap.get("-U") != null || argsMap.get("-update") != null || argsMap.get("--update") != null) {
+        } else if (argsMap.get("-u") != null || argsMap.get("-U") != null || argsMap.get("-update") != null
+                || argsMap.get("--update") != null) {
             final Object urlS = argsMap.get("-U");
             String updateURL = UPDATE_URL;
 
@@ -549,62 +621,103 @@ public class FDT {
             }
         }
 
-        
-        logger.log("\n\n" + name + " [ " + FDT_FULL_VERSION + " ] STARTED ... \n\n");
+        if (argsMap.get("-noupdates") == null) {
+            final Object urlS = argsMap.get("-U");
+            String updateURL = UPDATE_URL;
+
+            if (urlS != null && urlS instanceof String) {
+                updateURL = (String) urlS;
+                if (updateURL.length() == 0) {
+                    updateURL = UPDATE_URL;
+                }
+            }
+            try {
+                if (Utils.checkForUpdate(FDT_FULL_VERSION, updateURL, noLock)) {
+                    if (argsMap.get("-silent") == null) {
+                        System.out.print(
+                                "\n\nAn update is available ... Do you want to upgrade to the new version? [Y/n]");
+                        char car = (char) System.in.read();
+                        System.out.println("\n");
+                        if (car == 'Y' || car == 'y' || car == '\n' || car == '\r') {
+                            System.out.print("\nTrying to update FDT to the new version ... ");
+                            if (Utils.updateFDT(FDT_FULL_VERSION, updateURL, true, noLock)) {
+                                // Just print the current version ...
+                                System.out.println("\nThe update finished successfully\n");
+                                System.exit(0);
+                            } else {
+                                System.out.println("\nNo updates available\n");
+                                System.exit(100);
+                            }
+                        }
+                    }
+                }
+            } catch (Throwable t) {
+                System.out.println("Got exception checking for updates: " + t.getCause());
+                if (logLevel.startsWith("FIN")) {
+                    t.printStackTrace();
+                }
+            }
+        }
+
+        System.out.println("\n\n" + name + " [ " + FDT_FULL_VERSION + " ] STARTED ... \n\n");
 
         try {
             Config.initInstance(argsMap);
         } catch (InvalidFDTParameterException e) {
-            logger.logError("Invalid parameters supplied: " + e.getMessage());
-            logger.logError(e);
+            System.err.println("Invalid parameters supplied: " + e.getMessage());
+            e.printStackTrace();
             System.err.flush();
             System.exit(1);
         } catch (Throwable t1) {
-            logger.log("got exception parsing command args");
-            logger.logError(t1);
+            System.err.println("got exception parsing command args");
+            t1.printStackTrace();
             System.err.flush();
             System.exit(1);
         }
 
         config = Config.getInstance();
+        System.out.println("FDT uses" + ((!config.isBlocking()) ? " *non-" : " *") + "blocking* I/O mode.");
 
         processSCPSyntax(args);
 
         HeaderBufferPool.initInstance();
 
         FDT jnc = null;
+
         if (!config.isLisaDisabled()) {
             LISAReportingTask lrt = LISAReportingTask.initInstance(config.getLisaHost(), config.getLisaPort());
-            Utils.getMonitoringExecService().scheduleWithFixedDelay(lrt, 1, config.getLisaReportingInterval(), TimeUnit.SECONDS);
+            Utils.getMonitoringExecService().scheduleWithFixedDelay(lrt, 1, config.getLisaReportingInterval(),
+                    TimeUnit.SECONDS);
         }
 
         try {
             jnc = new FDT();
             initManagement();
         } catch (Throwable t) {
-            logger.logError(t);
-            logger.logError(t);
+            t.printStackTrace();
             System.out.flush();
             System.err.flush();
             System.exit(1);
         }
+
         final int exitCode = jnc.doWork();
 
         Utils.getMonitoringExecService().shutdownNow();
         try {
             if (config.massStorageType() != null && config.massStorageType().equals("dcache")) {
                 final FileChannelProviderFactory fcpf = config.getFileChannelProviderFactory();
-                if(fcpf instanceof FDTCloseable) {
+                if (fcpf instanceof FDTCloseable) {
                     ((FDTCloseable) fcpf).close(null, null);
                 }
             }
         } catch (Throwable t) {
-            logger.logError("FDT got exception trying to close the dCapLayer. Cause:");
-            logger.logError(t);
+            System.err.println("FDT got exception trying to close the dCapLayer. Cause:");
+            t.printStackTrace();
             System.out.flush();
             System.err.flush();
             System.exit(2502);
         }
-        return;
+
+        System.exit(exitCode);
     }
 }

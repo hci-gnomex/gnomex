@@ -1,15 +1,14 @@
 /*
- * $Id: FDTSession.java,v 1.1 2012-10-29 22:29:37 HCI\rcundick Exp $
+ * $Id$
  */
 package lia.util.net.copy;
 
-import gui.Log;
 import java.net.InetAddress;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.UUID;
 import java.util.concurrent.ScheduledExecutorService;
@@ -19,6 +18,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import lia.util.net.common.Config;
 import lia.util.net.common.Utils;
 import lia.util.net.copy.monitoring.FDTSessionMonitoringTask;
@@ -34,9 +35,11 @@ import lia.util.net.copy.transport.TCPTransportProvider;
  * 
  * @author ramiro
  */
-public abstract class FDTSession extends IOSession implements ControlChannelNotifier, Comparable<FDTSession>, Accountable, LisaCtrlNotifier {
+public abstract class FDTSession extends IOSession implements ControlChannelNotifier, Comparable<FDTSession>,
+        Accountable, LisaCtrlNotifier {
 
-    private static final Log logger = Log.getLoggerInstance();
+    /** Logger used by this class */
+    private static final Logger logger = Logger.getLogger(FDTSession.class.getName());
 
     private static final String LISA_RATE_LIMIT_CMD = "limit";
 
@@ -77,9 +80,9 @@ public abstract class FDTSession extends IOSession implements ControlChannelNoti
     // should be 0 in case everything works fine and !=0 in case of an error
     protected short currentStatus;
 
-    protected static final String[] FDT_SESION_STATES = {
-            "UNINITIALIZED", "STARTED", "INIT_CONF_SENT", "INIT_CONF_RCV", "FINAL_CONF_SENT", "FINAL_CONF_RCV", "START_SENT", "START_RCV", "TRANSFERING", "END_SENT", "END_RCV"
-    };
+    protected static final String[] FDT_SESION_STATES = { "UNINITIALIZED", "STARTED", "INIT_CONF_SENT",
+            "INIT_CONF_RCV", "FINAL_CONF_SENT", "FINAL_CONF_RCV", "START_SENT", "START_RCV", "TRANSFERING", "END_SENT",
+            "END_RCV" };
 
     protected Map<Integer, LinkedList<FileSession>> partitionsMap;
 
@@ -94,9 +97,11 @@ public abstract class FDTSession extends IOSession implements ControlChannelNoti
 
     protected ControlChannel controlChannel;
 
-    protected Map<UUID, FileSession> fileSessions = new TreeMap<UUID, FileSession>();
+    //to keep the order in which they were added use a LinkedHashMap
+    protected final Map<UUID, FileSession> fileSessions = new LinkedHashMap<UUID, FileSession>();
 
-    protected Map<UUID, byte[]> md5Sums = new TreeMap<UUID, byte[]>();
+    //to keep the order in which they were added use a LinkedHashMap
+    protected final Map<UUID, byte[]> md5Sums = new LinkedHashMap<UUID, byte[]>();
 
     protected final boolean isNetTest;
 
@@ -133,12 +138,17 @@ public abstract class FDTSession extends IOSession implements ControlChannelNoti
     // rateLimit ?
     protected AtomicLong rateLimit = new AtomicLong(-1);
 
+    protected AtomicLong rateLimitDelay = new AtomicLong(300L);
+
     final FDTSessionMonitoringTask monitoringTask;
 
     final ScheduledFuture<?> monitoringTaskFuture;
 
+    protected final boolean customLog;
+
     public FDTSession(short role) throws Exception {
         super();
+        customLog = Utils.isCustomLog();
 
         currentStatus = 0;
         this.totalProcessedBytes = new AtomicLong(0);
@@ -152,6 +162,7 @@ public abstract class FDTSession extends IOSession implements ControlChannelNoti
 
         rateLimit.set(config.getRateLimit());
         final long remoteRateLimit = Utils.getLongValue(controlChannel.remoteConf, "-limit", -1);
+        rateLimitDelay.set(config.getRateLimitDelay());
 
         setNewRateLimit(remoteRateLimit, false);
 
@@ -163,7 +174,11 @@ public abstract class FDTSession extends IOSession implements ControlChannelNoti
         isNetTest = (isLocalNetTest || isRemoteNetTest);
 
         if (isNetTest) {
-            logger.log(Level.INFO, "\n\n FDT started with " + ((isLocalNetTest) ? "local" : "remote") + " -nettest flag. Only network benchmark will be performed. The source and destination are *ignored*!\n");
+            logger.log(
+                    Level.INFO,
+                    "\n\n FDT started with "
+                            + ((isLocalNetTest) ? "local" : "remote")
+                            + " -nettest flag. Only network benchmark will be performed. The source and destination are *ignored*!\n");
         }
 
         if (writeMode == null) {
@@ -171,7 +186,8 @@ public abstract class FDTSession extends IOSession implements ControlChannelNoti
         }
 
         if (logger.isLoggable(Level.FINER)) {
-            logger.log(Level.FINER, "\n --> Fixed size blocks: " + useFixedBlockSize + " localLoop: " + localLoop + " for fdtSession: " + sessionID + " <---\n");
+            logger.log(Level.FINER, "\n --> Fixed size blocks: " + useFixedBlockSize + " localLoop: " + localLoop
+                    + " for fdtSession: " + sessionID + " <---\n");
         }
 
         monitoringTask = new FDTSessionMonitoringTask(this);
@@ -183,7 +199,8 @@ public abstract class FDTSession extends IOSession implements ControlChannelNoti
 
     final void startControlThread() {
         if (ctrlThreadStarted.compareAndSet(false, true)) {
-            new Thread(this.controlChannel, "Control channel for [ " + config.getHostName() + ":" + config.getPort() + " ]").start();
+            new Thread(this.controlChannel, "Control channel for [ " + config.getHostName() + ":" + config.getPort()
+                    + " ]").start();
         }
     }
 
@@ -194,6 +211,7 @@ public abstract class FDTSession extends IOSession implements ControlChannelNoti
     public FDTSession(ControlChannel controlChannel, short role) throws Exception {
         // it is possible to throw a NPE?
         super(controlChannel.fdtSessionID());
+        customLog = Utils.isCustomLog();
 
         currentStatus = 0;
 
@@ -205,6 +223,8 @@ public abstract class FDTSession extends IOSession implements ControlChannelNoti
         this.totalUtilBytes = new AtomicLong(0);
 
         rateLimit.set(config.getRateLimit());
+        rateLimitDelay.set(config.getRateLimitDelay());
+
         final long remoteRateLimit = Utils.getLongValue(controlChannel.remoteConf, "-limit", -1);
 
         setNewRateLimit(remoteRateLimit, false);
@@ -217,7 +237,11 @@ public abstract class FDTSession extends IOSession implements ControlChannelNoti
         isNetTest = (isLocalNetTest || isRemoteNetTest);
 
         if (isNetTest) {
-            logger.log(Level.INFO, "\n\n FDT started with " + ((isLocalNetTest) ? "local" : "remote") + " -nettest flag. Only network benchmark will be performed. The source and destination are *ignored*!\n");
+            logger.log(
+                    Level.INFO,
+                    "\n\n FDT started with "
+                            + ((isLocalNetTest) ? "local" : "remote")
+                            + " -nettest flag. Only network benchmark will be performed. The source and destination are *ignored*!\n");
         }
 
         if (writeMode == null) {
@@ -225,7 +249,8 @@ public abstract class FDTSession extends IOSession implements ControlChannelNoti
         }
 
         if (logger.isLoggable(Level.FINER)) {
-            logger.log(Level.FINER, "\n --> Fixed size blocks: " + useFixedBlockSize + " localLoop: " + localLoop + " for fdtSession: " + sessionID + " <---\n");
+            logger.log(Level.FINER, "\n --> Fixed size blocks: " + useFixedBlockSize + " localLoop: " + localLoop
+                    + " for fdtSession: " + sessionID + " <---\n");
         }
 
         monitoringTask = new FDTSessionMonitoringTask(this);
@@ -246,18 +271,19 @@ public abstract class FDTSession extends IOSession implements ControlChannelNoti
         if (ctrlSet) {
             cLimit = newRate;
         } else {
-            if (newRate < cLimit && newRate > 0) {
+            if ((newRate < cLimit) && (newRate > 0)) {
                 cLimit = newRate;
             }
         }
 
-        if (cLimit > 0 && cLimit < Config.NETWORK_BUFF_LEN_SIZE) {
+        if ((cLimit > 0) && (cLimit < Config.NETWORK_BUFF_LEN_SIZE)) {
             cLimit = Config.NETWORK_BUFF_LEN_SIZE;
             logger.log(Level.WARNING, " The rate limit is too small. It will be set to " + rateLimit.get() + " Bytes/s");
         }
 
         if (logger.isLoggable(Level.FINER)) {
-            logger.log(Level.FINER, "[ FDTSession ] [ setNewRateLimit ( " + newRate + " ) ] prevRateLimit: " + rateLimit.get() + " newRateLimit: " + cLimit);
+            logger.log(Level.FINER, "[ FDTSession ] [ setNewRateLimit ( " + newRate + " ) ] prevRateLimit: "
+                    + rateLimit.get() + " newRateLimit: " + cLimit);
         }
 
         rateLimit.set(cLimit);
@@ -315,10 +341,15 @@ public abstract class FDTSession extends IOSession implements ControlChannelNoti
         return rateLimit.get();
     }
 
+    public long getRateLimitDelay() {
+        return rateLimitDelay.get();
+    }
+
     public int getLocalPort() {
         return controlChannel.localPort;
     }
 
+    @Override
     public String toString() {
         return "FDTSession ( " + sessionID + " ) / " + ((controlChannel != null) ? controlChannel.toString() : "null");
     }
@@ -335,6 +366,7 @@ public abstract class FDTSession extends IOSession implements ControlChannelNoti
 
     public abstract void handleEndFDTSession(final CtrlMsg ctrlMsg) throws Exception;
 
+    @Override
     public final void notifyCtrlMsg(ControlChannel controlChannel, Object o) throws FDTProcolException {
 
         if (o == null) {
@@ -353,32 +385,32 @@ public abstract class FDTSession extends IOSession implements ControlChannelNoti
                 synchronized (protocolLock) {
                     switch (ctrlMsg.tag) {
 
-                        case CtrlMsg.INIT_FDTSESSION_CONF: {
-                            setCurrentState(INIT_CONF_RCV);
-                            handleInitFDTSessionConf(ctrlMsg);
-                            break;
-                        }
-                        case CtrlMsg.FINAL_FDTSESSION_CONF: {
-                            setCurrentState(FINAL_CONF_RCV);
-                            handleFinalFDTSessionConf(ctrlMsg);
-                            break;
-                        }
-                        case CtrlMsg.START_SESSION: {
-                            setCurrentState(START_RCV);
-                            handleStartFDTSession(ctrlMsg);
-                            break;
-                        }
-                        case CtrlMsg.END_SESSION: {
-                            setCurrentState(END_RCV);
-                            handleEndFDTSession(ctrlMsg);
-                            break;
-                        }
-                        default: {
-                            FDTProcolException fpe = new FDTProcolException("Illegal CtrlMsg tag [ " + ctrlMsg.tag + " ]");
-                            fpe.fillInStackTrace();
-                            close("FileProtocolException", fpe);
-                            throw fpe;
-                        }
+                    case CtrlMsg.INIT_FDTSESSION_CONF: {
+                        setCurrentState(INIT_CONF_RCV);
+                        handleInitFDTSessionConf(ctrlMsg);
+                        break;
+                    }
+                    case CtrlMsg.FINAL_FDTSESSION_CONF: {
+                        setCurrentState(FINAL_CONF_RCV);
+                        handleFinalFDTSessionConf(ctrlMsg);
+                        break;
+                    }
+                    case CtrlMsg.START_SESSION: {
+                        setCurrentState(START_RCV);
+                        handleStartFDTSession(ctrlMsg);
+                        break;
+                    }
+                    case CtrlMsg.END_SESSION: {
+                        setCurrentState(END_RCV);
+                        handleEndFDTSession(ctrlMsg);
+                        break;
+                    }
+                    default: {
+                        FDTProcolException fpe = new FDTProcolException("Illegal CtrlMsg tag [ " + ctrlMsg.tag + " ]");
+                        fpe.fillInStackTrace();
+                        close("FileProtocolException", fpe);
+                        throw fpe;
+                    }
                     }
                 }
             } else {
@@ -400,10 +432,10 @@ public abstract class FDTSession extends IOSession implements ControlChannelNoti
             if (finishedSessions.contains(fs.sessionID)) {
                 continue;
             }
-            LinkedList<FileSession> ll = partitionsMap.get(fs.partitionID);
+            LinkedList<FileSession> ll = partitionsMap.get(Integer.valueOf(fs.partitionID));
             if (ll == null) {
                 ll = new LinkedList<FileSession>();
-                partitionsMap.put(fs.partitionID, ll);
+                partitionsMap.put(Integer.valueOf(fs.partitionID), ll);
             }
             ll.add(fs);
         }
@@ -411,32 +443,40 @@ public abstract class FDTSession extends IOSession implements ControlChannelNoti
 
     public void finishFileSession(UUID sessionID, Throwable downCause) {
         FileSession fs = null;
+        final boolean bFinest = logger.isLoggable(Level.FINEST);
+        final boolean bFiner = bFinest || logger.isLoggable(Level.FINER);
+        final boolean bFine = bFiner || logger.isLoggable(Level.FINE);
+
         synchronized (lock) {
             fs = fileSessions.get(sessionID);
 
             if (fs != null) {
                 if (!isLoop) {
                     if (!finishedSessions.add(sessionID)) {
-                        if (logger.isLoggable(Level.FINE)) {
-                            logger.log(Level.FINE, " [ FDTSession ] [ HANDLED ] The fileSession [ " + sessionID + " ] is already in the finised sessions list");
+                        if (bFine) {
+                            logger.log(Level.FINE, " [ FDTSession ] [ HANDLED ] The fileSession [ " + sessionID
+                                    + " ] is already in the finised sessions list");
                         }
-                        if (logger.isLoggable(Level.FINEST)) {
+                        if (bFinest) {
                             Thread.dumpStack();
                         }
                     } else {
                         if (logger.isLoggable(Level.FINE)) {
-                            logger.log(Level.FINE, " [ FDTSession ] [ HANDLED ] The fileSession [ " + sessionID + " ] added to finised sessions list");
+                            logger.log(Level.FINE, " [ FDTSession ] [ HANDLED ] The fileSession [ " + sessionID
+                                    + " ] added to finised sessions list");
                         }
                     }
                 } else {
-                    if (logger.isLoggable(Level.FINER)) {
-                        logger.log(Level.FINER, " I was supposed to finish ( " + sessionID + " ], but running in loop mode");
+                    if (bFiner) {
+                        logger.log(Level.FINER, " I was supposed to finish ( " + sessionID
+                                + " ], but runnig in loop mode");
                     }
                 }
             }
 
             if (downCause != null) {
-                close("the file session: " + sessionID + " /  " + fs.fileName + "finished with errors: " + downCause.getMessage(), downCause);
+                close("the file session: " + sessionID + " / " + fs.fileName + " finished with errors: "
+                        + downCause.getMessage(), downCause);
             }
         } // end sync
         try {
@@ -462,6 +502,7 @@ public abstract class FDTSession extends IOSession implements ControlChannelNoti
         return isLoop;
     }
 
+    @Override
     public boolean equals(Object obj) {
         if (!(obj instanceof FDTSession)) {
             return false;
@@ -470,39 +511,47 @@ public abstract class FDTSession extends IOSession implements ControlChannelNoti
         return this.sessionID.equals(((FDTSession) obj).sessionID);
     }
 
+    @Override
     public int hashCode() {
         return this.sessionID.hashCode();
     }
 
+    @Override
     public int compareTo(FDTSession fdtSession) {
         return this.sessionID.compareTo(fdtSession.sessionID);
     }
 
+    @Override
     public long getUtilBytes() {
         return totalUtilBytes.get();
     }
 
+    @Override
     public long getTotalBytes() {
         return totalProcessedBytes.get();
     }
 
+    @Override
     public long addAndGetUtilBytes(long delta) {
         return totalUtilBytes.addAndGet(delta);
     }
 
+    @Override
     public long addAndGetTotalBytes(long delta) {
         return totalProcessedBytes.addAndGet(delta);
     }
 
+    @Override
     public abstract long getSize();
 
+    @Override
     protected void internalClose() throws Exception {
 
         if (logger.isLoggable(Level.FINER)) {
             logger.log(Level.FINER, "FDTSession " + sessionID + " finished. Internal close called.");
         }
 
-        if (downCause() != null && downMessage() != null) {
+        if ((downCause() != null) && (downMessage() != null)) {
             currentStatus = 1;
         } else {
             currentStatus = 0;
@@ -521,13 +570,19 @@ public abstract class FDTSession extends IOSession implements ControlChannelNoti
         }
     }
 
+    /**
+     * @param controlChannel
+     */
+    @Override
     public void notifyCtrlSessionDown(ControlChannel controlChannel, Throwable cause) {
         close("ControlChannel is down", cause);
     }
 
+    @Override
     public void notifyLisaCtrlMsg(String lisaCtrlMsg) {
         if (logger.isLoggable(Level.FINE)) {
-            logger.log(Level.FINE, "FDT Session [ " + sessionID + " / " + monID + " ] received remote ctrl cmd: " + lisaCtrlMsg);
+            logger.log(Level.FINE, "FDT Session [ " + sessionID + " / " + monID + " ] received remote ctrl cmd: "
+                    + lisaCtrlMsg);
         }
 
         if (lisaCtrlMsg.indexOf(LISA_RATE_LIMIT_CMD) >= 0) {
@@ -535,7 +590,8 @@ public abstract class FDTSession extends IOSession implements ControlChannelNoti
             try {
                 newLimit = Long.parseLong(lisaCtrlMsg.split("(\\s)+")[1]);
             } catch (Throwable t) {
-                logger.log(Level.INFO, "FDT Session [ " + sessionID + " / " + monID + " ] unable to set new rate limit", t);
+                logger.log(Level.INFO,
+                        "FDT Session [ " + sessionID + " / " + monID + " ] unable to set new rate limit", t);
             }
 
             final long oldRateLimit = rateLimit.get();
@@ -545,7 +601,8 @@ public abstract class FDTSession extends IOSession implements ControlChannelNoti
             }
 
             if (oldRateLimit != rateLimit.get()) {
-                logger.log(Level.INFO, "FDT Session [ " + sessionID + " / " + monID + " ] oldrate: " + oldRateLimit + " / newrate: " + rateLimit.get());
+                logger.log(Level.INFO, "FDT Session [ " + sessionID + " / " + monID + " ] oldrate: " + oldRateLimit
+                        + " / newrate: " + rateLimit.get());
             }
         }
     }

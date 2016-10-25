@@ -1,5 +1,5 @@
 /*
- * $Id: LocalHost.java,v 1.1 2012-10-29 22:29:44 HCI\rcundick Exp $
+ * $Id$
  * Created on Jul 12, 2005
  *
  */

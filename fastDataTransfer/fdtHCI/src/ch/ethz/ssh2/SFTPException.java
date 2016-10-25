@@ -10,7 +10,7 @@ import ch.ethz.ssh2.sftp.ErrorCodes;
  * error messages sent by the SFTP server.
  * 
  * @author Christian Plattner, plattner@inf.ethz.ch
- * @version $Id: SFTPException.java,v 1.1 2012-10-29 22:29:49 HCI\rcundick Exp $
+ * @version $Id: SFTPException.java,v 1.6 2006/08/18 22:26:35 cplattne Exp $
  */
 
 public class SFTPException extends IOException

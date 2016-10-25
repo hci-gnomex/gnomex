@@ -1,5 +1,5 @@
 /*
- * $Id: JIperf.java,v 1.1 2012-10-29 22:30:10 HCI\rcundick Exp $
+ * $Id$
  */
 package lia.util.net.jiperf;
 
@@ -11,6 +11,7 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.logging.Logger;
 
 /**
  * 
@@ -21,6 +22,9 @@ import java.util.concurrent.atomic.AtomicLong;
  * @author ramiro
  */
 public class JIperf {
+
+	/** Logger used by this class */
+	private static final transient Logger logger = Logger.getLogger(JIperf.class.getName());
 
 	/**
 	 * The executor used to perform I/O tasks

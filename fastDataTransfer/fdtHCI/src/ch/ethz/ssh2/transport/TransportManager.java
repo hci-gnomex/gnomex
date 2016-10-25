@@ -48,7 +48,7 @@ import ch.ethz.ssh2.util.Tokenizer;
  * TransportManager.
  * 
  * @author Christian Plattner, plattner@inf.ethz.ch
- * @version $Id: TransportManager.java,v 1.1 2012-10-29 22:29:46 HCI\rcundick Exp $
+ * @version $Id: TransportManager.java,v 1.16 2006/08/11 12:24:00 cplattne Exp $
  */
 public class TransportManager
 {

@@ -1,23 +1,22 @@
 /*
- * $Id: Config.java,v 1.1 2012-10-29 22:29:44 HCI\rcundick Exp $
+ * $Id$
  */
 package lia.util.net.common;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileReader;
-import java.io.IOException;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
 import lia.util.net.copy.PosixFSFileChannelProviderFactory;
-import gui.Log;
 
 /**
  * Configuration params for FDT
@@ -27,8 +26,8 @@ import gui.Log;
  */
 public class Config {
 
-
-    private static final Log logger = Log.getLoggerInstance();
+    /** Logger used by this class */
+    private static final Logger logger = Logger.getLogger("lia.util.net.common.Config");
     // The size of the buffer which is sent over the wire!
     // TODO make this a parameter
     public static final int NETWORK_BUFF_LEN_SIZE;
@@ -50,33 +49,31 @@ public class Config {
         NETWORK_BUFF_LEN_SIZE = defaultMSSSize;
     }
     // env props which will be sent to remote peer
-    private final static String[] exportedSysProps = {
-        "user.name", "user.home", "user.dir", "file.separator", "file.encoding", "path.separator"
-    };
+    private final static String[] exportedSysProps = { "user.name", "user.home", "user.dir", "file.separator",
+            "file.encoding", "path.separator" };
     // public static final String SINGLE_CMDLINE_ARGS[] = { "-S", "-pull", "-N", "-gsi", "-bio", "-r", "-fbs", "-ll",
     // "-loop", "-enableLisaRestart", "-md5", "-printStats", "-gsissh", "-noupdates", "-silent"};
-    public static final String[] SINGLE_CMDLINE_ARGS = {
-        "-v", "-vv", "-vvv", "-loop", "-r", "-pull", "-printStats", "-N", "-bio", "-gsi", "-gsissh", "-notmp", "-nolock", "-nolocks", "-nettest", "-genb"
-    };
-    public static final String[] VALUE_CMDLINE_ARGS = {
-        "-bs", "-P", "-ss", "-limit", "-preFilters", "-postFilters", "-monID", "-ms", "-c", "-p", "-sshp", "-gsip", "-iof", "-sn", "-rCount", "-wCount", "-pCount", "-d", "-writeMode", "-lisa_rep_delay", "-apmon_rep_delay", "-fl", "-reportDelay"
-    };
-    public static final String POSSIBLE_VALUE_CMDLINE_ARGS[] = {
-        "-enable_apmon", "-lisafdtclient", "-lisafdtserver", "-f", "-F", "-h", "-H", "--help", "-help," + "-u", "-U", "--update", "-update"
-    };
+    public static final String[] SINGLE_CMDLINE_ARGS = { "-v", "-vv", "-vvv", "-loop", "-r", "-pull", "-printStats",
+            "-N", "-bio", "-gsi", "-gsissh", "-notmp", "-nolock", "-nolocks", "-nettest", "-genb" };
+    public static final String[] VALUE_CMDLINE_ARGS = { "-bs", "-P", "-ss", "-limit", "-preFilters", "-postFilters",
+            "-monID", "-ms", "-c", "-p", "-sshp", "-gsip", "-iof", "-sn", "-rCount", "-wCount", "-pCount", "-d",
+            "-writeMode", "-lisa_rep_delay", "-apmon_rep_delay", "-fl", "-reportDelay", "-ka" };
+    public static final String POSSIBLE_VALUE_CMDLINE_ARGS[] = { "-enable_apmon", "-lisafdtclient", "-lisafdtserver",
+            "-f", "-F", "-h", "-H", "--help", "-help," + "-u", "-U", "--update", "-update" };
 
     /**
      * used in conjuction with -fl to delimit the eventual destination file name
      * e.g. {@code /orginal/file/name / /destination/file/name}
      */
     public static final String REGEX_REMAP_DELIMITER = "(\\s)+/(\\s)+";
-    
+
     // all of this are set by the ant script
     public static final String FDT_MAJOR_VERSION = "0";
-    public static final String FDT_MINOR_VERSION = "9";
-    public static final String FDT_MAINTENANCE_VERSION = "17";
-    public static final String FDT_FULL_VERSION = FDT_MAJOR_VERSION + "." + FDT_MINOR_VERSION + "." + FDT_MAINTENANCE_VERSION;
-    public static final String FDT_RELEASE_DATE = "2010-08-31";
+    public static final String FDT_MINOR_VERSION = "24";
+    public static final String FDT_MAINTENANCE_VERSION = "0";
+    public static final String FDT_FULL_VERSION = FDT_MAJOR_VERSION + "." + FDT_MINOR_VERSION + "."
+            + FDT_MAINTENANCE_VERSION;
+    public static final String FDT_RELEASE_DATE = "2015-12-04";
     private volatile static Config _thisInstance;
     // the size of header packet sent over the wire -
     // TODO - this should be dynamic ... or not ( performance resons ?! )
@@ -87,7 +84,7 @@ public class Config {
     public static final int DEFAULT_BUFFER_SIZE = 1 * 1024 * 1024; // 1MB
     private int byteBufferSize = DEFAULT_BUFFER_SIZE;
     // default will be false
-    private boolean isNagleEnabled;
+    private final boolean isNagleEnabled;
     // shall I get the data from server? - used only by the client
     private boolean isPullMode = false;
     // this should be used for syncronizations at application level ()
@@ -96,25 +93,27 @@ public class Config {
     public static final int DEFAULT_SOCKET_NO = 4;
     private int sockNum = DEFAULT_SOCKET_NO;
     public static final int DEFAULT_PORT_NO = 54321;
+    public static final long DEFAULT_KEEP_ALIVE_NANOS = TimeUnit.MINUTES.toNanos(2);
     public static final int DEFAULT_PORT_NO_GSI = 54320;
     public static final int DEFAULT_PORT_NO_SSH = 22;
     private int sockBufSize = -1;
     private long rateLimit = -1;
+    private long rateLimitDelayMillis = 300L;
     private int readersCount = 1;
     private int writersCount = 1;
     private int maxPartitionsCount = 100;
     private String hostname;
     private String lisaHost;
     private int lisaPort;
-    private int portNo;
+    private final int portNo;
     private final int portNoGSI;
     private final int portNoSSH;
-    private boolean isStandAlone;
+    private final boolean isStandAlone;
     private String[] fileList;
     private String[] remappedFileList;
     private String destDir;
-    private String sshKeyPath;
-    private String apMonHosts;
+    private final String sshKeyPath;
+    private final String apMonHosts;
     private boolean bComputeMD5 = false;
     private boolean bRecursive = false;
     private boolean bCheckUpdate = false;
@@ -138,10 +137,10 @@ public class Config {
     private String sLocalAddresses = null;
     private String sStartServerCommand = null;
     private final boolean isLisaRestartEnabled;
-    private String writeMode;
-    private String preFilters;
-    private String postFilters;
-    private String monID;
+    private final String writeMode;
+    private final String preFilters;
+    private final String postFilters;
+    private final String monID;
     private String massStorageConfig = null;
     private String massStorageType = null;
     private MassStorage storageParams = null;
@@ -152,39 +151,8 @@ public class Config {
     private long consoleReportingTaskDelay = 5;
     private final boolean isNetTest;
     private final boolean isGenTest;
+    private final long keepAliveDelayNanos;
     private final FileChannelProviderFactory fileChannelProviderFactory;
-    
-    //for locking server to uploads and downloads to directories within the restricted transit directories
-    private File[] restrictedTransferDirectories = null;
-    
-    // for logging data transfers to a special application logger
-    private String appLogger = null;
-
-    
-	/**Checks to see if a file or directory is a child of the restrictedTransferDirectory. 
-     * Thus one must create a staging directory or file within the restrictedTransferDirectory before the
-     * server will be able to transfer files or folder into or out of the staging directory. Soft and hard links are OK.
-     * @author davidnix*/
-    public boolean authorizedTransfer(File toTransfer){
-      //has the restricted directory been set?
-      if (restrictedTransferDirectories == null) return true;
-
-      //look to see if they are trying something sneaky (ie /../../ to drop levels)
-      String path = toTransfer.getPath();
-      try {
-        if (toTransfer.getCanonicalPath().equals(path) == false) return false;
-      } catch (IOException e) {
-        e.printStackTrace();
-        return false;
-      }
-      //look to see if it matches one of the restricted directories
-      for (File rtd : restrictedTransferDirectories){
-        //Match it
-        Pattern pat = Pattern.compile(rtd.getPath()+File.separatorChar+".+");
-        if (pat.matcher(path).matches()) return true;
-      }
-      return false;
-    }
 
     private static final int getMinMTU() {
         int retMTU = 1500;
@@ -201,11 +169,12 @@ public class Config {
                 } catch (NoSuchMethodError nsme) {
                     // java < 1.6
                     if (logger.isLoggable(Level.FINE)) {
-                        logger.log("The current JVM is not able to determine if the net interface " + netInteface + "is up and running. JVM >= 1.6 should support this feature");
+                        System.out.println("The current JVM is not able to determine if the net interface "
+                                + netInteface + "is up and running. JVM >= 1.6 should support this feature");
                     }
                     return retMTU;
                 } catch (Throwable t) {
-                    logger.log( "Cannot determine if the interface: " + netInteface + " is up");
+                    System.err.println(" Cannot determine if the interface: " + netInteface + " is up");
                     return retMTU;
                 }
 
@@ -216,22 +185,23 @@ public class Config {
                     System.err.println(" Cannot get MTU for netInterface: " + netInteface + " SocketException: " + se);
                 } catch (NoSuchMethodError nsme) {
                     if (logger.isLoggable(Level.FINE)) {
-                        logger.log("The current JVM is not able to determine the MTU for the net interface " + netInteface + "is up and running. JVM >= 1.6 should support this feature");
+                        System.out.println("The current JVM is not able to determine the MTU for the net interface "
+                                + netInteface + "is up and running. JVM >= 1.6 should support this feature");
                     }
                     continue;
                 } catch (Throwable t) {
                     // probably incompatible JVM version
-                    logger.logError("Cannot get MTU for netInterface: " + netInteface + " Exception: ", t);
+                    System.err.println(" Cannot get MTU for netInterface: " + netInteface + " Exception: " + t);
                 }
 
-                if (cMTU < retMTU && cMTU > 0) {
-                  retMTU = cMTU;
+                if ((cMTU < retMTU) && (cMTU > 0)) {
+                    retMTU = cMTU;
                 }
             }// while
         } catch (SocketException se) {
-          logger.logError(" Cannot get min MTU for current instance of FDT. SocketException: ", se);
+            System.err.println(" Cannot get min MTU for current instance of FDT. SocketException: " + se);
         } catch (Throwable t) {
-          logger.logError(" Cannot get min MTU for current instance of FDT. Exception: ", t);
+            System.err.println(" Cannot get min MTU for current instance of FDT. Exception: " + t);
         }
 
         return retMTU;
@@ -248,8 +218,8 @@ public class Config {
             throw new InvalidFDTParameterException("Null config map");
         }
 
-        for (int i = 0; i < exportedSysProps.length; i++) {
-            configMap.put(exportedSysProps[i], System.getProperty(exportedSysProps[i]));
+        for (String exportedSysProp : exportedSysProps) {
+            configMap.put(exportedSysProp, System.getProperty(exportedSysProp));
         }
 
         isStandAlone = (configMap.get("-S") == null);
@@ -263,11 +233,14 @@ public class Config {
         configMap.put("-ss", "" + sockBufSize);
 
         rateLimit = Utils.getLongValue(configMap, "-limit", -1);
-        if (rateLimit > 0 && rateLimit < NETWORK_BUFF_LEN_SIZE) {
+        if ((rateLimit > 0) && (rateLimit < NETWORK_BUFF_LEN_SIZE)) {
             rateLimit = NETWORK_BUFF_LEN_SIZE;
-            logger.log(Level.WARNING, " The rate limit (-limit) is too small. It will be set to " + rateLimit + " Bytes/s");
+            logger.log(Level.WARNING, " The rate limit (-limit) is too small. It will be set to " + rateLimit
+                    + " Bytes/s");
         }
         configMap.put("-limit", "" + rateLimit);
+        rateLimitDelayMillis = Utils.getLongValue(configMap, "-limitDelay", 300L);
+        configMap.put("-limitDelay", "" + rateLimitDelayMillis);
 
         preFilters = Utils.getStringValue(configMap, "-preFilters", null);
         postFilters = Utils.getStringValue(configMap, "-postFilters", null);
@@ -277,11 +250,15 @@ public class Config {
         this.massStorageType = Utils.getStringValue(configMap, "-mst", null);
 
         try {
-            if (massStorageType() != null && massStorageType().equals("dcache")) {
-                System.setProperty("lia.util.net.common.FileChannelProviderFactory", "edu.caltech.hep.dcapj.dCacheFileChannelProviderFactory");
+            if ((massStorageType() != null) && massStorageType().equals("dcache")) {
+                System.setProperty("lia.util.net.common.FileChannelProviderFactory",
+                        "edu.caltech.hep.dcapj.dCacheFileChannelProviderFactory");
             }
         } catch (Throwable e) {
-            logger.logError("FDT was unable to set the FileChannelProviderFactory env variable", e);
+            System.err.println("FDT was unable to set the FileChannelProviderFactory env variable");
+            e.printStackTrace();
+            System.out.flush();
+            System.err.flush();
             System.exit(2502);
         }
 
@@ -307,15 +284,20 @@ public class Config {
             throw new InvalidFDTParameterException("The FileChannelProviderFactory cannot be null!");
         }
 
-        logger.log(Level.INFO, "Using " + this.fileChannelProviderFactory.getClass().getName() + " as FileChannelProviderFactory");
+        logger.log(Level.INFO, "Using " + this.fileChannelProviderFactory.getClass().getName()
+                + " as FileChannelProviderFactory");
 
         hostname = Utils.getStringValue(configMap, "-c", null);
 
-        if (hostname != null && hostname.length() == 0) {
+        if ((hostname != null) && (hostname.length() == 0)) {
             hostname = null;
         } else {
             isPullMode = (configMap.get("-pull") != null);
         }
+
+        final long ka = Utils.getLongValue(configMap, "-ka", TimeUnit.NANOSECONDS.toSeconds(DEFAULT_KEEP_ALIVE_NANOS));
+        this.keepAliveDelayNanos = (ka < 0) ? DEFAULT_KEEP_ALIVE_NANOS : TimeUnit.SECONDS.toNanos(ka);
+        configMap.put("-ka", "" + TimeUnit.NANOSECONDS.toSeconds(this.keepAliveDelayNanos));
 
         portNo = Utils.getIntValue(configMap, "-p", DEFAULT_PORT_NO);
         portNoGSI = Utils.getIntValue(configMap, "-gsip", DEFAULT_PORT_NO_GSI);
@@ -337,6 +319,10 @@ public class Config {
         isGenTest = (configMap.get("-genb") != null);
         bGSIMode = (configMap.get("-gsi") != null);
         isBlocking = (configMap.get("-bio") != null);
+        if (!isBlocking) {
+            isBlocking = (configMap.get("-nbio") == null);
+        }
+
         apMonHosts = Utils.getStringValue(configMap, "-enable_apmon", null);
         bRecursive = (configMap.get("-r") != null);
         bUseFixedBlocks = (configMap.get("-fbs") != null);
@@ -350,12 +336,12 @@ public class Config {
 
         if (isNetTest) {
             destDir = "/dev/null";
+            @SuppressWarnings("unchecked")
             List<String> lastParams = (List<String>) configMap.get("LastParams");
             lastParams.add("/dev/zero");
         }
 
-        if (hostname != null && (destDir == null || destDir.length() == 0)) {
-            logger.log("No destination specified");
+        if ((hostname != null) && ((destDir == null) || (destDir.length() == 0))) {
             throw new IllegalArgumentException("No destination specified");
         }
 
@@ -372,8 +358,8 @@ public class Config {
         }
 
         isNoTmpFlagSet = (configMap.get("-notmp") != null);
-        isNoLockFlagSet = (configMap.get("-nolock") != null || configMap.get("-nolocks") != null);
-        
+        isNoLockFlagSet = ((configMap.get("-nolock") != null) || (configMap.get("-nolocks") != null));
+
         writeMode = Utils.getStringValue(configMap, "-writeMode", null);
 
         String sLisa = Utils.getStringValue(configMap, "-lisafdtclient", null);
@@ -457,7 +443,7 @@ public class Config {
                     sAllowedHosts = sAllowedHosts.split("(\\s)+")[0];
                 }
                 // cannot continue, raise exception
-                if (sAllowedHosts == null || sAllowedHosts.length() == 0) {
+                if ((sAllowedHosts == null) || (sAllowedHosts.length() == 0)) {
                     throw new InvalidFDTParameterException("source filter used but no host/ip supplied");
                 }
             }
@@ -465,10 +451,11 @@ public class Config {
         }
 
         // try to get the fileList[]
+        @SuppressWarnings("unchecked")
         List<String> lastParams = (List<String>) configMap.get("LastParams");
-        if (lastParams == null || lastParams.isEmpty()) {
+        if ((lastParams == null) || lastParams.isEmpty()) {
             String fList = Utils.getStringValue(configMap, "-fl", null);
-            if (fList != null && fList.length() != 0) {
+            if ((fList != null) && (fList.length() != 0)) {
                 //source files
                 List<String> arrayFileList = new ArrayList<String>();
                 //must accept null values
@@ -483,20 +470,20 @@ public class Config {
                     while (line != null) {
                         final String[] tkns = splitPattern.split(line);
                         final int tknsCount = tkns.length;
-                        if(tknsCount == 1) {
+                        if (tknsCount == 1) {
                             arrayFileList.add(line);
                             remappedArrayFileList.add(null);
                         } else if (tknsCount == 2) {
                             arrayFileList.add(tkns[0]);
                             remappedArrayFileList.add(tkns[1]);
                         } else {
-                            throw new IllegalArgumentException("The line=" + line + ", from -fl parameter cannot be parsed");
+                            throw new IllegalArgumentException("The line=" + line
+                                    + ", from -fl parameter cannot be parsed");
                         }
                         line = br.readLine();
                     }
                     remappedFileList = remappedArrayFileList.toArray(new String[0]);
                     fileList = arrayFileList.toArray(new String[0]);
-
                 } catch (Throwable t) {
                     throw new IllegalArgumentException("Unable to decode file list", t);
                 } finally {
@@ -507,57 +494,45 @@ public class Config {
         } else {
             configMap.remove("-fl");
             fileList = lastParams.toArray(new String[lastParams.size()]);
-            if (fileList != null && fileList.length == 0) {
+            if ((fileList != null) && (fileList.length == 0)) {
                 fileList = null;
             }
         }
         Object files = configMap.get("Files");
-        if (files != null && files instanceof String[] && ((String[]) files).length > 0) {
+        if ((files != null) && (files instanceof String[]) && (((String[]) files).length > 0)) {
             fileList = (String[]) files;
         }
 
-        logger.log(Level.INFO, "FDT started in {0} mode", (hostname == null && configMap.get("SCPSyntaxUsed") == null ? "server" : "client"));
+        logger.log(Level.INFO, "FDT started in {0} mode", ((hostname == null)
+                && (configMap.get("SCPSyntaxUsed") == null) ? "server" : "client"));
         if (hostname != null) {// client mode
             if (logger.isLoggable(Level.FINE)) {
                 StringBuilder sb = new StringBuilder();
                 sb.append("Source file list --> remaped file list:\n");
                 final boolean bRemapFLNull = (remappedFileList == null);
-                for (int i = 0; fileList != null && i < fileList.length; i++) {
-                    sb.append(fileList[i]).append(" ---> ").append((bRemapFLNull || remappedFileList[i] == null)? " default mapping: " + fileList[i]: " remapped to: " + remappedFileList[i]).append("\n");
+                for (int i = 0; (fileList != null) && (i < fileList.length); i++) {
+                    sb.append(fileList[i])
+                            .append(" ---> ")
+                            .append((bRemapFLNull || (remappedFileList[i] == null)) ? " default mapping: "
+                                    + fileList[i] : " remapped to: " + remappedFileList[i]).append("\n");
                 }
                 logger.log(Level.FINE, sb.toString());
-                logger.log(Level.FINE, "Remote destination directory: {0}\nRemote host: {1} port: {2}", new Object[]{destDir, hostname, portNo});
+                logger.log(Level.FINE, "Remote destination directory: {0}\nRemote host: {1} port: {2}", new Object[] {
+                        destDir, hostname, portNo });
             }
         } else {// server mode
             if (logger.isLoggable(Level.FINE)) {
                 logger.log(Level.INFO, "Local server will try to bind on port:{0}", portNo);
-            }
-            //look to see if they want to restrict the FDT server's access to a particular directory
-            if (configMap.containsKey("-rtd")) {
-              //split on comma
-              String[] dirs = ((String)configMap.get("-rtd")).split(",");
-              restrictedTransferDirectories = new File[dirs.length];
-              StringBuilder message = new StringBuilder();
-              //check that each exist
-              for (int i=0; i< dirs.length; i++){
-                restrictedTransferDirectories[i] = new File (dirs[i]);
-                if (restrictedTransferDirectories[i] == null || restrictedTransferDirectories[i].exists() == false){
-                  throw new InvalidFDTParameterException("Cannot find your restricted transfer directory? -> "+dirs[i]);
-                }
-                else message.append(restrictedTransferDirectories[i]+ " ");
-              }
-              logger.log(Level.INFO, "Restricted Transfer Directories: "+message);
-            }
-            
-            // look to see if they want to call a special logger script
-            if (configMap.containsKey("-appLogger")) {
-              appLogger = (String)configMap.get("-appLogger");
             }
         }
     }
 
     public int getBulkSockConnect() {
         return 30;
+    }
+
+    public long getKeepAliveDelay(TimeUnit unit) {
+        return unit.convert(keepAliveDelayNanos, TimeUnit.NANOSECONDS);
     }
 
     public long getBulkSockConnectWait() {
@@ -594,7 +569,7 @@ public class Config {
                 try {
                     Config.class.wait();
                 } catch (Throwable t) {
-                    logger.logError(t);
+                    t.printStackTrace();
                 }
             }
         }
@@ -647,6 +622,10 @@ public class Config {
         return rateLimit;
     }
 
+    public long getRateLimitDelay() {
+        return rateLimitDelayMillis;
+    }
+
     public int getSockBufSize() {
         return sockBufSize;
     }
@@ -670,7 +649,7 @@ public class Config {
     public boolean isNoLockFlagSet() {
         return isNoLockFlagSet;
     }
-    
+
     public void setHostName(String hostname) {
         this.configMap.put("-destinationHost", hostname);
         this.hostname = hostname;
@@ -786,6 +765,7 @@ public class Config {
     public boolean isGSISSHModeEnabled() {
         return bGSISSHMode;
     }
+
     /**
      * Check if remote server is needed. We use SSH channels to control remote startup. <br>
      * In SSH/SCP mode we have three types of syntax we need to support:
@@ -827,13 +807,14 @@ public class Config {
             return SSH_NO_REMOTE;
         }
         final String sDestinationHost = Utils.getStringValue(configMap, "destinationHost", null);
-        if ((aSourceHosts == null || aSourceHosts.length == 0 || aSourceHosts[0] == null) && sDestinationHost != null) // /local/path [user]@remotehost:/remote/path
+        if (((aSourceHosts == null) || (aSourceHosts.length == 0) || (aSourceHosts[0] == null))
+                && (sDestinationHost != null)) // /local/path [user]@remotehost:/remote/path
         // the client is locally
         {
             return SSH_REMOTE_SERVER_LOCAL_CLIENT_PUSH;
         }
 
-        if (aSourceHosts != null && aSourceHosts.length > 0 && sDestinationHost == null) {
+        if ((aSourceHosts != null) && (aSourceHosts.length > 0) && (sDestinationHost == null)) {
             // [2] [user]@remotehost:/remote/path /local/path
             return SSH_REMOTE_SERVER_LOCAL_CLIENT_PULL;
         }
@@ -894,17 +875,4 @@ public class Config {
     public FileChannelProviderFactory getFileChannelProviderFactory() {
         return this.fileChannelProviderFactory;
     }
-
-    public File[] getRestrictedTransferDirectories() {
-		return restrictedTransferDirectories;
-    }
-
-    public void setRestrictedTransferDirectories(File[] restrictedTransferDirectories) {
-		this.restrictedTransferDirectories = restrictedTransferDirectories;
-    }
-    
-    public String getAppLogger() {
-      return this.appLogger;
-    }
-   
 }

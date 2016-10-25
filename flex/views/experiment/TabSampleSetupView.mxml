@@ -373,8 +373,7 @@
 					} else {
 						if (this.numberOfSamples.text != null && this.numberOfSamples.text != '' &&
 							this.sampleTypeRadioGroup.selectedValue &&
-							hasOrganism() &&
-							this.otherSamplePrepMethod.text.length > 0 && reagentInput.text != '' &&
+							hasOrganism() && reagentInput.text != '' &&
                             elutionBufferInput.text != '' &&
                             retrieveSamplesRadioGroup.selectedValue != null) {
 							
@@ -1672,7 +1671,9 @@
 			<mx:SetProperty target="{label5}" name="width" value="305"/>
 			<mx:SetProperty target="{label8}" name="width" value="305"/>
 			<mx:SetProperty target="{label2}" name="width" value="305"/>
-			<mx:SetProperty target="{label7}" name="width" value="305"/>			
+			<mx:SetProperty target="{label7}" name="width" value="305"/>
+			<mx:SetProperty target="{samplePrepContainer}" name="includeInLayout" value="false"/>
+			<mx:SetProperty target="{samplePrepContainer}" name="visible" value="false"/>
 		</mx:State>
 		<mx:State name="SolexaSetupPreppedState" basedOn="SolexaSetupState">
 		</mx:State>
@@ -2270,6 +2271,8 @@
 			<mx:SetProperty target="{label2}" name="label" value="(4) Specify the nucleic acid extraction method.(required)" />
 			<mx:RemoveChild target="{samplePurificationContainer}"/>
 			<mx:RemoveChild target="{leftOverSampleContainer}"/>
+			<mx:SetProperty target="{samplePrepContainer}" name="includeInLayout" value="true"/>
+			<mx:SetProperty target="{samplePrepContainer}" name="visible" value="true"/>
 		</mx:State>
 		<mx:State name="GenericState">
 			<mx:SetProperty target="{samplePrepContainer}" name="includeInLayout" value="false"/>

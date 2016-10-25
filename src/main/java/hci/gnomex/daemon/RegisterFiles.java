@@ -229,8 +229,8 @@ public class RegisterFiles extends TimerTask {
 
 		} catch (Exception e) {
 
-			String msg = "Could not remove links or register experiment or analysis files (error at " + this.currentEntityString
-					+ "). Transaction rolled back:   " + e.toString() + "\n\t";
+		String msg = "Could not remove links or register experiment or analysis files (error at "
+				+ this.currentEntityString + "). Transaction rolled back:   " + e.toString() + "\n\t";
 			System.out.println(msg);
 
 			StackTraceElement[] stack = e.getStackTrace();
@@ -270,8 +270,10 @@ public class RegisterFiles extends TimerTask {
 
 	private void initialize() throws Exception {
 		PropertyDictionaryHelper ph = PropertyDictionaryHelper.getInstance(sess);
-		baseFlowCellDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, null, PropertyDictionaryHelper.PROPERTY_FLOWCELL_DIRECTORY);
-		baseAnalysisDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, null, PropertyDictionaryHelper.PROPERTY_ANALYSIS_DIRECTORY);
+	baseFlowCellDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, null,
+			PropertyDictionaryHelper.PROPERTY_FLOWCELL_DIRECTORY);
+	baseAnalysisDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, null,
+			PropertyDictionaryHelper.PROPERTY_ANALYSIS_DIRECTORY);
 
 		flowCellDirFlag = ph.getProperty(PropertyDictionary.FLOWCELL_DIRECTORY_FLAG);
 
@@ -306,7 +308,8 @@ public class RegisterFiles extends TimerTask {
 	}
 
 	private void destroyLinks() throws Exception {
-		dataTrackFileServerWebContext = PropertyDictionaryHelper.getInstance(sess).getProperty(PropertyDictionary.DATATRACK_FILESERVER_WEB_CONTEXT);
+	dataTrackFileServerWebContext = PropertyDictionaryHelper.getInstance(sess).getProperty(
+			PropertyDictionary.DATATRACK_FILESERVER_WEB_CONTEXT);
 
 		File ucscLinkDir = new File(dataTrackFileServerWebContext, Constants.URL_LINK_DIR_NAME);
 
@@ -333,7 +336,7 @@ public class RegisterFiles extends TimerTask {
 		List results = sess.createQuery(buf.toString()).list();
 		if (results.isEmpty()) {
 			System.out.println("WARNING: No experiments to process.");
-			System.exit(3);
+		return;
 		}
 
 		// For each experiment
@@ -349,7 +352,8 @@ public class RegisterFiles extends TimerTask {
 			System.out.println("\n" + getCurrentDateString() + ":" + baseRequestNumber);
 
 			// Get all of the files from the file system
-			Map fileMap = hashFiles(sess, baseRequestNumber, request.getCreateDate(), request.getCodeRequestCategory(), request.getIdCoreFacility());
+		Map fileMap = hashFiles(sess, baseRequestNumber, request.getCreateDate(), request.getCodeRequestCategory(),
+				request.getIdCoreFacility());
 			for (Iterator i1 = fileMap.keySet().iterator(); i1.hasNext();) {
 				String fileName = (String) i1.next();
 				FileDescriptor fd = (FileDescriptor) fileMap.get(fileName);
@@ -361,8 +365,8 @@ public class RegisterFiles extends TimerTask {
 			// Now compare to the experiment files already registered in the db
 			TreeSet newExperimentFiles = new TreeSet(new ExperimentFileComparator());
 			if (request.getFiles() != null) {
-				String baseExperimentDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, request.getIdCoreFacility(),
-						PropertyDictionaryHelper.PROPERTY_EXPERIMENT_DIRECTORY);
+			String baseExperimentDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName,
+					request.getIdCoreFacility(), PropertyDictionaryHelper.PROPERTY_EXPERIMENT_DIRECTORY);
 				String directoryName = baseExperimentDir + Request.getCreateYear(request.getCreateDate()) + "/"
 						+ Request.getBaseRequestNumber(request.getNumber());
 				directoryName.replace("\\", "/");
@@ -381,7 +385,8 @@ public class RegisterFiles extends TimerTask {
 					// If fd is initially null then the file may have just been
 					// moved so look for it in other directories
 					if (fd == null) {
-						printDebugStatement("name: " + efFileName + "     size: " + ef.getFileSize() + "        sizeOfLinkedList: " + dirs.size());
+					printDebugStatement("name: " + efFileName + "     size: " + ef.getFileSize()
+							+ "        sizeOfLinkedList: " + dirs.size());
 						newFilePath = recurseDirectoriesForFile(efFileName, ef.getFileSize(), request, dirs);
 					}
 
@@ -390,15 +395,15 @@ public class RegisterFiles extends TimerTask {
 					if (newFilePath != null) {
 						newFilePath = newFilePath.replace("\\", "/");
 						printDebugStatement("NEW FILE PATH, WE FOUND OLD FILE::::::::::::: " + newFilePath);
-						fd = new FileDescriptor(request.getNumber(), newFilePath.substring(newFilePath.lastIndexOf("/")), new File(newFilePath),
-								newFilePath.substring(newFilePath.indexOf(baseRequestNumber)));
+					fd = new FileDescriptor(request.getNumber(), newFilePath.substring(newFilePath.lastIndexOf("/")),
+							new File(newFilePath), newFilePath.substring(newFilePath.indexOf(baseRequestNumber)));
 					}
 
 					// If we don't find the file on the file system, delete it from the db
 					if (fd == null && newFilePath == null) {
 						if (experimentWarnings) {
-							System.out.println(getCurrentDateString() + ":" + "WARNING - experiment file " + ef.getFileName() + " not found for "
-									+ ef.getRequest().getNumber());
+						System.out.println(getCurrentDateString() + ":" + "WARNING - experiment file "
+								+ ef.getFileName() + " not found for " + ef.getRequest().getNumber());
 						}
 						printDebugStatement("ABOUT TO REMOVE EF FROM REQUEST FILE SET!!");
 						i2.remove();// Remove the experiment file so we can
@@ -501,7 +506,7 @@ public class RegisterFiles extends TimerTask {
 		List results = sess.createQuery(buf.toString()).list();
 		if (results.isEmpty()) {
 			System.out.println("WARNING: No analyses to process.");
-			System.exit(3);
+		return;
 		}
 
 		// For each analysis
@@ -538,8 +543,8 @@ public class RegisterFiles extends TimerTask {
 				if (fd == null) {
 
 					if (analysisWarnings) {
-						System.out.println("\n" + getCurrentDateString() + ":" + "WARNING - analysis file " + qualifiedFileName + " not found for "
-								+ af.getAnalysis().getNumber());
+					System.out.println("\n" + getCurrentDateString() + ":" + "WARNING - analysis file "
+							+ qualifiedFileName + " not found for " + af.getAnalysis().getNumber());
 					}
 
 					// DataTrack and DataTrackFile query
@@ -595,7 +600,8 @@ public class RegisterFiles extends TimerTask {
 								emailAddress = af.getAnalysis().getAppUser().getEmail();
 							}
 							if (emailAddress == null || emailAddress.equals("")) {
-								if (af.getAnalysis().getLab() != null && af.getAnalysis().getLab().getContactEmail() != null) {
+							if (af.getAnalysis().getLab() != null
+									&& af.getAnalysis().getLab().getContactEmail() != null) {
 									emailAddress = af.getAnalysis().getLab().getContactEmail();
 								}
 							}
@@ -640,7 +646,8 @@ public class RegisterFiles extends TimerTask {
 					af.setQualifiedFilePath(fd.getQualifiedFilePath());
 					af.setBaseFilePath(fd.getBaseFilePath());
 					af.setFileSize(BigDecimal.valueOf(fd.getFileSize()));
-					af.setBaseFilePath(baseAnalysisDir + analysis.getCreateYear() + File.separatorChar + analysis.getNumber());
+				af.setBaseFilePath(baseAnalysisDir + analysis.getCreateYear() + File.separatorChar
+						+ analysis.getNumber());
 					af.setCreateDate(this.getEffectiveAnalysisFileCreateDate(fd, analysis.getCreateDate()));
 					newAnalysisFiles.add(af);
 				}
@@ -666,7 +673,8 @@ public class RegisterFiles extends TimerTask {
 		} catch (Exception e) {
 
 			// Notify software people that the emails didn't go through?
-			String msg = "Unable to send warning email notifying user that analysis files have been deleted:  " + e.toString() + "\n\t";
+		String msg = "Unable to send warning email notifying user that analysis files have been deleted:  "
+				+ e.toString() + "\n\t";
 
 			StackTraceElement[] stack = e.getStackTrace();
 			for (StackTraceElement s : stack) {
@@ -705,7 +713,8 @@ public class RegisterFiles extends TimerTask {
 			fileInfos = new ArrayList<AnalysisFileInfo>();
 			analysisFileMap.put(af.getAnalysis().getNumber(), fileInfos);
 		}
-		fileInfos.add(new AnalysisFileInfo(af.getAnalysis().getNumber(), af.getQualifiedFileName() + "/" + af.getFileName(), dt, af.getComments()));
+	fileInfos.add(new AnalysisFileInfo(af.getAnalysis().getNumber(),
+			af.getQualifiedFileName() + "/" + af.getFileName(), dt, af.getComments()));
 	}
 
 	private void sendNotifyEmails(String fromAddress) throws NamingException, MessagingException, IOException {
@@ -728,7 +737,8 @@ public class RegisterFiles extends TimerTask {
 
 			if (sendMail) {
 				MailUtilHelper helper = new MailUtilHelper(mailProps, emailAddress, fromAddress, null, fromAddress,
-						"GNomEx Analysis file(s) missing from file system", body.toString(), null, false, DictionaryHelper.getInstance(sess), serverName);
+					"GNomEx Analysis file(s) missing from file system", body.toString(), null, false,
+					DictionaryHelper.getInstance(sess), serverName);
 				MailUtil.validateAndSendEmail(helper);
 
 			}
@@ -742,8 +752,9 @@ public class RegisterFiles extends TimerTask {
 				printDebugStatement(localMachine.getHostName());
 			}
 			if (sendMail) {
-				MailUtilHelper helper = new MailUtilHelper(mailProps, softwareTestEmail, null, null, fromAddress, "Register Files Error [Server: "
-						+ localMachine.getHostName() + "]", errorMessageString, null, false, DictionaryHelper.getInstance(sess), serverName);
+			MailUtilHelper helper = new MailUtilHelper(mailProps, softwareTestEmail, null, null, fromAddress,
+					"Register Files Error [Server: " + localMachine.getHostName() + "]", errorMessageString, null,
+					false, DictionaryHelper.getInstance(sess), serverName);
 				MailUtil.validateAndSendEmail(helper);
 
 			}
@@ -752,7 +763,8 @@ public class RegisterFiles extends TimerTask {
 		}
 	}
 
-	private Map hashFiles(Session sess, String requestNumber, java.util.Date createDate, String codeRequestCategory, Integer idCoreFacility) throws Exception {
+private Map hashFiles(Session sess, String requestNumber, java.util.Date createDate, String codeRequestCategory,
+		Integer idCoreFacility) throws Exception {
 		HashMap fileMap = new HashMap(5000);
 		String baseRequestNumber = Request.getBaseRequestNumber(requestNumber);
 
@@ -768,7 +780,8 @@ public class RegisterFiles extends TimerTask {
 				String fileName = directoryName + "/" + fileList[x];
 				File f1 = new File(fileName);
 				if (f1.isFile()) { // && !Util.isSymlink(f1)) {
-					FileDescriptor fd = new FileDescriptor(requestNumber, fileList[x], f1, baseRequestNumber + "/" + fileList[x]);
+				FileDescriptor fd = new FileDescriptor(requestNumber, fileList[x], f1, baseRequestNumber + "/"
+						+ fileList[x]);
 					fileMap.put(fd.getZipEntryName().replace("\\", "/"), fd);
 				}
 
@@ -776,8 +789,8 @@ public class RegisterFiles extends TimerTask {
 		}
 
 		// Get all of the folders in the experiment directory
-		Set folders = GetRequestDownloadList.getRequestDownloadFolders(baseExperimentDir, baseRequestNumber, Request.getCreateYear(createDate),
-				codeRequestCategory);
+	Set folders = GetRequestDownloadList.getRequestDownloadFolders(baseExperimentDir, baseRequestNumber,
+			Request.getCreateYear(createDate), codeRequestCategory);
 		for (Iterator i1 = folders.iterator(); i1.hasNext();) {
 			String folderName = (String) i1.next();
 
@@ -785,8 +798,9 @@ public class RegisterFiles extends TimerTask {
 			Map requestMap = new TreeMap();
 			Map directoryMap = new TreeMap();
 			List requestNumbers = new ArrayList<String>();
-			UploadDownloadHelper.getFileNamesToDownload(sess, serverName, null, Request.getKey(requestNumber, createDate, folderName, idCoreFacility),
-					requestNumbers, requestMap, directoryMap, flowCellDirFlag);
+		UploadDownloadHelper.getFileNamesToDownload(sess, serverName, null,
+				Request.getKey(requestNumber, createDate, folderName, idCoreFacility), requestNumbers, requestMap,
+				directoryMap, flowCellDirFlag);
 			List directoryKeys = (List) requestMap.get(baseRequestNumber);
 			if (directoryKeys != null) {
 				for (Iterator i2 = directoryKeys.iterator(); i2.hasNext();) {
@@ -824,7 +838,8 @@ public class RegisterFiles extends TimerTask {
 		Map analysisMap = new TreeMap();
 		Map directoryMap = new TreeMap();
 		List analysisNumbers = new ArrayList<String>();
-		GetExpandedAnalysisFileList.getFileNamesToDownload(baseAnalysisDir, analysis.getKey(), analysisNumbers, analysisMap, directoryMap, false);
+	GetExpandedAnalysisFileList.getFileNamesToDownload(baseAnalysisDir, analysis.getKey(), analysisNumbers,
+			analysisMap, directoryMap, false);
 
 		for (Iterator i = analysisNumbers.iterator(); i.hasNext();) {
 			String analysisNumber = (String) i.next();
@@ -860,7 +875,8 @@ public class RegisterFiles extends TimerTask {
 			String[] contents = f.list();
 			for (int i = 0; i < contents.length; i++) {
 				File f1 = new File(dir + "/" + contents[i]);
-				if (f1.isFile() && f1.getName().equals(fileToLookFor) && (BigDecimal.valueOf(f1.length()).equals(sizeOfFile))) {
+			if (f1.isFile() && f1.getName().equals(fileToLookFor)
+					&& (BigDecimal.valueOf(f1.length()).equals(sizeOfFile))) {
 					// we found the file so return its new path
 					printDebugStatement("WE FOUND THE FILE::::::::: " + f1.getAbsolutePath());
 					return f1.getAbsolutePath();
@@ -876,8 +892,8 @@ public class RegisterFiles extends TimerTask {
 
 	private void deleteExpFileAndNotify(Session sess, ExperimentFile ef) {
 		List sampleExperimentFiles = sess.createQuery(
-				"Select sef from SampleExperimentFile sef where idExpFileRead1 = " + ef.getIdExperimentFile() + " OR idExpFileRead2 = "
-						+ ef.getIdExperimentFile()).list();
+			"Select sef from SampleExperimentFile sef where idExpFileRead1 = " + ef.getIdExperimentFile()
+					+ " OR idExpFileRead2 = " + ef.getIdExperimentFile()).list();
 		ArrayList<Integer> listOfSampleIds = new ArrayList<Integer>();
 		String listOfSampleNames = "";
 		String listOfSampleIdsString = "";
@@ -934,7 +950,9 @@ public class RegisterFiles extends TimerTask {
 		if (!listOfSampleNames.equals("") && sendMail) {
 			String toAddress = pdh.getProperty(PropertyDictionary.CONTACT_EMAIL_MANAGE_SAMPLE_FILE_LINK);
 			if (!MailUtil.isValidEmail(toAddress)) {
-				System.err.println("Unable to notify of unlinking of sample experiment files due to invalid email address:  " + toAddress);
+			System.err
+					.println("Unable to notify of unlinking of sample experiment files due to invalid email address:  "
+							+ toAddress);
 				return;
 			}
 			String fromAddress = pdh.getProperty(PropertyDictionary.GENERIC_NO_REPLY_EMAIL);
@@ -944,13 +962,14 @@ public class RegisterFiles extends TimerTask {
 
 			printDebugStatement("TO ADDRESS: " + toAddress + "       FROM ADDRESS: " + fromAddress);
 			try {
-				MailUtilHelper helper = new MailUtilHelper(mailProps, toAddress, null, null, fromAddress, subject, body, null, false,
-						DictionaryHelper.getInstance(sess), serverName);
+			MailUtilHelper helper = new MailUtilHelper(mailProps, toAddress, null, null, fromAddress, subject, body,
+					null, false, DictionaryHelper.getInstance(sess), serverName);
 				MailUtil.validateAndSendEmail(helper);
 
 			} catch (Exception e) {
-				System.err.println("WARNING: Unable to send email notifying of deletion of Sample Experiment Files. Trying to send to: " + toAddress
-						+ e.toString());
+			System.err
+					.println("WARNING: Unable to send email notifying of deletion of Sample Experiment Files. Trying to send to: "
+							+ toAddress + e.toString());
 			}
 		}
 	}
@@ -964,8 +983,8 @@ public class RegisterFiles extends TimerTask {
 	private static Date getWakeupTime() {
 		Calendar tomorrow = new GregorianCalendar();
 		tomorrow.add(Calendar.DATE, fONE_DAY);
-		Calendar result = new GregorianCalendar(tomorrow.get(Calendar.YEAR), tomorrow.get(Calendar.MONTH), tomorrow.get(Calendar.DATE), wakeupHour,
-				fZERO_MINUTES);
+	Calendar result = new GregorianCalendar(tomorrow.get(Calendar.YEAR), tomorrow.get(Calendar.MONTH),
+			tomorrow.get(Calendar.DATE), wakeupHour, fZERO_MINUTES);
 		return result.getTime();
 	}
 

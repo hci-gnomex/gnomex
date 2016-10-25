@@ -5,7 +5,7 @@ import hci.framework.model.DetailObject;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -17,12 +17,12 @@ import org.jdom.Element;
 public class AnalysisFileDescriptorUploadParser extends DetailObject implements Serializable {
   
   protected Document   doc;
-  protected Map        fileNameMap = new HashMap();
+    protected Map fileNameMap = new LinkedHashMap();
   protected List       newDirectoryNames = new ArrayList();
-  protected Map        fileIdMap = new HashMap();
-  protected Map        filesToDeleteMap = new HashMap();
-  protected Map        filesToRename = new HashMap();
-  protected Map        childrenToMoveMap = new HashMap();
+    protected Map fileIdMap = new LinkedHashMap();
+    protected Map filesToDeleteMap = new LinkedHashMap();
+    protected Map filesToRename = new LinkedHashMap();
+    protected Map childrenToMoveMap = new LinkedHashMap();
   
   public AnalysisFileDescriptorUploadParser(Document doc) {
     this.doc = doc;
@@ -33,9 +33,16 @@ public class AnalysisFileDescriptorUploadParser extends DetailObject implements 
     
     Element root = this.doc.getRootElement();
     
+        if (root.getName().equals("Analysis")) {
     recurseDirectories(root, null);
-   
+        } else {
+            // ignore the outermost tags
+            for (Iterator i = root.getChildren("Analysis").iterator(); i.hasNext(); ) {
+                Element node = (Element) i.next();
+                recurseDirectories(node, null);
   }
+        }
+    }
   
   private void recurseDirectories(Element folderNode, String parentDir) {
     
@@ -44,11 +51,9 @@ public class AnalysisFileDescriptorUploadParser extends DetailObject implements 
     if (folderNode.getName().equals("Analysis")) {
       String [] fileParts = folderNode.getAttributeValue("key").split("-");
       directoryName = fileParts[2];
-      
       } else {
         if (folderNode.getAttributeValue("type") != null && folderNode.getAttributeValue("type").equals("dir")) {
           directoryName= folderNode.getAttributeValue("displayName");
-          
         } 
     }
     
@@ -77,6 +82,7 @@ public class AnalysisFileDescriptorUploadParser extends DetailObject implements 
       String qualifiedFilePath = childFileNode.getAttributeValue("qualifiedFilePath");
       String [] contents = {newFileName, fileIdString, qualifiedFilePath, displayName};
       if(!newFileName.equals(fileName) && !fileName.equals("")){
+                // these are files that were explicitly renamed
         filesToRename.put(fileName, contents);
         if(childFileNode.getAttributeValue("type").equals("dir")){
           renameDirectoryChildren(childFileNode, newFileName);
@@ -109,9 +115,8 @@ public class AnalysisFileDescriptorUploadParser extends DetailObject implements 
       }
       
       fileNames.add(childFileName);
+        } // end of for
       
-    }
-    
     
     for(Iterator i = folderNode.getChildren("FileDescriptor").iterator(); i.hasNext();) {
       Element childFolderNode = (Element)i.next();
@@ -129,7 +134,7 @@ public class AnalysisFileDescriptorUploadParser extends DetailObject implements 
     for(Element e : (List<Element>)childFileNode.getChildren()){
       String displayName = e.getAttributeValue("displayName");
       String fileName = e.getAttributeValue("fileName").replace("\\", "/");
-      String newFileName = newName + "/" + displayName;//fileName.replace(fileName.substring(fileName.lastIndexOf("/") + 1), newName) + "/" + displayName  ;
+            String newFileName = newName + "/" + displayName;
       String fileIdString = e.getAttributeValue("idAnalysisFileString");
       String qualifiedFilePath = newName.substring(newName.lastIndexOf("/") + 1);
       String [] contents = {newFileName, fileIdString, qualifiedFilePath, displayName};

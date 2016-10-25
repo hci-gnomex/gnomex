@@ -60,9 +60,9 @@ import javax.naming.NamingException;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Hibernate;
-import org.hibernate.query.Query;
 import org.hibernate.Session;
 import org.hibernate.internal.SessionImpl;
+import org.hibernate.query.Query;
 
 public class SecurityAdvisor extends DetailObject implements Serializable, hci.framework.security.SecurityAdvisor {
 // Security advisor session variable
@@ -1960,6 +1960,13 @@ private boolean isActiveUser() {
 
 private void getLabListForCores() {
 	try {
+
+		// skip this if we are a super admin! -- tim 09/23/2016
+		// if we don't batch programs (i.e., anyone using BatchDataSource) will die
+		if (this.hasPermission(CAN_ADMINISTER_ALL_CORE_FACILITIES)) {
+			return;
+		}
+
 		if (this.hasPermission(CAN_ACCESS_ANY_OBJECT)) {
 			labMapForCoresIManage = new HashMap<Integer, Integer>();
 			// Get all core facilities the user manages

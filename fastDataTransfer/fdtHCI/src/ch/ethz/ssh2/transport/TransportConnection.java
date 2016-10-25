@@ -18,7 +18,7 @@ import ch.ethz.ssh2.packets.Packets;
  * TransportConnection.
  * 
  * @author Christian Plattner, plattner@inf.ethz.ch
- * @version $Id: TransportConnection.java,v 1.1 2012-10-29 22:29:46 HCI\rcundick Exp $
+ * @version $Id: TransportConnection.java,v 1.8 2006/02/14 19:43:15 cplattne Exp $
  */
 public class TransportConnection
 {

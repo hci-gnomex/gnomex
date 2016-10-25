@@ -5,7 +5,7 @@ import hci.framework.model.DetailObject;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -17,12 +17,12 @@ import org.jdom.Element;
 public class ProductOrderFileDescriptorUploadParser extends DetailObject implements Serializable {
   
   protected Document   doc;
-  protected Map        fileNameMap = new HashMap();
+  protected Map        fileNameMap = new LinkedHashMap();
   protected List       newDirectoryNames = new ArrayList();
-  protected Map        fileIdMap = new HashMap();
-  protected Map        filesToDeleteMap = new HashMap();
-  protected Map        filesToRename = new HashMap();
-  protected Map        childrenToMoveMap = new HashMap();
+  protected Map        fileIdMap = new LinkedHashMap();
+  protected Map        filesToDeleteMap = new LinkedHashMap();
+  protected Map        filesToRename = new LinkedHashMap();
+  protected Map        childrenToMoveMap = new LinkedHashMap();
   
   public ProductOrderFileDescriptorUploadParser(Document doc) {
     this.doc = doc;

@@ -8,7 +8,7 @@ import java.io.InputStream;
  * ChannelInputStream.
  * 
  * @author Christian Plattner, plattner@inf.ethz.ch
- * @version $Id: ChannelInputStream.java,v 1.1 2012-10-29 22:29:58 HCI\rcundick Exp $
+ * @version $Id: ChannelInputStream.java,v 1.5 2005/12/05 17:13:26 cplattne Exp $
  */
 public final class ChannelInputStream extends InputStream
 {

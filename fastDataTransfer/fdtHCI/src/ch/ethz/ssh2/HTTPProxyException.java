@@ -10,7 +10,7 @@ import java.io.IOException;
  * @see Connection#setProxyData(ProxyData)
  * 
  * @author Christian Plattner, plattner@inf.ethz.ch
- * @version $Id: HTTPProxyException.java,v 1.1 2012-10-29 22:29:49 HCI\rcundick Exp $
+ * @version $Id: HTTPProxyException.java,v 1.2 2006/08/02 12:05:00 cplattne Exp $
  */
 
 public class HTTPProxyException extends IOException

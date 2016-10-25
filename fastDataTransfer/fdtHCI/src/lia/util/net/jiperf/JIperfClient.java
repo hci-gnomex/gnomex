@@ -1,9 +1,8 @@
 /*
- * $Id: JIperfClient.java,v 1.1 2012-10-29 22:30:11 HCI\rcundick Exp $
+ * $Id$
  */
 package lia.util.net.jiperf;
 
-import gui.Log;
 import java.io.File;
 import java.io.FileInputStream;
 import java.net.InetSocketAddress;
@@ -17,6 +16,7 @@ import java.util.Iterator;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.Executor;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import lia.util.net.jiperf.control.ControlStream;
 
@@ -31,9 +31,7 @@ import lia.util.net.jiperf.control.ControlStream;
 public class JIperfClient {
 
 	/** Logger used by this class */
-	//private static final transient Logger logger = Logger.getLogger(JIperfClient.class.getName());
-
-        private static final Log logger = Log.getLoggerInstance();
+	private static final transient Logger logger = Logger.getLogger(JIperfClient.class.getName());
 
 	Selector sel;
 

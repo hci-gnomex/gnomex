@@ -17,7 +17,7 @@ import ch.ethz.ssh2.log.Logger;
  * Only after new timeouts arrive a new thread (singleton) will be instantiated.
  * 
  * @author Christian Plattner, plattner@inf.ethz.ch
- * @version $Id: TimeoutService.java,v 1.1 2012-10-29 22:30:02 HCI\rcundick Exp $
+ * @version $Id: TimeoutService.java,v 1.2 2006/07/30 21:59:29 cplattne Exp $
  */
 public class TimeoutService
 {

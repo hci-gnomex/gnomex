@@ -460,7 +460,7 @@ public class FileDescriptor extends DetailObject implements Serializable {
 		if (this.getType() != null) {
 			String extension = "." + this.getType();
 
-			if (extension.equalsIgnoreCase(Constants.TRIO_FILE_EXTENSION)) {
+		if (extension.equalsIgnoreCase(Constants.PED_FILE_EXTENSION)) {
 				found = true;
 			}
 		}

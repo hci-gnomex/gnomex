@@ -9,7 +9,7 @@ import java.net.Socket;
  * LocalAcceptThread.
  * 
  * @author Christian Plattner, plattner@inf.ethz.ch
- * @version $Id: LocalAcceptThread.java,v 1.1 2012-10-29 22:29:57 HCI\rcundick Exp $
+ * @version $Id: LocalAcceptThread.java,v 1.7 2006/07/30 21:59:29 cplattne Exp $
  */
 public class LocalAcceptThread extends Thread implements IChannelWorkerThread
 {

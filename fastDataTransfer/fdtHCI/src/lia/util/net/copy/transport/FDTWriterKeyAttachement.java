@@ -1,5 +1,5 @@
 /*
- * $Id: FDTWriterKeyAttachement.java,v 1.1 2012-10-29 22:29:44 HCI\rcundick Exp $
+ * $Id$
  */
 package lia.util.net.copy.transport;
 
@@ -82,10 +82,9 @@ class FDTWriterKeyAttachement extends FDTKeyAttachement implements Comparable<FD
         if( wsa.useFixedSizeBlocks ) {
             fileBlock.buff.limit(fileBlock.buff.capacity());
         }
-        
         wsa.setBuffers(header, fileBlock.buff);
         wsa.payloadSize = fileBlock.buff.limit();
-
+        
         //keep the reference to the FileBlock to recycle it
         wsa.setBuffers(header, fileBlock.buff);
         

@@ -14,7 +14,7 @@ import ch.ethz.ssh2.packets.TypesWriter;
  * DSASHA1Verify.
  * 
  * @author Christian Plattner, plattner@inf.ethz.ch
- * @version $Id: DSASHA1Verify.java,v 1.1 2012-10-29 22:30:11 HCI\rcundick Exp $
+ * @version $Id: DSASHA1Verify.java,v 1.5 2006/02/14 19:43:16 cplattne Exp $
  */
 public class DSASHA1Verify
 {

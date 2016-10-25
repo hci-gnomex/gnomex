@@ -1,16 +1,16 @@
 /*
- * $Id: DiskWriterMonitoringTask.java,v 1.1 2012-10-29 22:29:53 HCI\rcundick Exp $
+ * $Id$
  */
 package lia.util.net.copy.monitoring;
 
 import java.util.Date;
 import java.util.Vector;
 import java.util.concurrent.locks.Lock;
+import java.util.logging.Logger;
 
 import lia.util.net.common.Utils;
 import lia.util.net.copy.disk.DiskWriterTask;
 import apmon.ApMon;
-import gui.Log;
 
 /**
  * Monitors disk activity per writer  
@@ -18,7 +18,7 @@ import gui.Log;
  */
 public class DiskWriterMonitoringTask implements Runnable {
 
-    private static Log logger = Log.getLoggerInstance();
+    private static final Logger logger = Logger.getLogger(DiskWriterManagerMonitoringTask.class.getName());
 
     private final Lock countersRLock;
     
@@ -110,7 +110,7 @@ public class DiskWriterMonitoringTask implements Runnable {
 
         sb.append("\n******************************************************\n");
 
-        logger.log(sb.toString());
+        System.out.println(sb.toString());
         //use the apmon monitoring
         if ( Utils.getApMon()!=null ) {
             try {
@@ -125,7 +125,7 @@ public class DiskWriterMonitoringTask implements Runnable {
                 }
             } catch (Exception ex) {
                 logger.warning("Could not send monitoring information to MonALISA.");
-                logger.logError(ex);
+                ex.printStackTrace();
             }
         }
     }//run()

@@ -1,5 +1,5 @@
 /*
- * $Id: GSIServer.java,v 1.1 2012-10-29 22:30:23 HCI\rcundick Exp $
+ * $Id$
  */
 package lia.gsi;
 
@@ -157,16 +157,15 @@ public class GSIServer extends GSIBaseServer {
 			socket.getInputStream();
 			// peer.authorizer called
 			peerSubject = peer.getPeerSubject();
-		} catch (IOException e) {
-			logger.log(Level.INFO, "Authentication failed:", e);
-			if (!socket.isClosed()) {
+		} catch (Throwable t) {
+			logger.log(Level.INFO, "Authentication failed:", t);
+			if (socket != null) {
+                if (logger.isLoggable(Level.INFO)) {
+                    logger.log(Level.INFO, "Client disconnected");
+                }
 				try {
 					socket.close();
-					if (logger.isLoggable(Level.INFO)) {
-						logger.log(Level.INFO, "Client disconnected");
-					}
-				} catch (IOException e1) {
-					//e1.printStackTrace();
+				} catch (Throwable ignore) {
 				}
 			}
 			return;
@@ -180,7 +179,7 @@ public class GSIServer extends GSIBaseServer {
 
 	/**
 	 * This method needs to be implemented by subclasses. <br>
-	 * Optimally, it should be a non-blocking call starting a separate thread to handle the client: i.e:
+	 * Optimmaly, it should be a non-blocking call starting a separate thread to handle the client: i.e:
 	 * 
 	 * <pre>
 	 *   ControlClient c = new ControlClient(parent, socket,Subject peerSubject); 

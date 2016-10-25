@@ -1,5 +1,5 @@
 /*
- * $Id: ControlStream.java,v 1.1 2012-10-29 22:29:44 HCI\rcundick Exp $
+ * $Id$
  */
 package lia.util.net.common;
 
@@ -13,6 +13,9 @@ import java.io.InputStream;
  */
 public interface ControlStream {
 
+	/** Start the connection with the configured parameters */
+	void connect() throws IOException;
+	
 	public void startProgram(String cmd) throws IOException;
 
 	public InputStream getProgramStdOut() throws IOException;

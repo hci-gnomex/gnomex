@@ -7,7 +7,7 @@ import hci.gnomex.constants.Constants;
 import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -19,10 +19,10 @@ import org.jdom.Element;
 public class FileDescriptorUploadParser extends DetailObject implements Serializable {
   
   protected Document   doc;
-  protected Map        fileNameMap = new HashMap();
+  protected Map        fileNameMap = new LinkedHashMap();
   protected List       newDirectoryNames = new ArrayList();
-  protected Map        filesToRename = new HashMap();
-  protected Map        foldersToRename = new HashMap();
+  protected Map        filesToRename = new LinkedHashMap();
+  protected Map        foldersToRename = new LinkedHashMap();
   
   public FileDescriptorUploadParser(Document doc) {
     this.doc = doc;
@@ -30,7 +30,7 @@ public class FileDescriptorUploadParser extends DetailObject implements Serializ
   }
   
   public void parse() throws Exception{
-    fileNameMap = new HashMap();
+    fileNameMap = new LinkedHashMap();
     newDirectoryNames = new ArrayList();
     
     Element root = this.doc.getRootElement();
