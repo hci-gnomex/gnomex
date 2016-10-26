@@ -6,11 +6,12 @@ apply from: 'common.gradle'
 ant.importBuild 'flexBuild.xml'
 import org.apache.tools.ant.filters.*;
 
-
-repositories {
-    mavenLocal()
-    //mavenCentral()
-    jcenter()
+allprojects {
+    repositories {
+        mavenLocal()
+        //mavenCentral()
+        jcenter()
+    }
 }
 
 dependencies {
@@ -25,8 +26,8 @@ dependencies {
 
 
     //Realm stuff
-    providedCompile 'org.apache.tomcat:tomcat-jdbc:9.0.0.M10'
-    providedCompile 'org.apache.tomcat:tomcat-catalina:7.0.68'
+//    providedCompile 'org.apache.tomcat:tomcat-jdbc:9.0.0.M10'
+//    providedCompile 'org.apache.tomcat:tomcat-catalina:7.0.68'
     providedCompile group: 'javax.servlet', name: 'javax.servlet-api', version: '3.0.1'
     providedCompile 'log4j:log4j:1.2.12'
     providedCompile 'javax.mail:mail:1.4.7'
@@ -49,6 +50,8 @@ dependencies {
     compile group: 'com.itextpdf', name: 'itextpdf', version: '5.5.9'
     compile group: 'javax.ejb', name: 'javax.ejb-api', version: '3.2'
     compile group: 'org.freemarker', name: 'freemarker', version: '2.3.20'
+
+    compile project(':gnomex_crypt')
 }
 
 def buildAliases = [

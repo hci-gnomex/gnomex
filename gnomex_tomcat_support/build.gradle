@@ -1,0 +1,18 @@
+buildscript {
+    repositories {
+        maven { url 'http://repo.spring.io/plugins-release' }
+    }
+    dependencies {
+        classpath 'org.springframework.build.gradle:propdeps-plugin:0.0.7'
+    }
+}
+
+apply plugin: 'propdeps'
+apply plugin: 'java'
+
+dependencies {
+    provided 'org.apache.tomcat:tomcat-jdbc:9.0.0.M10'
+    provided 'org.apache.tomcat:tomcat-catalina:7.0.68'
+    provided 'log4j:log4j:1.2.12'
+    compile project(':gnomex_crypt')
+}

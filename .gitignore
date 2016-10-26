@@ -9,3 +9,4 @@ glsave/
 /.settings
 .classpath
 .project
+/classes

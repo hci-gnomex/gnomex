@@ -1,1 +1,3 @@
 rootProject.name='gnomex'
+
+include 'gnomex_tomcat_support','gnomex_crypt'
