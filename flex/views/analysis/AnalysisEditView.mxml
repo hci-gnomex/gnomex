@@ -983,7 +983,7 @@
 							this.institutionCombo.selectedItem = inst;
 							break;
 						}
-					}
+				}
 				} else {
 					var hasDefault:Boolean = false;
 					if (radioInstitutionVisibility.selected && radioInstitutionVisibility.enabled) {

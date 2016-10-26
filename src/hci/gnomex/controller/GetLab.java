@@ -198,6 +198,8 @@ public Command execute() throws RollBackCommandException {
 			if (this.getSecAdvisor().isGroupIAmMemberOrManagerOf(theLab.getIdLab())
 					|| this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_ADMINISTER_USERS)) {
 				this.appendPossibleCollaborators(labNode, theLab);
+				this.appendMembersCollaborators(labNode, theLab);
+				this.appendPossibleCollaboratorsWithoutOwner(labNode, theLab);
 			}
 			this.appendSubmitters(labNode, theLab);
 			this.appendBillingAccounts(theLab.getApprovedBillingAccounts(), "approvedBillingAccounts", labNode, theLab);
