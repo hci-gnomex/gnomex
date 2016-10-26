@@ -69,12 +69,14 @@
 
   function validateAndSubmit() {
       var valid = true;
-      if (document.getElementById("passwordExternal").value == "") {
-          valid = false;
-          alert("Please enter a password");
-      } else if (document.getElementById("passwordExternal").value != document.getElementById("passwordExternalConfirm").value) {
-          valid = false;
-          alert("The passwords you entered must match");
+      if (document.getElementById("uofuAffiliate_n").checked) {
+          if (document.getElementById("passwordExternal").value == "") {
+              valid = false;
+              alert("Please enter a password");
+          } else if (document.getElementById("passwordExternal").value != document.getElementById("passwordExternalConfirm").value) {
+              valid = false;
+              alert("The passwords you entered must match");
+          }
       }
       if (valid) {
           document.forms["theform"].submit();
