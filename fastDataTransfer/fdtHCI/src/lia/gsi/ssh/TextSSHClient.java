@@ -1,5 +1,5 @@
 /*
- * $Id: TextSSHClient.java,v 1.1 2012-10-29 22:29:52 HCI\rcundick Exp $
+ * $Id$
  */
 package lia.gsi.ssh;
 

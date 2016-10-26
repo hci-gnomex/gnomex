@@ -8,9 +8,11 @@
 	close="{closeWindow()}"
 	title="My Account"
 	creationPolicy="all"
-	height="472" icon="@Embed('../../assets/user.png')" width="720">
+	icon="@Embed('../../assets/user.png')"
+	height="600"
+	width="720">
 
-	<mx:HTTPService 
+	<mx:HTTPService
     id="getAppUserPublic" 
     url="GetAppUserPublic.gx"
     destination="getAppUserPublic"
@@ -46,8 +48,9 @@
 			import mx.events.CloseEvent;
 			import mx.managers.PopUpManager;
 			import mx.rpc.events.ResultEvent;
-			
-			
+
+			import views.util.PasswordUtil;
+
 			[Bindable]
 			public var publicUser:Object;
 			
@@ -134,6 +137,15 @@
 					params.passwordExternal = externalUserPassword.text;
 					if(externalUserPassword.text.length == 0) {
 						missingFields += "\t\t\tPassword\n";
+					}
+					if(externalUserPassword.text != externalUserPasswordConfirm.text) {
+						Alert.show(PasswordUtil.MATCH_ERROR_TEXT);
+						return;
+					}
+					if(externalUserPassword.text != publicUser.@passwordExternalEntered
+							&& !PasswordUtil.passwordMeetsRequirements(externalUserPassword.text)) {
+						Alert.show(PasswordUtil.COMPLEXITY_ERROR_TEXT);
+						return;
 					}
 				} else if (this.currentState == "universityUserState") {
 					params.uNID = uNID.text;
@@ -244,8 +256,8 @@
 							<mx:RadioButton label="University user" groupName="radiogroup1" click="{onUserAccountChange()}" value="UNID" id="radioUniversityUser"/>
 							<mx:RadioButton label="External user" groupName="radiogroup1" click="{onUserAccountChange()}" value="EXTERNAL" id="radioExternalUser">
 							</mx:RadioButton>
-							
-						</mx:HBox>	
+
+						</mx:HBox>
 						<mx:HBox paddingLeft="0" id="hbox1">	  	      
 							<mx:VBox verticalGap="0" id="unidContainer" width="100">
 								<mx:Label text="uNID"  styleName="formLabel"/>
@@ -261,9 +273,9 @@
 				<mx:HBox width="100%" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4" height="100%">
 					<mx:DataGrid change="setDirty()" id="userNotificationLabs" dataProvider="{notificationLabs}" height="100%" width="100%" fontSize="11" wordWrap="true">
 						<mx:columns>
-							<mx:DataGridColumn width="80" dataField="@labName" headerText="Lab"/>
-							<mx:DataGridColumn width="30" dataField="@role" headerText="Role"/>
-							<mx:DataGridColumn width="20" headerText="Receive Alert"  
+							<mx:DataGridColumn width="240" dataField="@labName" headerText="Lab"/>
+							<mx:DataGridColumn width="90" dataField="@role" headerText="Role"/>
+							<mx:DataGridColumn width="90" headerText="Receive Alert"
 											   editable="false"                         	
 											   dataField="@doUploadAlert" 
 											   editorDataField="selected" 
@@ -274,12 +286,12 @@
 					</mx:DataGrid>
 				</mx:HBox>
 				<mx:LinkButton label="Request membership to additional labs" color="#0000EE" textDecoration="underline" click="showRequestLabMembershipWindow()" visible="{!parentApplication.isAdminState}" includeInLayout="{!parentApplication.isAdminState}" />
-			</mx:VBox>			
+			</mx:VBox>
 			
 		</mx:VDividedBox>
-		
-		
-		
+
+
+
 	</mx:VBox>
 	<mx:ControlBar   width="100%" paddingBottom="4" paddingLeft="4" paddingRight="4" paddingTop="4" verticalAlign="middle" horizontalAlign="left">
 		<mx:HBox width="100%" horizontalAlign="right">
@@ -294,20 +306,31 @@
 	<mx:states>
 		<mx:State name="externalUserState">
 			<mx:AddChild relativeTo="{hbox1}" position="lastChild">
-				<mx:HBox width="100%" >
-					<mx:VBox verticalGap="1"   id="vbox2">
-						<mx:Label text="User name"  styleName="formLabel"/>
-						<mx:TextInput id="externalUserName" 
-									  width="120" text="{publicUser.@userNameExternal}" change="setDirty()"/>
-					</mx:VBox>
-					<mx:VBox verticalGap="1"  >
-						<mx:Label text="Password" styleName="formLabel"/>
-						<mx:TextInput id="externalUserPassword" 
-									  text="{publicUser.@passwordExternalEntered}" 
-									  width="167" displayAsPassword="true"  change="setDirty()"/>
-					</mx:VBox>
-				</mx:HBox>
-				
+				<mx:VBox width="100%">
+					<mx:HBox width="100%" >
+						<mx:VBox verticalGap="1" id="vbox2">
+							<mx:Label text="User name"  styleName="formLabel"/>
+							<mx:TextInput id="externalUserName"
+										  width="120" text="{publicUser.@userNameExternal}" change="setDirty()"/>
+						</mx:VBox>
+						<mx:VBox verticalGap="1"  >
+							<mx:Label text="Password" styleName="formLabel"/>
+							<mx:TextInput id="externalUserPassword"
+										  text="{publicUser.@passwordExternalEntered}"
+										  width="167" displayAsPassword="true"  change="setDirty()"/>
+						</mx:VBox>
+						<mx:VBox verticalGap="1">
+							<mx:Label text="Confirm Password" styleName="formLabel"/>
+							<mx:TextInput id="externalUserPasswordConfirm"
+										  text="{publicUser.@passwordExternalEntered}"
+										  width="167" displayAsPassword="true"  change="setDirty()"/>
+							<mx:Label text="passwords must match" styleName="formLabel" visible="{externalUserPassword.text != externalUserPasswordConfirm.text}"/>
+						</mx:VBox>
+					</mx:HBox>
+					<mx:HBox width="100%" >
+						<mx:Text width="100%" text="{PasswordUtil.REQUIREMENTS_TEXT}" />
+					</mx:HBox>
+				</mx:VBox>
 			</mx:AddChild>
 			<mx:RemoveChild target="{unidContainer}"/>
 		</mx:State>

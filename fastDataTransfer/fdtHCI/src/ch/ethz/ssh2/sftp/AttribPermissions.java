@@ -10,7 +10,7 @@ package ch.ethz.ssh2.sftp;
  * defined by POSIX [IEEE.1003-1.1996].</i>"
  *
  * @author Christian Plattner, plattner@inf.ethz.ch
- * @version $Id: AttribPermissions.java,v 1.1 2012-10-29 22:30:16 HCI\rcundick Exp $
+ * @version $Id: AttribPermissions.java,v 1.2 2006/08/02 12:05:00 cplattne Exp $
  *
  */
 public class AttribPermissions

@@ -1,11 +1,8 @@
 /*
- * $Id: TCPTransportProvider.java,v 1.1 2012-10-29 22:29:43 HCI\rcundick Exp $
+ * $Id$
  */
 package lia.util.net.copy.transport;
 
-import gui.FdtMain;
-import gui.Log;
-import gui.ShowMessageDialog;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -31,6 +28,7 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 import lia.util.net.common.AbstractFDTIOEntity;
 import lia.util.net.common.Config;
 import lia.util.net.common.DirectByteBufferPool;
@@ -48,7 +46,7 @@ import lia.util.net.copy.transport.internal.SelectionManager;
  */
 public abstract class TCPTransportProvider extends AbstractFDTIOEntity implements SelectionHandler, SpeedLimiter {
 
-    private static final Log logger = Log.getLoggerInstance();
+    private static final Logger logger = Logger.getLogger(TCPTransportProvider.class.getName());
 
     private static final Config config = Config.getInstance();
 
@@ -124,7 +122,7 @@ public abstract class TCPTransportProvider extends AbstractFDTIOEntity implement
     }
 
     public long getNotifyDelay() {
-        return 1 * 1000;
+        return fdtSession.getRateLimitDelay();
     }
 
     public void notifyAvailableBytes(long available) {
@@ -186,18 +184,22 @@ public abstract class TCPTransportProvider extends AbstractFDTIOEntity implement
                 if (windowSize > 0) {
                     s.setSendBufferSize(windowSize);
                 }
+                final String sdpConfFlag = System.getProperty("com.sun.sdp.conf");
+                final boolean bSDP = (sdpConfFlag != null && !sdpConfFlag.isEmpty());
                 
-                try {
-                    s.setKeepAlive(true);
-                } catch (Throwable t) {
-                    logger.log(Level.WARNING, "[ FDTServer ] [ AcceptableTask ] Cannot set KEEP_ALIVE for " + sc + ". Will ignore the error. Contact your sys admin.", t);
-                }
+                if(!bSDP) {
+                    try {
+                        s.setKeepAlive(true);
+                    } catch (Throwable t) {
+                        logger.log(Level.WARNING, "[ FDTServer ] [ AcceptableTask ] Cannot set KEEP_ALIVE for " + sc + ". Will ignore the error. Contact your sys admin.", t);
+                    }
 
-                try {
-                    //IPTOS_LOWCOST (0x02) IPTOS_RELIABILITY (0x04) IPTOS_THROUGHPUT (0x08) IPTOS_LOWDELAY (0x10)
-                    s.setTrafficClass(0x04 | 0x08 | 0x010);
-                } catch (Throwable t) {
-                    logger.log(Level.WARNING, "[ FDTServer ] [ AcceptableTask ] Cannot set traffic class for " + sc + "[ IPTOS_RELIABILITY (0x04) | IPTOS_THROUGHPUT (0x08) | IPTOS_LOWDELAY (0x10) ] Will ignore the error. Contact your sys admin.", t);
+                    try {
+                        //IPTOS_LOWCOST (0x02) IPTOS_RELIABILITY (0x04) IPTOS_THROUGHPUT (0x08) IPTOS_LOWDELAY (0x10)
+                        s.setTrafficClass(0x04 | 0x08 | 0x010);
+                    } catch (Throwable t) {
+                        logger.log(Level.WARNING, "[ FDTServer ] [ AcceptableTask ] Cannot set traffic class for " + sc + "[ IPTOS_RELIABILITY (0x04) | IPTOS_THROUGHPUT (0x08) | IPTOS_LOWDELAY (0x10) ] Will ignore the error. Contact your sys admin.", t);
+                    }
                 }
                 
                 if (!sc.isBlocking()) {
@@ -214,8 +216,6 @@ public abstract class TCPTransportProvider extends AbstractFDTIOEntity implement
                             if (sc.write(connectCookie) >= 0 && !connectCookie.hasRemaining()) {
                                 connectedChannels.add(sc);
                             } else {
-                                if(!FdtMain.isIsServerMode())
-                                ShowMessageDialog.showErrorDialog("Cannot connect", "Error");
                                 throw new IOException("Cannot connect");
                             }
                             connectCookie.flip();
@@ -242,7 +242,7 @@ public abstract class TCPTransportProvider extends AbstractFDTIOEntity implement
                     if (ssk.isConnectable()) {
                         ssk.interestOps(ssk.interestOps() & ~SelectionKey.OP_CONNECT);
                         while (!sc.finishConnect()) {
-                            logger.log("Socket not yet connected!!!");
+                            System.out.println("Socket not yet connected!!!");
                             Thread.yield();
                         }
                     } else {
@@ -281,8 +281,6 @@ public abstract class TCPTransportProvider extends AbstractFDTIOEntity implement
 
             logger.log(Level.INFO, "Requested window size " + windowSize + ". Using window size: " + usedWindowSize);
         } catch (Throwable t) {
-            if(!FdtMain.isIsServerMode())
-            ShowMessageDialog.showErrorDialog("Unable to connect to " + addr.toString(), "Error");
             logger.log(Level.WARNING, "Unable to connect to " + addr.toString(), t);
             for (SocketChannel sc : tmpChannels) {
                 try {
@@ -412,21 +410,17 @@ public abstract class TCPTransportProvider extends AbstractFDTIOEntity implement
     }
 
     public void startTransport(boolean sendCookie) throws Exception {
-        
         if (endPointAddress != null) {
             InetSocketAddress addr = new InetSocketAddress(endPointAddress, port);
 
             ByteBuffer connectCookie = null;
             DirectByteBufferPool instance = DirectByteBufferPool.getInstance();
-            
             try {
                 connectCookie = instance.take();
                 connectCookie.limit(1 + 16);
-                
                 connectCookie.put((byte) 1).putLong(fdtSession.sessionID().getMostSignificantBits()).putLong(fdtSession.sessionID().getLeastSignificantBits());
                 connectCookie.flip();
                 addChannels(tryToConnect(addr, numberOfStreams, connectCookie, sendCookie), sendCookie);
-               
             } finally {
                 if (connectCookie != null) {
                     instance.put(connectCookie);
@@ -488,6 +482,7 @@ public abstract class TCPTransportProvider extends AbstractFDTIOEntity implement
             if (logger.isLoggable(Level.FINER)) {
                 logger.log(Level.FINER, " TCPTransportProvider add working stream for channel: " + channel);
             }
+
             this.channels.put(channel, null);
         }
     }

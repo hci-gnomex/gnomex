@@ -9,11 +9,7 @@ import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.UserPermissionKind;
 import hci.gnomex.security.EncryptionUtility;
 import hci.gnomex.security.SecurityAdvisor;
-import hci.gnomex.utility.DictionaryHelper;
-import hci.gnomex.utility.HibernateSession;
-import hci.gnomex.utility.MailUtil;
-import hci.gnomex.utility.MailUtilHelper;
-import hci.gnomex.utility.PropertyDictionaryHelper;
+import hci.gnomex.utility.*;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -183,19 +179,24 @@ public class SaveAppUser extends GNomExCommand implements Serializable {
                 appUser.setuNID(null);
               }
               if (appUser.getPasswordExternal() != null && !appUser.getPasswordExternal().equals("") && !appUser.getPasswordExternal().equals(AppUser.MASKED_PASSWORD)) {
-                String salt = passwordEncrypter.createSalt();
-                String encryptedPassword = passwordEncrypter.createPassword(appUser.getPasswordExternal(), salt);
-                appUser.setSalt(salt);
-                appUser.setPasswordExpired("N");
-                appUser.setPasswordExternal(encryptedPassword);
+                if (PasswordUtil.passwordMeetsRequirements(appUser.getPasswordExternal())) {
+                  String salt = passwordEncrypter.createSalt();
+                  String encryptedPassword = passwordEncrypter.createPassword(appUser.getPasswordExternal(), salt);
+                  appUser.setSalt(salt);
+                  appUser.setPasswordExpired("N");
+                  appUser.setPasswordExternal(encryptedPassword);
+                } else {
+                  addInvalidField("Password invalid", PasswordUtil.COMPLEXITY_ERROR_TEXT);
+                }
               }
 
             }
 
-            appUser.setManagingCoreFacilities(new HashSet());
-            appUser.setCoreFacilitiesICanSubmitTo(new HashSet());
-            sess.save(appUser);
-
+            if (this.isValid()) {
+              appUser.setManagingCoreFacilities(new HashSet());
+              appUser.setCoreFacilitiesICanSubmitTo(new HashSet());
+              sess.save(appUser);
+            }
           }
         } else {
 

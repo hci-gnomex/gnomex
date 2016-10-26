@@ -5,7 +5,7 @@ package ch.ethz.ssh2.channel;
  * Channel.
  * 
  * @author Christian Plattner, plattner@inf.ethz.ch
- * @version $Id: Channel.java,v 1.1 2012-10-29 22:29:58 HCI\rcundick Exp $
+ * @version $Id: Channel.java,v 1.7 2005/12/07 10:25:48 cplattne Exp $
  */
 public class Channel
 {

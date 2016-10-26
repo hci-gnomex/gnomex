@@ -7,7 +7,7 @@ import java.io.IOException;
  * PacketUserauthInfoRequest.
  * 
  * @author Christian Plattner, plattner@inf.ethz.ch
- * @version $Id: PacketUserauthInfoRequest.java,v 1.1 2012-10-29 22:29:36 HCI\rcundick Exp $
+ * @version $Id: PacketUserauthInfoRequest.java,v 1.2 2005/07/21 15:28:51 cplattne Exp $
  */
 public class PacketUserauthInfoRequest
 {

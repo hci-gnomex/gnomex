@@ -165,7 +165,7 @@ public class ApMon {
     /** < The ports where the destination hosts listen. */
     Vector destPasswds;
 
-    /** < The Passwords used for the destination hosts. */
+    /** < The Passwdords used for the destination hosts. */
 
     byte[] buf;
 
@@ -175,7 +175,7 @@ public class ApMon {
     /** < The size of the data inside the datagram */
 
     /**
-     * Hashtable which holds the initialization resources (Files, URLs) that must be periodically checked for changes,
+     * Hashtable which holds theinitialization resources (Files, URLs) that must be periodically checked for changes,
      * and their latest modification times
      */
     Hashtable confResources;

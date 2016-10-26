@@ -1,5 +1,5 @@
 /*
- * $Id: DiskReaderManager.java,v 1.1 2012-10-29 22:30:18 HCI\rcundick Exp $
+ * $Id$
  */
 package lia.util.net.copy.disk;
 
@@ -33,7 +33,6 @@ public class DiskReaderManager extends GenericDiskManager {
         
     }
     
-    @Override
     public long getSize() {
         return -1;
     }

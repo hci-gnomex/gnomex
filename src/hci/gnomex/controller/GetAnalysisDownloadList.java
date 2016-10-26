@@ -328,6 +328,15 @@ public Command execute() throws RollBackCommandException {
 
 			doc.getRootElement().addContent(aNode);
 
+			// add vcf, bam and ped info
+			Element[] vbpInfo = getVcfBamPedInfo(fileMap);
+
+			for (int ii = 0; ii < vbpInfo.length; ii++) {
+				if (vbpInfo[ii] != null) {
+					doc.getRootElement().addContent(vbpInfo[ii]);
+				}
+			}
+
 			XMLOutputter out = new org.jdom.output.XMLOutputter();
 			this.xmlResult = out.outputString(doc);
 		}
@@ -675,6 +684,37 @@ public int compare(Object o1, Object o2) {
 	return a1.getIdAnalysis().compareTo(a2.getIdAnalysis());
 
 }
+}
+
+private static Element[] getVcfBamPedInfo(Map fileMap) {
+	Element[] vbpInfo = new Element[3];
+
+	Element vcfInfo = new Element("VCFInfo");
+	Element bamInfo = new Element("BAMInfo");
+	Element pedInfo = new Element("PEDInfo");
+
+	for (Object key : fileMap.keySet()) {
+		String lkey = ((String) key).toLowerCase();
+		if (lkey.endsWith(".vcf.gz")) {
+			Element viPath = new Element("VCFPath");
+			viPath.setAttribute("path", (String) key);
+			vcfInfo.addContent(viPath);
+		} else if (lkey.endsWith(".bam")) {
+			Element biPath = new Element("BAMPath");
+			biPath.setAttribute("path", (String) key);
+			bamInfo.addContent(biPath);
+		} else if (lkey.endsWith(".ped")) {
+			Element piPath = new Element("PEDPath");
+			piPath.setAttribute("path", (String) key);
+			pedInfo.addContent(piPath);
+		}
+	}
+
+	vbpInfo[0] = vcfInfo;
+	vbpInfo[1] = bamInfo;
+	vbpInfo[2] = pedInfo;
+
+	return vbpInfo;
 }
 
 }

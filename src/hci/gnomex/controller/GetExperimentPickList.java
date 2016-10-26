@@ -105,7 +105,7 @@ public class GetExperimentPickList extends GNomExCommand implements Serializable
         String hybNumber     = row[10] == null || row[10].equals("") ? "" : (String)row[10];
         
         String createDate    = this.formatDate((java.util.Date)row[2]);
-        String tokens[] = createDate.split(Constants.FILE_SEPARATOR);
+        String tokens[] = createDate.split("/");
         String createMonth = tokens[0];
         String createDay   = tokens[1];
         String createYear  = tokens[2];
@@ -127,7 +127,7 @@ public class GetExperimentPickList extends GNomExCommand implements Serializable
         String laneNumber     = row[10] == null || row[10].equals("") ? "" : (String)row[10];
         
         String createDate    = this.formatDate((java.util.Date)row[2]);
-        String tokens[] = createDate.split(Constants.FILE_SEPARATOR);
+        String tokens[] = createDate.split("/");
         String createMonth = tokens[0];
         String createDay   = tokens[1];
         String createYear  = tokens[2];
@@ -149,7 +149,7 @@ public class GetExperimentPickList extends GNomExCommand implements Serializable
           String sampleNumber  = (row[14] == null || row[14].equals("")) ? "" : (String) row[14];
           
           String createDate    = this.formatDate((java.util.Date) row[2]);
-          String tokens[]      = createDate.split(Constants.FILE_SEPARATOR);
+          String tokens[]      = createDate.split("/");
           String createMonth   = tokens[0];
           String createDay     = tokens[1];
           String createYear    = tokens[2];

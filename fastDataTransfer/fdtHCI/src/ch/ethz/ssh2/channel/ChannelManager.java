@@ -29,7 +29,7 @@ import ch.ethz.ssh2.transport.TransportManager;
  * Besides the crypto part, this is the core of the library.
  * 
  * @author Christian Plattner, plattner@inf.ethz.ch
- * @version $Id: ChannelManager.java,v 1.1 2012-10-29 22:29:58 HCI\rcundick Exp $
+ * @version $Id: ChannelManager.java,v 1.15 2006/08/11 12:24:01 cplattne Exp $
  */
 public class ChannelManager implements MessageHandler
 {

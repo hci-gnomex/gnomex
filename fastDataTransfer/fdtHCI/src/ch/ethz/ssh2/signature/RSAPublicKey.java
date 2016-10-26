@@ -6,7 +6,7 @@ import java.math.BigInteger;
  * RSAPublicKey.
  * 
  * @author Christian Plattner, plattner@inf.ethz.ch
- * @version $Id: RSAPublicKey.java,v 1.1 2012-10-29 22:30:11 HCI\rcundick Exp $
+ * @version $Id: RSAPublicKey.java,v 1.2 2005/08/11 12:47:29 cplattne Exp $
  */
 public class RSAPublicKey
 {

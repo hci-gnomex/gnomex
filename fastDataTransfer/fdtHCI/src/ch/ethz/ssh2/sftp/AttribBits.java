@@ -16,7 +16,7 @@ package ch.ethz.ssh2.sftp;
  * twiddling bits they don't understand.</i>"
  *
  * @author Christian Plattner, plattner@inf.ethz.ch
- * @version $Id: AttribBits.java,v 1.1 2012-10-29 22:30:15 HCI\rcundick Exp $
+ * @version $Id: AttribBits.java,v 1.2 2006/08/02 12:05:00 cplattne Exp $
  *
  */
 public class AttribBits

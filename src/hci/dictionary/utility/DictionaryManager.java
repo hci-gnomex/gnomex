@@ -334,7 +334,7 @@ private static Map<Object, Object> getDictionaryEntryMap(String className) {
 public static String getDisplay(String className, String key) {
 	String display = null;
 	Map<Object, Object> entries = getDictionaryEntryMap(className);
-	if (entries != null) {
+    if (entries != null && key != null) {
 		DictionaryEntry de = (DictionaryEntry) entries.get(key);
 		if (de != null) {
 			display = de.getDisplay();

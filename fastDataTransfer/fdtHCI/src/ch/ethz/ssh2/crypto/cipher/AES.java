@@ -56,7 +56,7 @@ package ch.ethz.ssh2.crypto.cipher;
  * precomputation
  * 
  * @author See comments in the source file
- * @version $Id: AES.java,v 1.1 2012-10-29 22:30:02 HCI\rcundick Exp $
+ * @version $Id: AES.java,v 1.4 2006/02/02 09:11:03 cplattne Exp $
  */
 public class AES implements BlockCipher
 {

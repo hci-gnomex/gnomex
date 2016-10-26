@@ -69,7 +69,7 @@ public class Constants {
 
   public static final int      MAXIMUM_NUMBER_TEXT_FILE_LINES                 = 10000;
 
-  public static final String   TRIO_FILE_EXTENSION                            = ".trio";
+public static final String PED_FILE_EXTENSION = ".ped";
 
   public static final String   GENE_IOBIO_URL                                 = "http://gene.iobio.io";
 
@@ -90,16 +90,19 @@ public class Constants {
 
   public static final String   FDT_DOWNLOAD_INFO_FILE_NAME                    = "fdtDownloadInfoFile.txt";
 
-  /* Keep lower case. */
-  public static final String[] DATATRACK_FILE_EXTENSIONS                      = new String[] { ".bam.bai", // this
-      // must
-      // precede
-      // ".bam"
-      // and
-      // ".bai"
-      ".bam", ".bai", ".useq", ".bb", ".bw", ".bed", ".bgr", ".brs", ".gff", ".gtf", ".vcf.gz", ".vcf.gz.tbi", ".narrowPeak", ".broadPeak", ".gappedPeak", ".trio"};
+/* Keep lower case. */
+public static final String[] DATATRACK_FILE_EXTENSIONS = new String[] {
+		".bam.bai", // this
+		// must
+		// precede
+		// ".bam"
+		// and
+		// ".bai"
+		".bam", ".bai", ".useq", ".bb", ".bw", ".bed", ".bgr", ".brs", ".gff", ".gtf", ".vcf.gz", ".vcf.gz.tbi",
+		".narrowPeak", ".broadPeak", ".gappedPeak", ".ped" };
 
-  public static final String[] DATATRACK_FILE_EXTENSIONS_NO_INDEX             = new String[] { ".bam", ".useq", ".bb", ".bw", ".bed", ".bgr", ".brs", ".gff", ".gtf", ".vcf.gz", ".narrowPeak", ".broadPeak", ".gappedPeak", ".trio"};
+public static final String[] DATATRACK_FILE_EXTENSIONS_NO_INDEX = new String[] { ".bam", ".useq", ".bb", ".bw", ".bed",
+		".bgr", ".brs", ".gff", ".gtf", ".vcf.gz", ".narrowPeak", ".broadPeak", ".gappedPeak", ".ped" };
 
   public static final String[] FILE_EXTENSIONS_TO_CHECK_SIZE_BEFORE_UPLOADING = new String[] { ".bed", ".bgn", ".gff", ".gtf", ".psl", };
 
@@ -119,7 +122,8 @@ public class Constants {
 
   public static final String[] FILE_EXTENSIONS_FOR_VCFIOBIO_LINKS             = new String[] { ".vcf.gz", };
 
-  public static final String[] FILE_EXTENSIONS_FOR_VIEW                       = new String[] { ".pdf", ".jpg", ".png", ".gif", ".rtf", ".txt", ".html", ".htm", ".csv", ".ppt", ".pptx", ".xls", ".xlsx", ".xml", };
+public static final String[] FILE_EXTENSIONS_FOR_VIEW = new String[] { ".pdf", ".jpg", ".png", ".gif", ".rtf", ".txt",
+		".html", ".htm", ".csv", ".ppt", ".pptx", ".xls", ".xlsx", ".xml", ".ped" };
 
   public static final String[] SEQUENCE_FILE_EXTENSIONS                       = new String[] { ".bnib", ".fasta", };
 

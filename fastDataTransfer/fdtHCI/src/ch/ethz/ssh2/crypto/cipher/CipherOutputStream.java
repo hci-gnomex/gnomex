@@ -8,7 +8,7 @@ import java.io.OutputStream;
  * CipherOutputStream.
  * 
  * @author Christian Plattner, plattner@inf.ethz.ch
- * @version $Id: CipherOutputStream.java,v 1.1 2012-10-29 22:30:01 HCI\rcundick Exp $
+ * @version $Id: CipherOutputStream.java,v 1.4 2005/12/05 17:13:27 cplattne Exp $
  */
 public class CipherOutputStream
 {

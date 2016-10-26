@@ -189,12 +189,15 @@ public void doPost(HttpServletRequest request, HttpServletResponse response) thr
 																											// security
 			|| request.getParameter("action") == null || !request.getParameter("action").equals("reload"))
 			&& (!requestName.startsWith("CreateSecurityAdvisor"))
-			&& (!requestName.equals("ChangePasswordExternalUser")) && (!requestName.equals("ShowAnalysisDownloadForm"))
+			&& (!requestName.equals("ShowAnalysisDownloadForm"))
 			&& (!requestName.equals("ShowAnalysisDownloadFormForGuest"))
-			&& (!requestName.equals("ShowRequestDownloadForm")) && (!requestName.equals("ChangePassword"))
-			&& (!requestName.equals("GetLaunchProperties")) && (!requestName.equals("PublicSaveSelfRegisteredAppUser"))
+			&& (!requestName.equals("ShowRequestDownloadForm"))
+			&& (!requestName.equals("ChangePassword"))
+			&& (!requestName.equals("GetLaunchProperties"))
+			&& (!requestName.equals("PublicSaveSelfRegisteredAppUser"))
 			&& (!requestName.equals("ShowRequestDownloadFormForGuest"))
-			&& (!requestName.equals("ShowExperimentMatrix")) && (!requestName.equals("ShowTopicTree"))) {
+			&& (!requestName.equals("ShowExperimentMatrix"))
+			&& (!requestName.equals("ShowTopicTree"))) {
 
 		commandInstance.addInvalidField("SecurityAdvisor",
 				"You must create a SecurityAdvisor in order to run this command.");

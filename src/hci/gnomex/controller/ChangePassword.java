@@ -5,16 +5,12 @@ import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.AppUser;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.security.EncryptionUtility;
-import hci.gnomex.utility.DictionaryHelper;
-import hci.gnomex.utility.HibernateSession;
-import hci.gnomex.utility.MailUtil;
-import hci.gnomex.utility.MailUtilHelper;
-import hci.gnomex.utility.PropertyDictionaryHelper;
-import hci.gnomex.utility.Util;
+import hci.gnomex.utility.*;
 
 import java.io.IOException;
 import java.io.Serializable;
 import java.sql.Timestamp;
+import java.util.Enumeration;
 import java.util.UUID;
 
 import javax.mail.MessagingException;
@@ -30,14 +26,13 @@ public class ChangePassword extends GNomExCommand implements Serializable {
 
 private static Logger LOG = Logger.getLogger(ChangePassword.class);
 
-public String SUCCESS_JSP = "/getXML.jsp";
+public final static String SUCCESS_JSP = "/getXML.jsp";
 // public String ERROR_JSP = "/message.jsp";
-public String ERROR_JSP = "/change_password.jsp";
+public final static String ERROR_JSP = "/change_password.jsp";
 
 private String userName;
 private String email;
 private String newPassword;
-private String newPasswordConfirm;
 private String guid;
 private String responsePageSuccess = null;
 private String responsePageError = null;
@@ -51,19 +46,19 @@ private String appURL = "";
 private String serverName;
 private DictionaryHelper dictionaryHelper;
 
-private boolean changingPassword = false;
-
 private static long GUID_EXPIRATION = 1800000; // 30 minutes
+
+private String action;
+public final static String ACTION_REQUEST_PASSWORD_RESET = "requestPasswordReset";
+public final static String ACTION_FINALIZE_PASSWORD_RESET = "finalizePasswordReset";
+public final static String ACTION_CHANGE_EXPIRED_PASSWORD = "changeExpiredPassword";  // ChangePassword.mxml hard-codes this value
 
 public void loadCommand(HttpServletRequest request, HttpSession session) {
 	try {
 		this.launchAppURL = this.getLaunchAppURL(request);
 		this.appURL = this.getAppURL(request);
 
-		changingPassword = false;
-		if (request.getParameter("changingPassword") != null && request.getParameter("changingPassword").equals("Y")) {
-			changingPassword = true;
-		}
+		this.action = request.getParameter("action");
 
 		if (request.getParameter("userName") != null && !request.getParameter("userName").equals("")) {
 			this.userName = request.getParameter("userName");
@@ -77,10 +72,6 @@ public void loadCommand(HttpServletRequest request, HttpSession session) {
 			this.addInvalidField("User name or email required", "Please provide user name or email for lookup.");
 		}
 
-		// if (request.getParameter("oldPassword") != null && ! request.getParameter("oldPassword").equals("")) {
-		// this.oldPassword = request.getParameter("oldPassword");
-		// }
-
 		if (request.getParameter("guid") != null && !request.getParameter("guid").equals("")) {
 			this.guid = request.getParameter("guid");
 		}
@@ -89,15 +80,11 @@ public void loadCommand(HttpServletRequest request, HttpSession session) {
 			this.newPassword = request.getParameter("newPassword");
 		}
 
-		if (request.getParameter("newPasswordConfirm") != null
-				&& !request.getParameter("newPasswordConfirm").equals("")) {
-			this.newPasswordConfirm = request.getParameter("newPasswordConfirm");
-		}
-
-		if (newPassword != null && newPasswordConfirm != null) {
-			if (!newPassword.equals(newPasswordConfirm)) {
-				this.addInvalidField("passwords",
-						"The two passwords you have entered do not match. Please re-enter your new password.");
+		if (action.equals(ACTION_FINALIZE_PASSWORD_RESET) || action.equals(ACTION_CHANGE_EXPIRED_PASSWORD)) {
+			if (newPassword == null || newPassword.equals("")) {
+				this.addInvalidField("password", "Password is required");
+			} else if (!PasswordUtil.passwordMeetsRequirements(newPassword)) {
+				this.addInvalidField("password", PasswordUtil.COMPLEXITY_ERROR_TEXT);
 			}
 		}
 		if (request.getParameter("responsePageSuccess") != null
@@ -124,110 +111,105 @@ public Command execute() throws RollBackCommandException {
 
 	try {
 		Session sess = HibernateSession.currentSession(this.getUsername());
-		EncryptionUtility passwordEncrypter = new EncryptionUtility();
 		dictionaryHelper = DictionaryHelper.getInstance(sess);
-		PropertyDictionaryHelper pdh = PropertyDictionaryHelper.getInstance(sess);
-
-		// First make sure this person is registered by looking them
-		// up in the user table
-		String checkRegHql = "";
-		if (userName != null) {
-			checkRegHql = "from AppUser u where u.userNameExternal='" + userName + "'";
-		} else {
-			checkRegHql = "from AppUser u where u.email='" + email + "'";
-		}
-
-		if (changingPassword) {
-			checkRegHql += " and u.guid='" + guid + "'";
-		}
-
-		appUser = (AppUser) sess.createQuery(checkRegHql).uniqueResult();
-		// Check that the user exists
-		if (appUser == null) {
-			regErrorMsg = "Invalid user.";
-			this.addInvalidField("Invalid username or email", regErrorMsg);
-		}
-		// Check that the user is active
-		else if (appUser.getIsActive() != null && appUser.getIsActive().equals("N")) {
-			regErrorMsg = "Inactive user account.";
-			this.addInvalidField("Inactive user account", regErrorMsg);
-		} else {
-			// Change password
-			if (newPassword != null && newPasswordConfirm != null) {
-				String salt = passwordEncrypter.createSalt();
-				String thePasswordEncrypted = passwordEncrypter.createPassword(newPassword, salt);
-				appUser.setPasswordExternal(thePasswordEncrypted);
-				appUser.setSalt(salt);
-				appUser.setGuid(null);
-				appUser.setGuidExpiration(null);
-				appUser.setPasswordExpired("N");
-				sess.update(appUser);
-				sess.flush();
-			}
-			// Reset password
-			else {
-				// Check that the user has an email if we are attempting a reset password
-				if (appUser.getEmail() == null || appUser.getEmail().equals("")) {
-					regErrorMsg = "Your GNomEx account does not have an email address associated with it. Please contact "
-							+ pdh.getProperty(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_BUGS) + " for help.";
-					this.addInvalidField("Invalid email", regErrorMsg);
-				} else {
-					UUID uuid = UUID.randomUUID();
-					Timestamp ts = new Timestamp(System.currentTimeMillis() + ChangePassword.GUID_EXPIRATION);
-					Timestamp currentTime = new Timestamp(System.currentTimeMillis());
-
-					if ((appUser.getGuid() == null && appUser.getGuidExpiration() == null)
-							|| (appUser.getGuidExpiration() != null && currentTime.after(appUser.getGuidExpiration()))) {
-
-						appUser.setGuid(uuid.toString());
-						appUser.setGuidExpiration(ts);
-						sess.update(appUser);
-						sess.flush();
-
-						// Code for change_password
-
-						if (pdh.getProperty(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_BUGS) != null) {
-							labContactEmail = pdh.getProperty(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_BUGS);
-						} else {
-							labContactEmail = pdh.getProperty(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_BUGS);
-						}
-
-						sendConfirmationEmail(appUser, uuid.toString());
-					} else {
-						regErrorMsg = "Reset password email already requested. Please wait for the instructions in your email.";
-						this.addInvalidField("Reset password email already requested", regErrorMsg);
-					}
-				}
-
+		appUser = lookupAndValidateAppUser(sess);
+		if (isValid()) {
+			if (action.equals(ACTION_FINALIZE_PASSWORD_RESET) || action.equals(ACTION_CHANGE_EXPIRED_PASSWORD)) {
+				changePassword(sess);
+			} else if (action.equals(ACTION_REQUEST_PASSWORD_RESET)) {
+				requestPasswordReset(sess);
+			} else {
+				addInvalidField("action", "An error occurred processing your request");
+				LOG.error("Request parameter 'action' had an unexpected value: '" + action + "'");
+				responsePageError = "/";
 			}
 		}
-		this.validate();
 	} catch (Exception e) {
+		addInvalidField("exception", "An error occurred processing your request");
 		LOG.error(e.getClass().toString() + ": ", e);
 		throw new RollBackCommandException();
 	} finally {
-		try {
-			this.validate();
-			// closeHibernateSession;
-		} catch (HibernateException e) {
-			LOG.error(e.getClass().toString() + ": ", e);
-			this.validate();
-			throw new RollBackCommandException();
-		}
-		/*
-		 * catch (SQLException e) { LOG.error(e.getClass().toString() + ": " , e); this.validate(); throw new RollBackCommandException(); }
-		 */
+		this.validate();
+	}
+	return this;
+}
+
+private AppUser lookupAndValidateAppUser(Session sess) {
+	String checkRegHql = "";
+	if (userName != null) {
+		checkRegHql = "from AppUser u where u.userNameExternal='" + userName + "'";
+	} else {
+		checkRegHql = "from AppUser u where u.email='" + email + "'";
 	}
 
-	return this;
+	if (action.equals(ACTION_FINALIZE_PASSWORD_RESET)) {
+		checkRegHql += " and u.guid='" + guid + "'";
+	}
+	AppUser appUser = (AppUser) sess.createQuery(checkRegHql).uniqueResult();
+
+	if (appUser == null) {
+		regErrorMsg = "Invalid user.";
+		this.addInvalidField("Invalid username or email", regErrorMsg);
+	}
+	if (appUser.getIsActive() != null && appUser.getIsActive().equals("N")) {
+		regErrorMsg = "Inactive user account.";
+		this.addInvalidField("Inactive user account", regErrorMsg);
+	}
+	return appUser;
+}
+
+private void changePassword(Session sess) {
+	EncryptionUtility passwordEncrypter = new EncryptionUtility();
+	String salt = passwordEncrypter.createSalt();
+	String thePasswordEncrypted = passwordEncrypter.createPassword(newPassword, salt);
+	appUser.setPasswordExternal(thePasswordEncrypted);
+	appUser.setSalt(salt);
+	appUser.setGuid(null);
+	appUser.setGuidExpiration(null);
+	appUser.setPasswordExpired("N");
+	sess.update(appUser);
+	sess.flush();
+}
+
+private void requestPasswordReset(Session sess) throws NamingException, MessagingException, IOException {
+	PropertyDictionaryHelper pdh = PropertyDictionaryHelper.getInstance(sess);
+	if (appUser.getEmail() == null || appUser.getEmail().equals("")) {
+		regErrorMsg = "Your GNomEx account does not have an email address associated with it. Please contact "
+				+ pdh.getProperty(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_BUGS) + " for help.";
+		this.addInvalidField("Invalid email", regErrorMsg);
+	} else {
+		UUID uuid = UUID.randomUUID();
+		Timestamp ts = new Timestamp(System.currentTimeMillis() + ChangePassword.GUID_EXPIRATION);
+		Timestamp currentTime = new Timestamp(System.currentTimeMillis());
+
+		if ((appUser.getGuid() == null && appUser.getGuidExpiration() == null)
+				|| (appUser.getGuidExpiration() != null && currentTime.after(appUser.getGuidExpiration()))) {
+
+			appUser.setGuid(uuid.toString());
+			appUser.setGuidExpiration(ts);
+			sess.update(appUser);
+			sess.flush();
+
+			if (pdh.getProperty(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_BUGS) != null) {
+				labContactEmail = pdh.getProperty(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_BUGS);
+			} else {
+				labContactEmail = pdh.getProperty(PropertyDictionary.CONTACT_EMAIL_SOFTWARE_BUGS);
+			}
+
+			sendConfirmationEmail(appUser, uuid.toString());
+		} else {
+			regErrorMsg = "Reset password email already requested. Please wait for the instructions in your email.";
+			this.addInvalidField("Reset password email already requested", regErrorMsg);
+		}
+	}
 }
 
 public void validate() {
 	// See if we have a valid form
 	if (isValid()) {
-		setResponsePage(responsePageSuccess != null ? responsePageSuccess : this.SUCCESS_JSP);
+		setResponsePage(responsePageSuccess != null ? responsePageSuccess : SUCCESS_JSP);
 	} else {
-		setResponsePage(responsePageError != null ? responsePageError : this.ERROR_JSP);
+		setResponsePage(responsePageError != null ? responsePageError : ERROR_JSP);
 	}
 }
 
@@ -255,9 +237,8 @@ public void sendConfirmationEmail(AppUser appUser, String guid) throws NamingExc
 			content.append("Your user name is: " + appUser.getUserNameExternal() + "<br><br>");
 		}
 
-		content.append("A change of password has been requested for the gnomex account associated with this email.<br>");
-		content.append("Please follow this link to change your password <a href=\"" + appURL + "\">" + appURL
-				+ "</a><br>");
+		content.append("A change of password has been requested for the gnomex account associated with this email.<br/>");
+		content.append("Please follow <a href=\"" + appURL + "\">this link</a> to change your password.<br/>");
 		content.append("This link will expire in 30 minutes.");
 	}
 

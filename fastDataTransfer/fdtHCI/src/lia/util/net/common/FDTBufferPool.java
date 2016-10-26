@@ -1,8 +1,7 @@
 /*
- * $Id: FDTBufferPool.java,v 1.1 2012-10-29 22:29:45 HCI\rcundick Exp $
+ * $Id$
  */
 package lia.util.net.common;
-import gui.Log;
 import java.nio.ByteBuffer;
 import java.util.LinkedList;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -10,10 +9,12 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class FDTBufferPool {
 
-    private static final Log logger = Log.getLoggerInstance();
+    /** Logger used by this class */
+    private static final transient Logger logger = Logger.getLogger(FDTBufferPool.class.getName());
 
     //TODO - dynamicaly set this size
     private static int BUFFER_SIZE;
@@ -196,7 +197,7 @@ public class FDTBufferPool {
                         buffersPool.add(buffs[i]);
                     }
                 } catch(Throwable t) {
-                    logger.log(Level.WARNING, " Got exception returning buffers to the pull [ currentIdx = " + i
+                    logger.log(Level.WARNING, " Got exception returning buffers to the pull [ currentIdx = " + i 
                             + " allocated = " + allocated 
                             + " buffCount = " + buffCount + " ]", t);
                 }

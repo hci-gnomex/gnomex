@@ -4,7 +4,7 @@ package ch.ethz.ssh2.crypto.cipher;
  * CBCMode.
  * 
  * @author Christian Plattner, plattner@inf.ethz.ch
- * @version $Id: CBCMode.java,v 1.1 2012-10-29 22:30:01 HCI\rcundick Exp $
+ * @version $Id: CBCMode.java,v 1.2 2005/12/05 17:13:27 cplattne Exp $
  */
 public class CBCMode implements BlockCipher
 {

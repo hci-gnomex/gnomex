@@ -5,7 +5,7 @@ package ch.ethz.ssh2.crypto.cipher;
  * This is CTR mode as described in draft-ietf-secsh-newmodes-XY.txt
  * 
  * @author Christian Plattner, plattner@inf.ethz.ch
- * @version $Id: CTRMode.java,v 1.1 2012-10-29 22:30:01 HCI\rcundick Exp $
+ * @version $Id: CTRMode.java,v 1.1 2005/06/06 12:44:25 cplattne Exp $
  */
 public class CTRMode implements BlockCipher
 {

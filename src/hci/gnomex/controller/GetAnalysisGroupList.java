@@ -350,7 +350,7 @@ public class GetAnalysisGroupList extends GNomExCommand implements Serializable 
 
     String createDate    = this.formatDate((java.sql.Date)row[11]);
     String analysisNumber = (String)row[8];
-    String tokens[] = createDate.split(Constants.FILE_SEPARATOR);
+    String tokens[] = createDate.split("/");
     String createMonth = tokens[0];
     String createDay   = tokens[1];
     String createYear  = tokens[2];

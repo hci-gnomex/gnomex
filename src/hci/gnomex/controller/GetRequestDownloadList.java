@@ -135,7 +135,7 @@ public Command execute() throws RollBackCommandException {
 			Integer idCoreFacility = (Integer) row[31];
 
 			String createDate = this.formatDate((java.util.Date) row[0]);
-			String tokens[] = createDate.split(Constants.FILE_SEPARATOR);
+			String tokens[] = createDate.split("/");
 			String createMonth = tokens[0];
 			String createDay = tokens[1];
 			String createYear = tokens[2];
@@ -161,7 +161,7 @@ public Command execute() throws RollBackCommandException {
 			String codeRequestCategory = (String) row[2];
 
 			String createDate = this.formatDate((java.util.Date) row[0]);
-			String tokens[] = createDate.split(Constants.FILE_SEPARATOR);
+			String tokens[] = createDate.split("/");
 			String createMonth = tokens[0];
 			String createDay = tokens[1];
 			String createYear = tokens[2];
@@ -234,7 +234,7 @@ public Command execute() throws RollBackCommandException {
 			String sampleNumber = row[11] == null || row[11].equals("") ? "" : (String) row[11];
 
 			String createDate = this.formatDate((java.util.Date) row[0]);
-			String tokens[] = createDate.split(Constants.FILE_SEPARATOR);
+			String tokens[] = createDate.split("/");
 			String createMonth = tokens[0];
 			String createDay = tokens[1];
 			String createYear = tokens[2];
@@ -357,7 +357,7 @@ public Command execute() throws RollBackCommandException {
 						FlowCellFolder fcFolder = (FlowCellFolder) i1.next();
 
 						String theCreateDate = this.formatDate((java.sql.Date) fcFolder.getCreateDate());
-						String dateTokens[] = theCreateDate.split(Constants.FILE_SEPARATOR);
+						String dateTokens[] = theCreateDate.split("/");
 						String createMonth = dateTokens[0];
 						String createDay = dateTokens[1];
 						String theCreateYear = dateTokens[2];
@@ -646,7 +646,7 @@ public static Set getRequestDownloadFolders(String baseDir, String requestNumber
 private void addRootFileNodes(String baseDir, Element requestNode, String requestNumber, String createDate,
 		String subDirectory, Session sess) throws Exception {
 
-	String dirTokens[] = createDate.split(Constants.FILE_SEPARATOR);
+	String dirTokens[] = createDate.split("/");
 	String createYear = dirTokens[2];
 
 	String directoryName = baseDir + Constants.FILE_SEPARATOR + createYear + Constants.FILE_SEPARATOR

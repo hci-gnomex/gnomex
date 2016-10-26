@@ -1,5 +1,5 @@
 /*
- * $Id: FDTKeyAttachement.java,v 1.1 2012-10-29 22:29:43 HCI\rcundick Exp $
+ * $Id$
  */
 package lia.util.net.copy.transport;
 
@@ -13,7 +13,7 @@ import lia.util.net.copy.transport.internal.FDTSelectionKey;
 
 /**
  * Abstract class implemented by both the reader and writer keys TODO - Use finer grained synchronization mechanism
- * instead of synchronized on the entire key
+ * instead of syncronized on the entire key
  * 
  * @author ramiro
  */
@@ -81,9 +81,7 @@ public abstract class FDTKeyAttachement {
         }
 
         if (this.payload != null) {
-           
             payloadPool.put(this.payload);
-           
             this.payload = null;
         }
 
@@ -179,7 +177,6 @@ public abstract class FDTKeyAttachement {
         return payload;
     }
     
-    @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("SocketAttachement :- header: ").append(header).append(" :- payload: ").append(payload);

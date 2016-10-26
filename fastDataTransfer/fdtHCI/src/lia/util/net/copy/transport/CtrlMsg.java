@@ -1,5 +1,5 @@
 /*
- * $Id: CtrlMsg.java,v 1.1 2012-10-29 22:29:43 HCI\rcundick Exp $
+ * $Id$
  */
 package lia.util.net.copy.transport;
 
@@ -86,7 +86,6 @@ public class CtrlMsg implements Serializable {
         this.message = message;
     }
     
-    @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
         

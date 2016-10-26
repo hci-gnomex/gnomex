@@ -110,12 +110,6 @@ public class GetQCChipTypePriceList extends GNomExCommand implements Serializabl
       LOG.error("An exception has occurred in GetQCChipTypePrice ", e);
 
       throw new RollBackCommandException(e.getMessage());
-    } finally {
-      try {
-        secAdvisor.closeReadOnlyHibernateSession();    
-      } catch(Exception e){
-        LOG.error("Error", e);
-      }
     }
 
     return this;

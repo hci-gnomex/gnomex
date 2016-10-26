@@ -1,6 +1,6 @@
 /* 
  * 
- * $Id: Test2MD5Sum.java,v 1.1 2012-10-29 22:29:45 HCI\rcundick Exp $
+ * $Id$
  *
  * Created on December 19, 2006, 2:37 AM
  *

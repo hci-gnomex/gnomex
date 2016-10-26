@@ -110,7 +110,7 @@ public class DataTrackUtil {
 		try {
 			String[] cmd1 = { "rm", "-f", link.toString() };
 			Runtime.getRuntime().exec(cmd1);
-			String[] cmd = { "ln", "-s", realFile.getCanonicalPath().replace("\\", Constants.FILE_SEPARATOR), link.toString() };
+			String[] cmd = { "ln", "-s", realFile.getCanonicalPath(), link.toString() };
 			Runtime.getRuntime().exec(cmd);
 			return true;
 		} catch (IOException e) {
@@ -124,7 +124,7 @@ public class DataTrackUtil {
 		try {
 			String[] cmd1 = { "rm", "-f", link };
 			Runtime.getRuntime().exec(cmd1);
-			String[] cmd = { "ln", "-s", realFile.getCanonicalPath().replace("\\", Constants.FILE_SEPARATOR), link };
+			String[] cmd = { "ln", "-s", realFile.getCanonicalPath(), link };
 			Runtime.getRuntime().exec(cmd);
 			return true;
 		} catch (IOException e) {

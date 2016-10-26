@@ -206,7 +206,7 @@ public class DownloadSingleFileServlet extends HttpServlet {
           FlowCell flowCell      =  (FlowCell)i.next();
 
           String theCreateDate    = flowCell.formatDate((java.sql.Date)flowCell.getCreateDate());
-          String dateTokens[] = theCreateDate.split(Constants.FILE_SEPARATOR);
+          String dateTokens[] = theCreateDate.split("/");
           String createMonth = dateTokens[0];
           String createDay   = dateTokens[1];
           String theCreateYear  = dateTokens[2];

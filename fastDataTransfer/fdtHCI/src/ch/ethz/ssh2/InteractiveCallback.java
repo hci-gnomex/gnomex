@@ -9,7 +9,7 @@ package ch.ethz.ssh2;
  *      String[], InteractiveCallback)
  * 
  * @author Christian Plattner, plattner@inf.ethz.ch
- * @version $Id: InteractiveCallback.java,v 1.1 2012-10-29 22:29:48 HCI\rcundick Exp $
+ * @version $Id: InteractiveCallback.java,v 1.3 2006/02/13 21:19:25 cplattne Exp $
  */
 
 public interface InteractiveCallback

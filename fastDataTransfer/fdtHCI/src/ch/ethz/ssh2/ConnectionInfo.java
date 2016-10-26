@@ -5,7 +5,7 @@ package ch.ethz.ssh2;
  * In most cases you probably do not need the information contained in here.
  * 
  * @author Christian Plattner, plattner@inf.ethz.ch
- * @version $Id: ConnectionInfo.java,v 1.1 2012-10-29 22:29:51 HCI\rcundick Exp $
+ * @version $Id: ConnectionInfo.java,v 1.3 2005/08/24 17:54:10 cplattne Exp $
  */
 public class ConnectionInfo
 {
