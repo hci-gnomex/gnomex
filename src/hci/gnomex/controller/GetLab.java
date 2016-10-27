@@ -330,7 +330,7 @@ private void appendProductCount(Element labNode, List productQuantities) {
 		}
 	}
 	private void appendMembersCollaborators(Element labNode, Lab theLab) throws Exception {
-		// Show all the members, collaborators, and mgr under this lab
+		// Show all the collaborators, and mgr under this lab
 		// if the user can submit requests
 		Element membersCollaboratorsNode = new Element("membersCollaborators");
 		labNode.addContent(membersCollaboratorsNode);
