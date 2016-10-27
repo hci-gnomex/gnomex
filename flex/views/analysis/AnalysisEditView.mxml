@@ -884,6 +884,7 @@
 		 * from the grid.
          */
 		private function removeCollaborator():void {
+			dirty.setDirty();
 			if (collaboratorGrid.selectedIndex != -1) {
 				var item:XML = null;
 				item = returnCollaborator(possibleCollaborators, collaboratorGrid.selectedItem);
