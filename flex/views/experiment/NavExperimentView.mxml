@@ -1676,7 +1676,7 @@
 								</mx:VBox>
 								<mx:Spacer width="10" includeInLayout="{parentApplication.myCoreFacilities.length() > 1}" 
 										   visible="{parentApplication.myCoreFacilities.length() > 1}"/>
-								<mx:ComboBox id="requestCategoryComboBox" fontSize="10"
+								<renderers:FilterComboBox id="requestCategoryComboBox" fontSize="10"
 											 dataProvider="{requestCategories}" 
 											 labelField="@display" prompt="Experiment Type.."
 											 includeInLayout="{requestCategories.length > 1}" 

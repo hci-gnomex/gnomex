@@ -454,7 +454,7 @@
 		<util:ContextHelp context1="billingTemplateHelp" context2="" context3=""
 						  showEdit="{parentApplication.isSuperAdmin}"
 						  title="Billing Templates" label="Help" id="billingTemplateHelp"/>
-		<mx:ComboBox dataProvider="{labs}"
+		<renderers:FilterComboBox dataProvider="{labs}"
 								  labelField="@name" 
 								  prompt="Select a lab..."
 								  width="160"

@@ -225,7 +225,7 @@
 			checkForSlideProductWarning();
         }
 		
-		private function pickSlideProduct(slideProductCombo:ComboBox):void {
+		private function pickSlideProduct(slideProductCombo:mx.controls.ComboBox):void {
 			parentDocument.hybsView.initializeHybsGrid();
 			clearHybSlideDesigns();
 			parentDocument.initializeSlideDesigns(slideProductCombo);

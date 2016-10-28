@@ -1002,7 +1002,6 @@
 
 			if (firstTimeKludge) {
 				for (var tabIdx:int = 1; tabIdx < parentDocument.theTab.numChildren; tabIdx++) {
-//					parentDocument.theTab.removeChildAt(tabIdx);
 					parentDocument.theTab.getTabAt(tabIdx).visible = false;
 					parentDocument.theTab.getTabAt(tabIdx).includeInLayout = false;
 				}

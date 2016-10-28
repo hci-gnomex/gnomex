@@ -167,7 +167,7 @@
 	<mx:VBox verticalGap="1" height="100%" borderStyle="none" paddingBottom="2" paddingLeft="2" paddingRight="2" paddingTop="2" borderThickness="1" width="100%">
 		<mx:Label text="Workflow Steps" styleName="formLabel"/>
 		<mx:HBox width="100%" horizontalAlign="left" horizontalGap="6">
-			<mx:ComboBox dataProvider="{steps}"
+			<renderers:FilterComboBox dataProvider="{steps}"
 									  labelField="@display" 
 									  prompt="Step to add..."
 									  width="350"

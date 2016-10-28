@@ -664,7 +664,7 @@
 						
 					</mx:HBox>
 					
-					<mx:ComboBox id="requestCategoryComboBox" fontSize="10"
+					<renderers:FilterComboBox id="requestCategoryComboBox" fontSize="10"
 											  dataProvider="{requestCategories}" 
 											  labelField="@display" prompt="Experiment Type.."
 											  includeInLayout="{requestCategories.length > 1}" 
