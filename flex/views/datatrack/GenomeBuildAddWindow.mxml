@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml"
-	title="New Genome build"
-	showCloseButton="true" 
-	width="436" 
-	height="243"
-	verticalGap="0"
-	close="closeWindow()"
-	titleIcon="{parentApplication.iconGenomeBuild}"
-	layout="vertical" backgroundAlpha="100" defaultButton="{saveButton}">
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:renderers="views.renderers.*"
+				title="New Genome build"
+				showCloseButton="true"
+				width="436"
+				height="243"
+				verticalGap="0"
+				close="closeWindow()"
+				titleIcon="{parentApplication.iconGenomeBuild}"
+				layout="vertical" backgroundAlpha="100" defaultButton="{saveButton}">
  	
     <mx:HTTPService             
       id="addGenomeBuild" 
@@ -78,9 +78,8 @@
     <mx:VBox height="100%" width="100%" styleName="form" verticalGap="0" paddingLeft="4" paddingRight="4" paddingTop="4" paddingBottom="4">
 		<mx:HBox>
 			<mx:Label text="Organism" width="100" styleName="formLabel"/>
-			<mx:ComboBox labelField="@binomialName" id="organismCombo" width="300">
-				<mx:dataProvider>{parentApplication.das2OrganismList}</mx:dataProvider>
-			</mx:ComboBox>
+			<mx:ComboBox labelField="@binomialName" id="organismCombo" width="300"
+				dataProvider="{parentApplication.das2OrganismList}"/>
 		</mx:HBox>
 		<mx:Spacer height="20"/>
 		<mx:HBox paddingTop="4">

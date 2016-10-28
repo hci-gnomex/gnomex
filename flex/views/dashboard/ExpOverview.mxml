@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Canvas label="Exp Overview"   
+<mx:Canvas label="Exp Overview"
 		   width="100%" height="100%"
 		   xmlns:views="views.*"
-		   xmlns:components="ext.com.components.*"
 		   xmlns:mx="http://www.adobe.com/2006/mxml"
 		   xmlns:db="views.dashboard.*"
-		   creationComplete="init()" xmlns:util="views.util.*" xmlns:grid="views.util.grid.*">
+		   creationComplete="init()" xmlns:util="views.util.*" xmlns:grid="views.util.grid.*"
+		   xmlns:renderers="views.renderers.*">
 
 	<mx:HTTPService 
 		id="getExperimentList" 
@@ -353,7 +353,7 @@
 					<mx:Label id="coreFacilitySelectLabel" text="Core Facility: " />
 				</mx:HBox>
 
-				<mx:ComboBox id="cfSelector" dataProvider="{coreFacilities}" change="corefacilityFilter_changeHandler(event)" labelField="@display" visible="{coreFacilities.length >= 2 ? true : false}" includeInLayout="{coreFacilities.length >= 2 ? true : false}" selectedIndex="0" /> 
+				<mx:ComboBox id="cfSelector" dataProvider="{coreFacilities}" change="corefacilityFilter_changeHandler(event)" labelField="@display" visible="{coreFacilities.length >= 2 ? true : false}" includeInLayout="{coreFacilities.length >= 2 ? true : false}" selectedIndex="0" />
 				<mx:Label id="soloCFLabel"  text="{coreFacilities.getItemAt(0).@display}" visible="{coreFacilities.length &lt; 2 ? true : false}"  includeInLayout="{coreFacilities.length &lt; 2 ? true : false}" />
 				
 			</mx:HBox>			
@@ -379,12 +379,9 @@
 					<mx:Label id="instrumentFilterLabel" text="Sequencing Machine:" />
 				</mx:VBox>
 				<mx:VBox id="filterBoxCenterCombo">
-					<mx:ComboBox id="seqTypeFilter" change="seqTypeFilter_changeHandler(event)" labelField="@display" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.SeqRunType').DictionaryEntry.(@isActive == 'Y')}">
-					</mx:ComboBox>
-					<mx:ComboBox id="seqLengthFilter" change="seqLengthFilter_changeHandler(event)" labelField="@display" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.NumberSequencingCycles').DictionaryEntry.(@isActive == 'Y')}" >
-					</mx:ComboBox>
-					<mx:ComboBox id="instrumentFilter" change="instrumentFilter_changeHandler(event)" labelField="@display" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Instrument').DictionaryEntry.(@isActive == 'Y')}">
-					</mx:ComboBox>
+					<mx:ComboBox id="seqTypeFilter" change="seqTypeFilter_changeHandler(event)" labelField="@display" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.SeqRunType').DictionaryEntry.(@isActive == 'Y')}"/>
+					<mx:ComboBox id="seqLengthFilter" change="seqLengthFilter_changeHandler(event)" labelField="@display" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.NumberSequencingCycles').DictionaryEntry.(@isActive == 'Y')}" />
+					<mx:ComboBox id="instrumentFilter" change="instrumentFilter_changeHandler(event)" labelField="@display" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Instrument').DictionaryEntry.(@isActive == 'Y')}"/>
 				</mx:VBox>
 				<mx:VBox id="filterBoxRightLabel">
 					<mx:Label id="experimentIdLabel" text="Experiment ID: " />

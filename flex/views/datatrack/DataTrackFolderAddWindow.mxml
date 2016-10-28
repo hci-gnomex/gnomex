@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml"
-	title="{'Add new data track folder to ' + parentName}"
-	showCloseButton="true" 
-	width="468" 
-	verticalGap="0"
-	close="closeWindow()"
-	titleIcon="{parentApplication.iconDataTrackFolderForGroup}"
-	layout="vertical" backgroundAlpha="100" defaultButton="{saveButton}">
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:renderers="views.renderers.*"
+				title="{'Add new data track folder to ' + parentName}"
+				showCloseButton="true"
+				width="468"
+				verticalGap="0"
+				close="closeWindow()"
+				titleIcon="{parentApplication.iconDataTrackFolderForGroup}"
+				layout="vertical" backgroundAlpha="100" defaultButton="{saveButton}">
  	
     <mx:HTTPService             
       id="saveDataTrackFolder" 
@@ -105,7 +105,7 @@
 	</mx:HBox>
 		<mx:HBox width="100%" id="hbox2">
 			<mx:Label text="Lab" width="70" styleName="formLabel"/>
-			<mx:ComboBox id="labCombo" dataProvider="{parentApplication.promptedLabList}" width="370" labelField="@name"></mx:ComboBox>
+			<renderers:FilterComboBox id="labCombo" dataProvider="{parentApplication.promptedLabList}" width="370" labelField="@name"/>
 		</mx:HBox>
     	
     </mx:VBox>

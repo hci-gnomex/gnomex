@@ -552,8 +552,7 @@
 											  prompt="Select a lab..."
 											  width="336"
 											  close="refreshAnalysisGroups();checkCompleteness()"
-											  id="labCombo">
-					</renderers:FilterComboBox>
+											  id="labCombo"/>
 				</mx:VBox>
 			</mx:HBox>				
 		</mx:VBox>		
@@ -574,10 +573,9 @@
 					</mx:HBox>
 				</mx:VBox>								
 				<mx:VBox verticalGap="0">
-					<mx:ComboBox width="336" id="analysisGroupCombo" 
+					<renderers:FilterComboBox width="336" id="analysisGroupCombo"
 								 dataProvider="{analysisGroupList}" 
-								 labelField="@name" selectedIndex="-1" prompt="..." change="checkCompleteness()">						
-					</mx:ComboBox>
+								 labelField="@name" selectedIndex="-1" prompt="..." change="checkCompleteness()"/>
 				</mx:VBox>
 			</mx:HBox>				
 		</mx:VBox>		
@@ -604,8 +602,7 @@
 											  close="filteredGenomeBuildList.refresh();checkCompleteness();"
 											  id="organismCombo"
 											  dataProvider="{organisms.source}"
-											  width="336">
-					</renderers:FilterComboBox>
+											  width="336"/>
 				</mx:VBox>
 			</mx:HBox>				
 		</mx:VBox>
@@ -620,9 +617,8 @@
 					<mx:Label styleName="hintText" text="(Select from dropdown, use '+' to add to list below)" width="296" fontWeight="normal">
 					</mx:Label>																			
 					<mx:HBox verticalGap="0" horizontalGap="2" width="350">
-						<mx:ComboBox width="281" id="genomeBuildCombo" labelField="@display"  change="checkCompleteness()">
-							<mx:dataProvider>{filteredGenomeBuildList}</mx:dataProvider>
-						</mx:ComboBox>
+						<renderers:FilterComboBox width="281" id="genomeBuildCombo" labelField="@display"  change="checkCompleteness()"
+							dataProvider="{filteredGenomeBuildList}"/>
 						<mx:Button 
 							enabled="{genomeBuildCombo.selectedItem != null &amp;&amp; genomeBuildCombo.selectedIndex > 0 ? true : false}" 
 							icon="@Embed(source='../../assets/add.png')" 
@@ -650,14 +646,14 @@
 		<mx:VBox height="100%" verticalGap="0" width="100%">
 			<mx:HBox width="100%" verticalGap="0" horizontalGap="0">
 				<mx:Label text="Visibility" width="118"/>
-				<mx:ComboBox id="visibilityCombo" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Visibility').DictionaryEntry}" labelField="@display" width="281" close="{visibilityChosen()}"></mx:ComboBox>							        					
+				<mx:ComboBox id="visibilityCombo" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Visibility').DictionaryEntry}" labelField="@display" width="281" close="{visibilityChosen()}"/>
 			</mx:HBox>
 			<mx:Text id="institutionNote" paddingLeft="30" styleName="submitNote" visible="{this.visibilityCombo.selectedItem.@display == 'Institution' &amp;&amp; this.labCombo.selectedItem..institutions.children().length() == 0 }" paddingBottom="0">									
 				<mx:text>Institution visibility can only be set when lab belongs to an institution.</mx:text>
 			</mx:Text>
 			<mx:HBox horizontalGap="0" verticalGap="0" width="100%">
 				<mx:Label text="Institution" width="118" id="institutionLabel"/>
-				<mx:ComboBox id="institutionCombo" labelField="@display" width="281" enabled="false"></mx:ComboBox>							        					
+				<mx:ComboBox id="institutionCombo" labelField="@display" width="281" enabled="false"/>
 			</mx:HBox>
 		</mx:VBox>
 		<mx:ControlBar width="451" horizontalAlign="right">

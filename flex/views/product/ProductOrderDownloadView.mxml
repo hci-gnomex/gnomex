@@ -129,7 +129,7 @@
 			
 			private var estimatedDownloadSize:Number;
 			
-			public var showFdtCommand:Boolean = true;
+			public var showFdtCommand:Boolean = false;
 			
 			private const DOWNLOAD_FILES_URL:String    = "DownloadProductOrderFileServlet.gx"; 
 			private const SUGGESTED_LOCAL_FILENAME:String = "gnomex-productOrder";  
@@ -469,13 +469,13 @@
 							   id="linkbutton1" textDecoration="underline" icon="@Embed(source='../../assets/upload.png')" 
 							   textAlign="left"/>
 				<mx:LinkButton label="FDT Upload files" 
-							   visible="{parentApplication.isFDTSupported}"
-							   includeInLayout="{parentApplication.isFDTSupported}"
+							   visible="{parentApplication.isFDTSupported &amp;&amp; showFdtCommand}"
+							   includeInLayout="{parentApplication.isFDTSupported &amp;&amp; showFdtCommand}"
 							   click="showProductOrderFDTUploadWindow()" 
 							   id="linkbuttonUploadFDT" textDecoration="underline" icon="@Embed(source='../../assets/upload_large.png')" textAlign="left"/>
 				<mx:LinkButton label="FDT Upload Command Line" 
-							   visible="{parentApplication.isFDTSupported}"
-							   includeInLayout="{parentApplication.isFDTSupported}"
+							   visible="{parentApplication.isFDTSupported &amp;&amp; showFdtCommand}"
+							   includeInLayout="{parentApplication.isFDTSupported &amp;&amp; showFdtCommand}"
 							   click="startFDTUpload()" 
 							   id="fdtUploadCommandLine" textDecoration="underline" icon="@Embed(source='../../assets/upload_large.png')" textAlign="left"/>
 				<mx:LinkButton label="Manage files"  

@@ -20,65 +20,61 @@
 
 package views.renderers
 {
-	
-	import flash.display.DisplayObject;
-	import flash.events.Event;
-	import flash.events.FocusEvent;
-	import flash.events.KeyboardEvent;
-	import flash.events.MouseEvent;
-	import flash.events.TextEvent;
-	import flash.geom.Point;
-	import flash.geom.Rectangle;
-	import flash.text.TextFormat;
-	import flash.text.TextLineMetrics;
-	import flash.ui.Keyboard;
-	import flash.utils.getTimer;
-	
-	import mx.collections.ArrayCollection;
-	import mx.collections.CursorBookmark;
-	import mx.collections.ICollectionView;
-	import mx.collections.ListCollectionView;
-	import mx.controls.ComboBase;
-	import mx.controls.ComboBox;
-	import mx.controls.List;
-	import mx.controls.dataGridClasses.DataGridListData;
-	import mx.controls.listClasses.BaseListData;
-	import mx.controls.listClasses.IDropInListItemRenderer;
-	import mx.controls.listClasses.IListItemRenderer;
-	import mx.controls.listClasses.ListBase;
-	import mx.controls.listClasses.ListData;
-	import mx.controls.listClasses.ListItemRenderer;
-	import mx.core.ClassFactory;
-	import mx.core.EdgeMetrics;
-	import mx.core.FlexVersion;
-	import mx.core.IDataRenderer;
-	import mx.core.IFactory;
-	import mx.core.IUITextField;
-	import mx.core.ScrollPolicy;
-	import mx.core.UIComponent;
-	import mx.core.UIComponentGlobals;
-	import mx.core.mx_internal;
-	import mx.effects.Tween;
-	import mx.events.CollectionEvent;
-	import mx.events.CollectionEventKind;
-	import mx.events.DropdownEvent;
-	import mx.events.FlexEvent;
-	import mx.events.FlexMouseEvent;
-	import mx.events.InterManagerRequest;
-	import mx.events.ListEvent;
-	import mx.events.SandboxMouseEvent;
-	import mx.events.ScrollEvent;
-	import mx.events.ScrollEventDetail;
-	import mx.managers.ISystemManager;
-	import mx.managers.PopUpManager;
-	import mx.skins.halo.ComboBoxArrowSkin;
-	import mx.styles.CSSStyleDeclaration;
-	import mx.styles.StyleManager;
-	import mx.styles.StyleProxy;
-	
-	import views.util.StyleUtil;
-	
-	use namespace mx_internal;
+
+import flash.display.DisplayObject;
+import flash.events.Event;
+import flash.events.FocusEvent;
+import flash.events.KeyboardEvent;
+import flash.events.MouseEvent;
+import flash.geom.Point;
+import flash.geom.Rectangle;
+import flash.text.TextFormat;
+import flash.text.TextLineMetrics;
+import flash.ui.Keyboard;
+
+import mx.collections.ArrayCollection;
+import mx.collections.CursorBookmark;
+import mx.collections.ICollectionView;
+import mx.collections.ListCollectionView;
+import mx.controls.ComboBox;
+import mx.controls.List;
+import mx.controls.dataGridClasses.DataGridListData;
+import mx.controls.listClasses.BaseListData;
+import mx.controls.listClasses.IDropInListItemRenderer;
+import mx.controls.listClasses.IListItemRenderer;
+import mx.controls.listClasses.ListBase;
+import mx.controls.listClasses.ListData;
+import mx.controls.listClasses.ListItemRenderer;
+import mx.core.ClassFactory;
+import mx.core.EdgeMetrics;
+import mx.core.FlexVersion;
+import mx.core.IDataRenderer;
+import mx.core.IFactory;
+import mx.core.IUITextField;
+import mx.core.ScrollPolicy;
+import mx.core.UIComponent;
+import mx.core.UIComponentGlobals;
+import mx.core.mx_internal;
+import mx.effects.Tween;
+import mx.events.CollectionEvent;
+import mx.events.CollectionEventKind;
+import mx.events.DropdownEvent;
+import mx.events.FlexEvent;
+import mx.events.FlexMouseEvent;
+import mx.events.InterManagerRequest;
+import mx.events.ListEvent;
+import mx.events.SandboxMouseEvent;
+import mx.events.ScrollEvent;
+import mx.events.ScrollEventDetail;
+import mx.managers.ISystemManager;
+import mx.managers.PopUpManager;
+import mx.skins.halo.ComboBoxArrowSkin;
+import mx.styles.CSSStyleDeclaration;
+import mx.styles.StyleManager;
+
+import views.util.StyleUtil;
+
+use namespace mx_internal;
 	
 	//--------------------------------------
 	//  Events
@@ -803,7 +799,7 @@ package views.renderers
 	 *  @see mx.managers.PopUpManager
 	 *
 	 */
-	public class FilterComboBox extends ComboBase
+	public class FilterComboBox extends mx.controls.ComboBox
 		implements IDataRenderer, IDropInListItemRenderer,
 		IListItemRenderer
 	{
@@ -955,28 +951,7 @@ package views.renderers
 		
 		[Bindable("dataChange")]
 		[Inspectable(environment="none")]
-		
-		/**
-		 *  The <code>data</code> property lets you pass a value
-		 *  to the component when you use it in an item renderer or item editor.
-		 *  You typically use data binding to bind a field of the <code>data</code>
-		 *  property to a property of this component.
-		 *
-		 *  <p>The ComboBox control uses the <code>listData</code> property and the
-		 *  <code>data</code> property as follows. If the ComboBox is in a
-		 *  DataGrid control, it expects the <code>dataField</code> property of the
-		 *  column to map to a property in the data and sets
-		 *  <code>selectedItem</code> to that property. If the ComboBox control is
-		 *  in a List control, it expects the <code>labelField</code> of the list
-		 *  to map to a property in the data and sets <code>selectedItem</code> to
-		 *  that property.
-		 *  Otherwise, it sets <code>selectedItem</code> to the data itself.</p>
-		 *
-		 *  <p>You do not set this property in MXML.</p>
-		 *
-		 *  @see mx.core.IDataRenderer
-		 */
-		public function get data():Object
+		override public function get data():Object
 		{
 			return _data;
 		}
@@ -984,7 +959,7 @@ package views.renderers
 		/**
 		 *  @private
 		 */
-		public function set data(value:Object):void
+		override public function set data(value:Object):void
 		{
 			var newSelectedItem:*;
 			
@@ -1018,22 +993,7 @@ package views.renderers
 		
 		[Bindable("dataChange")]
 		[Inspectable(environment="none")]
-		
-		/**
-		 *  When a component is used as a drop-in item renderer or drop-in item
-		 *  editor, Flex initializes the <code>listData</code> property of the
-		 *  component with the appropriate data from the List control. The
-		 *  component can then use the <code>listData</code> property and the
-		 *  <code>data</code> property to display the appropriate information
-		 *  as a drop-in item renderer or drop-in item editor.
-		 *
-		 *  <p>You do not set this property in MXML or ActionScript; Flex sets it
-		 *  when the component
-		 *  is used as a drop-in item renderer or drop-in item editor.</p>
-		 *
-		 *  @see mx.controls.listClasses.IDropInListItemRenderer
-		 */
-		public function get listData():BaseListData
+		override public function get listData():BaseListData
 		{
 			return _listData;
 		}
@@ -1041,7 +1001,7 @@ package views.renderers
 		/**
 		 *  @private
 		 */
-		public function set listData(value:BaseListData):void
+		override public function set listData(value:BaseListData):void
 		{
 			_listData = value;
 		}
@@ -1086,22 +1046,7 @@ package views.renderers
 		private var _itemRenderer:IFactory;
 		
 		[Inspectable(category="Data")]
-		
-		/**
-		 *  IFactory that generates the instances that displays the data for the
-		 *  drop-down list of the control.  You can use this property to specify
-		 *  a custom item renderer for the drop-down list.
-		 *
-		 *  <p>The control uses a List control internally to create the drop-down
-		 *  list.
-		 *  The default item renderer for the List control is the ListItemRenderer
-		 *  class, which draws the text associated with each item in the list,
-		 *  and an optional icon. </p>
-		 *
-		 *  @see mx.controls.List
-		 *  @see mx.controls.listClasses.ListItemRenderer
-		 */
-		public function get itemRenderer():IFactory
+		override public function get itemRenderer():IFactory
 		{
 			return _itemRenderer;
 		}
@@ -1109,7 +1054,7 @@ package views.renderers
 		/**
 		 *  @private
 		 */
-		public function set itemRenderer(value:IFactory):void
+		override public function set itemRenderer(value:IFactory):void
 		{
 			_itemRenderer = value;
 			
@@ -1240,7 +1185,7 @@ package views.renderers
 		/**
 		 *  A reference to the List control that acts as the drop-down in the ComboBox.
 		 */
-		public function get dropdown():ListBase
+		override public function get dropdown():ListBase
 		{
 			return getDropdown();
 		}
@@ -1256,14 +1201,7 @@ package views.renderers
 		private var _dropdownFactory:IFactory = new ClassFactory( List );
 		
 		[Bindable("dropdownFactoryChanged")]
-		
-		/**
-		 *  The IFactory that creates a ListBase-derived instance to use
-		 *  as the drop-down.
-		 *  The default value is an IFactory for List
-		 *
-		 */
-		public function get dropdownFactory():IFactory
+		override public function get dropdownFactory():IFactory
 		{
 			return _dropdownFactory;
 		}
@@ -1271,7 +1209,7 @@ package views.renderers
 		/**
 		 *  @private
 		 */
-		public function set dropdownFactory(value:IFactory):void
+		override public function set dropdownFactory(value:IFactory):void
 		{
 			_dropdownFactory = value;
 			
@@ -1288,7 +1226,7 @@ package views.renderers
 		 *  @see mx.styles.StyleProxy
 		 *  @review
 		 */
-		protected function get dropDownStyleFilters():Object
+		override protected function get dropDownStyleFilters():Object
 		{
 			return null;
 		}
@@ -1305,14 +1243,7 @@ package views.renderers
 		
 		[Bindable("dropdownWidthChanged")]
 		[Inspectable(category="Size", defaultValue="100")]
-		
-		/**
-		 *  Width of the drop-down list, in pixels.
-		 *  <p>The default value is 100 or the width of the longest text
-		 *  in the <code>dataProvider</code>, whichever is greater.</p>
-		 *
-		 */
-		public function get dropdownWidth():Number
+		override public function get dropdownWidth():Number
 		{
 			return _dropdownWidth;
 		}
@@ -1320,7 +1251,7 @@ package views.renderers
 		/**
 		 *  @private
 		 */
-		public function set dropdownWidth(value:Number):void
+		override public function set dropdownWidth(value:Number):void
 		{
 			_dropdownWidth = value;
 			
@@ -1349,18 +1280,7 @@ package views.renderers
 		
 		[Bindable("labelFieldChanged")]
 		[Inspectable(category="Data", defaultValue="label")]
-		
-		/**
-		 *  Name of the field in the items in the <code>dataProvider</code>
-		 *  Array to display as the label in the TextInput portion and drop-down list.
-		 *  By default, the control uses a property named <code>label</code>
-		 *  on each Array object and displays it.
-		 *  <p>However, if the <code>dataProvider</code> items do not contain
-		 *  a <code>label</code> property, you can set the <code>labelField</code>
-		 *  property to use a different property.</p>
-		 *
-		 */
-		public function get labelField():String
+		override public function get labelField():String
 		{
 			return _labelField;
 		}
@@ -1368,7 +1288,7 @@ package views.renderers
 		/**
 		 *  @private
 		 */
-		public function set labelField(value:String):void
+		override public function set labelField(value:String):void
 		{
 			_labelField = value;
 			labelFieldChanged = true;
@@ -1395,27 +1315,7 @@ package views.renderers
 		
 		[Bindable("labelFunctionChanged")]
 		[Inspectable(category="Data")]
-		
-		/**
-		 *  User-supplied function to run on each item to determine its label.
-		 *  By default the control uses a property named <code>label</code>
-		 *  on each <code>dataProvider</code> item to determine its label.
-		 *  However, some data sets do not have a <code>label</code> property,
-		 *  or do not have another property that can be used for displaying
-		 *  as a label.
-		 *  <p>An example is a data set that has <code>lastName</code> and
-		 *  <code>firstName</code> fields but you want to display full names.
-		 *  You use <code>labelFunction</code> to specify a callback function
-		 *  that uses the appropriate fields and return a displayable String.</p>
-		 *
-		 *  <p>The labelFunction takes a single argument which is the item
-		 *  in the dataProvider and returns a String:</p>
-		 *  <pre>
-		 *  myLabelFunction(item:Object):String
-		 *  </pre>
-		 *
-		 */
-		public function get labelFunction():Function
+		override public function get labelFunction():Function
 		{
 			return _labelFunction;
 		}
@@ -1423,7 +1323,7 @@ package views.renderers
 		/**
 		 *  @private
 		 */
-		public function set labelFunction(value:Function):void
+		override public function set labelFunction(value:Function):void
 		{
 			_labelFunction = value;
 			labelFunctionChanged = true;
@@ -1446,16 +1346,7 @@ package views.renderers
 		private var _prompt:String;
 		
 		[Inspectable(category="General")]
-		
-		/**
-		 *  The prompt for the ComboBox control. A prompt is
-		 *  a String that is displayed in the TextInput portion of the
-		 *  ComboBox when <code>selectedIndex</code> = -1.  It is usually
-		 *  a String like "Select one...".  If there is no
-		 *  prompt, the ComboBox control sets <code>selectedIndex</code> to 0
-		 *  and displays the first item in the <code>dataProvider</code>.
-		 */
-		public function get prompt():String
+		override public function get prompt():String
 		{
 			return _prompt;
 		}
@@ -1463,7 +1354,7 @@ package views.renderers
 		/**
 		 *  @private
 		 */
-		public function set prompt(value:String):void
+		override public function set prompt(value:String):void
 		{
 			_prompt = value;
 			promptChanged = true;
@@ -1482,16 +1373,7 @@ package views.renderers
 		
 		[Bindable("resize")]
 		[Inspectable(category="General", defaultValue="5")]
-		
-		/**
-		 *  Maximum number of rows visible in the ComboBox control list.
-		 *  If there are fewer items in the
-		 *  dataProvider, the ComboBox shows only as many items as
-		 *  there are in the dataProvider.
-		 *
-		 *  @default 5
-		 */
-		public function get rowCount():int
+		override public function get rowCount():int
 		{
 			return Math.max(1, Math.min(_filteredCollection.length, _rowCount));
 		}
@@ -1499,7 +1381,7 @@ package views.renderers
 		/**
 		 *  @private
 		 */
-		public function set rowCount(value:int):void
+		override public function set rowCount(value:int):void
 		{
 			_rowCount = value;
 			
@@ -1516,11 +1398,11 @@ package views.renderers
 		 *  is calculated from the data by using the <code>labelField</code>
 		 *  or <code>labelFunction</code>.
 		 */
-		public function get selectedLabel():String
+		override public function get selectedLabel():String
 		{
 			var item:Object = selectedItem;
 			
-			return itemToLabel(item);
+			return itemToLabel(item, null);
 		}
 		
 		//--------------------------------------------------------------------------
@@ -1724,7 +1606,7 @@ package views.renderers
 		 *
 		 *  @param item The object that contains the value to convert to a label. If the item is null, this method returns the empty string.
 		 */
-		public function itemToLabel(item:Object):String
+		override public function itemToLabel(item:Object, ...rest):String
 		{
 			// we need to check for null explicitly otherwise
 			// a numeric zero will not get properly converted to a string.
@@ -1775,7 +1657,7 @@ package views.renderers
 		/**
 		 *  Displays the drop-down list.
 		 */
-		public function open():void
+		override public function open():void
 		{
 			displayDropdown(true);
 		}
@@ -1783,7 +1665,7 @@ package views.renderers
 		/**
 		 *  Hides the drop-down list.
 		 */
-		public function close(trigger:Event = null):void
+		override public function close(trigger:Event = null):void
 		{
 			if (_showingDropdown)
 			{
@@ -1800,7 +1682,7 @@ package views.renderers
 		/**
 		 *  @private
 		 */
-		mx_internal function hasDropdown():Boolean
+		override mx_internal function hasDropdown():Boolean
 		{
 			return _dropdown != null;
 		}
@@ -2477,7 +2359,7 @@ package views.renderers
 		/**
 		 *  @private
 		 */
-		mx_internal function onTweenUpdate(value:Number):void
+		override mx_internal function onTweenUpdate(value:Number):void
 		{
 			if (_dropdown)
 			{
@@ -2489,7 +2371,7 @@ package views.renderers
 		/**
 		 *  @private
 		 */
-		mx_internal function onTweenEnd(value:Number):void
+		override mx_internal function onTweenEnd(value:Number):void
 		{
 			if (_dropdown)
 			{
@@ -2551,7 +2433,7 @@ package views.renderers
 				else
 					data = null;
 				
-				var txt:String = itemToLabel(data);
+				var txt:String = itemToLabel(data, null);
 				
 				lineMetrics = measureText(txt);
 				
@@ -2581,7 +2463,7 @@ package views.renderers
 		/**
 		 *  @private
 		 */
-		mx_internal function get isShowingDropdown():Boolean
+		override mx_internal function get isShowingDropdown():Boolean
 		{
 			return _showingDropdown;
 		}
@@ -2645,7 +2527,7 @@ package views.renderers
 		
 		private function filterDataFunction( item:Object ):Boolean
 		{
-			var label:String = ( _caseSensitive ) ? itemToLabel( item ) : itemToLabel( item ).toLowerCase();
+			var label:String = ( _caseSensitive ) ? itemToLabel(item, null) : itemToLabel(item, null).toLowerCase();
 			return ( label.indexOf( _filterString ) != -1 );
 		}
 		

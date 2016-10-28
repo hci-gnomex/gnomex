@@ -45,6 +45,8 @@
 			public var browseParameters:Object;
 			
 			private var downloadDraggedItems:Array = null;
+
+			public var showFdtCommand:Boolean = false;
 			
 			public function init():void {
 				this.filesToDownload.removeEventListener(CollectionEvent.COLLECTION_CHANGE, this.underlyingDownloadsChange);
@@ -519,24 +521,24 @@
 					   disabledIcon="@Embed('../../assets/download_disable.png')"
 					   toolTip="Download selected files"
 					   label="Download"/>
-			<mx:Button visible="{parentApplication.isFDTSupported ? true : false}" id="fdtCommandLine" 
-					   includeInLayout="{parentApplication.isFDTSupported ? true : false}" 
+			<mx:Button visible="{parentApplication.isFDTSupported  &amp;&amp; showFdtCommand}" id="fdtCommandLine"
+					   includeInLayout="{parentApplication.isFDTSupported  &amp;&amp; showFdtCommand}"
 					   enabled="{filesToDownload.length>0}"
 					   click="downloadView.showCommandLineInstructions = true; downloadView.downloadFilesUsingFDT(filesToDownload.source..FileDescriptor.(@type != 'dir'))"
 					   label="FDT Command Line"  
 					   toolTip="Download large files using FDT"
 					   disabledIcon="@Embed('../../assets/download_disable.png')"
 					   icon="@Embed(source='../../assets/download_large.png')"/>
-			<mx:Button visible="{parentApplication.isFDTSupported ? true : false}" id="fdtDownload" 
-					   includeInLayout="{parentApplication.isFDTSupported ? true : false}" 
+			<mx:Button visible="{parentApplication.isFDTSupported  &amp;&amp; showFdtCommand}" id="fdtDownload"
+					   includeInLayout="{parentApplication.isFDTSupported  &amp;&amp; showFdtCommand}"
 					   enabled="{filesToDownload.length>0}"
 					   click="downloadView.downloadFilesUsingFDT(filesToDownload.source..FileDescriptor.(@type != 'dir'))"
 					   label="FDT Download"  
 					   toolTip="Download large files using FDT"
 					   disabledIcon="@Embed('../../assets/download_disable.png')"
 					   icon="@Embed(source='../../assets/download_large.png')"/>
-			<mx:Button visible="{parentApplication.isFDTSupported ? false : true}" 
-					   includeInLayout="{parentApplication.isFDTSupported ? false : true}" 
+			<mx:Button visible="{parentApplication.isFDTSupported  &amp;&amp; showFdtCommand}"
+					   includeInLayout="{parentApplication.isFDTSupported  &amp;&amp; showFdtCommand}"
 					   enabled="{filesToDownload.length>0}"
 					   click="downloadView.showAlternateDownloadPage(filesToDownload.source..FileDescriptor.(@type != 'dir'))"
 					   toolTip="Alternate download page for large files"

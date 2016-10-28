@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
-				width="714" height="380" 
-				 creationComplete="{init()}"
-				 xmlns:util="views.util.*" 
-				 showCloseButton="true" close="{PopUpManager.removePopUp(this)}"
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:renderers="views.renderers.*"
+				width="714" height="380"
+				creationComplete="{init()}"
+				xmlns:util="views.util.*"
+				showCloseButton="true" close="{PopUpManager.removePopUp(this)}"
 				title="Configure Genome Indexes">
 	
 <mx:HTTPService  
@@ -208,11 +208,10 @@
 			 </mx:HBox>
 			 <mx:HBox width="100%" >
 			  <mx:Label text="Organism:" width="120"/>
-			  <mx:ComboBox width="100%" id="organismCombo"
+			  <renderers:FilterComboBox width="100%" id="organismCombo"
 					  labelField="@display"
 					  change="{setDirty()}"
-					  dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OrganismLite').DictionaryEntry.(@isActive=='Y')}">
-			  </mx:ComboBox>
+					  dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OrganismLite').DictionaryEntry.(@isActive=='Y')}"/>
 
 			 </mx:HBox>
 		</mx:VBox>

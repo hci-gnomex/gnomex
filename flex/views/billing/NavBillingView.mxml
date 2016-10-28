@@ -2421,11 +2421,10 @@
 							</mx:VBox>
 							<mx:VBox verticalGap="0">
 								<mx:Label id="groupLabel" visible="true" text="Lab Group" paddingBottom="0" fontSize="9"/>
-								<mx:ComboBox id="labCombo" 
+								<renderers:FilterComboBox id="labCombo"
 											 labelField="@name"
 											 dataProvider="{parentApplication.promptedLabList}"
-											 visible="true"  width="190" change="requestNumberText.text = &quot;&quot;;invoiceNumberLookupText.text = &quot;&quot;;getLab.send();refreshRequestTab()">
-								</mx:ComboBox>				   
+											 visible="true"  width="190" change="requestNumberText.text = &quot;&quot;;invoiceNumberLookupText.text = &quot;&quot;;getLab.send();refreshRequestTab()"/>
 							</mx:VBox>
 						</mx:HBox>
 					</mx:VBox>  
@@ -2441,7 +2440,7 @@
 								</mx:RadioButton>
 								
 							</mx:HBox>
-							<mx:ComboBox id="billingAccountCombo" 
+							<mx:ComboBox id="billingAccountCombo"
 										 labelField="@accountNameDisplay"
 										 visible="true"  width="350" change="requestNumberText.text = &quot;&quot;;invoiceNumberLookupText.text = &quot;&quot;;refreshRequestTab()">
 							</mx:ComboBox>
@@ -2596,7 +2595,7 @@
 								   click="forwardPendingBillingItems()" 
 								   id="forwardPendingItemsLink"
 								   fontSize="10" enabled="{this.billingItemsDisplayed.length>0}"/>
-						<mx:ComboBox id="billingStatusCombo" 
+						<mx:ComboBox id="billingStatusCombo"
 									 prompt="- Change Status -" 
 									 dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.BillingStatus').DictionaryEntry.(@display == 'Approved' || @display == 'Completed')}"
 									 labelField="@display" 

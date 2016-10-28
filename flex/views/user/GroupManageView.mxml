@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:VBox styleName="panelBox"   xmlns:mx="http://www.adobe.com/2006/mxml" 
-	 xmlns:util="views.util.*" 	
-	 height="100%" width="100%" label="Group Detail"
-	 >
+<mx:VBox styleName="panelBox" xmlns:mx="http://www.adobe.com/2006/mxml"
+		 xmlns:util="views.util.*"
+		 height="100%" width="100%" label="Group Detail"
+		 xmlns:renderers="views.renderers.*">
 <mx:Label id="titleLabel" styleName="titleLabel" text="{parentDocument.fullLab.@name}"/>
   <mx:HTTPService  
     id="saveGroupMembership" 
@@ -156,8 +156,7 @@
 				   <mx:VBox width="100%" verticalGap="4"  height="100%">
 				       <mx:Label text="Members"/>
 				   	   <mx:HBox width="100%">
-					       <mx:ComboBox width="200" dataProvider="{parentApplication.promptedAppUserList}" id="memberCombo" labelField="@displayName">			       	
-					       </mx:ComboBox>
+					       <renderers:FilterComboBox width="200" dataProvider="{parentApplication.promptedAppUserList}" id="memberCombo" labelField="@displayName"/>
 				   	   	   <mx:Button click="addMember()" icon="@Embed(source='../../assets/add.png')" width="24" disabledIcon="@Embed(source='../../assets/add_disable.png')" enabled="{memberCombo.selectedIndex &gt; 0}"/>
 				   	   	   <mx:Button click="removeMember()" icon="@Embed(source='../../assets/delete.png')" width="24" disabledIcon="@Embed(source='../../assets/delete_disable.png')" enabled="{membersGrid.selectedItem != null}"/>
 				   	   </mx:HBox>
@@ -170,8 +169,7 @@
 				   <mx:VBox width="100%" verticalGap="4" height="100%">
 				       <mx:Label text="Collaborators"/>
 				   	   <mx:HBox width="100%">
-					       <mx:ComboBox width="200" id="collaboratorCombo" dataProvider="{parentApplication.promptedAppUserList}" labelField="@displayName">			       	
-					       </mx:ComboBox>
+					       <renderers:FilterComboBox width="200" id="collaboratorCombo" dataProvider="{parentApplication.promptedAppUserList}" labelField="@displayName"/>
 				   	   	   <mx:Button click="addCollaborator()" icon="@Embed(source='../../assets/add.png')" width="24" disabledIcon="@Embed(source='../../assets/add_disable.png')" enabled="{collaboratorCombo.selectedIndex &gt; 0}"/>
 				   	   	   <mx:Button click="removeCollaborator()" icon="@Embed(source='../../assets/delete.png')" width="24" disabledIcon="@Embed(source='../../assets/delete_disable.png')" enabled="{collaboratorsGrid.selectedItem != null}"/>
 				   	   </mx:HBox>

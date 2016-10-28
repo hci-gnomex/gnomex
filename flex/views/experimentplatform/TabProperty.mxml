@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml"
 		 xmlns:util="views.util.*"
-		 xmlns:hci="hci.flex.controls.*"
+		 xmlns:hci="hci.flex.controls.*" xmlns:renderers="views.renderers.*"
 		 width="100%" height="100%" verticalGap="0" horizontalGap="0"
 		 paddingLeft="0" paddingBottom="0" paddingRight="0" paddingTop="0"
 		 label="Property"
@@ -751,7 +751,7 @@
 			</mx:HBox>
 			<mx:HBox width="100%">
 				<mx:Label text="Owner" width="75" styleName="formLabel"/>
-				<mx:ComboBox width="200" id="ownerCombo" change="{setDirty()}"  labelField="@displayName" dataProvider="{parentApplication.promptedAppUserList}" ></mx:ComboBox>
+				<renderers:FilterComboBox width="200" id="ownerCombo" change="{setDirty()}"  labelField="@displayName" dataProvider="{parentApplication.promptedAppUserList}" />
 			</mx:HBox>
 			<mx:HBox width="100%" verticalGap="0" verticalAlign="top">
 				<mx:Label text="Type" width="75" styleName="formLabel"/>
@@ -815,8 +815,7 @@
 				<mx:VBox   verticalGap="1" width="50%" verticalScrollPolicy="off" height="100%" visible="{filteredAppList.length>1}" includeInLayout="{filteredAppList.length>1}">
 					<mx:Text text="Only show for these experiment types" width="100%" styleName="formLabel"/>
 					<mx:HBox horizontalAlign="left" horizontalGap="2">
-						<mx:ComboBox width="170" dataProvider="{filteredAppList}" id="applicationCombo" labelField="@application" prompt="Experiment Type (optional)"  fontSize="10">			       	
-						</mx:ComboBox>
+						<mx:ComboBox width="170" dataProvider="{filteredAppList}" id="applicationCombo" labelField="@application" prompt="Experiment Type (optional)"  fontSize="10"/>
 						<mx:Button click="addPlatform()" icon="@Embed(source='../../assets/add.png')" disabledIcon="@Embed(source='../../assets/add_disable.png')" width="25">
 							<mx:enabled>{propertyList.selectedItem.@canUpdate == 'Y' &amp;&amp; applicationCombo.selectedItem != null &amp;&amp; applicationCombo.selectedIndex > 0 ? true : false}</mx:enabled>
 						</mx:Button>
@@ -833,8 +832,7 @@
 				<mx:VBox verticalGap="1" verticalScrollPolicy="off" width="50%" height="100%">
 					<mx:Text text="Only show for these organisms" styleName="formLabel"/>
 					<mx:HBox horizontalAlign="left" horizontalGap="2">
-						<mx:ComboBox width="170" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OrganismLite').DictionaryEntry}" id="organismCombo" labelField="@display"  fontSize="10">			       	
-						</mx:ComboBox>
+						<renderers:FilterComboBox width="170" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OrganismLite').DictionaryEntry}" id="organismCombo" labelField="@display"  fontSize="10"/>
 						<mx:Button click="addOrganism()" icon="@Embed(source='../../assets/add.png')" disabledIcon="@Embed(source='../../assets/add_disable.png')" width="25">
 							<mx:enabled>{propertyList.selectedItem.@canUpdate == 'Y' &amp;&amp; organismCombo.selectedItem != null &amp;&amp; organismCombo.selectedIndex > 0 ? true : false}</mx:enabled>
 						</mx:Button>

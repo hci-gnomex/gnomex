@@ -250,8 +250,7 @@
 											  width="160"  
 											  selectedIndex="{parentApplication.submitRequestLabList.source.length() == 1 ? 0 : -1}"
 											  id="browseLabCombo" fontSize="10"
-											  close="{this.filterLedgerList()}">
-					</renderers:FilterComboBox>
+											  close="{this.filterLedgerList()}"/>
 				</mx:HBox>
 								
 				<mx:Spacer width="5"/>

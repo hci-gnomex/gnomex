@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml"
-	title="{'Upload sequence files for:  ' + genomeBuild.@name}"
+	title="{'Upload sequence files for:  ' + this.genomeBuild.@genomeBuildName}"
 	showCloseButton="true" 
 	width="442" 
 	height="286"
@@ -137,11 +137,11 @@
 	<mx:VBox styleName="panelBody" label="Files" width="100%" height="100%" >
 		<mx:VBox width="100%" height="100%" verticalGap="2">
 		          <mx:HBox  width="100%" >
-		              <mx:LinkButton id="uploadBrowseButton" 
+		              <mx:LinkButton id="uploadBrowseButton"
 		              	label="Choose files" 
 		              	icon="{parentApplication.iconChooseFiles}"  
 		                disabledIcon="{parentApplication.iconChooseFilesDisabled}"  
-		                toolTip="Choose files" fontWeight="bold" textDecoration="underline"/>
+		                toolTip="Choose .bnib or .fasta files" fontWeight="bold" textDecoration="underline"/>
 		              <mx:LinkButton id="uploadDeleteButton" label="Remove" 
 		              	icon="{parentApplication.iconDelete}"  
 		                disabledIcon="{parentApplication.iconDeleteDisabled}"  

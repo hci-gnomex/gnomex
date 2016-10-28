@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"  show="init()"
-    xmlns:util="views.util.*" 
-	label="Hyb setup" width="100%" height="100%" enabled="false">
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:renderers="views.renderers.*" show="init()"
+		   xmlns:util="views.util.*"
+		   label="Hyb setup" width="100%" height="100%" enabled="false">
 	<mx:states>
 		<mx:State name="SetupState">
 		</mx:State>
@@ -225,7 +225,7 @@
 			checkForSlideProductWarning();
         }
 		
-		private function pickSlideProduct(slideProductCombo:mx.controls.ComboBox):void {
+		private function pickSlideProduct(slideProductCombo:ComboBox):void {
 			parentDocument.hybsView.initializeHybsGrid();
 			clearHybSlideDesigns();
 			parentDocument.initializeSlideDesigns(slideProductCombo);
@@ -309,10 +309,9 @@
 		<mx:HBox width="100%" horizontalGap="0">
 			<util:ContextHelp context1="hybSetupApplication" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Hyb Experiment Type Help"
 							  label="(1) Select an organism." labelPlacement="left" id="hybSetupApplicationLabel" width="250"/>
-			<mx:ComboBox id="organismCombo" labelField="@display" width="250" close="parentDocument.filteredSlideProductList.refresh();slideProductCombo.selectedIndex = -1;clearHybSlideDesigns();checkHybSetupCompleteness();checkForSlideProductWarning()">							
-				<mx:change>parentDocument.filteredSlideProductList.refresh();slideProductCombo.selectedIndex = -1;clearHybSlideDesigns();checkHybSetupCompleteness();checkForSlideProductWarning()</mx:change>
-				<mx:dataProvider>{parentApplication.activeOrganismList}</mx:dataProvider>
-			</mx:ComboBox>
+			<renderers:FilterComboBox id="organismCombo" labelField="@display" width="250" close="parentDocument.filteredSlideProductList.refresh();slideProductCombo.selectedIndex = -1;clearHybSlideDesigns();checkHybSetupCompleteness();checkForSlideProductWarning()"
+				change="{parentDocument.filteredSlideProductList.refresh();slideProductCombo.selectedIndex = -1;clearHybSlideDesigns();checkHybSetupCompleteness();checkForSlideProductWarning()}"
+				dataProvider="{parentApplication.activeOrganismList}"/>
 		</mx:HBox>
 		<mx:HBox width="100%" horizontalGap="0">
 			<util:ContextHelp context1="hybSetupMicroApplication" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Hyb Microarray Experiment Type Help"
@@ -344,9 +343,8 @@
 							  label="(4) Select the microarray slide or slide set&#13;to be used  for these hybridizations." labelPlacement="left" id="hybSetupMicroSlideLabel" width="250"/>
 			<mx:ViewStack id="slideProductStack" width="100%" height="100%">
 			    <mx:HBox>
-					<mx:ComboBox labelField="@display" width="420" id="slideProductCombo"  change="{pickSlideProduct(slideProductCombo)}" close="{pickSlideProduct(slideProductCombo)}">				
-						<mx:dataProvider>{parentDocument.filteredSlideProductList}</mx:dataProvider>
-					</mx:ComboBox>
+					<mx:ComboBox labelField="@display" width="420" id="slideProductCombo"  change="{pickSlideProduct(slideProductCombo)}" close="{pickSlideProduct(slideProductCombo)}"
+						dataProvider="{parentDocument.filteredSlideProductList}"/>
 			    </mx:HBox>
 			    <mx:HBox width="100%"  borderStyle="none" verticalAlign="middle">
 					<mx:Text  styleName="warningLabelMinor" width="100%" text="{'No ' + (isCatalogRadio.selected ? 'catalog ': 'custom ') + parentDocument.requestCategoryName + ' ' + organismCombo.selectedItem.@display + ' ' + parentDocument.applicationName + ' slides are listed.  Please contact Brian Dalley about slide stock.'}">								

@@ -86,8 +86,7 @@
 								  prompt="Select a lab..."
 								  width="220"
 								  close="onLabChange()" 
-								  id="labCombo">
-		</renderers:FilterComboBox>
+								  id="labCombo"/>
 		
 		
 		<analysis:AnalysisGroupView id="analysisGroupDetailView">

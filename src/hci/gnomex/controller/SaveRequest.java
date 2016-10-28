@@ -276,6 +276,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 
 		Session sess = null;
 		String billingAccountMessage = "";
+		String status = null;				// non-null if ccnumbers can't be found in BST
 
 		try {
 			sess = HibernateSession.currentSession(this.getUsername());
@@ -301,7 +302,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 				PropertyDictionaryHelper propertyHelper = PropertyDictionaryHelper.getInstance(sess);
 				if (propertyHelper.getProperty(PropertyDictionary.BST_LINKAGE_SUPPORTED) != null
 						&& propertyHelper.getProperty(PropertyDictionary.BST_LINKAGE_SUPPORTED).equals("Y")) {
-					validateCCNumbers();
+					status = validateCCNumbers();
 				}
 
 				if (requestParser.isNewRequest()) {
@@ -963,7 +964,11 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 							+ requestParser.getRequest().getNumber() + "\" deleteSampleCount=\"" + this.samplesDeleted.size() + "\" deleteHybCount=\""
 							+ this.hybsDeleted.size() + "\" deleteLaneCount=\"" + this.sequenceLanesDeleted.size() + "\" billingAccountMessage = \""
 							+ billingAccountMessage + "\" emailErrorMessage = \"" + emailErrorMessage + "\" requestPropertyBillingMessage = \""
-							+ requestPropertyBillingMessage + "\"/>";
+							+ requestPropertyBillingMessage;
+					if (status != null) {
+						this.xmlResult += "\" warning = \"" + status;
+					}
+					this.xmlResult +=  "\"/>";
 
 				}
 
@@ -988,15 +993,6 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 			LOG.error("An exception has occurred in SaveRequest ", e);
 
 			throw new GNomExRollbackException(e.getMessage(), true, "An error occurred saving the request.");
-		} finally {
-			try {
-
-				if (sess != null) {
-					//closeHibernateSession;
-				}
-			} catch (Exception e) {
-				LOG.error("An exception has occurred in SaveRequest ", e);
-			}
 		}
 
 		return this;
@@ -1089,7 +1085,8 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 
 	}
 
-	private void validateCCNumbers() {
+	private String validateCCNumbers() {
+		String status = null;
 		Session sessGuest = null;
 		Connection con = null;
 
@@ -1144,8 +1141,8 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 					}
 				}
 				if (buf.toString().length() > 0) {
-					this.addInvalidField("InvalidCCNumber", "The following CC Numbers do not exist in BST: " + buf.toString()
-							+ ".\n\nPlease correct on the Samples tab.");
+					status = "The following CC Numbers do not exist in BST: " + buf.toString()
+							+ ".\n\nPlease correct on the Samples tab.";
 				}
 
 			} catch (Exception e) {
@@ -1164,6 +1161,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 
 		}
 
+		return status;
 	}
 
 	public static String saveRequest(Session sess, RequestParser requestParser, String description) throws Exception {

@@ -682,12 +682,12 @@
 		public var iconConfigBillingAccount:Class;
 
 		[Bindable]
-				[@Embed(source = "assets/money.png")]
+		[Embed(source="assets/money.png")]
 		public var iconMoney:Class;
 
 
 		[Bindable]
-				[@Embed(source = "assets/money_dollar.png")]
+		[Embed(source="assets/money_dollar.png")]
 		public var iconDollar:Class;
 
 		[Bindable]
@@ -842,7 +842,7 @@
 
 
 		[Bindable]
-				[@Embed(source = "assets/ding.mp3")]
+		[Embed(source = "assets/ding.mp3")]
 		public var soundDing:Class;
 
 
@@ -3986,7 +3986,7 @@
 				this.homeView.showWorkAuthForm();
 			} else if (label == "New Project") {
 				var projectDetailWindow:ProjectDetailWindow = ProjectDetailWindow(PopUpManager.createPopUp(this.theBody, ProjectDetailWindow, true));
-				projectDetailWindow.projectDetailView.experimentDesignEntries.refresh();
+			projectDetailWindow.projectDetailView.experimentDesignEntries.refresh();
 				projectDetailWindow.projectDetailView.experimentFactorEntries.refresh();
 				projectDetailWindow.projectDetailView.fromWelcomeView = true;
 				PopUpManager.centerPopUp(projectDetailWindow);

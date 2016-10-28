@@ -873,7 +873,7 @@
 			if (event.detail==Alert.YES) {
 				ExperimentEditView.showExperimentUploadWindow(DisplayObject(parentApplication.theBody), this.selectedExperiment, this.experimentEditView, this.browseView.downloadView);				
 			} else if (event.detail == Alert.NO) {
-				ExperimentEditView.showExperimentUploadFDTWindow(DisplayObject(parentApplication.theBody), this.selectedExperiment);				
+				ExperimentEditView.showExperimentUploadFDTWindow(DisplayObject(parentApplication.theBody), this.selectedExperiment, this.experimentEditView, this.browseView.downloadView);
 			}
 		}						
 
@@ -1663,21 +1663,20 @@
 														  width="200" fontSize="10"
 														  close="getProjectRequestList.send(getBrowseParameters())" visible="{filterBox.visible &amp;&amp; myLabsExperimentsCheckbox.selected}"
 														  includeInLayout="{filterBox.visible &amp;&amp; myLabsExperimentsCheckbox.selected}"
-														  id="memberCombo">
-								</renderers:FilterComboBox>
+														  id="memberCombo"/>
 								<mx:Spacer width="10" includeInLayout="{parentApplication.myCoreFacilities.length() > 1}" 
 										   visible="{parentApplication.myCoreFacilities.length() > 1}"/>
 								<mx:VBox verticalGap="0" verticalAlign="middle" fontSize="9" id="vbox4"
 										 includeInLayout="{parentApplication.myCoreFacilities.length() > 1}" 
 										 visible="{parentApplication.myCoreFacilities.length() > 1}" >
 									<mx:ComboBox id="coreFacilityCombo" width="200" dataProvider="{promptedMyCoreFacilities}"
-												 labelField="@display" prompt="Core facility..." fontSize="10" visible="{!parentApplication.isExternalDataSharingSite}" includeInLayout="{!parentApplication.isExternalDataSharingSite}">
-										<mx:change>this.ccLookupText.text = '';selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;requestCategoryComboBox.selectedItem = null;requestCategories.refresh();</mx:change>
-									</mx:ComboBox>
+															  change="{this.ccLookupText.text = '';selectedIdLab=null;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;requestCategoryComboBox.selectedItem = null;requestCategories.refresh()}"
+															  labelField="@display" prompt="Core facility..." fontSize="10" visible="{!parentApplication.isExternalDataSharingSite}"
+															  includeInLayout="{!parentApplication.isExternalDataSharingSite}"/>
 								</mx:VBox>
 								<mx:Spacer width="10" includeInLayout="{parentApplication.myCoreFacilities.length() > 1}" 
 										   visible="{parentApplication.myCoreFacilities.length() > 1}"/>
-								<renderers:FilterComboBox id="requestCategoryComboBox" fontSize="10" 
+								<mx:ComboBox id="requestCategoryComboBox" fontSize="10"
 											 dataProvider="{requestCategories}" 
 											 labelField="@display" prompt="Experiment Type.."
 											 includeInLayout="{requestCategories.length > 1}" 
@@ -1843,8 +1842,7 @@
 										  prompt="Select a lab..."
 										  width="160" 
 										  close="{groupSelected()}"  
-										  id="browseLabCombo" fontSize="10">
-				</renderers:FilterComboBox>
+										  id="browseLabCombo" fontSize="10"/>
 				</mx:HBox>
 			</mx:AddChild>
 			<mx:RemoveChild target="{userAllExperimentsCheckbox}"/>
@@ -1852,12 +1850,12 @@
 			<mx:AddChild relativeTo="{spacer1}" position="before">
 				<mx:HBox  horizontalGap="0"  verticalAlign="middle" id="hbox6" visible="{!parentApplication.hasPermission('canSubmitForOtherCores')}" includeInLayout="{!parentApplication.hasPermission('canSubmitForOtherCores')}">
 					<mx:Label id="userLabel" visible="true" text="Owner/Submitter" paddingBottom="0" paddingLeft="2"  styleName="labelSmall"/>
-					<mx:ComboBox id="browseUserCombo" 
+					<renderers:FilterComboBox id="browseUserCombo"
 						labelField="@displayName"
 						dataProvider="{appUsers}"
-						 change="this.allExperimentsCheckbox.selected = false;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null;"  
-						 visible="true"  width="130" fontSize="10">
-					</mx:ComboBox>
+		 			    prompt="Select an Owner..."
+						 change="{this.allExperimentsCheckbox.selected = false;selectedIdProject=null;selectedIdRequest=null;selectedRequestNumber=null}"
+						 visible="true"  width="130" fontSize="10"/>
 				</mx:HBox>
 			</mx:AddChild>
 			<mx:RemoveChild target="{label2}"/>

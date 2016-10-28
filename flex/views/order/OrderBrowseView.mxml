@@ -658,14 +658,13 @@
 									 fontSize="10" paddingRight="3"
 									 visible="{!parentApplication.isExternalDataSharingSite}" 
 									 includeInLayout="{!parentApplication.isExternalDataSharingSite}"
-									 change="{coreSelected()}">
-						</mx:ComboBox>
+									 change="{coreSelected()}"/>
 						
 						<mx:VRule height = "20"  />
 						
 					</mx:HBox>
 					
-					<renderers:FilterComboBox id="requestCategoryComboBox" fontSize="10" 
+					<mx:ComboBox id="requestCategoryComboBox" fontSize="10"
 											  dataProvider="{requestCategories}" 
 											  labelField="@display" prompt="Experiment Type.."
 											  includeInLayout="{requestCategories.length > 1}" 
@@ -780,7 +779,7 @@
 		<mx:ControlBar horizontalAlign = "left" width = "100%" paddingTop="0" paddingBottom="2">
 			<mx:Label id = "nSelectedOrders" text="{selectedOrders.length + ' selected'}" />
 			
-			<mx:ComboBox id = "comboBox" 
+			<mx:ComboBox id = "comboBox"
 						 prompt="- Change Status -" 
 						 dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.RequestStatus').DictionaryEntry}"
 						 labelField="@codeRequestStatus" />

@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:TitleWindow 
-	xmlns:mx="http://www.adobe.com/2006/mxml"
-	title="{'Add new data track to ' + parentName}"	
-	showCloseButton="true" 
-	width="458" 
-	close="closeWindow()"
-	titleIcon="{parentApplication.iconDataTrackNew}"
-	layout="vertical" backgroundAlpha="100" defaultButton="{saveButton}" >
+<mx:TitleWindow
+		xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:renderers="views.renderers.*"
+		title="{'Add new data track to ' + parentName}"
+		showCloseButton="true"
+		width="458"
+		close="closeWindow()"
+		titleIcon="{parentApplication.iconDataTrackNew}"
+		layout="vertical" backgroundAlpha="100" defaultButton="{saveButton}">
 
     <mx:HTTPService             
       id="saveDataTrack" 
@@ -222,16 +222,15 @@
 			<mx:VBox width="100%" verticalGap="0">
 				<mx:Label text="Lab" fontWeight="normal" styleName="formLabel">
 				</mx:Label>
-				<mx:ComboBox id="labCombo" dataProvider="{parentApplication.submitRequestLabList}" width="432" labelField="@name" change="{onLabChosen()}">
-				</mx:ComboBox>
+				<renderers:FilterComboBox id="labCombo" dataProvider="{parentApplication.submitRequestLabList}" width="432" labelField="@name" change="{onLabChosen()}"/>
 			</mx:VBox>
 			<mx:VBox width="100%" verticalGap="0">
 				<mx:Label text="Visibility" width="100%" fontWeight="normal" id="label3" styleName="formLabel"/>
 				<mx:HBox width="100%" id="visibilityBox">
-					<mx:ComboBox id="visibilityCombo" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Visibility').DictionaryEntry}" labelField="@display" width="432" close="{visibilityChosen()}"></mx:ComboBox>							        					
+					<mx:ComboBox id="visibilityCombo" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Visibility').DictionaryEntry}" labelField="@display" width="432" close="{visibilityChosen()}"/>
 				</mx:HBox>
 				<mx:Label text="Institution" width="100%" fontWeight="normal" id="institutionLabel" styleName="formLabel" paddingTop="4"/>
-				<mx:ComboBox id="institutionCombo" labelField="@display" width="432"></mx:ComboBox>							        					
+				<mx:ComboBox id="institutionCombo" labelField="@display" width="432"/>
 				<mx:Text id="institutionNote" styleName="submitNote" visible="{this.visibilityCombo.selectedItem.@display == 'Institution' &amp;&amp; this.labCombo.selectedItem..institutions.children().length() == 0 }" paddingBottom="0" includeInLayout="{this.visibilityCombo.selectedItem.@display == 'Institution' &amp;&amp; this.labCombo.selectedItem..institutions.children().length() == 0 }">									
 					<mx:text>Institution visibility can only be set when lab belongs to an institution.</mx:text>
 				</mx:Text>

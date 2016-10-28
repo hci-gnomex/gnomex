@@ -2286,7 +2286,7 @@
 					hyb.@labelingYieldChannel1="";
 					hyb.@codeLabelingReactionSizeChannel1="STD";
 					hyb.@labelingYieldChannel2="";
-					hyb.@numberOfReactionsChannel2=""
+					hyb.@numberOfReactionsChannel2="";
 					hyb.@codeLabelingReactionSizeChannel2="STD";
 					hyb.@labelingFailedChannel1="N";
 					hyb.@labelingFailedChannel2="N";
@@ -4081,6 +4081,9 @@
 							}
 						}
 					}
+					if (saveNewRequest.lastResult.hasOwnProperty("@warning")) {
+						message = message + '\n\nWarning:\n' + saveNewRequest.lastResult.@warning;
+					}
 					Alert.show(message, title, 0, this, onNotifySubmitRequest);
 				} else if (saveNewRequest.lastResult.name() == "FAILURE" && saveNewRequest.lastResult.hasOwnProperty("@message")) {
 					Alert.show(saveNewRequest.lastResult.@message);
@@ -4117,6 +4120,10 @@
 			private function onSaveExistingRequest(event:ResultEvent):void {
 				if (saveExistingRequest.lastResult.name() == "SUCCESS") {
 					updateDirtyNote(false);
+
+					if (saveExistingRequest.lastResult.hasOwnProperty("@warning")) {
+						Alert.show(saveExistingRequest.lastResult.@warning, "Warning");
+					}
 
 					if(saveExistingRequest.lastResult.@requestPropertyBillingMessage != ''){
 						Alert.show(saveExistingRequest.lastResult.@requestPropertyBillingMessage, "Warning");
@@ -5232,8 +5239,10 @@
 			}
 
 
-			public static function showExperimentUploadFDTWindow(parent:DisplayObject, request:Object):void {
+			public static function showExperimentUploadFDTWindow(parent:DisplayObject, request:Object, experimentEditView:ExperimentEditView, experimentDownloadView:ExperimentDownloadView):void {
 				var uploadWindow:ExperimentUploadWindow = ExperimentUploadWindow(PopUpManager.createPopUp(parent, ExperimentUploadWindow, true));
+				experimentEditView.downloadView = experimentDownloadView;
+				uploadWindow.parentView = experimentEditView;
 				PopUpManager.centerPopUp(uploadWindow);
 				uploadWindow.init(request);
 				uploadWindow.uploadFilesStack.selectedIndex = 1;
@@ -6331,10 +6340,9 @@
 					
 					<mx:HBox verticalGap="0" horizontalGap="0" width="700" verticalAlign="middle" visible="{parentDocument.selectedExperiment.@isExternal == 'Y'}" includeInLayout="{parentDocument.selectedExperiment.@isExternal == 'Y'}">
 						<mx:Text text="Organism" width="100" id="labelOrg" styleName="formLabel"/>
-						<mx:ComboBox labelField="@display"  id="sampleOrganismCombo" change="pickOrganism()">							
-							<mx:dataProvider>{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OrganismLite').DictionaryEntry.(@isActive != 'N' || @value == '')}</mx:dataProvider>
-							<mx:width>{sampleOrganismCombo.selectedItem != null &amp;&amp; sampleOrganismCombo.selectedItem.@display == 'Other' ? 75 : 250}</mx:width>
-						</mx:ComboBox>
+						<renderers:FilterComboBox labelField="@display"  id="sampleOrganismCombo" change="pickOrganism()"
+							dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OrganismLite').DictionaryEntry.(@isActive != 'N' || @value == '')}"
+							width="{sampleOrganismCombo.selectedItem != null &amp;&amp; sampleOrganismCombo.selectedItem.@display == 'Other' ? 75 : 250}"/>
 						<mx:Label text="Please specify" paddingLeft="6" styleName="formLabel">
 							<mx:visible>{parentDocument.selectedExperiment.@isExternal == 'Y' &amp;&amp; sampleOrganismCombo.selectedItem != null &amp;&amp; sampleOrganismCombo.selectedItem.@display == 'Other'}</mx:visible>
 						</mx:Label>
@@ -6350,12 +6358,11 @@
 												  close="updateDirtyNote(true);refreshLab()" 
 												  enabled="{(parentApplication.hasPermission('canWriteAnyObject') || parentDocument.selectedExperiment.@canUpdate == 'Y') ? true : false}"
 												  width="500" 
-												  dataProvider="{labList}" >
-						</renderers:FilterComboBox>
+												  dataProvider="{labList}" />
 					</mx:HBox>					
 					<mx:HBox id="projectBox" verticalGap="0" horizontalGap="0">
 						<mx:Label text="Project"  width="100" fontWeight="normal" styleName="formLabel"/>
-						<mx:ComboBox id="requestEditProjectCombo"
+						<renderers:FilterComboBox id="requestEditProjectCombo"
 									 labelField="@name" 
 									 change="updateDirtyNote(true)"
 									 dataProvider="{projects}" 
@@ -6518,7 +6525,7 @@
 			<mx:AddChild relativeTo="{this.requestStatusBox}" position="before">
 				<mx:HBox verticalGap="0" width="100%" horizontalGap="0">
 					<mx:Text  width="100" text="Drop Off Loc." styleName="formLabel" />
-					<mx:ComboBox labelField="@display" width="300" id="sampleDropOffLocationCombo" dataProvider="{this.filteredSampleDropOffLocationList}"/>							
+					<mx:ComboBox labelField="@display" width="300" id="sampleDropOffLocationCombo" dataProvider="{this.filteredSampleDropOffLocationList}"/>
 				</mx:HBox>
 			</mx:AddChild>
 		</mx:State>
@@ -6709,10 +6716,9 @@
 			<mx:AddChild relativeTo="{experimentCategoryHBox}" position="before">
 				<mx:HBox verticalGap="0" horizontalGap="0" width="700" verticalAlign="middle">
 					<mx:Text text="Experiment Type" width="100" id="labelApplication" styleName="formLabel"/>
-					<mx:ComboBox labelField="@display"  id="requestApplicationComboBox" change="pickApplication()" width="570" 
-								 enabled="{parentApplication.isAdminState || (parentDocument.selectedExperiment.@canUpdate == 'Y' &amp;&amp; parentDocument.selectedExperiment.@isExternal == 'Y') ? true : false}">							
-						<mx:dataProvider>{filteredAppList}</mx:dataProvider>
-					</mx:ComboBox>
+                    <mx:ComboBox labelField="@display"  id="requestApplicationComboBox" change="pickApplication()" width="570"
+								 enabled="{parentApplication.isAdminState || (parentDocument.selectedExperiment.@canUpdate == 'Y' &amp;&amp; parentDocument.selectedExperiment.@isExternal == 'Y') ? true : false}"
+						dataProvider="{filteredAppList}"/>
 				</mx:HBox>
 			</mx:AddChild>
 			<mx:AddChild relativeTo="{labGroupBox}" position="before">
@@ -6753,17 +6759,15 @@
 												  prompt="Select a lab..."		
 												  width="340"
 												  close="{if (labCombo.selectedItem != null &amp;&amp; labCombo.selectedItem.@idLab != '')  getLabForAddingServices.send();}"
-												  id="labCombo">
-						</renderers:FilterComboBox>
+												  id="labCombo"/>
 					</mx:HBox>
 					<mx:HBox id="appUserContainer" width="100%" horizontalGap="8">
 						<mx:Text width="194">
 							<mx:text>(2) Select the person who submitted the request (optional).</mx:text>
 						</mx:Text>
-						<mx:ComboBox dataProvider="{appUsers}" 
+                        <renderers:FilterComboBox dataProvider="{appUsers}"
 									 selectedIndex="-1" labelField="@displayName" 
-									 id="appUserCombo" width="340" change="getCandidateAmendExperiments()">
-						</mx:ComboBox>
+									 id="appUserCombo" width="340" change="getCandidateAmendExperiments()"/>
 					</mx:HBox>
 					<mx:HBox width="100%" horizontalGap="8">
 						<mx:Text text="(3) Select the category that best describes the services that you will be adding to this request." width="194"/>

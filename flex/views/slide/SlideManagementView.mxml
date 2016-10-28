@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Canvas  
-	xmlns:mx="http://www.adobe.com/2006/mxml" 
-	xmlns:views="views.*"
-	xmlns:util="views.util.*"
-	xmlns:hci="hci.flex.controls.*"
-	creationPolicy="all" show="init()" backgroundAlpha="0"
-	showEffect="{parentApplication.fadeIn}" hideEffect="{parentApplication.fadeOut}" 	
-	width="100%" height="100%" backgroundColor="#FFFFFF" verticalScrollPolicy="off">
+<mx:Canvas
+		xmlns:mx="http://www.adobe.com/2006/mxml"
+		xmlns:views="views.*"
+		xmlns:util="views.util.*"
+		xmlns:hci="hci.flex.controls.*" xmlns:renderers="views.renderers.*"
+		creationPolicy="all" show="init()" backgroundAlpha="0"
+		showEffect="{parentApplication.fadeIn}" hideEffect="{parentApplication.fadeOut}"
+		width="100%" height="100%" backgroundColor="#FFFFFF" verticalScrollPolicy="off">
 	
 	<mx:HTTPService
 		id="getSlideList"
@@ -777,13 +777,12 @@
 								<mx:CheckBox id="sdIsCustom" label="Custom slide" selected="{fullSlideDesign.SlideProduct.@isCustom == 'Y' ? true : false}" top="57" left="10" width="20%" click="dirty.setDirty()"/>
 								
 								<mx:Label text="For Group:" top="59" left="121" width="20%" id="label1"/>
-								<mx:ComboBox top="57" left="188" right="75" 
+								<renderers:FilterComboBox top="57" left="188" right="75"
 											 id="sdIdLab"
 											 dataProvider="{parentApplication.promptedLabList}"
 											 labelField="@name"
 											 prompt=""
-											 data="{fullSlideDesign.SlideProduct.@idLab}" width="100%" change="dirty.setDirty()">
-								</mx:ComboBox>
+											 data="{fullSlideDesign.SlideProduct.@idLab}" width="100%" change="dirty.setDirty()"/>
 							</mx:HBox>
 							<mx:HBox y="70" right="10" left="10" width="100%">
 								<mx:VBox left="10" top="79" width="25%" id="vbox3">
@@ -911,13 +910,12 @@
 					<mx:HBox y="40" verticalAlign="middle" right="10" left="10">
 						<mx:CheckBox id="spIsCustom" label="Custom slide"  selected="{fullSlideProduct.@isCustom == 'Y' ? true : false}" top="57" left="10" width="20%" click="dirty.setDirty();"/>
 						<mx:Label text="For Group:" top="59" left="121" width="10%"/>
-						<mx:ComboBox top="57" left="188" right="75" 
+						<renderers:FilterComboBox top="57" left="188" right="75"
 									 id="spIdLab"
 									 dataProvider="{parentApplication.promptedLabList}"
 									 labelField="@name"
 									 prompt=" "
-									 data="{fullSlideProduct.@idLab}" width="70%" change="dirty.setDirty();">
-						</mx:ComboBox>
+									 data="{fullSlideProduct.@idLab}" width="70%" change="dirty.setDirty();"/>
 					</mx:HBox>
 					<mx:HBox y="70" right="10" left="10">
 						<mx:VBox width="100%">

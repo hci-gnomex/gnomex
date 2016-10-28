@@ -51,7 +51,7 @@ protected void doGet(HttpServletRequest req, HttpServletResponse res) throws Ser
 /*
  * SPECIAL NOTE - This servlet must be run on non-secure socket layer (http) in order to keep track of previously created session. (see note below concerning
  * flex upload bug on Safari and FireFox). Otherwise, session is not maintained. Although the code tries to work around this problem by creating a new security
- * advisor if one is not found, the Safari browser cannot handle authenicating the user (this second time). So for now, this servlet must be run non-secure.
+ * advisor if one is not found, the Safari browser cannot handle authenticating the user (this second time). So for now, this servlet must be run non-secure.
  */
 protected void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
 	try {

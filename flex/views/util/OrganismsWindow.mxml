@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
-				width="870" height="424" 
-				 creationComplete="{init()}"
-				 xmlns:util="views.util.*" 
-				 showCloseButton="true" close="{closeWindow()}"
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:renderers="views.renderers.*"
+				width="870" height="424"
+				creationComplete="{init()}"
+				xmlns:util="views.util.*"
+				showCloseButton="true" close="{closeWindow()}"
 				title="Organisms">
 	
 <mx:HTTPService  
@@ -423,7 +423,7 @@
 			 </mx:HBox> 
 			 <mx:HBox width="100%" >
 			  <mx:Label text="Owner:" width="80"/>
-			  <mx:ComboBox width="100%" id="ownerCombo"  labelField="@displayName" dataProvider="{parentApplication.promptedAppUserList}" ></mx:ComboBox>							         			
+			  <renderers:FilterComboBox width="100%" id="ownerCombo"  labelField="@displayName" dataProvider="{parentApplication.promptedAppUserList}" />
 			 </mx:HBox>
 		</mx:VBox>
 		<mx:ControlBar width="100%" horizontalAlign="right"  paddingTop="0" paddingRight="0" paddingLeft="0" paddingBottom="0">

@@ -551,7 +551,7 @@
 				var idRequest:String = getRequestDownloadList.lastResult..Request[0].@idRequest;
 				var requestNumber:String = getRequestDownloadList.lastResult..Request[0].@requestNumber;
 				if (idRequest != null && idRequest != "") {
-					ExperimentEditView.showExperimentUploadFDTWindow(parentApplication.theBody, request);		 
+					ExperimentEditView.showExperimentUploadFDTWindow(parentApplication.theBody, request, new ExperimentEditView, this);
 				}
 			}
 			

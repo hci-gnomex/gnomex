@@ -485,13 +485,11 @@
 				<mx:ComboBox id="requestNumberCombo"
 							 dataProvider="{requestNumbers}"
 							 change="workList.filterFunction = filterWorkListByExpType;workList.refresh()"
-							 width="90">
-				</mx:ComboBox>
+							 width="90"/>
 				<mx:ComboBox id="coreCombo" visible="{cores.length&gt;1}" includeInLayout="{cores.length&gt;1}"
 							 dataProvider="{cores}"
 							 change="selectedIdCoreFacility=coreCombo.selectedItem.data;refreshRequestNumbers();"
-							 width="200">
-				</mx:ComboBox>
+							 width="200"/>
 
 			</mx:HBox>
 			<mx:Spacer width="100%"/>

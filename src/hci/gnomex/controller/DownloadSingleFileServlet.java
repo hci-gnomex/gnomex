@@ -338,9 +338,10 @@ public class DownloadSingleFileServlet extends HttpServlet {
 
     } finally {
       try {
-        secAdvisor.closeHibernateSession();
+          if (secAdvisor != null) {
+              secAdvisor.closeHibernateSession();
+          }
       } catch (Exception e) {
-          LOG.error("DownloadSingleFileServlet: An exception occurred ", e);
       }
 
       if (in != null) {

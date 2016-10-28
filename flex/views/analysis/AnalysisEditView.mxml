@@ -1191,7 +1191,7 @@
 							<mx:LinkButton label="New/Edit..." textDecoration="underline" color="#0F19DF" click="editOrganism()" paddingTop="0" paddingBottom="0" paddingLeft="0" paddingRight="0" fontSize="10"/>
 						</mx:VBox>								
 						<mx:VBox verticalGap="0">
-							<mx:ComboBox  width="200" id="organismCombo" labelField="@display" change="dirty.setDirty();filteredGenomeBuildList.refresh();" dataProvider="{organisms}"/>
+							<renderers:FilterComboBox  width="200" id="organismCombo" labelField="@display" change="dirty.setDirty();filteredGenomeBuildList.refresh();" dataProvider="{organisms}"/>
 						</mx:VBox>
 					</mx:HBox>
 					
@@ -1204,7 +1204,7 @@
 						</mx:VBox>
 						<mx:VBox verticalGap="0">																		
 							<mx:HBox verticalGap="0">
-								<mx:ComboBox  width="200" id="genomeBuildCombo" labelField="@display"  dataProvider="{filteredGenomeBuildList}"/>
+								<renderers:FilterComboBox  width="200" id="genomeBuildCombo" labelField="@display"  dataProvider="{filteredGenomeBuildList}"/>
 							</mx:HBox>
 						</mx:VBox>
 					</mx:HBox>								
@@ -1284,12 +1284,12 @@
 				<mx:VBox width="400" height="100%">
 					<mx:Text  width="100%" height="35" text="To select experiments, drag items onto grid">						
 					</mx:Text>
-					<mx:ComboBox 
+					<renderers:FilterComboBox
 						id="expLabCombo" 
 						change="expLabComboChange();"
 						width="228" 
 						labelField="@name"
-						dataProvider="{parentApplication.promptedLabList}"></mx:ComboBox>
+						dataProvider="{parentApplication.promptedLabList}"/>
 					<mx:Tree width="100%" height="100%" dataProvider="{getExperimentPickList.lastResult}" id="experimentTree" 
 							 showRoot="false" 
 							 showDataTips="true"
@@ -1361,7 +1361,7 @@
 										<mx:DataGridColumn headerText="Experiment name" width="90" dataField="@experimentName"/>
 										<mx:DataGridColumn  headerText="Sample Name"  width="100" dataField="@sampleName" editable="false"/>
 										<mx:DataGridColumn  headerText="Sample ID"  width="68" dataField="@sampleNumber" editable="false"/>
-										<mx:DataGridColumn  width="215" id="numberSequencingCyclesAllowedCol" headerText="Seq. Protocol"  editable="false" dataField="@NumberSequencingCyclesAllowed" 						             						             
+										<mx:DataGridColumn  width="215" id="numberSequencingCyclesAllowedCol" headerText="Seq. Protocol"  editable="false" dataField="@NumberSequencingCyclesAllowed"
 															itemRenderer="{DropdownLabel.getFactory(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.NumberSequencingCyclesAllowed').DictionaryEntry,'@display', '@value', '@idNumberSequencingCyclesAllowed')}"/>                 											
 										<mx:DataGridColumn  width="55" id="flowCellNumberCol" headerText="Flow Cell #"  editable="false" dataField="@flowCellNumber"/> 						             						             
 										<mx:DataGridColumn  width="45" id="flowCellLaneNumber" headerText="Channel"  editable="false" dataField="@flowCellChannelNumber"/> 						             						             
@@ -1422,8 +1422,7 @@
 					<mx:HBox horizontalGap="0" verticalAlign="middle" visible="{this.possibleInstitutions.length > 1}" includeInLayout="{this.possibleInstitutions.length > 1}">
 						<mx:RadioButton value="INST" selected="true" label="Institution" groupName="visibilityRadioGroup"  
 										click="dirty.setDirty();setDefaultPrivacyExpirationDate();setPrivacyExpirationPickerEditable();" id="radioInstitutionVisibility" enabled="false" toolTip="Visible to all lab groups that are part of institution" width="140"/>
-						<mx:ComboBox width="210" dataProvider="{this.possibleInstitutions}" id="institutionCombo" selectedIndex="{visibilityRadioGroup.selectedValue != 'INST' ? 0 : institutionCombo.selectedIndex}" labelField="@display" enabled="{this.possibleInstitutions.length > 1 &amp;&amp; radioInstitutionVisibility.enabled &amp;&amp; visibilityRadioGroup.selectedValue == 'INST'}"  editable="false" >			       	
-						</mx:ComboBox>
+						<mx:ComboBox width="210" dataProvider="{this.possibleInstitutions}" id="institutionCombo" selectedIndex="{visibilityRadioGroup.selectedValue != 'INST' ? 0 : institutionCombo.selectedIndex}" labelField="@display" enabled="{this.possibleInstitutions.length > 1 &amp;&amp; radioInstitutionVisibility.enabled &amp;&amp; visibilityRadioGroup.selectedValue == 'INST'}"  editable="false" />
 					</mx:HBox>
 					<mx:HBox horizontalGap="0" verticalAlign="middle" visible="{parentApplication.isPublicVisibility}" includeInLayout="{parentApplication.isPublicVisibility}">
 					    <mx:RadioButton value="PUBLIC" label="Public Access" groupName="visibilityRadioGroup"  
@@ -1454,8 +1453,7 @@
 										  labelField="@displayName" 
 										  prompt="Collaborator to add..."
 										  width="270"  
-										  id="collaboratorCombo">
-				</renderers:FilterComboBox>
+										  id="collaboratorCombo"/>
 				<mx:Button 
 					enabled="{collaboratorCombo.selectedItem != null &amp;&amp; collaboratorCombo.selectedIndex > 0 ? true : false}" 
 					icon="@Embed(source='../../assets/add.png')" 

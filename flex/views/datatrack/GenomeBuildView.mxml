@@ -267,7 +267,7 @@
 			<mx:LinkButton icon="@Embed(source='../../assets/page_new.png')" 
 						   disabledIcon="@Embed(source='../../assets/page_new_disable.png')" 
 						   click="showSequenceUploadWindow()" 
-						   styleName="linkMenuButton"  label="Upload file(s)" textAlign="left">
+						   styleName="linkMenuButton"  label="Upload .bnib or .fasta file(s)" textAlign="left">
 				<mx:enabled>{parentDocument.browseTree.selectedItem.@canWrite == 'Y' ? true : false}</mx:enabled>
 			</mx:LinkButton>
 			<mx:LinkButton icon="@Embed(source='../../assets/page_remove.png')"
@@ -297,4 +297,3 @@
 		</mx:Button>
 	</mx:ControlBar>
 </mx:VBox>
-	

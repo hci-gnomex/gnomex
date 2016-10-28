@@ -454,13 +454,12 @@
 		<util:ContextHelp context1="billingTemplateHelp" context2="" context3=""
 						  showEdit="{parentApplication.isSuperAdmin}"
 						  title="Billing Templates" label="Help" id="billingTemplateHelp"/>
-		<renderers:FilterComboBox dataProvider="{labs}" 
+		<mx:ComboBox dataProvider="{labs}"
 								  labelField="@name" 
 								  prompt="Select a lab..."
 								  width="160"
 								  close="refreshBillingAccounts()"
-								  id="labCombo">
-		</renderers:FilterComboBox>
+								  id="labCombo"/>
 		<mx:Label text="Account:" paddingLeft="4"/>
 		<mx:VBox verticalGap="0" width="100%">
 			<mx:ComboBox id="billingAccountCombo" width="345" labelField="@accountNumberDisplay" dataProvider="{billingAccounts}"/>

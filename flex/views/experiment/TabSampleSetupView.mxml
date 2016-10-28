@@ -1534,8 +1534,7 @@
 										  close="pickOrganism()"
 										  id="sampleOrganismCombo"
 										  dataProvider="{parentApplication.activeOrganismList}"
-										  width="{sampleOrganismCombo.selectedItem != null &amp;&amp; sampleOrganismCombo.selectedItem.@display == 'Other' ? 75 : 300}">
-				</renderers:FilterComboBox>
+										  width="{sampleOrganismCombo.selectedItem != null &amp;&amp; sampleOrganismCombo.selectedItem.@display == 'Other' ? 75 : 300}"/>
 				<mx:Label text="Please specify" paddingLeft="6">
 					<mx:visible>{sampleOrganismCombo.selectedItem != null &amp;&amp; sampleOrganismCombo.selectedItem.@display == 'Other'}</mx:visible>
 				</mx:Label>
@@ -1737,11 +1736,10 @@
 				<mx:HBox horizontalGap="0" id="sampleDropOffLocationHbox" verticalAlign="middle">
 					<util:ContextHelp context1="sampleDetailsDropOff" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Sample Drop Off Help"
 									  label="(5) Where are you dropping off your samples?" labelPlacement="left" id="sampleDropOffLocationLabel" width="350"/>
-					<mx:ComboBox labelField="@display" width="300" id="sampleDropOffLocationCombo" 
+					<mx:ComboBox labelField="@display" width="300" id="sampleDropOffLocationCombo"
 								 change="parentDocument.samplesView.initializeSamplesGrid();" 
 								 dataProvider="{parentDocument.filteredSampleDropOffLocationList}" 
-								 close="parentDocument.samplesView.initializeSamplesGrid();">							
-					</mx:ComboBox>
+								 close="parentDocument.samplesView.initializeSamplesGrid();"/>
 				</mx:HBox>
 			</mx:AddChild>
 		</mx:State>
@@ -1863,45 +1861,39 @@
 					<mx:HBox width="100%" horizontalGap="5">
 						<mx:VBox>
 							<mx:Label text="Primer 1" id="labelPrimer1"/>
-							<mx:ComboBox labelField="@display" width="150" id="primer1Combo" 
+							<mx:ComboBox labelField="@display" width="150" id="primer1Combo"
 										 dataProvider="{primerCollection}" 
-										 change="checkSampleSetupCompleteness()">							
-							</mx:ComboBox>
+										 change="checkSampleSetupCompleteness()"/>
 						</mx:VBox>					   
 						<mx:VBox>
 							<mx:Label text="Primer 2" id="labelPrimer2"/>
-							<mx:ComboBox labelField="@display" width="150" id="primer2Combo" 
+							<mx:ComboBox labelField="@display" width="150" id="primer2Combo"
 										 dataProvider="{primerCollection}" 
-										 change="checkSampleSetupCompleteness()">							
-							</mx:ComboBox>
+										 change="checkSampleSetupCompleteness()"/>
 						</mx:VBox>					   
 						<mx:VBox>
 							<mx:Label text="Primer 3" id="labelPrimer3"/>
-							<mx:ComboBox labelField="@display" width="150" id="primer3Combo" 
+							<mx:ComboBox labelField="@display" width="150" id="primer3Combo"
 										 dataProvider="{primerCollection}" 
-										 change="checkSampleSetupCompleteness()">							
-							</mx:ComboBox>
+										 change="checkSampleSetupCompleteness()"/>
 						</mx:VBox>					   
 						<mx:VBox>
 							<mx:Label text="Primer 4" id="labelPrimer4"/>
-							<mx:ComboBox labelField="@display" width="150" id="primer4Combo" 
+							<mx:ComboBox labelField="@display" width="150" id="primer4Combo"
 										 dataProvider="{primerCollection}" 
-										 change="checkSampleSetupCompleteness()">							
-							</mx:ComboBox>
+										 change="checkSampleSetupCompleteness()"/>
 						</mx:VBox>					   
 						<mx:VBox>
 							<mx:Label text="Primer 5" id="labelPrimer5"/>
-							<mx:ComboBox labelField="@display" width="150" id="primer5Combo" 
+							<mx:ComboBox labelField="@display" width="150" id="primer5Combo"
 										 dataProvider="{primerCollection}" 
-										 change="checkSampleSetupCompleteness()">							
-							</mx:ComboBox>
+										 change="checkSampleSetupCompleteness()"/>
 						</mx:VBox>					   
 						<mx:VBox>
 							<mx:Label text="Primer 6" id="labelPrimer6"/>
-							<mx:ComboBox labelField="@display" width="150" id="primer6Combo" 
+							<mx:ComboBox labelField="@display" width="150" id="primer6Combo"
 										 dataProvider="{primerCollection}" 
-										 change="checkSampleSetupCompleteness()">							
-							</mx:ComboBox>
+										 change="checkSampleSetupCompleteness()"/>
 						</mx:VBox>					   
 					</mx:HBox>
 				</mx:VBox>

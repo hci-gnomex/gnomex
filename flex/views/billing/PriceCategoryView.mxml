@@ -167,12 +167,11 @@
 	<mx:VBox verticalGap="1" height="100%" borderStyle="none" paddingBottom="2" paddingLeft="2" paddingRight="2" paddingTop="2" borderThickness="1" width="100%">
 		<mx:Label text="Workflow Steps" styleName="formLabel"/>
 		<mx:HBox width="100%" horizontalAlign="left" horizontalGap="6">
-			<renderers:FilterComboBox dataProvider="{steps}" 
+			<mx:ComboBox dataProvider="{steps}"
 									  labelField="@display" 
 									  prompt="Step to add..."
 									  width="350"
-									  id="stepCombo">
-			</renderers:FilterComboBox>
+									  id="stepCombo"/>
 			<mx:Button click="addStep()" icon="@Embed(source='../../assets/add.png')" disabledIcon="@Embed(source='../../assets/add_disable.png')" width="25" >
 				<mx:enabled>{stepCombo.selectedItem != null &amp;&amp; stepCombo.selectedItem.@value != '' ? true : false}</mx:enabled>
 			</mx:Button>

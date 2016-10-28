@@ -1,5 +1,6 @@
 package views.renderers
 {
+import flash.events.Event;
 import flash.events.FocusEvent;
 import flash.events.MouseEvent;
 import flash.utils.getDefinitionByName;
@@ -186,7 +187,7 @@ public class GridColumnFillButton extends HBox implements IDropInListItemRendere
 			var thisField:String = _listData.dataField.substr(1);
 			var thisValue:String = "";
 			var idSeqRunType:String = "";
-			var idNumberSequencingCycles = "";
+			var idNumberSequencingCycles:String = "";
 			if(edtComponent is hci.flex.controls.ComboBox) {
 				thisValue = String(hci.flex.controls.ComboBox(edtComponent).value);
 			}

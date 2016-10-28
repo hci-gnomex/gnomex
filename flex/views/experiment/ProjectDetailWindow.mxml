@@ -62,9 +62,7 @@
 								  labelField="@name" 
 								  prompt="Select a lab..." close="labSelected(event)" 
 								  width="290"
-								  id="labCombo" >
-		</renderers:FilterComboBox>
-				
+								  id="labCombo" />
 		<experiment:ProjectDetailView id="projectDetailView">
 		</experiment:ProjectDetailView>
 		

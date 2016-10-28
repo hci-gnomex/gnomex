@@ -449,8 +449,7 @@
 											  prompt="Select a lab..."
 											  width="200" paddingRight="0"
 											  selectedIndex="{parentApplication.submitRequestLabList.source.length() == 1 ? 0 : -1}"
-											  id="browseLabCombo" fontSize="10" close="{getProductOrders()}">
-					</renderers:FilterComboBox>
+											  id="browseLabCombo" fontSize="10" close="{getProductOrders()}"/>
 				</mx:HBox>
 
 				<mx:VRule height="20" width="4"/>
