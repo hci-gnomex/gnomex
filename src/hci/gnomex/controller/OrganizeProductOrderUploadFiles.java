@@ -108,7 +108,7 @@ public Command execute() throws RollBackCommandException {
 			// Add new directories to the file system
 			for (Iterator i = parser.getNewDirectoryNames().iterator(); i.hasNext();) {
 				String directoryName = (String) i.next();
-				File dir = new File(baseDir + File.separator + directoryName);
+				File dir = new File(baseDir + Constants.FILE_SEPARATOR + directoryName);
 				if (!dir.exists()) {
 					boolean success = dir.mkdirs();
 					if (!success) {
@@ -186,7 +186,7 @@ public Command execute() throws RollBackCommandException {
 					qualifiedFilePath = pathTokens[1];
 				}
 				for (int i2 = 2; i2 < pathTokens.length; i2++) {
-					qualifiedFilePath += File.separator + pathTokens[i2];
+					qualifiedFilePath += Constants.FILE_SEPARATOR + pathTokens[i2];
 				}
 
 				List fileNames = (List) parser.getFileNameMap().get(directoryName);
@@ -200,18 +200,18 @@ public Command execute() throws RollBackCommandException {
 					}
 					int lastIndex = fileName.lastIndexOf("\\");
 					if (lastIndex == -1) {
-						lastIndex = fileName.lastIndexOf("/");
+						lastIndex = fileName.lastIndexOf(Constants.FILE_SEPARATOR);
 					}
 					String baseFileName = fileName;
 					if (lastIndex != -1) {
 						baseFileName = fileName.substring(lastIndex);
 					}
-					Boolean duplicateUpload = fileNames.contains(baseDir + "\\" + productOrder.getProductOrderNumber()
-							+ "\\" + Constants.UPLOAD_STAGING_DIR + baseFileName);
+					Boolean duplicateUpload = fileNames.contains(baseDir + Constants.FILE_SEPARATOR + productOrder.getProductOrderNumber()
+							+ Constants.FILE_SEPARATOR + Constants.UPLOAD_STAGING_DIR + baseFileName);
 					String mostRecentFile = "";
 					if (duplicateUpload) {
-						mostRecentFile = (String) fileNames.get(fileNames.indexOf(baseDir + "\\"
-								+ productOrder.getProductOrderNumber() + "\\" + Constants.UPLOAD_STAGING_DIR
+						mostRecentFile = (String) fileNames.get(fileNames.indexOf(baseDir + Constants.FILE_SEPARATOR
+								+ productOrder.getProductOrderNumber() + Constants.FILE_SEPARATOR + Constants.UPLOAD_STAGING_DIR
 								+ baseFileName));
 					}
 
@@ -231,7 +231,7 @@ public Command execute() throws RollBackCommandException {
 								pof.setCreateDate(new java.sql.Date(System.currentTimeMillis()));
 								pof.setIdProductOrder(Integer.valueOf(idProductOrder));
 								pof.setFileName(new File(fileName).getName());
-								pof.setBaseFilePath(baseDir + File.separator + productOrder.getProductOrderNumber());
+								pof.setBaseFilePath(baseDir + Constants.FILE_SEPARATOR + productOrder.getProductOrderNumber());
 							}
 
 							if (duplicateUpload) {
@@ -267,8 +267,8 @@ public Command execute() throws RollBackCommandException {
 					sess.flush();
 
 					sourceFile = sourceFile.getCanonicalFile();
-					String targetDirName = baseDir + File.separator + productOrder.getProductOrderNumber()
-							+ File.separator + qualifiedFilePath;
+					String targetDirName = baseDir + Constants.FILE_SEPARATOR + productOrder.getProductOrderNumber()
+							+ Constants.FILE_SEPARATOR + qualifiedFilePath;
 					File targetDir = new File(targetDirName);
 					targetDir = targetDir.getCanonicalFile();
 
@@ -282,7 +282,7 @@ public Command execute() throws RollBackCommandException {
 					// Don't try to move if the file is in the same directory
 					String td = targetDir.getAbsolutePath();
 					String sd = sourceFile.getAbsolutePath();
-					sd = sd.substring(0, sd.lastIndexOf(File.separator));
+					sd = sd.substring(0, sd.lastIndexOf(Constants.FILE_SEPARATOR));
 
 					if (td.equals(sd)) {
 						continue;
@@ -397,7 +397,7 @@ public Command execute() throws RollBackCommandException {
 
 			for (Iterator i = ghostFiles.iterator(); i.hasNext();) {
 				ProductOrderFile pof = (ProductOrderFile) i.next();
-				String filePath = pof.getBaseFilePath() + File.separator + pof.getQualifiedFilePath() + File.separator
+				String filePath = pof.getBaseFilePath() + Constants.FILE_SEPARATOR + pof.getQualifiedFilePath() + Constants.FILE_SEPARATOR
 						+ pof.getFileName();
 
 				if (!new File(filePath).exists()) {

@@ -48,8 +48,11 @@
 <mx:Script>
 <![CDATA[
 	import mx.controls.Alert;
+	import mx.events.ValidationResultEvent;
 	import mx.managers.PopUpManager;
 	import mx.rpc.events.ResultEvent;
+	import mx.utils.StringUtil;
+	import mx.validators.NumberValidator;
 
 	
 	private function onGetGenomeBuild(event:ResultEvent):void {
@@ -61,7 +64,109 @@
 		}		
 	}	
 
-	public function saveGenomeBuild():void {
+	private var valid:Boolean = true;
+	private var errorMessage:String = "";
+
+	private function validateAndSave():void {
+		valid = true;
+		errorMessage = "";
+
+		validateDas2Name();
+		validateSegments();
+
+		if (valid) {
+			saveGenomeBuild();
+		} else {
+			Alert.show(errorMessage);
+		}
+	}
+
+	private function appendError(message:String):void {
+		valid = false;
+		if (errorMessage == "") {
+			errorMessage = message;
+		} else {
+			errorMessage += "\n" + message;
+		}
+	}
+
+	private function validateDas2Name():void {
+		das2Name.text = StringUtil.trim(das2Name.text);
+		if (das2Name.text == "") {
+			appendError("DAS2 Name is required.");
+		}
+		var regex:RegExp = /\W/;
+		if (regex.test(das2Name.text)) {
+			appendError("DAS2 Name cannot have spaces or special characters.");
+		}
+	}
+
+	private function isPositiveInteger(value:String):Boolean {
+		var validator:NumberValidator = new NumberValidator();
+		validator.domain = "int";
+		validator.required = true;
+		validator.minValue = "1";
+		return (validator.validate(value).type == ValidationResultEvent.VALID);
+	}
+
+	private function containsStringIgnoreCase(values:Array, valueToFind:String):Boolean {
+		for each (var value:Object in values) {
+			if (value is String && String(value).toUpperCase() == valueToFind.toUpperCase()) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private function validateUniqueSegmentNames(names:Array):void {
+		var uniqueNames:Array = new Array();
+		var duplicatedNames:Array = new Array();
+		var outputNames:String = "";
+		for each (var objName:Object in names) {
+			if (objName is String) {
+				var name:String = String(objName);
+				if (name != "") {
+					if (!containsStringIgnoreCase(uniqueNames, name)) {
+						uniqueNames.push(name);
+					} else {
+						if (!containsStringIgnoreCase(duplicatedNames, name)) {
+							duplicatedNames.push(name);
+							if (outputNames != "") {
+								outputNames += ", ";
+							}
+							outputNames += "'" + name + "'";
+						}
+					}
+				}
+			}
+		}
+		if (duplicatedNames.length > 0) {
+			appendError("Segment names " + outputNames + " are duplicated (must be unique).");
+		}
+	}
+
+	// name required, length+sortOrder must be positive integer
+	private function validateSegments():void {
+		var names:Array = new Array();
+		for each (var segment:Object in segments) {
+			segment.@name = StringUtil.trim(segment.@name.toString());
+			segment.@length = StringUtil.trim(segment.@length.toString());
+			segment.@sortOrder = StringUtil.trim(segment.@sortOrder.toString());
+			if (segment.@name == "") {
+				appendError("Segment name is required.");
+			}
+			if (!isPositiveInteger(segment.@length)) {
+				appendError("Segment length '" + segment.@length + "' is invalid.");
+			}
+			if (!isPositiveInteger(segment.@sortOrder)) {
+				appendError("Segment order '" + segment.@sortOrder + "' is invalid.");
+			}
+			names.push(segment.@name);
+		}
+		validateUniqueSegmentNames(names);
+	}
+
+	private function saveGenomeBuild():void {
 		var params:Object = new Object();
 		params.idGenomeBuild     = parentDocument.browseTree.selectedItem.@idGenomeBuild;
 		params.genomeBuildName   = this.genomeBuildName.text;
@@ -89,7 +194,7 @@
 			this.dirtyGenomeBuild.resetDirty();
 			parentDocument.treeItemToSelect = this.parentDocument.browseTree.selectedItem;
 			parentDocument.refreshDataTracks();			
-		} else if (updateGenomeBuild.lastResult.name() == "Error") {
+		} else {
 			Alert.show(updateGenomeBuild.lastResult..ACTMESSAGE.@TEXT);
 		} 
 	}
@@ -135,9 +240,6 @@
 	}
 	
 	
-	
-	
-	
 	private function sortSortOrder(obj1:Object, obj2:Object):int {
 		var value1:Number = (obj1.@sortOrder == '' || obj1.@sortOrder == null) ? null : new Number(obj1.@sortOrder);
 		var value2:Number = (obj2.@sortOrder == '' || obj2.@sortOrder == null) ? null : new Number(obj2.@sortOrder);
@@ -150,6 +252,7 @@
 			return 0;
 		}
 	}
+
 	private function sortLength(obj1:Object, obj2:Object):int {
 		var myPattern:RegExp = /,/g;  
 		
@@ -170,9 +273,6 @@
 			return 0;
 		}
 	}
-	
-
-		
 ]]>
 </mx:Script>
 <mx:TabNavigator width="100%" height="100%" tabWidth="130">
@@ -231,15 +331,15 @@
 						   click="addSegment()"
 						   styleName="linkMenuButton"
 						   disabledIcon="@Embed(source='../../assets/segment_new_disable.png')" label="New"  id="linkbutton6" textAlign="left">
-				<mx:enabled>{parentDocument.browseTree.selectedItem.@canWrite == 'Y' &amp;&amp; !parentApplication.isGuestMode() ? true : false}</mx:enabled>
+				<mx:enabled>{parentDocument.browseTree.selectedItem.@canWrite == 'Y' &amp;&amp; !parentApplication.isGuestMode()}</mx:enabled>
 			</mx:LinkButton>
 			<mx:LinkButton icon="@Embed(source='../../assets/segment_remove.png')"
 						   disabledIcon="@Embed(source='../../assets/segment_remove_disable.png')"
-						   enabled="{segmentGrid.selectedItem != null &amp;&amp; parentDocument.browseTree.selectedItem.@canWrite == 'Y' &amp;&amp; !parentApplication.isGuestMode() ? true : false}"  
+						   enabled="{segmentGrid.selectedItem != null &amp;&amp; parentDocument.browseTree.selectedItem.@canWrite == 'Y' &amp;&amp; !parentApplication.isGuestMode()}"
 						   click="removeSegment()"
 						   styleName="linkMenuButton" label="Remove"/>
 			<mx:LinkButton label="Import" click="showSegmentsImportWindow()"  icon="@Embed(source='../../assets/segment_import.png')" disabledIcon="@Embed(source='../../assets/segment_import_disable.png')" styleName="linkMenuButton" id="linkbutton5" textAlign="right">
-				<mx:enabled>{parentDocument.browseTree.selectedItem.@canWrite == 'Y' &amp;&amp; !parentApplication.isGuestMode() ? true : false}</mx:enabled>
+				<mx:enabled>{parentDocument.browseTree.selectedItem.@canWrite == 'Y' &amp;&amp; !parentApplication.isGuestMode()}</mx:enabled>
 			</mx:LinkButton>
 		</mx:HBox>
 		<mx:HBox horizontalGap="2" width="100%">
@@ -268,11 +368,11 @@
 						   disabledIcon="@Embed(source='../../assets/page_new_disable.png')" 
 						   click="showSequenceUploadWindow()" 
 						   styleName="linkMenuButton"  label="Upload .bnib or .fasta file(s)" textAlign="left">
-				<mx:enabled>{parentDocument.browseTree.selectedItem.@canWrite == 'Y' ? true : false}</mx:enabled>
+				<mx:enabled>{parentDocument.browseTree.selectedItem.@canWrite == 'Y'}</mx:enabled>
 			</mx:LinkButton>
 			<mx:LinkButton icon="@Embed(source='../../assets/page_remove.png')"
 						   disabledIcon="@Embed(source='../../assets/page_remove_disable.png')"
-						   enabled="{sequenceFileGrid.selectedItem != null &amp;&amp; parentDocument.browseTree.selectedItem.@canWrite == 'Y' ? true : false}"  
+						   enabled="{sequenceFileGrid.selectedItem != null &amp;&amp; parentDocument.browseTree.selectedItem.@canWrite == 'Y'}"
 						   styleName="linkMenuButton"
 						   click="removeSequenceFile()"  label="Remove file(s)"/>
 		</mx:HBox>
@@ -292,8 +392,8 @@
 </mx:TabNavigator>
 	<mx:ControlBar horizontalAlign="right" width="100%">
 		<util:DirtyNote id="dirtyGenomeBuild"/>
-		<mx:Button  label="Save" id="saveGenomeBuildButton"  click="saveGenomeBuild()" icon="@Embed(source='../../assets/save.png')"  disabledIcon="@Embed(source='../../assets/save_disable.png')">
-			<mx:enabled>{parentDocument.browseTree.selectedItem.@canWrite == 'Y' ? true : false}</mx:enabled>
+		<mx:Button  label="Save" id="saveGenomeBuildButton"  click="validateAndSave()" icon="@Embed(source='../../assets/save.png')"  disabledIcon="@Embed(source='../../assets/save_disable.png')">
+			<mx:enabled>{parentDocument.browseTree.selectedItem.@canWrite == 'Y'}</mx:enabled>
 		</mx:Button>
 	</mx:ControlBar>
 </mx:VBox>

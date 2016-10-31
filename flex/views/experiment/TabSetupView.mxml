@@ -284,22 +284,16 @@
 		<![CDATA[
 		import hci.flex.dictionary.DictionaryEvent;
 
-		import mx.collections.Sort;
-		import mx.collections.XMLListCollection;
 		import mx.controls.Alert;
-		import mx.controls.ComboBase;
 		import mx.controls.RadioButton;
 		import mx.controls.richTextEditorClasses.ToolBar;
-		import mx.graphics.RadialGradient;
+		import mx.events.CloseEvent;
 		import mx.managers.PopUpManager;
 		import mx.rpc.events.ResultEvent;
 		import mx.utils.StringUtil;
 
-		import views.experiment.ProjectDetailWindow;
-		import views.experiment.RequestCloneWindow;
 		import views.slide.SimpleSlideConfigWindow;
 		import views.util.GNomExStringUtil;
-		import views.util.PromptXMLListCollection;
 		import views.util.SelectAuthorizedBillingAccountWindow;
 		import views.billing.BillingTemplateWindow;
 
@@ -343,6 +337,8 @@
 
 		[Bindable]
 		private var showRequiredStylingNameDescription:Boolean = false;
+		private var splitWindow:BillingTemplateWindow;
+
 
 		public function init():void {
 			firstTimeKludge = true;
@@ -424,18 +420,18 @@
 		private function setVisibility():void {
 			var visible:Boolean = true;
 			if (this.requestTypeGroup.selectedValue == null) {
-				visible = false || !parentApplication.submitInternalExperiment();
+				visible = !parentApplication.submitInternalExperiment();
 			}
 			this.labAndInstructionBox.visible = visible;
 			this.labAndInstructionBox.includeInLayout = visible;
 			if (this.labCombo.selectedIndex < 0) {
-				visible = false || !parentApplication.submitInternalExperiment();
+				visible = !parentApplication.submitInternalExperiment();
 			}
 			if (appUserContainer != null && this.contains(this.appUserContainer)) {
 				appUserContainer.visible = visible;
 				appUserContainer.includeInLayout = visible;
 				if (appUserCombo.selectedItem == null || appUserCombo.selectedItem.@idAppUser == '') {
-					visible = false || !parentApplication.submitInternalExperiment();
+					visible = !parentApplication.submitInternalExperiment();
 				}
 			}
 			this.accountBox.visible = visible;
@@ -1392,22 +1388,42 @@
 			PopUpManager.centerPopUp(pickOtherBillingAccountWindow);
 		}
 
+		public function refreshTemplateItems(e:CloseEvent):void {
+			if (this.splitWindow != null) {
+				templateItemList = this.splitWindow.getBillingTemplateItems();
+				templateItemsRepeaterBox.visible = true;
+				templateItemsRepeaterBox.includeInLayout = true;
+			}
+		}
+
 		private function showSplitBillingWindow():void {
 			if (!showAccessAuthorizedAccountsLink) {
 				return;
 			}
 
-			var splitWindow:BillingTemplateWindow = BillingTemplateWindow(mx.managers.PopUpManager.createPopUp(this, BillingTemplateWindow, true));
+			splitWindow = BillingTemplateWindow(mx.managers.PopUpManager.createPopUp(this, BillingTemplateWindow, true));
 			splitWindow.performSetup(true, this, getIdCoreFacility());
 			mx.managers.PopUpManager.centerPopUp(splitWindow);
 			splitWindow.setFocus();
+			splitWindow.addEventListener("billingTemplateWindowSave", refreshTemplateItems);
+
 		}
 
 		public function makeBillingAccountSelection():void {
+			if (billingAccountCombo.selectedIndex >= 0) {
+				templateItemsRepeaterBox.visible = false;
+				templateItemsRepeaterBox.includeInLayout = false;
+			}
 			this.selectedBillingTemplate = null;
 			updateBillingAccount();
 			checkSetupCompleteness();
 			setVisibility();
+
+		}
+
+		private function hideTemplateItemsRepeater():void {
+			templateItemsRepeaterBox.visible = false;
+			templateItemsRepeaterBox.includeInLayout = false;
 		}
 
 		public function makeBillingTemplateSelection():void {
@@ -1494,8 +1510,20 @@
 			}
 			return idCoreFacility;
 		}
+		private function buildSelectedBillingAccountsString():String {
+			var selectedBillingAccountsString:String = "";
+			if (splitWindow.percentageColumn.visible) {
+				selectedBillingAccountsString = templateItemsRepeater.currentItem.@accountNumberDisplay + ' (' + templateItemsRepeater.currentItem.@percentSplit + ')';
+			}
+			else {
+				selectedBillingAccountsString = templateItemsRepeater.currentItem.@accountNumberDisplay + ' (' + templateItemsRepeater.currentItem.@dollarAmount + ')'
+			}
+			return selectedBillingAccountsString;
+		}
 		]]>
 	</mx:Script>
+	<mx:XMLListCollection id="templateItemList"/>
+
 	<mx:XMLListCollection id="filteredLabList"  source="{parentDocument.filteredLabList.source}"  filterFunction="filterLabs"/>
 	<mx:XMLListCollection id="billingAccounts"  source="{lab.authorizedBillingAccounts.BillingAccount}"  filterFunction="filterBillingAccount"/>
 	
@@ -1551,7 +1579,7 @@
 										label="{requestCategoryRepeater.currentItem.@display}" 
 										value="{requestCategoryRepeater.currentItem.@value}"
 										paddingBottom="0" paddingTop="0" fontSize="11"
-										creationComplete="fixTheTabs()"
+										creationComplete="{fixTheTabs();hideTemplateItemsRepeater();}"
 										click="onRequestCategoryChange();checkSetupCompleteness()"  width="206"/>							
 						<mx:Text text="{requestCategoryRepeater.currentItem.@notes}" width="100%" id="text5" fontSize="10"/>
 					</mx:HBox>
@@ -1612,6 +1640,22 @@
 			</mx:HBox>
 			
 		</mx:VBox>
+
+		<mx:Spacer height="5%" />
+
+		<mx:VBox width="100%" id="templateItemsRepeaterBox" >
+			<mx:Label text="Selected billing accounts"/>
+			<mx:Repeater id="templateItemsRepeater" dataProvider="{templateItemList}" >
+				<mx:VBox width="100%" verticalGap="0">
+					<mx:Text id="templateItem"
+							 text="{buildSelectedBillingAccountsString()}"/>
+
+				</mx:VBox>
+			</mx:Repeater>
+		</mx:VBox>
+
+		<mx:Spacer height="5%" />
+
 		<mx:HBox width="100%" horizontalGap="0" verticalAlign="top" id="projectHBox" paddingTop="0" paddingBottom="0">
 			<util:ContextHelp context1="projectFolder" context2="{parentDocument.coreFacility.@idCoreFacility}" showEdit="{parentApplication.isAdminState}" title="Project Folder Help"
 							  label="(4) Select a project folder" labelPlacement="left" id="projectLabel" width="200"/>

@@ -275,7 +275,7 @@ public class FDTWriterSession extends FDTSession implements FileBlockConsumer {
 
         boolean shouldReplace = false;
         final char remoteCharSeparator = ((String) controlChannel.remoteConf.get("file.separator")).charAt(0);
-        if (File.separatorChar == '/') {
+        if (Constants.FILE_SEPARATOR_CHAR== '/') {
             if (remoteCharSeparator == '\\') {
                 shouldReplace = true;
             }
@@ -299,8 +299,8 @@ public class FDTWriterSession extends FDTSession implements FileBlockConsumer {
         for (int i = 0; i < fCount; i++) {
             final String fName = (sccm.remappedFileLists == null || sccm.remappedFileLists[i] == null)?sccm.fileLists[i]:sccm.remappedFileLists[i];
             FileWriterSession fws = new FileWriterSession(sccm.fileIDs[i], this, this.destinationDir
-                                                          + File.separator
-                                                          + ((shouldReplace) ? fName.replace(remoteCharSeparator, File.separatorChar)
+                                                          + Constants.FILE_SEPARATOR
+                                                          + ((shouldReplace) ? fName.replace(remoteCharSeparator, Constants.FILE_SEPARATOR_CHAR)
                                                                   : fName), sccm.fileSizes[i], sccm.lastModifTimes[i], isLoop, writeMode, noTmp, noLock, fcp);
             fileSessions.put(fws.sessionID, fws);
             setSessionSize(sessionSize() + fws.sessionSize());

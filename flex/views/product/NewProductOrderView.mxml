@@ -55,7 +55,6 @@
             useProxy="false">
     </mx:HTTPService>
 
-
     <mx:Script>
 		<![CDATA[
         import mx.controls.Alert;
@@ -63,6 +62,8 @@
         import mx.controls.TextInput;
         import mx.managers.PopUpManager;
         import mx.rpc.events.ResultEvent;
+        import mx.collections.Sort;
+        import mx.events.CloseEvent;
 
         import views.billing.BillingTemplateWindow;
         import views.experiment.ChooseWorkAuthorizationTypeWindow;
@@ -83,7 +84,7 @@
 
         private var idAppUser:Object = null;
         private var isLoaded:Boolean = false;
-
+        private var splitWindow:BillingTemplateWindow;
 
         public function init():void {
             if (parentApplication.isAdminState) {
@@ -93,6 +94,7 @@
             }
 
             productList = new XMLListCollection();
+            templateItemList = new XMLListCollection();
             productTypeList.filterFunction = filterByCore;
             productTypeList.refresh();
 
@@ -116,7 +118,6 @@
             } else {
                 isLoaded = true;
             }
-
             this.selectedBillingTemplate = null;
             this.checkForOtherAccounts();
         }
@@ -130,9 +131,19 @@
             billingAccountCombo.selectedIndex = -1;
             headerBox.visible = false;
             totalBox.visible = false;
+            templateItemsRepeaterBox.visible = false;
+            templateItemsRepeaterBox.includeInLayout = false;
             grandTotalLabel.text = "$0";
             iAgree.selected = false;
+        }
 
+        public function refreshTemplateItems(e:CloseEvent):void {
+            if (this.splitWindow != null) {
+                templateItemList = this.splitWindow.getBillingTemplateItems();
+                templateItemsRepeaterBox.visible = true;
+                templateItemsRepeaterBox.includeInLayout = true;
+
+        }
         }
 
         private function filterLabList(item:Object):Boolean {
@@ -285,7 +296,6 @@
                 saveButton.enabled = false;
             }
 
-
         }
 
         private function save():void {
@@ -356,6 +366,7 @@
             }
 
             this.grandTotalLabel.text = '$' + String(grandTotalValue);
+
         }
 
         private function getUnitPrice(item:Object):String {
@@ -375,6 +386,7 @@
         private function checkForOtherAccounts():void {
             showSplitBillingLink = false;
             var params:Object = new Object();
+
             if (idCoreFacility != null && idCoreFacility != "") {
                 params.idCoreFacility = idCoreFacility;
             }
@@ -410,10 +422,12 @@
                 return;
             }
 
-            var splitWindow:BillingTemplateWindow = BillingTemplateWindow(mx.managers.PopUpManager.createPopUp(this, BillingTemplateWindow, true));
+            splitWindow = BillingTemplateWindow(mx.managers.PopUpManager.createPopUp(this, BillingTemplateWindow, true));
             splitWindow.performSetup(true, this, idCoreFacility);
             mx.managers.PopUpManager.centerPopUp(splitWindow);
             splitWindow.setFocus();
+            splitWindow.addEventListener("billingTemplateWindowSave", refreshTemplateItems);
+
         }
 
         public function makeBillingTemplateSelection():void {
@@ -423,14 +437,35 @@
         }
 
         public function makeBillingAccountSelection():void {
+            if (billingAccountCombo.selectedIndex >= 0) {
+                templateItemsRepeaterBox.visible = false;
+                templateItemsRepeaterBox.includeInLayout = false;
+            }
             this.selectedBillingTemplate = null;
             checkSetupCompleteness();
             productList.refresh();
+        }
+
+        private function hideTemplateItemsRepeater():void {
+            templateItemsRepeaterBox.visible = false;
+            templateItemsRepeaterBox.includeInLayout = false;
+        }
+
+        private function buildSelectedBillingAccountsString():String {
+            var selectedBillingAccountsString:String = "";
+            if (splitWindow.percentageColumn.visible) {
+                selectedBillingAccountsString = templateItemsRepeater.currentItem.@accountNumberDisplay + ' (' + templateItemsRepeater.currentItem.@percentSplit + ')';
+            }
+            else {
+                selectedBillingAccountsString = templateItemsRepeater.currentItem.@accountNumberDisplay + ' (' + templateItemsRepeater.currentItem.@dollarAmount + ')'
+            }
+            return selectedBillingAccountsString;
         }
         ]]>
 	</mx:Script>
 
     <mx:XMLListCollection id="productList"/>
+    <mx:XMLListCollection id="templateItemList"/>
     <mx:XMLListCollection id="appUsers"   source="{getLab.lastResult..Lab.activeSubmitters.AppUser}"/>
     <mx:XMLListCollection id="billingAccounts"  source="{getLab.lastResult..Lab.authorizedBillingAccounts.BillingAccount}"  filterFunction="filterBillingAccount"/>
     <mx:XMLListCollection id="productTypeList" source="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.ProductType').DictionaryEntry.(@value != '')}" />
@@ -447,7 +482,7 @@
                                           labelField="@name"
                                           prompt="Select a lab..."
                                           width="380"
-                                          close="getMembersOfLab(); checkSetupCompleteness(); checkForOtherAccounts();"
+                                          close="getMembersOfLab(); checkSetupCompleteness(); checkForOtherAccounts();hideTemplateItemsRepeater()"
                                           id="labCombo"/>
 
             </mx:HBox>
@@ -472,6 +507,19 @@
                     </mx:VBox>
                 </mx:HBox>
             </mx:HBox>
+
+            <mx:Spacer height="5%" />
+
+            <mx:VBox width="100%" id="templateItemsRepeaterBox">
+                <mx:Label text="Selected billing accounts"/>
+                <mx:Repeater id="templateItemsRepeater" dataProvider="{templateItemList}" >
+                    <mx:VBox width="100%" verticalGap="0">
+                        <mx:Text id="templateItem"
+                                 text="{buildSelectedBillingAccountsString()}"/>
+
+                    </mx:VBox>
+                </mx:Repeater>
+            </mx:VBox>
 
             <mx:Spacer height="5%" />
 

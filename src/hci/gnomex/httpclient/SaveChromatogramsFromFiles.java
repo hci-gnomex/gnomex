@@ -3,6 +3,7 @@
  */
 package hci.gnomex.httpclient;
 
+import hci.gnomex.constants.Constants;
 import hci.gnomex.utility.BatchMailer;
 import hci.gnomex.utility.MailUtil;
 import hci.gnomex.utility.MailUtilHelper;
@@ -284,7 +285,7 @@ private String moveFile(File sourceFile, String archiveFilePath, String destDirN
 	String reason = "";
 
 	// First let's backup the file to an archive dna seq drop folder
-	String archiveDir = archiveFilePath + File.separator + sourceFile.getParentFile().getName();
+	String archiveDir = archiveFilePath + Constants.FILE_SEPARATOR + sourceFile.getParentFile().getName();
 	File ad = new File(archiveDir);
 	if (!ad.exists()) {
 		ad.mkdirs();
@@ -293,14 +294,14 @@ private String moveFile(File sourceFile, String archiveFilePath, String destDirN
 			return reason;
 		}
 	}
-	String archiveFileName = archiveDir + File.separator + sourceFile.getName();
+	String archiveFileName = archiveDir + Constants.FILE_SEPARATOR + sourceFile.getName();
 	boolean success = this.copyFile(sourceFile, archiveFileName);
 	if (!success) {
 		reason = "Unable to copy file " + sourceFile.getPath() + " to " + archiveFileName;
 		return reason;
 	}
 
-	String destFileName = destDirName + File.separator + sourceFile.getName();
+	String destFileName = destDirName + Constants.FILE_SEPARATOR + sourceFile.getName();
 
 	// Try to move to file. If we can't move it, copy then delete it.
 	String operation = "java file rename";

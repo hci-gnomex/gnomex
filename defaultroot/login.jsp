@@ -14,7 +14,8 @@
 <%@ page import="java.util.List" %>
 <%@ page import="hci.gnomex.model.Visibility" %>
 <%@ page import="hci.gnomex.utility.PropertyDictionaryHelper" %>
-<%@ page import="org.apache.log4j.Logger" %>;
+<%@ page import="org.apache.log4j.Logger" %>
+<%@ page import="org.hibernate.query.Query" %>
 
 <html>
 

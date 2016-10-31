@@ -23,8 +23,8 @@ public class UploadDownloadHelper {
   private static Logger LOG = Logger.getLogger(UploadDownloadHelper.class);
 
   public static void writeDownloadInfoFile(String baseDir, String emailAddress, SecurityAdvisor secAdvisor, HttpServletRequest req) {
-    if (!baseDir.endsWith(File.separator)) {
-      baseDir += File.separator;
+    if (!baseDir.endsWith(Constants.FILE_SEPARATOR)) {
+      baseDir += Constants.FILE_SEPARATOR;
     }
     File info = new File(baseDir + Constants.FDT_DOWNLOAD_INFO_FILE_NAME);
     try {

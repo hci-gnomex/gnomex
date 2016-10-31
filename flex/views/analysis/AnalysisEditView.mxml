@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:VBox  width="100%" height="100%" styleName="panelBox"
 		  xmlns:mx="http://www.adobe.com/2006/mxml"     
-		  xmlns:views="views.*" 
 		  xmlns:util="views.util.*" 
 		  xmlns:analysis="views.analysis.*"
 		  xmlns:renderers="views.renderers.*"
@@ -102,12 +101,15 @@
 	
 	<mx:Script>
 		<![CDATA[
+		import hci.flex.controls.CheckBox;
 			import hci.flex.controls.DropdownLabel;
 			import hci.flex.dictionary.DictionaryEditor;
 			import hci.flex.dictionary.DictionaryEvent;
 			
 			import mx.collections.Sort;
+		import mx.collections.XMLListCollection;
 			import mx.controls.Alert;
+		import mx.controls.ComboBox;
 			import mx.controls.listClasses.ListBase;
 			import mx.core.DragSource;
 			import mx.core.UIComponent;
@@ -120,14 +122,11 @@
 			import mx.managers.PopUpManager;
 			import mx.rpc.events.ResultEvent;
 			
-			import views.datatrack.DistributeDataTrackWindow;
-			import views.experiment.ExperimentDetailView;
+
 			import views.experiment.ExperimentDetailWindow;
-			import views.protocol.ProtocolsView;
+		import views.protocol.ProtocolEditWindow;
 			import views.topics.NavTopicsView;
 			import views.util.AnalysisProtocolsEvent;
-			import views.util.DateUtils;
-			import views.util.FileUtil;
 			import views.util.GNomExStringUtil;
 			import views.util.OrganismEvent;
 			import views.util.OrganismsWindow;
@@ -138,14 +137,16 @@
 			[Bindable]
 			public var rowCountMessage:String = new String();
 			
+		// Current collaborators in dropdown.
 			[Bindable]
-			private var possibleCollaborators:XMLListCollection;
+		private var currentCollaborators:XMLListCollection;
 			[Bindable]
 			private var possibleInstitutions:PromptXMLListCollection;
 			[Bindable]
 			public var selectedExperiment:Object; 
 			[Bindable]
 			public var analysis:Object;
+
 			private var execValidateAndSaveAnalysis:Boolean = false;
 			
 			[Bindable]
@@ -164,12 +165,19 @@
 			
 			private var dictionaryEditor:DictionaryEditor; 
 			
-			private var protocolWindow:views.protocol.ProtocolEditWindow;
+		private var protocolWindow:ProtocolEditWindow;
 			
 			private var pasteCommand:Boolean = false; 
 			
 			private var uploadWindow:AnalysisUploadWindow = null;
+		private var possibleCollaboratorsInDropdown:XMLListCollection;
 			
+		private var membersCollaboratorsInDropdown:XMLListCollection;
+
+		private var possibleCollaborators:XMLListCollection;
+
+		private var membersCollaborators:XMLListCollection;
+
 			private function onCloseWindow():void {
 				if (dirty.isDirty()) {
 					promptToCloseOnDirty();
@@ -240,6 +248,7 @@
 				setDefaultPrivacyExpirationDate();
 				setPrivacyExpirationPickerEditable();
 				
+
 				this.notCollaborator();
 				
 				// setupEditForm gets called again later in the case of drag/drop analysis so in that case skip the call this time around
@@ -388,17 +397,20 @@
 					onPromptToRemoveAllExperimentItems,						
 					parentApplication.iconWarning);
 			}
+
 			private function onPromptToRemoveAllExperimentItems(event:CloseEvent):void {
 				if (event.detail == Alert.YES) {
 					removeAllExperimentItems();
 				}
 			}
+
 			private function removeAllExperimentItems():void {
 				this.dirty.setDirty();
 				hybs.removeAll();
 				lanes.removeAll();
 				samples.removeAll();
 			}
+
 			private function removeExperimentItem():void {
 				dirty.setDirty();
 				if (hybsGrid.selectedItem != null) {
@@ -409,13 +421,13 @@
 					samples.removeItemAt(samplesGrid.selectedIndex);
 				}
 			}
+
 			private function onGetExperimentPickList(event:ResultEvent): void {
 				getExperimentPickList.showBusyCursor = false;
 				callLater(expandAllNodes);
 			}
 			
-			public function expandAllNodes():void
-			{
+		public function expandAllNodes():void {
 				experimentTree.expandItem(getExperimentPickList.lastResult, true);
 				for each(var lab:Object in getExperimentPickList.lastResult..Lab) {
 					experimentTree.expandItem(lab, true);
@@ -426,20 +438,21 @@
 				experimentTree.validateNow();
 			}
 			
-			private function getLanesGridRowNumber(item:Object,col:int):String
-			{
+		private function getLanesGridRowNumber(item:Object, col:int):String {
 				var x:int = lanesGrid.dataProvider.getItemIndex(item) + 1;
 				return String(x);
 			} 
-			private function getHybsGridRowNumber(item:Object,col:int):String
-			{
+
+		private function getHybsGridRowNumber(item:Object, col:int):String {
 				var x:int = hybsGrid.dataProvider.getItemIndex(item) + 1;
 				return String(x);
 			}
+
 			private function getSamplesGridRowNumber(item:Object, col:int):String {
 				var x:int = samplesGrid.dataProvider.getItemIndex(item) + 1;
 				return String(x);
 			}
+
 			private function getExperimentNameForSample(item:Object, col:int):String {
 				if (item.hasOwnProperty('@experimentName')) {
 					return item.@experimentName;
@@ -447,11 +460,12 @@
 					return analysis.relatedObjects..Request.(@idRequest == item.@idRequest).@name;
 				}
 			}
-			public function getFilesGridRowNumber(item:Object,col:int):String
-			{
+
+		public function getFilesGridRowNumber(item:Object, col:int):String {
 				var x:int = filesView.downloadTree.dataProvider.getItemIndex(item) + 1;
 				return String(x);
 			} 		 
+
 			private function promptToCancel():void {
 				Alert.show( "The analysis has not been saved.  Are you sure you want to quit?",
 					"Warning",
@@ -610,8 +624,7 @@
 				return item.@label;
 			}
 			
-			private function onDragEnter( event:DragEvent ) : void
-			{ 
+		private function onDragEnter(event:DragEvent):void {
 				if( event.dragInitiator is Tree ) {
 					var ds:DragSource = event.dragSource;
 					if( !ds.hasFormat("treeItems") ) return; // no useful data
@@ -627,8 +640,8 @@
 				// if the tree passes or the dragInitiator is not a tree, accept the drop
 				DragManager.acceptDragDrop(UIComponent(event.currentTarget)); 
 			}
-			private function onDragOver( event:DragEvent ) : void
-			{
+
+		private function onDragOver(event:DragEvent):void {
 				if( event.dragInitiator is Tree ) {
 					DragManager.showFeedback(DragManager.COPY);
 				} else {
@@ -642,14 +655,12 @@
 				}
 			}
 			
-			private function onDragExit( event:DragEvent ) : void
-			{
+		private function onDragExit(event:DragEvent):void {
 				var dropTarget:ListBase=ListBase(event.currentTarget); 
 				dropTarget.hideDropFeedback(event);
 			}
 			
-			public function onDragDropExperimentItem(event:DragEvent) : void
-			{
+		public function onDragDropExperimentItem(event:DragEvent):void {
 				// retrieve the data associated with the "items" format. This will be the data that
 				// the dragInitiator has copied into the DragSource.
 				var items:Array = event.dragSource.dataForFormat("treeItems") as Array;
@@ -768,13 +779,16 @@
 					onDictionaryAnalysisTypeRefreshed);
 				PopUpManager.centerPopUp(dictionaryEditor);
 			}
+
 			private function onDictionaryAnalysisTypeInitialized(event:Event):void{
 				dictionaryEditor.selectDictionary("hci.gnomex.model.AnalysisType");
 			}          
+
 			private function onDictionaryAnalysisTypeRefreshed(event:Event):void{
 				analysisTypeCombo.dataProvider     = parentApplication.dictionaryManager.getEntries('hci.gnomex.model.AnalysisType');								
 				analysisTypeCombo.selectedItem     = parentApplication.dictionaryManager.getEntry('hci.gnomex.model.AnalysisType', analysis.@idAnalysisType);				
 			}	
+
 			private function onDictionaryAnalysisTypeSelected(event:Event):void{
 				if (this.analysisTypeCombo.selectedItem != null && this.analysisTypeCombo.selectedItem.@value != "") {
 					dictionaryEditor.selectDictionaryEntry(analysisTypeCombo.selectedItem);
@@ -785,7 +799,7 @@
 			// Edit analysis protocol dictionary
 			//
 			private function editAnalysisProtocol():void {
-				protocolWindow = views.protocol.ProtocolEditWindow(PopUpManager.createPopUp(parentApplication.theBody, views.protocol.ProtocolEditWindow, true));
+			protocolWindow = ProtocolEditWindow(PopUpManager.createPopUp(parentApplication.theBody, ProtocolEditWindow, true));
 				protocolWindow.addEventListener(Event.CLOSE, onCloseProtocolEditWindow);
 				protocolWindow.editor.initializeData('hci.gnomex.model.AnalysisProtocol');
 				PopUpManager.centerPopUp(protocolWindow);
@@ -831,6 +845,7 @@
 					getExperimentPickList.send();
 				}
 			}
+
 			private function addCollaborator():void {
 				dirty.setDirty();
 				var node:XML = new XML("<AnalysisCollaborator" +
@@ -840,15 +855,76 @@
 					" canUpdate='N' " +
 					"/>");
 				this.collaborators.addItem(node);
+			this.collaboratorCombo.dataProvider.removeItemAt(collaboratorCombo.selectedIndex);
+			// Remove from dropdowns
+			removeFromCollaborators(possibleCollaboratorsInDropdown, node);
+			removeFromCollaborators(membersCollaboratorsInDropdown, node);
+
 			}
 			
+		/**
+		 * Return the item from the list matching node.
+		 * @param list The list to check against.
+		 * @param node The XML object.
+		 * @return
+		 */
+		private function returnCollaborator(list:XMLListCollection, node:Object):XML {
+			for each (var item:XML in list) {
+				if (node.@idAppUser == item.@idAppUser) {
+					return item;
+					break;
+				}
+			}
+			return null;
+		}
+
+
+		/**
+		 * On a remove collaborator add the collaborator back into the dropdowns, remove the collaborator
+		 * from the grid.
+         */
 			private function removeCollaborator():void {
 				dirty.setDirty();
 				if (collaboratorGrid.selectedIndex != -1) {
+				var item:XML = null;
+				item = returnCollaborator(possibleCollaborators, collaboratorGrid.selectedItem);
+				if (item) {
+					possibleCollaboratorsInDropdown.addItem(item);
+				}
+				item = returnCollaborator(membersCollaborators, collaboratorGrid.selectedItem);
+				if (item) {
+					membersCollaboratorsInDropdown.addItem(item);
+				}
+				if (visibilityRadioGroup.selectedValue == 'OWNER') {
+					currentCollaborators = possibleCollaboratorsInDropdown;
+				}
+				else if (visibilityRadioGroup.selectedValue == 'MEM') {
+					currentCollaborators = membersCollaboratorsInDropdown;
+				}
+				collaboratorCombo.dataProvider = currentCollaborators.source;
 					collaborators.removeItemAt(collaboratorGrid.selectedIndex);
 				}
 			}
 			
+		/**
+		 * Remove the node from the list.
+		 * @param list
+         * @param node
+         */
+		private function removeFromCollaborators(list:XMLListCollection, node:XML):void {
+			var removeItem:XML;
+			var index:int = 0;
+			for each (var item:XML in list) {
+				if (node.@idAppUser == item.@idAppUser) {
+					removeItem = item;
+					break;
+				}
+				index++;
+			}
+			if (index < list.length)
+				list.removeItemAt(index);
+		}
+
 			private function addGenomeBuild():void {
 				dirty.setDirty();
 				var node:XML = new XML("<GenomeBuild " +
@@ -865,17 +941,42 @@
 				}
 			}
 			
+		/**
+		 * Synch list to collaborators.
+		 * @param list
+         */
+		private function syncCollaborators(list:XMLListCollection) {
+			var removeItem:XML;
+			var index:int = 0;
 			
+			for each (var gitem:XML in collaborators) {
+				index = 0;
+				for each (var ccitem:XML in list) {
+					if (gitem.@idAppUser == ccitem.@idAppUser) {
+						list.removeItemAt(index);
+						break;
+					}
+					index++;
+				}
+
+			}
+		}
+
 			private function onGetLab(event:ResultEvent):void {
 				if (getLab.lastResult.name() == "OpenLabList") {
 					var emptyNode:XML = new XML("<AppUser " +
 						" idAppUser=''" +
 						" displayName=''"  +
 						"/>");
-					possibleCollaborators = new XMLListCollection(getLab.lastResult..Lab.(@idLab == analysis.@idLab).possibleCollaborators.AppUser.(@isActive == 'Y'));
-					possibleCollaborators.addItemAt(emptyNode, 0);
+				possibleCollaborators = new XMLListCollection(getLab.lastResult..Lab.(@idLab == analysis.@idLab).possibleCollaboratorsWithoutOwner.AppUser.(@isActive == 'Y'));
+				membersCollaborators = new XMLListCollection(getLab.lastResult..Lab.(@idLab == analysis.@idLab).membersCollaborators.AppUser.(@isActive == 'Y'));
+				possibleCollaboratorsInDropdown = new XMLListCollection(getLab.lastResult..Lab.(@idLab == analysis.@idLab).possibleCollaboratorsWithoutOwner.AppUser.(@isActive == 'Y'));
+				membersCollaboratorsInDropdown = new XMLListCollection(getLab.lastResult..Lab.(@idLab == analysis.@idLab).membersCollaborators.AppUser.(@isActive == 'Y'));
+				syncCollaborators(possibleCollaboratorsInDropdown);
+				syncCollaborators(membersCollaboratorsInDropdown);
+				possibleCollaboratorsInDropdown.addItemAt(emptyNode, 0);
+				membersCollaboratorsInDropdown.addItemAt(emptyNode, 0);
 					possibleInstitutions = new PromptXMLListCollection(emptyNode, new XMLListCollection(getLab.lastResult..Lab.(@idLab == analysis.@idLab).institutions.Institution.(@isActive == 'Y')));
-					
 					this.radioInstitutionVisibility.enabled = this.possibleInstitutions.length > 1;
 					if (analysis.@idInstitution != null && analysis.@idInstitution != '') {
 						for each(var inst:Object in possibleInstitutions) {
@@ -949,8 +1050,31 @@
 				if (analysis.@canUpdateVisibility != 'Y') {
 					this.visibilityTab.enabled = false;
 				}
+			checkIfVisibilityRadioGroupEnabled();
 			}
 			
+		/**
+		 * Set the visibility of the collaboratorVbox. Public dont show the vbox. Set the correct dropdown.
+         */
+		public function checkIfVisibilityRadioGroupEnabled():void {
+			if (getLab.lastResult != null) {
+
+				if (visibilityRadioGroup.selectedValue == 'OWNER') {
+					currentCollaborators = this.possibleCollaboratorsInDropdown;
+					collaboratorVBox.visible = true;
+					collaboratorVBox.includeInLayout = true;
+				}
+				else if (visibilityRadioGroup.selectedValue == 'MEM') {
+					currentCollaborators = this.membersCollaboratorsInDropdown;
+					collaboratorVBox.visible = true;
+					collaboratorVBox.includeInLayout = true;
+				} else {
+					collaboratorVBox.visible = false;
+					collaboratorVBox.includeInLayout = false;
+				}
+			}
+		}
+
 			private function sortAppUsers(obj1:Object, obj2:Object, fields:Array=null):int {
 				if (obj1 == null && obj2 == null) {
 					return 0;
@@ -971,7 +1095,6 @@
 					}
 				}
 			}
-			
 			
 			
 			private function showDataTracks():void {
@@ -1063,7 +1186,8 @@
 					}
 				}
 				
-				isCollaborator = false;;
+			isCollaborator = false;
+			;
 			}
 			
 			private function showLinkToExpWindow():void{
@@ -1072,7 +1196,6 @@
 				linkToExpWindow.idAnalysis = parentDocument.selectedIdAnalysis;
 				PopUpManager.centerPopUp(linkToExpWindow);
 			}
-			
 		]]>
 	</mx:Script>
 	
@@ -1412,21 +1535,21 @@
 					<mx:HBox horizontalGap="0">
 						<mx:VBox verticalGap="0" width="140">
 							<mx:RadioButton value="OWNER" label="Owner" groupName="visibilityRadioGroup"  
-											click="dirty.setDirty();setDefaultPrivacyExpirationDate();setDefaultPrivacyExpirationDate();setPrivacyExpirationPickerEditable();" 
+											click="dirty.setDirty();checkIfVisibilityRadioGroupEnabled();setDefaultPrivacyExpirationDate();setDefaultPrivacyExpirationDate();setPrivacyExpirationPickerEditable();"
 											toolTip="Visible to the submitter and the lab PI"/>
 							<mx:RadioButton value="MEM" selected="true" label="All Lab Members" groupName="visibilityRadioGroup"  
-											click="dirty.setDirty();setDefaultPrivacyExpirationDate();setDefaultPrivacyExpirationDate();setPrivacyExpirationPickerEditable();" 
+											click="dirty.setDirty();checkIfVisibilityRadioGroupEnabled();setDefaultPrivacyExpirationDate();setDefaultPrivacyExpirationDate();setPrivacyExpirationPickerEditable();"
 											toolTip="Visible to all members of the lab group"/>
 						</mx:VBox>
 					</mx:HBox>
 					<mx:HBox horizontalGap="0" verticalAlign="middle" visible="{this.possibleInstitutions.length > 1}" includeInLayout="{this.possibleInstitutions.length > 1}">
 						<mx:RadioButton value="INST" selected="true" label="Institution" groupName="visibilityRadioGroup"  
-										click="dirty.setDirty();setDefaultPrivacyExpirationDate();setPrivacyExpirationPickerEditable();" id="radioInstitutionVisibility" enabled="false" toolTip="Visible to all lab groups that are part of institution" width="140"/>
+										click="dirty.setDirty();checkIfVisibilityRadioGroupEnabled();setDefaultPrivacyExpirationDate();setPrivacyExpirationPickerEditable();" id="radioInstitutionVisibility" enabled="false" toolTip="Visible to all lab groups that are part of institution" width="140"/>
 						<mx:ComboBox width="210" dataProvider="{this.possibleInstitutions}" id="institutionCombo" selectedIndex="{visibilityRadioGroup.selectedValue != 'INST' ? 0 : institutionCombo.selectedIndex}" labelField="@display" enabled="{this.possibleInstitutions.length > 1 &amp;&amp; radioInstitutionVisibility.enabled &amp;&amp; visibilityRadioGroup.selectedValue == 'INST'}"  editable="false" />
 					</mx:HBox>
 					<mx:HBox horizontalGap="0" verticalAlign="middle" visible="{parentApplication.isPublicVisibility}" includeInLayout="{parentApplication.isPublicVisibility}">
 					    <mx:RadioButton value="PUBLIC" label="Public Access" groupName="visibilityRadioGroup"  
-									click="dirty.setDirty();setDefaultPrivacyExpirationDate();setPrivacyExpirationPickerEditable();" toolTip="Visible to everyone"/>					   		
+									click="dirty.setDirty();checkIfVisibilityRadioGroupEnabled();setDefaultPrivacyExpirationDate();setPrivacyExpirationPickerEditable();" toolTip="Visible to everyone"/>
 					</mx:HBox>
 				</mx:VBox>				
 			</mx:HBox>
@@ -1445,11 +1568,11 @@
 			</mx:VBox>		
 			
 		
-		<mx:VBox height="100%" verticalGap="0" width="100%">
+		<mx:VBox id="collaboratorVBox" height="100%" verticalGap="0" width="100%">
 			
 			<mx:Text text="{(parentApplication.isPrivacyExpirationSupported ? '(3)' : '(2)') + ' Specify other individual collaborators allowed access to this analysis'}" width="300" height="30" id="selectCollaboratorsLabel" />
 			<mx:HBox horizontalAlign="left" horizontalGap="6" paddingBottom="4">
-				<renderers:FilterComboBox dataProvider="{possibleCollaborators.source}" 
+				<renderers:FilterComboBox dataProvider="{currentCollaborators.source}"
 										  labelField="@displayName" 
 										  prompt="Collaborator to add..."
 										  width="270"  
@@ -1477,13 +1600,13 @@
 										   editable="true"                        	
 										   dataField="@canUploadData" 
 										   editorDataField="selected" sortable="false"
-										   itemRenderer="{hci.flex.controls.CheckBox.getFactory('Y', 'N', '@canUploadData', true)}"/>
+										   itemRenderer="{CheckBox.getFactory('Y', 'N', '@canUploadData', true)}"/>
 						<mx:DataGridColumn headerText="Update" 
 										   width="65" 
 										   editable="true"                        	
 										   dataField="@canUpdate" 
 										   editorDataField="selected" sortable="false"
-										   itemRenderer="{hci.flex.controls.CheckBox.getFactory('Y', 'N', '@canUpdate', true)}"/>
+										   itemRenderer="{CheckBox.getFactory('Y', 'N', '@canUpdate', true)}"/>
 					</mx:columns>
 				</mx:DataGrid>		   		
 			</mx:HBox>

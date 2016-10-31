@@ -526,10 +526,6 @@ public final class Utils {
             } else if (args[i].indexOf(":") >= 0) {
                 int idx = args[i].indexOf(":");
 
-                // /////////////
-                // handle windows stupid FS naming
-                // ////////////
-                if (File.separatorChar == '\\') {// "Windowns" baby!
 
                     if ((idx + 1) == args[i].length()) {
                         // ////////////
@@ -796,7 +792,7 @@ public final class Utils {
     private static final File createOrGetRWFile(final String parentDirName, final String fileName) {
 
         final File parentDir = new File(parentDirName);
-        final File file = new File(parentDirName + File.separator + fileName);
+        final File file = new File(parentDirName + Constants.FILE_SEPARATOR + fileName);
 
         if (!parentDir.exists()) {
             if (parentDir.mkdirs()) {
@@ -882,7 +878,7 @@ public final class Utils {
     }
 
     private static Properties getFDTUpdateProperties() {
-        final String parentFDTConfDirName = System.getProperty("user.home") + File.separator + ".fdt";
+        final String parentFDTConfDirName = System.getProperty("user.home") + Constants.FILE_SEPARATOR + ".fdt";
         final String fdtUpdateConfFileName = "update.properties";
         Properties updateProperties = new Properties();
         final File confFile = createOrGetRWFile(parentFDTConfDirName, fdtUpdateConfFileName);
@@ -906,7 +902,7 @@ public final class Utils {
 
     private static boolean updateTotalContor(final long total, final String property) {
 
-        final String parentFDTConfDirName = System.getProperty("user.home") + File.separator + ".fdt";
+        final String parentFDTConfDirName = System.getProperty("user.home") + Constants.FILE_SEPARATOR + ".fdt";
         final String fdtUpdateConfFileName = "update.properties";
         final File confFile = createOrGetRWFile(parentFDTConfDirName, fdtUpdateConfFileName);
 
@@ -999,7 +995,7 @@ public final class Utils {
                 instID = UUID.randomUUID().toString();
                 props.put("instanceID", instID);
 
-                final String parentFDTConfDirName = System.getProperty("user.home") + File.separator + ".fdt";
+                final String parentFDTConfDirName = System.getProperty("user.home") + Constants.FILE_SEPARATOR + ".fdt";
                 final String fdtUpdateConfFileName = "update.properties";
                 final File confFile = createOrGetRWFile(parentFDTConfDirName, fdtUpdateConfFileName);
                 FileOutputStream fos = null;
@@ -1074,7 +1070,7 @@ public final class Utils {
             throws Exception {
         try {
 
-            final String parentFDTConfDirName = System.getProperty("user.home") + File.separator + ".fdt";
+            final String parentFDTConfDirName = System.getProperty("user.home") + Constants.FILE_SEPARATOR + ".fdt";
             final String fdtUpdateConfFileName = "update.properties";
             final File confFile = createOrGetRWFile(parentFDTConfDirName, fdtUpdateConfFileName);
 
@@ -1505,7 +1501,7 @@ public final class Utils {
                             getRecursiveFiles(fileName + File.separator + subFile, remappedFileName + File.separator
                                     + subFile, allFiles, allRemappedFiles);
                         } else {
-                            getRecursiveFiles(fileName + File.separator + subFile, null, allFiles, allRemappedFiles);
+                            getRecursiveFiles(fileName + Constants.FILE_SEPARATOR + subFile, null, allFiles, allRemappedFiles);
                         }
                     }
                 }

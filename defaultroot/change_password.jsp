@@ -1,13 +1,14 @@
-<%@ page import="hci.gnomex.utility.HibernateSession" %>
 <%@ page import="org.hibernate.Session" %>
 <%@ page import="hci.gnomex.model.PropertyDictionary" %>
 <%@ page import="hci.gnomex.controller.GNomExFrontController" %>
 <%@ page import="hci.gnomex.utility.JspHelper" %>
-<%@ page import="hci.gnomex.utility.JspHelper" %>
 <%@ page import="hci.gnomex.utility.PropertyDictionaryHelper" %>
 <%@ page import="hci.gnomex.model.AppUser" %>
 <%@ page import="java.sql.Timestamp" %>;
-<%@ page import="org.apache.log4j.Logger" %>;
+<%@ page import="org.apache.log4j.Logger" %>
+<%@ page import="hci.gnomex.controller.ChangePassword" %>
+<%@ page import="hci.gnomex.utility.*" %>
+
 <html>
 
 <head>
@@ -19,7 +20,20 @@
 		{
      		theform.username.focus();
 		}
-	</script>	
+        function validateAndSubmit() {
+            var valid = true;
+            if (document.getElementById("newPassword").value == "") {
+                valid = false;
+                alert("Please enter a password");
+            } else if (document.getElementById("newPassword").value != document.getElementById("newPasswordConfirm").value) {
+                valid = false;
+                alert("The passwords you entered must match");
+            }
+            if (valid) {
+                document.forms["theform"].submit();
+            }
+        }
+	</script>
 </head>
 
 <%
@@ -37,6 +51,7 @@ boolean showCampusInfoLink = false;
 String siteLogo = "";
 Session sess = null;
 String guid = "";
+String userName = "";
 try {
   sess = HibernateSession.currentReadOnlySession("guest");
   PropertyDictionary propUniversityUserAuth = (PropertyDictionary)sess.createQuery("from PropertyDictionary p where p.propertyName='" + PropertyDictionary.UNIVERSITY_USER_AUTHENTICATION + "'").uniqueResult();
@@ -56,7 +71,8 @@ siteLogo = PropertyDictionaryHelper.getSiteLogo(sess, coreToPassThru);
 //d.getAppUser(request);
 
 //Check if user is able to change password
-guid = (String) ((request.getParameter("guid") != null)?request.getParameter("guid"):"");
+guid = (request.getParameter("guid") != null) ? request.getParameter("guid") : "";
+userName = (request.getParameter("userName") != null) ? request.getParameter("userName") : "";
 String loginPage = request.getScheme() + "://" + request.getServerName() + "/gnomex";
 
 if(guid == null || guid.equals("")){
@@ -117,36 +133,34 @@ if(ts.after(au.getGuidExpiration())){
     <h3>Change Password</h3>
 
       <div class="col1Wide"><div class="right">User name</div></div>
-      <div class="col2"><input id="username" name="userName" type="text" class="text"/></div>
+      <div class="col2"><input type="text" id="username" name="userName" value="<%=userName%>" class="text"/></div>
 
       <div class="col1Wide"><div class="right">New Password</div></div>
-      <div class="col2"><input type="password" name="newPassword" class="text" /></div>
+      <div class="col2"><input type="password" id="newPassword" name="newPassword" class="text" /></div>
 
       <div class="col1Wide"><div class="right">New Password (confirm)</div></div>
-      <div class="col2"><input type="password"  name="newPasswordConfirm" class="text"/></div>
+      <div class="col2"><input type="password" id="newPasswordConfirm" name="newPasswordConfirm" class="text"/></div>
 
+      <div class="col2"><note class="inline"><i><%=PasswordUtil.REQUIREMENTS_TEXT_HTML%></i></note></div>
 
-      <div class="buttonPanel"><input type="submit" class="submit" value="Submit" /></div>
+      <div class="buttonPanel"><input type="button" class="submit" value="Submit" onclick="validateAndSubmit();" /></div>
 
 <% if (showCampusInfoLink) { %>
-<div class="bottomPanel">
-If you have registered using your uNID (u00000000), your password is tied to the University Campus Information System. Please use the <a href='https://gate.acs.utah.edu/' class="other" target='_blank'>Campus Information System</a> to change or reset your password.
-</div>
+      <div class="bottomPanel">
+      If you have registered using your uNID (u0000000), your password is tied to the University Campus Information System. Please use the <a href='https://gate.acs.utah.edu/' class="other" target='_blank'>Campus Information System</a> to change or reset your password.
+      </div>
 <% }  %>
-
 
   </div>
 
-<div class="message"> <strong><%= message %></strong></div>
+  <div class="message"> <strong><%= message %></strong></div>
 
+  <input type="hidden" name="responsePageSuccess" value="/change_password_success.jsp<%=idCoreParm%>"/>
+  <input type="hidden" name="responsePageError" value="/change_password.jsp<%=idCoreParm%>"/>
+  <input type="hidden" name="idCoreParm" value="<%=idCoreParm%>"/>
+  <input type="hidden" name="guid" value="<%=guid%>"/>
+  <input type="hidden" name="action" value="<%=ChangePassword.ACTION_FINALIZE_PASSWORD_RESET%>"/>
+</form>
 </div>
-    <input type="hidden" name="responsePageSuccess" value="/change_password_success.jsp<%=idCoreParm%>"/>
-    <input type="hidden" name="responsePageError" value="/change_password.jsp<%=idCoreParm%>"/>
-    <input type="hidden" name="idCoreParm" value="<%=idCoreParm%>"/>
-    <input type="hidden" name="guid" value="<%=guid%>"/>
-    <input type="hidden" name="changingPassword" value="Y"/>
-    </form>
-
-
 </body>
 </html>

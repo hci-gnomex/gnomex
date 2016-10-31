@@ -5,6 +5,7 @@ import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.pdf.AcroFields;
 import com.itextpdf.text.pdf.PdfReader;
 import com.itextpdf.text.pdf.PdfStamper;
+import hci.gnomex.constants.Constants;
 import hci.gnomex.model.*;
 import org.apache.commons.io.FileUtils;
 import org.hibernate.Session;
@@ -64,7 +65,7 @@ public class RequisitionFormUtil {
     // Check to see if a requisition form is already in place for this request.
     String[] fileList = directory.list();
     if ( fileList != null && fileList.length > 0 ) {
-      String fileName = directoryName + File.separator + fileList[0];
+      String fileName = directoryName + Constants.FILE_SEPARATOR + fileList[0];
       return new File(fileName);
     }
 

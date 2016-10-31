@@ -42,7 +42,7 @@ public class SaveGenomeBuild extends GNomExCommand implements Serializable {
   
   public void validate() {
   }
-  
+
   public void loadCommand(HttpServletRequest request, HttpSession session) {
     
     gbScreen = new GenomeBuild();
@@ -152,7 +152,7 @@ public class SaveGenomeBuild extends GNomExCommand implements Serializable {
     
     try {
       Session sess = HibernateSession.currentSession(this.getUsername());
-      
+
       if (this.getSecurityAdvisor().hasPermission(SecurityAdvisor.CAN_SUBMIT_REQUESTS)) {
 
         
@@ -187,7 +187,7 @@ public class SaveGenomeBuild extends GNomExCommand implements Serializable {
                     found = true;
                     break;
                   }
-                }                   
+                }
               }
               if (!found) {
                 sess.delete(segment);
@@ -270,7 +270,6 @@ public class SaveGenomeBuild extends GNomExCommand implements Serializable {
       
     }catch (Exception e){
       LOG.error("An exception has occurred in SaveGenomeBuild ", e);
-
       throw new RollBackCommandException(e.getMessage());
     }
     
