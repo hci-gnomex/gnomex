@@ -1,6 +1,5 @@
 apply plugin: 'war'
 apply plugin: 'idea'
-apply plugin: 'java'
 apply plugin: 'maven'
 apply from: 'common.gradle'
 ant.importBuild 'flexBuild.xml'
@@ -130,7 +129,7 @@ jar {
         )
         attributes([
                 'Built-By': ant.properties['user.name'],
-                'Implementation-Version': "${gnomex_version}.${buildNum}    (${formattedDate})"
+                'Implementation-Version': "${gnomex_version}    (${formattedDate})"
         ],'gnomex')
     }
 }
@@ -196,7 +195,7 @@ task opensourceWar (type: War) {
     manifest {
         attributes (
                 'Built-By': ant.properties['user.name'],
-                'Implementation-Version': "${gnomex_version}.${buildNum}    (${formattedDate})"
+                'Implementation-Version': "${gnomex_version}    (${formattedDate})"
         )
     }
 
@@ -259,7 +258,7 @@ task opensourceSecureWar (type: War) {
     manifest {
         attributes (
                 'Built-By': ant.properties['user.name'],
-                'Implementation-Version': "${gnomex_version}.${buildNum}    (${formattedDate})"
+                'Implementation-Version': "${gnomex_version}    (${formattedDate})"
         )
     }
 
@@ -321,7 +320,7 @@ war {
     manifest {
         attributes (
                 'Built-By': ant.properties['user.name'],
-                'Implementation-Version': "${gnomex_version}.${buildNum}    (${formattedDate})"
+                'Implementation-Version': "${gnomex_version}    (${formattedDate})"
         )
     }
 
@@ -383,7 +382,7 @@ task gnomexLiteWar (type: War) {
     manifest {
         attributes (
                 'Built-By': ant.properties['user.name'],
-                'Implementation-Version': "${gnomex_version}.${buildNum}    (${formattedDate})"
+                'Implementation-Version': "${gnomex_version}    (${formattedDate})"
         )
     }
 
@@ -459,7 +458,7 @@ task gnomexLiteOpenSourceWar (type: War) {
     manifest {
         attributes (
                 'Built-By': ant.properties['user.name'],
-                'Implementation-Version': "${gnomex_version}.${buildNum}    (${formattedDate})"
+                'Implementation-Version': "${gnomex_version}   (${formattedDate})"
         )
     }
 
@@ -541,7 +540,7 @@ task gnomexLiteOpenSourceSecureWar (type: War) {
     manifest {
         attributes (
                 'Built-By': ant.properties['user.name'],
-                'Implementation-Version': "${gnomex_version}.${buildNum}    (${formattedDate})"
+                'Implementation-Version': "${gnomex_version}    (${formattedDate})"
         )
     }
 

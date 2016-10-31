@@ -1,6 +1,5 @@
 //version=5.36
 ext{
-    buildNum=0
     glAppName="gnomexlite"
     warName="${rootProject.name}.war"
     glWarName="${glAppName}.war"
@@ -13,13 +12,12 @@ ext{
     glSaveDirSecure="${glSaveDir}/secure"
     nowDate = new Date();
     formattedDate=nowDate.format('MMM-dd-yyyy HH:MM');
-    compilerDebug='on'
     javaManifest=System.getProperty('java.version') + ' (' + System.getProperty('java.vendor') + ')'
     srcDir="${baseDir}/src/main/java"
     rescDir="${baseDir}/src/main/resources"
     webrootDir="${baseDir}/src/main/webapp"
     sandboxDir="${buildDir}/sandbox"
-    gnomex_version=5.36
+    gnomex_version=5.37
     openSourceZipName="gnomex_tomcat_${gnomex_version}.zip"
     openSourceName="gnomex_${gnomex_version}"
     opensourceSecureWarName="${rootProject.name}_secure.war"

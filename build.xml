@@ -20,8 +20,8 @@
        	<mkdir dir="${build.dir}" />
        	<mkdir dir="${build.class.dir}" />		
        	<mkdir dir="${dist.dir}" />
-       	<mkdir dir="${glsave.dir}" />
-       	<mkdir dir="${glsave.dir}/secure" />
+       	<!--<mkdir dir="${glsave.dir}" />-->
+       	<!--<mkdir dir="${glsave.dir}/secure" />-->
 
 		<!-- Defined in gradle dependencies block
 	    <path id="project.class.path">
