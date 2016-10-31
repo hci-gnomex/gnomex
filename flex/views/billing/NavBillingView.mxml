@@ -1151,6 +1151,8 @@
 					break;
 				}
 			}
+			if (hideType = false)
+				break;
 		}
 		if (hideType)
 			cType.visible = false;
