@@ -3,10 +3,8 @@ package views.renderers
 import flash.events.Event;
 import flash.events.FocusEvent;
 import flash.events.MouseEvent;
-import flash.utils.getDefinitionByName;
 
 import hci.flex.controls.ComboBox;
-import hci.flex.controls.TextInput;
 import hci.flex.renderers.RendererFactory;
 
 import mx.collections.HierarchicalCollectionView;
@@ -17,27 +15,19 @@ import mx.controls.AdvancedDataGrid;
 import mx.controls.Button;
 import mx.controls.DataGrid;
 import mx.controls.TextInput;
-import mx.controls.dataGridClasses.DataGridColumn;
 import mx.controls.dataGridClasses.DataGridListData;
 import mx.controls.listClasses.BaseListData;
 import mx.controls.listClasses.IDropInListItemRenderer;
 import mx.core.IFactory;
 import mx.core.UIComponent;
-import mx.effects.easing.Back;
 import mx.events.ListEvent;
 import mx.managers.IFocusManagerComponent;
-
-import views.renderers.FilterComboBoxAnnotation;
-
-import views.util.DataGridAlternatingGroup;
-import views.util.FillButtonClickEvent;
-
 
 public class GridColumnFillButton extends HBox implements IDropInListItemRenderer, IFocusManagerComponent
 {
 
 	// Child controls
-	public var edtComponent:mx.core.UIComponent;
+	public var edtComponent:UIComponent;
 	public var fillColumnKey:String = '';
 
 	private var fillButton:Button;
@@ -53,9 +43,9 @@ public class GridColumnFillButton extends HBox implements IDropInListItemRendere
 	private var _listData:DataGridListData;
 
 
-	public static function create(edtComponent:mx.core.UIComponent,
+	public static function create(edtComponent:UIComponent,
 								  fillColumnKey:String):IFactory {
-		return RendererFactory.create(views.renderers.GridColumnFillButton, {edtComponent:edtComponent,
+		return RendererFactory.create(GridColumnFillButton, {edtComponent:edtComponent,
 			fillColumnKey: fillColumnKey});
 	}
 
@@ -80,9 +70,9 @@ public class GridColumnFillButton extends HBox implements IDropInListItemRendere
 			hci.flex.controls.ComboBox(edtComponent).value = value[_listData.dataField];
 			hci.flex.controls.ComboBox(edtComponent).data = value;
 		}
-		if(edtComponent is views.renderers.FilterComboBoxAnnotation) {
-			views.renderers.FilterComboBoxAnnotation(edtComponent).value = value[_listData.dataField];
-			views.renderers.FilterComboBoxAnnotation(edtComponent).data = value;
+		if(edtComponent is FilterComboBoxAnnotation) {
+			FilterComboBoxAnnotation(edtComponent).value = value[_listData.dataField];
+			FilterComboBoxAnnotation(edtComponent).data = value;
 		}
 		if(edtComponent is mx.controls.TextInput) {
 			mx.controls.TextInput(edtComponent).text = value[_listData.dataField];
@@ -114,7 +104,7 @@ public class GridColumnFillButton extends HBox implements IDropInListItemRendere
 			edtComponent.addEventListener(ListEvent.CHANGE, edtComboChanged);
 			//hci.flex.controls.ComboBox(edtComponent).editable = true;
 		}
-		if(edtComponent is views.renderers.FilterComboBoxAnnotation) {
+		if(edtComponent is FilterComboBoxAnnotation) {
 			edtComponent.addEventListener(ListEvent.CHANGE, edtComboChanged);
 		}
 		if(edtComponent is mx.controls.TextInput) {
@@ -187,20 +177,20 @@ public class GridColumnFillButton extends HBox implements IDropInListItemRendere
 			var thisField:String = _listData.dataField.substr(1);
 			var thisValue:String = "";
 			var idSeqRunType:String = "";
-			var idNumberSequencingCycles:String = "";
+			var idNumberSequencingCycles = "";
 			if(edtComponent is hci.flex.controls.ComboBox) {
 				thisValue = String(hci.flex.controls.ComboBox(edtComponent).value);
 			}
-			if(edtComponent is views.renderers.FilterComboBoxAnnotation) {
-				thisValue = String(views.renderers.FilterComboBoxAnnotation(edtComponent).value);
+			if(edtComponent is FilterComboBoxAnnotation) {
+				thisValue = String(FilterComboBoxAnnotation(edtComponent).value);
 			}
 			if(edtComponent is mx.controls.TextInput) {
 				thisValue = mx.controls.TextInput(edtComponent).text;
 			}
 			// We need the idSeqRunType and numbersequencingcycles to be updated as well or else there is a problem with multiplex grouping
-			if(edtComponent is views.renderers.ComboBoxNumberSequencingCyclesAllowed){
-				idSeqRunType = views.renderers.ComboBoxNumberSequencingCyclesAllowed(edtComponent).data.@idSeqRunType;
-				idNumberSequencingCycles = views.renderers.ComboBoxNumberSequencingCyclesAllowed(edtComponent).data.@idNumberSequencingCycles;
+			if(edtComponent is ComboBoxNumberSequencingCyclesAllowed){
+				idSeqRunType = ComboBoxNumberSequencingCyclesAllowed(edtComponent).data.@idSeqRunType;
+				idNumberSequencingCycles = ComboBoxNumberSequencingCyclesAllowed(edtComponent).data.@idNumberSequencingCycles;
 			}
 
 			if(dataProvider is XMLListCollection) {
@@ -250,8 +240,8 @@ public class GridColumnFillButton extends HBox implements IDropInListItemRendere
 		if(edtComponent is hci.flex.controls.ComboBox) {
 			value = hci.flex.controls.ComboBox(edtComponent).value;
 		}
-		if(edtComponent is views.renderers.FilterComboBoxAnnotation) {
-			value = views.renderers.FilterComboBoxAnnotation(edtComponent).value;
+		if(edtComponent is FilterComboBoxAnnotation) {
+			value = FilterComboBoxAnnotation(edtComponent).value;
 		}
 		if(edtComponent is mx.controls.TextInput) {
 			value = mx.controls.TextInput(edtComponent).text;
