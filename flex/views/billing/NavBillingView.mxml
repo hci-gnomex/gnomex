@@ -1151,7 +1151,7 @@
 					break;
 				}
 			}
-			if (hideType = false)
+			if (hideType == false)
 				break;
 		}
 		if (hideType)
