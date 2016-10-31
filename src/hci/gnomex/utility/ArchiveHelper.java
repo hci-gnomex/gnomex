@@ -69,7 +69,7 @@ public class ArchiveHelper {
   
   public String getGzipTempFileName(String zipEntryName) {
     String name = zipEntryName;
-    name = name.replaceAll("/", "_");
+    name = name.replaceAll(Constants.FILE_SEPARATOR, "_");
     return tempDir + "temp_" + name + ".gz";
   }
     

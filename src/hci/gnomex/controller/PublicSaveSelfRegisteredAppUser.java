@@ -452,12 +452,12 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
     String uuidStr = appUser.getGuid();
     String approveURL = "";
     if(existingLab){
-      approveURL = url + "/" + Constants.APPROVE_USER_SERVLET + "?guid=" + uuidStr + "&idAppUser=" + appUser.getIdAppUser().intValue() + "&requestedLabId=" + this.requestedLabId;
+      approveURL = url + Constants.FILE_SEPARATOR + Constants.APPROVE_USER_SERVLET + "?guid=" + uuidStr + "&idAppUser=" + appUser.getIdAppUser().intValue() + "&requestedLabId=" + this.requestedLabId;
     } else{
-      approveURL = url + "/" + Constants.APPROVE_USER_SERVLET + "?guid=" + uuidStr + "&idAppUser=" + appUser.getIdAppUser().intValue() + "&requestedLabName=" + this.requestedLabName + "&department=" + department + "&contactEmail=" + contactEmail + "&contactPhone=" + contactPhone + "&requestedLabFirstName=" + requestedLabFirstName ;
+      approveURL = url + Constants.FILE_SEPARATOR + Constants.APPROVE_USER_SERVLET + "?guid=" + uuidStr + "&idAppUser=" + appUser.getIdAppUser().intValue() + "&requestedLabName=" + this.requestedLabName + "&department=" + department + "&contactEmail=" + contactEmail + "&contactPhone=" + contactPhone + "&requestedLabFirstName=" + requestedLabFirstName ;
     }
 
-    String deleteURL = url + "/" + Constants.APPROVE_USER_SERVLET + "?guid=" + uuidStr + "&idAppUser=" + appUser.getIdAppUser().intValue() + "&deleteUser=Y";
+    String deleteURL = url + Constants.FILE_SEPARATOR + Constants.APPROVE_USER_SERVLET + "?guid=" + uuidStr + "&idAppUser=" + appUser.getIdAppUser().intValue() + "&deleteUser=Y";
     // url = url + Constants.LAUNCH_APP_JSP + "?idAppUser=" + appUser.getIdAppUser().intValue() + "&launchWindow=UserDetail&idCore=" + facility.getIdCoreFacility().toString();
     StringBuffer introForAdmin = new StringBuffer();
 

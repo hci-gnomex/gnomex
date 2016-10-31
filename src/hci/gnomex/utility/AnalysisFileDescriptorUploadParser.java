@@ -10,6 +10,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import hci.gnomex.constants.Constants;
 import org.jdom.Document;
 import org.jdom.Element;
 
@@ -62,7 +63,7 @@ public class AnalysisFileDescriptorUploadParser extends DetailObject implements 
         }
 
         // Create the folderNode's folder if needed
-        String qualifiedDir = parentDir != null ? parentDir + "/" + directoryName : directoryName;
+        String qualifiedDir = parentDir != null ? parentDir + Constants.FILE_SEPARATOR + directoryName : directoryName;
 
         if (folderNode.getAttributeValue("isNew") != null && folderNode.getAttributeValue("isNew").equals("Y")) {
             newDirectoryNames.add(qualifiedDir);
@@ -76,8 +77,8 @@ public class AnalysisFileDescriptorUploadParser extends DetailObject implements 
             if (fileName == null) {
                 continue;
             }
-            fileName = fileName.replace("\\", "/");
-            String newFileName = fileName.replace(fileName.substring(fileName.lastIndexOf("/") + 1), displayName);
+            fileName = fileName.replace("\\", Constants.FILE_SEPARATOR);
+            String newFileName = fileName.replace(fileName.substring(fileName.lastIndexOf(Constants.FILE_SEPARATOR) + 1), displayName);
             String fileIdString = childFileNode.getAttributeValue("idAnalysisFileString");
             String qualifiedFilePath = childFileNode.getAttributeValue("qualifiedFilePath");
             String[] contents = {newFileName, fileIdString, qualifiedFilePath, displayName};
@@ -98,7 +99,7 @@ public class AnalysisFileDescriptorUploadParser extends DetailObject implements 
 
             String childFileName = childFileNode.getAttributeValue("fileName");
             if (childFileName.equals("")) {
-                newDirectoryNames.add(qualifiedDir + "/" + childFileNode.getAttributeValue("displayName"));
+                newDirectoryNames.add(qualifiedDir + Constants.FILE_SEPARATOR + childFileNode.getAttributeValue("displayName"));
                 continue;
             }
 
@@ -133,10 +134,10 @@ public class AnalysisFileDescriptorUploadParser extends DetailObject implements 
     private void renameDirectoryChildren(Element childFileNode, String newName) {
         for (Element e : (List<Element>) childFileNode.getChildren()) {
             String displayName = e.getAttributeValue("displayName");
-            String fileName = e.getAttributeValue("fileName").replace("\\", "/");
-            String newFileName = newName + "/" + displayName;
+            String fileName = e.getAttributeValue("fileName").replace("\\", Constants.FILE_SEPARATOR);
+            String newFileName = newName + Constants.FILE_SEPARATOR + displayName;
             String fileIdString = e.getAttributeValue("idAnalysisFileString");
-            String qualifiedFilePath = newName.substring(newName.lastIndexOf("/") + 1);
+            String qualifiedFilePath = newName.substring(newName.lastIndexOf(Constants.FILE_SEPARATOR) + 1);
             String[] contents = {newFileName, fileIdString, qualifiedFilePath, displayName};
 
             childrenToMoveMap.put(fileName, contents);

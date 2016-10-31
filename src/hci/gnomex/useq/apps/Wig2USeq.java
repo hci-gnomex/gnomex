@@ -93,7 +93,7 @@ public class Wig2USeq {
 			ai.setDataType(ArchiveInfo.DATA_TYPE_VALUE_GRAPH);
 			ai.setInitialGraphStyle(Text2USeq.GRAPH_STYLES[graphStyle]);
 			//set text file source
-			ai.setOriginatingDataSource(workingWigFile.toString());
+			ai.setOriginatingDataSource(workingWigFile.toString().replace("\\", "/"));
 			//set color
 			if (color != null) ai.setInitialColor(color);
 			//set description?

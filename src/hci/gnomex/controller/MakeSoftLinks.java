@@ -132,7 +132,7 @@ public class MakeSoftLinks extends GNomExCommand implements Serializable {
 			String linkPath = softLinkPath + Constants.FILE_SEPARATOR;
 
 			String zipFileName = fd.getZipEntryName();
-			String[] pieces = zipFileName.split("/");
+			String[] pieces = zipFileName.split(Constants.FILE_SEPARATOR);
 
 			// make any directories we need
 			int lpieces = pieces.length;

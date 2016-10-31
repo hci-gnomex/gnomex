@@ -360,10 +360,7 @@ public Command execute() throws RollBackCommandException {
 
 						}
 					} else {
-						if (oldFileToDelete != null)
-							LOG.warn("Unable to delete " + oldFileToDelete.getAbsolutePath().replace("\\", Constants.FILE_SEPARATOR) + ": directory is not empty");
-						else
-							LOG.warn("Unable to delete : directory is not empty");
+						LOG.warn("Unable to delete " + oldFileToDelete.getAbsolutePath().replace("\\", Constants.FILE_SEPARATOR) + ": directory is not empty");
 					}
 
 				}

@@ -2986,7 +2986,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 	private void createResultDirectories(Request req, String qcDirectory, String microarrayDir) {
 
 		String createYear = this.formatDate(req.getCreateDate(), this.DATE_OUTPUT_ALTIO).substring(0, 4);
-		String rootDir = microarrayDir + "/" + createYear;
+		String rootDir = microarrayDir + Constants.FILE_SEPARATOR + createYear;
 
 		boolean success = false;
 		if (!new File(rootDir).exists()) {
@@ -2997,7 +2997,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 		}
 
 		String baseRequestNumber = Request.getBaseRequestNumber(req.getNumber());
-		String directoryName = rootDir + "/" + baseRequestNumber;
+		String directoryName = rootDir + Constants.FILE_SEPARATOR + baseRequestNumber;
 
 		if (!new File(directoryName).exists()) {
 			success = (new File(directoryName)).mkdir();
@@ -3018,7 +3018,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 		if (req.getHybridizations() != null) {
 			for (Iterator i = req.getHybridizations().iterator(); i.hasNext();) {
 				Hybridization hyb = (Hybridization) i.next();
-				String hybDirectoryName = directoryName + "/" + hyb.getNumber();
+				String hybDirectoryName = directoryName + Constants.FILE_SEPARATOR + hyb.getNumber();
 				if (!new File(hybDirectoryName).exists()) {
 					success = (new File(hybDirectoryName)).mkdir();
 					if (!success) {
@@ -3064,7 +3064,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 		for (String file : f.list()) {
 			File child = new File(fileName + Constants.FILE_SEPARATOR + file);
 			if (child.isDirectory()) {
-				deleteDir(child, child.getCanonicalPath());
+				deleteDir(child, child.getCanonicalPath().replace("\\", Constants.FILE_SEPARATOR));
 			} else if (!(new File(fileName + Constants.FILE_SEPARATOR + file).delete())) {
 				throw new Exception("Unable to delete file " + fileName + Constants.FILE_SEPARATOR + file);
 			} else {
@@ -3074,7 +3074,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 		}
 		if (f.list().length == 0) {
 			if (!f.delete()) {
-				throw new Exception("Unable to delete file " + f.getCanonicalPath());
+				throw new Exception("Unable to delete file " + f.getCanonicalPath().replace("\\", Constants.FILE_SEPARATOR));
 			}
 			return;
 		}

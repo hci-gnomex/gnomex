@@ -162,7 +162,7 @@ public class MailUtil {
 			return;
 		}
 		for (int x = 0; x < fileList.length; x++) {
-			String fileName = file.getCanonicalPath() + Constants.FILE_SEPARATOR + fileList[x];
+			String fileName = file.getCanonicalPath().replace("\\", Constants.FILE_SEPARATOR) + Constants.FILE_SEPARATOR + fileList[x];
 			File f1 = new File(fileName);
 			recurseAddAttachment( multipart, f1 );
 		}
@@ -173,7 +173,7 @@ public class MailUtil {
 			return;
 		}
 		BodyPart messageBodyPart = new MimeBodyPart();
-        DataSource source = new FileDataSource(file.getCanonicalPath());
+        DataSource source = new FileDataSource(file.getCanonicalPath().replace("\\", Constants.FILE_SEPARATOR));
         messageBodyPart.setDataHandler(new DataHandler(source));
         messageBodyPart.setFileName(file.getName());
         multipart.addBodyPart(messageBodyPart);

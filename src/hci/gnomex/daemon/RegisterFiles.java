@@ -878,10 +878,10 @@ private String recurseDirectoriesForFile(String fileToLookFor, BigDecimal sizeOf
 			if (f1.isFile() && f1.getName().equals(fileToLookFor)
 					&& (BigDecimal.valueOf(f1.length()).equals(sizeOfFile))) {
 				// we found the file so return its new path
-				printDebugStatement("WE FOUND THE FILE::::::::: " + f1.getAbsolutePath());
-				return f1.getAbsolutePath();
+				printDebugStatement("WE FOUND THE FILE::::::::: " + f1.getAbsolutePath().replace("\\", "/"));
+				return f1.getAbsolutePath().replace("\\", "/");
 			} else if (f1.isDirectory()) {
-				dirs.add(f1.getAbsolutePath());
+				dirs.add(f1.getAbsolutePath().replace("\\", "/"));
 			}
 		}
 	}

@@ -279,7 +279,7 @@ public class ShowAnalysisDownloadForm extends GNomExCommand implements Serializa
 		//
 		//
 		// Element downloadLink = new Element("A");
-		// downloadLink.setAttribute("href", baseURL + "/" + Constants.DOWNLOAD_ANALYSIS_SINGLE_FILE_SERVLET + "?idAnalysis=" + analysis.getIdAnalysis() +
+		// downloadLink.setAttribute("href", baseURL + Constants.FILE_SEPARATOR + Constants.DOWNLOAD_ANALYSIS_SINGLE_FILE_SERVLET + "?idAnalysis=" + analysis.getIdAnalysis() +
 		// "&fileName=" + fd.getDisplayName());
 		// downloadLink.addContent(fd.getDisplayName());
 		//
@@ -345,7 +345,7 @@ public class ShowAnalysisDownloadForm extends GNomExCommand implements Serializa
 						String dirParm = fd.getQualifiedFilePath() != null && !fd.getQualifiedFilePath().equals("") ? "&dir=" + fd.getQualifiedFilePath() : "";
 
 						Element downloadLink = new Element("A");
-						downloadLink.setAttribute("href", baseURL + "/" + Constants.DOWNLOAD_ANALYSIS_SINGLE_FILE_SERVLET + "?idAnalysis=" + idAnalysis
+						downloadLink.setAttribute("href", baseURL + Constants.FILE_SEPARATOR + Constants.DOWNLOAD_ANALYSIS_SINGLE_FILE_SERVLET + "?idAnalysis=" + idAnalysis
 								+ "&fileName=" + fd.getDisplayName() + dirParm);
 						downloadLink.addContent(fd.getDisplayName());
 
@@ -375,7 +375,7 @@ public class ShowAnalysisDownloadForm extends GNomExCommand implements Serializa
 
 			Element downloadLink = new Element("A");
 			downloadLink.setAttribute("href",
-					baseURL + "/" + Constants.DOWNLOAD_ANALYSIS_SINGLE_FILE_SERVLET + "?idAnalysis=" + idAnalysis + "&fileName=" + fd.getDisplayName()
+					baseURL + Constants.FILE_SEPARATOR + Constants.DOWNLOAD_ANALYSIS_SINGLE_FILE_SERVLET + "?idAnalysis=" + idAnalysis + "&fileName=" + fd.getDisplayName()
 							+ emailParm + dirParm);
 			downloadLink.addContent(fd.getDisplayName());
 

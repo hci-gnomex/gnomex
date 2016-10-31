@@ -53,7 +53,7 @@ private static boolean GNomExLite;
  */
 public void init(ServletConfig config) throws ServletException {
 	super.init(config);
-	webContextPath = config.getServletContext().getRealPath("/");
+	webContextPath = config.getServletContext().getRealPath(Constants.FILE_SEPARATOR);
 
 	// are we really GNomExLite?
 	GNomExLite = areWeLite();
@@ -140,7 +140,7 @@ public void doPost(HttpServletRequest request, HttpServletResponse response) thr
 
 	// get our request from the url (prefixing .test)
 	String fullURI = request.getRequestURI();
-	String requestName = fullURI.substring((fullURI.lastIndexOf('/') + 1), fullURI.lastIndexOf('.'));
+	String requestName = fullURI.substring((fullURI.lastIndexOf(Constants.FILE_SEPARATOR_CHAR) + 1), fullURI.lastIndexOf('.'));
 
 	// restrict commands to local host if request is not secure
 	if (!ServletUtil.checkSecureRequest(request, LOG)) {

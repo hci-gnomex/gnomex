@@ -1,5 +1,7 @@
 package hci.gnomex.utility;
 
+import hci.gnomex.constants.Constants;
+
 import java.io.BufferedReader;
 import java.io.Closeable;
 import java.io.File;
@@ -166,7 +168,7 @@ public class USeqUtilities {
 			int num = fileNames.length;
 			ArrayList<File> al = new ArrayList<File>();
 			try{
-				String path = directory.getCanonicalPath();
+				String path = directory.getCanonicalPath().replace("\\", Constants.FILE_SEPARATOR);
 				Pattern pat = Pattern.compile("^\\w+.*");
 				Matcher mat; 
 				for (int i=0; i< num; i++)  {
@@ -422,11 +424,11 @@ public class USeqUtilities {
 		}
 	}
 	
-	/**Gets full path text using getCanonicalPath() on a File*/
+	/**Gets full path text using getCanonicalPath().replace("\\", Constants.FILE_SEPARATOR) on a File*/
 	public static String getFullPathName(File fileDirectory){
 		String full = null;
 		try {
-			full = fileDirectory.getCanonicalPath();
+			full = fileDirectory.getCanonicalPath().replace("\\", Constants.FILE_SEPARATOR);
 		}catch (IOException e){
 			System.out.println("Problem with getFullPathtName(), "+fileDirectory);
 

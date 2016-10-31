@@ -336,7 +336,7 @@ public class SCPClient
 			os.write(0x0);
 			os.flush();
 
-			File f = new File(target + Constants.FILE_SEPARATOR_CHAR+ lnp.filename);
+			File f = new File(target + File.separatorChar + lnp.filename);
 			FileOutputStream fop = null;
 
 			try

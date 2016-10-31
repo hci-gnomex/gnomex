@@ -5,6 +5,7 @@ import hci.dictionary.model.NullDictionaryEntry;
 import hci.dictionary.utility.DictionaryManager;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
+import hci.gnomex.constants.Constants;
 import hci.gnomex.model.FlowCell;
 import hci.gnomex.model.FlowCellChannel;
 import hci.gnomex.model.NumberSequencingCyclesAllowed;
@@ -338,7 +339,7 @@ public class SaveWorkItemSolexaAssemble extends GNomExCommand implements Seriali
               for(Iterator i = idOrganisms.keySet().iterator(); i.hasNext();) {
                 notes += dh.getOrganism((Integer)i.next());
                 if (i.hasNext()) {
-                  notes += "/";
+                  notes += Constants.FILE_SEPARATOR;
                 }
               }           
               notes += ")";
@@ -406,7 +407,7 @@ public class SaveWorkItemSolexaAssemble extends GNomExCommand implements Seriali
 
     
     String createYear = this.formatDate(flowCell.getCreateDate(), this.DATE_OUTPUT_ALTIO).substring(0,4);
-    String rootDir = flowCellDir + "/" + createYear;
+    String rootDir = flowCellDir + Constants.FILE_SEPARATOR + createYear;
     
     boolean success = false;
     if (!new File(rootDir).exists()) {
@@ -416,7 +417,7 @@ public class SaveWorkItemSolexaAssemble extends GNomExCommand implements Seriali
       }      
     }
     
-    String directoryName = rootDir +  "/" + flowCell.getNumber();
+    String directoryName = rootDir +  Constants.FILE_SEPARATOR + flowCell.getNumber();
     
     success = (new File(directoryName)).mkdir();
     if (!success) {

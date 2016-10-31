@@ -211,15 +211,15 @@ public class FastDataTransferDownloadExpServlet extends HttpServlet {
 
             // Get file/location of file to create symbolic link to
             String zipEntryName = fd.getZipEntryName();
-            int indxFileName = zipEntryName.lastIndexOf("/");
+            int indxFileName = zipEntryName.lastIndexOf(Constants.FILE_SEPARATOR);
             int indxDirPath = zipEntryName.indexOf(requestNumberBase);
 
 
             // Get fileName to use for the name of the softlink
-            String fileName = softlinks_dir+"/"+zipEntryName.substring((indxDirPath > 0 ? indxDirPath-1 : 0));	
+            String fileName = softlinks_dir+Constants.FILE_SEPARATOR+zipEntryName.substring((indxDirPath > 0 ? indxDirPath-1 : 0));
             
             // Make intermediate directories if necessary
-            String dirsName = softlinks_dir+"/"+zipEntryName.substring((indxDirPath > 0 ? indxDirPath-1 : 0), indxFileName);
+            String dirsName = softlinks_dir+Constants.FILE_SEPARATOR+zipEntryName.substring((indxDirPath > 0 ? indxDirPath-1 : 0), indxFileName);
             File dir = new File(dirsName);
             if(!dir.exists()) {
               boolean isDirCreated = dir.mkdirs();  

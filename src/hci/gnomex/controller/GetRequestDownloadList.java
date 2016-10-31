@@ -605,7 +605,7 @@ private static String getLinkedSampleNumber(Session sess, String fileName) {
 
 	String queryString = "Select ef from ExperimentFile ef WHERE ef.fileName = :fileName";
 	Query query = sess.createQuery(queryString);
-	query.setParameter("fileName", fileName.replace("\\", "/"));
+	query.setParameter("fileName", fileName.replace("\\", Constants.FILE_SEPARATOR));
 	List expFile = query.list();
 	if (expFile.size() > 0) {
 		ExperimentFile ef = (ExperimentFile) expFile.get(0);
@@ -708,8 +708,8 @@ private void addRootFileNodes(String baseDir, Element requestNode, String reques
 
 private String getPathForZipFileName(File f, String requestNumber) {
 	StringBuffer fname = new StringBuffer();
-	fname.append(f.getAbsolutePath()
-			.substring(f.getAbsolutePath().indexOf(Request.getBaseRequestNumber(requestNumber))).replace("\\", "/"));
+	fname.append(f.getAbsolutePath().replace("\\", Constants.FILE_SEPARATOR)
+			.substring(f.getAbsolutePath().replace("\\", Constants.FILE_SEPARATOR).indexOf(Request.getBaseRequestNumber(requestNumber))).replace("\\", Constants.FILE_SEPARATOR));
 	// fname.append(f.getName());
 	return fname.toString();
 }
@@ -717,7 +717,7 @@ private String getPathForZipFileName(File f, String requestNumber) {
 private void recurseAddFiles(Element fdNode, File f1, String requestNumber, String directoryName, Session sess)
 		throws Exception {
 	String files[] = f1.list();
-	String fullPath = f1.getAbsolutePath() + Constants.FILE_SEPARATOR;
+	String fullPath = f1.getAbsolutePath().replace("\\", Constants.FILE_SEPARATOR) + Constants.FILE_SEPARATOR;
 
 	// don't include empty directories
 	if (f1.list() == null || f1.list().length == 0) {
@@ -731,7 +731,7 @@ private void recurseAddFiles(Element fdNode, File f1, String requestNumber, Stri
 
 	if (f1.isDirectory()) {
 		if (!directoryName.equals("")) {
-			directoryName += "/" + f1.getName();
+			directoryName += Constants.FILE_SEPARATOR + f1.getName();
 		} else {
 			directoryName = f1.getName();
 		}

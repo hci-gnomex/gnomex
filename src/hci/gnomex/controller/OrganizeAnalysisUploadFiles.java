@@ -144,14 +144,14 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
                                 if (!idFileString.startsWith("AnalysisFile") && !idFileString.equals("")) {
                                     af = (AnalysisFile) sess.load(AnalysisFile.class, new Integer(idFileString));
                                     af.setFileName(displayName);
-                                    af.setBaseFilePath(f2.getCanonicalPath());
+                                    af.setBaseFilePath(f2.getCanonicalPath().replace("\\", Constants.FILE_SEPARATOR));
                                     af.setQualifiedFilePath(qualifiedFilePath);
                                     sess.save(af);
                                     sess.flush();
                                 } else if (idFileString.startsWith("AnalysisFile") && !f2.exists()) {
                                     af = new AnalysisFile();
                                     af.setFileName(displayName);
-                                    af.setBaseFilePath(f2.getCanonicalPath());
+                                    af.setBaseFilePath(f2.getCanonicalPath().replace("\\", Constants.FILE_SEPARATOR));
                                     af.setQualifiedFilePath(qualifiedFilePath);
                                     sess.save(af);
                                     sess.flush();
@@ -166,7 +166,7 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
                                         af.setFileName(afParts[3]);
                                         af.setBaseFilePath(afParts[0]);
 
-                                        String[] filePath = afParts[0].replace("\\", "/").split("/");
+                                        String[] filePath = afParts[0].replace("\\", Constants.FILE_SEPARATOR).split(Constants.FILE_SEPARATOR);
                                         af.setQualifiedFilePath(filePath[filePath.length - 2]);
 
                                         sess.save(af);
@@ -186,7 +186,7 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
                         String directoryName = (String) i.next();
 
                         // Get the qualifiedFilePath (need to remove the analysis number folder from directory name)
-                        String[] pathTokens = directoryName.split("/");
+                        String[] pathTokens = directoryName.split(Constants.FILE_SEPARATOR);
                         String qualifiedFilePath = "";
                         if (pathTokens.length > 1) {
                             qualifiedFilePath = pathTokens[1];
@@ -205,8 +205,8 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
                                 continue;
                             }
 
-                            fileName = fileName.replace("\\", "/");
-                            int lastIndex = fileName.lastIndexOf("/");
+                            fileName = fileName.replace("\\", Constants.FILE_SEPARATOR);
+                            int lastIndex = fileName.lastIndexOf(Constants.FILE_SEPARATOR);
 
                             String baseFileName = fileName;
                             if (lastIndex != -1) {
@@ -269,21 +269,21 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
                             sess.flush();
 
                             sourceFile = sourceFile.getCanonicalFile();
-                            String targetDirName = baseDir + "/" + analysis.getNumber() + "/" + qualifiedFilePath;
+                            String targetDirName = baseDir + Constants.FILE_SEPARATOR + analysis.getNumber() + Constants.FILE_SEPARATOR + qualifiedFilePath;
                             File targetDir = new File(targetDirName);
                             targetDir = targetDir.getCanonicalFile();
 
                             if (!targetDir.exists()) {
                                 boolean success = targetDir.mkdirs();
                                 if (!success) {
-                                    throw new Exception("Unable to create directory " + targetDir.getCanonicalPath());
+                                    throw new Exception("Unable to create directory " + targetDir.getCanonicalPath().replace("\\", Constants.FILE_SEPARATOR));
                                 }
                             }
 
                             // Don't try to move if the file is in the same directory
-                            String td = targetDir.getAbsolutePath().replace("\\", "/");
-                            String sd = sourceFile.getAbsolutePath().replace("\\", "/");
-                            sd = sd.substring(0, sd.lastIndexOf("/"));
+                            String td = targetDir.getAbsolutePath().replace("\\", Constants.FILE_SEPARATOR);
+                            String sd = sourceFile.getAbsolutePath().replace("\\", Constants.FILE_SEPARATOR);
+                            sd = sd.substring(0, sd.lastIndexOf(Constants.FILE_SEPARATOR));
 
                             if (td.equals(sd)) {
                                 continue;
@@ -304,7 +304,7 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
                                         if (!sourceFile.delete()) {
                                             if (sourceFile.isDirectory()) {
                                                 // If can't delete directory then try again after everything has been moved
-                                                tryLater.add(sourceFile.getAbsolutePath());
+                                                tryLater.add(sourceFile.getAbsolutePath().replace("\\", Constants.FILE_SEPARATOR));
                                             } else {
                                                 throw new Exception("Unable to move file " + fileName + " to "
                                                         + targetDirName);
@@ -417,7 +417,7 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
                     sess.flush();
 
                     // get rid of empty upload_staging directory
-                    deleteEmptyUploadStagingDirs(baseDir + "/" + analysis.getNumber() + "/" + Constants.UPLOAD_STAGING_DIR);
+                    deleteEmptyUploadStagingDirs(baseDir + Constants.FILE_SEPARATOR + analysis.getNumber() + Constants.FILE_SEPARATOR + Constants.UPLOAD_STAGING_DIR);
 
                     XMLOutputter out = new org.jdom.output.XMLOutputter();
                     this.xmlResult = "<SUCCESS/>";
@@ -451,7 +451,7 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
 
     private Boolean deleteDir(File childFile) throws IOException {
         for (String f : childFile.list()) {
-            File delFile = new File(childFile.getCanonicalPath() + "/" + f);
+            File delFile = new File(childFile.getCanonicalPath().replace("\\", Constants.FILE_SEPARATOR) + Constants.FILE_SEPARATOR + f);
             if (delFile.isDirectory()) {
                 deleteDir(delFile);
                 if (!delFile.delete()) {
@@ -475,9 +475,9 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
                 f.delete();
             } else {
                 for (int i = 0; i < files.length; i++) {
-                    File fChild = new File(f.getAbsolutePath() + "/" + files[i]);
+                    File fChild = new File(f.getAbsolutePath().replace("\\", Constants.FILE_SEPARATOR) + Constants.FILE_SEPARATOR + files[i]);
                     if (fChild.isDirectory()) {
-                        deleteEmptyUploadStagingDirs(fChild.getAbsolutePath());
+                        deleteEmptyUploadStagingDirs(fChild.getAbsolutePath().replace("\\", Constants.FILE_SEPARATOR));
                     }
                 }
                 // if after going through the list the file list is now empty then delete the file

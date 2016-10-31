@@ -1,5 +1,6 @@
 package hci.gnomex.controller;
 
+import hci.gnomex.constants.Constants;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.PropertyDictionaryHelper;
@@ -54,7 +55,7 @@ protected void doGet(HttpServletRequest req, HttpServletResponse res) throws Ser
 		}
 
 		String baseURL = "http" + "://" + req.getServerName() + portNumber + req.getContextPath();
-		String URL = baseURL + "/" + "ReportIssueServlet.gx";
+		String URL = baseURL + Constants.FILE_SEPARATOR + "ReportIssueServlet.gx";
 		// Encode session id in URL so that session maintains for upload servlet when called from
 		// Flex upload component inside FireFox, Safari
 		URL += ";jsessionid=" + req.getRequestedSessionId();

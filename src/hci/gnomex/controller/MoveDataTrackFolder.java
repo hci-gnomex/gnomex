@@ -2,6 +2,7 @@ package hci.gnomex.controller;
 
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
+import hci.gnomex.constants.Constants;
 import hci.gnomex.model.DataTrack;
 import hci.gnomex.model.DataTrackFolder;
 import hci.gnomex.model.GenomeBuild;
@@ -117,7 +118,7 @@ public class MoveDataTrackFolder extends GNomExCommand implements Serializable {
               DataTrackFolder parentFolder = (DataTrackFolder)i1.next(); 
               String path = parentFolder.getQualifiedTypeName();
               if (path.length() > 0) {
-                path += "/";
+                path += Constants.FILE_SEPARATOR;
               }
               String typeName = path + dt.getName();
 

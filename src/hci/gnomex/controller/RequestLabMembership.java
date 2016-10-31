@@ -126,9 +126,9 @@ public class RequestLabMembership extends GNomExCommand implements Serializable 
 
 		// Get approve and delete URLs
 		String uuidStr = appUser.getGuid();
-		String approveURL = url + "/" + Constants.APPROVE_LAB_MEMBERSHIP_SERVLET + "?idAppUser=" + appUser.getIdAppUser().intValue() + "&idLab="
+		String approveURL = url + Constants.FILE_SEPARATOR + Constants.APPROVE_LAB_MEMBERSHIP_SERVLET + "?idAppUser=" + appUser.getIdAppUser().intValue() + "&idLab="
 				+ requestedLab.getIdLab() + "&guid=" + uuidStr;
-		String deleteURL = url + "/" + Constants.APPROVE_LAB_MEMBERSHIP_SERVLET + "?idAppUser=" + appUser.getIdAppUser().intValue() + "&denyRequest=Y"
+		String deleteURL = url + Constants.FILE_SEPARATOR + Constants.APPROVE_LAB_MEMBERSHIP_SERVLET + "?idAppUser=" + appUser.getIdAppUser().intValue() + "&denyRequest=Y"
 				+ "&guid=" + uuidStr + "&idLab=" + requestedLab.getIdLab();
 		StringBuffer introForAdmin = new StringBuffer();
 

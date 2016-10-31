@@ -363,11 +363,11 @@ public static String getAnalysisDirectory(String baseDir, Analysis analysis) {
 	SimpleDateFormat formatter = new SimpleDateFormat("yyyy");
 	String createYear = formatter.format(analysis.getCreateDate());
 
-	if (!baseDir.endsWith("/") && !baseDir.endsWith("\\")) {
-		baseDir += "/";
+	if (!baseDir.endsWith(Constants.FILE_SEPARATOR) && !baseDir.endsWith("\\")) {
+		baseDir += Constants.FILE_SEPARATOR;
 	}
 
-	String directoryName = baseDir + createYear + "/" + analysis.getNumber();
+	String directoryName = baseDir + createYear + Constants.FILE_SEPARATOR + analysis.getNumber();
 	return directoryName;
 }
 
@@ -380,8 +380,8 @@ public static void addExpandedFileNodes(boolean autocreate, String baseDir, Elem
 	Map analysisMap = new TreeMap();
 	Map directoryMap = new TreeMap();
 
-	if (!baseDir.endsWith("/") && !baseDir.endsWith("\\")) {
-		baseDir += "/";
+	if (!baseDir.endsWith(Constants.FILE_SEPARATOR) && !baseDir.endsWith("\\")) {
+		baseDir += Constants.FILE_SEPARATOR;
 	}
 
 	List analysisNumbers = new ArrayList<String>();
@@ -396,7 +396,7 @@ public static void addExpandedFileNodes(boolean autocreate, String baseDir, Elem
 		String[] dirTokens = directoryKey.split("-");
 		String directoryName = dirTokens[1];
 		if (dirTokens.length > 2) {
-			directoryName += "/" + dirTokens[2];
+			directoryName += Constants.FILE_SEPARATOR + dirTokens[2];
 		}
 
 		List theFiles = (List) directoryMap.get(directoryKey);
@@ -442,7 +442,7 @@ public static void addExpandedFileNodes(boolean autocreate, String baseDir, Elem
 						+ analysisNode.getAttributeValue("idAnalysis");
 
 				fd.setQualifiedFilePath(directoryName);
-				fd.setBaseFilePath(baseDir + createYear + "/" + analysisNumber);
+				fd.setBaseFilePath(baseDir + createYear + Constants.FILE_SEPARATOR + analysisNumber);
 				fd.setId(analysisNode.getAttributeValue("idAnalysis") != null ? Integer.valueOf(analysisNode
 						.getAttributeValue("idAnalysis")) : null);
 				String idLab = analysisNode.getAttributeValue("idLab");
@@ -527,7 +527,7 @@ private static void recurseAddChildren(boolean autocreate, Element fdNode, FileD
 
 		childFd.setId(fd.getId());
 		childFd.setQualifiedFilePath(fd.getQualifiedFilePath() != null && fd.getQualifiedFilePath().length() > 0 ? fd
-				.getQualifiedFilePath() + "/" + fd.getDisplayName() : fd.getDisplayName());
+				.getQualifiedFilePath() + Constants.FILE_SEPARATOR + fd.getDisplayName() : fd.getDisplayName());
 		childFd.setBaseFilePath(fd.getBaseFilePath());
 		childFd.setDirectoryName(childFd.getQualifiedFilePath());
 		childFd.setIdLab(fd.getIdLab());
@@ -576,8 +576,8 @@ private static void recurseAddChildren(boolean autocreate, Element fdNode, FileD
 		childFdNode.setAttribute("dirty", "N");
 		childFdNode.setAttribute("type", childFd.getType() != null ? childFd.getType() : "");
 		String displayName = childFd.getDisplayName();
-		if (displayName.contains("/")) {
-			displayName = displayName.substring(displayName.lastIndexOf("/") + 1, displayName.length());
+		if (displayName.contains(Constants.FILE_SEPARATOR)) {
+			displayName = displayName.substring(displayName.lastIndexOf(Constants.FILE_SEPARATOR) + 1, displayName.length());
 		}
 
 		childFdNode.setAttribute("displayName", displayName != null ? displayName : "");
@@ -644,13 +644,13 @@ private static void recurseAddChildren(boolean autocreate, Element fdNode, FileD
 public static Set getAnalysisDownloadFolders(String baseDir, String analysisNumber, String createYear) {
 
 	TreeSet folders = new TreeSet<String>();
-	String directoryName = baseDir + createYear + "/" + analysisNumber;
+	String directoryName = baseDir + createYear + Constants.FILE_SEPARATOR + analysisNumber;
 	File fd = new File(directoryName);
 
 	if (fd.isDirectory()) {
 		String[] fileList = fd.list();
 		for (int x = 0; x < fileList.length; x++) {
-			String fileName = directoryName + "/" + fileList[x];
+			String fileName = directoryName + Constants.FILE_SEPARATOR + fileList[x];
 			File f1 = new File(fileName);
 			if (f1.isDirectory()) {
 				folders.add(fileList[x]);

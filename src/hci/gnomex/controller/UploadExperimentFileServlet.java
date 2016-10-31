@@ -166,7 +166,7 @@ protected void doPost(HttpServletRequest req, HttpServletResponse res) throws Se
 
 				String baseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(req.getServerName(),
 						request.getIdCoreFacility(), PropertyDictionaryHelper.PROPERTY_EXPERIMENT_DIRECTORY);
-				baseDir += "/" + createYear;
+				baseDir += Constants.FILE_SEPARATOR + createYear;
 				if (!new File(baseDir).exists()) {
 					boolean success = (new File(baseDir)).mkdir();
 					if (!success) {
@@ -174,7 +174,7 @@ protected void doPost(HttpServletRequest req, HttpServletResponse res) throws Se
 					}
 				}
 
-				directoryName = baseDir + "/" + Request.getBaseRequestNumber(request.getNumber());
+				directoryName = baseDir + Constants.FILE_SEPARATOR + Request.getBaseRequestNumber(request.getNumber());
 				if (!new File(directoryName).exists()) {
 					boolean success = (new File(directoryName)).mkdir();
 					if (!success) {
@@ -182,7 +182,7 @@ protected void doPost(HttpServletRequest req, HttpServletResponse res) throws Se
 					}
 				}
 
-				directoryName += "/" + Constants.UPLOAD_STAGING_DIR;
+				directoryName += Constants.FILE_SEPARATOR + Constants.UPLOAD_STAGING_DIR;
 				if (!new File(directoryName).exists()) {
 					boolean success = (new File(directoryName)).mkdir();
 					if (!success) {
@@ -205,7 +205,7 @@ protected void doPost(HttpServletRequest req, HttpServletResponse res) throws Se
 							xferLog.setPerformCompression("N");
 							xferLog.setIdRequest(request.getIdRequest());
 							xferLog.setIdLab(request.getIdLab());
-							xferLog.setFileName(request.getNumber() + "/" + fileName);
+							xferLog.setFileName(request.getNumber() + Constants.FILE_SEPARATOR + fileName);
 
 							// the part actually contained a file
 							long size = filePart.writeTo(new File(directoryName));
