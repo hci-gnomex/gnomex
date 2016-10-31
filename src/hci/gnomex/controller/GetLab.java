@@ -139,6 +139,8 @@ public Command execute() throws RollBackCommandException {
 			Element labNode = theLab.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement();
 
 			this.appendPossibleCollaborators(labNode, theLab);
+			this.appendMembersCollaborators(labNode, theLab);
+			this.appendPossibleCollaboratorsWithoutOwner(labNode, theLab);
 			this.appendSubmitters(labNode, theLab);
 			this.appendBillingAccounts(new ArrayList(theLab.getBillingAccounts()), "billingAccounts", labNode, theLab);
 			this.appendBillingAccounts(theLab.getApprovedBillingAccounts(), "approvedBillingAccounts", labNode, theLab);
@@ -196,6 +198,8 @@ public Command execute() throws RollBackCommandException {
 			if (this.getSecAdvisor().isGroupIAmMemberOrManagerOf(theLab.getIdLab())
 					|| this.getSecAdvisor().hasPermission(SecurityAdvisor.CAN_ADMINISTER_USERS)) {
 				this.appendPossibleCollaborators(labNode, theLab);
+				this.appendMembersCollaborators(labNode, theLab);
+				this.appendPossibleCollaboratorsWithoutOwner(labNode, theLab);
 			}
 			this.appendSubmitters(labNode, theLab);
 			this.appendBillingAccounts(theLab.getApprovedBillingAccounts(), "approvedBillingAccounts", labNode, theLab);
@@ -267,33 +271,87 @@ private void appendProductCount(Element labNode, List productQuantities) {
 
 }
 
-private void appendPossibleCollaborators(Element labNode, Lab theLab) throws Exception {
-	// Show all the members, collaborators, and mgr under this lab
-	// if the user can submit requests
-	Element possibleCollaboratorsNode = new Element("possibleCollaborators");
-	labNode.addContent(possibleCollaboratorsNode);
+	private void appendPossibleCollaborators(Element labNode, Lab theLab) throws Exception {
+		// Show all the members, collaborators, and mgr under this lab
+		// if the user can submit requests
+		Element possibleCollaboratorsNode = new Element("possibleCollaborators");
+		labNode.addContent(possibleCollaboratorsNode);
 
-	TreeMap appUsers = new TreeMap();
-	for (Iterator i2 = theLab.getMembers().iterator(); i2.hasNext();) {
-		AppUser u = (AppUser) i2.next();
-		appUsers.put(u.getDisplayName(), u);
-	}
-	for (Iterator i2 = theLab.getCollaborators().iterator(); i2.hasNext();) {
-		AppUser u = (AppUser) i2.next();
-		appUsers.put(u.getDisplayName(), u);
-	}
-	for (Iterator i2 = theLab.getManagers().iterator(); i2.hasNext();) {
-		AppUser u = (AppUser) i2.next();
-		appUsers.put(u.getDisplayName(), u);
-	}
-	for (Iterator i2 = appUsers.keySet().iterator(); i2.hasNext();) {
-		String key = (String) i2.next();
-		AppUser user = (AppUser) appUsers.get(key);
-		this.blockAppUserContent(user);
+		TreeMap appUsers = new TreeMap();
+		for (Iterator i2 = theLab.getMembers().iterator(); i2.hasNext();) {
+			AppUser u = (AppUser) i2.next();
+			appUsers.put(u.getDisplayName(), u);
+		}
+		for (Iterator i2 = theLab.getCollaborators().iterator(); i2.hasNext();) {
+			AppUser u = (AppUser) i2.next();
+			appUsers.put(u.getDisplayName(), u);
+		}
+		for (Iterator i2 = theLab.getManagers().iterator(); i2.hasNext();) {
+			AppUser u = (AppUser) i2.next();
+			appUsers.put(u.getDisplayName(), u);
+		}
+		for (Iterator i2 = appUsers.keySet().iterator(); i2.hasNext();) {
+			String key = (String) i2.next();
+			AppUser user = (AppUser) appUsers.get(key);
+			this.blockAppUserContent(user);
 
-		possibleCollaboratorsNode.addContent(user.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement());
+			possibleCollaboratorsNode.addContent(user.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement());
+		}
 	}
-}
+	private void appendPossibleCollaboratorsWithoutOwner(Element labNode, Lab theLab) throws Exception {
+		// Show all collaborators, and mgr without owner under this lab
+		// if the user can submit requests
+		Element possibleCollaboratorsWithoutOwnerNode = new Element("possibleCollaboratorsWithoutOwner");
+		labNode.addContent(possibleCollaboratorsWithoutOwnerNode);
+
+		TreeMap appUsers = new TreeMap();
+		for (Iterator i2 = theLab.getMembers().iterator(); i2.hasNext();) {
+			AppUser u = (AppUser) i2.next();
+			appUsers.put(u.getDisplayName(), u);
+		}
+		for (Iterator i2 = theLab.getCollaborators().iterator(); i2.hasNext();) {
+			AppUser u = (AppUser) i2.next();
+			appUsers.put(u.getDisplayName(), u);
+		}
+		for (Iterator i2 = theLab.getManagers().iterator(); i2.hasNext();) {
+			AppUser u = (AppUser) i2.next();
+			appUsers.put(u.getDisplayName(), u);
+		}
+		for (Iterator i2 = appUsers.keySet().iterator(); i2.hasNext();) {
+			String key = (String) i2.next();
+			AppUser user = (AppUser) appUsers.get(key);
+			if (user.getIdAppUser().equals(this.getSecAdvisor().getAppUser().getIdAppUser())) {
+				continue;
+			}
+
+			this.blockAppUserContent(user);
+
+			possibleCollaboratorsWithoutOwnerNode.addContent(user.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement());
+		}
+	}
+	private void appendMembersCollaborators(Element labNode, Lab theLab) throws Exception {
+		// Show all the collaborators, and mgr under this lab
+		// if the user can submit requests
+		Element membersCollaboratorsNode = new Element("membersCollaborators");
+		labNode.addContent(membersCollaboratorsNode);
+
+		TreeMap appUsers = new TreeMap();
+		for (Iterator i2 = theLab.getCollaborators().iterator(); i2.hasNext();) {
+			AppUser u = (AppUser) i2.next();
+			appUsers.put(u.getDisplayName(), u);
+		}
+		for (Iterator i2 = theLab.getManagers().iterator(); i2.hasNext();) {
+			AppUser u = (AppUser) i2.next();
+			appUsers.put(u.getDisplayName(), u);
+		}
+		for (Iterator i2 = appUsers.keySet().iterator(); i2.hasNext();) {
+			String key = (String) i2.next();
+			AppUser user = (AppUser) appUsers.get(key);
+			this.blockAppUserContent(user);
+
+			membersCollaboratorsNode.addContent(user.toXMLDocument(null, DetailObject.DATE_OUTPUT_SQL).getRootElement());
+		}
+	}
 
 private void appendSubmitters(Element labNode, Lab theLab) throws Exception {
 	Element submittersNode = new Element("submitters");
