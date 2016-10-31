@@ -163,7 +163,7 @@ public class PartitionMap {
         final String fileName = file.getAbsolutePath();
         boolean isDir = false;
         if(!file.isDirectory()) {
-            int lastIndex = fileName.lastIndexOf(File.separatorChar);
+		int lastIndex = fileName.lastIndexOf(Constants.FILE_SEPARATOR_CHAR);
             if (lastIndex != -1)
                 dirPath = fileName.substring(0, lastIndex);
             else

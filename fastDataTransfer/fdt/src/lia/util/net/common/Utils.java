@@ -513,7 +513,7 @@ public final class Utils {
                 // /////////////
                 // handle windows stupid FS naming
                 // ////////////
-                if (File.separatorChar == '\\') {// "Windowns" baby!
+                if (Constants.FILE_SEPARATOR_CHAR== '\\') {// "Windowns" baby!
 
                     if (idx + 1 == args[i].length()) {
                         // ////////////
@@ -544,7 +544,7 @@ public final class Utils {
                         }
                     }
 
-                    if ((idx + 1 < args[i].length()) && args[i].charAt(idx + 1) == File.separatorChar) {
+                    if ((idx + 1 < args[i].length()) && args[i].charAt(idx + 1) == Constants.FILE_SEPARATOR_CHAR) {
                         if (sshUsers.size() > 0) {
                             // I am the destination directory
                             rHM.put("destinationDir", args[i]);
@@ -777,7 +777,7 @@ public final class Utils {
     private static final File createOrGetRWFile(final String parentDirName, final String fileName) {
 
         final File parentDir = new File(parentDirName);
-        final File file = new File(parentDirName + File.separator + fileName);
+        final File file = new File(parentDirName + Constants.FILE_SEPARATOR + fileName);
 
         if (!parentDir.exists()) {
             if (parentDir.mkdirs()) {
@@ -863,7 +863,7 @@ public final class Utils {
     }
 
     private static Properties getFDTUpdateProperties() {
-        final String parentFDTConfDirName = System.getProperty("user.home") + File.separator + ".fdt";
+        final String parentFDTConfDirName = System.getProperty("user.home") + Constants.FILE_SEPARATOR + ".fdt";
         final String fdtUpdateConfFileName = "update.properties";
         Properties updateProperties = new Properties();
         final File confFile = createOrGetRWFile(parentFDTConfDirName, fdtUpdateConfFileName);
@@ -887,7 +887,7 @@ public final class Utils {
 
     private static boolean updateTotalContor(final long total, final String property) {
 
-        final String parentFDTConfDirName = System.getProperty("user.home") + File.separator + ".fdt";
+        final String parentFDTConfDirName = System.getProperty("user.home") + Constants.FILE_SEPARATOR + ".fdt";
         final String fdtUpdateConfFileName = "update.properties";
         final File confFile = createOrGetRWFile(parentFDTConfDirName, fdtUpdateConfFileName);
 
@@ -977,7 +977,7 @@ public final class Utils {
                 instID = UUID.randomUUID().toString();
                 props.put("instanceID", instID);
 
-                final String parentFDTConfDirName = System.getProperty("user.home") + File.separator + ".fdt";
+                final String parentFDTConfDirName = System.getProperty("user.home") + Constants.FILE_SEPARATOR + ".fdt";
                 final String fdtUpdateConfFileName = "update.properties";
                 final File confFile = createOrGetRWFile(parentFDTConfDirName, fdtUpdateConfFileName);
                 FileOutputStream fos = null;
@@ -1045,7 +1045,7 @@ public final class Utils {
     public static final boolean checkForUpdate(final String currentVersion, final String updateURL, boolean noLock) throws Exception {
         try {
 
-            final String parentFDTConfDirName = System.getProperty("user.home") + File.separator + ".fdt";
+            final String parentFDTConfDirName = System.getProperty("user.home") + Constants.FILE_SEPARATOR + ".fdt";
             final String fdtUpdateConfFileName = "update.properties";
             final File confFile = createOrGetRWFile(parentFDTConfDirName, fdtUpdateConfFileName);
 
@@ -1120,7 +1120,7 @@ public final class Utils {
                 }
             } else {
                 if (logger.isLoggable(Level.FINE)) {
-                    logger.log(Level.FINE, " [ checkForUpdate ] Cannot read or write the update conf file: " + parentFDTConfDirName + File.separator + fdtUpdateConfFileName);
+                    logger.log(Level.FINE, " [ checkForUpdate ] Cannot read or write the update conf file: " + parentFDTConfDirName + Constants.FILE_SEPARATOR + fdtUpdateConfFileName);
                 }
                 return false;
             }
@@ -1298,7 +1298,7 @@ public final class Utils {
                         logger.log(Level.WARNING, "[ WARNING CHECK ] The OS reported that is unable to write in parent dir: " + parentDir + " continue anyway; the call might be broken.");
                     }
 
-                    final File bkpJar = new File(parentDir.getPath() + File.separator + "fdt_" + Config.FDT_FULL_VERSION + ".jar");
+                    final File bkpJar = new File(parentDir.getPath() + Constants.FILE_SEPARATOR + "fdt_" + Config.FDT_FULL_VERSION + ".jar");
                     boolean bDel = bkpJar.exists();
                     if(bDel) {
                         bDel = bkpJar.delete(); 
@@ -1444,9 +1444,9 @@ public final class Utils {
                 if (listContents != null && listContents.length > 0) {
                     for (String subFile : listContents) {
                         if (remappedFileName != null) {
-                            getRecursiveFiles(fileName + File.separator + subFile, remappedFileName + File.separator + subFile, allFiles, allRemappedFiles);
+                            getRecursiveFiles(fileName + Constants.FILE_SEPARATOR + subFile, remappedFileName + Constants.FILE_SEPARATOR + subFile, allFiles, allRemappedFiles);
                         } else {
-                            getRecursiveFiles(fileName + File.separator + subFile, null, allFiles, allRemappedFiles);
+                            getRecursiveFiles(fileName + Constants.FILE_SEPARATOR + subFile, null, allFiles, allRemappedFiles);
                         }
                     }
                 }

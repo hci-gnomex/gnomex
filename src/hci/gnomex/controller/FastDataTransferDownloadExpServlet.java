@@ -1,5 +1,6 @@
 package hci.gnomex.controller;
 
+import hci.gnomex.constants.Constants;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.SequenceLane;
@@ -241,7 +242,7 @@ public class FastDataTransferDownloadExpServlet extends HttpServlet {
         req.getSession().setAttribute(CacheFileDownloadList.SESSION_KEY_FILE_DESCRIPTOR_PARSER, null);
         String fdtJarLoc = PropertyDictionaryHelper.getInstance(sess).getFDTJarLocation(req.getServerName());
         String fdtServerName = PropertyDictionaryHelper.getInstance(sess).getFDTServerName(req.getServerName());
-        String softLinksPath = PropertyDictionaryHelper.getInstance(sess).GetFDTDirectory(req.getServerName())+uuid.toString()+File.separator+requestNumberBase;          
+        String softLinksPath = PropertyDictionaryHelper.getInstance(sess).GetFDTDirectory(req.getServerName())+uuid.toString()+ Constants.FILE_SEPARATOR+requestNumberBase;
         if (fdtJarLoc == null || fdtJarLoc.equals("")) {
           fdtJarLoc = "http://monalisa.cern.ch/FDT/";
         }

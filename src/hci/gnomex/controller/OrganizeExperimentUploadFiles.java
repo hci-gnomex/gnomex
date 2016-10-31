@@ -2,6 +2,7 @@ package hci.gnomex.controller;
 
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
+import hci.gnomex.constants.Constants;
 import hci.gnomex.model.ExperimentFile;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.Sample;
@@ -62,7 +63,9 @@ private String serverName;
 
 private DictionaryHelper dictionaryHelper = null;
 
-public void validate() {
+private static String flowCellDir = null;
+
+	public void validate() {
 }
 
 public void loadCommand(HttpServletRequest request, HttpSession session) {
@@ -164,7 +167,9 @@ public Command execute() throws RollBackCommandException {
 			String baseRequestNumber = Request.getBaseRequestNumber(request.getNumber());
 			String baseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName,
 					request.getIdCoreFacility(), PropertyDictionaryHelper.PROPERTY_EXPERIMENT_DIRECTORY);
-			baseDir += request.getCreateYear() + File.separator + Request.getBaseRequestNumber(request.getNumber());
+			flowCellDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName,
+					request.getIdCoreFacility(), PropertyDictionaryHelper.PROPERTY_FLOWCELL_DIRECTORY);
+			baseDir += request.getCreateYear() + Constants.FILE_SEPARATOR + Request.getBaseRequestNumber(request.getNumber());
 
 			if (this.getSecAdvisor().canUploadData(request)) {
 
@@ -173,7 +178,7 @@ public Command execute() throws RollBackCommandException {
 				// Add new directories to the file system
 				for (Iterator i = parser.getNewDirectoryNames().iterator(); i.hasNext();) {
 					String directoryName = (String) i.next();
-					File dir = new File(baseDir + File.separator + directoryName);
+					File dir = new File(baseDir + Constants.FILE_SEPARATOR + directoryName);
 					if (!dir.exists()) {
 						boolean success = dir.mkdirs();
 						if (!success) {
@@ -199,16 +204,16 @@ public Command execute() throws RollBackCommandException {
 								String parserFile = (String) i1.next();
 								if (parserFile.equals(file)) {
 									fileNames.remove(parserFile);
-									fileNames.add(f2.getCanonicalPath());
+									fileNames.add(f2.getCanonicalPath().replace("\\", Constants.FILE_SEPARATOR));
 									parser.getFileNameMap().put(directory, fileNames);
 									break;
 								}
 							}
 						}
 						// Update experiment file name if registered in the db
-						String oldExpFileName = file.substring(file.indexOf(baseRequestNumber)).replace("\\", "/");
+						String oldExpFileName = file.substring(file.indexOf(baseRequestNumber)).replace("\\", Constants.FILE_SEPARATOR);
 						String newExpFileName = newFileName.substring(newFileName.indexOf(baseRequestNumber)).replace(
-								"\\", "/");
+								"\\", Constants.FILE_SEPARATOR);
 						String queryBuf = "Select exp from ExperimentFile exp where fileName = :oldExpFileName";
 						Query query = sess.createQuery(queryBuf);
 						query.setParameter("oldExpFileName", oldExpFileName);
@@ -228,12 +233,12 @@ public Command execute() throws RollBackCommandException {
 				for (Iterator i = parser.getFoldersToRenameMap().keySet().iterator(); i.hasNext();) {
 					String folder = (String) i.next();
 					String newFolder = (String) parser.getFoldersToRenameMap().get(folder);
-					File f1 = new File(baseDir + File.separator + folder);
-					File f2 = new File(baseDir + File.separator + newFolder);
+					File f1 = new File(baseDir + Constants.FILE_SEPARATOR + folder);
+					File f2 = new File(baseDir + Constants.FILE_SEPARATOR + newFolder);
 					f2.mkdir();
 					for (Iterator j = parser.getFileNameMap().keySet().iterator(); j.hasNext();) {
 						String directory = (String) j.next();
-						if (directory.contains(folder + File.separator)) {
+						if (directory.contains(folder + Constants.FILE_SEPARATOR)) {
 							parser.getFileNameMap().remove(directory);
 							j = parser.getFileNameMap().keySet().iterator();
 						}
@@ -253,47 +258,48 @@ public Command execute() throws RollBackCommandException {
 					String directoryName = (String) i.next();
 					List fileNames = (List) parser.getFileNameMap().get(directoryName);
 					String targetDirName = "";
-
-					List<String> path = Arrays.asList(directoryName.split(Pattern.quote(File.separator)));
+					//directoryName = directoryName.replace("\\", Constants.FILE_SEPARATOR);
+					List<String> path = Arrays.asList(directoryName.split(Pattern.quote(Constants.FILE_SEPARATOR)));
 					directoryName = "";
 					for (Iterator<String> iter = path.iterator(); iter.hasNext();) {
 						String s = iter.next();
 						if (!baseDir.contains(s)) {
-							directoryName += s + File.separator;
+							directoryName += s + Constants.FILE_SEPARATOR;
 						}
 					}
 
 					for (Iterator i1 = fileNames.iterator(); i1.hasNext();) {
 						String fileName = (String) i1.next();
-
+						if (fileName.toUpperCase().contains(flowCellDir.toUpperCase())) {
+							continue;
+						}
 						File sourceFile = new File(fileName);
 
 						if (baseDir.contains(directoryName)
 								|| baseDir.contains(directoryName.subSequence(0, directoryName.length() - 1))) {
-							targetDirName = baseDir + File.separator;
+							targetDirName = baseDir + Constants.FILE_SEPARATOR;
 						} else {
-							targetDirName = baseDir + File.separator + directoryName;
+							targetDirName = baseDir + Constants.FILE_SEPARATOR + directoryName;
 						}
 						File targetDir = new File(targetDirName);
 
 						if (!targetDir.exists()) {
 							boolean success = targetDir.mkdirs();
 							if (!success) {
-								throw new Exception("Unable to create directory " + targetDir.getCanonicalPath());
+								throw new Exception("Unable to create directory " + targetDir.getCanonicalPath().replace("\\", Constants.FILE_SEPARATOR));
 							}
 						}
 
 						// Don't try to move if the file is in the same directory
 
-						String td = targetDir.getAbsolutePath();
-						String sd = sourceFile.getAbsolutePath();
-						sd = sd.substring(0, sd.lastIndexOf(File.separator));
+						String td = targetDir.getAbsolutePath().replace("\\", Constants.FILE_SEPARATOR);
+						String sd = sourceFile.getAbsolutePath().replace("\\", Constants.FILE_SEPARATOR);
+						sd = sd.substring(0, sd.lastIndexOf(Constants.FILE_SEPARATOR));
 						oldFileToDelete = new File(sd);
 
 						if (td.equals(sd)) {
 							continue;
 						}
-
 						File destFile = new File(targetDir, sourceFile.getName());
 						boolean success = sourceFile.renameTo(destFile);
 
@@ -304,7 +310,7 @@ public Command execute() throws RollBackCommandException {
 						// servlet.
 						if (success) {
 							String currentExpFileName = fileName.substring(fileName.indexOf(baseRequestNumber))
-									.replace("\\", "/"); // REMOVE
+									.replace("\\", Constants.FILE_SEPARATOR); // REMOVE
 															// REPLACE
 															// AFTER
 															// DEBUGGING
@@ -314,12 +320,12 @@ public Command execute() throws RollBackCommandException {
 							List expFiles = query.list();
 							if (expFiles.size() == 1) {
 								String newExpFileName = targetDirName.substring(
-										targetDirName.indexOf(baseRequestNumber)).replace("\\", "/"); // Remove
+										targetDirName.indexOf(baseRequestNumber)).replace("\\", Constants.FILE_SEPARATOR); // Remove
 																										// replace
 																										// after
 																										// debugging
-								newExpFileName += "/" + destFile.getName();
-								newExpFileName = newExpFileName.replace("//", "/");
+								newExpFileName += Constants.FILE_SEPARATOR + destFile.getName();
+								newExpFileName = newExpFileName.replace("//", Constants.FILE_SEPARATOR);
 								ExperimentFile ef = (ExperimentFile) expFiles.get(0);
 								ef.setFileName(newExpFileName);
 								ef.setFileSize(BigDecimal.valueOf(destFile.length()));
@@ -332,7 +338,7 @@ public Command execute() throws RollBackCommandException {
 										if (sourceFile.isDirectory()) {
 											// If can't delete directory then try again after
 											// everything has been moved
-											tryLater.add(sourceFile.getAbsolutePath());
+											tryLater.add(sourceFile.getAbsolutePath().replace("\\", Constants.FILE_SEPARATOR));
 										} else {
 											throw new Exception("Unable to move file " + fileName + " to "
 													+ targetDirName);
@@ -350,11 +356,14 @@ public Command execute() throws RollBackCommandException {
 						try {
 							oldFileToDelete.delete();
 						} catch (Exception e) {
-							LOG.warn("Unable to delete " + oldFileToDelete.getAbsolutePath() + ": ");
+							LOG.warn("Unable to delete " + oldFileToDelete.getAbsolutePath().replace("\\", Constants.FILE_SEPARATOR) + ": ");
 
 						}
 					} else {
-						LOG.warn("Unable to delete " + oldFileToDelete.getAbsolutePath() + ": directory is not empty");
+						if (oldFileToDelete != null)
+							LOG.warn("Unable to delete " + oldFileToDelete.getAbsolutePath().replace("\\", Constants.FILE_SEPARATOR) + ": directory is not empty");
+						else
+							LOG.warn("Unable to delete : directory is not empty");
 					}
 
 				}
@@ -398,7 +407,7 @@ public Command execute() throws RollBackCommandException {
 								String queryString = "Select exp from ExperimentFile exp where fileName = :fileName";
 								Query query2 = sess.createQuery(queryString);
 								String currentFileName = fileName.substring(fileName.indexOf(baseRequestNumber))
-										.replace("\\", "/"); // REMOVE
+										.replace("\\", Constants.FILE_SEPARATOR); // REMOVE
 																// REPLACE
 																// AFTER
 																// DEBUGGING
@@ -458,7 +467,7 @@ public Command execute() throws RollBackCommandException {
 					for (Iterator i = directoryFilesToUnlink.iterator(); i.hasNext();) {
 						String fileName = (String) i.next();
 						String currentFileName = fileName.substring(fileName.indexOf(baseRequestNumber)).replace("\\",
-								"/");
+								Constants.FILE_SEPARATOR);
 						String queryBuf = "Select exp from ExperimentFile exp where fileName = :currentFileName";
 						Query query = sess.createQuery(queryBuf);
 						query.setParameter("currentFileName", currentFileName);
@@ -543,7 +552,7 @@ public Command execute() throws RollBackCommandException {
 					for (Iterator i = root.getChildren("FileDescriptor").iterator(); i.hasNext();) {
 						Element fd = (Element) i.next();
 						String fileName = fd.getAttributeValue("zipEntryName");
-						fileName = fileName.replace("\\", "/");
+						fileName = fileName.replace("\\", Constants.FILE_SEPARATOR);
 						String queryBuf = "Select expFile from ExperimentFile expFile where fileName = :fileName";
 						Query query = sess.createQuery(queryBuf);
 						query.setParameter("fileName", fileName);
@@ -617,9 +626,9 @@ public Command execute() throws RollBackCommandException {
 
 								// If it is in the dictionary use it.
 								if (expFileDictionary.containsKey(expFile.getAttributeValue("zipEntryName").replace(
-										"\\", "/"))) {
+										"\\", Constants.FILE_SEPARATOR))) {
 									ef = (ExperimentFile) expFileDictionary.get(expFile.getAttributeValue(
-											"zipEntryName").replace("\\", "/"));
+											"zipEntryName").replace("\\", Constants.FILE_SEPARATOR));
 								} else if (expFile.getAttributeValue("idExperimentFile") != null
 										&& !expFile.getAttributeValue("idExperimentFile").equals("")) {
 									ef = (ExperimentFile) sess.get(ExperimentFile.class,
@@ -631,7 +640,7 @@ public Command execute() throws RollBackCommandException {
 								} else {
 									java.util.Date d = new java.util.Date();
 									ef.setIdRequest(this.idRequest);
-									ef.setFileName(expFile.getAttributeValue("zipEntryName").replace("\\", "/"));
+									ef.setFileName(expFile.getAttributeValue("zipEntryName").replace("\\", Constants.FILE_SEPARATOR));
 									ef.setFileSize(new BigDecimal(expFile.getAttributeValue("fileSize")));
 									ef.setCreateDate(new Date(d.getTime()));
 									sess.save(ef);
@@ -708,27 +717,27 @@ private void recurseAddSamples(Element child, Map<String, List<Element>> sampleG
 				sampleGroup.put(displayName, samples);
 			}
 		} else if (subChild.getName().equals("SampleGroup")) {
-			recurseAddSamples(subChild, sampleGroup, displayName + "/" + subChild.getAttributeValue("displayName"));
+			recurseAddSamples(subChild, sampleGroup, displayName + Constants.FILE_SEPARATOR + subChild.getAttributeValue("displayName"));
 		}
 	}
 }
 
 public void deleteDir(File f, String fileName) throws Exception {
 	for (String file : f.list()) {
-		File child = new File(fileName + File.separator + file);
+		File child = new File(fileName + Constants.FILE_SEPARATOR + file);
 		if (child.isDirectory()) {
-			deleteDir(child, child.getCanonicalPath());
-		} else if (!(new File(fileName + File.separator + file).delete())) {
-			throw new Exception("Unable to delete file " + fileName + File.separator + file);
+			deleteDir(child, child.getCanonicalPath().replace("\\", Constants.FILE_SEPARATOR));
+		} else if (!(new File(fileName + Constants.FILE_SEPARATOR + file).delete())) {
+			throw new Exception("Unable to delete file " + fileName + Constants.FILE_SEPARATOR + file);
 		} else {
-			filesToRemoveParser.parseFilesToRemove().remove(fileName + File.separator + file);
-			directoryFilesToUnlink.add(fileName + "/" + file);
+			filesToRemoveParser.parseFilesToRemove().remove(fileName + Constants.FILE_SEPARATOR + file);
+			directoryFilesToUnlink.add(fileName + Constants.FILE_SEPARATOR + file);
 		}
 
 	}
 	if (f.list().length == 0) {
 		if (!f.delete()) {
-			throw new Exception("Unable to delete file " + f.getCanonicalPath());
+			throw new Exception("Unable to delete file " + f.getCanonicalPath().replace("\\", Constants.FILE_SEPARATOR));
 		}
 		return;
 	}

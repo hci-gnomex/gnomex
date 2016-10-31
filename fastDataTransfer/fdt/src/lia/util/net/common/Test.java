@@ -13,7 +13,7 @@ import java.util.regex.Pattern;
 public class Test {
 	public static void main(String[] args) {
 		
-		String sshFormat = "((([a-zA-Z0-9][a-zA-Z0-9]*)@)?(([a-zA-Z0-9][a-zA-Z0-9\\-]*\\.?)+):)?((" + (File.separatorChar == '\\' ? File.separatorChar : "") + File.separatorChar
+		String sshFormat = "((([a-zA-Z0-9][a-zA-Z0-9]*)@)?(([a-zA-Z0-9][a-zA-Z0-9\\-]*\\.?)+):)?((" + (Constants.FILE_SEPARATOR_CHAR== '\\' ? Constants.FILE_SEPARATOR_CHAR: "") + Constants.FILE_SEPARATOR_CHAR
 		+ "?[a-zA-Z_\\-0-9\\.]*)+)";// 
 		Pattern pattern = Pattern.compile(sshFormat);
 		Matcher match = pattern.matcher("dest.xml");

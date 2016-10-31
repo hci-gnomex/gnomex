@@ -2,6 +2,7 @@ package hci.gnomex.model;
 
 
 
+import hci.gnomex.constants.Constants;
 import hci.gnomex.utility.GnomexFile;
 import hci.hibernate5utils.HibernateDetailObject;
 
@@ -84,14 +85,14 @@ public class AnalysisFile extends GnomexFile {
     String filePath = "";
     if (baseFilePath == null || baseFilePath.equals("")) {
       String createYear = Analysis.getCreateYear(this.getAnalysis().getCreateDate());
-      filePath = baseDir + File.separator + createYear + File.separator + this.getAnalysis().getNumber();
+      filePath = baseDir + Constants.FILE_SEPARATOR + createYear + Constants.FILE_SEPARATOR + this.getAnalysis().getNumber();
     } else {
       filePath = baseFilePath;
     }
     if (this.getQualifiedFilePath() != null && !this.getQualifiedFilePath().equals("")) {
-      filePath += File.separator + this.getQualifiedFilePath();
+      filePath += Constants.FILE_SEPARATOR + this.getQualifiedFilePath();
     }
-    filePath +=  File.separator + this.getFileName();
+    filePath +=  Constants.FILE_SEPARATOR + this.getFileName();
     
     return new File(filePath);
   }

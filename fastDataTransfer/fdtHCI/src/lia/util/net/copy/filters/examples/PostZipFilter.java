@@ -29,7 +29,7 @@ public class PostZipFilter implements Postprocessor {
         for(int i=0; i<processorInfo.fileList.length; i++) {
 
             // Open the ZIP file
-            final String inFilename = processorInfo.destinationDir + File.separator + processorInfo.fileList[i];
+            final String inFilename = processorInfo.destinationDir + Constants.FILE_SEPARATOR + processorInfo.fileList[i];
             ZipInputStream in = new ZipInputStream(new FileInputStream(inFilename));
 
             // Get the first entry

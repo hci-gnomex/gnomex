@@ -626,13 +626,13 @@ public static Set getRequestDownloadFolders(String baseDir, String requestNumber
 		String codeRequestCategory) {
 
 	TreeSet folders = new TreeSet<String>(new FolderComparator(codeRequestCategory));
-	String directoryName = baseDir + createYear + File.separator + requestNumber;
+	String directoryName = baseDir + createYear + Constants.FILE_SEPARATOR + requestNumber;
 	File fd = new File(directoryName);
 
 	if (fd.isDirectory()) {
 		String[] fileList = fd.list();
 		for (int x = 0; x < fileList.length; x++) {
-			String fileName = directoryName + File.separator + fileList[x];
+			String fileName = directoryName + Constants.FILE_SEPARATOR + fileList[x];
 			File f1 = new File(fileName);
 			if (f1.isDirectory()) {
 				folders.add(fileList[x]);
@@ -649,14 +649,14 @@ private void addRootFileNodes(String baseDir, Element requestNode, String reques
 	String dirTokens[] = createDate.split("/");
 	String createYear = dirTokens[2];
 
-	String directoryName = baseDir + File.separator + createYear + File.separator
+	String directoryName = baseDir + Constants.FILE_SEPARATOR + createYear + Constants.FILE_SEPARATOR
 			+ Request.getBaseRequestNumber(requestNumber)
-			+ (subDirectory != null ? File.separator + Constants.UPLOAD_STAGING_DIR : "");
+			+ (subDirectory != null ? Constants.FILE_SEPARATOR + Constants.UPLOAD_STAGING_DIR : "");
 	File fd = new File(directoryName);
 	if (fd.exists() && fd.isDirectory()) {
 		String[] fileList = fd.list();
 		for (int x = 0; x < fileList.length; x++) {
-			String fileName = directoryName + File.separator + fileList[x];
+			String fileName = directoryName + Constants.FILE_SEPARATOR + fileList[x];
 			File f1 = new File(fileName);
 
 			// bypass temp files
@@ -717,7 +717,7 @@ private String getPathForZipFileName(File f, String requestNumber) {
 private void recurseAddFiles(Element fdNode, File f1, String requestNumber, String directoryName, Session sess)
 		throws Exception {
 	String files[] = f1.list();
-	String fullPath = f1.getAbsolutePath() + File.separator;
+	String fullPath = f1.getAbsolutePath() + Constants.FILE_SEPARATOR;
 
 	// don't include empty directories
 	if (f1.list() == null || f1.list().length == 0) {

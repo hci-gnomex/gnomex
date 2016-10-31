@@ -74,7 +74,7 @@ public class FDTUploadDaemon
                     break;
                 }
                 FDTUploadDaemon.lastActivityMillis = System.currentTimeMillis();
-                final String targetFileName = FDTUploadDaemon.targetDir + File.separator + f.getName();
+                final String targetFileName = FDTUploadDaemon.targetDir + Constants.FILE_SEPARATOR + f.getName();
                 String operation = "move";
                 boolean success = f.renameTo(new File(targetFileName));
                 if (!success) {

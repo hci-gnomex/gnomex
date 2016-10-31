@@ -131,7 +131,7 @@ public class GetChromatogramList extends GNomExCommand implements Serializable {
           alt = !alt;
         }
         
-        abiFileName = qualifiedFilePath + File.separator + fileName;
+        abiFileName = qualifiedFilePath + Constants.FILE_SEPARATOR + fileName;
         File abiFile = new File(qualifiedFilePath, fileName);
 
         

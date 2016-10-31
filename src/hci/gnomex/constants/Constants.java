@@ -57,7 +57,8 @@ public class Constants {
   public static final String   UPLOAD_STAGING_DIR                             = "upload_staging";
   public static final String   MATERIAL_QUOTE_DIR                             = "material_quote";
   public static final String   DOWNLOAD_KEY_SEPARATOR                         = "\t";
-
+  public static final String   FILE_SEPARATOR                                 = "/";
+  public static final char     FILE_SEPARATOR_CHAR                            = '/';
   public static DecimalFormat  concentrationFormatter                         = new DecimalFormat("######.##");
 
   public static final String   BILLING_SPLIT_TYPE_PERCENT_CODE                = "%";

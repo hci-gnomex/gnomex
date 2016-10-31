@@ -1,5 +1,6 @@
 package hci.gnomex.controller;
 
+import hci.gnomex.constants.Constants;
 import hci.gnomex.model.ProductOrder;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.security.SecurityAdvisor;
@@ -183,7 +184,7 @@ public class FastDataTransferDownloadProductOrderServlet extends HttpServlet {
                             process.waitFor();
                             process.destroy();
 
-                            softlinks_dir = softlinks_dir + File.separator;
+                            softlinks_dir = softlinks_dir + Constants.FILE_SEPARATOR;
                         }
 
 
@@ -226,7 +227,7 @@ public class FastDataTransferDownloadProductOrderServlet extends HttpServlet {
 
                 String fdtJarLoc = PropertyDictionaryHelper.getInstance(sess).getFDTJarLocation(req.getServerName());
                 String fdtServerName = PropertyDictionaryHelper.getInstance(sess).getFDTServerName(req.getServerName());
-                String softLinksPath = PropertyDictionaryHelper.getInstance(sess).GetFDTDirectory(req.getServerName())+uuid.toString()+File.separator+productOrderNumberBase;
+                String softLinksPath = PropertyDictionaryHelper.getInstance(sess).GetFDTDirectory(req.getServerName())+uuid.toString()+ Constants.FILE_SEPARATOR+productOrderNumberBase;
                 if (fdtJarLoc == null || fdtJarLoc.equals("")) {
                     fdtJarLoc = "http://monalisa.cern.ch/FDT/";
                 }
