@@ -127,6 +127,7 @@ protected void doPost(HttpServletRequest request, HttpServletResponse response) 
 				if(labList.size() == 1){
 					theLab = sess.load(Lab.class, labList.get(0).getIdLab());
 				} else{
+					theLab = new Lab();
 					theLab.setFirstName(requestedLabFirstName);
 					theLab.setLastName(requestedLabName);
 					theLab.setDepartment(department);
