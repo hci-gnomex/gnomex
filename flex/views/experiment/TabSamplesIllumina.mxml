@@ -1392,8 +1392,7 @@
 																  filterString="{outerDocument.getIndexTagName(data)}"
 																  text="{outerDocument.getIndexTagName(data)}"
 																  labelFunction="{outerDocument.getIndexTagName}"
-																  change="{selectedItem!=null ? data.@idOligoBarcode = selectedItem.@idOligoBarcode : data.@idOligoBarcode = data.@idOligoBarcode; data.@barcodeSequence = outerDocument.parentApplication.dictionaryManager.getEntry('hci.gnomex.model.OligoBarcode', data.@idOligoBarcode).@barcodeSequence}">
-							</renderers:FilterComboBoxOligoBarcode>
+																  change="{selectedItem!=null ? data.@idOligoBarcode = selectedItem.@idOligoBarcode : data.@idOligoBarcode = data.@idOligoBarcode; data.@barcodeSequence = outerDocument.parentApplication.dictionaryManager.getEntry('hci.gnomex.model.OligoBarcode', data.@idOligoBarcode).@barcodeSequence}"/>
 						</mx:Component>
 					</util:itemEditor> 					
 					<util:headerRenderer > 
@@ -1439,8 +1438,7 @@
 																  filterString="{outerDocument.getIndexTagNameB(data)}"
 																  text="{outerDocument.getIndexTagNameB(data)}"
 																  labelFunction="{outerDocument.getIndexTagName}"
-																  change="{selectedItem!=null ? data.@idOligoBarcodeB = selectedItem.@idOligoBarcode : data.@idOligoBarcodeB = data.@idOligoBarcodeB; data.@barcodeSequenceB = outerDocument.parentApplication.dictionaryManager.getEntry('hci.gnomex.model.OligoBarcode', data.@idOligoBarcodeB).@barcodeSequence}">
-							</renderers:FilterComboBoxOligoBarcode>
+																  change="{selectedItem!=null ? data.@idOligoBarcodeB = selectedItem.@idOligoBarcode : data.@idOligoBarcodeB = data.@idOligoBarcodeB; data.@barcodeSequenceB = outerDocument.parentApplication.dictionaryManager.getEntry('hci.gnomex.model.OligoBarcode', data.@idOligoBarcodeB).@barcodeSequence}"/>
 						</mx:Component>
 					</util:itemEditor> 					
 					<util:headerRenderer > 
