@@ -1,4 +1,4 @@
-Upgrading to GNomEx_$VERSION
+Upgrading to GNomEx_${VERSION}
 ------------------------------------------
 
 1. Download and uncompress the the GNomEx open source distribution (GNomEx_$VERSION.zip) from SourceForge 

@@ -20,9 +20,10 @@
        	<mkdir dir="${build.dir}" />
        	<mkdir dir="${build.class.dir}" />		
        	<mkdir dir="${dist.dir}" />
-       	<mkdir dir="${glsave.dir}" />
-       	<mkdir dir="${glsave.dir}/secure" />
+       	<!--<mkdir dir="${glsave.dir}" />-->
+       	<!--<mkdir dir="${glsave.dir}/secure" />-->
 
+		<!-- Defined in gradle dependencies block
 	    <path id="project.class.path">
 	      <fileset dir="${lib.env.dir}"             includes="*.jar" />
 	      <fileset dir="${lib.dir}" 				includes="*.jar" />
@@ -33,7 +34,7 @@
             <fileset dir="${lib.dir}" 				    includes="*.jar" />
             <fileset dir="${lib.tomcat.dir}" 		    includes="*.jar" />
         	<fileset dir="${lib.tomcat.common.dir}"     includes="*.jar" />
-        </path>		
+        </path>		-->
 		
 
 			
@@ -476,8 +477,8 @@
 			 <classes dir="${lib.dir}"              includes="persistence.xml"/> 
 			 <classes dir="${lib.dir}"              includes="*.tomcat.cfg.xml"/> 
 			 <classes dir="${lib.dir}"              includes="*.properties"/> 
-		     <classes dir="${src.dir}"			    includes="Dictionaries.xml"/>
-		     <classes dir="${src.dir}"			    includes="SchemaGNomEx.hbm.xml" />
+		     <classes dir="${rsrc.dir}"			    includes="hci/gnomex/Dictionaries.xml"/>
+		     <classes dir="${rsrc.dir}"			    includes="SchemaGNomEx.hbm.xml" />
              <classes dir="${dist.dir}/tomcat"     includes="*.*" />
 		     <fileset dir="${webroot.dir}">
 				<include name="**/*.*" />
@@ -845,7 +846,7 @@
 
 	<!-- ============================================== -->
 	<!--                                                -->
-	<!-- build GNomExLite                               -->
+	<!-- build opensource GNomExLite                    -->
 	<!--                                                -->
 	<!-- ============================================== -->
 	<target name="build-opensource-gnomexlite" depends="init, -prebuild-opensource">

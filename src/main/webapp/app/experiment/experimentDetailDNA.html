@@ -1,0 +1,30 @@
+        <!-- Experiment Detail form DNA type experiment (tabs)  -->
+		<div class="col-lg-10" >
+
+			<div class=" panel panel-default">
+
+				<div class="panel-heading"><h5>Experiment {{experimentSelected.number}}</h5></div>
+
+				<div class="panel-body" style="padding-top: 10px;" ng-style="{'cursor' : treeCursor}">
+
+					<tabset>
+					   <tab heading="Info">
+					   		<ng:include src="'app/experiment/experimentDetailInfoDNA.html'"></ng:include>
+					   </tab>
+
+					   <tab heading="Description">
+					   		<ng:include src="'app/experiment/experimentDetailDescription.html'"></ng:include>
+					   </tab>
+
+					   <tab heading="Samples" >
+					   		<ng:include src="'app/experiment/experimentDetailSamplesDNA.html'"></ng:include>
+					   </tab>
+
+					   <tab heading="Files" >
+					   		<ng:include src="'app/experiment/experimentDetailChromatogramDNA.html'"></ng:include>
+					   </tab>
+					</tabset>
+				</div>
+			</div>
+
+		</div>

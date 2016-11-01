@@ -2,3 +2,10 @@
 *.iml
 dist/
 glsave/
+/build-eclipse
+/build
+/bin
+/.gradle
+/.settings
+.classpath
+.project

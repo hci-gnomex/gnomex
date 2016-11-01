@@ -1,0 +1,60 @@
+        <!-- Organism Detail Form  -->
+		<div class="col-lg-10" >
+
+			<div class=" panel panel-default">
+
+				<div class="panel-heading"><h5>Organism {{organismSelected.label}}</h5></div>
+
+				<div class="panel-body" style="padding-top: 10px;">
+
+<style>
+table.noheader{
+  border-top: none;
+}
+</style>
+<style>
+td.bi {
+    font-style: italic !important;
+    color: blue;
+}
+</style>
+
+<div class="container-fluid" style="padding-top: 10px">
+
+	<div class="row">
+			<table class="noheader">
+			    <tbody>
+			        <tr>
+			        	<td width="10%" class="bi">Common name:</td>
+			            <td width="30%">{{organismSelected.commonName}}</td>
+			        </tr>
+			        <tr>
+			        	<td width="10%" class="bi">Binomial name:</td>
+			            <td width="30%">{{organismSelected.binomialName}}</td>
+			        </tr>
+			        <tr>
+			        	<td width="10%" class="bi">DAS2 name:</td>
+			            <td width="30%">{{organismSelected.DAS2name}}</td>
+			        </tr>
+			        <tr>
+			        	<td width="10%" class="bi">NCBI taxonomy ID:</td>
+			            <td width="30%">{{organismSelected.NCBITaxID}}</td>
+			        </tr>
+			        <tr>
+			        	<td width="10%" class="bi">Active:</td>
+			            <td width="30%">{{organismSelected.isActive}}</td>
+			        </tr>
+
+			    </tbody>
+			</table>
+	</div> <!-- end row -->
+
+
+</div> <!--  end container -->
+
+
+
+				</div>
+			</div>
+
+		</div>

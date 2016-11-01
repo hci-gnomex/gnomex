@@ -1,0 +1,64 @@
+<style>
+table.noheader{
+  border-top: none;
+}
+</style>
+<style>
+td.bi {
+    font-style: italic !important;
+    color: blue;
+}
+</style>
+
+<div class="container-fluid" style="padding-top: 10px">
+
+	<div class="row">
+			<table class="noheader">
+			    <tbody>
+			        <tr>
+			        	<td width="15%" class="bi">Lab group</td>
+			            <td width="30%">{{labSelected}}</td>
+			        	<td width="15%" class="bi">Owned by</td>
+			            <td width="30%">{{analysisSelectedIL.requestor}}</td>
+			        </tr>
+			        <tr>
+			        	<td width="15%" class="bi">Name</td>
+			            <td width="30%">{{analysisSelectedIL.name}}</td>
+			        	<td width="15%" class="bi">Created by</td>
+			            <td width="30%">{{analysisSelectedIL.submitterName}}</td>
+			        </tr>
+			        <tr>
+			        	<td width="15%" class="bi">Analysis Type</td>
+			            <td width="30%">{{analysisSelectedIL.atype}}</td>
+			        	<td width="15%" class="bi">Create Date</td>
+			            <td width="30%">{{analysisSelectedIL.createDate}}</td>
+			        </tr>
+			        <tr>
+			        	<td width="15%" class="bi">Analysis Protocol</td>
+			            <td width="30%">{{analysisSelectedIL.protocol}}</td>
+			        	<td width="15%" class="bi">Visibility</td>
+			            <td width="30%">{{analysisSelectedIL.codeVisibility}}</td>
+			        </tr>
+			        <tr>
+			        	<td width="15%" class="bi">Organism</td>
+			            <td width="30%">{{analysisSelectedIL.organismName}}</td>
+			        	<td width="15%" class="bi">Institution</td>
+			            <td width="30%">{{analysisSelectedIL.institution}}</td>
+			        </tr>
+			        <tr>
+			        	<td width="15%" class="bi">Genome Builds</td>
+			            <td width="30%">{{analysisSelectedIL.genomeBuilds}}</td>
+			        	<td width="15%" class="bi">Collaborators</td>
+			            <td width="30%">{{analysisSelectedIL.collaborator}}</td>
+			        </tr>
+			        <tr>
+			        	<td width="15%" class="bi">Analysis Groups</td>
+			            <td width="30%">{{analysisSelectedIL.analysisGroupNames}}</td>
+			        </tr>
+
+			    </tbody>
+			</table>
+	</div> <!-- end row -->
+
+
+</div> <!--  end container -->
