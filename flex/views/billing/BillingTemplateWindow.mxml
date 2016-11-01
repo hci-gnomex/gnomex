@@ -565,7 +565,7 @@
 							   itemRenderer="mx.controls.Label"
 							   sortable="false"/>        
 			<mx:DataGridColumn id="percentageColumn"
-							   headerText="%" width="30" minWidth="30" dataField="@percentSplit" editable="true"
+							   headerText="%" width="50" minWidth="50" dataField="@percentSplit" editable="true"
 							   sortable="false"/>
 			<mx:DataGridColumn id="dollarColumn"
 							   headerText="$" width="50" dataField="@dollarAmount" minWidth="50" editable="true"
