@@ -15,6 +15,10 @@
         <!-- delete version.as if it still exists -->
         <delete file="${flexapp.dir}/views/util/FlexAppVersion.as" />
 
+        <tstamp>
+            <format property="build.date" pattern="MMM-dd-yyyy HH:MM" locale="en,UK"/>
+        </tstamp>
+
         <!-- create flexAppVersion class -->
         <echo>Flex Version ${gnomex_version}.${gnomex_build}</echo>
         <copy file="${flexapp.dir}/views/util/FlexAppVersion.as.template" tofile="${flexapp.dir}/views/util/FlexAppVersion.as" />
