@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" 
-		 xmlns:util="views.util.*"
-		 width="100%" height="100%" label="Experiment Platform" paddingLeft="4" paddingRight="4" paddingTop="10" paddingBottom="4" verticalGap="10">
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml"
+		 xmlns:util="views.util.*" xmlns:renderers="views.renderers.*"
+		 width="100%" height="100%" label="Experiment Platform" paddingLeft="4" paddingRight="4" paddingTop="10"
+		 paddingBottom="4" verticalGap="10">
 	
 	<mx:Script>
 		<![CDATA[
@@ -330,7 +331,7 @@
 	
 	<mx:HBox width="100%" horizontalGap="1" verticalAlign="middle" id="vendorHBox">
 		<mx:Label text="Vendor" width="100" styleName="formLabel"/>
-		<mx:ComboBox  width="300" 
+		<mx:ComboBox  width="300"
 					  dataProvider="{state.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Vendor').DictionaryEntry}" 
 					  labelField="@display"
 					  close="{vendorChanged()}"
@@ -370,7 +371,7 @@
 	<mx:HBox width="100%" verticalAlign="middle" horizontalGap="0" id="organismHBox">
 		<mx:Text text="Default Organism" 
 				 width="100" visible="{isInternalCheckbox.selected}"  styleName="formLabel"/>
-		<mx:ComboBox width="300" id="organismCombo"
+		<renderers:FilterComboBox width="300" id="organismCombo"
 					 dataProvider="{state.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OrganismLite').DictionaryEntry}" 
 					 labelField="@display" visible="{isInternalCheckbox.selected}" close="{state.requestCategory.@idOrganism = organismCombo.selectedItem != null ? organismCombo.selectedItem.@value : '';state.dirty.setDirty();}"/>
 	</mx:HBox>
@@ -379,7 +380,7 @@
 		<mx:Text text="Uses Products?" width="100" styleName="formLabel"/>
 		<mx:CheckBox id="useProductsCheckBox" click="{updateProductType(); updateProductStatus(); state.dirty.setDirty()}" selected="{state.requestCategory.@idProductType != ''}"/>
 		<mx:Spacer width="10"/>
-		<mx:ComboBox id="productTypeCombo" dataProvider="{filteredProductTypes}" labelField="@display" visible="{useProductsCheckBox.selected}" includeInLayout="{useProductsCheckBox.selected}" 
+		<mx:ComboBox id="productTypeCombo" dataProvider="{filteredProductTypes}" labelField="@display" visible="{useProductsCheckBox.selected}" includeInLayout="{useProductsCheckBox.selected}"
 					 close="{updateProductType(); state.dirty.setDirty()}" width="277"/>
 		<mx:Spacer width="10"/>
 		<mx:Text text="No Products Message:" width="70" styleName="formLabel" visible="{useProductsCheckBox.selected}" includeInLayout="{useProductsCheckBox.selected}"/>
@@ -389,7 +390,7 @@
 	</mx:HBox>
 	<mx:HBox width="100%" verticalAlign="middle" horizontalGap="0" visible="{useProductsCheckBox.selected}" includeInLayout="{useProductsCheckBox.selected}">
 		<mx:Text text="Status to Use Products" width="100" styleName="formLabel"/>
-		<mx:ComboBox id="productStatusCombo" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.RequestStatus').DictionaryEntry}" 
+		<mx:ComboBox id="productStatusCombo" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.RequestStatus').DictionaryEntry}"
 					 labelField="@codeRequestStatus" close="{updateProductStatus(); state.dirty.setDirty()}" width="300" prompt="Select a Status..."/>
 	</mx:HBox>
 	

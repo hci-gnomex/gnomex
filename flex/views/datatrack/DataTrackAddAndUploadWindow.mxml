@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:TitleWindow 
-	xmlns:mx="http://www.adobe.com/2006/mxml"
-	title="{'Add new data track to ' + parentName}"	
-	showCloseButton="true" 
-	width="518" 
-	height="446" 
-	close="closeWindow()"
-	titleIcon="{parentApplication.iconDataTrackNew}"
-	layout="vertical" backgroundAlpha="100" defaultButton="{saveButton}" currentState="NormalState">
+<mx:TitleWindow
+		xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:renderers="views.renderers.*"
+		title="{'Add new data track to ' + parentName}"
+		showCloseButton="true"
+		width="518"
+		height="446"
+		close="closeWindow()"
+		titleIcon="{parentApplication.iconDataTrackNew}"
+		layout="vertical" backgroundAlpha="100" defaultButton="{saveButton}" currentState="NormalState">
 	<mx:states>
 		<mx:State name="NormalState">
 			<mx:SetStyle target="{label2}" name="paddingTop" value="4"/>
@@ -390,13 +390,12 @@
 				<mx:VBox width="100%" verticalGap="0">
 					<mx:Label text="Lab:" fontWeight="bold">
 					</mx:Label>
-					<mx:ComboBox id="labCombo" dataProvider="{parentApplication.promptedLabList}" width="100%" labelField="@name" change="{initializeFileUploadParameters();setDefaultVisibility()}">
-					</mx:ComboBox>
+					<renderers:FilterComboBox id="labCombo" dataProvider="{parentApplication.promptedLabList}" width="100%" labelField="@name" change="{initializeFileUploadParameters();setDefaultVisibility()}"/>
 				</mx:VBox>
 					<mx:VBox width="100%" verticalGap="0">
 					<mx:Label text="Visibility:" width="100%" fontWeight="bold" id="label3"/>
 					<mx:HBox width="100%" id="visibilityBox">
-						<mx:ComboBox id="visibilityCombo" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Visibility').DictionaryEntry}" labelField="@display" width="100%"  change="{initializeFileUploadParameters()}"></mx:ComboBox>							        					
+						<mx:ComboBox id="visibilityCombo" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Visibility').DictionaryEntry}" labelField="@display" width="100%"  change="{initializeFileUploadParameters()}"/>
 					</mx:HBox>
 					</mx:VBox>
 			            	

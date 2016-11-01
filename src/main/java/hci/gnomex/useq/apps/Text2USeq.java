@@ -146,7 +146,7 @@ public class Text2USeq {
 			}
 			else ai.setDataType(ArchiveInfo.DATA_TYPE_VALUE_REGION);
 			//set text file source
-			ai.setOriginatingDataSource(sourceFile.toString());
+			ai.setOriginatingDataSource(sourceFile.toString().replace("\\", "/"));
 			//set color
 			if (color != null) ai.setInitialColor(color);
 			//set description?

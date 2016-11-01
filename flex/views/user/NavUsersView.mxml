@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"
-   label="Users And Groups"
-	width="100%" height="100%"   backgroundAlpha="0"
-	xmlns:views="views.*" 
-	xmlns:user="views.user.*" 
-	xmlns:util="views.util.*" 
-	creationPolicy="all" show="init()"
-	showEffect="{parentApplication.fadeIn}" hideEffect="{parentApplication.fadeOut}"
-	shadowDirection="left" >
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:renderers="views.renderers.*"
+		   label="Users And Groups"
+		   width="100%" height="100%" backgroundAlpha="0"
+		   xmlns:views="views.*"
+		   xmlns:user="views.user.*"
+		   xmlns:util="views.util.*"
+		   creationPolicy="all" show="init()"
+		   showEffect="{parentApplication.fadeIn}" hideEffect="{parentApplication.fadeOut}"
+		   shadowDirection="left">
  
     <mx:HTTPService 
     id="getAppUserList" 
@@ -796,8 +796,7 @@
 					  <mx:VBox verticalGap="2" id="filterBox" includeInLayout="false" paddingBottom="4" visible="false">
 						  <mx:HBox  horizontalGap="0">
 							  <mx:ComboBox width="220" dataProvider="{parentApplication.coreFacilitiesICanManage.copy()}"
-										   id="coreCombo" labelField="@display"  styleName="labelSmall" click="refreshGroupList()" change="refreshGroupList()" prompt="Core Facility...">			       	
-							  </mx:ComboBox>
+										   id="coreCombo" labelField="@display"  styleName="labelSmall" click="refreshGroupList()" change="refreshGroupList()" prompt="Core Facility..."/>
 						  </mx:HBox>
 						  <mx:HBox width="100%" paddingTop="4" horizontalGap="0">
 							  <mx:Text text="Department" width="70"  styleName="labelSmall"/>
@@ -805,8 +804,7 @@
 						  </mx:HBox>
 						  <mx:CheckBox id="isExternalCheckbox"  styleName="labelSmall" click="refreshGroupList()" label="External" selected="false"/>
 						  <mx:HBox  horizontalGap="0">
-							  <mx:ComboBox width="220" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Institution').DictionaryEntry}" id="institutionCombo" labelField="@display"  click="refreshGroupList()" change="refreshGroupList()" prompt="Institution...">			       	
-							  </mx:ComboBox>
+							  <mx:ComboBox width="220" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Institution').DictionaryEntry}" id="institutionCombo" labelField="@display"  click="refreshGroupList()" change="refreshGroupList()" prompt="Institution..."/>
 						  </mx:HBox>
 					  </mx:VBox>
 						

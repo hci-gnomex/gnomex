@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:VBox styleName="panelBox"   xmlns:mx="http://www.adobe.com/2006/mxml"   xmlns:views="views.*"  xmlns:util="views.util.*"
-	width="100%" height="100%">
+<mx:VBox styleName="panelBox" xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:views="views.*" xmlns:util="views.util.*"
+		 width="100%" height="100%" xmlns:renderers="views.renderers.*">
 <mx:HBox verticalAlign="middle">
 	<mx:Image source="{parentApplication.iconExtraction}"/>
 	<mx:Label id="titleLabel" styleName="titleLabel" text="Scan / Feature Extraction" />
@@ -184,11 +184,10 @@
             <mx:HBox width="100%" horizontalAlign="left" paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0" verticalAlign="bottom">
             	<mx:HBox paddingTop="0" paddingRight="0" paddingLeft="0" paddingBottom="0" verticalAlign="middle">
 	            	<mx:Label text="Request #"/>
-	            	<mx:ComboBox id="requestNumberCombo" 
+	            	<mx:ComboBox id="requestNumberCombo"
 	            		dataProvider="{requestNumbers}" 
 	            		change="workList.filterFunction = filterWorkList;workList.refresh()"  
-	            		width="90">
-	            	</mx:ComboBox>
+	            		width="90"/>
             	</mx:HBox>
             	<mx:Spacer width="100%"/>
                 <mx:Label text="{requestNumberCount}"/>

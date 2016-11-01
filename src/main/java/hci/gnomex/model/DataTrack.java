@@ -625,7 +625,7 @@ public class DataTrack extends DetailObject implements Serializable, Owned, Visi
             //one file return file
             if (files.size() == 1) {
                 File file = files.get(0);
-                filePath = file.getAbsolutePath();
+                filePath = file.getAbsolutePath().replace("\\", "/");
             }
             //multiple files, might contain a useq file with URL link files (xxx.bw, xxx.bb) that should be skipped or bam and it's associated bai index file
             else {
@@ -633,12 +633,12 @@ public class DataTrack extends DetailObject implements Serializable, Owned, Visi
                     String fileName = f.getName();
                     //bam?
                     if (fileName.endsWith("bam")) {
-                        filePath = f.getAbsolutePath();
+                        filePath = f.getAbsolutePath().replace("\\", "/");
                         break;
                     }
                     //useq?
                     else if (fileName.endsWith(USeqUtilities.USEQ_EXTENSION_WITH_PERIOD)) {
-                        filePath = f.getAbsolutePath();
+                        filePath = f.getAbsolutePath().replace("\\", "/");
                         break;
                     }
                 }

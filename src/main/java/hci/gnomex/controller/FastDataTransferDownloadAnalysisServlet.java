@@ -1,5 +1,6 @@
 package hci.gnomex.controller;
 
+import hci.gnomex.constants.Constants;
 import hci.gnomex.model.Analysis;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.security.SecurityAdvisor;
@@ -185,7 +186,7 @@ public class FastDataTransferDownloadAnalysisServlet extends HttpServlet {
               process.waitFor();
               process.destroy();        
 
-              softlinks_dir = softlinks_dir + File.separator;
+              softlinks_dir = softlinks_dir + Constants.FILE_SEPARATOR_CHAR;
             }
 
 
@@ -197,7 +198,7 @@ public class FastDataTransferDownloadAnalysisServlet extends HttpServlet {
 
             // Get file/location of file to create symbolic link to
             String fullPath = fd.getFileName();
-            int indxFileName = fullPath.lastIndexOf("/");
+            int indxFileName = fullPath.lastIndexOf(Constants.FILE_SEPARATOR);
             int indxDirPath = fullPath.indexOf(analysisNumberBase);
 
             // Get fileName to use for the name of the softlink
@@ -228,7 +229,7 @@ public class FastDataTransferDownloadAnalysisServlet extends HttpServlet {
         
         String fdtJarLoc = PropertyDictionaryHelper.getInstance(sess).getFDTJarLocation(req.getServerName());
         String fdtServerName = PropertyDictionaryHelper.getInstance(sess).getFDTServerName(req.getServerName());
-        String softLinksPath = PropertyDictionaryHelper.getInstance(sess).GetFDTDirectory(req.getServerName())+uuid.toString()+File.separator+analysisNumberBase;           
+        String softLinksPath = PropertyDictionaryHelper.getInstance(sess).GetFDTDirectory(req.getServerName())+uuid.toString()+Constants.FILE_SEPARATOR+analysisNumberBase;
         if (fdtJarLoc == null || fdtJarLoc.equals("")) {
           fdtJarLoc = "http://monalisa.cern.ch/FDT/";
         }

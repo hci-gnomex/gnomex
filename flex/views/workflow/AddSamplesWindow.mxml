@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
-				width="982" height="490" 
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:renderers="views.renderers.*"
+				width="982" height="490"
 				creationComplete="{init()}"
-				xmlns:util="views.util.*" 
+				xmlns:util="views.util.*"
 				showCloseButton="true" close="exitRequest()"
 				title="{'Add samples to Flow Cell ' + selectedFC.@number + ', Channel ' + selectedChannel.@number}">
 	
@@ -359,12 +359,11 @@
 										 paddingTop="0" 
 										 textAlign="left"/>
 								
-								<mx:ComboBox id="selectedLab" 
+								<renderers:FilterComboBox id="selectedLab"
 											 dataProvider="{labs}" 
 											 labelField="@name" 
 											 toolTip="Select Lab" 
-											 change="labSelected(event)" width="170">
-								</mx:ComboBox>
+											 change="labSelected(event)" width="170"/>
 							
 							</mx:HBox>
 							

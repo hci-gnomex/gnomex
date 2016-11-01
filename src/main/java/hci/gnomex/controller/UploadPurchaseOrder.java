@@ -1,5 +1,6 @@
 package hci.gnomex.controller;
 
+import hci.gnomex.constants.Constants;
 import hci.gnomex.model.BillingAccount;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.utility.HibernateSession;
@@ -54,8 +55,8 @@ protected void doPost(HttpServletRequest req, HttpServletResponse res) throws Se
 			throw new ServletException(
 					"Unable to upload sample sheet. Missing GNomEx property for temp_directory.  Please add using 'Manage Dictionaries'.");
 		}
-		if (!directoryName.endsWith("/") && !directoryName.endsWith("\\")) {
-			directoryName += File.separator;
+		if (!directoryName.endsWith(Constants.FILE_SEPARATOR) && !directoryName.endsWith("\\")) {
+			directoryName += Constants.FILE_SEPARATOR;
 		}
 
 		File dir = new File(directoryName);

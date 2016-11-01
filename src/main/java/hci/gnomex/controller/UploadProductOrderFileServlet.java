@@ -153,10 +153,10 @@ protected void doPost(HttpServletRequest req, HttpServletResponse res) throws Se
 			String baseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(req.getServerName(),
 					productOrder.getIdCoreFacility(), PropertyDictionaryHelper.PROPERTY_PRODUCT_ORDER_DIRECTORY);
 
-			if (baseDir.endsWith("/")) {
+			if (baseDir.endsWith(Constants.FILE_SEPARATOR)) {
 				baseDir += createYear;
 			} else {
-				baseDir += "/" + createYear;
+				baseDir += Constants.FILE_SEPARATOR + createYear;
 			}
 			if (!new File(baseDir).exists()) {
 				boolean success = (new File(baseDir)).mkdir();
@@ -165,7 +165,7 @@ protected void doPost(HttpServletRequest req, HttpServletResponse res) throws Se
 				}
 			}
 
-			directoryName = baseDir + "/" + productOrder.getProductOrderNumber();
+			directoryName = baseDir + Constants.FILE_SEPARATOR + productOrder.getProductOrderNumber();
 			if (!new File(directoryName).exists()) {
 				boolean success = (new File(directoryName)).mkdir();
 				if (!success) {
@@ -173,7 +173,7 @@ protected void doPost(HttpServletRequest req, HttpServletResponse res) throws Se
 				}
 			}
 
-			directoryName += "/" + Constants.UPLOAD_STAGING_DIR;
+			directoryName += Constants.FILE_SEPARATOR + Constants.UPLOAD_STAGING_DIR;
 			if (!new File(directoryName).exists()) {
 				boolean success = (new File(directoryName)).mkdir();
 				if (!success) {
@@ -198,7 +198,7 @@ protected void doPost(HttpServletRequest req, HttpServletResponse res) throws Se
 						xferLog.setPerformCompression("N");
 						xferLog.setIdProductOrder(productOrder.getIdProductOrder());
 						xferLog.setIdLab(productOrder.getIdLab());
-						xferLog.setFileName(productOrder.getProductOrderNumber() + "/" + fileName);
+						xferLog.setFileName(productOrder.getProductOrderNumber() + Constants.FILE_SEPARATOR + fileName);
 
 						// the part actually contained a file
 						long size = filePart.writeTo(new File(directoryName));
@@ -211,7 +211,7 @@ protected void doPost(HttpServletRequest req, HttpServletResponse res) throws Se
 						// Save analysis file (name) in db. Create new af if filename does not already exist in analysis files. Otherwise just update upload
 						// time and size.
 						Boolean isExistingFile = false;
-						String fullFileName = directoryName + "/" + fileName;
+						String fullFileName = directoryName + Constants.FILE_SEPARATOR + fileName;
 						for (ProductOrderFile existingFile : productOrderFiles) {
 							if (existingFile.getFullPathName().equals(fullFileName)) {
 								existingFile.setCreateDate(new java.sql.Date(System.currentTimeMillis()));
@@ -229,7 +229,7 @@ protected void doPost(HttpServletRequest req, HttpServletResponse res) throws Se
 							pof.setIdProductOrder(idProductOrder);
 							pof.setProductOrder(productOrder);
 							pof.setFileName(new File(fileName).getName());
-							pof.setBaseFilePath(baseDir + "/" + productOrder.getProductOrderNumber());
+							pof.setBaseFilePath(baseDir + Constants.FILE_SEPARATOR + productOrder.getProductOrderNumber());
 							pof.setFileSize(new BigDecimal(new File(fileName).length()));
 
 							pof.setQualifiedFilePath(Constants.UPLOAD_STAGING_DIR);

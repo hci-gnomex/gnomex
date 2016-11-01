@@ -276,7 +276,7 @@ public class SubmitWorkAuthForm extends GNomExCommand implements Serializable {
       for(int i = 0; i < emails.length; i++) {
         StringBuffer coreNote= new StringBuffer();
         String approveBillingAccountURL = requestURL.substring(0, requestURL.indexOf("SubmitWorkAuthForm.gx"));
-        approveBillingAccountURL += "/" + Constants.APPROVE_BILLING_ACCOUNT_SERVLET + "?idBillingAccount=" + billingAccount.getIdBillingAccount() + "&approverEmail=" + emails[i] ;
+        approveBillingAccountURL += Constants.FILE_SEPARATOR + Constants.APPROVE_BILLING_ACCOUNT_SERVLET + "?idBillingAccount=" + billingAccount.getIdBillingAccount() + "&approverEmail=" + emails[i] ;
 
         coreNote.append("The following billing account " +
               "has been submitted to the " + facility.getDisplay() + " Core" +  

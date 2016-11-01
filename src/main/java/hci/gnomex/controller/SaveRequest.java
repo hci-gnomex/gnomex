@@ -276,6 +276,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 
 		Session sess = null;
 		String billingAccountMessage = "";
+		String status = null;				// non-null if ccnumbers can't be found in BST
 
 		try {
 			sess = HibernateSession.currentSession(this.getUsername());
@@ -301,7 +302,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 				PropertyDictionaryHelper propertyHelper = PropertyDictionaryHelper.getInstance(sess);
 				if (propertyHelper.getProperty(PropertyDictionary.BST_LINKAGE_SUPPORTED) != null
 						&& propertyHelper.getProperty(PropertyDictionary.BST_LINKAGE_SUPPORTED).equals("Y")) {
-					validateCCNumbers();
+					status = validateCCNumbers();
 				}
 
 				if (requestParser.isNewRequest()) {
@@ -963,7 +964,11 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 							+ requestParser.getRequest().getNumber() + "\" deleteSampleCount=\"" + this.samplesDeleted.size() + "\" deleteHybCount=\""
 							+ this.hybsDeleted.size() + "\" deleteLaneCount=\"" + this.sequenceLanesDeleted.size() + "\" billingAccountMessage = \""
 							+ billingAccountMessage + "\" emailErrorMessage = \"" + emailErrorMessage + "\" requestPropertyBillingMessage = \""
-							+ requestPropertyBillingMessage + "\"/>";
+							+ requestPropertyBillingMessage;
+					if (status != null) {
+						this.xmlResult += "\" warning = \"" + status;
+					}
+					this.xmlResult +=  "\"/>";
 
 				}
 
@@ -988,16 +993,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 			LOG.error("An exception has occurred in SaveRequest ", e);
 
 			throw new GNomExRollbackException(e.getMessage(), true, "An error occurred saving the request.");
-		} finally {
-			try {
-
-				if (sess != null) {
-					//closeHibernateSession;
 				}
-			} catch (Exception e) {
-				LOG.error("An exception has occurred in SaveRequest ", e);
-			}
-		}
 
 		return this;
 	}
@@ -1089,7 +1085,8 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 
 	}
 
-	private void validateCCNumbers() {
+	private String validateCCNumbers() {
+		String status = null;
 		Session sessGuest = null;
 		Connection con = null;
 
@@ -1144,8 +1141,8 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 					}
 				}
 				if (buf.toString().length() > 0) {
-					this.addInvalidField("InvalidCCNumber", "The following CC Numbers do not exist in BST: " + buf.toString()
-							+ ".\n\nPlease correct on the Samples tab.");
+					status = "The following CC Numbers do not exist in BST: " + buf.toString()
+							+ ".\n\nPlease correct on the Samples tab.";
 				}
 
 			} catch (Exception e) {
@@ -1164,6 +1161,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 
 		}
 
+		return status;
 	}
 
 	public static String saveRequest(Session sess, RequestParser requestParser, String description) throws Exception {
@@ -2988,7 +2986,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 	private void createResultDirectories(Request req, String qcDirectory, String microarrayDir) {
 
 		String createYear = this.formatDate(req.getCreateDate(), this.DATE_OUTPUT_ALTIO).substring(0, 4);
-		String rootDir = microarrayDir + "/" + createYear;
+		String rootDir = microarrayDir + Constants.FILE_SEPARATOR + createYear;
 
 		boolean success = false;
 		if (!new File(rootDir).exists()) {
@@ -2999,7 +2997,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 		}
 
 		String baseRequestNumber = Request.getBaseRequestNumber(req.getNumber());
-		String directoryName = rootDir + "/" + baseRequestNumber;
+		String directoryName = rootDir + Constants.FILE_SEPARATOR + baseRequestNumber;
 
 		if (!new File(directoryName).exists()) {
 			success = (new File(directoryName)).mkdir();
@@ -3008,7 +3006,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 			}
 		}
 
-		String qcDirectoryName = directoryName + File.separator + qcDirectory;
+		String qcDirectoryName = directoryName + Constants.FILE_SEPARATOR + qcDirectory;
 
 		if (!new File(qcDirectoryName).exists()) {
 			success = (new File(qcDirectoryName)).mkdir();
@@ -3020,7 +3018,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 		if (req.getHybridizations() != null) {
 			for (Iterator i = req.getHybridizations().iterator(); i.hasNext();) {
 				Hybridization hyb = (Hybridization) i.next();
-				String hybDirectoryName = directoryName + "/" + hyb.getNumber();
+				String hybDirectoryName = directoryName + Constants.FILE_SEPARATOR + hyb.getNumber();
 				if (!new File(hybDirectoryName).exists()) {
 					success = (new File(hybDirectoryName)).mkdir();
 					if (!success) {
@@ -3064,19 +3062,19 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 
 	public void deleteDir(File f, String fileName) throws Exception {
 		for (String file : f.list()) {
-			File child = new File(fileName + File.separator + file);
+			File child = new File(fileName + Constants.FILE_SEPARATOR + file);
 			if (child.isDirectory()) {
-				deleteDir(child, child.getCanonicalPath());
-			} else if (!(new File(fileName + File.separator + file).delete())) {
-				throw new Exception("Unable to delete file " + fileName + File.separator + file);
+				deleteDir(child, child.getCanonicalPath().replace("\\", Constants.FILE_SEPARATOR));
+			} else if (!(new File(fileName + Constants.FILE_SEPARATOR + file).delete())) {
+				throw new Exception("Unable to delete file " + fileName + Constants.FILE_SEPARATOR + file);
 			} else {
-				filesToRemoveParser.parseFilesToRemove().remove(fileName + File.separator + file);
+				filesToRemoveParser.parseFilesToRemove().remove(fileName + Constants.FILE_SEPARATOR + file);
 			}
 
 		}
 		if (f.list().length == 0) {
 			if (!f.delete()) {
-				throw new Exception("Unable to delete file " + f.getCanonicalPath());
+				throw new Exception("Unable to delete file " + f.getCanonicalPath().replace("\\", Constants.FILE_SEPARATOR));
 			}
 			return;
 		}

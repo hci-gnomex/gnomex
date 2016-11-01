@@ -1552,7 +1552,7 @@
 								<mx:LinkButton paddingBottom="0"   id="newProjectButton1" label="Edit..." click="showNewInstitutionWindow()" textDecoration="underline" styleName="formLinkButton" paddingRight="0" paddingTop="0" color="0x0000FF"/>
 							</mx:HBox>	
 							<mx:HBox horizontalAlign="left" horizontalGap="2" width="100%">
-								<mx:ComboBox width="175" dataProvider="{institutions1}" id="institutionCombo" labelField="@display" />			       	
+								<mx:ComboBox width="175" dataProvider="{institutions1}" id="institutionCombo" labelField="@display" />
 								<mx:Spacer width="100%" />
 								<mx:Button click="addInstitution()" icon="@Embed(source='../../assets/add.png')" disabledIcon="@Embed(source='../../assets/add_disable.png')" width="25">
 									<mx:enabled>{institutionCombo.selectedItem != null &amp;&amp; institutionCombo.selectedIndex > 0 ? true : false}</mx:enabled>
@@ -1642,8 +1642,7 @@
 													  labelField="@displayName" 
 													  prompt="Member to add..."
 													  width="190"
-													  id="memberCombo">
-							</renderers:FilterComboBox>
+													  id="memberCombo"/>
 							<mx:Button click="addMember()" icon="@Embed(source='../../assets/add.png')" disabledIcon="@Embed(source='../../assets/add_disable.png')" width="25">
 								<mx:enabled>{memberCombo.selectedItem != null &amp;&amp; memberCombo.selectedItem.@idAppUser != '' ? true : false}</mx:enabled>
 							</mx:Button>
@@ -1662,8 +1661,7 @@
 													  labelField="@displayName" 
 													  prompt="Collaborator to add..."
 													  width="190"
-													  id="collaboratorCombo">
-							</renderers:FilterComboBox>			 
+													  id="collaboratorCombo"/>
 							<mx:Button click="addCollaborator()" icon="@Embed(source='../../assets/add.png')" disabledIcon="@Embed(source='../../assets/add_disable.png')" width="25">
 								<mx:enabled>{collaboratorCombo.selectedItem != null &amp;&amp; collaboratorCombo.selectedItem.@idAppUser != '' ? true : false}</mx:enabled>
 							</mx:Button>
@@ -1682,8 +1680,7 @@
 														  labelField="@displayName" 
 														  prompt="Manager to add..."
 														  width="190"
-														  id="managerCombo">
-								</renderers:FilterComboBox>		 
+														  id="managerCombo"/>
 								<mx:Button click="addManager()" icon="@Embed(source='../../assets/add.png')" disabledIcon="@Embed(source='../../assets/add_disable.png')" width="25">
 									<mx:enabled>{managerCombo.selectedItem != null &amp;&amp; managerCombo.selectedItem.@idAppUser != '' ? true : false}</mx:enabled>
 								</mx:Button>

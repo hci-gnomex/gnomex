@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" initialize="onInitialize()" horizontalAlign="center" horizontalScrollPolicy="off" verticalScrollPolicy="off">
+<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:renderers="views.renderers.*" initialize="onInitialize()"
+		 horizontalAlign="center" horizontalScrollPolicy="off" verticalScrollPolicy="off">
 	<mx:Script>
 		<![CDATA[
 			import mx.collections.ArrayCollection;

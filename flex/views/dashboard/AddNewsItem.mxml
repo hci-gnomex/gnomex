@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:renderers="views.renderers.*"
 				showCloseButton="true" close="{PopUpManager.removePopUp(this)}"
-				layout="vertical" horizontalAlign="right" verticalGap="10"  creationPolicy="all" 
-				title="Add News Item" creationComplete="init()" 
+				layout="vertical" horizontalAlign="right" verticalGap="10" creationPolicy="all"
+				title="Add News Item" creationComplete="init()"
 				borderThickness="4" height="400" width="400" verticalScrollPolicy="off" horizontalScrollPolicy="off">	
 	
 	<mx:HTTPService 
@@ -117,7 +117,7 @@
 		</mx:HBox>
 		<mx:HBox includeInLayout="true" id="coreFacilityBox" visible="true">
 			<mx:Label fontWeight="bold" text="Intended For: "/>
-			<mx:ComboBox id="cfSelector" dataProvider="{coreFacilities}" labelField="@display" /> 
+			<mx:ComboBox id="cfSelector" dataProvider="{coreFacilities}" labelField="@display" />
 		</mx:HBox>
 		
 		<mx:Label fontWeight="bold" text="Message: "/>

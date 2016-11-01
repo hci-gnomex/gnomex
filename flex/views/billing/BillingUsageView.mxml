@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical" 
-	title="Lab Usage Report For {parentView.coreFacilityCombo.selectedItem.@display}" 
-	width="630" height="120" defaultButton="{runButton}">
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:renderers="views.renderers.*" layout="vertical"
+				title="Lab Usage Report For {parentView.coreFacilityCombo.selectedItem.@display}"
+				width="630" height="120" defaultButton="{runButton}">
  
 
 <mx:Script>
@@ -33,19 +33,17 @@
 	<mx:HBox width="100%" paddingTop="2" paddingBottom="2">
 		<mx:HBox height="100%" verticalGap="0" width="100%" verticalAlign="middle">
 			<mx:Label text="For billing periods:  "/>
-			<mx:ComboBox id="billingPeriodStartCombo" 
+			<mx:ComboBox id="billingPeriodStartCombo"
 				dataProvider="{billingPeriods}"
 				labelField="@display"
 				visible="true"  
-				width="170">
-			</mx:ComboBox>
+				width="170"/>
 			<mx:Label text="through"/>
-			<mx:ComboBox id="billingPeriodEndCombo" 
+			<mx:ComboBox id="billingPeriodEndCombo"
 				dataProvider="{billingPeriods}"
 				labelField="@display"
 				visible="true"  
-				width="170">
-			</mx:ComboBox>
+				width="170"/>
 		</mx:HBox>
 		<mx:VBox verticalGap="0">
 			<mx:RadioButtonGroup id="pricingModel"/>

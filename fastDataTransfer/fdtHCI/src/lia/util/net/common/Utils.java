@@ -577,6 +577,52 @@ public final class Utils {
                 // END handle windows stupid FS naming
                 // ////////////
 
+                    if ((idx + 1) == args[i].length()) {
+                        // ////////////
+                        // tricky scp-like command from windows
+                        //
+                        // java -jar fdt.jar C:\x n:
+                        //
+                        // where n may be a remote machine, and C:\x a file
+                        //
+                        // check that we have a single letter before ':'
+                        // ///////////////
+
+                        if ((idx - 1) == 0) {
+
+                            // test if it is a File
+                            if (new File(args[i].charAt(0) + ":").exists()) {
+                                // stupid driver letter; got you
+                                if (sshUsers.size() > 0) {
+                                    // I am the destination directory
+                                    rHM.put("destinationDir", args[i]);
+                                    rHM.put("-d", rHM.get("destinationDir"));
+                                    break;
+                                }
+
+                                lParams.add(args[i]);
+                                continue;
+                            }
+                        }
+                    }
+
+                    if (((idx + 1) < args[i].length()) && (args[i].charAt(idx + 1) == File.separatorChar)) {
+                        if (sshUsers.size() > 0) {
+                            // I am the destination directory
+                            rHM.put("destinationDir", args[i]);
+                            rHM.put("-d", rHM.get("destinationDir"));
+                            break;
+                        }
+
+                        lParams.add(args[i]);
+                        continue;
+                    }
+                }
+
+                // /////////////
+                // END handle windows stupid FS naming
+                // ////////////
+
                 // SSH mode
 
                 // System.out.print(" SCP Match: " + args[i]);

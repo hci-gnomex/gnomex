@@ -7,6 +7,7 @@ package hci.flex.controls
 	import mx.controls.ComboBox;
 	import mx.core.IFactory;
 	import mx.events.ListEvent;
+
 	
 	/**
 	 * Standalone Usage:
@@ -193,6 +194,10 @@ package hci.flex.controls
 	}
 	
 }
+
+import hci.flex.controls.ComboBox;
+
+import mx.core.IFactory;
 
 class ComboBoxFactory implements mx.core.IFactory {
 	private var properties:Object;

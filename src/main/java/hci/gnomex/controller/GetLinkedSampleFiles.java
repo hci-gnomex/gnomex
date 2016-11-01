@@ -68,8 +68,8 @@ public class GetLinkedSampleFiles extends GNomExCommand implements Serializable 
       Request request = (Request) sess.load(Request.class, this.idRequest);
 
       String baseExperimentDir   = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, request.getIdCoreFacility(), PropertyDictionaryHelper.PROPERTY_EXPERIMENT_DIRECTORY);
-      String directoryName = baseExperimentDir + Request.getCreateYear(request.getCreateDate()) + "/";
-      directoryName.replace("\\", "/");
+      String directoryName = baseExperimentDir + Request.getCreateYear(request.getCreateDate()) + Constants.FILE_SEPARATOR;
+      directoryName.replace("\\", Constants.FILE_SEPARATOR);
 
       queryBuf.append("SELECT s.name, s.number, s.idSample, sef.idExpFileRead1, sef.idExpFileRead2, sef.seqRunNumber, sef.idSampleExperimentFile, s.groupName ");
       queryBuf.append("FROM Sample s LEFT JOIN s.sampleExperimentFiles as sef ");
@@ -101,7 +101,7 @@ public class GetLinkedSampleFiles extends GNomExCommand implements Serializable 
           ef = (ExperimentFile)sess.load(ExperimentFile.class, (Integer)row[3]);
           Element sefNode = new Element("FileDescriptor");
           f = new File(directoryName + ef.getFileName());
-          fd = new FileDescriptor("", ef.getFileName().substring(ef.getFileName().lastIndexOf("/") + 1), f, "");
+          fd = new FileDescriptor("", ef.getFileName().substring(ef.getFileName().lastIndexOf(Constants.FILE_SEPARATOR) + 1), f, "");
           sefNode.setAttribute("displayName", fd.getDisplayName());
           sefNode.setAttribute("fileSizeText", fd.getFileSizeText());
           sefNode.setAttribute("lastModifyDateDisplay", fd.getLastModifyDateDisplay());
@@ -115,7 +115,7 @@ public class GetLinkedSampleFiles extends GNomExCommand implements Serializable 
           ef = (ExperimentFile)sess.load(ExperimentFile.class, (Integer)row[4]);
           Element sefNode = new Element("FileDescriptor");
           f = new File(directoryName + ef.getFileName());
-          fd = new FileDescriptor("", ef.getFileName().substring(ef.getFileName().lastIndexOf("/") + 1), f, "");
+          fd = new FileDescriptor("", ef.getFileName().substring(ef.getFileName().lastIndexOf(Constants.FILE_SEPARATOR) + 1), f, "");
           sefNode.setAttribute("displayName", fd.getDisplayName());
           sefNode.setAttribute("fileSizeText", fd.getFileSizeText());
           sefNode.setAttribute("lastModifyDateDisplay", fd.getLastModifyDateDisplay());
@@ -158,7 +158,7 @@ public class GetLinkedSampleFiles extends GNomExCommand implements Serializable 
       HashMap<String,Element> alreadyCreated = new HashMap<String,Element>();
       for(Iterator i = sampleGroups.keySet().iterator(); i.hasNext();) {
         String groupName = (String)i.next();
-        String[] group = groupName.split("/");
+        String[] group = groupName.split(Constants.FILE_SEPARATOR);
         Element e = new Element("SampleGroup");
         e.setAttribute("displayName", group[0]);
         for(int j = 1; j < group.length; j++) {
@@ -185,12 +185,12 @@ public class GetLinkedSampleFiles extends GNomExCommand implements Serializable 
           }
           continue;
         }
-        String[] nameArray = groupName.split("/");
+        String[] nameArray = groupName.split(Constants.FILE_SEPARATOR);
         Element group = alreadyCreated.get(nameArray[0]);
         for(String sampleNumber : sampleNodes.keySet()) {
           Element samp = sampleNodes.get(sampleNumber);
           String sampGroup = samp.getAttributeValue("groupName");
-          restingNode = sampGroup.substring(sampGroup.lastIndexOf("/") + 1);
+          restingNode = sampGroup.substring(sampGroup.lastIndexOf(Constants.FILE_SEPARATOR) + 1);
           recurseAddChildren(restingNode, group, samp);
         }
 

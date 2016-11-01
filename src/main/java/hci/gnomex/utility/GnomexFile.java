@@ -1,6 +1,7 @@
 package hci.gnomex.utility;
 
 import hci.hibernate5utils.HibernateDetailObject;
+import hci.gnomex.constants.Constants;
 
 import java.io.File;
 import java.math.BigDecimal;
@@ -21,9 +22,9 @@ public abstract class GnomexFile extends HibernateDetailObject {
     public String getFullPathName() {
         String fullPathName = getBaseFilePath();
         if ( getQualifiedFilePath() != null && !getQualifiedFilePath().equals("") ) {
-            fullPathName += File.separator + getQualifiedFilePath();
+            fullPathName += Constants.FILE_SEPARATOR + getQualifiedFilePath();
         }
-        fullPathName += File.separator + getFileName();
+        fullPathName += Constants.FILE_SEPARATOR + getFileName();
 
         return fullPathName;
     }
@@ -31,7 +32,7 @@ public abstract class GnomexFile extends HibernateDetailObject {
     public String getQualifiedFileName() {
         String fullPathName = "";
         if ( getQualifiedFilePath() != null && !getQualifiedFilePath().equals("") ) {
-            fullPathName += getQualifiedFilePath() + File.separator;
+            fullPathName += getQualifiedFilePath() + Constants.FILE_SEPARATOR;
         }
         fullPathName += getFileName();
         return fullPathName;

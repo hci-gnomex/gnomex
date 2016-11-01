@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
-				width="898" height="498" 
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:renderers="views.renderers.*"
+				width="898" height="498"
 				creationComplete="{init()}"
-				xmlns:util="views.util.*" 
+				xmlns:util="views.util.*"
 				showCloseButton="true" close="exitRequest()"
 				title="{'Edit Flow Cell ' + selectedFC.@number}">
 	
@@ -375,8 +375,7 @@
 							<mx:ComboBox width="150" id="comboInstrument"
 										 labelField="@display"
 										 dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Instrument').DictionaryEntry.(@isActive=='Y')}"
-										 change="hasChanged=true">
-							</mx:ComboBox>
+										 change="hasChanged=true"/>
 							
 							<mx:HBox paddingTop="0" paddingBottom="0" borderStyle="solid" cornerRadius="10" borderColor="#466D88" paddingLeft="0" paddingRight="0">
 								<mx:RadioButtonGroup id="radiogroupSide"/>
@@ -393,7 +392,7 @@
 							</mx:HBox>
 							
 							<mx:Label text="Sequencing Protocol"/>
-							<mx:ComboBox id="comboSequencingProtocol" width="380" labelField="@display" 
+							<mx:ComboBox id="comboSequencingProtocol" width="380" labelField="@display"
 										  dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.NumberSequencingCyclesAllowed').DictionaryEntry.(@isActive=='Y')}"
 										  change="hasChanged=true"/>
 						</mx:HBox>

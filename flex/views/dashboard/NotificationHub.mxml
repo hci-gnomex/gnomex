@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"  
-		   xmlns:db="views.dashboard.*"  
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"
+		   xmlns:db="views.dashboard.*" xmlns:renderers="views.renderers.*"
 		   width="630" height="430" backgroundAlpha="1" cornerRadius="12"
 		   preinitialize="checkSecurity()" creationComplete="init()"
 		   horizontalScrollPolicy="off" verticalScrollPolicy="off">   

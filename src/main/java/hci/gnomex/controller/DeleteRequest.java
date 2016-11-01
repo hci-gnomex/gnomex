@@ -2,6 +2,7 @@ package hci.gnomex.controller;
 
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
+import hci.gnomex.constants.Constants;
 import hci.gnomex.model.AnalysisExperimentItem;
 import hci.gnomex.model.BillingItem;
 import hci.gnomex.model.ExperimentCollaborator;
@@ -268,10 +269,10 @@ public class DeleteRequest extends GNomExCommand implements Serializable {
           //Delete files from filesystem
           SimpleDateFormat formatter = new SimpleDateFormat("yyyy");
           String createYear = formatter.format(req.getCreateDate());
-          if (!baseDir.endsWith("/") && !baseDir.endsWith("\\")) {
-            baseDir += "/";
+          if (!baseDir.endsWith(Constants.FILE_SEPARATOR) && !baseDir.endsWith("\\")) {
+            baseDir += Constants.FILE_SEPARATOR;
           }
-          String directoryName = baseDir + createYear + "/" + req.getNumber().replaceFirst("R+\\d", "R");
+          String directoryName = baseDir + createYear + Constants.FILE_SEPARATOR + req.getNumber().replaceFirst("R+\\d", "R");
           removeExperimentFiles(directoryName);
 
           //
@@ -323,9 +324,9 @@ public class DeleteRequest extends GNomExCommand implements Serializable {
     }
 
     for(int i = 0; i < folderContents.length; i++){
-      File child = new File(folderName + "/" + folderContents[i]);
+      File child = new File(folderName + Constants.FILE_SEPARATOR + folderContents[i]);
       if(child.isDirectory()){
-        removeExperimentFiles(child.getCanonicalPath());
+        removeExperimentFiles(child.getCanonicalPath().replace("\\", Constants.FILE_SEPARATOR));
       }
       else{
         if (!child.delete()) {

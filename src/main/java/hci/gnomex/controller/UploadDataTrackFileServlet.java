@@ -174,7 +174,7 @@ protected void doPost(HttpServletRequest req, HttpServletResponse res) throws Se
 			// dataTrack as part of the upload
 
 			// Make sure that name doesn't have forward slashes (/) or &.
-			if (dataTrackName.contains("/") || dataTrackName.contains("&")) {
+			if (dataTrackName.contains(Constants.FILE_SEPARATOR) || dataTrackName.contains("&")) {
 				throw new Exception("The dataTrack name cannnot contain characters / or &.");
 			}
 			dataTrack = createNewDataTrack(sess, dataTrackName, codeVisibility, idGenomeBuild,
@@ -429,7 +429,7 @@ private void uploadBulkDataTracks(Session sess, File spreadSheet, DataTrack sour
 			String name = mat.group(1).trim();
 
 			// remove any preceeding /s
-			if (name.startsWith("/"))
+			if (name.startsWith(Constants.FILE_SEPARATOR))
 				name = name.substring(1);
 			File dataFile = new File(mat.group(2).trim());
 			String summary = mat.group(3).trim();
@@ -440,9 +440,9 @@ private void uploadBulkDataTracks(Session sess, File spreadSheet, DataTrack sour
 			// the the directory structure embedded in the name;
 			String dataTrackName = "";
 			DataTrackFolder ag = null;
-			if (name.lastIndexOf("/") >= 0) {
-				dataTrackName = name.substring(name.lastIndexOf("/") + 1);
-				ag = getSpecifiedDataTrackFolder(sess, defaultDataTrackFolder, name.substring(0, name.lastIndexOf("/")));
+			if (name.lastIndexOf(Constants.FILE_SEPARATOR) >= 0) {
+				dataTrackName = name.substring(name.lastIndexOf(Constants.FILE_SEPARATOR) + 1);
+				ag = getSpecifiedDataTrackFolder(sess, defaultDataTrackFolder, name.substring(0, name.lastIndexOf(Constants.FILE_SEPARATOR)));
 			} else {
 				dataTrackName = name;
 				ag = defaultDataTrackFolder;
@@ -585,7 +585,7 @@ private String validateBulkUploadFile(File spreadSheet) {
 private DataTrackFolder getSpecifiedDataTrackFolder(Session sess, DataTrackFolder annotationFolderBase, String name) {
 	DataTrackFolder agNext = annotationFolderBase;
 
-	String[] tokens = name.split("/");
+	String[] tokens = name.split(Constants.FILE_SEPARATOR);
 	DataTrackFolder agCurrent = annotationFolderBase;
 	for (int x = 0; x < tokens.length; x++) {
 		String agName = tokens[x];

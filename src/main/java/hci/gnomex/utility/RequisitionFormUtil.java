@@ -5,6 +5,7 @@ import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.pdf.AcroFields;
 import com.itextpdf.text.pdf.PdfReader;
 import com.itextpdf.text.pdf.PdfStamper;
+import hci.gnomex.constants.Constants;
 import hci.gnomex.model.*;
 import org.apache.commons.io.FileUtils;
 import org.hibernate.Session;
@@ -35,7 +36,7 @@ public class RequisitionFormUtil {
     String createYear = formatter.format(po.getSubmitDate());
 
     String baseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, po.getIdCoreFacility(), PropertyDictionaryHelper.PROPERTY_PRODUCT_ORDER_DIRECTORY);
-    baseDir +=  "/" + createYear;
+    baseDir +=  Constants.FILE_SEPARATOR + createYear;
     if (!new File(baseDir).exists()) {
       boolean success = (new File(baseDir)).mkdir();
       if (!success) {
@@ -43,7 +44,7 @@ public class RequisitionFormUtil {
       }
     }
 
-    String directoryName = baseDir + "/" + po.getIdProductOrder();
+    String directoryName = baseDir + Constants.FILE_SEPARATOR + po.getIdProductOrder();
     if (!new File(directoryName).exists()) {
       boolean success = (new File(directoryName)).mkdir();
       if (!success) {
@@ -51,7 +52,7 @@ public class RequisitionFormUtil {
       }
     }
 
-    // directoryName += "/" + Constants.REQUISITION_DIR;
+    // directoryName += Constants.FILE_SEPARATOR + Constants.REQUISITION_DIR;
 
     File directory = new File(directoryName);
     if (!directory.exists()) {
@@ -64,7 +65,7 @@ public class RequisitionFormUtil {
     // Check to see if a requisition form is already in place for this request.
     String[] fileList = directory.list();
     if ( fileList != null && fileList.length > 0 ) {
-      String fileName = directoryName + File.separator + fileList[0];
+      String fileName = directoryName + Constants.FILE_SEPARATOR + fileList[0];
       return new File(fileName);
     }
 
@@ -124,7 +125,7 @@ public class RequisitionFormUtil {
     BillingAccount ba = (BillingAccount)sess.load(BillingAccount.class, po.getAcceptingBalanceAccountId(sess));
 
     // Load the PDF file, get the form
-    PdfReader reader = new PdfReader( reqFile.getCanonicalPath() );
+    PdfReader reader = new PdfReader( reqFile.getCanonicalPath().replace("\\", Constants.FILE_SEPARATOR) );
     File temp = new File( FileUtils.getTempDirectoryPath(), reqFile.getName() );
     PdfStamper stamper = new PdfStamper( reader, new FileOutputStream( temp ) );
     AcroFields form = stamper.getAcroFields();

@@ -212,7 +212,7 @@ public class LinkDataTrackFile extends GNomExCommand implements Serializable {
         boolean lookForBigWigOrphan = false;
 
         String baseFileName = fetchBaseName(analysisFile.getFullPathName(), Constants.DATATRACK_FILE_EXTENSIONS);
-        baseFileName = baseFileName.replace("\\", "/");
+        baseFileName = baseFileName.replace("\\", Constants.FILE_SEPARATOR);
 
         if(baseFileName.toUpperCase().contains("_PLUS")) {
           baseFileName = baseFileName.toUpperCase().substring(0, baseFileName.toUpperCase().indexOf("_PLUS"));
@@ -233,7 +233,7 @@ public class LinkDataTrackFile extends GNomExCommand implements Serializable {
           idAnalysisFileOther = null;
           AnalysisFile af = (AnalysisFile)i.next();
           String afBaseFileName = fetchBaseName(af.getFullPathName(), Constants.DATATRACK_FILE_EXTENSIONS);
-          afBaseFileName = afBaseFileName.replace("\\", "/");
+          afBaseFileName = afBaseFileName.replace("\\", Constants.FILE_SEPARATOR);
 
           if(afBaseFileName.toUpperCase().contains("_PLUS")) {
             afBaseFileName = afBaseFileName.toUpperCase().substring(0, afBaseFileName.toUpperCase().indexOf("_PLUS"));

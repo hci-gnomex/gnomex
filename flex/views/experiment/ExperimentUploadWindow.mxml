@@ -261,6 +261,14 @@
             this.theTab.selectedIndex = 1;
             refreshUploadFiles();
             refreshFiles();
+
+            var params:Object = new Object();
+            params.idRequest = request.@idRequest;
+            params.whereami = "44";
+            if (parentView.downloadView != null) {
+                parentView.downloadView.getRequestDownloadList.send(params);
+            }
+
         }
 
         private function onGetRequest(event:ResultEvent):void {
@@ -445,7 +453,6 @@
 
                 var params:Object = new Object();
                 params.idRequest = request.@idRequest;
-//					params.idLab = request.@idLab;
                 params.whereami = "4a";
                 if (parentView.downloadView != null) {
                     parentView.downloadView.getRequestDownloadList.send(params);
@@ -1151,7 +1158,6 @@
         private function closeMe():void {
             var params:Object = new Object();
             params.idRequest = request.@idRequest;
-//				params.idLab = request.@idLab;
             params.whereami = "4";
             if (parentView.downloadView != null) {
                 parentView.downloadView.getRequestDownloadList.send(params);

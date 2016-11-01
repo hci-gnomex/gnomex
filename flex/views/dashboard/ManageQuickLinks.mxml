@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:renderers="views.renderers.*"
 				showCloseButton="true" close="{PopUpManager.removePopUp(this)}"
-				layout="vertical" horizontalAlign="right" verticalGap="10" creationPolicy="all" 
+				layout="vertical" horizontalAlign="right" verticalGap="10" creationPolicy="all"
 				title="Manage Quick Links" xmlns:util="views.util.*"
-				borderThickness="4" width="720" height="500" creationComplete="init()" >
+				borderThickness="4" width="720" height="500" creationComplete="init()">
 	
 	<mx:HTTPService 
 		id="getFAQ" 

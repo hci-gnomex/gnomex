@@ -15,6 +15,7 @@ import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import hci.gnomex.constants.Constants;
 import hci.gnomex.model.*;
 import org.hibernate.query.Query;
 import org.hibernate.Session;
@@ -194,8 +195,8 @@ public class GetExperimentPlatformList extends GNomExCommand implements Serializ
               chipTypeNode.setAttribute("unitPriceInternal", getUnitPrice(qcChipTypePriceMap, a, bct, rc, PRICE_INTERNAL));
               chipTypeNode.setAttribute("unitPriceExternalAcademic", getUnitPrice(qcChipTypePriceMap, a, bct, rc, PRICE_EXTERNAL_ACADEMIC));
               chipTypeNode.setAttribute("unitPriceExternalCommercial", getUnitPrice(qcChipTypePriceMap, a, bct, rc, PRICE_EXTERNAL_COMMERCIAL));
-              chipTypeNode.setAttribute("unitPriceDisplay", chipTypeNode.getAttributeValue("unitPriceInternal") + "/"
-                  + chipTypeNode.getAttributeValue("unitPriceExternalAcademic") + "/"
+              chipTypeNode.setAttribute("unitPriceDisplay", chipTypeNode.getAttributeValue("unitPriceInternal") + Constants.FILE_SEPARATOR
+                  + chipTypeNode.getAttributeValue("unitPriceExternalAcademic") + Constants.FILE_SEPARATOR
                   + chipTypeNode.getAttributeValue("unitPriceExternalCommercial"));
               chipTypes.addContent(chipTypeNode);
             }

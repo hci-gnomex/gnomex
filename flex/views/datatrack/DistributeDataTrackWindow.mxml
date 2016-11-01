@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<util:ResizableTitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical" 
-				width="482" height="488" closeable="true"
-				xmlns:util="views.util.*"
-				title="Data Tracks" close="{parentApplication.removeDistributeDataTrackWindow()}">
+<util:ResizableTitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:renderers="views.renderers.*"
+						   layout="vertical"
+						   width="482" height="488" closeable="true"
+						   xmlns:util="views.util.*"
+						   title="Data Tracks" close="{parentApplication.removeDistributeDataTrackWindow()}">
 	
 
 <mx:HTTPService  
@@ -1671,20 +1672,20 @@
 				 paddingBottom="2" id="hbox15"   
 				 paddingRight="2" paddingLeft="2">
 			
-			<mx:ComboBox labelField="@binomialName" id="organismCombo" 
-						 change="refreshDataTracks()" styleName="menuLabelSmall" prompt="Organism..." width="130">
-				<mx:dataProvider>{parentApplication.das2OrganismList}</mx:dataProvider>
-			</mx:ComboBox>
-			<mx:ComboBox dataProvider="{organismCombo.selectedItem.genomeBuilds.GenomeBuild}" 
+			<mx:ComboBox labelField="@binomialName" id="organismCombo"
+						 change="refreshDataTracks()" styleName="menuLabelSmall" prompt="Organism..." width="130"
+				dataProvider="{parentApplication.das2OrganismList}"/>
+
+			<renderers:FilterComboBox dataProvider="{organismCombo.selectedItem.genomeBuilds.GenomeBuild}"
 						 labelField="@das2Name" id="genomeBuildCombo" 
 						 change="refreshDataTracks()" styleName="menuLabelSmall" 
-						 width="170"  prompt="Genome build..."></mx:ComboBox>
+						 width="170"  prompt="Genome build..."/>
 			
 			
-			<mx:ComboBox id="labCombo" dataProvider="{parentApplication.promptedLabList}"
+			<renderers:FilterComboBox id="labCombo" dataProvider="{parentApplication.promptedLabList}"
 						 prompt="Filter by Lab..." width="160"
 						 labelField="@name" change="{refreshDataTracks()}" 
-						 styleName="menuLabelSmall"></mx:ComboBox>			
+						 styleName="menuLabelSmall"/>
 			
 		</mx:HBox>
 	</mx:VBox>

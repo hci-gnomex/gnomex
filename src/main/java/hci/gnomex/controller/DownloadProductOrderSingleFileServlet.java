@@ -1,5 +1,6 @@
 package hci.gnomex.controller;
 
+import hci.gnomex.constants.Constants;
 import hci.gnomex.model.ProductOrder;
 import hci.gnomex.model.TransferLog;
 import hci.gnomex.security.SecurityAdvisor;
@@ -84,7 +85,7 @@ public class DownloadProductOrderSingleFileServlet extends HttpServlet {
         // Get the dir parameter
         if (req.getParameter("dir") != null && !req.getParameter("dir").equals("")) {
             dir = req.getParameter("dir");
-            dir.replace("\\", "/");
+            dir.replace("\\", Constants.FILE_SEPARATOR);
         }
         // Get the view flag
         if (req.getParameter("view") != null && !req.getParameter("view").equals("")) {
@@ -209,8 +210,8 @@ public class DownloadProductOrderSingleFileServlet extends HttpServlet {
                     xferLog.setIpAddress(GNomExCommand.getRemoteIP(req));
                     xferLog.setIdAppUser(secAdvisor.getIdAppUser());
 
-                    //String productOrderfdFileName = productOrderFd.getFileName().replaceAll("\\\\", "/");
-                    productOrderDir = productOrderFd.getFileName().substring(0,productOrderFd.getFileName().lastIndexOf("/")+1);
+                    //String productOrderfdFileName = productOrderFd.getFileName().replaceAll("\\\\", Constants.FILE_SEPARATOR);
+                    productOrderDir = productOrderFd.getFileName().substring(0,productOrderFd.getFileName().lastIndexOf(Constants.FILE_SEPARATOR)+1);
 
                     in = new FileInputStream(productOrderFd.getFileName());
                     OutputStream out = response.getOutputStream();
@@ -301,7 +302,7 @@ public class DownloadProductOrderSingleFileServlet extends HttpServlet {
 
     private FileDescriptor recurseGetMatchingFileDescriptor(FileDescriptor fd, String fileName, String theDirectory) {
         // Change all backslash to forward slash for comparison
-         theDirectory = theDirectory.replace("\\", "/");
+         theDirectory = theDirectory.replace("\\", Constants.FILE_SEPARATOR);
 
         if (fd.getFileName().endsWith(fileName) && dir.equals(theDirectory)) {
             return fd;
@@ -309,7 +310,7 @@ public class DownloadProductOrderSingleFileServlet extends HttpServlet {
             for(Iterator i = fd.getChildren().iterator(); i.hasNext();) {
                 FileDescriptor childFd = (FileDescriptor)i.next();
 
-                childFd.setQualifiedFilePath(!fd.getQualifiedFilePath().equals("") ? fd.getQualifiedFilePath() + "/" + fd.getDisplayName() : fd.getDisplayName());
+                childFd.setQualifiedFilePath(!fd.getQualifiedFilePath().equals("") ? fd.getQualifiedFilePath() + Constants.FILE_SEPARATOR + fd.getDisplayName() : fd.getDisplayName());
 
                 FileDescriptor matchingFd = recurseGetMatchingFileDescriptor(childFd, fileName, childFd.getQualifiedFilePath());
                 if (matchingFd != null) {
@@ -441,7 +442,7 @@ public class DownloadProductOrderSingleFileServlet extends HttpServlet {
                 return processed;
             }
 
-            localdir = imgline.substring(ipos+5,epos) + "/";
+            localdir = imgline.substring(ipos+5,epos) + Constants.FILE_SEPARATOR;
         }
         else if (syntaxType == 2) {
             // <img src="UGP07_Trio_Rec_Pnt_Splice_Indel_10e4.png" alt="Run '.....' " style="width: 100%">
@@ -478,7 +479,7 @@ public class DownloadProductOrderSingleFileServlet extends HttpServlet {
             }
 
 
-            localdir = dir + "/";
+            localdir = dir + Constants.FILE_SEPARATOR;
             if (productOrderDir.endsWith(localdir))
             {
                 localdir = "";

@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="vertical" creationComplete="init()" title="Add Experiment Platform" width="470" height="210" defaultButton="{saveButton}" paddingTop="4" verticalScrollPolicy="off" paddingRight="4" paddingLeft="4" paddingBottom="4">
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:renderers="views.renderers.*" layout="vertical"
+				creationComplete="init()" title="Add Experiment Platform" width="470" height="210"
+				defaultButton="{saveButton}" paddingTop="4" verticalScrollPolicy="off" paddingRight="4" paddingLeft="4"
+				paddingBottom="4">
 
     <mx:HTTPService 
     id="saveExperimentPlatform" 

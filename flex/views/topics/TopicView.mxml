@@ -4,7 +4,7 @@
 		  xmlns:views="views.*" 
 		  xmlns:util="views.util.*" 
 		  xmlns:renderers="views.renderers.*" 
-		  showEffect="{parentApplication.fadeIn}" hideEffect="{parentApplication.fadeOut}" xmlns:util1="util.*">
+		  showEffect="{parentApplication.fadeIn}" hideEffect="{parentApplication.fadeOut}" >
 	
 	
 	<mx:VBox width="100%" verticalGap="2">
@@ -303,8 +303,7 @@
 											  prompt="Lab..."
 											  width="200"
 											  close="labSelected();" 
-											  id="labCombo">
-					</renderers:FilterComboBox>
+											  id="labCombo"/>
 					<mx:Label text="Owner" paddingLeft="8" styleName="formLabel"/>
 					<util:ComboBoxDatProvChangeFix width="200" id="ownerCombo" labelField="@displayName" dataProvider="{appUsersForLab}" change="dirtyTopic.setDirty()"></util:ComboBoxDatProvChangeFix>							         			
 				</mx:HBox>
@@ -354,8 +353,7 @@
 				<mx:HBox horizontalGap="4"  verticalAlign="middle" visible="{this.possibleInstitutions.length > 1}" includeInLayout="{this.possibleInstitutions.length > 1}">
 					<mx:Image scaleContent="false" width="16" height="16" source="{parentApplication.iconTopicInstitution}"/>
 					<mx:RadioButton value="INST"  groupName="visibilityRadioGroup"  click="{dirtyTopic.setDirty();}" id="radioInstitutionVisibility" enabled="{possibleInstitutions.length > 0}" label="Institution  (all groups that are part of institution)"/>
-					<mx:ComboBox width="210" dataProvider="{this.possibleInstitutions}" id="institutionCombo" labelField="@display"  editable="false" enabled="{visibilityRadioGroup.selectedValue == 'INST'}">			       	
-					</mx:ComboBox>					
+					<mx:ComboBox width="210" dataProvider="{this.possibleInstitutions}" id="institutionCombo" labelField="@display"  editable="false" enabled="{visibilityRadioGroup.selectedValue == 'INST'}"/>
 				</mx:HBox>
 				<mx:HBox horizontalGap="4"  verticalAlign="middle" visible="{parentApplication.isPublicVisibility}" includeInLayout="{parentApplication.isPublicVisibility}">
 					<mx:Image  scaleContent="false" width="16" height="16" source="{parentApplication.iconTopicPublic}"/>

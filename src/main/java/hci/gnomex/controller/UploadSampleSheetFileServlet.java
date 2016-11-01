@@ -1,5 +1,6 @@
 package hci.gnomex.controller;
 
+import hci.gnomex.constants.Constants;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
@@ -51,7 +52,7 @@ protected void doGet(HttpServletRequest req, HttpServletResponse res) throws Ser
 /*
  * SPECIAL NOTE - This servlet must be run on non-secure socket layer (http) in order to keep track of previously created session. (see note below concerning
  * flex upload bug on Safari and FireFox). Otherwise, session is not maintained. Although the code tries to work around this problem by creating a new security
- * advisor if one is not found, the Safari browser cannot handle authenicating the user (this second time). So for now, this servlet must be run non-secure.
+ * advisor if one is not found, the Safari browser cannot handle authenticating the user (this second time). So for now, this servlet must be run non-secure.
  */
 protected void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
 	try {
@@ -104,8 +105,8 @@ protected void doPost(HttpServletRequest req, HttpServletResponse res) throws Se
 			throw new ServletException(
 					"Unable to upload sample sheet. Missing GNomEx property for temp_directory.  Please add using 'Manage Dictionaries'.");
 		}
-		if (!directoryName.endsWith("/") && !directoryName.endsWith("\\")) {
-			directoryName += File.separator;
+		if (!directoryName.endsWith(Constants.FILE_SEPARATOR) && !directoryName.endsWith("\\")) {
+			directoryName += Constants.FILE_SEPARATOR;
 		}
 
 		File dir = new File(directoryName);

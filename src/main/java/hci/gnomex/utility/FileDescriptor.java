@@ -57,18 +57,18 @@ public class FileDescriptor extends DetailObject implements Serializable {
 		this.setDisplayName(displayName);
 		this.setFileSize(file.length());
 		this.setLastModifyDate(new Date(file.lastModified()));
-		this.setAbsolutePath(file.getAbsolutePath());
+		this.setAbsolutePath(file.getAbsolutePath().replace("\\", Constants.FILE_SEPARATOR));
 		this.setSimpleName(file.getName());
 
 		try {
 			if (Util.isSymlink(file)) {
-				this.setFileName(file.getPath());
+				this.setFileName(file.getPath().replace("\\", Constants.FILE_SEPARATOR));
 			} else {
-				this.setFileName(file.getCanonicalPath());
+				this.setFileName(file.getCanonicalPath().replace("\\", Constants.FILE_SEPARATOR));
 			}
 		} catch (Exception e) {
 			LOG.error("Error in FileDescriptor", e);
-			this.setFileName(file.getAbsolutePath().replace("\\", "/"));
+			this.setFileName(file.getAbsolutePath().replace("\\", Constants.FILE_SEPARATOR));
 		}
 		// this.setZipEntryName(PropertyDictionaryHelper.parseZipEntryName(baseDir, this.getFileName()));
 		if (new File(baseDir).isAbsolute()) {
@@ -254,7 +254,7 @@ public class FileDescriptor extends DetailObject implements Serializable {
 	public String getViewURL(String viewType) {
 		String viewURL = "";
 		String dirParm = this.getDirectoryName() != null && !this.getDirectoryName().equals("") ? "&dir=" + this.getDirectoryName() : "";
-		dirParm.replace("/", "&#47;");
+		dirParm.replace(Constants.FILE_SEPARATOR, "&#47;");
 		if (!isDirectory()) {
 			Boolean found = false;
 			for (String ext : Constants.FILE_EXTENSIONS_FOR_VIEW) {
@@ -331,7 +331,7 @@ public class FileDescriptor extends DetailObject implements Serializable {
 		String fullPathName = "";
 
 		if (qualifiedFilePath != null && qualifiedFilePath.length() != 0) {
-			fullPathName += getQualifiedFilePath() + "/";
+			fullPathName += getQualifiedFilePath() + Constants.FILE_SEPARATOR;
 		}
 		fullPathName += getDisplayName();
 
@@ -343,9 +343,9 @@ public class FileDescriptor extends DetailObject implements Serializable {
 		if (fileName != null && !fileName.equals("")) {
 			// Get the directory name starting after the year
 			String relativePath = fileName.substring(fileDirectoryLength + 5);
-			String tokens[] = relativePath.split("/", 2);
+			String tokens[] = relativePath.split(Constants.FILE_SEPARATOR, 2);
 			if (tokens == null || tokens.length == 1) {
-				tokens = relativePath.split("/", 2);
+				tokens = relativePath.split(Constants.FILE_SEPARATOR, 2);
 			}
 			if (tokens.length == 2) {
 				number = tokens[0];

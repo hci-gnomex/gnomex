@@ -1,5 +1,6 @@
 package hci.gnomex.controller;
 
+import hci.gnomex.constants.Constants;
 import hci.gnomex.model.Chromatogram;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.ServletUtil;
@@ -101,7 +102,7 @@ public class DownloadChromatogramFileServlet extends HttpServlet {
                 response.setHeader("Cache-Control", "max-age=0, must-revalidate");
 
 
-                String fileName = chromatogram.getQualifiedFilePath() + File.separator + chromatogram.getFileName();
+                String fileName = chromatogram.getQualifiedFilePath() + Constants.FILE_SEPARATOR + chromatogram.getFileName();
 
                 in = new FileInputStream(fileName);
                 OutputStream out = response.getOutputStream();

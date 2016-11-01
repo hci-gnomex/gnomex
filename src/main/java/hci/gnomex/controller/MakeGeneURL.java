@@ -25,6 +25,7 @@ import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -34,8 +35,7 @@ import org.jdom.output.XMLOutputter;
 
 public class MakeGeneURL extends GNomExCommand implements Serializable {
   
-private static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(MakeDataTrackLinks.class);
-  
+private static Logger LOG = Logger.getLogger(MakeDataTrackLinks.class);
 private static int PEDFILE_MAXLENGTH = 1000;
   private String serverName;
 private String pedpath;
@@ -225,13 +225,8 @@ private String PEDFileXMLString = null;
 		}
 
     }catch (Exception e) {
-		log.error("An exception has occurred in MakeGeneURL ", e);
+		LOG.error("An exception has occurred in MakeGeneURL ", e);
       throw new RollBackCommandException(e.getMessage());
-    } finally {
-      try {
-			HibernateSession.closeSession();
-      } catch(Exception e){
-
       }
     }
     
@@ -317,7 +312,7 @@ public String setupPedFileFromXML(String PEDFileXMLString, Map<Integer, String> 
 		}
 
 	} catch (JDOMException je) {
-		log.error("Cannot parse PEDFileXMLString", je);
+		LOG.error("Cannot parse PEDFileXMLString", je);
 		this.addInvalidField("MakeGeneURL", "Invalid PEDFileXMLString");
         status = "Error: Unable to parse ped file XML.";
 	}
@@ -726,7 +721,7 @@ public static void vcfInfoParser(String VCFInfoXMLString, String analysisDirecto
         }
 
 	} catch (JDOMException je) {
-		log.error("MakeGeneURL Cannot parse VCFInfoXMLString", je);
+		LOG.error("MakeGeneURL Cannot parse VCFInfoXMLString", je);
 	}
 }
 
@@ -754,7 +749,7 @@ public static void bamInfoParser(String BAMInfoXMLString, String analysisDirecto
 		}
 
 	} catch (JDOMException je) {
-		log.error("MakeGeneURL Cannot parse BAMInfoXMLString", je);
+		LOG.error("MakeGeneURL Cannot parse BAMInfoXMLString", je);
 	}
 }
 
@@ -796,7 +791,7 @@ public static void addVCFIds(String VCFpathName, String analysisDirectory, Map<S
 
 		// System.out.println("[getVCFIds] linelast: " + lastline);
 	} catch (Exception e) {
-		log.error("MakeGeneURL error procing tabix", e);
+		LOG.error("MakeGeneURL error procing tabix", e);
 		System.out.println("[addVCFIds] tabix proc error: " + e);
 	}
 
@@ -861,7 +856,7 @@ public static Document buildManagePedFileXML(String pedpath, String PEDInfoXMLSt
             }
 
         } catch (JDOMException je) {
-            log.error("MakeGeneURL Cannot parse PEDInfoXMLString", je);
+            LOG.error("MakeGeneURL Cannot parse PEDInfoXMLString", je);
         }
     }
 
@@ -884,7 +879,7 @@ public static Document buildManagePedFileXML(String pedpath, String PEDInfoXMLSt
             }
 
         } catch (JDOMException je) {
-            log.error("MakeGeneURL Cannot parse VCFInfoXMLString", je);
+            LOG.error("MakeGeneURL Cannot parse VCFInfoXMLString", je);
         }
     }
 
@@ -906,7 +901,7 @@ public static Document buildManagePedFileXML(String pedpath, String PEDInfoXMLSt
             }
 
         } catch (JDOMException je) {
-            log.error("MakeGeneURL Cannot parse BAMInfoXMLString", je);
+            LOG.error("MakeGeneURL Cannot parse BAMInfoXMLString", je);
         }
     }
 
@@ -1208,13 +1203,11 @@ private ArrayList<String> processTrioFile(String pedpath) {
 	  return result;
   }
   
-private String makeURLLink(String pathName1) {
-	// System.out.println ("[makeURLLink] pathName1: " + pathName1);
+private String makeURLLink(String pathName) {
 	  
 	String theLink = "";
 	ArrayList<String> urlsToLoad = new ArrayList<String>();
 	  
-    String pathName = pathName1;
     String cpath = pathName.replace("\\","/").toLowerCase();
     String canaldir = analysisDirectory.replace("\\","/").toLowerCase();
 
@@ -1244,7 +1237,7 @@ private String makeURLLink(String pathName1) {
 //  	System.out.println ("[MakeURLLink] dir.getName(): " + dir.getName());
     for (File f: filesToLink) {
       File annoFile = new File(dir, DataTrackUtil.stripBadURLChars(f.getName(), "_"));
-      String dataTrackString = annoFile.toString();
+      String dataTrackString = annoFile.toString().replace("\\", Constants.FILE_SEPARATOR);
       
 //      System.out.println ("[makeURLLink] f.getName(): " + f.getName());
 //      System.out.println ("[makeURLLink] dataTrackString: " + dataTrackString);
@@ -1309,10 +1302,10 @@ private String makeURLLink(String pathName1) {
 		  }
 	      
 		  //Create the users' data directory
-//		  System.out.println ("[setupDirectories] urlLinkDir.getAbsoluteFile(): " + urlLinkDir.getAbsoluteFile());
+//		  System.out.println ("[setupDirectories] urlLinkDir.getAbsoluteFile().replace("\\", Constants.FILE_SEPARATOR): " + urlLinkDir.getAbsoluteFile().replace("\\", Constants.FILE_SEPARATOR));
 //		  System.out.println ("[setupDirectories] linkPath: " + linkPath);
 		  dir = new File(urlLinkDir.getAbsoluteFile(),linkPath);
-//		  System.out.println ("[setupDirectories] dir.getPath(): " + dir.getPath());
+//		  System.out.println ("[setupDirectories] dir.getPath().replace("\\", Constants.FILE_SEPARATOR): " + dir.getPath().replace("\\", Constants.FILE_SEPARATOR));
 		  
 		  if (!dir.exists())
 			  dir.mkdir();

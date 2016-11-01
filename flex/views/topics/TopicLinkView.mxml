@@ -691,18 +691,16 @@
 		<mx:HBox width="100%" defaultButton="{lookupButton}">
 			<mx:Label text="Filter by:" paddingLeft="8"/>
 			<mx:HBox horizontalGap="0" height="100%" verticalAlign="middle" verticalGap="0" horizontalAlign="right" paddingRight="0"  id="hboxDT">
-				<mx:ComboBox labelField="@binomialName" change="filteredGenomeBuildList.refresh();searchParamsChange(false);" id="organismCombo" styleName="menuLabelSmall" prompt="Organism..." width="170">
-					<mx:dataProvider>{parentApplication.das2OrganismList}</mx:dataProvider>
-				</mx:ComboBox>
-				<mx:ComboBox dataProvider="{filteredGenomeBuildList}" labelField="@das2Name" id="genomeBuildCombo" change="searchParamsChange(false);" styleName="menuLabelSmall" width="170"  prompt="Genome build..."></mx:ComboBox>
+				<mx:ComboBox labelField="@binomialName" change="filteredGenomeBuildList.refresh();searchParamsChange(false);" id="organismCombo" styleName="menuLabelSmall" prompt="Organism..." width="170"
+					dataProvider="{parentApplication.das2OrganismList}"/>
+				<renderers:FilterComboBox dataProvider="{filteredGenomeBuildList}" labelField="@das2Name" id="genomeBuildCombo" change="searchParamsChange(false);" styleName="menuLabelSmall" width="170"  prompt="Genome build..."/>
 			</mx:HBox>	
 			<renderers:FilterComboBox dataProvider="{parentApplication.labList.source}" 
 									  labelField="@name" 
 									  prompt="Lab..."
 									  width="200"
 									  close="searchParamsChange(true);" 
-									  id="labCombo">
-			</renderers:FilterComboBox>
+									  id="labCombo"/>
 			<mx:HBox horizontalGap="2" paddingLeft="8">
 				<mx:Label text="Lookup by #" paddingLeft="8"/>
 				<mx:TextInput id="requestNumber" height="18"  toolTip="Enter experiment, analysis, or data track #. Example: 6145R, A210, DT45" borderStyle="none" backgroundAlpha=".8" width="56"  fontFamily="Arial" visible="true"/>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:util="views.util.*"
-				layout="vertical" 
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:util="views.util.*" xmlns:renderers="views.renderers.*"
+				layout="vertical"
 				title="Edit Library Prep" width="650" paddingTop="4" paddingRight="4" paddingLeft="4" paddingBottom="4"
 				horizontalScrollPolicy="off">
 	

@@ -50,8 +50,8 @@ public abstract class GNomExCommand extends Command implements Serializable {
 
   protected void setRowCommands(HttpServletRequest request) {
     String URI = request.getRequestURI();
-    if (URI.lastIndexOf("/") > 0) {
-      URI = URI.substring(0, URI.lastIndexOf("/"));
+    if (URI.lastIndexOf(Constants.FILE_SEPARATOR) > 0) {
+      URI = URI.substring(0, URI.lastIndexOf(Constants.FILE_SEPARATOR));
     }
     this.rowDeleteCMD = URI + "/DeleteCODGridRow.aw";
     this.rowSaveCMD = URI + "/SaveCODGridRow.aw";

@@ -1884,15 +1884,14 @@
 						 paddingRight="2" paddingLeft="2">
 					<mx:VBox verticalGap="0">
 						<mx:HBox horizontalGap="2">
-							<mx:ComboBox labelField="@binomialName" id="organismCombo" change="filteredGenomeBuildList.refresh();refreshDataTracks()" styleName="menuLabelSmall" prompt="Organism..." width="170">
-								<mx:dataProvider>{parentApplication.das2OrganismList}</mx:dataProvider>
-							</mx:ComboBox>
-							<mx:ComboBox dataProvider="{filteredGenomeBuildList}" labelField="@das2Name" id="genomeBuildCombo" change="refreshDataTracks()" styleName="menuLabelSmall" width="170"  prompt="Genome build..."></mx:ComboBox>
-							<mx:ComboBox id="labCombo" dataProvider="{parentApplication.promptedLabList}"
+							<mx:ComboBox labelField="@binomialName" id="organismCombo" change="filteredGenomeBuildList.refresh();refreshDataTracks()" styleName="menuLabelSmall" prompt="Organism..." width="170"
+								dataProvider="{parentApplication.das2OrganismList}"/>
+							<mx:ComboBox dataProvider="{filteredGenomeBuildList}" labelField="@das2Name" id="genomeBuildCombo" change="refreshDataTracks()" styleName="menuLabelSmall" width="170"  prompt="Genome build..."/>
+							<renderers:FilterComboBox id="labCombo" dataProvider="{parentApplication.promptedLabList}"
 										 visible="{currentState == 'AdminState'}"
 										 includeInLayout="{currentState == 'AdminState'}"
 										 prompt="Lab..."
-										 labelField="@name" change="{refreshDataTracks()}" styleName="menuLabelSmall" width="170"></mx:ComboBox>
+										 labelField="@name" change="{refreshDataTracks()}" styleName="menuLabelSmall" width="170"/>
 							
 							
 							<mx:HBox horizontalGap="1" paddingLeft="4"

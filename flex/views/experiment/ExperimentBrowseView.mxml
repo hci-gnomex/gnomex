@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:VBox styleName="panelBox"  xmlns:mx="http://www.adobe.com/2006/mxml" 
 	width="100%" height="100%" 
-	xmlns:views="views.*"   
+	xmlns:views="views.*"
+		 xmlns:renderers="views.renderers.*"
 	xmlns:experiment="views.experiment.*"  
 	xmlns:util="views.util.*" 
 	verticalGap="0" >
@@ -49,7 +50,6 @@
  	
  	import views.experiment.ProjectDetailWindow;
  	import views.util.DownloadHints;
-
 
 
     [Bindable]
@@ -415,8 +415,7 @@
 	        <mx:HBox id="filterListView"  width="100%" horizontalAlign="right" horizontalGap="0">
 		        <mx:HBox horizontalGap="0" paddingTop="0" paddingRight="0" horizontalAlign="right" paddingLeft="2" verticalAlign="middle">
 			        <mx:Label text="Experiment #"/>
-			        <mx:ComboBox dataProvider="{parentDocument.requestNumbers}" id="requestNumberCombo" change="filterList()" width="80" >					    		
-			        </mx:ComboBox> 
+			        <mx:ComboBox dataProvider="{parentDocument.requestNumbers}" id="requestNumberCombo" change="filterList()" width="80" />
 		        </mx:HBox>
 	        	
 	        </mx:HBox>

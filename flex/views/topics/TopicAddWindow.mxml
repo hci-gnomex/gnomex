@@ -204,8 +204,7 @@
 									  prompt="Lab..."
 									  width="308"
 									  close="labSelected();" 
-									  id="labCombo">
-			</renderers:FilterComboBox>
+									  id="labCombo"/>
 		</mx:HBox>		
 		<mx:HBox width="100%" >
 			<mx:Label text="Owner" width="105"/>

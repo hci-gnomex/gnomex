@@ -1,6 +1,7 @@
 package hci.gnomex.controller;
 
 import hci.framework.control.Command;
+import hci.gnomex.constants.Constants;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.HibernateSession;
 
@@ -18,7 +19,7 @@ import org.hibernate.Session;
 public abstract class HttpClientServletBase extends HttpServlet {
 public void init(ServletConfig config) throws ServletException {
 	super.init(config);
-	GNomExFrontController.setWebContextPath(config.getServletContext().getRealPath("/"));
+	GNomExFrontController.setWebContextPath(config.getServletContext().getRealPath(Constants.FILE_SEPARATOR));
 }
 
 protected abstract String getNameOfServlet();

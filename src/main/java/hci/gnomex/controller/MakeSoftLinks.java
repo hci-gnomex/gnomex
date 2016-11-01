@@ -2,6 +2,7 @@ package hci.gnomex.controller;
 
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
+import hci.gnomex.constants.Constants;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.utility.FileDescriptor;
 import hci.gnomex.utility.FileDescriptorParser;
@@ -126,10 +127,10 @@ public class MakeSoftLinks extends GNomExCommand implements Serializable {
 			String targetPath = fd.getFileName();
 
 			// build the soft link path
-			String linkPath = softLinkPath + File.separator;
+			String linkPath = softLinkPath + Constants.FILE_SEPARATOR;
 
 			String zipFileName = fd.getZipEntryName();
-			String[] pieces = zipFileName.split("/");
+			String[] pieces = zipFileName.split(Constants.FILE_SEPARATOR);
 
 			// make any directories we need
 			int lpieces = pieces.length;
@@ -139,7 +140,7 @@ public class MakeSoftLinks extends GNomExCommand implements Serializable {
 					ldir.mkdir();
 				}
 
-				linkPath = linkPath + pieces[i] + File.separator;
+				linkPath = linkPath + pieces[i] + Constants.FILE_SEPARATOR;
 			}
 
 			linkPath = linkPath + pieces[lpieces - 1];

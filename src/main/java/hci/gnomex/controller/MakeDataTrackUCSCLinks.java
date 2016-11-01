@@ -196,9 +196,9 @@ private ArrayList<String> makeUCSCLink(Session sess) throws Exception {
 		filesToLink[0] = new File(pathName);
 
 		// get the data track name out of the pathName
-		String thename = pathName.toLowerCase().replace("\\", "/");
-		if (thename.lastIndexOf("/") != -1) {
-			thename = thename.substring(thename.lastIndexOf("/") + 1);
+		String thename = pathName.toLowerCase().replace("\\", Constants.FILE_SEPARATOR);
+		if (thename.lastIndexOf(Constants.FILE_SEPARATOR) != -1) {
+			thename = thename.substring(thename.lastIndexOf(Constants.FILE_SEPARATOR) + 1);
 		}
 
 		int ipos = thename.lastIndexOf(".");
@@ -248,7 +248,7 @@ private ArrayList<String> makeUCSCLink(Session sess) throws Exception {
 	String toEncode = null;
 	for (File f : filesToLink) {
 		File annoFile = new File(dir, DataTrackUtil.stripBadURLChars(f.getName(), "_"));
-		String annoString = annoFile.toString();
+		String annoString = annoFile.toString().replace("\\", Constants.FILE_SEPARATOR);
 
 		// make soft link
 		DataTrackUtil.makeSoftLinkViaUNIXCommandLine(f, annoFile);

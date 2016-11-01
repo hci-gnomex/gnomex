@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:util="views.util.*"
-				layout="vertical" 
-				title="Edit Sequencing Option" width="650" height="600" paddingTop="4" verticalScrollPolicy="off" paddingRight="4" paddingLeft="4" paddingBottom="4"
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:util="views.util.*" xmlns:renderers="views.renderers.*"
+				layout="vertical"
+				title="Edit Sequencing Option" width="650" height="600" paddingTop="4" verticalScrollPolicy="off"
+				paddingRight="4" paddingLeft="4" paddingBottom="4"
 				horizontalScrollPolicy="off">
 	
 	<mx:Script>
@@ -108,7 +109,7 @@
 		<mx:HBox width="100%" horizontalGap="2" verticalAlign="middle" paddingTop="4"
 				 visible="{state.isHiSeq}" includeInLayout="{state.isHiSeq}">
 			<mx:Text text="Run Mode" styleName="formLabel" width="100"/>
-			<mx:ComboBox dataProvider="{state.runModeOptions}" id="runModeCombo" width="200" change="dirty.setDirty()" labelField="@display" />					    		
+			<mx:ComboBox dataProvider="{state.runModeOptions}" id="runModeCombo" width="200" change="dirty.setDirty()" labelField="@display" />
 		</mx:HBox>
 		
 		<mx:VBox width="100%" verticalGap="0">

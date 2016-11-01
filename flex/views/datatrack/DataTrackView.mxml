@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:VBox  width="100%" height="100%" styleName="panelBox"
-		  xmlns:mx="http://www.adobe.com/2006/mxml"     
-		  xmlns:views="views.*" 
-		  xmlns:util="views.util.*" 
-		  xmlns:datatrack="views.datatrack.*" creationComplete="{checkTopicsVisibility()}"
-		  showEffect="{parentApplication.fadeIn}" hideEffect="{parentApplication.fadeOut}">
+<mx:VBox width="100%" height="100%" styleName="panelBox"
+		 xmlns:mx="http://www.adobe.com/2006/mxml"
+		 xmlns:views="views.*"
+		 xmlns:util="views.util.*"
+		 xmlns:datatrack="views.datatrack.*" creationComplete="{checkTopicsVisibility()}"
+		 showEffect="{parentApplication.fadeIn}" hideEffect="{parentApplication.fadeOut}"
+		 xmlns:renderers="views.renderers.*">
 	
 	
 	<mx:HBox horizontalGap="1" width="100%" verticalAlign="middle">
@@ -1087,8 +1088,8 @@
 					<mx:HBox horizontalGap="4"  verticalAlign="middle" visible="{this.possibleInstitutions.length > 1}" includeInLayout="{this.possibleInstitutions.length > 1}">
 						<mx:Image scaleContent="false" width="16" height="16" source="{parentApplication.iconDataTrackInstitution}"/>
 						<mx:RadioButton value="INST"  groupName="visibilityRadioGroup"  click="{dirtyDataTrack.setDirty();}" id="radioInstitutionVisibility" enabled="{possibleInstitutions.length > 1 &amp;&amp; !parentApplication.isGuestMode()}" label="Institution  (all groups that are part of institution)"/>
-						<mx:ComboBox width="210" dataProvider="{this.possibleInstitutions}" id="instituteCombo" selectedIndex="{visibilityRadioGroup.selectedValue != 'INST' ? 0 : instituteCombo.selectedIndex}" labelField="@name"  enabled="{visibilityRadioGroup.selectedValue == 'INST' &amp;&amp; !parentApplication.isGuestMode()}">			       	
-						</mx:ComboBox>					
+						<mx:ComboBox width="210" dataProvider="{this.possibleInstitutions}" id="instituteCombo" selectedIndex="{visibilityRadioGroup.selectedValue != 'INST' ? 0 : instituteCombo.selectedIndex}" labelField="@name"  enabled="{visibilityRadioGroup.selectedValue == 'INST' &amp;&amp; !parentApplication.isGuestMode()}">
+						</mx:ComboBox>
 					</mx:HBox>
 					<mx:HBox horizontalGap="4"  verticalAlign="middle" visible="{parentApplication.isPublicVisibility}" includeInLayout="{parentApplication.isPublicVisibility}">
 						<mx:Image  scaleContent="false" width="16" height="16" source="{parentApplication.iconDataTrackPublic}"/>
@@ -1131,7 +1132,7 @@
 					<mx:Label text="Lab"  styleName="formLabel"/>
 					<mx:ViewStack id="dataTrackLabStack"  width="200">
 						<mx:HBox horizontalGap="0" paddingLeft="0" paddingRight="0" paddingBottom="0" paddingTop="0" width="100%">
-							<mx:ComboBox id="labCombo" enabled="{!parentApplication.isGuestMode()}" dataProvider="{parentApplication.submitRequestLabList}" width="200" labelField="@name" change="{labSelected()}"></mx:ComboBox>
+							<renderers:FilterComboBox id="labCombo" enabled="{!parentApplication.isGuestMode()}" dataProvider="{parentApplication.submitRequestLabList}" width="200" labelField="@name" change="{labSelected()}"/>
 						</mx:HBox>
 						<mx:HBox horizontalGap="0" paddingLeft="0" paddingRight="0" paddingBottom="0" paddingTop="0" verticalAlign="middle">
 							<mx:Label width="200" text="{getDataTrack.lastResult.@securityGroup}"/>							         			

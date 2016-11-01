@@ -173,8 +173,8 @@ protected void doPost(HttpServletRequest req, HttpServletResponse res) throws Se
 
 				String baseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(req.getServerName(), null,
 						PropertyDictionaryHelper.PROPERTY_ANALYSIS_DIRECTORY);
-				if (!baseDir.endsWith("/") && !baseDir.endsWith("\\")) {
-					baseDir += "/";
+				if (!baseDir.endsWith(Constants.FILE_SEPARATOR) && !baseDir.endsWith("\\")) {
+					baseDir += Constants.FILE_SEPARATOR;
 				}
 				baseDir += createYear;
 
@@ -185,7 +185,7 @@ protected void doPost(HttpServletRequest req, HttpServletResponse res) throws Se
 					}
 				}
 
-				directoryName = baseDir + "/" + analysis.getNumber();
+				directoryName = baseDir + Constants.FILE_SEPARATOR + analysis.getNumber();
 				if (!new File(directoryName).exists()) {
 					boolean success = (new File(directoryName)).mkdir();
 					if (!success) {
@@ -193,7 +193,7 @@ protected void doPost(HttpServletRequest req, HttpServletResponse res) throws Se
 					}
 				}
 
-				directoryName += "/" + Constants.UPLOAD_STAGING_DIR;
+				directoryName += Constants.FILE_SEPARATOR + Constants.UPLOAD_STAGING_DIR;
 				if (!new File(directoryName).exists()) {
 					boolean success = (new File(directoryName)).mkdir();
 					if (!success) {
@@ -218,7 +218,7 @@ protected void doPost(HttpServletRequest req, HttpServletResponse res) throws Se
 							xferLog.setPerformCompression("N");
 							xferLog.setIdAnalysis(analysis.getIdAnalysis());
 							xferLog.setIdLab(analysis.getIdLab());
-							xferLog.setFileName(analysis.getNumber() + "/" + fileName);
+							xferLog.setFileName(analysis.getNumber() + Constants.FILE_SEPARATOR + fileName);
 
 							// the part actually contained a file
 							long size = filePart.writeTo(new File(directoryName));
@@ -238,7 +238,7 @@ protected void doPost(HttpServletRequest req, HttpServletResponse res) throws Se
 							// does not already exist in analysis files. Otherwise just
 							// update upload time and size.
 							Boolean isExistingFile = false;
-							String fullFileName = directoryName + "/" + fileName;
+							String fullFileName = directoryName + Constants.FILE_SEPARATOR + fileName;
 							for (AnalysisFile existingFile : analysisFiles) {
 								if (existingFile.getFullPathName().equals(fullFileName)) {
 									existingFile.setUploadDate(new java.sql.Date(System.currentTimeMillis()));
@@ -258,7 +258,7 @@ protected void doPost(HttpServletRequest req, HttpServletResponse res) throws Se
 								af.setIdAnalysis(Integer.valueOf(idAnalysis));
 								af.setAnalysis(analysis);
 								af.setFileName(new File(fileName).getName());
-								af.setBaseFilePath(baseDir + "/" + analysis.getNumber());
+								af.setBaseFilePath(baseDir + Constants.FILE_SEPARATOR + analysis.getNumber());
 								af.setFileSize(new BigDecimal(new File(fileName).length()));
 
 								af.setQualifiedFilePath(Constants.UPLOAD_STAGING_DIR);

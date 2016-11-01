@@ -2,6 +2,7 @@ package hci.gnomex.controller;
 
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
+import hci.gnomex.constants.Constants;
 import hci.gnomex.model.Chromatogram;
 import hci.gnomex.model.InstrumentRun;
 import hci.gnomex.model.Plate;
@@ -102,7 +103,7 @@ public class GetChromatogram extends GNomExCommand implements Serializable {
       idChromatogram =  c!=null ? c.getIdChromatogram():0;
 
 
-      File abiFile = new File(c.getQualifiedFilePath() + File.separator + c.getFileName());
+      File abiFile = new File(c.getQualifiedFilePath() + Constants.FILE_SEPARATOR + c.getFileName());
 
 
       ChromatReadUtil chromatReader = new ChromatReadUtil(abiFile);

@@ -2,6 +2,7 @@ package hci.gnomex.controller;
 
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
+import hci.gnomex.constants.Constants;
 import hci.gnomex.model.Chromatogram;
 import hci.gnomex.model.InstrumentRun;
 import hci.gnomex.model.PlateWell;
@@ -126,7 +127,7 @@ public class SaveChromatogramFromFile extends GNomExCommand implements Serializa
       if ( well.getIsControl().equals( "Y" ) || well.getIdRequest() == null) {
         // Control
         baseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, this.idCoreFacility, PropertyDictionaryHelper.PROPERTY_INSTRUMENT_RUN_DIRECTORY);
-        destDir = baseDir + "/" + well.getPlate().getInstrumentRun().getCreateYear() + "/" + well.getPlate().getInstrumentRun().getIdInstrumentRun();
+        destDir = baseDir + Constants.FILE_SEPARATOR + well.getPlate().getInstrumentRun().getCreateYear() + Constants.FILE_SEPARATOR + well.getPlate().getInstrumentRun().getIdInstrumentRun();
       } else {
         // Non-controls / Chromat belongs to a request
         Request request = (Request)sess.load(Request.class, well.getIdRequest());
@@ -134,7 +135,7 @@ public class SaveChromatogramFromFile extends GNomExCommand implements Serializa
           throw new Exception("The request associated with the plate well does not exist.");
         }
         baseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(serverName, request.getIdCoreFacility(), PropertyDictionaryHelper.PROPERTY_EXPERIMENT_DIRECTORY);
-        destDir = baseDir + "/" + request.getCreateYear() + "/" + Request.getBaseRequestNumber(request.getNumber());
+        destDir = baseDir + Constants.FILE_SEPARATOR + request.getCreateYear() + Constants.FILE_SEPARATOR + Request.getBaseRequestNumber(request.getNumber());
       }
       // Check for or create a new destination directory
       File dir = new File(destDir);

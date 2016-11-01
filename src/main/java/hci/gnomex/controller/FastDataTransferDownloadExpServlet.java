@@ -1,5 +1,6 @@
 package hci.gnomex.controller;
 
+import hci.gnomex.constants.Constants;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.SequenceLane;
@@ -210,15 +211,15 @@ public class FastDataTransferDownloadExpServlet extends HttpServlet {
 
             // Get file/location of file to create symbolic link to
             String zipEntryName = fd.getZipEntryName();
-            int indxFileName = zipEntryName.lastIndexOf("/");
+            int indxFileName = zipEntryName.lastIndexOf(Constants.FILE_SEPARATOR);
             int indxDirPath = zipEntryName.indexOf(requestNumberBase);
 
 
             // Get fileName to use for the name of the softlink
-            String fileName = softlinks_dir+"/"+zipEntryName.substring((indxDirPath > 0 ? indxDirPath-1 : 0));	
+            String fileName = softlinks_dir+Constants.FILE_SEPARATOR+zipEntryName.substring((indxDirPath > 0 ? indxDirPath-1 : 0));
             
             // Make intermediate directories if necessary
-            String dirsName = softlinks_dir+"/"+zipEntryName.substring((indxDirPath > 0 ? indxDirPath-1 : 0), indxFileName);
+            String dirsName = softlinks_dir+Constants.FILE_SEPARATOR+zipEntryName.substring((indxDirPath > 0 ? indxDirPath-1 : 0), indxFileName);
             File dir = new File(dirsName);
             if(!dir.exists()) {
               boolean isDirCreated = dir.mkdirs();  
@@ -241,7 +242,7 @@ public class FastDataTransferDownloadExpServlet extends HttpServlet {
         req.getSession().setAttribute(CacheFileDownloadList.SESSION_KEY_FILE_DESCRIPTOR_PARSER, null);
         String fdtJarLoc = PropertyDictionaryHelper.getInstance(sess).getFDTJarLocation(req.getServerName());
         String fdtServerName = PropertyDictionaryHelper.getInstance(sess).getFDTServerName(req.getServerName());
-        String softLinksPath = PropertyDictionaryHelper.getInstance(sess).GetFDTDirectory(req.getServerName())+uuid.toString()+File.separator+requestNumberBase;          
+        String softLinksPath = PropertyDictionaryHelper.getInstance(sess).GetFDTDirectory(req.getServerName())+uuid.toString()+ Constants.FILE_SEPARATOR+requestNumberBase;
         if (fdtJarLoc == null || fdtJarLoc.equals("")) {
           fdtJarLoc = "http://monalisa.cern.ch/FDT/";
         }
@@ -252,7 +253,7 @@ public class FastDataTransferDownloadExpServlet extends HttpServlet {
           response.getOutputStream().println("1) Download the fdt.jar app from " + fdtJarLoc);
           response.getOutputStream().println("2) Open port 54321 in all firewalls surrounding your computer (this may occur automatically upon transfer).");
           response.getOutputStream().println("3) Execute the following on the command line(Make sure paths reflect your environment):");
-          response.getOutputStream().println("4) There is a 24 hour timeout on this command.  After that time please generate a new command line using the FDT Upload Command Line link.");
+          response.getOutputStream().println("4) There is a 24 hour timeout on this command.  After that time please generate a new command line using the FDT Download Command Line link.");
           response.getOutputStream().println("java -jar ./fdt.jar -pull -r -c " + fdtServerName + " -d ./ " + softLinksPath);
           response.getOutputStream().flush();
           return;
@@ -275,7 +276,7 @@ public class FastDataTransferDownloadExpServlet extends HttpServlet {
           out.println("1) Download the fdt.jar app from " + fdtJarLoc);
           out.println("2) Open port 54321 in all firewalls surrounding your computer (this may occur automatically upon transfer).");
           out.println("3) Execute the following on the command line after changing the path2xxx variables:");
-          out.println("4) There is a 24 hour timeout on this command.  After that time please generate a new command line using the FDT Upload Command Line link.");
+          out.println("4) There is a 24 hour timeout on this command.  After that time please generate a new command line using the FDT Download Command Line link.");
           out.println("");
           out.println("java -jar path2YourLocalCopyOfFDT/fdt.jar -pull -r -c " + fdtServerName + " -d path2SaveDataOnYourLocalComputer " + softLinksPath);
           out.println("");

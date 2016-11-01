@@ -119,6 +119,8 @@
 			private var linkedSampleFiles:XMLListCollection = new XMLListCollection();
 			
 			private var FILE_DESCRIPTOR_NAME:String = "FileDescriptor";
+
+			public var showFdtCommand:Boolean = false;
 			
 			public function init(productOrder:Object):void {
 				this.idProductOrder = productOrder.@idProductOrder;
@@ -825,7 +827,7 @@
 							<mx:LinkButton label="Clear all" toolTip="Clear all files" id="uploadClearButton" icon="@Embed(source='../../assets/cross.png')" disabledIcon="@Embed(source='../../assets/cross_disable.png')" textDecoration="underline" enabled="false"/>
 							<mx:HBox width="100%"  horizontalAlign="right">
 								<mx:VRule height="20"/>
-								<mx:LinkButton visible="{parentApplication.isFDTSupported ? false : true}" label="Upload problems?  Try this." click="showHTMLUploadForm()" textDecoration="underline" icon="@Embed(source='../../assets/application_get.png')"/>								
+								<mx:LinkButton visible="{parentApplication.isFDTSupported &amp;&amp; showFdtCommand}" label="Upload problems?  Try this." click="showHTMLUploadForm()" textDecoration="underline" icon="@Embed(source='../../assets/application_get.png')"/>
 								<util:ContextHelp context1="uploadhelp" 
 												  showEdit="{parentApplication.isAdminState}" title="Upload Help"
 												  label="Upload Help" labelPlacement="right" id="labelApplication0"/>								

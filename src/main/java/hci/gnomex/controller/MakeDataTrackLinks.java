@@ -115,7 +115,7 @@ public class MakeDataTrackLinks extends GNomExCommand implements Serializable {
         
         
         //post results with link urls
-        String theURL = sb.toString().replace("\\", "/");
+        String theURL = sb.toString().replace("\\", Constants.FILE_SEPARATOR);
         
         // is this an IOBIO request?
         if (requestType.equals("IOBIO")) {
@@ -212,7 +212,7 @@ public class MakeDataTrackLinks extends GNomExCommand implements Serializable {
 
     for (File f: filesToLink){
       File annoFile = new File(dir, DataTrackUtil.stripBadURLChars(f.getName(), "_"));
-      String dataTrackString = annoFile.toString();
+      String dataTrackString = annoFile.toString().replace("\\", Constants.FILE_SEPARATOR);
 
       //make soft link
       DataTrackUtil.makeSoftLinkViaUNIXCommandLine(f, annoFile);

@@ -1,5 +1,6 @@
 package hci.gnomex.utility;
 
+import hci.gnomex.constants.Constants;
 import hci.gnomex.model.DataTrack;
 import hci.gnomex.model.DataTrackFolder;
 import hci.gnomex.model.GenomeBuild;
@@ -910,7 +911,7 @@ public class DataTrackQuery implements Serializable {
 
 						String fullTypePrefix = concatenateTypePrefix(typePrefix, folderName, showFolderLevel);
 						if (fullTypePrefix != null && fullTypePrefix.length() > 0) {
-							fullTypePrefix += "/";
+							fullTypePrefix += Constants.FILE_SEPARATOR;
 						}
 
 						qualifiedDataTracks.add(new QualifiedDataTrack(dt,
@@ -933,7 +934,7 @@ public class DataTrackQuery implements Serializable {
 			if (typePrefix == null || typePrefix.equals("")) {
 				return folderName;
 			} else {
-				return typePrefix + "/" + folderName;
+				return typePrefix + Constants.FILE_SEPARATOR + folderName;
 			}
 		} else {
 			return typePrefix != null ? typePrefix : "";

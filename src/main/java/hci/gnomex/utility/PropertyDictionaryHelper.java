@@ -1,5 +1,6 @@
 package hci.gnomex.utility;
 
+import hci.gnomex.constants.Constants;
 import hci.gnomex.model.PropertyDictionary;
 
 import java.io.File;
@@ -265,8 +266,8 @@ public class PropertyDictionaryHelper implements Serializable {
 
     // Make sure the property ends with a directory separator
     if (property != null && !property.equals("")) {
-      if (!property.endsWith("/") && !property.endsWith("\\")) {
-        property = property + "/";
+      if (!property.endsWith(Constants.FILE_SEPARATOR) && !property.endsWith("\\")) {
+        property = property + Constants.FILE_SEPARATOR;
       }
     }
 
@@ -280,16 +281,16 @@ public class PropertyDictionaryHelper implements Serializable {
 
     String baseDirCanonicalPath = "";
     try {
-      baseDirCanonicalPath = new File(baseDir).getCanonicalPath();
+      baseDirCanonicalPath = new File(baseDir).getCanonicalPath().replace("\\", Constants.FILE_SEPARATOR);
     } catch (IOException e) {
       throw new RuntimeException("Cannot instantiate file for analysis dir" + baseDir);
     }
 
     // Change all file separators to forward slash
-    String theFileName = fileName.replaceAll("\\\\", "/");
-    baseDirCanonicalPath = baseDirCanonicalPath.replaceAll("\\\\", "/");
+    String theFileName = fileName.replaceAll("\\\\", Constants.FILE_SEPARATOR);
+    baseDirCanonicalPath = baseDirCanonicalPath.replaceAll("\\\\", Constants.FILE_SEPARATOR);
 
-    String tokens[] = baseDirCanonicalPath.split("/");
+    String tokens[] = baseDirCanonicalPath.split(Constants.FILE_SEPARATOR);
     if (tokens == null || tokens.length == 0) {
       throw new RuntimeException("Cannot parse directory into expected last file part " + baseDirCanonicalPath);
     }
@@ -305,7 +306,7 @@ public class PropertyDictionaryHelper implements Serializable {
 
     // Now loop through the remaining file parts, leaving off year and
     // concatenating everything else.
-    tokens = lastFilePart.split("/");
+    tokens = lastFilePart.split(Constants.FILE_SEPARATOR);
     if (tokens == null || tokens.length < 2) {
       throw new RuntimeException("Cannot parse file into expected parts for year and number " + lastFilePart);
     }
@@ -319,7 +320,7 @@ public class PropertyDictionaryHelper implements Serializable {
         yearPart = tokens[x];
       } else {
         if (zipEntryName.length() > 0) {
-          zipEntryName += "/";
+          zipEntryName += Constants.FILE_SEPARATOR;
         }
         zipEntryName += tokens[x];
       }
@@ -336,30 +337,30 @@ public class PropertyDictionaryHelper implements Serializable {
     String flowCellDirectory = this.getDirectory(serverName, null, PROPERTY_FLOWCELL_DIRECTORY);
 
     try {
-      experimentDirectory = new File(experimentDirectory).getCanonicalPath();
+      experimentDirectory = new File(experimentDirectory).getCanonicalPath().replace("\\", Constants.FILE_SEPARATOR);
     } catch (IOException e) {
       throw new RuntimeException("Cannot instantiate file for experimentDir dir" + experimentDirectory);
     }
     try {
-      flowCellDirectory = new File(flowCellDirectory).getCanonicalPath();
+      flowCellDirectory = new File(flowCellDirectory).getCanonicalPath().replace("\\", Constants.FILE_SEPARATOR);
     } catch (IOException e) {
       throw new RuntimeException("Cannot instantiate file for flowCellDirectory" + flowCellDirectory);
     }
 
     // Change all file separators to forward slash
-    String theFileName = fileName.replaceAll("\\\\", "/");
-    experimentDirectory = experimentDirectory.replaceAll("\\\\", "/");
-    flowCellDirectory = flowCellDirectory.replaceAll("\\\\", "/");
+    String theFileName = fileName.replaceAll("\\\\", Constants.FILE_SEPARATOR);
+    experimentDirectory = experimentDirectory.replaceAll("\\\\", Constants.FILE_SEPARATOR);
+    flowCellDirectory = flowCellDirectory.replaceAll("\\\\", Constants.FILE_SEPARATOR);
 
     // Parse out last part of experiment and flow cell path. We must isolate
     // this part because the canonical path of the file may not match the
     // experiment/flowcell directory (due to file links).
-    String tokens[] = experimentDirectory.split("/");
+    String tokens[] = experimentDirectory.split(Constants.FILE_SEPARATOR);
     String experimentDirLastPart = tokens[tokens.length - 1];
     if (tokens == null || tokens.length == 0) {
       throw new RuntimeException("Cannot parse experiment directory into expected parts");
     }
-    tokens = flowCellDirectory.split("/");
+    tokens = flowCellDirectory.split(Constants.FILE_SEPARATOR);
     if (tokens == null || tokens.length == 0) {
       throw new RuntimeException("Cannot parse flow cell directory into expected parts");
     }
@@ -381,7 +382,7 @@ public class PropertyDictionaryHelper implements Serializable {
     }
     String lastFilePart = tokens[tokens.length - 1];
 
-    tokens = lastFilePart.split("/");
+    tokens = lastFilePart.split(Constants.FILE_SEPARATOR);
     if (tokens == null || tokens.length < 2) {
       throw new RuntimeException("Cannot parse experiment directory into expected parts for year and number");
     }
@@ -411,11 +412,11 @@ public class PropertyDictionaryHelper implements Serializable {
     }
     String tempStr = inputPath;
     // Change all file separators to forward slash
-    tempStr = tempStr.replaceAll("\\\\", "/");
+    tempStr = tempStr.replaceAll("\\\\", Constants.FILE_SEPARATOR);
 
     // And then see if there is a separator at the end of the string
-    if (tempStr.charAt(tempStr.length() - 1) != '/') {
-      inputPath = inputPath + File.separator;
+    if (tempStr.charAt(tempStr.length() - 1) != Constants.FILE_SEPARATOR_CHAR) {
+      inputPath = inputPath + Constants.FILE_SEPARATOR;
     }
 
     return inputPath;

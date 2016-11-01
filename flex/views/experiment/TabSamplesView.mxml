@@ -734,7 +734,6 @@
 					} else {
 						if (isEntered(sample, "@name") &&
 								isEntered(sample, "@idSampleType") &&
-								isEntered(sample, "@concentration") &&
 								reqdAnnotationsEntered(sample)) {
 
 							if (!parentDocument.isEditState() &&
@@ -790,7 +789,6 @@
 
 				} else {
 					if (isEntered(sample, "@name") &&
-							(isEntered(sample, "@concentration") || !parentApplication.submitInternalExperiment()) &&  // only require concentration on internal requests
 							reqdAnnotationsEntered(sample) &&
 							isEntered(sample, "@idOrganism")) {
 
@@ -1541,8 +1539,7 @@
 					
 				</mx:AdvancedDataGridColumn>
 				
-				<mx:AdvancedDataGridColumn headerText="{parentApplication.getProperty(parentApplication.PROPERTY_CUSTOM_SAMPLE_CONC_UNITS) == 'N' ? 'Conc. (ng/ul)' : 'Conc.'}" id="concentrationCol" visible="{parentApplication.isInternalExperimentSubmission}"  width="72" formatter="{sampleConcentrationFormatter}" rendererIsEditor="false"
-										   itemRenderer="{hci.flex.controls.Label.create('@concentration')}"                 
+				<mx:AdvancedDataGridColumn headerText="{parentApplication.getProperty(parentApplication.PROPERTY_CUSTOM_SAMPLE_CONC_UNITS) == 'N' ? 'Conc. (ng/ul)' : 'Conc.'}" id="concentrationCol" visible="{parentApplication.isInternalExperimentSubmission}"  width="72" formatter="{sampleConcentrationFormatter}"
 										   itemEditor="{views.renderers.GridColumnFillButton.create(new views.renderers.TextInputSampleConcentration(), '')}" editorDataField="value" dataField="@concentration">
 					<mx:headerRenderer > 
 						<mx:Component>

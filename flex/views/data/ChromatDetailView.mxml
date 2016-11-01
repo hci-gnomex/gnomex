@@ -915,11 +915,11 @@
 								<mx:Array/>
 							</mx:seriesFilters>
 							
-							<!-- Background elements -->
+							<!-- Background elements
 							<mx:backgroundElements>
 								<mx:Array/>
 							</mx:backgroundElements> 
-							
+-->
 							<!-- Vertical axis -->
 							<mx:verticalAxis>
 								<mx:LinearAxis 

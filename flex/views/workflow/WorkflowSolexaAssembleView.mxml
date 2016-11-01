@@ -833,7 +833,7 @@
 								<mx:Component id ="channelChooserColumnItemEditor">
 									<renderers:GridColumnFillButton fillColumnKey="idRequestAndMultiplexGroup">
 										<renderers:edtComponent>
-											<renderers:ComboBox id="channelChooserComboBox" dataProvider="{outerDocument.flowCellChannelsCountList}" 
+											<renderers:ComboBox id="channelChooserComboBox" dataProvider="{outerDocument.flowCellChannelsCountList}"
 																labelField="@display" valueField="@value" dataField="@flowCellChannelNumber" />	
 										</renderers:edtComponent>										
 									</renderers:GridColumnFillButton>

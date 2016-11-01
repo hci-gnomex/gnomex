@@ -245,7 +245,7 @@ public class ShowRequestDownloadForm extends GNomExCommand implements Serializab
 				FlowCell flowCell = (FlowCell) i.next();
 
 				String theCreateDate = flowCell.formatDate((java.sql.Date) flowCell.getCreateDate());
-				String dateTokens[] = theCreateDate.split("/");
+				String dateTokens[] = theCreateDate.split(Constants.FILE_SEPARATOR);
 				String createMonth = dateTokens[0];
 				String createDay = dateTokens[1];
 				String theCreateYear = dateTokens[2];
@@ -321,7 +321,7 @@ public class ShowRequestDownloadForm extends GNomExCommand implements Serializab
 
 			Element downloadLink = new Element("A");
 			downloadLink.setAttribute("href",
-					baseURL + "/" + Constants.DOWNLOAD_SINGLE_FILE_SERVLET + "?idRequest=" + idRequest + "&fileName=" + fd.getDisplayName() + dirParm);
+					baseURL + Constants.FILE_SEPARATOR + Constants.DOWNLOAD_SINGLE_FILE_SERVLET + "?idRequest=" + idRequest + "&fileName=" + fd.getDisplayName() + dirParm);
 			downloadLink.addContent(fd.getDisplayName());
 
 			tableNode.addContent(makeRow(downloadLink, fd.getFileSizeText()));

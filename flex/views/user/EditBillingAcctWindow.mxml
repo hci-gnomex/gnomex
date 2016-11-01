@@ -882,8 +882,7 @@
 									  labelField="@name" 
 									  prompt="Select a lab..."
 									  close="{groupSelected();}"
-									  dataProvider="{parentApplication.workAuthLabList}">
-			</renderers:FilterComboBox>
+									  dataProvider="{parentApplication.workAuthLabList}"/>
 		</mx:HBox>
 
 		<mx:HBox width="100%" verticalAlign="top" horizontalGap="4" id="accountNameHBox">

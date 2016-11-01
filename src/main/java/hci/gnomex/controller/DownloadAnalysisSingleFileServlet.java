@@ -1,5 +1,6 @@
 package hci.gnomex.controller;
 
+import hci.gnomex.constants.Constants;
 import hci.gnomex.model.Analysis;
 import hci.gnomex.model.TransferLog;
 import hci.gnomex.security.SecurityAdvisor;
@@ -80,7 +81,7 @@ public class DownloadAnalysisSingleFileServlet extends HttpServlet {
         // Get the fileName parameter
         if (req.getParameter("fileName") != null && !req.getParameter("fileName").equals("")) {
             fileName = req.getParameter("fileName");
-            fileName = fileName.replaceAll("\\\\", "/");
+            fileName = fileName.replaceAll("\\\\", Constants.FILE_SEPARATOR);
         }
         // Get the email address parameter
         if (req.getParameter("emailAddress") != null && !req.getParameter("emailAddress").equals("")) {
@@ -215,8 +216,8 @@ public class DownloadAnalysisSingleFileServlet extends HttpServlet {
                     xferLog.setIpAddress(GNomExCommand.getRemoteIP(req));
                     xferLog.setIdAppUser(secAdvisor.getIdAppUser());
 
-                    String analysisfdFileName = analysisFd.getFileName().replaceAll("\\\\", "/");
-                    analysisDir = analysisfdFileName.substring(0,analysisfdFileName.lastIndexOf('/')+1);
+                    String analysisfdFileName = analysisFd.getFileName().replaceAll("\\\\", Constants.FILE_SEPARATOR);
+                    analysisDir = analysisfdFileName.substring(0,analysisfdFileName.lastIndexOf(Constants.FILE_SEPARATOR)+1);
 
                     in = new FileInputStream(analysisFd.getFileName());
                     OutputStream out = response.getOutputStream();
@@ -306,11 +307,11 @@ public class DownloadAnalysisSingleFileServlet extends HttpServlet {
 
     private FileDescriptor recurseGetMatchingFileDescriptor(FileDescriptor fd, String fileName, String theDirectory) {
         // Change all backslash to forward slash for comparison
-        String fdFileName = fd.getFileName().replaceAll("\\\\", "/");
+        String fdFileName = fd.getFileName().replaceAll("\\\\", Constants.FILE_SEPARATOR);
         if ( dir != null ) {
-            dir = dir.replace("\\", "/");
+            dir = dir.replace("\\", Constants.FILE_SEPARATOR);
         }
-        theDirectory = theDirectory.replace("\\", "/");
+        theDirectory = theDirectory.replace("\\", Constants.FILE_SEPARATOR);
 
         if (fdFileName.equals(fileName)) {
             return fd;
@@ -318,7 +319,7 @@ public class DownloadAnalysisSingleFileServlet extends HttpServlet {
             for(Iterator i = fd.getChildren().iterator(); i.hasNext();) {
                 FileDescriptor childFd = (FileDescriptor)i.next();
 
-                childFd.setQualifiedFilePath(!fd.getQualifiedFilePath().equals("") ? fd.getQualifiedFilePath() + "/" + fd.getDisplayName() : fd.getDisplayName());
+                childFd.setQualifiedFilePath(!fd.getQualifiedFilePath().equals("") ? fd.getQualifiedFilePath() + Constants.FILE_SEPARATOR + fd.getDisplayName() : fd.getDisplayName());
 
                 FileDescriptor matchingFd = recurseGetMatchingFileDescriptor(childFd, fileName, childFd.getQualifiedFilePath());
                 if (matchingFd != null) {
@@ -450,7 +451,7 @@ public class DownloadAnalysisSingleFileServlet extends HttpServlet {
                 return processed;
             }
 
-            localdir = imgline.substring(ipos+5,epos) + "/";
+            localdir = imgline.substring(ipos+5,epos) + Constants.FILE_SEPARATOR;
         }
         else if (syntaxType == 2) {
             // <img src="UGP07_Trio_Rec_Pnt_Splice_Indel_10e4.png" alt="Run '.....' " style="width: 100%">
@@ -487,7 +488,7 @@ public class DownloadAnalysisSingleFileServlet extends HttpServlet {
             }
 
 
-            localdir = dir + "/";
+            localdir = dir + Constants.FILE_SEPARATOR;
             if (analysisDir.endsWith(localdir))
             {
                 localdir = "";

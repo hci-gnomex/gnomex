@@ -366,7 +366,6 @@
 
 					if (parentDocument.currentState == 'SolexaLaneAmendState') {
 						if (isEntered(sample, "@name") &&
-								isEntered(sample, "@concentration") &&
 								isEntered(sample, "@idSampleType") &&
 								isEntered(sample, "@idOrganism") &&
 								isEntered(sample, "@idSeqRunType") &&
@@ -381,7 +380,6 @@
 							parentDocument.sampleSetupView.currentState == "SolexaSetupState" ||
 							parentDocument.sampleSetupView.currentState == "SolexaAmendState") {
 						if (isEntered(sample, "@name") &&
-								isEntered(sample, "@concentration") &&
 								isEntered(sample, "@idSampleType") &&
 								isEntered(sample, "@idOrganism") &&
 								isEntered(sample, "@idSeqRunType") &&
@@ -409,7 +407,6 @@
 						if (isEntered(sample, "@name") &&
 								isEntered(sample, "@idSampleType") &&
 								isEntered(sample, "@idSeqLibProtocol") &&
-								isEntered(sample, "@concentration") &&
 								isEntered(sample, "@idOrganism") &&
 								isEntered(sample, "@idSeqRunType") &&
 								isEntered(sample, "@multiplexGroupNumber") &&
@@ -1013,10 +1010,10 @@
 			<mx:TextArea styleName="instructionBox" width="1230" wordWrap="true" id="textarea1" height="120" editable="false" verticalScrollPolicy="off" fontSize="11">
 				<mx:htmlText><![CDATA[1.  Assign a multiplex group number for each sample in the table below. Samples that are to be sequenced in the same lane should be assigned the same multiplex group number.
 2.  Provide a name for each sample.
-3.  Provide the concentration for each sample.
+3.  Provide the concentration for each sample if available.
 4.  Type the volume (ul) that will be provided for each sample.
 5.  Specify the number of sequence lanes required for each multiplex group.
-6.  Optional: Annotate the samples using the characteristics that you selectied from the Annotations tab.
+6.  Optional: Annotate the samples using the characteristics that you selected from the Annotations tab.
 7.  Optional: Edit other fields as appropriate.]]></mx:htmlText>
 			</mx:TextArea>
 		</mx:VBox>
@@ -1160,8 +1157,7 @@
 				</mx:AdvancedDataGridColumn>   
 				
 				<mx:AdvancedDataGridColumn
-                        headerText="{parentApplication.getProperty(parentApplication.PROPERTY_CUSTOM_SAMPLE_CONC_UNITS) == 'N' ? 'Conc. (ng/ul)' : 'Conc.'}" id="concentrationCol" visible="{parentApplication.isInternalExperimentSubmission}"  width="80" formatter="{sampleConcentrationFormatter}" rendererIsEditor="false"
-										   itemRenderer="{hci.flex.controls.Label.create('@concentration')}"                
+                        headerText="{parentApplication.getProperty(parentApplication.PROPERTY_CUSTOM_SAMPLE_CONC_UNITS) == 'N' ? 'Conc. (ng/ul)' : 'Conc.'}" id="concentrationCol" visible="{parentApplication.isInternalExperimentSubmission}"  width="80" formatter="{sampleConcentrationFormatter}"
 										   itemEditor="{views.renderers.GridColumnFillButton.create(new views.renderers.TextInputSampleConcentration(), '')}" editorDataField="value" dataField="@concentration">
 					<mx:headerRenderer > 
 						<mx:Component>
@@ -1396,8 +1392,7 @@
 																  filterString="{outerDocument.getIndexTagName(data)}"
 																  text="{outerDocument.getIndexTagName(data)}"
 																  labelFunction="{outerDocument.getIndexTagName}"
-																  change="{selectedItem!=null ? data.@idOligoBarcode = selectedItem.@idOligoBarcode : data.@idOligoBarcode = data.@idOligoBarcode; data.@barcodeSequence = outerDocument.parentApplication.dictionaryManager.getEntry('hci.gnomex.model.OligoBarcode', data.@idOligoBarcode).@barcodeSequence}">
-							</renderers:FilterComboBoxOligoBarcode>
+																  change="{selectedItem!=null ? data.@idOligoBarcode = selectedItem.@idOligoBarcode : data.@idOligoBarcode = data.@idOligoBarcode; data.@barcodeSequence = outerDocument.parentApplication.dictionaryManager.getEntry('hci.gnomex.model.OligoBarcode', data.@idOligoBarcode).@barcodeSequence}"/>
 						</mx:Component>
 					</util:itemEditor> 					
 					<util:headerRenderer > 
@@ -1443,8 +1438,7 @@
 																  filterString="{outerDocument.getIndexTagNameB(data)}"
 																  text="{outerDocument.getIndexTagNameB(data)}"
 																  labelFunction="{outerDocument.getIndexTagName}"
-																  change="{selectedItem!=null ? data.@idOligoBarcodeB = selectedItem.@idOligoBarcode : data.@idOligoBarcodeB = data.@idOligoBarcodeB; data.@barcodeSequenceB = outerDocument.parentApplication.dictionaryManager.getEntry('hci.gnomex.model.OligoBarcode', data.@idOligoBarcodeB).@barcodeSequence}">
-							</renderers:FilterComboBoxOligoBarcode>
+																  change="{selectedItem!=null ? data.@idOligoBarcodeB = selectedItem.@idOligoBarcode : data.@idOligoBarcodeB = data.@idOligoBarcodeB; data.@barcodeSequenceB = outerDocument.parentApplication.dictionaryManager.getEntry('hci.gnomex.model.OligoBarcode', data.@idOligoBarcodeB).@barcodeSequence}"/>
 						</mx:Component>
 					</util:itemEditor> 					
 					<util:headerRenderer > 

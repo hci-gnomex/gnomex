@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Canvas label="Bioinformatics" xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%" xmlns:util="views.util.*" show="{init();}" verticalScrollPolicy="off">
+<mx:Canvas label="Bioinformatics" xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%"
+		   xmlns:util="views.util.*" show="{init();}" verticalScrollPolicy="off" xmlns:renderers="views.renderers.*">
 	<mx:Script>
 		<![CDATA[
 			import ext.com.Consts;
@@ -67,6 +68,7 @@
 			
 			private function onGenomeBuildComboChange(event:Event):void {
 				var comboBox:ComboBox = ComboBox(event.currentTarget);
+
 				var data:Object = event.currentTarget.getRepeaterItem();
 				data.@idGenomeBuildAlignTo = comboBox.selectedItem.@idGenomeBuild;
 				genomeBuildRepeater.dataProvider = sampleOrganisms;
@@ -129,7 +131,7 @@
 				<mx:HBox width="100%" verticalGap="0" paddingBottom="0" paddingTop="0">
 					<mx:Label text="{genomeBuildRepeater.currentItem.@organism}" width="100" />
 					<mx:CheckBox id="alignCheckBox" label="Yes, align to genome build" enabled="{!parentDocument.isEditState() || (parentDocument.isEditState() &amp;&amp; parentApplication.isAdminState) }" click="{onAlignCheckBoxClick(event); parentDocument.dirty.setDirty();}" selected="{genomeBuildRepeater.currentItem.@idGenomeBuildAlignTo != '' || genomeBuildRepeater.currentItem.@alignToGenomeBuild == 'Y'}"/>
-					<mx:ComboBox labelField="@display" id="genomeBuildCombo" change="{onGenomeBuildComboChange(event); parentDocument.dirty.setDirty();}" 
+					<mx:ComboBox labelField="@display" id="genomeBuildCombo" change="{onGenomeBuildComboChange(event); parentDocument.dirty.setDirty();}"
 								 width="300" dataProvider="{parentDocument.getFilteredGenomeBuildList(genomeBuildRepeater.currentItem.@idOrganism)}" 
 								 enabled="{(!parentDocument.isEditState() || (parentDocument.isEditState() &amp;&amp; parentApplication.isAdminState)) &amp;&amp; (genomeBuildRepeater.currentItem.@idGenomeBuildAlignTo != '' || genomeBuildRepeater.currentItem.@alignToGenomeBuild == 'Y')}" selectedIndex="{getIndexOfGenomeBuild(genomeBuildRepeater.currentItem.@idGenomeBuildAlignTo, genomeBuildRepeater.currentItem.@idOrganism, genomeBuildRepeater.currentItem.@idSequenceLane)}"/>
 				</mx:HBox>

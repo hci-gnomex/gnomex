@@ -7,11 +7,10 @@
                 <mx:HBox id="appUserContainer" width="100%" horizontalGap="0" visible="{labCombo.selectedIndex > 0}" includeInLayout="{labCombo.selectedIndex > 0}" >
                     <util:ContextHelp context1="experimentOwnerName" context2="{}" showEdit="{parentApplication.isAdminState}" title="Name"
                                       label="(2) Verify your name." labelPlacement="left" id="experimentOwnerName" width="200"/>
-                    <mx:ComboBox dataProvider="{appUsers}"
+                    <renderers:FilterComboBox dataProvider="{appUsers}"
                                  selectedIndex="-1" labelField="@displayName"
-                                 id="appUserCombo" width="380">
-                        <mx:change>{idAppUser = appUserCombo.selectedItem.@idAppUser;userSelected(); checkSetupCompleteness();}</mx:change>
-                    </mx:ComboBox>
+                                 id="appUserCombo" width="380"
+                        change="{idAppUser = appUserCombo.selectedItem.@idAppUser;userSelected(); checkSetupCompleteness();}"/>
                 </mx:HBox>
             </mx:AddChild>
         </mx:State>
@@ -144,7 +143,7 @@
                 templateItemsRepeaterBox.visible = true;
                 templateItemsRepeaterBox.includeInLayout = true;
 
-            }
+        }
         }
 
         private function filterLabList(item:Object):Boolean {
@@ -175,10 +174,10 @@
                 }
             }
             // Check user is not an admin for that core, they must be a member of the lab
-            if (parentApplication.isCoreFacilityIManage(idCoreFacility)) {
+            if(parentApplication.isCoreFacilityIManage(idCoreFacility)){
                 keep = true;
             } else {
-                if (item.@isMyLab == "Y" || item.@canSubmitRequests == "Y" || item.@canManage == "Y") {
+                if (item.@isMyLab=="Y" || item.@canSubmitRequests=="Y" || item.@canManage=="Y" ){
                     keep = true;
                 }
             }
@@ -484,17 +483,15 @@
                                           prompt="Select a lab..."
                                           width="380"
                                           close="getMembersOfLab(); checkSetupCompleteness(); checkForOtherAccounts();hideTemplateItemsRepeater()"
-                                          id="labCombo">
-                </renderers:FilterComboBox>
+                                          id="labCombo"/>
 
             </mx:HBox>
             <mx:HBox width="100%" horizontalGap="0"  verticalAlign="top" id="billingContainer" paddingBottom="0" paddingTop="0" visible="{this.currentState == 'Admin' ? appUserCombo.selectedIndex > 0 : labCombo.selectedIndex >= 0}" >
                 <util:ContextHelp context1="experimentBillingAccount" context2="{}" showEdit="{parentApplication.isAdminState}" title="Billing Account Help"
                                   labelPlacement="left" id="text1" width="200" label="(3) Select a billing account."/>
                 <mx:HBox verticalAlign="middle" id="hbox3" horizontalGap="1" paddingBottom="0" paddingTop="0">
-                    <mx:ComboBox labelField="@accountNameAndNumber" width="380" id="billingAccountCombo" prompt="Select an account..." change="makeBillingAccountSelection();hideTemplateItemsRepeater()" selectedIndex="-1" close="checkSetupCompleteness(); productList.refresh();">
-                        <mx:dataProvider>{billingAccounts}</mx:dataProvider>
-                    </mx:ComboBox>
+                    <mx:ComboBox labelField="@accountNameAndNumber" width="380" id="billingAccountCombo" prompt="Select an account..." change="makeBillingAccountSelection();" selectedIndex="-1" close="checkSetupCompleteness(); productList.refresh();"
+                        dataProvider="{billingAccounts}"/>
                     <mx:VBox height="100%" verticalGap="0" paddingBottom="0" paddingTop="0" paddingLeft="0" paddingRight="4" id="vbox3" width="425">
                         <mx:Text id="workAuthInstructions" fontStyle="italic" fontSize="10"  textAlign="left" width="100%">
                         </mx:Text>

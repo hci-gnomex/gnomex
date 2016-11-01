@@ -318,7 +318,7 @@
 				var completeCount:int = 0;
 				var nameCompleteCount:int = 0;
 				for each(var sample:Object in parentDocument.samples) {
-					if (isEntered(sample, "@name") && isEntered(sample, "@concentration")) {
+					if (isEntered(sample, "@name")) {
 						nameCompleteCount++;
 					}
 					completeCount++;
@@ -678,8 +678,7 @@
 				</mx:AdvancedDataGridColumn>  
 
 				<mx:AdvancedDataGridColumn headerText="{parentApplication.getProperty(parentApplication.PROPERTY_CUSTOM_SAMPLE_CONC_UNITS) == 'N' ? 'Conc. (ng/ul)' : 'Conc.'}" id="concentrationCol" 
-										   visible="{parentApplication.isInternalExperimentSubmission}"  width="72" formatter="{sampleConcentrationFormatter}" rendererIsEditor="false"
-										   itemRenderer="{hci.flex.controls.Label.create('@concentration')}"                 
+										   visible="{parentApplication.isInternalExperimentSubmission}"  width="72" formatter="{sampleConcentrationFormatter}"
 										   itemEditor="{views.renderers.GridColumnFillButton.create(new views.renderers.TextInputSampleConcentration(), '')}" editorDataField="value" dataField="@concentration">
 					<mx:headerRenderer > 
 						<mx:Component>
