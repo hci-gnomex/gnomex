@@ -88,7 +88,7 @@ public class BillingTemplateParser {
 					}
 					parsedBillingTemplateItem.setPercentSplit( percentSplit.divide( new BigDecimal(100) ));
 				} else {
-					BigDecimal dollarAmount = new BigDecimal(billingTemplateItemNode.getAttributeValue("dollarAmount").replace("$",""));
+					BigDecimal dollarAmount = new BigDecimal(billingTemplateItemNode.getAttributeValue("dollarAmount").replace("$","").replace(",",""));
 					if (dollarAmount.compareTo(BigDecimal.valueOf(0)) <= 0) {
 						throw new ParserException("All billing accounts must accept a dollar amount greater than $0.");
 					}
