@@ -85,6 +85,39 @@
 
 	}
 
+	/**
+	 * Remove the owner from the list.
+	 * @param list
+	 * @param owner
+	 */
+	private function removeOwner(list:XMLListCollection, owner:String):void {
+		for each (var item:XML in list) {
+			if (item.@idAppUser == owner) {
+				removeFromCollaborators(list, item);
+				break;
+			}
+		}
+	}
+
+	/**
+	 * Remove the node from the list.
+	 * @param list
+	 * @param node
+	 */
+	private function removeFromCollaborators(list:XMLListCollection, node:XML):void {
+		var removeItem:XML;
+		var index:int = 0;
+		for each (var item:XML in list) {
+			if (node.@idAppUser == item.@idAppUser) {
+				removeItem = item;
+				break;
+			}
+			index++;
+		}
+		if (index < list.length)
+			list.removeItemAt(index);
+	}
+
 	private function onGetLab(event:ResultEvent):void {
 		var inst:Object;
 		if (getLab.lastResult.name() == "OpenLabList") {
@@ -94,8 +127,10 @@
 					"/>");
 			var lab:Object = getLab.lastResult..Lab.(@idLab == idLab);
 			collaboratorGrid.dataProvider = null;
-			possibleCollaborators = new XMLListCollection(lab.possibleCollaboratorsWithoutOwner.AppUser.(@isActive == 'Y'));
+			possibleCollaborators = new XMLListCollection(lab.possibleCollaborators.AppUser.(@isActive == 'Y'));
 			membersCollaborators = new XMLListCollection(lab.membersCollaborators.AppUser.(@isActive == 'Y'));
+			removeOwner(possibleCollaborators, parentDocument.request.@idAppUser);
+			removeOwner(membersCollaborators, parentDocument.request.@idAppUser);
 			possibleInstitutions = new PromptXMLListCollection(emptyNode, new XMLListCollection(getLab.lastResult..Lab.(@idLab == idLab).institutions.Institution.(@isActive == 'Y')));
 
 			if (this.idInstitution != null && this.idInstitution != '') {
