@@ -218,8 +218,9 @@ public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Se
         requestedLab = sess.load(Lab.class, requestedLabId);
         requestedLabName = requestedLab.getName(false, false);
       } else {
-        Query q = sess.createQuery("select l from Lab l where l.lastName = :lastName");
+        Query q = sess.createQuery("select l from Lab l where l.lastName = :lastName and l.firstName = :firstName");
         q.setParameter("lastName", requestedLabName);
+        q.setParameter("firstName", requestedLabFirstName);
         if(q.list().size() > 0){
           this.addInvalidField("Requested Lab Name", "There is a lab that already exists with the last name '" + requestedLabName + "'.  " +
                   "Please check to make sure that you shouldn't be requesting to join an existing lab.  " +

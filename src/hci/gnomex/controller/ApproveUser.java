@@ -12,6 +12,7 @@ import hci.gnomex.utility.PropertyDictionaryHelper;
 import java.io.IOException;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
@@ -22,6 +23,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
+import org.hibernate.query.Query;
 
 public class ApproveUser extends HttpServlet {
 public static Logger LOG = Logger.getLogger(ApproveUser.class);
@@ -105,7 +107,7 @@ protected void doPost(HttpServletRequest request, HttpServletResponse response) 
 
 			message = "The user has been successfully deleted.  The user has been notified of this action.";
 
-		} else if (au.getGuid() != null && au.getGuid().equals(guid) && au.getGuidExpiration() != null
+		}else if (au.getGuid() != null && au.getGuid().equals(guid) && au.getGuidExpiration() != null
 				&& au.getGuidExpiration().after(new Date(System.currentTimeMillis()))) { // guid
 																							// matches
 			au.setIsActive("Y");
@@ -115,13 +117,23 @@ protected void doPost(HttpServletRequest request, HttpServletResponse response) 
 			Lab theLab = null;
 			// if we have a lab name, email, and phone then we have a new lab (these fields are required)
 			if (!requestedLabName.equals("") && !labEmail.equals("") && !labPhone.equals("")) {
-				theLab = new Lab();
-				theLab.setFirstName(requestedLabFirstName);
-				theLab.setLastName(requestedLabName);
-				theLab.setDepartment(department);
-				theLab.setContactEmail(labEmail);
-				theLab.setContactPhone(labPhone);
-				sess.save(theLab);
+				// first check to make sure that the lab doesn't already exist.
+				// this can happen if multiple requests for the same lab are generated and the core facility admin
+				// approves all of the emails.  Then the same lab will re-created, thus causing duplicates.
+				Query q = sess.createQuery("select l from Lab l where l.lastName = :lastName and l.firstName = :firstName");
+				q.setParameter("lastName", requestedLabName);
+				q.setParameter("firstName", requestedLabFirstName);
+				List<Lab> labList = q.list();
+				if(labList.size() == 1){
+					theLab = sess.load(Lab.class, labList.get(0).getIdLab());
+				} else{
+					theLab = new Lab();
+					theLab.setFirstName(requestedLabFirstName);
+					theLab.setLastName(requestedLabName);
+					theLab.setDepartment(department);
+					theLab.setContactEmail(labEmail);
+					theLab.setContactPhone(labPhone);
+				}
 
 			} else if (requestedLabId != null) {
 				theLab = sess.load(Lab.class, requestedLabId);
@@ -142,6 +154,7 @@ protected void doPost(HttpServletRequest request, HttpServletResponse response) 
 			MailUtil.validateAndSendEmail(helper);
 
 			message = "User successfully activated.  The user will be notified that their account is now active";
+			sess.save(theLab);
 			sess.save(au);
 			sess.flush();
 		} else {
