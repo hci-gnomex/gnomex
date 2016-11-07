@@ -175,15 +175,9 @@
 			for (var i:int = 0; i < draggedItems.length; i++) {
 				var dragItem:XML = XML(draggedItems[i]);
 
-				if (dragItem.name() == "FileDescriptor" || dragItem.name() == "RequestDownload") {
+				if (dragItem.name() == "FileDescriptor") {
 
-					if (dragItem.name() == "FileDescriptor") {
-						var req:XML = getRequestDownloadList.lastResult.Request.(@requestNumber == dragItem.@number)[0];
-					}
-
-					if (dragItem.name() == "RequestDownload") {
-						var req:XML = getRequestDownloadList.lastResult.Request.(@requestNumber == dragItem.@requestNumber)[0];
-					}
+					var req:XML = getRequestDownloadList.lastResult.Request[0];
 					if (req == null) {
 						return;
 					}
@@ -195,10 +189,10 @@
 						var inFolder:Boolean = false;
 
 
-						for each (var folder:XML in req.RequestDownload) {
+						for each (var folder:XML in req.FileDescriptor.(@type == 'dir')) {  // 11/03/2016 was .RequestDownload tim
 
 							if (folder.descendants("FileDescriptor").(@fileName == dragItem.@fileName && @directoryName == dragItem.@directoryName).length() > 0) {
-								fileNode = createReqDLNode(folder);
+								fileNode = createFileDesNode(folder);
 								recurseAddChildrenFolders(dragItem, fileNode, folder);
 								inFolder = true;
 								break;
@@ -208,12 +202,10 @@
 
 						if (!inFolder) {
 							fileNode = createFileDesNode(dragItem);
-							fileNode.@itemNumber = dragItem.@displayName;
+							if (dragItem.@type == "dir") {
+								recurseAddChildren(dragItem, fileNode);
+							}
 						}
-
-					} else if (dragItem.name() == "RequestDownload") {
-						fileNode = createReqDLNode(dragItem);
-						recurseAddChildren(dragItem, fileNode);
 					}
 
 					addNodeToList(fileNode, reqNode, filesToDownload);
@@ -222,7 +214,6 @@
 					filesToDownload.refresh();
 
 					filesTree.selectedItem = null;
-
 				}
 			}
 		}

@@ -230,6 +230,7 @@
 					mx.controls.Alert.show(getAnalysisDownloadList.lastResult..ACTMESSAGE.@TEXT);
 					return;
 				} else {
+					removePedFileXML();
 					newFolderButton.enabled = true; 
 					callLater(expandDownloadTree);
 				}  	 
@@ -591,6 +592,13 @@
 				}    
 				return false;
 			}
+
+	  // get rid of all the xml having to do with ped file processing
+	  private function removePedFileXML ():void {
+		  this.deleteNode(XML(getAnalysisDownloadList.lastResult..PEDInfo));
+		  this.deleteNode(XML(getAnalysisDownloadList.lastResult..BAMInfo));
+		  this.deleteNode(XML(getAnalysisDownloadList.lastResult..VCFInfo));
+	  }
 			
 			private function doDragEnter(event:DragEvent):void
 			{
