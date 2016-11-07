@@ -1029,13 +1029,9 @@
 		[Bindable]
 		public var appUserList:XMLListCollection;
 		[Bindable]
-		public var promptedAppUserList:PromptXMLListCollection;
-		[Bindable]
 		public var labList:XMLListCollection;
 		[Bindable]
 		public var submitRequestLabList:XMLListCollection;
-		[Bindable]
-		public var promptedSubmitRequestLabList:PromptXMLListCollection;
 		[Bindable]
 		public var manageLabList:XMLListCollection;
 		[Bindable]
@@ -3239,9 +3235,10 @@
 		}
 
 		private function onGetAppUserList(event:ResultEvent):void {
-			appUserList = new XMLListCollection(getAppUserList.lastResult.AppUser.(@isActive == 'Y'));
+			appUserList = new XMLListCollection();
 			var emptyNode:XML = <AppUser displayName='' idAppUser='' name='' label=''/>;
-			promptedAppUserList = new PromptXMLListCollection(emptyNode, new XMLListCollection(getAppUserList.lastResult.AppUser.(@isActive == 'Y')));
+			appUserList.addItem(emptyNode);
+			appUserList.addAll(new XMLListCollection(getAppUserList.lastResult.AppUser.(@isActive == 'Y')));
 
 			showProgress(10);
 			enableApp();
@@ -3252,9 +3249,9 @@
 			labList = new XMLListCollection();
 			labList.addItem(emptyNode);
 			labList.addAll(new XMLListCollection(getLabList.lastResult.Lab));
-			submitRequestLabList = new XMLListCollection(getLabList.lastResult.Lab.(@canGuestSubmit == 'Y' || @canSubmitRequests == 'Y'));
-			promptedSubmitRequestLabList = new PromptXMLListCollection(emptyNode, submitRequestLabList);
-			promptedSubmitRequestLabList.refresh();
+			submitRequestLabList = new XMLListCollection();
+			submitRequestLabList.addItem(emptyNode);
+			submitRequestLabList.addAll(new XMLListCollection(getLabList.lastResult.Lab.(@canGuestSubmit == 'Y' || @canSubmitRequests == 'Y')));
 			manageLabList = new XMLListCollection(getLabList.lastResult.Lab.(@canManage == 'Y'));
 
 			// For submitting work auth forms online, a non-gnomex university user will
@@ -3384,7 +3381,7 @@
 
 				if (this.isGuestMode()) {
 					done = true;
-				} else if (promptedAppUserList != null) {
+				} else if (appUserList != null) {
 					done = true;
 				}
 			}

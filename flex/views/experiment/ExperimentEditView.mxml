@@ -2735,7 +2735,7 @@
 				if (isEditState()) {
 					labList = new XMLListCollection();
 					var selectedItem:Object = null;
-					for each(var l:Object in parentApplication.promptedSubmitRequestLabList) {
+					for each(var l:Object in parentApplication.submitRequestLabList) {
 						labList.addItem(l);
 						if (l.@idLab == request.@idLab) {
 							selectedItem = l;
