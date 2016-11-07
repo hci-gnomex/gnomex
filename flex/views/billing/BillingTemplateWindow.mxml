@@ -5,41 +5,41 @@
 				layout="vertical" width="820" height="300"
 				title="Billing Template" showCloseButton="true"
 				close="cancel()">
-	
-	<mx:HTTPService  
-		id="getAuthorizedBillingAccounts" 
-		url="GetAuthorizedBillingAccounts.gx"
-		destination="getAuthorizedBillingAccounts"
-		resultFormat="e4x"
-		showBusyCursor="true"
-		result="onGetAuthorizedBillingAccounts(event)"
-		fault="parentApplication.onFailHttpRequest('Failed to get authorized billing accounts', event)"
-		method="POST"
-		useProxy="false">
+
+	<mx:HTTPService
+			id="getAuthorizedBillingAccounts"
+			url="GetAuthorizedBillingAccounts.gx"
+			destination="getAuthorizedBillingAccounts"
+			resultFormat="e4x"
+			showBusyCursor="true"
+			result="onGetAuthorizedBillingAccounts(event)"
+			fault="parentApplication.onFailHttpRequest('Failed to get authorized billing accounts', event)"
+			method="POST"
+			useProxy="false">
 	</mx:HTTPService>
-	
-	<mx:HTTPService             
-		id="getBillingTemplate" 
-		url="GetBillingTemplate.gx"
-		destination="getBillingTemplate" 
-		resultFormat="e4x"
-		result="onGetBillingTemplate(event)"
-		fault="parentApplication.onFailHttpRequest('Failed to get billing template', event)"
-		method="POST"
-		useProxy="false"
-		showBusyCursor="true">
+
+	<mx:HTTPService
+			id="getBillingTemplate"
+			url="GetBillingTemplate.gx"
+			destination="getBillingTemplate"
+			resultFormat="e4x"
+			result="onGetBillingTemplate(event)"
+			fault="parentApplication.onFailHttpRequest('Failed to get billing template', event)"
+			method="POST"
+			useProxy="false"
+			showBusyCursor="true">
 	</mx:HTTPService>
-	
-	<mx:HTTPService             
-		id="saveBillingTemplate" 
-		url="SaveBillingTemplate.gx"
-		destination="saveBillingTemplate" 
-		resultFormat="e4x"
-		result="onSaveBillingTemplate(event)"
-		fault="parentApplication.onFailHttpRequest('Failed to save billing template', event)"
-		method="POST"
-		useProxy="false"
-		showBusyCursor="true">
+
+	<mx:HTTPService
+			id="saveBillingTemplate"
+			url="SaveBillingTemplate.gx"
+			destination="saveBillingTemplate"
+			resultFormat="e4x"
+			result="onSaveBillingTemplate(event)"
+			fault="parentApplication.onFailHttpRequest('Failed to save billing template', event)"
+			method="POST"
+			useProxy="false"
+			showBusyCursor="true">
 	</mx:HTTPService>
 
 	<mx:Script>
@@ -429,18 +429,21 @@
 		public function updateBillingAccountEntry(billingAccountEntry:XML, acceptingBalance:Boolean):void {
 			billingAccountEntry.@acceptBalance = acceptingBalance ? 'true' : 'false';
 			if (acceptingBalance) {
+				var sortOrder: int = 1;
 				billingAccountEntry.@dollarAmount = "";
 				billingAccountEntry.@percentSplit = "";
-				billingAccountEntry.@sortOrder = int.MAX_VALUE;
+				billingAccountEntry.@sortOrder = sortOrder;
 
 				for each (var entry:XML in billingTemplateItems) {
 					if (entry.@idBillingAccount != billingAccountEntry.@idBillingAccount) {
 						entry.@acceptBalance = 'false';
+						entry.@sortOrder = ++sortOrder;
 					}
 				}
-
-				updateSortOrders();
 			}
+			billingTemplateItems.refresh();
+			accountsGrid.dataProvider = billingTemplateItems.source;
+
 		}
 
 		private function updateSortOrders():void {
@@ -503,13 +506,13 @@
 		}
 		]]>
 	</mx:Script>
-	
+
 	<mx:HBox verticalGap="0" width="100%" verticalAlign="top" horizontalGap="0">
 		<util:ContextHelp context1="billingTemplateHelp" context2="" context3=""
 						  showEdit="{parentApplication.isSuperAdmin}"
 						  title="Billing Templates" label="Help" id="billingTemplateHelp"/>
 		<renderers:FilterComboBox dataProvider="{labs}"
-								  labelField="@name" 
+								  labelField="@name"
 								  prompt="Select a lab..."
 								  width="160"
 								  close="refreshBillingAccounts()"
@@ -517,11 +520,11 @@
 		<mx:Label text="Account:" paddingLeft="4"/>
 		<mx:VBox verticalGap="0" width="100%">
 			<mx:ComboBox id="billingAccountCombo" width="345" labelField="@accountNumberDisplay" dataProvider="{billingAccounts}"/>
-			<mx:CheckBox id="showInactiveAccountsCheckBox"  click="loadBillingAccounts()" label="Show inactive accounts" selected="false" paddingTop="0"/>			
+			<mx:CheckBox id="showInactiveAccountsCheckBox"  click="loadBillingAccounts()" label="Show inactive accounts" selected="false" paddingTop="0"/>
 		</mx:VBox>
-		<mx:LinkButton textDecoration="underline" label="Add" 
+		<mx:LinkButton textDecoration="underline" label="Add"
 					   enabled="{labCombo.selectedItem != null &amp;&amp; labCombo.selectedItem.@idLab != '' &amp;&amp; billingAccountCombo.selectedItem != null &amp;&amp; billingAccountCombo.selectedItem.@idBillingAccount != ''}"
-					   click="addAccountEntry()" 
+					   click="addAccountEntry()"
 					   icon="@Embed(source='../../assets/add.png')" id="addAccountButton" toolTip="Add account"  paddingLeft="2" disabledIcon="@Embed(source='../../assets/add_disable.png')"/>
 		<mx:LinkButton textDecoration="underline" label="Remove" click="removeAccountEntry()" icon="@Embed(source='../../assets/delete.png')" id="deleteAccountButton" toolTip="Remove account"  paddingLeft="8"/>
 	</mx:HBox>
@@ -533,7 +536,7 @@
 			<mx:click>{splitTypeChange(false)}</mx:click>
 		</mx:RadioButton>
 	</mx:HBox>
-	<mx:DataGrid id="accountsGrid" width="100%" height="100%"  
+	<mx:DataGrid id="accountsGrid" width="100%" height="100%"
 				 editable="true" allowMultipleSelection="false"
 				 dataProvider="{billingTemplateItems}" sortableColumns="true"
 				 draggableColumns="false"
@@ -546,24 +549,24 @@
 							   dataField="@sortOrder"
 							   editable="true"
 							   sortable="true"/>
-			<mx:DataGridColumn headerText="Group" width="50" 
-							   dataField="@idLab" 
+			<mx:DataGridColumn headerText="Group" width="50"
+							   dataField="@idLab"
 							   editable="false"
-							   editorDataField="value" 
+							   editorDataField="value"
 							   rendererIsEditor="true"
 							   labelFunction="getLabName"
 							   itemRenderer="{hci.flex.controls.Label.create('@idLab')}"
-							   sortable="false"/>        				
-			<mx:DataGridColumn headerText="Billing Account" 
-							   width="130"  dataField="@idBillingAccount" 
+							   sortable="false"/>
+			<mx:DataGridColumn headerText="Billing Account"
+							   width="130"  dataField="@idBillingAccount"
 							   editable="false"
 							   dataTipFunction="getBillingAccountName"
-							   showDataTips="true" 
-							   editorDataField="value"  
+							   showDataTips="true"
+							   editorDataField="value"
 							   labelFunction="getBillingAccountName"
 							   rendererIsEditor="true"
 							   itemRenderer="mx.controls.Label"
-							   sortable="false"/>        
+							   sortable="false"/>
 			<mx:DataGridColumn id="percentageColumn"
 							   headerText="%" width="50" minWidth="50" dataField="@percentSplit" editable="true"
 							   sortable="false"/>
@@ -587,5 +590,5 @@
 		<mx:Button label="Save" id="saveButton" click="save()" icon="@Embed(source='../../assets/save.png')" disabledIcon="@Embed(source='../../assets/save_disable.png')"/>
 		<mx:Button label="Cancel" id="cancelButton" click="cancel()"/>
 	</mx:ControlBar>
-	
+
 </mx:TitleWindow>
