@@ -840,7 +840,7 @@
 			<mx:RadioButton label="Data Tracks" value="dataTracks" group="{radioButtonGroupTarget}" id="showDataTrackAnnotations"  fontSize="10"/>
 			<mx:RadioButton label="Experiments" value="experiments" group="{radioButtonGroupTarget}" id="showExperimentAnnotations"  fontSize="10"/>
 			<mx:Label text="Applies to Specific" fontSize="10" paddingLeft="20" styleName="formLabel"/>
-			<renderers:FilterComboBox id="organismFilter" itemRenderer="mx.controls.Label"  width="140"  dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OrganismLite').DictionaryEntry}" change="onPropertyRefreshed(null)" labelField="@display" fontSize="10" prompt="Organism..."/>
+			<renderers:FilterComboBox id="organismFilter" width="140"  dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.OrganismLite').DictionaryEntry}" change="onPropertyRefreshed(null)" labelField="@display" fontSize="10" prompt="Organism..."/>
 			<mx:ComboBox id="experimentPlatformFilter" itemRenderer="mx.controls.Label" width="165" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.RequestCategory').DictionaryEntry}" change="onPropertyRefreshed(null)" labelField="@display" prompt="Experiment Platform..." fontSize="10"/>
 			<mx:ComboBox id="analysisTypeFilter" itemRenderer="mx.controls.Label" width="140" dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.AnalysisType').DictionaryEntry}" change="onPropertyRefreshed(null)" labelField="@display" fontSize="10" prompt="Analysis Type..."/>
 		</mx:HBox>
