@@ -1427,10 +1427,10 @@
 					</mx:Text>
 					<renderers:FilterComboBox
 						id="expLabCombo" 
-						change="expLabComboChange();"
+						close="expLabComboChange();"
 						width="228" 
 						labelField="@name"
-						dataProvider="{parentApplication.promptedLabList}"/>
+						dataProvider="{parentApplication.labList}"/>
 					<mx:Tree width="100%" height="100%" dataProvider="{getExperimentPickList.lastResult}" id="experimentTree" 
 							 showRoot="false" 
 							 showDataTips="true"

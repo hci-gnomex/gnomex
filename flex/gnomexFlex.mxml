@@ -1033,8 +1033,6 @@
 		[Bindable]
 		public var labList:XMLListCollection;
 		[Bindable]
-		public var promptedLabList:PromptXMLListCollection;
-		[Bindable]
 		public var submitRequestLabList:XMLListCollection;
 		[Bindable]
 		public var promptedSubmitRequestLabList:PromptXMLListCollection;
@@ -3252,7 +3250,6 @@
 		private function onGetLabList(event:ResultEvent):void {
 			var emptyNode:XML = <Lab idLab='' name='' label=''/>;
 			labList = new XMLListCollection(getLabList.lastResult.Lab);
-			promptedLabList = new PromptXMLListCollection(emptyNode, new XMLListCollection(getLabList.lastResult.Lab));
 			submitRequestLabList = new XMLListCollection(getLabList.lastResult.Lab.(@canGuestSubmit == 'Y' || @canSubmitRequests == 'Y'));
 			promptedSubmitRequestLabList = new PromptXMLListCollection(emptyNode, submitRequestLabList);
 			promptedSubmitRequestLabList.refresh();
@@ -3381,7 +3378,6 @@
 			if (dictionaryManager != null &&
 					dictionaryManager.xml != null &&
 					manageLabList != null &&
-					promptedLabList != null &&
 					propertyList != null) {
 
 				if (this.isGuestMode()) {

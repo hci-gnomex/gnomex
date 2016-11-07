@@ -620,7 +620,7 @@
 					titleLabelText = "Slide Set: "+fullSlideProduct.@name;
 					saveSlideButton.enabled=true;
 					//spRemoveCategory.enabled = false;
-					for each(var item:Object in parentApplication.promptedLabList) {
+					for each(var item:Object in parentApplication.labList) {
 						if (item.@idLab == fullSlideProduct.@idLab) {
 							this.spIdLab.selectedItem = item;
 							break;
@@ -635,7 +635,7 @@
 					newArrayName.text = null;
 					//sdRemoveCategory.enabled = false;
 					sdRemoveArrayCoord.enabled = false;
-					for each(var labItem:Object in parentApplication.promptedLabList) {
+					for each(var labItem:Object in parentApplication.labList) {
 						if (labItem.@idLab == fullSlideDesign.SlideProduct.@idLab) {
 							this.sdIdLab.selectedItem = labItem;
 							break;
@@ -779,7 +779,7 @@
 								<mx:Label text="For Group:" top="59" left="121" width="20%" id="label1"/>
 								<renderers:FilterComboBox top="57" left="188" right="75"
 											 id="sdIdLab"
-											 dataProvider="{parentApplication.promptedLabList}"
+											 dataProvider="{parentApplication.labList}"
 											 labelField="@name"
 											 prompt=""
 											 data="{fullSlideDesign.SlideProduct.@idLab}" width="100%" change="dirty.setDirty()"/>
@@ -912,10 +912,10 @@
 						<mx:Label text="For Group:" top="59" left="121" width="10%"/>
 						<renderers:FilterComboBox top="57" left="188" right="75"
 									 id="spIdLab"
-									 dataProvider="{parentApplication.promptedLabList}"
+									 dataProvider="{parentApplication.labList}"
 									 labelField="@name"
 									 prompt=" "
-									 data="{fullSlideProduct.@idLab}" width="70%" change="dirty.setDirty();"/>
+									 data="{fullSlideProduct.@idLab}" width="70%" close="dirty.setDirty();"/>
 					</mx:HBox>
 					<mx:HBox y="70" right="10" left="10">
 						<mx:VBox width="100%">

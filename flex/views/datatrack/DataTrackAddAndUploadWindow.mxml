@@ -390,7 +390,7 @@
 				<mx:VBox width="100%" verticalGap="0">
 					<mx:Label text="Lab:" fontWeight="bold">
 					</mx:Label>
-					<renderers:FilterComboBox id="labCombo" dataProvider="{parentApplication.promptedLabList}" width="100%" labelField="@name" change="{initializeFileUploadParameters();setDefaultVisibility()}"/>
+					<renderers:FilterComboBox id="labCombo" dataProvider="{parentApplication.labList}" width="100%" labelField="@name" close="{initializeFileUploadParameters();setDefaultVisibility()}"/>
 				</mx:VBox>
 					<mx:VBox width="100%" verticalGap="0">
 					<mx:Label text="Visibility:" width="100%" fontWeight="bold" id="label3"/>
