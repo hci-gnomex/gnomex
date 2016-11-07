@@ -469,7 +469,7 @@
 		    					
 		    					// We came from the main gnomex app, so select the lab from the lab combo
 		    					if (this.currentState == "AdminState") {
-		    						for each(var l:Object in  parentApplication.promptedLabList) {
+		    						for each(var l:Object in  parentApplication.labList) {
 		    							if (l.@idLab == request.@idLab) {
 		    								this.browseLabCombo.selectedItem = l;
 		    								break;	

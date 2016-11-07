@@ -1887,11 +1887,11 @@
 							<mx:ComboBox labelField="@binomialName" id="organismCombo" change="filteredGenomeBuildList.refresh();refreshDataTracks()" styleName="menuLabelSmall" prompt="Organism..." width="170"
 								dataProvider="{parentApplication.das2OrganismList}"/>
 							<mx:ComboBox dataProvider="{filteredGenomeBuildList}" labelField="@das2Name" id="genomeBuildCombo" change="refreshDataTracks()" styleName="menuLabelSmall" width="170"  prompt="Genome build..."/>
-							<renderers:FilterComboBox id="labCombo" dataProvider="{parentApplication.promptedLabList}"
+							<renderers:FilterComboBox id="labCombo" dataProvider="{parentApplication.labList}"
 										 visible="{currentState == 'AdminState'}"
 										 includeInLayout="{currentState == 'AdminState'}"
 										 prompt="Lab..."
-										 labelField="@name" change="{refreshDataTracks()}" styleName="menuLabelSmall" width="170"/>
+										 labelField="@name" close="{refreshDataTracks()}" styleName="menuLabelSmall" width="170"/>
 							
 							
 							<mx:HBox horizontalGap="1" paddingLeft="4"

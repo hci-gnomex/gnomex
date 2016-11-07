@@ -152,7 +152,7 @@
 				activeAppUsers.filterFunction = filterIsActive;
 				activeAppUsers.refresh();
 				
-				parentApplication.promptedAppUserList.refresh();
+				parentApplication.appUserList.refresh();
 				
 				this.contactStateCombo.dataProvider = parentApplication.dictionaryManager.getEntries('hci.gnomex.model.State');
 	

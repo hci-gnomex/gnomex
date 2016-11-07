@@ -87,7 +87,7 @@
 		<mx:Label text="Lab:" paddingLeft="8"/>
 		<mx:ViewStack id="labStack" width="100%">
 			<mx:HBox horizontalGap="0" paddingLeft="0" paddingRight="0" paddingBottom="0" paddingTop="0" width="100%">
-				<renderers:FilterComboBox id="labCombo" dataProvider="{parentApplication.promptedLabList}" width="100%" enabled="{!parentApplication.isGuestMode()}" labelField="@name" change="dirtyDataTrackFolder.setDirty()"/>
+				<renderers:FilterComboBox id="labCombo" dataProvider="{parentApplication.labList}" width="100%" enabled="{!parentApplication.isGuestMode()}" labelField="@name" close="dirtyDataTrackFolder.setDirty()"/>
 			</mx:HBox>
 			<mx:HBox horizontalGap="0" paddingLeft="0" paddingRight="0" paddingBottom="0" paddingTop="0">
 				<mx:Label text="{parentDocument.browseTree.selectedItem.@lab}"/>							         			

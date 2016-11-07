@@ -2444,8 +2444,8 @@
 								<mx:Label id="groupLabel" visible="true" text="Lab Group" paddingBottom="0" fontSize="9"/>
 								<renderers:FilterComboBox id="labCombo"
 											 labelField="@name"
-											 dataProvider="{parentApplication.promptedLabList}"
-											 visible="true"  width="190" change="requestNumberText.text = &quot;&quot;;invoiceNumberLookupText.text = &quot;&quot;;getLab.send();refreshRequestTab()"/>
+											 dataProvider="{parentApplication.labList}"
+											 visible="true"  width="190" close="requestNumberText.text = &quot;&quot;;invoiceNumberLookupText.text = &quot;&quot;;getLab.send();refreshRequestTab()"/>
 							</mx:VBox>
 						</mx:HBox>
 					</mx:VBox>  

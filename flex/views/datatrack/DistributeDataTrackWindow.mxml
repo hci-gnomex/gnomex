@@ -1682,9 +1682,9 @@
 						 width="170"  prompt="Genome build..."/>
 			
 			
-			<renderers:FilterComboBox id="labCombo" dataProvider="{parentApplication.promptedLabList}"
+			<renderers:FilterComboBox id="labCombo" dataProvider="{parentApplication.labList}"
 						 prompt="Filter by Lab..." width="160"
-						 labelField="@name" change="{refreshDataTracks()}" 
+						 labelField="@name" close="{refreshDataTracks()}"
 						 styleName="menuLabelSmall"/>
 			
 		</mx:HBox>

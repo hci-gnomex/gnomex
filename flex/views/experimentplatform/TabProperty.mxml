@@ -280,7 +280,7 @@
 			private function setOwnerCombo():void {
 				this.ownerCombo.selectedItem = null;
 				this.ownerCombo.enabled = true;
-				for each(var user:XML in parentApplication.promptedAppUserList) {
+				for each(var user:XML in parentApplication.appUserList) {
 					if (user.@idAppUser == property.@idAppUser) {
 						this.ownerCombo.selectedItem = user;
 						break;
@@ -751,7 +751,7 @@
 			</mx:HBox>
 			<mx:HBox width="100%">
 				<mx:Label text="Owner" width="75" styleName="formLabel"/>
-				<renderers:FilterComboBox width="200" id="ownerCombo" change="{setDirty()}"  labelField="@displayName" dataProvider="{parentApplication.promptedAppUserList}" />
+				<renderers:FilterComboBox width="200" id="ownerCombo" close="{setDirty()}"  labelField="@displayName" dataProvider="{parentApplication.appUserList}" />
 			</mx:HBox>
 			<mx:HBox width="100%" verticalGap="0" verticalAlign="top">
 				<mx:Label text="Type" width="75" styleName="formLabel"/>
