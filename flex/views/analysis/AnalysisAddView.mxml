@@ -157,6 +157,7 @@
 				for each (var org:Object in organismCombo.dataProvider) {
 					if (org.@idOrganism == idOrganism) {
 						organismCombo.selectedItem = org;
+						filteredGenomeBuildList.refresh();
 						break;
 					}
 				} 
@@ -547,7 +548,7 @@
 					<mx:Label width="115" text="Group"/>
 				</mx:VBox>								
 				<mx:VBox verticalGap="0">
-					<renderers:FilterComboBox dataProvider="{parentApplication.submitRequestLabList.source}" 
+					<renderers:FilterComboBox dataProvider="{parentApplication.submitRequestLabList}"
 											  labelField="@name" 
 											  prompt="Select a lab..."
 											  width="336"
