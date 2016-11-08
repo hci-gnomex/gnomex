@@ -353,7 +353,16 @@
     <mx:XMLList id="bamList">
         <BAMPath path="" />
     </mx:XMLList>
-
+    <mx:XMLList id="sexList">
+        <SEXValues sex="Unknown" />
+        <SEXValues sex="Male" />
+        <SEXValues sex="Female" />
+    </mx:XMLList>
+    <mx:XMLList id="affectedList">
+        <AFFECTEDValues affection_status="Unknown" />
+        <AFFECTEDValues affection_status="Yes" />
+        <AFFECTEDValues affection_status="No" />
+    </mx:XMLList>
 
     <mx:Text id="errorAction" text="{errorMessage}" color="#FF0000" visible="false" includeInLayout="false"/>
 
@@ -388,6 +397,18 @@
                                sortable="false"
                                itemRenderer="{views.renderers.DropdownLabel.create(sample_idList, '@sample_id', '@sample_id', '@maternal_id','', false, true)}"
                                itemEditor="{hci.flex.controls.ComboBox.getFactory(sample_idList, '@sample_id', '@sample_id', '@maternal_id', true)}"/>
+
+            <mx:DataGridColumn dataField="@sex" headerText="Sex"
+                               visible="true" width="160" rendererIsEditor="false" editorDataField="value"
+                               sortable="false"
+                               itemRenderer="{views.renderers.DropdownLabel.create(sexList, '@sex', '@sex', '@sex','', false, true)}"
+                               itemEditor="{views.renderers.GridColumnFillButton.create(hci.flex.controls.ComboBox.getFactory(sexList, '@sex', '@sex', '@sex', false, true, false).newInstance(), '')}" />
+
+            <mx:DataGridColumn dataField="@affection_status" headerText="Affected"
+                               visible="true" width="110" rendererIsEditor="false" editorDataField="value"
+                               sortable="false"
+                               itemRenderer="{views.renderers.DropdownLabel.create(affectedList, '@affection_status', '@affection_status', '@affection_status','', false, true)}"
+                               itemEditor="{views.renderers.GridColumnFillButton.create(hci.flex.controls.ComboBox.getFactory(affectedList, '@affection_status', '@affection_status', '@affection_status', false, true, false).newInstance(), '')}" />
 
             <mx:DataGridColumn dataField="@vcf" headerText="Vcf"
                                visible="true" width="260" rendererIsEditor="false" editorDataField="value"

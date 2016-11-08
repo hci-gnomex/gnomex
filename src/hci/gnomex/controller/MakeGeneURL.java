@@ -333,6 +333,8 @@ public static String setupPedFile(String pedpath, Map<Integer, String> headerMap
 		boolean sawHeader = false;
 		boolean sawbam = false;
 		boolean sawvcf = false;
+		boolean sawsex = false;
+		boolean sawaffected = false;
 		int addedColumns = 0;
 		int sampleId = -1;
 
@@ -355,6 +357,24 @@ public static String setupPedFile(String pedpath, Map<Integer, String> headerMap
 				}
 				if (line.indexOf("\tvcf") >= 0) {
 					sawvcf = true;
+				}
+				if (line.indexOf("\tsex") >= 0) {
+					sawsex = true;
+				}
+				if (line.indexOf("\taffect") >= 0) {
+					sawaffected = true;
+				}
+
+				if (!sawsex) {
+					line += "\tsex";
+					addedColumns++;
+					status = "extend";
+				}
+
+				if (!sawaffected) {
+					line += "\taffection_status";
+					addedColumns++;
+					status = "extend";
 				}
 
 				if (!sawbam) {
@@ -957,6 +977,16 @@ public static Element buildPedFileXML(Map<Integer, String> headerMap, Map<String
 			if (pvalue == null) {
 				pvalue = "";
 			}
+
+			// map sex and affection_status to something nice looking
+			if (columnNames[ii].equals("sex")) {
+				pvalue = mapSex(1,pvalue);
+			}
+			if (columnNames[ii].equals("affection_status")) {
+				pvalue = mapAffected(1,pvalue);
+			}
+
+
 			pedEntry.setAttribute(columnNames[ii], pvalue);
 		}
 		pedFile.addContent(pedEntry);
@@ -966,7 +996,61 @@ public static Element buildPedFileXML(Map<Integer, String> headerMap, Map<String
 	return pedFile;
 }
 
-private ArrayList<String> processTrioFile(String pedpath) {
+	public static String mapSex (int mode, String value) {
+		String sex = null;
+		if (mode == 1) {
+			sex = "Unknown";
+			if (value.equals("1")) {
+				sex = "Male";
+			} else if (value.equals("2")) {
+				sex = "Female";
+			}
+
+			return sex;
+		}
+
+		if (mode == 2) {
+			sex = "0";
+			if (value.equals("Male")) {
+				sex = "1";
+			} else if (value.equals("Female")) {
+				sex = "2";
+			}
+
+			return sex;
+		}
+
+		return sex;
+	}
+
+	public static String mapAffected (int mode, String value) {
+		String affected = null;
+		if (mode == 1) {
+			affected = "Unknown";
+			if (value.equals("1")) {
+				affected = "No";
+			} else if (value.equals("2")) {
+				affected = "Yes";
+			}
+
+			return affected;
+		}
+
+		if (mode == 2) {
+			affected = "-9";
+			if (value.equals("No")) {
+				affected = "1";
+			} else if (value.equals("Yes")) {
+				affected = "2";
+			}
+
+			return affected;
+		}
+
+		return affected;
+	}
+
+	private ArrayList<String> processTrioFile(String pedpath) {
 
 	ArrayList<String> theURL = new ArrayList<String>();
 	String error = null;
