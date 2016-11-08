@@ -346,7 +346,7 @@ private String[] makePedEntry(String sample_id, String bamfile, String vcffile) 
 	pedEntry[2] = "0";
 	pedEntry[3] = "0";
 	pedEntry[4] = "0";
-	pedEntry[5] = "0";
+	pedEntry[5] = "-9";
 	pedEntry[6] = bamfile;
 	pedEntry[7] = vcffile;
 	return pedEntry;
@@ -462,6 +462,15 @@ private String savePedFile(String pedpath, String PEDFileXMLString) {
 				}
 
 				String value = node.getAttributeValue(theColumn);
+
+				// map sex and affection_status
+				if (theColumn.equals("sex")) {
+					 value = MakeGeneURL.mapSex(2,value);
+				}
+				if (theColumn.equals("affection_status")) {
+					value = MakeGeneURL.mapAffected(2,value);
+				}
+
 				theEntry += (separator + value);
 				numcols++;
 			}

@@ -42,6 +42,8 @@
 
     <mx:Script>
 		<![CDATA[
+        import mx.collections.Sort;
+        import mx.collections.SortField;
         import mx.collections.XMLListCollection;
         import mx.controls.Alert;
         import mx.events.DataGridEvent;
@@ -106,6 +108,11 @@
             currentPedFile = 1;
 
             theTitle = "Manage Ped File" + " --" + getPedFileName(currentPedFile);
+
+            var sample_idSort:Sort = new Sort();
+            sample_idSort.fields = [new SortField('@sample_id', true)];
+
+            pedEntry.sort = sample_idSort;
             pedEntry.refresh();
 
             sample_idList = XMLList(<PEDEntry kindred_id="" sample_id="0" paternal_id="0" maternal_id="0" sex="" affection_status="1" project="" bam="" vcf="" />);
@@ -265,13 +272,22 @@
         }
 
 
-        private function filterResults():void {
-            var params:Object = new Object();
-            //search by request number
-            if (expSearch.length > 0) {
-                params.number = expSearch.text;
+        private function toggleShowProbands(onlyParents:Boolean):void {
+            if (onlyParents) {
+                pedEntry.filterFunction = filterParents;
+                pedEntry.refresh();
             }
+            else {
+                pedEntry.filterFunction = null;
+                pedEntry.refresh();
+            }
+        }
 
+        private function filterParents(item:XML):Boolean {
+            if (item.@maternal_id == "0" || item.@paternal_id == "0") {
+                return false;
+            }
+            return true;
         }
 
         private function isDirty( event:DataGridEvent ):void {
@@ -337,12 +353,16 @@
     <mx:XMLList id="bamList">
         <BAMPath path="" />
     </mx:XMLList>
-
-    <mx:HBox>
-        <mx:Label text="Search by sample_id: "/>
-        <mx:TextInput id="expSearch" change="filterResults()"
-                      enabled="{this.pedEntry.length > 0 || expSearch.text.length > 0}"/>
-    </mx:HBox>
+    <mx:XMLList id="sexList">
+        <SEXValues sex="Unknown" />
+        <SEXValues sex="Male" />
+        <SEXValues sex="Female" />
+    </mx:XMLList>
+    <mx:XMLList id="affectedList">
+        <AFFECTEDValues affection_status="Unknown" />
+        <AFFECTEDValues affection_status="Yes" />
+        <AFFECTEDValues affection_status="No" />
+    </mx:XMLList>
 
     <mx:Text id="errorAction" text="{errorMessage}" color="#FF0000" visible="false" includeInLayout="false"/>
 
@@ -354,6 +374,10 @@
 
     <mx:Text id="launchAction" text="Click on the sample_id of the trio proband then press Launch." color="#1D22E0"
              visible="false" includeInLayout="false"/>
+
+    <mx:HBox>
+        <mx:CheckBox  label="Only show samples with parents" id="showProbandsCheckBox" click="{toggleShowProbands(showProbandsCheckBox.selected)}" horizontalGap="0" fontSize="11"/>
+    </mx:HBox>
 
     <mx:DataGrid id="pedfileGrid" width="100%" dataProvider="{this.pedEntry}" editable="true" sortableColumns="true" horizontalScrollPolicy="auto"
                  maxWidth="851"
@@ -373,6 +397,18 @@
                                sortable="false"
                                itemRenderer="{views.renderers.DropdownLabel.create(sample_idList, '@sample_id', '@sample_id', '@maternal_id','', false, true)}"
                                itemEditor="{hci.flex.controls.ComboBox.getFactory(sample_idList, '@sample_id', '@sample_id', '@maternal_id', true)}"/>
+
+            <mx:DataGridColumn dataField="@sex" headerText="Sex"
+                               visible="true" width="160" rendererIsEditor="false" editorDataField="value"
+                               sortable="false"
+                               itemRenderer="{views.renderers.DropdownLabel.create(sexList, '@sex', '@sex', '@sex','', false, true)}"
+                               itemEditor="{views.renderers.GridColumnFillButton.create(hci.flex.controls.ComboBox.getFactory(sexList, '@sex', '@sex', '@sex', false, true, false).newInstance(), '')}" />
+
+            <mx:DataGridColumn dataField="@affection_status" headerText="Affected"
+                               visible="true" width="110" rendererIsEditor="false" editorDataField="value"
+                               sortable="false"
+                               itemRenderer="{views.renderers.DropdownLabel.create(affectedList, '@affection_status', '@affection_status', '@affection_status','', false, true)}"
+                               itemEditor="{views.renderers.GridColumnFillButton.create(hci.flex.controls.ComboBox.getFactory(affectedList, '@affection_status', '@affection_status', '@affection_status', false, true, false).newInstance(), '')}" />
 
             <mx:DataGridColumn dataField="@vcf" headerText="Vcf"
                                visible="true" width="260" rendererIsEditor="false" editorDataField="value"
