@@ -310,23 +310,29 @@
 		private function checkCompleteness():Boolean {
 			var isComplete:Boolean = false; 
 			if (currentState == "NewAnalysisGroupState") {
-				isComplete = labCombo.selectedItem != null && 
-				newAnalysisGroupName.text != '' && 
-				analysisName.text != '' && 
-				organismCombo.selectedItem != null && 
-				organismCombo.selectedItem.@value != "" &&
-				institutionNote.visible == false &&
-				visibilityCombo.selectedItem != null &&
-				visibilityCombo.selectedItem.@value != ""; 
+				isComplete = labCombo.selectedItem != null &&
+						labCombo.selectedItem.@idLab != ""
+						newAnalysisGroupName.text != '' &&
+						analysisName.text != '' &&
+						organismCombo.selectedItem != null &&
+						organismCombo.selectedItem.@value != "" &&
+						ownerCombo.selectedItem != null &&
+						ownerCombo.selectedItem.@idAppUser != "" &&
+						institutionNote.visible == false &&
+						visibilityCombo.selectedItem != null &&
+						visibilityCombo.selectedItem.@value != "";
 				
 			} else {
-				isComplete = labCombo.selectedItem != null && 
-				analysisName.text != '' && 
-				organismCombo.selectedItem != null  && 
-				organismCombo.selectedItem.@value != "" &&
-				institutionNote.visible == false &&
-				visibilityCombo.selectedItem != null &&
-				visibilityCombo.selectedItem.@value != ""; 
+				isComplete = labCombo.selectedItem != null &&
+						labCombo.selectedItem.@idLab != ""
+						analysisName.text != '' &&
+						organismCombo.selectedItem != null  &&
+						organismCombo.selectedItem.@value != "" &&
+						ownerCombo.selectedItem != null &&
+						ownerCombo.selectedItem.@idAppUser != "" &&
+						institutionNote.visible == false &&
+						visibilityCombo.selectedItem != null &&
+						visibilityCombo.selectedItem.@value != "";
 			}
 			this.saveButton.enabled = isComplete;
 			return isComplete;
@@ -356,15 +362,16 @@
 					parentApplication.navAnalysisView.selectedLabsLabel = labCombo.selectedItem.@name;
 					callGetLab();
 				}
-				if (labCombo.selectedItem != null){
+				if (labCombo.selectedItem != null && labCombo.selectedItem != ''){
 					parentApplication.navAnalysisView.selectedIdLab = labCombo.selectedItem.@idLab;
 				}	
 				callLater(parentApplication.navAnalysisView.refreshAnalysis);
 			} else {
-				if (isAdmin && labCombo.selectedItem != null) {
+				if (isAdmin && labCombo.selectedItem != null && labCombo.selectedItem.@idLab != '') {
 					callGetLab();
 				}
 			}
+			ownerCombo.selectedIndex = -1;
 			getAnalysisGroupList.send();
 		}
 		
@@ -561,7 +568,7 @@
 				 includeInLayout="{isAdmin}">
 			<mx:HBox verticalGap="0" horizontalGap="0">
 				<mx:Label width="115" text="Analysis owner"/>						
-				<util:ComboBoxDatProvChangeFix  width="336" id="ownerCombo" labelField="@displayName" dataProvider="{appUsersForLab}"></util:ComboBoxDatProvChangeFix>						         			
+				<util:ComboBoxDatProvChangeFix  width="336" id="ownerCombo" labelField="@displayName" dataProvider="{appUsersForLab}" close="checkCompleteness()"></util:ComboBoxDatProvChangeFix>
 			</mx:HBox>				
 		</mx:VBox>
 		<mx:VBox height="100%" verticalGap="0" width="100%" id="analysisGroupBox">
