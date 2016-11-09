@@ -3246,13 +3246,13 @@
 
 		private function onGetLabList(event:ResultEvent):void {
 			var emptyNode:XML = <Lab idLab='' name='' label=''/>;
-			labList = new XMLListCollection();
-			labList.addItem(emptyNode);
-			labList.addAll(new XMLListCollection(getLabList.lastResult.Lab));
-			submitRequestLabList = new XMLListCollection();
-			submitRequestLabList.addItem(emptyNode);
-			submitRequestLabList.addAll(new XMLListCollection(getLabList.lastResult.Lab.(@canGuestSubmit == 'Y' || @canSubmitRequests == 'Y')));
+			labList = new XMLListCollection(getLabList.lastResult.Lab);
+			submitRequestLabList = new XMLListCollection(getLabList.lastResult.Lab.(@canGuestSubmit == 'Y' || @canSubmitRequests == 'Y'));
 			manageLabList = new XMLListCollection(getLabList.lastResult.Lab.(@canManage == 'Y'));
+
+			labList.addItemAt(emptyNode, 0);
+			submitRequestLabList.addItemAt(emptyNode, 0);
+			manageLabList.addItemAt(emptyNode, 0);
 
 			// For submitting work auth forms online, a non-gnomex university user will
 			// select from a list of all labs.  A guest user doesn't have this feature.

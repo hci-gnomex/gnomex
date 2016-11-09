@@ -289,7 +289,9 @@
 			
 			private function onGetAnalysisLabList(event:ResultEvent):void {
 				if (getAnalysisLabList.lastResult.name() == "LabList") {
+					var emptyNode:XML = <Lab idLab='' name='' label=''/>;
 					labList = new XMLListCollection(getAnalysisLabList.lastResult.Lab);
+					labList.addItemAt(emptyNode, 0);
 					if (this.window != null) {
 						this.window.updateLabList();
 					}

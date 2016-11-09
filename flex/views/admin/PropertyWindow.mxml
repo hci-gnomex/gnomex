@@ -926,7 +926,7 @@
 							</mx:HBox>
 							<mx:HBox width="100%">
 								<mx:Label text="Owner" width="90" styleName="formLabel"/>
-								<renderers:FilterComboBox width="200" id="ownerCombo" change="{setDirty()}"  labelField="@display"
+								<renderers:FilterComboBox width="200" id="ownerCombo" change="{setDirty();}" labelField="@display"
 											 dataProvider="{appUserList}"
 								/>
 							</mx:HBox>

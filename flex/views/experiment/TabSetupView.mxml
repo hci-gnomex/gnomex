@@ -11,8 +11,8 @@
 									  label="(3) Verify your name." labelPlacement="left" id="experimentOwnerName" width="200"/>
 					<renderers:FilterComboBox dataProvider="{appUsers}"
 								 selectedIndex="-1" labelField="@displayName" 
-								 id="appUserCombo" width="380"
-						change="{idAppUser = appUserCombo.selectedItem.@idAppUser;checkSetupCompleteness();userSelected()}"/>
+								 id="appUserCombo" width="380" prompt=""
+						change="{appUserCombo.selectedItem != null ? idAppUser = appUserCombo.selectedItem.@idAppUser : idAppUser= '';checkSetupCompleteness();userSelected()}"/>
 
 				</mx:HBox>
 			</mx:AddChild>
@@ -510,6 +510,9 @@
 		}
 
 		private function filterLabs(item:Object):Boolean {
+			if(item.@idLab == ""){
+				return true;
+			}
 			if (item.hasOwnProperty("@overrideFilter") && item.@overrideFilter == "Y") {
 				return true;
 			}
