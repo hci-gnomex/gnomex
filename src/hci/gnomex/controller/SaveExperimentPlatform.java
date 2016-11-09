@@ -1578,6 +1578,7 @@ public class SaveExperimentPlatform extends GNomExCommand implements Serializabl
         return;
       }
       price = new Price();
+      newPrice = true;
     }
     price.setName(cyclesAllowed.getName());
     price.setDescription("");
