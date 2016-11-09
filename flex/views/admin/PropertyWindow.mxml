@@ -814,10 +814,6 @@
 					return false;
 				}
 			}
-			//owner combo
-			private function debugFunction():void{
-				var x:int = 5;
-			}
 		]]>
 	</mx:Script>
 	
@@ -930,7 +926,7 @@
 							</mx:HBox>
 							<mx:HBox width="100%">
 								<mx:Label text="Owner" width="90" styleName="formLabel"/>
-								<renderers:FilterComboBox width="200" id="ownerCombo" change="{setDirty();}" close="{debugFunction();}"  labelField="@display"
+								<renderers:FilterComboBox width="200" id="ownerCombo" change="{setDirty();}" labelField="@display"
 											 dataProvider="{appUserList}"
 								/>
 							</mx:HBox>
