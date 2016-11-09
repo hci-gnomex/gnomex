@@ -285,18 +285,6 @@ DROP TRIGGER IF EXISTS TrAU_DiskUsageByMonth_FER
 $$
 DROP TRIGGER IF EXISTS TrAD_DiskUsageByMonth_FER
 $$
-DROP TRIGGER IF EXISTS TrAI_DNASeqIScanRequestNumber_FER
-$$
-DROP TRIGGER IF EXISTS TrAU_DNASeqIScanRequestNumber_FER
-$$
-DROP TRIGGER IF EXISTS TrAD_DNASeqIScanRequestNumber_FER
-$$
-DROP TRIGGER IF EXISTS TrAI_DNASeqRequestNumber_FER
-$$
-DROP TRIGGER IF EXISTS TrAU_DNASeqRequestNumber_FER
-$$
-DROP TRIGGER IF EXISTS TrAD_DNASeqRequestNumber_FER
-$$
 DROP TRIGGER IF EXISTS TrAI_ExperimentDesign_FER
 $$
 DROP TRIGGER IF EXISTS TrAU_ExperimentDesign_FER
@@ -537,12 +525,6 @@ DROP TRIGGER IF EXISTS TrAU_NumberSequencingCyclesAllowed_FER
 $$
 DROP TRIGGER IF EXISTS TrAD_NumberSequencingCyclesAllowed_FER
 $$
-DROP TRIGGER IF EXISTS TrAI_OBSA_FER
-$$
-DROP TRIGGER IF EXISTS TrAU_OBSA_FER
-$$
-DROP TRIGGER IF EXISTS TrAD_OBSA_FER
-$$
 DROP TRIGGER IF EXISTS TrAI_OligoBarcode_FER
 $$
 DROP TRIGGER IF EXISTS TrAU_OligoBarcode_FER
@@ -566,24 +548,6 @@ $$
 DROP TRIGGER IF EXISTS TrAU_Organism_FER
 $$
 DROP TRIGGER IF EXISTS TrAD_Organism_FER
-$$
-DROP TRIGGER IF EXISTS TrAI_origPropertyEntry_FER
-$$
-DROP TRIGGER IF EXISTS TrAU_origPropertyEntry_FER
-$$
-DROP TRIGGER IF EXISTS TrAD_origPropertyEntry_FER
-$$
-DROP TRIGGER IF EXISTS TrAI_origPropertyEntryOption_FER
-$$
-DROP TRIGGER IF EXISTS TrAU_origPropertyEntryOption_FER
-$$
-DROP TRIGGER IF EXISTS TrAD_origPropertyEntryOption_FER
-$$
-DROP TRIGGER IF EXISTS TrAI_origPropertyOption_FER
-$$
-DROP TRIGGER IF EXISTS TrAU_origPropertyOption_FER
-$$
-DROP TRIGGER IF EXISTS TrAD_origPropertyOption_FER
 $$
 DROP TRIGGER IF EXISTS TrAI_OtherAccountFieldsConfiguration_FER
 $$
@@ -1005,12 +969,6 @@ DROP TRIGGER IF EXISTS TrAU_SubmissionInstruction_FER
 $$
 DROP TRIGGER IF EXISTS TrAD_SubmissionInstruction_FER
 $$
-DROP TRIGGER IF EXISTS TrAI_tempaf_FER
-$$
-DROP TRIGGER IF EXISTS TrAU_tempaf_FER
-$$
-DROP TRIGGER IF EXISTS TrAD_tempaf_FER
-$$
 DROP TRIGGER IF EXISTS TrAI_Topic_FER
 $$
 DROP TRIGGER IF EXISTS TrAU_Topic_FER
@@ -1022,12 +980,6 @@ $$
 DROP TRIGGER IF EXISTS TrAU_TreatmentEntry_FER
 $$
 DROP TRIGGER IF EXISTS TrAD_TreatmentEntry_FER
-$$
-DROP TRIGGER IF EXISTS TrAI_UGP_FER
-$$
-DROP TRIGGER IF EXISTS TrAU_UGP_FER
-$$
-DROP TRIGGER IF EXISTS TrAD_UGP_FER
 $$
 DROP TRIGGER IF EXISTS TrAI_UnloadDataTrack_FER
 $$
@@ -1064,6 +1016,10 @@ $$
 --
 -- Audit Table For AlignmentPlatform 
 --
+
+-- select 'Creating table AlignmentPlatform'$$
+
+-- DROP TABLE IF EXISTS `AlignmentPlatform_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `AlignmentPlatform_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -1194,6 +1150,10 @@ $$
 -- Audit Table For AlignmentProfileGenomeIndex 
 --
 
+-- select 'Creating table AlignmentProfileGenomeIndex'$$
+
+-- DROP TABLE IF EXISTS `AlignmentProfileGenomeIndex_Audit`$$
+
 CREATE TABLE IF NOT EXISTS `AlignmentProfileGenomeIndex_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -1304,6 +1264,10 @@ $$
 --
 -- Audit Table For AlignmentProfile 
 --
+
+-- select 'Creating table AlignmentProfile'$$
+
+-- DROP TABLE IF EXISTS `AlignmentProfile_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `AlignmentProfile_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -1461,6 +1425,10 @@ $$
 -- Audit Table For AnalysisCollaborator 
 --
 
+-- select 'Creating table AnalysisCollaborator'$$
+
+-- DROP TABLE IF EXISTS `AnalysisCollaborator_Audit`$$
+
 CREATE TABLE IF NOT EXISTS `AnalysisCollaborator_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -1589,6 +1557,10 @@ $$
 --
 -- Audit Table For AnalysisExperimentItem 
 --
+
+-- select 'Creating table AnalysisExperimentItem'$$
+
+-- DROP TABLE IF EXISTS `AnalysisExperimentItem_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `AnalysisExperimentItem_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -1746,6 +1718,10 @@ $$
 -- Audit Table For AnalysisFile 
 --
 
+-- select 'Creating table AnalysisFile'$$
+
+-- DROP TABLE IF EXISTS `AnalysisFile_Audit`$$
+
 CREATE TABLE IF NOT EXISTS `AnalysisFile_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -1754,12 +1730,12 @@ CREATE TABLE IF NOT EXISTS `AnalysisFile_Audit` (
  ,`AuditEditedByPersonID` int(10)   NULL
  ,`idAnalysisFile`  int(10)  NULL DEFAULT NULL
  ,`fileName`  varchar(2000)  NULL DEFAULT NULL
+ ,`fileSize`  decimal(14,0)  NULL DEFAULT NULL
  ,`comments`  varchar(2000)  NULL DEFAULT NULL
  ,`uploadDate`  datetime  NULL DEFAULT NULL
  ,`idAnalysis`  int(10)  NULL DEFAULT NULL
- ,`fileSize`  decimal(14,0)  NULL DEFAULT NULL
- ,`qualifiedFilePath`  varchar(2000)  NULL DEFAULT NULL
- ,`baseFilePath`  varchar(2000)  NULL DEFAULT NULL
+ ,`qualifiedFilePath`  varchar(300)  NULL DEFAULT NULL
+ ,`baseFilePath`  varchar(300)  NULL DEFAULT NULL
  ,`createDate`  date  NULL DEFAULT NULL
 ) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
@@ -1777,10 +1753,10 @@ INSERT INTO AnalysisFile_Audit
   , AuditEditedByPersonID
   , idAnalysisFile
   , fileName
+  , fileSize
   , comments
   , uploadDate
   , idAnalysis
-  , fileSize
   , qualifiedFilePath
   , baseFilePath
   , createDate )
@@ -1792,10 +1768,10 @@ INSERT INTO AnalysisFile_Audit
   , 0
   , idAnalysisFile
   , fileName
+  , fileSize
   , comments
   , uploadDate
   , idAnalysis
-  , fileSize
   , qualifiedFilePath
   , baseFilePath
   , createDate
@@ -1818,10 +1794,10 @@ BEGIN
   , AuditEditedByPersonID
   , idAnalysisFile
   , fileName
+  , fileSize
   , comments
   , uploadDate
   , idAnalysis
-  , fileSize
   , qualifiedFilePath
   , baseFilePath
   , createDate )
@@ -1833,10 +1809,10 @@ BEGIN
   , 0
   , NEW.idAnalysisFile
   , NEW.fileName
+  , NEW.fileSize
   , NEW.comments
   , NEW.uploadDate
   , NEW.idAnalysis
-  , NEW.fileSize
   , NEW.qualifiedFilePath
   , NEW.baseFilePath
   , NEW.createDate );
@@ -1854,10 +1830,10 @@ BEGIN
   , AuditEditedByPersonID
   , idAnalysisFile
   , fileName
+  , fileSize
   , comments
   , uploadDate
   , idAnalysis
-  , fileSize
   , qualifiedFilePath
   , baseFilePath
   , createDate )
@@ -1869,10 +1845,10 @@ BEGIN
   , 0
   , NEW.idAnalysisFile
   , NEW.fileName
+  , NEW.fileSize
   , NEW.comments
   , NEW.uploadDate
   , NEW.idAnalysis
-  , NEW.fileSize
   , NEW.qualifiedFilePath
   , NEW.baseFilePath
   , NEW.createDate );
@@ -1890,10 +1866,10 @@ BEGIN
   , AuditEditedByPersonID
   , idAnalysisFile
   , fileName
+  , fileSize
   , comments
   , uploadDate
   , idAnalysis
-  , fileSize
   , qualifiedFilePath
   , baseFilePath
   , createDate )
@@ -1905,10 +1881,10 @@ BEGIN
   , 0
   , OLD.idAnalysisFile
   , OLD.fileName
+  , OLD.fileSize
   , OLD.comments
   , OLD.uploadDate
   , OLD.idAnalysis
-  , OLD.fileSize
   , OLD.qualifiedFilePath
   , OLD.baseFilePath
   , OLD.createDate );
@@ -1919,6 +1895,10 @@ $$
 --
 -- Audit Table For AnalysisGenomebuild 
 --
+
+-- select 'Creating table AnalysisGenomebuild'$$
+
+-- DROP TABLE IF EXISTS `AnalysisGenomebuild_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `AnalysisGenomebuild_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -2031,6 +2011,10 @@ $$
 -- Audit Table For AnalysisGroupitem 
 --
 
+-- select 'Creating table AnalysisGroupitem'$$
+
+-- DROP TABLE IF EXISTS `AnalysisGroupitem_Audit`$$
+
 CREATE TABLE IF NOT EXISTS `AnalysisGroupitem_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -2141,6 +2125,10 @@ $$
 --
 -- Audit Table For AnalysisGroup 
 --
+
+-- select 'Creating table AnalysisGroup'$$
+
+-- DROP TABLE IF EXISTS `AnalysisGroup_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `AnalysisGroup_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -2288,6 +2276,10 @@ $$
 --
 -- Audit Table For AnalysisProtocol 
 --
+
+-- select 'Creating table AnalysisProtocol'$$
+
+-- DROP TABLE IF EXISTS `AnalysisProtocol_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `AnalysisProtocol_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -2445,6 +2437,10 @@ $$
 -- Audit Table For AnalysisToTopic 
 --
 
+-- select 'Creating table AnalysisToTopic'$$
+
+-- DROP TABLE IF EXISTS `AnalysisToTopic_Audit`$$
+
 CREATE TABLE IF NOT EXISTS `AnalysisToTopic_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -2555,6 +2551,10 @@ $$
 --
 -- Audit Table For AnalysisType 
 --
+
+-- select 'Creating table AnalysisType'$$
+
+-- DROP TABLE IF EXISTS `AnalysisType_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `AnalysisType_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -2685,6 +2685,10 @@ $$
 -- Audit Table For Analysis 
 --
 
+-- select 'Creating table Analysis'$$
+
+-- DROP TABLE IF EXISTS `Analysis_Audit`$$
+
 CREATE TABLE IF NOT EXISTS `Analysis_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -2699,13 +2703,12 @@ CREATE TABLE IF NOT EXISTS `Analysis_Audit` (
  ,`idAnalysisType`  int(10)  NULL DEFAULT NULL
  ,`idAnalysisProtocol`  int(10)  NULL DEFAULT NULL
  ,`idOrganism`  int(10)  NULL DEFAULT NULL
- ,`idGenomeBuild`  int(10)  NULL DEFAULT NULL
  ,`codeVisibility`  varchar(10)  NULL DEFAULT NULL
  ,`createDate`  datetime  NULL DEFAULT NULL
  ,`idAppUser`  int(10)  NULL DEFAULT NULL
  ,`idInstitution`  int(10)  NULL DEFAULT NULL
- ,`privacyExpirationDate`  datetime  NULL DEFAULT NULL
  ,`idCoreFacility`  int(10)  NULL DEFAULT NULL
+ ,`privacyExpirationDate`  datetime  NULL DEFAULT NULL
  ,`idSubmitter`  int(10)  NULL DEFAULT NULL
 ) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
@@ -2729,13 +2732,12 @@ INSERT INTO Analysis_Audit
   , idAnalysisType
   , idAnalysisProtocol
   , idOrganism
-  , idGenomeBuild
   , codeVisibility
   , createDate
   , idAppUser
   , idInstitution
-  , privacyExpirationDate
   , idCoreFacility
+  , privacyExpirationDate
   , idSubmitter )
   SELECT
   'No Context'
@@ -2751,13 +2753,12 @@ INSERT INTO Analysis_Audit
   , idAnalysisType
   , idAnalysisProtocol
   , idOrganism
-  , idGenomeBuild
   , codeVisibility
   , createDate
   , idAppUser
   , idInstitution
-  , privacyExpirationDate
   , idCoreFacility
+  , privacyExpirationDate
   , idSubmitter
   FROM Analysis
   WHERE NOT EXISTS(SELECT * FROM Analysis_Audit)
@@ -2784,13 +2785,12 @@ BEGIN
   , idAnalysisType
   , idAnalysisProtocol
   , idOrganism
-  , idGenomeBuild
   , codeVisibility
   , createDate
   , idAppUser
   , idInstitution
-  , privacyExpirationDate
   , idCoreFacility
+  , privacyExpirationDate
   , idSubmitter )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
@@ -2806,13 +2806,12 @@ BEGIN
   , NEW.idAnalysisType
   , NEW.idAnalysisProtocol
   , NEW.idOrganism
-  , NEW.idGenomeBuild
   , NEW.codeVisibility
   , NEW.createDate
   , NEW.idAppUser
   , NEW.idInstitution
-  , NEW.privacyExpirationDate
   , NEW.idCoreFacility
+  , NEW.privacyExpirationDate
   , NEW.idSubmitter );
 END;
 $$
@@ -2834,13 +2833,12 @@ BEGIN
   , idAnalysisType
   , idAnalysisProtocol
   , idOrganism
-  , idGenomeBuild
   , codeVisibility
   , createDate
   , idAppUser
   , idInstitution
-  , privacyExpirationDate
   , idCoreFacility
+  , privacyExpirationDate
   , idSubmitter )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
@@ -2856,13 +2854,12 @@ BEGIN
   , NEW.idAnalysisType
   , NEW.idAnalysisProtocol
   , NEW.idOrganism
-  , NEW.idGenomeBuild
   , NEW.codeVisibility
   , NEW.createDate
   , NEW.idAppUser
   , NEW.idInstitution
-  , NEW.privacyExpirationDate
   , NEW.idCoreFacility
+  , NEW.privacyExpirationDate
   , NEW.idSubmitter );
 END;
 $$
@@ -2884,13 +2881,12 @@ BEGIN
   , idAnalysisType
   , idAnalysisProtocol
   , idOrganism
-  , idGenomeBuild
   , codeVisibility
   , createDate
   , idAppUser
   , idInstitution
-  , privacyExpirationDate
   , idCoreFacility
+  , privacyExpirationDate
   , idSubmitter )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
@@ -2906,13 +2902,12 @@ BEGIN
   , OLD.idAnalysisType
   , OLD.idAnalysisProtocol
   , OLD.idOrganism
-  , OLD.idGenomeBuild
   , OLD.codeVisibility
   , OLD.createDate
   , OLD.idAppUser
   , OLD.idInstitution
-  , OLD.privacyExpirationDate
   , OLD.idCoreFacility
+  , OLD.privacyExpirationDate
   , OLD.idSubmitter );
 END;
 $$
@@ -2921,6 +2916,10 @@ $$
 --
 -- Audit Table For AnnotationReportField 
 --
+
+-- select 'Creating table AnnotationReportField'$$
+
+-- DROP TABLE IF EXISTS `AnnotationReportField_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `AnnotationReportField_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -3078,6 +3077,10 @@ $$
 -- Audit Table For ApplicationTheme 
 --
 
+-- select 'Creating table ApplicationTheme'$$
+
+-- DROP TABLE IF EXISTS `ApplicationTheme_Audit`$$
+
 CREATE TABLE IF NOT EXISTS `ApplicationTheme_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -3207,6 +3210,10 @@ $$
 -- Audit Table For ApplicationType 
 --
 
+-- select 'Creating table ApplicationType'$$
+
+-- DROP TABLE IF EXISTS `ApplicationType_Audit`$$
+
 CREATE TABLE IF NOT EXISTS `ApplicationType_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -3318,6 +3325,10 @@ $$
 -- Audit Table For Application 
 --
 
+-- select 'Creating table Application'$$
+
+-- DROP TABLE IF EXISTS `Application_Audit`$$
+
 CREATE TABLE IF NOT EXISTS `Application_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -3334,8 +3345,8 @@ CREATE TABLE IF NOT EXISTS `Application_Audit` (
  ,`hasCaptureLibDesign`  char(1)  NULL DEFAULT NULL
  ,`coreSteps`  varchar(5000)  NULL DEFAULT NULL
  ,`coreStepsNoLibPrep`  varchar(5000)  NULL DEFAULT NULL
- ,`onlyForLabPrepped`  char(1)  NULL DEFAULT NULL
  ,`codeApplicationType`  varchar(10)  NULL DEFAULT NULL
+ ,`onlyForLabPrepped`  char(1)  NULL DEFAULT NULL
  ,`samplesPerBatch`  int(10)  NULL DEFAULT NULL
  ,`idCoreFacility`  int(10)  NULL DEFAULT NULL
  ,`hasChipTypes`  char(1)  NULL DEFAULT NULL
@@ -3363,8 +3374,8 @@ INSERT INTO Application_Audit
   , hasCaptureLibDesign
   , coreSteps
   , coreStepsNoLibPrep
-  , onlyForLabPrepped
   , codeApplicationType
+  , onlyForLabPrepped
   , samplesPerBatch
   , idCoreFacility
   , hasChipTypes )
@@ -3384,8 +3395,8 @@ INSERT INTO Application_Audit
   , hasCaptureLibDesign
   , coreSteps
   , coreStepsNoLibPrep
-  , onlyForLabPrepped
   , codeApplicationType
+  , onlyForLabPrepped
   , samplesPerBatch
   , idCoreFacility
   , hasChipTypes
@@ -3416,8 +3427,8 @@ BEGIN
   , hasCaptureLibDesign
   , coreSteps
   , coreStepsNoLibPrep
-  , onlyForLabPrepped
   , codeApplicationType
+  , onlyForLabPrepped
   , samplesPerBatch
   , idCoreFacility
   , hasChipTypes )
@@ -3437,8 +3448,8 @@ BEGIN
   , NEW.hasCaptureLibDesign
   , NEW.coreSteps
   , NEW.coreStepsNoLibPrep
-  , NEW.onlyForLabPrepped
   , NEW.codeApplicationType
+  , NEW.onlyForLabPrepped
   , NEW.samplesPerBatch
   , NEW.idCoreFacility
   , NEW.hasChipTypes );
@@ -3464,8 +3475,8 @@ BEGIN
   , hasCaptureLibDesign
   , coreSteps
   , coreStepsNoLibPrep
-  , onlyForLabPrepped
   , codeApplicationType
+  , onlyForLabPrepped
   , samplesPerBatch
   , idCoreFacility
   , hasChipTypes )
@@ -3485,8 +3496,8 @@ BEGIN
   , NEW.hasCaptureLibDesign
   , NEW.coreSteps
   , NEW.coreStepsNoLibPrep
-  , NEW.onlyForLabPrepped
   , NEW.codeApplicationType
+  , NEW.onlyForLabPrepped
   , NEW.samplesPerBatch
   , NEW.idCoreFacility
   , NEW.hasChipTypes );
@@ -3512,8 +3523,8 @@ BEGIN
   , hasCaptureLibDesign
   , coreSteps
   , coreStepsNoLibPrep
-  , onlyForLabPrepped
   , codeApplicationType
+  , onlyForLabPrepped
   , samplesPerBatch
   , idCoreFacility
   , hasChipTypes )
@@ -3533,8 +3544,8 @@ BEGIN
   , OLD.hasCaptureLibDesign
   , OLD.coreSteps
   , OLD.coreStepsNoLibPrep
-  , OLD.onlyForLabPrepped
   , OLD.codeApplicationType
+  , OLD.onlyForLabPrepped
   , OLD.samplesPerBatch
   , OLD.idCoreFacility
   , OLD.hasChipTypes );
@@ -3545,6 +3556,10 @@ $$
 --
 -- Audit Table For AppUser 
 --
+
+-- select 'Creating table AppUser'$$
+
+-- DROP TABLE IF EXISTS `AppUser_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `AppUser_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -3810,6 +3825,10 @@ $$
 -- Audit Table For ArrayCoordinate 
 --
 
+-- select 'Creating table ArrayCoordinate'$$
+
+-- DROP TABLE IF EXISTS `ArrayCoordinate_Audit`$$
+
 CREATE TABLE IF NOT EXISTS `ArrayCoordinate_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -3948,6 +3967,10 @@ $$
 -- Audit Table For ArrayDesign 
 --
 
+-- select 'Creating table ArrayDesign'$$
+
+-- DROP TABLE IF EXISTS `ArrayDesign_Audit`$$
+
 CREATE TABLE IF NOT EXISTS `ArrayDesign_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -4076,6 +4099,10 @@ $$
 --
 -- Audit Table For Assay 
 --
+
+-- select 'Creating table Assay'$$
+
+-- DROP TABLE IF EXISTS `Assay_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `Assay_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -4206,6 +4233,10 @@ $$
 -- Audit Table For BillingAccountUser 
 --
 
+-- select 'Creating table BillingAccountUser'$$
+
+-- DROP TABLE IF EXISTS `BillingAccountUser_Audit`$$
+
 CREATE TABLE IF NOT EXISTS `BillingAccountUser_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -4317,6 +4348,10 @@ $$
 -- Audit Table For BillingAccount 
 --
 
+-- select 'Creating table BillingAccount'$$
+
+-- DROP TABLE IF EXISTS `BillingAccount_Audit`$$
+
 CREATE TABLE IF NOT EXISTS `BillingAccount_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -4337,7 +4372,10 @@ CREATE TABLE IF NOT EXISTS `BillingAccount_Audit` (
  ,`accountNumberAu`  varchar(10)  NULL DEFAULT NULL
  ,`accountNumberYear`  varchar(10)  NULL DEFAULT NULL
  ,`idFundingAgency`  int(10)  NULL DEFAULT NULL
+ ,`idCreditCardCompany`  int(10)  NULL DEFAULT NULL
  ,`isPO`  char(1)  NULL DEFAULT NULL
+ ,`isCreditCard`  char(1)  NULL DEFAULT NULL
+ ,`zipCode`  varchar(20)  NULL DEFAULT NULL
  ,`isApproved`  char(1)  NULL DEFAULT NULL
  ,`approvedDate`  datetime  NULL DEFAULT NULL
  ,`createDate`  datetime  NULL DEFAULT NULL
@@ -4353,9 +4391,6 @@ CREATE TABLE IF NOT EXISTS `BillingAccount_Audit` (
  ,`custom1`  varchar(50)  NULL DEFAULT NULL
  ,`custom2`  varchar(50)  NULL DEFAULT NULL
  ,`custom3`  varchar(50)  NULL DEFAULT NULL
- ,`isCreditCard`  char(1)  NULL DEFAULT NULL
- ,`idCreditCardCompany`  int(10)  NULL DEFAULT NULL
- ,`zipCode`  varchar(20)  NULL DEFAULT NULL
  ,`approverEmail`  varchar(200)  NULL DEFAULT NULL
  ,`idApprover`  int(10)  NULL DEFAULT NULL
 ) ENGINE=INNODB DEFAULT CHARSET=latin1
@@ -4386,7 +4421,10 @@ INSERT INTO BillingAccount_Audit
   , accountNumberAu
   , accountNumberYear
   , idFundingAgency
+  , idCreditCardCompany
   , isPO
+  , isCreditCard
+  , zipCode
   , isApproved
   , approvedDate
   , createDate
@@ -4402,9 +4440,6 @@ INSERT INTO BillingAccount_Audit
   , custom1
   , custom2
   , custom3
-  , isCreditCard
-  , idCreditCardCompany
-  , zipCode
   , approverEmail
   , idApprover )
   SELECT
@@ -4427,7 +4462,10 @@ INSERT INTO BillingAccount_Audit
   , accountNumberAu
   , accountNumberYear
   , idFundingAgency
+  , idCreditCardCompany
   , isPO
+  , isCreditCard
+  , zipCode
   , isApproved
   , approvedDate
   , createDate
@@ -4443,9 +4481,6 @@ INSERT INTO BillingAccount_Audit
   , custom1
   , custom2
   , custom3
-  , isCreditCard
-  , idCreditCardCompany
-  , zipCode
   , approverEmail
   , idApprover
   FROM BillingAccount
@@ -4479,7 +4514,10 @@ BEGIN
   , accountNumberAu
   , accountNumberYear
   , idFundingAgency
+  , idCreditCardCompany
   , isPO
+  , isCreditCard
+  , zipCode
   , isApproved
   , approvedDate
   , createDate
@@ -4495,9 +4533,6 @@ BEGIN
   , custom1
   , custom2
   , custom3
-  , isCreditCard
-  , idCreditCardCompany
-  , zipCode
   , approverEmail
   , idApprover )
   VALUES
@@ -4520,7 +4555,10 @@ BEGIN
   , NEW.accountNumberAu
   , NEW.accountNumberYear
   , NEW.idFundingAgency
+  , NEW.idCreditCardCompany
   , NEW.isPO
+  , NEW.isCreditCard
+  , NEW.zipCode
   , NEW.isApproved
   , NEW.approvedDate
   , NEW.createDate
@@ -4536,9 +4574,6 @@ BEGIN
   , NEW.custom1
   , NEW.custom2
   , NEW.custom3
-  , NEW.isCreditCard
-  , NEW.idCreditCardCompany
-  , NEW.zipCode
   , NEW.approverEmail
   , NEW.idApprover );
 END;
@@ -4567,7 +4602,10 @@ BEGIN
   , accountNumberAu
   , accountNumberYear
   , idFundingAgency
+  , idCreditCardCompany
   , isPO
+  , isCreditCard
+  , zipCode
   , isApproved
   , approvedDate
   , createDate
@@ -4583,9 +4621,6 @@ BEGIN
   , custom1
   , custom2
   , custom3
-  , isCreditCard
-  , idCreditCardCompany
-  , zipCode
   , approverEmail
   , idApprover )
   VALUES
@@ -4608,7 +4643,10 @@ BEGIN
   , NEW.accountNumberAu
   , NEW.accountNumberYear
   , NEW.idFundingAgency
+  , NEW.idCreditCardCompany
   , NEW.isPO
+  , NEW.isCreditCard
+  , NEW.zipCode
   , NEW.isApproved
   , NEW.approvedDate
   , NEW.createDate
@@ -4624,9 +4662,6 @@ BEGIN
   , NEW.custom1
   , NEW.custom2
   , NEW.custom3
-  , NEW.isCreditCard
-  , NEW.idCreditCardCompany
-  , NEW.zipCode
   , NEW.approverEmail
   , NEW.idApprover );
 END;
@@ -4655,7 +4690,10 @@ BEGIN
   , accountNumberAu
   , accountNumberYear
   , idFundingAgency
+  , idCreditCardCompany
   , isPO
+  , isCreditCard
+  , zipCode
   , isApproved
   , approvedDate
   , createDate
@@ -4671,9 +4709,6 @@ BEGIN
   , custom1
   , custom2
   , custom3
-  , isCreditCard
-  , idCreditCardCompany
-  , zipCode
   , approverEmail
   , idApprover )
   VALUES
@@ -4696,7 +4731,10 @@ BEGIN
   , OLD.accountNumberAu
   , OLD.accountNumberYear
   , OLD.idFundingAgency
+  , OLD.idCreditCardCompany
   , OLD.isPO
+  , OLD.isCreditCard
+  , OLD.zipCode
   , OLD.isApproved
   , OLD.approvedDate
   , OLD.createDate
@@ -4712,9 +4750,6 @@ BEGIN
   , OLD.custom1
   , OLD.custom2
   , OLD.custom3
-  , OLD.isCreditCard
-  , OLD.idCreditCardCompany
-  , OLD.zipCode
   , OLD.approverEmail
   , OLD.idApprover );
 END;
@@ -4724,6 +4759,10 @@ $$
 --
 -- Audit Table For BillingChargeKind 
 --
+
+-- select 'Creating table BillingChargeKind'$$
+
+-- DROP TABLE IF EXISTS `BillingChargeKind_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `BillingChargeKind_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -4845,6 +4884,10 @@ $$
 -- Audit Table For BillingItem 
 --
 
+-- select 'Creating table BillingItem'$$
+
+-- DROP TABLE IF EXISTS `BillingItem_Audit`$$
+
 CREATE TABLE IF NOT EXISTS `BillingItem_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -4857,20 +4900,19 @@ CREATE TABLE IF NOT EXISTS `BillingItem_Audit` (
  ,`description`  varchar(500)  NULL DEFAULT NULL
  ,`qty`  int(10)  NULL DEFAULT NULL
  ,`unitPrice`  decimal(7,2)  NULL DEFAULT NULL
- ,`totalPrice`  decimal(9,2)  NULL DEFAULT NULL
+ ,`invoicePrice`  decimal(9,2)  NULL DEFAULT NULL
  ,`idBillingPeriod`  int(10)  NULL DEFAULT NULL
  ,`codeBillingStatus`  varchar(10)  NULL DEFAULT NULL
+ ,`idPriceCategory`  int(10)  NULL DEFAULT NULL
+ ,`idPrice`  int(10)  NULL DEFAULT NULL
  ,`idRequest`  int(10)  NULL DEFAULT NULL
  ,`idBillingAccount`  int(10)  NULL DEFAULT NULL
  ,`percentagePrice`  decimal(4,3)  NULL DEFAULT NULL
  ,`notes`  varchar(500)  NULL DEFAULT NULL
  ,`idLab`  int(10)  NULL DEFAULT NULL
- ,`idPrice`  int(10)  NULL DEFAULT NULL
- ,`idPriceCategory`  int(10)  NULL DEFAULT NULL
  ,`completeDate`  datetime  NULL DEFAULT NULL
- ,`invoicePrice`  decimal(9,2)  NULL DEFAULT NULL
- ,`idCoreFacility`  int(10)  NULL DEFAULT NULL
  ,`splitType`  char(1)  NULL DEFAULT NULL
+ ,`idCoreFacility`  int(10)  NULL DEFAULT NULL
  ,`idInvoice`  int(10)  NULL DEFAULT NULL
  ,`idDiskUsageByMonth`  int(10)  NULL DEFAULT NULL
  ,`idProductOrder`  int(10)  NULL DEFAULT NULL
@@ -4895,20 +4937,19 @@ INSERT INTO BillingItem_Audit
   , description
   , qty
   , unitPrice
-  , totalPrice
+  , invoicePrice
   , idBillingPeriod
   , codeBillingStatus
+  , idPriceCategory
+  , idPrice
   , idRequest
   , idBillingAccount
   , percentagePrice
   , notes
   , idLab
-  , idPrice
-  , idPriceCategory
   , completeDate
-  , invoicePrice
-  , idCoreFacility
   , splitType
+  , idCoreFacility
   , idInvoice
   , idDiskUsageByMonth
   , idProductOrder
@@ -4925,20 +4966,19 @@ INSERT INTO BillingItem_Audit
   , description
   , qty
   , unitPrice
-  , totalPrice
+  , invoicePrice
   , idBillingPeriod
   , codeBillingStatus
+  , idPriceCategory
+  , idPrice
   , idRequest
   , idBillingAccount
   , percentagePrice
   , notes
   , idLab
-  , idPrice
-  , idPriceCategory
   , completeDate
-  , invoicePrice
-  , idCoreFacility
   , splitType
+  , idCoreFacility
   , idInvoice
   , idDiskUsageByMonth
   , idProductOrder
@@ -4966,20 +5006,19 @@ BEGIN
   , description
   , qty
   , unitPrice
-  , totalPrice
+  , invoicePrice
   , idBillingPeriod
   , codeBillingStatus
+  , idPriceCategory
+  , idPrice
   , idRequest
   , idBillingAccount
   , percentagePrice
   , notes
   , idLab
-  , idPrice
-  , idPriceCategory
   , completeDate
-  , invoicePrice
-  , idCoreFacility
   , splitType
+  , idCoreFacility
   , idInvoice
   , idDiskUsageByMonth
   , idProductOrder
@@ -4996,20 +5035,19 @@ BEGIN
   , NEW.description
   , NEW.qty
   , NEW.unitPrice
-  , NEW.totalPrice
+  , NEW.invoicePrice
   , NEW.idBillingPeriod
   , NEW.codeBillingStatus
+  , NEW.idPriceCategory
+  , NEW.idPrice
   , NEW.idRequest
   , NEW.idBillingAccount
   , NEW.percentagePrice
   , NEW.notes
   , NEW.idLab
-  , NEW.idPrice
-  , NEW.idPriceCategory
   , NEW.completeDate
-  , NEW.invoicePrice
-  , NEW.idCoreFacility
   , NEW.splitType
+  , NEW.idCoreFacility
   , NEW.idInvoice
   , NEW.idDiskUsageByMonth
   , NEW.idProductOrder
@@ -5032,20 +5070,19 @@ BEGIN
   , description
   , qty
   , unitPrice
-  , totalPrice
+  , invoicePrice
   , idBillingPeriod
   , codeBillingStatus
+  , idPriceCategory
+  , idPrice
   , idRequest
   , idBillingAccount
   , percentagePrice
   , notes
   , idLab
-  , idPrice
-  , idPriceCategory
   , completeDate
-  , invoicePrice
-  , idCoreFacility
   , splitType
+  , idCoreFacility
   , idInvoice
   , idDiskUsageByMonth
   , idProductOrder
@@ -5062,20 +5099,19 @@ BEGIN
   , NEW.description
   , NEW.qty
   , NEW.unitPrice
-  , NEW.totalPrice
+  , NEW.invoicePrice
   , NEW.idBillingPeriod
   , NEW.codeBillingStatus
+  , NEW.idPriceCategory
+  , NEW.idPrice
   , NEW.idRequest
   , NEW.idBillingAccount
   , NEW.percentagePrice
   , NEW.notes
   , NEW.idLab
-  , NEW.idPrice
-  , NEW.idPriceCategory
   , NEW.completeDate
-  , NEW.invoicePrice
-  , NEW.idCoreFacility
   , NEW.splitType
+  , NEW.idCoreFacility
   , NEW.idInvoice
   , NEW.idDiskUsageByMonth
   , NEW.idProductOrder
@@ -5098,20 +5134,19 @@ BEGIN
   , description
   , qty
   , unitPrice
-  , totalPrice
+  , invoicePrice
   , idBillingPeriod
   , codeBillingStatus
+  , idPriceCategory
+  , idPrice
   , idRequest
   , idBillingAccount
   , percentagePrice
   , notes
   , idLab
-  , idPrice
-  , idPriceCategory
   , completeDate
-  , invoicePrice
-  , idCoreFacility
   , splitType
+  , idCoreFacility
   , idInvoice
   , idDiskUsageByMonth
   , idProductOrder
@@ -5128,20 +5163,19 @@ BEGIN
   , OLD.description
   , OLD.qty
   , OLD.unitPrice
-  , OLD.totalPrice
+  , OLD.invoicePrice
   , OLD.idBillingPeriod
   , OLD.codeBillingStatus
+  , OLD.idPriceCategory
+  , OLD.idPrice
   , OLD.idRequest
   , OLD.idBillingAccount
   , OLD.percentagePrice
   , OLD.notes
   , OLD.idLab
-  , OLD.idPrice
-  , OLD.idPriceCategory
   , OLD.completeDate
-  , OLD.invoicePrice
-  , OLD.idCoreFacility
   , OLD.splitType
+  , OLD.idCoreFacility
   , OLD.idInvoice
   , OLD.idDiskUsageByMonth
   , OLD.idProductOrder
@@ -5153,6 +5187,10 @@ $$
 --
 -- Audit Table For Billingperiod 
 --
+
+-- select 'Creating table Billingperiod'$$
+
+-- DROP TABLE IF EXISTS `Billingperiod_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `Billingperiod_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -5292,6 +5330,10 @@ $$
 -- Audit Table For BillingSlideProductClass 
 --
 
+-- select 'Creating table BillingSlideProductClass'$$
+
+-- DROP TABLE IF EXISTS `BillingSlideProductClass_Audit`$$
+
 CREATE TABLE IF NOT EXISTS `BillingSlideProductClass_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -5411,6 +5453,10 @@ $$
 --
 -- Audit Table For BillingSlideServiceClass 
 --
+
+-- select 'Creating table BillingSlideServiceClass'$$
+
+-- DROP TABLE IF EXISTS `BillingSlideServiceClass_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `BillingSlideServiceClass_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -5532,6 +5578,10 @@ $$
 -- Audit Table For BillingStatus 
 --
 
+-- select 'Creating table BillingStatus'$$
+
+-- DROP TABLE IF EXISTS `BillingStatus_Audit`$$
+
 CREATE TABLE IF NOT EXISTS `BillingStatus_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -5651,6 +5701,10 @@ $$
 --
 -- Audit Table For BillingTemplateItem 
 --
+
+-- select 'Creating table BillingTemplateItem'$$
+
+-- DROP TABLE IF EXISTS `BillingTemplateItem_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `BillingTemplateItem_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -5808,6 +5862,10 @@ $$
 -- Audit Table For BillingTemplate 
 --
 
+-- select 'Creating table BillingTemplate'$$
+
+-- DROP TABLE IF EXISTS `BillingTemplate_Audit`$$
+
 CREATE TABLE IF NOT EXISTS `BillingTemplate_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -5928,6 +5986,10 @@ $$
 -- Audit Table For BioanalyzerChipType 
 --
 
+-- select 'Creating table BioanalyzerChipType'$$
+
+-- DROP TABLE IF EXISTS `BioanalyzerChipType_Audit`$$
+
 CREATE TABLE IF NOT EXISTS `BioanalyzerChipType_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -5944,7 +6006,7 @@ CREATE TABLE IF NOT EXISTS `BioanalyzerChipType_Audit` (
  ,`codeConcentrationUnit`  varchar(10)  NULL DEFAULT NULL
  ,`codeApplication`  varchar(10)  NULL DEFAULT NULL
  ,`protocolDescription`  longtext  NULL DEFAULT NULL
- ,`sortOrder`  int(11)  NULL DEFAULT NULL
+ ,`sortOrder`  int(10)  NULL DEFAULT NULL
 ) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
@@ -6119,6 +6181,10 @@ $$
 --
 -- Audit Table For Chromatogram 
 --
+
+-- select 'Creating table Chromatogram'$$
+
+-- DROP TABLE IF EXISTS `Chromatogram_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `Chromatogram_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -6357,6 +6423,10 @@ $$
 -- Audit Table For ConcentrationUnit 
 --
 
+-- select 'Creating table ConcentrationUnit'$$
+
+-- DROP TABLE IF EXISTS `ConcentrationUnit_Audit`$$
+
 CREATE TABLE IF NOT EXISTS `ConcentrationUnit_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -6494,6 +6564,10 @@ $$
 --
 -- Audit Table For ContextSensitiveHelp 
 --
+
+-- select 'Creating table ContextSensitiveHelp'$$
+
+-- DROP TABLE IF EXISTS `ContextSensitiveHelp_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `ContextSensitiveHelp_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -6642,6 +6716,10 @@ $$
 -- Audit Table For CoreFacilityLab 
 --
 
+-- select 'Creating table CoreFacilityLab'$$
+
+-- DROP TABLE IF EXISTS `CoreFacilityLab_Audit`$$
+
 CREATE TABLE IF NOT EXISTS `CoreFacilityLab_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -6752,6 +6830,10 @@ $$
 --
 -- Audit Table For CoreFacilityManager 
 --
+
+-- select 'Creating table CoreFacilityManager'$$
+
+-- DROP TABLE IF EXISTS `CoreFacilityManager_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `CoreFacilityManager_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -6864,6 +6946,10 @@ $$
 -- Audit Table For CoreFacilitySubmitter 
 --
 
+-- select 'Creating table CoreFacilitySubmitter'$$
+
+-- DROP TABLE IF EXISTS `CoreFacilitySubmitter_Audit`$$
+
 CREATE TABLE IF NOT EXISTS `CoreFacilitySubmitter_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -6975,6 +7061,10 @@ $$
 -- Audit Table For CoreFacility 
 --
 
+-- select 'Creating table CoreFacility'$$
+
+-- DROP TABLE IF EXISTS `CoreFacility_Audit`$$
+
 CREATE TABLE IF NOT EXISTS `CoreFacility_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -6985,17 +7075,17 @@ CREATE TABLE IF NOT EXISTS `CoreFacility_Audit` (
  ,`facilityName`  varchar(200)  NULL DEFAULT NULL
  ,`isActive`  char(1)  NULL DEFAULT NULL
  ,`showProjectAnnotations`  char(1)  NULL DEFAULT NULL
- ,`acceptOnlineWorkAuth`  char(1)  NULL DEFAULT NULL
  ,`description`  varchar(10000)  NULL DEFAULT NULL
- ,`labPhone`  varchar(200)  NULL DEFAULT NULL
- ,`contactRoom`  varchar(200)  NULL DEFAULT NULL
- ,`labRoom`  varchar(200)  NULL DEFAULT NULL
+ ,`acceptOnlineWorkAuth`  char(1)  NULL DEFAULT NULL
  ,`shortDescription`  varchar(1000)  NULL DEFAULT NULL
  ,`contactName`  varchar(200)  NULL DEFAULT NULL
  ,`contactEmail`  varchar(200)  NULL DEFAULT NULL
  ,`contactPhone`  varchar(200)  NULL DEFAULT NULL
  ,`sortOrder`  int(10)  NULL DEFAULT NULL
  ,`contactImage`  varchar(200)  NULL DEFAULT NULL
+ ,`labPhone`  varchar(200)  NULL DEFAULT NULL
+ ,`contactRoom`  varchar(200)  NULL DEFAULT NULL
+ ,`labRoom`  varchar(200)  NULL DEFAULT NULL
 ) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
@@ -7014,17 +7104,17 @@ INSERT INTO CoreFacility_Audit
   , facilityName
   , isActive
   , showProjectAnnotations
-  , acceptOnlineWorkAuth
   , description
-  , labPhone
-  , contactRoom
-  , labRoom
+  , acceptOnlineWorkAuth
   , shortDescription
   , contactName
   , contactEmail
   , contactPhone
   , sortOrder
-  , contactImage )
+  , contactImage
+  , labPhone
+  , contactRoom
+  , labRoom )
   SELECT
   'No Context'
   , 'L'
@@ -7035,17 +7125,17 @@ INSERT INTO CoreFacility_Audit
   , facilityName
   , isActive
   , showProjectAnnotations
-  , acceptOnlineWorkAuth
   , description
-  , labPhone
-  , contactRoom
-  , labRoom
+  , acceptOnlineWorkAuth
   , shortDescription
   , contactName
   , contactEmail
   , contactPhone
   , sortOrder
   , contactImage
+  , labPhone
+  , contactRoom
+  , labRoom
   FROM CoreFacility
   WHERE NOT EXISTS(SELECT * FROM CoreFacility_Audit)
 $$
@@ -7067,17 +7157,17 @@ BEGIN
   , facilityName
   , isActive
   , showProjectAnnotations
-  , acceptOnlineWorkAuth
   , description
-  , labPhone
-  , contactRoom
-  , labRoom
+  , acceptOnlineWorkAuth
   , shortDescription
   , contactName
   , contactEmail
   , contactPhone
   , sortOrder
-  , contactImage )
+  , contactImage
+  , labPhone
+  , contactRoom
+  , labRoom )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
@@ -7088,17 +7178,17 @@ BEGIN
   , NEW.facilityName
   , NEW.isActive
   , NEW.showProjectAnnotations
-  , NEW.acceptOnlineWorkAuth
   , NEW.description
-  , NEW.labPhone
-  , NEW.contactRoom
-  , NEW.labRoom
+  , NEW.acceptOnlineWorkAuth
   , NEW.shortDescription
   , NEW.contactName
   , NEW.contactEmail
   , NEW.contactPhone
   , NEW.sortOrder
-  , NEW.contactImage );
+  , NEW.contactImage
+  , NEW.labPhone
+  , NEW.contactRoom
+  , NEW.labRoom );
 END;
 $$
 
@@ -7115,17 +7205,17 @@ BEGIN
   , facilityName
   , isActive
   , showProjectAnnotations
-  , acceptOnlineWorkAuth
   , description
-  , labPhone
-  , contactRoom
-  , labRoom
+  , acceptOnlineWorkAuth
   , shortDescription
   , contactName
   , contactEmail
   , contactPhone
   , sortOrder
-  , contactImage )
+  , contactImage
+  , labPhone
+  , contactRoom
+  , labRoom )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
@@ -7136,17 +7226,17 @@ BEGIN
   , NEW.facilityName
   , NEW.isActive
   , NEW.showProjectAnnotations
-  , NEW.acceptOnlineWorkAuth
   , NEW.description
-  , NEW.labPhone
-  , NEW.contactRoom
-  , NEW.labRoom
+  , NEW.acceptOnlineWorkAuth
   , NEW.shortDescription
   , NEW.contactName
   , NEW.contactEmail
   , NEW.contactPhone
   , NEW.sortOrder
-  , NEW.contactImage );
+  , NEW.contactImage
+  , NEW.labPhone
+  , NEW.contactRoom
+  , NEW.labRoom );
 END;
 $$
 
@@ -7163,17 +7253,17 @@ BEGIN
   , facilityName
   , isActive
   , showProjectAnnotations
-  , acceptOnlineWorkAuth
   , description
-  , labPhone
-  , contactRoom
-  , labRoom
+  , acceptOnlineWorkAuth
   , shortDescription
   , contactName
   , contactEmail
   , contactPhone
   , sortOrder
-  , contactImage )
+  , contactImage
+  , labPhone
+  , contactRoom
+  , labRoom )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
@@ -7184,17 +7274,17 @@ BEGIN
   , OLD.facilityName
   , OLD.isActive
   , OLD.showProjectAnnotations
-  , OLD.acceptOnlineWorkAuth
   , OLD.description
-  , OLD.labPhone
-  , OLD.contactRoom
-  , OLD.labRoom
+  , OLD.acceptOnlineWorkAuth
   , OLD.shortDescription
   , OLD.contactName
   , OLD.contactEmail
   , OLD.contactPhone
   , OLD.sortOrder
-  , OLD.contactImage );
+  , OLD.contactImage
+  , OLD.labPhone
+  , OLD.contactRoom
+  , OLD.labRoom );
 END;
 $$
 
@@ -7202,6 +7292,10 @@ $$
 --
 -- Audit Table For CreditCardCompany 
 --
+
+-- select 'Creating table CreditCardCompany'$$
+
+-- DROP TABLE IF EXISTS `CreditCardCompany_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `CreditCardCompany_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -7332,6 +7426,10 @@ $$
 -- Audit Table For DataTrackCollaborator 
 --
 
+-- select 'Creating table DataTrackCollaborator'$$
+
+-- DROP TABLE IF EXISTS `DataTrackCollaborator_Audit`$$
+
 CREATE TABLE IF NOT EXISTS `DataTrackCollaborator_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -7442,6 +7540,10 @@ $$
 --
 -- Audit Table For DataTrackFile 
 --
+
+-- select 'Creating table DataTrackFile'$$
+
+-- DROP TABLE IF EXISTS `DataTrackFile_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `DataTrackFile_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -7562,6 +7664,10 @@ $$
 --
 -- Audit Table For DataTrackFolder 
 --
+
+-- select 'Creating table DataTrackFolder'$$
+
+-- DROP TABLE IF EXISTS `DataTrackFolder_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `DataTrackFolder_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -7728,6 +7834,10 @@ $$
 -- Audit Table For DataTrackToFolder 
 --
 
+-- select 'Creating table DataTrackToFolder'$$
+
+-- DROP TABLE IF EXISTS `DataTrackToFolder_Audit`$$
+
 CREATE TABLE IF NOT EXISTS `DataTrackToFolder_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -7839,6 +7949,10 @@ $$
 -- Audit Table For DataTrackToTopic 
 --
 
+-- select 'Creating table DataTrackToTopic'$$
+
+-- DROP TABLE IF EXISTS `DataTrackToTopic_Audit`$$
+
 CREATE TABLE IF NOT EXISTS `DataTrackToTopic_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -7949,6 +8063,10 @@ $$
 --
 -- Audit Table For DataTrack 
 --
+
+-- select 'Creating table DataTrack'$$
+
+-- DROP TABLE IF EXISTS `DataTrack_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `DataTrack_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -8169,6 +8287,10 @@ $$
 -- Audit Table For DiskUsageByMonth 
 --
 
+-- select 'Creating table DiskUsageByMonth'$$
+
+-- DROP TABLE IF EXISTS `DiskUsageByMonth_Audit`$$
+
 CREATE TABLE IF NOT EXISTS `DiskUsageByMonth_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -8357,120 +8479,14 @@ END;
 $$
 
 
---
--- Audit Table For DnaseqRequestNumber 
---
-
-CREATE TABLE IF NOT EXISTS `DnaseqRequestNumber_Audit` (
-  `AuditAppuser`       varchar(128) NULL
- ,`AuditOperation`     char(1)      NULL
- ,`AuditSystemUser`    varchar(30)  NULL
- ,`AuditOperationDate` datetime     NULL
- ,`AuditEditedByPersonID` int(10)   NULL
- ,`number`  int(10)  NULL DEFAULT NULL
- ,`dummy`  char(1)  NULL DEFAULT NULL
-) ENGINE=INNODB DEFAULT CHARSET=latin1
-$$
-
-
---
--- Initial audit table rows for DnaseqRequestNumber 
---
-
-INSERT INTO DnaseqRequestNumber_Audit
-  ( AuditAppuser
-  , AuditOperation
-  , AuditSystemUser
-  , AuditOperationDate
-  , AuditEditedByPersonID
-  , number
-  , dummy )
-  SELECT
-  'No Context'
-  , 'L'
-  , USER()
-  , NOW()
-  , 0
-  , number
-  , dummy
-  FROM DnaseqRequestNumber
-  WHERE NOT EXISTS(SELECT * FROM DnaseqRequestNumber_Audit)
-$$
-
---
--- Audit Triggers For DnaseqRequestNumber 
---
-
-
-CREATE TRIGGER TrAI_DnaseqRequestNumber_FER AFTER INSERT ON DnaseqRequestNumber FOR EACH ROW
-BEGIN
-  INSERT INTO DnaseqRequestNumber_Audit
-  ( AuditAppuser
-  , AuditOperation
-  , AuditSystemUser
-  , AuditOperationDate
-  , AuditEditedByPersonID
-  , number
-  , dummy )
-  VALUES
-  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
-  , 'I'
-  , USER()
-  , NOW()
-  , 0
-  , NEW.number
-  , NEW.dummy );
-END;
-$$
-
-
-CREATE TRIGGER TrAU_DnaseqRequestNumber_FER AFTER UPDATE ON DnaseqRequestNumber FOR EACH ROW
-BEGIN
-  INSERT INTO DnaseqRequestNumber_Audit
-  ( AuditAppuser
-  , AuditOperation
-  , AuditSystemUser
-  , AuditOperationDate
-  , AuditEditedByPersonID
-  , number
-  , dummy )
-  VALUES
-  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
-  , 'U'
-  , USER()
-  , NOW()
-  , 0
-  , NEW.number
-  , NEW.dummy );
-END;
-$$
-
-
-CREATE TRIGGER TrAD_DnaseqRequestNumber_FER AFTER DELETE ON DnaseqRequestNumber FOR EACH ROW
-BEGIN
-  INSERT INTO DnaseqRequestNumber_Audit
-  ( AuditAppuser
-  , AuditOperation
-  , AuditSystemUser
-  , AuditOperationDate
-  , AuditEditedByPersonID
-  , number
-  , dummy )
-  VALUES
-  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
-  , 'D'
-  , USER()
-  , NOW()
-  , 0
-  , OLD.number
-  , OLD.dummy );
-END;
-$$
-
 
 --
 -- Audit Table For ExperimentDesignEntry 
 --
+
+-- select 'Creating table ExperimentDesignEntry'$$
+
+-- DROP TABLE IF EXISTS `ExperimentDesignEntry_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `ExperimentDesignEntry_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -8609,6 +8625,10 @@ $$
 --
 -- Audit Table For ExperimentDesign 
 --
+
+-- select 'Creating table ExperimentDesign'$$
+
+-- DROP TABLE IF EXISTS `ExperimentDesign_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `ExperimentDesign_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -8757,6 +8777,10 @@ $$
 -- Audit Table For ExperimentFactorEntry 
 --
 
+-- select 'Creating table ExperimentFactorEntry'$$
+
+-- DROP TABLE IF EXISTS `ExperimentFactorEntry_Audit`$$
+
 CREATE TABLE IF NOT EXISTS `ExperimentFactorEntry_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -8894,6 +8918,10 @@ $$
 --
 -- Audit Table For ExperimentFactor 
 --
+
+-- select 'Creating table ExperimentFactor'$$
+
+-- DROP TABLE IF EXISTS `ExperimentFactor_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `ExperimentFactor_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -9042,6 +9070,10 @@ $$
 -- Audit Table For ExperimentFile 
 --
 
+-- select 'Creating table ExperimentFile'$$
+
+-- DROP TABLE IF EXISTS `ExperimentFile_Audit`$$
+
 CREATE TABLE IF NOT EXISTS `ExperimentFile_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -9180,6 +9212,10 @@ $$
 -- Audit Table For Faq 
 --
 
+-- select 'Creating table Faq'$$
+
+-- DROP TABLE IF EXISTS `Faq_Audit`$$
+
 CREATE TABLE IF NOT EXISTS `Faq_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -9308,6 +9344,10 @@ $$
 --
 -- Audit Table For FeatureExtractionProtocol 
 --
+
+-- select 'Creating table FeatureExtractionProtocol'$$
+
+-- DROP TABLE IF EXISTS `FeatureExtractionProtocol_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `FeatureExtractionProtocol_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -9456,6 +9496,10 @@ $$
 -- Audit Table For FlowCellChannel 
 --
 
+-- select 'Creating table FlowCellChannel'$$
+
+-- DROP TABLE IF EXISTS `FlowCellChannel_Audit`$$
+
 CREATE TABLE IF NOT EXISTS `FlowCellChannel_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -9465,6 +9509,7 @@ CREATE TABLE IF NOT EXISTS `FlowCellChannel_Audit` (
  ,`idFlowCellChannel`  int(10)  NULL DEFAULT NULL
  ,`idFlowCell`  int(10)  NULL DEFAULT NULL
  ,`number`  int(10)  NULL DEFAULT NULL
+ ,`idSequenceLane`  int(10)  NULL DEFAULT NULL
  ,`idSequencingControl`  int(10)  NULL DEFAULT NULL
  ,`numberSequencingCyclesActual`  int(10)  NULL DEFAULT NULL
  ,`clustersPerTile`  int(10)  NULL DEFAULT NULL
@@ -9502,6 +9547,7 @@ INSERT INTO FlowCellChannel_Audit
   , idFlowCellChannel
   , idFlowCell
   , number
+  , idSequenceLane
   , idSequencingControl
   , numberSequencingCyclesActual
   , clustersPerTile
@@ -9531,6 +9577,7 @@ INSERT INTO FlowCellChannel_Audit
   , idFlowCellChannel
   , idFlowCell
   , number
+  , idSequenceLane
   , idSequencingControl
   , numberSequencingCyclesActual
   , clustersPerTile
@@ -9571,6 +9618,7 @@ BEGIN
   , idFlowCellChannel
   , idFlowCell
   , number
+  , idSequenceLane
   , idSequencingControl
   , numberSequencingCyclesActual
   , clustersPerTile
@@ -9600,6 +9648,7 @@ BEGIN
   , NEW.idFlowCellChannel
   , NEW.idFlowCell
   , NEW.number
+  , NEW.idSequenceLane
   , NEW.idSequencingControl
   , NEW.numberSequencingCyclesActual
   , NEW.clustersPerTile
@@ -9635,6 +9684,7 @@ BEGIN
   , idFlowCellChannel
   , idFlowCell
   , number
+  , idSequenceLane
   , idSequencingControl
   , numberSequencingCyclesActual
   , clustersPerTile
@@ -9664,6 +9714,7 @@ BEGIN
   , NEW.idFlowCellChannel
   , NEW.idFlowCell
   , NEW.number
+  , NEW.idSequenceLane
   , NEW.idSequencingControl
   , NEW.numberSequencingCyclesActual
   , NEW.clustersPerTile
@@ -9699,6 +9750,7 @@ BEGIN
   , idFlowCellChannel
   , idFlowCell
   , number
+  , idSequenceLane
   , idSequencingControl
   , numberSequencingCyclesActual
   , clustersPerTile
@@ -9728,6 +9780,7 @@ BEGIN
   , OLD.idFlowCellChannel
   , OLD.idFlowCell
   , OLD.number
+  , OLD.idSequenceLane
   , OLD.idSequencingControl
   , OLD.numberSequencingCyclesActual
   , OLD.clustersPerTile
@@ -9756,6 +9809,10 @@ $$
 -- Audit Table For FlowCell 
 --
 
+-- select 'Creating table FlowCell'$$
+
+-- DROP TABLE IF EXISTS `FlowCell_Audit`$$
+
 CREATE TABLE IF NOT EXISTS `FlowCell_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -9770,12 +9827,11 @@ CREATE TABLE IF NOT EXISTS `FlowCell_Audit` (
  ,`notes`  varchar(200)  NULL DEFAULT NULL
  ,`barcode`  varchar(100)  NULL DEFAULT NULL
  ,`codeSequencingPlatform`  varchar(10)  NULL DEFAULT NULL
+ ,`idCoreFacility`  int(10)  NULL DEFAULT NULL
+ ,`idNumberSequencingCyclesAllowed`  int(10)  NULL DEFAULT NULL
  ,`runNumber`  int(10)  NULL DEFAULT NULL
  ,`idInstrument`  int(10)  NULL DEFAULT NULL
  ,`side`  char(1)  NULL DEFAULT NULL
- ,`numberSequencingCyclesActual`  int(10)  NULL DEFAULT NULL
- ,`idCoreFacility`  int(10)  NULL DEFAULT NULL
- ,`idNumberSequencingCyclesAllowed`  int(10)  NULL DEFAULT NULL
 ) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
@@ -9798,12 +9854,11 @@ INSERT INTO FlowCell_Audit
   , notes
   , barcode
   , codeSequencingPlatform
+  , idCoreFacility
+  , idNumberSequencingCyclesAllowed
   , runNumber
   , idInstrument
-  , side
-  , numberSequencingCyclesActual
-  , idCoreFacility
-  , idNumberSequencingCyclesAllowed )
+  , side )
   SELECT
   'No Context'
   , 'L'
@@ -9818,12 +9873,11 @@ INSERT INTO FlowCell_Audit
   , notes
   , barcode
   , codeSequencingPlatform
+  , idCoreFacility
+  , idNumberSequencingCyclesAllowed
   , runNumber
   , idInstrument
   , side
-  , numberSequencingCyclesActual
-  , idCoreFacility
-  , idNumberSequencingCyclesAllowed
   FROM FlowCell
   WHERE NOT EXISTS(SELECT * FROM FlowCell_Audit)
 $$
@@ -9849,12 +9903,11 @@ BEGIN
   , notes
   , barcode
   , codeSequencingPlatform
+  , idCoreFacility
+  , idNumberSequencingCyclesAllowed
   , runNumber
   , idInstrument
-  , side
-  , numberSequencingCyclesActual
-  , idCoreFacility
-  , idNumberSequencingCyclesAllowed )
+  , side )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
@@ -9869,12 +9922,11 @@ BEGIN
   , NEW.notes
   , NEW.barcode
   , NEW.codeSequencingPlatform
+  , NEW.idCoreFacility
+  , NEW.idNumberSequencingCyclesAllowed
   , NEW.runNumber
   , NEW.idInstrument
-  , NEW.side
-  , NEW.numberSequencingCyclesActual
-  , NEW.idCoreFacility
-  , NEW.idNumberSequencingCyclesAllowed );
+  , NEW.side );
 END;
 $$
 
@@ -9895,12 +9947,11 @@ BEGIN
   , notes
   , barcode
   , codeSequencingPlatform
+  , idCoreFacility
+  , idNumberSequencingCyclesAllowed
   , runNumber
   , idInstrument
-  , side
-  , numberSequencingCyclesActual
-  , idCoreFacility
-  , idNumberSequencingCyclesAllowed )
+  , side )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
@@ -9915,12 +9966,11 @@ BEGIN
   , NEW.notes
   , NEW.barcode
   , NEW.codeSequencingPlatform
+  , NEW.idCoreFacility
+  , NEW.idNumberSequencingCyclesAllowed
   , NEW.runNumber
   , NEW.idInstrument
-  , NEW.side
-  , NEW.numberSequencingCyclesActual
-  , NEW.idCoreFacility
-  , NEW.idNumberSequencingCyclesAllowed );
+  , NEW.side );
 END;
 $$
 
@@ -9941,12 +9991,11 @@ BEGIN
   , notes
   , barcode
   , codeSequencingPlatform
+  , idCoreFacility
+  , idNumberSequencingCyclesAllowed
   , runNumber
   , idInstrument
-  , side
-  , numberSequencingCyclesActual
-  , idCoreFacility
-  , idNumberSequencingCyclesAllowed )
+  , side )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
@@ -9961,12 +10010,11 @@ BEGIN
   , OLD.notes
   , OLD.barcode
   , OLD.codeSequencingPlatform
+  , OLD.idCoreFacility
+  , OLD.idNumberSequencingCyclesAllowed
   , OLD.runNumber
   , OLD.idInstrument
-  , OLD.side
-  , OLD.numberSequencingCyclesActual
-  , OLD.idCoreFacility
-  , OLD.idNumberSequencingCyclesAllowed );
+  , OLD.side );
 END;
 $$
 
@@ -9974,6 +10022,10 @@ $$
 --
 -- Audit Table For FundingAgency 
 --
+
+-- select 'Creating table FundingAgency'$$
+
+-- DROP TABLE IF EXISTS `FundingAgency_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `FundingAgency_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -10104,6 +10156,10 @@ $$
 -- Audit Table For GenomeBuildAlias 
 --
 
+-- select 'Creating table GenomeBuildAlias'$$
+
+-- DROP TABLE IF EXISTS `GenomeBuildAlias_Audit`$$
+
 CREATE TABLE IF NOT EXISTS `GenomeBuildAlias_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -10224,6 +10280,10 @@ $$
 -- Audit Table For GenomeBuild 
 --
 
+-- select 'Creating table GenomeBuild'$$
+
+-- DROP TABLE IF EXISTS `GenomeBuild_Audit`$$
+
 CREATE TABLE IF NOT EXISTS `GenomeBuild_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -10236,6 +10296,7 @@ CREATE TABLE IF NOT EXISTS `GenomeBuild_Audit` (
  ,`isActive`  char(1)  NULL DEFAULT NULL
  ,`isLatestBuild`  char(1)  NULL DEFAULT NULL
  ,`idAppUser`  int(10)  NULL DEFAULT NULL
+ ,`das2Name`  varchar(200)  NULL DEFAULT NULL
  ,`buildDate`  datetime  NULL DEFAULT NULL
  ,`coordURI`  varchar(2000)  NULL DEFAULT NULL
  ,`coordVersion`  varchar(50)  NULL DEFAULT NULL
@@ -10243,9 +10304,8 @@ CREATE TABLE IF NOT EXISTS `GenomeBuild_Audit` (
  ,`coordTestRange`  varchar(100)  NULL DEFAULT NULL
  ,`coordAuthority`  varchar(50)  NULL DEFAULT NULL
  ,`ucscName`  varchar(100)  NULL DEFAULT NULL
- ,`dataPath`  varchar(500)  NULL DEFAULT NULL
- ,`das2Name`  varchar(200)  NULL DEFAULT NULL
  ,`igvName`  varchar(50)  NULL DEFAULT NULL
+ ,`dataPath`  varchar(500)  NULL DEFAULT NULL
 ) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
@@ -10266,6 +10326,7 @@ INSERT INTO GenomeBuild_Audit
   , isActive
   , isLatestBuild
   , idAppUser
+  , das2Name
   , buildDate
   , coordURI
   , coordVersion
@@ -10273,9 +10334,8 @@ INSERT INTO GenomeBuild_Audit
   , coordTestRange
   , coordAuthority
   , ucscName
-  , dataPath
-  , das2Name
-  , igvName )
+  , igvName
+  , dataPath )
   SELECT
   'No Context'
   , 'L'
@@ -10288,6 +10348,7 @@ INSERT INTO GenomeBuild_Audit
   , isActive
   , isLatestBuild
   , idAppUser
+  , das2Name
   , buildDate
   , coordURI
   , coordVersion
@@ -10295,9 +10356,8 @@ INSERT INTO GenomeBuild_Audit
   , coordTestRange
   , coordAuthority
   , ucscName
-  , dataPath
-  , das2Name
   , igvName
+  , dataPath
   FROM GenomeBuild
   WHERE NOT EXISTS(SELECT * FROM GenomeBuild_Audit)
 $$
@@ -10321,6 +10381,7 @@ BEGIN
   , isActive
   , isLatestBuild
   , idAppUser
+  , das2Name
   , buildDate
   , coordURI
   , coordVersion
@@ -10328,9 +10389,8 @@ BEGIN
   , coordTestRange
   , coordAuthority
   , ucscName
-  , dataPath
-  , das2Name
-  , igvName )
+  , igvName
+  , dataPath )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
@@ -10343,6 +10403,7 @@ BEGIN
   , NEW.isActive
   , NEW.isLatestBuild
   , NEW.idAppUser
+  , NEW.das2Name
   , NEW.buildDate
   , NEW.coordURI
   , NEW.coordVersion
@@ -10350,9 +10411,8 @@ BEGIN
   , NEW.coordTestRange
   , NEW.coordAuthority
   , NEW.ucscName
-  , NEW.dataPath
-  , NEW.das2Name
-  , NEW.igvName );
+  , NEW.igvName
+  , NEW.dataPath );
 END;
 $$
 
@@ -10371,6 +10431,7 @@ BEGIN
   , isActive
   , isLatestBuild
   , idAppUser
+  , das2Name
   , buildDate
   , coordURI
   , coordVersion
@@ -10378,9 +10439,8 @@ BEGIN
   , coordTestRange
   , coordAuthority
   , ucscName
-  , dataPath
-  , das2Name
-  , igvName )
+  , igvName
+  , dataPath )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
@@ -10393,6 +10453,7 @@ BEGIN
   , NEW.isActive
   , NEW.isLatestBuild
   , NEW.idAppUser
+  , NEW.das2Name
   , NEW.buildDate
   , NEW.coordURI
   , NEW.coordVersion
@@ -10400,9 +10461,8 @@ BEGIN
   , NEW.coordTestRange
   , NEW.coordAuthority
   , NEW.ucscName
-  , NEW.dataPath
-  , NEW.das2Name
-  , NEW.igvName );
+  , NEW.igvName
+  , NEW.dataPath );
 END;
 $$
 
@@ -10421,6 +10481,7 @@ BEGIN
   , isActive
   , isLatestBuild
   , idAppUser
+  , das2Name
   , buildDate
   , coordURI
   , coordVersion
@@ -10428,9 +10489,8 @@ BEGIN
   , coordTestRange
   , coordAuthority
   , ucscName
-  , dataPath
-  , das2Name
-  , igvName )
+  , igvName
+  , dataPath )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
@@ -10443,6 +10503,7 @@ BEGIN
   , OLD.isActive
   , OLD.isLatestBuild
   , OLD.idAppUser
+  , OLD.das2Name
   , OLD.buildDate
   , OLD.coordURI
   , OLD.coordVersion
@@ -10450,9 +10511,8 @@ BEGIN
   , OLD.coordTestRange
   , OLD.coordAuthority
   , OLD.ucscName
-  , OLD.dataPath
-  , OLD.das2Name
-  , OLD.igvName );
+  , OLD.igvName
+  , OLD.dataPath );
 END;
 $$
 
@@ -10460,6 +10520,10 @@ $$
 --
 -- Audit Table For GenomeIndex 
 --
+
+-- select 'Creating table GenomeIndex'$$
+
+-- DROP TABLE IF EXISTS `GenomeIndex_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `GenomeIndex_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -10598,6 +10662,10 @@ $$
 --
 -- Audit Table For HybProtocol 
 --
+
+-- select 'Creating table HybProtocol'$$
+
+-- DROP TABLE IF EXISTS `HybProtocol_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `HybProtocol_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -10745,6 +10813,10 @@ $$
 --
 -- Audit Table For Hybridization 
 --
+
+-- select 'Creating table Hybridization'$$
+
+-- DROP TABLE IF EXISTS `Hybridization_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `Hybridization_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -11028,6 +11100,10 @@ $$
 -- Audit Table For InstitutionLab 
 --
 
+-- select 'Creating table InstitutionLab'$$
+
+-- DROP TABLE IF EXISTS `InstitutionLab_Audit`$$
+
 CREATE TABLE IF NOT EXISTS `InstitutionLab_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -11138,6 +11214,10 @@ $$
 --
 -- Audit Table For Institution 
 --
+
+-- select 'Creating table Institution'$$
+
+-- DROP TABLE IF EXISTS `Institution_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `Institution_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -11277,6 +11357,10 @@ $$
 -- Audit Table For InstrumentRunStatus 
 --
 
+-- select 'Creating table InstrumentRunStatus'$$
+
+-- DROP TABLE IF EXISTS `InstrumentRunStatus_Audit`$$
+
 CREATE TABLE IF NOT EXISTS `InstrumentRunStatus_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -11396,6 +11480,10 @@ $$
 --
 -- Audit Table For InstrumentRun 
 --
+
+-- select 'Creating table InstrumentRun'$$
+
+-- DROP TABLE IF EXISTS `InstrumentRun_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `InstrumentRun_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -11571,6 +11659,10 @@ $$
 -- Audit Table For Instrument 
 --
 
+-- select 'Creating table Instrument'$$
+
+-- DROP TABLE IF EXISTS `Instrument_Audit`$$
+
 CREATE TABLE IF NOT EXISTS `Instrument_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -11690,6 +11782,10 @@ $$
 --
 -- Audit Table For InternalAccountFieldsConfiguration 
 --
+
+-- select 'Creating table InternalAccountFieldsConfiguration'$$
+
+-- DROP TABLE IF EXISTS `InternalAccountFieldsConfiguration_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `InternalAccountFieldsConfiguration_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -11865,6 +11961,10 @@ $$
 -- Audit Table For Invoice 
 --
 
+-- select 'Creating table Invoice'$$
+
+-- DROP TABLE IF EXISTS `Invoice_Audit`$$
+
 CREATE TABLE IF NOT EXISTS `Invoice_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -12012,6 +12112,10 @@ $$
 -- Audit Table For IsolationPrepType 
 --
 
+-- select 'Creating table IsolationPrepType'$$
+
+-- DROP TABLE IF EXISTS `IsolationPrepType_Audit`$$
+
 CREATE TABLE IF NOT EXISTS `IsolationPrepType_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -12150,6 +12254,10 @@ $$
 -- Audit Table For LabCollaborator 
 --
 
+-- select 'Creating table LabCollaborator'$$
+
+-- DROP TABLE IF EXISTS `LabCollaborator_Audit`$$
+
 CREATE TABLE IF NOT EXISTS `LabCollaborator_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -12269,6 +12377,10 @@ $$
 --
 -- Audit Table For LabeledSample 
 --
+
+-- select 'Creating table LabeledSample'$$
+
+-- DROP TABLE IF EXISTS `LabeledSample_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `LabeledSample_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -12462,6 +12574,10 @@ $$
 -- Audit Table For LabelingProtocol 
 --
 
+-- select 'Creating table LabelingProtocol'$$
+
+-- DROP TABLE IF EXISTS `LabelingProtocol_Audit`$$
+
 CREATE TABLE IF NOT EXISTS `LabelingProtocol_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -12609,6 +12725,10 @@ $$
 -- Audit Table For LabelingReactionSize 
 --
 
+-- select 'Creating table LabelingReactionSize'$$
+
+-- DROP TABLE IF EXISTS `LabelingReactionSize_Audit`$$
+
 CREATE TABLE IF NOT EXISTS `LabelingReactionSize_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -12738,6 +12858,10 @@ $$
 -- Audit Table For Label 
 --
 
+-- select 'Creating table Label'$$
+
+-- DROP TABLE IF EXISTS `Label_Audit`$$
+
 CREATE TABLE IF NOT EXISTS `Label_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -12858,6 +12982,10 @@ $$
 -- Audit Table For LabManager 
 --
 
+-- select 'Creating table LabManager'$$
+
+-- DROP TABLE IF EXISTS `LabManager_Audit`$$
+
 CREATE TABLE IF NOT EXISTS `LabManager_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -12977,6 +13105,10 @@ $$
 --
 -- Audit Table For LabUser 
 --
+
+-- select 'Creating table LabUser'$$
+
+-- DROP TABLE IF EXISTS `LabUser_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `LabUser_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -13116,6 +13248,10 @@ $$
 -- Audit Table For Lab 
 --
 
+-- select 'Creating table Lab'$$
+
+-- DROP TABLE IF EXISTS `Lab_Audit`$$
+
 CREATE TABLE IF NOT EXISTS `Lab_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -13123,7 +13259,9 @@ CREATE TABLE IF NOT EXISTS `Lab_Audit` (
  ,`AuditOperationDate` datetime     NULL
  ,`AuditEditedByPersonID` int(10)   NULL
  ,`idLab`  int(10)  NULL DEFAULT NULL
+ ,`name`  varchar(200)  NULL DEFAULT NULL
  ,`department`  varchar(200)  NULL DEFAULT NULL
+ ,`notes`  varchar(500)  NULL DEFAULT NULL
  ,`contactName`  varchar(200)  NULL DEFAULT NULL
  ,`contactAddress`  varchar(200)  NULL DEFAULT NULL
  ,`contactCodeState`  varchar(10)  NULL DEFAULT NULL
@@ -13134,14 +13272,14 @@ CREATE TABLE IF NOT EXISTS `Lab_Audit` (
  ,`isCCSGMember`  char(1)  NULL DEFAULT NULL
  ,`firstName`  varchar(200)  NULL DEFAULT NULL
  ,`lastName`  varchar(200)  NULL DEFAULT NULL
- ,`isExternalPricing`  char(1)  NULL DEFAULT NULL
+ ,`isExternalPricing`  varchar(1)  NULL DEFAULT NULL
+ ,`isExternalPricingCommercial`  char(1)  NULL DEFAULT NULL
  ,`isActive`  varchar(1)  NULL DEFAULT NULL
  ,`excludeUsage`  char(1)  NULL DEFAULT NULL
- ,`isExternalPricingCommercial`  char(1)  NULL DEFAULT NULL
  ,`billingContactEmail`  varchar(200)  NULL DEFAULT NULL
  ,`version`  bigint(20)  NULL DEFAULT NULL
- ,`contactCountry`  varchar(200)  NULL DEFAULT NULL
  ,`contactAddress2`  varchar(200)  NULL DEFAULT NULL
+ ,`contactCountry`  varchar(200)  NULL DEFAULT NULL
  ,`billingContactPhone`  varchar(50)  NULL DEFAULT NULL
 ) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
@@ -13158,7 +13296,9 @@ INSERT INTO Lab_Audit
   , AuditOperationDate
   , AuditEditedByPersonID
   , idLab
+  , name
   , department
+  , notes
   , contactName
   , contactAddress
   , contactCodeState
@@ -13170,13 +13310,13 @@ INSERT INTO Lab_Audit
   , firstName
   , lastName
   , isExternalPricing
+  , isExternalPricingCommercial
   , isActive
   , excludeUsage
-  , isExternalPricingCommercial
   , billingContactEmail
   , version
-  , contactCountry
   , contactAddress2
+  , contactCountry
   , billingContactPhone )
   SELECT
   'No Context'
@@ -13185,7 +13325,9 @@ INSERT INTO Lab_Audit
   , NOW()
   , 0
   , idLab
+  , name
   , department
+  , notes
   , contactName
   , contactAddress
   , contactCodeState
@@ -13197,13 +13339,13 @@ INSERT INTO Lab_Audit
   , firstName
   , lastName
   , isExternalPricing
+  , isExternalPricingCommercial
   , isActive
   , excludeUsage
-  , isExternalPricingCommercial
   , billingContactEmail
   , version
-  , contactCountry
   , contactAddress2
+  , contactCountry
   , billingContactPhone
   FROM Lab
   WHERE NOT EXISTS(SELECT * FROM Lab_Audit)
@@ -13223,7 +13365,9 @@ BEGIN
   , AuditOperationDate
   , AuditEditedByPersonID
   , idLab
+  , name
   , department
+  , notes
   , contactName
   , contactAddress
   , contactCodeState
@@ -13235,13 +13379,13 @@ BEGIN
   , firstName
   , lastName
   , isExternalPricing
+  , isExternalPricingCommercial
   , isActive
   , excludeUsage
-  , isExternalPricingCommercial
   , billingContactEmail
   , version
-  , contactCountry
   , contactAddress2
+  , contactCountry
   , billingContactPhone )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
@@ -13250,7 +13394,9 @@ BEGIN
   , NOW()
   , 0
   , NEW.idLab
+  , NEW.name
   , NEW.department
+  , NEW.notes
   , NEW.contactName
   , NEW.contactAddress
   , NEW.contactCodeState
@@ -13262,13 +13408,13 @@ BEGIN
   , NEW.firstName
   , NEW.lastName
   , NEW.isExternalPricing
+  , NEW.isExternalPricingCommercial
   , NEW.isActive
   , NEW.excludeUsage
-  , NEW.isExternalPricingCommercial
   , NEW.billingContactEmail
   , NEW.version
-  , NEW.contactCountry
   , NEW.contactAddress2
+  , NEW.contactCountry
   , NEW.billingContactPhone );
 END;
 $$
@@ -13283,7 +13429,9 @@ BEGIN
   , AuditOperationDate
   , AuditEditedByPersonID
   , idLab
+  , name
   , department
+  , notes
   , contactName
   , contactAddress
   , contactCodeState
@@ -13295,13 +13443,13 @@ BEGIN
   , firstName
   , lastName
   , isExternalPricing
+  , isExternalPricingCommercial
   , isActive
   , excludeUsage
-  , isExternalPricingCommercial
   , billingContactEmail
   , version
-  , contactCountry
   , contactAddress2
+  , contactCountry
   , billingContactPhone )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
@@ -13310,7 +13458,9 @@ BEGIN
   , NOW()
   , 0
   , NEW.idLab
+  , NEW.name
   , NEW.department
+  , NEW.notes
   , NEW.contactName
   , NEW.contactAddress
   , NEW.contactCodeState
@@ -13322,13 +13472,13 @@ BEGIN
   , NEW.firstName
   , NEW.lastName
   , NEW.isExternalPricing
+  , NEW.isExternalPricingCommercial
   , NEW.isActive
   , NEW.excludeUsage
-  , NEW.isExternalPricingCommercial
   , NEW.billingContactEmail
   , NEW.version
-  , NEW.contactCountry
   , NEW.contactAddress2
+  , NEW.contactCountry
   , NEW.billingContactPhone );
 END;
 $$
@@ -13343,7 +13493,9 @@ BEGIN
   , AuditOperationDate
   , AuditEditedByPersonID
   , idLab
+  , name
   , department
+  , notes
   , contactName
   , contactAddress
   , contactCodeState
@@ -13355,13 +13507,13 @@ BEGIN
   , firstName
   , lastName
   , isExternalPricing
+  , isExternalPricingCommercial
   , isActive
   , excludeUsage
-  , isExternalPricingCommercial
   , billingContactEmail
   , version
-  , contactCountry
   , contactAddress2
+  , contactCountry
   , billingContactPhone )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
@@ -13370,7 +13522,9 @@ BEGIN
   , NOW()
   , 0
   , OLD.idLab
+  , OLD.name
   , OLD.department
+  , OLD.notes
   , OLD.contactName
   , OLD.contactAddress
   , OLD.contactCodeState
@@ -13382,13 +13536,13 @@ BEGIN
   , OLD.firstName
   , OLD.lastName
   , OLD.isExternalPricing
+  , OLD.isExternalPricingCommercial
   , OLD.isActive
   , OLD.excludeUsage
-  , OLD.isExternalPricingCommercial
   , OLD.billingContactEmail
   , OLD.version
-  , OLD.contactCountry
   , OLD.contactAddress2
+  , OLD.contactCountry
   , OLD.billingContactPhone );
 END;
 $$
@@ -13398,13 +13552,17 @@ $$
 -- Audit Table For LibraryPrepQCProtocol 
 --
 
+-- select 'Creating table LibraryPrepQCProtocol'$$
+
+-- DROP TABLE IF EXISTS `LibraryPrepQCProtocol_Audit`$$
+
 CREATE TABLE IF NOT EXISTS `LibraryPrepQCProtocol_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
  ,`AuditSystemUser`    varchar(30)  NULL
  ,`AuditOperationDate` datetime     NULL
  ,`AuditEditedByPersonID` int(10)   NULL
- ,`idLibPrepQCProtocol`  int(11)  NULL DEFAULT NULL
+ ,`idLibPrepQCProtocol`  int(10)  NULL DEFAULT NULL
  ,`protocolDisplay`  varchar(50)  NULL DEFAULT NULL
  ,`codeRequestCategory`  varchar(10)  NULL DEFAULT NULL
 ) ENGINE=INNODB DEFAULT CHARSET=latin1
@@ -13517,6 +13675,10 @@ $$
 --
 -- Audit Table For MasterBillingItem 
 --
+
+-- select 'Creating table MasterBillingItem'$$
+
+-- DROP TABLE IF EXISTS `MasterBillingItem_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `MasterBillingItem_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -13719,6 +13881,10 @@ $$
 -- Audit Table For MetrixObject 
 --
 
+-- select 'Creating table MetrixObject'$$
+
+-- DROP TABLE IF EXISTS `MetrixObject_Audit`$$
+
 CREATE TABLE IF NOT EXISTS `MetrixObject_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -13847,6 +14013,10 @@ $$
 --
 -- Audit Table For NewsItem 
 --
+
+-- select 'Creating table NewsItem'$$
+
+-- DROP TABLE IF EXISTS `NewsItem_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `NewsItem_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -13995,6 +14165,10 @@ $$
 -- Audit Table For Notification 
 --
 
+-- select 'Creating table Notification'$$
+
+-- DROP TABLE IF EXISTS `Notification_Audit`$$
+
 CREATE TABLE IF NOT EXISTS `Notification_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -14008,8 +14182,8 @@ CREATE TABLE IF NOT EXISTS `Notification_Audit` (
  ,`message`  varchar(250)  NULL DEFAULT NULL
  ,`date`  datetime  NULL DEFAULT NULL
  ,`expID`  varchar(25)  NULL DEFAULT NULL
- ,`fullNameUser`  varchar(100)  NULL DEFAULT NULL
  ,`type`  varchar(25)  NULL DEFAULT NULL
+ ,`fullNameUser`  varchar(100)  NULL DEFAULT NULL
  ,`imageSource`  varchar(50)  NULL DEFAULT NULL
  ,`idCoreFacility`  int(10)  NULL DEFAULT NULL
 ) ENGINE=INNODB DEFAULT CHARSET=latin1
@@ -14033,8 +14207,8 @@ INSERT INTO Notification_Audit
   , message
   , date
   , expID
-  , fullNameUser
   , type
+  , fullNameUser
   , imageSource
   , idCoreFacility )
   SELECT
@@ -14050,8 +14224,8 @@ INSERT INTO Notification_Audit
   , message
   , date
   , expID
-  , fullNameUser
   , type
+  , fullNameUser
   , imageSource
   , idCoreFacility
   FROM Notification
@@ -14078,8 +14252,8 @@ BEGIN
   , message
   , date
   , expID
-  , fullNameUser
   , type
+  , fullNameUser
   , imageSource
   , idCoreFacility )
   VALUES
@@ -14095,8 +14269,8 @@ BEGIN
   , NEW.message
   , NEW.date
   , NEW.expID
-  , NEW.fullNameUser
   , NEW.type
+  , NEW.fullNameUser
   , NEW.imageSource
   , NEW.idCoreFacility );
 END;
@@ -14118,8 +14292,8 @@ BEGIN
   , message
   , date
   , expID
-  , fullNameUser
   , type
+  , fullNameUser
   , imageSource
   , idCoreFacility )
   VALUES
@@ -14135,8 +14309,8 @@ BEGIN
   , NEW.message
   , NEW.date
   , NEW.expID
-  , NEW.fullNameUser
   , NEW.type
+  , NEW.fullNameUser
   , NEW.imageSource
   , NEW.idCoreFacility );
 END;
@@ -14158,8 +14332,8 @@ BEGIN
   , message
   , date
   , expID
-  , fullNameUser
   , type
+  , fullNameUser
   , imageSource
   , idCoreFacility )
   VALUES
@@ -14175,8 +14349,8 @@ BEGIN
   , OLD.message
   , OLD.date
   , OLD.expID
-  , OLD.fullNameUser
   , OLD.type
+  , OLD.fullNameUser
   , OLD.imageSource
   , OLD.idCoreFacility );
 END;
@@ -14186,6 +14360,10 @@ $$
 --
 -- Audit Table For NucleotideType 
 --
+
+-- select 'Creating table NucleotideType'$$
+
+-- DROP TABLE IF EXISTS `NucleotideType_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `NucleotideType_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -14289,6 +14467,10 @@ $$
 -- Audit Table For NumberSequencingCyclesAllowed 
 --
 
+-- select 'Creating table NumberSequencingCyclesAllowed'$$
+
+-- DROP TABLE IF EXISTS `NumberSequencingCyclesAllowed_Audit`$$
+
 CREATE TABLE IF NOT EXISTS `NumberSequencingCyclesAllowed_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -14300,7 +14482,6 @@ CREATE TABLE IF NOT EXISTS `NumberSequencingCyclesAllowed_Audit` (
  ,`codeRequestCategory`  varchar(10)  NULL DEFAULT NULL
  ,`idSeqRunType`  int(10)  NULL DEFAULT NULL
  ,`name`  varchar(100)  NULL DEFAULT NULL
- ,`notes`  varchar(500)  NULL DEFAULT NULL
  ,`isCustom`  char(1)  NULL DEFAULT NULL
  ,`sortOrder`  int(10)  NULL DEFAULT NULL
  ,`isActive`  char(1)  NULL DEFAULT NULL
@@ -14324,7 +14505,6 @@ INSERT INTO NumberSequencingCyclesAllowed_Audit
   , codeRequestCategory
   , idSeqRunType
   , name
-  , notes
   , isCustom
   , sortOrder
   , isActive
@@ -14340,7 +14520,6 @@ INSERT INTO NumberSequencingCyclesAllowed_Audit
   , codeRequestCategory
   , idSeqRunType
   , name
-  , notes
   , isCustom
   , sortOrder
   , isActive
@@ -14367,7 +14546,6 @@ BEGIN
   , codeRequestCategory
   , idSeqRunType
   , name
-  , notes
   , isCustom
   , sortOrder
   , isActive
@@ -14383,7 +14561,6 @@ BEGIN
   , NEW.codeRequestCategory
   , NEW.idSeqRunType
   , NEW.name
-  , NEW.notes
   , NEW.isCustom
   , NEW.sortOrder
   , NEW.isActive
@@ -14405,7 +14582,6 @@ BEGIN
   , codeRequestCategory
   , idSeqRunType
   , name
-  , notes
   , isCustom
   , sortOrder
   , isActive
@@ -14421,7 +14597,6 @@ BEGIN
   , NEW.codeRequestCategory
   , NEW.idSeqRunType
   , NEW.name
-  , NEW.notes
   , NEW.isCustom
   , NEW.sortOrder
   , NEW.isActive
@@ -14443,7 +14618,6 @@ BEGIN
   , codeRequestCategory
   , idSeqRunType
   , name
-  , notes
   , isCustom
   , sortOrder
   , isActive
@@ -14459,7 +14633,6 @@ BEGIN
   , OLD.codeRequestCategory
   , OLD.idSeqRunType
   , OLD.name
-  , OLD.notes
   , OLD.isCustom
   , OLD.sortOrder
   , OLD.isActive
@@ -14472,6 +14645,10 @@ $$
 -- Audit Table For NumberSequencingCycles 
 --
 
+-- select 'Creating table NumberSequencingCycles'$$
+
+-- DROP TABLE IF EXISTS `NumberSequencingCycles_Audit`$$
+
 CREATE TABLE IF NOT EXISTS `NumberSequencingCycles_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -14481,6 +14658,7 @@ CREATE TABLE IF NOT EXISTS `NumberSequencingCycles_Audit` (
  ,`idNumberSequencingCycles`  int(10)  NULL DEFAULT NULL
  ,`numberSequencingCycles`  int(10)  NULL DEFAULT NULL
  ,`isActive`  char(1)  NULL DEFAULT NULL
+ ,`sortOrder`  int(10)  NULL DEFAULT NULL
  ,`notes`  varchar(500)  NULL DEFAULT NULL
 ) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
@@ -14499,6 +14677,7 @@ INSERT INTO NumberSequencingCycles_Audit
   , idNumberSequencingCycles
   , numberSequencingCycles
   , isActive
+  , sortOrder
   , notes )
   SELECT
   'No Context'
@@ -14509,6 +14688,7 @@ INSERT INTO NumberSequencingCycles_Audit
   , idNumberSequencingCycles
   , numberSequencingCycles
   , isActive
+  , sortOrder
   , notes
   FROM NumberSequencingCycles
   WHERE NOT EXISTS(SELECT * FROM NumberSequencingCycles_Audit)
@@ -14530,6 +14710,7 @@ BEGIN
   , idNumberSequencingCycles
   , numberSequencingCycles
   , isActive
+  , sortOrder
   , notes )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
@@ -14540,6 +14721,7 @@ BEGIN
   , NEW.idNumberSequencingCycles
   , NEW.numberSequencingCycles
   , NEW.isActive
+  , NEW.sortOrder
   , NEW.notes );
 END;
 $$
@@ -14556,6 +14738,7 @@ BEGIN
   , idNumberSequencingCycles
   , numberSequencingCycles
   , isActive
+  , sortOrder
   , notes )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
@@ -14566,6 +14749,7 @@ BEGIN
   , NEW.idNumberSequencingCycles
   , NEW.numberSequencingCycles
   , NEW.isActive
+  , NEW.sortOrder
   , NEW.notes );
 END;
 $$
@@ -14582,6 +14766,7 @@ BEGIN
   , idNumberSequencingCycles
   , numberSequencingCycles
   , isActive
+  , sortOrder
   , notes )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
@@ -14592,6 +14777,7 @@ BEGIN
   , OLD.idNumberSequencingCycles
   , OLD.numberSequencingCycles
   , OLD.isActive
+  , OLD.sortOrder
   , OLD.notes );
 END;
 $$
@@ -14600,6 +14786,10 @@ $$
 --
 -- Audit Table For OligoBarcodeSchemeAllowed 
 --
+
+-- select 'Creating table OligoBarcodeSchemeAllowed'$$
+
+-- DROP TABLE IF EXISTS `OligoBarcodeSchemeAllowed_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `OligoBarcodeSchemeAllowed_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -14730,6 +14920,10 @@ $$
 -- Audit Table For OligoBarcodeScheme 
 --
 
+-- select 'Creating table OligoBarcodeScheme'$$
+
+-- DROP TABLE IF EXISTS `OligoBarcodeScheme_Audit`$$
+
 CREATE TABLE IF NOT EXISTS `OligoBarcodeScheme_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -14859,6 +15053,10 @@ $$
 -- Audit Table For OligoBarcode 
 --
 
+-- select 'Creating table OligoBarcode'$$
+
+-- DROP TABLE IF EXISTS `OligoBarcode_Audit`$$
+
 CREATE TABLE IF NOT EXISTS `OligoBarcode_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -14866,11 +15064,11 @@ CREATE TABLE IF NOT EXISTS `OligoBarcode_Audit` (
  ,`AuditOperationDate` datetime     NULL
  ,`AuditEditedByPersonID` int(10)   NULL
  ,`idOligoBarcode`  int(10)  NULL DEFAULT NULL
+ ,`name`  varchar(50)  NULL DEFAULT NULL
  ,`barcodeSequence`  varchar(20)  NULL DEFAULT NULL
- ,`isActive`  char(1)  NULL DEFAULT NULL
  ,`idOligoBarcodeScheme`  int(10)  NULL DEFAULT NULL
  ,`sortOrder`  int(10)  NULL DEFAULT NULL
- ,`name`  varchar(50)  NULL DEFAULT NULL
+ ,`isActive`  char(1)  NULL DEFAULT NULL
 ) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
@@ -14886,11 +15084,11 @@ INSERT INTO OligoBarcode_Audit
   , AuditOperationDate
   , AuditEditedByPersonID
   , idOligoBarcode
+  , name
   , barcodeSequence
-  , isActive
   , idOligoBarcodeScheme
   , sortOrder
-  , name )
+  , isActive )
   SELECT
   'No Context'
   , 'L'
@@ -14898,11 +15096,11 @@ INSERT INTO OligoBarcode_Audit
   , NOW()
   , 0
   , idOligoBarcode
+  , name
   , barcodeSequence
-  , isActive
   , idOligoBarcodeScheme
   , sortOrder
-  , name
+  , isActive
   FROM OligoBarcode
   WHERE NOT EXISTS(SELECT * FROM OligoBarcode_Audit)
 $$
@@ -14921,11 +15119,11 @@ BEGIN
   , AuditOperationDate
   , AuditEditedByPersonID
   , idOligoBarcode
+  , name
   , barcodeSequence
-  , isActive
   , idOligoBarcodeScheme
   , sortOrder
-  , name )
+  , isActive )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
@@ -14933,11 +15131,11 @@ BEGIN
   , NOW()
   , 0
   , NEW.idOligoBarcode
+  , NEW.name
   , NEW.barcodeSequence
-  , NEW.isActive
   , NEW.idOligoBarcodeScheme
   , NEW.sortOrder
-  , NEW.name );
+  , NEW.isActive );
 END;
 $$
 
@@ -14951,11 +15149,11 @@ BEGIN
   , AuditOperationDate
   , AuditEditedByPersonID
   , idOligoBarcode
+  , name
   , barcodeSequence
-  , isActive
   , idOligoBarcodeScheme
   , sortOrder
-  , name )
+  , isActive )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
@@ -14963,11 +15161,11 @@ BEGIN
   , NOW()
   , 0
   , NEW.idOligoBarcode
+  , NEW.name
   , NEW.barcodeSequence
-  , NEW.isActive
   , NEW.idOligoBarcodeScheme
   , NEW.sortOrder
-  , NEW.name );
+  , NEW.isActive );
 END;
 $$
 
@@ -14981,11 +15179,11 @@ BEGIN
   , AuditOperationDate
   , AuditEditedByPersonID
   , idOligoBarcode
+  , name
   , barcodeSequence
-  , isActive
   , idOligoBarcodeScheme
   , sortOrder
-  , name )
+  , isActive )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
@@ -14993,11 +15191,11 @@ BEGIN
   , NOW()
   , 0
   , OLD.idOligoBarcode
+  , OLD.name
   , OLD.barcodeSequence
-  , OLD.isActive
   , OLD.idOligoBarcodeScheme
   , OLD.sortOrder
-  , OLD.name );
+  , OLD.isActive );
 END;
 $$
 
@@ -15005,6 +15203,10 @@ $$
 --
 -- Audit Table For Organism 
 --
+
+-- select 'Creating table Organism'$$
+
+-- DROP TABLE IF EXISTS `Organism_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `Organism_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -15198,6 +15400,10 @@ $$
 -- Audit Table For OtherAccountFieldsConfiguration 
 --
 
+-- select 'Creating table OtherAccountFieldsConfiguration'$$
+
+-- DROP TABLE IF EXISTS `OtherAccountFieldsConfiguration_Audit`$$
+
 CREATE TABLE IF NOT EXISTS `OtherAccountFieldsConfiguration_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -15327,6 +15533,10 @@ $$
 -- Audit Table For PlateType 
 --
 
+-- select 'Creating table PlateType'$$
+
+-- DROP TABLE IF EXISTS `PlateType_Audit`$$
+
 CREATE TABLE IF NOT EXISTS `PlateType_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -15446,6 +15656,10 @@ $$
 --
 -- Audit Table For PlateWell 
 --
+
+-- select 'Creating table PlateWell'$$
+
+-- DROP TABLE IF EXISTS `PlateWell_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `PlateWell_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -15657,6 +15871,10 @@ $$
 -- Audit Table For Plate 
 --
 
+-- select 'Creating table Plate'$$
+
+-- DROP TABLE IF EXISTS `Plate_Audit`$$
+
 CREATE TABLE IF NOT EXISTS `Plate_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -15840,6 +16058,10 @@ $$
 -- Audit Table For PriceCategoryStep 
 --
 
+-- select 'Creating table PriceCategoryStep'$$
+
+-- DROP TABLE IF EXISTS `PriceCategoryStep_Audit`$$
+
 CREATE TABLE IF NOT EXISTS `PriceCategoryStep_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -15847,7 +16069,7 @@ CREATE TABLE IF NOT EXISTS `PriceCategoryStep_Audit` (
  ,`AuditOperationDate` datetime     NULL
  ,`AuditEditedByPersonID` int(10)   NULL
  ,`idPriceCategory`  int(10)  NULL DEFAULT NULL
- ,`codeStep`  varchar(20)  NULL DEFAULT NULL
+ ,`codeStep`  varchar(10)  NULL DEFAULT NULL
 ) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
@@ -15950,6 +16172,10 @@ $$
 --
 -- Audit Table For PriceCategory 
 --
+
+-- select 'Creating table PriceCategory'$$
+
+-- DROP TABLE IF EXISTS `PriceCategory_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `PriceCategory_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -16116,6 +16342,10 @@ $$
 -- Audit Table For PriceCriteria 
 --
 
+-- select 'Creating table PriceCriteria'$$
+
+-- DROP TABLE IF EXISTS `PriceCriteria_Audit`$$
+
 CREATE TABLE IF NOT EXISTS `PriceCriteria_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -16245,6 +16475,10 @@ $$
 -- Audit Table For PriceSheetPriceCategory 
 --
 
+-- select 'Creating table PriceSheetPriceCategory'$$
+
+-- DROP TABLE IF EXISTS `PriceSheetPriceCategory_Audit`$$
+
 CREATE TABLE IF NOT EXISTS `PriceSheetPriceCategory_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -16365,6 +16599,10 @@ $$
 -- Audit Table For PriceSheetRequestCategory 
 --
 
+-- select 'Creating table PriceSheetRequestCategory'$$
+
+-- DROP TABLE IF EXISTS `PriceSheetRequestCategory_Audit`$$
+
 CREATE TABLE IF NOT EXISTS `PriceSheetRequestCategory_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -16475,6 +16713,10 @@ $$
 --
 -- Audit Table For PriceSheet 
 --
+
+-- select 'Creating table PriceSheet'$$
+
+-- DROP TABLE IF EXISTS `PriceSheet_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `PriceSheet_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -16604,6 +16846,10 @@ $$
 --
 -- Audit Table For Price 
 --
+
+-- select 'Creating table Price'$$
+
+-- DROP TABLE IF EXISTS `Price_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `Price_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -16770,6 +17016,10 @@ $$
 -- Audit Table For Primer 
 --
 
+-- select 'Creating table Primer'$$
+
+-- DROP TABLE IF EXISTS `Primer_Audit`$$
+
 CREATE TABLE IF NOT EXISTS `Primer_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -16908,6 +17158,10 @@ $$
 -- Audit Table For ProductLedger 
 --
 
+-- select 'Creating table ProductLedger'$$
+
+-- DROP TABLE IF EXISTS `ProductLedger_Audit`$$
+
 CREATE TABLE IF NOT EXISTS `ProductLedger_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -16919,7 +17173,7 @@ CREATE TABLE IF NOT EXISTS `ProductLedger_Audit` (
  ,`idProduct`  int(10)  NULL DEFAULT NULL
  ,`qty`  int(10)  NULL DEFAULT NULL
  ,`comment`  varchar(5000)  NULL DEFAULT NULL
- ,`timeStamp`  datetime  NULL DEFAULT NULL
+ ,`timeStame`  datetime  NULL DEFAULT NULL
  ,`idProductOrder`  int(10)  NULL DEFAULT NULL
  ,`idRequest`  int(10)  NULL DEFAULT NULL
  ,`notes`  varchar(5000)  NULL DEFAULT NULL
@@ -16942,7 +17196,7 @@ INSERT INTO ProductLedger_Audit
   , idProduct
   , qty
   , comment
-  , timeStamp
+  , timeStame
   , idProductOrder
   , idRequest
   , notes )
@@ -16957,7 +17211,7 @@ INSERT INTO ProductLedger_Audit
   , idProduct
   , qty
   , comment
-  , timeStamp
+  , timeStame
   , idProductOrder
   , idRequest
   , notes
@@ -16983,7 +17237,7 @@ BEGIN
   , idProduct
   , qty
   , comment
-  , timeStamp
+  , timeStame
   , idProductOrder
   , idRequest
   , notes )
@@ -16998,7 +17252,7 @@ BEGIN
   , NEW.idProduct
   , NEW.qty
   , NEW.comment
-  , NEW.timeStamp
+  , NEW.timeStame
   , NEW.idProductOrder
   , NEW.idRequest
   , NEW.notes );
@@ -17019,7 +17273,7 @@ BEGIN
   , idProduct
   , qty
   , comment
-  , timeStamp
+  , timeStame
   , idProductOrder
   , idRequest
   , notes )
@@ -17034,7 +17288,7 @@ BEGIN
   , NEW.idProduct
   , NEW.qty
   , NEW.comment
-  , NEW.timeStamp
+  , NEW.timeStame
   , NEW.idProductOrder
   , NEW.idRequest
   , NEW.notes );
@@ -17055,7 +17309,7 @@ BEGIN
   , idProduct
   , qty
   , comment
-  , timeStamp
+  , timeStame
   , idProductOrder
   , idRequest
   , notes )
@@ -17070,7 +17324,7 @@ BEGIN
   , OLD.idProduct
   , OLD.qty
   , OLD.comment
-  , OLD.timeStamp
+  , OLD.timeStame
   , OLD.idProductOrder
   , OLD.idRequest
   , OLD.notes );
@@ -17081,6 +17335,10 @@ $$
 --
 -- Audit Table For ProductLineItem 
 --
+
+-- select 'Creating table ProductLineItem'$$
+
+-- DROP TABLE IF EXISTS `ProductLineItem_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `ProductLineItem_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -17228,6 +17486,10 @@ $$
 --
 -- Audit Table For ProductOrderFile 
 --
+
+-- select 'Creating table ProductOrderFile'$$
+
+-- DROP TABLE IF EXISTS `ProductOrderFile_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `ProductOrderFile_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -17385,6 +17647,10 @@ $$
 -- Audit Table For ProductOrderStatus 
 --
 
+-- select 'Creating table ProductOrderStatus'$$
+
+-- DROP TABLE IF EXISTS `ProductOrderStatus_Audit`$$
+
 CREATE TABLE IF NOT EXISTS `ProductOrderStatus_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -17504,6 +17770,10 @@ $$
 --
 -- Audit Table For ProductOrder 
 --
+
+-- select 'Creating table ProductOrder'$$
+
+-- DROP TABLE IF EXISTS `ProductOrder_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `ProductOrder_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -17688,17 +17958,21 @@ $$
 -- Audit Table For ProductType 
 --
 
+-- select 'Creating table ProductType'$$
+
+-- DROP TABLE IF EXISTS `ProductType_Audit`$$
+
 CREATE TABLE IF NOT EXISTS `ProductType_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
  ,`AuditSystemUser`    varchar(30)  NULL
  ,`AuditOperationDate` datetime     NULL
  ,`AuditEditedByPersonID` int(10)   NULL
+ ,`idProductType`  int(10)  NULL DEFAULT NULL
  ,`description`  varchar(500)  NULL DEFAULT NULL
  ,`idCoreFacility`  int(10)  NULL DEFAULT NULL
  ,`idVendor`  int(10)  NULL DEFAULT NULL
  ,`idPriceCategory`  int(10)  NULL DEFAULT NULL
- ,`idProductType`  int(10)  NULL DEFAULT NULL
 ) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
@@ -17713,22 +17987,22 @@ INSERT INTO ProductType_Audit
   , AuditSystemUser
   , AuditOperationDate
   , AuditEditedByPersonID
+  , idProductType
   , description
   , idCoreFacility
   , idVendor
-  , idPriceCategory
-  , idProductType )
+  , idPriceCategory )
   SELECT
   'No Context'
   , 'L'
   , USER()
   , NOW()
   , 0
+  , idProductType
   , description
   , idCoreFacility
   , idVendor
   , idPriceCategory
-  , idProductType
   FROM ProductType
   WHERE NOT EXISTS(SELECT * FROM ProductType_Audit)
 $$
@@ -17746,22 +18020,22 @@ BEGIN
   , AuditSystemUser
   , AuditOperationDate
   , AuditEditedByPersonID
+  , idProductType
   , description
   , idCoreFacility
   , idVendor
-  , idPriceCategory
-  , idProductType )
+  , idPriceCategory )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
   , USER()
   , NOW()
   , 0
+  , NEW.idProductType
   , NEW.description
   , NEW.idCoreFacility
   , NEW.idVendor
-  , NEW.idPriceCategory
-  , NEW.idProductType );
+  , NEW.idPriceCategory );
 END;
 $$
 
@@ -17774,22 +18048,22 @@ BEGIN
   , AuditSystemUser
   , AuditOperationDate
   , AuditEditedByPersonID
+  , idProductType
   , description
   , idCoreFacility
   , idVendor
-  , idPriceCategory
-  , idProductType )
+  , idPriceCategory )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
   , USER()
   , NOW()
   , 0
+  , NEW.idProductType
   , NEW.description
   , NEW.idCoreFacility
   , NEW.idVendor
-  , NEW.idPriceCategory
-  , NEW.idProductType );
+  , NEW.idPriceCategory );
 END;
 $$
 
@@ -17802,22 +18076,22 @@ BEGIN
   , AuditSystemUser
   , AuditOperationDate
   , AuditEditedByPersonID
+  , idProductType
   , description
   , idCoreFacility
   , idVendor
-  , idPriceCategory
-  , idProductType )
+  , idPriceCategory )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
   , USER()
   , NOW()
   , 0
+  , OLD.idProductType
   , OLD.description
   , OLD.idCoreFacility
   , OLD.idVendor
-  , OLD.idPriceCategory
-  , OLD.idProductType );
+  , OLD.idPriceCategory );
 END;
 $$
 
@@ -17825,6 +18099,10 @@ $$
 --
 -- Audit Table For Product 
 --
+
+-- select 'Creating table Product'$$
+
+-- DROP TABLE IF EXISTS `Product_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `Product_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -18018,6 +18296,10 @@ $$
 -- Audit Table For Project 
 --
 
+-- select 'Creating table Project'$$
+
+-- DROP TABLE IF EXISTS `Project_Audit`$$
+
 CREATE TABLE IF NOT EXISTS `Project_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -18174,6 +18456,10 @@ $$
 -- Audit Table For PropertyAnalysisType 
 --
 
+-- select 'Creating table PropertyAnalysisType'$$
+
+-- DROP TABLE IF EXISTS `PropertyAnalysisType_Audit`$$
+
 CREATE TABLE IF NOT EXISTS `PropertyAnalysisType_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -18285,6 +18571,10 @@ $$
 -- Audit Table For PropertyAppUser 
 --
 
+-- select 'Creating table PropertyAppUser'$$
+
+-- DROP TABLE IF EXISTS `PropertyAppUser_Audit`$$
+
 CREATE TABLE IF NOT EXISTS `PropertyAppUser_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -18395,6 +18685,10 @@ $$
 --
 -- Audit Table For PropertyDictionary 
 --
+
+-- select 'Creating table PropertyDictionary'$$
+
+-- DROP TABLE IF EXISTS `PropertyDictionary_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `PropertyDictionary_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -18552,6 +18846,10 @@ $$
 -- Audit Table For PropertyEntryOption 
 --
 
+-- select 'Creating table PropertyEntryOption'$$
+
+-- DROP TABLE IF EXISTS `PropertyEntryOption_Audit`$$
+
 CREATE TABLE IF NOT EXISTS `PropertyEntryOption_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -18662,6 +18960,10 @@ $$
 --
 -- Audit Table For PropertyEntryValue 
 --
+
+-- select 'Creating table PropertyEntryValue'$$
+
+-- DROP TABLE IF EXISTS `PropertyEntryValue_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `PropertyEntryValue_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -18783,6 +19085,10 @@ $$
 -- Audit Table For PropertyEntry 
 --
 
+-- select 'Creating table PropertyEntry'$$
+
+-- DROP TABLE IF EXISTS `PropertyEntry_Audit`$$
+
 CREATE TABLE IF NOT EXISTS `PropertyEntry_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -18790,13 +19096,13 @@ CREATE TABLE IF NOT EXISTS `PropertyEntry_Audit` (
  ,`AuditOperationDate` datetime     NULL
  ,`AuditEditedByPersonID` int(10)   NULL
  ,`idPropertyEntry`  int(10)  NULL DEFAULT NULL
+ ,`idProperty`  int(10)  NULL DEFAULT NULL
  ,`idSample`  int(10)  NULL DEFAULT NULL
  ,`valueString`  varchar(2000)  NULL DEFAULT NULL
  ,`otherLabel`  varchar(100)  NULL DEFAULT NULL
- ,`idProperty`  int(10)  NULL DEFAULT NULL
  ,`idDataTrack`  int(10)  NULL DEFAULT NULL
  ,`idAnalysis`  int(10)  NULL DEFAULT NULL
- ,`idRequest`  int(11)  NULL DEFAULT NULL
+ ,`idRequest`  int(10)  NULL DEFAULT NULL
 ) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
@@ -18812,10 +19118,10 @@ INSERT INTO PropertyEntry_Audit
   , AuditOperationDate
   , AuditEditedByPersonID
   , idPropertyEntry
+  , idProperty
   , idSample
   , valueString
   , otherLabel
-  , idProperty
   , idDataTrack
   , idAnalysis
   , idRequest )
@@ -18826,10 +19132,10 @@ INSERT INTO PropertyEntry_Audit
   , NOW()
   , 0
   , idPropertyEntry
+  , idProperty
   , idSample
   , valueString
   , otherLabel
-  , idProperty
   , idDataTrack
   , idAnalysis
   , idRequest
@@ -18851,10 +19157,10 @@ BEGIN
   , AuditOperationDate
   , AuditEditedByPersonID
   , idPropertyEntry
+  , idProperty
   , idSample
   , valueString
   , otherLabel
-  , idProperty
   , idDataTrack
   , idAnalysis
   , idRequest )
@@ -18865,10 +19171,10 @@ BEGIN
   , NOW()
   , 0
   , NEW.idPropertyEntry
+  , NEW.idProperty
   , NEW.idSample
   , NEW.valueString
   , NEW.otherLabel
-  , NEW.idProperty
   , NEW.idDataTrack
   , NEW.idAnalysis
   , NEW.idRequest );
@@ -18885,10 +19191,10 @@ BEGIN
   , AuditOperationDate
   , AuditEditedByPersonID
   , idPropertyEntry
+  , idProperty
   , idSample
   , valueString
   , otherLabel
-  , idProperty
   , idDataTrack
   , idAnalysis
   , idRequest )
@@ -18899,10 +19205,10 @@ BEGIN
   , NOW()
   , 0
   , NEW.idPropertyEntry
+  , NEW.idProperty
   , NEW.idSample
   , NEW.valueString
   , NEW.otherLabel
-  , NEW.idProperty
   , NEW.idDataTrack
   , NEW.idAnalysis
   , NEW.idRequest );
@@ -18919,10 +19225,10 @@ BEGIN
   , AuditOperationDate
   , AuditEditedByPersonID
   , idPropertyEntry
+  , idProperty
   , idSample
   , valueString
   , otherLabel
-  , idProperty
   , idDataTrack
   , idAnalysis
   , idRequest )
@@ -18933,10 +19239,10 @@ BEGIN
   , NOW()
   , 0
   , OLD.idPropertyEntry
+  , OLD.idProperty
   , OLD.idSample
   , OLD.valueString
   , OLD.otherLabel
-  , OLD.idProperty
   , OLD.idDataTrack
   , OLD.idAnalysis
   , OLD.idRequest );
@@ -18947,6 +19253,10 @@ $$
 --
 -- Audit Table For PropertyOption 
 --
+
+-- select 'Creating table PropertyOption'$$
+
+-- DROP TABLE IF EXISTS `PropertyOption_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `PropertyOption_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -19086,6 +19396,10 @@ $$
 -- Audit Table For PropertyOrganism 
 --
 
+-- select 'Creating table PropertyOrganism'$$
+
+-- DROP TABLE IF EXISTS `PropertyOrganism_Audit`$$
+
 CREATE TABLE IF NOT EXISTS `PropertyOrganism_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -19196,6 +19510,10 @@ $$
 --
 -- Audit Table For PropertyPlatformApplication 
 --
+
+-- select 'Creating table PropertyPlatformApplication'$$
+
+-- DROP TABLE IF EXISTS `PropertyPlatformApplication_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `PropertyPlatformApplication_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -19326,6 +19644,10 @@ $$
 -- Audit Table For PropertyType 
 --
 
+-- select 'Creating table PropertyType'$$
+
+-- DROP TABLE IF EXISTS `PropertyType_Audit`$$
+
 CREATE TABLE IF NOT EXISTS `PropertyType_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -19446,28 +19768,32 @@ $$
 -- Audit Table For Property 
 --
 
+-- select 'Creating table Property'$$
+
+-- DROP TABLE IF EXISTS `Property_Audit`$$
+
 CREATE TABLE IF NOT EXISTS `Property_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
  ,`AuditSystemUser`    varchar(30)  NULL
  ,`AuditOperationDate` datetime     NULL
  ,`AuditEditedByPersonID` int(10)   NULL
+ ,`idProperty`  int(10)  NULL DEFAULT NULL
  ,`name`  varchar(50)  NULL DEFAULT NULL
+ ,`description`  varchar(2000)  NULL DEFAULT NULL
  ,`mageOntologyCode`  varchar(50)  NULL DEFAULT NULL
  ,`mageOntologyDefinition`  varchar(5000)  NULL DEFAULT NULL
  ,`isActive`  char(1)  NULL DEFAULT NULL
  ,`idAppUser`  int(10)  NULL DEFAULT NULL
- ,`codePropertyType`  varchar(10)  NULL DEFAULT NULL
- ,`description`  varchar(2000)  NULL DEFAULT NULL
- ,`idProperty`  int(10)  NULL DEFAULT NULL
  ,`isRequired`  char(1)  NULL DEFAULT NULL
  ,`forSample`  char(1)  NULL DEFAULT NULL
- ,`forDataTrack`  char(1)  NULL DEFAULT NULL
  ,`forAnalysis`  char(1)  NULL DEFAULT NULL
+ ,`forDataTrack`  char(1)  NULL DEFAULT NULL
+ ,`codePropertyType`  varchar(10)  NULL DEFAULT NULL
  ,`sortOrder`  int(10)  NULL DEFAULT NULL
  ,`idCoreFacility`  int(10)  NULL DEFAULT NULL
  ,`forRequest`  char(1)  NULL DEFAULT NULL
- ,`idPriceCategory`  int(11)  NULL DEFAULT NULL
+ ,`idPriceCategory`  int(10)  NULL DEFAULT NULL
 ) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
@@ -19482,18 +19808,18 @@ INSERT INTO Property_Audit
   , AuditSystemUser
   , AuditOperationDate
   , AuditEditedByPersonID
+  , idProperty
   , name
+  , description
   , mageOntologyCode
   , mageOntologyDefinition
   , isActive
   , idAppUser
-  , codePropertyType
-  , description
-  , idProperty
   , isRequired
   , forSample
-  , forDataTrack
   , forAnalysis
+  , forDataTrack
+  , codePropertyType
   , sortOrder
   , idCoreFacility
   , forRequest
@@ -19504,18 +19830,18 @@ INSERT INTO Property_Audit
   , USER()
   , NOW()
   , 0
+  , idProperty
   , name
+  , description
   , mageOntologyCode
   , mageOntologyDefinition
   , isActive
   , idAppUser
-  , codePropertyType
-  , description
-  , idProperty
   , isRequired
   , forSample
-  , forDataTrack
   , forAnalysis
+  , forDataTrack
+  , codePropertyType
   , sortOrder
   , idCoreFacility
   , forRequest
@@ -19537,18 +19863,18 @@ BEGIN
   , AuditSystemUser
   , AuditOperationDate
   , AuditEditedByPersonID
+  , idProperty
   , name
+  , description
   , mageOntologyCode
   , mageOntologyDefinition
   , isActive
   , idAppUser
-  , codePropertyType
-  , description
-  , idProperty
   , isRequired
   , forSample
-  , forDataTrack
   , forAnalysis
+  , forDataTrack
+  , codePropertyType
   , sortOrder
   , idCoreFacility
   , forRequest
@@ -19559,18 +19885,18 @@ BEGIN
   , USER()
   , NOW()
   , 0
+  , NEW.idProperty
   , NEW.name
+  , NEW.description
   , NEW.mageOntologyCode
   , NEW.mageOntologyDefinition
   , NEW.isActive
   , NEW.idAppUser
-  , NEW.codePropertyType
-  , NEW.description
-  , NEW.idProperty
   , NEW.isRequired
   , NEW.forSample
-  , NEW.forDataTrack
   , NEW.forAnalysis
+  , NEW.forDataTrack
+  , NEW.codePropertyType
   , NEW.sortOrder
   , NEW.idCoreFacility
   , NEW.forRequest
@@ -19587,18 +19913,18 @@ BEGIN
   , AuditSystemUser
   , AuditOperationDate
   , AuditEditedByPersonID
+  , idProperty
   , name
+  , description
   , mageOntologyCode
   , mageOntologyDefinition
   , isActive
   , idAppUser
-  , codePropertyType
-  , description
-  , idProperty
   , isRequired
   , forSample
-  , forDataTrack
   , forAnalysis
+  , forDataTrack
+  , codePropertyType
   , sortOrder
   , idCoreFacility
   , forRequest
@@ -19609,18 +19935,18 @@ BEGIN
   , USER()
   , NOW()
   , 0
+  , NEW.idProperty
   , NEW.name
+  , NEW.description
   , NEW.mageOntologyCode
   , NEW.mageOntologyDefinition
   , NEW.isActive
   , NEW.idAppUser
-  , NEW.codePropertyType
-  , NEW.description
-  , NEW.idProperty
   , NEW.isRequired
   , NEW.forSample
-  , NEW.forDataTrack
   , NEW.forAnalysis
+  , NEW.forDataTrack
+  , NEW.codePropertyType
   , NEW.sortOrder
   , NEW.idCoreFacility
   , NEW.forRequest
@@ -19637,18 +19963,18 @@ BEGIN
   , AuditSystemUser
   , AuditOperationDate
   , AuditEditedByPersonID
+  , idProperty
   , name
+  , description
   , mageOntologyCode
   , mageOntologyDefinition
   , isActive
   , idAppUser
-  , codePropertyType
-  , description
-  , idProperty
   , isRequired
   , forSample
-  , forDataTrack
   , forAnalysis
+  , forDataTrack
+  , codePropertyType
   , sortOrder
   , idCoreFacility
   , forRequest
@@ -19659,18 +19985,18 @@ BEGIN
   , USER()
   , NOW()
   , 0
+  , OLD.idProperty
   , OLD.name
+  , OLD.description
   , OLD.mageOntologyCode
   , OLD.mageOntologyDefinition
   , OLD.isActive
   , OLD.idAppUser
-  , OLD.codePropertyType
-  , OLD.description
-  , OLD.idProperty
   , OLD.isRequired
   , OLD.forSample
-  , OLD.forDataTrack
   , OLD.forAnalysis
+  , OLD.forDataTrack
+  , OLD.codePropertyType
   , OLD.sortOrder
   , OLD.idCoreFacility
   , OLD.forRequest
@@ -19682,6 +20008,10 @@ $$
 --
 -- Audit Table For ProtocolType 
 --
+
+-- select 'Creating table ProtocolType'$$
+
+-- DROP TABLE IF EXISTS `ProtocolType_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `ProtocolType_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -19802,6 +20132,10 @@ $$
 --
 -- Audit Table For QualityControlStepEntry 
 --
+
+-- select 'Creating table QualityControlStepEntry'$$
+
+-- DROP TABLE IF EXISTS `QualityControlStepEntry_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `QualityControlStepEntry_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -19941,6 +20275,10 @@ $$
 -- Audit Table For QualityControlStep 
 --
 
+-- select 'Creating table QualityControlStep'$$
+
+-- DROP TABLE IF EXISTS `QualityControlStep_Audit`$$
+
 CREATE TABLE IF NOT EXISTS `QualityControlStep_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -20079,6 +20417,10 @@ $$
 -- Audit Table For ReactionType 
 --
 
+-- select 'Creating table ReactionType'$$
+
+-- DROP TABLE IF EXISTS `ReactionType_Audit`$$
+
 CREATE TABLE IF NOT EXISTS `ReactionType_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -20198,6 +20540,10 @@ $$
 --
 -- Audit Table For RequestCategoryApplication 
 --
+
+-- select 'Creating table RequestCategoryApplication'$$
+
+-- DROP TABLE IF EXISTS `RequestCategoryApplication_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `RequestCategoryApplication_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -20346,6 +20692,10 @@ $$
 -- Audit Table For RequestCategoryType 
 --
 
+-- select 'Creating table RequestCategoryType'$$
+
+-- DROP TABLE IF EXISTS `RequestCategoryType_Audit`$$
+
 CREATE TABLE IF NOT EXISTS `RequestCategoryType_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -20484,6 +20834,10 @@ $$
 -- Audit Table For RequestCategory 
 --
 
+-- select 'Creating table RequestCategory'$$
+
+-- DROP TABLE IF EXISTS `RequestCategory_Audit`$$
+
 CREATE TABLE IF NOT EXISTS `RequestCategory_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -20500,13 +20854,13 @@ CREATE TABLE IF NOT EXISTS `RequestCategory_Audit` (
  ,`type`  varchar(10)  NULL DEFAULT NULL
  ,`sortOrder`  int(10)  NULL DEFAULT NULL
  ,`idOrganism`  int(10)  NULL DEFAULT NULL
+ ,`idCoreFacility`  int(10)  NULL DEFAULT NULL
  ,`isInternal`  char(1)  NULL DEFAULT NULL
  ,`isExternal`  char(1)  NULL DEFAULT NULL
- ,`idCoreFacility`  int(10)  NULL DEFAULT NULL
  ,`refrainFromAutoDelete`  char(1)  NULL DEFAULT NULL
  ,`isClinicalResearch`  char(1)  NULL DEFAULT NULL
  ,`isOwnerOnly`  char(1)  NULL DEFAULT NULL
- ,`sampleBatchSize`  int(11)  NULL DEFAULT NULL
+ ,`sampleBatchSize`  int(10)  NULL DEFAULT NULL
  ,`idProductType`  int(10)  NULL DEFAULT NULL
  ,`associatedWithAnalysis`  char(1)  NULL DEFAULT NULL
 ) ENGINE=INNODB DEFAULT CHARSET=latin1
@@ -20533,9 +20887,9 @@ INSERT INTO RequestCategory_Audit
   , type
   , sortOrder
   , idOrganism
+  , idCoreFacility
   , isInternal
   , isExternal
-  , idCoreFacility
   , refrainFromAutoDelete
   , isClinicalResearch
   , isOwnerOnly
@@ -20558,9 +20912,9 @@ INSERT INTO RequestCategory_Audit
   , type
   , sortOrder
   , idOrganism
+  , idCoreFacility
   , isInternal
   , isExternal
-  , idCoreFacility
   , refrainFromAutoDelete
   , isClinicalResearch
   , isOwnerOnly
@@ -20594,9 +20948,9 @@ BEGIN
   , type
   , sortOrder
   , idOrganism
+  , idCoreFacility
   , isInternal
   , isExternal
-  , idCoreFacility
   , refrainFromAutoDelete
   , isClinicalResearch
   , isOwnerOnly
@@ -20619,9 +20973,9 @@ BEGIN
   , NEW.type
   , NEW.sortOrder
   , NEW.idOrganism
+  , NEW.idCoreFacility
   , NEW.isInternal
   , NEW.isExternal
-  , NEW.idCoreFacility
   , NEW.refrainFromAutoDelete
   , NEW.isClinicalResearch
   , NEW.isOwnerOnly
@@ -20650,9 +21004,9 @@ BEGIN
   , type
   , sortOrder
   , idOrganism
+  , idCoreFacility
   , isInternal
   , isExternal
-  , idCoreFacility
   , refrainFromAutoDelete
   , isClinicalResearch
   , isOwnerOnly
@@ -20675,9 +21029,9 @@ BEGIN
   , NEW.type
   , NEW.sortOrder
   , NEW.idOrganism
+  , NEW.idCoreFacility
   , NEW.isInternal
   , NEW.isExternal
-  , NEW.idCoreFacility
   , NEW.refrainFromAutoDelete
   , NEW.isClinicalResearch
   , NEW.isOwnerOnly
@@ -20706,9 +21060,9 @@ BEGIN
   , type
   , sortOrder
   , idOrganism
+  , idCoreFacility
   , isInternal
   , isExternal
-  , idCoreFacility
   , refrainFromAutoDelete
   , isClinicalResearch
   , isOwnerOnly
@@ -20731,9 +21085,9 @@ BEGIN
   , OLD.type
   , OLD.sortOrder
   , OLD.idOrganism
+  , OLD.idCoreFacility
   , OLD.isInternal
   , OLD.isExternal
-  , OLD.idCoreFacility
   , OLD.refrainFromAutoDelete
   , OLD.isClinicalResearch
   , OLD.isOwnerOnly
@@ -20747,6 +21101,10 @@ $$
 --
 -- Audit Table For RequestCollaborator 
 --
+
+-- select 'Creating table RequestCollaborator'$$
+
+-- DROP TABLE IF EXISTS `RequestCollaborator_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `RequestCollaborator_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -20877,6 +21235,10 @@ $$
 -- Audit Table For RequestHybridization 
 --
 
+-- select 'Creating table RequestHybridization'$$
+
+-- DROP TABLE IF EXISTS `RequestHybridization_Audit`$$
+
 CREATE TABLE IF NOT EXISTS `RequestHybridization_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -20988,6 +21350,10 @@ $$
 -- Audit Table For RequestSeqLibTreatment 
 --
 
+-- select 'Creating table RequestSeqLibTreatment'$$
+
+-- DROP TABLE IF EXISTS `RequestSeqLibTreatment_Audit`$$
+
 CREATE TABLE IF NOT EXISTS `RequestSeqLibTreatment_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -21098,6 +21464,10 @@ $$
 --
 -- Audit Table For RequestStatus 
 --
+
+-- select 'Creating table RequestStatus'$$
+
+-- DROP TABLE IF EXISTS `RequestStatus_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `RequestStatus_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -21219,6 +21589,10 @@ $$
 -- Audit Table For RequestToTopic 
 --
 
+-- select 'Creating table RequestToTopic'$$
+
+-- DROP TABLE IF EXISTS `RequestToTopic_Audit`$$
+
 CREATE TABLE IF NOT EXISTS `RequestToTopic_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -21330,6 +21704,10 @@ $$
 -- Audit Table For Request 
 --
 
+-- select 'Creating table Request'$$
+
+-- DROP TABLE IF EXISTS `Request_Audit`$$
+
 CREATE TABLE IF NOT EXISTS `Request_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -21360,10 +21738,10 @@ CREATE TABLE IF NOT EXISTS `Request_Audit` (
  ,`lastModifyDate`  datetime  NULL DEFAULT NULL
  ,`isExternal`  char(1)  NULL DEFAULT NULL
  ,`idInstitution`  int(10)  NULL DEFAULT NULL
+ ,`idCoreFacility`  int(10)  NULL DEFAULT NULL
  ,`name`  varchar(200)  NULL DEFAULT NULL
  ,`privacyExpirationDate`  datetime  NULL DEFAULT NULL
  ,`description`  varchar(5000)  NULL DEFAULT NULL
- ,`idCoreFacility`  int(10)  NULL DEFAULT NULL
  ,`corePrepInstructions`  varchar(5000)  NULL DEFAULT NULL
  ,`analysisInstructions`  varchar(5000)  NULL DEFAULT NULL
  ,`captureLibDesignId`  varchar(200)  NULL DEFAULT NULL
@@ -21375,7 +21753,7 @@ CREATE TABLE IF NOT EXISTS `Request_Audit` (
  ,`coreToExtractDNA`  char(1)  NULL DEFAULT NULL
  ,`applicationNotes`  varchar(5000)  NULL DEFAULT NULL
  ,`processingDate`  datetime  NULL DEFAULT NULL
- ,`meanLibSizeActual`  int(10)  NULL DEFAULT NULL
+ ,`codeIsolationPrepType`  varchar(15)  NULL DEFAULT NULL
  ,`bioinformaticsAssist`  char(1)  NULL DEFAULT NULL
  ,`hasPrePooledLibraries`  char(1)  NULL DEFAULT NULL
  ,`numPrePooledTubes`  int(10)  NULL DEFAULT NULL
@@ -21383,7 +21761,6 @@ CREATE TABLE IF NOT EXISTS `Request_Audit` (
  ,`includeQubitConcentration`  char(1)  NULL DEFAULT NULL
  ,`adminNotes`  varchar(5000)  NULL DEFAULT NULL
  ,`idProduct`  int(10)  NULL DEFAULT NULL
- ,`codeIsolationPrepType`  varchar(15)  NULL DEFAULT NULL
  ,`archived`  char(1)  NULL DEFAULT NULL
  ,`reagent`  varchar(50)  NULL DEFAULT NULL
  ,`elutionBuffer`  varchar(50)  NULL DEFAULT NULL
@@ -21428,10 +21805,10 @@ INSERT INTO Request_Audit
   , lastModifyDate
   , isExternal
   , idInstitution
+  , idCoreFacility
   , name
   , privacyExpirationDate
   , description
-  , idCoreFacility
   , corePrepInstructions
   , analysisInstructions
   , captureLibDesignId
@@ -21443,7 +21820,7 @@ INSERT INTO Request_Audit
   , coreToExtractDNA
   , applicationNotes
   , processingDate
-  , meanLibSizeActual
+  , codeIsolationPrepType
   , bioinformaticsAssist
   , hasPrePooledLibraries
   , numPrePooledTubes
@@ -21451,7 +21828,6 @@ INSERT INTO Request_Audit
   , includeQubitConcentration
   , adminNotes
   , idProduct
-  , codeIsolationPrepType
   , archived
   , reagent
   , elutionBuffer
@@ -21488,10 +21864,10 @@ INSERT INTO Request_Audit
   , lastModifyDate
   , isExternal
   , idInstitution
+  , idCoreFacility
   , name
   , privacyExpirationDate
   , description
-  , idCoreFacility
   , corePrepInstructions
   , analysisInstructions
   , captureLibDesignId
@@ -21503,7 +21879,7 @@ INSERT INTO Request_Audit
   , coreToExtractDNA
   , applicationNotes
   , processingDate
-  , meanLibSizeActual
+  , codeIsolationPrepType
   , bioinformaticsAssist
   , hasPrePooledLibraries
   , numPrePooledTubes
@@ -21511,7 +21887,6 @@ INSERT INTO Request_Audit
   , includeQubitConcentration
   , adminNotes
   , idProduct
-  , codeIsolationPrepType
   , archived
   , reagent
   , elutionBuffer
@@ -21559,10 +21934,10 @@ BEGIN
   , lastModifyDate
   , isExternal
   , idInstitution
+  , idCoreFacility
   , name
   , privacyExpirationDate
   , description
-  , idCoreFacility
   , corePrepInstructions
   , analysisInstructions
   , captureLibDesignId
@@ -21574,7 +21949,7 @@ BEGIN
   , coreToExtractDNA
   , applicationNotes
   , processingDate
-  , meanLibSizeActual
+  , codeIsolationPrepType
   , bioinformaticsAssist
   , hasPrePooledLibraries
   , numPrePooledTubes
@@ -21582,7 +21957,6 @@ BEGIN
   , includeQubitConcentration
   , adminNotes
   , idProduct
-  , codeIsolationPrepType
   , archived
   , reagent
   , elutionBuffer
@@ -21619,10 +21993,10 @@ BEGIN
   , NEW.lastModifyDate
   , NEW.isExternal
   , NEW.idInstitution
+  , NEW.idCoreFacility
   , NEW.name
   , NEW.privacyExpirationDate
   , NEW.description
-  , NEW.idCoreFacility
   , NEW.corePrepInstructions
   , NEW.analysisInstructions
   , NEW.captureLibDesignId
@@ -21634,7 +22008,7 @@ BEGIN
   , NEW.coreToExtractDNA
   , NEW.applicationNotes
   , NEW.processingDate
-  , NEW.meanLibSizeActual
+  , NEW.codeIsolationPrepType
   , NEW.bioinformaticsAssist
   , NEW.hasPrePooledLibraries
   , NEW.numPrePooledTubes
@@ -21642,7 +22016,6 @@ BEGIN
   , NEW.includeQubitConcentration
   , NEW.adminNotes
   , NEW.idProduct
-  , NEW.codeIsolationPrepType
   , NEW.archived
   , NEW.reagent
   , NEW.elutionBuffer
@@ -21685,10 +22058,10 @@ BEGIN
   , lastModifyDate
   , isExternal
   , idInstitution
+  , idCoreFacility
   , name
   , privacyExpirationDate
   , description
-  , idCoreFacility
   , corePrepInstructions
   , analysisInstructions
   , captureLibDesignId
@@ -21700,7 +22073,7 @@ BEGIN
   , coreToExtractDNA
   , applicationNotes
   , processingDate
-  , meanLibSizeActual
+  , codeIsolationPrepType
   , bioinformaticsAssist
   , hasPrePooledLibraries
   , numPrePooledTubes
@@ -21708,7 +22081,6 @@ BEGIN
   , includeQubitConcentration
   , adminNotes
   , idProduct
-  , codeIsolationPrepType
   , archived
   , reagent
   , elutionBuffer
@@ -21745,10 +22117,10 @@ BEGIN
   , NEW.lastModifyDate
   , NEW.isExternal
   , NEW.idInstitution
+  , NEW.idCoreFacility
   , NEW.name
   , NEW.privacyExpirationDate
   , NEW.description
-  , NEW.idCoreFacility
   , NEW.corePrepInstructions
   , NEW.analysisInstructions
   , NEW.captureLibDesignId
@@ -21760,7 +22132,7 @@ BEGIN
   , NEW.coreToExtractDNA
   , NEW.applicationNotes
   , NEW.processingDate
-  , NEW.meanLibSizeActual
+  , NEW.codeIsolationPrepType
   , NEW.bioinformaticsAssist
   , NEW.hasPrePooledLibraries
   , NEW.numPrePooledTubes
@@ -21768,7 +22140,6 @@ BEGIN
   , NEW.includeQubitConcentration
   , NEW.adminNotes
   , NEW.idProduct
-  , NEW.codeIsolationPrepType
   , NEW.archived
   , NEW.reagent
   , NEW.elutionBuffer
@@ -21811,10 +22182,10 @@ BEGIN
   , lastModifyDate
   , isExternal
   , idInstitution
+  , idCoreFacility
   , name
   , privacyExpirationDate
   , description
-  , idCoreFacility
   , corePrepInstructions
   , analysisInstructions
   , captureLibDesignId
@@ -21826,7 +22197,7 @@ BEGIN
   , coreToExtractDNA
   , applicationNotes
   , processingDate
-  , meanLibSizeActual
+  , codeIsolationPrepType
   , bioinformaticsAssist
   , hasPrePooledLibraries
   , numPrePooledTubes
@@ -21834,7 +22205,6 @@ BEGIN
   , includeQubitConcentration
   , adminNotes
   , idProduct
-  , codeIsolationPrepType
   , archived
   , reagent
   , elutionBuffer
@@ -21871,10 +22241,10 @@ BEGIN
   , OLD.lastModifyDate
   , OLD.isExternal
   , OLD.idInstitution
+  , OLD.idCoreFacility
   , OLD.name
   , OLD.privacyExpirationDate
   , OLD.description
-  , OLD.idCoreFacility
   , OLD.corePrepInstructions
   , OLD.analysisInstructions
   , OLD.captureLibDesignId
@@ -21886,7 +22256,7 @@ BEGIN
   , OLD.coreToExtractDNA
   , OLD.applicationNotes
   , OLD.processingDate
-  , OLD.meanLibSizeActual
+  , OLD.codeIsolationPrepType
   , OLD.bioinformaticsAssist
   , OLD.hasPrePooledLibraries
   , OLD.numPrePooledTubes
@@ -21894,7 +22264,6 @@ BEGIN
   , OLD.includeQubitConcentration
   , OLD.adminNotes
   , OLD.idProduct
-  , OLD.codeIsolationPrepType
   , OLD.archived
   , OLD.reagent
   , OLD.elutionBuffer
@@ -21908,6 +22277,10 @@ $$
 --
 -- Audit Table For Sampledropofflocation 
 --
+
+-- select 'Creating table Sampledropofflocation'$$
+
+-- DROP TABLE IF EXISTS `Sampledropofflocation_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `Sampledropofflocation_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -22028,6 +22401,10 @@ $$
 --
 -- Audit Table For Sampleexperimentfile 
 --
+
+-- select 'Creating table Sampleexperimentfile'$$
+
+-- DROP TABLE IF EXISTS `Sampleexperimentfile_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `Sampleexperimentfile_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -22167,6 +22544,10 @@ $$
 -- Audit Table For Samplefiletype 
 --
 
+-- select 'Creating table Samplefiletype'$$
+
+-- DROP TABLE IF EXISTS `Samplefiletype_Audit`$$
+
 CREATE TABLE IF NOT EXISTS `Samplefiletype_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -22277,6 +22658,10 @@ $$
 --
 -- Audit Table For Sampleprepmethod 
 --
+
+-- select 'Creating table Sampleprepmethod'$$
+
+-- DROP TABLE IF EXISTS `Sampleprepmethod_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `Sampleprepmethod_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -22398,6 +22783,10 @@ $$
 -- Audit Table For Samplesource 
 --
 
+-- select 'Creating table Samplesource'$$
+
+-- DROP TABLE IF EXISTS `Samplesource_Audit`$$
+
 CREATE TABLE IF NOT EXISTS `Samplesource_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -22518,6 +22907,10 @@ $$
 -- Audit Table For SampleTypeRequestCategory 
 --
 
+-- select 'Creating table SampleTypeRequestCategory'$$
+
+-- DROP TABLE IF EXISTS `SampleTypeRequestCategory_Audit`$$
+
 CREATE TABLE IF NOT EXISTS `SampleTypeRequestCategory_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -22637,6 +23030,10 @@ $$
 --
 -- Audit Table For SampleType 
 --
+
+-- select 'Creating table SampleType'$$
+
+-- DROP TABLE IF EXISTS `SampleType_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `SampleType_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -22794,6 +23191,10 @@ $$
 -- Audit Table For Sample 
 --
 
+-- select 'Creating table Sample'$$
+
+-- DROP TABLE IF EXISTS `Sample_Audit`$$
+
 CREATE TABLE IF NOT EXISTS `Sample_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -22808,9 +23209,13 @@ CREATE TABLE IF NOT EXISTS `Sample_Audit` (
  ,`codeConcentrationUnit`  varchar(10)  NULL DEFAULT NULL
  ,`idSampleType`  int(10)  NULL DEFAULT NULL
  ,`idOrganism`  int(10)  NULL DEFAULT NULL
+ ,`otherOrganism`  varchar(100)  NULL DEFAULT NULL
  ,`idSampleSource`  int(10)  NULL DEFAULT NULL
  ,`idSamplePrepMethod`  int(10)  NULL DEFAULT NULL
+ ,`otherSamplePrepMethod`  varchar(300)  NULL DEFAULT NULL
+ ,`idSeqLibProtocol`  int(10)  NULL DEFAULT NULL
  ,`codeBioanalyzerChipType`  varchar(10)  NULL DEFAULT NULL
+ ,`idOligoBarcode`  int(10)  NULL DEFAULT NULL
  ,`qualDate`  datetime  NULL DEFAULT NULL
  ,`qualFailed`  char(1)  NULL DEFAULT NULL
  ,`qualBypassed`  char(1)  NULL DEFAULT NULL
@@ -22837,14 +23242,10 @@ CREATE TABLE IF NOT EXISTS `Sample_Audit` (
  ,`seqPrepStockDate`  datetime  NULL DEFAULT NULL
  ,`seqPrepStockFailed`  char(1)  NULL DEFAULT NULL
  ,`seqPrepStockBypassed`  char(1)  NULL DEFAULT NULL
- ,`idOligoBarcode`  int(10)  NULL DEFAULT NULL
- ,`idSeqLibProtocol`  int(10)  NULL DEFAULT NULL
  ,`prepInstructions`  varchar(2000)  NULL DEFAULT NULL
  ,`ccNumber`  varchar(20)  NULL DEFAULT NULL
- ,`otherSamplePrepMethod`  varchar(300)  NULL DEFAULT NULL
  ,`multiplexGroupNumber`  int(10)  NULL DEFAULT NULL
  ,`barcodeSequence`  varchar(20)  NULL DEFAULT NULL
- ,`otherOrganism`  varchar(100)  NULL DEFAULT NULL
  ,`meanLibSizeActual`  int(10)  NULL DEFAULT NULL
  ,`idOligoBarcodeB`  int(10)  NULL DEFAULT NULL
  ,`barcodeSequenceB`  varchar(20)  NULL DEFAULT NULL
@@ -22852,7 +23253,7 @@ CREATE TABLE IF NOT EXISTS `Sample_Audit` (
  ,`groupName`  varchar(200)  NULL DEFAULT NULL
  ,`qcCodeApplication`  varchar(10)  NULL DEFAULT NULL
  ,`qcLibConcentration`  decimal(8,1)  NULL DEFAULT NULL
- ,`idLibPrepQCProtocol`  int(11)  NULL DEFAULT NULL
+ ,`idLibPrepQCProtocol`  int(10)  NULL DEFAULT NULL
  ,`sampleVolume`  decimal(8,1)  NULL DEFAULT NULL
  ,`idLibPrepPerformedBy`  int(10)  NULL DEFAULT NULL
 ) ENGINE=INNODB DEFAULT CHARSET=latin1
@@ -22877,9 +23278,13 @@ INSERT INTO Sample_Audit
   , codeConcentrationUnit
   , idSampleType
   , idOrganism
+  , otherOrganism
   , idSampleSource
   , idSamplePrepMethod
+  , otherSamplePrepMethod
+  , idSeqLibProtocol
   , codeBioanalyzerChipType
+  , idOligoBarcode
   , qualDate
   , qualFailed
   , qualBypassed
@@ -22906,14 +23311,10 @@ INSERT INTO Sample_Audit
   , seqPrepStockDate
   , seqPrepStockFailed
   , seqPrepStockBypassed
-  , idOligoBarcode
-  , idSeqLibProtocol
   , prepInstructions
   , ccNumber
-  , otherSamplePrepMethod
   , multiplexGroupNumber
   , barcodeSequence
-  , otherOrganism
   , meanLibSizeActual
   , idOligoBarcodeB
   , barcodeSequenceB
@@ -22938,9 +23339,13 @@ INSERT INTO Sample_Audit
   , codeConcentrationUnit
   , idSampleType
   , idOrganism
+  , otherOrganism
   , idSampleSource
   , idSamplePrepMethod
+  , otherSamplePrepMethod
+  , idSeqLibProtocol
   , codeBioanalyzerChipType
+  , idOligoBarcode
   , qualDate
   , qualFailed
   , qualBypassed
@@ -22967,14 +23372,10 @@ INSERT INTO Sample_Audit
   , seqPrepStockDate
   , seqPrepStockFailed
   , seqPrepStockBypassed
-  , idOligoBarcode
-  , idSeqLibProtocol
   , prepInstructions
   , ccNumber
-  , otherSamplePrepMethod
   , multiplexGroupNumber
   , barcodeSequence
-  , otherOrganism
   , meanLibSizeActual
   , idOligoBarcodeB
   , barcodeSequenceB
@@ -23010,9 +23411,13 @@ BEGIN
   , codeConcentrationUnit
   , idSampleType
   , idOrganism
+  , otherOrganism
   , idSampleSource
   , idSamplePrepMethod
+  , otherSamplePrepMethod
+  , idSeqLibProtocol
   , codeBioanalyzerChipType
+  , idOligoBarcode
   , qualDate
   , qualFailed
   , qualBypassed
@@ -23039,14 +23444,10 @@ BEGIN
   , seqPrepStockDate
   , seqPrepStockFailed
   , seqPrepStockBypassed
-  , idOligoBarcode
-  , idSeqLibProtocol
   , prepInstructions
   , ccNumber
-  , otherSamplePrepMethod
   , multiplexGroupNumber
   , barcodeSequence
-  , otherOrganism
   , meanLibSizeActual
   , idOligoBarcodeB
   , barcodeSequenceB
@@ -23071,9 +23472,13 @@ BEGIN
   , NEW.codeConcentrationUnit
   , NEW.idSampleType
   , NEW.idOrganism
+  , NEW.otherOrganism
   , NEW.idSampleSource
   , NEW.idSamplePrepMethod
+  , NEW.otherSamplePrepMethod
+  , NEW.idSeqLibProtocol
   , NEW.codeBioanalyzerChipType
+  , NEW.idOligoBarcode
   , NEW.qualDate
   , NEW.qualFailed
   , NEW.qualBypassed
@@ -23100,14 +23505,10 @@ BEGIN
   , NEW.seqPrepStockDate
   , NEW.seqPrepStockFailed
   , NEW.seqPrepStockBypassed
-  , NEW.idOligoBarcode
-  , NEW.idSeqLibProtocol
   , NEW.prepInstructions
   , NEW.ccNumber
-  , NEW.otherSamplePrepMethod
   , NEW.multiplexGroupNumber
   , NEW.barcodeSequence
-  , NEW.otherOrganism
   , NEW.meanLibSizeActual
   , NEW.idOligoBarcodeB
   , NEW.barcodeSequenceB
@@ -23138,9 +23539,13 @@ BEGIN
   , codeConcentrationUnit
   , idSampleType
   , idOrganism
+  , otherOrganism
   , idSampleSource
   , idSamplePrepMethod
+  , otherSamplePrepMethod
+  , idSeqLibProtocol
   , codeBioanalyzerChipType
+  , idOligoBarcode
   , qualDate
   , qualFailed
   , qualBypassed
@@ -23167,14 +23572,10 @@ BEGIN
   , seqPrepStockDate
   , seqPrepStockFailed
   , seqPrepStockBypassed
-  , idOligoBarcode
-  , idSeqLibProtocol
   , prepInstructions
   , ccNumber
-  , otherSamplePrepMethod
   , multiplexGroupNumber
   , barcodeSequence
-  , otherOrganism
   , meanLibSizeActual
   , idOligoBarcodeB
   , barcodeSequenceB
@@ -23199,9 +23600,13 @@ BEGIN
   , NEW.codeConcentrationUnit
   , NEW.idSampleType
   , NEW.idOrganism
+  , NEW.otherOrganism
   , NEW.idSampleSource
   , NEW.idSamplePrepMethod
+  , NEW.otherSamplePrepMethod
+  , NEW.idSeqLibProtocol
   , NEW.codeBioanalyzerChipType
+  , NEW.idOligoBarcode
   , NEW.qualDate
   , NEW.qualFailed
   , NEW.qualBypassed
@@ -23228,14 +23633,10 @@ BEGIN
   , NEW.seqPrepStockDate
   , NEW.seqPrepStockFailed
   , NEW.seqPrepStockBypassed
-  , NEW.idOligoBarcode
-  , NEW.idSeqLibProtocol
   , NEW.prepInstructions
   , NEW.ccNumber
-  , NEW.otherSamplePrepMethod
   , NEW.multiplexGroupNumber
   , NEW.barcodeSequence
-  , NEW.otherOrganism
   , NEW.meanLibSizeActual
   , NEW.idOligoBarcodeB
   , NEW.barcodeSequenceB
@@ -23266,9 +23667,13 @@ BEGIN
   , codeConcentrationUnit
   , idSampleType
   , idOrganism
+  , otherOrganism
   , idSampleSource
   , idSamplePrepMethod
+  , otherSamplePrepMethod
+  , idSeqLibProtocol
   , codeBioanalyzerChipType
+  , idOligoBarcode
   , qualDate
   , qualFailed
   , qualBypassed
@@ -23295,14 +23700,10 @@ BEGIN
   , seqPrepStockDate
   , seqPrepStockFailed
   , seqPrepStockBypassed
-  , idOligoBarcode
-  , idSeqLibProtocol
   , prepInstructions
   , ccNumber
-  , otherSamplePrepMethod
   , multiplexGroupNumber
   , barcodeSequence
-  , otherOrganism
   , meanLibSizeActual
   , idOligoBarcodeB
   , barcodeSequenceB
@@ -23327,9 +23728,13 @@ BEGIN
   , OLD.codeConcentrationUnit
   , OLD.idSampleType
   , OLD.idOrganism
+  , OLD.otherOrganism
   , OLD.idSampleSource
   , OLD.idSamplePrepMethod
+  , OLD.otherSamplePrepMethod
+  , OLD.idSeqLibProtocol
   , OLD.codeBioanalyzerChipType
+  , OLD.idOligoBarcode
   , OLD.qualDate
   , OLD.qualFailed
   , OLD.qualBypassed
@@ -23356,14 +23761,10 @@ BEGIN
   , OLD.seqPrepStockDate
   , OLD.seqPrepStockFailed
   , OLD.seqPrepStockBypassed
-  , OLD.idOligoBarcode
-  , OLD.idSeqLibProtocol
   , OLD.prepInstructions
   , OLD.ccNumber
-  , OLD.otherSamplePrepMethod
   , OLD.multiplexGroupNumber
   , OLD.barcodeSequence
-  , OLD.otherOrganism
   , OLD.meanLibSizeActual
   , OLD.idOligoBarcodeB
   , OLD.barcodeSequenceB
@@ -23381,6 +23782,10 @@ $$
 --
 -- Audit Table For ScanProtocol 
 --
+
+-- select 'Creating table ScanProtocol'$$
+
+-- DROP TABLE IF EXISTS `ScanProtocol_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `ScanProtocol_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -23529,6 +23934,10 @@ $$
 -- Audit Table For SealType 
 --
 
+-- select 'Creating table SealType'$$
+
+-- DROP TABLE IF EXISTS `SealType_Audit`$$
+
 CREATE TABLE IF NOT EXISTS `SealType_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -23648,6 +24057,10 @@ $$
 --
 -- Audit Table For Segment 
 --
+
+-- select 'Creating table Segment'$$
+
+-- DROP TABLE IF EXISTS `Segment_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `Segment_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -23787,6 +24200,10 @@ $$
 -- Audit Table For SeqLibProtocolApplication 
 --
 
+-- select 'Creating table SeqLibProtocolApplication'$$
+
+-- DROP TABLE IF EXISTS `SeqLibProtocolApplication_Audit`$$
+
 CREATE TABLE IF NOT EXISTS `SeqLibProtocolApplication_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -23897,6 +24314,10 @@ $$
 --
 -- Audit Table For SeqLibProtocol 
 --
+
+-- select 'Creating table SeqLibProtocol'$$
+
+-- DROP TABLE IF EXISTS `SeqLibProtocol_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `SeqLibProtocol_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -24054,6 +24475,10 @@ $$
 -- Audit Table For SeqLibTreatment 
 --
 
+-- select 'Creating table SeqLibTreatment'$$
+
+-- DROP TABLE IF EXISTS `SeqLibTreatment_Audit`$$
+
 CREATE TABLE IF NOT EXISTS `SeqLibTreatment_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -24173,6 +24598,10 @@ $$
 --
 -- Audit Table For SeqRunType 
 --
+
+-- select 'Creating table SeqRunType'$$
+
+-- DROP TABLE IF EXISTS `SeqRunType_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `SeqRunType_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -24302,6 +24731,10 @@ $$
 --
 -- Audit Table For SequenceLane 
 --
+
+-- select 'Creating table SequenceLane'$$
+
+-- DROP TABLE IF EXISTS `SequenceLane_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `SequenceLane_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -24513,6 +24946,10 @@ $$
 -- Audit Table For SequencingControl 
 --
 
+-- select 'Creating table SequencingControl'$$
+
+-- DROP TABLE IF EXISTS `SequencingControl_Audit`$$
+
 CREATE TABLE IF NOT EXISTS `SequencingControl_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -24642,6 +25079,10 @@ $$
 -- Audit Table For SequencingPlatform 
 --
 
+-- select 'Creating table SequencingPlatform'$$
+
+-- DROP TABLE IF EXISTS `SequencingPlatform_Audit`$$
+
 CREATE TABLE IF NOT EXISTS `SequencingPlatform_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -24761,6 +25202,10 @@ $$
 --
 -- Audit Table For SlideDesign 
 --
+
+-- select 'Creating table SlideDesign'$$
+
+-- DROP TABLE IF EXISTS `SlideDesign_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `SlideDesign_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -24909,6 +25354,10 @@ $$
 -- Audit Table For SlideProductApplication 
 --
 
+-- select 'Creating table SlideProductApplication'$$
+
+-- DROP TABLE IF EXISTS `SlideProductApplication_Audit`$$
+
 CREATE TABLE IF NOT EXISTS `SlideProductApplication_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -25020,6 +25469,10 @@ $$
 -- Audit Table For SlideProduct 
 --
 
+-- select 'Creating table SlideProduct'$$
+
+-- DROP TABLE IF EXISTS `SlideProduct_Audit`$$
+
 CREATE TABLE IF NOT EXISTS `SlideProduct_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -25031,6 +25484,7 @@ CREATE TABLE IF NOT EXISTS `SlideProduct_Audit` (
  ,`catalogNumber`  varchar(100)  NULL DEFAULT NULL
  ,`isCustom`  char(1)  NULL DEFAULT NULL
  ,`idLab`  int(10)  NULL DEFAULT NULL
+ ,`codeApplication`  varchar(10)  NULL DEFAULT NULL
  ,`idVendor`  int(10)  NULL DEFAULT NULL
  ,`idOrganism`  int(10)  NULL DEFAULT NULL
  ,`arraysPerSlide`  int(10)  NULL DEFAULT NULL
@@ -25058,6 +25512,7 @@ INSERT INTO SlideProduct_Audit
   , catalogNumber
   , isCustom
   , idLab
+  , codeApplication
   , idVendor
   , idOrganism
   , arraysPerSlide
@@ -25077,6 +25532,7 @@ INSERT INTO SlideProduct_Audit
   , catalogNumber
   , isCustom
   , idLab
+  , codeApplication
   , idVendor
   , idOrganism
   , arraysPerSlide
@@ -25107,6 +25563,7 @@ BEGIN
   , catalogNumber
   , isCustom
   , idLab
+  , codeApplication
   , idVendor
   , idOrganism
   , arraysPerSlide
@@ -25126,6 +25583,7 @@ BEGIN
   , NEW.catalogNumber
   , NEW.isCustom
   , NEW.idLab
+  , NEW.codeApplication
   , NEW.idVendor
   , NEW.idOrganism
   , NEW.arraysPerSlide
@@ -25151,6 +25609,7 @@ BEGIN
   , catalogNumber
   , isCustom
   , idLab
+  , codeApplication
   , idVendor
   , idOrganism
   , arraysPerSlide
@@ -25170,6 +25629,7 @@ BEGIN
   , NEW.catalogNumber
   , NEW.isCustom
   , NEW.idLab
+  , NEW.codeApplication
   , NEW.idVendor
   , NEW.idOrganism
   , NEW.arraysPerSlide
@@ -25195,6 +25655,7 @@ BEGIN
   , catalogNumber
   , isCustom
   , idLab
+  , codeApplication
   , idVendor
   , idOrganism
   , arraysPerSlide
@@ -25214,6 +25675,7 @@ BEGIN
   , OLD.catalogNumber
   , OLD.isCustom
   , OLD.idLab
+  , OLD.codeApplication
   , OLD.idVendor
   , OLD.idOrganism
   , OLD.arraysPerSlide
@@ -25229,6 +25691,10 @@ $$
 --
 -- Audit Table For SlideSource 
 --
+
+-- select 'Creating table SlideSource'$$
+
+-- DROP TABLE IF EXISTS `SlideSource_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `SlideSource_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -25359,6 +25825,10 @@ $$
 -- Audit Table For Slide 
 --
 
+-- select 'Creating table Slide'$$
+
+-- DROP TABLE IF EXISTS `Slide_Audit`$$
+
 CREATE TABLE IF NOT EXISTS `Slide_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -25488,6 +25958,10 @@ $$
 -- Audit Table For State 
 --
 
+-- select 'Creating table State'$$
+
+-- DROP TABLE IF EXISTS `State_Audit`$$
+
 CREATE TABLE IF NOT EXISTS `State_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -25608,13 +26082,17 @@ $$
 -- Audit Table For Step 
 --
 
+-- select 'Creating table Step'$$
+
+-- DROP TABLE IF EXISTS `Step_Audit`$$
+
 CREATE TABLE IF NOT EXISTS `Step_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
  ,`AuditSystemUser`    varchar(30)  NULL
  ,`AuditOperationDate` datetime     NULL
  ,`AuditEditedByPersonID` int(10)   NULL
- ,`codeStep`  varchar(20)  NULL DEFAULT NULL
+ ,`codeStep`  varchar(10)  NULL DEFAULT NULL
  ,`step`  varchar(50)  NULL DEFAULT NULL
  ,`isActive`  char(1)  NULL DEFAULT NULL
  ,`sortOrder`  int(10)  NULL DEFAULT NULL
@@ -25736,6 +26214,10 @@ $$
 --
 -- Audit Table For SubmissionInstruction 
 --
+
+-- select 'Creating table SubmissionInstruction'$$
+
+-- DROP TABLE IF EXISTS `SubmissionInstruction_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `SubmissionInstruction_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -25892,6 +26374,10 @@ $$
 --
 -- Audit Table For Topic 
 --
+
+-- select 'Creating table Topic'$$
+
+-- DROP TABLE IF EXISTS `Topic_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `Topic_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -26076,6 +26562,10 @@ $$
 -- Audit Table For TreatmentEntry 
 --
 
+-- select 'Creating table TreatmentEntry'$$
+
+-- DROP TABLE IF EXISTS `TreatmentEntry_Audit`$$
+
 CREATE TABLE IF NOT EXISTS `TreatmentEntry_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -26204,6 +26694,10 @@ $$
 --
 -- Audit Table For UnloadDataTrack 
 --
+
+-- select 'Creating table UnloadDataTrack'$$
+
+-- DROP TABLE IF EXISTS `UnloadDataTrack_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `UnloadDataTrack_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -26334,6 +26828,10 @@ $$
 -- Audit Table For UserPermissionKind 
 --
 
+-- select 'Creating table UserPermissionKind'$$
+
+-- DROP TABLE IF EXISTS `UserPermissionKind_Audit`$$
+
 CREATE TABLE IF NOT EXISTS `UserPermissionKind_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -26453,6 +26951,10 @@ $$
 --
 -- Audit Table For Vendor 
 --
+
+-- select 'Creating table Vendor'$$
+
+-- DROP TABLE IF EXISTS `Vendor_Audit`$$
 
 CREATE TABLE IF NOT EXISTS `Vendor_Audit` (
   `AuditAppuser`       varchar(128) NULL
@@ -26583,6 +27085,10 @@ $$
 -- Audit Table For Visibility 
 --
 
+-- select 'Creating table Visibility'$$
+
+-- DROP TABLE IF EXISTS `Visibility_Audit`$$
+
 CREATE TABLE IF NOT EXISTS `Visibility_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -26694,6 +27200,10 @@ $$
 -- Audit Table For Workitem 
 --
 
+-- select 'Creating table Workitem'$$
+
+-- DROP TABLE IF EXISTS `Workitem_Audit`$$
+
 CREATE TABLE IF NOT EXISTS `Workitem_Audit` (
   `AuditAppuser`       varchar(128) NULL
  ,`AuditOperation`     char(1)      NULL
@@ -26701,7 +27211,7 @@ CREATE TABLE IF NOT EXISTS `Workitem_Audit` (
  ,`AuditOperationDate` datetime     NULL
  ,`AuditEditedByPersonID` int(10)   NULL
  ,`idWorkItem`  int(10)  NULL DEFAULT NULL
- ,`codeStepNext`  varchar(20)  NULL DEFAULT NULL
+ ,`codeStepNext`  varchar(10)  NULL DEFAULT NULL
  ,`idSample`  int(10)  NULL DEFAULT NULL
  ,`idLabeledSample`  int(10)  NULL DEFAULT NULL
  ,`idHybridization`  int(10)  NULL DEFAULT NULL
@@ -26709,8 +27219,8 @@ CREATE TABLE IF NOT EXISTS `Workitem_Audit` (
  ,`createDate`  datetime  NULL DEFAULT NULL
  ,`idSequenceLane`  int(10)  NULL DEFAULT NULL
  ,`idFlowCellChannel`  int(10)  NULL DEFAULT NULL
- ,`status`  varchar(50)  NULL DEFAULT NULL
  ,`idCoreFacility`  int(10)  NULL DEFAULT NULL
+ ,`status`  varchar(50)  NULL DEFAULT NULL
 ) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
@@ -26734,8 +27244,8 @@ INSERT INTO Workitem_Audit
   , createDate
   , idSequenceLane
   , idFlowCellChannel
-  , status
-  , idCoreFacility )
+  , idCoreFacility
+  , status )
   SELECT
   'No Context'
   , 'L'
@@ -26751,8 +27261,8 @@ INSERT INTO Workitem_Audit
   , createDate
   , idSequenceLane
   , idFlowCellChannel
-  , status
   , idCoreFacility
+  , status
   FROM Workitem
   WHERE NOT EXISTS(SELECT * FROM Workitem_Audit)
 $$
@@ -26779,8 +27289,8 @@ BEGIN
   , createDate
   , idSequenceLane
   , idFlowCellChannel
-  , status
-  , idCoreFacility )
+  , idCoreFacility
+  , status )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
@@ -26796,8 +27306,8 @@ BEGIN
   , NEW.createDate
   , NEW.idSequenceLane
   , NEW.idFlowCellChannel
-  , NEW.status
-  , NEW.idCoreFacility );
+  , NEW.idCoreFacility
+  , NEW.status );
 END;
 $$
 
@@ -26819,8 +27329,8 @@ BEGIN
   , createDate
   , idSequenceLane
   , idFlowCellChannel
-  , status
-  , idCoreFacility )
+  , idCoreFacility
+  , status )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
@@ -26836,8 +27346,8 @@ BEGIN
   , NEW.createDate
   , NEW.idSequenceLane
   , NEW.idFlowCellChannel
-  , NEW.status
-  , NEW.idCoreFacility );
+  , NEW.idCoreFacility
+  , NEW.status );
 END;
 $$
 
@@ -26859,8 +27369,8 @@ BEGIN
   , createDate
   , idSequenceLane
   , idFlowCellChannel
-  , status
-  , idCoreFacility )
+  , idCoreFacility
+  , status )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
@@ -26876,7 +27386,7 @@ BEGIN
   , OLD.createDate
   , OLD.idSequenceLane
   , OLD.idFlowCellChannel
-  , OLD.status
-  , OLD.idCoreFacility );
+  , OLD.idCoreFacility
+  , OLD.status );
 END;
 $$
