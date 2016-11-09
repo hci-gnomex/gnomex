@@ -182,17 +182,10 @@
 				}
 				filteredExperimentPlatforms.filterFunction = filterExperimentPlatforms;
 				filteredExperimentPlatforms.refresh();
-				
-				appUserList = new XMLListCollection();
-				var emptyAppUser:XML = new XML();
-				emptyAppUser.@display="";
-				emptyAppUser.@value="";
-				appUserList.addItem(emptyAppUser);
-				for each (var a:Object in parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.AppUserLite').DictionaryEntry) {
-					if (a.@value != "") {
-						appUserList.addItem(a.copy());
-					}
-				}
+
+                var emptyNode:XML = <DictionaryEntry display='' value=''/>;
+				appUserList = new XMLListCollection(parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.AppUserLite').DictionaryEntry.(@value != ''));
+                appUserList.addItemAt(emptyNode, 0);
 			}	
 			
 			private function onGetPropertyList(event:ResultEvent):void {
