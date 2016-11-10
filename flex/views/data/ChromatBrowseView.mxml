@@ -113,7 +113,7 @@
 			private var filesExceedingMaxMessage:String = "";
 			
 			public var downloadProgressWindow:DownloadProgressView;
-			
+
 			public static const   ALERT_BUTTON_WIDTH:int = Alert.buttonWidth;
 			
 			
@@ -909,13 +909,6 @@
 						   icon="@Embed('../../assets/download.png')" 
 						   toolTip="Download selected files"
 						   label="Download"/>
-			</mx:AddChild>
-			<mx:AddChild relativeTo="{spacer1}" position="before">
-				<mx:Button visible="{parentApplication.isFDTSupported ? true : false}" 
-						   includeInLayout="{parentApplication.isFDTSupported ? true : false}" 
-						   id = "linkButtonDownloadFDT"
-						   label="FDT Download"  
-						   click="{this.downloadFilesUsingFDT()}" icon="@Embed(source='../../assets/download_large.png')"/>
 			</mx:AddChild>
 			<mx:RemoveChild target="{filterBox}"/>
 			<mx:RemoveChild target="{comboBox}"/>
