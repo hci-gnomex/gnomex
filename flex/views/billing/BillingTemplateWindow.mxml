@@ -117,7 +117,6 @@
 			splitTypeChange(true);
 
 			billingTemplateItems = new XMLListCollection();
-			setupBillingTemplateItems();
 		}
 
 		public function close():void {
@@ -133,13 +132,13 @@
 							remainingItem = item;
 						}
 						else {
-							total += Number(((String)(item.@percentSplit)).replace("%", ""));
+							total += stringToNumber(item.@percentSplit);
 						}
 						ctr++;
 
 					}
 					if (remainingItem != null) {
-						remainingItem.@percentSplit = (100.0 - total).toFixed(1) + "%";
+						remainingItem.@percentSplit = numberToPercentage(100.0 - total);
 						billingTemplateItems.removeItemAt(index);
 						billingTemplateItems.addItem(remainingItem);
 					}
@@ -155,56 +154,41 @@
 		}
 
 		public function save():void {
-			if (!checkOkayToSave()) {
+			if (!checkAllCostsAllocated()) {
 				Alert.show("One account need to be marked as accepting the balance and all others need either a percent or dollar amount filled in.  Make sure this is the case and try again.",
 						"Error saving billing template");
+				return;
 			}
-			else if (!checkPercent()) {
-				Alert.show("Total billing percentage exceeds 100%.")
+			if (!checkPercent()) {
+				Alert.show("Total billing percentage exceeds 100%.");
+				return;
 			}
-			else {
-				saveImpl();
-			}
+			saveImpl();
 		}
 
 		private function checkPercent():Boolean {
+			if (!percentageColumn.visible) {
+				return true;
+			}
 			var total:Number = 0;
-			var percentOK:Boolean = true;
-			if (percentageColumn.visible) {
-				for each (var entry:XML in billingTemplateItems) {
-					if (entry.@percentSplit != "") {
-						total += Number(((String)(entry.@percentSplit)).replace("%", ""));
-					}
-				}
+			for each (var entry:XML in billingTemplateItems) {
+				total += stringToNumber(entry.@percentSplit);
 			}
-			if (total > 100) {
-				percentOK = false;
-			}
-
-			return percentOK;
+			return (total <= 100);
 		}
 
-		private function checkOkayToSave():Boolean {
-			var oneAcceptBalance:Boolean = false;
+		private function checkAllCostsAllocated():Boolean {
+			var acceptBalanceCount:int = 0;
 			var allAccountsAssigned:Boolean = true;
-			if (percentageColumn.visible) {
-				for each (var entry:XML in billingTemplateItems) {
-					if (entry.@acceptBalance == "true") {
-						oneAcceptBalance = !oneAcceptBalance;
-					} else if (entry.@percentSplit == "") {
-						allAccountsAssigned = false;
-					}
-				}
-			} else {
-				for each (var entry1:XML in billingTemplateItems) {
-					if (entry1.@acceptBalance == "true") {
-						oneAcceptBalance = !oneAcceptBalance;
-					} else if (entry1.@dollarAmount == "") {
-						allAccountsAssigned = false;
-					}
+			for each (var entry:XML in billingTemplateItems) {
+				var amountEntered:String = percentageColumn.visible ? entry.@percentSplit : entry.@dollarAmount;
+				if (entry.@acceptBalance == "true") {
+					acceptBalanceCount++;
+				} else if (amountEntered == "") {
+					allAccountsAssigned = false;
 				}
 			}
-			return oneAcceptBalance && allAccountsAssigned;
+			return (acceptBalanceCount == 1) && allAccountsAssigned;
 		}
 
 		private function loadBillingAccounts():void {
@@ -247,7 +231,11 @@
 					" targetClassName='" + targetClassName + "'" +
 					" usingPercentSplit='" + usingPercentSplit + "'" +
 					" >";
+			var sortOrder:int = 1;
 			for each (var item:XML in billingTemplateItems) {
+				item.@sortOrder = sortOrder++;
+				item.@percentSplit = removeNumberPunctuation(item.@percentSplit);
+				item.@dollarAmount = removeNumberPunctuation(item.@dollarAmount);
 				billingTemplateXML += item.toXMLString();
 			}
 			billingTemplateXML += "</BillingTemplate>";
@@ -286,8 +274,9 @@
 			if (getBillingTemplate.lastResult.name() == "BillingTemplate") {
 				billingTemplate = new XML(getBillingTemplate.lastResult);
 				billingTemplateItems = new XMLListCollection(billingTemplate.BillingTemplateItem);
-				setupBillingTemplateItems();
 				for each (var entry:XML in billingTemplateItems) {
+					entry.@percentSplit = formatPercentage(entry.@percentSplit);
+					entry.@dollarAmount = formatCurrency(entry.@dollarAmount);
 					updateBillingAccountEntry(entry, entry.@acceptBalance == "true");
 				}
 				if (billingTemplate.@usingPercentSplit == "true") {
@@ -311,13 +300,6 @@
 			return this.billingTemplateItems;
 		}
 
-		private function setupBillingTemplateItems():void {
-			var sort:Sort = new Sort();
-			sort.fields = [new SortField("@sortOrder", true, false, true)];
-			billingTemplateItems.sort = sort;
-			billingTemplateItems.refresh();
-		}
-
 		private function onSaveBillingTemplate(event:ResultEvent):void {
 			if (saveBillingTemplate.lastResult.name() == "SUCCESS") {
 				parentApplication.navBillingView.refresh();
@@ -339,7 +321,7 @@
 					" percentSplit=''" +
 					" dollarAmount=''" +
 					" acceptBalance='false'" +
-					" sortOrder='" + (billingTemplateItems.length + 1).toString() + "'" +
+					" sortOrder=''" +
 					" />");
 			billingTemplateItems.addItem(newNode);
 			labCombo.selectedItem = null;
@@ -351,9 +333,9 @@
 		}
 
 		private function removeAccountEntry():void {
-			if (accountsGrid.selectedItem != null) {
-				billingTemplateItems.removeItemAt(billingTemplateItems.getItemIndex(accountsGrid.selectedItem));
-				updateSortOrders();
+			if (accountsGrid.selectedIndex >= 0) {
+				billingTemplateItems.removeItemAt(accountsGrid.selectedIndex);
+				accountsGrid.dataProvider = billingTemplateItems;
 				labCombo.selectedItem = null;
 				billingAccountCombo.selectedItem = null;
 				refreshBillingAccounts(true);
@@ -429,15 +411,12 @@
 		public function updateBillingAccountEntry(billingAccountEntry:XML, acceptingBalance:Boolean):void {
 			billingAccountEntry.@acceptBalance = acceptingBalance ? 'true' : 'false';
 			if (acceptingBalance) {
-				var sortOrder: int = 1;
 				billingAccountEntry.@dollarAmount = "";
 				billingAccountEntry.@percentSplit = "";
-				billingAccountEntry.@sortOrder = sortOrder;
 
 				for each (var entry:XML in billingTemplateItems) {
 					if (entry.@idBillingAccount != billingAccountEntry.@idBillingAccount) {
 						entry.@acceptBalance = 'false';
-						entry.@sortOrder = ++sortOrder;
 					}
 				}
 			}
@@ -446,43 +425,23 @@
 
 		}
 
-		private function updateSortOrders():void {
-			for (var i:int = 0; i < billingTemplateItems.length; i++) {
-				billingTemplateItems[i].@sortOrder = i + 1;
-			}
-			billingTemplateItems.refresh();
+		private function isInAmountColumn(event:DataGridEvent):Boolean {
+			return (event.columnIndex == 2 || event.columnIndex == 3);
 		}
 
-
 		protected function accountsGrid_itemEditEndHandler(event:DataGridEvent):void {
-			if (event.columnIndex == 0) {
+			if (isInAmountColumn(event)) {
 				var editor:TextInput = TextInput(event.currentTarget.itemEditorInstance);
-				var newSortOrder:String = editor.text;
-				var modifiedID:String = billingTemplateItems[event.rowIndex].@idBillingAccount;
-				billingTemplateItems[event.rowIndex].@sortOrder = newSortOrder;
-
-				updateSortOrders();
-
-				for (var i:int = 0; i < billingTemplateItems.length; i++) {
-					if (billingTemplateItems[i].@idBillingAccount == modifiedID) {
-						editor.text = (i + 1).toString();
-						break;
-					}
-				}
-			} else if (event.columnIndex == 3 || event.columnIndex == 4) {
-				var editor2:TextInput = TextInput(event.currentTarget.itemEditorInstance);
-				var value:String = editor2.text;
 				var newValue:String;
 				if (radioSplitPct.selected) {
-					newValue = percentageFormatter.format(value) + "%";
-					billingTemplateItems[event.rowIndex].@percentSplit = newValue;
-					editor2.text = newValue;
-
+					newValue = formatPercentage(editor.text);
+					event.itemRenderer.data.@percentSplit = newValue;
+					editor.text = newValue;
 					updatePercentTotal();
 				} else {
-					newValue = currencyFormatter.format(value);
-					billingTemplateItems[event.rowIndex].@dollarAmount = newValue;
-					editor2.text = newValue;
+					newValue = formatCurrency(editor.text);
+					event.itemRenderer.data.@dollarAmount = newValue;
+					editor.text = newValue;
 				}
 			}
 		}
@@ -491,19 +450,56 @@
 			var total:Number = 0;
 			for each (var entry:XML in billingTemplateItems) {
 				if (entry.@percentSplit != "") {
-					total = total + Number(((String)(entry.@percentSplit)).replace("%", ""));
+					total = total + stringToNumber(entry.@percentSplit);
 				}
 			}
-			percentTotal.text = "Total: " + percentageFormatter.format(total) + "%";
+			percentTotal.text = "Total: " + numberToPercentage(total);
 		}
 
 		private function checkEdit(event:DataGridEvent):void {
-			if (event.columnIndex == 3 || event.columnIndex == 4) {
-				if (event.itemRenderer.data.@acceptBalance == "true") {
-					event.preventDefault();
-				}
+			if (isInAmountColumn(event) && event.itemRenderer.data.@acceptBalance == "true") {
+				event.preventDefault();
 			}
 		}
+
+		private function stringToNumber(string:String):Number {
+			var number:Number = Number(removeNumberPunctuation(string));
+			if (isNaN(number)) {
+				return 0;
+			}
+			return number;
+		}
+
+		private function numberToPercentage(number:Number):String {
+			if (number == 0) {
+				return "";
+			}
+			var percentage:String = percentageFormatter.format(number);
+			if (percentage == null || percentage == "") {
+				return "";
+			}
+			return percentage + "%";
+		}
+
+		private function numberToCurrency(number:Number):String {
+			if (number == 0) {
+				return "";
+			}
+			return currencyFormatter.format(number);
+		}
+
+		private function formatPercentage(text:String):String {
+			return numberToPercentage(stringToNumber(text));
+		}
+
+		private function formatCurrency(text:String):String {
+			return numberToCurrency(stringToNumber(text));
+		}
+
+		private function removeNumberPunctuation(text:String):String {
+			return text.replace("$","").replace(",","").replace("%","");
+		}
+
 		]]>
 	</mx:Script>
 
@@ -538,17 +534,11 @@
 	</mx:HBox>
 	<mx:DataGrid id="accountsGrid" width="100%" height="100%"
 				 editable="true" allowMultipleSelection="false"
-				 dataProvider="{billingTemplateItems}" sortableColumns="true"
+				 dataProvider="{billingTemplateItems}"
 				 draggableColumns="false"
 				 itemEditBegin="checkEdit(event)"
 				 itemEditEnd="accountsGrid_itemEditEndHandler(event)">
 		<mx:columns>
-			<mx:DataGridColumn headerText="Sort Order" width="30"
-							   minWidth="30"
-							   resizable="false"
-							   dataField="@sortOrder"
-							   editable="true"
-							   sortable="true"/>
 			<mx:DataGridColumn headerText="Group" width="50"
 							   dataField="@idLab"
 							   editable="false"
@@ -568,10 +558,10 @@
 							   itemRenderer="mx.controls.Label"
 							   sortable="false"/>
 			<mx:DataGridColumn id="percentageColumn"
-							   headerText="%" width="50" minWidth="50" dataField="@percentSplit" editable="true"
+							   headerText="%" width="70" minWidth="70" dataField="@percentSplit" editable="true"
 							   sortable="false"/>
 			<mx:DataGridColumn id="dollarColumn"
-							   headerText="$" width="50" dataField="@dollarAmount" minWidth="50" editable="true"
+							   headerText="$" width="70" dataField="@dollarAmount" minWidth="70" editable="true"
 							   sortable="false"/>
 			<mx:DataGridColumn headerText="Accept Balance" dataField="@acceptBalance" width="50" minWidth="50" resizable="false" textAlign="center" rendererIsEditor="true" editorDataField="selected" sortable="false">
 				<mx:itemRenderer>
