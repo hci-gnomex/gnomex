@@ -186,26 +186,24 @@
 
 				if (dragItem.name() == "FileDescriptor") {
 
-					if (dragItem.name() == "FileDescriptor") {
-						var inFolder:Boolean = false;
+					var inFolder:Boolean = false;
 
 
-						for each (var folder:XML in req.FileDescriptor.(@type == 'dir')) {  // 11/03/2016 was .RequestDownload tim
+					for each (var folder:XML in req.FileDescriptor.(@type == 'dir')) {  // 11/03/2016 was .RequestDownload tim
 
-							if (folder.descendants("FileDescriptor").(@fileName == dragItem.@fileName && @directoryName == dragItem.@directoryName).length() > 0) {
-								fileNode = createFileDesNode(folder);
-								recurseAddChildrenFolders(dragItem, fileNode, folder);
-								inFolder = true;
-								break;
-							}
-
+						if (folder.descendants("FileDescriptor").(@fileName == dragItem.@fileName && @directoryName == dragItem.@directoryName).length() > 0) {
+							fileNode = createFileDesNode(folder);
+							recurseAddChildrenFolders(dragItem, fileNode, folder);
+							inFolder = true;
+							break;
 						}
 
-						if (!inFolder) {
-							fileNode = createFileDesNode(dragItem);
-							if (dragItem.@type == "dir") {
-								recurseAddChildren(dragItem, fileNode);
-							}
+					}
+
+					if (!inFolder) {
+						fileNode = createFileDesNode(dragItem);
+						if (dragItem.@type == "dir") {
+							recurseAddChildren(dragItem, fileNode);
 						}
 					}
 
