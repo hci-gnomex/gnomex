@@ -60,7 +60,7 @@
 			checkSecurity();
 			
 			// We don't show seq apps on edit window
-			if (this.currentState == "EditState") {
+			if (this.parentDocument.sampleSetupView.currentState == "EditState") {
 				return;
 			}
 			
@@ -266,7 +266,7 @@
 				}
 			} 
 			
-			if (this.currentState != "EditState") {
+			if (this.parentDocument.sampleSetupView.currentState != "EditState") {
 				parentDocument.samplesView.enabled = isComplete; 
 			}
 			
@@ -429,14 +429,14 @@
 
 		public function propagateSeqPrepByCore():void {
 			for each (var sample:Object in parentDocument.samples) {
-				sample.@seqPrepByCore = (currentState == 'SolexaSetupState' || (seqPrepRadioGroup.selectedValue !=  null && seqPrepRadioGroup.selectedValue == 'Y')  ? 'Y' : 'N');
+				sample.@seqPrepByCore = (parentDocument.sampleSetupView.currentState == 'SolexaSetupState' || (seqPrepRadioGroup.selectedValue !=  null && seqPrepRadioGroup.selectedValue == 'Y')  ? 'Y' : 'N');
 			}
 		}
 		private function clearBarcodingFields():void {
 			if (parentDocument.isEditState() || parentDocument.isAmendState()) {
 				return;
 			}
-			if (currentState == 'MDMiSeqState') {
+			if (parentDocument.sampleSetupView.currentState == 'MDMiSeqState') {
 				return;
 			}
 			for each(var s:Object in parentDocument.samples) {

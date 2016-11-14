@@ -121,7 +121,7 @@ public class BillingTemplateItem extends HibernateDetailObject implements Compar
 	
 	@Override
 	public int compareTo(BillingTemplateItem o) {
-		return this.sortOrder - o.sortOrder;
+		return o.sortOrder - this.sortOrder;
 	}
 
 	@Override

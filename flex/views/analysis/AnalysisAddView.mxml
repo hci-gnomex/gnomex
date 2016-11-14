@@ -393,11 +393,10 @@
 				var emptyNode:XML = <AppUser idAppUser='' displayName=''/>;
 				appUsersForLab = new XMLListCollection(lab.members.AppUser.(@isActive=='Y'));
 				for each (var mgr:Object in lab.managers.AppUser) {
-					if (!appUsersForLab.contains(mgr)) {
+					if (appUsersForLab.source.(@idAppUser == mgr.@idAppUser).length() == 0) {
 						if(mgr.@isActive=='Y') {
 							appUsersForLab.addItem(mgr);
 						}
-						
 					}
 				}
 				appUsersForLab.addItemAt(emptyNode, 0);

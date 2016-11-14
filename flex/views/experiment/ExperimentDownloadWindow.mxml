@@ -172,18 +172,19 @@
 				return;
 			}
 
+			var req:XML = getRequestDownloadList.lastResult.Request[0];
+			if (req == null) {
+				return;
+			}
+
+			var reqNode:XML = createReqNode(req);
+
+			var fileNode:XML = null;
+
 			for (var i:int = 0; i < draggedItems.length; i++) {
 				var dragItem:XML = XML(draggedItems[i]);
 
 				if (dragItem.name() == "FileDescriptor") {
-
-					var req:XML = getRequestDownloadList.lastResult.Request[0];
-					if (req == null) {
-						return;
-					}
-
-					var reqNode:XML = createReqNode(req);
-					var fileNode:XML;
 
 					if (dragItem.name() == "FileDescriptor") {
 						var inFolder:Boolean = false;
@@ -264,15 +265,15 @@
 			} else {
 				filesList.source += req;
 			}
-			if (node.name() == 'FileDescriptor') {
-				if (filesList.source.FileDescriptor.(@fileName == node.@fileName).length() == 0) {
+
+		 	if (node.name() == 'FileDescriptor' && node.@type == 'dir') {
+				if (filesList.source..FileDescriptor.(@number == node.@number && @type == "dir").length() > 0) {
+					recurseCheckFolder(node, filesList.source..FileDescriptor.(@number == node.@number && @type == "dir")[0]);
+				} else {
 					req.appendChild(node);
 				}
-				return;
-			} else if (node.name() == 'RequestDownload') {
-				if (filesList.source..RequestDownload.(@itemNumber == node.@itemNumber).length() > 0) {
-					recurseCheckFolder(node, filesList.source..RequestDownload.(@itemNumber == node.@itemNumber)[0]);
-				} else {
+			} else {
+				if (filesList.source.FileDescriptor.(@fileName == node.@fileName).length() == 0) {
 					req.appendChild(node);
 				}
 			}

@@ -337,6 +337,8 @@
 
 	private var glInterfaceSelected:Boolean = false;
 
+	private var hasBillingItems:Boolean = false;
+
 	private function init():void {
 		refreshBillingTimer = new Timer(1000);
 		/* 1000ms == 1second */
@@ -1140,8 +1142,10 @@
 		var types:ArrayList = new ArrayList();
 		var hideType:Boolean = true;
 		var first:Boolean = true;
+		this.hasBillingItems = false;
 		for each(var request:XML in billingItemsDisplayed) {
 			for each(var bi:Object in request.BillingItem) {
+				hasBillingItems = true;
 				if (first == true) {
 					types.addItem(new String(bi.@codeBillingChargeKind));
 					first = false;
@@ -2347,7 +2351,6 @@
 		}
 	}
 
-
 	protected function requestTree_itemCloseHandler(event:AdvancedDataGridEvent):void {
 		if (event.item != null && event.item.name() == "Status") {
 			updateStatusFoldersMap(event.item, false);
@@ -2642,7 +2645,8 @@
 												   itemEditEnd="onEdit()" 
 												   dropShadowEnabled="true" 
 												   borderStyle="solid" 
-												   fontSize="10" >
+												   fontSize="10"
+												   >
 					<util:columns> 
 						<mx:AdvancedDataGridColumn headerText="#" dataField="@requestNumber" editable="false" width="12"  />
 						<mx:AdvancedDataGridColumn headerText="Group" dataField="@billingLabName" editable="false" width="12" wordWrap="true"/>
@@ -2694,10 +2698,13 @@
 					<mx:HBox width="100%" horizontalAlign="right" horizontalGap="0" verticalAlign="middle">
 						<mx:HBox width="100%" horizontalGap="0">
 							<mx:LinkButton  label="Reassign/Split" disabledIcon="@Embed(source='../../assets/account_split_disable.png')" icon="@Embed(source='../../assets/account_split.png')" toolTip="Split charges into multiple accounts"  textDecoration="underline" click="showSplitAccountsView()" visible="true">
-								<mx:enabled>{(billingItemGrid.selectedItem != null &amp;&amp; billingItemGrid.selectedItem.name() == 'Request' 
-											&amp;&amp; billingItemGrid.selectedItem.@codeRequestCategory != parentApplication.TYPE_DISK_USAGE) 
+								<mx:enabled>{((billingItemGrid.selectedItem != null &amp;&amp; billingItemGrid.selectedItem.name() == 'Request'
+											&amp;&amp; billingItemGrid.selectedItem.@codeRequestCategory != parentApplication.TYPE_DISK_USAGE
+											)
 											|| (this.requestTree.selectedItem != null &amp;&amp; this.requestTree.selectedItem.name() == 'Request' 
-											&amp;&amp; requestTree.selectedItem.@codeRequestCategory != parentApplication.TYPE_DISK_USAGE) ? true : false}</mx:enabled>
+											&amp;&amp; requestTree.selectedItem.@codeRequestCategory != parentApplication.TYPE_DISK_USAGE))
+									&amp;&amp; hasBillingItems == true
+											? true : false}</mx:enabled>
 							</mx:LinkButton> 
 							<mx:LinkButton id="removeBillingItemButton" label="Remove" disabledIcon="@Embed(source='../../assets/delete_disable.png')" icon="@Embed(source='../../assets/delete.png')" toolTip="Remove billing item"  textDecoration="underline" click="removeBillingItem()" enabled="{billingItemGrid.selectedItem != null}"/>
 						</mx:HBox>
