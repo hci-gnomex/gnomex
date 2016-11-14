@@ -1164,6 +1164,7 @@
 		}
 
 		this.billingItemGrid.dataProvider = new HierarchicalData(this.billingItemsDisplayed);
+		this.billingItemGrid.selectedIndex = 0;
 	}
 
 
