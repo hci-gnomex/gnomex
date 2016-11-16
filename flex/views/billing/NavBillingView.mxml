@@ -1170,6 +1170,12 @@
 		this.billingItemGrid.selectedIndex = 0;
 	}
 
+	/**
+	 * This function rebuilds the request xml node and splitting the requests by billing account.
+	 *
+	 * @param billingItems		The current XMLListCollection representing the request.
+	 * @return bid				The updated XMLListCollection representing the request/requests.
+     */
 	private function buildRequestItems(billingItems:XMLListCollection):XMLListCollection {
 		var bid:XMLListCollection = new XMLListCollection();
 		for each(var request:XML in billingItems) {
@@ -1179,9 +1185,8 @@
 
 			for each(var bi:XML in request.BillingItem) {
 				if (bi.@idBillingAccount != labAccount) {
-					if (rNode != null) {
+					if (rNode != null)
 						rNode.@invoicePrice = currencyFormatter.format(requestInvoicePrice.toFixed(2).toString());
-					}
 					requestInvoicePrice = 0;
 					rNode = new XML(
 							"<Request " +
@@ -1202,15 +1207,10 @@
 							" isDirty='" + request.@isDirty + "'" +
 							" totalPrice='" + request.@totalPrice + "'" +
 							"/>");
-					requestInvoicePrice = sumInvoicePrice(requestInvoicePrice, bi);
-
-					rNode.appendChild(bi);
 					bid.addItem(rNode);
-				} else {
-					requestInvoicePrice = sumInvoicePrice(requestInvoicePrice, bi);
-					rNode.appendChild(bi);
 				}
-
+				requestInvoicePrice = sumInvoicePrice(requestInvoicePrice, bi);
+				rNode.appendChild(bi);
 				labAccount = bi.@idBillingAccount;
 			}
 			if (rNode != null)
