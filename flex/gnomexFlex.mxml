@@ -2299,7 +2299,7 @@
 		}
 
 		public function isGroupIManage(idLab:int):Boolean {
-			return getGroupsToManage().(@idLab == idLab.toString()).length > 0;
+			return createSecurityAdvisor.lastResult.groupsToManage.Lab.(@idLab == idLab.toString()).length() > 0;
 		}
 
 		public function hasGroupsToManage():Boolean {
