@@ -1557,10 +1557,9 @@
 					}
 
 					samplesGridConfirm.columns = newColumns;
-
-					samplesGridConfirm.validateNow();
 				}
 			}
+			samplesGridConfirm.validateNow();
 		}
 
 		private function showProtocol(idProtocol:Object, protocolClassName:String):void {
