@@ -1181,7 +1181,7 @@
 		for each(var request:XML in billingItems) {
 			var labAccount:String = null;
 			var requestInvoicePrice:Number = 0;
-			var rNode:XML;
+			var rNode:XML = null;
 
 			for each(var bi:XML in request.BillingItem) {
 				if (bi.@idBillingAccount != labAccount) {
