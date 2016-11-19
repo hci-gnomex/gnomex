@@ -476,8 +476,8 @@
 			 <classes dir="${lib.dir}"              includes="persistence.xml"/> 
 			 <classes dir="${lib.dir}"              includes="*.tomcat.cfg.xml"/> 
 			 <classes dir="${lib.dir}"              includes="*.properties"/> 
-		     <classes dir="${src.dir}"			    includes="Dictionaries.xml"/>
-		     <classes dir="${src.dir}"			    includes="SchemaGNomEx.hbm.xml" />
+		     <classes dir="${rsrc.dir}/hci/gnomex"      includes="Dictionaries.xml"/>
+		     <classes dir="${rsrc.dir}"			includes="SchemaGNomEx.hbm.xml" />
              <classes dir="${dist.dir}/tomcat"     includes="*.*" />
 		     <fileset dir="${webroot.dir}">
 				<include name="**/*.*" />
@@ -567,8 +567,8 @@
 			 <classes dir="${lib.dir}"              includes="persistence.xml"/> 
 			 <classes dir="${lib.dir}"              includes="*.tomcat.cfg.xml"/> 
 			 <classes dir="${lib.dir}"              includes="*.properties"/> 
-		     <classes dir="${src.dir}"			    includes="Dictionaries.xml"/>
-		     <classes dir="${src.dir}"			    includes="SchemaGNomEx.hbm.xml" />
+			 <classes dir="${rsrc.dir}/hci/gnomex"  includes="Dictionaries.xml"/>
+		     <classes dir="${rsrc.dir}"			    includes="SchemaGNomEx.hbm.xml" />
       		 <classes dir="${dist.dir}/tomcat"      includes="*.*" />
 			 <classes dir="${webroot.dir}/gnomexlite" includes="GNomExLite.properties" />
 		     <fileset dir="${webroot.dir}">
@@ -704,7 +704,7 @@
 		<copy todir="${genoviz.dir}/ext" file="${dist.dir}/gnomex_realm.jar"/>
 		
 		<!-- Copy SchemaGNomEx.hbm.xml to genoviz/das2server/resources -->
-		<copy todir="${genoviz.dir}/das2_server/resources" file="${src.dir}/SchemaGNomEx.hbm.xml"/>
+		<copy todir="${genoviz.dir}/das2_server/resources" file="${rsrc.dir}SchemaGNomEx.hbm.xml"/>
 		
 	</target>
 	
