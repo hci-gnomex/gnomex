@@ -6,13 +6,7 @@ import hci.dictionary.utility.DictionaryManager;
 import hci.framework.control.Command;
 import hci.framework.control.RollBackCommandException;
 import hci.gnomex.constants.Constants;
-import hci.gnomex.model.FlowCell;
-import hci.gnomex.model.FlowCellChannel;
-import hci.gnomex.model.NumberSequencingCyclesAllowed;
-import hci.gnomex.model.SequenceLane;
-import hci.gnomex.model.SequencingPlatform;
-import hci.gnomex.model.Step;
-import hci.gnomex.model.WorkItem;
+import hci.gnomex.model.*;
 import hci.gnomex.security.SecurityAdvisor;
 import hci.gnomex.utility.DictionaryHelper;
 import hci.gnomex.utility.FlowCellChannelComparator;
@@ -265,7 +259,19 @@ public class SaveWorkItemSolexaAssemble extends GNomExCommand implements Seriali
               channel.setSampleConcentrationpM(parser.getSampleConcentrationpm(channelNumber));
               channel.setIsControl(parser.getIsControl(channelNumber));
               channel.setNumberSequencingCyclesActual(flowCellNumCycles);
-              
+
+              // Apply the core facility's default pipeline protocol, if any
+              channel.setIdPipelineProtocol(null);
+              for (Iterator iter = DictionaryManager.getDictionaryEntries("hci.gnomex.model.PipelineProtocol").iterator(); iter.hasNext();) {
+                Object obj = iter.next();
+                if (obj instanceof PipelineProtocol) {
+                  PipelineProtocol protocol = (PipelineProtocol) obj;
+                  if (protocol.getIdCoreFacility().equals(parser.getIdCoreFacility()) && protocol.getIsDefault().equals("Y")) {
+                    channel.setIdPipelineProtocol(protocol.getIdPipelineProtocol());
+                  }
+                }
+              }
+
               // Use the channel number from the key set to get the contents that will go into this channel
               // The items will either be a sequence lane or a sequence control.
               List<WorkItemSolexaAssembleParser.ChannelContent> channelContents = parser.getChannelContents(channelNumber);

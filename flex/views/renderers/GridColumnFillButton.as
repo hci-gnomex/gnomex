@@ -3,10 +3,8 @@ package views.renderers
 import flash.events.Event;
 import flash.events.FocusEvent;
 import flash.events.MouseEvent;
-import flash.utils.getDefinitionByName;
 
 import hci.flex.controls.ComboBox;
-import hci.flex.controls.TextInput;
 import hci.flex.renderers.RendererFactory;
 
 import mx.collections.HierarchicalCollectionView;
@@ -17,20 +15,13 @@ import mx.controls.AdvancedDataGrid;
 import mx.controls.Button;
 import mx.controls.DataGrid;
 import mx.controls.TextInput;
-import mx.controls.dataGridClasses.DataGridColumn;
 import mx.controls.dataGridClasses.DataGridListData;
 import mx.controls.listClasses.BaseListData;
 import mx.controls.listClasses.IDropInListItemRenderer;
 import mx.core.IFactory;
 import mx.core.UIComponent;
-import mx.effects.easing.Back;
 import mx.events.ListEvent;
 import mx.managers.IFocusManagerComponent;
-
-import views.renderers.FilterComboBoxAnnotation;
-
-import views.util.DataGridAlternatingGroup;
-import views.util.FillButtonClickEvent;
 
 
 public class GridColumnFillButton extends HBox implements IDropInListItemRenderer, IFocusManagerComponent

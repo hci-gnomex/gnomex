@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:VBox styleName="panelBox" xmlns:mx="http://www.adobe.com/2006/mxml"
 		 width="100%" height="100%"
-		 xmlns:util="views.util.*" xmlns:util1="util.*" xmlns:renderers="views.renderers.*"><!-- defaultButton="{lookupButton}" -->
+		 xmlns:util="views.util.*">
 
 	
 	<mx:HTTPService  
@@ -66,25 +66,26 @@
 	<mx:XMLListCollection id="flowCellsList" source="{getFlowCellList.lastResult.FlowCell}" sort="{sortFlowCellsList}" />
 	<mx:XMLListCollection id="sequenceProtocolsList" filterFunction="filterSequenceProtocolsList"  /> <!-- active protocols -->
 	<mx:Sort id="sortFlowCellsList" compareFunction="compareFlowCellsList" />
-<mx:Script> 
+
+	<mx:Script>
 	<![CDATA[
-		import hci.flex.controls.DropdownLabel;
-		
-		import mx.collections.ArrayCollection;
-		import mx.controls.Alert;
-		import mx.controls.dataGridClasses.DataGridColumn;
+	import hci.flex.controls.ComboBox;
+	import hci.flex.util.DictionaryManager;
+
+	import mx.controls.Alert;
+	import mx.controls.listClasses.IListItemRenderer;
+	import mx.events.AdvancedDataGridEvent;
 		import mx.events.CloseEvent;
-		import mx.events.CollectionEvent;
-		import mx.events.CollectionEventKind;
-		import mx.events.ItemClickEvent;
 		import mx.events.ListEvent;
-		import mx.events.PropertyChangeEvent;
 		import mx.managers.PopUpManager;
 		import mx.rpc.events.ResultEvent;
-		
-//		import views.workflow.EditFlowCellWindow;
-		
-		[Bindable]
+
+	import views.renderers.ComboBoxPipelineProtocol;
+
+	import views.renderers.DropdownLabel;
+	import views.renderers.GridColumnFillButton;
+
+	[Bindable]
 		public var selectedFlowCell:Object;
 		
 		[Bindable]
@@ -198,7 +199,7 @@
 		}
 		
 		private function saveFC():void {
-			updateSampleConcpM();
+			updateDataFromGrid();
 
 			var params:Object = new Object();
 			params.number = selectedFlowCell.@number;
@@ -218,19 +219,17 @@
 			params.numberSequencingCyclesActual = this.flowCellProtocol.selectedItem.@numberSequencingCyclesDisplay;
 			params.idSeqRunType = this.flowCellProtocol.selectedItem.@idSeqRunType;
 			params.channelsXMLString =  "<fcChannels>" + this.selectedFlowCell.flowCellChannels.FlowCellChannel.toXMLString() + "</fcChannels>";
-			//params.lastCycleDate = this.lastCycleDateInput.text;
-			
-			
+
 			saveFlowCell.send(params);
 			
 		}
 		
-		private function updateSampleConcpM():void{
-			for each(var fc:XML in selectedFlowCell.flowCellChannels.FlowCellChannel){
-				for each(var sl:XML in flowCellChannelsList){
-					if(fc.@fileName == sl.@fileName){
-						fc.@sampleConcentrationpM = sl.@flowCellChannelSampleConcentrationpM;
-						break;
+		private function updateDataFromGrid():void {
+			for each(var flowCellChannelData:XML in selectedFlowCell.flowCellChannels.FlowCellChannel){
+				for each(var gridRow:XML in flowCellChannelsList){
+					if(flowCellChannelData.@idFlowCellChannel == gridRow.@idFlowCellChannel){
+						flowCellChannelData.@sampleConcentrationpM = gridRow.@flowCellChannelSampleConcentrationpM;
+						flowCellChannelData.@idPipelineProtocol = gridRow.@idPipelineProtocol;
 					}
 				}
 			}
@@ -272,8 +271,8 @@
 				hboxGroupSide.visible = false;
 				hboxGroupSide.includeInLayout = false;
 				codeSequencingPlatform = 'MISEQ';
-			} 
-			sequenceProtocolsList.source = parentApplication.dictionaryManager.getEntriesExcludeBlank('hci.gnomex.model.NumberSequencingCyclesAllowed').(@isActive == 'Y')
+			}
+			sequenceProtocolsList.source = parentApplication.dictionaryManager.getEntriesExcludeBlank('hci.gnomex.model.NumberSequencingCyclesAllowed').(@isActive == 'Y');
 			sequenceProtocolsList.addItemAt(new XML('<Default name="Choose a protocol..." />'),0);
 			flowCellProtocol.selectedIndex = 0;
 		}
@@ -359,12 +358,14 @@
 						sequencingControl.@editable = "true";
 						isFirst = false;
 					}
+					sequencingControl.@idPipelineProtocol = flowCellChannel.@idPipelineProtocol;
 					sequencingControl.@number = sequencingControl.@display;
 					sequencingControl.@flowCellChannelNumber = flowCellChannel.@number;
 					destination += sequencingControl;
 				}
 				for each( var sequenceLane:XML in flowCellChannel..SequenceLane ) {
 					sequenceLane.@oldFileName = sequenceLane.@fileName;
+					sequenceLane.@idPipelineProtocol = flowCellChannel.@idPipelineProtocol;
 					if(isFirst) {
 						sequenceLane.@isControl = flowCellChannel.@isControl;
 						sequenceLane.@editable = "true";
@@ -523,7 +524,22 @@
 //		}
 		public function flowCellProtocolChangeHandler(event:ListEvent):void {
 			Alert.show("Changing the protocol for the flow cell will change the protocol for all samples it contains.", "Warning");
-		}	
+		}
+
+		public function updatePipelineProtocols(event:AdvancedDataGridEvent):void {
+			if (event.dataField == "@idPipelineProtocol") {
+				var renderer:IListItemRenderer = flowCellChannelsGrid.itemEditorInstance;
+				if (renderer != null) {
+					var idChannel:String = event.itemRenderer.data.@idFlowCellChannel;
+					var idNewProtocol:String = ComboBoxPipelineProtocol(flowCellChannelsGrid.itemEditorInstance).value.toString();
+					for each (var channel:XML in flowCellChannelsList) {
+						if (channel.@idFlowCellChannel == idChannel && channel.@idPipelineProtocol != idNewProtocol) {
+							channel.@idPipelineProtocol = idNewProtocol;
+						}
+					}
+				}
+			}
+		}
 	]]>
 </mx:Script>
 	
@@ -658,7 +674,7 @@
 					<mx:ComboBox width="130" id="flowCellInstrument" change="createFlowCellFileName()"
 								 labelField="@display"
 								 dataProvider="{parentApplication.dictionaryManager.xml.Dictionary.(@className == 'hci.gnomex.model.Instrument').DictionaryEntry.(@isActive=='Y')}"
-								 fontSize="11"></mx:ComboBox>
+								 fontSize="11" />
 					<mx:HBox id="hboxGroupSide" paddingTop="0"
 							 paddingBottom="0" borderStyle="none" cornerRadius="10"
 							 borderColor="#466D88" paddingLeft="0" paddingRight="0">
@@ -667,12 +683,12 @@
 										label="Side A" styleName="labelSmall" id="radioSideA"
 										paddingBottom="0" paddingLeft="4" paddingRight="0"
 										paddingTop="0" textAlign="left" horizontalGap="0"
-										verticalGap="0" value="A"></mx:RadioButton>
+										verticalGap="0" value="A" />
 						<mx:RadioButton groupName="flowCellSide"
 										label="Side B" styleName="labelSmall" id="radioSideB"
 										paddingLeft="0" paddingBottom="0" paddingRight="4"
 										paddingTop="0" horizontalGap="0" verticalGap="0"
-										value="B"></mx:RadioButton>
+										value="B" />
 					</mx:HBox>
 					<mx:Label text="Protocol" styleName="formLabel" width="50"/>
 					<mx:ComboBox width="250" id="flowCellProtocol" labelField="@name" rowCount="{sequenceProtocolsList.length}" dataProvider="{sequenceProtocolsList}" visible="{true}" includeInLayout="{true}"
@@ -688,7 +704,7 @@
 				<util:AdvancedDataGridGroupedRowColorsFlowCellChannelNumber id="flowCellChannelsGrid" width="100%"
 													   height="100%" sortableColumns="true" draggableColumns="false" editable="true"
 													   dataProvider="{flowCellChannelsList}" fontSize="10" resizableColumns="true"
-													   updateComplete="{}">
+													   updateComplete="{}" itemEditEnd="updatePipelineProtocols(event);" >
 					<util:columns>
 						<mx:AdvancedDataGridColumn dataField="@number" editable="false"
 												   headerText="Experiment" width="75">
@@ -759,6 +775,16 @@
 								</mx:Component>
 							</mx:headerRenderer>
 						</mx:AdvancedDataGridColumn>
+
+						<mx:AdvancedDataGridColumn dataField="@idPipelineProtocol"
+												   width="200"
+												   sortable="false"
+												   headerText="Pipeline Protocol"
+												   editorDataField="value"
+												   rendererIsEditor="false"
+												   itemRenderer="{views.renderers.DropdownLabel.create(parentApplication.dictionaryManager.xml.Dictionary.(@className=='hci.gnomex.model.PipelineProtocol').DictionaryEntry, '@display', '@value', '@idPipelineProtocol')}"
+												   itemEditor="{views.renderers.ComboBoxPipelineProtocol.getFactory(parentApplication, selectedFlowCell.@idCoreFacility)}" />
+
 						<mx:AdvancedDataGridColumn width="200"
 												   dataField="@idNumberSequencingCyclesAllowed"
 												   labelFunction="lookupNumberSequencingCyclesAllowed" editable="false">

@@ -616,6 +616,15 @@ public class DictionaryHelper implements Serializable {
     return name;
   }
 
+  public String getPipelineProtocol(Integer id) {
+    lazyLoadManagedDictionaries();
+    String name = "";
+    if (id != null) {
+      name = DictionaryManager.getDisplay("hci.gnomex.model.PipelineProtocol", id.toString());
+    }
+    return name;
+  }
+
   public String getBioanalyzerChipType(String code) {
     lazyLoadManagedDictionaries();
     String name = "";
