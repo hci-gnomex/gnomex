@@ -964,12 +964,12 @@
 			var editTitle:String = (this.selectedExperiment.@isExternal == 'Y' ? 'Edit External Experiment ' : 'Edit Experiment ') + this.selectedExperiment.@number;
 
 			parentDocument.parentDocument.experimentEditView.removeDataListeners();
-			parentDocument.parentDocument.experimentEditView.initializeData();
+			//parentDocument.parentDocument.experimentEditView.initializeData();
 
 			// ********************************************************************************
 			parentApplication.lastGetRequestDownloadListidRequest = "";
 			parentApplication.lastGetRequestDownloadListrequestNumber = "";
-
+            // setupEditForm calls initializeData
 			parentDocument.parentDocument.experimentEditView.setupEditForm(this.selectedExperiment);
 			parentDocument.parentDocument.experimentEditView.titleLabel.text = editTitle;
 
@@ -1557,9 +1557,9 @@
 					}
 
 					samplesGridConfirm.columns = newColumns;
+					samplesGridConfirm.validateProperties();
 				}
 			}
-			samplesGridConfirm.validateNow();
 		}
 
 		private function showProtocol(idProtocol:Object, protocolClassName:String):void {
