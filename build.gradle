@@ -5,14 +5,30 @@ apply from: 'common.gradle'
 ant.importBuild 'flexBuild.xml'
 import org.apache.tools.ant.filters.*;
 
-
-repositories {
-    mavenLocal()
-    //mavenCentral()
-    jcenter()
+allprojects {
+    repositories {
+        mavenLocal()
+        //mavenCentral()
+        jcenter()
+    }
 }
 
 dependencies {
+
+    runtime 'hci:hci-servlet-filter-nocache:1.+'
+    runtime 'hci:hci-servlet-filter-xsrf:1.1+'
+    runtime 'hci:hci-servlet-filter-cors:1.+'
+    runtime 'hci:hci-servlet-filter-pushstate:1.+'
+
+    compile 'hci:hci-ri-auth:1.+'
+    compile 'hci:hci-bean-validation:+'
+
+    //TODO: Sort these out
+    providedCompile 'org.hibernate:hibernate-entitymanager:5.0.6.Final'
+    providedCompile 'org.jboss.resteasy:resteasy-jaxrs:3.0.19.Final'
+    providedCompile 'org.jboss.resteasy:resteasy-jaxb-provider:3.0.19.Final'
+    providedCompile 'org.jboss.resteasy:resteasy-jettison-provider:3.0.19.Final'
+
     compile fileTree (dir: 'libEnv', include: 'hci-hibernate5-utils-1.0.jar');
     compile fileTree (dir: 'lib', include: 'biojava.jar')
     compile fileTree (dir: 'lib', include: 'metrixClient-1.4.jar')
@@ -24,8 +40,8 @@ dependencies {
 
 
     //Realm stuff
-    providedCompile 'org.apache.tomcat:tomcat-jdbc:9.0.0.M10'
-    providedCompile 'org.apache.tomcat:tomcat-catalina:7.0.68'
+    //providedCompile 'org.apache.tomcat:tomcat-jdbc:9.0.0.M10'
+    //providedCompile 'org.apache.tomcat:tomcat-catalina:7.0.68'
     providedCompile group: 'javax.servlet', name: 'javax.servlet-api', version: '3.0.1'
     providedCompile 'log4j:log4j:1.2.12'
     providedCompile 'javax.mail:mail:1.4.7'
