@@ -1,0 +1,5 @@
+apply plugin: 'java'
+
+dependencies {
+    compile group: 'commons-codec', name: 'commons-codec', version: '1.5'
+}
