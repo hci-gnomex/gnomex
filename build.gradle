@@ -20,16 +20,10 @@ apply plugin: 'war'
 apply plugin: 'idea'
 apply plugin: 'maven'
 apply from: 'common.gradle'
-ant.importBuild 'flexBuild.xml'
 import org.apache.tools.ant.filters.*;
 
 allprojects {
     apply plugin: 'hci-conventions'
-}
-
-configurations {
-    wildfly
-    tomcat
 }
 
 dependencies {
@@ -51,7 +45,11 @@ dependencies {
     compile group: 'org.freemarker', name: 'freemarker', version: '2.3.20'
     compile group: 'commons-validator', name: 'commons-validator', version: '1.4.0'
     compile group: 'org.apache.lucene', name: 'lucene-core', version: '2.9.4'
-    compile group: 'org.hibernate', name: 'hibernate-core', version: '5.2.2.Final'
+    compile group: 'commons-codec', name: 'commons-codec', version: '1.10'
+    compile group: 'commons-io', name: 'commons-io', version: '2.4'
+    compile group: 'commons-lang', name: 'commons-lang', version: '2.6'
+    compile group: 'jdom', name: 'jdom', version: '1.0b8'
+     
     
     //xml to json stuff for gnomexlite
     compile group: 'jline', name: 'jline', version: '0.9.94'
@@ -65,7 +63,7 @@ dependencies {
     compile fileTree (dir: 'libEnv', include: 'hci_utils.jar')
     compile fileTree (dir: 'libEnv', include: 'HCIReport.jar')
     //have to use extremely old jdom b/c the hci framework is using a very old jdom
-    compile fileTree (dir: 'libEnv', include: 'jdom.jar')
+    //compile fileTree (dir: 'libEnv', include: 'jdom.jar')
 
     //Realm stuff
     providedCompile group: 'javax.servlet', name: 'javax.servlet-api', version: '3.0.1'
@@ -78,24 +76,21 @@ dependencies {
 
     //wildfly
     if (gnomex_server == 'wildfly') {
-	    //providedCompile group: 'org.hibernate', name: 'hibernate-core', version: '5.0.6.Final'
-	    providedCompile group: 'org.hibernate', name: 'hibernate-entitymanager', version: '5.0.6.Final'
+	    providedCompile group: 'org.hibernate', name: 'hibernate-core', version: '5.0.10.Final'
+	    providedCompile group: 'org.hibernate', name: 'hibernate-entitymanager', version: '5.0.10.Final'
 	    providedCompile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.+'
 	    providedCompile group: 'org.jboss.resteasy', name: 'resteasy-jaxrs', version: '3.0.19.Final'
 	    providedCompile group: 'org.jboss.resteasy', name: 'resteasy-jaxb-provider', version: '3.0.19.Final'
 	    providedCompile group: 'org.jboss.resteasy', name: 'resteasy-jettison-provider', version: '3.0.19.Final'
-	    providedCompile group: 'javax.enterprise', name: 'cdi-api', version: '1.2'
-	    providedCompile group: 'commons-codec', name: 'commons-codec', version: '1.10'
-	    providedCompile group: 'commons-io', name: 'commons-io', version: '2.4'
-	    providedCompile group: 'commons-lang', name: 'commons-lang', version: '2.6'	    
+	    providedCompile group: 'javax.enterprise', name: 'cdi-api', version: '1.2'    
 	    //Wildfly has it's own implementation which will be available at runtime
 	    providedCompile group: 'javax.ejb', name: 'javax.ejb-api', version: '3.2'
     }
     
     //tomcat
     else {
-	    //compile group: 'org.hibernate', name: 'hibernate-core', version: '5.0.6.Final'
-	    compile group: 'org.hibernate', name: 'hibernate-entitymanager', version: '5.0.6.Final'
+	    compile group: 'org.hibernate', name: 'hibernate-core', version: '5.0.10.Final'
+	    compile group: 'org.hibernate', name: 'hibernate-entitymanager', version: '5.0.10.Final'
 	    compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.+'
 	    compile group: 'org.jboss.resteasy', name: 'resteasy-jaxrs', version: '3.0.19.Final'
         compile group: 'org.jboss.resteasy', name: 'resteasy-jaxb-provider', version: '3.0.19.Final'
@@ -112,8 +107,8 @@ dependencies {
 }
 
 def buildAliases = [
-        'gnomex_all' : ['clean', 'clean_tomcat', 'enableHTTPS', 'makeFlex', 'makeSQLServer', 'jar', 'clientJar', 'realmJar', 'flex-compile', 'copyScripts', 'war', 'gnomex_deploy'],
-        'gnomex_all_opensource' : ['clean', 'clean_tomcat', 'disableHTTPS', 'makeMySQL', 'makeFlex', 'jar', 'clientJar', 'realmJar', 'flex-compile', 'copyScripts', 'opensourceWar', 'enableHTTPS', 'opensourceSecureWar', 'moveSecureWar', 'gnomex_deploy', 'createOpenSourceZip'],
+        'gnomex_all' : ['clean', 'clean_tomcat', 'enableHTTPS', 'makeSQLServer', 'jar', 'clientJar', 'realmJar', 'copyScripts', 'war', 'gnomex_deploy'],
+        'gnomex_all_opensource' : ['clean', 'clean_tomcat', 'disableHTTPS', 'makeMySQL', 'jar', 'clientJar', 'realmJar', 'copyScripts', 'opensourceWar', 'enableHTTPS', 'opensourceSecureWar', 'moveSecureWar', 'gnomex_deploy', 'createOpenSourceZip'],
         'gnomex_clean' : ['clean', 'clean_tomcat'],
         'gnomex_lite_all' : ['clean', 'clean_tomcat', 'enableHTTPS', 'makeLite', 'makeSQLServer', 'jar', 'clientJar', 'realmJar', 'copyScripts', 'gnomexLiteWar', 'gnomex_deploy'],
         'gnomex_lite_all_opensource' : ['clean', 'clean_tomcat', 'disableHTTPS', 'makeLite', 'makeMySQL', 'jar', 'clientJar', 'realmJar', 'copyScripts', 'gnomexLiteOpenSourceWar', 'enableHTTPS', 'gnomexLiteOpenSourceSecureWar', 'moveSecureWar', 'gnomex_deploy']
@@ -162,10 +157,6 @@ task enableHTTPS << {
     replaceString("${baseDir}/src/main/java/hci/gnomex/constants/Constants.java",
             "REQUIRE_SECURE_REMOTE = false;",
             "REQUIRE_SECURE_REMOTE = true;")
-}
-
-task makeFlex <<{
-    replaceString("${webrootDir}/WEB-INF/web.xml", "gnomexLite.jsp", "gnomexFlex.jsp");
 }
 
 task makeLite << {
@@ -459,10 +450,6 @@ task gnomexLiteWar (type: War) {
         into 'WEB-INF/classes'
     }
 
-    from("${baseDir}/flex"){
-        include "assets/*.*"
-    }
-
     from("${webrootDir}/gnomexlite"){
         include "GNomExLite.properties"
         into 'WEB-INF/classes'
@@ -533,10 +520,6 @@ task gnomexLiteOpenSourceWar (type: War) {
         include "getXML.jsp"
         include "getHTML.jsp"
         into 'WEB-INF/classes'
-    }
-
-    from("${baseDir}/flex"){
-        include "assets/*.*"
     }
 
     from("${webrootDir}/gnomexlite"){
@@ -615,10 +598,6 @@ task gnomexLiteOpenSourceSecureWar (type: War) {
         include "getXML.jsp"
         include "getHTML.jsp"
         into 'WEB-INF/classes'
-    }
-
-    from("${baseDir}/flex"){
-        include "assets/*.*"
     }
 
     from("${webrootDir}/gnomexlite"){
