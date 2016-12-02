@@ -59,7 +59,6 @@ public class BillingTemplateParser {
 
 			BillingTemplateItem parsedBillingTemplateItem = new BillingTemplateItem();
 			parsedBillingTemplateItem.setIdBillingAccount(Integer.parseInt(billingTemplateItemNode.getAttributeValue("idBillingAccount")));
-			parsedBillingTemplateItem.setSortOrder(Integer.parseInt(billingTemplateItemNode.getAttributeValue("sortOrder")));
 
 			boolean acceptingBalance = billingTemplateItemNode.getAttributeValue("acceptBalance") != null && billingTemplateItemNode.getAttributeValue("acceptBalance").trim().equalsIgnoreCase("true");
 

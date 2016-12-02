@@ -231,15 +231,8 @@
 					" targetClassName='" + targetClassName + "'" +
 					" usingPercentSplit='" + usingPercentSplit + "'" +
 					" >";
-			var minSortOrder:int = 1;
-			var maxSortOrder:int = billingTemplateItems.length;
 			for each (var item:XML in billingTemplateItems) {
 				var itemToAdd:XML = item.copy();
-				if (itemToAdd.@acceptBalance == "true") {  // the item accepting the balance should have the highest sort order
-					itemToAdd.@sortOrder = maxSortOrder--;
-				} else {
-					itemToAdd.@sortOrder = minSortOrder++;
-				}
 				itemToAdd.@percentSplit = removeNumberPunctuation(itemToAdd.@percentSplit);
 				itemToAdd.@dollarAmount = removeNumberPunctuation(itemToAdd.@dollarAmount);
 				billingTemplateXML += itemToAdd.toXMLString();
@@ -327,7 +320,6 @@
 					" percentSplit=''" +
 					" dollarAmount=''" +
 					" acceptBalance='false'" +
-					" sortOrder=''" +
 					" />");
 			billingTemplateItems.addItem(newNode);
 			labCombo.selectedItem = null;
