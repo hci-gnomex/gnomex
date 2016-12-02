@@ -37,7 +37,7 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
-import org.hibernate.query.Query;
+import org.hibernate.Query;
 
 import com.itextpdf.text.Document;
 import com.itextpdf.text.Element;

@@ -23,7 +23,7 @@ import javax.servlet.http.HttpSession;
 
 import hci.gnomex.utility.PasswordUtil;
 
-import org.hibernate.query.Query;
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.jdbc.Work;
 import org.jdom.Document;

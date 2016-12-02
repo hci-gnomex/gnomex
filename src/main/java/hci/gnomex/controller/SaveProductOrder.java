@@ -49,9 +49,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
+import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.hibernate.internal.SessionImpl;
-import org.hibernate.query.NativeQuery;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
@@ -407,7 +407,7 @@ public static String getNextPONumber(ProductOrder po, Session sess) throws SQLEx
 		} else {
 			queryString = "call " + procedure;
 		}
-		NativeQuery query = sess.createNativeQuery(queryString);
+		SQLQuery query = sess.createSQLQuery(queryString);
 		List l = query.list();
 		if (l.size() != 0) {
 			Object o = l.get(0);

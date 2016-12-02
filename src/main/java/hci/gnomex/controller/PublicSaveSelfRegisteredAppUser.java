@@ -28,7 +28,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.validator.routines.EmailValidator;
-import org.hibernate.query.Query;
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.apache.log4j.Logger;
 public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Serializable {

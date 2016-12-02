@@ -101,8 +101,8 @@ import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import org.hibernate.query.Query;
-import org.hibernate.query.NativeQuery;
+import org.hibernate.Query;
+import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.hibernate.internal.SessionImpl;
 import org.jdom.Document;
@@ -1214,7 +1214,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 				queryString = "select " + procedure + "();";
 			}
 
-			NativeQuery query = sess.createNativeQuery(queryString);
+			SQLQuery query = sess.createSQLQuery(queryString);
 			List l = query.list();
 			if (l.size() != 0) {
 				Object o = l.get(0);
@@ -1243,7 +1243,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 				} else {
 					queryString = "select " + procedure + "();";
 				}
-				NativeQuery query = sess.createNativeQuery(queryString);
+				SQLQuery query = sess.createSQLQuery(queryString);
 				List l = query.list();
 				if (l.size() != 0) {
 					Object o = l.get(0);

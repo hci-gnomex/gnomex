@@ -36,8 +36,8 @@ import javax.servlet.http.HttpSession;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.hibernate.Hibernate;
+import org.hibernate.SQLQuery;
 import org.hibernate.Session;
-import org.hibernate.query.NativeQuery;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.output.XMLOutputter;
@@ -496,7 +496,7 @@ public static Map<Integer, Integer> getDataTrackMap(Session sess, Integer idAnal
 	// String queryString =
 	// "SELECT idAnalysisFile from DataTrackFile as dtf where dtf.idAnalysisFile in (select idAnalysisFile from AnalysisFile where idAnalysis=:id)";
 	String queryString = "SELECT dtf.idAnalysisFile from DataTrackFile as dtf, AnalysisFile as af where af.idAnalysis = :id and dtf.idAnalysisFile = af.idAnalysisFile";
-	NativeQuery query = sess.createNativeQuery(queryString);
+	SQLQuery query = sess.createSQLQuery(queryString);
 	query.setParameter("id", idAnalysis);
 	List l = query.list();
 	for (Iterator i = l.iterator(); i.hasNext();) {

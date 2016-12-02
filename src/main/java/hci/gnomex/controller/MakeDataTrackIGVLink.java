@@ -36,7 +36,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
-import org.hibernate.query.Query;
+import org.hibernate.Query;
 
 /**
  * Edited 1/15/2013 Mosbruger

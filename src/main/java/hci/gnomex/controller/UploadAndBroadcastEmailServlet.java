@@ -27,7 +27,7 @@ import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.hibernate.Session;
-import org.hibernate.query.Query;
+import org.hibernate.Query;
 
 import com.oreilly.servlet.multipart.FilePart;
 import com.oreilly.servlet.multipart.MultipartParser;

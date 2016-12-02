@@ -7,7 +7,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.sql.Date;
 
-import org.hibernate.query.Query;
+import org.hibernate.Query;
 import org.hibernate.Session;
 
 @SuppressWarnings("serial")

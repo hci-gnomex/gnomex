@@ -22,8 +22,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
+import org.hibernate.Query;
 import org.hibernate.Session;
-import org.hibernate.query.Query;
 
 public class ApproveUser extends HttpServlet {
 public static Logger LOG = Logger.getLogger(ApproveUser.class);
