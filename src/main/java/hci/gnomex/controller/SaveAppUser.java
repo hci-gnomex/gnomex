@@ -9,6 +9,7 @@ import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.UserPermissionKind;
 import hci.gnomex.security.EncryptionUtility;
 import hci.gnomex.security.SecurityAdvisor;
+import hci.gnomex.security.EncrypterService;
 import hci.gnomex.utility.*;
 
 import java.io.IOException;

@@ -3,7 +3,6 @@ package hci.gnomex.security.tomcat;
 import hci.gnomex.security.ActiveDirectory;
 import hci.gnomex.security.EncrypterService;
 import hci.gnomex.security.EncryptionUtility;
-import hci.gnomex.utility.Util;
 
 import java.security.Principal;
 import java.sql.Connection;
@@ -268,7 +267,7 @@ public class GNomExLDAPRealm extends RealmBase {
 			// If user attributes are property is present, then check the user attributes
 			// to see if they match the expected value.
 			if (ldap_domain != null && ldap_user_attribute_map != null && !ldap_user_attribute_map.isEmpty()) {
-				NamingEnumeration<SearchResult> answer = ad.searchUser(username, ldap_domain, Util.keysToArray(ldap_user_attribute_map));
+				NamingEnumeration<SearchResult> answer = ad.searchUser(username, ldap_domain, keysToArray(ldap_user_attribute_map));
 				isAuthenticated = ad.doesMatchUserAttribute(answer, ldap_user_attribute_map);
 			} else {
 				// If no user attributes property present, we have passed authentication at this point.
@@ -282,6 +281,20 @@ public class GNomExLDAPRealm extends RealmBase {
 		return isAuthenticated;
 
 	}
+	
+	 /*
+   * return the key set of the Map as an array of Strings.
+   */
+  private static String[] keysToArray(Map<String, ?> map) {
+    String[] keys = new String[map.size()];
+
+    int index = 0;
+    for (String key : map.keySet()) {
+      keys[index] = key;
+      index++;
+    }
+    return keys;
+  }
 
 	private boolean checkAlternateLDAPCredentials() {
 		env1 = new Hashtable();

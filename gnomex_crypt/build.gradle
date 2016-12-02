@@ -1,5 +1,24 @@
+buildscript {
+    repositories {
+        maven { url 'http://repo.spring.io/plugins-release' }
+    }
+    dependencies {
+        classpath 'org.springframework.build.gradle:propdeps-plugin:0.0.7'
+    }
+}
+
+apply plugin: 'propdeps'
 apply plugin: 'java'
 
 dependencies {
-    compile group: 'commons-codec', name: 'commons-codec', version: '1.5'
+
+    //wildfly
+    if (gnomex_server == 'wildfly') {
+        provided group: 'commons-codec', name: 'commons-codec', version: '1.10'
+    }
+    
+    //tomcat
+    else {
+        compile group: 'commons-codec', name: 'commons-codec', version: '1.10'
+    }
 }

@@ -1,3 +1,21 @@
+buildscript {
+  repositories {
+    maven {
+      credentials {
+        username = repo_user
+        password = repo_password
+      }
+      url repo_resolve_url
+    }
+    maven { url 'http://repo.spring.io/plugins-release' }
+  }
+  dependencies {
+    classpath 'org.springframework.build.gradle:propdeps-plugin:0.0.7'
+    classpath 'org.jfrog.buildinfo:build-info-extractor-gradle:3.0.1'
+    classpath 'hci:hci-conventions:+'
+  }
+}
+
 apply plugin: 'war'
 apply plugin: 'idea'
 apply plugin: 'maven'
@@ -6,29 +24,40 @@ ant.importBuild 'flexBuild.xml'
 import org.apache.tools.ant.filters.*;
 
 allprojects {
-    repositories {
-        mavenLocal()
-        //mavenCentral()
-        jcenter()
-    }
+    apply plugin: 'hci-conventions'
+}
+
+configurations {
+    wildfly
+    tomcat
 }
 
 dependencies {
 
-    runtime 'hci:hci-servlet-filter-nocache:1.+'
-    runtime 'hci:hci-servlet-filter-xsrf:1.1+'
-    runtime 'hci:hci-servlet-filter-cors:1.+'
-    runtime 'hci:hci-servlet-filter-pushstate:1.+'
+    //All
+    runtime group: 'hci', name: 'hci-servlet-filter-nocache', version: '1.+'
+    runtime group: 'hci', name: 'hci-servlet-filter-xsrf', version: '1.1+'
+    runtime group: 'hci', name: 'hci-servlet-filter-cors', version: '1.+'
+    runtime group: 'hci', name: 'hci-servlet-filter-pushstate', version: '1.+'
+    
+    compile group: 'hci', name: 'hci-ri-auth', version: '1.+'
+    compile group: 'hci', name: 'hci-bean-validation', version: '+'
+    
+    compile group: 'servlets.com', name: 'cos', version: '05Nov2002'
+    compile group: 'org.apache.commons', name: 'commons-compress', version: '1.1'
+    compile group: 'org.ostermiller', name: 'utils', version: '1.07.00'
+    compile group: 'net.sf.json-lib', name: 'json-lib', version: '2.4', classifier: 'jdk15'
+    compile group: 'com.itextpdf', name: 'itextpdf', version: '5.5.9'
+    compile group: 'org.freemarker', name: 'freemarker', version: '2.3.20'
+    compile group: 'commons-validator', name: 'commons-validator', version: '1.4.0'
+    compile group: 'org.apache.lucene', name: 'lucene-core', version: '2.9.4'
+    compile group: 'org.hibernate', name: 'hibernate-core', version: '5.2.2.Final'
+    
+    //xml to json stuff for gnomexlite
+    compile group: 'jline', name: 'jline', version: '0.9.94'
+    compile group: 'xom', name: 'xom', version: '1.2.5'
 
-    compile 'hci:hci-ri-auth:1.+'
-    compile 'hci:hci-bean-validation:+'
-
-    //TODO: Sort these out
-    providedCompile 'org.hibernate:hibernate-entitymanager:5.0.6.Final'
-    providedCompile 'org.jboss.resteasy:resteasy-jaxrs:3.0.19.Final'
-    providedCompile 'org.jboss.resteasy:resteasy-jaxb-provider:3.0.19.Final'
-    providedCompile 'org.jboss.resteasy:resteasy-jettison-provider:3.0.19.Final'
-
+    //lib & libEnv
     compile fileTree (dir: 'libEnv', include: 'hci-hibernate5-utils-1.0.jar');
     compile fileTree (dir: 'lib', include: 'biojava.jar')
     compile fileTree (dir: 'lib', include: 'metrixClient-1.4.jar')
@@ -38,32 +67,48 @@ dependencies {
     //have to use extremely old jdom b/c the hci framework is using a very old jdom
     compile fileTree (dir: 'libEnv', include: 'jdom.jar')
 
-
     //Realm stuff
-    //providedCompile 'org.apache.tomcat:tomcat-jdbc:9.0.0.M10'
-    //providedCompile 'org.apache.tomcat:tomcat-catalina:7.0.68'
     providedCompile group: 'javax.servlet', name: 'javax.servlet-api', version: '3.0.1'
-    providedCompile 'log4j:log4j:1.2.12'
-    providedCompile 'javax.mail:mail:1.4.7'
+    providedCompile group: 'log4j', name: 'log4j', version: '1.2.12'
+    providedCompile group: 'javax.mail', name: 'mail', version: '1.4.7'
+    
+    //Subprojects
+    compile project(':gnomex_crypt')
+    compile project(':gnomex_tomcat_support')
 
-    //xml to json stuff for gnomexlite
-    compile group: 'jline', name: 'jline', version: '0.9.94'
-    compile group: 'xom', name: 'xom', version: '1.2.5'
-
-    //
-    compile group: 'org.hibernate', name: 'hibernate-core', version: '5.2.2.Final'
-    compile group: 'servlets.com', name: 'cos', version: '05Nov2002'
-    compile group: 'org.apache.commons', name: 'commons-compress', version: '1.1'
-    compile group: 'org.ostermiller', name: 'utils', version: '1.07.00'
-    compile group: 'commons-codec', name: 'commons-codec', version: '1.5'
-    compile group: 'commons-validator', name: 'commons-validator', version: '1.4.0'
-    compile group: 'commons-io', name: 'commons-io', version: '2.4'
-    compile group: 'commons-lang', name: 'commons-lang', version: '2.6'
-    compile group: 'net.sf.json-lib', name: 'json-lib', version: '2.4', classifier: 'jdk15'
-    compile group: 'org.apache.lucene', name: 'lucene-core', version: '2.9.4'
-    compile group: 'com.itextpdf', name: 'itextpdf', version: '5.5.9'
-    compile group: 'javax.ejb', name: 'javax.ejb-api', version: '3.2'
-    compile group: 'org.freemarker', name: 'freemarker', version: '2.3.20'
+    //wildfly
+    if (gnomex_server == 'wildfly') {
+	    //providedCompile group: 'org.hibernate', name: 'hibernate-core', version: '5.0.6.Final'
+	    providedCompile group: 'org.hibernate', name: 'hibernate-entitymanager', version: '5.0.6.Final'
+	    providedCompile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.+'
+	    providedCompile group: 'org.jboss.resteasy', name: 'resteasy-jaxrs', version: '3.0.19.Final'
+	    providedCompile group: 'org.jboss.resteasy', name: 'resteasy-jaxb-provider', version: '3.0.19.Final'
+	    providedCompile group: 'org.jboss.resteasy', name: 'resteasy-jettison-provider', version: '3.0.19.Final'
+	    providedCompile group: 'javax.enterprise', name: 'cdi-api', version: '1.2'
+	    providedCompile group: 'commons-codec', name: 'commons-codec', version: '1.10'
+	    providedCompile group: 'commons-io', name: 'commons-io', version: '2.4'
+	    providedCompile group: 'commons-lang', name: 'commons-lang', version: '2.6'	    
+	    //Wildfly has it's own implementation which will be available at runtime
+	    providedCompile group: 'javax.ejb', name: 'javax.ejb-api', version: '3.2'
+    }
+    
+    //tomcat
+    else {
+	    //compile group: 'org.hibernate', name: 'hibernate-core', version: '5.0.6.Final'
+	    compile group: 'org.hibernate', name: 'hibernate-entitymanager', version: '5.0.6.Final'
+	    compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.+'
+	    compile group: 'org.jboss.resteasy', name: 'resteasy-jaxrs', version: '3.0.19.Final'
+        compile group: 'org.jboss.resteasy', name: 'resteasy-jaxb-provider', version: '3.0.19.Final'
+        compile group: 'org.jboss.resteasy', name: 'resteasy-jettison-provider', version: '3.0.19.Final'
+        compile group: 'javax.enterprise', name: 'cdi-api', version: '1.2'
+	    compile group: 'commons-codec', name: 'commons-codec', version: '1.10'	    
+	    compile group: 'commons-io', name: 'commons-io', version: '2.4'
+	    compile group: 'commons-lang', name: 'commons-lang', version: '2.6'
+	    compile group: 'javax.ejb', name: 'javax.ejb-api', version: '3.2'
+	 
+	    runtime group: 'org.jboss.weld.servlet', name: 'weld-servlet', version: '2.0.3.Final'
+	    runtime group: 'org.jboss.weld.se', name: 'weld-se-core', version: '2.0.3.Final'
+    }
 }
 
 def buildAliases = [

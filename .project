@@ -31,4 +31,24 @@
 			<location>C:/Program Files/Apache Software Foundation/Tomcat 7.0/webapps/gnomex</location>
 		</link>
 	</linkedResources>
+	<filteredResources>
+		<filter>
+			<id>1480710049635</id>
+			<name></name>
+			<type>26</type>
+			<matcher>
+				<id>org.eclipse.ui.ide.orFilterMatcher</id>
+				<arguments>
+					<matcher>
+						<id>org.eclipse.ui.ide.multiFilter</id>
+						<arguments>1.0-projectRelativePath-equals-true-false-gnomex_crypt</arguments>
+					</matcher>
+					<matcher>
+						<id>org.eclipse.ui.ide.multiFilter</id>
+						<arguments>1.0-projectRelativePath-equals-true-false-gnomex_tomcat_support</arguments>
+					</matcher>
+				</arguments>
+			</matcher>
+		</filter>
+	</filteredResources>
 </projectDescription>
