@@ -5950,7 +5950,7 @@
             var editBillingTemplateWindow:BillingTemplateWindow = BillingTemplateWindow(mx.managers.PopUpManager.createPopUp(this, BillingTemplateWindow, true));
             editBillingTemplateWindow.order = request;
             editBillingTemplateWindow.performSetup(true, this);
-            editBillingTemplateWindow.loadBillingTemplate(parseInt(new String(request.@idRequest)), "Request");
+            editBillingTemplateWindow.loadBillingTemplateFromDb(parseInt(new String(request.@idRequest)), "Request");
             mx.managers.PopUpManager.centerPopUp(editBillingTemplateWindow);
             editBillingTemplateWindow.setFocus();
         }

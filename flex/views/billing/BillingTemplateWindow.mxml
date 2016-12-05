@@ -262,36 +262,64 @@
 			}
 		}
 
-		public function loadBillingTemplate(targetClassIdentifier:Number, targetClassName:String):void {
+		public function loadBillingTemplateFromDb(targetClassIdentifier:Number, targetClassName:String):void {
 			var params:Object = new Object();
 			params.targetClassIdentifier = targetClassIdentifier;
 			params.targetClassName = targetClassName;
 			getBillingTemplate.send(params);
 		}
 
+		public function loadBillingTemplate(template:XML):void {
+			billingTemplate = template.copy();
+			billingTemplateItems = new XMLListCollection(template.BillingTemplateItem);
+			handleBillingTemplateItems();
+		}
+
+		public function loadBillingTemplateFromLabAndBillingAccount(lab:XML, account:XML):void {
+			var template:XML = <BillingTemplate />;
+			template.@idBillingTemplate = "";
+			template.@targetClassIdentifier = "";
+			template.@targetClassName = "";
+			template.@usingPercentSplit = "true";
+			var item:XML = <BillingTemplateItem />;
+			item.@idBillingAccount = account.@idBillingAccount;
+			item.@accountName = account.@accountName;
+			item.@accountNumber = account.@accountNumber;
+			item.@accountNumberDisplay = account.@accountNumberDisplay;
+			item.@idLab = lab.@idLab;
+			item.@labName = lab.@name;
+			item.@percentSplit = "";
+			item.@dollarAmount = "";
+			item.@acceptBalance = "true";
+			template.appendChild(item);
+			loadBillingTemplate(template);
+		}
+
 		private function onGetBillingTemplate(event:ResultEvent):void {
 			if (getBillingTemplate.lastResult.name() == "BillingTemplate") {
-				billingTemplate = new XML(getBillingTemplate.lastResult);
-				billingTemplateItems = new XMLListCollection(billingTemplate.BillingTemplateItem);
-				for each (var entry:XML in billingTemplateItems) {
-					entry.@percentSplit = formatPercentage(entry.@percentSplit);
-					entry.@dollarAmount = formatCurrency(entry.@dollarAmount);
-					updateBillingAccountEntry(entry, entry.@acceptBalance == "true");
-				}
-				if (billingTemplate.@usingPercentSplit == "true") {
-					radioSplitPct.selected = true;
-					radioSplitDollar.selected = false;
-					percentageColumn.visible = true;
-					dollarColumn.visible = false;
-					updatePercentTotal();
-				} else {
-					radioSplitPct.selected = false;
-					radioSplitDollar.selected = true;
-					dollarColumn.visible = true;
-					percentageColumn.visible = false;
-				}
+				loadBillingTemplate(new XML(getBillingTemplate.lastResult));
 			} else {
 				Alert.show(getBillingTemplate.lastResult.ERROR.@message, "Error");
+			}
+		}
+
+		private function handleBillingTemplateItems():void {
+			for each (var entry:XML in billingTemplateItems) {
+				entry.@percentSplit = formatPercentage(entry.@percentSplit);
+				entry.@dollarAmount = formatCurrency(entry.@dollarAmount);
+				updateBillingAccountEntry(entry, entry.@acceptBalance == "true");
+			}
+			if (billingTemplate.@usingPercentSplit == "true") {
+				radioSplitPct.selected = true;
+				radioSplitDollar.selected = false;
+				percentageColumn.visible = true;
+				dollarColumn.visible = false;
+				updatePercentTotal();
+			} else {
+				radioSplitPct.selected = false;
+				radioSplitDollar.selected = true;
+				dollarColumn.visible = true;
+				percentageColumn.visible = false;
 			}
 		}
 

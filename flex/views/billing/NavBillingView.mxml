@@ -2010,7 +2010,7 @@
 		var splitWindow:BillingTemplateWindow = BillingTemplateWindow(mx.managers.PopUpManager.createPopUp(this, BillingTemplateWindow, true));
 		splitWindow.order = requestNode;
 		splitWindow.performSetup(false);
-		splitWindow.loadBillingTemplate(parseInt(identifierAsString), className);
+		splitWindow.loadBillingTemplateFromDb(parseInt(identifierAsString), className);
 		mx.managers.PopUpManager.centerPopUp(splitWindow);
 		splitWindow.setFocus();
 

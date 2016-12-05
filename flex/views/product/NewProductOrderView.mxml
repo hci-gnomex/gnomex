@@ -142,8 +142,7 @@
                 templateItemList = this.splitWindow.getBillingTemplateItems();
                 templateItemsRepeaterBox.visible = true;
                 templateItemsRepeaterBox.includeInLayout = true;
-
-        }
+            }
         }
 
         private function filterLabList(item:Object):Boolean {
@@ -174,10 +173,10 @@
                 }
             }
             // Check user is not an admin for that core, they must be a member of the lab
-            if(parentApplication.isCoreFacilityIManage(idCoreFacility)){
+            if (parentApplication.isCoreFacilityIManage(idCoreFacility)) {
                 keep = true;
             } else {
-                if (item.@isMyLab=="Y" || item.@canSubmitRequests=="Y" || item.@canManage=="Y" ){
+                if (item.@isMyLab == "Y" || item.@canSubmitRequests == "Y" || item.@canManage == "Y") {
                     keep = true;
                 }
             }
@@ -424,10 +423,15 @@
 
             splitWindow = BillingTemplateWindow(mx.managers.PopUpManager.createPopUp(this, BillingTemplateWindow, true));
             splitWindow.performSetup(true, this, idCoreFacility);
+            if (selectedBillingTemplate != null) {
+                splitWindow.loadBillingTemplate(new XML(selectedBillingTemplate));
+            }
+            if (labCombo.selectedItem != null && billingAccountCombo.selectedItem != null) {
+                splitWindow.loadBillingTemplateFromLabAndBillingAccount(new XML(labCombo.selectedItem), new XML(billingAccountCombo.selectedItem));
+            }
             mx.managers.PopUpManager.centerPopUp(splitWindow);
             splitWindow.setFocus();
             splitWindow.addEventListener("billingTemplateWindowSave", refreshTemplateItems);
-
         }
 
         public function makeBillingTemplateSelection():void {
@@ -441,6 +445,14 @@
                 templateItemsRepeaterBox.visible = false;
                 templateItemsRepeaterBox.includeInLayout = false;
             }
+            this.selectedBillingTemplate = null;
+            checkSetupCompleteness();
+            productList.refresh();
+        }
+
+        public function cancelSplitBilling():void {
+            templateItemsRepeaterBox.visible = false;
+            templateItemsRepeaterBox.includeInLayout = false;
             this.selectedBillingTemplate = null;
             checkSetupCompleteness();
             productList.refresh();
@@ -510,8 +522,18 @@
 
             <mx:Spacer height="5%" />
 
-            <mx:VBox width="100%" id="templateItemsRepeaterBox">
-                <mx:Label text="Selected billing accounts"/>
+            <mx:VBox width="100%" id="templateItemsRepeaterBox" visible="false" includeInLayout="false">
+                <mx:HBox>
+                    <mx:Label text="Selected billing accounts"/>
+                    <mx:Spacer width="20" />
+                    <mx:LinkButton label="Change split billing" styleName="formLinkButton" id="splitBillingLink2" fontSize="10" paddingTop="0" textAlign="left" paddingLeft="0">
+                        <mx:click>showSplitBillingWindow()</mx:click>
+                    </mx:LinkButton>
+                    <mx:Spacer width="20" />
+                    <mx:LinkButton label="Cancel split billing" styleName="formLinkButton" id="cancelSplitBillingLink" fontSize="10" paddingTop="0" textAlign="left" paddingLeft="0">
+                        <mx:click>cancelSplitBilling()</mx:click>
+                    </mx:LinkButton>
+                </mx:HBox>
                 <mx:Repeater id="templateItemsRepeater" dataProvider="{templateItemList}" >
                     <mx:VBox width="100%" verticalGap="0">
                         <mx:Text id="templateItem"
