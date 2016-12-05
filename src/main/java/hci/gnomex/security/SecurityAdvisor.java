@@ -2285,7 +2285,7 @@ private Set filterLabSetByCoreFacility(Set<Lab> inLabs) {
 }
 
 public Set getGroupsIAmMemberOf() {
-	if (hasPermission(CAN_PARTICIPATE_IN_GROUPS)) {
+	if (hasPermission(CAN_PARTICIPATE_IN_GROUPS) && this.getAppUser() != null && this.getAppUser().getLabs() != null) {
 		return filterLabSetByCoreFacility(this.getAppUser().getLabs());
 	}
 	return new TreeSet();
@@ -2303,14 +2303,14 @@ public Set getInstitutionsIAmMemberOf() {
 }
 
 public Set getGroupsICollaborateWith() {
-	if (hasPermission(CAN_PARTICIPATE_IN_GROUPS)) {
+	if (hasPermission(CAN_PARTICIPATE_IN_GROUPS) && this.getAppUser() != null && this.getAppUser().getCollaboratingLabs() != null ) {
 		return filterLabSetByCoreFacility(this.getAppUser().getCollaboratingLabs());
 	}
 	return new TreeSet();
 }
 
 public Set getGroupsIManage() {
-	if (hasPermission(CAN_PARTICIPATE_IN_GROUPS)) {
+	if (hasPermission(CAN_PARTICIPATE_IN_GROUPS) && this.getAppUser() != null && this.getAppUser().getManagingLabs() != null ) {
 		return filterLabSetByCoreFacility(this.getAppUser().getManagingLabs());
 	}
 	return new TreeSet();
@@ -2463,7 +2463,7 @@ public boolean isGroupIAmMemberOrManagerOf(Integer idLab) {
 public boolean isGroupICollaborateWith(Integer idLab) {
 	boolean isMyLab = false;
 
-	if (idLab != null) {
+	if (idLab != null && this.getAppUser() != null && this.getAppUser().getCollaboratingLabs() != null) {
 		for (Iterator i = filterLabSetByCoreFacility(this.getAppUser().getCollaboratingLabs()).iterator(); i.hasNext();) {
 			Lab lab = (Lab) i.next();
 			if (lab.getIdLab().equals(idLab)) {
@@ -2503,7 +2503,7 @@ public boolean isGroupIManage(Integer idLab) {
 }
 
 private boolean idLabIsInManagingLabs(int idLab) {
-	if (this.getAppUser() != null) {
+	if (this.getAppUser() != null && this.getAppUser().getManagingLabs() != null) {
 		for (Iterator i = filterLabSetByCoreFacility(this.getAppUser().getManagingLabs()).iterator(); i.hasNext();) {
 			Lab lab = (Lab) i.next();
 			if (lab.getIdLab().equals(idLab)) {
