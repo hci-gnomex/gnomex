@@ -360,13 +360,13 @@
 		<replace file="${flexapp.dir}/views/util/FlexAppVersion.as" token="@flexBuildDate@" value="${build.date}" />
 
 		<mxmlc file="${flexapp.dir}/${flexapp.name}.mxml" 
-			output="${build.dir}/${flexapp.name}.swf">
+			output="${build.dir}/${flexapp.name}.${gnomex_version}.${gnomex_build}.swf">
 	        <load-config filename="${FLEX_HOME}/frameworks/flex-config.xml"/>
 	        <source-path path-element="${FLEX_HOME}/frameworks"/>
 			    <compiler.library-path dir="${lib.dir}" append="true">
 			                <include name="AlivePDF.swc" />
 			     </compiler.library-path>
-			<compiler.debug>true</compiler.debug>			
+			<compiler.debug>true</compiler.debug>
 		</mxmlc>
 		<html-wrapper 
 		      title="${flexapp.title}"
@@ -374,7 +374,7 @@
 		      width="100%"
 		      height="100%"
 		      application="${flexapp.name}"
-		      swf="${flexapp.name}"
+		      swf="${flexapp.name}.${gnomex_version}.${gnomex_build}"
 		      version-major="10"
 		      version-minor="0"
 		      version-revision="0"
@@ -387,9 +387,9 @@
 		
 		<!-- add version number to swf -->
 		<replace file="${build.dir}/${flexapp.name}.html" 
-			token="src=&quot;${flexapp.name}.swf&quot;" value="src=&quot;${flexapp.name}.swf?v=${gnomex_version}.${gnomex_build}&quot;"/>
+			token="src=&quot;${flexapp.name}.${gnomex_version}.${gnomex_build}.swf&quot;" value="src=&quot;${flexapp.name}.${gnomex_version}.${gnomex_build}.swf?v=${gnomex_version}.${gnomex_build}&quot;"/>
 		<replace file="${build.dir}/${flexapp.name}.html" 
-			token="value=&quot;${flexapp.name}.swf&quot;" value="value=&quot;${flexapp.name}.swf?v=${gnomex_version}.${gnomex_build}&quot;"/>
+			token="value=&quot;${flexapp.name}.${gnomex_version}.${gnomex_build}.swf&quot;" value="value=&quot;${flexapp.name}.${gnomex_version}.${gnomex_build}.swf?v=${gnomex_version}.${gnomex_build}&quot;"/>
 		
 		<!--  Create gnomexFlex.jsp with parameters -->
 		<copy file="${build.dir}/${flexapp.name}.html" tofile="${build.dir}/${flexapp.name}.jsp"/>
@@ -434,7 +434,7 @@
 	<!-- War                                            -->
 	<!--                                                -->
 	<!-- ============================================== -->
-	<target name="war" depends="init, jar, -copylib">
+	<target name="war" depends="init, jar, -copylib, use-scout">
 		<echo>+ ===================================================== +</echo>
 		<echo>+                                                       +</echo>
 		<echo>+  Building war files                                   +</echo>
@@ -476,8 +476,8 @@
 			 <classes dir="${lib.dir}"              includes="persistence.xml"/> 
 			 <classes dir="${lib.dir}"              includes="*.tomcat.cfg.xml"/> 
 			 <classes dir="${lib.dir}"              includes="*.properties"/> 
-		     <classes dir="${rsrc.dir}/hci/gnomex"      includes="Dictionaries.xml"/>
-		     <classes dir="${rsrc.dir}"			includes="SchemaGNomEx.hbm.xml" />
+		     <classes dir="${rsrc.dir}"			    includes="Dictionaries.xml"/>
+		     <classes dir="${rsrc.dir}"			    includes="SchemaGNomEx.hbm.xml" />
              <classes dir="${dist.dir}/tomcat"     includes="*.*" />
 		     <fileset dir="${webroot.dir}">
 				<include name="**/*.*" />
@@ -567,7 +567,7 @@
 			 <classes dir="${lib.dir}"              includes="persistence.xml"/> 
 			 <classes dir="${lib.dir}"              includes="*.tomcat.cfg.xml"/> 
 			 <classes dir="${lib.dir}"              includes="*.properties"/> 
-			 <classes dir="${rsrc.dir}/hci/gnomex"  includes="Dictionaries.xml"/>
+		     <classes dir="${rsrc.dir}"			    includes="Dictionaries.xml"/>
 		     <classes dir="${rsrc.dir}"			    includes="SchemaGNomEx.hbm.xml" />
       		 <classes dir="${dist.dir}/tomcat"      includes="*.*" />
 			 <classes dir="${webroot.dir}/gnomexlite" includes="GNomExLite.properties" />
@@ -601,7 +601,19 @@
 	  <delete  dir="${dist.dir}/tomcat" />
 
 	</target>
-	
+
+	<!-- ============================================== -->
+	<!--                                                -->
+	<!-- use-scout                                      -->
+	<!--                                                -->
+	<!-- ============================================== -->
+	<target name="use-scout">
+		<exec executable="Python">
+			<arg value="${basedir}\scripts\add-opt-in.py"/>
+			<arg value="${build.dir}\${flexapp.name}.${gnomex_version}.${gnomex_build}.swf"/>
+		</exec>
+	</target>
+
 	<!-- ============================================== -->
 	<!--                                                -->
 	<!-- check-for-libenv                               -->
@@ -704,7 +716,7 @@
 		<copy todir="${genoviz.dir}/ext" file="${dist.dir}/gnomex_realm.jar"/>
 		
 		<!-- Copy SchemaGNomEx.hbm.xml to genoviz/das2server/resources -->
-		<copy todir="${genoviz.dir}/das2_server/resources" file="${rsrc.dir}SchemaGNomEx.hbm.xml"/>
+		<copy todir="${genoviz.dir}/das2_server/resources" file="${rsrc.dir}/SchemaGNomEx.hbm.xml"/>
 		
 	</target>
 	
