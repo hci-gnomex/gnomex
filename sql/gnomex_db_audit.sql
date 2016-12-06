@@ -555,6 +555,12 @@ DROP TRIGGER IF EXISTS TrAU_OtherAccountFieldsConfiguration_FER
 $$
 DROP TRIGGER IF EXISTS TrAD_OtherAccountFieldsConfiguration_FER
 $$
+DROP TRIGGER IF EXISTS TrAI_PipelineProtocol_FER
+$$
+DROP TRIGGER IF EXISTS TrAU_PipelineProtocol_FER
+$$
+DROP TRIGGER IF EXISTS TrAD_PipelineProtocol_FER
+$$
 DROP TRIGGER IF EXISTS TrAI_Plate_FER
 $$
 DROP TRIGGER IF EXISTS TrAU_Plate_FER
