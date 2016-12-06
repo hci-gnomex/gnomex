@@ -269,10 +269,12 @@
 			getBillingTemplate.send(params);
 		}
 
-		public function loadBillingTemplate(template:XML):void {
-			billingTemplate = template.copy();
-			billingTemplateItems = new XMLListCollection(template.BillingTemplateItem);
-			handleBillingTemplateItems();
+		private function onGetBillingTemplate(event:ResultEvent):void {
+			if (getBillingTemplate.lastResult.name() == "BillingTemplate") {
+				loadBillingTemplate(new XML(getBillingTemplate.lastResult));
+			} else {
+				Alert.show(getBillingTemplate.lastResult.ERROR.@message, "Error");
+			}
 		}
 
 		public function loadBillingTemplateFromLabAndBillingAccount(lab:XML, account:XML):void {
@@ -295,15 +297,9 @@
 			loadBillingTemplate(template);
 		}
 
-		private function onGetBillingTemplate(event:ResultEvent):void {
-			if (getBillingTemplate.lastResult.name() == "BillingTemplate") {
-				loadBillingTemplate(new XML(getBillingTemplate.lastResult));
-			} else {
-				Alert.show(getBillingTemplate.lastResult.ERROR.@message, "Error");
-			}
-		}
-
-		private function handleBillingTemplateItems():void {
+		public function loadBillingTemplate(template:XML):void {
+			billingTemplate = template.copy();
+			billingTemplateItems = new XMLListCollection(template.BillingTemplateItem);
 			for each (var entry:XML in billingTemplateItems) {
 				entry.@percentSplit = formatPercentage(entry.@percentSplit);
 				entry.@dollarAmount = formatCurrency(entry.@dollarAmount);
