@@ -35,14 +35,3 @@ ALTER TABLE FlowCellChannel ADD
     ON UPDATE NO ACTION;
 
 CALL ExecuteIfTableExists('gnomex','FlowCellChannel_Audit','ALTER TABLE FlowCellChannel_Audit ADD COLUMN idPipelineProtocol INT(10) NULL');
-
-
----------------------------------------------------------
--- Add initial rows to Pipeline Protocol table for HTG --
----------------------------------------------------------
-
-INSERT INTO PipelineProtocol (description, idCoreFacility, protocol, isDefault) VALUES
-  ('Single base mismatch', 1, 'Single base mismatch', 'Y'),
-  ('Zero base mismatch', 1, 'Zero base mismatch', 'N'),
-  ('No demultiplexing', 1, 'No demultiplexing', 'N'),
-  ('Second barcode random N-mer', 1, 'Second barcode random N-mer', 'N');
