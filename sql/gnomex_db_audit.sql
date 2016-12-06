@@ -555,6 +555,12 @@ DROP TRIGGER IF EXISTS TrAU_OtherAccountFieldsConfiguration_FER
 $$
 DROP TRIGGER IF EXISTS TrAD_OtherAccountFieldsConfiguration_FER
 $$
+DROP TRIGGER IF EXISTS TrAI_PipelineProtocol_FER
+$$
+DROP TRIGGER IF EXISTS TrAU_PipelineProtocol_FER
+$$
+DROP TRIGGER IF EXISTS TrAD_PipelineProtocol_FER
+$$
 DROP TRIGGER IF EXISTS TrAI_Plate_FER
 $$
 DROP TRIGGER IF EXISTS TrAU_Plate_FER
@@ -5718,7 +5724,6 @@ CREATE TABLE IF NOT EXISTS `BillingTemplateItem_Audit` (
  ,`percentSplit`  decimal(4,3)  NULL DEFAULT NULL
  ,`dollarAmount`  decimal(7,2)  NULL DEFAULT NULL
  ,`dollarAmountBalance`  decimal(7,2)  NULL DEFAULT NULL
- ,`sortOrder`  int(10)  NULL DEFAULT NULL
 ) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
@@ -5738,8 +5743,7 @@ INSERT INTO BillingTemplateItem_Audit
   , idBillingAccount
   , percentSplit
   , dollarAmount
-  , dollarAmountBalance
-  , sortOrder )
+  , dollarAmountBalance )
   SELECT
   'No Context'
   , 'L'
@@ -5752,7 +5756,6 @@ INSERT INTO BillingTemplateItem_Audit
   , percentSplit
   , dollarAmount
   , dollarAmountBalance
-  , sortOrder
   FROM BillingTemplateItem
   WHERE NOT EXISTS(SELECT * FROM BillingTemplateItem_Audit)
 $$
@@ -5775,8 +5778,7 @@ BEGIN
   , idBillingAccount
   , percentSplit
   , dollarAmount
-  , dollarAmountBalance
-  , sortOrder )
+  , dollarAmountBalance )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
@@ -5788,8 +5790,7 @@ BEGIN
   , NEW.idBillingAccount
   , NEW.percentSplit
   , NEW.dollarAmount
-  , NEW.dollarAmountBalance
-  , NEW.sortOrder );
+  , NEW.dollarAmountBalance );
 END;
 $$
 
@@ -5807,8 +5808,7 @@ BEGIN
   , idBillingAccount
   , percentSplit
   , dollarAmount
-  , dollarAmountBalance
-  , sortOrder )
+  , dollarAmountBalance )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
@@ -5820,8 +5820,7 @@ BEGIN
   , NEW.idBillingAccount
   , NEW.percentSplit
   , NEW.dollarAmount
-  , NEW.dollarAmountBalance
-  , NEW.sortOrder );
+  , NEW.dollarAmountBalance );
 END;
 $$
 
@@ -5839,8 +5838,7 @@ BEGIN
   , idBillingAccount
   , percentSplit
   , dollarAmount
-  , dollarAmountBalance
-  , sortOrder )
+  , dollarAmountBalance )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
@@ -5852,8 +5850,7 @@ BEGIN
   , OLD.idBillingAccount
   , OLD.percentSplit
   , OLD.dollarAmount
-  , OLD.dollarAmountBalance
-  , OLD.sortOrder );
+  , OLD.dollarAmountBalance );
 END;
 $$
 
@@ -9530,6 +9527,7 @@ CREATE TABLE IF NOT EXISTS `FlowCellChannel_Audit` (
  ,`read2ClustersPassedFilterM`  int(10)  NULL DEFAULT NULL
  ,`q30Gb`  decimal(4,1)  NULL DEFAULT NULL
  ,`q30Percent`  decimal(4,3)  NULL DEFAULT NULL
+ ,`idPipelineProtocol`  int(10)  NULL DEFAULT NULL
 ) ENGINE=INNODB DEFAULT CHARSET=latin1
 $$
 
@@ -9567,7 +9565,8 @@ INSERT INTO FlowCellChannel_Audit
   , read1ClustersPassedFilterM
   , read2ClustersPassedFilterM
   , q30Gb
-  , q30Percent )
+  , q30Percent
+  , idPipelineProtocol )
   SELECT
   'No Context'
   , 'L'
@@ -9598,6 +9597,7 @@ INSERT INTO FlowCellChannel_Audit
   , read2ClustersPassedFilterM
   , q30Gb
   , q30Percent
+  , idPipelineProtocol
   FROM FlowCellChannel
   WHERE NOT EXISTS(SELECT * FROM FlowCellChannel_Audit)
 $$
@@ -9638,7 +9638,8 @@ BEGIN
   , read1ClustersPassedFilterM
   , read2ClustersPassedFilterM
   , q30Gb
-  , q30Percent )
+  , q30Percent
+  , idPipelineProtocol )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'I'
@@ -9668,7 +9669,8 @@ BEGIN
   , NEW.read1ClustersPassedFilterM
   , NEW.read2ClustersPassedFilterM
   , NEW.q30Gb
-  , NEW.q30Percent );
+  , NEW.q30Percent
+  , NEW.idPipelineProtocol );
 END;
 $$
 
@@ -9704,7 +9706,8 @@ BEGIN
   , read1ClustersPassedFilterM
   , read2ClustersPassedFilterM
   , q30Gb
-  , q30Percent )
+  , q30Percent
+  , idPipelineProtocol )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'U'
@@ -9734,7 +9737,8 @@ BEGIN
   , NEW.read1ClustersPassedFilterM
   , NEW.read2ClustersPassedFilterM
   , NEW.q30Gb
-  , NEW.q30Percent );
+  , NEW.q30Percent
+  , NEW.idPipelineProtocol );
 END;
 $$
 
@@ -9770,7 +9774,8 @@ BEGIN
   , read1ClustersPassedFilterM
   , read2ClustersPassedFilterM
   , q30Gb
-  , q30Percent )
+  , q30Percent
+  , idPipelineProtocol )
   VALUES
   ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
   , 'D'
@@ -9800,7 +9805,8 @@ BEGIN
   , OLD.read1ClustersPassedFilterM
   , OLD.read2ClustersPassedFilterM
   , OLD.q30Gb
-  , OLD.q30Percent );
+  , OLD.q30Percent
+  , OLD.idPipelineProtocol );
 END;
 $$
 
@@ -15530,7 +15536,150 @@ $$
 
 
 --
--- Audit Table For PlateType 
+-- Audit Table For PipelineProtocol
+--
+
+-- select 'Creating table PipelineProtocol'$$
+
+-- DROP TABLE IF EXISTS `PipelineProtocol_Audit`$$
+
+CREATE TABLE IF NOT EXISTS `PipelineProtocol_Audit` (
+  `AuditAppuser`       varchar(128) NULL
+ ,`AuditOperation`     char(1)      NULL
+ ,`AuditSystemUser`    varchar(30)  NULL
+ ,`AuditOperationDate` datetime     NULL
+ ,`AuditEditedByPersonID` int(10)   NULL
+ ,`idPipelineProtocol` int(10)      NULL DEFAULT NULL
+ ,`description`        longtext     NULL DEFAULT NULL
+ ,`idCoreFacility`     int(10)      NULL DEFAULT NULL
+ ,`protocol`           varchar(50)  NULL DEFAULT NULL
+ ,`isDefault`          varchar(1)   NULL DEFAULT NULL
+) ENGINE=INNODB DEFAULT CHARSET=latin1
+$$
+
+
+--
+-- Initial audit table rows for PipelineProtocol
+--
+
+INSERT INTO PipelineProtocol_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , AuditEditedByPersonID
+  , idPipelineProtocol
+  , description
+  , idCoreFacility
+  , protocol
+  , isDefault )
+  SELECT
+  'No Context'
+  , 'L'
+  , USER()
+  , NOW()
+  , 0
+  , idPipelineProtocol
+  , description
+  , idCoreFacility
+  , protocol
+  , isDefault
+  FROM PipelineProtocol
+  WHERE NOT EXISTS(SELECT * FROM PipelineProtocol_Audit)
+$$
+
+--
+-- Audit Triggers For PipelineProtocol
+--
+
+
+CREATE TRIGGER TrAI_PipelineProtocol_FER AFTER INSERT ON PipelineProtocol FOR EACH ROW
+BEGIN
+  INSERT INTO PipelineProtocol_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , AuditEditedByPersonID
+  , idPipelineProtocol
+  , description
+  , idCoreFacility
+  , protocol
+  , isDefault )
+  VALUES
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
+  , 'I'
+  , USER()
+  , NOW()
+  , 0
+  , NEW.idPipelineProtocol
+  , NEW.description
+  , NEW.idCoreFacility
+  , NEW.protocol
+  , NEW.isDefault );
+END;
+$$
+
+
+CREATE TRIGGER TrAU_PipelineProtocol_FER AFTER UPDATE ON PipelineProtocol FOR EACH ROW
+BEGIN
+  INSERT INTO PipelineProtocol_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , AuditEditedByPersonID
+  , idPipelineProtocol
+  , description
+  , idCoreFacility
+  , protocol
+  , isDefault )
+  VALUES
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
+  , 'U'
+  , USER()
+  , NOW()
+  , 0
+  , NEW.idPipelineProtocol
+  , NEW.description
+  , NEW.idCoreFacility
+  , NEW.protocol
+  , NEW.isDefault );
+END;
+$$
+
+
+CREATE TRIGGER TrAD_PipelineProtocol_FER AFTER DELETE ON PipelineProtocol FOR EACH ROW
+BEGIN
+  INSERT INTO PipelineProtocol_Audit
+  ( AuditAppuser
+  , AuditOperation
+  , AuditSystemUser
+  , AuditOperationDate
+  , AuditEditedByPersonID
+  , idPipelineProtocol
+  , description
+  , idCoreFacility
+  , protocol
+  , isDefault )
+  VALUES
+  ( CASE WHEN @userName IS NULL THEN 'No Context' else @userName end
+  , 'D'
+  , USER()
+  , NOW()
+  , 0
+  , OLD.idPipelineProtocol
+  , OLD.description
+  , OLD.idCoreFacility
+  , OLD.protocol
+  , OLD.isDefault );
+END;
+$$
+//////////////////////////////////////////////////////
+
+
+--
+-- Audit Table For PlateType
 --
 
 -- select 'Creating table PlateType'$$
@@ -15551,7 +15700,7 @@ $$
 
 
 --
--- Initial audit table rows for PlateType 
+-- Initial audit table rows for PlateType
 --
 
 INSERT INTO PlateType_Audit
@@ -15577,7 +15726,7 @@ INSERT INTO PlateType_Audit
 $$
 
 --
--- Audit Triggers For PlateType 
+-- Audit Triggers For PlateType
 --
 
 

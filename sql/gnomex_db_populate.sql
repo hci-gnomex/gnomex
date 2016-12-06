@@ -826,6 +826,13 @@ INSERT INTO gnomex.Organism (idOrganism,organism,sortOrder,binomialName,NCBITaxI
 /*!40000 ALTER TABLE Organism ENABLE KEYS */;
   
 
+INSERT INTO gnomex.PipelineProtocol (description, idCoreFacility, protocol, isDefault) VALUES
+  ('Single base mismatch', 1, 'Single base mismatch', 'Y'),
+  ('Zero base mismatch', 1, 'Zero base mismatch', 'N'),
+  ('No demultiplexing', 1, 'No demultiplexing', 'N'),
+  ('Second barcode random N-mer', 1, 'Second barcode random N-mer', 'N');
+
+
 INSERT INTO gnomex.PropertyDictionary (propertyName,propertyValue,propertyDescription, forServerOnly) VALUES
 ('workauth_instructions','If billing account is inactive, please download the work authorization form below.<br> Forward the completed form to the [ENTER FACILITY NAME HERE] ([ENTER ROOM AND PHONE NUMBER HERE])','The instructions about work authorization that appear on the Experiment Submit Request page', 'N'),
  ('qc_instructions','Terms:  Bioanalyzer chips will be run when sufficient samples have been collected to load all wells of a chip.  Expedited service can be obtained if the researcher is willing to accept charges for any remaining empty wells on a chip.  Call [ENTER CORE FACILITY INFO HERE] for details.','The instructions regarding sample quality experiments.  These instructions about on Sample Tab of Experiment Submit Request window.', 'N'),

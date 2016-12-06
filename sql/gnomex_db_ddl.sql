@@ -385,7 +385,6 @@ CREATE TABLE `gnomex`.`BillingTemplateItem` (
 	`percentSplit` DECIMAL(4, 3) NULL,
 	`dollarAmount` DECIMAL(7, 2) NULL,
 	`dollarAmountBalance` DECIMAL(7, 2) NULL,
-	`sortOrder` INT(10) NULL,
 	PRIMARY KEY (`idBillingTemplateItem`),
 	CONSTRAINT `FK_BillingTemplateItem_BillingAccount` FOREIGN KEY `FK_BillingTemplateItem_BillingAccount` (`idBillingAccount`)
 		REFERENCES `gnomex`.`BillingAccount` (`idBillingAccount`)
@@ -1157,6 +1156,7 @@ CREATE TABLE gnomex.FlowCellChannel (
   read2ClustersPassedFilterM INT(10) NULL,
   q30Gb DECIMAL(4,1) NULL,
   q30Percent DECIMAL(4,3) NULL,
+  idPipelineProtocol INT(10) NULL,
   PRIMARY KEY (idFlowCellChannel),
   CONSTRAINT FK_FlowCellChannel_FlowCell FOREIGN KEY FK_FlowCellChannel_FlowCell (idFlowCell)
     REFERENCES gnomex.FlowCell (idFlowCell)
@@ -1168,6 +1168,10 @@ CREATE TABLE gnomex.FlowCellChannel (
     ON UPDATE NO ACTION,
   CONSTRAINT FK_FlowCellChannel_SequenceLane FOREIGN KEY FK_FlowCellChannel_SequenceLane (idSequenceLane)
     REFERENCES gnomex.SequenceLane (idSequenceLane)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+  CONSTRAINT FK_FlowCellChannel_PipelineProtocol FOREIGN KEY FK_FlowCellChannel_PipelineProtocol (idPipelineProtocol)
+    REFERENCES gnomex.PipelineProtocol (idPipelineProtocol)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
 )
@@ -1654,6 +1658,21 @@ CREATE TABLE gnomex.Organism (
   UNIQUE KEY Index_OrganismBinomialName (binomialName),  
   CONSTRAINT FK_Organism_AppUser FOREIGN KEY FK_Organism_AppUser (idAppUser)
     REFERENCES gnomex.AppUser (idAppUser)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+)
+ENGINE = INNODB;
+
+DROP TABLE IF EXISTS gnomex.PipelineProtocol;
+CREATE TABLE gnomex.PipelineProtocol (
+  idPipelineProtocol INT(10) NOT NULL AUTO_INCREMENT,
+  description LONGTEXT NULL,
+  idCoreFacility INT(10) NOT NULL,
+  protocol VARCHAR(50) NOT NULL,
+  isDefault VARCHAR(1) NOT NULL DEFAULT ('N'),
+  PRIMARY KEY (idPipelineProtocol),
+  CONSTRAINT FK_PipelineProtocol_CoreFacility FOREIGN KEY FK_PipelineProtocol_CoreFacility (idCoreFacility)
+    REFERENCES gnomex.CoreFacility (idCoreFacility)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
 )
