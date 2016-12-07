@@ -71,7 +71,71 @@ main {
   width: 113px;
 }
 
+/******************************/
+/**** Primary Nav / Header ****/
+/******************************/
 .gx-user-menu, .gx-admin-menu {
   font-size: 1.5em;
   padding-top: .625rem;
+  color: #00499A;
 }
+
+.gx-nav-icon:before {
+  position: relative;
+  top: 2px;
+}
+
+/* experiments menu */
+.gx-nav-exp-icon:before {
+  content: url("../assets/flask.png");
+}
+
+.gx-nav-exp-new-icon:before {
+  content: url("../assets/flask_add.png");
+}
+
+.gx-nav-exp-edit-icon:before {
+  content: url("../assets/flask_edit.png");
+}
+
+.gx-nav-exp-upload-icon:before {
+  content: url("../assets/experiment_register.png");
+}
+
+.gx-nav-exp-new-project-icon:before {
+  content: url("../assets/folder_add.png");
+}
+
+.gx-nav-exp-new-billing-icon:before {
+  content: url("../assets/money.png");
+}
+
+.gx-nav-exp-orders-icon:before {
+  content: url("../assets/review.png");
+}
+
+.gx-nav-exp-bulk-sample-icon:before {
+  content: url("../assets/review.png");
+}
+
+/* analysis menu */
+.gx-nav-analysis-icon:before {
+  content: url("../assets/map.png");
+}
+
+/* datatrack menu */
+.gx-nav-datatrack-icon:before {
+  content: url("../assets/datatrack.jpg");
+}
+
+/* topics menu */
+.gx-nav-topics-icon:before {
+  content: url("../assets/topic_tag.png");
+}
+
+/* user menu */
+.gx-user-menu-icon:before {
+  content: url("../assets/user.png");
+}
+
+/******************************/
