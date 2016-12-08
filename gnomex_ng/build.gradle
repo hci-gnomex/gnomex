@@ -10,7 +10,7 @@ buildscript {
 apply plugin: 'gulp'
 
 ext {
-  explodedWarDirName = "hci-ri-core.war"
+  explodedWarDirName = "gnomex.war"
 }
 
 task gulpBuild(type: GulpTask) {
@@ -24,8 +24,8 @@ task gulpBuild(type: GulpTask) {
 task copyWebapp {
   dependsOn 'gulpBuild'
   copy {
-    from("../hci-ri-core-ng2/dist") {}
-    into "$serverHome/$deployDir/$explodedWarDirName"
+    from("../gnomex_ng2/dist") {}
+    into "$gnomexServerHome/$gnomexDeployDir/$explodedWarDirName"
   }
 }
 
@@ -35,10 +35,10 @@ task deployWebapp(type: Copy) {
     include 'deploy.exploded.template'
     rename { file -> "$explodedWarDirName" + '.dodeploy' }
   }
-  into "$serverHome/$deployDir"
+  into "$gnomexServerHome/$gnomexDeployDir"
 }
-
-task clean(type: Delete) {
+/*
+task clean {
   delete 'dist'
-}
+}*/
 
