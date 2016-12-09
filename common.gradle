@@ -14,5 +14,4 @@ ext{
     gnomex_version=5.37
     openSourceZipName="gnomex_tomcat_${gnomex_version}.zip"
     openSourceName="gnomex_${gnomex_version}"
-    opensourceSecureWarName="${rootProject.name}_secure.war"
 }
