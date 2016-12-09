@@ -16,3 +16,12 @@ dependencies {
     provided 'log4j:log4j:1.2.12'
     compile project(':gnomex_crypt')
 }
+
+jar {
+    manifest {
+        attributes([
+                'Built-By': ant.properties['user.name'],
+                'Implementation-Version': gnomex_version
+        ],'gnomex_tomcat_support')
+    }
+}
