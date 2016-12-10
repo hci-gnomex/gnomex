@@ -1,5 +1,8 @@
 package hci.gnomex.api;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
 
@@ -10,5 +13,5 @@ import javax.ws.rs.core.Application;
  */
 @ApplicationPath("api")
 public class GNomExApplication extends Application {
-  
+
 }

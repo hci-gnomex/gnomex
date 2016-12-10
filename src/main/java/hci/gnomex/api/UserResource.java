@@ -3,7 +3,6 @@
  */
 package hci.gnomex.api;
 
-import hci.ri.auth.model.User;
 import hci.ri.auth.service.UserService;
 
 import javax.inject.Inject;
@@ -17,6 +16,9 @@ import javax.ws.rs.core.*;
 
 import hci.gnomex.api.dto.RoleDTO;
 import hci.gnomex.api.dto.UserDTO;
+import hci.gnomex.model.AppUser;
+import hci.gnomex.model.AppUserLite;
+
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.subject.Subject;
@@ -71,9 +73,9 @@ public class UserResource {
     PrincipalCollection principalCollection = subject.getPrincipals();
 
     // TODO: JEH (10.27.17) - Is this the preferred way to get the User? Should it be in the UserService?
-    User user = null;
+    AppUser user = null;
     if(principalCollection != null) {
-      user = principalCollection.oneByType(User.class);
+      user = principalCollection.oneByType(AppUser.class);
     }
 
     Integer idUser = userService.getIdUser(principalCollection);
@@ -90,7 +92,7 @@ public class UserResource {
             .setFirstname(user != null ? user.getFirstName() : null)
             .setLastname(user != null ? user.getLastName() : null)
             .setId(idUser)
-            .setUsername(user != null ? user.getUserLogin() : null)
+            .setUsername(user != null ? ((user.getuNID() != null)?user.getuNID():user.getUserNameExternal()) : null)
             .setEmail(user != null ? user.getEmail() : null)
             .setRoles(roles)
             .build();

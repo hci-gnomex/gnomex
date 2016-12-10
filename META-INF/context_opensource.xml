@@ -16,8 +16,9 @@
 
     
   <!-- GNomEx Realm for authenticating user - encrypted passwords stored in GNomEx db -->
+  <!--
   <Realm className="hci.gnomex.security.tomcat.GNomExRealm" datasource_lookup_name="java:comp/env/jdbc/GNOMEX_GUEST"/>
-  
+  -->
   <!--  GNomEx Realm for authenticating user against an existing LDAP server.  -->
   <!--  COMMENTED OUT -->
   <!--        
@@ -68,6 +69,11 @@
            factory="hci.gnomex.security.tomcat.EncryptedDataSourceFactory"
            url="${hci.gnomexguest.url}" />
 
+    <!-- Weld -->
+    <Resource name="BeanManager" 
+      auth="Container"
+      type="javax.enterprise.inject.spi.BeanManager"
+      factory="org.jboss.weld.resources.ManagerObjectFactory"/>
     
 </Context>
 

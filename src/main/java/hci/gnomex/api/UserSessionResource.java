@@ -22,7 +22,6 @@ import java.net.URI;
  * @author Cody Haroldsen <cody.haroldsen@hci.utah.edu>
  * @since 11/30/2016
  */
-@Stateless
 @Path("user-session")
 public class UserSessionResource {
 
@@ -114,6 +113,12 @@ public class UserSessionResource {
     } else {
       return Response.status(Response.Status.NOT_FOUND).build();
     }
+  }
+  
+  @GET
+  @Path("/test")
+  public Response testRest() {
+    return Response.status(Response.Status.OK).build();
   }
 
   private Subject getSubject() {

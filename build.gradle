@@ -91,16 +91,17 @@ dependencies {
 	    compile group: 'org.hibernate', name: 'hibernate-entitymanager', version: '5.0.10.Final'
 	    compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.+'
 	    compile group: 'org.jboss.resteasy', name: 'resteasy-jaxrs', version: '3.0.19.Final'
-        compile group: 'org.jboss.resteasy', name: 'resteasy-jaxb-provider', version: '3.0.19.Final'
-        compile group: 'org.jboss.resteasy', name: 'resteasy-jettison-provider', version: '3.0.19.Final'
+        compile group: 'org.jboss.resteasy', name: 'resteasy-jackson2-provider', version: '3.0.19.Final'
+        compile group: 'org.jboss.resteasy', name: 'resteasy-client', version: '3.0.19.Final'
+        compile group: 'org.jboss.resteasy', name: 'resteasy-servlet-initializer', version: '3.0.19.Final'
         compile group: 'javax.enterprise', name: 'cdi-api', version: '1.2'
 	    compile group: 'commons-codec', name: 'commons-codec', version: '1.10'	    
 	    compile group: 'commons-io', name: 'commons-io', version: '2.4'
 	    compile group: 'commons-lang', name: 'commons-lang', version: '2.6'
 	    compile group: 'javax.ejb', name: 'javax.ejb-api', version: '3.2'
 	 
-	    runtime group: 'org.jboss.weld.servlet', name: 'weld-servlet', version: '2.0.3.Final'
-	    runtime group: 'org.jboss.weld.se', name: 'weld-se-core', version: '2.0.3.Final'
+	    runtime group: 'org.jboss.weld.servlet', name: 'weld-servlet', version: '2.4.1.Final'
+	    runtime group: 'org.jboss.weld.servlet', name: 'weld-servlet-core', version: '2.4.1.Final'
 }
 
 def buildAliases = [
@@ -233,7 +234,7 @@ task opensourceWar (type: War) {
 
 war {
     archiveName = warName
-    classpath = classpath - sourceSets.main.output
+  classpath = classpath - sourceSets.main.output
     
     // Need to depend on the child project build tasks in order to build their products into the war
     dependsOn 'gnomex_ng:gulpBuild'
