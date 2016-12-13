@@ -130,7 +130,7 @@ public Command execute() throws RollBackCommandException {
 				String qualifiedFilePath = contents[2];
 				String displayName = contents[3];
 
-				if (!Util.renameTo(f1,f2)) {        //f1.renameTo(f2)) {
+				if (!Util.renameTo(f1,f2)) {
 					throw new Exception("Error Renaming File, f1: " + f1.toString() + " f2: " + f2.toString());
 				} else {
 					// Rename the files in the DB
@@ -225,8 +225,7 @@ public Command execute() throws RollBackCommandException {
 							ProductOrderFile pof = new ProductOrderFile();
 							if (!idFileString.startsWith("ProductOrderFile") && !idFileString.equals("")) {
 								pof = (ProductOrderFile) sess.load(ProductOrderFile.class, new Integer(idFileString));
-							} else if (idFileString.startsWith("ProductOrderFile")) { // new File(baseDir + "\\" + analysis.getNumber() + baseFileName).exists()
-																						// WHY DO WE NEED THIS? MAYBE WE DON"T
+							} else if (idFileString.startsWith("ProductOrderFile")) {
 								pof = new ProductOrderFile();
 								pof.setCreateDate(new java.sql.Date(System.currentTimeMillis()));
 								pof.setCreateDate(new java.sql.Date(System.currentTimeMillis()));
@@ -294,7 +293,7 @@ public Command execute() throws RollBackCommandException {
 						destFile.mkdirs();
 					}
 
-					boolean success = Util.renameTo (sourceFile, destFile);   //sourceFile.renameTo(destFile);
+					boolean success = Util.renameTo (sourceFile, destFile);
 
 					// If the rename didn't work, check to see if the destination file was created, if so
 					// delete the source file.

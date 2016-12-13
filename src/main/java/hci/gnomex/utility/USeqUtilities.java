@@ -167,7 +167,6 @@ public class USeqUtilities {
 			fileNames = directory.list();
 			int num = fileNames.length;
 			ArrayList<File> al = new ArrayList<File>();
-//			try{
 				String path = directory.getAbsolutePath().replace("\\", Constants.FILE_SEPARATOR);
 				Pattern pat = Pattern.compile("^\\w+.*");
 				Matcher mat; 
@@ -180,11 +179,6 @@ public class USeqUtilities {
 					files = new File[al.size()];
 					al.toArray(files);
 				}
-//			}catch(IOException e){
-//				System.out.println("Problem extractFiles() "+directory);
-//
-//				return null;
-//			}
 		}
 		if (files == null){
 			files = new File[1];

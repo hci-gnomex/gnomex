@@ -196,7 +196,7 @@ public Command execute() throws RollBackCommandException {
 					String newFileName = (String) parser.getFilesToRenameMap().get(file);
 					File f1 = new File(file);
 					File f2 = new File(newFileName);
-					boolean success = Util.renameTo(f1,f2);    //f1.renameTo(f2);
+					boolean success = Util.renameTo(f1,f2);
 					if (success) {
 						for (Iterator k = parser.getFileNameMap().keySet().iterator(); k.hasNext();) {
 							String directory = (String) k.next();
@@ -205,7 +205,7 @@ public Command execute() throws RollBackCommandException {
 								String parserFile = (String) i1.next();
 								if (parserFile.equals(file)) {
 									fileNames.remove(parserFile);
-									fileNames.add(f2.getAbsoluteFile());
+									fileNames.add(f2.getAbsolutePath().replace("\\", Constants.FILE_SEPARATOR));
 									parser.getFileNameMap().put(directory, fileNames);
 									break;
 								}
@@ -302,7 +302,7 @@ public Command execute() throws RollBackCommandException {
 							continue;
 						}
 						File destFile = new File(targetDir, sourceFile.getName());
-						boolean success = Util.renameTo(sourceFile,destFile);    //sourceFile.renameTo(destFile);
+						boolean success = Util.renameTo(sourceFile,destFile);
 
 						// If we have renamed a file that is registered in the database
 						// under the ExperimentFile table, then update the ExperimentFile

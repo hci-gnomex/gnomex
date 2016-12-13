@@ -139,7 +139,6 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
                         String displayName = contents[3];
 
                         if (!Util.renameTo(f1,f2)) {
-//                        if (!f1.renameTo(f2)) {
                             throw new Exception("Error Renaming File");
                         } else {
                             // Rename the files in the DB
@@ -298,18 +297,7 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
                                 destFile.mkdirs();
                             }
 
-                            boolean success = false;
-                            try {
-                                Path sourcePath = sourceFile.toPath();
-                                Path targetPath = destFile.toPath();
-                                Files.move(sourcePath,targetPath);
-                                success = true;
-                            }
-                            catch (Exception rex) {
-                                System.out.println ("[OAUF] move error: " + rex.toString());
-                            }
-
-//                            boolean success = sourceFile.renameTo(destFile);
+                            boolean success = Util.renameTo(sourceFile,destFile);
 
                             // If the rename didn't work, check to see if the destination file was created, if so
                             // delete the source file.
