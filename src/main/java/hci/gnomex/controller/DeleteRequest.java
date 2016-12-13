@@ -326,7 +326,7 @@ public class DeleteRequest extends GNomExCommand implements Serializable {
     for(int i = 0; i < folderContents.length; i++){
       File child = new File(folderName + Constants.FILE_SEPARATOR + folderContents[i]);
       if(child.isDirectory()){
-        removeExperimentFiles(child.getCanonicalPath().replace("\\", Constants.FILE_SEPARATOR));
+        removeExperimentFiles(child.getAbsolutePath().replace("\\", Constants.FILE_SEPARATOR));
       }
       else{
         if (!child.delete()) {

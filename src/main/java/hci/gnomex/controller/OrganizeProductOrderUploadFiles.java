@@ -21,6 +21,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import hci.gnomex.utility.Util;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.query.Query;
@@ -129,8 +130,8 @@ public Command execute() throws RollBackCommandException {
 				String qualifiedFilePath = contents[2];
 				String displayName = contents[3];
 
-				if (!f1.renameTo(f2)) {
-					throw new Exception("Error Renaming File");
+				if (!Util.renameTo(f1,f2)) {        //f1.renameTo(f2)) {
+					throw new Exception("Error Renaming File, f1: " + f1.toString() + " f2: " + f2.toString());
 				} else {
 					// Rename the files in the DB
 					if (idFileString != null) {
@@ -138,14 +139,14 @@ public Command execute() throws RollBackCommandException {
 						if (!idFileString.startsWith("ProductOrderFile") && !idFileString.equals("")) {
 							pof = (ProductOrderFile) sess.load(ProductOrderFile.class, new Integer(idFileString));
 							pof.setFileName(displayName);
-							pof.setBaseFilePath(f2.getCanonicalPath().replace("\\", Constants.FILE_SEPARATOR));
+							pof.setBaseFilePath(f2.getAbsolutePath().replace("\\", Constants.FILE_SEPARATOR));
 							pof.setQualifiedFilePath(qualifiedFilePath);
 							sess.save(pof);
 							sess.flush();
 						} else if (idFileString.startsWith("ProductOrderFile") && !f2.exists()) {
 							pof = new ProductOrderFile();
 							pof.setFileName(displayName);
-							pof.setBaseFilePath(f2.getCanonicalPath().replace("\\", Constants.FILE_SEPARATOR));
+							pof.setBaseFilePath(f2.getAbsolutePath().replace("\\", Constants.FILE_SEPARATOR));
 							pof.setQualifiedFilePath(qualifiedFilePath);
 							sess.save(pof);
 							sess.flush();
@@ -266,16 +267,16 @@ public Command execute() throws RollBackCommandException {
 					}
 					sess.flush();
 
-					sourceFile = sourceFile.getCanonicalFile();
+					sourceFile = sourceFile.getAbsoluteFile();
 					String targetDirName = baseDir + Constants.FILE_SEPARATOR + productOrder.getProductOrderNumber()
 							+ Constants.FILE_SEPARATOR + qualifiedFilePath;
 					File targetDir = new File(targetDirName);
-					targetDir = targetDir.getCanonicalFile();
+					targetDir = targetDir.getAbsoluteFile();
 
 					if (!targetDir.exists()) {
 						boolean success = targetDir.mkdirs();
 						if (!success) {
-							throw new Exception("Unable to create directory " + targetDir.getCanonicalPath().replace("\\", Constants.FILE_SEPARATOR));
+							throw new Exception("Unable to create directory " + targetDir.getAbsolutePath().replace("\\", Constants.FILE_SEPARATOR));
 						}
 					}
 
@@ -293,7 +294,7 @@ public Command execute() throws RollBackCommandException {
 						destFile.mkdirs();
 					}
 
-					boolean success = sourceFile.renameTo(destFile);
+					boolean success = Util.renameTo (sourceFile, destFile);   //sourceFile.renameTo(destFile);
 
 					// If the rename didn't work, check to see if the destination file was created, if so
 					// delete the source file.
@@ -428,7 +429,7 @@ public Command execute() throws RollBackCommandException {
 
 private Boolean deleteDir(File childFile) throws IOException {
 	for (String f : childFile.list()) {
-		File delFile = new File(childFile.getCanonicalPath().replace("\\", Constants.FILE_SEPARATOR) + Constants.FILE_SEPARATOR + f);
+		File delFile = new File(childFile.getAbsolutePath().replace("\\", Constants.FILE_SEPARATOR) + Constants.FILE_SEPARATOR + f);
 		if (delFile.isDirectory()) {
 			deleteDir(delFile);
 			if (!delFile.delete()) {

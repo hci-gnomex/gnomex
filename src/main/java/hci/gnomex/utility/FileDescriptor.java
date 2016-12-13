@@ -62,9 +62,9 @@ public class FileDescriptor extends DetailObject implements Serializable {
 
 		try {
 			if (Util.isSymlink(file)) {
-				this.setFileName(file.getPath().replace("\\", Constants.FILE_SEPARATOR));
+				this.setFileName(file.getAbsolutePath().replace("\\", Constants.FILE_SEPARATOR));
 			} else {
-				this.setFileName(file.getCanonicalPath().replace("\\", Constants.FILE_SEPARATOR));
+				this.setFileName(file.getAbsolutePath().replace("\\", Constants.FILE_SEPARATOR));
 			}
 		} catch (Exception e) {
 			LOG.error("Error in FileDescriptor", e);
