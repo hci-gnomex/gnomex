@@ -16,7 +16,7 @@
 
     
   <!-- GNomEx Realm for authenticating user (LDAP) -->    
-      
+  <!--   
        <Realm className="hci.gnomex.security.tomcat.GNomExLDAPRealm"
          ldap_provider_url="${hci.gnomex.ldapurl}"
          ldap_protocol="ssl"
@@ -27,7 +27,7 @@
          ldap_domain="${hci.gnomex.ldap.domain}"
          ldap_user_attributes="${hci.gnomex.ldap.user.attributes}"
     />
-    
+    -->
     <!-- 
          alt_ldap_provider_url="ldap://servername.somewhere.edu:port_number/ou=Domain%20Users,dc=blahblah,dc=blahblah,dc=blahblah"
          alt_ldap_auth_meth="simple"
@@ -84,7 +84,11 @@
            factory="hci.gnomex.security.tomcat.EncryptedDataSourceFactory"
            url="${hci.gnomexguest.url}" />
 
-
+    <!-- Weld -->
+    <Resource name="BeanManager" 
+      auth="Container"
+      type="javax.enterprise.inject.spi.BeanManager"
+      factory="org.jboss.weld.resources.ManagerObjectFactory"/>
     
 </Context>
 

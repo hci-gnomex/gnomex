@@ -9,6 +9,7 @@ import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.UserPermissionKind;
 import hci.gnomex.security.EncryptionUtility;
 import hci.gnomex.security.SecurityAdvisor;
+import hci.gnomex.security.EncrypterService;
 import hci.gnomex.utility.*;
 
 import java.io.IOException;
@@ -27,7 +28,7 @@ import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import org.hibernate.query.Query;
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.jdom.Element;
 import org.jdom.input.SAXBuilder;

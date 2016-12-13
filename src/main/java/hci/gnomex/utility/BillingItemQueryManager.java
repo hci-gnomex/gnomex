@@ -3,7 +3,7 @@ package hci.gnomex.utility;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import org.hibernate.query.Query;
+import org.hibernate.Query;
 import org.hibernate.Session;
 import hci.gnomex.model.BillingItem;
 import hci.gnomex.model.Request;

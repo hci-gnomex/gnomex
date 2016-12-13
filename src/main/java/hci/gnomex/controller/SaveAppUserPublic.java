@@ -7,6 +7,7 @@ import hci.gnomex.security.EncryptionUtility;
 import hci.gnomex.utility.HibernateSession;
 //import hci.gnomex.utility.HibernateUtil;
 
+
 import java.io.Serializable;
 import java.io.StringReader;
 import java.sql.Connection;
@@ -21,7 +22,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import hci.gnomex.utility.PasswordUtil;
-import org.hibernate.query.Query;
+
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.jdbc.Work;
 import org.jdom.Document;

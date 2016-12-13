@@ -8,7 +8,6 @@ import hci.gnomex.model.CoreFacility;
 import hci.gnomex.model.Lab;
 import hci.gnomex.model.PropertyDictionary;
 import hci.gnomex.model.UserPermissionKind;
-import hci.gnomex.security.EncrypterService;
 import hci.gnomex.security.EncryptionUtility;
 import hci.gnomex.utility.*;
 
@@ -17,7 +16,6 @@ import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
@@ -30,7 +28,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.validator.routines.EmailValidator;
-import org.hibernate.query.Query;
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.apache.log4j.Logger;
 public class PublicSaveSelfRegisteredAppUser extends GNomExCommand implements Serializable {

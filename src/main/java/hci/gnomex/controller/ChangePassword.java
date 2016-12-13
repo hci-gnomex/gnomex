@@ -10,7 +10,6 @@ import hci.gnomex.utility.*;
 import java.io.IOException;
 import java.io.Serializable;
 import java.sql.Timestamp;
-import java.util.Enumeration;
 import java.util.UUID;
 
 import javax.mail.MessagingException;
@@ -19,7 +18,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
-import org.hibernate.HibernateException;
 import org.hibernate.Session;
 
 public class ChangePassword extends GNomExCommand implements Serializable {

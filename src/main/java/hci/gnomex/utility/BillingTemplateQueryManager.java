@@ -3,7 +3,7 @@ package hci.gnomex.utility;
 import java.util.ArrayList;
 
 import org.hibernate.FlushMode;
-import org.hibernate.query.Query;
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.type.IntegerType;
 import org.hibernate.type.StringType;

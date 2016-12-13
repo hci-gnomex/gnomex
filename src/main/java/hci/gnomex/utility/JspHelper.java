@@ -6,7 +6,7 @@ import java.io.Serializable;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.hibernate.query.Query;
+import org.hibernate.Query;
 import org.hibernate.Session;
 
 public class JspHelper implements Serializable {

@@ -62,7 +62,7 @@ import org.apache.log4j.Logger;
 import org.hibernate.Hibernate;
 import org.hibernate.Session;
 import org.hibernate.internal.SessionImpl;
-import org.hibernate.query.Query;
+import org.hibernate.Query;
 
 public class SecurityAdvisor extends DetailObject implements Serializable, hci.framework.security.SecurityAdvisor {
 // Security advisor session variable

@@ -1,0 +1,44 @@
+buildscript {
+  repositories {
+    jcenter()
+  }
+  dependencies {
+    classpath 'be.filipblondeel.gradle:gradle-gulp-plugin:0.1'
+  }
+}
+
+apply plugin: 'gulp'
+
+ext {
+  explodedWarDirName = "gnomex.war"
+}
+
+task gulpBuild(type: GulpTask) {
+  if (project.hasProperty("devBuild") && devBuild == '1') {
+    args = ["build"]
+  } else {
+    args = ["build", "--prod"]
+  }
+}
+
+task copyWebapp {
+  dependsOn 'gulpBuild'
+  copy {
+    from("../gnomex_ng2/dist") {}
+    into "$gnomexServerHome/$gnomexDeployDir/$explodedWarDirName"
+  }
+}
+
+task deployWebapp(type: Copy) {
+  dependsOn 'copyWebapp'
+  from('template') {
+    include 'deploy.exploded.template'
+    rename { file -> "$explodedWarDirName" + '.dodeploy' }
+  }
+  into "$gnomexServerHome/$gnomexDeployDir"
+}
+/*
+task clean {
+  delete 'dist'
+}*/
+
