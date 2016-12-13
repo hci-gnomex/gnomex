@@ -421,12 +421,7 @@ public class USeqUtilities {
 	/**Gets full path text using getCanonicalPath().replace("\\", Constants.FILE_SEPARATOR) on a File*/
 	public static String getFullPathName(File fileDirectory){
 		String full = null;
-//		try {
 			full = fileDirectory.getAbsolutePath().replace("\\", Constants.FILE_SEPARATOR);
-//		}catch (IOException e){
-//			System.out.println("Problem with getFullPathtName(), "+fileDirectory);
-//
-//		}
 		return full;
 	}
 	
