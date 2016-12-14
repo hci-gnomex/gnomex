@@ -1,19 +1,19 @@
 buildscript {
-  repositories {
-    maven {
-      credentials {
-        username = repo_user
-        password = repo_password
-      }
-      url repo_resolve_url
+    repositories {
+        maven {
+            credentials {
+                username = repo_user
+                password = repo_password
+            }
+            url repo_resolve_url
+        }
+        maven { url 'http://repo.spring.io/plugins-release' }
     }
-    maven { url 'http://repo.spring.io/plugins-release' }
-  }
-  dependencies {
-    classpath 'org.springframework.build.gradle:propdeps-plugin:0.0.7'
-    classpath 'org.jfrog.buildinfo:build-info-extractor-gradle:3.0.1'
-    classpath 'hci:hci-conventions:+'
-  }
+    dependencies {
+        classpath 'org.springframework.build.gradle:propdeps-plugin:0.0.7'
+        classpath 'org.jfrog.buildinfo:build-info-extractor-gradle:3.0.1'
+        classpath 'hci:hci-conventions:+'
+    }
 }
 
 apply plugin: 'war'
@@ -33,10 +33,10 @@ dependencies {
     runtime group: 'hci', name: 'hci-servlet-filter-xsrf', version: '1.1+'
     runtime group: 'hci', name: 'hci-servlet-filter-cors', version: '1.+'
     runtime group: 'hci', name: 'hci-servlet-filter-pushstate', version: '1.+'
-    
+
     compile group: 'hci', name: 'hci-ri-auth', version: '1.+'
     compile group: 'hci', name: 'hci-bean-validation', version: '+'
-    
+
     compile group: 'servlets.com', name: 'cos', version: '05Nov2002'
     compile group: 'org.apache.commons', name: 'commons-compress', version: '1.1'
     compile group: 'org.ostermiller', name: 'utils', version: '1.07.00'
@@ -49,62 +49,53 @@ dependencies {
     compile group: 'commons-io', name: 'commons-io', version: '2.4'
     compile group: 'commons-lang', name: 'commons-lang', version: '2.6'
     compile group: 'jdom', name: 'jdom', version: '1.0b8'
-     
-    
+
     //xml to json stuff for gnomexlite
     compile group: 'jline', name: 'jline', version: '0.9.94'
     compile group: 'xom', name: 'xom', version: '1.2.5'
 
     //lib & libEnv
-    compile fileTree (dir: 'libEnv', include: 'hci-hibernate5-utils-1.0.jar');
-    compile fileTree (dir: 'lib', include: 'biojava.jar')
-    compile fileTree (dir: 'lib', include: 'metrixClient-1.4.jar')
-    compile fileTree (dir: 'libEnv', include: 'hci_framework.jar')
-    compile fileTree (dir: 'libEnv', include: 'hci_utils.jar')
-    compile fileTree (dir: 'libEnv', include: 'HCIReport.jar')
+    compile fileTree(dir: 'libEnv', include: 'hci-hibernate5-utils-1.0.jar');
+    compile fileTree(dir: 'lib', include: 'biojava.jar')
+    compile fileTree(dir: 'lib', include: 'metrixClient-1.4.jar')
+    compile fileTree(dir: 'libEnv', include: 'hci_framework.jar')
+    compile fileTree(dir: 'libEnv', include: 'hci_utils.jar')
+    compile fileTree(dir: 'libEnv', include: 'HCIReport.jar')
 
     //Realm stuff
     providedCompile group: 'javax.servlet', name: 'javax.servlet-api', version: '3.0.1'
     providedCompile group: 'log4j', name: 'log4j', version: '1.2.12'
     providedCompile group: 'javax.mail', name: 'mail', version: '1.4.7'
-    
+
     //Subprojects
     providedCompile project(':gnomex_crypt')
     providedCompile project(':gnomex_tomcat_support')
 
-    //Wildfly
-    /*
-	    providedCompile group: 'org.hibernate', name: 'hibernate-core', version: '5.0.10.Final'
-	    providedCompile group: 'org.hibernate', name: 'hibernate-entitymanager', version: '5.0.10.Final'
-	    providedCompile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.+'
-	    providedCompile group: 'org.jboss.resteasy', name: 'resteasy-jaxrs', version: '3.0.19.Final'
-	    providedCompile group: 'org.jboss.resteasy', name: 'resteasy-jaxb-provider', version: '3.0.19.Final'
-	    providedCompile group: 'org.jboss.resteasy', name: 'resteasy-jettison-provider', version: '3.0.19.Final'
-	    providedCompile group: 'javax.enterprise', name: 'cdi-api', version: '1.2'    
-	    providedCompile group: 'javax.ejb', name: 'javax.ejb-api', version: '3.2'
-    */
-    
     //Tomcat
-	    compile group: 'org.hibernate', name: 'hibernate-core', version: '5.0.10.Final'
-	    compile group: 'org.hibernate', name: 'hibernate-entitymanager', version: '5.0.10.Final'
-	    compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.+'
-	    compile group: 'org.jboss.resteasy', name: 'resteasy-jaxrs', version: '3.0.19.Final'
-        compile group: 'org.jboss.resteasy', name: 'resteasy-jackson2-provider', version: '3.0.19.Final'
-        compile group: 'org.jboss.resteasy', name: 'resteasy-client', version: '3.0.19.Final'
-        compile group: 'org.jboss.resteasy', name: 'resteasy-servlet-initializer', version: '3.0.19.Final'
-        compile group: 'org.jboss.resteasy', name: 'resteasy-cdi', version: '3.0.19.Final'
-	    compile group: 'commons-codec', name: 'commons-codec', version: '1.10'	    
-	    compile group: 'commons-io', name: 'commons-io', version: '2.4'
-	    compile group: 'commons-lang', name: 'commons-lang', version: '2.6'
-	    compile group: 'javax.ejb', name: 'javax.ejb-api', version: '3.2'
-	    providedCompile group: 'javax.enterprise', name: 'cdi-api', version: '1.2'
-	    runtime group: 'org.jboss.weld.servlet', name: 'weld-servlet', version: '2.2.6.Final'
+    compile group: 'org.hibernate', name: 'hibernate-core', version: '5.0.10.Final'
+    compile group: 'org.hibernate', name: 'hibernate-entitymanager', version: '5.0.10.Final'
+    compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.+'
+    compile group: 'commons-codec', name: 'commons-codec', version: '1.10'
+    compile group: 'commons-io', name: 'commons-io', version: '2.4'
+    compile group: 'commons-lang', name: 'commons-lang', version: '2.6'
+
+    // JAX-RS Related
+    compile group: 'org.jboss.resteasy', name: 'resteasy-jaxrs', version: '3.0.19.Final'
+    compile group: 'org.jboss.resteasy', name: 'resteasy-jackson2-provider', version: '3.0.19.Final'
+    compile group: 'org.jboss.resteasy', name: 'resteasy-client', version: '3.0.19.Final'
+    compile group: 'org.jboss.resteasy', name: 'resteasy-servlet-initializer', version: '3.0.19.Final'
+    compile group: 'org.jboss.resteasy', name: 'resteasy-cdi', version: '3.0.19.Final'
+
+    // CDI Related
+    providedCompile group: 'javax.ejb', name: 'javax.ejb-api', version: '3.2'
+    providedCompile group: 'javax.enterprise', name: 'cdi-api', version: '1.2'
+    runtime group: 'org.jboss.weld.servlet', name: 'weld-servlet', version: '2.4.1.Final'
 }
 
 def buildAliases = [
-        'gnomex_all' : ['clean', 'clean_tomcat', 'makeSQLServer', 'jar', 'clientJar', 'copyScripts', 'war', 'gnomex_deploy'],
-        'gnomex_all_opensource' : ['clean', 'clean_tomcat', 'makeMySQL', 'jar', 'clientJar', 'copyScripts', 'opensourceWar', 'gnomex_deploy', 'createOpenSourceZip'],
-        'gnomex_clean' : ['clean', 'clean_tomcat']
+        'gnomex_all'           : ['clean', 'clean_tomcat', 'makeSQLServer', 'jar', 'clientJar', 'copyScripts', 'war', 'gnomex_deploy'],
+        'gnomex_all_opensource': ['clean', 'clean_tomcat', 'makeMySQL', 'jar', 'clientJar', 'copyScripts', 'opensourceWar', 'gnomex_deploy', 'createOpenSourceZip'],
+        'gnomex_clean'         : ['clean', 'clean_tomcat']
 ]
 def expandedTaskList = []
 
@@ -126,11 +117,11 @@ def replaceString(fileName, fromString, toString) {
     new File(fileName).write(fileText)
 }
 
-task makeMySQL <<{
+task makeMySQL << {
     replaceString("${rescDir}/hibernate.tomcat.cfg.xml", "SQLServerDialect", "MySQLDialect")
 }
 
-task makeSQLServer <<{
+task makeSQLServer << {
     replaceString("${rescDir}/hibernate.tomcat.cfg.xml", "MySQLDialect", "SQLServerDialect")
 }
 
@@ -138,16 +129,16 @@ jar {
     archiveName = jarName
     manifest {
         attributes(
-                'Class-Path':'log4j.jar'
+                'Class-Path': 'log4j.jar'
         )
         attributes([
-                'Built-By': ant.properties['user.name'],
+                'Built-By'              : ant.properties['user.name'],
                 'Implementation-Version': "${gnomex_version}    (${formattedDate})"
-        ],'gnomex')
+        ], 'gnomex')
     }
 }
 
-task clientJar (type: Jar) {
+task clientJar(type: Jar) {
     println buildDir.getAbsolutePath()
     from buildDir.getAbsolutePath() + "/classes/main/"
     include "hci/gnomex/httpclient/*.class"
@@ -155,9 +146,9 @@ task clientJar (type: Jar) {
 
     manifest {
         attributes([
-                'Built-By': ant.properties['user.name'],
+                'Built-By'              : ant.properties['user.name'],
                 'Implementation-Version': gnomex_version
-        ],'gnomexClient')
+        ], 'gnomexClient')
     }
 }
 
@@ -173,15 +164,15 @@ task copyScripts {
     }
 }
 
-task opensourceWar (type: War) {
+task opensourceWar(type: War) {
     archiveName = warName
     classpath = classpath - sourceSets.main.output
-    
+
     // Need to depend on the child project build tasks in order to build their products into the war
     dependsOn 'gnomex_ng:gulpBuild'
 
     manifest {
-        attributes (
+        attributes(
                 'Built-By': ant.properties['user.name'],
                 'Implementation-Version': "${gnomex_version}    (${formattedDate})"
         )
@@ -195,7 +186,7 @@ task opensourceWar (type: War) {
         into 'scripts'
     }
 
-    from(buildDir.getAbsolutePath() + "/libs"){
+    from(buildDir.getAbsolutePath() + "/libs") {
         include jarName
         include clientJarName
         into 'WEB-INF/lib'
@@ -221,7 +212,7 @@ task opensourceWar (type: War) {
         include "UCSCExecutables/**"
     }
 
-    from("$projectDir/src/main/webapp"){
+    from("$projectDir/src/main/webapp") {
         include "getXML.jsp"
         include "getHTML.jsp"
         into 'WEB-INF/classes'
@@ -231,25 +222,25 @@ task opensourceWar (type: War) {
 
 war {
     archiveName = warName
-  classpath = classpath - sourceSets.main.output
-    
+    classpath = classpath - sourceSets.main.output
+
     // Need to depend on the child project build tasks in order to build their products into the war
     dependsOn 'gnomex_ng:gulpBuild'
 
     manifest {
-        attributes (
+        attributes(
                 'Built-By': ant.properties['user.name'],
                 'Implementation-Version': "${gnomex_version}    (${formattedDate})",
-                'Dependencies' : 'org.dom4j, org.apache.log4j'
+                'Dependencies': 'org.dom4j, org.apache.log4j'
         )
     }
-    
-    // Look here for the product of the gulpBuild
-	from("gnomex_ng/dist") { 
-	    include "**/*"
-	}	
 
-    from(buildDir.getAbsolutePath() + "/libs"){
+    // Look here for the product of the gulpBuild
+    from("gnomex_ng/dist") {
+        include "**/*"
+    }
+
+    from(buildDir.getAbsolutePath() + "/libs") {
         include jarName
         include clientJarName
         into 'WEB-INF/lib'
@@ -260,7 +251,7 @@ war {
         into 'META-INF'
     }
 
-    from("$buildDir/scripts"){
+    from("$buildDir/scripts") {
         into "scripts"
     }
     // move these files to src/main/resources file
@@ -278,7 +269,7 @@ war {
         include "UCSCExecutables/**"
     }
 
-    from("$projectDir/src/main/webapp"){
+    from("$projectDir/src/main/webapp") {
         include "getXML.jsp"
         include "getHTML.jsp"
         into 'WEB-INF/classes'
@@ -286,10 +277,10 @@ war {
 }
 
 
-task createOpenSourceZip(type: Zip){
+task createOpenSourceZip(type: Zip) {
     archiveName = openSourceZipName
 
-    from("$projectDir"){
+    from("$projectDir") {
         include "README_INSTALL.txt"
         filter(FixCrLfFilter.class,
                 eol: FixCrLfFilter.CrLf.newInstance("lf"))
@@ -301,7 +292,7 @@ task createOpenSourceZip(type: Zip){
         into openSourceName
     }
 
-    from("$projectDir"){
+    from("$projectDir") {
         include "LICENSE.txt"
         into openSourceName
     }
@@ -321,11 +312,11 @@ task createOpenSourceZip(type: Zip){
         include clientJarName
         into "${openSourceName}/gnomex/build"
     }
-    
+
     from('gnomex_tomcat_support/build/libs') {
         into "${openSourceName}/gnomex/build"
     }
-    
+
     from('gnomex_crypt/build/libs') {
         into "${openSourceName}/gnomex/build"
     }
@@ -346,19 +337,19 @@ task gnomex_deploy {
     dependsOn ':gnomex_tomcat_support:jar', ':gnomex_crypt:jar'
 
     doLast {
-	    copy {
-	        from war
-	        into "${gnomexServerHome}/${gnomexDeployDir}"
-	    }
-	
-	    copy {
-	        from 'gnomex_tomcat_support/build/libs'
-	        into "${gnomexServerHome}/lib"
-	    }
-	    
-	    copy {
-	        from 'gnomex_crypt/build/libs'
-	        into "${gnomexServerHome}/lib"
-	    }
+        copy {
+            from war
+            into "${gnomexServerHome}/${gnomexDeployDir}"
+        }
+
+        copy {
+            from 'gnomex_tomcat_support/build/libs'
+            into "${gnomexServerHome}/lib"
+        }
+
+        copy {
+            from 'gnomex_crypt/build/libs'
+            into "${gnomexServerHome}/lib"
+        }
     }
 }
