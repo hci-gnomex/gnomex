@@ -38,6 +38,7 @@ export class GnomexAppComponent implements OnInit {
   ngOnInit() {
     this.setupHeaderComponent();
     this.setupFooterComponent();
+    this.userService.addLoginCallback({ onSuccess: this.onAuthenticated });
   }
 
   private setupFooterComponent() {
@@ -67,6 +68,10 @@ export class GnomexAppComponent implements OnInit {
       new PrimaryNavigationItem({name: "Bulk Sample Sheet Import", route: "/experiments/new/billing", cssClass: "gx-nav-exp-bulk-sample", iconClass: "gx-nav-icon gx-nav-exp-bulk-sample-icon"/*, visibility: "EXPERIMENTS"*/})
     ];
     return items;
+  }
+
+  onAuthenticated(): void {
+    this._appHdrCmpt.primaryNavigationEnabled = this.isAuthenticated();
   }
 
   private isAuthenticated(): boolean {
