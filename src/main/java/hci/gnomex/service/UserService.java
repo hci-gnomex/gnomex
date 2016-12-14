@@ -1,9 +1,15 @@
+/*
+ * Copyright (c) 2016 Huntsman Cancer Institute at the University of Utah, Confidential and Proprietary
+ */
 package hci.gnomex.service;
 
+import hci.framework.control.RollBackCommandException;
 import hci.gnomex.model.AppUser;
+import hci.gnomex.utility.HibernateSession;
 
 import java.io.Serializable;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.enterprise.context.SessionScoped;
@@ -14,9 +20,15 @@ import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.SimpleAuthenticationInfo;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.subject.SimplePrincipalCollection;
+import org.hibernate.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+*
+* @author Cody Haroldsen <cody.haroldsen@hci.utah.edu>
+* @since 12/14/2016
+*/
 @Alternative
 public class UserService implements hci.ri.auth.service.UserService, Serializable {
 	
@@ -102,29 +114,34 @@ public class UserService implements hci.ri.auth.service.UserService, Serializabl
 	
 	private AppUser getAppUser(String userLogin, String realmName) {
 	  AppUser appUser = null;
-	 
-	  if (realmName != null) {
-	    if (realmName.equals("localRealm")) {
-	      appUser = getExternalAppUser(userLogin);
-	    }
-	    else {
-	      appUser = getUniversityAppUser(userLogin);
-	    }	    
-	  }
 	  
-	  return appUser;
-	}
-	
-	private AppUser getExternalAppUser(String userLogin) {
-    AppUser appUser = new AppUser();
-    appUser.setIdAppUser(-1);
-    
-    return appUser;
-	}
-	
-	private AppUser getUniversityAppUser(String userLogin) {
-	  AppUser appUser = new AppUser();
-	  appUser.setIdAppUser(-1);
+	  String hql = "FROM AppUser WHERE " + (realmName.equals("localRealm")?"userNameExternal":"uNID") + " = :userLogin";
+	 
+	  try {
+      Session sess = HibernateSession.currentReadOnlySession(userLogin);
+      
+      List<AppUser> appUsers = (List<AppUser>) sess.createQuery(hql).setString("userLogin", userLogin).list();
+      
+      //AppUser exists
+      if (! appUsers.isEmpty()) {
+        appUser = appUsers.get(0);
+      }   
+	  } catch (Exception e) {
+      log.error("An exception has occurred in UserService ", e);
+      HibernateSession.rollback();
+    } finally {
+      try {
+        HibernateSession.closeSession();
+      } catch (Exception e) {
+        log.error("An exception has occurred in UserService ", e);
+      }
+    }
+	  
+    //AppUser not present (ok for UNID only login - no user)
+	  if (appUser == null) {
+      appUser = new AppUser();
+      appUser.setIdAppUser(-1); 
+	  }
 	  
 	  return appUser;
 	}
