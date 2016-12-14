@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2016 Huntsman Cancer Institute at the University of Utah, Confidential and Proprietary
+ */
 package hci.gnomex.api;
 
 import java.util.HashSet;
