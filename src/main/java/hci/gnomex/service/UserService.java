@@ -6,6 +6,7 @@ import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.enterprise.context.SessionScoped;
 import javax.enterprise.inject.Alternative;
 import javax.transaction.Transactional;
 
@@ -22,6 +23,7 @@ public class UserService implements hci.ri.auth.service.UserService, Serializabl
 	static final long serialVersionUID = -1;
 	
 	private static final Logger log = LoggerFactory.getLogger(UserService.class);
+	
 	
 	/**
 	 * A method to determine whether the user should be allowed to log in (assuming they are authenticated by the realm)
@@ -114,10 +116,16 @@ public class UserService implements hci.ri.auth.service.UserService, Serializabl
 	}
 	
 	private AppUser getExternalAppUser(String userLogin) {
-	  return new AppUser();
+    AppUser appUser = new AppUser();
+    appUser.setIdAppUser(-1);
+    
+    return appUser;
 	}
 	
 	private AppUser getUniversityAppUser(String userLogin) {
-	  return new AppUser();
+	  AppUser appUser = new AppUser();
+	  appUser.setIdAppUser(-1);
+	  
+	  return appUser;
 	}
 }
