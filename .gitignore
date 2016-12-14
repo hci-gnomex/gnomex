@@ -16,7 +16,7 @@ bower_components/
 node_modules/
 code-coverage/
 typings/
-**/src/**/*.js*
+**/src/**/*.js
 **/src/**/*.d.ts
 index.js*
 index.d.ts

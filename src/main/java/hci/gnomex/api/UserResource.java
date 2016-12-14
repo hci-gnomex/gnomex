@@ -5,6 +5,7 @@ package hci.gnomex.api;
 
 import hci.ri.auth.service.UserService;
 
+import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.GET;
@@ -17,7 +18,6 @@ import javax.ws.rs.core.*;
 import hci.gnomex.api.dto.RoleDTO;
 import hci.gnomex.api.dto.UserDTO;
 import hci.gnomex.model.AppUser;
-import hci.gnomex.model.AppUserLite;
 
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.PrincipalCollection;

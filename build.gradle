@@ -62,8 +62,6 @@ dependencies {
     compile fileTree (dir: 'libEnv', include: 'hci_framework.jar')
     compile fileTree (dir: 'libEnv', include: 'hci_utils.jar')
     compile fileTree (dir: 'libEnv', include: 'HCIReport.jar')
-    //have to use extremely old jdom b/c the hci framework is using a very old jdom
-    //compile fileTree (dir: 'libEnv', include: 'jdom.jar')
 
     //Realm stuff
     providedCompile group: 'javax.servlet', name: 'javax.servlet-api', version: '3.0.1'
@@ -94,14 +92,13 @@ dependencies {
         compile group: 'org.jboss.resteasy', name: 'resteasy-jackson2-provider', version: '3.0.19.Final'
         compile group: 'org.jboss.resteasy', name: 'resteasy-client', version: '3.0.19.Final'
         compile group: 'org.jboss.resteasy', name: 'resteasy-servlet-initializer', version: '3.0.19.Final'
-        compile group: 'javax.enterprise', name: 'cdi-api', version: '1.2'
+        compile group: 'org.jboss.resteasy', name: 'resteasy-cdi', version: '3.0.19.Final'
 	    compile group: 'commons-codec', name: 'commons-codec', version: '1.10'	    
 	    compile group: 'commons-io', name: 'commons-io', version: '2.4'
 	    compile group: 'commons-lang', name: 'commons-lang', version: '2.6'
 	    compile group: 'javax.ejb', name: 'javax.ejb-api', version: '3.2'
-	 
-	    runtime group: 'org.jboss.weld.servlet', name: 'weld-servlet', version: '2.4.1.Final'
-	    runtime group: 'org.jboss.weld.servlet', name: 'weld-servlet-core', version: '2.4.1.Final'
+	    providedCompile group: 'javax.enterprise', name: 'cdi-api', version: '1.2'
+	    runtime group: 'org.jboss.weld.servlet', name: 'weld-servlet', version: '2.2.6.Final'
 }
 
 def buildAliases = [
