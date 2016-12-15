@@ -6,9 +6,14 @@ TODO (JEH 12/15/2016) - UPDATE THIS - This document is out of date for Gnomex 6
 
 ## Description
 
-GNomEx is genomic LIMS and data repository. It holds annotated experiments and downstream analysis and serves data tracks to popular genome browsers such as IGB, IGV, and UCSC genome browser. The LIMS handles all aspects of the experiment from order through results delivery including billing for services/consumables. Experiment platforms supported include Illumina HiSeq, MiSeq, iScan, ABI Sanger sequencing, Affy and Agilent Microarrays, Sequenom MassArray and Bioanalyzer.
+GNomEx is genomic LIMS and data repository. It holds annotated experiments and downstream analysis and serves data 
+tracks to popular genome browsers such as IGB, IGV, and UCSC genome browser. The LIMS handles all aspects of the 
+experiment from order through results delivery including billing for services/consumables. Experiment platforms 
+supported include Illumina HiSeq, MiSeq, iScan, ABI Sanger sequencing, Affy and Agilent Microarrays, Sequenom MassArray 
+and Bioanalyzer.
 
-GNomEx is a web application with a Flash client user interface and a Java backend that runs on Apache Tomcat. MySQL is used for the database, although any modern RDBMS can be used.
+GNomEx is a web application with a HTML5/JS (Angular 2) user interface and a Java backend that runs on Apache Tomcat. MySQL 
+is used for the database, although any modern RDBMS can be used.
 
 ## Features
 - Configurable for many different sequencing and experiment platforms
@@ -20,7 +25,6 @@ GNomEx is a web application with a Flash client user interface and a Java backen
 ### SourceForge Link 
 <https://sourceforge.net/projects/gnomex/>
 TODO (JEH 12/15/2016) - UPDATE THIS - This document is out of date for Gnomex 6
-
 
 ## Gnomex 6 - a work in progress
 Gnomex 6 is a Gradle multi-project comprised of 4 distinct project
