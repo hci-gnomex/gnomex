@@ -1,6 +1,6 @@
 {
   "name": "gnomex-ng",
-  "description": "The Gnomex Ng2 application",
+  "description": "The Gnomex Ng application",
   "repository": "https://github.com/hci-gnomex/gnomex.git",
   "private": true,
   "scripts": {
