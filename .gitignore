@@ -1,4 +1,59 @@
+#
+# Copyright (c) 2016 Huntsman Cancer Institute at the University of Utah, Confidential and Proprietary
+#
+
+# General
+build/
+dist/
+build-eclipse/
+build.ant/
+
+# Project specific
+FlexAppVersion.as
+
+# JS/TS Related
+bower_components/
+node_modules/
+code-coverage/
+typings/
+**/src/**/*.js*
+**/src/**/*.d.ts
+index.js*
+index.d.ts
+## demo artifacts
+**/node_modules
+
+# IDE artifacts
+*.iml
+.idea/
+
+# any logging
+*.log
+
+# Gradle
+.gradle/
+
+# Eclipse
+.classpath
+.project
+.settings/
+
+# Intellij
 .idea/
 *.iml
-dist/
-glsave/
+*.iws
+*.ipr
+out/
+classes/
+
+# NetBeans
+/.nb-gradle/
+.nb*
+nbproject/
+
+# Mac
+.DS_Store
+
+# Maven
+log/
+target/

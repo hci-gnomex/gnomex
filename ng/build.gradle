@@ -1,0 +1,44 @@
+buildscript {
+  repositories {
+    jcenter()
+  }
+  dependencies {
+    classpath 'be.filipblondeel.gradle:gradle-gulp-plugin:0.1'
+  }
+}
+
+apply plugin: 'gulp'
+
+ext {
+  explodedWarDirName = "hci-ri-core.war"
+}
+
+task gulpBuild(type: GulpTask) {
+  if (project.hasProperty("devBuild") && devBuild == '1') {
+    args = ["build"]
+  } else {
+    args = ["build", "--prod"]
+  }
+}
+
+task copyWebapp {
+  dependsOn 'gulpBuild'
+  copy {
+    from("../hci-ri-core-ng2/dist") {}
+    into "$serverHome/$deployDir/$explodedWarDirName"
+  }
+}
+
+task deployWebapp(type: Copy) {
+  dependsOn 'copyWebapp'
+  from('template') {
+    include 'deploy.exploded.template'
+    rename { file -> "$explodedWarDirName" + '.dodeploy' }
+  }
+  into "$serverHome/$deployDir"
+}
+
+task clean(type: Delete) {
+  delete 'dist'
+}
+

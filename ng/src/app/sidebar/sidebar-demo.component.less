@@ -1,0 +1,99 @@
+@linkHover: #0b97c4;
+@linkColor: #ffffff;
+@sidebarActiveBack: #777777;
+@navbarBrandLinkColor: #fff;
+
+.sidebar {
+  display: none;
+}
+
+@media (min-width: 200px) {
+  .sidebar {
+    position: fixed;
+    top: 51px;
+    bottom: 0;
+    left: 0;
+    z-index: 1000;
+    display: block;
+    padding: 0px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    background-color: #bbbbbb;
+    border-right: 1px solid #eee;
+  }
+}
+
+.sidebar-small {
+  width: 50px;
+}
+
+.sidebar-footer {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .sidebar-footer {
+    display: block;
+    text-align: center;
+  }
+}
+
+/* Sidebar navigation */
+.nav-sidebar {
+  margin-right: 0px;
+  margin-bottom: 0px;
+  margin-left: 0px;
+}
+
+.nav-sidebar > li > a {
+  padding-left: 20px;
+  padding-top: 10px;
+  padding-bottom: 5px;
+  display: inline-block;
+  width: 100%;
+  font-weight: bold;
+}
+
+.sidebar-small > .nav-sidebar > li > a {
+  padding-left: 0px;
+  text-align: center;
+}
+
+.sidebar-small > .nav-sidebar > li > a > .a-label {
+  display: none;
+}
+
+.nav-sidebar > li > a,
+.nav-sidebar > li > a:hover,
+.nav-sidebar > li > a:focus {
+  text-decoration: none;
+}
+
+.nav-sidebar > li > a:hover {
+  color: @linkHover;
+}
+
+.nav-sidebar > .active > a,
+.nav-sidebar > .active > a:hover,
+.nav-sidebar > .active > a:focus {
+  color: @navbarBrandLinkColor;
+  background-color: @sidebarActiveBack;
+}
+
+.sidebar-large > .nav-sidebar > li > a > i {
+  padding-right: 10px;
+  min-width: 30px; /* Icons are not squa; causing indentation issues on text. */
+}
+
+.main.sidebar-small {
+  margin-left: 20px;
+  width: calc(100% - 50px);
+}
+
+a {
+  color: @linkColor;
+}
+
+a:hover {
+  text-decoration: none;
+}
