@@ -22,7 +22,7 @@
 	<mx:Script>
 		<![CDATA[
 		import hci.flex.controls.DropdownLabel;
-			import hci.flex.util.DictionaryManager;
+		import hci.flex.util.DictionaryManager;
 
 		import mx.collections.Grouping;
 		import mx.collections.GroupingCollection;
@@ -220,15 +220,15 @@
 					theTab.removeChild(billingTab);
 				}
 			}
-				//		if (this.protocolsBox.visible) {
-				//			if (!this.headerBox.contains(this.protocolsBox)) {
-				//				this.headerBox.addChild(this.protocolsBox);
-				//			}
-				//		} else {
-				//			if (this.headerBox.contains(this.protocolsBox)) {
-				//				this.headerBox.removeChild(this.protocolsBox);
-				//			}
-				//		}
+			//		if (this.protocolsBox.visible) {
+			//			if (!this.headerBox.contains(this.protocolsBox)) {
+			//				this.headerBox.addChild(this.protocolsBox);
+			//			}
+			//		} else {
+			//			if (this.headerBox.contains(this.protocolsBox)) {
+			//				this.headerBox.removeChild(this.protocolsBox);
+			//			}
+			//		}
 			if (selectedExperiment.@projectDescription == '') {
 				this.projectDescVBox.visible = false;
 				this.projectDescVBox.includeInLayout = false;
@@ -372,7 +372,7 @@
 				downloadExpandedFilesButtonView.includeInLayout = false;
 			}
 
-				//			this.theTab.selectedIndex = 0;
+			//			this.theTab.selectedIndex = 0;
 
 			// Need to refresh download list here; otherwise last selected experiment's
 			// files shown rather than current selection.
@@ -1112,11 +1112,11 @@
 					sampleTypeCol.visible = true;
 					organismCol.visible = true;
 					preppedByLabCol.visible = true;
-						if(this.selectedExperiment.@idCoreFacility == parentApplication.idCoreFacilityHTG){
-							otherSamplePrepMethodCol.visible = false;
-						} else {
-							otherSamplePrepMethodCol.visible = true;
-						}
+					if (this.selectedExperiment.@idCoreFacility == parentApplication.idCoreFacilityHTG) {
+						otherSamplePrepMethodCol.visible = false;
+					} else {
+						otherSamplePrepMethodCol.visible = true;
+					}
 
 					chipTypeCol.visible = false;
 					concentrationUnitCol.visible = false;
@@ -1458,6 +1458,7 @@
 			var annotation:Object;
 			var col:AdvancedDataGridColumn;
 			var exists:Boolean = false;
+			var needToValidateNow:Boolean = false;
 
 			addAssayColumns();
 
@@ -1557,9 +1558,12 @@
 					}
 
 					samplesGridConfirm.columns = newColumns;
-
-					samplesGridConfirm.validateNow();
+					needToValidateNow = true;
 				}
+			}
+
+			if (needToValidateNow) {
+				samplesGridConfirm.validateNow();
 			}
 		}
 
