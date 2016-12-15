@@ -2,391 +2,402 @@
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:views="views.*"  label="Sequence Lanes" enabled="true" width="100%" height="100%" show="{init();}">
 <mx:Script>	
 	<![CDATA[
-		import hci.flex.controls.DropdownLabel;
-		
-		import mx.collections.Sort;
-		import mx.collections.XMLListCollection;
-		import mx.controls.Alert;
-		import mx.core.DragSource;
-		import mx.events.CloseEvent;
-		import mx.events.DragEvent;
-		import mx.managers.DragManager;
-		
-		import views.renderers.ComboBox;
-		import views.renderers.ComboBoxNumberSequencingCyclesAllowed;
-		import views.renderers.ComboBoxWorkflowStatus;
+	import hci.flex.controls.DropdownLabel;
 
-		[Bindable]
-		private var filteredNumberSequencingCyclesAllowedList:XMLListCollection;
+	import mx.collections.Sort;
+	import mx.collections.XMLListCollection;
+	import mx.controls.Alert;
+	import mx.core.DragSource;
+	import mx.events.CloseEvent;
+	import mx.events.DragEvent;
+	import mx.managers.DragManager;
 
-        private var lanesToDelete:XMLListCollection = null;
-		private var configuredCodeRequestCategory:String = "";
-        
-		public function init():void {
-			if (parentDocument.request.@codeRequestCategory != configuredCodeRequestCategory) {
-				var numberSequencingCyclesAllowedSorter:Sort = new Sort();
-				numberSequencingCyclesAllowedSorter.compareFunction = this.sortNumberSequencingCyclesAllowed;
-				
-				filteredNumberSequencingCyclesAllowedList = new XMLListCollection(parentApplication.dictionaryManager.getEntries('hci.gnomex.model.NumberSequencingCyclesAllowed'));
-				filteredNumberSequencingCyclesAllowedList.sort = numberSequencingCyclesAllowedSorter; 
-				filteredNumberSequencingCyclesAllowedList.filterFunction = filterNumberSequencingCyclesAllowed;
-				filteredNumberSequencingCyclesAllowedList.refresh();
+	import views.renderers.ComboBox;
+	import views.renderers.ComboBoxNumberSequencingCyclesAllowed;
+	import views.renderers.ComboBoxWorkflowStatus;
 
-				configuredCodeRequestCategory = parentDocument.request.@codeRequestCategory;
-			}
+	[Bindable]
+	private var filteredNumberSequencingCyclesAllowedList:XMLListCollection;
+
+	private var lanesToDelete:XMLListCollection = null;
+	private var configuredCodeRequestCategory:String = "";
+
+	public function init():void {
+		if (parentDocument.request.@codeRequestCategory != configuredCodeRequestCategory) {
+			var numberSequencingCyclesAllowedSorter:Sort = new Sort();
+			numberSequencingCyclesAllowedSorter.compareFunction = this.sortNumberSequencingCyclesAllowed;
+
+			filteredNumberSequencingCyclesAllowedList = new XMLListCollection(parentApplication.dictionaryManager.getEntries('hci.gnomex.model.NumberSequencingCyclesAllowed'));
+			filteredNumberSequencingCyclesAllowedList.sort = numberSequencingCyclesAllowedSorter;
+			filteredNumberSequencingCyclesAllowedList.filterFunction = filterNumberSequencingCyclesAllowed;
+			filteredNumberSequencingCyclesAllowedList.refresh();
+
+			configuredCodeRequestCategory = parentDocument.request.@codeRequestCategory;
 		}
-		
-		private function sortNumberSequencingCyclesAllowed(obj1:Object, obj2:Object, fields:Array=null):int {
-			if (obj1 == null && obj2 == null) {
-				return 0;
-			} else if (obj1 == null) {
-				return 1;
-			} else if (obj2 == null) {
+	}
+
+	private function sortNumberSequencingCyclesAllowed(obj1:Object, obj2:Object, fields:Array = null):int {
+		if (obj1 == null && obj2 == null) {
+			return 0;
+		} else if (obj1 == null) {
+			return 1;
+		} else if (obj2 == null) {
+			return -1;
+		} else {
+
+			if (obj1.@value == '') {
 				return -1;
+			} else if (obj2.@value == '') {
+				return 1;
 			} else {
-				
-				if (obj1.@value == '') {
+				var isCustom1:String = obj1.@isCustom;
+				var isCustom2:String = obj2.@isCustom
+				var numberCycles1:Number = obj1.@numberSequencingCyclesDisplay;
+				var numberCycles2:Number = obj2.@numberSequencingCyclesDisplay;
+				var sortOrder1:Number = obj1.@sortOrder == '' ? -1 : obj1.@sortOrder;
+				var sortOrder2:Number = obj2.@sortOrder == '' ? -1 : obj2.@sortOrder;
+
+				if (isCustom1 < isCustom2) {
 					return -1;
-				} else if (obj2.@value == '') {
+				} else if (isCustom1 > isCustom2) {
 					return 1;
 				} else {
-					var isCustom1:String = obj1.@isCustom;
-					var isCustom2:String = obj2.@isCustom
-					var numberCycles1:Number = obj1.@numberSequencingCyclesDisplay;
-					var numberCycles2:Number = obj2.@numberSequencingCyclesDisplay;
-					var sortOrder1:Number = obj1.@sortOrder == '' ? -1 : obj1.@sortOrder;
-					var sortOrder2:Number = obj2.@sortOrder == '' ? -1 : obj2.@sortOrder;
-					
-					if (isCustom1 < isCustom2) {
+					if (sortOrder1 < sortOrder2) {
 						return -1;
-					} else if (isCustom1 > isCustom2) {
+					} else if (sortOrder1 > sortOrder2) {
 						return 1;
 					} else {
-						if (sortOrder1 < sortOrder2) {
+						if (numberCycles1 < numberCycles2) {
 							return -1;
-						} else if (sortOrder1 > sortOrder2) {
+						} else if (numberCycles1 > numberCycles2) {
 							return 1;
 						} else {
-							if (numberCycles1 < numberCycles2) {
-								return -1;
-							} else if (numberCycles1 > numberCycles2) {
-								return 1;
-							} else {
-								return 0;
-							}
-						} 
-					} 
+							return 0;
+						}
+					}
 				}
-			}			
-		}			
-		
-		private function filterNumberSequencingCyclesAllowed(item:Object):Boolean {
-			if (parentDocument == null) {
-				return true;
 			}
-			
-			if (item.@value == "") {
-				return true;
-			} 
-			
-			var codeRequestCategory:String = parentDocument.request.@codeRequestCategory;
-			var doesMatch:Boolean = false;
-			if (item.@codeRequestCategory.toString() == codeRequestCategory && item.@isActive.toString() == 'Y') {
-				doesMatch = true;
-			}
-			
-			return doesMatch;
+		}
+	}
+
+	private function filterNumberSequencingCyclesAllowed(item:Object):Boolean {
+		if (parentDocument == null) {
+			return true;
 		}
 
-		private function addLane():void {
-			
-			// Use the selected lane as a template; otherwise, grab
-			// the last one
-			var template:Object = this.lanesGrid.selectedItem;
-			if (template == null) {
-				var theLanes:XMLListCollection = XMLListCollection(parentDocument.lanes);				
-				if (theLanes.length > 0) {
-					template = theLanes.getItemAt(theLanes.length - 1);
-				}
+		if (item.@value == "") {
+			return true;
+		}
+
+		var codeRequestCategory:String = parentDocument.request.@codeRequestCategory;
+		var doesMatch:Boolean = false;
+		if (item.@codeRequestCategory.toString() == codeRequestCategory && item.@isActive.toString() == 'Y') {
+			doesMatch = true;
+		}
+
+		return doesMatch;
+	}
+
+	private function addLane():void {
+
+		// Use the selected lane as a template; otherwise, grab
+		// the last one
+		var template:Object = this.lanesGrid.selectedItem;
+		if (template == null) {
+			var theLanes:XMLListCollection = XMLListCollection(parentDocument.lanes);
+			if (theLanes.length > 0) {
+				template = theLanes.getItemAt(theLanes.length - 1);
 			}
-			var emptyNode:XML = new XML("<SequenceLane " +
-			    " idSequenceLane='" + "SequenceLane" + parentDocument.lanes.length + "'" +
-					" idSeqRunType='" + (template != null ? template.@idSeqRunType : "") + "'" +			
-					" idNumberSequencingCycles='" +  (template != null ? template.@idNumberSequencingCycles : "") + "'" +			
-					" idNumberSequencingCyclesAllowed='" +  (template != null ? template.@idNumberSequencingCyclesAllowed : "") + "'" +			
-					" idGenomeBuildAlignTo=''" +		
-					" canChangeSampleDesignations='Y'"	+
+		}
+		var emptyNode:XML = new XML("<SequenceLane " +
+				" idSequenceLane='" + "SequenceLane" + parentDocument.lanes.length + "'" +
+				" idSeqRunType='" + (template != null ? template.@idSeqRunType : "") + "'" +
+				" idNumberSequencingCycles='" + (template != null ? template.@idNumberSequencingCycles : "") + "'" +
+				" idNumberSequencingCyclesAllowed='" + (template != null ? template.@idNumberSequencingCyclesAllowed : "") + "'" +
+				" idGenomeBuildAlignTo=''" +
+				" canChangeSampleDesignations='Y'" +
 				" idSample='0'" +
 				"/>");
-			
-			parentDocument.lanes.addItem(emptyNode);
-		}
 
-		private function copyLane():void {
-			if (lanesGrid.selectedIndex != -1) {
-				for each(var i:int in lanesGrid.selectedIndices) {					
-					var laneToCopy:Object = parentDocument.lanes[i];
-					
-					var emptyNode:XML = new XML("<SequenceLane " +
-    			    " idSequenceLane='" + "SequenceLane" + parentDocument.lanes.length + "'" +
-					" idSample='" + laneToCopy.@idSample + "'" +
-					" idSeqRunType='" + laneToCopy.@idSeqRunType + "'" +			
-					" idNumberSequencingCycles='" + laneToCopy.@idNumberSequencingCycles + "'" +			
-					" idNumberSequencingCyclesAllowed='" +  laneToCopy.@idNumberSequencingCyclesAllowed + "'" +			
-					" idGenomeBuildAlignTo='" + laneToCopy.@idGenomeBuildAlignTo + "'" +		
-					" canChangeSampleDesignations='Y'"		+
-					"/>");
-					
-					parentDocument.lanes.addItem(emptyNode);
-					
-				}
+		parentDocument.lanes.addItem(emptyNode);
+	}
+
+	private function copyLane():void {
+		if (lanesGrid.selectedIndex != -1) {
+			for each(var i:int in lanesGrid.selectedIndices) {
+				var laneToCopy:Object = parentDocument.lanes[i];
+
+				var emptyNode:XML = new XML("<SequenceLane " +
+						" idSequenceLane='" + "SequenceLane" + parentDocument.lanes.length + "'" +
+						" idSample='" + laneToCopy.@idSample + "'" +
+						" idSeqRunType='" + laneToCopy.@idSeqRunType + "'" +
+						" idNumberSequencingCycles='" + laneToCopy.@idNumberSequencingCycles + "'" +
+						" idNumberSequencingCyclesAllowed='" + laneToCopy.@idNumberSequencingCyclesAllowed + "'" +
+						" idGenomeBuildAlignTo='" + laneToCopy.@idGenomeBuildAlignTo + "'" +
+						" canChangeSampleDesignations='Y'" +
+						"/>");
+
+				parentDocument.lanes.addItem(emptyNode);
+
 			}
 		}
-		private function deleteLane():void {
-			if (lanesGrid.selectedItems.length > 0) { 
-				lanesToDelete = new XMLListCollection();
-				for each(var lane:Object in lanesGrid.selectedItems) {
-					lanesToDelete.addItem(lane);
-				}				
-				promptToDeleteLane();
-			} 
-		}
-		
-		public function promptToDeleteLane():void {
-			var lane:Object = lanesToDelete.getItemAt(0);
-			// If we user is not an admin, he can only delete
-			// lanes that are truly editable
-			if (!parentApplication.hasPermission("canWriteAnyObject")) {
-				if (canLaneBeChanged(lane)) {
-					// Okay to delete because it is a new lane or
-					// an edittable lane				    	
-				} else {
-					// Not okay for non-admin to delete.
-					Alert.show("Insufficient permissions to delete lane " + lane.@number + 
-					  ".  Please contact the " + parentDocument.coreFacilityName + 
-					  " to assist in modifying this experiment.");
-					return; 
-				}
-			}
-			
+	}
 
-			if (lane.hasOwnProperty("@idFlowCellChannel") && lane.@idFlowCellChannel != null && lane.@idFlowCellChannel != "" ) {
-				Alert.show("Warning: Lane " + lane.@number + " is already loaded on flow cell " + lane.@flowCellNumber + "-" + lane.@flowCellChannelNumber +  
-				           " Remove lane anyway?",
-							null, 
-							(Alert.YES | Alert.NO), this, 
-							onPromptToDeleteLane);
-			 
+	private function deleteLane():void {
+		if (lanesGrid.selectedItems.length > 0) {
+			lanesToDelete = new XMLListCollection();
+			for each(var lane:Object in lanesGrid.selectedItems) {
+				lanesToDelete.addItem(lane);
+			}
+			promptToDeleteLane();
+		}
+	}
+
+	public function promptToDeleteLane():void {
+		var lane:Object = lanesToDelete.getItemAt(0);
+		// If we user is not an admin, he can only delete
+		// lanes that are truly editable
+		if (!parentApplication.hasPermission("canWriteAnyObject")) {
+			if (canLaneBeChanged(lane)) {
+				// Okay to delete because it is a new lane or
+				// an edittable lane
 			} else {
-				Alert.show("Remove lane " + lane.@number + "?",
-							"Confirm", 
-							(Alert.YES | Alert.NO), this, 
-							onPromptToDeleteLane);
-				
+				// Not okay for non-admin to delete.
+				Alert.show("Insufficient permissions to delete lane " + lane.@number +
+						".  Please contact the " + parentDocument.coreFacilityName +
+						" to assist in modifying this experiment.");
+				return;
 			}
-			
 		}
-		
-		private function canLaneBeChanged(lane:Object):Boolean {
-			if (lane.@idSequenceLane.indexOf("SequenceLane") == 0 ||
+
+
+		if (lane.hasOwnProperty("@idFlowCellChannel") && lane.@idFlowCellChannel != null && lane.@idFlowCellChannel != "") {
+			Alert.show("Warning: Lane " + lane.@number + " is already loaded on flow cell " + lane.@flowCellNumber + "-" + lane.@flowCellChannelNumber +
+					" Remove lane anyway?",
+					null,
+					(Alert.YES | Alert.NO), this,
+					onPromptToDeleteLane);
+
+		} else {
+			Alert.show("Remove lane " + lane.@number + "?",
+					"Confirm",
+					(Alert.YES | Alert.NO), this,
+					onPromptToDeleteLane);
+
+		}
+
+	}
+
+	private function canLaneBeChanged(lane:Object):Boolean {
+		if (lane.@idSequenceLane.indexOf("SequenceLane") == 0 ||
 				(lane.@canChangeSeqRunType == 'Y' &&
-				 lane.@canChangeNumberSequencingCycles == 'Y' &&
-				 lane.@canChangeGenomeBuildAlignTo == 'Y')) {
-				return true;
-			} else {
-				return false;
+				lane.@canChangeNumberSequencingCycles == 'Y' &&
+				lane.@canChangeGenomeBuildAlignTo == 'Y')) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+
+	private function onPromptToDeleteLane(event:CloseEvent):void {
+		if (event.detail == Alert.YES) {
+			var lane:Object = lanesToDelete.getItemAt(0);
+			var index:int = parentDocument.lanes.getItemIndex(lane);
+			parentDocument.lanes.removeItemAt(index);
+			lanesToDelete.removeItemAt(0);
+			if (lanesToDelete.length > 0) {
+				promptToDeleteLane();
+				return;
 			}
 		}
-		
-		
-		private function onPromptToDeleteLane(event:CloseEvent):void {
-			if (event.detail == Alert.YES) {
-				var lane:Object = lanesToDelete.getItemAt(0);
-				var index:int = parentDocument.lanes.getItemIndex(lane);			
-				parentDocument.lanes.removeItemAt(index);
-				lanesToDelete.removeItemAt(0);
-				if(lanesToDelete.length > 0) {
-					promptToDeleteLane();
-					return;
+		lanesToDelete = null;
+
+	}
+
+
+	public function promptToClearAllLanes():void {
+		Alert.show("Remove all sequence lanes currently showing in list?",
+				null,
+				(Alert.YES | Alert.NO), this,
+				onPromptToClearAllLanes);
+	}
+
+	public function initializeLanesGrid():void {
+		if (parentDocument == null) {
+			return;
+		}
+
+		if (parentDocument.requestToClone != null) {
+			return;
+		}
+
+		if (parentDocument.numberOfLanes.text == null || parentDocument.numberOfLanes.text == "0" || parentDocument.numberOfLanes.text == '') {
+			return;
+		}
+
+
+		var numberOfLanesToAdd:Number = new Number(parentDocument.numberOfLanes.text);
+		if (parentDocument.lanes.length <= numberOfLanesToAdd) {
+			numberOfLanesToAdd = numberOfLanesToAdd - parentDocument.lanes.length;
+		} else {
+			numberOfLanesToAdd = 0;
+		}
+		for (var x:int = 0; x < numberOfLanesToAdd; x++) {
+			addLane();
+		}
+
+	}
+
+	public function propagateSeqRunType(idSeqRunType:String):void {
+		for each (var lane:Object in parentDocument.lanes) {
+			lane.@idSeqRunType = idSeqRunType;
+		}
+		callLater(checkLanesCompleteness);
+	}
+
+	public function propagateNumberSequencingCycles(idNumberSequencingReactions:String):void {
+		for each (var lane:Object in parentDocument.lanes) {
+			lane.@idNumberSequencingCycles = idNumberSequencingReactions;
+		}
+		callLater(checkLanesCompleteness);
+	}
+
+	private function onPromptToClearAllLanes(event:CloseEvent):void {
+		if (event.detail == Alert.YES) {
+			parentDocument.lanes.removeAll();
+			checkLanesCompleteness();
+		}
+	}
+
+	private function getLaneCountLabelFunction(item:Object, col:int):String {
+		var laneCount:int = 0;
+		if (parentDocument == null) {
+			return "";
+		}
+		if (parentDocument.lanes != null) {
+			for each(var lane:Object in parentDocument.lanes) {
+				if (lane.@idSample == item.@idSample) {
+					laneCount++;
 				}
 			}
-			lanesToDelete = null;
+		}
+		item.@laneCount = laneCount;
+		return "";
+	}
 
-		}
-		
-		
-		public function promptToClearAllLanes():void {
-			Alert.show("Remove all sequence lanes currently showing in list?",
-						null, 
-						(Alert.YES | Alert.NO), this, 
-						onPromptToClearAllLanes);
-		}
-				
-        public function initializeLanesGrid():void {
-        	if (parentDocument == null) {
-        		return;
-        	}
-        	
-        	if (parentDocument.requestToClone != null) {
-        		return;
-        	}
-        	
-        	if (parentDocument.numberOfLanes.text == null || parentDocument.numberOfLanes.text == "0" || parentDocument.numberOfLanes.text == '') {
-        		return;
-        	}
-      	
-        	
-    		var numberOfLanesToAdd:Number = new Number(parentDocument.numberOfLanes.text);
-    		if(parentDocument.lanes.length <= numberOfLanesToAdd) {
-    			numberOfLanesToAdd = numberOfLanesToAdd - parentDocument.lanes.length;
-    		} else {
-    			numberOfLanesToAdd = 0;
-    		}
-    		for(var x:int = 0; x < numberOfLanesToAdd; x++) {
-    			addLane();
-    		}
-    		
-        }
-		public function propagateSeqRunType(idSeqRunType:String):void {
-			for each (var lane:Object in parentDocument.lanes) {
-				lane.@idSeqRunType = idSeqRunType;
-			}
-			callLater(checkLanesCompleteness);
-		}
-		public function propagateNumberSequencingCycles(idNumberSequencingReactions:String):void {
-			for each (var lane:Object in parentDocument.lanes) {
-				lane.@idNumberSequencingCycles = idNumberSequencingReactions;
-			}
-			callLater(checkLanesCompleteness);
-		}
-
-		private function onPromptToClearAllLanes(event:CloseEvent):void {
-            if (event.detail==Alert.YES) {
-            	parentDocument.lanes.removeAll(); 
-            	checkLanesCompleteness();
-            }
-        }
-       	private function getLaneCountLabelFunction(item:Object,col:int):String
-        {
-        	var laneCount:int = 0;
-        	if (parentDocument == null) {
-        		return "";
-        	}
-        	if (parentDocument.lanes!= null) {
-        		for each(var lane:Object in parentDocument.lanes) {
-        			if (lane.@idSample == item.@idSample) {
-        				laneCount++;
-        			}
-        		}
-        	} 
-			item.@laneCount = laneCount;
-			return "";
-        }        
-        public function checkLanesCompleteness():void {
-        	var completeCount:int = 0;
-        	for each(var lane:Object in parentDocument.lanes) {
-        		if (lane.@idSample != null && lane.@idSample!= '0'  &&
-        			lane.@idSeqRunType != null && lane.@idSeqRunType != '' &&
-        			lane.@idNumberSequencingCycles != null && lane.@idNumberSequencingCycles != '') {
-        			completeCount++;       				
-        		}
-        	}
-        	if (parentDocument.lanes.length > 0 && completeCount == parentDocument.lanes.length) {
-        		if (parentDocument.theTab.contains(parentDocument.confirmView)){
-	        		parentDocument.confirmView.enabled = true;
-        		}
-        		if (parentDocument.theTab.contains(parentDocument.visibilityView)){
-	        		parentDocument.visibilityView.enabled = true;
-        		}
-        		 
-        	} else if (parentDocument.request.@idRequest != '0') {
-        		if (parentDocument.theTab.contains(parentDocument.confirmView)) {
- 		       		parentDocument.confirmView.enabled = true;        			
-        		}
-        		if (parentDocument.theTab.contains(parentDocument.visibilityView)) {
- 		       		parentDocument.visibilityView.enabled = true;        			
-        		}
-        	} else {
-        		if (parentDocument.theTab.contains(parentDocument.confirmView)) {
-	        		parentDocument.confirmView.enabled = false;        			
-        		}
-        		if (parentDocument.theTab.contains(parentDocument.visibilityView)) {
- 		       		parentDocument.visibilityView.enabled = false;        			
-        		}
-
-        	}
-        	parentDocument.enableNextButtons();
-        
-        }
-
-	  	private function onDragDropLane(event:DragEvent) : void
-		{
-	       // retrieve the data associated with the "items" format. This will be the data that
-	       // the dragInitiator has copied into the DragSource.
-	       var items:Array = event.dragSource.dataForFormat("items") as Array;
-	
-	       // determine where in the grid the drop occurs and select that node by the index; followed by 
-	       // retrieving the node itself. 
-	       var r:int = lanesGrid.calculateDropIndex(event);
-	       lanesGrid.selectedIndex = r;
-	       var node:XML = lanesGrid.selectedItem as XML;
-	       var p:*;
-	
-	
-	       if (node.name()  == "SequenceLane") {
-	       		p = node;
-	       } else {
-	       		//ignore drop operations not on existing hyb row
-	       }
-	       
-	        
-	       // For normal users, disallow operation if the lane is not edittable
-	       if (canLaneBeChanged(lanesGrid.selectedItem) ||
-	           parentApplication.hasPermission("canWriteAnyObject")) {
-	           	
-	       } else {
-	       	  	Alert.show("Lane samples cannot be changed.");
-		       	event.preventDefault();
-		       	event.target.hideDropFeedback(event);
-		       	DragManager.showFeedback(DragManager.NONE);
-				return;	       	  	
-	       }
-	
-	       // taking all of the items in the DragSouce, update the appropriate
-	       // sample id on the hyb node.
-	       if (p != null) {
-		       for(var i:Number=0; i < items.length; i++) {
-		       	if (items[i].name() == "Sample") {
-			    	lanesGrid.selectedItem.@idSample = items[i].@idSample;
-		       	} 
-		       }
-	       	
-	       }	
-	       
-	       this.sampleLaneDragGrid.invalidateDisplayList();
-	       this.sampleLaneDragGrid.invalidateList();
-	       
-	       // Don't allow flex to do any default moves to the data.  
-	       // We handle it in the code above.
-	       event.preventDefault();
-	       
-	       checkLanesCompleteness();
-		}
-		
-		public function onEdit():void {
-		}
-		
-		private function updateSeqLanepMValue():void{
-			var seqLaneSet:Object = new Object();
-			for each(var seqLane:XML in parentDocument.lanes){
-				if(seqLaneSet[seqLane.@fileName] != null && seqLaneSet[seqLane.@fileName] != ""){
-					seqLane.@flowCellChannelSampleConcentrationpM = seqLaneSet[seqLane.@fileName];
-				} else{
-					seqLaneSet[seqLane.@fileName] = seqLane.@flowCellChannelSampleConcentrationpM;	
-				}	
+	public function checkLanesCompleteness():void {
+		var completeCount:int = 0;
+		for each(var lane:Object in parentDocument.lanes) {
+			if (lane.@idSample != null && lane.@idSample != '0' &&
+					lane.@idSeqRunType != null && lane.@idSeqRunType != '' &&
+					lane.@idNumberSequencingCycles != null && lane.@idNumberSequencingCycles != '') {
+				completeCount++;
 			}
 		}
-		 
+		if (parentDocument.lanes.length > 0 && completeCount == parentDocument.lanes.length) {
+			if (parentDocument.theTab.contains(parentDocument.confirmView)) {
+				parentDocument.confirmView.enabled = true;
+			}
+			if (parentDocument.theTab.contains(parentDocument.visibilityView)) {
+				parentDocument.visibilityView.enabled = true;
+			}
+
+		} else if (parentDocument.request.@idRequest != '0') {
+			if (parentDocument.theTab.contains(parentDocument.confirmView)) {
+				parentDocument.confirmView.enabled = true;
+			}
+			if (parentDocument.theTab.contains(parentDocument.visibilityView)) {
+				parentDocument.visibilityView.enabled = true;
+			}
+		} else {
+			if (parentDocument.theTab.contains(parentDocument.confirmView)) {
+				parentDocument.confirmView.enabled = false;
+			}
+			if (parentDocument.theTab.contains(parentDocument.visibilityView)) {
+				parentDocument.visibilityView.enabled = false;
+			}
+
+		}
+		parentDocument.enableNextButtons();
+
+	}
+
+	private function onDragDropLane(event:DragEvent):void {
+		// retrieve the data associated with the "items" format. This will be the data that
+		// the dragInitiator has copied into the DragSource.
+		var items:Array = event.dragSource.dataForFormat("items") as Array;
+
+		// determine where in the grid the drop occurs and select that node by the index; followed by
+		// retrieving the node itself.
+		var r:int = lanesGrid.calculateDropIndex(event);
+		lanesGrid.selectedIndex = r;
+		var node:XML = lanesGrid.selectedItem as XML;
+		var p:*;
+
+
+		if (node.name() == "SequenceLane") {
+			p = node;
+		} else {
+			//ignore drop operations not on existing hyb row
+		}
+		// Dont allow to overwrite an existing sample
+		if (node.@idSample != 0) {
+			Alert.show("Cannot overwrite existing sample " + node.@sampleName,
+					"Message",
+					(Alert.OK));
+			event.preventDefault();
+			event.target.hideDropFeedback(event);
+			DragManager.showFeedback(DragManager.NONE);
+			return;
+
+		}
+		// For normal users, disallow operation if the lane is not edittable
+		if (canLaneBeChanged(lanesGrid.selectedItem) ||
+				parentApplication.hasPermission("canWriteAnyObject")) {
+
+		} else {
+			Alert.show("Lane samples cannot be changed.");
+			event.preventDefault();
+			event.target.hideDropFeedback(event);
+			DragManager.showFeedback(DragManager.NONE);
+			return;
+		}
+
+		// taking all of the items in the DragSouce, update the appropriate
+		// sample id on the hyb node.
+		if (p != null) {
+			for (var i:Number = 0; i < items.length; i++) {
+				if (items[i].name() == "Sample") {
+					lanesGrid.selectedItem.@idSample = items[i].@idSample;
+				}
+			}
+
+		}
+
+		this.sampleLaneDragGrid.invalidateDisplayList();
+		this.sampleLaneDragGrid.invalidateList();
+
+		// Don't allow flex to do any default moves to the data.
+		// We handle it in the code above.
+		event.preventDefault();
+
+		checkLanesCompleteness();
+	}
+
+	public function onEdit():void {
+	}
+
+	private function updateSeqLanepMValue():void {
+		var seqLaneSet:Object = new Object();
+		for each(var seqLane:XML in parentDocument.lanes) {
+			if (seqLaneSet[seqLane.@fileName] != null && seqLaneSet[seqLane.@fileName] != "") {
+				seqLane.@flowCellChannelSampleConcentrationpM = seqLaneSet[seqLane.@fileName];
+			} else {
+				seqLaneSet[seqLane.@fileName] = seqLane.@flowCellChannelSampleConcentrationpM;
+			}
+		}
+	}
 	]]>
 </mx:Script>
 	<mx:VBox id="lanesSetupContainer" width="100%" height="100%" verticalGap="0">

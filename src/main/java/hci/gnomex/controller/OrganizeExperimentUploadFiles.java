@@ -29,6 +29,7 @@ import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import hci.gnomex.utility.Util;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.query.Query;
@@ -195,7 +196,7 @@ public Command execute() throws RollBackCommandException {
 					String newFileName = (String) parser.getFilesToRenameMap().get(file);
 					File f1 = new File(file);
 					File f2 = new File(newFileName);
-					boolean success = f1.renameTo(f2);
+					boolean success = Util.renameTo(f1,f2);
 					if (success) {
 						for (Iterator k = parser.getFileNameMap().keySet().iterator(); k.hasNext();) {
 							String directory = (String) k.next();
@@ -204,7 +205,7 @@ public Command execute() throws RollBackCommandException {
 								String parserFile = (String) i1.next();
 								if (parserFile.equals(file)) {
 									fileNames.remove(parserFile);
-									fileNames.add(f2.getCanonicalPath().replace("\\", Constants.FILE_SEPARATOR));
+									fileNames.add(f2.getAbsolutePath().replace("\\", Constants.FILE_SEPARATOR));
 									parser.getFileNameMap().put(directory, fileNames);
 									break;
 								}
@@ -286,7 +287,7 @@ public Command execute() throws RollBackCommandException {
 						if (!targetDir.exists()) {
 							boolean success = targetDir.mkdirs();
 							if (!success) {
-								throw new Exception("Unable to create directory " + targetDir.getCanonicalPath().replace("\\", Constants.FILE_SEPARATOR));
+								throw new Exception("Unable to create directory " + targetDir.getAbsolutePath().replace("\\", Constants.FILE_SEPARATOR));
 							}
 						}
 
@@ -301,7 +302,7 @@ public Command execute() throws RollBackCommandException {
 							continue;
 						}
 						File destFile = new File(targetDir, sourceFile.getName());
-						boolean success = sourceFile.renameTo(destFile);
+						boolean success = Util.renameTo(sourceFile,destFile);
 
 						// If we have renamed a file that is registered in the database
 						// under the ExperimentFile table, then update the ExperimentFile
@@ -723,7 +724,7 @@ public void deleteDir(File f, String fileName) throws Exception {
 	for (String file : f.list()) {
 		File child = new File(fileName + Constants.FILE_SEPARATOR + file);
 		if (child.isDirectory()) {
-			deleteDir(child, child.getCanonicalPath().replace("\\", Constants.FILE_SEPARATOR));
+			deleteDir(child, child.getAbsolutePath().replace("\\", Constants.FILE_SEPARATOR));
 		} else if (!(new File(fileName + Constants.FILE_SEPARATOR + file).delete())) {
 			throw new Exception("Unable to delete file " + fileName + Constants.FILE_SEPARATOR + file);
 		} else {
@@ -734,7 +735,7 @@ public void deleteDir(File f, String fileName) throws Exception {
 	}
 	if (f.list().length == 0) {
 		if (!f.delete()) {
-			throw new Exception("Unable to delete file " + f.getCanonicalPath().replace("\\", Constants.FILE_SEPARATOR));
+			throw new Exception("Unable to delete file " + f.getAbsolutePath().replace("\\", Constants.FILE_SEPARATOR));
 		}
 		return;
 	}

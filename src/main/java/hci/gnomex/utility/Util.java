@@ -2,6 +2,8 @@ package hci.gnomex.utility;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -109,6 +111,23 @@ public class Util {
 			return false;
 		}
 	}
+
+	public static boolean renameTo (File sourceFile, File destFile) {
+		boolean success = false;
+		try {
+			Path sourcePath = sourceFile.toPath();
+			Path targetPath = destFile.toPath();
+			Files.move(sourcePath,targetPath);
+			success = true;
+		}
+		catch (Exception rex) {
+			System.out.println ("[Util.renameTo] move error: " + rex.toString());
+			success = false;
+		}
+
+		return success;
+	}
+
 
 	public static String addURLParameter(String url, String parameter) {
 		if (parameter.startsWith("&") || parameter.startsWith("?")) {
