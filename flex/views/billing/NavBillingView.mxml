@@ -451,6 +451,7 @@
 		currencyFormatter.precision = 2;
 		currencyFormatter.useThousandsSeparator;
 
+
 		callLater(this.resizeMenuItems);
 	}
 
@@ -584,6 +585,7 @@
 		} else {
 			this.refreshBillingItems();
 		}
+
 	}
 
 	private function refreshBillingItems():void {
@@ -1168,7 +1170,7 @@
 		}
 
 		this.billingItemGrid.dataProvider = new HierarchicalData(this.billingItemsDisplayed);
-		this.billingItemGrid.selectedIndex = 0;
+		this.billingItemGrid.selectedIndex = -1;
 	}
 
 
