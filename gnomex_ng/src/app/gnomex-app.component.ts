@@ -8,6 +8,7 @@ import {AppHeaderComponent} from "@hci/app-header";
 import {NavigationAction, NavigationItem, PrimaryNavigationItem, PrimaryNavigationItemGroup} from "@hci/navigation";
 import {AppFooterComponent} from "@hci/app-footer";
 import {LocalStorageService} from "angular-2-local-storage";
+import {Observable} from "rxjs";
 
 /**
  * The gnomex application component.
@@ -32,7 +33,7 @@ export class GnomexAppComponent implements OnInit {
   @ViewChild(AppFooterComponent)
   private _appFooterCmpt: AppFooterComponent;
 
-  private _primaryNavEnabled: boolean = false;
+  private _primaryNavEnabled: Observable<boolean>;
 
   constructor(private userService: UserService,
               private router: Router,
@@ -43,11 +44,11 @@ export class GnomexAppComponent implements OnInit {
     this.setupHeaderComponent();
     this.setupFooterComponent();
     this.userService.addLoginCallback({onLogin: () => {
-      this._primaryNavEnabled = true;
+      this._primaryNavEnabled = Observable.of(true);
       this._appHdrCmpt.primaryNavigationEnabled = this._primaryNavEnabled;
     }});
     this.userService.addLogoutCallback({onLogout: () => {
-      this._primaryNavEnabled = false;
+      this._primaryNavEnabled = Observable.of(false);
       this._appHdrCmpt.primaryNavigationEnabled = this._primaryNavEnabled;
     }});
   }
@@ -141,17 +142,11 @@ export class GnomexAppComponent implements OnInit {
     return items;
   }
 
-  private getAuthToken(): string {
-    return <string>this._localStorageService.get(UserService.ACTIVE_USER_SESSION_URL);
-  }
-
   private setupHeaderComponent() {
 
     // Do this check to insulate us from browser refresh.
-    if(this.getAuthToken()) {
-      this._primaryNavEnabled = true;
-    }
-    this._appHdrCmpt.primaryNavigationEnabled = this._primaryNavEnabled;
+    this._appHdrCmpt.primaryNavigationEnabled = this.userService.isAuthenticated();
+
     this._appHdrCmpt.iconPath = "./assets/gnomex_logo.png";
     //this._appHdrCmpt.title = this.appNameTitle;
     this._appHdrCmpt.homeRoute = "/";
