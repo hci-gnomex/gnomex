@@ -7,6 +7,7 @@ import {UserService} from "@hci/user";
 import {AppHeaderComponent} from "@hci/app-header";
 import {NavigationAction, NavigationItem, PrimaryNavigationItem, PrimaryNavigationItemGroup} from "@hci/navigation";
 import {AppFooterComponent} from "@hci/app-footer";
+import {LocalStorageService} from "angular-2-local-storage";
 
 /**
  * The gnomex application component.
@@ -34,7 +35,8 @@ export class GnomexAppComponent implements OnInit {
   private _primaryNavEnabled: boolean = false;
 
   constructor(private userService: UserService,
-              private router: Router) {
+              private router: Router,
+              private _localStorageService: LocalStorageService) {
   }
 
   ngOnInit() {
@@ -139,7 +141,16 @@ export class GnomexAppComponent implements OnInit {
     return items;
   }
 
+  private getAuthToken(): string {
+    return <string>this._localStorageService.get(UserService.ACTIVE_USER_SESSION_URL);
+  }
+
   private setupHeaderComponent() {
+
+    // Do this check to insulate us from browser refresh.
+    if(this.getAuthToken()) {
+      this._primaryNavEnabled = true;
+    }
     this._appHdrCmpt.primaryNavigationEnabled = this._primaryNavEnabled;
     this._appHdrCmpt.iconPath = "./assets/gnomex_logo.png";
     //this._appHdrCmpt.title = this.appNameTitle;

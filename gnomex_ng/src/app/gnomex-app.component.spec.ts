@@ -4,6 +4,7 @@
 import { Router } from "@angular/router";
 import { GnomexAppComponent } from "./gnomex-app.component";
 import {UserService} from "@hci/user";
+import {LocalStorageService} from "angular-2-local-storage";
 
 /**
  * Unit tests for the CoreAppComponent.
@@ -13,7 +14,7 @@ import {UserService} from "@hci/user";
  */
 describe("SeedAppComponent Tests", () => {
   beforeEach(() => {
-    this.gnomexAppComponent = new GnomexAppComponent(<UserService> null, <Router> null);
+    this.gnomexAppComponent = new GnomexAppComponent(<UserService> null, <Router> null, <LocalStorageService> null);
   });
 
   it("Should have isCollapsed set to 'true' initially", () => {
