@@ -1,3 +1,5 @@
+TODO (JEH 12/15/2016) - UPDATE THIS - This document is out of date for Gnomex 6
+
 Upgrading to GNomEx_$VERSION
 ------------------------------------------
 
