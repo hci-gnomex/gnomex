@@ -280,11 +280,7 @@ public class PropertyDictionaryHelper implements Serializable {
     String baseDirLastPart = "";
 
     String baseDirCanonicalPath = "";
-    try {
-      baseDirCanonicalPath = new File(baseDir).getCanonicalPath().replace("\\", Constants.FILE_SEPARATOR);
-    } catch (IOException e) {
-      throw new RuntimeException("Cannot instantiate file for analysis dir" + baseDir);
-    }
+      baseDirCanonicalPath = new File(baseDir).getAbsolutePath().replace("\\", Constants.FILE_SEPARATOR);
 
     // Change all file separators to forward slash
     String theFileName = fileName.replaceAll("\\\\", Constants.FILE_SEPARATOR);
@@ -336,16 +332,9 @@ public class PropertyDictionaryHelper implements Serializable {
     String experimentDirectory = this.getDirectory(serverName, idCoreFacility, PROPERTY_EXPERIMENT_DIRECTORY);
     String flowCellDirectory = this.getDirectory(serverName, null, PROPERTY_FLOWCELL_DIRECTORY);
 
-    try {
-      experimentDirectory = new File(experimentDirectory).getCanonicalPath().replace("\\", Constants.FILE_SEPARATOR);
-    } catch (IOException e) {
-      throw new RuntimeException("Cannot instantiate file for experimentDir dir" + experimentDirectory);
-    }
-    try {
-      flowCellDirectory = new File(flowCellDirectory).getCanonicalPath().replace("\\", Constants.FILE_SEPARATOR);
-    } catch (IOException e) {
-      throw new RuntimeException("Cannot instantiate file for flowCellDirectory" + flowCellDirectory);
-    }
+      experimentDirectory = new File(experimentDirectory).getAbsolutePath().replace("\\", Constants.FILE_SEPARATOR);
+
+      flowCellDirectory = new File(flowCellDirectory).getAbsolutePath().replace("\\", Constants.FILE_SEPARATOR);
 
     // Change all file separators to forward slash
     String theFileName = fileName.replaceAll("\\\\", Constants.FILE_SEPARATOR);
