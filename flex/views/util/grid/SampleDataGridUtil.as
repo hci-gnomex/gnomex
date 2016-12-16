@@ -119,84 +119,90 @@ package views.util.grid
 		}
 		
 		private static function getValueForType(inputString:String, fieldType:String, col:AdvancedDataGridColumn, parentApplication:Object):String {
-			var value:String = inputString;
-			
-			if(fieldType == "OPTION") {
-				if(inputString.length > 0) {
-//					// If option field then need to find dropdown value corresponding to the label that has been stored in the spreadsheet
-//					var optionFound:Boolean = false;
-//					var thisItemRenderer:mx.core.ClassFactory = mx.core.ClassFactory(col.itemRenderer);
-//					if(thisItemRenderer != null) {
-//						var thisDataProvider:XMLList = thisItemRenderer.properties.dataProvider;
-//						var thisLabelField:String = thisItemRenderer.properties.labelField;
-//						if(thisLabelField.length > 0 && thisLabelField.charAt(0) == '@') {
-//							// Strip off @ if it's there -- not needed for this action
-//							thisLabelField = thisLabelField.substr(1);
-//						}
-//						var thisValueField:String = thisItemRenderer.properties.valueField;
-//						if(thisValueField.length > 0 && thisValueField.charAt(0) == '@') {
-//							// Strip off @ if it's there -- not needed for this action
-//							thisValueField = thisValueField.substr(1);
-//						}
-//						if(thisDataProvider != null) {
-//							for each (var dataProviderItem:XML in thisDataProvider) {
-//								if(dataProviderItem.@[thisLabelField] == null ||
-//								   dataProviderItem.@[thisLabelField] == ""
-//								) {
-//									continue;
-//								}
-//
-//								if(dataProviderItem.@[thisLabelField].toLowerCase() == value.toLowerCase() ||
-//									(col.dataField.toLocaleLowerCase().substr(0, 15) == "@idoligobarcode" && dataProviderItem.@name.toString().toLowerCase() == value.toLowerCase())) {
-//									value = dataProviderItem.@[thisValueField];
-//									optionFound = true;
-//									break;
-//								}
-//							}
-//						}
-//					}
-//					if (!optionFound) {
-						value = "";
-//					}
-				}
-			} else if(fieldType == "MOPTION") {
-				// If multiple option field then need to find value corresponding
-				// to the label(s) that has/have been stored in the spreadsheet
-				if(inputString.length > 0) {
-					var params:Array = inputString.split(",");
-					var paramsFoundCnt:int = 0;								
-					var options:XMLList = parentApplication.getPropertyOptions(col.dataField.substr(6));
-					value = "";
-					for each (var thisParam:String in params) {
-						// Loops through one or multiple labels stored in the spreadsheet
-						thisParam = StringUtil.trim(thisParam);
-						var mOptionFound:Boolean = false;
-						for each (var optionItem:XML in options) {
-							// Compares against Multi Select options and matches up with corresponding values
-							if(optionItem.@option.toLowerCase() == thisParam.toLowerCase()) {
-								mOptionFound = true;
-								if(paramsFoundCnt > 0) {
-									value = value + ",";
-								}
-								value = value + optionItem.@idPropertyOption;
-								paramsFoundCnt++;
-								break;
-							}
-						}
-					}
-				}
-			} else if(fieldType == "CHECK") {
-				if(inputString != null) {
-					if(inputString.length > 0) {
-						if(inputString != "Y" && inputString != "N") {
-							value = "";
-						}
-					}
-				}
+
+			if(inputString == null || inputString.length == 0) {
+				return inputString;
 			}
-			
+
+			switch(fieldType) {
+				case "OPTION": 	return getValueForOption(inputString, col, parentApplication);
+				case "MOPTION":	return getValueForMultipleOption(inputString, col, parentApplication);
+				case "CHECK":	return getValueForCheck(inputString);
+				default:		return inputString;
+			}
+		}
+
+		private static function getValueForOption(inputString:String, col:AdvancedDataGridColumn, parentApplication:Object):String {
+
+			// If option field then need to find dropdown value corresponding to the label that has been stored in the spreadsheet
+            var optionFound:Boolean = false;
+            var thisItemRenderer:mx.core.ClassFactory = mx.core.ClassFactory(col.itemRenderer);
+
+            if(thisItemRenderer != null) {
+
+				var thisDataProvider:XMLList = thisItemRenderer.properties.dataProvider;
+                var thisLabelField:String = thisItemRenderer.properties.labelField;
+                var thisValueField:String = thisItemRenderer.properties.valueField;
+
+                // Remove leading '@' symbols if applicable.
+                if(thisLabelField.length > 0 && thisLabelField.charAt(0) == '@') {
+                    thisLabelField = thisLabelField.substr(1);
+                }
+                if(thisValueField.length > 0 && thisValueField.charAt(0) == '@') {
+                    thisValueField = thisValueField.substr(1);
+                }
+
+                if(thisDataProvider != null) {
+                    for each (var dataProviderItem:XML in thisDataProvider) {
+                        if(dataProviderItem.@[thisLabelField] == null || dataProviderItem.@[thisLabelField] == "") {
+                            continue;
+                        }
+
+                        if(dataProviderItem.@[thisLabelField].toLowerCase() == value.toLowerCase() ||
+                           (col.dataField.toLocaleLowerCase().substr(0, 15) == "@idoligobarcode" && dataProviderItem.@name.toString().toLowerCase() == value.toLowerCase())) {
+
+                            return value = dataProviderItem.@[thisValueField];
+                        }
+                    }
+                }
+            }
+            if (!optionFound) {
+                value = "";
+            }
+		}
+
+        private static function getValueForMultipleOption(inputString:String, col:AdvancedDataGridColumn, parentApplication:Object):String {
+            var value:String = inputString;
+			var params:Array = inputString.split(",");
+            var paramsFoundCnt:int = 0;
+            var options:XMLList = parentApplication.getPropertyOptions(col.dataField.substr(6));
+            value = "";
+            for each (var thisParam:String in params) {
+                // Loops through one or multiple labels stored in the spreadsheet
+                thisParam = StringUtil.trim(thisParam);
+                var mOptionFound:Boolean = false;
+                for each (var optionItem:XML in options) {
+                    // Compares against Multi Select options and matches up with corresponding values
+                    if(optionItem.@option.toLowerCase() == thisParam.toLowerCase()) {
+                        mOptionFound = true;
+                        if(paramsFoundCnt > 0) {
+                            value = value + ",";
+                        }
+                        value = value + optionItem.@idPropertyOption;
+                        paramsFoundCnt++;
+                        break;
+                    }
+                }
+            }
 			return value;
 		}
-		
+
+        private static function getValueForCheck(inputString:String):String {
+
+			if(inputString != "Y" && inputString != "N") {
+                return "";
+            }
+			return inputString;
+		}
 	}
 }
