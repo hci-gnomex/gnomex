@@ -123,35 +123,41 @@ package views.util.grid
 			
 			if(fieldType == "OPTION") {
 				if(inputString.length > 0) {
-					// If option field then need to find dropdown value corresponding to the label that has been stored in the spreadsheet
-					var optionFound:Boolean = false;
-					var thisItemRenderer:mx.core.ClassFactory = mx.core.ClassFactory(col.itemRenderer);
-					if(thisItemRenderer != null) {
-						var thisDataProvider:XMLList = thisItemRenderer.properties.dataProvider;
-						var thisLabelField:String = thisItemRenderer.properties.labelField;	
-						if(thisLabelField.length > 0 && thisLabelField.charAt(0) == '@') {
-							// Strip off @ if it's there -- not needed for this action
-							thisLabelField = thisLabelField.substr(1);
-						}
-						var thisValueField:String = thisItemRenderer.properties.valueField;
-						if(thisValueField.length > 0 && thisValueField.charAt(0) == '@') {
-							// Strip off @ if it's there -- not needed for this action
-							thisValueField = thisValueField.substr(1);
-						}
-						if(thisDataProvider != null) {
-							for each (var dataProviderItem:XML in thisDataProvider) {
-								if(dataProviderItem.@[thisLabelField].toLowerCase() == value.toLowerCase() ||
-									(col.dataField.toLocaleLowerCase().substr(0, 15) == "@idoligobarcode" && dataProviderItem.@name.toString().toLowerCase() == value.toLowerCase())) {
-									value = dataProviderItem.@[thisValueField];
-									optionFound = true;
-									break;
-								}
-							}												
-						}											
-					}
-					if (!optionFound) {
+//					// If option field then need to find dropdown value corresponding to the label that has been stored in the spreadsheet
+//					var optionFound:Boolean = false;
+//					var thisItemRenderer:mx.core.ClassFactory = mx.core.ClassFactory(col.itemRenderer);
+//					if(thisItemRenderer != null) {
+//						var thisDataProvider:XMLList = thisItemRenderer.properties.dataProvider;
+//						var thisLabelField:String = thisItemRenderer.properties.labelField;
+//						if(thisLabelField.length > 0 && thisLabelField.charAt(0) == '@') {
+//							// Strip off @ if it's there -- not needed for this action
+//							thisLabelField = thisLabelField.substr(1);
+//						}
+//						var thisValueField:String = thisItemRenderer.properties.valueField;
+//						if(thisValueField.length > 0 && thisValueField.charAt(0) == '@') {
+//							// Strip off @ if it's there -- not needed for this action
+//							thisValueField = thisValueField.substr(1);
+//						}
+//						if(thisDataProvider != null) {
+//							for each (var dataProviderItem:XML in thisDataProvider) {
+//								if(dataProviderItem.@[thisLabelField] == null ||
+//								   dataProviderItem.@[thisLabelField] == ""
+//								) {
+//									continue;
+//								}
+//
+//								if(dataProviderItem.@[thisLabelField].toLowerCase() == value.toLowerCase() ||
+//									(col.dataField.toLocaleLowerCase().substr(0, 15) == "@idoligobarcode" && dataProviderItem.@name.toString().toLowerCase() == value.toLowerCase())) {
+//									value = dataProviderItem.@[thisValueField];
+//									optionFound = true;
+//									break;
+//								}
+//							}
+//						}
+//					}
+//					if (!optionFound) {
 						value = "";
-					}
+//					}
 				}
 			} else if(fieldType == "MOPTION") {
 				// If multiple option field then need to find value corresponding
@@ -189,7 +195,7 @@ package views.util.grid
 				}
 			}
 			
-			return value;;
+			return value;
 		}
 		
 	}
