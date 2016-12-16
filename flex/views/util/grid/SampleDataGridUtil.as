@@ -80,8 +80,8 @@ package views.util.grid
 								copiedValue = copiedValue.substr(0, copiedValue.length-1);
 							}
 						}
-						copiedValue = getValueForType(copiedValue, fieldType, col, parentApplication);
-						
+						//copiedValue = getValueForType(copiedValue, fieldType, col, parentApplication);
+
 						itemxml.@[colName] = copiedValue;
 						colIndex++;
 					}
@@ -125,14 +125,16 @@ package views.util.grid
 			}
 
 			switch(fieldType) {
-				case "OPTION": 	return getValueForOption(inputString, col, parentApplication);
+//				case "OPTION": 	return getValueForOption(inputString, col, parentApplication);
 				case "MOPTION":	return getValueForMultipleOption(inputString, col, parentApplication);
-				case "CHECK":	return getValueForCheck(inputString);
+//				case "CHECK":	return getValueForCheck(inputString);
 				default:		return inputString;
 			}
 		}
 
 		private static function getValueForOption(inputString:String, col:AdvancedDataGridColumn, parentApplication:Object):String {
+
+			var value:String = inputString;
 
 			// If option field then need to find dropdown value corresponding to the label that has been stored in the spreadsheet
             var optionFound:Boolean = false;
@@ -169,6 +171,8 @@ package views.util.grid
             if (!optionFound) {
                 value = "";
             }
+
+			return value;
 		}
 
         private static function getValueForMultipleOption(inputString:String, col:AdvancedDataGridColumn, parentApplication:Object):String {
