@@ -110,6 +110,7 @@ protected void doPost(HttpServletRequest req, HttpServletResponse res) throws Se
 		}
 
 		File dir = new File(directoryName);
+		System.out.println ("[UploadSampleSheetFileServlet] directoryName: " + directoryName);
 		if (!dir.exists()) {
 			if (!dir.mkdir()) {
 				res.setStatus(this.ERROR_INVALID_TEMP_DIRECTORY);

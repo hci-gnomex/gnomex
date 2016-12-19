@@ -15,6 +15,8 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.io.StringReader;
 import java.math.BigDecimal;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -24,6 +26,7 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import hci.gnomex.utility.Util;
 import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.query.Query;
@@ -135,7 +138,7 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
                         String qualifiedFilePath = contents[2];
                         String displayName = contents[3];
 
-                        if (!f1.renameTo(f2)) {
+                        if (!Util.renameTo(f1,f2)) {
                             throw new Exception("Error Renaming File");
                         } else {
                             // Rename the files in the DB
@@ -144,14 +147,14 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
                                 if (!idFileString.startsWith("AnalysisFile") && !idFileString.equals("")) {
                                     af = (AnalysisFile) sess.load(AnalysisFile.class, new Integer(idFileString));
                                     af.setFileName(displayName);
-                                    af.setBaseFilePath(f2.getCanonicalPath().replace("\\", Constants.FILE_SEPARATOR));
+                                    af.setBaseFilePath(f2.getAbsolutePath().replace("\\", Constants.FILE_SEPARATOR));
                                     af.setQualifiedFilePath(qualifiedFilePath);
                                     sess.save(af);
                                     sess.flush();
                                 } else if (idFileString.startsWith("AnalysisFile") && !f2.exists()) {
                                     af = new AnalysisFile();
                                     af.setFileName(displayName);
-                                    af.setBaseFilePath(f2.getCanonicalPath().replace("\\", Constants.FILE_SEPARATOR));
+                                    af.setBaseFilePath(f2.getAbsolutePath().replace("\\", Constants.FILE_SEPARATOR));
                                     af.setQualifiedFilePath(qualifiedFilePath);
                                     sess.save(af);
                                     sess.flush();
@@ -268,15 +271,15 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
                             }
                             sess.flush();
 
-                            sourceFile = sourceFile.getCanonicalFile();
+                            sourceFile = sourceFile.getAbsoluteFile();
                             String targetDirName = baseDir + Constants.FILE_SEPARATOR + analysis.getNumber() + Constants.FILE_SEPARATOR + qualifiedFilePath;
                             File targetDir = new File(targetDirName);
-                            targetDir = targetDir.getCanonicalFile();
+                            targetDir = targetDir.getAbsoluteFile();
 
                             if (!targetDir.exists()) {
                                 boolean success = targetDir.mkdirs();
                                 if (!success) {
-                                    throw new Exception("Unable to create directory " + targetDir.getCanonicalPath().replace("\\", Constants.FILE_SEPARATOR));
+                                    throw new Exception("Unable to create directory " + targetDir.getAbsolutePath().replace("\\", Constants.FILE_SEPARATOR));
                                 }
                             }
 
@@ -293,7 +296,8 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
                             if (!destFile.exists() && sourceFile.isDirectory()) {
                                 destFile.mkdirs();
                             }
-                            boolean success = sourceFile.renameTo(destFile);
+
+                            boolean success = Util.renameTo(sourceFile,destFile);
 
                             // If the rename didn't work, check to see if the destination file was created, if so
                             // delete the source file.
@@ -429,7 +433,7 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
                 }
 
             } catch (Exception e) {
-                LOG.error("An exception has occurred in OrganizeExperimentUploadFiles ", e);
+                LOG.error("An exception has occurred in OrganizeAnalysisUploadFiles ", e);
 
                 // Note: we don't throw a new RollBackCommandException here because we can't reverse any file system changes that have been made
                 // That's also why we have the finally clause...
@@ -451,7 +455,7 @@ public class OrganizeAnalysisUploadFiles extends GNomExCommand implements Serial
 
     private Boolean deleteDir(File childFile) throws IOException {
         for (String f : childFile.list()) {
-            File delFile = new File(childFile.getCanonicalPath().replace("\\", Constants.FILE_SEPARATOR) + Constants.FILE_SEPARATOR + f);
+            File delFile = new File(childFile.getAbsolutePath().replace("\\", Constants.FILE_SEPARATOR) + Constants.FILE_SEPARATOR + f);
             if (delFile.isDirectory()) {
                 deleteDir(delFile);
                 if (!delFile.delete()) {

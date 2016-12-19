@@ -1172,6 +1172,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 	public static String saveRequest(Session sess, RequestParser requestParser, String description, boolean isImport) throws Exception {
 
 		Request request = requestParser.getRequest();
+
 		request.setDescription(description);
 		sess.save(request);
 
@@ -3064,7 +3065,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 		for (String file : f.list()) {
 			File child = new File(fileName + Constants.FILE_SEPARATOR + file);
 			if (child.isDirectory()) {
-				deleteDir(child, child.getCanonicalPath().replace("\\", Constants.FILE_SEPARATOR));
+				deleteDir(child, child.getAbsolutePath().replace("\\", Constants.FILE_SEPARATOR));
 			} else if (!(new File(fileName + Constants.FILE_SEPARATOR + file).delete())) {
 				throw new Exception("Unable to delete file " + fileName + Constants.FILE_SEPARATOR + file);
 			} else {
@@ -3074,7 +3075,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 		}
 		if (f.list().length == 0) {
 			if (!f.delete()) {
-				throw new Exception("Unable to delete file " + f.getCanonicalPath().replace("\\", Constants.FILE_SEPARATOR));
+				throw new Exception("Unable to delete file " + f.getAbsolutePath().replace("\\", Constants.FILE_SEPARATOR));
 			}
 			return;
 		}

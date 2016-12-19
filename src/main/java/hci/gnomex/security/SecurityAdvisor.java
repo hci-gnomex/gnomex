@@ -2123,8 +2123,7 @@ private void setGlobalPermissions() {
 
 		// Can administer users
 		if (appUser.getCodeUserPermissionKind().equals(UserPermissionKind.ADMIN_PERMISSION_KIND)
-				|| appUser.getCodeUserPermissionKind().equals(UserPermissionKind.SUPER_ADMIN_PERMISSION_KIND)
-				|| appUser.getCodeUserPermissionKind().equals(UserPermissionKind.BILLING_PERMISSION_KIND)) {
+				|| appUser.getCodeUserPermissionKind().equals(UserPermissionKind.SUPER_ADMIN_PERMISSION_KIND)) {
 			globalPermissionMap.put(new Permission(CAN_ADMINISTER_USERS), null);
 		}
 
