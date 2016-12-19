@@ -1,9 +1,12 @@
 package hci.gnomex.controller;
 
 import hci.gnomex.constants.Constants;
+import hci.gnomex.model.Analysis;
+import hci.gnomex.model.AnalysisFile;
 import hci.gnomex.model.Request;
 import hci.gnomex.model.TransferLog;
 import hci.gnomex.security.SecurityAdvisor;
+import hci.gnomex.utility.GnomexFile;
 import hci.gnomex.utility.HibernateSession;
 import hci.gnomex.utility.PropertyDictionaryHelper;
 
@@ -14,12 +17,14 @@ import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.List;
+import java.util.Set;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import hci.hibernate5utils.HibernateDetailObject;
 import org.apache.log4j.Logger;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
@@ -31,251 +36,89 @@ import com.oreilly.servlet.multipart.MultipartParser;
 import com.oreilly.servlet.multipart.ParamPart;
 import com.oreilly.servlet.multipart.Part;
 
-public class UploadExperimentFileServlet extends HttpServlet {
+public class UploadExperimentFileServlet extends UploadFileServletBase {
 
-private static Logger LOG = Logger.getLogger(UploadExperimentFileServlet.class);
+private static final Logger LOG = Logger.getLogger(UploadExperimentFileServlet.class);
 
-private Integer idRequest = null;
-private String requestNumber = null;
-private String directoryName = "";
-
-private Request request;
-private String fileName;
-
-protected void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
+@Override
+protected void setParentObjectName(UploadFileServletData data) {
+	data.parentObjectName = "experiment";
 }
 
-/*
- * SPECIAL NOTE - This servlet must be run on non-secure socket layer (http) in order to keep track of previously created session. (see note below concerning
- * flex upload bug on Safari and FireFox). Otherwise, session is not maintained. Although the code tries to work around this problem by creating a new security
- * advisor if one is not found, the Safari browser cannot handle authenicating the user (this second time). So for now, this servlet must be run non-secure.
- */
-protected void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
-	try {
-		Session sess = HibernateSession.currentSession(req.getUserPrincipal().getName());
+@Override
+protected void setIdFieldName(UploadFileServletData data) {
+	data.idFieldName = "idRequest";
+}
 
-		// Get security advisor
-		SecurityAdvisor secAdvisor = (SecurityAdvisor) req.getSession().getAttribute(
-				SecurityAdvisor.SECURITY_ADVISOR_SESSION_KEY);
-		if (secAdvisor == null) {
-			System.out
-					.println("UploadExperimentFileServlet:  Warning - unable to find existing session. Creating security advisor.");
-			secAdvisor = SecurityAdvisor.create(sess, req.getUserPrincipal().getName());
-		}
+@Override
+protected void setNumberFieldName(UploadFileServletData data) {
+	data.numberFieldName = "requestNumber";
+}
 
-		//
-		// To work around flex upload problem with FireFox and Safari, create
-		// security advisor since
-		// we loose session and thus don't have security advisor in session
-		// attribute.
-		//
-		// Note from Flex developer forum
-		// (http://www.kahunaburger.com/2007/10/31/flex-uploads-via-httphttps/):
-		// Firefox uses two different processes to upload the file.
-		// The first one is the one that hosts your Flex (Flash) application and
-		// communicates with the server on one channel.
-		// The second one is the actual file-upload process that pipes
-		// multipart-mime data to the server.
-		// And, unfortunately, those two processes do not share cookies. So any
-		// sessionid-cookie that was established in the first channel
-		// is not being transported to the server in the second channel. This
-		// means that the server upload code cannot associate the posted
-		// data with an active session and rejects the data, thus failing the
-		// upload.
-		//
-		if (secAdvisor == null) {
-			System.out.println("UploadExperimentFileServlet: Error - Unable to find or create security advisor.");
-			throw new ServletException(
-					"Unable to upload request file.  Servlet unable to obtain security information. Please contact GNomEx support.");
-		}
+@Override
+protected void handleIdParameter(UploadFileServletData data, String value) {
+	data.parentObject = data.sess.get(Request.class, new Integer(value));
+}
 
-		res.setContentType("text/html");
-		PrintWriter out = res.getWriter();
-		res.setHeader("Cache-Control", "max-age=0, must-revalidate");
-		DecimalFormat sizeFormatter = new DecimalFormat("###,###,###,####,###");
-
-		Element body = null;
-
-		org.dom4j.io.OutputFormat format = null;
-		org.dom4j.io.HTMLWriter writer = null;
-		Document doc = null;
-		String baseURL = "";
-
-		if (requestNumber != null) {
-			StringBuffer fullPath = req.getRequestURL();
-			String extraPath = req.getServletPath() + (req.getPathInfo() != null ? req.getPathInfo() : "");
-			int pos = fullPath.lastIndexOf(extraPath);
-			if (pos > 0) {
-				baseURL = fullPath.substring(0, pos);
-			}
-
-			res.setContentType("text/html");
-			res.setHeader("Cache-Control", "max-age=0, must-revalidate");
-
-			format = org.dom4j.io.OutputFormat.createPrettyPrint();
-			writer = new org.dom4j.io.HTMLWriter(res.getWriter(), format);
-			doc = DocumentHelper.createDocument();
-
-			Element root = doc.addElement("HTML");
-			Element head = root.addElement("HEAD");
-			Element link = head.addElement("link");
-			link.addAttribute("rel", "stylesheet");
-			link.addAttribute("type", "text/css");
-			link.addAttribute("href", baseURL + "/css/message.css");
-			body = root.addElement("BODY");
-		}
-
-		MultipartParser mp = new MultipartParser(req, Integer.MAX_VALUE);
-		Part part;
-		while ((part = mp.readNextPart()) != null) {
-			String name = part.getName();
-			if (part.isParam()) {
-				// it's a parameter part
-				ParamPart paramPart = (ParamPart) part;
-				String value = paramPart.getStringValue();
-				if (name.equals("idRequest")) {
-					idRequest = new Integer(value);
-					break;
-				}
-				if (name.equals("requestNumber")) {
-					requestNumber = value;
-					if (body != null) {
-						Element h3 = body.addElement("H3");
-						h3.addCDATA("Upload experiment files for " + request.getNumber());
-					}
-					break;
-				}
-			}
-		}
-
-		if (idRequest != null) {
-
-			request = (Request) sess.get(Request.class, idRequest);
-		} else if (requestNumber != null) {
-			List requestList = sess.createQuery("SELECT r from Request r WHERE r.number = '" + requestNumber + "'")
-					.list();
-			if (requestList.size() == 1) {
-				request = (Request) requestList.get(0);
-			}
-		}
-
-		if (request != null) {
-			if (secAdvisor.canUploadData(request)) {
-				SimpleDateFormat formatter = new SimpleDateFormat("yyyy");
-				String createYear = formatter.format(request.getCreateDate());
-
-				String baseDir = PropertyDictionaryHelper.getInstance(sess).getDirectory(req.getServerName(),
-						request.getIdCoreFacility(), PropertyDictionaryHelper.PROPERTY_EXPERIMENT_DIRECTORY);
-				baseDir += Constants.FILE_SEPARATOR + createYear;
-				if (!new File(baseDir).exists()) {
-					boolean success = (new File(baseDir)).mkdir();
-					if (!success) {
-						System.out.println("UploadExperimentFileServlet: Unable to create base directory " + baseDir);
-					}
-				}
-
-				directoryName = baseDir + Constants.FILE_SEPARATOR + Request.getBaseRequestNumber(request.getNumber());
-				if (!new File(directoryName).exists()) {
-					boolean success = (new File(directoryName)).mkdir();
-					if (!success) {
-						System.out.println("UploadExperimentFileServlet: Unable to create directory " + directoryName);
-					}
-				}
-
-				directoryName += Constants.FILE_SEPARATOR + Constants.UPLOAD_STAGING_DIR;
-				if (!new File(directoryName).exists()) {
-					boolean success = (new File(directoryName)).mkdir();
-					if (!success) {
-						System.out.println("UploadExperimentFileServlet: Unable to create directory " + directoryName);
-					}
-				}
-
-				while ((part = mp.readNextPart()) != null) {
-					if (part.isFile()) {
-						// it's a file part
-						FilePart filePart = (FilePart) part;
-						fileName = filePart.getFileName();
-						if (fileName != null) {
-
-							// Init the transfer log
-							TransferLog xferLog = new TransferLog();
-							xferLog.setStartDateTime(new java.util.Date(System.currentTimeMillis()));
-							xferLog.setTransferType(TransferLog.TYPE_UPLOAD);
-							xferLog.setTransferMethod(TransferLog.METHOD_HTTP);
-							xferLog.setPerformCompression("N");
-							xferLog.setIdRequest(request.getIdRequest());
-							xferLog.setIdLab(request.getIdLab());
-							xferLog.setFileName(request.getNumber() + Constants.FILE_SEPARATOR + fileName);
-
-							// the part actually contained a file
-							long size = filePart.writeTo(new File(directoryName));
-
-							// Insert the transfer log
-							xferLog.setFileSize(new BigDecimal(size));
-							xferLog.setEndDateTime(new java.util.Date(System.currentTimeMillis()));
-							sess.save(xferLog);
-
-							if (requestNumber != null && body != null) {
-								body.addElement("BR");
-								body.addCDATA(fileName + "   -   successfully uploaded " + sizeFormatter.format(size)
-										+ " bytes.");
-							}
-						} else {
-						}
-						out.flush();
-
-					}
-				}
-
-				// If we have uploaded file(s) then update the last modify date on the
-				// request but don't increment the revision number
-				// This is used for Project/Experiment reporting purposes
-				request.setLastModifyDate(new java.sql.Date(System.currentTimeMillis()));
-				sess.save(request);
-				sess.flush();
-
-				if (requestNumber != null && doc != null && writer != null) {
-					body.addElement("BR");
-					Element h5 = body.addElement("H5");
-					h5.addCDATA("In GNomEx, click refresh button on 'Organize' tab to see list of uploaded files.");
-
-					writer.write(doc);
-					writer.flush();
-
-					writer.close();
-				}
-
-			} else {
-				System.out.println("UploadExperimentFileServlet - unable to upload file " + fileName
-						+ " for request idRequest=" + idRequest);
-				System.out.println("Insufficient write permissions for user " + secAdvisor.getUserLastName() + ", "
-						+ secAdvisor.getUserFirstName());
-				throw new ServletException("Unable to upload file " + fileName
-						+ " due to a server error.  Please contact GNomEx support.");
-
-			}
-
-		} else {
-			System.out.println("UploadExperimentFileServlet - unable to upload file " + fileName
-					+ " for request idRequest=" + idRequest);
-			System.out.println("idRequest is required");
-			throw new ServletException("Unable to upload file " + fileName
-					+ " due to a server error.  Please contact GNomEx support.");
-
-		}
-
-	} catch (Exception e) {
-		HibernateSession.rollback();
-		LOG.error("An exception has occurred in UploadExperimentFileServlet ", e);
-		throw new ServletException("Unable to upload file " + fileName
-				+ " due to a server error.  Please contact GNomEx support.");
-	} finally {
-		try {
-			HibernateSession.closeSession();
-		} catch (Exception e1) {
-			LOG.error("An exception has occurred in UploadExperimentFileServlet ", e1);
-		}
+@Override
+protected void handleNumberParameter(UploadFileServletData data, String value) {
+	data.generateOutput = true;
+	List objects = data.sess.createQuery("SELECT r from Request r WHERE r.number = '" + value + "'").list();
+	if (objects.size() == 1) {
+		data.parentObject = (HibernateDetailObject)objects.get(0);
+	} else {
+		data.parentObject = null;
 	}
-
 }
+
+@Override
+protected void setBaseDirectory(UploadFileServletData data) {
+	Request request = (Request) data.parentObject;
+	String baseDir = PropertyDictionaryHelper.getInstance(data.sess).getDirectory(data.req.getServerName(), request.getIdCoreFacility(),
+			PropertyDictionaryHelper.PROPERTY_EXPERIMENT_DIRECTORY);
+	String createYear = new SimpleDateFormat("yyyy").format(request.getCreateDate());
+	data.baseDirectory = FileStringUtil.appendDirectory(baseDir, createYear);
+}
+
+@Override
+protected void setUploadDirectory(UploadFileServletData data) {
+	Request request = (Request) data.parentObject;
+	data.uploadDirectory = data.baseDirectory;
+	data.uploadDirectory = FileStringUtil.appendDirectory(data.uploadDirectory, Request.getBaseRequestNumber(request.getNumber()));
+	data.uploadDirectory = FileStringUtil.appendDirectory(data.uploadDirectory, Constants.UPLOAD_STAGING_DIR);
+}
+
+@Override
+protected Set<GnomexFile> getExistingFiles(UploadFileServletData data) {
+	// we do not update existing ExperimentFile objects, so we don't need to load them
+	return null;
+}
+
+@Override
+protected void updateTransferLogFromParentObject(UploadFileServletData data, TransferLog transferLog) {
+	Request request = (Request) data.parentObject;
+	transferLog.setIdRequest(request.getIdRequest());
+	transferLog.setIdLab(request.getIdLab());
+	transferLog.setFileName(FileStringUtil.appendFile(request.getNumber(), data.fileName));
+}
+
+@Override
+protected void updateExistingFile(UploadFileServletData data, GnomexFile existingFile) {
+	// do not update ExperimentFile object
+}
+
+@Override
+protected void createNewFile(UploadFileServletData data) {
+	// do not create new ExperimentFile object
+}
+
+@Override
+protected void updateParentObject(UploadFileServletData data) {
+	// If we have uploaded file(s) then update the last modify date on the request but don't increment
+	// the revision number. This is used for Project/Experiment reporting purposes
+	Request request = (Request) data.parentObject;
+	request.setLastModifyDate(new java.sql.Date(System.currentTimeMillis()));
+	data.sess.save(request);
+}
+
 }
