@@ -37,7 +37,7 @@ private static Logger LOG = Logger.getLogger(GetExperimentOverviewList.class);
   }
   
   public void loadCommand(HttpServletRequest request, HttpSession session) {
-
+    LOG.debug("Calling loadCommand on class hci.gnomex.controller.GetExperimentOverviewList");
     filter = new ExperimentOverviewFilter();
     
     HashMap errors = this.loadDetailObject(request, filter);
@@ -45,10 +45,11 @@ private static Logger LOG = Logger.getLogger(GetExperimentOverviewList.class);
   }
 
   public Command execute() throws RollBackCommandException {
+    LOG.debug("Calling execute on class hci.gnomex.controller.GetExperimentOverviewList");
     
     try {
     	
-      if (this.getSecurityAdvisor().hasPermission(SecurityAdvisor.CAN_MANAGE_WORKFLOW)) {
+      //if (this.getSecurityAdvisor().hasPermission(SecurityAdvisor.CAN_MANAGE_WORKFLOW)) {
         Session sess = this.getSecAdvisor().getReadOnlyHibernateSession(this.getUsername());
         
         DictionaryHelper dh = DictionaryHelper.getInstance(sess);
@@ -121,11 +122,11 @@ private static Logger LOG = Logger.getLogger(GetExperimentOverviewList.class);
         
         // Send redirect with response SUCCESS or ERROR page.
         setResponsePage(this.SUCCESS_JSP);
-        
+        /*
       } else {
         this.addInvalidField("Insufficient permissions", "Insufficient permission to manage workflow.");
         setResponsePage(this.ERROR_JSP);
-      }
+      }*/
     
     } catch (Exception e) {
       LOG.error("An exception has occurred in GetExperimentOverviewList ", e);

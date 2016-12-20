@@ -2,6 +2,7 @@
  * Copyright (c) 2016 Huntsman Cancer Institute at the University of Utah, Confidential and Proprietary
  */
 import { Router } from "@angular/router";
+import { Http } from "@angular/http";
 import { GnomexAppComponent } from "./gnomex-app.component";
 import {UserService} from "@hci/user";
 
@@ -13,7 +14,7 @@ import {UserService} from "@hci/user";
  */
 describe("SeedAppComponent Tests", () => {
   beforeEach(() => {
-    this.gnomexAppComponent = new GnomexAppComponent(<UserService> null, <Router> null);
+    this.gnomexAppComponent = new GnomexAppComponent(<UserService> null, <Router> null, <Http> null);
   });
 
   it("Should have isCollapsed set to 'true' initially", () => {

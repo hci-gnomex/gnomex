@@ -3,10 +3,12 @@
  */
 import {Component, ViewChild, OnInit} from "@angular/core";
 import {Router} from "@angular/router";
+import {Http, Response} from "@angular/http";
 import {UserService} from "@hci/user";
 import {AppHeaderComponent} from "@hci/app-header";
 import {NavigationAction, NavigationItem, PrimaryNavigationItem, PrimaryNavigationItemGroup} from "@hci/navigation";
 import {AppFooterComponent} from "@hci/app-footer";
+import { Observable } from "rxjs/Observable";
 
 /**
  * The gnomex application component.
@@ -34,20 +36,41 @@ export class GnomexAppComponent implements OnInit {
   private _primaryNavEnabled: boolean = false;
 
   constructor(private userService: UserService,
-              private router: Router) {
+              private router: Router,
+              private http: Http) {
   }
 
   ngOnInit() {
+    console.log("GnomexAppComponent ngOnInit");
     this.setupHeaderComponent();
     this.setupFooterComponent();
+
     this.userService.addLoginCallback({onLogin: () => {
+      console.log("GnomexAppComponent onLogin");
       this._primaryNavEnabled = true;
       this._appHdrCmpt.primaryNavigationEnabled = this._primaryNavEnabled;
+
+      this.createSecurityAdvisor().subscribe(response => {
+        console.log("subscribe createSecurityAdvisor");
+        console.log(response);
+      });
     }});
     this.userService.addLogoutCallback({onLogout: () => {
       this._primaryNavEnabled = false;
       this._appHdrCmpt.primaryNavigationEnabled = this._primaryNavEnabled;
     }});
+  }
+
+  createSecurityAdvisor(): Observable<any> {
+    console.log("createSecurityAdvisor");
+    return this.http.get("/gnomex/CreateSecurityAdvisor.gx", {withCredentials: true}).map((response: Response) => {
+      console.log("return createSecurityAdvisor");
+      if (response.status === 200) {
+        return response.json();
+      } else {
+        throw new Error("Error");
+      }
+    });
   }
 
   private setupFooterComponent() {

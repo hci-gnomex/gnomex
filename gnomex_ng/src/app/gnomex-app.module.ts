@@ -8,6 +8,9 @@ import {NgModule} from "@angular/core";
 import {APP_ROUTING} from "./gnomex-app.routes";
 import {HttpModule} from "@angular/http";
 import {HomeModule} from "./home/home.module";
+import {BROWSE_EXPERIMENTS_ENDPOINT} from "./experiments/experiments.service";
+import {ExperimentsService} from "./experiments/experiments.service";
+import {ExperimentsModule} from "./experiments/experiments.module";
 import {RouterModule} from "@angular/router";
 import {FormsModule} from "@angular/forms";
 import {DropdownModule, CollapseModule} from "ng2-bootstrap";
@@ -44,11 +47,13 @@ let localStorageServiceConfig = {
     AppHeaderModule,
     UserModule,
     NavigationModule,
-    AppFooterModule
+    AppFooterModule,
+    ExperimentsModule
   ],
   declarations: [GnomexAppComponent],
   bootstrap: [GnomexAppComponent],
   providers: [
+    {provide: BROWSE_EXPERIMENTS_ENDPOINT, useValue: "/gnomex/GetExperimentOverviewList.gx"},
     {provide: AUTHENTICATED_USER_ENDPOINT, useValue: "/gnomex/api/user/authenticated"},
     {provide: DEFAULT_SUCCESS_URL, useValue: ""},
     {provide: USER_SESSION_ENDPOINT, useValue: "/gnomex/api/user-session"},
@@ -57,6 +62,7 @@ let localStorageServiceConfig = {
     {provide: LOGOUT_PATH, useValue: null},
     {provide: LOGIN_ROUTE, useValue: "/login"},
     UserService,
+    ExperimentsService,
     {provide: LOCAL_STORAGE_SERVICE_CONFIG, useValue: localStorageServiceConfig},
     LocalStorageService,
     {provide: APP_INFO_SOURCE, useValue: "data/appInfo.json"}
