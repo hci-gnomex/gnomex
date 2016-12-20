@@ -110,6 +110,9 @@ import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.apache.log4j.Logger;
+
+import static hci.gnomex.constants.Constants.MAX_DESCRIPT_LIMIT;
+
 public class SaveRequest extends GNomExCommand implements Serializable {
 
 	// the static field for logging in Log4J
@@ -335,6 +338,9 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 							requestParser.getRequest().setIdInstitution(null);
 						}
 					}
+				}
+				if(description.length() > MAX_DESCRIPT_LIMIT){
+					this.addInvalidField("MaxCharLimit", "Experiment's description is too long.\n");
 				}
 
 				if (this.isValid()) {
@@ -999,6 +1005,7 @@ public class SaveRequest extends GNomExCommand implements Serializable {
 	}
 
 	private String sendEmails(Session sess) {
+
 
 		StringBuffer message = new StringBuffer();
 		if (requestParser.isNewRequest() || requestParser.isAmendRequest()) {
